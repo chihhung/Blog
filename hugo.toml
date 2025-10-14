@@ -1,0 +1,57 @@
+baseURL = 'https://chihhung.github.io/Blog/'
+languageCode = 'zh-TW'
+title = '我的個人部落格'
+theme = 'PaperMod'
+
+[params]
+  env = "production"
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowShareButtons = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowWordCount = true
+  ShowRssButtonInSectionTermList = true
+  UseHugoToc = true
+
+[params.profileMode]
+  enabled = true
+  title = "歡迎來到我的部落格"
+  subtitle = "分享技術與生活的點點滴滴"
+  # imageUrl = "profile.jpg"
+  # imageWidth = 120
+  # imageHeight = 120
+
+[[params.profileMode.buttons]]
+  name = "文章"
+  url = "/posts"
+
+[[params.profileMode.buttons]]
+  name = "標籤"
+  url = "/tags"
+
+[menu]
+  [[menu.main]]
+    identifier = "home"
+    name = "首頁"
+    url = "/"
+    weight = 10
+
+  [[menu.main]]
+    identifier = "posts"
+    name = "文章"
+    url = "/posts/"
+    weight = 20
+
+  [[menu.main]]
+    identifier = "tags"
+    name = "標籤"
+    url = "/tags/"
+    weight = 30
+
+  [[menu.main]]
+    identifier = "about"
+    name = "關於"
+    url = "/about/"
+    weight = 40

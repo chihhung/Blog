@@ -1,0 +1,74 @@
+name: Deploy Hugo site to Pages
+
+on:
+  # 在推送到 main 分支時觸發
+  push:
+    branches: ["main"]
+
+  # 允許手動觸發
+  workflow_dispatch:
+
+# 設置 GITHUB_TOKEN 的權限，允許部署到 Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 只允許一個部署同時進行，跳過正在運行和最新排隊之間的運行
+# 但是，不要取消正在進行的運行，因為我們希望這些生產部署完成
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+# 預設為 bash
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # 建置工作
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HUGO_VERSION: 0.151.0
+    steps:
+      - name: Install Hugo CLI
+        run: |
+          wget -O ${{ runner.temp }}/hugo.deb https://github.com/gohugoio/hugo/releases/download/v${HUGO_VERSION}/hugo_extended_${HUGO_VERSION}_linux-amd64.deb \
+          && sudo dpkg -i ${{ runner.temp }}/hugo.deb          
+      - name: Install Dart Sass
+        run: sudo snap install dart-sass
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Install Node.js dependencies
+        run: "[[ -f package-lock.json || -f npm-shrinkwrap.json ]] && npm ci || true"
+      - name: Build with Hugo
+        env:
+          # 為了最大向後兼容性
+          HUGO_ENVIRONMENT: production
+          HUGO_ENV: production
+        run: |
+          hugo \
+            --minify \
+            --baseURL "${{ steps.pages.outputs.base_url }}/"          
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  # 部署工作
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
