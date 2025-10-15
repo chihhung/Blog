@@ -25,11 +25,11 @@ theme = 'PaperMod'
 
 [[params.profileMode.buttons]]
   name = "文章"
-  url = "/posts"
+  url = "/posts/"
 
 [[params.profileMode.buttons]]
   name = "標籤"
-  url = "/tags"
+  url = "/tags/"
 
 [menu]
   [[menu.main]]
