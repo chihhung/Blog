@@ -1,6 +1,7 @@
 # Hugo 生成的檔案
 /public/
 /resources/_gen/
+/.hugo_build.lock
 
 # OS 生成的檔案
 .DS_Store
