@@ -19,10 +19,10 @@ title = '關於我'
 
 ## 技術棧
 
-- **前端**: HTML, CSS, JavaScript, React
-- **後端**: Node.js, Python, Java
-- **資料庫**: MySQL, PostgreSQL, MongoDB
-- **工具**: Git, Docker, VS Code
+- **前端**: HTML, CSS, JavaScript, TypeScript , React, Vue, Angular
+- **後端**: Node.js, Python, Java , Spring framework, Spring Boot
+- **資料庫**: DB2, Oracle, PostgreSQL, SQL server
+- **工具**: Git, Docker , podman , VS Code , intellij , eclipse, Maven
 
 ## 聯絡方式
 
