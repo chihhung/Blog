@@ -3,6 +3,10 @@ languageCode = 'zh-TW'
 title = '我的個人部落格'
 theme = 'PaperMod'
 
+# Google Analytics 設定
+# 請將下面的 G-XXXXXXXXXX 替換為您的實際測量 ID
+googleAnalytics = "G-542B4N4ZLZ"
+
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
