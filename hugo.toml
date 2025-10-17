@@ -3,6 +3,11 @@ languageCode = 'zh-TW'
 title = '我的個人部落格'
 theme = 'PaperMod'
 
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
 [params]
   env = "production"
   defaultTheme = "auto"

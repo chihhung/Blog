@@ -2,7 +2,7 @@
 date = '2025-10-15T21:03:11+08:00'
 draft = false
 title = 'GitHub使用Hugo建立個人網頁教學'
-tags = ['教學', '部落格']
+tags = ['教學','工具' ,'hugo']
 categories = ['技術']
 author = 'Eric Cheng'
 summary = '詳細說明如何使用 Hugo 和 GitHub Pages 建立個人部落格的完整流程'
