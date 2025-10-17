@@ -1,11 +1,13 @@
 <!-- Mermaid 支援 -->
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>
-  // 初始化 Mermaid
-  mermaid.initialize({ 
-    startOnLoad: true,
-    theme: 'default',
-    securityLevel: 'loose'
+  window.addEventListener('DOMContentLoaded', (event) => {
+    mermaid.initialize({ 
+      startOnLoad: true,
+      theme: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
+      securityLevel: 'loose',
+      fontFamily: 'Arial, sans-serif'
+    });
   });
 </script>
 
