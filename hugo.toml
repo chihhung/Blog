@@ -16,6 +16,7 @@ googleAnalytics = "G-542B4N4ZLZ"
     guessSyntax = false
     lineNos = false
     style = "monokai"
+    noClasses = false
 
 [params]
   env = "production"

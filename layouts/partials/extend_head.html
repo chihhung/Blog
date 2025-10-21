@@ -1,13 +1,40 @@
 <!-- Mermaid 支援 -->
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-<script>
-  window.addEventListener('DOMContentLoaded', (event) => {
-    mermaid.initialize({ 
-      startOnLoad: true,
-      theme: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
-      securityLevel: 'loose',
-      fontFamily: 'Arial, sans-serif'
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  
+  // 配置 Mermaid
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default',
+    securityLevel: 'loose',
+    fontFamily: 'Arial, sans-serif'
+  });
+
+  // 監聽主題切換
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    mermaid.initialize({
+      theme: e.matches ? 'dark' : 'default'
     });
+    location.reload();
   });
 </script>
+
+<style>
+  /* Mermaid 圖表樣式 */
+  .mermaid {
+    text-align: center;
+    margin: 1.5em 0;
+    padding: 1em;
+    background: var(--entry);
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+  
+  /* 確保圖表在小螢幕上也能正常顯示 */
+  @media (max-width: 768px) {
+    .mermaid {
+      font-size: 12px;
+    }
+  }
+</style>
 
