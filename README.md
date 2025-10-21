@@ -19,6 +19,7 @@
 ### 1. 安裝 Hugo
 
 使用 Chocolatey (Windows):
+
 ```powershell
 choco install hugo-extended -y
 ```
@@ -53,7 +54,7 @@ hugo --minify
 
 ## 📁 專案結構
 
-```
+```text
 Blog/
 ├── .github/
 │   └── workflows/
