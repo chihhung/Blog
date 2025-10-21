@@ -13,6 +13,7 @@ summary = '提供完整JavaScript程式語言教學'
 # JavaScript 程式語言教學手冊
 
 ## 文件資訊
+
 - **版本**: 1.0
 - **更新日期**: 2025年8月29日
 - **適用對象**: 新進前端開發同仁
@@ -74,6 +75,7 @@ summary = '提供完整JavaScript程式語言教學'
 JavaScript 是一種動態、弱型別的直譯式程式語言，具有以下核心特性：
 
 #### 1.1.1 動態型別
+
 - 變數型別在執行時期決定
 - 同一變數可存放不同型別的值
 - 不需要明確宣告變數型別
@@ -87,6 +89,7 @@ value = { name: "John" }; // object
 ```
 
 #### 1.1.2 事件驅動
+
 - 程式執行基於事件觸發
 - 支援非同步事件處理
 - 常用於使用者互動回應
@@ -105,6 +108,7 @@ const customEvent = new CustomEvent('dataLoaded', {
 ```
 
 #### 1.1.3 非同步處理
+
 - 支援非阻塞式程式執行
 - 使用 Promise、async/await 處理非同步操作
 - 避免介面凍結問題
@@ -986,6 +990,7 @@ console.log(deepCopy.hobbies);    // ["reading", "coding"]
 #### 1.2.1 變數宣告 (let/const)
 
 **使用原則:**
+
 - 優先使用 `const` 宣告常數
 - 需要重新賦值時使用 `let`
 - 避免使用 `var`（具有提升特性且作用域複雜）
@@ -1008,6 +1013,7 @@ var globalVar = 'avoid using var';
 #### 1.2.2 箭頭函式 (Arrow Functions)
 
 **使用時機:**
+
 - 簡短的函式表達式
 - 不需要 `this` 綁定的情況
 - 陣列方法的回調函式
@@ -1045,6 +1051,7 @@ const userObject = {
 #### 1.2.3 模板字串 (Template Literals)
 
 **使用優勢:**
+
 - 支援多行字串
 - 變數插值更直觀
 - 支援表達式計算
@@ -1083,6 +1090,7 @@ const orderSummary = `
 #### 1.2.4 解構賦值 (Destructuring)
 
 **物件解構:**
+
 ```javascript
 // ✅ 物件解構範例
 const apiResponse = {
@@ -1115,6 +1123,7 @@ const { data: { user: { phone = '未提供' } } } = apiResponse;
 ```
 
 **陣列解構:**
+
 ```javascript
 // ✅ 陣列解構範例
 const coordinates = [120.9738819, 23.9739374];
@@ -1129,6 +1138,7 @@ const [first, ...rest] = colors; // first='red', rest=['green', 'blue', 'yellow'
 ```
 
 **函式參數解構:**
+
 ```javascript
 // ✅ 函式參數解構
 function createUser({ name, email, age = 18, department = '未分配' }) {
@@ -1152,6 +1162,7 @@ const newUser = createUser({
 ### 1.7 實務注意事項
 
 #### 1.3.1 型別檢查最佳實務
+
 ```javascript
 // ✅ 型別檢查範例
 function processUserInput(input) {
@@ -1183,6 +1194,7 @@ function validateUser(user) {
 ```
 
 #### 1.3.2 效能考量
+
 ```javascript
 // ✅ 避免在迴圈中重複計算
 function processItems(items) {
@@ -1210,6 +1222,7 @@ const uniqueValues = new Set(); // 去重操作
 #### 2.1.1 命名規則
 
 **變數和函式命名:**
+
 ```javascript
 // ✅ 良好的命名範例
 const MAX_RETRY_COUNT = 3;           // 常數：大寫蛇形命名
@@ -1233,6 +1246,7 @@ function handleInputChange(event) { }
 ```
 
 **類別和建構函式:**
+
 ```javascript
 // ✅ 類別命名：大寫駝峰命名
 class UserManager {
@@ -1256,6 +1270,7 @@ function ApiClient(baseUrl) {
 #### 2.1.2 縮排和格式化
 
 **縮排規則:**
+
 ```javascript
 // ✅ 使用 2 個空格縮排
 if (condition) {
@@ -1282,6 +1297,7 @@ const menuItems = [
 ```
 
 **函式格式化:**
+
 ```javascript
 // ✅ 函式參數換行
 function createUserAccount(
@@ -1304,6 +1320,7 @@ const processedData = rawData
 #### 2.1.3 註解規範
 
 **JSDoc 註解:**
+
 ```javascript
 /**
  * 計算商品總價格，包含稅金和折扣
@@ -1341,6 +1358,7 @@ function calculateTotalPrice(items, taxRate = 0.05, discountPercent = 0) {
 ```
 
 **一般註解:**
+
 ```javascript
 // ✅ 解釋複雜邏輯的註解
 // 使用防抖機制避免頻繁 API 呼叫
@@ -1362,6 +1380,7 @@ function problematicFunction() {
 ### 2.2 ESLint 和 Prettier 設定
 
 #### 2.2.1 ESLint 設定範例
+
 ```json
 // .eslintrc.json
 {
@@ -1390,6 +1409,7 @@ function problematicFunction() {
 ```
 
 #### 2.2.2 Prettier 設定範例
+
 ```json
 // .prettierrc
 {
@@ -5114,6 +5134,7 @@ describe('UserForm 元件', () => {
 TypeScript 是 Microsoft 開發的 JavaScript 超集合，加入了靜態型別檢查功能，可以在編譯時期發現錯誤，提升程式碼品質和開發效率。
 
 **TypeScript 的優勢：**
+
 ```typescript
 // ✅ 型別安全
 interface User {
@@ -5487,22 +5508,24 @@ module.exports = {
 ### 5.1 官方文件與標準
 
 #### 5.1.1 核心文件
-- **MDN Web Docs**: https://developer.mozilla.org/zh-TW/docs/Web/JavaScript
+
+- **MDN Web Docs**: <https://developer.mozilla.org/zh-TW/docs/Web/JavaScript>
   - 最權威的 JavaScript 文件
   - 包含完整的 API 參考和範例
   - 定期更新，涵蓋最新標準
 
-- **ECMAScript 規範**: https://tc39.es/ecma262/
+- **ECMAScript 規範**: <https://tc39.es/ecma262/>
   - JavaScript 語言的正式規範
   - 了解語言特性的官方定義
   - 追蹤新功能的提案進度
 
-- **TC39 提案**: https://github.com/tc39/proposals
+- **TC39 提案**: <https://github.com/tc39/proposals>
   - JavaScript 新功能的提案狀態
   - 了解未來語言發展方向
 
 #### 5.1.2 瀏覽器相容性
-- **Can I Use**: https://caniuse.com/
+
+- **Can I Use**: <https://caniuse.com/>
   - 檢查 Web API 和 JavaScript 功能的瀏覽器支援度
   - 規劃功能實作的重要參考
 
@@ -5511,36 +5534,39 @@ module.exports = {
 ### 5.2 推薦學習資源
 
 #### 5.2.1 線上教學平台
-- **JavaScript.info**: https://javascript.info/
+
+- **JavaScript.info**: <https://javascript.info/>
   - 系統性的 JavaScript 教學
   - 從基礎到進階的完整課程
   - 豐富的範例和練習
 
-- **FreeCodeCamp**: https://www.freecodecamp.org/
+- **FreeCodeCamp**: <https://www.freecodecamp.org/>
   - 免費的程式設計課程
   - 實作導向的學習方式
   - 包含認證和專案
 
-- **Codecademy**: https://www.codecademy.com/learn/introduction-to-javascript
+- **Codecademy**: <https://www.codecademy.com/learn/introduction-to-javascript>
   - 互動式學習平台
   - 結構化的課程設計
 
 #### 5.2.2 書籍推薦
+
 - **《JavaScript: The Good Parts》** by Douglas Crockford
   - 經典的 JavaScript 入門書
   - 重點介紹語言的精華部分
 
 - **《Eloquent JavaScript》** by Marijn Haverbeke
-  - 免費線上閱讀：https://eloquentjavascript.net/
+  - 免費線上閱讀：<https://eloquentjavascript.net/>
   - 深入淺出的程式設計思維
 
 - **《You Don't Know JS》** by Kyle Simpson
-  - 免費 GitHub 系列：https://github.com/getify/You-Dont-Know-JS
+  - 免費 GitHub 系列：<https://github.com/getify/You-Dont-Know-JS>
   - 深度探討 JavaScript 核心概念
 
 ### 5.3 實務工具與框架
 
 #### 5.3.1 開發工具
+
 - **VS Code 擴充功能**:
   - ESLint: 程式碼品質檢查
   - Prettier: 程式碼格式化
@@ -5555,52 +5581,57 @@ module.exports = {
   - Network monitoring
 
 #### 5.3.2 測試工具
+
 - **單元測試**:
-  - Jest: https://jestjs.io/
-  - Vitest: https://vitest.dev/
-  - Mocha: https://mochajs.org/
+  - Jest: <https://jestjs.io/>
+  - Vitest: <https://vitest.dev/>
+  - Mocha: <https://mochajs.org/>
 
 - **端對端測試**:
-  - Cypress: https://www.cypress.io/
-  - Playwright: https://playwright.dev/
+  - Cypress: <https://www.cypress.io/>
+  - Playwright: <https://playwright.dev/>
 
 #### 5.3.3 建置工具
+
 - **模組打包器**:
-  - Vite: https://vitejs.dev/
-  - Webpack: https://webpack.js.org/
-  - Rollup: https://rollupjs.org/
+  - Vite: <https://vitejs.dev/>
+  - Webpack: <https://webpack.js.org/>
+  - Rollup: <https://rollupjs.org/>
 
 - **任務執行器**:
   - npm scripts
-  - Gulp: https://gulpjs.com/
+  - Gulp: <https://gulpjs.com/>
 
 ### 5.4 社群與資源
 
 #### 5.4.1 技術社群
-- **Stack Overflow**: https://stackoverflow.com/questions/tagged/javascript
+
+- **Stack Overflow**: <https://stackoverflow.com/questions/tagged/javascript>
   - 程式設計問題解答
   - 搜尋常見問題的解決方案
 
-- **GitHub**: https://github.com/topics/javascript
+- **GitHub**: <https://github.com/topics/javascript>
   - 開源專案學習
   - 閱讀優質程式碼
 
-- **Reddit**: https://www.reddit.com/r/javascript/
+- **Reddit**: <https://www.reddit.com/r/javascript/>
   - 技術討論和新聞
 
 #### 5.4.2 技術部落格與資源
-- **CSS-Tricks**: https://css-tricks.com/
+
+- **CSS-Tricks**: <https://css-tricks.com/>
   - 前端開發技術文章
 
-- **Smashing Magazine**: https://www.smashingmagazine.com/
+- **Smashing Magazine**: <https://www.smashingmagazine.com/>
   - Web 開發最佳實務
 
-- **Dev.to**: https://dev.to/t/javascript
+- **Dev.to**: <https://dev.to/t/javascript>
   - 開發者社群文章分享
 
 ### 5.5 持續學習建議
 
 #### 5.5.1 學習路徑
+
 1. **基礎階段**:
    - 掌握語言基本語法
    - 理解 DOM 操作
@@ -5617,6 +5648,7 @@ module.exports = {
    - 開源貢獻
 
 #### 5.5.2 實作專案建議
+
 - **入門專案**:
   - 計算機應用程式
   - 待辦事項清單
@@ -5639,6 +5671,7 @@ module.exports = {
 ### 6.1 程式碼品質檢查
 
 #### 6.1.1 語法與風格
+
 - [ ] 使用 `const` 和 `let`，避免 `var`
 - [ ] 箭頭函式使用適當（避免在物件方法中使用）
 - [ ] 模板字串用於字串拼接
@@ -5649,6 +5682,7 @@ module.exports = {
 - [ ] 單引號或雙引號使用一致
 
 #### 6.1.2 函式設計
+
 - [ ] 函式職責單一，功能明確
 - [ ] 函式參數數量合理（建議不超過 3 個）
 - [ ] 使用純函式減少副作用
@@ -5657,6 +5691,7 @@ module.exports = {
 - [ ] 回傳值類型一致
 
 #### 6.1.3 效能考量
+
 - [ ] 避免在迴圈中進行 DOM 操作
 - [ ] 使用事件委派處理大量元素
 - [ ] 快取頻繁使用的 DOM 元素
@@ -5667,6 +5702,7 @@ module.exports = {
 ### 6.2 安全性檢查
 
 #### 6.2.1 輸入驗證
+
 - [ ] 所有使用者輸入都經過驗證
 - [ ] 使用 HTML 編碼防止 XSS
 - [ ] URL 驗證防止開放重新導向
@@ -5674,6 +5710,7 @@ module.exports = {
 - [ ] SQL 注入防護（如果直接處理資料庫）
 
 #### 6.2.2 資料保護
+
 - [ ] 敏感資料不儲存在客戶端
 - [ ] 使用 HTTPS 傳輸敏感資料
 - [ ] JWT Token 安全儲存和驗證
@@ -5683,6 +5720,7 @@ module.exports = {
 ### 6.3 API 整合檢查
 
 #### 6.3.1 請求處理
+
 - [ ] 所有 API 呼叫都有錯誤處理
 - [ ] 超時設定合理
 - [ ] 重試機制適當實作
@@ -5690,6 +5728,7 @@ module.exports = {
 - [ ] 認證 Token 自動更新
 
 #### 6.3.2 資料處理
+
 - [ ] API 回應資料驗證
 - [ ] 空資料狀態處理
 - [ ] 分頁功能正常運作
@@ -5699,6 +5738,7 @@ module.exports = {
 ### 6.4 使用者體驗檢查
 
 #### 6.4.1 互動回饋
+
 - [ ] 載入狀態視覺回饋
 - [ ] 操作成功/失敗訊息
 - [ ] 表單驗證即時回饋
@@ -5706,6 +5746,7 @@ module.exports = {
 - [ ] 鍵盤導航支援
 
 #### 6.4.2 響應式設計
+
 - [ ] 行動裝置適配
 - [ ] 觸控操作友善
 - [ ] 視窗大小調整適應
@@ -5715,6 +5756,7 @@ module.exports = {
 ### 6.5 測試檢查
 
 #### 6.5.1 單元測試
+
 - [ ] 關鍵業務邏輯有單元測試
 - [ ] 測試覆蓋率達到要求（建議 > 80%）
 - [ ] 邊界條件和錯誤情況有測試
@@ -5722,6 +5764,7 @@ module.exports = {
 - [ ] 測試案例易讀易懂
 
 #### 6.5.2 整合測試
+
 - [ ] API 整合測試完整
 - [ ] 元件互動測試通過
 - [ ] 端到端關鍵流程測試
@@ -5731,6 +5774,7 @@ module.exports = {
 ### 6.6 部署前檢查
 
 #### 6.6.1 建置和打包
+
 - [ ] 程式碼成功建置無錯誤
 - [ ] 靜態資源路徑正確
 - [ ] 生產環境設定檔正確
@@ -5738,6 +5782,7 @@ module.exports = {
 - [ ] 檔案大小優化
 
 #### 6.6.2 環境配置
+
 - [ ] 環境變數設定正確
 - [ ] 資料庫連線設定驗證
 - [ ] 外部服務 API 金鑰配置
@@ -5747,6 +5792,7 @@ module.exports = {
 ### 6.7 維護檢查
 
 #### 6.7.1 程式碼維護
+
 - [ ] 程式碼有適當註解
 - [ ] 依賴套件定期更新
 - [ ] 漏洞掃描和修復
@@ -5754,6 +5800,7 @@ module.exports = {
 - [ ] 錯誤監控和回報
 
 #### 6.7.2 文件維護
+
 - [ ] API 文件保持最新
 - [ ] 部署說明文件完整
 - [ ] 故障排除指南更新
@@ -6021,8 +6068,6 @@ checklist.runAllChecks().then(() => {
   console.log('✨ 檢查清單執行完成');
 });
 ```
-
-
 
 ---
 
