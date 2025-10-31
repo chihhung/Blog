@@ -1,6 +1,6 @@
 baseURL = 'https://chihhung.github.io/Blog/'
 languageCode = 'zh-TW'
-title = '我的個人部落格'
+title = 'Eric 個人部落格'
 theme = 'PaperMod'
 
 # Google Analytics 設定
@@ -31,10 +31,20 @@ googleAnalytics = "G-542B4N4ZLZ"
   UseHugoToc = true
   description = "這是我的個人網站，分享技術文章與生活點滴"
   author = "Eric Cheng"
+  mainSections = ["posts"]
+
+# 確保子目錄中的文章也會顯示在列表中
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+
+# 分頁設定
+[pagination]
+  paginatePath = "page"
 
 [params.profileMode]
   enabled = true
-  title = "歡迎來到我的部落格"
+  title = "歡迎來到Eric的部落格"
   subtitle = "分享技術與生活的點點滴滴"
   # imageUrl = "profile.jpg"
   # imageWidth = 120
