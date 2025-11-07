@@ -4487,8 +4487,193 @@ git 設定 prompt
 - 請分段回覆
 
 -----------------------------------------------------------------
+# BDD(Behavior-Driven Development)行為驅動開發使用教學
 
+## 角色設定
+- 你是一位資深系統分析師（Senior System Analyst），專長是使用 Behavior-Driven Development（BDD，行為驅動開發）進行需求分析與系統設計。
+- 你目前要帶領新進系統分析師（SA）學習 BDD 的概念、流程與實作方法。
+## 背景
+- 請根據以下目錄，撰寫一份完整的《BDD行為驅動開發使用教學手冊》。
+- 內容需包含章節標題、說明重點、實務示例（含 Gherkin 語法範例）、圖解建議與最佳實務。
+- 語言使用繁體中文，教學風格清楚、有層次、可作為企業內訓教材使用。
+## 任務說明
 
+手冊章節目錄
+
+第一章　認識 BDD：行為驅動開發的核心理念
+- 什麼是 BDD
+- BDD 與 TDD、ATDD 的差異
+- 為什麼要導入 BDD
+- BDD 的價值與應用場景
+- BDD 在軟體開發生命週期（SDLC）中的位置
+
+第二章　BDD 的三大支柱
+- Discovery（需求探索）
+- Formulation（範例定義）
+- Automation（自動化驗證）
+
+第三章　BDD 的核心語法：Gherkin
+- Gherkin 語法結構與規則
+- Feature、Scenario、Scenario Outline
+- Given / When / Then 的使用說明
+- 範例：從需求敘述轉為 Gherkin 規格
+- 常見錯誤與最佳實務
+
+第四章　BDD 與系統分析的整合應用
+- 如何將業務需求轉化為可執行行為
+- 與利害關係人共創範例（Example Mapping）
+- User Story 與 BDD 的結合方式
+- Acceptance Criteria（驗收準則）的撰寫指引
+- 從 BDD 到 Use Case 的對應關係
+
+第五章　BDD 開發流程與角色分工
+- BDD 工作流（Workflow）全貌
+- 三方會談（Three Amigos：BA/SA、Dev、QA）
+- SA 在 BDD 流程中的責任與產出
+- 實務文件產出範例（Feature File、Acceptance Criteria）
+- 維護與版本控管實務
+
+第六章　BDD 自動化測試實作
+- 常見 BDD 工具比較（Cucumber、Behave、SpecFlow、JBehave）
+- 環境安裝與專案結構
+- Feature 與 Step Definitions 的關聯
+- BDD 自動化與 CI/CD 整合
+- 測試報告與追蹤機制
+
+第七章　BDD 實戰案例
+- 案例一：登入驗證流程（Web 系統）
+- 案例二：銀行轉帳業務流程
+- 案例三：批次系統的業務規則驗證
+- 案例四：API 行為測試（RESTful 服務）
+- 案例回顧與行為重構技巧
+
+第八章　導入策略與組織落地
+- 如何在現有開發流程導入 BDD
+- 教育訓練與團隊文化轉型
+- 導入 BDD 常見阻力與應對方式
+- BDD 與敏捷 / DevOps 的結合
+- 衡量導入成效的指標（KPI）
+
+第九章　高階應用與延伸
+- BDD 與 AI 協作：從自然語言生成行為規格
+- BDD 與 Spec-Driven Development（SDD）的結合
+- BDD 在大型系統（微服務 / 金融系統）中的挑戰
+- 版本演進與回歸測試策略
+
+第十章　附錄
+- Gherkin 語法速查表
+- BDD 文件模板（Feature 模板、Example Mapping 模板）
+- 常見工具與外掛清單
+- 推薦閱讀與進階學習資源
+## 產出要求
+
+- 請用 教學手冊風格，結構清晰，包含 章節、步驟、範例指令。適合新進同仁快速上手。
+- 使用 Markdown 格式，含標題、編號與條列
+- 提供圖表/流程圖說明複雜概念,可以用mermaid畫出。
+- 每節結尾提供實務案例或注意事項
+- 用淺顯易懂的語言，適合初入行的開發人員閱讀
+- 內容可直接用於專案團隊內部的開發規範文件
+- 必須同時考慮安全性、效能與可維護性
+- 每章小節包含說明 + 實例/建議
+- 最後附上「檢查清單（Checklist）」方便新進成員快速使用
+- 文件請放在專案的 content\doc\教學\分析與設計\ 目錄下,檔名為:BDD行為驅動開發使用教學手冊.md，並使用 Markdown 格式撰寫。
+- 請分段回覆
+
+----------------------------------------------------------------
+# TDD(Test-Driven Development)測試驅動開發教學手冊使用教學
+
+## 角色設定
+- 你是一位資深的系統開發工程師,專長使用TDD(Test-Driven Development)測試驅動開發
+## 背景
+- 代領新人PG 使用Test-Driven Development 
+- 針對新進PG 產出教學手冊
+## 任務說明
+
+TDD（Test-Driven Development）測試驅動開發使用教學手冊
+
+目錄
+
+一、前言
+1. 教學目的  
+2. 適用對象  
+3. 預期學習成果  
+4. 教學手冊架構說明  
+
+二、TDD 概念與原則
+1. 什麼是 TDD（Test-Driven Development）  
+2. TDD 的核心循環：Red → Green → Refactor  
+3. TDD 與傳統開發流程的差異  
+4. 為什麼使用 TDD：好處與挑戰  
+5. 單元測試 vs. 集成測試 vs. 系統測試  
+
+三、TDD 實踐步驟
+1. Step 1：撰寫失敗的測試（Red）  
+2. Step 2：撰寫最簡單的實作通過測試（Green）  
+3. Step 3：重構程式碼（Refactor）  
+4. Step 4：重複循環與迭代開發  
+5. 驗收標準（Definition of Done）與測試覆蓋率要求  
+
+四、TDD 開發環境與工具
+1. 測試框架介紹（JUnit、pytest、Mocha、Jest 等）  
+2. IDE 與工具設定（IntelliJ、VS Code、Eclipse）  
+3. 持續整合（CI）與自動化測試  
+4. 測試覆蓋率工具（JaCoCo、Coverage.py 等）  
+5. 測試資料與 Mock 工具（Mockito、MockWebServer、Faker 等）  
+
+五、撰寫良好測試的技巧
+1. 測試命名規範與可讀性  
+2. 安排測試結構（Arrange–Act–Assert 模式）  
+3. 單一職責原則（Single Responsibility Principle in Tests）  
+4. 使用 Mock、Stub、Fake、Spy 的正確時機  
+5. 常見測試陷阱與避免方式  
+
+六、實作範例
+1. 範例一：計算機（Calculator）類別的 TDD 實作  
+2. 範例二：RESTful API 的 TDD 開發流程  
+3. 範例三：資料庫操作（Repository）的 TDD 測試  
+4. 範例四：前端元件（React/Vue）TDD 實作示範  
+5. 範例五：整合測試與端對端測試  
+
+七、TDD 在團隊開發中的應用
+1. TDD 與敏捷開發（Agile、Scrum）的結合  
+2. Pair Programming 與 TDD  
+3. Code Review 與測試審查重點  
+4. 在 CI/CD Pipeline 中整合測試流程  
+5. 建立團隊 TDD 實踐文化  
+
+八、TDD 常見問題與最佳實踐
+1. 常見誤區與修正方式  
+2. 測試覆蓋率與品質間的平衡  
+3. 與 Legacy Code 整合的策略  
+4. 大型專案中導入 TDD 的建議  
+5. 實務經驗分享與成功案例  
+
+九、進階主題
+1. BDD（行為驅動開發）與 TDD 的差異與結合  
+2. 使用 Property-Based Testing 提升測試覆蓋率  
+3. 測試驅動的設計（Test-Driven Design）  
+4. 自動化測試報告與品質儀表板  
+5. TDD 與 AI 輔助開發的未來展望  
+
+十、附錄
+1. 推薦學習資源（書籍、網站、影片）  
+2. 常用測試工具與框架清單  
+3. TDD 範本專案連結與練習題  
+4. 專有名詞中英對照表  
+
+## 產出要求
+
+- 請用 教學手冊風格，結構清晰，包含 章節、步驟、範例指令。適合新進同仁快速上手。
+- 使用 Markdown 格式，含標題、編號與條列
+- 提供圖表/流程圖說明複雜概念,可以用mermaid畫出。
+- 每節結尾提供實務案例或注意事項
+- 用淺顯易懂的語言，適合初入行的開發人員閱讀
+- 內容可直接用於專案團隊內部的開發規範文件
+- 必須同時考慮安全性、效能與可維護性
+- 每章小節包含說明 + 實例/建議
+- 最後附上「檢查清單（Checklist）」方便新進成員快速使用
+- 文件請放在專案的 content\doc\教學\分析與設計\ 目錄下,檔名為:TDD(Test-Driven Development)測試驅動開發教學手冊使用教學.md，並使用 Markdown 格式撰寫。
+- 請分段回覆
 
 ------------------------------------------------------------------
 願望清單
@@ -4520,9 +4705,11 @@ git 設定 prompt
 
 ### 「微服務實戰案例集」
 
-### BDD 教學
+### BDD教學
 
-### TDD 教學
+### TDD教學
+
+### Apache Karaf教學
 
 ### sping boot 3 and spring framework 6 升級至 spring boot 4 and spring framework 7
 
@@ -4540,7 +4727,46 @@ git 設定 prompt
 
 ------------------------------------------------------------------------------
 
+# XXXXXXX使用教學
+
+## 角色設定
+
+## 背景
+
+## 任務說明
+
+## 產出要求
+
+- 請用 教學手冊風格，結構清晰，包含 章節、步驟、範例指令。適合新進同仁快速上手。
+- 使用 Markdown 格式，含標題、編號與條列
+- 提供圖表/流程圖說明複雜概念,可以用mermaid畫出。
+- 每節結尾提供實務案例或注意事項
+- 用淺顯易懂的語言，適合初入行的開發人員閱讀
+- 內容可直接用於專案團隊內部的開發規範文件
+- 必須同時考慮安全性、效能與可維護性
+- 每章小節包含說明 + 實例/建議
+- 最後附上「檢查清單（Checklist）」方便新進成員快速使用
+- 文件請放在專案的 .github\教學\工具\ 目錄下,檔名為:Podman使用教學.md，並使用 Markdown 格式撰寫。
+- 請分段回覆
+
+
+------------------------------------------------------------------------------
+
 1. 請針對本文逐章節,一步一步檢查內容是否足夠完整
 2. 目錄和內容是否一致, 都有被生成, 若沒有請在生成
 3. 同時更新目錄與子目錄
 4. 請修正md檔格式問題
+
+------------------------------------------------------------
+# BDD(Behavior-Driven Development)行為驅動開發使用教學
+
+## 角色設定
+- 你是一位資深的系統分析師,專長使用（Behavior-Driven Development）行為驅動開發,
+## 背景
+- 代領新新SA 使用Behavior-Driven Development
+- 針對新進SA 產出教學手冊
+## 任務
+- 請出教學手冊目錄內容,使用md 格式
+-----------------------------------------------------------
+
+hugo new "posts/教學/分析與設計/TDD(Test-Driven Development)測試驅動開發教學手冊使用教學.md"
