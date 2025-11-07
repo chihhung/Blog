@@ -10,7 +10,6 @@ author: ["Eric Cheng"]
 
 # TDD（Test-Driven Development）測試驅動開發使用教學手冊
 
----
 
 ## 📚 目錄
 
@@ -150,7 +149,7 @@ author: ["Eric Cheng"]
 
 ### [結語](#結語)
 
----
+
 
 ## 一、前言
 
@@ -215,7 +214,7 @@ graph LR
     E --> F[團隊應用]
     F --> G[進階主題]
 
-```text
+```
 
 **學習建議:**
 
@@ -228,7 +227,6 @@ graph LR
 - 與團隊成員討論分享經驗
 
 
----
 
 ## 二、TDD 概念與原則
 
@@ -281,7 +279,7 @@ graph LR
     style B fill:#ccffcc
     style C fill:#ccccff
 
-```text
+```
 
 #### 🔴 Red（紅燈階段）- 撰寫失敗的測試
 
@@ -307,7 +305,7 @@ public void testAddTwoNumbers() {
     assertEquals(5, result); // 此時會失敗,因為 add() 方法尚未實作
 }
 
-```text
+```
 
 **重點提醒:**
 
@@ -339,7 +337,7 @@ public class Calculator {
     }
 }
 
-```text
+```
 
 **重點提醒:**
 
@@ -399,7 +397,7 @@ graph LR
     D --> E[除錯]
     E --> F[部署]
 
-```text
+```
 
 **特點:**
 
@@ -423,7 +421,7 @@ graph LR
     D --> B
     D --> E[部署]
 
-```text
+```
 
 **特點:**
 
@@ -638,7 +636,7 @@ graph TD
     style B fill:#FFD700
     style A fill:#FF6347
 
-```text
+```
 
 #### 🔵 單元測試（Unit Tests）
 
@@ -674,7 +672,7 @@ public void testCalculateDiscount_WithVIPMember_ShouldGet20PercentOff() {
     assertEquals(800, finalPrice, 0.01);
 }
 
-```text
+```
 
 **適用時機:**
 
@@ -723,7 +721,7 @@ public void testSaveOrder_ShouldPersistToDatabase() {
     assertEquals(1500, savedOrder.getAmount());
 }
 
-```text
+```
 
 **適用時機:**
 
@@ -775,7 +773,7 @@ public void testUserPurchaseFlow() {
     assertTrue(orderPage.isOrderCreated());
 }
 
-```text
+```
 
 **適用時機:**
 
@@ -896,7 +894,7 @@ public void testUserPurchaseFlow() {
 需求範例:
 「實作一個購物車系統,當使用者加入商品時,需要計算總金額」
 
-```text
+```
 
 **步驟二:定義測試案例**
 
@@ -935,7 +933,7 @@ public class ShoppingCartTest {
     }
 }
 
-```text
+```
 
 **步驟四:執行測試,確認失敗**
 
@@ -948,7 +946,7 @@ mvn test
 [ERROR] testAddSingleItem_ShouldCalculateCorrectTotal()
 java.lang.NoSuchMethodError: ShoppingCart.addItem()
 
-```text
+```
 
 #### ✅ 成功標準
 
@@ -975,7 +973,7 @@ public void testAddition() {
     assertEquals(5, 2 + 3); // 這不是在測試你的程式碼!
 }
 
-```text
+```
 
 **錯誤 2:測試過於複雜**
 
@@ -991,7 +989,7 @@ public void testComplexScenario() {
     // 太多行為混在一起!
 }
 
-```text
+```
 
 **正確做法:**
 
@@ -1006,7 +1004,7 @@ public void testAddMultipleItems_ShouldSumTotal() {
     assertEquals(400, cart.getTotal());
 }
 
-```text
+```
 
 #### 💡 實務技巧
 
@@ -1028,14 +1026,14 @@ public void testAddItem_WithNegativeQuantity_ShouldThrowException() { }
 @Test
 public void testCalculateTotal_WithEmptyCart_ShouldReturnZero() { }
 
-```text
+```
 
 命名格式建議:
 
 ```text
 test[方法名]_[測試條件]_[預期結果]
 
-```text
+```
 
 **技巧 2:先寫最簡單的測試案例**
 
@@ -1059,7 +1057,7 @@ public void testAddItem_WithZeroQuantity_ShouldNotChangeTotal() { }
 @Test
 public void testAddItem_WithNullProduct_ShouldThrowException() { }
 
-```text
+```
 
 **技巧 3:使用測試資料建構器(Test Data Builder)**
 
@@ -1097,7 +1095,7 @@ public void testExpensiveProduct() {
     assertEquals(80000, cart.getTotal());
 }
 
-```text
+```
 
 ### 3.2 Step 2：撰寫最簡單的實作通過測試（Green）
 
@@ -1138,7 +1136,7 @@ public class Product {
     }
 }
 
-```text
+```
 
 **步驟二:執行測試,確認通過**
 
@@ -1150,7 +1148,7 @@ mvn test
 [INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
 [INFO] BUILD SUCCESS
 
-```text
+```
 
 #### ⚠️ Green 階段的原則
 
@@ -1175,7 +1173,7 @@ public class ShoppingCart {
     }
 }
 
-```text
+```
 
 **原則 2:可以使用假實作(Fake It)**
 
@@ -1220,7 +1218,7 @@ public class Customer {
     }
 }
 
-```text
+```
 
 **原則 3:三角測量法(Triangulation)**
 
@@ -1266,7 +1264,7 @@ public String fizzBuzz(int number) {
     return String.valueOf(number);
 }
 
-```text
+```
 
 #### 💡 實務技巧
 
@@ -1292,7 +1290,7 @@ public void processPayment(Payment payment) {
     }
 }
 
-```text
+```
 
 **技巧 3:立即執行所有測試**
 
@@ -1305,7 +1303,7 @@ mvn test
 # IntelliJ: Ctrl+Shift+F10 (Windows) / Cmd+Shift+R (Mac)
 # VS Code: Ctrl+; A (Windows) / Cmd+; A (Mac)
 
-```text
+```
 
 ### 3.3 Step 3：重構程式碼（Refactor）
 
@@ -1365,7 +1363,7 @@ public class ShoppingCart {
     }
 }
 
-```text
+```
 
 **步驟三:執行重構**
 
@@ -1382,7 +1380,7 @@ graph LR
     G -->|是| A
     G -->|否| H[完成]
 
-```text
+```
 
 **步驟四:持續驗證**
 
@@ -1394,7 +1392,7 @@ graph LR
 git add .
 mvn test && git commit -m "Refactor: extract method"
 
-```text
+```
 
 #### 🔧 常用重構技巧
 
@@ -1448,7 +1446,7 @@ private void saveOrder(Order order) {
     database.save(order);
 }
 
-```text
+```
 
 **技巧 2:提取類別(Extract Class)**
 
@@ -1484,7 +1482,7 @@ public class Address {
     }
 }
 
-```text
+```
 
 **技巧 3:以常數取代魔術數字**
 
@@ -1509,7 +1507,7 @@ public double calculateDiscount(Customer customer) {
     return total * (1 - REGULAR_DISCOUNT_RATE);
 }
 
-```text
+```
 
 **技巧 4:使用策略模式消除條件判斷**
 
@@ -1549,7 +1547,7 @@ public double calculateShippingCost(ShippingStrategy strategy, double weight) {
     return strategy.calculateCost(weight);
 }
 
-```text
+```
 
 #### ⚠️ 重構注意事項
 
@@ -1560,7 +1558,7 @@ public double calculateShippingCost(ShippingStrategy strategy, double weight) {
 ❌ 同時重構:改命名 + 提取方法 + 調整架構
 ✅ 循序漸進:先改命名 → 測試 → 提取方法 → 測試 → 調整架構 → 測試
 
-```text
+```
 
 **注意 2:保持測試通過**
 
@@ -1577,7 +1575,7 @@ graph TD
     G -->|否| B
     G -->|是| H[結束]
 
-```text
+```
 
 **注意 3:不要同時修改行為與重構**
 
@@ -1616,7 +1614,7 @@ public double calculateTotal() {
     return subtotal + tax;
 }
 
-```text
+```
 
 #### 💡 重構最佳實踐
 
@@ -1631,7 +1629,7 @@ git commit -m "Refactor: extract calculateDiscount method"
 # 如果重構失敗可快速復原
 git reset --hard HEAD
 
-```text
+```
 
 **實踐 2:使用 IDE 重構工具**
 
@@ -1651,7 +1649,7 @@ IntelliJ IDEA 常用快捷鍵:
 
 - Shift+F6: 重新命名
 
-```text
+```
 
 **實踐 3:測試也需要重構**
 
@@ -1695,7 +1693,7 @@ public void testRegularCustomer() {
     assertEquals(1000, cart.getTotal());
 }
 
-```text
+```
 
 ### 3.4 Step 4：重複循環與迭代開發
 
@@ -1757,7 +1755,7 @@ public double getFinalPrice() {
     return amount;
 }
 
-```text
+```
 
 **第二次迭代:一般客戶**
 
@@ -1778,7 +1776,7 @@ public double getFinalPrice() {
     return amount * (1 - discount);
 }
 
-```text
+```
 
 **第三次迭代:高額訂單折扣**
 
@@ -1821,7 +1819,7 @@ private double calculateTotalDiscount() {
     return discount;
 }
 
-```text
+```
 
 **第四次迭代:VIP + 高額訂單組合**
 
@@ -1877,7 +1875,7 @@ public class DiscountCalculator {
     }
 }
 
-```text
+```
 
 #### 📊 迭代進度追蹤
 
@@ -1911,7 +1909,7 @@ public class DiscountCalculator {
 
 - [ ] 折扣上限設定
 
-```text
+```
 
 #### 💡 迭代開發技巧
 
@@ -1922,7 +1920,7 @@ public class DiscountCalculator {
 ❌ 大迭代:一次實作完整的折扣系統(需要3小時)
 ✅ 小迭代:每個折扣類型獨立開發(每個15分鐘)
 
-```text
+```
 
 **時間建議:**
 
@@ -1948,7 +1946,7 @@ graph TD
     F -->|是| C
     F -->|否| G[完成]
 
-```text
+```
 
 **技巧 3:使用測試清單(Test List)**
 
@@ -1991,7 +1989,7 @@ graph TD
 
 - [ ] 套用折扣碼
 
-```text
+```
 
 每完成一個測試就打勾,清楚掌握進度。
 
@@ -2097,7 +2095,7 @@ graph TD
     </executions>
 </plugin>
 
-```text
+```
 
 
 ```bash
@@ -2107,7 +2105,7 @@ mvn clean test jacoco:report
 # 查看報告
 open target/site/jacoco/index.html
 
-```text
+```
 
 **覆蓋率報告範例:**
 
@@ -2125,7 +2123,7 @@ com.example
 -------------------------------------------------------
 Total           88.3% (82/94)  77.8% (14/18)
 
-```text
+```
 
 #### ⚠️ 覆蓋率的正確理解
 
@@ -2143,7 +2141,7 @@ public void testCalculate() {
     // 沒有任何 assert,但程式碼都執行了!
 }
 
-```text
+```
 
 **正確做法:**
 
@@ -2163,7 +2161,7 @@ public void testSubtract_ShouldReturnCorrectDifference() {
     assertEquals(3, result);
 }
 
-```text
+```
 
 #### 💡 覆蓋率最佳實踐
 
@@ -2188,7 +2186,7 @@ public void testSubtract_ShouldReturnCorrectDifference() {
 
 - UI 元件程式碼
 
-```text
+```
 
 **實踐 2:設定覆蓋率門檻**
 
@@ -2211,7 +2209,7 @@ test:
     exit_codes:
       - 1  # 如果覆蓋率低於門檻則失敗
 
-```text
+```
 
 **實踐 3:定期檢視覆蓋率趨勢**
 
@@ -2223,7 +2221,7 @@ line
     y-axis "Coverage %" 0 --> 100
     line [65, 70, 75, 78, 82, 85]
 
-```text
+```
 
 #### 📋 檢查清單範本
 
@@ -2287,7 +2285,7 @@ line
 
 - [ ] 日期: ___________
 
-```text
+```
 
 ---
 
@@ -2371,7 +2369,7 @@ line
     </dependency>
 </dependencies>
 
-```text
+```
 
 **基本使用:**
 
@@ -2410,7 +2408,7 @@ class CalculatorTest {
     }
 }
 
-```text
+```
 
 **JUnit 5 主要註解:**
 
@@ -2427,7 +2425,7 @@ class CalculatorTest {
 @ParameterizedTest    // 參數化測試
 @Timeout(5)           // 測試逾時限制(秒)
 
-```text
+```
 
 #### 🐍 Python - pytest
 
@@ -2437,7 +2435,7 @@ class CalculatorTest {
 ```bash
 pip install pytest pytest-cov
 
-```text
+```
 
 **基本使用:**
 
@@ -2483,7 +2481,7 @@ class TestCalculator:
         """參數化測試"""
         assert self.calc.add(a, b) == expected
 
-```text
+```
 
 **執行測試:**
 
@@ -2504,7 +2502,7 @@ pytest test_calculator.py::TestCalculator::test_add
 # 執行標記的測試
 pytest -m slow
 
-```text
+```
 
 **pytest 常用裝飾器:**
 
@@ -2517,7 +2515,7 @@ pytest -m slow
 @pytest.mark.xfail      # 預期失敗
 @pytest.mark.slow       # 自定義標記
 
-```text
+```
 
 #### 🟨 JavaScript - Jest
 
@@ -2527,7 +2525,7 @@ pytest -m slow
 ```bash
 npm install --save-dev jest
 
-```text
+```
 
 **設定 package.json:**
 
@@ -2551,7 +2549,7 @@ npm install --save-dev jest
   }
 }
 
-```text
+```
 
 **基本使用:**
 
@@ -2603,7 +2601,7 @@ describe('Calculator', () => {
   });
 });
 
-```text
+```
 
 **Jest 常用 API:**
 
@@ -2629,7 +2627,7 @@ describe('group', () => {})  // 測試群組
 test('name', () => {})       // 測試案例
 it('name', () => {})         // test 的別名
 
-```text
+```
 
 ### 4.2 IDE 與工具設定
 
@@ -2660,7 +2658,7 @@ it('name', () => {})         // test 的別名
    - VM options: -ea (啟用 assertions)
    - Working directory: $MODULE_WORKING_DIR$
 
-```text
+```
 
 **快捷鍵設定:**
 
@@ -2671,7 +2669,7 @@ Ctrl+Shift+F9 (Win) / Cmd+Shift+D (Mac)   - Debug 當前測試
 Alt+Insert (Win) / Cmd+N (Mac)            - 生成測試方法
 Ctrl+Shift+T (Win) / Cmd+Shift+T (Mac)    - 在測試與實作間切換
 
-```text
+```
 
 **即時測試執行(Infinitest):**
 
@@ -2680,7 +2678,7 @@ Ctrl+Shift+T (Win) / Cmd+Shift+T (Mac)    - 在測試與實作間切換
 <!-- 安裝 Infinitest 插件 -->
 Settings → Plugins → Marketplace → 搜尋 "Infinitest"
 
-```text
+```
 
 設定後,每次儲存程式碼會自動執行相關測試。
 
@@ -2719,7 +2717,7 @@ Settings → Plugins → Marketplace → 搜尋 "Infinitest"
   }
 }
 
-```text
+```
 
 **快捷鍵:**
 
@@ -2729,7 +2727,7 @@ Ctrl+; A (Win) / Cmd+; A (Mac)  - 執行所有測試
 Ctrl+; C (Win) / Cmd+; C (Mac)  - 執行當前測試
 Ctrl+; L (Win) / Cmd+; L (Mac)  - 執行上次測試
 
-```text
+```
 
 #### 🌙 Eclipse 設定
 
@@ -2749,7 +2747,7 @@ Ctrl+; L (Win) / Cmd+; L (Mac)  - 執行上次測試
 右鍵點擊測試類別或方法
 → Run As → JUnit Test
 
-```text
+```
 
 **快捷鍵:**
 
@@ -2759,7 +2757,7 @@ Alt+Shift+X, T  - 執行 JUnit 測試
 Alt+Shift+D, T  - Debug JUnit 測試
 Ctrl+0          - 快速切換至測試
 
-```text
+```
 
 ### 4.3 持續整合（CI）與自動化測試
 
@@ -2777,7 +2775,7 @@ graph LR
     E --> F[修正問題]
     F --> A
 
-```text
+```
 
 **好處:**
 
@@ -2843,7 +2841,7 @@ coverage:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
-```text
+```
 
 **測試失敗通知設定:**
 
@@ -2860,7 +2858,7 @@ notify_failure:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: on_failure
 
-```text
+```
 
 #### 🐙 GitHub Actions 設定
 
@@ -2916,7 +2914,7 @@ jobs:
         lcov-file: ./target/site/jacoco/jacoco.xml
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
-```text
+```
 
 **Python 專案範例:**
 
@@ -2956,7 +2954,7 @@ jobs:
       with:
         files: ./coverage.xml
 
-```text
+```
 
 #### 🚀 Jenkins 設定
 
@@ -3029,7 +3027,7 @@ pipeline {
     }
 }
 
-```text
+```
 
 ### 4.4 測試覆蓋率工具
 
@@ -3085,7 +3083,7 @@ pipeline {
     </executions>
 </plugin>
 
-```text
+```
 
 **生成報告:**
 
@@ -3096,7 +3094,7 @@ mvn clean test jacoco:report
 # 查看報告
 open target/site/jacoco/index.html
 
-```text
+```
 
 #### 🐍 Coverage.py (Python)
 
@@ -3120,7 +3118,7 @@ open htmlcov/index.html
 # 與 pytest 整合
 pytest --cov=mypackage --cov-report=html --cov-report=term
 
-```text
+```
 
 **設定 .coveragerc:**
 
@@ -3145,7 +3143,7 @@ exclude_lines =
 [html]
 directory = htmlcov
 
-```text
+```
 
 #### 🟨 Istanbul/NYC (JavaScript)
 
@@ -3155,7 +3153,7 @@ directory = htmlcov
 ```bash
 npm install --save-dev nyc
 
-```text
+```
 
 **package.json 設定:**
 
@@ -3183,7 +3181,7 @@ npm install --save-dev nyc
   }
 }
 
-```text
+```
 
 **執行:**
 
@@ -3192,7 +3190,7 @@ npm install --save-dev nyc
 npm run test:coverage
 open coverage/index.html
 
-```text
+```
 
 ### 4.5 測試資料與 Mock 工具
 
@@ -3245,7 +3243,7 @@ public class OrderServiceTest {
     }
 }
 
-```text
+```
 
 **進階技巧:**
 
@@ -3296,7 +3294,7 @@ public class OrderServiceTest {
     }
 }
 
-```text
+```
 
 #### 🐍 unittest.mock (Python)
 
@@ -3360,7 +3358,7 @@ class TestOrderService:
         with pytest.raises(NotFoundException):
             service.get_order("999")
 
-```text
+```
 
 #### 🟨 Jest Mock (JavaScript)
 
@@ -3427,7 +3425,7 @@ describe('OrderService', () => {
   });
 });
 
-```text
+```
 
 #### 🎲 Faker - 測試資料生成
 
@@ -3469,7 +3467,7 @@ public void testWithRandomData() {
     assertTrue(order.getTotal() > 0);
 }
 
-```text
+```
 
 **Python - Faker:**
 
@@ -3507,7 +3505,7 @@ def test_with_random_data():
     
     assert order.get_total() > 0
 
-```text
+```
 
 ---
 
@@ -3586,7 +3584,7 @@ public void testDiscount() { }
 @Test
 public void testPayment() { }
 
-```text
+```
 
 **模式二:Given_When_Then (BDD 風格)**
 
@@ -3614,7 +3612,7 @@ public void givenEmptyCart_whenCheckout_thenThrowEmptyCartException() {
     });
 }
 
-```text
+```
 
 **模式三:Should 模式(行為描述)**
 
@@ -3629,7 +3627,7 @@ public void shouldThrowExceptionWhenPaymentFails() { }
 @Test
 public void shouldReturnEmptyListWhenNoOrdersFound() { }
 
-```text
+```
 
 #### 🌏 中英文命名對照
 
@@ -3659,7 +3657,7 @@ test('VIP 客戶應該獲得 20% 折扣', () => {
   // 測試邏輯
 });
 
-```text
+```
 
 #### 📊 測試組織與群組
 
@@ -3695,7 +3693,7 @@ class OrderServiceTest {
     }
 }
 
-```text
+```
 
 **測試執行結果:**
 
@@ -3709,7 +3707,7 @@ OrderServiceTest
    ├─ ✓ 成功取消訂單
    └─ ✓ 已出貨訂單無法取消
 
-```text
+```
 
 ### 5.2 安排測試結構（Arrange–Act–Assert 模式）
 
@@ -3721,7 +3719,7 @@ OrderServiceTest
 ```text
 Arrange (準備) → Act (執行) → Assert (驗證)
 
-```text
+```
 
 
 ```java
@@ -3740,7 +3738,7 @@ public void testTransferMoney() {
     assertEquals(800, toAccount.getBalance());
 }
 
-```text
+```
 
 #### 📝 Arrange (準備階段)
 
@@ -3770,7 +3768,7 @@ public void testApplyDiscount() {
     // Act & Assert ...
 }
 
-```text
+```
 
 **使用 Builder 模式簡化準備:**
 
@@ -3819,7 +3817,7 @@ public void testVIPDiscount() {
     assertEquals(0.20, discount, 0.01);
 }
 
-```text
+```
 
 #### ⚡ Act (執行階段)
 
@@ -3841,7 +3839,7 @@ public void testCheckout() {
     assertTrue(result.isSuccess());
 }
 
-```text
+```
 
 **處理例外的 Act:**
 
@@ -3859,7 +3857,7 @@ public void testInvalidPayment_ShouldThrowException() {
     });
 }
 
-```text
+```
 
 **處理非同步的 Act:**
 
@@ -3878,7 +3876,7 @@ public void testAsyncOperation() throws Exception {
     assertEquals("processed: data", result);
 }
 
-```text
+```
 
 #### ✅ Assert (驗證階段)
 
@@ -3922,7 +3920,7 @@ public void testShoppingCart() {
     // 太多驗證!測試失敗時難以定位問題
 }
 
-```text
+```
 
 **使用適當的斷言方法:**
 
@@ -3961,7 +3959,7 @@ assertAll(
     () -> assertTrue(condition)
 );
 
-```text
+```
 
 **清晰的錯誤訊息:**
 
@@ -3981,7 +3979,7 @@ assertAll("訂單驗證",
     () -> assertEquals("PENDING", order.getStatus(), "訂單狀態不正確")
 );
 
-```text
+```
 
 #### 💡 AAA 模式最佳實踐
 
@@ -4004,7 +4002,7 @@ public void testTransferWithInsufficientBalance() {
     assertEquals("Insufficient balance", result.getMessage());
 }
 
-```text
+```
 
 **實踐 2:提取共用準備邏輯**
 
@@ -4037,7 +4035,7 @@ public class OrderServiceTest {
     }
 }
 
-```text
+```
 
 **實踐 3:使用 Given-When-Then 註解**
 
@@ -4057,7 +4055,7 @@ public void testApplyPromoCode() {
     assertEquals(650, order.getFinalPrice());
 }
 
-```text
+```
 
 ### 5.3 單一職責原則（Single Responsibility Principle in Tests）
 
@@ -4101,7 +4099,7 @@ public void testUserRegistrationAndLogin() {
     // 太多職責!
 }
 
-```text
+```
 
 **✅ 遵循 SRP 的測試:**
 
@@ -4212,7 +4210,7 @@ public void testCheckout_ShouldChangeStatusToPaid() {
     assertEquals("PAID", order.getStatus());
 }
 
-```text
+```
 
 ### 5.4 使用 Mock、Stub、Fake、Spy 的正確時機
 
@@ -4227,7 +4225,7 @@ graph TD
     A --> E[Spy<br/>間諜物件]
     A --> F[Fake<br/>假物件]
 
-```text
+```
 
 #### 1️⃣ Dummy - 虛擬物件
 
@@ -4248,7 +4246,7 @@ public void testSendEmail() {
     // 驗證郵件發送行為
 }
 
-```text
+```
 
 #### 2️⃣ Stub - 樁物件
 
@@ -4296,7 +4294,7 @@ public void testWithMockitoStub() {
     assertTrue(service.processOrder(new Order(1000)));
 }
 
-```text
+```
 
 #### 3️⃣ Mock - 模擬物件
 
@@ -4339,7 +4337,7 @@ public void testOrderShouldPassCorrectAmount() {
     assertEquals(1500, captured.getAmount());
 }
 
-```text
+```
 
 **Stub vs Mock 的差異:**
 
@@ -4367,7 +4365,7 @@ public void testWithMock() {
     verify(mock).process(any()); // 驗證互動
 }
 
-```text
+```
 
 #### 4️⃣ Spy - 間諜物件
 
@@ -4407,7 +4405,7 @@ public void testPartialMock() {
     assertEquals(100, spyList.size()); // 使用模擬的 size()
 }
 
-```text
+```
 
 **⚠️ Spy 的陷阱:**
 
@@ -4419,7 +4417,7 @@ when(spyList.get(0)).thenReturn("mocked");
 // ✅ 正確:使用 doReturn
 doReturn("mocked").when(spyList).get(0);
 
-```text
+```
 
 #### 5️⃣ Fake - 假物件
 
@@ -4475,7 +4473,7 @@ public void testWithFakeRepository() {
     assertEquals(saved.getId(), found.getId());
 }
 
-```text
+```
 
 #### 🎯 選擇指南
 
@@ -4500,7 +4498,7 @@ graph TD
     E -->|是| G[使用 Fake]
     E -->|否| H[使用 Stub]
 
-```text
+```
 
 #### 💡 最佳實踐
 
@@ -4527,7 +4525,7 @@ public void testOrderWithExternalService() {
     service.processOrder(order);
 }
 
-```text
+```
 
 **實踐 2:不要過度使用 Mock**
 
@@ -4556,7 +4554,7 @@ public void testGoodExample() {
     when(mockPayment.process(any())).thenReturn(true);
 }
 
-```text
+```
 
 **實踐 3:Mock 外部依賴**
 
@@ -4587,7 +4585,7 @@ public void testGoodExample() {
 
 - 被測試的類別本身
 
-```text
+```
 
 ### 5.5 常見測試陷阱與避免方式
 
@@ -4638,7 +4636,7 @@ public class UserServiceTest {
     }
 }
 
-```text
+```
 
 **解決方案:**
 
@@ -4683,7 +4681,7 @@ public void testCalculateDiscount() {
     assertEquals(900, order.getFinalPrice());
 }
 
-```text
+```
 
 **原則:**
 
@@ -4724,7 +4722,7 @@ public void testGetUserList_ShouldContainAllUsers() {
     assertTrue(users.stream().anyMatch(u -> "Bob".equals(u.getName())));
 }
 
-```text
+```
 
 #### 🕳️ 陷阱 4:忽略測試邊界條件
 
@@ -4768,7 +4766,7 @@ public void testDivide_WithZeroDividend() {
     assertEquals(0, calc.divide(0, 5));
 }
 
-```text
+```
 
 **邊界條件檢查清單:**
 
@@ -4847,7 +4845,7 @@ public class ShoppingCartTest {
     }
 }
 
-```text
+```
 
 #### 🕳️ 陷阱 6:沒有 Assert 的測試
 
@@ -4874,7 +4872,7 @@ public void testProcessOrder_ShouldChangeStatus() {
     assertEquals("PROCESSED", order.getStatus());
 }
 
-```text
+```
 
 #### 🕳️ 陷阱 7:Sleep/延遲測試
 
@@ -4907,7 +4905,7 @@ public void testAsyncWithAwaitility() {
            .until(() -> service.isCompleted());
 }
 
-```text
+```
 
 ---
 
@@ -4988,7 +4986,7 @@ public class CalculatorTest {
     }
 }
 
-```text
+```
 
 **執行測試:**
 
@@ -4996,7 +4994,7 @@ public class CalculatorTest {
 # 測試失敗:Calculator 類別不存在
 Error: Cannot resolve symbol 'Calculator'
 
-```text
+```
 
 **步驟 2: Green - 實作最簡單的程式碼**
 
@@ -5008,7 +5006,7 @@ public class Calculator {
     }
 }
 
-```text
+```
 
 **執行測試:**
 
@@ -5016,7 +5014,7 @@ public class Calculator {
 # 測試通過 ✅
 Tests run: 1, Failures: 0, Errors: 0
 
-```text
+```
 
 **步驟 3: Refactor - 檢視程式碼**
 
@@ -5053,7 +5051,7 @@ public void testAdd_WithLargeNumbers_ShouldNotOverflow() {
     assertEquals(3000000000L, calculator.addLong(2000000000L, 1000000000L));
 }
 
-```text
+```
 
 **Green - 程式碼已支援,測試通過**
 
@@ -5071,7 +5069,7 @@ public class Calculator {
     }
 }
 
-```text
+```
 
 **Refactor - 重構測試準備邏輯**
 
@@ -5100,7 +5098,7 @@ public class CalculatorTest {
     // ... 其他測試
 }
 
-```text
+```
 
 #### 📝 第三次迭代:減法功能
 
@@ -5118,7 +5116,7 @@ public void testSubtract_ResultIsNegative_ShouldReturnNegativeNumber() {
     assertEquals(-2, calculator.subtract(3, 5));
 }
 
-```text
+```
 
 **Green - 實作減法**
 
@@ -5138,7 +5136,7 @@ public class Calculator {
     }
 }
 
-```text
+```
 
 #### 📝 第四次迭代:乘法與除法
 
@@ -5181,7 +5179,7 @@ public void testDivide_ByZero_ShouldThrowArithmeticException() {
     });
 }
 
-```text
+```
 
 **Green - 實作乘法與除法**
 
@@ -5212,7 +5210,7 @@ public class Calculator {
     }
 }
 
-```text
+```
 
 **Refactor - 最終優化**
 
@@ -5253,7 +5251,7 @@ public class Calculator {
     }
 }
 
-```text
+```
 
 #### 📊 完整測試覆蓋率
 
@@ -5269,7 +5267,7 @@ Class           Line Coverage   Branch Coverage
 Calculator      100% (15/15)    100% (4/4)
 -------------------------------------------------------
 
-```text
+```
 
 #### 💡 範例總結
 
@@ -5315,7 +5313,7 @@ Calculator      100% (15/15)    100% (4/4)
   "status": "PENDING"
 }
 
-```text
+```
 
 #### 📝 第一次迭代:建立訂單 API
 
@@ -5401,7 +5399,7 @@ public class OrderControllerTest {
     }
 }
 
-```text
+```
 
 **步驟 2: Green - 實作 Controller**
 
@@ -5430,7 +5428,7 @@ public class OrderController {
     }
 }
 
-```text
+```
 
 **DTO 類別:**
 
@@ -5475,7 +5473,7 @@ public record OrderResponse(
     }
 }
 
-```text
+```
 
 **步驟 3: 實作 Service 層測試**
 
@@ -5546,7 +5544,7 @@ public class OrderServiceTest {
     }
 }
 
-```text
+```
 
 **Service 實作:**
 
@@ -5610,7 +5608,7 @@ public class OrderService {
     }
 }
 
-```text
+```
 
 #### 📝 第二次迭代:查詢訂單 API
 
@@ -5661,7 +5659,7 @@ public void testGetAllOrders_ShouldReturnOrderList() throws Exception {
         .andExpect(jsonPath("$[1].id").value("ORD-002"));
 }
 
-```text
+```
 
 **Green - 實作**
 
@@ -5691,7 +5689,7 @@ public class OrderController {
     }
 }
 
-```text
+```
 
 **全域例外處理:**
 
@@ -5737,7 +5735,7 @@ public class GlobalExceptionHandler {
 
 public record ErrorResponse(String code, String message) {}
 
-```text
+```
 
 #### 📝 第三次迭代:取消訂單 API
 
@@ -5769,7 +5767,7 @@ public void testCancelOrder_WithCompletedOrder_ShouldReturn400() throws Exceptio
         .andExpect(jsonPath("$.error").exists());
 }
 
-```text
+```
 
 **Green - 實作**
 
@@ -5801,7 +5799,7 @@ public Order cancelOrder(String orderId) {
     return orderRepository.save(order);
 }
 
-```text
+```
 
 **Order 領域模型:**
 
@@ -5829,7 +5827,7 @@ public class Order {
     }
 }
 
-```text
+```
 
 #### 🧪 整合測試
 
@@ -5879,7 +5877,7 @@ public class OrderIntegrationTest {
     }
 }
 
-```text
+```
 
 #### 💡 範例總結
 
@@ -5940,7 +5938,7 @@ public class CustomerRepositoryTest {
     // ... 測試方法
 }
 
-```text
+```
 
 **application-test.yml:**
 
@@ -5958,7 +5956,7 @@ spring:
     console:
       enabled: true
 
-```text
+```
 
 #### 📝 第一次迭代:基本 CRUD 操作
 
@@ -6009,7 +6007,7 @@ public void testFindById_WithNonExistingId_ShouldReturnEmpty() {
     assertFalse(found.isPresent());
 }
 
-```text
+```
 
 **Green - 實作 Entity 與 Repository**
 
@@ -6047,7 +6045,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     // 基本方法由 JpaRepository 提供
 }
 
-```text
+```
 
 #### 📝 第二次迭代:自訂查詢方法
 
@@ -6111,7 +6109,7 @@ public void testFindByNameContaining_ShouldReturnMatchingCustomers() {
         .allMatch(c -> c.getName().contains("Doe")));
 }
 
-```text
+```
 
 **Green - 實作查詢方法**
 
@@ -6126,7 +6124,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     List<Customer> findByNameContaining(String name);
 }
 
-```text
+```
 
 #### 📝 第三次迭代:複雜查詢
 
@@ -6178,7 +6176,7 @@ public void testCountByActiveTrue_ShouldReturnActiveCustomerCount() {
     assertEquals(2, count);
 }
 
-```text
+```
 
 **Green - 使用 @Query 實作**
 
@@ -6203,7 +6201,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     List<Customer> findByEmailDomain(@Param("domain") String domain);
 }
 
-```text
+```
 
 #### 📝 第四次迭代:事務測試
 
@@ -6259,7 +6257,7 @@ public void testSoftDelete_ShouldSetActiveToFalse() {
     assertFalse(found.isActive());
 }
 
-```text
+```
 
 **Green - 實作軟刪除**
 
@@ -6274,7 +6272,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     void softDelete(@Param("id") Long id);
 }
 
-```text
+```
 
 **Service 層封裝:**
 
@@ -6295,7 +6293,7 @@ public class CustomerService {
     }
 }
 
-```text
+```
 
 #### 💡 測試輔助方法
 
@@ -6376,7 +6374,7 @@ public class CustomerRepositoryTest {
     }
 }
 
-```text
+```
 
 #### 💡 範例總結
 
@@ -6440,7 +6438,7 @@ graph LR
     E --> F[Sprint Review]
     F --> G[Sprint Retrospective]
 
-```text
+```
 
 **Sprint Planning 階段:**
 
@@ -6486,7 +6484,7 @@ graph LR
 
 - [ ] 已合併至主分支
 
-```text
+```
 
 ### 7.2 Pair Programming 與 TDD
 
@@ -6538,7 +6536,7 @@ public class Order {
     }
 }
 
-```text
+```
 
 #### 💡 Pair Programming 最佳實踐
 
@@ -6603,7 +6601,7 @@ public class Order {
 
 - [ ] 沒有依賴外部環境
 
-```text
+```
 
 #### 💬 Code Review 對話範例
 
@@ -6637,7 +6635,7 @@ public void testCreateOrder() {
     // 更簡潔,更真實
 }
 
-```text
+```
 
 ### 7.4 在 CI/CD Pipeline 中整合測試流程
 
@@ -6745,7 +6743,7 @@ pipeline {
     }
 }
 
-```text
+```
 
 ### 7.5 建立團隊 TDD 實踐文化
 
@@ -6836,7 +6834,7 @@ pipeline {
 
 - 實際專案練習
 
-```text
+```
 
 #### 💡 克服團隊阻力
 
@@ -6869,7 +6867,7 @@ testDivide()
 
 // 然後一次實作所有功能
 
-```text
+```
 
 **正確做法:**
 
@@ -6878,7 +6876,7 @@ testDivide()
 testAdd() → implement add() → refactor
 testSubtract() → implement subtract() → refactor
 
-```text
+```
 
 #### ❌ 誤區 2:測試覆蓋率 100% 就是好測試
 
@@ -6907,7 +6905,7 @@ Product mockProduct = mock(Product.class);
 Customer mockCustomer = mock(Customer.class);
 // 連簡單的值物件都 Mock
 
-```text
+```
 
 **正確:**
 
@@ -6916,7 +6914,7 @@ Product product = new Product("Item", 100); // 真實物件
 Customer customer = new Customer("John");    // 真實物件
 PaymentService mockPayment = mock(PaymentService.class); // 只 Mock 外部依賴
 
-```text
+```
 
 #### ❌ 誤區 4:測試私有方法
 
@@ -6930,7 +6928,7 @@ public void testPrivateMethod() {
     // 不應該測試私有方法
 }
 
-```text
+```
 
 **正確:**
 
@@ -6942,7 +6940,7 @@ public void testPublicBehavior() {
     assertEquals(expected, result);
 }
 
-```text
+```
 
 ### 8.2 測試覆蓋率與品質間的平衡
 
@@ -6956,7 +6954,7 @@ public void testPublicBehavior() {
 工具類別:        90-100%
 配置類別:        50-70%
 
-```text
+```
 
 #### 💡 不必追求 100% 覆蓋率的情況
 
@@ -7003,7 +7001,7 @@ public void testLegacyBehavior() {
     assertEquals(currentBehavior, result);
 }
 
-```text
+```
 
 **步驟 2:小步重構**
 
@@ -7021,7 +7019,7 @@ public void testValidateInput() {
     // 可以單獨測試提取出來的方法
 }
 
-```text
+```
 
 **步驟 3:打破依賴**
 
@@ -7057,7 +7055,7 @@ public void testProcess() {
     verify(mockDb).save(any());
 }
 
-```text
+```
 
 ### 8.4 大型專案中導入 TDD 的建議
 
@@ -7232,7 +7230,7 @@ Feature: 購物車結帳
     Then 我應該支付 800 元
     And 折扣為 200 元
 
-```text
+```
 
 **使用 Cucumber 實作:**
 
@@ -7259,7 +7257,7 @@ public void 我應該支付元(int expectedAmount) {
     assertEquals(expectedAmount, result.getFinalAmount());
 }
 
-```text
+```
 
 #### 💡 TDD vs BDD
 
@@ -7316,7 +7314,7 @@ boolean sortedListIsOrdered(@ForAll List<Integer> list) {
     return true;
 }
 
-```text
+```
 
 ### 9.3 測試驅動的設計（Test-Driven Design）
 
@@ -7362,7 +7360,7 @@ public interface OrderRepository {
     Order findById(String id);
 }
 
-```text
+```
 
 ### 9.4 自動化測試報告與品質儀表板
 
@@ -7376,7 +7374,7 @@ public interface OrderRepository {
     <version>2.24.0</version>
 </dependency>
 
-```text
+```
 
 
 ```java
@@ -7393,7 +7391,7 @@ public class OrderCreationTest {
     }
 }
 
-```text
+```
 
 #### 📈 SonarQube 品質儀表板
 
@@ -7682,5 +7680,4 @@ TDD 不僅是一種測試技術,更是一種開發思維方式。透過持續的
 *文件版本: 1.0*  
 *最後更新: 2025年11月7日*  
 *作者: Eric Cheng*
-
 
