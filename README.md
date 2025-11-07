@@ -7,6 +7,8 @@
 - **部落格網址**: [https://chihhung.github.io/Blog/](https://chihhung.github.io/Blog/)
 - **GitHub 倉庫**: [https://github.com/chihhung/Blog](https://github.com/chihhung/Blog)
 
+> ⚠️ **重要提醒**: 本網站使用 Hugo + GitHub Actions 部署，請確保 GitHub Pages 設定中的 Source 為 "GitHub Actions"
+
 ## 🛠️ 技術棧
 
 - **靜態網站生成器**: Hugo v0.151.0 Extended
