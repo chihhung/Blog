@@ -1594,24 +1594,30 @@ Gherkin 是 BDD 的標準語言,用於撰寫可執行規格。它簡單、結構
 #### Gherkin 的設計理念
 
 ```mermaid
-mindmap
-  root((Gherkin))
-    可讀性
-      自然語言
-      結構清晰
-      非技術人員友善
-    可執行性
-      機器可解析
-      自動化框架
-      CI/CD 整合
-    協作性
-      共通語言
-      溝通橋樑
-      活文件
-    表達力
-      範例驅動
-      資料驅動
-      情境完整
+graph TB
+    Gherkin[Gherkin]
+    
+    Gherkin --> A[可讀性]
+    A --> A1[自然語言]
+    A --> A2[結構清晰]
+    A --> A3[非技術人員友善]
+    
+    Gherkin --> B[可執行性]
+    B --> B1[機器可解析]
+    B --> B2[自動化框架]
+    B --> B3[CI/CD 整合]
+    
+    Gherkin --> C[協作性]
+    C --> C1[共通語言]
+    C --> C2[溝通橋樑]
+    C --> C3[活文件]
+    
+    Gherkin --> D[表達力]
+    D --> D1[範例驅動]
+    D --> D2[資料驅動]
+    D --> D3[情境完整]
+    
+    style Gherkin fill:#9cf,stroke:#333,stroke-width:4px
 ```
 
 #### Gherkin 基本結構
@@ -4105,23 +4111,31 @@ graph TB
 **三方視角的互補**:
 
 ```mermaid
-mindmap
-  root((User Story))
-    BA 視角
-      業務價值
-      使用者需求
-      業務規則
-      優先順序
-    Dev 視角
-      技術可行性
-      實作複雜度
-      技術依賴
-      效能考量
-    QA 視角
-      測試場景
-      邊界條件
-      例外處理
-      驗證方式
+graph TB
+    UserStory[User Story]
+    
+    UserStory --> BA[BA 視角]
+    BA --> BA1[業務價值]
+    BA --> BA2[使用者需求]
+    BA --> BA3[業務規則]
+    BA --> BA4[優先順序]
+    
+    UserStory --> Dev[Dev 視角]
+    Dev --> Dev1[技術可行性]
+    Dev --> Dev2[實作複雜度]
+    Dev --> Dev3[技術依賴]
+    Dev --> Dev4[效能考量]
+    
+    UserStory --> QA[QA 視角]
+    QA --> QA1[測試場景]
+    QA --> QA2[邊界條件]
+    QA --> QA3[例外處理]
+    QA --> QA4[驗證方式]
+    
+    style UserStory fill:#ff9,stroke:#333,stroke-width:4px
+    style BA fill:#9f9,stroke:#333,stroke-width:2px
+    style Dev fill:#99f,stroke:#333,stroke-width:2px
+    style QA fill:#f99,stroke:#333,stroke-width:2px
 ```
 
 #### 5.2.2 Three Amigos 會議實施
@@ -6888,24 +6902,30 @@ def step_impl(context, order_id, status):
 **評估維度**:
 
 ```mermaid
-mindmap
-  root((Feature Quality))
-    可讀性
-      業務語言
-      清晰結構
-      適當註解
-    可維護性
-      避免重複
-      適當抽象
-      版本控管
-    完整性
-      Happy Path
-      異常情況
-      邊界條件
-    可測試性
-      Step 可實作
-      獨立性
-      可重現性
+graph TB
+    Quality[Feature Quality]
+    
+    Quality --> A[可讀性]
+    A --> A1[業務語言]
+    A --> A2[清晰結構]
+    A --> A3[適當註解]
+    
+    Quality --> B[可維護性]
+    B --> B1[避免重複]
+    B --> B2[適當抽象]
+    B --> B3[版本控管]
+    
+    Quality --> C[完整性]
+    C --> C1[Happy Path]
+    C --> C2[異常情況]
+    C --> C3[邊界條件]
+    
+    Quality --> D[可測試性]
+    D --> D1[Step 可實作]
+    D --> D2[獨立性]
+    D --> D3[可重現性]
+    
+    style Quality fill:#f96,stroke:#333,stroke-width:4px
 ```
 
 #### 7.5.2 常見重構模式
@@ -7630,24 +7650,30 @@ PR Checklist:
 #### 8.4.1 文化轉型的關鍵要素
 
 ```mermaid
-mindmap
-  root((BDD 協作文化))
-    共同語言
-      業務術語
-      Gherkin
-      範例溝通
-    共同責任
-      共享品質目標
-      跨職能協作
-      集體擁有
-    持續學習
-      回顧改善
-      經驗分享
-      開放反饋
-    信任尊重
-      傾聽理解
-      互相支持
-      心理安全
+graph TB
+    Culture[BDD 協作文化]
+    
+    Culture --> A[共同語言]
+    A --> A1[業務術語]
+    A --> A2[Gherkin]
+    A --> A3[範例溝通]
+    
+    Culture --> B[共同責任]
+    B --> B1[共享品質目標]
+    B --> B2[跨職能協作]
+    B --> B3[集體擁有]
+    
+    Culture --> C[持續學習]
+    C --> C1[回顧改善]
+    C --> C2[經驗分享]
+    C --> C3[開放反饋]
+    
+    Culture --> D[信任尊重]
+    D --> D1[傾聽理解]
+    D --> D2[互相支持]
+    D --> D3[心理安全]
+    
+    style Culture fill:#9cf,stroke:#333,stroke-width:4px
 ```
 
 **建立共同語言**:
