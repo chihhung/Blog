@@ -2215,12 +2215,11 @@ test:
 
 
 ```mermaid
-line
-    title 測試覆蓋率趨勢
+xychart-beta
+    title "測試覆蓋率趨勢"
     x-axis [Week1, Week2, Week3, Week4, Week5, Week6]
     y-axis "Coverage %" 0 --> 100
     line [65, 70, 75, 78, 82, 85]
-
 ```
 
 #### 📋 檢查清單範本
