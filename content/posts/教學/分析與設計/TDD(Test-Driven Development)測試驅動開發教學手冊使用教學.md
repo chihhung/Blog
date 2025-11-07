@@ -6646,24 +6646,17 @@ public void testCreateOrder() {
 
 ```mermaid
 graph TD
-    A[Push Code] --> B[Trigger CI]
-    B --> C[Compile]
-    C --> D[Run Unit Tests]
-    D --> E{Tests Pass?}
-    E -->|No| F[Notify Developer]
-    E -->|Yes| G[Run Integration Tests]
-    G --> H{Tests Pass?}
-    H -->|No| F
-    H -->|Yes| I[Code Quality Check]
-    I --> J[Generate Coverage Report]
-    J --> K[Build Docker Image]
-    K --> L[Deploy to Staging]
-    L --> M[Run E2E Tests]
-    M --> N{Tests Pass?}
-    N -->|No| F
-    N -->|Yes| O[Deploy to Production]
-
-```text
+    A[Push Code] --> B[CI 建置]
+    B --> C[執行測試]
+    C --> D{測試通過?}
+    D -->|否| E[通知開發者]
+    D -->|是| F[程式碼檢查]
+    F --> G[部署至 Staging]
+    G --> H[E2E 測試]
+    H --> I{驗證通過?}
+    I -->|否| E
+    I -->|是| J[部署至 Production]
+```
 
 #### 📝 Jenkins Pipeline 範例
 
