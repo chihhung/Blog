@@ -749,28 +749,34 @@ graph LR
 #### Discovery 的核心理念
 
 ```mermaid
-mindmap
-  root((Discovery))
-    協作對話
-      Three Amigos
-      利害關係人
-      領域專家
-      技術團隊
-    具體範例
-      正常流程
-      異常情況
-      邊界條件
-      業務規則
-    共享理解
-      消除歧義
-      統一語言
-      暴露假設
-      降低風險
-    及早發現
-      需求缺陷
-      技術限制
-      依賴關係
-      整合問題
+graph TB
+    Discovery[Discovery]
+    
+    Discovery --> A[協作對話]
+    A --> A1[Three Amigos]
+    A --> A2[利害關係人]
+    A --> A3[領域專家]
+    A --> A4[技術團隊]
+    
+    Discovery --> B[具體範例]
+    B --> B1[正常流程]
+    B --> B2[異常情況]
+    B --> B3[邊界條件]
+    B --> B4[業務規則]
+    
+    Discovery --> C[共享理解]
+    C --> C1[消除歧義]
+    C --> C2[統一語言]
+    C --> C3[暴露假設]
+    C --> C4[降低風險]
+    
+    Discovery --> D[及早發現]
+    D --> D1[需求缺陷]
+    D --> D2[技術限制]
+    D --> D3[依賴關係]
+    D --> D4[整合問題]
+    
+    style Discovery fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
 #### Discovery Workshop 實施步驟
