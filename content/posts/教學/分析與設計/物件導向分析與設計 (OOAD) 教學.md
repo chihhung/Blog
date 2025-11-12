@@ -1271,28 +1271,21 @@ class OrderServiceTest {
 
 #### 3.7.1 測試策略
 
+**測試金字塔**:
+
 ```mermaid
-pyramid
-    title 測試金字塔
+graph TB
+    subgraph "測試金字塔"
+        E2E["端到端測試 (E2E Tests)<br/>測試完整的使用者情境<br/>覆蓋率: 5-10%<br/>工具: Selenium, Cucumber"]
+        Integration["整合測試 (Integration Tests)<br/>測試組件間的互動<br/>覆蓋率: 15-20%<br/>工具: TestContainers, Spring Boot Test"]
+        Unit["單元測試 (Unit Tests)<br/>測試個別類別和方法<br/>覆蓋率: 70-80%<br/>工具: JUnit, Mockito"]
+        
+        E2E --> Integration
+        Integration --> Unit
+    end
     
-    level1: 單元測試 (Unit Tests)
-        description: 測試個別類別和方法
-        coverage: 70-80%
-        tools: JUnit, Mockito
-        
-    level2: 整合測試 (Integration Tests)
-        description: 測試組件間的互動
-        coverage: 15-20%
-        tools: TestContainers, Spring Boot Test
-        
-    level3: 端到端測試 (E2E Tests)
-        description: 測試完整的使用者情境
-        coverage: 5-10%
-        tools: Selenium, Cucumber
-        
-    level4: 手動測試 (Manual Tests)
-        description: 探索性測試和使用者驗收測試
-        coverage: 補充自動化測試無法涵蓋的部分
+    Manual["手動測試 (Manual Tests)<br/>探索性測試和使用者驗收測試"]
+    E2E -.-> Manual
 ```
 
 #### 3.7.2 整合測試範例
