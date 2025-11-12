@@ -1,4 +1,4 @@
-﻿+++
++++
 date = '2025-10-31T00:00:00+08:00'
 draft = false
 title = 'Design Pattern教學(二)'
@@ -202,34 +202,73 @@ public class UserService {
 GoF 設計模式按照用途分為三大類別：
 
 ```mermaid
-mindmap
-  root((設計模式))
-    創建型模式
-      Singleton
-      Factory Method
-      Abstract Factory
-      Builder
-      Prototype
-    結構型模式
-      Adapter
-      Bridge
-      Composite
-      Decorator
-      Facade
-      Flyweight
-      Proxy
-    行為型模式
-      Chain of Responsibility
-      Command
-      Interpreter
-      Iterator
-      Mediator
-      Memento
-      Observer
-      State
-      Strategy
-      Template Method
-      Visitor
+graph TB
+    Root["設計模式<br/>23種GoF模式"]
+    
+    C["創建型模式<br/>Creational Patterns"]
+    S["結構型模式<br/>Structural Patterns"]
+    B["行為型模式<br/>Behavioral Patterns"]
+    
+    C1[Singleton]
+    C2[Factory Method]
+    C3[Abstract Factory]
+    C4[Builder]
+    C5[Prototype]
+    
+    S1[Adapter]
+    S2[Bridge]
+    S3[Composite]
+    S4[Decorator]
+    S5[Facade]
+    S6[Flyweight]
+    S7[Proxy]
+    
+    B1[Chain of Responsibility]
+    B2[Command]
+    B3[Interpreter]
+    B4[Iterator]
+    B5[Mediator]
+    B6[Memento]
+    B7[Observer]
+    B8[State]
+    B9[Strategy]
+    B10[Template Method]
+    B11[Visitor]
+    
+    Root --> C
+    Root --> S
+    Root --> B
+    
+    C --> C1
+    C --> C2
+    C --> C3
+    C --> C4
+    C --> C5
+    
+    S --> S1
+    S --> S2
+    S --> S3
+    S --> S4
+    S --> S5
+    S --> S6
+    S --> S7
+    
+    B --> B1
+    B --> B2
+    B --> B3
+    B --> B4
+    B --> B5
+    B --> B6
+    B --> B7
+    B --> B8
+    B --> B9
+    B --> B10
+    B --> B11
+    
+    style Root fill:#f9f,stroke:#333,stroke-width:4px
+    style C fill:#bbf,stroke:#333,stroke-width:2px
+    style S fill:#bfb,stroke:#333,stroke-width:2px
+    style B fill:#fbb,stroke:#333,stroke-width:2px
 ```
 
 ### 2.2 創建型模式（Creational Patterns）
@@ -352,7 +391,7 @@ classDiagram
         +request()
     }
     class Context {
-        -strategy: Strategy
+        -strategy Strategy
         +setStrategy(Strategy)
         +doSomething()
     }
@@ -489,10 +528,10 @@ graph TD
 ```mermaid
 classDiagram
     class Singleton {
-        -instance: Singleton
+        -instance Singleton
         -Singleton()
-        +getInstance(): Singleton
-        +doSomething(): void
+        +getInstance() Singleton
+        +doSomething() void
     }
     
     note for Singleton "私有建構子防止外部實例化\n靜態方法提供全域存取點"
@@ -664,18 +703,18 @@ public class AppConfig {
 classDiagram
     class Creator {
         <<abstract>>
-        +factoryMethod(): Product
-        +someOperation(): void
+        +factoryMethod() Product
+        +someOperation() void
     }
     class ConcreteCreator {
-        +factoryMethod(): Product
+        +factoryMethod() Product
     }
     class Product {
         <<interface>>
-        +doStuff(): void
+        +doStuff() void
     }
     class ConcreteProduct {
-        +doStuff(): void
+        +doStuff() void
     }
     
     Creator <|-- ConcreteCreator
@@ -1058,16 +1097,16 @@ public class Warrior extends GameCharacter {
 classDiagram
     class AbstractFactory {
         <<interface>>
-        +createProductA(): AbstractProductA
-        +createProductB(): AbstractProductB
+        +createProductA() AbstractProductA
+        +createProductB() AbstractProductB
     }
     class ConcreteFactory1 {
-        +createProductA(): AbstractProductA
-        +createProductB(): AbstractProductB
+        +createProductA() AbstractProductA
+        +createProductB() AbstractProductB
     }
     class ConcreteFactory2 {
-        +createProductA(): AbstractProductA
-        +createProductB(): AbstractProductB
+        +createProductA() AbstractProductA
+        +createProductB() AbstractProductB
     }
     class AbstractProductA {
         <<interface>>
@@ -1314,24 +1353,24 @@ public class GUIFactoryManager {
 ```mermaid
 classDiagram
     class Director {
-        -builder: Builder
-        +construct(): void
+        -builder Builder
+        +construct() void
     }
     class Builder {
         <<interface>>
-        +buildPartA(): void
-        +buildPartB(): void
-        +getResult(): Product
+        +buildPartA() void
+        +buildPartB() void
+        +getResult() Product
     }
     class ConcreteBuilder {
-        -product: Product
-        +buildPartA(): void
-        +buildPartB(): void
-        +getResult(): Product
+        -product Product
+        +buildPartA() void
+        +buildPartB() void
+        +getResult() Product
     }
     class Product {
-        +partA: String
-        +partB: String
+        +partA String
+        +partB String
     }
     
     Director --> Builder
@@ -1554,16 +1593,16 @@ public class ComputerDirector {
 classDiagram
     class Prototype {
         <<interface>>
-        +clone(): Prototype
+        +clone() Prototype
     }
     class ConcretePrototype {
-        -field: String
-        +clone(): Prototype
-        +setField(String): void
-        +getField(): String
+        -field String
+        +clone() Prototype
+        +setField(String) void
+        +getField() String
     }
     class Client {
-        +operation(): void
+        +operation() void
     }
     
     Prototype <|.. ConcretePrototype
@@ -1921,17 +1960,17 @@ graph TD
 classDiagram
     class Target {
         <<interface>>
-        +request(): void
+        +request() void
     }
     class Adapter {
-        -adaptee: Adaptee
-        +request(): void
+        -adaptee Adaptee
+        +request() void
     }
     class Adaptee {
-        +specificRequest(): void
+        +specificRequest() void
     }
     class Client {
-        +main(): void
+        +main() void
     }
     
     Target <|.. Adapter
@@ -2293,23 +2332,23 @@ public class UserService {
 classDiagram
     class Component {
         <<interface>>
-        +operation(): void
+        +operation() void
     }
     class ConcreteComponent {
-        +operation(): void
+        +operation() void
     }
     class Decorator {
         <<abstract>>
-        -component: Component
-        +operation(): void
+        -component Component
+        +operation() void
     }
     class ConcreteDecoratorA {
-        +operation(): void
-        +addedBehavior(): void
+        +operation() void
+        +addedBehavior() void
     }
     class ConcreteDecoratorB {
-        +operation(): void
-        +addedState: String
+        +operation() void
+        +addedState String
     }
     
     Component <|.. ConcreteComponent
@@ -3371,22 +3410,22 @@ graph TD
 ```mermaid
 classDiagram
     class Context {
-        -strategy: Strategy
-        +setStrategy(Strategy): void
-        +executeStrategy(): void
+        -strategy Strategy
+        +setStrategy(Strategy) void
+        +executeStrategy() void
     }
     class Strategy {
         <<interface>>
-        +execute(): void
+        +execute() void
     }
     class ConcreteStrategyA {
-        +execute(): void
+        +execute() void
     }
     class ConcreteStrategyB {
-        +execute(): void
+        +execute() void
     }
     class ConcreteStrategyC {
-        +execute(): void
+        +execute() void
     }
     
     Context --> Strategy
