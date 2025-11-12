@@ -426,7 +426,7 @@ classDiagram
     }
     
     class Product {
-        <<interface>>
+        <<Interface>>
         +operation() void
     }
     
@@ -789,7 +789,7 @@ Abstract Factory 模式提供一個創建一系列相關或相互依賴物件的
 ```mermaid
 classDiagram
     class AbstractFactory {
-        <<interface>>
+        <<Interface>>
         +createProductA() AbstractProductA
         +createProductB() AbstractProductB
     }
@@ -805,11 +805,11 @@ classDiagram
     }
     
     class AbstractProductA {
-        <<interface>>
+        <<Interface>>
     }
     
     class AbstractProductB {
-        <<interface>>
+        <<Interface>>
     }
     
     class ProductA1
@@ -1070,7 +1070,7 @@ Prototype 模式用於創建重複的物件，同時又能保證效能。這種�
 ```mermaid
 classDiagram
     class Prototype {
-        <<interface>>
+        <<Interface>>
         +clone() Prototype
     }
     
@@ -1448,7 +1448,7 @@ Adapter 模式讓原本因為介面不相容而無法合作的類別可以一起
 ```mermaid
 classDiagram
     class Target {
-        <<interface>>
+        <<Interface>>
         +request() void
     }
     
@@ -1675,7 +1675,7 @@ Decorator 模式動態地為物件添加新功能，而不改變其結構。這�
 ```mermaid
 classDiagram
     class Component {
-        <<interface>>
+        <<Interface>>
         +operation() void
     }
     
@@ -2191,7 +2191,7 @@ Proxy 模式為其他物件提供一個代理以控制對這個物件的存取�
 ```mermaid
 classDiagram
     class Subject {
-        <<interface>>
+        <<Interface>>
         +request() void
     }
     
@@ -2837,7 +2837,7 @@ classDiagram
     }
     
     class Implementor {
-        <<interface>>
+        <<Interface>>
         +operationImpl() void
     }
     
@@ -3216,7 +3216,7 @@ public class BridgeExample {
 ```mermaid
 classDiagram
     class Flyweight {
-        <<interface>>
+        <<Interface>>
         +operation(extrinsicState)
     }
     
@@ -3678,7 +3678,7 @@ Observer 模式定義物件間的一對多依賴關係，當一個物件狀態�
 ```mermaid
 classDiagram
     class Subject {
-        <<interface>>
+        <<Interface>>
         +attach(observer: Observer) void
         +detach(observer: Observer) void
         +notifyObservers() void
@@ -3695,7 +3695,7 @@ classDiagram
     }
     
     class Observer {
-        <<interface>>
+        <<Interface>>
         +update(subject: Subject) void
     }
     
@@ -4001,7 +4001,7 @@ classDiagram
     }
     
     class Strategy {
-        <<interface>>
+        <<Interface>>
         +execute() void
     }
     
@@ -4971,7 +4971,7 @@ Command 模式將一個請求封裝為一個物件，從而讓你可用不同的
 ```mermaid
 classDiagram
     class Command {
-        <<interface>>
+        <<Interface>>
         +execute() void
         +undo() void
     }
@@ -5590,7 +5590,7 @@ classDiagram
     }
     
     class State {
-        <<interface>>
+        <<Interface>>
         +handle(context: Context) void
     }
     
@@ -5761,7 +5761,7 @@ public class DepartmentManager extends LeaveApprovalHandler {
 ```mermaid
 classDiagram
     class Iterator {
-        <<interface>>
+        <<Interface>>
         +hasNext() boolean
         +next() Object
         +remove()
@@ -5776,7 +5776,7 @@ classDiagram
     }
     
     class Aggregate {
-        <<interface>>
+        <<Interface>>
         +createIterator() Iterator
     }
     

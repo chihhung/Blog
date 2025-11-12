@@ -396,7 +396,7 @@ classDiagram
         +doSomething()
     }
     class Strategy {
-        <<interface>>
+        <<Interface>>
         +execute()
     }
     class ConcreteStrategyA {
@@ -410,9 +410,6 @@ classDiagram
     Context --> Strategy
     Strategy <|.. ConcreteStrategyA
     Strategy <|.. ConcreteStrategyB
-    
-    note for Strategy "策略介面定義"
-    note for Context "上下文持有策略參考"
 ```
 
 ### 2.7 選擇設計模式的決策樹
@@ -533,9 +530,11 @@ classDiagram
         +getInstance() Singleton
         +doSomething() void
     }
-    
-    note for Singleton "私有建構子防止外部實例化\n靜態方法提供全域存取點"
 ```
+
+**說明**：
+- 私有建構子防止外部實例化
+- 靜態方法提供全域存取點
 
 #### 3.2.4 實作範例
 
@@ -710,7 +709,7 @@ classDiagram
         +factoryMethod() Product
     }
     class Product {
-        <<interface>>
+        <<Interface>>
         +doStuff() void
     }
     class ConcreteProduct {
@@ -1096,7 +1095,7 @@ public class Warrior extends GameCharacter {
 ```mermaid
 classDiagram
     class AbstractFactory {
-        <<interface>>
+        <<Interface>>
         +createProductA() AbstractProductA
         +createProductB() AbstractProductB
     }
@@ -1109,10 +1108,10 @@ classDiagram
         +createProductB() AbstractProductB
     }
     class AbstractProductA {
-        <<interface>>
+        <<Interface>>
     }
     class AbstractProductB {
-        <<interface>>
+        <<Interface>>
     }
     class ProductA1 {
     }
@@ -1357,7 +1356,7 @@ classDiagram
         +construct() void
     }
     class Builder {
-        <<interface>>
+        <<Interface>>
         +buildPartA() void
         +buildPartB() void
         +getResult() Product
@@ -1592,7 +1591,7 @@ public class ComputerDirector {
 ```mermaid
 classDiagram
     class Prototype {
-        <<interface>>
+        <<Interface>>
         +clone() Prototype
     }
     class ConcretePrototype {
@@ -1959,7 +1958,7 @@ graph TD
 ```mermaid
 classDiagram
     class Target {
-        <<interface>>
+        <<Interface>>
         +request() void
     }
     class Adapter {
@@ -2331,7 +2330,7 @@ public class UserService {
 ```mermaid
 classDiagram
     class Component {
-        <<interface>>
+        <<Interface>>
         +operation() void
     }
     class ConcreteComponent {
@@ -3415,7 +3414,7 @@ classDiagram
         +executeStrategy() void
     }
     class Strategy {
-        <<interface>>
+        <<Interface>>
         +execute() void
     }
     class ConcreteStrategyA {

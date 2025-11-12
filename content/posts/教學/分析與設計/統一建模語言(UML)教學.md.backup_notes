@@ -360,6 +360,8 @@ classDiagram
     Course ||--o{ Enrollment : "has enrollments"
     Department ||--o{ Course : "offers"
     
+    note for Student : "學生可以選修多門課程"
+    note for Course : "課程可以有多名學生"
 ```
 
 #### 類別關係類型
@@ -1289,6 +1291,9 @@ classDiagram
     Student ..> Utils : uses
     Course ..> Utils : uses
     
+    note for Person : "抽象基底類別\n定義共同屬性和行為"
+    note for Student : "繼承 Person\n新增學生特有功能"
+    note for Course : "管理課程資訊\n和學生註冊"
 ```
 
 ##### 2. 學生註冊課程的序列圖
@@ -1734,6 +1739,8 @@ classDiagram
     Student ||--o{ Grade
     Course ||--o{ Grade
     
+    note for User : "抽象使用者類別\n定義共同登入功能"
+    note for Enrollment : "學生選課關聯實體\n包含選課狀態"
 ```
 
 #### Step 3: 互動建模 - 學生選課序列圖
@@ -1891,6 +1898,8 @@ classDiagram
     EnrollmentService --> CourseService : uses
     EnrollmentService --> EmailService : uses
     
+    note for EnrollmentService : "核心業務邏輯\n處理選課規則驗證"
+    note for EmailService : "外部服務整合\n處理通知功能"
 ```
 
 ### 6.3 架構設計 - 元件圖

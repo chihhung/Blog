@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid ClassDiagram 測試 - v11.12.1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            border-left: 4px solid #2196F3;
+            padding-left: 10px;
+        }
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .mermaid {
+            background: #fafafa;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Mermaid ClassDiagram 測試 - v11.12.1</h1>
+    
+    <div class="note">
+        <strong>測試環境：</strong> Mermaid v11.12.1<br>
+        <strong>測試目的：</strong> 驗證 classDiagram 語法在 Mermaid v11+ 中的相容性
+    </div>
+
+    <div class="test-section">
+        <h2>✅ 測試 1: Singleton Pattern (修正後 - 無 note 語法)</h2>
+        <pre class="mermaid">
+classDiagram
+    class Singleton {
+        -instance Singleton
+        -Singleton()
+        +getInstance() Singleton
+        +doSomething() void
+    }
+        </pre>
+        <p><span class="success">✓ 應該正常顯示</span> - 已移除不相容的 note 語法</p>
+    </div>
+
+    <div class="test-section">
+        <h2>✅ 測試 2: Strategy Pattern (修正後 - 無 note 語法)</h2>
+        <pre class="mermaid">
+classDiagram
+    class Client {
+        +request()
+    }
+    class Context {
+        -strategy Strategy
+        +setStrategy(Strategy)
+        +doSomething()
+    }
+    class Strategy {
+        <<interface>>
+        +execute()
+    }
+    class ConcreteStrategyA {
+        +execute()
+    }
+    class ConcreteStrategyB {
+        +execute()
+    }
+    
+    Client --> Context
+    Context --> Strategy
+    Strategy <|.. ConcreteStrategyA
+    Strategy <|.. ConcreteStrategyB
+        </pre>
+        <p><span class="success">✓ 應該正常顯示</span> - 已移除不相容的 note 語法</p>
+    </div>
+
+    <div class="test-section">
+        <h2>✅ 測試 3: Builder Pattern (原本就正確的語法)</h2>
+        <pre class="mermaid">
+classDiagram
+    class Director {
+        -builder Builder
+        +construct() void
+    }
+    
+    class Builder {
+        <<abstract>>
+        +buildPartA() void
+        +buildPartB() void
+        +getResult() Product
+    }
+    
+    class ConcreteBuilder {
+        -product Product
+        +buildPartA() void
+        +buildPartB() void
+        +getResult() Product
+    }
+    
+    class Product {
+        -partA String
+        -partB String
+    }
+    
+    Director --> Builder
+    Builder <|-- ConcreteBuilder
+    ConcreteBuilder --> Product
+        </pre>
+        <p><span class="success">✓ 應該正常顯示</span> - 標準語法，無問題</p>
+    </div>
+
+    <div class="test-section">
+        <h2>✅ 測試 4: Factory Method Pattern (標準語法)</h2>
+        <pre class="mermaid">
+classDiagram
+    class Creator {
+        <<abstract>>
+        +factoryMethod() Product
+        +someOperation() void
+    }
+    
+    class ConcreteCreator {
+        +factoryMethod() Product
+    }
+    
+    class Product {
+        <<interface>>
+        +operation() void
+    }
+    
+    class ConcreteProduct {
+        +operation() void
+    }
+    
+    Creator <|-- ConcreteCreator
+    Product <|.. ConcreteProduct
+    Creator ..> Product
+    ConcreteCreator ..> ConcreteProduct
+        </pre>
+        <p><span class="success">✓ 應該正常顯示</span> - 標準語法，無問題</p>
+    </div>
+
+    <div class="test-section">
+        <h2>📋 測試結果總結</h2>
+        <ul>
+            <li><span class="success">✓</span> 已移除 Mermaid v11 不支援的 <code>note for</code> 語法</li>
+            <li><span class="success">✓</span> 所有 classDiagram 使用標準語法</li>
+            <li><span class="success">✓</span> 圖表應該在 Chrome 和 VS Code 中都能正確顯示</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 修正說明</h2>
+        <p><strong>問題原因：</strong></p>
+        <ul>
+            <li>Mermaid v11+ 移除或改變了 <code>note for</code> 語法</li>
+            <li>VS Code 預覽可能使用較舊的 Mermaid 版本或有自己的解析器</li>
+            <li>網頁使用的是 Mermaid v11.12.1，語法更嚴格</li>
+        </ul>
+        
+        <p><strong>修正方式：</strong></p>
+        <ul>
+            <li>將 <code>note for</code> 註解改為 Markdown 文字說明</li>
+            <li>保持 classDiagram 使用標準語法</li>
+            <li>說明文字放在圖表外部</li>
+        </ul>
+    </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            fontFamily: 'Arial, sans-serif',
+            logLevel: 'debug'  // 開啟詳細日誌以便除錯
+        });
+
+        // 監聽錯誤
+        window.addEventListener('error', (e) => {
+            console.error('Mermaid Error:', e);
+        });
+    </script>
+</body>
+</html>
