@@ -4697,6 +4697,10 @@ TDD（Test-Driven Development）測試驅動開發使用教學手冊
 
 ### 客戶需求訪談與分析技巧
 
+### BDD教學
+
+### TDD教學
+
 未完成
 
 ### 「微服務安全性設計指南」
@@ -4705,9 +4709,7 @@ TDD（Test-Driven Development）測試驅動開發使用教學手冊
 
 ### 「微服務實戰案例集」
 
-### BDD教學
 
-### TDD教學
 
 ### Apache Karaf教學
 

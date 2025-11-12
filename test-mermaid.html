@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mermaid 測試</title>
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+      
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        securityLevel: 'loose',
+        fontFamily: 'Arial, sans-serif'
+      });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-case {
+            margin: 40px 0;
+            border: 2px solid #ccc;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .test-case h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mermaid classDiagram 語法測試</h1>
+    
+    <div class="test-case">
+        <h2>測試 1: 原始語法（可能有問題）</h2>
+        <div class="mermaid">
+classDiagram
+    class Creator {
+        <<abstract>>
+        +factoryMethod(): Product
+        +someOperation(): void
+    }
+    
+    class ConcreteCreator {
+        +factoryMethod(): Product
+    }
+    
+    class Product {
+        <<interface>>
+        +operation(): void
+    }
+    
+    class ConcreteProduct {
+        +operation(): void
+    }
+    
+    Creator <|-- ConcreteCreator
+    Product <|.. ConcreteProduct
+    Creator ..> Product
+    ConcreteCreator ..> ConcreteProduct
+        </div>
+    </div>
+
+    <div class="test-case">
+        <h2>測試 2: 修正後語法（移除返回類型冒號）</h2>
+        <div class="mermaid">
+classDiagram
+    class Creator {
+        <<abstract>>
+        +factoryMethod() Product
+        +someOperation() void
+    }
+    
+    class ConcreteCreator {
+        +factoryMethod() Product
+    }
+    
+    class Product {
+        <<interface>>
+        +operation() void
+    }
+    
+    class ConcreteProduct {
+        +operation() void
+    }
+    
+    Creator <|-- ConcreteCreator
+    Product <|.. ConcreteProduct
+    Creator ..> Product
+    ConcreteCreator ..> ConcreteProduct
+        </div>
+    </div>
+
+    <div class="test-case">
+        <h2>測試 3: 簡化語法（僅方法名）</h2>
+        <div class="mermaid">
+classDiagram
+    class Creator {
+        <<abstract>>
+        +factoryMethod()
+        +someOperation()
+    }
+    
+    class ConcreteCreator {
+        +factoryMethod()
+    }
+    
+    class Product {
+        <<interface>>
+        +operation()
+    }
+    
+    class ConcreteProduct {
+        +operation()
+    }
+    
+    Creator <|-- ConcreteCreator
+    Product <|.. ConcreteProduct
+    Creator ..> Product
+    ConcreteCreator ..> ConcreteProduct
+        </div>
+    </div>
+
+    <div class="test-case">
+        <h2>測試 4: 使用字串形式的返回類型</h2>
+        <div class="mermaid">
+classDiagram
+    class Creator {
+        <<abstract>>
+        +factoryMethod() ~Product~
+        +someOperation() ~void~
+    }
+    
+    class ConcreteCreator {
+        +factoryMethod() ~Product~
+    }
+    
+    class Product {
+        <<interface>>
+        +operation() ~void~
+    }
+    
+    class ConcreteProduct {
+        +operation() ~void~
+    }
+    
+    Creator <|-- ConcreteCreator
+    Product <|.. ConcreteProduct
+    Creator ..> Product
+    ConcreteCreator ..> ConcreteProduct
+        </div>
+    </div>
+
+    <div class="test-case">
+        <h2>測試 5: Singleton 範例</h2>
+        <div class="mermaid">
+classDiagram
+    class Singleton {
+        -static instance Singleton
+        -Singleton()
+        +static getInstance() Singleton
+        +someMethod() void
+    }
+    
+    class Client {
+        +main() void
+    }
+    
+    Client --> Singleton : getInstance()
+        </div>
+    </div>
+
+    <script>
+        // 監聽 Mermaid 錯誤
+        window.addEventListener('error', function(e) {
+            console.error('Mermaid Error:', e);
+        });
+    </script>
+</body>
+</html>

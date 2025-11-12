@@ -1,4 +1,4 @@
-﻿+++
++++
 date = '2025-10-31T00:00:00+08:00'
 draft = false
 title = 'Design Pattern教學'
@@ -274,17 +274,17 @@ Singleton 模式確保一個類別只有一個實例，並提供全域存取點�
 ```mermaid
 classDiagram
     class Singleton {
-        -static instance: Singleton
+        -static instance Singleton
         -Singleton()
-        +static getInstance(): Singleton
-        +someMethod(): void
+        +static getInstance() Singleton
+        +someMethod() void
     }
     
     class Client {
-        +main(): void
+        +main() void
     }
     
-    Client --> Singleton: getInstance()
+    Client --> Singleton : getInstance()
 ```
 
 #### 適用場景
@@ -417,21 +417,21 @@ Factory Method 定義一個創建物件的接口，但讓子類決定要實例�
 classDiagram
     class Creator {
         <<abstract>>
-        +factoryMethod(): Product
-        +someOperation(): void
+        +factoryMethod() Product
+        +someOperation() void
     }
     
     class ConcreteCreator {
-        +factoryMethod(): Product
+        +factoryMethod() Product
     }
     
     class Product {
         <<interface>>
-        +operation(): void
+        +operation() void
     }
     
     class ConcreteProduct {
-        +operation(): void
+        +operation() void
     }
     
     Creator <|-- ConcreteCreator
@@ -600,27 +600,27 @@ Builder 模式將複雜物件的構建與其表示分離，使得同樣的構建
 ```mermaid
 classDiagram
     class Director {
-        -builder: Builder
-        +construct(): void
+        -builder Builder
+        +construct() void
     }
     
     class Builder {
         <<abstract>>
-        +buildPartA(): void
-        +buildPartB(): void
-        +getResult(): Product
+        +buildPartA() void
+        +buildPartB() void
+        +getResult() Product
     }
     
     class ConcreteBuilder {
-        -product: Product
-        +buildPartA(): void
-        +buildPartB(): void
-        +getResult(): Product
+        -product Product
+        +buildPartA() void
+        +buildPartB() void
+        +getResult() Product
     }
     
     class Product {
-        -partA: String
-        -partB: String
+        -partA String
+        -partB String
     }
     
     Director --> Builder
@@ -790,18 +790,18 @@ Abstract Factory 模式提供一個創建一系列相關或相互依賴物件的
 classDiagram
     class AbstractFactory {
         <<interface>>
-        +createProductA(): AbstractProductA
-        +createProductB(): AbstractProductB
+        +createProductA() AbstractProductA
+        +createProductB() AbstractProductB
     }
     
     class ConcreteFactory1 {
-        +createProductA(): ProductA1
-        +createProductB(): ProductB1
+        +createProductA() ProductA1
+        +createProductB() ProductB1
     }
     
     class ConcreteFactory2 {
-        +createProductA(): ProductA2
-        +createProductB(): ProductB2
+        +createProductA() ProductA2
+        +createProductB() ProductB2
     }
     
     class AbstractProductA {
@@ -1071,22 +1071,22 @@ Prototype 模式用於創建重複的物件，同時又能保證效能。這種�
 classDiagram
     class Prototype {
         <<interface>>
-        +clone(): Prototype
+        +clone() Prototype
     }
     
     class ConcretePrototype1 {
-        -field1: String
-        +clone(): ConcretePrototype1
+        -field1 String
+        +clone() ConcretePrototype1
     }
     
     class ConcretePrototype2 {
-        -field2: int
-        +clone(): ConcretePrototype2
+        -field2 int
+        +clone() ConcretePrototype2
     }
     
     class Client {
-        -prototype: Prototype
-        +operation(): void
+        -prototype Prototype
+        +operation() void
     }
     
     Prototype <|.. ConcretePrototype1
@@ -1449,20 +1449,20 @@ Adapter 模式讓原本因為介面不相容而無法合作的類別可以一起
 classDiagram
     class Target {
         <<interface>>
-        +request(): void
+        +request() void
     }
     
     class Adapter {
-        -adaptee: Adaptee
-        +request(): void
+        -adaptee Adaptee
+        +request() void
     }
     
     class Adaptee {
-        +specificRequest(): void
+        +specificRequest() void
     }
     
     class Client {
-        +main(): void
+        +main() void
     }
     
     Target <|.. Adapter
@@ -1676,27 +1676,27 @@ Decorator 模式動態地為物件添加新功能，而不改變其結構。這�
 classDiagram
     class Component {
         <<interface>>
-        +operation(): void
+        +operation() void
     }
     
     class ConcreteComponent {
-        +operation(): void
+        +operation() void
     }
     
     class Decorator {
         <<abstract>>
-        -component: Component
-        +operation(): void
+        -component Component
+        +operation() void
     }
     
     class ConcreteDecoratorA {
-        +operation(): void
-        +addedBehavior(): void
+        +operation() void
+        +addedBehavior() void
     }
     
     class ConcreteDecoratorB {
-        +operation(): void
-        +addedState: String
+        +operation() void
+        +addedState String
     }
     
     Component <|.. ConcreteComponent
@@ -1891,26 +1891,26 @@ Facade 模式為子系統中的一組介面提供統一的介面。它定義了�
 ```mermaid
 classDiagram
     class Facade {
-        -subsystem1: SubSystem1
-        -subsystem2: SubSystem2
-        -subsystem3: SubSystem3
-        +operation(): void
+        -subsystem1 SubSystem1
+        -subsystem2 SubSystem2
+        -subsystem3 SubSystem3
+        +operation() void
     }
     
     class SubSystem1 {
-        +operation1(): void
+        +operation1() void
     }
     
     class SubSystem2 {
-        +operation2(): void
+        +operation2() void
     }
     
     class SubSystem3 {
-        +operation3(): void
+        +operation3() void
     }
     
     class Client {
-        +main(): void
+        +main() void
     }
     
     Facade --> SubSystem1
@@ -2192,18 +2192,18 @@ Proxy 模式為其他物件提供一個代理以控制對這個物件的存取�
 classDiagram
     class Subject {
         <<interface>>
-        +request(): void
+        +request() void
     }
     
     class RealSubject {
-        +request(): void
+        +request() void
     }
     
     class Proxy {
-        -realSubject: RealSubject
-        +request(): void
-        +checkAccess(): boolean
-        +logAccess(): void
+        -realSubject RealSubject
+        +request() void
+        +checkAccess() boolean
+        +logAccess() void
     }
     
     Subject <|.. RealSubject
@@ -2450,22 +2450,22 @@ Composite 模式將物件組合成樹狀結構以表示「部分-整體」的層
 classDiagram
     class Component {
         <<abstract>>
-        +operation(): void
-        +add(component: Component): void
-        +remove(component: Component): void
-        +getChild(index: int): Component
+        +operation() void
+        +add(component: Component) void
+        +remove(component: Component) void
+        +getChild(index: int) Component
     }
     
     class Leaf {
-        +operation(): void
+        +operation() void
     }
     
     class Composite {
-        -children: List~Component~
-        +operation(): void
-        +add(component: Component): void
-        +remove(component: Component): void
-        +getChild(index: int): Component
+        -children List~Component~
+        +operation() void
+        +add(component: Component) void
+        +remove(component: Component) void
+        +getChild(index: int) Component
     }
     
     Component <|-- Leaf
@@ -2827,26 +2827,26 @@ Bridge 模式將抽象部分與它的實作部分分離，使它們都可以獨�
 ```mermaid
 classDiagram
     class Abstraction {
-        -implementor: Implementor
-        +operation(): void
+        -implementor Implementor
+        +operation() void
     }
     
     class RefinedAbstraction {
-        +operation(): void
-        +additionalOperation(): void
+        +operation() void
+        +additionalOperation() void
     }
     
     class Implementor {
         <<interface>>
-        +operationImpl(): void
+        +operationImpl() void
     }
     
     class ConcreteImplementorA {
-        +operationImpl(): void
+        +operationImpl() void
     }
     
     class ConcreteImplementorB {
-        +operationImpl(): void
+        +operationImpl() void
     }
     
     Abstraction <|-- RefinedAbstraction
@@ -3679,29 +3679,29 @@ Observer 模式定義物件間的一對多依賴關係，當一個物件狀態�
 classDiagram
     class Subject {
         <<interface>>
-        +attach(observer: Observer): void
-        +detach(observer: Observer): void
-        +notifyObservers(): void
+        +attach(observer: Observer) void
+        +detach(observer: Observer) void
+        +notifyObservers() void
     }
     
     class ConcreteSubject {
-        -observers: List~Observer~
-        -state: String
-        +attach(observer: Observer): void
-        +detach(observer: Observer): void
-        +notifyObservers(): void
-        +getState(): String
-        +setState(state: String): void
+        -observers List~Observer~
+        -state String
+        +attach(observer: Observer) void
+        +detach(observer: Observer) void
+        +notifyObservers() void
+        +getState() String
+        +setState(state: String) void
     }
     
     class Observer {
         <<interface>>
-        +update(subject: Subject): void
+        +update(subject: Subject) void
     }
     
     class ConcreteObserver {
-        -observerState: String
-        +update(subject: Subject): void
+        -observerState String
+        +update(subject: Subject) void
     }
     
     Subject <|.. ConcreteSubject
@@ -3995,26 +3995,26 @@ Strategy 模式定義一系列演算法，把它們一個個封裝起來，並�
 ```mermaid
 classDiagram
     class Context {
-        -strategy: Strategy
-        +setStrategy(strategy: Strategy): void
-        +executeStrategy(): void
+        -strategy Strategy
+        +setStrategy(strategy: Strategy) void
+        +executeStrategy() void
     }
     
     class Strategy {
         <<interface>>
-        +execute(): void
+        +execute() void
     }
     
     class ConcreteStrategyA {
-        +execute(): void
+        +execute() void
     }
     
     class ConcreteStrategyB {
-        +execute(): void
+        +execute() void
     }
     
     class ConcreteStrategyC {
-        +execute(): void
+        +execute() void
     }
     
     Context --> Strategy
@@ -4438,16 +4438,16 @@ Template Method 模式在一個方法中定義一個演算法的骨架，而將�
 classDiagram
     class AbstractClass {
         <<abstract>>
-        +templateMethod(): void
-        +primitiveOperation1(): void
-        +primitiveOperation2(): void
-        +hook(): void
+        +templateMethod() void
+        +primitiveOperation1() void
+        +primitiveOperation2() void
+        +hook() void
     }
     
     class ConcreteClass {
-        +primitiveOperation1(): void
-        +primitiveOperation2(): void
-        +hook(): void
+        +primitiveOperation1() void
+        +primitiveOperation2() void
+        +hook() void
     }
     
     AbstractClass <|-- ConcreteClass
@@ -4972,25 +4972,25 @@ Command 模式將一個請求封裝為一個物件，從而讓你可用不同的
 classDiagram
     class Command {
         <<interface>>
-        +execute(): void
-        +undo(): void
+        +execute() void
+        +undo() void
     }
     
     class ConcreteCommand {
-        -receiver: Receiver
-        -state: String
-        +execute(): void
-        +undo(): void
+        -receiver Receiver
+        -state String
+        +execute() void
+        +undo() void
     }
     
     class Receiver {
-        +action(): void
+        +action() void
     }
     
     class Invoker {
-        -command: Command
-        +setCommand(command: Command): void
-        +invoke(): void
+        -command Command
+        +setCommand(command: Command) void
+        +invoke() void
     }
     
     Command <|.. ConcreteCommand
@@ -5584,22 +5584,22 @@ State 模式允許一個物件在其內部狀態改變時改變它的行為。�
 ```mermaid
 classDiagram
     class Context {
-        -state: State
-        +setState(state: State): void
-        +request(): void
+        -state State
+        +setState(state: State) void
+        +request() void
     }
     
     class State {
         <<interface>>
-        +handle(context: Context): void
+        +handle(context: Context) void
     }
     
     class ConcreteStateA {
-        +handle(context: Context): void
+        +handle(context: Context) void
     }
     
     class ConcreteStateB {
-        +handle(context: Context): void
+        +handle(context: Context) void
     }
     
     Context --> State
@@ -5671,17 +5671,17 @@ Chain of Responsibility 模式為請求創建了一個接收者物件的鏈。�
 classDiagram
     class Handler {
         <<abstract>>
-        -successor: Handler
-        +setSuccessor(handler: Handler): void
-        +handleRequest(request: Request): void
+        -successor Handler
+        +setSuccessor(handler: Handler) void
+        +handleRequest(request: Request) void
     }
     
     class ConcreteHandlerA {
-        +handleRequest(request: Request): void
+        +handleRequest(request: Request) void
     }
     
     class ConcreteHandlerB {
-        +handleRequest(request: Request): void
+        +handleRequest(request: Request) void
     }
     
     Handler <|-- ConcreteHandlerA
@@ -5768,8 +5768,8 @@ classDiagram
     }
     
     class ConcreteIterator {
-        -aggregate: Aggregate
-        -current: int
+        -aggregate Aggregate
+        -current int
         +hasNext() boolean
         +next() Object
         +remove()
@@ -5781,7 +5781,7 @@ classDiagram
     }
     
     class ConcreteAggregate {
-        -items: List
+        -items List
         +createIterator() Iterator
         +getItem(index) Object
         +getCount() int

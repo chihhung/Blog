@@ -349,24 +349,24 @@ graph TB
 
 ```mermaid
 graph TD
-    A[/ 根目錄<br/>Root Directory] --> B[/bin<br/>基本指令]
-    A --> C[/etc<br/>設定檔]
-    A --> D[/home<br/>使用者目錄]
-    A --> E[/var<br/>變動資料]
-    A --> F[/usr<br/>使用者程式]
-    A --> G[/opt<br/>第三方軟體]
-    A --> H[/tmp<br/>暫存檔案]
-    A --> I[/dev<br/>裝置檔案]
+    A["/ 根目錄 Root Directory"] --> B["/bin 基本指令"]
+    A --> C["/etc 設定檔"]
+    A --> D["/home 使用者目錄"]
+    A --> E["/var 變動資料"]
+    A --> F["/usr 使用者程式"]
+    A --> G["/opt 第三方軟體"]
+    A --> H["/tmp 暫存檔案"]
+    A --> I["/dev 裝置檔案"]
     
-    D --> D1[/home/user1]
-    D --> D2[/home/user2]
+    D --> D1["/home/user1"]
+    D --> D2["/home/user2"]
     
-    F --> F1[/usr/bin<br/>使用者指令]
-    F --> F2[/usr/lib<br/>程式庫]
-    F --> F3[/usr/share<br/>共用資料]
+    F --> F1["/usr/bin 使用者指令"]
+    F --> F2["/usr/lib 程式庫"]
+    F --> F3["/usr/share 共用資料"]
     
-    E --> E1[/var/log<br/>系統日誌]
-    E --> E2[/var/www<br/>網站檔案]
+    E --> E1["/var/log 系統日誌"]
+    E --> E2["/var/www 網站檔案"]
 ```
 
 #### 重要目錄詳解
