@@ -1776,11 +1776,11 @@ sequenceDiagram
         EnrollmentService->>+EmailService: 發送確認郵件
         EmailService-->>-EnrollmentService: 郵件發送成功
         
-        EnrollmentService-->>-UI: 選課成功
+        EnrollmentService-->>UI: 選課成功
         UI-->>Student: 顯示成功訊息
         
     else 課程已滿
-        EnrollmentService-->>-UI: 選課失敗（課程已滿）
+        EnrollmentService-->>UI: 選課失敗（課程已滿）
         UI-->>Student: 顯示失敗訊息
         
     else 時間衝突
@@ -1789,6 +1789,9 @@ sequenceDiagram
         EnrollmentService-->>UI: 選課失敗（時間衝突）
         UI-->>Student: 顯示衝突訊息
     end
+    
+    deactivate EnrollmentService
+    deactivate UI
 ```
 
 #### Step 4: 行為建模 - 選課狀態圖
@@ -2051,8 +2054,8 @@ graph TB
     AppServer3 --> RedisCluster
     AppServer3 --> FileServer
     
-    PrimaryDB -.-> ReplicaDB1 : 主從複製
-    PrimaryDB -.-> ReplicaDB2 : 主從複製
+    PrimaryDB -.->|主從複製| ReplicaDB1
+    PrimaryDB -.->|主從複製| ReplicaDB2
     
     AppServer1 --> EmailAPI
     AppServer2 --> SMSAPI
