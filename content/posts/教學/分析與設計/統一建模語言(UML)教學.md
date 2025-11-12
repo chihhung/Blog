@@ -356,9 +356,9 @@ classDiagram
         +addCourse(course: Course): void
     }
     
-    Student ||--o{ Enrollment : "enrolls in"
-    Course ||--o{ Enrollment : "has enrollments"
-    Department ||--o{ Course : "offers"
+    Student "1" --o "many" Enrollment : enrolls in
+    Course "1" --o "many" Enrollment : has enrollments
+    Department "1" --o "many" Course : offers
     
 ```
 
@@ -1727,12 +1727,12 @@ classDiagram
     User <|-- Teacher  
     User <|-- Administrator
     
-    Student ||--o{ Enrollment
-    Course ||--o{ Enrollment
-    Teacher ||--o{ Course : teaches
+    Student "1" --o "many" Enrollment
+    Course "1" --o "many" Enrollment
+    Teacher "1" --o "many" Course : teaches
     
-    Student ||--o{ Grade
-    Course ||--o{ Grade
+    Student "1" --o "many" Grade
+    Course "1" --o "many" Grade
     
 ```
 
@@ -1862,26 +1862,29 @@ classDiagram
         +sendSystemNotification(user: User, message: String): void
     }
     
-    interface UserRepository {
-        +findById(id: String): User
-        +findByUsername(username: String): User
-        +save(user: User): void
-        +delete(id: String): void
+    class UserRepository {
+        <<interface>>
+        +findById(id: String) User
+        +findByUsername(username: String) User
+        +save(user: User) void
+        +delete(id: String) void
     }
     
-    interface CourseRepository {
-        +findById(id: String): Course
-        +findAll(): List~Course~
-        +findByTeacher(teacherId: String): List~Course~
-        +save(course: Course): void
-        +delete(id: String): void
+    class CourseRepository {
+        <<interface>>
+        +findById(id: String) Course
+        +findAll() List~Course~
+        +findByTeacher(teacherId: String) List~Course~
+        +save(course: Course) void
+        +delete(id: String) void
     }
     
-    interface EnrollmentRepository {
-        +findByStudentId(studentId: String): List~Enrollment~
-        +findByCourseId(courseId: String): List~Enrollment~
-        +save(enrollment: Enrollment): void
-        +delete(id: String): void
+    class EnrollmentRepository {
+        <<interface>>
+        +findByStudentId(studentId: String) List~Enrollment~
+        +findByCourseId(courseId: String) List~Enrollment~
+        +save(enrollment: Enrollment) void
+        +delete(id: String) void
     }
     
     UserService --> UserRepository : uses
@@ -2162,13 +2165,13 @@ classDiagram
         +refund(): boolean
     }
     
-    Customer ||--|| ShoppingCart
-    Customer ||--o{ Order
-    ShoppingCart ||--o{ CartItem
-    Order ||--o{ OrderItem
-    Order ||--|| Payment
-    Product ||--o{ CartItem
-    Product ||--o{ OrderItem
+    Customer "1" -- "1" ShoppingCart
+    Customer "1" --o "many" Order
+    ShoppingCart "1" --o "many" CartItem
+    Order "1" --o "many" OrderItem
+    Order "1" -- "1" Payment
+    Product "1" --o "many" CartItem
+    Product "1" --o "many" OrderItem
 ```
 
 **訂單處理活動圖：**
@@ -2330,12 +2333,12 @@ classDiagram
         -instructions: String
     }
     
-    Patient ||--o{ Appointment
-    Doctor ||--o{ Appointment
-    Patient ||--o{ MedicalRecord
-    Doctor ||--o{ MedicalRecord
-    Doctor ||--o{ Prescription
-    MedicalRecord ||--o{ Prescription
+    Patient "1" --o "many" Appointment
+    Doctor "1" --o "many" Appointment
+    Patient "1" --o "many" MedicalRecord
+    Doctor "1" --o "many" MedicalRecord
+    Doctor "1" --o "many" Prescription
+    MedicalRecord "1" --o "many" Prescription
 ```
 
 **掛號流程序列圖：**

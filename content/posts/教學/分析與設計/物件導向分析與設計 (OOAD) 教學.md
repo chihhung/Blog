@@ -1503,11 +1503,11 @@ graph TB
     
     UC3 --> PaymentGateway
     
-    UC2 -.-> UC1 : <<include>>
-    UC3 -.-> UC1 : <<include>>
+    UC2 -.include.-> UC1
+    UC3 -.include.-> UC1
     
-    UC3 -.-> UC6[信用卡付款] : <<extend>>
-    UC3 -.-> UC7[ATM付款] : <<extend>>
+    UC6[信用卡付款] -.extend.-> UC3
+    UC7[ATM付款] -.extend.-> UC3
 ```
 
 **關係類型**:
@@ -1612,9 +1612,9 @@ classDiagram
         +calculateLetterGrade(): String
     }
     
-    Student ||--o{ Grade : "has"
-    Course ||--o{ Grade : "evaluated by"
-    Student }o--o{ Course : "enrolls in"
+    Student "1" --o "many" Grade : has
+    Course "1" --o "many" Grade : evaluated by
+    Student "many" --o "many" Course : enrolls in
 ```
 
 **關係類型詳解**:
@@ -1788,16 +1788,16 @@ classDiagram
     }
     
     %% 關係定義
-    Customer ||--o{ Address : "has"
-    Customer ||--|| ShoppingCart : "owns"
-    Customer ||--o{ Order : "places"
+    Customer "1" --o "many" Address : has
+    Customer "1" -- "1" ShoppingCart : owns
+    Customer "1" --o "many" Order : places
     
-    ShoppingCart ||--o{ CartItem : "contains"
-    Order ||--o{ OrderItem : "contains"
-    Order ||--|| Payment : "paid by"
+    ShoppingCart "1" --o "many" CartItem : contains
+    Order "1" --o "many" OrderItem : contains
+    Order "1" -- "1" Payment : paid by
     
-    Book ||--o{ CartItem : "selected as"
-    Book ||--o{ OrderItem : "ordered as"
+    Book "1" --o "many" CartItem : selected as
+    Book "1" --o "many" OrderItem : ordered as
     
     %% 枚舉
     class OrderStatus {
@@ -2351,28 +2351,28 @@ graph TB
     end
     
     %% Connections
-    Browser --> LB : HTTPS
-    Mobile --> LB : HTTPS
+    Browser -->|HTTPS| LB
+    Mobile -->|HTTPS| LB
     
-    LB --> WS1 : HTTP
-    LB --> WS2 : HTTP
-    LB --> WS3 : HTTP
+    LB -->|HTTP| WS1
+    LB -->|HTTP| WS2
+    LB -->|HTTP| WS3
     
     WS1 --> AS
     WS2 --> AS
     WS3 --> AS
     
-    AS --> DBMaster : Read/Write
-    AS --> DBSlave1 : Read Only
-    AS --> DBSlave2 : Read Only
+    AS -->|Read/Write| DBMaster
+    AS -->|Read Only| DBSlave1
+    AS -->|Read Only| DBSlave2
     
-    AS --> Redis : Cache
-    AS --> MQ : Async Messages
-    AS --> PaymentAPI : REST API
-    AS --> EmailAPI : REST API
+    AS -->|Cache| Redis
+    AS -->|Async Messages| MQ
+    AS -->|REST API| PaymentAPI
+    AS -->|REST API| EmailAPI
     
-    DBMaster --> DBSlave1 : Replication
-    DBMaster --> DBSlave2 : Replication
+    DBMaster -->|Replication| DBSlave1
+    DBMaster -->|Replication| DBSlave2
 ```
 
 ### 4.4 UML 工具與最佳實務
@@ -2578,9 +2578,9 @@ graph TB
     Admin --> UC8
     Admin --> UC9
     
-    UC2 -.-> EmailSystem : 發送確認郵件
-    UC3 -.-> EmailSystem : 發送確認郵件
-    UC8 --> ReportSystem : 產生報表
+    UC2 -.->|發送確認郵件| EmailSystem
+    UC3 -.->|發送確認郵件| EmailSystem
+    UC8 -->|產生報表| ReportSystem
 ```
 
 #### 5.2.2 詳細 Use Case 規格
@@ -3509,14 +3509,14 @@ classDiagram
     User <|-- Student
     User <|-- Teacher
     
-    Student ||--o{ Enrollment : "has"
-    Course ||--o{ Enrollment : "contains"
-    Teacher ||--o{ Course : "teaches"
+    Student "1" --o "many" Enrollment : has
+    Course "1" --o "many" Enrollment : contains
+    Teacher "1" --o "many" Course : teaches
     
-    Enrollment ||--o| Grade : "has"
-    Course ||--o{ TimeSlot : "scheduled at"
-    Course }o--|| Semester : "offered in"
-    Course }o--o{ Course : "prerequisites"
+    Enrollment "1" --o "0..1" Grade : has
+    Course "1" --o "many" TimeSlot : scheduled at
+    Course "many" --o "1" Semester : offered in
+    Course "many" --o "many" Course : prerequisites
     
     EnrollmentService --> StudentRepository
     EnrollmentService --> CourseRepository
