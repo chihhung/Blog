@@ -1037,13 +1037,13 @@ classDiagram
         +refund()
     }
     
-    Customer ||--o{ ShoppingCart
-    Customer ||--o{ Order
-    ShoppingCart ||--o{ CartItem
-    Order ||--o{ OrderItem
-    Order ||--|| Payment
-    Book ||--o{ CartItem
-    Book ||--o{ OrderItem
+    Customer "1" --o "many" ShoppingCart
+    Customer "1" --o "many" Order
+    ShoppingCart "1" --o "many" CartItem
+    Order "1" --o "many" OrderItem
+    Order "1" -- "1" Payment
+    Book "1" --o "many" CartItem
+    Book "1" --o "many" OrderItem
 ```
 
 #### 3.5.2 循序圖設計
@@ -5900,10 +5900,10 @@ classDiagram
 ```mermaid
 graph LR
     A[學生] -->|關聯| B[課程]
-    C[部門] o-->|聚合| D[員工]
-    E[訂單] *-->|組合| F[訂單項目]
-    G[動物] <|--.|實作| H[可移動]
-    I[狗] --|>|繼承| J[動物]
+    C[部門] -->|聚合◇| D[員工]
+    E[訂單] -->|組合◆| F[訂單項目]
+    G[動物] -.->|實作| H[可移動介面]
+    I[狗] -->|繼承| J[動物]
     K[類別A] -.->|依賴| L[類別B]
 ```
 
