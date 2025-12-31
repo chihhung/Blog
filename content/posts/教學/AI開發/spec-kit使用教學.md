@@ -1,8 +1,8 @@
-﻿+++
++++
 date = '2025-10-31T00:00:00+08:00'
 draft = false
 title = 'spec-kit使用教學'
-tags = ['教學', '分析與設計']
+tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
 # Spec-Kit 使用教學手冊
