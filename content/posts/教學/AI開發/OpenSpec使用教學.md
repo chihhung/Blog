@@ -1,6 +1,6 @@
 +++
 date = '2025-12-31T20:06:08+08:00'
-draft = true
+draft = false
 title = 'OpenSpec使用教學'
 
 tags = ['教學', 'AI開發']

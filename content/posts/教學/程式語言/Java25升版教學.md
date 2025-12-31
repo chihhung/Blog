@@ -1,6 +1,6 @@
 +++
 date = '2025-12-31T20:18:22+08:00'
-draft = true
+draft = false
 title = 'Java25升版教學'
 
 tags = ['教學', '程式語言']
