@@ -4,12 +4,12 @@ draft = false
 title = 'Claude Code生態圈教學手冊'
 tags = ['教學', 'AI開發']
 categories = ['教學']
++++
 
 > **版本**: 1.0  
 > **最後更新**: 2026年1月9日  
 > **適用於**: Claude Code 
 > **Created by**: Eric Cheng
-+++
 
 # Claude Code 生態圈教學手冊
 
@@ -17,7 +17,6 @@ categories = ['教學']
 > 📅 **最後更新**: 2026 年 1 月  
 > 👥 **目標讀者**: 資深軟體工程師、技術主管、架構師
 
----
 
 ## 目錄
 

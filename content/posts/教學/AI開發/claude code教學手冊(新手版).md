@@ -5,12 +5,11 @@ title = 'Claude Code教學手冊(新手版)'
 
 tags = ['教學', 'AI開發']
 categories = ['教學']
-
++++
 > **版本**: 1.0  
 > **最後更新**: 2026年1月9日  
 > **適用於**: Claude Code 
 > **Created by**: Eric Cheng
-+++
 
 # Claude Code 使用教學手冊（新進同仁版）
 
@@ -18,8 +17,6 @@ categories = ['教學']
 > **最後更新**：2026 年 1 月  
 > **適用對象**：新進軟體工程師（PG / SA / Tech Lead 初階）  
 > **先決條件**：具備基本程式設計能力
-
----
 
 ## 目錄
 
