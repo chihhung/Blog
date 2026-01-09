@@ -4,12 +4,13 @@ draft = false
 title = 'Anthropic Model Context Protocol (MCP) 教學手冊'
 tags = ['教學', 'AI開發']
 categories = ['教學']
++++
 
 > **版本**: 1.0  
 > **最後更新**: 2026年1月9日  
 > **適用於**: Claude Code 
 > **Created by**: Eric Cheng
-+++
+
 
 # Anthropic Model Context Protocol (MCP) 教學手冊
 
@@ -17,7 +18,6 @@ categories = ['教學']
 > **最後更新**：2026 年 1 月  
 > **適用對象**：資深軟體開發工程師、系統架構師
 
----
 
 ## 目錄
 
