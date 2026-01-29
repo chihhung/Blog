@@ -1,6 +1,6 @@
 +++
 date = '2026-01-29T19:08:16+08:00'
-draft = fasle
+draft = false
 title = 'Prometheus與Grafana教學手冊'
 tags = ['教學', '工具', 'Metrics','Visualization','Prometheus' , 'Grafana']
 categories = ['教學']
