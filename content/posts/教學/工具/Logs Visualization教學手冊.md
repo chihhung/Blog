@@ -2,7 +2,6 @@
 date = '2026-01-26T21:17:47+08:00'
 draft = false
 title = 'Logs Visualization教學手冊'
-+++
 tags = ['教學', '工具', 'Visualization','ELK stack']
 categories = ['教學']
 +++
