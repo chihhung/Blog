@@ -7,7 +7,7 @@ categories = ['教學']
 +++
 
 
-# # Logstash / Elasticsearch / Kibana（ELK Stack）教學手冊
+# Logstash / Elasticsearch / Kibana（ELK Stack）教學手冊
 
 > **版本**：1.0  
 > **最後更新**：2026 年 1 月  
