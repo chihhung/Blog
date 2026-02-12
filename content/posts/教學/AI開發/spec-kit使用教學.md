@@ -5,11 +5,12 @@ title = 'spec-kit使用教學'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
+
 # Spec-Kit 使用教學手冊
 
-> **版本**: 1.0  
-> **最後更新**: 2025年10月29日  
-> **適用於**: Spec-Kit v0.0.79+
+> **版本**: 1.1  
+> **最後更新**: 2026年2月  
+> **適用於**: Spec-Kit v0.1.0+ /Spec Kit Templates - 0.0.94 
 > **Created by**: Eric Cheng
 
 ---
@@ -35,6 +36,7 @@ categories = ['教學']
 - [2.4 建立團隊守則 (Constitution)](#24-建立團隊守則-constitution)
 - [2.5 模板與提示文件說明](#25-模板與提示文件說明)
 - [2.6 GitHub 倉庫分支與版本控制建議](#26-github-倉庫分支與版本控制建議)
+- [2.7 擴充系統 (Extension System)](#27-擴充系統-extension-system)
 
 ### [第三章:使用流程詳細說明](#第三章使用流程詳細說明)
 - [3.1 Step 1:撰寫 Spec (/speckit.specify)](#31-step-1撰寫-spec-speckitspecify)
@@ -347,22 +349,34 @@ Spec-Kit 提供五大核心模板:
 
 #### 支援的 AI 助手 / 智能代理
 
-Spec-Kit 支援多種主流 AI 編碼助手:
+Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.0):
 
-| AI 助手 | 支援狀態 | 說明 |
-|---------|---------|------|
-| **GitHub Copilot** | ✅ 完整支援 | VS Code 整合,企業級支援 |
-| **Claude Code** | ✅ 完整支援 | Anthropic Claude,推理能力強 |
-| **Cursor** | ✅ 完整支援 | AI-first 編輯器 |
-| **Windsurf** | ✅ 完整支援 | 新興 AI 編碼工具 |
-| **Gemini CLI** | ✅ 完整支援 | Google Gemini 命令列版 |
-| **Qwen Code** | ✅ 完整支援 | 阿里雲通義千問 |
-| **Amazon Q Developer** | ⚠️ 部分支援 | 不支援自訂參數 |
+| AI 助手 | CLI Key | 支援狀態 | 類型 | 說明 |
+|---------|---------|---------|------|------|
+| **GitHub Copilot** | `copilot` | ✅ 完整支援 | IDE | VS Code 整合,企業級支援 |
+| **Claude Code** | `claude` | ✅ 完整支援 | CLI | Anthropic Claude,推理能力強 |
+| **Cursor** | `cursor-agent` | ✅ 完整支援 | IDE | AI-first 編輯器 |
+| **Gemini CLI** | `gemini` | ✅ 完整支援 | CLI | Google Gemini 命令列版 |
+| **Qwen Code** | `qwen` | ✅ 完整支援 | CLI | 阿里雲通義千問 |
+| **opencode** | `opencode` | ✅ 完整支援 | CLI | opencode CLI |
+| **Codex CLI** | `codex` | ✅ 完整支援 | CLI | OpenAI Codex CLI |
+| **Windsurf** | `windsurf` | ✅ 完整支援 | IDE | Windsurf IDE |
+| **Kilo Code** | `kilocode` | ✅ 完整支援 | IDE | Kilo Code IDE |
+| **Auggie CLI** | `auggie` | ✅ 完整支援 | CLI | Augment Code CLI |
+| **Roo Code** | `roo` | ✅ 完整支援 | IDE | Roo Code IDE |
+| **CodeBuddy** | `codebuddy` | ✅ 完整支援 | CLI | CodeBuddy CLI |
+| **Qoder CLI** | `qoder` | ✅ 完整支援 | CLI | Qoder CLI |
+| **Amp** | `amp` | ✅ 完整支援 | CLI | Amp CLI |
+| **SHAI** | `shai` | ✅ 完整支援 | CLI | OVHcloud SHAI |
+| **IBM Bob** | `bob` | ✅ 完整支援 | IDE | IBM Bob IDE |
+| **Amazon Q Developer** | `q` | ⚠️ 部分支援 | CLI | 不支援自訂 slash command 參數 |
+| **Jules** | - | ✅ 完整支援 | - | Google Jules |
 
 **選擇建議**:
 - 🏢 **企業環境** → GitHub Copilot(已整合至企業工具鏈)
 - 🧠 **複雜推理** → Claude Code(理解力最強)
 - 🚀 **快速開發** → Cursor(專為 AI 設計的編輯器)
+- 🌐 **開源偏好** → opencode、Qwen Code
 
 ---
 
@@ -511,7 +525,7 @@ graph TD
 
 **實例**:
 
-```markdown
+````markdown
 # Implementation Plan: 照片相簿管理
 
 ## Technology Stack
@@ -520,7 +534,7 @@ graph TD
 - **File System**: 直接存取,無上傳
 
 ## Data Model
-\`\`\`sql
+```sql
 CREATE TABLE albums (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
@@ -534,13 +548,13 @@ CREATE TABLE photos (
   file_path TEXT NOT NULL,
   FOREIGN KEY (album_id) REFERENCES albums(id)
 );
-\`\`\`
+```
 
 ## Architecture
 - 單頁應用(SPA)
 - IndexedDB 快取 metadata
 - 拖放使用 HTML5 Drag & Drop API
-```
+````
 
 **與 Spec 的對應**:
 - Spec 說「相簿可拖放排序」 → Plan 說「使用 HTML5 Drag & Drop API」
@@ -1013,13 +1027,20 @@ uv --version
 | AI 工具 | 取得方式 | 適合場景 |
 |---------|---------|---------|
 | **GitHub Copilot** | VS Code 擴充套件 | 企業環境、團隊協作 |
-| **Claude Code** | [Anthropic CLI](https://docs.anthropic.com/claude/docs) | 複雜邏輯推理 |
+| **Claude Code** | [Anthropic CLI](https://docs.anthropic.com/en/docs/claude-code/setup) | 複雜邏輯推理 |
 | **Cursor** | [下載 Cursor IDE](https://cursor.sh/) | AI-first 開發體驗 |
-| **Windsurf** | [下載 Windsurf](https://codeium.com/windsurf) | 新興工具 |
+| **Gemini CLI** | [Google Gemini CLI](https://github.com/google-gemini/gemini-cli) | Google 生態系 |
+| **Windsurf** | [下載 Windsurf](https://windsurf.com/) | 新興工具 |
+| **opencode** | [opencode CLI](https://opencode.ai/) | 開源偏好 |
+| **Codex CLI** | [OpenAI Codex](https://github.com/openai/codex) | OpenAI 生態系 |
+| **CodeBuddy** | [CodeBuddy CLI](https://www.codebuddy.ai/cli) | 多功能 AI 助手 |
+
+> 💡 完整的 AI 助手清單與 CLI Key 請參考 [1.2 Spec-Kit 概覽](#12-spec-kit-概覽) 中的支援表格。
 
 **企業環境建議**:
 - 若公司已有 GitHub Copilot 授權 → 優先使用
 - 若需要獨立部署 → 考慮 Claude Code CLI
+- 若有 GitHub Token 需求 → 使用 `--github-token` 參數
 
 #### 網路需求
 
@@ -1155,8 +1176,10 @@ specify --help
 Usage: specify [OPTIONS] COMMAND [ARGS]...
 
 Commands:
-  init   Initialize a new Specify project
-  check  Check for installed tools
+  init       Initialize a new Specify project
+  check      Check for installed tools
+  version    Display version and system information
+  extension  Manage spec-kit extensions
 ```
 
 **Step 3: 檢查系統工具**
@@ -1167,8 +1190,16 @@ specify check
 
 這會檢查:
 - ✅ Git 是否安裝
-- ✅ AI 工具是否可用(claude、code、cursor 等)
+- ✅ AI 工具是否可用(claude、gemini、code/code-insiders、cursor-agent、windsurf、qwen、opencode、codex、shai、qoder)
 - ✅ Shell 環境
+
+**Step 4: 檢查版本資訊**
+
+```bash
+specify version
+```
+
+顯示當前安裝的 Spec-Kit 版本與系統資訊。
 
 #### 更新 Spec-Kit
 
@@ -1203,11 +1234,15 @@ specify init my-project --ai copilot
 | 參數 | 說明 | 範例 |
 |------|-----|------|
 | `<project-name>` | 專案名稱 | `my-project` 或 `.`(當前目錄) |
-| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor`、`windsurf` |
+| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`q`、`bob`、`qoder` |
 | `--script <type>` | 腳本類型 | `sh`(bash/zsh)、`ps`(PowerShell) |
 | `--here` | 在當前目錄初始化 | - |
 | `--force` | 強制覆蓋(非空目錄) | - |
 | `--no-git` | 跳過 Git 初始化 | - |
+| `--ignore-agent-tools` | 跳過 AI 工具檢查 | 當 AI CLI 工具未安裝時使用 |
+| `--debug` | 顯示詳細診斷輸出 | 網路或解壓縮失敗時使用 |
+| `--github-token <token>` | GitHub Token | 企業環境 API 請求認證 |
+| `--skip-tls` | 跳過 SSL/TLS 驗證 | 不建議於生產環境使用 |
 
 **常見使用場景**:
 
@@ -2090,6 +2125,132 @@ jobs:
 ---
 
 **下一章預告**:第三章將深入講解使用流程,從撰寫第一個 Spec 到完成實作的完整步驟。
+
+---
+
+### 2.7 擴充系統 (Extension System)
+
+Spec-Kit v0.1.0 引入了**擴充系統 (Extension System)**,允許透過獨立套件新增指令與功能,而不需修改核心。
+
+#### 擴充系統概覽
+
+擴充系統的設計原則:
+
+- 🧩 **模組化** — 擴充是獨立封裝的套件,包含指令、設定與 Hook
+- 🔍 **可發現** — 透過中央目錄(Catalog)搜尋、瀏覽擴充
+- 🔧 **易管理** — 安裝、移除、啟用、停用、更新一行指令搞定
+- 🤖 **多 Agent 支援** — 擴充指令自動註冊到您使用的 AI 助手
+
+#### 擴充 CLI 指令
+
+```bash
+# 搜尋可用擴充
+specify extension search
+specify extension search jira
+specify extension search --tag issue-tracking
+
+# 查看擴充詳細資訊
+specify extension info jira
+
+# 安裝擴充
+specify extension add jira
+specify extension add my-ext --dev    # 從本機目錄安裝（開發模式）
+specify extension add my-ext --from <URL>  # 從自訂 URL 安裝
+
+# 列出已安裝擴充
+specify extension list
+specify extension list --available    # 顯示目錄中可用的擴充
+specify extension list --all          # 同時顯示已安裝與可用
+
+# 更新擴充
+specify extension update              # 更新所有擴充
+specify extension update jira         # 更新指定擴充
+
+# 啟用 / 停用
+specify extension enable jira
+specify extension disable jira
+
+# 移除擴充
+specify extension remove jira
+specify extension remove jira --keep-config  # 保留設定檔
+```
+
+#### 擴充 Manifest (extension.yml)
+
+每個擴充根目錄包含 `extension.yml` 描述檔:
+
+```yaml
+schema_version: "1.0"
+
+extension:
+  id: "jira"
+  name: "Jira Integration"
+  version: "1.0.0"
+  description: "Create Jira Epics, Stories, and Issues from spec-kit artifacts"
+  author: "Stats Perform"
+  repository: "https://github.com/statsperform/spec-kit-jira"
+  license: "MIT"
+
+requires:
+  speckit_version: ">=0.1.0,<2.0.0"
+  tools:
+    - name: "jira-mcp-server"
+      required: true
+
+provides:
+  commands:
+    - name: "speckit.jira.specstoissues"
+      file: "commands/specstoissues.md"
+      description: "Create Jira hierarchy from spec and tasks"
+```
+
+#### 擴充目錄結構
+
+安裝後,擴充存放於 `.specify/extensions/` 下:
+
+```text
+.specify/
+├── extensions/
+│   ├── .registry           # 已安裝擴充的註冊檔
+│   ├── .cache/             # 目錄快取
+│   └── jira/               # 已安裝的擴充
+│       ├── extension.yml   # Manifest
+│       ├── commands/        # 擴充指令
+│       └── jira-config.yml # 擴充設定
+```
+
+#### 官方擴充範例:Jira Integration
+
+目前官方提供 **Jira Integration** 擴充,安裝後可直接使用:
+
+```bash
+# 安裝 Jira 擴充
+specify extension add jira
+
+# 設定 Jira 連線
+vim .specify/extensions/jira/jira-config.yml
+
+# 使用擴充指令
+/speckit.jira.specstoissues     # 從 Spec + Tasks 建立 Jira Issue 階層
+/speckit.jira.discover-fields   # 發現 Jira 自訂欄位
+/speckit.jira.sync-status       # 同步任務完成狀態
+```
+
+#### 版本控制建議
+
+```gitignore
+# .gitignore — 擴充相關
+.specify/extensions/.cache/
+.specify/extensions/.backup/
+.specify/extensions/*/*.local.yml
+.specify/extensions/.registry
+```
+
+**應提交的檔案**:
+- `.specify/extensions.yml`(專案擴充設定)
+- `.specify/extensions/*/jira-config.yml`(專案級設定)
+
+> 💡 更多擴充開發資訊請參考官方文件:[Extension Development Guide](https://github.com/github/spec-kit/tree/main/extensions)
 
 ---
 
@@ -6108,9 +6269,17 @@ public void testCreateOrder_ContractCompliance() {
 | AI 助手 | 優勢 | 適用場景 | Spec-Kit 支援 |
 |---------|------|----------|---------------|
 | **GitHub Copilot** | VS Code 整合最佳,程式碼補全強 | 日常開發,程式碼實作 | ✅ 原生支援 |
-| **Claude** | 推理能力強,長文本理解佳 | Spec/Plan 撰寫,架構設計 | ✅ 支援 |
+| **Claude Code** | 推理能力強,長文本理解佳 | Spec/Plan 撰寫,架構設計 | ✅ 支援 |
 | **Cursor** | AI-first IDE,全文件理解 | 大型專案重構 | ✅ 支援 |
+| **Gemini CLI** | Google 生態整合 | 多模態分析,文件生成 | ✅ 支援 |
 | **Windsurf** | 多檔案編輯,任務自動化 | 批次修改,腳本產生 | ✅ 支援 |
+| **opencode** | 開源、輕量 | 開源專案開發 | ✅ 支援 |
+| **Codex CLI** | OpenAI 模型 | 程式碼生成、自動化 | ✅ 支援 |
+| **Qwen Code** | 中文理解佳 | 中文文件專案 | ✅ 支援 |
+| **CodeBuddy** | 多功能整合 | 全端開發 | ✅ 支援 |
+| **Amp / Auggie / Kilo Code** | 各有特色 | 特定工作流程 | ✅ 支援 |
+
+> 💡 完整的 18 種支援 AI 助手清單請參考 [1.2 Spec-Kit 概覽](#12-spec-kit-概覽)。
 
 #### Prompt Engineering 技巧
 
@@ -7073,7 +7242,11 @@ API 必須一致、版本化、文件化。
 #### 官方資源
 
 - **Spec-Kit GitHub**: https://github.com/github/spec-kit
-- **Spec-Driven 方法論**: https://spec-driven.md
+- **Spec-Driven 方法論**: https://github.com/github/spec-kit/blob/main/spec-driven.md
+- **安裝指南**: https://github.com/github/spec-kit/blob/main/docs/installation.md
+- **擴充系統文件**: https://github.com/github/spec-kit/tree/main/extensions
+- **AGENTS.md（新增 Agent 指南）**: https://github.com/github/spec-kit/blob/main/AGENTS.md
+- **CHANGELOG**: https://github.com/github/spec-kit/blob/main/CHANGELOG.md
 - **GitHub Copilot 文件**: https://docs.github.com/copilot
 
 #### 延伸閱讀
@@ -7152,28 +7325,61 @@ API 必須一致、版本化、文件化。
 
 ```bash
 # 1. 初始化專案
-specify init
+specify init my-project --ai copilot
 
-# 2. 撰寫 Spec
+# 2. 檢查環境
+specify check
+
+# 3. 查看版本
+specify version
+
+# 4. 撰寫 Spec
 /speckit.specify
 
-# 3. 澄清需求
+# 5. 澄清需求
 /speckit.clarify
 
-# 4. 撰寫 Plan
+# 6. 撰寫 Plan
 /speckit.plan
 
-# 5. 拆分 Tasks
+# 7. 拆分 Tasks
 /speckit.tasks
 
-# 6. 分析一致性
+# 8. 分析一致性
 /speckit.analyze
 
-# 7. 品質檢查
+# 9. 品質檢查
 /speckit.checklist
 
-# 8. 實作
+# 10. 實作
 /speckit.implement <task-id>
+```
+
+#### 擴充系統指令
+
+```bash
+# 搜尋擴充
+specify extension search
+specify extension search jira
+
+# 查看擴充資訊
+specify extension info jira
+
+# 安裝擴充
+specify extension add jira
+
+# 列出已安裝
+specify extension list
+
+# 更新擴充
+specify extension update
+
+# 啟用 / 停用
+specify extension enable jira
+specify extension disable jira
+
+# 移除擴充
+specify extension remove jira
 ```
 
 #### Git 工作流程
@@ -7281,6 +7487,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v1.0*  
-*最後更新: 2025-10-29*
+*文件版本: v1.1*  
+*最後更新: 2026-02*  
+*適用於: Spec-Kit v0.1.0+ / Spec Kit Templates - 0.0.94*
 
