@@ -1,15 +1,19 @@
-﻿+++
-date = '2025-10-31T00:00:00+08:00'
++++
+date = '2025-07-15T00:00:00+08:00'
 draft = false
-title = 'Maven使用教學'
+title = 'Maven 使用教學'
+description = 'Maven 使用教學完整手冊：從環境建置、專案結構、pom.xml 到進階主題，涵蓋最佳實務與實戰範例'
 tags = ['教學', '工具']
 categories = ['教學']
 +++
+
 # Maven 使用教學手冊
 
 ## 文件資訊
-- **版本**: 1.0.0
+
+- **版本**: 3.0.0
 - **建立日期**: 2025年8月29日
+- **最後更新**: 2025年7月
 - **適用對象**: 新進開發同仁
 - **目的**: 協助快速熟悉並在專案中正確使用 Maven
 
@@ -58,6 +62,11 @@ categories = ['教學']
    - 6.5 [現代化開發實務](#65-現代化開發實務)
    - 6.6 [效能優化策略](#66-效能優化策略)
    - 6.7 [微服務架構支援](#67-微服務架構支援)
+   - 6.8 [避免版本衝突的方法](#68-避免版本衝突的方法)
+   - 6.9 [建置優化策略](#69-建置優化策略)
+   - 6.10 [程式碼品質管理](#610-程式碼品質管理)
+   - 6.11 [使用公司內部 Nexus/Artifactory](#611-使用公司內部-nexusartifactory)
+   - 6.12 [環境特定設定](#612-環境特定設定)
 7. [常見問題排解 FAQ](#7-常見問題排解-faq)
    - 7.1 [編譯相關問題](#71-編譯相關問題)
    - 7.2 [依賴相關問題](#72-依賴相關問題)
@@ -103,6 +112,7 @@ categories = ['教學']
     - 13.2 [Maven 與 JDK 版本管理](#132-maven-與-jdk-版本管理)
     - 13.3 [Maven 與記錄（Records）和文字區塊](#133-maven-與記錄records和文字區塊)
     - 13.4 [Maven 與虛擬執行緒](#134-maven-與虛擬執行緒)
+    - 13.5 [Maven 4 預覽與未來展望](#135-maven-4-預覽與未來展望)
 14. [效能調校與監控](#14-效能調校與監控)
     - 14.1 [Maven 建置效能優化](#141-maven-建置效能優化)
     - 14.2 [依賴解析效能調校](#142-依賴解析效能調校)
@@ -130,6 +140,7 @@ Apache Maven 是一個專案管理和建置自動化工具，主要用於 Java �
 ### 1.2 Maven 的用途與優勢
 
 #### 主要用途：
+
 - **依賴管理**：自動下載和管理專案所需的第三方 JAR 檔案
 - **專案建置**：提供標準化的專案建置流程
 - **測試執行**：整合單元測試和整合測試
@@ -137,6 +148,7 @@ Apache Maven 是一個專案管理和建置自動化工具，主要用於 Java �
 - **部署管理**：自動化部署到不同環境
 
 #### 主要優勢：
+
 - **標準化專案結構**：統一的目錄佈局，降低學習成本
 - **簡化依賴管理**：自動解決依賴關係和版本衝突
 - **豐富的插件生態**：支援各種建置、測試、部署需求
@@ -153,11 +165,14 @@ Apache Maven 是一個專案管理和建置自動化工具，主要用於 Java �
 4. **團隊協作支援**：新人可以快速上手，減少環境配置問題
 
 #### 實務案例：
+
 在我們的專案中，當新同事加入團隊時，只需要：
+
 ```bash
 git clone <repository-url>
 cd java_tutorial
 mvn clean install
+
 ```
 就能完成整個專案的建置和依賴下載。
 
@@ -184,6 +199,7 @@ java -version
 javac -version
 echo $JAVA_HOME  # Linux/Mac
 echo %JAVA_HOME%  # Windows
+
 ```
 
 ### 2.2 Maven 安裝
@@ -198,15 +214,16 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 # 安裝 Maven
 choco install maven
+
 ```
 
 **方法二：手動安裝**
 
 1. 下載 Maven：前往 [Maven 官網](https://maven.apache.org/download.cgi)
-2. 下載 Binary zip archive（如：apache-maven-3.9.4-bin.zip）
+2. 下載 Binary zip archive（如：apache-maven-3.9.12-bin.zip）
 3. 解壓縮到適當目錄（如：C:\Program Files\Apache\Maven）
 4. 設定環境變數：
-   - 新增 `MAVEN_HOME` = `C:\Program Files\Apache\Maven\apache-maven-3.9.4`
+   - 新增 `MAVEN_HOME` = `C:\Program Files\Apache\Maven\apache-maven-3.9.12`
    - 將 `%MAVEN_HOME%\bin` 加入 `PATH`
 
 #### 2.2.2 macOS 安裝方式
@@ -219,6 +236,7 @@ choco install maven
 
 # 安裝 Maven
 brew install maven
+
 ```
 
 #### 2.2.3 Linux 安裝方式
@@ -228,6 +246,7 @@ brew install maven
 ```bash
 sudo apt update
 sudo apt install maven
+
 ```
 
 **CentOS/RHEL：**
@@ -236,6 +255,7 @@ sudo apt install maven
 sudo yum install maven
 # 或使用 dnf（較新版本）
 sudo dnf install maven
+
 ```
 
 ### 2.3 驗證安裝成功
@@ -244,17 +264,19 @@ sudo dnf install maven
 
 ```bash
 mvn -version
+
 ```
 
 應該會看到類似以下的輸出：
 
 ```
-Apache Maven 3.9.4 (d86a17ee24cd95b4b6dc57e87667d4e2de6ab7a)
-Maven home: C:\Program Files\Apache\Maven\apache-maven-3.9.4
+Apache Maven 3.9.12 (d86a17ee24cd95b4b6dc57e87667d4e2de6ab7a)
+Maven home: C:\Program Files\Apache\Maven\apache-maven-3.9.12
 Java version: 17.0.7, vendor: Eclipse Adoptium
 Java home: C:\Program Files\Eclipse Adoptium\jdk-17.0.7.10-hotspot
 Default locale: zh_TW, platform encoding: UTF-8
 OS name: "windows 10", version: "10.0", arch: "amd64", family: "windows"
+
 ```
 
 ### 2.4 IDE 整合
@@ -271,8 +293,9 @@ OS name: "windows 10", version: "10.0", arch: "amd64", family: "windows"
    ```json
    {
      "java.configuration.maven.userSettings": "C:\\Users\\<username>\\.m2\\settings.xml",
-     "maven.executable.path": "C:\\Program Files\\Apache\\Maven\\apache-maven-3.9.4\\bin\\mvn.cmd"
+     "maven.executable.path": "C:\\Program Files\\Apache\\Maven\\apache-maven-3.9.12\\bin\\mvn.cmd"
    }
+
    ```
 
 3. **驗證整合：**
@@ -365,6 +388,7 @@ Maven 有兩個主要設定檔：
         </profile>
     </profiles>
 </settings>
+
 ```
 
 #### 實務案例
@@ -410,16 +434,19 @@ java_tutorial/
 │   ├── test-classes/          # 編譯後的測試 class 檔案
 │   └── *.jar                  # 打包後的 JAR 檔案
 └── docs/                      # 文件目錄（非標準，專案特有）
+
 ```
 
 ### 3.2 目錄結構詳細說明
 
 #### 3.2.1 `src/main/java/`
+
 - **用途**：存放專案的主要 Java 原始碼
 - **套件結構**：遵循 Java 套件命名慣例
 - **範例**：`com.tutorial.java.Student.java`
 
 #### 3.2.2 `src/main/resources/`
+
 - **用途**：存放應用程式的資源檔案
 - **常見檔案**：
   - 設定檔（properties、xml、yaml）
@@ -427,15 +454,18 @@ java_tutorial/
   - 模板檔案
 
 #### 3.2.3 `src/test/java/`
+
 - **用途**：存放單元測試和整合測試程式碼
 - **命名慣例**：測試類別名稱通常以 `Test` 結尾
 - **範例**：`StudentTest.java`
 
 #### 3.2.4 `src/test/resources/`
+
 - **用途**：存放測試專用的資源檔案
 - **常見用途**：測試資料、模擬設定檔
 
 #### 3.2.5 `target/`
+
 - **用途**：Maven 建置過程的輸出目錄
 - **自動生成**：執行 Maven 指令時自動建立
 - **內容**：
@@ -452,6 +482,7 @@ java_tutorial/
 tree /f java_tutorial
 # 或在 Linux/Mac 使用
 find java_tutorial -type f -name "*.java" | head -10
+
 ```
 
 #### 3.3.1 主要程式碼範例
@@ -475,6 +506,7 @@ public class Student {
     
     // 建構子、getter、setter 方法...
 }
+
 ```
 
 #### 3.3.2 測試程式碼範例
@@ -500,6 +532,7 @@ public class StudentTest {
         assertEquals(20, student.getAge());
     }
 }
+
 ```
 
 #### 3.3.3 資源檔案範例
@@ -524,6 +557,7 @@ public class StudentTest {
         </Root>
     </Loggers>
 </Configuration>
+
 ```
 
 ### 3.4 自訂目錄結構
@@ -545,6 +579,7 @@ public class StudentTest {
         </testResource>
     </testResources>
 </build>
+
 ```
 
 #### 實務案例
@@ -611,6 +646,7 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
         <!-- 插件設定... -->
     </build>
 </project>
+
 ```
 
 ### 4.3 常用標籤詳細說明
@@ -629,6 +665,7 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
 
 <!-- 打包類型 -->
 <packaging>jar</packaging>  <!-- jar, war, pom, maven-plugin 等 -->
+
 ```
 
 **命名慣例：**
@@ -649,10 +686,11 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     
     <!-- 依賴版本管理 -->
-    <junit.version>5.9.2</junit.version>
-    <log4j.version>2.20.0</log4j.version>
-    <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
+    <junit.version>5.11.4</junit.version>
+    <log4j.version>2.24.3</log4j.version>
+    <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
 </properties>
+
 ```
 
 #### 4.3.3 依賴管理（Dependencies）
@@ -678,10 +716,11 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
     <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
-        <version>2.15.2</version>
+        <version>2.18.2</version>
         <optional>true</optional>
     </dependency>
 </dependencies>
+
 ```
 
 **依賴範圍（Scope）：**
@@ -698,12 +737,14 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
 1. **前往 Maven Central Repository**：https://mvnrepository.com/
 2. **搜尋需要的函式庫**，如 "jackson-core"
 3. **複製 Maven 依賴資訊**：
+
    ```xml
    <dependency>
        <groupId>com.fasterxml.jackson.core</groupId>
        <artifactId>jackson-core</artifactId>
-       <version>2.15.2</version>
+       <version>2.18.2</version>
    </dependency>
+
    ```
 4. **貼到 pom.xml 的 `<dependencies>` 區段**
 
@@ -723,7 +764,7 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
 ```xml
 <!-- 方法一：使用 properties 統一管理版本 -->
 <properties>
-    <spring.version>5.3.21</spring.version>
+    <spring.version>5.3.39</spring.version>
 </properties>
 
 <dependencies>
@@ -745,12 +786,13 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-framework-bom</artifactId>
-            <version>5.3.21</version>
+            <version>5.3.39</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
     </dependencies>
 </dependencyManagement>
+
 ```
 
 ### 4.5 建置配置（Build Configuration）
@@ -781,7 +823,7 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.1.2</version>
+            <version>3.5.4</version>
             <configuration>
                 <includes>
                     <include>**/*Test.java</include>
@@ -794,7 +836,7 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.5.0</version>
             <configuration>
                 <archive>
                     <manifest>
@@ -806,6 +848,7 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
         </plugin>
     </plugins>
 </build>
+
 ```
 
 ### 4.6 我們專案的完整 pom.xml 分析
@@ -835,7 +878,7 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.9.2</junit.version>
+        <junit.version>5.11.4</junit.version>
     </properties>
 
     <dependencies>
@@ -851,10 +894,11 @@ POM（Project Object Model）是 Maven 的核心概念，`pom.xml` 檔案包含�
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.20.0</version>
+            <version>2.24.3</version>
         </dependency>
     </dependencies>
 </project>
+
 ```
 
 #### 實務案例
@@ -891,6 +935,7 @@ Maven 有三個內建的建置生命週期：
 
 ```
 validate → compile → test → package → verify → install → deploy
+
 ```
 
 ### 5.2 基本指令詳解
@@ -906,6 +951,7 @@ mvn clean -X
 
 # 只清理不編譯
 mvn clean -Dmaven.test.skip=true
+
 ```
 
 **用途：**
@@ -924,6 +970,7 @@ mvn test-compile
 
 # 清理後編譯
 mvn clean compile
+
 ```
 
 **VS Code 中的使用：**
@@ -951,6 +998,7 @@ mvn test -Dtest=StudentTest#testStudentCreation
 
 # 並行執行測試
 mvn test -T 4  # 使用 4 個執行緒
+
 ```
 
 **測試報告：**
@@ -971,6 +1019,7 @@ mvn package -DskipTests
 
 # 打包並安裝到本地倉庫
 mvn clean package install
+
 ```
 
 **打包結果：**
@@ -992,6 +1041,7 @@ mvn deploy
 
 # 只安裝不執行測試
 mvn install -DskipTests
+
 ```
 
 ### 5.3 依賴管理指令
@@ -1010,17 +1060,20 @@ mvn dependency:tree -Dverbose
 
 # 輸出到檔案
 mvn dependency:tree -DoutputFile=dependencies.txt
+
 ```
 
 **範例輸出：**
+
 ```
 [INFO] com.tutorial.java:java-vscode-tutorial:jar:1.0.0
-[INFO] +- org.junit.jupiter:junit-jupiter:jar:5.9.2:test
-[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.9.2:test
-[INFO] |  +- org.junit.jupiter:junit-jupiter-params:jar:5.9.2:test
-[INFO] |  \- org.junit.jupiter:junit-jupiter-engine:jar:5.9.2:test
-[INFO] +- org.apache.logging.log4j:log4j-core:jar:2.20.0:compile
-[INFO] \- org.apache.logging.log4j:log4j-api:jar:2.20.0:compile
+[INFO] +- org.junit.jupiter:junit-jupiter:jar:5.11.4:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.11.4:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-params:jar:5.11.4:test
+[INFO] |  \- org.junit.jupiter:junit-jupiter-engine:jar:5.11.4:test
+[INFO] +- org.apache.logging.log4j:log4j-core:jar:2.24.3:compile
+[INFO] \- org.apache.logging.log4j:log4j-api:jar:2.24.3:compile
+
 ```
 
 #### 5.3.2 分析依賴
@@ -1037,6 +1090,7 @@ mvn dependency:sources
 
 # 下載 JavaDoc
 mvn dependency:resolve -Dclassifier=javadoc
+
 ```
 
 #### 5.3.3 解決依賴問題
@@ -1050,6 +1104,7 @@ mvn clean install -U
 
 # 檢查依賴更新
 mvn versions:display-dependency-updates
+
 ```
 
 ### 5.4 執行指令
@@ -1065,6 +1120,7 @@ mvn exec:java -Dexec.mainClass="com.tutorial.java.Main" -Dexec.args="arg1 arg2"
 
 # 使用專案設定的主類別（在 pom.xml 中已配置）
 mvn exec:java
+
 ```
 
 **在我們的專案中：**
@@ -1082,6 +1138,7 @@ java -jar target/java-vscode-tutorial-1.0.0.jar
 
 # 或使用 Maven 執行
 mvn exec:exec -Dexec.executable=java -Dexec.args="-jar target/java-vscode-tutorial-1.0.0.jar"
+
 ```
 
 ### 5.5 資訊查詢指令
@@ -1100,6 +1157,7 @@ mvn help:system
 
 # 顯示 Maven 版本
 mvn --version
+
 ```
 
 #### 5.5.2 插件資訊
@@ -1113,6 +1171,7 @@ mvn help:describe -Dplugin=org.apache.maven.plugins:maven-compiler-plugin -Ddeta
 
 # 列出專案中使用的插件
 mvn help:describe -Dcmd=compile
+
 ```
 
 ### 5.6 進階指令
@@ -1131,6 +1190,7 @@ mvn clean install -pl module-name -am
 
 # 建置依賴特定模組的所有模組
 mvn clean install -pl module-name -amd
+
 ```
 
 #### 5.6.2 性能優化
@@ -1147,6 +1207,7 @@ mvn clean install -q
 
 # 批次模式（非互動模式）
 mvn clean install -B
+
 ```
 
 #### 5.6.3 設定檔（Profile）
@@ -1160,6 +1221,7 @@ mvn clean install -P prod,security
 
 # 列出可用的設定檔
 mvn help:active-profiles
+
 ```
 
 ### 5.7 我們專案中的常用工作流程
@@ -1178,6 +1240,7 @@ mvn test
 
 # 4. 打包（如果需要）
 mvn package
+
 ```
 
 #### 5.7.2 新功能開發工作流程
@@ -1199,6 +1262,7 @@ mvn clean package
 git add .
 git commit -m "Add new feature"
 git push origin feature/new-feature
+
 ```
 
 #### 5.7.3 發布準備工作流程
@@ -1215,6 +1279,7 @@ mvn site
 
 # 4. 打包發布版本
 mvn clean package -Prelease
+
 ```
 
 ### 5.8 VS Code 中的 Maven 整合
@@ -1231,6 +1296,7 @@ mvn clean package -Prelease
     "args": ["compile"],
     "group": "build"
 }
+
 ```
 
 **執行方式：**
@@ -1273,10 +1339,12 @@ Maven Wrapper（mvnw）是一個確保團隊成員使用相同 Maven 版本的�
 mvn wrapper:wrapper
 
 # 指定特定 Maven 版本
-mvn wrapper:wrapper -Dmaven=3.9.4
+mvn wrapper:wrapper -Dmaven=3.9.12
+
 ```
 
 生成的檔案：
+
 ```
 .mvn/
 ├── wrapper/
@@ -1284,6 +1352,7 @@ mvn wrapper:wrapper -Dmaven=3.9.4
 │   └── maven-wrapper.properties
 ├── mvnw         # Linux/Mac 執行檔
 └── mvnw.cmd     # Windows 執行檔
+
 ```
 
 #### 5.9.3 使用 Maven Wrapper
@@ -1294,6 +1363,7 @@ mvn wrapper:wrapper -Dmaven=3.9.4
 
 # Windows
 mvnw.cmd clean install
+
 ```
 
 #### 5.9.4 優點
@@ -1347,6 +1417,7 @@ jobs:
         name: Maven Tests
         path: target/surefire-reports/*.xml
         reporter: java-junit
+
 ```
 
 #### 5.10.2 GitLab CI 範例
@@ -1354,7 +1425,7 @@ jobs:
 在 `.gitlab-ci.yml`：
 
 ```yaml
-image: maven:3.9.4-openjdk-17
+image: maven:3.9.12-openjdk-17
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
@@ -1383,6 +1454,7 @@ build:
   artifacts:
     paths:
       - target/*.jar
+
 ```
 
 ---
@@ -1402,12 +1474,13 @@ build:
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-dependencies</artifactId>
-            <version>2.7.14</version>
+            <version>2.7.18</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
     </dependencies>
 </dependencyManagement>
+
 ```
 
 **在 properties 中統一管理版本：**
@@ -1420,16 +1493,17 @@ build:
     <maven.compiler.target>${java.version}</maven.compiler.target>
     
     <!-- 測試框架 -->
-    <junit.version>5.9.2</junit.version>
-    <mockito.version>4.11.0</mockito.version>
+    <junit.version>5.11.4</junit.version>
+    <mockito.version>5.15.2</mockito.version>
     
     <!-- 日誌框架 -->
-    <log4j.version>2.20.0</log4j.version>
+    <log4j.version>2.24.3</log4j.version>
     
     <!-- 工具類庫 -->
-    <jackson.version>2.15.2</jackson.version>
-    <apache.commons.version>3.12.0</apache.commons.version>
+    <jackson.version>2.18.2</jackson.version>
+    <apache.commons.version>3.17.0</apache.commons.version>
 </properties>
+
 ```
 
 ### 6.2 Docker 整合
@@ -1438,7 +1512,7 @@ build:
 
 ```dockerfile
 # 多階段建置
-FROM maven:3.9.4-openjdk-17-slim AS build
+FROM maven:3.9.12-openjdk-17-slim AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
@@ -1449,6 +1523,7 @@ WORKDIR /app
 COPY --from=build /app/target/java-vscode-tutorial-1.0.0.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
 ```
 
 #### 6.2.2 使用 Jib Plugin 建置 Docker 映像
@@ -1457,7 +1532,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 <plugin>
     <groupId>com.google.cloud.tools</groupId>
     <artifactId>jib-maven-plugin</artifactId>
-    <version>3.3.2</version>
+    <version>3.4.4</version>
     <configuration>
         <from>
             <image>openjdk:17-jre-slim</image>
@@ -1471,15 +1546,18 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
         </to>
     </configuration>
 </plugin>
+
 ```
 
 建置指令：
+
 ```bash
 # 建置到本地 Docker
 mvn jib:dockerBuild
 
 # 建置並推送到 Registry
 mvn jib:build
+
 ```
 
 ### 6.3 安全性管理
@@ -1490,7 +1568,7 @@ mvn jib:build
 <plugin>
     <groupId>org.owasp</groupId>
     <artifactId>dependency-check-maven</artifactId>
-    <version>8.3.1</version>
+    <version>11.1.1</version>
     <configuration>
         <format>ALL</format>
         <outputDirectory>target/dependency-check</outputDirectory>
@@ -1504,11 +1582,14 @@ mvn jib:build
         </execution>
     </executions>
 </plugin>
+
 ```
 
 執行安全性檢查：
+
 ```bash
 mvn dependency-check:check
+
 ```
 
 #### 6.3.2 密碼加密
@@ -1521,6 +1602,7 @@ mvn --encrypt-master-password <password>
 
 # 加密伺服器密碼
 mvn --encrypt-password <password>
+
 ```
 
 ### 6.4 效能監控
@@ -1531,20 +1613,23 @@ mvn --encrypt-password <password>
 <plugin>
     <groupId>co.leantechniques</groupId>
     <artifactId>maven-buildtime-extension</artifactId>
-    <version>3.0.1</version>
+    <version>3.0.5</version>
     <extensions>true</extensions>
 </plugin>
+
 ```
 
 #### 6.4.2 記憶體使用優化
 
 設定 Maven 環境變數：
+
 ```bash
 # 增加堆記憶體
 export MAVEN_OPTS="-Xmx2g -Xms512m -XX:ReservedCodeCacheSize=512m"
 
 # 啟用 G1GC
 export MAVEN_OPTS="$MAVEN_OPTS -XX:+UseG1GC"
+
 ```
 
 ### 6.5 現代化開發實務
@@ -1624,15 +1709,18 @@ export MAVEN_OPTS="$MAVEN_OPTS -XX:+UseG1GC"
         </build>
     </profile>
 </profiles>
+
 ```
 
 使用指令：
+
 ```bash
 # 使用測試環境設定
 mvn clean package -Ptest
 
 # 使用生產環境設定
 mvn clean package -Pprod
+
 ```
 
 #### 6.5.2 整合 SonarQube 程式碼品質檢查
@@ -1641,16 +1729,19 @@ mvn clean package -Pprod
 <plugin>
     <groupId>org.sonarsource.scanner.maven</groupId>
     <artifactId>sonar-maven-plugin</artifactId>
-    <version>3.9.1.2184</version>
+    <version>4.0.0.4121</version>
 </plugin>
+
 ```
 
 執行程式碼分析：
+
 ```bash
 mvn sonar:sonar \
   -Dsonar.projectKey=java-tutorial \
   -Dsonar.host.url=http://localhost:9000 \
   -Dsonar.login=your-token
+
 ```
 
 #### 6.5.3 使用 Testcontainers 進行整合測試
@@ -1659,18 +1750,20 @@ mvn sonar:sonar \
 <dependency>
     <groupId>org.testcontainers</groupId>
     <artifactId>junit-jupiter</artifactId>
-    <version>1.18.3</version>
+    <version>1.20.4</version>
     <scope>test</scope>
 </dependency>
 <dependency>
     <groupId>org.testcontainers</groupId>
     <artifactId>mysql</artifactId>
-    <version>1.18.3</version>
+    <version>1.20.4</version>
     <scope>test</scope>
 </dependency>
+
 ```
 
 測試範例：
+
 ```java
 @Testcontainers
 class DatabaseIntegrationTest {
@@ -1687,6 +1780,7 @@ class DatabaseIntegrationTest {
         // 測試邏輯...
     }
 }
+
 ```
 
 ### 6.6 效能優化策略
@@ -1694,6 +1788,7 @@ class DatabaseIntegrationTest {
 #### 6.6.1 Maven Daemon 使用
 
 安裝 Maven Daemon：
+
 ```bash
 # 使用 SDKMAN
 sdk install mvnd
@@ -1701,11 +1796,14 @@ sdk install mvnd
 # 或下載並設定
 curl -s "https://get.sdkman.io" | bash
 sdk install mvnd
+
 ```
 
 使用 mvnd 替代 mvn：
+
 ```bash
 mvnd clean install  # 更快的建置速度
+
 ```
 
 #### 6.6.2 平行建置優化
@@ -1722,15 +1820,18 @@ mvnd clean install  # 更快的建置速度
         <reuseForks>true</reuseForks>
     </configuration>
 </plugin>
+
 ```
 
 指令層級的平行建置：
+
 ```bash
 # 使用所有 CPU 核心
 mvn clean install -T 1C
 
 # 使用 4 個執行緒
 mvn clean install -T 4
+
 ```
 
 ### 6.7 微服務架構支援
@@ -1748,9 +1849,11 @@ microservices-project/
 │   └── pom.xml
 └── gateway/                # API 閘道
     └── pom.xml
+
 ```
 
 父 POM 設定：
+
 ```xml
 <packaging>pom</packaging>
 
@@ -1766,25 +1869,29 @@ microservices-project/
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-dependencies</artifactId>
-            <version>2.7.14</version>
+            <version>2.7.18</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
     </dependencies>
 </dependencyManagement>
+
 ```
 
 #### 6.7.2 服務獨立部署
 
 每個服務的 Dockerfile：
+
 ```dockerfile
 FROM openjdk:17-jre-slim
 COPY target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "/app.jar"]
+
 ```
 
 Docker Compose 範例：
+
 ```yaml
 version: '3.8'
 services:
@@ -1801,50 +1908,10 @@ services:
       - "8082:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
+
 ```
 
-#### 依賴管理建議
-
-**使用 BOM（Bill of Materials）管理相關依賴版本：**
-
-```xml
-<dependencyManagement>
-    <dependencies>
-        <!-- Spring Boot BOM -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-dependencies</artifactId>
-            <version>2.7.14</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
-</dependencyManagement>
-```
-
-**在 properties 中統一管理版本：**
-
-```xml
-<properties>
-    <!-- Java 相關 -->
-    <java.version>17</java.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
-    
-    <!-- 測試框架 -->
-    <junit.version>5.9.2</junit.version>
-    <mockito.version>4.11.0</mockito.version>
-    
-    <!-- 日誌框架 -->
-    <log4j.version>2.20.0</log4j.version>
-    
-    <!-- 工具類庫 -->
-    <jackson.version>2.15.2</jackson.version>
-    <apache.commons.version>3.12.0</apache.commons.version>
-</properties>
-```
-
-#### 6.1.2 依賴範圍最佳實務
+#### 6.7.3 依賴範圍最佳實務
 
 ```xml
 <dependencies>
@@ -1867,7 +1934,7 @@ services:
     <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
-        <version>8.0.33</version>
+        <version>8.4.0</version>
         <scope>runtime</scope>
     </dependency>
     
@@ -1879,15 +1946,16 @@ services:
         <scope>provided</scope>
     </dependency>
 </dependencies>
+
 ```
 
-#### 6.1.3 排除不需要的依賴
+#### 6.7.4 排除不需要的依賴
 
 ```xml
 <dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-core</artifactId>
-    <version>5.3.21</version>
+    <version>5.3.39</version>
     <exclusions>
         <!-- 排除內建的 commons-logging，使用 slf4j -->
         <exclusion>
@@ -1896,11 +1964,12 @@ services:
         </exclusion>
     </exclusions>
 </dependency>
+
 ```
 
-### 6.2 避免版本衝突的方法
+### 6.8 避免版本衝突的方法
 
-#### 6.2.1 檢測依賴衝突
+#### 6.8.1 檢測依賴衝突
 
 ```bash
 # 檢視完整依賴樹
@@ -1911,9 +1980,10 @@ mvn dependency:tree -Dincludes=*:*:*:*:compile | grep "conflict"
 
 # 檢查重複依賴
 mvn dependency:analyze-duplicate
+
 ```
 
-#### 6.2.2 解決版本衝突
+#### 6.8.2 解決版本衝突
 
 **方法一：使用 dependencyManagement 強制指定版本**
 
@@ -1923,10 +1993,11 @@ mvn dependency:analyze-duplicate
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.15.2</version>
+            <version>2.18.2</version>
         </dependency>
     </dependencies>
 </dependencyManagement>
+
 ```
 
 **方法二：排除衝突的傳遞依賴**
@@ -1935,7 +2006,7 @@ mvn dependency:analyze-duplicate
 <dependency>
     <groupId>org.springframework</groupId>
     <artifactId>spring-web</artifactId>
-    <version>5.3.21</version>
+    <version>5.3.39</version>
     <exclusions>
         <exclusion>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -1943,16 +2014,17 @@ mvn dependency:analyze-duplicate
         </exclusion>
     </exclusions>
 </dependency>
+
 ```
 
-#### 6.2.3 依賴收斂策略
+#### 6.8.3 依賴收斂策略
 
 ```xml
 <!-- 使用 Maven Enforcer Plugin 確保依賴收斂 -->
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-enforcer-plugin</artifactId>
-    <version>3.3.0</version>
+    <version>3.5.0</version>
     <executions>
         <execution>
             <id>enforce-dependency-convergence</id>
@@ -1973,17 +2045,18 @@ mvn dependency:analyze-duplicate
         </execution>
     </executions>
 </plugin>
+
 ```
 
-### 6.3 建置優化策略
+### 6.9 建置優化策略
 
-#### 6.3.1 編譯器優化
+#### 6.9.1 編譯器優化
 
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-compiler-plugin</artifactId>
-    <version>3.11.0</version>
+    <version>3.15.0</version>
     <configuration>
         <source>17</source>
         <target>17</target>
@@ -1998,15 +2071,16 @@ mvn dependency:analyze-duplicate
         </compilerArgs>
     </configuration>
 </plugin>
+
 ```
 
-#### 6.3.2 測試優化
+#### 6.9.2 測試優化
 
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-surefire-plugin</artifactId>
-    <version>3.1.2</version>
+    <version>3.5.4</version>
     <configuration>
         <!-- 平行執行測試 -->
         <parallel>methods</parallel>
@@ -2026,16 +2100,17 @@ mvn dependency:analyze-duplicate
         <reportFormat>plain</reportFormat>
     </configuration>
 </plugin>
+
 ```
 
-#### 6.3.3 JAR 打包優化
+#### 6.9.3 JAR 打包優化
 
 ```xml
 <!-- 建立可執行 JAR -->
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-shade-plugin</artifactId>
-    <version>3.5.0</version>
+    <version>3.6.0</version>
     <executions>
         <execution>
             <phase>package</phase>
@@ -2054,17 +2129,18 @@ mvn dependency:analyze-duplicate
         </execution>
     </executions>
 </plugin>
+
 ```
 
-### 6.4 程式碼品質管理
+### 6.10 程式碼品質管理
 
-#### 6.4.1 程式碼檢查（Checkstyle）
+#### 6.10.1 程式碼檢查（Checkstyle）
 
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-checkstyle-plugin</artifactId>
-    <version>3.3.0</version>
+    <version>3.6.0</version>
     <configuration>
         <configLocation>checkstyle.xml</configLocation>
         <encoding>UTF-8</encoding>
@@ -2081,15 +2157,16 @@ mvn dependency:analyze-duplicate
         </execution>
     </executions>
 </plugin>
+
 ```
 
-#### 6.4.2 程式碼覆蓋率（JaCoCo）
+#### 6.10.2 程式碼覆蓋率（JaCoCo）
 
 ```xml
 <plugin>
     <groupId>org.jacoco</groupId>
     <artifactId>jacoco-maven-plugin</artifactId>
-    <version>0.8.10</version>
+    <version>0.8.12</version>
     <executions>
         <execution>
             <goals>
@@ -2125,11 +2202,12 @@ mvn dependency:analyze-duplicate
         </execution>
     </executions>
 </plugin>
+
 ```
 
-### 6.5 使用公司內部 Nexus/Artifactory
+### 6.11 使用公司內部 Nexus/Artifactory
 
-#### 6.5.1 設定私有倉庫
+#### 6.11.1 設定私有倉庫
 
 在 `~/.m2/settings.xml` 中：
 
@@ -2179,9 +2257,10 @@ mvn dependency:analyze-duplicate
         <activeProfile>company</activeProfile>
     </activeProfiles>
 </settings>
+
 ```
 
-#### 6.5.2 部署到私有倉庫
+#### 6.11.2 部署到私有倉庫
 
 在 `pom.xml` 中：
 
@@ -2198,11 +2277,12 @@ mvn dependency:analyze-duplicate
         <url>http://nexus.company.com/repository/maven-snapshots/</url>
     </snapshotRepository>
 </distributionManagement>
+
 ```
 
-### 6.6 環境特定設定
+### 6.12 環境特定設定
 
-#### 6.6.1 使用 Profile 管理不同環境
+#### 6.12.1 使用 Profile 管理不同環境
 
 ```xml
 <profiles>
@@ -2240,7 +2320,7 @@ mvn dependency:analyze-duplicate
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>8.3.1</version>
+                    <version>11.1.1</version>
                     <executions>
                         <execution>
                             <goals>
@@ -2253,6 +2333,7 @@ mvn dependency:analyze-duplicate
         </build>
     </profile>
 </profiles>
+
 ```
 
 #### 實務案例
@@ -2281,9 +2362,11 @@ mvn dependency:analyze-duplicate
 #### 7.1.1 Java 版本不匹配
 
 **錯誤訊息：**
+
 ```
 [ERROR] Source option 17 is no longer supported. Use 8 or later.
 [ERROR] Target option 17 is no longer supported. Use 8 or later.
+
 ```
 
 **原因：** 系統安裝的 JDK 版本與專案設定不匹配。
@@ -2291,45 +2374,57 @@ mvn dependency:analyze-duplicate
 **解決方式：**
 
 1. **檢查系統 JDK 版本：**
+
    ```bash
    java -version
    javac -version
+
    ```
 
 2. **檢查 JAVA_HOME 設定：**
+
    ```bash
    echo $JAVA_HOME    # Linux/Mac
    echo %JAVA_HOME%   # Windows
+
    ```
 
 3. **更新 JDK 或修改專案設定：**
+
    ```xml
    <properties>
        <maven.compiler.source>11</maven.compiler.source>
        <maven.compiler.target>11</maven.compiler.target>
    </properties>
+
    ```
 
 #### 7.1.2 編碼問題
 
 **錯誤訊息：**
+
 ```
 [WARNING] File encoding has not been set, using platform encoding UTF-8
+
 ```
 
 **解決方式：**
+
 ```xml
 <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 </properties>
+
 ```
 
 #### 7.1.3 類別找不到錯誤
 
 **錯誤訊息：**
+
 ```
 [ERROR] package com.tutorial.java does not exist
+
 ```
 
 **可能原因：**
@@ -2346,71 +2441,89 @@ mvn dependency:analyze-duplicate
 #### 7.2.1 依賴下載失敗
 
 **錯誤訊息：**
+
 ```
 [ERROR] Could not resolve dependencies for project com.tutorial:java-tutorial:jar:1.0.0: 
-Could not find artifact org.junit.jupiter:junit-jupiter:jar:5.9.2
+Could not find artifact org.junit.jupiter:junit-jupiter:jar:5.11.4
+
 ```
 
 **解決方式：**
 
 1. **檢查網路連接**
 2. **清理本地倉庫：**
+
    ```bash
    mvn dependency:purge-local-repository
+
    ```
 3. **強制更新：**
+
    ```bash
    mvn clean install -U
+
    ```
 4. **檢查倉庫設定：**
+
    ```bash
    mvn help:effective-settings
+
    ```
 
 #### 7.2.2 版本衝突
 
 **錯誤訊息：**
+
 ```
 [WARNING] The POM for org.springframework:spring-core:jar:5.2.0.RELEASE is invalid
+
 ```
 
 **解決方式：**
 
 1. **查看依賴樹：**
+
    ```bash
    mvn dependency:tree -Dverbose
+
    ```
 
 2. **使用 dependencyManagement 強制指定版本：**
+
    ```xml
    <dependencyManagement>
        <dependencies>
            <dependency>
                <groupId>org.springframework</groupId>
                <artifactId>spring-core</artifactId>
-               <version>5.3.21</version>
+               <version>5.3.39</version>
            </dependency>
        </dependencies>
    </dependencyManagement>
+
    ```
 
 #### 7.2.3 傳遞依賴問題
 
 **錯誤訊息：**
+
 ```
 java.lang.ClassNotFoundException: org.slf4j.Logger
+
 ```
 
 **解決方式：**
 
 1. **檢查是否排除了必要的依賴**
 2. **明確添加缺失的依賴：**
+
    ```xml
    <dependency>
        <groupId>org.slf4j</groupId>
        <artifactId>slf4j-api</artifactId>
-       <version>2.0.7</version>
+       <version>2.0.16</version>
    </dependency>
+
    ```
 
 ### 7.3 測試相關問題
@@ -2418,8 +2531,10 @@ java.lang.ClassNotFoundException: org.slf4j.Logger
 #### 7.3.1 測試執行失敗
 
 **錯誤訊息：**
+
 ```
 [ERROR] No tests were executed!
+
 ```
 
 **可能原因：**
@@ -2433,42 +2548,50 @@ java.lang.ClassNotFoundException: org.slf4j.Logger
    - 例如：`StudentTest.java` 或 `TestStudent.java`
 
 2. **檢查測試方法：**
+
    ```java
    @Test
    public void testMethod() {
        // 測試邏輯
    }
+
    ```
 
 3. **檢查 Surefire 插件配置：**
+
    ```xml
    <plugin>
        <groupId>org.apache.maven.plugins</groupId>
        <artifactId>maven-surefire-plugin</artifactId>
-       <version>3.1.2</version>
+       <version>3.5.4</version>
        <configuration>
            <includes>
                <include>**/*Test.java</include>
            </includes>
        </configuration>
    </plugin>
+
    ```
 
 #### 7.3.2 JUnit 5 相關問題
 
 **錯誤訊息：**
+
 ```
 java.lang.NoClassDefFoundError: org/junit/platform/engine/TestEngine
+
 ```
 
 **解決方式：**
+
 ```xml
 <dependency>
     <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter</artifactId>
-    <version>5.9.2</version>
+    <version>5.11.4</version>
     <scope>test</scope>
 </dependency>
+
 ```
 
 ### 7.4 IDE 整合問題
@@ -2488,10 +2611,12 @@ java.lang.NoClassDefFoundError: org/junit/platform/engine/TestEngine
    - 確保安裝了 "Extension Pack for Java"
 
 3. **檢查 settings.json：**
+
    ```json
    {
        "java.configuration.maven.userSettings": "C:\\Users\\username\\.m2\\settings.xml"
    }
+
    ```
 
 #### 7.4.2 IntelliJ IDEA Maven 同步問題
@@ -2514,39 +2639,50 @@ java.lang.NoClassDefFoundError: org/junit/platform/engine/TestEngine
 **解決方式：**
 
 1. **使用平行建置：**
+
    ```bash
    mvn clean install -T 4
+
    ```
 
 2. **跳過不必要的步驟：**
+
    ```bash
    mvn compile -DskipTests
+
    ```
 
 3. **增加 Maven 記憶體：**
+
    ```bash
    export MAVEN_OPTS="-Xmx2g -XX:ReservedCodeCacheSize=512m"
+
    ```
 
 #### 7.5.2 記憶體不足
 
 **錯誤訊息：**
+
 ```
 java.lang.OutOfMemoryError: Java heap space
+
 ```
 
 **解決方式：**
 
 1. **設定環境變數：**
+
    ```bash
    # Linux/Mac
    export MAVEN_OPTS="-Xmx2g -Xms512m"
    
    # Windows
    set MAVEN_OPTS=-Xmx2g -Xms512m
+
    ```
 
 2. **在插件中設定：**
+
    ```xml
    <plugin>
        <groupId>org.apache.maven.plugins</groupId>
@@ -2555,6 +2691,7 @@ java.lang.OutOfMemoryError: Java heap space
            <argLine>-Xmx1g</argLine>
        </configuration>
    </plugin>
+
    ```
 
 ### 7.6 網路相關問題
@@ -2562,13 +2699,16 @@ java.lang.OutOfMemoryError: Java heap space
 #### 7.6.1 代理伺服器設定
 
 **錯誤訊息：**
+
 ```
 [ERROR] Could not transfer artifact from/to central
+
 ```
 
 **解決方式：**
 
 在 `~/.m2/settings.xml` 中：
+
 ```xml
 <proxies>
     <proxy>
@@ -2582,20 +2722,25 @@ java.lang.OutOfMemoryError: Java heap space
         <nonProxyHosts>localhost|127.0.0.1|*.company.com</nonProxyHosts>
     </proxy>
 </proxies>
+
 ```
 
 #### 7.6.2 SSL 證書問題
 
 **錯誤訊息：**
+
 ```
 sun.security.validator.ValidatorException: PKIX path building failed
+
 ```
 
 **解決方式：**
 
 1. **暫時跳過 SSL 驗證（不建議用於生產）：**
+
    ```bash
    mvn clean install -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true
+
    ```
 
 2. **匯入公司證書到 Java keystore**
@@ -2612,6 +2757,7 @@ sun.security.validator.ValidatorException: PKIX path building failed
    - [ ] 本地倉庫是否損壞
 
 2. **定期維護：**
+
    ```bash
    # 每週執行一次清理
    mvn clean
@@ -2621,6 +2767,7 @@ sun.security.validator.ValidatorException: PKIX path building failed
    
    # 每季度清理本地倉庫
    mvn dependency:purge-local-repository
+
    ```
 
 #### 7.7.2 團隊協作建議
@@ -2809,10 +2956,10 @@ sun.security.validator.ValidatorException: PKIX path building failed
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         
         <!-- 依賴版本 -->
-        <junit.version>5.9.2</junit.version>
-        <log4j.version>2.20.0</log4j.version>
-        <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
-        <maven.surefire.plugin.version>3.1.2</maven.surefire.plugin.version>
+        <junit.version>5.11.4</junit.version>
+        <log4j.version>2.24.3</log4j.version>
+        <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
+        <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
     </properties>
 
     <!-- 依賴管理 -->
@@ -2870,6 +3017,7 @@ sun.security.validator.ValidatorException: PKIX path building failed
         </plugins>
     </build>
 </project>
+
 ```
 
 #### 8.5.2 完整的 settings.xml 範例
@@ -2946,6 +3094,7 @@ sun.security.validator.ValidatorException: PKIX path building failed
         <activeProfile>development</activeProfile>
     </activeProfiles>
 </settings>
+
 ```
 
 ### 8.6 團隊協作指南
@@ -2953,6 +3102,7 @@ sun.security.validator.ValidatorException: PKIX path building failed
 #### 8.6.1 版本控制建議
 
 **.gitignore 範例：**
+
 ```gitignore
 # Maven
 target/
@@ -2978,6 +3128,7 @@ buildNumber.properties
 # OS
 .DS_Store
 Thumbs.db
+
 ```
 
 #### 8.6.2 團隊開發規範
@@ -3198,23 +3349,6 @@ Thumbs.db
 
 ---
 
-## 結語
-
-這份 Maven 使用教學手冊涵蓋了從環境建置到進階使用的完整指南。作為新進開發同仁，建議按照以下步驟學習：
-
-1. **第一週**：完成環境建置（第1-2章）
-2. **第二週**：熟悉專案結構和 pom.xml（第3-4章）
-3. **第三週**：掌握常用指令和最佳實務（第5-6章）
-4. **持續改進**：參考故障排除和檢查清單（第7-9章）
-
-記住，Maven 是一個強大的工具，但也需要時間來熟練掌握。在學習過程中遇到問題時，請善用本手冊的故障排除章節，並且不要害怕向團隊中的資深成員尋求協助。
-
-隨著 Maven 版本的更新和團隊需求的變化，這份文件也會持續更新。建議定期檢查最新版本，確保掌握最新的最佳實務。
-
-**祝您學習愉快，開發順利！**
-
----
-
 ## 10. 快速參考手冊
 
 ### 10.1 常用指令速查表
@@ -3273,7 +3407,7 @@ Thumbs.db
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.9.2</version>
+            <version>5.11.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -3284,11 +3418,12 @@ Thumbs.db
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.15.0</version>
             </plugin>
         </plugins>
     </build>
 </project>
+
 ```
 
 ### 10.4 常見問題快速解決
@@ -3347,6 +3482,7 @@ mvn clean test jacoco:report
 
 # 建置並跳過所有檢查（僅限開發階段）
 mvn clean package -DskipTests -Dcheckstyle.skip -Dpmd.skip
+
 ```
 
 #### 10.6.2 環境變數設定
@@ -3355,8 +3491,9 @@ mvn clean package -DskipTests -Dcheckstyle.skip -Dpmd.skip
 
 ```cmd
 set JAVA_HOME=C:\Program Files\Java\jdk-17
-set MAVEN_HOME=C:\Program Files\Apache\Maven\apache-maven-3.9.4
+set MAVEN_HOME=C:\Program Files\Apache\Maven\apache-maven-3.9.12
 set MAVEN_OPTS=-Xmx2g -XX:ReservedCodeCacheSize=512m
+
 ```
 
 **Linux/Mac：**
@@ -3365,6 +3502,7 @@ set MAVEN_OPTS=-Xmx2g -XX:ReservedCodeCacheSize=512m
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 export MAVEN_HOME=/opt/maven
 export MAVEN_OPTS="-Xmx2g -XX:ReservedCodeCacheSize=512m"
+
 ```
 
 #### 10.6.3 VS Code 快捷鍵
@@ -3389,15 +3527,18 @@ Maven Archetype 是一個專案範本工具，可以快速建立具有預定義�
 #### 11.1.2 建立自定義 Archetype
 
 **步驟 1：建立範本專案**
+
 ```bash
 # 建立基礎專案
 mvn archetype:generate -DgroupId=com.tutorial.archetype \
   -DartifactId=tutorial-archetype \
   -DarchetypeArtifactId=maven-archetype-quickstart \
   -DinteractiveMode=false
+
 ```
 
 **步驟 2：自定義專案結構**
+
 ```
 tutorial-archetype/
 ├── pom.xml
@@ -3416,9 +3557,11 @@ tutorial-archetype/
 │           └── META-INF/
 │               └── maven/
 │                   └── archetype-metadata.xml
+
 ```
 
 **步驟 3：設定 archetype-metadata.xml**
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <archetype-descriptor xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.0.0"
@@ -3455,6 +3598,7 @@ tutorial-archetype/
         </fileSet>
     </fileSets>
 </archetype-descriptor>
+
 ```
 
 ### 11.2 Maven 插件開發
@@ -3462,6 +3606,7 @@ tutorial-archetype/
 #### 11.2.1 建立自定義插件
 
 **專案結構：**
+
 ```
 custom-maven-plugin/
 ├── pom.xml
@@ -3470,9 +3615,11 @@ custom-maven-plugin/
         └── java/
             └── com/tutorial/plugin/
                 └── CustomMojo.java
+
 ```
 
 **POM 設定：**
+
 ```xml
 <project>
     <modelVersion>4.0.0</modelVersion>
@@ -3485,12 +3632,12 @@ custom-maven-plugin/
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
-            <version>3.9.4</version>
+            <version>3.9.12</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.9.0</version>
+            <version>3.15.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -3500,7 +3647,7 @@ custom-maven-plugin/
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
-                <version>3.9.0</version>
+                <version>3.15.0</version>
                 <executions>
                     <execution>
                         <id>default-descriptor</id>
@@ -3513,9 +3660,11 @@ custom-maven-plugin/
         </plugins>
     </build>
 </project>
+
 ```
 
 **Mojo 實作：**
+
 ```java
 package com.tutorial.plugin;
 
@@ -3540,9 +3689,11 @@ public class CustomMojo extends AbstractMojo {
         getLog().info(String.format("%s, %s!", greeting, name));
     }
 }
+
 ```
 
 **使用插件：**
+
 ```xml
 <plugin>
     <groupId>com.tutorial</groupId>
@@ -3553,6 +3704,7 @@ public class CustomMojo extends AbstractMojo {
         <greeting>Welcome</greeting>
     </configuration>
 </plugin>
+
 ```
 
 ### 11.3 Maven 與 Spring Boot 整合
@@ -3563,7 +3715,7 @@ public class CustomMojo extends AbstractMojo {
 <plugin>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-maven-plugin</artifactId>
-    <version>2.7.14</version>
+    <version>2.7.18</version>
     <configuration>
         <mainClass>com.tutorial.Application</mainClass>
         <executable>true</executable>
@@ -3583,6 +3735,7 @@ public class CustomMojo extends AbstractMojo {
         </execution>
     </executions>
 </plugin>
+
 ```
 
 #### 11.3.2 多環境配置
@@ -3620,6 +3773,7 @@ public class CustomMojo extends AbstractMojo {
         </build>
     </profile>
 </profiles>
+
 ```
 
 ### 11.4 Maven 與容器化部署
@@ -3630,7 +3784,7 @@ public class CustomMojo extends AbstractMojo {
 <plugin>
     <groupId>io.fabric8</groupId>
     <artifactId>docker-maven-plugin</artifactId>
-    <version>0.43.4</version>
+    <version>0.45.1</version>
     <configuration>
         <images>
             <image>
@@ -3662,11 +3816,13 @@ public class CustomMojo extends AbstractMojo {
         </execution>
     </executions>
 </plugin>
+
 ```
 
 #### 11.4.2 Kubernetes 部署配置
 
 **k8s-deployment.yaml：**
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -3690,9 +3846,11 @@ spec:
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: "kubernetes"
+
 ```
 
 **Maven 集成：**
+
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
@@ -3716,6 +3874,7 @@ spec:
         </execution>
     </executions>
 </plugin>
+
 ```
 
 ### 11.5 企業級 Maven 倉庫管理
@@ -3723,6 +3882,7 @@ spec:
 #### 11.5.1 設定 Nexus Repository
 
 **settings.xml 配置：**
+
 ```xml
 <settings>
     <servers>
@@ -3772,6 +3932,7 @@ spec:
         <activeProfile>nexus</activeProfile>
     </activeProfiles>
 </settings>
+
 ```
 
 #### 11.5.2 企業級部署策略
@@ -3795,7 +3956,7 @@ spec:
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-release-plugin</artifactId>
-    <version>3.0.1</version>
+    <version>3.1.1</version>
     <configuration>
         <tagNameFormat>v@{project.version}</tagNameFormat>
         <autoVersionSubmodules>true</autoVersionSubmodules>
@@ -3803,207 +3964,8 @@ spec:
         <goals>deploy</goals>
     </configuration>
 </plugin>
+
 ```
-
----
-
-*最後更新：2025年8月29日*  
-*版本：1.1.0*  
-*維護者：Tutorial Team*
-
-#### 驗證 JDK 安裝：
-```bash
-java -version
-javac -version
-echo $JAVA_HOME  # Linux/Mac
-echo %JAVA_HOME%  # Windows
-```
-
-### 2.2 Maven 安裝
-
-#### 2.2.1 Windows 安裝方式
-
-**方法一：使用 Chocolatey（推薦）**
-```powershell
-# 安裝 Chocolatey（如果尚未安裝）
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-
-# 安裝 Maven
-choco install maven
-```
-
-**方法二：手動安裝**
-1. 下載 Maven：前往 [Maven 官網](https://maven.apache.org/download.cgi)
-2. 下載 Binary zip archive（如：apache-maven-3.9.4-bin.zip）
-3. 解壓縮到適當目錄（如：C:\Program Files\Apache\Maven）
-4. 設定環境變數：
-   - 新增 `MAVEN_HOME` = `C:\Program Files\Apache\Maven\apache-maven-3.9.4`
-   - 將 `%MAVEN_HOME%\bin` 加入 `PATH`
-
-#### 2.2.2 macOS 安裝方式
-
-**使用 Homebrew（推薦）**
-```bash
-# 安裝 Homebrew（如果尚未安裝）
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# 安裝 Maven
-brew install maven
-```
-
-#### 2.2.3 Linux 安裝方式
-
-**Ubuntu/Debian：**
-```bash
-sudo apt update
-sudo apt install maven
-```
-
-**CentOS/RHEL：**
-```bash
-sudo yum install maven
-# 或使用 dnf（較新版本）
-sudo dnf install maven
-```
-
-### 2.3 驗證安裝成功
-
-安裝完成後，開啟新的終端機視窗並執行：
-
-```bash
-mvn -version
-```
-
-應該會看到類似以下的輸出：
-```
-Apache Maven 3.9.4 (d86a17ee24cd95b4b6dc57e87667d4e2de6ab7a)
-Maven home: C:\Program Files\Apache\Maven\apache-maven-3.9.4
-Java version: 17.0.7, vendor: Eclipse Adoptium
-Java home: C:\Program Files\Eclipse Adoptium\jdk-17.0.7.10-hotspot
-Default locale: zh_TW, platform encoding: UTF-8
-OS name: "windows 10", version: "10.0", arch: "amd64", family: "windows"
-```
-
-### 2.4 IDE 整合
-
-#### 2.4.1 VS Code 整合
-
-1. **安裝必要擴充功能：**
-   - Extension Pack for Java
-   - Maven for Java
-
-2. **VS Code 設定：**
-   在 `settings.json` 中加入：
-   ```json
-   {
-     "java.configuration.maven.userSettings": "C:\\Users\\<username>\\.m2\\settings.xml",
-     "maven.executable.path": "C:\\Program Files\\Apache\\Maven\\apache-maven-3.9.4\\bin\\mvn.cmd"
-   }
-   ```
-
-3. **驗證整合：**
-   - 打開 Java 專案
-   - 在 Explorer 中應該能看到 "JAVA PROJECTS" 區段
-   - 右鍵點擊 `pom.xml` 應該能看到 Maven 相關選項
-
-#### 2.4.2 IntelliJ IDEA 整合
-
-IntelliJ IDEA 內建 Maven 支援：
-
-1. **檢查 Maven 設定：**
-   - File → Settings → Build, Execution, Deployment → Build Tools → Maven
-   - 確認 Maven home path 正確
-   - 確認 User settings file 路徑正確
-
-2. **匯入 Maven 專案：**
-   - File → Open → 選擇包含 `pom.xml` 的資料夾
-   - IntelliJ 會自動識別為 Maven 專案
-
-#### 2.4.3 Eclipse 整合
-
-Eclipse 也內建 Maven 支援（m2e 插件）：
-
-1. **匯入 Maven 專案：**
-   - File → Import → Maven → Existing Maven Projects
-   - 選擇包含 `pom.xml` 的資料夾
-
-2. **檢查 Maven 設定：**
-   - Window → Preferences → Maven
-   - 確認設定正確
-
-### 2.5 設定檔配置
-
-#### 2.5.1 Maven 設定檔位置
-
-Maven 有兩個主要設定檔：
-- **全域設定**：`${MAVEN_HOME}/conf/settings.xml`
-- **使用者設定**：`${user.home}/.m2/settings.xml`（優先級較高）
-
-#### 2.5.2 基本設定檔範例
-
-在 `~/.m2/settings.xml` 中：
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 
-          http://maven.apache.org/xsd/settings-1.0.0.xsd">
-    
-    <!-- 本地倉庫位置 -->
-    <localRepository>C:/Users/${user.name}/.m2/repository</localRepository>
-    
-    <!-- 伺服器設定（如需要認證） -->
-    <servers>
-        <!-- 如果公司有私有倉庫需要認證 -->
-        <!--
-        <server>
-            <id>company-nexus</id>
-            <username>your-username</username>
-            <password>your-password</password>
-        </server>
-        -->
-    </servers>
-    
-    <!-- 鏡像設定（加速下載） -->
-    <mirrors>
-        <!-- 使用阿里雲鏡像加速（中國地區） -->
-        <mirror>
-            <id>aliyun-maven</id>
-            <name>Aliyun Maven Mirror</name>
-            <url>https://maven.aliyun.com/repository/central</url>
-            <mirrorOf>central</mirrorOf>
-        </mirror>
-    </mirrors>
-    
-    <!-- 預設設定檔 -->
-    <profiles>
-        <profile>
-            <id>development</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <maven.compiler.source>17</maven.compiler.source>
-                <maven.compiler.target>17</maven.compiler.target>
-                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-            </properties>
-        </profile>
-    </profiles>
-</settings>
-```
-
-#### 實務案例：
-在我們的專案中，建議所有開發人員使用相同的 Maven 設定，以確保：
-- 相同的 JDK 版本（Java 17）
-- 相同的編碼格式（UTF-8）
-- 統一的倉庫來源
-
-#### 注意事項
-
-- 設定檔修改後需要重新啟動 IDE
-- 密碼建議使用加密方式儲存
-- 公司內部倉庫設定請詢問系統管理員
 
 ---
 
@@ -4036,7 +3998,7 @@ Maven 有兩個主要設定檔：
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-enforcer-plugin</artifactId>
-    <version>3.3.0</version>
+    <version>3.5.0</version>
     <executions>
         <execution>
             <id>enforce-rules</id>
@@ -4073,6 +4035,7 @@ Maven 有兩個主要設定檔：
         </execution>
     </executions>
 </plugin>
+
 ```
 
 ### 12.2 版本管理策略
@@ -4099,6 +4062,7 @@ Maven 有兩個主要設定檔：
 
 <!-- 熱修復版本 -->
 <version>1.2.1</version>
+
 ```
 
 #### 12.2.2 版本發布流程
@@ -4114,6 +4078,7 @@ mvn release:perform
 
 # 回滾發布（如果出現問題）
 mvn release:rollback
+
 ```
 
 **手動版本管理：**
@@ -4127,6 +4092,7 @@ mvn versions:commit
 
 # 如果需要回滾
 mvn versions:revert
+
 ```
 
 ### 12.3 分支管理與 Maven
@@ -4225,6 +4191,7 @@ jobs:
       run: |
         # 部署到測試環境
         kubectl apply -f k8s/staging/
+
 ```
 
 ### 12.4 自動化測試策略
@@ -4236,7 +4203,7 @@ jobs:
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-surefire-plugin</artifactId>
-    <version>3.1.2</version>
+    <version>3.5.4</version>
     <configuration>
         <includes>
             <include>**/*Test.java</include>
@@ -4253,7 +4220,7 @@ jobs:
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-failsafe-plugin</artifactId>
-    <version>3.1.2</version>
+    <version>3.5.4</version>
     <configuration>
         <includes>
             <include>**/*IntegrationTest.java</include>
@@ -4269,6 +4236,7 @@ jobs:
         </execution>
     </executions>
 </plugin>
+
 ```
 
 #### 12.4.2 測試環境管理
@@ -4317,6 +4285,7 @@ jobs:
         </build>
     </profile>
 </profiles>
+
 ```
 
 #### 12.4.3 測試報告整合
@@ -4326,7 +4295,7 @@ jobs:
 <plugin>
     <groupId>org.jacoco</groupId>
     <artifactId>jacoco-maven-plugin</artifactId>
-    <version>0.8.10</version>
+    <version>0.8.12</version>
     <executions>
         <execution>
             <goals>
@@ -4360,7 +4329,7 @@ jobs:
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.5.4</version>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -4376,6 +4345,7 @@ jobs:
         </reportPlugins>
     </configuration>
 </plugin>
+
 ```
 
 ---
@@ -4404,6 +4374,7 @@ src/
         tutorial/
           java/
             AppTest.java
+
 ```
 
 #### 13.1.2 module-info.java 範例
@@ -4420,6 +4391,7 @@ module com.tutorial.java {
     // 僅供測試使用
     opens com.tutorial.java to junit;
 }
+
 ```
 
 #### 13.1.3 Maven 模組化專案配置
@@ -4436,7 +4408,7 @@ module com.tutorial.java {
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.11.0</version>
+            <version>3.15.0</version>
             <configuration>
                 <release>17</release>
                 <compilerArgs>
@@ -4449,13 +4421,14 @@ module com.tutorial.java {
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.1.2</version>
+            <version>3.5.4</version>
             <configuration>
                 <useModulePath>true</useModulePath>
             </configuration>
         </plugin>
     </plugins>
 </build>
+
 ```
 
 ### 13.2 Maven 與 JDK 版本管理
@@ -4488,6 +4461,7 @@ module com.tutorial.java {
         </configuration>
     </toolchain>
 </toolchains>
+
 ```
 
 **在 pom.xml 中使用：**
@@ -4496,7 +4470,7 @@ module com.tutorial.java {
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-toolchains-plugin</artifactId>
-    <version>3.1.0</version>
+    <version>3.2.0</version>
     <configuration>
         <toolchains>
             <jdk>
@@ -4512,6 +4486,7 @@ module com.tutorial.java {
         </execution>
     </executions>
 </plugin>
+
 ```
 
 #### 13.2.2 預覽功能支援
@@ -4522,7 +4497,7 @@ module com.tutorial.java {
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-compiler-plugin</artifactId>
-    <version>3.11.0</version>
+    <version>3.15.0</version>
     <configuration>
         <compilerArgs>
             <arg>--enable-preview</arg>
@@ -4533,11 +4508,12 @@ module com.tutorial.java {
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-surefire-plugin</artifactId>
-    <version>3.1.2</version>
+    <version>3.5.4</version>
     <configuration>
         <argLine>--enable-preview</argLine>
     </configuration>
 </plugin>
+
 ```
 
 ### 13.3 Maven 與記錄（Records）和文字區塊
@@ -4573,6 +4549,7 @@ public record Student(Long id, String name, int age) {
         return age >= 18;
     }
 }
+
 ```
 
 #### 13.3.2 文字區塊（Text Blocks）
@@ -4598,6 +4575,7 @@ void testJsonParsing() {
     Student student = parseJson(jsonData);
     assertEquals("張三", student.name());
 }
+
 ```
 
 ### 13.4 Maven 與虛擬執行緒
@@ -4618,10 +4596,11 @@ void testJsonParsing() {
     <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter</artifactId>
-        <version>5.10.0</version>
+        <version>5.11.4</version>
         <scope>test</scope>
     </dependency>
 </dependencies>
+
 ```
 
 #### 13.4.2 虛擬執行緒範例
@@ -4652,6 +4631,7 @@ public class VirtualThreadExample {
         }
     }
 }
+
 ```
 
 #### 13.4.3 測試虛擬執行緒
@@ -4685,7 +4665,96 @@ void testVirtualThreadPerformance() throws InterruptedException {
     // 虛擬執行緒應該能在合理時間內完成
     assertTrue(duration < 5000, "執行時間過長: " + duration + "ms");
 }
+
 ```
+
+---
+
+### 13.5 Maven 4 預覽與未來展望
+
+Maven 4 是 Apache Maven 的下一個主要版本，目前處於 Release Candidate 階段（最新為 **4.0.0-rc-5**）。以下是主要變更與遷移須知。
+
+#### 13.5.1 Maven 4 重要變更
+
+| 項目 | Maven 3.x | Maven 4.x |
+|------|-----------|-----------|
+| **最低 JDK 版本** | JDK 8+ | **JDK 17+** |
+| **POM 模型版本** | `4.0.0` | `4.1.0`（向下相容 `4.0.0`） |
+| **建構路徑分隔** | 單一 classpath | 區分 main / test 依賴路徑 |
+| **版本管理** | 手動管理 | 支援 CI-friendly 版本（`${revision}`） |
+| **反應式建置** | 基本 | 強化多模組平行建置 |
+
+#### 13.5.2 新功能亮點
+
+```xml
+<!-- Maven 4 POM 模型 4.1.0 -->
+<project xmlns="http://maven.apache.org/POM/4.1.0">
+    <modelVersion>4.1.0</modelVersion>
+    
+    <groupId>com.example</groupId>
+    <artifactId>my-app</artifactId>
+    <version>1.0.0</version>
+    
+    <!-- Maven 4: 根 POM 標記 -->
+    <root>true</root>
+    
+    <!-- Maven 4: CI-friendly 版本原生支援 -->
+    <!-- 不再需要 flatten-maven-plugin -->
+</project>
+
+```
+
+**主要新功能：**
+
+- **自動版本繼承**：子模組可自動繼承父 POM 的 `groupId` 和 `version`
+- **建置路徑隔離**：`main` 和 `test` 的依賴路徑完全分離，避免測試依賴洩漏
+- **根 POM 標記**：使用 `<root>true</root>` 標記專案根目錄
+- **改進的依賴解析器**（Maven Resolver 2.x）：更快速、更精準的依賴解析
+- **mvnup 遷移工具**：提供自動化工具協助從 Maven 3 遷移至 Maven 4
+
+#### 13.5.3 遷移準備
+
+```bash
+# 使用 Maven Upgrade Tool 檢查專案相容性
+mvnup --check
+
+# 自動更新 pom.xml 至 Maven 4 格式
+mvnup --update
+
+# 以相容模式執行（Maven 4 仍可讀取 modelVersion 4.0.0）
+mvn4 clean install
+
+```
+
+> **建議**：目前生產環境仍建議使用 **Maven 3.9.12**。Maven 4 正式發布後，可透過 [官方遷移指南](https://maven.apache.org/guides/mini/guide-migration-to-mvn4.html) 進行升級。
+
+#### 13.5.4 Maven Daemon（mvnd）
+
+[Maven Daemon](https://github.com/apache/maven-mvnd) 是一個常駐背景程序的 Maven 建置工具，能大幅縮短建置時間：
+
+```bash
+# 安裝 Maven Daemon（目前穩定版 1.0.3）
+# macOS
+brew install mvnd
+
+# Windows (使用 Chocolatey)
+choco install mvndaemon
+
+# 使用方式與 mvn 相同
+mvnd clean install
+mvnd test -T 1C
+
+# 查看背景程序狀態
+mvnd --status
+
+```
+
+**效能優勢：**
+
+- **JVM 常駐**：省去每次建置的 JVM 啟動時間
+- **類別快取**：重複建置速度可提升 **2-10 倍**
+- **智慧平行**：自動偵測模組相依關係並平行建置
+- **完全相容**：支援所有 Maven 插件和設定
 
 ---
 
@@ -4706,6 +4775,7 @@ mvn clean install -T 4
 
 # 在我們的專案中建議使用
 mvn clean install -T 2C
+
 ```
 
 #### 14.1.2 增量編譯
@@ -4716,13 +4786,14 @@ mvn clean install -T 2C
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-compiler-plugin</artifactId>
-    <version>3.11.0</version>
+    <version>3.15.0</version>
     <configuration>
         <useIncrementalCompilation>true</useIncrementalCompilation>
         <source>17</source>
         <target>17</target>
     </configuration>
 </plugin>
+
 ```
 
 #### 14.1.3 記憶體設定優化
@@ -4733,12 +4804,14 @@ mvn clean install -T 2C
 
 ```cmd
 set MAVEN_OPTS=-Xmx4g -Xms1g -XX:ReservedCodeCacheSize=512m -XX:+UseG1GC
+
 ```
 
 **Linux/Mac：**
 
 ```bash
 export MAVEN_OPTS="-Xmx4g -Xms1g -XX:ReservedCodeCacheSize=512m -XX:+UseG1GC"
+
 ```
 
 #### 14.1.4 跳過非必要階段
@@ -4751,6 +4824,7 @@ mvn clean compile -DskipTests -Dcheckstyle.skip -Dpmd.skip -DskipITs
 
 # 快速重新編譯
 mvn compile -Dmaven.compiler.useIncrementalCompilation=true
+
 ```
 
 ### 14.2 依賴解析效能調校
@@ -4765,6 +4839,7 @@ mvn dependency:purge-local-repository
 
 # 刪除舊版本（小心使用）
 mvn dependency:purge-local-repository -DactTransitively=false
+
 ```
 
 #### 14.2.2 使用依賴快取
@@ -4781,6 +4856,7 @@ mvn dependency:purge-local-repository -DactTransitively=false
         <mirrorOf>*</mirrorOf>
     </mirror>
 </mirrors>
+
 ```
 
 #### 14.2.3 依賴版本固定
@@ -4792,7 +4868,7 @@ mvn dependency:purge-local-repository -DactTransitively=false
 <dependency>
     <groupId>org.junit.jupiter</groupId>
     <artifactId>junit-jupiter</artifactId>
-    <version>5.9.2</version>
+    <version>5.11.4</version>
     <scope>test</scope>
 </dependency>
 
@@ -4803,6 +4879,7 @@ mvn dependency:purge-local-repository -DactTransitively=false
     <version>[5.0,6.0)</version>
     <scope>test</scope>
 </dependency>
+
 ```
 
 ### 14.3 建置時間監控與分析
@@ -4813,9 +4890,10 @@ mvn dependency:purge-local-repository -DactTransitively=false
 <plugin>
     <groupId>co.leantechniques</groupId>
     <artifactId>maven-buildtime-extension</artifactId>
-    <version>3.0.4</version>
+    <version>3.0.5</version>
     <extensions>true</extensions>
 </plugin>
+
 ```
 
 #### 14.3.2 性能分析指令
@@ -4829,6 +4907,7 @@ mvn dependency:resolve -X
 
 # 查看插件執行時間
 mvn clean install -Dmaven.buildtime.enabled=true -Dmaven.buildtime.print=true
+
 ```
 
 #### 14.3.3 持續監控腳本
@@ -4851,6 +4930,7 @@ echo "建置完成 - 耗時: ${duration} 秒"
 
 # 記錄到日誌檔案
 echo "$(date): 建置耗時 ${duration} 秒" >> build_times.log
+
 ```
 
 ### 14.4 記憶體使用最佳化
@@ -4863,6 +4943,7 @@ mvn clean install -Dmaven.buildtime.enabled=true
 
 # 使用 JVM 記憶體分析
 mvn clean install -XX:+PrintGCDetails -XX:+PrintGCTimeStamps
+
 ```
 
 #### 14.4.2 大型專案記憶體設定
@@ -4870,6 +4951,7 @@ mvn clean install -XX:+PrintGCDetails -XX:+PrintGCTimeStamps
 ```bash
 # 大型專案建議設定
 export MAVEN_OPTS="-Xmx8g -Xms2g -XX:MetaspaceSize=512m -XX:+UseG1GC -XX:+UnlockExperimentalVMOptions -XX:+UseJVMCICompiler"
+
 ```
 
 #### 14.4.3 記憶體洩漏檢測
@@ -4878,7 +4960,7 @@ export MAVEN_OPTS="-Xmx8g -Xms2g -XX:MetaspaceSize=512m -XX:+UseG1GC -XX:+Unlock
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-surefire-plugin</artifactId>
-    <version>3.1.2</version>
+    <version>3.5.4</version>
     <configuration>
         <argLine>
             -XX:+UnlockExperimentalVMOptions
@@ -4888,6 +4970,7 @@ export MAVEN_OPTS="-Xmx8g -Xms2g -XX:MetaspaceSize=512m -XX:+UseG1GC -XX:+Unlock
         <forkedProcessExitTimeoutInSeconds>60</forkedProcessExitTimeoutInSeconds>
     </configuration>
 </plugin>
+
 ```
 
 ---
@@ -4905,6 +4988,7 @@ export MAVEN_OPTS="-Xmx8g -Xms2g -XX:MetaspaceSize=512m -XX:+UseG1GC -XX:+Unlock
 ```bash
 # 使用詳細模式查看完整錯誤
 mvn clean install -X > build.log 2>&1
+
 ```
 
 2. **檢查基本環境**
@@ -4919,6 +5003,7 @@ mvn -version
 
 # 檢查專案結構
 find . -name "pom.xml" -exec echo "Found POM: {}" \;
+
 ```
 
 3. **分析錯誤類型**
@@ -4941,6 +5026,7 @@ mvn compile -X
 # 常見解決方法
 mvn clean compile  # 清理後重新編譯
 mvn clean install -U  # 強制更新依賴
+
 ```
 
 **依賴衝突：**
@@ -4951,6 +5037,7 @@ mvn dependency:tree -Dverbose
 
 # 排除衝突依賴
 mvn dependency:analyze-duplicate
+
 ```
 
 ### 15.2 除錯工具與技巧
@@ -4966,6 +5053,7 @@ mvn clean install -Dmaven.plugin.debug=true
 
 # 離線模式除錯
 mvn clean install -o -X
+
 ```
 
 #### 15.2.2 使用 Maven Wrapper 除錯
@@ -4978,7 +5066,8 @@ mvn clean install -o -X
 ./mvnw clean install -X
 
 # 更新 Wrapper
-./mvnw wrapper:wrapper -Dmaven=3.9.4
+./mvnw wrapper:wrapper -Dmaven=3.9.12
+
 ```
 
 #### 15.2.3 IDE 整合除錯
@@ -5002,6 +5091,7 @@ mvn clean install -o -X
         }
     ]
 }
+
 ```
 
 ### 15.3 日誌分析與解讀
@@ -5020,6 +5110,7 @@ mvn clean install -X
 
 # 除錯級別
 mvn clean install -X -e
+
 ```
 
 #### 15.3.2 關鍵日誌模式識別
@@ -5030,6 +5121,7 @@ mvn clean install -X -e
 [INFO] BUILD SUCCESS
 [INFO] Total time: 45.123 s
 [INFO] Finished at: 2025-08-29T10:30:00+08:00
+
 ```
 
 **失敗模式：**
@@ -5038,6 +5130,7 @@ mvn clean install -X -e
 [ERROR] BUILD FAILURE
 [ERROR] Total time: 15.456 s
 [ERROR] Failed to execute goal on project java-vscode-tutorial
+
 ```
 
 **警告模式：**
@@ -5045,6 +5138,7 @@ mvn clean install -X -e
 ```
 [WARNING] Some problems were encountered while building the effective model
 [WARNING] 'build.plugins.plugin.version' for org.apache.maven.plugins:maven-compiler-plugin is missing
+
 ```
 
 #### 15.3.3 自動化日誌分析腳本
@@ -5078,6 +5172,7 @@ fi
 echo
 echo "=== 建置時間 ==="
 grep "Total time:" "$LOG_FILE" | tail -1
+
 ```
 
 ### 15.4 遠端除錯設定
@@ -5090,6 +5185,7 @@ mvn test -Dmaven.surefire.debug
 
 # 或使用指定端口
 mvn test -Dmaven.surefire.debug="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=8000"
+
 ```
 
 #### 15.4.2 應用程式遠端除錯
@@ -5098,7 +5194,7 @@ mvn test -Dmaven.surefire.debug="-agentlib:jdwp=transport=dt_socket,server=y,sus
 <plugin>
     <groupId>org.codehaus.mojo</groupId>
     <artifactId>exec-maven-plugin</artifactId>
-    <version>3.1.0</version>
+    <version>3.5.0</version>
     <configuration>
         <mainClass>com.tutorial.java.App</mainClass>
         <args>
@@ -5106,6 +5202,7 @@ mvn test -Dmaven.surefire.debug="-agentlib:jdwp=transport=dt_socket,server=y,sus
         </args>
     </configuration>
 </plugin>
+
 ```
 
 #### 15.4.3 VS Code 遠端除錯配置
@@ -5119,6 +5216,7 @@ mvn test -Dmaven.surefire.debug="-agentlib:jdwp=transport=dt_socket,server=y,sus
     "port": 5005,
     "projectName": "java-vscode-tutorial"
 }
+
 ```
 
 ---
@@ -5136,6 +5234,7 @@ mvn archetype:generate \
     -DartifactId=console-calculator \
     -DarchetypeArtifactId=maven-archetype-quickstart \
     -DinteractiveMode=false
+
 ```
 
 #### 16.1.2 基本 POM 配置
@@ -5160,7 +5259,7 @@ mvn archetype:generate \
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.9.2</junit.version>
+        <junit.version>5.11.4</junit.version>
     </properties>
 
     <dependencies>
@@ -5177,19 +5276,19 @@ mvn archetype:generate \
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.15.0</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.5.4</version>
             </plugin>
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.5.0</version>
                 <configuration>
                     <mainClass>com.tutorial.console.CalculatorApp</mainClass>
                 </configuration>
@@ -5197,6 +5296,7 @@ mvn archetype:generate \
         </plugins>
     </build>
 </project>
+
 ```
 
 #### 16.1.3 主要類別實作
@@ -5272,6 +5372,7 @@ public class Calculator {
         };
     }
 }
+
 ```
 
 #### 16.1.4 測試類別
@@ -5337,6 +5438,7 @@ class CalculatorTest {
             () -> calculator.evaluate("5 % 3"));
     }
 }
+
 ```
 
 #### 16.1.5 執行和測試
@@ -5356,6 +5458,7 @@ mvn package
 
 # 執行打包後的 JAR
 java -cp target/console-calculator-1.0.0.jar com.tutorial.console.CalculatorApp
+
 ```
 
 ### 16.2 Spring Boot Web 應用程式
@@ -5373,7 +5476,7 @@ java -cp target/console-calculator-1.0.0.jar com.tutorial.console.CalculatorApp
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.2</version>
+        <version>3.4.1</version>
         <relativePath/>
     </parent>
 
@@ -5438,6 +5541,7 @@ java -cp target/console-calculator-1.0.0.jar com.tutorial.console.CalculatorApp
         </plugins>
     </build>
 </project>
+
 ```
 
 #### 16.2.2 主應用程式類別
@@ -5456,6 +5560,7 @@ public class StudentManagementApplication {
         SpringApplication.run(StudentManagementApplication.class, args);
     }
 }
+
 ```
 
 #### 16.2.3 Maven 指令
@@ -5470,6 +5575,7 @@ mvn spring-boot:repackage        # 重新打包為可執行 JAR
 mvn clean package               # 清理並打包
 mvn test                       # 執行測試
 mvn spring-boot:run -Dspring-boot.run.profiles=dev  # 使用特定設定檔執行
+
 ```
 
 ### 16.3 多模組企業級專案
@@ -5506,9 +5612,9 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev  # 使用特定設定檔執�
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         
         <!-- 版本管理 -->
-        <spring-boot.version>3.1.2</spring-boot.version>
-        <junit.version>5.9.2</junit.version>
-        <mockito.version>5.4.0</mockito.version>
+        <spring-boot.version>3.4.1</spring-boot.version>
+        <junit.version>5.11.4</junit.version>
+        <mockito.version>5.15.2</mockito.version>
     </properties>
 
     <dependencyManagement>
@@ -5543,13 +5649,13 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev  # 使用特定設定檔執�
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
+                    <version>3.15.0</version>
                 </plugin>
                 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.5.4</version>
                 </plugin>
                 
                 <plugin>
@@ -5561,6 +5667,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev  # 使用特定設定檔執�
         </pluginManagement>
     </build>
 </project>
+
 ```
 
 #### 16.3.2 多模組建置指令
@@ -5583,6 +5690,7 @@ mvn clean install -T 1C
 
 # 僅建置變更的模組
 mvn clean install -amd
+
 ```
 
 ### 16.4 微服務架構專案
@@ -5606,8 +5714,8 @@ mvn clean install -amd
     </modules>
     
     <properties>
-        <spring-cloud.version>2022.0.3</spring-cloud.version>
-        <spring-boot.version>3.1.2</spring-boot.version>
+        <spring-cloud.version>2024.0.0</spring-cloud.version>
+        <spring-boot.version>3.4.1</spring-boot.version>
     </properties>
     
     <dependencyManagement>
@@ -5622,6 +5730,7 @@ mvn clean install -amd
         </dependencies>
     </dependencyManagement>
 </project>
+
 ```
 
 #### 16.4.2 微服務建置策略
@@ -5641,12 +5750,30 @@ mvn spring-boot:run -pl discovery-service &
 mvn spring-boot:run -pl gateway-service &
 mvn spring-boot:run -pl user-service &
 mvn spring-boot:run -pl order-service &
+
 ```
 
 ---
 
-*最後更新：2025年8月29日*  
-*版本：2.0.0*  
-*維護者：Tutorial Team*
+## 結語
+
+這份 Maven 使用教學手冊涵蓋了從環境建置到進階使用的完整指南。作為新進開發同仁，建議按照以下步驟學習：
+
+1. **第一週**：完成環境建置（第 1-2 章）
+2. **第二週**：熟悉專案結構和 pom.xml（第 3-4 章）
+3. **第三週**：掌握常用指令和依賴管理（第 5-6 章）
+4. **第四週**：了解生命週期與插件機制（第 7-8 章）
+5. **持續改進**：參考故障排除、檢查清單與進階主題（第 9-16 章）
+
+記住，Maven 是一個強大的工具，但也需要時間來熟練掌握。在學習過程中遇到問題時，請善用本手冊的故障排除章節，並且不要害怕向團隊中的資深成員尋求協助。
+
+隨著 Maven 版本的更新和團隊需求的變化，這份文件也會持續更新。建議定期檢查最新版本，確保掌握最新的最佳實務。
+
+**祝您學習愉快，開發順利！**
 
 ---
+
+*最後更新：2025年7月*  
+*版本：3.0.0*  
+*維護者：Tutorial Team*
+
