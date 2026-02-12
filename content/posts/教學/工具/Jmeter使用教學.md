@@ -1,13 +1,14 @@
 ﻿+++
 date = '2025-10-31T00:00:00+08:00'
+lastmod = '2026-02-12T00:00:00+08:00'
 draft = false
-title = 'Jmeter使用教學'
-tags = ['教學', '工具']
+title = 'Apache JMeter 使用教學手冊'
+tags = ['教學', '工具', '效能測試', 'JMeter']
 categories = ['教學']
 +++
-# Apache JMeter 使用教學手冊
 
-> 版本：v1.0（已完成第 1–16 章與附錄 A–E；持續維護優化）  
+> 版本：v1.1（已完成第 1-16 章與附錄 A-E；持續維護優化）  
+> 最後更新：2026-02-12（對應 JMeter 5.6.3 版本）  
 > 適用對象：完全未接觸過效能測試 / JMeter 的新進開發與測試人員  
 > 文件目標：協助 1~2 天內快速具備撰寫並執行基本壓力測試腳本的能力，並建立後續進階自學基礎。
 
@@ -29,9 +30,9 @@ categories = ['教學']
 <!-- TOC-AUTO-BEGIN -->
 ## 目錄（Table of Contents）
 
-### Part 1. 基礎入門（Ch.1–3）
+### Part 1. 基礎入門（Ch.1-3）
 
-- [JMeter 簡介](#1-jmeter-簡介)
+- [1. JMeter 簡介](#1-jmeter-簡介)
   - [1.1 JMeter 的定位與用途](#11-jmeter-的定位與用途)
   - [1.2 常見測試類型](#12-常見測試類型)
   - [1.3 與其他工具比較](#13-與其他工具比較)
@@ -39,7 +40,7 @@ categories = ['教學']
   - [1.5 本章實務案例](#15-本章實務案例)
   - [1.6 注意事項（初學者常犯）](#16-注意事項初學者常犯)
 
-- [安裝與環境設定](#2-安裝與環境設定)
+- [2. 安裝與環境設定](#2-安裝與環境設定)
   - [2.1 系統需求](#21-系統需求)
   - [2.2 下載來源](#22-下載來源)
   - [2.3 安裝流程](#23-安裝流程)
@@ -49,88 +50,88 @@ categories = ['教學']
   - [2.7 本章實務練習](#27-本章實務練習)
   - [2.8 注意事項](#28-注意事項)
 
-- [JMeter 使用者介面 (GUI)](#3-jmeter-使用者介面-gui)
+- [3. JMeter 使用者介面 (GUI)](#3-jmeter-使用者介面-gui)
   - [3.1 元件總覽](#31-元件總覽)
-  - [3.2 建立第一個測試計畫hello-http](#32-建立第一個測試計畫hello-http)
+  - [3.2 建立第一個測試計畫（Hello HTTP）](#32-建立第一個測試計畫hello-http)
   - [3.3 儲存與版本控管](#33-儲存與版本控管)
   - [3.4 GUI 效能使用守則](#34-gui-效能使用守則)
-  - [3.5 mermaid基本測試計畫組成](#35-mermaid基本測試計畫組成)
+  - [3.5 Mermaid：基本測試計畫組成](#35-mermaid基本測試計畫組成)
   - [3.6 本章實務練習](#36-本章實務練習)
   - [3.7 常見初階錯誤](#37-常見初階錯誤)
   - [3.8 小結](#38-小結)
 
-### Part 2. 測試計畫設計（Ch.4–7）
+### Part 2. 測試計畫設計（Ch.4-7）
 
-- [測試計畫基礎](#4-測試計畫基礎)
+- [4. 測試計畫基礎](#4-測試計畫基礎)
   - [4.1 目標與原則](#41-目標與原則)
   - [4.2 命名規範建議](#42-命名規範建議)
   - [4.3 推薦資料夾結構](#43-推薦資料夾結構)
-  - [4.4 mermaid資源關聯示意](#44-mermaid資源關聯示意)
-  - [4.5 thread-group-策略](#45-thread-group-策略)
-  - [4.6 api-測試模板可複製](#46-api-測試模板可複製)
+  - [4.4 Mermaid：資源關聯示意](#44-mermaid資源關聯示意)
+  - [4.5 Thread Group 策略](#45-thread-group-策略)
+  - [4.6 API 測試模板（可複製）](#46-api-測試模板可複製)
   - [4.7 指標定義（在 README 或測試說明中標準化）](#47-指標定義在-readme-或測試說明中標準化)
-  - [4.8 include-controller-與-test-fragment-模組化](#48-include-controller-與-test-fragment-模組化)
-  - [4.9 變數與屬性作用域預告](#49-變數與屬性作用域預告)
-  - [4.10 mermaid執行流程含變數注入](#410-mermaid執行流程含變數注入)
-  - [4.11 非-gui-執行模板指令](#411-非-gui-執行模板指令)
+  - [4.8 Include Controller 與 Test Fragment 模組化](#48-include-controller-與-test-fragment-模組化)
+  - [4.9 變數與屬性作用域（預告）](#49-變數與屬性作用域預告)
+  - [4.10 Mermaid：執行流程（含變數注入）](#410-mermaid執行流程含變數注入)
+  - [4.11 非 GUI 執行模板指令](#411-非-gui-執行模板指令)
   - [4.12 實務練習](#412-實務練習)
   - [4.13 常見錯誤與陷阱](#413-常見錯誤與陷阱)
   - [4.14 小結](#414-小結)
 
-- [參數化與資料驅動測試](#5-參數化與資料驅動測試)
+- [5. 參數化與資料驅動測試](#5-參數化與資料驅動測試)
   - [5.1 為什麼需要參數化](#51-為什麼需要參數化)
   - [5.2 變數來源一覽](#52-變數來源一覽)
-  - [5.3 csv-data-set-config-深入](#53-csv-data-set-config-深入)
-  - [5.4 user-defined-variables-vs-properties](#54-user-defined-variables-vs-properties)
-  - [5.5 correlation動態值提取](#55-correlation動態值提取)
-  - [5.6 api-回應範例與抽取](#56-api-回應範例與抽取)
-  - [5.7 函數助手functions常用清單](#57-函數助手functions常用清單)
-  - [5.8 變數覆蓋與優先序邏輯觀念](#58-變數覆蓋與優先序邏輯觀念)
-  - [5.9 groovy--jsr223-活用](#59-groovy--jsr223-活用)
-  - [5.10 非-gui-參數覆寫技巧](#510-非-gui-參數覆寫技巧)
+  - [5.3 CSV Data Set Config 深入](#53-csv-data-set-config-深入)
+  - [5.4 User Defined Variables vs Properties](#54-user-defined-variables-vs-properties)
+  - [5.5 Correlation（動態值提取）](#55-correlation動態值提取)
+  - [5.6 API 回應範例與抽取](#56-api-回應範例與抽取)
+  - [5.7 函數助手（Functions）常用清單](#57-函數助手functions常用清單)
+  - [5.8 變數覆蓋與優先序（邏輯觀念）](#58-變數覆蓋與優先序邏輯觀念)
+  - [5.9 Groovy / JSR223 活用](#59-groovy--jsr223-活用)
+  - [5.10 非 GUI 參數覆寫技巧](#510-非-gui-參數覆寫技巧)
   - [5.11 常見錯誤與排除](#511-常見錯誤與排除)
   - [5.12 實務練習](#512-實務練習)
   - [5.13 小結](#513-小結)
 
-- [控制器與流程控制 logic-controllers](#6-控制器與流程控制-logic-controllers)
+- [6. 控制器與流程控制 (Logic Controllers)](#6-控制器與流程控制-logic-controllers)
   - [6.1 控制器分類概覽](#61-控制器分類概覽)
-  - [6.2 loop--while--foreach-差異](#62-loop--while--foreach-差異)
-  - [6.3 if--switch--runtime-controller](#63-if--switch--runtime-controller)
-  - [6.4 throughput-controller-與場景比例](#64-throughput-controller-與場景比例)
-  - [6.5 transaction-controller-與聚合分析](#65-transaction-controller-與聚合分析)
-  - [6.6 module--include-controller-模組化](#66-module--include-controller-模組化)
-  - [6.7 flow-control-action-中斷與暫停](#67-flow-control-action-中斷與暫停)
+  - [6.2 Loop / While / ForEach 差異](#62-loop--while--foreach-差異)
+  - [6.3 If / Switch / Runtime Controller](#63-if--switch--runtime-controller)
+  - [6.4 Throughput Controller 與場景比例](#64-throughput-controller-與場景比例)
+  - [6.5 Transaction Controller 與聚合分析](#65-transaction-controller-與聚合分析)
+  - [6.6 Module / Include Controller 模組化](#66-module--include-controller-模組化)
+  - [6.7 Flow Control Action 中斷與暫停](#67-flow-control-action-中斷與暫停)
   - [6.8 控制器選擇決策矩陣](#68-控制器選擇決策矩陣)
-  - [6.9 常見-anti-pattern-與重構](#69-常見-anti-pattern-與重構)
+  - [6.9 常見 Anti-pattern 與重構](#69-常見-anti-pattern-與重構)
   - [6.10 綜合實務案例](#610-綜合實務案例)
   - [6.11 練習](#611-練習)
   - [6.12 小結](#612-小結)
 
-- [assertion-斷言與結果驗證策略](#7-assertion-斷言與結果驗證策略)
+- [7. Assertion 斷言與結果驗證策略](#7-assertion-斷言與結果驗證策略)
   - [7.1 為什麼需要明確斷言策略](#71-為什麼需要明確斷言策略)
-  - [7.2 常見-assertion-類型比較](#72-常見-assertion-類型比較)
+  - [7.2 常見 Assertion 類型比較](#72-常見-assertion-類型比較)
   - [7.3 狀態碼與錯誤分類](#73-狀態碼與錯誤分類)
-  - [7.4 json--正則--xpath--size-使用情境](#74-json--正則--xpath--size-使用情境)
-  - [7.5 duration--sla-與-p95-判讀](#75-duration--sla-與-p95-判讀)
-  - [7.6 動態門檻-baseline--properties](#76-動態門檻-baseline--properties)
-  - [7.7 失敗策略fail-fast-vs-收集模式](#77-失敗策略fail-fast-vs-收集模式)
+  - [7.4 JSON / 正則 / XPath / Size 使用情境](#74-json--正則--xpath--size-使用情境)
+  - [7.5 Duration / SLA 與 P95 判讀](#75-duration--sla-與-p95-判讀)
+  - [7.6 動態門檻 Baseline / Properties](#76-動態門檻-baseline--properties)
+  - [7.7 失敗策略：Fail Fast vs 收集模式](#77-失敗策略fail-fast-vs-收集模式)
   - [7.8 減少斷言開銷的最佳實務](#78-減少斷言開銷的最佳實務)
   - [7.9 錯誤訊息標準化](#79-錯誤訊息標準化)
-  - [7.10 實務案例登入--查詢--下單](#710-實務案例登入--查詢--下單)
+  - [7.10 實務案例：登入 + 查詢 + 下單](#710-實務案例登入--查詢--下單)
   - [7.11 練習](#711-練習)
   - [7.12 小結](#712-小結)
 
-### Part 3. 進階應用（Ch.8–10）
+### Part 3. 進階應用（Ch.8-10）
 
-- [報表與結果分析](#8-報表與結果分析)
+- [8. 報表與結果分析](#8-報表與結果分析)
   - [8.1 核心指標再回顧](#81-核心指標再回顧)
-  - [8.2 summary--aggregate-report-差異](#82-summary--aggregate-report-差異)
-  - [8.3 html-dashboard-產出與指標](#83-html-dashboard-產出與指標)
-  - [8.4 百分位數-percentile-判讀策略](#84-百分位數-percentile-判讀策略)
-  - [8.5 error-分類與來源拆解](#85-error-分類與來源拆解)
-  - [8.6 建立-baseline-與版本對比流程](#86-建立-baseline-與版本對比流程)
-  - [8.7 異常模式pattern辨識](#87-異常模式pattern辨識)
-  - [8.8 active-threads-與-throughput-關聯](#88-active-threads-與-throughput-關聯)
+  - [8.2 Summary / Aggregate Report 差異](#82-summary--aggregate-report-差異)
+  - [8.3 HTML Dashboard 產出與指標](#83-html-dashboard-產出與指標)
+  - [8.4 百分位數 Percentile 判讀策略](#84-百分位數-percentile-判讀策略)
+  - [8.5 Error 分類與來源拆解](#85-error-分類與來源拆解)
+  - [8.6 建立 Baseline 與版本對比流程](#86-建立-baseline-與版本對比流程)
+  - [8.7 異常模式（Pattern）辨識](#87-異常模式pattern辨識)
+  - [8.8 Active Threads 與 Throughput 關聯](#88-active-threads-與-throughput-關聯)
   - [8.9 實務指標判讀工作表](#89-實務指標判讀工作表)
   - [8.10 自動化輸出建議](#810-自動化輸出建議)
   - [8.11 小結](#811-小結)
@@ -150,41 +151,41 @@ categories = ['教學']
   - [9.12 anti-pattern-與改進建議](#912-anti-pattern-與改進建議)
   - [9.13 小結](#913-小結)
 
-- [cicd-與自動化整合](#10-cicd-與自動化整合)
-  - [10.1 測試類型在-pipeline-的定位](#101-測試類型在-pipeline-的定位)
-  - [10.2 非-gui-執行標準化腳本](#102-非-gui-執行標準化腳本)
-  - [10.3 退出碼策略-exit-code-policy](#103-退出碼策略-exit-code-policy)
-  - [10.4 基準值-baseline-檔與差異比較](#104-基準值-baseline-檔與差異比較)
+- [10. CI/CD 與自動化整合](#10-cicd-與自動化整合)
+  - [10.1 測試類型在 Pipeline 的定位](#101-測試類型在-pipeline-的定位)
+  - [10.2 非 GUI 執行標準化腳本](#102-非-gui-執行標準化腳本)
+  - [10.3 退出碼策略 Exit Code Policy](#103-退出碼策略-exit-code-policy)
+  - [10.4 基準值 Baseline 檔與差異比較](#104-基準值-baseline-檔與差異比較)
   - [10.5 GitHub Actions 範例 (Smoke Performance)](#105-github-actions-範例-smoke-performance)
-  - [10.6 jenkins-pipeline-範例](#106-jenkins-pipeline-範例)
+  - [10.6 Jenkins Pipeline 範例](#106-jenkins-pipeline-範例)
   - [10.7 多環境參數化與組態管理](#107-多環境參數化與組態管理)
-  - [10.8 artifacts-與報告留存策略](#108-artifacts-與報告留存策略)
-  - [10.9 baseline-自動更新準則](#109-baseline-自動更新準則)
-  - [10.10 測試分層在-pipeline-的選擇](#1010-測試分層在-pipeline-的選擇)
+  - [10.8 Artifacts 與報告留存策略](#108-artifacts-與報告留存策略)
+  - [10.9 Baseline 自動更新準則](#109-baseline-自動更新準則)
+  - [10.10 測試分層在 Pipeline 的選擇](#1010-測試分層在-pipeline-的選擇)
   - [10.11 常見整合問題與排除](#1011-常見整合問題與排除)
   - [10.12 小結](#1012-小結)
 
-### Part 4. 專案實戰（Ch.11–13）
+### Part 4. 專案實戰（Ch.11-13）
 
-- [api-實戰案例](#11-api-實戰案例)
+- [11. API 實戰案例](#11-api-實戰案例)
   - [11.1 場景拆解與使用者行為模型](#111-場景拆解與使用者行為模型)
   - [11.2 測試計畫結構範例](#112-測試計畫結構範例)
-  - [11.3 correlation-與資料流](#113-correlation-與資料流)
+  - [11.3 Correlation 與資料流](#113-correlation-與資料流)
   - [11.4 測試資料策略](#114-測試資料策略)
   - [11.5 控制器設計與比例實現](#115-控制器設計與比例實現)
-  - [11.6 sla-與-assertions-範例](#116-sla-與-assertions-範例)
-  - [11.7 交易-transaction-分析](#117-交易-transaction-分析)
+  - [11.6 SLA 與 Assertions 範例](#116-sla-與-assertions-範例)
+  - [11.7 交易 Transaction 分析](#117-交易-transaction-分析)
   - [11.8 失敗恢復與重試策略](#118-失敗恢復與重試策略)
-  - [11.9 定時器-timer-與節奏-pacing](#119-定時器-timer-與節奏-pacing)
+  - [11.9 定時器 Timer 與節奏 Pacing](#119-定時器-timer-與節奏-pacing)
   - [11.10 報表截取與指標彙整模板](#1110-報表截取與指標彙整模板)
   - [11.11 常見錯誤與排查清單（本案例）](#1111-常見錯誤與排查清單本案例)
   - [11.12 小結](#1112-小結)
 
-- [web--前端資源載入](#12-web--前端資源載入)
-  - [12.1 瀏覽器-vs-jmeter-差異](#121-瀏覽器-vs-jmeter-差異)
+- [12. Web / 前端資源載入](#12-web--前端資源載入)
+  - [12.1 瀏覽器 vs JMeter 差異](#121-瀏覽器-vs-jmeter-差異)
   - [12.2 靜態資源測試策略](#122-靜態資源測試策略)
-  - [12.3 cache-與條件式請求模擬](#123-cache-與條件式請求模擬)
-  - [12.4 gzip--brotli-壓縮觀察](#124-gzip--brotli-壓縮觀察)
+  - [12.3 Cache 與條件式請求模擬](#123-cache-與條件式請求模擬)
+  - [12.4 GZIP / Brotli 壓縮觀察](#124-gzip--brotli-壓縮觀察)
   - [12.5 SPA (Single Page App) API 測試](#125-spa-single-page-app-api-測試)
   - [12.6 下載資源組合測試範例](#126-下載資源組合測試範例)
   - [12.7 資源異常與退化判斷](#127-資源異常與退化判斷)
@@ -192,43 +193,49 @@ categories = ['教學']
   - [12.9 報表與度量聚合](#129-報表與度量聚合)
   - [12.10 小結](#1210-小結)
 
-- [資料庫--第三方整合](#13-資料庫--第三方整合)
-  - [13.1 jdbc-sampler-基礎](#131-jdbc-sampler-基礎)
+- [13. 資料庫 / 第三方整合](#13-資料庫--第三方整合)
+  - [13.1 JDBC Sampler 基礎](#131-jdbc-sampler-基礎)
   - [13.2 連線池 (Connection Pool) 考量](#132-連線池-connection-pool-考量)
   - [13.3 查詢分類與指標](#133-查詢分類與指標)
   - [13.4 慢查詢模擬與觀測](#134-慢查詢模擬與觀測)
   - [13.5 測試資料與回滾策略](#135-測試資料與回滾策略)
-  - [13.6 外部依賴模擬-stub--mock](#136-外部依賴模擬-stub--mock)
-  - [13.7 佇列--非同步行為測試](#137-佇列--非同步行為測試)
+  - [13.6 外部依賴模擬 Stub / Mock](#136-外部依賴模擬-stub--mock)
+  - [13.7 佇列 / 非同步行為測試](#137-佇列--非同步行為測試)
   - [13.8 整合指標交叉分析](#138-整合指標交叉分析)
   - [13.9 與後端團隊協同流程](#139-與後端團隊協同流程)
   - [13.10 小結](#1310-小結)
 
-### Part 5. 認證與進階知識（Ch.14–16）
+### Part 5. 認證與進階知識（Ch.14-16）
 
-- [認證考試重點](#14-認證考試重點)
+- [14. 認證考試重點](#14-認證考試重點)
   - [14.1 主題分佈映射](#141-主題分佈映射)
   - [14.2 必背術語速覽](#142-必背術語速覽)
   - [14.3 高頻陷阱類型](#143-高頻陷阱類型)
   - [14.4 模擬測驗檢查清單](#144-模擬測驗檢查清單)
-  - [14.5 考前-24-小時節奏](#145-考前-24-小時節奏)
+  - [14.5 考前 24 小時節奏](#145-考前-24-小時節奏)
   - [14.6 Flash Cards（示例）](#146-flash-cards示例)
   - [14.7 小結](#147-小結)
 
-- [題庫與解析框架](#15-題庫與解析框架)
+- [15. 題庫與解析框架](#15-題庫與解析框架)
   - [15.1 題型分類維度](#151-題型分類維度)
-  - [15.2 題目-yaml-標準](#152-題目-yaml-標準)
+  - [15.2 題目 YAML 標準](#152-題目-yaml-標準)
   - [15.3 解析四段式框架](#153-解析四段式框架)
   - [15.4 題庫品質控制構想](#154-題庫品質控制構想)
   - [15.5 題庫版本流程](#155-題庫版本流程)
   - [15.6 練習集建議配置](#156-練習集建議配置)
   - [15.7 小結](#157-小結)
 
-- [進階學習與延伸](#16-進階學習與延伸)
+- [16. 進階學習與延伸](#16-進階學習與延伸)
   - [16.1 進階主題地圖](#161-進階主題地圖)
   - [16.2 性能成熟度模型](#162-性能成熟度模型)
   - [16.3 延遲與異常分析起步](#163-延遲與異常分析起步)
-  - [16.4 trace-整合實務](#164-trace-整合實務)
+  - [16.4 Trace 整合實務](#164-trace-整合實務)
+  - [16.5 持續優化季度節奏](#165-持續優化季度節奏)
+  - [16.6 推薦延伸資源](#166-推薦延伸資源)
+  - [16.7 小結](#167-小結)
+  - [16.2 性能成熟度模型](#162-性能成熟度模型)
+  - [16.3 延遲與異常分析起步](#163-延遲與異常分析起步)
+  - [16.4 Trace 整合實務](#164-trace-整合實務)
   - [16.5 持續優化季度節奏](#165-持續優化季度節奏)
   - [16.6 推薦延伸資源](#166-推薦延伸資源)
   - [16.7 小結](#167-小結)
@@ -236,10 +243,10 @@ categories = ['教學']
 ### Part 6. 附錄（Appendices）
 
 - [附錄 A. 最終測試計畫 Checklist](#附錄-a-最終測試計畫-checklist)
-- [附錄 B. 常見錯誤--緊急排障對照](#附錄-b-常見錯誤--緊急排障對照)
-- [附錄 C. 範例報告模板摘要草稿](#附錄-c-範例報告模板摘要草稿)
-- [附錄 D. 建議檔案--目錄標準化命名](#附錄-d-建議檔案--目錄標準化命名)
-- [附錄 E. 後續可延伸主題進階](#附錄-e-後續可延伸主題進階)
+- [附錄 B. 常見錯誤 / 緊急排障對照](#附錄-b-常見錯誤--緊急排障對照)
+- [附錄 C. 範例報告模板（摘要草稿）](#附錄-c-範例報告模板摘要草稿)
+- [附錄 D. 建議檔案 / 目錄標準化命名](#附錄-d-建議檔案--目錄標準化命名)
+- [附錄 E. 後續可延伸主題（進階）](#附錄-e-後續可延伸主題進階)
 
 <!-- TOC-AUTO-END -->
 
@@ -251,7 +258,25 @@ categories = ['教學']
 
 #### 1.1 JMeter 的定位與用途
 
-Apache JMeter 是一款開源（Java 編寫）的負載與效能測試工具，最初設計用於 Web(HTTP) 測試，如今已支援多種協定：HTTP(S)、JDBC、JMS、FTP、TCP、SOAP、gRPC（透過外掛）、MQTT 等。其核心使命：模擬多使用者併發，量測系統在壓力下的反應時間、吞吐量、錯誤率，協助定位瓶頸。
+Apache JMeter 是一款開源（100% Java 編寫）的負載與效能測試工具，最初設計用於 Web(HTTP) 測試，如今已支援多種協定與應用類型：
+
+**支援的協定/服務類型：**
+
+- **Web**：HTTP、HTTPS（Java, NodeJS, PHP, ASP.NET 等）
+- **SOAP / REST Webservices**
+- **FTP**
+- **資料庫**：透過 JDBC
+- **LDAP**
+- **訊息導向中介軟體 (MOM)**：透過 JMS
+- **郵件**：SMTP(S)、POP3(S)、IMAP(S)
+- **原生命令或 Shell 腳本**
+- **TCP**
+- **Java Objects**
+- **gRPC**、**MQTT** 等（透過外掛）
+
+其核心使命：模擬多使用者併發，量測系統在壓力下的反應時間、吞吐量、錯誤率，協助定位瓶頸。
+
+> **重要提醒**：JMeter 不是瀏覽器，它在協定層級運作。JMeter 不會執行 HTML 頁面中的 JavaScript，也不會像瀏覽器一樣渲染頁面。
 
 典型使用場景：
 
@@ -286,14 +311,14 @@ Apache JMeter 是一款開源（Java 編寫）的負載與效能測試工具，�
 
 ```mermaid
 flowchart LR
-  A[需求/測試目標] --> B[場景設計]
-  B --> C[建置 JMeter Test Plan]
-  C --> D[參數化 / 控制器 / 驗證]
-  D --> E[本機驗證 (GUI)]
-  E --> F[非 GUI / 分散式執行]
-  F --> G[結果彙整 / HTML 報表]
-  G --> H[分析瓶頸 / 產出結論]
-  H --> I[調校 / 回饋開發 / 再測]
+  A["需求/測試目標"] --> B["場景設計"]
+  B --> C["建置 JMeter Test Plan"]
+  C --> D["參數化 / 控制器 / 驗證"]
+  D --> E["本機驗證 (GUI)"]
+  E --> F["非 GUI / 分散式執行"]
+  F --> G["結果彙整 / HTML 報表"]
+  G --> H["分析瓶頸 / 產出結論"]
+  H --> I["調校 / 回饋開發 / 再測"]
 ```
 
 #### 1.5 本章實務案例
@@ -314,9 +339,16 @@ flowchart LR
 
 #### 2.1 系統需求
 
-- Java：JDK 8+（建議 11 或 17 LTS）
+- **Java**：JDK 8+（JMeter 5.6.x 最低需求），**建議使用 Java 17 LTS**
+  - 下一個主要版本將需要 Java 17+
 - 記憶體：建議 8GB 以上（壓測機依併發放大）
 - OS：Windows / Linux / macOS 均可
+
+> ⚠️ **JavaScript 引擎注意事項**：
+>
+> - Java 11+ 時 Nashorn JavaScript 引擎已被棄用，會顯示警告
+> - Java 15+ 時 Nashorn 已被移除，若需要 JavaScript 支援可使用 Mozilla Rhino 或 OpenJDK Nashorn
+> - 建議優先使用 **Groovy (JSR223)** 取代 JavaScript，效能更佳且無版本相容問題
 
 #### 2.2 下載來源
 
@@ -539,7 +571,7 @@ graph LR
   C --> C1[Login Fragment]
   C --> C2[Search Fragment]
   A --> D[User Defined Variables]
-  A --> E[Properties(env.*)]
+  A --> E["Properties(env.*)"]
   B --> F[CSV Data]
   B --> G[Samplers]
   G --> H[Assertions]
@@ -821,7 +853,7 @@ graph TD
   A[Extractor 變數] --> B[函數生成]
   B --> C[CSV Data]
   C --> D[User Defined Variables]
-  D --> E[Properties (__P)]
+  D --> E["Properties (__P)"]
   E --> F[系統屬性 -D]
 ```
 
@@ -1112,10 +1144,10 @@ graph TD
   TG[Thread Group]
   TG --> P1[JSR223 路由變數 scenario]
   TG --> SW[Switch Controller]
-  SW --> BR[Browse Flow (Module)]
-  SW --> SR[Search Flow (Transaction)]
-  SW --> OR[Order Flow (Transaction)]
-  SW --> HC[Health Check (If)]
+  SW --> BR["Browse Flow (Module)"]
+  SW --> SR["Search Flow (Transaction)"]
+  SW --> OR["Order Flow (Transaction)"]
+  SW --> HC["Health Check (If)"]
 ```
 
 路由變數腳本（置於第一個 JSR223 Sampler）：
@@ -2142,7 +2174,7 @@ Thread Group (100 VU)
 | 現象 | 指標 | 可能原因 | 行動 |
 | ---- | ---- | -------- | ---- |
 | 大量 404 | Error% | 發佈/同步失敗 | 檢查 CDN 版本 |
-| 延遲升高 + Bytes 小 | 網路節點阻塞 |  | 檢查網路路徑 |
+| 延遲升高 + Bytes 小 | 網路節點阻塞 | - | 檢查網路路徑 |
 | 304 命中率低 | Cache Miss% | Header 設定錯誤 | 檢視 Cache-Control |
 | 體積意外增長 | bytes diff | 打包未壓縮 | 檢查 build pipeline |
 
@@ -2489,25 +2521,25 @@ flowchart LR
 
 | 類別 | 檢查項 | 完成(Y/N) | 說明 / 備註 |
 | ---- | ------ | --------- | ----------- |
-| 結構 | Test Plan 是否僅一層 Thread Group (必要時多組獨立場景) |  | 避免過深巢狀 |
-| 結構 | 公用步驟是否抽成 Test Fragment + Module/Include |  | Login / Health Check |
-| 變數 | Base URL / Token / 環境差異是否無硬編 |  | 都用 `${__P()}` 或 UDV |
-| 變數 | CSV Data Set 是否設定正確共享模式 |  | 確認無資料競爭 |
-| 變數 | Correlation 抽取變數命名統一 (resp_/ext_) |  | 便於搜尋排錯 |
-| 控制 | Throughput / Switch 百分比總和合理 |  | 實測統計接近預期 |
-| 控制 | While 具最大次數防護 |  | 避免無窮迴圈 |
-| 控制 | Transaction Controller 僅包端到端關鍵事務 |  | 無過度嵌套 |
-| Assertion | 狀態碼、關鍵欄位、錯誤字串黑名單已覆蓋 |  | 失敗訊息一致 |
-| Assertion | 使用 JSON Assertion / JSR223 聚合錯誤 |  | 避免太多零碎 Assertion |
-| SLA | 有定義 P95 / Error% 門檻並記錄基準值 |  | `baseline.properties` 已更新 |
-| 非 GUI | 有提供啟動腳本 (.bat/.sh) 與輸出路徑命名規則 |  | `reports/<date>-<scenario>` |
-| 非 GUI | 使用 `-q` 管理多環境屬性 |  | dev/stage/prod |
-| 報表 | HTML Dashboard 產出無錯誤 (資源完整) |  | 初次執行確認 |
-| 報表 | 聚合報表中無大量 0 Byte / 空回應 |  | 否則排查超時/錯路徑 |
-| 資源 | 測試主機 CPU / Memory / 網路未飽和 |  | 監控或 top / sar |
-| 日誌 | `jmeter.log` 無大量重複 WARNING/ERROR |  | 有則先清理噪音 |
-| 清潔 | 未使用的 Sampler/Listener 已移除或註記 |  | 減少干擾 |
-| 整合 | CI Pipeline 退出碼策略定義 |  | 門檻 vs 失敗條件 |
+| 結構 | Test Plan 是否僅一層 Thread Group (必要時多組獨立場景) | - | 避免過深巢狀 |
+| 結構 | 公用步驟是否抽成 Test Fragment + Module/Include | - | Login / Health Check |
+| 變數 | Base URL / Token / 環境差異是否無硬編 | - | 都用 `${__P()}` 或 UDV |
+| 變數 | CSV Data Set 是否設定正確共享模式 | - | 確認無資料競爭 |
+| 變數 | Correlation 抽取變數命名統一 (resp_/ext_) | - | 便於搜尋排錯 |
+| 控制 | Throughput / Switch 百分比總和合理 | - | 實測統計接近預期 |
+| 控制 | While 具最大次數防護 | - | 避免無窮迴圈 |
+| 控制 | Transaction Controller 僅包端到端關鍵事務 | - | 無過度嵌套 |
+| Assertion | 狀態碼、關鍵欄位、錯誤字串黑名單已覆蓋 | - | 失敗訊息一致 |
+| Assertion | 使用 JSON Assertion / JSR223 聚合錯誤 | - | 避免太多零碎 Assertion |
+| SLA | 有定義 P95 / Error% 門檻並記錄基準值 | - | `baseline.properties` 已更新 |
+| 非 GUI | 有提供啟動腳本 (.bat/.sh) 與輸出路徑命名規則 | - | `reports/<date>-<scenario>` |
+| 非 GUI | 使用 `-q` 管理多環境屬性 | - | dev/stage/prod |
+| 報表 | HTML Dashboard 產出無錯誤 (資源完整) | - | 初次執行確認 |
+| 報表 | 聚合報表中無大量 0 Byte / 空回應 | - | 否則排查超時/錯路徑 |
+| 資源 | 測試主機 CPU / Memory / 網路未飽和 | - | 監控或 top / sar |
+| 日誌 | `jmeter.log` 無大量重複 WARNING/ERROR | - | 有則先清理噪音 |
+| 清潔 | 未使用的 Sampler/Listener 已移除或註記 | - | 減少干擾 |
+| 整合 | CI Pipeline 退出碼策略定義 | - | 門檻 vs 失敗條件 |
 
 ## 附錄 B. 常見錯誤 / 緊急排障對照
 
