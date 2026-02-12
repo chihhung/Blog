@@ -1,5 +1,5 @@
 +++
-date = '2026-01-22T20:03:12+08:00'
+date = '2026-02-12T20:03:12+08:00'
 draft = false
 title = 'Github Copilot生態圈教學手冊'
 tags = ['教學', 'AI開發']
@@ -9,20 +9,21 @@ categories = ['教學']
 
 # Github Copilot生態圈教學手冊
 
-> **版本**：1.0  
-> **最後更新**：2026 年 1 月  
-> **適用對象**：資深工程師 / Tech Lead / Architect
-> **最後更新**: 2026年1月22日  
-> **適用於**: Github Copilot 
-> **Created by**: Eric Cheng
+> **版本**：2.0  
+> **最後更新**：2026 年 2 月 12 日  
+> **適用對象**：資深工程師 / Tech Lead / Architect  
+> **適用於**：GitHub Copilot (Free / Pro / Pro+ / Business / Enterprise)  
+> **Created by**：Eric Cheng
 
 ## 目錄
+
 ### 第一章 GitHub Copilot 生態圈全貌總覽
 
 - [1.1 什麼是 GitHub Copilot 生態圈](#11-什麼是-github-copilot-生態圈)
 - [1.2 生態圈各組件說明](#12-生態圈各組件說明)
 - [1.3 Copilot 在企業開發流程中的定位](#13-copilot-在企業開發流程中的定位)
 - [1.4 版本與授權模式](#14-版本與授權模式)
+- [1.5 2025-2026 年新功能重點摘要](#15-2025-2026-年新功能重點摘要)
 
 ### 第二章 Copilot 與「資深工程師角色」的正確關係
 
@@ -47,7 +48,8 @@ categories = ['教學']
 - [4.4 Bad Prompt vs Good Prompt 對照](#44-bad-prompt-vs-good-prompt-對照)
 - [4.5 進階 Prompt Pattern](#45-進階-prompt-pattern)
 - [4.6 Prompt Template 庫](#46-prompt-template-庫)
-- [4.7 Copilot Chat 快捷指令](#47-copilot-chat-快捷指令)
+- [4.7 Copilot Chat 快捷指令與互動方式](#47-copilot-chat-快捷指令與互動方式)
+- [4.8 Custom Instructions 與 Prompt Files](#48-custom-instructions-與-prompt-files)
 
 ### 第五章 Copilot + Code Review + Testing 最佳實務
 
@@ -89,7 +91,8 @@ categories = ['教學']
 - [9.2 案例二：API 設計與實作](#92-案例二api-設計與實作)
 - [9.3 案例三：Batch 程式開發](#93-案例三batch-程式開發)
 - [9.4 案例四：架構文件生成](#94-案例四架構文件生成)
-- [9.5 最佳實務總結](#95-最佳實務總結)
+- [9.5 案例五：使用 Copilot Coding Agent 自動化開發](#95-案例五使用-copilot-coding-agent-自動化開發)
+- [9.6 最佳實務總結](#96-最佳實務總結)
 
 ### 第十章 總結：如何把 Copilot 變成「資深工程師的放大器」
 
@@ -113,16 +116,18 @@ categories = ['教學']
 
 ### 1.1 什麼是 GitHub Copilot 生態圈
 
-GitHub Copilot 已從單純的「程式碼自動補全工具」演進為完整的 AI 輔助開發生態系統。對資深工程師而言，理解其全貌是有效運用的前提。
+GitHub Copilot 已從單純的「程式碼自動補全工具」演進為完整的 AI 輔助開發生態系統。截至 2026 年初，Copilot 生態圈涵蓋了從程式碼補全、對話式 AI、自主編碼代理到企業治理的全方位功能。對資深工程師而言，理解其全貌是有效運用的前提。
 
 ```mermaid
 graph TB
     subgraph "GitHub Copilot 生態圈"
-        A[GitHub Copilot<br/>Inline Completion] --> E[開發者工作流程]
-        B[Copilot Chat<br/>IDE / GitHub] --> E
-        C[Copilot for PR<br/>Code Review] --> E
-        D[Copilot for CLI] --> E
-        F[Copilot Workspace] --> E
+        A[Copilot Inline<br/>程式碼補全 + NES] --> E[開發者工作流程]
+        B[Copilot Chat<br/>Ask / Edit / Agent / Plan] --> E
+        C[Copilot Code Review<br/>PR 審查] --> E
+        D[Copilot CLI] --> E
+        F[Copilot Coding Agent<br/>自主編碼代理] --> E
+        N[Copilot Spaces<br/>上下文管理] --> E
+        O[GitHub Spark<br/>全端應用建構] --> E
     end
     
     subgraph "GitHub 平台整合"
@@ -130,6 +135,16 @@ graph TB
         E --> H[Pull Requests]
         E --> I[Actions / CI/CD]
         E --> J[Code Search]
+        E --> P[GitHub Desktop]
+        E --> Q[GitHub Mobile]
+    end
+    
+    subgraph "擴展與自訂"
+        R[MCP Servers]
+        S[Custom Instructions]
+        T[Prompt Files]
+        U[Custom Agents]
+        V[多模型選擇]
     end
     
     subgraph "企業治理層"
@@ -138,6 +153,11 @@ graph TB
         M[Audit & Logging]
     end
     
+    E --> R
+    E --> S
+    E --> T
+    E --> U
+    E --> V
     E --> K
     K --> L
     L --> M
@@ -146,12 +166,24 @@ graph TB
 ### 1.2 生態圈各組件說明
 
 | 組件 | 功能定位 | 適用場景 | 資深工程師價值 |
-| ------ | ---------- | ---------- | ---------------- |
-| **Copilot Inline** | 即時程式碼補全 | 日常編碼、實作細節 | 減少 boilerplate，專注設計 |
-| **Copilot Chat** | 對話式 AI 助手 | 問題分析、設計討論、解釋程式碼 | 架構決策輔助、知識傳承 |
-| **Copilot for PR** | PR 摘要與審查建議 | Code Review、PR 描述 | 提升 Review 效率與品質 |
-| **Copilot for CLI** | 命令列輔助 | DevOps、腳本撰寫 | 減少查文件時間 |
-| **Copilot Workspace** | 端到端任務處理 | 從 Issue 到 PR 的完整流程 | 原型快速驗證 |
+| --- | --- | --- | --- |
+| **Copilot Inline Suggestions** | 即時程式碼補全 | 日常編碼、實作細節 | 減少 boilerplate，專注設計 |
+| **Next Edit Suggestions (NES)** | 預測下一個編輯位置並建議補全 | 連續編輯、重構 | 加速連續修改流程 |
+| **Copilot Chat (Ask Mode)** | 對話式問答、程式碼解釋 | 問題分析、設計討論 | 架構決策輔助、知識傳承 |
+| **Copilot Chat (Edit Mode)** | 受控的多檔案編輯 | 精確修改特定檔案 | 細粒度控制 AI 編輯範圍 |
+| **Copilot Chat (Agent Mode)** | 自主完成多步驟任務 | 複雜開發任務、跨檔案修改 | 自動化實作、整合 MCP |
+| **Copilot Chat (Plan Mode)** | 制定詳細實作計畫 | 任務規劃、需求分析 | 在動手前確認方案完整性 |
+| **Copilot Coding Agent** | 自主編碼代理（GitHub 端） | 從 Issue 自動建立 PR | 將例行任務交給 Agent 執行 |
+| **Copilot Code Review** | AI 驅動的程式碼審查 | PR 審查、程式碼品質 | 提升 Review 效率與品質 |
+| **Copilot PR Summaries** | 自動生成 PR 摘要 | PR 描述撰寫 | 節省文件撰寫時間 |
+| **Copilot CLI** | 命令列輔助 | DevOps、腳本撰寫 | 減少查文件時間 |
+| **Copilot Spaces** | 組織上下文資訊 | 集中程式碼、文件、規格 | 為特定任務提供精確上下文 |
+| **Copilot Memory** | 記憶 repo 知識 | 持續開發同一專案 | 提升跨 session 一致性 |
+| **Custom Instructions** | 自訂回應偏好 | 統一團隊風格 | 確保 AI 輸出符合規範 |
+| **Prompt Files** | 可重用的 Prompt 範本 | 標準化工作流程 | 團隊知識共享 |
+| **MCP (Model Context Protocol)** | 擴展 Copilot 能力 | 整合外部工具與服務 | 連接企業內部系統 |
+| **GitHub Spark** | 自然語言建構全端應用 | 快速原型、內部工具 | 快速驗證概念 |
+| **Copilot in GitHub Desktop** | 自動生成 commit 訊息 | 日常 Git 操作 | 提升 commit 品質 |
 
 ### 1.3 Copilot 在企業開發流程中的定位
 
@@ -168,24 +200,58 @@ flowchart LR
     subgraph "Copilot 介入點"
         A -.->|Chat: 需求釐清| G[Copilot Chat]
         B -.->|Chat: 架構討論| G
-        C -.->|Inline: 程式碼生成| H[Copilot Inline]
+        C -.->|Inline: 程式碼生成| H[Copilot Inline + NES]
+        C -.->|Agent: 自主開發| I[Agent Mode]
         C -.->|Chat: 重構建議| G
         D -.->|Inline: 測試生成| H
         D -.->|Chat: 測試策略| G
-        E -.->|CLI: 部署腳本| I[Copilot CLI]
+        E -.->|CLI: 部署腳本| J[Copilot CLI]
         F -.->|Chat: 問題診斷| G
+    end
+    
+    subgraph "自動化"
+        K[Copilot Coding Agent<br/>Issue 到 PR]
+        L[Copilot Code Review<br/>AI 審查]
     end
 ```
 
 ### 1.4 版本與授權模式
 
-| 版本 | 適用對象 | 主要差異 |
-| ------ | ---------- | ---------- |
-| **Copilot Individual** | 個人開發者 | 基本功能 |
-| **Copilot Business** | 企業團隊 | 組織管理、Policy 控制、無資料訓練 |
-| **Copilot Enterprise** | 大型企業 | 私有程式碼索引、進階安全功能、SSO |
+GitHub Copilot 目前提供五種方案，適用不同規模的使用者：
+
+| 版本 | 適用對象 | 價格 | Premium Requests | 主要差異 |
+| --- | --- | --- | --- | --- |
+| **Copilot Free** | 所有 GitHub 使用者 | 免費 | 50 / 月 | 基本補全（2000/月）、有限 Chat（50/月）、基本模型 |
+| **Copilot Pro** | 個人開發者 | $10 USD / 月 | 300 / 月 | 無限補全、Premium 模型、Coding Agent、PR 摘要 |
+| **Copilot Pro+** | AI 進階使用者 | $39 USD / 月 | 1500 / 月 | 所有 Pro 功能 + 更多 Premium Requests + 全部進階模型 |
+| **Copilot Business** | 企業團隊 | $19 USD / 座位 / 月 | 300 / 使用者 / 月 | 組織管理、Policy 控制、Coding Agent、Audit Logs |
+| **Copilot Enterprise** | 大型企業 | $39 USD / 座位 / 月 | 1000 / 使用者 / 月 | 所有 Business 功能 + GitHub Spark + 第三方 Agent |
+
+> **Premium Requests 說明**：Premium Requests 是使用進階模型（如 Claude Opus、GPT-5 等）時消耗的額度。使用預設 included model（multiplier 為 0）則不消耗。超額可以 $0.04/request 加購。
+
+> **可用模型**：Copilot 支援多種 AI 模型，包括 GPT-4.1、GPT-5、Claude Sonnet 4、Claude Opus 4.6、Gemini 2.5 Pro 等，可依任務需求切換。
 
 > ⚠️ **企業使用注意**：Business/Enterprise 版本承諾不使用您的程式碼訓練模型，這對金融業等受監管產業至關重要。
+
+### 1.5 2025-2026 年新功能重點摘要
+
+以下為近期 Copilot 生態圈的重要更新，資深工程師應特別留意：
+
+| 功能 | 類別 | 說明 | 影響程度 |
+| --- | --- | --- | --- |
+| **Copilot Coding Agent** | 自主代理 | 可將 GitHub Issue 指派給 Copilot，自動建立 PR | 🔴 高 |
+| **Agent Mode (IDE)** | Chat 模式 | 在 IDE 中自主決定編輯哪些檔案、執行終端指令 | 🔴 高 |
+| **Plan Mode (IDE)** | Chat 模式 | 在動手前建立詳細實作計畫，支援審核與迭代 | 🟡 中 |
+| **Next Edit Suggestions** | 補全 | 預測下一個編輯位置，主動建議修改 | 🟡 中 |
+| **Copilot Spaces** | 上下文 | 整合程式碼、文件、規格至 Space，提升回應精準度 | 🟡 中 |
+| **Copilot Memory** | 上下文 | 自動記憶 repo 知識，跨 session 使用 | 🟡 中 |
+| **MCP 整合** | 擴展 | 透過 Model Context Protocol 連接外部工具與服務 | 🔴 高 |
+| **Custom Instructions** | 自訂 | Repository / Personal / Organization 層級指令 | 🟡 中 |
+| **Prompt Files** | 自訂 | 可重用的 `.prompt.md` 檔案 | 🟡 中 |
+| **多模型選擇** | 模型 | 可選擇 GPT、Claude、Gemini 等多種模型 | 🟡 中 |
+| **Image Support** | Chat | 可在 Chat 中貼圖片（截圖、流程圖）進行分析 | 🟢 低 |
+| **Subagents** | Agent | 在 Agent Mode 中委派子任務給獨立 Agent | 🟡 中 |
+| **GitHub Spark** | 應用 | 用自然語言建構與部署全端應用 | 🟡 中 |
 
 ---
 
@@ -476,14 +542,16 @@ class MultiCurrencyPaymentProcessorTest {
 flowchart LR
     subgraph "IDE 環境"
         A[VS Code / IntelliJ]
-        B[Copilot Inline]
-        C[Copilot Chat]
+        B[Copilot Inline + NES]
+        C[Copilot Chat<br/>Ask / Edit / Agent]
+        M[MCP Servers]
     end
     
     subgraph "版本控制"
         D[Git]
         E[GitHub]
-        F[Copilot for PR]
+        F[Copilot Code Review]
+        N[Copilot Coding Agent]
     end
     
     subgraph "CI/CD"
@@ -492,17 +560,29 @@ flowchart LR
         I[Security Scan]
     end
     
+    subgraph "上下文管理"
+        O[Custom Instructions]
+        P[Prompt Files]
+        Q[Copilot Spaces]
+    end
+    
     A --> B
     A --> C
+    A --> M
     A --> D
     D --> E
     E --> F
+    E --> N
     E --> G
     G --> H
     G --> I
     
-    F -.->|PR 摘要| E
-    F -.->|Review 建議| E
+    O --> C
+    P --> C
+    Q --> C
+    
+    F -.->|AI 審查建議| E
+    N -.->|自動建立 PR| E
 ```
 
 ### 3.5 實務案例：一個完整的開發循環
@@ -899,26 +979,202 @@ public void validatePhoneNumber(String phone) {
 5. 風險評估與測試建議
 ```
 
-### 4.7 Copilot Chat 快捷指令
+### 4.7 Copilot Chat 快捷指令與互動方式
+
+#### 4.7.1 Chat 模式（VS Code）
+
+Copilot Chat 在 VS Code 中提供四種模式，可透過 Chat 面板底部的下拉選單切換：
+
+| 模式 | 功能 | 最佳使用場景 |
+| --- | --- | --- |
+| **Ask** | 問答式互動，不修改檔案 | 理解程式碼、探索想法、一般性問題 |
+| **Edit** | 受控多檔案編輯 | 精確修改特定檔案、需要細粒度控制 |
+| **Agent** | 自主完成多步驟任務 | 複雜任務、跨檔案修改、需要執行終端指令 |
+| **Plan** | 建立實作計畫（Preview） | 在動手前制定計畫、確認方案完整性 |
+
+#### 4.7.2 Slash Commands（斜線指令）
 
 | 指令 | 功能 | 使用場景 |
-| ------ | ------ | ---------- |
+| --- | --- | --- |
 | `/explain` | 解釋程式碼 | 理解 Legacy Code |
 | `/fix` | 修正問題 | 快速修 Bug |
 | `/tests` | 生成測試 | 補充單元測試 |
-| `/docs` | 生成文件 | 補充 JavaDoc |
+| `/doc` | 生成文件 | 補充 JavaDoc / JSDoc |
 | `/optimize` | 優化建議 | 效能改善 |
-| `@workspace` | 工作區上下文 | 跨檔案分析 |
+| `/new` | 建立新專案 | 快速搭建專案骨架 |
+| `/newNotebook` | 建立新 Notebook | 資料分析、探索性開發 |
+| `/search` | 搜尋工作區 | 尋找相關程式碼 |
+| `/setupTests` | 設定測試框架 | 初始化測試環境 |
+
+#### 4.7.3 Chat Participants（聊天參與者）
+
+使用 `@` 前綴來指定特定的上下文提供者：
+
+| 參與者 | 功能 | 使用範例 |
+| --- | --- | --- |
+| `@workspace` | 工作區上下文 | `@workspace 專案中有哪些地方使用到 PaymentService？` |
+| `@vscode` | VS Code 操作相關 | `@vscode 如何設定自動格式化？` |
+| `@terminal` | 終端相關 | `@terminal 上一個指令錯誤是什麼原因？` |
+| `@github` | GitHub 平台技能 | `@github 搜尋 repo 中的安全漏洞相關 Issue` |
+
+> 💡 **自動推斷**（Preview）：Copilot 可根據自然語言 prompt 自動推斷應使用哪個 Chat Participant，無需手動指定。
+
+#### 4.7.4 Chat Variables（聊天變數）
+
+使用 `#` 前綴來附加特定上下文：
+
+| 變數 | 功能 | 使用範例 |
+| --- | --- | --- |
+| `#file` | 引用特定檔案 | `請審查 #file:PaymentService.java` |
+| `#selection` | 引用目前選取的程式碼 | `解釋 #selection 的邏輯` |
+| `#codebase` | 整個程式庫上下文 | `#codebase 中有哪些相似的模式？` |
+| `#web` | 搜尋網路 | `@github #web 最新的 Spring Boot 版本是？` |
+| `#terminalLastCommand` | 上一個終端指令 | `#terminalLastCommand 為什麼失敗？` |
+| `#terminalSelection` | 終端中選取的文字 | `解釋 #terminalSelection` |
+
+#### 4.7.5 GitHub Skills（@github 技能）
+
+使用 `@github` 可存取 GitHub 平台特有的技能：
+
+```markdown
+# 搜尋網路
+@github #web What is the latest LTS of Node.js?
+
+# 搜尋程式碼
+@github 搜尋 repo 中所有使用 deprecated API 的地方
+
+# 查看可用技能
+@github What skills are available?
+```
+
+#### 4.7.6 其他存取方式
+
+| 方式 | 快捷鍵 (Windows/Linux) | 說明 |
+| --- | --- | --- |
+| **Chat View** | 標題列 Copilot 圖示 | 完整聊天面板 |
+| **Quick Chat** | `Ctrl+Shift+Alt+L` | 快速下拉式聊天 |
+| **Inline Chat** | `Ctrl+I` | 在編輯器中直接對話 |
+| **Smart Actions** | 右鍵 > Copilot | 上下文選單快速操作 |
 
 **範例使用：**
 
 ```markdown
-/explain 這段 recursive 函數的時間複雜度是多少？
+# 使用 Agent Mode 自主完成任務
+（切換到 Agent 模式後）
+請將 UserService 重構為使用 Repository Pattern，
+並新增對應的單元測試。
 
-@workspace 專案中有哪些地方使用到 PaymentService？
+# 使用 Plan Mode 制定計畫
+（切換到 Plan 模式後）
+我想為這個專案新增 OAuth2 登入功能，
+請幫我制定完整的實作計畫。
 
-/tests 請為選取的方法生成邊界測試案例
+# 使用 Edit Mode 精確編輯
+（切換到 Edit 模式後，加入 working set 檔案）
+請在 PaymentController 中新增一個 refund endpoint。
 ```
+
+### 4.8 Custom Instructions 與 Prompt Files
+
+#### 4.8.1 Custom Instructions（自訂指令）
+
+Custom Instructions 讓您可以為 Copilot 提供持久性的上下文偏好，提升回應品質與一致性。
+
+**支援層級：**
+
+| 層級 | 檔案 | 說明 |
+| --- | --- | --- |
+| **Repository** | `.github/copilot-instructions.md` | 專案級指令，自動附加到所有 Chat 問題 |
+| **Personal** | VS Code Settings | 個人偏好設定 |
+| **Organization** | GitHub Org Settings（Preview） | 組織統一規範（Business/Enterprise） |
+
+**Repository Custom Instructions 範例：**
+
+```markdown
+<!-- .github/copilot-instructions.md -->
+
+## 專案規範
+- 使用 Java 17 + Spring Boot 3.x
+- 遵循 Clean Architecture 分層
+- 所有 public method 必須有 JavaDoc
+- 使用 MapStruct 做 DTO 轉換
+- 日誌使用 @Slf4j
+- 例外處理使用自定義 BusinessException
+
+## 程式碼風格
+- 方法長度不超過 30 行
+- 使用 Optional 而非 null 檢查
+- 所有 API 回應使用 ResponseEntity 包裝
+
+## 測試規範
+- 使用 JUnit 5 + Mockito
+- 測試命名：should_[預期結果]_when_[條件]
+- 使用 AAA 模式（Arrange-Act-Assert）
+```
+
+#### 4.8.2 Prompt Files（.prompt.md）
+
+Prompt Files 是可重用的 prompt 範本檔案，存放在專案中，團隊成員可共享使用。
+
+**建立方式：**
+
+```markdown
+<!-- .github/prompts/code-review.prompt.md -->
+---
+description: "安全導向的 Code Review"
+mode: "ask"
+tools: []
+---
+
+請以資安專家角度審查以下程式碼：
+
+審查重點：
+1. 【安全性】OWASP Top 10 風險
+2. 【效能】N+1 Query、記憶體洩漏
+3. 【可維護性】SOLID 原則
+
+輸出格式：
+- 🔴 嚴重（必須修正）
+- 🟡 中度（建議修正）
+- 🟢 改善（可選）
+
+{#selection}
+```
+
+**使用方式：** 在 Chat 中輸入 `/` 可看到可用的 Prompt Files。
+
+#### 4.8.3 MCP (Model Context Protocol) 整合
+
+MCP 讓 Copilot 可以連接外部工具與服務，大幅擴展 Agent Mode 的能力。
+
+**常見 MCP 使用場景：**
+
+| 場景 | MCP Server 類型 | 說明 |
+| --- | --- | --- |
+| **資料庫操作** | Database MCP | 讓 Agent 直接查詢與操作資料庫 |
+| **API 測試** | Postman / REST MCP | 自動發送與驗證 API 請求 |
+| **文件搜尋** | Knowledge Base MCP | 搜尋內部文件與知識庫 |
+| **監控整合** | Observability MCP | 查詢 logs、metrics、traces |
+| **專案管理** | Jira / Azure DevOps MCP | 同步 Issue 狀態與更新 |
+
+**VS Code MCP 設定範例：**
+
+```json
+// .vscode/mcp.json
+{
+  "servers": {
+    "my-database": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "DATABASE_URL": "postgresql://localhost:5432/mydb"
+      }
+    }
+  }
+}
+```
+
+> ⚠️ **安全注意**：MCP Server 可存取外部系統，在企業環境中應經過安全審查後才啟用。
 
 ---
 
@@ -926,7 +1182,9 @@ public void validatePhoneNumber(String phone) {
 
 ### 5.1 Copilot 與 Code Review 的整合
 
-#### 5.1.1 Copilot for Pull Request 功能概覽
+#### 5.1.1 Copilot Code Review 功能概覽
+
+Copilot Code Review 已大幅升級，不僅支援 PR 審查，還支援 IDE 內的即時審查：
 
 ```mermaid
 flowchart LR
@@ -935,16 +1193,29 @@ flowchart LR
         B --> C[Copilot 分析變更]
     end
     
-    subgraph "Review 階段"
-        C --> D[Copilot 提供 Review 建議]
+    subgraph "Code Review"
+        C --> D[Copilot Code Review<br/>AI 審查建議]
         D --> E[人工 Reviewer 審查]
         E --> F{決策}
     end
     
-    F -->|需修改| G[開發者修正]
-    F -->|通過| H[Merge]
-    G --> A
+    subgraph "IDE Review"
+        G[選取程式碼] --> H[Review Selection<br/>所有方案可用]
+    end
+    
+    F -->|需修改| I[開發者修正]
+    F -->|通過| J[Merge]
+    I --> A
 ```
+
+**Copilot Code Review 的兩種使用方式：**
+
+| 方式 | 說明 | 可用方案 |
+| --- | --- | --- |
+| **PR Code Review** | 在 GitHub PR 頁面請求 Copilot 審查 | Pro, Pro+, Business, Enterprise |
+| **Review Selection** | 在 VS Code 中選取程式碼進行局部審查 | 所有方案（含 Free） |
+
+> 💡 **新功能 - Copilot Memory**：Copilot 可記憶 repo 的慣例與知識，讓 Code Review 建議更符合專案風格。
 
 #### 5.1.2 使用 Copilot 輔助 Code Review
 
@@ -1274,6 +1545,8 @@ graph LR
 }
 ```
 
+> 💡 **Block Suggestions Matching Public Code**：所有 Copilot 方案都支援此功能，可在設定中啟用，阻擋與公開程式碼高度相似的建議。
+
 #### 6.4.2 資料保護合規
 
 | 法規 | 相關要求 | Copilot 使用注意 |
@@ -1287,44 +1560,72 @@ graph LR
 
 #### 6.5.1 組織層級設定
 
+GitHub 提供完整的企業治理功能，管理員可透過 Policy Management 控制：
+
 ```yaml
-# GitHub Organization Settings
-copilot_settings:
-  # 是否允許 Copilot 存取私有程式碼
-  access_private_repos: true
+# GitHub Organization / Enterprise 設定項目
+copilot_policies:
+  # 功能啟用控制
+  copilot_chat_in_ide: enabled
+  copilot_code_review: enabled
+  copilot_coding_agent: enabled
+  copilot_cli: enabled
   
-  # 是否允許 Copilot 在公開建議中使用
-  public_code_suggestions: false
+  # 安全設定
+  block_suggestions_matching_public_code: enabled
+  editor_preview_features: enabled
   
-  # 是否啟用 Duplicate Detection
-  duplicate_detection: true
+  # 內容排除（Content Exclusion）
+  content_exclusion:
+    - "**/*.env"
+    - "**/*.pem"
+    - "**/*.key"
+    - "**/secrets/**"
+    - "**/config/credentials/**"
   
-  # 允許的 Repo 清單
-  allowed_repos:
-    - org/project-a
-    - org/project-b
+  # Audit Logs 自動啟用（Business/Enterprise）
+  audit_logging: enabled
 ```
+
+**管理員功能（Business/Enterprise）：**
+
+| 功能 | 說明 |
+| --- | --- |
+| **Policy Management** | 控制哪些 Copilot 功能可使用 |
+| **Access Management** | 指定哪些組織成員可使用 Copilot |
+| **Content Exclusion** | 排除敏感檔案不被 Copilot 存取 |
+| **Audit Logs** | 追蹤 Copilot 使用行為 |
+| **Usage Data** | 檢視使用量數據與採用率 |
+| **Organization Custom Instructions** | 統一組織級的 Copilot 行為規範 |
 
 #### 6.5.2 開發者工作站設定
 
 ```json
 // VS Code settings.json - 企業建議設定
 {
-  // 停用自動送出程式碼片段
-  "github.copilot.advanced": {
-    "debug.collectDiagnostics": false
-  },
-  
-  // 排除敏感檔案
+  // Copilot 功能控制
   "github.copilot.enable": {
     "*": true,
     "**/*.env": false,
     "**/*.pem": false,
     "**/*.key": false,
-    "**/secrets/**": false
+    "**/secrets/**": false,
+    "plaintext": false,
+    "markdown": true
+  },
+  
+  // Chat 相關設定
+  "github.copilot.chat.localeOverride": "zh-TW",
+  
+  // 排除敏感內容（搭配 .gitignore）
+  "files.exclude": {
+    "**/.env": true,
+    "**/secrets": true
   }
 }
 ```
+
+> 💡 **Content Exclusion（組織級）**：Business/Enterprise 管理員可在 GitHub 組織設定中排除特定檔案路徑，被排除的檔案不會傳送至 Copilot 服務。這比個人設定更安全，因為是強制生效的。
 
 ### 6.6 Copilot 在 SSDLC 中的定位
 
@@ -1373,7 +1674,15 @@ flowchart LR
 
 ### 6.7 稽核與追蹤
 
-**建議記錄的資訊：**
+**GitHub 平台提供的稽核功能（Business/Enterprise）：**
+
+| 功能 | 說明 |
+| --- | --- |
+| **Audit Logs** | 記錄所有 Copilot 相關事件，包含啟用/停用、Policy 變更等 |
+| **Usage Data** | 使用者活動數據，包含 suggestion 接受率、chat 使用量 |
+| **License Usage** | 授權使用狀況，識別未使用的座位 |
+
+**建議在關鍵程式碼加入 Copilot 輔助標記：**
 
 ```java
 // 建議在關鍵程式碼加入 Copilot 輔助標記
@@ -1735,15 +2044,19 @@ graph LR
 
 ## 1. 適用範圍
 - 適用於：所有使用 GitHub Copilot 的開發人員
-- 版本：1.0
-- 生效日期：2026-01-22
+- 版本：2.0
+- 生效日期：2026-02-12
 
 ## 2. 可以做（Do）
 ✅ 使用 Copilot 生成 Boilerplate 程式碼
 ✅ 使用 Copilot Chat 協助理解程式碼
 ✅ 使用 Copilot 生成單元測試骨架
 ✅ 使用 Copilot 生成 JavaDoc 與文件
-✅ 使用 Copilot 輔助 Code Review
+✅ 使用 Copilot Code Review 輔助程式碼審查
+✅ 使用 Agent Mode 完成明確定義的開發任務
+✅ 使用 Copilot Coding Agent 處理例行性 Issue
+✅ 使用 Custom Instructions 統一團隊風格
+✅ 使用 MCP 整合經審核通過的外部工具
 
 ## 3. 不可以做（Don't）
 ❌ 將客戶個資或機敏資料貼入 Prompt
@@ -1751,26 +2064,38 @@ graph LR
 ❌ 盲目接受 Copilot 建議，不經審查
 ❌ 用 Copilot 取代設計思考
 ❌ 跳過 Code Review 流程
+❌ 未經審核就啟用第三方 MCP Server
+❌ 將 Agent 模式用於安全性關鍵的核心系統修改
 
 ## 4. 安全規範
 - 不可在 Prompt 中包含任何客戶資料
 - 不可在 Prompt 中包含內部系統架構機敏資訊
 - 生成的程式碼必須通過安全掃描
-- 使用 Copilot Enterprise 版本（確保資料不外流）
+- 使用 Business/Enterprise 版本（確保資料不外流）
+- 啟用 Block Suggestions Matching Public Code
+- 設定 Content Exclusion 排除敏感檔案
 
 ## 5. 品質規範
 - 所有 Copilot 生成的程式碼必須經過人工審查
 - 核心業務邏輯不可完全依賴 Copilot
 - 必須為 Copilot 生成的程式碼撰寫測試
+- Copilot Coding Agent 的 PR 須經資深工程師審查
 
 ## 6. 審查流程
 1. 開發者使用 Copilot 生成程式碼
 2. 開發者自我審查（使用 Checklist）
 3. 提交 PR，觸發自動化掃描
-4. Reviewer 進行 Code Review
-5. 通過後方可 Merge
+4. 可選：請求 Copilot Code Review
+5. Reviewer 進行人工 Code Review
+6. 通過後方可 Merge
 
-## 7. 例外處理
+## 7. Copilot Coding Agent 使用規範
+- 僅用於描述明確的 Bug Fix 與簡單功能增強
+- Issue 必須包含清楚的需求描述與驗收條件
+- Agent 產出的 PR 必須由人工審查
+- 不可用於安全性關鍵修改
+
+## 8. 例外處理
 - 如有特殊需求需違反規範，須經 Tech Lead 核准
 - 核准紀錄須保留備查
 ```
@@ -2321,7 +2646,89 @@ public class ReconciliationJobConfig {
 - ADR-003: Redis 高可用配置
 ```
 
-### 9.5 最佳實務總結
+### 9.5 案例五：使用 Copilot Coding Agent 自動化開發
+
+#### 9.5.1 情境描述
+
+```markdown
+【背景】
+- 團隊有大量的小型 Bug Fix 和功能增強 Issue
+- 資深工程師時間寶貴，不想花在例行性修改上
+- Issue 描述明確，修改範圍可控
+
+【挑戰】
+- 如何將例行任務交給 Copilot Coding Agent
+- 如何確保 Agent 產出的 PR 品質
+- 如何建立有效的 Agent 工作流程
+```
+
+#### 9.5.2 Copilot Coding Agent 使用流程
+
+```mermaid
+flowchart TB
+    A[在 GitHub Issue 中<br/>指派 Copilot] --> B[Coding Agent<br/>分析 Issue]
+    B --> C[Agent 自動<br/>建立分支]
+    C --> D[Agent 實作<br/>程式碼變更]
+    D --> E[Agent 建立<br/>Pull Request]
+    E --> F[人工審查 PR]
+    F -->|通過| G[Merge]
+    F -->|需修改| H[在 PR 中<br/>留下回饋]
+    H --> D
+```
+
+**Step 1：撰寫適合 Agent 的 Issue**
+
+```markdown
+## Issue: 新增交易查詢 API 的日期驗證
+
+### 描述
+目前 `GET /api/v1/transactions` 的 `startDate` 和 `endDate` 參數
+沒有驗證日期範圍是否合理。
+
+### 需求
+1. `endDate` 不可早於 `startDate`
+2. 查詢範圍不可超過 90 天
+3. 不可查詢未來日期
+4. 回傳 400 Bad Request 並附上明確錯誤訊息
+
+### 檔案位置
+- Controller: `src/main/java/.../TransactionController.java`
+- 測試: `src/test/java/.../TransactionControllerTest.java`
+
+### 驗收條件
+- [ ] 新增日期驗證邏輯
+- [ ] 新增對應的錯誤處理
+- [ ] 新增單元測試覆蓋所有情境
+```
+
+**Step 2：指派 Copilot**
+
+在 Issue 中將 Assignee 設定為 Copilot，Agent 會自動開始工作。
+
+**Step 3：審查 Agent 產出的 PR**
+
+```markdown
+## 審查重點（Copilot Coding Agent PR）
+✅ 邏輯是否正確符合 Issue 描述
+✅ 是否符合專案編碼規範
+✅ 測試是否覆蓋所有情境
+✅ 是否有安全風險
+⚠️ 是否有不必要的變更（Agent 可能修改超出範圍的檔案）
+```
+
+#### 9.5.3 適合交給 Coding Agent 的任務
+
+| 適合 | 不適合 |
+| --- | --- |
+| Bug Fix（明確重現步驟） | 架構重構 |
+| 新增驗證邏輯 | 複雜業務邏輯 |
+| 補充單元測試 | 涉及多系統整合 |
+| 更新文件 | 效能調優 |
+| 簡單功能增強 | 安全性關鍵修改 |
+
+> ⚠️ **注意**：Copilot Coding Agent 目前適用於 Pro、Pro+、Business、Enterprise 方案。Issue 描述越詳細，Agent 產出品質越高。
+
+### 9.6 最佳實務總結
 
 | 場景 | Copilot 主要用途 | 人工重點 |
 | ------ | ------------------ | ---------- |
@@ -2373,37 +2780,43 @@ graph TB
 ### 10.2 黃金法則
 
 ```markdown
-## 資深工程師使用 Copilot 的十大法則
+## 資深工程師使用 Copilot 的十二大法則
 
 1. **AI 是助手，不是主人**
    - 設計決策永遠是人做的
    
 2. **Prompt 品質決定輸出品質**
-   - 投資時間在寫好 Prompt
+   - 投資時間在寫好 Prompt 與 Custom Instructions
    
 3. **永遠審查，從不盲信**
-   - 每行程式碼都要理解
+   - 每行程式碼都要理解，無論是 Inline 還是 Agent 產出
    
 4. **用 AI 做 AI 擅長的事**
-   - Boilerplate、測試、文件
+   - Boilerplate、測試、文件、例行性 Bug Fix
    
 5. **保持安全意識**
-   - 不洩露機敏資訊
+   - 不洩露機敏資訊，善用 Content Exclusion
    
 6. **測試不可省略**
    - AI 生成的程式碼更需要測試
    
-7. **持續學習新功能**
-   - Copilot 不斷進化
+7. **善用 Agent Mode 與 Coding Agent**
+   - 將例行任務自動化，專注高價值工作
    
 8. **建立團隊 Prompt 資產**
-   - 共享有效的 Prompt
+   - 共享 Custom Instructions、Prompt Files、MCP 設定
    
 9. **量化效益**
-   - 用數據說話
+   - 用 Usage Data 與指標說話
    
 10. **保持批判性思維**
-    - AI 可能是錯的
+    - AI 可能是錯的，特別是業務邏輯與安全性
+    
+11. **善用上下文管理**
+    - 使用 Spaces、Custom Instructions 提升回應品質
+    
+12. **持續學習新功能**
+    - Copilot 生態圈快速演進，定期查看官方文件更新
 ```
 
 ### 10.3 技能發展路徑
@@ -2414,10 +2827,10 @@ graph LR
     B --> C[進階使用者]
     C --> D[專家級]
     
-    A -->|技能| A1[基本 Inline 補全<br/>簡單 Chat 對話]
-    B -->|技能| B1[Prompt 優化<br/>多輪對話<br/>測試生成]
-    C -->|技能| C1[架構級應用<br/>團隊推廣<br/>規範制定]
-    D -->|技能| D1[創新應用<br/>效益量化<br/>組織轉型]
+    A -->|技能| A1[基本 Inline 補全<br/>Ask Mode 對話]
+    B -->|技能| B1[Prompt 優化<br/>Edit / Agent Mode<br/>測試生成]
+    C -->|技能| C1[Custom Instructions<br/>MCP 整合<br/>Coding Agent<br/>團隊規範制定]
+    D -->|技能| D1[Agent 編排<br/>Spaces 管理<br/>效益量化<br/>組織轉型]
 ```
 
 ### 10.4 持續改善框架
@@ -2444,10 +2857,13 @@ graph LR
 ### 10.5 未來展望
 
 | 時間軸 | 預期發展 | 資深工程師應對 |
-| -------- | ---------- | ---------------- |
-| **短期（6個月）** | 更好的上下文理解 | 善用 @workspace 功能 |
-| **中期（1-2年）** | 多 Agent 協作 | 學習 Agent 編排 |
-| **長期（3-5年）** | 自主開發能力 | 聚焦架構與業務價值 |
+| --- | --- | --- |
+| **已實現** | Coding Agent、Agent Mode、MCP、多模型、Spaces | 積極學習並導入日常開發 |
+| **短期（6個月）** | Copilot Memory 成熟、更多 MCP 生態 | 建立團隊 Custom Instructions |
+| **中期（1-2年）** | 多 Agent 協作、自主測試、自主部署 | 學習 Agent 編排與治理 |
+| **長期（3-5年）** | 端到端自主開發、AI 驅動架構 | 聚焦架構設計與業務創新 |
+
+> 💡 **關鍵趨勢**：Copilot 正從「被動輔助」轉向「主動代理」。資深工程師的角色將從「寫程式碼」轉向「設計系統、定義規範、審查 AI 產出」。掌握 Custom Instructions、MCP 與 Agent 編排將成為核心競爭力。
 
 ---
 
@@ -2557,19 +2973,28 @@ graph LR
 ### 官方資源
 
 - [GitHub Copilot Documentation](https://docs.github.com/en/copilot)
-- [GitHub Copilot for Business](https://github.com/features/copilot)
-- [GitHub Copilot Trust Center](https://resources.github.com/copilot-trust-center/)
+- [GitHub Copilot Features](https://docs.github.com/en/copilot/about-github-copilot/github-copilot-features)
+- [Plans for GitHub Copilot](https://docs.github.com/en/copilot/about-github-copilot/subscription-plans-for-github-copilot)
+- [GitHub Copilot Trust Center](https://copilot.github.trust.page/)
+- [GitHub Copilot Chat Cheat Sheet](https://docs.github.com/en/copilot/using-github-copilot/github-copilot-chat-cheat-sheet)
+- [Prompt Engineering for Copilot](https://docs.github.com/en/copilot/using-github-copilot/prompt-engineering-for-github-copilot)
+- [About GitHub Copilot Coding Agent](https://docs.github.com/en/copilot/using-github-copilot/coding-agent)
+- [About Model Context Protocol (MCP)](https://docs.github.com/en/copilot/concepts/context/mcp)
+- [Customizing Copilot Responses](https://docs.github.com/en/copilot/concepts/about-customizing-github-copilot-chat-responses)
+- [About Copilot Spaces](https://docs.github.com/en/copilot/using-github-copilot/copilot-spaces/about-organizing-and-sharing-context-with-copilot-spaces)
 
 ### 延伸閱讀
 
 - Prompt Engineering Guide
 - OWASP Top 10
 - Clean Code by Robert C. Martin
+- [VS Code Copilot Documentation](https://code.visualstudio.com/docs/copilot)
 
 ---
 
 > **文件維護**  
-> 本文件由開發標準團隊維護，如有問題或建議，請聯繫 [chihhung.cheng@gmail.com](mailto:chihhung.cheng@gmail.com)
+> 本文件由開發標準團隊維護，如有問題或建議，請聯繫 [chihhung.cheng@gmail.com](mailto:chihhung.cheng@gmail.com)  
+> 最後更新：2026 年 2 月 12 日（v2.0 - 更新至最新 Copilot 生態圈功能）
 
 ---
 

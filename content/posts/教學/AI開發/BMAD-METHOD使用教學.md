@@ -5,20 +5,15 @@ title = 'BMAD METHOD使用教學'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
-# BMAD METHOD使用教學
-
-> **版本**: 1.0  
-> **最後更新**: 2025年10月29日  
-> **適用於**: BMAD METHOD v4.44.1
-> **Created by**: Eric Cheng
-+++
 
 # BMAD-METHOD 使用教學手冊
 
-> **文件版本**：1.0  
-> **最後更新**：2025 年 12 月  
+> **文件版本**：2.0  
+> **最後更新**：2026 年 2 月  
+> **適用版本**：BMAD METHOD v6.0.0-Beta  
 > **適用對象**：新進軟體工程師、系統分析師、專案成員  
-> **前置知識**：基本軟體開發概念、版本控制基礎
+> **前置知識**：基本軟體開發概念、版本控制基礎  
+> **Created by**：Eric Cheng
 
 ---
 
@@ -31,25 +26,27 @@ categories = ['教學']
   - [1.3 為什麼 BMAD 特別適合 AI 協作開發](#13-為什麼-bmad-特別適合-ai-協作開發)
 - [第二章：BMAD-METHOD 的核心概念](#第二章bmad-method-的核心概念)
   - [2.1 四大核心階段概覽](#21-四大核心階段概覽)
-  - [2.2 B（Business）- 商業分析階段](#22-bbusiness---商業分析階段)
-  - [2.3 M（Model）- 模型設計階段](#23-mmodel---模型設計階段)
-  - [2.4 A（Architecture）- 架構設計階段](#24-aarchitecture---架構設計階段)
-  - [2.5 D（Delivery）- 交付實作階段](#25-ddelivery---交付實作階段)
+  - [2.2 Analysis（分析）階段](#22-analysis分析階段)
+  - [2.3 Planning（規劃）階段](#23-planning規劃階段)
+  - [2.4 Solutioning（方案設計）階段](#24-solutioning方案設計階段)
+  - [2.5 Implementation（實作）階段](#25-implementation實作階段)
   - [2.6 各階段的目標、輸入與輸出](#26-各階段的目標輸入與輸出)
+  - [2.7 安裝與設定指南](#27-安裝與設定指南)
+  - [2.8 官方模組總覽](#28-官方模組總覽)
 - [第三章：BMAD-METHOD 整體流程說明](#第三章bmad-method-整體流程說明)
   - [3.1 從需求發想到交付的完整流程](#31-從需求發想到交付的完整流程)
   - [3.2 每個階段與 AI 的互動方式](#32-每個階段與-ai-的互動方式)
   - [3.3 建議的文件與產出物](#33-建議的文件與產出物)
 - [第四章：各階段詳細教學](#第四章各階段詳細教學)
-  - [4.1 Business 階段詳細教學](#41-business-階段詳細教學)
-  - [4.2 Model 階段詳細教學](#42-model-階段詳細教學)
-  - [4.3 Architecture 階段詳細教學](#43-architecture-階段詳細教學)
-  - [4.4 Delivery 階段詳細教學](#44-delivery-階段詳細教學)
+  - [4.1 Analysis 階段詳細教學](#41-analysis-階段詳細教學)
+  - [4.2 Planning 階段詳細教學](#42-planning-階段詳細教學)
+  - [4.3 Solutioning 階段詳細教學](#43-solutioning-階段詳細教學)
+  - [4.4 Implementation 階段詳細教學](#44-implementation-階段詳細教學)
 - [第五章：AI Prompt 實戰範例](#第五章ai-prompt-實戰範例)
-  - [5.1 Business 階段 Prompt 範例](#51-business-階段-prompt-範例)
-  - [5.2 Model 階段 Prompt 範例](#52-model-階段-prompt-範例)
-  - [5.3 Architecture 階段 Prompt 範例](#53-architecture-階段-prompt-範例)
-  - [5.4 Delivery 階段 Prompt 範例](#54-delivery-階段-prompt-範例)
+  - [5.1 Analysis 階段 Prompt 範例](#51-analysis-階段-prompt-範例)
+  - [5.2 Planning 階段 Prompt 範例](#52-planning-階段-prompt-範例)
+  - [5.3 Solutioning 階段 Prompt 範例](#53-solutioning-階段-prompt-範例)
+  - [5.4 Implementation 階段 Prompt 範例](#54-implementation-階段-prompt-範例)
   - [5.5 銀行與大型系統專用 Prompt 實戰對話](#55-銀行與大型系統專用-prompt-實戰對話)
 - [第六章：BMAD-METHOD 與其他方法論比較](#第六章bmad-method-與其他方法論比較)
   - [6.1 與 Scrum / SAFe 的差異](#61-與-scrum--safe-的差異)
@@ -87,7 +84,9 @@ categories = ['教學']
 - 團隊成員對 AI 協作方式缺乏共識
 - 開發過程缺乏結構化的品質控管
 
-**BMAD-METHOD**（**B**uild **M**ore, **A**rchitect **D**reams）正是為解決這些問題而設計的方法論。它提供一套結構化、可擴展的 AI 驅動敏捷開發框架，讓團隊能夠有效地與 AI 協作，從 Bug 修復到企業級系統開發都能得心應手。
+**BMAD-METHOD**（**B**reakthrough **M**ethod of **A**gile AI **D**riven Development）正是為解決這些問題而設計的方法論。它提供一套結構化、可擴展的 AI 驅動敏捷開發框架，讓團隊能夠有效地與 AI 協作，從 Bug 修復到企業級系統開發都能得心應手。
+
+> **100% 免費且開源。** 沒有付費牆、沒有封閉內容。BMAD 致力於賦能每一位開發者。
 
 ### 本手冊的目標
 
@@ -115,11 +114,12 @@ categories = ['教學']
 
 #### 什麼是 BMAD-METHOD？
 
-**BMAD-METHOD** 是一套「AI 驅動的敏捷開發方法論」，全名為 **Build More, Architect Dreams**。它建構在 **BMad Core**（Collaboration Optimized Reflection Engine）框架之上，提供：
+**BMAD-METHOD** 是一套「AI 驅動的敏捷開發方法論」，全名為 **Breakthrough Method of Agile AI Driven Development**（突破性的敏捷 AI 驅動開發方法）。它建構在 **BMad Core** 通用框架之上，提供：
 
 - **21 個專業化 AI 代理**（Agents）
 - **50+ 個引導式工作流程**（Workflows）
-- **4 個官方模組**（Modules）
+- **6 個官方模組**（Modules）
+- **AI 智慧引導系統**（bmad-help）
 
 ```text
 💡 核心理念：
@@ -129,35 +129,42 @@ BMAD 不只是一套工具，而是一種「人類與 AI 協作」的思維模�
 
 #### 設計目的
 
-1. **規模自適應**：自動調整規劃深度，從簡單 Bug 修復到企業級系統都適用
+1. **規模-領域自適應**：自動調整規劃深度，根據專案複雜度、領域與類型自動調適（如 SaaS 行動應用與診斷醫療系統的規劃需求不同）
 2. **完整生命週期**：涵蓋分析 → 規劃 → 架構 → 實作的完整開發流程
 3. **專業分工**：每個 AI 代理擁有特定領域專長（PM、架構師、開發者、UX 設計師等）
 4. **敏捷最佳實務**：建立在敏捷開發最佳實務之上，並以 AI 強化效果
+5. **AI 智慧引導**：內建 `bmad-help` 系統，從開始到結束全程引導使用者
 
 #### BMAD 的核心架構
 
 ```mermaid
 graph TB
     subgraph "BMad Core Framework"
-        CORE[BMad Core<br/>協作優化反思引擎]
+        CORE[BMad Core<br/>通用框架]
     end
     
     subgraph "Official Modules"
-        BMM[BMad Method<br/>敏捷開發框架]
-        BMB[BMad Builder<br/>自訂代理建構器]
+        BMM[BMad Method - BMM<br/>敏捷開發框架]
+        BMB[BMad Builder - BMB<br/>自訂代理建構器]
         CIS[Creative Intelligence Suite<br/>創意智能套件]
+        BMGD[Game Dev Studio - BMGD<br/>遊戲開發工作室]
+        TEA[Test Architect - TEA<br/>企業級測試架構]
     end
     
     subgraph "Agents & Workflows"
         AGENTS[21 專業化代理]
         WORKFLOWS[50+ 工作流程]
+        HELP[bmad-help<br/>AI 智慧引導系統]
     end
     
     CORE --> BMM
     CORE --> BMB
     CORE --> CIS
+    CORE --> BMGD
+    CORE --> TEA
     BMM --> AGENTS
     BMM --> WORKFLOWS
+    CORE --> HELP
 ```
 
 ### 1.2 BMAD 與傳統開發流程的差異
@@ -214,22 +221,29 @@ graph LR
 
 | 挑戰 | BMAD 解決方案 |
 |------|---------------|
-| 上下文遺失 | **Document Sharding** - 文件分片技術，節省 90% Token，同時保持上下文完整 |
+| 上下文遺失 | **漸進式上下文建構** - 每個階段的產出物自動成為下一階段的輸入，代理始終知道要建構什麼及為什麼 |
 | 角色混淆 | **專業化代理** - 每個代理有明確角色定義與專長領域 |
 | 流程斷裂 | **Workflow 引導** - 結構化流程，自動銜接各階段產出 |
 | 品質不穩定 | **Checkpoint 機制** - 每個階段都有驗證點，確保品質 |
+| 不知下一步 | **bmad-help 智慧引導** - AI 自動偵測專案進度，建議下一步行動 |
 
 #### BMAD 的獨特優勢
 
 ```text
-✨ 規模自適應智能
-   └─ 自動判斷專案複雜度，選擇適當的流程深度
+✨ 規模-領域自適應智能
+   └─ 自動判斷專案複雜度、領域與類型，選擇適當的流程深度
    
 ✨ 專業化代理團隊
-   └─ 12 個核心代理，各司其職，協同合作
+   └─ 12+ 個核心代理，各司其職，協同合作
    
 ✨ IDE 無縫整合
-   └─ 支援 Claude Code、Cursor、Windsurf、VS Code
+   └─ 支援 Claude Code、Cursor、Windsurf、Kiro、VS Code 等
+   
+✨ AI 智慧引導
+   └─ `/bmad-help` 從安裝到完成全程引導
+   
+✨ Party Mode
+   └─ 將多個代理帶入同一對話，協作求解
    
 ✨ 客製化能力
    └─ 可調整代理個性、專長、溝通風格
@@ -284,181 +298,229 @@ graph LR
 | **方案設計** | Solutioning | 設計架構、技術方案 | Architect Agent |
 | **實作** | Implementation | 開發、測試、交付 | Developer Agent |
 
-### 2.2 B（Business）- 商業分析階段
+### 2.2 Analysis（分析）階段
 
 #### 階段目標
 
-- 理解商業需求與目標
-- 定義問題範圍與邊界
-- 識別關鍵利害關係人
-- 確立成功標準
+- 腦力激盪、研究探索
+- 建立產品簡介（Product Brief）
+- 記錄現有專案上下文
+- 確立問題範圍與邊界
+
+> ℹ️ **此階段為選用**，Quick Flow 可跳過此階段直接進入 Planning。
+
+#### 核心活動與工作流程
+
+| 工作流程 | 指令 | 代理 | 說明 |
+|----------|------|------|------|
+| Brainstorm Project | `BP` | Analyst (Mary) | 腦力激盪新專案點子 |
+| Research | `RS` | Analyst (Mary) | 領域研究、市場研究、技術研究 |
+| Create Brief | `CB` | Analyst (Mary) | 建立產品簡介 |
+| Document Project | `DP` | Analyst (Mary) | 記錄現有專案上下文 |
 
 #### 核心活動
 
 ```
-📊 Business 階段核心活動
+📊 Analysis 階段核心活動
 │
-├── 1. 需求探索
-│   ├── 與利害關係人訪談
-│   ├── 競品分析
-│   └── 市場研究
+├── 1. 腦力激盪（Brainstorm Project）
+│   ├── 探索專案點子
+│   ├── 定義產品願景
+│   └── 初步可行性評估
 │
-├── 2. 問題定義
-│   ├── 痛點識別
-│   ├── 機會分析
-│   └── 範圍界定
+├── 2. 研究探索（Research）
+│   ├── 領域研究
+│   ├── 市場研究
+│   └── 技術研究
 │
-├── 3. 價值評估
-│   ├── ROI 分析
-│   ├── 風險評估
-│   └── 優先級排序
+├── 3. 建立產品簡介（Create Brief）
+│   ├── 撰寫 Product Brief
+│   ├── 定義問題陳述
+│   └── 設定成功標準
 │
-└── 4. 目標設定
-    ├── 商業目標
-    ├── 使用者目標
-    └── 技術目標
+└── 4. 記錄現有專案（Document Project）
+    ├── 記錄專案上下文
+    ├── 整理現有架構
+    └── 標示改進機會
 ```
 
 #### 關鍵產出物
 
-| 產出物 | 說明 | 用途 |
-|--------|------|------|
-| **需求概要** | 高階需求描述 | 作為後續規劃基礎 |
-| **問題陳述** | 清楚定義要解決的問題 | 確保團隊共識 |
-| **成功標準** | 可量化的成功指標 | 驗收依據 |
-| **利害關係人清單** | 相關人員與其期望 | 溝通管理 |
+| 產出物 | 說明 | BMAD 指令 |
+|--------|------|----------|
+| **Product Brief** | 產品簡介與願景 | `CB`（Create Brief） |
+| **Research Notes** | 研究筆記與發現 | `RS`（Research） |
+| **Project Context** | 現有專案上下文記錄 | `DP`（Document Project） |
+| **Problem Statement** | 問題陳述與範圍定義 | 包含在 Product Brief 中 |
 
-### 2.3 M（Model）- 模型設計階段
+### 2.3 Planning（規劃）階段
 
 #### 階段目標
 
-- 建立業務流程模型
-- 設計資料模型
-- 定義業務規則
-- 確立系統邊界
+- 建立產品需求文件（PRD）或技術規格（Tech Spec）
+- 定義功能需求與驗收標準
+- 建立 UX 設計（選用）
+- 確立專案範圍與優先級
+
+> ℹ️ **此階段為必要階段**，所有軌道都需要某種形式的規劃文件。
+
+#### 核心活動與工作流程
+
+| 工作流程 | 指令 | 代理 | 說明 |
+|----------|------|------|------|
+| Create PRD | `/bmad-bmm-create-prd` | PM (John) | 建立產品需求文件 |
+| Validate PRD | `VP` | PM (John) | 驗證 PRD 完整性 |
+| Edit PRD | `EP` | PM (John) | 編輯現有 PRD |
+| Create UX Design | `/bmad-bmm-create-ux-design` | UX Designer (Alex) | UX 設計（選用） |
+| Quick Spec | `/bmad-bmm-quick-spec` | Solo Dev | Quick Flow 專用技術規格 |
 
 #### 核心活動
 
 ```
-📐 Model 階段核心活動
+� Planning 階段核心活動
 │
-├── 1. 業務流程建模
-│   ├── 流程圖繪製
-│   ├── 使用者旅程地圖
-│   └── 系統互動流程
+├── 1. 建立 PRD（Create PRD）
+│   ├── 功能需求定義
+│   ├── 使用者故事撰寫
+│   └── 驗收標準設定
 │
-├── 2. 資料建模
-│   ├── 實體關係圖（ERD）
-│   ├── 資料字典
-│   └── 資料流程圖
+├── 2. 驗證 PRD（Validate PRD）
+│   ├── 需求完整性檢查
+│   ├── 一致性驗證
+│   └── 利害關係人確認
 │
-├── 3. 業務規則定義
-│   ├── 驗證規則
-│   ├── 計算邏輯
-│   └── 狀態轉換
+├── 3. UX 設計（Create UX Design）
+│   ├── 使用者流程設計
+│   ├── 介面原型
+│   └── 互動設計
 │
-└── 4. 系統邊界確認
-    ├── 內部功能範圍
-    ├── 外部整合點
-    └── 排除項目
+└── 4. Quick Spec（Quick Flow 專用）
+    ├── 簡化技術規格
+    ├── 快速需求定義
+    └── 直接進入開發
 ```
 
 #### 關鍵產出物
 
-| 產出物 | 說明 | 用途 |
-|--------|------|------|
-| **業務流程圖** | 視覺化業務流程 | 確認流程理解正確 |
-| **資料模型** | ERD、資料字典 | 資料庫設計基礎 |
-| **業務規則文件** | 詳細業務邏輯 | 開發實作依據 |
-| **系統邊界文件** | 範圍定義 | 避免範疇蔓延 |
+| 產出物 | 說明 | BMAD 指令 |
+|--------|------|----------|
+| **PRD** | 產品需求文件 | `/bmad-bmm-create-prd` |
+| **UX Design** | 使用者體驗設計 | `/bmad-bmm-create-ux-design` |
+| **Tech Spec** | 技術規格（Quick Flow） | `/bmad-bmm-quick-spec` |
+| **Validated PRD** | 驗證過的需求文件 | `VP`（Validate PRD） |
 
-### 2.4 A（Architecture）- 架構設計階段
+### 2.4 Solutioning（方案設計）階段
 
 #### 階段目標
 
 - 設計系統架構
-- 規劃技術方案
-- 處理非功能需求
+- 建立 Epic 與 Story
+- 進行實作準備度檢查
 - 定義模組介面
+
+> ℹ️ **BMad Method 與 Enterprise 軌道專用**，Quick Flow 可跳過此階段。
+
+> ℹ️ **V6 改進**：Epic 與 Story 現在在架構設計之後建立，因為架構決策（資料庫、API 模式、技術栈）會直接影響工作拆分方式。
+
+#### 核心活動與工作流程
+
+| 工作流程 | 指令 | 代理 | 說明 |
+|----------|------|------|------|
+| Create Architecture | `/bmad-bmm-create-architecture` | Architect (Winston) | 設計系統架構 |
+| Create Epics and Stories | `/bmad-bmm-create-epics-and-stories` | PM (John) | 拆分 PRD 為 Epic 與 Story |
+| Implementation Readiness | `/bmad-bmm-check-implementation-readiness` | Architect (Winston) | 驗證規劃一致性 |
 
 #### 核心活動
 
 ```
-🏗️ Architecture 階段核心活動
+🏗️ Solutioning 階段核心活動
 │
-├── 1. 架構設計
-│   ├── 架構風格選擇（單體/微服務）
-│   ├── 分層架構設計
-│   └── 元件劃分
+├── 1. 架構設計（Create Architecture）
+│   ├── 架構風格選擇
+│   ├── 技術棧決策
+│   └── 模組劃分與介面設計
 │
-├── 2. 技術選型
-│   ├── 框架選擇
-│   ├── 資料庫選型
-│   └── 第三方服務評估
+├── 2. Epic 與 Story 建立（Create Epics and Stories）
+│   ├── PRD 拆分為 Epic
+│   ├── Epic 拆分為 Story
+│   └── 依賴關係分析
 │
-├── 3. 非功能需求處理
-│   ├── 效能設計
-│   ├── 安全架構
-│   └── 可擴展性規劃
+├── 3. 實作準備度檢查（Implementation Readiness）
+│   ├── 規劃一致性驗證
+│   ├── 技術可行性確認
+│   └── Story 完整性檢查
 │
-└── 4. 介面設計
-    ├── API 設計
-    ├── 資料介面
-    └── 外部整合介面
+└── 4. 架構決策記錄
+    ├── ADR 文件建立
+    ├── 技術方案比較
+    └── 非功能需求處理
 ```
+
+> ℹ️ **V6 重要改進**：Epic 與 Story 現在在架構設計**之後**建立。因為架構決策（資料庫選型、API 模式、技術棧）會直接影響工作拆分方式，先完成架構再拆分 Story 更為合理。
 
 #### 關鍵產出物
 
-| 產出物 | 說明 | 用途 |
-|--------|------|------|
-| **架構設計文件** | 系統架構說明 | 開發指引 |
-| **技術規格** | 詳細技術決策 | 實作依據 |
-| **API 規格** | 介面定義 | 整合開發 |
-| **安全設計文件** | 安全措施說明 | 合規審查 |
+| 產出物 | 說明 | BMAD 指令 |
+|--------|------|----------|
+| **Architecture Doc** | 系統架構設計文件 | `/bmad-bmm-create-architecture` |
+| **Epic & Story** | 工作拆分與追蹤 | `/bmad-bmm-create-epics-and-stories` |
+| **Readiness Check** | 實作準備度報告 | `/bmad-bmm-check-implementation-readiness` |
+| **ADR** | 架構決策記錄 | 包含在架構文件中 |
 
-### 2.5 D（Delivery）- 交付實作階段
+### 2.5 Implementation（實作）階段
 
 #### 階段目標
 
-- 完成程式開發
-- 執行測試驗證
-- 部署上線
-- 交付使用者
+- Sprint 規劃與執行
+- Story 開發與實作
+- 程式碼審查
+- 持續測試與交付
+
+#### 核心活動與工作流程
+
+| 工作流程 | 指令 | 代理 | 說明 |
+|----------|------|------|------|
+| Sprint Planning | `/bmad-bmm-sprint-planning` | Scrum Master (Bob) | 初始化 Sprint 追蹤 |
+| Create Story | `/bmad-bmm-create-story` | Scrum Master (Bob) | 建立 Story 檔案 |
+| Dev Story | `/bmad-bmm-dev-story` | Developer (Amelia) | 實作 Story |
+| Code Review | `/bmad-bmm-code-review` | Developer (Amelia) | 程式碼審查 |
+| QA Automate | `QA` | QA (Quinn) | 自動化測試 |
+| Correct Course | `/bmad-bmm-correct-course` | PM (John) | 處理範圍變更 |
 
 #### 核心活動
 
 ```
-⚡ Delivery 階段核心活動
+⚡ Implementation 階段核心活動
 │
-├── 1. Story 開發
-│   ├── 任務拆分
-│   ├── 程式撰寫
-│   └── 程式碼審查
+├── 1. Sprint 規劃與管理
+│   ├── Sprint Planning（初始化追蹤）
+│   ├── Story 檔案建立
+│   └── 優先順序排定
 │
-├── 2. 測試驗證
-│   ├── 單元測試
-│   ├── 整合測試
-│   └── 使用者驗收測試
+├── 2. Story 開發
+│   ├── Dev Story（逐一實作）
+│   ├── 程式碼撰寫
+│   └── Code Review
 │
-├── 3. 部署作業
-│   ├── 環境準備
-│   ├── 部署腳本
-│   └── 上線作業
+├── 3. 測試與品質
+│   ├── QA 自動化測試
+│   ├── 持續整合驗證
+│   └── 品質標準檢查
 │
-└── 4. 交付驗收
-    ├── 文件交付
-    ├── 教育訓練
-    └── 正式驗收
+└── 4. 範圍管理
+    ├── Correct Course（範圍變更處理）
+    ├── Story 調整與重排
+    └── 迭代回饋收集
 ```
 
 #### 關鍵產出物
 
-| 產出物 | 說明 | 用途 |
-|--------|------|------|
-| **可執行程式碼** | 完成的系統 | 正式使用 |
-| **測試報告** | 測試結果彙整 | 品質證明 |
-| **部署文件** | 部署指引 | 維運參考 |
-| **使用者手冊** | 操作說明 | 使用者教育 |
+| 產出物 | 說明 | BMAD 指令 |
+|--------|------|----------|
+| **Sprint Backlog** | Sprint 追蹤文件 | `/bmad-bmm-sprint-planning` |
+| **Story Files** | 個別 Story 實作檔案 | `/bmad-bmm-create-story` |
+| **Working Code** | 已審查的程式碼 | `/bmad-bmm-dev-story` |
+| **Test Results** | 自動化測試結果 | `QA`（QA Automate） |
 
 ### 2.6 各階段的目標、輸入與輸出
 
@@ -466,33 +528,33 @@ graph LR
 
 | 階段 | 輸入（Input） | 活動（Activities） | 輸出（Output） | 負責代理 |
 |------|--------------|-------------------|---------------|----------|
-| **Business** | 商業需求、市場資訊 | 需求探索、問題定義 | 需求概要、成功標準 | Analyst Agent |
-| **Model** | 需求概要、領域知識 | 流程建模、資料建模 | 流程圖、資料模型 | Analyst Agent |
-| **Architecture** | 需求、模型、技術限制 | 架構設計、技術選型 | 架構文件、技術規格 | Architect Agent |
-| **Delivery** | 架構、規格、Story | 開發、測試、部署 | 可執行系統、文件 | Developer Agent |
+| **Analysis** | 專案點子、市場資訊 | 腦力激盪、研究探索 | Product Brief、研究筆記 | Analyst (Mary) |
+| **Planning** | Product Brief、需求 | PRD 撰寫、UX 設計 | PRD、Tech Spec、UX Design | PM (John) |
+| **Solutioning** | PRD、技術需求 | 架構設計、工作拆分 | 架構文件、Epic & Story | Architect (Winston) |
+| **Implementation** | 架構、Story | Sprint 開發、測試 | 可執行系統、測試報告 | Developer (Amelia) |
 
 #### 階段間的銜接流程
 
 ```mermaid
 flowchart TD
-    subgraph Business["📊 Business 階段"]
-        B1[商業需求] --> B2[問題定義]
-        B2 --> B3[成功標準]
+    subgraph Analysis["📊 Analysis 階段"]
+        B1[專案點子] --> B2[研究探索]
+        B2 --> B3[Product Brief]
     end
     
-    subgraph Model["📐 Model 階段"]
-        M1[流程建模] --> M2[資料建模]
-        M2 --> M3[業務規則]
+    subgraph Planning["📝 Planning 階段"]
+        M1[PRD 撰寫] --> M2[UX 設計]
+        M2 --> M3[需求驗證]
     end
     
-    subgraph Architecture["🏗️ Architecture 階段"]
-        A1[架構設計] --> A2[技術選型]
-        A2 --> A3[介面設計]
+    subgraph Solutioning["🏗️ Solutioning 階段"]
+        A1[架構設計] --> A2[Epic & Story 拆分]
+        A2 --> A3[實作準備度檢查]
     end
     
-    subgraph Delivery["⚡ Delivery 階段"]
-        D1[Story 開發] --> D2[測試驗證]
-        D2 --> D3[部署交付]
+    subgraph Implementation["⚡ Implementation 階段"]
+        D1[Sprint 規劃] --> D2[Story 開發]
+        D2 --> D3[測試與交付]
     end
     
     B3 --> M1
@@ -504,22 +566,112 @@ flowchart TD
 
 #### 💼 實務案例：銀行貸款申請系統
 
-> **Business 階段產出**：
-> - 問題陳述：「客戶申請貸款流程繁瑣，平均需要 5 個工作天」
+> **Analysis 階段產出**：
+> - Product Brief：「客戶申請貸款流程繁瑣，平均需要 5 個工作天」
 > - 成功標準：「將貸款申請時間縮短至 1 個工作天」
 > 
-> **Model 階段產出**：
-> - 貸款申請流程圖（從申請到核准的完整流程）
-> - 資料模型（客戶資料、申請單、審核紀錄等）
+> **Planning 階段產出**：
+> - PRD（包含功能需求、使用者故事、驗收標準）
+> - UX 設計（申請流程圖、介面原型）
 > 
-> **Architecture 階段產出**：
+> **Solutioning 階段產出**：
 > - 系統架構圖（前端、後端、資料庫、外部徵信系統整合）
-> - API 規格（申請建立、狀態查詢、審核結果通知等）
+> - Epic & Story 拆分（含依賴關係與估算）
 > 
-> **Delivery 階段產出**：
+> **Implementation 階段產出**：
 > - 可上線的貸款申請系統
 > - 使用者操作手冊
 > - 系統維運文件
+
+### 2.7 安裝與設定指南
+
+#### 環境需求
+
+| 項目 | 需求 | 說明 |
+|------|------|------|
+| **Node.js** | v20+ | 執行 BMAD CLI 所需 |
+| **npm/npx** | 隨 Node.js 安裝 | 套件管理工具 |
+| **IDE** | Claude Code / Cursor / Windsurf / Kiro 等 | 支援 AI 代理互動的 IDE |
+
+#### 安裝步驟
+
+```bash
+# 步驟 1：確認 Node.js 版本
+node --version  # 需要 v20 以上
+
+# 步驟 2：進入專案目錄
+cd your-project
+
+# 步驟 3：執行安裝
+npx bmad-method install
+
+# 安裝過程會引導你選擇：
+# 1. 目標 IDE（Claude Code / Cursor / Windsurf / Kiro 等）
+# 2. 要安裝的模組（BMM、BMB、CIS、BMGD、TEA）
+# 3. 配置選項
+```
+
+#### 安裝後的專案結構
+
+```
+📁 your-project/
+├── 📂 _bmad/                    # BMAD 核心資料夾
+│   ├── 📂 agents/               # AI 代理定義檔
+│   ├── 📂 workflows/            # 工作流程定義
+│   ├── 📂 checklists/           # 檢查清單
+│   ├── 📂 templates/            # 文件範本
+│   ├── 📂 personas/             # 代理人格設定
+│   └── 📄 bmad-config.json      # BMAD 配置檔
+├── 📂 _bmad-output/             # BMAD 產出物資料夾
+│   ├── 📄 prd.md                # 產品需求文件
+│   ├── 📄 architecture.md       # 架構設計文件
+│   ├── 📄 epic-*.md             # Epic 與 Story 檔案
+│   └── ...
+└── 📄 （你的專案檔案）
+```
+
+#### 首次使用
+
+安裝完成後，在 IDE 中使用 `/bmad-help` 啟動 AI 智慧引導系統：
+
+```
+/bmad-help
+
+# bmad-help 會：
+# 1. 分析你的專案狀態
+# 2. 推薦適合的流程軌道
+# 3. 引導你進入下一步驟
+# 4. 解答任何 BMAD 相關問題
+```
+
+### 2.8 官方模組總覽
+
+BMAD-METHOD v6 採用模組化架構，目前提供 **6 個官方模組**：
+
+| 模組 | 縮寫 | 說明 | npm 套件 | 狀態 |
+|------|------|------|----------|------|
+| **BMad Method** | BMM | 核心方法論模組，包含 34+ 工作流程、9 個命名代理 | `bmad-method` | ✅ 穩定 |
+| **BMad Builder** | BMB | 自訂代理、工作流程、模組的建構工具 | 包含在 BMM 中 | ✅ 穩定 |
+| **Creative Intelligence Suite** | CIS | 創意智慧套件，遊戲設計、故事寫作等 | 獨立 repo | 🧪 Beta |
+| **Game Dev Studio** | BMGD | 遊戲開發專用模組 | 獨立 repo | 🧪 Beta |
+| **Test Architect** | TEA | 企業級測試模組，進階測試策略與自動化 | 獨立 repo | 🆕 新增 |
+| **Core Framework** | - | 通用框架，規模-領域自適應引擎 | 內建 | ✅ 穩定 |
+
+#### BMM 核心代理一覽
+
+| 代理 | 角色名 | 觸發指令 | 主要職責 |
+|------|--------|----------|----------|
+| **Analyst** | Mary | BP, RS, CB, DP | 腦力激盪、研究、建立 Brief |
+| **PM** | John | CP, VP, EP, CE, IR, CC | PRD 管理、需求驗證、範圍控制 |
+| **Architect** | Winston | CA, IR | 架構設計、實作準備度檢查 |
+| **Developer** | Amelia | — | Story 實作、程式碼審查 |
+| **UX Designer** | Alex | — | 使用者體驗設計 |
+| **Scrum Master** | Bob | — | Sprint 管理、Story 追蹤 |
+| **Tech Writer** | Paige | — | 技術文件撰寫 |
+| **QA** | Quinn | QA | 輕量級測試自動化 |
+| **Quick-Flow Solo Dev** | — | — | Quick Flow 專用整合代理 |
+
+> 💡 **模組安裝是可選的**：你可以只安裝 BMM（核心模組），之後再按需添加其他模組。
 
 ---
 
@@ -531,7 +683,7 @@ flowchart TD
 
 ```mermaid
 flowchart TB
-    START([🚀 專案啟動]) --> INIT[執行 *workflow-init<br/>專案初始化]
+    START([🚀 專案啟動]) --> INIT[執行 /bmad-help<br/>AI 智慧引導]
     
     INIT --> TRACK{選擇流程軌道}
     
@@ -578,7 +730,7 @@ flowchart TB
 ```
 🤔 如何選擇適合的流程？
 
-執行 *workflow-init，讓 BMAD 自動分析你的專案目標！
+執行 /bmad-help，讓 BMAD 自動分析你的專案目標！
 
 或者參考以下指引：
 
@@ -613,17 +765,17 @@ flowchart TB
 
 BMAD-METHOD 提供 12 個核心專業化代理，各司其職：
 
-| 代理 | 角色 | 專長領域 | 主要互動階段 |
-|------|------|----------|--------------|
-| **PM Agent** | 產品經理 | 需求管理、優先級排序 | Planning |
-| **Analyst Agent** | 分析師 | 業務分析、問題定義 | Analysis |
-| **Architect Agent** | 架構師 | 系統設計、技術決策 | Solutioning |
-| **Developer Agent** | 開發者 | 程式撰寫、程式碼審查 | Implementation |
-| **UX Designer Agent** | UX 設計師 | 使用者體驗、介面設計 | Solutioning |
-| **Test Architect Agent** | 測試架構師 | 測試策略、品質保證 | Implementation |
-| **Scrum Master Agent** | Scrum Master | 流程管理、障礙排除 | 全程 |
-| **Tech Writer Agent** | 技術文件撰寫者 | 文件撰寫、知識管理 | 全程 |
-| **BMad Master Agent** | BMAD 專家 | 方法論指導、流程優化 | 全程 |
+| 代理 | 角色名 | 角色 | 專長領域 | 主要互動階段 |
+|------|--------|------|----------|--------------|
+| **Analyst Agent** | Mary | 分析師 | 腦力激盪、研究探索、問題定義 | Analysis |
+| **PM Agent** | John | 產品經理 | 需求管理、PRD 撰寫、範圍控制 | Planning |
+| **Architect Agent** | Winston | 架構師 | 系統設計、技術決策 | Solutioning |
+| **Developer Agent** | Amelia | 開發者 | 程式撰寫、程式碼審查 | Implementation |
+| **UX Designer Agent** | Alex | UX 設計師 | 使用者體驗、介面設計 | Planning/Solutioning |
+| **Scrum Master Agent** | Bob | Scrum Master | Sprint 管理、Story 追蹤 | Implementation |
+| **Tech Writer Agent** | Paige | 技術文件撰寫者 | 文件撰寫、知識管理 | 全程 |
+| **QA Agent** | Quinn | 測試工程師 | 輕量級測試自動化 | Implementation |
+| **Quick-Flow Solo Dev** | — | 整合代理 | Quick Flow 快速開發 | 全程 |
 
 #### 人類與 AI 的協作模式
 
@@ -676,35 +828,22 @@ sequenceDiagram
 ```
 📁 BMAD 專案產出物結構
 │
-├── 📂 01-Analysis（分析階段）
-│   ├── 📄 problem-statement.md      # 問題陳述
-│   ├── 📄 stakeholder-analysis.md   # 利害關係人分析
-│   ├── 📄 research-notes.md         # 研究筆記
-│   └── 📄 success-criteria.md       # 成功標準
+├── 📂 _bmad/                    # BMAD 核心設定（安裝時產生）
+│   ├── 📂 agents/               # AI 代理定義
+│   ├── 📂 workflows/            # 工作流程定義
+│   ├── 📂 checklists/           # 檢查清單
+│   └── 📂 templates/            # 文件範本
 │
-├── 📂 02-Planning（規劃階段）
-│   ├── 📄 product-requirements.md   # 產品需求文件（PRD）
-│   ├── 📄 technical-spec.md         # 技術規格
-│   ├── 📄 user-stories.md           # 使用者故事
-│   └── 📄 acceptance-criteria.md    # 驗收標準
+├── 📂 _bmad-output/             # BMAD 產出物
+│   ├── 📄 product-brief.md      # 產品簡介（Analysis）
+│   ├── 📄 prd.md                # 產品需求文件（Planning）
+│   ├── 📄 ux-design.md          # UX 設計（Planning）
+│   ├── 📄 architecture.md       # 架構設計（Solutioning）
+│   ├── 📄 epic-1.md             # Epic 與 Story（Solutioning）
+│   ├── 📄 sprint-backlog.md     # Sprint 追蹤（Implementation）
+│   └── 📄 story-*.md            # 個別 Story 檔案
 │
-├── 📂 03-Solutioning（方案設計階段）
-│   ├── 📄 architecture-design.md    # 架構設計文件
-│   ├── 📄 api-specification.md      # API 規格
-│   ├── 📄 data-model.md             # 資料模型
-│   ├── 📄 ux-design.md              # UX 設計
-│   └── 📄 security-design.md        # 安全設計
-│
-├── 📂 04-Implementation（實作階段）
-│   ├── 📄 sprint-backlog.md         # Sprint 待辦清單
-│   ├── 📄 test-plan.md              # 測試計畫
-│   ├── 📄 deployment-guide.md       # 部署指南
-│   └── 📄 release-notes.md          # 發布說明
-│
-└── 📂 05-Governance（治理文件，Enterprise 適用）
-    ├── 📄 compliance-checklist.md   # 合規檢查清單
-    ├── 📄 risk-assessment.md        # 風險評估
-    └── 📄 audit-trail.md            # 稽核軌跡
+└── 📂 src/                      # 程式碼（Implementation）
 ```
 
 #### 各軌道產出物對照
@@ -727,41 +866,43 @@ sequenceDiagram
 
 ## 第四章：各階段詳細教學
 
-### 4.1 Business 階段詳細教學
+### 4.1 Analysis 階段詳細教學
 
 #### 階段目標
 
-Business 階段是整個開發流程的起點，目標是：
+Analysis 階段是整個開發流程的起點，目標是：
 
 1. **釐清問題本質** - 確保團隊理解真正要解決的問題
-2. **定義商業價值** - 明確專案帶來的效益
-3. **識別關鍵限制** - 了解時間、預算、技術等限制
-4. **建立成功標準** - 設定可量測的目標
+2. **探索專案可能性** - 腦力激盪與研究探索
+3. **建立產品簡介** - 產出 Product Brief 作為後續規劃基礎
+4. **記錄專案上下文** - 保存現有系統資訊（Brownfield 專案適用）
+
+> ℹ️ **此階段為選用**，Quick Flow 可跳過此階段直接進入 Planning。
 
 #### 新手該做什麼
 
 ```
-📌 Business 階段新手步驟
+📌 Analysis 階段新手步驟
 
 步驟 1：收集初始資訊
 ├── 與 PM/業務單位訪談
 ├── 收集現有文件（需求單、會議紀錄）
 └── 了解背景脈絡
 
-步驟 2：與 Analyst Agent 互動
-├── 描述專案背景
-├── 回答 AI 的澄清問題
-└── 確認 AI 理解正確
+步驟 2：與 Analyst Agent (Mary) 互動
+├── 使用 `BP`（Brainstorm Project）腦力激盪
+├── 使用 `RS`（Research）進行研究
+└── 回答 AI 的澄清問題
 
-步驟 3：產出問題陳述
+步驟 3：產出 Product Brief
+├── 使用 `CB`（Create Brief）建立產品簡介
 ├── 定義「現況」與「期望」的差距
-├── 明確問題邊界
 └── 獲得利害關係人認可
 
-步驟 4：設定成功標準
-├── 定義可量測的指標
-├── 設定目標值
-└── 確認驗收方式
+步驟 4：記錄專案上下文（Brownfield 專案）
+├── 使用 `DP`（Document Project）記錄現有系統
+├── 整理現有架構與限制
+└── 確認改進機會
 ```
 
 #### 常見錯誤
@@ -776,20 +917,21 @@ Business 階段是整個開發流程的起點，目標是：
 #### 與 AI 協作的最佳實務
 
 ```markdown
-💡 與 Analyst Agent 協作技巧
+💡 與 Analyst Agent (Mary) 協作技巧
 
-1. **提供充分背景**
-   - 產業背景（銀行、電商、製造等）
-   - 現有系統狀況
-   - 過去嘗試過的方案
+1. **使用 `BP` 啟動腦力激盪**
+   - 描述專案點子
+   - 讓 Mary 協助探索可能性
+   - 討論可行性與風險
 
-2. **善用 AI 的提問能力**
-   - 讓 AI 列出需要澄清的問題
-   - 逐一回答，確保無遺漏
+2. **使用 `RS` 進行深入研究**
+   - 指定研究領域（市場、技術、競品）
+   - 讓 AI 協助整理研究結果
 
-3. **請 AI 整理並確認**
-   - 請 AI 用結構化方式彙整需求
-   - 確認 AI 的理解是否正確
+3. **使用 `CB` 建立產品簡介**
+   - 提供背景資訊
+   - 讓 AI 產生結構化的 Product Brief
+   - 確認並調整內容
 
 4. **迭代優化**
    - 第一版不完美是正常的
@@ -800,7 +942,7 @@ Business 階段是整個開發流程的起點，目標是：
 
 > **情境**：某銀行希望優化信用卡線上申請流程
 > 
-> **Business 階段產出範例**：
+> **Analysis 階段產出範例**：
 > 
 > **問題陳述**：
 > ```
@@ -818,45 +960,44 @@ Business 階段是整個開發流程的起點，目標是：
 
 ---
 
-### 4.2 Model 階段詳細教學
+### 4.2 Planning 階段詳細教學
 
 #### 階段目標
 
-Model 階段負責將商業需求轉換為可實作的模型：
+Planning 階段負責將分析結果轉換為可執行的規劃文件：
 
-1. **建立業務流程模型** - 視覺化業務流程
-2. **設計資料模型** - 定義資料結構與關係
-3. **定義業務規則** - 明確業務邏輯
-4. **確立系統邊界** - 區分內部功能與外部整合
+1. **建立 PRD** - 產品需求文件，定義功能需求與驗收標準
+2. **UX 設計** - 使用者體驗設計（選用）
+3. **技術規格** - Quick Flow 專用的簡化規格
+4. **驗證需求** - 確保 PRD 完整性與一致性
+
+> ℹ️ **此階段為必要階段**，所有軌道都需要某種形式的規劃文件。
 
 #### 新手該做什麼
 
 ```
-📌 Model 階段新手步驟
+📌 Planning 階段新手步驟
 
-步驟 1：繪製業務流程圖
-├── 識別主要流程
-├── 標示決策點
-├── 標示系統邊界
-└── 確認例外處理流程
+步驟 1：建立 PRD
+├── 使用 `/bmad-bmm-create-prd` 讓 PM (John) 協助
+├── 定義功能需求與使用者故事
+├── 設定驗收標準
+└── 確認優先級排序
 
-步驟 2：設計資料模型
-├── 識別主要實體（Entity）
-├── 定義實體屬性
-├── 建立實體關係
-└── 產出 ERD
-
-步驟 3：定義業務規則
-├── 驗證規則（如：欄位格式）
-├── 計算規則（如：利率計算）
-├── 狀態轉換規則
-└── 權限規則
-
-步驟 4：確認系統邊界
-├── 列出系統功能清單
-├── 標示外部整合點
-├── 明確排除項目
+步驟 2：驗證 PRD
+├── 使用 `VP`（Validate PRD）檢查完整性
+├── 確認需求之間無衝突
 └── 獲得利害關係人確認
+
+步驟 3：UX 設計（選用）
+├── 使用 `/bmad-bmm-create-ux-design` 讓 UX Designer (Alex) 協助
+├── 設計使用者流程
+└── 建立介面原型
+
+步驟 4：確認輸出
+├── PRD 已經通過驗證
+├── 所有需求已明確定義
+└── 準備進入 Solutioning 階段
 ```
 
 #### 常見錯誤
@@ -871,32 +1012,32 @@ Model 階段負責將商業需求轉換為可實作的模型：
 #### 與 AI 協作的最佳實務
 
 ```markdown
-💡 與 Analyst Agent 協作技巧（Model 階段）
+💡 與 PM Agent (John) 協作技巧（Planning 階段）
 
-1. **請 AI 協助繪製流程圖**
-   - 提供流程描述，請 AI 產生 Mermaid 圖
-   - 逐步調整直到正確
+1. **使用 `/bmad-bmm-create-prd` 建立 PRD**
+   - 提供 Product Brief 作為輸入
+   - 讓 PM (John) 協助撰寫完整 PRD
+   - 逐步確認功能需求
 
-2. **請 AI 建議資料模型**
-   - 描述業務情境
-   - 請 AI 建議 ERD 設計
-   - 討論正規化程度
+2. **使用 `VP` 驗證 PRD**
+   - 檢查需求完整性
+   - 驗證一致性與可行性
 
-3. **請 AI 整理業務規則**
-   - 提供業務情境與案例
-   - 請 AI 推導業務規則
-   - 確認邊界條件
+3. **使用 UX Designer (Alex) 設計介面**
+   - 描述使用者情境
+   - 讓 AI 建議 UX 設計
+   - 討論使用者流程
 
-4. **讓 AI 扮演 QA 角色**
-   - 請 AI 找出模型中的漏洞
-   - 針對漏洞補充完善
+4. **迭代優化**
+   - 對 PRD 不滿意時使用 `EP`（Edit PRD）修改
+   - 確保所有需求都有明確的驗收標準
 ```
 
 #### 💼 實務案例：銀行信用卡申請系統（續）
 
-> **Model 階段產出範例**：
+> **Planning 階段產出範例**：
 > 
-> **業務流程圖**：
+> **PRD 摘要**：
 > ```mermaid
 > flowchart TD
 >     START([開始申請]) --> INPUT[填寫基本資料]
@@ -922,21 +1063,25 @@ Model 階段負責將商業需求轉換為可實作的模型：
 
 ---
 
-### 4.3 Architecture 階段詳細教學
+### 4.3 Solutioning 階段詳細教學
 
 #### 階段目標
 
-Architecture 階段負責設計技術解決方案：
+Solutioning 階段負責設計技術解決方案並拆分工作：
 
 1. **設計系統架構** - 決定系統整體結構
 2. **進行技術選型** - 選擇適當的技術堆疊
-3. **處理非功能需求** - 效能、安全、可擴展性
-4. **定義系統介面** - API、資料介面設計
+3. **拆分 Epic 與 Story** - 將 PRD 轉換為可執行的工作項目
+4. **實作準備度檢查** - 確認規劃一致性
+
+> ℹ️ **BMad Method 與 Enterprise 軌道專用**，Quick Flow 可跳過此階段。
+> 
+> ℹ️ **V6 重要改進**：Epic 與 Story 現在在架構設計**之後**建立。因為架構決策會直接影響工作拆分方式。
 
 #### 新手該做什麼
 
 ```
-📌 Architecture 階段新手步驟
+📌 Solutioning 階段新手步驟
 
 步驟 1：評估架構風格
 ├── 單體 vs 微服務
@@ -971,7 +1116,7 @@ Architecture 階段負責設計技術解決方案：
 
 > 🏦 **銀行/大型系統特別注意**
 > 
-> 在金融機構或大型企業中，Architecture 階段通常需要額外考慮：
+> 在金融機構或大型企業中，Solutioning 階段通常需要額外考慮：
 > - **法規合規**：個資法、金管會要求、SOC 2、ISO 27001
 > - **稽核追蹤**：所有敏感操作必須留下稽核軌跡
 > - **災難復原**：必須設計 DR 架構，定義 RTO/RPO
@@ -1017,7 +1162,7 @@ Architecture 階段負責設計技術解決方案：
 
 #### 💼 實務案例：銀行信用卡申請系統（續）
 
-> **Architecture 階段產出範例**：
+> **Solutioning 階段產出範例**：
 > 
 > **系統架構圖**：
 > ```mermaid
@@ -1089,21 +1234,21 @@ Architecture 階段負責設計技術解決方案：
 
 ---
 
-### 4.4 Delivery 階段詳細教學
+### 4.4 Implementation 階段詳細教學
 
 #### 階段目標
 
-Delivery 階段負責將設計轉換為可運作的系統：
+Implementation 階段負責將設計轉換為可運作的系統：
 
-1. **Story 開發** - 逐一實作使用者故事
-2. **持續測試** - 確保品質
-3. **部署上線** - 將系統部署到生產環境
-4. **驗收交付** - 正式交付給使用者
+1. **Sprint 規劃與管理** - 使用 Scrum Master (Bob) 協助
+2. **Story 開發** - 使用 Developer (Amelia) 逐一實作
+3. **測試與品質** - 使用 QA (Quinn) 自動化測試
+4. **範圍管理** - 使用 Correct Course 處理變更
 
 #### 新手該做什麼
 
 ```
-📌 Delivery 階段新手步驟
+📌 Implementation 階段新手步驟
 
 步驟 1：拆分 User Stories
 ├── 依據 PRD 列出所有 Story
@@ -1138,7 +1283,7 @@ Delivery 階段負責將設計轉換為可運作的系統：
 
 > 🏦 **銀行/大型系統特別注意**
 > 
-> 在金融機構或大型企業的 Delivery 階段有額外要求：
+> 在金融機構或大型企業的 Implementation 階段有額外要求：
 > - **變更管理**：所有變更需經過 CAB（Change Advisory Board）審核
 > - **部署窗口**：通常只能在非營業時間部署（如：週六凌晨）
 > - **灰度發布**：大型系統需採用金絲雀/藍綠部署策略
@@ -1189,7 +1334,7 @@ Delivery 階段負責將設計轉換為可運作的系統：
 
 #### 💼 實務案例：銀行信用卡申請系統（續）
 
-> **Delivery 階段產出範例**：
+> **Implementation 階段產出範例**：
 > 
 > **Sprint Backlog**：
 > | Story ID | 描述 | 估算 | 狀態 |
@@ -1213,7 +1358,7 @@ Delivery 階段負責將設計轉換為可運作的系統：
 
 > 💡 **重要提醒**：以下 Prompt 可直接複製使用。建議根據實際專案情況調整內容。
 
-### 5.1 Business 階段 Prompt 範例
+### 5.1 Analysis 階段 Prompt 範例
 
 #### Prompt 1：問題定義與需求探索
 
@@ -1330,7 +1475,7 @@ Delivery 階段負責將設計轉換為可運作的系統：
 
 ---
 
-### 5.2 Model 階段 Prompt 範例
+### 5.2 Planning 階段 Prompt 範例
 
 #### Prompt 1：業務流程建模
 
@@ -1468,7 +1613,7 @@ Delivery 階段負責將設計轉換為可運作的系統：
 
 ---
 
-### 5.3 Architecture 階段 Prompt 範例
+### 5.3 Solutioning 階段 Prompt 範例
 
 #### Prompt 1：系統架構設計
 
@@ -1612,7 +1757,7 @@ Delivery 階段負責將設計轉換為可運作的系統：
 
 ---
 
-### 5.4 Delivery 階段 Prompt 範例
+### 5.4 Implementation 階段 Prompt 範例
 
 #### Prompt 1：User Story 拆分
 
@@ -2759,7 +2904,7 @@ gantt
     dateFormat  YYYY-MM-DD
     section 第1天
     安裝 BMAD-METHOD           :a1, 2024-01-01, 1d
-    執行 workflow-init        :a2, after a1, 1d
+    執行 /bmad-help            :a2, after a1, 1d
     section 第2天
     閱讀 Quick Start 文件      :b1, 2024-01-02, 1d
     嘗試 Quick Flow           :b2, after b1, 1d
@@ -2777,7 +2922,7 @@ gantt
 
 | 天數 | 學習目標 | 實作練習 | 預期產出 |
 |------|----------|----------|----------|
-| **Day 1** | 環境建置與基本概念 | 安裝 BMAD、執行 `*workflow-init` | 成功初始化專案 |
+| **Day 1** | 環境建置與基本概念 | 安裝 BMAD、執行 `/bmad-help` | 成功初始化專案 |
 | **Day 2** | 理解 Quick Flow | 用 Quick Flow 完成一個小任務 | 完成 Bug 修復或小功能 |
 | **Day 3** | 認識 AI 代理團隊 | 與各代理對話，了解其專長 | 熟悉各代理的用途 |
 | **Day 4** | 完整流程體驗 | 用 BMad Method 規劃一個功能 | 產出 PRD + 架構設計 |
@@ -2786,15 +2931,15 @@ gantt
 #### Day 1 詳細步驟
 
 ```bash
-# 步驟 1：安裝 BMAD-METHOD（需要 Node.js）
-npx bmad-method@alpha install
+# 步驟 1：安裝 BMAD-METHOD（需要 Node.js 20+）
+npx bmad-method install
 
 # 步驟 2：進入專案目錄
 cd your-project
 
-# 步驟 3：初始化 BMAD
-# 在 IDE 中載入任意代理，執行：
-*workflow-init
+# 步驟 3：啟動 BMAD AI 智慧引導
+# 在 IDE 中輸入：
+/bmad-help
 
 # 步驟 4：依照提示選擇適合的流程軌道
 ```
@@ -2873,8 +3018,8 @@ graph LR
 
 | 資源類型 | 資源名稱 | 連結 | 用途 |
 |----------|----------|------|------|
-| 📚 官方文件 | Quick Start Guide | [連結](https://github.com/bmad-code-org/BMAD-METHOD/blob/main/docs/modules/bmm-bmad-method/quick-start.md) | 快速入門 |
-| 📚 官方文件 | Complete Documentation | [連結](https://github.com/bmad-code-org/BMAD-METHOD/blob/main/docs/modules/bmm-bmad-method/index.md) | 完整參考 |
+| 📚 官方文件 | Quick Start Guide | [連結](https://github.com/bmad-code-org/BMAD-METHOD#quick-start) | 快速入門 |
+| 📚 官方文件 | Complete Documentation | [連結](https://github.com/bmad-code-org/BMAD-METHOD/blob/main/docs/) | 完整參考 |
 | 🎬 影片教學 | BMadCode YouTube | [連結](https://www.youtube.com/@BMadCode) | 視覺化學習 |
 | 💬 社群 | Discord Community | [連結](https://discord.gg/gk8jAdXWmj) | 問題討論 |
 | 🛠️ 練習 | Sample Projects | GitHub Samples | 實作練習 |
@@ -3052,9 +3197,9 @@ graph TB
 ## 專案啟動前檢查
 
 ### 環境準備
-- [ ] 已安裝 Node.js（建議 18+）
-- [ ] 已安裝 BMAD-METHOD（`npx bmad-method@alpha install`）
-- [ ] IDE 已設定完成（VS Code / Cursor / Claude Code）
+- [ ] 已安裝 Node.js（建議 20+）
+- [ ] 已安裝 BMAD-METHOD（`npx bmad-method install`）
+- [ ] IDE 已設定完成（Claude Code / Cursor / Windsurf / Kiro）
 - [ ] 團隊成員都有 AI 工具存取權限
 
 ### 專案評估
@@ -3072,78 +3217,76 @@ graph TB
 
 ### B. 各階段完成檢查清單
 
-#### Business 階段檢查清單
+#### Analysis 階段檢查清單
 
 ```markdown
-## Business 階段完成檢查
+## Analysis 階段完成檢查
 
+- [ ] Product Brief 已建立（使用 `CB`）
 - [ ] 問題陳述已明確定義
-- [ ] 利害關係人已識別並分析
+- [ ] 研究與探索已完成（使用 `RS`）
 - [ ] 成功標準已設定（可量測）
-- [ ] 範圍邊界已確認
 - [ ] 利害關係人已核准
 
 ### 產出物檢查
-- [ ] problem-statement.md 已產出
-- [ ] stakeholder-analysis.md 已產出
-- [ ] success-criteria.md 已產出
+- [ ] product-brief.md 已產出
+- [ ] research-notes.md 已產出（選用）
+- [ ] project-context.md 已產出（Brownfield 專案）
 ```
 
-#### Model 階段檢查清單
+#### Planning 階段檢查清單
 
 ```markdown
-## Model 階段完成檢查
+## Planning 階段完成檢查
 
-- [ ] 業務流程圖已繪製
-- [ ] 主流程與例外流程都有涵蓋
-- [ ] 資料模型已設計
-- [ ] 業務規則已定義並確認
-- [ ] 系統邊界已明確
+- [ ] PRD 已建立（使用 `/bmad-bmm-create-prd`）
+- [ ] PRD 已通過驗證（使用 `VP`）
+- [ ] 功能需求已完整定義
+- [ ] 驗收標準已設定
+- [ ] UX 設計已完成（選用）
 
 ### 產出物檢查
-- [ ] business-process.md（含流程圖）已產出
-- [ ] data-model.md（含 ERD）已產出
-- [ ] business-rules.md 已產出
+- [ ] prd.md 已產出
+- [ ] ux-design.md 已產出（選用）
+- [ ] tech-spec.md 已產出（Quick Flow）
 ```
 
-#### Architecture 階段檢查清單
+#### Solutioning 階段檢查清單
 
 ```markdown
-## Architecture 階段完成檢查
+## Solutioning 階段完成檢查
 
-- [ ] 架構風格已評估並決定
-- [ ] 系統架構圖已繪製
+- [ ] 架構設計已完成（使用 `/bmad-bmm-create-architecture`）
 - [ ] 技術選型已完成並記錄
+- [ ] Epic & Story 已拆分（使用 `/bmad-bmm-create-epics-and-stories`）
+- [ ] 實作準備度已檢查（使用 `/bmad-bmm-check-implementation-readiness`）
 - [ ] API 已設計
-- [ ] 非功能需求已處理
-- [ ] 安全設計已完成
+- [ ] 安全設計已完成（Enterprise 適用）
 
 ### 產出物檢查
-- [ ] architecture-design.md 已產出
-- [ ] api-specification.md（或 OpenAPI）已產出
-- [ ] security-design.md 已產出
+- [ ] architecture.md 已產出
+- [ ] epic-*.md 已產出
 - [ ] ADR 文件已建立
 ```
 
-#### Delivery 階段檢查清單
+#### Implementation 階段檢查清單
 
 ```markdown
-## Delivery 階段完成檢查
+## Implementation 階段完成檢查
 
-- [ ] User Stories 已拆分
-- [ ] 驗收標準已定義
-- [ ] Sprint 已規劃
-- [ ] 程式碼已撰寫
+- [ ] Sprint 已規劃（使用 `/bmad-bmm-sprint-planning`）
+- [ ] Story 已建立（使用 `/bmad-bmm-create-story`）
+- [ ] 程式碼已撰寫（使用 `/bmad-bmm-dev-story`）
 - [ ] Code Review 已完成
 - [ ] 測試已執行並通過
 - [ ] 部署已完成
 - [ ] 文件已更新
 
 ### 產出物檢查
-- [ ] user-stories.md 已產出
+- [ ] sprint-backlog.md 已產出
+- [ ] story-*.md 已產出
 - [ ] 程式碼已提交
-- [ ] test-report.md 已產出
-- [ ] deployment-guide.md 已產出
+- [ ] 測試報告已產出
 - [ ] release-notes.md 已產出
 ```
 
@@ -3179,8 +3322,8 @@ graph TB
 ## BMAD 學習進度檢查
 
 ### 第一週
-- [ ] 已完成 BMAD 安裝
-- [ ] 已執行 workflow-init
+- [ ] 已完成 BMAD 安裝（`npx bmad-method install`）
+- [ ] 已執行 `/bmad-help`
 - [ ] 已完成 Quick Flow 練習
 - [ ] 已了解各代理角色
 
@@ -3206,11 +3349,12 @@ graph TB
 | 資源 | 說明 | 連結 |
 |------|------|------|
 | GitHub Repository | BMAD-METHOD 原始碼與文件 | [bmad-code-org/BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD) |
-| Quick Start Guide | 15 分鐘快速入門 | [quick-start.md](https://github.com/bmad-code-org/BMAD-METHOD/blob/main/docs/modules/bmm-bmad-method/quick-start.md) |
-| Complete Documentation | 完整文件索引 | [index.md](https://github.com/bmad-code-org/BMAD-METHOD/blob/main/docs/modules/bmm-bmad-method/index.md) |
-| Agent Customization | 代理客製化指南 | [agent-customization-guide.md](https://github.com/bmad-code-org/BMAD-METHOD/blob/main/docs/bmad-customization/agent-customization-guide.md) |
+| Quick Start Guide | 快速入門指南 | [README Quick Start](https://github.com/bmad-code-org/BMAD-METHOD#quick-start) |
+| Complete Documentation | 完整文件索引 | [docs/](https://github.com/bmad-code-org/BMAD-METHOD/blob/main/docs/) |
+| Agent Customization | 代理客製化指南 | [BMad Builder](https://github.com/bmad-code-org/BMAD-METHOD/blob/main/docs/) |
 | YouTube Channel | 影片教學 | [BMadCode](https://www.youtube.com/@BMadCode) |
 | Discord Community | 社群討論 | [Discord](https://discord.gg/gk8jAdXWmj) |
+| npm Package | 安裝套件 | [bmad-method](https://www.npmjs.com/package/bmad-method) |
 
 ### 延伸閱讀
 
@@ -3225,9 +3369,11 @@ graph TB
 
 | 工具 | 用途 | 連結 |
 |------|------|------|
-| VS Code | IDE | [code.visualstudio.com](https://code.visualstudio.com) |
+| Claude Code | AI 原生開發環境（BMAD 推薦） | [claude.ai](https://claude.ai) |
 | Cursor | AI-first IDE | [cursor.sh](https://cursor.sh) |
-| Claude | AI 助手 | [claude.ai](https://claude.ai) |
+| Windsurf | AI IDE | [windsurf.com](https://windsurf.com) |
+| Kiro | AWS 推出的 AI IDE | [kiro.dev](https://kiro.dev) |
+| VS Code | IDE | [code.visualstudio.com](https://code.visualstudio.com) |
 | Mermaid | 流程圖繪製 | [mermaid.js.org](https://mermaid.js.org) |
 
 ---
@@ -3236,6 +3382,7 @@ graph TB
 
 | 版本 | 日期 | 修改內容 | 作者 |
 |------|------|----------|------|
+| 2.0 | 2026-02 | 全面更新至 BMAD-METHOD v6.0.0-Beta：修正 BMAD 全名為 Breakthrough Method of Agile AI Driven Development、更新四階段為 Analysis/Planning/Solutioning/Implementation、新增 2.7 安裝指南、新增 2.8 官方模組總覽、更新代理名稱（含角色名）、更新安裝指令、更新 slash commands、新增 bmad-help/Party Mode 特性、更新所有檢查清單、更新參考連結 | 教學團隊 |
 | 1.0 | 2025-12-30 | 初版發布 | 教學團隊 |
 
 ---
