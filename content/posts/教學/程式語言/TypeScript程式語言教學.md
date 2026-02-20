@@ -1,5 +1,5 @@
 ﻿+++
-date = '2025-10-31T00:00:00+08:00'
+date = '2026-02-20T00:00:00+08:00'
 draft = false
 title = 'TypeScript程式語言教學'
 tags = ['教學', '程式語言']
@@ -9,7 +9,7 @@ categories = ['教學']
 
 > **適用對象**：新進前端開發同仁  
 > **目標**：快速掌握 TypeScript 在專案中的使用方法與最佳實踐  
-> **更新日期**：2025年8月31日
+> **更新日期**：2026年2月20日
 
 ## 📋 目錄
 
@@ -50,16 +50,22 @@ categories = ['教學']
    - 8.1 [編譯效能優化](#81-編譯效能優化)
    - 8.2 [型別檢查效能](#82-型別檢查效能)
    - 8.3 [打包優化](#83-打包優化)
+   - 8.4 [記憶體使用優化](#84-記憶體使用優化)
 9. [TypeScript 生態系統](#9-typescript-生態系統)
    - 9.1 [開發工具](#91-開發工具)
-   - 9.2 [測試框架](#92-測試框架)
-   - 9.3 [建置工具](#93-建置工具)
+   - 9.2 [建置工具](#92-建置工具)
+   - 9.3 [測試框架](#93-測試框架)
    - 9.4 [型別定義管理](#94-型別定義管理)
 10. [常見問題與解決方案](#10-常見問題與解決方案)
     - 10.1 [編譯錯誤](#101-編譯錯誤)
     - 10.2 [型別推斷問題](#102-型別推斷問題)
     - 10.3 [執行時期問題](#103-執行時期問題)
     - 10.4 [最佳實踐檢查清單](#104-最佳實踐檢查清單)
+11. [TypeScript 6.0 與 7.0 新特性與遷移](#11-typescript-60-與-70-新特性與遷移)
+    - 11.1 [TypeScript 6.0 新特性](#111-typescript-60-新特性)
+    - 11.2 [TypeScript 6.0 重大變更與棄用](#112-typescript-60-重大變更與棄用)
+    - 11.3 [TypeScript 7.0 原生編譯器 (Go 版本)](#113-typescript-70-原生編譯器-go-版本)
+    - 11.4 [從 5.x 遷移至 6.0/7.0 指南](#114-從-5x-遷移至-6070-指南)
 
 ---
 
@@ -75,10 +81,11 @@ TypeScript 是 Microsoft 開發的 JavaScript 超集（superset），為 JavaScr
 | 特性 | JavaScript | TypeScript |
 |------|------------|------------|
 | 型別檢查 | 動態型別（執行時期） | 靜態型別（編譯時期） |
-| 語法 | ES5/ES6+ | ES5/ES6+ + 型別註解 |
+| 語法 | ES2015+ | ES2015+ + 型別註解 |
 | 編譯 | 直接執行 | 需編譯為 JavaScript |
 | 錯誤偵測 | 執行時期 | 開發時期 |
 | IDE 支援 | 基本 | 強大的自動完成與錯誤提示 |
+| 最低編譯目標 | N/A | ES2015（TS 6.0 起已棄用 ES5） |
 
 #### 為什麼使用 TypeScript？
 
@@ -368,17 +375,20 @@ type EventMap = {
 ```json
 {
   "devDependencies": {
-    "typescript": "^5.1.0",
-    "@types/node": "^20.0.0"
+    "typescript": "^5.9.0",
+    "@types/node": "^22.0.0"
   }
 }
 ```
 
+> **重要提示：** TypeScript 6.0 已進入 Beta 階段（截至 2026年2月），而 TypeScript 7.0 將是基於 Go 語言的全新原生編譯器，帶來預計 10 倍的編譯速度提升。TypeScript 6.0 是最後一個基於 JavaScript 的版本，作為 5.9 到 7.0 的過渡橋樑。詳見 [11. TypeScript 6.0 與 7.0 新特性與遷移](#11-typescript-60-與-70-新特性與遷移)。
+
 **版本選擇原則：**
 
-- 使用 LTS（長期支援）版本確保穩定性
-- 定期更新但避免使用最新的 Beta 版本
+- 使用最新穩定版本（目前為 5.9）確保穩定性
+- 可評估採用 TypeScript 6.0 Beta 以提前準備遷移
 - 團隊統一使用相同的 TypeScript 版本
+- 關注 TypeScript 7.0 原生預覽版 (`@typescript/native-preview`) 進展
 
 #### tsconfig.json 專案配置
 
@@ -387,8 +397,8 @@ type EventMap = {
 ```json
 {
   "compilerOptions": {
-    // 編譯目標
-    "target": "ES2020",
+    // 編譯目標（TS 6.0 預設為 es2025）
+    "target": "ES2025",
     "module": "ESNext",
     "moduleResolution": "bundler",
     
@@ -399,7 +409,7 @@ type EventMap = {
     "declarationMap": true,
     "sourceMap": true,
     
-    // 型別檢查設定
+    // 型別檢查設定（TS 6.0 預設 strict: true）
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -407,18 +417,20 @@ type EventMap = {
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
+    "noUncheckedSideEffectImports": true,
     
-    // 模組解析
-    "baseUrl": "./",
+    // 模組解析（TS 6.0 已棄用 baseUrl，改用 paths 直接指定完整路徑）
     "paths": {
-      "@/*": ["src/*"],
-      "@/components/*": ["src/components/*"],
-      "@/utils/*": ["src/utils/*"],
-      "@/types/*": ["src/types/*"]
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/types/*": ["./src/types/*"]
     },
     
-    // 其他設定
-    "allowSyntheticDefaultImports": true,
+    // 明確指定需要的 @types 套件（TS 6.0 預設 types: []）
+    "types": ["node"],
+    
+    // 其他設定（TS 6.0 esModuleInterop 始終啟用）
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -440,16 +452,30 @@ type EventMap = {
 }
 ```
 
+> **TypeScript 6.0 重大預設值變更：**
+> - `strict` 預設為 `true`
+> - `target` 預設為最新 ES 標準版本（目前為 `es2025`）
+> - `module` 預設為 `esnext`
+> - `types` 預設為 `[]`（需明確列出所需的 `@types` 套件）
+> - `rootDir` 預設為 `.`（`tsconfig.json` 所在目錄）
+> - `baseUrl` 已棄用，請直接在 `paths` 中使用完整相對路徑
+> - `moduleResolution: node`（node10）已棄用，請改用 `nodenext` 或 `bundler`
+> - `esModuleInterop` 和 `allowSyntheticDefaultImports` 始終啟用，無法設為 `false`
+
 #### 重要配置說明
 
-| 配置項目 | 說明 | 建議值 |
-|----------|------|--------|
-| `strict` | 啟用所有嚴格型別檢查 | `true` |
-| `noImplicitAny` | 禁止隱式 any 型別 | `true` |
-| `strictNullChecks` | 嚴格檢查 null/undefined | `true` |
-| `noUnusedLocals` | 檢查未使用的變數 | `true` |
-| `noUnusedParameters` | 檢查未使用的參數 | `true` |
-| `exactOptionalPropertyTypes` | 精確檢查可選屬性 | `true` |
+| 配置項目 | 說明 | 建議值 | TS 6.0 預設 |
+|----------|------|--------|-------------|
+| `strict` | 啟用所有嚴格型別檢查 | `true` | `true` |
+| `noImplicitAny` | 禁止隱式 any 型別 | `true` | `true`（含在 strict 中） |
+| `strictNullChecks` | 嚴格檢查 null/undefined | `true` | `true`（含在 strict 中） |
+| `noUnusedLocals` | 檢查未使用的變數 | `true` | `false` |
+| `noUnusedParameters` | 檢查未使用的參數 | `true` | `false` |
+| `exactOptionalPropertyTypes` | 精確檢查可選屬性 | `true` | `false` |
+| `noUncheckedSideEffectImports` | 檢查副作用匯入拼寫 | `true` | `true` |
+| `types` | 指定全域型別套件 | `["node"]` | `[]` |
+| `target` | 編譯目標 | `ES2025` | `es2025` |
+| `moduleResolution` | 模組解析策略 | `bundler` 或 `nodenext` | 依 `module` 推斷 |
 
 ### 2.2 檔案命名規則與專案目錄結構
 
@@ -2880,10 +2906,86 @@ type UserRouteParams = RouteParams<"/users/:id/posts/:postId">;
 
 ### 7.4 裝飾器 (Decorators)
 
-裝飾器是一種特殊的聲明，可以附加到類別、方法、存取器、屬性或參數上。裝飾器使用 `@expression` 語法：
+裝飾器是一種特殊的聲明，可以附加到類別、方法、存取器、屬性或參數上。裝飾器使用 `@expression` 語法。
+
+> **重要提示：** TypeScript 5.0+ 已支援 [TC39 Stage 3 裝飾器](https://github.com/tc39/proposal-decorators)（ECMAScript 標準裝飾器）。舊版的實驗性裝飾器（`experimentalDecorators`）仍可使用，但建議新專案優先採用標準裝飾器。TypeScript 7.0 原生編譯器目前不支援編譯舊版裝飾器語法。
 
 ```typescript
-// 啟用裝飾器（在 tsconfig.json 中設定）
+// 標準裝飾器（TC39 Stage 3，推薦）
+// 不需要在 tsconfig.json 中設定 experimentalDecorators
+
+// 類別裝飾器
+function sealed(target: Function, context: ClassDecoratorContext) {
+  Object.seal(target);
+  Object.seal(target.prototype);
+}
+
+@sealed
+class BugReport {
+  type = "report";
+  title: string;
+
+  constructor(title: string) {
+    this.title = title;
+  }
+}
+
+// 方法裝飾器
+function log(target: Function, context: ClassMethodDecoratorContext) {
+  const methodName = String(context.name);
+
+  function replacementMethod(this: any, ...args: any[]) {
+    console.log(`呼叫方法 ${methodName}，參數:`, args);
+    const result = target.call(this, ...args);
+    console.log(`方法 ${methodName} 回傳:`, result);
+    return result;
+  }
+
+  return replacementMethod;
+}
+
+class Calculator {
+  @log
+  add(a: number, b: number): number {
+    return a + b;
+  }
+}
+
+// 自動存取器裝飾器（accessor 關鍵字）
+function range(min: number, max: number) {
+  return function (target: ClassAccessorDecoratorTarget<any, number>, context: ClassAccessorDecoratorContext) {
+    return {
+      set(value: number) {
+        if (value < min || value > max) {
+          throw new RangeError(`值必須在 ${min} 和 ${max} 之間`);
+        }
+        target.set.call(this, value);
+      },
+      get() {
+        return target.get.call(this);
+      },
+      init(value: number) {
+        if (value < min || value > max) {
+          throw new RangeError(`初始值必須在 ${min} 和 ${max} 之間`);
+        }
+        return value;
+      }
+    };
+  };
+}
+
+class Temperature {
+  @range(-273, 1000)
+  accessor celsius: number = 0;
+}
+```
+
+#### 舊版實驗性裝飾器
+
+若專案仍需使用舊版裝飾器（如 Angular 等框架），需在 `tsconfig.json` 中啟用：
+
+```typescript
+// tsconfig.json 設定（舊版裝飾器）
 {
   "compilerOptions": {
     "experimentalDecorators": true,
@@ -3021,8 +3123,8 @@ class ApiService {
     
     // 模組解析優化
     "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    // 注意：TS 6.0 中 allowSyntheticDefaultImports 已始終啟用，無需設定
     
     // 減少型別檢查負擔
     "isolatedModules": true,
@@ -3263,7 +3365,7 @@ interface ApiResult<T, E = string> {
 }
 ```
 
-### 9.2 測試框架
+### 9.2 建置工具
 
 #### Webpack 整合
 
@@ -3343,7 +3445,7 @@ export default defineConfig({
 });
 ```
 
-### 9.3 建置工具
+### 9.3 測試框架
 
 #### Jest 設定
 
@@ -3495,14 +3597,20 @@ declare namespace API {
 ```typescript
 // 問題：Cannot find module '@/components/Button' or its corresponding type declarations
 
-// 解決方案 1：檢查 tsconfig.json 路徑設定
+// 解決方案 1：檢查 tsconfig.json 路徑設定（TS 6.0 已棄用 baseUrl，直接在 paths 中使用完整路徑）
 {
   "compilerOptions": {
-    "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "@/components/*": ["src/components/*"]
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"]
     }
+  }
+}
+
+// 解決方案 2：確認 types 設定（TS 6.0 預設 types: []）
+{
+  "compilerOptions": {
+    "types": ["node"]  // 明確列出需要的 @types 套件
   }
 }
 
@@ -3556,17 +3664,22 @@ function processValue(value: string | number): string {
 npx tsc --listFiles > compilation-files.txt
 npx tsc --traceResolution > trace.txt
 npx tsc --generateTrace trace-output
+```
 
-# 解決方案
-## 1. 啟用增量編譯
+**解決方案 1：啟用增量編譯**
+
+```json
 {
   "compilerOptions": {
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo"
   }
 }
+```
 
-## 2. 排除不必要的檔案
+**解決方案 2：排除不必要的檔案**
+
+```json
 {
   "exclude": [
     "node_modules",
@@ -3577,8 +3690,11 @@ npx tsc --generateTrace trace-output
     "**/temp/**"
   ]
 }
+```
 
-## 3. 使用專案參考
+**解決方案 3：使用專案參考**
+
+```json
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
@@ -3730,6 +3846,457 @@ npm install --save-dev @types/package-name
 
 ---
 
+## 11. TypeScript 6.0 與 7.0 新特性與遷移
+
+> **背景說明：** TypeScript 6.0（2026 年 2 月 Beta）是最後一個基於 JavaScript 的版本，作為從 5.9 到 7.0 的過渡橋樑。TypeScript 7.0 將是全新的原生編譯器（以 Go 語言重寫），帶來約 10 倍的編譯速度提升和多執行緒支援。
+
+### 11.1 TypeScript 6.0 新特性
+
+#### es2025 目標支援
+
+TypeScript 6.0 新增 `es2025` 作為 `target` 和 `lib` 選項，包含新的內建 API 型別：
+
+```typescript
+// tsconfig.json
+{
+  "compilerOptions": {
+    "target": "es2025",
+    "lib": ["es2025", "dom"]
+  }
+}
+
+// RegExp.escape - 安全地轉義正則表達式字元
+function matchWholeWord(word: string, text: string) {
+  const escapedWord = RegExp.escape(word);
+  const regex = new RegExp(`\\b${escapedWord}\\b`, "g");
+  return text.match(regex);
+}
+
+// 使用範例
+matchWholeWord("hello (world)", "say hello (world) today");
+```
+
+#### Temporal API 型別支援
+
+TypeScript 6.0 內建了 [Temporal API](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal) 的型別定義，透過 `--target esnext` 或 `"lib": ["esnext"]` 即可使用：
+
+```typescript
+// Temporal API - 現代化的日期時間處理
+let yesterday = Temporal.Now.instant().subtract({
+  hours: 24,
+});
+
+let tomorrow = Temporal.Now.instant().add({
+  hours: 24,
+});
+
+console.log(`昨天: ${yesterday}`);
+console.log(`明天: ${tomorrow}`);
+
+// 使用 PlainDate 處理日期
+const today = Temporal.Now.plainDateISO();
+const nextWeek = today.add({ days: 7 });
+console.log(`下週同一天: ${nextWeek}`);
+
+// 使用 ZonedDateTime 處理時區
+const taipeiTime = Temporal.Now.zonedDateTimeISO("Asia/Taipei");
+console.log(`台北時間: ${taipeiTime}`);
+```
+
+#### Map 的 getOrInsert 方法
+
+ECMAScript "upsert" 提案已達到 Stage 4，新增了 `getOrInsert` 和 `getOrInsertComputed` 方法：
+
+```typescript
+// 舊的寫法
+function processOptions(options: Map<string, unknown>) {
+  let strictValue: unknown;
+  if (options.has("strict")) {
+    strictValue = options.get("strict");
+  } else {
+    strictValue = true;
+    options.set("strict", strictValue);
+  }
+}
+
+// ✅ 使用 getOrInsert（TS 6.0 + esnext lib）
+function processOptions(options: Map<string, unknown>) {
+  let strictValue = options.getOrInsert("strict", true);
+  // 如果 "strict" 已存在，返回現有值；否則設定為 true 並返回
+}
+
+// getOrInsertComputed - 延遲計算預設值
+function getConfig(cache: Map<string, Config>, key: string) {
+  return cache.getOrInsertComputed(key, (k) => {
+    // 只有在 key 不存在時才會執行此計算
+    return loadConfigFromDisk(k);
+  });
+}
+```
+
+#### Subpath Imports 支援 `#/` 前綴
+
+Node.js 新增了以 `#/` 開頭的 subpath imports 支援，TypeScript 6.0 在 `node20`、`nodenext` 和 `bundler` 模組解析下支援此功能：
+
+```json
+// package.json
+{
+  "name": "my-package",
+  "type": "module",
+  "imports": {
+    "#": "./dist/index.js",
+    "#/*": "./dist/*"
+  }
+}
+```
+
+```typescript
+// 使用 #/ 前綴取代長相對路徑
+import * as utils from "#/utils.js";
+// 等同於 import * as utils from "../../utils.js";
+```
+
+#### `this`-less 函數的上下文敏感性改善
+
+TypeScript 6.0 改善了使用方法語法但未使用 `this` 的函數推斷：
+
+```typescript
+declare function callIt<T>(obj: {
+  produce: (x: number) => T;
+  consume: (y: T) => void;
+}): void;
+
+// TS 6.0 之前：使用方法語法時順序會影響推斷
+// TS 6.0：如果函數未使用 this，不再被視為上下文敏感，推斷更可靠
+callIt({
+  consume(y) { return y.toFixed(); },  // ✅ TS 6.0 正確推斷 y 為 number
+  produce(x: number) { return x * 2; },
+});
+```
+
+#### DOM lib 整合 dom.iterable
+
+TypeScript 6.0 將 `dom.iterable` 和 `dom.asynciterable` 的內容併入 `dom`：
+
+```typescript
+// TS 6.0 之前需要: "lib": ["dom", "dom.iterable"]
+// TS 6.0 只需要: "lib": ["dom"]
+for (const element of document.querySelectorAll("div")) {
+  console.log(element.textContent);
+}
+```
+
+### 11.2 TypeScript 6.0 重大變更與棄用
+
+> **注意：** 這些棄用可在 TS 6.0 中透過設定 `"ignoreDeprecations": "6.0"` 暫時忽略，但 TypeScript 7.0 將完全移除這些選項。
+
+#### 預設值變更一覽
+
+| 選項 | TS 5.9 預設 | TS 6.0 預設 | 說明 |
+|------|------------|------------|------|
+| `strict` | `false` | `true` | 嚴格模式預設開啟 |
+| `target` | `es5` | `es2025` | 對應最新 ES 標準 |
+| `module` | `commonjs` | `esnext` | ESM 成為主流 |
+| `types` | `["*"]`（自動列舉） | `[]` | 需明確指定 |
+| `rootDir` | 推斷 | `.` | 預設為 tsconfig.json 目錄 |
+| `noUncheckedSideEffectImports` | `false` | `true` | 檢查副作用匯入 |
+| `libReplacement` | `true` | `false` | 改善效能 |
+
+#### 已棄用的選項
+
+```json
+// ❌ 以下選項在 TS 6.0 中已棄用，TS 7.0 將移除
+
+// 1. target: es5 - ES5 目標已棄用
+// 最低支援目標為 ES2015
+{
+  "compilerOptions": {
+    "target": "es5"  // ❌ 棄用，改用 "es2015" 或更高
+  }
+}
+
+// 2. moduleResolution: node (node10) - 已棄用
+{
+  "compilerOptions": {
+    "moduleResolution": "node"  // ❌ 棄用，改用 "nodenext" 或 "bundler"
+  }
+}
+
+// 3. baseUrl - 已棄用
+{
+  "compilerOptions": {
+    "baseUrl": "./src",              // ❌ 棄用
+    "paths": {
+      "@app/*": ["app/*"]            // ❌ 舊寫法
+    }
+  }
+}
+// ✅ 改為直接在 paths 中使用完整路徑
+{
+  "compilerOptions": {
+    "paths": {
+      "@app/*": ["./src/app/*"]      // ✅ 新寫法
+    }
+  }
+}
+
+// 4. module: amd / umd / systemjs - 已棄用
+// 5. outFile - 已棄用（改用外部打包工具）
+// 6. moduleResolution: classic - 已移除
+// 7. downlevelIteration - 已棄用（因 ES5 目標已棄用）
+// 8. alwaysStrict: false - 已棄用（JS 嚴格模式始終啟用）
+```
+
+#### Import 語法變更
+
+```typescript
+// ❌ import assertions 語法已棄用
+import blob from "./data.json" assert { type: "json" };  // ❌ 錯誤
+
+// ✅ 改用 import attributes 語法（with 關鍵字）
+import blob from "./data.json" with { type: "json" };    // ✅ 正確
+```
+
+#### namespace vs module 關鍵字
+
+```typescript
+// ❌ 使用 module 關鍵字定義命名空間已是硬性棄用
+module Foo {             // ❌ 錯誤
+  export const bar = 10;
+}
+
+// ✅ 使用 namespace 關鍵字
+namespace Foo {          // ✅ 正確
+  export const bar = 10;
+}
+
+// ✅ 宣告模組的語法仍然完全支援
+declare module "some-module" {
+  export function doSomething(): void;
+}
+```
+
+### 11.3 TypeScript 7.0 原生編譯器 (Go 版本)
+
+TypeScript 7.0（代號 "Project Corsa"）是以 Go 語言重寫的全新編譯器，截至 2025 年 12 月已取得重大進展。
+
+#### 核心優勢
+
+```
+效能比較（相比 TS 5.9/6.0）：
+┌──────────────────────────────────────────┐
+│ 完整建置速度         約 10x 提升          │
+│ 增量建置速度         大幅提升（具體依專案） │
+│ 記憶體使用           顯著降低             │
+│ 多專案並行建置       ✅ 支援              │
+│ 共享記憶體多執行緒    ✅ 支援              │
+└──────────────────────────────────────────┘
+```
+
+#### 安裝與使用
+
+```bash
+# 安裝原生預覽版本
+npm install -D @typescript/native-preview
+
+# 使用 tsgo 命令（類似 tsc）
+npx tsgo --noEmit
+
+# 與 tsc 並行使用
+npx tsc -b some.tsconfig.json --extendedDiagnostics
+npx tsgo -b some.tsconfig.json --extendedDiagnostics
+
+# VS Code 擴充功能
+# 安裝 "TypeScript Native Preview" 擴充功能以獲得更快的編輯器體驗
+```
+
+#### 已完成的功能（截至 2025 年 12 月）
+
+**編譯器功能：**
+- 型別檢查（約 20,000 測試案例中的高度相容性）
+- `--incremental` 增量編譯
+- 專案參考（Project References）與 `--build` 模式
+- 多專案並行建置
+
+**語言服務功能：**
+- 程式碼自動完成（包含自動匯入）
+- 跳至定義 / 跳至型別定義 / 跳至實作
+- 尋找所有參考 / 重新命名
+- 快速資訊 / 懸停提示
+- 簽名說明 / 格式化
+- 程式碼透鏡 / 呼叫層次結構
+- 缺少匯入的快速修復
+
+#### 已知限制
+
+```typescript
+// 1. JavaScript emit 管線尚未完全完成
+//    - 如果使用 Babel、esbuild 等外部工具轉譯可正常使用
+//    - 原生編譯目標目前最低支援到 es2021
+//    - 尚不支援編譯舊版裝飾器
+
+// 2. --watch 模式可能在某些情境較不高效
+//    替代方案：使用 nodemon + tsgo --incremental
+
+// 3. 不支援 TS 5.x/6.0 的 JavaScript API
+//    - 依賴 TypeScript API 的工具（如 linter）暫不支援
+//    - 可同時安裝 typescript 和 @typescript/native-preview 並行使用
+
+// 4. JavaScript 型別檢查（JSDoc）有差異
+//    - 不再識別 @enum 和 @constructor 標籤
+//    - Object 不再被解讀為 any
+//    - String 不再被解讀為 string
+```
+
+#### 使用標準 LSP 協定
+
+```json
+// TypeScript 7.0 使用標準 LSP 協定取代自訂 TSServer 協定
+// 這意味著任何支援 LSP 的編輯器都能獲得更好的 TypeScript 支援
+
+// VS Code 原生預覽擴充功能可在 VS Code Marketplace 取得
+// 擴充功能名稱：TypeScript Native Preview
+// 發行者：TypeScriptTeam
+```
+
+### 11.4 從 5.x 遷移至 6.0/7.0 指南
+
+#### 步驟 1：評估現有專案
+
+```bash
+# 使用 ts5to6 工具自動調整 tsconfig.json
+npx @andrewbranch/ts5to6 --fixBaseUrl your-tsconfig.json
+npx @andrewbranch/ts5to6 --fixRootDir your-tsconfig.json
+```
+
+#### 步驟 2：更新 tsconfig.json
+
+```json
+// 遷移前（TS 5.x 典型配置）
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "baseUrl": "./src",
+    "paths": {
+      "@app/*": ["app/*"],
+      "@lib/*": ["lib/*"]
+    },
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  }
+}
+
+// 遷移後（TS 6.0 相容配置）
+{
+  "compilerOptions": {
+    "target": "ES2025",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "rootDir": "./src",
+    "paths": {
+      "@app/*": ["./src/app/*"],
+      "@lib/*": ["./src/lib/*"]
+    },
+    "strict": true,
+    "types": ["node"],
+    "esModuleInterop": true,
+    "noUncheckedSideEffectImports": true
+  }
+}
+```
+
+#### 步驟 3：修正常見遷移問題
+
+```typescript
+// 問題 1：types 預設為 [] 導致找不到全域型別
+// 錯誤: Cannot find name 'process' / 'describe' / 'it'
+// 解決: 在 tsconfig.json 中明確指定
+{
+  "compilerOptions": {
+    "types": ["node", "jest"]  // 根據專案需要添加
+  }
+}
+
+// 問題 2：rootDir 預設為 . 導致輸出路徑錯誤
+// 輸出到 dist/src/index.js 而非 dist/index.js
+// 解決: 明確設定 rootDir
+{
+  "compilerOptions": {
+    "rootDir": "./src"
+  }
+}
+
+// 問題 3：import assertions 語法錯誤
+// ❌ 舊語法
+import data from "./config.json" assert { type: "json" };
+// ✅ 新語法
+import data from "./config.json" with { type: "json" };
+
+// 問題 4：namespace 使用 module 關鍵字
+// ❌ 舊語法
+module MyApp { export const version = "1.0"; }
+// ✅ 新語法
+namespace MyApp { export const version = "1.0"; }
+```
+
+#### 步驟 4：嘗試 TypeScript 7.0 原生預覽
+
+```bash
+# 1. 安裝原生預覽版
+npm install -D @typescript/native-preview
+
+# 2. 並行使用進行型別檢查
+npx tsgo --noEmit
+
+# 3. 比較結果
+npx tsc --noEmit        # TS 5.9/6.0 結果
+npx tsgo --noEmit       # TS 7.0 結果
+
+# 4. 使用 --stableTypeOrdering 比較差異
+# （僅用於 6.0 到 7.0 遷移診斷，不建議長期使用）
+npx tsc --stableTypeOrdering --noEmit
+```
+
+#### 遷移檢查清單
+
+- [ ] **tsconfig.json 更新**
+  - [ ] 移除 `baseUrl`，在 `paths` 中使用完整路徑
+  - [ ] 設定明確的 `rootDir`
+  - [ ] 設定明確的 `types` 陣列
+  - [ ] 將 `moduleResolution: node` 改為 `nodenext` 或 `bundler`
+  - [ ] 確認 `target` 不是 `es5`
+  - [ ] 確認 `module` 不是 `amd`/`umd`/`systemjs`
+
+- [ ] **程式碼更新**
+  - [ ] 將 `module` 命名空間語法改為 `namespace`
+  - [ ] 將 `import ... assert` 改為 `import ... with`
+  - [ ] 檢查 `esModuleInterop` 相關的匯入語法
+
+- [ ] **測試驗證**
+  - [ ] 執行 `tsc --noEmit` 確認無編譯錯誤
+  - [ ] 嘗試 `tsgo --noEmit` 驗證 7.0 相容性
+  - [ ] 運行完整測試套件確認功能正常
+
+- [ ] **工具鏈檢查**
+  - [ ] 確認使用的建置工具支援新語法
+  - [ ] 確認 ESLint/Prettier 設定與 TS 6.0 相容
+  - [ ] 安裝 VS Code 原生預覽擴充功能進行體驗評估
+
+---
+
+**本章重點回顧：**
+
+- TypeScript 6.0 是過渡版本，引入大量預設值變更和棄用項目
+- 多個長期使用的選項已棄用：`baseUrl`、`target: es5`、`moduleResolution: node` 等
+- TypeScript 7.0 以 Go 語言重寫，帶來約 10 倍編譯速度提升
+- 使用 `ts5to6` 工具和 `@typescript/native-preview` 逐步準備遷移
+- 新增 Temporal API、`RegExp.escape`、`Map.getOrInsert` 等現代 API 型別支援
+
+---
+
 ## 總結
 
 這份完整的 TypeScript 教學手冊涵蓋了從基礎概念到進階應用的所有重要主題。透過系統性的學習和實踐，開發者能夠充分掌握 TypeScript 的強大功能，提升程式碼品質和開發效率。
@@ -3744,11 +4311,16 @@ npm install --save-dev @types/package-name
 
 - [TypeScript 官方手冊](https://www.typescriptlang.org/docs/)
 - [TypeScript 遊樂場](https://www.typescriptlang.org/play/)
+- [TypeScript 6.0 Beta 公告](https://devblogs.microsoft.com/typescript/announcing-typescript-6-0-beta/)
+- [TypeScript 7.0 進度報告](https://devblogs.microsoft.com/typescript/progress-on-typescript-7-december-2025/)
+- [TypeScript Go 原生編譯器 (GitHub)](https://github.com/nicolo-ribaudo/TypeScript-go)
+- [@typescript/native-preview (npm)](https://www.npmjs.com/package/@typescript/native-preview)
 
 ### 社群資源
 
 - [TypeScript Deep Dive](https://basarat.gitbook.io/typescript/)
 - [Type Challenges](https://github.com/type-challenges/type-challenges)
+- [ts5to6 遷移工具](https://github.com/nicolo-ribaudo/ts5to6)
 
 ### 工具和函式庫
 
@@ -3759,6 +4331,6 @@ npm install --save-dev @types/package-name
 ---
 
 > **文件資訊**  
-> 版本：v2.0  
-> 最後更新：2025年8月31日  
+> 版本：v3.0  
+> 最後更新：2026年2月20日  
 > 作者：開發團隊

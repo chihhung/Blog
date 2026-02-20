@@ -1,5 +1,5 @@
 ﻿+++
-date = '2025-10-31T00:00:00+08:00'
+date = '2026-02-20T00:00:00+08:00'
 draft = false
 title = 'JavaScript程式語言教學'
 tags = ['教學', '程式語言']
@@ -8,10 +8,11 @@ categories = ['教學']
 # JavaScript 程式語言教學手冊
 
 ## 文件資訊
-- **版本**: 1.0
-- **更新日期**: 2025年8月29日
+- **版本**: 2.0
+- **更新日期**: 2026年2月20日
 - **適用對象**: 新進前端開發同仁
 - **專案架構**: 前後端分離 (Vue 3.x / React / Angular)
+- **涵蓋標準**: 至 ECMAScript 2025（ES16）
 
 ---
 
@@ -25,6 +26,11 @@ categories = ['教學']
    - 1.5 [物件與原型鏈](#15-物件與原型鏈)
    - 1.6 [ES6+ 常用語法](#16-es6-常用語法)
    - 1.7 [實務注意事項](#17-實務注意事項)
+   - 1.8 [ES2023-ES2025 新特性](#18-es2023-es2025-新特性)
+     - 1.8.1 [ES2023 新特性](#181-es2023-新特性)
+     - 1.8.2 [ES2024 新特性](#182-es2024-新特性)
+     - 1.8.3 [ES2025 新特性](#183-es2025-新特性)
+     - 1.8.4 [ES2025 瀏覽器支援狀態](#184-es2025-瀏覽器支援狀態)
 
 2. [程式開發規範](#2-程式開發規範)
    - 2.1 [程式碼風格指南](#21-程式碼風格指南)
@@ -59,6 +65,9 @@ categories = ['教學']
    - 6.5 [測試檢查](#65-測試檢查)
    - 6.6 [部署前檢查](#66-部署前檢查)
    - 6.7 [維護檢查](#67-維護檢查)
+   - 6.8 [檢查清單使用範例](#68-檢查清單使用範例)
+
+7. [結語](#結語)
 
 ---
 
@@ -978,7 +987,7 @@ console.log(deepCopy.hobbies);    // ["reading", "coding"]
 
 ### 1.6 ES6+ 常用語法
 
-#### 1.2.1 變數宣告 (let/const)
+#### 1.6.1 變數宣告 (let/const)
 
 **使用原則:**
 - 優先使用 `const` 宣告常數
@@ -1000,7 +1009,7 @@ let isLoading = false;
 var globalVar = 'avoid using var';
 ```
 
-#### 1.2.2 箭頭函式 (Arrow Functions)
+#### 1.6.2 箭頭函式 (Arrow Functions)
 
 **使用時機:**
 - 簡短的函式表達式
@@ -1037,7 +1046,7 @@ const userObject = {
 };
 ```
 
-#### 1.2.3 模板字串 (Template Literals)
+#### 1.6.3 模板字串 (Template Literals)
 
 **使用優勢:**
 - 支援多行字串
@@ -1075,7 +1084,7 @@ const orderSummary = `
 `;
 ```
 
-#### 1.2.4 解構賦值 (Destructuring)
+#### 1.6.4 解構賦值 (Destructuring)
 
 **物件解構:**
 ```javascript
@@ -1146,7 +1155,8 @@ const newUser = createUser({
 
 ### 1.7 實務注意事項
 
-#### 1.3.1 型別檢查最佳實務
+#### 1.7.1 型別檢查最佳實務
+
 ```javascript
 // ✅ 型別檢查範例
 function processUserInput(input) {
@@ -1177,7 +1187,8 @@ function validateUser(user) {
 }
 ```
 
-#### 1.3.2 效能考量
+#### 1.7.2 效能考量
+
 ```javascript
 // ✅ 避免在迴圈中重複計算
 function processItems(items) {
@@ -1195,6 +1206,455 @@ function processItems(items) {
 const userMap = new Map(); // 大量查找操作時比物件更高效
 const uniqueValues = new Set(); // 去重操作
 ```
+
+### 1.8 ES2023-ES2025 新特性
+
+ECMAScript 每年更新一次，以下整理 ES2023、ES2024 與 ES2025（2025 年 6 月由 Ecma 大會正式批准）新增的重要語法與 API。
+
+#### 1.8.1 ES2023 新特性
+
+##### Array findLast / findLastIndex
+
+```javascript
+// ✅ 從陣列尾端開始搜尋（ES2023）
+const numbers = [1, 2, 3, 4, 5, 4, 3];
+
+const lastEven = numbers.findLast(n => n % 2 === 0);
+console.log(lastEven); // 4
+
+const lastEvenIndex = numbers.findLastIndex(n => n % 2 === 0);
+console.log(lastEvenIndex); // 5
+```
+
+##### Change Array by Copy
+
+```javascript
+// ✅ 不修改原始陣列的排序與反轉（ES2023）
+const original = [3, 1, 4, 1, 5];
+
+// toSorted：回傳排序後的新陣列
+const sorted = original.toSorted();
+console.log(sorted);    // [1, 1, 3, 4, 5]
+console.log(original);  // [3, 1, 4, 1, 5]（原始不變）
+
+// toReversed：回傳反轉後的新陣列
+const reversed = original.toReversed();
+console.log(reversed);  // [5, 1, 4, 1, 3]
+
+// toSpliced：回傳刪除/插入後的新陣列
+const spliced = original.toSpliced(1, 2, 9, 8);
+console.log(spliced);   // [3, 9, 8, 1, 5]
+
+// with：回傳指定索引替換後的新陣列
+const replaced = original.with(2, 99);
+console.log(replaced);  // [3, 1, 99, 1, 5]
+```
+
+##### Hashbang Grammar
+
+```javascript
+// ✅ 腳本開頭可使用 hashbang 註解（ES2023）
+#!/usr/bin/env node
+// 直接在終端機執行 Node.js 腳本時更方便
+console.log('Hello from script!');
+```
+
+#### 1.8.2 ES2024 新特性
+
+##### Object.groupBy / Map.groupBy
+
+```javascript
+// ✅ 依條件將陣列分組為物件（ES2024）
+const people = [
+  { name: 'Alice', department: 'Engineering' },
+  { name: 'Bob', department: 'Marketing' },
+  { name: 'Charlie', department: 'Engineering' },
+  { name: 'Diana', department: 'Marketing' },
+];
+
+const grouped = Object.groupBy(people, person => person.department);
+console.log(grouped);
+// {
+//   Engineering: [{ name: 'Alice', ... }, { name: 'Charlie', ... }],
+//   Marketing: [{ name: 'Bob', ... }, { name: 'Diana', ... }]
+// }
+
+// Map.groupBy 可使用物件作為 key
+const mapGrouped = Map.groupBy(people, person => person.department);
+console.log(mapGrouped.get('Engineering'));
+```
+
+##### Promise.withResolvers
+
+```javascript
+// ✅ 更簡潔地取得 resolve/reject 控制權（ES2024）
+const { promise, resolve, reject } = Promise.withResolvers();
+
+// 常用於需要在外部控制 Promise 狀態的情境
+setTimeout(() => resolve('完成！'), 1000);
+
+promise.then(value => console.log(value)); // 1 秒後輸出 "完成！"
+
+// 實務範例：可取消的非同步操作
+function createCancellableRequest(url) {
+  const { promise, resolve, reject } = Promise.withResolvers();
+
+  const controller = new AbortController();
+  fetch(url, { signal: controller.signal })
+    .then(res => res.json())
+    .then(resolve)
+    .catch(reject);
+
+  return {
+    promise,
+    cancel: () => {
+      controller.abort();
+      reject(new Error('請求已取消'));
+    }
+  };
+}
+```
+
+##### 正規表示式 v flag (Unicode Sets)
+
+```javascript
+// ✅ 使用 v flag 支援集合操作和 Unicode 屬性（ES2024）
+// 比對所有表情符號
+const emojiRegex = /\p{RGI_Emoji}/v;
+console.log(emojiRegex.test('😀')); // true
+
+// 集合差集：比對希臘字母中排除特定字元
+const regex = /[\p{Script=Greek}--[αβγ]]/v;
+console.log(regex.test('δ')); // true
+console.log(regex.test('α')); // false
+
+// 集合交集
+const intersection = /[\p{Letter}&&\p{Script=Latin}]/v;
+console.log(intersection.test('a')); // true
+console.log(intersection.test('α')); // false
+```
+
+##### Atomics.waitAsync
+
+```javascript
+// ✅ 非同步等待 SharedArrayBuffer 中的值變更（ES2024）
+const sab = new SharedArrayBuffer(4);
+const i32 = new Int32Array(sab);
+
+// 非同步等待：不阻塞主執行緒
+const result = Atomics.waitAsync(i32, 0, 0);
+if (result.async) {
+  result.value.then(status => {
+    console.log('等待完成，狀態：', status);
+  });
+}
+
+// 在 Worker 中喚醒
+// Atomics.notify(i32, 0);
+```
+
+#### 1.8.3 ES2025 新特性
+
+ECMAScript 2025（第 16 版 ECMA-262）已於 2025 年 6 月 25 日由 Ecma 大會正式批准。以下是全部 9 項新特性：
+
+> 參考來源：[ECMAScript 2025 Finalized](https://socket.dev/blog/ecmascript-2025-finalized)、[TC39 官方規範](https://tc39.es/ecma262/)
+
+##### Iterator Helpers
+
+為迭代器新增一系列 `.map()`、`.filter()`、`.take()` 等函式工具方法，讓惰性求值（lazy evaluation）更加直覺，與陣列方法形成對等。
+
+```javascript
+// ✅ Iterator Helpers（ES2025）
+function* naturals() {
+  let n = 1;
+  while (true) yield n++;
+}
+
+// 使用惰性方法鏈：不會產生無窮陣列
+const result = naturals()
+  .filter(n => n % 2 === 0)   // 只取偶數
+  .map(n => n ** 2)            // 平方
+  .take(5)                     // 只取前 5 個
+  .toArray();                  // 轉為陣列
+
+console.log(result); // [4, 16, 36, 64, 100]
+
+// 其他可用方法
+const iter = [10, 20, 30, 40, 50].values();
+
+// .drop(n)：跳過前 n 個
+console.log(iter.drop(2).toArray()); // [30, 40, 50]
+
+// .forEach()：逐一執行
+[1, 2, 3].values().forEach(v => console.log(v));
+
+// .some() / .every()：條件判斷
+console.log([1, 2, 3].values().some(v => v > 2));  // true
+console.log([1, 2, 3].values().every(v => v > 0)); // true
+
+// .reduce()
+const sum = [1, 2, 3, 4].values().reduce((acc, v) => acc + v, 0);
+console.log(sum); // 10
+
+// .flatMap()
+const nested = [[1, 2], [3, 4]].values().flatMap(arr => arr);
+console.log(nested.toArray()); // [1, 2, 3, 4]
+
+// Iterator.from()：將可迭代物件包裝為迭代器
+const fromIter = Iterator.from([1, 2, 3]);
+console.log(fromIter.take(2).toArray()); // [1, 2]
+```
+
+##### Set Methods
+
+為 `Set.prototype` 新增 `union`、`intersection`、`difference`、`symmetricDifference` 等數學集合操作方法，大幅減少手動迭代的需求。
+
+```javascript
+// ✅ Set Methods（ES2025）
+const frontend = new Set(['JavaScript', 'TypeScript', 'HTML', 'CSS']);
+const backend = new Set(['JavaScript', 'TypeScript', 'Python', 'Go']);
+
+// 聯集 union：兩集合的所有元素
+const all = frontend.union(backend);
+console.log(all);
+// Set {'JavaScript', 'TypeScript', 'HTML', 'CSS', 'Python', 'Go'}
+
+// 交集 intersection：兩集合共有的元素
+const shared = frontend.intersection(backend);
+console.log(shared);
+// Set {'JavaScript', 'TypeScript'}
+
+// 差集 difference：在 A 中但不在 B 中
+const onlyFrontend = frontend.difference(backend);
+console.log(onlyFrontend);
+// Set {'HTML', 'CSS'}
+
+// 對稱差集 symmetricDifference：只在其中一個集合中
+const exclusive = frontend.symmetricDifference(backend);
+console.log(exclusive);
+// Set {'HTML', 'CSS', 'Python', 'Go'}
+
+// 子集檢查 isSubsetOf
+const core = new Set(['JavaScript', 'TypeScript']);
+console.log(core.isSubsetOf(frontend)); // true
+
+// 超集檢查 isSupersetOf
+console.log(frontend.isSupersetOf(core)); // true
+
+// 不相交檢查 isDisjointFrom
+const design = new Set(['Figma', 'Sketch']);
+console.log(design.isDisjointFrom(frontend)); // true
+```
+
+##### Promise.try
+
+`Promise.try(fn)` 將 `fn` 的同步與非同步錯誤統一包裝成 Promise，讓錯誤處理鏈更加一致。此模式長期被 Bluebird 等第三方套件廣泛使用，現已納入標準。
+
+```javascript
+// ✅ Promise.try（ES2025）
+
+// 過去的寫法：若 fn 拋出同步錯誤，需額外包裝
+function oldWay(fn) {
+  return new Promise(resolve => resolve(fn()));
+}
+
+// 現在只需一行
+const result = Promise.try(() => {
+  // 可能是同步或非同步的操作
+  if (Math.random() > 0.5) {
+    return '同步結果';
+  }
+  return fetch('/api/data').then(r => r.json());
+});
+
+result
+  .then(data => console.log('成功:', data))
+  .catch(err => console.error('失敗:', err));
+
+// 實務範例：統一處理不確定是否為非同步的函式
+function executeTask(task) {
+  return Promise.try(() => task())
+    .then(result => {
+      console.log('任務完成:', result);
+      return result;
+    })
+    .catch(error => {
+      console.error('任務失敗:', error);
+      throw error;
+    });
+}
+```
+
+##### JSON Modules
+
+原生支援以 `import` 語法直接匯入 `.json` 檔案作為模組，不再需要自訂 loader 或 `fs.readFileSync`。
+
+```javascript
+// ✅ JSON Modules（ES2025）
+// 匯入 JSON 檔案，需搭配 Import Attributes 使用
+import config from './config.json' with { type: 'json' };
+
+console.log(config.apiUrl);    // "https://api.example.com"
+console.log(config.version);   // "1.0.0"
+
+// 動態匯入
+const packageInfo = await import('./package.json', {
+  with: { type: 'json' }
+});
+console.log(packageInfo.default.name);
+```
+
+##### Import Attributes
+
+`import` 語法現在可以附帶額外的元資料屬性，用於指定模組的類型、打包器最佳化等。這是 JSON Modules 與未來 CSS Modules 等功能的基礎。
+
+```javascript
+// ✅ Import Attributes（ES2025）
+// 靜態匯入 JSON
+import data from './data.json' with { type: 'json' };
+
+// 靜態匯入 CSS（未來可能支援）
+// import styles from './styles.css' with { type: 'css' };
+
+// 動態匯入搭配屬性
+const translations = await import(`./i18n/${lang}.json`, {
+  with: { type: 'json' }
+});
+
+// 重新匯出
+export { default as config } from './config.json' with { type: 'json' };
+```
+
+##### RegExp.escape
+
+安全地轉義字串以用於正規表示式中，解決長期以來需要第三方工具才能做到的需求。
+
+```javascript
+// ✅ RegExp.escape（ES2025）
+const userInput = 'Price is $9.99 (USD)';
+
+// 過去需要手動轉義特殊字元
+function oldEscape(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// 現在只需一行
+const escaped = RegExp.escape(userInput);
+console.log(escaped);
+// "Price\\ is\\ \\$9\\.99\\ \\(USD\\)"
+
+const regex = new RegExp(RegExp.escape(userInput));
+console.log(regex.test('Price is $9.99 (USD)')); // true
+
+// 實務範例：動態搜尋使用者輸入
+function highlightText(text, searchTerm) {
+  const safePattern = RegExp.escape(searchTerm);
+  const regex = new RegExp(`(${safePattern})`, 'gi');
+  return text.replace(regex, '<mark>$1</mark>');
+}
+
+console.log(highlightText('C++ is fun!', 'C++'));
+// "<mark>C++</mark> is fun!"
+```
+
+##### RegExp Modifiers
+
+正規表示式新增 `.modifiers` 屬性，允許在模式內部切換旗標（如 `(?i:...)` 開啟不區分大小寫），提升內省與彈性。
+
+```javascript
+// ✅ RegExp Modifiers（ES2025）
+
+// 內嵌修飾符：在正規表示式內部局部切換旗標
+// (?i:...) 局部開啟不區分大小寫
+const regex = /hello-(?i:world)/;
+console.log(regex.test('hello-World')); // true
+console.log(regex.test('Hello-world')); // false（hello 部分仍區分大小寫）
+
+// (?-i:...) 局部關閉不區分大小寫
+const regex2 = /(?i:hello)-(?-i:World)/;
+console.log(regex2.test('HELLO-World')); // true
+console.log(regex2.test('HELLO-world')); // false
+
+// 支援的修飾符：i（大小寫）、m（多行）、s（dotAll）
+```
+
+##### Duplicate Named Capture Groups
+
+正規表示式現在支援在不同的替代分支中重複使用相同的捕獲群組名稱，讓模式匹配更乾淨、更模組化。
+
+```javascript
+// ✅ Duplicate Named Capture Groups（ES2025）
+
+// 過去不允許在同一個正規表示式中使用相同名稱的群組
+// 現在可以在不同的替代分支 (|) 中重複使用
+
+// 解析日期：支援兩種格式
+const dateRegex = /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})|(?<day>\d{2})\/(?<month>\d{2})\/(?<year>\d{4})/;
+
+const match1 = dateRegex.exec('2025-06-25');
+console.log(match1.groups.year);  // "2025"
+console.log(match1.groups.month); // "06"
+console.log(match1.groups.day);   // "25"
+
+const match2 = dateRegex.exec('25/06/2025');
+console.log(match2.groups.year);  // "2025"
+console.log(match2.groups.month); // "06"
+console.log(match2.groups.day);   // "25"
+
+// 實務範例：解析不同格式的電話號碼
+const phoneRegex = /(?<area>\d{2,3})-(?<number>\d{7,8})|(?<area>\(\d{2,3}\))\s*(?<number>\d{7,8})/;
+```
+
+##### Float16Array
+
+新增 16 位元浮點數的型別陣列，在機器學習、圖形處理等需要高效能記憶體使用的場景中特別有用。
+
+```javascript
+// ✅ Float16Array（ES2025）
+const f16 = new Float16Array([1.5, 2.25, 3.75, 0.1]);
+console.log(f16);          // Float16Array [1.5, 2.25, 3.75, 0.0999...]
+console.log(f16.length);   // 4
+console.log(f16.BYTES_PER_ELEMENT); // 2（每個元素 2 bytes）
+
+// 與 Float32Array / Float64Array 相比
+const f32 = new Float32Array([1.5, 2.25, 3.75]);
+const f64 = new Float64Array([1.5, 2.25, 3.75]);
+
+console.log(f16.byteLength); // 8  (4 * 2 bytes)
+console.log(f32.byteLength); // 12 (4 * 3 bytes)—— 暫不比較
+console.log(f64.byteLength); // 24 (4 * 3 * ...—— 暫不比較)
+
+// 搭配 DataView 使用
+const buffer = new ArrayBuffer(4);
+const view = new DataView(buffer);
+view.setFloat16(0, 3.14);
+console.log(view.getFloat16(0)); // 3.140625（有精度限制）
+
+// Math.f16round：四捨五入至 16 位元浮點數精度
+console.log(Math.f16round(1.337)); // 1.3369140625
+
+// 實務情境：機器學習模型推論
+// 使用 Float16 可在 WebGPU/WebGL 中降低 50% 記憶體使用
+function createModelWeights(size) {
+  return new Float16Array(size); // 節省記憶體
+}
+```
+
+#### 1.8.4 ES2025 瀏覽器支援狀態
+
+| 特性 | Chrome | Firefox | Safari | Node.js |
+|------|--------|---------|--------|---------|
+| Iterator Helpers | ✅ 122+ | ✅ 131+ | ✅ 18.2+ | ✅ 22+ |
+| Set Methods | ✅ 122+ | ✅ 127+ | ✅ 17+ | ✅ 22+ |
+| Promise.try | ✅ 128+ | ✅ 132+ | ✅ 18.2+ | ✅ 23+ |
+| JSON Modules | ✅ 123+ | ✅ 128+ | ✅ 17.2+ | ✅ 22+ |
+| Import Attributes | ✅ 123+ | ✅ 128+ | ✅ 17.2+ | ✅ 22+ |
+| RegExp.escape | ✅ 136+ | ✅ 134+ | ✅ 18.2+ | ✅ 24+ |
+| Float16Array | ✅ 127+ | 🔜 | ✅ 18.2+ | ✅ 23+ |
+| Duplicate Named Captures | ✅ 125+ | ✅ 129+ | ✅ 17.4+ | ✅ 22+ |
+| RegExp Modifiers | ✅ 125+ | 🔜 | ✅ 18+ | ✅ 23+ |
+
+> 📌 以上版本號為初步支援版本，建議以 [Can I Use](https://caniuse.com/) 或 [MDN](https://developer.mozilla.org/) 查詢最新相容性資訊。可使用 [Babel 7.27+](https://babeljs.io/blog/2025/03/24/7.27.0) 進行轉譯。
 
 ---
 
@@ -5488,13 +5948,18 @@ module.exports = {
   - 定期更新，涵蓋最新標準
 
 - **ECMAScript 規範**: https://tc39.es/ecma262/
-  - JavaScript 語言的正式規範
+  - JavaScript 語言的正式規範（ES2025 為第 16 版）
   - 了解語言特性的官方定義
   - 追蹤新功能的提案進度
+  - PDF 版本：https://ecma-international.org/publications-and-standards/standards/ecma-262/
 
 - **TC39 提案**: https://github.com/tc39/proposals
   - JavaScript 新功能的提案狀態
   - 了解未來語言發展方向
+
+- **ECMAScript 2025 新功能摘要**: https://socket.dev/blog/ecmascript-2025-finalized
+  - Iterator Helpers、Set Methods、RegExp.escape 等 9 項新特性
+  - 瀏覽器支援狀態與 Babel 轉譯資訊
 
 #### 5.1.2 瀏覽器相容性
 - **Can I Use**: https://caniuse.com/
@@ -6027,9 +6492,10 @@ checklist.runAllChecks().then(() => {
 
 1. **循序漸進學習**：從基礎概念開始，逐步深入進階主題
 2. **實作導向**：透過實際專案鞏固所學知識
-3. **持續更新**：JavaScript 生態系統快速發展，保持學習熱忱
+3. **持續更新**：JavaScript 生態系統快速發展（ES2025 已於 2025 年 6 月正式納入標準），保持學習熱忱
 4. **代碼品質**：始終堅持編寫乾淨、可維護的程式碼
 5. **安全意識**：將安全性考量融入開發流程的每個環節
+6. **善用新特性**：積極採用 ES2025 新功能（如 Iterator Helpers、Set Methods）提升開發效率
 
 記住，成為優秀的 JavaScript 開發者不僅需要技術能力，更需要良好的問題解決思維和持續學習的態度。
 
@@ -6037,5 +6503,5 @@ checklist.runAllChecks().then(() => {
 
 ---
 
-*本文件最後更新：2025年8月29日*  
+*本文件最後更新：2026年2月20日*  
 *如有問題或建議，請聯繫前端開發團隊*
