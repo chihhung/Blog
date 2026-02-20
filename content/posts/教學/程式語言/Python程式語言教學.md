@@ -11,25 +11,87 @@ categories = ['教學']
 
 1. [Python 基礎入門](#1-python-基礎入門)
    - 1.1 [Python 安裝與環境設置](#11-python-安裝與環境設置)
+     - 1.1.1 [Python 簡介](#111-python-簡介)
+     - 1.1.2 [Windows 系統安裝](#112-windows-系統安裝)
+     - 1.1.3 [Linux 系統安裝](#113-linux-系統安裝)
+     - 1.1.4 [開發環境設置](#114-開發環境設置)
+     - 1.1.5 [專案結構](#115-專案結構)
    - 1.2 [語法基礎](#12-語法基礎)
+     - 1.2.1 [Python 語法規則](#121-python-語法規則)
+     - 1.2.2 [變數與命名規則](#122-變數與命名規則)
+     - 1.2.3 [資料型態](#123-資料型態)
+     - 1.2.4 [運算子](#124-運算子)（含海象運算子 `:=`）
+     - 1.2.5 [型別提示 (Type Hints)](#125-型別提示-type-hints)
    - 1.3 [流程控制](#13-流程控制)
+     - 1.3.1 [條件判斷 (if 語句)](#131-條件判斷-if-語句)
+     - 1.3.1.1 [結構化模式匹配 (match/case)](#1311-結構化模式匹配-matchcase-python-310)
+     - 1.3.2 [迴圈結構](#132-迴圈結構)
+     - 1.3.3 [例外處理](#133-例外處理)（含例外群組 `except*`）
+     - 1.3.4 [進階流程控制](#134-進階流程控制)
    - 1.4 [函式、模組與套件管理](#14-函式模組與套件管理)
+     - 1.4.1 [函式定義與使用](#141-函式定義與使用)
+     - 1.4.2 [模組與套件](#142-模組與套件)
+     - 1.4.3 [套件管理與發布](#143-套件管理與發布)
 
 2. [進階應用](#2-進階應用)
    - 2.1 [面向物件程式設計](#21-面向物件程式設計)
+     - 2.1.1 [類別與物件](#211-類別與物件)
+     - 2.1.2 [封裝與屬性](#212-封裝與屬性)
+     - 2.1.3 [繼承](#213-繼承)
+     - 2.1.4 [多型](#214-多型)
+     - 2.1.5 [特殊方法 (Magic Methods)](#215-特殊方法-magic-methods)
+     - 2.1.6 [資料類別 (dataclasses)](#216-資料類別-dataclasses-python-37)
    - 2.2 [檔案處理與例外處理](#22-檔案處理與例外處理)
+     - 2.2.1 [檔案基本操作](#221-檔案基本操作)
+     - 2.2.2 [進階檔案處理](#222-進階檔案處理)
+     - 2.2.3 [例外處理機制](#223-例外處理機制)
+     - 2.2.4 [上下文管理器](#224-上下文管理器)
    - 2.3 [常用標準函式庫](#23-常用標準函式庫)
+     - 2.3.1 [日期時間處理](#231-日期時間處理)
+     - 2.3.2 [正規表達式](#232-正規表達式)
+     - 2.3.3 [系統操作](#233-系統操作)
+     - 2.3.4 [網路程式設計基礎](#234-網路程式設計基礎)
+     - 2.3.5 [其他重要模組](#235-其他重要模組)
    - 2.4 [測試與除錯](#24-測試與除錯)
+     - 2.4.1 [單元測試基礎](#241-單元測試基礎)
+     - 2.4.2 [進階測試技術](#242-進階測試技術)
+     - 2.4.3 [pytest 框架](#243-pytest-框架)
+     - 2.4.4 [除錯技巧](#244-除錯技巧)
+     - 2.4.5 [測試驅動開發 (TDD)](#245-測試驅動開發-tdd)
+   - 2.5 [Python 現代特性（3.11 ~ 3.15）](#25-python-現代特性311--315)
+     - 2.5.1 [Python 3.11 新特性](#251-python-311-新特性)
+     - 2.5.2 [Python 3.12 新特性](#252-python-312-新特性)
+     - 2.5.3 [Python 3.13 新特性](#253-python-313-新特性)
+     - 2.5.4 [Python 3.14 新特性](#254-python-314-新特性2025-年-10-月發布)
+     - 2.5.5 [Python 3.15 新特性（開發中）](#255-python-315-新特性開發中)
 
 3. [專案實務應用](#3-專案實務應用)
    - 3.1 [程式碼風格與規範](#31-程式碼風格與規範)
+     - 3.1.1 [PEP 8 風格指南](#311-pep-8-風格指南)
+     - 3.1.2 [文件字串與註解](#312-文件字串與註解)
+     - 3.1.3 [程式碼檢查工具](#313-程式碼檢查工具)
+     - 3.1.4 [程式碼品質實務](#314-程式碼品質實務)
    - 3.2 [專案開發實務](#32-專案開發實務)
+     - 3.2.1 [專案結構設計](#321-專案結構設計)
+     - 3.2.2 [版本控制最佳實務](#322-版本控制最佳實務)
+     - 3.2.3 [持續整合與部署](#323-持續整合與部署)
+     - 3.2.4 [專案文件撰寫](#324-專案文件撰寫)
    - 3.3 [團隊協作工具](#33-團隊協作工具)
+     - 3.3.1 [程式碼審查 (Code Review)](#331-程式碼審查-code-review)
+     - 3.3.2 [專案管理工具](#332-專案管理工具)
+     - 3.3.3 [溝通協作工具](#333-溝通協作工具)
+     - 3.3.4 [自動化工具](#334-自動化工具)
 
 4. [Python 認證考試指引](#4-python-認證考試指引)
    - 4.1 [PCEP 認證指引](#41-pcep-認證指引)
+     - 4.1.1 [考試範圍與重點](#411-考試範圍與重點)
+     - 4.1.2 [PCEP 考試技巧](#412-pcep-考試技巧)
    - 4.2 [PCAP 認證指引](#42-pcap-認證指引)
+     - 4.2.1 [考試範圍重點](#421-考試範圍重點)
    - 4.3 [考試準備與技巧](#43-考試準備與技巧)
+     - 4.3.1 [學習路線規劃](#431-學習路線規劃)
+     - 4.3.2 [練習資源](#432-練習資源)
+     - 4.3.3 [考試當天技巧](#433-考試當天技巧)
 
 5. [檢查清單](#5-檢查清單)
 
@@ -57,7 +119,7 @@ Python 是一種高階、直譯式的程式語言，具有以下特點：
 
 ##### 步驟 1：下載 Python
 1. 前往 [Python 官網](https://www.python.org/downloads/)
-2. 下載最新的穩定版本（建議 Python 3.9 以上）
+2. 下載最新的穩定版本（建議 Python 3.12 以上）
 3. 選擇 Windows x86-64 executable installer
 
 ##### 步驟 2：安裝 Python
@@ -184,7 +246,7 @@ my_python_project/
 
 #### ⚠️ 注意事項
 
-1. **版本相容性**：建議使用 Python 3.9 以上版本
+1. **版本相容性**：建議使用 Python 3.12 以上版本
 2. **路徑問題**：確保 Python 已加入 PATH 環境變數
 3. **權限問題**：Linux 系統可能需要 sudo 權限安裝套件
 4. **虛擬環境**：每個專案都應使用獨立的虛擬環境
@@ -546,6 +608,32 @@ text = "Hello, World!"
 has_hello = "Hello" in text        # True
 ```
 
+##### 海象運算子 (Walrus Operator, Python 3.8+)
+```python
+# := 賦值表達式，可在表達式中同時賦值並使用
+# 傳統寫法
+data = input("請輸入資料: ")
+while data != "quit":
+    print(f"你輸入了: {data}")
+    data = input("請輸入資料: ")
+
+# 使用海象運算子簡化
+while (data := input("請輸入資料: ")) != "quit":
+    print(f"你輸入了: {data}")
+
+# 在串列推導式中使用
+import math
+numbers = [2, 5, 10, 20, 50, 100]
+# 計算 log 並同時過濾
+results = [(n, log_n) for n in numbers if (log_n := math.log(n)) > 2]
+print(results)  # [(10, 2.302...), (20, 2.995...), (50, 3.912...), (100, 4.605...)]
+
+# 在條件判斷中使用
+text = "Hello, Python 3.12!"
+if (match := len(text)) > 10:
+    print(f"文字長度 {match}，超過 10 個字元")
+```
+
 #### 💡 實務案例
 
 **型別轉換與驗證：**
@@ -611,6 +699,106 @@ analyze_data({"name": "John", "age": 30})
 #### 🏷️ 認證考試對應
 - **PCEP**: 模組 2 - 資料型態、變數、基本 I/O 操作、運算子
 - **PCAP**: 模組 1 - 控制和評估、資料聚合
+
+---
+
+### 1.2.5 型別提示 (Type Hints)
+
+Python 3.5+ 引入了型別提示，3.9+ 大幅簡化語法，3.12+ 引入了新的型別參數語法。型別提示不會影響執行時行為，但有助於程式碼可讀性和靜態分析。
+
+#### 基本型別標註
+```python
+# 變數型別標註
+name: str = "Alice"
+age: int = 25
+height: float = 165.5
+is_student: bool = True
+
+# 函式參數與回傳值標註
+def greet(name: str, times: int = 1) -> str:
+    return f"Hello, {name}! " * times
+
+def calculate_bmi(weight: float, height: float) -> float:
+    """計算 BMI 指數"""
+    return weight / (height / 100) ** 2
+
+# Python 3.9+: 可直接使用內建型別作為泛型
+numbers: list[int] = [1, 2, 3]
+config: dict[str, str] = {"host": "localhost", "port": "8080"}
+coordinates: tuple[float, float] = (25.0, 121.5)
+unique_ids: set[int] = {1, 2, 3}
+
+# Python 3.10+: 使用 | 取代 Union
+def parse_input(value: str | int) -> str:
+    return str(value)
+
+# Optional 等同於 X | None
+def find_user(user_id: int) -> dict | None:
+    # 可能回傳 None
+    return None
+```
+
+#### 進階型別提示
+```python
+from typing import (
+    Callable, Iterator, Generator,
+    TypeAlias, TypeVar, Generic
+)
+
+# 型別別名
+Vector: TypeAlias = list[float]
+Matrix: TypeAlias = list[Vector]
+
+def dot_product(v1: Vector, v2: Vector) -> float:
+    return sum(a * b for a, b in zip(v1, v2))
+
+# Callable 型別
+Handler: TypeAlias = Callable[[str, int], bool]
+
+def register_handler(name: str, handler: Handler) -> None:
+    pass
+
+# 泛型 (Python 3.12+ 新語法 PEP 695)
+type Point[T] = tuple[T, T]  # Python 3.12+ type 語句
+
+# 等效的傳統寫法
+T = TypeVar("T")
+class Stack(Generic[T]):
+    def __init__(self) -> None:
+        self._items: list[T] = []
+    
+    def push(self, item: T) -> None:
+        self._items.append(item)
+    
+    def pop(self) -> T:
+        return self._items.pop()
+
+# Python 3.12+ 新寫法
+class Stack[T]:
+    def __init__(self) -> None:
+        self._items: list[T] = []
+    
+    def push(self, item: T) -> None:
+        self._items.append(item)
+    
+    def pop(self) -> T:
+        return self._items.pop()
+
+stack = Stack[int]()
+stack.push(42)
+```
+
+#### 使用 mypy 靜態檢查
+```bash
+# 安裝 mypy
+pip install mypy
+
+# 檢查型別
+mypy my_script.py
+
+# 嚴格模式
+mypy --strict my_script.py
+```
 
 ---
 
@@ -692,6 +880,88 @@ def get_discount(is_member):
     return 0.1 if is_member else 0.0
 
 discount = get_discount(True)  # 0.1
+```
+
+#### 1.3.1.1 結構化模式匹配 (match/case, Python 3.10+)
+
+`match/case` 語句提供了比多個 `if-elif-else` 更強大且可讀的分支邏輯：
+
+##### 基本模式匹配
+```python
+# 基本 match/case
+def http_status(status):
+    match status:
+        case 200:
+            return "OK"
+        case 301:
+            return "Moved Permanently"
+        case 404:
+            return "Not Found"
+        case 500:
+            return "Internal Server Error"
+        case _:   # 萬用模式（預設）
+            return f"Unknown status: {status}"
+
+print(http_status(200))  # OK
+print(http_status(999))  # Unknown status: 999
+```
+
+##### 結構化模式 (Structural Patterns)
+```python
+# 匹配序列
+def process_command(command):
+    match command.split():
+        case ["quit"]:
+            print("退出程式")
+        case ["hello", name]:
+            print(f"你好, {name}!")
+        case ["move", direction, steps]:
+            print(f"向 {direction} 移動 {steps} 步")
+        case ["add", *items]:
+            print(f"新增項目: {items}")
+        case _:
+            print(f"未知命令: {command}")
+
+process_command("hello Alice")       # 你好, Alice!
+process_command("move north 5")      # 向 north 移動 5 步
+process_command("add a b c")         # 新增項目: ['a', 'b', 'c']
+```
+
+##### 匹配類別與守衛條件
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: float
+    y: float
+
+def describe_point(point):
+    match point:
+        case Point(x=0, y=0):
+            return "原點"
+        case Point(x=0, y=y):
+            return f"在 Y 軸上, y={y}"
+        case Point(x=x, y=0):
+            return f"在 X 軸上, x={x}"
+        case Point(x=x, y=y) if x == y:
+            return f"在對角線上, x=y={x}"
+        case Point(x=x, y=y):
+            return f"一般點 ({x}, {y})"
+
+print(describe_point(Point(0, 0)))    # 原點
+print(describe_point(Point(3, 3)))    # 在對角線上, x=y=3
+print(describe_point(Point(1, 2)))    # 一般點 (1, 2)
+
+# 匹配字典
+def process_event(event):
+    match event:
+        case {"type": "click", "x": x, "y": y}:
+            print(f"滑鼠點擊 ({x}, {y})")
+        case {"type": "keypress", "key": key}:
+            print(f"按下按鍵: {key}")
+        case {"type": str(t)}:
+            print(f"未處理的事件類型: {t}")
 ```
 
 #### 1.3.2 迴圈結構
@@ -924,6 +1194,41 @@ except AgeError as e:
     print(f"年齡錯誤: {e}")
 except ValueError:
     print("請輸入有效的數字")
+```
+
+##### 例外群組 (Exception Groups, Python 3.11+)
+```python
+# ExceptionGroup 可同時處理多個例外
+def validate_form(data):
+    """驗證表單資料，收集所有錯誤"""
+    errors = []
+    if not data.get("name"):
+        errors.append(ValueError("姓名不能為空"))
+    if not data.get("email") or "@" not in data.get("email", ""):
+        errors.append(ValueError("電子郵件格式無效"))
+    if not isinstance(data.get("age"), int) or data["age"] < 0:
+        errors.append(TypeError("年齡必須是正整數"))
+    
+    if errors:
+        raise ExceptionGroup("表單驗證失敗", errors)
+
+# 使用 except* 捕捉特定類型的例外
+try:
+    validate_form({"name": "", "email": "invalid", "age": -1})
+except* ValueError as eg:
+    print(f"值錯誤 ({len(eg.exceptions)} 個):")
+    for e in eg.exceptions:
+        print(f"  - {e}")
+except* TypeError as eg:
+    print(f"型別錯誤 ({len(eg.exceptions)} 個):")
+    for e in eg.exceptions:
+        print(f"  - {e}")
+
+# Python 3.14+: except 不再需要括號包裹多個例外類型
+# try:
+#     ...
+# except ValueError, TypeError as e:  # Python 3.14+ 新語法
+#     print(e)
 ```
 
 #### 1.3.4 進階流程控制
@@ -1437,8 +1742,9 @@ pip list
 # 顯示套件資訊
 pip show package_name
 
-# 搜尋套件
-pip search keyword
+# 搜尋套件（注意：pip search 已於 2020 年停用）
+# 請改用 https://pypi.org 網站搜尋
+# pip search keyword  # 已停用
 ```
 
 ##### 虛擬環境管理
@@ -2191,6 +2497,83 @@ order_system.attach(sms_notifier)
 
 order_system.set_state("訂單已確認")
 order_system.set_state("商品已出貨")
+```
+
+#### 2.1.6 資料類別 (dataclasses, Python 3.7+)
+
+`dataclasses` 模組可自動產生 `__init__`、`__repr__`、`__eq__` 等方法，大幅簡化資料導向類別的定義：
+
+```python
+from dataclasses import dataclass, field, asdict, astuple
+from typing import ClassVar
+
+@dataclass
+class Product:
+    """產品資料類別"""
+    name: str
+    price: float
+    quantity: int = 0
+    tags: list[str] = field(default_factory=list)
+    
+    # 類別變數（不會成為 __init__ 參數）
+    currency: ClassVar[str] = "TWD"
+    
+    @property
+    def total_value(self) -> float:
+        return self.price * self.quantity
+
+# 自動產生 __init__、__repr__、__eq__
+p1 = Product("筆電", 35000, 5)
+p2 = Product("滑鼠", 500, 10, tags=["周邊", "辦公"])
+print(p1)  # Product(name='筆電', price=35000, quantity=5, tags=[])
+print(p1 == Product("筆電", 35000, 5))  # True
+
+# 轉換為字典或元組
+print(asdict(p1))   # {'name': '筆電', 'price': 35000, ...}
+print(astuple(p2))  # ('滑鼠', 500, 10, ['周邊', '辦公'])
+```
+
+##### 進階 dataclass 功能
+```python
+from dataclasses import dataclass, field
+
+# frozen=True 建立不可變物件（類似 namedtuple）
+@dataclass(frozen=True)
+class Coordinate:
+    latitude: float
+    longitude: float
+
+# 可作為字典的鍵或放入集合
+coord = Coordinate(25.0330, 121.5654)
+locations = {coord: "台北101"}
+
+# slots=True (Python 3.10+) 減少記憶體使用
+@dataclass(slots=True)
+class Point:
+    x: float
+    y: float
+
+# kw_only=True (Python 3.10+) 強制使用關鍵字引數
+@dataclass(kw_only=True)
+class Config:
+    host: str
+    port: int
+    debug: bool = False
+
+config = Config(host="localhost", port=8080)
+
+# __post_init__ 自訂初始化後邏輯
+@dataclass
+class Employee:
+    first_name: str
+    last_name: str
+    full_name: str = field(init=False)
+    
+    def __post_init__(self):
+        self.full_name = f"{self.first_name} {self.last_name}"
+
+emp = Employee("John", "Doe")
+print(emp.full_name)  # John Doe
 ```
 
 #### ⚠️ 注意事項
@@ -3598,6 +3981,319 @@ addopts =
 
 ---
 
+### 2.5 Python 現代特性（3.11 ~ 3.15）
+
+#### 🎯 學習目標
+- 了解 Python 3.11 ~ 3.15 的重要新特性
+- 掌握 f-string 改進、tomllib、free-threaded 模式等功能
+- 認識模板字串（t-string）、懶惰匯入（lazy imports）等前沿特性
+
+#### 2.5.1 Python 3.11 新特性
+
+##### 增強的錯誤訊息
+```python
+# Python 3.11 的錯誤訊息會精確標示問題位置
+# 例如以下程式碼：
+# x = {"a": {"b": {"c": 1}}}
+# print(x["a"]["b"]["d"]["e"])
+#                    ^^^^
+# KeyError: 'd'
+# 箭頭直接指向有問題的鍵
+```
+
+##### tomllib 標準函式庫
+```python
+# Python 3.11+ 內建 TOML 解析器
+import tomllib
+
+# 讀取 TOML 設定檔
+with open("pyproject.toml", "rb") as f:
+    config = tomllib.loads(f.read().decode())
+    # 或使用 tomllib.load(f)
+
+print(config["project"]["name"])
+print(config["project"]["version"])
+
+# 注意：tomllib 只支援讀取，不支援寫入
+# 若需寫入 TOML，請使用第三方套件 tomli-w 或 tomlkit
+```
+
+##### asyncio.TaskGroup
+```python
+import asyncio
+
+async def fetch_data(url: str) -> str:
+    """模擬非同步資料獲取"""
+    await asyncio.sleep(1)
+    return f"Data from {url}"
+
+async def main():
+    # TaskGroup 確保所有任務完成或在錯誤時取消
+    async with asyncio.TaskGroup() as tg:
+        task1 = tg.create_task(fetch_data("https://api.example.com/users"))
+        task2 = tg.create_task(fetch_data("https://api.example.com/products"))
+        task3 = tg.create_task(fetch_data("https://api.example.com/orders"))
+    
+    # 所有任務完成後才會執行到這裡
+    print(task1.result())
+    print(task2.result())
+    print(task3.result())
+
+# asyncio.run(main())
+```
+
+#### 2.5.2 Python 3.12 新特性
+
+##### f-string 改進
+```python
+# Python 3.12+ 允許在 f-string 中使用嵌套引號和反斜線
+members = ["Alice", "Bob", "Charlie"]
+
+# 嵌套引號（3.12 之前需要不同引號類型）
+print(f"Members: {", ".join(members)}")
+
+# f-string 中可使用反斜線
+print(f"Path: {"\\".join(["C:", "Users", "Documents"])}")
+
+# 多行表達式
+matrix = [[1, 2], [3, 4]]
+result = f"Matrix sum: {
+    sum(
+        val
+        for row in matrix
+        for val in row
+    )
+}"
+print(result)  # Matrix sum: 10
+```
+
+##### 型別參數語法 (PEP 695)
+```python
+# Python 3.12+ 新的型別參數語法
+# 舊寫法
+from typing import TypeVar, Generic
+T = TypeVar("T")
+class OldStack(Generic[T]):
+    pass
+
+# Python 3.12+ 新寫法
+class Stack[T]:
+    def __init__(self) -> None:
+        self._items: list[T] = []
+    
+    def push(self, item: T) -> None:
+        self._items.append(item)
+    
+    def pop(self) -> T:
+        return self._items.pop()
+
+# 泛型函式
+def first[T](items: list[T]) -> T:
+    return items[0]
+
+# 型別別名
+type Vector = list[float]
+type Matrix = list[Vector]
+```
+
+#### 2.5.3 Python 3.13 新特性
+
+##### 改進的互動式直譯器 (REPL)
+```python
+# Python 3.13 的新 REPL 功能：
+# - 多行編輯與歷史記錄
+# - 彩色輸出（錯誤訊息、語法高亮）
+# - 支援 help、exit、quit 直接呼叫（不需括號）
+# - 自動縮排
+# - 貼上模式（自動偵測多行程式碼）
+
+# 啟動新 REPL
+# $ python3  (Python 3.13+)
+```
+
+##### Free-threaded CPython（實驗性，PEP 703）
+```python
+# Python 3.13 引入實驗性的 free-threaded 模式（無 GIL）
+# 需要在編譯或安裝時啟用：python3.13t
+# 或設定環境變數：PYTHON_GIL=0
+
+import threading
+import time
+
+def cpu_intensive_task(n):
+    """CPU 密集型任務"""
+    total = 0
+    for i in range(n):
+        total += i ** 2
+    return total
+
+# 在 free-threaded 模式下，多執行緒可真正並行執行 CPU 密集任務
+# 傳統 CPython 受 GIL 限制，多執行緒無法充分利用多核心
+
+# 注意：Python 3.14 正式支援 free-threaded 模式（PEP 779）
+# Python 3.13 中僅為實驗性功能
+```
+
+##### JIT 編譯器（實驗性，PEP 744）
+```python
+# Python 3.13 引入實驗性的 JIT (Just-In-Time) 編譯器
+# 基於 copy-and-patch 技術，可提升部分場景下的執行效能
+
+# 特點：
+# - 自動將熱點程式碼編譯為機器碼
+# - 對大多數程式碼無需任何修改
+# - Python 3.14 擴展支援 Windows 和 macOS
+# - Python 3.15 進一步升級 JIT 效能
+
+# 啟用 JIT（需要特殊建置）：
+# PYTHON_JIT=1 python my_script.py
+```
+
+#### 2.5.4 Python 3.14 新特性（2025 年 10 月發布）
+
+##### 模板字串 (Template Strings / t-strings, PEP 750)
+```python
+# t-string 是 f-string 的延伸，提供結構化的字串處理能力
+# 使用 t"..." 前綴，回傳 Template 物件而非直接產生字串
+
+from string.templatelib import Template, Interpolation
+
+name = "Alice"
+age = 30
+
+# t-string 不會直接產生字串，而是保留結構資訊
+template = t"Hello, {name}! You are {age} years old."
+# template 是 Template 物件，包含靜態文字和插值資訊
+
+# 可用於安全的 HTML 生成、SQL 查詢等
+def html_escape(template: Template) -> str:
+    """安全的 HTML 模板處理"""
+    parts = []
+    for item in template:
+        if isinstance(item, str):
+            parts.append(item)
+        elif isinstance(item, Interpolation):
+            # 對插值進行 HTML 跳脫
+            import html
+            parts.append(html.escape(str(item.value)))
+    return "".join(parts)
+
+# 防止 XSS 攻擊
+user_input = '<script>alert("XSS")</script>'
+safe_html = html_escape(t"<p>User said: {user_input}</p>")
+# 輸出: <p>User said: &lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt;</p>
+```
+
+##### 延遲標註求值 (PEP 649/749)
+```python
+# Python 3.14 將標註（annotations）改為延遲求值
+# 可以在標註中使用尚未定義的名稱
+
+class TreeNode:
+    def __init__(self, value: int, children: list["TreeNode"] | None = None):
+        self.value = value
+        self.children = children or []
+    
+    # 不再需要 from __future__ import annotations
+    def add_child(self, child: "TreeNode") -> None:
+        self.children.append(child)
+
+# 標註在實際需要時才會被求值（如呼叫 typing.get_type_hints()）
+# 這改善了啟動效能並解決了前向參考的問題
+```
+
+##### 多重直譯器 (PEP 734)
+```python
+# Python 3.14 在標準函式庫中加入 interpreters 模組
+# 每個子直譯器有獨立的 GIL，可實現真正的並行
+import interpreters
+
+# 建立子直譯器
+interp = interpreters.create()
+
+# 在子直譯器中執行程式碼
+interp.exec("print('Hello from sub-interpreter!')")
+
+# 子直譯器之間透過 Channel 通訊
+# 每個直譯器有獨立的 GIL → 真正的平行執行
+```
+
+##### Zstandard 壓縮支援 (PEP 784)
+```python
+# Python 3.14 標準函式庫新增 compression.zstd 模組
+import compression.zstd as zstd
+
+# 壓縮資料
+data = b"Hello, World! " * 1000
+compressed = zstd.compress(data)
+print(f"原始大小: {len(data)}, 壓縮後: {len(compressed)}")
+
+# 解壓縮
+decompressed = zstd.decompress(compressed)
+assert decompressed == data
+```
+
+#### 2.5.5 Python 3.15 新特性（開發中）
+
+> ⚠️ Python 3.15 目前處於開發階段，以下特性可能在正式發布時有所變動。
+
+##### 明確懶惰匯入 (PEP 810)
+```python
+# Python 3.15 引入 lazy 關鍵字，支援明確的延遲匯入
+# 模組在首次使用時才真正載入，加速程式啟動
+
+lazy import numpy as np          # 延遲匯入
+lazy from pandas import DataFrame  # 延遲匯入特定名稱
+
+# np 和 DataFrame 在實際使用前不會被載入
+# 這對大型套件（如 numpy、pandas）特別有用
+# 可顯著加速程式啟動時間
+```
+
+##### frozendict 內建型別 (PEP 814)
+```python
+# Python 3.15 引入不可變字典型別
+config = frozendict({"host": "localhost", "port": 8080})
+
+# 不可變 → 可作為字典的鍵或放入集合
+settings_cache = {config: "cached_result"}
+
+# 嘗試修改會拋出 TypeError
+# config["host"] = "remote"  # TypeError
+```
+
+##### 效能分析套件 (PEP 799)
+```python
+# Python 3.15 標準函式庫新增 profiling 套件
+# 包含 Tachyon 取樣分析器
+
+import profiling
+
+# 使用取樣分析器（低開銷）
+with profiling.SamplingProfiler() as profiler:
+    # 執行要分析的程式碼
+    result = sum(i ** 2 for i in range(1000000))
+
+profiler.print_stats()
+```
+
+#### 💡 版本遷移建議
+
+```
+Python 版本選擇建議（2025 年）：
+- 新專案：建議使用 Python 3.12 或 3.13
+- 生產環境：3.12（穩定版）或 3.13
+- 學習/實驗：3.14（享受最新特性）
+
+升級注意事項：
+1. 使用 pyupgrade 自動更新語法
+2. 執行完整測試套件
+3. 檢查第三方套件相容性
+4. 逐步遷移，避免跨多個主要版本
+```
+
+---
+
 ## 3. 專案實務應用
 
 ### 3.1 程式碼風格與規範
@@ -4203,58 +4899,73 @@ my_python_project/
     └── external/
 ```
 
-##### 套件化專案結構
-```python
-# setup.py
-from setuptools import setup, find_packages
+##### 套件化專案結構（現代 pyproject.toml 方式）
 
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+> ℹ️ **說明**：Python 專案現在推薦使用 `pyproject.toml`（PEP 621）來管理專案設定，取代傳統的 `setup.py`。
 
-with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = [line.strip() for line in fh if line.strip()]
+```toml
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
 
-setup(
-    name="my-python-project",
-    version="0.1.0",
-    author="Your Name",
-    author_email="your.email@example.com",
-    description="A sample Python project",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/my-python-project",
-    packages=find_packages(where="src"),
-    package_dir={"": "src"},
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-    ],
-    python_requires=">=3.8",
-    install_requires=requirements,
-    extras_require={
-        "dev": [
-            "pytest>=6.0",
-            "black>=21.0",
-            "flake8>=3.8",
-            "mypy>=0.910",
-        ],
-        "docs": [
-            "sphinx>=4.0",
-            "sphinx-rtd-theme>=0.5",
-        ],
-    },
-    entry_points={
-        "console_scripts": [
-            "myproject=myproject.main:main",
-        ],
-    },
-)
+[project]
+name = "my-python-project"
+version = "0.1.0"
+description = "A sample Python project"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.12"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+dependencies = [
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "black>=24.0",
+    "ruff>=0.4",
+    "mypy>=1.10",
+]
+docs = [
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+]
+
+[project.scripts]
+myproject = "myproject.main:main"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/my-python-project"
+Repository = "https://github.com/yourusername/my-python-project"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+```
+
+> 📝 **傳統 setup.py 方式**（舊專案參考）：
+> 如果需要支援較舊的建置工具，仍可使用 `setup.py`，但新專案強烈建議採用 `pyproject.toml`。
 ```
 
 ##### 配置管理
@@ -4435,13 +5146,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.8, 3.9, '3.10']
+        python-version: ['3.12', '3.13', '3.14']
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     
@@ -4562,12 +5273,12 @@ volumes:
 #### 3.2.4 專案文件撰寫
 
 ##### README.md 範本
-```markdown
+````markdown
 # My Python Project
 
 [![CI/CD](https://github.com/username/project/workflows/CI/badge.svg)](https://github.com/username/project/actions)
 [![codecov](https://codecov.io/gh/username/project/branch/main/graph/badge.svg)](https://codecov.io/gh/username/project)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 
 ## 專案簡介
 
@@ -4583,7 +5294,7 @@ volumes:
 
 ### 環境需求
 
-- Python 3.8+
+- Python 3.12+
 - Git
 
 ### 安裝步驟
@@ -4671,10 +5382,10 @@ black src tests
 - 作者：Your Name
 - Email：your.email@example.com
 - 專案連結：https://github.com/username/project
-```
+````
 
 ##### API 文件範例
-```markdown
+````markdown
 # API 文件
 
 ## 用戶模組
@@ -4722,7 +5433,7 @@ user = authenticate_user("john", "password123")
 if user:
     print(f"歡迎 {user.username}")
 ```
-```
+````
 
 #### 💡 實務案例
 
@@ -5515,7 +6226,7 @@ unique_chars = {char for char in "hello world" if char.isalpha()}
 # 模組匯入方式
 import math
 from math import pi, sqrt
-from math import * as math_all
+from math import *  # 匯入所有公開名稱（不建議在正式程式中使用）
 
 # 套件結構理解
 # mypackage/
@@ -5820,7 +6531,7 @@ class Calculator:
 ### 5.1 環境設置檢查清單
 
 #### Python 環境
-- [ ] Python 3.9+ 已安裝
+- [ ] Python 3.12+ 已安裝
 - [ ] pip 工具可正常使用
 - [ ] 已設定 PATH 環境變數
 - [ ] 虛擬環境工具已準備
