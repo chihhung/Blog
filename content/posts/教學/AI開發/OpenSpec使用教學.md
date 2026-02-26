@@ -2376,16 +2376,16 @@ SA：「我會在 Non-Functional Requirements 補上。」
 #### 分支策略
 
 ```mermaid
-gitgraph
-    commit id: "main"
-    branch feature/add-2fa
-    checkout feature/add-2fa
-    commit id: "建立 Spec 初稿"
-    commit id: "審核後修改"
-    commit id: "開始實作"
-    commit id: "完成實作"
-    checkout main
-    merge feature/add-2fa id: "合併 + 歸檔"
+gitGraph
+   commit id: "初始提交"
+   branch feature/add-2fa
+   checkout feature/add-2fa
+   commit id: "建立 Spec 初稿"
+   commit id: "審核後修改"
+   commit id: "開始實作"
+   commit id: "完成實作"
+   checkout main
+   merge feature/add-2fa id: "合併 + 歸檔"
 ```
 
 **建議的分支命名**：
