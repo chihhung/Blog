@@ -8,9 +8,9 @@ categories = ['教學']
 
 # Spec-Kit 使用教學手冊
 
-> **版本**: 1.1  
-> **最後更新**: 2026年2月  
-> **適用於**: Spec-Kit v0.1.0+ /Spec Kit Templates - 0.0.94 
+> **版本**: 1.2  
+> **最後更新**: 2026年7月  
+> **適用於**: Spec-Kit v0.1.6+ / Spec Kit Templates - 0.1.6  
 > **Created by**: Eric Cheng
 
 ---
@@ -46,6 +46,7 @@ categories = ['教學']
 - [3.5 Step 4:預實作檢查 (/speckit.analyze + /speckit.checklist)](#35-step-4預實作檢查-speckitanalyze--speckitchecklist)
 - [3.6 Step 5:實作 (/speckit.implement)](#36-step-5實作-speckitimplement)
 - [3.7 Step 6:迭代維護](#37-step-6迭代維護)
+- [第三章小結](#第三章小結)
 
 ### [第四章:實務案例與應用指引](#第四章實務案例與應用指引)
 - [4.1 案例一:Greenfield 開發 - 新建交易記錄微服務](#41-案例一greenfield-開發---新建交易記錄微服務)
@@ -53,10 +54,12 @@ categories = ['教學']
 - [4.3 團隊協作:多人開發](#43-團隊協作多人開發)
 - [4.4 AI 助手最佳實踐](#44-ai-助手最佳實踐)
 - [4.5 平台導入建議](#45-平台導入建議)
+- [第四章小結](#第四章小結)
 
 ### [第五章:常見問題與陷阱](#第五章常見問題與陷阱)
 - [5.1 常見問題(FAQ)](#51-常見問題faq)
 - [5.2 常見陷阱與避免方法](#52-常見陷阱與避免方法)
+- [第五章小結](#第五章小結)
 
 ### [第六章:附錄](#第六章附錄)
 - [6.1 完整模板範例](#61-完整模板範例)
@@ -289,6 +292,10 @@ graph TD
 - 📋 **確保品質一致性** - 透過模板、守則、檢查清單強制最佳實務
 - 🔄 **支援迭代演進** - 從 Greenfield(全新開發)到 Brownfield(既有系統)
 
+> 📽️ **影片概覽**:想快速了解 Spec-Kit 的運作方式?觀看官方 [影片介紹](https://www.youtube.com/watch?v=a9eR1xsfvHg)。
+>
+> 📖 **官方文件**: https://github.github.io/spec-kit/
+
 #### 工具組成
 
 **1. Specify CLI (命令列工具)**
@@ -349,7 +356,7 @@ Spec-Kit 提供五大核心模板:
 
 #### 支援的 AI 助手 / 智能代理
 
-Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.0):
+Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.6):
 
 | AI 助手 | CLI Key | 支援狀態 | 類型 | 說明 |
 |---------|---------|---------|------|------|
@@ -365,18 +372,21 @@ Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.0):
 | **Auggie CLI** | `auggie` | ✅ 完整支援 | CLI | Augment Code CLI |
 | **Roo Code** | `roo` | ✅ 完整支援 | IDE | Roo Code IDE |
 | **CodeBuddy** | `codebuddy` | ✅ 完整支援 | CLI | CodeBuddy CLI |
-| **Qoder CLI** | `qoder` | ✅ 完整支援 | CLI | Qoder CLI |
+| **Qoder CLI** | `qodercli` | ✅ 完整支援 | CLI | Qoder CLI |
 | **Amp** | `amp` | ✅ 完整支援 | CLI | Amp CLI |
 | **SHAI** | `shai` | ✅ 完整支援 | CLI | OVHcloud SHAI |
 | **IBM Bob** | `bob` | ✅ 完整支援 | IDE | IBM Bob IDE |
 | **Amazon Q Developer** | `q` | ⚠️ 部分支援 | CLI | 不支援自訂 slash command 參數 |
-| **Jules** | - | ✅ 完整支援 | - | Google Jules |
+| **Jules** | `jules` | ✅ 完整支援 | Agent | Google Jules 非同步 AI 代理 |
+| **Antigravity (agy)** | `agy` | ✅ 完整支援 | CLI | Antigravity AI CLI |
+| **Generic** | `generic` | ✅ 完整支援 | - | 自帶代理,需搭配 `--ai-commands-dir` 指定命令目錄 |
 
 **選擇建議**:
 - 🏢 **企業環境** → GitHub Copilot(已整合至企業工具鏈)
 - 🧠 **複雜推理** → Claude Code(理解力最強)
 - 🚀 **快速開發** → Cursor(專為 AI 設計的編輯器)
 - 🌐 **開源偏好** → opencode、Qwen Code
+- 🔧 **自訂代理** → Generic 模式(搭配 `--ai generic --ai-commands-dir <path>`)
 
 ---
 
@@ -1190,7 +1200,7 @@ specify check
 
 這會檢查:
 - ✅ Git 是否安裝
-- ✅ AI 工具是否可用(claude、gemini、code/code-insiders、cursor-agent、windsurf、qwen、opencode、codex、shai、qoder)
+- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`qwen`、`opencode`、`codex`、`shai`、`qodercli`）
 - ✅ Shell 環境
 
 **Step 4: 檢查版本資訊**
@@ -1210,6 +1220,8 @@ uv tool install specify-cli --force --from git+https://github.com/github/spec-ki
 ```
 
 `--force` 參數會覆蓋現有安裝。
+
+> 📖 完整升級指南請參考：https://github.com/github/spec-kit/blob/main/docs/upgrade.md
 
 #### 卸載(如需要)
 
@@ -1234,14 +1246,16 @@ specify init my-project --ai copilot
 | 參數 | 說明 | 範例 |
 |------|-----|------|
 | `<project-name>` | 專案名稱 | `my-project` 或 `.`(當前目錄) |
-| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`q`、`bob`、`qoder` |
+| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`q`、`bob`、`qodercli`、`agy`、`generic` |
+| `--ai-commands-dir <path>` | 代理命令檔案目錄 | 搭配 `--ai generic` 使用,例如 `.myagent/commands/` |
+| `--ai-skills` | 安裝 Prompt.MD 模板為代理技能 | 在代理專屬 `skills/` 目錄安裝 |
 | `--script <type>` | 腳本類型 | `sh`(bash/zsh)、`ps`(PowerShell) |
 | `--here` | 在當前目錄初始化 | - |
 | `--force` | 強制覆蓋(非空目錄) | - |
 | `--no-git` | 跳過 Git 初始化 | - |
 | `--ignore-agent-tools` | 跳過 AI 工具檢查 | 當 AI CLI 工具未安裝時使用 |
 | `--debug` | 顯示詳細診斷輸出 | 網路或解壓縮失敗時使用 |
-| `--github-token <token>` | GitHub Token | 企業環境 API 請求認證 |
+| `--github-token <token>` | GitHub Token | 企業環境 API 請求認證,或設定 `GH_TOKEN`/`GITHUB_TOKEN` 環境變數 |
 | `--skip-tls` | 跳過 SSL/TLS 驗證 | 不建議於生產環境使用 |
 
 **常見使用場景**:
@@ -1272,6 +1286,31 @@ specify init enterprise-app --ai copilot --script ps
 specify init temp-project --ai claude --no-git
 ```
 
+**場景 5:使用自訂代理(Generic 模式)**
+
+```bash
+specify init my-project --ai generic --ai-commands-dir .myagent/commands/
+```
+
+**場景 6:安裝 AI 代理技能模板**
+
+```bash
+specify init my-project --ai claude --ai-skills
+```
+
+**場景 7:使用 Antigravity (agy)**
+
+```bash
+specify init my-project --ai agy
+```
+
+#### 環境變數
+
+| 變數 | 說明 |
+|------|------|
+| `SPECIFY_FEATURE` | 覆蓋功能偵測,用於非 Git 儲存庫。設定為功能目錄名稱（例如 `001-photo-albums`），以便在未使用 Git 分支時指定特定功能。**必須在使用 `/speckit.plan` 或後續指令之前,在代理上下文中設定。** |
+| `GH_TOKEN` / `GITHUB_TOKEN` | GitHub Token,可替代 `--github-token` 參數 |
+
 #### 產生的目錄結構
 
 初始化後會生成以下結構:
@@ -1279,6 +1318,8 @@ specify init temp-project --ai claude --no-git
 ```text
 my-project/
 ├── .specify/                    # Spec-Kit 配置目錄
+│   ├── memory/                 # 專案記憶體(Context)
+│   │   └── constitution.md    # 專案守則(待建立)
 │   ├── templates/              # 模板檔案
 │   │   ├── spec-template.md   # 規格模板
 │   │   ├── plan-template.md   # 計畫模板
@@ -1288,8 +1329,6 @@ my-project/
 │       └── init.ps1            # PowerShell 初始化腳本
 ├── .github/                     # GitHub 整合(可選)
 │   └── copilot-instructions.md # Copilot 指令說明
-├── memory/                      # 專案記憶體(Context)
-│   └── constitution.md         # 專案守則(待建立)
 ├── specs/                       # 規格文件目錄
 │   └── .gitkeep
 ├── .gitignore
@@ -1356,7 +1395,7 @@ Constitution 是 Spec-Kit 最重要的工件,定義專案的「不可違反」�
 - 效能指標(API 回應時間 < 200ms)
 ```
 
-AI 會產生 `memory/constitution.md` 檔案。
+AI 會產生 `.specify/memory/constitution.md` 檔案。
 
 #### Constitution 範本結構
 
@@ -4771,7 +4810,7 @@ main (生產)
 
 ```text
 feature/us-005-tags/
-├── .speckit/
+├── .specify/
 │   ├── spec.md (更新版)
 │   ├── plan.md (新增 Phase 6)
 │   └── tasks.md (新增 T022-T024)
@@ -4871,7 +4910,7 @@ feature/us-005-tags/
 
 ```bash
 # 所有文件變更都需要 Code Review
-git add .speckit/
+git add .specify/
 git commit -m "docs(spec): add US-005 tag management
 
 - Define tag system requirements
@@ -6144,11 +6183,11 @@ Carol (測試):
 main
   └─ develop
       ├─ feature/US-010-order-creation
-      │   ├─ .speckit/spec.md (共用)
-      │   ├─ .speckit/backend-plan.md (Bob)
-      │   ├─ .speckit/frontend-plan.md (Alice)
-      │   ├─ .speckit/test-plan.md (Carol)
-      │   ├─ .speckit/contracts/ (共用)
+      │   ├─ .specify/spec.md (共用)
+      │   ├─ .specify/backend-plan.md (Bob)
+      │   ├─ .specify/frontend-plan.md (Alice)
+      │   ├─ .specify/test-plan.md (Carol)
+      │   ├─ .specify/contracts/ (共用)
       │   ├─ backend/ (Bob)
       │   ├─ frontend/ (Alice)
       │   └─ tests/ (Carol)
@@ -6227,7 +6266,7 @@ Carol:
 
 ```text
 專案根目錄:
-.speckit/
+.specify/
 ├── spec.md (共用)
 ├── contracts/ (共用)
 │   ├── order-api.md
@@ -6279,7 +6318,7 @@ public void testCreateOrder_ContractCompliance() {
 | **CodeBuddy** | 多功能整合 | 全端開發 | ✅ 支援 |
 | **Amp / Auggie / Kilo Code** | 各有特色 | 特定工作流程 | ✅ 支援 |
 
-> 💡 完整的 18 種支援 AI 助手清單請參考 [1.2 Spec-Kit 概覽](#12-spec-kit-概覽)。
+> 💡 完整的 20 種支援 AI 助手清單請參考 [1.2 Spec-Kit 概覽](#12-spec-kit-概覽)。
 
 #### Prompt Engineering 技巧
 
@@ -6299,7 +6338,7 @@ public void testCreateOrder_ContractCompliance() {
 Context:
 - 已有 spec.md(請參考)
 - 技術棧:Spring Boot 3.1 + PostgreSQL
-- 必須符合 Constitution(請參考 .speckit/constitution.md)
+- 必須符合 Constitution（請參考 .specify/memory/constitution.md）
 - 需整合既有的 UserService 與 PaymentService
 - 效能要求:API 回應時間 < 300ms
 
@@ -7242,8 +7281,11 @@ API 必須一致、版本化、文件化。
 #### 官方資源
 
 - **Spec-Kit GitHub**: https://github.com/github/spec-kit
+- **Spec-Kit 官方文件站**: https://github.github.io/spec-kit/
+- **影片概覽**: https://www.youtube.com/watch?v=a9eR1xsfvHg
 - **Spec-Driven 方法論**: https://github.com/github/spec-kit/blob/main/spec-driven.md
 - **安裝指南**: https://github.com/github/spec-kit/blob/main/docs/installation.md
+- **升級指南**: https://github.com/github/spec-kit/blob/main/docs/upgrade.md
 - **擴充系統文件**: https://github.com/github/spec-kit/tree/main/extensions
 - **AGENTS.md（新增 Agent 指南）**: https://github.com/github/spec-kit/blob/main/AGENTS.md
 - **CHANGELOG**: https://github.com/github/spec-kit/blob/main/CHANGELOG.md
@@ -7327,6 +7369,12 @@ API 必須一致、版本化、文件化。
 # 1. 初始化專案
 specify init my-project --ai copilot
 
+# 1a. 使用自訂代理（Generic 模式）
+specify init my-project --ai generic --ai-commands-dir .myagent/commands/
+
+# 1b. 安裝代理技能模板
+specify init my-project --ai claude --ai-skills
+
 # 2. 檢查環境
 specify check
 
@@ -7389,7 +7437,7 @@ specify extension remove jira
 git checkout -b feature/US-001-user-login
 
 # 撰寫 Spec/Plan
-git add .speckit/
+git add .specify/
 git commit -m "docs(spec): add user login spec (US-001)"
 
 # 實作
@@ -7480,6 +7528,8 @@ npm run test:e2e
 ### 保持聯繫
 
 - **GitHub**: https://github.com/github/spec-kit
+- **官方文件**: https://github.github.io/spec-kit/
+- **影片概覽**: https://www.youtube.com/watch?v=a9eR1xsfvHg
 - **社群討論**: GitHub Discussions
 - **問題回報**: GitHub Issues
 
@@ -7487,7 +7537,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v1.1*  
+*文件版本: v1.2*  
 *最後更新: 2026-02*  
-*適用於: Spec-Kit v0.1.0+ / Spec Kit Templates - 0.0.94*
+*適用於: Spec-Kit v0.1.6+ / Spec Kit Templates - 0.1.6*
 

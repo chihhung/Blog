@@ -2,16 +2,16 @@
 date = '2025-12-31T20:06:08+08:00'
 draft = false
 title = 'OpenSpec使用教學'
-
+lastmod = '2026-02-26T12:00:00+08:00'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
 
 ## OpenSpec 使用教學手冊
 
-> **版本**：2.0  
-> **更新日期**：2026-02-12  
-> **適用版本**：OpenSpec v1.1.0（含 OPSX 工作流程）  
+> **版本**：3.0  
+> **更新日期**：2026-02-26  
+> **適用版本**：OpenSpec v1.2.0（含 Profiles 與 OPSX 工作流程）  
 > **適用對象**：新進軟體工程師、系統分析師、尚未接觸過 SDD 或 OpenSpec 的同仁
 
 ---
@@ -38,7 +38,7 @@ categories = ['教學']
   - [第三章小結](#第三章小結)
 - [第四章：使用 OpenSpec 的標準工作流程](#第四章使用-openspec-的標準工作流程)
   - [4.1 從需求想法到 Spec](#41-從需求想法到-spec)
-  - [4.2 OPSX 工作流程（v1.0+ 新功能）](#42-opsx-工作流程v10-新功能)
+  - [4.2 OPSX 工作流程與 Profiles 系統（v1.2.0）](#42-opsx-工作流程與-profiles-系統v120)
   - [4.3 與 AI 互動修正 Spec 的方式](#43-與-ai-互動修正-spec-的方式)
   - [4.4 Spec 如何驅動設計、程式碼與測試](#44-spec-如何驅動設計程式碼與測試)
   - [第四章小結](#第四章小結)
@@ -85,7 +85,9 @@ categories = ['教學']
 
 在 AI 輔助開發的時代，許多團隊開始使用 GitHub Copilot、Claude、ChatGPT 等工具來加速開發。然而，AI 助手在沒有明確規格的情況下，容易產生不符合需求的程式碼，或是理解偏差導致返工。
 
-**OpenSpec** 是一套 **Spec-Driven Development（SDD，規格驅動開發）** 的方法論與工具，它讓「規格」成為開發的唯一真實來源（Single Source of Truth），確保人類與 AI 在同一個頁面上。OpenSpec 目前支援 **20+ AI 編程助手**（包含 Claude Code、GitHub Copilot、Cursor、Windsurf、Gemini CLI 等），並提供靈活的 OPSX 工作流程，讓開發者可以自由迭代而非被瀑布式流程鎖住。
+**OpenSpec** 是一套 **Spec-Driven Development（SDD，規格驅動開發）** 的方法論與工具，它讓「規格」成為開發的唯一真實來源（Single Source of Truth），確保人類與 AI 在同一個頁面上。OpenSpec 目前支援 **24+ AI 編程助手**（包含 Claude Code、GitHub Copilot、Cursor、Windsurf、Gemini CLI、Pi、Kiro 等），並提供靈活的 OPSX 工作流程與 **Profiles 設定檔系統**，讓開發者可以自由迭代而非被瀑布式流程鎖住。
+
+> 💡 **v1.2.0 新功能**：新增 **Profiles 系統**（`core` / `custom`）、**`/opsx:propose` 一鍵提案指令**、**AI 工具自動偵測**、以及 Pi 與 Kiro 工具支援。
 
 ### 本手冊的目標
 
@@ -190,8 +192,8 @@ graph LR
 | **變更追蹤** | 透過文件對比 | 透過 Delta 差異檔 |
 | **與程式碼關聯** | 分離 | 同一 Repository |
 | **即時性** | 可能過時 | 持續更新（活文件） |
-| **工作流程** | 線性階段式 | OPSX 流動式迭代 |
-| **AI 工具支援** | 無 | 20+ AI 助手原生整合 |
+| **工作流程** | 線性階段式 | OPSX 流動式迭代（含 Profiles） |
+| **AI 工具支援** | 無 | 24+ AI 助手原生整合 |
 
 #### 關鍵差異說明
 
@@ -205,10 +207,11 @@ graph LR
 |---------|----------|-------------------|------------|
 | **設計理念** | 輕量、靈活迭代 | 嚴謹、階段門控 | IDE 整合 |
 | **工作流程** | 流動式，不鎖定階段 | 剛性階段門 | 固定流程 |
-| **AI 工具支援** | 20+ 工具 | 有限 | 僅 Claude |
+| **AI 工具支援** | 24+ 工具 | 有限 | 僅 Claude |
 | **IDE 要求** | 無（任何 IDE） | 無 | 鎖定 Kiro IDE |
 | **既有專案支援** | ✅ 強（brownfield-first） | 偏向新專案 | 偏向新專案 |
 | **自訂 Schema** | ✅ 可自訂工作流程 | ❌ | ❌ |
+| **Profiles** | ✅ core / custom | ❌ | ❌ |
 | **安裝** | npm/pnpm/yarn/bun/nix | Python | IDE 內建 |
 
 > ⚠️ **注意事項**：OpenSpec 不是要取代所有文件，而是作為「開發期間的規格真實來源」。高層次的商業需求文件（如 BRD）仍然需要。
@@ -269,12 +272,19 @@ OpenSpec 初始化後會建立以下結構：
 │   │       ├── tasks.md        # 工作項目
 │   │       └── specs/          # 規格差異（Delta）
 │   └── changes/archive/        # 已完成的變更
-└── .github/prompts/            # GitHub Copilot 技能檔（依工具而異）
+├── .claude/                    # Claude Code 整合（依工具而異）
+│   ├── skills/openspec-*/       # 技能檔
+│   └── commands/opsx/           # OPSX 指令檔
+├── .cursor/                    # Cursor 整合（若已選取）
+│   ├── skills/openspec-*/
+│   └── commands/
+└── .github/prompts/            # GitHub Copilot 整合（若已選取）
+```
 ```
 
 > 💡 **實務建議**：建議在專案初期就導入 OpenSpec，這樣可以從第一天就建立完整的規格歷史。
 >
-> ℹ️ **備註**：`config.yaml` 取代了舊版的 `project.md`，提供更結構化的專案配置方式。AI 工具的 skill 檔案位置依工具而異，例如 Claude Code 使用 `.claude/skills/`，Cursor 使用 `.cursor/prompts/` 等。
+> ℹ️ **備註**：`config.yaml` 取代了舊版的 `project.md`，提供更結構化的專案配置方式。AI 工具的 skill 與 command 檔案位置依工具而異，例如 Claude Code 使用 `.claude/skills/` + `.claude/commands/`，Cursor 使用 `.cursor/skills/` + `.cursor/commands/`，GitHub Copilot 使用 `.github/skills/` + `.github/prompts/` 等。執行 `openspec init` 時會自動偵測你專案中已存在的 AI 工具目錄並預先選取。
 
 ---
 
@@ -1017,9 +1027,33 @@ Spec Delta 描述「這次變更會如何改變現有規格」：
 
 ---
 
-### 4.2 OPSX 工作流程（v1.0+ 新功能）
+### 4.2 OPSX 工作流程與 Profiles 系統（v1.2.0）
 
-> 💡 **重要更新**：OpenSpec v1.0 引入了 OPSX（OpenSpec Experience）工作流程，這是一個**流動式、非線性的工作方式**，取代了舊版的線性三步驟流程。以下是你需要了解的核心改變。
+> 💡 **重要更新**：OpenSpec v1.2.0 引入了 **Profiles 系統**與 **`/opsx:propose` 一鍵提案指令**，大幅簡化了預設工作流程。以下是你需要了解的核心改變。
+
+#### Profiles 設定檔系統（v1.2.0 新功能）
+
+OpenSpec v1.2.0 新增了 **Profiles** 概念，讓你控制安裝哪些工作流程指令：
+
+| Profile | 包含指令 | 適用情境 |
+|---------|---------|---------|
+| **`core`（預設）** | `propose`、`explore`、`apply`、`archive` | 大多數場景，簡單快速 |
+| **`custom`** | 可從全部 11 個指令中自由選取 | 需要精細控制的進階使用者 |
+
+**設定 Profile**：
+
+```bash
+# 互動式設定
+openspec config profile
+
+# 快速切換為 core（預設）
+openspec config profile core
+
+# 套用至專案
+openspec update
+```
+
+> 💡 **建議**：初次使用建議先用 `core` profile，熟悉後再視需要切換至 `custom` 以啟用更多指令。
 
 #### 從舊版到新版的轉變
 
@@ -1030,12 +1064,17 @@ graph LR
         A2 --> A3["/openspec:archive"]
     end
 
-    subgraph OPSX 新版工作流程
-        B1["/opsx:explore"] --> B2["/opsx:new"]
-        B2 --> B3["/opsx:continue<br/>或 /opsx:ff"]
-        B3 --> B4["/opsx:apply"]
-        B4 --> B5["/opsx:verify"]
-        B5 --> B6["/opsx:archive"]
+    subgraph "v1.2.0 Core 預設流程"
+        B1["/opsx:propose"] --> B2["/opsx:apply"]
+        B2 --> B3["/opsx:archive"]
+    end
+
+    subgraph "v1.2.0 Expanded 擴展流程"
+        C1["/opsx:explore"] --> C2["/opsx:new"]
+        C2 --> C3["/opsx:continue<br/>或 /opsx:ff"]
+        C3 --> C4["/opsx:apply"]
+        C4 --> C5["/opsx:verify"]
+        C5 --> C6["/opsx:archive"]
     end
 ```
 
@@ -1044,28 +1083,65 @@ graph LR
 | 舊版 | OPSX 新版 |
 |------|-----------|
 | 線性階段門（Phase Gates） | 流動式動作（Fluid Actions） |
-| 一次建立所有文件 | 逐步建立或快速建立 |
+| 一次建立所有文件 | `/opsx:propose` 一鍵產生 或 逐步建立 |
 | 無法回頭修改 | 任何時候都可以修改任何文件 |
-| 3 個指令 | 10 個指令 + 可自訂 Schema |
+| 3 個指令 | 4 個 core 指令 + 7 個擴展指令 |
 
 #### OPSX 完整指令一覽
 
+**Core 指令（預設 `core` profile）**：
+
 | 指令 | 用途 | 說明 |
 |------|------|------|
+| `/opsx:propose` | **一鍵提案** | 建立變更並產生所有規劃文件（proposal、specs、design、tasks） |
 | `/opsx:explore` | 探索想法 | 在開始變更前，與 AI 討論問題、比較方案 |
+| `/opsx:apply` | 實作任務 | 依據 tasks.md 逐一實作並勾選完成 |
+| `/opsx:archive` | 歸檔變更 | 移動至 archive 目錄，更新主規格 |
+
+**擴展指令（需透過 `openspec config profile` 選取）**：
+
+| 指令 | 用途 | 說明 |
+|------|------|------|
 | `/opsx:new` | 建立新變更 | 建立變更目錄，選擇 workflow schema |
 | `/opsx:continue` | 逐步建立 | 依據相依圖一次建立一個 artifact |
 | `/opsx:ff` | 快速建立 | 一次產生所有規劃文件（Fast-Forward） |
-| `/opsx:apply` | 實作任務 | 依據 tasks.md 逐一實作並勾選完成 |
 | `/opsx:verify` | 驗證實作 | 檢查實作是否符合 spec 與 design |
 | `/opsx:sync` | 同步規格 | 將 delta spec 合併回主規格 |
-| `/opsx:archive` | 歸檔變更 | 移動至 archive 目錄，更新主規格 |
 | `/opsx:bulk-archive` | 批量歸檔 | 一次歸檔多個已完成的變更 |
 | `/opsx:onboard` | 互動教學 | 引導新手完成一個完整的工作流程 |
 
 #### 常見工作流程模式
 
-**模式 1：快速功能（清楚知道要做什麼）**
+**模式 0：最快路徑（`core` profile 預設，推薦）**
+
+```text
+/opsx:propose ──► /opsx:apply ──► /opsx:archive
+```
+
+```text
+You: /opsx:propose add-logout-button
+AI:  Created openspec/changes/add-logout-button/
+     ✓ proposal.md — 變更原因與範圍
+     ✓ specs/       — 需求與情境
+     ✓ design.md    — 技術方案
+     ✓ tasks.md     — 工作項目清單
+     Ready for implementation!
+
+You: /opsx:apply
+AI:  Implementing tasks...
+     ✓ 1.1 新增登出按鈕到 header
+     ✓ 1.2 實作 session 清除邏輯
+     ✓ 1.3 新增確認對話框
+     All tasks complete!
+
+You: /opsx:archive
+AI:  ✓ Archived to openspec/changes/archive/2026-02-26-add-logout-button/
+     Specs updated. Ready for the next feature.
+```
+
+> 💡 `/opsx:propose` 等同於舊版的 `/opsx:new` + `/opsx:ff`，一個指令完成所有規劃文件的建立。
+
+**模式 1：快速功能（擴展模式，清楚知道要做什麼）**
 
 ```text
 /opsx:new add-logout ──► /opsx:ff ──► /opsx:apply ──► /opsx:archive
@@ -1090,14 +1166,14 @@ AI:  Implementing tasks...
      All tasks complete!
 
 You: /opsx:archive
-AI:  ✓ Archived to openspec/changes/archive/2026-02-12-add-logout-button/
+AI:  ✓ Archived to openspec/changes/archive/2026-02-26-add-logout-button/
      Specs updated. Ready for the next feature.
 ```
 
 **模式 2：探索式開發（需要先釐清需求）**
 
 ```text
-/opsx:explore ──► /opsx:new ──► /opsx:continue ──► /opsx:apply ──► /opsx:archive
+/opsx:explore ──► /opsx:propose ──► /opsx:apply ──► /opsx:archive
 ```
 
 ```text
@@ -1114,13 +1190,13 @@ AI:  我們可以分析幾個選項：
 
 You: TOTP 方案聽起來不錯，開始吧
 
-You: /opsx:new add-totp-auth
+You: /opsx:propose add-totp-auth
 AI:  Created openspec/changes/add-totp-auth/
-
-You: /opsx:continue
-AI:  Creating proposal.md...
-     ✓ proposal.md created
-     Next ready: specs, design
+     ✓ proposal.md
+     ✓ specs/
+     ✓ design.md
+     ✓ tasks.md
+     Ready for implementation!
 ```
 
 **模式 3：多變更並行**
@@ -1184,9 +1260,9 @@ AI:  Welcome to OpenSpec!
      
      Phase 1: 分析你的 codebase
      Phase 2: 找到一個改進機會
-     Phase 3: 建立變更 (/opsx:new)
-     Phase 4: 撰寫 proposal
-     Phase 5: 建立 specs
+     Phase 3: 建立變更 (/opsx:propose)
+     Phase 4: 審閱規劃 artifact
+     Phase 5: 實作變更
      ...
      Phase 11: 總結與下一步
 ```
@@ -1284,19 +1360,28 @@ sequenceDiagram
 
 若你使用支援 OpenSpec 的 AI 工具，可使用以下 OPSX 指令：
 
+**Core Profile 指令（預設）：**
+
 | 指令 | 功能 |
 |------|------|
+| `/opsx:propose <名稱>` | 🆕 建立變更並一次產生所有規劃 artifact |
 | `/opsx:explore` | 探索想法，與 AI 討論問題 |
-| `/opsx:new <名稱>` | 建立新的變更 |
+| `/opsx:apply <名稱>` | 開始實作指定的變更 |
+| `/opsx:archive <名稱>` | 歸檔已完成的變更 |
+
+**Expanded Profile 額外指令：**
+
+| 指令 | 功能 |
+|------|------|
+| `/opsx:new <名稱>` | 建立新的變更（不自動產生 artifact） |
 | `/opsx:continue` | 建立下一個 artifact |
 | `/opsx:ff <名稱>` | 快速產生所有規劃文件 |
-| `/opsx:apply <名稱>` | 開始實作指定的變更 |
 | `/opsx:verify <名稱>` | 驗證實作是否符合規格 |
 | `/opsx:sync` | 同步 delta spec 到主規格 |
-| `/opsx:archive <名稱>` | 歸檔已完成的變更 |
+| `/opsx:bulk-archive` | 🆕 批次歸檔多個已完成的變更 |
 | `/opsx:onboard` | 互動式新手教學 |
 
-> ℹ️ **舊版指令**：`/openspec:proposal`、`/openspec:apply`、`/openspec:archive` 仍然有效，但建議使用 OPSX 指令。
+> ℹ️ **Profile 切換**：使用 `openspec config profile` 可在 core 與 custom profile 之間切換。舊版 `/openspec:*` 指令仍然有效，但建議使用 OPSX 指令。
 
 **CLI 指令**：
 
@@ -1322,12 +1407,27 @@ openspec view
 # 歸檔已完成的變更
 openspec archive add-2fa --yes
 
-# 更新 AI 助手設定檔
+# 更新 AI 助手設定檔（含 Profile 同步）
 openspec update
+
+# Profile 管理（v1.2.0 新增）
+openspec config profile              # 互動式切換 core/custom profile
+
+# Schema 管理（v1.2.0 新增）
+openspec schema init                  # 在專案中初始化自訂 schema
+openspec schema fork <name>           # Fork 現有 schema 進行自訂
+openspec schema validate              # 驗證 schema 格式
+openspec schema which                 # 顯示目前使用的 schema
 
 # 查看/修改全域配置
 openspec config list
 openspec config set telemetry.enabled false
+
+# Shell 自動完成
+openspec completion                   # 產生 shell completion 腳本
+
+# 回饋
+openspec feedback                     # 提交使用回饋
 ```
 
 ---
@@ -2590,13 +2690,18 @@ flowchart LR
 | 類型 | 資源 | 說明 |
 |------|------|------|
 | **官方** | [OpenSpec GitHub](https://github.com/Fission-AI/OpenSpec) | 官方文件與範例 |
-| **官方** | [OPSX 工作流程文件](https://github.com/Fission-AI/OpenSpec/blob/main/docs/opsx.md) | OPSX 詳細說明 |
+| **官方** | [Workflows 工作流程](https://github.com/Fission-AI/OpenSpec/blob/main/docs/workflows.md) | 工作流程詳細說明 |
 | **官方** | [CLI 參考文件](https://github.com/Fission-AI/OpenSpec/blob/main/docs/cli.md) | 完整 CLI 指令說明 |
 | **官方** | [Commands 文件](https://github.com/Fission-AI/OpenSpec/blob/main/docs/commands.md) | 完整指令參考 |
+| **官方** | [Concepts 概念](https://github.com/Fission-AI/OpenSpec/blob/main/docs/concepts.md) | 核心概念說明 |
 | **社群** | [OpenSpec Discord](https://discord.gg/YctCnvvshC) | 討論與問答 |
 | **社群** | [@0xTab on X](https://x.com/0xTab) | 官方更新動態 |
 | **相關** | [spec-kit](https://github.com/github/spec-kit) | 另一個 SDD 工具 |
 | **方法論** | BDD (Behavior-Driven Development) | GIVEN-WHEN-THEN 的來源 |
+
+> 💡 **推薦 AI 模型**：根據 OpenSpec 官方建議，使用 **Claude Opus 4.5** 或 **GPT 5.2** 等高效能模型可獲得最佳的 Spec 生成與審閱品質。建議在處理 Spec 撰寫與審閱任務時，優先選擇這些模型。
+
+> ⚠️ **Context 衛生建議**：為獲得最佳 AI 協作體驗，建議在開始新的 OPSX 工作流程前清理 AI 對話的 context（例如開啟新對話），避免前一個任務的殘餘 context 影響 Spec 品質。
 
 ---
 
@@ -2621,10 +2726,10 @@ flowchart LR
   - `yarn global add @fission-ai/openspec@latest`
   - `nix run github:Fission-AI/OpenSpec -- init`
 - [ ] 驗證安裝：`openspec --version` 顯示版本號
-- [ ] 專案已初始化 (`openspec init`)
+- [ ] 專案已初始化 (`openspec init`，支援自動偵測已安裝的 AI 工具)
 - [ ] 已選擇要整合的 AI 工具（init 過程中會提示）
+- [ ] 已設定 Profile（`openspec config profile`，預設為 core）
 - [ ] `openspec/config.yaml` 已填寫專案 context 資訊
-- [ ] 驗證安裝：`openspec --version` 顯示版本號
 - [ ] 驗證 AI 工具整合：在 AI 助手中嘗試 `/opsx:onboard`
 
 ### B. Spec 撰寫檢查清單
@@ -2673,7 +2778,7 @@ flowchart LR
 
 ```bash
 # 初始化
-openspec init                      # 初始化並選擇 AI 工具
+openspec init                      # 初始化並選擇 AI 工具（自動偵測已安裝工具）
 openspec init --tools claude,cursor # 非互動式指定工具
 
 # 查看狀態
@@ -2688,14 +2793,27 @@ openspec new change <name>         # 建立新變更
 openspec validate <change>         # 驗證 Spec 格式
 openspec archive <change> --yes    # 歸檔已完成的變更
 
+# Profile 管理（v1.2.0 新增）
+openspec config profile            # 互動式切換 core/custom profile
+
+# Schema 管理（v1.2.0 新增）
+openspec schema init               # 初始化自訂 schema
+openspec schema fork <name>        # Fork 現有 schema 進行自訂
+openspec schema validate           # 驗證 schema 格式
+openspec schema which              # 顯示目前使用的 schema
+
 # 配置管理
 openspec config list               # 查看所有配置
 openspec config set <key> <value>  # 設定配置值
 openspec config path               # 查看配置檔路徑
 
 # 更新與維護
-openspec update                    # 更新 AI 助手設定
+openspec update                    # 更新 AI 助手設定（含 Profile 同步）
 openspec schemas                   # 查看可用的工作流程 schema
+
+# 其他
+openspec completion                 # 產生 shell 自動完成腳本
+openspec feedback                   # 提交使用回饋
 ```
 
 ### F. 與 AI 對話 Prompt 範本
@@ -2738,27 +2856,29 @@ openspec schemas                   # 查看可用的工作流程 schema
 
 ### G. 支援的 AI 工具清單
 
-OpenSpec v1.1.0 支援 **20+ AI 編程助手**，在執行 `openspec init` 時可選擇要整合的工具：
+OpenSpec v1.2.0 支援 **24+ AI 編程助手**，在執行 `openspec init` 時可選擇要整合的工具（支援自動偵測已安裝工具）：
 
-| 工具 | ID | Slash Command 格式 |
-|------|----|--------------------|
+| 工具 | ID | Skill/Command 格式 |
+|------|----|---------------------|
 | Amazon Q Developer | `amazon-q` | `@openspec-*` |
 | Antigravity | `antigravity` | `/openspec-*` |
 | Auggie (Augment CLI) | `auggie` | `/openspec-*` |
-| Claude Code | `claude` | `/opsx:*` |
+| Claude Code | `claude` | Skills: `.claude/skills/` + Commands: `.claude/commands/` |
 | Cline | `cline` | Workflows |
 | CodeBuddy | `codebuddy` | `/openspec:*` |
 | Codex | `codex` | `/openspec-*` |
 | Continue | `continue` | `/openspec-*` |
 | CoStrict | `costrict` | `/openspec-*` |
 | Crush | `crush` | `/openspec-*` |
-| Cursor | `cursor` | `/openspec-*` |
+| Cursor | `cursor` | Skills: `.cursor/skills/` + Commands: `.cursor/commands/` |
 | Factory Droid | `factory` | `/openspec-*` |
 | Gemini CLI | `gemini` | `/openspec:*` |
 | GitHub Copilot | `github-copilot` | `/openspec-*` |
 | iFlow | `iflow` | `/openspec-*` |
 | Kilo Code | `kilocode` | `/openspec-*.md` |
+| **Kiro** 🆕 | `kiro` | Skills + Commands |
 | OpenCode | `opencode` | `/openspec-*` |
+| **Pi** 🆕 | `pi` | Skills + Commands |
 | Qoder | `qoder` | `/openspec-*` |
 | Qwen | `qwen` | `/openspec-*` |
 | RooCode | `roocode` | `/openspec-*` |
@@ -2778,7 +2898,9 @@ openspec init --tools all
 openspec init --tools none
 ```
 
-> 💡 每個工具會產生 10 個 skill 檔案，對應 OPSX 的 10 個指令。工具的 skill 檔案路徑依工具而異（如 Claude 使用 `.claude/skills/`，GitHub Copilot 使用 `.github/prompts/`）。
+> 💡 每個工具會產生對應的 skill 與 command 檔案。在 **core profile** 下產生 4 個指令檔（propose、explore、apply、archive），在 **custom profile** 下可產生最多 11 個指令檔。工具的 skill 檔案路徑依工具而異（如 Claude 使用 `.claude/skills/`，GitHub Copilot 使用 `.github/prompts/`）。
+
+> ℹ️ 使用 `openspec update` 更新時，會自動移除已取消選擇的工作流程檔案（sync prune）。
 
 ---
 
@@ -2791,11 +2913,15 @@ openspec init --tools none
 | OpenSpec GitHub | https://github.com/Fission-AI/OpenSpec |
 | OpenSpec npm | https://www.npmjs.com/package/@fission-ai/openspec |
 | OpenSpec Discord | https://discord.gg/YctCnvvshC |
-| OPSX 工作流程文件 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/opsx.md |
+| 🆕 Getting Started | https://github.com/Fission-AI/OpenSpec/blob/main/docs/getting-started.md |
+| 🆕 Workflows 工作流程 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/workflows.md |
+| 🆕 Concepts 概念說明 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/concepts.md |
+| Commands 指令參考 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/commands.md |
 | CLI 參考 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/cli.md |
-| 指令參考 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/commands.md |
 | 支援工具清單 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/supported-tools.md |
 | 安裝指南 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/installation.md |
+| 🆕 Multi-Language 多語言 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/multi-language.md |
+| 🆕 Customization 自訂 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md |
 | @0xTab on X | https://x.com/0xTab |
 
 ### 相關工具
@@ -2820,10 +2946,10 @@ openspec init --tools none
 | 項目 | 內容 |
 |------|------|
 | **文件名稱** | OpenSpec 使用教學手冊 |
-| **版本** | 2.0 |
+| **版本** | 3.0 |
 | **建立日期** | 2025-12-30 |
-| **更新日期** | 2026-02-12 |
-| **適用版本** | OpenSpec v1.1.0 |
+| **更新日期** | 2026-02-26 |
+| **適用版本** | OpenSpec v1.2.0 |
 | **維護者** | [Eric Cheng] |
 | **適用對象** | 新進軟體工程師、系統分析師 |
 
