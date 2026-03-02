@@ -8,9 +8,9 @@ categories = ['教學']
 
 # Spec-Kit 使用教學手冊
 
-> **版本**: 1.2  
-> **最後更新**: 2026年7月  
-> **適用於**: Spec-Kit v0.1.6+ / Spec Kit Templates - 0.1.6  
+> **版本**: 1.3  
+> **最後更新**: 2025年7月  
+> **適用於**: Spec-Kit v0.1.10+ / Spec Kit Templates - 0.1.10  
 > **Created by**: Eric Cheng
 
 ---
@@ -42,6 +42,7 @@ categories = ['教學']
 - [3.1 Step 1:撰寫 Spec (/speckit.specify)](#31-step-1撰寫-spec-speckitspecify)
 - [3.2 Step 1a:澄清模糊需求 (/speckit.clarify)](#32-step-1a澄清模糊需求-speckitclarify)
 - [3.3 Step 2:撰寫 Plan (/speckit.plan)](#33-step-2撰寫-plan-speckitplan)
+- [3.3a Step 2a:驗證 Plan (Plan Validation)](#33a-step-2a驗證-plan-plan-validation)
 - [3.4 Step 3:拆分 Tasks (/speckit.tasks)](#34-step-3拆分-tasks-speckittasks)
 - [3.5 Step 4:預實作檢查 (/speckit.analyze + /speckit.checklist)](#35-step-4預實作檢查-speckitanalyze--speckitchecklist)
 - [3.6 Step 5:實作 (/speckit.implement)](#36-step-5實作-speckitimplement)
@@ -356,7 +357,7 @@ Spec-Kit 提供五大核心模板:
 
 #### 支援的 AI 助手 / 智能代理
 
-Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.6):
+Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.10):
 
 | AI 助手 | CLI Key | 支援狀態 | 類型 | 說明 |
 |---------|---------|---------|------|------|
@@ -653,7 +654,7 @@ CREATE TABLE photos (
 
 ### 1.4 流程概覽:SDD 的階段/步驟
 
-完整的 SDD 流程包含六個主要步驟:
+完整的 SDD 流程包含七個主要步驟:
 
 ```mermaid
 %%{init: {'theme':'dark'}}%%
@@ -664,7 +665,10 @@ graph TB
     Step1a -->|是| Clarify[Clarify<br/>澄清需求]
     Clarify --> Step1
     Step1a -->|否| Step2[Step 2: Plan<br/>技術規劃]
-    Step2 --> Step3[Step 3: Tasks<br/>拆分任務]
+    Step2 --> Step2a[Step 2a: Validate<br/>驗證計畫]
+    Step2a --> Step2b{計畫OK?}
+    Step2b -->|需修正| Step2
+    Step2b -->|通過| Step3[Step 3: Tasks<br/>拆分任務]
     Step3 --> Step4[Step 4: Analyze<br/>一致性檢查]
     Step4 --> Step4a{發現問題?}
     Step4a -->|是| Fix[修正 Spec/Plan]
@@ -679,6 +683,7 @@ graph TB
     style Step0 fill:#6b5419,stroke:#a08028,color:#fff
     style Step1 fill:#1a4d5c,stroke:#2d7a8f,color:#fff
     style Step2 fill:#2d5016,stroke:#4a7c23,color:#fff
+    style Step2a fill:#3d5c1a,stroke:#5a8c2d,color:#fff
     style Step3 fill:#4a2d5c,stroke:#6f4389,color:#fff
     style Step5 fill:#6b5d19,stroke:#a08f28,color:#fff
     style End fill:#2d5016,stroke:#4a7c23,color:#fff
@@ -692,6 +697,7 @@ graph TB
 | **Step 1: Specify** | `/speckit.specify` | `spec.md` | PM、產品負責人 | 30 分鐘-2 小時 |
 | **Step 1a: Clarify** | `/speckit.clarify` | 補充的 `spec.md` | PM + AI 對話 | 15-30 分鐘 |
 | **Step 2: Plan** | `/speckit.plan` | `plan.md`、`data-model.md`、`contracts/` | 架構師、資深開發 | 1-3 小時 |
+| **Step 2a: Validate** | (AI 審核) | 修正後的 `plan.md`、`research.md` | 架構師 + AI 對話 | 15-30 分鐘 |
 | **Step 3: Tasks** | `/speckit.tasks` | `tasks.md` | 開發領導 | 30 分鐘-1 小時 |
 | **Step 4: Analyze** | `/speckit.analyze` | 分析報告 | 品質保證 | 15 分鐘 |
 | **Step 5: Implement** | `/speckit.implement` | 程式碼、測試 | 開發團隊 + AI | 依任務量 |
@@ -941,7 +947,7 @@ AI: 拆分 Tasks、生成程式碼
 1. **SDD 反轉權力結構** - 規格是真相,程式碼是產物
 2. **Spec-Kit 提供工具組** - CLI、模板、AI 指令、品質把關
 3. **五大核心工件** - Constitution → Spec → Plan → Tasks → Implementation
-4. **六步驟流程** - Constitution → Specify → Plan → Tasks → Analyze → Implement → Iterate
+4. **七步驟流程** - Constitution → Specify → Clarify → Plan → Validate → Tasks → Analyze → Implement → Iterate
 5. **特別適合複雜系統** - 多資料庫、微服務、批次作業、團隊協作、AI 輔助
 
 **📌 實務建議**
@@ -1870,6 +1876,88 @@ git commit -m "Add custom spec template for batch jobs"
 
 - 將自訂模板推送到共用倉庫
 - 新專案從模板倉庫複製
+
+#### 模板驅動的品質保證（Template-Driven Quality）
+
+Spec-Kit 模板不只是格式範本，更是一套**約束 LLM 行為**的品質保證機制。以下是七種關鍵的品質約束方式（參考 [spec-driven.md](https://github.com/github/spec-kit/blob/main/spec-driven.md)）：
+
+**1. 防止過早決定實作細節**
+
+模板明確指示：
+
+```text
+- ✅ 聚焦於使用者需要什麼（WHAT）和為什麼（WHY）
+- ❌ 避免描述如何實作（不提技術棧、API、程式碼結構）
+```
+
+這確保規格在技術選擇變更時仍然穩定。
+
+**2. 強制標記不確定性**
+
+模板要求使用 `[NEEDS CLARIFICATION]` 標記：
+
+```text
+1. 標記所有模糊處：使用 [NEEDS CLARIFICATION: 具體問題]
+2. 不要猜測：若需求未說明，必須標記
+```
+
+防止 AI 自行做出「看似合理但可能錯誤」的假設。
+
+**3. 透過檢查清單進行結構化思考**
+
+模板內建品質檢查清單（如「規格的單元測試」）：
+
+```markdown
+### Requirement Completeness
+- [ ] 無 [NEEDS CLARIFICATION] 殘留
+- [ ] 需求可測試且無歧義
+- [ ] 成功標準可量化
+```
+
+**4. 透過 Gates 強制 Constitution 合規**
+
+```markdown
+### Phase -1: Pre-Implementation Gates
+#### Simplicity Gate (Article VII)
+- [ ] 使用 ≤ 3 個專案？
+- [ ] 無過度設計？
+
+#### Anti-Abstraction Gate (Article VIII)
+- [ ] 直接使用框架特性？
+- [ ] 單一模型表示？
+```
+
+**5. 分層資訊管理**
+
+模板強制適當的抽象層級：
+
+```text
+**重要**: 實作計畫應保持高層次且可讀。
+任何程式碼範例、詳細演算法或大量技術規格
+必須放在 implementation-details/ 目錄中。
+```
+
+**6. 測試優先思維**
+
+實作模板強制 Test-First 開發：
+
+```text
+### 檔案建立順序
+1. 建立 contracts/ 目錄（API 規格）
+2. 依序建立測試：contract → integration → e2e → unit
+3. 建立原始碼使測試通過
+```
+
+**7. 防止推測性功能**
+
+模板明確阻止推測：
+
+```text
+- [ ] 無推測性或「可能需要」的功能
+- [ ] 所有階段有明確的先決條件與交付物
+```
+
+> 💡 **複合效果**：這七種約束共同作用，使 AI 從「創意寫手」轉變為「紀律嚴明的規格工程師」，產出一致、完整、可執行的規格文件。
 
 ---
 
@@ -3497,13 +3585,118 @@ graph LR
 
 ---
 
+### 3.3a Step 2a:驗證 Plan (Plan Validation)
+
+在產生 Plan 後、拆分 Tasks 之前，應讓 AI 助手驗證 Plan 的完整性與正確性。此步驟對應 GitHub Spec-Kit 官方流程中的 **STEP 5: Have the AI validate the plan**。
+
+#### 為什麼需要驗證 Plan
+
+- 🔍 AI 可能在規劃階段遺漏關鍵步驟或引入不必要的複雜度
+- 🏗️ 確保實作計畫涵蓋所有需求，且步驟銜接合理
+- ⚠️ AI 助手可能「過度積極」加入未被要求的元件（over-engineering）
+- 📋 確保 Plan 符合 Constitution 的所有條款
+
+#### 執行方式
+
+**1. 請 AI 審核實作計畫**
+
+```text
+現在我希望你審核實作計畫以及相關的實作細節文件。
+仔細閱讀計畫，判斷是否有遺漏的步驟或缺少的資訊。
+例如，在核心實作部分中，是否有引用到實作細節文件中對應的位置，
+以便在執行每一步時可以找到必要資訊。
+```
+
+**2. 檢查是否存在過度工程**
+
+```text
+請檢查 Plan 中是否有過度設計的部分（over-engineering）。
+確保 AI 遵循 Constitution 中的簡約原則（Article VII: Simplicity）
+和反抽象原則（Article VIII: Anti-Abstraction）。
+若有不必要的複雜度，請簡化。
+```
+
+**3. 交叉驗證 Constitution 合規性**
+
+```text
+請依據 .specify/memory/constitution.md 逐條檢查 Plan：
+1. 所有 Pre-Implementation Gates 是否通過？
+2. 是否有違反 Constitution 的技術選擇？
+3. 例外是否已記錄並經核准？
+```
+
+**4.（選用）建立 Pull Request 追蹤**
+
+若已安裝 [GitHub CLI](https://docs.github.com/en/github-cli/github-cli)，可請 AI 從當前分支建立 PR 到 `main`，附帶詳細說明，以追蹤計畫審核進度。
+
+#### 驗證檢查清單
+
+```markdown
+## Plan Validation Checklist
+
+### 完整性
+- [ ] 所有 User Stories 在 Plan 中有對應的實作階段
+- [ ] 所有 NFR 有具體的實作策略
+- [ ] API Contracts 完整定義（Request/Response/Error）
+- [ ] Data Model 涵蓋所有 Spec 中提到的實體
+
+### 正確性
+- [ ] 技術選擇有充分理由且不違反 Constitution
+- [ ] 實作階段順序合理（依賴關係正確）
+- [ ] 測試策略覆蓋所有關鍵路徑
+- [ ] 風險評估合理且緩解措施可行
+
+### 簡約性
+- [ ] 無過度設計（Article VII: Simplicity）
+- [ ] 無不必要的抽象層（Article VIII: Anti-Abstraction）
+- [ ] 依賴最小化
+- [ ] Phase -1 Gates 全數通過
+
+### 一致性
+- [ ] Plan 與 Spec 的 Acceptance Criteria 對齊
+- [ ] 所引用的 research.md 內容準確
+- [ ] 無矛盾的技術決策
+```
+
+#### 實務建議
+
+**1. 不要將 AI 的第一版 Plan 當作最終版**
+
+AI 產生的 Plan 是起點而非終點。至少進行一輪驗證與修正：
+
+```text
+第一輪：產生 Plan（/speckit.plan）
+第二輪：驗證與修正（本步驟）
+第三輪：確認後才進入 Tasks
+```
+
+**2. 針對快速變化的技術棧進行研究**
+
+如果 Plan 使用了快速迭代的框架（如 .NET Aspire、Next.js 等），應請 AI 進行補充研究：
+
+```text
+請檢查 Plan 中使用的技術棧版本是否為最新穩定版。
+針對不確定的部分，更新 research.md 並標註具體版本。
+```
+
+**3. 確認 research.md 的有效性**
+
+```text
+請閱讀 research.md，確認其中的技術調研結論仍然有效。
+特別留意已被棄用的 API 或程式庫版本。
+```
+
+> 💡 **完成 Plan Validation 後，即可進入下一步：拆分 Tasks。**
+
+---
+
 ### 3.4 Step 3:拆分 Tasks (/speckit.tasks)
 
 將 Plan 拆解成可執行的具體任務。
 
 #### 何時使用 Tasks
 
-- ✅ Plan 已完成並經審查
+- ✅ Plan 已完成並經審查（包括 Plan Validation）
 - ✅ 準備開始實作
 - ✅ 需要分配工作給團隊成員
 - ✅ 需要估算時間與追蹤進度
@@ -3514,7 +3707,7 @@ graph LR
 /speckit.tasks
 ```
 
-(不需參數,AI 會讀取當前功能的 Plan 與相關文件)
+(不需參數，AI 會讀取當前功能的 Plan 與相關文件)
 
 #### AI 助手會做什麼
 
@@ -4925,13 +5118,14 @@ Related: US-005
 
 ## 第三章小結
 
-經過 6 個步驟,你已經完整走過一個 SDD 循環:
+經過 7 個步驟,你已經完整走過一個 SDD 循環:
 
 | 步驟 | 工具 | 產出 | 驗證 |
 |------|------|------|------|
 | 1. 撰寫 Spec | /speckit.specify | spec.md | 需求明確性 |
 | 1a. 澄清需求 | /speckit.clarify | (更新 spec.md) | 消除模糊 |
 | 2. 撰寫 Plan | /speckit.plan | plan.md | Constitution 合規 |
+| 2a. 驗證 Plan | AI 審核對話 | 修正後 plan.md | 完整性、正確性、簡約性 |
 | 3. 拆分 Tasks | /speckit.tasks | tasks.md | 可執行性 |
 | 4. 預實作檢查 | /speckit.analyze, /speckit.checklist | 分析報告 | 一致性 |
 | 5. 實作 | /speckit.implement | 程式碼 + 測試 | 測試通過 |
@@ -7537,7 +7731,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v1.2*  
-*最後更新: 2026-02*  
-*適用於: Spec-Kit v0.1.6+ / Spec Kit Templates - 0.1.6*
+*文件版本: v1.3*  
+*最後更新: 2025-07*  
+*適用於: Spec-Kit v0.1.10+ / Spec Kit Templates - 0.1.10*
 
