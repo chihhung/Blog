@@ -8,9 +8,9 @@ categories = ['教學']
 
 # Spec-Kit 使用教學手冊
 
-> **版本**: 1.3  
+> **版本**: 1.4  
 > **最後更新**: 2025年7月  
-> **適用於**: Spec-Kit v0.1.10+ / Spec Kit Templates - 0.1.10  
+> **適用於**: Spec-Kit v0.1.13+ / Spec Kit Templates - 0.1.13  
 > **Created by**: Eric Cheng
 
 ---
@@ -357,7 +357,7 @@ Spec-Kit 提供五大核心模板:
 
 #### 支援的 AI 助手 / 智能代理
 
-Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.10):
+Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.13):
 
 | AI 助手 | CLI Key | 支援狀態 | 類型 | 說明 |
 |---------|---------|---------|------|------|
@@ -374,20 +374,21 @@ Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.10):
 | **Roo Code** | `roo` | ✅ 完整支援 | IDE | Roo Code IDE |
 | **CodeBuddy** | `codebuddy` | ✅ 完整支援 | CLI | CodeBuddy CLI |
 | **Qoder CLI** | `qodercli` | ✅ 完整支援 | CLI | Qoder CLI |
+| **Kiro CLI** | `kiro-cli` | ✅ 完整支援 | CLI | AWS Kiro CLI（別名：`kiro`） |
 | **Amp** | `amp` | ✅ 完整支援 | CLI | Amp CLI |
 | **SHAI** | `shai` | ✅ 完整支援 | CLI | OVHcloud SHAI |
-| **IBM Bob** | `bob` | ✅ 完整支援 | IDE | IBM Bob IDE |
-| **Amazon Q Developer** | `q` | ⚠️ 部分支援 | CLI | 不支援自訂 slash command 參數 |
+| **IBM Bob** | `bob` | ✅ 完整支援 | IDE | IBM Bob IDE,支援 slash command |
 | **Jules** | `jules` | ✅ 完整支援 | Agent | Google Jules 非同步 AI 代理 |
 | **Antigravity (agy)** | `agy` | ✅ 完整支援 | CLI | Antigravity AI CLI |
 | **Generic** | `generic` | ✅ 完整支援 | - | 自帶代理,需搭配 `--ai-commands-dir` 指定命令目錄 |
 
 **選擇建議**:
-- 🏢 **企業環境** → GitHub Copilot(已整合至企業工具鏈)
-- 🧠 **複雜推理** → Claude Code(理解力最強)
-- 🚀 **快速開發** → Cursor(專為 AI 設計的編輯器)
+- 🏢 **企業環境** → GitHub Copilot（已整合至企業工具鏈）
+- 🧠 **複雜推理** → Claude Code（理解力最強）
+- 🚀 **快速開發** → Cursor（專為 AI 設計的編輯器）
 - 🌐 **開源偏好** → opencode、Qwen Code
-- 🔧 **自訂代理** → Generic 模式(搭配 `--ai generic --ai-commands-dir <path>`)
+- 📋 **規劃導向** → Kiro CLI（搭配 `--ai kiro-cli`）
+- 🔧 **自訂代理** → Generic 模式（搭配 `--ai generic --ai-commands-dir <path>`）
 
 ---
 
@@ -1206,7 +1207,7 @@ specify check
 
 這會檢查:
 - ✅ Git 是否安裝
-- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`qwen`、`opencode`、`codex`、`shai`、`qodercli`）
+- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`qwen`、`opencode`、`codex`、`kiro-cli`、`shai`、`qodercli`）
 - ✅ Shell 環境
 
 **Step 4: 檢查版本資訊**
@@ -1252,7 +1253,7 @@ specify init my-project --ai copilot
 | 參數 | 說明 | 範例 |
 |------|-----|------|
 | `<project-name>` | 專案名稱 | `my-project` 或 `.`(當前目錄) |
-| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`q`、`bob`、`qodercli`、`agy`、`generic` |
+| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（別名：`kiro`）、`bob`、`qodercli`、`agy`、`generic` |
 | `--ai-commands-dir <path>` | 代理命令檔案目錄 | 搭配 `--ai generic` 使用,例如 `.myagent/commands/` |
 | `--ai-skills` | 安裝 Prompt.MD 模板為代理技能 | 在代理專屬 `skills/` 目錄安裝 |
 | `--script <type>` | 腳本類型 | `sh`(bash/zsh)、`ps`(PowerShell) |
@@ -1308,6 +1309,14 @@ specify init my-project --ai claude --ai-skills
 
 ```bash
 specify init my-project --ai agy
+```
+
+**場景 8:使用 Kiro CLI**
+
+```bash
+specify init my-project --ai kiro-cli
+# 或使用別名
+specify init my-project --ai kiro
 ```
 
 #### 環境變數
@@ -5122,6 +5131,7 @@ Related: US-005
 
 | 步驟 | 工具 | 產出 | 驗證 |
 |------|------|------|------|
+| 0. 建立守則 | /speckit.constitution | constitution.md | 團隊共識 |
 | 1. 撰寫 Spec | /speckit.specify | spec.md | 需求明確性 |
 | 1a. 澄清需求 | /speckit.clarify | (更新 spec.md) | 消除模糊 |
 | 2. 撰寫 Plan | /speckit.plan | plan.md | Constitution 合規 |
@@ -6510,6 +6520,7 @@ public void testCreateOrder_ContractCompliance() {
 | **Codex CLI** | OpenAI 模型 | 程式碼生成、自動化 | ✅ 支援 |
 | **Qwen Code** | 中文理解佳 | 中文文件專案 | ✅ 支援 |
 | **CodeBuddy** | 多功能整合 | 全端開發 | ✅ 支援 |
+| **Kiro CLI** | AWS Kiro,專案規劃導向 | 需求規劃,結構化開發 | ✅ 支援 |
 | **Amp / Auggie / Kilo Code** | 各有特色 | 特定工作流程 | ✅ 支援 |
 
 > 💡 完整的 20 種支援 AI 助手清單請參考 [1.2 Spec-Kit 概覽](#12-spec-kit-概覽)。
@@ -7569,31 +7580,37 @@ specify init my-project --ai generic --ai-commands-dir .myagent/commands/
 # 1b. 安裝代理技能模板
 specify init my-project --ai claude --ai-skills
 
+# 1c. 使用 Kiro CLI
+specify init my-project --ai kiro-cli
+
 # 2. 檢查環境
 specify check
 
 # 3. 查看版本
 specify version
 
-# 4. 撰寫 Spec
+# 4. 建立專案守則
+/speckit.constitution
+
+# 5. 撰寫 Spec
 /speckit.specify
 
-# 5. 澄清需求
+# 6. 澄清需求
 /speckit.clarify
 
-# 6. 撰寫 Plan
+# 7. 撰寫 Plan
 /speckit.plan
 
-# 7. 拆分 Tasks
+# 8. 拆分 Tasks
 /speckit.tasks
 
-# 8. 分析一致性
+# 9. 分析一致性
 /speckit.analyze
 
-# 9. 品質檢查
+# 10. 品質檢查
 /speckit.checklist
 
-# 10. 實作
+# 11. 實作
 /speckit.implement <task-id>
 ```
 
@@ -7731,7 +7748,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v1.3*  
+*文件版本: v1.4*  
 *最後更新: 2025-07*  
-*適用於: Spec-Kit v0.1.10+ / Spec Kit Templates - 0.1.10*
+*適用於: Spec-Kit v0.1.13+ / Spec Kit Templates - 0.1.13*
 
