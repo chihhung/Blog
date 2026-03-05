@@ -5,6 +5,7 @@ title = 'Visual Studio Code使用教學'
 tags = ['教學', '工具']
 categories = ['教學']
 +++
+
 # Visual Studio Code 使用教學手冊
 
 > **完整的 VS Code 開發環境設定與實戰指南**  
@@ -16,9 +17,14 @@ categories = ['教學']
 - [1.1 安裝步驟](#11-安裝步驟)
 - [1.2 推薦字型與主題](#12-推薦字型與主題)
 - [1.3 專案必要的 Extensions 清單](#13-專案必要的-extensions-清單)
+  - [1.3.1 基礎開發工具](#131-基礎開發工具)
+  - [1.3.2 前端開發](#132-前端開發)
+  - [1.3.3 後端開發](#133-後端開發)
+  - [1.3.4 Python 開發](#134-python-開發)
+  - [1.3.5 AI 輔助開發](#135-ai-輔助開發)
+  - [1.3.6 一鍵安裝指令](#136-一鍵安裝指令)
 - [1.4 設定同步功能](#14-設定同步功能)
-- [1.5 設定檔 (Profiles) 管理](#15-設定檔-profiles-管理)
-- [1.6 實務案例與注意事項](#16-實務案例與注意事項)
+- [1.5 實務案例與注意事項](#15-實務案例與注意事項)
 
 ### 2. 專案開發環境配置
 - [2.1 如何開啟專案](#21-如何開啟專案)
@@ -36,23 +42,29 @@ categories = ['教學']
 - [3.3 偵錯與斷點設定](#33-偵錯-debugging-與斷點設定)
 - [3.4 終端機與多工作區使用](#34-終端機與多工作區使用)
 - [3.5 程式碼片段 (Snippets) 使用](#35-程式碼片段-snippets-使用)
-- [3.6 實務案例與注意事項](#36-實務案例與注意事項)
+- [3.6 AI 輔助開發 — GitHub Copilot](#36-ai-輔助開發--github-copilot)
+  - [3.6.1 程式碼自動完成](#361-程式碼自動完成-inline-suggestions)
+  - [3.6.2 Copilot Chat 對話式助手](#362-copilot-chat-對話式助手)
+  - [3.6.3 智慧動作](#363-智慧動作-smart-actions)
+  - [3.6.4 自訂指示檔](#364-自訂指示檔-custom-instructions)
+  - [3.6.5 Copilot Edits（多檔編輯）](#365-copilot-edits多檔編輯)
+- [3.7 實務案例與注意事項](#37-實務案例與注意事項)
 
 ### 4. 專案特定開發流程指引
 - [4.1 前端開發流程](#41-前端開發流程-vue-3--typescript)
 - [4.2 後端開發流程](#42-後端開發流程-spring-boot)
 - [4.3 全端開發工作流程](#43-全端開發工作流程)
 - [4.4 程式碼品質檢查](#44-程式碼品質檢查)
-- [4.5 Python 開發環境設定](#45-python-開發環境設定)
-  - [4.5.1 Python 專案結構](#451-python-專案結構)
-  - [4.5.2 Python 環境設定](#452-python-環境設定)
-  - [4.5.3 Python 開發工具設定](#453-python-開發工具設定)
-  - [4.5.4 Python 偵錯設定](#454-python-偵錯設定)
-  - [4.5.5 Python 任務設定](#455-python-任務設定)
-  - [4.5.6 Python 專案範例](#456-python-專案範例)
-  - [4.5.7 Python 開發最佳實務](#457-python-開發最佳實務)
-- [4.6 效能監控與分析](#46-效能監控與分析)
-- [4.7 實務案例與注意事項](#47-實務案例與注意事項)
+- [4.5 效能監控與分析](#45-效能監控與分析)
+- [4.6 實務案例與注意事項](#46-實務案例與注意事項)
+- [4.7 Python 開發環境設定](#47-python-開發環境設定)
+  - [4.7.1 Python 專案結構](#471-python-專案結構)
+  - [4.7.2 Python 環境設定](#472-python-環境設定)
+  - [4.7.3 Python 開發工具設定](#473-python-開發工具設定)
+  - [4.7.4 Python 偵錯設定](#474-python-偵錯設定)
+  - [4.7.5 Python 任務設定](#475-python-任務設定)
+  - [4.7.6 Python 專案範例](#476-python-專案範例)
+  - [4.7.7 Python 開發最佳實務](#477-python-開發最佳實務)
 
 ### 5. 協作開發功能
 - [5.1 Live Share 即時協作](#51-live-share-即時協作)
@@ -66,76 +78,32 @@ categories = ['教學']
 ### 6. 進階功能與擴充
 - [6.1 自訂程式碼片段](#61-自訂程式碼片段)
 - [6.2 擴充功能開發入門](#62-擴充功能開發入門)
-  - [6.2.1 建立基本擴充功能](#621-建立基本擴充功能)
-  - [6.2.2 擴充功能專案結構](#622-擴充功能專案結構)
-  - [6.2.3 擴充功能基本開發](#623-擴充功能基本開發)
-  - [6.2.4 發布擴充功能](#624-發布擴充功能)
 - [6.3 工作流程自動化](#63-工作流程自動化)
   - [6.3.1 Task 自動化](#631-task-自動化)
   - [6.3.2 GitHub Actions 整合](#632-github-actions-整合)
   - [6.3.3 GitLab CI/CD 整合](#633-gitlab-cicd-整合)
 - [6.4 效能優化進階技巧](#64-效能優化進階技巧)
-  - [6.4.1 檔案監控與搜尋優化](#641-檔案監控與搜尋優化)
-  - [6.4.2 編輯器效能設定](#642-編輯器效能設定)
-  - [6.4.3 擴充功能效能管理](#643-擴充功能效能管理)
-  - [6.4.4 大型專案效能建議](#644-大型專案效能建議)
 - [6.5 遠端開發與 SSH](#65-遠端開發與-ssh)
-  - [6.5.1 Remote Development 概述](#651-remote-development-概述)
-  - [6.5.2 Remote SSH 設定](#652-remote-ssh-設定)
-  - [6.5.3 Remote Tunnels（安全隧道）](#653-remote-tunnels安全隧道)
-  - [6.5.4 GitHub Codespaces](#654-github-codespaces)
-  - [6.5.5 遠端開發最佳實務](#655-遠端開發最佳實務)
 - [6.6 工作區管理進階技巧](#66-工作區管理進階技巧)
+- [6.7 設定檔 (Profiles) 管理](#67-設定檔-profiles-管理)
 
-### 7. AI 輔助開發與 GitHub Copilot
-- [7.1 GitHub Copilot 基礎設定](#71-github-copilot-基礎設定)
-  - [7.1.1 安裝與啟用](#711-安裝與啟用)
-  - [7.1.2 行內建議 (Inline Suggestions)](#712-行內建議-inline-suggestions)
-  - [7.1.3 聊天功能 (Chat)](#713-聊天功能-chat)
-  - [7.1.4 Smart Actions（智慧動作）](#714-smart-actions智慧動作)
-  - [7.1.5 審查與管理 AI 變更](#715-審查與管理-ai-變更)
-- [7.2 Agent 模式與工作階段管理](#72-agent-模式與工作階段管理)
-  - [7.2.1 Agent 類型](#721-agent-類型)
-  - [7.2.2 工作階段管理](#722-工作階段管理)
-  - [7.2.3 子代理 (Subagents)](#723-子代理-subagents)
-- [7.3 Plan Agent 規劃代理](#73-plan-agent-規劃代理)
-- [7.4 自訂 AI 行為](#74-自訂-ai-行為)
-  - [7.4.1 自訂指令 (Custom Instructions)](#741-自訂指令-custom-instructions)
-  - [7.4.2 Prompt Files（提示檔案）](#742-prompt-files提示檔案)
-  - [7.4.3 自訂代理檔案](#743-自訂代理檔案)
-  - [7.4.4 Agent Skills（正式版）](#744-agent-skills正式版)
-  - [7.4.5 組織層級指令](#745-組織層級指令)
-  - [7.4.6 Hooks（生命週期鉤子）](#746-hooks生命週期鉤子)
-  - [7.4.7 疑難排解](#747-疑難排解)
-- [7.5 MCP 伺服器整合](#75-mcp-伺服器整合)
-- [7.6 Copilot Memory（預覽）](#76-copilot-memory預覽)
-- [7.7 語言模型管理](#77-語言模型管理)
-  - [7.7.1 選擇語言模型](#771-選擇語言模型)
-  - [7.7.2 Anthropic 模型整合（Claude）](#772-anthropic-模型整合claude)
-  - [7.7.3 語言模型編輯器](#773-語言模型編輯器)
-- [7.8 AI 開發常用快捷鍵](#78-ai-開發常用快捷鍵)
-- [7.9 AI 開發最佳實務](#79-ai-開發最佳實務)
-  - [7.9.1 有效使用 AI 的建議](#791-有效使用-ai-的建議)
-  - [7.9.2 Agent 使用場景指引](#792-agent-使用場景指引)
-  - [7.9.3 安全性考量](#793-安全性考量)
+### 7. 最佳實務
+- [7.1 常見問題 (FAQ) 與解決方式](#71-常見問題-faq-與解決方式)
+- [7.2 建議的工作習慣](#72-建議的工作習慣)
+- [7.3 效能最佳化](#73-效能最佳化)
+- [7.4 安全性最佳實務](#74-安全性最佳實務)
+- [7.5 團隊協作規範](#75-團隊協作規範)
 
-### 8. 最佳實務
-- [8.1 常見問題 (FAQ) 與解決方式](#81-常見問題-faq-與解決方式)
-- [8.2 建議的工作習慣](#82-建議的工作習慣)
-- [8.3 效能最佳化](#83-效能最佳化)
-- [8.4 安全性最佳實務](#84-安全性最佳實務)
-- [8.5 團隊協作規範](#85-團隊協作規範)
+### 8. 檢查清單
+- [8.1 新進成員快速上手檢查清單](#81-新進成員快速上手檢查清單)
+- [8.2 日常開發檢查清單](#82-日常開發檢查清單)
+- [8.3 部署前檢查清單](#83-部署前檢查清單)
+- [8.4 故障排除檢查清單](#84-故障排除檢查清單)
 
-### 9. 檢查清單
-- [9.1 新進成員快速上手檢查清單](#91-新進成員快速上手檢查清單)
-- [9.2 日常開發檢查清單](#92-日常開發檢查清單)
-- [9.3 部署前檢查清單](#93-部署前檢查清單)
-- [9.4 故障排除檢查清單](#94-故障排除檢查清單)
-
-### 10. 附錄
-- [10.1 參考資源](#101-參考資源)
-- [10.2 聯絡支援](#102-聯絡支援)
-- [10.3 版本歷程](#103-版本歷程)
+### 9. 附錄
+- [9.1 參考資源](#91-參考資源)
+- [9.2 聯絡支援](#92-聯絡支援)
+- [9.3 版本歷程](#93-版本歷程)
 
 ---
 
@@ -213,18 +181,15 @@ categories = ['教學']
 | **GitHub Pull Requests and Issues** | GitHub 整合 | `ext install GitHub.vscode-pull-request-github` |
 | **GitLab Workflow** | GitLab 整合 | `ext install gitlab.gitlab-workflow` |
 | **Auto Rename Tag** | HTML/XML 標籤自動重新命名 | `ext install formulahendry.auto-rename-tag` |
+| **Bracket Pair Colorization (內建)** | 括號配對色彩化（VS Code v1.60+ 已內建，無需安裝） | 設定 `"editor.bracketPairColorization.enabled": true` |
 | **indent-rainbow** | 縮排色彩化 | `ext install oderwat.indent-rainbow` |
 | **Path Intellisense** | 路徑自動完成 | `ext install christian-kohler.path-intellisense` |
-| **Error Lens** | 行內顯示錯誤與警告 | `ext install usernamehw.errorlens` |
-| **GitHub Copilot Chat** | AI 程式碼輔助 | `ext install GitHub.copilot-chat` |
-
-> **ℹ️ 說明**：自 VS Code 1.60 起，括號配對色彩化 (Bracket Pair Colorization) 已內建，不再需要安裝 Bracket Pair Colorizer 擴充功能。可在設定中啟用：`"editor.bracketPairColorization.enabled": true`
 
 #### 1.3.2 前端開發 (Vue 3 + TypeScript)
 
 | 擴充功能名稱 | 用途 | 安裝指令 |
 |------------|------|---------|
-| **Vue - Official** (Volar) | Vue.js 語言支援 | `ext install Vue.volar` |
+| **Vue - Official (Volar)** | Vue.js 語言支援（Vetur 已棄用，請使用 Volar） | `ext install Vue.volar` |
 | **TypeScript Importer** | TypeScript 自動匯入 | `ext install pmneo.tsimporter` |
 | **ESLint** | JavaScript/TypeScript 程式碼檢查 | `ext install dbaeumer.vscode-eslint` |
 | **Prettier** | 程式碼格式化工具 | `ext install esbenp.prettier-vscode` |
@@ -237,7 +202,7 @@ categories = ['教學']
 | 擴充功能名稱 | 用途 | 安裝指令 |
 |------------|------|---------|
 | **Extension Pack for Java** | Java 開發工具包 | `ext install vscjava.vscode-java-pack` |
-| **Spring Boot Extension Pack** | Spring Boot 開發工具包 | `ext install vmware.vscode-boot-dev-pack` |
+| **Spring Boot Extension Pack** | Spring Boot 開發工具包 | `ext install Pivotal.vscode-boot-dev-pack` |
 | **Maven for Java** | Maven 專案管理 | `ext install vscjava.vscode-maven` |
 | **Checkstyle for Java** | Java 程式碼風格檢查 | `ext install shengchen.vscode-checkstyle` |
 | **SonarLint** | 程式碼品質分析 | `ext install SonarSource.sonarlint-vscode` |
@@ -247,15 +212,22 @@ categories = ['教學']
 | 擴充功能名稱 | 用途 | 安裝指令 |
 |------------|------|---------|
 | **Python** | Python 官方開發工具 | `ext install ms-python.python` |
-| **Pylance** | Python 型別檢查與智慧提示 | `ext install ms-python.vscode-pylance` |
-| **Ruff** | Python Linting 與格式化（取代 Pylint/Black） | `ext install charliermarsh.ruff` |
+| **Pylance** | Python 智能感知與型別檢查 | `ext install ms-python.vscode-pylance` |
+| **Ruff** | Python Linter 與格式化工具（取代 Pylint、Flake8、Black、isort） | `ext install charliermarsh.ruff` |
 | **Python Docstring Generator** | 自動產生文檔字串 | `ext install njpwerner.autodocstring` |
 | **Jupyter** | Jupyter Notebook 支援 | `ext install ms-toolsai.jupyter` |
 | **Python Debugger** | Python 偵錯工具 | `ext install ms-python.debugpy` |
 
-> **ℹ️ 說明**：自 VS Code Python 擴充功能 2024 年更新後，`python.linting.*` 和 `python.formatting.*` 設定已棄用，請改用獨立的 Linter/Formatter 擴充功能（如 Ruff、Black Formatter）。
+#### 1.3.5 AI 輔助開發
 
-#### 1.3.5 一鍵安裝指令
+| 擴充功能名稱 | 用途 | 安裝指令 |
+|------------|------|---------|
+| **GitHub Copilot** | AI 程式碼自動完成與建議 | `ext install GitHub.copilot` |
+| **GitHub Copilot Chat** | AI 對話式程式設計助手 | `ext install GitHub.copilot-chat` |
+
+> **說明**：GitHub Copilot 是 VS Code 最重要的 AI 功能之一。提供免費方案（每月有使用限制），也可訂閱付費方案享有完整功能。詳情請參閱 [GitHub Copilot 方案](https://docs.github.com/en/copilot/get-started/plans)。
+
+#### 1.3.6 一鍵安裝指令
 在 VS Code 終端機中執行以下指令快速安裝所有推薦擴充功能：
 
 ```powershell
@@ -267,8 +239,6 @@ code --install-extension gitlab.gitlab-workflow
 code --install-extension formulahendry.auto-rename-tag
 code --install-extension oderwat.indent-rainbow
 code --install-extension christian-kohler.path-intellisense
-code --install-extension usernamehw.errorlens
-code --install-extension GitHub.copilot-chat
 
 # 前端開發
 code --install-extension Vue.volar
@@ -281,7 +251,7 @@ code --install-extension ecmel.vscode-html-css
 
 # 後端開發
 code --install-extension vscjava.vscode-java-pack
-code --install-extension vmware.vscode-boot-dev-pack
+code --install-extension Pivotal.vscode-boot-dev-pack
 code --install-extension vscjava.vscode-maven
 code --install-extension shengchen.vscode-checkstyle
 code --install-extension SonarSource.sonarlint-vscode
@@ -293,143 +263,61 @@ code --install-extension charliermarsh.ruff
 code --install-extension njpwerner.autodocstring
 code --install-extension ms-toolsai.jupyter
 code --install-extension ms-python.debugpy
+
+# AI 輔助開發
+code --install-extension GitHub.copilot
+code --install-extension GitHub.copilot-chat
 ```
 
 ### 1.4 設定同步功能
 
 #### 1.4.1 啟用設定同步
 
-VS Code 提供 Settings Sync（設定同步）功能，讓您在不同設備間保持一致的開發環境。
+VS Code 提供設定同步功能，讓您在不同設備間保持一致的開發環境。
 
 **啟用步驟：**
-1. 點擊活動列底部的 **Manage（齒輪）** 按鈕，選擇 **Backup and Sync Settings...**
-2. 或按 `Ctrl + Shift + P` 輸入 `Settings Sync: Turn On`
+1. 按 `Ctrl + Shift + P` 開啟命令面板
+2. 輸入 `Settings Sync: Turn On`
 3. 選擇要同步的項目：
    - ✅ 設定 (Settings)
-   - ✅ 快捷鍵綁定 (Keyboard Shortcuts)
+   - ✅ 快捷鍵綁定 (Keybindings)
    - ✅ 擴充功能 (Extensions)
    - ✅ 使用者程式碼片段 (User Snippets)
-   - ✅ 使用者任務 (User Tasks)
    - ✅ UI 狀態 (UI State)
-   - ✅ 設定檔 (Profiles)
-   - ✅ 提示與指令 (Prompts and Instructions)
-4. 使用 **Microsoft** 或 **GitHub** 帳戶登入
-
-> **⚠️ 注意**：VS Code 不會在遠端視窗（SSH、Dev Container、WSL）中同步擴充功能。
+4. 使用 Microsoft 或 GitHub 帳戶登入
 
 #### 1.4.2 同步項目說明
 
 **同步的內容包括：**
 - **設定檔** - editor、theme、font 等個人偏好設定
-- **擴充功能** - 已安裝的擴充功能清單及全域啟用狀態
-- **快捷鍵** - 自訂的快捷鍵綁定（預設按平台同步）
+- **擴充功能** - 已安裝的擴充功能清單
+- **快捷鍵** - 自訂的快捷鍵綁定
 - **程式碼片段** - 自訂的程式碼片段
-- **使用者任務** - tasks.json 中的使用者層級任務
-- **UI 狀態** - 顯示語言、面板配置、Recently Used 指令等
-- **設定檔 (Profiles)** - 已建立的所有設定檔
-- **提示與指令** - Copilot 自訂指令與 Prompt 檔案
+- **UI 狀態** - 面板配置、視窗大小等
 
 **不會同步的內容：**
 - 工作區特定設定
-- 機器特定設定（`machine` 或 `machine-overridable` 範圍）
 - 本地檔案路徑
 - 敏感資訊（如 tokens、密碼）
 
 #### 1.4.3 管理同步設定
 
 **查看同步狀態：**
-- 按 `Ctrl + Shift + P` → `Settings Sync: Show Synced Data` 檢視同步資料
-- 可查看 **Remote** 和 **Local** 備份記錄
+- 點擊狀態列的同步圖示
+- 或按 `Ctrl + Shift + P` → `Settings Sync: Show Settings`
 
-**同步衝突處理：**
-- **Accept Local**：使用本機設定覆蓋雲端
-- **Accept Remote**：使用雲端設定覆蓋本機
-- **Show Conflicts**：開啟差異編輯器手動解決
-
-**排除特定設定或擴充功能：**
-```json
-{
-  "settingsSync.ignoredSettings": ["editor.fontSize"],
-  "settingsSync.ignoredExtensions": ["some.extension-id"]
-}
+**手動同步：**
+```
+Ctrl + Shift + P：
+- Settings Sync: Sync Now
+- Settings Sync: Download Settings
+- Settings Sync: Upload Settings
 ```
 
 **關閉同步：**
 - `Ctrl + Shift + P` → `Settings Sync: Turn Off`
-- 可選擇同時清除雲端資料
 
-**還原資料：**
-- VS Code 在同步時自動建立本地和遠端備份
-- 本地備份保留 30 天，遠端備份保留最近 20 個版本
-
-### 1.5 設定檔 (Profiles) 管理
-
-#### 1.5.1 Profiles 簡介
-
-VS Code Profiles 讓您建立不同的設定集合（包含設定、擴充功能、快捷鍵、UI 佈局等），並在不同工作場景間快速切換。
-
-**常見使用場景：**
-- **前端/後端切換**：為前端和後端專案建立不同的 Profile
-- **簡報展示**：建立大字型、特定主題的 Demo Profile
-- **教學環境**：建立適合學生的精簡 Profile
-- **問題回報**：使用空白 Profile 排除擴充功能干擾
-
-#### 1.5.2 建立與管理 Profile
-
-**開啟 Profiles 編輯器：**
-- 選擇 `File > Preferences > Profiles`
-- 或點擊活動列底部的 **Manage（齒輪）** 按鈕
-
-**建立新 Profile：**
-1. 在 Profiles 編輯器中點擊 **New Profile**
-2. 輸入 Profile 名稱和圖示
-3. 選擇來源：
-   - **Copy from** - 從現有 Profile 或範本複製
-   - **Empty Profile** - 空白
-4. 選擇要包含的設定項目（Settings、Keyboard Shortcuts、MCP Servers、Snippets、Tasks、Extensions）
-5. 點擊 **Create** 建立
-
-**切換 Profile：**
-- `Ctrl + Shift + P` → `Profiles: Switch Profile`
-- 或從 Profiles 編輯器選擇
-
-**從命令列指定 Profile：**
-```powershell
-code ~/projects/web-sample --profile "Web Development"
-```
-
-#### 1.5.3 內建 Profile 範本
-
-VS Code 提供多種預設 Profile 範本：
-
-| 範本名稱 | 適用場景 | 包含的擴充功能 |
-|---------|---------|---------------|
-| **Python** | Python 開發 | Python、Pylance、Ruff、autoDocstring |
-| **Data Science** | 數據科學 | Jupyter、Python、Data Wrangler |
-| **Node.js** | Node.js 開發 | ESLint、Prettier、Jest、npm Intellisense |
-| **Java General** | Java 通用開發 | Extension Pack for Java |
-| **Java Spring** | Spring Boot 開發 | Extension Pack for Java + Spring Boot Extension Pack |
-| **Doc Writer** | 文件撰寫 | markdownlint、Markdown Preview、Code Spell Checker |
-| **Angular** | Angular 開發 | Angular Language Service、ESLint、Playwright |
-
-#### 1.5.4 Profile 同步與分享
-
-**跨設備同步：**
-- 啟用 Settings Sync 並勾選 **Profiles** 即可跨設備同步
-
-**匯出 Profile：**
-- 在 Profiles 編輯器中選擇 **Export...**
-- 可匯出為 **GitHub Gist**（產生分享連結）或 **本地檔案**（`.code-profile`）
-
-**匯入 Profile：**
-- 在 Profiles 編輯器中選擇 **Import Profile...**
-- 貼上 GitHub Gist URL 或選擇本地檔案
-
-#### 1.5.5 資料夾與工作區關聯
-
-每個 Profile 會自動關聯到開啟它時的資料夾或工作區，下次開啟相同資料夾時自動切換為該 Profile。
-
-### 1.6 實務案例與注意事項
+### 1.5 實務案例與注意事項
 
 #### ⚠️ 注意事項
 1. **效能考量**：不要安裝過多不必要的擴充功能，會影響 VS Code 啟動速度
@@ -501,8 +389,6 @@ your-project/
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "explicit"
   },
-  
-  // 檔案設定
   "files.autoSave": "onFocusChange",
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true,
@@ -572,7 +458,7 @@ your-project/
   "maven.updateSnapshots": false,
   "maven.showDependencies": "all",
   
-  // Python 相關設定（注意：python.linting.* 和 python.formatting.* 已棄用，請使用獨立擴充功能）
+  // Python 相關設定（使用新版擴充功能取代已棄用的 python.linting/formatting 設定）
   "python.defaultInterpreterPath": "python",
   "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoImportCompletions": true,
@@ -584,7 +470,8 @@ your-project/
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "explicit"
+      "source.organizeImports": "explicit",
+      "source.fixAll": "explicit"
     },
     "editor.tabSize": 4
   },
@@ -620,8 +507,6 @@ your-project/
     "formulahendry.auto-rename-tag",
     "oderwat.indent-rainbow",
     "christian-kohler.path-intellisense",
-    "usernamehw.errorlens",
-    "github.copilot-chat",
     
     // 前端開發
     "vue.volar",
@@ -634,7 +519,7 @@ your-project/
     
     // 後端開發
     "vscjava.vscode-java-pack",
-    "vmware.vscode-boot-dev-pack",
+    "pivotal.vscode-boot-dev-pack",
     "vscjava.vscode-maven",
     "shengchen.vscode-checkstyle",
     "sonarsource.sonarlint-vscode"
@@ -1135,7 +1020,7 @@ code --install-extension ms-vscode-remote.remote-containers
       "settings": {
         "editor.formatOnSave": true,
         "editor.codeActionsOnSave": {
-          "source.fixAll.eslint": true
+          "source.fixAll.eslint": "explicit"
         }
       }
     }
@@ -1328,6 +1213,24 @@ Ctrl + Shift + P：
 | 容器註冊表 | GitHub Packages | GitLab Container Registry |
 | 安全掃描 | GitHub Security | GitLab Security Dashboard |
 
+#### 3.1.4 內建三方合併編輯器
+
+VS Code 內建了三方合併編輯器 (3-way Merge Editor)，可視覺化解決 Git 合併衝突：
+
+**啟用方式：**
+```json
+{
+  "git.mergeEditor": true
+}
+```
+
+**使用方式：**
+1. 發生合併衝突時，在 Git 面板點擊衝突檔案
+2. 選擇 **Resolve in Merge Editor**
+3. 上方顯示「來源」與「目標」兩個分支的版本，下方為合併結果
+4. 使用 **Accept Incoming / Accept Current / Accept Both** 按鈕選擇保留的內容
+5. 完成後點擊 **Complete Merge**
+
 ### 3.2 常用快捷鍵
 
 #### 3.2.1 檔案操作
@@ -1402,11 +1305,11 @@ Ctrl + Shift + P：
 
 #### 3.3.2 前端偵錯 (Vue 3 + TypeScript)
 
-**Chrome DevTools 整合（內建 JavaScript 偵錯器）：**
+**VS Code 內建 JavaScript 偵錯：**
 
-VS Code 已內建 JavaScript 偵錯器，不再需要安裝「Debugger for Chrome」擴充功能。
+> **注意**：「Debugger for Chrome」擴充功能已棄用，VS Code 已內建 JavaScript 偵錯器，支援 Chrome、Edge 等瀏覽器偵錯，無需額外安裝擴充功能。
 
-在 `launch.json` 中配置：
+1. 在 `launch.json` 中配置：
 
 ```json
 {
@@ -1725,7 +1628,100 @@ try {
 - 使用版本控制管理專案片段
 - 避免過於複雜的片段
 
-### 3.6 實務案例與注意事項
+### 3.6 AI 輔助開發 — GitHub Copilot
+
+GitHub Copilot 是 VS Code 中最強大的 AI 輔助工具，能大幅提升開發效率。以下介紹主要功能與使用方式。
+
+> **前置條件**：需先安裝 **GitHub Copilot** 與 **GitHub Copilot Chat** 擴充功能（參見 [1.3.5 AI 輔助開發](#135-ai-輔助開發)），並登入 GitHub 帳號。
+
+#### 3.6.1 程式碼自動完成 (Inline Suggestions)
+
+在編輯器中輸入程式碼時，Copilot 會以灰色文字顯示建議：
+
+| 操作 | 快捷鍵 |
+|------|--------|
+| 接受建議 | `Tab` |
+| 拒絕建議 | `Esc` |
+| 查看下一個建議 | `Alt + ]` |
+| 查看上一個建議 | `Alt + [` |
+| 觸發行內建議 | `Alt + \` |
+
+**使用技巧：**
+- 撰寫清楚的函式名稱和註解，Copilot 能產生更好的建議
+- 在 JavaDoc 或 JSDoc 中描述功能，Copilot 會根據文件產生對應實作
+- Copilot 會根據檔案上下文和已開啟的其他檔案來推斷意圖
+
+```java
+/**
+ * 計算兩個日期之間的工作天數（排除週末）
+ * @param start 開始日期
+ * @param end 結束日期
+ * @return 工作天數
+ */
+// 輸入方法簽名後，Copilot 會自動建議完整實作
+public long calculateWorkingDays(LocalDate start, LocalDate end) {
+    // Copilot 會在此自動建議實作內容
+}
+```
+
+#### 3.6.2 Copilot Chat 對話式助手
+
+按 `Ctrl + Alt + I` 開啟 Copilot Chat 面板，或使用行內聊天 `Ctrl + I`。
+
+**常用 Chat 指令：**
+
+| 指令 | 功能 | 使用方式 |
+|------|------|----------|
+| `/explain` | 解釋選取的程式碼 | 選取程式碼後輸入 `/explain` |
+| `/fix` | 修正程式碼問題 | 選取有問題的程式碼後輸入 `/fix` |
+| `/tests` | 產生單元測試 | 選取程式碼後輸入 `/tests` |
+| `/doc` | 產生文件註解 | 選取程式碼後輸入 `/doc` |
+| `@workspace` | 查詢整個專案 | 輸入 `@workspace 這個專案的架構是什麼？` |
+| `#file` | 參考特定檔案 | 輸入 `#file:pom.xml 有哪些依賴？` |
+| `#selection` | 參考選取文字 | 選取程式碼後輸入 `#selection 如何優化？` |
+
+**行內聊天 (Inline Chat)：**
+1. 在編輯器中按 `Ctrl + I`
+2. 輸入自然語言指令，例如：「加入輸入驗證」「重構為 Stream API」
+3. 檢視差異並選擇接受或拒絕
+
+#### 3.6.3 智慧動作 (Smart Actions)
+
+右鍵選取程式碼時可使用 Copilot 智慧動作：
+- **Copilot > 解釋這段程式碼**：取得程式碼說明
+- **Copilot > 修正這段程式碼**：自動修正問題
+- **Copilot > 產生文件**：產生 JavaDoc / JSDoc
+- **Copilot > 產生測試**：產生對應的單元測試
+
+#### 3.6.4 自訂指示檔 (Custom Instructions)
+
+透過 `.github/copilot-instructions.md` 檔案，告訴 Copilot 你的專案慣例：
+
+```markdown
+# Copilot 指引
+- 使用 JavaDoc 格式撰寫所有公開方法的註解
+- 測試框架使用 JUnit 5
+- 日誌使用 Log4j2
+- 變數和方法名稱使用 camelCase
+- 回應使用繁體中文
+```
+
+> **提示**：本專案已有 `.github/copilot-instructions.md`，Copilot 會自動參考其中的規範。
+
+#### 3.6.5 Copilot Edits（多檔編輯）
+
+Copilot Edits 可以同時修改多個檔案：
+1. 按 `Ctrl + Shift + I` 開啟 Copilot Edits
+2. 新增要編輯的檔案到工作集
+3. 描述你想要的變更
+4. 檢視所有檔案的差異，選擇接受或拒絕
+
+**適用場景：**
+- 重構跨多個檔案的程式碼
+- 批次新增日誌記錄
+- 統一修改 API 回傳格式
+
+### 3.7 實務案例與注意事項
 
 #### ⚠️ 開發注意事項
 1. **版本控制**：經常提交變更，避免遺失程式碼
@@ -1737,6 +1733,7 @@ try {
 - 定期同步遠端分支，避免合併衝突
 - 善用 VS Code 的多游標編輯功能提升效率（`Ctrl + Alt + Up/Down`）
 - 使用程式碼片段（Snippets）加速常用程式碼撰寫
+- 善用 GitHub Copilot 產生測試案例和文件，加速開發流程
 
 ---
 
@@ -1763,8 +1760,8 @@ try {
 
 3. **檢查 Node.js 版本**
    ```powershell
-   node --version  # 建議使用 Node.js 18+
-   npm --version   # 建議使用 npm 9+
+   node --version  # 建議使用 Node.js 20+ (LTS)
+   npm --version   # 建議使用 npm 10+
    ```
 
 #### 4.1.2 開發伺服器啟動
@@ -2104,9 +2101,133 @@ mvn spotbugs:check
 mvn spotbugs:spotbugs
 ```
 
-### 4.5 Python 開發環境設定
+### 4.5 效能監控與分析
 
-#### 4.5.1 Python 專案結構
+#### 4.5.1 前端效能監控
+
+**使用 Lighthouse 擴充功能：**
+1. 安裝 "Lighthouse" 擴充功能
+2. 在開發者工具中執行 Lighthouse 分析
+3. 檢視效能報告和建議
+
+**Vue DevTools 效能分析：**
+```typescript
+// 在 main.ts 中啟用效能追蹤
+import { createApp } from 'vue'
+import App from './App.vue'
+
+const app = createApp(App)
+
+// 開發環境啟用效能追蹤
+if (process.env.NODE_ENV === 'development') {
+  app.config.performance = true
+}
+
+app.mount('#app')
+```
+
+**前端效能檢查清單：**
+- Bundle 大小分析：`npm run build -- --report`
+- Core Web Vitals 監控
+- 記憶體使用量檢查
+- 網路請求最佳化
+
+#### 4.5.2 後端效能監控
+
+**Spring Boot Actuator 設定：**
+```yaml
+# application.yml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+```
+
+**效能指標監控：**
+```java
+@RestController
+public class MetricsController {
+    
+    @Autowired
+    private MeterRegistry meterRegistry;
+    
+    @GetMapping("/api/metrics/custom")
+    public Map<String, Double> getCustomMetrics() {
+        Map<String, Double> metrics = new HashMap<>();
+        
+        // JVM 記憶體使用量
+        metrics.put("jvm.memory.used", 
+            meterRegistry.get("jvm.memory.used").gauge().value());
+        
+        // HTTP 請求計數
+        metrics.put("http.requests.total", 
+            meterRegistry.get("http.server.requests").counter().count());
+        
+        return metrics;
+    }
+}
+```
+
+**後端效能檢查清單：**
+- 資料庫查詢最佳化
+- API 回應時間監控
+- JVM 記憶體使用分析
+- 執行緒池狀態檢查
+
+#### 4.5.3 VS Code 效能診斷
+
+**啟用效能監控：**
+1. 按 `Ctrl + Shift + P`
+2. 輸入 `Developer: Startup Performance`
+3. 檢視啟動效能報告
+
+**常用效能診斷指令：**
+```
+Ctrl + Shift + P：
+- Developer: Show Running Extensions
+- Developer: Restart Extension Host
+- Developer: Toggle Developer Tools
+- Performance: Startup Performance
+```
+
+**擴充功能效能分析：**
+```typescript
+// 在 VS Code 開發者工具 Console 中執行
+// 查看擴充功能啟動時間
+console.table(
+  vscode.extensions.all
+    .filter(ext => ext.isActive)
+    .map(ext => ({
+      id: ext.id,
+      activationTime: ext.activationTime || 'Unknown'
+    }))
+    .sort((a, b) => (b.activationTime || 0) - (a.activationTime || 0))
+)
+```
+
+### 4.6 實務案例與注意事項
+
+#### ⚠️ 開發流程注意事項
+1. **連接埠衝突**：確保前後端使用不同連接埠
+2. **環境變數**：正確設定開發和生產環境變數
+3. **API 版本控制**：使用 API 版本控制避免相容性問題
+4. **錯誤處理**：前後端都要有適當的錯誤處理機制
+
+#### 💡 開發最佳實務
+- 使用功能分支進行開發，避免直接在主分支修改
+- 定期執行測試，確保程式碼品質
+- 使用 API 文件工具（如 Swagger）記錄 API 規格
+- 實施 Code Review 流程，提升程式碼品質
+
+### 4.7 Python 開發環境設定
+
+#### 4.7.1 Python 專案結構
 
 **標準 Python 專案結構：**
 ```
@@ -2126,11 +2247,11 @@ my-python-project/
 ├── setup.py                # 安裝設定
 ├── README.md               # 專案說明
 ├── .gitignore              # Git 忽略檔案
-├── .pylintrc               # Pylint 設定
+├── pyproject.toml          # Ruff / 專案設定
 └── pyproject.toml          # 專案設定（Python 3.6+）
 ```
 
-#### 4.5.2 Python 環境設定
+#### 4.7.2 Python 環境設定
 
 #### 虛擬環境設定
 
@@ -2178,8 +2299,8 @@ conda env export > environment.yml
 ```json
 {
   "python.defaultInterpreterPath": "./venv/Scripts/python.exe",
-  "python.analysis.typeCheckingMode": "basic",
   "python.analysis.autoImportCompletions": true,
+  "python.analysis.typeCheckingMode": "basic",
   "python.testing.pytestEnabled": true,
   "python.testing.pytestArgs": [
     "tests",
@@ -2190,56 +2311,33 @@ conda env export > environment.yml
     "editor.defaultFormatter": "charliermarsh.ruff",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": "explicit"
-    },
-    "editor.tabSize": 4
+      "source.organizeImports": "explicit",
+      "source.fixAll": "explicit"
+    }
   }
 }
 ```
 
-> **⚠️ 注意**：`python.linting.*`、`python.formatting.*`、`python.sortImports.*` 等設定已在 2024 年棄用。請改用獨立的 Linter/Formatter 擴充功能（如 Ruff、Black Formatter、Flake8）。
-
-#### 4.5.3 Python 開發工具設定
+#### 4.7.3 Python 開發工具設定
 
 #### Linting 和格式化
 
-**Pylint 設定（.pylintrc）：**
-```ini
-[MASTER]
-disable=
-    C0114, # missing-module-docstring
-    C0115, # missing-class-docstring
-    C0116, # missing-function-docstring
-    R0903, # too-few-public-methods
-
-[FORMAT]
-max-line-length=88
-
-[VARIABLES]
-good-names=i,j,k,ex,Run,_,x,y,z
-```
-
-**Black 格式化設定（pyproject.toml）：**
+**Ruff 設定（pyproject.toml）：**
 ```toml
-[tool.black]
+[tool.ruff]
 line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
 ```
+
+> **說明**：Ruff 整合了 Pylint、Flake8、Black、isort 等多種工具的功能於單一工具中，效能更快且設定更簡潔。
 
 #### 測試設定
 
@@ -2284,7 +2382,7 @@ if __name__ == '__main__':
     unittest.main()
 ```
 
-#### 4.5.4 Python 偵錯設定
+#### 4.7.4 Python 偵錯設定
 
 **`.vscode/launch.json` Python 設定：**
 ```json
@@ -2345,7 +2443,7 @@ if __name__ == '__main__':
 }
 ```
 
-#### 4.5.5 Python 任務設定
+#### 4.7.5 Python 任務設定
 
 **`.vscode/tasks.json` Python 任務：**
 ```json
@@ -2377,8 +2475,8 @@ if __name__ == '__main__':
     {
       "label": "Python: Format Code",
       "type": "shell",
-      "command": "black",
-      "args": ["src", "tests"],
+      "command": "ruff",
+      "args": ["format", "src", "tests"],
       "group": "build",
       "presentation": {
         "echo": true,
@@ -2388,8 +2486,8 @@ if __name__ == '__main__':
     {
       "label": "Python: Lint Code",
       "type": "shell",
-      "command": "pylint",
-      "args": ["src"],
+      "command": "ruff",
+      "args": ["check", "src", "--fix"],
       "group": "build",
       "presentation": {
         "echo": true,
@@ -2407,7 +2505,7 @@ if __name__ == '__main__':
 }
 ```
 
-#### 4.5.6 Python 專案範例
+#### 4.7.6 Python 專案範例
 
 #### FastAPI 專案範例
 
@@ -2470,27 +2568,28 @@ if __name__ == "__main__":
 
 **需求檔案（requirements.txt）：**
 ```txt
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-pydantic==2.5.0
-pytest==7.4.3
-pytest-cov==4.1.0
-black==23.11.0
-pylint==3.0.3
-mypy==1.7.1
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic==2.9.0
+pytest==8.3.0
+pytest-cov==5.0.0
+ruff==0.7.0
+mypy==1.12.0
 ```
 
-#### 4.5.7 Python 開發最佳實務
+#### 4.7.7 Python 開發最佳實務
 
 #### 程式碼品質檢查
 
 **自動化品質檢查流程：**
 ```powershell
-# 格式化程式碼
-black src tests
+# 格式化程式碼（使用 Ruff，可取代 Black + isort）
+ruff format src tests
 
-# 靜態分析
-pylint src
+# 靜態分析（使用 Ruff，可取代 Pylint + Flake8）
+ruff check src tests --fix
+
+# 型別檢查
 mypy src
 
 # 執行測試
@@ -2526,133 +2625,9 @@ numpy
 
 # 開發工具
 pytest
-black
-pylint
+ruff
+mypy
 ```
-
-### 4.6 效能監控與分析
-
-#### 4.6.1 前端效能監控
-
-**使用 Lighthouse 擴充功能：**
-1. 安裝 "Lighthouse" 擴充功能
-2. 在開發者工具中執行 Lighthouse 分析
-3. 檢視效能報告和建議
-
-**Vue DevTools 效能分析：**
-```typescript
-// 在 main.ts 中啟用效能追蹤
-import { createApp } from 'vue'
-import App from './App.vue'
-
-const app = createApp(App)
-
-// 開發環境啟用效能追蹤
-if (process.env.NODE_ENV === 'development') {
-  app.config.performance = true
-}
-
-app.mount('#app')
-```
-
-**前端效能檢查清單：**
-- Bundle 大小分析：`npm run build -- --report`
-- Core Web Vitals 監控
-- 記憶體使用量檢查
-- 網路請求最佳化
-
-#### 4.6.2 後端效能監控
-
-**Spring Boot Actuator 設定：**
-```yaml
-# application.yml
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-  endpoint:
-    health:
-      show-details: always
-    metrics:
-      enabled: true
-```
-
-**效能指標監控：**
-```java
-@RestController
-public class MetricsController {
-    
-    @Autowired
-    private MeterRegistry meterRegistry;
-    
-    @GetMapping("/api/metrics/custom")
-    public Map<String, Double> getCustomMetrics() {
-        Map<String, Double> metrics = new HashMap<>();
-        
-        // JVM 記憶體使用量
-        metrics.put("jvm.memory.used", 
-            meterRegistry.get("jvm.memory.used").gauge().value());
-        
-        // HTTP 請求計數
-        metrics.put("http.requests.total", 
-            meterRegistry.get("http.server.requests").counter().count());
-        
-        return metrics;
-    }
-}
-```
-
-**後端效能檢查清單：**
-- 資料庫查詢最佳化
-- API 回應時間監控
-- JVM 記憶體使用分析
-- 執行緒池狀態檢查
-
-#### 4.6.3 VS Code 效能診斷
-
-**啟用效能監控：**
-1. 按 `Ctrl + Shift + P`
-2. 輸入 `Developer: Startup Performance`
-3. 檢視啟動效能報告
-
-**常用效能診斷指令：**
-```
-Ctrl + Shift + P：
-- Developer: Show Running Extensions
-- Developer: Restart Extension Host
-- Developer: Toggle Developer Tools
-- Performance: Startup Performance
-```
-
-**擴充功能效能分析：**
-```typescript
-// 在 VS Code 開發者工具 Console 中執行
-// 查看擴充功能啟動時間
-console.table(
-  vscode.extensions.all
-    .filter(ext => ext.isActive)
-    .map(ext => ({
-      id: ext.id,
-      activationTime: ext.activationTime || 'Unknown'
-    }))
-    .sort((a, b) => (b.activationTime || 0) - (a.activationTime || 0))
-)
-```
-
-### 4.7 實務案例與注意事項
-
-#### ⚠️ 開發流程注意事項
-1. **連接埠衝突**：確保前後端使用不同連接埠
-2. **環境變數**：正確設定開發和生產環境變數
-3. **API 版本控制**：使用 API 版本控制避免相容性問題
-4. **錯誤處理**：前後端都要有適當的錯誤處理機制
-
-#### 💡 開發最佳實務
-- 使用功能分支進行開發，避免直接在主分支修改
-- 定期執行測試，確保程式碼品質
-- 使用 API 文件工具（如 Swagger）記錄 API 規格
-- 實施 Code Review 流程，提升程式碼品質
 
 ## 5. 協作開發功能
 
@@ -2937,91 +2912,10 @@ yo code
 
 **選擇擴充功能類型：**
 - New Extension (TypeScript)
-- New Extension (JavaScript)
 - New Color Theme
 - New Language Support
 - New Code Snippets
 - New Keymap
-- New Extension Pack
-- New Web Extension (TypeScript)
-
-#### 6.2.2 擴充功能專案結構
-
-生成後的基本結構：
-
-```
-my-extension/
-├── .vscode/
-│   ├── launch.json        # 除錯配置
-│   └── tasks.json         # 建置任務
-├── src/
-│   └── extension.ts       # 主進入點
-├── package.json           # 擴充功能清單
-├── tsconfig.json          # TypeScript 設定
-└── README.md
-```
-
-**`package.json` 關鍵欄位：**
-
-```json
-{
-  "name": "my-extension",
-  "displayName": "My Extension",
-  "version": "0.0.1",
-  "engines": { "vscode": "^1.96.0" },
-  "activationEvents": [],
-  "contributes": {
-    "commands": [
-      {
-        "command": "myExtension.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
-  "main": "./out/extension.js"
-}
-```
-
-#### 6.2.3 擴充功能基本開發
-
-**註冊命令範例（`extension.ts`）：**
-
-```typescript
-import * as vscode from 'vscode';
-
-export function activate(context: vscode.ExtensionContext) {
-  // 註冊命令
-  const disposable = vscode.commands.registerCommand(
-    'myExtension.helloWorld',
-    () => {
-      vscode.window.showInformationMessage('Hello from My Extension!');
-    }
-  );
-  context.subscriptions.push(disposable);
-}
-
-export function deactivate() {}
-```
-
-**除錯與測試：**
-1. 按 `F5` 開啟「Extension Development Host」視窗
-2. 在新視窗中按 `Ctrl + Shift + P`，搜尋已註冊的命令
-3. 修改程式碼後，按 `Ctrl + Shift + F5` 重新載入
-
-#### 6.2.4 發布擴充功能
-
-```bash
-# 安裝打包工具
-npm install -g @vscode/vsce
-
-# 打包成 .vsix 檔案
-vsce package
-
-# 發佈到 Marketplace（需先建立 Publisher）
-vsce publish
-```
-
-> **💡 提示**：發佈前請確認 `package.json` 中的 `publisher`、`repository`、`license` 欄位已正確填寫。
 
 ### 6.3 工作流程自動化
 
@@ -3240,7 +3134,7 @@ cache:
 
 build:
   stage: build
-  image: maven:3.8.1-openjdk-11
+  image: maven:3.9-eclipse-temurin-17
   script:
     - mvn clean compile
   artifacts:
@@ -3249,7 +3143,7 @@ build:
 
 test:
   stage: test
-  image: maven:3.8.1-openjdk-11
+  image: maven:3.9-eclipse-temurin-17
   script:
     - mvn test
   coverage: '/Total.*?([0-9]{1,3})%/'
@@ -3277,96 +3171,26 @@ deploy:
 
 ### 6.4 效能優化進階技巧
 
-#### 6.4.1 檔案監控與搜尋優化
-
-**排除不必要的檔案監控：**
+**記憶體使用優化：**
 ```json
 {
   "files.watcherExclude": {
     "**/.git/objects/**": true,
-    "**/.git/subtree-cache/**": true,
     "**/node_modules/**": true,
-    "**/target/**": true,
-    "**/dist/**": true,
-    "**/.gradle/**": true
-  },
-  "files.exclude": {
-    "**/.git": true,
-    "**/.DS_Store": true,
-    "**/node_modules": true,
-    "**/target": true
-  },
-  "search.exclude": {
-    "**/build/**": true,
-    "**/coverage/**": true,
-    "**/*.min.js": true
+    "**/target/**": true
   },
   "search.followSymlinks": false
 }
 ```
 
-#### 6.4.2 編輯器效能設定
-
-**減少 CPU/記憶體使用的設定：**
-```json
-{
-  "editor.minimap.enabled": false,
-  "editor.renderWhitespace": "selection",
-  "editor.occurrencesHighlight": "off",
-  "editor.matchBrackets": "near",
-  "editor.links": false,
-  "editor.codeLens": false,
-  "editor.maxTokenizationLineLength": 5000,
-  "workbench.editor.limit.enabled": true,
-  "workbench.editor.limit.value": 10,
-  "extensions.autoUpdate": "onlyEnabledExtensions"
-}
-```
-
-#### 6.4.3 擴充功能效能管理
-
-**診斷擴充功能效能：**
-1. `Ctrl + Shift + P` → `Developer: Show Running Extensions` 檢視各擴充功能的啟動時間
-2. `Developer: Startup Performance` 查看啟動效能報告
-3. 停用不常用的擴充功能，或使用 Profiles 為不同專案啟用不同擴充功能
-
-**排查效能問題：**
-- `Help > Open Process Explorer` 檢視各 process 的 CPU/記憶體使用量
-- `Developer: Toggle Developer Tools` 開啟 Chrome DevTools 分析效能
-- 使用 `--disable-extensions` 參數啟動 VS Code 以排除擴充功能干擾
-
-#### 6.4.4 大型專案效能建議
-
-| 項目 | 建議 |
-|------|------|
-| 大型 monorepo | 使用多根工作區僅開啟需要的資料夾 |
-| 大量檔案 | 設定 `files.watcherExclude` 排除建置產出 |
-| Git 歷史過大 | 設定 `git.repositoryScanMaxDepth` 限制掃描深度 |
-| TypeScript | 設定 `typescript.tsserver.maxTsServerMemory` 增加記憶體上限 |
-| 遠端開發 | 使用 Remote Extensions 減少本機資源消耗 |
-```
-
 ### 6.5 遠端開發與 SSH
 
-#### 6.5.1 Remote Development 概述
+#### 6.5.1 Remote SSH 設定
 
-VS Code Remote Development 讓您使用容器、遠端機器或 WSL 作為完整的開發環境，原始碼無需放在本機。
-
-**Remote Development 擴充功能包含四個擴充功能：**
-
-| 擴充功能 | 用途 | 安裝指令 |
-|---------|------|---------|
-| **Remote - SSH** | 透過 SSH 連線到遠端機器/VM | `ext install ms-vscode-remote.remote-ssh` |
-| **Dev Containers** | 在 Docker 容器中開發 | `ext install ms-vscode-remote.remote-containers` |
-| **WSL** | 在 Windows Subsystem for Linux 中開發 | `ext install ms-vscode-remote.remote-wsl` |
-| **Remote - Tunnels** | 透過安全隧道連線，無需設定 SSH | `ext install ms-vscode.remote-server` |
-
-**一鍵安裝整包：**
+**安裝 Remote SSH 擴充功能：**
 ```bash
-code --install-extension ms-vscode-remote.vscode-remote-extensionpack
+code --install-extension ms-vscode-remote.remote-ssh
 ```
-
-#### 6.5.2 Remote SSH 設定
 
 **SSH 設定檔配置：**
 ```bash
@@ -3377,46 +3201,14 @@ Host dev-server
     Port 22
     IdentityFile ~/.ssh/id_rsa
     ForwardAgent yes
-
-Host cloud-dev
-    HostName your-cloud-server.com
-    User ubuntu
-    Port 22
-    IdentityFile ~/.ssh/id_cloud_rsa
 ```
 
 **連線到遠端伺服器：**
 1. `Ctrl + Shift + P` → `Remote-SSH: Connect to Host`
 2. 選擇預設的主機或輸入新的連線
-3. VS Code 會在遠端自動安裝 VS Code Server 並同步擴充功能
+3. VS Code 會在遠端建立伺服器並同步擴充功能
 
-#### 6.5.3 Remote Tunnels（安全隧道）
-
-Remote Tunnels 讓您不需設定 SSH，即可透過安全隧道從任何地方連線到遠端機器。
-
-**建立隧道：**
-1. 在遠端機器上安裝 VS Code CLI 或 VS Code 桌面版
-2. 執行 `code tunnel` 啟動隧道
-3. 從另一台電腦的 VS Code 或 [vscode.dev](https://vscode.dev) 連線
-
-**適用場景：**
-- 從防火牆後方的機器遠端開發
-- 不方便設定 SSH 的環境
-- 透過瀏覽器（vscode.dev）存取遠端開發環境
-
-#### 6.5.4 GitHub Codespaces
-
-GitHub Codespaces 提供雲端託管的開發環境，由 GitHub 管理：
-
-```bash
-code --install-extension github.codespaces
-```
-
-- **即開即用**：幾秒鐘內建立完整開發環境
-- **預先配置**：透過 `devcontainer.json` 自訂環境
-- **隨處存取**：從瀏覽器或 VS Code 桌面版連線
-
-#### 6.5.5 遠端開發最佳實務
+#### 6.5.2 遠端開發最佳實務
 
 **檔案同步策略：**
 - 使用 Git 進行版本控制
@@ -3490,586 +3282,83 @@ touch .vscode/launch.json
 {
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll": true
+    "source.fixAll": "explicit"
   },
   "java.configuration.updateBuildConfiguration": "automatic",
   "spring.boot.java.mainClass": "com.example.Application"
 }
 ```
 
----
+### 6.7 設定檔 (Profiles) 管理
 
-## 7. AI 輔助開發與 GitHub Copilot
+VS Code Profiles 讓你為不同開發情境（前端、後端、資料科學等）切換不同的設定組合，包括擴充功能、設定、鍵盤快捷鍵和 UI 狀態。
 
-> **VS Code v1.109 (2026年1月) 重大更新**：VS Code 已全面進化為 AI 驅動的開發環境，GitHub Copilot 深度整合到編輯器的每個角落。
+#### 6.7.1 建立與切換 Profile
 
-### 7.1 GitHub Copilot 基礎設定
+**建立新 Profile：**
+1. 點擊左下角齒輪圖示 → **Profiles**
+2. 選擇 **Create Profile...**
+3. 輸入名稱（如「Java 開發」「前端開發」「Python 開發」）
+4. 選擇要從現有 Profile 複製的項目，或從空白開始
 
-#### 7.1.1 安裝與啟用
+**快速切換 Profile：**
+- `Ctrl + Shift + P` → `Profiles: Switch Profile`
+- 點擊左下角齒輪圖示 → 從清單中選擇
 
-**安裝 GitHub Copilot：**
+#### 6.7.2 Profile 內容與範本
 
-> **⚠️ 注意**：自 VS Code v1.109 起，GitHub Copilot 擴充功能已棄用，所有 AI 功能統一由 **GitHub Copilot Chat** 擴充功能提供。
+每個 Profile 包含以下項目：
+- **Settings**：編輯器與工作區設定
+- **Keyboard Shortcuts**：鍵盤快捷鍵
+- **User Snippets**：使用者程式碼片段
+- **User Tasks**：使用者任務
+- **UI State**：側邊欄位置、面板大小等
+- **Extensions**：已安裝的擴充功能清單
 
-```powershell
-code --install-extension GitHub.copilot-chat
-```
+**使用內建範本快速建立：**
 
-**啟用步驟：**
-1. 將滑鼠懸停在狀態列的 Copilot 圖示上，選擇 **Use AI Features**
-2. 選擇登入方式並依照提示操作
-3. 若已有 Copilot 訂閱，VS Code 會自動使用該訂閱
-4. 若尚未訂閱，會自動註冊 **Copilot Free 方案**（每月有行內建議和聊天互動次數限制）
+VS Code 提供多種預設 Profile 範本：
 
-> **💡 提示**：Copilot Free 方案免費，無需信用卡，包含每月限額的行內建議與聊天互動。欲了解付費方案，請參閱 [GitHub Copilot Plans](https://docs.github.com/en/copilot/get-started/plans)。
+| 範本名稱 | 包含的擴充功能與設定 |
+|----------|---------------------|
+| Python | Python、Pylance、Jupyter、Ruff 等 |
+| Data Science | Python、Jupyter、資料視覺化工具 |
+| Node.js | ESLint、npm Intellisense、REST Client 等 |
+| Java General | Java Extension Pack、Maven、Checkstyle 等 |
+| Java Spring | Spring Boot Extension Pack、Java Extension Pack 等 |
 
-**GitHub Enterprise (GHE) 帳號：**
-- 在登入對話框中選擇 **Continue with GHE.com**
-- 輸入您的 GHE 實例 URL 與認證資訊
+#### 6.7.3 匯出與分享 Profile
 
-**停用 AI 功能：**
-```json
-// settings.json - 完全停用 AI 功能
-{
-  "chat.disableAIFeatures": true
-}
-```
+**匯出 Profile：**
+1. `Ctrl + Shift + P` → `Profiles: Export Profile...`
+2. 選擇要匯出的項目
+3. 選擇匯出方式：
+   - **GitHub Gist**：產生可分享的連結
+   - **Local File**：儲存為 `.code-profile` 檔案
 
-#### 7.1.2 行內建議 (Inline Suggestions)
+**匯入 Profile：**
+1. `Ctrl + Shift + P` → `Profiles: Import Profile...`
+2. 貼上 GitHub Gist 連結或選擇本機檔案
 
-Copilot 提供兩種行內建議：
+> **團隊建議**：將專案推薦的 Profile 匯出為 GitHub Gist，新進成員可以一鍵匯入，快速完成開發環境設定。
 
-**Ghost Text（幽靈文字）建議：**
-- 在編輯器中輸入程式碼時，Copilot 以灰色虛影文字自動提供建議
-- 按 `Tab` 接受完整建議
-- 按 `Ctrl + →` 部分接受建議（逐字或逐行）
-- 按 `Esc` 拒絕建議
-- 按 `Alt + ]` / `Alt + [` 切換不同的替代建議
-- 可透過程式碼註解引導 Copilot 產生特定建議
+#### 6.7.4 資料夾與工作區關聯
 
-**Next Edit Suggestions (NES) 下一步編輯建議：**
+可以將特定 Profile 自動綁定到特定專案資料夾：
 
-> NES 是行內建議的進化，不僅在游標處提供補全，還能**預測您下一個編輯位置和內容**。
+1. 開啟目標專案資料夾
+2. `Ctrl + Shift + P` → `Profiles: Associate Profile with Folder...`
+3. 選擇想關聯的 Profile
 
-```json
-// settings.json - 啟用 NES
-{
-  "github.copilot.nextEditSuggestions.enabled": true
-}
-```
-
-- **Tab 巡覽**：按 `Tab` 跳到下一個建議的編輯位置，再按 `Tab` 接受
-- **溝槽箭頭**：編輯器溝槽會顯示箭頭指示下一個建議的方向
-- 支援的場景：
-  - **抓錯修正**：修正拼寫錯誤、邏輯錯誤
-  - **意圖變更**：改名類別後自動建議更新相關屬性
-  - **重構**：改變命名風格後建議批量更新
-
-**NES 進階設定：**
-```json
-{
-  "editor.inlineSuggest.edits.allowCodeShifting": true,
-  "editor.inlineSuggest.edits.renderSideBySide": "auto",
-  "editor.inlineSuggest.edits.showCollapsed": false,
-  "github.copilot.nextEditSuggestions.fixes": true
-}
-```
-
-#### 7.1.3 聊天功能 (Chat)
-
-VS Code 提供多種 AI 聊天介面：
-
-| 介面 | 快捷鍵 | 用途 |
-|------|--------|------|
-| **Chat View（聊天檢視）** | `Ctrl + Alt + I` | 多輪對話、Agent 工作流程、多檔案編輯 |
-| **Inline Chat（行內聊天）** | `Ctrl + I` | 在編輯器中直接修改程式碼 |
-| **Quick Chat（快速聊天）** | `Ctrl + Shift + Alt + L` | 不離開當前畫面快速提問 |
-| **命令列** | `code chat` | 從 VS Code 外部啟動聊天 |
-
-**聊天上下文管理：**
-
-提供正確的上下文能讓 AI 產生更精確的回應：
-
-- **隱式上下文**：VS Code 自動包含目前開啟的檔案、選取範圍、檔名
-- **`#` 提及**：輸入 `#` 顯式引用檔案（`#file`）、資料夾、符號、程式碼庫（`#codebase`）、終端機輸出（`#terminalSelection`）或工具如 `#fetch`、`#githubRepo`
-- **`@` 提及**：輸入 `@` 呼叫專門的聊天參與者，如 `@vscode`、`@terminal`、`@workspace`
-- **視覺附件**：附加螢幕截圖或 UI 設計稿作為上下文
-- **瀏覽器元素（實驗性）**：選取整合瀏覽器中的元素，附加 HTML、CSS 和截圖上下文
-
-#### 7.1.4 Smart Actions（智慧動作）
-
-VS Code 內建預定義的 AI 動作，用於常見任務：
-- 產生 Commit 訊息
-- 重新命名符號
-- 修正錯誤
-- 語意搜尋
-- 修正測試失敗
-
-#### 7.1.5 審查與管理 AI 變更
-
-AI 對檔案進行變更後，審查並決定保留或捨棄：
-
-- **行內差異檢視**：開啟已變更的檔案，使用編輯器覆蓋控制項巡覽各個編輯，個別 **Keep** 或 **Undo**
-- **檢查點 (Checkpoints)**：VS Code 在聊天互動的關鍵時刻自動建立檔案快照，可隨時回溯到之前的狀態
-- **Stage 即接受**：在原始碼控制檢視中暫存變更即自動接受所有待定編輯
-
-### 7.2 Agent 模式與工作階段管理
-
-#### 7.2.1 Agent 類型
-
-VS Code 支援四種 Agent 類型，各適合不同的使用情境：
-
-| Agent 類型 | 說明 | 適用場景 |
-|-----------|------|--------|
-| **本地 Agent (Local)** | 在本機 VS Code 中互動式執行，完整存取工作區與工具 | 探索性任務、頭腦風暴、即時回饋 |
-| **背景 Agent (Background)** | 透過 CLI 在本機背景非互動式執行，使用 Git worktree 隔離 | 定義明確的實作任務、多工並行 |
-| **雲端 Agent (Cloud)** | 在遠端基礎設施上執行，整合 GitHub PR 協作 | 團隊協作、建立 PR、指派 GitHub Issue |
-| **第三方 Agent (Third-party)** | 使用 Anthropic、OpenAI 等第三方 AI 提供者 | 使用特定 AI 提供者的獨特能力 |
-
-**三種內建代理 (Built-in Agents)：**
-
-| 內建代理 | 功能 |
-|---------|------|
-| **Agent** | 自主規劃並實作變更，可跨檔案編輯、執行終端機指令、調用工具 |
-| **Plan** | 建立結構化的分步實作計畫，確認後交給實作代理執行 |
-| **Ask** | 回答程式碼問題、解釋概念，**不會修改檔案** |
-
-> **重要**：確認代理功能已啟用：`"chat.agent.enabled": true`。組織管理員可能需要額外啟用此功能。
-
-#### 7.2.2 工作階段管理
-
-**建立新工作階段：**
-1. 在 Chat 檢視中選擇 **New Session** 下拉選單（`+`）
-2. 從下拉選單中選擇 Agent 類型
-3. 輸入 prompt 指派任務
-
-> 可以同時執行多個 Agent 工作階段，每個專注於不同的任務。每個工作階段有獨立的上下文視窗。
-
-**切換與委派（Hand-off）：**
-- 使用聊天輸入區的 Agent 類型選擇器切換，完整對話記錄會帶到新工作階段
-- 在背景 Agent 工作階段中，使用 `/delegate` 指令委派給雲端 Agent
-- 可將 TODO 註解指派給 Agent 實作（需安裝 GitHub Pull Requests 擴充功能）
-
-**工作階段檢視模式：**
-- **緊湊模式 (Compact)**：工作階段列表嵌入 Chat 檢視中
-- **並排模式 (Side-by-side)**：列表與 Chat 檢視並列顯示
-- 可透過右鍵選單 → **Sessions Orientation** 切換模式
-
-**封存與刪除：**
-- **封存**：懸停工作階段 → 選擇 **Archive**，可隨時解除封存
-- **刪除**：右鍵 → **Delete**（不可復原，背景 Agent 工作階段連同 worktree 一併刪除）
-
-**Agent 狀態指示器（實驗性）：**
-```json
-// settings.json
-{
-  "chat.agentsControl.enabled": true,
-  "chat.agentsControl.clickBehavior": "cycle",
-  "chat.viewSessions.enabled": true
-}
-```
-- **未讀標記**：顯示含有新訊息的工作階段數量
-- **進行中標記**：顯示正在執行的 Agent 數量
-
-#### 7.2.3 子代理 (Subagents)
-
-子代理可以並行執行，加速複雜任務的處理：
-- 每個子代理擁有獨立的上下文視窗
-- 不會消耗主代理的上下文空間
-- 可以使用不同的模型最佳化特定任務
-
-**Search Subagent（實驗性）：**
-```json
-{
-  "github.copilot.chat.searchSubagent.enabled": true
-}
-```
-
-### 7.3 Plan Agent 規劃代理
-
-#### 7.3.1 使用 Plan Agent
-
-Plan 是 VS Code 內建的代理之一，專門用於在撰寫程式碼前建立結構化的實作計畫。
-
-**使用方式：**
-1. 開啟 Chat 檢視（`Ctrl + Alt + I`）
-2. 從代理選擇器中選擇 **Plan** 代理
-3. 描述您想要實作的功能或任務
-
-**Plan Agent 工作流程：**
-1. **分析**：分析您的程式碼庫結構與相關程式碼
-2. **釐清**：透過釐清問題確認需求與方向
-3. **規劃**：產生分步驟的實作計畫
-4. **委派**：計畫確認後，交給實作代理（Agent）執行——本地、背景或雲端皆可
-
-**配置實作模型：**
-```json
-{
-  "github.copilot.chat.implementAgent.model": "Claude Sonnet 4.5 (copilot)"
-}
-```
-
-### 7.4 自訂 AI 行為
-
-> AI 模型具備廣泛的通用知識，但不了解您的程式碼庫或團隊慣例。自訂就是分享這些上下文的方式。
-
-#### 7.4.1 自訂指令 (Custom Instructions)
-
-VS Code 支援多種自訂指令方式，讓 AI 了解您的程式碼庫和團隊慣例：
-
-**指令類型概覽：**
-
-| 類型 | 說明 | 自動套用 |
-|------|------|---------|
-| `.github/copilot-instructions.md` | 專案全域指令 | ✅ 每次聊天 |
-| `AGENTS.md` | 多 AI 代理共用指令 | ✅ 每次聊天 |
-| `*.instructions.md` | 依檔案模式條件套用 | ✅ 依 `applyTo` 模式 |
-| 組織層級指令 | GitHub 組織共享 | ✅ 自動偵測 |
-
-**永遠啟用的指令 - copilot-instructions.md：**
-
-建立 `.github/copilot-instructions.md` 檔案，自動套用到每個聊天工作階段：
-
-```markdown
-# Copilot 自訂指令
-
-## 程式碼風格
-- 使用 TypeScript 嚴格模式
-- 函式必須有 JSDoc 註解
-- 使用 Vue 3 Composition API
-
-## 技術堆疊
-- 前端：Vue 3 + TypeScript + Tailwind CSS
-- 後端：Spring Boot + Java 17
-- 資料庫：MySQL 8.0
-```
-
-**永遠啟用的指令 - AGENTS.md：**
-
-如果您同時使用多個 AI 代理（如 GitHub Copilot、Claude 等），建議使用 `AGENTS.md`：
-
-```markdown
-# AGENTS.md
-
-## 程式碼慣例
-- 使用繁體中文撰寫註解
-- 遵循 RESTful API 設計原則
-- 所有 API 端點需有錯誤處理
-
-## 專案結構
-- frontend/ - Vue 3 前端
-- backend/ - Spring Boot 後端
-```
-
-> **💡 提示**：`AGENTS.md` 也支援放在子資料夾中（實驗性功能），透過 `chat.useNestedAgentsMdFiles` 設定啟用，可為 monorepo 的不同部分指定不同指令。
-
-**檔案型指令 (File-based)：**
-
-建立 `*.instructions.md` 檔案，根據檔案路徑模式或描述有條件套用：
-
-```markdown
----
-name: "Vue 元件指引"
-description: "Vue 元件開發規範"
-applyTo: "src/**/*.vue"
----
-# Vue 元件指引
-- 使用 `<script setup lang="ts">` 語法
-- Props 使用 `defineProps` 定義型別
-- 元件名稱使用 PascalCase
-```
-
-**指令檔案儲存位置：**
-
-| 範圍 | 位置 |
-|------|------|
-| 工作區 | `.github/instructions` 或 `.claude/rules` 資料夾 |
-| 使用者設定檔 | 目前 VS Code Profile 的 `prompts` 資料夾 |
-
-**使用 `/init` 命令初始化：**
-- 在聊天中輸入 `/init` 自動分析專案結構
-- 產生適合專案的 `copilot-instructions.md`
-- 建議先檢視並微調生成的指令
-
-**指令優先順序（由高至低）：**
-1. 個人指令（使用者層級）
-2. 儲存庫指令（`.github/copilot-instructions.md` 或 `AGENTS.md`）
-3. 組織指令
-
-#### 7.4.2 Prompt Files（提示檔案）
-
-Prompt Files（又稱 Slash Commands）允許您將常見任務編碼為可重複使用的 Markdown 檔案：
-
-建立 `.github/prompts/` 目錄下的 `.prompt.md` 檔案：
-
-```markdown
----
-description: "建立新的 Vue 元件"
-mode: "agent"
-tools: ["codebase", "editFiles"]
----
-# 建立 Vue 3 元件
-
-請依照以下步驟建立新的 Vue 3 元件：
-
-1. 使用 Composition API 和 `<script setup>` 語法
-2. 加入 Props 和 Emits 的 TypeScript 型別定義
-3. 建立對應的單元測試檔案
-4. 確保元件遵循現有的命名慣例
-
-元件名稱：${{input:componentName}}
-放置路徑：${{input:path}}
-```
-
-**使用方式：**
-- 在聊天中輸入 `/` 即可看到所有可用的 prompt files
-- 選擇對應的 prompt 執行預定義的任務
-
-> **💡 Prompt files vs Custom agents**：Prompt files 適合單一可重複任務（如建立元件）。Custom agents 適合需要持久角色和工具限制的多步驟工作流程。
-
-#### 7.4.3 自訂代理檔案
-
-建立 `.github/agents/` 目錄下的 `.agent.md` 檔案：
-
-```markdown
----
-name: code-reviewer
-model: ['Claude Sonnet 4.5 (copilot)', 'GPT-5 (copilot)']
-tools: ['codebase', 'terminal']
----
-
-你是一位程式碼審查專家。請審查提供的程式碼，關注：
-- 程式碼品質與可讀性
-- 潛在的安全漏洞
-- 效能最佳化建議
-```
-
-**自訂代理進階設定：**
-```markdown
----
-name: my-agent
-user-invokable: false
-disable-model-invocation: false
-agents: ['Modify', 'Search']
----
-```
-
-#### 7.4.4 Agent Skills（正式版）
-
-Agent Skills 提供專業領域知識和精煉的工作流程：
-
-```json
-// settings.json
-{
-  "chat.agentSkillsLocations": {
-    ".github/skills": true,
-    "~/.copilot/skills": true
-  }
-}
-```
-
-**建立 Skill：**
-- 使用命令 `Chat: New Skill File` 建立新技能
-- Skill 目錄範例：`.github/skills/testing/SKILL.md`
-
-#### 7.4.5 組織層級指令
-
-如果您的 GitHub 組織配置了自訂指令，它們會自動套用：
-```json
-{
-  "github.copilot.chat.organizationInstructions.enabled": true
-}
-```
-
-#### 7.4.6 Hooks（生命週期鉤子）
-
-Hooks 讓您在 Agent 生命週期事件（如儲存檔案、執行終端機指令）時自動執行自訂指令，用於自動化和政策執行：
-
-```json
-// .vscode/settings.json
-{
-  "github.copilot.chat.hooks": {
-    "postSave": [
-      {
-        "command": "npx prettier --write ${file}",
-        "description": "儲存後自動格式化"
-      }
-    ],
-    "postCommand": [
-      {
-        "command": "npm run lint",
-        "description": "執行指令後自動檢查"
-      }
-    ]
-  }
-}
-```
-
-#### 7.4.7 疑難排解
-
-使用自訂診斷檢視排查問題：
-- 選擇 **Configure Chat (齒輪圖示) > Diagnostics**
-- 查看所有已載入的自訂代理、prompt files、指令檔和 skills
-- 檢查是否有語法錯誤、無效配置或資源載入問題
-
-### 7.5 MCP 伺服器整合
-
-#### 7.5.1 什麼是 MCP
-
-Model Context Protocol (MCP) 讓 AI 模型可以與外部工具和資料來源互動，擴展 Copilot 的能力。
-
-#### 7.5.2 設定 MCP 伺服器
-
-**在 VS Code 中配置 MCP：**
-
-建立 `.vscode/mcp.json` 檔案：
-```json
-{
-  "servers": {
-    "my-database": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-postgres"],
-      "env": {
-        "DATABASE_URL": "${env:DATABASE_URL}"
-      }
-    },
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "./data"]
-    }
-  }
-}
-```
-
-#### 7.5.3 MCP Apps（v1.109 新功能）
-
-MCP Apps 允許伺服器在 VS Code 中顯示豐富的互動式 UI：
-- 互動式火焰圖視覺化
-- 自訂儀表板
-- 資料視覺化元件
-
-### 7.6 Copilot Memory（預覽）
-
-跨工作階段記憶重要資訊：
-
-```json
-{
-  "github.copilot.chat.copilotMemory.enabled": true
-}
-```
-
-**功能特色：**
-- 自動儲存重要上下文到記憶體
-- 跨工作階段存取和更新記憶
-- 在 [GitHub Copilot 設定](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/copilot-memory) 中管理所有記憶
-
-### 7.7 語言模型管理
-
-不同的語言模型針對不同任務最佳化。VS Code 讓您可以在不同模型間切換，取得最佳效果。
-
-#### 7.7.1 選擇語言模型
-
-使用 Chat 檢視的模型下拉選單選擇適合的模型：
-- **快速模型**：適合快速程式碼建議和簡單重構
-- **高階模型**：適合複雜架構決策和詳細程式碼審查
-- **自帶 API Key**：存取實驗性模型或本地託管模型
-
-**切換行內建議模型：**
-1. 開啟命令面板（`F1`）
-2. 輸入 `Change Completions Model`
-3. 選擇 `GitHub Copilot: Change Completions Model`
-
-#### 7.7.2 Anthropic 模型整合（Claude）
-
-```json
-{
-  // 設定思考預算
-  "github.copilot.chat.anthropic.thinking.budgetTokens": 10000,
-  // 啟用工具搜尋
-  "github.copilot.chat.anthropic.toolSearchTool.enabled": true,
-  // 啟用上下文編輯（實驗性）
-  "github.copilot.chat.anthropic.contextEditing.enabled": true
-}
-```
-
-**功能特色：**
-- 支援 Thinking Tokens（思考令牌），可查看模型推理過程
-- 支援 Messages API 與交錯思考
-- 可選擇詳細或精簡的思考顯示風格
-
-#### 7.7.3 語言模型編輯器
-
-VS Code 提供集中式的語言模型管理介面：
-- 支援同一提供者的多個配置（個人/工作帳號）
-- Azure 模型配置支援
-- 模型配置儲存在 `chatLanguageModels.json` 檔案中
-
-### 7.8 AI 開發常用快捷鍵
-
-| 快捷鍵 | 功能 | 說明 |
-|--------|------|------|
-| `Tab` | 接受建議 | 接受 Copilot 的程式碼建議 |
-| `Ctrl + →` | 部分接受 | 逐字或逐行接受建議 |
-| `Esc` | 拒絕建議 | 拒絕目前的建議 |
-| `Alt + ]` | 下一個建議 | 切換到下一個替代建議 |
-| `Alt + [` | 上一個建議 | 切換到上一個替代建議 |
-| `Tab` (NES) | 巡覽 NES | 跳到下一個編輯建議位置 |
-| `Ctrl + I` | 行內聊天 | 在編輯器中開啟行內 AI 聊天 |
-| `Ctrl + Alt + I` | 聊天面板 | 開啟/切換 Copilot 聊天面板 |
-| `Ctrl + Shift + Alt + L` | 快速聊天 | 輕量級快速提問面板 |
-
-### 7.9 AI 開發最佳實務
-
-#### 7.9.1 有效使用 AI 的建議
-
-1. **提供清晰的上下文**：使用 `#file`、`#codebase`、`@workspace` 等上下文標籤
-2. **善用 Custom Instructions**：建立 `copilot-instructions.md` 統一團隊程式碼風格
-3. **善用 Prompt Files**：將常見任務（如建立元件、程式碼審查）封裝為 `.prompt.md` 檔案
-4. **分階段開發**：先用 Plan Agent 規劃，再用 Agent 實作
-5. **審查 AI 產出**：AI 產生的程式碼仍需人工審查和測試
-6. **善用 NES**：啟用 Next Edit Suggestions，讓 Copilot 預測下一步編輯
-7. **撰寫有效的提示**：具體描述需求、引用相關檔案和符號
-8. **善用 Chat Debug View**：使用 Chat Debug View 檢查 AI 請求與回應的詳細資訊，理解 AI 回應的原因
-
-#### 7.9.2 Agent 使用場景指引
-
-| 場景 | 建議的 Agent |
-|------|-------------|
-| 互動式探索或腦力激盪 | 本地 Agent |
-| 回答程式碼庫問題 | 本地 Agent (Ask) |
-| 建立結構化實作計畫 | 本地 Agent (Plan) |
-| 修正需要編輯器上下文的問題 | 本地 Agent |
-| 實作定義明確的任務同時繼續工作 | 背景 Agent 或 雲端 Agent |
-| 建立 PR 供團隊審查 | 雲端 Agent |
-| 使用特定 AI 提供者 | 第三方 Agent |
-
-#### 7.9.3 安全性考量
-
-**終端機沙盒（實驗性，macOS/Linux）：**
-```json
-{
-  "chat.tools.terminal.sandbox.enabled": true,
-  "chat.tools.terminal.sandbox.network": {
-    "allowedDomains": ["*.npmjs.org", "*.github.com"]
-  }
-}
-```
-
-**自動核准設定：**
-```json
-{
-  "chat.tools.terminal.enableAutoApprove": true
-}
-```
-- 預設自動核准的指令：`cd`、`dir`、`docker`（安全子指令）、`npm`、`yarn`、`pnpm`（安全子指令）
+之後每次開啟該資料夾，VS Code 會自動切換到對應的 Profile。
 
 ---
 
-## 8. 最佳實務
+## 7. 最佳實務
 
-### 8.1 常見問題 (FAQ) 與解決方式
+### 7.1 常見問題 (FAQ) 與解決方式
 
-#### 8.1.1 安裝與設定問題
+#### 7.1.1 安裝與設定問題
 
 **Q1: VS Code 啟動速度很慢**
 
@@ -4099,7 +3388,7 @@ VS Code 提供集中式的語言模型管理介面：
 3. 重新匯入專案：`Ctrl + Shift + P` → `Java: Reload Projects`
 4. 檢查 `.vscode/settings.json` 中的 Java 路徑設定
 
-#### 8.1.2 開發環境問題
+#### 7.1.2 開發環境問題
 
 **Q4: 前端熱重載不工作**
 
@@ -4131,7 +3420,7 @@ VS Code 提供集中式的語言模型管理介面：
 3. 檢查連接埠是否被佔用
 4. 查看 `Debug Console` 的錯誤訊息
 
-#### 8.1.3 效能最佳化問題
+#### 7.1.3 效能最佳化問題
 
 **Q7: 編輯器回應緩慢**
 
@@ -4156,9 +3445,9 @@ VS Code 提供集中式的語言模型管理介面：
    }
    ```
 
-### 8.2 建議的工作習慣
+### 7.2 建議的工作習慣
 
-#### 8.2.1 自動化設定
+#### 7.2.1 自動化設定
 
 **自動儲存設定：**
 ```json
@@ -4175,9 +3464,9 @@ VS Code 提供集中式的語言模型管理介面：
   "editor.formatOnPaste": true,
   "editor.formatOnType": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.organizeImports": true,
-    "source.removeUnusedImports": true
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit",
+    "source.removeUnusedImports": "explicit"
   }
 }
 ```
@@ -4195,7 +3484,7 @@ VS Code 提供集中式的語言模型管理介面：
 }
 ```
 
-#### 8.2.2 程式碼品質習慣
+#### 7.2.2 程式碼品質習慣
 
 **1. 定期 Commit 習慣**
 - 每完成一個小功能就提交
@@ -4222,7 +3511,7 @@ test: 新增用戶服務測試
 - 執行自動化測試
 - 維持高測試覆蓋率
 
-#### 8.2.3 工作區管理習慣
+#### 7.2.3 工作區管理習慣
 
 **檔案組織習慣：**
 1. 使用一致的檔案命名規則
@@ -4234,9 +3523,9 @@ test: 新增用戶服務測試
 2. 備份重要的設定檔案
 3. 定期更新擴充功能
 
-### 8.3 效能最佳化
+### 7.3 效能最佳化
 
-#### 8.3.1 編輯器效能優化
+#### 7.3.1 編輯器效能優化
 
 **記憶體使用優化：**
 ```json
@@ -4265,7 +3554,9 @@ test: 新增用戶服務測試
 }
 ```
 
-#### 8.3.2 專案載入優化
+> **推薦功能 — Sticky Scroll**：啟用 `"editor.stickyScroll.enabled": true` 可在捲動時將目前的類別、函式等作用域標題固定在編輯器頂部，方便瀏覽大型檔案。
+
+#### 7.3.2 專案載入優化
 
 **大型專案設定：**
 ```json
@@ -4281,9 +3572,9 @@ test: 新增用戶服務測試
 }
 ```
 
-### 8.4 安全性最佳實務
+### 7.4 安全性最佳實務
 
-#### 8.4.1 敏感資訊保護
+#### 7.4.1 敏感資訊保護
 
 **環境變數使用：**
 ```javascript
@@ -4328,7 +3619,7 @@ const API_KEY = "sk-1234567890abcdef"; // 不要這樣做！
    git log --all --full-history -- **/*.env
    ```
 
-#### 8.4.2 憑證與金鑰管理
+#### 7.4.2 憑證與金鑰管理
 
 **GitHub/GitLab 存取權杖安全：**
 ```json
@@ -4346,7 +3637,7 @@ const API_KEY = "sk-1234567890abcdef"; // 不要這樣做！
 - 設定權杖到期時間
 - 只授予必要的權限範圍
 
-#### 8.4.3 依賴套件安全
+#### 7.4.3 依賴套件安全
 
 **定期更新依賴：**
 ```powershell
@@ -4378,7 +3669,7 @@ mvn versions:display-dependency-updates
 }
 ```
 
-#### 8.4.4 程式碼掃描與分析
+#### 7.4.4 程式碼掃描與分析
 
 **SonarQube 整合：**
 ```json
@@ -4399,7 +3690,7 @@ mvn versions:display-dependency-updates
 - [ ] 適當的錯誤處理
 - [ ] 安全的認證與授權
 
-#### 8.4.5 開發環境隔離
+#### 7.4.5 開發環境隔離
 
 **容器化開發環境：**
 ```dockerfile
@@ -4431,9 +3722,35 @@ RUN npm install -g audit-ci
 }
 ```
 
-### 8.5 團隊協作規範
+#### 7.4.6 工作區信任 (Workspace Trust)
 
-#### 8.5.1 編碼標準統一
+VS Code 的 Workspace Trust 功能可防止不受信任的程式碼自動執行，保護開發環境安全。
+
+**運作方式：**
+- 開啟新資料夾時，VS Code 會詢問是否信任該工作區
+- **受信任模式**：所有功能正常運作（擴充功能、終端機、偵錯、任務等）
+- **受限模式**：停用可能執行程式碼的功能（如自動格式化、任務執行、部分擴充功能）
+
+**設定信任規則：**
+```json
+{
+  // 信任的資料夾清單
+  "security.workspace.trust.untrustedFiles": "prompt",
+  "security.workspace.trust.enabled": true,
+  "security.workspace.trust.startupPrompt": "once"
+}
+```
+
+**管理信任設定：**
+1. `Ctrl + Shift + P` → `Workspaces: Manage Workspace Trust`
+2. 在設定中新增信任的父資料夾路徑
+3. 信任父資料夾後，其所有子資料夾自動受信任
+
+> **建議**：將你的開發主目錄（如 `D:\developer\repos`）設為信任資料夾，避免每次開啟專案都要確認。
+
+### 7.5 團隊協作規範
+
+#### 7.5.1 編碼標準統一
 
 **團隊設定同步：**
 ```json
@@ -4444,8 +3761,8 @@ RUN npm install -g audit-ci
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.organizeImports": true
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
   },
   "files.encoding": "utf8",
   "files.eol": "\n",
@@ -4467,7 +3784,7 @@ RUN npm install -g audit-ci
 }
 ```
 
-#### 8.5.2 程式碼審查流程
+#### 7.5.2 程式碼審查流程
 
 **審查前自動檢查：**
 ```json
@@ -4499,7 +3816,7 @@ RUN npm install -g audit-ci
 - [ ] **測試覆蓋**：單元測試、整合測試
 - [ ] **文件完整性**：註解、README、API 文件
 
-#### 8.5.3 版本控制協作
+#### 7.5.3 版本控制協作
 
 **分支命名規範：**
 ```bash
@@ -4537,19 +3854,20 @@ refactor(api): simplify error handling logic
   "gitlens.blame.compact": false
 }
 ```
+```
 
 ---
 
-## 9. 檢查清單
+## 8. 檢查清單
 
-### 9.1 新進成員快速上手檢查清單
+### 8.1 新進成員快速上手檢查清單
 
 #### ✅ 環境安裝檢查
 
 **基本環境：**
 - [ ] 安裝 Visual Studio Code
 - [ ] 安裝 Git
-- [ ] 安裝 Node.js (版本 18+)
+- [ ] 安裝 Node.js (版本 20+ LTS)
 - [ ] 安裝 Java (版本 17+)
 - [ ] 安裝 Maven (獨立安裝或使用內建版本)
 - [ ] 設定 Git 使用者資訊
@@ -4573,13 +3891,12 @@ refactor(api): simplify error handling logic
 **基礎工具：**
 - [ ] Chinese (Traditional) Language Pack
 - [ ] GitLens
-- [ ] Error Lens
-- [ ] GitHub Copilot Chat
+- [ ] Auto Rename Tag
 - [ ] indent-rainbow
 - [ ] Path Intellisense
 
 **前端開發：**
-- [ ] Volar (Vue - Official)
+- [ ] Volar (Vue Language Features)
 - [ ] TypeScript Importer
 - [ ] ESLint
 - [ ] Prettier
@@ -4592,6 +3909,16 @@ refactor(api): simplify error handling logic
 - [ ] Maven for Java
 - [ ] Checkstyle for Java
 - [ ] SonarLint
+
+**Python 開發：**
+- [ ] Python
+- [ ] Pylance
+- [ ] Ruff
+- [ ] Jupyter
+
+**AI 輔助開發：**
+- [ ] GitHub Copilot
+- [ ] GitHub Copilot Chat
 
 #### ✅ 專案設定檢查
 
@@ -4608,7 +3935,7 @@ refactor(api): simplify error handling logic
 - [ ] 測試 Git 操作功能
 - [ ] 設定 `.gitignore` 檔案
 
-### 9.2 日常開發檢查清單
+### 8.2 日常開發檢查清單
 
 #### ✅ 開發前檢查
 
@@ -4652,7 +3979,7 @@ refactor(api): simplify error handling logic
 - [ ] 執行整合測試
 - [ ] 驗證 CI/CD Pipeline 通過
 
-### 9.3 部署前檢查清單
+### 8.3 部署前檢查清單
 
 #### ✅ 生產環境準備
 
@@ -4681,7 +4008,7 @@ refactor(api): simplify error handling logic
 - [ ] 部署腳本已驗證
 - [ ] 回滾計劃已準備
 
-### 9.4 故障排除檢查清單
+### 8.4 故障排除檢查清單
 
 #### ✅ 常見問題診斷
 
@@ -4711,21 +4038,24 @@ refactor(api): simplify error handling logic
 
 ---
 
-## 10. 附錄
+## 9. 附錄
 
-### 10.1 參考資源
+### 9.1 參考資源
 
 **官方文件：**
 - [Visual Studio Code 官方文件](https://code.visualstudio.com/docs)
 - [Vue.js 官方文件](https://vuejs.org/)
 - [Spring Boot 官方文件](https://spring.io/projects/spring-boot)
 - [TypeScript 官方文件](https://www.typescriptlang.org/docs/)
+- [GitHub Copilot 文件](https://code.visualstudio.com/docs/copilot/overview)
 
 **學習資源：**
 - [VS Code Tips and Tricks](https://code.visualstudio.com/docs/getstarted/tips-and-tricks)
 - [Java 在 VS Code 中的使用](https://code.visualstudio.com/docs/languages/java)
 - [TypeScript 開發指南](https://code.visualstudio.com/docs/languages/typescript)
 - [Remote Development 指南](https://code.visualstudio.com/docs/remote/remote-overview)
+- [VS Code Profiles](https://code.visualstudio.com/docs/editor/profiles)
+- [Workspace Trust](https://code.visualstudio.com/docs/editor/workspace-trust)
 
 **社群資源：**
 - [VS Code Extension Marketplace](https://marketplace.visualstudio.com/)
@@ -4737,7 +4067,7 @@ refactor(api): simplify error handling logic
 - [SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode)
 - [Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
 
-### 10.2 聯絡支援
+### 9.2 聯絡支援
 
 **技術支援管道：**
 - 技術支援：`tech-support@yourcompany.com`
@@ -4753,11 +4083,11 @@ refactor(api): simplify error handling logic
 - 24/7 技術熱線：`+886-xxx-xxx-xxx`
 - 緊急事件通報：`emergency@yourcompany.com`
 
-### 10.3 版本歷程
+### 9.3 版本歷程
 
 | 版本 | 日期 | 更新內容 | 作者 |
 |------|------|----------|------|
-| 3.0 | 2026-02-12 | 新增 AI/Copilot 章節 (第7章)、更新至 VS Code v1.109、移除過時擴充與設定、修正章節編號 | 開發團隊 |
+| 3.0 | 2025-08-29 | 新增 GitHub Copilot/AI 輔助開發、Profiles 管理、Workspace Trust、三方合併編輯器；更新 Python 工具為 Ruff；移除已棄用擴充功能 | 開發團隊 |
 | 2.0 | 2025-08-29 | 新增 GitLab 整合、安全性最佳實務、遠端開發 | 開發團隊 |
 | 1.5 | 2025-08-01 | 新增 CI/CD 整合、容器化開發環境 | 開發團隊 |
 | 1.0 | 2025-07-01 | 初版發佈，基本功能教學 | 開發團隊 |
@@ -4767,3 +4097,4 @@ refactor(api): simplify error handling logic
 *文件版本：3.0*  
 *最後更新：2026年3月5日*  
 *維護團隊：開發部技術團隊*
+
