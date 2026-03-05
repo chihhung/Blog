@@ -4765,5 +4765,5 @@ refactor(api): simplify error handling logic
 ---
 
 *文件版本：3.0*  
-*最後更新：2026年2月12日*  
+*最後更新：2026年3月5日*  
 *維護團隊：開發部技術團隊*
