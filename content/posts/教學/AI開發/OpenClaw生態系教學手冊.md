@@ -1170,8 +1170,8 @@ graph TB
     end
     
     subgraph "健康檢查"
-        HC[/healthz endpoint]
-        RC[/readyz endpoint]
+        HC[healthz endpoint]
+        RC[readyz endpoint]
     end
     
     SYSTEMD -->|自動重啟| GW
@@ -7057,7 +7057,7 @@ public class CustomerSupportEngine {
 
 ```mermaid
 flowchart TD
-    USER[使用者指令<br>"提醒我明天 3 點開會"] --> NLP[自然語言解析]
+    USER[使用者指令<br>'提醒我明天 3 點開會'] --> NLP[自然語言解析]
     NLP --> EXT{擷取實體}
     EXT --> TIME[時間: 明天 15:00]
     EXT --> ACTION[動作: 提醒]
