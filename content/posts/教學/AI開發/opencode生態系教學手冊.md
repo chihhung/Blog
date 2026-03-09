@@ -2063,7 +2063,7 @@ graph TB
 **建議的 Git Branch 策略與 OpenCode 搭配：**
 
 ```mermaid
-gitgraph
+gitGraph
     commit id: "Initial"
     branch develop
     checkout develop
