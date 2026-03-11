@@ -4,13 +4,14 @@ draft = false
 title = 'spec-kit使用教學'
 tags = ['教學', 'AI開發']
 categories = ['教學']
+lastmod = '2026-03-11T00:00:00+08:00'
 +++
 
 # Spec-Kit 使用教學手冊
 
-> **版本**: 1.4  
-> **最後更新**: 2025年7月  
-> **適用於**: Spec-Kit v0.1.13+ / Spec Kit Templates - 0.1.13  
+> **版本**: 1.5  
+> **最後更新**: 2026年3月  
+> **適用於**: Spec-Kit v0.2.0+ / Spec Kit Templates - 0.2.0  
 > **Created by**: Eric Cheng
 
 ---
@@ -380,6 +381,8 @@ Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.13):
 | **IBM Bob** | `bob` | ✅ 完整支援 | IDE | IBM Bob IDE,支援 slash command |
 | **Jules** | `jules` | ✅ 完整支援 | Agent | Google Jules 非同步 AI 代理 |
 | **Antigravity (agy)** | `agy` | ✅ 完整支援 | CLI | Antigravity AI CLI |
+| **Tabnine CLI** | `tabnine` | ✅ 完整支援 | CLI | Tabnine AI CLI |
+| **Mistral Vibe** | `vibe` | ✅ 完整支援 | CLI | Mistral Vibe CLI |
 | **Generic** | `generic` | ✅ 完整支援 | - | 自帶代理,需搭配 `--ai-commands-dir` 指定命令目錄 |
 
 **選擇建議**:
@@ -388,6 +391,7 @@ Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.13):
 - 🚀 **快速開發** → Cursor（專為 AI 設計的編輯器）
 - 🌐 **開源偏好** → opencode、Qwen Code
 - 📋 **規劃導向** → Kiro CLI（搭配 `--ai kiro-cli`）
+- 🎨 **Mistral 生態系** → Mistral Vibe（搭配 `--ai vibe`）
 - 🔧 **自訂代理** → Generic 模式（搭配 `--ai generic --ai-commands-dir <path>`）
 
 ---
@@ -1372,7 +1376,7 @@ specify check
 
 這會檢查:
 - ✅ Git 是否安裝
-- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`qwen`、`opencode`、`codex`、`kiro-cli`、`shai`、`qodercli`）
+- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`qwen`、`opencode`、`codex`、`kiro-cli`、`shai`、`qodercli`、`vibe`、`tabnine`）
 - ✅ Shell 環境
 
 **Step 4: 檢查版本資訊**
@@ -1418,7 +1422,7 @@ specify init my-project --ai copilot
 | 參數 | 說明 | 範例 |
 |------|-----|------|
 | `<project-name>` | 專案名稱 | `my-project` 或 `.`(當前目錄) |
-| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（別名：`kiro`）、`bob`、`qodercli`、`agy`、`generic` |
+| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（別名：`kiro`）、`bob`、`qodercli`、`agy`、`tabnine`、`vibe`、`generic` |
 | `--ai-commands-dir <path>` | 代理命令檔案目錄 | 搭配 `--ai generic` 使用,例如 `.myagent/commands/` |
 | `--ai-skills` | 安裝 Prompt.MD 模板為代理技能 | 在代理專屬 `skills/` 目錄安裝 |
 | `--script <type>` | 腳本類型 | `sh`(bash/zsh)、`ps`(PowerShell) |
@@ -1482,6 +1486,18 @@ specify init my-project --ai agy
 specify init my-project --ai kiro-cli
 # 或使用別名
 specify init my-project --ai kiro
+```
+
+**場景 9:使用 Tabnine CLI**
+
+```bash
+specify init my-project --ai tabnine
+```
+
+**場景 10:使用 Mistral Vibe**
+
+```bash
+specify init my-project --ai vibe
 ```
 
 #### 環境變數
@@ -2550,8 +2566,86 @@ vim .specify/extensions/jira/jira-config.yml
 **應提交的檔案**:
 - `.specify/extensions.yml`(專案擴充設定)
 - `.specify/extensions/*/jira-config.yml`(專案級設定)
+- `.specify/extension-catalogs.yml`(目錄堆疊設定)
 
-> 💡 更多擴充開發資訊請參考官方文件:[Extension Development Guide](https://github.com/github/spec-kit/tree/main/extensions)
+#### 多目錄支援 (Multi-Catalog, v0.2.0 新增)
+
+v0.2.0 引入了**多目錄堆疊 (Catalog Stack)** 機制，擴充目錄不再限於單一來源：
+
+**預設目錄堆疊**：
+
+| 目錄 | 類型 | 可安裝 | 說明 |
+|------|------|--------|------|
+| `catalog.json` | 預設 | ✅ 是 | 官方維護的擴充目錄 |
+| `catalog.community.json` | 社群 | ❌ 否（僅瀏覽） | 社群貢獻的擴充，搜尋時自動顯示 |
+
+**目錄管理指令**：
+
+```bash
+# 列出所有啟用的目錄
+specify extension catalog list
+
+# 新增專案級目錄
+specify extension catalog add <URL>
+
+# 移除目錄
+specify extension catalog remove <URL>
+```
+
+**目錄設定檔**：
+
+- **專案級**：`.specify/extension-catalogs.yml`
+- **使用者級**：`~/.specify/extension-catalogs.yml`
+- 專案級設定優先於使用者級
+- 環境變數 `SPECKIT_CATALOG_URL` 仍可向後相容（替換整個堆疊為單一目錄）
+
+**搜尋行為**：
+- `specify extension search` 現在會聚合所有啟用目錄的結果
+- 每個結果標註來源目錄
+- 社群目錄（`install_allowed: false`）的擴充無法直接安裝
+
+**優先順序**：
+- 高優先度目錄在合併衝突時勝出（同一擴充 ID 出現在多個目錄）
+- 所有目錄 URL 必須使用 HTTPS（localhost 開發時允許 HTTP）
+
+#### `.extensionignore` 支援 (v0.2.0 新增)
+
+擴充開發者可在擴充根目錄放置 `.extensionignore` 檔案，排除不需要的檔案/資料夾在 `specify extension add` 時被複製：
+
+```text
+# .extensionignore 範例
+tests/
+*.test.js
+docs/
+.github/
+```
+
+#### 社群擴充 (Community Extensions)
+
+截至 v0.2.0，社群目錄中已有多個擴充可供參考：
+
+| 擴充名稱 | 說明 |
+|---------|------|
+| **Jira Integration** | 從 Spec + Tasks 建立 Jira Issue 階層 |
+| **Azure DevOps Integration** | Azure DevOps 工作項目整合 |
+| **Verify** | 驗證擴充 |
+| **Sync** | 同步擴充 |
+| **Retrospective** | 回顧擴充 |
+| **Review** | 程式碼審查擴充 |
+| **Fleet** | Fleet 擴充 |
+| **Ralph** | Ralph 擴充 |
+| **Understanding** | Understanding 擴充 |
+| **Cleanup** | 清理擴充 |
+
+```bash
+# 搜尋社群擴充
+specify extension search --tag issue-tracking
+
+# 查看擴充資訊（即使無法直接安裝）
+specify extension info azure-devops
+```
+
+> 💡 更多擴充開發資訊請參考官方文件：[Extension Development Guide](https://github.com/github/spec-kit/tree/main/extensions)
 
 ---
 
@@ -6688,7 +6782,7 @@ public void testCreateOrder_ContractCompliance() {
 | **Kiro CLI** | AWS Kiro,專案規劃導向 | 需求規劃,結構化開發 | ✅ 支援 |
 | **Amp / Auggie / Kilo Code** | 各有特色 | 特定工作流程 | ✅ 支援 |
 
-> 💡 完整的 20 種支援 AI 助手清單請參考 [1.2 Spec-Kit 概覽](#12-spec-kit-概覽)。
+> 💡 完整的 22 種支援 AI 助手清單請參考 [1.2 Spec-Kit 概覽](#12-spec-kit-概覽)。
 
 #### Prompt Engineering 技巧
 
@@ -7661,6 +7755,14 @@ API 必須一致、版本化、文件化。
 - **CHANGELOG**: https://github.com/github/spec-kit/blob/main/CHANGELOG.md
 - **GitHub Copilot 文件**: https://docs.github.com/copilot
 
+#### 社群實作範例 (Community Walkthroughs)
+
+透過以下社群貢獻的實作範例，可以看到 SDD 在不同場景中的實際運用：
+
+- **Greenfield .NET CLI 工具**: [spec-kit-dotnet-cli-demo](https://github.com/mnriem/spec-kit-dotnet-cli-demo) — 從空白目錄建構一個 Timezone Utility .NET 單一執行檔 CLI 工具，涵蓋完整 spec-kit 工作流程
+- **Greenfield Spring Boot + React 平台**: [spec-kit-spring-react-demo](https://github.com/mnriem/spec-kit-spring-react-demo) — 從零開始建構 LLM 效能分析平台（REST API、圖表、迭代追蹤），使用 Spring Boot + React + PostgreSQL + Docker Compose
+- **Brownfield ASP.NET CMS 擴充**: [spec-kit-aspnet-brownfield-demo](https://github.com/mnriem/spec-kit-aspnet-brownfield-demo) — 展示如何將 spec-kit 整合至既有開源 .NET CMS (CarrotCakeCMS-Core)，新增 Docker Compose 基礎設施與 REST API
+
 #### 延伸閱讀
 
 **書籍**:
@@ -7748,6 +7850,12 @@ specify init my-project --ai claude --ai-skills
 # 1c. 使用 Kiro CLI
 specify init my-project --ai kiro-cli
 
+# 1d. 使用 Tabnine CLI
+specify init my-project --ai tabnine
+
+# 1e. 使用 Mistral Vibe
+specify init my-project --ai vibe
+
 # 2. 檢查環境
 specify check
 
@@ -7804,6 +7912,19 @@ specify extension disable jira
 
 # 移除擴充
 specify extension remove jira
+```
+
+#### 擴充目錄管理指令 (v0.2.0 新增)
+
+```bash
+# 列出所有啟用的目錄
+specify extension catalog list
+
+# 新增專案級目錄
+specify extension catalog add <URL>
+
+# 移除目錄
+specify extension catalog remove <URL>
 ```
 
 #### Git 工作流程
@@ -7913,7 +8034,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v1.4*  
-*最後更新: 2025-07*  
-*適用於: Spec-Kit v0.1.13+ / Spec Kit Templates - 0.1.13*
+*文件版本: v1.5*  
+*最後更新: 2026-03*  
+*適用於: Spec-Kit v0.2.0+ / Spec Kit Templates - 0.2.0*
 
