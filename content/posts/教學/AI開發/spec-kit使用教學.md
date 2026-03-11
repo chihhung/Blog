@@ -735,7 +735,172 @@ AI: 拆分 Tasks、生成程式碼
     ↓
 人員:代碼審查、測試驗證
 ```
+### 1.4.1 spec-kit workflow v4
 
+```mermaid
+flowchart LR
+    %% 樣式定義
+    classDef humanAction fill:#c8d8f0,stroke:#5a7ab5,color:#000
+    classDef aiAction fill:#f5c97a,stroke:#c8922a,color:#000
+    classDef coreFile fill:#fff,stroke:#333,color:#000
+    classDef condFile fill:#e8d5f5,stroke:#9b6bb5,color:#000
+    classDef decision fill:#1a1a2e,stroke:#333,color:#fff
+
+    %% ══════════════════════════════
+    %% 第一階段：初始化憲法
+    %% ══════════════════════════════
+    subgraph 第一階段["📋 第一階段：建立專案憲法"]
+        direction TB
+        H1["👤 人工審查\n初始化 /constitution\n指定非協商原則\n這是專案層級檔案\n整個功能週期都會參考"]
+        AI1["🤖 AI 行動\n建立 constitution.md\n包含專案治理原則\n與開發指南\n儲存於 _specify/memory 資料夾"]
+        CF1[("📄 核心檔案\nconstitution.md")]
+
+        H1 --> AI1
+        AI1 --> CF1
+    end
+
+    %% ══════════════════════════════
+    %% 第二階段：定義功能想法
+    %% ══════════════════════════════
+    subgraph 第二階段["💡 第二階段：定義功能想法"]
+        direction TB
+        H2["👤 審查與驗證\n批評 spec.md\n評估規格是否\n符合要建構的內容"]
+        R2{{"🔄 精煉?"}}
+        H3["👤 定義功能想法\n驗證規格\n指定要建構什麼\n使用 PRD 作為輸入"]
+        AI2["🤖 AI 行動\n建立 spec.md\n包含需求與\n使用者故事"]
+        CF2[("📄 核心檔案\nspec.md")]
+
+        H2 --> R2
+        R2 -->|"是"| H3
+        R2 -->|"否"| CF2
+        H3 --> AI2
+        AI2 --> CF2
+        CF2 -->|"更新 .md"| H2
+    end
+
+    %% ══════════════════════════════
+    %% 第三階段：生成技術規格
+    %% ══════════════════════════════
+    subgraph 第三階段["⚙️ 第三階段：生成技術規格"]
+        direction TB
+        H4["👤 審查與驗證\n批評生成的 plan.md\n包含技術需求\n可使用條件式輸入"]
+        R3{{"🔄 精煉?"}}
+        C1{{"❓ 澄清?"}}
+        H5["👤 澄清規格\n透過 /clarify 精煉"]
+        AI3["🤖 執行澄清\n使用 /clarify 改善\n模糊項目的清晰度"]
+        AI4["🤖 建立 plan.md\n包含實作計畫\n與技術堆疊"]
+        CF3[("📄 核心檔案\nplan.md")]
+        COND1[("🟣 條件式檔案\nresearch.md\ndata-model.md\nproxy-model.md (array)\nconstants (schema, API)")]
+
+        H4 --> R3
+        R3 -->|"是"| C1
+        R3 -->|"否"| CF3
+        C1 -->|"是"| H5
+        C1 -->|"否"| AI4
+        H5 --> AI3
+        AI3 --> AI4
+        AI4 --> CF3
+        AI4 -->|"條件式"| COND1
+        CF3 -->|"更新 .md"| H4
+    end
+
+    %% ══════════════════════════════
+    %% 第四階段：生成任務
+    %% ══════════════════════════════
+    subgraph 第四階段["✅ 第四階段：生成任務清單"]
+        direction TB
+        H6["👤 審查與驗證\n批評生成的 tasks.md\n保留任務\n根據 plan.md 主題"]
+        R4{{"🔄 精煉?"}}
+        AI5["🤖 建立 tasks.md\n包含可執行任務清單\n供實作使用"]
+        CF4[("📄 核心檔案\ntasks.md")]
+        COND2[("🟣 條件式檔案\ndata-model.md\nrefined-model.md\nquickstart.md (視需要)")]
+
+        H6 --> R4
+        R4 -->|"是"| AI5
+        R4 -->|"否"| CF4
+        AI5 --> CF4
+        AI5 -->|"條件式"| COND2
+        CF4 -->|"更新 .md"| H6
+    end
+
+    %% ══════════════════════════════
+    %% 第五階段：分析
+    %% ══════════════════════════════
+    subgraph 第五階段["🔍 第五階段：分析與驗證"]
+        direction TB
+        H7["👤 檢查\n審查並驗證任務\n必要時新增任務"]
+        C2{{"❓ 檢查?"}}
+        RA{{"🔄 重新分析?"}}
+        AI6["🤖 執行分析\n使用 /analyze 檢查\n不一致與合規違規"]
+        CF5[("📄 核心檔案\n已更新 .md 檔案")]
+
+        H7 --> C2
+        C2 -->|"是"| AI6
+        C2 -->|"否"| CF5
+        AI6 --> RA
+        RA -->|"是"| AI6
+        RA -->|"否"| CF5
+    end
+
+    %% ══════════════════════════════
+    %% 第六階段：建立檢查清單
+    %% ══════════════════════════════
+    subgraph 第六階段["📝 第六階段：建立實作檢查清單"]
+        direction TB
+        AI7["🤖 建立 checklist.md\n驗證需求\n完整性、清晰度\n與一致性"]
+        CF6[("📄 核心檔案\nchecklist.md")]
+
+        AI7 --> CF6
+    end
+
+    %% ══════════════════════════════
+    %% 第七階段：實作功能
+    %% ══════════════════════════════
+    subgraph 第七階段["🚀 第七階段：實作功能"]
+        direction TB
+        H8["👤 實作功能\n批評已實作功能\n起始使用 /implement\n如果 checklist.md 存在\n透過 checklist 執行"]
+        AI8["🤖 執行實作\n執行所有任務\n建構功能\n根據計畫"]
+        FF[("🟢 功能檔案\nFeature file(s)")]
+
+        H8 --> AI8
+        AI8 --> FF
+        AI8 -->|"更新功能檔案"| FF
+    end
+
+    %% ══════════════════════════════
+    %% 第八階段：審查與改進
+    %% ══════════════════════════════
+    subgraph 第八階段["✨ 第八階段：最終審查與改進"]
+        direction TB
+        H9["👤 審查與驗證\n批評已實作功能\n執行 CI、lint、\nAI 測試並更新\n功能檔案"]
+        P{{"✅ 通過?"}}
+        AI9["🤖 改進\n執行程式碼、測試\n和評論的改進"]
+
+        H9 --> P
+        P -->|"是"| DONE(["🎉 完成！\n進入下一個功能"])
+        P -->|"否"| AI9
+        AI9 -->|"回饋"| H9
+    end
+
+    %% ══════════════════════════════
+    %% 階段連接
+    %% ══════════════════════════════
+    第一階段 --> 第二階段
+    第二階段 --> 第三階段
+    第三階段 --> 第四階段
+    第四階段 --> 第五階段
+    第五階段 --> 第六階段
+    第六階段 --> 第七階段
+    第七階段 --> 第八階段
+    DONE -->|"建立下一個功能\n(循環)"| 第二階段
+
+    %% 套用樣式
+    class H1,H2,H3,H4,H5,H6,H7,H8,H9 humanAction
+    class AI1,AI2,AI3,AI4,AI5,AI6,AI7,AI8,AI9 aiAction
+    class CF1,CF2,CF3,CF4,CF5,CF6 coreFile
+    class COND1,COND2,FF condFile
+    class R2,R3,R4,C1,C2,RA,P decision
+```
 ---
 
 ### 1.5 為什麼這對我們團隊/共用平台開發特別有價值
