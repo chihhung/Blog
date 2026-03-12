@@ -4,14 +4,14 @@ draft = false
 title = 'spec-kit使用教學'
 tags = ['教學', 'AI開發']
 categories = ['教學']
-lastmod = '2026-03-11T00:00:00+08:00'
+lastmod = '2026-03-12T00:00:00+08:00'
 +++
 
 # Spec-Kit 使用教學手冊
 
-> **版本**: 1.5  
+> **版本**: 1.6  
 > **最後更新**: 2026年3月  
-> **適用於**: Spec-Kit v0.2.0+ / Spec Kit Templates - 0.2.0  
+> **適用於**: Spec-Kit v0.2.1+ / Spec Kit Templates - 0.2.1  
 > **Created by**: Eric Cheng
 
 ---
@@ -358,7 +358,7 @@ Spec-Kit 提供五大核心模板:
 
 #### 支援的 AI 助手 / 智能代理
 
-Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.13):
+Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.2.1):
 
 | AI 助手 | CLI Key | 支援狀態 | 類型 | 說明 |
 |---------|---------|---------|------|------|
@@ -382,6 +382,7 @@ Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.13):
 | **Jules** | `jules` | ✅ 完整支援 | Agent | Google Jules 非同步 AI 代理 |
 | **Antigravity (agy)** | `agy` | ✅ 完整支援 | CLI | Antigravity AI CLI |
 | **Tabnine CLI** | `tabnine` | ✅ 完整支援 | CLI | Tabnine AI CLI |
+| **Kimi Code** | `kimi` | ✅ 完整支援 | CLI | Kimi Code CLI（月之暗面） |
 | **Mistral Vibe** | `vibe` | ✅ 完整支援 | CLI | Mistral Vibe CLI |
 | **Generic** | `generic` | ✅ 完整支援 | - | 自帶代理,需搭配 `--ai-commands-dir` 指定命令目錄 |
 
@@ -391,7 +392,8 @@ Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.1.13):
 - 🚀 **快速開發** → Cursor（專為 AI 設計的編輯器）
 - 🌐 **開源偏好** → opencode、Qwen Code
 - 📋 **規劃導向** → Kiro CLI（搭配 `--ai kiro-cli`）
-- 🎨 **Mistral 生態系** → Mistral Vibe（搭配 `--ai vibe`）
+- � **Kimi 生態系** → Kimi Code（搭配 `--ai kimi`）
+- �🎨 **Mistral 生態系** → Mistral Vibe（搭配 `--ai vibe`）
 - 🔧 **自訂代理** → Generic 模式（搭配 `--ai generic --ai-commands-dir <path>`）
 
 ---
@@ -1376,7 +1378,7 @@ specify check
 
 這會檢查:
 - ✅ Git 是否安裝
-- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`qwen`、`opencode`、`codex`、`kiro-cli`、`shai`、`qodercli`、`vibe`、`tabnine`）
+- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`qwen`、`opencode`、`codex`、`kiro-cli`、`shai`、`qodercli`、`vibe`、`kimi`、`tabnine`）
 - ✅ Shell 環境
 
 **Step 4: 檢查版本資訊**
@@ -1397,7 +1399,31 @@ uv tool install specify-cli --force --from git+https://github.com/github/spec-ki
 
 `--force` 參數會覆蓋現有安裝。
 
-> 📖 完整升級指南請參考：https://github.com/github/spec-kit/blob/main/docs/upgrade.md
+> ⚠️ **升級前請備份 Constitution**：升級時 `--force` 會覆蓋 CLI 本身，但不會影響專案中的 `.specify/` 目錄。不過仍建議先備份 `.specify/memory/constitution.md`，以防模板更新時發生意外。
+
+##### 升級重點注意事項
+
+**什麼會被更新**：
+- CLI 執行檔與核心邏輯
+- 內建模板（僅影響新專案的 `specify init`）
+- 支援的 AI 代理清單與指令
+
+**什麼不會被覆蓋**（安全保留）：
+- ✅ 現有專案的 `.specify/` 目錄
+- ✅ 專案的 `constitution.md`
+- ✅ 已產生的 Spec、Plan、Tasks 文件
+- ✅ 專案級擴充設定
+
+**常見升級情境**：
+
+| 情境 | 建議做法 |
+|------|----------|
+| 小版本升級（如 v0.2.0 → v0.2.1） | 直接執行升級指令即可 |
+| 想要取得新模板 | 升級後對新專案執行 `specify init`，或手動複製新模板 |
+| IDE 代理出現重複斜線指令 | 升級後重新啟動 IDE，或清除代理快取 |
+| 升級後 `specify check` 失敗 | 確認 Python 與 uv 版本符合需求 |
+
+> 📖 完整升級指南請參考：[upgrade.md](https://github.com/github/spec-kit/blob/main/docs/upgrade.md)
 
 #### 卸載(如需要)
 
@@ -1422,7 +1448,7 @@ specify init my-project --ai copilot
 | 參數 | 說明 | 範例 |
 |------|-----|------|
 | `<project-name>` | 專案名稱 | `my-project` 或 `.`(當前目錄) |
-| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（別名：`kiro`）、`bob`、`qodercli`、`agy`、`tabnine`、`vibe`、`generic` |
+| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（別名：`kiro`）、`bob`、`qodercli`、`agy`、`tabnine`、`vibe`、`kimi`、`generic` |
 | `--ai-commands-dir <path>` | 代理命令檔案目錄 | 搭配 `--ai generic` 使用,例如 `.myagent/commands/` |
 | `--ai-skills` | 安裝 Prompt.MD 模板為代理技能 | 在代理專屬 `skills/` 目錄安裝 |
 | `--script <type>` | 腳本類型 | `sh`(bash/zsh)、`ps`(PowerShell) |
@@ -1498,6 +1524,12 @@ specify init my-project --ai tabnine
 
 ```bash
 specify init my-project --ai vibe
+```
+
+**場景 11:使用 Kimi Code**
+
+```bash
+specify init my-project --ai kimi
 ```
 
 #### 環境變數
@@ -2622,7 +2654,7 @@ docs/
 
 #### 社群擴充 (Community Extensions)
 
-截至 v0.2.0，社群目錄中已有多個擴充可供參考：
+截至 v0.2.1，社群目錄中已有多個擴充可供參考：
 
 | 擴充名稱 | 說明 |
 |---------|------|
@@ -7856,6 +7888,9 @@ specify init my-project --ai tabnine
 # 1e. 使用 Mistral Vibe
 specify init my-project --ai vibe
 
+# 1f. 使用 Kimi Code
+specify init my-project --ai kimi
+
 # 2. 檢查環境
 specify check
 
@@ -7925,6 +7960,9 @@ specify extension catalog add <URL>
 
 # 移除目錄
 specify extension catalog remove <URL>
+
+# 查看目錄管理說明（v0.2.1 新增）
+specify extension catalog --help
 ```
 
 #### Git 工作流程
@@ -8034,7 +8072,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v1.5*  
+*文件版本: v1.6 | 適用 Spec-Kit v0.2.1+*  
 *最後更新: 2026-03*  
-*適用於: Spec-Kit v0.2.0+ / Spec Kit Templates - 0.2.0*
+*適用於: Spec-Kit v0.2.1+ / Spec Kit Templates - 0.2.1*
 
