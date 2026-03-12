@@ -2,6 +2,8 @@
 date = '2026-03-12T18:43:49+08:00'
 draft = false
 title = 'SuperClaude Framework生態系教學手冊'
+tags = ['教學', 'AI開發']
+categories = ['教學']
 +++
 
 # SuperClaude Framework 生態系教學手冊
