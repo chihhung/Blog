@@ -3061,22 +3061,38 @@ graph TB
 
 ```mermaid
 quadrantChart
-    title 技術債優先級矩陣
-    x-axis 低影響 --> 高影響
-    y-axis 低成本 --> 高成本
-    quadrant-1 計畫性處理
-    quadrant-2 立即處理
-    quadrant-3 持續監控
-    quadrant-4 評估後決定
-    "缺少測試的核心模組": [0.8, 0.3]
-    "過時的依賴版本": [0.5, 0.2]
-    "不符合架構規範": [0.7, 0.6]
-    "重複程式碼": [0.3, 0.2]
-    "過度複雜的類別": [0.6, 0.4]
-    "缺少 API 文件": [0.4, 0.1]
-    "硬編碼的配置": [0.5, 0.15]
-    "遺留的舊架構模組": [0.9, 0.9]
+    title Tech Debt Priority Matrix
+    x-axis Low Impact --> High Impact
+    y-axis Low Cost --> High Cost
+    quadrant-1 Plan to Fix
+    quadrant-2 Fix Now
+    quadrant-3 Monitor
+    quadrant-4 Evaluate
+    Missing Core Tests: [0.8, 0.3]
+    Outdated Dependencies: [0.5, 0.2]
+    Architecture Violation: [0.7, 0.6]
+    Duplicated Code: [0.3, 0.2]
+    Over-Complex Class: [0.6, 0.4]
+    Missing API Docs: [0.4, 0.1]
+    Hardcoded Config: [0.5, 0.15]
+    Legacy Module: [0.9, 0.9]
 ```
+
+> **圖表說明**：
+> | 英文標籤 | 中文說明 |
+> |---------|---------|
+> | Fix Now（右上） | 立即處理 |
+> | Plan to Fix（左上） | 計畫性處理 |
+> | Monitor（左下） | 持續監控 |
+> | Evaluate（右下） | 評估後決定 |
+> | Missing Core Tests | 缺少測試的核心模組 |
+> | Outdated Dependencies | 過時的依賴版本 |
+> | Architecture Violation | 不符合架構規範 |
+> | Duplicated Code | 重複程式碼 |
+> | Over-Complex Class | 過度複雜的類別 |
+> | Missing API Docs | 缺少 API 文件 |
+> | Hardcoded Config | 硬編碼的配置 |
+> | Legacy Module | 遺留的舊架構模組 |
 
 ### 技術債管理流程
 
