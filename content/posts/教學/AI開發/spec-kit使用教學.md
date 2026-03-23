@@ -4,14 +4,14 @@ draft = false
 title = 'spec-kit使用教學'
 tags = ['教學', 'AI開發']
 categories = ['教學']
-lastmod = '2026-03-12T00:00:00+08:00'
+lastmod = '2026-03-23T00:00:00+08:00'
 +++
 
 # Spec-Kit 使用教學手冊
 
-> **版本**: 1.6  
+> **版本**: 2.0  
 > **最後更新**: 2026年3月  
-> **適用於**: Spec-Kit v0.2.1+ / Spec Kit Templates - 0.2.1  
+> **適用於**: Spec-Kit v0.3.2+ / Spec Kit Templates - 0.3.2  
 > **Created by**: Eric Cheng
 
 ---
@@ -38,6 +38,8 @@ lastmod = '2026-03-12T00:00:00+08:00'
 - [2.5 模板與提示文件說明](#25-模板與提示文件說明)
 - [2.6 GitHub 倉庫分支與版本控制建議](#26-github-倉庫分支與版本控制建議)
 - [2.7 擴充系統 (Extension System)](#27-擴充系統-extension-system)
+- [2.8 預設系統 (Presets System)](#28-預設系統-presets-system)
+- [2.9 CLI 診斷指令 (doctor / status)](#29-cli-診斷指令-doctor--status)
 
 ### [第三章:使用流程詳細說明](#第三章使用流程詳細說明)
 - [3.1 Step 1:撰寫 Spec (/speckit.specify)](#31-step-1撰寫-spec-speckitspecify)
@@ -67,8 +69,9 @@ lastmod = '2026-03-12T00:00:00+08:00'
 - [6.1 完整模板範例](#61-完整模板範例)
 - [6.2 檢查清單](#62-檢查清單)
 - [6.3 參考資源](#63-參考資源)
-- [6.4 術語表](#64-術語表)
-- [6.5 快速指令參考](#65-快速指令參考)
+- [6.4 社群實作範例 (Community Walkthroughs)](#64-社群實作範例-community-walkthroughs)
+- [6.5 術語表](#65-術語表)
+- [6.6 快速指令參考](#66-快速指令參考)
 
 ### [結語](#結語)
 
@@ -358,17 +361,17 @@ Spec-Kit 提供五大核心模板:
 
 #### 支援的 AI 助手 / 智能代理
 
-Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.2.1):
+Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.3.2）：
 
 | AI 助手 | CLI Key | 支援狀態 | 類型 | 說明 |
 |---------|---------|---------|------|------|
-| **GitHub Copilot** | `copilot` | ✅ 完整支援 | IDE | VS Code 整合,企業級支援 |
-| **Claude Code** | `claude` | ✅ 完整支援 | CLI | Anthropic Claude,推理能力強 |
+| **GitHub Copilot** | `copilot` | ✅ 完整支援 | IDE | VS Code 整合，企業級支援 |
+| **Claude Code** | `claude` | ✅ 完整支援 | CLI | Anthropic Claude，推理能力強 |
 | **Cursor** | `cursor-agent` | ✅ 完整支援 | IDE | AI-first 編輯器 |
 | **Gemini CLI** | `gemini` | ✅ 完整支援 | CLI | Google Gemini 命令列版 |
 | **Qwen Code** | `qwen` | ✅ 完整支援 | CLI | 阿里雲通義千問 |
 | **opencode** | `opencode` | ✅ 完整支援 | CLI | opencode CLI |
-| **Codex CLI** | `codex` | ✅ 完整支援 | CLI | OpenAI Codex CLI |
+| **Codex CLI** | `codex` | ✅ 完整支援 | CLI | OpenAI Codex CLI，需搭配 `--ai-skills` |
 | **Windsurf** | `windsurf` | ✅ 完整支援 | IDE | Windsurf IDE |
 | **Kilo Code** | `kilocode` | ✅ 完整支援 | IDE | Kilo Code IDE |
 | **Auggie CLI** | `auggie` | ✅ 完整支援 | CLI | Augment Code CLI |
@@ -378,22 +381,29 @@ Spec-Kit 支援多種主流 AI 編碼助手(截至 v0.2.1):
 | **Kiro CLI** | `kiro-cli` | ✅ 完整支援 | CLI | AWS Kiro CLI（別名：`kiro`） |
 | **Amp** | `amp` | ✅ 完整支援 | CLI | Amp CLI |
 | **SHAI** | `shai` | ✅ 完整支援 | CLI | OVHcloud SHAI |
-| **IBM Bob** | `bob` | ✅ 完整支援 | IDE | IBM Bob IDE,支援 slash command |
+| **IBM Bob** | `bob` | ✅ 完整支援 | IDE | IBM Bob IDE，支援 slash command |
 | **Jules** | `jules` | ✅ 完整支援 | Agent | Google Jules 非同步 AI 代理 |
-| **Antigravity (agy)** | `agy` | ✅ 完整支援 | CLI | Antigravity AI CLI |
+| **Antigravity (agy)** | `agy` | ✅ 完整支援 | CLI | Antigravity AI CLI，需搭配 `--ai-skills` |
 | **Tabnine CLI** | `tabnine` | ✅ 完整支援 | CLI | Tabnine AI CLI |
 | **Kimi Code** | `kimi` | ✅ 完整支援 | CLI | Kimi Code CLI（月之暗面） |
 | **Mistral Vibe** | `vibe` | ✅ 完整支援 | CLI | Mistral Vibe CLI |
-| **Generic** | `generic` | ✅ 完整支援 | - | 自帶代理,需搭配 `--ai-commands-dir` 指定命令目錄 |
+| **Pi Coding Agent** | `pi` | ✅ 完整支援 | CLI | Pi Coding Agent（MCP 需透過擴充支援） |
+| **Junie** | `junie` | ✅ 完整支援 | IDE | JetBrains Junie AI 代理 |
+| **Trae** | `trae` | ✅ 完整支援 | IDE | Trae IDE |
+| **iFlow CLI** | `iflow` | ✅ 完整支援 | CLI | iFlow CLI |
+| **Generic** | `generic` | ✅ 完整支援 | - | 自帶代理，需搭配 `--ai-commands-dir` 指定命令目錄 |
 
-**選擇建議**:
+> 💡 **Codex CLI 特殊說明**：Codex 建議使用 skills 模式，需搭配 `--ai-skills`。安裝後 skills 位於 `.agents/skills/`，指令格式為 `$speckit-<command>` 而非 `/speckit.*`。
+
+**選擇建議**：
 - 🏢 **企業環境** → GitHub Copilot（已整合至企業工具鏈）
 - 🧠 **複雜推理** → Claude Code（理解力最強）
 - 🚀 **快速開發** → Cursor（專為 AI 設計的編輯器）
 - 🌐 **開源偏好** → opencode、Qwen Code
 - 📋 **規劃導向** → Kiro CLI（搭配 `--ai kiro-cli`）
-- � **Kimi 生態系** → Kimi Code（搭配 `--ai kimi`）
-- �🎨 **Mistral 生態系** → Mistral Vibe（搭配 `--ai vibe`）
+- 🌙 **Kimi 生態系** → Kimi Code（搭配 `--ai kimi`）
+- 🎨 **Mistral 生態系** → Mistral Vibe（搭配 `--ai vibe`）
+- ☕ **JetBrains 生態系** → Junie（搭配 `--ai junie`）
 - 🔧 **自訂代理** → Generic 模式（搭配 `--ai generic --ai-commands-dir <path>`）
 
 ---
@@ -1312,41 +1322,58 @@ Spec-Kit CLI 提供專案初始化與環境檢查功能。
 
 #### 安裝方式選擇
 
-**方式一:持久安裝(推薦)**
+**方式一：持久安裝（推薦）**
 
-適合:經常使用 Spec-Kit 的團隊
+適合：經常使用 Spec-Kit 的團隊
 
 ```bash
+# 推薦：釘選特定穩定版本（將 vX.Y.Z 替換為最新 tag，參考 Releases 頁面）
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@vX.Y.Z
+
+# 或安裝 main 分支最新版（可能包含未發布的變更）
 uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
 ```
 
-**優點**:
-- ✅ 一次安裝,全域可用
+**優點**：
+- ✅ 一次安裝，全域可用
 - ✅ `specify` 指令加入 PATH
-- ✅ 使用 `uv tool upgrade` 輕鬆更新
+- ✅ 使用 `uv tool list`、`uv tool upgrade`、`uv tool uninstall` 管理
+- ✅ 釘選版本確保環境穩定
 
-**方式二:一次性執行**
+**方式二：一次性執行**
 
-適合:試用或偶爾使用
+適合：試用或偶爾使用
 
 ```bash
+# 釘選特定版本
+uvx --from git+https://github.com/github/spec-kit.git@vX.Y.Z specify init my-project
+
+# 或使用最新版
 uvx --from git+https://github.com/github/spec-kit.git specify init my-project
 ```
 
-**優點**:
-- ✅ 不需安裝,直接執行
+**優點**：
+- ✅ 不需安裝，直接執行
 - ✅ 每次使用最新版本
 - ✅ 不佔用系統空間
 
-#### 安裝步驟(持久安裝)
+**方式三：企業 / Air-Gapped 離線安裝（v0.3.2 新增）**
+
+適合：無法連接 PyPI 或 GitHub 的隔離環境
+
+如果您的環境封鎖了 PyPI 或 GitHub 存取，可使用 `pip download` 在連網機器上建立可攜式的 OS 特定 wheel 套件包，再攜帶至隔離環境安裝。v0.3.2 起 CLI 內嵌核心模板包（core pack），離線環境無需額外下載模板。
+
+詳細步驟請參考：[Enterprise / Air-Gapped Installation](https://github.com/github/spec-kit/blob/main/docs/installation.md#enterprise--air-gapped-installation)
+
+#### 安裝步驟（持久安裝）
 
 **Step 1: 執行安裝指令**
 
 ```bash
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.3.2
 ```
 
-預期輸出:
+預期輸出：
 
 ```text
 Installed 1 executable: specify
@@ -1358,7 +1385,7 @@ Installed 1 executable: specify
 specify --help
 ```
 
-應該看到:
+應該看到：
 
 ```text
 Usage: specify [OPTIONS] COMMAND [ARGS]...
@@ -1368,6 +1395,9 @@ Commands:
   check      Check for installed tools
   version    Display version and system information
   extension  Manage spec-kit extensions
+  preset     Manage spec-kit presets
+  doctor     Run project health diagnostics
+  status     Show project status
 ```
 
 **Step 3: 檢查系統工具**
@@ -1376,9 +1406,9 @@ Commands:
 specify check
 ```
 
-這會檢查:
+這會檢查：
 - ✅ Git 是否安裝
-- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`qwen`、`opencode`、`codex`、`kiro-cli`、`shai`、`qodercli`、`vibe`、`kimi`、`tabnine`）
+- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`junie`、`qwen`、`opencode`、`codex`、`kiro-cli`、`shai`、`qodercli`、`vibe`、`kimi`、`iflow`、`pi`、`tabnine` 等）
 - ✅ Shell 環境
 
 **Step 4: 檢查版本資訊**
@@ -1391,15 +1421,29 @@ specify version
 
 #### 更新 Spec-Kit
 
-定期更新以獲得最新功能與修復:
+定期更新以獲得最新功能與修復：
 
 ```bash
+# 升級到特定版本（推薦）
+uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@vX.Y.Z
+
+# 或升級到最新 main
 uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git
 ```
 
 `--force` 參數會覆蓋現有安裝。
 
 > ⚠️ **升級前請備份 Constitution**：升級時 `--force` 會覆蓋 CLI 本身，但不會影響專案中的 `.specify/` 目錄。不過仍建議先備份 `.specify/memory/constitution.md`，以防模板更新時發生意外。
+
+##### 升級分兩階段（v0.3.0+ 建議流程）
+
+升級包含兩個獨立步驟，可視需求執行一個或兩個：
+
+| 升級類型 | 指令 | 說明 |
+|---------|------|------|
+| **僅升級 CLI** | `uv tool install specify-cli --force --from git+...@vX.Y.Z` | 取得最新 CLI 功能，不影響專案檔 |
+| **更新專案檔** | `specify init --here --force --ai <your-agent>` | 更新 slash commands、模板、腳本 |
+| **兩者都做** | 先執行 CLI 升級，再執行專案更新 | 大版本更新時建議 |
 
 ##### 升級重點注意事項
 
@@ -1409,19 +1453,43 @@ uv tool install specify-cli --force --from git+https://github.com/github/spec-ki
 - 支援的 AI 代理清單與指令
 
 **什麼不會被覆蓋**（安全保留）：
-- ✅ 現有專案的 `.specify/` 目錄
-- ✅ 專案的 `constitution.md`
-- ✅ 已產生的 Spec、Plan、Tasks 文件
+- ✅ 現有專案的 `specs/` 目錄（規格、計畫、任務）— **已確認安全**
+- ✅ 您的原始碼
+- ✅ Git 歷史紀錄
 - ✅ 專案級擴充設定
+
+**更新專案檔時會被覆蓋的內容**：
+- ⚠️ Slash command 檔案（`.claude/commands/`、`.github/prompts/` 等）
+- ⚠️ 腳本檔（`.specify/scripts/`）
+- ⚠️ 模板檔（`.specify/templates/`）
+- ⚠️ 記憶體檔（`.specify/memory/`）— 包含 `constitution.md`
+
+**備份與還原流程**：
+
+```bash
+# 1. 備份 Constitution
+cp .specify/memory/constitution.md .specify/memory/constitution-backup.md
+
+# 2. 執行升級
+specify init --here --force --ai copilot
+
+# 3. 還原自訂 Constitution
+mv .specify/memory/constitution-backup.md .specify/memory/constitution.md
+
+# 或使用 Git 還原
+git restore .specify/memory/constitution.md
+```
 
 **常見升級情境**：
 
 | 情境 | 建議做法 |
 |------|----------|
-| 小版本升級（如 v0.2.0 → v0.2.1） | 直接執行升級指令即可 |
-| 想要取得新模板 | 升級後對新專案執行 `specify init`，或手動複製新模板 |
-| IDE 代理出現重複斜線指令 | 升級後重新啟動 IDE，或清除代理快取 |
+| 小版本升級（如 v0.3.1 → v0.3.2） | 直接執行升級指令即可 |
+| 想要取得新模板 | 升級後執行 `specify init --here --force --ai <agent>` |
+| 想要新的 slash commands | 同上，執行專案更新 |
+| IDE 代理出現重複斜線指令 | 手動刪除代理資料夾中的舊指令檔，重啟 IDE |
 | 升級後 `specify check` 失敗 | 確認 Python 與 uv 版本符合需求 |
+| 自訂模板被覆蓋 | 備份 `.specify/templates/` 後升級，再手動合併 |
 
 > 📖 完整升級指南請參考：[upgrade.md](https://github.com/github/spec-kit/blob/main/docs/upgrade.md)
 
@@ -1443,21 +1511,22 @@ uv tool uninstall specify-cli
 specify init my-project --ai copilot
 ```
 
-**參數說明**:
+**參數說明**：
 
 | 參數 | 說明 | 範例 |
 |------|-----|------|
-| `<project-name>` | 專案名稱 | `my-project` 或 `.`(當前目錄) |
-| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（別名：`kiro`）、`bob`、`qodercli`、`agy`、`tabnine`、`vibe`、`kimi`、`generic` |
-| `--ai-commands-dir <path>` | 代理命令檔案目錄 | 搭配 `--ai generic` 使用,例如 `.myagent/commands/` |
-| `--ai-skills` | 安裝 Prompt.MD 模板為代理技能 | 在代理專屬 `skills/` 目錄安裝 |
-| `--script <type>` | 腳本類型 | `sh`(bash/zsh)、`ps`(PowerShell) |
+| `<project-name>` | 專案名稱 | `my-project` 或 `.`（當前目錄）|
+| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`junie`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（別名：`kiro`）、`bob`、`qodercli`、`agy`、`tabnine`、`vibe`、`kimi`、`iflow`、`pi`、`trae`、`generic` |
+| `--ai-commands-dir <path>` | 代理命令檔案目錄 | 搭配 `--ai generic` 使用，例如 `.myagent/commands/` |
+| `--ai-skills` | 安裝 Prompt.MD 模板為代理技能 | 在代理專屬 `skills/` 目錄安裝（Codex、agy 需此參數） |
+| `--branch-numbering <mode>` | 分支編號策略（v0.3.1 新增） | `sequential`（預設：001、002、003）或 `timestamp`（YYYYMMDD-HHMMSS），分散式團隊可用 timestamp 避免編號衝突 |
+| `--script <type>` | 腳本類型 | `sh`（bash/zsh）、`ps`（PowerShell） |
 | `--here` | 在當前目錄初始化 | - |
-| `--force` | 強制覆蓋(非空目錄) | - |
+| `--force` | 強制覆蓋（非空目錄） | - |
 | `--no-git` | 跳過 Git 初始化 | - |
 | `--ignore-agent-tools` | 跳過 AI 工具檢查 | 當 AI CLI 工具未安裝時使用 |
 | `--debug` | 顯示詳細診斷輸出 | 網路或解壓縮失敗時使用 |
-| `--github-token <token>` | GitHub Token | 企業環境 API 請求認證,或設定 `GH_TOKEN`/`GITHUB_TOKEN` 環境變數 |
+| `--github-token <token>` | GitHub Token | 企業環境 API 請求認證，或設定 `GH_TOKEN`/`GITHUB_TOKEN` 環境變數 |
 | `--skip-tls` | 跳過 SSL/TLS 驗證 | 不建議於生產環境使用 |
 
 **常見使用場景**:
@@ -1500,13 +1569,13 @@ specify init my-project --ai generic --ai-commands-dir .myagent/commands/
 specify init my-project --ai claude --ai-skills
 ```
 
-**場景 7:使用 Antigravity (agy)**
+**場景 7：使用 Antigravity (agy)**
 
 ```bash
-specify init my-project --ai agy
+specify init my-project --ai agy --ai-skills
 ```
 
-**場景 8:使用 Kiro CLI**
+**場景 8：使用 Kiro CLI**
 
 ```bash
 specify init my-project --ai kiro-cli
@@ -1514,30 +1583,62 @@ specify init my-project --ai kiro-cli
 specify init my-project --ai kiro
 ```
 
-**場景 9:使用 Tabnine CLI**
+**場景 9：使用 Tabnine CLI**
 
 ```bash
 specify init my-project --ai tabnine
 ```
 
-**場景 10:使用 Mistral Vibe**
+**場景 10：使用 Mistral Vibe**
 
 ```bash
 specify init my-project --ai vibe
 ```
 
-**場景 11:使用 Kimi Code**
+**場景 11：使用 Kimi Code**
 
 ```bash
 specify init my-project --ai kimi
 ```
 
+**場景 12：使用 Junie（JetBrains）**
+
+```bash
+specify init my-project --ai junie
+```
+
+**場景 13：使用 Pi Coding Agent**
+
+```bash
+specify init my-project --ai pi
+```
+
+**場景 14：使用 Trae IDE**
+
+```bash
+specify init my-project --ai trae
+```
+
+**場景 15：使用 iFlow CLI**
+
+```bash
+specify init my-project --ai iflow
+```
+
+**場景 16：使用 timestamp 分支編號（分散式團隊，v0.3.1 新增）**
+
+```bash
+specify init my-project --ai claude --branch-numbering timestamp
+```
+
+使用 `timestamp` 模式時，功能分支以 `YYYYMMDD-HHMMSS` 格式命名（如 `feature/20260323-143022-user-login`），避免多人同時建立分支時的編號衝突。
+
 #### 環境變數
 
 | 變數 | 說明 |
 |------|------|
-| `SPECIFY_FEATURE` | 覆蓋功能偵測,用於非 Git 儲存庫。設定為功能目錄名稱（例如 `001-photo-albums`），以便在未使用 Git 分支時指定特定功能。**必須在使用 `/speckit.plan` 或後續指令之前,在代理上下文中設定。** |
-| `GH_TOKEN` / `GITHUB_TOKEN` | GitHub Token,可替代 `--github-token` 參數 |
+| `SPECIFY_FEATURE` | 覆蓋功能偵測，用於非 Git 儲存庫。設定為功能目錄名稱（例如 `001-photo-albums`），以便在未使用 Git 分支時指定特定功能。**必須在使用 `/speckit.plan` 或後續指令之前，在代理上下文中設定。** |
+| `GH_TOKEN` / `GITHUB_TOKEN` | GitHub Token，可替代 `--github-token` 參數 |
 
 #### 產生的目錄結構
 
@@ -2654,20 +2755,30 @@ docs/
 
 #### 社群擴充 (Community Extensions)
 
-截至 v0.2.1，社群目錄中已有多個擴充可供參考：
+截至 v0.3.2，社群目錄中已有豐富的擴充可供使用：
 
 | 擴充名稱 | 說明 |
 |---------|------|
 | **Jira Integration** | 從 Spec + Tasks 建立 Jira Issue 階層 |
 | **Azure DevOps Integration** | Azure DevOps 工作項目整合 |
-| **Verify** | 驗證擴充 |
+| **Verify** | 驗證規格一致性 |
+| **Verify Tasks** | 驗證任務清單完整性（v0.3.2 新增） |
 | **Sync** | 同步擴充 |
-| **Retrospective** | 回顧擴充 |
+| **Retrospective** | 回顧擴充，用於專案回顧分析 |
 | **Review** | 程式碼審查擴充 |
 | **Fleet** | Fleet 擴充 |
 | **Ralph** | Ralph 擴充 |
-| **Understanding** | Understanding 擴充 |
+| **Understanding** | Understanding 分析擴充 |
 | **Cleanup** | 清理擴充 |
+| **DocGuard** | CDD 強制執行擴充（合規性文件守護） |
+| **Archive** | 歸檔擴充 |
+| **Reconcile** | 調和擴充 |
+| **Cognitive Squad** | 三元模型，完整生命週期管理（v0.3.1 新增） |
+| **spec-kit-iterate** | 迭代擴充（v0.3.2 新增） |
+| **spec-kit-learn** | 學習擴充（v0.3.2 新增） |
+| **speckit-utils** | 工具集擴充（v0.3.2 新增） |
+| **Conduct** | 行為準則擴充（v0.3.2 新增） |
+| **selftest.extension** | 核心擴充，用於測試其他擴充（v0.3.0 新增） |
 
 ```bash
 # 搜尋社群擴充
@@ -2678,6 +2789,162 @@ specify extension info azure-devops
 ```
 
 > 💡 更多擴充開發資訊請參考官方文件：[Extension Development Guide](https://github.com/github/spec-kit/tree/main/extensions)
+
+---
+
+### 2.8 預設系統 (Presets System)
+
+Spec-Kit v0.3.0 引入了**預設系統 (Presets System)**，允許您自訂 Spec-Kit 的既有工作流程，而不需新增功能。預設系統是擴充系統的互補概念。
+
+#### 預設 vs 擴充：何時使用何者
+
+| 需求 | 使用 |
+|------|------|
+| 新增全新命令或工作流程 | **擴充 (Extension)** |
+| 自訂規格、計畫、任務的格式 | **預設 (Preset)** |
+| 整合外部工具或服務 | **擴充 (Extension)** |
+| 強制組織或法規標準 | **預設 (Preset)** |
+| 打包可重複使用的領域特定模板 | **兩者皆可** — 模板覆寫用預設，模板搭配新命令用擴充 |
+
+#### 預設的核心概念
+
+預設覆寫 Spec-Kit 核心和已安裝擴充附帶的**模板與命令**。例如：
+
+- 🔒 強制合規性導向的 Spec 格式（如 FDA、SOX 合規）
+- 📋 使用領域特定術語（如敏捷、看板、瀑布、JTBD、DDD）
+- 🛡️ 在 Plan 中加入強制安全審查關卡
+- 🧪 強制測試優先的任務排序
+- 🌍 將整個工作流程本地化為不同語言
+
+#### 預設 CLI 指令
+
+```bash
+# 搜尋可用的預設
+specify preset search
+
+# 安裝預設
+specify preset add <preset-name>
+
+# 列出已安裝的預設
+specify preset list
+
+# 啟用 / 停用預設（v0.3.2 新增）
+specify preset enable <preset-name>
+specify preset disable <preset-name>
+
+# 移除預設
+specify preset remove <preset-name>
+```
+
+#### 模板解析優先順序
+
+Spec-Kit 在執行時會依以下順序由上而下查找模板，使用第一個匹配的結果：
+
+```text
+1. 專案本地覆寫  .specify/templates/overrides/   ← 最高優先
+2. 已安裝的預設  （按優先順序堆疊）
+3. 已安裝的擴充  
+4. Spec-Kit 核心預設                              ← 最低優先
+```
+
+- **模板**在執行時動態解析（walk the stack top-down）
+- **命令**在安裝時寫入代理目錄，若多個預設/擴充提供相同命令，最高優先版本勝出
+- 移除時，自動還原為下一優先順序的版本
+
+#### 多預設堆疊
+
+多個預設可以堆疊使用，並設定優先順序：
+
+```bash
+# 安裝多個預設
+specify preset add compliance-first
+specify preset add agile-workflow
+
+# 預設按安裝順序或設定的優先權排列
+specify preset list
+```
+
+#### 專案本地覆寫
+
+若只需針對單一專案做微調，不需要建立完整預設，可使用**專案本地覆寫**：
+
+在 `.specify/templates/overrides/` 目錄下放置覆寫版模板即可。這些覆寫檔案擁有最高優先順序，但不會影響其他專案。
+
+```text
+.specify/
+├── templates/
+│   ├── overrides/           # 專案本地覆寫（最高優先）
+│   │   └── spec-template.md # 自訂 Spec 模板
+│   ├── spec-template.md     # 核心模板（被覆寫時不生效）
+│   ├── plan-template.md
+│   └── tasks-template.md
+```
+
+#### 預設範例：pirate-speak
+
+官方提供了一個有趣的 [pirate-speak 範例](https://github.com/mnriem/spec-kit-pirate-speak-preset-demo)，展示預設系統的深度自訂能力：
+
+- Spec 變成「Voyage Manifests」（航行宣言）
+- Plan 變成「Battle Plans」（戰鬥計畫）
+- Tasks 變成「Crew Assignments」（船員任務分配）
+- 所有產出使用完整的海盜口語 — 無需修改任何工具程式碼
+
+這證明了預設系統可以**完全重塑** Spec-Kit 的使用體驗。
+
+#### 版本控制建議
+
+```gitignore
+# .gitignore — 預設相關
+.specify/presets/.cache/
+```
+
+**應提交的檔案**：
+- `.specify/templates/overrides/`（專案覆寫模板）
+- 預設設定檔
+
+> 📖 完整預設指南請參考：[Presets README](https://github.com/github/spec-kit/blob/main/presets/README.md)
+
+---
+
+### 2.9 CLI 診斷指令 (doctor / status)
+
+Spec-Kit v0.3.0+ 新增了兩個實用的診斷命令，幫助您快速了解專案狀態與排查問題。
+
+#### `specify doctor`（v0.3.0 新增）
+
+專案健康診斷工具，檢查專案配置的完整性與一致性。
+
+```bash
+specify doctor
+```
+
+**檢查項目**：
+- ✅ 專案結構是否完整（`.specify/` 目錄、模板、腳本）
+- ✅ Constitution 是否已建立
+- ✅ AI 代理設定是否正確
+- ✅ 擴充是否正常安裝
+- ✅ 預設是否正確載入
+- ✅ 模板解析順序是否正確
+
+**使用時機**：
+- 升級後確認一切正常
+- 排查 slash commands 不生效的問題
+- 新團隊成員加入時驗證環境
+
+#### `specify status`（v0.3.1 新增）
+
+顯示當前專案的 Spec-Kit 狀態總覽。
+
+```bash
+specify status
+```
+
+**顯示資訊**：
+- 當前專案的 Spec-Kit 版本
+- 使用的 AI 代理
+- 已安裝的擴充列表
+- 已安裝的預設列表
+- 當前功能分支（如適用）
 
 ---
 
@@ -7783,17 +8050,11 @@ API 必須一致、版本化、文件化。
 - **安裝指南**: https://github.com/github/spec-kit/blob/main/docs/installation.md
 - **升級指南**: https://github.com/github/spec-kit/blob/main/docs/upgrade.md
 - **擴充系統文件**: https://github.com/github/spec-kit/tree/main/extensions
+- **預設系統文件**: https://github.com/github/spec-kit/blob/main/presets/README.md
 - **AGENTS.md（新增 Agent 指南）**: https://github.com/github/spec-kit/blob/main/AGENTS.md
 - **CHANGELOG**: https://github.com/github/spec-kit/blob/main/CHANGELOG.md
+- **SUPPORT**: https://github.com/github/spec-kit/blob/main/SUPPORT.md
 - **GitHub Copilot 文件**: https://docs.github.com/copilot
-
-#### 社群實作範例 (Community Walkthroughs)
-
-透過以下社群貢獻的實作範例，可以看到 SDD 在不同場景中的實際運用：
-
-- **Greenfield .NET CLI 工具**: [spec-kit-dotnet-cli-demo](https://github.com/mnriem/spec-kit-dotnet-cli-demo) — 從空白目錄建構一個 Timezone Utility .NET 單一執行檔 CLI 工具，涵蓋完整 spec-kit 工作流程
-- **Greenfield Spring Boot + React 平台**: [spec-kit-spring-react-demo](https://github.com/mnriem/spec-kit-spring-react-demo) — 從零開始建構 LLM 效能分析平台（REST API、圖表、迭代追蹤），使用 Spring Boot + React + PostgreSQL + Docker Compose
-- **Brownfield ASP.NET CMS 擴充**: [spec-kit-aspnet-brownfield-demo](https://github.com/mnriem/spec-kit-aspnet-brownfield-demo) — 展示如何將 spec-kit 整合至既有開源 .NET CMS (CarrotCakeCMS-Core)，新增 Docker Compose 基礎設施與 REST API
 
 #### 延伸閱讀
 
@@ -7840,32 +8101,58 @@ API 必須一致、版本化、文件化。
 
 ---
 
-### 6.4 術語表
+### 6.4 社群實作範例 (Community Walkthroughs)
 
-| 術語 | 說明 |
-|------|------|
-| **SDD** | Specification-Driven Development,規格驅動開發 |
-| **Spec** | Specification,需求規格 |
-| **Plan** | 實作計畫,技術設計文件 |
-| **Tasks** | 可執行的任務清單 |
-| **Constitution** | 專案守則,開發原則 |
-| **NFR** | Non-Functional Requirement,非功能性需求 |
-| **TDD** | Test-Driven Development,測試驅動開發 |
-| **DoD** | Definition of Done,完成定義 |
-| **AC** | Acceptance Criteria,驗收標準 |
-| **User Story** | 使用者故事 |
-| **API Contract** | API 契約,介面規格 |
-| **Pre-Implementation Gate** | 實作前檢查點 |
-| **Characterization Test** | 特徵測試,記錄既有行為的測試 |
-| **Feature Toggle** | 功能開關 |
-| **Strangler Fig Pattern** | 絞殺者模式,逐步替換既有系統 |
-| **YAGNI** | You Aren't Gonna Need It,避免過度設計 |
-| **DRY** | Don't Repeat Yourself,避免重複 |
-| **SOLID** | 物件導向設計五大原則 |
+透過以下社群貢獻的實作範例，可以看到 SDD 在不同場景中的實際運用：
+
+#### Greenfield（全新開發）
+
+- **Greenfield .NET CLI 工具**: [spec-kit-dotnet-cli-demo](https://github.com/mnriem/spec-kit-dotnet-cli-demo) — 從空白目錄建構一個 Timezone Utility .NET 單一執行檔 CLI 工具，涵蓋完整 spec-kit 工作流程：constitution → specify → plan → tasks → multi-pass implement（使用 GitHub Copilot agents）
+
+- **Greenfield Spring Boot + React 平台**: [spec-kit-spring-react-demo](https://github.com/mnriem/spec-kit-spring-react-demo) — 從零開始建構 LLM 效能分析平台（REST API、圖表、迭代追蹤），使用 Spring Boot + embedded React + PostgreSQL + Docker Compose，包含 clarify 步驟與 cross-artifact consistency analysis pass
+
+- **Greenfield Spring Boot MVC + 自訂預設**: [spec-kit-pirate-speak-preset-demo](https://github.com/mnriem/spec-kit-pirate-speak-preset-demo) — 使用自訂 pirate-speak 預設從零建構 Spring Boot MVC 應用，展示預設系統如何重塑整個 spec-kit 體驗：Spec 變成「Voyage Manifests」，Plan 變成「Battle Plans」，Tasks 變成「Crew Assignments」— 全程使用海盜口語，無需修改任何工具
+
+#### Brownfield（既有系統擴充）
+
+- **Brownfield ASP.NET CMS 擴充**: [spec-kit-aspnet-brownfield-demo](https://github.com/mnriem/spec-kit-aspnet-brownfield-demo) — 擴充既有開源 .NET CMS (CarrotCakeCMS-Core，約 307,000 行 C#/Razor/SQL/JS/Config)，新增 Docker Compose 基礎設施與 token-authenticated headless REST API，展示 spec-kit 如何在「沒有既有 spec 或 constitution」的程式庫中運作
+
+- **Brownfield Java 執行環境擴充**: [spec-kit-java-brownfield-demo](https://github.com/mnriem/spec-kit-java-brownfield-demo) — 擴充既有開源 Jakarta EE 執行時（Piranha，約 420,000 行 Java/XML/JSP/HTML/Config，跨 180 個 Maven 模組），新增受密碼保護的 Server Admin Console，展示 spec-kit 在大型多模組 Java 專案的運用
+
+- **Brownfield Go / React 儀表板**: [spec-kit-go-brownfield-demo](https://github.com/mnriem/spec-kit-go-brownfield-demo) — 完全從終端機使用 GitHub Copilot CLI 驅動 spec-kit。擴充 NASA 開源的 Hermes 地面支援系統（Go），新增輕量級 React 遙測儀表板，證明完整的 constitution → specify → plan → tasks → implement 工作流程可在終端機中完成
 
 ---
 
-### 6.5 快速指令參考
+### 6.5 術語表
+
+| 術語 | 說明 |
+|------|------|
+| **SDD** | Specification-Driven Development，規格驅動開發 |
+| **Spec** | Specification，需求規格 |
+| **Plan** | 實作計畫，技術設計文件 |
+| **Tasks** | 可執行的任務清單 |
+| **Constitution** | 專案守則，開發原則 |
+| **Preset** | 預設，自訂 Spec-Kit 既有工作流程的模板覆寫套件 |
+| **Extension** | 擴充，新增 Spec-Kit 功能的獨立套件 |
+| **NFR** | Non-Functional Requirement，非功能性需求 |
+| **TDD** | Test-Driven Development，測試驅動開發 |
+| **DoD** | Definition of Done，完成定義 |
+| **AC** | Acceptance Criteria，驗收標準 |
+| **User Story** | 使用者故事 |
+| **API Contract** | API 契約，介面規格 |
+| **Pre-Implementation Gate** | 實作前檢查點 |
+| **Characterization Test** | 特徵測試，記錄既有行為的測試 |
+| **Feature Toggle** | 功能開關 |
+| **Strangler Fig Pattern** | 絞殺者模式，逐步替換既有系統 |
+| **YAGNI** | You Aren't Gonna Need It，避免過度設計 |
+| **DRY** | Don't Repeat Yourself，避免重複 |
+| **SOLID** | 物件導向設計五大原則 |
+| **Air-Gapped** | 隔離環境，無外部網路連線的部署環境 |
+| **Core Pack** | 核心模板包，v0.3.2 起內嵌於 wheel 中供離線使用 |
+
+---
+
+### 6.6 快速指令參考
 
 #### Spec-Kit 核心指令
 
@@ -7891,35 +8178,77 @@ specify init my-project --ai vibe
 # 1f. 使用 Kimi Code
 specify init my-project --ai kimi
 
+# 1g. 使用 Pi Coding Agent
+specify init my-project --ai pi
+
+# 1h. 使用 Junie（JetBrains）
+specify init my-project --ai junie
+
+# 1i. 使用 Trae
+specify init my-project --ai trae
+
+# 1j. 使用 iFlow CLI
+specify init my-project --ai iflow
+
+# 1k. 時間戳記分支編號（分散式團隊）
+specify init my-project --ai copilot --branch-numbering timestamp
+
 # 2. 檢查環境
 specify check
 
 # 3. 查看版本
 specify version
 
-# 4. 建立專案守則
+# 4. 專案健康診斷（v0.3.0+）
+specify doctor
+
+# 5. 專案狀態總覽（v0.3.1+）
+specify status
+
+# 6. 建立專案守則
 /speckit.constitution
 
-# 5. 撰寫 Spec
+# 7. 撰寫 Spec
 /speckit.specify
 
-# 6. 澄清需求
+# 8. 澄清需求
 /speckit.clarify
 
-# 7. 撰寫 Plan
+# 9. 撰寫 Plan
 /speckit.plan
 
-# 8. 拆分 Tasks
+# 10. 拆分 Tasks
 /speckit.tasks
 
-# 9. 分析一致性
+# 11. 分析一致性
 /speckit.analyze
 
-# 10. 品質檢查
+# 12. 品質檢查
 /speckit.checklist
 
-# 11. 實作
+# 13. 實作
 /speckit.implement <task-id>
+```
+
+#### 預設系統指令（v0.3.0+）
+
+```bash
+# 搜尋可用預設
+specify preset search
+specify preset search pirate
+
+# 安裝預設
+specify preset add pirate-speak
+
+# 列出已安裝預設
+specify preset list
+
+# 啟用 / 停用
+specify preset enable pirate-speak
+specify preset disable pirate-speak
+
+# 移除預設
+specify preset remove pirate-speak
 ```
 
 #### 擴充系統指令
@@ -7949,7 +8278,7 @@ specify extension disable jira
 specify extension remove jira
 ```
 
-#### 擴充目錄管理指令 (v0.2.0 新增)
+#### 擴充目錄管理指令 (v0.2.0+)
 
 ```bash
 # 列出所有啟用的目錄
@@ -7961,7 +8290,7 @@ specify extension catalog add <URL>
 # 移除目錄
 specify extension catalog remove <URL>
 
-# 查看目錄管理說明（v0.2.1 新增）
+# 查看目錄管理說明
 specify extension catalog --help
 ```
 
@@ -8072,7 +8401,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v1.6 | 適用 Spec-Kit v0.2.1+*  
+*文件版本: v2.0 | 適用 Spec-Kit v0.3.2+*  
 *最後更新: 2026-03*  
-*適用於: Spec-Kit v0.2.1+ / Spec Kit Templates - 0.2.1*
+*適用於: Spec-Kit v0.3.2+ / Spec Kit Templates - 0.3.2*
 

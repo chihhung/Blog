@@ -2,17 +2,18 @@
 date = '2025-12-31T20:06:08+08:00'
 draft = false
 title = 'OpenSpec使用教學'
-lastmod = '2026-02-26T12:00:00+08:00'
+lastmod = '2026-03-23T12:00:00+08:00'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
 
 ## OpenSpec 使用教學手冊
 
-> **版本**：3.0  
-> **更新日期**：2026-02-26  
-> **適用版本**：OpenSpec v1.2.0（含 Profiles 與 OPSX 工作流程）  
-> **適用對象**：新進軟體工程師、系統分析師、尚未接觸過 SDD 或 OpenSpec 的同仁
+> **版本**：3.1  
+> **更新日期**：2026-03-23  
+> **適用版本**：OpenSpec v1.2.0（含 Profiles、OPSX 工作流程、動態指令架構與語義規格同步）  
+> **適用對象**：新進軟體工程師、系統分析師、尚未接觸過 SDD 或 OpenSpec 的同仁  
+> **官方網站**：[openspec.dev](https://openspec.dev/)
 
 ---
 
@@ -39,6 +40,8 @@ categories = ['教學']
 - [第四章：使用 OpenSpec 的標準工作流程](#第四章使用-openspec-的標準工作流程)
   - [4.1 從需求想法到 Spec](#41-從需求想法到-spec)
   - [4.2 OPSX 工作流程與 Profiles 系統（v1.2.0）](#42-opsx-工作流程與-profiles-系統v120)
+    - [三大架構革新（v1.0.0 起）](#三大架構革新v100-起)
+    - [各 AI 工具的指令語法差異](#各-ai-工具的指令語法差異)
   - [4.3 與 AI 互動修正 Spec 的方式](#43-與-ai-互動修正-spec-的方式)
   - [4.4 Spec 如何驅動設計、程式碼與測試](#44-spec-如何驅動設計程式碼與測試)
   - [第四章小結](#第四章小結)
@@ -71,6 +74,7 @@ categories = ['教學']
   - [E. 常用 CLI 指令速查](#e-常用-cli-指令速查)
   - [F. 與 AI 對話 Prompt 範本](#f-與-ai-對話-prompt-範本)
   - [G. 支援的 AI 工具清單](#g-支援的-ai-工具清單)
+  - [H. 疑難排解（Troubleshooting）](#h-疑難排解troubleshooting)
 - [參考資源](#參考資源)
   - [官方資源](#官方資源)
   - [相關工具](#相關工具)
@@ -85,7 +89,15 @@ categories = ['教學']
 
 在 AI 輔助開發的時代，許多團隊開始使用 GitHub Copilot、Claude、ChatGPT 等工具來加速開發。然而，AI 助手在沒有明確規格的情況下，容易產生不符合需求的程式碼，或是理解偏差導致返工。
 
-**OpenSpec** 是一套 **Spec-Driven Development（SDD，規格驅動開發）** 的方法論與工具，它讓「規格」成為開發的唯一真實來源（Single Source of Truth），確保人類與 AI 在同一個頁面上。OpenSpec 目前支援 **24+ AI 編程助手**（包含 Claude Code、GitHub Copilot、Cursor、Windsurf、Gemini CLI、Pi、Kiro 等），並提供靈活的 OPSX 工作流程與 **Profiles 設定檔系統**，讓開發者可以自由迭代而非被瀑布式流程鎖住。
+**OpenSpec** 是一套 **Spec-Driven Development（SDD，規格驅動開發）** 的方法論與工具，它讓「規格」成為開發的唯一真實來源（Single Source of Truth），確保人類與 AI 在同一個頁面上。OpenSpec 是目前最受歡迎的規格框架（GitHub ★ 33.2k、MIT 授權），支援 **24 個 AI 編程助手**（包含 Claude Code、GitHub Copilot、Cursor、Windsurf、Gemini CLI、Pi、Kiro 等），並提供靈活的 OPSX 工作流程、**Profiles 設定檔系統**、**動態指令架構（Dynamic Instructions）**，以及**語義規格同步（Semantic Spec Syncing）**，讓開發者可以自由迭代而非被瀑布式流程鎖住。
+
+OpenSpec 的核心哲學：
+
+- **流動而非剛性**（fluid not rigid）
+- **迭代而非瀑布**（iterative not waterfall）
+- **簡單而非複雜**（easy not complex）
+- **為既有專案而建**（built for brownfield not just greenfield）
+- **可從個人專案擴展至企業級**（scalable from personal projects to enterprises）
 
 > 💡 **v1.2.0 新功能**：新增 **Profiles 系統**（`core` / `custom`）、**`/opsx:propose` 一鍵提案指令**、**AI 工具自動偵測**、以及 Pi 與 Kiro 工具支援。
 
@@ -193,13 +205,16 @@ graph LR
 | **與程式碼關聯** | 分離 | 同一 Repository |
 | **即時性** | 可能過時 | 持續更新（活文件） |
 | **工作流程** | 線性階段式 | OPSX 流動式迭代（含 Profiles） |
-| **AI 工具支援** | 無 | 24+ AI 助手原生整合 |
+| **AI 工具支援** | 無 | 24 個 AI 助手原生整合 |
+| **指令架構** | 靜態提示詞 | 動態指令（Context + Rules + Template） |
+| **規格同步** | 手動合併 | 語義規格同步（ADDED/MODIFIED/REMOVED/RENAMED） |
 
 #### 關鍵差異說明
 
 1. **AI 可理解**：OpenSpec 的格式讓 AI 能精確理解需求
 2. **與程式碼共存**：Spec 放在專案中，與程式碼一起版本控管
 3. **增量更新**：透過「變更（Changes）」機制，追蹤每次修改
+4. **語義同步**：Delta Spec 使用 `ADDED`/`MODIFIED`/`REMOVED`/`RENAMED` 語義標記，而非脚本式文字合併
 
 #### 與其他 SDD 工具的比較
 
@@ -272,21 +287,28 @@ OpenSpec 初始化後會建立以下結構：
 │   │       ├── tasks.md        # 工作項目
 │   │       └── specs/          # 規格差異（Delta）
 │   └── changes/archive/        # 已完成的變更
-├── .claude/                    # Claude Code 整合（依工具而異）
-│   ├── skills/openspec-*/       # 技能檔
-│   └── commands/opsx/           # OPSX 指令檔
-├── .cursor/                    # Cursor 整合（若已選取）
-│   ├── skills/openspec-*/
-│   └── commands/
-└── .github/prompts/            # GitHub Copilot 整合（若已選取）
-```
+│
+│   # 以下為 AI 工具整合檔案（依工具而異，openspec init 自動產生）
+├── .claude/                    # Claude Code 整合
+│   ├── skills/openspec-*/SKILL.md   # 技能檔（動態指令）
+│   └── commands/opsx/              # OPSX 指令檔
+├── .cursor/                    # Cursor 整合
+│   ├── skills/openspec-*/SKILL.md
+│   └── commands/opsx-*.md
+├── .github/                    # GitHub Copilot 整合
+│   ├── skills/openspec-*/SKILL.md
+│   └── prompts/opsx-*.prompt.md
+├── .windsurf/                  # Windsurf 整合
+│   ├── skills/openspec-*/SKILL.md
+│   └── workflows/opsx-*.md
+└── .gemini/                    # Gemini CLI 整合
+    ├── skills/openspec-*/SKILL.md
+    └── commands/opsx/*.toml
 ```
 
 > 💡 **實務建議**：建議在專案初期就導入 OpenSpec，這樣可以從第一天就建立完整的規格歷史。
 >
-> ℹ️ **備註**：`config.yaml` 取代了舊版的 `project.md`，提供更結構化的專案配置方式。AI 工具的 skill 與 command 檔案位置依工具而異，例如 Claude Code 使用 `.claude/skills/` + `.claude/commands/`，Cursor 使用 `.cursor/skills/` + `.cursor/commands/`，GitHub Copilot 使用 `.github/skills/` + `.github/prompts/` 等。執行 `openspec init` 時會自動偵測你專案中已存在的 AI 工具目錄並預先選取。
-
----
+> ℹ️ **備註**：`config.yaml` 取代了舊版的 `project.md`，提供更結構化的專案配置方式。每個 AI 工具的檔案位置依工具而異，例如 Claude Code 使用 `.claude/skills/` + `.claude/commands/`，Cursor 使用 `.cursor/skills/` + `.cursor/commands/`，GitHub Copilot 使用 `.github/skills/` + `.github/prompts/`，Windsurf 使用 `.windsurf/skills/` + `.windsurf/workflows/` 等。執行 `openspec init` 時會自動偵測你專案中已存在的 AI 工具目錄並預先選取。在 **core profile** 下產生 4 個指令檔（propose、explore、apply、archive），在 **custom profile** 下可產生最多 11 個指令檔。
 
 ## 第二章：Spec-Driven Development（SDD）核心概念
 
@@ -1087,6 +1109,114 @@ graph LR
 | 無法回頭修改 | 任何時候都可以修改任何文件 |
 | 3 個指令 | 4 個 core 指令 + 7 個擴展指令 |
 
+#### 三大架構革新（v1.0.0 起）
+
+OpenSpec 1.0 進行了從底層開始的重建。以下三個架構革新是理解 OPSX 工作流程的關鍵：
+
+##### 1. 動態指令架構（Dynamic Instructions）
+
+**舊版**：AI 每次都收到相同的靜態指令，不論專案狀態如何。
+
+**新版**：指令由三層動態組裝而成：
+
+```mermaid
+graph TB
+    subgraph 動態指令三層架構
+        A[Context<br/>專案背景 — 來自 config.yaml<br/>技術棧、慣例、業務領域] 
+        B[Rules<br/>Artifact 專屬約束<br/>如：propose 必須含回滾計畫]
+        C[Template<br/>輸出結構模板<br/>如：proposal.md 的標準格式]
+    end
+    
+    A --> D[AI 助手]
+    B --> D
+    C --> D
+    D --> E[即時狀態查詢<br/>哪些 artifact 存在？<br/>哪些可以建立？<br/>下一步是什麼？]
+```
+
+**config.yaml 範例**：
+
+```yaml
+# openspec/config.yaml
+schema: spec-driven    # 使用的工作流程 schema
+
+context: |
+  Tech stack: TypeScript, React, Node.js, PostgreSQL
+  API style: RESTful
+  Testing: Jest + React Testing Library
+  業務領域: 銀行核心系統
+
+rules:
+  proposal:
+    - 必須包含回滾計畫
+    - 必須標示影響的團隊
+  specs:
+    - 使用 Given/When/Then 格式
+    - 優先參考現有模式
+  design:
+    - 列出技術選型的替代方案
+```
+
+> 💡 **關鍵優勢**：AI 不再只是「讀指令」，而是能查詢 CLI 取得即時狀態——哪些 artifact 已存在、哪些準備好可以建立、相依性是否滿足、每個動作解鎖什麼。這讓 AI 的決策更智能、更貼合專案當前狀態。
+
+##### 2. 語義規格同步（Semantic Spec Syncing）
+
+**舊版**：規格更新需要手動合併或整個檔案覆蓋，容易出錯。
+
+**新版**：Delta Spec 使用 AI 可理解的語義標記：
+
+| 語義標記 | 用途 | 說明 |
+|---------|------|------|
+| `## ADDED Requirements` | 新增需求 | 完整加入主規格 |
+| `## MODIFIED Requirements` | 修改需求 | 局部更新（可新增情境而不複製既有的） |
+| `## REMOVED Requirements` | 移除需求 | 刪除時附帶原因與遷移說明 |
+| `## RENAMED Requirements` | 重新命名 | 更名但保留內容 |
+
+**語義同步範例**：
+
+```spec
+# Delta for Auth
+
+## ADDED Requirements
+
+### Requirement: 雙因素認證設定
+系統 SHALL 允許用戶啟用雙因素認證
+...（完整定義）
+
+## MODIFIED Requirements
+
+### Requirement: 帳號密碼驗證（修改既有）
+*僅新增 2FA 檢查情境，不影響既有登入情境*
+
+#### Scenario: 需要 2FA 驗證（新增）
+- GIVEN 帳號存在且密碼正確
+- AND 帳號已啟用 2FA
+- WHEN 用戶提交登入請求
+- THEN 系統回傳 2FA 挑戰
+
+## REMOVED Requirements
+
+### Requirement: 安全問答驗證
+*原因：已被 2FA 取代*
+*遷移說明：既有使用安全問答的用戶需先綁定 TOTP*
+```
+
+> 💡 Archive 過程在 **requirement 層級**（而非脆弱的標題匹配）解析這些標記，確保合併的正確性。
+
+##### 3. Agent Skills 統一格式
+
+**舊版**：8+ 設定檔散落在專案根目錄，21 個工具需要不同格式的 slash command。
+
+**新版**：統一使用 YAML frontmatter 的 Markdown 技能檔。每個 AI 工具有專屬的目錄，但技能內容格式一致：
+
+```text
+.claude/skills/openspec-propose/SKILL.md      # Claude Code
+.cursor/skills/openspec-propose/SKILL.md      # Cursor
+.windsurf/skills/openspec-propose/SKILL.md    # Windsurf
+.github/skills/openspec-propose/SKILL.md      # GitHub Copilot
+```
+
+> ℹ️ 這些 skill 檔案由 `openspec init` 和 `openspec update` 自動產生與維護，開發者通常不需要手動編輯。
+
 #### OPSX 完整指令一覽
 
 **Core 指令（預設 `core` profile）**：
@@ -1228,25 +1358,24 @@ AI:  ✓ Updated design.md
 
 #### 自訂 Schema
 
-OpenSpec 支援自訂工作流程 schema，團隊可以定義自己的 artifact 順序與規則：
+OpenSpec 支援自訂工作流程 schema，團隊可以定義自己的 artifact 順序與規則。自訂 schema 放在 `openspec/schemas/` 目錄中，透過版本控管與團隊共享：
 
 ```yaml
-# openspec/config.yaml
-schema: spec-driven    # 預設 schema
-
-context: |
-  Tech stack: TypeScript, React, Node.js, PostgreSQL
-  API style: RESTful
-  Testing: Jest + React Testing Library
-
-rules:
-  proposal:
-    - 必須包含回滾計畫
-    - 必須標示影響的團隊
-  specs:
-    - 使用 Given/When/Then 格式
-    - 優先參考現有模式
+# openspec/config.yaml（config.yaml 完整範例參見上方「動態指令架構」段落）
+schema: spec-driven    # 預設 schema，可改為自訂 schema 名稱
 ```
+
+**Schema 管理 CLI 指令**：
+
+```bash
+openspec schemas                   # 查看可用的工作流程 schema
+openspec schema list               # 列出所有 schema（含自訂）
+openspec schema show <name>        # 查看特定 schema 的 artifact 定義
+openspec schema export <name>      # 匯出 schema 為檔案
+openspec schema validate           # 驗證 schema 格式正確性
+```
+
+> 💡 自訂 schema 無需修改 OpenSpec 套件程式碼，團隊可透過 Git 版本控管共享自訂的工作流程 schema。
 
 #### 新手上路：使用 /opsx:onboard
 
@@ -1267,7 +1396,21 @@ AI:  Welcome to OpenSpec!
      Phase 11: 總結與下一步
 ```
 
-> ⚠️ **舊版指令仍可使用**：`/openspec:proposal`、`/openspec:apply`、`/openspec:archive` 仍然有效，但建議遷移至 OPSX 指令以獲得更好的體驗。
+> ⚠️ **Legacy 指令說明**：`/openspec:proposal`、`/openspec:apply`、`/openspec:archive` 為舊版「一次建立所有文件」的工作流程。根據官方文件，這些指令仍可使用（作為 legacy 相容），但 **OPSX 指令才是推薦的標準做法**。既有使用舊版指令的專案可直接用 OPSX 指令接續操作，artifact 結構是相容的。
+
+#### 各 AI 工具的指令語法差異
+
+不同 AI 工具使用略有不同的指令語法。核心意圖相同，但語法格式依工具整合方式而異：
+
+| AI 工具 | 指令格式範例 | 說明 |
+|--------|-------------|------|
+| **Claude Code** | `/opsx:propose`, `/opsx:apply` | 冒號分隔格式 |
+| **Cursor** | `/opsx-propose`, `/opsx-apply` | 連字號格式 |
+| **Windsurf** | `/opsx-propose`, `/opsx-apply` | 連字號格式 |
+| **GitHub Copilot (IDE)** | `/opsx-propose`, `/opsx-apply` | 連字號格式（僅 IDE 擴充套件支援） |
+| **Trae** | `/openspec-propose`, `/openspec-apply-change` | 技能導向呼叫（無產生指令檔） |
+
+> ℹ️ **GitHub Copilot CLI 注意**：GitHub Copilot prompt 檔案（`.github/prompts/*.prompt.md`）目前僅在 IDE 擴充套件（VS Code、JetBrains、Visual Studio）中可用。Copilot CLI 尚不支援自訂 prompt 檔案。
 
 ---
 
@@ -1413,15 +1556,16 @@ openspec update
 # Profile 管理（v1.2.0 新增）
 openspec config profile              # 互動式切換 core/custom profile
 
-# Schema 管理（v1.2.0 新增）
-openspec schema init                  # 在專案中初始化自訂 schema
-openspec schema fork <name>           # Fork 現有 schema 進行自訂
+# Schema 管理
+openspec schema list                  # 列出所有可用 schema（含自訂）
+openspec schema show <name>           # 查看特定 schema 的 artifact 定義
+openspec schema export <name>         # 匯出 schema 為檔案
 openspec schema validate              # 驗證 schema 格式
-openspec schema which                 # 顯示目前使用的 schema
 
 # 查看/修改全域配置
-openspec config list
+openspec config list                  # 查看所有配置（含 config drift 警告）
 openspec config set telemetry.enabled false
+openspec config path                  # 查看配置檔路徑
 
 # Shell 自動完成
 openspec completion                   # 產生 shell completion 腳本
@@ -2796,14 +2940,14 @@ openspec archive <change> --yes    # 歸檔已完成的變更
 # Profile 管理（v1.2.0 新增）
 openspec config profile            # 互動式切換 core/custom profile
 
-# Schema 管理（v1.2.0 新增）
-openspec schema init               # 初始化自訂 schema
-openspec schema fork <name>        # Fork 現有 schema 進行自訂
+# Schema 管理
+openspec schema list               # 列出所有可用 schema（含自訂）
+openspec schema show <name>        # 查看特定 schema 的 artifact 定義
+openspec schema export <name>      # 匯出 schema 為檔案
 openspec schema validate           # 驗證 schema 格式
-openspec schema which              # 顯示目前使用的 schema
 
 # 配置管理
-openspec config list               # 查看所有配置
+openspec config list               # 查看所有配置（含 config drift 警告）
 openspec config set <key> <value>  # 設定配置值
 openspec config path               # 查看配置檔路徑
 
@@ -2856,34 +3000,55 @@ openspec feedback                   # 提交使用回饋
 
 ### G. 支援的 AI 工具清單
 
-OpenSpec v1.2.0 支援 **24+ AI 編程助手**，在執行 `openspec init` 時可選擇要整合的工具（支援自動偵測已安裝工具）：
+OpenSpec v1.2.0 支援 **24 個 AI 編程助手**，在執行 `openspec init` 時可選擇要整合的工具（支援自動偵測已安裝工具）。
 
-| 工具 | ID | Skill/Command 格式 |
-|------|----|---------------------|
-| Amazon Q Developer | `amazon-q` | `@openspec-*` |
-| Antigravity | `antigravity` | `/openspec-*` |
-| Auggie (Augment CLI) | `auggie` | `/openspec-*` |
-| Claude Code | `claude` | Skills: `.claude/skills/` + Commands: `.claude/commands/` |
-| Cline | `cline` | Workflows |
-| CodeBuddy | `codebuddy` | `/openspec:*` |
-| Codex | `codex` | `/openspec-*` |
-| Continue | `continue` | `/openspec-*` |
-| CoStrict | `costrict` | `/openspec-*` |
-| Crush | `crush` | `/openspec-*` |
-| Cursor | `cursor` | Skills: `.cursor/skills/` + Commands: `.cursor/commands/` |
-| Factory Droid | `factory` | `/openspec-*` |
-| Gemini CLI | `gemini` | `/openspec:*` |
-| GitHub Copilot | `github-copilot` | `/openspec-*` |
-| iFlow | `iflow` | `/openspec-*` |
-| Kilo Code | `kilocode` | `/openspec-*.md` |
-| **Kiro** 🆕 | `kiro` | Skills + Commands |
-| OpenCode | `opencode` | `/openspec-*` |
-| **Pi** 🆕 | `pi` | Skills + Commands |
-| Qoder | `qoder` | `/openspec-*` |
-| Qwen | `qwen` | `/openspec-*` |
-| RooCode | `roocode` | `/openspec-*` |
-| Trae | `trae` | `/openspec-*` |
-| Windsurf | `windsurf` | `/openspec-*` |
+每個工具安裝時會包含兩類檔案：
+1. **Skills**（技能檔）：`.../skills/openspec-*/SKILL.md` — 動態指令的核心
+2. **Commands**（指令檔）：工具特定格式的 `opsx-*` 指令檔案
+
+| 工具 | ID | Skills 路徑 | Commands 路徑 |
+|------|----|-------------|---------------|
+| Amazon Q Developer | `amazon-q` | `.amazonq/skills/openspec-*/SKILL.md` | `.amazonq/prompts/opsx-<id>.md` |
+| Antigravity | `antigravity` | `.agent/skills/openspec-*/SKILL.md` | `.agent/workflows/opsx-<id>.md` |
+| Auggie (Augment CLI) | `auggie` | `.augment/skills/openspec-*/SKILL.md` | `.augment/commands/opsx-<id>.md` |
+| Claude Code | `claude` | `.claude/skills/openspec-*/SKILL.md` | `.claude/commands/opsx/<id>.md` |
+| Cline | `cline` | `.cline/skills/openspec-*/SKILL.md` | `.clinerules/workflows/opsx-<id>.md` |
+| CodeBuddy | `codebuddy` | `.codebuddy/skills/openspec-*/SKILL.md` | `.codebuddy/commands/opsx/<id>.md` |
+| Codex | `codex` | `.codex/skills/openspec-*/SKILL.md` | `$CODEX_HOME/prompts/opsx-<id>.md`* |
+| Continue | `continue` | `.continue/skills/openspec-*/SKILL.md` | `.continue/prompts/opsx-<id>.prompt` |
+| CoStrict | `costrict` | `.cospec/skills/openspec-*/SKILL.md` | `.cospec/openspec/commands/opsx-<id>.md` |
+| Crush | `crush` | `.crush/skills/openspec-*/SKILL.md` | `.crush/commands/opsx/<id>.md` |
+| Cursor | `cursor` | `.cursor/skills/openspec-*/SKILL.md` | `.cursor/commands/opsx-<id>.md` |
+| Factory Droid | `factory` | `.factory/skills/openspec-*/SKILL.md` | `.factory/commands/opsx-<id>.md` |
+| Gemini CLI | `gemini` | `.gemini/skills/openspec-*/SKILL.md` | `.gemini/commands/opsx/<id>.toml` |
+| GitHub Copilot | `github-copilot` | `.github/skills/openspec-*/SKILL.md` | `.github/prompts/opsx-<id>.prompt.md`** |
+| iFlow | `iflow` | `.iflow/skills/openspec-*/SKILL.md` | `.iflow/commands/opsx-<id>.md` |
+| Kilo Code | `kilocode` | `.kilocode/skills/openspec-*/SKILL.md` | `.kilocode/workflows/opsx-<id>.md` |
+| Kiro 🆕 | `kiro` | `.kiro/skills/openspec-*/SKILL.md` | `.kiro/prompts/opsx-<id>.prompt.md` |
+| OpenCode | `opencode` | `.opencode/skills/openspec-*/SKILL.md` | `.opencode/commands/opsx-<id>.md` |
+| Pi 🆕 | `pi` | `.pi/skills/openspec-*/SKILL.md` | `.pi/prompts/opsx-<id>.md` |
+| Qoder | `qoder` | `.qoder/skills/openspec-*/SKILL.md` | `.qoder/commands/opsx/<id>.md` |
+| Qwen Code | `qwen` | `.qwen/skills/openspec-*/SKILL.md` | `.qwen/commands/opsx-<id>.toml` |
+| RooCode | `roocode` | `.roo/skills/openspec-*/SKILL.md` | `.roo/commands/opsx-<id>.md` |
+| Trae | `trae` | `.trae/skills/openspec-*/SKILL.md` | 無（使用技能導向 `/openspec-*` 呼叫） |
+| Windsurf | `windsurf` | `.windsurf/skills/openspec-*/SKILL.md` | `.windsurf/workflows/opsx-<id>.md` |
+
+\* Codex commands 安裝在全域 Codex home（`$CODEX_HOME/prompts/` 或 `~/.codex/prompts/`），不在專案目錄中。  
+\*\* GitHub Copilot prompt 檔案僅在 IDE 擴充套件（VS Code、JetBrains、Visual Studio）中可用，Copilot CLI 尚不支援。
+
+**產生的 Skill 名稱**：
+
+依據 profile/workflow 選擇，OpenSpec 會產生以下 skill：
+
+| Core Profile（預設） | Custom Profile（擴展） |
+|---------------------|----------------------|
+| `openspec-propose` | `openspec-new-change` |
+| `openspec-explore` | `openspec-continue-change` |
+| `openspec-apply-change` | `openspec-ff-change` |
+| `openspec-archive-change` | `openspec-sync-specs` |
+| | `openspec-verify-change` |
+| | `openspec-bulk-archive-change` |
+| | `openspec-onboard` |
 
 **非互動式安裝**：
 
@@ -2896,11 +3061,32 @@ openspec init --tools all
 
 # 跳過工具配置
 openspec init --tools none
+
+# 指定 profile（覆蓋全域設定）
+openspec init --profile core
 ```
 
-> 💡 每個工具會產生對應的 skill 與 command 檔案。在 **core profile** 下產生 4 個指令檔（propose、explore、apply、archive），在 **custom profile** 下可產生最多 11 個指令檔。工具的 skill 檔案路徑依工具而異（如 Claude 使用 `.claude/skills/`，GitHub Copilot 使用 `.github/prompts/`）。
+**所有可用 Tool ID**：`amazon-q`、`antigravity`、`auggie`、`claude`、`cline`、`codex`、`codebuddy`、`continue`、`costrict`、`crush`、`cursor`、`factory`、`gemini`、`github-copilot`、`iflow`、`kilocode`、`kiro`、`opencode`、`pi`、`qoder`、`qwen`、`roocode`、`trae`、`windsurf`
 
-> ℹ️ 使用 `openspec update` 更新時，會自動移除已取消選擇的工作流程檔案（sync prune）。
+> 💡 Skill/Command 的數量取決於 profile 選擇與 delivery mode，並非固定數量。在 **core profile** 下產生 4 組 skill + command，在 **custom profile** 下依選擇可產生最多 11 組。
+
+> ℹ️ 使用 `openspec update` 更新時，會自動移除已取消選擇的工作流程檔案（sync prune）。`openspec config list` 會在全域配置與專案配置不同步時顯示 config drift 警告。
+
+---
+
+### H. 疑難排解（Troubleshooting）
+
+| 問題 | 原因 | 解決方法 |
+|------|------|---------|
+| **「Change not found」** | 指令無法識別要操作的變更 | 明確指定變更名稱：`/opsx:apply add-dark-mode`；確認變更目錄存在：`openspec list` |
+| **「No artifacts ready」** | 所有 artifact 已完成或被相依性阻擋 | 執行 `openspec status --change <name>` 查看阻擋原因；先建立缺少的前置 artifact |
+| **「Schema not found」** | 指定的 schema 不存在 | 列出可用 schema：`openspec schemas`；確認拼寫；若為自訂 schema 則需先建立 |
+| **指令未被辨認** | AI 工具未載入 OpenSpec 技能檔 | 確認已初始化：`openspec init`；重新產生技能檔：`openspec update`；重啟 AI 工具 |
+| **Artifact 產出不完整** | AI 缺乏足夠的專案上下文 | 在 `openspec/config.yaml` 補充 context 資訊；為特定 artifact 新增 rules；改用 `/opsx:continue` 逐步產生 |
+| **Windows 相容性問題** | 路徑分隔符號差異 | OpenSpec v1.0.2+ 已修正跨平台路徑處理；確認使用最新版 |
+| **Archive 中途停止** | 跨裝置或限制路徑導致 rename 失敗 | v1.1.0+ 已修正：自動回退為 copy+remove |
+
+> 💡 更多疑難排解請參閱 [Commands 指令參考](https://github.com/Fission-AI/OpenSpec/blob/main/docs/commands.md#troubleshooting) 中的 Troubleshooting 區段。
 
 ---
 
@@ -2910,19 +3096,23 @@ openspec init --tools none
 
 | 資源 | 連結 |
 |------|------|
+| OpenSpec 官方網站 | https://openspec.dev/ |
 | OpenSpec GitHub | https://github.com/Fission-AI/OpenSpec |
 | OpenSpec npm | https://www.npmjs.com/package/@fission-ai/openspec |
 | OpenSpec Discord | https://discord.gg/YctCnvvshC |
-| 🆕 Getting Started | https://github.com/Fission-AI/OpenSpec/blob/main/docs/getting-started.md |
-| 🆕 Workflows 工作流程 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/workflows.md |
-| 🆕 Concepts 概念說明 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/concepts.md |
+| CHANGELOG | https://github.com/Fission-AI/OpenSpec/blob/main/CHANGELOG.md |
+| Getting Started 入門 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/getting-started.md |
+| Workflows 工作流程 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/workflows.md |
+| OPSX 指令說明 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/opsx.md |
+| Concepts 概念說明 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/concepts.md |
 | Commands 指令參考 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/commands.md |
 | CLI 參考 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/cli.md |
-| 支援工具清單 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/supported-tools.md |
-| 安裝指南 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/installation.md |
-| 🆕 Multi-Language 多語言 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/multi-language.md |
-| 🆕 Customization 自訂 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md |
+| Supported Tools 支援工具清單 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/supported-tools.md |
+| Installation 安裝指南 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/installation.md |
+| Multi-Language 多語言 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/multi-language.md |
+| Customization 自訂 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md |
 | @0xTab on X | https://x.com/0xTab |
+| 團隊版 Slack 頻道 | 寄信至 teams@openspec.dev 申請 |
 
 ### 相關工具
 
@@ -2938,6 +3128,8 @@ openspec init --tools none
 | BDD (Behavior-Driven Development) | GIVEN-WHEN-THEN 的來源 |
 | ATDD (Acceptance Test-Driven Development) | 驗收測試驅動開發 |
 | Domain-Driven Design | 領域驅動設計 |
+| Context Engineering | 上下文工程——如何有效構建 AI 的提示上下文 |
+| Spec-Driven Development (SDD) | 規格驅動開發方法論 |
 
 ---
 
@@ -2946,9 +3138,9 @@ openspec init --tools none
 | 項目 | 內容 |
 |------|------|
 | **文件名稱** | OpenSpec 使用教學手冊 |
-| **版本** | 3.0 |
+| **版本** | 3.1 |
 | **建立日期** | 2025-12-30 |
-| **更新日期** | 2026-02-26 |
+| **更新日期** | 2026-03-23 |
 | **適用版本** | OpenSpec v1.2.0 |
 | **維護者** | [Eric Cheng] |
 | **適用對象** | 新進軟體工程師、系統分析師 |
