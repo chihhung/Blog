@@ -1,5 +1,5 @@
 +++
-date = '2026-03-24T14:39:10+08:00'
+date = '2026-03-25T10:00:00+08:00'
 draft = false
 title = 'Oh My Openagent（Oh My OpenCode, OMO）教學手冊'
 tags = ['教學', 'AI開發']
@@ -8,8 +8,8 @@ categories = ['教學']
 
 # oh-my-openagent（Oh My OpenCode, OMO）教學手冊
 
-> **版本**：v2.0｜**最後更新**：2026-03-24  
-> **對應 OMO 版本**：v3.12.3（154 releases）  
+> **版本**：v2.1｜**最後更新**：2026-03-25  
+> **對應 OMO 版本**：v3.13.1（156 releases）  
 > **適用對象**：資深工程師、架構師、技術主管  
 > **定位**：企業級 AI Agent Harness 教學手冊  
 > **GitHub**：[https://github.com/code-yeongyu/oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)  
@@ -46,17 +46,17 @@ oh-my-openagent（簡稱 OMO，又稱 Oh My OpenCode）是由 [code-yeongyu](htt
 
 > **重要**：OMO 並非一個獨立框架，而是 **OpenCode 的插件**。它透過 OpenCode 的插件系統運行，並與 Claude Code 完全相容——所有 Claude Code 的 hooks、commands、skills、MCPs 和 plugins 都可以直接使用。
 
-**核心統計（截至 2026 年 7 月）**：
+**核心統計（截至 2026 年 3 月）**：
 
 | 指標 | 數值 |
 |------|------|
-| GitHub Stars | 42.9k |
+| GitHub Stars | 43.3k |
 | Forks | 3.2k |
-| Contributors | 165 |
-| Releases | 154 |
-| 最新版本 | v3.12.3 |
+| Contributors | 168 |
+| Releases | 156 |
+| 最新版本 | v3.13.1 |
 | 授權方式 | SUL（Sisyphus Use License） |
-| 主要語言 | TypeScript (94.2%), HTML (5.3%) |
+| 主要語言 | TypeScript (94.3%), HTML (5.2%) |
 
 **核心特性**：
 
@@ -86,8 +86,9 @@ OMO 不綁定任何單一模型供應商，而是**編排所有模型的優勢**
 | Kimi K2.5 | 編排替代方案 |
 | GLM-5 | 編排備選 |
 | GPT-5.4 | 推理、Agent 任務（xhigh/high/medium variants） |
+| GPT-5.4-mini | 快速任務（quick 類別預設） |
 | GPT-5.3-codex | 深度自主工作（Hephaestus） |
-| Gemini 3.1 Pro | 創意任務 |
+| Gemini | 創意任務 |
 | Minimax | 速度需求 |
 
 ### 1.3 與傳統 AI Coding 工具差異
@@ -114,7 +115,7 @@ OMO 不綁定任何單一模型供應商，而是**編排所有模型的優勢**
 | 模型鎖定 | 部分 | 部分 | 完全 | 無（多模型編排） |
 | 編輯精度 | 低 | 低 | 中 | 高（Hashline） |
 | 企業適用性 | 低 | 中 | 中 | 高（Hook 安全、權限控管） |
-| 社群生態 | 活躍 | 成長中 | 封閉 | 活躍（42.9k Stars, 165 Contributors） |
+| 社群生態 | 活躍 | 成長中 | 封閉 | 活躍（43.3k Stars, 168 Contributors） |
 
 ### 1.5 適用場景
 
@@ -200,7 +201,7 @@ graph TB
         GPT53["GPT-5.3-codex"]
         Kimi["Kimi K2.5"]
         GLM["GLM-5"]
-        Gemini["Gemini 3.1 Pro"]
+        Gemini["Gemini"]
     end
 
     subgraph Integration["整合層"]
@@ -250,7 +251,7 @@ flowchart TD
     
     Category -->|"visual-engineering"| VE["Frontend, UI/UX, Design"]
     Category -->|"deep"| Deep["自主研究 + 執行<br/>GPT-5.3-codex medium"]
-    Category -->|"quick"| Quick["單檔修改, Typo"]
+    Category -->|"quick"| Quick["單檔修改, Typo<br/>GPT-5.4-mini"]
     Category -->|"ultrabrain"| UB["困難邏輯, 架構決策<br/>GPT-5.4 xhigh"]
     Category -->|"unspecified-high"| UH["一般高強度任務<br/>GPT-5.4 high"]
     Category -->|"business-logic"| BL["商業邏輯<br/>自定義分類"]
@@ -268,7 +269,7 @@ Sisyphus 主鏈：
 claude-opus-4-6 max → k2p5 → kimi-k2.5 → gpt-5.4 medium → glm-5 → big-pickle
 ```
 
-> **設計原理**：Agent 說「需要什麼類型的工作」，Harness 挑選對應模型。`ultrabrain` 類別現在預設路由到 GPT-5.4 xhigh。使用者無需手動配置。
+> **設計原理**：Agent 說「需要什麼類型的工作」，Harness 挑選對應模型。`ultrabrain` 類別現在預設路由到 GPT-5.4 xhigh，`quick` 類別預設路由到 GPT-5.4-mini（v3.13.0+）。使用者無需手動配置。
 
 ### 2.4 Hook 系統架構
 
@@ -428,8 +429,10 @@ OMO 使用 JSONC（JSON with Comments）格式，支援兩個層級的配置：
 |------|------|------|
 | 專案級 | `.opencode/oh-my-opencode.jsonc` | 專案特定配置（優先） |
 | 專案級（替代） | `.opencode/oh-my-opencode.json` | JSON 格式 |
+| 專案級（新名稱） | `.opencode/oh-my-openagent.jsonc` | v3.13.0+ 支援 |
 | 使用者級 | `~/.config/opencode/oh-my-opencode.jsonc` | 全域配置 |
 | 使用者級（替代） | `~/.config/opencode/oh-my-opencode.json` | JSON 格式 |
+| 使用者級（新名稱） | `~/.config/opencode/oh-my-openagent.jsonc` | v3.13.0+ 支援 |
 
 > **Windows 補充**：Windows 上使用 `%LOCALAPPDATA%\opencode\` 或 `XDG_CONFIG_HOME` 環境變數指定的路徑。OMO v3.12.0+ 支援 `XDG_CONFIG_HOME` 在 Windows 上的使用。
 
@@ -525,7 +528,7 @@ OMO 的 Agent-Model 匹配內建於安裝指南中。核心匹配規則：
   // === Background Tasks ===
   "background_tasks": {
     "concurrency": 5,
-    "stale_timeout_ms": 1200000,    // 20 分鐘
+    "stale_timeout_ms": 2700000,    // 45 分鐘（v3.13.0+ 預設）
     "session_wait_ms": 60000        // 1 分鐘
   },
 
@@ -839,16 +842,21 @@ graph TB
 {
   "background_tasks": {
     "concurrency": 5,           // 最多 5 個平行 Agent
-    "stale_timeout_ms": 1200000 // 20 分鐘超時
+    "stale_timeout_ms": 2700000 // 45 分鐘超時（v3.13.0+ 預設）
   }
 }
 ```
 
-**特性（v3.12.x）**：
+**特性（v3.12.x – v3.13.x）**：
 - Circuit Breaker 防止子 Agent 無限迴圈
 - Target-aware loop detection（v3.12.1）
+- Consecutive Call Detection 取代 Sliding Window（v3.12.2）
 - 被取消的子任務自動釋放配額（v3.12.0）
 - 兄弟任務執行時延遲清理（v3.12.0）
+- Atlas task session reuse 提升效能（v3.13.0）
+- 預設 max tool calls 增至 4000（v3.13.0）
+- Stale timeout 增至 45/60 分鐘（v3.13.0）
+- Circuit Breaker false positive 修復（v3.13.0）
 
 ---
 
@@ -913,6 +921,11 @@ Ralph Loop 是 ultrawork 的自參考迴圈機制——Agent 持續工作直到 
 - Oracle 驗證變為強制步驟
 - 明確的 Oracle session tracking
 - 驗證失敗時的 parent session retry
+
+**v3.13.0 改進**：
+- 強化 Oracle verification flow
+- 偵測 tool_result parts 中的 promise tags 進行 ULW 驗證
+- todo-continuation-enforcer 增加 compaction epoch 意識
 
 ### 6.3 /start-work — 規劃先行
 
@@ -1591,7 +1604,7 @@ jobs:
 | `/init-deep` 分層上下文 | 每個目錄獨立 AGENTS.md | Agent 只讀取相關上下文 |
 | Preemptive Compaction | 上下文增長時自動壓縮 | 防止 Token 超限 |
 | Category-based routing | 簡單任務用小模型 | 自動節省成本 |
-| Stale timeout | 背景任務 20 分鐘超時 | 防止懸掛浪費 |
+| Stale timeout | 背景任務 45/60 分鐘超時 | 防止懸掛浪費 |
 
 ### 9.3 Circuit Breaker（v3.12.0+）
 
@@ -1606,10 +1619,11 @@ jobs:
 }
 ```
 
-**v3.12.x 改進歷程**：
+**v3.12.x – v3.13.x 改進歷程**：
 - v3.12.0：Smart Circuit Breaker 引入，應用於 Background Agent Manager events
 - v3.12.1：Target-aware loop detection via tool signatures
-- v3.12.2：Sliding Window 改為 Consecutive Call Detection
+- v3.12.2：Sliding Window 改為 Consecutive Call Detection，效能最佳化（regex 預編譯、hot-path 最佳化）
+- v3.13.0：Circuit Breaker false positive 修復（flat-format events）
 
 ### 9.4 Agent Debug 方法
 
@@ -1640,12 +1654,18 @@ OMO 提供完整的 session 管理功能：
 
 | 版本 | 發布時間 | 重大特性 |
 |------|---------|---------|
-| v3.12.3 | 2026-07 | Bug fixes, debug logging cleanup |
-| v3.12.0 | 2026-07 | Smart Circuit Breaker, OpenClaw 整合（已回退）, Windows XDG_CONFIG_HOME |
-| v3.11.0 | 2026-07 | **改名為 oh-my-openagent**，GPT-5.4 era，Oracle 強制驗證 |
-| v3.10.0 | 2026-07 | HTTP Hook 安全（SSRF 防護），Hashline Edit opt-in |
-| v3.9.0 | 2026-06 | Worktree planning, Gemini 3.1 Pro, 可靠性強化 |
-| v3.8.5 | 2026-06 | Hashline 編輯精度大幅提升 |
+| v3.13.1 | 2026-03-25 | MCP OAuth port binding 修復、Provider-agnostic fallback、Prometheus 尊重 model override、non-Opus Claude variant clamp |
+| v3.13.0 | 2026-03-25 | `quick` 類別預設改為 GPT-5.4-mini、Background Agent max tool calls 增至 4000、stale timeout 增至 45/60 分鐘、Atlas task session reuse、OpenClaw 雙向整合、gpt-permission-continuation hook 移除、`oh-my-openagent.jsonc` 配置偵測、csh/tcsh shell 偵測、null byte 清理、Gemini MCP schema 相容、Building in Public |
+| v3.12.3 | 2026-03-18 | Bug fixes, debug logging cleanup |
+| v3.12.2 | 2026-03-18 | Circuit Breaker 改為 Consecutive Call Detection、效能最佳化（regex 預編譯、hot-path 最佳化） |
+| v3.12.1 | 2026-03-18 | Target-aware loop detection、todo-description-override hook、Ralph Loop stale Oracle abort |
+| v3.12.0 | 2026-03-18 | Smart Circuit Breaker、OpenClaw 整合（已回退）、Windows XDG_CONFIG_HOME、Doctor 動態 LSP 偵測、pre-publish review Skills |
+| v3.11.2 | 2026-03-11 | oh-my-openagent 雙發布 platform binaries、idle notification grace period、cache 版本無效化修復 |
+| v3.11.1 | 2026-03-04 | npm 發布 oh-my-openagent 套件名稱 |
+| v3.11.0 | 2026-03-04 | **改名為 oh-my-openagent**，GPT-5.4 era，Oracle 強制驗證，GPTPhus 8-block 架構 |
+| v3.10.0 | 2026-03-04 | HTTP Hook 安全（SSRF 防護），Hashline Edit opt-in，read-image-resizer hook |
+| v3.9.0 | 2026-02 | Worktree planning, Gemini 支援, 可靠性強化 |
+| v3.8.5 | 2026-02 | Hashline 編輯精度大幅提升 |
 
 ### 10.2 升級步驟
 
@@ -1661,7 +1681,37 @@ npm update -g oh-my-openagent
 # 可透過 /doctor 確認目前版本
 ```
 
-### 10.3 Migration Notes（v3.11.0）
+### 10.3 Migration Notes（v3.13.0）
+
+**v3.13.0 重要變更**：
+
+| 變更項目 | 說明 |
+|----------|------|
+| `quick` 類別預設模型 | `claude-haiku-4-5` → `gpt-5.4-mini` |
+| Background Agent max tool calls | 預設增至 4000 |
+| Stale timeout | 前台 20 分 → 45 分、背景 20 分 → 60 分 |
+| `gpt-permission-continuation` Hook | **已移除**（GPT 權限自動續航由其他機制取代） |
+| `oh-my-openagent.jsonc` | 現在正式支援作為配置檔名稱偵測 |
+| OpenClaw 雙向整合 | 新增 OpenClaw bidirectional integration |
+| Shell 偵測 | 支援 csh/tcsh 環境變數語法（`setenv`） |
+| Null byte 清理 | bash 指令中的 null bytes 自動清除，防止 crash |
+| MCP Schema | 為 Gemini 相容性移除 `contentEncoding` |
+| Hashline formatter cache | 改為按專案目錄作用域（per-project scope） |
+| Atlas task session | 支援 session reuse，提升效能 |
+
+**v3.13.1 修復**：
+
+| 修復項目 | 說明 |
+|----------|------|
+| Data/Cache 路徑 | 寫入目錄 fallback，避免唯讀目錄問題 |
+| MCP OAuth | 回呼伺服器 robust port binding |
+| Agent 保留 | 明確配置模型的 Agent 永遠保留 |
+| Anthropic variant clamp | non-Opus Claude 模型 fallback 時 clamp `max` → `high` |
+| Provider-agnostic fallback | fallback provider 選擇不再綁定特定 provider |
+| Prometheus model override | 尊重 Agent 級別的 model override，不再使用全域 `opencode.json` 模型 |
+| OpenCode Build Agent | 預設保持啟用 |
+
+### 10.4 Migration Notes（v3.11.0）
 
 **從 oh-my-opencode 遷移到 oh-my-openagent**：
 
@@ -1686,7 +1736,7 @@ npm update -g oh-my-openagent
 **OpenAI-Only 使用者**：
 - Sisyphus 現在原生支援 GPT-5.4 → 不再需要退回 Hephaestus
 
-### 10.4 版本升級策略
+### 10.5 版本升級策略
 
 ```mermaid
 flowchart LR
@@ -1942,7 +1992,7 @@ graph TB
 |----------|---------|---------|
 | `visual-engineering` | 前端、UI/UX | 視覺類模型 |
 | `deep` | 自主研究 + 長時間執行 | GPT-5.3-codex medium |
-| `quick` | 單檔修改、Typo | 輕量模型 |
+| `quick` | 單檔修改、Typo | GPT-5.4-mini |
 | `ultrabrain` | 困難邏輯、架構決策 | GPT-5.4 xhigh |
 | `unspecified-high` | 一般高強度任務 | GPT-5.4 high |
 | 自定義 | `business-logic` 等 | 可配置 |
@@ -2037,7 +2087,31 @@ OMO 透過 OpenCode 插件系統運行，**100% 相容 Claude Code 生態**：
 - v3.11.0 起改名為 **oh-my-openagent**
 - 新的套件名稱：`oh-my-openagent`
 - 舊的套件名稱 `oh-my-opencode` 仍然支援（雙發布）
-- 配置檔偵測兩者：`oh-my-opencode.json(c)` 和 `oh-my-openagent.jsonc`
+- 配置檔偵測三者：`oh-my-opencode.json(c)`、`oh-my-openagent.jsonc`（v3.13.0+）
+- npm 同時發布兩個套件名稱（v3.11.1+）
+
+### Q7：v3.13.0 升級後有什麼需要注意？
+
+| 項目 | 影響 |
+|------|------|
+| `quick` 預設模型 | 從 `claude-haiku-4-5` 改為 `gpt-5.4-mini`，如需舊行為可手動配置 |
+| Stale timeout | 從 20 分鐘增至 45/60 分鐘，Background Agent 有更多時間完成任務 |
+| `gpt-permission-continuation` Hook | 已移除，GPT 權限由其他機制處理 |
+| Max tool calls | 預設增至 4000，允許更長的 Agent 執行 |
+
+### Q8：如何確保 Provider-agnostic fallback 正常運作？
+
+v3.13.1 改進了 fallback 機制，不再綁定特定 Provider：
+1. 系統自動偵測可用的 Provider 和模型
+2. Fallback chain 依據任務類別（Category）自動選擇
+3. 明確配置的 Agent model override 優先於全域設定
+4. non-Opus Claude 模型 fallback 時自動 clamp `max` variant 為 `high`
+
+### Q9：什麼是 Building in Public？
+
+OMO 維護者在 Discord 的 `#building-in-public` 頻道公開即時開發過程。所有功能開發、Bug 修復、Issue 分流都透過 AI 助手 Jobdori 即時執行並公開透明。這是 OMO 社群的獨特文化，使用者可以直接觀看專案如何被建構。
+
+加入 Discord：[https://discord.gg/PUwSMR9XNk](https://discord.gg/PUwSMR9XNk)
 
 ---
 
@@ -2078,7 +2152,7 @@ OMO 透過 OpenCode 插件系統運行，**100% 相容 Claude Code 生態**：
 |----------|---------|------|
 | `visual-engineering` | 視覺類 | 前端 / UI / 設計 |
 | `deep` | GPT-5.3-codex medium | 自主研究 + 執行 |
-| `quick` | 輕量模型 | 單檔修改 |
+| `quick` | GPT-5.4-mini | 單檔修改 |
 | `ultrabrain` | GPT-5.4 xhigh | 困難邏輯 / 架構 |
 | `unspecified-high` | GPT-5.4 high | 一般高強度 |
 | `writing` | + Kimi fallback | 文件撰寫 |
@@ -2099,7 +2173,6 @@ OMO 透過 OpenCode 插件系統運行，**100% 相容 Claude Code 生態**：
 | `todo-description-override` | Behavior | 強制原子 todo 格式 |
 | `preemptive-compaction` | Token | 自動壓縮過長上下文 |
 | `auto-slash-command` | Behavior | 自動 slash command |
-| `gpt-permission-continuation` | Session | GPT 權限自動續航 |
 
 ### 15.5 AGENTS.md 完整範例
 
@@ -2188,7 +2261,7 @@ OMO 透過 OpenCode 插件系統運行，**100% 相容 Claude Code 生態**：
   // Background Tasks
   "background_tasks": {
     "concurrency": 5,
-    "stale_timeout_ms": 1200000,
+    "stale_timeout_ms": 2700000,
     "session_wait_ms": 60000
   },
 
@@ -2273,7 +2346,7 @@ OMO 透過 OpenCode 插件系統運行，**100% 相容 Claude Code 生態**：
 
 > **文件結束**  
 > 本文件為 oh-my-openagent（OMO）企業導入教學手冊。  
-> 基於 GitHub Repository v3.12.3 版本資訊撰寫。  
+> 基於 GitHub Repository v3.13.1 版本資訊撰寫。  
 > 如有疑問，請參考 [官方文件](https://github.com/code-yeongyu/oh-my-openagent) 或加入 [Discord 社群](https://discord.gg/PUwSMR9XNk)。  
-> **最後更新**：2026-3-24 | **版本**：v2.0
+> **最後更新**：2026-03-25 | **版本**：v2.1
 
