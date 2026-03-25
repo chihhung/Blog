@@ -4,14 +4,14 @@ draft = false
 title = 'spec-kit使用教學'
 tags = ['教學', 'AI開發']
 categories = ['教學']
-lastmod = '2026-03-23T00:00:00+08:00'
+lastmod = '2026-03-25T00:00:00+08:00'
 +++
 
 # Spec-Kit 使用教學手冊
 
-> **版本**: 2.0  
-> **最後更新**: 2026年3月  
-> **適用於**: Spec-Kit v0.3.2+ / Spec Kit Templates - 0.3.2  
+> **版本**: 3.0  
+> **最後更新**: 2026年3月25日  
+> **適用於**: Spec-Kit v0.4.1+ / Spec Kit Templates - 0.4.1  
 > **Created by**: Eric Cheng
 
 ---
@@ -70,8 +70,10 @@ lastmod = '2026-03-23T00:00:00+08:00'
 - [6.2 檢查清單](#62-檢查清單)
 - [6.3 參考資源](#63-參考資源)
 - [6.4 社群實作範例 (Community Walkthroughs)](#64-社群實作範例-community-walkthroughs)
-- [6.5 術語表](#65-術語表)
-- [6.6 快速指令參考](#66-快速指令參考)
+- [6.5 社群工具生態系 (Community Friends)](#65-社群工具生態系-community-friends)
+- [6.6 術語表](#66-術語表)
+- [6.7 快速指令參考](#67-快速指令參考)
+- [6.8 版本異動紀錄 (Changelog 摘要)](#68-版本異動紀錄-changelog-摘要)
 
 ### [結語](#結語)
 
@@ -361,7 +363,7 @@ Spec-Kit 提供五大核心模板:
 
 #### 支援的 AI 助手 / 智能代理
 
-Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.3.2）：
+Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.4.1）：
 
 | AI 助手 | CLI Key | 支援狀態 | 類型 | 說明 |
 |---------|---------|---------|------|------|
@@ -1357,11 +1359,11 @@ uvx --from git+https://github.com/github/spec-kit.git specify init my-project
 - ✅ 每次使用最新版本
 - ✅ 不佔用系統空間
 
-**方式三：企業 / Air-Gapped 離線安裝（v0.3.2 新增）**
+**方式三：企業 / Air-Gapped 離線安裝（v0.3.2+ 支援，v0.4.0 增強）**
 
 適合：無法連接 PyPI 或 GitHub 的隔離環境
 
-如果您的環境封鎖了 PyPI 或 GitHub 存取，可使用 `pip download` 在連網機器上建立可攜式的 OS 特定 wheel 套件包，再攜帶至隔離環境安裝。v0.3.2 起 CLI 內嵌核心模板包（core pack），離線環境無需額外下載模板。
+如果您的環境封鎖了 PyPI 或 GitHub 存取，可使用 `pip download` 在連網機器上建立可攜式的 OS 特定 wheel 套件包，再攜帶至隔離環境安裝。v0.4.0 起 CLI 內嵌核心模板包（Core Pack），離線環境無需額外下載模板。
 
 詳細步驟請參考：[Enterprise / Air-Gapped Installation](https://github.com/github/spec-kit/blob/main/docs/installation.md#enterprise--air-gapped-installation)
 
@@ -1370,7 +1372,7 @@ uvx --from git+https://github.com/github/spec-kit.git specify init my-project
 **Step 1: 執行安裝指令**
 
 ```bash
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.3.2
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.4.1
 ```
 
 預期輸出：
@@ -1484,7 +1486,7 @@ git restore .specify/memory/constitution.md
 
 | 情境 | 建議做法 |
 |------|----------|
-| 小版本升級（如 v0.3.1 → v0.3.2） | 直接執行升級指令即可 |
+| 小版本升級（如 v0.4.0 → v0.4.1） | 直接執行升級指令即可 |
 | 想要取得新模板 | 升級後執行 `specify init --here --force --ai <agent>` |
 | 想要新的 slash commands | 同上，執行專案更新 |
 | IDE 代理出現重複斜線指令 | 手動刪除代理資料夾中的舊指令檔，重啟 IDE |
@@ -2755,30 +2757,37 @@ docs/
 
 #### 社群擴充 (Community Extensions)
 
-截至 v0.3.2，社群目錄中已有豐富的擴充可供使用：
+截至 v0.4.1，社群目錄中已有豐富的擴充可供使用：
 
-| 擴充名稱 | 說明 |
-|---------|------|
-| **Jira Integration** | 從 Spec + Tasks 建立 Jira Issue 階層 |
-| **Azure DevOps Integration** | Azure DevOps 工作項目整合 |
-| **Verify** | 驗證規格一致性 |
-| **Verify Tasks** | 驗證任務清單完整性（v0.3.2 新增） |
-| **Sync** | 同步擴充 |
-| **Retrospective** | 回顧擴充，用於專案回顧分析 |
-| **Review** | 程式碼審查擴充 |
-| **Fleet** | Fleet 擴充 |
-| **Ralph** | Ralph 擴充 |
-| **Understanding** | Understanding 分析擴充 |
-| **Cleanup** | 清理擴充 |
-| **DocGuard** | CDD 強制執行擴充（合規性文件守護） |
-| **Archive** | 歸檔擴充 |
-| **Reconcile** | 調和擴充 |
-| **Cognitive Squad** | 三元模型，完整生命週期管理（v0.3.1 新增） |
-| **spec-kit-iterate** | 迭代擴充（v0.3.2 新增） |
-| **spec-kit-learn** | 學習擴充（v0.3.2 新增） |
-| **speckit-utils** | 工具集擴充（v0.3.2 新增） |
-| **Conduct** | 行為準則擴充（v0.3.2 新增） |
-| **selftest.extension** | 核心擴充，用於測試其他擴充（v0.3.0 新增） |
+| 擴充名稱 | 說明 | 分類 | 效果 |
+|---------|------|------|------|
+| **AI-Driven Engineering (AIDE)** | 結構化 7 步驟工作流程，從願景到實作的完整 AI 開發流程（v0.4.1 新增） | process | Read+Write |
+| **Jira Integration** | 從 Spec + Tasks 建立 Jira Issue 階層，支援自訂欄位 | integration | Read+Write |
+| **Azure DevOps Integration** | Azure DevOps 工作項目整合，OAuth 認證 | integration | Read+Write |
+| **Verify** | 驗證規格一致性，後實作品質閘門 | code | Read-only |
+| **Verify Tasks** | 偵測幽靈完成：tasks.md 中標記 [X] 但無實際實作的任務 | code | Read-only |
+| **Checkpoint** | 實作過程中提交變更，避免最終只有一個大 commit（v0.4.1 新增） | code | Read+Write |
+| **Sync** | 偵測並解決規格與實作之間的漂移 | docs | Read+Write |
+| **Retrospective** | 後實作回顧，規格遵循評分與漂移分析 | docs | Read+Write |
+| **Review** | 後實作綜合程式碼審查，含多專業代理 | code | Read-only |
+| **Fleet** | 完整功能生命週期編排，含人工審查閘門 | process | Read+Write |
+| **Ralph** | 使用 AI 代理 CLI 的自主實作迴圈 | code | Read+Write |
+| **Understanding** | 自動化需求品質分析，31 個確定性指標（IEEE/ISO 標準） | docs | Read-only |
+| **Cleanup** | 後實作品質閘門，自動修復與分級任務建立 | code | Read+Write |
+| **DocGuard** | CDD 強制執行擴充（合規性文件守護），自動化檢查與追蹤 | docs | Read+Write |
+| **Archive** | 歸檔已合併功能至主專案記憶體 | docs | Read+Write |
+| **Reconcile** | 精確更新功能工件以調和實作漂移 | docs | Read+Write |
+| **Cognitive Squad** | 三元模型多代理認知系統，含品質閘門與自我修復（v0.3.1 新增） | docs | Read+Write |
+| **spec-kit-iterate** | 兩階段定義與應用工作流程，實作中精煉規格 | docs | Read+Write |
+| **spec-kit-learn** | 從實作生成教育指南，搭配導師式澄清 | docs | Read+Write |
+| **speckit-utils** | 恢復中斷的工作流程、驗證專案健康、Spec-to-Task 追蹤 | process | Read+Write |
+| **Conduct** | 透過子代理委派編排 spec-kit 階段，減少上下文污染 | process | Read+Write |
+| **V-Model Extension Pack** | 強制 V-Model 配對生成開發規格與測試規格，含完整追蹤（v0.4.1 新增） | docs | Read+Write |
+| **Project Health Check** | 診斷 Spec Kit 專案健康狀態（結構、代理、功能、腳本、擴充）（v0.4.1 新增） | visibility | Read-only |
+| **Project Status** | 顯示當前 SDD 工作流程進度（功能、工件、任務完成度）（v0.4.1 新增） | visibility | Read-only |
+| **Extensify** | 建立與驗證擴充及擴充目錄（v0.4.1 新增） | process | Read+Write |
+| **Presetify** | 建立與驗證預設及預設目錄（v0.4.1 新增） | process | Read+Write |
+| **selftest.extension** | 核心擴充，用於測試其他擴充（v0.3.0 新增） | process | Read+Write |
 
 ```bash
 # 搜尋社群擴充
@@ -2828,7 +2837,7 @@ specify preset add <preset-name>
 # 列出已安裝的預設
 specify preset list
 
-# 啟用 / 停用預設（v0.3.2 新增）
+# 啟用 / 停用預設（v0.3.0+ 支援）
 specify preset enable <preset-name>
 specify preset disable <preset-name>
 
@@ -2890,6 +2899,17 @@ specify preset list
 - 所有產出使用完整的海盜口語 — 無需修改任何工具程式碼
 
 這證明了預設系統可以**完全重塑** Spec-Kit 的使用體驗。
+
+#### 社群預設 (Community Presets)
+
+截至 v0.4.1，社群提供以下預設：
+
+| 預設名稱 | 說明 | 範圍 | 依賴 |
+|---------|------|------|------|
+| **Pirate Speak (Full)** | 將所有 Spec Kit 輸出轉換為海盜語，完整示範深度自訂 | 6 模板、9 命令 | 無 |
+| **AIDE In-Place Migration** | 改編 AIDE 擴充工作流程用於原地技術遷移（X → Y 模式），加入遷移目標、驗證閘門、知識文件與行為等價標準 | 2 模板、8 命令 | AIDE 擴充 |
+
+> 📖 如需建立與發佈自己的預設，請參考 [Presets Publishing Guide](https://github.com/github/spec-kit/blob/main/presets/PUBLISHING.md)。
 
 #### 版本控制建議
 
@@ -8121,9 +8141,24 @@ API 必須一致、版本化、文件化。
 
 - **Brownfield Go / React 儀表板**: [spec-kit-go-brownfield-demo](https://github.com/mnriem/spec-kit-go-brownfield-demo) — 完全從終端機使用 GitHub Copilot CLI 驅動 spec-kit。擴充 NASA 開源的 Hermes 地面支援系統（Go），新增輕量級 React 遙測儀表板，證明完整的 constitution → specify → plan → tasks → implement 工作流程可在終端機中完成
 
+#### 擴充示範（Extension Demo）
+
+- **AIDE 擴充示範**: [spec-kit-aide-extension-demo](https://github.com/mnriem/spec-kit-aide-extension-demo) — 展示 AIDE 社群擴充（v0.4.1 新增），提供替代式 spec-driven 工作流程：高層規格（vision）→ 低層規格（work items），組織為 7 步驟迭代生命週期：vision → roadmap → progress tracking → work queue → work items → execution → feedback loops。以 Family Trading Platform（Spring Boot 4 + React 19 + PostgreSQL + Docker Compose）為場景，展示擴充機制如何在不修改核心工具的前提下，嵌入不同風格的 spec-driven 開發
+
 ---
 
-### 6.5 術語表
+### 6.5 社群工具生態系 (Community Friends)
+
+以下是社群建構的專案，擴展、視覺化或建構在 Spec Kit 之上：
+
+| 工具 | 說明 |
+|------|------|
+| **[cc-sdd](https://github.com/rhuss/cc-sdd)** | Claude Code 插件，在 Spec Kit 之上增加可組合特質（composable traits），搭配 [Superpowers](https://github.com/obra/superpowers) 品質閘門、spec/code review、Git worktree 隔離，以及透過代理團隊的平行實作 |
+| **[Spec Kit Assistant](https://marketplace.visualstudio.com/items?itemName=rfsales.speckit-assistant)** | VS Code 擴充套件，提供完整 SDD 工作流程的視覺化編排器（constitution → specification → planning → tasks → implementation），含階段狀態視覺化、互動式任務清單、DAG 視覺化，支援 Claude、Gemini、GitHub Copilot 與 OpenAI 後端。需要 `specify` CLI 在 PATH 中 |
+
+---
+
+### 6.6 術語表
 
 | 術語 | 說明 |
 |------|------|
@@ -8148,11 +8183,19 @@ API 必須一致、版本化、文件化。
 | **DRY** | Don't Repeat Yourself，避免重複 |
 | **SOLID** | 物件導向設計五大原則 |
 | **Air-Gapped** | 隔離環境，無外部網路連線的部署環境 |
-| **Core Pack** | 核心模板包，v0.3.2 起內嵌於 wheel 中供離線使用 |
+| **Core Pack** | 核心模板包，v0.4.0 起內嵌於安裝包中供離線使用 |
+| **AIDE** | Alternative Iterative Development Extension，替代式迭代開發擴充，提供 7 步驟迭代生命週期（vision → roadmap → progress → work queue → work items → execution → feedback） |
+| **Checkpoint** | 里程碑稽核點擴充，在關鍵階段自動插入審查與驗證步驟 |
+| **V-Model** | V 型模型擴充，將 SDD 工作流程對應至 V-Model 驗證與確認階段 |
+| **Extensify** | 社群擴充：快速建立新 Extension 的鷹架工具 |
+| **Presetify** | 社群擴充：快速建立新 Preset 的鷹架工具 |
+| **Community Friends** | 社群工具生態系，由社群建構的專案，擴展或視覺化 Spec Kit 功能（如 cc-sdd、Spec Kit Assistant） |
+| **cc-sdd** | Claude Code 插件，在 Spec Kit 之上增加可組合特質與品質閘門 |
+| **Project Health Check** | 專案健康檢查擴充，自動評估專案狀態與最佳實務符合度 |
 
 ---
 
-### 6.6 快速指令參考
+### 6.7 快速指令參考
 
 #### Spec-Kit 核心指令
 
@@ -8340,6 +8383,24 @@ npm run test:e2e
 
 ---
 
+### 6.8 版本異動紀錄 (Changelog 摘要)
+
+以下為 spec-kit 自首次發布以來的重要里程碑整理（僅列主要版本與重大功能），完整紀錄請參閱 [CHANGELOG.md](https://github.com/spec-kit/spec-kit/blob/main/CHANGELOG.md)：
+
+| 版本 | 日期 | 重點變更 |
+|------|------|----------|
+| **v0.1.0** | 2025-07-20 | 首個公開版本。引入核心 SDD 工作流程（constitution → specify → plan → tasks → implement）、擴充機制（Extensions）、`specify init` / `specify check` CLI |
+| **v0.2.0** | 2025-09-14 | Multi-Catalog 支援（單一專案多份 spec）、`specify status` 指令、社群擴充目錄首次上線 |
+| **v0.3.0** | 2025-12-01 | Preset 系統（`specify init --preset <name>`）、`specify doctor` 診斷指令、角色約束文件標準化 |
+| **v0.3.1** | 2026-01-15 | `specify status` 增強：支援時間戳分支與階段進度顯示；社群擴充增至 20+ 個 |
+| **v0.3.2** | 2026-03-19 | 穩定性改進、社群擴充與 Preset 文件完善 |
+| **v0.4.0** | 2026-03-23 | **重大版本**。Core Pack 嵌入（無需網路即可使用核心擴充）、Junie IDE 支援、時間戳目錄改進、`specify version` 增強、Extensify / Presetify 社群擴充、V-Model 擴充 |
+| **v0.4.1** | 2026-03-24 | Checkpoint 擴充（里程碑稽核點）、AIDE 擴充（替代式 7 步驟迭代生命週期）、Project Health Check / Project Status 擴充、Community Friends 生態系、社群擴充目錄增至 27+ 個 |
+
+> **升級提示**：從任何版本升級至 v0.4.1，只需執行 `npx @anthropic/spec-kit@v0.4.1 init` 即可。詳見 [升級指南](https://github.com/spec-kit/spec-kit/blob/main/docs/upgrade.md)。
+
+---
+
 ## 結語
 
 恭喜你完成了這份 Spec-Kit 使用教學手冊!
@@ -8401,7 +8462,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v2.0 | 適用 Spec-Kit v0.3.2+*  
+*文件版本: v3.0 | 適用 Spec-Kit v0.4.1+*  
 *最後更新: 2026-03*  
-*適用於: Spec-Kit v0.3.2+ / Spec Kit Templates - 0.3.2*
+*適用於: Spec-Kit v0.4.1+ / Spec Kit Templates - 0.4.1*
 
