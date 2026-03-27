@@ -1,11 +1,11 @@
 +++
 date = '2026-03-27T20:39:51+08:00'
 draft = false
-title = 'VS Code + GitHub Copilot 開發 Java Web 應用程式教學手冊'
+title = 'VS Code + GitHub Copilot 開發 Java Web 應用程式教學手冊(2)'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
-# VS Code + GitHub Copilot 開發 Java Web 應用程式教學手冊
+# VS Code + GitHub Copilot 開發 Java Web 應用程式教學手冊(2)
 
 > **版本**：v2.0（2026-03-27）  
 > **前版**：v1.0（2026-03-27）  

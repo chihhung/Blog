@@ -1,12 +1,12 @@
 +++
 date = '2026-03-27T20:38:49+08:00'
 draft = false
-title = 'Vscode_copilot_java_web_manual'
+title = 'Vscode_copilot_java_web_manual(1)'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
 
-# 使用 VS Code 與 GitHub Copilot 開發 Java Web 應用程式教學手冊
+# 使用 VS Code 與 GitHub Copilot 開發 Java Web 應用程式教學手冊(1)
 
 > **版本**：2025 年最新版　|　**適用對象**：初中階 Java 開發人員　|　**維護單位**：資深架構師團隊
 
@@ -1168,4 +1168,3 @@ URL 前綴為 /api/v1/products
 ---
 
 *本文件由資深架構師團隊維護，最後更新：2025 年 3 月。如有疑問或建議，請透過內部 Issue Tracker 回報。*
-
