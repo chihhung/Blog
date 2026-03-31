@@ -1343,10 +1343,10 @@ POST /api/v1/loans/apply
 
 ```mermaid
 graph TD
-    A[技術邏輯<br/>if amount > 1000000] --> B[商業規則<br/>單筆轉帳上限 100 萬]
-    C[技術邏輯<br/>status == 'A'] --> D[商業規則<br/>僅啟用帳戶可交易]
-    E[技術邏輯<br/>DATEDIFF hour > 24] --> F[商業規則<br/>申請超過24小時自動失效]
-    G[技術邏輯<br/>role IN ('Teller','Mgr')] --> H[商業規則<br/>僅櫃員與主管可操作]
+    A["技術邏輯<br/>if amount &gt; 1000000"] --> B["商業規則<br/>單筆轉帳上限 100 萬"]
+    C["技術邏輯<br/>status == #quot;A#quot;"] --> D["商業規則<br/>僅啟用帳戶可交易"]
+    E["技術邏輯<br/>DATEDIFF hour &gt; 24"] --> F["商業規則<br/>申請超過24小時自動失效"]
+    G["技術邏輯<br/>role IN #lpar;Teller, Mgr#rpar;"] --> H["商業規則<br/>僅櫃員與主管可操作"]
     
     style A fill:#e1f5fe
     style B fill:#fff3e0
@@ -2737,22 +2737,30 @@ repository/
 #### 6.4.2 Git Branching 策略
 
 ```mermaid
-gitgraph
-    commit id: "init: 建立 SRS 文件架構"
-    branch analysis/module-account
-    checkout analysis/module-account
-    commit id: "feat: 帳戶模組程式碼分析"
-    commit id: "feat: 帳戶模組需求推導"
-    checkout main
-    branch analysis/module-loan
-    checkout analysis/module-loan
-    commit id: "feat: 貸款模組程式碼分析"
-    commit id: "feat: 貸款模組需求推導"
-    checkout main
-    merge analysis/module-account id: "merge: 帳戶模組分析完成"
-    merge analysis/module-loan id: "merge: 貸款模組分析完成"
-    commit id: "review: PM 審查修正"
-    commit id: "release: SRS v1.0 正式發佈" tag: "srs-v1.0"
+graph LR
+    A["init: 建立 SRS 文件架構"] --> B["branch: analysis/module-account"]
+    A --> C["branch: analysis/module-loan"]
+    
+    B --> B1["feat: 帳戶模組程式碼分析"]
+    B1 --> B2["feat: 帳戶模組需求推導"]
+    
+    C --> C1["feat: 貸款模組程式碼分析"]
+    C1 --> C2["feat: 貸款模組需求推導"]
+    
+    B2 --> D["merge: 帳戶模組分析完成"]
+    C2 --> D
+    D --> E["review: PM 審查修正"]
+    E --> F["release: SRS v1.0 正式發佈<br/>🏷️ srs-v1.0"]
+    
+    style A fill:#e3f2fd
+    style B fill:#fff9c4
+    style C fill:#c8e6c9
+    style B1 fill:#fff9c4
+    style B2 fill:#fff9c4
+    style C1 fill:#c8e6c9
+    style C2 fill:#c8e6c9
+    style D fill:#e1bee7
+    style F fill:#ef9a9a
 ```
 
 #### 6.4.3 Commit 訊息規範
