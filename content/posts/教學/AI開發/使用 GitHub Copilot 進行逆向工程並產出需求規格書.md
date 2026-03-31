@@ -1,6 +1,6 @@
 +++
 date = '2026-03-31T14:54:15+08:00'
-draft = true
+draft = false
 title = '使用 GitHub Copilot 進行逆向工程並產出需求規格書'
 tags = ['教學', 'AI開發','指引']
 categories = ['教學']
