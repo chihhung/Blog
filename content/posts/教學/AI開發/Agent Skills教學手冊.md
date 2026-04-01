@@ -917,7 +917,7 @@ ssdlc-phase: requirements
 **範例：Clean Architecture API 設計 Skill**
 
 ```markdown
----
+
 name: clean-architecture-api
 description: >
   Designs RESTful APIs following Clean Architecture and DDD 
@@ -927,13 +927,12 @@ description: >
 version: 2.0.0
 category: design
 ssdlc-phase: design
----
-
+```
 # Clean Architecture API 設計 Skill
 
 ## 分層規範
 
-```
+```text
 src/main/java/com/company/service/
 ├── adapter/                  # 介面轉接器層
 │   ├── in/
@@ -1284,8 +1283,189 @@ List<Transaction> findByAccountId(@Param("accountId") String accountId);
 @Query("SELECT t FROM Transaction t WHERE t.accountId = '" + accountId + "'")
 ```
 
-### A04 ~ A10：其他檢查項目
-（每項均需包含檢查清單 + 正確/錯誤範例）
+### A04: Insecure Design（不安全設計）
+- [ ] 使用 Threat Modeling 識別設計弱點
+- [ ] 業務邏輯有適當的速率與數量限制
+- [ ] 敏感操作使用多因子驗證
+- [ ] 採用 Defense in Depth（縱深防禦）策略
+
+```java
+// ✅ 正確：轉帳金額有業務規則上限，並要求二次驗證
+@Transactional
+public TransferResult transfer(TransferCommand cmd) {
+    if (cmd.getAmount().compareTo(DAILY_LIMIT) > 0) {
+        throw new BusinessRuleException("超過單日轉帳上限");
+    }
+    mfaService.verifyOtp(cmd.getUserId(), cmd.getOtpCode());
+    return doTransfer(cmd);
+}
+
+// ❌ 錯誤：無金額上限、無二次驗證
+@Transactional
+public TransferResult transfer(TransferCommand cmd) {
+    return doTransfer(cmd);
+}
+```
+
+### A05: Security Misconfiguration（安全設定錯誤）
+- [ ] 移除預設帳號與密碼
+- [ ] 關閉不必要的 HTTP Method（如 TRACE、OPTIONS）
+- [ ] 錯誤訊息不洩漏堆疊資訊或系統內部細節
+- [ ] 停用不需要的功能或元件（如 H2 Console）
+- [ ] 設定適當的安全 HTTP Header
+
+```java
+// ✅ 正確：自訂錯誤回應，隱藏內部細節
+@ExceptionHandler(Exception.class)
+public ResponseEntity<ErrorResponse> handleException(Exception ex) {
+    log.error("Unhandled exception", ex);  // 內部記錄完整錯誤
+    return ResponseEntity.status(500)
+        .body(new ErrorResponse("INTERNAL_ERROR", "系統忙碌中，請稍後再試"));
+}
+
+// ❌ 錯誤：直接回傳堆疊資訊
+@ExceptionHandler(Exception.class)
+public ResponseEntity<String> handleException(Exception ex) {
+    return ResponseEntity.status(500).body(ex.getStackTrace().toString());
+}
+```
+
+### A06: Vulnerable and Outdated Components（易受攻擊與過時元件）
+- [ ] 定期掃描依賴套件的 CVE 漏洞（如 OWASP Dependency-Check）
+- [ ] 移除未使用的依賴
+- [ ] 鎖定依賴版本，避免自動升級至未驗證版本
+- [ ] 僅使用來自可信來源的元件
+
+```xml
+<!-- ✅ 正確：在 CI/CD 中整合 OWASP Dependency-Check -->
+<plugin>
+    <groupId>org.owasp</groupId>
+    <artifactId>dependency-check-maven</artifactId>
+    <version>9.0.9</version>
+    <configuration>
+        <failBuildOnCVSS>7</failBuildOnCVSS>
+    </configuration>
+</plugin>
+
+<!-- ❌ 錯誤：使用已知有 CVE 漏洞的舊版 Log4j -->
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-core</artifactId>
+    <version>2.14.1</version> <!-- CVE-2021-44228 -->
+</dependency>
+```
+
+### A07: Identification and Authentication Failures（身分識別與驗證失效）
+- [ ] 密碼策略符合規範（長度、複雜度）
+- [ ] 實作帳號鎖定機制（連續失敗 N 次後鎖定）
+- [ ] Session Token 有適當的過期時間
+- [ ] 使用安全的 Session 管理（HttpOnly、Secure、SameSite）
+
+```java
+// ✅ 正確：登入失敗鎖定 + 安全 Session 設定
+@PostMapping("/login")
+public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request,
+                               HttpServletResponse response) {
+    if (loginAttemptService.isBlocked(request.getUsername())) {
+        throw new AccountLockedException("帳號已鎖定，請 30 分鐘後再試");
+    }
+    Authentication auth = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+    String token = jwtProvider.generateToken(auth);
+    Cookie cookie = new Cookie("SESSION", token);
+    cookie.setHttpOnly(true);
+    cookie.setSecure(true);
+    cookie.setMaxAge(1800);
+    response.addCookie(cookie);
+    return ResponseEntity.ok(new LoginResponse(token));
+}
+
+// ❌ 錯誤：無失敗鎖定、Token 永不過期
+@PostMapping("/login")
+public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    Authentication auth = authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+    String token = Jwts.builder().setSubject(request.getUsername())
+        .signWith(key).compact(); // 無過期時間
+    return ResponseEntity.ok(token);
+}
+```
+
+### A08: Software and Data Integrity Failures（軟體與資料完整性失效）
+- [ ] CI/CD Pipeline 有完整性驗證（簽章、校驗和）
+- [ ] 不反序列化不受信任的資料
+- [ ] 軟體更新經過簽章驗證
+- [ ] 使用 SRI（Subresource Integrity）驗證外部資源
+
+```java
+// ✅ 正確：反序列化使用白名單，僅允許已知型別
+ObjectMapper mapper = new ObjectMapper();
+mapper.activateDefaultTyping(
+    BasicPolymorphicTypeValidator.builder()
+        .allowIfSubType("com.company.dto.")
+        .build(),
+    ObjectMapper.DefaultTyping.NON_FINAL
+);
+
+// ❌ 錯誤：直接反序列化任意物件（可導致 RCE）
+ObjectInputStream ois = new ObjectInputStream(untrustedInput);
+Object obj = ois.readObject(); // 危險！任意類別實例化
+```
+
+### A09: Security Logging and Monitoring Failures（安全日誌與監控失效）
+- [ ] 記錄所有登入成功 / 失敗事件
+- [ ] 記錄所有存取控制失敗事件
+- [ ] 敏感操作（轉帳、權限變更）有完整 Audit Log
+- [ ] Log 不包含敏感資料（密碼、信用卡號）
+- [ ] 設定即時告警機制
+
+```java
+// ✅ 正確：記錄安全事件，敏感資料遮罩
+@Slf4j
+@Service
+public class AuditService {
+    public void logTransfer(TransferCommand cmd, String result) {
+        log.info("AUDIT | action=TRANSFER | user={} | from={} | to={} | amount={} | result={}",
+            SecurityContextHolder.getContext().getAuthentication().getName(),
+            maskAccount(cmd.getFromAccount()),  // 遮罩帳號
+            maskAccount(cmd.getToAccount()),
+            cmd.getAmount(),
+            result);
+    }
+    private String maskAccount(String account) {
+        return account.substring(0, 3) + "****" + account.substring(account.length() - 3);
+    }
+}
+
+// ❌ 錯誤：未記錄安全事件、Log 包含敏感資料
+log.info("Transfer: from={}, to={}, password={}", fromAcct, toAcct, password);
+```
+
+### A10: Server-Side Request Forgery（伺服器端請求偽造，SSRF）
+- [ ] 驗證並限制使用者提供的 URL（白名單網域）
+- [ ] 禁止存取內部網路位址（127.0.0.1、10.x、172.16-31.x、192.168.x）
+- [ ] 不將原始回應直接回傳給使用者
+- [ ] 使用防火牆規則限制伺服器對外請求範圍
+
+```java
+// ✅ 正確：URL 白名單驗證 + 禁止內部位址
+public String fetchUrl(String userProvidedUrl) {
+    URL url = new URL(userProvidedUrl);
+    if (!ALLOWED_HOSTS.contains(url.getHost())) {
+        throw new SecurityException("不允許的目標主機: " + url.getHost());
+    }
+    InetAddress addr = InetAddress.getByName(url.getHost());
+    if (addr.isLoopbackAddress() || addr.isSiteLocalAddress() || addr.isLinkLocalAddress()) {
+        throw new SecurityException("禁止存取內部網路位址");
+    }
+    return httpClient.get(url).getBody();
+}
+
+// ❌ 錯誤：直接請求使用者提供的 URL
+public String fetchUrl(String userProvidedUrl) {
+    return restTemplate.getForObject(userProvidedUrl, String.class);
+}
+```
 
 ## 發現漏洞時的處理流程
 1. 標記嚴重等級（Critical / High / Medium / Low）
@@ -1959,13 +2139,13 @@ ssdlc-phase: development
 1. 測試覆蓋完整
 2. 結構清晰
 ```
-```
+
 
 ### 5.3 範例 3：Spring Boot 服務生成 Skill
 
 **資料夾結構**：
 
-```
+```text
 .github/skills/spring-boot-service-gen/
 ├── SKILL.md
 ├── references/
@@ -3099,10 +3279,37 @@ skills-ref validate ./my-skill
 
 ### 來自 Anthropic Skills 官方庫
 
+> 來源：[github.com/anthropics/skills](https://github.com/anthropics/skills)（⭐ 108k+）。可透過 Claude Code Plugin 一鍵安裝：`/plugin marketplace add anthropics/skills`。
+
+**開源 Skills（Apache 2.0）— Example Skills**：
+
 | Skill 名稱 | 用途 | 說明 |
 |------------|------|------|
-| Document Skills（docx, pdf, pptx, xlsx）| 文件生成 | Claude 內建文件處理能力 |
-| Template Skill | Skill 建立範本 | 快速建立新 Skill 的起點 |
+| `skill-creator` | Skill 建立與迭代 | 引導建立新 Skill、撰寫測試案例、評估輸出品質、優化 description 觸發準確度的完整工作流 |
+| `claude-api` | Claude API 開發參考 | 多語言（Python / TS / Java / Go / Ruby / C# / PHP / cURL）的 Claude API + Agent SDK 完整參考文件，含 Models、Thinking、Caching、Compaction 等 |
+| `mcp-builder` | MCP Server 開發 | 引導建立高品質 MCP Server 的完整流程——研究規劃、實作、測試、評估，支援 TypeScript 與 Python |
+| `doc-coauthoring` | 文件共同撰寫 | 三階段結構化文件撰寫工作流：Context Gathering → Refinement & Structure → Reader Testing（Fresh Claude 驗證） |
+| `frontend-design` | 前端介面設計 | 生成獨特、生產級前端介面（HTML/CSS/JS、React、Vue），避免泛用「AI slop」美學 |
+| `web-artifacts-builder` | Claude Artifact 建構 | 使用 React + TypeScript + Tailwind + shadcn/ui 建構複雜的 claude.ai HTML Artifact，打包為單一 HTML |
+| `webapp-testing` | Web 應用測試 | 使用 Playwright 測試本地 Web 應用，含伺服器生命週期管理、DOM 偵測、截圖驗證 |
+| `canvas-design` | 視覺藝術創作 | 透過設計哲學（Design Philosophy）創作高品質視覺藝術，輸出 .pdf / .png 檔案 |
+| `algorithmic-art` | 演算法藝術 | 使用 p5.js 創作生成式演算法藝術，含 Seeded Randomness 與互動參數控制器 |
+| `theme-factory` | 主題樣式套用 | 提供 10 套預設主題（色彩 + 字型配對），可套用至簡報、文件、HTML 等各類產出物 |
+| `brand-guidelines` | Anthropic 品牌規範 | 將 Anthropic 官方品牌色彩與字型套用至任何產出物 |
+| `internal-comms` | 內部溝通文件 | 撰寫 3P Updates、公司通訊、FAQ、狀態報告、事件報告等內部溝通文件 |
+| `slack-gif-creator` | Slack GIF 製作 | 使用 PIL 製作符合 Slack 規格的動態 GIF（含 Emoji 尺寸最佳化、動畫概念、驗證工具） |
+| Template Skill | Skill 建立範本 | 最小化的 SKILL.md 範本，作為快速建立新 Skill 的起點 |
+
+**Source-Available Skills — Document Skills（驅動 Claude 文件功能）**：
+
+| Skill 名稱 | 用途 | 說明 |
+|------------|------|------|
+| `docx` | Word 文件處理 | 建立（docx-js）、編輯（Unpack → XML → Repack）、分析 .docx 檔案，含 Tracked Changes、Comments、表格、頁首頁尾等完整支援 |
+| `pdf` | PDF 處理 | 讀取 / 合併 / 分割 / 旋轉 / 浮水印 / OCR / 表單填寫 / 加密，支援 pypdf、pdfplumber、reportlab |
+| `pptx` | 簡報處理 | 建立（pptxgenjs）、編輯（Unpack/Pack）、視覺 QA 驗證流程，含 10 套配色方案與字型配對建議 |
+| `xlsx` | 試算表處理 | 建立 / 編輯 / 分析 .xlsx 檔案（openpyxl + pandas），強制使用 Excel 公式而非硬編碼值，含公式重算驗證腳本 |
+
+> **💡 安裝方式**：在 Claude Code 中執行 `/plugin install document-skills@anthropic-agent-skills` 或 `/plugin install example-skills@anthropic-agent-skills` 即可安裝對應的 Plugin 套件。在 Claude.ai 付費方案中，所有 Example Skills 已內建可用。
 
 ---
 
