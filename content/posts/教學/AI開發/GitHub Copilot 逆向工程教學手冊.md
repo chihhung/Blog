@@ -687,16 +687,16 @@ flowchart LR
 
 ```mermaid
 quadrantChart
-    title 逆向工程策略選擇矩陣
-    x-axis 低精準度 --> 高精準度
-    y-axis 低速度 --> 高速度
-    quadrant-1 快速但精準
-    quadrant-2 快速但粗略
-    quadrant-3 慢但粗略
-    quadrant-4 慢但精準
-    黑箱逆向: [0.35, 0.8]
-    白箱逆向: [0.9, 0.3]
-    灰箱逆向: [0.7, 0.55]
+    title "逆向工程策略選擇矩陣"
+    x-axis "低精準度" --> "高精準度"
+    y-axis "低速度" --> "高速度"
+    quadrant-1 "快速但精準"
+    quadrant-2 "快速但粗略"
+    quadrant-3 "慢但粗略"
+    quadrant-4 "慢但精準"
+    "黑箱逆向": [0.35, 0.8]
+    "白箱逆向": [0.9, 0.3]
+    "灰箱逆向": [0.7, 0.55]
 ```
 
 > **💡 選擇建議**：
