@@ -268,13 +268,13 @@ graph TB
     end
 
     subgraph "AI Agent Layer ← gstack + Claude Code（33 個技能）"
-        AG1[/office-hours\nYC 辦公室時光]
-        AG2[/plan-ceo-review\nCEO 產品視角]
-        AG3[/plan-eng-review\n工程主管架構]
-        AG4[/review\n資深工程師審查]
-        AG5[/qa\nQA 主管瀏覽器測試]
-        AG6[/cso\n首席資安官]
-        AG7[/ship\n發布工程師]
+        AG1["/office-hours<br/>YC 辦公室時光"]
+        AG2["/plan-ceo-review<br/>CEO 產品視角"]
+        AG3["/plan-eng-review<br/>工程主管架構"]
+        AG4["/review<br/>資深工程師審查"]
+        AG5["/qa<br/>QA 主管瀏覽器測試"]
+        AG6["/cso<br/>首席資安官"]
+        AG7["/ship<br/>發布工程師"]
     end
 
     subgraph "資料層 Data Layer"
@@ -577,18 +577,18 @@ gstack 是一個**流程**，不只是工具集合。技能的執行順序就是
 ### 4.2 技能串聯關係
 
 ```mermaid
-flowchart LR
-    OH[/office-hours\n設計文件] --> CEO[/plan-ceo-review\n產品視角]
-    CEO --> ENG[/plan-eng-review\n架構+測試計畫]
-    ENG --> DES[/plan-design-review\n設計審查]
-    DES --> BUILD[實作程式碼]
-    BUILD --> REV[/review\n程式碼審查]
-    REV --> QA[/qa\n瀏覽器測試]
-    QA --> CSO[/cso\n安全掃描]
-    CSO --> SHIP[/ship\nPR 發布]
-    SHIP --> LAD[/land-and-deploy\n合併+部署]
-    LAD --> CAN[/canary\n生產監控]
-    CAN --> RET[/retro\n回顧]
+graph LR
+    OH["office-hours\n設計文件"] --> CEO["plan-ceo-review\n產品視角"]
+    CEO --> ENG["plan-eng-review\n架構+測試計畫"]
+    ENG --> DES["plan-design-review\n設計審查"]
+    DES --> BUILD["實作程式碼"]
+    BUILD --> REV["review\n程式碼審查"]
+    REV --> QA["qa\n瀏覽器測試"]
+    QA --> CSO["cso\n安全掃描"]
+    CSO --> SHIP["ship\nPR 發布"]
+    SHIP --> LAD["land-and-deploy\n合併+部署"]
+    LAD --> CAN["canary\n生產監控"]
+    CAN --> RET["retro\n回顧"]
 ```
 
 **技能間的自動資料流**：
@@ -1045,35 +1045,35 @@ Tests: 42 → 51 (+9 new). PR: github.com/you/app/pull/42
 ### 6.1 完整開發流程圖
 
 ```mermaid
-flowchart TD
-    A[需求輸入\nJira Ticket / 口述] --> B{/office-hours\n需求精煉}
-    B --> C[產出 design.md\n+ MVP 決策清單]
-    C --> D{/plan-ceo-review\n優先級確認}
-    D -->|核准| E{/plan-eng-review\n架構設計}
+graph TD
+    A["需求輸入\nJira Ticket / 口述"] --> B{"office-hours\n需求精煉"}
+    B --> C["產出 design.md\n+ MVP 決策清單"]
+    C --> D{"plan-ceo-review\n優先級確認"}
+    D -->|核准| E{"plan-eng-review\n架構設計"}
     D -->|退回| B
-    E --> F[產出架構圖\n+ 測試矩陣 + ADR]
-    F --> G[人工架構審查 ✅]
-    G -->|通過| H[實作程式碼\nClaude Code Session]
+    E --> F["產出架構圖\n+ 測試矩陣 + ADR"]
+    F --> G["人工架構審查 ✅"]
+    G -->|通過| H["實作程式碼\nClaude Code Session"]
     G -->|修改| E
-    H --> I[產出 Controller\n+ Service + Repository\n+ DTO]
-    I --> J{/review\n程式碼審查}
-    J --> K[[AUTO-FIXED] + [ASK]]
-    K --> L{/qa\n瀏覽器功能測試}
-    L --> M[回歸測試 + Bug 報告]
-    M --> N{/cso\n安全掃描}
-    N -->|CRITICAL 發現| O[退回修改]
+    H --> I["產出 Controller\n+ Service + Repository\n+ DTO"]
+    I --> J{"review\n程式碼審查"}
+    J --> K["AUTO-FIXED + ASK"]
+    K --> L{"qa\n瀏覽器功能測試"}
+    L --> M["回歸測試 + Bug 報告"]
+    M --> N{"cso\n安全掃描"}
+    N -->|CRITICAL 發現| O["退回修改"]
     O --> H
-    N -->|通過| P[/ship 建立 PR]
-    P --> Q[CI Pipeline\n編譯 + 測試 + SonarQube]
-    Q -->|失敗| R[通知開發者修復]
+    N -->|通過| P["ship 建立 PR"]
+    P --> Q["CI Pipeline\n編譯 + 測試 + SonarQube"]
+    Q -->|失敗| R["通知開發者修復"]
     R --> H
-    Q -->|通過| S[Code Review\n人工審查]
-    S -->|核准| T[/land-and-deploy]
-    T --> U[等待 CI + 部署]
-    U --> V[合併 main + 生產驗證]
-    V --> W[/canary 金絲雀監控]
-    W --> X[/checkpoint 保存工作狀態]
-    X --> Y[/retro Sprint 回顧]
+    Q -->|通過| S["Code Review\n人工審查"]
+    S -->|核准| T["land-and-deploy"]
+    T --> U["等待 CI + 部署"]
+    U --> V["合併 main + 生產驗證"]
+    V --> W["canary 金絲雀監控"]
+    W --> X["checkpoint 保存工作狀態"]
+    X --> Y["retro Sprint 回顧"]
 ```
 
 ### 6.2 各步驟執行指令

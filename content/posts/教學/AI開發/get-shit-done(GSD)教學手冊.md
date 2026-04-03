@@ -3900,29 +3900,29 @@ graph LR
 ```mermaid
 graph TB
     subgraph "GSD 開發流程"
-        DEV[/gsd:ship] --> COMMIT[Git Commit + Tag]
+        DEV["/gsd:ship"] --> COMMIT["Git Commit + Tag"]
     end
     
     subgraph "CI Pipeline"
-        COMMIT --> BUILD[Build]
-        BUILD --> LINT[Lint + CheckStyle]
-        LINT --> UNIT[Unit Tests]
-        UNIT --> INT[Integration Tests]
-        INT --> SEC[Security Scan]
-        SEC --> SONAR[SonarQube Analysis]
-        SONAR --> ARTIFACT[Build Artifact]
+        COMMIT --> BUILD["Build"]
+        BUILD --> LINT["Lint + CheckStyle"]
+        LINT --> UNIT["Unit Tests"]
+        UNIT --> INT["Integration Tests"]
+        INT --> SEC["Security Scan"]
+        SEC --> SONAR["SonarQube Analysis"]
+        SONAR --> ARTIFACT["Build Artifact"]
     end
     
     subgraph "CD Pipeline"
-        ARTIFACT --> DEV_DEPLOY[Deploy to Dev]
-        DEV_DEPLOY --> SMOKE[Smoke Tests]
-        SMOKE --> STG_DEPLOY[Deploy to Staging]
-        STG_DEPLOY --> E2E[E2E Tests]
-        E2E --> APPROVE{Manual Approval}
-        APPROVE -->|Approved| PROD_DEPLOY[Deploy to Production]
-        APPROVE -->|Rejected| ROLLBACK[Rollback]
-        PROD_DEPLOY --> CANARY[Canary（5%）]
-        CANARY --> FULL[Full Rollout（100%）]
+        ARTIFACT --> DEV_DEPLOY["Deploy to Dev"]
+        DEV_DEPLOY --> SMOKE["Smoke Tests"]
+        SMOKE --> STG_DEPLOY["Deploy to Staging"]
+        STG_DEPLOY --> E2E["E2E Tests"]
+        E2E --> APPROVE{"Manual Approval"}
+        APPROVE -->|Approved| PROD_DEPLOY["Deploy to Production"]
+        APPROVE -->|Rejected| ROLLBACK["Rollback"]
+        PROD_DEPLOY --> CANARY["Canary（5%）"]
+        CANARY --> FULL["Full Rollout（100%）"]
     end
     
     style DEV fill:#ff9800,color:#fff
