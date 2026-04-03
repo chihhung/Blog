@@ -4,14 +4,14 @@ draft = false
 title = 'spec-kit使用教學'
 tags = ['教學', 'AI開發']
 categories = ['教學']
-lastmod = '2026-03-25T00:00:00+08:00'
+lastmod = '2026-04-03T00:00:00+08:00'
 +++
 
-# Spec-Kit 使用教學手冊
+## Spec-Kit 使用教學手冊
 
-> **版本**: 3.0  
-> **最後更新**: 2026年3月25日  
-> **適用於**: Spec-Kit v0.4.1+ / Spec Kit Templates - 0.4.1  
+> **版本**: 4.0  
+> **最後更新**: 2026年4月3日  
+> **適用於**: Spec-Kit v0.5.0+ / Spec Kit Templates - 0.5.0  
 > **Created by**: Eric Cheng
 
 ---
@@ -19,11 +19,13 @@ lastmod = '2026-03-25T00:00:00+08:00'
 ## 📚 目錄
 
 ### [前言](#前言)
+
 - [目的與適用對象](#目的與適用對象)
 - [背景說明:為何採用 SDD + Spec-Kit → AI 助手流程](#背景說明為何採用-sdd--spec-kit--ai-助手流程)
 - [本手冊使用假設](#本手冊使用假設)
 
 ### [第一章:概念理解](#第一章概念理解)
+
 - [1.1 SDD 是什麼?](#11-sdd-是什麼)
 - [1.2 Spec-Kit 概覽](#12-spec-kit-概覽)
 - [1.3 SDD 中的關鍵 artefacts(工件)](#13-sdd-中的關鍵-artefacts工件)
@@ -31,6 +33,7 @@ lastmod = '2026-03-25T00:00:00+08:00'
 - [1.5 為什麼這對我們團隊/共用平台開發特別有價值](#15-為什麼這對我們團隊共用平台開發特別有價值)
 
 ### [第二章:環境準備](#第二章環境準備)
+
 - [2.1 前置條件](#21-前置條件)
 - [2.2 安裝 Spec-Kit CLI](#22-安裝-spec-kit-cli)
 - [2.3 建立專案與初始化](#23-建立專案與初始化)
@@ -40,8 +43,10 @@ lastmod = '2026-03-25T00:00:00+08:00'
 - [2.7 擴充系統 (Extension System)](#27-擴充系統-extension-system)
 - [2.8 預設系統 (Presets System)](#28-預設系統-presets-system)
 - [2.9 CLI 診斷指令 (doctor / status)](#29-cli-診斷指令-doctor--status)
+- [2.10 Plugin Architecture（v0.4.4-0.4.5 重大架構變革）](#210-plugin-architecturev044-045-重大架構變革)
 
 ### [第三章:使用流程詳細說明](#第三章使用流程詳細說明)
+
 - [3.1 Step 1:撰寫 Spec (/speckit.specify)](#31-step-1撰寫-spec-speckitspecify)
 - [3.2 Step 1a:澄清模糊需求 (/speckit.clarify)](#32-step-1a澄清模糊需求-speckitclarify)
 - [3.3 Step 2:撰寫 Plan (/speckit.plan)](#33-step-2撰寫-plan-speckitplan)
@@ -53,6 +58,7 @@ lastmod = '2026-03-25T00:00:00+08:00'
 - [第三章小結](#第三章小結)
 
 ### [第四章:實務案例與應用指引](#第四章實務案例與應用指引)
+
 - [4.1 案例一:Greenfield 開發 - 新建交易記錄微服務](#41-案例一greenfield-開發---新建交易記錄微服務)
 - [4.2 案例二:Brownfield 整合 - 為既有系統新增功能](#42-案例二brownfield-整合---為既有系統新增功能)
 - [4.3 團隊協作:多人開發](#43-團隊協作多人開發)
@@ -61,11 +67,13 @@ lastmod = '2026-03-25T00:00:00+08:00'
 - [第四章小結](#第四章小結)
 
 ### [第五章:常見問題與陷阱](#第五章常見問題與陷阱)
+
 - [5.1 常見問題(FAQ)](#51-常見問題faq)
 - [5.2 常見陷阱與避免方法](#52-常見陷阱與避免方法)
 - [第五章小結](#第五章小結)
 
 ### [第六章:附錄](#第六章附錄)
+
 - [6.1 完整模板範例](#61-完整模板範例)
 - [6.2 檢查清單](#62-檢查清單)
 - [6.3 參考資源](#63-參考資源)
@@ -109,12 +117,13 @@ lastmod = '2026-03-25T00:00:00+08:00'
 
 **Spec-Driven Development 反轉了這個權力結構**:
 
-```
+```text
 傳統:需求文件 → 設計文件 → 程式碼(真相)
 SDD: 規格(真相)→ 實作計畫 → 程式碼(生成產物)
 ```
 
 核心理念:
+
 - ✅ **規格是可執行的** - 不只是文件,而是可以產生程式碼的「藍圖」
 - ✅ **規格與程式碼同步** - 改規格就重新產生,沒有脫節問題
 - ✅ **AI 助手更有效** - 有結構化規格,AI 產出品質更穩定
@@ -151,23 +160,27 @@ SDD: 規格(真相)→ 實作計畫 → 程式碼(生成產物)
 閱讀本手冊前,假設你已具備:
 
 #### 基礎能力
+
 - ✅ 基本軟體開發流程(需求分析、設計、開發、測試)
 - ✅ 版本控制系統使用經驗(Git、GitHub)
 - ✅ 命令列介面(CLI)基本操作
 - ✅ 至少一種程式語言開發經驗
 
 #### 團隊準備度
+
 - ✅ 團隊有意願導入 AI 輔助開發
 - ✅ 可存取 AI 編碼助手(GitHub Copilot / Claude / Gemini / Cursor 等)
 - ✅ 有基本的 CI/CD 流程(或準備建立)
 - ✅ 願意調整既有工作流程
 
 #### 技術環境
+
 - ✅ Windows / macOS / Linux 作業系統
 - ✅ 已安裝或可安裝:Python 3.11+、Git、uv 套件管理工具
 - ✅ 網路可連接 GitHub 與 AI 服務
 
 #### 不需要具備(但有會更好)
+
 - ⚪ 深入的 AI/ML 知識
 - ⚪ 特定框架專家(SDD 與技術棧無關)
 - ⚪ 大型企業開發經驗
@@ -244,6 +257,7 @@ graph LR
 當你對 AI 說:「幫我做一個使用者登入功能」
 
 ❌ AI 可能產生:
+
 - 使用 email/password(你想要的是 SSO)
 - 沒有 MFA 雙因子驗證
 - 存明文密碼(安全災難!)
@@ -319,6 +333,7 @@ specify check
 ```
 
 **功能**:
+
 - 專案初始化與目錄結構生成
 - 檢查系統前置條件(Git、AI 工具)
 - 整合多種 AI 助手的設定
@@ -363,13 +378,14 @@ Spec-Kit 提供五大核心模板:
 
 #### 支援的 AI 助手 / 智能代理
 
-Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.4.1）：
+Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.5.0）：
 
 | AI 助手 | CLI Key | 支援狀態 | 類型 | 說明 |
 |---------|---------|---------|------|------|
 | **GitHub Copilot** | `copilot` | ✅ 完整支援 | IDE | VS Code 整合，企業級支援 |
-| **Claude Code** | `claude` | ✅ 完整支援 | CLI | Anthropic Claude，推理能力強 |
+| **Claude Code** | `claude` | ✅ 完整支援 | CLI | Anthropic Claude，推理能力強；安裝為 native skills（`.claude/skills/`），指令格式 `/speckit-constitution`、`/speckit-plan` 等 |
 | **Cursor** | `cursor-agent` | ✅ 完整支援 | IDE | AI-first 編輯器 |
+| **Forge** | `forge` | ✅ 完整支援 | CLI | Forge CLI 工具（v0.4.4 新增） |
 | **Gemini CLI** | `gemini` | ✅ 完整支援 | CLI | Google Gemini 命令列版 |
 | **Qwen Code** | `qwen` | ✅ 完整支援 | CLI | 阿里雲通義千問 |
 | **opencode** | `opencode` | ✅ 完整支援 | CLI | opencode CLI |
@@ -396,16 +412,19 @@ Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.4.1）：
 | **Generic** | `generic` | ✅ 完整支援 | - | 自帶代理，需搭配 `--ai-commands-dir` 指定命令目錄 |
 
 > 💡 **Codex CLI 特殊說明**：Codex 建議使用 skills 模式，需搭配 `--ai-skills`。安裝後 skills 位於 `.agents/skills/`，指令格式為 `$speckit-<command>` 而非 `/speckit.*`。
+>
+> 💡 **Claude Code 特殊說明**：Claude Code 預設安裝為 native skills（`.claude/skills/`），指令格式為 `/speckit-constitution`、`/speckit-specify`、`/speckit-plan`、`/speckit-tasks`、`/speckit-implement`。
 
 **選擇建議**：
 - 🏢 **企業環境** → GitHub Copilot（已整合至企業工具鏈）
-- 🧠 **複雜推理** → Claude Code（理解力最強）
+- 🧠 **複雜推理** → Claude Code（理解力最強，原生 skills 整合）
 - 🚀 **快速開發** → Cursor（專為 AI 設計的編輯器）
 - 🌐 **開源偏好** → opencode、Qwen Code
 - 📋 **規劃導向** → Kiro CLI（搭配 `--ai kiro-cli`）
 - 🌙 **Kimi 生態系** → Kimi Code（搭配 `--ai kimi`）
 - 🎨 **Mistral 生態系** → Mistral Vibe（搭配 `--ai vibe`）
 - ☕ **JetBrains 生態系** → Junie（搭配 `--ai junie`）
+- 🔨 **Forge 生態系** → Forge CLI（搭配 `--ai forge`）
 - 🔧 **自訂代理** → Generic 模式（搭配 `--ai generic --ai-commands-dir <path>`）
 
 ---
@@ -1410,7 +1429,7 @@ specify check
 
 這會檢查：
 - ✅ Git 是否安裝
-- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`junie`、`qwen`、`opencode`、`codex`、`kiro-cli`、`shai`、`qodercli`、`vibe`、`kimi`、`iflow`、`pi`、`tabnine` 等）
+- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`junie`、`qwen`、`opencode`、`codex`、`kiro-cli`、`shai`、`qodercli`、`vibe`、`kimi`、`iflow`、`pi`、`tabnine`、`forge` 等）
 - ✅ Shell 環境
 
 **Step 4: 檢查版本資訊**
@@ -1518,7 +1537,7 @@ specify init my-project --ai copilot
 | 參數 | 說明 | 範例 |
 |------|-----|------|
 | `<project-name>` | 專案名稱 | `my-project` 或 `.`（當前目錄）|
-| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`junie`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（別名：`kiro`）、`bob`、`qodercli`、`agy`、`tabnine`、`vibe`、`kimi`、`iflow`、`pi`、`trae`、`generic` |
+| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`junie`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（別名：`kiro`）、`bob`、`qodercli`、`agy`、`tabnine`、`vibe`、`kimi`、`iflow`、`pi`、`trae`、`forge`、`generic` |
 | `--ai-commands-dir <path>` | 代理命令檔案目錄 | 搭配 `--ai generic` 使用，例如 `.myagent/commands/` |
 | `--ai-skills` | 安裝 Prompt.MD 模板為代理技能 | 在代理專屬 `skills/` 目錄安裝（Codex、agy 需此參數） |
 | `--branch-numbering <mode>` | 分支編號策略（v0.3.1 新增） | `sequential`（預設：001、002、003）或 `timestamp`（YYYYMMDD-HHMMSS），分散式團隊可用 timestamp 避免編號衝突 |
@@ -1627,7 +1646,13 @@ specify init my-project --ai trae
 specify init my-project --ai iflow
 ```
 
-**場景 16：使用 timestamp 分支編號（分散式團隊，v0.3.1 新增）**
+**場景 16：使用 Forge CLI（v0.4.4 新增）**
+
+```bash
+specify init my-project --ai forge
+```
+
+**場景 17：使用 timestamp 分支編號（分散式團隊，v0.3.1 新增）**
 
 ```bash
 specify init my-project --ai claude --branch-numbering timestamp
@@ -2757,7 +2782,7 @@ docs/
 
 #### 社群擴充 (Community Extensions)
 
-截至 v0.4.1，社群目錄中已有豐富的擴充可供使用：
+截至 v0.5.0，社群目錄中已有豐富的擴充可供使用（約 40+ 個）：
 
 | 擴充名稱 | 說明 | 分類 | 效果 |
 |---------|------|------|------|
@@ -2787,7 +2812,20 @@ docs/
 | **Project Status** | 顯示當前 SDD 工作流程進度（功能、工件、任務完成度）（v0.4.1 新增） | visibility | Read-only |
 | **Extensify** | 建立與驗證擴充及擴充目錄（v0.4.1 新增） | process | Read+Write |
 | **Presetify** | 建立與驗證預設及預設目錄（v0.4.1 新增） | process | Read+Write |
+| **Fix Findings** | 自動化 analyze-fix-reanalyze 循環，持續修正規格發現問題直到乾淨（v0.4.5 新增） | code | Read+Write |
+| **FixIt** | 規格感知的 Bug 修正 — 將 Bug 映射至規格工件，提出修正計畫，施加最小變更（v0.4.5 新增） | code | Read+Write |
+| **Onboard** | 上下文導向的新人引導與漸進式成長，說明規格、映射依賴、驗證理解並指導下一步（v0.4.4 新增） | process | Read+Write |
+| **Plan Review Gate** | 要求 spec.md 與 plan.md 先透過 MR/PR 合併，才允許產生任務（v0.4.4 新增） | process | Read-only |
+| **Product Forge** | 完整產品生命週期：研究 → 產品規格 → SpecKit → 實作 → 驗證 → 測試（v0.4.4 新增） | process | Read+Write |
+| **QA Testing** | 系統化 QA 測試：以瀏覽器驅動或 CLI 方式驗證規格中的驗收標準（v0.4.5 新增） | code | Read-only |
+| **Staff Review** | Staff Engineer 等級的程式碼審查：驗證實作是否符合規格、安全性、效能與測試覆蓋（v0.4.5 新增） | code | Read-only |
+| **Superpowers Bridge** | 在 spec-kit SDD 工作流程中編排 obra/superpowers 技能（澄清、TDD、審查、驗證、批判、除錯）（v0.4.4 新增） | process | Read+Write |
+| **Ship Release** | 自動化釋出流水線：預檢、分支同步、Changelog 生成、CI 驗證與 PR 建立（v0.4.5 新增） | process | Read+Write |
+| **Spec Critique** | 雙鏡頭批判性審查：從產品策略與工程風險角度審視 Spec 與 Plan（v0.4.5 新增） | docs | Read-only |
+| **Spec Sync** | 偵測並解決規格與實作之間的漂移，AI 輔助解決方案需人工批准（v0.4.5 新增） | docs | Read+Write |
 | **selftest.extension** | 核心擴充，用於測試其他擴充（v0.3.0 新增） | process | Read+Write |
+
+> 🔍 **社群擴充網站**：瀏覽並搜尋所有社群擴充於 [Community Extensions 網站](https://speckit-community.github.io/extensions/)。
 
 ```bash
 # 搜尋社群擴充
@@ -2902,7 +2940,7 @@ specify preset list
 
 #### 社群預設 (Community Presets)
 
-截至 v0.4.1，社群提供以下預設：
+截至 v0.5.0，社群提供以下預設：
 
 | 預設名稱 | 說明 | 範圍 | 依賴 |
 |---------|------|------|------|
@@ -2965,6 +3003,40 @@ specify status
 - 已安裝的擴充列表
 - 已安裝的預設列表
 - 當前功能分支（如適用）
+
+---
+
+### 2.10 Plugin Architecture（v0.4.4-0.4.5 重大架構變革）
+
+v0.4.4 至 v0.4.5 版本完成了一次**六階段的 Plugin Architecture 遷移**，這是 Spec-Kit 內部架構的重大重構，將所有 AI 代理整合從硬編碼轉為外掛式架構。
+
+#### 遷移過程
+
+| 階段 | 版本 | 說明 |
+|------|------|------|
+| **Stage 1** | v0.4.4 | Integration foundation — base classes、manifest system、registry |
+| **Stage 2** | v0.4.4 | Copilot integration — 概念驗證，建立共享模板基元（shared template primitives） |
+| **Stage 3** | v0.4.5 | Standard markdown integrations — 19 個代理遷移至 plugin 架構 |
+| **Stage 4** | v0.4.5 | TOML integrations — Gemini 與 Tabnine 遷移至 plugin 架構 |
+| **Stage 5** | v0.4.5 | Skills, Generic & Option-Driven integrations |
+| **Stage 6** | v0.4.5 | Complete migration — 移除 legacy scaffold 路徑 |
+
+#### 對使用者的影響
+
+- **正面影響**：新代理的加入變得更容易，社群可更快擴展支援的 AI 工具
+- **向後相容**：現有指令與工作流程不受影響，`/speckit.*` 指令格式保持一致
+- **Claude Code 變更**：v0.4.5 起 Claude Code 安裝為 native skills，並對齊 preset/integration 流程
+
+#### 注意事項
+
+若從 v0.4.3 以前的版本升級至 v0.4.5+，建議執行完整的專案檔更新：
+
+```bash
+# 備份後升級
+cp .specify/memory/constitution.md .specify/memory/constitution-backup.md
+specify init --here --force --ai <your-agent>
+mv .specify/memory/constitution-backup.md .specify/memory/constitution.md
+```
 
 ---
 
@@ -8153,7 +8225,7 @@ API 必須一致、版本化、文件化。
 
 | 工具 | 說明 |
 |------|------|
-| **[cc-sdd](https://github.com/rhuss/cc-sdd)** | Claude Code 插件，在 Spec Kit 之上增加可組合特質（composable traits），搭配 [Superpowers](https://github.com/obra/superpowers) 品質閘門、spec/code review、Git worktree 隔離，以及透過代理團隊的平行實作 |
+| **[cc-spex](https://github.com/rhuss/cc-spex)** | Claude Code 插件，在 Spec Kit 之上增加可組合特質（composable traits），搭配 [Superpowers](https://github.com/obra/superpowers) 品質閘門、spec/code review、Git worktree 隔離，以及透過代理團隊的平行實作（前身為 cc-sdd，v0.5.0 起更名） |
 | **[Spec Kit Assistant](https://marketplace.visualstudio.com/items?itemName=rfsales.speckit-assistant)** | VS Code 擴充套件，提供完整 SDD 工作流程的視覺化編排器（constitution → specification → planning → tasks → implementation），含階段狀態視覺化、互動式任務清單、DAG 視覺化，支援 Claude、Gemini、GitHub Copilot 與 OpenAI 後端。需要 `specify` CLI 在 PATH 中 |
 
 ---
@@ -8233,7 +8305,10 @@ specify init my-project --ai trae
 # 1j. 使用 iFlow CLI
 specify init my-project --ai iflow
 
-# 1k. 時間戳記分支編號（分散式團隊）
+# 1k. 使用 Forge CLI（v0.4.4 新增）
+specify init my-project --ai forge
+
+# 1l. 時間戳記分支編號（分散式團隊）
 specify init my-project --ai copilot --branch-numbering timestamp
 
 # 2. 檢查環境
@@ -8385,19 +8460,32 @@ npm run test:e2e
 
 ### 6.8 版本異動紀錄 (Changelog 摘要)
 
-以下為 spec-kit 自首次發布以來的重要里程碑整理（僅列主要版本與重大功能），完整紀錄請參閱 [CHANGELOG.md](https://github.com/spec-kit/spec-kit/blob/main/CHANGELOG.md)：
+以下為 spec-kit 自首次發布以來的重要里程碑整理（僅列主要版本與重大功能），完整紀錄請參閱 [CHANGELOG.md](https://github.com/github/spec-kit/blob/main/CHANGELOG.md)：
 
 | 版本 | 日期 | 重點變更 |
 |------|------|----------|
 | **v0.1.0** | 2025-07-20 | 首個公開版本。引入核心 SDD 工作流程（constitution → specify → plan → tasks → implement）、擴充機制（Extensions）、`specify init` / `specify check` CLI |
 | **v0.2.0** | 2025-09-14 | Multi-Catalog 支援（單一專案多份 spec）、`specify status` 指令、社群擴充目錄首次上線 |
-| **v0.3.0** | 2025-12-01 | Preset 系統（`specify init --preset <name>`）、`specify doctor` 診斷指令、角色約束文件標準化 |
-| **v0.3.1** | 2026-01-15 | `specify status` 增強：支援時間戳分支與階段進度顯示；社群擴充增至 20+ 個 |
-| **v0.3.2** | 2026-03-19 | 穩定性改進、社群擴充與 Preset 文件完善 |
-| **v0.4.0** | 2026-03-23 | **重大版本**。Core Pack 嵌入（無需網路即可使用核心擴充）、Junie IDE 支援、時間戳目錄改進、`specify version` 增強、Extensify / Presetify 社群擴充、V-Model 擴充 |
-| **v0.4.1** | 2026-03-24 | Checkpoint 擴充（里程碑稽核點）、AIDE 擴充（替代式 7 步驟迭代生命週期）、Project Health Check / Project Status 擴充、Community Friends 生態系、社群擴充目錄增至 27+ 個 |
+| **v0.3.0** | 2025-12-01 | Preset 系統、`specify doctor` 診斷指令、角色約束文件標準化、Pluggable preset system |
+| **v0.3.1** | 2026-03-17 | `specify status` 增強：支援時間戳分支與階段進度顯示、Trae IDE 支援、社群擴充增至 20+ 個 |
+| **v0.3.2** | 2026-03-19 | 穩定性改進、iFlow CLI 支援、Preset enable/disable toggle、社群擴充與 Preset 文件完善 |
+| **v0.4.0** | 2026-03-23 | **重大版本**。Core Pack 嵌入（離線 / Air-Gapped 環境部署）、Junie IDE 支援、Codex/agy 原生 skills 遷移、timestamp 分支命名選項、Extensify / Presetify 社群擴充、V-Model 擴充 |
+| **v0.4.1** | 2026-03-24 | Checkpoint 擴充、AIDE 擴充（替代式 7 步驟迭代生命週期）、Project Health Check / Project Status 擴充、Community Friends 生態系、社群擴充目錄增至 27+ 個 |
+| **v0.4.2** | 2026-03-25 | 擴充自動註冊 ai-skills、Community Friends 區段（cc-spex、Spec Kit Assistant VS Code）、社群預設區段新增至 README、NFR 重新命名為 Success Criteria |
+| **v0.4.3** | 2026-03-26 | 統一 Kimi/Codex skill 命名並遷移 legacy 目錄、PowerShell 5.1 相容性修正 |
+| **v0.4.4** | 2026-04-01 | **Plugin Architecture 啟動**。Stage 1-2：Integration foundation（base classes、manifest system、registry）、Copilot integration proof of concept、Forge 代理支援、Onboard / Plan Review Gate / Product Forge / Superpowers Bridge 社群擴充 |
+| **v0.4.5** | 2026-04-02 | **Plugin Architecture 完成**。Stage 3-6：19 agents 遷移至 plugin 架構、Gemini/Tabnine TOML 遷移、Skills/Generic/Option-Driven 整合、移除 legacy scaffold 路徑、Claude Code 原生 skills 安裝、Fix Findings / FixIt / QA / Staff Review / Ship Release / Spec Critique 社群擴充、社群擴充網站上線 |
+| **v0.5.0** | 2026-04-02 | 引入 DEVELOPMENT.md 開發者文件、cc-sdd 更名為 cc-spex、社群擴充達 40+ 個、Stars 達 85k+ |
 
-> **升級提示**：從任何版本升級至 v0.4.1，只需執行 `npx @anthropic/spec-kit@v0.4.1 init` 即可。詳見 [升級指南](https://github.com/spec-kit/spec-kit/blob/main/docs/upgrade.md)。
+> **升級提示**：從任何版本升級至 v0.5.0，請使用以下指令。詳見 [升級指南](https://github.com/github/spec-kit/blob/main/docs/upgrade.md)：
+>
+> ```bash
+> # 升級 CLI
+> uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@v0.5.0
+>
+> # 更新專案檔（備份 constitution 後執行）
+> specify init --here --force --ai <your-agent>
+> ```
 
 ---
 
@@ -8462,7 +8550,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v3.0 | 適用 Spec-Kit v0.4.1+*  
-*最後更新: 2026-03*  
-*適用於: Spec-Kit v0.4.1+ / Spec Kit Templates - 0.4.1*
+*文件版本: v4.0 | 適用 Spec-Kit v0.5.0+*  
+*最後更新: 2026-04*  
+*適用於: Spec-Kit v0.5.0+ / Spec Kit Templates - 0.5.0*
 
