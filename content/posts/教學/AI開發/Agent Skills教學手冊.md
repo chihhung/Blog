@@ -1121,6 +1121,7 @@ metadata:
 | API 設計 | `api-design` | 產出 OpenAPI Spec + Controller 骨架 |
 | 資料庫設計 | `database-design` | 產出 ER Model + DDL |
 | DDD 設計 | `ddd-modeling` | 產出 Domain Model + Bounded Context |
+| UI/UX 設計 | `uiux-design` | 產出 Wireframe 規格、元件規範、互動流程與無障礙檢核 |
 
 **範例：Clean Architecture API 設計 Skill**
 
@@ -1490,6 +1491,170 @@ public record Money(BigDecimal amount, Currency currency) {
 4. **Repository 只為 Aggregate Root 建立**
 5. **業務邏輯封裝在 Domain 層，不洩漏至 Service 層**
 ```
+
+**範例：UI/UX 設計 Skill**
+
+```markdown
+---
+name: uiux-design
+description: >
+  Generates UI/UX design specifications including wireframe 
+  descriptions, component guidelines, interaction flows, 
+  responsive layout rules, and accessibility (a11y) checklist. 
+  Use when asked to design user interface, create wireframes, 
+  define design system components, or review UX flows.
+metadata:
+  version: "1.0"
+  category: design
+  ssdlc-phase: design
+---
+
+# UI/UX 設計 Skill
+
+## 輸入要求
+請提供以下資訊（至少一項）：
+1. 功能需求描述（FRD）或 User Story
+2. 目標使用者角色（Persona）
+3. 現有畫面截圖或設計稿（若有）
+4. 設計系統 / Brand Guideline（若有）
+
+## 設計產出結構
+
+### 1. 使用者流程圖（User Flow）
+
+使用 Mermaid 繪製使用者操作流程：
+
+```mermaid
+graph TD
+    Start([進入頁面]) --> Auth{已登入?}
+    Auth -->|否| Login[登入頁面]
+    Auth -->|是| Dashboard[儀表板]
+    Login --> |登入成功| Dashboard
+    Login --> |登入失敗| ErrMsg[顯示錯誤訊息]
+    ErrMsg --> Login
+    Dashboard --> Action[執行功能操作]
+    Action --> Confirm{需要確認?}
+    Confirm -->|是| Dialog[確認對話框]
+    Confirm -->|否| Result[顯示結果]
+    Dialog -->|確認| Result
+    Dialog -->|取消| Dashboard
+    Result --> Feedback[Toast 回饋訊息]
+    Feedback --> Dashboard
+```
+
+### 2. 頁面 Wireframe 規格
+
+對每個頁面提供以下規格：
+
+```text
+#### Page-001：[頁面名稱]
+
+**對應功能需求**：F-001
+**頁面用途**：[一段話描述此頁面目的]
+**進入條件**：[使用者如何到達此頁面]
+
+**頁面佈局（Layout）**：
+┌─────────────────────────────────────┐
+│  Header（Logo / Nav / User Menu）   │
+├──────────┬──────────────────────────┤
+│ Sidebar  │  Main Content Area       │
+│ - Nav 1  │  ┌──────────────────┐    │
+│ - Nav 2  │  │  Search / Filter  │    │
+│ - Nav 3  │  ├──────────────────┤    │
+│          │  │  Data Table /     │    │
+│          │  │  Card Grid        │    │
+│          │  ├──────────────────┤    │
+│          │  │  Pagination       │    │
+├──────────┴──────────────────────────┤
+│  Footer（Copyright / Links）        │
+└─────────────────────────────────────┘
+
+**元件清單**：
+| 元件 | 類型 | 說明 | 互動行為 |
+|------|------|------|----------|
+| 搜尋欄 | Input + Button | 關鍵字搜尋 | 輸入後按 Enter 或點擊搜尋 |
+| 資料表 | Table | 顯示交易清單 | 可排序、可分頁 |
+| 操作按鈕 | Button Group | 新增/編輯/刪除 | 刪除需二次確認 |
+
+**狀態變化**：
+- 空狀態（Empty State）：顯示引導文字與操作按鈕
+- 載入中（Loading）：Skeleton Screen
+- 錯誤狀態（Error）：錯誤訊息與重試按鈕
+- 成功狀態（Success）：Toast 通知
+```
+
+### 3. 元件設計規範（Design Tokens / Component Spec）
+
+| Token 類型 | Token 名稱 | 值 | 用途 |
+|------------|-----------|-----|------|
+| Color | `--color-primary` | `#1976D2` | 主要操作按鈕、連結 |
+| Color | `--color-error` | `#D32F2F` | 錯誤訊息、刪除按鈕 |
+| Color | `--color-success` | `#388E3C` | 成功狀態 |
+| Spacing | `--spacing-sm` | `8px` | 元件內間距 |
+| Spacing | `--spacing-md` | `16px` | 區塊間距 |
+| Spacing | `--spacing-lg` | `24px` | 段落間距 |
+| Typography | `--font-heading` | `24px / Bold` | 頁面標題 |
+| Typography | `--font-body` | `14px / Regular` | 內文 |
+| Border | `--radius-sm` | `4px` | 按鈕、輸入框圓角 |
+| Border | `--radius-md` | `8px` | 卡片圓角 |
+
+**按鈕元件規格**：
+
+| 屬性 | Primary | Secondary | Danger | Disabled |
+|------|---------|-----------|--------|----------|
+| 背景色 | `--color-primary` | `transparent` | `--color-error` | `#E0E0E0` |
+| 文字色 | `#FFFFFF` | `--color-primary` | `#FFFFFF` | `#9E9E9E` |
+| 邊框 | 無 | `1px solid primary` | 無 | 無 |
+| Hover | 加深 10% | 背景 `primary/10%` | 加深 10% | 無變化 |
+| 最小寬度 | `120px` | `120px` | `120px` | `120px` |
+| 高度 | `40px` | `40px` | `40px` | `40px` |
+
+### 4. 互動規格（Interaction Spec）
+
+| 互動情境 | 觸發方式 | 動畫 / 過渡 | 回饋方式 |
+|----------|----------|-------------|----------|
+| 表單送出 | Click / Enter | Button → Loading Spinner | 成功 Toast / 錯誤 Inline |
+| 刪除確認 | Click 刪除按鈕 | Modal 浮現（fade-in 200ms） | 確認後 Toast |
+| 頁面切換 | 點擊導航項目 | Content fade（150ms） | Active 狀態高亮 |
+| 輸入驗證 | onBlur / onChange | 無 | Inline 錯誤訊息 |
+| 長列表載入 | 捲動至底部 | Skeleton Row 佔位 | 自動載入下一頁 |
+
+### 5. 響應式設計（Responsive Layout）
+
+| 斷點 | 寬度 | 佈局調整 |
+|------|------|----------|
+| Desktop | ≥ 1280px | Sidebar + Main Content 並排 |
+| Tablet | 768px – 1279px | Sidebar 摺疊為 Hamburger Menu |
+| Mobile | < 768px | 單欄佈局，Bottom Navigation |
+
+### 6. 無障礙設計檢核（Accessibility / a11y）
+
+| 檢核項目 | 標準 | 要求 |
+|----------|------|------|
+| 色彩對比 | WCAG 2.1 AA | 文字對比度 ≥ 4.5:1，大字 ≥ 3:1 |
+| 鍵盤操作 | WCAG 2.1 | 所有互動元素可透過 Tab / Enter 操作 |
+| Focus 指示 | WCAG 2.1 | 可見的 Focus Ring（outline） |
+| 圖片替代文字 | WCAG 2.1 | 所有 `<img>` 須有 `alt` 屬性 |
+| ARIA 標籤 | WAI-ARIA | 動態內容須有 `aria-live`、`role` |
+| 螢幕閱讀器 | NVDA / VoiceOver | 表單元素須有 `<label>` 關聯 |
+| 觸控目標 | WCAG 2.5.5 | 觸控目標 ≥ 44×44px |
+
+## 產出規範
+- 每個頁面須包含 Wireframe 佈局圖（ASCII 或 Mermaid）
+- 每個互動須定義觸發方式、回饋方式與狀態變化
+- 色彩規格須標注 Hex 值與用途
+- 響應式須涵蓋 Desktop / Tablet / Mobile 三個斷點
+- 無障礙檢核須對照 WCAG 2.1 AA 標準
+
+## 安全與隱私規範
+- 密碼欄位須使用 `type="password"` 且提供顯示/隱藏切換
+- 敏感資訊（如身分證、卡號）在畫面上須部分遮罩
+- 表單須包含 CSRF Token
+- 使用者輸入須在前端做基本驗證，後端做完整驗證（雙重驗證）
+- 錯誤訊息不可洩漏系統內部資訊
+```
+
+> **🏦 金融業實務案例**：某銀行的網路銀行改版專案，將轉帳頁面、帳戶總覽、交易明細等 UI 設計規格封裝為 Skills，新進前端工程師只需輸入功能需求，即可產出符合企業 Design System 的 Wireframe 規格、元件清單與無障礙檢核報告，大幅縮短從設計到開發的銜接時間。
 
 ### 3.3 Development（開發階段）
 
