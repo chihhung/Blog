@@ -903,6 +903,214 @@ ssdlc-phase: requirements
     └── user-story.md.template  # Story 範本
 ```
 
+**範例：BRD 生成 Skill**
+
+```markdown
+---
+name: generate-brd
+description: >
+  Generates Business Requirement Document (BRD) from meeting 
+  notes, stakeholder interviews, or business context. Use when 
+  asked to write BRD, document business requirements, or 
+  formalize project scope.
+metadata:
+  version: "1.0"
+  category: requirements
+  ssdlc-phase: requirements
+---
+
+# BRD 生成 Skill
+
+## 輸入要求
+請提供以下資訊（至少一項）：
+1. 會議記錄 / 訪談紀錄
+2. 現有系統問題描述
+3. 業務目標與願景
+
+## BRD 標準結構
+
+### 1. 專案概述（Executive Summary）
+- 專案背景與動機
+- 業務目標（量化指標）
+- 預期效益（ROI 分析）
+
+### 2. 範圍定義（Scope）
+- In Scope（納入範圍）
+- Out of Scope（排除範圍）
+- 系統邊界圖
+
+### 3. 利害關係人分析
+
+| 角色 | 姓名/部門 | 關注點 | 影響力 |
+|------|-----------|--------|--------|
+| Sponsor | ... | ... | 高 |
+| End User | ... | ... | 中 |
+
+### 4. 業務需求清單
+
+| 編號 | 需求描述 | 優先順序 | 來源 |
+|------|----------|----------|------|
+| BR-001 | ... | P0 | ... |
+
+### 5. 非功能需求
+- 效能：回應時間 < 2 秒
+- 可用性：99.9% SLA
+- 安全性：符合 ISO 27001
+
+### 6. 限制與假設
+- 限制條件
+- 前提假設
+
+### 7. 交付時程
+- 里程碑列表
+- 預估時程
+
+## 產出規範
+- 格式：Markdown 文件
+- 需求編號：BR-XXX（三碼流水號）
+- 每個需求須標注優先順序（P0 / P1 / P2）
+- 每個需求須標注來源（哪次會議 / 誰提出）
+
+## 安全需求
+- 涉及個資處理的需求須標注「PII」
+- 涉及法規遵循的需求須標注「Regulatory」
+```
+
+**範例：FRD 生成 Skill**
+
+```markdown
+---
+name: generate-frd
+description: >
+  Generates Functional Requirement Document (FRD) from BRD 
+  or business requirements. Use when asked to write FRD, 
+  detail functional specifications, or translate business 
+  requirements into system functions.
+metadata:
+  version: "1.0"
+  category: requirements
+  ssdlc-phase: requirements
+---
+
+# FRD 生成 Skill
+
+## 輸入要求
+請提供以下資訊：
+1. BRD 或業務需求描述
+2. 系統架構概述（若有）
+3. 現有介面規格（若有）
+
+## FRD 標準結構
+
+### 1. 功能概述
+- 系統功能清單
+- 功能層級分解（Feature → Function → Sub-function）
+
+### 2. 功能規格
+對每個功能項目，須包含：
+
+```text
+#### F-001：[功能名稱]
+
+**對應業務需求**：BR-001
+**功能描述**：[一段話描述此功能]
+**觸發條件**：[何時觸發此功能]
+**前置條件**：[執行前須滿足的條件]
+
+**主要流程**：
+  1. 使用者 [操作]
+  2. 系統 [回應]
+  3. ...
+
+**替代流程**：
+  - 2a. 若 [條件]，則 [處理]
+
+**例外流程**：
+  - E1. 若 [錯誤]，顯示 [錯誤訊息]
+
+**後置條件**：[執行後的系統狀態]
+
+**業務規則**：
+  - Rule-001：[規則描述]
+
+**畫面需求**：[畫面原型參考]
+
+**資料需求**：
+  | 欄位 | 型別 | 必填 | 說明 |
+  |------|------|------|------|
+  | accountId | String | ✅ | 帳號編號 |
+  | amount | BigDecimal | ✅ | 交易金額 |
+```
+
+### 3. 非功能需求對應
+
+| 功能編號 | 效能要求 | 安全等級 | 備註 |
+|----------|----------|----------|------|
+| F-001 | < 2s | High | 涉及交易 |
+
+### 4. 功能追溯矩陣
+
+| 業務需求 | 功能需求 | 狀態 |
+|----------|----------|------|
+| BR-001 | F-001, F-002 | Draft |
+
+## 產出規範
+- 功能編號：F-XXX
+- 每個功能須包含主要流程、替代流程、例外流程
+- 每個功能須對應至少一個業務需求（BR-XXX）
+- 包含資料需求欄位定義
+```
+
+**範例：需求追溯矩陣 Skill**
+
+```markdown
+---
+name: requirement-traceability
+description: >
+  Builds Requirement Traceability Matrix (RTM) linking business 
+  requirements to functional specs, design, code, and test cases. 
+  Use when asked to create traceability matrix, verify requirement 
+  coverage, or audit requirement completeness.
+metadata:
+  version: "1.0"
+  category: requirements
+  ssdlc-phase: requirements
+---
+
+# 需求追溯矩陣（RTM）生成 Skill
+
+## 追溯矩陣結構
+
+### 前向追溯（Forward Traceability）
+從業務需求追溯到實作：
+
+| 業務需求 | 功能需求 | 設計文件 | 程式模組 | 測試案例 | 狀態 |
+|----------|----------|----------|----------|----------|------|
+| BR-001 | F-001 | DD-001 | TransferService.java | TC-001, TC-002 | ✅ |
+| BR-002 | F-003 | DD-002 | AccountController.java | TC-005 | ✅ |
+| BR-003 | — | — | — | — | ❌ 未實作 |
+
+### 反向追溯（Backward Traceability）
+從程式碼追溯到業務需求：
+
+| 程式模組 | 設計文件 | 功能需求 | 業務需求 |
+|----------|----------|----------|----------|
+| TransferService.java | DD-001 | F-001 | BR-001 |
+| OrphanUtil.java | — | — | ⚠️ 無對應需求 |
+
+## 分析指標
+1. **需求覆蓋率**：已實作需求 / 總需求數 × 100%
+2. **測試覆蓋率**：有測試的需求 / 已實作需求 × 100%
+3. **孤兒程式碼**：無法追溯到需求的程式模組
+4. **未實作需求**：尚未對應到任何功能的業務需求
+
+## 產出規範
+- 格式：Markdown 表格 + 覆蓋率統計摘要
+- 標注所有缺口（Gap）並建議處理方式
+- 孤兒程式碼須標注風險等級
+- 未實作需求須標注延遲原因與預計時程
+```
+
 ### 3.2 Design（設計階段）
 
 **可轉換為 Skills 的內容**：
@@ -971,6 +1179,316 @@ src/main/java/com/company/service/
 - 所有 API 須經過 JWT 驗證
 - 敏感欄位（如身分證字號）須遮罩
 - 寫入操作須記錄 Audit Log
+```
+
+**範例：系統架構設計 Skill**
+
+```markdown
+---
+name: architecture-design
+description: >
+  Designs system architecture using C4 Model and generates 
+  architecture diagrams in Mermaid format. Use when asked to 
+  design system architecture, draw architecture diagrams, 
+  or evaluate architectural decisions.
+metadata:
+  version: "1.0"
+  category: design
+  ssdlc-phase: design
+---
+
+# 系統架構設計 Skill（C4 Model）
+
+## C4 Model 四層結構
+
+### Level 1：System Context Diagram（系統上下文圖）
+描述系統與外部使用者、外部系統的互動關係。
+
+```mermaid
+graph TB
+    User[客戶<br/>使用網路銀行] --> System[網路銀行系統]
+    Admin[行員<br/>管理後台] --> System
+    System --> CoreBanking[核心銀行系統<br/>外部系統]
+    System --> EmailGW[Email Gateway<br/>外部系統]
+    System --> SMSGW[SMS Gateway<br/>外部系統]
+```
+
+### Level 2：Container Diagram（容器圖）
+描述系統內的應用程式、資料庫、訊息佇列等容器。
+
+```mermaid
+graph TB
+    subgraph "網路銀行系統"
+        WebApp[Web App<br/>Vue 3 + Nginx]
+        API[API Gateway<br/>Spring Cloud Gateway]
+        AuthSvc[認證服務<br/>Spring Boot]
+        TxnSvc[交易服務<br/>Spring Boot]
+        AcctSvc[帳戶服務<br/>Spring Boot]
+        MQ[訊息佇列<br/>RabbitMQ]
+        DB[(PostgreSQL<br/>主資料庫)]
+        Cache[(Redis<br/>快取)]
+    end
+
+    WebApp --> API
+    API --> AuthSvc
+    API --> TxnSvc
+    API --> AcctSvc
+    TxnSvc --> MQ
+    TxnSvc --> DB
+    AcctSvc --> DB
+    AuthSvc --> Cache
+```
+
+### Level 3：Component Diagram（元件圖）
+描述單一容器內的主要元件與互動。
+
+### Level 4：Code Diagram（程式碼圖）
+描述單一元件的類別圖（通常由 IDE 自動生成）。
+
+## Architecture Decision Record（ADR）格式
+
+```text
+# ADR-001：選擇 PostgreSQL 作為主資料庫
+
+## 狀態
+已採納（Accepted）
+
+## 上下文
+系統需要支援 ACID 交易、JSON 查詢、高併發讀寫。
+
+## 決策
+採用 PostgreSQL 15+。
+
+## 理由
+- 完整的 ACID 支援
+- 原生 JSONB 欄位支援
+- 成熟的生態系與社群
+
+## 後果
+- 需要 DBA 維運能力
+- 水平擴展需搭配 Read Replica
+```
+
+## 產出規範
+- 使用 Mermaid 語法繪製架構圖
+- 每個架構決策須撰寫 ADR
+- 圖表須標注技術選型（含版本）
+- 包含容量預估（TPS、儲存量）
+```
+
+**範例：資料庫設計 Skill**
+
+```markdown
+---
+name: database-design
+description: >
+  Designs database schema including ER Model, DDL scripts, 
+  and migration files for relational databases. Use when asked 
+  to design database, create ER diagram, write DDL, or plan 
+  database migration.
+metadata:
+  version: "1.0"
+  category: design
+  ssdlc-phase: design
+---
+
+# 資料庫設計 Skill
+
+## ER Model 設計（使用 Mermaid）
+
+```mermaid
+erDiagram
+    ACCOUNT ||--o{ TRANSACTION : "發起"
+    ACCOUNT {
+        bigint id PK
+        varchar account_no UK "帳號（唯一）"
+        varchar account_name "戶名"
+        decimal balance "餘額"
+        varchar status "狀態：ACTIVE/FROZEN/CLOSED"
+        timestamp created_at
+        timestamp updated_at
+    }
+    TRANSACTION {
+        bigint id PK
+        varchar txn_no UK "交易編號"
+        bigint from_account_id FK
+        bigint to_account_id FK
+        decimal amount "交易金額"
+        varchar txn_type "類型：TRANSFER/DEPOSIT/WITHDRAW"
+        varchar status "狀態：PENDING/SUCCESS/FAILED"
+        varchar description "摘要"
+        timestamp created_at
+    }
+    TRANSACTION }o--|| AUDIT_LOG : "記錄"
+    AUDIT_LOG {
+        bigint id PK
+        varchar entity_type "實體類型"
+        bigint entity_id "實體 ID"
+        varchar action "操作：CREATE/UPDATE/DELETE"
+        jsonb old_value "變更前"
+        jsonb new_value "變更後"
+        varchar operator "操作者"
+        timestamp created_at
+    }
+```
+
+## DDL 規範
+
+```sql
+-- 命名規範
+-- 表名：snake_case，複數形式
+-- 欄位名：snake_case
+-- 索引名：idx_{table}_{column}
+-- 外鍵名：fk_{table}_{ref_table}
+-- 唯一約束：uk_{table}_{column}
+
+CREATE TABLE accounts (
+    id            BIGSERIAL       PRIMARY KEY,
+    account_no    VARCHAR(20)     NOT NULL UNIQUE,
+    account_name  VARCHAR(100)    NOT NULL,
+    balance       DECIMAL(18, 2)  NOT NULL DEFAULT 0.00,
+    status        VARCHAR(20)     NOT NULL DEFAULT 'ACTIVE',
+    created_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT chk_balance_non_negative CHECK (balance >= 0),
+    CONSTRAINT chk_status CHECK (status IN ('ACTIVE', 'FROZEN', 'CLOSED'))
+);
+
+CREATE INDEX idx_accounts_status ON accounts(status);
+
+-- Flyway Migration 命名：V{version}__{description}.sql
+-- 範例：V1.0__create_accounts_table.sql
+```
+
+## 設計規範
+1. 所有表必須有 `id`（BIGSERIAL）作為主鍵
+2. 必須有 `created_at`、`updated_at` 時間戳
+3. 金額欄位使用 `DECIMAL(18, 2)`，禁止使用 FLOAT
+4. 狀態欄位使用 VARCHAR + CHECK 約束
+5. 敏感欄位（身分證、手機）須在應用層加密儲存
+6. 使用 Flyway / Liquibase 管理 Schema Migration
+
+## 安全規範
+- 禁止在 DDL 中包含測試資料
+- 敏感欄位須加密（AES-256）
+- 刪除操作使用軟刪除（`deleted_at` 欄位）
+- 生產環境 DDL 須經 DBA 審核
+```
+
+**範例：DDD 領域建模 Skill**
+
+```markdown
+---
+name: ddd-modeling
+description: >
+  Performs Domain-Driven Design modeling including Bounded 
+  Context identification, Aggregate design, Entity/Value 
+  Object definition, and Domain Event mapping. Use when asked 
+  to do DDD modeling, design domain model, or identify 
+  bounded contexts.
+metadata:
+  version: "1.0"
+  category: design
+  ssdlc-phase: design
+---
+
+# DDD 領域建模 Skill
+
+## Step 1：識別 Bounded Context
+
+```mermaid
+graph TB
+    subgraph "帳戶管理 Context"
+        A1[Account Aggregate]
+        A2[Customer Entity]
+    end
+    
+    subgraph "交易 Context"
+        T1[Transaction Aggregate]
+        T2[Transfer Service]
+    end
+    
+    subgraph "通知 Context"
+        N1[Notification Service]
+        N2[Template Entity]
+    end
+    
+    A1 -->|Account Created Event| T1
+    T1 -->|Transaction Completed Event| N1
+
+    style A1 fill:#4CAF50,color:#fff
+    style T1 fill:#2196F3,color:#fff
+    style N1 fill:#FF9800,color:#fff
+```
+
+## Step 2：定義 Aggregate
+
+```java
+// Aggregate Root
+public class Transaction {
+    private TransactionId id;           // Entity ID（Value Object）
+    private AccountId fromAccount;      // Value Object
+    private AccountId toAccount;        // Value Object
+    private Money amount;               // Value Object
+    private TransactionStatus status;   // Enum
+    private List<DomainEvent> events;   // Domain Events
+    
+    // 業務行為封裝在 Aggregate 內
+    public void execute() {
+        validate();
+        this.status = TransactionStatus.SUCCESS;
+        events.add(new TransactionCompletedEvent(this));
+    }
+    
+    private void validate() {
+        if (amount.isNegativeOrZero()) {
+            throw new InvalidAmountException("金額必須大於零");
+        }
+        if (fromAccount.equals(toAccount)) {
+            throw new SameAccountTransferException("不可轉帳至同一帳戶");
+        }
+    }
+}
+
+// Value Object（不可變、無 ID、以值比較）
+public record Money(BigDecimal amount, Currency currency) {
+    public Money {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("金額不可為負");
+        }
+    }
+    public boolean isNegativeOrZero() {
+        return amount.compareTo(BigDecimal.ZERO) <= 0;
+    }
+    public Money add(Money other) {
+        return new Money(this.amount.add(other.amount), this.currency);
+    }
+}
+```
+
+## Step 3：Domain Event 設計
+
+| 事件名稱 | 觸發時機 | 發布 Context | 消費 Context |
+|----------|----------|-------------|-------------|
+| AccountCreatedEvent | 帳戶建立後 | 帳戶管理 | 交易、通知 |
+| TransactionCompletedEvent | 交易完成後 | 交易 | 通知、帳戶管理 |
+| BalanceInsufficientEvent | 餘額不足時 | 交易 | 通知 |
+
+## Step 4：Context Map（上下文映射）
+
+| 上游 Context | 下游 Context | 關係模式 |
+|-------------|-------------|----------|
+| 帳戶管理 | 交易 | Customer-Supplier |
+| 交易 | 通知 | Published Language |
+| 核心銀行（外部） | 帳戶管理 | Anti-Corruption Layer |
+
+## 設計原則
+1. **Aggregate 不可跨 Bounded Context 引用**
+2. **跨 Context 通訊使用 Domain Event（非同步）**
+3. **Value Object 優先於 Entity**（若不需要唯一識別）
+4. **Repository 只為 Aggregate Root 建立**
+5. **業務邏輯封裝在 Domain 層，不洩漏至 Service 層**
 ```
 
 ### 3.3 Development（開發階段）
@@ -1114,6 +1632,194 @@ ssdlc-phase: development
 - [ ] 測試可重複執行
 ```
 
+**範例：重構模式 Skill**
+
+```markdown
+---
+name: refactoring-patterns
+description: >
+  Guides common refactoring techniques including Extract Method, 
+  Replace Conditional with Polymorphism, and Introduce Parameter 
+  Object. Use when asked to refactor code, improve code structure, 
+  reduce code smells, or simplify complex methods.
+metadata:
+  version: "1.0"
+  category: development
+  ssdlc-phase: development
+---
+
+# 重構模式 Skill
+
+## Code Smell 識別與對應重構手法
+
+| Code Smell | 識別標準 | 推薦重構手法 |
+|------------|----------|-------------|
+| **Long Method** | 方法 > 30 行 | Extract Method |
+| **Large Class** | 類別 > 300 行或職責 > 2 個 | Extract Class |
+| **Long Parameter List** | 參數 > 4 個 | Introduce Parameter Object |
+| **Duplicated Code** | 相似邏輯出現 ≥ 2 處 | Extract Method / Template Method |
+| **Switch / If-else 鏈** | ≥ 3 個分支依型別判斷 | Replace Conditional with Polymorphism |
+| **Feature Envy** | 方法大量使用其他類別資料 | Move Method |
+| **Data Clump** | 同一組參數反覆出現 | Extract Class / Parameter Object |
+| **Primitive Obsession** | 用基本型別表達領域概念 | Replace Primitive with Value Object |
+
+## 重構範例 1：Extract Method
+
+```java
+// ❌ 重構前：方法職責過多
+public void processOrder(Order order) {
+    // 驗證訂單（10 行）
+    if (order.getItems().isEmpty()) { throw new EmptyOrderException(); }
+    if (order.getTotalAmount().compareTo(BigDecimal.ZERO) <= 0) { throw new InvalidAmountException(); }
+    
+    // 計算折扣（15 行）
+    BigDecimal discount = BigDecimal.ZERO;
+    if (order.getMemberLevel().equals("VIP")) {
+        discount = order.getTotalAmount().multiply(new BigDecimal("0.1"));
+    } else if (order.getMemberLevel().equals("GOLD")) {
+        discount = order.getTotalAmount().multiply(new BigDecimal("0.05"));
+    }
+    order.setDiscount(discount);
+    
+    // 儲存與通知（10 行）
+    orderRepository.save(order);
+    notificationService.sendConfirmation(order);
+}
+
+// ✅ 重構後：各方法職責單一
+public void processOrder(Order order) {
+    validateOrder(order);
+    applyDiscount(order);
+    completeOrder(order);
+}
+
+private void validateOrder(Order order) {
+    if (order.getItems().isEmpty()) { throw new EmptyOrderException(); }
+    if (order.getTotalAmount().compareTo(BigDecimal.ZERO) <= 0) { throw new InvalidAmountException(); }
+}
+
+private void applyDiscount(Order order) {
+    BigDecimal rate = discountRateFor(order.getMemberLevel());
+    order.setDiscount(order.getTotalAmount().multiply(rate));
+}
+
+private void completeOrder(Order order) {
+    orderRepository.save(order);
+    notificationService.sendConfirmation(order);
+}
+```
+
+## 重構範例 2：Replace Conditional with Polymorphism
+
+```java
+// ❌ 重構前：switch 依型別分派邏輯
+public BigDecimal calculateFee(Transaction txn) {
+    switch (txn.getType()) {
+        case "TRANSFER": return txn.getAmount().multiply(new BigDecimal("0.001"));
+        case "WITHDRAW": return new BigDecimal("15");
+        case "DEPOSIT": return BigDecimal.ZERO;
+        default: throw new UnsupportedOperationException();
+    }
+}
+
+// ✅ 重構後：策略模式
+public interface FeeCalculator {
+    BigDecimal calculate(Transaction txn);
+}
+
+public class TransferFeeCalculator implements FeeCalculator {
+    public BigDecimal calculate(Transaction txn) {
+        return txn.getAmount().multiply(new BigDecimal("0.001"));
+    }
+}
+
+public class WithdrawFeeCalculator implements FeeCalculator {
+    public BigDecimal calculate(Transaction txn) {
+        return new BigDecimal("15");
+    }
+}
+
+// 使用 Map 取代 switch
+private final Map<String, FeeCalculator> calculators = Map.of(
+    "TRANSFER", new TransferFeeCalculator(),
+    "WITHDRAW", new WithdrawFeeCalculator(),
+    "DEPOSIT", txn -> BigDecimal.ZERO
+);
+```
+
+## 重構安全守則
+1. **每次重構前須有完整測試覆蓋**
+2. **小步前進**：每次只做一個重構動作，確認測試通過後再進行下一步
+3. **不改變外部行為**：重構 ≠ 新增功能
+4. **重構後執行全部測試套件**
+```
+
+**範例：程式碼規範 Skill**
+
+```markdown
+---
+name: coding-standards
+description: >
+  Enforces enterprise coding standards for Java/Spring Boot 
+  projects including naming conventions, code structure, and 
+  documentation requirements. Use when asked to check coding 
+  standards, enforce code style, or review naming conventions.
+metadata:
+  version: "2.0"
+  category: development
+  ssdlc-phase: development
+---
+
+# 企業程式碼規範 Skill
+
+## 命名規範
+
+| 元素 | 規則 | 正確範例 | 錯誤範例 |
+|------|------|----------|----------|
+| **類別** | PascalCase，名詞 | `TransactionService` | `transactionService`、`TxnSvc` |
+| **介面** | PascalCase，名詞/形容詞 | `TransactionRepository` | `ITransactionRepository`（不加 I 前綴） |
+| **方法** | camelCase，動詞開頭 | `findByAccountId()` | `accountIdFind()` |
+| **變數** | camelCase，有意義名稱 | `accountBalance` | `ab`、`temp`、`data` |
+| **常數** | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` | `maxRetryCount` |
+| **Package** | 全小寫，點分隔 | `com.company.service.transaction` | `com.Company.Service` |
+| **DTO** | 後綴 Request/Response | `TransferRequest` | `TransferDto`（不用 Dto 後綴） |
+| **Enum** | PascalCase，值為 UPPER_SNAKE | `TransactionStatus.PENDING` | `transactionStatus.pending` |
+
+## 結構規範
+
+```java
+// 檔案結構順序（由上至下）
+public class ExampleService {
+    // 1. 靜態常數
+    private static final int MAX_RETRY = 3;
+    
+    // 2. 實例變數（final 優先）
+    private final TransactionRepository repository;
+    private final EventPublisher publisher;
+    
+    // 3. 建構子
+    // 4. public 方法（業務方法）
+    // 5. package-private 方法
+    // 6. protected 方法
+    // 7. private 方法（輔助方法）
+}
+```
+
+## 禁止事項
+- ❌ 禁止使用 `System.out.println`（使用 SLF4J Logger）
+- ❌ 禁止吞掉例外（空 catch 區塊）
+- ❌ 禁止使用 `@Autowired` 欄位注入（使用建構子注入）
+- ❌ 禁止在 Controller 層直接操作資料庫
+- ❌ 禁止在迴圈中執行 DB 查詢
+- ❌ 禁止使用 `new Date()`（使用 `java.time` API）
+- ❌ 禁止硬編碼設定值（使用 `@Value` 或 `@ConfigurationProperties`）
+
+## JavaDoc 規範
+- 所有 public 類別和方法須有 JavaDoc
+- JavaDoc 須包含 `@param`、`@return`、`@throws`
+- 業務方法須說明業務規則
+```
+
 ### 3.4 Testing（測試階段）
 
 **可轉換為 Skills 的內容**：
@@ -1214,6 +1920,319 @@ class TransactionServiceTest {
 3. 異常輸入（Invalid Input）
 4. Null / Empty 處理
 5. 併發場景（如適用）
+```
+
+**範例：整合測試生成 Skill**
+
+```markdown
+---
+name: integration-test-gen
+description: >
+  Generates Spring Boot integration tests using @SpringBootTest, 
+  TestContainers, and MockMvc. Use when asked to write integration 
+  tests, create end-to-end API tests, or test with real database.
+metadata:
+  version: "1.0"
+  category: testing
+  ssdlc-phase: testing
+---
+
+# Spring Boot 整合測試生成 Skill
+
+## 整合測試架構
+
+```text
+src/test/java/
+├── integration/                    # 整合測試
+│   ├── BaseIntegrationTest.java    # 基底類別（共用設定）
+│   ├── TransactionApiTest.java     # API 端到端測試
+│   └── TransactionFlowTest.java    # 業務流程測試
+└── resources/
+    ├── application-test.yml         # 測試環境設定
+    └── testdata/
+        └── transactions.json        # 測試資料
+```
+
+## 基底測試類別
+
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+@Testcontainers
+public abstract class BaseIntegrationTest {
+
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
+    @Autowired
+    protected TestRestTemplate restTemplate;
+
+    @Autowired
+    protected ObjectMapper objectMapper;
+}
+```
+
+## API 整合測試範例
+
+```java
+class TransactionApiTest extends BaseIntegrationTest {
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @BeforeEach
+    void setUp() {
+        accountRepository.deleteAll();
+        accountRepository.save(Account.builder()
+                .accountNo("A001").accountName("測試帳戶A")
+                .balance(BigDecimal.valueOf(10000)).status("ACTIVE")
+                .build());
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/transactions — 轉帳成功應回傳 201")
+    void createTransaction_shouldReturn201_whenValid() {
+        // Arrange
+        var request = new TransferRequest("A001", "B001", BigDecimal.valueOf(1000));
+
+        // Act
+        var response = restTemplate.postForEntity(
+                "/api/v1/transactions", request, TransactionResponse.class);
+
+        // Assert
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody().getStatus()).isEqualTo("SUCCESS");
+        
+        // 驗證資料庫狀態
+        var account = accountRepository.findByAccountNo("A001").orElseThrow();
+        assertThat(account.getBalance()).isEqualByComparingTo("9000.00");
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/transactions — 餘額不足應回傳 400")
+    void createTransaction_shouldReturn400_whenInsufficientBalance() {
+        var request = new TransferRequest("A001", "B001", BigDecimal.valueOf(99999));
+
+        var response = restTemplate.postForEntity(
+                "/api/v1/transactions", request, ErrorResponse.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody().getCode()).isEqualTo("INSUFFICIENT_BALANCE");
+    }
+}
+```
+
+## 測試規範
+1. 整合測試類別繼承 `BaseIntegrationTest`
+2. 使用 TestContainers 取代 H2（確保與生產環境一致）
+3. 每個測試方法獨立，使用 `@BeforeEach` 初始化資料
+4. 驗證 HTTP Status Code + Response Body + 資料庫狀態
+5. 不使用 `@DirtiesContext`（影響效能），改用資料清理
+```
+
+**範例：API 測試案例生成 Skill**
+
+```markdown
+---
+name: api-test-gen
+description: >
+  Generates REST API test cases covering positive, negative, 
+  boundary, and security scenarios. Use when asked to create 
+  API tests, write REST endpoint tests, or generate test 
+  collections for API validation.
+metadata:
+  version: "1.0"
+  category: testing
+  ssdlc-phase: testing
+---
+
+# REST API 測試案例生成 Skill
+
+## 測試案例分類
+
+### 1. 正向測試（Positive Tests）
+
+| 測試編號 | 測試描述 | HTTP Method | 預期狀態碼 |
+|----------|----------|-------------|-----------|
+| TC-P-001 | 查詢全部資源（無參數） | GET /api/v1/resources | 200 |
+| TC-P-002 | 查詢單一資源（有效 ID） | GET /api/v1/resources/{id} | 200 |
+| TC-P-003 | 建立資源（完整必填欄位） | POST /api/v1/resources | 201 |
+| TC-P-004 | 更新資源（有效資料） | PUT /api/v1/resources/{id} | 200 |
+| TC-P-005 | 刪除資源（有效 ID） | DELETE /api/v1/resources/{id} | 204 |
+
+### 2. 負向測試（Negative Tests）
+
+| 測試編號 | 測試描述 | 預期狀態碼 | 預期錯誤 |
+|----------|----------|-----------|---------|
+| TC-N-001 | 查詢不存在的資源 | 404 | RESOURCE_NOT_FOUND |
+| TC-N-002 | 建立資源（缺少必填欄位） | 400 | VALIDATION_ERROR |
+| TC-N-003 | 建立資源（欄位格式錯誤） | 400 | VALIDATION_ERROR |
+| TC-N-004 | 建立重複資源 | 409 | DUPLICATE_RESOURCE |
+| TC-N-005 | 未授權存取 | 401 | UNAUTHORIZED |
+| TC-N-006 | 權限不足 | 403 | FORBIDDEN |
+
+### 3. 邊界值測試（Boundary Tests）
+
+| 測試編號 | 測試描述 | 測試資料 | 預期結果 |
+|----------|----------|----------|----------|
+| TC-B-001 | 字串欄位最大長度 | 100 字元（上限） | 200 成功 |
+| TC-B-002 | 字串欄位超過上限 | 101 字元 | 400 驗證失敗 |
+| TC-B-003 | 數值欄位最小值 | 0.01 | 200 成功 |
+| TC-B-004 | 數值欄位為零 | 0 | 400 驗證失敗 |
+| TC-B-005 | 分頁 — 第一頁 | page=0, size=20 | 200 成功 |
+| TC-B-006 | 分頁 — 超大頁碼 | page=999999 | 200 空結果 |
+
+### 4. 安全測試（Security Tests）
+
+| 測試編號 | 測試描述 | 預期結果 |
+|----------|----------|----------|
+| TC-S-001 | SQL Injection（`' OR 1=1 --`） | 400 或正常回應（不洩漏資料） |
+| TC-S-002 | XSS（`<script>alert(1)</script>`） | 輸入被拒絕或正確跳脫 |
+| TC-S-003 | 過期 Token 存取 | 401 |
+| TC-S-004 | 竄改他人資源 ID（IDOR） | 403 |
+| TC-S-005 | 超大 Payload（> 1MB） | 413 |
+
+## MockMvc 測試範本
+
+```java
+@WebMvcTest(TransactionController.class)
+class TransactionControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private TransactionUseCase transactionUseCase;
+
+    @Test
+    @DisplayName("GET /api/v1/transactions — 查詢成功回傳 200")
+    void list_shouldReturn200() throws Exception {
+        when(transactionUseCase.query(any())).thenReturn(Page.empty());
+
+        mockMvc.perform(get("/api/v1/transactions")
+                        .param("page", "0")
+                        .param("size", "20")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/transactions — 缺少必填欄位回傳 400")
+    void create_shouldReturn400_whenMissingRequired() throws Exception {
+        var invalidRequest = "{}";
+
+        mockMvc.perform(post("/api/v1/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidRequest))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+    }
+}
+```
+```
+
+**範例：測試案例設計 Skill**
+
+```markdown
+---
+name: test-case-design
+description: >
+  Designs test cases using equivalence partitioning, boundary 
+  value analysis, decision table, and state transition techniques. 
+  Use when asked to design test cases, plan test strategy, or 
+  create test coverage matrix.
+metadata:
+  version: "1.0"
+  category: testing
+  ssdlc-phase: testing
+---
+
+# 測試案例設計 Skill
+
+## 設計技術
+
+### 1. 等價類別劃分（Equivalence Partitioning）
+
+將輸入資料分為有效等價類別與無效等價類別，每類別取一代表值。
+
+**範例：轉帳金額**
+
+| 等價類別 | 範圍 | 代表值 | 預期結果 |
+|----------|------|--------|----------|
+| 無效（負數） | < 0 | -100 | 拒絕 |
+| 無效（零） | 0 | 0 | 拒絕 |
+| 有效（正常） | 1 ~ 1,000,000 | 5000 | 接受 |
+| 無效（超過上限） | > 1,000,000 | 2,000,000 | 拒絕 |
+
+### 2. 邊界值分析（Boundary Value Analysis）
+
+針對等價類別的邊界值進行測試。
+
+**範例：轉帳金額（上限 1,000,000）**
+
+| 邊界 | 測試值 | 預期結果 |
+|------|--------|----------|
+| 最小值 - 1 | 0 | 拒絕 |
+| 最小值 | 1 | 接受 |
+| 最小值 + 1 | 2 | 接受 |
+| 最大值 - 1 | 999,999 | 接受 |
+| 最大值 | 1,000,000 | 接受 |
+| 最大值 + 1 | 1,000,001 | 拒絕 |
+
+### 3. 決策表（Decision Table）
+
+多條件組合判斷。
+
+**範例：轉帳權限判斷**
+
+| 條件 \ 規則 | R1 | R2 | R3 | R4 | R5 |
+|-------------|----|----|----|----|-----|
+| 帳戶狀態 = ACTIVE | Y | Y | Y | N | - |
+| 餘額 ≥ 轉帳金額 | Y | Y | N | - | - |
+| 未超過日限額 | Y | N | - | - | - |
+| **動作** | 轉帳成功 | 拒絕（超限額） | 拒絕（餘額不足） | 拒絕（帳戶凍結） | 拒絕 |
+
+### 4. 狀態轉換（State Transition）
+
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING : 建立交易
+    PENDING --> PROCESSING : 開始處理
+    PROCESSING --> SUCCESS : 處理成功
+    PROCESSING --> FAILED : 處理失敗
+    FAILED --> PENDING : 重試
+    SUCCESS --> [*]
+    FAILED --> [*] : 超過重試上限
+```
+
+**狀態轉換測試案例**：
+
+| 測試編號 | 起始狀態 | 事件 | 預期狀態 |
+|----------|----------|------|----------|
+| ST-001 | — | 建立交易 | PENDING |
+| ST-002 | PENDING | 開始處理 | PROCESSING |
+| ST-003 | PROCESSING | 處理成功 | SUCCESS |
+| ST-004 | PROCESSING | 處理失敗 | FAILED |
+| ST-005 | FAILED | 重試（未超限） | PENDING |
+| ST-006 | FAILED | 重試（超過上限） | FAILED（終態） |
+| ST-007 | SUCCESS | 嘗試重試 | 拒絕（非法轉換） |
+
+## 產出規範
+- 每個功能至少涵蓋：正向路徑 + 邊界值 + 異常路徑
+- 測試案例編號格式：TC-{模組}-{流水號}
+- 預期結果須明確（含 HTTP Status Code + 回應內容）
+- 標注測試優先順序（P0：核心路徑、P1：異常路徑、P2：邊界值）
 ```
 
 ### 3.5 Security（安全）
@@ -1474,6 +2493,342 @@ public String fetchUrl(String userProvidedUrl) {
 4. 通知安全團隊
 ```
 
+**範例：安全編碼指引 Skill**
+
+```markdown
+---
+name: secure-coding-guide
+description: >
+  Provides secure coding guidelines for Java/Spring Boot 
+  projects covering input validation, output encoding, 
+  authentication, and cryptography. Use when asked for 
+  secure coding practices, security coding standards, or 
+  how to write secure code.
+metadata:
+  version: "2.0"
+  category: security
+  ssdlc-phase: security
+---
+
+# 安全編碼指引 Skill
+
+## 1. 輸入驗證（Input Validation）
+
+所有外部輸入均為不可信，必須在系統邊界進行驗證。
+
+```java
+// ✅ 正確：使用 Bean Validation + 自訂驗證
+public record TransferRequest(
+        @NotBlank(message = "來源帳號不可為空")
+        @Pattern(regexp = "^[A-Z0-9]{10,20}$", message = "帳號格式不正確")
+        String fromAccount,
+        
+        @NotBlank(message = "目標帳號不可為空")
+        @Pattern(regexp = "^[A-Z0-9]{10,20}$", message = "帳號格式不正確")
+        String toAccount,
+        
+        @NotNull(message = "金額不可為空")
+        @DecimalMin(value = "0.01", message = "金額須大於 0")
+        @DecimalMax(value = "10000000", message = "金額超過上限")
+        BigDecimal amount
+) {}
+
+// ❌ 錯誤：無驗證直接使用
+public void transfer(String from, String to, BigDecimal amount) {
+    // 直接使用未驗證的輸入...
+}
+```
+
+## 2. 輸出編碼（Output Encoding）
+
+```java
+// ✅ 正確：使用 OWASP Java Encoder
+import org.owasp.encoder.Encode;
+
+String safeHtml = Encode.forHtml(userInput);
+String safeJs = Encode.forJavaScript(userInput);
+String safeUrl = Encode.forUriComponent(userInput);
+
+// ❌ 錯誤：直接輸出使用者輸入
+response.getWriter().write("<div>" + userInput + "</div>");
+```
+
+## 3. 加密與雜湊
+
+```java
+// ✅ 密碼雜湊：使用 BCrypt
+PasswordEncoder encoder = new BCryptPasswordEncoder(12);
+String hashed = encoder.encode(rawPassword);
+boolean matches = encoder.matches(rawPassword, hashed);
+
+// ✅ 敏感資料加密：使用 AES-256-GCM
+Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+
+// ❌ 禁止事項
+// - 自行實作加密演算法
+// - 使用 MD5 / SHA1 雜湊密碼
+// - 使用 ECB 模式
+// - 硬編碼加密金鑰
+```
+
+## 4. 日誌安全
+
+```java
+// ✅ 正確：遮罩敏感資訊
+log.info("Transfer from={} to={} amount={}", 
+    mask(fromAccount), mask(toAccount), amount);
+
+// ❌ 錯誤：Log 中包含敏感資料
+log.info("Login user={} password={}", username, password);
+log.info("Card number={}", cardNumber);
+```
+
+## 安全編碼速查表
+| 風險 | 防禦措施 |
+|------|----------|
+| SQL Injection | Parameterized Query / JPA |
+| XSS | Output Encoding / CSP Header |
+| CSRF | Spring Security CSRF Token |
+| 密碼外洩 | BCrypt + 鹽值 |
+| 敏感資料 | AES-256-GCM 加密 |
+| Session 劫持 | HttpOnly + Secure + SameSite |
+| 路徑穿越 | 白名單驗證 + 正規化路徑 |
+```
+
+**範例：弱點掃描整合 Skill**
+
+```markdown
+---
+name: vulnerability-scan
+description: >
+  Integrates vulnerability scanning tools including OWASP 
+  Dependency-Check, SpotBugs, and SonarQube into the build 
+  process. Use when asked to set up vulnerability scanning, 
+  check dependencies for CVEs, or integrate SAST tools.
+metadata:
+  version: "1.0"
+  category: security
+  ssdlc-phase: security
+allowed-tools: Bash(mvn *) Bash(gradle *)
+---
+
+# 弱點掃描整合 Skill
+
+## 掃描工具矩陣
+
+| 工具 | 類型 | 掃描內容 | 整合方式 |
+|------|------|----------|----------|
+| OWASP Dependency-Check | SCA | 第三方依賴 CVE 漏洞 | Maven Plugin |
+| SpotBugs + Find Security Bugs | SAST | Java 原始碼安全弱點 | Maven Plugin |
+| SonarQube | SAST + Quality | 程式碼品質 + 安全規則 | CI/CD Plugin |
+| Trivy | Container | Docker Image 漏洞 | CI/CD Step |
+
+## Maven 整合設定
+
+```xml
+<build>
+    <plugins>
+        <!-- OWASP Dependency-Check：第三方依賴 CVE 掃描 -->
+        <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <version>10.0.3</version>
+            <configuration>
+                <failBuildOnCVSS>7</failBuildOnCVSS>
+                <suppressionFiles>
+                    <suppressionFile>owasp-suppressions.xml</suppressionFile>
+                </suppressionFiles>
+                <formats>
+                    <format>HTML</format>
+                    <format>JSON</format>
+                </formats>
+            </configuration>
+        </plugin>
+        
+        <!-- SpotBugs + Find Security Bugs：原始碼安全分析 -->
+        <plugin>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-maven-plugin</artifactId>
+            <version>4.8.6.0</version>
+            <configuration>
+                <effort>Max</effort>
+                <threshold>Medium</threshold>
+                <plugins>
+                    <plugin>
+                        <groupId>com.h3xstream.findsecbugs</groupId>
+                        <artifactId>findsecbugs-plugin</artifactId>
+                        <version>1.13.0</version>
+                    </plugin>
+                </plugins>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
+## CI/CD 整合（GitHub Actions）
+
+```yaml
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: OWASP Dependency-Check
+        run: mvn dependency-check:check
+      
+      - name: SpotBugs Security Analysis
+        run: mvn spotbugs:check
+      
+      - name: Trivy Container Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'myapp:latest'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+      
+      - name: Upload Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: target/dependency-check-report.*
+```
+
+## 掃描結果處理流程
+1. **CVSS ≥ 9（Critical）**：立即停止部署，通知安全團隊
+2. **CVSS 7~8.9（High）**：建立 P0 Issue，24 小時內修復
+3. **CVSS 4~6.9（Medium）**：建立 P1 Issue，Sprint 內修復
+4. **CVSS < 4（Low）**：記錄並排入 Backlog
+```
+
+**範例：敏感資料保護 Skill**
+
+```markdown
+---
+name: data-protection
+description: >
+  Implements PII data protection including data masking, 
+  encryption at rest, encryption in transit, and data 
+  classification. Use when asked about PII handling, data 
+  protection, sensitive data masking, or GDPR compliance.
+metadata:
+  version: "1.0"
+  category: security
+  ssdlc-phase: security
+---
+
+# 敏感資料保護 Skill
+
+## 資料分類
+
+| 分類等級 | 說明 | 範例 | 處理要求 |
+|----------|------|------|----------|
+| **機密（Confidential）** | 洩漏將造成重大損失 | 密碼、金鑰、信用卡號 | 加密儲存 + 禁止 Log |
+| **敏感（Sensitive）** | 個人可識別資訊 | 身分證字號、手機、地址 | 加密儲存 + 遮罩顯示 |
+| **內部（Internal）** | 內部營運資料 | 帳號餘額、交易紀錄 | 存取控制 + Audit Log |
+| **公開（Public）** | 可對外公開 | 產品名稱、匯率 | 無特殊要求 |
+
+## 資料遮罩規則
+
+```java
+public class DataMaskUtil {
+
+    /** 身分證字號：A123456789 → A12****789 */
+    public static String maskIdNumber(String id) {
+        if (id == null || id.length() < 10) return "***";
+        return id.substring(0, 3) + "****" + id.substring(7);
+    }
+    
+    /** 手機號碼：0912345678 → 0912***678 */
+    public static String maskPhone(String phone) {
+        if (phone == null || phone.length() < 10) return "***";
+        return phone.substring(0, 4) + "***" + phone.substring(7);
+    }
+    
+    /** Email：user@example.com → u***@example.com */
+    public static String maskEmail(String email) {
+        if (email == null || !email.contains("@")) return "***";
+        int atIndex = email.indexOf('@');
+        return email.charAt(0) + "***" + email.substring(atIndex);
+    }
+    
+    /** 帳號：1234567890 → 123****890 */
+    public static String maskAccount(String account) {
+        if (account == null || account.length() < 6) return "***";
+        return account.substring(0, 3) + "****" 
+             + account.substring(account.length() - 3);
+    }
+    
+    /** 信用卡號：4111111111111111 → ************1111 */
+    public static String maskCreditCard(String card) {
+        if (card == null || card.length() < 4) return "***";
+        return "*".repeat(card.length() - 4) 
+             + card.substring(card.length() - 4);
+    }
+}
+```
+
+## JPA 欄位加密（使用 AttributeConverter）
+
+```java
+@Converter
+public class EncryptionConverter implements AttributeConverter<String, String> {
+
+    // 金鑰從 Vault / KMS 取得，禁止硬編碼
+    private final EncryptionService encryptionService;
+
+    @Override
+    public String convertToDatabaseColumn(String attribute) {
+        return encryptionService.encrypt(attribute);
+    }
+
+    @Override
+    public String convertToEntityAttribute(String dbData) {
+        return encryptionService.decrypt(dbData);
+    }
+}
+
+// Entity 中使用
+@Entity
+public class Customer {
+    @Convert(converter = EncryptionConverter.class)
+    @Column(name = "id_number")
+    private String idNumber;  // 儲存加密值，讀取自動解密
+}
+```
+
+## API Response 自動遮罩（使用 Jackson Annotation）
+
+```java
+// 自訂 Annotation
+@JacksonAnnotationsInside
+@JsonSerialize(using = MaskSerializer.class)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Masked {
+    MaskType value();
+}
+
+public enum MaskType { ID_NUMBER, PHONE, EMAIL, ACCOUNT, CREDIT_CARD }
+
+// 在 Response DTO 中使用
+public record CustomerResponse(
+    String name,
+    @Masked(MaskType.ID_NUMBER) String idNumber,
+    @Masked(MaskType.PHONE) String phone,
+    @Masked(MaskType.EMAIL) String email
+) {}
+// 序列化結果：{"name":"王大明","idNumber":"A12****789","phone":"0912***678",...}
+```
+
+## 合規檢查清單
+- [ ] PII 欄位已分類並標記
+- [ ] 機密欄位使用 AES-256 加密儲存
+- [ ] API Response 敏感欄位已遮罩
+- [ ] Log 中不包含任何 PII 原始值
+- [ ] 資料保留期限已設定（依法規要求）
+- [ ] 資料刪除機制已實作（GDPR Right to Erasure）
+```
+
 ### 3.6 Deployment（部署）
 
 **可轉換為 Skills 的內容**：
@@ -1564,6 +2919,391 @@ jobs:
 - prod → 需雙重審核 + 變更單號
 ```
 
+**範例：Dockerfile 生成 Skill**
+
+```markdown
+---
+name: dockerfile-gen
+description: >
+  Generates secure multi-stage Dockerfiles for Spring Boot 
+  applications following container security best practices. 
+  Use when asked to create Dockerfile, containerize application, 
+  or optimize Docker image.
+metadata:
+  version: "1.0"
+  category: deployment
+  ssdlc-phase: deployment
+---
+
+# 安全多階段 Dockerfile 生成 Skill
+
+## 多階段建置範本（Spring Boot）
+
+```dockerfile
+# ===== Stage 1: Build =====
+FROM eclipse-temurin:21-jdk-alpine AS builder
+
+WORKDIR /app
+
+# 先複製依賴定義，利用 Docker Layer Cache
+COPY pom.xml mvnw ./
+COPY .mvn .mvn
+RUN ./mvnw dependency:go-offline -B
+
+# 複製原始碼並建置
+COPY src src
+RUN ./mvnw package -DskipTests -B && \
+    java -Djarmode=tools -jar target/*.jar extract --layers --launcher
+
+# ===== Stage 2: Runtime =====
+FROM eclipse-temurin:21-jre-alpine AS runtime
+
+# 安全設定：建立非 root 使用者
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /app
+
+# 複製分層解壓後的應用
+COPY --from=builder /app/target/extracted/dependencies/ ./
+COPY --from=builder /app/target/extracted/spring-boot-loader/ ./
+COPY --from=builder /app/target/extracted/snapshot-dependencies/ ./
+COPY --from=builder /app/target/extracted/application/ ./
+
+# 安全設定
+RUN chmod -R 555 /app && \
+    chown -R appuser:appgroup /app
+
+USER appuser
+
+EXPOSE 8080
+
+# 健康檢查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=15s --retries=3 \
+    CMD wget -qO- http://localhost:8080/actuator/health || exit 1
+
+ENTRYPOINT ["java", \
+    "-XX:+UseContainerSupport", \
+    "-XX:MaxRAMPercentage=75.0", \
+    "-Djava.security.egd=file:/dev/./urandom", \
+    "org.springframework.boot.loader.launch.JarLauncher"]
+```
+
+## Docker 安全檢查清單
+- [ ] 使用特定版本 Base Image（不使用 `latest`）
+- [ ] 使用 Alpine / Distroless 最小化 Image
+- [ ] 以非 root 使用者執行（`USER appuser`）
+- [ ] 不包含開發工具（JDK → JRE）
+- [ ] 不包含敏感資訊（.env、密碼、金鑰）
+- [ ] 設定 HEALTHCHECK
+- [ ] 使用 `.dockerignore` 排除不必要檔案
+- [ ] 使用 Trivy 掃描 Image 漏洞
+
+## .dockerignore 範本
+
+```text
+.git
+.github
+.idea
+*.md
+target/
+!target/*.jar
+docker-compose*.yml
+*.env
+*.key
+*.pem
+```
+```
+
+**範例：Kubernetes 部署清單生成 Skill**
+
+```markdown
+---
+name: k8s-manifest-gen
+description: >
+  Generates Kubernetes deployment manifests including Deployment, 
+  Service, ConfigMap, Secret, HPA, and NetworkPolicy. Use when 
+  asked to create K8s manifests, deploy to Kubernetes, or 
+  configure container orchestration.
+metadata:
+  version: "1.0"
+  category: deployment
+  ssdlc-phase: deployment
+---
+
+# Kubernetes 部署清單生成 Skill
+
+## 標準 Manifest 結構
+
+```text
+k8s/
+├── base/
+│   ├── kustomization.yaml
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── configmap.yaml
+│   ├── hpa.yaml
+│   └── networkpolicy.yaml
+└── overlays/
+    ├── dev/
+    │   └── kustomization.yaml
+    ├── sit/
+    │   └── kustomization.yaml
+    └── prod/
+        └── kustomization.yaml
+```
+
+## Deployment 範本
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-service
+  labels:
+    app: transaction-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: transaction-service
+  template:
+    metadata:
+      labels:
+        app: transaction-service
+        version: v1
+    spec:
+      serviceAccountName: transaction-service
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: transaction-service
+          image: registry.company.com/transaction-service:1.0.0
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "k8s"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: tmp
+          emptyDir: {}
+```
+
+## HPA（自動擴縮）範本
+
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: transaction-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: transaction-service
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+```
+
+## NetworkPolicy 範本
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: transaction-service-netpol
+spec:
+  podSelector:
+    matchLabels:
+      app: transaction-service
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: api-gateway
+      ports:
+        - port: 8080
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - port: 5432
+```
+
+## K8s 安全檢查清單
+- [ ] 以非 root 使用者執行（`runAsNonRoot: true`）
+- [ ] 禁止特權升級（`allowPrivilegeEscalation: false`）
+- [ ] 設定 Resource Requests / Limits
+- [ ] 設定 Liveness / Readiness Probe
+- [ ] 使用 NetworkPolicy 限制網路存取
+- [ ] Secret 不以明文存放（整合 Vault / Sealed Secrets）
+- [ ] Image 來自可信 Registry 且經過掃描
+```
+
+**範例：多環境設定生成 Skill**
+
+```markdown
+---
+name: env-config-gen
+description: >
+  Generates multi-environment configuration files for Spring 
+  Boot applications including dev, sit, uat, and prod profiles. 
+  Use when asked to create environment configurations, set up 
+  Spring profiles, or manage application properties.
+metadata:
+  version: "1.0"
+  category: deployment
+  ssdlc-phase: deployment
+---
+
+# 多環境設定生成 Skill
+
+## 設定檔結構
+
+```text
+src/main/resources/
+├── application.yml              # 共用設定
+├── application-dev.yml          # 開發環境
+├── application-sit.yml          # 系統整合測試
+├── application-uat.yml          # 使用者驗收測試
+└── application-prod.yml         # 正式環境
+```
+
+## 共用設定（application.yml）
+
+```yaml
+spring:
+  application:
+    name: transaction-service
+  jackson:
+    date-format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+    default-property-inclusion: non_null
+
+server:
+  port: 8080
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  pattern:
+    console: "%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n"
+```
+
+## 各環境差異設定
+
+```yaml
+# application-dev.yml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/devdb
+    username: dev_user
+    # 密碼從環境變數取得：${DB_PASSWORD}
+    password: ${DB_PASSWORD}
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+logging:
+  level:
+    com.company: DEBUG
+    org.springframework.web: DEBUG
+```
+
+```yaml
+# application-prod.yml
+spring:
+  datasource:
+    url: ${DB_URL}          # 從 ConfigMap / Secret 注入
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none        # 正式環境禁止自動 DDL
+
+logging:
+  level:
+    com.company: WARN
+    org.springframework.web: WARN
+
+server:
+  ssl:
+    enabled: true
+    key-store: ${SSL_KEYSTORE_PATH}
+    key-store-password: ${SSL_KEYSTORE_PASSWORD}
+```
+
+## 環境差異矩陣
+
+| 設定項 | dev | sit | uat | prod |
+|--------|-----|-----|-----|------|
+| DB DDL Auto | update | validate | validate | none |
+| SQL Log | ✅ | ✅ | ❌ | ❌ |
+| Log Level | DEBUG | INFO | INFO | WARN |
+| SSL | ❌ | ✅ | ✅ | ✅ |
+| 密碼來源 | .env 檔 | Vault | Vault | Vault |
+| 副本數 | 1 | 2 | 2 | 3+ |
+
+## 安全規範
+- ❌ 禁止在設定檔中硬編碼密碼、Token、金鑰
+- ✅ 使用環境變數或 Vault 注入敏感資訊
+- ✅ 正式環境設定檔不進版控（使用 ConfigMap + Secret）
+- ✅ 正式環境關閉 `show-sql`、`ddl-auto`
+```
+
 ### 3.7 Maintenance（維運）
 
 **可轉換為 Skills 的內容**：
@@ -1630,6 +3370,352 @@ grep "ERROR" application.log | awk '{print substr($1,1,16)}' | uniq -c
 ```
 
 > **🏦 金融業實務案例**：某銀行的維運團隊將常見的「交易失敗排查」、「批次異常處理」、「系統效能告警回應」分別封裝為 Skills，值班人員可透過 AI 快速定位問題根因，平均問題解決時間從 2 小時降至 30 分鐘。
+
+**範例：問題排查 SOP Skill**
+
+```markdown
+---
+name: troubleshooting-guide
+description: >
+  Provides structured troubleshooting SOP for common production 
+  issues including database connection failures, API timeouts, 
+  memory leaks, and deployment rollback. Use when asked to 
+  troubleshoot issues, debug production problems, or create 
+  troubleshooting runbook.
+metadata:
+  version: "1.0"
+  category: maintenance
+  ssdlc-phase: maintenance
+---
+
+# 問題排查 SOP Skill
+
+## 排查流程總覽
+
+```mermaid
+graph TD
+    A[收到告警 / 問題回報] --> B{問題分類}
+    B --> |連線問題| C[DB / 網路排查]
+    B --> |效能問題| D[效能排查]
+    B --> |功能異常| E[邏輯排查]
+    B --> |部署異常| F[部署排查]
+    
+    C --> G[Step 1: 檢查連線池狀態]
+    G --> H[Step 2: 檢查 DB 存活與負載]
+    H --> I[Step 3: 檢查網路與防火牆]
+    
+    D --> J[Step 1: 檢查 JVM Heap 使用率]
+    J --> K[Step 2: 檢查慢查詢 Log]
+    K --> L[Step 3: 檢查 Thread Dump]
+    
+    E --> M[Step 1: 重現問題]
+    M --> N[Step 2: 檢查對應 Log]
+    N --> O[Step 3: 比對最近部署變更]
+    
+    F --> P[Step 1: 檢查部署日誌]
+    P --> Q[Step 2: 檢查 Pod 狀態]
+    Q --> R[Step 3: 必要時 Rollback]
+```
+
+## SOP 1：資料庫連線失敗
+
+```bash
+# Step 1：檢查連線池狀態
+curl -s http://localhost:8080/actuator/health | jq '.components.db'
+
+# Step 2：檢查 DB 存活
+pg_isready -h <db-host> -p 5432
+
+# Step 3：檢查活動連線數
+psql -c "SELECT count(*) FROM pg_stat_activity WHERE state = 'active';"
+
+# Step 4：檢查連線池設定
+grep -E "maximum-pool-size|minimum-idle|connection-timeout" \
+    src/main/resources/application*.yml
+```
+
+**常見原因與解決方案**：
+
+| 原因 | 現象 | 解決方案 |
+|------|------|----------|
+| 連線池用盡 | 等待逾時 | 增加 pool size / 檢查連線洩漏 |
+| DB 重啟 | 連線中斷 | 確認 connection validation 設定 |
+| 網路中斷 | Connection refused | 檢查防火牆 / Security Group |
+| 密碼過期 | Authentication failed | 更新 Secret / Vault 密碼 |
+
+## SOP 2：API 回應逾時
+
+```bash
+# Step 1：確認逾時的 API 端點
+grep "SocketTimeoutException\|ReadTimeoutException" application.log | tail -20
+
+# Step 2：檢查下游服務回應時間
+curl -w "@curl-timing.txt" -o /dev/null -s http://downstream-service/health
+
+# Step 3：檢查 Thread Dump（找出阻塞的執行緒）
+jcmd <pid> Thread.print > thread-dump.txt
+grep -A 5 "BLOCKED\|WAITING" thread-dump.txt
+```
+
+## SOP 3：部署失敗 Rollback
+
+```bash
+# Step 1：檢查 Pod 狀態
+kubectl get pods -l app=transaction-service
+kubectl describe pod <pod-name>
+
+# Step 2：檢查 Pod Log
+kubectl logs <pod-name> --tail=100
+
+# Step 3：Rollback 到上一版本
+kubectl rollout undo deployment/transaction-service
+kubectl rollout status deployment/transaction-service
+```
+
+## 產出規範
+- 每個問題排查須產出「排查紀錄」
+- 記錄：問題描述、排查步驟、根因、解決方案、預防措施
+- 將新發現的問題補充至本 SOP
+```
+
+**範例：事件回應 Skill**
+
+```markdown
+---
+name: incident-response
+description: >
+  Guides incident response process including severity 
+  classification, communication, resolution, and post-mortem. 
+  Use when asked to handle production incidents, create 
+  incident reports, or establish incident response procedures.
+metadata:
+  version: "1.0"
+  category: maintenance
+  ssdlc-phase: maintenance
+---
+
+# 事件回應（Incident Response）Skill
+
+## 事件嚴重等級定義
+
+| 等級 | 定義 | 回應時間 | 通知範圍 | 範例 |
+|------|------|----------|----------|------|
+| **P0（Critical）** | 核心服務全面中斷 | < 15 分鐘 | CTO + 全體 On-call | 交易系統完全停擺 |
+| **P1（High）** | 核心功能嚴重受損 | < 30 分鐘 | 部門主管 + On-call | 轉帳功能失敗率 > 50% |
+| **P2（Medium）** | 部分功能異常 | < 2 小時 | On-call Team | 報表功能異常 |
+| **P3（Low）** | 輕微影響 | < 24 小時 | 建立 Ticket | UI 顯示異常 |
+
+## 事件回應流程
+
+```mermaid
+graph TD
+    A[事件偵測] --> B[嚴重等級判定]
+    B --> C[組建應變小組]
+    C --> D[發出事件通知]
+    D --> E[問題定位與隔離]
+    E --> F{可快速修復?}
+    F --> |Yes| G[執行修復]
+    F --> |No| H[啟動降級方案]
+    G --> I[驗證修復]
+    H --> I
+    I --> J[發出恢復通知]
+    J --> K[撰寫事後報告 Post-Mortem]
+    K --> L[改善措施追蹤]
+    
+    style A fill:#f44336,color:#fff
+    style K fill:#4CAF50,color:#fff
+```
+
+## 事件通知範本
+
+```text
+🔴 【P1 事件通知】交易服務異常
+
+■ 事件時間：2026-04-07 14:30 (UTC+8)
+■ 影響範圍：轉帳功能失敗率上升至 60%
+■ 影響使用者：約 5,000 人
+■ 目前狀態：排查中
+■ 應變指揮：[姓名]
+■ 下次更新：15 分鐘後
+
+處置動作：
+1. 已隔離異常 Pod
+2. 正在分析錯誤日誌
+3. 已啟動降級方案（排隊處理）
+```
+
+## Post-Mortem 報告範本
+
+```markdown
+# Post-Mortem Report
+
+## 事件摘要
+- **事件編號**：INC-2026-0407-001
+- **嚴重等級**：P1
+- **發生時間**：2026-04-07 14:30 ~ 15:45 (UTC+8)
+- **影響時長**：75 分鐘
+- **影響範圍**：轉帳功能，約 5,000 名使用者受影響
+
+## 時間軸
+| 時間 | 事件 |
+|------|------|
+| 14:30 | 監控告警觸發（轉帳錯誤率 > 10%） |
+| 14:33 | On-call 工程師接收告警 |
+| 14:45 | 判定為 P1，組建應變小組 |
+| 15:00 | 定位根因：DB 連線池耗盡 |
+| 15:15 | 執行修復：重啟服務 + 調整連線池參數 |
+| 15:30 | 錯誤率回復正常 |
+| 15:45 | 確認事件結束，發出恢復通知 |
+
+## 根因分析（Root Cause）
+批次作業佔用大量 DB 連線未釋放，導致連線池耗盡。
+
+## 修復措施
+1.（立即）重啟受影響服務，釋放連線
+2.（立即）調整 HikariCP maximum-pool-size：20 → 50
+
+## 預防措施
+1.（短期）批次作業使用獨立連線池
+2.（中期）加入連線池使用率監控告警
+3.（長期）批次作業改為 Job 模式，與 API 服務分離
+
+## 經驗教訓（Lessons Learned）
+- 批次作業與線上 API 共用連線池是風險點
+- 需加強連線池水位監控
+```
+```
+
+**範例：效能調校 Skill**
+
+```markdown
+---
+name: performance-tuning
+description: >
+  Analyzes and optimizes application performance including 
+  JVM tuning, database query optimization, caching strategy, 
+  and concurrency tuning. Use when asked to optimize performance, 
+  tune JVM, fix slow queries, or analyze performance bottlenecks.
+metadata:
+  version: "1.0"
+  category: maintenance
+  ssdlc-phase: maintenance
+---
+
+# 效能調校 Skill
+
+## 效能瓶頸定位流程
+
+```mermaid
+graph TD
+    A[效能問題回報] --> B{瓶頸在哪一層?}
+    B --> |應用層| C[JVM / Thread 分析]
+    B --> |資料庫| D[慢查詢分析]
+    B --> |網路| E[延遲 / 頻寬分析]
+    B --> |基礎設施| F[CPU / Memory / Disk]
+    
+    C --> C1[Thread Dump 分析]
+    C --> C2[Heap Dump 分析]
+    C --> C3[GC Log 分析]
+    
+    D --> D1[Slow Query Log]
+    D --> D2[執行計畫分析 EXPLAIN]
+    D --> D3[索引優化]
+    
+    F --> F1[kubectl top pods]
+    F --> F2[Prometheus / Grafana]
+```
+
+## 1. JVM 調校
+
+```bash
+# 生產環境 JVM 參數建議
+JAVA_OPTS="\
+  -XX:+UseG1GC \
+  -XX:MaxGCPauseMillis=200 \
+  -XX:+UseContainerSupport \
+  -XX:MaxRAMPercentage=75.0 \
+  -XX:+HeapDumpOnOutOfMemoryError \
+  -XX:HeapDumpPath=/tmp/heapdump.hprof \
+  -Xlog:gc*:file=/var/log/gc.log:time,uptime,level,tags:filecount=5,filesize=10m"
+
+# 分析 GC Log
+# 推薦工具：GCEasy (https://gceasy.io) 或 GCViewer
+```
+
+**JVM 調校參考值**：
+
+| 參數 | 小型服務 | 中型服務 | 大型服務 |
+|------|----------|----------|----------|
+| Heap(-Xmx) | 512m ~ 1g | 2g ~ 4g | 4g ~ 8g |
+| MaxRAMPercentage | 75% | 75% | 75% |
+| GC | G1GC | G1GC | ZGC |
+| MaxGCPauseMillis | 200ms | 200ms | 10ms(ZGC) |
+
+## 2. 資料庫查詢優化
+
+```sql
+-- Step 1：找出慢查詢（PostgreSQL）
+SELECT query, calls, mean_exec_time, total_exec_time
+FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
+LIMIT 20;
+
+-- Step 2：分析執行計畫
+EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
+SELECT * FROM transactions
+WHERE account_id = 'A001' AND created_at > '2026-01-01';
+
+-- Step 3：常見優化手法
+```
+
+| 問題 | 現象 | 優化手法 |
+|------|------|----------|
+| 缺少索引 | Seq Scan on large table | 新增適當索引 |
+| N+1 查詢 | 迴圈中每筆呼叫 DB | 改用 JOIN / Batch Query |
+| SELECT * | 回傳過多欄位 | 只選需要的欄位 |
+| 無分頁 | 一次回傳大量資料 | 加入 LIMIT + OFFSET / Cursor |
+| 鎖競爭 | Lock wait timeout | 縮小交易範圍 / 樂觀鎖 |
+
+## 3. 快取策略
+
+```java
+// Spring Cache 使用範本
+@Cacheable(value = "accounts", key = "#accountId", 
+           unless = "#result == null")
+public Account findByAccountId(String accountId) {
+    return accountRepository.findByAccountId(accountId);
+}
+
+@CacheEvict(value = "accounts", key = "#account.accountId")
+public void updateAccount(Account account) {
+    accountRepository.save(account);
+}
+```
+
+**快取策略選擇**：
+
+| 場景 | 快取策略 | TTL | 範例 |
+|------|----------|-----|------|
+| 靜態設定資料 | Cache-Aside | 1 小時 | 匯率、手續費率 |
+| 使用者 Session | 分散式快取 | 30 分鐘 | Redis |
+| API Response | HTTP Cache | 依 API 特性 | ETag / Cache-Control |
+| 熱點資料 | Local Cache + Remote Cache | 5 分鐘 | Caffeine + Redis |
+
+## 4. 併發調校
+
+| 參數 | 說明 | 預設值 | 建議調整 |
+|------|------|--------|----------|
+| Tomcat threads.max | 最大工作執行緒 | 200 | 依 CPU 核心數調整 |
+| HikariCP maximum-pool-size | DB 連線池上限 | 10 | CPU 核心數 × 2 + 磁碟數 |
+| OkHttp connectionPool | HTTP 連線池 | 5 | 依下游服務 TPS 調整 |
+
+## 效能測試基準
+- API P99 回應時間 < 500ms
+- API P95 回應時間 < 200ms
+- 每秒交易量（TPS）≥ 目標值的 1.5 倍
+- CPU 使用率 < 70%（尖峰時段）
+- DB 連線使用率 < 80%
+```
 
 ---
 
