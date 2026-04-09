@@ -132,13 +132,13 @@ Hermes Agent 是由 **Nous Research** 開發的開源自我改進 AI Agent。Nou
 
 ```mermaid
 graph LR
-    subgraph 傳統 AI（ChatGPT 等）
+    subgraph "傳統 AI（ChatGPT 等）"
         A[使用者輸入] --> B[單次推理]
         B --> C[回應輸出]
         C --> D[無學習/無記憶]
     end
     
-    subgraph Hermes Agent
+    subgraph "Hermes Agent"
         E[使用者輸入] --> F[規劃 Planning]
         F --> G[執行 Execution]
         G --> H[學習 Learning]
