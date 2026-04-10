@@ -3663,7 +3663,7 @@ Plan 將 Spec 翻譯成技術實作方案,定義「如何」實現。
 - [ ] **測試策略已規劃?** ✅ 是(見測試章節)
 
 **Complexity Tracking**: 無需記錄複雜度,符合所有 Gates。
-
+```
 ---
 
 ## Technology Stack
@@ -3701,7 +3701,7 @@ Plan 將 Spec 翻譯成技術實作方案,定義「如何」實現。
 
 ### System Architecture
 
-```
+
 ┌─────────────────────────────────────┐
 │         User Interface              │
 │  ┌───────────┐    ┌──────────────┐ │
@@ -6150,7 +6150,7 @@ AI 讀取 spec.md 與 Constitution,產生實作計畫...
 - [ ] 健康檢查完整? ✅ 是(Actuator)
 
 **All Gates Passed**: ✅
-
+```
 ---
 
 ## 1. Technology Stack
@@ -6212,7 +6212,7 @@ AI 讀取 spec.md 與 Constitution,產生實作計畫...
          │  Oracle  │
          │   19c    │
          └──────────┘
-```
+
 
 ### Component Responsibilities
 
