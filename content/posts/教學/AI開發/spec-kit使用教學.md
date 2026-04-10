@@ -4,14 +4,14 @@ draft = false
 title = 'spec-kit使用教學'
 tags = ['教學', 'AI開發']
 categories = ['教學']
-lastmod = '2026-04-03T00:00:00+08:00'
+lastmod = '2026-04-10T00:00:00+08:00'
 +++
 
 ## Spec-Kit 使用教學手冊
 
-> **版本**: 4.0  
-> **最後更新**: 2026年4月3日  
-> **適用於**: Spec-Kit v0.5.0+ / Spec Kit Templates - 0.5.0  
+> **版本**: 5.0  
+> **最後更新**: 2026年4月10日  
+> **適用於**: Spec-Kit v0.6.0+ / Spec Kit Templates - 0.6.0  
 > **Created by**: Eric Cheng
 
 ---
@@ -44,6 +44,8 @@ lastmod = '2026-04-03T00:00:00+08:00'
 - [2.8 預設系統 (Presets System)](#28-預設系統-presets-system)
 - [2.9 CLI 診斷指令 (doctor / status)](#29-cli-診斷指令-doctor--status)
 - [2.10 Plugin Architecture（v0.4.4-0.4.5 重大架構變革）](#210-plugin-architecturev044-045-重大架構變革)
+- [2.11 整合管理指令 (specify integration)](#211-整合管理指令-specify-integration)
+- [2.12 Git 擴充 (Bundled Git Extension)](#212-git-擴充-bundled-git-extension)
 
 ### [第三章:使用流程詳細說明](#第三章使用流程詳細說明)
 
@@ -378,7 +380,7 @@ Spec-Kit 提供五大核心模板:
 
 #### 支援的 AI 助手 / 智能代理
 
-Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.5.0）：
+Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.6.0）：
 
 | AI 助手 | CLI Key | 支援狀態 | 類型 | 說明 |
 |---------|---------|---------|------|------|
@@ -386,6 +388,7 @@ Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.5.0）：
 | **Claude Code** | `claude` | ✅ 完整支援 | CLI | Anthropic Claude，推理能力強；安裝為 native skills（`.claude/skills/`），指令格式 `/speckit-constitution`、`/speckit-plan` 等 |
 | **Cursor** | `cursor-agent` | ✅ 完整支援 | IDE | AI-first 編輯器 |
 | **Forge** | `forge` | ✅ 完整支援 | CLI | Forge CLI 工具（v0.4.4 新增） |
+| **Forgecode** | `forgecode` | ✅ 完整支援 | CLI | Forgecode CLI 工具（v0.5.1 新增） |
 | **Gemini CLI** | `gemini` | ✅ 完整支援 | CLI | Google Gemini 命令列版 |
 | **Qwen Code** | `qwen` | ✅ 完整支援 | CLI | 阿里雲通義千問 |
 | **opencode** | `opencode` | ✅ 完整支援 | CLI | opencode CLI |
@@ -772,7 +775,7 @@ AI: 拆分 Tasks、生成程式碼
     ↓
 人員:代碼審查、測試驗證
 ```
-### 1.4.1 spec-kit workflow v4
+#### 1.4.1 spec-kit workflow v4
 
 ```mermaid
 flowchart LR
@@ -1391,7 +1394,7 @@ uvx --from git+https://github.com/github/spec-kit.git specify init my-project
 **Step 1: 執行安裝指令**
 
 ```bash
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.4.1
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.6.0
 ```
 
 預期輸出：
@@ -1412,13 +1415,14 @@ specify --help
 Usage: specify [OPTIONS] COMMAND [ARGS]...
 
 Commands:
-  init       Initialize a new Specify project
-  check      Check for installed tools
-  version    Display version and system information
-  extension  Manage spec-kit extensions
-  preset     Manage spec-kit presets
-  doctor     Run project health diagnostics
-  status     Show project status
+  init          Initialize a new Specify project
+  check         Check for installed tools
+  version       Display version and system information
+  extension     Manage spec-kit extensions
+  preset        Manage spec-kit presets
+  integration   Manage post-init integrations
+  doctor        Run project health diagnostics
+  status        Show project status
 ```
 
 **Step 3: 檢查系統工具**
@@ -2782,7 +2786,7 @@ docs/
 
 #### 社群擴充 (Community Extensions)
 
-截至 v0.5.0，社群目錄中已有豐富的擴充可供使用（約 40+ 個）：
+截至 v0.6.0，社群目錄中已有豐富的擴充可供使用（約 50+ 個）：
 
 | 擴充名稱 | 說明 | 分類 | 效果 |
 |---------|------|------|------|
@@ -2824,6 +2828,14 @@ docs/
 | **Spec Critique** | 雙鏡頭批判性審查：從產品策略與工程風險角度審視 Spec 與 Plan（v0.4.5 新增） | docs | Read-only |
 | **Spec Sync** | 偵測並解決規格與實作之間的漂移，AI 輔助解決方案需人工批准（v0.4.5 新增） | docs | Read+Write |
 | **selftest.extension** | 核心擴充，用於測試其他擴充（v0.3.0 新增） | process | Read+Write |
+| **Bugfix Workflow** | 結構化 bugfix 工作流程 — 捕獲 Bug、追溯至規格工件、精準修補規格（v0.6.0 新增） | process | Read+Write |
+| **Worktree Isolation** | 為平行功能開發生成隔離的 Git worktree，無需切換 checkout（v0.6.0 新增） | process | Read+Write |
+| **Branch Convention** | 可配置的分支與資料夾命名慣例，搭配預設與自訂模式（v0.5.1 新增） | process | Read+Write |
+| **Spec Diagram** | 自動生成 Mermaid 圖表：SDD 工作流程狀態、功能進度、任務依賴（v0.5.1 新增） | visibility | Read-only |
+| **Spec Refine** | 原地更新規格、傳播變更至計畫與任務、差異影響分析（v0.5.1 新增） | process | Read+Write |
+| **Canon** | 加入 canon-driven（baseline-driven）工作流程：spec-first、code-first、spec-drift。需搭配 Canon Core preset（v0.5.1 新增） | process | Read+Write |
+| **MemoryLint** | 代理記憶管理治理工具：自動稽核並修正 AGENTS.md 與 constitution 的邊界衝突（v0.6.0 新增） | process | Read+Write |
+| **Confluence** | 從規格與規劃文件建立 Confluence 文件摘要（v0.5.1 新增） | integration | Read+Write |
 
 > 🔍 **社群擴充網站**：瀏覽並搜尋所有社群擴充於 [Community Extensions 網站](https://speckit-community.github.io/extensions/)。
 
@@ -2940,12 +2952,17 @@ specify preset list
 
 #### 社群預設 (Community Presets)
 
-截至 v0.5.0，社群提供以下預設：
+截至 v0.6.0，社群提供以下預設：
 
 | 預設名稱 | 說明 | 範圍 | 依賴 |
 |---------|------|------|------|
 | **Pirate Speak (Full)** | 將所有 Spec Kit 輸出轉換為海盜語，完整示範深度自訂 | 6 模板、9 命令 | 無 |
 | **AIDE In-Place Migration** | 改編 AIDE 擴充工作流程用於原地技術遷移（X → Y 模式），加入遷移目標、驗證閘門、知識文件與行為等價標準 | 2 模板、8 命令 | AIDE 擴充 |
+| **Canon Core** | 改編原始 Spec Kit 工作流程以搭配 Canon 擴充使用（v0.5.1 新增） | 2 模板、8 命令 | 無 |
+| **Explicit Task Dependencies** | 為 tasks.md 加入明確的 `(depends on T###)` 依賴宣告與 Execution Wave DAG，支援平行排程（v0.5.1 新增） | 1 模板、1 命令 | 無 |
+| **Multi-Repo Branching** | 在 plan 和 tasks 階段協調跨多個 Git 儲存庫（獨立 repo 與 submodules）的功能分支建立（v0.6.0 新增） | 2 命令 | 無 |
+| **Table of Contents Navigation** | 為 spec.md、plan.md、tasks.md 加入可導航的目錄（v0.5.1 新增） | 3 模板、3 命令 | 無 |
+| **VS Code Ask Questions** | 增強 clarify 命令，使用 vscode/askQuestions 進行批次互動式提問（v0.5.1 新增） | 1 命令 | 無 |
 
 > 📖 如需建立與發佈自己的預設，請參考 [Presets Publishing Guide](https://github.com/github/spec-kit/blob/main/presets/PUBLISHING.md)。
 
@@ -3037,6 +3054,62 @@ cp .specify/memory/constitution.md .specify/memory/constitution-backup.md
 specify init --here --force --ai <your-agent>
 mv .specify/memory/constitution-backup.md .specify/memory/constitution.md
 ```
+
+---
+
+### 2.11 整合管理指令 (specify integration)
+
+Spec-Kit v0.5.1 新增了 `specify integration` 子命令，提供**後初始化（post-init）**的整合管理功能。此指令讓您在初始化專案後，仍可新增或管理 AI 代理整合，而無需重新執行 `specify init`。
+
+#### 使用場景
+
+- 🔄 專案初始化後，需要新增其他 AI 代理的支援
+- 🛠️ 切換團隊使用的 AI 工具而不影響現有規格文件
+- 📋 查看當前專案已配置的整合清單
+
+#### 指令格式
+
+```bash
+# 管理整合
+specify integration
+
+# 查看整合管理說明
+specify integration --help
+```
+
+> 💡 此指令與 `specify init` 的差異在於：`integration` 僅操作代理整合設定，不會觸及模板、腳本或記憶體檔案。
+
+---
+
+### 2.12 Git 擴充 (Bundled Git Extension)
+
+Spec-Kit v0.5.1 引入了**內建 Git 擴充 (Bundled Git Extension)**，分為兩個階段交付，為 SDD 工作流程提供深度的 Git 整合：
+
+#### Stage 1（v0.5.1）
+
+- 在所有核心命令（constitution、specify、plan、tasks、implement 等）上掛載 Git hooks
+- 自動化功能分支管理與提交流程
+- 擴充安裝於 `extensions/git` 目錄
+
+#### Stage 2（v0.5.1）
+
+- `GIT_BRANCH_NAME` 覆寫支援 — 允許自訂分支命名
+- `--force` 旗標支援既有目錄
+- 自動安裝測試涵蓋
+
+#### 啟用方式
+
+Git 擴充在 v0.5.1+ 版本中自動內建，無需額外安裝。升級後執行專案更新即可啟用：
+
+```bash
+specify init --here --force --ai <your-agent>
+```
+
+#### 注意事項
+
+- Git 擴充的 hooks 會在每個核心指令執行前後自動觸發
+- 可透過 `.specify/extensions/git/` 目錄自訂 hook 行為
+- 若專案使用 `--no-git` 初始化，Git 擴充不會生效
 
 ---
 
@@ -4381,7 +4454,7 @@ AI 產生的 Plan 是起點而非終點。至少進行一輪驗證與修正：
 
 **範例:照片相簿管理 Tasks(節錄)**
 
-```markdown
+````markdown
 # Tasks: Photo Album Management
 
 ## Metadata
@@ -4520,7 +4593,7 @@ T001 → T004 → T005 → T006 → T007 → T009 → T011 → T016 → T017 →
 - T007: AlbumManager
 - T012: PhotoManager
 - T013: 縮圖產生器
-```
+````
 
 #### Tasks 的品質標準
 
@@ -6956,7 +7029,7 @@ feature:
 
 **Step 3: 同步 API Contracts(關鍵)**
 
-```markdown
+````markdown
 # contracts/order-api.md
 
 ## POST /api/v1/orders
@@ -6998,7 +7071,7 @@ feature:
 - Alice 與 Bob 必須遵循此 Contract
 - 任何變更需雙方同意並更新文件
 - Carol 依此 Contract 撰寫測試
-```
+````
 
 **Step 4: 平行開發**
 
@@ -7173,7 +7246,7 @@ public void testCreateOrder_ContractCompliance() {
 | **Kiro CLI** | AWS Kiro,專案規劃導向 | 需求規劃,結構化開發 | ✅ 支援 |
 | **Amp / Auggie / Kilo Code** | 各有特色 | 特定工作流程 | ✅ 支援 |
 
-> 💡 完整的 22 種支援 AI 助手清單請參考 [1.2 Spec-Kit 概覽](#12-spec-kit-概覽)。
+> 💡 完整的 30+ 種支援 AI 助手清單請參考 [1.2 Spec-Kit 概覽](#12-spec-kit-概覽)。
 
 #### Prompt Engineering 技巧
 
@@ -7935,7 +8008,7 @@ API 必須一致、版本化、文件化。
 
 #### Plan 模板
 
-```markdown
+````markdown
 # Plan: [功能名稱]
 
 ## Phase -1: Pre-Implementation Gates
@@ -8020,7 +8093,7 @@ API 必須一致、版本化、文件化。
 
 ## 8. Deployment
 [部署步驟]
-```
+````
 
 ---
 
@@ -8142,8 +8215,10 @@ API 必須一致、版本化、文件化。
 - **安裝指南**: https://github.com/github/spec-kit/blob/main/docs/installation.md
 - **升級指南**: https://github.com/github/spec-kit/blob/main/docs/upgrade.md
 - **擴充系統文件**: https://github.com/github/spec-kit/tree/main/extensions
+- **社群擴充網站**: https://speckit-community.github.io/extensions/
 - **預設系統文件**: https://github.com/github/spec-kit/blob/main/presets/README.md
-- **AGENTS.md（新增 Agent 指南）**: https://github.com/github/spec-kit/blob/main/AGENTS.md
+- **AGENTS.md（整合架構指南）**: https://github.com/github/spec-kit/blob/main/AGENTS.md
+- **DEVELOPMENT.md（開發者指南）**: https://github.com/github/spec-kit/blob/main/DEVELOPMENT.md
 - **CHANGELOG**: https://github.com/github/spec-kit/blob/main/CHANGELOG.md
 - **SUPPORT**: https://github.com/github/spec-kit/blob/main/SUPPORT.md
 - **GitHub Copilot 文件**: https://docs.github.com/copilot
@@ -8227,6 +8302,7 @@ API 必須一致、版本化、文件化。
 |------|------|
 | **[cc-spex](https://github.com/rhuss/cc-spex)** | Claude Code 插件，在 Spec Kit 之上增加可組合特質（composable traits），搭配 [Superpowers](https://github.com/obra/superpowers) 品質閘門、spec/code review、Git worktree 隔離，以及透過代理團隊的平行實作（前身為 cc-sdd，v0.5.0 起更名） |
 | **[Spec Kit Assistant](https://marketplace.visualstudio.com/items?itemName=rfsales.speckit-assistant)** | VS Code 擴充套件，提供完整 SDD 工作流程的視覺化編排器（constitution → specification → planning → tasks → implementation），含階段狀態視覺化、互動式任務清單、DAG 視覺化，支援 Claude、Gemini、GitHub Copilot 與 OpenAI 後端。需要 `specify` CLI 在 PATH 中 |
+| **[SpecKit Companion](https://marketplace.visualstudio.com/items?itemName=alfredoperez.speckit-companion)** | VS Code 擴充套件，提供 Spec Kit 視覺化 GUI。以 rich markdown viewer 瀏覽規格（含可點擊檔案引用）、建立帶有圖片附件的規格、以 GitHub 風格的 inline review 評論並精煉每個步驟、透過視覺化階段步驟器追蹤 SDD 工作流程進度，並管理 constitution 與 templates 等導引文件（v0.6.0 新增） |
 
 ---
 
@@ -8261,9 +8337,15 @@ API 必須一致、版本化、文件化。
 | **V-Model** | V 型模型擴充，將 SDD 工作流程對應至 V-Model 驗證與確認階段 |
 | **Extensify** | 社群擴充：快速建立新 Extension 的鷹架工具 |
 | **Presetify** | 社群擴充：快速建立新 Preset 的鷹架工具 |
-| **Community Friends** | 社群工具生態系，由社群建構的專案，擴展或視覺化 Spec Kit 功能（如 cc-sdd、Spec Kit Assistant） |
-| **cc-sdd** | Claude Code 插件，在 Spec Kit 之上增加可組合特質與品質閘門 |
+| **Community Friends** | 社群工具生態系，由社群建構的專案，擴展或視覺化 Spec Kit 功能（如 cc-spex、Spec Kit Assistant、SpecKit Companion） |
+| **cc-sdd** | Claude Code 插件，在 Spec Kit 之上增加可組合特質與品質閘門（v0.5.0 起更名為 cc-spex） |
+| **cc-spex** | cc-sdd 的更名版本（v0.5.0 起），Claude Code 插件，搭配 Superpowers 品質閘門、spec/code review、Git worktree 隔離 |
 | **Project Health Check** | 專案健康檢查擴充，自動評估專案狀態與最佳實務符合度 |
+| **Bundled Git Extension** | 內建 Git 擴充（v0.5.1 新增），在所有核心命令上掛載 Git hooks，提供深度 Git 整合 |
+| **Integration** | 整合管理，`specify integration` 子命令（v0.5.1 新增），用於後初始化的代理整合管理 |
+| **Worktree Isolation** | Git worktree 隔離擴充（v0.6.0 新增），為平行功能開發生成隔離的 Git worktree |
+| **MemoryLint** | 代理記憶管理治理工具（v0.6.0 新增），自動稽核 AGENTS.md 與 constitution 的邊界衝突 |
+| **SpecKit Companion** | VS Code 擴充套件（v0.6.0 新增），提供 Spec Kit 視覺化 GUI，含 rich markdown viewer 與階段步驟器 |
 
 ---
 
@@ -8322,6 +8404,9 @@ specify doctor
 
 # 5. 專案狀態總覽（v0.3.1+）
 specify status
+
+# 5a. 管理整合（v0.5.1+）
+specify integration
 
 # 6. 建立專案守則
 /speckit.constitution
@@ -8476,12 +8561,14 @@ npm run test:e2e
 | **v0.4.4** | 2026-04-01 | **Plugin Architecture 啟動**。Stage 1-2：Integration foundation（base classes、manifest system、registry）、Copilot integration proof of concept、Forge 代理支援、Onboard / Plan Review Gate / Product Forge / Superpowers Bridge 社群擴充 |
 | **v0.4.5** | 2026-04-02 | **Plugin Architecture 完成**。Stage 3-6：19 agents 遷移至 plugin 架構、Gemini/Tabnine TOML 遷移、Skills/Generic/Option-Driven 整合、移除 legacy scaffold 路徑、Claude Code 原生 skills 安裝、Fix Findings / FixIt / QA / Staff Review / Ship Release / Spec Critique 社群擴充、社群擴充網站上線 |
 | **v0.5.0** | 2026-04-02 | 引入 DEVELOPMENT.md 開發者文件、cc-sdd 更名為 cc-spex、社群擴充達 40+ 個、Stars 達 85k+ |
+| **v0.5.1** | 2026-04-08 | **重大更新**。`specify integration` 子命令（後初始化整合管理）、內建 Git 擴充 Stage 1-2（hooks on all core commands、GIT_BRANCH_NAME override）、Forgecode 代理支援、Canon 擴充與 Canon Core preset、Branch Convention / Spec Diagram / Spec Refine / Confluence 社群擴充、Explicit Task Dependencies / Table of Contents Navigation / VS Code Ask Questions 社群預設、Claude Code `argument-hint` frontmatter、`user-invocable: true` skill frontmatter、社群擴充達 45+ 個 |
+| **v0.6.0** | 2026-04-09 | Bugfix Workflow 社群擴充、Worktree Isolation 擴充、Multi-Repo Branching preset、SpecKit Companion（VS Code GUI）、MemoryLint 擴充、AGENTS.md 重寫為整合架構文件、Stars 達 86.7k+、社群擴充達 50+ 個 |
 
-> **升級提示**：從任何版本升級至 v0.5.0，請使用以下指令。詳見 [升級指南](https://github.com/github/spec-kit/blob/main/docs/upgrade.md)：
+> **升級提示**：從任何版本升級至 v0.6.0，請使用以下指令。詳見 [升級指南](https://github.com/github/spec-kit/blob/main/docs/upgrade.md)：
 >
 > ```bash
 > # 升級 CLI
-> uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@v0.5.0
+> uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@v0.6.0
 >
 > # 更新專案檔（備份 constitution 後執行）
 > specify init --here --force --ai <your-agent>
@@ -8550,7 +8637,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v4.0 | 適用 Spec-Kit v0.5.0+*  
-*最後更新: 2026-04*  
-*適用於: Spec-Kit v0.5.0+ / Spec Kit Templates - 0.5.0*
+*文件版本: v5.0 | 適用 Spec-Kit v0.6.0+*  
+*最後更新: 2026-04-10*  
+*適用於: Spec-Kit v0.6.0+ / Spec Kit Templates - 0.6.0*
 

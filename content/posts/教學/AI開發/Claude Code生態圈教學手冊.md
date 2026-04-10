@@ -6,18 +6,18 @@ tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
 
-> **版本**: 3.0  
-> **最後更新**: 2026年3月26日
+> **版本**: 3.1  
+> **最後更新**: 2026年4月10日
 > **適用於**: Claude Code v2.x (GA, 2025-2026)  
 > **Created by**: Eric Cheng
 
 # Claude Code 生態圈教學手冊
 
-> 📖 **版本**: v3.0  
-> 📅 **最後更新**: 2026年3月26日 
+> 📖 **版本**: v3.1  
+> 📅 **最後更新**: 2026年4月10日 
 > 👥 **目標讀者**: 資深軟體工程師、技術主管、架構師  
 > 📋 **基於官方文件**: [Claude Code Documentation](https://code.claude.com/docs/en/overview)  
-> 🆕 **本版新增**: Desktop App、Channels & Dispatch、Agent Skills Open Standard、Cowork 協同開發章節、Output Styles、Scheduled Tasks、完整 Plugin Marketplace 體系
+> 🆕 **v3.1 更新**: MCP 進階機制（list_changed、maxResultSizeChars、OAuth 固定回呼端口）、Hooks `watchPaths` 與 `allowedEnvVars`、`--permission-mode` Headless 權限模式、排程任務修正（7 天過期、50 任務上限、/loop 間隔語法）、managed-mcp.json 匹配類型（serverName/serverCommand/serverUrl）
 
 
 ## 目錄
@@ -91,7 +91,8 @@ categories = ['教學']
     - [2.6.5 企業級 MCP 管理](#265-企業級-mcp-管理)
     - [2.6.6 常見 MCP Server 推薦](#266-常見-mcp-server-推薦)
     - [2.6.7 自行開發 MCP Server](#267-自行開發-mcp-server)
-    - [2.6.8 MCP 除錯與疑難排解](#268-mcp-除錯與疑難排解)
+    - [2.6.8 MCP 進階機制](#268-mcp-進階機制)
+    - [2.6.9 MCP 除錯與疑難排解](#269-mcp-除錯與疑難排解)
   - [2.7 Output Styles（輸出風格）](#27-output-styles輸出風格)
     - [2.7.1 Output Styles 概述](#271-output-styles-概述)
     - [2.7.2 配置 Output Styles](#272-配置-output-styles)
@@ -3932,12 +3933,15 @@ Claude Code 支援 **25+ 種 Hook 事件**，涵蓋整個會話生命週期：
         "method": "POST",
         "headers": {
           "Content-Type": "application/json"
-        }
+        },
+        "allowedEnvVars": ["SLACK_WEBHOOK_SECRET", "PROJECT_NAME"]
       }
     ]
   }
 }
 ```
+
+> 🆕 `allowedEnvVars` 欄位可以指定哪些環境變數會被包含在 HTTP 請求的 payload 中。未列入的環境變數不會被傳送，確保敏感資訊不外洩。
 
 #### 3. Prompt Hook（Prompt 注入）
 
@@ -4166,6 +4170,39 @@ echo "BUILD_NUMBER=$(git rev-list --count HEAD)" >> "$CLAUDE_ENV_FILE"
 #### 🆕 `stop_hook_active` 防止無限迴圈
 
 當 Hook 觸發的操作本身又可能觸發 Hook 時（如 PostToolUse Hook 呼叫了額外的工具），Claude Code 會自動設定 `stop_hook_active` 標記來防止無限遞迴。
+
+#### 🆕 FileChanged `watchPaths` 過濾
+
+FileChanged 事件可以使用 `watchPaths` 限制只監聽特定路徑的檔案變更：
+
+```json
+{
+  "hooks": {
+    "FileChanged": [
+      {
+        "watchPaths": ["src/**/*.ts", "src/**/*.tsx"],
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx eslint --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+          }
+        ]
+      },
+      {
+        "watchPaths": [".env", ".env.*"],
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'WARNING: 環境變數檔案已變更！' >&2"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+> 📌 `watchPaths` 使用 glob 語法，僅在匹配路徑的檔案變更時觸發 Hook。
 
 #### 🆕 `disableAllHooks` 全域停用
 
@@ -4919,6 +4956,34 @@ MCP Server 回傳 elicitation 請求
 | **統一配置** | 組織級的 MCP Server 自動套用到所有使用者 |
 | **OAuth 憑證** | 統一管理企業 OAuth 認證設定 |
 
+#### 🆕 Allowlist / Denylist 匹配類型
+
+`allowlist` 和 `denylist` 中的規則支援三種匹配維度：
+
+| 匹配類型 | 語法 | 說明 | 範例 |
+|---------|------|------|------|
+| **serverName** | `serverName:pattern` | 匹配 MCP Server 名稱 | `serverName:github*` |
+| **serverCommand** | `serverCommand:pattern` | 匹配啟動命令路徑 | `serverCommand:*/company/*` |
+| **serverUrl** | `serverUrl:pattern` | 匹配遠端 Server URL | `serverUrl:https://*.company.com/*` |
+| **簡寫** | `pattern` | 預設匹配 serverName | `@anthropic/*` |
+
+```json
+{
+  "policy": {
+    "allowlist": [
+      "serverName:@anthropic/mcp-server-*",
+      "serverUrl:https://*.company.internal/*",
+      "serverCommand:/usr/local/bin/company-*"
+    ],
+    "denylist": [
+      "serverUrl:http://*",
+      "serverCommand:*curl*",
+      "serverName:*unofficial*"
+    ]
+  }
+}
+```
+
 ### 2.6.6 常見 MCP Server 推薦
 
 > 🆕 **v3.0 更新**：官方文件列出 **80+ 常用 MCP Server**，以下為精選分類推薦：
@@ -5046,7 +5111,45 @@ await server.connect(transport);
 }
 ```
 
-### 2.6.8 MCP 除錯與疑難排解
+### 2.6.8 MCP 進階機制
+
+#### 🆕 `list_changed` 動態工具更新
+
+MCP Server 可以透過 `list_changed` 通知，在 runtime 動態新增或移除工具。Claude Code 收到此通知後，會自動重新讀取該 Server 的工具清單，無需重新連線：
+
+```plaintext
+MCP Server → 發送 notifications/tools/list_changed
+Claude Code → 重新呼叫 tools/list
+Claude Code → 更新可用工具列表
+```
+
+這在「依據使用者角色動態載入工具」或「根據專案類型調整工具集」的場景中非常有用。
+
+#### 🆕 `anthropic/maxResultSizeChars` 工具標註
+
+MCP Server 的工具可以使用 `annotations` 欄位宣告 `anthropic/maxResultSizeChars`，告知 Claude Code 此工具預期的最大回傳字元數：
+
+```json
+{
+  "name": "query_database",
+  "description": "執行 SQL 查詢",
+  "annotations": {
+    "anthropic/maxResultSizeChars": 50000
+  }
+}
+```
+
+> 📌 如果工具實際回傳超過此限制，Claude Code 會自動截斷。另可透過環境變數 `MAX_MCP_OUTPUT_TOKENS`（預設 25000）全域控制。
+
+#### 🆕 OAuth 固定回呼端口
+
+遠端 MCP Server 使用 OAuth 認證時，Claude Code 支援**固定回呼端口**，避免每次認證使用隨機端口（適用於企業防火牆環境需要白名單的場景）。
+
+#### 🆕 Plugin 提供的 MCP Server
+
+Plugins（`.claude-plugin/`）可以包含內建的 MCP Server 配置。安裝 Plugin 後，其定義的 MCP Server 會自動註冊到 Claude Code 中，無需手動在 `.mcp.json` 中配置。
+
+### 2.6.9 MCP 除錯與疑難排解
 
 #### 常見問題
 
@@ -5327,7 +5430,7 @@ output-style: detailed
 |---------|---------|------|------|
 | **Cloud 排程** | 長期自動化任務 | Max 訂閱 | 雲端執行，不需本機開啟 |
 | **Desktop App 排程** | 本機定期任務 | Desktop App | Desktop App 開啟時執行 |
-| **Session /loop 排程** | 當前會話中反覆執行 | 任意版本 | 會話結束即停止，3 天過期 |
+| **Session /loop 排程** | 當前會話中反覆執行 | 任意版本 | 會話結束即停止，7 天過期 |
 
 #### /loop 技能（Session 排程）
 
@@ -5341,6 +5444,28 @@ Claude 會：
 2. 如果有失敗，嘗試修復
 3. 等待 30 分鐘後再次執行
 4. 持續循環直到使用者中止或會話結束
+```
+
+#### /loop 間隔語法
+
+`/loop` 支援多種時間間隔格式：
+
+| 語法 | 說明 | 範例 |
+|------|------|------|
+| `Ns` | 秒 | `/loop every 30s check health` |
+| `Nm` | 分鐘 | `/loop every 5m run tests` |
+| `Nh` | 小時 | `/loop every 2h scan dependencies` |
+| `Nd` | 天 | `/loop every 1d generate report` |
+| 自然語言 | 自動解析 | `/loop 每 30 分鐘檢查測試` |
+
+```plaintext
+# 使用精確間隔語法
+> /loop every 10m npm test
+> /loop every 1h check for dependency updates
+> /loop every 30s monitor server health
+
+# 一次性提醒（非反覆）
+> /loop remind me in 30m to review the PR
 ```
 
 #### CronCreate / CronList / CronDelete 工具
@@ -5366,10 +5491,11 @@ Claude 會呼叫 CronCreate 工具：
 ```
 
 > **⚠️ Session 排程限制**：
-> - 透過 `/loop` 建立的 Session 排程有 **3 天過期時間**（recurring task 超過 3 天未觸發即自動刪除）
+> - 透過 `/loop` 建立的 Session 排程有 **7 天過期時間**（recurring task 超過 7 天未觸發即自動刪除）
 > - 排程觸發時間會加入 **jitter（隨機抖動）**：為 period 的 10%，且上限為 15 分鐘（例如：間隔 1 小時 → jitter 上限 6 分鐘；間隔 3 小時 → jitter 上限 15 分鐘）
 > - 排程為 **session-scoped**：關閉會話或終端即停止，不會在背景持續執行
 > - **無 catch-up 機制**：若錯過觸發時間，不會補執行
+> - **任務上限為 50 個**：每位使用者最多同時存在 50 個排程任務
 > - 若需完全停用排程功能，設定環境變數 `CLAUDE_CODE_DISABLE_CRON=1`
 
 ### 2.8.2 配置排程任務
@@ -6453,8 +6579,16 @@ claude -p "列出所有 API endpoint" --output-format json --json-schema '{"type
 # 🆕 --bare 模式（跳過自動發現，極速啟動）
 claude -p "直接回答：1+1=?" --bare
 
+# 🆕 權限模式（Headless 必備）
+claude -p "重構 UserService" --permission-mode acceptEdits  # 自動接受編輯
+claude -p "分析程式碼" --permission-mode dontAsk            # 自動拒絕需確認的操作
+
 # 從 stdin 讀取輸入
 echo "重構 UserService 的認證邏輯" | claude -p -
+
+# 恢復之前的對話
+claude -p "繼續之前的分析" --continue   # 恢復最近的對話
+claude -p "接續" --resume <session-id>  # 恢復指定的對話
 
 # 使用 Headless 模式 + Agent
 claude -p "進行安全掃描" --agent security-reviewer
@@ -6535,9 +6669,11 @@ claude -p "列出所有 API endpoints" \
 |------|-----------|--------------|
 | **啟動方式** | `claude` | `claude -p "prompt"` |
 | **使用者互動** | 即時對話 | 無互動，直接執行 |
-| **權限確認** | 逐一確認 | 自動接受（可配置） |
+| **權限確認** | 逐一確認 | `--permission-mode` 控制 |
+| **權限模式** | N/A | `dontAsk`（拒絕）/ `acceptEdits`（接受編輯） |
 | **適用環境** | 終端機 | CI/CD、腳本、排程 |
 | **輸出方式** | 互動式終端 | stdout / 檔案 |
+| **對話延續** | 自動保存 | `--continue` / `--resume` |
 
 ### 3.3.2 Agent SDK 整合
 
@@ -8118,6 +8254,36 @@ claude --verbose
 | `/bug` | 回報問題給 Anthropic |
 
 ### 3.7.3 效能問題排查
+
+#### 🆕 Auto Compaction 振盪問題
+
+如果 Claude Code 頻繁進行 auto compaction（壓縮對話），導致 CPU 使用率升高或回應速度變慢：
+
+| 症狀 | 原因 | 解決方案 |
+|------|------|---------|
+| **頻繁出現 "Compacting conversation..."** | Context window 接近上限，壓縮後又快速填滿 | 使用 `.claudeignore` 排除大型檔案，精簡 CLAUDE.md |
+| **CPU 持續高負載** | 大量 MCP 工具描述佔用 context | 減少 MCP Server 數量，啟用 `ENABLE_TOOL_SEARCH=auto` |
+| **壓縮後遺失重要 context** | 壓縮時未保留關鍵資訊 | 使用 PreCompact Hook 注入保留指示 |
+| **WSL2 搜尋效能差** | 跨 FS 存取 `/mnt/c/` | 將專案放在 WSL2 原生檔案系統 `~/` |
+
+```bash
+# 手動觸發壓縮（帶保留指示）
+> /compact 保留關於 UserService 重構的所有決策和進度
+
+# 設定高閾值避免頻繁自動壓縮
+# 在 settings.json 中：
+{
+  "autoCompactThreshold": 90
+}
+```
+
+#### 🆕 Markdown 格式化問題
+
+| 問題 | 解決方案 |
+|------|---------|
+| 回應中的 Markdown 表格顯示異常 | 使用 `/output-style` 切換到 Explanatory 風格 |
+| 程式碼區塊未正確高亮 | 確認 VS Code 版本 >= 1.98.0 |
+| Mermaid 圖表無法渲染 | 檢查 Hugo/VS Code 的 Mermaid 擴充是否正確配置 |
 
 #### Token 使用分析
 
@@ -10338,6 +10504,9 @@ claude
 claude --continue
 claude -c
 
+# 🆕 恢復特定會話
+claude --resume <session-id>
+
 # Headless 模式（非互動式）
 claude -p "你的 prompt"
 claude --print "你的 prompt"
@@ -10352,6 +10521,10 @@ claude -p "列出 API" --output-format json --json-schema '{"type":"object",...}
 
 # 🆕 --bare 模式（跳過自動發現，極速啟動）
 claude -p "prompt" --bare
+
+# 🆕 權限模式（Headless 環境推薦）
+claude -p "prompt" --permission-mode dontAsk      # 自動拒絕需確認的操作
+claude -p "prompt" --permission-mode acceptEdits   # 自動接受檔案編輯
 
 # 從 stdin 讀取
 echo "prompt" | claude -p -
@@ -10450,7 +10623,11 @@ claude --memory /path/to/CLAUDE.md
 # 指定允許的權限（非互動模式重要）
 claude -p "prompt" --allowedTools "Read,Edit,Bash(npm test)"
 
-# 完全跳過權限提示（CI 用）
+# 🆕 權限模式（取代 --dangerously-skip-permissions）
+claude -p "prompt" --permission-mode dontAsk    # 自動拒絕所有需要確認的操作
+claude -p "prompt" --permission-mode acceptEdits # 自動接受檔案編輯，拒絕其他
+
+# 完全跳過權限提示（CI 用，不建議在生產環境使用）
 claude -p "prompt" --dangerously-skip-permissions
 
 # 設定 API Base URL（企業 Proxy）
@@ -10876,7 +11053,7 @@ graph TB
 | **PermissionRequest** | 🆕 需要權限確認時 | 工具名稱 |
 | **PostToolUse** | 工具執行後 | 工具名稱 |
 | **PostToolUseFailure** | 🆕 工具執行失敗後 | 工具名稱 |
-| **FileChanged** | 🆕 檔案被修改時 | 檔案路徑 |
+| **FileChanged** | 🆕 檔案被修改時 | 檔案路徑（支援 `watchPaths` 過濾） |
 | **CwdChanged** | 🆕 工作目錄切換時 | 目錄路徑 |
 | **Elicitation** | 🆕 Claude 發起澄清問題時 | - |
 | **ElicitationResult** | 🆕 使用者回答澄清問題後 | - |
@@ -11717,8 +11894,12 @@ echo "提示: 使用 'claude mcp list' 查看完整列表"
 | **Worktree** | Git Worktree | Git 的工作樹功能，允許一個 repo 有多個工作目錄 |
 | **--bare** | --bare mode | 🆕 跳過自動發現的極速啟動模式 |
 | **--json-schema** | --json-schema | 🆕 Headless 模式中指定 JSON Schema 結構化輸出 |
+| **--permission-mode** | --permission-mode | 🆕 Headless 模式的權限控制：`dontAsk`（拒絕）或 `acceptEdits`（接受編輯） |
+| **--resume** | --resume | 🆕 恢復指定 session-id 的歷史對話 |
 | **/doctor** | /doctor | 🆕 一站式診斷命令，自動檢測常見問題 |
-| **/loop** | /loop | 🆕 反覆執行排程的內建 Skill |
+| **/loop** | /loop | 🆕 反覆執行排程的內建 Skill，支援 s/m/h/d 間隔語法 |
+| **list_changed** | list_changed | 🆕 MCP Server 動態更新工具列表的通知機制 |
+| **watchPaths** | watchPaths | 🆕 FileChanged Hook 的路徑過濾，使用 glob 語法 |
 | **@-mention** | @-mention | 在 VS Code 中使用 `@` 符號引用檔案或符號，將其加入 Context |
 | **Anthropic Console** | Anthropic Console | Anthropic 官方管理平台，用於管理 API Key、監控用量 |
 | **API Key** | API Key | 用於驗證 Claude API 呼叫的金鑰 |
@@ -11972,6 +12153,6 @@ graph LR
 
 ---
 
-*最後更新：2026 年 3 月 26 日*
+*最後更新：2026 年 4 月 10 日*
 
-*版本：3.0*
+*版本：3.1*
