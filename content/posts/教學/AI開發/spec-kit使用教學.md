@@ -6168,7 +6168,7 @@ AI 讀取 spec.md 與 Constitution,產生實作計畫...
 
 ### High-Level Architecture
 
-```
+```text
 ┌─────────────────┐
 │  Order Service  │──┐
 └─────────────────┘  │
@@ -6207,7 +6207,7 @@ AI 讀取 spec.md 與 Constitution,產生實作計畫...
          │  Oracle  │
          │   19c    │
          └──────────┘
-
+```
 
 ### Component Responsibilities
 
