@@ -1237,18 +1237,18 @@ gitgraph
     branch develop
     checkout develop
     commit id: "dev-base"
-    branch feature/user-api
-    checkout feature/user-api
+    branch "feature/user-api"
+    checkout "feature/user-api"
     commit id: "Agent: implement user API"
     commit id: "Agent: add tests"
     checkout develop
-    merge feature/user-api
-    branch feature/user-ui
-    checkout feature/user-ui
+    merge "feature/user-api"
+    branch "feature/user-ui"
+    checkout "feature/user-ui"
     commit id: "Agent: implement profile page"
     commit id: "Agent: add RWD support"
     checkout develop
-    merge feature/user-ui
+    merge "feature/user-ui"
     checkout main
     merge develop tag: "v1.0.0"
 ```
