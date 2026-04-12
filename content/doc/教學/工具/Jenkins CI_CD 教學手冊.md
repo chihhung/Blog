@@ -2853,7 +2853,7 @@ graph TD
 | **Trunk-based** | 高頻率整合 | master/short-lived-feature | 快速整合和反饋機制 |
 
 ```mermaid
-gitgraph
+gitGraph
     commit id: "Initial"
     branch develop
     checkout develop

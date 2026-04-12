@@ -1,4 +1,4 @@
-﻿+++
++++
 date = '2025-10-31T00:00:00+08:00'
 draft = false
 title = 'git使用教學'
@@ -718,7 +718,7 @@ main (或 master)     ← 生產環境分支，絕對穩定
 #### 🔄 Git Flow 視覺化流程圖
 
 ```mermaid
-gitgraph
+gitGraph
     commit id: "Initial"
     
     branch develop

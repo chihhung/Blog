@@ -1,4 +1,4 @@
-﻿# 專案 Git 教學手冊
+# 專案 Git 教學手冊
 
 ## 目錄
 
@@ -711,7 +711,7 @@ main (或 master)     ← 生產環境分支，絕對穩定
 #### 🔄 Git Flow 視覺化流程圖
 
 ```mermaid
-gitgraph
+gitGraph
     commit id: "Initial"
     
     branch develop

@@ -1,4 +1,4 @@
-﻿+++
++++
 date = '2025-10-31T00:00:00+08:00'
 draft = false
 title = 'Onion Architecture 設計教學'
@@ -5006,7 +5006,7 @@ public class CreateOrderUseCase { }
 ##### 1. 分支策略
 
 ```mermaid
-gitgraph
+gitGraph
     commit id: "Initial"
     
     branch feature/domain-model

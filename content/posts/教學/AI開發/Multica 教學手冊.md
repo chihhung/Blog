@@ -1232,7 +1232,7 @@ EOF
 ### 6.5 與 Git Flow 整合
 
 ```mermaid
-gitgraph
+gitGraph
     commit id: "main"
     branch develop
     checkout develop

@@ -4999,7 +4999,7 @@ public class CreateOrderUseCase { }
 ##### 1. 分支策略
 
 ```mermaid
-gitgraph
+gitGraph
     commit id: "Initial"
     
     branch feature/domain-model

@@ -1,4 +1,4 @@
-﻿+++
++++
 date = '2025-10-31T00:00:00+08:00'
 draft = false
 title = 'Jenkins CI_CD 教學手冊'
@@ -2860,7 +2860,7 @@ graph TD
 | **Trunk-based** | 高頻率整合 | master/short-lived-feature | 快速整合和反饋機制 |
 
 ```mermaid
-gitgraph
+gitGraph
     commit id: "Initial"
     branch develop
     checkout develop
