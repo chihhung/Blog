@@ -1479,11 +1479,11 @@ graph TD
     B --> C["Run Unit Tests"]
     C --> D["Run Integration Tests"]
     D --> E["AgentShield Security Scan"]
-    E --> F{Exit Code?}
-    F -->|0 or 1| G["Run E2E Tests"]
-    F -->|2 (Critical)| H["❌ 阻斷部署"]
+    E --> F{"Exit Code?"}
+    F -->|"0 or 1"| G["Run E2E Tests"]
+    F -->|"2 (Critical)"| H["❌ 阻斷部署"]
     G --> I["Coverage Report"]
-    I --> J{Coverage >= 80%?}
+    I --> J{"Coverage ≥ 80%?"}
     J -->|是| K["✅ 允許合併"]
     J -->|否| L["❌ 要求提高覆蓋率"]
 ```
