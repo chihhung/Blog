@@ -236,12 +236,12 @@ AutoResearch 刻意保持極簡設計，背後蘊含深刻的工程哲學：
 ```mermaid
 quadrantChart
     title AI 開發工具定位矩陣
-    x-axis 人工介入程度低 --> 人工介入程度高
-    y-axis 任務範圍窄 --> 任務範圍廣
-    quadrant-1 輔助開發
-    quadrant-2 全自動研究
-    quadrant-3 自動化片段
-    quadrant-4 互動式開發
+    x-axis "人工介入程度低" --> "人工介入程度高"
+    y-axis "任務範圍窄" --> "任務範圍廣"
+    quadrant-1 "輔助開發"
+    quadrant-2 "全自動研究"
+    quadrant-3 "自動化片段"
+    quadrant-4 "互動式開發"
     AutoResearch: [0.15, 0.25]
     Claude Code: [0.45, 0.85]
     GitHub Copilot: [0.65, 0.75]
