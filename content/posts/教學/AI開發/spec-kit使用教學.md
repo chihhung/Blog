@@ -4,14 +4,14 @@ draft = false
 title = 'spec-kit使用教學'
 tags = ['教學', 'AI開發']
 categories = ['教學']
-lastmod = '2026-04-10T00:00:00+08:00'
+lastmod = '2026-04-16T00:00:00+08:00'
 +++
 
 ## Spec-Kit 使用教學手冊
 
-> **版本**: 5.0  
-> **最後更新**: 2026年4月10日  
-> **適用於**: Spec-Kit v0.6.0+ / Spec Kit Templates - 0.6.0  
+> **版本**: 6.0  
+> **最後更新**: 2026年4月16日  
+> **適用於**: Spec-Kit v0.7.1+ / Spec Kit Templates - 0.7.1  
 > **Created by**: Eric Cheng
 
 ---
@@ -46,6 +46,8 @@ lastmod = '2026-04-10T00:00:00+08:00'
 - [2.10 Plugin Architecture（v0.4.4-0.4.5 重大架構變革）](#210-plugin-architecturev044-045-重大架構變革)
 - [2.11 整合管理指令 (specify integration)](#211-整合管理指令-specify-integration)
 - [2.12 Git 擴充 (Bundled Git Extension)](#212-git-擴充-bundled-git-extension)
+- [2.13 工作流引擎 (Workflow Engine, v0.7.0)](#213-工作流引擎-workflow-engine-v070)
+- [2.14 --integration 旗標（v0.7.1 取代 --ai）](#214---integration-旗標v071-取代---ai)
 
 ### [第三章:使用流程詳細說明](#第三章使用流程詳細說明)
 
@@ -380,7 +382,7 @@ Spec-Kit 提供五大核心模板:
 
 #### 支援的 AI 助手 / 智能代理
 
-Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.6.0）：
+Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.7.1）：
 
 | AI 助手 | CLI Key | 支援狀態 | 類型 | 說明 |
 |---------|---------|---------|------|------|
@@ -412,6 +414,7 @@ Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.6.0）：
 | **Junie** | `junie` | ✅ 完整支援 | IDE | JetBrains Junie AI 代理 |
 | **Trae** | `trae` | ✅ 完整支援 | IDE | Trae IDE |
 | **iFlow CLI** | `iflow` | ✅ 完整支援 | CLI | iFlow CLI |
+| **Goose** | `goose` | ✅ 完整支援 | CLI | Goose AI agent，使用 YAML recipe 格式（`.goose/recipes/`），支援 slash command（v0.6.2 新增） |
 | **Generic** | `generic` | ✅ 完整支援 | - | 自帶代理，需搭配 `--ai-commands-dir` 指定命令目錄 |
 
 > 💡 **Codex CLI 特殊說明**：Codex 建議使用 skills 模式，需搭配 `--ai-skills`。安裝後 skills 位於 `.agents/skills/`，指令格式為 `$speckit-<command>` 而非 `/speckit.*`。
@@ -428,6 +431,7 @@ Spec-Kit 支援多種主流 AI 編碼助手（截至 v0.6.0）：
 - 🎨 **Mistral 生態系** → Mistral Vibe（搭配 `--ai vibe`）
 - ☕ **JetBrains 生態系** → Junie（搭配 `--ai junie`）
 - 🔨 **Forge 生態系** → Forge CLI（搭配 `--ai forge`）
+- 🪿 **Goose 生態系** → Goose AI（搭配 `--ai goose`，使用 YAML recipe 格式）
 - 🔧 **自訂代理** → Generic 模式（搭配 `--ai generic --ai-commands-dir <path>`）
 
 ---
@@ -775,6 +779,7 @@ AI: 拆分 Tasks、生成程式碼
     ↓
 人員:代碼審查、測試驗證
 ```
+
 #### 1.4.1 spec-kit workflow v4
 
 ```mermaid
@@ -1394,7 +1399,7 @@ uvx --from git+https://github.com/github/spec-kit.git specify init my-project
 **Step 1: 執行安裝指令**
 
 ```bash
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.6.0
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v0.7.1
 ```
 
 預期輸出：
@@ -1433,7 +1438,7 @@ specify check
 
 這會檢查：
 - ✅ Git 是否安裝
-- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`junie`、`qwen`、`opencode`、`codex`、`kiro-cli`、`shai`、`qodercli`、`vibe`、`kimi`、`iflow`、`pi`、`tabnine`、`forge` 等）
+- ✅ AI 工具是否可用（`claude`、`gemini`、`code`/`code-insiders`、`cursor-agent`、`windsurf`、`junie`、`qwen`、`opencode`、`codex`、`kiro-cli`、`shai`、`qodercli`、`vibe`、`kimi`、`iflow`、`pi`、`tabnine`、`forge`、`goose` 等）
 - ✅ Shell 環境
 
 **Step 4: 檢查版本資訊**
@@ -1541,7 +1546,7 @@ specify init my-project --ai copilot
 | 參數 | 說明 | 範例 |
 |------|-----|------|
 | `<project-name>` | 專案名稱 | `my-project` 或 `.`（當前目錄）|
-| `--ai <tool>` | 指定 AI 工具 | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`junie`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（別名：`kiro`）、`bob`、`qodercli`、`agy`、`tabnine`、`vibe`、`kimi`、`iflow`、`pi`、`trae`、`forge`、`generic` |
+| `--ai <tool>` | 指定 AI 工具（v0.7.1 起建議改用 `--integration`） | `copilot`、`claude`、`cursor-agent`、`gemini`、`qwen`、`opencode`、`codex`、`windsurf`、`junie`、`kilocode`、`auggie`、`roo`、`codebuddy`、`amp`、`shai`、`kiro-cli`（別名：`kiro`）、`bob`、`qodercli`、`agy`、`tabnine`、`vibe`、`kimi`、`iflow`、`pi`、`trae`、`forge`、`goose`、`generic` |
 | `--ai-commands-dir <path>` | 代理命令檔案目錄 | 搭配 `--ai generic` 使用，例如 `.myagent/commands/` |
 | `--ai-skills` | 安裝 Prompt.MD 模板為代理技能 | 在代理專屬 `skills/` 目錄安裝（Codex、agy 需此參數） |
 | `--branch-numbering <mode>` | 分支編號策略（v0.3.1 新增） | `sequential`（預設：001、002、003）或 `timestamp`（YYYYMMDD-HHMMSS），分散式團隊可用 timestamp 避免編號衝突 |
@@ -1656,7 +1661,13 @@ specify init my-project --ai iflow
 specify init my-project --ai forge
 ```
 
-**場景 17：使用 timestamp 分支編號（分散式團隊，v0.3.1 新增）**
+**場景 17：使用 Goose AI（v0.6.2 新增）**
+
+```bash
+specify init my-project --ai goose
+```
+
+**場景 18：使用 timestamp 分支編號（分散式團隊，v0.3.1 新增）**
 
 ```bash
 specify init my-project --ai claude --branch-numbering timestamp
@@ -2781,7 +2792,7 @@ docs/
 
 #### 社群擴充 (Community Extensions)
 
-截至 v0.6.0，社群目錄中已有豐富的擴充可供使用（約 50+ 個）：
+截至 v0.7.1，社群目錄中已有豐富的擴充可供使用（約 60+ 個）：
 
 | 擴充名稱 | 說明 | 分類 | 效果 |
 |---------|------|------|------|
@@ -2831,6 +2842,17 @@ docs/
 | **Canon** | 加入 canon-driven（baseline-driven）工作流程：spec-first、code-first、spec-drift。需搭配 Canon Core preset（v0.5.1 新增） | process | Read+Write |
 | **MemoryLint** | 代理記憶管理治理工具：自動稽核並修正 AGENTS.md 與 constitution 的邊界衝突（v0.6.0 新增） | process | Read+Write |
 | **Confluence** | 從規格與規劃文件建立 Confluence 文件摘要（v0.5.1 新增） | integration | Read+Write |
+| **Brownfield Bootstrap** | 為既有程式碼庫引導 spec-kit — 自動發現架構並漸進式採用 SDD（v0.6.1 新增） | process | Read+Write |
+| **CI Guard** | CI/CD 的規格合規閘門 — 驗證規格存在、檢查漂移、阻止合併時的差距（v0.6.1 新增） | process | Read-only |
+| **SpecTest** | 從規格標準自動產生測試鷹架、映射覆蓋率、找出未測試的需求（v0.6.1 新增） | code | Read+Write |
+| **PR Bridge** | 從規格工件自動產生 Pull Request 描述、檢查清單與摘要（v0.6.1 新增） | process | Read-only |
+| **TinySpec** | 輕量級單檔工作流程，適用於小型任務 — 跳過重量級多步驟 SDD 流程（v0.6.1 新增） | process | Read+Write |
+| **What-if Analysis** | 在承諾變更前預覽需求變更的下游影響（複雜度、工作量、任務、風險）（v0.6.2 新增） | visibility | Read-only |
+| **GitHub Issues Integration** | 從 GitHub Issues 產生規格工件 — 匯入 issues、同步更新、維持雙向追蹤（v0.6.2 新增） | integration | Read+Write |
+| **SFSpeckit** | 企業級 Salesforce SDLC，含 18 個指令覆蓋完整 SDD 生命週期（v0.7.0 新增） | process | Read+Write |
+| **Architect Impact Previewer** | 預測架構影響、複雜度與風險，在實作前預覽（v0.7.0 新增） | visibility | Read-only |
+| **Agent Assign** | 將專業化 Claude Code agents 指派給 spec-kit 任務以進行針對性執行（v0.7.1 新增） | process | Read+Write |
+| **Worktrees** | 預設啟用的 worktree 隔離，支援平行代理 — sibling 或 nested 佈局（v0.7.0 新增） | process | Read+Write |
 
 > 🔍 **社群擴充網站**：瀏覽並搜尋所有社群擴充於 [Community Extensions 網站](https://speckit-community.github.io/extensions/)。
 
@@ -2947,7 +2969,7 @@ specify preset list
 
 #### 社群預設 (Community Presets)
 
-截至 v0.6.0，社群提供以下預設：
+截至 v0.7.1，社群提供以下預設：
 
 | 預設名稱 | 說明 | 範圍 | 依賴 |
 |---------|------|------|------|
@@ -2958,6 +2980,9 @@ specify preset list
 | **Multi-Repo Branching** | 在 plan 和 tasks 階段協調跨多個 Git 儲存庫（獨立 repo 與 submodules）的功能分支建立（v0.6.0 新增） | 2 命令 | 無 |
 | **Table of Contents Navigation** | 為 spec.md、plan.md、tasks.md 加入可導航的目錄（v0.5.1 新增） | 3 模板、3 命令 | 無 |
 | **VS Code Ask Questions** | 增強 clarify 命令，使用 vscode/askQuestions 進行批次互動式提問（v0.5.1 新增） | 1 命令 | 無 |
+| **Claude Ask Questions** | 增強 clarify 命令，使用 Claude 的批次提問功能（v0.7.0 新增） | 1 命令 | 無 |
+| **Fiction Book Writing** | 改編 SDD 工作流程用於敘事寫作：功能→故事元素、規格→故事簡報、計畫→故事結構、任務→逐場景寫作，支援多 POV、所有主要情節框架（v0.7.0 新增） | 21 模板、17 命令 | 無 |
+| **Lean** | 內建精簡預設，僅含最小工作流命令（v0.6.1 新增） | 最小化命令集 | 無 |
 
 > 📖 如需建立與發佈自己的預設，請參考 [Presets Publishing Guide](https://github.com/github/spec-kit/blob/main/presets/PUBLISHING.md)。
 
@@ -3105,6 +3130,85 @@ specify init --here --force --ai <your-agent>
 - Git 擴充的 hooks 會在每個核心指令執行前後自動觸發
 - 可透過 `.specify/extensions/git/` 目錄自訂 hook 行為
 - 若專案使用 `--no-git` 初始化，Git 擴充不會生效
+
+---
+
+### 2.13 工作流引擎 (Workflow Engine, v0.7.0)
+
+Spec-Kit v0.7.0 引入了全新的**工作流引擎 (Workflow Engine)** 與**工作流目錄系統 (Catalog System)**，為 SDD 工作流程帶來了更高層次的編排能力。
+
+#### 核心概念
+
+工作流引擎將原本的「指令序列式」工作流程升級為**可定義、可組合、可分享**的工作流模型：
+
+- 🔄 **宣告式工作流** — 以 YAML/Markdown 定義工作流階段、步驟與條件
+- 📦 **工作流目錄** — 類似擴充與預設的目錄機制，支援搜尋、安裝、分享工作流
+- 🧩 **可組合串接** — 工作流步驟可引用擴充指令、預設模板與核心指令
+- 🤖 **AI 代理感知** — 工作流可根據使用中的 AI 代理自動調整行為
+
+#### 與擴充 / 預設的關係
+
+| 系統 | 定義「做什麼」 | 定義「怎麼做」 | 定義「何時做」 |
+|------|-------------|-------------|-------------|
+| **擴充 (Extension)** | ✅ 新增指令 | — | — |
+| **預設 (Preset)** | — | ✅ 自訂模板/格式 | — |
+| **工作流 (Workflow)** | — | — | ✅ 編排步驟順序與條件 |
+
+三者結合使用可實現完全自訂的 SDD 體驗：工作流決定流程順序，擴充提供功能指令，預設定義輸出格式。
+
+#### 工作流目錄位置
+
+工作流定義存放於專案根目錄的 `workflows/` 目錄：
+
+```text
+workflows/
+├── catalog.json              # 內建工作流目錄
+├── catalog.community.json    # 社群工作流目錄
+└── custom-workflow.yml        # 自訂工作流定義
+```
+
+#### 使用時機
+
+- 🏢 **企業標準化** — 定義組織層級的統一開發流程
+- 🔄 **重複性流程** — 自動化常見的 SDD 步驟序列
+- 🧪 **品質閘門** — 在工作流的關鍵節點嵌入自動檢查
+- 📋 **合規性追蹤** — 記錄每個步驟的執行狀態
+
+> 💡 工作流引擎為 v0.7.0 新增功能，持續演進中。建議先使用內建工作流熟悉概念，再嘗試自訂。
+
+---
+
+### 2.14 --integration 旗標（v0.7.1 取代 --ai）
+
+Spec-Kit v0.7.1 正式**棄用 (deprecate)** `specify init` 的 `--ai` 旗標，改為使用 `--integration` 旗標。
+
+#### 變更原因
+
+隨著 Plugin Architecture 的成熟，AI 代理整合的概念已從「選擇 AI 工具」擴展為「選擇整合方式」。`--integration` 更精確地反映了這個設計意圖。
+
+#### 用法對照
+
+| 舊寫法（仍可用，但已棄用） | 新寫法（v0.7.1+ 建議） |
+|-------------------------|----------------------|
+| `specify init my-project --ai copilot` | `specify init my-project --integration copilot` |
+| `specify init --here --force --ai claude` | `specify init --here --force --integration claude` |
+| `specify init my-project --ai generic --ai-commands-dir .myagent/` | `specify init my-project --integration generic --ai-commands-dir .myagent/` |
+
+#### 向後相容
+
+- `--ai` 旗標仍可正常使用，但會顯示棄用警告
+- 建議在新專案中一律使用 `--integration`
+- 團隊既有的腳本與文件可逐步遷移
+
+```bash
+# v0.7.1+ 建議寫法
+specify init my-project --integration copilot
+
+# 升級時也使用新旗標
+specify init --here --force --integration copilot
+```
+
+> ⚠️ **遷移建議**：此為非破壞性變更，`--ai` 仍可使用。但建議在 CI/CD 腳本、團隊文件中逐步替換為 `--integration`，以避免未來版本移除時造成問題。
 
 ---
 
@@ -5843,6 +5947,52 @@ Related: US-005
 
 ---
 
+#### 搭配 Workflow Engine 進行迭代（v0.7.0+）
+
+自 v0.7.0 起，Spec-Kit 引入 **Workflow Engine** 與 **Workflow Catalog**，允許將 SDD 的各步驟組合成可重用的自動化工作流程。這對迭代維護尤為有利：
+
+**定義迭代工作流程**
+
+在 `.specify/workflows/` 目錄下建立 YAML 工作流程定義：
+
+```yaml
+# .specify/workflows/iterate-feature.yaml
+name: iterate-feature
+description: 新增或修改功能的完整迭代流程
+steps:
+  - action: speckit.specify
+    description: 更新 Spec
+  - action: speckit.plan
+    description: 更新 Plan
+  - action: speckit.tasks
+    description: 重新拆分 Tasks
+  - action: speckit.analyze
+    description: 一致性分析
+  - action: speckit.implement
+    description: 實作變更
+```
+
+**使用 Workflow Catalog 共享**
+
+團隊可將經過驗證的工作流程發佈至 Workflow Catalog，供其他專案直接引用：
+
+```bash
+# 從 Catalog 搜尋並安裝工作流程
+specify workflow search "iterate"
+specify workflow install iterate-feature
+```
+
+**好處**：
+
+- 🔁 標準化團隊迭代流程，減少人為遺漏
+- 📦 可重用工作流程跨專案共享
+- 🤖 AI 助手可自動執行整個工作流程
+- 📊 工作流程執行紀錄可追溯
+
+> 💡 詳細的 Workflow Engine 設定與進階用法，請參考 [2.13 工作流引擎 (Workflow Engine, v0.7.0)](#213-工作流引擎-workflow-engine-v070)。
+
+---
+
 ## 第三章小結
 
 經過 7 個步驟,你已經完整走過一個 SDD 循環:
@@ -5858,6 +6008,7 @@ Related: US-005
 | 4. 預實作檢查 | /speckit.analyze, /speckit.checklist | 分析報告 | 一致性 |
 | 5. 實作 | /speckit.implement | 程式碼 + 測試 | 測試通過 |
 | 6. 迭代 | (重複 1-5) | 新版本 | 持續改進 |
+| ↳ 工作流程自動化 | Workflow Engine（v0.7.0+） | 可重用 YAML 流程 | Catalog 共享 |
 
 **關鍵觀念**:
 
@@ -7239,9 +7390,11 @@ public void testCreateOrder_ContractCompliance() {
 | **Qwen Code** | 中文理解佳 | 中文文件專案 | ✅ 支援 |
 | **CodeBuddy** | 多功能整合 | 全端開發 | ✅ 支援 |
 | **Kiro CLI** | AWS Kiro,專案規劃導向 | 需求規劃,結構化開發 | ✅ 支援 |
+| **Goose** | YAML recipe 格式,slash command | 自動化工作流程,recipe 驅動開發 | ✅ 支援（v0.6.2+） |
 | **Amp / Auggie / Kilo Code** | 各有特色 | 特定工作流程 | ✅ 支援 |
 
 > 💡 完整的 30+ 種支援 AI 助手清單請參考 [1.2 Spec-Kit 概覽](#12-spec-kit-概覽)。
+> ⚡ v0.7.1 起，`--ai` 參數已被 `--integration` 取代。兩者功能相同，`--ai` 仍向後相容但將於未來版本移除。
 
 #### Prompt Engineering 技巧
 
@@ -8341,6 +8494,13 @@ API 必須一致、版本化、文件化。
 | **Worktree Isolation** | Git worktree 隔離擴充（v0.6.0 新增），為平行功能開發生成隔離的 Git worktree |
 | **MemoryLint** | 代理記憶管理治理工具（v0.6.0 新增），自動稽核 AGENTS.md 與 constitution 的邊界衝突 |
 | **SpecKit Companion** | VS Code 擴充套件（v0.6.0 新增），提供 Spec Kit 視覺化 GUI，含 rich markdown viewer 與階段步驟器 |
+| **Workflow Engine** | 工作流引擎（v0.7.0 新增），支援宣告式工作流定義、搜尋與安裝，為 SDD 流程提供高層次編排 |
+| **Workflow Catalog** | 工作流目錄系統（v0.7.0 新增），類似擴充/預設的目錄機制，支援工作流的搜尋、安裝與分享 |
+| **--integration** | v0.7.1 新增的 CLI 旗標，取代 `--ai` 用於指定 AI 代理整合方式（`--ai` 已 deprecated 但仍可用） |
+| **SFSpeckit** | Salesforce SDD 擴充（v0.7.0 新增），企業級 Salesforce SDLC，含 18 個指令覆蓋完整 SDD 生命週期 |
+| **Goose** | Goose AI agent（v0.6.2 新增），使用 YAML recipe 格式解析，支援 slash command |
+| **Agent Assign** | 將專業化 Claude Code agents 指派給 spec-kit 任務以進行針對性執行的社群擴充（v0.7.1 新增） |
+| **Lean Preset** | 內建精簡預設（v0.6.1 新增），僅含最小工作流命令，適合小型專案或快速原型 |
 
 ---
 
@@ -8558,15 +8718,19 @@ npm run test:e2e
 | **v0.5.0** | 2026-04-02 | 引入 DEVELOPMENT.md 開發者文件、cc-sdd 更名為 cc-spex、社群擴充達 40+ 個、Stars 達 85k+ |
 | **v0.5.1** | 2026-04-08 | **重大更新**。`specify integration` 子命令（後初始化整合管理）、內建 Git 擴充 Stage 1-2（hooks on all core commands、GIT_BRANCH_NAME override）、Forgecode 代理支援、Canon 擴充與 Canon Core preset、Branch Convention / Spec Diagram / Spec Refine / Confluence 社群擴充、Explicit Task Dependencies / Table of Contents Navigation / VS Code Ask Questions 社群預設、Claude Code `argument-hint` frontmatter、`user-invocable: true` skill frontmatter、社群擴充達 45+ 個 |
 | **v0.6.0** | 2026-04-09 | Bugfix Workflow 社群擴充、Worktree Isolation 擴充、Multi-Repo Branching preset、SpecKit Companion（VS Code GUI）、MemoryLint 擴充、AGENTS.md 重寫為整合架構文件、Stars 達 86.7k+、社群擴充達 50+ 個 |
+| **v0.6.1** | 2026-04-10 | 內建 Lean preset（最小化工作流命令）、Brownfield Bootstrap / CI Guard / SpecTest / PR Bridge / TinySpec 社群擴充、Cursor 從 `.cursor/commands` 遷移至 `.cursor/skills`、spec-kit-verify 升級至 1.0.3、spec-kit-review 升級至 1.0.1 |
+| **v0.6.2** | 2026-04-13 | **Goose AI agent** 支援、What-if Analysis 社群擴充、GitHub Issues Integration 社群擴充、Ralph 擴充更新至 v1.0.1 |
+| **v0.7.0** | 2026-04-14 | **重大版本：Workflow Engine + Catalog System**。引入工作流引擎，支援宣告式工作流定義、搜尋與安裝。SFSpeckit（Salesforce SDD 擴充，18 個命令）、Architect Impact Previewer、Worktrees（平行 worktree 隔離）社群擴充。Claude Ask Questions 社群預設。Fiction Book Writing 預設（21 模板、17 命令）。gitflow 的可選單段分支前綴。Stars 達 88k+、社群擴充達 55+ 個 |
+| **v0.7.1** | 2026-04-15 | `--ai` 旗標正式 **deprecated**（改用 `--integration`）、Windows 測試矩陣加入 CI、Claude hook 連鎖修正、Agent Assign 社群擴充、deprecated `--skip-tls` 文件清理、TESTING.md 合併至 CONTRIBUTING.md、Stars 達 88.4k+、Contributors 達 167 |
 
-> **升級提示**：從任何版本升級至 v0.6.0，請使用以下指令。詳見 [升級指南](https://github.com/github/spec-kit/blob/main/docs/upgrade.md)：
+> **升級提示**：從任何版本升級至 v0.7.1，請使用以下指令。詳見 [升級指南](https://github.com/github/spec-kit/blob/main/docs/upgrade.md)：
 >
 > ```bash
 > # 升級 CLI
-> uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@v0.6.0
+> uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@v0.7.1
 >
 > # 更新專案檔（備份 constitution 後執行）
-> specify init --here --force --ai <your-agent>
+> specify init --here --force --integration <your-agent>
 > ```
 
 ---
@@ -8632,7 +8796,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v5.0 | 適用 Spec-Kit v0.6.0+*  
-*最後更新: 2026-04-10*  
-*適用於: Spec-Kit v0.6.0+ / Spec Kit Templates - 0.6.0*
+*文件版本: v6.0 | 適用 Spec-Kit v0.7.1+*  
+*最後更新: 2026-04-16*  
+*適用於: Spec-Kit v0.7.1+ / Spec Kit Templates - 0.7.1*
 
