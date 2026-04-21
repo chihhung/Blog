@@ -32,6 +32,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Hook 開關檔案
+.github/hooks/.auto-push-enabled
+
 # 環境變數檔案
 .env
 .env.local
