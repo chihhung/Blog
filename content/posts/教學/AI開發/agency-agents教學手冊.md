@@ -2242,7 +2242,7 @@ gitGraph
     commit id: "add compliance-reviewer"
     checkout main
     merge custom-agents id: "merge custom"
-    branch upstream-sync
+    checkout upstream-sync
     commit id: "sync upstream v1.1"
     checkout main
     merge upstream-sync id: "merge upstream v1.1"
