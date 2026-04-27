@@ -4048,7 +4048,7 @@ src/
 }
 ```
 
-詳細資料模型請參閱:[data-model.md](./data-model.md)
+詳細資料模型請參閱:`data-model.md`
 
 ---
 
@@ -4119,7 +4119,7 @@ class PhotoManager {
 }
 ```
 
-詳細契約定義請參閱:[contracts/](./contracts/)
+詳細契約定義請參閱:`contracts/`
 
 ---
 
@@ -4438,7 +4438,7 @@ logger.error('Photo load failed', { photoId, error });
 
 ## Quickstart Validation
 
-快速驗證實作是否符合 Spec,參閱:[quickstart.md](./quickstart.md)
+快速驗證實作是否符合 Spec,參閱:`quickstart.md`
 
 **核心驗證場景**:
 1. 建立相簿成功
