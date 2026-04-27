@@ -2,16 +2,16 @@
 date = '2025-12-31T20:06:08+08:00'
 draft = false
 title = 'OpenSpec使用教學'
-lastmod = '2026-04-12T12:00:00+08:00'
+lastmod = '2026-04-27T12:00:00+08:00'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
 
 ## OpenSpec 使用教學手冊
 
-> **版本**：4.0  
-> **更新日期**：2026-04-12  
-> **適用版本**：OpenSpec v1.3.0（含 Profiles、OPSX 工作流程、動態指令架構、語義規格同步、Junie / Lingma / ForgeCode / IBM Bob 新工具支援）  
+> **版本**：5.0  
+> **更新日期**：2026-04-27  
+> **適用版本**：OpenSpec v1.3.1（含 Profiles、OPSX 工作流程、動態指令架構、語義規格同步、Canonical Artifact Paths、Junie / Lingma / ForgeCode / IBM Bob 新工具支援）  
 > **適用對象**：新進軟體工程師、系統分析師、尚未接觸過 SDD 或 OpenSpec 的同仁  
 > **官方網站**：[openspec.dev](https://openspec.dev/)
 
@@ -39,7 +39,8 @@ categories = ['教學']
   - [第三章小結](#第三章小結)
 - [第四章：使用 OpenSpec 的標準工作流程](#第四章使用-openspec-的標準工作流程)
   - [4.1 從需求想法到 Spec](#41-從需求想法到-spec)
-  - [4.2 OPSX 工作流程與 Profiles 系統（v1.3.0）](#42-opsx-工作流程與-profiles-系統v130)
+  - [4.2 OPSX 工作流程與 Profiles 系統（v1.3.x）](#42-opsx-工作流程與-profiles-系統v130)
+    - [v1.3.1 版本重要更新](#v131-版本重要更新2026-04-20-發布)
     - [v1.3.0 版本重要更新](#v130-版本重要更新2026-04-11-發布)
     - [三大架構革新（v1.0.0 起）](#三大架構革新v100-起)
     - [各 AI 工具的指令語法差異](#各-ai-工具的指令語法差異)
@@ -67,6 +68,12 @@ categories = ['教學']
   - [8.2 常見卡關點](#82-常見卡關點)
   - [8.3 如何從「會寫」進階到「寫得好」](#83-如何從會寫進階到寫得好)
   - [第八章小結](#第八章小結)
+- [第九章：進階主題](#第九章進階主題)
+  - [9.1 Progressive Rigor（漸進式嚴謹度）](#91-progressive-rigor漸進式嚴謹度)
+  - [9.2 Multi-Language 支援](#92-multi-language-支援)
+  - [9.3 自訂 Schema 進階用法](#93-自訂-schema-進階用法)
+  - [9.4 人類與 Agent 協作模式](#94-人類與-agent-協作模式)
+  - [第九章小結](#第九章小結)
 - [附錄：檢查清單（Checklist）](#附錄檢查清單checklist)
   - [A. OpenSpec 環境設定檢查清單](#a-openspec-環境設定檢查清單)
   - [B. Spec 撰寫檢查清單](#b-spec-撰寫檢查清單)
@@ -76,6 +83,7 @@ categories = ['教學']
   - [F. 與 AI 對話 Prompt 範本](#f-與-ai-對話-prompt-範本)
   - [G. 支援的 AI 工具清單](#g-支援的-ai-工具清單)
   - [H. 疑難排解（Troubleshooting）](#h-疑難排解troubleshooting)
+  - [I. 術語表（Glossary）](#i-術語表glossary)
 - [參考資源](#參考資源)
   - [官方資源](#官方資源)
   - [相關工具](#相關工具)
@@ -90,7 +98,7 @@ categories = ['教學']
 
 在 AI 輔助開發的時代，許多團隊開始使用 GitHub Copilot、Claude、ChatGPT 等工具來加速開發。然而，AI 助手在沒有明確規格的情況下，容易產生不符合需求的程式碼，或是理解偏差導致返工。
 
-**OpenSpec** 是一套 **Spec-Driven Development（SDD，規格驅動開發）** 的方法論與工具，它讓「規格」成為開發的唯一真實來源（Single Source of Truth），確保人類與 AI 在同一個頁面上。OpenSpec 是目前最受歡迎的規格框架（GitHub ★ 39.2k、MIT 授權），支援 **27+ 個 AI 編程助手**（包含 Claude Code、GitHub Copilot、Cursor、Windsurf、Gemini CLI、Pi、Kiro、Junie、ForgeCode、IBM Bob 等），並提供靈活的 OPSX 工作流程、**Profiles 設定檔系統**、**動態指令架構（Dynamic Instructions）**，以及**語義規格同步（Semantic Spec Syncing）**，讓開發者可以自由迭代而非被瀑布式流程鎖住。
+**OpenSpec** 是一套 **Spec-Driven Development（SDD，規格驅動開發）** 的方法論與工具，它讓「規格」成為開發的唯一真實來源（Single Source of Truth），確保人類與 AI 在同一個頁面上。OpenSpec 是目前最受歡迎的規格框架（GitHub ★ 43.2k、MIT 授權、61 位貢獻者、36 個正式版本），支援 **28 個 AI 編程助手**（包含 Claude Code、GitHub Copilot、Cursor、Windsurf、Gemini CLI、Pi、Kiro、Junie、ForgeCode、IBM Bob 等），並提供靈活的 OPSX 工作流程、**Profiles 設定檔系統**、**動態指令架構（Dynamic Instructions）**、**語義規格同步（Semantic Spec Syncing）**，以及**漸進式嚴謹度（Progressive Rigor）**，讓開發者可以自由迭代而非被瀑布式流程鎖住。
 
 OpenSpec 的核心哲學：
 
@@ -100,7 +108,9 @@ OpenSpec 的核心哲學：
 - **為既有專案而建**（built for brownfield not just greenfield）
 - **可從個人專案擴展至企業級**（scalable from personal projects to enterprises）
 
-> 💡 **v1.3.0 新功能**：新增 **Junie（JetBrains）**、**Lingma IDE**、**ForgeCode**、**IBM Bob** 四個 AI 工具支援；Shell completions 改為 opt-in 安裝，修正 PowerShell 編碼損壞問題；Copilot 自動偵測修正（不再因單獨存在 `.github/` 目錄而誤判）；`openspec status` 在無變更時可正常退出。
+> 💡 **v1.3.1 最新修復**（2026-04-20 發布）：**Canonical Artifact Paths**——工作流程 artifact 路徑改用原生 `realpath` 解析，symlink 與大小寫不敏感檔案系統不再導致路徑不匹配；**Glob Apply 指令修正**——glob artifact 輸出正確解析，literal artifact 輸出強制為檔案路徑；**隱藏 Spec 偵測**——巢狀於 fenced code block 中的 requirement 現可在驗證時被偵測；**Clean `--json` 輸出**——spinner 進度文字不再洩漏至 stderr，方便 AI agent 解析 JSON；**防火牆遙測靜默化**——PostHog 網路錯誤靜默吞噬（1 秒逾時），不再在受限網路環境中顯示 `PostHogFetchNetworkError`。
+>
+> 💡 **v1.3.0 重要功能**：新增 **Junie（JetBrains）**、**Lingma IDE**、**ForgeCode**、**IBM Bob** 四個 AI 工具支援；Shell completions 改為 opt-in 安裝，修正 PowerShell 編碼損壞問題；Copilot 自動偵測修正（不再因單獨存在 `.github/` 目錄而誤判）；`openspec status` 在無變更時可正常退出。
 >
 > 💡 **v1.2.0 重要功能**：新增 **Profiles 系統**（`core` / `custom`）、**`/opsx:propose` 一鍵提案指令**、**AI 工具自動偵測**、以及 Pi 與 Kiro 工具支援。
 
@@ -208,7 +218,7 @@ graph LR
 | **與程式碼關聯** | 分離 | 同一 Repository |
 | **即時性** | 可能過時 | 持續更新（活文件） |
 | **工作流程** | 線性階段式 | OPSX 流動式迭代（含 Profiles） |
-| **AI 工具支援** | 無 | 27+ 個 AI 助手原生整合 |
+| **AI 工具支援** | 無 | 28 個 AI 助手原生整合 |
 | **指令架構** | 靜態提示詞 | 動態指令（Context + Rules + Template） |
 | **規格同步** | 手動合併 | 語義規格同步（ADDED/MODIFIED/REMOVED/RENAMED） |
 
@@ -225,7 +235,7 @@ graph LR
 |---------|----------|-------------------|------------|
 | **設計理念** | 輕量、靈活迭代 | 嚴謹、階段門控 | IDE 整合 |
 | **工作流程** | 流動式，不鎖定階段 | 剛性階段門 | 固定流程 |
-| **AI 工具支援** | 27+ 工具 | 有限 | 僅 Claude |
+| **AI 工具支援** | 28 工具 | 有限 | 僅 Claude |
 | **IDE 要求** | 無（任何 IDE） | 無 | 鎖定 Kiro IDE |
 | **既有專案支援** | ✅ 強（brownfield-first） | 偏向新專案 | 偏向新專案 |
 | **自訂 Schema** | ✅ 可自訂工作流程 | ❌ | ❌ |
@@ -1226,6 +1236,24 @@ rules:
 
 > ℹ️ 這些 skill 檔案由 `openspec init` 和 `openspec update` 自動產生與維護，開發者通常不需要手動編輯。
 
+#### v1.3.1 版本重要更新（2026-04-20 發布）
+
+OpenSpec v1.3.1 是 v1.3.0 之後的修補版本，重點在提升路徑處理的正確性與企業環境相容性：
+
+**Bug 修復與改進**：
+
+| 修復項目 | 說明 |
+|---------|------|
+| **Canonical Artifact Paths** | 工作流程 artifact 路徑改用原生 `realpath` 解析，symlink 與大小寫不敏感檔案系統不再導致 apply/archive 時路徑不匹配 |
+| **Glob Apply Instructions** | 含 glob 的 artifact 輸出正確解析，literal artifact 輸出強制為檔案路徑 |
+| **Hidden Main Spec Requirements** | 巢狀於 fenced code block 或其他隱藏位置的 requirement 現可在驗證時被偵測 |
+| **Clean `--json` Output** | Spinner 進度文字不再洩漏至 stderr，AI agent 可可靠解析 JSON 輸出 |
+| **Silent Telemetry** | PostHog 網路錯誤靜默吞嚥（1 秒逾時），受限網路環境不再顯示 `PostHogFetchNetworkError` |
+
+> 💡 **升級方式**：執行 `npm install -g @fission-ai/openspec@latest` 升級至 v1.3.1 後，在專案目錄中執行 `openspec update` 以重新產生 AI 指導檔案。
+
+---
+
 #### v1.3.0 版本重要更新（2026-04-11 發布）
 
 OpenSpec v1.3.0 在 v1.2.0 基礎上帶來以下重點改進：
@@ -1249,7 +1277,7 @@ OpenSpec v1.3.0 在 v1.2.0 基礎上帶來以下重點改進：
 | **OpenCode adapter** | 改用正確的 `.opencode/commands/`（複數）目錄 |
 | **openspec status** | 無變更時可正常退出，不再拋出致命錯誤 |
 
-> 💡 **升級方式**：執行 `npm install -g @fission-ai/openspec@latest` 升級套件後，在專案目錄中執行 `openspec update` 以重新產生 AI 指導檔案。
+> 💡 **升級方式**：執行 `npm install -g @fission-ai/openspec@latest` 升級套件（當前最新為 v1.3.1）後，在專案目錄中執行 `openspec update` 以重新產生 AI 指導檔案。
 
 #### OPSX 完整指令一覽
 
@@ -1430,7 +1458,7 @@ AI:  Welcome to OpenSpec!
      Phase 11: 總結與下一步
 ```
 
-> ⚠️ **Legacy 指令說明**：`/openspec:proposal`、`/openspec:apply`、`/openspec:archive` 為舊版「一次建立所有文件」的工作流程。根據官方文件，這些指令仍可使用（作為 legacy 相容），但 **OPSX 指令才是推薦的標準做法**。既有使用舊版指令的專案可直接用 OPSX 指令接續操作，artifact 結構是相容的。
+> ⚠️ **Legacy 指令說明**：`/openspec:proposal`、`/openspec:apply`、`/openspec:archive` 為舊版工作流程指令。根據 **v1.0.0 Breaking Changes**，這些指令已被**正式移除**，不再可用。舊版的工具特定設定檔（如 `CLAUDE.md`、`.cursorrules`、`AGENTS.md`、`project.md`）也不再產生。若你的專案仍在使用舊版指令，請執行 `openspec init` 升級——OpenSpec 會自動偵測並清理 legacy artifact（需確認）。
 
 #### 各 AI 工具的指令語法差異
 
@@ -2895,6 +2923,247 @@ flowchart LR
 
 ---
 
+## 第九章：進階主題
+
+> 💡 本章涵蓋 OpenSpec 官方文件中的進階概念，適合已熟悉基本工作流程的讀者進一步深化理解。
+
+### 9.1 Progressive Rigor（漸進式嚴謹度）
+
+#### 核心理念
+
+OpenSpec 強調**避免官僚化**。並非每個變更都需要完整的 Spec 套件。應根據變更的風險與複雜度，選擇適當的嚴謹程度：
+
+```mermaid
+graph LR
+    subgraph 嚴謹度光譜
+        A[Lite Spec<br/>輕量規格<br/>大多數變更] --> B[Full Spec<br/>完整規格<br/>高風險變更]
+    end
+```
+
+#### Lite Spec（輕量規格）— 預設
+
+大多數變更應使用 Lite Spec：
+
+- 簡短的行為優先需求描述
+- 清楚的範圍與排除項目（non-goals）
+- 幾個具體的驗收檢查點
+
+**範例**：
+
+```spec
+# 新增登出按鈕 - Lite Spec
+
+## Purpose
+讓用戶可以從 Header 快速登出
+
+## Scope
+- 包含：Header 登出按鈕、Session 清除
+- 不包含：多裝置登出、登出確認頁面
+
+## Requirements
+
+### Requirement: 用戶登出
+系統 SHALL 允許已登入用戶登出
+
+#### Scenario: 成功登出
+- GIVEN 用戶已登入
+- WHEN 點擊登出按鈕
+- THEN Session 被清除
+- AND 重導向至登入頁
+```
+
+#### Full Spec（完整規格）— 高風險場景
+
+以下情況應使用 Full Spec：
+
+| 適用條件 | 說明 |
+|---------|------|
+| **跨團隊或跨 repo 變更** | 影響範圍大，需要更多協調 |
+| **API / 合約變更** | 外部介面變更需要嚴格定義 |
+| **資料遷移** | 資料結構變更風險高 |
+| **安全性 / 隱私相關** | 合規與稽核要求 |
+| **模糊性可能導致高成本返工** | 需求不明確時預先釐清 |
+
+**經驗法則**：如果實作可以變更而不影響外部可觀察的行為，那麼該細節**不屬於 Spec**，應放在 `design.md` 或 `tasks.md` 中。
+
+> 💡 **銀行系統實務**：金融業的帳務相關變更建議一律使用 Full Spec，而 UI 微調或內部工具改善可使用 Lite Spec。
+
+---
+
+### 9.2 Multi-Language 支援
+
+OpenSpec 內建多語言支援，讓團隊可以使用自己熟悉的語言撰寫 Spec。詳細說明請參閱官方 [Multi-Language 文件](https://github.com/Fission-AI/OpenSpec/blob/main/docs/multi-language.md)。
+
+#### 語言設定
+
+在 `openspec/config.yaml` 中設定語言偏好：
+
+```yaml
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Tech stack: TypeScript, React, Node.js, PostgreSQL
+  API style: RESTful
+  語言偏好: 繁體中文
+  業務領域: 銀行核心系統
+
+rules:
+  proposal:
+    - 使用繁體中文撰寫
+    - 技術術語可保留英文
+  specs:
+    - 使用 Given/When/Then 格式（描述可用中文）
+    - Requirement 標題可使用中文
+```
+
+#### 中文 Spec 撰寫建議
+
+| 元素 | 建議語言 | 範例 |
+|------|---------|------|
+| **Requirement 標題** | 中文或英文皆可 | `### Requirement: 帳戶餘額查詢` |
+| **Scenario 標題** | 中文 | `#### Scenario: 查詢成功` |
+| **GIVEN/WHEN/THEN** | 英文關鍵字 + 中文描述 | `- GIVEN 用戶已登入` |
+| **SHALL/MUST** | 保留英文 | `系統 SHALL 驗證...` |
+| **技術術語** | 英文 | JWT、API、UUID |
+
+> ℹ️ OpenSpec 的 AI 技能檔（SKILL.md）支援在 context 中指定語言偏好，AI 助手會據此調整產出語言。
+
+---
+
+### 9.3 自訂 Schema 進階用法
+
+#### 建立自訂 Schema
+
+OpenSpec 除了內建的 `spec-driven` schema 外，支援團隊建立自訂工作流程 schema：
+
+```bash
+# 從零建立新 schema
+openspec schema init research-first
+
+# 複製既有 schema 並修改
+openspec schema fork spec-driven research-first
+```
+
+#### 自訂 Schema 範例：研究優先型
+
+適用於技術調研、POC 驗證等需要先研究再決策的場景：
+
+```yaml
+# openspec/schemas/research-first/schema.yaml
+name: research-first
+artifacts:
+  - id: research
+    generates: research.md
+    requires: []           # 先做研究
+
+  - id: proposal
+    generates: proposal.md
+    requires: [research]   # 基於研究結果提案
+
+  - id: tasks
+    generates: tasks.md
+    requires: [proposal]   # 跳過 specs/design，直接到工作項目
+```
+
+```mermaid
+graph LR
+    A[research.md<br/>研究報告] --> B[proposal.md<br/>提案]
+    B --> C[tasks.md<br/>工作項目]
+```
+
+#### Artifact 依賴圖
+
+Schema 中的依賴關係是**啟用條件**（enablers），不是**強制閘門**（gates）：
+
+```text
+                    proposal
+                   (root node)
+                       │
+         ┌─────────────┴─────────────┐
+         │                           │
+         ▼                           ▼
+      specs                       design
+   (requires:                  (requires:
+    proposal)                   proposal)
+         │                           │
+         └─────────────┬─────────────┘
+                       │
+                       ▼
+                    tasks
+                (requires:
+                specs, design)
+```
+
+- **依賴是啟用條件**：它們表示「什麼可以建立」，而非「你必須下一步建立什麼」
+- **可以跳過**：如果不需要 design，可以直接跳過
+- **順序彈性**：specs 和 design 只依賴 proposal，可以並行建立
+
+> 💡 自訂 schema 放在 `openspec/schemas/` 目錄中，透過 Git 版本控管與團隊共享，無需修改 OpenSpec 套件程式碼。
+
+---
+
+### 9.4 人類與 Agent 協作模式
+
+#### 協作循環
+
+根據 OpenSpec 官方概念文件，人類與 AI agent 的建議協作模式如下：
+
+```mermaid
+sequenceDiagram
+    participant H as 人類
+    participant A as AI Agent
+    participant S as Spec 文件
+
+    H->>A: 1. 提供意圖、上下文、約束條件
+    A->>S: 2. 轉換為行為優先的需求與情境
+    A->>S: 3. 將實作細節放入 design.md 和 tasks.md<br/>（非 spec.md）
+    A->>A: 4. 驗證結構與清晰度
+    H->>S: 5. 審核確認
+    A->>A: 6. 開始實作
+```
+
+#### 角色分工原則
+
+| 角色 | 職責 |
+|------|------|
+| **人類** | 提供意圖（intent）、業務上下文、約束條件 |
+| **AI Agent** | 將意圖轉換為結構化需求與情境 |
+| **Spec** | 描述外部可觀察行為（what），不描述實作（how） |
+| **Design** | 記錄技術方案與架構決策（how） |
+| **Tasks** | 列出具體可執行的工作步驟（steps） |
+
+#### Spec 內容邊界
+
+**應放入 Spec 的內容**：
+- 用戶或下游系統依賴的可觀察行為
+- 輸入、輸出與錯誤條件
+- 外部約束（安全性、隱私、可靠性、相容性）
+- 可被測試或明確驗證的情境
+
+**不應放入 Spec 的內容**：
+- 內部 class / function 名稱
+- Library 或 framework 選擇
+- 逐步實作細節
+- 詳細執行計畫（屬於 `design.md` 或 `tasks.md`）
+
+**快速測試**：如果實作可以變更而不影響外部可觀察行為，該內容**不屬於 Spec**。
+
+> 💡 這種分工確保 Spec 對人類保持可讀性，同時對 AI agent 保持一致性。
+
+---
+
+## 第九章小結
+
+| 主題 | 重點 |
+|------|------|
+| **Progressive Rigor** | 依風險選擇 Lite 或 Full Spec，避免不必要的官僚化 |
+| **Multi-Language** | 透過 config.yaml 設定語言偏好，支援中文 Spec |
+| **自訂 Schema** | 團隊可定義自己的 artifact 工作流程與依賴圖 |
+| **協作模式** | 人類提供意圖，Agent 轉換為結構化 Spec |
+
+---
+
 ## 附錄：檢查清單（Checklist）
 
 ### A. OpenSpec 環境設定檢查清單
@@ -2981,6 +3250,8 @@ openspec schema list               # 列出所有可用 schema（含自訂）
 openspec schema show <name>        # 查看特定 schema 的 artifact 定義
 openspec schema export <name>      # 匯出 schema 為檔案
 openspec schema validate           # 驗證 schema 格式
+openspec schema init <name>        # 從零建立新的自訂 schema
+openspec schema fork <src> <dest>  # 複製既有 schema 並修改
 
 # 配置管理
 openspec config list               # 查看所有配置（含 config drift 警告）
@@ -3037,7 +3308,7 @@ openspec feedback                   # 提交使用回饋
 
 ### G. 支援的 AI 工具清單
 
-OpenSpec v1.3.0 支援 **27+ 個 AI 編程助手**，在執行 `openspec init` 時可選擇要整合的工具（支援自動偵測已安裝工具）。
+OpenSpec v1.3.1 支援 **28 個 AI 編程助手**，在執行 `openspec init` 時可選擇要整合的工具（支援自動偵測已安裝工具）。
 
 每個工具安裝時會包含兩類檔案：
 1. **Skills**（技能檔）：`.../skills/openspec-*/SKILL.md` — 動態指令的核心
@@ -3131,8 +3402,37 @@ openspec init --profile core
 | **`openspec status` 致命錯誤** | 無進行中的變更時執行 status | v1.3.0 已修正：無變更時正常退出而非拋出錯誤 |
 | **Pi 指令產生錯誤** | pi.dev 命令參考格式不正確 | v1.3.0 已修正指令參考轉換與模板引數傳遞 |
 | **OpenCode 命令路徑錯誤** | adapter 使用 `.opencode/command/`（單數） | v1.3.0 已修正：改用正確的 `.opencode/commands/`（複數） |
+| **Artifact 路徑不匹配（symlink/大小寫）** | symlink 或大小寫不敏感檔案系統導致路徑不一致 | v1.3.1 已修正：改用原生 `realpath` 解析路徑（Canonical Artifact Paths） |
+| **Glob Apply 指令解析失敗** | 含 glob 的 artifact 輸出未正確解析 | v1.3.1 已修正：glob artifact 輸出正確解析，literal 輸出強制為檔案路徑 |
+| **隱藏的 Requirement 未被偵測** | requirement 巢狀於 fenced code block 中 | v1.3.1 已修正：驗證時可偵測隱藏的 requirement |
+| **`--json` 輸出含 spinner 文字** | AI agent 無法解析 JSON | v1.3.1 已修正：spinner 文字不再洩漏至 stderr |
+| **防火牆環境顯示 PostHogFetchNetworkError** | 受限網路中遙測網路錯誤未被捕獲 | v1.3.1 已修正：PostHog 網路錯誤靜默吞噬（1 秒逾時），可以透過 `OPENSPEC_TELEMETRY=0` 或 `DO_NOT_TRACK=1` 完全停用遙測 |
 
 > 💡 更多疑難排解請參閱 [Commands 指令參考](https://github.com/Fission-AI/OpenSpec/blob/main/docs/commands.md#troubleshooting) 中的 Troubleshooting 區段。
+
+---
+
+### I. 術語表（Glossary）
+
+以下為 OpenSpec 常用術語的定義，依據[官方 Concepts 文件](https://github.com/Fission-AI/OpenSpec/blob/main/docs/concepts.md)整理：
+
+| 術語 | 定義 |
+|------|------|
+| **Artifact** | 變更資料夾中的文件（proposal、design、tasks 或 delta specs） |
+| **Archive** | 完成變更的過程：將 delta specs 合併回主規格，並保存變更歷史 |
+| **Change** | 對系統的一項提議修改，封裝在一個資料夾中，包含 artifact 與 delta specs |
+| **Delta Spec** | 描述相對於現有規格的變更（ADDED/MODIFIED/REMOVED/RENAMED），而非重寫整份規格 |
+| **Domain** | 規格的邏輯分類（如 `auth/`、`payments/`），用於組織 `specs/` 目錄 |
+| **Requirement** | 系統必須具備的特定行為，使用 SHALL/MUST/SHOULD/MAY 描述 |
+| **Scenario** | Requirement 的具體實例，通常使用 Given/When/Then 結構化格式 |
+| **Schema** | Artifact 類型與其依賴關係的定義，決定工作流程的結構 |
+| **Spec** | 描述系統行為的規格文件，包含 requirements 與 scenarios |
+| **Source of Truth** | `openspec/specs/` 目錄，包含當前約定的系統行為規格 |
+| **OPSX** | OpenSpec 的新一代工作流程指令系統（v1.0.0 起），取代舊版 `/openspec:*` 指令 |
+| **Profile** | 工作流程指令的預設組合（`core` 或 `custom`），控制安裝哪些指令 |
+| **Progressive Rigor** | 依變更風險選擇適當的規格嚴謹度（Lite Spec 或 Full Spec） |
+| **Dynamic Instructions** | 指令由 Context + Rules + Template 三層動態組裝，AI 可查詢 CLI 取得即時狀態 |
+| **Semantic Spec Syncing** | 使用語義標記（ADDED/MODIFIED/REMOVED/RENAMED）在 requirement 層級合併規格 |
 
 ---
 
@@ -3158,7 +3458,7 @@ openspec init --profile core
 | Multi-Language 多語言 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/multi-language.md |
 | Customization 自訂 | https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md |
 | @0xTab on X | https://x.com/0xTab |
-| 團隊版 Slack 頻道 | 寄信至 teams@openspec.dev 申請 |
+| Discord 社群 | https://discord.gg/openspec |
 
 ### 相關工具
 
@@ -3184,10 +3484,10 @@ openspec init --profile core
 | 項目 | 內容 |
 |------|------|
 | **文件名稱** | OpenSpec 使用教學手冊 |
-| **版本** | 4.0 |
+| **版本** | 5.0 |
 | **建立日期** | 2025-12-30 |
-| **更新日期** | 2026-04-12 |
-| **適用版本** | OpenSpec v1.3.0 |
+| **更新日期** | 2026-04-27 |
+| **適用版本** | OpenSpec v1.3.1 |
 | **維護者** | [Eric Cheng] |
 | **適用對象** | 新進軟體工程師、系統分析師 |
 
