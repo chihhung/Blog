@@ -34,7 +34,7 @@ title = '關於我'
 
 - **framework**: Spring framework /spring boot /Angular /nodes ...
 
-- **分析與設計:資料庫, ER,ORM ,OOAD,clean code ,clean architecture,hexagonal Architecute,onion Architecture,Refactoring,TDD,Domain-Driven Design, Design Pattern,..
+- **分析與設計**:資料庫, ER,ORM ,OOAD,clean code ,clean architecture,hexagonal Architecute,onion Architecture,Refactoring,TDD,Domain-Driven Design, Design Pattern,..
 
 - **AI 開發** : claude code / github copilot / codex 生態系,AI 建立 ssdlc agent team, SDD ...
 
