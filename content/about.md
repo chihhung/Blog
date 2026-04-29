@@ -28,7 +28,15 @@ title = '關於我'
 
 - **資料庫**: DB2, Oracle, PostgreSQL, SQL server
 
-- **工具**: Git, Docker , podman , VS Code , intellij , eclipse, Maven
+- **工具**: Git, Docker , podman , VS Code , intellij , eclipse, Maven,...
+
+- **程式語言**: C# / C /  C++ /cobol/ java/ javascript/ typescript / python/ sql/ bash/ html /CSS3
+
+- **framework**: Spring framework /spring boot /Angular /nodes ...
+
+- **分析與設計:資料庫, ER,ORM ,OOAD,clean code ,clean architecture,hexagonal Architecute,onion Architecture,Refactoring,TDD,Domain-Driven Design, Design Pattern,..
+
+- **AI 開發** : claude code / github copilot / codex 生態系,AI 建立 ssdlc agent team, SDD ...
 
 ## 聯絡方式
 
