@@ -1417,17 +1417,17 @@ graph TD
     A --> C[動態 Context]
     A --> D[隱含 Context]
 
-    B --> B1[copilot-instructions.md]
-    B --> B2[AGENTS.md]
-    B --> B3[instructions/*.md]
+    B --> B1["copilot-instructions.md"]
+    B --> B2["AGENTS.md"]
+    B --> B3["instructions/*.md"]
 
-    C --> C1[@ 引用檔案]
-    C --> C2[Prompt 中的描述]
-    C --> C3[對話歷史]
+    C --> C1["@ 引用檔案"]
+    C --> C2["Prompt 中的描述"]
+    C --> C3["對話歷史"]
 
-    D --> D1[目錄結構]
-    D --> D2[pom.xml / package.json]
-    D --> D3[README.md]
+    D --> D1["目錄結構"]
+    D --> D2["pom.xml / package.json"]
+    D --> D3["README.md"]
 ```
 
 ### 建議的 Context 配置（企業級）
