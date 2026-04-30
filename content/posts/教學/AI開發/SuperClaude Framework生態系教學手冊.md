@@ -4,14 +4,15 @@ draft = false
 title = 'SuperClaude Framework生態系教學手冊'
 tags = ['教學', 'AI開發']
 categories = ['教學']
+lastmod = '2026-04-30'
 +++
 
 # SuperClaude Framework 生態系教學手冊
 
-> **版本**：基於 SuperClaude Framework v4.2.0 撰寫  
-> **最後更新**：2026-03  
+> **版本**：基於 SuperClaude Framework v4.3.0 撰寫  
+> **最後更新**：2026-04-30
 > **適用對象**：資深工程師、技術主管、全端開發團隊  
-> **文件性質**：內部開發規範 / 實戰教學手冊
+> **文件性質**：企業標準技術白皮書 / 實戰教學手冊
 
 ---
 
@@ -21,7 +22,7 @@ categories = ['教學']
 - [第二章：系統需求與安裝](#第二章系統需求與安裝)
 - [第三章：系統設定與配置](#第三章系統設定與配置)
 - [第四章：30 個 Slash 指令完整指南](#第四章30-個-slash-指令完整指南)
-- [第五章：16 個 AI 代理人使用指南](#第五章16-個-ai-代理人agents使用指南)
+- [第五章：20 個 AI 代理人使用指南](#第五章20-個-ai-代理人agents使用指南)
 - [第六章：7 種行為模式](#第六章7-種行為模式behavioral-modes)
 - [第七章：Deep Research 深度研究功能](#第七章deep-research-深度研究功能)
 - [第八章：Web Application 開發實戰工作流](#第八章web-application-開發實戰工作流)
@@ -35,7 +36,7 @@ categories = ['教學']
 
 # 第一章：SuperClaude Framework 概覽
 
-> **章節摘要**：本章介紹 SuperClaude Framework 的核心定位、設計理念與生態系架構。讀者將瞭解它如何將原生 Claude Code CLI 轉化為具備完整軟體工程流程的自動化開發平台，以及其 30 個指令、16 個代理人、7 種模式與 8 個 MCP Server 的整體佈局。
+> **章節摘要**：本章介紹 SuperClaude Framework 的核心定位、設計理念與生態系架構。讀者將瞭解它如何將原生 Claude Code CLI 轉化為具備完整軟體工程流程的自動化開發平台，以及其 30 個指令、20 個代理人、7 種模式與 8 個 MCP Server 的整體佈局。
 
 ## 1.1 什麼是 SuperClaude Framework？
 
@@ -52,7 +53,7 @@ SuperClaude Framework 是一個 **Context Framework**（上下文框架），專
 | 比較項目 | 原生 Claude Code | SuperClaude Framework |
 |---------|----------------|----------------------|
 | 指令系統 | 基本 Slash 指令 | 30 個專業 Slash 指令 |
-| AI 角色 | 通用型助手 | 16 個專業代理人，可依情境切換 |
+| AI 角色 | 通用型助手 | 20 個專業代理人，可依情境切換 |
 | 行為模式 | 單一對話模式 | 7 種行為模式（腦力激盪、深度研究等） |
 | 外部工具整合 | 需手動配置 MCP | 8 個預配置 MCP Server，一鍵安裝 |
 | Session 管理 | 無持久化機制 | 支援跨日工作 Session 保存與載入 |
@@ -66,11 +67,12 @@ SuperClaude Framework 是一個 **Context Framework**（上下文框架），專
    透過結構化的配置文件（`CLAUDE.md`），在 Claude Code 啟動時自動注入行為準則、角色設定與工作規範，使其在每次互動中都遵循專業軟體工程流程。
 
 2. **元件協同編排（Component Orchestration）**  
-   30 個指令、16 個代理人與 7 種模式並非各自獨立運作，而是能根據任務需求自動協調。例如執行 `/sc:implement` 時，系統會視需要自動喚起 Code Reviewer Agent 進行品質檢查。
+   30 個指令、20 個代理人與 7 種模式並非各自獨立運作，而是能根據任務需求自動協調。例如執行 `/sc:implement` 時，系統會視需要自動喚起 security-engineer 進行安全性檢查、quality-engineer 進行品質審查。
 
 ### 版本資訊
 
-- **v4.2.0**（2026/01/18）：現行穩定版，Deep Research 強化、MCP 整合優化
+- **v4.3.0**（2026/03/23）：現行穩定版，安全性強化（移除 `shell=True`、SHA-256 完整性驗證）、實作缺口填補、代理人安裝支援 20 個代理人、62 個新測試、Windows 安裝指南
+- **v4.2.0**（2026/01/18）：Deep Research 強化（Multi-Hop 5 次）、MCP 整合優化、Mindbase 替換為 ReflexionMemory
 - **v5.0**（開發中）：TypeScript Plugin 系統（參見 [issue #419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419)），尚未設定發布日期
 
 ### 姊妹專案
@@ -79,9 +81,9 @@ SuperClaude Framework 同時有針對其他 AI 平台的姊妹框架：
 
 | 框架 | 目標平台 |
 |------|----------|
-| **SuperClaude Framework** | Anthropic Claude Code |
-| **SuperGemini Framework** | Google Gemini CLI |
-| **SuperQwen Framework** | Alibaba Qwen |
+| [**SuperClaude Framework**](https://github.com/SuperClaude-Org/SuperClaude_Framework) | Anthropic Claude Code |
+| [**SuperGemini Framework**](https://github.com/SuperClaude-Org/SuperGemini_Framework) | Google Gemini CLI |
+| [**SuperQwen Framework**](https://github.com/SuperClaude-Org/SuperQwen_Framework) | Alibaba Qwen |
 
 > 💡 三者共享相似的設計理念與指令結構，熟悉其中一個即可快速上手其他。
 
@@ -101,7 +103,7 @@ graph TB
     end
     
     subgraph "代理人層 Agent Layer"
-        AG[16 個專業 AI 代理人<br>PM, Security, Frontend, ...]
+        AG[20 個專業 AI 代理人<br>PM, Security, Frontend, ...]
         MD[7 種行為模式<br>Brainstorming, Research, ...]
     end
     
@@ -151,7 +153,7 @@ graph TB
 | 配置層 | `KNOWLEDGE.md` | 累積洞見、最佳實踐、故障排除記錄 |
 | 指令層 | Slash 指令 | 提供 30 個覆蓋開發全生命週期的操作入口 |
 | 指令層 | Flags | 以旗標參數修飾指令行為（如 `--verbose`、`--dry-run`） |
-| 代理人層 | AI Agents | 16 個專業化角色，依情境自動或手動調度 |
+| 代理人層 | AI Agents | 20 個專業化角色，依情境自動或手動調度 |
 | 代理人層 | Modes | 7 種行為模式，影響回應風格與分析深度 |
 | 整合層 | MCP Servers | 8 個外部工具，擴展搜尋、記憶、自動化能力 |
 
@@ -170,34 +172,38 @@ graph TB
 | 研究與分析 | 2 | `/sc:research`, `/sc:business-panel` |
 | 工具 | 9 | `/sc:agent`, `/sc:spawn`, `/sc:save`, `/sc:load` 等 |
 
-### 16 個 Agents 概覽
+### 20 個 Agents 概覽
+
+SuperClaude 提供 20 個領域專家代理人，分為五大類別，可透過 `@agent-` 前綴手動呼叫或依據關鍵字自動啟動：
 
 ```mermaid
 mindmap
-  root((SuperClaude<br>Agents))
-    管理類
-      PM Agent
-      Architecture Agent
-    前端
-      Frontend Architect Agent
-      UX Agent
-    後端
-      Backend Engineer Agent
-      API Designer Agent
-      Database Agent
-    品質
-      Code Reviewer Agent
-      Testing Agent
-      Security Engineer Agent
-      Performance Agent
-    維運
-      DevOps Agent
-      Integration Agent
-    研究與文件
-      Deep Research Agent
-      Documentation Agent
-      Data Agent
+  root((SuperClaude<br>20 Agents))
+    Meta 層
+      pm-agent
+    架構與系統設計
+      system-architect
+      backend-architect
+      frontend-architect
+      devops-architect
+    研究
+      deep-research-agent
+    品質與分析
+      security-engineer
+      performance-engineer
+      root-cause-analyst
+      quality-engineer
+      refactoring-expert
+    專業開發
+      python-expert
+      requirements-analyst
+    溝通與學習
+      technical-writer
+      learning-guide
+      socratic-mentor
 ```
+
+> 📝 **說明**：v4.3.0 的安裝器會將 20 個代理人部署至 `~/.claude/agents/` 目錄。上方 mindmap 列出 16 個核心代理人，其餘 4 個可透過 `@agent-` 前綴手動呼叫。官方文件以「16 domain specialist agents」描述核心代理人，「20 agents」則包含所有可用代理人。
 
 ### 7 種 Modes 概覽
 
@@ -241,7 +247,7 @@ mindmap
 | macOS 12+ | ✅ 完整支援 | 主要開發平台 |
 | Linux（Ubuntu 20.04+） | ✅ 完整支援 | CI/CD 環境建議使用 |
 | Windows WSL2 | ✅ 完整支援 | 建議使用 Ubuntu 22.04 WSL |
-| Windows 原生 | ⚠️ 部分支援 | 部分 MCP Server 可能有相容性問題 |
+| Windows 原生 | ✅ 支援 | v4.3.0 起新增 [Windows 安裝指南](https://github.com/SuperClaude-Org/SuperClaude_Framework/blob/master/docs/getting-started/windows-install.md) |
 
 ### 軟體版本需求
 
@@ -300,7 +306,7 @@ superclaude doctor            # 執行健康檢查
 ```text
 🔍 SuperClaude Health Check
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ SuperClaude CLI: v4.2.0
+✅ SuperClaude CLI: v4.3.0
 ✅ Claude Code CLI: detected
 ✅ Slash Commands: 30/30 installed
 ✅ Configuration: valid
@@ -432,13 +438,13 @@ echo 'TAVILY_API_KEY=tvly-your-api-key-here' >> .env
 
 ## 2.5 ReflexionMemory — 內建錯誤學習機制
 
-SuperClaude v4.2.0 內建了 **ReflexionMemory**（反思記憶）機制，無需額外安裝任何 MCP Server：
+SuperClaude v4.3.0 內建了 **ReflexionMemory**（反思記憶）機制，無需額外安裝任何 MCP Server：
 
 - **自動記錄**：當執行指令過程中發生錯誤時，系統自動記錄錯誤模式與修正方式
 - **學習迴避**：後續執行相似任務時，自動迴避已知的錯誤模式
 - **無需配置**：安裝 SuperClaude 後即可使用，無需額外設定
 
-> 💡 **歷史註記**：早期版本使用 **Mindbase** 作為記憶系統，v4.2.0 已將其替換為內建的 ReflexionMemory。Mindbase 現為可選的語義搜尋增強（需使用 `recommended` 安裝檔案），提供跨 Session 的語義搜尋功能。
+> 💡 **歷史註記**：早期版本使用 **Mindbase** 作為記憶系統，v4.2.0 已將其替換為內建的 ReflexionMemory。v4.3.0 進一步實作了 ReflexionPattern mindbase。Mindbase 現為可選的語義搜尋增強（需使用 `recommended` 安裝檔案），提供跨 Session 的語義搜尋功能。
 
 ## 2.6 安裝驗證與測試
 
@@ -852,7 +858,7 @@ server.start();
 
 ### `/sc:design` — 系統架構設計
 
-**功能說明**：啟動系統架構設計流程，根據需求產出架構圖、元件設計、介面定義與資料模型。自動調用 Architecture Agent 進行專業分析。
+**功能說明**：啟動系統架構設計流程，根據需求產出架構圖、元件設計、介面定義與資料模型。自動啟動 system-architect 代理人進行專業分析。
 
 **語法格式**：
 ```text
@@ -908,26 +914,52 @@ server.start();
 
 ---
 
-### `/sc:spec-panel` — 規格分析面板
+### `/sc:spec-panel` — 規格專家審查面板
 
-**功能說明**：召集多位虛擬專家（PM、架構師、資安工程師等）組成專家面板，針對規格需求進行多角度分析與審議。
+**功能說明**：模擬一個由知名軟體工程專家組成的審查面板，針對規格、API、需求文件進行多角度分析。
+
+**專家面板成員（10 位虛擬專家）**：
+
+| 專家 | 專業領域 | 典型提問範例 |
+|------|---------|------------|
+| Karl Wiegers | 需求工程 | 「這個需求缺乏可度量的驗收標準」 |
+| Gojko Adzic | 範例規格 | 「能提供 Given/When/Then 嗎？」 |
+| Alistair Cockburn | 使用案例 | 「誰是主要利害關係人？」 |
+| Martin Fowler | 架構與設計 | 「這違反了單一職責原則」 |
+| Michael Nygard | 生產系統 | 「當這個元件故障時會怎樣？」 |
+| Sam Newman | 微服務 | 「如何處理向後相容性？」 |
+| Gregor Hohpe | 企業整合 | 「訊息交換模式是什麼？」 |
+| Lisa Crispin | 敏捷測試 | 「QA 如何驗證這個？」 |
+| Janet Gregory | 協作測試 | 「全團隊都參與了嗎？」 |
+| Kelsey Hightower | 雲端原生 | 「如何處理雲端部署？」 |
+
+**三種運作模式**：
+
+| 模式 | 說明 |
+|------|------|
+| `--mode discussion` | 協作式——專家互相建構想法 |
+| `--mode critique` | 系統化審查——含嚴重度與優先序 |
+| `--mode socratic` | 提問式——透過深度問題引導理解 |
 
 **語法格式**：
 ```text
-/sc:spec-panel "<規格主題>" [--experts <專家列表>]
+/sc:spec-panel [spec|@file] [--mode discussion|critique|socratic] [--experts "name1,name2"] [--focus requirements|architecture|testing|compliance] [--iterations N]
 ```
 
 **使用範例**：
 
 ```text
-# 範例 1：模組規格審議
-/sc:spec-panel "第三方登入整合規格（Google / Apple / LINE Login）"
+# 範例 1：API 規格審查（批判模式）
+/sc:spec-panel @auth_api.spec.yml --mode critique --focus requirements,architecture
 
-# 範例 2：指定專家組成
-/sc:spec-panel "API 閘道器設計規格" --experts "security,performance,api-design"
+# 範例 2：需求工作坊（討論模式）
+/sc:spec-panel "使用者故事內容" --mode discussion --experts "wiegers,adzic,cockburn"
 
-# 範例 3：完整功能規格分析
-/sc:spec-panel "即時聊天功能規格（含離線訊息、已讀回執、多媒體訊息）"
+# 範例 3：學習式問答
+/sc:spec-panel @my_first_spec.yml --mode socratic --iterations 2
+
+# 範例 4：迭代改善（3 輪）
+/sc:spec-panel @complex_system.spec.yml --iterations 3 --format detailed
 ```
 
 **最佳使用場景**：
@@ -1249,7 +1281,7 @@ server.start();
 
 ### `/sc:pm` — 專案管理
 
-**功能說明**：啟動 PM Agent，進行專案進度追蹤、風險管理、資源配置與報告產出。
+**功能說明**：啟動 pm-agent 代理人，進行專案進度追蹤、風險管理、資源配置與報告產出。
 
 **語法格式**：
 ```text
@@ -1347,24 +1379,49 @@ server.start();
 
 ### `/sc:business-panel` — 商業分析面板
 
-**功能說明**：啟動 Business Panel Mode，召集多位虛擬商業顧問進行策略分析，涵蓋市場、財務、技術可行性等維度。
+**功能說明**：模擬一個由傳奇商業思想家組成的面板，針對策略、計畫或構想進行商業分析。
+
+**專家面板成員（9 位虛擬專家）**：
+
+| 專家 | 專業領域 | 典型提問範例 |
+|------|---------|------------|
+| Clayton Christensen | 破壞式創新、Jobs-to-be-Done | 「客戶雇用這個產品來做什麼工作？」 |
+| Michael Porter | 五力分析、競爭策略 | 「你的可持續競爭優勢是什麼？」 |
+| Peter Drucker | 目標管理 | 「你在衡量什麼結果？」 |
+| Seth Godin | 部落建構、許可式行銷 | 「你的部落是誰？什麼故事？」 |
+| Kim & Mauborgne | 藍海策略 | 「競爭還是創造新市場？」 |
+| Jim Collins | 從優秀到卓越、飛輪效應 | 「你的刺蝟概念是什麼？」 |
+| Nassim Taleb | 反脆弱、黑天鵝 | 「這是否從波動中獲益？」 |
+| Donella Meadows | 系統思考 | 「槓桿點在哪裡？」 |
+| Jean-luc Doumont | 結構化溝通 | 「訊息是否清晰且可行動？」 |
+
+**三種運作模式**：
+
+| 模式 | 說明 |
+|------|------|
+| `--mode discussion` | 協作式——專家互相建構想法 |
+| `--mode debate` | 對抗式——專家辯論、壓力測試構想 |
+| `--mode socratic` | 提問式——深度問題引導理解 |
 
 **語法格式**：
 ```text
-/sc:business-panel "<分析主題>" [--panelists <顧問類型>]
+/sc:business-panel [content|@file] [--experts "porter,christensen"] [--mode discussion|debate|socratic] [--focus domain] [--synthesis-only]
 ```
 
 **使用範例**：
 
 ```text
-# 範例 1：技術選型商業評估
-/sc:business-panel "自建 vs 採購第三方支付系統的成本效益分析"
+# 範例 1：商業計畫分析
+/sc:business-panel @business_plan.md
 
-# 範例 2：市場分析
-/sc:business-panel "台灣電商市場 2026 趨勢與技術投資建議"
+# 範例 2：競爭分析（指定專家）
+/sc:business-panel @market_analysis.md --experts "porter,christensen" --focus "competitive-analysis"
 
-# 範例 3：ROI 分析
-/sc:business-panel "導入微服務架構的投資報酬率分析"
+# 範例 3：策略壓力測試
+/sc:business-panel @strategy.md --mode debate
+
+# 範例 4：僅產出綜合結論
+/sc:business-panel @pitch_deck.md --synthesis-only
 ```
 
 ---
@@ -1465,378 +1522,462 @@ server.start();
 /sc
 ```
 
+## 4.9 指令產出類型分類
+
+SuperClaude 的 30 個指令可依「是否產生程式碼變更」分為兩大類。理解此分類有助於掌握每個指令的行為邊界：
+
+### 文件產出型指令（Document-Only）
+
+這些指令**僅產出文件/報告，不會實作程式碼**：
+
+| 指令 | 產出 |
+|------|------|
+| `/sc:brainstorm` | 需求規格 |
+| `/sc:workflow` | 實作計畫 |
+| `/sc:spawn` | 任務階層 |
+| `/sc:research` | 研究報告 |
+| `/sc:estimate` | 估算報告 |
+| `/sc:design` | 架構文件 |
+| `/sc:analyze` | 分析報告 |
+| `/sc:spec-panel` | 專家審查文件 |
+| `/sc:business-panel` | 商業分析文件 |
+| `/sc:troubleshoot` | 診斷報告（修復需加 `--fix` 旗標） |
+
+### 執行型指令（Execution Commands）
+
+這些指令**會執行變更**：
+
+| 指令 | 行為 |
+|------|------|
+| `/sc:implement` | 撰寫程式碼 |
+| `/sc:improve` | 套用改善（安全變更自動、架構變更需確認） |
+| `/sc:cleanup` | 移除無用程式碼（未使用 import 自動、被引用程式碼需確認） |
+| `/sc:task` | 離散任務執行（完成即停止） |
+| `/sc:test` | 執行測試 |
+| `/sc:build` | 建置專案 |
+| `/sc:git` | Git 操作 |
+
+> 💡 **關鍵行為差異**：
+> - 文件產出型指令完成後會停止並建議下一步操作
+> - 執行型指令有明確的完成標準
+> - `/sc:troubleshoot` 預設為「先診斷」，需加 `--fix` 旗標才會套用修復
+> - `/sc:improve` 與 `/sc:cleanup` 對安全變更自動執行，對高風險變更會先詢問
+
 ---
 
-# 第五章：16 個 AI 代理人（Agents）使用指南
+# 第五章：20 個 AI 代理人（Agents）使用指南
 
-> **章節摘要**：SuperClaude 內建 16 個專業 AI 代理人，各自對應軟體開發中的特定角色。本章說明代理人的自動協調機制、每個代理人的專業領域與使用方式，以及在 Web Application 全端開發中的協作流程。
+> **章節摘要**：SuperClaude v4.3.0 內建 20 個專業 AI 代理人，各自對應軟體開發中的特定角色。本章說明代理人的自動啟動（Behavioral Routing）與手動呼叫機制、每個代理人的專業領域與使用方式，以及在 Web Application 全端開發中的協作流程。
 
 ## 5.1 代理人系統概述
 
-### 代理人自動協調機制
+### 代理人自動啟動機制（Behavioral Routing）
 
-SuperClaude 的代理人系統採用 **智慧調度（Smart Dispatch）** 機制：
+SuperClaude 的代理人系統採用**行為路由（Behavioral Routing）**機制。代理人本質上是精心設計的 `.md` 上下文指令檔（部署於 `~/.claude/agents/`），當 Claude Code 讀取這些指令時，會依據請求中的**關鍵字與模式**自動選擇適當的專家行為：
 
-1. **情境偵測**：系統分析使用者的指令與上下文
-2. **角色匹配**：自動選擇最適合的代理人
-3. **多代理人協作**：複雜任務可串聯多個代理人
+1. **關鍵字偵測**：分析請求中的領域術語（如 "security"、"performance"、"React"）
+2. **檔案類型識別**：根據操作的檔案類型（如 `.py`、`.jsx`、`Dockerfile`）啟動對應專家
+3. **複雜度判斷**：多領域任務自動協調多個代理人
 4. **結果整合**：將多個代理人的產出整合為一致的回應
+
+**代理人選擇優先順序**：
+1. **手動覆蓋** — `@agent-<name>` 優先於自動啟動
+2. **關鍵字匹配** — 直接領域術語觸發主要代理人
+3. **檔案類型** — 副檔名觸發語言/框架專家
+4. **複雜度** — 多步驟任務啟動協調代理人
+5. **上下文** — 相關概念觸發互補代理人
 
 ```mermaid
 sequenceDiagram
     participant U as 開發者
-    participant SC as SuperClaude 調度器
-    participant A1 as Backend Agent
-    participant A2 as Security Agent
-    participant A3 as Testing Agent
+    participant SC as SuperClaude 行為路由
+    participant A1 as backend-architect
+    participant A2 as security-engineer
+    participant A3 as quality-engineer
     
-    U->>SC: /sc:implement "使用者登入 API"
-    SC->>A1: 委派：實作 API 邏輯
+    U->>SC: /sc:implement "JWT 認證 API"
+    Note over SC: 關鍵字偵測：JWT→安全、API→後端
+    SC->>A1: 自動啟動：實作 API 邏輯
     A1-->>SC: 回傳實作程式碼
-    SC->>A2: 委派：安全性審查
+    SC->>A2: 自動啟動：安全性審查
     A2-->>SC: 回傳安全建議
-    SC->>A3: 委派：產生測試案例
+    SC->>A3: 自動啟動：產生測試案例
     A3-->>SC: 回傳測試程式碼
     SC->>U: 整合回傳：程式碼 + 安全建議 + 測試
 ```
 
-### 手動調用代理人
+### 兩種呼叫方式
 
-當自動調度不符合需求時，可使用以下兩種方式手動指定：
-
-**方式一：`/sc:agent` 指令**（推薦）
-```text
-# 語法
-/sc:agent <代理人名稱> "<任務描述>"
-
-# 範例
-/sc:agent security "審查 src/middleware/auth.ts 的安全性"
-/sc:agent database "設計訂單系統的資料庫 Schema"
-```
-
-**方式二：`@agent-*` 直接調用**
+**方式一：`@agent-` 前綴直接呼叫**（推薦）
 ```text
 # 語法
 @agent-<代理人名稱> "<任務描述>"
 
 # 範例
-@agent-security "審查認證模組"
-@agent-python-expert "優化這段程式碼"
+@agent-security "審查 src/middleware/auth.ts 的 OWASP 合規性"
+@agent-python-expert "優化這段資料處理管線"
+@agent-quality-engineer "建立完整測試套件"
+@agent-socratic-mentor "解釋這個設計模式"
 ```
 
-> 💡 **提示**：兩種方式功能相同，`@agent-*` 格式在某些情境下更直觀。
+**方式二：`/sc:agent` 指令**
+```text
+# 語法
+/sc:agent <代理人名稱> "<任務描述>"
+
+# 範例
+/sc:agent security "審查認證模組"
+/sc:agent frontend "設計響應式導覽元件"
+```
+
+> 💡 **提示**：手動呼叫（`@agent-`）優先於自動啟動。兩者可組合使用——先用指令觸發自動啟動，再用 `@agent-` 追加特定專家審查。
 
 ## 5.2 各代理人詳細說明
 
-### 1. PM Agent（專案管理代理人）
+### 代理人總覽快速查詢表
+
+| # | 代理人名稱 | 類別 | 自動觸發關鍵字 |
+|---|-----------|------|--------------|
+| 1 | pm-agent | Meta 層 | 任務完成後、錯誤偵測時 |
+| 2 | system-architect | 架構設計 | architecture, microservices, scalability |
+| 3 | backend-architect | 架構設計 | API, backend, server, database, REST, GraphQL |
+| 4 | frontend-architect | 架構設計 | UI, frontend, React, Vue, component, responsive |
+| 5 | devops-architect | 架構設計 | deploy, CI/CD, Docker, Kubernetes, pipeline |
+| 6 | deep-research-agent | 研究 | research, investigate, explore, latest |
+| 7 | security-engineer | 品質分析 | security, auth, vulnerability, OWASP, encryption |
+| 8 | performance-engineer | 品質分析 | performance, slow, optimization, bottleneck, latency |
+| 9 | root-cause-analyst | 品質分析 | bug, issue, debugging, troubleshoot, error |
+| 10 | quality-engineer | 品質分析 | test, QA, validation, coverage, automation |
+| 11 | refactoring-expert | 品質分析 | refactor, clean code, technical debt, SOLID |
+| 12 | python-expert | 專業開發 | Python, Django, FastAPI, asyncio, pytest |
+| 13 | requirements-analyst | 專業開發 | requirements, PRD, specification, user story |
+| 14 | technical-writer | 溝通學習 | documentation, readme, API docs, user guide |
+| 15 | learning-guide | 溝通學習 | explain, learn, tutorial, beginner, teaching |
+| 16 | socratic-mentor | 溝通學習 | 教學互動、概念引導 |
+
+> 📝 **說明**：以上為 16 個核心代理人，v4.3.0 安裝器會部署共 20 個代理人至 `~/.claude/agents/`。其餘 4 個為進階或實驗性代理人，可透過 `@agent-` 前綴手動呼叫。
+
+---
+
+### Meta 層代理人 🎯
+
+#### 1. pm-agent（專案管理代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 專案規劃、進度追蹤、風險管理、資源配置 |
-| **自動觸發** | 使用 `/sc:pm`、`/sc:task`、`/sc:estimate` 時 |
-| **手動調用** | `/sc:agent pm "產出本週 Sprint 進度報告"` |
+| **專業領域** | 自我改善工作流程執行者：文件記錄、錯誤分析、知識庫維護 |
+| **自動觸發** | 任務完成後（`/sc:implement`、`/sc:build`、`/sc:improve`）、偵測到錯誤時、每月例行維護 |
+| **手動調用** | `@agent-pm` 或 `/sc:pm` |
 
 **核心能力**：
-- Sprint 規劃與任務拆解
-- 維護 TASK.md 任務追蹤
-- 風險識別與緩解策略建議
-- 團隊工作量分析與瓶頸預警
+- 實作文件記錄：新模式、架構決策、邊界案例
+- 錯誤分析：根因分析、預防檢查清單、模式識別
+- 模式萃取：成功模式、反模式、最佳實踐
+- 知識維護：每月審查、噪音降低、重複合併、新鮮度更新
 
-**Web 開發場景範例**：
+**Meta 層運作方式**：
 ```text
-/sc:agent pm "分析目前電商平台開發進度，識別延遲風險，建議調整方案"
+任務流程：
+1. 使用者請求 → 自動啟動選擇專業代理人
+2. 專業代理人 → 執行實作（backend-architect, frontend-architect 等）
+3. pm-agent（自動觸發）→ 記錄學習內容至 docs/
+4. 知識庫 → 更新模式、錯誤、改進項目
 ```
 
 ---
 
-### 2. Deep Research Agent（深度研究代理人）
+### 架構與系統設計代理人 🏗️
+
+#### 2. system-architect（系統架構代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 技術調研、方案比較、趨勢分析、最佳實踐整理 |
-| **自動觸發** | 使用 `/sc:research` 時 |
-| **手動調用** | `/sc:agent research "調研 WebSocket 方案"` |
+| **專業領域** | 大規模分散式系統設計、可擴展性與服務架構 |
+| **自動觸發** | 關鍵字 "architecture"、"microservices"、"scalability"、>5 元件整合 |
+| **手動調用** | `@agent-system-architect` 或 `/sc:agent architect` |
 
 **核心能力**：
-- Multi-Hop 迭代搜尋（最多 5 次）
-- 結構化研究報告產出
-- 信心評分與來源標註
-- 跨 Session 記憶學習
+- 服務邊界定義與微服務拆解
+- 技術棧選型與整合策略
+- 可擴展性規劃與效能架構
+- 事件驅動架構與訊息模式
+- 資料流設計與系統整合
+
+**協作對象**：devops-architect（基礎設施）、performance-engineer（優化）、security-engineer（合規）
+
+---
+
+#### 3. backend-architect（後端架構代理人）
+
+| 項目 | 說明 |
+|------|------|
+| **專業領域** | 穩健的伺服器端系統設計、API 可靠性與資料完整性 |
+| **自動觸發** | 關鍵字 "API"、"backend"、"server"、"database"、"REST"、"GraphQL" |
+| **手動調用** | `@agent-backend` 或 `/sc:agent backend` |
+
+**核心能力**：
+- RESTful / GraphQL API 架構與設計模式
+- 資料庫 Schema 設計與查詢優化策略
+- 認證授權與安全性實作（OAuth、JWT、SAML）
+- 錯誤處理、日誌與監控整合
+- 快取策略與效能優化
 
 **Web 開發場景範例**：
 ```text
-/sc:agent research "比較 Socket.io vs ws vs Bun WebSocket 在即時通知場景的效能與穩定性"
+@agent-backend "實作訂單服務：建立訂單、查詢訂單、更新狀態、庫存扣減"
 ```
 
 ---
 
-### 3. Security Engineer Agent（資安工程代理人）
+#### 4. frontend-architect（前端架構代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 安全性審查、漏洞偵測、OWASP 合規、加密策略 |
-| **自動觸發** | 使用 `/sc:analyze --focus security` 時 |
-| **手動調用** | `/sc:agent security "審查認證模組"` |
+| **專業領域** | 現代 Web 應用架構、無障礙（Accessibility）與使用者體驗 |
+| **自動觸發** | 關鍵字 "UI"、"frontend"、"React"、"Vue"、"component"、"responsive"；檔案類型 `.jsx`、`.vue`、`.css` |
+| **手動調用** | `@agent-frontend` 或 `/sc:agent frontend` |
 
 **核心能力**：
-- OWASP Top 10 漏洞偵測
-- 依賴套件 CVE 掃描
-- 加密策略審查（JWT、bcrypt、TLS 等）
-- CSP、CORS、CSRF 配置建議
-- 程式碼注入風險分析（SQL Injection、XSS、Command Injection）
+- 元件架構與設計系統實作
+- 狀態管理模式（Redux、Zustand、Pinia）
+- 無障礙合規（WCAG 2.1）與包容性設計
+- 效能優化與 Bundle 分析
+- PWA 與行動優先開發
 
 **Web 開發場景範例**：
 ```text
-/sc:agent security "全面審查電商平台的認證授權機制，檢查 OWASP Top 10 合規性"
-```
-
-> ⚠️ **注意**：每次發布新版本前，建議使用 Security Agent 進行完整安全性審查。
-
----
-
-### 4. Frontend Architect Agent（前端架構代理人）
-
-| 項目 | 說明 |
-|------|------|
-| **專業領域** | 前端架構設計、元件體系、狀態管理、效能優化 |
-| **自動觸發** | 實作前端相關需求時 |
-| **手動調用** | `/sc:agent frontend "設計元件架構"` |
-
-**核心能力**：
-- 元件樹設計與拆分策略
-- 前端狀態管理方案設計
-- 渲染策略（CSR / SSR / SSG / ISR）建議
-- Web Vitals 效能優化
-- 響應式設計（RWD）與無障礙（a11y）
-
-**Web 開發場景範例**：
-```text
-/sc:agent frontend "設計電商平台的前端元件架構，包含商品展示、購物車、結帳流程"
+@agent-frontend "設計電商平台的前端元件架構，包含商品展示、購物車、結帳流程"
 ```
 
 ---
 
-### 5. Backend Engineer Agent（後端工程代理人）
+#### 5. devops-architect（DevOps 架構代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 後端服務、API 設計、商業邏輯、系統整合 |
-| **自動觸發** | 實作後端相關需求時 |
-| **手動調用** | `/sc:agent backend "實作訂單服務"` |
+| **專業領域** | 基礎設施自動化與部署管線設計 |
+| **自動觸發** | 關鍵字 "deploy"、"CI/CD"、"Docker"、"Kubernetes"、"pipeline"；檔案類型 `Dockerfile`、`docker-compose.yml`、K8s manifests |
+| **手動調用** | `@agent-devops` 或 `/sc:agent devops` |
 
 **核心能力**：
-- RESTful / GraphQL API 設計與實作
-- 商業邏輯分層架構（Controller → Service → Repository）
-- 中介軟體（Middleware）設計
-- 錯誤處理與日誌策略
-- 快取策略（Redis、In-memory）
+- CI/CD 管線設計與自動化測試部署
+- 容器編排與 Kubernetes 叢集管理
+- Infrastructure as Code（Terraform）與雲端平台整合
+- 監控、日誌與可觀測性堆疊實作
+- 安全掃描與合規自動化
 
 **Web 開發場景範例**：
 ```text
-/sc:agent backend "實作訂單服務：建立訂單、查詢訂單、更新狀態、庫存扣減"
+@agent-devops "建立完整的 CI/CD Pipeline：PR 檢查 → 自動測試 → Staging 部署 → 手動核准 → Production 部署"
 ```
 
 ---
 
-### 6. DevOps Agent（部署運維代理人）
+### 研究代理人 🔬
+
+#### 6. deep-research-agent（深度研究代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | CI/CD、容器化、雲端部署、監控告警 |
-| **自動觸發** | 使用 `/sc:build` 建置部署相關需求時 |
-| **手動調用** | `/sc:agent devops "設定 CI/CD Pipeline"` |
+| **專業領域** | 全面性研究、自適應策略與多跳推理 |
+| **自動觸發** | 關鍵字 "research"、"investigate"、"discover"、"explore"、"latest"；使用 `/sc:research` 時 |
+| **手動調用** | `@agent-deep-research` 或 `/sc:research` |
 
 **核心能力**：
-- Dockerfile 與 Docker Compose 配置
-- CI/CD Pipeline 設計（GitHub Actions / GitLab CI）
-- Kubernetes 部署配置
-- 監控與告警設定（Prometheus / Grafana）
-- 環境管理（dev / staging / production）
+- 自適應規劃策略：Planning（直接）、Intent（先釐清）、Unified（協作）
+- Multi-Hop 推理（最多 5 層）：實體擴展、時間推進、概念深化、因果鏈
+- 自省機制：每個主要步驟後的進度評估與重新規劃
+- 證據管理：明確引用、相關性評分、不確定性標註
+
+**研究深度層級**：
+| 層級 | 說明 |
+|------|------|
+| Quick | 基本搜尋、1 跳、摘要輸出 |
+| Standard | 延伸搜尋、2-3 跳、結構化報告（預設） |
+| Deep | 全面搜尋、3-4 跳、詳細分析 |
+| Exhaustive | 最大深度、5 跳、完整調查 |
 
 **Web 開發場景範例**：
 ```text
-/sc:agent devops "建立完整的 CI/CD Pipeline：PR 檢查 → 自動測試 → Staging 部署 → 手動核准 → Production 部署"
+/sc:research "比較 Socket.io vs ws vs Bun WebSocket 在即時通知場景的效能與穩定性" --depth deep
 ```
 
 ---
 
-### 7. Code Reviewer Agent（程式碼審查代理人）
+### 品質與分析代理人 🔍
+
+#### 7. security-engineer（資安工程代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 程式碼品質審查、最佳實踐檢查、程式碼異味偵測 |
-| **自動觸發** | 使用 `/sc:analyze`、`/sc:improve` 時 |
-| **手動調用** | `/sc:agent reviewer "審查 PR #42"` |
+| **專業領域** | 應用安全架構、威脅建模與漏洞預防 |
+| **自動觸發** | 關鍵字 "security"、"auth"、"vulnerability"、"OWASP"、"encryption"；涉及支付、使用者資料、API 存取時 |
+| **手動調用** | `@agent-security` 或 `/sc:agent security` |
 
 **核心能力**：
-- 程式碼風格與慣例檢查
-- 潛在 Bug 偵測
-- 設計模式適用性評估
-- DRY / SOLID 原則合規性
-- 測試覆蓋率評估
+- 威脅建模與攻擊面分析
+- 安全認證授權設計（OAuth、JWT、SAML）
+- 資料加密策略與金鑰管理
+- 漏洞評估與滲透測試指導
+- 安全合規實作（GDPR、HIPAA、PCI-DSS）
+
+> ⚠️ **注意**：每次發布新版本前，建議使用 security-engineer 進行完整安全性審查。
 
 ---
 
-### 8. Database Agent（資料庫設計代理人）
+#### 8. performance-engineer（效能工程代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | Schema 設計、查詢優化、索引策略、資料遷移 |
-| **自動觸發** | 涉及資料庫操作時 |
-| **手動調用** | `/sc:agent database "設計商品分類 Schema"` |
+| **專業領域** | 系統效能優化、可擴展性與資源效率 |
+| **自動觸發** | 關鍵字 "performance"、"slow"、"optimization"、"bottleneck"、"latency"、"memory"、"CPU" |
+| **手動調用** | `@agent-performance-engineer` 或 `/sc:agent performance` |
 
 **核心能力**：
-- ER 模型設計
-- 正規化與反正規化策略
-- 索引設計與查詢效能優化
-- Migration 腳本產生
-- 讀寫分離與分片（Sharding）策略
-
-**Web 開發場景範例**：
-```text
-/sc:agent database "設計電商平台資料庫 Schema：使用者、商品、訂單、支付、物流"
-```
+- 效能剖析與瓶頸識別
+- 資料庫查詢優化與索引策略
+- 快取實作（Redis、CDN、應用層快取）
+- 負載測試與容量規劃
+- 記憶體管理與資源優化
 
 ---
 
-### 9. API Designer Agent（API 設計代理人）
+#### 9. root-cause-analyst（根因分析代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | API 設計規範、OpenAPI 規格、版本管理、文件產出 |
-| **自動觸發** | 設計 API 端點時 |
-| **手動調用** | `/sc:agent api "設計商品 API"` |
+| **專業領域** | 系統性問題調查、證據驅動分析與假設測試 |
+| **自動觸發** | 關鍵字 "bug"、"issue"、"debugging"、"troubleshoot"、"error"；跨系統複雜問題 |
+| **手動調用** | `@agent-root-cause-analyst` 或 `/sc:troubleshoot` |
 
 **核心能力**：
-- RESTful 路由設計（含 HTTP Method、狀態碼規範）
-- OpenAPI 3.0 / Swagger 規格產出
-- API 版本管理策略（URL / Header / Query）
-- 分頁、篩選、排序的統一規範
-- 錯誤回應格式標準化
+- 系統化除錯方法論與根因分析
+- 錯誤關聯與跨系統依賴映射
+- 日誌分析與失敗模式識別
+- 假設形成與測試驗證
+- 事故回應與事後分析（Post-mortem）程序
 
 ---
 
-### 10. Testing Agent（測試策略代理人）
+#### 10. quality-engineer（品質工程代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 測試策略、測試案例設計、TDD/BDD 流程 |
-| **自動觸發** | 使用 `/sc:test` 時 |
-| **手動調用** | `/sc:agent testing "設計測試策略"` |
+| **專業領域** | 全面測試策略與品質保證、自動化與覆蓋率 |
+| **自動觸發** | 關鍵字 "test"、"QA"、"validation"、"coverage"、"automation" |
+| **手動調用** | `@agent-quality-engineer` 或 `/sc:test` |
 
 **核心能力**：
-- 測試金字塔策略規劃
-- 單元 / 整合 / E2E 測試案例設計
-- 邊界值分析與等價劃分
-- Mock / Stub / Spy 策略建議
-- 測試覆蓋率分析與優化
+- 測試策略設計（單元、整合、E2E、效能測試）
+- 測試自動化框架實作與 CI/CD 整合
+- 品質指標定義與監控（覆蓋率、缺陷率）
+- 邊界案例識別與邊界測試場景
+- 無障礙測試與合規驗證
 
 ---
 
-### 11. Documentation Agent（文件撰寫代理人）
+#### 11. refactoring-expert（重構專家代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 技術文件、API 文件、新手入門指南 |
-| **自動觸發** | 使用 `/sc:document` 時 |
-| **手動調用** | `/sc:agent docs "撰寫部署指南"` |
+| **專業領域** | 透過系統化重構改善程式碼品質與技術債管理 |
+| **自動觸發** | 關鍵字 "refactor"、"clean code"、"technical debt"、"SOLID"、"code smell" |
+| **手動調用** | `@agent-refactoring-expert` 或 `/sc:improve` |
 
 **核心能力**：
-- API 文件自動產出（OpenAPI format）
-- README.md / CONTRIBUTING.md 產出
-- 架構決策紀錄（ADR）撰寫
-- 新手入門（Onboarding）指南
-- CHANGELOG 自動維護
+- SOLID 原則應用與設計模式實作
+- 程式碼異味識別與系統性消除
+- 舊系統現代化策略與遷移規劃
+- 技術債評估與優先序框架
+- 程式碼結構改善與架構重構
 
 ---
 
-### 12. Performance Agent（效能優化代理人）
+### 專業開發代理人 🎯
+
+#### 12. python-expert（Python 專家代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 效能剖析、瓶頸定位、優化建議 |
-| **自動觸發** | 使用 `/sc:analyze --focus performance` 時 |
-| **手動調用** | `/sc:agent performance "分析 API 效能"` |
+| **專業領域** | 生產級 Python 開發、現代框架與效能 |
+| **自動觸發** | 關鍵字 "Python"、"Django"、"FastAPI"、"Flask"、"asyncio"、"pytest"；檔案類型 `.py`、`requirements.txt`、`pyproject.toml` |
+| **手動調用** | `@agent-python-expert` |
 
 **核心能力**：
-- N+1 查詢偵測
-- Memory Leak 分析
-- 前端 Bundle Size 優化
-- API 回應時間剖析
-- 快取策略建議
+- 現代 Python 架構模式與框架選型
+- 非同步程式設計（asyncio、concurrent futures）
+- 效能優化（profiling 與演算法改進）
+- pytest 測試策略、fixtures 與自動化
+- 套件管理與部署（pip、poetry、Docker）
 
 ---
 
-### 13. Architecture Agent（系統架構代理人）
+#### 13. requirements-analyst（需求分析代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 系統設計、架構模式選擇、可擴展性規劃 |
-| **自動觸發** | 使用 `/sc:design` 時 |
-| **手動調用** | `/sc:agent architecture "設計微服務架構"` |
+| **專業領域** | 需求探索與規格開發、系統化利害關係人分析 |
+| **自動觸發** | 關鍵字 "requirements"、"specification"、"PRD"、"user story"、"scope" |
+| **手動調用** | `@agent-requirements-analyst` |
 
 **核心能力**：
-- 架構模式推薦（Monolith / Microservice / Serverless）
-- 可擴展性（Scalability）設計
-- 高可用性（HA）與容錯設計
-- 分散式系統設計（Event Sourcing、CQRS）
-- 架構圖產出（C4 Model）
+- 需求引導（透過利害關係人訪談與工作坊）
+- 使用者故事撰寫（含驗收標準與完成定義）
+- 功能與非功能需求規格文件
+- 利害關係人分析與需求優先序排列
+- 範圍管理與變更控制流程
 
 ---
 
-### 14. UX Agent（使用者體驗代理人）
+### 溝通與學習代理人 📚
+
+#### 14. technical-writer（技術寫作代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 使用者介面設計、互動流程、無障礙 |
-| **自動觸發** | 前端 UI 相關設計時 |
-| **手動調用** | `/sc:agent ux "設計結帳流程"` |
+| **專業領域** | 技術文件與溝通、受眾分析與清晰度 |
+| **自動觸發** | 關鍵字 "documentation"、"readme"、"API docs"、"user guide"；檔案類型 `.md`、`.rst`、API specs |
+| **手動調用** | `@agent-technical-writer` 或 `/sc:document` |
 
 **核心能力**：
-- 使用者旅程（User Journey）設計
-- Wireframe 文字描述
-- 互動模式建議
-- 無障礙（WAI-ARIA）合規檢查
-- 多語系（i18n）與在地化策略
+- 技術文件架構與資訊設計
+- 受眾分析與不同技能層級的內容定位
+- API 文件（含可運行範例與整合指引）
+- 使用者指南（含逐步程序與故障排除）
+- 無障礙標準應用與包容性語言
 
 ---
 
-### 15. Data Agent（資料分析代理人）
+#### 15. learning-guide（學習引導代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 資料分析、報表設計、資料管線 |
-| **自動觸發** | 涉及資料分析需求時 |
-| **手動調用** | `/sc:agent data "設計使用者行為分析"` |
+| **專業領域** | 教學內容設計與漸進式學習、技能發展與指導 |
+| **自動觸發** | 關鍵字 "explain"、"learn"、"tutorial"、"beginner"、"teaching" |
+| **手動調用** | `@agent-learning-guide` 或 `/sc:explain` |
 
 **核心能力**：
-- 資料模型設計（Star Schema / Snowflake）
-- ETL Pipeline 設計
-- 儀表板與報表需求分析
-- A/B Testing 資料分析方案
-- 資料隱私合規（GDPR、個資法）
+- 學習路徑設計與漸進式技能發展
+- 透過類比與範例的複雜概念解說
+- 互動式教程（含實作練習）
+- 技能評估與能力評量框架
+- 導師策略與個人化學習方法
 
 ---
 
-### 16. Integration Agent（系統整合代理人）
+#### 16. socratic-mentor（蘇格拉底導師代理人）
 
 | 項目 | 說明 |
 |------|------|
-| **專業領域** | 第三方系統整合、API Gateway、訊息佇列 |
-| **自動觸發** | 涉及外部系統整合時 |
-| **手動調用** | `/sc:agent integration "整合金流系統"` |
+| **專業領域** | 引導式教學、透過提問深化理解 |
+| **自動觸發** | 學習型請求、概念探索 |
+| **手動調用** | `@agent-socratic-mentor` |
 
 **核心能力**：
-- 第三方 API 整合策略（REST / GraphQL / Webhook）
-- API Gateway 配置
-- 訊息佇列設計（RabbitMQ / Kafka / SQS）
-- 事件驅動整合模式
-- 重試與斷路器（Circuit Breaker）機制
-
-**Web 開發場景範例**：
-```text
-/sc:agent integration "設計與實作綠界支付 API 整合：建立訂單 → 導向付款 → 回調驗證 → 更新訂單狀態"
-```
+- 蘇格拉底式提問法引導思考
+- 概念逐步拆解與深化
+- 引導學習者自行發現答案
+- 反思式回饋與思考框架建構
 
 ---
 
@@ -1847,81 +1988,83 @@ sequenceDiagram
 ```mermaid
 graph LR
     subgraph "Phase 1：規劃"
-        PM[PM Agent<br>需求拆解]
-        ARCH[Architecture Agent<br>架構設計]
+        PM[pm-agent<br>需求記錄]
+        ARCH[system-architect<br>架構設計]
+        REQ[requirements-analyst<br>需求分析]
     end
     
     subgraph "Phase 2：設計"
-        API[API Designer Agent<br>API 規格]
-        DB[Database Agent<br>Schema 設計]
-        UX[UX Agent<br>UI/UX 設計]
+        DESIGN[system-architect<br>系統設計]
+        BACK_D[backend-architect<br>API 規格]
+        FRONT_D[frontend-architect<br>UI 設計]
     end
     
     subgraph "Phase 3：實作"
-        FE[Frontend Agent<br>前端開發]
-        BE[Backend Agent<br>後端開發]
-        INT[Integration Agent<br>第三方整合]
+        FE[frontend-architect<br>前端開發]
+        BE[backend-architect<br>後端開發]
+        PY[python-expert<br>Python 開發]
     end
     
     subgraph "Phase 4：品質"
-        TEST[Testing Agent<br>測試策略]
-        SEC[Security Agent<br>安全審查]
-        PERF[Performance Agent<br>效能優化]
-        CR[Code Reviewer<br>程式碼審查]
+        TEST[quality-engineer<br>測試策略]
+        SEC[security-engineer<br>安全審查]
+        PERF[performance-engineer<br>效能優化]
+        RCA[root-cause-analyst<br>問題診斷]
+        REF[refactoring-expert<br>程式碼改善]
     end
     
     subgraph "Phase 5：交付"
-        DOC[Documentation Agent<br>文件產出]
-        DEVOPS[DevOps Agent<br>部署維運]
-        DATA[Data Agent<br>數據分析]
+        DOC[technical-writer<br>文件產出]
+        DEVOPS[devops-architect<br>部署維運]
+        LEARN[learning-guide<br>知識傳承]
     end
     
-    PM --> ARCH
-    ARCH --> API
-    ARCH --> DB
-    ARCH --> UX
-    API --> BE
-    DB --> BE
-    UX --> FE
-    BE --> INT
+    REQ --> ARCH
+    ARCH --> DESIGN
+    DESIGN --> BACK_D
+    DESIGN --> FRONT_D
+    BACK_D --> BE
+    FRONT_D --> FE
+    BE --> PY
     FE --> TEST
     BE --> TEST
-    INT --> TEST
     TEST --> SEC
     TEST --> PERF
-    SEC --> CR
-    PERF --> CR
-    CR --> DOC
-    CR --> DEVOPS
-    DEVOPS --> DATA
+    SEC --> RCA
+    PERF --> REF
+    REF --> DOC
+    RCA --> DOC
+    DOC --> DEVOPS
+    DEVOPS --> LEARN
+    PM -.->|Meta 層：持續記錄| DOC
 ```
 
 ### 代理人協作範例：電商「商品搜尋」功能
 
 ```text
-# 步驟 1：PM Agent 拆解任務
-/sc:agent pm "將『商品搜尋功能』拆解成可執行的開發任務"
+# 步驟 1：requirements-analyst 分析需求
+@agent-requirements-analyst "將『商品搜尋功能』拆解成可執行的開發任務與驗收標準"
 
-# 步驟 2：Architecture Agent 設計方案
-/sc:agent architecture "商品搜尋功能的技術方案：全文搜尋引擎選型與架構"
+# 步驟 2：system-architect 設計方案
+@agent-system-architect "商品搜尋功能的技術方案：全文搜尋引擎選型與架構"
 
-# 步驟 3：API Designer Agent 定義介面
-/sc:agent api "設計商品搜尋 API：支援關鍵字搜尋、分類篩選、價格範圍、排序、分頁"
+# 步驟 3：backend-architect 設計 API
+@agent-backend "設計商品搜尋 API：支援關鍵字搜尋、分類篩選、價格範圍、排序、分頁"
 
-# 步驟 4：Database Agent 設計索引
-/sc:agent database "為商品搜尋設計 PostgreSQL 全文索引（tsvector + GIN index）"
+# 步驟 4：backend-architect 設計索引
+@agent-backend "為商品搜尋設計 PostgreSQL 全文索引（tsvector + GIN index）"
 
-# 步驟 5：Backend Agent 實作
+# 步驟 5：實作後端
 /sc:implement "商品搜尋 API 實作，使用 PostgreSQL 全文搜尋"
 
-# 步驟 6：Frontend Agent 實作
+# 步驟 6：實作前端
 /sc:implement "商品搜尋頁面元件：搜尋框、篩選面板、結果列表、分頁"
 
-# 步驟 7：Testing Agent 測試
+# 步驟 7：quality-engineer 測試
 /sc:test "商品搜尋功能完整測試：單元測試 + API 整合測試"
 
-# 步驟 8：Performance Agent 優化
-/sc:agent performance "分析商品搜尋在大量資料（100 萬筆商品）下的效能"
+# 步驟 8：performance-engineer 優化
+@agent-performance-engineer "分析商品搜尋在大量資料（100 萬筆商品）下的效能"
 ```
 
 > 💡 **提示**：在日常開發中，不需要每次都手動調用所有代理人。使用 `/sc:implement`、`/sc:test` 等高階指令時，系統會自動協調所需的代理人。手動調用適合需要特定專家深度分析的場景。
@@ -2384,10 +2527,10 @@ graph TD
 /sc:business-panel "技術選型評估：Next.js 14 vs Remix vs Nuxt 3 作為前端框架"
 
 # Step 4：API 規格設計
-/sc:agent api "設計電商平台核心 API：商品、購物車、訂單、使用者"
+@agent-backend "設計電商平台核心 API：商品、購物車、訂單、使用者"
 
 # Step 5：資料庫設計
-/sc:agent database "設計電商平台 PostgreSQL Schema，含 ER 圖"
+@agent-backend "設計電商平台 PostgreSQL Schema，含 ER 圖"
 ```
 
 **建議使用的模式**：Deep Research Mode → Orchestration Mode
@@ -2550,7 +2693,7 @@ graph TD
 
 ```text
 /sc:troubleshoot "GET /api/products 在 10 萬筆資料下回應時間 > 2 秒"
-/sc:agent performance "分析商品列表 API 效能瓶頸，提供優化方案"
+@agent-performance-engineer "分析商品列表 API 效能瓶頸，提供優化方案"
 /sc:improve "src/services/productService.ts" --focus performance
 ```
 
@@ -2558,14 +2701,14 @@ graph TD
 
 ```text
 /sc:research "台灣主流金流服務比較：綠界 vs 藍新 vs LINE Pay" --depth standard
-/sc:agent integration "設計綠界金流整合方案：建立訂單→導向付款→回調通知→更新狀態"
+@agent-backend "設計綠界金流整合方案：建立訂單→導向付款→回調通知→更新狀態"
 /sc:implement "綠界金流 API 整合 Service，含 AES 加解密與交易驗證"
 ```
 
 ### 範例 5：資料庫遷移
 
 ```text
-/sc:agent database "設計從 MongoDB 遷移至 PostgreSQL 的方案，保留所有現有資料"
+@agent-backend "設計從 MongoDB 遷移至 PostgreSQL 的方案，保留所有現有資料"
 /sc:estimate "MongoDB → PostgreSQL 遷移工作量" --granularity detailed
 /sc:implement "資料遷移腳本：讀取 MongoDB → 轉換 Schema → 寫入 PostgreSQL"
 ```
@@ -2778,7 +2921,7 @@ Flags 是在 Slash 指令後附加的可選參數，格式為 `--flag-name <valu
 superclaude doctor
 
 # 預期輸出（健康狀態）：
-# 🔍 SuperClaude Health Check v4.2.0
+# 🔍 SuperClaude Health Check v4.3.0
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━
 # ✅ CLI Version: 4.2.0
 # ✅ Claude Code: v1.x.x (connected)
@@ -2953,13 +3096,13 @@ superclaude mcp
 ```bash
 # 查看目前版本
 superclaude --version
-# 輸出：superclaude v4.2.0
+# 輸出：superclaude v4.3.0
 
 # 查看詳細版本資訊
 superclaude --version --verbose
 # 輸出：
-# SuperClaude CLI: v4.2.0
-# Commands Pack: v4.2.0
+# SuperClaude CLI: v4.3.0
+# Commands Pack: v4.3.0
 # MCP Pack: v4.1.3
 # Claude Code: v1.x.x
 ```
@@ -3051,12 +3194,12 @@ v5.0 將引入 **TypeScript Plugin 系統**，帶來以下變更：
 | MCP 整合 | 內建 8 個 | Plugin 市集、社群貢獻 |
 | 配置格式 | `CLAUDE.md` + YAML | `CLAUDE.md` + TypeScript config |
 
-> ⚠️ **注意**：v5.0 仍在開發中（參見 [issue #419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419)），尚未設定正式發布日期。v4.2.0 為目前穩定版。升級至 v5.0 時預計需要進行部分手動遷移。建議密切關注 CHANGELOG。
+> ⚠️ **注意**：v5.0 仍在開發中（參見 [issue #419](https://github.com/SuperClaude-Org/SuperClaude_Framework/issues/419)），尚未設定正式發布日期。v4.3.0 為目前穩定版。升級至 v5.0 時預計需要進行部分手動遷移。建議密切關注 CHANGELOG。
 
 ### 向下相容性
 
 - **v4.2.x → v4.2.y（Patch 升級）**：完全相容，直接升級
-- **v4.1.x → v4.2.0（Minor 升級）**：向後相容，可能有新功能的配置選項
+- **v4.2.x → v4.3.0（Minor 升級）**：向後相容，安全性強化與實作缺口填補
 - **v4.x → v5.0（Major 升級）**：需要遷移，將提供遷移工具
 
 ---
@@ -3172,7 +3315,7 @@ graph LR
 
 # Reviewer 使用 SuperClaude 輔助審查：
 /sc:explain "src/changed-files/" --depth detailed
-/sc:agent reviewer "審查 PR：{PR 標題與描述}"
+@agent-quality-engineer "審查 PR：{PR 標題與描述}"
 ```
 
 ## 12.3 知識管理
@@ -3352,6 +3495,9 @@ superclaude stats --period monthly
 |------|------|
 | GitHub Repository | https://github.com/SuperClaude-Org/SuperClaude_Framework |
 | 官方網站 | https://superclaude.netlify.app/ |
+| 代理人指南 | https://github.com/SuperClaude-Org/SuperClaude_Framework/blob/master/docs/user-guide/agents.md |
+| 指令參考 | https://github.com/SuperClaude-Org/SuperClaude_Framework/blob/master/docs/user-guide/commands.md |
+| Windows 安裝指南 | https://github.com/SuperClaude-Org/SuperClaude_Framework/blob/master/docs/getting-started/windows-install.md |
 | PyPI | https://pypi.org/project/superclaude/ |
 | npm | https://www.npmjs.com/package/@bifrost_inc/superclaude |
 | CHANGELOG | https://github.com/SuperClaude-Org/SuperClaude_Framework/blob/master/CHANGELOG.md |
@@ -3361,12 +3507,14 @@ superclaude stats --period monthly
 | Ko-fi 贊助 | https://ko-fi.com/bifrost_inc |
 | Patreon 贊助 | https://www.patreon.com/c/bifrost_inc |
 
+> ⚠️ **注意**：`superclaude.sh` 是一個**完全不同的專案**（由 gwendall 開發的 npm Git 自動化工具），與 SuperClaude Framework 無關。官方網站為 `superclaude.netlify.app`。
+
 ### 姊妹專案
 
 | 專案 | 目標平台 |
 |------|---------|
-| [SuperGemini Framework](https://github.com/nicholasgriffintn/SuperGemini) | Google Gemini CLI |
-| [SuperQwen Framework](https://github.com/nicholasgriffintn/SuperQwen) | Alibaba Qwen |
+| [SuperGemini Framework](https://github.com/SuperClaude-Org/SuperGemini_Framework) | Google Gemini CLI |
+| [SuperQwen Framework](https://github.com/SuperClaude-Org/SuperQwen_Framework) | Alibaba Qwen |
 
 ---
 
@@ -3374,9 +3522,10 @@ superclaude stats --period monthly
 
 | 版本 | 發布日期 | 重點更新 |
 |------|---------|---------|
+| **v4.3.0** | 2026/03/23 | 安全性強化（移除 `shell=True`、SHA-256 完整性驗證）、實作缺口填補（ConfidenceChecker、intelligent_execute()、ReflexionPattern mindbase）、代理人安裝支援 20 個代理人至 `~/.claude/agents/`、62 個新測試、Claude Code 對齊分析、Windows 安裝指南、文件全面翻修 |
 | **v4.2.0** | 2026/01/18 | Deep Research 強化（Multi-Hop 5 次）、MCP 整合優化、新增 3 個指令、Mindbase 替換為 ReflexionMemory |
 | v4.1.2 | 2025/11/20 | Bug 修復、效能提升 |
-| v4.1.0 | 2025/10/05 | 代理人系統強化（新增 Integration Agent）、文件重寫 |
+| v4.1.0 | 2025/10/05 | 代理人系統強化、文件重寫 |
 | v4.0.0 | 2025/08/15 | 架構重整、效能優化 50%、全新安裝系統 |
 | v3.x | 2025/03-07 | MCP Server 支援、Session 管理 |
 | v2.x | 2024/10-2025/02 | 代理人系統、行為模式 |
@@ -3389,22 +3538,26 @@ superclaude stats --period monthly
 
 | 英文術語 | 中文翻譯 | 說明 |
 |---------|---------|------|
-| Agent | 代理人 | 具備特定專業角色的 AI 模組 |
+| Agent | 代理人 | 部署於 `~/.claude/agents/` 的 `.md` 上下文指令檔，讓 Claude Code 採用特定專業行為 |
+| Auto-Activation | 自動啟動 | Claude Code 依據請求中的關鍵字與模式自動選擇適當代理人的行為路由機制 |
 | Behavioral Mode | 行為模式 | 影響 AI 回應風格與策略的模式 |
+| Behavioral Routing | 行為路由 | 代理人自動啟動的底層機制，透過上下文指令引導 Claude Code 選擇專家行為 |
 | Circuit Breaker | 斷路器 | 防止連鎖故障的設計模式 |
 | Claude Code | Claude Code | Anthropic 的命令列 AI 工具 |
 | Context Window | 上下文視窗 | AI 一次能處理的最大文字量 |
 | Cross-session Learning | 跨會話學習 | 從過往對話中累積知識 |
 | Dead Code | 死碼 | 永遠不會被執行的程式碼 |
 | Deep Research | 深度研究 | 多次迭代搜尋的研究模式 |
+| Document-Only Command | 文件產出型指令 | 僅產出文件/報告、不實作程式碼的指令類別 |
+| Execution Command | 執行型指令 | 會產生實際程式碼變更的指令類別 |
 | Flag | 旗標 | 指令的可選修飾參數 |
 | MCP | 模型上下文協議 | Model Context Protocol，外部工具整合協議 |
 | Meta-programming | 元程式設計 | 用程式碼來操控程式碼的技術 |
 | Multi-Hop Reasoning | 多跳推理 | 多次迭代搜尋與推理的機制 |
 | Orchestration | 編排 | 協調多個元件協同工作 |
 | Session | 會話 | 一次完整的工作對話 |
-| Slash Command | 斜線指令 | 以 `/` 開頭的操作指令 |
-| Smart Dispatch | 智慧調度 | 自動選擇最適合代理人的機制 |
+| Slash Command | 斜線指令 | 以 `/sc:` 開頭的操作指令 |
+| Smart Dispatch | 智慧調度 | 自動選擇最適合代理人的機制（即 Behavioral Routing） |
 | Technical Debt | 技術債 | 為求快速交付而累積的待改善項目 |
 | Token | Token | AI 模型計算文字量的單位 |
 | Token-Efficiency | Token 效率 | 以最少 Token 完成任務 |
@@ -3459,7 +3612,7 @@ superclaude stats --period monthly
 ### 進階使用（Week 2+）
 
 - [ ] 了解 7 種行為模式及其切換時機
-- [ ] 了解 16 個代理人及其專業領域
+- [ ] 了解 20 個代理人及其專業領域
 - [ ] 嘗試使用 `/sc:workflow` 定義多步驟流程
 - [ ] 嘗試使用 `/sc:spawn` 平行執行任務
 - [ ] 閱讀本手冊的第七章（Deep Research）
@@ -3479,5 +3632,5 @@ superclaude stats --period monthly
 
 ---
 
-> **版本資訊**：本手冊基於 SuperClaude Framework v4.2.0 撰寫，最後更新：2026-03。如有任何問題或建議，請聯繫團隊技術負責人或至 GitHub Issues 提報。
+> **版本資訊**：本手冊基於 SuperClaude Framework v4.3.0 撰寫，最後更新：2026-04-30。如有任何問題或建議，請聯繫團隊技術負責人或至 GitHub Issues 提報。
 
