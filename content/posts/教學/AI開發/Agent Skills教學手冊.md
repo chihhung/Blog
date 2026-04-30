@@ -1,5 +1,6 @@
 +++
 date = '2026-04-01T18:20:47+08:00'
+lastmod = '2026-07-15T10:00:00+08:00'
 draft = false
 title = 'Agent Skills教學手冊'
 tags = ['教學', 'AI開發','指引']
@@ -8,7 +9,7 @@ categories = ['教學']
 
 # Agent Skills 教學手冊（企業級 SSDLC + GitHub Copilot + Claude Code）
 
-> **版本**：v1.2.0  
+> **版本**：v1.3.0  
 > **更新日期**：2026-04-30
 > **適用對象**：資深工程師、架構師、Tech Lead、DevSecOps 工程師  
 > **技術棧**：Agent Skills 開放標準、GitHub Copilot Skills、Claude Code Skills、VS Code、Spring Boot、Vue 3  
@@ -51,6 +52,7 @@ categories = ['教學']
   - [4.3 命名規範](#43-命名規範)
   - [4.4 模組化與版本控管](#44-模組化與版本控管)
   - [4.5 安全性與權限控管](#45-安全性與權限控管)
+  - [4.6 社群設計模式參考（Community Patterns）](#46-社群設計模式參考community-patterns)
 - [第 5 章：Skills 實作教學（Hands-on）](#第-5-章skills-實作教學hands-on)
   - [5.1 範例 1：產生 API 設計文件 Skill](#51-範例-1產生-api-設計文件-skill)
   - [5.2 範例 2：程式碼審查 Skill](#52-範例-2程式碼審查-skill)
@@ -104,6 +106,12 @@ categories = ['教學']
 > - **Gemini CLI**（Google — `.gemini/commands/` 相容）
 > - **Cursor**、**Windsurf**（Codeium）、**OpenCode**、**Codex**（OpenAI）
 > - **Qodo**、**Tabnine**、**Pear AI**、**Augment Code** 等
+>
+> **知名社群 Skills 套件**：
+> - **mattpocock/skills**（⭐ 47.5k）— 「Skills for Real Engineers」，針對 4 大 Agent 失敗模式設計的工程實務 Skills，含 `/grill-me`、`/tdd`、`/diagnose` 等，強調 CONTEXT.md 共用語言與小型可組合設計
+> - **addyosmani/agent-skills**（⭐ 26.5k）— 20 個生產級 Skills，依 DEFINE→PLAN→BUILD→VERIFY→REVIEW→SHIP 生命週期組織，融合 Google 工程文化（Hyrum's Law、Beyoncé Rule），含反合理化表格與 Agent Personas
+> - **anthropics/skills**（⭐ 126k）— Anthropic 官方 Skills，含 Example Skills 與 Document Skills（docx、pdf、pptx、xlsx），支援 Claude Code Plugin、Claude.ai、Claude API
+> - **github/awesome-copilot**（200+ Skills）— GitHub 官方社群 Skills 收藏庫，涵蓋開發、測試、安全、雲端、資料庫等類別
 
 **核心價值**：
 
@@ -4242,6 +4250,105 @@ gitGraph
 
 > **⚠️ 重要安全提醒**：在企業環境中，切勿在 Skills 的 `allowed-tools` 欄位中輕易加入 `shell` 或 `bash`。這會允許 AI 在不經確認的情況下執行終端機指令，可能被 Prompt Injection 攻擊利用。
 
+### 4.6 社群設計模式參考（Community Patterns）
+
+以下整理自知名社群 Skills 套件中的核心設計模式，可供企業在設計自有 Skills 時參考。
+
+#### 4.6.1 CONTEXT.md 共用語言模式（mattpocock/skills）
+
+**問題**：AI Agent 被丟入專案時，不了解專案特有的領域術語（Domain Jargon），導致產出冗長且用詞不精準。
+
+**解法**：在專案根目錄維護一份 `CONTEXT.md`，記錄專案的共用語言（Ubiquitous Language）。這是 Eric Evans 領域驅動設計（DDD）概念在 AI 開發中的實踐。
+
+```markdown
+# CONTEXT.md 範例
+## 領域術語
+- **Ledger Entry**：一筆帳務紀錄（非「交易」，因交易另有定義）
+- **Settlement**：清算——將多筆 Ledger Entry 彙總為淨額
+- **Cutoff Time**：截止時間——每日批次處理的分界點
+
+## 架構決策
+- 參見 docs/adr/ 目錄中的 ADR 文件
+```
+
+**效益**：
+| 面向 | 改善 |
+|------|------|
+| **命名一致性** | 變數、函式、檔案名稱遵循共用語言 |
+| **Token 節省** | Agent 使用精確術語，減少解釋性文字 |
+| **程式碼導航** | 一致命名使 Agent 更容易搜尋定位程式碼 |
+| **新進人員上手** | 領域術語清單加速理解 |
+
+> **💡 實務建議**：使用 mattpocock 的 `/grill-with-docs` Skill 可自動引導團隊建立 `CONTEXT.md` 與 ADR。安裝方式：`npx skills@latest add mattpocock/skills`。
+
+#### 4.6.2 反合理化表格模式（addyosmani/agent-skills）
+
+**問題**：AI Agent 常會「合理化推託」——找藉口跳過重要步驟（如：「這段程式碼很簡單，不需要寫測試」）。
+
+**解法**：每個 Skill 內建一張「反合理化表格」（Anti-rationalization Table），預先列舉常見藉口及其反駁。
+
+```markdown
+## 常見合理化推託與反駁
+
+| Agent 可能的藉口 | 為什麼這是錯的 |
+|-----------------|---------------|
+| 「這個改動太小了，不需要測試」 | 小改動引起的迴歸錯誤佔生產事故的 40% |
+| 「這只是重構，行為沒變」 | 重構必須有測試保護，否則無法證明行為未改變 |
+| 「我之後再加測試」 | 「之後」通常意味著「永遠不會」——現在就寫 |
+| 「效能影響可以忽略」 | 除非你已量測過，否則不能斷言「可以忽略」 |
+```
+
+> **核心原則**：「驗證不可妥協」（Verification is non-negotiable）——每個 Skill 都必須以證據要求收尾：測試通過、建置輸出、執行期數據。「看起來對」永遠不夠。
+
+#### 4.6.3 Agent Personas 模式（addyosmani/agent-skills）
+
+**概念**：預先配置專家角色（Specialist Personas），讓 Agent 在特定場景以該角色的標準執行任務。
+
+| Persona | 專家角色 | 職責 |
+|---------|---------|------|
+| `code-reviewer` | Staff Engineer | 五軸式程式碼審查，以「Staff Engineer 是否會核准？」為標準 |
+| `test-engineer` | QA Specialist | 測試策略、覆蓋率分析、Prove-It 模式 |
+| `security-auditor` | Security Engineer | 弱點偵測、威脅建模、OWASP 評估 |
+
+**搭配 Reference Checklists**：
+
+| 清單 | 涵蓋內容 |
+|------|---------|
+| `testing-patterns.md` | 測試結構、命名、Mocking、React/API/E2E 範例、反模式 |
+| `security-checklist.md` | Pre-commit 檢查、認證、輸入驗證、Headers、CORS、OWASP Top 10 |
+| `performance-checklist.md` | Core Web Vitals 目標、前後端清單、量測指令 |
+| `accessibility-checklist.md` | 鍵盤導航、螢幕閱讀器、視覺設計、ARIA、測試工具 |
+
+> **💡 企業應用**：可參考此模式為組織定義「企業審查員 Persona」——例如「合規審查員」（Compliance Auditor）、「效能工程師」（Performance Engineer），搭配組織專屬的審查清單。
+
+#### 4.6.4 生命週期導向組織模式（addyosmani/agent-skills）
+
+**概念**：將 Skills 按開發生命週期階段組織，並以 Slash Command 作為入口點：
+
+```
+  DEFINE          PLAN           BUILD          VERIFY         REVIEW          SHIP
+ ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐      ┌──────┐
+ │ /spec│ ───▶ │/plan │ ───▶ │/build│ ───▶ │/test │ ───▶ │/review│───▶ │/ship │
+ └──────┘      └──────┘      └──────┘      └──────┘      └──────┘      └──────┘
+```
+
+每個 Command 自動啟用對應的 Skills——例如 `/build` 時觸發 `incremental-implementation`、`test-driven-development`、`context-engineering` 等。Skills 也會根據上下文自動啟用（如設計 API 時自動載入 `api-and-interface-design`）。
+
+> **與 SSDLC 的對應**：此模式與本手冊第 3 章的 SSDLC 階段劃分高度吻合，可作為企業 SSDLC Skills 組織的簡化參考。
+
+#### 4.6.5 四大失敗模式框架（mattpocock/skills）
+
+mattpocock 將 AI Agent 的常見問題歸納為四大失敗模式，並為每個模式提供對應的 Skill：
+
+| 失敗模式 | 問題 | 對應 Skill |
+|---------|------|-----------|
+| **#1 需求不對齊** | Agent 不理解使用者真正想要什麼 | `/grill-me`、`/grill-with-docs` — 強制 Agent 提問釐清需求 |
+| **#2 回應過於冗長** | Agent 使用 20 個字解釋 1 個字能說清楚的事 | `CONTEXT.md` 共用語言 + `/caveman` 極簡模式（Token 節省 ~75%） |
+| **#3 程式碼不能用** | 缺乏回饋迴路，Agent 盲目產出 | `/tdd` 紅綠重構迴圈 + `/diagnose` 結構化除錯 |
+| **#4 泥球架構** | Agent 加速軟體熵增，程式碼越來越複雜 | `/zoom-out` 全局視角 + `/improve-codebase-architecture` 架構改善 |
+
+> **💡 實務建議**：在企業導入 Skills 時，可將此四大失敗模式框架作為 Skills 需求評估的起點——針對每個失敗模式，評估組織目前是否有對應的 Skill 覆蓋。
+
 ---
 
 ## 第 5 章：Skills 實作教學（Hands-on）
@@ -5502,6 +5609,8 @@ description: >
 | **硬編碼環境** | 假設特定環境 / 路徑 | 使用參數化設計 |
 | **忽視安全** | Scripts 不做輸入驗證 | 加入安全檢查邏輯 |
 | **缺乏測試** | 未驗證 Skill 效果 | 建立 Skill 測試案例 |
+| **缺少驗證門檻** | Skill 未要求產出證據 | 每個 Skill 結尾加入驗證步驟（測試通過、建置成功） |
+| **未防止合理化推託** | Agent 找藉口跳過步驟 | 加入反合理化表格（參見 §4.6.2） |
 
 ---
 
@@ -5609,10 +5718,13 @@ gh skill publish              # 驗證並發布
 **現有社群資源**：
 - **Agent Skills Specification**：[agentskills.io](https://agentskills.io/) — 開放標準規範（含 [Discord 社群](https://discord.gg/MKPE9g8aUy)）
 - **GitHub awesome-copilot**：[github/awesome-copilot/skills](https://github.com/github/awesome-copilot) — 200+ 社群貢獻的 Skills
-- **Anthropic Skills**：[anthropics/skills](https://github.com/anthropics/skills) — Anthropic 官方 Skills（⭐ 108k+），含 Example Skills 與 Document Skills
+- **Anthropic Skills**：[anthropics/skills](https://github.com/anthropics/skills) — Anthropic 官方 Skills（⭐ 126k+），含 Example Skills 與 Document Skills
+- **mattpocock/skills**：[github.com/mattpocock/skills](https://github.com/mattpocock/skills) — Skills for Real Engineers（⭐ 47.5k），工程實務 Skills 套件
+- **addyosmani/agent-skills**：[github.com/addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) — 20 個生產級工程 Skills（⭐ 26.5k），融合 Google 工程文化
 - **skills-ref**：[agentskills/agentskills/skills-ref](https://github.com/agentskills/agentskills/tree/main/skills-ref) — 官方驗證工具庫
 - **gh skill CLI**：[cli.github.com/manual/gh_skill](https://cli.github.com/manual/gh_skill) — GitHub CLI Skills 管理命令（v2.90.0+）
 - **Claude Code Plugins**：[code.claude.com/docs/en/plugins](https://code.claude.com/docs/en/plugins) — Plugin 打包與分發 Skills
+- **Skills Installer**：`npx skills@latest add` — 社群 Skills 安裝器（[skills.sh](https://www.npmjs.com/package/skills)）
 
 > **🏦 金融業展望**：未來金融業可能出現產業級 Skills Marketplace，提供經過合規審查的「反洗錢檢查 Skill」、「KYC 流程 Skill」、「IFRS 報表 Skill」等產業專用能力包，加速整個產業的 AI 轉型。
 
@@ -5699,10 +5811,62 @@ gh skill publish              # 驗證並發布
 | `github-actions-failure-debugging` | GitHub Actions 除錯 | Maintenance |
 | `quality-playbook` | 品質控管劇本 | Governance |
 | `threat-model-analyst` | STRIDE 威脅模型分析 | Security |
+| `ai-team-orchestration` | 多 Agent 開發團隊協作 | Productivity |
+| `agent-owasp-compliance` | OWASP 合規檢查 | Security |
+| `acquire-codebase-knowledge` | 程式碼庫知識獲取 | Productivity |
+| `code-tour` | AI 生成 CodeTour 導覽 | Documentation |
+| `eval-driven-dev` | 評估驅動開發 | Development |
+
+### 來自 mattpocock/skills（⭐ 47.5k）
+
+> 來源：[github.com/mattpocock/skills](https://github.com/mattpocock/skills)。安裝方式：`npx skills@latest add mattpocock/skills`。
+
+| Skill 名稱 | 用途 | 說明 |
+|------------|------|------|
+| `grill-me` | 需求對齊 | 強制 Agent 提問釐清需求，直到決策樹的每個分支都解決 |
+| `grill-with-docs` | 需求對齊 + 文件產出 | 與 grill-me 相同，但額外產出 CONTEXT.md（共用語言）與 ADR 文件 |
+| `tdd` | 測試驅動開發 | 紅綠重構迴圈，逐片段垂直切割實作 |
+| `diagnose` | 結構化除錯 | 重現→最小化→假設→檢測→修復→迴歸測試的除錯迴圈 |
+| `zoom-out` | 全局視角 | 引導 Agent 解釋程式碼在系統整體中的定位 |
+| `improve-codebase-architecture` | 架構改善 | 基於 CONTEXT.md 與 ADR 尋找深化機會 |
+| `to-prd` | PRD 生成 | 從對話上下文合成 PRD 並提交為 GitHub Issue |
+| `to-issues` | Issue 拆分 | 將計劃 / PRD 拆為可獨立執行的 GitHub Issues |
+| `triage` | Issue 分類 | 透過分類角色狀態機進行 Issue 分流 |
+| `caveman` | 極簡溝通模式 | 超壓縮溝通，Token 節省約 75% |
+| `write-a-skill` | 建立新 Skill | 引導建立結構正確的新 Skill |
+
+### 來自 addyosmani/agent-skills（⭐ 26.5k）
+
+> 來源：[github.com/addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)。支援 Claude Code、Cursor、Gemini CLI、Windsurf、OpenCode、GitHub Copilot、Kiro、Codex 等。
+
+**20 個生產級 Skills（按生命週期分類）**：
+
+| 階段 | Skill 名稱 | 說明 |
+|------|-----------|------|
+| **Define** | `idea-refine` | 結構化發散 / 收斂思考，將模糊想法轉為具體提案 |
+| **Define** | `spec-driven-development` | 撰寫 PRD（目標、指令、結構、測試、邊界） |
+| **Plan** | `planning-and-task-breakdown` | 將規格拆解為可驗證的小任務 |
+| **Build** | `incremental-implementation` | 薄垂直切片實作，含 Feature Flag 與安全回滾 |
+| **Build** | `test-driven-development` | 紅綠重構、測試金字塔（80/15/5）、Beyoncé Rule |
+| **Build** | `context-engineering` | 在正確時機餵入正確資訊 |
+| **Build** | `source-driven-development` | 以官方文件為依據的框架決策，含引用驗證 |
+| **Build** | `frontend-ui-engineering` | 元件架構、設計系統、WCAG 2.1 AA 無障礙 |
+| **Build** | `api-and-interface-design` | 契約優先設計、Hyrum's Law、邊界驗證 |
+| **Verify** | `browser-testing-with-devtools` | Chrome DevTools MCP 即時 DOM / 網路 / 效能分析 |
+| **Verify** | `debugging-and-error-recovery` | 五步驟分類法：重現→定位→縮小→修復→防護 |
+| **Review** | `code-review-and-quality` | 五軸審查、變更大小控制（~100 行）、嚴重度標籤 |
+| **Review** | `code-simplification` | Chesterton's Fence、500 規則 |
+| **Review** | `security-and-hardening` | OWASP Top 10、認證模式、三層邊界系統 |
+| **Review** | `performance-optimization` | 量測優先、Core Web Vitals、Bundle 分析 |
+| **Ship** | `git-workflow-and-versioning` | Trunk-based 開發、Commit-as-Save-Point |
+| **Ship** | `ci-cd-and-automation` | Shift Left、Feature Flag、品質門檻 Pipeline |
+| **Ship** | `deprecation-and-migration` | 程式碼即負債思維、強制 / 建議式棄用策略 |
+| **Ship** | `documentation-and-adrs` | ADR、API 文件、記錄「為什麼」 |
+| **Ship** | `shipping-and-launch` | 上線前清單、階段式發布、回滾程序 |
 
 ### 來自 Anthropic Skills 官方庫
 
-> 來源：[github.com/anthropics/skills](https://github.com/anthropics/skills)（⭐ 108k+）。可透過 Claude Code Plugin 一鍵安裝：`/plugin marketplace add anthropics/skills`。
+> 來源：[github.com/anthropics/skills](https://github.com/anthropics/skills)（⭐ 126k+）。可透過 Claude Code Plugin 一鍵安裝：`/plugin marketplace add anthropics/skills`。
 
 **開源 Skills（Apache 2.0）— Example Skills**：
 
@@ -5752,9 +5916,15 @@ gh skill publish              # 驗證並發布
 | Claude.ai Skills | https://support.anthropic.com/en/articles/11153-claude-ai-skills | Claude.ai 付費方案 Skills 說明 |
 | Claude API Skills | https://docs.anthropic.com/en/docs/build-with-claude/agent-skills | Claude API 整合 Skills |
 | GitHub awesome-copilot Skills | https://github.com/github/awesome-copilot/tree/main/skills | 200+ 社群 Skills |
-| Anthropic Skills Repository | https://github.com/anthropics/skills | Anthropic 官方 Skills（⭐ 108k+） |
+| Anthropic Skills Repository | https://github.com/anthropics/skills | Anthropic 官方 Skills（⭐ 126k+） |
 | Agent Skills 驗證工具 | https://github.com/agentskills/agentskills/tree/main/skills-ref | skills-ref 驗證庫 |
 | Agent Skills Authoring Best Practices | https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices | 撰寫最佳實務 |
+| mattpocock/skills | https://github.com/mattpocock/skills | Skills for Real Engineers — 工程實務 Skills（⭐ 47.5k） |
+| addyosmani/agent-skills | https://github.com/addyosmani/agent-skills | 20 個生產級工程 Skills（⭐ 26.5k） |
+| Skills Installer (skills.sh) | https://www.npmjs.com/package/skills | `npx skills@latest add` 社群 Skills 安裝器 |
+| Claude Skills 使用說明 | https://support.claude.com/en/articles/12512180-using-skills-in-claude | Claude.ai Skills 完整使用指南 |
+| Claude 自訂 Skills | https://support.claude.com/en/articles/12512198-creating-custom-skills | Claude.ai 自訂 Skills 建立教學 |
+| Anthropic Agent Skills 工程部落格 | https://anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills | 技術設計理念與架構說明 |
 
 ---
 
@@ -5765,4 +5935,4 @@ gh skill publish              # 驗證並發布
 > | v1.0.0 | 2026-04-01 | 初版建立 | Platform Team |
 > | v1.1.0 | 2026-04-01 | 對齊 Agent Skills 開放標準（agentskills.io）；新增 Claude Code Skills 完整參考（Bundled Skills、擴展 Frontmatter、字串替換、動態上下文注入、Subagent 執行）；更新多平台架構與優先層級；更新 Token 預算與命名規範為官方數據；新增附錄 D 參考資源 | Platform Team |
 > | v1.2.0 | 2026-04-30 | 新增 `when_to_use`/`arguments` 欄位、effort `xhigh` 選項、`${CLAUDE_EFFORT}`/`$name` 字串替換；新增 §2.7 gh skill CLI（search/install/publish）、§2.8 Skill 內容生命週期與 Token 預算（5,000/25,000 tokens）；擴充支援平台清單（Copilot CLI、Kiro、Gemini CLI、Cursor、Windsurf、OpenCode、Codex、Pear AI）；更新 §7.1 Copilot CLI Skills 命令、§10.3 生態系採用者表格；更新附錄 C/D 資源連結 | Platform Team |
-
+> | v1.3.0 | 2026-04-30 | 新增 §4.6 社群設計模式參考（CONTEXT.md 共用語言、反合理化表格、Agent Personas、生命週期導向組織、四大失敗模式框架）；新增附錄 C mattpocock/skills（⭐ 47.5k）與 addyosmani/agent-skills（⭐ 26.5k）完整 Skills 清單；更新 anthropics/skills 星數（108k → 126k）；新增附錄 D 參考資源（mattpocock、addyosmani、skills.sh installer、Claude.ai Skills 文件、Anthropic 工程部落格）；更新 §1.1 社群知名 Skills 套件說明 | Platform Team |
