@@ -342,7 +342,7 @@ graph TB
     end
     
     User -->|prompt| AL
-    AL -->|messages[]| LLM
+    AL -- "messages[]" --> LLM
     LLM -->|response| AL
     AL -->|tool_use| TL
     TL --> BT & RF & WF & EF & GR & TD & SA & TK
