@@ -285,7 +285,7 @@ graph TB
     Browser -->|"/api/*（dev rewrite）"| Daemon
     API -->|"spawn(cli, args, {cwd})"| Agents
     BYOKProxy -->|"SSE pass-through"| External
-    Agents -->|"讀寫 .od/projects/<id>/"| DB
+    Agents -->|"讀寫 .od/projects/{id}/"| DB
 ```
 
 ### 2.2 技術組成
