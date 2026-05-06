@@ -1026,13 +1026,13 @@ updated: '{date}'
 
 ### ✅ 正確做法
 
-```{language}
+```text
 // Good example
 ```
 
 ### ❌ 錯誤做法
 
-```{language}
+```text
 // Bad example
 ```
 ```
