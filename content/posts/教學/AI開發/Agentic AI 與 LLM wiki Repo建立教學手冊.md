@@ -1,12 +1,12 @@
 +++
 date = '2026-05-07T00:00:00+08:00'
 draft = false
-title = 'GitHub Repo 建立教學手冊'
+title = 'Agentic AI 與 LLM wiki Repo 建立教學手冊'
 tags = ['教學', 'AI開發', 'github', 'devops', 'llm-wiki']
 categories = ['教學']
 +++
 
-# GitHub Repo 建立教學手冊 — 企業級 AI 資產知識庫
+# Agentic AI 與 LLM wiki Repo 建立教學手冊 — 企業級 AI 資產知識庫
 
 > **版本**：v3.0（2026-05-07）
 > **適用對象**：技術主管 / 架構師 / 資深工程師 / DevOps 團隊
