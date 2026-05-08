@@ -1569,7 +1569,7 @@ body:
 ### 5.5 Branch 策略
 
 {{< mermaid >}}
-gitgraph
+gitGraph
     commit id: "init"
     branch staged
     checkout staged
