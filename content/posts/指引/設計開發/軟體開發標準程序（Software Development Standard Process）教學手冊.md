@@ -3196,18 +3196,68 @@ graph LR
 
 ## 附錄 B：文件範本索引
 
-| 文件類型 | 範本名稱 | 存放位置 |
-|---------|---------|---------|
-| 需求文件 | BRD_Template.md | /posts/教學/templates/requirements/ |
-| 需求文件 | FRD_Template.md | /posts/教學/templates/requirements/ |
-| 設計文件 | SAD_Template.md | /posts/教學/templates/design/ |
-| 設計文件 | API_Spec_Template.md | /posts/教學/templates/design/ |
-| 測試文件 | TestPlan_Template.md | /posts/教學/templates/testing/ |
-| 測試文件 | TestCase_Template.md | /posts/教學/templates/testing/ |
-| 維運文件 | Deployment_Guide_Template.md | /posts/教學/templates/operations/ |
-| 維運文件 | Runbook_Template.md | /posts/教學/templates/operations/ |
-| 專案文件 | README_Template.md | /posts/教學/templates/project/ |
-| 專案文件 | CHANGELOG_Template.md | /posts/教學/templates/project/ |
+### 需求分析階段（Requirements Phase）
+
+| 文件類型 | 範本名稱 | 存放位置 | 參照標準 |
+|---------|---------|---------|---------|
+| 商業需求文件 | BRD_Template.md | /posts/教學/templates/requirements/ | ISO/IEC/IEEE 29148:2018 |
+| 功能需求文件 | FRD_Template.md | /posts/教學/templates/requirements/ | ISO/IEC/IEEE 29148:2018 |
+| 系統需求規格書 | SRD_Template.md | /posts/教學/templates/requirements/ | ISO/IEC/IEEE 29148:2018 |
+| 安全需求清單 | SecurityRequirements_Template.md | /posts/教學/templates/requirements/ | OWASP ASVS 4.0.3 / ISO 27001 |
+| 使用案例文件 | UseCase_Template.md | /posts/教學/templates/requirements/ | ISO/IEC/IEEE 29148:2018 / UML 2.5.1 |
+| 需求異動申請表 | ChangeRequest_Template.md | /posts/教學/templates/requirements/ | ISO/IEC/IEEE 15288:2023 / ITIL 4 |
+
+### 系統設計階段（Design Phase）
+
+| 文件類型 | 範本名稱 | 存放位置 | 參照標準 |
+|---------|---------|---------|---------|
+| 系統架構文件 | SAD_Template.md | /posts/教學/templates/design/ | ISO/IEC/IEEE 42010:2022 |
+| API 規格文件 | API_Spec_Template.md | /posts/教學/templates/design/ | OpenAPI 3.1 |
+| 威脅模型 | ThreatModel_Template.md | /posts/教學/templates/design/ | Microsoft STRIDE / ISO 27005 |
+| 資料庫設計文件 | DatabaseDesign_Template.md | /posts/教學/templates/design/ | ISO/IEC 11179 / DAMA DMBOK 2.0 |
+| 基礎設施架構文件 | InfrastructureArchitecture_Template.md | /posts/教學/templates/design/ | ISO/IEC/IEEE 42010:2022 / TOGAF ADM |
+| UX/UI 畫面設計規格 | UI_Spec_Template.md | /posts/教學/templates/design/ | ISO 9241-210:2019 / WCAG 2.2 |
+| 安全設計文件 | SecurityDesign_Template.md | /posts/教學/templates/design/ | OWASP SAMM 2.0 / ISO/IEC 27034 |
+| 非功能性需求設計規格 | NFR_Design_Template.md | /posts/教學/templates/design/ | ISO/IEC 25010:2023 |
+
+### 測試驗證階段（Testing Phase）
+
+| 文件類型 | 範本名稱 | 存放位置 | 參照標準 |
+|---------|---------|---------|---------|
+| 測試計畫 | TestPlan_Template.md | /posts/教學/templates/testing/ | ISO/IEC/IEEE 29119-3:2021 |
+| 測試案例 | TestCase_Template.md | /posts/教學/templates/testing/ | ISO/IEC/IEEE 29119-4:2021 |
+| 測試報告 | TestReport_Template.md | /posts/教學/templates/testing/ | ISO/IEC/IEEE 29119-3:2021 |
+| 效能測試報告 | PerformanceTestReport_Template.md | /posts/教學/templates/testing/ | ISO/IEC/IEEE 29119-3:2021 / RFC 2544 |
+| 安全測試報告 | SecurityScanReport_Template.md | /posts/教學/templates/testing/ | OWASP Testing Guide v4.2 / CVSS 3.1 |
+
+### 部署上線階段（Deployment Phase）
+
+| 文件類型 | 範本名稱 | 存放位置 | 參照標準 |
+|---------|---------|---------|---------|
+| 版本發行說明 | ReleaseNote_Template.md | /posts/教學/templates/deployment/ | Keep a Changelog / SemVer 2.0 |
+| 回滾計畫 | RollbackPlan_Template.md | /posts/教學/templates/deployment/ | ITIL 4 / ISO/IEC 20000-1:2018 |
+| 上線檢核清單 | GoLiveChecklist_Template.md | /posts/教學/templates/deployment/ | ITIL 4 Release Management / ISO/IEC 20000-1:2018 |
+| 資料遷移計畫 | DataMigrationPlan_Template.md | /posts/教學/templates/deployment/ | ISO/IEC 25024 / DAMA DMBOK 2.0 |
+
+### 維運監控階段（Operations Phase）
+
+| 文件類型 | 範本名稱 | 存放位置 | 參照標準 |
+|---------|---------|---------|---------|
+| 部署指引 | Deployment_Guide_Template.md | /posts/教學/templates/operations/ | ITIL 4 / ISO/IEC 20000-1:2018 |
+| 維運手冊 | Runbook_Template.md | /posts/教學/templates/operations/ | ITIL 4 / ISO/IEC 20000-1:2018 |
+| 標準作業程序 | SOP_Template.md | /posts/教學/templates/operations/ | ISO 9001:2015 / ISO/IEC 20000-1 |
+| 事件報告/RCA | IncidentReport_Template.md | /posts/教學/templates/operations/ | ITIL 4 / SRE Postmortem |
+| 監控與告警設定文件 | MonitoringAlertConfig_Template.md | /posts/教學/templates/operations/ | Google SRE Workbook / ISO/IEC 20000-1:2018 |
+| 系統退役計畫 | RetirementPlan_Template.md | /posts/教學/templates/operations/ | ISO/IEC/IEEE 15288:2023 |
+
+### 專案管理（Project Management）
+
+| 文件類型 | 範本名稱 | 存放位置 | 參照標準 |
+|---------|---------|---------|---------|
+| 專案 README | README_Template.md | /posts/教學/templates/project/ | GitHub Community Standards |
+| 變更日誌 | CHANGELOG_Template.md | /posts/教學/templates/project/ | Keep a Changelog 1.1.0 / SemVer |
+| 專案回顧報告 | Retrospective_Template.md | /posts/教學/templates/project/ | Agile Retrospectives / SRE Postmortem |
+| 使用者手冊 | UserManual_Template.md | /posts/教學/templates/project/ | ISO/IEC/IEEE 26514:2022 |
 
 ---
 
