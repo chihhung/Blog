@@ -2,7 +2,7 @@
 date = '2026-02-05T19:18:27+08:00'
 draft = false
 title = '軟體開發標準程序（Software Development Standard Process）教學手冊'
-tags = ['指引', '設計開發']
+tags = ['指引', '設計開發','專案管理','分析與設計']
 categories = ['指引']
 +++
 
@@ -3198,16 +3198,16 @@ graph LR
 
 | 文件類型 | 範本名稱 | 存放位置 |
 |---------|---------|---------|
-| 需求文件 | BRD_Template.md | /templates/requirements/ |
-| 需求文件 | FRD_Template.md | /templates/requirements/ |
-| 設計文件 | SAD_Template.md | /templates/design/ |
-| 設計文件 | API_Spec_Template.yaml | /templates/design/ |
-| 測試文件 | TestPlan_Template.md | /templates/testing/ |
-| 測試文件 | TestCase_Template.xlsx | /templates/testing/ |
-| 維運文件 | Deployment_Guide_Template.md | /templates/operations/ |
-| 維運文件 | Runbook_Template.md | /templates/operations/ |
-| 專案文件 | README_Template.md | /templates/project/ |
-| 專案文件 | CHANGELOG_Template.md | /templates/project/ |
+| 需求文件 | BRD_Template.md | /posts/教學/templates/requirements/ |
+| 需求文件 | FRD_Template.md | /posts/教學/templates/requirements/ |
+| 設計文件 | SAD_Template.md | /posts/教學/templates/design/ |
+| 設計文件 | API_Spec_Template.md | /posts/教學/templates/design/ |
+| 測試文件 | TestPlan_Template.md | /posts/教學/templates/testing/ |
+| 測試文件 | TestCase_Template.md | /posts/教學/templates/testing/ |
+| 維運文件 | Deployment_Guide_Template.md | /posts/教學/templates/operations/ |
+| 維運文件 | Runbook_Template.md | /posts/教學/templates/operations/ |
+| 專案文件 | README_Template.md | /posts/教學/templates/project/ |
+| 專案文件 | CHANGELOG_Template.md | /posts/教學/templates/project/ |
 
 ---
 
