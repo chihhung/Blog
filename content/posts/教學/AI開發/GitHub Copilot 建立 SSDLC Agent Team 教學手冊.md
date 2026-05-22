@@ -56,9 +56,10 @@ categories = ['教學']
   - [6.9 Agent 8 — Release Agent（發版 Agent）](#69-agent-8--release-agent發版-agent)
   - [6.10 Agent 9 — Reverse Engineering Agent（逆向工程 Agent）](#610-agent-9--reverse-engineering-agent逆向工程-agent)
   - [6.11 Agent 10 — Doc Writer（文件 Agent）](#611-agent-10--doc-writer文件-agent)
-  - [6.12 Agent-Scoped Hooks](#612-agent-scoped-hooks)
-  - [6.13 Orchestrator Agent 模式](#613-orchestrator-agent-模式)
-  - [6.14 Agent 設計最佳實務](#614-agent-設計最佳實務)
+  - [6.12 Agent 11 — Project Manager（專案管理 Agent）](#612-agent-11--project-manager專案管理-agent)
+  - [6.13 Agent-Scoped Hooks](#613-agent-scoped-hooks)
+  - [6.14 Orchestrator Agent 模式](#614-orchestrator-agent-模式)
+  - [6.15 Agent 設計最佳實務](#615-agent-設計最佳實務)
 - [7. 建立 Prompt（Prompt Library）](#7-建立-promptprompt-library)
   - [7.1 Prompt File 概念](#71-prompt-file-概念)
   - [7.2 SSDLC 各階段 Prompt 範本](#72-ssdlc-各階段-prompt-範本)
@@ -573,6 +574,15 @@ Copilot CLI 除了主 Agent 外，內建以下子代理，主 Agent 會依據提
 | **交接方式** | 產出文件，無需 Handoff |
 | **人工 Gate** | ✗ |
 
+### Project Manager Agent
+| 項目 | 內容 |
+|------|------|
+| **職責** | 專案進度追蹤、風險管理、資源協調、Sprint 規劃、站會摘要、里程碑管理 |
+| **工具權限** | 唯讀 + Issue/PR 操作（`search`、`githubRepo`、`fetchWebpage`）— 不可修改程式碼 |
+| **建議模型** | Claude Sonnet 4.6 或 GPT-5.4（平衡推理與速度） |
+| **交接方式** | 協調所有 Agent，追蹤整體進度；Handoff 至 Planner（需求變更）或 Release Agent（發版排程） |
+| **人工 Gate** | ✓ 專案關鍵決策 Gate（範圍變更、時程調整需人工確認） |
+
 ## 3.2 Mermaid 架構圖
 
 ```mermaid
@@ -606,6 +616,7 @@ graph TB
 
         subgraph "支援層"
             DOC["📚 Documentation Agent<br/>模型: Haiku 4.5<br/>工具: 文件寫入"]
+            PM["📋 Project Manager Agent<br/>模型: Sonnet 4.6<br/>工具: 唯讀+Issue/PR"]
         end
     end
 
@@ -619,6 +630,7 @@ graph TB
     CR -->|"Handoff: 審查通過"| REL
     RE -->|"Handoff: 分析報告"| ARCH
 
+    PM -.->|"進度追蹤與協調"| REQ & ARCH & BE & FE & TEST & SEC & CR & REL & RE
     DOC -.->|"支援所有 Agent"| REQ & ARCH & BE & FE & TEST & SEC & CR & REL & RE
 
     style REQ fill:#e3f2fd
@@ -631,6 +643,7 @@ graph TB
     style REL fill:#e0f7fa
     style RE fill:#fff9c4
     style DOC fill:#f5f5f5
+    style PM fill:#e8eaf6
 ```
 
 ## 3.3 Agent 協作流程圖
@@ -638,6 +651,7 @@ graph TB
 ```mermaid
 sequenceDiagram
     participant 人工 as 👤 人工審核
+    participant PM as Project Manager Agent
     participant REQ as Requirements Agent
     participant ARCH as Architect Agent
     participant BE as Backend Agent
@@ -646,6 +660,8 @@ sequenceDiagram
     participant CR as Code Review Agent
     participant REL as Release Agent
 
+    PM->>PM: 建立專案計劃與里程碑
+    PM->>REQ: 指派需求分析任務
     REQ->>人工: 需求規格（需確認）
     人工-->>REQ: ✓ 批准
     REQ->>ARCH: Handoff: 已確認需求
@@ -668,27 +684,31 @@ sequenceDiagram
     人工-->>CR: ✓ Approve
     CR->>REL: Handoff: 審查通過
     REL->>REL: 產生 PR + Release Notes
+    REL->>PM: 回報發版進度
+    PM->>PM: 更新專案進度與里程碑
     REL->>人工: PR 上線批准
     人工-->>REL: ✓ Merge
+    PM->>人工: 專案完成報告
 ```
 
 ## 3.4 Agent RACI 表
 
 > **R** = Responsible（負責執行）、**A** = Accountable（最終責任）、**C** = Consulted（諮詢）、**I** = Informed（知會）
 
-| SSDLC 階段 | Requirements | Architect | Backend | Frontend | Test | Security | Code Review | Release | Reverse Eng. | Documentation | 人工 |
-|-----------|-------------|-----------|---------|----------|------|----------|------------|---------|-------------|--------------|------|
-| 需求分析 | **R** | C | I | I | I | C | I | I | C | I | **A** |
-| 威脅建模 | C | C | I | I | I | **R** | I | I | I | I | **A** |
-| 架構設計 | C | **R** | C | C | I | C | I | I | C | I | **A** |
-| API 設計 | I | **R** | C | C | I | C | I | I | I | I | **A** |
-| 開發實作 | I | C | **R** | **R** | I | I | I | I | I | I | **A** |
-| 單元測試 | I | I | C | C | **R** | I | I | I | I | I | **A** |
-| 安全檢查 | I | I | I | I | I | **R** | I | I | I | I | **A** |
-| Code Review | I | C | C | C | I | C | **R** | I | I | I | **A** |
-| PR / 部署 | I | I | I | I | I | I | I | **R** | I | I | **A** |
-| 逆向工程 | C | C | I | I | I | C | I | I | **R** | I | **A** |
-| 文件產出 | C | C | C | C | I | I | I | I | C | **R** | **A** |
+| SSDLC 階段 | Requirements | Architect | Backend | Frontend | Test | Security | Code Review | Release | Reverse Eng. | Documentation | Project Manager | 人工 |
+|-----------|-------------|-----------|---------|----------|------|----------|------------|---------|-------------|--------------|----------------|------|
+| 需求分析 | **R** | C | I | I | I | C | I | I | C | I | C | **A** |
+| 威脅建模 | C | C | I | I | I | **R** | I | I | I | I | I | **A** |
+| 架構設計 | C | **R** | C | C | I | C | I | I | C | I | I | **A** |
+| API 設計 | I | **R** | C | C | I | C | I | I | I | I | I | **A** |
+| 開發實作 | I | C | **R** | **R** | I | I | I | I | I | I | C | **A** |
+| 單元測試 | I | I | C | C | **R** | I | I | I | I | I | I | **A** |
+| 安全檢查 | I | I | I | I | I | **R** | I | I | I | I | I | **A** |
+| Code Review | I | C | C | C | I | C | **R** | I | I | I | I | **A** |
+| PR / 部署 | I | I | I | I | I | I | I | **R** | I | I | C | **A** |
+| 逆向工程 | C | C | I | I | I | C | I | I | **R** | I | I | **A** |
+| 文件產出 | C | C | C | C | I | I | I | I | C | **R** | I | **A** |
+| 專案管理 | C | C | I | I | I | I | I | C | I | I | **R** | **A** |
 
 > ⚠️ **重要**：所有階段的「最終責任」（Accountable）都歸屬**人工**。AI Agent 是工具，不是決策者。
 
@@ -708,6 +728,7 @@ sequenceDiagram
 | PR / 部署 | Release | — | git, PR | ✓ 上線批准 |
 | 文件產出 | Documentation | — | editFiles (docs/, *.md) | ✗ |
 | 逆向工程 | Reverse Eng. | Architect, Documentation | search, grep (唯讀) | ✓ 發現確認 |
+| 專案管理 | Project Manager | Planner, Release | search, githubRepo, fetch | ✓ 關鍵決策 |
 
 ## 3.6 模型分配策略
 
@@ -723,6 +744,7 @@ sequenceDiagram
 | **逆向工程** | Claude Opus 4.7 | Claude Opus 4.6 / GPT-5.4 | 需要最強推理能力 | 高 |
 | **Code Review** | Claude Sonnet 4.6 | GPT-5.4 | 品質與速度均衡 | 中 |
 | **PR / Release** | GPT-5.4 mini | Gemini 3 Flash | 格式化任務，低成本 | 低 |
+| **專案管理** | Claude Sonnet 4.6 | GPT-5.4 | 需進度分析與風險評估 | 中 |
 
 ### Auto Model Selection 使用原則
 
@@ -1260,6 +1282,9 @@ Hook:        {用途}.json             → ssdlc-guardrails.json
 | `githubRepo` | GitHub Repo 操作 | ✓ | ✓ |
 | `useMcp` | 呼叫 MCP Server | ✓ | ✓ |
 | `思維工具（think）` | 內部推理 | ✓（部分模型） | ✓（部分模型） |
+
+
+
 
 ## 6.2 Agent 1 — Planner（規劃 Agent）
 
@@ -2268,7 +2293,120 @@ tools:
 （角色定位、文件類型、撰寫原則同上）
 ```
 
-## 6.12 Agent-Scoped Hooks（⚠️ Preview）
+## 6.12 Agent 11 — Project Manager（專案管理 Agent）
+
+### VS Code 格式
+
+**檔案**：`.github/agents/project-manager.agent.md`
+
+```markdown
+---
+name: "Project Manager"
+description: "負責專案進度追蹤、風險管理、資源協調、Sprint 規劃與里程碑管理的專案管理 Agent"
+tools:
+  - "search"
+  - "fetchWebpage"
+  - "githubRepo"
+model: "auto"
+handoffs:
+  - label: "交接至規劃"
+    agent: planner
+    prompt: "需求範圍有變更，請重新評估並更新開發計劃"
+    send: false
+  - label: "交接至發版"
+    agent: release
+    prompt: "請根據目前進度準備版本發布"
+    send: false
+  - label: "交接至架構"
+    agent: architect
+    prompt: "請評估此變更對架構的影響"
+    send: false
+argument-hint: "描述要追蹤的專案進度、風險或需協調的事項"
+---
+
+# Project Manager Agent
+
+## 角色定位
+你是一位資深軟體專案管理師（PMP / Scrum Master），負責協調 SSDLC 全流程中各 Agent 的工作，追蹤專案進度、管理風險並確保交付品質。
+
+## 核心職責
+1. **Sprint 規劃**：根據 Planner 產出的需求與任務清單，規劃 Sprint Backlog 與迭代目標
+2. **進度追蹤**：監控各 Agent 任務執行狀況，識別延遲與瓶頸
+3. **風險管理**：識別、評估與追蹤專案風險，提出緩解策略
+4. **資源協調**：協調不同 Agent 之間的任務相依性與優先序
+5. **里程碑管理**：設定與追蹤專案里程碑，產出進度報告
+6. **站會摘要**：產出每日站會摘要（Daily Standup Summary）
+7. **範圍管理**：識別需求蔓延（Scope Creep），確保變更經過適當審批
+8. **溝通管理**：產出專案狀態報告，確保利害關係人資訊透明
+
+## 輸出格式
+
+### Sprint 規劃表
+| Sprint 目標 | 任務 ID | 任務描述 | 負責 Agent | 優先序 | 估點 | 狀態 |
+|------------|---------|---------|-----------|--------|------|------|
+
+### 進度報告
+| 類別 | 內容 |
+|------|------|
+| **Sprint 目標** | {當前 Sprint 目標} |
+| **完成率** | {已完成 / 總任務數} |
+| **風險項目** | {當前風險清單} |
+| **阻礙項目** | {待解決阻礙} |
+| **下一步** | {後續行動} |
+
+### 風險登記表
+| 風險 ID | 風險描述 | 可能性 | 影響 | 等級 | 緩解策略 | 負責人 | 狀態 |
+|---------|---------|--------|------|------|---------|--------|------|
+
+## 限制
+- **不撰寫程式碼**：專案管理不涉及程式碼撰寫
+- **不做技術決策**：技術決策 handoff 給 Architect Agent
+- **不做需求分析**：需求分析 handoff 給 Planner Agent
+- 所有關鍵決策（範圍變更、時程調整）必須經人工確認
+```
+
+### Cloud Agent 格式
+
+**檔案**：`.github/agents/project-manager.md`
+
+```markdown
+---
+name: "Project Manager"
+description: "負責專案進度追蹤、風險管理、資源協調、Sprint 規劃與里程碑管理的專案管理 Agent"
+tools:
+  - "search"
+  - "fetchWebpage"
+  - "githubRepo"
+---
+
+# Project Manager Agent
+
+## 角色定位
+你是一位資深軟體專案管理師（PMP / Scrum Master），負責協調 SSDLC 全流程中各 Agent 的工作，追蹤專案進度、管理風險並確保交付品質。
+
+## 核心職責
+1. **Sprint 規劃**：根據 Planner 產出的需求與任務清單，規劃 Sprint Backlog 與迭代目標
+2. **進度追蹤**：監控各 Agent 任務執行狀況，識別延遲與瓶頸
+3. **風險管理**：識別、評估與追蹤專案風險，提出緩解策略
+4. **資源協調**：協調不同 Agent 之間的任務相依性與優先序
+5. **里程碑管理**：設定與追蹤專案里程碑，產出進度報告
+6. **站會摘要**：產出每日站會摘要（Daily Standup Summary）
+7. **範圍管理**：識別需求蔓延（Scope Creep），確保變更經過適當審批
+8. **溝通管理**：產出專案狀態報告，確保利害關係人資訊透明
+
+## 輸出格式
+（Sprint 規劃表、進度報告、風險登記表同上）
+
+## 限制
+- 不撰寫程式碼
+- 技術決策建議使用 Architect Agent
+- 需求分析建議使用 Planner Agent
+- 關鍵決策（範圍變更、時程調整）必須經人工確認
+```
+
+> **格式差異說明**：Cloud Agent 版本移除了 `handoffs`、`model`、`argument-hint` 欄位，因為 GitHub.com / CLI 不支援這些。`handoffs` 改為在指令文字中說明。
+
+## 6.13 Agent-Scoped Hooks（⚠️ Preview）
 
 Agent 可在 frontmatter 中定義 hooks，在特定事件觸發時自動執行腳本。
 
@@ -2308,9 +2446,11 @@ hooks:
 
 > ⚠️ **注意**：Agent-scoped hooks 目前為 VS Code **Preview** 功能，需啟用 `chat.useCustomAgentHooks` 設定。GitHub.com Cloud Agent 和 CLI 不支援此語法（會忽略）。
 
-## 6.13 Orchestrator Agent 模式
+## 6.14 Orchestrator Agent 模式
 
-### 協調者 Agent（用 `disable-model-invocation`）
+### VS Code 格式
+
+**檔案**：`.github/agents/orchestrator.agent.md`
 
 ```markdown
 ---
@@ -2328,6 +2468,7 @@ agents:
   - "release"
   - "reverse-eng"
   - "doc-writer"
+  - "project-manager"
 ---
 
 # SSDLC Orchestrator
@@ -2344,11 +2485,41 @@ agents:
 - **版本發布** → Release Agent
 - **遺留系統分析** → Reverse Engineering Agent
 - **文件撰寫** → Doc Writer
+- **專案管理、進度追蹤、風險管理、Sprint 規劃** → Project Manager
 ```
 
-> **說明**：`disable-model-invocation: true` 使此 Agent 僅做路由，不會自行推理或產生內容。它純粹根據使用者輸入將請求轉發給最適合的子 Agent。
+### Cloud Agent 格式
 
-## 6.14 Agent 設計最佳實務
+**檔案**：`.github/agents/orchestrator.md`
+
+```markdown
+---
+name: "SSDLC Orchestrator"
+description: "SSDLC 流程協調者，負責將任務分派給適當的 Agent"
+---
+
+# SSDLC Orchestrator
+
+根據使用者需求，將任務路由至適當的 Agent：
+
+- **需求分析、任務規劃** → 使用 `@planner`
+- **架構設計、技術選型** → 使用 `@architect`
+- **後端開發、API 實作** → 使用 `@backend`
+- **前端開發、UI 實作** → 使用 `@frontend`
+- **測試產生、測試執行** → 使用 `@test-generator`
+- **安全審查、威脅建模** → 使用 `@security-reviewer`
+- **程式碼審查** → 使用 `@code-reviewer`
+- **版本發布** → 使用 `@release`
+- **遺留系統分析** → 使用 `@reverse-eng`
+- **文件撰寫** → 使用 `@doc-writer`
+- **專案管理、進度追蹤** → 使用 `@project-manager`
+```
+
+> **說明**：
+> - VS Code 格式使用 `disable-model-invocation: true` 與 `agents` 欄位，使此 Agent 僅做路由，不會自行推理或產生內容。它純粹根據使用者輸入將請求轉發給最適合的子 Agent。
+> - Cloud Agent 格式移除了 `disable-model-invocation` 與 `agents` 欄位（GitHub.com / CLI 不支援），改為在說明文字中引導使用者手動選擇對應 Agent。
+
+## 6.15 Agent 設計最佳實務
 
 | 原則 | 說明 | 反模式 |
 |------|------|--------|
