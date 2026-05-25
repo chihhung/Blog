@@ -1,6 +1,6 @@
 +++
 date = '2026-05-25T15:16:29+08:00'
-draft = true
+draft = false
 title = 'Claude Mem 教學手冊'
 tags = ['教學', 'AI開發','指引']
 categories = ['教學']
