@@ -8,8 +8,8 @@ categories = ['教學']
 
 # GitHub Copilot SSDLC（安全軟體開發生命週期）教學手冊
 
-> **版本**：v2.0  
-> **最後更新**：2026 年 4 月  
+> **版本**：v2.1  
+> **最後更新**：2026 年 5 月 27 日
 > **適用對象**：軟體開發團隊全體成員（資深工程師導向）  
 > **文件性質**：企業級內部技術規範與教育訓練教材（企業標準技術白皮書等級）  
 > **撰寫者**：軟體架構團隊  
@@ -189,14 +189,16 @@ GitHub Copilot（2026 年最新版）包含以下功能模組，涵蓋完整 SSD
 | **GitHub Spark** | 自然語言建構全端應用（Public Preview） | 原型開發 | GitHub.com |
 | **Auto Model Selection** | 自動為不同任務選擇最佳 AI 模型 | 全階段 | Copilot Chat、Cloud Agent |
 
-#### 支援的 AI 模型（2026 年 4 月）
+#### 支援的 AI 模型（2026 年 6 月）
 
 | 模型系列 | 代表模型 | 特色 |
 |---------|---------|------|
-| **OpenAI GPT** | GPT-4.1、GPT-5 mini、GPT-5.1、GPT-5.2、GPT-5.2-Codex、GPT-5.3-Codex、GPT-5.4 | 通用程式碼生成、對話 |
-| **Anthropic Claude** | Claude Haiku 4.5、Claude Sonnet 4/4.5/4.6、Claude Opus 4.5/4.6 | 深度推理、安全分析 |
-| **Google Gemini** | Gemini 2.5 Pro、Gemini 3 Flash、Gemini 3.1 Pro | 多模態、大上下文 |
-| **xAI Grok** | Grok Code Fast 1 | 快速程式碼生成 |
+| **OpenAI GPT** | GPT-4.1、GPT-5 mini、GPT-5.2、GPT-5.2-Codex、GPT-5.3-Codex、GPT-5.4、GPT-5.4 mini、GPT-5.4 nano（Pro+ 限定）、GPT-5.5 | 通用程式碼生成、對話 |
+| **Anthropic Claude** | Claude Haiku 4.5、Claude Sonnet 4.5/4.6、Claude Opus 4.5/4.6/4.7、Claude Opus 4.6 fast mode（Enterprise 限定，Preview） | 深度推理、安全分析 |
+| **Google Gemini** | Gemini 2.5 Pro、Gemini 3 Flash、Gemini 3.1 Pro、Gemini 3.5 Flash | 多模態、大上下文 |
+| **其他** | Raptor mini（Free/Student/Pro/Pro+ 限定）、Goldeneye（Free 限定） | 輕量模型 |
+
+> 📌 模型清單會隨 GitHub 更新而異動，請以 [GitHub Copilot 官方支援模型頁面](https://docs.github.com/en/copilot/reference/ai-models/supported-models) 為準。部分模型僅在特定方案中可用，詳見[附錄 D](#附錄-dgithub-copilot-方案功能對照表)。
 
 **各階段對應**：
 
@@ -245,18 +247,20 @@ graph LR
 
 選擇適合組織規模的 Copilot 方案是導入 AI SSDLC 的第一步。
 
-#### 方案比較（2026 年 4 月）
+#### 方案比較（2026 年 6 月）
 
-| 方案 | 定價 | Premium Requests | 適用對象 |
-|------|------|-----------------|---------|
+> ⚠️ **計費模式變更**：自 2026 年 6 月 1 日起，GitHub Copilot Business 與 Enterprise 改為**使用量計費（Usage-based billing）**，以 **GitHub AI Credits** 為計費單位（1 AI Credit = $0.01 USD）。程式碼補全（Code Completions）與下一編輯建議（NES）不消耗 AI Credits，維持無限使用。詳見 [Usage-based billing](https://docs.github.com/en/copilot/concepts/billing/usage-based-billing-for-organizations-and-enterprises)。
+
+| 方案 | 定價 | Premium Requests / AI Credits | 適用對象 |
+|------|------|-------------------------------|---------|
 | **Copilot Free** | 免費 | 50 次/月 | 個人開發者體驗 |
 | **Copilot Student** | 免費（學生） | 300 次/月 | 經驗證的學生 |
 | **Copilot Pro** | $10 USD/月 | 300 次/月 | 個人開發者（教師與開源維護者可免費） |
 | **Copilot Pro+** | $39 USD/月 | 1,500 次/月 | AI 進階使用者 |
-| **Copilot Business** | $19 USD/座位/月 | 300 次/使用者/月 | 組織與團隊 |
-| **Copilot Enterprise** | $39 USD/座位/月 | 1,000 次/使用者/月 | 企業（含 GitHub Enterprise Cloud） |
+| **Copilot Business** | $19 USD/座位/月 | 1,900 AI Credits/使用者/月（池化共享） | 組織與團隊 |
+| **Copilot Enterprise** | $39 USD/座位/月 | 3,900 AI Credits/使用者/月（池化共享） | 企業（含 GitHub Enterprise Cloud） |
 
-> 💡 所有方案皆可以 $0.04 USD/次 的價格購買額外 Premium Requests。
+> 💡 **AI Credits 池化機制**：企業/組織的 AI Credits 為全體使用者共用池。例如 100 位 Business 使用者的組織擁有 190,000 AI Credits 共享池，而非各自獨立 1,900 額度。當共享池用盡時，可依組織政策選擇按 $0.01/credit 超額計費或暫停使用至下一計費週期。
 
 #### 關鍵功能差異
 
@@ -274,6 +278,8 @@ graph LR
 | 稽核日誌 | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
 | 內容排除（Content Exclusion） | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
 | 組織政策管理 | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Inline Suggestions（補全） | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
+| NES（Next Edit Suggestions） | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
 
 > ⚠️ **企業導入建議**
 > 1. 中小型團隊（< 50 人）建議使用 **Copilot Business**，具備組織政策管理與 Cloud Agent
@@ -1857,6 +1863,42 @@ jobs:
       - uses: actions/checkout@v4
       # Copilot Code Review 自動觸發於 PR
 ```
+
+#### Copilot Autofix — AI 自動安全修補
+
+**Copilot Autofix** 是 GitHub Code Scanning 的 AI 功能，當 CodeQL 或其他掃描工具偵測到安全漏洞時，自動生成修補建議與差異比對（Diff），顯著縮短漏洞修復周期（GitHub 數據：平均節省 60% 修復時間）。
+
+```mermaid
+sequenceDiagram
+    participant Dev as 開發者
+    participant PR as Pull Request
+    participant CodeQL as CodeQL 掃描
+    participant Autofix as Copilot Autofix
+
+    Dev->>PR: 開啟 PR
+    PR->>CodeQL: 觸發安全掃描
+    CodeQL->>Autofix: 偵測到漏洞（如 SQL Injection）
+    Autofix-->>PR: 生成修補建議與 Diff
+    PR-->>Dev: 通知有 Autofix 建議
+    Dev->>PR: 審查並接受/調整修補
+    PR->>PR: 自動更新 PR 程式碼
+```
+
+**支援的掃描工具**：
+- CodeQL（原生支援，涵蓋 Java、Python、JavaScript、Go 等）
+- ESLint（Security 規則）
+- GitHub Partner SAST 工具（Checkmarx、Fortify 等）
+
+**啟用方式**：
+1. 進入 Repository → Settings → Code security → Code scanning
+2. 選擇 `Default setup`（自動設定 CodeQL）
+3. 開啟 `Copilot Autofix`（需 Copilot 授權）
+4. 提交 PR 後，掃描結果頁面會出現「Generate fix」按鈕
+
+> ⚠️ **實務注意事項**
+> 1. Autofix 建議為起點，工程師務必驗證修補邏輯的業務正確性
+> 2. Critical / High 等級漏洞，建議同時啟用 Copilot Code Review 進行雙重確認
+> 3. 接受修補前，確認測試覆蓋率不因修改而降低
 
 ### 4.6 部署（Deployment）
 
@@ -3611,10 +3653,10 @@ graph TB
 | 功能 | Free | Student | Pro | Pro+ | Business | Enterprise |
 |------|:----:|:-------:|:---:|:----:|:--------:|:----------:|
 | **價格** | 免費 | 免費 | $10/月 | $39/月 | $19/座/月 | $39/座/月 |
-| **Premium Requests** | 50/月 | 300/月 | 300/月 | 1,500/月 | 300/使用者/月 | 1,000/使用者/月 |
+| **Premium Requests / AI Credits** | 50 次/月 | 300 次/月 | 300 次/月 | 1,500 次/月 | 1,900 Credits/使用者/月 | 3,900 Credits/使用者/月 |
 | **── 程式碼補全 ──** | | | | | | |
-| Inline Suggestions | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| NES（Next Edit Suggestions） | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Inline Suggestions | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
+| NES（Next Edit Suggestions） | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
 | **── 對話與代理 ──** | | | | | | |
 | Copilot Chat | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Agent Mode | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -3646,6 +3688,8 @@ graph TB
 | IP 代理（IP Indemnity） | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
 | GitHub Spark | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
 
+> 📌 **計費說明**：Business 與 Enterprise 方案自 2026 年 6 月起採用 AI Credits 計費，程式碼補全與 NES 不消耗 Credits。Credits 以組織/企業層級池化共享，詳見 [Usage-based billing](https://docs.github.com/en/copilot/concepts/billing/usage-based-billing-for-organizations-and-enterprises)。
+>
 > 📌 功能與方案內容可能隨 GitHub 更新而變動，請以 [GitHub Copilot 官方方案頁面](https://docs.github.com/en/copilot/about-github-copilot/subscription-plans-for-github-copilot) 為準。
 
 ---
@@ -3655,9 +3699,9 @@ graph TB
 | 項目 | 內容 |
 |------|------|
 | 文件名稱 | GitHub Copilot SSDLC 教學手冊 |
-| 版本 | v2.0 |
+| 版本 | v2.2 |
 | 建立日期 | 2026-04-15 |
-| 最後更新 | 2026-04-20 |
+| 最後更新 | 2026-05-25 |
 | 撰寫者 | 軟體架構團隊 |
 | 審核者 | 技術委員會 |
 | 適用範圍 | 企業級軟體開發專案 |
@@ -3668,6 +3712,8 @@ graph TB
 |------|------|--------|---------|
 | v1.0 | 2026-04-15 | 架構團隊 | 初版發布 |
 | v2.0 | 2026-04-20 | 架構團隊 | 全面更新至 GitHub Copilot 2026 最新功能；新增方案定價（Ch1.4）、Prompt Files（Ch5.3）、Cloud Agent 進階應用（Ch5.7）、AI 治理與合規（Ch10）、方案功能對照表（附錄 D）；更新 Custom Instructions 三層架構（Ch3.2）；補充 Memory 28 天過期機制；新增 AI 模型列表 |
+| v2.1 | 2026-05-25 | 架構團隊 | 更新 AI 模型清單至 2025 年實際可用版本（GPT-4.1、Claude Sonnet 4、Gemini 2.5 Pro 等）；新增 Copilot Autofix 安全自動修補章節（Ch4.5）；補充 Auto Model Selection 使用說明（Ch1.3）；移除尚未發布的推測性模型版本號 |
+| v2.2 | 2026-05-15 | 架構團隊 | 更新 AI 模型清單：新增 Claude Opus 4.7、Gemini 3.5 Flash、GPT-5.4 mini/nano、GPT-5.5、Raptor mini、Goldeneye；更新 Business/Enterprise 計費模式為 Usage-based billing（AI Credits）；更新附錄 D 方案對照表 |
 
 > 📌 **備註**  
 > 本手冊為持續更新文件，如有建議或疑問，請聯繫軟體架構團隊。  
