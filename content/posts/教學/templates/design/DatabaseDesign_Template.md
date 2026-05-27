@@ -104,9 +104,9 @@ tags: ["範本", "設計開發", "資料庫", "ER Model", "SSDLC"]
 
 ```mermaid
 erDiagram
-    [ENTITY_A] ||--o{ [ENTITY_B] : "[關係描述]"
-    [ENTITY_A] ||--|{ [ENTITY_C] : "[關係描述]"
-    [ENTITY_B] }o--|| [ENTITY_D] : "[關係描述]"
+    ENTITY_A ||--o{ ENTITY_B : "關係描述"
+    ENTITY_A ||--|{ ENTITY_C : "關係描述"
+    ENTITY_B }o--|| ENTITY_D : "關係描述"
 ```
 
 #### 3.2 邏輯層 ERD（Logical ER Diagram）
@@ -115,18 +115,18 @@ erDiagram
 
 ```mermaid
 erDiagram
-    [TABLE_A] {
+    table_a {
         bigint id PK
-        varchar(100) name
+        varchar name
         timestamp created_at
     }
-    [TABLE_B] {
+    table_b {
         bigint id PK
         bigint table_a_id FK
-        varchar(200) description
+        varchar description
         boolean is_active
     }
-    [TABLE_A] ||--o{ [TABLE_B] : "has many"
+    table_a ||--o{ table_b : "has many"
 ```
 
 #### 3.3 物理層 ERD（Physical ER Diagram）
