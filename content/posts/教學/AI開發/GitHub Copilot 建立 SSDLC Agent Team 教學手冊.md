@@ -1,17 +1,14 @@
 +++
-date = '2026-05-28T21:52:27+08:00'
+date = '2026-05-28T00:00:00+08:00'
 draft = false
 title = 'GitHub Copilot 建立 SSDLC Agent Team 教學手冊'
 tags = ['教學', 'AI開發']
 categories = ['教學']
-
 +++
 # GitHub Copilot 建立 SSDLC Agent Team 教學手冊
 
 > **文件目錄**：`.github/教學/AI開發/`  
 > **文件檔名**：`GitHub Copilot 建立 SSDLC Agent Team 教學手冊.md`
-
----
 
 ## 目錄
 
