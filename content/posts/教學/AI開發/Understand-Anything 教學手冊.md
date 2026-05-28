@@ -3701,28 +3701,28 @@ graph TB
 
 ```mermaid
 graph TB
-    subgraph "Repo 1: 前端"
+    subgraph Repo1["Repo 1: 前端"]
         FE[Vue 3 SPA]
         FE_G[Graph A]
     end
 
-    subgraph "Repo 2: API Gateway"
+    subgraph Repo2["Repo 2: API Gateway"]
         GW[Spring Cloud Gateway]
         GW_G[Graph B]
     end
 
-    subgraph "Repo 3: 核心服務"
+    subgraph Repo3["Repo 3: 核心服務"]
         CS[Spring Boot Microservices]
         CS_G[Graph C]
     end
 
-    subgraph "Repo 4: 批次作業"
+    subgraph Repo4["Repo 4: 批次作業"]
         BT[Spring Batch]
         BT_G[Graph D]
     end
 
-    subgraph "整合檢視"
-        KG[知識庫 Graph<br/>"/understand-knowledge"]
+    subgraph Integration["整合檢視"]
+        KG["知識庫 Graph\n/understand-knowledge"]
     end
 
     FE_G --> KG
