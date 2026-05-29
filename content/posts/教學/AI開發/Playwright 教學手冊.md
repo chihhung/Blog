@@ -1,5 +1,5 @@
 +++
-date = '2026-04-12T15:55:51+08:00'
+date = '2026-05-29T10:00:00+08:00'
 draft = false
 title = 'Playwright 教學手冊'
 tags = ['教學', 'AI開發','DevOps']
@@ -8,10 +8,10 @@ categories = ['教學']
 
 # Playwright 教學手冊（企業級完整版）
 
-> **版本**：基於 Playwright v1.59.1（2026 年 4 月）  
+> **版本**：基於 Playwright v1.60.0（2026 年 5 月）  
 > **適用對象**：資深工程師、SDET、QA Lead、DevOps 工程師  
 > **授權**：Apache 2.0（Playwright 開源授權）  
-> **最後更新**：2026-04-12
+> **最後更新**：2026-05-29
 
 ---
 
@@ -60,6 +60,10 @@ categories = ['教學']
   - [5.12 CLI Debugger for Agents（v1.59+）](#512-cli-debugger-for-agentsv159)
   - [5.13 CLI Trace 分析（v1.59+）](#513-cli-trace-分析v159)
   - [5.14 Async Disposables — await using（v1.59+）](#514-async-disposables--await-usingv159)
+  - [5.15 HAR Recording on Tracing（v1.60+）](#515-har-recording-on-tracingv160)
+  - [5.16 Drop API（v1.60+）](#516-drop-apiv160)
+  - [5.17 Aria Snapshots 增強（v1.60+）](#517-aria-snapshots-增強v160)
+  - [5.18 新增 API 與選項（v1.60+）](#518-新增-api-與選項v160)
 - [第 6 章：測試設計最佳實踐](#第-6-章測試設計最佳實踐)
   - [6.1 Page Object Model（POM）完整實作](#61-page-object-modelpom完整實作)
   - [6.2 減少 Flaky Test 策略](#62-減少-flaky-test-策略)
@@ -119,7 +123,7 @@ categories = ['教學']
 
 Playwright 是由 **Microsoft** 開發並開源的瀏覽器自動化與端對端（E2E）測試框架，採用 **Apache 2.0** 授權。它透過單一 API 驅動 **Chromium**、**Firefox** 與 **WebKit** 三大瀏覽器引擎，支援 Windows、Linux、macOS 跨平台執行。
 
-截至 2026 年 4 月，Playwright 在 GitHub 上已獲得 **86,200+ 顆星**，擁有 **718+ 位貢獻者**，發布 **160+ 個版本**。
+截至 2026 年 5 月，Playwright 在 GitHub 上已獲得 **89,800+ 顆星**，擁有 **744+ 位貢獻者**，發布 **161 個版本**。
 
 #### Playwright 產品線
 
@@ -145,8 +149,8 @@ graph TB
     subgraph "Playwright Architecture"
         A[Test Runner / Script] --> B[Playwright API]
         B --> C[Browser Server]
-        C --> D1[Chrome for Testing 147.0.7727.49]
-        C --> D2[Firefox 149.0]
+        C --> D1[Chrome for Testing 148.0.7778.96]
+        C --> D2[Firefox 150.0.2]
         C --> D3[WebKit 26.4]
     end
 
@@ -211,7 +215,7 @@ graph TB
 | 項目 | 需求 |
 |------|------|
 | **Node.js** | 20.x / 22.x / 24.x（最新穩定版） |
-| **作業系統** | Windows 11+、Windows Server 2019+、WSL、macOS 15+（Sequoia）、Debian 12 / 13（Trixie）、Ubuntu 22.04 / 24.04 |
+| **作業系統** | Windows 11+、Windows Server 2019+、WSL、macOS 14+（Sonoma）、Debian 12 / 13（Trixie）、Ubuntu 22.04 / 24.04 |
 | **CPU 架構** | x86-64 或 arm64 |
 | **磁碟空間** | 約 500MB（含三個瀏覽器） |
 | **Python**（可選） | 3.9+（使用 Python 版本時） |
@@ -222,8 +226,9 @@ graph TB
 > 1. 在企業環境中，若有 Proxy 限制，需額外設定 `HTTPS_PROXY` 環境變數以下載瀏覽器
 > 2. **v1.57+ Breaking**：不再支援 macOS 13 的 WebKit
 > 3. **v1.59+ Breaking**：不再支援 macOS 14 的 WebKit，建議升級至 macOS 15+
-> 4. **v1.55+ 新增**：支援 Debian 13「Trixie」
-> 5. **v1.55+ Breaking**：停止支援 Chromium Extension Manifest V2
+> 4. **v1.60+ Breaking**：移除 `Locator.ariaRef()`、`exposeBinding` 的 `handle` 選項、`connect`/`connectOverCDP` 的 `logger` 選項、`videosPath`/`videoSize` Context 選項
+> 5. **v1.55+ 新增**：支援 Debian 13「Trixie」
+> 6. **v1.55+ Breaking**：停止支援 Chromium Extension Manifest V2
 
 ---
 
@@ -595,7 +600,7 @@ with sync_playwright() as p:
 <dependency>
   <groupId>com.microsoft.playwright</groupId>
   <artifactId>playwright</artifactId>
-  <version>1.59.0</version>
+  <version>1.60.0</version>
 </dependency>
 ```
 
@@ -767,14 +772,12 @@ npx playwright init-agents --loop=opencode
 
 ### 3.9 企業環境安裝注意事項
 
-### 3.9 企業環境安裝注意事項
-
 > **⚠️ 企業注意事項**：  
 > 1. 在受限網路環境中，可設定 `PLAYWRIGHT_BROWSERS_PATH` 指向共享瀏覽器路徑  
 > 2. 使用 `HTTPS_PROXY` 設定 Proxy  
 > 3. 可預先下載瀏覽器到離線環境：`npx playwright install --dry-run` 取得下載 URL  
 > 4. 使用 `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` 跳過自動下載（搭配共享路徑使用）  
-> 5. Docker 環境建議直接使用官方映像檔：`mcr.microsoft.com/playwright:v1.59.0-noble`
+> 5. Docker 環境建議直接使用官方映像檔：`mcr.microsoft.com/playwright:v1.60.0-noble`
 
 ---
 
@@ -881,6 +884,7 @@ test('新 Locator API 示範', async ({ page }) => {
   // 互動式選取 Locator（開發偵錯用）
   // const locator = await page.pickLocator();
 });
+```
 
 ```typescript
 // 最佳 Locator 範例
@@ -1474,6 +1478,165 @@ test('await using 自動清理範例', async ({ context }) => {
 
 > **✅ 最佳實踐**：使用 `await using` 取代手動 teardown，減少資源洩漏風險。
 
+### 5.15 HAR Recording on Tracing（v1.60+）
+
+v1.60 新增 Tracing 層級的 HAR 錄製功能，可在追蹤過程中同時錄製 HTTP Archive：
+
+```typescript
+test('Tracing HAR 錄製範例', async ({ context, page }) => {
+  // 開始追蹤並同步錄製 HAR
+  await context.tracing.startHar({ path: 'trace.har' });
+
+  await page.goto('/api-heavy-page');
+  await page.getByRole('button', { name: '載入資料' }).click();
+  await expect(page.getByTestId('data-table')).toBeVisible();
+
+  // 停止 HAR 錄製
+  await context.tracing.stopHar();
+});
+```
+
+> **✅ 應用場景**：搭配 Trace Viewer 分析 API 呼叫時序，特別適合診斷微服務間的延遲問題。
+
+### 5.16 Drop API（v1.60+）
+
+新增 `locator.drop()` 方法，簡化拖放操作：
+
+```typescript
+test('拖放操作', async ({ page }) => {
+  await page.goto('/kanban');
+
+  // 將任務卡片拖放至「已完成」欄位
+  const taskCard = page.getByTestId('task-123');
+  const doneColumn = page.getByTestId('column-done');
+  await taskCard.drop(doneColumn);
+
+  // 驗證拖放結果
+  await expect(doneColumn.getByTestId('task-123')).toBeVisible();
+});
+```
+
+### 5.17 Aria Snapshots 增強（v1.60+）
+
+v1.60 擴展 Aria Snapshots 功能至頁面層級，並新增 `boxes` 選項：
+
+```typescript
+test('頁面層級 Aria Snapshot', async ({ page }) => {
+  await page.goto('/dashboard');
+
+  // 頁面層級的 Aria Snapshot 斷言
+  await expect(page).toMatchAriaSnapshot(`
+    - heading "儀表板" [level=1]
+    - navigation "主選單"
+    - main:
+      - heading "今日摘要" [level=2]
+      - table "交易紀錄"
+  `);
+});
+
+test('Aria Snapshot 含 bounding box', async ({ page }) => {
+  await page.goto('/dashboard');
+
+  // 啟用 boxes 選項：回傳每個元素的位置與尺寸
+  const snapshot = await page.ariaSnapshot({ boxes: true });
+  // 可用於 AI Vision 模型定位元素
+  console.log(snapshot);
+});
+```
+
+### 5.18 新增 API 與選項（v1.60+）
+
+#### 5.18.1 `getByRole` 新增 `description` 選項
+
+```typescript
+test('使用 description 篩選元素', async ({ page }) => {
+  await page.goto('/form');
+
+  // 透過 aria-description 篩選具有特定描述的元素
+  await page.getByRole('textbox', {
+    name: '帳號',
+    description: '請輸入電子郵件格式',
+  }).fill('user@example.com');
+});
+```
+
+#### 5.18.2 `toHaveCSS` 新增 `pseudo` 選項
+
+```typescript
+test('驗證偽元素 CSS', async ({ page }) => {
+  await page.goto('/styled-page');
+
+  // 驗證 ::before 偽元素的 CSS 屬性
+  await expect(page.getByTestId('required-field')).toHaveCSS(
+    'content', '"*"',
+    { pseudo: '::before' }
+  );
+});
+```
+
+#### 5.18.3 `browser.on('context')` 事件
+
+```typescript
+test('監聽新 Context 建立', async ({ browser }) => {
+  // 監聽所有新建的 BrowserContext
+  browser.on('context', (context) => {
+    console.log('新 Context 建立');
+    // 可自動注入監控邏輯
+    context.on('page', (page) => {
+      page.on('console', (msg) => console.log(`[Console] ${msg.text()}`));
+    });
+  });
+
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.goto('/');
+  await context.close();
+});
+```
+
+#### 5.18.4 BrowserContext 生命週期事件鏡像
+
+v1.60 起，`BrowserContext` 直接鏡像 `Page` 的生命週期事件（`download`、`frameattached`、`framedetached`、`framenavigated` 等），無需逐頁監聽：
+
+```typescript
+test('Context 層級事件監聽', async ({ context }) => {
+  // 在 Context 層級監聽所有頁面的下載事件
+  context.on('download', (download) => {
+    console.log(`下載: ${download.suggestedFilename()}`);
+  });
+
+  const page = await context.newPage();
+  await page.goto('/downloads');
+  await page.getByRole('link', { name: '下載報表' }).click();
+});
+```
+
+#### 5.18.5 `{testFileBaseName}` Snapshot 路徑 Token
+
+```typescript
+// playwright.config.ts
+export default defineConfig({
+  // 新增 {testFileBaseName}：不含副檔名的測試檔名
+  snapshotPathTemplate: '{testDir}/__snapshots__/{testFileBaseName}/{arg}{ext}',
+});
+// 例：tests/login.spec.ts → tests/__snapshots__/login.spec/screenshot.png
+```
+
+#### 5.18.6 HTML Reporter 改進
+
+v1.60 HTML Reporter 新增以下改進：
+
+| 改進 | 說明 |
+|------|------|
+| **ZIP 封裝** | `--zip` 選項將報告打包為單一 ZIP 檔案 |
+| **JSON Pretty-Print** | Trace Viewer 中 JSON 回應支援展開/收合切換 |
+| **改進的篩選** | 更直覺的測試結果篩選體驗 |
+
+```bash
+# 產生 ZIP 格式報告（方便分享）
+npx playwright test --reporter=html --zip
+```
+
 ---
 
 ## 第 6 章：測試設計最佳實踐
@@ -1768,7 +1931,7 @@ stages:
 
 playwright-tests:
   stage: test
-  image: mcr.microsoft.com/playwright:v1.59.0-noble
+  image: mcr.microsoft.com/playwright:v1.60.0-noble
   parallel: 4
   script:
     - npm ci
@@ -1791,7 +1954,7 @@ playwright-tests:
 pipeline {
     agent {
         docker {
-            image 'mcr.microsoft.com/playwright:v1.59.0-noble'
+            image 'mcr.microsoft.com/playwright:v1.60.0-noble'
         }
     }
 
@@ -1918,7 +2081,7 @@ export async function sendTeamsNotification(webhookUrl: string, results: {
 
 ```dockerfile
 # Dockerfile.playwright
-FROM mcr.microsoft.com/playwright:v1.59.0-noble
+FROM mcr.microsoft.com/playwright:v1.60.0-noble
 
 WORKDIR /app
 
@@ -1951,7 +2114,7 @@ docker compose run --rm playwright
 ```
 
 > **✅ 最佳實踐**：  
-> 1. 使用官方 Docker Image `mcr.microsoft.com/playwright:v1.59.0-noble` 確保環境一致  
+> 1. 使用官方 Docker Image `mcr.microsoft.com/playwright:v1.60.0-noble` 確保環境一致  
 > 2. CI 中使用 Sharding 分散測試負載  
 > 3. 測試失敗時自動保存 Trace / Screenshot / Video  
 > 4. 報告部署至內部伺服器供團隊查看
@@ -2052,6 +2215,8 @@ npx playwright show-report --port 9323
 | **影片播放** | 失敗影片直接播放 |
 | **檔案合併檢視** | 可將 test 和 describe 區塊合併為統一列表（v1.56+） |
 | **停用「複製 Prompt」按鈕** | HTML Reporter 支援隱藏「Copy prompt」按鈕（v1.56+） |
+| **ZIP 封裝** | `--zip` 選項將報告打包為單一 ZIP 檔，方便分享（v1.60+） |
+| **JSON Pretty-Print 切換** | Trace Viewer 中 JSON 回應支援展開/收合格式化（v1.60+） |
 
 ### 8.1.1 Speedboard（v1.57+）
 
@@ -2497,6 +2662,7 @@ npx playwright test --update-snapshots
 
 | 版本 | Breaking Changes | 處理方式 |
 |------|-----------------|---------|
+| **v1.60** | 移除 `Locator.ariaRef()`；移除 `exposeBinding` 的 `handle` 選項；移除 `connect`/`connectOverCDP` 的 `logger` 選項；移除 `videosPath`/`videoSize` Context 選項 | 改用 `ariaSnapshot()`；使用 `exposeBinding` 不含 `handle`；移除 logger 參數；改用 `recordVideo` 選項 |
 | **v1.59** | 移除 macOS 14 WebKit 支援；移除 `@playwright/experimental-ct-svelte` | 升級 macOS 至 15+；改用其他元件測試方案 |
 | **v1.58** | 移除 `_react`、`_vue` selector；移除 `:light` selector 後綴；移除 `devtools` 啟動選項；移除 macOS 13 WebKit 支援 | 改用標準 CSS / Locator API；使用 `args: ['--auto-open-devtools-for-tabs']` 替代 |
 | **v1.57** | 移除 `Page#accessibility` API（已棄用 3 年） | 改用 Axe 等無障礙測試工具 |
@@ -2505,10 +2671,18 @@ npx playwright test --update-snapshots
 | **Minor** | 新增 API / 新瀏覽器版本 | 通常向下相容，直接升級 |
 | **Browser** | 瀏覽器行為變更 | 更新視覺快照、調整 Locator |
 
-**v1.55~v1.59 新增重要 API 彙整：**
+**v1.55~v1.60 新增重要 API 彙整：**
 
 | 版本 | 新增 API | 說明 |
 |------|---------|------|
+| **v1.60** | `context.tracing.startHar()` / `stopHar()` | Tracing 層級 HAR 錄製 |
+| **v1.60** | `locator.drop()` | 簡化拖放操作 |
+| **v1.60** | `expect(page).toMatchAriaSnapshot()` | 頁面層級 Aria Snapshot 斷言 |
+| **v1.60** | `getByRole` — `description` 選項 | 透過 aria-description 篩選元素 |
+| **v1.60** | `toHaveCSS` — `pseudo` 選項 | 驗證偽元素 CSS 屬性 |
+| **v1.60** | `browser.on('context')` 事件 | 監聽新 BrowserContext 建立 |
+| **v1.60** | BrowserContext 生命週期事件 | Context 鏡像 Page 的 download / frame 事件 |
+| **v1.60** | `{testFileBaseName}` Token | snapshotPathTemplate 新路徑變數 |
 | **v1.59** | `page.screencast` | 統一影片錄製、動作標註、覆蓋層管理 |
 | **v1.59** | `browser.bind()` / `browser.unbind()` | 瀏覽器互操作性，讓 CLI/MCP 連接 |
 | **v1.59** | `page.ariaSnapshot()` / `locator.normalize()` | Aria Snapshot 與 Locator 最佳化 |
@@ -2529,10 +2703,10 @@ npx playwright test --update-snapshots
 {
   "devDependencies": {
     // ✅ 推薦：固定 Minor 版本
-    "@playwright/test": "~1.59.0",
+    "@playwright/test": "~1.60.0",
     
     // ❌ 避免：自動升級 Major
-    // "@playwright/test": "^1.59.0"
+    // "@playwright/test": "^1.60.0"
   }
 }
 ```
@@ -3067,7 +3241,7 @@ export default defineConfig({
     "lint": "eslint tests/ pages/ services/ fixtures/ utils/"
   },
   "devDependencies": {
-    "@playwright/test": "~1.59.0",
+    "@playwright/test": "~1.60.0",
     "@faker-js/faker": "^9.0.0",
     "dotenv": "^16.0.0",
     "eslint": "^9.0.0",
@@ -3210,6 +3384,7 @@ npx playwright test --grep "@smoke|@api"    # Smoke + API
 | `npx playwright test --repeat-each=5` | 重複執行（抓 Flaky） |
 | `npx playwright test --update-snapshots` | 更新視覺快照 |
 | `npx playwright test --test-list=file.txt` | 指定測試清單執行（v1.56+） |
+| `npx playwright test --reporter=html --zip` | 產生 ZIP 格式報告（v1.60+） |
 
 ### 工具
 
