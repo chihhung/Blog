@@ -1,5 +1,5 @@
 +++
-date = '2026-04-12T14:36:36+08:00'
+date = '2026-05-31T10:00:00+08:00'
 draft = false
 title = 'Multica 教學手冊'
 tags = ['教學', 'AI開發']
@@ -8,9 +8,9 @@ categories = ['教學']
 
 # Multica 教學手冊（企業級實戰版）
 
-> **版本：** v0.1.26（2026-04-12）  
+> **版本：** v0.3.12（2026-05-31）  
 > **適用對象：** 資深工程師、架構師、DevOps 工程師、技術主管  
-> **技術棧：** Go Backend + Next.js Frontend + PostgreSQL + Agent Daemon  
+> **技術棧：** Go Backend + Next.js 16 Frontend + PostgreSQL 17 + pgvector + Agent Daemon  
 > **授權：** Multica Source Available License（非 SaaS/轉售可自由使用）  
 > **文件等級：** 企業標準技術白皮書
 
@@ -20,40 +20,47 @@ categories = ['教學']
 
 - [第 1 章：Multica 概述](#第-1-章multica-概述)
   - [1.1 什麼是 Multica？](#11-什麼是-multica)
-  - [1.2 核心設計理念](#12-核心設計理念)
-  - [1.3 與傳統工具的差異比較](#13-與傳統工具的差異比較)
-  - [1.4 適用場景](#14-適用場景)
-  - [1.5 專案基本資訊](#15-專案基本資訊)
-  - [1.6 授權模式說明](#16-授權模式說明)
-- [第 2 章：系統架構設計（Enterprise Architecture）](#第-2-章系統架構設計enterprise-architecture)
+  - [1.2 名稱由來](#12-名稱由來)
+  - [1.3 核心設計理念](#13-核心設計理念)
+  - [1.4 與傳統工具的差異比較](#14-與傳統工具的差異比較)
+  - [1.5 適用場景](#15-適用場景)
+  - [1.6 專案基本資訊](#16-專案基本資訊)
+  - [1.7 授權模式說明](#17-授權模式說明)
+- [第 2 章：系統架構設計](#第-2-章系統架構設計enterprise-architecture)
   - [2.1 整體架構概覽](#21-整體架構概覽)
   - [2.2 技術棧詳解](#22-技術棧詳解)
   - [2.3 元件說明](#23-元件說明)
   - [2.4 企業整合架構](#24-企業整合架構)
   - [2.5 資料流向與通訊模型](#25-資料流向與通訊模型)
-- [第 3 章：安裝與部署（Installation & Setup）](#第-3-章安裝與部署installation--setup)
+- [第 3 章：安裝與部署](#第-3-章安裝與部署installation--setup)
   - [3.1 部署模式選擇](#31-部署模式選擇)
   - [3.2 Self-Hosted 快速部署（推薦）](#32-self-hosted-快速部署推薦)
   - [3.3 Self-Hosted 手動部署（Step-by-Step）](#33-self-hosted-手動部署step-by-step)
-  - [3.4 環境變數設定](#34-環境變數設定)
-  - [3.5 Production 部署（反向代理）](#35-production-部署反向代理)
-  - [3.6 不使用 Docker 的手動部署](#36-不使用-docker-的手動部署)
-  - [3.7 停止服務](#37-停止服務)
-  - [3.8 切換至 Multica Cloud](#38-切換至-multica-cloud)
-- [第 4 章：核心運作機制（Core Workflow）](#第-4-章核心運作機制core-workflow)
+  - [3.4 Kubernetes 部署（Helm Chart）](#34-kubernetes-部署helm-chart)
+  - [3.5 環境變數設定](#35-環境變數設定)
+  - [3.6 Production 部署（反向代理）](#36-production-部署反向代理)
+  - [3.7 不使用 Docker 的手動部署](#37-不使用-docker-的手動部署)
+  - [3.8 Usage Dashboard Rollup 設定](#38-usage-dashboard-rollup-設定)
+  - [3.9 停止服務](#39-停止服務)
+  - [3.10 切換至 Multica Cloud](#310-切換至-multica-cloud)
+- [第 4 章：核心運作機制](#第-4-章核心運作機制core-workflow)
   - [4.1 任務生命週期（Issue Lifecycle）](#41-任務生命週期issue-lifecycle)
   - [4.2 Agent 自主執行流程](#42-agent-自主執行流程)
   - [4.3 任務排程與佇列機制](#43-任務排程與佇列機制)
   - [4.4 WebSocket 通訊流程](#44-websocket-通訊流程)
   - [4.5 Execution History 查詢](#45-execution-history-查詢)
-- [第 5 章：AI Agent 整合（Claude Code / Codex）](#第-5-章ai-agent-整合claude-code--codex)
+  - [4.6 Issue Metadata（結構化屬性）](#46-issue-metadata結構化屬性)
+  - [4.7 Subscribers（訂閱機制）](#47-subscribers訂閱機制)
+  - [4.8 Thread-aware Comments（串接式評論）](#48-thread-aware-comments串接式評論)
+- [第 5 章：AI Agent 整合](#第-5-章ai-agent-整合agent-integration)
   - [5.1 支援的 AI Agent](#51-支援的-ai-agent)
   - [5.2 Agent CLI 安裝](#52-agent-cli-安裝)
   - [5.3 CLI 自動偵測機制](#53-cli-自動偵測機制)
-  - [5.4 Agent 建立與設定](#54-agent-建立與設定)
-  - [5.5 Prompt 設計策略（Agent 專用）](#55-prompt-設計策略agent-專用)
-  - [5.6 多 Agent 協作模式](#56-多-agent-協作模式)
-- [第 6 章：開發流程（Development Workflow）](#第-6-章開發流程development-workflow)
+  - [5.4 Agent 環境變數（Per-Agent 設定）](#54-agent-環境變數per-agent-設定)
+  - [5.5 Agent 建立與設定](#55-agent-建立與設定)
+  - [5.6 Prompt 設計策略（Agent 專用）](#56-prompt-設計策略agent-專用)
+  - [5.7 多 Agent 協作模式](#57-多-agent-協作模式)
+- [第 6 章：開發流程](#第-6-章開發流程development-workflow)
   - [6.1 完整開發流程](#61-完整開發流程)
   - [6.2 Issue 管理](#62-issue-管理)
   - [6.3 範例：Spring Boot API 開發流程](#63-範例spring-boot-api-開發流程)
@@ -73,34 +80,51 @@ categories = ['教學']
   - [8.3 團隊隔離策略](#83-團隊隔離策略)
   - [8.4 權限控管（RBAC）](#84-權限控管rbac)
   - [8.5 多 Daemon Profile](#85-多-daemon-profile)
-- [第 9 章：系統維運（Operations）](#第-9-章系統維運operations)
-  - [9.1 Log 管理](#91-log-管理)
-  - [9.2 Agent 狀態監控](#92-agent-狀態監控)
-  - [9.3 監控架構](#93-監控架構)
-  - [9.4 建議監控指標](#94-建議監控指標)
-  - [9.5 錯誤處理與復原](#95-錯誤處理與復原)
-  - [9.6 效能優化](#96-效能優化)
-- [第 10 章：系統升級與擴展（Upgrade & Scaling）](#第-10-章系統升級與擴展upgrade--scaling)
-  - [10.1 Multica 升級策略](#101-multica-升級策略)
-  - [10.2 版本管理策略](#102-版本管理策略)
-  - [10.3 Agent 水平擴展](#103-agent-水平擴展)
-  - [10.4 高可用架構（HA）](#104-高可用架構ha)
-  - [10.5 切換至 Multica Cloud](#105-切換至-multica-cloud)
-- [第 11 章：安全設計（Security）](#第-11-章安全設計security)
-  - [11.1 認證與授權](#111-認證與授權)
-  - [11.2 Agent 權限隔離](#112-agent-權限隔離)
-  - [11.3 憑證管理](#113-憑證管理)
-  - [11.4 網路安全](#114-網路安全)
-  - [11.5 SSDLC 整合](#115-ssdlc-整合)
-- [第 12 章：最佳實務（Best Practices）](#第-12-章最佳實務best-practices)
-  - [12.1 團隊導入策略](#121-團隊導入策略)
-  - [12.2 Prompt Engineering 原則](#122-prompt-engineering-原則)
-  - [12.3 Agent 使用規範](#123-agent-使用規範)
-  - [12.4 常見錯誤與避免方式](#124-常見錯誤與避免方式)
-  - [12.5 開發環境最佳實務](#125-開發環境最佳實務)
-- [第 13 章：實戰案例（Case Study）](#第-13-章實戰案例case-study)
-  - [13.1 案例：建立企業 Web 系統](#131-案例建立企業-web-系統)
-  - [13.2 案例總結](#132-案例總結)
+  - [8.6 工作空間垃圾回收（Workspace GC）](#86-工作空間垃圾回收workspace-gc)
+- [第 9 章：Squads（團隊編組）](#第-9-章squads團隊編組)
+  - [9.1 Squads 概念](#91-squads-概念)
+  - [9.2 Squad 的價值](#92-squad-的價值)
+  - [9.3 企業應用場景](#93-企業應用場景)
+- [第 10 章：Autopilots（自動化排程）](#第-10-章autopilots自動化排程)
+  - [10.1 Autopilots 概念](#101-autopilots-概念)
+  - [10.2 Autopilot CLI 管理](#102-autopilot-cli-管理)
+  - [10.3 企業應用範例](#103-企業應用範例)
+- [第 11 章：Projects（專案管理）](#第-11-章projects專案管理)
+  - [11.1 Projects 概念](#111-projects-概念)
+  - [11.2 Project CLI 管理](#112-project-cli-管理)
+  - [11.3 Project 與 Issue 整合](#113-project-與-issue-整合)
+  - [11.4 企業應用場景](#114-企業應用場景)
+- [第 12 章：MCP 整合（Model Context Protocol）](#第-12-章mcp-整合model-context-protocol)
+  - [12.1 MCP 概述](#121-mcp-概述)
+  - [12.2 MCP 整合場景](#122-mcp-整合場景)
+- [第 13 章：系統維運（Operations）](#第-13-章系統維運operations)
+  - [13.1 Log 管理](#131-log-管理)
+  - [13.2 Agent 狀態監控](#132-agent-狀態監控)
+  - [13.3 監控架構](#133-監控架構)
+  - [13.4 建議監控指標](#134-建議監控指標)
+  - [13.5 錯誤處理與復原](#135-錯誤處理與復原)
+  - [13.6 效能優化](#136-效能優化)
+- [第 14 章：系統升級與擴展（Upgrade & Scaling）](#第-14-章系統升級與擴展upgrade--scaling)
+  - [14.1 Multica 升級策略](#141-multica-升級策略)
+  - [14.2 版本管理策略](#142-版本管理策略)
+  - [14.3 Agent 水平擴展](#143-agent-水平擴展)
+  - [14.4 高可用架構（HA）](#144-高可用架構ha)
+  - [14.5 切換至 Multica Cloud](#145-切換至-multica-cloud)
+- [第 15 章：安全設計（Security）](#第-15-章安全設計security)
+  - [15.1 認證與授權](#151-認證與授權)
+  - [15.2 Agent 權限隔離](#152-agent-權限隔離)
+  - [15.3 憑證管理](#153-憑證管理)
+  - [15.4 網路安全](#154-網路安全)
+  - [15.5 SSDLC 整合](#155-ssdlc-整合)
+- [第 16 章：最佳實務（Best Practices）](#第-16-章最佳實務best-practices)
+  - [16.1 團隊導入策略](#161-團隊導入策略)
+  - [16.2 Prompt Engineering 原則](#162-prompt-engineering-原則)
+  - [16.3 Agent 使用規範](#163-agent-使用規範)
+  - [16.4 常見錯誤與避免方式](#164-常見錯誤與避免方式)
+  - [16.5 開發環境最佳實務](#165-開發環境最佳實務)
+- [第 17 章：實戰案例（Case Study）](#第-17-章實戰案例case-study)
+  - [17.1 案例：建立企業 Web 系統](#171-案例建立企業-web-系統)
+  - [17.2 案例總結](#172-案例總結)
 - [附錄 A：檢查清單（Checklist）](#附錄-a檢查清單checklist)
 - [附錄 B：CLI 快速參考卡](#附錄-bcli-快速參考卡)
 - [附錄 C：術語表（Glossary）](#附錄-c術語表glossary)
@@ -111,29 +135,45 @@ categories = ['教學']
 
 ### 1.1 什麼是 Multica？
 
-Multica 是一個**開源的 AI Agent 管理平台**，核心理念是將 AI 編碼代理（如 Claude Code、Codex、OpenClaw、OpenCode）轉化為團隊中的「虛擬同事」。
+Multica 是一個**開源的 Managed AI Agent 平台**，致力於將 AI 編碼代理轉化為團隊中真正的「虛擬隊友」。有別於傳統 AI 對話工具的被動互動模式，Multica 提供完整的任務管理與 Agent 自主執行基礎設施，使 AI Agent 成為開發流程中不可或缺的一等公民（First-Class Citizen）。
 
 > **"Your next 10 hires won't be human."** — Multica 官方標語
 
-與傳統的 AI 對話工具不同，Multica 提供完整的**任務管理 + Agent 自主執行**基礎設施：
+Multica 的核心能力涵蓋以下面向：
 
-- Agent 擁有個人檔案，出現在看板上
-- Agent 可以被指派 Issue、參與討論、建立任務
-- Agent 遇到困難時主動回報 Blocker
-- 每個解決方案自動轉化為可重用的「技能（Skill）」
+- **Agent as Teammate：** Agent 擁有個人檔案與看板呈現，如同人類同事般被指派 Issue、參與討論對話、主動回報 Blocker
+- **Squads（團隊編組）：** 將多個 Agent（與人類）組成由 Leader Agent 領導的團隊，透過 `@FrontendTeam` 等方式指派工作，由 Leader 自動分派至適當成員
+- **Autonomous Execution：** 完整的任務生命週期管理（enqueue → claim → start → complete/fail），搭配 WebSocket 即時進度串流
+- **Autopilots（自動化排程）：** 支援 Cron 排程、Webhook 觸發或手動執行，自動建立 Issue 並路由至指定 Agent，適用於每日站立會議、週報、定期稽核等場景
+- **Reusable Skills：** 每個解決方案自動轉化為可重用的技能，部署、遷移、審查等技能隨時間複利成長
+- **Unified Runtimes：** 統一管理本地 Daemon 與雲端 Runtime，自動偵測可用 CLI，即時監控執行環境
+- **Vendor-Neutral：** 支援 12 種以上 AI Agent CLI（Claude Code、Codex、GitHub Copilot CLI、OpenClaw、OpenCode、Hermes、Gemini、Pi、Cursor Agent、Kimi、Kiro CLI、Antigravity）
+- **Self-Hosted First：** 可完全自部署於企業基礎設施，資料不離開企業環境
 
-### 1.2 核心設計理念
+### 1.2 名稱由來
+
+**Multica** — Multiplexed Information and Computing Agent（多工資訊與計算代理）。
+
+此命名致敬 1960 年代的先驅作業系統 **Multics**，該系統首創了分時共享（Time-Sharing）概念——讓多位使用者共享一台機器，彷彿各自擁有獨立運算資源。Unix 作為 Multics 的精簡化衍生，奠定了「單一使用者、單一任務」的設計哲學。
+
+Multica 認為相同的典範轉移正在發生。數十年來，軟體團隊本質上是單執行緒運作——一位工程師、一個任務、一次上下文切換。AI Agent 改變了這個方程式。Multica 將分時共享的理念帶回，但服務對象擴展為人類與自主代理並行的時代。
+
+> 正如 Multics 的願景，Multica 的核心假設是**多工複用**：一個小團隊不應該感覺小。有了正確的系統，兩位工程師加上一支 Agent 艦隊，可以發揮如同二十人團隊的戰力。
+
+### 1.3 核心設計理念
 
 | 設計原則 | 說明 |
 |---------|------|
-| **Agent as Teammate** | AI Agent 不是工具，而是團隊成員 |
+| **Agent as Teammate** | AI Agent 不是工具，而是具有個人檔案、出現在看板上的團隊成員 |
 | **Task-Driven** | 以 Issue 為中心的任務驅動模式（類似 Linear / Jira） |
-| **Autonomous Execution** | Agent 自主領取、執行、回報任務 |
+| **Autonomous Execution** | Agent 自主領取、執行、回報任務，支援完整生命週期管理 |
+| **Squad-Based Routing** | 透過 Squads 機制，由 Leader Agent 自動將任務路由至適當成員 |
+| **Autopilot Scheduling** | 支援 Cron / Webhook / 手動觸發的自動化排程 |
 | **Skill Compounding** | 技能累積，團隊能力隨時間複利成長 |
-| **Vendor-Neutral** | 支援多種 AI Agent（Claude Code / Codex / OpenClaw / OpenCode） |
+| **Vendor-Neutral** | 支援 12+ 種 AI Agent，不綁定單一供應商 |
 | **Self-Hosted First** | 可完全自部署，資料不離開企業環境 |
 
-### 1.3 與傳統工具的差異比較
+### 1.4 與傳統工具的差異比較
 
 #### 與 AI 工具（Copilot / ChatGPT）差異
 
@@ -141,63 +181,71 @@ Multica 是一個**開源的 AI Agent 管理平台**，核心理念是將 AI 編
 |------|-------------------|---------|
 | 互動模式 | 人類主動提問 → AI 回應 | 指派任務 → Agent 自主完成 |
 | 任務管理 | 無 | 完整 Issue Lifecycle（backlog→done） |
-| 協作能力 | 單人使用 | 多人 + 多 Agent 協作 |
+| 協作能力 | 單人使用 | 多人 + 多 Agent + Squads 協作 |
 | 技能累積 | 無（每次從頭開始） | Skill 自動累積與重用 |
 | 進度追蹤 | 無 | 即時 WebSocket 進度串流 |
-| 部署模式 | SaaS | Self-Hosted / Cloud 可選 |
+| 自動化 | 無 | Autopilots 排程觸發 |
+| 部署模式 | SaaS | Self-Hosted / Cloud / Kubernetes 可選 |
 
 #### 與任務管理工具（Jira / Linear）差異
 
 | 面向 | Jira / Linear | Multica |
 |------|---------------|---------|
-| 執行者 | 人類工程師 | 人類 + AI Agent 並行 |
-| 自動化 | 規則/Webhook 觸發 | Agent 自主感知並執行 |
+| 執行者 | 人類工程師 | 人類 + AI Agent 並行（Squads 機制） |
+| 自動化 | 規則/Webhook 觸發 | Agent 自主感知並執行 + Autopilot 排程 |
 | 程式碼生成 | 無 | Agent 直接寫 Code + 提 PR |
-| 運行環境 | 無 | 內建 Runtime 管理 |
-| 即時通訊 | 評論 | WebSocket 即時串流 |
+| 運行環境 | 無 | 內建 Runtime 管理（本地 + 雲端 + K8s） |
+| 即時通訊 | 評論 | WebSocket 即時串流 + 執行緒式留言 |
+| 專案管理 | 完整 | Projects 群組 + Issue Metadata |
 
-### 1.4 適用場景
+### 1.5 適用場景
 
 | 場景 | 說明 |
 |------|------|
 | 企業大型 Web 系統 | Spring Boot / Vue / 微服務架構 |
 | 快速原型開發 | Agent 快速產出 MVP |
 | 遺留系統重構 | Agent 輔助逐步遷移 |
-| DevOps 自動化 | 部署、監控、日常維運任務 |
+| DevOps 自動化 | 部署、監控、日常維運任務（Autopilots） |
 | 代碼審查 | Agent 自動進行 Code Review |
 | 新人 Onboarding | Agent 輔助建立文件與教學 |
+| 定期報告與稽核 | Autopilots 自動化產出每日/週報 |
+| 多團隊協作 | Squads 機制實現穩定任務路由 |
 
-### 1.5 專案基本資訊
+### 1.6 專案基本資訊
 
 | 項目 | 資訊 |
 |------|------|
 | GitHub | [multica-ai/multica](https://github.com/multica-ai/multica) |
-| 最新版本 | v0.1.26（27 個 Release） |
-| Stars | 8,300+ |
-| Forks | 1,100+ |
-| 語言組成 | TypeScript 55% / Go 41.5% / MDX 1.3% / Shell 1.0% / CSS 0.8% / 其他 0.4% |
-| 貢獻者 | 27+（含 @claude 作為 AI 貢獻者） |
+| 最新版本 | v0.3.12（80 個 Release） |
+| Stars | 34,400+ |
+| Forks | 4,100+ |
+| 語言組成 | TypeScript 48.1% / Go 43.6% / MDX 6.4% / PLpgSQL 0.6% / CSS 0.5% / JavaScript 0.3% |
+| 貢獻者 | 143+（含 @claude、@multica-agent、@multica-eve 等 AI 貢獻者） |
 | 授權 | Multica Source Available License |
 | 官網 | [multica.ai](https://multica.ai) |
-| Cloud 服務 | [multica.ai/app](https://multica.ai/app) |
-| 社群 | [X (@multica_hq)](https://x.com/multica_hq) |
-| 開源 Issues | 58+ 個 Issue / 64+ 個 Pull Request |
+| Cloud 服務 | [multica.ai](https://multica.ai) |
+| 社群 | [X (@MulticaAI)](https://x.com/MulticaAI) |
+| 開源 Issues | 419+ 個 Issue / 385+ 個 Pull Request |
+| GHCR 映像 | `multica-backend`、`multica-web`、`charts/multica` |
+| 行動應用 | iOS（apps/mobile/） |
+| Helm Chart | `oci://ghcr.io/multica-ai/charts/multica` |
 
-### 1.6 授權模式說明
+### 1.7 授權模式說明
 
-Multica 採用 **Multica Source Available License**，具體規範如下：
+Multica 採用 **Multica Source Available License**，商業限制精準鎖定 SaaS 與轉售場景，具體規範如下：
 
 | 使用場景 | 是否允許 |
 |---------|---------|
 | 企業內部自部署使用 | ✅ 允許 |
 | 個人學習與研究 | ✅ 允許 |
 | 基於 Multica 進行二次開發 | ✅ 允許 |
+| 內部工具整合與客製化 | ✅ 允許 |
 | 提供 Multica 作為 SaaS 服務 | ❌ 禁止 |
 | 轉售 Multica 或其衍生產品 | ❌ 禁止 |
 
 > **法務建議：** 企業導入前，建議法務團隊審閱完整 [LICENSE](https://github.com/multica-ai/multica/blob/main/LICENSE) 文件，確認商業使用不涉及 SaaS 或轉售行為。
 >
-> **實務建議：** Multica 適合中大型團隊（5+ 人），且需要有至少一位熟悉 Docker + Go + Node.js 的工程師負責維運。
+> **實務建議：** Multica 適合中大型團隊（5+ 人），且需要有至少一位熟悉 Docker + Go + Node.js 的工程師負責維運。Kubernetes 部署另需具備 Helm 與 K8s 經驗。
 
 ---
 
@@ -211,6 +259,7 @@ graph TB
         DEV[👨‍💻 開發人員]
         PM[📋 專案經理]
         ADMIN[🔧 系統管理員]
+        MOBILE[📱 iOS 行動端]
     end
 
     subgraph "前端層 (Frontend Layer)"
@@ -220,8 +269,9 @@ graph TB
     subgraph "後端層 (Backend Layer)"
         API[Go Backend<br/>Chi Router + sqlc]
         WS[WebSocket Server<br/>gorilla/websocket]
-        AUTH[認證模組<br/>JWT + Magic Link]
+        AUTH[認證模組<br/>JWT + Magic Link + Google OAuth]
         MIGRATE[Migration Engine<br/>自動遷移]
+        ROLLUP[Usage Rollup<br/>task_usage_hourly]
     end
 
     subgraph "資料層 (Data Layer)"
@@ -235,11 +285,13 @@ graph TB
         CLOUD_RT[Cloud Runtime<br/>雲端運行環境]
     end
 
-    subgraph "AI Agent 層"
+    subgraph "AI Agent 層（12+ 種支援）"
         CLAUDE[Claude Code]
         CODEX[Codex]
-        OPENCLAW[OpenClaw]
-        OPENCODE[OpenCode]
+        COPILOT[GitHub Copilot CLI]
+        HERMES[Hermes]
+        GEMINI[Gemini]
+        OTHERS[Pi / Cursor Agent / Kimi<br/>Kiro CLI / OpenClaw / OpenCode<br/>Antigravity]
     end
 
     subgraph "外部整合 (External Integration)"
@@ -251,6 +303,7 @@ graph TB
     DEV --> WEB
     PM --> WEB
     ADMIN --> WEB
+    MOBILE --> API
 
     WEB -->|REST API| API
     WEB -->|Real-time| WS
@@ -259,6 +312,7 @@ graph TB
     API --> DB
     API --> S3
     API --> MIGRATE
+    API --> ROLLUP
 
     WS -->|任務分派| DAEMON1
     WS -->|任務分派| DAEMON2
@@ -266,8 +320,10 @@ graph TB
 
     DAEMON1 --> CLAUDE
     DAEMON1 --> CODEX
-    DAEMON2 --> OPENCLAW
-    CLOUD_RT --> OPENCODE
+    DAEMON1 --> COPILOT
+    DAEMON2 --> HERMES
+    DAEMON2 --> GEMINI
+    CLOUD_RT --> OTHERS
 
     DAEMON1 -->|Git Push| GITHUB
     GITHUB --> CICD
@@ -283,46 +339,67 @@ graph TB
 | **Database** | PostgreSQL 17 + pgvector | 關聯式 + 向量搜尋支援 |
 | **Agent Runtime** | 本地 Daemon 或雲端 Runtime | 執行 AI Agent CLI |
 | **檔案儲存** | S3 / CloudFront / Local Fallback | 上傳附件與資產（支援本地檔案系統回退） |
-| **認證** | JWT + Email Magic Link + Google OAuth | 安全認證 |
+| **認證** | JWT + Email Magic Link + Google OAuth | 安全認證（90 天有效 PAT） |
+| **容器映像** | GHCR（GitHub Container Registry） | `multica-backend`、`multica-web` |
+| **Helm Chart** | OCI Helm Chart on GHCR | Kubernetes 部署用 |
+| **行動端** | iOS（React Native） | apps/mobile/ 目錄 |
+| **開發工具** | pnpm 10.28+ / Node.js 20+ / Go 1.26+ | Monorepo 架構（Turborepo） |
 
 ### 2.3 元件說明
 
 #### 2.3.1 Multica Server（Go Backend）
 
-- **REST API：** 處理所有 CRUD 操作（Issue / Agent / Workspace / Skill）
+- **REST API：** 處理所有 CRUD 操作（Issue / Agent / Workspace / Skill / Project / Autopilot / Squad）
 - **WebSocket Server：** 即時雙向通訊，任務狀態串流
 - **sqlc：** 編譯期 SQL Type Safety（非 ORM）
-- **Migration Engine：** 資料庫遷移自動執行
-- **Health Check：** `GET /health → {"status":"ok"}`
+- **Migration Engine：** 資料庫遷移自動執行（冪等設計，重複執行安全）
+- **Health Check：** `GET /healthz → {"status":"ok","checks":{"db":"ok","migrations":"ok"}}`
+- **Usage Rollup：** `task_usage_hourly` 聚合表，驅動 Usage Dashboard
+- **Config API：** `GET /api/config` 動態回傳 `ALLOW_SIGNUP`、`DISABLE_WORKSPACE_CREATION`、`GOOGLE_CLIENT_ID` 設定
 
 #### 2.3.2 Agent Daemon
 
 Daemon 是在開發者本機執行的背景程序：
 
-1. 啟動時自動偵測已安裝的 AI Agent CLI（`claude`、`codex`、`openclaw`、`opencode`）
-2. 向 Server 註冊 Runtime
-3. 定期輪詢（預設 3 秒）Server 是否有新任務
+1. 啟動時自動偵測已安裝的 AI Agent CLI（`claude`、`codex`、`copilot`、`openclaw`、`opencode`、`hermes`、`gemini`、`pi`、`cursor-agent`、`kimi`、`kiro-cli`、`agy`）
+2. 為每個偵測到的 Agent 在每個被監控的 Workspace 中註冊 Runtime
+3. 以設定的間隔（預設 3 秒）輪詢 Server 是否有已認領（claimed）的任務
 4. 收到任務後建立隔離的工作目錄，啟動 Agent CLI 執行
 5. 透過 WebSocket 即時回傳執行結果
 6. 定期發送心跳（預設 15 秒）
 7. 關閉時自動取消註冊所有 Runtime
+8. 內建工作空間垃圾回收（GC）機制，自動清理已完成任務的工作目錄
 
 #### 2.3.3 Web UI Dashboard
 
-- 看板視圖（Board View）：Kanban 式任務管理
-- Agent 檔案：每個 Agent 都有個人頁面
-- Runtime 管理：查看所有連接的運行環境
-- Skill Library：瀏覽與管理可重用技能
-- 即時串流：WebSocket 即時顯示 Agent 執行進度
+- **看板視圖（Board View）：** Kanban 式任務管理，Agent 與人類並列顯示
+- **Agent 檔案：** 每個 Agent 都有個人頁面
+- **Runtime 管理：** 查看所有連接的運行環境
+- **Skill Library：** 瀏覽與管理可重用技能
+- **即時串流：** WebSocket 即時顯示 Agent 執行進度
+- **Projects 管理：** 群組式 Issue 管理（Sprint / Epic）
+- **Autopilots 管理：** 排程自動化任務
+- **Squads 管理：** 團隊編組與路由設定
+- **Usage Dashboard：** 基於 `task_usage_hourly` 的使用量統計
 
 #### 2.3.4 AI Agent 支援
 
-| Agent | CLI Command | 提供商 |
-|-------|-------------|--------|
-| Claude Code | `claude` | Anthropic |
-| Codex | `codex` | OpenAI |
-| OpenClaw | `openclaw` | 開源社群 |
-| OpenCode | `opencode` | 開源社群 |
+Multica 支援 12 種以上 AI Agent CLI，Daemon 啟動時自動偵測 PATH 中已安裝的 CLI：
+
+| Agent | CLI Command | 提供商 | 支援狀態 |
+|-------|-------------|--------|---------|
+| Claude Code | `claude` | Anthropic | ✅ 核心支援 |
+| Codex | `codex` | OpenAI | ✅ 核心支援 |
+| GitHub Copilot CLI | `copilot` | GitHub | ✅ 官方支援 |
+| OpenCode | `opencode` | 開源社群 | ✅ 官方支援 |
+| OpenClaw | `openclaw` | 開源社群 | ✅ 官方支援 |
+| Hermes | `hermes` | Nous Research | ✅ 官方支援 |
+| Gemini | `gemini` | Google | ✅ 官方支援 |
+| Pi | `pi` | Pi.dev | ✅ 官方支援 |
+| Cursor Agent | `cursor-agent` | Cursor | ✅ 官方支援 |
+| Kimi | `kimi` | Moonshot AI | ✅ 官方支援 |
+| Kiro CLI | `kiro-cli` | Kiro ACP | ✅ 官方支援 |
+| Antigravity | `agy` | Antigravity | ✅ 官方支援 |
 
 ### 2.4 企業整合架構
 
@@ -349,6 +426,12 @@ graph LR
         DB2[(DB2)]
     end
 
+    subgraph "容器與編排"
+        GHCR[GHCR Registry]
+        K8S[Kubernetes / k3s]
+        HELM[Helm Chart]
+    end
+
     subgraph "監控"
         PROM[Prometheus]
         GRAF[Grafana]
@@ -364,9 +447,11 @@ graph LR
     PROM --> GRAF
     MS -->|Logs| ELK
     MS --> PG
+    GHCR --> K8S
+    HELM --> K8S
 ```
 
-> **實務建議：** 在銀行或金融業環境中，Multica Server 應部署在內部網路，Daemon 執行在開發者本機或專屬 Build Server，所有對外連線需經過企業 Proxy。
+> **實務建議：** 在銀行或金融業環境中，Multica Server 應部署在內部網路，Daemon 執行在開發者本機或專屬 Build Server，所有對外連線需經過企業 Proxy。Kubernetes 部署可使用 OCI Helm Chart 搭配企業內部 Ingress Controller。
 
 ### 2.5 資料流向與通訊模型
 
@@ -399,6 +484,7 @@ flowchart LR
 | Backend → PostgreSQL | TCP（postgres://） | 資料持久化 |
 | Backend → S3 | HTTPS（S3 SDK） | 檔案儲存（Production） |
 | Backend → Local FS | File IO | 檔案儲存（本地回退模式） |
+| iOS App → Backend | REST（HTTPS） | 行動端操作 |
 
 > **實務建議：** 企業環境建議所有對外通訊走 TLS 加密。WebSocket 連線在使用反向代理時需特別設定 `Upgrade` 標頭，否則會導致即時功能失效。
 
@@ -411,34 +497,55 @@ flowchart LR
 | 模式 | 適用場景 | 複雜度 |
 |------|---------|--------|
 | **Multica Cloud** | 快速上手、小團隊 | ⭐ |
-| **Self-Hosted（Docker）** | 企業環境、資料安全 | ⭐⭐ |
-| **Self-Hosted（手動）** | 完全控制、特殊基礎設施 | ⭐⭐⭐ |
+| **Self-Hosted（Docker Compose）** | 企業環境、資料安全 | ⭐⭐ |
+| **Self-Hosted（Kubernetes / Helm）** | 企業級編排、高可用 | ⭐⭐⭐ |
+| **Self-Hosted（手動，不使用 Docker）** | 完全控制、特殊基礎設施 | ⭐⭐⭐⭐ |
 | **開發環境** | 貢獻者 / 二次開發 | ⭐⭐⭐ |
 
 ### 3.2 Self-Hosted 快速部署（推薦）
 
+兩道指令即可完成 Server + CLI + 設定的完整部署：
+
 #### 前置條件
 
 - Docker 及 Docker Compose
-- 至少一個 AI Agent CLI（claude / codex）
+- 至少一個 AI Agent CLI（claude / codex / copilot 等）
 
 #### 一鍵安裝
 
 ```bash
-# 一鍵安裝：自動 clone repo、啟動 Docker Compose、安裝 CLI
-curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --local
+# 1. 安裝 CLI 並啟動 Self-Host Server
+curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --with-server
+
+# 2. 設定 CLI、認證並啟動 Daemon
+multica setup self-host
 ```
+
+此指令會自動：
+- 從 GHCR 拉取最新穩定版本映像
+- 建立 `.env` 並產生隨機 `JWT_SECRET`
+- 啟動 Docker Compose（PostgreSQL + Backend + Frontend）
+- 設定 CLI 連線至 localhost（8080/3000）
+- 開啟瀏覽器進行認證
+- 偵測並註冊所有工作空間
+- 啟動 Daemon
 
 完成後：
 
 - **Frontend：** http://localhost:3000
 - **Backend API：** http://localhost:8080
-- 登入驗證碼（非 Production）：`888888`
+
+#### CLI 單獨安裝（Server 已部署時）
 
 ```bash
-# 安裝完成後
-multica login          # 開啟瀏覽器認證
-multica daemon start   # 啟動本地 Agent Runtime
+# macOS / Linux — Homebrew（推薦）
+brew install multica-ai/tap/multica
+
+# macOS / Linux — Install Script
+curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
+
+# Windows — PowerShell
+irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | iex
 ```
 
 ### 3.3 Self-Hosted 手動部署（Step-by-Step）
@@ -446,17 +553,20 @@ multica daemon start   # 啟動本地 Agent Runtime
 #### Step 1：啟動 Server
 
 ```bash
-# 1. Clone Repository
+# Clone Repository
 git clone https://github.com/multica-ai/multica.git
 cd multica
 
-# 2. 使用 make 自動部署（推薦）
+# 使用 make 自動部署（推薦）
 make selfhost
 # 自動完成：
 # - 從 .env.example 建立 .env
 # - 產生隨機 JWT_SECRET
+# - 從 GHCR 拉取最新映像
 # - 啟動 Docker Compose（PostgreSQL + Backend + Frontend）
 ```
+
+> **注意：** 預設從 GHCR 拉取最新穩定映像。若指定的 GHCR Tag 尚未發布，`make selfhost` 會提示改用 `make selfhost-build` 從原始碼編譯。`make selfhost-build` 使用本地 `multica-backend:dev` / `multica-web:dev` 標籤，不會覆蓋已拉取的 `:latest` 映像。
 
 或手動操作：
 
@@ -468,47 +578,39 @@ cp .env.example .env
 JWT_SECRET=$(openssl rand -hex 32)
 # 將產生的 secret 寫入 .env
 
-# 啟動服務
+# 拉取映像並啟動服務
+docker compose -f docker-compose.selfhost.yml pull
 docker compose -f docker-compose.selfhost.yml up -d
 ```
 
 #### Step 2：登入系統
 
-1. 開啟 http://localhost:3000
-2. 輸入 Email
-3. 驗證碼輸入 `888888`（非 Production 環境）
+Docker Self-Host 堆疊預設使用 `APP_ENV=production`，**沒有固定驗證碼**。登入方式有三種：
+
+| 方式 | 說明 | 適用場景 |
+|------|------|---------|
+| **Email 驗證碼（推薦）** | 設定 `RESEND_API_KEY` 後重啟 Backend，真實驗證碼會寄至信箱 | Production 環境 |
+| **日誌中的驗證碼** | 未設定 Email 時，驗證碼會印在 Backend 容器日誌中（搜尋 `[DEV] Verification code for`） | 單機測試 |
+| **固定驗證碼** | 在 `.env` 設定 `APP_ENV=development` 和 `MULTICA_DEV_VERIFICATION_CODE=888888` 後重啟 | 本地/私有測試 |
+
+> ⚠️ **安全警告：** 切勿在公開可達的實例上設定 `MULTICA_DEV_VERIFICATION_CODE`——任何知道 Email 地址的人都可以使用該固定碼登入。
 
 #### Step 3：安裝 CLI 與啟動 Daemon
 
 ```bash
 # macOS / Linux — Homebrew 安裝
-brew tap multica-ai/tap
-brew install multica
+brew install multica-ai/tap/multica
 
-# 或從源碼編譯
-git clone https://github.com/multica-ai/multica.git
-cd multica
-make build
-cp server/bin/multica /usr/local/bin/multica
-```
-
-```bash
 # 一鍵設定（推薦）
-multica setup --local
+multica setup self-host
 # 自動完成：
 # 1. 設定 CLI 連線至 localhost（8080/3000）
 # 2. 開啟瀏覽器認證
 # 3. 發現所有工作空間
 # 4. 啟動 Daemon
 
-# 自訂埠號（當預設埠號被佔用時）
-multica setup --local --port 9090 --frontend-port 4000
-
-# 或手動步驟
-multica config local                # 設定連線至本地 Server
-multica config local --port 9090 --frontend-port 4000  # 自訂埠號
-multica login                       # 認證（開啟瀏覽器）
-multica daemon start                # 啟動 Daemon
+# 自訂域名（企業內部部署時）
+multica setup self-host --server-url https://api.example.com --app-url https://app.example.com
 ```
 
 #### Step 4：驗證
@@ -523,7 +625,87 @@ multica daemon status --output json
 
 開啟 Web App → **Settings → Runtimes**，確認看到你的機器。
 
-### 3.4 環境變數設定
+### 3.4 Kubernetes 部署（Helm Chart）
+
+Multica 提供 OCI Helm Chart，適用於已有 Kubernetes 叢集的企業環境。Chart 目標為典型的 k3s/k8s 設定，搭配 Ingress Controller 與預設 `ReadWriteOnce` StorageClass。
+
+Chart 建立的資源：
+- `multica-postgres` — `pgvector/pgvector:pg17`，10Gi PVC
+- `multica-backend` — Go API/WS Server，5Gi uploads PVC
+- `multica-frontend` — Next.js standalone server
+- 兩個 `Ingress` 資源：Web 與 Backend
+- `multica-config` ConfigMap
+
+#### Step 1：設定主機名稱
+
+```bash
+# 在 /etc/hosts 或 DNS 中設定
+# 替換為叢集 Ingress IP
+192.168.1.206  multica.dev.lan api.multica.dev.lan
+```
+
+#### Step 2：建立 Namespace 與 Secret
+
+```bash
+kubectl create namespace multica
+
+kubectl -n multica create secret generic multica-secrets \
+  --from-literal=JWT_SECRET="$(openssl rand -hex 32)" \
+  --from-literal=POSTGRES_PASSWORD="$(openssl rand -hex 16)" \
+  --from-literal=RESEND_API_KEY="" \
+  --from-literal=GOOGLE_CLIENT_SECRET="" \
+  --from-literal=CLOUDFRONT_PRIVATE_KEY="" \
+  --from-literal=MULTICA_DEV_VERIFICATION_CODE=""
+```
+
+#### Step 3：安裝 Chart
+
+```bash
+helm install multica oci://ghcr.io/multica-ai/charts/multica \
+  --version <chart-version> \
+  -n multica
+
+# 查看預設值
+helm show values oci://ghcr.io/multica-ai/charts/multica \
+  --version <chart-version> > my-values.yaml
+# 編輯後安裝
+helm install multica oci://ghcr.io/multica-ai/charts/multica \
+  --version <chart-version> \
+  -n multica \
+  -f my-values.yaml
+
+# 監控 Pod 啟動
+kubectl -n multica get pods -w
+
+# 驗證
+curl -H "Host: api.multica.dev.lan" http://<ingress-ip>/healthz
+# {"status":"ok","checks":{"db":"ok","migrations":"ok"}}
+```
+
+> **注意：** 已發布的 Chart Version 會去掉 Git Tag 的前綴 `v`。例如 `v0.3.5` 對應 Chart Version `0.3.5`。每個 Namespace 只能安裝一個 Multica Release。
+
+#### Step 4：安裝 CLI 與啟動 Daemon
+
+```bash
+multica setup self-host \
+  --server-url http://api.multica.dev.lan \
+  --app-url http://multica.dev.lan
+```
+
+#### Kubernetes 升級
+
+```bash
+# 升級到特定版本
+helm upgrade multica oci://ghcr.io/multica-ai/charts/multica \
+  --version <chart-version> \
+  -n multica \
+  -f my-values.yaml
+
+# 回滾
+helm -n multica rollback multica
+```
+
+### 3.5 環境變數設定
 
 #### Server 端必要變數
 
@@ -535,13 +717,18 @@ multica daemon status --output json
 | `PORT` | Backend 埠號 | `8080` |
 | `FRONTEND_PORT` | Frontend 埠號 | `3000` |
 | `LOG_LEVEL` | 日誌等級 | `debug` / `info` / `warn` / `error` |
+| `APP_ENV` | 應用環境 | `production`（停用固定驗證碼） |
+| `ALLOW_SIGNUP` | 是否允許新用戶註冊 | `true` / `false` |
+| `DISABLE_WORKSPACE_CREATION` | 是否禁止建立新工作空間 | `true` / `false` |
 
 #### Email 認證（Production 必要）
 
 | 變數 | 說明 |
 |------|------|
-| `RESEND_API_KEY` | Resend API 金鑰 |
+| `RESEND_API_KEY` | Resend API 金鑰（建議 Production 必設） |
 | `RESEND_FROM_EMAIL` | 寄件者 Email（預設 `noreply@multica.ai`） |
+
+Multica 亦支援 SMTP Relay 作為替代方案，支援 implicit TLS（SMTPS/465）。
 
 #### Google OAuth（選用）
 
@@ -564,6 +751,12 @@ multica daemon status --output json
 
 > **注意：** 若未設定 S3 相關變數，Multica 會自動回退使用**本地檔案系統**（Local File Storage Fallback）儲存上傳檔案。此功能適用於開發環境或不需要分散式儲存的場景。
 
+#### 開發環境專用
+
+| 變數 | 說明 |
+|------|------|
+| `MULTICA_DEV_VERIFICATION_CODE` | 固定驗證碼（僅 `APP_ENV=development` 生效） |
+
 #### Daemon 端設定
 
 | 變數 | 預設值 | 說明 |
@@ -571,21 +764,22 @@ multica daemon status --output json
 | `MULTICA_DAEMON_POLL_INTERVAL` | `3s` | 輪詢間隔 |
 | `MULTICA_DAEMON_HEARTBEAT_INTERVAL` | `15s` | 心跳間隔 |
 | `MULTICA_AGENT_TIMEOUT` | `2h` | Agent 超時時間 |
+| `MULTICA_CODEX_SEMANTIC_INACTIVITY_TIMEOUT` | `10m` | Codex 語義不活動超時 |
 | `MULTICA_DAEMON_MAX_CONCURRENT_TASKS` | `20` | 最大併行任務數 |
 | `MULTICA_DAEMON_ID` | hostname | Daemon 唯一識別碼 |
 | `MULTICA_DAEMON_DEVICE_NAME` | hostname | 裝置顯示名稱 |
 | `MULTICA_AGENT_RUNTIME_NAME` | `Local Agent` | Runtime 顯示名稱 |
 | `MULTICA_WORKSPACES_ROOT` | `~/multica_workspaces` | 工作空間根目錄 |
-| `MULTICA_SERVER_URL` | `ws://localhost:8080/ws` | Daemon → Server WebSocket URL |
-| `MULTICA_APP_URL` | `http://localhost:3000` | Frontend URL（CLI 登入用） |
-| `MULTICA_CLAUDE_PATH` | 自動偵測 | Claude CLI 路徑 |
-| `MULTICA_CLAUDE_MODEL` | 預設 | Claude 模型覆寫 |
-| `MULTICA_CODEX_PATH` | 自動偵測 | Codex CLI 路徑 |
-| `MULTICA_CODEX_MODEL` | 預設 | Codex 模型覆寫 |
+| `MULTICA_GC_ENABLED` | `true` | 啟用垃圾回收 |
+| `MULTICA_GC_INTERVAL` | `1h` | GC 掃描間隔 |
+| `MULTICA_GC_TTL` | `24h` | 已完成/取消 Issue 清理 TTL |
+| `MULTICA_GC_ORPHAN_TTL` | `72h` | 孤立目錄清理 TTL |
+| `MULTICA_GC_ARTIFACT_TTL` | `12h` | 建置產物清理 TTL（設為 `0` 停用） |
+| `MULTICA_GC_ARTIFACT_PATTERNS` | `node_modules,.next,.turbo` | 要清理的建置產物目錄名稱 |
 
 > **注意：** Daemon 端變數也可透過 CLI Flag 設定，例如 `multica daemon start --poll-interval 5s --max-concurrent-tasks 10`。完整 Flag 清單請參考 [CLI and Daemon Guide](https://github.com/multica-ai/multica/blob/main/CLI_AND_DAEMON.md)。
 
-### 3.5 Production 部署（反向代理）
+### 3.6 Production 部署（反向代理）
 
 #### Caddy（推薦）
 
@@ -660,7 +854,7 @@ NEXT_PUBLIC_API_URL=https://api.example.com
 NEXT_PUBLIC_WS_URL=wss://api.example.com/ws
 ```
 
-### 3.6 不使用 Docker 的手動部署
+### 3.7 不使用 Docker 的手動部署
 
 **前置條件：** Go 1.26+, Node.js 20+, pnpm 10.28+, PostgreSQL 17 + pgvector
 
@@ -671,7 +865,7 @@ psql -U postgres -c "CREATE EXTENSION IF NOT EXISTS vector;"
 # 2. 編譯後端
 make build
 
-# 3. 執行資料庫遷移
+# 3. 執行資料庫遷移（冪等，可重複執行）
 DATABASE_URL="postgres://multica:multica@localhost:5432/multica?sslmode=disable" \
   ./server/bin/migrate up
 
@@ -688,9 +882,46 @@ cd apps/web
 REMOTE_API_URL=http://localhost:8080 pnpm start
 ```
 
-> **實務建議：** 企業環境強烈建議使用 Docker Compose 部署，以確保環境一致性。將 `.env` 存放在安全的 Secret Manager（如 HashiCorp Vault）中，不要提交至版本控制。
+> **實務建議：** 企業環境強烈建議使用 Docker Compose 或 Kubernetes 部署，以確保環境一致性。將 `.env` 存放在安全的 Secret Manager（如 HashiCorp Vault）中，不要提交至版本控制。
 
-### 3.7 停止服務
+### 3.8 Usage Dashboard Rollup 設定
+
+Multica 的 Usage Dashboard 依賴 `task_usage_hourly` 聚合表來提供使用量統計。此表需透過定期執行 Rollup 函式來維護。
+
+#### 選項一：系統 Cron Job
+
+```bash
+# 每小時執行一次聚合（推薦）
+0 * * * * psql "$DATABASE_URL" -c "SELECT rollup_task_usage_hourly();"
+```
+
+#### 選項二：PostgreSQL pg_cron 擴充
+
+```sql
+-- 安裝 pg_cron（需 superuser 權限）
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+-- 每小時執行聚合
+SELECT cron.schedule(
+  'multica-rollup',
+  '0 * * * *',
+  $$SELECT rollup_task_usage_hourly()$$
+);
+```
+
+#### 選項三：手動回填歷史資料
+
+```sql
+-- 回填特定時間範圍的歷史資料
+SELECT backfill_task_usage_hourly(
+  '2025-01-01 00:00:00+00',
+  '2025-06-01 00:00:00+00'
+);
+```
+
+> **實務建議：** Production 環境務必設定 Rollup。未設定時 Usage Dashboard 不會顯示資料。建議使用 pg_cron 方式，可避免外部 cron 依賴。
+
+### 3.9 停止服務
 
 #### 使用安裝腳本停止
 
@@ -721,7 +952,7 @@ multica daemon stop
 
 > **注意：** `docker compose down` 僅停止容器，**不會刪除資料庫卷宗**。若需完全清除資料，使用 `docker compose down -v`（此操作不可逆）。
 
-### 3.8 切換至 Multica Cloud
+### 3.10 切換至 Multica Cloud
 
 若已在使用 Self-Hosted 部署，希望切換至 [Multica Cloud](https://multica.ai)：
 
@@ -731,11 +962,11 @@ multica config set server_url https://api.multica.ai
 multica config set app_url https://multica.ai
 multica login
 
-# 方式二：透過安裝腳本（不帶 --local 參數會自動設定 Cloud）
+# 方式二：透過安裝腳本（不帶 --with-server 參數會自動設定 Cloud）
 curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
 ```
 
-> **注意：** 切換至 Cloud 後，本地的 Docker 服務不會自動停止。如不再需要，請手動停止，參考 [3.7 停止服務](#37-停止服務)。
+> **注意：** 切換至 Cloud 後，本地的 Docker 服務不會自動停止。如不再需要，請手動停止，參考 [3.9 停止服務](#39-停止服務)。
 
 ---
 
@@ -891,41 +1122,120 @@ multica issue run-messages <task-id> --output json
 multica issue run-messages <task-id> --since 42 --output json
 ```
 
-> **實務建議：** 在企業環境中，建議將 `MULTICA_DAEMON_POLL_INTERVAL` 設為 `5s`（降低 Server 負載），`MULTICA_DAEMON_MAX_CONCURRENT_TASKS` 根據機器資源設定（每個 Agent 約需 2-4GB RAM）。
+### 4.6 Issue Metadata（結構化屬性）
+
+Multica 支援為 Issue 附加任意鍵值對的結構化 Metadata，可用於標記分類、自動化路由或 CI/CD 整合：
+
+```bash
+# 設定 Metadata（單一鍵值對）
+multica issue metadata set <issue-id> --key environment --value production
+multica issue metadata set <issue-id> --key team --value backend
+multica issue metadata set <issue-id> --key sprint --value "2026-S12"
+
+# 查詢 Metadata
+multica issue metadata get <issue-id>
+multica issue metadata get <issue-id> --key environment
+
+# 刪除 Metadata
+multica issue metadata delete <issue-id> --key environment
+```
+
+**企業應用場景：**
+
+| 場景 | Metadata Key | 範例 Value | 用途 |
+|------|-------------|-----------|------|
+| 環境標記 | `environment` | `dev` / `staging` / `prod` | 部署環境區分 |
+| 團隊路由 | `team` | `backend` / `frontend` / `infra` | Squad 路由依據 |
+| Sprint 標記 | `sprint` | `2026-S12` | 迭代追蹤 |
+| 優先等級補充 | `business_impact` | `high` / `critical` | 業務影響評估 |
+| 合規標記 | `compliance` | `pci-dss` / `gdpr` | 合規需求追蹤 |
+
+### 4.7 Subscribers（訂閱機制）
+
+Subscribers 允許使用者訂閱特定 Issue 的狀態變更通知，無需成為 Assignee：
+
+```bash
+# 訂閱 Issue
+multica issue subscriber add <issue-id> --user <user-id>
+
+# 取消訂閱
+multica issue subscriber remove <issue-id> --user <user-id>
+
+# 列出訂閱者
+multica issue subscriber list <issue-id>
+```
+
+**適用場景：**
+- 專案經理訂閱所有高優先級 Issue
+- Tech Lead 訂閱架構相關任務
+- 安全團隊訂閱含安全標記的 Issue
+
+### 4.8 Thread-aware Comments（串接式評論）
+
+Issue 評論支援 `--parent` 參數，可建立巢狀的回覆串（Thread），適用於深入討論與決策記錄：
+
+```bash
+# 新增評論
+multica issue comment add <issue-id> --content "需要加入 Rate Limiting"
+
+# 回覆特定評論（Thread）
+multica issue comment add <issue-id> --parent <comment-id> --content "收到，已處理"
+
+# 列出評論
+multica issue comment list <issue-id>
+
+# 刪除評論
+multica issue comment delete <comment-id>
+```
+
+> **實務建議：** 在企業環境中，建議將 `MULTICA_DAEMON_POLL_INTERVAL` 設為 `5s`（降低 Server 負載），`MULTICA_DAEMON_MAX_CONCURRENT_TASKS` 根據機器資源設定（每個 Agent 約需 2-4GB RAM）。善用 Metadata 與 Subscribers 機制可大幅提升跨團隊協作效率。
 
 ---
 
-## 第 5 章：AI Agent 整合（Claude Code / Codex）
+## 第 5 章：AI Agent 整合（Agent Integration）
 
 ### 5.1 支援的 AI Agent
 
-Multica 官方支援以下 AI Agent CLI，Daemon 啟動時會自動偵測 PATH 中已安裝的 CLI：
+Multica 官方支援 12 種以上 AI Agent CLI，Daemon 啟動時會自動偵測 PATH 中已安裝的 CLI：
 
-| Agent | CLI | 安裝方式 | 特色 | 支援狀態 |
-|-------|-----|---------|------|---------|
-| **Claude Code** | `claude` | [官方文件](https://docs.anthropic.com/en/docs/claude-code) | Anthropic 旗艦級 Coding Agent | ✅ 官方支援 |
-| **Codex** | `codex` | [GitHub](https://github.com/openai/codex) | OpenAI Coding Agent | ✅ 官方支援 |
-| **OpenClaw** | `openclaw` | 開源社群 | 開源替代方案 | 🔄 社群支援 |
-| **OpenCode** | `opencode` | 開源社群 | 開源替代方案 | 🔄 社群支援 |
+| Agent | CLI | 提供商 | 特色 | 支援狀態 |
+|-------|-----|--------|------|---------|
+| **Claude Code** | `claude` | Anthropic | 旗艦級 Coding Agent，長上下文推理 | ✅ 核心支援 |
+| **Codex** | `codex` | OpenAI | 多模態 Coding Agent | ✅ 核心支援 |
+| **GitHub Copilot CLI** | `copilot` | GitHub | 整合 GitHub 生態系 | ✅ 官方支援 |
+| **OpenCode** | `opencode` | 開源社群 | 開源終端 Coding Agent | ✅ 官方支援 |
+| **OpenClaw** | `openclaw` | 開源社群 | 開源替代方案 | ✅ 官方支援 |
+| **Hermes** | `hermes` | Nous Research | 本地模型支援 | ✅ 官方支援 |
+| **Gemini** | `gemini` | Google | Google AI 生態系 | ✅ 官方支援 |
+| **Pi** | `pi` | Pi.dev | 對話式 AI Agent | ✅ 官方支援 |
+| **Cursor Agent** | `cursor-agent` | Cursor | Cursor IDE 原生 Agent | ✅ 官方支援 |
+| **Kimi** | `kimi` | Moonshot AI | 長上下文 Agent | ✅ 官方支援 |
+| **Kiro CLI** | `kiro-cli` | Kiro ACP | Agent Computing Platform | ✅ 官方支援 |
+| **Antigravity** | `agy` | Antigravity | 自主編碼 Agent | ✅ 官方支援 |
 
-> **注意：** 根據 [CLI and Daemon Guide](https://github.com/multica-ai/multica/blob/main/CLI_AND_DAEMON.md)，**Claude Code** 與 **Codex** 是核心支援的 Agent，提供完整的 CLI 路徑覆寫與模型覆寫功能。OpenClaw 與 OpenCode 為相容性支援，由社群維護。至少需安裝其中一個 Agent CLI 才能啟動 Daemon。
+> **注意：** 至少需安裝其中一個 Agent CLI 才能啟動 Daemon。**Claude Code** 與 **Codex** 是核心支援的 Agent，提供完整的 CLI 路徑覆寫、模型覆寫與額外參數功能。其他 Agent 均為官方支援，具備路徑覆寫能力。
 
 ### 5.2 Agent CLI 安裝
 
 ```bash
-# Claude Code
+# Claude Code（核心支援）
 npm install -g @anthropic-ai/claude-code
+which claude && claude --version
 
-# 驗證安裝
-which claude
-claude --version
-
-# Codex
+# Codex（核心支援）
 npm install -g @openai/codex
+which codex && codex --version
 
-# 驗證安裝
-which codex
-codex --version
+# GitHub Copilot CLI
+# 需 GitHub Copilot 訂閱
+gh extension install github/gh-copilot
+which copilot && copilot --version
+
+# Gemini
+pip install google-generativeai
+which gemini && gemini --version
+
+# 其他 Agent 請參考各自官方文件安裝
 ```
 
 ### 5.3 CLI 自動偵測機制
@@ -933,7 +1243,7 @@ codex --version
 Daemon 啟動時自動掃描 PATH 中的 Agent CLI，並為每個偵測到的 Agent 在每個被監控的 Workspace 中註冊 Runtime：
 
 ```bash
-# 啟動 Daemon（自動偵測）
+# 啟動 Daemon（自動偵測所有已安裝的 Agent）
 multica daemon start
 
 # 查看偵測到的 Agent
@@ -942,44 +1252,71 @@ multica daemon status
 # Status:     running
 # PID:        12345
 # Uptime:     2h30m
-# Agents:     claude (v1.5.0), codex (v0.3.0)
-# Workspaces: 2 watched
+# Agents:     claude (v1.5.0), codex (v0.3.0), copilot, gemini
+# Workspaces: 3 watched
 
 # JSON 格式（適合自動化腳本）
 multica daemon status --output json
 ```
 
-自訂 CLI 路徑（當 Agent 不在 PATH 中時）：
+### 5.4 Agent 環境變數（Per-Agent 設定）
 
-```bash
-# 環境變數設定
-export MULTICA_CLAUDE_PATH=/opt/tools/claude
-export MULTICA_CODEX_PATH=/opt/tools/codex
+每個 Agent 都支援獨立的路徑覆寫、模型覆寫與額外啟動參數。環境變數命名遵循統一模式：
 
-# 模型覆寫
-export MULTICA_CLAUDE_MODEL=claude-sonnet-4-20250514
-export MULTICA_CODEX_MODEL=o3-mini
-
-# 也可透過 Daemon Flag 設定
-multica daemon start --poll-interval 5s --heartbeat-interval 30s --agent-timeout 4h
+```
+MULTICA_<AGENT>_PATH    — CLI 執行檔路徑（當不在 PATH 中時）
+MULTICA_<AGENT>_MODEL   — 模型覆寫
+MULTICA_<AGENT>_ARGS    — 額外 CLI 啟動參數
 ```
 
-**Daemon 運作原理：**
+**完整環境變數對照表：**
 
-1. 啟動時偵測已安裝的 Agent CLI，為每個 Agent 在每個監控中的 Workspace 註冊 Runtime
-2. 以設定的間隔（預設 3s）輪詢 Server 是否有已認領（claimed）的任務
-3. 收到任務後，建立隔離的工作目錄，啟動 Agent CLI，串流結果回傳
-4. 定期發送心跳（預設 15s），讓 Server 知道 Daemon 仍然存活
-5. 關閉時自動取消註冊所有 Runtime
+| Agent | PATH 變數 | MODEL 變數 | ARGS 變數 |
+|-------|----------|-----------|----------|
+| Claude Code | `MULTICA_CLAUDE_PATH` | `MULTICA_CLAUDE_MODEL` | `MULTICA_CLAUDE_ARGS` |
+| Codex | `MULTICA_CODEX_PATH` | `MULTICA_CODEX_MODEL` | `MULTICA_CODEX_ARGS` |
+| GitHub Copilot | `MULTICA_COPILOT_PATH` | — | `MULTICA_COPILOT_ARGS` |
+| OpenCode | `MULTICA_OPENCODE_PATH` | — | `MULTICA_OPENCODE_ARGS` |
+| OpenClaw | `MULTICA_OPENCLAW_PATH` | — | `MULTICA_OPENCLAW_ARGS` |
+| Hermes | `MULTICA_HERMES_PATH` | — | `MULTICA_HERMES_ARGS` |
+| Gemini | `MULTICA_GEMINI_PATH` | — | `MULTICA_GEMINI_ARGS` |
+| Pi | `MULTICA_PI_PATH` | — | `MULTICA_PI_ARGS` |
+| Cursor Agent | `MULTICA_CURSOR_AGENT_PATH` | — | `MULTICA_CURSOR_AGENT_ARGS` |
+| Kimi | `MULTICA_KIMI_PATH` | — | `MULTICA_KIMI_ARGS` |
+| Kiro CLI | `MULTICA_KIRO_CLI_PATH` | — | `MULTICA_KIRO_CLI_ARGS` |
+| Antigravity | `MULTICA_AGY_PATH` | — | `MULTICA_AGY_ARGS` |
 
-### 5.4 Agent 建立與設定
+**使用範例：**
+
+```bash
+# 自訂 Claude Code 路徑與模型
+export MULTICA_CLAUDE_PATH=/opt/tools/claude
+export MULTICA_CLAUDE_MODEL=claude-sonnet-4-20250514
+
+# 自訂 Codex 路徑、模型與額外參數
+export MULTICA_CODEX_PATH=/opt/tools/codex
+export MULTICA_CODEX_MODEL=o3-mini
+export MULTICA_CODEX_ARGS="--full-auto"
+
+# 設定 Codex 語義不活動超時（防止 Codex 停滯）
+export MULTICA_CODEX_SEMANTIC_INACTIVITY_TIMEOUT=10m
+
+# Daemon 啟動參數覆寫
+multica daemon start \
+  --poll-interval 5s \
+  --heartbeat-interval 30s \
+  --agent-timeout 4h \
+  --max-concurrent-tasks 10
+```
+
+### 5.5 Agent 建立與設定
 
 #### Web UI 方式
 
 1. 開啟 **Settings → Agents**
 2. 點擊 **New Agent**
 3. 選擇 Runtime（你的機器）
-4. 選擇 Provider（Claude Code / Codex / OpenClaw / OpenCode）
+4. 選擇 Provider（Claude Code / Codex / Copilot / Gemini / ...）
 5. 命名 Agent（將顯示在看板上）
 
 #### CLI 方式
@@ -989,7 +1326,7 @@ multica daemon start --poll-interval 5s --heartbeat-interval 30s --agent-timeout
 multica agent list
 ```
 
-### 5.5 Prompt 設計策略（Agent 專用）
+### 5.6 Prompt 設計策略（Agent 專用）
 
 為 Agent 設計高品質 Prompt 的原則：
 
@@ -1027,7 +1364,7 @@ multica agent list
 - API 規格：docs/api-spec.yaml
 ```
 
-### 5.6 多 Agent 協作模式
+### 5.7 多 Agent 協作模式
 
 ```mermaid
 flowchart TB
@@ -1130,11 +1467,19 @@ multica issue assign <id> --unassign
 # 變更狀態
 multica issue status <id> in_progress
 
-# Issue 評論
+# Issue 評論（支援 Thread）
 multica issue comment list <issue-id>
 multica issue comment add <issue-id> --content "需要加入 Rate Limiting"
 multica issue comment add <issue-id> --parent <comment-id> --content "收到，已處理"
 multica issue comment delete <comment-id>
+
+# Issue Metadata
+multica issue metadata set <id> --key team --value backend
+multica issue metadata get <id>
+
+# Issue 訂閱
+multica issue subscriber add <id> --user <user-id>
+multica issue subscriber list <id>
 ```
 
 ### 6.3 範例：Spring Boot API 開發流程
@@ -1447,6 +1792,9 @@ graph TB
 multica workspace list
 # 有 * 標記的為 Daemon 監控中
 
+# 切換工作空間（設定預設 Workspace）
+multica workspace switch <workspace-id>
+
 # 監控 / 取消監控工作空間
 multica workspace watch <workspace-id>
 multica workspace unwatch <workspace-id>
@@ -1495,13 +1843,293 @@ multica daemon start
 # ~/multica_workspaces/<name>/
 ```
 
-> **實務建議：** 銀行環境建議按「專案 + 環境」建立 Workspace（如 `core-banking-dev`、`core-banking-staging`），並嚴格控管 Production Workspace 的存取權限。
+> **實務建議：** 銀行環境建議按「專案 + 環境」建立 Workspace（如 `core-banking-dev`、`core-banking-staging`），並嚴格控管 Production Workspace 的存取權限。使用 `DISABLE_WORKSPACE_CREATION=true` 可防止未經授權的 Workspace 建立。
+
+### 8.6 工作空間垃圾回收（Workspace GC）
+
+Daemon 內建自動垃圾回收機制，定期清理已完成任務的工作目錄，避免磁碟空間耗盡：
+
+| 環境變數 | 預設值 | 說明 |
+|---------|--------|------|
+| `MULTICA_GC_ENABLED` | `true` | 啟用/停用 GC |
+| `MULTICA_GC_INTERVAL` | `1h` | GC 掃描間隔 |
+| `MULTICA_GC_TTL` | `24h` | 已完成/取消 Issue 的工作目錄保留時間 |
+| `MULTICA_GC_ORPHAN_TTL` | `72h` | 孤立目錄（無對應 Issue）的清理 TTL |
+| `MULTICA_GC_ARTIFACT_TTL` | `12h` | 建置產物清理 TTL（設為 `0` 停用） |
+| `MULTICA_GC_ARTIFACT_PATTERNS` | `node_modules,.next,.turbo` | 要清理的建置產物目錄名稱 |
+
+**GC 清理層級：**
+
+```mermaid
+flowchart TB
+    GC[GC 觸發<br/>每 1h 掃描] --> CHECK{檢查工作目錄}
+    CHECK -->|Issue 已完成/取消 > 24h| CLEAN1[清除工作目錄]
+    CHECK -->|無對應 Issue > 72h| CLEAN2[清除孤立目錄]
+    CHECK -->|建置產物 > 12h| CLEAN3[清除 node_modules/.next/.turbo]
+    CHECK -->|Issue 仍在進行中| KEEP[保留]
+```
+
+> **實務建議：** 
+> - 磁碟空間有限的 CI/CD Build Server 建議設定較短的 TTL（如 `MULTICA_GC_TTL=6h`）
+> - 需要保留執行結果供事後分析的環境，建議延長 TTL（如 `MULTICA_GC_TTL=168h`）
+> - 設定 `MULTICA_GC_ARTIFACT_TTL=0` 可停用建置產物清理（適用於頻繁重建的場景）
 
 ---
 
-## 第 9 章：系統維運（Operations）
+## 第 9 章：Squads（團隊編組）
 
-### 9.1 Log 管理
+### 9.1 Squads 概念
+
+Squads 是 Multica 的團隊編組機制，可將多個 Agent 與人類成員組成小隊，實現智慧任務路由與協作：
+
+```mermaid
+flowchart TB
+    subgraph "Squad: Backend Team"
+        SQ1_LEAD[🧑‍💻 Tech Lead（人類）]
+        SQ1_A1[🤖 Claude-API<br/>Claude Code]
+        SQ1_A2[🤖 Claude-DB<br/>Claude Code]
+        SQ1_A3[🤖 Codex-Test<br/>Codex]
+    end
+
+    subgraph "Squad: Frontend Team"
+        SQ2_LEAD[🧑‍💻 UI Lead（人類）]
+        SQ2_A1[🤖 Vue-Builder<br/>Codex]
+        SQ2_A2[🤖 CSS-Expert<br/>Claude Code]
+    end
+
+    subgraph "Squad: DevOps Team"
+        SQ3_A1[🤖 Infra-Bot<br/>Claude Code]
+        SQ3_A2[🤖 CI-Bot<br/>Codex]
+    end
+
+    ISSUE[新 Issue] -->|Metadata: team=backend| SQ1_LEAD
+    ISSUE -->|Metadata: team=frontend| SQ2_LEAD
+    ISSUE -->|Metadata: team=devops| SQ3_A1
+```
+
+### 9.2 Squad 的價值
+
+| 特性 | 說明 |
+|------|------|
+| **智慧路由** | 依據 Issue Metadata 自動分配至對應 Squad |
+| **負載均衡** | 在 Squad 內均勻分配任務 |
+| **專業分工** | 不同 Squad 負責不同領域 |
+| **人機協作** | 人類 Lead + AI Agent 混合編組 |
+| **可觀測性** | Squad 層級的任務統計與效能指標 |
+
+### 9.3 企業應用場景
+
+| 場景 | Squad 配置 | 路由規則 |
+|------|-----------|---------|
+| **微服務架構** | 每個微服務一個 Squad | 依 repo / label 路由 |
+| **全棧團隊** | 前端 + 後端 + 測試 Agent | 依 Issue 標籤路由 |
+| **跨職能團隊** | 開發 + 安全 + SRE Agent | 依優先級與類型路由 |
+| **多產品線** | 每個產品線一個 Squad | 依 Workspace / Project 路由 |
+
+> **實務建議：** 初期建議從 2-3 個 Squad 開始，一個負責核心業務邏輯、一個負責基礎設施、一個負責品質保證。Squad 的路由規則應搭配 Issue Metadata 使用，實現自動化分配。
+
+---
+
+## 第 10 章：Autopilots（自動化排程）
+
+### 10.1 Autopilots 概念
+
+Autopilots 是 Multica 的排程自動化機制，可依據時間排程或事件觸發，自動建立 Issue 並指派給 Agent 執行：
+
+```mermaid
+flowchart LR
+    subgraph "觸發器"
+        CRON[⏰ Cron 排程<br/>每日/每週]
+        EVENT[🔔 事件觸發<br/>Webhook / PR]
+        MANUAL[👆 手動觸發]
+    end
+
+    subgraph "Autopilot Engine"
+        ENGINE[Autopilot<br/>規則引擎]
+    end
+
+    subgraph "執行"
+        ISSUE_CREATE[自動建立 Issue]
+        ASSIGN[指派給 Agent/Squad]
+        EXEC[Agent 執行任務]
+    end
+
+    CRON --> ENGINE
+    EVENT --> ENGINE
+    MANUAL --> ENGINE
+    ENGINE --> ISSUE_CREATE
+    ISSUE_CREATE --> ASSIGN
+    ASSIGN --> EXEC
+```
+
+### 10.2 Autopilot CLI 管理
+
+```bash
+# 列出所有 Autopilots
+multica autopilot list
+
+# 查看 Autopilot 詳情
+multica autopilot get <id>
+
+# 建立 Autopilot
+multica autopilot create \
+  --name "Daily Security Scan" \
+  --schedule "0 2 * * *" \
+  --action "建立 Issue: 執行每日安全掃描報告"
+
+# 啟用 / 停用
+multica autopilot enable <id>
+multica autopilot disable <id>
+
+# 更新
+multica autopilot update <id> --schedule "0 6 * * 1"
+
+# 刪除
+multica autopilot delete <id>
+```
+
+### 10.3 企業應用範例
+
+| Autopilot 名稱 | 排程 | 動作 | 指派 |
+|---------------|------|------|------|
+| **每日安全掃描** | `0 2 * * *`（每日 02:00） | 執行 OWASP 依賴檢查並產生報告 | Security-Bot |
+| **每週程式碼品質** | `0 6 * * 1`（每週一 06:00） | 分析程式碼品質指標並產生趨勢報告 | Code-Reviewer |
+| **每日 DB 備份驗證** | `0 4 * * *`（每日 04:00） | 驗證最新備份的可還原性 | DB-Admin |
+| **每月依賴更新** | `0 8 1 * *`（每月 1 日 08:00） | 檢查並更新過期的 npm/Maven 依賴 | Claude-Backend |
+| **PR 合併後文件更新** | Event: PR merged | 更新 API 文件與 CHANGELOG | Doc-Writer |
+
+> **實務建議：** Autopilot 特別適合重複性高但需要 Agent 智慧判斷的任務（如安全掃描結果分析、程式碼品質報告解讀）。純機械式操作（如備份）建議使用傳統 cron，將 Autopilot 留給需要 AI 分析能力的場景。
+
+---
+
+## 第 11 章：Projects（專案管理）
+
+### 11.1 Projects 概念
+
+Projects 提供群組式 Issue 管理，類似 Sprint 或 Epic 的概念，可將多個相關 Issue 組織在同一 Project 下追蹤進度：
+
+```mermaid
+graph TB
+    subgraph "Project: 用戶管理模組 v2.0"
+        P_META[📋 Project Metadata<br/>開始: 2026-06-01<br/>結束: 2026-06-30]
+        I1[Issue: 用戶 API CRUD]
+        I2[Issue: 用戶前端頁面]
+        I3[Issue: 權限管理 API]
+        I4[Issue: 單元測試補充]
+        I5[Issue: E2E 測試]
+        I6[Issue: API 文件更新]
+    end
+
+    I1 -->|依賴| I2
+    I1 -->|依賴| I3
+    I1 --> I4
+    I2 --> I5
+    I3 --> I4
+    I4 --> I6
+    I5 --> I6
+```
+
+### 11.2 Project CLI 管理
+
+```bash
+# 列出 Projects
+multica project list
+
+# 建立 Project
+multica project create \
+  --name "用戶管理模組 v2.0" \
+  --description "完整重構用戶管理模組，支援 RBAC 與 SSO"
+
+# 查看 Project 詳情
+multica project get <id>
+
+# 更新 Project
+multica project update <id> --name "用戶管理模組 v2.1"
+
+# 刪除 Project
+multica project delete <id>
+```
+
+### 11.3 Project 與 Issue 整合
+
+```bash
+# 建立 Issue 時指定 Project
+multica issue create \
+  --title "實作用戶 CRUD API" \
+  --project <project-id> \
+  --priority high \
+  --assignee "Claude-Backend"
+
+# 將既有 Issue 加入 Project
+multica issue update <id> --project <project-id>
+```
+
+### 11.4 企業應用場景
+
+| 場景 | Project 用途 | Issue 組織方式 |
+|------|-------------|---------------|
+| **Sprint 管理** | 每個 Sprint 一個 Project | 依 Sprint 週期分組 |
+| **Epic 追蹤** | 每個 Epic 一個 Project | 依功能模組分組 |
+| **Release 管理** | 每個 Release 一個 Project | 依版本里程碑分組 |
+| **PoC 專案** | 每個 PoC 一個 Project | 依驗證目標分組 |
+
+> **實務建議：** 搭配 Metadata 使用可實現更精細的追蹤。例如為 Project 中的 Issue 設定 `sprint=2026-S12` Metadata，再透過 Squad 路由規則自動分配。
+
+---
+
+## 第 12 章：MCP 整合（Model Context Protocol）
+
+### 12.1 MCP 概述
+
+Multica 支援作為 MCP（Model Context Protocol）Provider，允許外部 AI 工具與 IDE 透過標準化協議與 Multica 平台互動。這使得其他 AI Agent 或工具能直接查詢 Issue、觸發任務、讀取 Skill 等，無需自行實作 Multica API 整合。
+
+```mermaid
+flowchart LR
+    subgraph "MCP Clients"
+        IDE[VS Code / Cursor]
+        CLI_EXT[外部 CLI 工具]
+        AGENT_EXT[第三方 AI Agent]
+    end
+
+    subgraph "Multica MCP Provider"
+        MCP_SERVER[MCP Server]
+        API[Multica API]
+    end
+
+    subgraph "Multica Platform"
+        ISSUES[Issues]
+        SKILLS[Skills]
+        AGENTS[Agents]
+        PROJECTS[Projects]
+    end
+
+    IDE -->|MCP Protocol| MCP_SERVER
+    CLI_EXT -->|MCP Protocol| MCP_SERVER
+    AGENT_EXT -->|MCP Protocol| MCP_SERVER
+
+    MCP_SERVER --> API
+    API --> ISSUES
+    API --> SKILLS
+    API --> AGENTS
+    API --> PROJECTS
+```
+
+### 12.2 MCP 整合場景
+
+| 場景 | 說明 |
+|------|------|
+| **IDE 整合** | 在 VS Code / Cursor 中直接查詢與建立 Multica Issue |
+| **跨平台協作** | 其他 AI Agent 框架透過 MCP 讀取 Multica 的 Skill Library |
+| **自動化管道** | CI/CD Pipeline 透過 MCP 觸發 Multica 任務 |
+| **監控整合** | 監控系統偵測到異常時，透過 MCP 自動建立修復 Issue |
+
+> **實務建議：** MCP 整合特別適合已有多種 AI 工具的企業環境。透過統一的 MCP 協議，可避免為每個工具維護獨立的 API 整合。
+
+---
+
+## 第 13 章：系統維運（Operations）
+
+### 13.1 Log 管理
 
 #### Daemon Log
 
@@ -1533,7 +2161,7 @@ docker compose -f docker-compose.selfhost.yml logs -f backend
 LOG_LEVEL=debug  # debug, info, warn, error
 ```
 
-### 9.2 Agent 狀態監控
+### 13.2 Agent 狀態監控
 
 ```bash
 # 查看 Daemon 狀態
@@ -1554,13 +2182,13 @@ multica daemon status --output json
 
 ```bash
 # Server Health Check
-curl http://localhost:8080/health
-# 回傳：{"status":"ok"}
+curl http://localhost:8080/healthz
+# 回傳：{"status":"ok","checks":{"db":"ok","migrations":"ok"}}
 
-# 適合 Load Balancer 或 Prometheus 監控
+# 適合 Load Balancer 、Kubernetes Liveness Probe 或 Prometheus 監控
 ```
 
-### 9.3 監控架構
+### 13.3 監控架構
 
 ```mermaid
 graph LR
@@ -1591,7 +2219,7 @@ graph LR
     ES --> KIBANA
 ```
 
-### 9.4 建議監控指標
+### 13.4 建議監控指標
 
 | 指標 | 說明 | 告警閾值 |
 |------|------|---------|
@@ -1602,8 +2230,10 @@ graph LR
 | `websocket_connections` | WebSocket 連線數 | 異常斷線 |
 | `db_connection_pool` | 資料庫連線池 | > 80% 使用率 |
 | `api_response_time` | API 回應時間 | P99 > 2 秒 |
+| `gc_disk_reclaimed` | GC 回收磁碟空間 | 異常低（GC 未運作） |
+| `usage_rollup_lag` | Usage Rollup 延遲 | > 2 小時 |
 
-### 9.5 錯誤處理與復原
+### 13.5 錯誤處理與復原
 
 #### 常見錯誤處理
 
@@ -1643,7 +2273,7 @@ cat backup.sql | docker compose -f docker-compose.selfhost.yml exec -T postgres 
 
 > **注意：** `docker compose down` 僅停止容器並移除容器，但保留資料庫卷宗。使用 `docker compose down -v` 會同時刪除卷宗，**此操作不可逆**。
 
-### 9.6 效能優化
+### 13.6 效能優化
 
 | 優化項目 | 建議 |
 |---------|------|
@@ -1657,9 +2287,9 @@ cat backup.sql | docker compose -f docker-compose.selfhost.yml exec -T postgres 
 
 ---
 
-## 第 10 章：系統升級與擴展（Upgrade & Scaling）
+## 第 14 章：系統升級與擴展（Upgrade & Scaling）
 
-### 10.1 Multica 升級策略
+### 14.1 Multica 升級策略
 
 #### CLI 升級
 
@@ -1671,7 +2301,7 @@ multica update
 brew upgrade multica
 ```
 
-#### Server 升級
+#### Server 升級（Docker Compose）
 
 ```bash
 # 1. Pull 最新程式碼
@@ -1680,15 +2310,45 @@ git pull
 
 # 2. 重建並重啟（推薦，使用 make）
 make selfhost
+# 自動從 GHCR 拉取最新穩定映像
+# 若指定 Tag 尚未發布，會提示改用 make selfhost-build
 
-# 或手動重建
-docker compose -f docker-compose.selfhost.yml up -d --build
+# 或手動拉取映像重啟
+docker compose -f docker-compose.selfhost.yml pull
+docker compose -f docker-compose.selfhost.yml up -d
 
 # Migration 是冪等的，重複執行不會有副作用
 # Migration 在 Backend 啟動時自動執行
 ```
 
-### 10.2 版本管理策略
+#### Server 升級（Kubernetes / Helm）
+
+```bash
+# 升級到特定版本
+helm upgrade multica oci://ghcr.io/multica-ai/charts/multica \
+  --version <chart-version> \
+  -n multica \
+  -f my-values.yaml
+
+# 查看升級歷史
+helm -n multica history multica
+
+# 回滾至上一版本
+helm -n multica rollback multica
+
+# 回滾至指定版本
+helm -n multica rollback multica <revision>
+
+# 監控升級後的 Pod 狀態
+kubectl -n multica get pods -w
+
+# 驗證 Health Check
+curl -H "Host: api.multica.dev.lan" http://<ingress-ip>/healthz
+```
+
+> **注意：** Helm Chart Version 去掉 Git Tag 的前綴 `v`（例如 `v0.3.5` → `0.3.5`）。升級前建議先用 `helm diff` Plugin 比對變更。
+
+### 14.2 版本管理策略
 
 ```mermaid
 flowchart TD
@@ -1705,7 +2365,7 @@ flowchart TD
     J --> K[監控 24 小時]
 ```
 
-### 10.3 Agent 水平擴展
+### 14.3 Agent 水平擴展
 
 ```mermaid
 graph TB
@@ -1733,7 +2393,7 @@ graph TB
 3. **調整併行數：** 增加 `MULTICA_DAEMON_MAX_CONCURRENT_TASKS`
 4. **專屬 Build Server：** 在高規格機器上部署專用 Daemon
 
-### 10.4 高可用架構（HA）
+### 14.4 高可用架構（HA）
 
 ```mermaid
 graph TB
@@ -1775,7 +2435,7 @@ graph TB
 
 > **實務建議：** 小團隊（< 10 人）單機部署即可。中型團隊（10-50 人）建議分離前後端和資料庫。大型團隊（50+ 人）才需要考慮完整 HA 架構。
 
-### 10.5 切換至 Multica Cloud
+### 14.5 切換至 Multica Cloud
 
 若團隊決定從 Self-Hosted 遷移至 Multica Cloud 託管服務：
 
@@ -1785,7 +2445,7 @@ multica config set server_url https://api.multica.ai
 multica config set app_url https://multica.ai
 multica login
 
-# 或使用安裝腳本（不帶 --local 會自動設定 Cloud）
+# 或使用安裝腳本（不帶 --with-server 會自動設定 Cloud）
 curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
 ```
 
@@ -1802,17 +2462,20 @@ curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/ins
 
 ---
 
-## 第 11 章：安全設計（Security）
+## 第 15 章：安全設計（Security）
 
-### 11.1 認證與授權
+### 15.1 認證與授權
 
 | 認證方式 | 說明 | 適用場景 |
 |---------|------|---------|
-| **Email Magic Link** | 透過 Resend 發送驗證碼 | Production（需設定 RESEND_API_KEY） |
+| **Email Magic Link** | 透過 Resend 或 SMTP Relay 發送驗證碼 | Production（需設定 RESEND_API_KEY 或 SMTP） |
 | **Google OAuth** | Google 帳號登入 | 支援 Google Workspace 的企業 |
-| **Master Code** | 固定驗證碼 `888888` | 僅限非 Production 環境 |
+| **日誌中的驗證碼** | 未設定 Email 時，驗證碼印在 Backend 日誌 | 單機測試（搜尋 `[DEV] Verification code for`） |
+| **固定驗證碼** | `MULTICA_DEV_VERIFICATION_CODE` 環境變數 | 僅限 `APP_ENV=development`（⚠️ 切勿用於公開實例） |
 | **JWT Token** | 90 天有效期 | 所有環境 |
 | **Personal Access Token** | CLI / Daemon 認證 | Headless 環境 |
+
+> ⚠️ **安全警告：** Docker Self-Host 堆疊預設 `APP_ENV=production`，**沒有固定驗證碼**。舊版使用的 `888888` Master Code 已廢除。切勿在公開可達的實例上設定 `MULTICA_DEV_VERIFICATION_CODE`。
 
 #### JWT 安全設定
 
@@ -1824,7 +2487,7 @@ JWT_SECRET=$(openssl rand -hex 32)
 # 切勿將 JWT_SECRET 提交至版本控制
 ```
 
-### 11.2 Agent 權限隔離
+### 15.2 Agent 權限隔離
 
 ```mermaid
 flowchart TB
@@ -1847,7 +2510,7 @@ flowchart TB
 3. **工作目錄：** `~/multica_workspaces/<workspace>/<task>/`
 4. **CLI 權限：** Agent CLI 只能在指定目錄中操作
 
-### 11.3 憑證管理
+### 15.3 憑證管理
 
 | 項目 | 建議做法 |
 |------|---------|
@@ -1866,7 +2529,7 @@ flowchart TB
 *.key
 ```
 
-### 11.4 網路安全
+### 15.4 網路安全
 
 ```bash
 # Production 必須配置
@@ -1882,7 +2545,7 @@ NEXT_PUBLIC_WS_URL=wss://api.example.com/ws
 # 5. Firewall 規則（只開放必要埠號）
 ```
 
-### 11.5 SSDLC 整合
+### 15.5 SSDLC 整合
 
 ```mermaid
 flowchart LR
@@ -1907,9 +2570,9 @@ flowchart LR
 
 ---
 
-## 第 12 章：最佳實務（Best Practices）
+## 第 16 章：最佳實務（Best Practices）
 
-### 12.1 團隊導入策略
+### 16.1 團隊導入策略
 
 ```mermaid
 flowchart LR
@@ -1925,7 +2588,7 @@ flowchart LR
 | **Phase 3（第 2-3 月）** | 擴展規模 | 多團隊導入，建立規範 |
 | **Phase 4（持續）** | 優化效率 | 標準化 Skill Library，效能調優 |
 
-### 12.2 Prompt Engineering 原則
+### 16.2 Prompt Engineering 原則
 
 | 原則 | 說明 | 範例 |
 |------|------|------|
@@ -1943,7 +2606,7 @@ flowchart LR
 ❌ "修個 Bug"             → 無上下文
 ```
 
-### 12.3 Agent 使用規範
+### 16.3 Agent 使用規範
 
 | 規範 | 說明 |
 |------|------|
@@ -1955,7 +2618,7 @@ flowchart LR
 | **成本控管** | 監控 Token 使用量，避免無效重試 |
 | **任務粒度** | 保持 Issue 在 1-4 小時可完成的範圍 |
 
-### 12.4 常見錯誤與避免方式
+### 16.4 常見錯誤與避免方式
 
 | 錯誤 | 原因 | 解決方式 |
 |------|------|---------|
@@ -1967,7 +2630,7 @@ flowchart LR
 | Daemon 無法啟動 | Agent CLI 未安裝 | 確認 `claude` / `codex` 在 PATH 中 |
 | 認證失敗 | Token 過期 | 重新執行 `multica login` |
 
-### 12.5 開發環境最佳實務
+### 16.5 開發環境最佳實務
 
 #### 一鍵開發環境
 
@@ -2055,9 +2718,9 @@ docker compose down -v  # 刪除所有本地 PostgreSQL 資料
 
 ---
 
-## 第 13 章：實戰案例（Case Study）
+## 第 17 章：實戰案例（Case Study）
 
-### 13.1 案例：建立企業 Web 系統
+### 17.1 案例：建立企業 Web 系統
 
 #### 系統概要
 
@@ -2117,7 +2780,7 @@ graph TB
 brew install multica-ai/tap/multica
 
 # 設定（使用 Self-Hosted）
-multica setup --local
+multica setup self-host
 
 # 建立工作空間：enterprise-web-app
 # 透過 Web UI: Settings → Workspaces → New
@@ -2306,7 +2969,7 @@ jobs:
       - run: npm run build
 ```
 
-### 13.2 案例總結
+### 17.2 案例總結
 
 | 指標 | 結果 |
 |------|------|
@@ -2339,14 +3002,14 @@ jobs:
 ### A.2 Production 部署清單
 
 - [ ] `JWT_SECRET` 已更改為強隨機值（`openssl rand -hex 32`）
-- [ ] `APP_ENV` 已設定為 `production`（停用 Master Code `888888`）
-- [ ] Email 認證已設定（Resend API Key）
+- [ ] `APP_ENV` 已設定為 `production`（停用固定驗證碼）
+- [ ] Email 認證已設定（Resend API Key 或 SMTP Relay）
 - [ ] HTTPS/TLS 已設定（反向代理）
 - [ ] CORS 已正確設定（`CORS_ALLOWED_ORIGINS`）
 - [ ] WebSocket 代理已設定（`/ws` 路由 + `proxy_read_timeout 86400`）
 - [ ] 資料庫備份已設定（定期排程）
 - [ ] Log 集中管理已設定
-- [ ] Health Check 監控已設定（`/health`）
+- [ ] Health Check 監控已設定（`/healthz`）
 - [ ] `.env` 不在版本控制中
 - [ ] Firewall 規則已設定
 - [ ] 檔案儲存已設定（S3 或確認使用 Local Fallback）
@@ -2372,13 +3035,13 @@ jobs:
 ### A.5 安全檢查清單
 
 - [ ] JWT Secret 為隨機強密碼（32+ bytes）
-- [ ] `APP_ENV=production` 已設定（停用 Master Code）
+- [ ] `APP_ENV=production` 已設定（停用固定驗證碼）
 - [ ] 所有通訊走 TLS/SSL
 - [ ] Agent 在隔離工作目錄執行
 - [ ] 敏感資訊不在 Git 中（`.env`、`.pem`、`.key`）
 - [ ] RBAC 權限已正確設定
 - [ ] 定期審計 Agent Operation Log
-- [ ] Production 環境已關閉 Master Code（`APP_ENV=production`）
+- [ ] Production 環境已停用固定驗證碼（`APP_ENV=production`，未設定 `MULTICA_DEV_VERIFICATION_CODE`）
 - [ ] CORS 僅允許受信任的域名
 - [ ] WebSocket 使用 WSS（非 WS）
 - [ ] Agent API Key 保留在本機 Daemon，不在 Server 端存放
@@ -2395,14 +3058,12 @@ multica login --token                    # Token 認證（無頭環境）
 multica auth status                      # 檢查認證狀態
 multica auth logout                      # 登出
 multica config show                      # 顯示設定（路徑、Server URL、App URL）
-multica config local                     # 設定連線至本地 Server（預設埠號）
-multica config local --port 9090 --frontend-port 4000  # 自訂埠號
 multica config set server_url <url>      # 設定 Server URL
 multica config set app_url <url>         # 設定 App URL
 multica config set workspace_id <id>     # 設定預設 Workspace
 multica setup                            # 一鍵設定（Cloud）
-multica setup --local                    # 一鍵設定（Self-Hosted）
-multica setup --local --port 9090 --frontend-port 4000  # 自訂埠號設定
+multica setup self-host                  # 一鍵設定（Self-Hosted）
+multica setup self-host --server-url <url> --app-url <url>  # 自訂域名
 ```
 
 ### Daemon 管理
@@ -2426,6 +3087,7 @@ multica daemon logs -n 100               # 最近 100 行
 
 ```bash
 multica workspace list                   # 列出工作空間
+multica workspace switch <id>            # 切換預設工作空間
 multica workspace watch <id>             # 監控工作空間
 multica workspace unwatch <id>           # 取消監控
 multica workspace get <id>               # 查看詳情
@@ -2447,6 +3109,55 @@ multica issue assign <id> --unassign     # 取消指派
 multica issue status <id> in_progress    # 變更狀態
 multica issue runs <id>                  # 執行記錄
 multica issue run-messages <task-id>     # 執行訊息
+multica issue run-messages <task-id> --since 42  # 增量取得
+```
+
+### Issue Metadata
+
+```bash
+multica issue metadata set <id> --key <key> --value <value>  # 設定 Metadata
+multica issue metadata get <id>                               # 查詢所有 Metadata
+multica issue metadata get <id> --key <key>                   # 查詢特定 Key
+multica issue metadata delete <id> --key <key>                # 刪除 Metadata
+```
+
+### Issue 訂閱
+
+```bash
+multica issue subscriber add <id> --user <user-id>    # 訂閱 Issue
+multica issue subscriber remove <id> --user <user-id> # 取消訂閱
+multica issue subscriber list <id>                     # 列出訂閱者
+```
+
+### Issue 評論（Thread-aware）
+
+```bash
+multica issue comment list <issue-id>                  # 列出評論
+multica issue comment add <issue-id> --content "..."   # 新增評論
+multica issue comment add <issue-id> --parent <cid> --content "..."  # 回覆評論（Thread）
+multica issue comment delete <comment-id>              # 刪除評論
+```
+
+### Projects 管理
+
+```bash
+multica project list                     # 列出 Projects
+multica project get <id>                 # 查看 Project 詳情
+multica project create --name "Sprint 2026-S12" --description "..."  # 建立 Project
+multica project update <id> --name "..."  # 更新 Project
+multica project delete <id>              # 刪除 Project
+```
+
+### Autopilots 管理
+
+```bash
+multica autopilot list                   # 列出 Autopilots
+multica autopilot get <id>               # 查看 Autopilot 詳情
+multica autopilot create --name "..." --schedule "..." --action "..."  # 建立 Autopilot
+multica autopilot update <id>            # 更新 Autopilot
+multica autopilot delete <id>            # 刪除 Autopilot
+multica autopilot enable <id>            # 啟用 Autopilot
+multica autopilot disable <id>           # 停用 Autopilot
 ```
 
 ### 其他
@@ -2478,20 +3189,31 @@ multica workspace get <id> --output json # JSON 格式 Workspace 詳情
 | 術語 | 英文 | 定義 |
 |------|------|------|
 | Agent | Agent | AI 編碼代理，能夠自主執行程式開發任務的 AI 實體。在 Multica 中，Agent 具有個人檔案、出現在看板上、可被指派任務。 |
-| Daemon | Daemon | 在本地機器上執行的背景程序，負責偵測 Agent CLI、註冊 Runtime、輪詢並執行任務。 |
-| Runtime | Runtime | 可執行 Agent 任務的計算環境。可以是本地機器（透過 Daemon）或雲端實例。每個 Runtime 回報可用的 Agent CLI。 |
-| Workspace | Workspace | 工作空間，Multica 中的頂層組織單位。每個 Workspace 擁有獨立的 Agent、Issue、Skill 與設定。 |
-| Issue | Issue | 任務單位，類似 Jira/Linear 的工單。包含標題、描述、優先級、指派人、狀態等屬性。 |
-| Skill | Skill | 可重用的解決方案模板。Agent 成功解決問題後，其解法可被封裝為 Skill，供其他 Agent 重用。 |
+| Autopilot | Autopilot | 自動化排程機制，可依時間或事件觸發自動建立 Issue 並指派給 Agent 執行。 |
 | Board | Board | 看板視圖，以 Kanban 形式展示 Workspace 中的所有 Issue 與 Agent 狀態。 |
 | Blocker | Blocker | 阻擋器，當 Agent 在執行任務中遇到無法自行解決的問題時，會主動回報 Blocker。 |
+| Daemon | Daemon | 在本地機器上執行的背景程序，負責偵測 Agent CLI、註冊 Runtime、輪詢並執行任務。內建 GC 機制自動清理已完成任務的工作目錄。 |
+| GC | Garbage Collection | 垃圾回收，Daemon 內建機制，定期清理已完成任務的工作目錄、孤立目錄與建置產物。 |
+| GHCR | GitHub Container Registry | GitHub 容器映像倉庫，Multica 官方映像（`multica-backend`、`multica-web`）與 Helm Chart 均發布於此。 |
+| Helm Chart | Helm Chart | Kubernetes 應用封裝格式，Multica 提供 OCI Helm Chart 用於 K8s 部署。 |
+| Issue | Issue | 任務單位，類似 Jira/Linear 的工單。包含標題、描述、優先級、指派人、狀態、Metadata、Subscribers 等屬性。 |
 | Magic Link | Magic Link | 基於 Email 的無密碼認證方式，透過發送驗證碼至 Email 完成身份驗證。 |
+| Metadata | Issue Metadata | Issue 的結構化鍵值對屬性，可用於分類標記、自動化路由或 CI/CD 整合。 |
+| MCP | Model Context Protocol | 模型上下文協議，Multica 支援作為 MCP Provider，允許外部工具透過標準協議與 Multica 互動。 |
 | PAT | Personal Access Token | 個人存取令牌，用於 CLI/Daemon 在無頭環境中的認證。有效期 90 天。 |
-| Profile | Profile | CLI 設定檔，支援在同一台機器上連接多個 Server 或 Workspace，每個 Profile 擁有獨立的設定、Daemon 狀態與工作目錄。 |
 | pgvector | pgvector | PostgreSQL 的向量搜尋擴充，用於 Skill 的語義搜尋與相似度匹配。 |
-| sqlc | sqlc | Go 的編譯期 SQL 工具，將 SQL 查詢轉換為型別安全的 Go 程式碼（非 ORM）。 |
-| Worktree | Git Worktree | Git 的工作樹功能，允許在同一個 Repository 中同時開啟多個分支的工作目錄。Multica 開發環境完整支援此功能。 |
+| Profile | Profile | CLI 設定檔，支援在同一台機器上連接多個 Server 或 Workspace，每個 Profile 擁有獨立的設定、Daemon 狀態與工作目錄。 |
+| Project | Project | 群組式 Issue 管理單位，類似 Sprint 或 Epic，可將多個 Issue 組織在同一 Project 下追蹤。 |
+| Rollup | Usage Rollup | 使用量聚合機制，透過 `task_usage_hourly` 聚合表驅動 Usage Dashboard。需定期執行 `rollup_task_usage_hourly()` 函式。 |
+| Runtime | Runtime | 可執行 Agent 任務的計算環境。可以是本地機器（透過 Daemon）或雲端實例。每個 Runtime 回報可用的 Agent CLI。 |
 | Self-Hosted | Self-Hosted | 自部署模式，將 Multica Server 部署在企業自有的基礎設施上，資料完全不離開企業環境。 |
+| Skill | Skill | 可重用的解決方案模板。Agent 成功解決問題後，其解法可被封裝為 Skill，供其他 Agent 重用。 |
+| sqlc | sqlc | Go 的編譯期 SQL 工具，將 SQL 查詢轉換為型別安全的 Go 程式碼（非 ORM）。 |
+| Squad | Squad | 團隊編組機制，可將多個 Agent 與人類成員組成小隊，設定路由規則進行智慧任務分配。 |
+| Subscriber | Subscriber | Issue 訂閱者，可訂閱特定 Issue 的狀態變更通知，無需成為 Assignee。 |
+| Thread | Thread | 串接式評論，支援在 Issue 評論中建立巢狀回覆串。 |
+| Workspace | Workspace | 工作空間，Multica 中的頂層組織單位。每個 Workspace 擁有獨立的 Agent、Issue、Skill、Project 與設定。 |
+| Worktree | Git Worktree | Git 的工作樹功能，允許在同一個 Repository 中同時開啟多個分支的工作目錄。Multica 開發環境完整支援此功能。 |
 | Multica Cloud | Multica Cloud | Multica 官方提供的託管服務，免除自部署的維運負擔。訪問 [multica.ai/app](https://multica.ai/app)。 |
 
 ---
@@ -2515,6 +3237,6 @@ multica workspace get <id> --output json # JSON 格式 Workspace 詳情
 
 ---
 
-> **文件維護：** 本手冊基於 Multica v0.1.26 撰寫。建議每次 Multica 重大版本更新後，重新 Review 並更新相關章節。  
-> **最後更新：** 2026-04-12
+> **文件維護：** 本手冊基於 Multica v0.3.12 撰寫。建議每次 Multica 重大版本更新後，重新 Review 並更新相關章節。  
+> **最後更新：** 2026-05-31
 

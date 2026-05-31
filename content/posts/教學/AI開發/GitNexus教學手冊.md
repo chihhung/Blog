@@ -7,11 +7,11 @@ categories = ['教學']
 +++
 # GitNexus 教學手冊（企業級完整版）
 
-> **版本**：v1.6.4（2026-05 基準，含 Docker 部署、Incremental Indexing、供應鏈簽章保護）  
+> **版本**：v1.6.5（2026-05 基準，含 Docker 部署、Incremental Indexing、供應鏈簽章保護、PR Reviewer Swarm Agents）  
 > **適用對象**：資深工程師 / 架構師 / DevOps / AI Agent 開發者  
 > **授權**：PolyForm Noncommercial 1.0.0（企業授權另洽 akonlabs.com）  
 > **維護單位**：內部 AI 開發組  
-> **GitHub**：https://github.com/abhigyanpatwari/GitNexus （⭐ 38k+ Stars / 131+ Contributors）  
+> **GitHub**：[github.com/abhigyanpatwari/GitNexus](https://github.com/abhigyanpatwari/GitNexus) （⭐ 40.9k+ Stars / 148+ Contributors）  
 > **OpenSSF Scorecard**：[securityscorecards.dev](https://securityscorecards.dev/viewer/?uri=github.com/abhigyanpatwari/GitNexus)
 
 > ⚠️ **重要警告**：GitNexus **沒有**官方加密貨幣、代幣或硬幣。任何在 Pump.fun 或其他平台上使用 GitNexus 名稱的代幣/硬幣，**均非本專案或其維護者所屬、認可或建立**。請勿購買任何聲稱與 GitNexus 相關的加密貨幣。
@@ -112,13 +112,14 @@ GitNexus 是由 Abhigyan Patwari 發起的開源程式碼智慧引擎（Code Int
 
 > *Like DeepWiki, but deeper.* DeepWiki 幫助你「理解」程式碼。GitNexus 讓你「分析」程式碼 — 因為知識圖譜追蹤每一個關係，而非僅是描述。
 
-**專案統計**（截至 2026 年 5 月）：
+**專案統計**（截至 2026 年 5 月底）：
 
 | 指標 | 數值 |
 |------|------|
-| GitHub Stars | 38,300+ |
-| Contributors | 131+ |
-| Releases | 242 |
+| GitHub Stars | 40,900+ |
+| Contributors | 148+ |
+| Forks | 4,700+ |
+| Releases | 364+ |
 | npm Package | [gitnexus](https://www.npmjs.com/package/gitnexus) |
 | 授權 | [PolyForm Noncommercial 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/) |
 | Discord 社群 | [discord.gg/MgJrmsqr62](https://discord.gg/MgJrmsqr62) |
@@ -139,8 +140,10 @@ GitNexus 是由 Abhigyan Patwari 發起的開源程式碼智慧引擎（Code Int
 | Multi-Repo | 單一 MCP Server 可服務多個已索引 Repository |
 | Docker 部署 | 官方 Docker Compose 一鍵部署，含 Cosign 供應鏈簽章 |
 | Incremental Indexing | 增量索引 — 僅重新索引變更的檔案（parse cache + DB writeback） |
+| PR Reviewer Swarm | PR Review 多 Agent 協作審查（v1.6.5+） |
+| Self-Healing Worker Pool | 自癒式 Worker 池 + 延遲解析觀測（v1.6.5+） |
 
-**最新版本**：v1.6.4（2026-05-10）— 含 Docker 健康檢查端點、C++ scope-based resolution、Thrift contracts、安全性強化
+**最新版本**：v1.6.5（2026-05-17）— 含 PR Reviewer Swarm Agents、Self-Healing Worker Pool、C++ user-defined conversion ranking、deferred-resolution observability
 
 ---
 
@@ -148,7 +151,7 @@ GitNexus 是由 Abhigyan Patwari 發起的開源程式碼智慧引擎（Code Int
 
 **📘 說明**
 
-GitNexus 解決了一個關鍵問題：**AI Coding Agent（如 Cursor、Claude Code、Codex、Cline、Roo Code、Windsurf）雖然強大，但不真正理解程式碼庫的結構**。
+GitNexus 解決了一個關鍵問題：**AI Coding Agent（如 Cursor、Claude Code、Codex、Cline、Roo Code、Windsurf、Antigravity）雖然強大，但不真正理解程式碼庫的結構**。
 
 典型情境：
 
@@ -179,26 +182,26 @@ graph LR
 - **Token 效率**：無需 10 次查詢鏈才能理解一個函式
 - **模型民主化**：小型 LLM 也能接收完整架構資訊，使其表現可與大型模型競爭
 
-**TL;DR**：**Web UI** 是快速與任何 Repo 對話的工具。**CLI + MCP** 是讓你的 AI Agent 真正可靠的方式 — 它給 Cursor、Claude Code、Codex 等工具一個深度的架構視角，使它們不再遺漏依賴、破壞呼叫鏈或盲目編輯。
+**TL;DR**：**Web UI** 是快速與任何 Repo 對話的工具。**CLI + MCP** 是讓你的 AI Agent 真正可靠的方式 — 它給 Cursor、Claude Code、Codex、Antigravity 等工具一個深度的架構視角，使它們不再遺漏依賴、破壞呼叫鏈或盲目編輯。甚至較小的模型也能獲得完整的架構清晰度，使其表現可與大型模型競爭。
 
 ---
 
 ### 1.3 與傳統工具比較
 
-| 比較項目 | IDE 內建搜尋 | GitHub Code Search | DeepWiki | Cline / Roo Code | GitNexus |
-|----------|-------------|-------------------|----------|------------------|----------|
-| 分析深度 | 單檔 / 符號 | 文字匹配 | 自然語言描述 | 局部上下文 | 完整知識圖譜 |
-| 關係追蹤 | 有限（同檔） | 無 | 語義理解 | 有限 | 全域呼叫鏈 + 依賴圖 |
-| AI Agent 整合 | 無 | 無 | 被動查詢 | 自有 Agent | MCP 主動提供上下文 |
-| 影響分析 | 無 | 無 | 無 | 無 | 爆炸半徑分析 + 信心分數 |
-| 隱私保護 | 本地 | 雲端 | 雲端 | 依設定 | 完全本地 |
-| 執行流程追蹤 | 無 | 無 | 描述性 | 無 | 自動偵測入口點到完整鏈路 |
-| 多語言支援 | 依 IDE | 有限 | 有限 | 有限 | 14 語言 |
-| 預計算智慧 | 無 | 無 | 無 | 無 | 聚類 / 追蹤 / 評分 |
-| Docker 部署 | 不適用 | 不適用 | 雲端 | 依設定 | 官方 Docker Compose + Cosign 簽章 |
-| 供應鏈保護 | 不適用 | 不適用 | 不適用 | 不適用 | Cosign + SBOM + 出處證明 |
+| 比較項目 | IDE 內建搜尋 | GitHub Code Search | DeepWiki | Cline / Roo Code | Antigravity | GitNexus |
+|----------|-------------|-------------------|----------|------------------|-------------|----------|
+| 分析深度 | 單檔 / 符號 | 文字匹配 | 自然語言描述 | 局部上下文 | Gemini 模型理解 | 完整知識圖譜 |
+| 關係追蹤 | 有限（同檔） | 無 | 語義理解 | 有限 | 有限 | 全域呼叫鏈 + 依賴圖 |
+| AI Agent 整合 | 無 | 無 | 被動查詢 | 自有 Agent | Gemini Agent | MCP 主動提供上下文 |
+| 影響分析 | 無 | 無 | 無 | 無 | 無 | 爆炸半徑分析 + 信心分數 |
+| 隱私保護 | 本地 | 雲端 | 雲端 | 依設定 | 依設定 | 完全本地 |
+| 執行流程追蹤 | 無 | 無 | 描述性 | 無 | 無 | 自動偵測入口點到完整鏈路 |
+| 多語言支援 | 依 IDE | 有限 | 有限 | 有限 | 有限 | 14 語言 |
+| 預計算智慧 | 無 | 無 | 無 | 無 | 無 | 聚類 / 追蹤 / 評分 |
+| Docker 部署 | 不適用 | 不適用 | 雲端 | 依設定 | 不適用 | 官方 Docker Compose + Cosign 簽章 |
+| 供應鏈保護 | 不適用 | 不適用 | 不適用 | 不適用 | 不適用 | Cosign + SBOM + 出處證明 |
 
-> **📌 關鍵差異**：DeepWiki 幫你「理解」程式碼，GitNexus 讓你「分析」程式碼 — 因為知識圖譜追蹤每一個關係，而非僅是描述。Cline / Roo Code 雖有 AI Agent 能力，但缺乏預計算的結構化圖譜，仍依賴即時搜尋和局部上下文。
+> **📌 關鍵差異**：DeepWiki 幫你「理解」程式碼，GitNexus 讓你「分析」程式碼 — 因為知識圖譜追蹤每一個關係，而非僅是描述。Cline / Roo Code 雖有 AI Agent 能力，但缺乏預計算的結構化圖譜，仍依賴即時搜尋和局部上下文。Antigravity（Google）雖具備強大的 Gemini 模型能力，但同樣缺乏預計算的程式碼架構圖譜。
 
 ---
 
@@ -255,6 +258,7 @@ graph TB
         CC[Claude Code<br/>Full Integration]
         CUR[Cursor<br/>MCP + Skills]
         CDX[Codex<br/>MCP + Skills]
+        AG[Antigravity<br/>MCP + Skills + Hooks]
         WS[Windsurf<br/>MCP]
         OC[OpenCode<br/>MCP + Skills]
         WEB[Web UI<br/>Browser]
@@ -269,6 +273,7 @@ graph TB
     MCP --> CC
     MCP --> CUR
     MCP --> CDX
+    MCP --> AG
     MCP --> WS
     MCP --> OC
     HTTP --> WEB
@@ -475,7 +480,7 @@ npm link
 
 ```bash
 gitnexus --version
-# 應輸出 v1.5.3 或更新版本
+# 應輸出 v1.6.5 或更新版本
 ```
 
 ---
@@ -583,6 +588,21 @@ command = "npx"
 args = ["-y", "gitnexus@latest", "mcp"]
 ```
 
+**Antigravity (Google)**（`~/.gemini/antigravity/mcp_config.json`）：
+
+```json
+{
+  "mcpServers": {
+    "gitnexus": {
+      "command": "npx",
+      "args": ["-y", "gitnexus@latest", "mcp"]
+    }
+  }
+}
+```
+
+> **💡 Antigravity Hooks 說明**：`gitnexus setup` 會自動在 `~/.gemini/settings.json` 中合併 `AfterTool` 項目（遏循 [Gemini CLI hooks schema](https://geminicli.com/docs/hooks/reference/)），並將 Skill 安裝至 `~/.gemini/antigravity/skills/`。現有使用者 Hooks 會被保留。Augmentation 在 `AfterTool` 運行，因為 `BeforeTool` 在 Gemini 協定中沒有上下文注入通道 — Agent 透過 `hookSpecificOutput.additionalContext` 看到圖譜上下文。
+
 #### 編輯器支援程度
 
 | 編輯器 | MCP Tools | Skills | Hooks | 整合程度 |
@@ -597,7 +617,7 @@ args = ["-y", "gitnexus@latest", "mcp"]
 
 > **💡 提示**：建議全域安裝 gitnexus（`npm i -g gitnexus`）後執行 `gitnexus setup` — 這會寫入絕對路徑 MCP 配置，完全繞過 `npx`。下方的 `npx` 片段為快速開始的備用方案；在冷快取下，`npx` 安裝可能超過 Claude Code 的 `MCP_TIMEOUT` 預設值（~30 秒）。
 
-> **💡 快速安裝提示**：設定 `GITNEXUS_SKIP_OPTIONAL_GRAMMARS=1` 後執行 `npm install -g gitnexus`，可跳過原生 `tree-sitter-dart` 和 `tree-sitter-proto` 編譯。Dart/Proto 檔案將不被解析，但安裝可在數秒內完成，無需 `python3`/`make`/`g++`。嚴格限定 `=1` — 其他值將觸發重新編譯。
+> **💡 快速安裝提示**：設定 `GITNEXUS_SKIP_OPTIONAL_GRAMMARS=1` 後執行 `npm install -g gitnexus`，可跳過原生 `tree-sitter-dart`、`tree-sitter-proto` 和 `tree-sitter-swift` 編譯。Dart/Proto/Swift 檔案將不被解析，但安裝可在數秒內完成，無需 `python3`/`make`/`g++`。嚴格限定 `=1` — 其他值將觸發重新編譯。
 
 ---
 
@@ -676,7 +696,7 @@ docker compose --env-file .env up -d
 **驗證簽章**：
 
 ```bash
-cosign verify ghcr.io/abhigyanpatwari/gitnexus:1.6.4 \
+cosign verify ghcr.io/abhigyanpatwari/gitnexus:1.6.5 \
   --certificate-identity-regexp '^https://github\.com/abhigyanpatwari/GitNexus/\.github/workflows/docker\.yml@refs/tags/v[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.]+)?$' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com
 ```
@@ -796,6 +816,15 @@ gitnexus analyze --skip-git
 # 增加 worker 閒置逾時（適用於大型或複雜的 Repo）
 gitnexus analyze --worker-timeout 60
 
+# 設定 worker 池大小
+gitnexus analyze --workers 8
+
+# 僅重建 / 驗證 FTS 索引（快速修復路徑）
+gitnexus analyze --repair-fts
+
+# 控制 LadybugDB WAL 自動檢查點閾值（預設 64 MiB）
+gitnexus analyze --wal-checkpoint-threshold 67108864
+
 # 顯示跳過的檔案（當解析器不可用時）
 gitnexus analyze --verbose
 ```
@@ -823,6 +852,7 @@ gitnexus setup                      # 設定 MCP 編輯器（一次性）
 # ===== 索引 =====
 gitnexus analyze [path]             # 索引 Repository（或更新過期索引）
 gitnexus analyze --force            # 強制完全重新索引
+gitnexus analyze --repair-fts       # 快速路徑：僅重建 / 驗證 FTS 索引
 gitnexus analyze --skills           # 生成 Repo 特定 Skill 檔案
 gitnexus analyze --skip-embeddings  # 跳過 Embedding（更快）
 gitnexus analyze --embeddings       # 啟用 Embedding（更精確）
@@ -830,6 +860,8 @@ gitnexus analyze --skip-agents-md   # 保留自訂 AGENTS.md/CLAUDE.md 內容
 gitnexus analyze --skip-git         # 索引非 Git 儲存庫的資料夾
 gitnexus analyze --verbose          # 顯示跳過的檔案
 gitnexus analyze --worker-timeout 60  # 增加 worker 閒置逾時（秒）
+gitnexus analyze --workers <n>      # 解析 worker 池大小（預設：cores-1，上限 16；0 = 序列）
+gitnexus analyze --wal-checkpoint-threshold 67108864  # LadybugDB WAL 自動檢查點閾值（預設 64 MiB）
 
 # ===== 服務 =====
 gitnexus mcp                        # 啟動 MCP Server（stdio）— 服務所有已索引 Repo
@@ -850,6 +882,7 @@ gitnexus wiki --base-url <url>      # 自訂 LLM API URL
 gitnexus wiki --force               # 強制重新生成
 gitnexus wiki --timeout <seconds>   # 每次嘗試的 LLM 請求逾時秒數（預設 60）
 gitnexus wiki --retries <n>         # 最大 LLM 重試次數（預設 3）
+gitnexus wiki --lang <lang>         # 輸出語言（如 english, chinese, spanish, japanese）
 
 # ===== 發布 =====
 gitnexus publish                    # 通知 understand-quickly 登錄（opt-in）
@@ -864,6 +897,28 @@ gitnexus group contracts <name>                       # 檢視跨 Repo 契約
 gitnexus group query <name> <q>                       # 跨群組搜尋
 gitnexus group status <name>                          # 檢查群組過期狀態
 ```
+
+#### 環境變數一覽
+
+大多數 `analyze` 參數也可透過環境變數設定。CLI 旗標優先於環境變數，環境變數優先於內建預設值。
+
+| 環境變數 | 預設值 | 說明 |
+|---------|--------|------|
+| `GITNEXUS_WORKER_POOL_SIZE` | cores-1（上限 16） | 解析 worker 池大小。0 停用（序列回退） |
+| `GITNEXUS_PARSE_CHUNK_CONCURRENCY` | 2 | 同時讀取的 chunk 數量 |
+| `GITNEXUS_VERBOSE` | 未設定 | 設為 `1` 啟用詳細日誌 |
+| `GITNEXUS_PROFILE_DEFERRED` | 未設定 | 設為 `1` 輸出延遲解析階段的計時日誌 |
+| `GITNEXUS_PROFILE_DEFERRED_SLOW_MS` | 3000/5000 | 慢速檔案閾值（毫秒） |
+| `GITNEXUS_MAX_FILE_SIZE` | 512（KB） | 檔案掃描跳過閾值（硬上限 32768 KB） |
+| `GITNEXUS_WORKER_SUB_BATCH_TIMEOUT_MS` | 30000 | Worker 閒置逾時（毫秒） |
+| `GITNEXUS_WAL_CHECKPOINT_THRESHOLD` | 67108864（64 MiB） | LadybugDB WAL 自動檢查點閾值 |
+| `GITNEXUS_WORKER_SUB_BATCH_MAX_BYTES` | 8388608（8 MB） | 每個 worker job 的位元組上限 |
+| `GITNEXUS_WORKER_MAX_RESPAWNS_PER_SLOT` | 3 | 每個 worker slot 的最大重生次數 |
+| `GITNEXUS_WORKER_MAX_CUMULATIVE_TIMEOUT_MS` | 5 × subBatchTimeoutMs | 每個 job 的總重試時間預算 |
+| `GITNEXUS_WORKER_CONSECUTIVE_FAILURE_THRESHOLD` | max(3, poolSize) | 連續失敗次數觸發斷路器 |
+| `GITNEXUS_CHUNK_BYTE_BUDGET` | 2097152（2 MB） | Chunk 邊界（影響增量快取行為） |
+| `GITNEXUS_NO_GITIGNORE` | 未設定 | 跳過 `.gitignore` 解析（`.gitnexusignore` 仍生效） |
+| `GITNEXUS_SKIP_OPTIONAL_GRAMMARS` | 未設定 | 設為 `=1` 跳過 Dart/Proto/Swift 原生編譯 |
 
 ---
 
@@ -1042,8 +1097,28 @@ impact({
   minConfidence: 0.8,         // 最低信心分數
   maxDepth: 3,                // 最大追蹤深度
   relationTypes: ["CALLS", "IMPORTS", "EXTENDS", "IMPLEMENTS", "METHOD_OVERRIDES", "METHOD_IMPLEMENTS"],
-  includeTests: false         // 是否包含測試
+  includeTests: false,        // 是否包含測試
+  limit: 100,                 // 每層最大符號數（預設 100）
+  offset: 0,                  // 分頁起始位置
+  summaryOnly: false          // 僅顯示計數與風險，省略符號列表
 })
+```
+
+**消歧義（Disambiguation）**：
+
+當多個符號共享相同名稱時，`impact` 會返回排名的 `ambiguous` 候選列表，而非猜測。可使用以下參數縮小範圍：
+
+| 參數 | 說明 | CLI 旗標 |
+|------|------|----------|
+| `target_uid` | 精確指定，零歧義 | `--uid` |
+| `file_path` | 依檔案路徑縮範 | `--file` |
+| `kind` | 依類型縮範（Function、Class、Method…） | `--kind` |
+
+```bash
+# CLI 範例
+gitnexus impact get_embeddings                       # → ambiguous: 列出排名候選
+gitnexus impact get_embeddings --file src/embed.py   # → 解析至該檔案中的符號
+gitnexus impact get_embeddings --uid "Function:src/embed.py:get_embeddings"  # 精確指定
 ```
 
 **輸出範例**：
@@ -1262,6 +1337,9 @@ gitnexus wiki --base-url https://api.anthropic.com/v1
 
 # 強制重新生成
 gitnexus wiki --force
+
+# 指定輸出語言
+gitnexus wiki --lang chinese
 ```
 
 **生成流程**：
@@ -1277,6 +1355,7 @@ gitnexus wiki --force
 - 支援 Azure OpenAI — 使用簡化的 3 步驟互動設定（endpoint、deployment、key）
 - v1.5.3 修復了 Wiki HTML 查看器中的 `</script>` 注入問題
 - v1.6.4+ 新增 `--timeout` 和 `--retries` 旗標，適用於大型程式碼庫或慢速 LLM 供應商
+- `--lang` 旗標可指定輸出語言（如 `english`、`chinese`、`spanish`、`japanese`）
 
 **企業版額外功能**：
 - **Auto-updating Code Wiki** — 文件自動保持最新（此功能 OSS 版本亦提供基礎支援）
@@ -1298,6 +1377,7 @@ Incremental Indexing 是 GitNexus 近期完成的重要功能，透過 parse cac
 3. **選擇性重新解析** — 僅對變更的檔案重新執行 Tree-sitter 解析
 4. **DB Writeback** — 只更新圖譜資料庫中受影響的節點和邊
 5. **Scope-based 處理** — 限定重新計算的範圍（聚類、流程追蹤等）
+6. **Parse Cache 分片（Sharding）** — 大型 Mono-repo（>50,000 檔案）自動將 parse cache 分片為多個 shard 檔案，避免單一快取檔案過大導致 I/O 瓶頸
 
 **使用方式**：
 
@@ -1403,6 +1483,34 @@ Claude Code 支援最完整的整合：
 1. 設定 MCP（參見 3.4 節）
 2. 在 Cursor Chat 中即可直接使用 GitNexus 工具
 3. Cursor 會自動利用圖譜上下文改善回應品質
+
+#### Antigravity (Google) 整合
+
+Antigravity 是 Gemini CLI 的後繼產品，GitNexus 提供完整支援：
+
+| 功能 | 說明 |
+|------|------|
+| MCP Tools | 16 個工具直接可用 |
+| Agent Skills | 自動安裝至 `~/.gemini/antigravity/skills/` |
+| AfterTool Hooks | 圖譜上下文附加至工具結果、commit 後偵測過期索引 |
+
+**設定方式**：執行 `gitnexus setup` 自動完成 MCP 配置和 Hook 安裝，或手動編輯 `~/.gemini/antigravity/mcp_config.json`（參見 3.4 節）。
+
+#### PR Reviewer Swarm Agents（v1.6.5+）
+
+GitNexus v1.6.5 新增了 **PR Reviewer Swarm Agents** 功能，支援多 Agent 協作進行 PR 審查：
+
+| 功能 | 說明 |
+|------|------|
+| 多 Agent 審查 | 多個專業 Agent 同時審查不同面向（架構、安全、效能） |
+| 爆炸半徑分析 | 自動分析 PR 變更的影響範圍 |
+| 結構化回饋 | 基於知識圖譜產出精確的審查建議 |
+| Claude/Cursor 整合 | `.claude/` 和 `.cursor/` 下的審查配置 |
+
+**相關檔案**：
+- `pr-swarm-review/` — PR Reviewer Swarm Agents 配置目錄
+- `.claude/` — Claude Code 審查 Agent 設定
+- `.cursor/` — Cursor 審查 Agent 設定
 
 ---
 
@@ -1542,8 +1650,11 @@ GitNexus 提供完善的開發者文件體系：
 | `gitnexus-web/` | Web UI（React 18 + Vite + Tailwind v4） |
 | `gitnexus-claude-plugin/` | Claude Code Plugin |
 | `gitnexus-cursor-integration/` | Cursor 整合 |
+| `pr-swarm-review/` | PR Reviewer Swarm Agents 配置（v1.6.5+） |
+| `.claude/` | Claude Code Agent 設定（含審查 Agent） |
+| `.cursor/` | Cursor Agent 設定 |
+| `.gemini/commands/` | Gemini / Antigravity 指令設定 |
 | `eval/` | 評估測試框架 |
-| `docs/` | 設計規格和實施計畫 |
 | `deploy/kubernetes/` | Kubernetes ClusterImagePolicy 部署配置 |
 | `eslint-rules/` | 自訂 ESLint 規則 |
 
@@ -1861,7 +1972,7 @@ GitNexus 實施多層供應鏈保護措施：
 
 ```bash
 # 檢查建置出處
-cosign download attestation ghcr.io/abhigyanpatwari/gitnexus:1.6.4 \
+cosign download attestation ghcr.io/abhigyanpatwari/gitnexus:1.6.5 \
   --predicate-type https://slsa.dev/provenance/v1
 ```
 
@@ -1871,7 +1982,7 @@ GitNexus 已加入 [OpenSSF Scorecard](https://securityscorecards.dev/viewer/?ur
 
 #### npm 套件版本鎖定
 
-Docker 映像版本鎖定至 npm 套件：`ghcr.io/abhigyanpatwari/gitnexus:1.6.4` 與 `npm install gitnexus@1.6.4` 是同一個版本 — 無漂移、無浮動建置。
+Docker 映像版本鎖定至 npm 套件：`ghcr.io/abhigyanpatwari/gitnexus:1.6.5` 與 `npm install gitnexus@1.6.5` 是同一個版本 — 無漂移、無浮動建置。
 
 #### Kubernetes Admission 控制
 
@@ -1882,7 +1993,7 @@ Docker 映像版本鎖定至 npm 套件：`ghcr.io/abhigyanpatwari/gitnexus:1.6.
 | 層級 | 建議措施 |
 |------|---------|
 | 供應鏈 | 在敏感環境拉取前，務必使用 `cosign verify` 驗證映像簽章 |
-| 容器 | 使用固定版本標籤（如 `:1.6.4`）而非 `:latest` |
+| 容器 | 使用固定版本標籤（如 `:1.6.5`）而非 `:latest` |
 | Kubernetes | 部署 ClusterImagePolicy 拒絕未簽章映像 |
 | CI/CD | 自動化安全掃描（已整合 CodeQL + 漏洞掃描） |
 | 依賴 | 定期更新依賴並檢查 CVE |
@@ -1971,6 +2082,9 @@ gitnexus analyze --force
 | GPU 加速 | NVIDIA GPU + CUDA | Embedding 生成加速 |
 | 限制 MCP 並發 | 預設最大 5 個 LadybugDB 連線 | 避免記憶體溢出 |
 | Worker 逾時調整 | `--worker-timeout 60` | 避免大型檔案解析失敗 |
+| 並行 Worker 數量 | `--workers <n>` | 根據 CPU 核心數調整，提升索引速度 |
+| FTS 索引修復 | `--repair-fts` | 修復損壞的全文搜尋索引 |
+| WAL 檢查點控制 | `--wal-checkpoint-threshold <n>` | 控制 SQLite WAL 檔案大小 |
 | 跳過可選 Grammars | `GITNEXUS_SKIP_OPTIONAL_GRAMMARS=1` | 安裝時間從分鐘降至秒 |
 
 ---
@@ -2038,6 +2152,18 @@ gitnexus analyze --force
 3. **啟用 `--skills`** 為每個功能模組生成專屬 Skill 檔案
 4. **定期重新索引**（建議每日或每次大規模合併後）
 5. **使用 Repository Group** 管理微服務架構
+6. **使用 `--workers <n>`** 根據 CPU 核心數調整並行 Worker 數量，提升大型 Repo 索引速度
+
+**Self-Healing Worker Pool（v1.6.5+）**：
+
+GitNexus v1.6.5 引入了自癒式 Worker 池機制，針對大型 Repo 索引時的穩定性進行強化：
+
+| 功能 | 說明 |
+|------|------|
+| Worker 自動重啟 | 單一 Worker 崩潰時自動重啟，不影響整體索引進度 |
+| 崩潰計數器 | 追蹤每個 Worker 的崩潰次數，超過閾值時自動降級 |
+| 延遲解析觀測 | Deferred-resolution observability — 記錄無法立即解析的符號，供後續修正 |
+| WAL Checkpoint | 使用 `--wal-checkpoint-threshold` 控制 SQLite WAL 檢查點頻率，避免 WAL 檔案過大 |
 
 ### 10.2 Monorepo vs Multi-repo
 
@@ -2194,6 +2320,30 @@ graph TD
 - 使用 `gitnexus analyze --skip-git` 旗標
 - 此選項會將當前工作目錄視為索引根目錄，而非向上查找 Git 根目錄
 
+### Q15：Antigravity（Google）和 Gemini CLI 有什麼不同？
+
+**A**：
+- Antigravity 是 Google Gemini CLI 的後繼產品，提供更完整的 Agent 體驗
+- GitNexus 對 Antigravity 提供完整支援，包含 MCP Tools、Agent Skills 和 AfterTool Hooks
+- 設定方式與 Gemini CLI 類似 — 配置檔位於 `~/.gemini/antigravity/mcp_config.json`
+- AfterTool Hooks 能在工具執行後自動附加圖譜上下文，並在 commit 後偵測過期索引
+
+### Q16：PR Reviewer Swarm Agents 是什麼？
+
+**A**：
+- v1.6.5 新增的多 Agent 協作 PR 審查功能
+- 多個專業 Agent 各自負責不同面向（架構、安全、效能等）的審查
+- 利用知識圖譜進行爆炸半徑分析，確保審查精確涵蓋影響範圍
+- 配置檔位於 `pr-swarm-review/`、`.claude/` 和 `.cursor/` 目錄
+
+### Q17：Impact Analysis 出現 ambiguous 結果時該怎麼辦？
+
+**A**：
+- 當多個符號同名時，`impact` 工具會回傳排名的候選列表而非猜測
+- 使用 `--uid` 精確指定目標符號（零歧義）
+- 使用 `--file` 依檔案路徑縮小範圍
+- 使用 `--kind` 依類型（Function、Class、Method 等）篩選
+
 ---
 
 ## 第 12 章：未來發展與建議
@@ -2206,6 +2356,10 @@ graph TD
 |------|------|
 | **進行中** | LLM Cluster Enrichment — 透過 LLM API 產生語義化的社群名稱 |
 | **進行中** | AST Decorator Detection — 解析 @Controller、@Get 等裝飾器 |
+| **已完成（v1.6.5）** | PR Reviewer Swarm Agents — 多 Agent 協作 PR 審查 |
+| **已完成（v1.6.5）** | Self-Healing Worker Pool — 自癒式 Worker 池 + deferred-resolution observability |
+| **已完成（v1.6.5）** | C++ user-defined conversion ranking — 提升 C++ 隱式轉換解析精確度 |
+| **已完成（v1.6.5）** | Antigravity (Google) 完整支援 — MCP + Skills + AfterTool Hooks |
 | **已完成（v1.6.x）** | Incremental Indexing — 僅重新索引變更的檔案（parse cache + DB writeback + scope） |
 | **已完成（v1.6.x）** | Docker 部署 — 官方 Docker Compose + Cosign 簽章 + Kubernetes 支援 |
 | **已完成（v1.6.x）** | C++ scope-based resolution model |
@@ -2245,10 +2399,11 @@ graph TD
 
 未來趨勢：
 
-1. **Multi-Agent Collaboration**：多個 AI Agent 共享同一知識圖譜
+1. **Multi-Agent Collaboration**：多個 AI Agent 共享同一知識圖譜（v1.6.5 PR Reviewer Swarm Agents 已實現初步版本）
 2. **Agentic Workflow**：AI Agent 自動化完成 analyze → impact → refactor → test 流程
-3. **Continuous Intelligence**：知識圖譜隨程式碼變更即時更新
+3. **Continuous Intelligence**：知識圖譜隨程式碼變更即時更新（Claude Code PostToolUse Hook 已部分實現）
 4. **Cross-Organization Graph**：跨組織的知識圖譜聯邦查詢
+5. **全編輯器覆蓋**：目前已支援 Claude Code、Cursor、Windsurf、Cline、Copilot、Roo Code、Codex、OpenCode、Antigravity 等 9+ 編輯器 / Agent，未來將持續擴展
 
 ### 12.3 企業導入 Roadmap
 
@@ -2358,6 +2513,9 @@ gantt
 | `gitnexus analyze --skip-git` | 索引非 Git 儲存庫的資料夾 |
 | `gitnexus analyze --verbose` | 顯示詳細日誌（含跳過的檔案） |
 | `gitnexus analyze --worker-timeout 60` | 增加 worker 閒置逾時（秒） |
+| `gitnexus analyze --workers <n>` | 指定並行 Worker 數量（預設：CPU 核心數） |
+| `gitnexus analyze --repair-fts` | 修復全文搜尋索引（FTS5 損壞時使用） |
+| `gitnexus analyze --wal-checkpoint-threshold <n>` | SQLite WAL 檢查點觸發閾值 |
 | `gitnexus mcp` | 啟動 MCP Server（stdio）— 服務所有已索引 Repo |
 | `gitnexus serve` | 啟動 HTTP Server（Multi-Repo）供 Web UI 連接 |
 | `gitnexus list` | 列出所有索引 |
@@ -2370,6 +2528,7 @@ gantt
 | `gitnexus wiki --force` | 強制重新生成 Wiki |
 | `gitnexus wiki --timeout <seconds>` | 每次嘗試的 LLM 請求逾時秒數（預設 60） |
 | `gitnexus wiki --retries <n>` | 最大 LLM 重試次數（預設 3） |
+| `gitnexus wiki --lang <language>` | 指定輸出語言（如 chinese、english、japanese） |
 | `gitnexus publish` | 通知 understand-quickly 登錄（opt-in） |
 | `gitnexus group create <name>` | 建立群組 |
 | `gitnexus group add <group> <groupPath> <registryName>` | 群組加入 Repo（groupPath=層級路徑，registryName=registry 名稱） |
@@ -2391,7 +2550,7 @@ gantt
 | `list_repos` | 列出所有已索引 Repo | — |
 | `query` | 混合搜尋（BM25 + 語義 + RRF） | 可選 |
 | `context` | 360 度 Symbol 檢視 | 可選 |
-| `impact` | 爆炸半徑分析 | 可選 |
+| `impact` | 爆炸半徑分析（含消歧義：`--uid`、`--file`、`--kind`） | 可選 |
 | `detect_changes` | Git-diff 變更偵測 | 可選 |
 | `rename` | 跨檔智慧重新命名 | 可選 |
 | `cypher` | 原生 Cypher 查詢 | 可選 |
@@ -2531,9 +2690,15 @@ GitNexus 知識圖譜中使用的所有關係類型：
 | 變數 | 說明 | 預設值 |
 |------|------|--------|
 | `WORKSPACE_DIR` | 主機 Repo 掛載目錄 | — |
-| `GITNEXUS_SKIP_OPTIONAL_GRAMMARS` | 跳過 Dart/Proto 原生編譯 | — |
+| `GITNEXUS_SKIP_OPTIONAL_GRAMMARS` | 跳過 Dart/Proto/Swift 原生編譯 | — |
 | `GITNEXUS_WORKER_SUB_BATCH_TIMEOUT_MS` | Worker 子批次逾時（毫秒） | — |
 | `GITNEXUS_WORKER_SUB_BATCH_MAX_BYTES` | Worker 子批次位元組上限 | — |
+| `GITNEXUS_WORKERS` | 並行 Worker 數量 | CPU 核心數 |
+| `GITNEXUS_WAL_CHECKPOINT_THRESHOLD` | SQLite WAL 檢查點閾值 | — |
+| `GITNEXUS_MAX_BATCH_TOTAL_BYTES` | 批次位元組總上限 | — |
+| `GITNEXUS_MAX_FILE_SIZE_BYTES` | 單一檔案大小上限 | — |
+| `GITNEXUS_CONCURRENCY` | LadybugDB 最大並發連線數 | 5 |
+| `GITNEXUS_LOG_LEVEL` | 日誌等級 | info |
 | `UNDERSTAND_QUICKLY_TOKEN` | understand-quickly 登錄 PAT | — |
 
 ---
@@ -2544,5 +2709,5 @@ GitNexus 知識圖譜中使用的所有關係類型：
 > **Discord 社群**：[discord.gg/MgJrmsqr62](https://discord.gg/MgJrmsqr62)  
 > **安全政策**：[SECURITY.md](https://github.com/abhigyanpatwari/GitNexus/blob/main/SECURITY.md)  
 > **企業授權聯絡**：[founders@akonlabs.com](mailto:founders@akonlabs.com)  
-> **最後更新**：2026-05-14
+> **最後更新**：2026-05-31
 

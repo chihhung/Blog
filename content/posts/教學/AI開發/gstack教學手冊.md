@@ -1,5 +1,5 @@
 +++
-date = '2026-04-03T21:13:35+08:00'
+date = '2026-05-30T21:13:35+08:00'
 draft = false
 title = 'Gstack教學手冊'
 tags = ['教學', 'AI開發','指引']
@@ -8,10 +8,10 @@ categories = ['教學']
 
 # gstack 企業級教學手冊
 
-> **參考版本**：v0.15.2.1 ｜ **更新日期**：2026-04-03  
-> **GitHub 星數**：62,900+ ⭐ ｜ **貢獻者**：26 位 ｜ **授權**：MIT  
+> **參考版本**：v1.55.0.0 ｜ **更新日期**：2026-05-30  
+> **GitHub 星數**：247,000+ ⭐ ｜ **貢獻者**：100+ 位 ｜ **授權**：MIT  
 > **適用對象**：資深工程師、架構師、DevOps 工程師、技術主管、創辦人與技術主管  
-> **適用場景**：新創公司、企業平台、微服務架構、金融系統  
+> **適用場景**：新創公司、企業平台、微服務架構、金融系統、iOS 開發  
 > **參考來源**：[https://github.com/garrytan/gstack](https://github.com/garrytan/gstack)
 
 ---
@@ -33,7 +33,7 @@ categories = ['教學']
 3. [安裝與環境建置](#3-gstack-安裝與環境建置)
    - 3.1 [必備環境](#31-必備環境)
    - 3.2 [安裝 Claude Code](#32-安裝-claude-code)
-   - 3.3 [安裝 gstack（機器本機）](#33-安裝-gstack機器本機)
+   - 3.3 [安裝 gstack（推薦：Team Mode）](#33-安裝-gstack推薦team-mode)
    - 3.4 [加入專案供團隊共用（選用）](#34-加入專案供團隊共用選用)
    - 3.5 [多平台安裝支援](#35-多平台安裝支援)
    - 3.6 [語音輸入支援](#36-語音輸入支援)
@@ -42,7 +42,7 @@ categories = ['教學']
 4. [Sprint 工作流程與技能體系](#4-sprint-工作流程與技能體系)
    - 4.1 [Sprint 核心哲學](#41-sprint-核心哲學)
    - 4.2 [技能串聯關係](#42-技能串聯關係)
-   - 4.3 [完整技能目錄（33 個）](#43-完整技能目錄33-個)
+   - 4.3 [完整技能目錄（52+ 個）](#43-完整技能目錄52-個)
    - 4.4 [Builder Ethos（建構者信條）](#44-builder-ethos建構者信條)
 5. [虛擬開發團隊設計（企業實戰）](#5-虛擬開發團隊設計企業實戰)
    - 5.1 [團隊架構總覽](#51-團隊架構總覽)
@@ -110,25 +110,30 @@ categories = ['教學']
 
 ### 1.1 什麼是 gstack
 
-gstack 是由 Y Combinator CEO **Garry Tan** 開源的 **Claude Code 虛擬工程團隊技能套件**，開源於 [github.com/garrytan/gstack](https://github.com/garrytan/gstack)，目前已累積超過 **62,900 顆星**、**8,400 次 Fork**，是目前最受矚目的 AI 輔助開發工具之一。
+gstack 是由 Y Combinator CEO **Garry Tan** 開源的 **Claude Code 虛擬工程團隊技能套件**，開源於 [github.com/garrytan/gstack](https://github.com/garrytan/gstack)，目前已累積超過 **247,000 顆星**，是目前最受矚目的 AI 輔助開發工具之一。
 
 gstack 的本質是：
 
 > **「一組專業化的斜線指令（Slash Commands）套件，讓 Claude Code 從單一 AI 助手升級為虛擬工程團隊」**
 
-它不是獨立執行的程式，不需要另外的伺服器或複雜配置。安裝後，它會在 Claude Code 環境中增加 **33 個技能指令（Skills）**，每個指令都代表一位不同角色的專家：
+它不僅是 Claude Code 的擴充，更支援 **10 個 AI 編碼代理**（Codex CLI、OpenCode、Cursor、Factory Droid、Slate、Kiro、Hermes、GBrain 等）。安裝後，它會增加 **52+ 個技能指令（Skills）**，每個指令都代表一位不同角色的專家：
 
 - `/office-hours` ── YC 風格的產品顧問
 - `/plan-ceo-review` ── CEO 產品視角
 - `/plan-eng-review` ── 工程主管架構審查  
+- `/plan-devex-review` ── 開發者體驗審查（v1.0+）
 - `/review` ── 資深工程師程式碼審查（含 7 名專家平行審查）
 - `/qa` ── QA 主管真實瀏覽器測試
 - `/cso` ── 首席資安官 OWASP 掃描
 - `/ship` ── 發布工程師 PR 自動化
-- `/checkpoint` ── 工作狀態快照與跨 Session 恢復
-- `/health` ── 程式碼品質計分（0-10 分趨勢追蹤）
+- `/spec` ── 規格書撰寫（五階段精煉流程，v1.47+）
+- `/document-generate` ── Diataxis 文件生成（v1.35+）
+- `/pair-agent` ── 多代理瀏覽器協作（v1.0+）
+- `/ios-qa` ── iOS 真機 QA 測試（v1.43+）
+- `/plan-tune` ── 開發者偏好學習（v0.19+）
+- `/setup-gbrain` ── GBrain 持久記憶體設定（v1.12+）
 - `/learn` ── 跨 Session 經驗累積與查詢
-- ... 共 33 個技能（詳見第 4.3 節）
+- ... 共 52+ 個技能（詳見第 4.3 節）
 
 ### 1.2 背景：Garry Tan 與 YC
 
@@ -136,7 +141,7 @@ gstack 的本質是：
 
 他公開分享了使用 gstack 配合 Claude Code 的驚人生產力數字：
 
-> **過去 60 天：600,000+ 行生產程式碼（35% 為測試），每天 10,000-20,000 行，同時全職管理 YC**
+> **2026 年至今的邏輯代碼變更速率約為 2013 年的 810 倍**（11,417 vs 14 邏輯行/天），同時全職管理 YC。過去 60 天：3 個生產服務、40+ 個已發布功能。
 
 gstack 正是他開源的個人開發方法論，讓每個工程師都能複製這套效率。
 
@@ -182,12 +187,14 @@ gstack Sprint：
 | 項目 | GitHub Copilot | 單一 AI Agent | gstack |
 |---|---|---|---|
 | 定位 | 程式碼補全 | 任務執行 | 虛擬工程師團隊 |
-| 技能數 | 1（補全） | 1 | 33 個專業技能 |
+| 技能數 | 1（補全） | 1 | 52+ 個專業技能 |
 | 輸出 | 程式碼片段 | 單一任務結果 | 完整可交付成果 |
 | 瀏覽器測試 | 無 | 有限 | 真實 Chromium 瀏覽器 |
-| 安全審查 | 無 | 無 | OWASP Top 10 + STRIDE |
+| iOS 測試 | 無 | 無 | iOS 真機 QA（v1.43+） |
+| 安全審查 | 無 | 無 | OWASP Top 10 + STRIDE + 共享編輯引擎 |
 | 多 AI 交叉審查 | 無 | 無 | Claude + OpenAI Codex |
-| 記憶系統 | 無 | 無 | 跨 Session 學習 + Session 智能 |
+| 記憶系統 | 無 | 無 | 跨 Session 學習 + GBrain 持久記憶 |
+| 支援平台 | VS Code | 單一平台 | 10 個 AI 代理平台 |
 | 開源授權 | 商業 | 不定 | MIT，完全免費 |
 
 ### 1.5 適用場景
@@ -210,35 +217,38 @@ gstack Sprint：
 
 | 項目 | 資訊 |
 |---|---|
-| **最新版本** | v0.15.2.1（2026-04-02）|
-| **GitHub 星數** | 62,900+ ⭐ |
-| **Fork 數** | 8,400+ |
-| **貢獻者** | 26 位（含 Garry Tan 本人與 Claude）|
+| **最新版本** | v1.55.0.0（2026-05-30）|
+| **GitHub 星數** | 247,000+ ⭐ |
 | **授權** | MIT（完全免費，無付費版）|
-| **技能數量** | 33 個技能指令 |
-| **語言組成** | TypeScript 70.5%、Go Template 19.9%、Shell 4.4% |
-| **支援平台** | Claude Code、Codex CLI、Gemini CLI、Cursor、Kiro CLI |
+| **技能數量** | 52+ 個技能指令 |
+| **支援平台** | Claude Code、Codex CLI、OpenCode、Cursor、Factory Droid、Slate、Kiro CLI、Hermes、GBrain (mod)、OpenClaw |
 | **支援作業系統** | macOS、Linux、Windows 11（Git Bash / WSL）|
+| **安裝方式** | Team Mode（推薦）或 Vendoring |
 
 #### 重要版本里程碑
 
 | 版本 | 日期 | 代號 | 核心功能 |
 |---|---|---|---|
+| **v1.55.0.0** | 2026-05-30 | sync-gbrain Safety Guards | GBrain 同步安全防護 |
+| **v1.54.0.0** | 2026-05-29 | /ship Optimization | /ship skeleton+sections 模式，-59% token |
+| **v1.53.0.0** | 2026-05-28 | Shared Redaction Engine | 共享編輯引擎（33 patterns, 3 tiers） |
+| **v1.47.0.0** | 2026-05-22 | /spec | 五階段規格精練流程 |
+| **v1.46.0.0** | 2026-05-21 | v2 Foundation | catalog tokens -56%，極簡主義重寫 |
+| **v1.43.0.0** | 2026-05-17 | iOS QA | iOS 真機 QA 測試套件 |
+| **v1.42.0.0** | 2026-05-16 | Daegu | 韓國社群貢獻浪潮 |
+| **v1.35.0.0** | 2026-05-09 | document-generate | Diataxis 框架文件自動生成 |
+| **v1.26.0.0** | 2026-04-30 | GBrain Memory | GBrain 持久知識圖譜 |
+| **v1.12.0.0** | 2026-04-16 | setup-gbrain | GBrain 初始設定技能 |
+| **v1.3.0.0** | 2026-04-06 | Design Taste + Checkpoints | 設計品味學習 + 檢查點 |
+| **v1.0.0.0** | 2026-04-04 | Simpler Prompts | LOC receipts、pair-agent、devex-review |
 | **v0.15.2.1** | 2026-04-02 | Setup Runs Migrations | `git pull && ./setup` 自動套用版本遷移 |
-| **v0.15.2.0** | 2026-04-02 | Voice-Friendly Skill Triggers | 語音友善觸發，支援 AquaVoice / Whisper |
-| **v0.15.1.0** | 2026-04-01 | Design Without Shotgun | `/design-html` 可從任意起點啟動 |
 | **v0.15.0.0** | 2026-04-01 | Session Intelligence | `/checkpoint` + `/health` + 時間軸 + 上下文恢復 |
-| **v0.14.6.0** | 2026-03-31 | Recursive Self-Improvement | 操作自學習，技能從失敗中自動累積經驗 |
-| **v0.14.4.0** | 2026-03-31 | Review Army | 7 名專家平行審查（測試、安全、效能、API 等）|
+| **v0.14.4.0** | 2026-03-31 | Review Army | 7 名專家平行審查 |
 | **v0.14.0.0** | 2026-03-30 | Design to Code | `/design-html` 從設計稿生成生產級 HTML |
-| **v0.13.6.0** | 2026-03-29 | GStack Learns | 專案學習系統 `/learn`，跨 Session 累積經驗 |
-| **v0.13.0.0** | 2026-03-27 | Your Agent Can Design Now | 設計二進制工具 `$D`，生成真實 UI Mockup |
+| **v0.13.6.0** | 2026-03-29 | GStack Learns | 專案學習系統 `/learn` |
 | **v0.12.0.0** | 2026-03-26 | Headed Mode + Sidebar Agent | 真實 Chrome 視窗 + 側邊欄對話代理 |
-| **v0.11.0.0** | 2026-03-22 | /cso: Zero-Noise Security Audits | 首席資安官零噪音安全審查 |
 | **v0.10.0.0** | 2026-03-22 | Autoplan | 一鍵全自動 CEO → 設計 → 工程審查 |
-| **v0.9.0** | 2026-03-19 | Works on Codex, Gemini CLI, and Cursor | 多平台支援 |
-| **v0.8.0** | 2026-03-19 | Multi-AI Second Opinion | `/codex` 多 AI 交叉審查 |
-| **v0.7.0** | 2026-03-18 | YC Office Hours | `/office-hours` + `/investigate` |
+| **v0.9.0** | 2026-03-19 | Multi-Platform | Codex, Gemini CLI, Cursor 支援 |
 | **v0.0.1** | 2026-03-11 | Initial Release | 5 個核心技能 + 無頭瀏覽器 |
 
 ---
@@ -267,7 +277,7 @@ graph TB
         SVC4[報表服務\nSpring Boot]
     end
 
-    subgraph "AI Agent Layer ← gstack + Claude Code（33 個技能）"
+    subgraph "AI Agent Layer ← gstack + Claude Code（52+ 個技能）"
         AG1["/office-hours<br/>YC 辦公室時光"]
         AG2["/plan-ceo-review<br/>CEO 產品視角"]
         AG3["/plan-eng-review<br/>工程主管架構"]
@@ -408,12 +418,27 @@ claude login
 > export ANTHROPIC_API_KEY="your-api-key-here"
 > ```
 
-### 3.3 安裝 gstack（機器本機）
+### 3.3 安裝 gstack（推薦：Team Mode）
 
-在 Claude Code 中貼上以下指令，Claude 會自動完成所有安裝步驟：
+**v1.0+ 起推薦使用 Team Mode**，團隊成員自動獲得最新版本：
+
+在 Claude Code 中貼上以下指令：
 
 ```
-Install gstack: run `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup` then add a "gstack" section to CLAUDE.md that says to use the /browse skill from gstack for all web browsing, never use mcp__claude-in-chrome__* tools, and lists the available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review, /design-consultation, /design-shotgun, /design-html, /review, /ship, /land-and-deploy, /canary, /benchmark, /browse, /connect-chrome, /qa, /qa-only, /design-review, /setup-browser-cookies, /setup-deploy, /retro, /investigate, /document-release, /codex, /cso, /autoplan, /careful, /freeze, /guard, /unfreeze, /gstack-upgrade, /learn, /checkpoint, /health.
+Install gstack in team mode: run `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup --team` then add a "gstack" section to CLAUDE.md.
+```
+
+> **Team Mode 優勢**：
+> - 自動更新：`./setup --team` 會在每次啟動時檢查更新
+> - 團隊一致性：所有成員使用相同版本
+> - 無需手動 `git pull`
+
+#### 傳統安裝（Vendoring）
+
+若偏好手動管理版本，使用傳統方式安裝至本機：
+
+```
+Install gstack: run `git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup` then add a "gstack" section to CLAUDE.md that says to use the /browse skill from gstack for all web browsing, never use mcp__claude-in-chrome__* tools.
 ```
 
 **安裝後驗證**：
@@ -433,12 +458,12 @@ ls ~/.claude/skills/gstack/
 
 ### 3.4 加入專案供團隊共用（選用）
 
-若希望整個團隊的開發者都能使用同一份 gstack 設定，可將 gstack 加入專案倉庫：
+若希望整個團隊的開發者都能使用同一份 gstack 設定，可將 gstack 加入專案倉庫（Vendoring 模式）：
 
 在 Claude Code 中貼上：
 
 ```
-Add gstack to this project: run `cp -Rf ~/.claude/skills/gstack .claude/skills/gstack && rm -rf .claude/skills/gstack/.git && cd .claude/skills/gstack && ./setup` then add a "gstack" section to this project's CLAUDE.md that says to use the /browse skill from gstack for all web browsing, never use mcp__claude-in-chrome__* tools, lists the available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review, /design-consultation, /design-shotgun, /design-html, /review, /ship, /land-and-deploy, /canary, /benchmark, /browse, /connect-chrome, /qa, /qa-only, /design-review, /setup-browser-cookies, /setup-deploy, /retro, /investigate, /document-release, /codex, /cso, /autoplan, /careful, /freeze, /guard, /unfreeze, /gstack-upgrade, /learn, /checkpoint, /health.
+Add gstack to this project: run `cp -Rf ~/.claude/skills/gstack .claude/skills/gstack && rm -rf .claude/skills/gstack/.git && cd .claude/skills/gstack && ./setup` then add a "gstack" section to this project's CLAUDE.md.
 ```
 
 **安裝後目錄結構**：
@@ -447,17 +472,18 @@ Add gstack to this project: run `cp -Rf ~/.claude/skills/gstack .claude/skills/g
 your-project/
 ├── .claude/
 │   └── skills/
-│       └── gstack/        ← 所有 33 個技能定義（Markdown）
+│       └── gstack/        ← 所有 52+ 個技能定義（Markdown）
 │           ├── office-hours/
 │           ├── plan-ceo-review/
+│           ├── spec/
 │           ├── review/
 │           ├── qa/
 │           ├── ship/
 │           ├── cso/
 │           ├── browse/
-│           ├── checkpoint/
-│           ├── health/
-│           └── ...（共 33 個）
+│           ├── setup-gbrain/
+│           ├── ios-qa/
+│           └── ...（共 52+ 個）
 ├── CLAUDE.md              ← 加入 gstack section
 ├── backend/
 ├── frontend/
@@ -474,9 +500,9 @@ git clone https://github.com/garrytan/gstack.git ~/.claude/skills/gstack
 
 ### 3.5 多平台安裝支援
 
-gstack 支援多種 AI Agent 執行環境：
+gstack 支援 10 種 AI Agent 執行環境：
 
-#### Codex CLI / Gemini CLI / Cursor
+#### Codex CLI / OpenCode / Cursor / Factory Droid / Slate / Kiro / Hermes
 
 ```bash
 # 安裝至單一專案
@@ -488,7 +514,7 @@ git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gst
 cd ~/gstack && ./setup --host codex
 ```
 
-> 說明：`setup --host codex` 會在 `~/.codex/skills/gstack` 建立執行根目錄。全部 33 個技能在所有支援的 AI Agent 上均可使用。
+> 說明：`setup --host codex` 會在 `~/.codex/skills/gstack` 建立執行根目錄。全部 52+ 個技能在所有支援的 AI Agent 上均可使用。
 
 #### 自動偵測（推薦）
 
@@ -497,7 +523,7 @@ git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gst
 cd ~/gstack && ./setup --host auto
 ```
 
-> `auto` 會偵測系統中已安裝的 AI Agent（Claude Code、Codex CLI、Gemini CLI、Cursor、Kiro CLI），自動決定安裝目標。
+> `auto` 會偵測系統中已安裝的 AI Agent（Claude Code、Codex CLI、OpenCode、Cursor、Factory Droid、Slate、Kiro CLI、Hermes 等），自動決定安裝目標。
 
 #### Kiro CLI
 
@@ -603,7 +629,7 @@ graph LR
 | `/qa` | Bug 報告 + 回歸測試 | `.gstack/qa-reports/` |
 | `/ship` | PR 連結 | `/land-and-deploy` |
 
-### 4.3 完整技能目錄（33 個）
+### 4.3 完整技能目錄（52+ 個）
 
 #### 計畫階段（Planning）
 
@@ -682,6 +708,40 @@ graph LR
 | `/freeze` | **編輯鎖定** | 限制所有檔案編輯在單一目錄內。防止除錯時意外修改不相關程式碼。 |
 | `/guard` | **完全安全模式** | `/careful` + `/freeze` 合一。生產環境工作的最高安全設定。 |
 | `/unfreeze` | **解除鎖定** | 移除 `/freeze` 邊界。 |
+
+#### 規格與文件（Spec & Documentation）── v1.0+ 新增
+
+| 指令 | 角色 | 說明 |
+|---|---|---|
+| `/spec` | **規格書撰寫者** | 五階段精練流程：草稿 → 結構化 → 挑戰 → 完善 → 凍結。產出可直接用於實作的規格文件（v1.47+）。 |
+| `/plan-devex-review` | **開發者體驗審查** | 從開發者體驗角度審查 API 設計、SDK 易用性（v1.0+）。 |
+| `/devex-review` | **DX 實作稽核** | 實作完成後的開發者體驗稽核（v1.0+）。 |
+| `/document-generate` | **文件生成器** | 依 Diataxis 框架自動產出教學、指南、參考、解釋四類文件（v1.35+）。 |
+| `/plan-tune` | **偏好學習** | 學習開發者的設計品味偏好，調整後續建議（v0.19+）。 |
+
+#### 多代理與協作（Multi-Agent）── v1.0+ 新增
+
+| 指令 | 角色 | 說明 |
+|---|---|---|
+| `/pair-agent` | **配對代理** | 多代理瀏覽器協作模式，一個代理開發、另一個即時測試（v1.0+）。 |
+| `/open-gstack-browser` | **瀏覽器啟動** | 快速啟動 gstack 專屬瀏覽器實例（v1.0+）。 |
+
+#### GBrain 持久記憶（Persistent Memory）── v1.12+ 新增
+
+| 指令 | 角色 | 說明 |
+|---|---|---|
+| `/setup-gbrain` | **GBrain 設定** | 設定 GBrain 持久知識圖譜。支援 split-engine 架構：Claude 寫入、Haiku 讀取（v1.12+）。 |
+| `/sync-gbrain` | **GBrain 同步** | 安全同步 GBrain 記憶，含 safety guards 防止資料損壞（v1.55+）。 |
+
+#### iOS 開發（iOS Development）── v1.43+ 新增
+
+| 指令 | 角色 | 說明 |
+|---|---|---|
+| `/ios-qa` | **iOS QA** | 在真實 iOS 設備或模擬器上執行 QA 測試（v1.43+）。 |
+| `/ios-fix` | **iOS 修復** | 自動修復 iOS 測試發現的問題（v1.43+）。 |
+| `/ios-design-review` | **iOS 設計審查** | iOS 專用的設計品質稽核（v1.43+）。 |
+| `/ios-clean` | **iOS 清理** | 清理 iOS 建置產物和快取（v1.43+）。 |
+| `/ios-sync` | **iOS 同步** | 同步 iOS 專案設定（v1.43+）。 |
 
 ### 4.4 Builder Ethos（建構者信條）
 
@@ -2165,9 +2225,12 @@ gstack 支援多個 AI 平台，升級時各平台的整合設定會一併更新
 |---|---|---|
 | **Claude Code** | `/gstack-upgrade` 或 `git pull && ./setup` | `~/.claude/skills/gstack/` |
 | **Codex CLI** | 同上（偵測 `~/.codex/` 自動同步） | `~/.codex/skills/gstack/` |
-| **Gemini CLI** | 同上（偵測 `~/.gemini/` 自動同步） | `~/.gemini/skills/gstack/` |
+| **OpenCode** | 同上（偵測 `~/.opencode/` 自動同步） | `~/.opencode/skills/gstack/` |
 | **Cursor** | 同上（偵測 `.cursor/` 自動同步） | `.cursor/skills/gstack/` |
+| **Factory Droid** | 同上（自動偵測） | 平台預設路徑 |
+| **Slate** | 同上（自動偵測） | 平台預設路徑 |
 | **Kiro CLI** | 同上（偵測 `~/.kiro/` 自動同步） | `~/.kiro/skills/gstack/` |
+| **Hermes** | 同上（自動偵測） | 平台預設路徑 |
 
 ```bash
 # 檢視已偵測的平台
@@ -2431,11 +2494,31 @@ jobs:
 
 | 風險類型 | 說明 | 防護措施 |
 |---|---|---|
-| **Prompt Injection** | 惡意輸入影響 AI 行為 | 輸入驗證 + Sanitization |
+| **Prompt Injection** | 惡意輸入影響 AI 行為 | 共享編輯引擎 + ML 分類器 + Canary Token（v1.53+） |
 | **過度權限** | AI 生成代碼賦予過多權限 | /cso 強制審查（CRITICAL 阻擋合併）|
-| **敏感資料洩露** | AI 在 Log / Response 中洩露 PII | 輸出過濾規則 |
+| **敏感資料洩露** | AI 在 Log / Response 中洩露 PII | 共享編輯引擎（33 patterns, 3 tiers）+ pre-push hook |
 | **不安全的相依套件** | AI 引用已知漏洞版本 | Dependency Check 自動鎖版 |
 | **業務邏輯漏洞** | AI 誤解業務規則 | QA + Security 雙重審查 |
+
+#### v1.53+ 共享編輯引擎（Shared Redaction Engine）
+
+gstack v1.53 引入了統一的敏感資料保護層，所有技能共用：
+
+| 特性 | 說明 |
+|---|---|
+| **偵測模式數** | 33 種模式（API Key、JWT、PII、信用卡號等） |
+| **分級制度** | 3 層分級（Tier 1: 阻擋、Tier 2: 遮蔽、Tier 3: 警告） |
+| **Pre-push Hook** | Git pre-push 自動掃描，阻擋敏感資料進入遠端倉庫 |
+| **整合範圍** | `/ship`、`/review`、`/cso` 等所有輸出技能均內建 |
+
+#### v1.53+ Prompt Injection 防禦
+
+| 防禦層 | 技術 | 說明 |
+|---|---|---|
+| **ML 分類器** | 22MB 模型 | 偵測惡意 prompt injection 嘗試 |
+| **Haiku Transcript Check** | Claude Haiku | 對話記錄二次審查 |
+| **Canary Token** | 標記追蹤 | 偵測 prompt 逃逸 |
+| **DeBERTa Ensemble**（選用） | DeBERTa 模型 | 進階 ensemble 分類，降低誤報 |
 
 ### 12.6 瀏覽器模式安全加固
 
@@ -2563,7 +2646,7 @@ gstack 安裝
     https://github.com/garrytan/gstack.git \
     ~/.claude/skills/gstack
 □ cd ~/.claude/skills/gstack && ./setup 已執行（含自動 Migration）
-□ Claude Code 重啟後 /help 顯示 gstack 技能（33 個）
+□ Claude Code 重啟後 /help 顯示 gstack 技能（52+ 個）
 □ /office-hours 指令可正常調用
 □ /checkpoint 可正常建立工作快照
 □ /health 可正常顯示品質分數
@@ -2623,6 +2706,7 @@ CI/CD 整合
 |---|---|---|---|
 | v1.0.0 | 2026-04-03 | gstack Team | 初版發布 |
 | v1.1.0 | 2026-04-03 | gstack Team | 更新至 gstack v0.15.2.1；新增 Session Intelligence（/checkpoint、/health）；新增 Review Army 7 專家並行審查；新增 CSS Inspector 與 Live Style 編輯；新增多平台自動升級；新增瀏覽器安全加固；修正亂碼文字；TOC 一致性校正 |
+| v2.0.0 | 2026-05-30 | gstack Team | 大幅更新至 gstack v1.55.0.0；新增 20+ 技能（/spec、/document-generate、/pair-agent、/setup-gbrain、/sync-gbrain、/ios-qa 等）；新增 GBrain 持久記憶體系；新增 iOS QA 測試套件；新增共享編輯引擎（33 patterns）與 Prompt Injection 防禦；更新支援平台至 10 個 AI 代理；新增 Team Mode 安裝方式；更新版本里程碑至 v1.55.0.0 |
 
 > **聲明**：本文件由 gstack 工具輔助生成，內容已由資深工程師審查確認。  
 > 如有疑問請聯絡架構團隊或於內部 Confluence 提出討論。

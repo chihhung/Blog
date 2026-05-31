@@ -6,18 +6,18 @@ tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
 
-> **版本**: 3.2  
-> **最後更新**: 2026年5月29日
+> **版本**: 3.3  
+> **最後更新**: 2026年5月31日
 > **適用於**: Claude Code v2.x (GA, 2025-2026)  
 > **Created by**: Eric Cheng
 
 # Claude Code 生態圈教學手冊
 
-> 📖 **版本**: v3.2  
-> 📅 **最後更新**: 2026年5月29日 
+> 📖 **版本**: v3.3  
+> 📅 **最後更新**: 2026年5月31日  
 > 👥 **目標讀者**: 資深軟體工程師、技術主管、架構師  
 > 📋 **基於官方文件**: [Claude Code Documentation](https://code.claude.com/docs/en/overview)  
-> 🆕 **v3.2 更新**: Hook 事件增至 30 種（新增 Setup、UserPromptExpansion、PermissionDenied、PostToolBatch、MessageDisplay、TaskCreated）、Hook 類型增至 5 種（新增 mcp_tool）、Skills 新增 Bundled Skills（/run、/verify、/run-skill-generator、/code-review）及 skillOverrides 設定、Subagents 新增 isolation/memory/effort/color/background 欄位與 /fork 指令、Plugins 新增 LSP servers、monitors、bin/ 與社群 Marketplace 提交流程、MCP 新增 streamable-http 別名、alwaysLoad、OAuth scopes/metadata 覆寫、MCP prompts as commands
+> 🆕 **v3.3 更新**: 排程任務新增三方比較（Routines/Desktop/Session）與 `loop.md` 自訂預設提示、Subagents 新增 Resume 機制與 `Agent(agent_type)` 子代理生成限制、Skills 新增 `maxSkillDescriptionChars` 與 compaction 後保留規則（5,000 token/25,000 budget）、Plugins 新增 `claude plugin init` 腳手架命令與 skills-directory plugins、Plugin Hints 推薦安裝機制、`settings.json` 預設設定與 background monitors、Hooks 新增 `if` 欄位進階篩選與 Stop Hook 阻擋上限機制
 
 
 ## 目錄
@@ -83,6 +83,7 @@ categories = ['教學']
     - [2.5.5 實用 Hook 範例](#255-實用-hook-範例)
     - [2.5.6 Hook 執行規則與最佳實踐](#256-hook-執行規則與最佳實踐)
     - [2.5.7 進階 Hook 架構模式](#257-進階-hook-架構模式)
+    - [2.5.8 Hook 進階控制機制](#258-hook-進階控制機制)
   - [2.6 MCP（Model Context Protocol）](#26-mcpmodel-context-protocol)
     - [2.6.1 MCP 概述](#261-mcp-概述)
     - [2.6.2 配置 MCP Server](#262-配置-mcp-server)
@@ -1946,6 +1947,54 @@ Claude 使用 SendMessage 工具：
 → security-reviewer 在之前的 context 基礎上繼續工作
 ```
 
+#### 🆕 技巧九：`Agent(agent_type)` 限制子代理生成
+
+在 YAML frontmatter 的 `tools` 欄位中，可使用 `Agent(agent_type)` 語法限制該 Subagent 只能生成特定類型的子代理，防止 Subagent 無限擴展代理鏈：
+
+```markdown
+---
+name: "team-lead"
+description: "團隊領導，只能委派給 analyzer 和 implementer"
+tools:
+  - Read
+  - Edit
+  - Bash
+  - Agent(analyzer)
+  - Agent(implementer)
+  # 只能生成 analyzer 和 implementer 兩種子代理
+  # 不能生成其他類型的子代理
+---
+```
+
+> 📌 **使用情境**：在多層代理架構中，透過 `Agent(agent_type)` 限制代理間的委派關係，可建立嚴格的分工邊界。例如 `team-lead` 只能委派給 `analyzer` 和 `implementer`，而 `analyzer` 本身則設為唯讀，不具備委派能力。
+
+#### 🆕 技巧十：Resume 遠端子代理會話
+
+當 Subagent 的執行因 timeout 或連線中斷而被中止時，可透過 **Resume** 機制恢復會話。此功能在遠端開發環境（如 SSH、容器）中特別實用：
+
+```plaintext
+# 列出可恢復的 Subagent 會話
+> /resume
+
+# 恢復指定的遠端會話
+Claude 自動偵測可恢復的 Subagent，使用 SendMessage 工具重新連線：
+- target: "<session-id>"
+- message: "繼續上次的工作"
+```
+
+> ⚠️ **Resume 限制**：僅支援使用 `context: fork` 或 `isolation: worktree` 模式啟動的子代理。In-process 模式的子代理無法恢復。
+
+#### 🆕 技巧十一：`/btw` 插入式旁白
+
+在主對話中使用 `/btw` 指令可傳達**不需要子代理回應**的附帶訊息或背景資訊。這比建立子代理更輕量，適合快速補充 context：
+
+```plaintext
+# 在工作過程中插入旁白
+> /btw 我們團隊的命名慣例是 camelCase，不是 snake_case
+
+# Claude 會記住這個資訊，但不會停下手邊工作來回應
+```
+
 #### ⚠️ 注意事項
 
 > 1. **Context 隔離**: Subagent 有獨立 context，它看不到主代理的完整對話歷史。確保在委派任務時提供足夠的背景信息
@@ -3052,15 +3101,19 @@ graph LR
 
 #### 🆕 Skill 內容生命週期與自動壓縮
 
-> 🆕 **v3.2 新增**
+> 🆕 **v3.2 新增，v3.3 補充 token 預算細節**
 
 Skill 內容在載入到 context 後，會受到 Claude Code 的 context 管理機制影響：
 
 1. **載入時機**：Skill 在使用者呼叫 `/name` 或 AI 自動匹配時載入到 context
 2. **自動壓縮**：當 context 接近 token 上限時，Skill 的完整內容可能被壓縮為摘要
-3. **重新載入**：壓縮後如需完整內容，Claude Code 會自動重新讀取 SKILL.md 檔案
+3. **壓縮後保留規則**（🆕）：Skill 在壓縮後仍會被帶入後續 context，但受到嚴格的 token 預算限制：
+   - **單一 Skill 上限**：壓縮後每個 Skill 最多保留 **5,000 tokens**
+   - **所有 Skills 總預算**：壓縮後所有 Skills 合計最多佔用 **25,000 tokens**
+   - 超出預算的 Skill 內容會被進一步截斷或移除
+4. **重新載入**：壓縮後如需完整內容，Claude Code 會自動重新讀取 SKILL.md 檔案
 
-> 📌 **設計建議**：將 Skill 最重要的操作步驟放在檔案前段，確保壓縮時關鍵資訊被保留。
+> 📌 **設計建議**：將 Skill 最重要的操作步驟放在檔案前段，確保壓縮時關鍵資訊被保留。可使用 `/doctor` 命令檢查 Skill 的 token 使用量，診斷預算分配問題。
 
 #### 🆕 即時變更偵測
 
@@ -3102,6 +3155,23 @@ Claude Code 會監視 SKILL.md 檔案的變更：
 ```
 
 預設值為 `0.05`（5%），表示 Skills 列表最多佔用 context 總預算的 5%。如果專案有大量 Skills，可適當提高此值。
+
+#### 🆕 `maxSkillDescriptionChars` 設定
+
+控制 Skill description 在列表中顯示的最大字元數。當 Skill 數量眾多時，過長的描述會壓縮其他內容的空間：
+
+```json
+{
+  "maxSkillDescriptionChars": 200
+}
+```
+
+| 設定 | 說明 | 預設值 |
+|------|------|--------|
+| `skillListingBudgetFraction` | Skills 列表佔 context 總預算的比例 | `0.05`（5%） |
+| `maxSkillDescriptionChars` | 單一 Skill description 的最大顯示字元數 | 無限制 |
+
+> 📌 **調校建議**：若專案有超過 20 個 Skills，建議同時設定 `skillListingBudgetFraction: 0.08` 和 `maxSkillDescriptionChars: 150`，在列表可見性與 context 效率間取得平衡。
 
 #### 組織管理
 
@@ -3589,9 +3659,51 @@ Marketplace 來源支援：
 
 ### 2.4.4 開發自訂 Plugin
 
-#### 步驟一：建立 Plugin 結構
+#### 🆕 `claude plugin init`（腳手架命令）
+
+v3.3 新增了 `claude plugin init` 命令，可快速在 skills directory 中建立完整的 Plugin 結構。相較於手動建立目錄，此命令會自動產生符合規範的 `plugin.json`、目錄骨架與範本檔案：
 
 ```bash
+# 在 skills directory 中初始化新的 Plugin
+claude plugin init my-awesome-plugin
+
+# 指定安裝到特定 skills directory
+claude plugin init my-awesome-plugin --dir ~/.claude/skills
+
+# 初始化後自動產生的結構
+my-awesome-plugin/
+├── .claude-plugin/
+│   └── plugin.json          # 自動產生的清單檔
+├── skills/
+│   └── default/
+│       └── SKILL.md         # 範本 Skill 定義
+├── agents/                  # 可選的 Agent 定義目錄
+├── hooks/
+│   └── hooks.json           # 空的 Hook 配置
+├── CLAUDE.md                # Plugin 級指引
+└── README.md                # Plugin 說明文件
+```
+
+> 📌 **Skills-directory plugins** 是一種輕量化的 Plugin 發佈方式：將 Plugin 放置在 skills directory 中，Claude Code 會自動偵測並載入。這特別適合**團隊內部共享**的小型插件，無需經過 Marketplace 發佈流程。
+
+#### 🆕 驗證 Plugin 結構
+
+建立完成後，可使用 `claude plugin validate` 驗證 Plugin 結構是否正確：
+
+```bash
+# 驗證 Plugin 目錄結構與 plugin.json 格式
+claude plugin validate ./my-awesome-plugin
+
+# 從遠端 URL 載入 Plugin（支援 zip 格式）
+claude --plugin-url https://example.com/plugins/my-plugin.zip
+
+# 在會話中重新載入已變更的 Plugin
+> /reload-plugins
+```
+
+#### 手動建立 Plugin 結構
+
+若需要更精細控制，也可手動建立 Plugin 結構：
 # 建立 Plugin 目錄
 mkdir -p .claude-plugin/{agents,skills,commands}
 
@@ -3715,6 +3827,68 @@ flowchart TD
 > 2. **來源信任**：優先使用官方市場的已驗證 Plugin，謹慎使用來路不明的 Plugin
 > 3. **定期更新**：關注 Plugin 的安全更新，及時升級到修復漏洞的版本
 > 4. **企業合規**：在企業環境中，透過 managed-settings.json 統一管理允許的 Plugin 清單
+
+#### 🆕 Plugin `settings.json` 預設設定
+
+Plugin 可透過根目錄的 `settings.json` 為使用者提供**預設配置**，安裝時自動套用。此檔案與 `.claude-plugin/plugin.json` 不同，放置於 Plugin 根目錄：
+
+```json
+{
+  "agent": "spring-architect",
+  "subagentStatusLine": true,
+  "model": "claude-sonnet-4-20250514"
+}
+```
+
+| 欄位 | 說明 |
+|------|------|
+| `agent` | Plugin 安裝後預設使用的 Agent 名稱 |
+| `subagentStatusLine` | 是否在子代理執行時顯示狀態列 |
+| `model` | Plugin 建議使用的預設模型 |
+
+> 📌 使用者的個人 `settings.json` 設定會覆寫 Plugin 的預設值，確保使用者始終擁有最終控制權。
+
+#### 🆕 Plugin Hints（插件推薦安裝提示）
+
+Plugin 開發者可為其 CLI 工具配置 **Plugin Hints**，當使用者的專案中使用了該工具但尚未安裝對應 Plugin 時，Claude Code 會主動建議安裝：
+
+```json
+// 在 plugin.json 中配置 hints
+{
+  "name": "spring-boot-toolkit",
+  "hints": {
+    "filePatterns": ["pom.xml", "build.gradle"],
+    "keywords": ["@SpringBootApplication", "@RestController"],
+    "message": "偵測到 Spring Boot 專案，建議安裝 spring-boot-toolkit Plugin 以獲得更好的開發體驗"
+  }
+}
+```
+
+發佈 Plugin 至社群 Marketplace 時，可透過以下入口提交：
+
+| 入口 | 網址 |
+|------|------|
+| **Claude.ai 提交** | `claude.ai/settings/plugins/submit` |
+| **Platform 提交** | `platform.claude.com/plugins/submit` |
+| **社群倉庫** | `@claude-community` GitHub organization |
+
+#### 🆕 Background Monitors（背景監控器）
+
+Plugin 可定義 `monitors/monitors.json` 配置背景監控器，持續觀察專案狀態並在偵測到特定條件時主動通知 Claude：
+
+```json
+{
+  "monitors": [
+    {
+      "name": "test-watcher",
+      "description": "監控測試執行結果",
+      "watch": ["**/*.test.ts", "**/*.spec.ts"],
+      "trigger": "onChange",
+      "action": "notify"
+    }
+  ]
+}
+```
 
 ### 2.4.6 Plugin 實戰範例
 
@@ -4806,6 +4980,88 @@ exit 0  # PostToolUse hook 不阻止操作
 | **環境感知** | 多環境部署 | 中 | 小 |
 | **Webhook 整合** | 外部系統通知 | 中 | 依網路 |
 
+### 2.5.8 Hook 進階控制機制
+
+> 🆕 **v3.3 新增**
+
+#### `PermissionRequest` 的 `updatedPermissions` 與 `setMode`
+
+`PermissionRequest` Hook 除了回傳 `permissionDecision`（allow/deny/ask）外，還可透過 `updatedPermissions` 和 `setMode` 精細控制權限行為：
+
+```json
+// Hook stdout 輸出範例
+{
+  "hookSpecificOutput": {
+    "permissionDecision": "allow",
+    "updatedPermissions": [
+      {
+        "tool": "Edit",
+        "path": "src/**/*.ts",
+        "allow": true
+      },
+      {
+        "tool": "Bash",
+        "command": "npm test",
+        "allow": true
+      }
+    ],
+    "setMode": "auto"
+  }
+}
+```
+
+| 欄位 | 說明 |
+|------|------|
+| `updatedPermissions` | 動態新增或修改權限規則陣列，影響後續工具呼叫的自動審批 |
+| `setMode` | 將整個會話的權限模式切換為 `"auto"`（自動接受）或 `"ask"`（逐一詢問） |
+
+> ⚠️ **安全性考量**：`updatedPermissions` 和 `setMode` 具有很高的權限控制能力。在企業環境中，建議僅在 managed-settings.json 的 Hooks 中使用，避免專案級 Hooks 擅自擴大權限範圍。
+
+#### Stop Hook 阻擋上限機制
+
+Stop Hook 可以透過回傳 `{ok: false}` 來阻止 Claude 停止工作，強制其繼續執行。但為防止無限迴圈，系統設有**阻擋上限**：
+
+| 機制 | 說明 |
+|------|------|
+| **預設阻擋上限** | Stop Hook 最多可連續阻擋 **8 次**，超過後 Claude 強制停止 |
+| **環境變數調整** | 透過 `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=N` 自訂上限值 |
+| **重置條件** | 使用者手動輸入新的 prompt 後，阻擋計數器重置為 0 |
+
+```bash
+# 設定 Stop Hook 阻擋上限為 12 次
+export CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=12
+
+# 或在 .env 中設定
+echo "CLAUDE_CODE_STOP_HOOK_BLOCK_CAP=12" >> .env
+```
+
+> 📌 **使用情境**：結合 Stop Hook 的 Prompt 類型，可實現「完成度自動驗證」機制——Claude 每次嘗試停止時，Hook 會評估工作是否完整，若不完整則阻擋並附上原因。阻擋上限確保此機制不會陷入無限循環。
+
+#### Exec Form（陣列形式命令）
+
+Hook 的 command 支援 **exec form**，以 JSON 陣列形式指定命令和參數，避免 shell 解析帶來的安全風險：
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx",
+            "args": ["prettier", "--write", "$CLAUDE_FILE_PATH"]
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+> 📌 **Exec form 優點**：直接執行二進位檔而不經過 shell，避免命令注入風險。適合在安全敏感的企業環境中使用。
+
 ---
 
 ## 2.6 MCP（Model Context Protocol）
@@ -5686,13 +5942,36 @@ output-style: detailed
 
 > 🆕 **v3.0 更新**：三種排程方式、`/loop` 技能、CronCreate/List/Delete 工具
 
-**Scheduled Tasks** 讓你可以設定 Claude Code 定期自動執行特定任務。v3.0 提供三種排程方式，適用於不同場景：
+**Scheduled Tasks** 讓你可以設定 Claude Code 定期自動執行特定任務。v3.3 提供三種排程方式，適用於不同場景：
 
 | 排程方式 | 適用場景 | 需要 | 特性 |
 |---------|---------|------|------|
-| **Cloud 排程** | 長期自動化任務 | Max 訂閱 | 雲端執行，不需本機開啟 |
-| **Desktop App 排程** | 本機定期任務 | Desktop App | Desktop App 開啟時執行 |
-| **Session /loop 排程** | 當前會話中反覆執行 | 任意版本 | 會話結束即停止，7 天過期 |
+| **Cloud Routines（雲端常規任務）** | 長期自動化任務 | Max 訂閱 | 雲端執行，不需本機開啟 |
+| **Desktop Scheduled Tasks（桌面排程）** | 本機定期任務 | Desktop App | Desktop App 開啟時執行 |
+| **Session `/loop`（會話迴圈）** | 當前會話中反覆執行 | 任意版本 | 會話結束即停止，7 天過期 |
+
+#### 🆕 三方排程機制深度比較
+
+以下從執行環境、持久性、功能限制等維度對三種排程機制做完整比較：
+
+| 比較維度 | Cloud Routines | Desktop Scheduled Tasks | Session `/loop` |
+|---------|---------------|------------------------|-----------------|
+| **執行環境** | Anthropic 雲端 | 本機 Desktop App | 本機 CLI 會話 |
+| **持久性** | ✅ 持久化，帳號級別 | ✅ 持久化，App 重啟後恢復 | ❌ 會話結束即停止 |
+| **離線執行** | ✅ 不需本機開啟 | ❌ 需 Desktop App 運行 | ❌ 需 CLI 會話存活 |
+| **排程語法** | Cron 表達式 | Cron 表達式 | 自然語言 / 間隔語法 |
+| **任務上限** | 依方案而定 | 依裝置設定 | 50 個 / 使用者 |
+| **過期機制** | 無 | 無 | 7 天未觸發自動刪除 |
+| **自訂預設行為** | ❌ | ❌ | ✅ 支援 `loop.md` |
+| **觸發時間精度** | 精確 | 精確 | 含 jitter 抖動 |
+| **動態間隔** | ❌ | ❌ | ✅ Claude 可自行決定頻率 |
+| **訂閱需求** | Max 方案 | Desktop App 授權 | 無限制 |
+| **適用情境** | CI/CD、長期監控 | 日常開發輔助 | 臨時性監控、TDD 修復迴圈 |
+
+> 📌 **選型建議**：
+> - **需要 7×24 無人值守**的自動化監控 → 選擇 **Cloud Routines**
+> - **開發期間固定頻率**的本機任務（如每小時跑測試）→ 選擇 **Desktop Scheduled Tasks**  
+> - **當前工作階段**的臨時性反覆檢查 → 選擇 **Session `/loop`**
 
 #### /loop 技能（Session 排程）
 
@@ -5728,6 +6007,33 @@ Claude 會：
 
 # 一次性提醒（非反覆）
 > /loop remind me in 30m to review the PR
+
+# 動態間隔模式（由 Claude 自行決定觸發頻率）
+> /loop monitor server health and adjust check frequency based on error rate
+```
+
+#### 🆕 `loop.md` 自訂預設提示
+
+在專案根目錄放置 `loop.md` 檔案，可自訂 `/loop` 的**預設行為**。當使用者不帶參數直接輸入 `/loop` 時，Claude 會讀取此檔案作為預設執行指示：
+
+```markdown
+<!-- loop.md -->
+每 15 分鐘執行以下檢查：
+1. 執行 `npm test` 確認所有單元測試通過
+2. 執行 `npm run lint` 檢查程式碼風格
+3. 若有測試失敗或 lint 錯誤，嘗試自動修復
+4. 將結果摘要寫入 .claude/loop-report.md
+```
+
+> 📌 **使用情境**：團隊可透過 `loop.md` 統一定義開發中的監控規範，例如持續整合前的本機預檢流程。當開發者輸入 `/loop` 即可啟動標準化的監控循環，無需記憶冗長的指令。
+
+#### 🆕 Monitor 工具整合
+
+`/loop` 可搭配內建 Monitor 工具進行更精細的監控。Claude 在循環過程中可主動使用 Monitor 工具追蹤系統狀態，並根據異常情況自動調整行為：
+
+```plaintext
+# 結合 Monitor 工具的進階用法
+> /loop 監控 staging 環境 API 回應時間，若 p99 超過 500ms 就通知我
 ```
 
 #### CronCreate / CronList / CronDelete 工具
