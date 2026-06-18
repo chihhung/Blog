@@ -5,14 +5,6 @@ title = 'Loop Engineering 教學手冊'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
-+++
-date = '2026-06-18T10:00:00+08:00'
-draft = false
-title = 'Loop Engineering 教學手冊'
-tags = ['教學', 'AI開發']
-categories = ['教學']
-+++
-
 
 # Loop Engineering 教學手冊
 
