@@ -5,6 +5,14 @@ title = 'Loop Engineering 教學手冊'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
++++
+date = '2026-06-18T10:00:00+08:00'
+draft = false
+title = 'Loop Engineering 教學手冊'
+tags = ['教學', 'AI開發']
+categories = ['教學']
++++
+
 
 # Loop Engineering 教學手冊
 
@@ -24,35 +32,35 @@ categories = ['教學']
 
 ## 目錄
 
-- [第一章　Loop Engineering 概論](#第一章-loop-engineering-概論)
-- [第二章　Loop Engineering 核心理論](#第二章-loop-engineering-核心理論)
-- [第三章　Loop Engineering 系統架構](#第三章-loop-engineering-系統架構)
-- [第四章　六大核心元件](#第四章-六大核心元件)
-- [第五章　Claude Code 中的 Loop Engineering](#第五章-claude-code-中的-loop-engineering)
-- [第六章　GitHub Copilot 中的 Loop Engineering](#第六章-github-copilot-中的-loop-engineering)
-- [第七章　建立企業級 Loop Engineering 平台](#第七章-建立企業級-loop-engineering-平台)
-- [第八章　Web Application 開發實戰](#第八章-web-application-開發實戰)
-- [第九章　Legacy System 逆向工程](#第九章-legacy-system-逆向工程)
-- [第十章　Framework 升級實戰](#第十章-framework-升級實戰)
-- [第十一章　Evals 設計](#第十一章-evals-設計)
-- [第十二章　AI Agent Team 設計](#第十二章-ai-agent-team-設計)
-- [第十三章　SSDLC 與 Loop Engineering](#第十三章-ssdlc-與-loop-engineering)
-- [第十四章　Prompt Library](#第十四章-prompt-library)
-- [第十五章　最佳實務 Top 50](#第十五章-最佳實務-top-50)
-- [第十六章　常見錯誤 Top 50 Anti-patterns](#第十六章-常見錯誤-top-50-anti-patterns)
-- [第十七章　導入策略](#第十七章-導入策略)
-- [第十八章　未來發展](#第十八章-未來發展)
-- [附錄 A　Loop Engineering Checklist](#附錄-a-loop-engineering-checklist)
-- [附錄 B　Project Structure](#附錄-b-project-structure)
-- [附錄 C　Skill Library Template](#附錄-c-skill-library-template)
-- [附錄 D　Memory Template](#附錄-d-memory-template)
-- [附錄 E　Evaluation Template](#附錄-e-evaluation-template)
-- [附錄 F　Claude Code Setup](#附錄-f-claude-code-setup)
-- [附錄 G　GitHub Copilot Setup](#附錄-g-github-copilot-setup)
-- [附錄 H　企業導入路線圖](#附錄-h-企業導入路線圖)
-- [附錄 I　補充 Prompt Library](#附錄-i-補充-prompt-library)
-- [附錄 J　補充 SOP 集合](#附錄-j-補充-sop-集合)
-- [附錄 K　補充 Mermaid 架構圖集](#附錄-k-補充-mermaid-架構圖集)
+- [第一章　Loop Engineering 概論](#第一章loop-engineering-概論)
+- [第二章　Loop Engineering 核心理論](#第二章loop-engineering-核心理論)
+- [第三章　Loop Engineering 系統架構](#第三章loop-engineering-系統架構)
+- [第四章　六大核心元件](#第四章六大核心元件)
+- [第五章　Claude Code 中的 Loop Engineering](#第五章claude-code-中的-loop-engineering)
+- [第六章　GitHub Copilot 中的 Loop Engineering](#第六章github-copilot-中的-loop-engineering)
+- [第七章　建立企業級 Loop Engineering 平台](#第七章建立企業級-loop-engineering-平台)
+- [第八章　Web Application 開發實戰](#第八章web-application-開發實戰)
+- [第九章　Legacy System 逆向工程](#第九章legacy-system-逆向工程)
+- [第十章　Framework 升級實戰](#第十章framework-升級實戰)
+- [第十一章　Evals 設計](#第十一章evals-設計)
+- [第十二章　AI Agent Team 設計](#第十二章ai-agent-team-設計)
+- [第十三章　SSDLC 與 Loop Engineering](#第十三章ssdlc-與-loop-engineering)
+- [第十四章　Prompt Library](#第十四章prompt-library)
+- [第十五章　最佳實務 Top 50](#第十五章最佳實務-top-50)
+- [第十六章　常見錯誤 Top 50 Anti-patterns](#第十六章常見錯誤-top-50-anti-patterns)
+- [第十七章　導入策略](#第十七章導入策略)
+- [第十八章　未來發展](#第十八章未來發展)
+- [附錄 A　Loop Engineering Checklist](#附錄-aloop-engineering-checklist)
+- [附錄 B　Project Structure](#附錄-bproject-structure)
+- [附錄 C　Skill Library Template](#附錄-cskill-library-template)
+- [附錄 D　Memory Template](#附錄-dmemory-template)
+- [附錄 E　Evaluation Template](#附錄-eevaluation-template)
+- [附錄 F　Claude Code Setup](#附錄-fclaude-code-setup)
+- [附錄 G　GitHub Copilot Setup](#附錄-ggithub-copilot-setup)
+- [附錄 H　企業導入路線圖](#附錄-h企業導入路線圖)
+- [附錄 I　補充 Prompt Library](#附錄-i補充-prompt-library)
+- [附錄 J　補充 SOP 集合](#附錄-j補充-sop-集合)
+- [附錄 K　補充 Mermaid 架構圖集](#附錄-k補充-mermaid-架構圖集)
 
 ---
 
