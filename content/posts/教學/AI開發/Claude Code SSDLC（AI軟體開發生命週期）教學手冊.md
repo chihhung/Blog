@@ -8,9 +8,9 @@ categories = ['教學']
 
 # Claude Code SSDLC（AI 軟體開發生命週期）教學手冊
 
-> **版本**：v2.0 ｜ **日期**：2026-07-15 ｜ **適用對象**：資深工程師 / 架構師 / DevOps / AI 工程師  
+> **版本**：v2.1 ｜ **日期**：2026-06-26 ｜ **適用對象**：資深工程師 / 架構師 / DevOps / AI 工程師  
 > **定位**：企業級實戰手冊，可直接作為團隊導入規範文件  
-> **變更紀錄**：v2.0 — 全面更新至 Claude Code 最新版本，涵蓋 Hooks、Skills、Plugins、Agent Teams、Auto Memory、多平台支援等新特性
+> **變更紀錄**：v2.0 — 全面更新至 Claude Code 最新版本，涵蓋 Hooks、Skills、Plugins、Agent Teams、Auto Memory、多平台支援等新特性；v2.1 — 修正巢狀程式碼區塊格式錯誤，補充 Hooks／Skills／Subagents 完整 Frontmatter 欄位，新增 Headless 模式與 Sandbox 模式說明，修正 Auto Memory 匯入層數誤植，補齊 Permission 模式完整列舉與附錄 CLI 旗標
 
 ---
 
@@ -29,6 +29,7 @@ categories = ['教學']
   - [2.3 API Key 與認證設定](#23-api-key-與認證設定)
   - [2.4 Workspace 初始化](#24-workspace-初始化)
   - [2.5 常見錯誤與排除](#25-常見錯誤與排除)
+  - [2.6 Headless 模式與自動化執行](#26-headless-模式與自動化執行)
 - [第 3 章：專案結構設計（Best Practice）](#第-3-章專案結構設計best-practice)
   - [3.1 Claude Code 專案目錄結構](#31-claude-code-專案目錄結構)
   - [3.2 Prompt Template 設計](#32-prompt-template-設計)
@@ -212,6 +213,22 @@ model: opus
 提供具體行號引用與修復建議。
 ```
 
+**進階 Frontmatter 欄位**：除了 `name`、`description`、`tools`、`model` 這類基本識別與工具授權欄位外，Subagent 還可設定執行邊界、資源隔離與協作識別等進階屬性，適合企業導入時依風險等級分層設定：
+
+| 欄位 | 說明 |
+|---|---|
+| `disallowedTools` | 明確排除的工具清單，與 `tools` 互補 |
+| `permissionMode` | 此 Subagent 專屬的權限模式，可比主 Session 更嚴格（如唯讀審查）或更寬鬆 |
+| `maxTurns` | 限制此 Subagent 最多互動輪數，避免探索或除錯迴圈失控 |
+| `mcpServers` | 限定此 Subagent 可連接的 MCP Server 清單 |
+| `hooks` | 此 Subagent 專屬的 Hook 設定，獨立於主 Session 套用 |
+| `background` | 是否以背景任務模式執行，不阻塞主 Session |
+| `effort` | 控制此 Subagent 的推理力度，拿捏品質與成本 |
+| `isolation` | Context 隔離層級設定（如獨立 Worktree） |
+| `color` | 在多 Agent 視覺化介面中的識別顏色 |
+| `initialPrompt` | Subagent 啟動時自動帶入的第一則訊息 |
+| `memory` | Subagent 累積學習的儲存範圍，詳見第 9.2 節 |
+
 #### 1.4.2 Agent Teams 模式
 
 利用 Claude Code 的 **Agent Teams** 功能，實現多 Session 協作：
@@ -294,6 +311,7 @@ Claude Code 支援多種開發介面，所有平台共用同一套 CLAUDE.md、S
 | **Desktop App** | 多 Session 並行管理 | 視覺化 Session 管理、獨立 Worktree |
 | **Web（claude.ai）** | 遠端 / 行動裝置 | Anthropic 安全雲端 VM、隨時隨地使用 |
 | **Chrome Extension** | 前端 UI 開發 | 開啟瀏覽器分頁、測試 UI、迭代修正 |
+| **Artifacts** | 快速原型與資料視覺化 | 在對話中直接產出可預覽、可執行的互動式網頁或圖表 |
 
 #### 跨平台協作方式
 
@@ -500,6 +518,40 @@ mkdir -p .claude/skills .claude/agents .claude/rules
 > export HTTPS_PROXY=http://proxy.company.com:8080
 > ```
 
+### 2.6 Headless 模式與自動化執行
+
+本手冊後續章節大量使用 `claude -p` 進行單次任務，這裡集中說明其定位：Headless（非互動）模式讓 Claude Code 以無人值守的方式單次執行，輸入輸出皆可被腳本化串接，是 CI/CD、排程批次、大規模 Fan-Out 平行處理與事件驅動自動化的共同基礎。
+
+**適用場景**：
+
+| 場景 | 說明 |
+|---|---|
+| CI/CD 自動審查 | PR 開啟時觸發安全掃描、Code Review（對應第 4.5 節） |
+| 排程批次任務 | 夜間報表、日誌彙整等定期工作（可搭配 Routines） |
+| Fan-Out 平行處理 | 對大量檔案逐一呼叫獨立 Session 處理（對應第 10.3 節 Fan-Out 模式） |
+| 事件驅動整合 | 監控系統觸發告警時自動呼叫 Claude Code 分析根因 |
+
+**關鍵旗標**：
+
+| 旗標 | 用途 |
+|---|---|
+| `claude -p "<prompt>"` | 基本非互動執行，送出一次 Prompt 並取得結果後結束 |
+| `--output-format json` | 單次完整結果以結構化 JSON 輸出，便於程式解析 |
+| `--output-format stream-json` | 串流結構化輸出，適合長任務即時回報進度或串接自有事件管線 |
+| `--verbose` | 輸出詳細執行過程，便於排查非互動腳本失敗的原因 |
+
+**典型 CI 腳本片段**：
+
+```bash
+claude -p "審查這次 PR 變更的安全性與程式碼品質" \
+  --permission-mode auto \
+  --allowedTools "Read,Grep,Glob" \
+  --output-format stream-json \
+  --verbose
+```
+
+> **實務建議**：Headless 模式應永遠搭配明確的 `--allowedTools` 限制可用工具，避免在無人值守情境下執行非預期操作；除錯非互動腳本時，優先加上 `--verbose` 觀察實際執行步驟，而非單憑最終輸出猜測失敗原因。
+
 ---
 
 ## 第 3 章：專案結構設計（Best Practice）
@@ -646,7 +698,7 @@ description: 建立 RESTful API 端點
 
 #### Planner Agent 定義
 
-```markdown
+````markdown
 <!-- .claude/agents/planner.md -->
 ---
 name: planner
@@ -674,7 +726,7 @@ model: opus
 ## Dependencies
 - T-002 depends on T-001
 ```
-```
+````
 
 #### Security Reviewer Agent 定義
 
@@ -785,6 +837,9 @@ name: fix-issue                       # 顯示名稱，也是 /slash-command
 description: 修復 GitHub Issue         # Claude 用此判斷何時自動載入
 disable-model-invocation: true        # 僅手動呼叫，Claude 不會自動觸發
 allowed-tools: Bash(git *) Read Edit  # 此 Skill 啟用時自動授權的工具
+disallowed-tools: Bash(rm *)          # 明確禁用的工具，與 allowed-tools 互補
+model: sonnet                         # 覆寫此 Skill 執行時使用的模型
+argument-hint: "<issue-number>"       # /fix-issue 自動完成時顯示的參數提示
 context: fork                         # 在獨立 Subagent Context 中執行
 agent: Explore                        # context: fork 時使用的 Agent 類型
 paths:                                # 限制 Skill 僅在特定路徑啟用
@@ -797,8 +852,13 @@ paths:                                # 限制 Skill 僅在特定路徑啟用
 | `name` | Skill 名稱，小寫字母和連字號，最多 64 字元 |
 | `description` | Claude 用以判斷何時自動載入；前 1,536 字元會放入 Context |
 | `disable-model-invocation` | 設為 `true` 時，Claude 不會自動觸發（如 deploy、commit） |
-| `context: fork` | 在獨立 Subagent Context 中執行，不汙染主對話 |
+| `user-invocable` | 是否允許使用者以 `/skill-name` 手動呼叫；與 `disable-model-invocation` 語意相近但作用相反的軸——一個管「Claude 能不能自動觸發」，一個管「使用者能不能手動觸發」，兩者可獨立設定 |
 | `allowed-tools` | Skill 啟用時自動授權的工具，無需逐次確認 |
+| `disallowed-tools` | 明確禁用的工具清單，即使主 Session 已授權也會被此 Skill 排除 |
+| `model` | 覆寫此 Skill 執行時使用的模型（例如安全掃描類 Skill 可固定用較強的模型） |
+| `effort` | 控制此 Skill 執行時的推理/工具呼叫力度，用於拿捏速度與成本 |
+| `argument-hint` | 使用者輸入 `/skill-name` 時，自動完成介面顯示的參數提示文字 |
+| `context: fork` | 在獨立 Subagent Context 中執行，不汙染主對話 |
 | `paths` | Glob 模式，僅在處理匹配檔案時載入 |
 
 **內建 Bundled Skills**：Claude Code 內建 `/simplify`、`/batch`、`/debug`、`/loop`、`/claude-api` 等 Skill，每個 Session 皆可使用。
@@ -838,6 +898,8 @@ my-plugin/
 │   └── security-reviewer.md
 ├── hooks/
 │   └── hooks.json           # 插件內的 Hooks
+├── monitors/                # 插件內的背景監控設定
+│   └── monitors.json        # 監控規則描述檔
 ├── bin/                     # 可執行檔，啟用插件時加入 PATH
 ├── .mcp.json                # MCP Server 設定
 ├── .lsp.json                # LSP Server 設定（Code Intelligence）
@@ -1421,7 +1483,7 @@ memory/
 
 所有發現的檔案**疊加載入**而非覆蓋。同一目錄內，`CLAUDE.local.md` 會在 `CLAUDE.md` 之後載入，因此衝突時個人偏好優先。
 
-**Import 語法**：CLAUDE.md 可用 `@path/to/file` 引入外部檔案（最深 5 層），例如：
+**Import 語法**：CLAUDE.md 可用 `@path/to/file` 引入外部檔案（最深 4 層），例如：
 
 ```markdown
 參見 @README.md 了解專案概述，@package.json 查看可用指令。
@@ -2329,9 +2391,20 @@ Layer 5：CI/CD Security Gate（Pipeline 安全閘門）
 }
 ```
 
-#### 自動權限模式
+#### 權限模式總覽
 
-在 CI/CD 或批次腳本中，使用 `--permission-mode auto` 可跳過互動確認：
+Claude Code 的 `--permission-mode` 共有 6 種模式，依「自動化程度」由低到高排列：
+
+| 模式 | 行為 | 適用場景 |
+|---|---|---|
+| `default` | 每個操作逐步互動確認（預設值） | 一般本機開發 |
+| `plan` | 僅規劃、不執行任何變更 | 架構設計、需求分析等只讀討論階段 |
+| `acceptEdits` | 自動接受檔案編輯，其餘操作仍詢問 | 信任度較高的重構/實作階段 |
+| `dontAsk` | 不主動彈出確認提示，但仍完整記錄稽核日誌 | 半自動化、需要事後稽核的場景 |
+| `auto` | 全自動跳過確認 | CI/CD、批次腳本等受信任環境 |
+| `bypassPermissions` | 完全略過權限檢查 | 僅限 Sandbox 或獨立 Worktree 內的全自動 Pipeline |
+
+以 `auto` 為例，在 CI/CD 或批次腳本中可跳過互動確認：
 
 ```bash
 # CI/CD 中的非互動式安全掃描
@@ -2342,10 +2415,38 @@ claude -p "修復 lint 錯誤" --permission-mode auto --allowedTools "Read,Edit,
 ```
 
 > **注意**：`--permission-mode auto` 在受信任的 CI/CD 環境使用。本機開發建議使用預設的互動確認模式。
+>
+> **實務建議**：`bypassPermissions` 風險最高，僅建議搭配下方的 Sandbox 模式或獨立 Worktree 使用，將誤操作的影響範圍鎖在隔離環境內，不直接觸碰正式程式碼或正式環境。
+
+#### Sandbox 模式
+
+Sandbox 是作業系統層級的存取限制機制，與「自動權限模式」互補：即便 `auto`／`bypassPermissions` 判斷有誤，Sandbox 仍能把破壞範圍鎖在邊界內。Sandbox 主要分兩個維度：
+
+- **檔案系統邊界**：限制 Claude Code 實際可寫入（甚至可讀取）的路徑白名單
+- **網路邊界**：限制 Claude Code 可連線的網域，避免意外的對外請求或資料外洩
+
+設定範例：
+
+```jsonc
+// .claude/settings.json
+{
+  "sandbox": {
+    "filesystem": {
+      "allowWrite": ["./src", "./tests"],
+      "denyWrite": ["./node_modules", "./.git"]
+    },
+    "network": {
+      "allowDomains": ["api.github.com", "registry.npmjs.org"]
+    }
+  }
+}
+```
+
+> **實務建議**：Sandbox 屬於進階設定，多數團隊可先從 Permission Rules + Hooks 做起，待自動化程度提高（例如導入夜間批次 Pipeline）後，再導入 Sandbox 作為 `bypassPermissions` 的雙重防護。
 
 #### Hooks 安全自動化
 
-Hooks 是確保安全合規的確定性機制（不依賴 AI 判斷）。Claude Code 支援四種 Hook 類型：
+Hooks 是確保安全合規的確定性機制（不依賴 AI 判斷）。Claude Code 支援五種 Hook 執行者類型：
 
 | Hook 類型 | 執行者 | 用途 |
 |---|---|---|
@@ -2353,15 +2454,19 @@ Hooks 是確保安全合規的確定性機制（不依賴 AI 判斷）。Claude 
 | `http` | HTTP Request | 呼叫外部 API（告警、Webhook、SIEM） |
 | `prompt` | 另一個 Claude 實例 | 用 AI 判斷是否允許操作 |
 | `agent` | Agent Session | 啟動完整 Agent 執行複雜檢查 |
+| `mcp_tool` | 已連接的 MCP Server 工具 | 直接呼叫企業既有 MCP 工具做為 Hook 動作，無需另寫腳本 |
 
-**常用 Hook 事件參考**：
+**常用 Hook 事件參考**：Hook 事件涵蓋從使用者輸入到 Claude 產出、從主 Session 到 Subagent 的完整生命週期，可依需求在不同階段插入確定性檢查：
 
 | 事件 | 觸發時機 | 安全用途 |
 |---|---|---|
+| `UserPromptSubmit` | 使用者送出 Prompt 時 | 輸入內容過濾、自動注入合規前綴 |
 | `PreToolUse` | 工具執行前 | 攔截危險操作（exit 2 = 阻擋） |
 | `PostToolUse` | 工具執行後 | 稽核日誌、敏感資訊掃描 |
+| `SubagentStop` | Subagent 完成任務時 | 對 Subagent 產出做二次合規檢查，再回傳給主 Session |
 | `Stop` | Claude 完成回應前 | 結果合規審查 |
 | `SessionStart` | Session 啟動時 | 環境驗證、安全基準檢查 |
+| `SessionEnd` | Session 結束時 | 清理暫存資源、產出 Session 摘要稽核紀錄 |
 | `Notification` | 需通知事件 | 推送告警至 Slack/SIEM |
 | `ConfigChange` | 設定變更時 | 設定變更稽核 |
 | `PreCompact` / `PostCompact` | Context 壓縮前後 | 確保壓縮不遺失關鍵安全資訊 |
@@ -2698,9 +2803,18 @@ export CLAUDE_CODE_USE_BEDROCK=1
 | `claude --resume` | 選擇歷史 Session |
 | `claude --agent [name]` | 以指定 Agent 啟動 Session |
 | `claude --permission-mode auto` | 自動權限模式（CI/CD 用） |
-| `claude --output-format json` | JSON 輸出 |
+| `claude --output-format json` | JSON 輸出（單次完整結果） |
+| `claude --output-format stream-json` | 串流結構化輸出，適合長任務即時監控 |
 | `claude --allowedTools "Read,Bash(git *)"` | 限制可用工具 |
+| `claude --disallowedTools "Bash(rm *)"` | 明確排除可用工具清單，與 `--allowedTools` 互補 |
 | `claude --max-tokens 50000` | 限制最大 Token 用量 |
+| `claude --model [name]` | 指定本次 Session 使用的模型 |
+| `claude --effort [level]` | 指定本次 Session 的推理力度 |
+| `claude --verbose` | 輸出詳細執行日誌，便於除錯非互動腳本 |
+| `claude --safe-mode` | 啟用保守執行策略，降低自動化場景下的誤判風險 |
+| `claude --permission-prompt-tool [script]` | 自訂權限確認時呼叫的工具，取代預設互動提示 |
+| `claude --exclude-dynamic-system-prompt-sections` | 排除動態組裝的系統提示片段，用於精簡 Token 或除錯 |
+| `claude --mcp-config [file]` | 以指定設定檔載入 MCP Server，取代預設搜尋路徑 |
 | `claude --plugin-dir ./my-plugin` | 以本地 Plugin 目錄啟動（開發用） |
 | `claude --worktree` | 在獨立 Git Worktree 中啟動 |
 | `claude mcp add [name] -- [command]` | 加入 MCP Server |
