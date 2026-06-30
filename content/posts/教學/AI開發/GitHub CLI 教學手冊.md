@@ -1,17 +1,17 @@
 +++
-date = '2026-05-08T16:24:49+08:00'
+date = '2026-06-30T10:00:00+08:00'
 draft = false
 title = 'GitHub CLI 教學手冊'
-tags = ['教學', 'AI開發','指引']
+tags = ['教學', 'AI開發','指引','copilot-cli']
 categories = ['教學']
 +++
 
 # GitHub CLI 教學手冊
 
-> **版本**：基於 GitHub CLI v2.74.0（2026-05 最新穩定版）  
+> **版本**：基於 GitHub CLI v2.74.0（2026-05 最新穩定版）／GitHub Copilot CLI v1.0.65（2026-06-24 最新穩定版）  
 > **適用對象**：資深工程師 / DevOps 工程師 / 架構師 / SRE / AI 團隊  
 > **技術環境**：企業級 Web Application（Spring Boot / Vue / 微服務架構）  
-> **最後更新**：2026-05-08
+> **最後更新**：2026-06-30
 
 ---
 
@@ -143,13 +143,23 @@ categories = ['教學']
   - [10.5 Repo 初始化自動化](#105-repo-初始化自動化)
   - [10.6 Branch Protection 自動化](#106-branch-protection-自動化)
   - [10.7 Release Automation](#107-release-automation)
-- [第 11 章：AI 整合與 Copilot](#第-11-章ai-整合與-copilot)
-  - [11.1 GitHub Copilot CLI](#111-github-copilot-cli)
-  - [11.2 GitHub Copilot 在 PR Review 中的應用](#112-github-copilot-在-pr-review-中的應用)
-  - [11.3 AI-Powered Workflow](#113-ai-powered-workflow)
-  - [11.4 Copilot 與 GitHub CLI 整合最佳實務](#114-copilot-與-github-cli-整合最佳實務)
-  - [11.5 GitHub CLI Telemetry 管理](#115-github-cli-telemetry-管理)
-  - [11.6 AI Agent 整合策略](#116-ai-agent-整合策略)
+- [第 11 章：AI 整合與 Copilot CLI](#第-11-章ai-整合與-copilot-cli)
+  - [11.1 GitHub Copilot CLI 概述](#111-github-copilot-cli-概述)
+  - [11.2 Copilot CLI 安裝與設定](#112-copilot-cli-安裝與設定)
+  - [11.3 核心操作模式](#113-核心操作模式)
+  - [11.4 Slash Commands 指令大全](#114-slash-commands-指令大全)
+  - [11.5 MCP Server 整合](#115-mcp-server-整合)
+  - [11.6 自訂 Agent、Skills 與 Plugins](#116-自訂-agentskills-與-plugins)
+  - [11.7 Session 管理與記憶](#117-session-管理與記憶)
+  - [11.8 Fleet 模式與子代理人](#118-fleet-模式與子代理人)
+  - [11.9 LSP 整合](#119-lsp-整合)
+  - [11.10 Hooks 系統](#1110-hooks-系統)
+  - [11.11 企業級 Copilot CLI 管理](#1111-企業級-copilot-cli-管理)
+  - [11.12 觀測性與監控](#1112-觀測性與監控)
+  - [11.13 gh copilot 擴充套件（Legacy）](#1113-gh-copilot-擴充套件legacy)
+  - [11.14 Copilot 在 PR Review 中的應用](#1114-copilot-在-pr-review-中的應用)
+  - [11.15 AI-Powered Workflow](#1115-ai-powered-workflow)
+  - [11.16 Copilot CLI 最佳實務與 AI Agent 整合策略](#1116-copilot-cli-最佳實務與-ai-agent-整合策略)
 - [第 12 章：企業級最佳實務](#第-12-章企業級最佳實務)
   - [12.1 Organization 管理](#121-organization-管理)
   - [12.2 Repository Governance](#122-repository-governance)
@@ -175,6 +185,7 @@ categories = ['教學']
   - [15.1 常見錯誤與解決方案](#151-常見錯誤與解決方案)
   - [15.2 CLI 升級與相容性](#152-cli-升級與相容性)
   - [15.3 Debug 模式](#153-debug-模式)
+  - [15.4 Copilot CLI 常見問題](#154-copilot-cli-常見問題)
 - [第 16 章：最佳實務總覽](#第-16-章最佳實務總覽)
   - [16.1 日常開發](#161-日常開發)
   - [16.2 團隊協作](#162-團隊協作)
@@ -212,7 +223,8 @@ GitHub CLI（指令為 `gh`）是 GitHub 官方開發的開源命令列工具，
 | 供應鏈安全 | `gh attestation` | 下載與驗證 Artifact Attestation |
 | Ruleset 管理 | `gh ruleset` | 檢視 Repository / Organization Ruleset |
 | GitHub API | `gh api` | 直接呼叫任何 GitHub REST / GraphQL API |
-| AI 整合 | `gh copilot` | Copilot CLI 自然語言指令建議與解釋 |
+| AI 整合（gh 擴充） | `gh copilot` | Copilot CLI 自然語言指令建議與解釋（Legacy） |
+| AI 整合（獨立工具） | `copilot` | GitHub Copilot CLI 獨立 Agentic 編碼代理人（v1.0.65） |
 | 環境瀏覽 | `gh browse` / `gh status` | 在瀏覽器開啟 Repo、檢視個人狀態 |
 | Gist 管理 | `gh gist` | 建立、編輯、列出、檢視 Gist |
 | 擴充系統 | `gh extension` / `gh alias` | 安裝社群 Extension、自訂指令縮寫 |
@@ -3902,13 +3914,1102 @@ echo "   gh release create $TAG --generate-notes --latest"
 
 ---
 
-# 第 11 章：AI 整合與 Copilot
+# 第 11 章：AI 整合與 Copilot CLI
 
-## 11.1 GitHub Copilot CLI
+## 11.1 GitHub Copilot CLI 概述
 
-GitHub Copilot CLI 擴充了 `gh` 的能力，讓開發者能透過自然語言描述來產生指令。
+GitHub 的 AI 命令列工具經歷了兩個世代的演進。第一代是作為 `gh` 擴充套件存在的 `gh copilot`（suggest / explain），提供簡單的指令建議與解釋功能。第二代則是 **GitHub Copilot CLI**——一個完全獨立的終端機原生 AI 編碼代理人，於 2026 年 2 月 25 日正式 GA（General Availability），截至本文撰寫時最新版本為 **v1.0.65**（2026-06-24）。
 
-### 安裝與設定
+### 兩代工具對比
+
+| 比較項目 | `gh copilot`（第一代） | `copilot`（第二代） |
+|---------|----------------------|-------------------|
+| 本質 | `gh` CLI 的 Extension | 獨立命令列應用程式 |
+| 安裝方式 | `gh extension install github/gh-copilot` | `winget install GitHub.Copilot` / `npm install -g @github/copilot` |
+| 啟動指令 | `gh copilot suggest` / `gh copilot explain` | `copilot` |
+| 核心能力 | 指令建議、指令解釋 | Agentic 編碼、MCP 整合、多模型切換、Fleet 並行 |
+| 互動模式 | 單次問答 | 持續 Session（Interactive / Plan / Autopilot） |
+| 工具生態 | 無 | MCP Servers、Plugins、Skills、Hooks、Extensions |
+| 模型支援 | 固定 | Claude Sonnet 4.5（預設）/ GPT-5 / Claude Opus 4.8 等多模型 |
+| Session 管理 | 無 | 完整 Session 持久化、Resume、Fork、Memory |
+| 遠端協作 | 無 | Remote Session、委派至 Copilot coding agent |
+| 企業治理 | 基本 | 組織政策、MCP Allowlist、Content Exclusion、SPNEGO 代理認證 |
+| 狀態 | Legacy（仍可使用） | **主力推薦** |
+
+### 核心架構
+
+```mermaid
+graph TB
+    subgraph "開發者終端機"
+        CLI["copilot CLI v1.0.65"]
+        Config["~/.copilot/settings.json"]
+        Sessions["~/.copilot/session-state/"]
+        Memory["Cross-session Memory"]
+    end
+
+    subgraph "AI 模型層"
+        Sonnet["Claude Sonnet 4.5<br/>(預設)"]
+        GPT5["GPT-5"]
+        Opus["Claude Opus 4.8"]
+        Auto["Auto 模式<br/>(自動選擇)"]
+    end
+
+    subgraph "工具生態系"
+        MCP["MCP Servers"]
+        Plugins["Plugins"]
+        Skills["Skills / Commands"]
+        Hooks["Hooks"]
+        LSP["LSP Servers"]
+        Extensions["Extensions"]
+    end
+
+    subgraph "GitHub 平台"
+        GHAPI["GitHub REST / GraphQL API"]
+        GHActions["GitHub Actions"]
+        CodingAgent["Copilot Coding Agent<br/>(遠端)"]
+    end
+
+    CLI --> Config
+    CLI --> Sessions
+    CLI --> Memory
+    CLI --> Sonnet & GPT5 & Opus & Auto
+    CLI --> MCP & Plugins & Skills & Hooks & LSP & Extensions
+    CLI --> GHAPI & GHActions & CodingAgent
+```
+
+### 核心特性摘要
+
+- **Terminal-native 開發**：直接在命令列中與 AI 編碼代理人協作，無需切換至瀏覽器或 IDE
+- **GitHub 原生整合**：透過內建 GitHub MCP Server 存取 Repository、Issue、Pull Request，以既有 GitHub 帳戶認證
+- **Agentic 能力**：支援建置、編輯、偵錯、重構程式碼，AI 可自主規劃並執行複雜任務
+- **MCP 可擴充性**：內建 GitHub MCP Server，並支援自訂 MCP Server 擴充功能邊界
+- **完全掌控**：每個操作在執行前皆需開發者明確核准，透過 Permission Prompt 確保安全
+
+---
+
+## 11.2 Copilot CLI 安裝與設定
+
+### 先決條件
+
+- **作業系統**：Windows / macOS / Linux（含 Alpine Linux musl libc）
+- **Windows 額外需求**：PowerShell v6 以上（若無 pwsh，自動降級至 Windows PowerShell 5.x）
+- **訂閱方案**：需擁有有效的 Copilot 訂閱（Free、Pro、Pro+、Max、Business 或 Enterprise）
+
+### 安裝方式
+
+**Windows（推薦）**：
+
+```powershell
+# WinGet 安裝（推薦）
+winget install GitHub.Copilot
+
+# 安裝預發布版本
+winget install GitHub.Copilot.Prerelease
+```
+
+**macOS / Linux**：
+
+```bash
+# 安裝腳本（推薦）
+curl -fsSL https://gh.io/copilot-install | bash
+
+# 或使用 wget
+wget -qO- https://gh.io/copilot-install | bash
+
+# 以 root 安裝至 /usr/local/bin
+curl -fsSL https://gh.io/copilot-install | sudo bash
+
+# 指定版本與安裝路徑
+curl -fsSL https://gh.io/copilot-install | VERSION="v1.0.65" PREFIX="$HOME/.local" bash
+```
+
+```bash
+# Homebrew 安裝
+brew install copilot-cli
+
+# Homebrew 安裝預發布版本
+brew install copilot-cli@prerelease
+```
+
+**跨平台 npm 安裝**：
+
+```bash
+# npm 全域安裝
+npm install -g @github/copilot
+
+# 安裝預發布版本
+npm install -g @github/copilot@prerelease
+```
+
+### 首次啟動與認證
+
+```bash
+# 啟動 Copilot CLI
+copilot
+
+# 首次啟動會顯示動畫 Banner
+# 若未登入，系統會提示使用 /login 指令
+
+# 使用 /login 進行 OAuth 認證（瀏覽器流程）
+/login
+```
+
+**使用 Personal Access Token (PAT) 認證**：
+
+```bash
+# 1. 至 https://github.com/settings/personal-access-tokens/new 建立 Fine-grained PAT
+# 2. 在 Permissions 中新增 "Copilot Requests" 權限
+# 3. 透過環境變數設定 Token（依優先順序）
+export GH_TOKEN="your-fine-grained-pat"       # 最高優先
+export GITHUB_TOKEN="your-fine-grained-pat"    # 次優先
+```
+
+### 版本管理與更新
+
+```bash
+# 檢查目前版本
+copilot version
+
+# 更新至最新版本（會自動重啟）
+copilot update
+
+# 更新至最新預發布版本
+copilot update prerelease
+
+# 查看版本異動記錄
+/changelog
+/changelog last 5
+/changelog since 1.0.60
+/changelog summarize
+```
+
+> **企業建議**：建議透過組織 MDM 或 Software Center 統一部署 `winget install GitHub.Copilot`，並透過 `copilot update` 維持版本一致性。Auto-update 在 CI 環境中預設為停用。
+
+---
+
+## 11.3 核心操作模式
+
+Copilot CLI 提供四種操作模式，透過 `Shift+Tab` 在前三種模式間循環切換，Shell 模式則以 `!` 前綴進入。
+
+### 模式概覽
+
+| 模式 | 進入方式 | 行為特徵 | 適用場景 |
+|------|---------|---------|---------|
+| Interactive（互動） | 預設模式 | 每個工具呼叫需人工確認 | 日常開發、審慎操作 |
+| Plan（計畫） | `Shift+Tab` 或 `/plan` | 先產出計畫大綱再執行 | 複雜任務規劃、架構設計 |
+| Autopilot（自動駕駛） | `Shift+Tab` 或 `/autopilot` | AI 持續執行至任務完成，自動處理權限提示 | 重複性工作、大規模重構 |
+| Shell（指令列） | `!` 前綴 | 直接執行 Shell 指令，不經 AI | 快速執行已知指令 |
+
+```mermaid
+stateDiagram-v2
+    [*] --> Interactive : 預設
+    Interactive --> Plan : Shift+Tab
+    Plan --> Autopilot : Shift+Tab
+    Autopilot --> Interactive : Shift+Tab / 任務完成
+    Interactive --> Shell : ! 前綴
+    Shell --> Interactive : Esc / Ctrl+C
+```
+
+### 模型選擇
+
+Copilot CLI 預設使用 **Claude Sonnet 4.5**，可透過 `/model` 指令切換：
+
+```bash
+# 開啟模型選擇器
+/model
+
+# 直接指定模型
+/model claude-opus-4.8
+/model gpt-5
+/model auto    # 讓 Copilot 自動選擇最佳模型
+
+# 使用模型家族別名
+/model opus
+/model sonnet
+/model haiku
+/model gpt
+/model gemini
+```
+
+**啟動時指定模型與模式**：
+
+```bash
+# 指定模型啟動
+copilot --model gpt-5
+
+# 直接進入 Autopilot 模式
+copilot --autopilot
+
+# 直接進入 Plan 模式
+copilot --plan
+
+# 指定推理強度
+copilot --reasoning-effort high
+copilot --effort medium
+```
+
+### 推理強度（Reasoning Effort）
+
+```bash
+# 調整模型推理深度
+/reasoning-effort high    # 深度推理，適合複雜架構問題
+/reasoning-effort medium  # 均衡模式（預設）
+/reasoning-effort low     # 快速回應，適合簡單修改
+
+# Anthropic 模型支援 max 等級
+/reasoning-effort max
+```
+
+### Autopilot 配置
+
+```bash
+# 啟動時進入 Autopilot
+copilot --autopilot
+
+# 設定 Autopilot 最大連續執行次數（預設 5）
+copilot --max-autopilot-continues 10
+
+# Session 內切換
+/autopilot        # 切換至 Autopilot
+/autopilot off    # 關閉 Autopilot
+```
+
+> **安全提醒**：Autopilot 模式會自動處理權限提示（包含工具、路徑、URL 存取），適用於受信任的開發環境。在正式環境或敏感操作中建議使用 Interactive 模式逐步確認。
+
+---
+
+## 11.4 Slash Commands 指令大全
+
+Copilot CLI 透過 Slash Commands（`/` 開頭的指令）提供豐富的操作功能。以下依功能分類列出核心指令：
+
+### 編碼與開發
+
+| 指令 | 說明 |
+|------|------|
+| `/plan` | 進入 Plan 模式，產出實作計畫 |
+| `/autopilot` | 切換 Autopilot 模式，AI 持續執行至完成 |
+| `/diff` | 檢視本次 Session 的程式碼變更差異 |
+| `/review` | 對程式碼變更進行 Code Review 分析 |
+| `/security-review` | 審查程式碼變更是否存在安全漏洞 |
+| `/undo` | 復原上一次操作並還原檔案變更 |
+| `/rewind` | 開啟時間線選擇器，回溯至任意歷史狀態 |
+| `/compact` | 壓縮對話歷史以釋放 Context Window 空間 |
+| `/init` | 產生 Copilot 專案指示檔案 |
+
+### Pull Request 與協作
+
+| 指令 | 說明 |
+|------|------|
+| `/pr` | 建立、檢視 PR，自動修復 CI 失敗，回應 Review 意見 |
+| `/delegate` | 委派任務至 Copilot coding agent（雲端非同步執行） |
+| `/fleet` | 啟動 Fleet 模式，並行執行多個子代理人 |
+| `/fork` | 從當前 Session 分叉出獨立 Session |
+| `/share` | 將 Session 匯出為 Markdown 或 GitHub Gist |
+| `/share html` | 將 Session 匯出為互動式 HTML 檔案 |
+
+### 模型與設定
+
+| 指令 | 說明 |
+|------|------|
+| `/model` | 切換 AI 模型 |
+| `/settings` | 開啟互動式設定瀏覽器 |
+| `/env` | 顯示載入的環境詳情（Instructions、MCP、Skills、Hooks） |
+| `/context` | 視覺化 Token 使用狀況 |
+| `/usage` | 顯示 Premium Request 配額與 Token 統計 |
+| `/instructions` | 檢視與切換自訂指示檔案 |
+| `/skills` | 管理 Skills（列出、新增、移除） |
+| `/agent` | 選擇自訂 Agent |
+| `/mcp` | 管理 MCP Server 設定 |
+
+### Session 管理
+
+| 指令 | 說明 |
+|------|------|
+| `/clear` | 完全放棄當前 Session |
+| `/new` | 開始新對話（舊 Session 背景保留） |
+| `/resume` | 恢復先前的 Session |
+| `/session` | Session 資訊、重新命名、刪除 |
+| `/cd` | 變更工作目錄 |
+| `/cwd` | 同 `/cd` |
+| `/add-dir` | 新增額外工作目錄 |
+
+### 研究與輔助
+
+| 指令 | 說明 |
+|------|------|
+| `/research` | 啟動深度研究，產生可匯出的報告 |
+| `/rubber-duck` | 取得獨立的 Rubber Duck 批判分析 |
+| `/ask` | 快速提問，不影響對話歷史 |
+| `/memory` | 管理跨 Session 記憶（on / off / show） |
+| `/chronicle` | Session 歷史分析（standup / tips / search） |
+
+### 系統管理
+
+| 指令 | 說明 |
+|------|------|
+| `/login` / `/logout` | 登入 / 登出 |
+| `/user` | 多帳戶管理（list / switch） |
+| `/update` | 更新 CLI 版本 |
+| `/restart` | 熱重啟 CLI（保留 Session） |
+| `/changelog` | 檢視版本異動記錄 |
+| `/version` | 顯示版本資訊 |
+| `/feedback` | 提交回饋意見 |
+| `/diagnose` | 分析 Session 日誌以排除故障 |
+| `/help` 或 `?` | 顯示快速說明 |
+| `/experimental` | 啟用 / 停用實驗功能 |
+| `/terminal-setup` | 設定終端機多行輸入支援 |
+| `/theme` | 切換 CLI 佈景主題 |
+| `/statusline` | 自訂狀態列顯示項目 |
+
+### 實驗功能（需先啟用 `/experimental`）
+
+| 指令 | 說明 |
+|------|------|
+| `/every` | 排程週期性任務（如 `/every 1d /chronicle standup`） |
+| `/after` | 排程延遲任務 |
+| `/worktree` | 建立 Git Worktree 並在其中工作 |
+| `/remote` | 遠端控制 Session |
+
+---
+
+## 11.5 MCP Server 整合
+
+Model Context Protocol（MCP）是 Copilot CLI 的核心擴充機制，讓 AI 代理人能透過標準協定與外部工具及服務互動。
+
+### 內建 GitHub MCP Server
+
+Copilot CLI 內建 GitHub MCP Server，開箱即用，提供以下工具類別：
+
+| 工具類別 | 功能 |
+|---------|------|
+| Code & Repo 導覽 | `get_file_contents`、`search_code`、`search_repositories`、`list_branches` |
+| Issue 管理 | `get_issue`、`list_issues`、`get_issue_comments`、`search_issues` |
+| PR 管理 | `pull_request_read`、`list_pull_requests`、`search_pull_requests` |
+| Workflow 資訊 | `list_workflows`、`list_workflow_runs`、`get_job_logs` |
+| 使用者搜尋 | `user_search` |
+| Web 搜尋 | `web_search` |
+| Copilot Spaces | `list_copilot_spaces` |
+
+```bash
+# 檢視所有 MCP Server 狀態
+/mcp show
+
+# 檢視特定 Server 的可用工具
+/mcp show github-mcp-server
+
+# 啟用 GitHub MCP Server 的所有讀寫工具
+copilot --enable-all-github-mcp-tools
+```
+
+### MCP Server 設定
+
+MCP Server 可在多個層級設定，優先順序由高至低為：
+
+1. **Workspace 層級**：專案根目錄 `.mcp.json`
+2. **使用者層級**：`~/.copilot/settings.json`
+3. **Plugin 提供**：已安裝 Plugin 內建的 MCP Server
+
+**`.mcp.json` 設定範例**：
+
+```json
+{
+  "mcpServers": {
+    "my-database": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}"
+      }
+    },
+    "my-remote-api": {
+      "type": "http",
+      "url": "https://mcp.example.com/sse",
+      "oauthClientId": "my-client-id"
+    }
+  }
+}
+```
+
+### MCP Registry 搜尋與安裝
+
+```bash
+# 從 Registry 搜尋 MCP Server
+/mcp search postgres
+
+# 安裝 MCP Server（互動式引導設定）
+/mcp registry
+
+# 新增 MCP Server
+/mcp add
+
+# 重新載入 MCP 設定
+/mcp reload
+
+# 停用 / 啟用特定 MCP Server
+/mcp disable my-database
+/mcp enable my-database
+```
+
+### MCP OAuth 認證
+
+Copilot CLI 內建 OAuth 2.0 認證流程，支援多種認證模式：
+
+- **OAuth 2.0 Authorization Code Flow**：自動開啟瀏覽器完成授權
+- **Device Code Flow（RFC 8628）**：適用於 Headless 與 CI 環境
+- **Client Credentials Grant**：適用於無需使用者互動的 Server-to-Server 認證
+- **Microsoft Entra ID**：自動設定，無需手動指定 Client ID
+- **Static OAuth Client**：透過 `oauthClientId` 設定固定的 OAuth Client
+
+```bash
+# 重新認證特定 MCP Server
+/mcp auth my-remote-api
+```
+
+> **企業治理**：組織管理者可透過 Copilot 政策設定 MCP Server Allowlist，僅允許經核准的第三方 MCP Server。未經核准的 Server 將被封鎖並在 `/mcp show` 中隱藏。
+
+---
+
+## 11.6 自訂 Agent、Skills 與 Plugins
+
+Copilot CLI 支援豐富的自訂機制，讓團隊能定義專屬的 AI 行為規範與工具組合。
+
+### 自訂 Agent
+
+Agent 是帶有特定指示與工具組合的 AI 角色，定義在 `.agent.md` 檔案中：
+
+**發現路徑**（優先順序由高至低）：
+
+1. 專案層級：`.github/agents/*.agent.md`
+2. Plugin 提供：已安裝 Plugin 內建的 Agent
+3. 個人層級：`~/.copilot/agents/*.agent.md`
+
+**Agent 定義範例**（`.github/agents/security-reviewer.agent.md`）：
+
+```markdown
+---
+model: claude-opus-4.8
+tools:
+  - bash
+  - view
+  - grep
+  - glob
+skills:
+  - owasp-guidelines
+---
+
+# Security Reviewer
+
+你是一位資深資安工程師，專精於 OWASP Top 10 與 SSDLC 安全審查。
+
+## 審查原則
+- 檢查所有使用者輸入是否經過驗證與消毒
+- 確認敏感資料傳輸使用加密通道
+- 驗證認證與授權機制的完整性
+- 檢查是否存在 SQL Injection、XSS、CSRF 等常見漏洞
+```
+
+```bash
+# 選擇自訂 Agent
+/agent
+
+# 直接指定 Agent
+/agent security-reviewer
+
+# 啟動時指定 Agent
+copilot --agent security-reviewer
+```
+
+### AGENTS.md
+
+在專案根目錄建立 `AGENTS.md` 檔案，定義全域 Agent 行為規範：
+
+```markdown
+# AGENTS.md
+
+## 通用規則
+- 所有程式碼變更必須附帶測試
+- 遵循團隊 Conventional Commits 規範
+- 不修改 .github/workflows/ 目錄下的檔案，除非明確要求
+
+## 安全規則
+- 禁止在程式碼中硬編碼任何認證資訊
+- 所有外部 API 呼叫必須使用 HTTPS
+```
+
+### Skills
+
+Skills 是自包含的指示集合，可攜帶相關資產：
+
+**發現路徑**：
+
+1. 專案層級：`.github/skills/` 或 `.agents/skills/`
+2. 個人層級：`~/.copilot/skills/`
+3. Plugin 提供
+
+**Skill 定義範例**（`.github/skills/api-design/SKILL.md`）：
+
+```markdown
+---
+name: api-design
+description: RESTful API 設計規範與最佳實務
+allowed-tools:
+  - view
+  - grep
+---
+
+# API Design Guidelines
+
+## 命名規範
+- 使用 kebab-case 作為 URL path
+- 資源名稱使用複數形式
+- 版本號放在 URL path（如 /v1/users）
+
+## 回應格式
+- 統一使用 JSON
+- 包含標準化錯誤結構
+```
+
+```bash
+# 管理 Skills
+/skills                           # 列出所有已載入的 Skills
+/skills add ./my-skill-dir        # 新增 Skill
+/skills remove api-design         # 移除 Skill
+```
+
+### Commands
+
+Commands 是單檔 Markdown 格式的簡化 Skill，定義在 `.github/commands/` 目錄：
+
+```markdown
+<!-- .github/commands/generate-tests.md -->
+針對最近修改的檔案產生單元測試，使用 JUnit 5 與 Mockito 框架。
+確保測試覆蓋所有公開方法，並包含正向與負向測試案例。
+```
+
+### Plugins
+
+Plugins 是 Agent、Skills、MCP Server 與 Hooks 的封裝套件：
+
+```bash
+# 從 Marketplace 安裝 Plugin
+copilot plugin install <plugin-name>@awesome-copilot
+
+# 從 GitHub Repo 安裝
+copilot plugin install owner/repo
+
+# 從本地目錄安裝
+copilot plugin install /path/to/plugin
+
+# 更新所有 Plugin
+copilot plugin update --all
+
+# 列出已安裝 Plugin
+copilot plugin list
+
+# 解除安裝
+copilot plugin uninstall <plugin-name>
+```
+
+### awesome-copilot 社群資源
+
+[github/awesome-copilot](https://github.com/github/awesome-copilot) 是 GitHub 官方維護的社群貢獻集合，包含：
+
+| 資源類型 | 說明 |
+|---------|------|
+| Agents | 專為特定場景設計的自訂 Agent |
+| Instructions | 依檔案模式自動套用的編碼標準 |
+| Skills | 自包含的指示與資產集合 |
+| Plugins | Agent 與 Skill 的策展套件 |
+| Hooks | Copilot Session 生命週期的自動化動作 |
+| Agentic Workflows | 以 Markdown 撰寫的 AI 驅動 GitHub Actions |
+| Cookbook | Copilot API 的即用食譜 |
+
+---
+
+## 11.7 Session 管理與記憶
+
+### Session 生命週期
+
+每次啟動 Copilot CLI 都會建立一個 Session，Session 狀態自動持久化至 `~/.copilot/session-state/`。
+
+```bash
+# 恢復最近的 Session
+copilot --continue
+copilot -r              # --resume 的簡寫
+
+# 依名稱恢復
+copilot --resume="feature-auth"
+
+# 依 Session ID 恢復（支援 7+ 字元前綴）
+copilot --resume=a1b2c3d
+
+# 為 Session 命名
+copilot --name="refactor-auth-module"
+
+# Session 內操作
+/session info           # 檢視 Session 資訊
+/session rename auth    # 重新命名
+/session delete         # 刪除當前 Session
+/session delete-all     # 刪除所有 Session
+
+# 分叉 Session
+/fork                   # 從當前 Session 分叉
+/fork "experimental-approach"  # 帶名稱分叉
+
+# 清除與重新開始
+/clear                  # 完全放棄當前 Session
+/new                    # 新對話（舊 Session 背景保留）
+/new "開始新的設計討論"   # 帶初始訊息的新 Session
+```
+
+### 跨 Session 記憶（Memory）
+
+Copilot CLI 支援跨 Session 的持久化記憶功能，分為使用者範圍與 Repository 範圍：
+
+```bash
+# 啟用 / 停用記憶
+/memory on
+/memory off
+
+# 檢視記憶狀態與文件
+/memory show
+```
+
+Memory 儲存的內容包含事實、偏好、過去的工作紀錄等，AI 代理人會在後續 Session 中自動引用。
+
+### Chronicle（Session 歷史分析）
+
+```bash
+# 產生每日站立會議摘要
+/chronicle standup
+
+# 取得個人化的效率改進建議
+/chronicle tips
+
+# 取得 Token 使用與成本優化建議
+/chronicle cost-tips
+
+# 依關鍵字搜尋所有 Session 內容
+/chronicle search "authentication refactor"
+```
+
+### 遠端 Session
+
+Copilot CLI 支援將 Session 匯出至 GitHub.com，實現跨裝置協作：
+
+```bash
+# 啟用遠端控制
+/remote on
+
+# 停用遠端控制
+/remote off
+
+# 檢視遠端連線狀態
+/remote
+
+# 啟動時直接連線至遠端 Session
+copilot --connect <session-id>
+
+# 從 Resume 選擇器連線遠端 Session
+copilot --resume
+```
+
+> **企業注意**：遠端 Session 功能受組織政策控管，管理者可透過 Copilot 組織設定停用此功能。
+
+---
+
+## 11.8 Fleet 模式與子代理人
+
+### Fleet 模式
+
+Fleet 模式啟用多個子代理人並行執行任務，大幅加速複雜任務的完成速度：
+
+```bash
+# 在 Plan 模式中啟用 Fleet 並行執行
+# 1. 先進入 Plan 模式規劃任務
+/plan
+
+# 2. 計畫核准時選擇 "autopilot + fleet" 選項
+# Fleet 會自動將任務分配給多個子代理人並行執行
+
+# 或直接使用 /fleet 指令
+/fleet
+```
+
+```mermaid
+graph TB
+    User["使用者提示"] --> Orchestrator["Fleet Orchestrator"]
+    Orchestrator --> Agent1["子代理人 1<br/>前端修改"]
+    Orchestrator --> Agent2["子代理人 2<br/>後端 API"]
+    Orchestrator --> Agent3["子代理人 3<br/>測試撰寫"]
+    Agent1 --> Validate["Orchestrator 驗證"]
+    Agent2 --> Validate
+    Agent3 --> Validate
+    Validate --> Result["整合結果"]
+```
+
+### 委派至 Copilot Coding Agent
+
+`/delegate` 將任務委派至 GitHub 的 Copilot coding agent（雲端環境），非同步執行：
+
+```bash
+# 委派任務（未 Stage 的變更會自動 Commit 至新 Branch）
+/delegate "實作使用者個人資料頁面的 CRUD API"
+
+# 委派過程：
+# 1. 將本地未提交變更 Commit 至新 Branch
+# 2. 在 GitHub Repository 開啟 Pull Request
+# 3. Copilot coding agent 在雲端完成工作
+# 4. 可透過 /remote 或 GitHub.com 監控進度
+```
+
+### 背景任務管理
+
+```bash
+# 檢視所有背景任務
+/tasks
+
+# 在任務執行中，按 Ctrl+X → B 將任務移至背景
+
+# 子代理人設定
+/subagents              # 開啟子代理人設定（模型、推理強度、Context 層級）
+/agents                 # 同 /subagents
+```
+
+### Rubber Duck Agent
+
+Rubber Duck Agent 提供獨立的批判分析觀點，使用與主 Session 不同的模型家族：
+
+```bash
+# 手動調用
+/rubber-duck
+
+# 自動調用設定（透過 copilot config）
+# builtInAgents.rubberDuck = true
+# builtInAgents.rubberDuckAutoInvoke = true
+```
+
+---
+
+## 11.9 LSP 整合
+
+Copilot CLI 支援 Language Server Protocol（LSP），提供 go-to-definition、hover、diagnostics 等程式碼智慧功能。
+
+### 安裝 Language Server
+
+Copilot CLI 不內建 LSP Server，需自行安裝：
+
+```bash
+# TypeScript
+npm install -g typescript-language-server
+
+# Python
+pip install python-lsp-server
+
+# Java
+# 依照 eclipse.jdt.ls 安裝說明
+```
+
+### 設定 LSP Server
+
+LSP 設定可在使用者層級或專案層級進行：
+
+- **使用者層級**：`~/.copilot/lsp-config.json`
+- **專案層級**：`.github/lsp.json`
+
+**設定範例**（`.github/lsp.json`）：
+
+```json
+{
+  "lspServers": {
+    "typescript": {
+      "command": "typescript-language-server",
+      "args": ["--stdio"],
+      "fileExtensions": {
+        ".ts": "typescript",
+        ".tsx": "typescript"
+      }
+    },
+    "python": {
+      "command": "pylsp",
+      "args": [],
+      "fileExtensions": {
+        ".py": "python"
+      }
+    }
+  }
+}
+```
+
+**進階設定選項**：
+
+```json
+{
+  "lspServers": {
+    "typescript": {
+      "command": "typescript-language-server",
+      "args": ["--stdio"],
+      "bash": "source ~/.nvm/nvm.sh && nvm use 20",
+      "cwd": "${PLUGIN_ROOT}/server",
+      "fileExtensions": {
+        ".ts": "typescript"
+      }
+    }
+  }
+}
+```
+
+```bash
+# 檢視 LSP Server 狀態
+/lsp show
+
+# 測試 LSP Server 連線
+/lsp test
+
+# 重新載入 LSP 設定
+/lsp reload
+```
+
+---
+
+## 11.10 Hooks 系統
+
+Hooks 讓開發者在 Copilot CLI 的 Session 生命週期中注入自訂行為，例如在工具執行前後執行格式化、Lint 或自訂驗證。
+
+### Hook 事件類型
+
+| 事件 | 觸發時機 | 典型用途 |
+|------|---------|---------|
+| `preToolUse` | 工具執行前 | 參數驗證、權限控制、參數修改 |
+| `postToolUse` | 工具成功執行後 | 格式化、Lint、注入額外 Context |
+| `postToolUseFailure` | 工具執行失敗後 | 錯誤處理、重試邏輯 |
+| `sessionStart` | Session 開始時 | 環境初始化、Context 注入 |
+| `sessionEnd` | Session 結束時 | 清理、報告產生 |
+| `subagentStart` | 子代理人啟動時 | 注入額外指示 |
+| `subagentStop` | 子代理人停止時 | 結果驗證 |
+| `preMcpToolCall` | MCP 工具呼叫前 | 控制 MCP 請求 metadata |
+| `notification` | Shell 完成、權限提示、Agent 完成時 | 通知整合 |
+| `permissionRequest` | 權限提示出現時 | 自動核准 / 拒絕邏輯 |
+| `userPromptSubmitted` | 使用者提交提示後 | 攔截處理、直接回應（繞過 LLM） |
+| `preCompact` | Context 壓縮前 | 壓縮前置作業 |
+
+### Hook 設定位置
+
+1. **專案層級**：`.github/hooks/`
+2. **個人層級**：`~/.copilot/hooks/`
+3. **設定檔內**：`settings.json`、`settings.local.json`
+4. **Plugin 提供**
+
+### Hook 設定範例
+
+**`.github/hooks/postToolUse.json`**：
+
+```json
+{
+  "hooks": [
+    {
+      "matcher": "Edit|Write",
+      "command": "npx prettier --write $FILEPATH",
+      "timeout": 30
+    },
+    {
+      "matcher": "Bash",
+      "command": "echo 'Shell command completed: $TOOL_INPUT'"
+    }
+  ]
+}
+```
+
+**HTTP Hook**（將事件 POST 至外部服務）：
+
+```json
+{
+  "hooks": [
+    {
+      "event": "sessionEnd",
+      "url": "https://audit.company.com/copilot-events",
+      "timeout": 10
+    }
+  ]
+}
+```
+
+**preToolUse Hook（權限控制）**：
+
+```json
+{
+  "hooks": [
+    {
+      "matcher": "Bash",
+      "command": "python3 .github/hooks/validate-command.py",
+      "permissionDecision": "allow"
+    }
+  ]
+}
+```
+
+```bash
+# 檢視已載入的 Hooks
+/env
+```
+
+---
+
+## 11.11 企業級 Copilot CLI 管理
+
+### 組織政策管理
+
+GitHub 組織管理者可透過 GitHub Copilot 組織設定控管 Copilot CLI 的使用：
+
+| 政策項目 | 說明 |
+|---------|------|
+| Copilot CLI 啟用 / 停用 | 控制組織成員是否可使用 Copilot CLI |
+| MCP Server 允許清單 | 僅允許特定第三方 MCP Server |
+| Content Exclusion | 排除特定路徑或 Repository 的內容不被 AI 讀取 |
+| Remote Session 控制 | 是否允許遠端控制與檢視 Session |
+| Plugin Marketplace 管理 | 控制可安裝的 Plugin 來源 |
+| 繞過權限模式 | 是否允許使用 `--yolo` / `--allow-all` 模式 |
+| Vision 功能 | 是否允許 AI 處理圖片內容 |
+
+### MCP Server Allowlist
+
+```json
+// .github/copilot/settings.json
+{
+  "extraKnownMarketplaces": [
+    "github/awesome-copilot"
+  ]
+}
+```
+
+### Content Exclusion
+
+Content Exclusion 政策確保 AI 不會讀取被排除路徑下的檔案，符合合規要求。當 Content Exclusion 規則服務不可連線時（離線或暫時性網路錯誤），Copilot CLI 會允許存取直到規則可被取得，與 VS Code 的行為一致。
+
+### 企業代理伺服器（Proxy）
+
+```bash
+# 設定 HTTP/HTTPS Proxy
+# 透過 /settings 設定 HTTP(S) proxy
+
+# SPNEGO/Kerberos 企業代理自動認證
+# Copilot CLI 自動透過 Kerberos/Negotiate (SPNEGO) 認證穿透企業正向代理
+
+# HTTP/1.1 傳輸（預設）
+# 若需 HTTP/2：
+export COPILOT_ENABLE_HTTP2=1
+```
+
+### 繞過權限模式
+
+```bash
+# 啟用全部允許模式（適用於受信任開發環境）
+/allow-all
+/yolo
+
+# 停用繞過權限模式（透過組織設定）
+# 設定 permissions.disableBypassPermissionsMode = true
+
+# 啟動時指定
+copilot --yolo
+copilot --allow-all
+```
+
+### Secret Scanning
+
+Copilot CLI 內建 Secret Scanning 機制，自動掃描 Commit Message 與 PR Description 中的敏感資訊，在發布前進行遮蔽處理。
+
+> **企業建議**：
+> 1. 啟用 MCP Server Allowlist，僅允許經安全審查的 MCP Server
+> 2. 啟用 Content Exclusion 排除敏感文件路徑
+> 3. 設定 `permissions.disableBypassPermissionsMode` 防止開發者繞過權限檢查
+> 4. 利用 Hooks 記錄所有 AI Agent 操作供事後稽核
+
+---
+
+## 11.12 觀測性與監控
+
+### OpenTelemetry 整合
+
+Copilot CLI 原生支援 OpenTelemetry，遵循 GenAI Semantic Conventions 規範：
+
+```bash
+# 啟用 OpenTelemetry（透過標準 OTel 環境變數）
+# OTLP gRPC
+export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4317"
+
+# OTLP HTTP (protobuf)
+export OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf"
+
+# 支援 mTLS 與 Private CA
+# 設定 OTLP 憑證以安全匯出至企業 Collector
+
+# 查看更多設定
+copilot help monitoring
+```
+
+**GenAI Span 屬性**：
+
+| 屬性 | 說明 |
+|------|------|
+| `gen_ai.usage.cache_read.input_tokens` | 快取讀取 Token 數 |
+| `gen_ai.usage.cache_creation.input_tokens` | 快取建立 Token 數 |
+| `gen_ai.usage.reasoning.output_tokens` | 推理輸出 Token 數 |
+| `gen_ai.request.reasoning.level` | 推理強度設定 |
+| `gen_ai.conversation.compacted` | 是否經過 Context 壓縮 |
+| `github.copilot.time_to_first_chunk` | 首 Token 延遲（串流模式） |
+
+### Token 使用監控
+
+```bash
+# 檢視詳細 Token 使用統計（含子代理人、MCP 工具）
+/usage
+
+# 視覺化 Context Window 佔用（Token 限制、MCP 工具成本）
+/context
+
+# 配額預警：在 50% 與 95% 使用量時自動警告
+# 逼近限制時顯示 Manage budget 連結
+```
+
+### AI Credits 管理
+
+```bash
+# 每次提交 Prompt 會消耗一次 Premium Request 配額
+# Pay-as-you-go 使用者會在啟動時顯示額外使用預算
+# 達到限制時自動顯示友善訊息
+
+# 設定自動切換至 Auto 模型（避免 Rate Limit 中斷）
+# 透過 copilot config 設定 continueOnAutoMode = true
+```
+
+### 日誌管理
+
+```bash
+# 日誌存放位置
+# ~/.copilot/logs/
+
+# 設定日誌等級（none / error / warning / info / debug / all）
+# 透過 copilot config 設定 logLevel
+
+# Session 使用指標自動持久化至 events.jsonl
+# 包含：請求數、Token 數、程式碼變更統計
+
+# 自動清理舊日誌
+# CLI 啟動時自動修剪 ~/.copilot/logs/ 下的舊日誌檔案
+
+# 收集偵錯日誌
+/feedback                # 產生包含日誌的回饋包
+/diagnose                # 分析 Session 日誌以排除故障
+```
+
+---
+
+## 11.13 gh copilot 擴充套件（Legacy）
+
+> **注意**：`gh copilot` 是第一代 GitHub Copilot CLI 工具，作為 `gh` CLI 的 Extension 存在。隨著獨立 Copilot CLI（`copilot` 指令）於 2026 年 2 月 GA，`gh copilot` 已進入 **Legacy 狀態**。建議新用戶直接使用獨立 Copilot CLI。
+
+### 安裝與設定（Legacy）
 
 ```bash
 # 安裝 Copilot Extension
@@ -3921,7 +5022,7 @@ gh copilot --version
 gh extension upgrade gh-copilot
 ```
 
-### 核心功能
+### 核心功能（Legacy）
 
 ```bash
 # Suggest - 根據描述產生指令
@@ -3939,7 +5040,7 @@ gh copilot suggest -t gh "list repos with no activity in 90 days"
 gh copilot suggest -t git "squash last 3 commits"
 ```
 
-### 企業使用情境
+### 企業使用情境（Legacy）
 
 ```bash
 # DevOps 場景
@@ -3955,20 +5056,75 @@ gh copilot suggest "list all org members who haven't committed in 90 days"
 gh copilot suggest "find repos without branch protection on main"
 ```
 
-## 11.2 GitHub Copilot 在 PR Review 中的應用
+### 遷移至獨立 Copilot CLI
+
+| Legacy 用法 | 新版對應 |
+|------------|---------|
+| `gh copilot suggest "..."` | 直接在 `copilot` 中以自然語言提問 |
+| `gh copilot explain "cmd"` | 在 `copilot` 中貼上指令並詢問「這個指令做了什麼？」 |
+| `gh copilot suggest -t gh "..."` | 在 `copilot` 中直接操作，AI 會自動透過 MCP 與 GitHub 互動 |
+
+---
+
+## 11.14 Copilot 在 PR Review 中的應用
+
+### 透過 gh CLI 觸發（Legacy）
 
 ```bash
-# 使用 Copilot 進行 PR 摘要（需啟用 Copilot for PRs）
 # 在 PR 留言中使用 /summarize 指令
-
-# 使用 CLI 觸發 Copilot Review
 gh pr comment 42 --body "/copilot review"
-
-# 使用 CLI 請求 Copilot 摘要
 gh pr comment 42 --body "/copilot summarize"
 ```
 
-## 11.3 AI-Powered Workflow
+### 透過 Copilot CLI 操作（推薦）
+
+```bash
+# 在 Copilot CLI 中直接操作 PR
+/pr                       # 開啟 PR 管理介面
+
+# 建立 PR
+/pr create
+
+# 檢視 PR 狀態
+/pr status
+
+# Code Review（使用與主 Session 相同的模型）
+/review
+
+# 安全審查
+/security-review
+
+# 自動修復 CI 失敗
+# /pr 內建 CI 失敗分析與修復建議
+
+# 檢視 Session 變更差異
+/diff
+```
+
+### 從 Issue 到 PR 的完整流程
+
+```bash
+# 1. 在 Copilot CLI 中檢視 Issue
+#    使用 # 引用 Issue（如 #42）
+
+# 2. 使用 /plan 規劃實作
+/plan
+
+# 3. 透過 Autopilot 或手動完成實作
+/autopilot
+
+# 4. 建立 PR
+/pr create
+
+# 5. 或委派至雲端 Copilot coding agent
+/delegate "implement issue #42"
+```
+
+---
+
+## 11.15 AI-Powered Workflow
+
+以下示範如何在 GitHub Actions 中結合 AI 能力自動化 Release Notes 產生：
 
 ```yaml
 # .github/workflows/ai-assisted-release-notes.yml
@@ -4013,109 +5169,143 @@ jobs:
           **Full Changelog**: https://github.com/${{ github.repository }}/compare/...${TAG}"
 ```
 
-## 11.4 Copilot 與 GitHub CLI 整合最佳實務
+---
 
-| 場景 | 方法 | 範例 |
-|------|------|------|
-| 不確定指令語法 | `gh copilot suggest` | `gh copilot suggest "archive all repos with no commits in 1 year"` |
-| 看不懂別人的腳本 | `gh copilot explain` | `gh copilot explain "$(cat deploy.sh)"` |
-| 建立複雜 API 查詢 | `suggest -t gh` | `gh copilot suggest -t gh "get org billing usage"` |
-| 偵錯 Workflow 失敗 | 結合 `gh run view` | 先 `gh run view --log-failed`，再請 Copilot 分析 |
+## 11.16 Copilot CLI 最佳實務與 AI Agent 整合策略
 
-> **注意事項**：
-> - Copilot CLI 建議的指令請務必人工確認後再執行
-> - 避免在 Copilot 提示中輸入機敏資訊（API Key、密碼等）
-> - 企業環境需確認 Copilot Business/Enterprise 授權已啟用
+### 安全最佳實務
 
-## 11.5 GitHub CLI Telemetry 管理
+| 項目 | 建議 |
+|------|------|
+| Token 權限 | 使用 Fine-grained PAT，僅授予 "Copilot Requests" 權限 |
+| 人工確認 | 在 Interactive 模式下逐步確認 AI 產生的操作 |
+| Content Exclusion | 設定敏感路徑排除（機敏設定檔、憑證目錄） |
+| MCP Allowlist | 僅允許經核准的 MCP Server |
+| 繞過權限控制 | 在正式環境停用 `--yolo` / `--allow-all` |
+| Secret Scanning | 依賴內建機制自動掃描 Commit Message 與 PR Description |
+| 稽核記錄 | 透過 Hooks 記錄所有 AI Agent 操作 |
+| 機敏資料 | 避免在提示中輸入 API Key、密碼等機敏資訊 |
 
-GitHub CLI 預設會收集匿名使用統計資料，幫助 GitHub 改善產品。企業環境可依資安政策選擇停用或記錄遙測資料。
+### 團隊標準化
 
-### 停用 Telemetry
+```text
+專案根目錄/
+├── .github/
+│   ├── agents/              # 自訂 Agent 定義
+│   │   ├── code-reviewer.agent.md
+│   │   └── security-auditor.agent.md
+│   ├── instructions/        # 檔案模式指示
+│   │   ├── api.instructions.md
+│   │   └── tests.instructions.md
+│   ├── skills/              # 團隊 Skill 集合
+│   │   └── api-design/
+│   ├── commands/            # 單檔 Commands
+│   ├── hooks/               # Hook 設定
+│   │   ├── postToolUse.json
+│   │   └── sessionStart.json
+│   ├── lsp.json             # LSP Server 設定
+│   └── copilot/
+│       └── settings.json    # 專案層級設定
+├── .mcp.json                # MCP Server 設定
+├── AGENTS.md                # 全域 Agent 行為規範
+└── copilot-instructions.md  # 全域自訂指示
+```
+
+### 效能優化
+
+| 策略 | 說明 |
+|------|------|
+| Tool Search（延遲載入） | 啟用 `deferred-tool-loading` 減少啟動時載入的工具數量 |
+| Context 管理 | 使用 `/compact` 壓縮對話歷史，釋放 Context Window |
+| 模型選擇 | 簡單任務使用輕量模型（如 Haiku），複雜任務使用 Opus |
+| 快取利用 | 善用 resumed Session 的 prompt cache 降低延遲 |
+| gh CLI 共存 | 當 `gh` CLI 在 PATH 中時，GitHub MCP Server 會自動省略冗餘工具，減少 Token 消耗 |
+| HTTP/1.1 傳輸 | 預設使用 HTTP/1.1，在部分網路環境下比 HTTP/2 更穩定 |
+
+### Telemetry 管理
+
+GitHub CLI 與 Copilot CLI 各有獨立的遙測設定：
+
+**gh CLI Telemetry**：
 
 ```bash
-# 方法一：透過 gh config 停用
+# 停用
 gh config set telemetry disabled
 
-# 方法二：透過環境變數停用
-export GH_TELEMETRY=false        # Unix
-$env:GH_TELEMETRY = "false"      # PowerShell
+# 環境變數
+export GH_TELEMETRY=false
+export DO_NOT_TRACK=true
 
-# 方法三：使用通用 DO_NOT_TRACK 標準
-export DO_NOT_TRACK=true          # Unix
-$env:DO_NOT_TRACK = "true"        # PowerShell
+# 記錄模式（輸出至 stderr 而非送出）
+gh config set telemetry log
 ```
 
-### 記錄模式（Log Mode）
-
-在停用前，可先使用記錄模式檢視 CLI 實際送出了哪些資料：
+**Copilot CLI Telemetry**：
 
 ```bash
-# 透過 gh config
-gh config set telemetry log
+# Copilot CLI 遵循組織政策與使用者設定
+# 透過 /settings 管理
 
-# 透過環境變數
-export GH_TELEMETRY=log           # Unix
-$env:GH_TELEMETRY = "log"         # PowerShell
+# 終端機進度指標設定
+# 透過 copilot config 設定 terminalProgress
 ```
 
-啟用記錄模式後，遙測資料會輸出到 stderr 而非實際送出，可搭配 `2>telemetry.log` 導向至檔案審查。
-
-### 企業建議
-
-| 環境 | 建議 | 說明 |
-|------|------|------|
-| 開發環境 | `telemetry log` | 先觀察再決定 |
-| 正式/合規環境 | `telemetry disabled` | 確保無外部連線 |
+| 環境 | gh CLI 建議 | Copilot CLI 建議 |
+|------|------------|-----------------|
+| 開發環境 | `telemetry log` | 依組織政策 |
+| 正式/合規環境 | `telemetry disabled` | 限制 MCP 與遠端功能 |
 | 受管理裝置 | 環境變數 `DO_NOT_TRACK=true` | 透過 MDM 部署設定 |
 
-## 11.6 AI Agent 整合策略
+### CLI 作為 AI Agent 工具層
 
-除了 GitHub Copilot，GitHub CLI 可作為各類 AI Agent 的工具介面，在自動化工作流程中扮演橋樑角色。
-
-### CLI 作為 AI 工具層
+除了 Copilot CLI 本身，GitHub CLI（`gh`）可作為各類 AI Agent 的工具介面：
 
 ```text
 ┌─────────────────────────────────────────────────┐
 │              AI Agent / LLM                     │
-│  (Copilot, Claude, GPT, Internal Agent...)      │
+│  (Copilot CLI, Claude, GPT, Internal Agent...)  │
 ├─────────────────────────────────────────────────┤
-│              GitHub CLI (gh)                    │
+│         GitHub CLI (gh) / Copilot CLI           │
 │  ┌───────┐ ┌───────┐ ┌───────┐ ┌──────────┐   │
 │  │ repo  │ │  pr   │ │ issue │ │ workflow │   │
 │  └───────┘ └───────┘ └───────┘ └──────────┘   │
 ├─────────────────────────────────────────────────┤
-│              GitHub API / Platform              │
+│       MCP Server / GitHub API / Platform        │
 └─────────────────────────────────────────────────┘
 ```
 
-### 整合模式
-
-| 模式 | 說明 | 適用場景 |
-|------|------|---------|
+| 整合模式 | 說明 | 適用場景 |
+|---------|------|---------|
+| Copilot CLI 直接使用 | 透過 `copilot` 指令與 AI 互動 | 日常開發、複雜任務 |
 | CLI Wrapping | AI 呼叫 `gh` 指令執行操作 | 簡單的自動化任務 |
 | API Bridge | 透過 `gh api` 呼叫 REST/GraphQL | 複雜查詢與資料操作 |
 | Script Generation | AI 產生 gh 腳本，人工 Review 後執行 | 批次操作、審計腳本 |
 | MCP Tool Server | 將 `gh` 封裝為 MCP Tool 供 Agent 使用 | Agent 框架整合 |
+| Copilot SDK | 使用 Copilot SDK 建置自訂 Agent 應用 | 自訂 AI Agent 開發 |
 
-### 安全原則
+### Agent 安全原則
 
 ```bash
 # 1. 使用最小權限 Token
 gh auth login --scopes "repo,read:org"
 
 # 2. AI 產生的指令一律人工確認
-gh copilot suggest "close all stale issues" | tee /dev/tty
+# 在 Copilot CLI 中使用 Interactive 模式
 
 # 3. 在 CI/CD 中使用獨立 Token
 env:
   GH_TOKEN: ${{ secrets.GH_AUTOMATION_TOKEN }}
 
 # 4. 記錄所有 AI Agent 觸發的操作
-gh api ... 2>&1 | tee -a /var/log/ai-agent-actions.log
+# 透過 Hooks 與 OpenTelemetry 記錄操作軌跡
+
+# 5. 使用 Content Exclusion 保護敏感檔案
+# 確保 AI 無法讀取機敏設定檔或憑證
+
+# 6. Copilot CLI 的 web_fetch 工具自動封鎖 Loopback、私有 IP 與雲端 Metadata 位址
 ```
 
-> **企業警告**：AI Agent 透過 GitHub CLI 執行的操作等同於 Token 持有者的操作。請確保 Agent 使用的 Token 權限最小化，並記錄所有操作供事後稽核。
+> **企業警告**：AI Agent 透過 GitHub CLI 或 Copilot CLI 執行的操作等同於 Token 持有者的操作。請確保 Agent 使用的 Token 權限最小化，並透過 OpenTelemetry 與 Hooks 記錄所有操作供事後稽核。Branch Protection、Required Checks 與組織政策等現有治理機制會自動生效。
 
 ---
 
@@ -4844,6 +6034,51 @@ $env:GH_DEBUG = "1"
 gh api repos/myorg/my-service
 ```
 
+## 15.4 Copilot CLI 常見問題
+
+### 認證與啟動
+
+| 症狀 | 原因 | 解決方案 |
+|------|------|---------|
+| 啟動後提示 `/login` | 未登入或 Token 過期 | 執行 `/login` 完成 OAuth 認證 |
+| `Session file is corrupted` | Session 資料損壞 | 刪除 `~/.copilot/session-state/` 下對應檔案 |
+| `model_not_supported` | 模型不在訂閱方案或地區範圍內 | 使用 `/model` 切換至可用模型 |
+| PAT 認證失敗 | 使用 Classic PAT（ghp_） | 改用 Fine-grained PAT 並授予 "Copilot Requests" 權限 |
+| VPN / IP 限制錯誤 | 組織設定 IP Allowlist | 登入 Banner 會顯示指引，檢查網路存取 |
+
+### MCP Server 問題
+
+| 症狀 | 診斷 | 解決方案 |
+|------|------|---------|
+| MCP Server 無法連線 | `/mcp show` 檢視狀態 | 檢查 `.mcp.json` 設定、確認指令可執行 |
+| MCP 工具不可用 | `/env` 檢視載入狀態 | `/mcp reload` 重新載入 |
+| OAuth 認證失敗 | `/mcp auth <server>` | 重新認證、檢查 `oauthClientId` 設定 |
+| MCP 被組織政策封鎖 | `/mcp show`（封鎖的 Server 會被隱藏） | 聯繫組織管理者加入 Allowlist |
+
+### 效能與穩定性
+
+```bash
+# Session 載入緩慢
+# 使用 /compact 壓縮對話歷史
+/compact
+
+# CLI 更新後行為異常
+copilot update          # 更新至最新版
+/restart                # 熱重啟
+
+# HTTP/2 上傳卡住
+# 自動重試改用 HTTP/1.1
+# 或手動設定：
+export COPILOT_ENABLE_HTTP2=0
+
+# 偵錯模式
+/diagnose               # 分析 Session 日誌
+/feedback               # 產生偵錯包提交回饋
+
+# 查看版本資訊與環境
+copilot --print-debug-info
+```
+
 ---
 
 # 第 16 章：最佳實務總覽
@@ -5010,7 +6245,47 @@ gh extension list                              # 列出 Extension
 gh extension upgrade --all                     # 更新全部
 ```
 
+### Copilot CLI（獨立工具）
+
+```bash
+copilot                                        # 啟動 Copilot CLI
+copilot --resume                               # 恢復最近 Session
+copilot --continue                             # 繼續上次 Session
+copilot --model gpt-5                          # 指定模型啟動
+copilot --autopilot                            # 直接進入 Autopilot
+copilot --plan                                 # 直接進入 Plan 模式
+copilot --name "task-name"                     # 為 Session 命名
+copilot update                                 # 更新至最新版
+copilot version                                # 檢查版本
+copilot plugin list                            # 列出已安裝 Plugin
+copilot plugin install <name>@awesome-copilot  # 安裝 Plugin
+```
+
+**Copilot CLI 常用 Slash Commands**：
+
+```bash
+/plan                    # Plan 模式
+/autopilot               # Autopilot 模式
+/model                   # 切換模型
+/diff                    # 檢視變更
+/pr                      # PR 管理
+/delegate                # 委派至雲端 Agent
+/fleet                   # Fleet 並行模式
+/research                # 深度研究
+/mcp show                # MCP Server 狀態
+/env                     # 環境資訊
+/context                 # Token 使用狀況
+/usage                   # 配額統計
+/settings                # 互動式設定
+/resume                  # 恢復 Session
+/memory on               # 啟用記憶
+/chronicle standup        # 每日站立摘要
+/changelog               # 版本異動記錄
+```
+
 ## 17.2 環境變數
+
+### gh CLI 環境變數
 
 | 變數 | 說明 | 範例 |
 |------|------|------|
@@ -5022,9 +6297,22 @@ gh extension upgrade --all                     # 更新全部
 | `GH_BROWSER` | 瀏覽器 | `export GH_BROWSER=firefox` |
 | `GH_DEBUG` | Debug 模式 | `export GH_DEBUG=1` |
 | `GH_PAGER` | 分頁程式 | `export GH_PAGER=less` |
+| `GH_TELEMETRY` | 遙測控制 | `export GH_TELEMETRY=false` |
 | `NO_COLOR` | 停用色彩 | `export NO_COLOR=1` |
+| `DO_NOT_TRACK` | 停用遙測（通用標準） | `export DO_NOT_TRACK=true` |
 | `HTTP_PROXY` | HTTP Proxy | `export HTTP_PROXY=http://proxy:8080` |
 | `HTTPS_PROXY` | HTTPS Proxy | `export HTTPS_PROXY=http://proxy:8080` |
+
+### Copilot CLI 環境變數
+
+| 變數 | 說明 | 範例 |
+|------|------|------|
+| `GITHUB_TOKEN` | Copilot CLI 認證 Token（PAT） | `export GITHUB_TOKEN=github_pat_xxx` |
+| `GH_TOKEN` | 同上（優先順序最高） | `export GH_TOKEN=github_pat_xxx` |
+| `COPILOT_HOME` | Copilot CLI 設定目錄 | `export COPILOT_HOME=~/.copilot` |
+| `COPILOT_ENABLE_HTTP2` | 啟用 HTTP/2 傳輸（預設 HTTP/1.1） | `export COPILOT_ENABLE_HTTP2=1` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OpenTelemetry 匯出端點 | `export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317` |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | OpenTelemetry 傳輸協定 | `export OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf` |
 
 ## 17.3 設定檔位置
 
@@ -5098,6 +6386,22 @@ aliases:
 
 支援 Bash、Zsh、Fish、PowerShell。Alias 中使用 `--shell` 旗標可執行 Shell 指令。
 
+**Q7：`gh copilot` 和 `copilot` 有什麼差異？**
+
+`gh copilot` 是第一代 AI CLI 工具，作為 `gh` 的 Extension，僅提供 `suggest` 和 `explain` 功能。`copilot` 是第二代獨立工具（v1.0.65+），具備完整的 Agentic 編碼能力、MCP 整合、多模型切換、Session 管理與 Fleet 並行等進階功能。建議新用戶直接使用 `copilot`。
+
+**Q8：Copilot CLI 需要額外付費嗎？**
+
+Copilot CLI 包含在所有 Copilot 訂閱方案中（Free、Pro、Pro+、Max、Business、Enterprise）。Free 方案有 Premium Request 配額限制，進階模型（如 Opus）可能消耗更多配額。
+
+**Q9：Copilot CLI 可以離線使用嗎？**
+
+不行。Copilot CLI 需要連線至 GitHub Copilot 服務進行模型推論。但 Session 記錄與設定檔案會儲存在本地。
+
+**Q10：如何在企業代理伺服器後使用 Copilot CLI？**
+
+Copilot CLI 支援 HTTP/HTTPS Proxy 設定，並自動支援 SPNEGO/Kerberos 企業代理認證。可透過 `/settings` 設定 Proxy 位址。
+
 ---
 
 # ✅ 學習檢核清單
@@ -5156,7 +6460,16 @@ aliases:
 
 ## 進階篇（Chapter 11-14）
 
-- [ ] 安裝並使用 GitHub Copilot CLI
+- [ ] 安裝並啟動獨立 Copilot CLI（`copilot`）
+- [ ] 完成 Copilot CLI OAuth 認證（`/login`）
+- [ ] 體驗 Interactive / Plan / Autopilot 三種操作模式
+- [ ] 使用 `/model` 切換模型
+- [ ] 設定專案 `.mcp.json` 並驗證 MCP Server 連線
+- [ ] 建立至少 1 個自訂 Agent（`.github/agents/`）
+- [ ] 使用 `/pr` 建立 Pull Request
+- [ ] 使用 `/delegate` 委派任務至 Copilot coding agent
+- [ ] 設定跨 Session 記憶（`/memory on`）
+- [ ] 建立 `AGENTS.md` 定義團隊 AI 行為規範
 - [ ] 設定 Organization Ruleset
 - [ ] 執行 Repo 健康度檢查腳本
 - [ ] 產出安全合規報告
@@ -5178,3 +6491,4 @@ aliases:
 > |------|------|---------|
 > | 1.0 | 2026-05-08 | 初版發行，涵蓋 17 章 |
 > | 1.1 | 2026-05-22 | Ch7 新增 7.10-7.22（browse/codespace/gist/project/search/cache/attestation/ruleset/label/variable/secret/status/config）；Ch11 新增 Telemetry 管理與 AI Agent 整合策略；Ch12 新增多帳戶與跨平台管理；Ch1 能力表擴充；目錄對齊修正；Markdown 格式修復 |
+> | 1.2 | 2026-06-30 | Ch11 全面重寫：新增 GitHub Copilot CLI v1.0.65 獨立工具完整指南（11.1-11.16），涵蓋 MCP Server 整合、Agent/Skills/Plugins 自訂、Session 管理與記憶、Fleet 模式與子代理人、LSP 整合、Hooks 系統、企業級管理、觀測性與監控；原 gh copilot 內容保留為 Legacy（11.13）；Ch15 新增 Copilot CLI 故障排除；Ch17 新增 Copilot CLI Cheat Sheet、環境變數、FAQ 與學習檢核項目；Ch1 能力表新增 Copilot CLI 獨立工具列 |

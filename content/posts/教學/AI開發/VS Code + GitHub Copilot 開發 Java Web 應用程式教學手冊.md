@@ -1,18 +1,18 @@
 +++
-date = '2026-03-27T20:39:51+08:00'
+date = '2026-06-30T10:00:00+08:00'
 draft = false
-title = 'VS Code + GitHub Copilot 開發 Java Web 應用程式教學手冊(2)'
+title = 'VS Code + GitHub Copilot 開發 Java Web 應用程式教學手冊(3)'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
-# VS Code + GitHub Copilot 開發 Java Web 應用程式教學手冊(2)
+# VS Code + GitHub Copilot 開發 Java Web 應用程式教學手冊(3)
 
-> **版本**：v2.0（2026-03-27）  
-> **前版**：v1.0（2026-03-27）  
+> **版本**：v3.0（2026-06-30）  
+> **前版**：v2.0（2026-03-27）  
 > **適用對象**：初學者 / 中階工程師 / 企業團隊  
-> **技術棧**：VS Code 1.113（2026-03-25 發布）· GitHub Copilot（含 Chat、Agent Mode、CLI Agent、Cloud Agent）· Java 21+ · Spring Boot 3.4.x · Maven  
+> **技術棧**：VS Code 1.126（2026-06-24 發布）· GitHub Copilot（含 Chat、Autopilot、Agent Mode、Agents Window、CLI Agent、Cloud Agent、Research Agent）· Java 21+ · Spring Boot 3.4.x · Maven  
 > **定位**：企業標準技術白皮書 — 可直接用於專案團隊內部開發規範文件  
-> **變更說明**：根據 VS Code 1.113 Release Notes 及 GitHub Copilot 最新文件全面更新
+> **變更說明**：根據 VS Code 1.123–1.126 Release Notes、Agents Window、Autopilot、MCP OAuth、1M Context Window 等重大更新全面改版
 
 ---
 
@@ -21,7 +21,7 @@ categories = ['教學']
 - [1. 總覽](#1-總覽)
   - [1.1 VS Code 在 Java 開發的優勢](#11-vs-code-在-java-開發的優勢)
   - [1.2 GitHub Copilot 在開發流程中的角色](#12-github-copilot-在開發流程中的角色)
-  - [1.3 VS Code 1.113 重要新功能摘要](#13-vs-code-1113-重要新功能摘要)
+  - [1.3 VS Code 1.123–1.126 重要新功能摘要](#13-vs-code-11231126-重要新功能摘要)
   - [1.4 VS Code vs IntelliJ 差異分析](#14-vs-code-vs-intellij-差異分析)
 - [2. 開發環境安裝與設定](#2-開發環境安裝與設定)
   - [2.1 必備工具](#21-必備工具)
@@ -36,10 +36,12 @@ categories = ['教學']
 - [4. GitHub Copilot 實戰應用](#4-github-copilot-實戰應用)
   - [4.1 基本用法 — Inline Completion 與 Inline Chat](#41-基本用法--inline-completion-與-inline-chat)
   - [4.2 Copilot Chat 進階用法](#42-copilot-chat-進階用法)
-  - [4.3 Agent Mode 深度指南](#43-agent-mode-深度指南)
-  - [4.4 Prompt Engineering](#44-prompt-engineering)
-  - [4.5 MCP Server 整合](#45-mcp-server-整合)
-  - [4.6 Custom Instructions / Agent Skills / Custom Agents](#46-custom-instructions--agent-skills--custom-agents)
+  - [4.3 Agent Mode 與 Autopilot 深度指南](#43-agent-mode-與-autopilot-深度指南)
+  - [4.4 Agents Window 與 Session 管理](#44-agents-window-與-session-管理)
+  - [4.5 Research Agent 深度研究](#45-research-agent-深度研究)
+  - [4.6 Prompt Engineering](#46-prompt-engineering)
+  - [4.7 MCP Server 整合](#47-mcp-server-整合)
+  - [4.8 Custom Instructions / Agent Skills / Custom Agents](#48-custom-instructions--agent-skills--custom-agents)
 - [5. 專案架構設計（企業級）](#5-專案架構設計企業級)
   - [5.1 Clean Architecture / Hexagonal Architecture](#51-clean-architecture--hexagonal-architecture)
   - [5.2 分層設計](#52-分層設計)
@@ -53,7 +55,7 @@ categories = ['教學']
   - [7.2 API 測試](#72-api-測試)
   - [7.3 VS Code Debug 技巧](#73-vs-code-debug-技巧)
   - [7.4 使用 Copilot 協助除錯](#74-使用-copilot-協助除錯)
-  - [7.5 整合式瀏覽器 Agent 測試（實驗性）](#75-整合式瀏覽器-agent-測試實驗性)
+  - [7.5 整合式瀏覽器 Agent 測試](#75-整合式瀏覽器-agent-測試)
 - [8. CI/CD 與版本控管](#8-cicd-與版本控管)
   - [8.1 Git 基本流程](#81-git-基本流程)
   - [8.2 GitHub Actions 基本 CI/CD](#82-github-actions-基本-cicd)
@@ -62,7 +64,7 @@ categories = ['教學']
 - [9. 系統維護與升級](#9-系統維護與升級)
   - [9.1 VS Code 更新策略](#91-vs-code-更新策略)
   - [9.2 Extension 管理](#92-extension-管理)
-  - [9.3 Copilot 模型更新與最佳化使用](#93-copilot-模型更新與最佳化使用)
+  - [9.3 Copilot 模型更新與成本管理](#93-copilot-模型更新與成本管理)
 - [10. 團隊導入建議（企業級）](#10-團隊導入建議企業級)
   - [10.1 開發規範](#101-開發規範)
   - [10.2 Copilot 使用規範](#102-copilot-使用規範)
@@ -85,15 +87,17 @@ VS Code 從輕量級編輯器發展至今，已成為企業級 Java 開發的主
 | 面向 | 說明 |
 |------|------|
 | **啟動速度** | 秒級啟動，記憶體佔用約 300-500 MB（IntelliJ 通常 2-4 GB） |
-| **AI 原生整合** | GitHub Copilot 深度整合，支援 Chat、Inline、Agent Mode |
+| **AI 原生整合** | GitHub Copilot 深度整合，支援 Chat、Autopilot、Agent Mode、Agents Window |
 | **跨語言支援** | 同一 IDE 處理 Java、TypeScript、SQL、YAML、Dockerfile |
 | **免費授權** | 核心功能完全免費，企業部署成本低 |
 | **擴展生態** | 超過 50,000 個 Extension，可依需求組合 |
 | **遠端開發** | 原生支援 Remote SSH、Dev Containers、GitHub Codespaces |
 | **終端整合** | 內建終端，Maven/Gradle 指令一鍵執行 |
-| **整合式瀏覽器** | VS Code 1.113 起內建瀏覽器，可直接測試 Web 應用、支援自簽憑證 |
-| **Agent 原生架構** | 支援 Local / Background / Cloud / CLI Agent，多工並行處理開發任務 |
-| **新預設佈景主題** | VS Code 1.113 預設「VS Code Dark」與「VS Code Light」全新現代外觀 |
+| **整合式瀏覽器** | 內建瀏覽器支援網頁搜尋、瀏覽歷史、頁面收藏、遠端 Proxy 連線 |
+| **Agent 原生架構** | 支援 Local / Background / Cloud / CLI / Research Agent，Autopilot 自主決策 |
+| **Agents Window** | 專用 Agent 視窗，可多 Session 並行、跨機器同步、成本追蹤 |
+| **1M Context Window** | 支援 100 萬 Token 上下文視窗（Claude Opus 4.7、GPT-5.5） |
+| **成本透明** | Session 級別費用追蹤，清楚掌握 AI 使用成本 |
 
 ### 開發流程全景圖
 
@@ -133,7 +137,7 @@ graph TB
     style D fill:#22c55e,color:#fff
 ```
 
-**Copilot 核心模式（VS Code 1.113 版，2026-03-25）**：
+**Copilot 核心模式（VS Code 1.126 版，2026-06-24）**：
 
 | 模式 | 說明 | 適用場景 |
 |------|------|----------|
@@ -141,10 +145,12 @@ graph TB
 | **Inline Chat** | `Ctrl+I` 行內對話，不離開編輯器 | 局部重構、快速修復、解釋 |
 | **Copilot Chat** | 側邊欄對話式互動、問答、解釋 | 架構討論、除錯、學習 |
 | **Agent Mode（Local）** | 自主完成多步驟任務，編輯檔案、執行指令、自我修正 | 重構、建立新模組、複雜修改 |
+| **Autopilot（Preview）** | Agent 自主決策完成時機，無需逐步確認，最多迭代三次 | 全自動任務執行 |
 | **Agent Mode（Background）** | 在背景自主執行任務，不阻斷開發 | 長時間任務、自動化 |
 | **Agent Mode（Cloud）** | 在雲端執行，完成後開 PR | 跨時區協作、大規模重構 |
+| **Research Agent** | 深度研究代理，產出結構化 Markdown 報告（唯讀） | 技術調研、API 理解、方案比較 |
 | **Plan Agent** | 將任務拆解為結構化實作計畫，再交給實作 Agent 執行 | 需求分析、架構規劃 |
-| **Copilot CLI** | 終端命令行 Agent，支援 MCP Server（1.113 新增） | Git 操作、Maven 指令、部署腳本 |
+| **Copilot CLI** | 終端命令行 Agent，支援 MCP Server | Git 操作、Maven 指令、部署腳本 |
 | **Smart Actions** | 預定義 AI 動作：生成 Commit Message、重命名、修錯 | 快速操作、一鍵觸發 |
 
 ### Agent 類型與執行位置
@@ -153,61 +159,110 @@ graph TB
 flowchart TB
     subgraph "Agent 執行位置"
         LOCAL[🖥️ Local Agent<br/>在 VS Code 中互動執行]
+        AUTO[🚀 Autopilot<br/>自主決策完成時機<br/>最多三次迭代]
         BG[⚡ Background Agent<br/>後台自主執行<br/>不阻斷開發]
         CLOUD[☁️ Cloud Agent<br/>雲端執行<br/>完成後開 PR]
         CLI[💻 CLI Agent<br/>終端模式<br/>支援 MCP]
+        RESEARCH[🔬 Research Agent<br/>深度調研<br/>產出報告]
         THIRD[🔌 Third-Party Agent<br/>Anthropic Claude<br/>OpenAI 等]
     end
     
     USER[👨‍💻 開發者] --> LOCAL
+    USER --> AUTO
     USER --> BG
     USER --> CLOUD
     USER --> CLI
+    USER --> RESEARCH
     USER --> THIRD
     
     LOCAL -->|手動交接| CLOUD
+    AUTO -->|完成通知| LOCAL
     BG -->|完成通知| LOCAL
     CLOUD -->|PR Review| LOCAL
+    RESEARCH -->|Markdown 報告| LOCAL
     
     style LOCAL fill:#3b82f6,color:#fff
+    style AUTO fill:#10b981,color:#fff
     style BG fill:#8b5cf6,color:#fff
     style CLOUD fill:#22c55e,color:#fff
     style CLI fill:#f59e0b,color:#fff
+    style RESEARCH fill:#06b6d4,color:#fff
     style THIRD fill:#ef4444,color:#fff
 ```
 
-### Session 管理
+### Session 管理與 Agents Window
 
-VS Code 1.113 的 Sessions View 提供統一的 Agent Session 管理：
+VS Code 1.123 起推出 **Agents Window（Preview）**，這是一個專用的 Agent 伴侶視窗，提供跨專案、跨機器的統一 Agent Session 管理體驗：
 
-- **多 Session 並行**：可同時運行多個 Agent Session，各自專注不同任務
-- **狀態監控**：即時查看每個 Session 的狀態（進行中/完成/錯誤）
-- **Session Fork**（1.113 新增）：從對話任意節點分岔，探索不同方向而不失去原始上下文
-- **檔案變更檢視**：直接在 Session View 中查看 Agent 所做的檔案變更
+- **多 Session 並行開啟**：可同時開啟多個 Session 視圖，並排檢視比較
+- **Multiple Chats per Session**（1.126 新增）：單一 Session 中可開啟多個 Chat 分頁同時進行
+- **Session Fork**：從對話任意節點分岔，探索不同方向而不失去原始上下文
+- **Session Sync**（1.123 新增）：Chat Session 自動同步至 GitHub 帳號，跨裝置可搜尋工作歷史
+- **Chronicle 指令**：`/chronicle` 可搜尋歷史 Session、產生站會報告、取得個人化建議
+- **Session 級別成本追蹤**（1.126 新增）：即時查看每個 Session 消耗的 Credits
+- **背景發送**（1.124 新增）：`Alt+Enter` 將請求發送至背景 Session，不中斷當前操作
+- **Session 導航**（1.124 新增）：`Ctrl+R` 開啟 Session 快速切換器，支援鍵盤導航
+- **Code Feedback**（1.126 新增）：在 Agents Window 中對生成程式碼留言，Agent 可透過 `listComments` / `resolveComments` 回應
+- **Restore on Reload**（1.124 新增）：重新載入時自動還原 Session 布局狀態
 
-## 1.3 VS Code 1.113 重要新功能摘要
+## 1.3 VS Code 1.123–1.126 重要新功能摘要
 
-> **發布日期**：2026 年 3 月 25 日
+> **最新穩定版**：VS Code 1.126（2026 年 6 月 24 日發布）
+
+### VS Code 1.126（2026-06-24）
 
 | 類別 | 功能 | 說明 |
 |------|------|------|
-| **Agent 體驗** | MCP 支援 Copilot CLI & Claude Agent | CLI Agent 可使用 VS Code 中設定的 MCP Server |
-| **Agent 體驗** | Session Fork | 在 CLI 與 Claude Agent 中分岔對話 Session |
-| **Agent 體驗** | Agent Debug Log Panel | CLI 與 Claude Session 支援 Debug Log 面板 |
-| **Agent 體驗** | Nested Subagents | Subagent 可呼叫其他 Subagent，支援複雜多步驟工作流 |
-| **Agent 體驗** | Plugin Marketplace 管理 | 新增 `Chat: Manage Plugin Marketplaces` 指令 |
-| **Chat 體驗** | Chat Customizations Editor（Preview） | 統一 UI 管理 Custom Instructions、Prompt Files、Custom Agents、Agent Skills |
-| **Chat 體驗** | Configurable Thinking Effort | Model Picker 直接調整推理深度（Low/Medium/High） |
-| **Chat 體驗** | Images Preview | 全功能圖片檢視器，支援 Chat 附件與 Agent 生成圖片 |
-| **編輯器** | Integrated Browser 自簽憑證 | 開發 HTTPS Web 應用時可信任自簽憑證 |
-| **編輯器** | 瀏覽器分頁管理強化 | Quick Open Browser Tab（`Ctrl+Shift+A`）、關閉所有分頁 |
-| **編輯器** | 全新預設佈景主題 | 「VS Code Dark」與「VS Code Light」取代舊版 Modern 主題 |
-| **已棄用** | Edit Mode | 自 1.110 起正式棄用，1.125 後完全移除 |
+| **成本管理** | Session 級別費用追蹤 | 查看完整 Chat Session 消耗的 Credits 與 Token |
+| **模型設定** | 統一模型自訂化選擇器 | Context Size 與 Thinking Effort 合併為單一控制介面 |
+| **模型設定** | 簡化模型懸停資訊 | 一詞能力描述 + 直達設定的深連結按鈕 |
+| **Agents Window** | Multiple Chats per Session | 單一 Session 可同時開啟多個 Chat，共享工作上下文 |
+| **Agents Window** | Agentic Code Feedback | 對生成程式碼留言，Agent 可透過工具讀取並回應 |
+| **安全性** | Restricted Mode 預設開啟 | 新資料夾預設以受限模式開啟，安全瀏覽後再信任 |
 
-> **⚠️ 重要棄用通知**：
-> - `github.copilot.chat.anthropic.thinking.effort` 與 `github.copilot.chat.responsesApiReasoningEffort` 設定已棄用
-> - 推理深度改由 Model Picker 直接控制
-> - Edit Mode 自 1.110 棄用，可暫時用 `chat.editMode.hidden` 啟用，1.125 後完全移除
+### VS Code 1.125（2026-06-17）
+
+| 類別 | 功能 | 說明 |
+|------|------|------|
+| **模型管理** | Install Model Providers | 從 Language Models 編輯器直接安裝第三方模型 Provider |
+| **整合瀏覽器** | 網址列搜尋引擎 | 直接在瀏覽器網址列輸入關鍵字進行網頁搜尋 |
+| **整合瀏覽器** | Remote Proxy（Preview） | 遠端工作區中瀏覽器流量可透過遠端連線代理 |
+| **Extension** | 自動更新延遲可配置 | `extensions.autoUpdateDelay` 設定延遲時數（預設 2 小時） |
+| **企業** | MDM 原生管理 Copilot 設定 | 透過 Windows / macOS 裝置管理工具統一部署 Copilot 政策 |
+
+### VS Code 1.124（2026-06-10）
+
+| 類別 | 功能 | 說明 |
+|------|------|------|
+| **Autopilot** | Autopilot 預設啟用 | Agent 自主決策完成時機，不需逐步人工確認 |
+| **Autopilot** | Advanced Autopilot | 小型判定模型評估任務完成度，最多三次迭代 |
+| **Agents Window** | 背景發送 | `Alt+Enter` 背景啟動 Session，不中斷當前操作 |
+| **Agents Window** | Session 導航 | `Ctrl+R` 快速切換、`Ctrl+Tab` 返回上一個 Session |
+| **Agents Window** | Restore on Reload | 重新載入時自動還原所有開啟的 Session 布局 |
+| **整合瀏覽器** | 瀏覽歷史 | 自動記錄已造訪頁面，URL 列顯示歷史建議 |
+| **整合瀏覽器** | 快速 Agent 文字輸入 | `typeInPage` 支援 `submit` 參數，減少工具呼叫次數 |
+| **企業** | Copilot Plugin 政策管理 | 集中控制可用 Chat Plugin 與 Plugin Marketplace |
+
+### VS Code 1.123（2026-06-03）
+
+| 類別 | 功能 | 說明 |
+|------|------|------|
+| **Agent** | Session Sync & Chronicle | Chat Session 自動同步至 GitHub，`/chronicle` 搜尋歷史 |
+| **Agent** | Research Agent（Preview） | `/research` 深度研究，產出完整引用的 Markdown 報告 |
+| **Agent** | Agents Window 多 Session | 可多 Session 並排開啟，支援釘選、最大化 |
+| **模型** | 1M Context Window | Anthropic 與 OpenAI 相容模型支援 100 萬 Token 上下文 |
+| **整合瀏覽器** | 頁面收藏 | 星號收藏常用頁面，URL 列快速存取 |
+| **整合瀏覽器** | 區域 / 全頁面截圖 | 截圖後直接加入 Chat 作為上下文 |
+| **MCP** | OAuth Client Credentials | 在 `mcp.json` 中指定 `clientId`，支援 Client Secret 安全儲存 |
+| **MCP** | 企業級 MCP 認證（Preview） | ID-JAG 跨應用授權，單次登入 IdP 即取得所有 MCP 資源權杖 |
+| **Extension** | 自動更新延遲機制 | 新版 Extension 發布後預設延遲 2 小時才自動更新 |
+| **沙箱** | 網路相關指令重試 | 沙箱中自動重試需要網路的指令（如 `git fetch`） |
+
+> **⚠️ 重要變更通知**：
+> - VS Code 1.125 中 **Edit Mode 已完全移除**，請改用 Agent Mode
+> - 推理深度由 1.126 的**統一模型自訂化選擇器**控制（合併 Context Size + Thinking Effort）
+> - 新資料夾預設以 **Restricted Mode** 開啟（`security.workspace.trust.startupPrompt` 預設改為 `never`）
+> - Extension 自動更新設定簡化為 `on` / `off`，舊值自動遷移
 
 ## 1.4 VS Code vs IntelliJ 差異分析
 
@@ -218,21 +273,24 @@ VS Code 1.113 的 Sessions View 提供統一的 Agent Session 管理：
 | **記憶體使用** | 300-500 MB | 2-4 GB |
 | **Java 支援深度** | ★★★★☆（需 Extension） | ★★★★★（原生） |
 | **重構能力** | ★★★☆☆ | ★★★★★ |
-| **AI 整合** | ★★★★★（Copilot 原生 + Agent） | ★★★★☆（需插件） |
-| **Agent 能力** | ★★★★★（Local/BG/Cloud/CLI Agent） | ★★☆☆☆（有限） |
+| **AI 整合** | ★★★★★（Copilot 原生 + Autopilot + Agents Window） | ★★★★☆（需插件） |
+| **Agent 能力** | ★★★★★（Local/BG/Cloud/CLI/Research Agent） | ★★☆☆☆（有限） |
 | **Spring Boot 支援** | ★★★★☆ | ★★★★★ |
 | **跨語言能力** | ★★★★★ | ★★★☆☆ |
-| **MCP 支援** | ★★★★★（原生 MCP Server） | ★☆☆☆☆ |
+| **MCP 支援** | ★★★★★（原生 MCP + OAuth + 企業級認證） | ★★☆☆☆ |
 | **學習曲線** | 低 | 中-高 |
-| **企業部署** | 簡單（免授權問題） | 需管理授權 |
-| **整合式瀏覽器** | ★★★★☆（1.113 強化） | ★★☆☆☆ |
+| **企業部署** | 簡單（免授權 + MDM 政策管理） | 需管理授權 |
+| **整合式瀏覽器** | ★★★★★（搜尋、收藏、遠端 Proxy、截圖） | ★★☆☆☆ |
+| **成本追蹤** | ★★★★★（Session 級別 Credits 追蹤） | ★☆☆☆☆ |
+| **Context Window** | ★★★★★（最高 1M Token） | ★★★☆☆ |
 
 > **🏦 企業實務建議**：
 > - 銀行等大型企業建議以 VS Code + Copilot 為主要開發工具
-> - VS Code 的 Agent 生態（Local + Cloud + CLI）已遠超 IntelliJ，是 AI 輔助開發的最佳選擇
+> - VS Code 的 Agent 生態（Local + Cloud + CLI + Research + Autopilot）已遠超 IntelliJ
+> - Agents Window 的多 Session 管理和 Session Sync 適合團隊協作
+> - 1.125 的 MDM 原生政策管理讓企業 IT 可透過現有裝置管理工具統一設定
 > - 搭配 Copilot Chat + Agent Mode 可彌補重構能力的差距
 > - IntelliJ 可作為特定場景的輔助工具（如複雜 Spring 設定除錯）
-> - VS Code 1.113 的 Nested Subagents 和 MCP 支援使其在自動化流程上具有決定性優勢
 
 ---
 
@@ -244,7 +302,7 @@ VS Code 1.113 的 Sessions View 提供統一的 Agent Session 管理：
 
 | 工具 | 最低版本 | 建議版本 | 用途 |
 |------|---------|---------|------|
-| VS Code | 1.110+ | **1.113+**（2026-03-25 發布） | 主要 IDE |
+| VS Code | 1.123+ | **1.126+**（2026-06-24 發布） | 主要 IDE |
 | JDK | 17 | **21（LTS）** | Java 執行環境 |
 | Maven | 3.8+ | **3.9.9+** | 專案管理 / 依賴管理 |
 | Git | 2.40+ | **2.47+** | 版本控管 |
@@ -439,7 +497,7 @@ flowchart TD
 java -version        # Java 21+
 mvn -version         # Maven 3.9+
 git --version        # Git 2.40+
-code --version       # VS Code 1.113+
+code --version       # VS Code 1.126+
 ```
 
 > **🏦 企業實務注意**：
@@ -450,7 +508,7 @@ code --version       # VS Code 1.113+
 
 ## 2.4 Copilot 自訂化設定
 
-### Chat Customizations Editor（VS Code 1.113 Preview）
+### Chat Customizations Editor（VS Code 1.113+ / 1.125 GA）
 
 1. 開啟：`Ctrl + Shift + P` → `Chat: Open Chat Customizations`
 2. 在統一 UI 中管理：
@@ -828,7 +886,7 @@ Content-Type: application/json
 
 ## 3.4 使用整合式瀏覽器測試 Web 應用
 
-VS Code 1.113 大幅強化了內建整合式瀏覽器（Integrated Browser），非常適合測試 Spring Boot Web 應用。
+VS Code 的整合式瀏覽器（Integrated Browser）持續強化，已從簡易瀏覽器進化為功能完整的開發用瀏覽器，非常適合測試 Spring Boot Web 應用。
 
 ### 開啟整合式瀏覽器
 
@@ -843,8 +901,12 @@ Ctrl + Shift + P → Simple Browser: Show
 |------|------|--------|
 | **自簽憑證支援** | 開發 HTTPS 應用時自動信任自簽憑證 | 自動 |
 | **Quick Open Tab** | 快速搜尋已開啟的瀏覽器分頁 | `Ctrl+Shift+A` |
-| **關閉所有分頁** | 一鍵關閉所有瀏覽器分頁 | 指令面板 |
-| **與 Agent 整合** | Agent 可自動開啟瀏覽器驗證 Web 變更 | 自動 |
+| **頁面收藏** | 星號收藏常用頁面 | URL 列星號 |
+| **瀏覽歷史** | 自動記錄已造訪頁面 | `Ctrl+H` |
+| **網頁搜尋** | URL 列直接輸入關鍵字搜尋 | 自動 |
+| **區域截圖** | 選取區域截圖加入 Chat | 右鍵選單 |
+| **與 Agent 整合** | Agent 可自動開啟瀏覽器、輸入文字、驗證結果 | 自動 |
+| **Remote Proxy** | 遠端工作區安全代理 HTTP 流量 | 設定啟用 |
 
 ### 實務應用場景
 
@@ -858,7 +920,7 @@ flowchart LR
     style B fill:#3b82f6,color:#fff
 ```
 
-> **💡 優勢**：不需切換到外部瀏覽器，所有開發、測試、除錯都在 VS Code 內完成。Agent Mode 可直接操作整合式瀏覽器驗證變更結果。
+> **💡 優勢**：不需切換到外部瀏覽器，所有開發、測試、除錯都在 VS Code 內完成。Agent Mode 可直接操作整合式瀏覽器驗證變更結果。瀏覽器還支援收藏常用頁面、瀏覽歷史、網頁搜尋和截圖加入 Chat 等功能。
 
 ---
 
@@ -1313,11 +1375,28 @@ class AccountServiceImplTest {
 }
 ```
 
-## 4.3 Agent Mode 深度指南
+## 4.3 Agent Mode 與 Autopilot 深度指南
 
 ### Agent Mode 是什麼？
 
 Agent Mode 是 Copilot 最強大的模式，能**自主完成多步驟任務**：編輯檔案、執行終端指令、讀取輸出並自我修正。與傳統 Chat 不同，Agent 不只回答問題，更會**主動行動**。
+
+### Autopilot（VS Code 1.124 Preview）
+
+Autopilot 是 Chat 的**權限層級**之一，讓 Agent 可自主決定何時繼續迭代、何時停止，無需逐步人工確認每個動作。
+
+**核心機制**：
+- 一個小型判定模型讀取對話紀錄，決定任務是否完成
+- 任務目標以 Tooltip 顯示在 Chat 上方，使用者可隨時檢視
+- 最多迭代三次後自動停止，防止無限迴圈
+- 組織可透過 `chat.tools.global.autoApprove` 政策設定控制
+
+**開啟方式**：
+```
+方法 1：Chat 面板 → 輸入框底部切換 Permission Level 為 Autopilot
+方法 2：設定 chat.permissions.default 為 autopilot
+方法 3：設定 chat.autopilot.advanced.enabled = true 啟用進階判定
+```
 
 ### 開啟 Agent Mode
 
@@ -1346,13 +1425,24 @@ flowchart TD
     J --> K
     K -->|失敗| L[自我修正]
     L --> G
-    K -->|成功| M[✅ 完成]
+    K -->|成功| M{Autopilot 判定完成？}
+    M -->|否，繼續迭代| G
+    M -->|是| N[✅ 完成]
     
     style B fill:#3b82f6,color:#fff
     style E fill:#8b5cf6,color:#fff
     style G fill:#22c55e,color:#fff
     style L fill:#ef4444,color:#fff
+    style M fill:#10b981,color:#fff
 ```
+
+### Permission Levels（權限層級）
+
+| 層級 | 說明 | Agent 自主程度 |
+|------|------|---------------|
+| **Ask** | 每個動作都需確認 | 最低 — 逐步確認 |
+| **Auto-approve** | 預設允許大部分動作 | 中等 — 自動允許安全操作 |
+| **Autopilot** | Agent 自主判斷完成時機 | 最高 — 自主迭代最多三次 |
 
 ### Local Agent 實戰範例
 
@@ -1445,7 +1535,7 @@ Plan Agent 會生成：
 - 風險評估
 - 可由 Implementation Agent 逐步執行
 
-### Nested Subagents（VS Code 1.113）
+### Nested Subagents
 
 Subagent 可以呼叫其他 Subagent，形成**多層級工作流**：
 
@@ -1455,13 +1545,156 @@ Subagent 可以呼叫其他 Subagent，形成**多層級工作流**：
          → 呼叫 Security Subagent（安全審查）
 ```
 
-> **🏦 企業最佳實務**：
-> - Agent Mode 操作的每一步都需要**使用者確認**（可設定自動確認等級）
-> - 建議使用 Plan Agent 先規劃再執行，降低風險
-> - Background / Cloud Agent 產出的程式碼**必須經過 Code Review**
-> - 機敏環境建議限制為 Local Agent，避免程式碼離開工作站
+### Sandbox 網路指令重試（1.123）
 
-## 4.4 Prompt Engineering
+當 Local Agent 在沙箱中執行需要網路的指令（如 `git fetch`、`mvn dependency:resolve`），若指令因網路權限被阻擋，VS Code 會自動以允許網路的方式重試，同時保持檔案系統隔離保護。
+
+> **🏦 企業最佳實務**：
+> - Agent Mode 操作的每一步都需要**使用者確認**（可設定 Permission Level）
+> - 建議使用 Plan Agent 先規劃再執行，降低風險
+> - Autopilot 模式適合信任度高的任務（如產生 Boilerplate、跑測試）
+> - 機敏環境建議限制為 Local Agent + Ask 權限，避免程式碼離開工作站
+> - Background / Cloud Agent 產出的程式碼**必須經過 Code Review**
+> - 使用 `chat.permissions.default` 設定團隊預設權限層級
+
+## 4.4 Agents Window 與 Session 管理
+
+### Agents Window 概述
+
+Agents Window 是 VS Code 1.123 起推出的**專用伴侶視窗**，為探索、迭代與檢視 Agent Session 而優化。它獨立於主編輯器視窗運行，可跨專案、跨機器管理所有 Agent 工作。
+
+### 開啟 Agents Window
+
+```
+Ctrl + Shift + P → Agents: Open Agents Window
+或從 Activity Bar 的 Agents 圖示開啟
+```
+
+### 核心功能
+
+```mermaid
+flowchart TB
+    subgraph "Agents Window 核心功能"
+        MULTI[📑 多 Session 並排<br/>Pin / Maximize / Side-by-Side]
+        NAV[🧭 Session 導航<br/>Ctrl+R 快速切換<br/>Ctrl+Tab 歷史跳轉]
+        CHAT[💬 Multiple Chats<br/>單一 Session 多 Chat 分頁<br/>共享工作上下文]
+        SYNC[🔄 Session Sync<br/>自動同步至 GitHub<br/>跨裝置可搜尋]
+        COST[💰 成本追蹤<br/>Session 級別 Credits<br/>Token 用量統計]
+        FEED[📝 Code Feedback<br/>對程式碼留言<br/>Agent 自動回應]
+    end
+    
+    style MULTI fill:#3b82f6,color:#fff
+    style NAV fill:#22c55e,color:#fff
+    style CHAT fill:#f59e0b,color:#fff
+    style SYNC fill:#8b5cf6,color:#fff
+    style COST fill:#ef4444,color:#fff
+    style FEED fill:#06b6d4,color:#fff
+```
+
+### 多 Session 並排操作
+
+| 操作 | 方式 |
+|------|------|
+| 開啟至側邊 | Sessions 清單右鍵 → Open to the Side |
+| 拖曳開啟 | 從清單拖放至 Session 區域 |
+| Alt + 點擊 | 按住 Alt 點擊 Session |
+| 釘選 Session | Session 視圖右上角 Pin 按鈕（不被新 Session 取代） |
+| 最大化 | Session 視圖右上角 Maximize（佔滿所有 Session 區域） |
+| 關閉所有 | `Ctrl+K Ctrl+W` 一鍵關閉所有 Session |
+
+### Session Sync 與 Chronicle
+
+啟用 Session Sync 後（`chat.sessionSync.enabled`），所有 Chat Session 自動同步至 GitHub 帳號：
+
+```
+# 在 Chat 中使用 Chronicle 指令
+
+/chronicle search 上週我做了哪些 Spring Boot 相關的修改？
+/chronicle standup 產生今日站會報告
+/chronicle tips 根據我的開發習慣給出建議
+```
+
+**Chronicle 可查詢的資訊**：
+- 對話內容與 AI 回應
+- 觸及的檔案清單
+- Repository 上下文（分支、時間戳）
+- 相關的 PR、Issue、Commit 引用
+
+### Multiple Chats per Session（1.126）
+
+單一 Session 可同時開啟多個 Chat 分頁：
+
+```
+情境：主 Chat 正在讓 Agent 實作功能
+→ 點擊 Session 工具列的 "+" 開啟第二個 Chat
+→ 第二個 Chat 用來 Review 程式碼或撰寫測試
+→ 兩個 Chat 共享相同 Session 和工作上下文
+→ 各 Chat 保有獨立對話歷史
+```
+
+### Agentic Code Feedback（1.126）
+
+在 Agents Window 中，可直接對 Agent 產生的程式碼留下評論：
+- Agent 透過 `listComments` 和 `resolveComments` 工具回應
+- 即使斷開連線，評論仍儲存在 Agent Host 上
+- 支援 PR Review 評論：接受後提交給 Agent 處理
+- 可使用 `/code-review` 技能自動產生行內評論
+
+### 成本追蹤（1.126）
+
+Session 資訊彈出視窗顯示：
+- 整個 Session 消耗的 Credits 總計
+- Context Window Token 使用量
+- 可識別高成本 Session，及時調整使用模式
+
+> **🏦 企業最佳實務**：
+> - 啟用 Session Sync 讓團隊可追溯 AI 協作歷史
+> - 利用 `/chronicle standup` 自動產生開發日報
+> - 監控 Session 成本，避免團隊成員超額使用
+> - 善用 Multiple Chats 同時進行開發與 Review
+> - 利用 Code Feedback 在 Agent 生成程式碼上直接標註修改意見
+
+## 4.5 Research Agent 深度研究
+
+### 什麼是 Research Agent？
+
+Research Agent（1.123 Preview）是專為**深度研究**設計的 Agent 類型。它不會修改程式碼，而是透過分析 Codebase、GitHub Repository 和網頁資訊，產出結構完整、有引用來源的 Markdown 研究報告。
+
+### 使用方式
+
+在 Copilot CLI（Local）Session 中輸入：
+
+```
+/research Spring Boot 3.4 的 Virtual Threads 最佳實務，
+包含效能基準、已知限制、以及在 Web MVC 和 WebFlux 中的差異
+```
+
+### 適用場景
+
+| 場景 | 範例 |
+|------|------|
+| 技術選型 | `/research 比較 Kafka vs RabbitMQ 在銀行交易系統的適用性` |
+| API 理解 | `/research 分析專案中 SecurityConfig 的認證流程` |
+| 方案評估 | `/research 將單體架構拆分為微服務的風險與策略` |
+| 學習調研 | `/research Java 21 的 Pattern Matching 和 Record Pattern 用法` |
+| 合規研究 | `/research OWASP Top 10 2025 變更重點與 Spring Boot 對應措施` |
+
+### Research Agent vs Chat 差異
+
+| 面向 | Research Agent | Chat |
+|------|---------------|------|
+| **目標** | 深度報告 | 快速問答 |
+| **輸出** | 結構化 Markdown + 引用 | 簡短回覆 |
+| **權限** | 唯讀（不修改程式碼） | 可讀寫（Agent Mode） |
+| **時間** | 數分鐘（深度搜尋） | 秒級回應 |
+| **資料來源** | Codebase + GitHub + Web | 主要是 Codebase |
+
+> **🏦 企業實務建議**：
+> - 技術選型前使用 Research Agent 產出調研報告，作為決策依據
+> - 新成員 Onboarding 時使用 `/research 分析這個專案的架構與關鍵模組`
+> - Research Agent 報告可直接作為技術文件草稿
+
+## 4.6 Prompt Engineering
 
 ### 好 Prompt 範例 ✅
 
@@ -1557,11 +1790,11 @@ graph LR
 > - 建議在 Code Review 中加入「AI 生成程式碼標記」，讓審查者特別注意
 > - 敏感資料（如客戶個資、帳號）不應出現在 Prompt 中
 
-## 4.5 MCP Server 整合
+## 4.7 MCP Server 整合
 
 ### 什麼是 MCP？
 
-**Model Context Protocol（MCP）** 是一套開放協議，讓 AI Agent 透過標準化介面存取外部工具與資料源。VS Code 1.113 將 MCP 支援擴展至 Copilot CLI 與 Claude Agent。
+**Model Context Protocol（MCP）** 是一套開放協議，讓 AI Agent 透過標準化介面存取外部工具與資料源。VS Code 自 1.113 起支援 MCP，1.124 新增 OAuth 驗證、企業 XAA 認證與白名單管控。
 
 ### MCP 架構
 
@@ -1630,12 +1863,61 @@ flowchart LR
 
 Agent 會透過 Database MCP 取得 Schema，再生成對應的 Java 程式碼。
 
+### MCP OAuth 認證（VS Code 1.123）
+
+MCP Server 可透過 OAuth 進行身份驗證。在 `mcp.json` 中設定：
+
+```json
+{
+    "my-mcp-server": {
+        "url": "https://mcp.example.com/mcp",
+        "type": "http",
+        "oauth": {
+            "clientId": "your-client-id"
+        }
+    }
+}
+```
+
+**Client Secret 安全儲存**：
+- 當 `oauth.clientId` 設定後，`mcp.json` 上方出現 `Set Client Secret` CodeLens
+- 點擊後 Secret 儲存於 OS 加密儲存（Credential Manager / Keychain）
+- Secret 以 Server URL + Client ID 為範圍隔離
+- 隨時可透過 CodeLens 查看 / 替換 / 刪除 Secret
+
+### 企業級 MCP 認證（Enterprise-Managed，1.123 Preview）
+
+對於採用集中式身份提供者（Entra、Okta、Auth0）的企業，可透過 **Cross-App Authorization（XAA）** 實現單次登入：
+
+```mermaid
+sequenceDiagram
+    participant DEV as 👨‍💻 開發者
+    participant VSCODE as VS Code
+    participant IDP as 🏢 企業 IdP<br/>(Entra/Okta)
+    participant MCP as 🔧 MCP Server
+
+    DEV->>VSCODE: 啟動 MCP Server
+    VSCODE->>IDP: 使用企業帳號登入（一次）
+    IDP-->>VSCODE: ID Token
+    VSCODE->>MCP: ID-JAG 斷言交換
+    MCP-->>VSCODE: Resource Access Token
+    VSCODE->>MCP: 使用 Token 存取 MCP 資源
+```
+
+**設定方式**：
+1. 管理員透過 MDM 政策設定 IdP：`mcp.enterpriseManagedAuth.idp`
+2. 個別 MCP Server 在 `oauth` 區塊加入 `"enterpriseManaged": true`
+3. VS Code 自動走 XAA 流程，無需每個 Server 個別註冊
+
 > **🏦 企業安全注意**：
 > - MCP Server 可存取外部系統，務必確認網路白名單與權限設定
-> - 不要在 MCP 設定中直接寫入密碼，使用 `${env:VAR}` 引用環境變數
+> - 不要在 MCP 設定中直接寫入密碼，使用 `${env:VAR}` 或 OAuth 機制
 > - 建議由資安團隊審核 MCP Server 清單後再部署
+> - 企業環境優先採用 Enterprise-Managed MCP 認證，統一身份管理
+> - 透過 `chat.plugins.enabledPlugins` 政策控制可用 MCP Plugin 白名單
+> - 使用 `chat.plugins.strictMarketplaces` 限制僅允許政策核准的 Marketplace
 
-## 4.6 Custom Instructions / Agent Skills / Custom Agents
+## 4.8 Custom Instructions / Agent Skills / Custom Agents
 
 ### 自訂化層級總覽
 
@@ -1728,7 +2010,7 @@ tools:
 
 ### Chat Customizations Editor 管理
 
-VS Code 1.113 的 Chat Customizations Editor（Preview）提供統一的 UI 管理所有自訂化檔案：
+VS Code 的 Chat Customizations Editor（1.125 GA）提供統一的 UI 管理所有自訂化檔案：
 
 `Ctrl + Shift + P` → `Chat: Open Chat Customizations`
 
@@ -2605,9 +2887,25 @@ Unsatisfied dependency expressed through constructor parameter 0
 > - 金融核心邏輯（如利率計算、轉帳）需達 **95%** 覆蓋率
 > - 使用 JaCoCo 產生覆蓋率報告，整合到 CI/CD
 
-## 7.5 整合式瀏覽器 Agent 測試（實驗性）
+## 7.5 整合式瀏覽器 Agent 測試
 
-VS Code 1.113 的整合式瀏覽器可與 Agent Mode 結合，實現**半自動化 E2E 測試**流程。
+VS Code 的整合式瀏覽器（Integrated Browser）在 1.123–1.126 期間持續強化，現已成為完整的開發內瀏覽器，可與 Agent Mode 結合實現半自動化 E2E 測試。
+
+### 整合式瀏覽器完整功能一覽（截至 1.126）
+
+| 功能 | 版本 | 說明 |
+|------|------|------|
+| 自簽憑證支援 | 1.113 | HTTPS 開發自動信任本地憑證 |
+| Quick Open Tab | 1.113 | `Ctrl+Shift+A` 快速搜尋分頁 |
+| 頁面收藏 | 1.123 | 星號收藏常用頁面，URL 列快速存取 |
+| 區域截圖 | 1.123 | 選取區域截圖加入 Chat 上下文 |
+| 全頁面截圖 | 1.123 | 超出視窗的完整頁面截圖（實驗性） |
+| 瀏覽歷史 | 1.124 | 自動記錄，URL 列顯示歷史建議，`Ctrl+H` 管理 |
+| 工具列自訂 | 1.124 | 右鍵工具列自訂永久顯示的按鈕 |
+| 快速文字輸入 | 1.124 | Agent `typeInPage` 支援 `submit` 參數 |
+| 網址列搜尋 | 1.125 | 輸入關鍵字直接搜尋（可設定搜尋引擎） |
+| Remote Proxy | 1.125 | 遠端工作區中代理 HTTP(S) 流量 |
+| Forwarded Port 整合 | 1.125 | Agent 自動重寫已轉發的 Port URL |
 
 ### 使用場景
 
@@ -2907,6 +3205,21 @@ flowchart LR
 
 ## 9.2 Extension 管理
 
+### Extension 自動更新策略（VS Code 1.123–1.125）
+
+VS Code 1.123 起引入**延遲自動更新**機制，1.125 進一步簡化設定：
+
+| 設定 | 值 | 說明 |
+|------|------|------|
+| `extensions.autoUpdate` | `on` / `off` | 啟用或停用自動更新（簡化自舊版 true/false/delayed） |
+| `extensions.autoUpdateDelay` | 小時數（預設 2） | 新版發布後等待多久才自動更新 |
+
+**延遲機制說明**：
+- 新版 Extension 發布後，預設等待 **2 小時**才自動安裝
+- 可隨時手動點擊 Update 立即更新
+- Microsoft、GitHub、OpenAI 等信任發布者不受延遲限制
+- 停用的 Extension 不再自動更新，啟用時才會更新
+
 ### Extension 版本鎖定
 
 建立 `.vscode/extensions.json` 統一團隊 Extension：
@@ -2939,36 +3252,81 @@ code --list-extensions > extensions-list.txt
 Get-Content extensions-list.txt | ForEach-Object { code --install-extension $_ }
 ```
 
-## 9.3 Copilot 模型更新與最佳化使用
+## 9.3 Copilot 模型更新與成本管理
 
-### Copilot 可用模型（VS Code 1.113，2026-03-25）
+### Copilot 可用模型（VS Code 1.126，2026-06-24）
 
-| 模型 | 特點 | 適用場景 | 推理深度 |
-|------|------|---------|---------|
-| **GPT-4o** | 平衡速度與品質 | 日常編碼（快速模式預設） | — |
-| **GPT-5.4** | 最新一代，推理更強 | 複雜架構設計、多步驟任務 | 可調整 |
-| **Claude Sonnet 4** | 程式碼品質高 | 複雜邏輯、重構 | 可調整 |
-| **Claude Sonnet 4.6** | 最新版，速度與品質兼顧 | Agent Mode 首選 | 可調整 |
-| **Claude Opus 4** | 最高品質 | 關鍵業務邏輯、安全程式碼 | 可調整 |
-| **o3-mini** | 推理能力極強 | 演算法、數學、邏輯推演 | 固定高 |
+| 模型 | 特點 | 適用場景 | Context Window |
+|------|------|---------|---------------|
+| **GPT-4o** | 平衡速度與品質 | 日常編碼（快速模式預設） | 128K |
+| **GPT-5.5** | 最新一代，推理極強 | 超大型程式碼分析、跨檔案理解 | 1M |
+| **Claude Sonnet 4.6** | 速度與品質兼顧 | Agent Mode 首選、日常 Chat | 200K |
+| **Claude Opus 4** | 最高品質 | 關鍵業務邏輯、安全程式碼 | 200K |
+| **Claude Opus 4.7** | 最新版，支援超大上下文 | 大型 Codebase 分析、Research Agent | 1M |
+| **o3-mini** | 推理能力極強 | 演算法、數學、邏輯推演 | 128K |
 
-### 切換模型與推理深度
+### 1M Context Window（VS Code 1.123）
 
-在 Chat 面板右下角的 **Model Picker** 可：
-1. 選擇模型
-2. 調整 **Thinking Effort**（推理深度）：Low / Medium / High
+VS Code 現在支援**百萬 Token 上下文視窗**，適用於相容的 Anthropic 和 OpenAI 模型（如 Claude Opus 4.7、GPT-5.5）。這使得處理超大型 Codebase 和長時間對話時不會遺失重要上下文。
+
+> **⚠️ 注意**：較大的上下文視窗每次互動消耗更多 Token，在用量計費下會增加 Credits 使用。
+
+### 統一模型自訂化選擇器（VS Code 1.126）
+
+VS Code 1.126 將 Context Size 和 Thinking Effort（推理深度）合併為單一選擇器：
 
 ```
-Model Picker → 選擇 Claude Sonnet 4.6 → Thinking Effort: High
+Model Picker → 選擇模型 → 點擊齒輪圖示
+→ 統一選擇器中同時調整：
+   • Context Size: Default / Large / Extended (1M)
+   • Thinking Effort: Low / Medium / High
 ```
 
-> **⚠️ 棄用通知**：以下設定已在 VS Code 1.113 中棄用：
+> **⚠️ 棄用通知**：以下設定已完全移除：
 > ```json
-> // ❌ 已棄用 - 不要使用
+> // ❌ 已移除 - 不要使用
 > "github.copilot.chat.anthropic.thinking.effort": "...",
 > "github.copilot.chat.responsesApiReasoningEffort": "..."
 > ```
-> 推理深度現在改由 **Model Picker 下拉選單**直接控制。
+
+### 安裝第三方模型 Provider（VS Code 1.125）
+
+Language Models 編輯器新增 **Install Model Providers** 按鈕，可直接搜尋並安裝提供模型的 Extension（BYOK 或第三方 Provider）。安裝後模型自動出現在 Model Picker 中。
+
+### 成本管理與追蹤
+
+VS Code 1.125–1.126 引入完整的成本管理體系：
+
+| 功能 | 版本 | 說明 |
+|------|------|------|
+| Additional Spend 追蹤 | 1.125 | Copilot Status Dashboard 顯示已使用的額外預算百分比 |
+| Session 級別成本 | 1.126 | 查看每個 Chat Session 的 Credits 消耗與 Token 用量 |
+
+```mermaid
+flowchart LR
+    A[開發者使用 Copilot] --> B[Token 消耗]
+    B --> C[Session 成本追蹤<br/>Credits 即時顯示]
+    C --> D{超過預算？}
+    D -->|否| E[繼續使用]
+    D -->|是| F[通知提醒<br/>調整使用模式]
+    F --> G[切換較輕量模型<br/>降低 Context Size]
+    
+    style C fill:#f59e0b,color:#fff
+    style F fill:#ef4444,color:#fff
+```
+
+### 模型選擇策略矩陣（更新版）
+
+| 場景 | 建議模型 | Context Size | Thinking Effort | 成本考量 |
+|------|---------|-------------|----------------|---------|
+| 日常編碼補全 | GPT-4o | Default | — | 💰 低 |
+| Chat 問答 | Claude Sonnet 4.6 | Default | Medium | 💰 中 |
+| Agent Mode 多步驟 | Claude Sonnet 4.6 | Large | High | 💰💰 中高 |
+| 架構設計討論 | Claude Opus 4.7 | Extended | High | 💰💰💰 高 |
+| 大型 Codebase 分析 | GPT-5.5 | Extended (1M) | High | 💰💰💰 高 |
+| 複雜演算法 | o3-mini | Default | 固定高 | 💰💰 中 |
+| 安全審查 | Claude Opus 4 | Large | High | 💰💰💰 高 |
+| Research Agent | Claude Opus 4.7 | Extended | High | 💰💰💰 高 |
 
 ### 提升 Copilot 效率的設定
 
@@ -2982,29 +3340,26 @@ Model Picker → 選擇 Claude Sonnet 4.6 → Thinking Effort: High
     // Agent Mode 啟用
     "chat.agent.enabled": true,
     
-    // 自訂指令檔（建議使用 Chat Customizations Editor 管理）
+    // Autopilot 預設權限（企業建議設為 auto-approve）
+    "chat.permissions.default": "auto-approve",
+    
+    // Session Sync 啟用
+    "chat.sessionSync.enabled": true,
+    
+    // 自訂指令檔
     "github.copilot.chat.codeGeneration.instructions": [
         { "file": ".github/copilot-instructions.md" }
     ]
 }
 ```
 
-### 模型選擇策略矩陣
-
-| 場景 | 建議模型 | 推理深度 | 原因 |
-|------|---------|---------|------|
-| 日常編碼補全 | GPT-4o | — | 速度快、回應即時 |
-| Chat 問答 | Claude Sonnet 4.6 | Medium | 品質與速度兼顧 |
-| Agent Mode 多步驟 | Claude Sonnet 4.6 | High | 需要深度推理 |
-| 架構設計討論 | Claude Opus 4 | High | 最高品質輸出 |
-| 複雜演算法 | o3-mini | 固定高 | 推理能力最強 |
-| 安全審查 | Claude Opus 4 | High | 需要仔細分析 |
-
 > **🏦 企業實務建議**：
 > - 每季評估一次 VS Code 與 Extension 版本
 > - 建立「VS Code 標準設定包」，新成員可一鍵匯入
-> - 日常開發用 GPT-4o（快速）；Code Review 和安全審查用 Claude Opus 4（高品質）
-> - Agent Mode 推薦使用 Claude Sonnet 4.6 搭配 High Thinking Effort
+> - 日常開發用 GPT-4o（低成本）；Code Review 用 Claude Sonnet 4.6；安全審查用 Claude Opus 4
+> - 啟用 Session 成本追蹤，設定團隊月度 Credits 預算上限
+> - 善用延遲自動更新（`extensions.autoUpdateDelay`），降低問題版本風險
+> - 透過 MDM 政策統一管理 Copilot 設定（`chat.tools.global.autoApprove`）
 
 ---
 
@@ -3177,13 +3532,21 @@ graph TB
 | **Agent 管控** | Cloud/Background Agent 產出的程式碼必須經過人工 Review |
 | **MCP 存取控制** | MCP Server 存取的外部系統需經資安團隊核可 |
 | **Agent 權限分級** | 依場景限制 Agent 可用工具（如禁止 Agent 存取生產 DB） |
+| **成本管控** | 監控 Session 級別 Credits 消耗，設定團隊月度預算上限 |
+| **Session 審計** | 啟用 Session Sync，保留所有 AI 對話歷史作為審計紀錄 |
+| **Autopilot 限制** | 機敏環境禁用 Autopilot，使用 Ask 權限層級 |
+| **企業 MDM 管理** | 透過 MDM 統一部署 Copilot 政策設定，開發者無法本地覆寫 |
 
 > **🏦 企業實務建議**：
 > - 每月舉辦「AI 輔助開發分享會」，分享好的 Prompt 和使用技巧
-> - 建立團隊共用的 Prompt Library
+> - 建立團隊共用的 Prompt Library（`.github/prompts/` 目錄）
 > - 在 Jira Story 中增加「AI 使用比例」欄位，追蹤 AI 參與度
 > - 建立 MCP Server 白名單制度，由資安團隊定期審查
-> - 定義 Custom Agent 的工具權限控制標準（如 `security-auditor` Agent 僅可讀取，不可寫入）
+> - 定義 Custom Agent 的工具權限控制標準
+> - 啟用 Session Sync + Chronicle，利用 `/chronicle` 指令產出團隊生產力報告
+> - 透過 MDM 統一部署 `chat.permissions.default`、`chat.tools.global.autoApprove` 等政策
+> - 設定 `extensions.autoUpdateDelay` 為 24–72 小時，確保穩定性
+> - 監控團隊 Copilot Credits 消耗，設定 Additional Spend 上限
 
 ---
 
@@ -3332,7 +3695,7 @@ graph TB
 ## Q13：Agent Mode 執行時異常終止怎麼辦？
 
 **A**：
-1. 檢查 Agent Debug Log（VS Code 1.113）：`Ctrl + Shift + P` → `Chat: Show Agent Debug Logs`
+1. 檢查 Agent Debug Log：`Ctrl + Shift + P` → `Chat: Show Agent Debug Logs`
 2. 確認終端權限——Agent 可能因權限不足無法執行終端指令
 3. 檢查工作區磁碟空間——Agent 可能因空間不足而失敗
 4. 嘗試縮小任務範圍，分步驟執行
@@ -3350,10 +3713,56 @@ graph TB
 ## Q15：Edit Mode 去哪了？
 
 **A**：
-- Edit Mode 已在 VS Code 1.110 正式棄用，1.125 後完全移除
+- Edit Mode 已在 VS Code 1.125 **完全移除**
 - 替代方案：使用 **Agent Mode** 處理多檔案編輯任務
-- 若暫時需要，可在 `settings.json` 加入 `"chat.editMode.hidden": false` 啟用
-- 建議盡早遷移至 Agent Mode，功能更強大且持續更新
+- Agent Mode 功能遠超 Edit Mode，支援自主迭代、終端操作、檔案建立
+- 搭配 Autopilot 權限層級可實現全自動多步驟編輯
+
+## Q16：Autopilot 會不會失控修改程式碼？
+
+**A**：
+1. Autopilot 最多迭代 **三次**後自動停止
+2. 任務目標以 Tooltip 顯示在 Chat 上方，隨時可檢視
+3. 可透過 `chat.permissions.default` 設定預設權限層級
+4. 企業環境可用 `chat.tools.global.autoApprove` 政策完全禁用
+5. 建議機敏環境使用 Ask 權限，一般開發用 Auto-approve
+
+## Q17：Agents Window 如何跨機器同步 Session？
+
+**A**：
+1. 啟用 `chat.sessionSync.enabled` 設定
+2. 確認已登入 GitHub 帳號
+3. Session 自動同步至 GitHub，包含對話、檔案清單、Repository 上下文
+4. 在任何裝置的 VS Code 中可搜尋和恢復歷史 Session
+5. 使用 `/chronicle search` 搜尋歷史工作內容
+
+## Q18：如何控制 Copilot 使用成本？
+
+**A**：
+1. **監控成本**：Session 資訊彈出視窗查看 Credits 消耗
+2. **Additional Spend 上限**：在 GitHub Settings > Copilot 設定每月額外預算
+3. **選擇合適模型**：日常用 GPT-4o（低成本），只在需要時切換高階模型
+4. **調低 Context Size**：非必要不使用 Extended (1M) Context
+5. **降低 Thinking Effort**：簡單任務用 Low/Medium
+6. **控制 Agent 迭代**：使用 Ask 權限減少不必要的自動迭代
+
+## Q19：如何設定企業級 MCP 認證？
+
+**A**：
+1. IT 管理員透過 MDM 部署 `mcp.enterpriseManagedAuth.idp` 政策
+2. 在 `mcp.json` 的 MCP Server 設定中加入 `"oauth": { "enterpriseManaged": true }`
+3. 使用者只需登入一次企業 IdP（Entra/Okta/Auth0）
+4. VS Code 自動走 XAA 流程為每個 MCP Server 取得 Token
+5. 參考 [xaa.dev](https://xaa.dev/) 了解 ID-JAG 標準
+
+## Q20：Research Agent 與一般 Chat 有什麼差別？
+
+**A**：
+- Research Agent 是**唯讀**的，不會修改任何程式碼
+- 輸出是結構化 Markdown 報告，含引用來源
+- 搜尋範圍包含 Codebase + GitHub Repos + Web
+- 適合技術調研、方案比較、新技術學習
+- 使用方式：在 Copilot CLI Session 中輸入 `/research <主題>`
 
 ---
 
@@ -3480,7 +3889,7 @@ graph TB
 
 ### 環境設定
 
-- [ ] 安裝 VS Code（**1.113+** 最新穩定版）
+- [ ] 安裝 VS Code（**1.126+** 最新穩定版）
 - [ ] 安裝 JDK 21（設定 JAVA_HOME）
 - [ ] 安裝 Maven 3.9+（設定 MAVEN_HOME）
 - [ ] 安裝 Git 2.40+
@@ -3488,6 +3897,7 @@ graph TB
 - [ ] 設定 VS Code settings.json（見 2.3 章節）
 - [ ] 登入 GitHub 並啟用 Copilot
 - [ ] 執行 `/init` 建立專案 Copilot 設定（見 2.4 章節）
+- [ ] 啟用 Session Sync（`chat.sessionSync.enabled`）
 - [ ] 設定企業 Proxy（如需要）
 - [ ] 設定 Maven settings.xml（企業 Nexus）
 - [ ] Clone 專案並成功 `mvn compile`
@@ -3500,10 +3910,13 @@ graph TB
 - [ ] 了解 Commit Message 規範
 - [ ] 能使用 Copilot Chat 生成程式碼
 - [ ] 能使用 Agent Mode 執行多步驟任務
+- [ ] 了解 Autopilot 權限層級與適用場景
+- [ ] 能使用 Agents Window 管理多個 Session
+- [ ] 能使用 `/chronicle` 搜尋歷史工作
 - [ ] 能使用 REST Client 測試 API
 - [ ] 能使用 VS Code Debug 除錯
 - [ ] 能撰寫 JUnit 5 測試
-- [ ] 能使用整合式瀏覽器測試 Web 應用
+- [ ] 能使用整合式瀏覽器測試 Web 應用（含截圖、收藏）
 
 ### 安全與品質
 
@@ -3513,6 +3926,8 @@ graph TB
 - [ ] 了解 SonarQube 品質標準
 - [ ] 了解 OWASP Top 10 常見弱點
 - [ ] 了解 Agent / MCP 使用的安全與治理規範
+- [ ] 了解 Permission Level 設定（Ask / Auto-approve / Autopilot）
+- [ ] 了解 Session 成本追蹤與預算管理
 
 ### 團隊協作
 
@@ -3521,6 +3936,8 @@ graph TB
 - [ ] 了解 CI/CD Pipeline 運作方式
 - [ ] 參加 AI 輔助開發分享會（每月）
 - [ ] 熟悉 Chat Customizations Editor 管理自訂化設定
+- [ ] 了解 Session Sync 與 Chronicle 指令使用方式
+- [ ] 了解 MCP Server 白名單與企業認證機制
 
 ---
 
@@ -3530,5 +3947,5 @@ graph TB
 
 ---
 
-*文件結束 — VS Code + GitHub Copilot 開發 Java Web 應用程式教學手冊 v2.0（根據 VS Code 1.113 更新）*
+*文件結束 — VS Code + GitHub Copilot 開發 Java Web 應用程式教學手冊 v3.0（根據 VS Code 1.123–1.126 全面更新）*
 

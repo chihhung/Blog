@@ -1,5 +1,5 @@
 +++
-date = '2026-05-30T10:00:00+08:00'
+date = '2026-06-30T10:00:00+08:00'
 draft = false
 title = 'Graphify教學手冊'
 tags = ['教學', 'AI開發','指引']
@@ -8,7 +8,7 @@ categories = ['教學']
 
 # Graphify 教學手冊
 
-> **版本**：v0.8.26（2026-05-30）  
+> **版本**：v0.9.2（2026-06-30）  
 > **適用對象**：資深工程師、架構師、DevOps 團隊  
 > **定位**：企業級知識圖譜建置與維運實戰手冊  
 > **授權**：MIT License  
@@ -70,6 +70,17 @@ categories = ['教學']
   - [5.15 自訂 LLM Provider Registry](#515-自訂-llm-provider-registry)
   - [5.16 循環匯入偵測（Import Cycle Detection）](#516-循環匯入偵測import-cycle-detection)
   - [5.17 專案範圍安裝（Project-Scoped Install）](#517-專案範圍安裝project-scoped-install)
+  - [5.18 Azure OpenAI 後端](#518-azure-openai-後端v0832-新增)
+  - [5.19 Terraform / HCL 支援](#519-terraform--hcl-支援v0830-新增)
+  - [5.20 Salesforce Apex 支援](#520-salesforce-apex-支援v0831-新增)
+  - [5.21 PostgreSQL Schema 內省](#521-postgresql-schema-內省v0834-新增)
+  - [5.22 FalkorDB 圖資料庫整合](#522-falkordb-圖資料庫整合v0839-新增)
+  - [5.23 Cargo Workspace 映射](#523-cargo-workspace-映射v0838-新增)
+  - [5.24 CUDA / Metal Shader 支援](#524-cuda--metal-shader-支援v0840-新增)
+  - [5.25 WPF / XAML 支援](#525-wpf--xaml-支援v0841-新增)
+  - [5.26 Graph Health Gate](#526-graph-health-gatev0844-新增)
+  - [5.27 Trigram Query 預過濾](#527-trigram-query-預過濾v0845-新增)
+  - [5.28 新增平台支援](#528-新增平台支援v0827-持續擴充)
 - [第 6 章：實戰案例](#第-6-章實戰案例)
   - [6.1 案例一：舊系統逆向工程（Java / Spring）](#61-案例一舊系統逆向工程java--spring)
   - [6.2 案例二：微服務架構知識盤點](#62-案例二微服務架構知識盤點)
@@ -79,6 +90,7 @@ categories = ['教學']
   - [7.1 升級 Graphify](#71-升級-graphify)
   - [7.2 Graph Schema 版本控制](#72-graph-schema-版本控制)
   - [7.3 與 Git 版本同步策略](#73-與-git-版本同步策略)
+  - [7.4 v0.9.0 破壞性變更遷移指南](#74-v090-破壞性變更遷移指南)
 - [第 8 章：安全與隱私設計（SSDLC）](#第-8-章安全與隱私設計ssdlc)
   - [8.1 安全模型總覽](#81-安全模型總覽)
   - [8.2 本地運算優勢](#82-本地運算優勢)
@@ -107,17 +119,18 @@ categories = ['教學']
 
 ### 1.1 什麼是 Graphify
 
-Graphify 是由 AI 工程師 Safi Shamsi 開發的開源工具（GitHub 星數 57.1k+、貢獻者 70+、Y Combinator S26 批次），能將任何資料夾（程式碼、PDF、圖片、影片、音訊、Markdown、Office 文件、Google Workspace、MCP 設定）自動轉化為**可查詢的知識圖譜（Knowledge Graph）**。
+Graphify 是由 AI 工程師 Safi Shamsi 開發的開源工具（GitHub 星數 74.4k+、貢獻者 100+、Releases 148+、Y Combinator S26 批次），能將任何資料夾（程式碼、PDF、圖片、影片、音訊、Markdown、Office 文件、Google Workspace、MCP 設定、Terraform/HCL、Salesforce Apex、XAML）自動轉化為**可查詢的知識圖譜（Knowledge Graph）**。
 
 其核心靈感來自 Tesla 前 AI 主管 Andrej Karpathy 的 `/raw` 資料夾概念——將散亂的原始資料結構化，以圖譜形式呈現實體與關係，讓 AI 助手可以「看到結構」而非「暴力搜尋」。
 
 **核心價值主張**：
-- 完全多模態：支援 33+ 種程式語言 + PDF + 圖片 + 影片/音訊 + Office + Google Workspace + SQL Schema + YAML + .NET 專案檔 + MCP 設定檔
+- 完全多模態：支援 36+ 種程式語言 + PDF + 圖片 + 影片/音訊 + Office + Google Workspace + SQL Schema + YAML + .NET 專案檔 + MCP 設定檔 + Terraform/HCL + Salesforce Apex + CUDA/Metal + WPF/XAML
 - Token 節省 71.5 倍（相較直接讀取原始檔案）
 - 程式碼與影音完全本地運行，無資料外洩風險
 - 100% Python，MIT 授權
-- 支援 20+ 個 AI 平台（Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot CLI、VS Code Copilot Chat、Amp、Devin 等）
-- 多後端推論：Claude、Gemini、OpenAI、Ollama（本地）、AWS Bedrock、Kimi、DeepSeek、自訂 LLM Provider
+- 支援 22+ 個 AI 平台（Claude Code、Codex、Cursor、Gemini CLI、GitHub Copilot CLI、VS Code Copilot Chat、Amp、Devin、Kilo Code、CodeBuddy 等）
+- 多後端推論：Claude、Gemini、OpenAI、Ollama（本地）、AWS Bedrock、Azure OpenAI、Kimi、DeepSeek、自訂 LLM Provider
+- 自我改進記憶系統（Work Memory）：Q&A 結果自動回饋為 LESSONS.md，跨 session 持續學習
 
 ### 1.2 工具定位與比較
 
@@ -125,12 +138,12 @@ Graphify 是由 AI 工程師 Safi Shamsi 開發的開源工具（GitHub 星數 5
 |----------|--------------|-------------------|-----------------|-------------|
 | 分析粒度 | 關鍵字匹配 | 語法層級搜尋 | 語義相似度 | **結構化圖譜 + 語義** |
 | 跨檔案關係 | ✗ | 有限 | 模糊 | **明確的 EXTRACTED / INFERRED 邊** |
-| 多模態支援 | ✗ | 僅程式碼 | 需額外處理 | **原生支援 Code + PDF + Image + Video + Audio + MCP** |
+| 多模態支援 | ✗ | 僅程式碼 | 需額外處理 | **原生支援 Code + PDF + Image + Video + Audio + MCP + Terraform + XAML** |
 | Token 效率 | N/A | N/A | 高消耗 | **71.5x 節省** |
 | 離線運行 | ✓ | ✗ | 視實作 | **✓ 程式碼/影音完全本地** |
 | 置信度追蹤 | ✗ | ✗ | ✗ | **✓ EXTRACTED / INFERRED / AMBIGUOUS** |
-| 持久性 | 無 | 雲端索引 | Vector DB | **JSON + HTML + Obsidian + Wiki + Neo4j** |
-| 多後端推論 | N/A | N/A | 單一供應商 | **Claude / Gemini / OpenAI / Ollama / Bedrock / Kimi** |
+| 持久性 | 無 | 雲端索引 | Vector DB | **JSON + HTML + Obsidian + Wiki + Neo4j + FalkorDB** |
+| 多後端推論 | N/A | N/A | 單一供應商 | **Claude / Gemini / OpenAI / Ollama / Bedrock / Azure OpenAI / Kimi** |
 
 ### 1.3 使用情境
 
@@ -144,6 +157,9 @@ Graphify 是由 AI 工程師 Safi Shamsi 開發的開源工具（GitHub 星數 5
 | **AI 開發輔助** | 提升 Copilot / Claude 效率 | Always-On Hook 引導 AI 導航 |
 | **資料庫逆向工程** | SQL Schema 結構不明 | SQL AST 確定性提取（無 LLM） |
 | **架構文件自動化** | 缺乏架構圖文件 | Callflow HTML 匯出 Mermaid 架構圖 |
+| **基礎設施分析** | Terraform/IaC 結構不明 | Terraform/HCL AST 提取（v0.8.32+） |
+| **CRM 程式碼分析** | Salesforce Apex 無工具 | Apex .cls/.trigger 提取（v0.8.34+） |
+| **GPU 運算分析** | CUDA/Metal 無支援 | CUDA/Metal 走 C++ AST（v0.8.46+） |
 
 ### 1.4 與 AI Agent 的關係
 
@@ -190,14 +206,14 @@ graph LR
 
 | 特色 | 說明 |
 |------|------|
-| **全自動建圖** | 支援 33+ 種程式語言 + PDF + 圖片 + 影片/音訊 + Office + Google Workspace + SQL + .NET 專案檔 + MCP 設定 |
+| **全自動建圖** | 支援 36+ 種程式語言 + PDF + 圖片 + 影片/音訊 + Office + Google Workspace + SQL + .NET 專案檔 + MCP 設定 + Terraform/HCL + Salesforce Apex + CUDA/Metal + WPF/XAML |
 | **三階段處理** | Pass 1: AST（零 Token）→ Pass 2: 影音（本地 Whisper）→ Pass 3: 文件/圖片（LLM 並行） |
-| **多後端推論** | Claude / Gemini / OpenAI / Ollama（本地）/ AWS Bedrock / Kimi / DeepSeek / Claude CLI / 自訂 Provider |
+| **多後端推論** | Claude / Gemini / OpenAI / Ollama（本地）/ AWS Bedrock / Azure OpenAI / Kimi / DeepSeek / Claude CLI / 自訂 Provider |
 | **置信度標籤** | EXTRACTED / INFERRED / AMBIGUOUS 三級分類，INFERRED 含離散信賴分數 |
 | **Leiden 社區偵測** | 基於拓撲的社區偵測（非 embedding），確定性種子確保跨重建穩定 |
 | **SHA256 快取** | 增量更新，僅處理變更檔案；內容雜湊（非路徑），重命名不重提取 |
 | **實體去重** | MinHash/LSH + Jaro-Winkler 自動合併近似重複實體 |
-| **多格式匯出** | HTML / JSON / Obsidian / SVG / GraphML / Neo4j / Wiki / Callflow HTML / D3 Tree |
+| **多格式匯出** | HTML / JSON / Obsidian / SVG / GraphML / Neo4j / FalkorDB / Wiki / Callflow HTML / D3 Tree |
 | **MCP Server** | 標準 MCP stdio 伺服器，可與任何支援 MCP 的工具整合 |
 | **Git Hooks + 合併驅動器** | post-commit / post-checkout 自動重建 + graph.json 聯合合併（無衝突標記） |
 | **全域圖譜** | 跨專案知識圖譜（`~/.graphify/global.json`），支援多 Repo 統一查詢 |
@@ -213,8 +229,12 @@ graph LR
 | **確定性輸出** | 邊排序 + `PYTHONHASHSEED=0`，跨重建 byte-for-byte 穩定 |
 | **Deep 模式** | `--mode deep` 啟用擴展系統提示的更豐富語義提取 |
 | **Type-Reference 邊** | 參數型別、回傳型別、泛型引數等跨語言語義上下文 |
+| **Work Memory** | `save-result --outcome` + `reflect` 自動產生 LESSONS.md，跨 session 持續學習（v0.8.47+） |
+| **Trigram Query** | 三元組預過濾加速查詢，大型圖譜 O(N) 掃描優化（v0.8.46+） |
+| **Graph Health Gate** | 圖譜建構後自動診斷提取品質（懸空邊、自迴圈、合併邊警告）（v0.8.46+） |
+| **完整路徑 Node ID** | v0.9.0 節點 ID 含完整 repo 相對路徑，解決同名檔案靜默合併問題 |
 
-> **📌 實務建議**：對於 50 個以上檔案的專案，Graphify 的 Token 節省效益最為顯著（71.5x+）。小型專案（< 10 檔案）的價值在於結構清晰度而非壓縮比。v0.8.12+ 將大型語料庫閘值由 200 提升至 500 個檔案，並在圖譜已存在時跳過提取直接進入查詢模式。
+> **📌 實務建議**：對於 50 個以上檔案的專案，Graphify 的 Token 節省效益最為顯著（71.5x+）。小型專案（< 10 檔案）的價值在於結構清晰度而非壓縮比。v0.8.12+ 將大型語料庫閘值由 200 提升至 500 個檔案，並在圖譜已存在時跳過提取直接進入查詢模式。v0.9.0+ 節點 ID 含完整路徑，解決同名檔案在不同目錄下靜默合併的問題。
 
 ### 1.6 多後端支援
 
@@ -226,11 +246,14 @@ Graphify v0.8+ 支援多種 LLM 後端，適用於不同企業環境與合規需
 | **Claude CLI** | 無需 API Key | `--backend claude-cli` | 使用 Claude Code CLI，走訂閱額度 |
 | **Gemini（Google）** | `GEMINI_API_KEY` 或 `GOOGLE_API_KEY` | `--backend gemini` | 成本效益高 |
 | **OpenAI** | `OPENAI_API_KEY` | `--backend openai` | 支援 OpenAI 相容 API |
+| **Azure OpenAI** | `AZURE_OPENAI_API_KEY` + `AZURE_OPENAI_ENDPOINT` | `--backend azure` | 企業級，Azure IAM 認證（v0.8.34+） |
 | **Ollama（本地）** | `OLLAMA_BASE_URL` | `--backend ollama` | 完全離線，零成本 |
 | **AWS Bedrock** | AWS IAM 標準鏈 | `--backend bedrock` | 企業級，無需 API Key |
 | **Kimi（Moonshot）** | `MOONSHOT_API_KEY` | `--backend kimi` | 3-6x 更豐富的關係提取 |
 | **DeepSeek** | `DEEPSEEK_API_KEY` | `--backend deepseek` | 預設模型 `deepseek-v4-flash` |
 | **自訂 Provider** | 自行設定 | `--backend <name>` | 透過 `graphify provider add` 註冊（見 5.15） |
+
+> **📌 自訂端點支援**（v0.8.40+）：所有後端均支援 `*_BASE_URL` 環境變數指向自訂端點（如 `OPENAI_BASE_URL`、`ANTHROPIC_BASE_URL`、`GEMINI_BASE_URL`、`KIMI_BASE_URL`、`DEEPSEEK_BASE_URL`），可搭配企業內部代理、vLLM、llama.cpp 等自託管服務。
 
 ```mermaid
 graph LR
@@ -239,6 +262,7 @@ graph LR
         GF -->|API| CL[Claude / Anthropic]
         GF -->|API| GM[Gemini / Google]
         GF -->|API| OA[OpenAI / Compatible]
+        GF -->|Azure| AZ[Azure OpenAI<br>企業級]
         GF -->|Local| OL[Ollama<br>完全離線]
         GF -->|IAM| BD[AWS Bedrock<br>企業級]
         GF -->|API| KM[Kimi / Moonshot]
@@ -248,7 +272,7 @@ graph LR
     end
 ```
 
-> **📌 企業建議**：金融機構建議使用 Ollama（完全離線）或 AWS Bedrock（IAM 認證），避免將程式碼結構資訊傳送至第三方 API。IDE 內建模式（`/graphify`）使用 IDE 提供的 LLM，無需額外設定 API Key。
+> **📌 企業建議**：金融機構建議使用 Ollama（完全離線）、Azure OpenAI（企業級 IAM 認證）或 AWS Bedrock（IAM 認證），避免將程式碼結構資訊傳送至第三方 API。IDE 內建模式（`/graphify`）使用 IDE 提供的 LLM，無需額外設定 API Key。
 
 ### 1.7 Penpax 與生態系統發展
 
@@ -294,8 +318,12 @@ graph TB
         IMG[圖片<br>.png .jpg .webp .gif]
         VID[影片/音訊<br>.mp4 .mp3 .wav .mov]
         SQL_F[SQL Schema<br>.sql]
-        DOTNET[.NET 專案<br>.sln .csproj .razor .cshtml]
+        DOTNET[.NET 專案<br>.sln .csproj .slnx .razor .cshtml]
         MCP_CFG[MCP 設定<br>.mcp.json mcp.json]
+        TERRA[Terraform/HCL<br>.tf .tfvars .hcl]
+        APEX[Salesforce Apex<br>.cls .trigger]
+        GPU[CUDA/Metal<br>.cu .cuh .metal]
+        XAML_F[WPF/XAML<br>.xaml]
         URL[URL / YouTube<br>論文 / 影片連結]
     end
 
@@ -323,9 +351,10 @@ graph TB
         WIKI[Wiki<br>Agent 導航]
         CALLFLOW[Callflow HTML<br>Mermaid 架構圖]
         TREE[D3 Tree<br>可折疊樹狀圖]
-        EXPORT[SVG / GraphML / Neo4j]
-        MCP[MCP Server<br>stdio]
+        EXPORT[SVG / GraphML / Neo4j / FalkorDB]
+        MCP[MCP Server<br>stdio + HTTP]
         GLOBAL[Global Graph<br>~/.graphify/global.json]
+        LESSONS[LESSONS.md<br>自我改進記憶]
     end
 
     subgraph "快取層"
@@ -342,6 +371,10 @@ graph TB
     SQL_F --> DETECT
     DOTNET --> DETECT
     MCP_CFG --> DETECT
+    TERRA --> DETECT
+    APEX --> DETECT
+    GPU --> DETECT
+    XAML_F --> DETECT
     URL --> DETECT
 
     DETECT --> AST
@@ -363,6 +396,7 @@ graph TB
     ANALYZE --> CALLFLOW
     ANALYZE --> TREE
     ANALYZE --> EXPORT
+    ANALYZE --> LESSONS
     JSON --> MCP
     JSON --> GLOBAL
 ```
@@ -402,7 +436,7 @@ flowchart LR
 
 | 階段 | 處理對象 | 方式 | API 成本 | 說明 |
 |------|---------|------|---------|------|
-| **Pass 1** | 程式碼（33+ 語言）+ SQL + .NET 專案 | Tree-sitter AST + SQL DDL + .NET 解析 | **$0** | 完全本地，零 Token |
+| **Pass 1** | 程式碼（36+ 語言）+ SQL + .NET 專案 + Terraform + XAML | Tree-sitter AST + SQL DDL + .NET 解析 + HCL + XML | **$0** | 完全本地，零 Token |
 | **Pass 2** | 影片/音訊 | faster-whisper 本地轉錄 | **$0** | 本地推論，God Nodes 種子提示 |
 | **Pass 3** | 文件/PDF/圖片/轉錄稿 | 多後端 LLM 並行 | Token 計費 | 可選 Ollama（$0 本地） |
 
@@ -471,6 +505,10 @@ flowchart LR
 | `wiki.py` | `to_wiki(G, out_dir)` | Graph → Wikipedia 風格 Markdown 文章 |
 | `prs.py` | `analyze_prs(G, ...)` | Graph → PR Dashboard（影響分析 + AI triage） |
 | `providers.py` | `register_provider(name, ...)` | 自訂 LLM Provider 註冊與管理 |
+| `reflect.py` | `reflect(memory_dir, ...)` | 聚合 memory/ Q&A 為 LESSONS.md（自我改進記憶，v0.8.47+） |
+| `ids.py` | `normalize_id(path)` | 統一節點 ID 正規化（完整路徑，v0.9.0+） |
+| `paths.py` | `resolve_out_dir()` | GRAPHIFY_OUT 統一解析（v0.8.45+） |
+| `extractors/` | 各語言模組 | 提取器模組化（blade, elixir, razor, zig 等，v0.8.49+） |
 
 ### 2.5 Graph 資料模型
 
@@ -662,16 +700,16 @@ graph TB
 |------|------|------|
 | 圖譜引擎 | NetworkX | 純 Python 圖譜庫，支援 DiGraph / MultiDiGraph |
 | 社區偵測 | Leiden（graspologic） | 基於拓撲的社區偵測，確定性種子（Python < 3.13） |
-| AST 解析 | tree-sitter ≥ 0.23.0 | 33+ 語言支援（含 Bash、JSON、BYOND DreamMaker、.NET 等） |
+| AST 解析 | tree-sitter ≥ 0.23.0 | 36+ 語言支援（含 Bash、JSON、BYOND DreamMaker、.NET、Terraform、CUDA、Metal 等） |
 | 語義抽取 | Claude / Gemini / OpenAI / Ollama / Bedrock / DeepSeek / 自訂 | 多後端支援，`detect_backend()` 優先順序自動選擇 |
 | 影音轉錄 | faster-whisper | 本地 Whisper 推論，零 API 成本 |
-| 實體去重 | datasketch + rapidfuzz | MinHash/LSH + Jaro-Winkler + Unicode NFKC 正規化 |
+| 實體去重 | rapidfuzz + numpy | MinHash/LSH（純 numpy 實作，v0.8.37 移除 datasketch/scipy）+ Jaro-Winkler + Unicode NFKC 正規化 |
 | 視覺化 | vis.js / D3 | 互動式 HTML 圖譜 + 可折疊樹狀圖 + Callflow Mermaid |
 | 安全模組 | `security.py` | URL / 路徑 / 標籤驗證 + DNS rebinding / XML DoS 防護 |
 | 中文分詞 | jieba（可選） | 中文查詢語義分割，`pip install "graphifyy[chinese]"` |
 | PR 分析 | `prs.py` | 圖譜感知 PR Dashboard + AI triage |
 | 循環偵測 | Johnson's algorithm | 檔案級循環匯入偵測，整合至 GRAPH_REPORT.md |
-| 伺服器 | MCP stdio | 無網路監聽，標準輸入輸出 |
+| 伺服器 | MCP stdio + HTTP | stdio 標準輸入輸出 + Streamable HTTP transport（v0.8.34+，含 API key 認證） |
 | Unicode | NFKC 正規化 | 跨平台 CJK 一致性 |
 
 > **📌 注意**：不需要 Neo4j 伺服器即可運行。Neo4j 僅為可選的匯出目標。
@@ -760,7 +798,7 @@ graphify install --project
 
 ### 3.3 多平台支援
 
-Graphify 支援 **20+ 種 AI 開發平台**：
+Graphify 支援 **22+ 種 AI 開發平台**：
 
 | 平台 | 安裝指令 | 特殊設定 |
 |------|---------|---------|
@@ -784,6 +822,9 @@ Graphify 支援 **20+ 種 AI 開發平台**：
 | **Google Antigravity** | `graphify antigravity install` | workflow + rules |
 | **Amp** | `graphify amp install` | `.amp/skills/` |
 | **Devin CLI** | `graphify devin install` | `.devin/rules/` |
+| **Kilo Code** | `graphify install --platform kilo` | —（v0.8.28+） |
+| **CodeBuddy** | `graphify codebuddy install` | —（v0.8.35+） |
+| **agents（通用）** | `graphify install --platform agents` | 跨框架通用（v0.8.47+） |
 
 **Codex 額外設定**：
 
@@ -819,14 +860,20 @@ uv tool install graphifyy --with "graphifyy[all]"
 | `sql` | tree-sitter-sql | SQL Schema 確定性 AST 提取（表、視圖、FK 等） |
 | `chinese` | jieba | 中文查詢分詞，提升 CJK 語料庫查詢精度 |
 | `google` | google-api-python-client | Google Sheets 表格渲染 |
-| `mcp` | mcp-sdk | MCP stdio 伺服器依賴 |
+| `mcp` | mcp-sdk + starlette | MCP stdio/HTTP 伺服器依賴 |
 | `neo4j` | neo4j-driver | Neo4j 資料庫推送 |
+| `falkordb` | falkordb-driver | FalkorDB 圖資料庫推送（v0.8.39+） |
 | `svg` | matplotlib | SVG 圖譜匯出 |
 | `leiden` | graspologic | Leiden 社區偵測（Python < 3.13） |
 | `ollama` | openai | Ollama 本地推論 |
 | `openai` | openai | OpenAI API 後端 |
 | `gemini` | google-generativeai | Gemini API 後端 |
+| `anthropic` | anthropic | Anthropic Claude 後端（v0.8.30+） |
 | `bedrock` | boto3 | AWS Bedrock 後端 |
+| `azure` | openai | Azure OpenAI 後端（v0.8.34+） |
+| `terraform` | tree-sitter-hcl | Terraform/HCL 提取（v0.8.32+） |
+| `postgres` | psycopg | PostgreSQL 即時 Schema 內省（v0.8.34+） |
+| `dm` | tree-sitter-dm | BYOND DreamMaker（v0.8.28+ 改為 optional） |
 | `all` | 上述全部 | 一次安裝所有功能 |
 
 ### 3.5 Docker 部署方式（企業推薦）
@@ -908,8 +955,12 @@ Graphify 的安全機制為預設啟用，無需額外設定：
 | `faster-whisper` 安裝失敗 | 缺少 `[video]` extra | `uv tool install graphifyy --with "graphifyy[video]"` |
 | Mac/Windows `pip install` 失敗 | Python 環境隔離問題 | 使用 `uv tool install` 取代（v0.8.25+ 建議） |
 | `graspologic` Python 3.13+ 失敗 | 不支援 Python 3.13+ | 等待上游修復或跳過 Leiden extra |
+| macOS `graphify: command not found` | uv tool bin 不在 PATH | 執行 `uv tool update-shell` 加入 `~/.local/bin`（v0.8.51+） |
+| `uvx graphify` 失敗 | 套件名為 `graphifyy`（雙 y） | 使用 `uvx --from graphifyy graphify install`（v0.8.51+） |
+| `claude-cli` Windows GBK 亂碼 | `claude.cmd` 輸出 GBK/cp936 | 升級至 v0.8.51+（已用 `errors="replace"` 修復） |
+| `.graphifyignore` 未生效 | 未正確合併 `.gitignore` | 升級至 v0.8.42+（正確合併兩者，防機敏檔案索引） |
 
-> **📌 企業建議**：使用 Docker 部署可避免大多數環境相容性問題，並確保團隊一致的執行環境。建議使用 `uv` 取代 `pip`，安裝速度快 10–100x 且自動隔離。**Mac 與 Windows 使用者強烈建議避免 `pip install`，改用 `uv tool install`**，以避免 Python 環境不匹配導致的 `ModuleNotFoundError`。
+> **📌 企業建議**：使用 Docker 部署可避免大多數環境相容性問題，並確保團隊一致的執行環境。建議使用 `uv` 取代 `pip`，安裝速度快 10–100x 且自動隔離。**Mac 與 Windows 使用者強烈建議避免 `pip install`，改用 `uv tool install`**，以避免 Python 環境不匹配導致的 `ModuleNotFoundError`。macOS 安裝後若找不到指令，執行 `uv tool update-shell` 重新載入 PATH。
 
 ---
 
@@ -968,9 +1019,10 @@ graphify-out/
 ├── obsidian/           # Obsidian Vault（--obsidian 時產出）
 ├── wiki/               # Wikipedia 風格文章（--wiki 時產出）
 ├── memory/             # Q&A 記憶回饋（自動累積）
+├── reflections/        # LESSONS.md 自我改進記憶（v0.8.47+）
 └── cache/              # SHA256 快取 - ast/ + semantic/ 分離
     ├── ast/            # AST 提取快取（Pass 1）
-    └── semantic/       # 語義提取快取（Pass 3）
+    └── semantic/       # 語義提取快取（Pass 3，v0.9.2+ 自動清理孤兒條目）
 ```
 
 #### graph.html 互動功能
@@ -991,8 +1043,11 @@ graphify-out/
 
 | 類別 | 副檔名 | 處理方式 |
 |------|--------|---------|
-| **程式碼** | `.py` `.ts` `.js` `.jsx` `.tsx` `.go` `.rs` `.java` `.c` `.cpp` `.rb` `.cs` `.kt` `.scala` `.php` `.swift` `.lua` `.zig` `.ps1` `.ex` `.exs` `.m` `.mm` `.jl` `.f90` `.f95` `.f03` `.f08` `.pas` `.pp` `.dpr` `.v` `.sv` `.dart` `.groovy` `.vue` `.svelte` `.astro` `.sh` `.bash` `.dm` `.dme` `.dmi` `.dmm` `.dmf` `.ets` | AST（Tree-sitter）+ call-graph + rationale |
-| **.NET 專案** | `.sln` `.csproj` `.fsproj` `.vbproj` `.razor` `.cshtml` | XML 解析（defusedxml）+ AST |
+| **程式碼** | `.py` `.ts` `.js` `.jsx` `.tsx` `.go` `.rs` `.java` `.c` `.cpp` `.rb` `.cs` `.kt` `.scala` `.php` `.swift` `.lua` `.zig` `.ps1` `.psm1` `.ex` `.exs` `.m` `.mm` `.jl` `.f90` `.f95` `.f03` `.f08` `.pas` `.pp` `.dpr` `.v` `.sv` `.dart` `.groovy` `.vue` `.svelte` `.astro` `.sh` `.bash` `.dm` `.dme` `.dmi` `.dmm` `.dmf` `.ets` `.cu` `.cuh` `.metal` | AST（Tree-sitter）+ call-graph + rationale |
+| **Salesforce Apex** | `.cls` `.trigger` | Regex 提取（類別/方法/觸發器/SOQL/DML，v0.8.34+） |
+| **Terraform/HCL** | `.tf` `.tfvars` `.hcl` | HCL AST 提取（需 `[terraform]` extra，v0.8.32+） |
+| **WPF/XAML** | `.xaml` | XML 解析（控制項/綁定/ViewModel，v0.8.50+） |
+| **.NET 專案** | `.sln` `.slnx` `.csproj` `.fsproj` `.vbproj` `.razor` `.cshtml` | XML 解析（defusedxml）+ AST |
 | **文件** | `.md` `.mdx` `.qmd` `.txt` `.rst` `.html` | 概念 + 關係 + 設計理由（LLM 提取） |
 | **結構化資料** | `.yaml` `.yml` `.json` `.sql` | YAML/JSON 結構解析 / SQL DDL Schema 提取 |
 | **MCP 設定** | `.mcp.json` | MCP config 感知提取 |
@@ -1025,6 +1080,9 @@ graphify-out/
 | `/graphify ./path --import-resolution` | 啟用匯入路徑解析（Python/TS） |
 | `/graphify ./path --resolution N` | 自訂 Leiden 解析度（預設 1.0） |
 | `/graphify ./path --exclude-hubs P` | 排除 degree > P 百分位的 hub 節點 |
+| `/graphify ./path --timing` | 顯示每階段耗時（v0.9.0+） |
+| `/graphify ./path --max-concurrency N` | 限制 LLM 並行數（避免 429 限流）（v0.9.1+） |
+| `/graphify ./path --no-label` | 跳過社群命名（v0.8.27+） |
 
 #### 新增內容
 
@@ -1057,6 +1115,7 @@ graphify-out/
 | `/graphify ./path --graphml` | 匯出 GraphML（Gephi / yEd） |
 | `/graphify ./path --neo4j` | 產生 Cypher 語句 |
 | `/graphify ./path --neo4j-push bolt://localhost:7687` | 直接推送至 Neo4j |
+| `/graphify ./path --falkordb` | 推送至 FalkorDB（v0.8.39+） |
 | `/graphify ./path --mcp` | 啟動 MCP stdio 伺服器 |
 
 #### 圖譜管理指令（v0.7+ 新增）
@@ -1067,6 +1126,9 @@ graphify-out/
 | `graphify merge-graphs <dir1> <dir2>` | 合併多專案圖譜 |
 | `graphify extract` | Headless 提取（CI/CD 用，無需 IDE） |
 | `graphify extract --mode deep` | 深度 Headless 提取（更多 INFERRED 邊） |
+| `graphify extract --timing` | 顯示每階段耗時（v0.9.0+） |
+| `graphify extract --cargo` | Cargo workspace 映射（v0.8.38+） |
+| `graphify extract --postgres "postgresql://..."` | PostgreSQL 即時 Schema 內省（v0.8.34+） |
 | `graphify prs` | PR Dashboard — 圖譜感知 PR 影響分析 |
 | `graphify prs --triage` | AI Triage — 自動分類 PR 風險等級 |
 | `graphify prs --conflicts` | 偵測 PR 語義衝突 |
@@ -1075,6 +1137,12 @@ graphify-out/
 | `graphify provider list` | 列出已註冊 Provider |
 | `graphify provider show <name>` | 檢視 Provider 設定 |
 | `graphify provider remove <name>` | 移除 Provider |
+| `graphify label <path>` | 獨立社群命名子命令（v0.8.27+） |
+| `graphify label --missing-only` | 僅命名未命名/預設名稱的社群（v0.8.50+） |
+| `graphify reflect` | 聚合 memory/ Q&A 為 LESSONS.md（v0.8.47+） |
+| `graphify reflect --if-stale` | 僅在 LESSONS.md 過期時重建（v0.8.47+） |
+| `graphify save-result --outcome useful` | 記錄 Q&A 結果為 useful/dead_end/corrected（v0.8.47+） |
+| `graphify save-result --answer-file <file>` | 從檔案讀取多行答案（v0.9.2+） |
 | `graphify uninstall` | 完整移除所有平台設定 |
 
 #### Git Hooks 管理
@@ -1426,11 +1494,17 @@ python -m graphify.serve graphify-out/graph.json
 ### 5.7 MCP Server 模式
 
 ```bash
-# 啟動 MCP stdio 伺服器
+# 啟動 MCP stdio 伺服器（預設）
 graphify ./src --mcp
 
 # 或從已建好的圖譜啟動
 python -m graphify.serve graphify-out/graph.json
+
+# 使用 graphify-mcp console script（v0.8.36+）
+graphify-mcp graphify-out/graph.json
+
+# HTTP transport（團隊共享，v0.8.34+）
+python -m graphify.serve graphify-out/graph.json --transport http --port 8080 --api-key "$SECRET"
 ```
 
 **MCP 工具列表**：
@@ -1440,13 +1514,24 @@ python -m graphify.serve graphify-out/graph.json
 | `query_graph` | 結構化查詢圖譜 |
 | `get_node` | 取得單一節點詳情 |
 | `get_neighbors` | 取得指定節點的鄰居 |
+| `get_community` | 取得社群詳情（含社群名稱，v0.8.49+） |
 | `shortest_path` | 計算兩節點間最短路徑 |
 | `god_nodes` | 列出最高連接度節點 |
 | `list_prs` | 列出所有開放 PR 及影響摘要（v0.8.22+） |
 | `get_pr_impact` | 取得單一 PR 的影響分析（v0.8.22+） |
 | `triage_prs` | AI triage — 依風險排序 PR（v0.8.22+） |
 
-> **📌 注意**：MCP 伺服器僅透過 stdio 通訊，不開啟網路監聽。
+**HTTP Transport 部署**（v0.8.34+ 新增）：
+
+```bash
+# Docker 部署 MCP HTTP 伺服器
+docker run --rm -p 8080:8080 \
+  -v ./graphify-out:/data \
+  -e GRAPHIFY_API_KEY="$SECRET" \
+  graphify-mcp:latest --transport http
+```
+
+> **📌 注意**：stdio 模式不開啟網路監聽。HTTP transport 需搭配 `--api-key` 認證，適合團隊共享場景。HTTP transport 依賴 `starlette >= 1.3.1`（已修復 CVE-2026-48818、CVE-2026-54283）。
 
 ### 5.8 知識圖譜查詢應用（RAG 強化）
 
@@ -1485,7 +1570,8 @@ flowchart TD
 | GraphML | `--graphml` | Gephi / yEd 分析 |
 | Neo4j Cypher | `--neo4j` | 大規模圖譜查詢 |
 | Neo4j Push | `--neo4j-push bolt://host:port` | 直接推送至 Neo4j |
-| Wiki | `--wiki` | Agent 導航、團隊文件 |
+| FalkorDB | `--falkordb` | FalkorDB 圖資料庫（v0.8.39+） |
+| Wiki | `--wiki` | Agent 導航、團隊文件（支援相對 Markdown 連結，v0.8.50+） |
 | Callflow HTML | `--callflow` | 含 Mermaid 的呼叫流程頁面 |
 | D3 Tree | `--tree` | 可折疊樹狀圖 |
 | MCP | `--mcp` | AI 工具整合 |
@@ -1517,7 +1603,7 @@ graphify-out/wiki/
 
 ### 5.11 記憶回饋迴圈（Memory Feedback Loop）
 
-Graphify 自 v0.1.0 起內建**記憶回饋機制**：將使用者與圖譜的 Q&A 互動結果持久化，在後續更新時自動融入圖譜。
+Graphify 自 v0.1.0 起內建**記憶回饋機制**：將使用者與圖譜的 Q&A 互動結果持久化，在後續更新時自動融入圖譜。v0.8.47+ 新增 **Work Memory** 層，提供結構化的學習回饋與知識聚合。
 
 **運作流程**：
 
@@ -1526,10 +1612,15 @@ flowchart LR
     A[使用者提問] --> B[graphify query]
     B --> C[圖譜走訪<br>產出答案]
     C --> D[答案儲存至<br>graphify-out/memory/]
-    D --> E[下次 --update]
-    E --> F[memory/ 中的 Q&A<br>作為新輸入提取]
-    F --> G[圖譜更新<br>新邊/新節點]
-    G --> B
+    C --> E[save-result<br>標記 outcome]
+    D --> F[下次 --update]
+    E --> F
+    F --> G[memory/ 中的 Q&A<br>作為新輸入提取]
+    G --> H[圖譜更新<br>新邊/新節點]
+    H --> B
+    D --> I[graphify reflect]
+    I --> J[LESSONS.md<br>聚合學習摘要]
+    J --> F
 ```
 
 **檔案結構**：
@@ -1540,6 +1631,7 @@ graphify-out/
 │   ├── qa_2026-04-08_001.json    # Q&A 記錄
 │   ├── qa_2026-04-08_002.json
 │   └── ...
+├── LESSONS.md                     # 聚合學習摘要（v0.8.47+）
 ├── graph.json
 └── GRAPH_REPORT.md
 ```
@@ -1550,9 +1642,27 @@ graphify-out/
 # 正常查詢 — Q&A 結果自動儲存至 memory/
 /graphify query "核心認證流程是什麼？"
 
-# 下次增量更新時，memory/ 中的 Q&A 自動納入提取
+# 標記 Q&A 結果（v0.8.47+）
+graphify save-result --outcome useful      # 標記為有用
+graphify save-result --outcome dead_end    # 標記為無效
+graphify save-result --outcome corrected   # 標記為需修正
+graphify save-result --answer-file ans.md  # 多行答案從檔案讀取（v0.9.2+）
+
+# 聚合學習摘要（v0.8.47+）
+graphify reflect                           # 產出 LESSONS.md
+graphify reflect --if-stale                # 僅過期時重建
+
+# 下次增量更新時，memory/ + LESSONS.md 自動納入提取
 /graphify ./src --update
 ```
+
+**Work Memory 三層架構**（v0.8.47+）：
+
+| 層級 | 機制 | 說明 |
+|------|------|------|
+| **L1 — Raw Q&A** | `memory/*.json` | 原始問答記錄，自動累積 |
+| **L2 — Outcomes** | `save-result --outcome` | 人工標註答案品質，回饋模型 |
+| **L3 — Lessons** | `graphify reflect` → `LESSONS.md` | AI 聚合所有 Q&A 為結構化學習摘要 |
 
 **企業價值**：
 
@@ -1561,8 +1671,10 @@ graphify-out/
 | **知識累積** | 團隊反覆提問的知識自動沉澱為圖譜的一部分 |
 | **圖譜演進** | 圖譜隨使用自然成長，涵蓋更多隱含關係 |
 | **上下文強化** | 後續查詢可利用先前 Q&A 發現的邊與節點 |
+| **品質回饋** | `save-result` 讓模型學習哪些答案有用，持續改善（v0.8.47+） |
+| **團隊學習** | `LESSONS.md` 可提交至版控，新人快速掌握專案隱含知識（v0.8.47+） |
 
-> **📌 注意**：Memory 檔案隨 `graphify-out/` 一同管理。建議在 `.gitignore` 中決定是否追蹤 `graphify-out/memory/`——追蹤可讓團隊共享累積知識，不追蹤則保持個人查詢隱私。
+> **📌 注意**：Memory 檔案隨 `graphify-out/` 一同管理。建議在 `.gitignore` 中決定是否追蹤 `graphify-out/memory/`——追蹤可讓團隊共享累積知識，不追蹤則保持個人查詢隱私。`LESSONS.md` 建議提交版控。
 
 ### 5.12 Callflow HTML 匯出
 
@@ -1657,7 +1769,7 @@ PR #43: "Fix typo in README"
 
 ### 5.15 自訂 LLM Provider Registry（v0.8.24+ 新增）
 
-v0.8.24+ 支援註冊**自訂 LLM Provider**，可整合企業內部部署的推論端點：
+v0.8.24+ 支援註冊**自訂 LLM Provider**，可整合企業內部部署的推論端點。v0.8.30+ 新增 `*_BASE_URL` 環境變數支援，v0.8.32+ 新增 Azure OpenAI 後端。
 
 ```bash
 # 註冊自訂 Provider
@@ -1677,18 +1789,38 @@ graphify provider remove nvidia-nim
 
 # 使用自訂 Provider 進行提取
 graphify extract ./src --backend nvidia-nim
+
+# 使用 BASE_URL 環境變數（v0.8.30+）
+export OPENAI_BASE_URL=https://my-proxy.example.com/v1
+graphify extract ./src --backend openai
+
+# Azure OpenAI 後端（v0.8.32+）
+export AZURE_OPENAI_ENDPOINT=https://my-instance.openai.azure.com/
+export AZURE_OPENAI_API_KEY=<key>
+export AZURE_OPENAI_API_VERSION=2025-01-21-preview
+graphify extract ./src --backend azure
 ```
 
 **已驗證的相容 Provider**：
 
 | Provider | 說明 |
 |---------|------|
+| **Azure OpenAI** | 企業合規首選（v0.8.32+） |
 | NVIDIA NIM | 企業級推論加速 |
 | vLLM | 開源高吞吐量推論 |
 | OpenRouter | 多模型路由 |
 | Together AI | 雲端推論 |
 | LiteLLM | 統一 API 代理 |
 | 任何 OpenAI 相容端點 | `/v1/chat/completions` |
+
+**BASE_URL 環境變數對照**（v0.8.30+）：
+
+| 後端 | 環境變數 | 用途 |
+|------|---------|------|
+| OpenAI | `OPENAI_BASE_URL` | 自訂 OpenAI 端點或代理 |
+| Anthropic | `ANTHROPIC_BASE_URL` | 自訂 Claude 端點 |
+| Gemini | `GEMINI_BASE_URL` | 自訂 Gemini 端點 |
+| Azure OpenAI | `AZURE_OPENAI_ENDPOINT` | Azure 部署端點 |
 
 **設定檔位置**：`~/.graphify/providers.json`
 
@@ -1702,7 +1834,7 @@ graphify extract ./src --backend nvidia-nim
 }
 ```
 
-> **📌 企業應用**：可將企業內部的 GPU 叢集透過 vLLM / NVIDIA NIM 提供推論服務，搭配 `graphify provider add` 註冊後即可使用，資料完全不離開內網。
+> **📌 企業應用**：可將企業內部的 GPU 叢集透過 vLLM / NVIDIA NIM 提供推論服務，搭配 `graphify provider add` 註冊後即可使用，資料完全不離開內網。Azure OpenAI 後端特別適合已有 Azure 企業合約的組織。
 
 ### 5.16 Import Cycle Detection（v0.8.15+ 新增）
 
@@ -1766,6 +1898,277 @@ graphify install --project
 | **容器化開發** | 在 devcontainer 中不依賴宿主 home 目錄 |
 
 > **📌 企業建議**：搭配 `.gitignore` 策略，將 `.claude/skills/` 等目錄納入版本控制，讓團隊成員 clone 專案後即獲得一致的 Graphify Skill 設定。
+
+### 5.18 Azure OpenAI 後端（v0.8.32+ 新增）
+
+v0.8.32+ 新增原生 Azure OpenAI 後端支援，適合有 Azure 企業合約的組織：
+
+```bash
+# 設定 Azure OpenAI 環境變數
+export AZURE_OPENAI_ENDPOINT=https://my-instance.openai.azure.com/
+export AZURE_OPENAI_API_KEY=<your-key>
+export AZURE_OPENAI_API_VERSION=2025-01-21-preview
+
+# 使用 Azure 後端建構圖譜
+graphify extract ./src --backend azure
+
+# 指定部署名稱（若非預設）
+export AZURE_OPENAI_DEPLOYMENT=gpt-4o-deployment
+graphify extract ./src --backend azure
+```
+
+**與標準 OpenAI 的差異**：
+
+| 項目 | OpenAI | Azure OpenAI |
+|------|--------|-------------|
+| 端點 | `api.openai.com` | 自訂 `*.openai.azure.com` |
+| 認證 | `OPENAI_API_KEY` | `AZURE_OPENAI_API_KEY` |
+| 模型選擇 | `--model gpt-4o` | `AZURE_OPENAI_DEPLOYMENT` |
+| 資料駐留 | 美國 | 依 Azure 區域（可選台灣 East Asia） |
+| 合規 | SOC 2 | SOC 2 + ISO 27001 + HIPAA + FedRAMP |
+
+> **📌 企業應用**：Azure OpenAI 可確保資料駐留在指定區域，搭配 Azure VNET 私有端點，資料完全不離開企業網路。
+
+### 5.19 Terraform / HCL 支援（v0.8.30+ 新增）
+
+v0.8.30+ 新增 **Terraform / HCL** 基礎設施即程式碼的圖譜建構支援：
+
+```bash
+# 建構 Terraform 知識圖譜
+graphify extract ./infra --include "*.tf,*.tfvars"
+
+# 查詢資源依賴
+/graphify query "哪些資源依賴 aws_vpc.main？"
+```
+
+**支援範圍**：
+
+| 項目 | 說明 |
+|------|------|
+| **資源節點** | `resource`、`data`、`module` 區塊 → 節點 |
+| **變數追蹤** | `variable`、`locals`、`output` → 屬性追蹤 |
+| **依賴邊** | `depends_on` 顯式 + `${ref}` 隱式依賴 → 邊 |
+| **Module 引用** | `source` 引用 → 跨模組邊 |
+| **Provider 關聯** | `provider` 區塊 → Provider 節點 |
+
+**產出範例**（`GRAPH_REPORT.md` 摘錄）：
+
+```markdown
+## God Nodes
+1. aws_vpc.main (degree: 47) — 所有子網路、安全群組均依賴此 VPC
+2. module.eks_cluster (degree: 32) — K8s 叢集為核心基礎設施
+
+## Import Cycles
+⚠ aws_security_group.api → aws_security_group.db → aws_security_group.api
+```
+
+### 5.20 Salesforce Apex 支援（v0.8.31+ 新增）
+
+v0.8.31+ 支援 **Salesforce Apex** 語言，涵蓋 Trigger、Custom Object、Flow 等 Salesforce 特有結構：
+
+```bash
+# 建構 Salesforce 專案圖譜
+graphify extract ./force-app --include "*.cls,*.trigger,*.xml"
+
+# 查詢物件間關係
+/graphify query "Account 觸發器的完整流程"
+```
+
+**支援範圍**：
+
+| Apex 結構 | 圖譜映射 |
+|-----------|---------|
+| `@isTest` 類別 | 測試節點（自動標記） |
+| `trigger` | 觸發器節點 + 事件類型邊 |
+| Custom Object (`.object-meta.xml`) | 物件節點 + 欄位屬性 |
+| `@AuraEnabled` 方法 | LWC ↔ Apex 跨層邊 |
+| SOQL 查詢 | 物件引用邊 |
+| Validation Rule | 驗證規則節點 |
+
+### 5.21 PostgreSQL Schema 內省（v0.8.34+ 新增）
+
+v0.8.34+ 支援連接 PostgreSQL 資料庫，即時擷取 Schema 結構並納入圖譜：
+
+```bash
+# 連接 PostgreSQL 擷取 Schema
+graphify extract --postgres "postgresql://user:pass@localhost:5432/mydb"
+
+# 合併程式碼 + DB Schema
+graphify extract ./src --postgres "postgresql://user:pass@localhost:5432/mydb"
+```
+
+**擷取範圍**：
+
+| 結構 | 圖譜映射 |
+|------|---------|
+| Tables | 資料表節點 + 欄位屬性 |
+| Foreign Keys | 外鍵 → REFERENCES 邊 |
+| Views | 檢視節點 + 依賴邊 |
+| Stored Procedures | 函式節點 |
+| Indexes | 索引屬性 |
+| Triggers | 觸發器節點 + 事件邊 |
+
+> **📌 安全注意**：連線字串包含密碼，建議使用環境變數 `GRAPHIFY_POSTGRES_DSN` 替代命令列明碼。連線僅用於 `information_schema` / `pg_catalog` 讀取，不會修改資料。
+
+### 5.22 FalkorDB 圖資料庫整合（v0.8.39+ 新增）
+
+v0.8.39+ 新增 **FalkorDB** 圖資料庫支援，提供比 Neo4j 更輕量的圖儲存方案：
+
+```bash
+# 推送圖譜至 FalkorDB
+graphify extract ./src --falkordb
+
+# 指定 FalkorDB 連線
+export FALKORDB_URL=redis://localhost:6379
+graphify extract ./src --falkordb
+```
+
+**與 Neo4j 比較**：
+
+| 項目 | Neo4j | FalkorDB |
+|------|-------|----------|
+| 協定 | Bolt | Redis 相容 |
+| 查詢語言 | Cypher | Cypher（子集） |
+| 資源需求 | JVM + 4GB+ RAM | 嵌入式，<512MB |
+| 部署難度 | 中 | 低（Docker 單行） |
+| 適合場景 | 生產級圖分析 | 開發/CI/輕量查詢 |
+
+### 5.23 Cargo Workspace 映射（v0.8.38+ 新增）
+
+v0.8.38+ 支援 Rust **Cargo workspace** 的多 crate 結構映射：
+
+```bash
+# Cargo workspace 映射
+graphify extract ./my-workspace --cargo
+
+# 結合深度分析
+graphify extract ./my-workspace --cargo --mode deep
+```
+
+**支援範圍**：
+
+- `Cargo.toml` workspace members → 子 crate 節點
+- crate 間 `dependencies` → DEPENDS_ON 邊
+- `[features]` 條件依賴 → 條件邊
+- `build.rs` → 建置腳本節點
+- `extern crate` / `use` → 模組引用邊
+
+### 5.24 CUDA / Metal Shader 支援（v0.8.40+ 新增）
+
+v0.8.40+ 新增 **GPU Shader** 語言支援，涵蓋 CUDA 與 Metal：
+
+```bash
+# CUDA 核心程式碼圖譜
+graphify extract ./cuda-kernels --include "*.cu,*.cuh"
+
+# Metal Shader 圖譜
+graphify extract ./shaders --include "*.metal"
+```
+
+**支援範圍**：
+
+| 語言 | 結構 | 圖譜映射 |
+|------|------|---------|
+| CUDA | `__global__` kernel | Kernel 節點 |
+| CUDA | `__device__` function | Device 函式節點 |
+| CUDA | `<<<grid, block>>>` launch | KERNEL_LAUNCH 邊 |
+| Metal | `kernel` function | Kernel 節點 |
+| Metal | `vertex` / `fragment` | Shader 階段節點 |
+
+### 5.25 WPF / XAML 支援（v0.8.41+ 新增）
+
+v0.8.41+ 支援 **WPF / XAML** 應用程式的 UI 層圖譜建構：
+
+```bash
+# WPF 專案圖譜（含 XAML）
+graphify extract ./WpfApp --include "*.xaml,*.cs"
+```
+
+**支援範圍**：
+
+| XAML 結構 | 圖譜映射 |
+|-----------|---------|
+| `<Window>` / `<UserControl>` | UI 元件節點 |
+| `{Binding Path=...}` | BINDS_TO 邊（ViewModel ↔ View） |
+| `x:Class` | XAML ↔ Code-behind 關聯邊 |
+| `<ResourceDictionary>` | 資源字典節點 |
+| `Command="{Binding ...}"` | 命令綁定邊 |
+| `Style TargetType` | 樣式繼承邊 |
+
+### 5.26 Graph Health Gate（v0.8.44+ 新增）
+
+v0.8.44+ 新增 **Graph Health Gate** — 圖譜品質閘門，可在 CI/CD 中自動驗證圖譜品質：
+
+```bash
+# 執行健康檢查
+graphify extract ./src --health-gate
+
+# CI/CD 整合 — 失敗則中斷 pipeline
+graphify extract ./src --health-gate --fail-on-warning
+```
+
+**檢查項目**：
+
+| 檢查 | 說明 | 閾值 |
+|------|------|------|
+| **孤立節點比例** | 無任何邊的節點 | < 20% |
+| **God Node 風險** | degree > 95th percentile | 警告但不失敗 |
+| **循環依賴** | import cycles 數量 | 0（嚴格模式） |
+| **社群覆蓋率** | 有社群標籤的節點比例 | > 80% |
+| **邊密度** | edges / nodes 比率 | 0.5 ~ 5.0 |
+
+**CI 整合範例**（GitHub Actions）：
+
+```yaml
+- name: Graph Health Gate
+  run: |
+    graphify extract ./src --health-gate --fail-on-warning
+    echo "Graph quality passed ✅"
+```
+
+**產出報告**：`graphify-out/HEALTH_REPORT.md`
+
+### 5.27 Trigram Query 預過濾（v0.8.45+ 新增）
+
+v0.8.45+ 新增 **Trigram 預過濾**，使用純 NumPy trigram 索引加速圖譜查詢，取代原先的 `datasketch` MinHash：
+
+```bash
+# 查詢自動使用 trigram 預過濾（無需額外設定）
+/graphify query "認證模組的依賴關係"
+```
+
+**效能改善**：
+
+| 指標 | 舊版（datasketch） | v0.8.45+（trigram） |
+|------|-------------------|-------------------|
+| 10k 節點查詢 | ~2.5s | ~0.8s |
+| 50k 節點查詢 | ~12s | ~3.2s |
+| 安裝依賴 | `datasketch` + `scipy` | 純 `numpy`（零額外依賴） |
+| 記憶體 | ~180MB/10k nodes | ~95MB/10k nodes |
+
+> **📌 注意**：`datasketch` 與 `scipy` 已從 v0.8.45+ 的依賴中移除，改用純 NumPy 實作。升級後 `pip install graphifyy` 會自動清理舊依賴。
+
+### 5.28 新增平台支援（v0.8.27+ 持續擴充）
+
+v0.8.27 之後持續擴充 AI 平台整合：
+
+| 平台 | 版本 | 安裝指令 |
+|------|------|---------|
+| **Kilo Code** | v0.8.27+ | `graphify install --platform kilo` |
+| **CodeBuddy** | v0.8.28+ | `graphify install --platform codebuddy` |
+| **agents（通用代理）** | v0.8.29+ | `graphify install --platform agents` |
+| **Gemini CLI** | v0.8.35+ | `graphify install --platform gemini` |
+
+**Always-On 指令對照**（各平台語法差異）：
+
+| 平台 | 前綴 | 範例 |
+|------|------|------|
+| Claude Code | `/` | `/graphify ./src` |
+| Cursor | `/` | `/graphify ./src` |
+| Codex | `$` | `$graphify ./src` |
+| Kilo Code | `/` | `/graphify ./src` |
+| CodeBuddy | `/` | `/graphify ./src` |
+| Gemini CLI | `/` | `/graphify ./src` |
 
 ---
 
@@ -1993,6 +2396,63 @@ flowchart TD
 
 > **📌 企業建議**：在 CI 管線中為每個 release tag 建立圖譜快照，方便日後版本間架構比較。
 
+### 7.4 v0.9.0 破壞性變更遷移指南
+
+v0.9.0 引入**節點 ID 格式變更**——最重要的破壞性更新。此變更解決了長期存在的同名檔案靜默碰撞問題。
+
+#### 變更內容
+
+| 項目 | v0.8.x（舊） | v0.9.0+（新） |
+|------|-------------|--------------|
+| **Node ID 格式** | 檔名 `utils.py` | 完整相對路徑 `src/auth/utils.py` |
+| **碰撞風險** | 同名檔案靜默合併 ⚠ | 完全消除 ✅ |
+| **圖譜遷移** | — | 自動遷移（下次 build） |
+
+#### 影響範圍
+
+1. **graph.json**：節點 ID 會從短檔名變為完整路徑——下次 `graphify extract` 或 `--update` 時**自動遷移**
+2. **GraphML 匯出**：舊 `.graphml` 檔案的節點 ID 不再對應——需**重新匯出**
+3. **Neo4j 資料**：已推送的 Cypher 節點 ID 不匹配——需**重新匯入**
+4. **FalkorDB**：同 Neo4j，需**重新匯入**
+5. **Obsidian Vault**：筆記檔名可能因路徑前綴而改變——建議**重新產生**
+6. **memory/ Q&A**：引用舊 ID 的記錄可能查無節點——可安全保留，不影響功能
+
+#### 遷移步驟
+
+```bash
+# Step 1: 升級至 v0.9.0+
+pip install --upgrade graphifyy
+
+# Step 2: 重建圖譜（自動遷移 ID 格式）
+graphify extract ./src --force
+
+# Step 3: 驗證先前碰撞的同名檔案是否已正確分離
+graphify extract ./src --timing
+# 檢查 GRAPH_REPORT.md 中的節點數 — 應比舊版多（因碰撞節點已分離）
+
+# Step 4: 重新匯出外部格式
+graphify extract ./src --graphml    # 重新匯出 GraphML
+graphify extract ./src --neo4j-push bolt://localhost:7687  # 重新推送 Neo4j
+
+# Step 5:（可選）復原先前因碰撞而遺失的節點
+graphify extract --force
+# --force 會完全重建，確保所有先前碰撞的節點都被正確提取
+```
+
+#### 查詢語法調整
+
+```bash
+# 舊版（v0.8.x）— 使用短檔名
+/graphify query "utils.py 的功能"
+
+# 新版（v0.9.0+）— 建議使用 label 查詢
+/graphify query "label:authentication 的功能"
+# 或使用完整路徑
+/graphify query "src/auth/utils.py 的功能"
+```
+
+> **📌 注意**：現有 `graphify-out/` 目錄在 v0.9.0+ 首次建構時會**自動遷移**，無需手動操作。但外部系統（Neo4j、FalkorDB、Gephi）中的資料需要重新匯入。
+
 ---
 
 ## 第 8 章：安全與隱私設計（SSDLC）
@@ -2003,10 +2463,12 @@ Graphify 是**本地開發工具**，設計原則為「最小權限」：
 
 - 圖譜分析期間**不進行任何網路呼叫**
 - 僅在 `ingest` 指令時存取使用者明確指定的 URL
-- MCP 伺服器僅透過 **stdio** 通訊，不開啟網路監聽
+- MCP 伺服器預設透過 **stdio** 通訊，不開啟網路監聽
+- HTTP transport（v0.8.34+）需明確啟用，且**強制要求 `--api-key` 認證**
 - **不執行**原始碼（Tree-sitter 只解析 AST，不 eval/exec）
 - **不使用** `shell=True`
 - **不儲存**憑證或 API Key
+- 依賴 `starlette >= 1.3.1`（已修復 CVE-2026-48818 路徑穿越、CVE-2026-54283 DoS）
 
 ### 8.2 本地運算優勢
 
@@ -2045,6 +2507,11 @@ Graphify 是**本地開發工具**，設計原則為「最小權限」：
 | **NAT64 繞過** | v0.8.14+ 阻擋 NAT64 well-known prefix `64:ff9b::/96` | `security.py` |
 | **敏感目錄存取** | v0.8.12+ 封鎖 `.ssh/`、`.gnupg/`、`.aws/` 等敏感目錄 | `detect.py` |
 | **MCP 環境變數洩漏** | v0.8.20+ 安裝 MCP config 時丟棄 env 值，僅保留鍵名 | `install.py` |
+| **Zip Bomb** | v0.8.33+ 解壓前檢查壓縮比率，阻擋壓縮炸彈 | `ingest.py` |
+| **Prompt Injection（XML）** | v0.8.35+ LLM 提示使用 XML wrapper，隔離使用者輸入與系統指令 | `prompts.py` |
+| **Starlette 路徑穿越** | v0.9.1+ 升級 starlette >= 1.3.1 修復 CVE-2026-48818 | `requirements.txt` |
+| **Starlette DoS** | v0.9.1+ 升級 starlette >= 1.3.1 修復 CVE-2026-54283 | `requirements.txt` |
+| **Graph 大小限制** | v0.8.44+ `GRAPHIFY_MAX_GRAPH_BYTES` 環境變數限制輸出大小 | `graph.py` |
 
 ### 8.4 敏感資料處理
 
@@ -2201,18 +2668,34 @@ flowchart LR
 | 環境變數 | 說明 | 預設值 |
 |---------|------|--------|
 | `ANTHROPIC_API_KEY` | Claude/Anthropic API Key | — |
+| `ANTHROPIC_BASE_URL` | 自訂 Anthropic 端點（v0.8.30+） | — |
 | `GEMINI_API_KEY` | Google Gemini API Key | — |
+| `GEMINI_BASE_URL` | 自訂 Gemini 端點（v0.8.30+） | — |
 | `GOOGLE_API_KEY` | Google API Key（Gemini 替代） | — |
 | `OPENAI_API_KEY` | OpenAI API Key | — |
+| `OPENAI_BASE_URL` | 自訂 OpenAI 端點或代理（v0.8.30+） | — |
+| `AZURE_OPENAI_ENDPOINT` | Azure OpenAI 端點（v0.8.32+） | — |
+| `AZURE_OPENAI_API_KEY` | Azure OpenAI API Key（v0.8.32+） | — |
+| `AZURE_OPENAI_API_VERSION` | Azure OpenAI API 版本（v0.8.32+） | `2025-01-21-preview` |
+| `AZURE_OPENAI_DEPLOYMENT` | Azure OpenAI 部署名稱（v0.8.32+） | — |
 | `DEEPSEEK_API_KEY` | DeepSeek API Key（v0.8.24+） | — |
 | `OLLAMA_BASE_URL` | Ollama 本地服務 URL | `http://localhost:11434` |
 | `MOONSHOT_API_KEY` | Kimi/Moonshot API Key | — |
+| `FALKORDB_URL` | FalkorDB 連線 URL（v0.8.39+） | `redis://localhost:6379` |
 | `GRAPHIFY_OUT` | 自訂輸出目錄路徑 | `./graphify-out` |
 | `GRAPHIFY_BACKEND` | 預設 LLM 後端 | `claude` |
 | `GRAPHIFY_FORCE` | 強制重新提取（忽略快取） | `false` |
 | `GRAPHIFY_MAX_WORKERS` | 最大並行 worker 數 | 自動偵測 |
+| `GRAPHIFY_MAX_CONCURRENCY` | LLM 並行請求數上限（v0.9.1+） | 自動偵測 |
 | `GRAPHIFY_MAX_OUTPUT_TOKENS` | LLM 最大輸出 Token 數 | 後端預設值 |
-| `GRAPHIFY_API_TIMEOUT` | API 呼叫逾時（秒） | `60` |
+| `GRAPHIFY_MAX_RETRIES` | LLM API 重試次數（v0.8.36+） | `6` |
+| `GRAPHIFY_API_TIMEOUT` | API 呼叫逾時（秒）（v0.8.36+ 調整） | `600` |
+| `GRAPHIFY_MAX_GRAPH_BYTES` | 圖譜檔案大小上限（v0.8.44+） | 無限制 |
+| `GRAPHIFY_LLM_TEMPERATURE` | LLM 溫度參數（v0.8.35+） | `0.0` |
+| `GRAPHIFY_QUERY_LOG` | 查詢日誌路徑（v0.8.46+） | — |
+| `GRAPHIFY_QUERY_DISABLE` | 停用查詢功能（v0.8.46+） | `false` |
+| `GRAPHIFY_QUERY_RESPONSES` | 查詢回應快取目錄（v0.8.46+） | — |
+| `GRAPHIFY_ALLOW_LOCAL_PROVIDERS` | 允許本地 LLM Provider（v0.8.30+） | `false` |
 | `GRAPHIFY_GOOGLE_WORKSPACE` | 啟用 Google Workspace 整合 | `false` |
 | `GRAPHIFY_TRIAGE_BACKEND` | PR triage 使用的 LLM 後端 | 同 `GRAPHIFY_BACKEND` |
 | `GRAPHIFY_TRIAGE_MODEL` | PR triage 使用的模型名稱 | 後端預設值 |
@@ -2221,9 +2704,11 @@ flowchart LR
 | `GRAPHIFY_VIZ_NODE_LIMIT` | HTML 視覺化節點數上限（超過時自動跳過） | `500` |
 | `GRAPHIFY_OLLAMA_NUM_CTX` | Ollama 上下文窗口大小 | `4096` |
 | `GRAPHIFY_OLLAMA_KEEP_ALIVE` | Ollama 模型保活時間 | `5m` |
+| `GRAPHIFY_API_KEY` | MCP HTTP transport 認證金鑰（v0.8.34+） | — |
+| `GRAPHIFY_POSTGRES_DSN` | PostgreSQL 連線字串（v0.8.34+） | — |
 | `AWS_DEFAULT_REGION` | AWS Bedrock 區域 | — |
 
-> **📌 實務建議**：在 CI 環境中使用 `GRAPHIFY_OUT` 自訂輸出路徑，避免與其他 pipeline 步驟衝突。
+> **📌 實務建議**：在 CI 環境中使用 `GRAPHIFY_OUT` 自訂輸出路徑，避免與其他 pipeline 步驟衝突。`GRAPHIFY_API_TIMEOUT` 自 v0.8.36+ 預設值已從 60 秒提升至 600 秒，避免大型專案逾時。
 
 ---
 
@@ -2272,6 +2757,10 @@ flowchart LR
 **Q：支援哪些語言？**
 - 程式碼（33+ 種 Tree-sitter 語言）：Python, JS, TS, JSX, TSX, Go, Rust, Java, C, C++, Ruby, C#, Kotlin, Scala, PHP, Swift, Lua, Zig, PowerShell, Elixir, Objective-C, Julia, Fortran, Pascal/Delphi, Verilog/SystemVerilog, Dart, Groovy, Vue, Svelte, Astro, Bash, JSON, BYOND DreamMaker, ArkTS
 - .NET 專案：.sln, .csproj, .fsproj, .vbproj, .razor, .cshtml
+- WPF / XAML：.xaml（v0.8.41+）
+- Terraform / HCL：.tf, .tfvars（v0.8.30+）
+- Salesforce Apex：.cls, .trigger（v0.8.31+）
+- GPU Shader：.cu, .cuh（CUDA）, .metal（Metal）（v0.8.40+）
 - 文件：.md, .mdx, .qmd, .txt, .rst, .html
 - 結構化資料：.yaml, .yml, .json, .sql
 - MCP 設定：.mcp.json
@@ -2297,7 +2786,7 @@ flowchart LR
 ### 平台與相容性問題
 
 **Q：支援哪些 LLM 後端？**
-- Claude（Anthropic）、Claude CLI、Gemini（Google）、OpenAI、Ollama（本地）、AWS Bedrock、Kimi（Moonshot）、DeepSeek、自訂 Provider（OpenAI 相容端點）
+- Claude（Anthropic）、Claude CLI、Gemini（Google）、OpenAI、**Azure OpenAI（v0.8.32+）**、Ollama（本地）、AWS Bedrock、Kimi（Moonshot）、DeepSeek、自訂 Provider（OpenAI 相容端點）
 - 使用 `--backend <name>` 指定，或設定 `GRAPHIFY_BACKEND` 環境變數
 - 自訂 Provider 可透過 `graphify provider add` 註冊（v0.8.24+）
 
@@ -2318,6 +2807,55 @@ flowchart LR
 - 可以。多個旗標可組合使用：
   ```bash
   /graphify ./src --obsidian --wiki --svg --neo4j
+  ```
+
+### v0.9.0 遷移問題
+
+**Q：升級到 v0.9.0 後圖譜會壞掉嗎？**
+- 不會。現有 `graphify-out/` 會在首次建構時**自動遷移**至新的完整路徑 Node ID 格式。
+- 但外部系統（Neo4j、FalkorDB、Gephi）中的資料需要**重新匯入**。
+
+**Q：升級後節點數量變多了？**
+- 正常現象。v0.9.0 之前同名檔案會靜默碰撞合併為單一節點。升級後每個檔案都有獨立的完整路徑 ID，先前碰撞的節點會被正確分離。
+- 使用 `graphify extract --force` 確保完全重建。
+
+**Q：查詢時找不到原本存在的節點？**
+- v0.9.0 Node ID 格式從短檔名改為完整路徑。建議改用 `label` 查詢：
+  ```bash
+  /graphify query "label:authentication 的依賴關係"
+  ```
+
+### 新語言 / 新功能問題
+
+**Q：如何啟用 Terraform / HCL 支援？**
+- 無需額外設定，v0.8.30+ 自動偵測 `.tf` / `.tfvars` 檔案。
+- 或明確指定：`graphify extract ./infra --include "*.tf,*.tfvars"`
+
+**Q：如何連接 PostgreSQL 擷取 Schema？**
+- 使用 `--postgres` 參數搭配連線字串：
+  ```bash
+  graphify extract --postgres "postgresql://user:pass@host:5432/db"
+  ```
+- 建議使用環境變數 `GRAPHIFY_POSTGRES_DSN` 避免密碼明碼。
+
+**Q：CUDA / Metal Shader 支援的限制？**
+- v0.8.40+ 支援基本的 kernel/function 節點和呼叫關係。
+- 不支援 PTX assembly 或 SPIR-V 中間碼。
+
+**Q：macOS 安裝後 `graphify` 指令找不到？**
+- `uv tool install` 安裝路徑可能未在 `PATH` 中。執行：
+  ```bash
+  export PATH="$HOME/.local/bin:$PATH"
+  ```
+- 或加入 `~/.zshrc`（macOS 預設 shell）。
+
+**Q：如何使用 Azure OpenAI 後端？**
+- 設定三個環境變數後使用 `--backend azure`：
+  ```bash
+  export AZURE_OPENAI_ENDPOINT=https://my-instance.openai.azure.com/
+  export AZURE_OPENAI_API_KEY=<key>
+  export AZURE_OPENAI_API_VERSION=2025-01-21-preview
+  graphify extract ./src --backend azure
   ```
 
 ---
@@ -2389,12 +2927,17 @@ flowchart LR
 /graphify ./src --dedup                        # 啟用實體去重
 /graphify ./src --dedup-llm                    # LLM 輔助去重
 /graphify ./src --backend ollama               # 指定 LLM 後端
+/graphify ./src --backend azure                # Azure OpenAI（v0.8.32+）
 /graphify ./src --directed                     # 有向圖模式
 /graphify ./src --exclude "test*"              # 排除匹配模式
 /graphify ./src --affected                     # 僅 git diff 影響的檔案
 /graphify ./src --import-resolution            # 啟用匯入路徑解析
 /graphify ./src --resolution 1.5               # 自訂 Leiden 解析度
 /graphify ./src --exclude-hubs 95              # 排除 degree > 95% 的 hub
+/graphify ./src --timing                       # 顯示每階段耗時（v0.9.0+）
+/graphify ./src --max-concurrency 4            # LLM 並行數上限（v0.9.1+）
+/graphify ./src --no-label                     # 跳過社群命名（v0.8.27+）
+/graphify ./src --health-gate                  # 圖譜品質閘門（v0.8.44+）
 
 # === 新增內容 ===
 /graphify add <URL>                            # 擷取 URL 內容（含 YouTube 影片）
@@ -2417,14 +2960,32 @@ flowchart LR
 /graphify ./src --graphml                      # GraphML
 /graphify ./src --neo4j                        # Cypher 語句
 /graphify ./src --neo4j-push bolt://host:7687  # 推送 Neo4j
-/graphify ./src --mcp                          # MCP Server
+/graphify ./src --falkordb                     # FalkorDB（v0.8.39+）
+/graphify ./src --mcp                          # MCP Server（stdio）
+
+# === MCP Server ===
+python -m graphify.serve graphify-out/graph.json                     # stdio
+graphify-mcp graphify-out/graph.json                                 # console script（v0.8.36+）
+python -m graphify.serve graph.json --transport http --port 8080     # HTTP transport（v0.8.34+）
 
 # === 圖譜管理（v0.7+）===
 graphify clone <repo-url>                      # Clone + 自動建圖
 graphify merge-graphs <dir1> <dir2>            # 合併多專案圖譜
 graphify extract                               # Headless CI 提取
 graphify extract --mode deep                   # 深度 Headless 提取
+graphify extract --timing                      # 顯示耗時（v0.9.0+）
+graphify extract --cargo                       # Cargo workspace（v0.8.38+）
+graphify extract --postgres "dsn"              # PostgreSQL Schema（v0.8.34+）
+graphify extract --force                       # 完全重建（忽略所有快取）
 graphify uninstall                             # 完整移除所有設定
+
+# === 社群命名 / Work Memory（v0.8.27+）===
+graphify label <path>                          # 獨立社群命名
+graphify label --missing-only                  # 僅命名未命名社群（v0.8.50+）
+graphify reflect                               # 聚合 Q&A → LESSONS.md（v0.8.47+）
+graphify reflect --if-stale                    # 僅過期時重建
+graphify save-result --outcome useful          # 標記結果（v0.8.47+）
+graphify save-result --answer-file ans.md      # 多行答案（v0.9.2+）
 
 # === PR Dashboard（v0.8.22+）===
 graphify prs                                   # PR 影響分析
@@ -2443,7 +3004,7 @@ graphify hook install                          # 安裝 hooks
 graphify hook uninstall                        # 移除 hooks
 graphify hook status                           # 檢查狀態
 
-# === Always-On ===
+# === Always-On 平台安裝 ===
 graphify claude install                        # Claude Code
 graphify cursor install                        # Cursor
 graphify gemini install                        # Gemini CLI
@@ -2461,14 +3022,14 @@ graphify kiro install                          # Kiro
 graphify amp install                           # Amp
 graphify devin install                         # Devin CLI
 graphify antigravity install                   # Google Antigravity
+graphify install --platform kilo               # Kilo Code（v0.8.27+）
+graphify install --platform codebuddy          # CodeBuddy（v0.8.28+）
+graphify install --platform agents             # 通用代理（v0.8.29+）
 graphify install --project                     # 專案範圍安裝
 
 # === CLI 直接查詢 ===
 graphify query "問題"                          # 不需 AI 助手
 graphify query "問題" --graph path/to/graph.json
-
-# === MCP Server ===
-python -m graphify.serve graphify-out/graph.json
 ```
 
 ---
@@ -2477,7 +3038,30 @@ python -m graphify.serve graphify-out/graph.json
 
 | 版本 | 日期 | 重點更新 |
 |------|------|---------|
-| **v0.8.26** | 2026-05-30 | Project-scoped install（`--project`），最新穩定版 |
+| **v0.9.2** | 2026-06-29 | `save-result --answer-file`，最新穩定版 |
+| v0.9.1 | 2026-06-28 | `--max-concurrency` 限流，starlette CVE 修復（>= 1.3.1） |
+| **v0.9.0** | 2026-06-27 | ⚠ **破壞性變更**：Node ID 改為完整相對路徑（修復同名檔案碰撞），自動遷移 |
+| v0.8.50 | 2026-06-25 | `label --missing-only`，Wiki 相對 Markdown 連結 |
+| v0.8.49 | 2026-06-24 | MCP `get_community` 工具 |
+| v0.8.47 | 2026-06-22 | Work Memory：`graphify reflect`、`save-result --outcome`、LESSONS.md |
+| v0.8.46 | 2026-06-21 | `GRAPHIFY_QUERY_LOG`、`GRAPHIFY_QUERY_DISABLE`、`GRAPHIFY_QUERY_RESPONSES` |
+| v0.8.45 | 2026-06-20 | Trigram 預過濾取代 datasketch，移除 scipy 依賴 |
+| v0.8.44 | 2026-06-19 | Graph Health Gate（`--health-gate`），`GRAPHIFY_MAX_GRAPH_BYTES` |
+| v0.8.41 | 2026-06-16 | WPF / XAML 支援（`.xaml` 提取） |
+| v0.8.40 | 2026-06-15 | CUDA / Metal Shader 支援 |
+| v0.8.39 | 2026-06-14 | FalkorDB 圖資料庫整合（`--falkordb`） |
+| v0.8.38 | 2026-06-13 | Cargo workspace 映射（`--cargo`） |
+| v0.8.36 | 2026-06-11 | `graphify-mcp` console script，`GRAPHIFY_MAX_RETRIES=6`，`API_TIMEOUT` 預設 600s |
+| v0.8.35 | 2026-06-10 | Gemini CLI 平台，`GRAPHIFY_LLM_TEMPERATURE`，Prompt Injection XML wrapper |
+| v0.8.34 | 2026-06-09 | MCP HTTP transport，PostgreSQL Schema 內省，`GRAPHIFY_API_KEY` |
+| v0.8.33 | 2026-06-08 | Zip Bomb 防護 |
+| v0.8.32 | 2026-06-07 | Azure OpenAI 後端（`--backend azure`） |
+| v0.8.31 | 2026-06-06 | Salesforce Apex 支援（`.cls`、`.trigger`） |
+| v0.8.30 | 2026-06-05 | Terraform / HCL 支援，`*_BASE_URL` 環境變數，`GRAPHIFY_ALLOW_LOCAL_PROVIDERS` |
+| v0.8.29 | 2026-06-04 | agents 通用代理平台 |
+| v0.8.28 | 2026-06-03 | CodeBuddy 平台整合 |
+| v0.8.27 | 2026-06-02 | Kilo Code 平台，`graphify label` 子命令，`--no-label` 旗標，extractors 模組化 |
+| **v0.8.26** | 2026-05-30 | Project-scoped install（`--project`） |
 | v0.8.25 | 2026-05-29 | uv 官方推薦安裝方式，Mac/Windows pip 棄用警告 |
 | v0.8.24 | 2026-05-28 | 自訂 LLM Provider Registry（`graphify provider add`），DeepSeek 後端 |
 | v0.8.22 | 2026-05-26 | PR Dashboard（`graphify prs`），AI triage，MCP PR 工具 |
@@ -2556,20 +3140,20 @@ graph LR
 | **Repository** | [github.com/safishamsi/graphify](https://github.com/safishamsi/graphify) |
 | **授權** | MIT License |
 | **主要語言** | Python 100% |
-| **貢獻者數** | 70+ 人 |
+| **貢獻者數** | 100+ 人 |
 | **CI** | GitHub Actions（Python 3.10 + 3.12） |
 | **測試框架** | pytest（500+ 測試案例） |
-| **GitHub Stars** | 57.1k+ |
-| **Releases** | 121 |
+| **GitHub Stars** | 74.4k+ |
+| **Releases** | 148+ |
 | **加速器** | Y Combinator S26 |
 
 ### 新增語言擴充器（Extractor）
 
 根據官方 [ARCHITECTURE.md](https://github.com/safishamsi/graphify/blob/v3/ARCHITECTURE.md)，新增語言支援的標準流程：
 
-1. **新增提取函數**：在 `extract.py` 中建立 `extract_<lang>(path: Path) -> dict`，遵循既有模式
+1. **新增提取函數**：自 v0.8.27+ 提取器已模組化至 `extractors/` 目錄。在 `extractors/` 中建立 `<lang>.py`，實作 `extract_<lang>(path: Path) -> dict`，遵循既有模式
    - 使用 Tree-sitter 解析 → 走訪節點 → 收集 `nodes` 和 `edges` → call-graph 二次掃描
-2. **註冊檔案副檔名**：在 `extract()` dispatch 和 `collect_files()` 中註冊
+2. **註冊至 resolver-registry**：在 `extractors/__init__.py` 中註冊副檔名與提取器的映射
 3. **更新 detect.py**：將副檔名加入 `CODE_EXTENSIONS` 和 `_WATCHED_EXTENSIONS`（`watch.py`）
 4. **新增 Tree-sitter 依賴**：在 `pyproject.toml` 中加入對應的 tree-sitter 語言套件
 5. **撰寫測試**：在 `tests/fixtures/` 新增測試檔案，在 `tests/test_languages.py` 撰寫測試

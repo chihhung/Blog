@@ -1,5 +1,5 @@
 +++
-date = '2026-05-29T10:00:00+08:00'
+date = '2026-06-30T10:00:00+08:00'
 draft = false
 title = 'Playwright 教學手冊'
 tags = ['教學', 'AI開發','DevOps']
@@ -8,10 +8,10 @@ categories = ['教學']
 
 # Playwright 教學手冊（企業級完整版）
 
-> **版本**：基於 Playwright v1.60.0（2026 年 5 月）  
+> **版本**：基於 Playwright v1.61.1（2026 年 6 月）  
 > **適用對象**：資深工程師、SDET、QA Lead、DevOps 工程師  
 > **授權**：Apache 2.0（Playwright 開源授權）  
-> **最後更新**：2026-05-29
+> **最後更新**：2026-06-30
 
 ---
 
@@ -64,6 +64,10 @@ categories = ['教學']
   - [5.16 Drop API（v1.60+）](#516-drop-apiv160)
   - [5.17 Aria Snapshots 增強（v1.60+）](#517-aria-snapshots-增強v160)
   - [5.18 新增 API 與選項（v1.60+）](#518-新增-api-與選項v160)
+  - [5.19 WebAuthn Passkeys — Credentials API（v1.61+）](#519-webauthn-passkeys--credentials-apiv161)
+  - [5.20 Web Storage API（v1.61+）](#520-web-storage-apiv161)
+  - [5.21 Network API 擴展（v1.61+）](#521-network-api-擴展v161)
+  - [5.22 Test Runner 增強（v1.61+）](#522-test-runner-增強v161)
 - [第 6 章：測試設計最佳實踐](#第-6-章測試設計最佳實踐)
   - [6.1 Page Object Model（POM）完整實作](#61-page-object-modelpom完整實作)
   - [6.2 減少 Flaky Test 策略](#62-減少-flaky-test-策略)
@@ -123,7 +127,7 @@ categories = ['教學']
 
 Playwright 是由 **Microsoft** 開發並開源的瀏覽器自動化與端對端（E2E）測試框架，採用 **Apache 2.0** 授權。它透過單一 API 驅動 **Chromium**、**Firefox** 與 **WebKit** 三大瀏覽器引擎，支援 Windows、Linux、macOS 跨平台執行。
 
-截至 2026 年 5 月，Playwright 在 GitHub 上已獲得 **89,800+ 顆星**，擁有 **744+ 位貢獻者**，發布 **161 個版本**。
+截至 2026 年 6 月，Playwright 在 GitHub 上已獲得 **92,000+ 顆星**，擁有 **759+ 位貢獻者**，發布 **163 個版本**。
 
 #### Playwright 產品線
 
@@ -149,9 +153,9 @@ graph TB
     subgraph "Playwright Architecture"
         A[Test Runner / Script] --> B[Playwright API]
         B --> C[Browser Server]
-        C --> D1[Chrome for Testing 148.0.7778.96]
-        C --> D2[Firefox 150.0.2]
-        C --> D3[WebKit 26.4]
+        C --> D1[Chrome for Testing 149.0.7827.55]
+        C --> D2[Firefox 151.0]
+        C --> D3[WebKit 26.5]
     end
 
     subgraph "Browser Isolation"
@@ -214,8 +218,8 @@ graph TB
 
 | 項目 | 需求 |
 |------|------|
-| **Node.js** | 20.x / 22.x / 24.x（最新穩定版） |
-| **作業系統** | Windows 11+、Windows Server 2019+、WSL、macOS 14+（Sonoma）、Debian 12 / 13（Trixie）、Ubuntu 22.04 / 24.04 |
+| **Node.js** | 22.x / 24.x / 26.x（最新穩定版） |
+| **作業系統** | Windows 11+、Windows Server 2019+、WSL、macOS 14+（Sonoma）、Debian 12 / 13（Trixie）、Ubuntu 22.04 / 24.04 / 26.04 |
 | **CPU 架構** | x86-64 或 arm64 |
 | **磁碟空間** | 約 500MB（含三個瀏覽器） |
 | **Python**（可選） | 3.9+（使用 Python 版本時） |
@@ -227,8 +231,10 @@ graph TB
 > 2. **v1.57+ Breaking**：不再支援 macOS 13 的 WebKit
 > 3. **v1.59+ Breaking**：不再支援 macOS 14 的 WebKit，建議升級至 macOS 15+
 > 4. **v1.60+ Breaking**：移除 `Locator.ariaRef()`、`exposeBinding` 的 `handle` 選項、`connect`/`connectOverCDP` 的 `logger` 選項、`videosPath`/`videoSize` Context 選項
-> 5. **v1.55+ 新增**：支援 Debian 13「Trixie」
-> 6. **v1.55+ Breaking**：停止支援 Chromium Extension Manifest V2
+> 5. **v1.61+ Breaking**：不再支援 Node.js 20.x，最低需求 Node.js 22.x
+> 6. **v1.55+ 新增**：支援 Debian 13「Trixie」
+> 7. **v1.61+ 新增**：支援 Ubuntu 26.04
+> 8. **v1.55+ Breaking**：停止支援 Chromium Extension Manifest V2
 
 ---
 
@@ -600,7 +606,7 @@ with sync_playwright() as p:
 <dependency>
   <groupId>com.microsoft.playwright</groupId>
   <artifactId>playwright</artifactId>
-  <version>1.60.0</version>
+  <version>1.61.1</version>
 </dependency>
 ```
 
@@ -777,7 +783,7 @@ npx playwright init-agents --loop=opencode
 > 2. 使用 `HTTPS_PROXY` 設定 Proxy  
 > 3. 可預先下載瀏覽器到離線環境：`npx playwright install --dry-run` 取得下載 URL  
 > 4. 使用 `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` 跳過自動下載（搭配共享路徑使用）  
-> 5. Docker 環境建議直接使用官方映像檔：`mcr.microsoft.com/playwright:v1.60.0-noble`
+> 5. Docker 環境建議直接使用官方映像檔：`mcr.microsoft.com/playwright:v1.61.1-noble`
 
 ---
 
@@ -1637,6 +1643,326 @@ v1.60 HTML Reporter 新增以下改進：
 npx playwright test --reporter=html --zip
 ```
 
+### 5.19 WebAuthn Passkeys — Credentials API（v1.61+）
+
+v1.61 新增 [Credentials](https://playwright.dev/docs/api/class-credentials) 虛擬 WebAuthn 認證器，透過 `browserContext.credentials` 存取。測試可無需真實硬體金鑰即可完成 Passkey 流程，支援所有瀏覽器。
+
+```mermaid
+graph TB
+    subgraph "Credentials API 流程"
+        A[credentials.create] --> B[種子 Passkey]
+        B --> C[credentials.install]
+        C --> D[攔截 navigator.credentials]
+        D --> E[頁面自動使用虛擬 Passkey]
+        F[credentials.get] --> G[讀取已註冊的 Passkey]
+        G --> H[匯出 / 重用於其他測試]
+    end
+```
+
+#### 5.19.1 種子已知 Passkey
+
+```typescript
+test('使用已知 Passkey 登入', async ({ browser }) => {
+  const context = await browser.newContext();
+
+  // 種子後端已為測試用戶配置的 Passkey
+  await context.credentials.create('example.com', {
+    id: knownCredentialId,          // base64url 編碼
+    userHandle: knownUserHandle,    // base64url 編碼
+    privateKey: knownPrivateKey,    // base64url PKCS#8 (DER)
+    publicKey: knownPublicKey,      // base64url SPKI (DER)
+  });
+
+  // 安裝虛擬認證器（必須在頁面觸碰 navigator.credentials 前呼叫）
+  await context.credentials.install();
+
+  const page = await context.newPage();
+  await page.goto('https://example.com/login');
+
+  // 頁面的 navigator.credentials.get() 會自動使用種子 Passkey
+  await page.getByRole('button', { name: '使用 Passkey 登入' }).click();
+  await expect(page).toHaveURL('/dashboard');
+
+  await context.close();
+});
+```
+
+#### 5.19.2 擷取 Passkey 並重用
+
+```typescript
+// Setup：讓應用程式註冊 Passkey，然後儲存以供後續測試
+test('擷取並儲存 Passkey', async ({ browser }) => {
+  const context = await browser.newContext();
+  await context.credentials.install();
+
+  const page = await context.newPage();
+  await page.goto('https://example.com/register');
+  await page.getByRole('button', { name: '建立 Passkey' }).click();
+
+  // 讀取頁面剛註冊的 Passkey（包含私鑰）
+  const [credential] = await context.credentials.get({ rpId: 'example.com' });
+  
+  // 儲存至檔案供後續測試重用
+  const fs = await import('fs');
+  fs.writeFileSync(
+    'playwright/.auth/passkey.json',
+    JSON.stringify(credential)
+  );
+
+  await context.close();
+});
+
+// 後續測試：重用已儲存的 Passkey
+test('使用已儲存的 Passkey 登入', async ({ browser }) => {
+  const fs = await import('fs');
+  const credential = JSON.parse(
+    fs.readFileSync('playwright/.auth/passkey.json', 'utf8')
+  );
+
+  const context = await browser.newContext();
+  await context.credentials.create(credential.rpId, credential);
+  await context.credentials.install();
+
+  const page = await context.newPage();
+  await page.goto('https://example.com/login');
+  // navigator.credentials.get() 自動解析已儲存的 Passkey
+  await page.getByRole('button', { name: '使用 Passkey 登入' }).click();
+  await expect(page).toHaveURL('/dashboard');
+
+  await context.close();
+});
+```
+
+#### 5.19.3 刪除 Passkey
+
+```typescript
+test('刪除特定 Passkey', async ({ browser }) => {
+  const context = await browser.newContext();
+  
+  const cred = await context.credentials.create('example.com');
+  await context.credentials.install();
+
+  // 刪除指定 Passkey
+  await context.credentials.delete(cred.id);
+
+  // 驗證已無可用 Passkey
+  const remaining = await context.credentials.get({ rpId: 'example.com' });
+  expect(remaining).toHaveLength(0);
+
+  await context.close();
+});
+```
+
+> **✅ 企業應用場景**：
+> - **無密碼認證測試**：不需真實 FIDO2 硬體金鑰即可在 CI 中自動測試 Passkey 流程
+> - **多因素認證**：搭配 storageState 實現完整 MFA 測試自動化
+> - **跨瀏覽器驗證**：同一 Passkey 在 Chromium / Firefox / WebKit 上驗證行為一致性
+
+### 5.20 Web Storage API（v1.61+）
+
+v1.61 新增 [WebStorage](https://playwright.dev/docs/api/class-webstorage) API，透過 `page.localStorage` 和 `page.sessionStorage` 直接讀寫當前 Origin 的瀏覽器儲存，無需透過 `page.evaluate()` 間接操作。
+
+#### 5.20.1 基本操作
+
+```typescript
+test('Web Storage 基本操作', async ({ page }) => {
+  await page.goto('https://example.com');
+
+  // localStorage 操作
+  await page.localStorage.setItem('token', 'abc123');
+  await page.localStorage.setItem('theme', 'dark');
+  
+  const token = await page.localStorage.getItem('token');
+  expect(token).toBe('abc123');
+
+  // 列出所有項目
+  const allItems = await page.localStorage.items();
+  expect(allItems).toContainEqual({ name: 'token', value: 'abc123' });
+
+  // sessionStorage 操作
+  await page.sessionStorage.setItem('sessionId', 'sess-xyz');
+  const sessionId = await page.sessionStorage.getItem('sessionId');
+  expect(sessionId).toBe('sess-xyz');
+
+  // 刪除單一項目
+  await page.localStorage.removeItem('token');
+  
+  // 清除所有項目
+  await page.localStorage.clear();
+  await page.sessionStorage.clear();
+});
+```
+
+#### 5.20.2 測試資料預設與驗證
+
+```typescript
+test('預設 localStorage 並驗證應用程式行為', async ({ page }) => {
+  await page.goto('https://example.com');
+
+  // 預設用戶偏好，模擬已登入狀態
+  await page.localStorage.setItem('user', JSON.stringify({
+    id: 'user-001',
+    name: '王小明',
+    role: 'admin',
+  }));
+  await page.localStorage.setItem('accessToken', 'mock-jwt-token');
+
+  // 重新載入頁面讓應用程式讀取 Storage
+  await page.reload();
+
+  // 驗證應用程式根據 Storage 資料正確渲染
+  await expect(page.getByText('歡迎，王小明')).toBeVisible();
+});
+
+test('驗證登出時清除 Storage', async ({ page }) => {
+  await page.goto('https://example.com/dashboard');
+
+  // 驗證登出操作確實清除了儲存
+  await page.getByRole('button', { name: '登出' }).click();
+
+  const token = await page.localStorage.getItem('accessToken');
+  expect(token).toBeNull();
+
+  const items = await page.localStorage.items();
+  expect(items).toHaveLength(0);
+});
+```
+
+> **✅ 優勢**：相比 `page.evaluate(() => localStorage.setItem(...))` 語法更簡潔，且回傳型別安全的 Promise，適合在 Fixtures 中使用。
+
+### 5.21 Network API 擴展（v1.61+）
+
+v1.61 將原本僅 Browser 端 `Response` 可用的 `securityDetails()` 和 `serverAddr()` 擴展至 `APIResponse`（透過 `request` fixture 發出的 API 請求）。
+
+```typescript
+test('驗證 API 回應的 TLS 安全性資訊', async ({ request }) => {
+  const response = await request.get('https://api.example.com/health');
+
+  // 取得 TLS 安全詳情
+  const security = await response.securityDetails();
+  expect(security).not.toBeNull();
+  expect(security!.protocol).toContain('TLS');
+  expect(security!.issuer).toBeDefined();
+
+  // 取得伺服器位址
+  const serverAddr = await response.serverAddr();
+  expect(serverAddr).not.toBeNull();
+  expect(serverAddr!.port).toBe(443);
+});
+
+test('驗證憑證到期日', async ({ request }) => {
+  const response = await request.get('https://api.example.com/');
+  const security = await response.securityDetails();
+
+  // 確認 TLS 憑證未即將過期（至少 30 天有效期）
+  if (security) {
+    const validTo = security.validTo;  // Unix 時間戳（秒）
+    const thirtyDaysFromNow = Date.now() / 1000 + 30 * 24 * 60 * 60;
+    expect(validTo).toBeGreaterThan(thirtyDaysFromNow);
+  }
+});
+```
+
+> **✅ 企業應用場景**：
+> - **憑證監控**：在 E2E 測試中自動驗證 TLS 憑證有效性，預防過期事故
+> - **合規驗證**：確認 API 端點使用符合安全標準的 TLS 版本（如 TLS 1.3）
+
+### 5.22 Test Runner 增強（v1.61+）
+
+#### 5.22.1 Video 錄製模式擴展
+
+v1.61 為 `testOptions.video` 新增與 `trace` 相同的模式集：
+
+| 模式 | 說明 | 適用場景 |
+|------|------|----------|
+| `'off'` | 不錄影 | 生產環境 Smoke |
+| `'on'` | 總是錄影 | 完整除錯 |
+| `'retain-on-failure'` | 錄製所有，僅失敗時保留 | 推薦 CI 設定 |
+| `'on-first-retry'` | 僅第一次重試時錄製 | 節省資源 |
+| `'on-all-retries'`（v1.61+） | 所有重試都錄製 | 除錯 Flaky Test |
+| `'retain-on-first-failure'`（v1.61+） | 錄製所有，僅第一次失敗保留 | 快速定位首次失敗 |
+| `'retain-on-failure-and-retries'`（v1.61+） | 記錄所有執行，失敗時保留全部 | 深度除錯 |
+
+```typescript
+// playwright.config.ts
+export default defineConfig({
+  use: {
+    // v1.61+ 新增模式：所有重試都錄影，適合除錯 Flaky Test
+    video: 'on-all-retries',
+  },
+});
+```
+
+#### 5.22.2 `expect.soft.poll()` 支援
+
+v1.61 起可在 Soft Assertion 中使用 `poll()`，繼續執行後續驗證而不中斷測試：
+
+```typescript
+test('多重非中斷驗證', async ({ page }) => {
+  await page.goto('/dashboard');
+
+  // Soft poll：不中斷測試，持續輪詢直到條件滿足或逾時
+  await expect.soft.poll(async () => {
+    const count = await page.getByTestId('notification-badge').textContent();
+    return parseInt(count ?? '0');
+  }).toBeGreaterThan(0);
+
+  // 即使上面的 soft assertion 失敗，後續測試仍繼續執行
+  await expect(page.getByRole('heading', { name: '儀表板' })).toBeVisible();
+});
+```
+
+#### 5.22.3 `fullConfig.argv` 與 `fullConfig.failOnFlakyTests`
+
+```typescript
+// reporters/CustomReporter.ts
+import type { FullConfig, Reporter } from '@playwright/test/reporter';
+
+class CustomReporter implements Reporter {
+  onBegin(config: FullConfig) {
+    // v1.61+：取得 runner process.argv 快照（含 -- 分隔符後的自訂參數）
+    console.log('CLI 參數:', config.argv);
+
+    // v1.61+：reporter 可解釋為何 flaky 測試導致執行失敗
+    if (config.failOnFlakyTests) {
+      console.log('⚠️ Flaky 測試將導致執行失敗');
+    }
+  }
+}
+export default CustomReporter;
+```
+
+#### 5.22.4 `testInfo.errors` 展開 AggregateError
+
+v1.61 起，當測試拋出 `AggregateError` 時，`testInfo.errors` 會將每個子錯誤列為獨立條目，方便在報告中逐一檢視：
+
+```typescript
+test('多重錯誤展開範例', async ({ page }) => {
+  await page.goto('/multi-form');
+
+  // 使用 soft assertions 收集多個錯誤
+  await expect.soft(page.getByTestId('field-a')).toHaveValue('expected-a');
+  await expect.soft(page.getByTestId('field-b')).toHaveValue('expected-b');
+  await expect.soft(page.getByTestId('field-c')).toHaveValue('expected-c');
+
+  // 在 Reporter 中，testInfo.errors 會分別列出每個失敗
+});
+```
+
+#### 5.22.5 `-G` 命令列簡寫
+
+v1.61 新增 `-G` 作為 `--grep-invert` 的簡寫：
+
+```bash
+# 等效於 --grep-invert @visual
+npx playwright test -G @visual
+
+# 排除多個 Tag
+npx playwright test -G "@visual|@slow"
+```
+
+> **✅ 最佳實踐**：搭配 `video: 'on-all-retries'` 和 `trace: 'retain-on-failure-and-retries'` 可完整保留 Flaky Test 的所有執行證據，大幅加速根因分析。
+
 ---
 
 ## 第 6 章：測試設計最佳實踐
@@ -1931,7 +2257,7 @@ stages:
 
 playwright-tests:
   stage: test
-  image: mcr.microsoft.com/playwright:v1.60.0-noble
+  image: mcr.microsoft.com/playwright:v1.61.1-noble
   parallel: 4
   script:
     - npm ci
@@ -1954,7 +2280,7 @@ playwright-tests:
 pipeline {
     agent {
         docker {
-            image 'mcr.microsoft.com/playwright:v1.60.0-noble'
+            image 'mcr.microsoft.com/playwright:v1.61.1-noble'
         }
     }
 
@@ -2081,7 +2407,7 @@ export async function sendTeamsNotification(webhookUrl: string, results: {
 
 ```dockerfile
 # Dockerfile.playwright
-FROM mcr.microsoft.com/playwright:v1.60.0-noble
+FROM mcr.microsoft.com/playwright:v1.61.1-noble
 
 WORKDIR /app
 
@@ -2114,7 +2440,7 @@ docker compose run --rm playwright
 ```
 
 > **✅ 最佳實踐**：  
-> 1. 使用官方 Docker Image `mcr.microsoft.com/playwright:v1.60.0-noble` 確保環境一致  
+> 1. 使用官方 Docker Image `mcr.microsoft.com/playwright:v1.61.1-noble` 確保環境一致  
 > 2. CI 中使用 Sharding 分散測試負載  
 > 3. 測試失敗時自動保存 Trace / Screenshot / Video  
 > 4. 報告部署至內部伺服器供團隊查看
@@ -2662,6 +2988,7 @@ npx playwright test --update-snapshots
 
 | 版本 | Breaking Changes | 處理方式 |
 |------|-----------------|---------|
+| **v1.61** | 不再支援 Node.js 20.x；HAR/Trace 格式調整（WebSocket 請求納入） | 升級至 Node.js 22.x+；確認 HAR 解析工具相容新格式 |
 | **v1.60** | 移除 `Locator.ariaRef()`；移除 `exposeBinding` 的 `handle` 選項；移除 `connect`/`connectOverCDP` 的 `logger` 選項；移除 `videosPath`/`videoSize` Context 選項 | 改用 `ariaSnapshot()`；使用 `exposeBinding` 不含 `handle`；移除 logger 參數；改用 `recordVideo` 選項 |
 | **v1.59** | 移除 macOS 14 WebKit 支援；移除 `@playwright/experimental-ct-svelte` | 升級 macOS 至 15+；改用其他元件測試方案 |
 | **v1.58** | 移除 `_react`、`_vue` selector；移除 `:light` selector 後綴；移除 `devtools` 啟動選項；移除 macOS 13 WebKit 支援 | 改用標準 CSS / Locator API；使用 `args: ['--auto-open-devtools-for-tabs']` 替代 |
@@ -2671,16 +2998,25 @@ npx playwright test --update-snapshots
 | **Minor** | 新增 API / 新瀏覽器版本 | 通常向下相容，直接升級 |
 | **Browser** | 瀏覽器行為變更 | 更新視覺快照、調整 Locator |
 
-**v1.55~v1.60 新增重要 API 彙整：**
+**v1.55~v1.61 新增重要 API 彙整：**
 
 | 版本 | 新增 API | 說明 |
 |------|---------|------|
+| **v1.61** | `browserContext.credentials` | WebAuthn Passkeys 虛擬認證器 |
+| **v1.61** | `page.localStorage` / `page.sessionStorage` | Web Storage 直接讀寫 API |
+| **v1.61** | `apiResponse.securityDetails()` / `serverAddr()` | API 回應的 TLS 安全資訊 |
+| **v1.61** | `screencast.showActions({ cursor })` | Screencast 游標裝飾控制 |
+| **v1.61** | `screencast.start({ onFrame: ({ data, timestamp }) })` | 幀擷取新增 timestamp |
+| **v1.61** | `testOptions.video` 新增模式 | `'on-all-retries'`、`'retain-on-first-failure'`、`'retain-on-failure-and-retries'` |
+| **v1.61** | `expect.soft.poll()` | Soft Assertion 支援 poll |
+| **v1.61** | `fullConfig.argv` / `fullConfig.failOnFlakyTests` | Reporter 可讀取 CLI 參數與 flaky 設定 |
+| **v1.61** | `-G` CLI 簡寫 | `--grep-invert` 的簡寫 |
 | **v1.60** | `context.tracing.startHar()` / `stopHar()` | Tracing 層級 HAR 錄製 |
 | **v1.60** | `locator.drop()` | 簡化拖放操作 |
 | **v1.60** | `expect(page).toMatchAriaSnapshot()` | 頁面層級 Aria Snapshot 斷言 |
 | **v1.60** | `getByRole` — `description` 選項 | 透過 aria-description 篩選元素 |
 | **v1.60** | `toHaveCSS` — `pseudo` 選項 | 驗證偽元素 CSS 屬性 |
-| **v1.60** | `browser.on('context')` 事件 | 監聽新 BrowserContext 建立 |
+| **v1.60** | `browser.on('context')` 事件 | 監聯新 BrowserContext 建立 |
 | **v1.60** | BrowserContext 生命週期事件 | Context 鏡像 Page 的 download / frame 事件 |
 | **v1.60** | `{testFileBaseName}` Token | snapshotPathTemplate 新路徑變數 |
 | **v1.59** | `page.screencast` | 統一影片錄製、動作標註、覆蓋層管理 |
@@ -2703,10 +3039,10 @@ npx playwright test --update-snapshots
 {
   "devDependencies": {
     // ✅ 推薦：固定 Minor 版本
-    "@playwright/test": "~1.60.0",
+    "@playwright/test": "~1.61.0",
     
     // ❌ 避免：自動升級 Major
-    // "@playwright/test": "^1.60.0"
+    // "@playwright/test": "^1.61.0"
   }
 }
 ```
@@ -3241,7 +3577,7 @@ export default defineConfig({
     "lint": "eslint tests/ pages/ services/ fixtures/ utils/"
   },
   "devDependencies": {
-    "@playwright/test": "~1.60.0",
+    "@playwright/test": "~1.61.0",
     "@faker-js/faker": "^9.0.0",
     "dotenv": "^16.0.0",
     "eslint": "^9.0.0",
@@ -3319,7 +3655,7 @@ npx playwright test --grep "@smoke|@api"    # Smoke + API
 
 ### 環境建置 Checklist
 
-- [ ] 安裝 Node.js（v20.x / v22.x / v24.x）
+- [ ] 安裝 Node.js（v22.x / v24.x / v26.x）
 - [ ] 安裝 VS Code
 - [ ] 安裝 VS Code Playwright 擴充套件（`ms-playwright.playwright`）
 - [ ] Clone 專案並執行 `npm ci`
@@ -3377,6 +3713,7 @@ npx playwright test --grep "@smoke|@api"    # Smoke + API
 | `npx playwright test tests/login.spec.ts` | 執行單一檔案 |
 | `npx playwright test --grep @smoke` | 按 Tag 篩選 |
 | `npx playwright test --grep-invert @visual` | 排除 Tag |
+| `npx playwright test -G @visual` | 排除 Tag（v1.61+ 簡寫） |
 | `npx playwright test --grep "@smoke\|@api"` | 多 Tag 聯合篩選 |
 | `npx playwright test --workers=4` | 指定 Worker 數 |
 | `npx playwright test --shard=1/4` | 分片執行 |
@@ -3464,6 +3801,8 @@ npx playwright test --grep "@smoke|@api"    # Smoke + API
 | **CLI Agent 文件** | https://playwright.dev/docs/cli-agent |
 | **MCP 文件** | https://playwright.dev/docs/mcp |
 | **Trace Viewer** | https://playwright.dev/docs/trace-viewer |
+| **Credentials（WebAuthn）** | https://playwright.dev/docs/api/class-credentials |
+| **WebStorage API** | https://playwright.dev/docs/api/class-webstorage |
 | **Accessibility 測試** | https://playwright.dev/docs/accessibility-testing |
 | **Service Workers** | https://playwright.dev/docs/service-workers |
 | **Sharding 與合併報告** | https://playwright.dev/docs/test-sharding |

@@ -1,5 +1,5 @@
 +++
-date = '2026-05-31T10:00:00+08:00'
+date = '2026-06-30T10:00:00+08:00'
 draft = false
 title = 'Multica 教學手冊'
 tags = ['教學', 'AI開發']
@@ -8,9 +8,9 @@ categories = ['教學']
 
 # Multica 教學手冊（企業級實戰版）
 
-> **版本：** v0.3.12（2026-05-31）  
+> **版本：** v0.3.33（2026-06-30）  
 > **適用對象：** 資深工程師、架構師、DevOps 工程師、技術主管  
-> **技術棧：** Go Backend + Next.js 16 Frontend + PostgreSQL 17 + pgvector + Agent Daemon  
+> **技術棧：** Go Backend + Next.js 16 Frontend + PostgreSQL 17 + pgvector + Redis（選用）+ Agent Daemon  
 > **授權：** Multica Source Available License（非 SaaS/轉售可自由使用）  
 > **文件等級：** 企業標準技術白皮書
 
@@ -147,7 +147,7 @@ Multica 的核心能力涵蓋以下面向：
 - **Autopilots（自動化排程）：** 支援 Cron 排程、Webhook 觸發或手動執行，自動建立 Issue 並路由至指定 Agent，適用於每日站立會議、週報、定期稽核等場景
 - **Reusable Skills：** 每個解決方案自動轉化為可重用的技能，部署、遷移、審查等技能隨時間複利成長
 - **Unified Runtimes：** 統一管理本地 Daemon 與雲端 Runtime，自動偵測可用 CLI，即時監控執行環境
-- **Vendor-Neutral：** 支援 12 種以上 AI Agent CLI（Claude Code、Codex、GitHub Copilot CLI、OpenClaw、OpenCode、Hermes、Gemini、Pi、Cursor Agent、Kimi、Kiro CLI、Antigravity）
+- **Vendor-Neutral：** 支援 13 種以上 AI Agent CLI（Claude Code、Codex、GitHub Copilot CLI、OpenClaw、OpenCode、Hermes、Gemini、Pi、Cursor Agent、Kimi、Kiro CLI、Antigravity、Qoder CLI）
 - **Self-Hosted First：** 可完全自部署於企業基礎設施，資料不離開企業環境
 
 ### 1.2 名稱由來
@@ -170,7 +170,7 @@ Multica 認為相同的典範轉移正在發生。數十年來，軟體團隊本
 | **Squad-Based Routing** | 透過 Squads 機制，由 Leader Agent 自動將任務路由至適當成員 |
 | **Autopilot Scheduling** | 支援 Cron / Webhook / 手動觸發的自動化排程 |
 | **Skill Compounding** | 技能累積，團隊能力隨時間複利成長 |
-| **Vendor-Neutral** | 支援 12+ 種 AI Agent，不綁定單一供應商 |
+| **Vendor-Neutral** | 支援 13+ 種 AI Agent，不綁定單一供應商 |
 | **Self-Hosted First** | 可完全自部署，資料不離開企業環境 |
 
 ### 1.4 與傳統工具的差異比較
@@ -216,18 +216,19 @@ Multica 認為相同的典範轉移正在發生。數十年來，軟體團隊本
 | 項目 | 資訊 |
 |------|------|
 | GitHub | [multica-ai/multica](https://github.com/multica-ai/multica) |
-| 最新版本 | v0.3.12（80 個 Release） |
-| Stars | 34,400+ |
-| Forks | 4,100+ |
-| 語言組成 | TypeScript 48.1% / Go 43.6% / MDX 6.4% / PLpgSQL 0.6% / CSS 0.5% / JavaScript 0.3% |
-| 貢獻者 | 143+（含 @claude、@multica-agent、@multica-eve 等 AI 貢獻者） |
+| 最新版本 | v0.3.33（101 個 Release） |
+| Stars | 38,600+ |
+| Forks | 4,800+ |
+| 語言組成 | Go 48.1% / TypeScript 43.0% / MDX 7.4% / PLpgSQL 0.4% / CSS 0.4% / JavaScript 0.3% |
+| 貢獻者 | 192+（含 @claude、@multica-agent、@multica-eve、@Copilot 等 AI 貢獻者） |
 | 授權 | Multica Source Available License |
 | 官網 | [multica.ai](https://multica.ai) |
 | Cloud 服務 | [multica.ai](https://multica.ai) |
-| 社群 | [X (@MulticaAI)](https://x.com/MulticaAI) |
-| 開源 Issues | 419+ 個 Issue / 385+ 個 Pull Request |
+| 社群 | [X (@MulticaAI)](https://x.com/MulticaAI) ・ [Discord](https://discord.gg/W8gYBn226t) |
+| 開源 Issues | 606+ 個 Issue / 520+ 個 Pull Request |
 | GHCR 映像 | `multica-backend`、`multica-web`、`charts/multica` |
 | 行動應用 | iOS（apps/mobile/） |
+| 桌面應用 | macOS（apps/desktop/） |
 | Helm Chart | `oci://ghcr.io/multica-ai/charts/multica` |
 
 ### 1.7 授權模式說明
@@ -285,13 +286,13 @@ graph TB
         CLOUD_RT[Cloud Runtime<br/>雲端運行環境]
     end
 
-    subgraph "AI Agent 層（12+ 種支援）"
+    subgraph "AI Agent 層（13+ 種支援）"
         CLAUDE[Claude Code]
         CODEX[Codex]
         COPILOT[GitHub Copilot CLI]
         HERMES[Hermes]
         GEMINI[Gemini]
-        OTHERS[Pi / Cursor Agent / Kimi<br/>Kiro CLI / OpenClaw / OpenCode<br/>Antigravity]
+        OTHERS[Pi / Cursor Agent / Kimi<br/>Kiro CLI / OpenClaw / OpenCode<br/>Antigravity / Qoder CLI]
     end
 
     subgraph "外部整合 (External Integration)"
@@ -343,6 +344,7 @@ graph TB
 | **容器映像** | GHCR（GitHub Container Registry） | `multica-backend`、`multica-web` |
 | **Helm Chart** | OCI Helm Chart on GHCR | Kubernetes 部署用 |
 | **行動端** | iOS（React Native） | apps/mobile/ 目錄 |
+| **桌面端** | macOS（Electron / Tauri） | apps/desktop/ 目錄 |
 | **開發工具** | pnpm 10.28+ / Node.js 20+ / Go 1.26+ | Monorepo 架構（Turborepo） |
 
 ### 2.3 元件說明
@@ -361,7 +363,7 @@ graph TB
 
 Daemon 是在開發者本機執行的背景程序：
 
-1. 啟動時自動偵測已安裝的 AI Agent CLI（`claude`、`codex`、`copilot`、`openclaw`、`opencode`、`hermes`、`gemini`、`pi`、`cursor-agent`、`kimi`、`kiro-cli`、`agy`）
+1. 啟動時自動偵測已安裝的 AI Agent CLI（`claude`、`codex`、`copilot`、`openclaw`、`opencode`、`hermes`、`gemini`、`pi`、`cursor-agent`、`kimi`、`kiro-cli`、`agy`、`qodercli`）
 2. 為每個偵測到的 Agent 在每個被監控的 Workspace 中註冊 Runtime
 3. 以設定的間隔（預設 3 秒）輪詢 Server 是否有已認領（claimed）的任務
 4. 收到任務後建立隔離的工作目錄，啟動 Agent CLI 執行
@@ -384,7 +386,7 @@ Daemon 是在開發者本機執行的背景程序：
 
 #### 2.3.4 AI Agent 支援
 
-Multica 支援 12 種以上 AI Agent CLI，Daemon 啟動時自動偵測 PATH 中已安裝的 CLI：
+Multica 支援 13 種以上 AI Agent CLI，Daemon 啟動時自動偵測 PATH 中已安裝的 CLI：
 
 | Agent | CLI Command | 提供商 | 支援狀態 |
 |-------|-------------|--------|---------|
@@ -400,6 +402,7 @@ Multica 支援 12 種以上 AI Agent CLI，Daemon 啟動時自動偵測 PATH 中
 | Kimi | `kimi` | Moonshot AI | ✅ 官方支援 |
 | Kiro CLI | `kiro-cli` | Kiro ACP | ✅ 官方支援 |
 | Antigravity | `agy` | Antigravity | ✅ 官方支援 |
+| Qoder CLI | `qodercli` | Qoder ACP | ✅ 官方支援 |
 
 ### 2.4 企業整合架構
 
@@ -545,7 +548,7 @@ brew install multica-ai/tap/multica
 curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
 
 # Windows — PowerShell
-irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | iex
+irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps1 | iex
 ```
 
 ### 3.3 Self-Hosted 手動部署（Step-by-Step）
@@ -728,7 +731,16 @@ helm -n multica rollback multica
 | `RESEND_API_KEY` | Resend API 金鑰（建議 Production 必設） |
 | `RESEND_FROM_EMAIL` | 寄件者 Email（預設 `noreply@multica.ai`） |
 
-Multica 亦支援 SMTP Relay 作為替代方案，支援 implicit TLS（SMTPS/465）。
+Multica 亦支援 SMTP Relay 作為替代方案，支援 implicit TLS（SMTPS/465）：
+
+| 變數 | 說明 |
+|------|------|
+| `SMTP_HOST` | SMTP 伺服器主機名稱 |
+| `SMTP_PORT` | SMTP 埠號（`587` TLS / `465` implicit TLS） |
+| `SMTP_USERNAME` | SMTP 帳號 |
+| `SMTP_PASSWORD` | SMTP 密碼 |
+| `SMTP_FROM_EMAIL` | 寄件者 Email |
+| `SMTP_TLS_MODE` | `starttls`（預設）/ `implicit` / `none` |
 
 #### Google OAuth（選用）
 
@@ -744,6 +756,10 @@ Multica 亦支援 SMTP Relay 作為替代方案，支援 implicit TLS（SMTPS/46
 |------|------|
 | `S3_BUCKET` | S3 Bucket 名稱 |
 | `S3_REGION` | AWS Region（預設 `us-west-2`） |
+| `S3_ENDPOINT` | S3 相容端點 URL（MinIO / R2 / Backblaze 等） |
+| `S3_ACCESS_KEY_ID` | S3 相容服務的 Access Key |
+| `S3_SECRET_ACCESS_KEY` | S3 相容服務的 Secret Key |
+| `S3_FORCE_PATH_STYLE` | `true`（用於 MinIO 等 path-style 服務） |
 | `CLOUDFRONT_DOMAIN` | CloudFront 域名 |
 | `CLOUDFRONT_KEY_PAIR_ID` | CloudFront Key Pair ID |
 | `CLOUDFRONT_PRIVATE_KEY` | CloudFront 私鑰（PEM 格式） |
@@ -757,13 +773,54 @@ Multica 亦支援 SMTP Relay 作為替代方案，支援 implicit TLS（SMTPS/46
 |------|------|
 | `MULTICA_DEV_VERIFICATION_CODE` | 固定驗證碼（僅 `APP_ENV=development` 生效） |
 
+#### Redis（選用，Session / Rate Limiting 快取）
+
+| 變數 | 預設值 | 說明 |
+|------|--------|------|
+| `REDIS_URL` | — | Redis 連線字串（例：`redis://localhost:6379/0`） |
+| `REDIS_TLS_ENABLED` | `false` | 是否啟用 TLS 連線 |
+
+> **注意：** Redis 為選用元件。未設定時 Multica 使用 in-memory 快取，適合單節點部署。多節點 HA 建議啟用 Redis。
+
+#### 資料庫連線池（選用）
+
+| 變數 | 預設值 | 說明 |
+|------|--------|------|
+| `DB_POOL_MAX_CONNS` | `25` | 最大連線數 |
+| `DB_POOL_MIN_CONNS` | `5` | 最小保持連線數 |
+| `DB_POOL_MAX_CONN_LIFETIME` | `1h` | 連線最大生命週期 |
+| `DB_POOL_MAX_CONN_IDLE_TIME` | `30m` | 連線最大閒置時間 |
+
+#### 可觀測性（選用）
+
+| 變數 | 預設值 | 說明 |
+|------|--------|------|
+| `METRICS_ADDR` | — | Prometheus metrics 端點（例：`:9090`），未設定時不啟用 |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | — | OpenTelemetry Collector 端點 |
+
+#### 註冊與存取控制
+
+| 變數 | 預設值 | 說明 |
+|------|--------|------|
+| `ALLOW_SIGNUP` | `true` | 是否允許新用戶自行註冊 |
+| `DISABLE_WORKSPACE_CREATION` | `false` | 是否禁止非管理員建立新工作空間 |
+| `ALLOWED_EMAIL_DOMAINS` | — | 限制允許註冊的 Email 域名（逗號分隔） |
+
+#### HTTP 與 Cookie
+
+| 變數 | 預設值 | 說明 |
+|------|--------|------|
+| `HTTP_CLIENT_TIMEOUT` | `30s` | 外部 HTTP 請求的全域超時 |
+| `COOKIE_SECURE` | `true` | Cookie 是否僅限 HTTPS |
+| `COOKIE_SAMESITE` | `lax` | Cookie SameSite 策略 |
+
 #### Daemon 端設定
 
 | 變數 | 預設值 | 說明 |
 |------|--------|------|
 | `MULTICA_DAEMON_POLL_INTERVAL` | `3s` | 輪詢間隔 |
 | `MULTICA_DAEMON_HEARTBEAT_INTERVAL` | `15s` | 心跳間隔 |
-| `MULTICA_AGENT_TIMEOUT` | `2h` | Agent 超時時間 |
+| `MULTICA_AGENT_TIMEOUT` | `0`（無上限，受 watchdog 約束） | Agent 超時時間 |
 | `MULTICA_CODEX_SEMANTIC_INACTIVITY_TIMEOUT` | `10m` | Codex 語義不活動超時 |
 | `MULTICA_DAEMON_MAX_CONCURRENT_TASKS` | `20` | 最大併行任務數 |
 | `MULTICA_DAEMON_ID` | hostname | Daemon 唯一識別碼 |
@@ -783,6 +840,8 @@ Multica 亦支援 SMTP Relay 作為替代方案，支援 implicit TLS（SMTPS/46
 
 #### Caddy（推薦）
 
+**方式一：雙域名佈局（推薦）**
+
 ```caddyfile
 app.example.com {
     reverse_proxy localhost:3000
@@ -791,6 +850,60 @@ app.example.com {
 api.example.com {
     reverse_proxy localhost:8080
 }
+```
+
+**方式二：單域名佈局（路徑式）**
+
+適用於只有一個域名、或內網部署的場景：
+
+```caddyfile
+multica.example.com {
+    handle /api/* {
+        reverse_proxy localhost:8080
+    }
+    handle /ws {
+        reverse_proxy localhost:8080
+    }
+    handle {
+        reverse_proxy localhost:3000
+    }
+}
+```
+
+對應環境變數：
+
+```bash
+FRONTEND_ORIGIN=https://multica.example.com
+REMOTE_API_URL=https://multica.example.com/api
+NEXT_PUBLIC_API_URL=https://multica.example.com/api
+NEXT_PUBLIC_WS_URL=wss://multica.example.com/ws
+```
+
+**方式三：LAN 內網存取（無 TLS）**
+
+適用於開發或信任內網環境，Caddy 提供 HTTP 反代無自動 HTTPS：
+
+```caddyfile
+:80 {
+    handle /api/* {
+        reverse_proxy localhost:8080
+    }
+    handle /ws {
+        reverse_proxy localhost:8080
+    }
+    handle {
+        reverse_proxy localhost:3000
+    }
+}
+```
+
+```bash
+# LAN 環境變數
+FRONTEND_ORIGIN=http://192.168.1.100
+REMOTE_API_URL=http://192.168.1.100/api
+NEXT_PUBLIC_API_URL=http://192.168.1.100/api
+NEXT_PUBLIC_WS_URL=ws://192.168.1.100/ws
+COOKIE_SECURE=false
 ```
 
 #### Nginx
@@ -886,16 +999,36 @@ REMOTE_API_URL=http://localhost:8080 pnpm start
 
 ### 3.8 Usage Dashboard Rollup 設定
 
-Multica 的 Usage Dashboard 依賴 `task_usage_hourly` 聚合表來提供使用量統計。此表需透過定期執行 Rollup 函式來維護。
+Multica 的 Usage Dashboard 依賴 `task_usage_hourly` 聚合表來提供使用量統計。
 
-#### 選項一：系統 Cron Job
+#### 自 v0.3.20 起：DB-backed In-Process Scheduler（MUL-2957）
+
+自 v0.3.20 起，Multica 後端內建 DB-backed in-process scheduler，**無需外部 cron 或 pg_cron**。後端啟動時自動依據資料庫排程表執行 Rollup，預設每小時觸發一次 `rollup_task_usage_hourly()`。
+
+**優點：**
+- 零外部依賴，部署即啟用
+- 排程狀態持久化於資料庫，重啟後自動恢復
+- 支援叢集環境下的 leader election，避免重複執行
+
+**環境變數控制：**
+
+| 變數 | 預設值 | 說明 |
+|------|--------|------|
+| `MULTICA_USAGE_ROLLUP_ENABLED` | `true` | 是否啟用內建 Rollup 排程 |
+| `MULTICA_USAGE_ROLLUP_INTERVAL` | `1h` | Rollup 執行間隔 |
+
+#### 舊版替代方案（v0.3.19 及更早）
+
+若使用舊版 Multica，仍可透過外部排程方式觸發：
+
+**選項一：系統 Cron Job**
 
 ```bash
-# 每小時執行一次聚合（推薦）
+# 每小時執行一次聚合
 0 * * * * psql "$DATABASE_URL" -c "SELECT rollup_task_usage_hourly();"
 ```
 
-#### 選項二：PostgreSQL pg_cron 擴充
+**選項二：PostgreSQL pg_cron 擴充**
 
 ```sql
 -- 安裝 pg_cron（需 superuser 權限）
@@ -909,7 +1042,7 @@ SELECT cron.schedule(
 );
 ```
 
-#### 選項三：手動回填歷史資料
+#### 手動回填歷史資料
 
 ```sql
 -- 回填特定時間範圍的歷史資料
@@ -919,7 +1052,7 @@ SELECT backfill_task_usage_hourly(
 );
 ```
 
-> **實務建議：** Production 環境務必設定 Rollup。未設定時 Usage Dashboard 不會顯示資料。建議使用 pg_cron 方式，可避免外部 cron 依賴。
+> **實務建議：** v0.3.20+ 使用者無需額外設定，內建 scheduler 已自動處理。舊版 Production 環境建議使用 pg_cron 方式，可避免外部 cron 依賴。
 
 ### 3.9 停止服務
 
@@ -1073,7 +1206,7 @@ flowchart LR
 - **輪詢間隔：** 預設每 3 秒（可配置 `MULTICA_DAEMON_POLL_INTERVAL`）
 - **最大併行數：** 預設 20 個任務（可配置 `MULTICA_DAEMON_MAX_CONCURRENT_TASKS`）
 - **Priority：** urgent > high > normal > low
-- **超時機制：** 預設 2 小時（`MULTICA_AGENT_TIMEOUT`）
+- **Agent 超時：** 預設無上限（受 watchdog 約束，可透過 `MULTICA_AGENT_TIMEOUT` 設定具體時限）
 
 ### 4.4 WebSocket 通訊流程
 
@@ -1196,7 +1329,7 @@ multica issue comment delete <comment-id>
 
 ### 5.1 支援的 AI Agent
 
-Multica 官方支援 12 種以上 AI Agent CLI，Daemon 啟動時會自動偵測 PATH 中已安裝的 CLI：
+Multica 官方支援 13 種以上 AI Agent CLI，Daemon 啟動時會自動偵測 PATH 中已安裝的 CLI：
 
 | Agent | CLI | 提供商 | 特色 | 支援狀態 |
 |-------|-----|--------|------|---------|
@@ -1212,6 +1345,7 @@ Multica 官方支援 12 種以上 AI Agent CLI，Daemon 啟動時會自動偵測
 | **Kimi** | `kimi` | Moonshot AI | 長上下文 Agent | ✅ 官方支援 |
 | **Kiro CLI** | `kiro-cli` | Kiro ACP | Agent Computing Platform | ✅ 官方支援 |
 | **Antigravity** | `agy` | Antigravity | 自主編碼 Agent | ✅ 官方支援 |
+| **Qoder CLI** | `qodercli` | Qoder ACP | Agent Computing Platform | ✅ 官方支援 |
 
 > **注意：** 至少需安裝其中一個 Agent CLI 才能啟動 Daemon。**Claude Code** 與 **Codex** 是核心支援的 Agent，提供完整的 CLI 路徑覆寫、模型覆寫與額外參數功能。其他 Agent 均為官方支援，具備路徑覆寫能力。
 
@@ -1275,16 +1409,17 @@ MULTICA_<AGENT>_ARGS    — 額外 CLI 啟動參數
 |-------|----------|-----------|----------|
 | Claude Code | `MULTICA_CLAUDE_PATH` | `MULTICA_CLAUDE_MODEL` | `MULTICA_CLAUDE_ARGS` |
 | Codex | `MULTICA_CODEX_PATH` | `MULTICA_CODEX_MODEL` | `MULTICA_CODEX_ARGS` |
-| GitHub Copilot | `MULTICA_COPILOT_PATH` | — | `MULTICA_COPILOT_ARGS` |
+| GitHub Copilot | `MULTICA_COPILOT_PATH` | `MULTICA_COPILOT_MODEL` | `MULTICA_COPILOT_ARGS` |
 | OpenCode | `MULTICA_OPENCODE_PATH` | — | `MULTICA_OPENCODE_ARGS` |
 | OpenClaw | `MULTICA_OPENCLAW_PATH` | — | `MULTICA_OPENCLAW_ARGS` |
 | Hermes | `MULTICA_HERMES_PATH` | — | `MULTICA_HERMES_ARGS` |
-| Gemini | `MULTICA_GEMINI_PATH` | — | `MULTICA_GEMINI_ARGS` |
+| Gemini | `MULTICA_GEMINI_PATH` | `MULTICA_GEMINI_MODEL` | `MULTICA_GEMINI_ARGS` |
 | Pi | `MULTICA_PI_PATH` | — | `MULTICA_PI_ARGS` |
 | Cursor Agent | `MULTICA_CURSOR_AGENT_PATH` | — | `MULTICA_CURSOR_AGENT_ARGS` |
 | Kimi | `MULTICA_KIMI_PATH` | — | `MULTICA_KIMI_ARGS` |
 | Kiro CLI | `MULTICA_KIRO_CLI_PATH` | — | `MULTICA_KIRO_CLI_ARGS` |
 | Antigravity | `MULTICA_AGY_PATH` | — | `MULTICA_AGY_ARGS` |
+| Qoder CLI | `MULTICA_QODER_PATH` | `MULTICA_QODER_MODEL` | `MULTICA_QODER_ARGS` |
 
 **使用範例：**
 
@@ -2181,11 +2316,52 @@ multica daemon status --output json
 #### Health Check
 
 ```bash
-# Server Health Check
+# Server Health Check（Liveness）
 curl http://localhost:8080/healthz
 # 回傳：{"status":"ok","checks":{"db":"ok","migrations":"ok"}}
 
-# 適合 Load Balancer 、Kubernetes Liveness Probe 或 Prometheus 監控
+# Readiness Check（含 DB 連線狀態）
+curl http://localhost:8080/readyz
+# 回傳：{"status":"ok","checks":{"db":"ok","migrations":"ok","redis":"ok"}}
+
+# 適合 Load Balancer 、Kubernetes Liveness/Readiness Probe 或 Prometheus 監控
+```
+
+#### Prometheus Metrics
+
+當設定環境變數 `METRICS_ADDR`（例：`:9090`）時，後端會在該埠暴露 Prometheus 格式的 metrics：
+
+```bash
+# 啟用 metrics
+export METRICS_ADDR=:9090
+
+# 驗證 metrics 端點
+curl http://localhost:9090/metrics
+```
+
+**主要暴露指標：**
+
+| 指標名稱 | 類型 | 說明 |
+|---------|------|------|
+| `multica_http_requests_total` | Counter | HTTP 請求總數（含 method、path、status） |
+| `multica_http_request_duration_seconds` | Histogram | HTTP 請求延遲分佈 |
+| `multica_ws_connections_active` | Gauge | 當前活躍 WebSocket 連線數 |
+| `multica_tasks_total` | Counter | 任務總數（含 status） |
+| `multica_tasks_active` | Gauge | 當前執行中任務數 |
+| `multica_daemon_heartbeat_age_seconds` | Gauge | Daemon 最後心跳距今秒數 |
+| `multica_db_pool_active_connections` | Gauge | 資料庫連線池使用中連線數 |
+| `multica_db_pool_idle_connections` | Gauge | 資料庫連線池閒置連線數 |
+
+**Grafana Dashboard 範例：**
+
+```bash
+# 使用社群 Dashboard（ID: 待社群發布）
+# 或自建 Dashboard，推薦 Panel：
+# - HTTP 請求 QPS 與 p99 延遲
+# - 活躍 WebSocket 連線數
+# - 任務執行狀態分佈
+# - Daemon 心跳健康度
+# - DB 連線池使用率
 ```
 
 ### 13.3 監控架構
@@ -3008,11 +3184,15 @@ jobs:
 - [ ] CORS 已正確設定（`CORS_ALLOWED_ORIGINS`）
 - [ ] WebSocket 代理已設定（`/ws` 路由 + `proxy_read_timeout 86400`）
 - [ ] 資料庫備份已設定（定期排程）
+- [ ] DB 連線池參數已調整（`DB_POOL_MAX_CONNS`）
 - [ ] Log 集中管理已設定
-- [ ] Health Check 監控已設定（`/healthz`）
+- [ ] Health Check 監控已設定（`/healthz` + `/readyz`）
+- [ ] Prometheus metrics 已啟用（`METRICS_ADDR`，選用）
 - [ ] `.env` 不在版本控制中
 - [ ] Firewall 規則已設定
 - [ ] 檔案儲存已設定（S3 或確認使用 Local Fallback）
+- [ ] Redis 已設定（多節點 HA 時建議，選用）
+- [ ] 註冊控制已設定（`ALLOW_SIGNUP` / `ALLOWED_EMAIL_DOMAINS`）
 
 ### A.3 Agent 配置清單
 
@@ -3204,7 +3384,8 @@ multica workspace get <id> --output json # JSON 格式 Workspace 詳情
 | pgvector | pgvector | PostgreSQL 的向量搜尋擴充，用於 Skill 的語義搜尋與相似度匹配。 |
 | Profile | Profile | CLI 設定檔，支援在同一台機器上連接多個 Server 或 Workspace，每個 Profile 擁有獨立的設定、Daemon 狀態與工作目錄。 |
 | Project | Project | 群組式 Issue 管理單位，類似 Sprint 或 Epic，可將多個 Issue 組織在同一 Project 下追蹤。 |
-| Rollup | Usage Rollup | 使用量聚合機制，透過 `task_usage_hourly` 聚合表驅動 Usage Dashboard。需定期執行 `rollup_task_usage_hourly()` 函式。 |
+| Rollup | Usage Rollup | 使用量聚合機制，透過 `task_usage_hourly` 聚合表驅動 Usage Dashboard。v0.3.20+ 由內建 DB-backed scheduler 自動執行。 |
+| Redis | Redis | 選用的快取元件，用於 Session 儲存與 Rate Limiting。未設定時使用 in-memory 快取。 |
 | Runtime | Runtime | 可執行 Agent 任務的計算環境。可以是本地機器（透過 Daemon）或雲端實例。每個 Runtime 回報可用的 Agent CLI。 |
 | Self-Hosted | Self-Hosted | 自部署模式，將 Multica Server 部署在企業自有的基礎設施上，資料完全不離開企業環境。 |
 | Skill | Skill | 可重用的解決方案模板。Agent 成功解決問題後，其解法可被封裝為 Skill，供其他 Agent 重用。 |
@@ -3215,6 +3396,9 @@ multica workspace get <id> --output json # JSON 格式 Workspace 詳情
 | Workspace | Workspace | 工作空間，Multica 中的頂層組織單位。每個 Workspace 擁有獨立的 Agent、Issue、Skill、Project 與設定。 |
 | Worktree | Git Worktree | Git 的工作樹功能，允許在同一個 Repository 中同時開啟多個分支的工作目錄。Multica 開發環境完整支援此功能。 |
 | Multica Cloud | Multica Cloud | Multica 官方提供的託管服務，免除自部署的維運負擔。訪問 [multica.ai/app](https://multica.ai/app)。 |
+| Desktop App | Desktop App | Multica 桌面應用程式（macOS），提供原生系統整合體驗，位於 `apps/desktop/` 目錄。 |
+| Prometheus | Prometheus | 開源監控系統。Multica 透過 `METRICS_ADDR` 環境變數暴露 Prometheus 格式的 metrics 端點。 |
+| Qoder CLI | Qoder CLI | Qoder ACP 平台的命令列 Agent，CLI 命令為 `qodercli`，v0.3.30+ 支援。 |
 
 ---
 
@@ -3233,10 +3417,11 @@ multica workspace get <id> --output json # JSON 格式 Workspace 詳情
 | Contributing Guide | https://github.com/multica-ai/multica/blob/main/CONTRIBUTING.md |
 | Claude Code 文件 | https://docs.anthropic.com/en/docs/claude-code |
 | Codex GitHub | https://github.com/openai/codex |
-| X (Twitter) | https://x.com/multica_hq |
+| X (Twitter) | https://x.com/MulticaAI |
+| Discord | https://discord.gg/W8gYBn226t |
 
 ---
 
-> **文件維護：** 本手冊基於 Multica v0.3.12 撰寫。建議每次 Multica 重大版本更新後，重新 Review 並更新相關章節。  
-> **最後更新：** 2026-05-31
+> **文件維護：** 本手冊基於 Multica v0.3.33 撰寫。建議每次 Multica 重大版本更新後，重新 Review 並更新相關章節。  
+> **最後更新：** 2026-06-30
 
