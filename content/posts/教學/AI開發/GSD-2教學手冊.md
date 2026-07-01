@@ -8,12 +8,12 @@ categories = ['教學']
 
 # GSD Pi 教學手冊（Enterprise Edition）
 
-> **版本**：v1.0.2（open-gsd/gsd-pi 基線） ｜ **最後更新**：2026-05-31
+> **版本**：v1.3.0（open-gsd/gsd-pi 基線） ｜ **最後更新**：2026-07-01
 > **適用對象**：資深後端 / 前端 / 架構師 / DevOps 工程師
 > **授權**：MIT License
 > **官方網站**：[www.opengsd.net](https://www.opengsd.net/) ｜ **Web 配置器**：[pi.opengsd.net](https://pi.opengsd.net/)
 
-> ⚠️ **重要公告**：GSD-2 專案已於 2026 年 5 月遷移至新的組織與倉庫。原 `gsd-build/gsd-2` 不再是活躍開發地點，所有後續開發、Issues、Releases 皆在 [`open-gsd/gsd-pi`](https://github.com/open-gsd/gsd-pi) 進行。npm 套件名稱也從 `gsd-pi` 更名為 `@opengsd/gsd-pi`。本文件已依據最新版本全面更新。
+> ⚠️ **重要公告**：GSD-2 專案已於 2026 年 5 月遷移至新的組織與倉庫。原 `gsd-build/gsd-2`（v3.0.0 最終版，7.7k Stars，已封存）不再是活躍開發地點，所有後續開發、Issues、Releases 皆在 [`open-gsd/gsd-pi`](https://github.com/open-gsd/gsd-pi) 進行。npm 套件名稱也從 `gsd-pi` 更名為 `@opengsd/gsd-pi`。本文件已依據最新版本 **v1.3.0**（2026-06-21）全面更新。
 
 ---
 
@@ -34,6 +34,7 @@ categories = ['教學']
   - [2.6 Reactive Task Execution](#26-reactive-task-execution)
   - [2.7 Context Pressure Monitor](#27-context-pressure-monitor)
   - [2.8 Planning Depth — 深度探索模式](#28-planning-depth--深度探索模式)
+  - [2.9 Per-Phase Thinking Level — 分階段思考深度](#29-per-phase-thinking-level--分階段思考深度)
 - [3. 系統架構設計（Architecture）](#3-系統架構設計architecture)
   - [3.1 GSD Pi 內部架構](#31-gsd-pi-內部架構)
   - [3.2 GSD Pi + 微服務架構整合](#32-gsd-pi--微服務架構整合)
@@ -73,11 +74,12 @@ categories = ['教學']
   - [7.4 Agent 任務切分策略](#74-agent-任務切分策略)
   - [7.5 雙終端機工作流](#75-雙終端機工作流)
   - [7.6 Quick Mode — 快速任務](#76-quick-mode--快速任務)
-  - [7.7 Telegram 遠端控制](#77-telegram-遠端控制)
-  - [7.8 Web 介面管理](#78-web-介面管理)
-  - [7.9 思緒捕捉（Capture）與工作流視覺化](#79-思緒捕捉capture與工作流視覺化)
-  - [7.10 Visual Briefs — 視覺化簡報產出](#710-visual-briefs--視覺化簡報產出)
-  - [7.11 自訂工作流插件（Custom Workflows）](#711-自訂工作流插件custom-workflows)
+  - [7.7 Session 可觀察性命令](#77-session-可觀察性命令)
+  - [7.8 Telegram 遠端控制](#78-telegram-遠端控制)
+  - [7.9 Web 介面管理](#79-web-介面管理)
+  - [7.10 思緒捕捉（Capture）與工作流視覺化](#710-思緒捕捉capture與工作流視覺化)
+  - [7.11 Visual Briefs — 視覺化簡報產出](#711-visual-briefs--視覺化簡報產出)
+  - [7.12 自訂工作流插件（Custom Workflows）](#712-自訂工作流插件custom-workflows)
 - [8. 知識圖譜與學習系統](#8-知識圖譜與學習系統)
   - [8.1 KNOWLEDGE.md 設計方式](#81-knowledgemd-設計方式)
   - [8.2 記憶架構（v2.77 ADR-013）](#82-記憶架構v277-adr-013)
@@ -92,11 +94,16 @@ categories = ['教學']
 - [10. 實戰範例](#10-實戰範例)
 - [11. SSDLC 整合（安全開發）](#11-ssdlc-整合安全開發)
 - [12. 系統維護（Maintenance）](#12-系統維護maintenance)
+  - [12.1 如何更新 Spec](#121-如何更新-spec)
+  - [12.2 如何修復 Bug](#122-如何修復-bug)
+  - [12.3 Forensics — 失敗調查](#123-forensics--失敗調查)
+  - [12.4 如何讓 AI 持續學習](#124-如何讓-ai-持續學習)
   - [12.5 Provider Error Recovery](#125-provider-error-recovery)
   - [12.6 Failure Recovery](#126-failure-recovery)
   - [12.7 Pipeline Architecture](#127-pipeline-architecture)
   - [12.8 清理與歸檔](#128-清理與歸檔)
   - [12.9 Token Telemetry 與成本追蹤](#129-token-telemetry-與成本追蹤)
+  - [12.10 Unit Closeout 模組](#1210-unit-closeout-模組)
 - [13. 系統升級（Upgrade）](#13-系統升級upgrade)
   - [13.1 從 gsd-build/gsd-2 遷移到 open-gsd/gsd-pi](#131-從-gsd-buildgsd-2-遷移到-open-gsdgsd-pi)
 - [14. 最佳實務（Best Practices）](#14-最佳實務best-practices)
@@ -182,10 +189,17 @@ GSD Pi（前稱 GSD-2，Get Stuff Done，採用 [Pi SDK](https://github.com/badl
 | **Per-Model MCP 過濾** | 每個模型可獨立指定允許使用的 MCP 工具子集 |
 | **Extensions 管理** | `/gsd extensions` 安裝、移除、更新擴充套件 |
 | **Planning Depth** | `planning_depth: deep` 啟用分階段專案探索，深度分析後再規劃 |
+| **Per-Phase Thinking** | 每個階段（planning / execution / completion）可獨立設定 `thinking_level`，平衡推理深度與成本（v1.2.0） |
+| **Planner Handoff** | 規劃與執行明確分離，Planner Agent 完成後移交給 Worker Agent（v1.2.0） |
+| **Unit Closeout** | 互動式工作項目收尾模組，確保每個 Task 的產出完整且記錄清晰（v1.3.0） |
+| **Claude Fable 5** | 支援 Claude Fable 5（Opus-tier 思考能力），可指定為 planning 模型（v1.3.0） |
+| **MiniMax M3** | 支援 MiniMax M3 模型，擴展多元 Provider 選擇（v1.2.0） |
+| **Tool Surface Readiness** | SDK 初始化時驗證所有工具介面就緒，避免分派至無回應工具（v1.3.0） |
+| **Session Observability** | `/gsd usage` 查看 Session 用量、`/gsd context` 查看 Context 狀態（v1.1.0） |
 
 ### 1.2 與傳統開發模式差異
 
-| 面向 | 傳統開發 | GSD-1（Prompt Framework） | GSD Pi（v1.0.2） |
+| 面向 | 傳統開發 | GSD-1（Prompt Framework） | GSD Pi（v1.3.0） |
 |------|----------|--------------------------|-------------------|
 | 執行方式 | 人工編碼 | Claude Code Slash Commands | 獨立 CLI（Pi SDK） |
 | Context 管理 | N/A | 希望 LLM 不要塞滿 | 每任務全新 Session，程式化注入 |
@@ -232,6 +246,10 @@ GSD 專案歷經兩大階段。原始倉庫 `gsd-build/gsd-2` 累積發佈 **116
 | | v3.0.0 | 最終版本，整合至 open-gsd/gsd-pi |
 | **新倉庫** | v1.0.0 | 新基線：Cloud MCP Gateway、gsd-browser、Per-Model MCP 過濾、Custom Workflows 插件、Visual Briefs、Extensions 管理、`planning_depth: deep`、Workspace multi-repo、Custom Model Definitions（models.json）、Ollama 支援、Community Provider Extensions、Token Telemetry、In-session update、cmux 整合 |
 | | v1.0.2 | Bug fixes：修復 worktree checkout 問題、改進 headless recover、修正 theme config 讀取 |
+| | v1.1.0 | Claude Opus 4.8 支援、`/gsd usage` 和 `/gsd context` 可觀察性命令、ADR-010 seam 修復、Cloud MCP Gateway 本地 Runtime 能力 |
+| | v1.1.1 | npm 發佈 tarball 同步修補（穩定性修正） |
+| | v1.2.0 | Per-phase thinking level 設定、Planner Handoff（規劃與執行明確分離）、Managed gsd-browser 引擎、MiniMax M3 模型支援、TUI 工具軌道即時顯示 |
+| | v1.3.0 | Claude Fable 5 支援（Opus-tier 思考）、Unit Closeout 互動式收尾模組、Tool Surface Readiness Gate（SDK 初始化驗證）、Shell 工具改善（uncapped bash、可中斷等待、優雅終止）、PATH gsd-browser 路徑修復 |
 
 **生態系**：
 
@@ -442,6 +460,39 @@ planning_depth: deep    # normal（預設）| deep
 4. **Phase 4 — Plan Generation**：基於前三階段的理解產出精準計畫
 
 > **💡 實務建議**：對初次接手的大型專案（>50K LOC）建議啟用 `deep` 模式。雖然規劃時間較長，但後續執行的 Task 品質與準確度顯著提升。
+
+### 2.9 Per-Phase Thinking Level — 分階段思考深度
+
+GSD Pi v1.2.0 新增 Per-Phase Thinking Level 設定，允許針對不同執行階段獨立配置 LLM 的思考深度（reasoning effort），在推理品質與 Token 成本之間精準取得平衡。
+
+**設定方式**：
+
+```yaml
+# .gsd/PREFERENCES.md
+phases:
+  planning:
+    thinking_level: high       # 規劃階段：深度推理，確保架構正確
+  execution:
+    thinking_level: medium     # 執行階段：平衡品質與成本
+  completion:
+    thinking_level: low        # 完成階段：快速產出摘要與提交
+```
+
+**Thinking Level 對應說明**：
+
+| Level | 說明 | 適用階段 | Token 消耗 |
+| ----- | ---- | -------- | ---------- |
+| `high` | 完整延伸思考（Extended Thinking） | Planning、架構設計 | 高 |
+| `medium` | 標準推理 | Execution、一般開發 | 中 |
+| `low` | 快速回應，無延伸思考 | Completion、文件產生 | 低 |
+
+**核心優勢**：
+
+- **成本優化**：Completion 階段通常只需產生摘要和提交訊息，降至 `low` 可節省 30–50% Token
+- **品質保障**：Planning 階段最重要，設定 `high` 確保架構決策正確
+- **靈活配置**：支援與 `claude-fable-5`（v1.3.0）、`claude-opus-4-8`（v1.1.0）等高能力模型搭配使用
+
+> **💡 實務建議**：企業環境中建議 planning 搭配 `claude-fable-5` + `thinking_level: high`，execution 使用 `claude-sonnet-4-6` + `thinking_level: medium`，completion 使用任何快速模型 + `thinking_level: low`。此組合在品質與成本之間達到最佳平衡。
 
 ---
 
@@ -1575,6 +1626,26 @@ gsd
 
 兩個終端讀寫相同的 `.gsd/` 檔案。Terminal 2 的決策在下一個 Phase 邊界自動被拾取。
 
+**Planner Handoff（v1.2.0）**：
+
+GSD Pi v1.2.0 引入 Planner Handoff 機制，將規劃與執行明確分離。規劃階段由高能力模型（如 `claude-fable-5` 或 `claude-opus-4-8`）完成後，系統自動生成詳細的移交文件，再由執行模型（如 `claude-sonnet-4-6`）接手實作：
+
+```text
+Planner Agent（高能力模型）
+  → 分析需求、設計架構、拆解任務
+  → 產生 Handoff Document（含技術決策、檔案清單、依賴關係）
+      ↓
+Worker Agent（執行模型）
+  → 讀取 Handoff Document
+  → 逐 Task 實作，無需重新理解架構
+```
+
+此機制的優勢：
+
+- **品質提升**：規劃用最強模型，不受預算影響執行品質
+- **成本降低**：執行用標準模型，規劃成本均攤至整個 Milestone
+- **上下文清晰**：Worker Agent 起始 Context 乾淨，不含規劃過程的冗餘資訊
+
 ### 7.6 Quick Mode — 快速任務
 
 對於小型修改，不需要完整的 Milestone 流程：
@@ -1585,7 +1656,60 @@ gsd
 # 直接描述任務，GSD 以完整保證執行，但跳過規劃開銷
 ```
 
-### 7.7 Telegram 遠端控制
+### 7.7 Session 可觀察性命令
+
+GSD Pi v1.1.0 新增兩個可觀察性（Observability）命令，讓開發者在 Auto Mode 執行期間即時掌握資源用量與 Context 狀態：
+
+#### `/gsd usage` — Session 用量查詢
+
+```bash
+gsd
+/gsd usage
+```
+
+輸出範例：
+
+```text
+Session Usage:
+  Input tokens:    128,432
+  Output tokens:    24,891
+  Cache read:       89,034
+  Cache write:       8,200
+  Total cost:        $0.87 USD
+
+Per-phase breakdown:
+  Planning:    45,200 tokens  ($0.32)
+  Execution:   92,400 tokens  ($0.48)
+  Completion:  15,723 tokens  ($0.07)
+```
+
+#### `/gsd context` — Context 狀態查詢
+
+```bash
+gsd
+/gsd context
+```
+
+輸出範例：
+
+```text
+Context State:
+  Window size:     200,000 tokens
+  Used:            142,310 tokens (71.2%)
+  Available:        57,690 tokens
+  Pressure level:  moderate
+  Next threshold:  80% (wrap-up signal)
+
+Loaded artifacts:
+  - ROADMAP.md        (12,400 tokens)
+  - Slice S02 Plan    ( 3,200 tokens)
+  - KNOWLEDGE.md      ( 8,900 tokens)
+  - Prior summaries   ( 5,600 tokens)
+```
+
+> **💡 實務建議**：在長時間 Auto Mode 執行中，定期執行 `/gsd usage` 監控成本，搭配 `budget_ceiling` 設定避免超支。Context 壓力超過 70% 時可執行 `/gsd context` 評估是否需要手動壓縮知識庫。
+
+### 7.8 Telegram 遠端控制
 
 GSD Pi 支援透過 Telegram 遠端控制 Auto Mode，適合在 Headless / CI 模式下遠端監控和操作：
 
@@ -1639,7 +1763,7 @@ remote_questions:
 
 啟用 `notifications.enabled: true` 時，里程碑完成、阻擋、預算警報等通知也會自動發送到遠端頻道。
 
-### 7.8 Web 介面管理
+### 7.9 Web 介面管理
 
 GSD Pi 提供瀏覽器介面，可視覺化管理專案：
 
@@ -1654,7 +1778,7 @@ Web 介面適合以下場景：
 - **團隊協作**：共享 URL 讓團隊成員即時查看狀態
 - **報告產出**：直接從瀏覽器匯出 HTML 報告
 
-### 7.9 思緒捕捉（Capture）與工作流視覺化
+### 7.10 思緒捕捉（Capture）與工作流視覺化
 
 #### `/gsd capture` — 即時思緒捕捉
 
@@ -1698,7 +1822,7 @@ auto_visualize: true
 
 > **💡 實務建議**：建議團隊建立 `AGENTS.md` 範本，統一定義程式碼風格、架構規範與安全要求。這確保不同 Agent 和不同 Session 產出一致的程式碼。搭配 Telegram 遠端控制，可在離開工位後持續監控 AI 開發進度。
 
-### 7.10 Visual Briefs — 視覺化簡報產出
+### 7.11 Visual Briefs — 視覺化簡報產出
 
 GSD Pi v1.0 新增 `/gsd brief` 命令，自動分析專案結構並產生 Mermaid 視覺化簡報：
 
@@ -1734,7 +1858,7 @@ graph TD
 - **架構審查**：自動產出最新架構圖供會議使用
 - **文件同步**：讓文件與程式碼保持一致
 
-### 7.11 自訂工作流插件（Custom Workflows）
+### 7.12 自訂工作流插件（Custom Workflows）
 
 GSD Pi 提供統一的工作流插件系統，可安裝、管理與執行自訂工作流範本：
 
@@ -2046,6 +2170,27 @@ Auto Mode 在 Dispatch 時檢查健康狀態，遇到 `error` 等級問題會自
 /gsd logs
 # 瀏覽 Activity、Debug、Metrics 日誌
 ```
+
+#### Tool Surface Readiness Gate（v1.3.0）
+
+GSD Pi v1.3.0 在 SDK 初始化階段新增 **Tool Surface Readiness Gate**，在任何任務分派之前驗證所有必要的工具介面（MCP Server、Shell、瀏覽器等）均已就緒並可回應：
+
+```text
+GSD Pi 啟動
+  → SDK 初始化
+  → Tool Surface Readiness Check
+      ✓ Shell 工具：就緒
+      ✓ MCP Servers：全部就緒（3/3）
+      ✓ gsd-browser：就緒
+      ⚠ Voice Tool：未連線（非必要，忽略）
+  → 所有必要工具就緒，開始分派任務
+```
+
+**優勢**：
+
+- **提前失敗**：初始化時即偵測工具問題，避免任務執行中途因工具不可用而中斷
+- **精準診斷**：明確顯示哪個工具未就緒，縮短排錯時間
+- **非必要工具容錯**：選配工具（如語音輸入）未就緒時只記錄警告，不阻擋執行
 
 ### 9.5 擴充套件管理（Extensions）
 
@@ -2776,6 +2921,55 @@ gsd
 
 > **💡 實務建議**：企業環境中建議啟用 Token Telemetry，搭配 `budget_ceiling` 設定預算上限。定期匯出成本數據（`/gsd export --html`）作為專案成本分析的依據。
 
+### 12.10 Unit Closeout 模組（v1.3.0）
+
+GSD Pi v1.3.0 引入 **Unit Closeout 模組**，提供互動式工作項目收尾流程（Interactive Closeout Adapter）。每個 Task 完成後，系統主動引導開發者確認產出的完整性，並自動補全摘要、教訓萃取與 Git 提交：
+
+**Closeout 流程**：
+
+```text
+Task 執行完成
+  ↓
+Unit Closeout 模組啟動
+  ├─ 驗證 Must-haves 全部勾選
+  ├─ 確認 Artifacts 全部存在
+  ├─ 產生 Task Summary（T0x-SUMMARY.md）
+  ├─ 萃取教訓 → 寫入 KNOWLEDGE.md
+  └─ 建立 Git Commit（含結構化訊息）
+  ↓
+下一個 Task 分派
+```
+
+**啟用方式**（v1.3.0 預設啟用）：
+
+```yaml
+# .gsd/PREFERENCES.md
+unit_closeout:
+  enabled: true
+  interactive: true        # 互動確認模式（Auto Mode 可設為 false）
+  extract_learnings: true  # 自動萃取教訓到 KNOWLEDGE.md
+  require_summary: true    # 強制產生 SUMMARY.md
+```
+
+**Headless / CI 環境**：
+
+在 Headless Mode 中，`interactive: false` 時系統自動完成所有 Closeout 步驟，無需人工介入：
+
+```bash
+gsd headless auto --unit-closeout
+```
+
+**企業價值**：
+
+| 面向 | 說明 |
+| ---- | ---- |
+| **可追蹤性** | 每個 Task 均有完整的 Summary + 教訓記錄 |
+| **知識累積** | 自動萃取教訓，KNOWLEDGE.md 持續成長 |
+| **審計合規** | Git History 包含結構化、有意義的提交訊息 |
+| **品質門檻** | Must-haves 未完成時阻擋進入下一個 Task |
+
+> **💡 實務建議**：企業環境中建議啟用 `require_summary: true`，確保每個 Task 均有書面記錄。搭配 `/gsd extract-learnings` 命令可手動觸發教訓萃取，適用於補充舊版 Session 的知識記錄。
+
 ---
 
 ## 13. 系統升級（Upgrade）
@@ -2940,12 +3134,28 @@ budget_ceiling: 100.00    # USD 上限
 models:
   research: openrouter/deepseek/deepseek-r1    # 便宜但夠用
   planning:
-    model: claude-opus-4-7                      # 最強模型做規劃
+    model: claude-fable-5                       # Fable 5 — Opus-tier 思考（v1.3.0）
     fallbacks:
-      - openrouter/z-ai/glm-5                  # Fallback
+      - claude-opus-4-8                         # Opus 4.8（v1.1.0）
+      - openrouter/z-ai/glm-5                  # 社群 Fallback
   execution: claude-sonnet-4-6                  # 平衡的執行模型
   completion: claude-sonnet-4-6                 # 快速完成
 ```
+
+**技巧 5：Per-Phase Thinking Level（v1.2.0）** — 搭配模型選擇，獨立控制各階段的推理深度，精準優化成本：
+
+```yaml
+# .gsd/PREFERENCES.md
+phases:
+  planning:
+    thinking_level: high       # 規劃：完整延伸思考，確保架構正確
+  execution:
+    thinking_level: medium     # 執行：標準推理，平衡品質與速度
+  completion:
+    thinking_level: low        # 完成：快速產出摘要，節省 Token
+```
+
+此設定可節省 Completion 階段 30–50% Token，同時確保 Planning 階段品質最高。
 
 ### 14.3 避免 Hallucination
 
@@ -3167,7 +3377,7 @@ Slice: "新增使用者管理 API"
 
 衝突偵測機制：若 Task E 和 Task B 同時修改同一檔案，系統自動序列化執行。
 
-> **⚠ 注意**：Reactive Execution 目前為實驗性功能。建議在非關鍵專案中先行驗證。
+> **💡 提示**：Reactive Execution 自 GSD Pi v1.0 起已預設啟用，並在生產環境中廣泛驗證。對於頻繁修改相同檔案的 Task，系統會自動序列化執行，無需手動關閉此功能。
 
 ### 14.8 企業指引範本
 
@@ -3661,6 +3871,8 @@ unique_milestone_ids: true     # 避免 Milestone ID 衝突
 | `/gsd prefs wizard` | 互動式偏好精靈 |
 | `/gsd prefs import-claude` | 匯入 Claude Code 設定 |
 | `/gsd doctor` | 健康檢查 |
+| `/gsd usage` | 查看 Session Token 用量與費用（v1.1.0） |
+| `/gsd context` | 查看 Context 使用狀態與載入的 Artifacts（v1.1.0） |
 | `/gsd forensics` | 失敗調查 |
 | `/gsd logs` | 日誌瀏覽 |
 | `/gsd export --html` | 產生 HTML 報告 |

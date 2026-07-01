@@ -2,7 +2,7 @@
 date = '2026-06-30T10:00:00+08:00'
 draft = false
 title = 'Graphify教學手冊'
-tags = ['教學', 'AI開發','指引']
+tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
 

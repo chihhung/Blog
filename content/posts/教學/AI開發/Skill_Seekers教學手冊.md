@@ -8,7 +8,7 @@ categories = ['教學']
 
 # Skill_Seekers 教學手冊（企業實戰版）
 
-> **版本**：v3.5.1（2026-04）  
+> **版本**：v3.8.0（2026-07）  
 > **適用對象**：資深工程師、AI 架構師、DevOps 工程師  
 > **授權**：MIT License  
 > **官方網站**：<https://skillseekersweb.com/>  
@@ -52,6 +52,7 @@ categories = ['教學']
   - [5.7 Unified Multi-Source Skill](#57-unified-multi-source-skill)
   - [5.8 Skill 結構設計（Schema）](#58-skill-結構設計schema)
   - [5.9 Metadata / Tagging 策略](#59-metadata--tagging-策略)
+  - [5.10 專案知識盤點（scan）](#510-專案知識盤點scan)
 - [6. 與 AI 開發工具整合（重點）](#6-與-ai-開發工具整合重點)
   - [6.1 Claude Code 整合](#61-claude-code-整合)
   - [6.2 GitHub Copilot 整合](#62-github-copilot-整合)
@@ -161,17 +162,17 @@ graph TD
 
 | 指標 | 數值 |
 |------|------|
-| GitHub Stars | 12,646+ |
-| Forks | 1,303 |
-| Contributors | 39 |
-| 測試數量 | 3,194+ |
+| GitHub Stars | 14,300+ |
+| Forks | 1,500+ |
+| Contributors | 39+ |
+| 測試數量 | 3,700+ |
 | 支援資料來源 | 18 種 |
 | 支援 AI 平台 | 12+ LLM + 8 RAG/Vector |
 | MCP Tools | 40 個（10 類別） |
 | Workflow Presets | 65 個（15 領域） |
-| 支援 Agent 安裝 | 18 個 AI 編碼助手 |
+| 支援 Agent 安裝 | 14+ AI 編碼助手 |
 | 支援程式語言分析 | 27+ |
-| 最新版本 | v3.5.1 |
+| 最新版本 | v3.8.0 |
 
 **12+ LLM 平台**：Claude、Gemini、OpenAI (ChatGPT)、Kimi、DeepSeek、Qwen、OpenRouter、Together AI、Fireworks AI、MiniMax、OpenCode、Markdown（通用格式）
 
@@ -942,6 +943,93 @@ output/
 
 > **實務建議**：建議採用 Unified Multi-Source 方式建立 Skill，結合文件 + GitHub 程式碼分析，自動偵測文件與程式碼的差異。對於大型文件（10K-40K+ 頁），使用 Router/Hub 模式自動分割為子 Skill。
 
+### 5.10 專案知識盤點（scan）
+
+v3.7.0 新增 `scan` 命令，提供 **AI 驅動的專案 Skill 知識盤點**，能自動偵測專案所使用的技術框架，並建議應建立哪些 Skill，協助團隊快速建立完整的 AI 知識庫。
+
+#### 核心功能
+
+| 功能 | 說明 |
+| --- | --- |
+| **框架自動偵測** | 支援約 50 種框架（Python、Go、Rust、JS monorepos、Dockerfile/CI 等） |
+| **覆蓋率分析** | 顯示哪些框架已有 Skill、哪些尚未建立 |
+| **AI 驅動盤點** | 利用 AI 分析專案結構，推薦最重要的 Skill 優先順序 |
+| **社群 Registry** | 可將掃描結果提交至社群 registry，供其他團隊參考 |
+
+#### 基本用法
+
+```bash
+# 掃描當前目錄
+skill-seekers scan
+
+# 掃描指定專案目錄
+skill-seekers scan --directory ./my-project
+
+# 掃描並輸出詳細報告
+skill-seekers scan --directory ./my-project --verbose
+```
+
+#### 安全與成本控制旗標
+
+```bash
+# 預覽模式（不實際呼叫 AI，僅顯示框架偵測結果）
+skill-seekers scan --dry-run
+
+# 限制 AI 生成次數（控制 API 成本）
+skill-seekers scan --max-ai-generations 5
+
+# 探測 URL 但不下載文件（快速確認框架文件位置）
+skill-seekers scan --probe-urls
+
+# 純本地分析（不發出任何網路請求）
+skill-seekers scan --no-fetch
+```
+
+#### 典型輸出範例
+
+```
+Skill Seekers - Project Knowledge Scan
+========================================
+Project: my-enterprise-app
+
+Detected Frameworks (8 found):
+  ✅ Spring Boot 3.x     → Skill 已建立（skill: spring-boot）
+  ✅ Vue 3               → Skill 已建立（skill: vue3）
+  ❌ Spring Security 6   → 建議建立（高優先）
+  ❌ PostgreSQL 16       → 建議建立（中優先）
+  ❌ Redis 7             → 建議建立（中優先）
+  ❌ Docker Compose      → 建議建立（低優先）
+  ❌ GitHub Actions      → 建議建立（低優先）
+  ❌ JUnit 5             → 建議建立（中優先）
+
+Coverage: 2/8 frameworks covered (25%)
+Recommendation: Run 'skill-seekers create' for high-priority items first.
+```
+
+#### 整合到 CI/CD
+
+```yaml
+# .github/workflows/skill-audit.yml
+name: Skill Coverage Audit
+on:
+  push:
+    branches: [main]
+    paths: ['pom.xml', 'package.json', 'requirements.txt', 'go.mod']
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install skill-seekers
+      - run: skill-seekers scan --dry-run --verbose
+```
+
+> **實務建議**：在新專案啟動或引入新框架時，執行 `skill-seekers scan --dry-run` 可快速了解需要建立哪些 Skill，避免遺漏重要框架的知識庫。搭配 CI/CD 可在每次依賴變更時自動提醒團隊更新 Skill。
+
 ---
 
 ## 6. 與 AI 開發工具整合（重點）
@@ -1096,6 +1184,19 @@ python -m skill_seekers.mcp.server_fastmcp
 # HTTP 模式（Cursor、Windsurf、IntelliJ）
 python -m skill_seekers.mcp.server_fastmcp --transport http --port 8765
 ```
+
+#### v3.8.0 MCP 架構優化（In-Process Tools）
+
+v3.8.0 將 MCP Tools 從子進程（subprocess）改為 **in-process** 執行模式，帶來以下改進：
+
+| 項目 | v3.7.x 以前 | v3.8.0+ |
+| --- | --- | --- |
+| 啟動方式 | 生成子進程（subprocess spawn） | 進程內直接執行（in-process） |
+| 啟動延遲 | 較高（需 fork + 初始化） | 極低（直接呼叫） |
+| Windows 相容性 | 有大型輸出死鎖問題 | 已修復 |
+| 記憶體使用 | 較高（多進程） | 較低（單進程） |
+
+> 若您在 Windows 環境使用 MCP Server，升級至 v3.8.0 可解決先前版本中可能發生的子進程死鎖問題。
 
 ### 6.5 Agent-Agnostic 架構
 
@@ -1466,6 +1567,23 @@ skill-seekers create ./src --skip-scrape
 skill-seekers enhance output/react/ --mode LOCAL
 ```
 
+#### v3.8.0 架構層級優化
+
+v3.8.0 的「Grand Unification」重構帶來系統層面的效能提升：
+
+- **DocumentSkillBuilder 整合**：9 個文件抓取工具統一使用同一建構器，減少 1,859 行重複程式碼，降低記憶體佔用
+- **CLI 解析器統一**：消除各命令間的解析器差異，減少初始化開銷
+- **非互動模式**：`package` 命令新增 `--yes`/`-y` 旗標，CI/CD 環境不再卡在確認提示
+- **本地 codebase 預設深度分析**：`create ./local-path` 現在預設執行完整 C3.x 分析，無需手動指定
+
+```bash
+# v3.8.0+ 非互動打包（適用 CI/CD）
+skill-seekers package output/react/ --target claude --yes
+
+# 本地專案預設已是深度分析（無需 --comprehensive）
+skill-seekers create ./my-project
+```
+
 ### 9.4 Log / Monitoring
 
 ```bash
@@ -1485,6 +1603,28 @@ skill-seekers doctor
 # ✅ 網路連線
 # ✅ GPU 偵測（影片功能）
 ```
+
+#### Skill 品質評估（v3.8.0+）
+
+v3.8.0 強化了 `quality` 命令，現在會輸出完整的**分數與等級摘要**，協助團隊評估 Skill 的完整程度：
+
+```bash
+# 評估 Skill 品質
+skill-seekers quality output/react/
+
+# 範例輸出：
+# Skill Quality Report: react
+# ================================
+# Content Score:     87/100  (A)
+# Coverage Score:    72/100  (B)
+# Code Examples:     65/100  (C+)
+# AI Enhancement:    91/100  (A)
+# --------------------------------
+# Overall Grade:     B+ (79/100)
+# Recommendation: Add more code examples to improve score.
+```
+
+> **實務建議**：定期執行 `skill-seekers quality` 評估 Skill 品質，確保 AI 知識庫維持在 B 級（70 分）以上。低於 60 分的 Skill 建議重新擷取並套用 AI 增強。
 
 ### 9.5 成本控制
 
@@ -1523,9 +1663,12 @@ skill-seekers --version
 
 | 版本 | 發布日期 | 主要功能 |
 |------|---------|---------|
+| v3.8.0 | 2026-06-15 | Grand Unification 重構（-1,859 行）、MiniMax-M3 預設、in-process MCP Tools、Windows 修復、`--yes` 非互動模式 |
+| v3.7.0 | 2026-05-30 | `scan` 命令（AI 驅動專案知識盤點）、50+ 框架自動偵測、覆蓋率分析 |
+| v3.6.0 | 2026-05-03 | Packaging 目標擴展、GitHub Issue 過濾強化 |
 | v3.5.1 | 2026-04-12 | Hotfix: rate_limit TypeError + 集中化 `defaults.json` |
 | v3.5.0 | 2026-04-09 | Agent-Agnostic 架構、Smart SPA Discovery、Marketplace、Codex CLI 外掛 |
-| v3.4.0 | 2026-03-21 | 12 LLM 平台、18 Agent 安裝路徑、Kimi/DeepSeek/Qwen 支援 |
+| v3.4.0 | 2026-03-21 | 12 LLM 平台、14+ Agent 安裝路徑、Kimi/DeepSeek/Qwen 支援 |
 | v3.3.0 | 2026-03-16 | 18 Source Types、Sync-Config、12 語言 README 翻譯 |
 | v3.2.0 | 2026-03-01 | Video Scraping Pipeline（BETA）、Word(.docx) 支援、Pinecone |
 | v3.1.0 | 2026-02-23 | 統一 `create` 指令、65 Workflow Presets、Smart Enhancement |
@@ -1653,6 +1796,8 @@ Skill Seekers 承諾：
 | `workflows` | Workflow 管理 | `skill-seekers workflows list` |
 | `resume` | 恢復中斷任務 | `skill-seekers resume --list` |
 | `doctor` | 診斷檢查 | `skill-seekers doctor` |
+| `scan` | AI 驅動的專案 Skill 知識盤點（v3.7.0+） | `skill-seekers scan --directory ./my-project` |
+| `quality` | Skill 品質評估，輸出分數/等級（v3.8.0+） | `skill-seekers quality output/react/` |
 | `sync-config` | 同步遠端 Config | `skill-seekers sync-config --repo myco/configs` |
 | `push-config` | 推送 Config 到遠端 | `skill-seekers push-config --repo myco/configs` |
 | `marketplace` | Marketplace 操作 | `skill-seekers marketplace search "react"` |
@@ -1752,14 +1897,16 @@ Skill Seekers 承諾：
 
 - [ ] Python 3.10+ 已安裝（`python3 --version`）
 - [ ] Git 已安裝（`git --version`）
-- [ ] `pip install skill-seekers` 完成
-- [ ] `skill-seekers --version` 確認安裝成功
+- [ ] `pip install skill-seekers` 完成（建議安裝 v3.8.0+）
+- [ ] `skill-seekers --version` 確認版本為 v3.8.0 以上
 - [ ] `skill-seekers doctor` 通過 8 項檢查
 - [ ] 設定 `GITHUB_TOKEN` 環境變數
 - [ ] 設定 `ANTHROPIC_API_KEY`（或確認有 Claude Code Max）
+- [ ] 執行 `skill-seekers scan --dry-run` 盤點專案框架覆蓋率
 - [ ] 成功執行 `skill-seekers create https://react.dev/ --name test`
-- [ ] 成功執行 `skill-seekers package output/test --target claude`
-- [ ] 了解 `create`, `package`, `install-agent` 三個核心指令
+- [ ] 成功執行 `skill-seekers package output/test --target claude --yes`
+- [ ] 執行 `skill-seekers quality output/test/` 確認品質分數 ≥ 70
+- [ ] 了解 `create`, `scan`, `package`, `install-agent` 四個核心指令
 
 #### 團隊導入檢查清單
 
@@ -1788,7 +1935,7 @@ Skill Seekers 承諾：
 ---
 
 > **文件維護資訊**  
-> - 最後更新：2026-04-22  
-> - 對應版本：Skill Seekers v3.5.1  
+> - 最後更新：2026-07-01  
+> - 對應版本：Skill Seekers v3.8.0  
 > - 維護者：架構團隊  
-> - 參考來源：[GitHub](https://github.com/yusufkaraaslan/Skill_Seekers) | [官方網站](https://skillseekersweb.com/) | [文件](https://github.com/yusufkaraaslan/Skill_Seekers/blob/development/docs/README.md)
+> - 參考來源：[GitHub](https://github.com/yusufkaraaslan/Skill_Seekers) | [官方網站](https://skillseekersweb.com/) | [PyPI](https://pypi.org/project/skill-seekers/) | [CHANGELOG](https://github.com/yusufkaraaslan/Skill_Seekers/blob/development/CHANGELOG.md)

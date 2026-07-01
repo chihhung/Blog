@@ -1,5 +1,5 @@
 +++
-date = '2026-04-22T11:05:22+08:00'
+date = '2026-07-01T10:00:00+08:00'
 draft = false
 title = 'Agency Agents教學手冊'
 tags = ['教學', 'AI開發']
@@ -7,7 +7,7 @@ categories = ['教學']
 +++
 # agency-agents 教學手冊（Enterprise Guide）
 
-> **版本**：v2.0 ｜ **最後更新**：2026-04-22
+> **版本**：v3.1 ｜ **最後更新**：2026-07-01
 > **適用對象**：資深工程師、架構師、技術主管
 > **授權**：內部教育訓練使用
 
@@ -36,19 +36,20 @@ categories = ['教學']
 
 ## 1.1 agency-agents 是什麼
 
-agency-agents（又稱 **The Agency**）是由社群驅動的開源 AI 虛擬團隊框架，目前擁有 **147+ 個專業化 AI Agent 角色**，橫跨 **14 個部門**，由 **68+ 位貢獻者**共同維護。每個 Agent 不是簡單的 Prompt 模板，而是一份具備完整人設（Persona）、工作流程（Workflow）、溝通風格（Communication Style）、KPI 與成功指標的 Markdown 定義檔。該專案起源於 Reddit 社群的一篇討論，經過數月迭代，已成為 GitHub 上最受歡迎的 AI Agent 人設定義框架之一。
+agency-agents（又稱 **The Agency**）是由社群驅動的開源 AI 虛擬團隊框架，目前擁有 **232 個專業化 AI Agent 角色**，橫跨 **16 個部門**，由 **90+ 位貢獻者**共同維護。每個 Agent 不是簡單的 Prompt 模板，而是一份具備完整人設（Persona）、工作流程（Workflow）、溝通風格（Communication Style）、KPI 與成功指標的 Markdown 定義檔。該專案起源於 Reddit 社群的一篇討論，經過數月迭代，已成為 GitHub 上最受歡迎的 AI Agent 人設定義框架之一。專案現已推出**原生桌面應用程式**（macOS / Linux / Windows），使用者可透過圖形介面一鍵瀏覽完整 Agent 名冊、安裝到各工具，並自動更新。
 
 | 項目 | 說明 |
 |------|------|
 | **GitHub** | [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) |
-| **Stars** | 84.9k+（截至 2026-04） |
-| **Forks** | 13.6k+ |
-| **貢獻者** | 68+ |
+| **Stars** | 121k+（截至 2026-07） |
+| **Forks** | 19.8k+ |
+| **貢獻者** | 90+ |
 | **授權** | MIT License |
-| **Agent 數量** | 147+（持續增長中） |
+| **Agent 數量** | 232（持續增長中） |
 | **程式碼行數** | 10,000+ 行人設、流程與範例 |
-| **部門數量** | 14（Engineering / Design / Marketing / Product / Sales / Testing / Support / Game Dev / Finance / Paid Media / Spatial Computing / Specialized / Project Management / Academic） |
-| **支援工具** | Claude Code / GitHub Copilot / Antigravity / Gemini CLI / OpenCode / OpenClaw / Cursor / Aider / Windsurf / Qwen Code / Kimi Code |
+| **部門數量** | 16（Engineering / Design / Marketing / Product / Sales / Testing / Support / Game Dev / Finance / Paid Media / Spatial Computing / Specialized / Project Management / Academic / Security / GIS） |
+| **支援工具** | Claude Code / GitHub Copilot / Antigravity / Gemini CLI / OpenCode / OpenClaw / Cursor / Aider / Windsurf / Qwen Code / Kimi Code / Codex / Osaurus / Hermes |
+| **桌面 App** | [Agency Agents App](https://agencyagents.app/)（macOS / Linux / Windows 原生桌面應用） |
 
 ## 1.2 核心設計理念
 
@@ -78,7 +79,7 @@ agency-agents 的設計哲學源自實戰經驗：
 | 面向 | 傳統模式 | agency-agents 模式 |
 |------|---------|-------------------|
 | **角色分配** | 人力招聘、培訓 | AI Agent 即插即用 |
-| **專業知識** | 受限於團隊成員經驗 | 144+ 專家隨時可用 |
+| **專業知識** | 受限於團隊成員經驗 | 232 專家隨時可用 |
 | **擴展性** | 需增加人力 | 同時啟用多個 Agent |
 | **一致性** | 因人而異 | 標準化流程與產出 |
 | **成本** | 人事成本高 | Token / API 成本 |
@@ -127,6 +128,12 @@ agency-agents 已形成活躍的社群生態：
 |------|--------|---------|------|
 | 🇨🇳 简体中文 | @jnMetaCode | [agency-agents-zh](https://github.com/jnMetaCode/agency-agents-zh) | 141 個翻譯 Agent + 46 個中國市場原創 Agent |
 | 🇨🇳 简体中文 | @dsclca12 | [agent-teams](https://github.com/dsclca12/agent-teams) | 獨立翻譯版，含 Bilibili、微信、小紅書在地化 |
+| 🇧🇷 Português brasileiro | @jnMetaCode | [agency-agents-pt-BR](https://github.com/jnMetaCode/agency-agents-pt-BR) | 184 個上游 Agent 翻譯；巴西市場 PR 歡迎 |
+| 🇷🇺 Русский | @jnMetaCode | [agency-agents-ru](https://github.com/jnMetaCode/agency-agents-ru) | 184 個上游 Agent 翻譯；俄羅斯市場 PR 歡迎 |
+| 🇮🇩 Bahasa Indonesia | @jnMetaCode | [agency-agents-id](https://github.com/jnMetaCode/agency-agents-id) | 184 個上游 Agent 翻譯；印尼市場 PR 歡迎 |
+| 🇸🇦 العربية | @jnMetaCode | [agency-agents-ar](https://github.com/jnMetaCode/agency-agents-ar) | 184 個上游 Agent 翻譯；阿拉伯市場 PR 歡迎 |
+| 🇰🇷 한국어 | @jnMetaCode | [agency-agents-ko](https://github.com/jnMetaCode/agency-agents-ko) | 184 個上游 Agent 完整翻譯；韓國市場 PR 歡迎 |
+| 🇯🇵 日本語 | @sscodeai | [agency-agents-ja](https://github.com/sscodeai/agency-agents-ja) | 281 個日本在地化 Agent + 97 個日本市場原創 + 27 個工作流 |
 
 ### 衍生專案
 
@@ -146,9 +153,14 @@ timeline
         100+ Agent : 社群貢獻快速成長
         多工具支援 : 新增 Cursor、Aider、Windsurf 整合
     section 成熟期
-        140+ Agent : 新增 Finance、Academic 部門
-        147+ Agent : 新增 OpenClaw、Qwen Code、Kimi Code 整合
-        84.9k Stars : 成為 GitHub 熱門專案
+        147+ Agent : 新增 Finance、Academic 部門
+        OpenClaw / Qwen / Kimi : 新增三工具整合
+    section 擴展期
+        Security Division : 10 個安全專業 Agent 獨立部門
+        GIS Division : 13 個地理資訊 Agent 新增
+        Codex / Osaurus / Hermes : 新增三工具整合，總計 14 工具
+        桌面 App : 原生應用程式發佈
+        232 Agents / 120k Stars : 成為最大 AI Agent 人設框架
 ```
 
 ### 路線圖（Roadmap）
@@ -156,7 +168,10 @@ timeline
 | 狀態 | 計畫項目 |
 |------|--------|
 | ✅ 完成 | 多 Agent 工作流範例（見 `examples/` 目錄） |
-| ✅ 完成 | 多工具整合腳本（11 個工具） |
+| ✅ 完成 | 多工具整合腳本（14 個工具） |
+| ✅ 完成 | 原生桌面 App（macOS / Linux / Windows） |
+| ✅ 完成 | Security Division 獨立部門（10 agents） |
+| ✅ 完成 | GIS Division 獨立部門（13 agents） |
 | 📋 計畫中 | 互動式 Agent 選擇器 Web 工具 |
 | 📋 計畫中 | Agent 設計影片教學 |
 | 📋 計畫中 | 社群 Agent 市集 |
@@ -273,7 +288,7 @@ agency-agents 透過腳本將 Agent 定義轉換為各工具的原生格式：
 | Claude Code | `.md` | `~/.claude/agents/` | 無（原生支援） |
 | GitHub Copilot | `.md` | `~/.github/agents/` + `~/.copilot/agents/` | 無（原生支援） |
 | Antigravity | `SKILL.md` | `~/.gemini/antigravity/skills/` | 需 `convert.sh` |
-| Gemini CLI | `SKILL.md` | `~/.gemini/extensions/agency-agents/` | 需 `convert.sh` |
+| Gemini CLI | `.md` | `~/.gemini/agents/` | 需 `convert.sh` |
 | OpenCode | `.md` | `.opencode/agents/` | 無 |
 | OpenClaw | `SOUL.md` + `AGENTS.md` + `IDENTITY.md` | `~/.openclaw/agency-agents/` | 需 `convert.sh` |
 | Cursor | `.mdc` | `.cursor/rules/` | 需 `convert.sh` |
@@ -281,6 +296,38 @@ agency-agents 透過腳本將 Agent 定義轉換為各工具的原生格式：
 | Windsurf | `.windsurfrules` | `./.windsurfrules` | 需 `convert.sh`（合併為單檔） |
 | Qwen Code | `.md` SubAgent | `~/.qwen/agents/` | 需 `convert.sh` |
 | Kimi Code | YAML agent specs | `~/.config/kimi/agents/` | 需 `convert.sh` |
+| Codex | TOML custom agents | `~/.codex/agents/` | 需 `convert.sh` |
+| Osaurus | `SKILL.md` | `~/.osaurus/skills/` | 需 `convert.sh` |
+| Hermes | lazy-router plugin | `~/.hermes/plugins/` | 需 `convert.sh` |
+
+### tools.json — 工具安裝機制的單一真實來源
+
+專案根目錄的 `tools.json` 定義了每個支援工具的安裝機制資訊，作為所有安裝腳本的 **upstream truth**。其中關鍵欄位 `installKind` 描述該工具的安裝方式類型：
+
+```json
+{
+  "claude-code": {
+    "installKind": "copy",
+    "targetDir": "~/.claude/agents/"
+  },
+  "cursor": {
+    "installKind": "generate",
+    "targetDir": ".cursor/rules/"
+  },
+  "aider": {
+    "installKind": "merge",
+    "targetDir": "./CONVENTIONS.md"
+  }
+}
+```
+
+| installKind | 說明 | 適用工具 |
+|-------------|------|---------|
+| `copy` | 直接複製 `.md` 檔案，無需格式轉換 | Claude Code、Copilot、OpenCode |
+| `generate` | 需先由 `convert.sh` 生成目標格式後再安裝 | Cursor、Antigravity、Gemini CLI、OpenClaw、Qwen、Kimi、Codex、Osaurus、Hermes |
+| `merge` | 將多個 Agent 合併為單一檔案 | Aider、Windsurf |
+
+CI 流程（`.github/workflows/check-tools.yml`）會自動驗證 `tools.json` 與 `scripts/install.sh` 中的工具清單一致，確保任何新增工具都被正確宣告。
 
 ### Execution Layer（執行層）
 
@@ -396,27 +443,33 @@ git remote add upstream https://github.com/msitarzewski/agency-agents.git
 
 ```
 agency-agents/
-├── engineering/          # 💻 工程部門（28+ Agent：Frontend / Backend / DevOps / Security / SRE...）
-├── design/               # 🎨 設計部門（8 Agent：UI / UX / Brand / Whimsy...）
-├── marketing/            # 📢 行銷部門（25+ Agent：Growth / Content / SEO / 中國市場...）
+├── engineering/          # 💻 工程部門（35+ Agent：Frontend / Backend / DevOps / SRE / Network / Embedded...）
+├── design/               # 🎨 設計部門（9 Agent：UI / UX / Brand / Whimsy / Persona Walkthrough...）
+├── marketing/            # 📢 行銷部門（40+ Agent：Growth / Content / SEO / AEO / Podcast / 中國市場...）
 ├── product/              # 📊 產品部門（5 Agent：PM / Sprint / Feedback / Nudge...）
-├── project-management/   # 🎬 專案管理部門（6 Agent：Producer / Shepherd / Jira...）
+├── project-management/   # 🎬 專案管理部門（7 Agent：Producer / Shepherd / Jira / Meeting Notes...）
 ├── testing/              # 🧪 測試部門（8 Agent：QA / Performance / API / A11y...）
+├── security/             # 🔒 安全部門（10 Agent：Architect / AppSec / Pentest / Cloud / IR / Threat Intel...）
 ├── support/              # 🛟 支援部門（6 Agent：Analytics / Finance / Legal...）
-├── sales/                # 💼 銷售部門（9 Agent：Outbound / Discovery / Deal...）
+├── sales/                # 💼 銷售部門（10 Agent：Outbound / Discovery / Deal / Offer...）
 ├── paid-media/           # 💰 付費媒體部門（7 Agent：PPC / Search Query / Tracking...）
-├── game-development/     # 🎮 遊戲開發部門（17+ Agent：Unity / Unreal / Godot / Blender / Roblox）
+├── game-development/     # 🎮 遊戲開發部門（20+ Agent：Unity / Unreal / Godot / Blender / Roblox）
 ├── spatial-computing/    # 🥽 空間運算部門（6 Agent：XR / Vision Pro / WebXR...）
-├── specialized/          # 🎯 特殊專業部門（30+ Agent：Orchestrator / MCP / Legal / HR...）
+├── specialized/          # 🎯 特殊專業部門（50+ Agent：Orchestrator / MCP / Legal / HR / Civil...）
 ├── finance/              # 💵 財務部門（5 Agent：Bookkeeper / FP&A / Tax...）
 ├── academic/             # 📚 學術部門（5 Agent：Anthropologist / Historian / Narratologist...）
-├── strategy/             # 📈 策略目錄（部門協作策略定義）
+├── gis/                  # 🌍 GIS 部門（13 Agent：Consultant / Analyst / GeoAI / BIM / Drone / Web GIS...）
+├── strategy/             # 📈 策略目錄（NEXUS playbooks/runbooks，非 Agent 部門）
 ├── examples/             # 📖 使用範例（含 Nexus Spatial Discovery 等完整案例）
-├── integrations/         # 🔌 工具整合說明（11 個工具的 README）
+├── integrations/         # 🔌 工具整合說明（14 個工具的 README）
 ├── scripts/              # ⚙️ 安裝與轉換腳本
-│   ├── install.sh        # 安裝腳本（互動式 / 平行模式）
-│   └── convert.sh        # 格式轉換腳本（支援平行轉換）
-├── .github/              # CI/CD 與專案設定
+│   ├── install.sh        # 安裝腳本（互動式 / 平行模式 / --division / --agent）
+│   ├── convert.sh        # 格式轉換腳本（支援平行轉換）
+│   ├── check-agent-originality.sh  # Agent 原創性檢查
+│   └── check-divisions.sh   # 部門定義一致性檢查
+├── .github/              # CI/CD 與專案設定（含 check-tools.yml）
+├── divisions.json        # 📌 部門定義單一真實來源（label / icon / color）
+├── tools.json            # 📌 工具定義（installKind / 安裝機制資訊）
 ├── CONTRIBUTING.md       # 貢獻指南（Agent 模板與規範）
 ├── CONTRIBUTING_zh-CN.md # 貢獻指南（簡體中文版）
 ├── SECURITY.md           # 安全政策（漏洞回報流程）
@@ -427,7 +480,23 @@ agency-agents/
 
 ## 3.4 安裝至 AI 工具
 
-### 方式一：互動式安裝（推薦）
+### 方式一：安裝桌面 App（最推薦）
+
+Agency Agents 提供原生桌面應用程式（macOS / Linux / Windows），無需 clone、無需終端機操作，可直接瀏覽完整 Agent 名冊並一鍵安裝到各工具，且支援自動更新。
+
+```bash
+# macOS 使用 Homebrew 安裝
+brew install --cask msitarzewski/agency-agents/agency-agents
+
+# 或直接下載安裝檔
+# https://github.com/msitarzewski/agency-agents-app/releases/latest
+```
+
+- **官網**：[agencyagents.app](https://agencyagents.app/)
+- **下載**：[GitHub Releases](https://github.com/msitarzewski/agency-agents-app/releases/latest)
+- **支援工具**：Claude Code、Cursor、Codex、Gemini CLI、OpenCode、Qwen Code、Osaurus 等
+
+### 方式二：互動式 CLI 安裝
 
 ```bash
 # 步驟一：生成各工具的整合檔案
@@ -449,7 +518,7 @@ System scan: [*] = detected on this machine
 [x]  1)  [*]  Claude Code     (claude.ai/code)
 [x]  2)  [*]  Copilot         (~/.github + ~/.copilot)
 [x]  3)  [*]  Antigravity     (~/.gemini/antigravity)
-[ ]  4)  [ ]  Gemini CLI      (gemini extension)
+[ ]  4)  [ ]  Gemini CLI      (~/.gemini/agents)
 [ ]  5)  [ ]  OpenCode        (opencode.ai)
 [ ]  6)  [ ]  OpenClaw        (~/.openclaw/agency-agents)
 [x]  7)  [*]  Cursor          (.cursor/rules)
@@ -457,12 +526,15 @@ System scan: [*] = detected on this machine
 [ ]  9)  [ ]  Windsurf        (.windsurfrules)
 [ ] 10)  [ ]  Qwen Code       (~/.qwen/agents)
 [ ] 11)  [ ]  Kimi Code       (~/.config/kimi/agents)
+[ ] 12)  [ ]  Codex           (~/.codex/agents)
+[ ] 13)  [ ]  Osaurus         (~/.osaurus/skills)
+[ ] 14)  [ ]  Hermes          (~/.hermes/plugins)
 
-[1-11] toggle   [a] all   [n] none   [d] detected
+[1-14] toggle   [a] all   [n] none   [d] detected
 [Enter] install   [q] quit
 ```
 
-### 方式二：指定工具安裝
+### 方式三：指定工具安裝
 
 ```bash
 # 安裝至 Claude Code
@@ -497,9 +569,36 @@ System scan: [*] = detected on this machine
 
 # 安裝至 Kimi Code
 ./scripts/install.sh --tool kimi
+
+# 安裝至 Codex
+./scripts/install.sh --tool codex
+
+# 安裝至 Osaurus
+./scripts/install.sh --tool osaurus
+
+# 安裝至 Hermes
+./scripts/install.sh --tool hermes
 ```
 
-### 方式三：手動複製（適合只需要特定部門）
+### 方式四：按部門或 Agent 選擇性安裝
+
+```bash
+# 僅安裝 Engineering + Security 部門到 Claude Code
+./scripts/install.sh --tool claude-code --division engineering,security
+
+# 僅安裝特定 Agent 到 Cursor
+./scripts/install.sh --tool cursor --agent frontend-developer,ui-designer
+
+# 查看所有可用部門與 Agent 數量
+./scripts/install.sh --list teams
+
+# 預覽安裝內容（不實際寫入）
+./scripts/install.sh --tool opencode --division engineering --dry-run
+```
+
+> **⚠️ OpenCode 注意事項**：OpenCode 的運行時目前僅能註冊約 119 個 Agent，超出部分會被靜默忽略（[upstream bug](https://github.com/anomalyco/opencode/issues/27988)）。建議使用 `--division` 選擇性安裝以保持在限制以內。安裝程式會在選擇超出限制時發出警告。
+
+### 方式五：手動複製（適合只需要特定部門）
 
 ```bash
 # 僅複製工程部門的 Agent 到 Claude Code
@@ -571,10 +670,11 @@ name: "Frontend Developer"
 description: "React/Vue/Angular, UI implementation, performance"
 emoji: "🎨"
 color: "#61DAFB"
+vibe: "Pixel-perfect perfectionist who treats Core Web Vitals like a religion"
 services:
-  - frontend
-  - ui
-  - performance
+  - name: Vercel
+    url: https://vercel.com
+    tier: freemium
 ---
 
 # 🎨 Frontend Developer
@@ -661,8 +761,26 @@ export const Button: React.FC<ButtonProps> = ({
 | `name` | ✅ | Agent 名稱 | `"Frontend Developer"` |
 | `description` | ✅ | 一行描述 | `"React/Vue/Angular, UI..."` |
 | `emoji` | ✅ | 代表 Emoji | `"🎨"` |
-| `color` | ❌ | 代表色（HEX） | `"#61DAFB"` |
-| `services` | ❌ | 提供的服務標籤 | `["frontend", "ui"]` |
+| `color` | ✅ | 代表色（HEX 或顏色名稱） | `"#61DAFB"` |
+| `vibe` | ❌ | 一句個性 hook — 讓 Agent 令人印象深刻 | `"Pixel-perfect perfectionist..."` |
+| `services` | ❌ | 依賴的外部服務（API、平台、SaaS） | 見下方說明 |
+
+### `services` 欄位詳細說明
+
+當 Agent 的核心功能依賴外部服務時，需在 frontmatter 宣告：
+
+```yaml
+services:
+  - name: Service Name
+    url: https://service-url.com
+    tier: free          # free, freemium, 或 paid
+```
+
+**設計原則**：
+- Agent 必須獨立可用 — 移除 API 呼叫後仍應有有價值的 persona、workflow 和專業知識
+- 不要複製供應商文件 — 引用即可，不需要複製 getting-started 指南
+- 優先選擇有免費方案的服務，以便貢獻者測試
+- **檢驗標準**：這是「為使用者解決問題的 Agent 恰好使用了某服務」，還是「服務的快速入門指南穿了 Agent 外衣」？前者歡迎，後者不歡迎
 
 ## 4.3 Persona 設計原則
 
@@ -1077,6 +1195,40 @@ aider --model claude-3-opus
 @agency-security-engineer check this code for vulnerabilities
 ```
 
+## 5.5.1 Gemini CLI 整合（原生 Subagents）
+
+> **⚠️ 重要變更（2026-06）**：Gemini CLI 已從 Antigravity 的 SKILL.md 格式切換為**原生 subagents** 格式（`.md` 檔案安裝至 `~/.gemini/agents/`）。兩者為獨立工具，安裝路徑不同。
+
+### 安裝
+
+```bash
+# 步驟一：生成 Gemini CLI 原生 subagent 檔案（必須先執行）
+./scripts/convert.sh --tool gemini-cli
+
+# 步驟二：安裝到 ~/.gemini/agents/
+./scripts/install.sh --tool gemini-cli
+```
+
+### Antigravity vs Gemini CLI 差異
+
+| 項目 | Antigravity | Gemini CLI |
+|------|-------------|-----------|
+| **格式** | `SKILL.md`（技能式） | `.md`（原生 subagent） |
+| **安裝路徑** | `~/.gemini/antigravity/skills/` | `~/.gemini/agents/` |
+| **互動方式** | 技能引用（`@agency-xxx`） | CLI subagent 委派 |
+| **適用場景** | Gemini 圖形介面、VS Code 擴充 | 終端機 CLI 互動 |
+
+### 使用方式
+
+```bash
+# Gemini CLI 會自動載入 ~/.gemini/agents/ 中的 subagent
+gemini "Use the backend-architect agent to design a REST API"
+
+# 或在互動模式中委派
+gemini
+> @backend-architect Design a microservices architecture for e-commerce
+```
+
 ## 5.6 OpenCode 整合
 
 ### 安裝
@@ -1180,16 +1332,126 @@ kimi --agent-file ~/.config/kimi/agents/backend-architect/agent.yaml \
      "Design a REST API for user management"
 ```
 
-## 5.10 工具整合比較
+## 5.10 Codex 整合
 
-| 功能 | Claude Code | Copilot | Cursor | Aider | Windsurf | Antigravity | OpenCode | OpenClaw | Qwen Code | Kimi Code |
-|------|------------|---------|--------|-------|----------|-------------|----------|----------|-----------|-----------|
-| **原生格式** | `.md` | `.md` | `.mdc` | 合併檔 | 合併檔 | `SKILL.md` | `.md` | 多檔案 | `.md` | YAML |
-| **多 Agent** | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **動態切換** | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **需轉換** | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ |
-| **安裝難度** | 低 | 低 | 中 | 低 | 低 | 中 | 低 | 中 | 中 | 中 |
-| **推薦指數** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
+### 安裝
+
+```bash
+# 轉換為 Codex TOML 格式
+./scripts/convert.sh --tool codex
+
+# 安裝
+./scripts/install.sh --tool codex
+```
+
+### 檔案結構
+
+Codex 使用 TOML 格式的 custom agent 定義，安裝到 `~/.codex/agents/`：
+
+```
+~/.codex/agents/
+├── frontend-developer.toml
+├── backend-architect.toml
+├── security-engineer.toml
+└── ...
+```
+
+### TOML 格式說明
+
+轉換後的 Codex agent 保持最小化 1:1 映射：`name` 和 `description` 從 frontmatter 複製，Markdown body 成為 `developer_instructions`。不支援的 frontmatter 欄位（`color`、`emoji`、`vibe`）會被省略。
+
+### 使用方式
+
+```bash
+# 在 Codex 會話中指定 Agent
+codex --agent backend-architect "Design a REST API for user management"
+
+# 或啟動後在會話中切換
+codex
+> /agent backend-architect
+```
+
+## 5.11 Osaurus 整合
+
+### 安裝
+
+```bash
+# 轉換為 Osaurus SKILL.md 格式
+./scripts/convert.sh --tool osaurus
+
+# 安裝
+./scripts/install.sh --tool osaurus
+```
+
+### 檔案結構
+
+每個 Agent 作為一個 Skill，安裝到 `~/.osaurus/skills/`：
+
+```
+~/.osaurus/skills/
+├── agency-frontend-developer/
+│   └── SKILL.md
+├── agency-backend-architect/
+│   └── SKILL.md
+└── ...
+```
+
+### 使用方式
+
+```
+# 在 Osaurus 中透過 skill 名稱引用
+@agency-backend-architect design this microservice architecture
+@agency-security-engineer review this code for vulnerabilities
+```
+
+## 5.12 Hermes 整合
+
+### 安裝
+
+```bash
+# 轉換為 Hermes lazy-router plugin 格式
+./scripts/convert.sh --tool hermes
+
+# 安裝
+./scripts/install.sh --tool hermes
+```
+
+### 檔案結構
+
+Hermes 使用 lazy-router plugin 機制，安裝到 `~/.hermes/plugins/`：
+
+```
+~/.hermes/plugins/
+└── agency-agents/
+    ├── router.json       # Agent 路由定義
+    ├── frontend-developer.md
+    ├── backend-architect.md
+    └── ...
+```
+
+### 使用方式
+
+Hermes 會根據任務上下文自動路由到適合的 Agent。你也可以明確指定：
+
+```
+# 自動路由（Hermes 根據任務判斷最適合的 Agent）
+hermes "Help me optimize this React component for performance"
+
+# 明確指定 Agent
+hermes --agent backend-architect "Design a database schema for a CRM system"
+```
+
+## 5.13 工具整合比較
+
+| 功能 | Claude Code | Copilot | Cursor | Aider | Windsurf | Antigravity | OpenCode | OpenClaw | Qwen Code | Kimi Code | Codex | Osaurus | Hermes |
+|------|------------|---------|--------|-------|----------|-------------|----------|----------|-----------|-----------|-------|---------|--------|
+| **原生格式** | `.md` | `.md` | `.mdc` | 合併檔 | 合併檔 | `SKILL.md` | `.md` | 多檔案 | `.md` | YAML | TOML | `SKILL.md` | plugin |
+| **多 Agent** | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **動態切換** | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **自動路由** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| **需轉換** | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **安裝難度** | 低 | 低 | 中 | 低 | 低 | 中 | 低 | 中 | 中 | 中 | 低 | 中 | 低 |
+| **推薦指數** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
 
 ### 工具選擇建議
 
@@ -1197,10 +1459,11 @@ kimi --agent-file ~/.config/kimi/agents/backend-architect/agent.yaml \
 graph TD
     START([選擇 AI 工具]) --> Q1{使用哪個 AI 平台？}
     Q1 -->|Anthropic Claude| CC[Claude Code ⭐⭐⭐⭐⭐]
-    Q1 -->|GitHub / VS Code| CP[GitHub Copilot ⭐⭐⭐⭐]
+    Q1 -->|GitHub / VS Code| CP[GitHub Copilot ⭐⭐⭐⭐⭐]
     Q1 -->|Google Gemini| AG{偏好互動方式？}
     AG -->|技能式| ANTI[Antigravity ⭐⭐⭐⭐]
     AG -->|CLI 式| GEM[Gemini CLI ⭐⭐⭐⭐]
+    Q1 -->|OpenAI| CODEX[Codex ⭐⭐⭐⭐]
     Q1 -->|多工具並行| MULTI[使用 convert.sh 一次生成所有格式]
     Q1 -->|Cursor IDE| CUR[Cursor ⭐⭐⭐⭐]
     Q1 -->|輕量 CLI| Q2{偏好哪種？}
@@ -1208,14 +1471,122 @@ graph TD
     Q2 -->|Go 生態| OC[OpenCode ⭐⭐⭐⭐]
     Q2 -->|阿里生態| QW[Qwen Code ⭐⭐⭐]
     Q2 -->|Moonshot 生態| KIMI[Kimi Code ⭐⭐⭐]
+    Q2 -->|自動路由| HERMES[Hermes ⭐⭐⭐⭐]
+    Q1 -->|最簡方式| APP[桌面 App — 一鍵安裝到所有工具]
 ```
 
 > **💡 實務建議**：
+> - **最快上手**推薦使用桌面 App（無需 clone、無需終端機）
 > - **主力開發**推薦使用 Claude Code 或 GitHub Copilot
 > - **多工具並行**時，使用 `convert.sh` 一次生成所有格式
 > - 修改 Agent 後記得重新執行 `./scripts/convert.sh` 更新所有格式
 > - 使用 `--parallel` 參數可加速轉換與安裝過程
+> - 使用 `--division` 或 `--agent` 選擇性安裝以節省資源
 > - 變更 Agent 定義後執行 `./scripts/convert.sh --parallel` 重新生成
+
+## 5.14 MCP Memory Integration（持久記憶整合）
+
+agency-agents 專案提供了 MCP（Model Context Protocol）記憶體整合指南（位於 `integrations/mcp-memory/`），讓 Agent 具備**跨 Session 的持久記憶能力**，使其能夠累積學習經驗、記住專案脈絡、追蹤長期模式。
+
+### 為什麼需要 MCP Memory
+
+| 問題 | 無記憶的 Agent | 有 MCP Memory 的 Agent |
+|------|--------------|----------------------|
+| **專案脈絡** | 每次對話重新理解 | 記住架構決策與技術棧 |
+| **學習累積** | 每次重犯相同錯誤 | 從過去錯誤中學習 |
+| **偏好追蹤** | 每次重新設定偏好 | 記住團隊編碼風格 |
+| **長期專案** | 跨 Sprint 資訊斷裂 | 持續追蹤專案演進 |
+
+### 架構概念
+
+```mermaid
+graph LR
+    subgraph "AI 工具"
+        CC[Claude Code]
+        GEM[Gemini CLI]
+    end
+
+    subgraph "MCP Memory Server"
+        MEM[Memory Store<br/>JSON/SQLite]
+        API[MCP Protocol API]
+    end
+
+    subgraph "Agent Layer"
+        AGT[Agency Agent<br/>Backend Architect]
+    end
+
+    CC -->|啟用 Agent| AGT
+    AGT -->|寫入記憶| API
+    API -->|持久化| MEM
+    AGT -->|讀取記憶| API
+```
+
+### 設定方式
+
+#### 步驟一：啟用 MCP Memory Server
+
+在 Claude Code 的 MCP 設定中加入記憶體伺服器：
+
+```json
+// ~/.claude/mcp_servers.json
+{
+  "memory": {
+    "command": "npx",
+    "args": ["-y", "@anthropic/mcp-memory-server"],
+    "env": {
+      "MEMORY_STORE_PATH": "~/.claude/memory.json"
+    }
+  }
+}
+```
+
+#### 步驟二：在 Agent 定義中啟用記憶
+
+在客製 Agent 的 `Learning & Memory` 區段中，明確指示使用 MCP Memory：
+
+```markdown
+## 🔄 Learning & Memory
+
+When available, use the MCP memory tool to:
+- **Store**: Architecture decisions, team conventions, recurring patterns
+- **Recall**: Previous project context, past errors and fixes
+- **Update**: Evolving best practices, deprecated patterns
+
+### Memory Categories
+- `project/<name>`: 專案特定知識（架構、技術棧、約束）
+- `patterns/<domain>`: 領域模式（成功與失敗的模式）
+- `preferences/<team>`: 團隊偏好（命名規範、工具選擇）
+```
+
+#### 步驟三：使用範例
+
+```
+Activate Backend Architect mode.
+
+## Context
+Recall any previous architecture decisions for the CRM project 
+from memory. Then design the notification service considering:
+- Previous decisions on message queue choice
+- Team's coding conventions
+- Past performance issues we've identified
+
+After designing, store the key decisions in memory for future reference.
+```
+
+### 適用場景
+
+| 場景 | 記憶內容 | 效益 |
+|------|---------|------|
+| **長期專案開發** | 架構決策、技術債清單 | 避免重複討論已決議事項 |
+| **團隊知識傳承** | 編碼規範、過去的踩坑經驗 | 新人快速上手 |
+| **迭代優化** | Agent 的成功/失敗模式 | 持續改善 Prompt 品質 |
+| **跨 Sprint 追蹤** | 需求變更歷程、里程碑 | 保持一致性 |
+
+> **💡 實務建議**：
+> - MCP Memory 為選配功能，Agent 在沒有 Memory Server 時仍可正常運作
+> - 建議為每個專案建立獨立的記憶命名空間（`project/<name>`）
+> - 定期清理過時的記憶條目，避免干擾 Agent 判斷
+> - 敏感資訊（密碼、金鑰）**絕對不可**存入 MCP Memory
 
 ---
 
@@ -2014,6 +2385,63 @@ git checkout -b custom/our-agents
 # 在此分支新增/修改 Agent
 ```
 
+### CI 工具合約驗證（Automated Tool Contract Enforcement）
+
+agency-agents 專案透過 CI 自動化確保所有定義檔的一致性，避免新增工具或部門時遺漏關聯設定。
+
+#### 驗證流程
+
+```mermaid
+graph LR
+    PR[Pull Request] --> CI[GitHub Actions]
+    CI --> CT[check-tools.yml<br/>工具合約驗證]
+    CI --> CD[check-divisions.sh<br/>部門合約驗證]
+    CT --> |驗證| TJ[tools.json vs install.sh]
+    CD --> |驗證| DJ[divisions.json vs convert.sh vs AGENT_DIRS]
+    TJ -->|Pass| MERGE[允許合併]
+    TJ -->|Fail| BLOCK[阻擋合併]
+    DJ -->|Pass| MERGE
+    DJ -->|Fail| BLOCK
+```
+
+#### check-tools.yml（工具合約）
+
+此 CI workflow 確保：
+- `tools.json` 中宣告的每個工具在 `scripts/install.sh` 中都有對應處理邏輯
+- `scripts/install.sh` 中處理的每個工具在 `tools.json` 中都有宣告
+- `installKind` 欄位值合法（`copy` / `generate` / `merge`）
+
+#### Division Contract（部門合約）
+
+`divisions.json` 是部門定義的**單一真實來源**，CI 通過 `scripts/check-divisions.sh` 驗證以下一致性：
+
+| 驗證項目 | 說明 |
+|---------|------|
+| 目錄存在 | `divisions.json` 中每個 division 都有對應的檔案系統目錄 |
+| 至少一個 Agent | 每個 division 目錄至少包含一個 `.md` Agent 檔案 |
+| 腳本同步 | `scripts/convert.sh` 和 `scripts/lint-agents.sh` 的 `AGENT_DIRS` 陣列包含所有 division |
+| 排除非 Agent 目錄 | `strategy/`（playbooks）和 `integrations/`（生成產物）不得出現在 division 清單 |
+
+#### 企業團隊如何利用此機制
+
+```bash
+# 在 Fork 的專案中執行本地驗證（模擬 CI）
+./scripts/check-divisions.sh
+
+# 新增自訂部門時的完整步驟
+# 1. 建立目錄
+mkdir custom-division/
+# 2. 新增至 divisions.json
+# 3. 更新 AGENT_DIRS（convert.sh + lint-agents.sh）
+# 4. 放入至少一個 Agent .md 檔案
+# 5. 執行驗證
+./scripts/check-divisions.sh  # 應該 PASS
+```
+
+> **💡 實務建議**：
+> - 在企業 Fork 中複製此 CI 機制，確保客製化不會破壞工具整合
+> - 每次新增工具或部門後，在本地先執行驗證腳本再推送
+
 ## 8.2 Prompt 優化
 
 ### 優化循環
@@ -2334,7 +2762,7 @@ jobs:
 ```markdown
 ## Agent 設計品質檢查
 
-- [ ] Frontmatter 完整（name / description / emoji）
+- [ ] Frontmatter 完整（name / description / emoji / color）
 - [ ] Identity 具備獨特人設（非泛用模板）
 - [ ] Core Mission 清晰明確
 - [ ] Critical Rules 至少 3-5 條
@@ -2342,7 +2770,29 @@ jobs:
 - [ ] Workflow 有明確步驟（至少 4 步）
 - [ ] Success Metrics 可量化
 - [ ] Communication Style 有描述
+- [ ] 通過原創性檢查（見下方）
 ```
+
+### Agent 原創性自動檢查
+
+agency-agents 提供 `scripts/check-agent-originality.sh` 腳本，在提交前自動檢測新 Agent 是否與現有 Agent 過於相似（例如僅替換國家名稱或平台名稱的「換皮」版本）。CI 也會自動執行此檢查。
+
+```bash
+# 檢查單一 Agent 原創性
+./scripts/check-agent-originality.sh path/to/your-new-agent.md
+
+# 檢查結果：
+# ✅ PASS — Agent is sufficiently original
+# ❌ FAIL — Near-duplicate detected (similarity > threshold)
+#    → Similar to: engineering/engineering-frontend-developer.md (87% match)
+```
+
+**原創性標準**：
+- 新 Agent 不應是現有 Agent 的 find-replace 版本（僅替換國家/語言/平台名稱）
+- 真正的在地化 Agent 需要有**不同的平台、戰術和範例**，而非表面替換
+- CI 會自動執行此腳本，未通過的 PR 將被自動拒絕
+
+> **💡 企業團隊建議**：在建立客製 Agent 前先執行此腳本，確認沒有已存在的相似 Agent 可直接使用或修改。
 
 ## 10.2 Prompt Engineering 技巧
 
@@ -2471,6 +2921,31 @@ Agents Orchestrator → 自動分派任務 → 收集各 Agent 產出 → 統一
 2. **衝突處理**：不同 Agent 可能有矛盾建議，需人工判斷
 3. **深度控制**：避免過度迭代，設定最大迴圈次數
 4. **紀錄追蹤**：記錄每個 Agent 的輸入/輸出，方便回溯
+
+### 常見工作流組合速查表
+
+以下為經實戰驗證的 Agent 組合建議，可依專案規模與需求快速組建虛擬團隊：
+
+| 場景 | 推薦 Agent 組合 | 協作模式 | 預期產出 |
+|------|----------------|---------|---------|
+| **前端功能開發** | Frontend Dev → UI Designer → Code Reviewer | 線性 | 元件程式碼 + 設計一致性 + 程式碼品質 |
+| **後端 API 開發** | Backend Architect → Code Reviewer → Security Engineer | 線性 | API 設計 + 品質審查 + 安全報告 |
+| **全端 MVP** | PM → Backend Architect + Frontend Dev → Reality Checker | 平行 | 需求 → 前後端同時開發 → 測試驗證 |
+| **安全強化** | Security Architect → AppSec Engineer → Penetration Tester | 線性 | 威脅模型 → 安全編碼 → 滲透報告 |
+| **效能優化** | Performance Benchmarker → Backend Architect → SRE | 審查迴圈 | 瓶頸分析 → 優化方案 → 可觀測性 |
+| **技術債清理** | Code Reviewer → Software Architect → Senior Developer | 專家會診 | 債務清單 → 重構策略 → 實作 |
+| **新人 Onboarding** | Codebase Onboarding Engineer → Technical Writer | 線性 | 程式碼導覽 → 文件產出 |
+| **DevOps 建置** | DevOps Automator → SRE → Security Engineer | 線性 | CI/CD Pipeline + 監控 + 安全加固 |
+| **產品探索** | Trend Researcher → PM → UX Researcher → Brand Guardian | 線性 | 市場分析 → PRD → 用戶研究 → 品牌定位 |
+| **遊戲開發** | Game Designer → Unity/Unreal Engineer → Technical Artist → Game Audio | 平行 | GDD → 系統實作 → 視覺效果 → 音效 |
+| **GIS 數位孿生** | Technical Consultant → BIM/GIS Specialist → Web GIS Developer → GIS QA | 線性 | 策略 → 模型轉換 → 可視化 → 品質驗證 |
+| **行銷活動** | Content Creator → SEO Specialist + Social Media → Analytics Reporter | 平行 | 內容 → 多通路推廣 → 成效分析 |
+| **合規審查** | Legal Compliance Checker → Security Engineer → Compliance Auditor | 專家會診 | 法規要求 → 技術落實 → 審計報告 |
+
+> **💡 使用提示**：
+> - 小型任務（< 2 小時）使用 1-2 個 Agent 即可
+> - 中型任務（2-8 小時）使用 3-4 個 Agent 線性協作
+> - 大型任務（> 1 天）使用 Agents Orchestrator 統籌 5+ 個 Agent
 
 ## 10.4 避免常見錯誤
 
@@ -2883,20 +3358,22 @@ Your communication style is [style description].
 
 | 部門 | 核心 Agent | 適用場景 |
 |------|-----------|---------|
-| 💻 Engineering | Frontend Dev, Backend Architect, DevOps, Security Engineer, SRE | 程式開發、架構設計、維運 |
-| 🎨 Design | UI Designer, UX Researcher, Brand Guardian | 介面設計、用戶研究 |
-| 📢 Marketing | Growth Hacker, Content Creator, SEO Specialist | 行銷策略、內容產出 |
+| 💻 Engineering | Frontend Dev, Backend Architect, DevOps, SRE, Network Engineer | 程式開發、架構設計、維運 |
+| 🎨 Design | UI Designer, UX Researcher, Brand Guardian, Persona Walkthrough | 介面設計、用戶研究 |
+| 📢 Marketing | Growth Hacker, Content Creator, SEO Specialist, AEO Architect | 行銷策略、內容產出、AI 可見度 |
 | 📊 Product | Product Manager, Sprint Prioritizer, Trend Researcher | 需求管理、產品規劃 |
-| 🎬 Project Mgmt | Senior PM, Project Shepherd | 專案管理、任務追蹤 |
+| 🎬 Project Mgmt | Senior PM, Project Shepherd, Meeting Notes Specialist | 專案管理、任務追蹤 |
 | 🧪 Testing | Reality Checker, Performance Benchmarker, API Tester, Accessibility Auditor | 測試、品質保證、無障礙 |
+| 🔒 Security | Security Architect, AppSec Engineer, Penetration Tester, Incident Responder | 安全架構、滲透測試、事件應變 |
 | 🛟 Support | Analytics Reporter, Legal Compliance Checker, Support Responder | 營運支援、合規 |
-| 💼 Sales | Outbound Strategist, Deal Strategist | 銷售策略 |
-| 💵 Finance | Financial Analyst, Tax Strategist, Revenue Operations | 財務分析、稅務 |
-| 🎮 Game Dev | Unity/Unreal/Godot 系列 | 遊戲開發 |
+| 💼 Sales | Outbound Strategist, Deal Strategist, Offer & Lead Gen | 銷售策略 |
+| 💵 Finance | Financial Analyst, Tax Strategist, FP&A Analyst | 財務分析、稅務 |
+| 💰 Paid Media | PPC Campaign Strategist, Search Query Analyst, Tracking Specialist | 付費廣告投放 |
+| 🎮 Game Dev | Unity/Unreal/Godot/Blender/Roblox 系列 | 遊戲開發 |
 | 🥽 Spatial | XR Interface Architect, visionOS Engineer | AR/VR/XR 開發 |
 | 🎯 Specialized | Agents Orchestrator, MCP Builder, Blockchain Security Auditor | 特殊任務 |
-| 📣 Paid Media | Performance Marketer, Media Buyer | 付費廣告投放 |
-| 🎓 Academic | Research Assistant, Citation Manager | 學術研究、論文撰寫 |
+| 📚 Academic | Anthropologist, Historian, Narratologist, Psychologist | 學術研究、世界觀建構 |
+| 🌍 GIS | Technical Consultant, GeoAI/ML Engineer, Web GIS Developer, BIM/GIS Specialist | 地理資訊、空間分析、數位孿生 |
 
 ## 12.4 FAQ
 
@@ -2919,7 +3396,7 @@ Your communication style is [style description].
 ### Q5: Agent 的品質如何保證？
 
 **A**：
-1. 社群維護（68+ 貢獻者、持續 PR 審查）
+1. 社群維護（90+ 貢獻者、持續 PR 審查）
 2. 遵循統一的 `CONTRIBUTING.md` 模板
 3. 使用前建議小範圍測試
 4. 所有產出需人工審查
@@ -2942,7 +3419,7 @@ Your communication style is [style description].
 
 ### Q9: 專案支援哪些 AI 工具？
 
-**A**：截至 v2.0，agency-agents 支援 11 種工具：Claude Code、GitHub Copilot、Antigravity、Gemini CLI、OpenCode、OpenClaw、Cursor、Aider、Windsurf、Qwen Code、Kimi Code。每種工具有對應的轉換腳本，執行 `./scripts/convert.sh` 即可生成。
+**A**：截至 v3.1，agency-agents 支援 14 種工具：Claude Code、GitHub Copilot、Antigravity、Gemini CLI、OpenCode、OpenClaw、Cursor、Aider、Windsurf、Qwen Code、Kimi Code、Codex、Osaurus、Hermes。每種工具有對應的轉換腳本，執行 `./scripts/convert.sh` 即可生成。此外，桌面 App 可一鍵安裝到上述大部分工具。專案另提供 MCP Memory 整合指南（見 §5.14），可為 Agent 增加跨 Session 持久記憶能力。
 
 ### Q10: 如何為專案貢獻新 Agent？
 
@@ -2956,12 +3433,26 @@ Your communication style is [style description].
 ### Q11: Finance 和 Academic 部門有哪些 Agent？
 
 **A**：
-- **Finance**（💵）：Financial Analyst、Tax Strategist、Revenue Operations 等，適用財務建模、稅務規劃
-- **Academic**（🎓）：Research Assistant、Citation Manager 等，適用學術論文撰寫、文獻管理
+- **Finance**（💵）：Bookkeeper & Controller、Financial Analyst、FP&A Analyst、Investment Researcher、Tax Strategist，適用財務建模、稅務規劃、投資研究
+- **Academic**（📚）：Anthropologist、Geographer、Historian、Narratologist、Psychologist，適用世界觀建構、敘事設計、角色心理學
 
 ### Q12: 如何回報安全漏洞？
 
 **A**：參考專案 `SECURITY.md`，通過 GitHub Security Advisory 私密回報，**請勿** 在公開 Issue 中揭露安全漏洞。
+
+### Q13: 桌面 App 和 CLI 安裝有什麼差異？
+
+**A**：桌面 App（[agencyagents.app](https://agencyagents.app/)）提供圖形介面瀏覽所有 Agent 並一鍵安裝，支援自動更新，無需 clone 專案或使用終端機。CLI 安裝則提供更多進階選項（`--division`、`--agent`、`--dry-run`、`--parallel`），適合需要客製化或自動化流程的團隊。兩者安裝結果相同。
+
+### Q14: 什麼是 `divisions.json`？如何提案新部門？
+
+**A**：`divisions.json` 是部門定義的**單一真實來源**（single source of truth），定義每個部門的 label、icon、color。CI 通過 `scripts/check-divisions.sh` 驗證所有部門清單一致。提案新部門需要：建立目錄、在 `divisions.json` 新增條目、更新 `scripts/convert.sh` 和 `scripts/lint-agents.sh` 中的 `AGENT_DIRS`，且目錄內至少包含一個 Agent 檔案。
+
+### Q15: Security Division 和 GIS Division 是新增的嗎？
+
+**A**：
+- **Security Division**（🔒）：於 2026 年 6 月從 Engineering 獨立為正式部門（[RFC #438](https://github.com/msitarzewski/agency-agents/discussions/438)），包含 10 個 Agent：Security Architect、AppSec Engineer、Penetration Tester、Cloud Security Architect、Incident Responder、Threat Intelligence Analyst、Threat Detection Engineer、Senior SecOps Engineer、Compliance Auditor、Blockchain Security Auditor
+- **GIS Division**（🌍）：於 2026 年 6 月新增，包含 13 個 Agent 橫跨 4 層級（Strategy / Delivery / Specialist / Quality），涵蓋地理資訊系統完整工作流
 
 ---
 
@@ -3017,11 +3508,14 @@ Your communication style is [style description].
 | 資源 | 連結 | 說明 |
 |------|------|------|
 | **GitHub 專案** | [msitarzewski/agency-agents](https://github.com/msitarzewski/agency-agents) | 原始碼、Agent 定義、安裝腳本 |
+| **桌面 App** | [agencyagents.app](https://agencyagents.app/) | 原生桌面應用程式（macOS / Linux / Windows） |
+| **App 下載** | [GitHub Releases](https://github.com/msitarzewski/agency-agents-app/releases/latest) | 最新版本下載 |
 | **README** | [README.md](https://github.com/msitarzewski/agency-agents/blob/main/README.md) | 專案總覽與快速開始 |
 | **CONTRIBUTING** | [CONTRIBUTING.md](https://github.com/msitarzewski/agency-agents/blob/main/CONTRIBUTING.md) | 貢獻指南與 Agent 模板 |
 | **SECURITY** | [SECURITY.md](https://github.com/msitarzewski/agency-agents/blob/main/SECURITY.md) | 安全漏洞回報政策 |
 | **中文貢獻指南** | [CONTRIBUTING_zh-CN.md](https://github.com/msitarzewski/agency-agents/blob/main/CONTRIBUTING_zh-CN.md) | 簡體中文貢獻指南 |
-| **Strategy 文件** | [strategy/](https://github.com/msitarzewski/agency-agents/tree/main/strategy) | 專案策略與路線圖 |
+| **部門定義** | [divisions.json](https://github.com/msitarzewski/agency-agents/blob/main/divisions.json) | 16 部門的結構化定義 |
+| **工具定義** | [tools.json](https://github.com/msitarzewski/agency-agents/blob/main/tools.json) | 14 工具的安裝機制定義（含 `installKind`） |
 | **授權** | MIT License | 自由使用、修改、分發 |
 
 ## 14.2 社群管道
@@ -3126,10 +3620,12 @@ Your communication style is [style description].
 >
 > 本手冊由團隊 AI 開發小組維護，如有問題或建議，請聯繫 Agent 管理員。
 >
-> **最後更新**：2026-04-22 ｜ **版本**：v1.1
+> **最後更新**：2026-07-01 ｜ **版本**：v3.1
 >
 > **變更紀錄**：
 > | 版本 | 日期 | 變更內容 |
 > |------|------|---------|
 > | v1.0 | 2026-04-22 | 初版發佈 |
 > | v1.1 | 2026-04-22 | 更新至 147+ Agents、14 部門、11 工具；新增第 14 章 |
+> | v3.0 | 2026-07-01 | 全面更新至 232 Agents、16 部門、14 工具；新增 Security / GIS 獨立部門；新增桌面 App；新增 Codex / Osaurus / Hermes 整合；新增 `divisions.json` / `tools.json` 說明；更新社群翻譯（9 語系）；更新 Frontmatter 規範（`vibe` / `services` 欄位） |
+> | v3.1 | 2026-07-01 | 新增 §5.14 MCP Memory Integration；新增 §5.5.1 Gemini CLI 原生 Subagents；新增 CI 工具合約驗證（§8.1）；新增 Agent 原創性檢查說明（§10.1）；新增常見工作流組合速查表（§10.3）；補充 `tools.json` installKind 說明（§2.2）；數據更新（121k Stars / 19.8k Forks） |
