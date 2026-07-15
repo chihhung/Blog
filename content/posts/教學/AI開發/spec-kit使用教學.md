@@ -4,27 +4,27 @@ draft = false
 title = 'spec-kit使用教學'
 tags = ['教學', 'AI開發']
 categories = ['教學']
-lastmod = '2026-06-30T00:00:00+08:00'
+lastmod = '2026-07-15T00:00:00+08:00'
 +++
 
 ## Spec-Kit 使用教學手冊
 
-> **版本**: 13.0  
-> **最後更新**: 2026年6月30日  
-> **適用於**: Spec-Kit v0.12.0+ / Spec Kit Templates - 0.12.0  
+> **版本**: 14.0  
+> **最後更新**: 2026年7月15日  
+> **適用於**: Spec-Kit v0.12.15+ / Spec Kit Templates - 0.12.15  
 > **Created by**: Eric Cheng
 
 ---
 
 ## 📚 目錄
 
-### [前言](#前言)
+**[前言](#前言)**
 
 - [目的與適用對象](#目的與適用對象)
 - [背景說明:為何採用 SDD + Spec-Kit → AI 助手流程](#背景說明為何採用-sdd--spec-kit--ai-助手流程)
 - [本手冊使用假設](#本手冊使用假設)
 
-### [第一章:概念理解](#第一章概念理解)
+**[第一章:概念理解](#第一章概念理解)**
 
 - [1.1 SDD 是什麼?](#11-sdd-是什麼)
 - [1.2 Spec-Kit 概覽](#12-spec-kit-概覽)
@@ -32,7 +32,7 @@ lastmod = '2026-06-30T00:00:00+08:00'
 - [1.4 流程概覽:SDD 的階段/步驟](#14-流程概覽sdd-的階段步驟)
 - [1.5 為什麼這對我們團隊/共用平台開發特別有價值](#15-為什麼這對我們團隊共用平台開發特別有價值)
 
-### [第二章:環境準備](#第二章環境準備)
+**[第二章:環境準備](#第二章環境準備)**
 
 - [2.1 前置條件](#21-前置條件)
 - [2.2 安裝 Spec-Kit CLI](#22-安裝-spec-kit-cli)
@@ -82,8 +82,12 @@ lastmod = '2026-06-30T00:00:00+08:00'
 - [2.46 多安裝安全與 GHES 認證修正（v0.11.9-v0.11.10 新增）](#246-多安裝安全與-ghes-認證修正v0119-v01110-新增)
 - [2.47 Community Bundle Submission 與 Monorepo 指南（v0.11.7-v0.11.10 新增）](#247-community-bundle-submission-與-monorepo-指南v0117-v01110-新增)
 - [2.48 Agent-Context 全面 Opt-in 與 Workflow Validation 強化（v0.12.0 重大變更）](#248-agent-context-全面-opt-in-與-workflow-validation-強化v0120-重大變更)
+- [2.49 Workflow 平行處理與 Python 腳本類型支援（v0.12.1-v0.12.4 新增）](#249-workflow-平行處理與-python-腳本類型支援v0121-v0124-新增)
+- [2.50 生態系轉型:整合退場、Copilot Skills 棄用與 Catalog 安全性強化（v0.12.2-v0.12.6, v0.12.12 新增）](#250-生態系轉型整合退場copilot-skills-棄用與-catalog-安全性強化v0122-v0126-v01212-新增)
+- [2.51 Bundle 版本管理強化與工作流引擎穩健性（v0.12.7-v0.12.11 新增）](#251-bundle-版本管理強化與工作流引擎穩健性v0127-v01211-新增)
+- [2.52 治理與品質保證預設集擴充、社群目錄成長（v0.12.11-v0.12.15 新增）](#252-治理與品質保證預設集擴充社群目錄成長v01211-v01215-新增)
 
-### [第三章:使用流程詳細說明](#第三章使用流程詳細說明)
+**[第三章:使用流程詳細說明](#第三章使用流程詳細說明)**
 
 - [3.1 Step 1:撰寫 Spec (/speckit.specify)](#31-step-1撰寫-spec-speckitspecify)
 - [3.2 Step 1a:澄清模糊需求 (/speckit.clarify)](#32-step-1a澄清模糊需求-speckitclarify)
@@ -96,7 +100,7 @@ lastmod = '2026-06-30T00:00:00+08:00'
 - [3.8 Step 7:既有程式碼評估 (/speckit.converge)](#38-step-7既有程式碼評估-speckitconverge)
 - [第三章小結](#第三章小結)
 
-### [第四章:實務案例與應用指引](#第四章實務案例與應用指引)
+**[第四章:實務案例與應用指引](#第四章實務案例與應用指引)**
 
 - [4.1 案例一:Greenfield 開發 - 新建交易記錄微服務](#41-案例一greenfield-開發---新建交易記錄微服務)
 - [4.2 案例二:Brownfield 整合 - 為既有系統新增功能](#42-案例二brownfield-整合---為既有系統新增功能)
@@ -105,13 +109,13 @@ lastmod = '2026-06-30T00:00:00+08:00'
 - [4.5 平台導入建議](#45-平台導入建議)
 - [第四章小結](#第四章小結)
 
-### [第五章:常見問題與陷阱](#第五章常見問題與陷阱)
+**[第五章:常見問題與陷阱](#第五章常見問題與陷阱)**
 
 - [5.1 常見問題（FAQ）](#51-常見問題faq)
 - [5.2 常見陷阱與避免方法](#52-常見陷阱與避免方法)
 - [第五章小結](#第五章小結)
 
-### [第六章:附錄](#第六章附錄)
+**[第六章:附錄](#第六章附錄)**
 
 - [6.1 完整模板範例](#61-完整模板範例)
 - [6.2 檢查清單](#62-檢查清單)
@@ -122,7 +126,11 @@ lastmod = '2026-06-30T00:00:00+08:00'
 - [6.7 快速指令參考](#67-快速指令參考)
 - [6.8 版本異動紀錄 (Changelog 摘要)](#68-版本異動紀錄-changelog-摘要)
 
-### [結語](#結語)
+**[結語](#結語)**
+
+- [核心要點回顧](#核心要點回顧)
+- [下一步行動](#下一步行動)
+- [保持聯繫](#保持聯繫)
 
 ---
 
@@ -420,7 +428,7 @@ Spec-Kit 提供五大核心模板:
 
 #### 支援的 AI 助手 / 智能代理
 
-Spec-Kit 支援 **30+ 種** 主流 AI 編碼助手，且持續快速成長（下表列出截至 v0.12.0 已知的主要代理，確切完整清單請以實際安裝版本查詢結果或 [官方整合清單](https://github.github.io/spec-kit/reference/integrations.html) 為準）：
+Spec-Kit 支援 **30+ 種** 主流 AI 編碼助手，且持續快速成長（下表列出截至 v0.12.15 已知的主要代理，確切完整清單請以實際安裝版本查詢結果或 [官方整合清單](https://github.github.io/spec-kit/reference/integrations.html) 為準）。隨生態系演進，部分整合也會因對應產品終止或被其他方案取代而**退場**（見表末說明），這是採用第三方 AI 助手整合時必須納入的正常維運考量：
 
 執行 `specify integration list` 可查看已安裝版本支援的所有整合。
 
@@ -435,10 +443,10 @@ Spec-Kit 支援 **30+ 種** 主流 AI 編碼助手，且持續快速成長（下
 | **Qwen Code** | `qwen` | ✅ 完整支援 | CLI | 阿里雲通義千問 |
 | **opencode** | `opencode` | ✅ 完整支援 | CLI | opencode CLI |
 | **Codex CLI** | `codex` | ✅ 完整支援 | CLI | OpenAI Codex CLI，建議搭配 `--integration-options="--skills"`（⚠️ 舊版 `--ai-skills` 簡寫已於 v0.10.0 移除） |
-| **Windsurf** | `windsurf` | ✅ 完整支援 | IDE | Windsurf IDE |
+| **Windsurf** | `windsurf` | ⛔ 已退場（v0.12.2） | IDE | Windsurf 產品線已併入 Cognition 旗下 Devin，整合隨之停止維護；既有專案建議改用 `devin` 或其他 IDE 整合 |
 | **Kilo Code** | `kilocode` | ✅ 完整支援 | IDE | Kilo Code IDE |
 | **Auggie CLI** | `auggie` | ✅ 完整支援 | CLI | Augment Code CLI |
-| **Roo Code** | `roo` | ✅ 完整支援 | IDE | Roo Code IDE |
+| **Roo Code** | `roo` | ⛔ 已退場（v0.12.3） | IDE | 官方 Roo Code 擴充已停止維護並下架；建議改用 Cline 或 Kilo Code 等其他 VS Code 衍生整合 |
 | **CodeBuddy** | `codebuddy` | ✅ 完整支援 | CLI | CodeBuddy CLI |
 | **Qoder CLI** | `qodercli` | ✅ 完整支援 | CLI | Qoder CLI |
 | **Kiro CLI** | `kiro-cli` | ✅ 完整支援 | CLI | AWS Kiro CLI（別名：`kiro`） |
@@ -453,7 +461,7 @@ Spec-Kit 支援 **30+ 種** 主流 AI 編碼助手，且持續快速成長（下
 | **Pi Coding Agent** | `pi` | ✅ 完整支援 | CLI | Pi Coding Agent（MCP 需透過擴充支援） |
 | **Junie** | `junie` | ✅ 完整支援 | IDE | JetBrains Junie AI 代理 |
 | **Trae** | `trae` | ✅ 完整支援 | IDE | Trae IDE |
-| **iFlow CLI** | `iflow` | ✅ 完整支援 | CLI | iFlow CLI |
+| **iFlow CLI** | `iflow` | ⛔ 已退場（v0.12.2） | CLI | 原廠產品已終止維運，spec-kit 隨之移除官方支援；請改用其他 CLI 型代理（如 opencode、Qwen Code） |
 | **Devin** | `devin` | ✅ 完整支援 | Terminal | Devin for Terminal，skills-based 整合（v0.8.3 新增） |
 | **Lingma** | `lingma` | ✅ 完整支援 | IDE | 阿里巴巴 Tongyi Lingma 智慧編碼助手（v0.8.7 新增） |
 | **Goose** | `goose` | ✅ 完整支援 | CLI | Goose AI agent，使用 YAML recipe 格式（`.goose/recipes/`），支援 slash command（v0.6.2 新增） |
@@ -471,6 +479,8 @@ Spec-Kit 支援 **30+ 種** 主流 AI 編碼助手，且持續快速成長（下
 > 💡 **Claude Code 特殊說明**：Claude Code 預設安裝為 native skills（`.claude/skills/`），指令格式為 `/speckit-constitution`、`/speckit-specify`、`/speckit-plan`、`/speckit-tasks`、`/speckit-implement`。
 >
 > 💡 **Devin 特殊說明**：Devin 使用 skills-based 整合模式，安裝至 `.devin/skills/` 目錄。
+>
+> ⛔ **整合退場說明**：Windsurf、Roo Code、iFlow CLI 三項整合已於 v0.12.2-v0.12.3 陸續退場，原因分別為「產品併購後終止獨立維運」「擴充停止維護」「原廠產品終止」。這反映 Spec-Kit 作為連接 30+ 種第三方 AI 助手的中介層，其支援清單會隨上游生態系變化而增減；規劃團隊標準工具鏈時，建議優先選擇有明確企業支援或活躍社群維運的整合，並定期以 `specify integration list` 核對目前仍受支援的清單。
 
 **選擇建議**：
 - 🏢 **企業環境** → GitHub Copilot（已整合至企業工具鏈）
@@ -1318,7 +1328,7 @@ uv --version
 | **Claude Code** | [Anthropic CLI](https://docs.anthropic.com/en/docs/claude-code/setup) | 複雜邏輯推理 |
 | **Cursor** | [下載 Cursor IDE](https://cursor.sh/) | AI-first 開發體驗 |
 | **Gemini CLI** | [Google Gemini CLI](https://github.com/google-gemini/gemini-cli) | Google 生態系 |
-| **Windsurf** | [下載 Windsurf](https://windsurf.com/) | 新興工具 |
+| **Devin** | [Devin for Terminal](https://devin.ai/) | 終端機 skills-based 整合（⚠️ Windsurf 整合已於 v0.12.2 退場並併入 Devin，原 Windsurf 使用者可由此銜接） |
 | **opencode** | [opencode CLI](https://opencode.ai/) | 開源偏好 |
 | **Codex CLI** | [OpenAI Codex](https://github.com/openai/codex) | OpenAI 生態系 |
 | **CodeBuddy** | [CodeBuddy CLI](https://www.codebuddy.ai/cli) | 多功能 AI 助手 |
@@ -1722,10 +1732,10 @@ specify init my-project --integration pi
 specify init my-project --integration trae
 ```
 
-**場景 15：使用 iFlow CLI**
+**場景 15：（⛔ iFlow CLI 整合已於 v0.12.2 隨原廠產品終止而退場，請改用 opencode 或 Qwen Code）**
 
 ```bash
-specify init my-project --integration iflow
+specify init my-project --integration opencode
 ```
 
 **場景 16：使用 Forge CLI（v0.4.4 新增）**
@@ -3551,7 +3561,7 @@ specify init my-project --integration devin
 
 ---
 
-### 2.21 Constitution 上下文載入與治理擴充（v0.8.4–v0.8.6 新增）
+### 2.21 Constitution 上下文載入與治理擴充（v0.8.4-v0.8.6 新增）
 
 v0.8.4 至 v0.8.6 連續三個版本聚焦於**治理（Governance）能力增強**，為企業級採用奠定基礎。
 
@@ -3680,7 +3690,7 @@ v0.8.8 的核心架構變更：引入**設定驅動的可選認證註冊表（Co
 - ✅ 支援 GitHub、Azure DevOps、GitLab 等多平台
 - ✅ 認證為可選（opt-in），不影響無認證環境
 
-此功能對**企業環境**特別重要——團隊可以統一設定認證方式，避免每個開發者各自管理 Token。
+此功能對**企業環境**特別重要——團隊可以統一設定認證方式，避免每個開發者各自管理 Token。認證設定集中存放於 `~/.specify/auth.json`（建議權限設為僅擁有者可讀寫），依主機名稱比對應套用哪一組憑證，且僅在明確設定時才會送出認證標頭。Azure DevOps 場景額外支援四種認證方案：`basic-pat`（個人存取權杖）、`bearer`（預先取得的 OAuth/Azure AD Token）、`azure-cli`（透過 `az account get-access-token` 取得的 Token）、`azure-ad`（適用 CI/自動化的 OAuth2 client credentials）；GitHub Enterprise Server（GHES）則沿用與 GitHub.com 相同的 Bearer Token 機制，並自動辨識 GHES 主機以正確路由至 `/api/v3` 下載端點（詳見 2.46 節）。跨主機重新導向時，系統會主動移除認證標頭，避免憑證外洩至非預期的目標主機。
 
 #### Spec Kit Schedule 擴充
 
@@ -4613,6 +4623,180 @@ mv .specify/memory/constitution-backup.md .specify/memory/constitution.md
 
 ---
 
+### 2.49 Workflow 平行處理與 Python 腳本類型支援（v0.12.1-v0.12.4 新增）
+
+v0.12.0 之後的四個修訂版（2026-06-30 ~ 2026-07-02）聚焦於工作流引擎的**執行效能**與**腳本語言涵蓋範圍**，同時補齊了先前版本累積的跨平台相容性缺口。
+
+#### Fan-out 平行處理:Bounded Thread Pool（v0.12.2）
+
+在此之前，`fan-out` 步驟會依序展開所有子任務，任務量大時整體工作流耗時明顯增加。v0.12.2 引入 `max_concurrency` 參數，讓 fan-out 步驟改以**有界執行緒池（bounded thread pool）**平行處理子任務，同時避免無限制併發拖垮系統資源：
+
+```yaml
+steps:
+  - type: fan-out
+    items: "{{ context.spec_list }}"
+    max_concurrency: 4   # 同時最多 4 個子任務平行執行
+    steps:
+      - type: agent
+        prompt: "為 {{ item }} 執行 /speckit.analyze"
+```
+
+對於需要一次盤點多個 Spec 或跨多個既有模組執行 `/speckit.converge` 的團隊，這項改進可大幅縮短批次分析的等待時間。
+
+#### 新增 `py` 腳本步驟類型（v0.12.4）
+
+工作流步驟原本僅支援 `bash` / `powershell` 腳本類型。v0.12.4 新增 **`py` 腳本類型**，並內建 Python 直譯器自動解析邏輯（依序嘗試 `python3`、`python`、Windows Store stub 偵測等），讓團隊可以用 Python 撰寫更複雜的資料處理或驗證邏輯，而不必受限於 shell 語法：
+
+```yaml
+steps:
+  - type: script
+    script: py
+    run: |
+      import json, sys
+      data = json.load(open("spec.json"))
+      sys.exit(0 if data.get("status") == "ready" else 1)
+```
+
+#### Label-Driven 代理工作流程:bug-fix 與 bug-test（v0.12.4）
+
+延續 v0.11.2 引入的 `/speckit.converge` 與 bug-assess 標籤工作流程慣例，v0.12.4 新增兩個內建的 label-driven 代理工作流程範本：**bug-fix**（依 Issue 標籤自動觸發修復流程）與 **bug-test**（自動產生對應的迴歸測試）。這使得團隊可以在既有 Issue 追蹤流程中，直接以標籤驅動 AI 代理介入,無需另外撰寫客製化工作流。
+
+#### 其他 v0.12.1-v0.12.4 改進
+
+| 項目 | 說明 |
+|------|------|
+| 跨平台腳本相容性 | 修正 bash 3.2（macOS 內建版本）分支名稱大小寫轉換相容性問題；`initialize-repo.sh` 改用 ASCII `[OK]` 標記，與 PowerShell 版本行為一致 |
+| Catalog / Integration 子命令文件化 | 補齊 `specify integration search` / `info` / `scaffold` 等子命令的官方說明文件 |
+| `check-prerequisites --paths-only` 修正 | 不再誤寫入 `feature.json`,避免唯讀查詢意外產生副作用 |
+| Goose 整合安裝連結修正 | `install_url` 改指向 `goose-docs.ai` |
+| Bundle 錯誤輸出隔離 | 指令錯誤訊息一律導向 stderr，確保 `--json` 模式下 stdout 維持可解析的純 JSON |
+
+---
+
+### 2.50 生態系轉型:整合退場、Copilot Skills 棄用與 Catalog 安全性強化（v0.12.2-v0.12.6, v0.12.12 新增）
+
+> ⚠️ **重要提醒**：本節涉及既有專案可能仍在使用的整合退場,以及會直接影響 Extension / Preset 安裝行為的安全性限制,建議所有既有專案在升級前詳閱本節。
+
+#### 三項 AI 助手整合正式退場
+
+隨著上游產品線的併購、重組與停產，Spec-Kit 於此區間移除了三項整合的官方支援：
+
+| 整合 | 退場版本 | 退場原因 | 建議遷移方向 |
+|------|---------|---------|-------------|
+| **Windsurf** (`windsurf`) | v0.12.2 | 產品併入 Cognition 旗下 Devin，不再獨立維運 | 改用 `devin`（Devin for Terminal，skills-based）或其他 IDE 整合 |
+| **iFlow CLI** (`iflow`) | v0.12.2 | 原廠產品終止 | 改用 `opencode`、`qwen` 等開源 CLI 型整合 |
+| **Roo Code** (`roo`) | v0.12.3 | 官方擴充停止維護並下架 | 改用 `cline`、`kilocode` 等 VS Code 衍生整合 |
+
+這類整合退場並非 Spec-Kit 本身的缺陷，而是其作為「連接 30+ 種第三方 AI 助手的中介層」必然要面對的生態系波動；已安裝上述整合的專案在執行 `specify self upgrade` 或 `specify init --here --force` 後，對應的指令檔與腳本將不再更新，建議儘早規劃遷移。
+
+#### GitHub Copilot Skills 模式棄用預告（v0.12.3）
+
+Copilot 整合原本以傳統 slash command 檔案運作，Spec-Kit 團隊計畫將其預設遷移至 skills 模式（`--integration-options="--skills"`）。v0.12.3 起，在此項變更**正式預設啟用前**，CLI 會先對仍使用傳統模式的使用者顯示棄用警告，讓團隊有充分時間評估與測試 skills 模式的相容性，避免無預警的行為變更。
+
+#### Catalog URL 驗證強化:HTTPS-Only（v0.12.5、v0.12.6、v0.12.12）
+
+延續 v0.11.7 導入的 Catalog Archive SHA256 驗證與 v0.11.10 的 host-less URL 拒絕機制，此區間進一步將 catalog／extension／preset／bundler 的 URL 驗證邏輯統一收斂為：
+
+- ✅ **僅接受 HTTPS**：拒絕 `file://` 等本機協定來源，防止透過偽造本機路徑注入未經驗證的內容
+- ✅ **必須具備明確 host**：拒絕 host-less 或格式不完整的 URL
+- ✅ **統一於 bundler／extension／preset 三個 adapter 套用相同規則**，避免驗證邏輯各自為政產生安全性死角
+
+```bash
+# 以下操作在 v0.12.6+ 會被拒絕（不具 host 或非 HTTPS）
+specify catalog add file:///local/path/catalog.yml   # ❌ 拒絕:非 HTTPS
+specify catalog add https:///malformed                # ❌ 拒絕:缺少 host
+
+# 正確用法
+specify catalog add https://example.com/catalog.yml   # ✅ 通過驗證
+```
+
+對企業內部自建 catalog 的團隊而言，這代表**內部 catalog 伺服器必須提供有效 HTTPS 憑證**，透過 SMB 共享路徑或內部檔案伺服器分發 catalog 的作法將不再相容,需改以 HTTPS 服務對外提供。
+
+#### Namespaced Git Feature Branch 範本支援（v0.12.5）
+
+新增對具命名空間的 Git feature branch 範本支援（例如 `team-a/001-feature-name` 這類具前綴的分支命名慣例），讓採用多團隊命名空間分支策略的組織也能與 `/speckit.plan` 的自動分支建立機制相容。
+
+---
+
+### 2.51 Bundle 版本管理強化與工作流引擎穩健性（v0.12.7-v0.12.11 新增）
+
+#### `bundle update` 版本驅動的元件生命週期管理（v0.12.7）
+
+v0.11.4 引入的 Bundle 系統，先前的 `bundle update` 僅會將已安裝元件更新至新版本所釘選的版號，但若新版 Bundle **移除**了某個元件（例如某擴充改為選用），舊元件並不會被自動清除。v0.12.7 修正此行為：`bundle update` 現在會**解除安裝新版清單中已不存在的元件**，讓 Bundle 的版本狀態與其宣告的元件組合維持完全一致，避免專案內殘留「已被 Bundle 棄用但實體檔案仍在」的元件。
+
+```bash
+# 更新前:Bundle v1.0 含 extension-a、extension-b
+# 更新後:Bundle v1.1 僅宣告 extension-a
+specify bundle update my-team-bundle
+# v0.12.7+ 行為:extension-b 會被自動解除安裝
+```
+
+#### 工作流引擎邊界條件強化
+
+此區間持續針對工作流引擎的各類步驟驗證邏輯進行強化，目的是讓格式錯誤的 `workflow.yml` 在**設計期就失敗並給出明確錯誤訊息**，而非在執行期產生難以追蹤的例外：
+
+| 步驟類型 | 強化內容 |
+|---------|---------|
+| `fan-in` | `wait_for` 若非清單型別，明確報錯而非執行期崩潰 |
+| `shell` | `run` 欄位非字串時明確拒絕；新增可設定的逾時（timeout）參數 |
+| `if` / `switch` | 條件為非映射（mapping）或 `cases` 格式錯誤時明確拒絕，`else` 分支容許 falsy 的非清單值 |
+| 表達式引擎 | 鏈式過濾器改為**由左至右**依序套用；比較運算子對非數字字串改採字典序比較；樣板插值改為 quote-aware，避免引號內的 `}}` 誤判為插值結尾 |
+
+#### `update-agent-context` 移植為 Python 實作（v0.12.8）
+
+v0.9.0 已將 agent-context 檔案更新邏輯抽取為獨立擴充（詳見 2.33 節），v0.12.8 進一步將其核心邏輯由 shell script 移植為 Python 實作，除了改善跨平台一致性外，也讓社群更容易貢獻與除錯此一核心擴充。
+
+#### 錯誤處理與安全性強化
+
+- **明確例外類型**：catalog、auth、bundler 模組原本在遇到格式錯誤的 URL 時會拋出原始的 `ValueError`，難以與其他錯誤區分；v0.12.11 起統一改為拋出對應的自訂例外（如 `CatalogError`、`BundlerError`），便於上層邏輯精準攔截與提示。
+- **控制字元跳脫**：修正 TOML 指令檔、`SKILL.md` frontmatter、Goose recipe YAML 在內容含有控制字元時可能產生的解析錯誤，避免產生的設定檔無法被正確載入。
+- **多重安裝安全清單擴充**：Kiro CLI 正式列入 multi-install-safe 清單，可安全與其他整合並存於同一專案。
+
+---
+
+### 2.52 治理與品質保證預設集擴充、社群目錄成長（v0.12.11-v0.12.15 新增）
+
+#### 新增治理與品質保證預設
+
+社群 Preset 目錄新增兩項聚焦於**自動化執行治理**的預設，延續 2.24、2.26、2.30 節建立的治理擴充生態系脈絡：
+
+- **Test-First Governance** — 強制要求任務拆分與實作階段遵循測試先行（Test-First）紀律，適合對 TDD 有嚴格要求的團隊
+- **Autonomous Run Governance** — 針對無人值守（headless / autonomous）工作流執行提供額外的核准與稽核把關機制,降低 AI 代理在無人監督下執行破壞性操作的風險
+
+#### 社群擴充目錄持續成長
+
+此區間社群擴充目錄新增多項擴充，反映生態系持續朝**需求語法規範化**（如 EARS Requirements Syntax）、**設計工具整合**（Spec Kit Figma）、**治理與品質把關**（Quality Gates Enforcement Layer、Repository Governance）等方向擴展。以下列舉代表性項目，完整清單請以 [官方社群擴充目錄](https://github.github.io/spec-kit/community/extensions.html) 查詢結果為準：
+
+- **EARS Requirements Syntax** — 將 Easy Approach to Requirements Syntax 語法規範導入 Spec 撰寫
+- **Spec Kit Figma** — 串接 Figma 設計稿與規格文件
+- **Quality Gates (Enforcement Layer)** — 於工作流中插入可設定的品質關卡
+- **Multi-Repo Branch Sync** — 跨多個儲存庫同步 feature branch 狀態
+
+#### Extension / Preset 設定穩健性修正（v0.12.12）
+
+修正 extension 與 preset 的 `set-priority` 指令在設定檔 `priority` 欄位因外部工具或手動編輯而誤植為布林值時會導致設定損毀的問題；現在會自動偵測並修復此類損毀欄位，避免團隊需要手動清空設定重新安裝。
+
+#### Headless / CI 場景支援強化（v0.12.14）
+
+`init --here` 在**無 TTY 的環境**（例如 CI 管線、容器化建置環境）下執行時，過去會卡在互動式確認提示、需要額外的 `--force` 或標準輸入導向技巧才能繞過；v0.12.14 起會偵測無 TTY 情境並跳過確認提示，讓純自動化流程可以直接呼叫 `init --here` 而不需額外處理。
+
+#### 版本升級操作
+
+```bash
+# 從 v0.12.0 升級至 v0.12.15
+specify self upgrade --tag v0.12.15
+
+# 或使用 uv 手動安裝
+uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@v0.12.15
+
+# 更新專案檔（注意備份 constitution）
+cp .specify/memory/constitution.md .specify/memory/constitution-backup.md
+specify init --here --force --integration <your-agent>
+mv .specify/memory/constitution-backup.md .specify/memory/constitution.md
+```
+
+---
+
 ## 第三章:使用流程詳細說明
 
 本章將帶您完整走過 SDD 的六個主要步驟,從創建規格到完成實作。
@@ -5130,7 +5314,7 @@ Plan 將 Spec 翻譯成技術實作方案,定義「如何」實現。
 
 **範例:照片相簿管理 Plan**
 
-```markdown
+````markdown
 # Implementation Plan: Photo Album Management
 
 ## Metadata
@@ -5163,7 +5347,7 @@ Plan 將 Spec 翻譯成技術實作方案,定義「如何」實現。
 - [ ] **測試策略已規劃?** ✅ 是(見測試章節)
 
 **Complexity Tracking**: 無需記錄複雜度,符合所有 Gates。
-```
+
 ---
 
 ## Technology Stack
@@ -5709,6 +5893,7 @@ logger.error('Photo load failed', { photoId, error });
 3. 拖放排序成功
 4. 刪除相簿成功
 5. 效能符合 NFR
+````
 
 ---
 
@@ -5720,7 +5905,6 @@ logger.error('Photo load failed', { photoId, error });
 - [ ] 測試策略完善
 - [ ] 風險已識別並有緩解措施
 - [ ] 實作階段合理可行
-```
 
 #### Plan 的關鍵元素
 
@@ -7460,7 +7644,7 @@ Spec-Kit v0.11.2 新增了 **`/speckit.converge`** 指令，補上了 SDD 工作
 
 ---
 
-## 第三章小結
+### 第三章小結
 
 經過 8 個步驟,你已經完整走過一個 SDD 循環:
 
@@ -7717,7 +7901,7 @@ AI 讀取 spec.md 與 Constitution,產生實作計畫...
 
 **產生 `specs/transaction-log-service/plan.md` (節錄)**:
 
-```markdown
+````markdown
 # Plan: Transaction Log Service
 
 ## Phase -1: Pre-Implementation Gates
@@ -7765,7 +7949,7 @@ AI 讀取 spec.md 與 Constitution,產生實作計畫...
 - [ ] 健康檢查完整? ✅ 是(Actuator)
 
 **All Gates Passed**: ✅
-```
+
 ---
 
 ## 1. Technology Stack
@@ -8249,7 +8433,7 @@ spec:
 | Phase 6 | 2 days | Phase 4, 5 |
 
 **Total**: 19 working days (~4 weeks with buffer)
-```
+````
 
 #### Step 3: Backend Dev 拆分 Tasks
 
@@ -8373,7 +8557,7 @@ Related: US-001, T001
 
 由於既有系統缺乏測試,Plan 需要特別考慮隔離:
 
-```markdown
+````markdown
 # Plan: Customer Rating Feature
 
 ## Integration Strategy
@@ -8396,6 +8580,7 @@ Related: US-001, T001
         │
         └──> (既有功能不變)
 ```
+````
 
 ### Risk Mitigation
 1. **隔離變更**: 新功能獨立 Package
@@ -8450,7 +8635,6 @@ Related: US-001, T001
 1. **Stage 1**: 部署但不啟用(Feature Toggle Off)
 2. **Stage 2**: 小範圍啟用(10% 客戶)
 3. **Stage 3**: 全面啟用
-```
 
 **Step 3: 實作(TDD + Characterization Tests)**
 
@@ -8855,7 +9039,7 @@ public void testCreateOrder_ContractCompliance() {
 | **Claude Code** | 推理能力強,長文本理解佳 | Spec/Plan 撰寫,架構設計 | ✅ 支援 |
 | **Cursor** | AI-first IDE,全文件理解 | 大型專案重構 | ✅ 支援 |
 | **Gemini CLI** | Google 生態整合 | 多模態分析,文件生成 | ✅ 支援 |
-| **Windsurf** | 多檔案編輯,任務自動化 | 批次修改,腳本產生 | ✅ 支援 |
+| **Devin** | 多檔案編輯,任務自動化,終端機代理 | 批次修改,腳本產生 | ✅ 支援（⛔ Windsurf 已於 v0.12.2 退場並併入 Devin） |
 | **opencode** | 開源、輕量 | 開源專案開發 | ✅ 支援 |
 | **Codex CLI** | OpenAI 模型 | 程式碼生成、自動化 | ✅ 支援 |
 | **Qwen Code** | 中文理解佳 | 中文文件專案 | ✅ 支援 |
@@ -9219,7 +9403,7 @@ API 必須一致、版本化、文件化。
 
 ---
 
-## 第四章小結
+### 第四章小結
 
 本章透過實際案例,展示了 SDD 在不同情境下的應用:
 
@@ -9610,7 +9794,7 @@ API 必須一致、版本化、文件化。
 
 ---
 
-## 第五章小結
+### 第五章小結
 
 **核心觀念**:
 
@@ -9893,6 +10077,8 @@ API 必須一致、版本化、文件化。
 - **擴充系統文件**: https://github.com/github/spec-kit/tree/main/extensions
 - **社群擴充網站**: https://speckit-community.github.io/extensions/
 - **預設系統文件**: https://github.com/github/spec-kit/blob/main/presets/README.md
+- **Bundle 系統參考**（官方文件站 Reference 導覽，v0.12.3 起獨立列出）: https://github.github.io/spec-kit/reference/bundles.html
+- **認證機制參考**（GitHub / GHES / Azure DevOps 多方案認證，v0.12.3 起獨立列出）: https://github.github.io/spec-kit/reference/authentication.html
 - **AGENTS.md（整合架構指南）**: https://github.com/github/spec-kit/blob/main/AGENTS.md
 - **DEVELOPMENT.md（開發者指南）**: https://github.com/github/spec-kit/blob/main/DEVELOPMENT.md
 - **CHANGELOG**: https://github.com/github/spec-kit/blob/main/CHANGELOG.md
@@ -10062,6 +10248,11 @@ API 必須一致、版本化、文件化。
 | **Product Spec** | 產品規格擴充（v0.8.14 新增），強化 SDD 的產品管理維度 |
 | **Token Budget** | Token 預算管理擴充（v0.8.15 新增），追蹤與控制 token 使用量，設定預算上限與告警閾值 |
 | **Workflow Preset** | 工作流預設（v0.8.16 新增），預建的工作流定義模板，快速採用標準化 SDD 工作流程 |
+| **Bundle System** | Bundle 系統（v0.11.4 新增），將多個 Extension、Preset、Workflow 打包為單一可安裝單元，解決「一個角色/情境需要哪一整組元件」的問題（詳見 2.42、2.51 節） |
+| **Catalog（目錄）** | Extension、Preset、Workflow、Bundle 共用的搜尋與分發登錄機制，v0.12.5-v0.12.6 起強制要求 HTTPS 與明確主機名稱以防範供應鏈攻擊（詳見 2.50 節） |
+| **Bounded Thread Pool / `max_concurrency`** | 有界執行緒池（v0.12.2 新增），限制 `fan-out` 工作流步驟平行展開子任務的最大同時數量，兼顧效能與資源可控性（詳見 2.49 節） |
+| **`py` 腳本類型** | Python 工作流腳本步驟類型（v0.12.4 新增），搭配自動 Python 直譯器解析，補足先前僅支援 bash/PowerShell 的限制（詳見 2.49 節） |
+| **Governance Preset** | 治理類預設的統稱，涵蓋 Security/Architecture/Cross-Platform/A11y Governance（v0.8.4）至 Test-First Governance、Autonomous Run Governance（v0.12.14）等，用於在 SDD 流程中強制施加特定治理規則（詳見 2.21、2.52 節） |
 
 ---
 
@@ -10118,8 +10309,7 @@ specify init my-project --integration junie
 # 1i. 使用 Trae
 specify init my-project --integration trae
 
-# 1j. 使用 iFlow CLI
-specify init my-project --integration iflow
+# 1j. （⛔ iFlow CLI 整合已於 v0.12.2 隨原廠產品終止而退場，請改用 opencode 或 Qwen Code）
 
 # 1k. 使用 Forge CLI（v0.4.4 新增）
 specify init my-project --integration forge
@@ -10262,7 +10452,7 @@ specify bundle install security-baseline
 # 列出已安裝 Bundle
 specify bundle list
 
-# 更新 Bundle
+# 更新 Bundle（v0.12.7+：新版 Bundle 中已移除的元件會被自動解除安裝，詳見 2.51 節）
 specify bundle update security-baseline
 
 # 移除 Bundle
@@ -10391,8 +10581,23 @@ npm run test:e2e
 | **v0.11.9** | 2026-06-26 | Cline/ZCode 列入 **multi-install-safe** 文件。`--force`/`--refresh-shared-infra` 旗標文件補全。GHES private release asset 下載修正。`/speckit-analyze` 長 session 凍結修正（Claude 整合）。**SicarioSpec Core v0.5.1**。preset composition strategy 參考更新 |
 | **v0.11.10** | 2026-06-29 | **Community Bundle Submission Path** — `bundle_submission.yml` issue template。GHES auth 修正（`extension add --from`）。Catalog URL host-less 驗證拒絕。`/speckit.converge` 指令文件化。PowerShell 一致性修正（create-new-feature、git-extension 輸出） |
 | **v0.12.0** | 2026-06-29 | **重大版本**：**agent-context extension 改為完整 opt-in**（不再預設啟用）。Workflow gate validate() 非字串容錯。Pipe-filter 偵測 quote-aware。Fan-in wait_for 拒絕未知步驟。PowerShell 腳本 bash parity 全面修正。Product Spec Extension v1.0.1。`init` 步驟類型文件化。**Stars 達 117K+、Contributors 達 248、Releases 達 176** |
+| **v0.12.1** | 2026-06-30 | Catalog / Integration 子命令文件補全（`search`/`info`/`scaffold`）。`check-prerequisites --paths-only` 不再誤寫入 `feature.json`。`initialize-repo.sh` 改用 ASCII `[OK]` 標記與 PowerShell 行為一致。Goose 安裝連結修正。Bundle 錯誤訊息改導向 stderr |
+| **v0.12.2** | 2026-06-30 | **Windsurf、iFlow 整合退場**（分別因併入 Devin、原廠產品終止）。Fan-out 步驟新增 **`max_concurrency`** 有界執行緒池平行處理。TOML 與腳本可攜性修正。新增 Repository Governance 社群擴充 |
+| **v0.12.3** | 2026-07-01 | **Roo Code 整合退場**（擴充停止維護）。GitHub Copilot **skills 模式棄用預告**（`--skills` 預設推行前警告）。Prerelease 版本相容性檢查放寬。文件導覽新增 Bundles / Authentication 分類 |
+| **v0.12.4** | 2026-07-02 | 工作流步驟新增 **`py` 腳本類型**與 Python 直譯器解析。新增 label-driven **bug-fix / bug-test** 代理工作流程。多重表達式樣板插值修正。新增 Analytics 社群擴充 |
+| **v0.12.5** | 2026-07-06 | **Catalog URL 驗證強化**：拒絕 host-less catalog URL。工作流比較運算子支援非數字字串字典序比較、樣板插值改為 quote-aware。新增 namespaced git feature branch 範本支援 |
+| **v0.12.6** | 2026-07-07 | **Catalog URL 驗證擴大為 HTTPS-only**（`catalog add` 強制要求 HTTPS 與明確 host）。修正擴充本地腳本路徑改寫問題。新增 Charter 社群擴充 |
+| **v0.12.7** | 2026-07-07 | **`bundle update` 版本驅動元件生命週期管理**：新版 Bundle 移除的元件會被自動解除安裝。Fan-in / shell 步驟驗證強化。新增 Orchestration Task Context Management 社群擴充 |
+| **v0.12.8** | 2026-07-08 | **`update-agent-context` 移植為 Python 實作**。修正格式錯誤 IPv6/GHES URL 導致的例外。TOML 控制字元跳脫修正。新增 LLM Wiki 社群擴充 |
+| **v0.12.9** | 2026-07-09 | 工作流鏈式表達式過濾器改為**由左至右**依序套用。Python 直譯器探索邏輯強化（略過 Windows Store python3 stub）。SKILL.md frontmatter 控制字元跳脫修正 |
+| **v0.12.10** | 2026-07-10 | Plan 範本 Phase 編號修正。PowerShell 分支建立正確處理 `-Number 0`。巢狀 Spec 目錄下的 Plan 檔案搜尋修正。CI 相依套件版本更新 |
+| **v0.12.11** | 2026-07-10 | **錯誤處理強化**：catalog/auth/bundler 對格式錯誤 URL 改拋出明確自訂例外（而非原始 `ValueError`）。新增 EARS Requirements Syntax、Spec Kit Figma 社群擴充 |
+| **v0.12.12** | 2026-07-13 | Extension/Preset **`set-priority` 修復損壞的布林 priority 欄位**。`bundle` 拒絕 `file://` 等非 HTTPS 本機來源。新增 Verify Review Ship 社群擴充 |
+| **v0.12.13** | 2026-07-13 | Switch/If 步驟驗證強化（拒絕非映射 cases）。Shell 步驟逾時可設定。擴充相對路徑於產生的指令檔中正確改寫。Kiro 整合標記為 multi-install-safe |
+| **v0.12.14** | 2026-07-13 | 新增 **Test-First Governance**、**Autonomous Run Governance** 治理預設。`init --here` 於**無 TTY 環境**不再卡在確認提示。Command 步驟輸入強制驗證為映射型別 |
+| **v0.12.15** | 2026-07-14 | Autonomous Run Governance 預設更新至 v0.1.4。Catalog 對格式錯誤 URL 統一拋出明確例外。Extension 環境變數設定不再跨前綴衝突洩漏。新增 Multi-Repo Branch Sync 社群擴充 |
 
-> **升級提示**：從任何版本升級至 v0.12.0，請使用以下指令。詳見 [升級指南](https://github.com/github/spec-kit/blob/main/docs/upgrade.md)：
+> **升級提示**：從任何版本升級至 v0.12.15，請使用以下指令。詳見 [升級指南](https://github.com/github/spec-kit/blob/main/docs/upgrade.md)：
 >
 > ```bash
 > # 檢查是否有新版本
@@ -10402,13 +10607,13 @@ npm run test:e2e
 > specify self upgrade
 >
 > # 或釘選特定版本
-> specify self upgrade --tag v0.12.0
+> specify self upgrade --tag v0.12.15
 >
 > # 使用 uv 手動安裝
-> uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@v0.12.0
+> uv tool install specify-cli --force --from git+https://github.com/github/spec-kit.git@v0.12.15
 >
 > # 或使用 pipx
-> pipx install --force git+https://github.com/github/spec-kit.git@v0.12.0
+> pipx install --force git+https://github.com/github/spec-kit.git@v0.12.15
 >
 > # 更新專案檔（備份 constitution 後執行）
 > specify init --here --force --integration <your-agent>
@@ -10477,7 +10682,7 @@ npm run test:e2e
 
 **祝你在 Specification-Driven Development 的旅程中順利!** 🚀
 
-*文件版本: v13.0 | 適用 Spec-Kit v0.12.0+*  
-*最後更新: 2026-06-30*  
-*適用於: Spec-Kit v0.12.0+ / Spec Kit Templates - 0.12.0*
+*文件版本: v14.0 | 適用 Spec-Kit v0.12.15+*  
+*最後更新: 2026-07-15*  
+*適用於: Spec-Kit v0.12.15+ / Spec Kit Templates - 0.12.15*
 
