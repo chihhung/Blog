@@ -182,7 +182,6 @@ classDiagram
         -顏色: String
         -速度: int
         -引擎狀態: boolean
-        
         +啟動引擎()
         +停止引擎()
         +加速()
@@ -1006,7 +1005,7 @@ classDiagram
         +addToCart(Book book)
         +placeOrder()
     }
-    
+
     class Book {
         -isbn: String
         -title: String
@@ -1016,7 +1015,7 @@ classDiagram
         +getDetails()
         +updateStock(int quantity)
     }
-    
+
     class ShoppingCart {
         -items: List~CartItem~
         -customerId: String
@@ -1025,7 +1024,7 @@ classDiagram
         +calculateTotal()
         +clear()
     }
-    
+
     class Order {
         -orderId: String
         -customerId: String
@@ -1035,7 +1034,7 @@ classDiagram
         +processOrder()
         +updateStatus(OrderStatus status)
     }
-    
+
     class Payment {
         -paymentId: String
         -orderId: String
@@ -1584,32 +1583,29 @@ classDiagram
         -name: String
         -email: String
         -enrollmentDate: LocalDate
-        
         +Student(name: String, email: String)
         +enrollCourse(course: Course): boolean
         +dropCourse(course: Course): boolean
         +getGPA(): double
         -calculateGPA(): double
     }
-    
+
     class Course {
         -courseId: String
         -title: String
         -credits: int
         -maxStudents: int
-        
         +Course(title: String, credits: int)
         +addStudent(student: Student): boolean
         +removeStudent(student: Student): boolean
         +getEnrolledCount(): int
     }
-    
+
     class Grade {
         -student: Student
         -course: Course
         -score: double
         -letterGrade: String
-        
         +Grade(student: Student, course: Course, score: double)
         +calculateLetterGrade(): String
     }
@@ -1696,7 +1692,6 @@ classDiagram
         -email: String
         -phone: String
         -addresses: List~Address~
-        
         +register(): boolean
         +login(email: String, password: String): boolean
         +addAddress(address: Address): void
@@ -1711,7 +1706,6 @@ classDiagram
         -price: BigDecimal
         -stock: int
         -category: Category
-        
         +getDetails(): BookDetails
         +updateStock(quantity: int): void
         +isAvailable(): boolean
@@ -1722,7 +1716,6 @@ classDiagram
         -customerId: String
         -items: List~CartItem~
         -createdAt: LocalDateTime
-        
         +addItem(book: Book, quantity: int): void
         +removeItem(isbn: String): void
         +updateQuantity(isbn: String, quantity: int): void
@@ -1738,7 +1731,6 @@ classDiagram
         -status: OrderStatus
         -totalAmount: BigDecimal
         -orderDate: LocalDateTime
-        
         +processOrder(): void
         +cancel(): boolean
         +updateStatus(status: OrderStatus): void
@@ -1753,7 +1745,6 @@ classDiagram
         -method: PaymentMethod
         -status: PaymentStatus
         -processedAt: LocalDateTime
-        
         +processPayment(): PaymentResult
         +refund(): RefundResult
         +verify(): boolean
@@ -1765,7 +1756,6 @@ classDiagram
         -city: String
         -postalCode: String
         -country: String
-        
         +getFullAddress(): String
         +validate(): boolean
     }
@@ -1775,7 +1765,6 @@ classDiagram
         -book: Book
         -quantity: int
         -addedAt: LocalDateTime
-        
         +calculateSubtotal(): BigDecimal
         +updateQuantity(quantity: int): void
     }
@@ -1785,7 +1774,6 @@ classDiagram
         -book: Book
         -quantity: int
         -unitPrice: BigDecimal
-        
         +calculateSubtotal(): BigDecimal
     }
     
@@ -3321,7 +3309,6 @@ classDiagram
         #role: UserRole
         #createdAt: LocalDateTime
         #active: boolean
-        
         +User(userId, name, email, role)
         +canEnroll(course: Course): boolean*
         +getEnrolledCourses(): List~Course~*
@@ -3336,7 +3323,6 @@ classDiagram
         -gpa: double
         -totalCredits: int
         -enrollments: Set~Enrollment~
-        
         +Student(userId, name, email, studentId, major)
         +canEnroll(course: Course): boolean
         +getEnrolledCourses(): List~Course~
@@ -3351,7 +3337,6 @@ classDiagram
         -department: String
         -title: String
         -teachingCourses: Set~Course~
-        
         +Teacher(userId, name, email, employeeId, department)
         +canEnroll(course: Course): boolean
         +getEnrolledCourses(): List~Course~
@@ -3375,7 +3360,6 @@ classDiagram
         -location: String
         -semester: Semester
         -status: CourseStatus
-        
         +Course(courseCode, title, credits, maxStudents, instructor)
         +isFull(): boolean
         +isAvailable(): boolean
@@ -3395,7 +3379,6 @@ classDiagram
         -enrollmentDate: LocalDateTime
         -status: EnrollmentStatus
         -grade: Grade
-        
         +Enrollment(student, course, enrollmentDate)
         +withdraw(): void
         +isActive(): boolean
@@ -3409,7 +3392,6 @@ classDiagram
         -letterGrade: String
         -gradedDate: LocalDateTime
         -comments: String
-        
         +Grade(numericScore, letterGrade)
         +isPassing(): boolean
         +getGradePoints(): double
@@ -3420,7 +3402,6 @@ classDiagram
         -dayOfWeek: DayOfWeek
         -startTime: LocalTime
         -endTime: LocalTime
-        
         +TimeSlot(dayOfWeek, startTime, endTime)
         +overlapsWith(other: TimeSlot): boolean
         +getDuration(): Duration
@@ -3433,7 +3414,6 @@ classDiagram
         -endDate: LocalDate
         -enrollmentStartDate: LocalDate
         -enrollmentEndDate: LocalDate
-        
         +Semester(name, startDate, endDate)
         +isCurrent(): boolean
         +isEnrollmentOpen(): boolean
@@ -3446,7 +3426,6 @@ classDiagram
         -enrollmentRepository: EnrollmentRepository
         -notificationService: NotificationService
         -enrollmentValidator: EnrollmentValidator
-        
         +enrollStudent(studentId, courseId): EnrollmentResult
         +withdrawStudent(studentId, courseId): WithdrawalResult
         +getStudentEnrollments(studentId, semesterId): List~EnrollmentDTO~
@@ -3456,7 +3435,6 @@ classDiagram
     class CourseService {
         -courseRepository: CourseRepository
         -teacherRepository: TeacherRepository
-        
         +createCourse(courseRequest): Course
         +updateCourse(courseId, updateRequest): Course
         +searchCourses(criteria): List~Course~
@@ -4803,7 +4781,6 @@ classDiagram
         #受保護屬性: 井號開頭  
         +公開屬性: 加號開頭
         ~套件屬性: 波浪號開頭
-        
         +公開方法()
         #受保護方法()
         -私有方法()
