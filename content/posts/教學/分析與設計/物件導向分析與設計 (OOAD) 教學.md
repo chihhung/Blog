@@ -1,20 +1,19 @@
-﻿+++
++++
 date = '2025-10-31T00:00:00+08:00'
 draft = false
 title = '物件導向分析與設計 (OOAD) 教學'
 tags = ['教學', '分析與設計']
 categories = ['教學']
+lastmod = '2026-07-17T00:00:00+08:00'
 +++
 # 物件導向分析與設計 (OOAD) 教學手冊
 
 > **作者**: 系統架構師團隊  
-> **更新日期**: 2025年9月1日  
+> **更新日期**: 2026年7月17日  
 > **適用對象**: 新進開發同仁  
-> **版本**: v1.0
+> **版本**: v2.1
 
----
-
-## 📚 目錄
+## 目錄
 
 1. [前言與學習目標](#1-前言與學習目標)
    - 1.1 [為什麼要學習 OOAD？](#11-為什麼要學習-ooad)
@@ -31,11 +30,11 @@ categories = ['教學']
 
 3. [OOAD 開發流程](#3-ooad-開發流程)
    - 3.1 [OOAD 流程概覽](#31-ooad-流程概覽)
-   - 3.2 [階段一：需求分析](#32-階段一需求分析-requirements-analysis)
-   - 3.3 [階段二：系統分析](#33-階段二系統分析-system-analysis)
-   - 3.4 [階段三：系統設計](#34-階段三系統設計-system-design)
-   - 3.5 [階段四：詳細設計](#35-階段四詳細設計-detailed-design)
-   - 3.6 [階段五：程式實作](#36-階段五程式實作-implementation)
+   - 3.2 [階段一：需求分析 (Requirements Analysis)](#32-階段一需求分析-requirements-analysis)
+   - 3.3 [階段二：系統分析 (System Analysis)](#33-階段二系統分析-system-analysis)
+   - 3.4 [階段三：系統設計 (System Design)](#34-階段三系統設計-system-design)
+   - 3.5 [階段四：詳細設計 (Detailed Design)](#35-階段四詳細設計-detailed-design)
+   - 3.6 [階段五：程式實作 (Implementation)](#36-階段五程式實作-implementation)
    - 3.7 [階段六：測試與驗證](#37-階段六測試與驗證)
    - 3.8 [章節小結](#38-章節小結)
 
@@ -72,19 +71,32 @@ categories = ['教學']
    - 7.4 [模擬考題與解析](#74-模擬考題與解析)
    - 7.5 [考試準備策略](#75-考試準備策略)
    - 7.6 [學習資源推薦](#76-學習資源推薦)
+   - 7.7 [章節小結](#77-章節小結)
 
 8. [結語與延伸閱讀](#8-結語與延伸閱讀)
    - 8.1 [學習成果回顧](#81-學習成果回顧)
    - 8.2 [進階學習方向](#82-進階學習方向)
    - 8.3 [參考資料與書籍](#83-參考資料與書籍)
    - 8.4 [線上資源與社群](#84-線上資源與社群)
+   - 8.5 [職涯發展建議](#85-職涯發展建議)
+   - 8.6 [最終建議與祝福](#86-最終建議與祝福)
 
-9. [檢查清單](#9-檢查清單)
-   - 9.1 [需求分析檢查清單](#91-需求分析檢查清單)
-   - 9.2 [設計階段檢查清單](#92-設計階段檢查清單)
-   - 9.3 [實作階段檢查清單](#93-實作階段檢查清單)
-   - 9.4 [程式碼審查檢查清單](#94-程式碼審查檢查清單)
-   - 9.5 [專案交付檢查清單](#95-專案交付檢查清單)
+9. [學習成果檢核清單](#9-學習成果檢核清單)
+   - 9.1 [知識掌握度自我評估](#91-知識掌握度自我評估)
+   - 9.2 [實作能力驗證](#92-實作能力驗證)
+   - 9.3 [知識整合應用](#93-知識整合應用)
+   - 9.4 [持續改進計畫](#94-持續改進計畫)
+   - 9.5 [認證與成就里程碑](#95-認證與成就里程碑)
+   - 9.6 [總結檢核表](#96-總結檢核表)
+
+10. [專案交付檢查清單](#10-專案交付檢查清單)
+    - 10.1 [需求分析檢查清單](#101-需求分析檢查清單)
+    - 10.2 [設計階段檢查清單](#102-設計階段檢查清單)
+    - 10.3 [實作階段檢查清單](#103-實作階段檢查清單)
+    - 10.4 [程式碼審查檢查清單](#104-程式碼審查檢查清單)
+    - 10.5 [專案交付檢查清單](#105-專案交付檢查清單)
+
+[結語](#結語)
 
 ---
 
@@ -94,26 +106,26 @@ categories = ['教學']
 
 在現代軟體開發中，系統複雜度不斷增加，傳統的程序式程式設計已經無法有效應對大型專案的挑戰。物件導向分析與設計 (Object-Oriented Analysis and Design, OOAD) 提供了一套系統化的方法論，幫助開發團隊：
 
-- 🎯 **降低複雜度**: 將複雜問題分解為可管理的物件
-- 🔄 **提高重用性**: 透過繼承和組合機制重複利用程式碼
-- 🛡️ **增強可維護性**: 封裝變化，減少程式碼之間的耦合
-- 👥 **改善團隊協作**: 使用統一的建模語言 (UML) 溝通設計概念
+- **降低複雜度**: 將複雜問題分解為可管理的物件
+- **提高重用性**: 透過繼承和組合機制重複利用程式碼
+- **增強可維護性**: 封裝變化，減少程式碼之間的耦合
+- **改善團隊協作**: 使用統一的建模語言 (UML) 溝通設計概念
 
 ### 1.2 學習目標
 
 完成本教學手冊後，您將能夠：
 
-#### 📖 知識層面
+#### 知識層面
 - [ ] 理解 OOAD 的核心概念與原則
 - [ ] 掌握 UML 各種圖形的用途與繪製方法
 - [ ] 了解從需求到實作的完整開發流程
 
-#### 🛠️ 技能層面
+#### 技能層面
 - [ ] 能夠進行物件導向分析，識別系統中的物件和類別
 - [ ] 能夠設計類別圖、循序圖等 UML 圖形
 - [ ] 能夠將設計模型轉換為可執行的程式碼
 
-#### 🎯 應用層面
+#### 應用層面
 - [ ] 在實際專案中運用 OOAD 方法論
 - [ ] 與團隊成員使用 UML 進行有效溝通
 - [ ] 具備考取 UML 認證的基礎能力
@@ -143,9 +155,9 @@ graph TD
 
 在開始學習 OOAD 之前，建議您具備以下基礎：
 
-- ✅ **程式設計基礎**: 了解變數、函數、條件判斷、迴圈等概念
-- ✅ **Java 基本語法**: 熟悉 Java 的基本語法結構
-- ✅ **軟體開發概念**: 理解軟體開發生命週期的基本概念
+- **程式設計基礎**: 了解變數、函數、條件判斷、迴圈等概念
+- **Java 基本語法**: 熟悉 Java 的基本語法結構
+- **軟體開發概念**: 理解軟體開發生命週期的基本概念
 
 ---
 
@@ -158,7 +170,7 @@ graph TD
 - **屬性 (Attributes)**: 物件的狀態和特徵
 - **行為 (Behaviors)**: 物件能夠執行的操作
 
-#### 🌟 現實世界的類比
+#### 現實世界的類比
 
 想像一下「汽車」這個概念：
 
@@ -243,9 +255,9 @@ public class Student {
 **定義**: 將物件的內部實作細節隱藏起來，只透過公開的介面與外界互動。
 
 **核心原則**:
-- 🔒 **資料隱藏**: 使用 `private` 修飾符保護內部資料
-- 🚪 **控制存取**: 透過 `public` 方法提供受控的存取
-- 🛡️ **驗證機制**: 在 setter 方法中加入資料驗證
+- **資料隱藏**: 使用 `private` 修飾符保護內部資料
+- **控制存取**: 透過 `public` 方法提供受控的存取
+- **驗證機制**: 在 setter 方法中加入資料驗證
 
 ```java
 public class BankAccount {
@@ -273,9 +285,9 @@ public class BankAccount {
 ```
 
 **封裝的好處**:
-- ✅ 保護資料完整性
-- ✅ 降低程式碼耦合度
-- ✅ 方便後續維護和修改
+- 保護資料完整性
+- 降低程式碼耦合度
+- 方便後續維護和修改
 
 #### 2.2.4 繼承 (Inheritance)
 
@@ -606,25 +618,25 @@ public class Teacher extends Person {
 
 ### 2.5 章節小結
 
-#### ✅ 重點回顧
+#### 重點回顧
 - **物件導向四大支柱**: 封裝、繼承、多型、抽象
 - **設計原則**: SOLID 原則指導良好的物件導向設計
 - **實務應用**: 透過學生管理系統理解概念的實際運用
 
-#### 🎯 實務建議
+#### 實務建議
 1. **漸進式學習**: 先掌握基本概念，再學習進階技巧
 2. **多做練習**: 透過實際程式碼加深理解
 3. **閱讀優秀程式碼**: 學習業界最佳實務
 4. **團隊討論**: 與同事分享設計想法和經驗
 
-#### ⚠️ 常見陷阱
+#### 常見陷阱
 - 避免過度設計，保持簡潔
 - 不要為了物件導向而物件導向
 - 注意效能影響，適度使用繼承
 
 ---
 
-## 📝 練習題
+## 練習題
 
 ### 練習 2.1: 基礎概念
 設計一個「圖書館管理系統」的基本類別結構，包含：
@@ -688,10 +700,10 @@ graph TD
 **目標**: 理解使用者真正的需求和期望
 
 **活動內容**:
-- 🎯 **使用者訪談**: 與利害關係人深度對話
-- 📋 **需求文件審查**: 分析既有的規格文件
-- 🔍 **系統觀察**: 觀察現有系統的運作方式
-- 📝 **工作坊**: 與使用者一起討論需求
+- **使用者訪談**: 與利害關係人深度對話
+- **需求文件審查**: 分析既有的規格文件
+- **系統觀察**: 觀察現有系統的運作方式
+- **工作坊**: 與使用者一起討論需求
 
 **輸出產物**:
 - 使用者故事 (User Stories)
@@ -771,17 +783,14 @@ public class Order {
 }
 
 // 值物件 (Value Objects)
-public class Address {
-    private String street;
-    private String city;
-    private String postalCode;
-    private String country;
-}
+// 自 Java 16 起，不可變的值物件建議以 record 表達，取代手動撰寫的
+// getter／equals／hashCode／toString，語意更貼近「值物件」的不變性本質
+public record Address(String street, String city, String postalCode, String country) {}
 
-public class OrderItem {
-    private Book book;
-    private int quantity;
-    private BigDecimal unitPrice;
+public record OrderItem(Book book, int quantity, BigDecimal unitPrice) {
+    public BigDecimal calculateSubtotal() {
+        return unitPrice.multiply(BigDecimal.valueOf(quantity));
+    }
 }
 ```
 
@@ -1085,7 +1094,7 @@ sequenceDiagram
 /**
  * 訂單服務類別
  * 負責處理所有與訂單相關的業務邏輯
- * 
+ *
  * @author 開發團隊
  * @version 1.0
  * @since 2025-09-01
@@ -1103,7 +1112,7 @@ public class OrderService {
     /**
      * 建構函式 - 使用依賴注入
      */
-    public OrderService(OrderRepository orderRepository, 
+    public OrderService(OrderRepository orderRepository,
                        InventoryService inventoryService,
                        PaymentService paymentService,
                        NotificationService notificationService) {
@@ -1115,7 +1124,7 @@ public class OrderService {
     
     /**
      * 處理訂單
-     * 
+     *
      * @param customerId 顧客ID
      * @param cartItems 購物車項目
      * @param paymentDetails 付款詳細資訊
@@ -1123,8 +1132,8 @@ public class OrderService {
      * @throws OrderProcessingException 當訂單處理失敗時拋出
      */
     @Transactional
-    public OrderResult processOrder(String customerId, 
-                                  List<CartItem> cartItems, 
+    public OrderResult processOrder(String customerId,
+                                  List<CartItem> cartItems,
                                   PaymentDetails paymentDetails) {
         
         logger.info("開始處理訂單，顧客ID: {}", customerId);
@@ -1342,21 +1351,21 @@ class OrderServiceIntegrationTest {
 
 ### 3.8 章節小結
 
-#### ✅ 重點回顧
+#### 重點回顧
 
 - **OOAD 流程**: 需求分析 → 系統分析 → 系統設計 → 詳細設計 → 實作 → 測試
 - **關鍵產物**: Use Case 圖、類別圖、循序圖、程式碼、測試案例
 - **設計原則**: 遵循 SOLID 原則和設計模式
 - **品質保證**: 完整的測試策略確保系統品質
 
-#### 🎯 實務建議
+#### 實務建議
 
 1. **迭代開發**: 採用敏捷方法，快速迭代改進
 2. **文件管理**: 保持設計文件與程式碼同步
 3. **程式碼審查**: 建立同儕審查機制
 4. **持續整合**: 自動化建置和測試流程
 
-#### ⚠️ 常見陷阱
+#### 常見陷阱
 
 - 避免過度設計，保持 KISS 原則
 - 不要忽視非功能需求
@@ -1365,7 +1374,7 @@ class OrderServiceIntegrationTest {
 
 ---
 
-## 📝 練習題
+## 練習題
 
 ### 練習 3.1: 流程實作
 選擇一個簡單的系統（如圖書館管理、學生選課系統），完整走過 OOAD 流程，產出相關文件和程式碼。
@@ -1440,29 +1449,29 @@ UML 2.5 定義了 14 種標準圖形，分為三大類：
 
 **用途**: 描述系統的靜態結構
 
-- 🏗️ **類別圖 (Class Diagram)**: 顯示類別及其關係
-- 📦 **物件圖 (Object Diagram)**: 顯示特定時間點的物件實例
-- 🔗 **組件圖 (Component Diagram)**: 顯示軟體組件及其依賴關係
-- 🌐 **部署圖 (Deployment Diagram)**: 顯示硬體和軟體的部署
-- 📋 **套件圖 (Package Diagram)**: 顯示套件及其依賴關係
-- 🔧 **組合結構圖 (Composite Structure Diagram)**: 顯示類別的內部結構
+- **類別圖 (Class Diagram)**: 顯示類別及其關係
+- **物件圖 (Object Diagram)**: 顯示特定時間點的物件實例
+- **組件圖 (Component Diagram)**: 顯示軟體組件及其依賴關係
+- **部署圖 (Deployment Diagram)**: 顯示硬體和軟體的部署
+- **套件圖 (Package Diagram)**: 顯示套件及其依賴關係
+- **組合結構圖 (Composite Structure Diagram)**: 顯示類別的內部結構
 
 #### 4.2.2 行為圖 (Behavior Diagrams)
 
 **用途**: 描述系統的動態行為
 
-- 🎯 **Use Case 圖**: 顯示系統功能和使用者的互動
-- 🔄 **活動圖 (Activity Diagram)**: 顯示工作流程和業務流程
-- 🔀 **狀態機圖 (State Machine Diagram)**: 顯示物件狀態的變化
+- **Use Case 圖**: 顯示系統功能和使用者的互動
+- **活動圖 (Activity Diagram)**: 顯示工作流程和業務流程
+- **狀態機圖 (State Machine Diagram)**: 顯示物件狀態的變化
 
 #### 4.2.3 互動圖 (Interaction Diagrams)
 
 **用途**: 描述物件間的互動
 
-- 📋 **循序圖 (Sequence Diagram)**: 顯示時間順序的物件互動
-- 🗣️ **通訊圖 (Communication Diagram)**: 顯示物件間的訊息傳遞
-- ⏱️ **時序圖 (Timing Diagram)**: 顯示狀態變化的時間約束
-- 🔍 **互動概觀圖 (Interaction Overview Diagram)**: 顯示互動的高層次視圖
+- **循序圖 (Sequence Diagram)**: 顯示時間順序的物件互動
+- **通訊圖 (Communication Diagram)**: 顯示物件間的訊息傳遞
+- **時序圖 (Timing Diagram)**: 顯示狀態變化的時間約束
+- **互動概觀圖 (Interaction Overview Diagram)**: 顯示互動的高層次視圖
 
 ### 4.3 核心 UML 圖形詳解
 
@@ -1514,7 +1523,7 @@ graph TB
 ```java
 /**
  * Use Case: 顧客下訂單
- * 
+ *
  * 前置條件: 顧客已登入，購物車有商品
  * 主要流程:
  * 1. 顧客選擇結帳
@@ -2171,8 +2180,8 @@ public class OrderStateMachine {
         
         if (!isValidTransition(currentStatus, newStatus)) {
             throw new InvalidStateTransitionException(
-                String.format("無法從 %s 轉換到 %s", 
-                    currentStatus.getDescription(), 
+                String.format("無法從 %s 轉換到 %s",
+                    currentStatus.getDescription(),
                     newStatus.getDescription())
             );
         }
@@ -2187,10 +2196,10 @@ public class OrderStateMachine {
         // 執行狀態轉換後的動作
         executePostTransitionActions(order, currentStatus, newStatus);
         
-        log.info("訂單 {} 狀態從 {} 轉換為 {}, 原因: {}", 
-            order.getOrderId(), 
-            currentStatus.getDescription(), 
-            newStatus.getDescription(), 
+        log.info("訂單 {} 狀態從 {} 轉換為 {}, 原因: {}",
+            order.getOrderId(),
+            currentStatus.getDescription(),
+            newStatus.getDescription(),
             reason);
     }
     
@@ -2373,20 +2382,23 @@ graph TB
 #### 4.4.1 常用 UML 工具
 
 **線上工具**:
-- 🌐 **Draw.io**: 免費、易用、支援多種圖形
-- 🌐 **PlantUML**: 文字式建模，適合程式開發者
-- 🌐 **Lucidchart**: 功能豐富的商業工具
-- 🌐 **Mermaid**: 適合文件嵌入的圖形語言
+- **Draw.io**: 免費、易用、支援多種圖形
+- **PlantUML**: 文字式建模，適合程式開發者
+- **Lucidchart**: 功能豐富的商業工具
+- **Mermaid**: 適合文件嵌入的圖形語言
 
 **桌面工具**:
-- 💻 **Visual Paradigm**: 專業的 UML 建模工具
-- 💻 **Enterprise Architect**: 企業級建模平台
-- 💻 **StarUML**: 開源的 UML 工具
+- **Visual Paradigm**: 專業的 UML 建模工具
+- **Enterprise Architect**（Sparx Systems 出品）: 企業級建模平台，支援系統模擬與需求管理
+- **StarUML**: 輕量、開源導向的 UML 工具
 
 **IDE 整合**:
-- 🔧 **IntelliJ IDEA Ultimate**: 內建 UML 圖形產生
-- 🔧 **Eclipse Papyrus**: Eclipse 的 UML 建模外掛
-- 🔧 **Visual Studio**: Class Designer 功能
+- **IntelliJ IDEA Ultimate**: 內建 UML 圖形產生
+- **Eclipse Papyrus**: Eclipse 的 UML 建模外掛
+- **Visual Studio**: Class Designer 功能（現為可選安裝元件）
+
+**新興趨勢**:
+- **AI 輔助建模**: 部分建模工具與 IDE 外掛已支援由既有原始碼自動反向產生類別圖、由自然語言描述生成初版 UML 草圖，可作為起點後再由設計者校正，而非取代人工設計判斷
 
 #### 4.4.2 UML 建模最佳實務
 
@@ -2465,21 +2477,21 @@ graph TB
 
 ### 4.5 章節小結
 
-#### ✅ 重點回顧
+#### 重點回顧
 
 - **UML 角色**: 提供標準化的視覺化語言支援 OOAD
 - **圖形分類**: 結構圖、行為圖、互動圖各有其用途
 - **核心圖形**: Use Case、類別、循序、活動、狀態圖是最常用的
 - **工具選擇**: 根據團隊需求選擇合適的建模工具
 
-#### 🎯 實務建議
+#### 實務建議
 
 1. **階段性使用**: 在 OOAD 不同階段使用不同的 UML 圖形
 2. **工具整合**: 將 UML 工具與開發環境整合
 3. **程式碼同步**: 保持模型與程式碼的一致性
 4. **團隊培訓**: 確保團隊成員了解 UML 標準
 
-#### ⚠️ 常見陷阱
+#### 常見陷阱
 
 - 避免過度建模，導致文件過於複雜
 - 不要為了建模而建模，要有明確目的
@@ -2488,7 +2500,7 @@ graph TB
 
 ---
 
-## 📝 練習題
+## 練習題
 
 ### 練習 4.1: UML 圖形繪製
 為您熟悉的一個系統（如 ATM、圖書館系統）繪製完整的 UML 圖形，包括：
@@ -2513,9 +2525,9 @@ graph TB
 **系統目標**: 建立一個數位化的課程管理平台，提供學生、教師和管理員不同的功能介面。
 
 **主要利害關係人**:
-- 👨‍🎓 **學生**: 瀏覽課程、選課、退選、查看成績
-- 👨‍🏫 **教師**: 開設課程、管理學生名單、錄入成績
-- 👨‍💼 **管理員**: 系統維護、報表產生、帳號管理
+- **學生**: 瀏覽課程、選課、退選、查看成績
+- **教師**: 開設課程、管理學生名單、錄入成績
+- **管理員**: 系統維護、報表產生、帳號管理
 
 **功能需求**:
 - F001: 使用者認證與授權
@@ -2667,8 +2679,8 @@ public class Student extends User {
     @Override
     public boolean canEnroll(Course course) {
         // 檢查選課條件
-        return !hasTimeConflict(course) && 
-               !isEnrolled(course) && 
+        return !hasTimeConflict(course) &&
+               !isEnrolled(course) &&
                hasPrerequisites(course) &&
                getTotalCreditsThisSemester() + course.getCredits() <= 25;
     }
@@ -2704,7 +2716,7 @@ public class Student extends User {
     
     private boolean isEnrolled(Course course) {
         return enrollments.stream()
-            .anyMatch(e -> e.getCourse().equals(course) && 
+            .anyMatch(e -> e.getCourse().equals(course) &&
                           e.getStatus() == EnrollmentStatus.ENROLLED);
     }
     
@@ -2953,7 +2965,7 @@ public class TimeSlot {
             return false;
         }
         
-        return this.startTime.isBefore(other.endTime) && 
+        return this.startTime.isBefore(other.endTime) &&
                this.endTime.isAfter(other.startTime);
     }
     
@@ -2963,7 +2975,7 @@ public class TimeSlot {
     
     @Override
     public String toString() {
-        return String.format("%s %s-%s", 
+        return String.format("%s %s-%s",
             dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.TRADITIONAL_CHINESE),
             startTime.format(DateTimeFormatter.ofPattern("HH:mm")),
             endTime.format(DateTimeFormatter.ofPattern("HH:mm")));
@@ -2975,7 +2987,7 @@ public class TimeSlot {
 // 枚舉定義
 public enum UserRole {
     STUDENT("學生"),
-    TEACHER("教師"), 
+    TEACHER("教師"),
     ADMIN("管理員");
     
     private final String displayName;
@@ -3225,7 +3237,7 @@ public class EnrollmentService {
             courseRepository.save(course);
             
             notificationService.sendWaitlistPromotion(
-                nextEnrollment.getStudent(), 
+                nextEnrollment.getStudent(),
                 nextEnrollment.getCourse()
             );
         }
@@ -3274,7 +3286,7 @@ public class EnrollmentService {
             .instructor(enrollment.getCourse().getInstructor().getName())
             .status(enrollment.getStatus())
             .enrollmentDate(enrollment.getEnrollmentDate())
-            .grade(enrollment.getGrade() != null ? 
+            .grade(enrollment.getGrade() != null ?
                    enrollment.getGrade().getLetterGrade() : null)
             .build();
     }
@@ -3287,7 +3299,7 @@ public class EnrollmentService {
             .year(student.getYear())
             .major(student.getMajor())
             .enrollmentDate(enrollment.getEnrollmentDate())
-            .grade(enrollment.getGrade() != null ? 
+            .grade(enrollment.getGrade() != null ?
                    enrollment.getGrade().getLetterGrade() : null)
             .build();
     }
@@ -3772,7 +3784,7 @@ public class EnrollmentValidator {
         switch (year) {
             case 1: return 22;
             case 2: return 25;
-            case 3: 
+            case 3:
             case 4: return 28;
             default: return 25;
         }
@@ -3813,23 +3825,82 @@ public class ValidationResult {
 }
 ```
 
+#### 5.7.2 單元測試
+
+比照第 3.6.2 節的測試模式，`EnrollmentValidator` 也應具備完整的單元測試，涵蓋各項驗證規則的正常與邊界情境：
+
+```java
+@ExtendWith(MockitoExtension.class)
+class EnrollmentValidatorTest {
+
+    private final EnrollmentValidator validator = new EnrollmentValidator();
+
+    @Test
+    @DisplayName("符合所有條件時應通過驗證")
+    void shouldPassWhenAllConditionsAreMet() {
+        Student student = TestFixtures.eligibleStudent();
+        Course course = TestFixtures.availableCourse();
+
+        ValidationResult result = validator.validate(student, course);
+
+        assertThat(result.isValid()).isTrue();
+    }
+
+    @Test
+    @DisplayName("已達學分上限時應拒絕選課")
+    void shouldFailWhenCreditLimitExceeded() {
+        Student student = TestFixtures.studentAtCreditLimit();
+        Course course = TestFixtures.availableCourse();
+
+        ValidationResult result = validator.validate(student, course);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getErrorMessage()).contains("超過學分上限");
+    }
+
+    @Test
+    @DisplayName("課程時間與已選課程衝突時應拒絕選課")
+    void shouldFailOnTimeConflict() {
+        Student student = TestFixtures.studentWithConflictingSchedule();
+        Course course = TestFixtures.conflictingCourse();
+
+        ValidationResult result = validator.validate(student, course);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getErrorMessage()).contains("時間衝突");
+    }
+
+    @Test
+    @DisplayName("未完成先修課程時應拒絕選課")
+    void shouldFailWhenPrerequisitesNotMet() {
+        Student student = TestFixtures.studentWithoutPrerequisites();
+        Course course = TestFixtures.courseWithPrerequisites();
+
+        ValidationResult result = validator.validate(student, course);
+
+        assertThat(result.isValid()).isFalse();
+        assertThat(result.getErrorMessage()).contains("先修課程");
+    }
+}
+```
+
 ### 5.8 章節小結
 
-#### ✅ 重點回顧
+#### 重點回顧
 
 - **完整流程**: 從需求分析到實作的完整 OOAD 實務示範
 - **設計決策**: 展示如何在實際專案中應用設計原則和模式
 - **程式實作**: 提供具體的 Java 程式碼實現領域模型
 - **品質保證**: 包含驗證邏輯和錯誤處理機制
 
-#### 🎯 實務經驗
+#### 實務經驗
 
 1. **領域建模**: 從業務需求中正確識別領域概念
 2. **責任分配**: 合理分配各層級的職責
 3. **異常處理**: 完整的例外處理和驗證機制
 4. **效能考量**: 考慮快取和資料庫最佳化
 
-#### ⚠️ 實作注意事項
+#### 實作注意事項
 
 - 保持領域邏輯的純淨性，避免技術細節滲透
 - 使用資料庫事務確保資料一致性
@@ -3848,7 +3919,7 @@ public class ValidationResult {
 
 #### 6.1.1 需求理解錯誤
 
-**❌ 常見錯誤**: 沒有深入了解使用者真正的需求，只看表面功能
+**常見錯誤**: 沒有深入了解使用者真正的需求，只看表面功能
 
 **案例**:
 ```text
@@ -3856,7 +3927,7 @@ public class ValidationResult {
 正確理解: "系統需要安全的身份驗證機制，支援多種認證方式，包括單一登入(SSO)，並需要符合資安政策"
 ```
 
-**✅ 最佳實務**:
+**最佳實務**:
 - 與利害關係人進行深度訪談
 - 理解業務流程的完整脈絡
 - 區分功能需求與非功能需求
@@ -3869,21 +3940,21 @@ public class ValidationResult {
 public class UserAuthenticationRequirement {
     /**
      * FR-001: 使用者身份驗證
-     * 
+     *
      * 描述: 系統必須提供安全的使用者身份驗證機制
-     * 
+     *
      * 功能需求:
      * - 支援使用者名稱/密碼登入
      * - 支援 LDAP 整合
      * - 支援多因素驗證 (MFA)
      * - 提供密碼重設功能
-     * 
+     *
      * 非功能需求:
      * - 登入回應時間 < 2 秒
      * - 密碼必須符合複雜度要求
      * - 登入失敗三次後鎖定帳號
      * - 符合 GDPR 法規要求
-     * 
+     *
      * 驗收標準:
      * - 成功登入後導向儀表板
      * - 失敗登入顯示適當錯誤訊息
@@ -3894,7 +3965,7 @@ public class UserAuthenticationRequirement {
 
 #### 6.1.2 過度複雜化
 
-**❌ 常見錯誤**: 在分析階段就考慮太多技術細節
+**常見錯誤**: 在分析階段就考慮太多技術細節
 
 **案例**:
 ```java
@@ -3912,7 +3983,7 @@ public class User {
 }
 ```
 
-**✅ 最佳實務**:
+**最佳實務**:
 ```java
 // 正確：純粹的領域模型
 public class User {
@@ -3938,9 +4009,9 @@ public class User {
 
 #### 6.1.3 忽略領域專家知識
 
-**❌ 常見錯誤**: 只從技術角度思考，忽略領域專家的專業知識
+**常見錯誤**: 只從技術角度思考，忽略領域專家的專業知識
 
-**✅ 最佳實務**:
+**最佳實務**:
 - 建立領域專家與開發團隊的溝通橋樑
 - 使用領域專用語言 (Domain-Specific Language)
 - 定期驗證領域模型的正確性
@@ -3974,7 +4045,7 @@ public class LoanApplication {
 
 #### 6.2.1 違反單一職責原則
 
-**❌ 常見錯誤**: 一個類別承擔太多責任
+**常見錯誤**: 一個類別承擔太多責任
 
 **案例**:
 ```java
@@ -3991,7 +4062,7 @@ public class UserManager {
 }
 ```
 
-**✅ 最佳實務**: 按職責分離
+**最佳實務**: 按職責分離
 ```java
 // 正確：職責分離
 public class UserService {
@@ -4030,7 +4101,7 @@ public class UserReportService {
 
 #### 6.2.2 緊耦合設計
 
-**❌ 常見錯誤**: 類別之間過度依賴，難以測試和維護
+**常見錯誤**: 類別之間過度依賴，難以測試和維護
 
 **案例**:
 ```java
@@ -4047,7 +4118,7 @@ public class OrderService {
 }
 ```
 
-**✅ 最佳實務**: 依賴注入和介面隔離
+**最佳實務**: 依賴注入和介面隔離
 ```java
 // 正確：鬆耦合設計
 public class OrderService {
@@ -4092,9 +4163,9 @@ public interface NotificationService {
 
 #### 6.2.3 忽略異常處理設計
 
-**❌ 常見錯誤**: 沒有在設計階段考慮異常情況
+**常見錯誤**: 沒有在設計階段考慮異常情況
 
-**✅ 最佳實務**: 設計完整的異常處理策略
+**最佳實務**: 設計完整的異常處理策略
 
 ```java
 // 設計異常階層
@@ -4113,8 +4184,8 @@ public abstract class BusinessException extends Exception {
 
 public class InsufficientInventoryException extends BusinessException {
     public InsufficientInventoryException(String productId, int requestedQuantity, int availableQuantity) {
-        super("INV_001", 
-              "商品庫存不足", 
+        super("INV_001",
+              "商品庫存不足",
               String.format("Product %s: requested %d, available %d", productId, requestedQuantity, availableQuantity));
     }
 }
@@ -4151,7 +4222,7 @@ public class OrderService {
 
 #### 6.3.1 忽略執行緒安全
 
-**❌ 常見錯誤**: 在多執行緒環境中忽略同步問題
+**常見錯誤**: 在多執行緒環境中忽略同步問題
 
 **案例**:
 ```java
@@ -4166,7 +4237,7 @@ public class CounterService {
 }
 ```
 
-**✅ 最佳實務**: 適當的同步機制
+**最佳實務**: 適當的同步機制
 ```java
 // 正確：執行緒安全的實作
 public class CounterService {
@@ -4202,7 +4273,7 @@ public class BankAccountService {
 
 #### 6.3.2 資源管理不當
 
-**❌ 常見錯誤**: 沒有正確關閉資源
+**常見錯誤**: 沒有正確關閉資源
 
 **案例**:
 ```java
@@ -4222,7 +4293,7 @@ public String readFile(String fileName) throws IOException {
 }
 ```
 
-**✅ 最佳實務**: try-with-resources
+**最佳實務**: try-with-resources
 ```java
 // 正確：自動資源管理
 public String readFile(String fileName) throws IOException {
@@ -4247,7 +4318,7 @@ public String readFile(String fileName) throws IOException {
 
 #### 6.3.3 效能問題
 
-**❌ 常見錯誤**: N+1 查詢問題
+**常見錯誤**: N+1 查詢問題
 
 **案例**:
 ```java
@@ -4264,7 +4335,7 @@ public List<OrderDTO> getOrdersWithCustomers() {
 }
 ```
 
-**✅ 最佳實務**: 預先載入關聯資料
+**最佳實務**: 預先載入關聯資料
 ```java
 // 正確：使用 JOIN 或批次查詢
 @Repository
@@ -4338,8 +4409,8 @@ graph TB
 
 #### 6.4.2 保持圖形簡潔
 
-**❌ 錯誤**: 在一個圖中顯示太多資訊
-**✅ 最佳實務**: 分層展示，每個圖專注於特定觀點
+**錯誤**: 在一個圖中顯示太多資訊
+**最佳實務**: 分層展示，每個圖專注於特定觀點
 
 #### 6.4.3 使用一致的命名慣例
 
@@ -4495,7 +4566,7 @@ public class ProductService {
         List<Product> uncachedProducts = productRepository.findByIdIn(uncachedIds);
         
         // 加入快取
-        uncachedProducts.forEach(product -> 
+        uncachedProducts.forEach(product ->
             cacheManager.getCache("products").put(product.getId(), product));
         
         // 合併結果
@@ -4573,9 +4644,23 @@ public class UserController {
 }
 ```
 
+**密碼雜湊演算法的選擇**：上例中的 `securityService.hashPassword()` 不應自行設計雜湊邏輯，應委由 Spring Security 內建的 `PasswordEncoder` 實作。截至目前，OWASP 建議新專案優先採用 **Argon2id**（`Argon2PasswordEncoder`，建議參數 m=64MB、t=3、p=4），若既有系統已使用 BCrypt，`BCryptPasswordEncoder` 的 cost 值建議至少設為 12：
+
+```java
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        // OWASP 2026 建議首選：Argon2id
+        return new Argon2PasswordEncoder(16, 32, 1, 65536, 3);
+    }
+}
+```
+
 ### 6.7 章節小結
 
-#### ✅ 重點回顧
+#### 重點回顧
 
 - **分析階段**: 深入理解需求，避免過度技術化
 - **設計階段**: 遵循 SOLID 原則，設計鬆耦合系統
@@ -4583,7 +4668,7 @@ public class UserController {
 - **品質準則**: 保持程式碼可讀性和可維護性
 - **安全考量**: 實施適當的安全措施和錯誤處理
 
-#### 🎯 實務建議
+#### 實務建議
 
 1. **持續重構**: 定期檢視和改善程式碼品質
 2. **程式碼審查**: 建立同儕審查機制
@@ -4591,1172 +4676,12 @@ public class UserController {
 4. **效能監控**: 持續監控系統效能指標
 5. **安全審計**: 定期進行安全性檢查
 
-#### ⚠️ 避免的陷阱
+#### 避免的陷阱
 
 - 不要在沒有明確需求下進行過度設計
 - 避免過早最佳化，先求正確再求快速
 - 不要忽略非功能需求的重要性
 - 避免在生產環境中進行大幅度重構
-
----
-
-## 8. 結語與延伸閱讀
-
-### 8.1 學習成果回顧
-
-#### 8.1.1 知識架構整理
-
-經過本教學手冊的學習，您已經建立了完整的 OOAD 知識體系：
-
-```mermaid
-mindmap
-  root((OOAD 知識體系))
-    基礎概念
-      物件導向原理
-      UML 基礎
-      分析設計流程
-    
-    設計原則
-      SOLID 原則
-      設計模式
-      最佳實務
-    
-    UML 建模
-      結構圖
-        類別圖
-        物件圖
-        組件圖
-        部署圖
-      
-      行為圖
-        Use Case 圖
-        活動圖
-        狀態機圖
-        循序圖
-    
-    實務應用
-      需求分析
-      系統設計
-      程式實作
-      測試驗證
-    
-    職業發展
-      認證考試
-      持續學習
-      團隊協作
-```
-
-#### 8.1.2 核心能力檢核
-
-**技術能力**:
-- ✅ **需求分析**: 能夠將業務需求轉換為技術規格
-- ✅ **系統設計**: 運用 UML 進行完整的系統建模
-- ✅ **程式實作**: 將設計轉換為高品質的程式碼
-- ✅ **品質控制**: 識別並避免常見的設計錯誤
-
-**軟技能**:
-- ✅ **溝通協作**: 使用標準化語言與團隊成員溝通
-- ✅ **問題解決**: 系統性地分析和解決複雜問題
-- ✅ **持續學習**: 建立終身學習的習慣和方法
-- ✅ **專業發展**: 具備進一步職涯發展的基礎
-
-#### 8.1.3 學習里程碑
-
-**初級階段成就** (已完成):
-```java
-public class 初級開發者能力 {
-    
-    // 1. 基礎概念理解
-    public void 理解物件導向概念() {
-        /*
-         * ✓ 封裝 (Encapsulation)
-         * ✓ 繼承 (Inheritance)  
-         * ✓ 多型 (Polymorphism)
-         * ✓ 抽象 (Abstraction)
-         */
-    }
-    
-    // 2. UML 圖形繪製
-    public void 繪製UML圖形() {
-        /*
-         * ✓ 類別圖設計
-         * ✓ Use Case 圖分析
-         * ✓ 循序圖建模
-         * ✓ 狀態圖描述
-         */
-    }
-    
-    // 3. 程式碼實作
-    public void 實作設計程式碼() {
-        /*
-         * ✓ 將 UML 轉換為程式碼
-         * ✓ 應用設計模式
-         * ✓ 遵循 SOLID 原則
-         * ✓ 編寫可維護的程式碼
-         */
-    }
-}
-```
-
-### 8.2 進階學習方向
-
-#### 8.2.1 技術深化路徑
-
-**軟體架構方向**:
-```mermaid
-flowchart TD
-    A[OOAD 基礎] --> B[軟體架構設計]
-    B --> C[微服務架構]
-    B --> D[領域驅動設計 DDD]
-    B --> E[事件驅動架構]
-    
-    C --> F[容器化技術]
-    C --> G[雲端原生應用]
-    
-    D --> H[聚合設計]
-    D --> I[界限上下文]
-    
-    E --> J[CQRS 模式]
-    E --> K[事件溯源]
-    
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C,D,E fill:#fff3e0
-```
-
-**專精技術領域**:
-
-1. **微服務架構 (Microservices)**:
-   ```java
-   // 學習重點：服務拆分、API 設計、分散式系統
-   public class MicroserviceExample {
-       
-       @RestController
-       public class UserController {
-           // RESTful API 設計
-           // 服務間通訊
-           // 錯誤處理策略
-       }
-   }
-   ```
-
-2. **領域驅動設計 (Domain-Driven Design)**:
-   ```java
-   // 學習重點：領域建模、聚合設計、界限上下文
-   public class DDDExample {
-       
-       // 聚合根 (Aggregate Root)
-       public class Order {
-           private List<OrderItem> items;
-           // 領域邏輯封裝
-           // 不變量維護
-       }
-   }
-   ```
-
-3. **雲端架構 (Cloud Architecture)**:
-   ```java
-   // 學習重點：雲端服務、DevOps、容器化
-   public class CloudExample {
-       
-       // 雲端原生應用設計
-       // 自動擴展策略
-       // 監控與日誌
-   }
-   ```
-
-#### 8.2.2 認證與資格進修
-
-**技術認證路徑**:
-```text
-🎯 軟體設計認證：
-   - OCUP (Object Management Group UML Certification)
-   - AWS/Azure/GCP 雲端架構師認證
-   - TOGAF 企業架構認證
-
-🎯 敏捷開發認證：
-   - Certified ScrumMaster (CSM)
-   - SAFe Architect Certification
-   - PMI Agile Certified Practitioner (PMI-ACP)
-
-🎯 技術專精認證：
-   - Spring Professional Certification
-   - Oracle Java Certification
-   - Microsoft Azure Developer Certification
-```
-
-**學位進修選項**:
-```text
-🎓 碩士學位：
-   - 資訊工程/資訊科學碩士
-   - 軟體工程碩士  
-   - 資訊管理碩士
-
-🎓 專業證照：
-   - 資訊技師執照
-   - PMP 專案管理師
-   - CISSP 資訊安全師
-```
-
-#### 8.2.3 實務經驗累積
-
-**專案參與策略**:
-```java
-public class 專案經驗累積 {
-    
-    public void 開源專案貢獻() {
-        /*
-         * 1. 選擇知名開源專案參與
-         * 2. 從文件翻譯、Bug 修復開始
-         * 3. 逐步參與功能開發
-         * 4. 學習大型專案的架構設計
-         */
-    }
-    
-    public void 個人專案練習() {
-        /*
-         * 1. 設計完整的系統專案
-         * 2. 應用學到的 OOAD 技術
-         * 3. 建立技術部落格分享心得
-         * 4. 參與技術社群交流
-         */
-    }
-    
-    public void 工作專案提升() {
-        /*
-         * 1. 主動承擔設計責任
-         * 2. 推廣 OOAD 最佳實務
-         * 3. 指導團隊成員
-         * 4. 建立技術標準文件
-         */
-    }
-}
-```
-
-### 8.3 延伸閱讀資源
-
-#### 8.3.1 經典技術書籍
-
-**設計原則與模式**:
-```text
-📚 必讀經典：
-   1. "Design Patterns" by Gang of Four
-      - 設計模式的經典之作
-      - 23 種基本設計模式詳解
-
-   2. "Clean Code" by Robert C. Martin
-      - 程式碼品質的黃金標準
-      - 實用的編程原則和技巧
-
-   3. "Refactoring" by Martin Fowler
-      - 程式碼重構的權威指南
-      - 系統性的改善程式碼方法
-
-   4. "Domain-Driven Design" by Eric Evans
-      - 領域驅動設計的開創性著作
-      - 複雜軟體系統的建模方法
-```
-
-**軟體架構與系統設計**:
-```text
-📚 進階閱讀：
-   1. "Software Architecture in Practice" by Bass, Clements, Kazman
-      - 軟體架構設計的完整指南
-      - 品質屬性與架構模式
-
-   2. "Building Microservices" by Sam Newman
-      - 微服務架構設計實務
-      - 分散式系統的挑戰與解決方案
-
-   3. "System Design Interview" by Alex Xu
-      - 大規模系統設計面試準備
-      - 實際案例分析與解決方案
-
-   4. "The Pragmatic Programmer" by Andrew Hunt & David Thomas
-      - 程式設計師的職業素養
-      - 實用的軟體開發哲學
-```
-
-#### 8.3.2 線上學習平台
-
-**免費學習資源**:
-```text
-🌐 線上課程：
-   - MIT OpenCourseWare: 軟體工程課程
-   - Stanford CS 106A/106B: 程式設計基礎
-   - Berkeley CS 61B: 資料結構與演算法
-   - CMU 15-213: 計算機系統概論
-
-🎥 影片教學：
-   - YouTube: Derek Banas 設計模式系列
-   - Coursera: 軟體設計與架構專業課程
-   - edX: 軟體工程微學位課程
-   - Udacity: 軟體架構與設計奈米學位
-```
-
-**付費專業平台**:
-```text
-💰 專業培訓：
-   - Pluralsight: 企業級技術培訓
-   - LinkedIn Learning: 職業技能發展
-   - Udemy: 實務導向的技術課程
-   - O'Reilly Learning: 技術書籍與影片庫
-
-🏫 企業培訓：
-   - Microsoft Learn: Azure 和 .NET 技術
-   - Google Cloud Training: 雲端技術培訓
-   - AWS Training: 雲端架構認證課程
-   - Oracle University: Java 和資料庫技術
-```
-
-#### 8.3.3 技術社群與資源
-
-**開發者社群**:
-```text
-👥 線上社群：
-   - Stack Overflow: 程式設計問答平台
-   - GitHub: 開源專案協作平台  
-   - Reddit: r/programming, r/softwarearchitecture
-   - Discord: 各種程式語言和框架社群
-
-🏢 專業組織：
-   - ACM (Association for Computing Machinery)
-   - IEEE Computer Society
-   - Object Management Group (OMG)
-   - Agile Alliance
-```
-
-**技術部落格與新聞**:
-```text
-📰 技術媒體：
-   - InfoQ: 企業軟體開發新聞
-   - High Scalability: 系統架構案例分析
-   - ThoughtWorks Technology Radar: 技術趨勢報告
-   - Martin Fowler's Bliki: 軟體設計思考
-
-📝 個人部落格：
-   - Uncle Bob (Robert C. Martin): 軟體工藝
-   - Martin Fowler: 企業應用架構
-   - Joel Spolsky: 軟體管理與設計
-   - Jeff Atwood: Coding Horror
-```
-
-#### 8.3.4 實務工具與框架
-
-**建模與設計工具**:
-```text
-🛠️ UML 建模工具：
-   - Visual Paradigm: 企業級建模平台
-   - Enterprise Architect: 全功能建模工具
-   - PlantUML: 文字式 UML 描述
-   - Draw.io: 免費線上圖形工具
-
-🔧 程式碼分析工具：
-   - SonarQube: 程式碼品質分析
-   - SpotBugs: Java 靜態分析
-   - Checkstyle: 程式碼風格檢查
-   - PMD: 程式碼缺陷檢測
-```
-
-**開發框架學習**:
-```java
-// Spring Boot 生態系統
-public class SpringBootLearning {
-    /*
-     * 學習路徑：
-     * 1. Spring Core (IoC/DI)
-     * 2. Spring Boot (自動配置)
-     * 3. Spring Data (資料存取)
-     * 4. Spring Security (安全性)
-     * 5. Spring Cloud (微服務)
-     */
-}
-
-// 前端技術整合
-public class FullStackDevelopment {
-    /*
-     * 現代全端開發：
-     * 1. React/Vue.js (前端框架)
-     * 2. RESTful API 設計
-     * 3. GraphQL (查詢語言)
-     * 4. WebSocket (即時通訊)
-     */
-}
-```
-
-### 8.4 職涯發展建議
-
-#### 8.4.1 技術職涯路徑
-
-**軟體工程師進階路線**:
-```mermaid
-graph TD
-    A[初級軟體工程師] --> B[中級軟體工程師]
-    B --> C[高級軟體工程師]
-    C --> D[技術領導]
-    C --> E[軟體架構師]
-    C --> F[專案經理]
-    
-    D --> G[技術總監]
-    E --> H[首席架構師]
-    F --> I[產品經理]
-    
-    G --> J[技術長 CTO]
-    H --> J
-    I --> K[產品總監]
-    
-    style A fill:#e1f5fe
-    style B fill:#e8f5e8
-    style C fill:#fff3e0
-    style D,E,F fill:#f3e5f5
-    style G,H,I fill:#ffebee
-    style J,K fill:#fce4ec
-```
-
-**各階段能力要求**:
-
-1. **中級軟體工程師** (2-4 年經驗):
-   ```java
-   public class 中級工程師能力 {
-       /*
-        * 技術能力：
-        * - 獨立完成中等複雜度的功能開發
-        * - 熟練使用主要開發框架和工具
-        * - 具備程式碼重構和優化能力
-        * - 能夠進行簡單的技術選型
-        * 
-        * 軟技能：
-        * - 與產品經理和設計師有效溝通
-        * - 指導初級工程師
-        * - 參與技術方案討論
-        * - 具備基本的專案管理能力
-        */
-   }
-   ```
-
-2. **高級軟體工程師** (4-7 年經驗):
-   ```java
-   public class 高級工程師能力 {
-       /*
-        * 技術能力：
-        * - 設計複雜系統的架構方案
-        * - 解決技術難題和性能瓶頸
-        * - 制定團隊的技術標準和規範
-        * - 評估和引入新技術
-        * 
-        * 領導能力：
-        * - 帶領技術團隊完成專案
-        * - 培養和指導團隊成員
-        * - 與跨部門團隊協作
-        * - 參與產品技術決策
-        */
-   }
-   ```
-
-3. **軟體架構師** (5+ 年經驗):
-   ```java
-   public class 軟體架構師能力 {
-       /*
-        * 核心職責：
-        * - 設計企業級軟體架構
-        * - 制定技術發展策略
-        * - 解決複雜的技術架構問題
-        * - 跨團隊技術協調和溝通
-        * 
-        * 專業技能：
-        * - 深度的系統設計能力
-        * - 廣泛的技術棧知識
-        * - 業務理解和抽象能力
-        * - 風險評估和決策能力
-        */
-   }
-   ```
-
-#### 8.4.2 技能發展規劃
-
-**技術技能矩陣**:
-```text
-📊 技能評估 (1-5 分)：
-
-核心技術技能：
-□ 物件導向設計 [___/5]
-□ 設計模式應用 [___/5]  
-□ 系統架構設計 [___/5]
-□ 資料庫設計 [___/5]
-□ 網路與安全 [___/5]
-
-程式語言熟練度：
-□ Java/C#/.NET [___/5]
-□ JavaScript/TypeScript [___/5]
-□ Python [___/5]
-□ SQL [___/5]
-
-框架與工具：
-□ Spring/Spring Boot [___/5]
-□ React/Vue/Angular [___/5]
-□ Docker/Kubernetes [___/5]
-□ Git/CI/CD [___/5]
-
-軟技能：
-□ 團隊協作 [___/5]
-□ 技術溝通 [___/5]
-□ 問題解決 [___/5]
-□ 學習能力 [___/5]
-```
-
-**年度學習計畫範例**:
-```java
-public class 年度學習計畫2024 {
-    
-    public void Q1目標() {
-        /*
-         * 技術深化：
-         * - 完成 Spring Boot 高級特性學習
-         * - 取得 AWS Solutions Architect 認證
-         * - 參與 1 個開源專案貢獻
-         */
-    }
-    
-    public void Q2目標() {
-        /*
-         * 架構能力：
-         * - 學習微服務架構設計
-         * - 實作完整的分散式系統專案
-         * - 發表技術分享或部落格文章
-         */
-    }
-    
-    public void Q3目標() {
-        /*
-         * 領導力發展：
-         * - 帶領團隊完成重要專案
-         * - 參加技術會議或研討會
-         * - 建立技術指導關係 (Mentorship)
-         */
-    }
-    
-    public void Q4目標() {
-        /*
-         * 職涯規劃：
-         * - 總結年度成果和學習心得
-         * - 規劃下一年度發展方向
-         * - 更新履歷和作品集
-         */
-    }
-}
-```
-
-#### 8.4.3 建立個人品牌
-
-**技術影響力建立**:
-```java
-public class 個人品牌建立 {
-    
-    public void 內容創作() {
-        /*
-         * 1. 技術部落格：
-         *    - 分享學習心得和實務經驗
-         *    - 深度技術文章和案例分析
-         *    - SEO 優化提高可見度
-         * 
-         * 2. 開源貢獻：
-         *    - 維護個人開源專案
-         *    - 貢獻知名開源專案
-         *    - 建立技術聲譽
-         */
-    }
-    
-    public void 社群參與() {
-        /*
-         * 1. 技術分享：
-         *    - 參加技術聚會和會議
-         *    - 擔任技術演講嘉賓
-         *    - 組織技術讀書會
-         * 
-         * 2. 線上互動：
-         *    - Stack Overflow 回答問題
-         *    - GitHub 活躍貢獻
-         *    - LinkedIn 專業網絡建立
-         */
-    }
-    
-    public void 專業認證() {
-        /*
-         * 1. 技術認證：
-         *    - 雲端平台認證
-         *    - 框架專業認證
-         *    - 軟體架構認證
-         * 
-         * 2. 軟技能認證：
-         *    - 專案管理 PMP
-         *    - 敏捷開發 Scrum Master
-         *    - 領導力培訓證書
-         */
-    }
-}
-```
-
-### 8.5 最終建議與祝福
-
-#### 8.5.1 持續學習的重要性
-
-**技術快速演進的現實**:
-```java
-public class 技術演進趨勢 {
-    
-    /*
-     * 軟體開發的永恆真理：
-     * 
-     * 1. "唯一不變的就是變化"
-     *    - 新技術不斷出現
-     *    - 最佳實務持續演進
-     *    - 業務需求日益複雜
-     * 
-     * 2. "基礎知識的重要性"
-     *    - OOAD 原則歷久彌新
-     *    - 設計模式跨語言通用
-     *    - 系統思維永遠有效
-     * 
-     * 3. "終身學習的必要性"
-     *    - 保持技術競爭力
-     *    - 適應行業變化
-     *    - 實現職涯發展
-     */
-}
-```
-
-**學習方法的建議**:
-- 🎯 **目標導向**: 根據職涯規劃設定學習目標
-- 🔄 **實作驗證**: 透過實際專案應用所學知識
-- 👥 **社群學習**: 與同儕交流分享經驗心得
-- 📝 **記錄反思**: 建立學習筆記和經驗總結
-
-#### 8.5.2 給新進開發同仁的建議
-
-**初期發展重點**:
-```java
-public class 新手開發者建議 {
-    
-    public void 技術基礎建立() {
-        /*
-         * 重要提醒：
-         * 
-         * 1. 不要急於追求新技術
-         *    - 先紮實基礎概念
-         *    - 深入理解核心原理
-         *    - 避免技術棧過於分散
-         * 
-         * 2. 重視程式碼品質
-         *    - 遵循編碼規範
-         *    - 實踐 SOLID 原則
-         *    - 培養重構習慣
-         * 
-         * 3. 培養系統思維
-         *    - 理解業務需求
-         *    - 考慮系統整體性
-         *    - 關注非功能性需求
-         */
-    }
-    
-    public void 職場適應建議() {
-        /*
-         * 軟技能發展：
-         * 
-         * 1. 主動溝通
-         *    - 不懂就問，不要假裝懂
-         *    - 定期與主管同步進度
-         *    - 積極參與團隊討論
-         * 
-         * 2. 承擔責任
-         *    - 為自己的程式碼負責
-         *    - 主動承擔適當的挑戰
-         *    - 從錯誤中學習成長
-         * 
-         * 3. 團隊合作
-         *    - 尊重不同的觀點
-         *    - 分享知識和經驗
-         *    - 協助團隊成員解決問題
-         */
-    }
-}
-```
-
-#### 8.5.3 行業發展趨勢觀察
-
-**未來技術方向**:
-```mermaid
-timeline
-    title 軟體開發技術趨勢
-    
-    2024-2025 : AI 輔助開發
-              : 雲端原生架構
-              : 低代碼/無代碼平台
-              
-    2025-2027 : 邊緣計算普及
-              : 量子計算應用
-              : 自動化測試進化
-              
-    2027-2030 : 人工智慧深度整合
-              : 分散式系統成熟
-              : 軟體工程自動化
-```
-
-**核心能力的持續價值**:
-```java
-public class 永恆的核心能力 {
-    /*
-     * 無論技術如何變化，以下能力始終重要：
-     * 
-     * 1. 抽象思維能力
-     *    - 將複雜問題簡化
-     *    - 識別共同模式
-     *    - 設計通用解決方案
-     * 
-     * 2. 系統性思考
-     *    - 理解元件間的關係
-     *    - 考慮變更的影響範圍
-     *    - 平衡各種設計權衡
-     * 
-     * 3. 溝通協作能力
-     *    - 清楚表達技術概念
-     *    - 理解業務需求
-     *    - 有效的團隊合作
-     * 
-     * 4. 持續學習能力
-     *    - 快速適應新技術
-     *    - 自主學習新知識
-     *    - 保持好奇心和熱情
-     */
-}
-```
-
-#### 8.5.4 結語
-
-親愛的開發同仁，
-
-恭喜您完成了這份 **物件導向分析與設計 (OOAD) 教學手冊** 的學習！
-
-這不是結束，而是您軟體開發職涯的一個重要里程碑。您現在已經具備了：
-
-- 🧠 **系統性的思維方式**: 能夠用結構化的方法分析和解決問題
-- 🛠️ **實用的技術技能**: 掌握了 UML 建模和 OOAD 設計的核心技術
-- 📚 **持續學習的基礎**: 建立了終身學習和自我提升的能力框架
-- 🤝 **專業的溝通語言**: 能夠用標準化的語言與團隊成員協作
-
-**記住**:
-- 每一個優秀的軟體工程師都是從基礎開始的
-- 技術會變化，但好的設計原則是永恆的
-- 最重要的是保持學習的熱情和解決問題的決心
-
-**願您在軟體開發的道路上**:
-- 🚀 持續成長，不斷突破技術瓶頸
-- 💡 創新思考，設計出優雅的解決方案  
-- 🌟 發揮影響力，為團隊和組織創造價值
-- 🎯 實現職涯目標，成為傑出的軟體專業人士
-
-祝您前程似錦，在軟體工程的世界中發光發熱！
-
----
-
-*"The best way to predict the future is to invent it." - Alan Kay*
-
-*"預測未來最好的方法就是創造未來。" - 艾倫·凱*
-
----
-
-## 9. 學習成果檢核清單
-
-### 9.1 知識掌握度自我評估
-
-#### 9.1.1 基礎概念檢核
-
-**物件導向原理** (完成打 ✓):
-```text
-□ 我能清楚解釋封裝(Encapsulation)的概念和重要性
-□ 我理解繼承(Inheritance)的適用場景和注意事項  
-□ 我掌握多型(Polymorphism)的實作方法和應用時機
-□ 我能運用抽象(Abstraction)來簡化複雜系統設計
-□ 我了解物件導向與程序導向的根本差異
-```
-
-**SOLID 設計原則** (完成打 ✓):
-```text
-□ 單一職責原則(SRP): 我能識別並重構違反此原則的程式碼
-□ 開閉原則(OCP): 我能設計可擴展但不需修改的系統結構
-□ 里氏替換原則(LSP): 我理解正確的繼承關係設計
-□ 介面隔離原則(ISP): 我能設計精簡且專用的介面
-□ 依賴反轉原則(DIP): 我會使用依賴注入來降低耦合度
-```
-
-#### 9.1.2 UML 建模能力檢核
-
-**結構圖建模** (完成打 ✓):
-```text
-□ 類別圖: 我能準確繪製包含屬性、方法和關係的類別圖
-□ 物件圖: 我能展示特定時間點的物件實例狀態
-□ 組件圖: 我能描述系統的模組化結構和依賴關係
-□ 部署圖: 我能展示軟體組件在硬體環境中的部署情況
-```
-
-**行為圖建模** (完成打 ✓):
-```text
-□ Use Case 圖: 我能分析需求並繪製完整的使用案例圖
-□ 活動圖: 我能描述複雜的業務流程和決策邏輯
-□ 狀態機圖: 我能建模物件的生命週期和狀態轉換
-□ 循序圖: 我能展示物件間的時序互動和訊息傳遞
-```
-
-#### 9.1.3 實務應用能力檢核
-
-**需求分析技能** (完成打 ✓):
-```text
-□ 我能與利害關係人有效溝通，蒐集完整的需求資訊
-□ 我會使用 Use Case 技術來組織和管理需求
-□ 我能識別功能性需求和非功能性需求的差異
-□ 我會進行需求優先級排序和變更管理
-□ 我能將業務需求轉換為技術規格說明
-```
-
-**系統設計技能** (完成打 ✓):
-```text
-□ 我能運用分層架構原則設計系統結構
-□ 我會選擇合適的設計模式解決特定問題
-□ 我能設計資料庫結構和資料存取層
-□ 我會考慮系統的可擴展性和可維護性
-□ 我能進行技術風險評估和解決方案設計
-```
-
-### 9.2 實作能力驗證
-
-#### 9.2.1 程式設計技能
-
-**Java 物件導向程式設計** (完成打 ✓):
-```java
-// 自我檢核: 我能完成以下程式設計任務
-
-public class 程式設計能力檢核 {
-    
-    /*
-     * 基礎程式設計能力:
-     */
-    
-    // □ 設計並實作一個完整的類別，包含適當的封裝
-    public void 設計封裝類別() {
-        // 私有屬性、公開方法、資料驗證
-    }
-    
-    // □ 正確使用繼承建立類別階層關係
-    public void 實作繼承關係() {
-        // 基礎類別、衍生類別、方法覆寫
-    }
-    
-    // □ 實作多型和介面，展示抽象設計能力
-    public void 應用多型設計() {
-        // 介面定義、多種實作、動態綁定
-    }
-    
-    // □ 應用設計模式解決常見的設計問題
-    public void 套用設計模式() {
-        // 工廠模式、觀察者模式、策略模式等
-    }
-    
-    // □ 撰寫單元測試驗證程式碼正確性
-    public void 編寫單元測試() {
-        // JUnit 測試、測試覆蓋率、邊界條件測試
-    }
-}
-```
-
-#### 9.2.2 系統分析與設計專案
-
-**期末專案建議: 完整系統設計** (完成打 ✓):
-```text
-選擇以下其中一個主題，完成完整的分析設計:
-
-□ 線上書店管理系統
-  - 會員管理、商品目錄、訂單處理、庫存管理
-  - 涵蓋前台購物網站和後台管理系統
-
-□ 學生選課系統  
-  - 學生註冊、課程管理、選課流程、成績記錄
-  - 包含學生、教師、管理員三種角色
-
-□ 專案管理系統
-  - 專案建立、任務分配、進度追蹤、資源管理
-  - 支援團隊協作和專案報表功能
-
-□ 醫院掛號系統
-  - 病患資料、醫師排班、掛號預約、病歷管理
-  - 考慮醫療流程的特殊需求
-
-專案交付成果:
-□ 需求分析文件 (Use Case 圖 + 使用案例說明)
-□ 系統設計文件 (類別圖 + 循序圖 + 活動圖)
-□ 程式碼實作 (核心功能的 Java 實作)
-□ 測試計畫 (單元測試 + 整合測試)
-□ 部署說明 (系統安裝與設定指南)
-```
-
-### 9.3 知識整合應用
-
-#### 9.3.1 綜合案例分析
-
-**案例研討: 電商平台架構演進** (完成打 ✓):
-```text
-情境描述:
-一家新創公司要開發電商平台，從初期的單體應用
-逐步演進為大規模的分散式系統。
-
-階段性任務:
-
-□ 第一階段: 單體應用設計
-  - 分析初期業務需求
-  - 設計單體架構的類別圖
-  - 識別核心業務流程
-
-□ 第二階段: 服務拆分分析
-  - 識別服務邊界和職責
-  - 設計微服務架構
-  - 處理分散式系統的挑戰
-
-□ 第三階段: 系統優化設計
-  - 效能瓶頸分析
-  - 可擴展性設計
-  - 維運監控策略
-
-學習目標:
-□ 理解系統架構演進的決策因素
-□ 掌握不同規模系統的設計考量
-□ 學會在實務限制下做出設計權衡
-```
-
-#### 9.3.2 技術決策能力評估
-
-**技術選型與架構決策** (完成打 ✓):
-```java
-public class 技術決策能力評估 {
-    
-    /*
-     * 情境題: 為新專案選擇技術棧
-     * 
-     * 專案需求:
-     * - 預期用戶數: 10萬活躍用戶
-     * - 響應時間要求: < 2秒
-     * - 可用性要求: 99.9%
-     * - 開發團隊: 5人，Java背景
-     * - 上線時程: 6個月
-     */
-    
-    // □ 我能分析業務需求對技術架構的影響
-    public void 需求分析() {
-        /*
-         * 考慮因素:
-         * - 功能性需求 vs 非功能性需求
-         * - 現有團隊技能 vs 學習成本
-         * - 開發效率 vs 長期維護性
-         * - 預算限制 vs 技術理想性
-         */
-    }
-    
-    // □ 我能評估不同技術方案的優缺點
-    public void 方案比較() {
-        /*
-         * 比較標準:
-         * - 開發生產力
-         * - 系統效能
-         * - 可擴展性
-         * - 技術風險
-         * - 社群支援
-         */
-    }
-    
-    // □ 我能制定技術實作計畫
-    public void 實作規劃() {
-        /*
-         * 規劃內容:
-         * - 技術框架選擇
-         * - 開發階段劃分
-         * - 風險控制措施
-         * - 團隊培訓計畫
-         */
-    }
-}
-```
-
-### 9.4 持續改進計畫
-
-#### 9.4.1 弱點識別與改善
-
-**個人技能缺口分析** (需要加強的打 ✓):
-```text
-技術技能缺口:
-□ 分散式系統設計經驗不足
-□ 大數據處理技術需要學習
-□ 雲端服務架構不夠熟悉
-□ 資訊安全最佳實務需要加強
-□ DevOps 工具鏈操作不熟練
-
-軟技能缺口:
-□ 跨部門溝通技巧需要提升
-□ 技術演講和簡報能力待改善
-□ 專案管理經驗需要累積
-□ 團隊領導能力需要培養
-□ 商業思維和產品意識不足
-```
-
-**改善行動計畫** (完成打 ✓):
-```java
-public class 改善行動計畫 {
-    
-    // □ 設定明確的學習目標和時程
-    public void 制定學習目標() {
-        /*
-         * SMART 目標設定:
-         * - Specific: 具體明確的學習內容
-         * - Measurable: 可衡量的成果指標
-         * - Achievable: 可實現的目標水準
-         * - Relevant: 與職涯發展相關
-         * - Time-bound: 明確的完成期限
-         */
-    }
-    
-    // □ 建立定期的學習和實作習慣
-    public void 建立學習習慣() {
-        /*
-         * 學習計畫:
-         * - 每週固定時間投入學習
-         * - 理論學習與實作練習並重
-         * - 定期檢視進度和調整方向
-         * - 尋找學習夥伴和指導者
-         */
-    }
-    
-    // □ 設定可衡量的進步指標
-    public void 設定進步指標() {
-        /*
-         * 評估指標:
-         * - 完成的線上課程數量
-         * - 實作的專案作品質量
-         * - 獲得的技術認證
-         * - 工作中應用新技能的成果
-         */
-    }
-}
-```
-
-#### 9.4.2 學習成果追蹤
-
-**學習記錄表** (每月更新):
-```text
-月份: ______
-
-本月學習成果:
-□ 完成的課程/書籍: _______________
-□ 實作的專案/練習: _______________  
-□ 參與的技術活動: _______________
-□ 獲得的回饋建議: _______________
-
-技能提升評估:
-□ 新掌握的技術: _________________
-□ 改善的技能領域: _______________
-□ 仍需加強的部分: _______________
-
-下月學習計畫:
-□ 優先學習主題: _________________
-□ 計畫參與活動: _________________
-□ 預期達成目標: _________________
-```
-
-### 9.5 認證與成就里程碑
-
-#### 9.5.1 短期目標 (3-6個月)
-
-**技術認證目標** (完成打 ✓):
-```text
-□ 完成 OCUP Fundamental Level 認證
-□ 取得 Oracle Java SE 11 Certification  
-□ 獲得 AWS Cloud Practitioner 認證
-□ 完成 Spring Professional 認證課程
-□ 參加至少 2 場技術研討會或工作坊
-```
-
-**實務成果目標** (完成打 ✓):
-```text
-□ 完成一個完整的個人專案作品集
-□ 在技術部落格發表至少 5 篇文章
-□ 貢獻至少 1 個開源專案
-□ 在公司內部進行技術分享
-□ 指導至少 1 位初級開發者
-```
-
-#### 9.5.2 中期目標 (6-12個月)
-
-**職涯發展目標** (完成打 ✓):
-```text
-□ 升任中級軟體工程師或相當職位
-□ 成為團隊中的技術領導者
-□ 獲得進階技術認證 (OCUP Intermediate)
-□ 建立個人技術品牌和影響力
-□ 參與重要專案的架構設計決策
-```
-
-#### 9.5.3 長期目標 (1-3年)
-
-**專業發展願景** (完成打 ✓):
-```text
-□ 成為軟體架構師或技術主管
-□ 具備跨領域的技術整合能力
-□ 成為公司或社群的技術專家
-□ 獲得高階技術認證和專業肯定
-□ 培養下一代的軟體開發人才
-```
-
----
-
-### 📋 總結檢核表
-
-**完成本教學手冊學習後，我已經具備:**
-
-**核心知識** (全部完成打 ✓):
-```text
-□ 物件導向分析與設計的完整概念體系
-□ UML 建模語言的標準語法和應用技巧  
-□ SOLID 設計原則和常用設計模式
-□ 從需求分析到程式實作的完整流程
-□ 軟體品質控制和最佳實務應用
-```
-
-**實務技能** (全部完成打 ✓):
-```text
-□ 獨立完成中小型系統的分析設計
-□ 使用 UML 工具進行專業建模
-□ 撰寫高品質、可維護的 Java 程式碼
-□ 進行有效的程式碼審查和重構
-□ 與團隊成員進行技術溝通協作
-```
-
-**持續發展能力** (全部完成打 ✓):
-```text
-□ 自主學習新技術和框架的能力
-□ 分析技術趨勢和做出技術決策
-□ 建立個人學習計畫和執行能力
-□ 參與技術社群和知識分享
-□ 規劃職涯發展和技能提升路徑
-```
-
-**🎉 恭喜您完成了 OOAD 教學手冊的完整學習！**
-
-現在您已經準備好在軟體開發的道路上邁出更大的步伐了！
-
----
-
-**最後提醒**:
-- 📚 學習是終身的過程，保持好奇心和學習熱忱
-- 🛠️ 理論必須結合實務，多動手實作才能真正掌握
-- 🤝 與同儕分享交流，在教學相長中共同成長  
-- 🎯 設定明確目標，持續追蹤進度和調整方向
-
-祝您在軟體工程的專業道路上一帆風順，成就非凡！ 🚀
 
 ---
 
@@ -5767,16 +4692,16 @@ public class 改善行動計畫 {
 #### 7.1.1 認證類型與機構
 
 **Object Management Group (OMG) 認證**:
-- 🏆 **OMG Certified UML Professional (OCUP)**
-- 📚 **分級制度**: Fundamental, Intermediate, Advanced
-- 🌍 **國際認可**: 業界廣泛承認的 UML 專業認證
+- **OMG Certified UML Professional 2 (OCUP 2)**
+- **分級制度**: Foundation、Intermediate、Advanced
+- **國際認可**: 業界廣泛承認的 UML 專業認證
 
 **認證級別說明**:
 
 ```mermaid
 graph TD
-    A[OCUP Fundamental Level] --> B[OCUP Intermediate Level]
-    B --> C[OCUP Advanced Level]
+    A[OCUP 2 Foundation Level] --> B[OCUP 2 Intermediate Level]
+    B --> C[OCUP 2 Advanced Level]
     
     A --> A1[基礎 UML 概念]
     A --> A2[核心圖形語法]
@@ -5794,24 +4719,24 @@ graph TD
 #### 7.1.2 認證價值與職涯發展
 
 **對個人的價值**:
-- 🎯 **技能認證**: 證明具備標準化的 UML 建模能力
-- 💼 **職涯提升**: 增加在軟體分析設計領域的競爭力
-- 🌐 **國際視野**: 與國際標準接軌的專業能力
+- **技能認證**: 證明具備標準化的 UML 建模能力
+- **職涯提升**: 增加在軟體分析設計領域的競爭力
+- **國際視野**: 與國際標準接軌的專業能力
 
 **對組織的價值**:
-- 📈 **品質提升**: 標準化的建模方法提高軟體品質
-- 👥 **團隊溝通**: 統一的建模語言改善團隊協作
-- 🛡️ **風險降低**: 減少因設計溝通不良造成的專案風險
+- **品質提升**: 標準化的建模方法提高軟體品質
+- **團隊溝通**: 統一的建模語言改善團隊協作
+- **風險降低**: 減少因設計溝通不良造成的專案風險
 
 ### 7.2 考試範圍與題型
 
-#### 7.2.1 OCUP Fundamental Level
+#### 7.2.1 OCUP 2 Foundation Level
 
 **考試基本資訊**:
-- ⏰ **考試時間**: 90 分鐘
-- 📝 **題目數量**: 90 題選擇題
-- 🎯 **及格分數**: 70% (63 題正確)
-- 💻 **考試形式**: 線上考試
+- **考試時間**: 90 分鐘
+- **題目數量**: 90 題選擇題
+- **及格分數**: 約 67%（90 題中至少答對 60 題）
+- **考試形式**: Pearson VUE 授權考場應試，每科報名費約美金 350 元，證書效期 5 年
 
 **主要考試範圍**:
 
@@ -6081,7 +5006,7 @@ D) 動作/事件[條件]
 
 ```mermaid
 gantt
-    title OCUP Fundamental 準備計畫
+    title OCUP 2 Foundation 準備計畫
     dateFormat  YYYY-MM-DD
     section 基礎學習
     UML 概念學習     :done,    basic, 2024-01-01, 2024-01-14
@@ -6096,9 +5021,9 @@ gantt
 ```
 
 **每週學習安排**:
-- 📚 **平日 (週一至週五)**: 每天 1-2 小時理論學習
-- 💻 **週末**: 3-4 小時實務練習和模擬考試
-- 📝 **複習**: 每週末整理學習筆記和錯題集
+- **平日 (週一至週五)**: 每天 1-2 小時理論學習
+- **週末**: 3-4 小時實務練習和模擬考試
+- **複習**: 每週末整理學習筆記和錯題集
 
 #### 7.5.2 有效學習方法
 
@@ -6146,7 +5071,7 @@ public class BookstoreExercise {
      * - Order (訂單)
      * - OrderItem (訂單項目)
      * - ShoppingCart (購物車)
-     * 
+     *
      * 考慮：
      * 1. 類別之間的關係類型
      * 2. 屬性的可見性
@@ -6159,9 +5084,9 @@ public class BookstoreExercise {
 #### 7.5.3 考試當天策略
 
 **時間管理**:
-- ⏰ **快速瀏覽**: 前 5 分鐘快速瀏覽所有題目
-- 🎯 **先易後難**: 先答會的題目，標記困難題目
-- ⏱️ **時間分配**: 每題平均 1 分鐘，預留 15 分鐘檢查
+- **快速瀏覽**: 前 5 分鐘快速瀏覽所有題目
+- **先易後難**: 先答會的題目，標記困難題目
+- **時間分配**: 每題平均 1 分鐘，預留 15 分鐘檢查
 
 **答題技巧**:
 1. **仔細閱讀**: 注意題目中的關鍵字和條件
@@ -6174,48 +5099,48 @@ public class BookstoreExercise {
 #### 7.6.1 官方資源
 
 **OMG 官方資料**:
-- 📖 **UML 2.5 規格書**: 最權威的 UML 標準文件
-- 🎯 **OCUP 考試指南**: 官方考試準備指南
-- 💻 **線上練習**: OMG 提供的官方練習題
+- **UML 2.5.1 規格書**: 2017 年發布，是目前最權威且現行的 UML 標準文件
+- **OCUP 2 考試指南**: 官方考試準備指南
+- **線上練習**: OMG 提供的官方練習題
 
 **官方認證中心**:
-- 🌐 **Pearson VUE**: 官方考試平台
-- 📍 **考試中心**: 全球各地的認證考試中心
-- 📞 **客服支援**: 考試相關問題諮詢
+- **Pearson VUE**: 官方考試平台
+- **考試中心**: 全球各地的認證考試中心
+- **客服支援**: 考試相關問題諮詢
 
 #### 7.6.2 學習教材
 
 **推薦書籍**:
 ```text
-📚 基礎入門：
+基礎入門：
    - "UML Distilled" by Martin Fowler
    - "Learning UML 2.0" by Russ Miles & Kim Hamilton
 
-📚 進階應用：
+進階應用：
    - "UML 2 and the Unified Process" by Jim Arlow & Ila Neustadt
    - "Applying UML and Patterns" by Craig Larman
 
-📚 考試準備：
-   - "OCUP Certification Guide" by Tim Weilkiens
-   - "UML 2.0 in Action" by Patrick Lenca
+考試準備：
+   - "OCUP 2 Certification Guide" by Michael Jesse Chonoles
+   - "UML 2 Certification Guide" by Tim Weilkiens & Bernd Oestereich
 ```
 
 **線上課程平台**:
-- 🎓 **Coursera**: 大學級 UML 課程
-- 📺 **Udemy**: 實務導向的 UML 教學
-- 🏫 **edX**: 免費的軟體工程課程
-- 📖 **Pluralsight**: 專業技術培訓平台
+- **Coursera**: 大學級 UML 課程
+- **Udemy**: 實務導向的 UML 教學
+- **edX**: 免費的軟體工程課程
+- **Pluralsight**: 專業技術培訓平台
 
 #### 7.6.3 實務工具
 
 **UML 建模工具**:
 ```text
-🆓 免費工具：
+免費工具：
    - PlantUML: 文字式 UML 建模
    - Draw.io: 線上圖形繪製工具
    - StarUML: 開源 UML 工具
 
-💰 商業工具：
+商業工具：
    - Visual Paradigm: 專業 UML 建模平台
    - Enterprise Architect: 企業級建模工具
    - MagicDraw: NoMagic 的專業工具
@@ -6223,12 +5148,12 @@ public class BookstoreExercise {
 
 **練習平台**:
 ```text
-🎯 線上練習：
+線上練習：
    - UML Quiz 網站
-   - OCUP 模擬考試平台
+   - OCUP 2 模擬考試平台
    - Stack Overflow UML 標籤
 
-👥 社群資源：
+社群資源：
    - LinkedIn UML 專業群組
    - Reddit r/UML 社群
    - UML 相關的 Discord 伺服器
@@ -6263,14 +5188,14 @@ public class 學習計畫 {
 **進階認證規劃**:
 ```mermaid
 flowchart TD
-    A[OCUP Fundamental] --> B{考試通過?}
-    B -->|是| C[OCUP Intermediate 準備]
+    A[OCUP 2 Foundation] --> B{考試通過?}
+    B -->|是| C[OCUP 2 Intermediate 準備]
     B -->|否| D[加強基礎，重新考試]
-    C --> E[OCUP Intermediate 考試]
+    C --> E[OCUP 2 Intermediate 考試]
     E --> F{考試通過?}
-    F -->|是| G[OCUP Advanced 準備]
+    F -->|是| G[OCUP 2 Advanced 準備]
     F -->|否| H[深化中級知識]
-    G --> I[OCUP Advanced 考試]
+    G --> I[OCUP 2 Advanced 考試]
     
     D --> B
     H --> E
@@ -6278,21 +5203,21 @@ flowchart TD
 
 ### 7.7 章節小結
 
-#### ✅ 認證準備重點
+#### 認證準備重點
 
 - **基礎概念**: 深入理解 UML 的核心概念和設計原理
 - **圖形語法**: 熟練掌握各種 UML 圖形的標準語法
 - **實務應用**: 能夠將理論知識應用到實際建模情境
 - **考試技巧**: 掌握有效的答題策略和時間管理
 
-#### 🎯 學習策略建議
+#### 學習策略建議
 
 1. **系統性學習**: 按照考試大綱系統性地學習每個主題
 2. **大量練習**: 透過練習題熟悉考試題型和難度
 3. **實務結合**: 在實際專案中應用所學的 UML 知識
 4. **持續改進**: 根據練習結果調整學習重點
 
-#### 🏆 認證後發展
+#### 認證後發展
 
 - **技能應用**: 在工作中實際應用 UML 建模技能
 - **知識分享**: 成為團隊中的 UML 建模專家
@@ -6301,33 +5226,266 @@ flowchart TD
 
 ---
 
+## 8. 結語與延伸閱讀
+
+### 8.1 學習成果回顧
+
+#### 8.1.1 知識架構整理
+
+經過本教學手冊的學習，您已經建立了完整的 OOAD 知識體系：
+
+```mermaid
+mindmap
+  root((OOAD 知識體系))
+    基礎概念
+      物件導向原理
+      UML 基礎
+      分析設計流程
+    
+    設計原則
+      SOLID 原則
+      設計模式
+      最佳實務
+    
+    UML 建模
+      結構圖
+        類別圖
+        物件圖
+        組件圖
+        部署圖
+      
+      行為圖
+        Use Case 圖
+        活動圖
+        狀態機圖
+        循序圖
+    
+    實務應用
+      需求分析
+      系統設計
+      程式實作
+      測試驗證
+    
+    職業發展
+      認證考試
+      持續學習
+      團隊協作
+```
+
+#### 8.1.2 核心能力檢核
+
+**技術能力**:
+- **需求分析**: 能夠將業務需求轉換為技術規格
+- **系統設計**: 運用 UML 進行完整的系統建模
+- **程式實作**: 將設計轉換為高品質的程式碼
+- **品質控制**: 識別並避免常見的設計錯誤
+
+**軟技能**:
+- **溝通協作**: 使用標準化語言與團隊成員溝通
+- **問題解決**: 系統性地分析和解決複雜問題
+- **持續學習**: 建立終身學習的習慣和方法
+- **專業發展**: 具備進一步職涯發展的基礎
+
+#### 8.1.3 學習里程碑
+
+**初級階段成就** (已完成):
+```java
+public class 初級開發者能力 {
+    
+    // 1. 基礎概念理解
+    public void 理解物件導向概念() {
+        /*
+         * 封裝 (Encapsulation)
+         * 繼承 (Inheritance)  
+         * 多型 (Polymorphism)
+         * 抽象 (Abstraction)
+         */
+    }
+    
+    // 2. UML 圖形繪製
+    public void 繪製UML圖形() {
+        /*
+         * 類別圖設計
+         * Use Case 圖分析
+         * 循序圖建模
+         * 狀態圖描述
+         */
+    }
+    
+    // 3. 程式碼實作
+    public void 實作設計程式碼() {
+        /*
+         * 將 UML 轉換為程式碼
+         * 應用設計模式
+         * 遵循 SOLID 原則
+         * 編寫可維護的程式碼
+         */
+    }
+}
+```
+
+### 8.2 進階學習方向
+
+#### 8.2.1 技術深化路徑
+
+**軟體架構方向**:
+```mermaid
+flowchart TD
+    A[OOAD 基礎] --> B[軟體架構設計]
+    B --> C[微服務架構]
+    B --> D[領域驅動設計 DDD]
+    B --> E[事件驅動架構]
+    
+    C --> F[容器化技術]
+    C --> G[雲端原生應用]
+    
+    D --> H[聚合設計]
+    D --> I[界限上下文]
+    
+    E --> J[CQRS 模式]
+    E --> K[事件溯源]
+    
+    style A fill:#e1f5fe
+    style B fill:#f3e5f5
+    style C,D,E fill:#fff3e0
+```
+
+**專精技術領域**:
+
+1. **微服務架構 (Microservices)**:
+   ```java
+   // 學習重點：服務拆分、API 設計、分散式系統
+   public class MicroserviceExample {
+       
+       @RestController
+       public class UserController {
+           // RESTful API 設計
+           // 服務間通訊
+           // 錯誤處理策略
+       }
+   }
+   ```
+
+2. **領域驅動設計 (Domain-Driven Design)**:
+   ```java
+   // 學習重點：領域建模、聚合設計、界限上下文
+   public class DDDExample {
+       
+       // 聚合根 (Aggregate Root)
+       public class Order {
+           private List<OrderItem> items;
+           // 領域邏輯封裝
+           // 不變量維護
+       }
+   }
+   ```
+
+3. **雲端架構 (Cloud Architecture)**:
+   ```java
+   // 學習重點：雲端服務、DevOps、容器化
+   public class CloudExample {
+       
+       // 雲端原生應用設計
+       // 自動擴展策略
+       // 監控與日誌
+   }
+   ```
+
+#### 8.2.2 認證與資格進修
+
+**技術認證路徑**:
+```text
+軟體設計認證：
+   - OCUP 2 (Object Management Group UML Certification)
+   - AWS/Azure/GCP 雲端架構師認證
+   - TOGAF 企業架構認證
+
+敏捷開發認證：
+   - Certified ScrumMaster (CSM)
+   - SAFe Architect Certification
+   - PMI Agile Certified Practitioner (PMI-ACP)
+
+技術專精認證：
+   - Spring Professional Certification
+   - Oracle Java Certification
+   - Microsoft Azure Developer Certification
+```
+
+**學位進修選項**:
+```text
+碩士學位：
+   - 資訊工程/資訊科學碩士
+   - 軟體工程碩士  
+   - 資訊管理碩士
+
+專業證照：
+   - 資訊技師執照
+   - PMP 專案管理師
+   - CISSP 資訊安全師
+```
+
+#### 8.2.3 實務經驗累積
+
+**專案參與策略**:
+```java
+public class 專案經驗累積 {
+    
+    public void 開源專案貢獻() {
+        /*
+         * 1. 選擇知名開源專案參與
+         * 2. 從文件翻譯、Bug 修復開始
+         * 3. 逐步參與功能開發
+         * 4. 學習大型專案的架構設計
+         */
+    }
+    
+    public void 個人專案練習() {
+        /*
+         * 1. 設計完整的系統專案
+         * 2. 應用學到的 OOAD 技術
+         * 3. 建立技術部落格分享心得
+         * 4. 參與技術社群交流
+         */
+    }
+    
+    public void 工作專案提升() {
+        /*
+         * 1. 主動承擔設計責任
+         * 2. 推廣 OOAD 最佳實務
+         * 3. 指導團隊成員
+         * 4. 建立技術標準文件
+         */
+    }
+}
+```
+
 ### 8.3 參考資料與書籍
 
 #### 8.3.1 經典教科書
 
 **中文書籍**:
-- 📚 **《UML 系統分析與設計》** - 陳會安著
+- **《UML 系統分析與設計》** - 陳會安著
   - 適合初學者，內容詳盡，範例豐富
   - 涵蓋完整的 OOAD 流程和 UML 圖形
   - 包含實務案例和練習題
 
-- 📚 **《物件導向系統分析與設計》** - 林信良著
+- **《物件導向系統分析與設計》** - 林信良著
   - 深入探討 OOAD 方法論
   - 強調實務應用和最佳實務
   - 提供豐富的程式碼範例
 
 **英文經典**:
-- 📚 **"Object-Oriented Analysis and Design with Applications"** - Grady Booch
+- **"Object-Oriented Analysis and Design with Applications"** - Grady Booch
   - OOAD 領域的經典教材
   - 深入探討物件導向的理論基礎
   - 包含豐富的設計模式和架構討論
 
-- 📚 **"UML Distilled"** - Martin Fowler
+- **"UML Distilled"** - Martin Fowler
   - UML 的精華版教材
   - 實務導向，去蕪存菁
   - 適合有經驗的開發者快速掌握 UML
 
-- 📚 **"Applying UML and Patterns"** - Craig Larman
+- **"Applying UML and Patterns"** - Craig Larman
   - 結合 UML 和設計模式的實務指南
   - 提供完整的案例研究
   - 強調迭代開發和敏捷方法
@@ -6336,13 +5494,13 @@ flowchart TD
 
 **必讀書籍**:
 ```text
-📖 設計模式四人幫 (Gang of Four)
+設計模式四人幫 (Gang of Four)
    "Design Patterns: Elements of Reusable Object-Oriented Software"
    - 23 種經典設計模式
    - 物件導向設計的核心理念
    - 每個軟體工程師的必讀書籍
 
-📖 Head First 設計模式
+Head First 設計模式
    "Head First Design Patterns"
    - 生動有趣的學習方式
    - 豐富的圖解和範例
@@ -6376,12 +5534,12 @@ public class 設計模式書籍推薦 {
 #### 8.3.3 學術論文與研究
 
 **重要論文**:
-- 📄 **"On the Criteria To Be Used in Decomposing Systems into Modules"** - David Parnas (1972)
+- **"On the Criteria To Be Used in Decomposing Systems into Modules"** - David Parnas (1972)
   - 模組化設計的經典論文
   - 資訊隱藏原則的提出
   - 現代軟體架構的理論基礎
 
-- 📄 **"The Unified Modeling Language User Guide"** - Booch, Rumbaugh, Jacobson
+- **"The Unified Modeling Language User Guide"** - Booch, Rumbaugh, Jacobson
   - UML 創始人的官方指南
   - 權威的 UML 參考資料
   - 涵蓋所有 UML 圖形的詳細說明
@@ -6414,43 +5572,53 @@ mindmap
 #### 8.3.4 國際標準與規範
 
 **OMG 官方文件**:
-- 📋 **UML 2.5.1 Specification** - Object Management Group
+- **UML 2.5.1 Specification** - Object Management Group
   - UML 的官方技術規格
   - 所有 UML 圖形的標準定義
   - 建模工具的實作參考
 
-- 📋 **BPMN 2.0 Specification** - Object Management Group
+- **BPMN 2.0 Specification** - Object Management Group
   - 業務流程建模標準
   - 與 UML 互補的建模語言
   - 業務分析師的重要工具
 
 **ISO/IEC 標準**:
 ```text
-🏛️ 國際標準組織規範：
+國際標準組織規範：
    - ISO/IEC 19501: UML 國際標準
    - ISO/IEC 19503: UML Profile 標準
    - ISO/IEC 19505: Object Constraint Language (OCL)
    - ISO/IEC 25010: 軟體品質模型
 ```
+#### 8.3.5 軟體工程與架構延伸書單
+
+- **《Design Patterns: Elements of Reusable Object-Oriented Software》** - Gang of Four：23 種經典設計模式的原始出處
+- **《Clean Code》** - Robert C. Martin：程式碼可讀性與可維護性的實務準則
+- **《Refactoring》** - Martin Fowler：系統性改善既有程式碼的權威指南
+- **《Domain-Driven Design》** - Eric Evans：複雜領域建模方法的開創性著作
+- **《Software Architecture in Practice》** - Bass, Clements, Kazman：軟體架構品質屬性與架構模式
+- **《Building Microservices》** - Sam Newman：微服務架構設計實務與分散式系統挑戰
+- **《System Design Interview》** - Alex Xu：大規模系統設計案例分析
+- **《The Pragmatic Programmer》** - Andrew Hunt & David Thomas：軟體開發哲學與職業素養
 
 ### 8.4 線上資源與社群
 
 #### 8.4.1 官方資源
 
 **UML 官方網站**:
-- 🌐 **OMG UML Portal** (https://www.uml.org/)
+- **OMG UML Portal** (https://www.uml.org/)
   - UML 的官方入口網站
   - 最新的規格文件和更新
   - 認證考試的官方資訊
 
-- 🌐 **Eclipse UML Tools** (https://www.eclipse.org/modeling/)
+- **Eclipse UML Tools** (https://www.eclipse.org/modeling/)
   - Eclipse 基金會的 UML 工具
   - 開源建模工具和框架
   - 豐富的外掛程式生態系統
 
 **學習平台**:
 ```text
-🎓 線上學習平台：
+線上學習平台：
    - Coursera: 大學級的 OOAD 課程
    - edX: MIT、史丹佛等頂尖大學課程
    - Udemy: 實務導向的 UML 和設計模式課程
@@ -6461,12 +5629,12 @@ mindmap
 #### 8.4.2 技術社群
 
 **國際社群**:
-- 💬 **Stack Overflow** - `uml` `object-oriented-design` 標籤
+- **Stack Overflow** - `uml` `object-oriented-design` 標籤
   - 全球最大的程式設計問答社群
   - 豐富的 UML 和 OOAD 問題解答
   - 與專家交流的絕佳平台
 
-- 💬 **Reddit Communities**:
+- **Reddit Communities**:
   - r/softwarearchitecture: 軟體架構討論
   - r/programming: 程式設計通用討論
   - r/learnprogramming: 程式設計學習資源
@@ -6497,12 +5665,12 @@ public class 專業社群資源 {
 #### 8.4.3 工具與平台
 
 **免費建模工具**:
-- 🛠️ **PlantUML** (https://plantuml.com/)
+- **PlantUML** (https://plantuml.com/)
   - 文字式 UML 建模工具
   - 支援多種 UML 圖形
   - 可整合到文件和 IDE 中
 
-- 🛠️ **Draw.io / Diagrams.net** (https://app.diagrams.net/)
+- **Draw.io / Diagrams.net** (https://app.diagrams.net/)
   - 免費的線上圖形繪製工具
   - 支援 UML 圖形範本
   - 可匯出多種格式
@@ -6540,12 +5708,12 @@ public class 學習網絡建立 {
          * - 完成 UML 基礎認證
          * - 參與 1-2 個開源專案
          * - 建立個人技術部落格
-         * 
+         *
          * 中期目標 (1年):
          * - 取得進階 UML 認證
          * - 在團隊中推廣 OOAD 實務
          * - 參加技術會議和研討會
-         * 
+         *
          * 長期目標 (3年):
          * - 成為技術領導者
          * - 貢獻開源 UML 工具
@@ -6560,7 +5728,7 @@ public class 學習網絡建立 {
          * - 定期團隊技術分享
          * - 建立知識庫和最佳實務文件
          * - 舉辦內部讀書會
-         * 
+         *
          * 外部分享:
          * - 撰寫技術部落格文章
          * - 參與技術社群討論
@@ -6638,32 +5806,822 @@ public class 學習成效評估 {
     }
 }
 ```
+#### 8.4.6 補充學習資源
+
+**免費大學課程**：
+- MIT OpenCourseWare、Stanford CS106A/106B、Berkeley CS 61B、CMU 15-213 等公開課程
+
+**付費專業培訓平台**：
+- Pluralsight、LinkedIn Learning、Udemy、O'Reilly Learning
+
+**專業組織**：
+- ACM (Association for Computing Machinery)、IEEE Computer Society、Agile Alliance
+
+**技術媒體與部落格**：
+- InfoQ、High Scalability、ThoughtWorks Technology Radar、Martin Fowler's Bliki
+
+**程式碼品質分析工具**：
+- SonarQube、SpotBugs、Checkstyle、PMD
+
+### 8.5 職涯發展建議
+
+#### 8.5.1 技術職涯路徑
+
+**軟體工程師進階路線**:
+```mermaid
+graph TD
+    A[初級軟體工程師] --> B[中級軟體工程師]
+    B --> C[高級軟體工程師]
+    C --> D[技術領導]
+    C --> E[軟體架構師]
+    C --> F[專案經理]
+    
+    D --> G[技術總監]
+    E --> H[首席架構師]
+    F --> I[產品經理]
+    
+    G --> J[技術長 CTO]
+    H --> J
+    I --> K[產品總監]
+    
+    style A fill:#e1f5fe
+    style B fill:#e8f5e8
+    style C fill:#fff3e0
+    style D,E,F fill:#f3e5f5
+    style G,H,I fill:#ffebee
+    style J,K fill:#fce4ec
+```
+
+**各階段能力要求**:
+
+1. **中級軟體工程師** (2-4 年經驗):
+   ```java
+   public class 中級工程師能力 {
+       /*
+        * 技術能力：
+        * - 獨立完成中等複雜度的功能開發
+        * - 熟練使用主要開發框架和工具
+        * - 具備程式碼重構和優化能力
+        * - 能夠進行簡單的技術選型
+        *
+        * 軟技能：
+        * - 與產品經理和設計師有效溝通
+        * - 指導初級工程師
+        * - 參與技術方案討論
+        * - 具備基本的專案管理能力
+        */
+   }
+   ```
+
+2. **高級軟體工程師** (4-7 年經驗):
+   ```java
+   public class 高級工程師能力 {
+       /*
+        * 技術能力：
+        * - 設計複雜系統的架構方案
+        * - 解決技術難題和性能瓶頸
+        * - 制定團隊的技術標準和規範
+        * - 評估和引入新技術
+        *
+        * 領導能力：
+        * - 帶領技術團隊完成專案
+        * - 培養和指導團隊成員
+        * - 與跨部門團隊協作
+        * - 參與產品技術決策
+        */
+   }
+   ```
+
+3. **軟體架構師** (5+ 年經驗):
+   ```java
+   public class 軟體架構師能力 {
+       /*
+        * 核心職責：
+        * - 設計企業級軟體架構
+        * - 制定技術發展策略
+        * - 解決複雜的技術架構問題
+        * - 跨團隊技術協調和溝通
+        *
+        * 專業技能：
+        * - 深度的系統設計能力
+        * - 廣泛的技術棧知識
+        * - 業務理解和抽象能力
+        * - 風險評估和決策能力
+        */
+   }
+   ```
+
+#### 8.5.2 技能發展規劃
+
+**技術技能矩陣**:
+```text
+技能評估 (1-5 分)：
+
+核心技術技能：
+□ 物件導向設計 [___/5]
+□ 設計模式應用 [___/5]  
+□ 系統架構設計 [___/5]
+□ 資料庫設計 [___/5]
+□ 網路與安全 [___/5]
+
+程式語言熟練度：
+□ Java/C#/.NET [___/5]
+□ JavaScript/TypeScript [___/5]
+□ Python [___/5]
+□ SQL [___/5]
+
+框架與工具：
+□ Spring/Spring Boot [___/5]
+□ React/Vue/Angular [___/5]
+□ Docker/Kubernetes [___/5]
+□ Git/CI/CD [___/5]
+
+軟技能：
+□ 團隊協作 [___/5]
+□ 技術溝通 [___/5]
+□ 問題解決 [___/5]
+□ 學習能力 [___/5]
+```
+
+**年度學習計畫範例**:
+```java
+public class 年度學習計畫範例 {
+    
+    public void Q1目標() {
+        /*
+         * 技術深化：
+         * - 完成 Spring Boot 高級特性學習
+         * - 取得 AWS Solutions Architect 認證
+         * - 參與 1 個開源專案貢獻
+         */
+    }
+    
+    public void Q2目標() {
+        /*
+         * 架構能力：
+         * - 學習微服務架構設計
+         * - 實作完整的分散式系統專案
+         * - 發表技術分享或部落格文章
+         */
+    }
+    
+    public void Q3目標() {
+        /*
+         * 領導力發展：
+         * - 帶領團隊完成重要專案
+         * - 參加技術會議或研討會
+         * - 建立技術指導關係 (Mentorship)
+         */
+    }
+    
+    public void Q4目標() {
+        /*
+         * 職涯規劃：
+         * - 總結年度成果和學習心得
+         * - 規劃下一年度發展方向
+         * - 更新履歷和作品集
+         */
+    }
+}
+```
+
+#### 8.5.3 建立個人品牌
+
+**技術影響力建立**:
+```java
+public class 個人品牌建立 {
+    
+    public void 內容創作() {
+        /*
+         * 1. 技術部落格：
+         *    - 分享學習心得和實務經驗
+         *    - 深度技術文章和案例分析
+         *    - SEO 優化提高可見度
+         *
+         * 2. 開源貢獻：
+         *    - 維護個人開源專案
+         *    - 貢獻知名開源專案
+         *    - 建立技術聲譽
+         */
+    }
+    
+    public void 社群參與() {
+        /*
+         * 1. 技術分享：
+         *    - 參加技術聚會和會議
+         *    - 擔任技術演講嘉賓
+         *    - 組織技術讀書會
+         *
+         * 2. 線上互動：
+         *    - Stack Overflow 回答問題
+         *    - GitHub 活躍貢獻
+         *    - LinkedIn 專業網絡建立
+         */
+    }
+    
+    public void 專業認證() {
+        /*
+         * 1. 技術認證：
+         *    - 雲端平台認證
+         *    - 框架專業認證
+         *    - 軟體架構認證
+         *
+         * 2. 軟技能認證：
+         *    - 專案管理 PMP
+         *    - 敏捷開發 Scrum Master
+         *    - 領導力培訓證書
+         */
+    }
+}
+```
+
+### 8.6 最終建議與祝福
+
+#### 8.6.1 持續學習的重要性
+
+**技術快速演進的現實**:
+```java
+public class 技術演進趨勢 {
+    
+    /*
+     * 軟體開發的永恆真理：
+     *
+     * 1. "唯一不變的就是變化"
+     *    - 新技術不斷出現
+     *    - 最佳實務持續演進
+     *    - 業務需求日益複雜
+     *
+     * 2. "基礎知識的重要性"
+     *    - OOAD 原則歷久彌新
+     *    - 設計模式跨語言通用
+     *    - 系統思維永遠有效
+     *
+     * 3. "終身學習的必要性"
+     *    - 保持技術競爭力
+     *    - 適應行業變化
+     *    - 實現職涯發展
+     */
+}
+```
+
+**學習方法的建議**:
+- **目標導向**: 根據職涯規劃設定學習目標
+- **實作驗證**: 透過實際專案應用所學知識
+- **社群學習**: 與同儕交流分享經驗心得
+- **記錄反思**: 建立學習筆記和經驗總結
+
+#### 8.6.2 給新進開發同仁的建議
+
+**初期發展重點**:
+```java
+public class 新手開發者建議 {
+    
+    public void 技術基礎建立() {
+        /*
+         * 重要提醒：
+         *
+         * 1. 不要急於追求新技術
+         *    - 先紮實基礎概念
+         *    - 深入理解核心原理
+         *    - 避免技術棧過於分散
+         *
+         * 2. 重視程式碼品質
+         *    - 遵循編碼規範
+         *    - 實踐 SOLID 原則
+         *    - 培養重構習慣
+         *
+         * 3. 培養系統思維
+         *    - 理解業務需求
+         *    - 考慮系統整體性
+         *    - 關注非功能性需求
+         */
+    }
+    
+    public void 職場適應建議() {
+        /*
+         * 軟技能發展：
+         *
+         * 1. 主動溝通
+         *    - 不懂就問，不要假裝懂
+         *    - 定期與主管同步進度
+         *    - 積極參與團隊討論
+         *
+         * 2. 承擔責任
+         *    - 為自己的程式碼負責
+         *    - 主動承擔適當的挑戰
+         *    - 從錯誤中學習成長
+         *
+         * 3. 團隊合作
+         *    - 尊重不同的觀點
+         *    - 分享知識和經驗
+         *    - 協助團隊成員解決問題
+         */
+    }
+}
+```
+
+#### 8.6.3 行業發展趨勢觀察
+
+**未來技術方向**:
+```mermaid
+timeline
+    title 軟體開發技術趨勢
+    
+    2026-2027 : AI 輔助開發成為主流
+              : 雲端原生架構
+              : 低代碼/無代碼平台
+              
+    2027-2029 : 邊緣計算與量子運算實驗性應用
+              : 量子計算應用
+              : 自動化測試進化
+              
+    2029-2032 : 人工智慧深度整合於軟體工程流程
+              : 分散式系統成熟
+              : 軟體工程自動化
+```
+
+**核心能力的持續價值**:
+```java
+public class 永恆的核心能力 {
+    /*
+     * 無論技術如何變化，以下能力始終重要：
+     *
+     * 1. 抽象思維能力
+     *    - 將複雜問題簡化
+     *    - 識別共同模式
+     *    - 設計通用解決方案
+     *
+     * 2. 系統性思考
+     *    - 理解元件間的關係
+     *    - 考慮變更的影響範圍
+     *    - 平衡各種設計權衡
+     *
+     * 3. 溝通協作能力
+     *    - 清楚表達技術概念
+     *    - 理解業務需求
+     *    - 有效的團隊合作
+     *
+     * 4. 持續學習能力
+     *    - 快速適應新技術
+     *    - 自主學習新知識
+     *    - 保持好奇心和熱情
+     */
+}
+```
+
+#### 8.6.4 期許與祝福
+
+親愛的開發同仁，
+
+恭喜您完成了這份 **物件導向分析與設計 (OOAD) 教學手冊** 的學習！
+
+這不是結束，而是您軟體開發職涯的一個重要里程碑。您現在已經具備了：
+
+- **系統性的思維方式**: 能夠用結構化的方法分析和解決問題
+- **實用的技術技能**: 掌握了 UML 建模和 OOAD 設計的核心技術
+- **持續學習的基礎**: 建立了終身學習和自我提升的能力框架
+- **專業的溝通語言**: 能夠用標準化的語言與團隊成員協作
+
+**記住**:
+- 每一個優秀的軟體工程師都是從基礎開始的
+- 技術會變化，但好的設計原則是永恆的
+- 最重要的是保持學習的熱情和解決問題的決心
+
+**願您在軟體開發的道路上**:
+- 持續成長，不斷突破技術瓶頸
+- 創新思考，設計出優雅的解決方案  
+- 發揮影響力，為團隊和組織創造價值
+- 實現職涯目標，成為傑出的軟體專業人士
+
+祝您前程似錦，在軟體工程的世界中發光發熱！
 
 ---
 
-## 9. 檢查清單
+*"The best way to predict the future is to invent it." - Alan Kay*
+
+*"預測未來最好的方法就是創造未來。" - 艾倫·凱*
+
+---
+
+## 9. 學習成果檢核清單
+
+### 9.1 知識掌握度自我評估
+
+#### 9.1.1 基礎概念檢核
+
+**物件導向原理** (完成打 ):
+```text
+□ 我能清楚解釋封裝(Encapsulation)的概念和重要性
+□ 我理解繼承(Inheritance)的適用場景和注意事項  
+□ 我掌握多型(Polymorphism)的實作方法和應用時機
+□ 我能運用抽象(Abstraction)來簡化複雜系統設計
+□ 我了解物件導向與程序導向的根本差異
+```
+
+**SOLID 設計原則** (完成打 ):
+```text
+□ 單一職責原則(SRP): 我能識別並重構違反此原則的程式碼
+□ 開閉原則(OCP): 我能設計可擴展但不需修改的系統結構
+□ 里氏替換原則(LSP): 我理解正確的繼承關係設計
+□ 介面隔離原則(ISP): 我能設計精簡且專用的介面
+□ 依賴反轉原則(DIP): 我會使用依賴注入來降低耦合度
+```
+
+#### 9.1.2 UML 建模能力檢核
+
+**結構圖建模** (完成打 ):
+```text
+□ 類別圖: 我能準確繪製包含屬性、方法和關係的類別圖
+□ 物件圖: 我能展示特定時間點的物件實例狀態
+□ 組件圖: 我能描述系統的模組化結構和依賴關係
+□ 部署圖: 我能展示軟體組件在硬體環境中的部署情況
+```
+
+**行為圖建模** (完成打 ):
+```text
+□ Use Case 圖: 我能分析需求並繪製完整的使用案例圖
+□ 活動圖: 我能描述複雜的業務流程和決策邏輯
+□ 狀態機圖: 我能建模物件的生命週期和狀態轉換
+□ 循序圖: 我能展示物件間的時序互動和訊息傳遞
+```
+
+#### 9.1.3 實務應用能力檢核
+
+**需求分析技能** (完成打 ):
+```text
+□ 我能與利害關係人有效溝通，蒐集完整的需求資訊
+□ 我會使用 Use Case 技術來組織和管理需求
+□ 我能識別功能性需求和非功能性需求的差異
+□ 我會進行需求優先級排序和變更管理
+□ 我能將業務需求轉換為技術規格說明
+```
+
+**系統設計技能** (完成打 ):
+```text
+□ 我能運用分層架構原則設計系統結構
+□ 我會選擇合適的設計模式解決特定問題
+□ 我能設計資料庫結構和資料存取層
+□ 我會考慮系統的可擴展性和可維護性
+□ 我能進行技術風險評估和解決方案設計
+```
+
+### 9.2 實作能力驗證
+
+#### 9.2.1 程式設計技能
+
+**Java 物件導向程式設計** (完成打 ):
+```java
+// 自我檢核: 我能完成以下程式設計任務
+
+public class 程式設計能力檢核 {
+    
+    /*
+     * 基礎程式設計能力:
+     */
+    
+    // □ 設計並實作一個完整的類別，包含適當的封裝
+    public void 設計封裝類別() {
+        // 私有屬性、公開方法、資料驗證
+    }
+    
+    // □ 正確使用繼承建立類別階層關係
+    public void 實作繼承關係() {
+        // 基礎類別、衍生類別、方法覆寫
+    }
+    
+    // □ 實作多型和介面，展示抽象設計能力
+    public void 應用多型設計() {
+        // 介面定義、多種實作、動態綁定
+    }
+    
+    // □ 應用設計模式解決常見的設計問題
+    public void 套用設計模式() {
+        // 工廠模式、觀察者模式、策略模式等
+    }
+    
+    // □ 撰寫單元測試驗證程式碼正確性
+    public void 編寫單元測試() {
+        // JUnit 測試、測試覆蓋率、邊界條件測試
+    }
+}
+```
+
+#### 9.2.2 系統分析與設計專案
+
+**期末專案建議: 完整系統設計** (完成打 ):
+```text
+選擇以下其中一個主題，完成完整的分析設計:
+
+□ 線上書店管理系統
+  - 會員管理、商品目錄、訂單處理、庫存管理
+  - 涵蓋前台購物網站和後台管理系統
+
+□ 學生選課系統  
+  - 學生註冊、課程管理、選課流程、成績記錄
+  - 包含學生、教師、管理員三種角色
+
+□ 專案管理系統
+  - 專案建立、任務分配、進度追蹤、資源管理
+  - 支援團隊協作和專案報表功能
+
+□ 醫院掛號系統
+  - 病患資料、醫師排班、掛號預約、病歷管理
+  - 考慮醫療流程的特殊需求
+
+專案交付成果:
+□ 需求分析文件 (Use Case 圖 + 使用案例說明)
+□ 系統設計文件 (類別圖 + 循序圖 + 活動圖)
+□ 程式碼實作 (核心功能的 Java 實作)
+□ 測試計畫 (單元測試 + 整合測試)
+□ 部署說明 (系統安裝與設定指南)
+```
+
+### 9.3 知識整合應用
+
+#### 9.3.1 綜合案例分析
+
+**案例研討: 電商平台架構演進** (完成打 ):
+```text
+情境描述:
+一家新創公司要開發電商平台，從初期的單體應用
+逐步演進為大規模的分散式系統。
+
+階段性任務:
+
+□ 第一階段: 單體應用設計
+  - 分析初期業務需求
+  - 設計單體架構的類別圖
+  - 識別核心業務流程
+
+□ 第二階段: 服務拆分分析
+  - 識別服務邊界和職責
+  - 設計微服務架構
+  - 處理分散式系統的挑戰
+
+□ 第三階段: 系統優化設計
+  - 效能瓶頸分析
+  - 可擴展性設計
+  - 維運監控策略
+
+學習目標:
+□ 理解系統架構演進的決策因素
+□ 掌握不同規模系統的設計考量
+□ 學會在實務限制下做出設計權衡
+```
+
+#### 9.3.2 技術決策能力評估
+
+**技術選型與架構決策** (完成打 ):
+```java
+public class 技術決策能力評估 {
+    
+    /*
+     * 情境題: 為新專案選擇技術棧
+     *
+     * 專案需求:
+     * - 預期用戶數: 10萬活躍用戶
+     * - 響應時間要求: < 2秒
+     * - 可用性要求: 99.9%
+     * - 開發團隊: 5人，Java背景
+     * - 上線時程: 6個月
+     */
+    
+    // □ 我能分析業務需求對技術架構的影響
+    public void 需求分析() {
+        /*
+         * 考慮因素:
+         * - 功能性需求 vs 非功能性需求
+         * - 現有團隊技能 vs 學習成本
+         * - 開發效率 vs 長期維護性
+         * - 預算限制 vs 技術理想性
+         */
+    }
+    
+    // □ 我能評估不同技術方案的優缺點
+    public void 方案比較() {
+        /*
+         * 比較標準:
+         * - 開發生產力
+         * - 系統效能
+         * - 可擴展性
+         * - 技術風險
+         * - 社群支援
+         */
+    }
+    
+    // □ 我能制定技術實作計畫
+    public void 實作規劃() {
+        /*
+         * 規劃內容:
+         * - 技術框架選擇
+         * - 開發階段劃分
+         * - 風險控制措施
+         * - 團隊培訓計畫
+         */
+    }
+}
+```
+
+### 9.4 持續改進計畫
+
+#### 9.4.1 弱點識別與改善
+
+**個人技能缺口分析** (需要加強的打 ):
+```text
+技術技能缺口:
+□ 分散式系統設計經驗不足
+□ 大數據處理技術需要學習
+□ 雲端服務架構不夠熟悉
+□ 資訊安全最佳實務需要加強
+□ DevOps 工具鏈操作不熟練
+
+軟技能缺口:
+□ 跨部門溝通技巧需要提升
+□ 技術演講和簡報能力待改善
+□ 專案管理經驗需要累積
+□ 團隊領導能力需要培養
+□ 商業思維和產品意識不足
+```
+
+**改善行動計畫** (完成打 ):
+```java
+public class 改善行動計畫 {
+    
+    // □ 設定明確的學習目標和時程
+    public void 制定學習目標() {
+        /*
+         * SMART 目標設定:
+         * - Specific: 具體明確的學習內容
+         * - Measurable: 可衡量的成果指標
+         * - Achievable: 可實現的目標水準
+         * - Relevant: 與職涯發展相關
+         * - Time-bound: 明確的完成期限
+         */
+    }
+    
+    // □ 建立定期的學習和實作習慣
+    public void 建立學習習慣() {
+        /*
+         * 學習計畫:
+         * - 每週固定時間投入學習
+         * - 理論學習與實作練習並重
+         * - 定期檢視進度和調整方向
+         * - 尋找學習夥伴和指導者
+         */
+    }
+    
+    // □ 設定可衡量的進步指標
+    public void 設定進步指標() {
+        /*
+         * 評估指標:
+         * - 完成的線上課程數量
+         * - 實作的專案作品質量
+         * - 獲得的技術認證
+         * - 工作中應用新技能的成果
+         */
+    }
+}
+```
+
+#### 9.4.2 學習成果追蹤
+
+**學習記錄表** (每月更新):
+```text
+月份: ______
+
+本月學習成果:
+□ 完成的課程/書籍: _______________
+□ 實作的專案/練習: _______________  
+□ 參與的技術活動: _______________
+□ 獲得的回饋建議: _______________
+
+技能提升評估:
+□ 新掌握的技術: _________________
+□ 改善的技能領域: _______________
+□ 仍需加強的部分: _______________
+
+下月學習計畫:
+□ 優先學習主題: _________________
+□ 計畫參與活動: _________________
+□ 預期達成目標: _________________
+```
+
+### 9.5 認證與成就里程碑
+
+#### 9.5.1 短期目標 (3-6個月)
+
+**技術認證目標** (完成打 ):
+```text
+□ 完成 OCUP 2 Fundamental Level 認證
+□ 取得 Oracle Java SE 11 Certification  
+□ 獲得 AWS Cloud Practitioner 認證
+□ 完成 Spring Professional 認證課程
+□ 參加至少 2 場技術研討會或工作坊
+```
+
+**實務成果目標** (完成打 ):
+```text
+□ 完成一個完整的個人專案作品集
+□ 在技術部落格發表至少 5 篇文章
+□ 貢獻至少 1 個開源專案
+□ 在公司內部進行技術分享
+□ 指導至少 1 位初級開發者
+```
+
+#### 9.5.2 中期目標 (6-12個月)
+
+**職涯發展目標** (完成打 ):
+```text
+□ 升任中級軟體工程師或相當職位
+□ 成為團隊中的技術領導者
+□ 獲得進階技術認證 (OCUP 2 Intermediate)
+□ 建立個人技術品牌和影響力
+□ 參與重要專案的架構設計決策
+```
+
+#### 9.5.3 長期目標 (1-3年)
+
+**專業發展願景** (完成打 ):
+```text
+□ 成為軟體架構師或技術主管
+□ 具備跨領域的技術整合能力
+□ 成為公司或社群的技術專家
+□ 獲得高階技術認證和專業肯定
+□ 培養下一代的軟體開發人才
+```
+
+---
+
+### 9.6 總結檢核表
+
+**完成本教學手冊學習後，我已經具備:**
+
+**核心知識** (全部完成打 ):
+```text
+□ 物件導向分析與設計的完整概念體系
+□ UML 建模語言的標準語法和應用技巧  
+□ SOLID 設計原則和常用設計模式
+□ 從需求分析到程式實作的完整流程
+□ 軟體品質控制和最佳實務應用
+```
+
+**實務技能** (全部完成打 ):
+```text
+□ 獨立完成中小型系統的分析設計
+□ 使用 UML 工具進行專業建模
+□ 撰寫高品質、可維護的 Java 程式碼
+□ 進行有效的程式碼審查和重構
+□ 與團隊成員進行技術溝通協作
+```
+
+**持續發展能力** (全部完成打 ):
+```text
+□ 自主學習新技術和框架的能力
+□ 分析技術趨勢和做出技術決策
+□ 建立個人學習計畫和執行能力
+□ 參與技術社群和知識分享
+□ 規劃職涯發展和技能提升路徑
+```
+
+**恭喜您完成了 OOAD 教學手冊的完整學習！**
+
+現在您已經準備好在軟體開發的道路上邁出更大的步伐了！
+
+---
+
+**最後提醒**:
+- 學習是終身的過程，保持好奇心和學習熱忱
+- 理論必須結合實務，多動手實作才能真正掌握
+- 與同儕分享交流，在教學相長中共同成長  
+- 設定明確目標，持續追蹤進度和調整方向
+
+祝您在軟體工程的專業道路上一帆風順，成就非凡！
+
+---
+
+## 10. 專案交付檢查清單
 
 本章提供各個階段的檢查清單，幫助您確保 OOAD 專案的品質和完整性。
 
-### 9.1 需求分析檢查清單
+### 10.1 需求分析檢查清單
 
-#### 9.1.1 利害關係人分析
+#### 10.1.1 利害關係人分析
 
-**利害關係人識別** ✅
+**利害關係人識別**
 - [ ] 已識別所有主要利害關係人
 - [ ] 明確定義每個利害關係人的角色和責任
 - [ ] 建立利害關係人聯絡清單
 - [ ] 確認利害關係人的參與程度和影響力
 
-**需求收集** ✅
+**需求收集**
 - [ ] 已進行充分的需求訪談
 - [ ] 使用多種需求收集技術 (訪談、觀察、問卷等)
 - [ ] 文件化所有功能性需求
 - [ ] 文件化所有非功能性需求 (效能、安全性、可用性)
 
-#### 9.1.2 Use Case 分析
+#### 10.1.2 Use Case 分析
 
-**Use Case 識別** ✅
+**Use Case 識別**
 ```java
 public class UseCaseCheckList {
     
@@ -6692,33 +6650,33 @@ public class UseCaseCheckList {
 }
 ```
 
-**Use Case 圖檢查** ✅
+**Use Case 圖檢查**
 - [ ] 系統邊界清楚定義
 - [ ] 所有參與者都正確放置在系統外部
 - [ ] Use Case 之間的關係正確使用 (include, extend, 泛化)
 - [ ] 圖形符號使用正確
 - [ ] 圖形配置清晰易讀
 
-#### 9.1.3 需求驗證
+#### 10.1.3 需求驗證
 
-**需求品質檢查** ✅
+**需求品質檢查**
 - [ ] 需求描述明確且無歧義
 - [ ] 需求可測試且可驗證
 - [ ] 需求之間無衝突
 - [ ] 需求優先順序已設定
 - [ ] 需求可追溯性已建立
 
-**需求核准** ✅
+**需求核准**
 - [ ] 需求文件已由利害關係人審核
 - [ ] 所有變更都經過正式核准流程
 - [ ] 需求基準已建立
 - [ ] 需求變更管理程序已定義
 
-### 9.2 設計階段檢查清單
+### 10.2 設計階段檢查清單
 
-#### 9.2.1 架構設計
+#### 10.2.1 架構設計
 
-**系統架構** ✅
+**系統架構**
 ```mermaid
 flowchart TD
     A[架構設計檢查] --> B[分層架構]
@@ -6743,16 +6701,16 @@ flowchart TD
     E --> E3[資料流設計]
 ```
 
-**設計原則遵循** ✅
+**設計原則遵循**
 - [ ] 遵循 SOLID 原則
 - [ ] 應用適當的設計模式
 - [ ] 達到適當的內聚性和低耦合性
 - [ ] 符合開放封閉原則
 - [ ] 實現關注點分離
 
-#### 9.2.2 類別設計
+#### 10.2.2 類別設計
 
-**類別圖檢查** ✅
+**類別圖檢查**
 ```java
 public class ClassDiagramCheckList {
     
@@ -6791,58 +6749,58 @@ public class ClassDiagramCheckList {
 }
 ```
 
-#### 9.2.3 行為設計
+#### 10.2.3 行為設計
 
-**循序圖檢查** ✅
+**循序圖檢查**
 - [ ] 物件生命線正確表示
 - [ ] 訊息流向清楚且合理
 - [ ] 訊息順序符合業務邏輯
 - [ ] 條件和迴圈正確表達
 - [ ] 物件創建和銷毀正確標示
 
-**狀態圖檢查** ✅
+**狀態圖檢查**
 - [ ] 初始狀態和終止狀態正確定義
 - [ ] 狀態轉換條件明確
 - [ ] 所有可能的狀態都已考慮
 - [ ] 狀態轉換完整且無遺漏
 - [ ] 複合狀態設計合理
 
-### 9.3 實作階段檢查清單
+### 10.3 實作階段檢查清單
 
-#### 9.3.1 程式碼結構
+#### 10.3.1 程式碼結構
 
-**專案結構** ✅
+**專案結構**
 ```text
 專案結構檢查清單：
-📁 src/
-  📁 main/
-    📁 java/
-      📁 com/company/project/
-        📁 controller/     ✅ 控制層類別
-        📁 service/        ✅ 業務邏輯層
-        📁 repository/     ✅ 資料存取層
-        📁 model/          ✅ 領域模型
-        📁 dto/            ✅ 資料傳輸物件
-        📁 config/         ✅ 配置類別
-        📁 util/           ✅ 工具類別
-    📁 resources/          ✅ 配置檔案和資源
-  📁 test/
-    📁 java/              ✅ 單元測試
-    📁 resources/         ✅ 測試資源
+src/
+  main/
+    java/
+      com/company/project/
+        controller/     控制層類別
+        service/        業務邏輯層
+        repository/     資料存取層
+        model/          領域模型
+        dto/            資料傳輸物件
+        config/         配置類別
+        util/           工具類別
+    resources/          配置檔案和資源
+  test/
+    java/              單元測試
+    resources/         測試資源
 ```
 
-**命名慣例** ✅
+**命名慣例**
 ```java
 public class NamingConventionCheck {
     
     // 類別命名檢查
     public boolean 檢查類別命名() {
         /*
-         * ✅ 使用 PascalCase (例: UserService)
-         * ✅ 名稱具有描述性
-         * ✅ 避免縮寫和簡稱
-         * ✅ 介面名稱以 I 開頭或 able 結尾
-         * ✅ 抽象類別名稱包含 Abstract
+         * 使用 PascalCase (例: UserService)
+         * 名稱具有描述性
+         * 避免縮寫和簡稱
+         * 介面名稱以 I 開頭或 able 結尾
+         * 抽象類別名稱包含 Abstract
          */
         return true;
     }
@@ -6850,11 +6808,11 @@ public class NamingConventionCheck {
     // 方法命名檢查
     public boolean 檢查方法命名() {
         /*
-         * ✅ 使用 camelCase (例: getUserById)
-         * ✅ 動詞開頭，表達動作
-         * ✅ 布林方法以 is/has/can 開頭
-         * ✅ 取得方法以 get 開頭
-         * ✅ 設定方法以 set 開頭
+         * 使用 camelCase (例: getUserById)
+         * 動詞開頭，表達動作
+         * 布林方法以 is/has/can 開頭
+         * 取得方法以 get 開頭
+         * 設定方法以 set 開頭
          */
         return true;
     }
@@ -6862,36 +6820,36 @@ public class NamingConventionCheck {
     // 變數命名檢查
     public boolean 檢查變數命名() {
         /*
-         * ✅ 使用 camelCase
-         * ✅ 常數使用 UPPER_SNAKE_CASE
-         * ✅ 名稱具有意義
-         * ✅ 避免單字母變數 (除了迴圈計數器)
-         * ✅ 布林變數名稱表達是非概念
+         * 使用 camelCase
+         * 常數使用 UPPER_SNAKE_CASE
+         * 名稱具有意義
+         * 避免單字母變數 (除了迴圈計數器)
+         * 布林變數名稱表達是非概念
          */
         return true;
     }
 }
 ```
 
-#### 9.3.2 程式碼品質
+#### 10.3.2 程式碼品質
 
-**程式碼審查** ✅
+**程式碼審查**
 - [ ] 程式碼符合團隊編碼標準
 - [ ] 適當使用註解和文件
 - [ ] 錯誤處理機制完整
 - [ ] 無明顯的程式碼異味 (Code Smell)
 - [ ] 效能考量已納入設計
 
-**SOLID 原則實踐** ✅
+**SOLID 原則實踐**
 ```java
 public class SOLIDPrincipleCheck {
     
     // S - 單一責任原則檢查
     public boolean checkSingleResponsibility() {
         /*
-         * ✅ 每個類別只有一個變更的理由
-         * ✅ 類別的方法都圍繞單一主題
-         * ✅ 類別大小適中 (建議少於 500 行)
+         * 每個類別只有一個變更的理由
+         * 類別的方法都圍繞單一主題
+         * 類別大小適中 (建議少於 500 行)
          */
         return true;
     }
@@ -6899,9 +6857,9 @@ public class SOLIDPrincipleCheck {
     // O - 開放封閉原則檢查  
     public boolean checkOpenClosed() {
         /*
-         * ✅ 對擴展開放，對修改封閉
-         * ✅ 使用抽象和介面進行擴展
-         * ✅ 避免修改既有程式碼來新增功能
+         * 對擴展開放，對修改封閉
+         * 使用抽象和介面進行擴展
+         * 避免修改既有程式碼來新增功能
          */
         return true;
     }
@@ -6909,9 +6867,9 @@ public class SOLIDPrincipleCheck {
     // L - 里氏替換原則檢查
     public boolean checkLiskovSubstitution() {
         /*
-         * ✅ 子類別可以替換父類別
-         * ✅ 子類別不會破壞父類別的約束
-         * ✅ 子類別不會拋出父類別未預期的例外
+         * 子類別可以替換父類別
+         * 子類別不會破壞父類別的約束
+         * 子類別不會拋出父類別未預期的例外
          */
         return true;
     }
@@ -6919,9 +6877,9 @@ public class SOLIDPrincipleCheck {
     // I - 介面隔離原則檢查
     public boolean checkInterfaceSegregation() {
         /*
-         * ✅ 介面方法數量適中
-         * ✅ 客戶端不依賴不需要的介面
-         * ✅ 介面具有高內聚性
+         * 介面方法數量適中
+         * 客戶端不依賴不需要的介面
+         * 介面具有高內聚性
          */
         return true;
     }
@@ -6929,35 +6887,35 @@ public class SOLIDPrincipleCheck {
     // D - 依賴反轉原則檢查
     public boolean checkDependencyInversion() {
         /*
-         * ✅ 依賴於抽象而非具體實作
-         * ✅ 使用依賴注入
-         * ✅ 高層模組不依賴低層模組
+         * 依賴於抽象而非具體實作
+         * 使用依賴注入
+         * 高層模組不依賴低層模組
          */
         return true;
     }
 }
 ```
 
-#### 9.3.3 測試完整性
+#### 10.3.3 測試完整性
 
-**單元測試** ✅
+**單元測試**
 - [ ] 每個公開方法都有對應的測試
 - [ ] 測試覆蓋率達到 80% 以上
 - [ ] 測試案例包含正常情境和邊界情況
 - [ ] 測試具有良好的可讀性和可維護性
 - [ ] 使用適當的 Mock 和 Stub
 
-**整合測試** ✅
+**整合測試**
 - [ ] API 端點測試完整
 - [ ] 資料庫整合測試正常
 - [ ] 外部服務整合測試穩定
 - [ ] 端到端測試場景覆蓋主要使用流程
 
-### 9.4 程式碼審查檢查清單
+### 10.4 程式碼審查檢查清單
 
-#### 9.4.1 功能正確性
+#### 10.4.1 功能正確性
 
-**邏輯正確性** ✅
+**邏輯正確性**
 ```java
 public class FunctionalityCheck {
     
@@ -6996,25 +6954,25 @@ public class FunctionalityCheck {
 }
 ```
 
-#### 9.4.2 效能與安全性
+#### 10.4.2 效能與安全性
 
-**效能考量** ✅
+**效能考量**
 - [ ] 資料庫查詢已優化
 - [ ] 演算法複雜度合理
 - [ ] 記憶體使用效率良好
 - [ ] 網路呼叫次數最小化
 - [ ] 快取機制適當應用
 
-**安全性檢查** ✅
+**安全性檢查**
 - [ ] 輸入驗證和清理
 - [ ] SQL 注入防護
 - [ ] XSS 攻擊防護
 - [ ] 認證和授權機制
 - [ ] 敏感資料加密
 
-#### 9.4.3 可維護性
+#### 10.4.3 可維護性
 
-**程式碼可讀性** ✅
+**程式碼可讀性**
 ```java
 public class MaintainabilityCheck {
     
@@ -7053,27 +7011,27 @@ public class MaintainabilityCheck {
 }
 ```
 
-### 9.5 專案交付檢查清單
+### 10.5 專案交付檢查清單
 
-#### 9.5.1 文件完整性
+#### 10.5.1 文件完整性
 
-**技術文件** ✅
+**技術文件**
 - [ ] 系統架構文件完整
 - [ ] API 文件詳細且最新
 - [ ] 資料庫設計文件
 - [ ] 部署指南詳細
 - [ ] 故障排除指南
 
-**使用者文件** ✅
+**使用者文件**
 - [ ] 使用者手冊完整
 - [ ] 安裝指南清楚
 - [ ] 快速入門指南
 - [ ] 常見問題解答
 - [ ] 版本發布說明
 
-#### 9.5.2 交付品質量
+#### 10.5.2 交付品質量
 
-**程式碼品質** ✅
+**程式碼品質**
 ```mermaid
 graph TD
     A[程式碼品質檢查] --> B[靜態分析]
@@ -7098,23 +7056,23 @@ graph TD
     E --> E3[合規檢查]
 ```
 
-**系統穩定性** ✅
+**系統穩定性**
 - [ ] 系統在預期負載下穩定運行
 - [ ] 錯誤恢復機制正常
 - [ ] 監控和記錄系統運作正常
 - [ ] 備份和災難恢復程序就緒
 - [ ] 效能指標符合需求
 
-#### 9.5.3 團隊交接
+#### 10.5.3 團隊交接
 
-**知識移交** ✅
+**知識移交**
 - [ ] 技術培訓已完成
 - [ ] 程式碼走查已進行
 - [ ] 維護程序已建立
 - [ ] 聯絡資訊已更新
 - [ ] 支援流程已定義
 
-**後續支援** ✅
+**後續支援**
 ```java
 public class ProjectHandoverCheck {
     
@@ -7153,16 +7111,16 @@ public class ProjectHandoverCheck {
 }
 ```
 
-#### 9.5.4 持續改進
+#### 10.5.4 持續改進
 
-**經驗教訓** ✅
+**經驗教訓**
 - [ ] 專案回顧會議已舉行
 - [ ] 經驗教訓已文件化
 - [ ] 流程改進建議已提出
 - [ ] 最佳實務已分享
 - [ ] 工具和技術評估已完成
 
-**未來發展** ✅
+**未來發展**
 - [ ] 系統擴展計畫已制定
 - [ ] 技術債務評估完成
 - [ ] 維護計畫已安排
@@ -7178,15 +7136,15 @@ public class ProjectHandoverCheck {
 記住，學習是一個持續的過程。保持好奇心，積極參與技術社群，並將所學知識應用到實際專案中。祝您在軟體開發的路上越走越精進！
 
 **最後提醒**:
-- 📚 **持續學習**: 技術不斷演進，保持學習的熱忱
-- 🛠️ **實務應用**: 理論結合實踐，才能真正掌握技能  
-- 👥 **團隊合作**: 與同事分享經驗，共同成長
-- 🎯 **品質第一**: 始終追求高品質的軟體設計和實作
+- **持續學習**: 技術不斷演進，保持學習的熱忱
+- **實務應用**: 理論結合實踐，才能真正掌握技能  
+- **團隊合作**: 與同事分享經驗，共同成長
+- **品質第一**: 始終追求高品質的軟體設計和實作
 
 ---
 
 **版本資訊**：
-- 文件版本：v2.0
-- 最後更新：2025年9月2日
-- 作者：資深軟體架構師團隊
+- 文件版本：v2.1
+- 最後更新：2026年7月17日
+- 作者：系統架構師團隊
 - 適用對象：Java 開發人員、系統架構師
