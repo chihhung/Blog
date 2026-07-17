@@ -1,6 +1,6 @@
 {{ if eq .Type "mermaid" }}
 <div class="mermaid">
-  {{- .Inner | safeHTML }}
+  {{- .Inner }}
 </div>
 {{ else }}
   {{ $lang := .Type }}
