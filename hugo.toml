@@ -7,6 +7,9 @@ theme = 'PaperMod'
 # 請將下面的 G-XXXXXXXXXX 替換為您的實際測量 ID
 googleAnalytics = "G-542B4N4ZLZ"
 
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
 [markup]
   [markup.goldmark]
     [markup.goldmark.renderer]
@@ -76,6 +79,12 @@ googleAnalytics = "G-542B4N4ZLZ"
     name = "標籤"
     url = "tags/"
     weight = 30
+
+  [[menu.main]]
+    identifier = "search"
+    name = "搜尋"
+    url = "search/"
+    weight = 35
 
   [[menu.main]]
     identifier = "about"
