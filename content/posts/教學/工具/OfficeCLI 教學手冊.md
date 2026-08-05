@@ -1,6 +1,6 @@
 +++
 date = '2026-08-05T16:17:59+08:00'
-draft = true
+draft = false
 title = 'OfficeCLI 教學手冊'
 tags = ['教學', '工具', 'AI開發']
 categories = ['教學']
