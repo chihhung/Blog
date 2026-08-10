@@ -11,14 +11,14 @@ categories = ['教學']
 
 | 項目 | 說明 |
 |------|------|
-| **版本** | v4.0.0 |
-| **更新日期** | 2026-07-22 |
+| **版本** | v5.0.0 |
+| **更新日期** | 2026-08-10 |
 | **適用對象** | 資深工程師、架構師、Tech Lead、DevSecOps 工程師、AI 導入推動者 |
-| **技術棧** | mattpocock/skills（CHANGELOG v1.1.0／plugin.json v1.2.0）、Claude Code / Codex 等 Coding Agent、skills.sh 生態系、agentskills.io 開放標準、CONTEXT.md、ADR |
-| **參考來源** | [mattpocock/skills GitHub](https://github.com/mattpocock/skills)（180,641 stars、15,434 forks，MIT License，GitHub API 查證於 2026-07-22） |
+| **技術棧** | mattpocock/skills（CHANGELOG／`.claude-plugin/plugin.json`／`package.json` 三方一致，皆為 v1.2.3）、Claude Code / Codex 等 Coding Agent、skills.sh 生態系、agentskills.io 開放標準、CONTEXT.md、ADR |
+| **參考來源** | [mattpocock/skills GitHub](https://github.com/mattpocock/skills)（211,328 stars、18,273 forks、1,218 subscribers，MIT License，GitHub API 查證於 2026-08-10） |
 | **前置知識** | AI Coding Agent 基本操作、Git 版本控制、基礎軟體工程概念 |
 
-> **版本說明**：本次改版（v4.0.0）已針對 mattpocock/skills **v1.1.0**（2026-07-08 發布）的重大重構逐項核對原始碼（SKILL.md、`.claude-plugin/plugin.json`、`CHANGELOG.md`），其中最關鍵的變動是：`to-prd` 更名為 `to-spec`、`to-issues` 與已刪除的 `to-plan` 合併為 `to-tickets`、`wayfinder`（原名 `decision-mapping`）由實驗性的 in-progress 轉正為正式 Engineering Skill、新增可背景執行的調研 Skill `research`、`resolving-merge-conflicts` 結束過渡期首次正式收錄進 plugin.json。另需留意：`.claude-plugin/plugin.json` 的版號（1.2.0）目前領先於 `package.json`／CHANGELOG 記載的正式版本（1.1.0），兩者尚未對齊，屬治理上的落差，詳見第 24.6 節版本紀錄與第 23 章 FAQ。
+> **版本說明**：本次改版（v5.0.0）已針對 mattpocock/skills 自 v1.1.0（2026-07-08）以來連續三次改版（**v1.2.0 → v1.2.2 → v1.2.3**，最新一次提交於 2026-08-07）逐項核對原始碼（SKILL.md、`.claude-plugin/plugin.json`、`CHANGELOG.md`）。這段期間變動幅度極大，關鍵變化包括：`grilling` 質詢引擎由「一次一問」重構為「**逐輪（round-by-round）＋ frontier**」機制；`prototype` 全面改版為「單一可分享 HTML 檔案＋拋棄分支保留」模式；`wayfinder` 將票券單位正名為 **Decision Ticket**；`writing-great-skills` 更名並重構為 **`writing-for-agents`**（範疇從「撰寫 Skill」擴大為「撰寫任何供 Agent 消費的文件」，且改為 Model-invoked）；`wizard`、`to-questionnaire` 由 in-progress 畢業轉正；新增一詞修正 Skill `wait-what`；有 **6 個 Skill 被徹底移除**（`ubiquitous-language`、`design-an-interface`、`qa`、`request-refactor-plan`、`edit-article`、`obsidian-vault`），其功能已分別併入其他 Skill，`skills/personal/` 資料夾也隨之消失；`.claude-plugin/plugin.json` 現已收錄 **25 個** Skill（原 22 個）；Claude Code 原生 Plugin 安裝方式大幅簡化為單一指令 `claude plugins install mattpocock-skills`（不再需要先手動加入 marketplace）；`diagnosing-bugs` 新增密鑰自動隱匿（Redact）機制；`improve-codebase-architecture` 新增 YAGNI 範疇篩選。另外，先前版本提醒的「plugin.json 版號領先 CHANGELOG」治理落差已於本次查證中確認**修復**——三者版號已重新對齊為 v1.2.3。詳細變更範圍請見第 24.6 節版本紀錄。
 >
 > **延伸閱讀**：本手冊專注於 mattpocock/skills 特有生態系。如需了解通用 Agent Skills 開放標準，請參閱同目錄下的《Agent Skills 教學手冊》與《claude agent skills 教學手冊》。
 
@@ -26,11 +26,11 @@ categories = ['教學']
 
 ## 摘要（Executive Summary）
 
-mattpocock/skills 是由 TypeScript 專家 Matt Pocock 開發的開源 AI Coding Agent 技能庫，目標是以可驗證的工程流程（結構化質詢、TDD、ADR、深模組設計）取代不受控的「Vibe Coding」。作者在 README 中明確將其定位為與 GSD、BMAD、Spec-Kit 等「代管整個開發流程」的框架不同的路線——mattpocock/skills 刻意保持小巧、可組合、不奪走開發者的控制權。截至 2026-07-22 查證，該專案已成長至**18 萬顆以上 GitHub Star**，是 Agent Skills 生態系中採用度最高的社群技能集合之一。
+mattpocock/skills 是由 TypeScript 專家 Matt Pocock 開發的開源 AI Coding Agent 技能庫，目標是以可驗證的工程流程（結構化質詢、TDD、ADR、深模組設計）取代不受控的「Vibe Coding」。作者在 README 中明確將其定位為與 GSD、BMAD、Spec-Kit 等「代管整個開發流程」的框架不同的路線——mattpocock/skills 刻意保持小巧、可組合、不奪走開發者的控制權。截至 2026-08-10 查證，該專案已成長至**21 萬顆以上 GitHub Star**（211,328 stars、18,273 forks），是 Agent Skills 生態系中採用度最高的社群技能集合之一，且維持著近乎每週一次的高頻改版節奏（最近一次提交於 2026-08-07）。
 
-本次改版（v4.0.0）反映該專案 **2026-07-08 發布之 v1.1.0** 的重大重構：規劃流程的兩個核心指令 `to-prd`／`to-issues` 已分別更名、合併為 `to-spec`／`to-tickets`；新增可處理「超過單一 Agent Session 容量」之大型專案的規劃工具 `wayfinder`，以及可背景非同步執行的調研工具 `research`；`resolving-merge-conflicts` 結束過渡期正式收錄進 plugin.json。同時，整個 Agent Skills 生態系的治理架構也更為清晰，形成 **agentskills.io（Anthropic 主導的開放標準層）→ skills.sh／npm `skills`（Vercel 維運的分發層）→ mattpocock/skills（社群內容層）** 三層分工。
+本次改版（v5.0.0）涵蓋該專案自 v1.1.0 以來連續三個版本（**v1.2.0、v1.2.2、v1.2.3**）的重大重構，變動幅度遠超以往任何一次改版：質詢引擎 `grilling` 由「一次一問」徹底重構為「**逐輪提問（round-by-round）＋ frontier（前緣）**」機制，同樣的 13 個問題現在只需約 3 輪就能問完；`prototype` 全面改版，Logic 分支不再產出終端機程式，改為單一可雙擊開啟的自包含 HTML 檔案，且「拋棄」不再等於「刪除」——原型會保留在 `prototype/<name>` 分支上做為一手史料；`wayfinder` 正式將票券單位定名為 **Decision Ticket（決策票券）**，並讓 research 票券能在繪製地圖的同一個 Session 中就以子代理平行解決；`writing-great-skills` 更名並重構為 **`writing-for-agents`**，範疇從「如何撰寫 Skill」擴大為「如何撰寫任何供 Agent 消費的文件」（涵蓋 SKILL.md、CLAUDE.md／AGENTS.md、經指標引用的外部文件），且首次轉為 Model-invoked；`wizard`（人工程序精靈）與 `to-questionnaire`（決策問卷產生器）雙雙由 in-progress 畢業進入正式 Plugin；新增一詞修正 Skill `wait-what`。與此同時，有 **6 個 Skill 被徹底移除**（並非僅止於棄用標記）：`ubiquitous-language`→`domain-modeling`、`design-an-interface`→`codebase-design`、`qa`→`triage`／`to-tickets`、`request-refactor-plan`→`to-spec`／`improve-codebase-architecture`、以及純屬作者個人設定的 `edit-article`／`obsidian-vault`（`skills/personal/` 資料夾隨之整個消失）。`.claude-plugin/plugin.json` 現已收錄 **25 個** Skill（原 22 個），且 Claude Code 原生 Plugin 的安裝方式大幅簡化為單一指令 `claude plugins install mattpocock-skills`，不再需要先手動加入 marketplace。同時，整個 Agent Skills 生態系的治理架構也更為清晰，形成 **agentskills.io（Anthropic 主導的開放標準層）→ skills.sh／npm `skills`（Vercel 維運的分發層）→ mattpocock/skills（社群內容層）** 三層分工。
 
-對已導入 mattpocock/skills 的企業團隊，本次更新最需要立即處理的行動是：**確認團隊 CLAUDE.md／AGENTS.md 與內部教材中是否仍殘留 `/to-prd`、`/to-issues` 等已失效指令**，並評估是否導入新的 `/wayfinder` 用於大型專案規劃、`/research` 用於背景文獻調研。詳細變更範圍請見第 24.6 節版本紀錄。
+對已導入 mattpocock/skills 的企業團隊，本次更新最需要立即處理的行動是：**確認團隊內部教材與 CLAUDE.md／AGENTS.md 中對 `grilling` 一次一問的行為描述是否已過時**（現行為逐輪提問）、**確認是否仍在使用已徹底移除的 6 個舊指令**（`/ubiquitous-language`、`/design-an-interface`、`/qa`、`/request-refactor-plan`、`/edit-article`、`/obsidian-vault`）、並評估是否導入新的 `/wizard`（人工程序精靈）、`/to-questionnaire`（決策問卷）與 `/wait-what`（一詞修正）。詳細變更範圍請見第 24.6 節版本紀錄。
 
 ---
 
@@ -48,7 +48,7 @@ mattpocock/skills 是由 TypeScript 專家 Matt Pocock 開發的開源 AI Coding
   - [2.2 Context Injection 與 Prompt Pipeline](#22-context-injection-與-prompt-pipeline)
   - [2.3 Governance Layer 與 Agent Constraints](#23-governance-layer-與-agent-constraints)
   - [2.4 ADR Integration 與 Domain Discovery](#24-adr-integration-與-domain-discovery)
-  - [2.5 六大分類與實際 Skill 清單](#25-六大分類與實際-skill-清單)
+  - [2.5 五大分類與實際 Skill 清單](#25-五大分類與實際-skill-清單)
 - [第 3 章：安裝與初始化](#第-3-章安裝與初始化)
   - [3.1 前置環境準備](#31-前置環境準備)
   - [3.2 安裝 mattpocock/skills](#32-安裝-mattpocockskills)
@@ -61,7 +61,7 @@ mattpocock/skills 是由 TypeScript 專家 Matt Pocock 開發的開源 AI Coding
   - [4.3 CONTEXT.md — 領域詞彙表](#43-contextmd--領域詞彙表)
   - [4.4 ADR（Architecture Decision Records）](#44-adrarchitecture-decision-records)
   - [4.5 Skill 載入與執行流程](#45-skill-載入與執行流程)
-- [第 5 章：grill-me、grilling 與 grill-with-docs — 需求探索與挑戰](#第-5-章grill-me-grilling-與-grill-with-docs--需求探索與挑戰)
+- [第 5 章：grill-me、grilling 與 grill-with-docs — 需求探索與挑戰](#第-5-章grill-megrilling-與-grill-with-docs--需求探索與挑戰)
   - [5.1 grill-me — 通用計畫挑戰](#51-grill-me--通用計畫挑戰)
   - [5.2 grilling — 共用質詢引擎](#52-grilling--共用質詢引擎)
   - [5.3 grill-with-docs — 結合 Domain 的深度挑戰](#53-grill-with-docs--結合-domain-的深度挑戰)
@@ -98,7 +98,7 @@ mattpocock/skills 是由 TypeScript 專家 Matt Pocock 開發的開源 AI Coding
   - [9.7 實戰案例與最佳實踐](#97-實戰案例與最佳實踐)
 - [第 10 章：prototype — 快速原型建立](#第-10-章prototype--快速原型建立)
   - [10.1 Throwaway Prototype 原則](#101-throwaway-prototype-原則)
-  - [10.2 Logic 分支 — 終端互動原型](#102-logic-分支--終端互動原型)
+  - [10.2 Logic 分支 — 單一 HTML 檔案原型（v1.2.0 全面改版）](#102-logic-分支--單一-html-檔案原型v120-全面改版)
   - [10.3 UI 分支 — 多方案視覺原型](#103-ui-分支--多方案視覺原型)
   - [10.4 通用規則與實戰案例](#104-通用規則與實戰案例)
 - [第 11 章：diagnosing-bugs — 結構化除錯](#第-11-章diagnosing-bugs--結構化除錯)
@@ -120,15 +120,18 @@ mattpocock/skills 是由 TypeScript 專家 Matt Pocock 開發的開源 AI Coding
 - [第 14 章：其他實用 Skills 與生態系擴充](#第-14-章其他實用-skills-與生態系擴充)
   - [14.1 ask-matt — Skill 路由器](#141-ask-matt--skill-路由器)
   - [14.2 handoff — 跨 Agent 交接](#142-handoff--跨-agent-交接)
-  - [14.3 writing-great-skills — 自訂 Skill 開發](#143-writing-great-skills--自訂-skill-開發)
+  - [14.3 writing-for-agents（原 writing-great-skills）— 供 Agent 消費之文件撰寫規範](#143-writing-for-agents原-writing-great-skills-供-agent-消費之文件撰寫規範)
   - [14.4 implement 與 code-review — 實作與雙軸審查](#144-implement-與-code-review--實作與雙軸審查)
   - [14.5 teach 與 resolving-merge-conflicts](#145-teach-與-resolving-merge-conflicts)
   - [14.6 wayfinder — 大型任務地圖規劃（v1.1.0 新收錄）](#146-wayfinder--大型任務地圖規劃v110-新收錄)
   - [14.7 research — 背景調研 Skill（v1.1.0 新增）](#147-research--背景調研-skillv110-新增)
-  - [14.8 git-guardrails-claude-code — Git 安全護欄](#148-git-guardrails-claude-code--git-安全護欄)
-  - [14.9 setup-pre-commit 與其他 Misc Skills](#149-setup-pre-commit-與其他-misc-skills)
-  - [14.10 開發中的 Skills（In-Progress）](#1410-開發中的-skillsin-progress)
-  - [14.11 已棄用的 Skills（Deprecated）](#1411-已棄用的-skillsdeprecated)
+  - [14.8 wizard — 互動式人工程序精靈（v1.2.0 新收錄）](#148-wizard--互動式人工程序精靈v120-新收錄)
+  - [14.9 to-questionnaire — 決策問卷產生器（v1.2.0 由 in-progress 畢業轉正）](#149-to-questionnaire--決策問卷產生器v120-由-in-progress-畢業轉正)
+  - [14.10 wait-what — 一詞修正冗詞贅句（v1.2.0 新增）](#1410-wait-what--一詞修正冗詞贅句v120-新增)
+  - [14.11 git-guardrails-claude-code — Git 安全護欄](#1411-git-guardrails-claude-code--git-安全護欄)
+  - [14.12 setup-pre-commit 與其他 Misc Skills](#1412-setup-pre-commit-與其他-misc-skills)
+  - [14.13 開發中的 Skills（In-Progress，官方定位為 Beta 頻道）](#1413-開發中的-skillsin-progress官方定位為-beta-頻道)
+  - [14.14 已移除與整併的 Skills（原「已棄用」，v1.2.0 全面改寫）](#1414-已移除與整併的-skills原已棄用v120-全面改寫)
 - [第 15 章：AI Agent Workflow](#第-15-章ai-agent-workflow)
   - [15.1 端到端工作流程](#151-端到端工作流程)
   - [15.2 Skills 組合策略](#152-skills-組合策略)
@@ -172,7 +175,7 @@ mattpocock/skills 是由 TypeScript 專家 Matt Pocock 開發的開源 AI Coding
 
 ### 1.1 mattpocock/skills 是什麼
 
-mattpocock/skills 是由知名 TypeScript 專家 Matt Pocock 開發的開源 AI Coding Agent 技能工具庫，最初源自他個人的 `.claude` 設定目錄，2026-02-03 建立為獨立倉庫後迅速獲得社群關注。截至 2026-07-22（GitHub API 即時查證），該專案已累積 **180,641 顆 GitHub Star**、**15,434 次 Fork**，不到半年就從約 2.3 萬星成長至 18 萬星以上，是目前 Agent Skills 生態系中成長最快、關注度最高的集合之一，採 **MIT License** 授權。作者另經營一份訂閱電子報（[aihero.dev](https://www.aihero.dev/s/skills-newsletter)），查證當下已有約 **6 萬名開發者訂閱**，同步追蹤本專案的每次更新。
+mattpocock/skills 是由知名 TypeScript 專家 Matt Pocock 開發的開源 AI Coding Agent 技能工具庫，最初源自他個人的 `.claude` 設定目錄，2026-02-03 建立為獨立倉庫後迅速獲得社群關注。截至 2026-08-10（GitHub API 即時查證），該專案已累積 **211,328 顆 GitHub Star**、**18,273 次 Fork**、**1,218 位 Watcher（subscribers）**，不到半年就從約 2.3 萬星成長至 21 萬星以上，是目前 Agent Skills 生態系中成長最快、關注度最高的集合之一，採 **MIT License** 授權。查證當下開放中的 Issue 數為 314，最近一次程式碼推送在查證日前 3 天內，顯示此專案仍維持高頻改版節奏。作者另經營一份訂閱電子報（[aihero.dev](https://www.aihero.dev/s/skills-newsletter)），同步追蹤本專案的每次更新。
 
 其核心目標是為 AI 編碼代理加入**嚴格的工程實踐約束**，防止 AI 進行無紀律的「盲目通靈寫程式（Vibe Coding）」。作者 Matt Pocock 在 X（原 Twitter）上曾提到，這套 Skill 的設計核心是拒絕「空洞指令（no-op instruction）」——例如「把 commit message 寫詳細一點」「要仔細」這類對 Agent 行為毫無實質約束的措辭，取而代之的是可驗證、可執行的具體流程。
 
@@ -196,7 +199,7 @@ Skills 做法：開發者 → 結構化 Skill → 約束 Pipeline → 高品質�
 
 **與「代管整個流程」框架的定位差異**：README 明確將 mattpocock/skills 與 GSD、BMAD-METHOD、Spec-Kit 等同樣訴求「AI 輔助工程紀律」的框架做出區隔——原文寫道：「*Approaches like GSD, BMAD, and Spec-Kit try to help by owning the process. But while doing so, they take away your control and make bugs in the process hard to resolve.*」。也就是說，mattpocock/skills 刻意不「代管」整個開發流程，而是提供一組小巧、可拆用、可自行修改的獨立 Skill，開發者仍保有對流程的完整控制權；這與本站另有專文介紹的《BMAD-METHOD使用教學》《GSD-2教學手冊》《spec-kit使用教學》屬於不同的設計哲學，企業選型時應一併評估團隊更需要「代管流程」還是「可組合工具箱」。
 
-> **企業提醒**：mattpocock/skills 是**持續高頻提交的活躍專案**（查證當日 `pushed_at` 仍在 24 小時內），且在 2026-07-08 剛發布 v1.1.0 重大改版：多個 Skill 被更名、合併或新增。導入前務必核對 `CHANGELOG.md` 與本手冊第 24.6 節版本紀錄，避免依賴已停用的指令（例如已從倉庫中消失的 `to-prd`、`to-issues`）。
+> **企業提醒**：mattpocock/skills 是**持續高頻提交的活躍專案**（查證當下 `pushed_at` 距查證日僅 3 天），過去一個月內連續發布 v1.2.0、v1.2.2、v1.2.3 三次改版，多個 Skill 被更名、合併、移除或新增。導入前務必核對 `CHANGELOG.md` 與本手冊第 24.6 節版本紀錄，避免依賴已停用或已徹底移除的指令（例如已從倉庫中消失的 `to-prd`、`to-issues`，以及本次改版被完全移除的 `ubiquitous-language`、`design-an-interface`、`qa`、`request-refactor-plan`）。
 
 ### 1.2 解決的四大 AI 失敗模式
 
@@ -216,19 +219,23 @@ mattpocock/skills 設計之初就瞄準了四個常見的 AI 協作失敗模式�
 | 層級 | 代表方 | 主導者 | 角色 |
 |------|--------|--------|------|
 | **標準層** | [agentskills.io](https://agentskills.io) | Anthropic 主導、開放治理 | Agent Skills 規格本體：定義 `SKILL.md` 的 YAML frontmatter、觸發機制等格式標準，並持續向社群開放貢獻；查證當下已有約 40 個產品聲明支援此標準 |
-| **分發層** | [skills.sh](https://skills.sh)／npm 套件 `skills`（查證版本 1.5.19） | **Vercel** 維運 | 「開放 Agent Skills 生態系」網站，提供 Skill 套件探索、排行榜與跨 Agent 安裝功能，可將任何符合標準的 `SKILL.md` 安裝進 20 餘種主流 Coding Agent 的設定目錄 |
+| **分發層** | [skills.sh](https://skills.sh)／npm 套件 `skills`（查證版本 1.5.22） | **Vercel** 維運 | 「開放 Agent Skills 生態系」網站，提供 Skill 套件探索、排行榜與跨 Agent 安裝功能，可將任何符合標準的 `SKILL.md` 安裝進 20 餘種主流 Coding Agent 的設定目錄 |
 | **內容層** | mattpocock/skills | Matt Pocock 與社群貢獻者 | 建立在上述標準之上的具體 Skill 內容集合，也是本手冊的主題 |
 
 **關於「支援哪些 Agent」的正確理解**：
 
 > **重要訂正**：舊版手冊曾列出「mattpocock/skills 原生支援 Claude Code、Cursor、Codex、GitHub Copilot、Windsurf、Gemini、Cline、AMP、Antigravity、ClawdBot 等 10+ Agent」，此說法**混淆了倉庫本身與安裝工具層**。實際查核 mattpocock/skills 的 README 原文，僅明確提到「*I built these skills as a way to fix common failure modes I see with Claude Code, Codex, and other coding agents*」與「*They work with any model*」，並未逐一點名 Cursor、Copilot 等工具。真正具備跨多種 Agent 安裝能力的是**分發層**的 skills.sh／`npx skills` CLI——它以 GitHub 倉庫為來源，將任何相容的 `SKILL.md` 安裝進使用者指定的 Agent 設定目錄，不限於 mattpocock/skills。企業導入時應理解：**Skill 內容本身與 Agent 無關，是否能用在特定 Agent 取決於當下 skills.sh CLI 的支援清單**，建議安裝前以 `npx skills@latest add mattpocock/skills --agent <目標>` 顯示的清單為準。
+>
+> **v1.2.0 起的新發展：倉庫本身開始內建雙引擎中繼資料**。過去只有分發層的 skills.sh CLI 能跨 Agent 安裝，倉庫本身對 Codex 並無原生支援。v1.2.0 改變了這一點——現在**每個 Skill 資料夾內都與 `SKILL.md` 並列一份 `agents/openai.yaml`**，記載 Codex 介面所需的中繼資料（`interface.display_name`、`interface.short_description`）；User-invoked Skill 會加上 `policy.allow_implicit_invocation: false`，是 Claude Code `disable-model-invocation: true` 在 Codex 端的對應設定；倉庫並在 `.agents/invocation.md` 與 `CLAUDE.md` 中說明這套「雙引擎觸發模型」，且新增 `AGENTS.md` 作為指向 `CLAUDE.md` 的符號連結，讓 Codex 讀取到與 Claude Code 相同的專案指引。換言之，**mattpocock/skills 倉庫本身現在已直接對 Codex 提供原生中繼資料**，不再完全仰賴 skills.sh CLI 作為唯一的跨 Agent 橋樑；但實際「安裝」機制（把檔案放進目標 Agent 的設定目錄）目前仍是 skills.sh CLI 與 Claude Code 原生 Plugin 兩者的責任，倉庫本身不提供安裝功能。
 
 **兩種安裝方式**：查證當下 mattpocock/skills 提供兩種互補的安裝路徑，代表兩種不同的維護哲學：
 
 | 安裝方式 | 指令 | 適合情境 |
 |----------|------|----------|
-| **skills.sh CLI**（分發層） | `npx skills@latest add mattpocock/skills` | 將 Skill 檔案複製進專案，可自行修改、客製化（"hack on them and make them your own"） |
-| **Claude Code 原生 Plugin**（v1.1.0 之後新增） | `/plugin marketplace add mattpocock/skills` 接著 `/plugin install mattpocock-skills@mattpocock` | 以「訂閱」而非「複製」方式安裝，取得唯讀、隨作者更新自動同步的技能包，不需自行維護；查證當下僅 Claude Code 原生支援，作者已在 `.agents/adr/0002-ship-as-a-claude-code-plugin.md` 記錄「Codex 原生 Plugin 尚在規劃中」 |
+| **skills.sh CLI**（分發層） | `npx skills@latest add mattpocock/skills` | 將 Skill 檔案複製進專案，可自行修改、客製化（"hack on them and make them your own"）；查證當下仍是 Codex 等其他 Coding Agent 的主要安裝路徑 |
+| **Claude Code 原生 Plugin** | `claude plugins install mattpocock-skills`（終端機執行）或會話內輸入 `/plugin install mattpocock-skills` | 以「訂閱」而非「複製」方式安裝，取得唯讀、隨作者更新自動同步的技能包，不需自行維護 |
+
+> **安裝指令簡化（v1.2.0）**：Claude Code 原生 Plugin 的安裝方式已較先前簡化——**不再需要先手動執行 `/plugin marketplace add mattpocock/skills` 加入 marketplace**，官方 marketplace 現為預設已配置狀態，`claude plugins install mattpocock-skills`（或會話內 `/plugin install mattpocock-skills`）一個指令即可完成安裝，且套件名稱後也**不再需要**附加 `@mattpocock` 字樣。若團隊教材仍記載舊版兩步驟安裝流程，建議一併更新。`.claude-plugin/plugin.json` 承載完整的 Plugin 中繼資料（版本、說明、作者、授權、關鍵字）與已推廣（promoted）Skill 清單；作者在 `.agents/adr/0002-ship-as-a-claude-code-plugin.md` 中說明，Codex 原生 Plugin 目前仍延後規劃，`skills.sh` 在此之前仍是 Codex 與其他 Agent 的通用安裝路徑。
 
 無論採用哪種安裝方式，安裝完成後都必須在**每個專案倉庫**中執行一次 `/setup-matt-pocock-skills` 初始化（見第 3 章）。
 
@@ -270,12 +277,12 @@ mattpocock/skills 透過 `.claude-plugin/plugin.json` 向 Claude Code 註冊，�
 | **User-invoked（人類手動觸發）** | `disable-model-invocation: true` | 只能由開發者輸入 `/skill-name` 主動呼叫，Agent 不會自行判斷觸發 | 負責**編排（orchestrate）**——可以呼叫 Model-invoked Skill，但不可呼叫其他 User-invoked Skill |
 | **Model-invoked（AI 自動判斷）** | 無此欄位 | Agent 依據對話語境與 `description` 內容自行判斷是否套用 | 承載**可重複使用的紀律（reusable discipline）** |
 
-**現行 22 個已註冊 Skill 的完整分類**（依 README「Reference」章節與各 SKILL.md frontmatter 逐一核對，查證於 2026-07-22）：
+**現行 25 個已註冊 Skill 的完整分類**（依 README「Reference」章節與各 SKILL.md frontmatter 逐一核對，查證於 2026-08-10，版本 v1.2.3）：
 
 | 分類 | User-invoked | Model-invoked |
 |------|--------------|----------------|
-| **Engineering**（17） | `ask-matt`、`grill-with-docs`、`triage`、`improve-codebase-architecture`、`setup-matt-pocock-skills`、`to-spec`、`to-tickets`、`implement`、`wayfinder`（9 個） | `prototype`、`diagnosing-bugs`、`research`、`tdd`、`domain-modeling`、`codebase-design`、`code-review`、`resolving-merge-conflicts`（8 個） |
-| **Productivity**（5） | `grill-me`、`handoff`、`teach`、`writing-great-skills`（4 個） | `grilling`（1 個） |
+| **Engineering**（18） | `ask-matt`、`grill-with-docs`、`triage`、`improve-codebase-architecture`、`setup-matt-pocock-skills`、`to-spec`、`to-tickets`、`implement`、`wayfinder`（9 個） | `prototype`、`diagnosing-bugs`、`research`、`tdd`、`domain-modeling`、`codebase-design`、`code-review`、`resolving-merge-conflicts`、`wizard`（9 個，新增 `wizard`） |
+| **Productivity**（7） | `grill-me`、`handoff`、`teach`、`to-questionnaire`、`wait-what`（5 個，新增 `to-questionnaire`、`wait-what`） | `grilling`、`writing-for-agents`（2 個，`writing-for-agents` 原名 `writing-great-skills`，已由 User-invoked 改為 Model-invoked） |
 
 **核心架構圖**（依實際 `.claude-plugin/plugin.json` 與資料夾結構繪製）：
 
@@ -287,16 +294,16 @@ graph TB
 
     subgraph AgentRuntime["🤖 Coding Agent Runtime"]
         direction TB
-        AGENTS["Claude Code（原生 Plugin 或 skills.sh CLI）／<br/>其他相容 Agent（經 skills.sh CLI 安裝）"]
-        PLUGIN[".claude-plugin/plugin.json<br/>22 個已註冊 Skill（v1.2.0）"]
+        AGENTS["Claude Code（原生 Plugin 或 skills.sh CLI）／<br/>Codex（agents/openai.yaml 原生中繼資料<br/>或 skills.sh CLI）／其他相容 Agent"]
+        PLUGIN[".claude-plugin/plugin.json<br/>25 個已註冊 Skill（v1.2.3）"]
         RESOLVER["Skill Resolver<br/>User-invoked／Model-invoked 判斷"]
         EXECUTOR["Skill Executor<br/>指令執行器"]
     end
 
     subgraph SkillsRepo["📦 mattpocock/skills（skills/ 目錄）"]
-        ENG["engineering/（17 個資料夾）<br/>ask-matt, grill-with-docs, tdd,<br/>domain-modeling, codebase-design,<br/>to-spec, to-tickets, diagnosing-bugs,<br/>improve-codebase-architecture,<br/>implement, prototype, triage,<br/>code-review, resolving-merge-conflicts,<br/>wayfinder, research,<br/>setup-matt-pocock-skills"]
-        PROD["productivity/（5 個資料夾）<br/>grill-me, grilling, handoff,<br/>teach, writing-great-skills"]
-        OTHER["misc / in-progress / personal /<br/>deprecated（不進入 plugin.json）"]
+        ENG["engineering/（18 個資料夾）<br/>ask-matt, grill-with-docs, tdd,<br/>domain-modeling, codebase-design,<br/>to-spec, to-tickets, diagnosing-bugs,<br/>improve-codebase-architecture,<br/>implement, prototype, triage,<br/>code-review, resolving-merge-conflicts,<br/>wayfinder, research, wizard,<br/>setup-matt-pocock-skills"]
+        PROD["productivity/（7 個資料夾）<br/>grill-me, grilling, handoff,<br/>teach, to-questionnaire,<br/>wait-what, writing-for-agents"]
+        OTHER["misc / in-progress<br/>（不進入 plugin.json；<br/>deprecated 現為空 bucket，<br/>personal 已隨 6 個 Skill 移除整個消失）"]
     end
 
     subgraph RepoContext["📂 專案倉庫"]
@@ -313,7 +320,7 @@ graph TB
     RESOLVER --> EXECUTOR
     EXECUTOR --> ENG
     EXECUTOR --> PROD
-    EXECUTOR -.未收錄，需手動載入.-> OTHER
+    EXECUTOR -.未收錄，需手動逐一安裝.-> OTHER
     ENG --> CONTEXT
     ENG --> ADR
     ENG --> AGENTDOCS
@@ -321,13 +328,13 @@ graph TB
     ENG --> OUTSCOPE
 ```
 
-> `resolving-merge-conflicts` 已於 v1.1.0 結束「有實作但未收錄」的過渡狀態，正式收錄進 `.claude-plugin/plugin.json`；`wayfinder` 與 `research` 亦同步收錄，詳見第 2.5 節與第 4.2 節。
+> `resolving-merge-conflicts` 已於 v1.1.0 結束「有實作但未收錄」的過渡狀態，正式收錄進 `.claude-plugin/plugin.json`；`wayfinder`、`research` 亦於同版本同步收錄；`wizard`、`to-questionnaire` 則於 v1.2.0 由 in-progress 畢業轉正收錄。詳見第 2.5 節與第 4.2 節。
 
 **關鍵運作邏輯**：
 
-1. **安裝階段**：透過 `npx skills@latest add mattpocock/skills`（skills.sh CLI）或 `/plugin install mattpocock-skills@mattpocock`（Claude Code 原生 Plugin）將選定的 Skill 安裝至目標 Agent 的設定目錄（Claude Code CLI 安裝為 `~/.claude/skills/`）
-2. **註冊階段**：`.claude-plugin/plugin.json`（查證版本 1.2.0）列出 22 個已啟用的 Skill 路徑（實際內容見第 4.2 節）
-3. **觸發階段**：User-invoked Skill 等待人類輸入 `/skill-name`；Model-invoked Skill 由 Agent 依 `description` 欄位自行判斷是否套用
+1. **安裝階段**：透過 `npx skills@latest add mattpocock/skills`（skills.sh CLI）或 `claude plugins install mattpocock-skills`（Claude Code 原生 Plugin，見第 1.3 節）將選定的 Skill 安裝至目標 Agent 的設定目錄（Claude Code CLI 安裝為 `~/.claude/skills/`）
+2. **註冊階段**：`.claude-plugin/plugin.json`（查證版本 1.2.3，與 `package.json`／`CHANGELOG.md` 記載的正式版本一致）列出 25 個已啟用的 Skill 路徑（實際內容見第 4.2 節）
+3. **觸發階段**：User-invoked Skill 等待人類輸入 `/skill-name`；Model-invoked Skill 由 Agent 依 `description` 欄位自行判斷是否套用；若透過 Codex 執行，則對應改由 `agents/openai.yaml` 中的 `policy.allow_implicit_invocation` 欄位控制（見第 1.3 節）
 4. **執行階段**：Agent 讀取 SKILL.md 中的完整指令，若該 Skill 委派其他 Skill（如 grill-with-docs 委派 domain-modeling），會一併載入被委派 Skill 的內容
 
 ### 2.2 Context Injection 與 Prompt Pipeline
@@ -410,22 +417,23 @@ PostgreSQL 兼具強型態和 JSON 支援，且生態成熟。代價是需要 DB
 - 例如：以「materialization cascade」取代「a lesson inside a section of a course is made real」
 - 效果：減少約 75% 的 Token 消耗，同時提高溝通精確度
 
-### 2.5 六大分類與實際 Skill 清單
+### 2.5 五大分類與實際 Skill 清單
 
-倉庫 `skills/` 目錄下實際有 6 個分類資料夾，總計 41 個 Skill 資料夾。**但頂層 README 只記錄 Engineering 與 Productivity 兩類**，其餘四類僅在各自資料夾內的 README 中說明，不對外主動宣傳；`.claude-plugin/plugin.json` 也只收錄 Engineering + Productivity 共 22 個 Skill。
+倉庫 `skills/` 目錄下實際有 **5 個**分類資料夾，總計 **35 個** Skill 資料夾（查證於 2026-08-10）——較上一版查證時的 6 個分類、41 個資料夾**減少一整個分類**：原本獨立的 `skills/personal/` 已隨其下 2 個 Skill 一併被移除，不再存在。**頂層 README 只記錄 Engineering 與 Productivity 兩類**，其餘三類僅在各自資料夾內的 README 中說明，不對外主動宣傳；`.claude-plugin/plugin.json` 也只收錄 Engineering + Productivity 共 25 個 Skill，且查證確認**這兩個分類資料夾內的 Skill 已與 plugin.json 完全一一對應、無遺漏**（不再像先前版本那樣需要逐一核對是否有資料夾未被註冊）。
 
 | 分類 | 資料夾內 Skill 數 | 收錄於 plugin.json | 頂層 README 記錄 | Skills |
 |------|---------------------|---------------------|---------------------|--------|
-| **Engineering** | 17 | 17（全數收錄） | ✅ | ask-matt, code-review, codebase-design, diagnosing-bugs, domain-modeling, grill-with-docs, implement, improve-codebase-architecture, prototype, research, resolving-merge-conflicts, setup-matt-pocock-skills, tdd, to-spec, to-tickets, triage, wayfinder |
-| **Productivity** | 5 | 5 | ✅ | grill-me, grilling, handoff, teach, writing-great-skills |
+| **Engineering** | 18 | 18（全數收錄） | ✅ | ask-matt, code-review, codebase-design, diagnosing-bugs, domain-modeling, grill-with-docs, implement, improve-codebase-architecture, prototype, research, resolving-merge-conflicts, setup-matt-pocock-skills, tdd, to-spec, to-tickets, triage, wayfinder, **wizard** |
+| **Productivity** | 7 | 7（全數收錄） | ✅ | grill-me, grilling, handoff, teach, **to-questionnaire**, **wait-what**, **writing-for-agents** |
 | **Misc** | 4 | ❌ | ❌（僅資料夾內 README，定位為「偶爾用、不主推」） | git-guardrails-claude-code, migrate-to-shoehorn, scaffold-exercises, setup-pre-commit |
-| **In-progress** | 9 | ❌ | ❌（明確標示「開發中，未穩定前不進入 plugin/README」） | batch-grill-me, claude-handoff, loop-me, setup-ts-deep-modules, to-questionnaire, wizard, writing-beats, writing-fragments, writing-shape |
-| **Personal** | 2 | ❌ | ❌（作者個人設定，非通用） | edit-article, obsidian-vault |
-| **Deprecated** | 4 | ❌ | ❌ | design-an-interface, qa, request-refactor-plan, ubiquitous-language |
+| **In-progress** | 6 | ❌ | ❌（定位已由「開發中、不穩定」修正為官方明言的**「Beta 頻道」**：「*These skills are public on purpose — try them and tell me what breaks.*」，仍可能隨時變動或消失，但並非隱藏功能） | claude-handoff, loop-me, setup-ts-deep-modules, writing-beats, writing-fragments, writing-shape |
+| **Deprecated** | 0 | ❌ | ❌ | （空 bucket，僅保留一份說明用的 README.md） |
 
-> ⚠️ **歷史訂正（v3.0.0 沿用）**：更早版本手冊列出的 Engineering 清單包含 `diagnose`、`zoom-out`；Productivity 清單包含 `caveman`、`write-a-skill`——這些名稱已不存在於現行倉庫。`zoom-out` 與 `caveman` 已在 v1.0.0 被**刪除**（作者說明分別為「went unused」與「was a duplicate, never meant to be public」）；`diagnose` 更名為 `diagnosing-bugs`；`write-a-skill` 由重寫版的 `writing-great-skills` 取代。
+> ⚠️ **歷史訂正（v3.0.0 沿用）**：更早版本手冊列出的 Engineering 清單包含 `diagnose`、`zoom-out`；Productivity 清單包含 `caveman`、`write-a-skill`——這些名稱已不存在於現行倉庫。`zoom-out` 與 `caveman` 已在 v1.0.0 被**刪除**（作者說明分別為「went unused」與「was a duplicate, never meant to be public」）；`diagnose` 更名為 `diagnosing-bugs`；`write-a-skill` 由重寫版的 `writing-great-skills` 取代，`writing-great-skills` 本身又於本次查證週期內再改名為 `writing-for-agents`（見第 14.3 節）。
 >
-> ⚠️ **本次訂正（v4.0.0 新增，v1.1.0 帶來）**：`to-prd` 更名為 `to-spec`；`to-issues` 與已刪除的 `to-plan` 合併為 `to-tickets`；`wayfinder`（原名 `decision-mapping`）由 In-progress 轉正進入 Engineering；新增 `research`；In-progress 清單新增 `batch-grill-me`、`setup-ts-deep-modules`、`to-questionnaire` 三項。第 8、9、14 章將分別說明對應的訂正內容。
+> ⚠️ **v1.1.0 訂正（沿用）**：`to-prd` 更名為 `to-spec`；`to-issues` 與已刪除的 `to-plan` 合併為 `to-tickets`；`wayfinder`（原名 `decision-mapping`）由 In-progress 轉正進入 Engineering；新增 `research`。
+>
+> ⚠️ **本次訂正（v5.0.0，v1.2.0～v1.2.3 帶來）**：`wizard`、`to-questionnaire` 由 In-progress 畢業轉正；新增 `wait-what`；`writing-great-skills` 更名為 `writing-for-agents` 並改為 Model-invoked。**`Deprecated` 分類原本列出的 4 個 Skill（`design-an-interface`、`qa`、`request-refactor-plan`、`ubiquitous-language`）已於 v1.2.0 被徹底移除，而非僅止於棄用標記**——這 4 個 Skill 過去雖不在 Claude Code Plugin 中，但仍可透過 skills.sh 逐一安裝，v1.2.0 一併終止了這條路徑，其功能已分別被其他 Skill 吸收（詳見第 14.14 節的完整對照表）。**`Personal` 分類的 `edit-article`、`obsidian-vault` 兩個作者個人專用 Skill 也一併移除**，`skills/personal/` 資料夾本身已不存在。另外，先前版本查證到的 In-progress 項目 `batch-grill-me` 在本次查證中已從清單消失，官方 CHANGELOG 未明確說明其去向；推測其「批次質詢」的定位已被 v1.2.0 `grilling` 引擎重構後的 round-by-round／frontier 機制（見第 5.2 節）自然涵蓋，故不再需要獨立存在，但此為合理推測，非官方明文說明，企業導入時如發現團隊教材仍引用 `batch-grill-me`，應逕行移除。
 >
 > `.claude-plugin/plugin.json` 的完整真實內容請見第 4.2 節。
 
@@ -472,8 +480,8 @@ cat ~/.claude/skills/.claude-plugin/plugin.json
 **更新至最新版**：
 
 ```bash
-npx skills@latest add mattpocock/skills
-# 重新選擇 Skills 即可更新
+npx skills update
+# 或重新執行 npx skills@latest add mattpocock/skills，重新選擇 Skills 即可更新
 ```
 
 ### 3.3 執行 setup-matt-pocock-skills
@@ -498,7 +506,7 @@ flowchart TD
     D --> G
     E --> G
     F --> G
-    G -->|是| H["Section B：設定 Triage Labels<br/>（預設沿用五個標準角色）"]
+    G -->|是| H["Section B：單一建議式問題<br/>「是否沿用預設 Triage Labels？」<br/>（v1.2.0 簡化，不再逐一覆寫詢問）"]
     G -->|否| I["跳過 Section B，不建立 triage-labels.md"]
     H --> J["Section C：Domain Docs<br/>預設 single-context；<br/>偵測到 monorepo 訊號才問 multi-context"]
     I --> J
@@ -510,8 +518,8 @@ flowchart TD
 
 | Section | 設定內容 | 說明 |
 |---------|----------|------|
-| **Section A** | Issue Tracker | 定義使用 GitHub / GitLab / Local / Other（Jira、Linear）；依 `git remote` 指向自動建議預設選項 |
-| **Section B**（**條件式**） | Triage Labels | 定義狀態角色與分類角色的標籤名稱；**僅當 `triage` Skill 已安裝時才會執行此段落**，未安裝則整段略過，不會寫入 `triage-labels.md` |
+| **Section A** | Issue Tracker | 定義使用 GitHub / GitLab / Local / Other（Jira、Linear）；依 `git remote` 指向自動建議預設選項。GitHub／GitLab 範本雖仍保留「是否接受外部 PR 作為請求來源」欄位，但 v1.2.0 起**已移出初始化問答流程**，預設關閉，需要時可事後直接編輯 `docs/agents/issue-tracker.md` 開啟 |
+| **Section B**（**條件式**） | Triage Labels | 定義狀態角色與分類角色的標籤名稱；**僅當 `triage` Skill 已安裝時才會執行此段落**，未安裝則整段略過，不會寫入 `triage-labels.md`；v1.2.0 起簡化為**單一「是否沿用預設 Triage Labels？」建議式問題**（預設回答「是」），不再逐一覆寫每個角色標籤名稱 |
 | **Section C** | Domain Docs | 記錄 CONTEXT.md 與 ADR 的**預定存放位置**（不代表會建立這些檔案）；預設 single-context，僅在偵測到 `pnpm-workspace.yaml`、`package.json` 的 `workspaces` 欄位等 monorepo 訊號時，才會詢問是否改用 `CONTEXT-MAP.md` 的 multi-context 佈局 |
 
 > **重要**：setup 只會編輯**既有**的 `CLAUDE.md` 或 `AGENTS.md` 其中之一；若兩者都不存在，才會詢問使用者要建立哪一個。
@@ -593,12 +601,15 @@ Path: .scratch/
 ```text
 .scratch/
 └── feature-user-auth/
-    ├── PRD.md                    # 產品需求文件
+    ├── spec.md                   # 規格文件（v1.2.0 起由 to-spec 產出，
+    │                              #   取代舊檔名 PRD.md，與 to-spec 用語統一）
     └── issues/
-        ├── 01-setup-database.md  # 任務 1
-        ├── 02-create-api.md      # 任務 2
-        └── 03-add-tests.md       # 任務 3
+        ├── 01-setup-database.md  # 票券 1（一票一檔，見第 9.5 節）
+        ├── 02-create-api.md      # 票券 2
+        └── 03-add-tests.md       # 票券 3
 ```
+
+> **檔名訂正（v1.2.0）**：本地 Markdown 追蹤器的規格檔已由 `PRD.md` 正名為 **`spec.md`**，與 `to-spec` 的命名保持一致；`to-tickets` 的本地範本也同步確認，票券一律「一票一檔」存放於 `issues/` 底下，不會合併成單一 `tickets.md`（詳見第 9.5 節）。
 
 **Other（Jira、Linear 等）**：
 
@@ -612,7 +623,7 @@ URL: https://company.atlassian.net/browse/PROJ
 ```
 
 > **注意**：Other 類型使用 freeform prose（自由文字）描述，Agent 會根據描述嘗試最佳化操作。但 `.out-of-scope/mainstream-issue-trackers-only.md` 明確限制只支援主流 Issue Tracker。
-
+>
 > **實務建議**：企業團隊建議使用 GitHub 或 GitLab Issues，可與 CI/CD、Code Review 流程無縫整合。本地模式適合早期 PoC 或網路受限環境。
 
 ---
@@ -685,12 +696,12 @@ review stage, not the red → green implementation cycle.
 
 ### 4.2 Plugin 註冊機制
 
-Skills 透過 `.claude-plugin/plugin.json` 向 Claude Code 註冊。以下為**實際查證的完整內容**（2026-07-22，版本 1.2.0，共 22 個 Skill）：
+Skills 透過 `.claude-plugin/plugin.json` 向 Claude Code 註冊。以下為**實際查證的完整內容**（2026-08-10，版本 1.2.3，共 25 個 Skill）：
 
 ```json
 {
   "name": "mattpocock-skills",
-  "version": "1.2.0",
+  "version": "1.2.3",
   "description": "Matt Pocock's agent skills for real engineering — grilling, spec/ticket flows, TDD, code review, domain modelling and more. Plug-and-play, not vibe coding.",
   "author": { "name": "Matt Pocock", "url": "https://www.aihero.dev" },
   "homepage": "https://www.aihero.dev/s/skills-newsletter",
@@ -714,21 +725,24 @@ Skills 透過 `.claude-plugin/plugin.json` 向 Claude Code 註冊。以下為**�
     "./skills/engineering/codebase-design",
     "./skills/engineering/code-review",
     "./skills/engineering/resolving-merge-conflicts",
+    "./skills/engineering/wizard",
     "./skills/productivity/grill-me",
     "./skills/productivity/grilling",
     "./skills/productivity/handoff",
     "./skills/productivity/teach",
-    "./skills/productivity/writing-great-skills"
+    "./skills/productivity/to-questionnaire",
+    "./skills/productivity/wait-what",
+    "./skills/productivity/writing-for-agents"
   ]
 }
 ```
 
 **註冊規則**：
 
-- 僅 `skills/engineering/`、`skills/productivity/` 兩個目錄下的 Skill 會被註冊（misc/in-progress/personal/deprecated 皆不會）
+- 僅 `skills/engineering/`、`skills/productivity/` 兩個目錄下的 Skill 會被註冊（misc/in-progress/deprecated 皆不會；原本獨立的 `personal/` 目錄已隨其下 2 個 Skill 一併移除，不復存在）
 - 註冊路徑指向 Skill 的**資料夾**，而非直接指向 `SKILL.md` 檔案
-- `resolving-merge-conflicts`、`wayfinder`、`research` 三者於 v1.1.0（2026-07-08）新收錄；`to-issues`／`to-prd` 已被移除，由 `to-tickets`／`to-spec` 取代（見第 8、9 章）
-- **版號落差提醒**：此檔案的 `"version": "1.2.0"` 是 2026-07-13 的一次手動提升，查證當下**尚無對應的 `CHANGELOG.md` 條目或 GitHub Release**；倉庫根目錄 `package.json`（由 Changesets 管理）與 GitHub Releases 的正式版本仍是 **1.1.0**。企業導入時應理解這是 Claude Code Plugin 市集使用的獨立版號軌道，與專案主版本尚未對齊，不代表功能已進一步演進
+- `resolving-merge-conflicts`、`wayfinder`、`research` 三者於 v1.1.0（2026-07-08）新收錄；`wizard`、`to-questionnaire` 於 v1.2.0（2026-07 下旬）由 in-progress 畢業轉正收錄；`writing-great-skills` 同版改名為 `writing-for-agents`；`to-issues`／`to-prd` 已被移除，由 `to-tickets`／`to-spec` 取代（見第 8、9 章）
+- **版號落差已修復**：先前版本查證到 `.claude-plugin/plugin.json` 的版號（曾為 1.2.0）領先於 `package.json`／`CHANGELOG.md` 記載的正式版本（1.1.0），屬治理落差。本次查證確認**三者已重新對齊**——`plugin.json`、`package.json`、`CHANGELOG.md` 最新條目皆為 **v1.2.3**，且 CHANGELOG 逐條記錄了 v1.2.0（2026-07 下旬）、v1.2.2、v1.2.3 三次改版的完整內容，不再有版號脫鉤的情況
 
 ### 4.3 CONTEXT.md — 領域詞彙表
 
@@ -895,38 +909,56 @@ sequenceDiagram
 - ✅ 純對話式質詢
 - ✅ 適合早期構想階段
 
-> Matt Pocock 在受訪時提到 `grill-me` 是他最受歡迎的 Skill 之一：讓 AI 以一問一答方式質詢使用者，逼出結構化的思考結果。
+> Matt Pocock 在受訪時提到 `grill-me` 是他最受歡迎的 Skill 之一：讓 AI 以結構化質詢逼出使用者思考的結構化結果。實際提問節奏由底層 `grilling` 引擎決定，v1.2.0 起已改為「逐輪提問（round-by-round）」而非早期的「一問一答」，詳見第 5.2 節。
 
 ### 5.2 grilling — 共用質詢引擎
 
 **分類**：Productivity（Model-invoked）
 
-`grilling` 是 v1.0.0 新增的**共用質詢引擎**，`grill-me` 與 `grill-with-docs` 皆委派給它執行實際的追問邏輯。v1.1.0（2026-07-08）針對它做了一次「Sharpen grilling on two fronts」的加強，逐字核對 SKILL.md 全文後，現行原則應更新為 **5 條**：
+`grilling` 是 v1.0.0 新增的**共用質詢引擎**，`grill-me`、`grill-with-docs`、`triage` 等多個 Skill 皆委派給它執行實際的追問邏輯。這是本次改版中**變動幅度最大的單一 Skill**：v1.1.0（2026-07-08）先做過一次「事實／決策二分」與「確認閘門」的補強，v1.2.0 則接連兩次改版，先把適用範圍從「軟體計畫」擴大為「任何計畫、決策或想法」，接著把整個提問機制**從「一次一問」徹底重構為「逐輪提問（round-by-round）＋ frontier（前緣）」**。
 
-| # | 原則 | 說明 |
+> **重大訂正（v1.2.0）**：先前版本手冊記載的核心原則第 2 條「Ask the questions one at a time」（一次只問一個問題）**已不再是現行預設行為**。查核現行 SKILL.md 確認，作者在 CHANGELOG 中明言舊機制「同樣 13 個問題，過去要問滿 13 輪，現在約 3 輪就能問完」（"Same 13 questions land in ~3 rounds instead of 13"），機制已改為下方的 frontier 模型。若團隊內部教材或提示詞仍假設 grilling 會逐題等待回覆，應立即更新，否則會誤判 AI 的實際互動節奏。
+
+**現行機制的四個核心概念**：
+
+| # | 概念 | 說明 |
 |---|------|------|
-| 1 | **無情地質詢，逐一走過決策樹（Interview relentlessly, walk the decision tree）** | 「Interview me relentlessly about every aspect of this until we reach a shared understanding. Walk down each branch of the decision tree, resolving dependencies between decisions one-by-one.」持續追問並逐一解決分支間的依賴 |
-| 2 | **一次只問一個問題** | 「Ask the questions one at a time, waiting for feedback on each question before continuing. Asking multiple questions at once is bewildering.」 |
-| 3 | **每個問題都附上建議答案** | 「For each question, provide your recommended answer.」——不只是提問，還要給出推薦選項，降低使用者的回答負擔 |
-| 4 | **事實與決策二分（v1.1.0 新增）** | 「If a *fact* can be found by exploring the environment...look it up rather than asking me. The *decisions*, though, are mine.」可從程式碼／工具查得的事實由 Agent 自行查找，但決策必須交還使用者、等待其回答 |
-| 5 | **確認閘門，未達共識不得行動（v1.1.0 新增）** | 「Do not act on it until I confirm we have reached a shared understanding.」把原本隱含的「達成共識」判斷，明文轉為必須經使用者確認的**停止閘門** |
+| 1 | **泛用化（v1.2.0）** | description 與內文措辭已從「this plan」改為泛用的「this」、「enact the plan」改為「act on it」、「exploring the codebase」改為「exploring the environment」——技巧本質不變，但適用對象從「軟體開發計畫」擴大為任何計畫、決策或想法 |
+| 2 | **Frontier（前緣）與逐輪提問（v1.2.0 重構）** | 不再一次只問一題、問完才問下一題，而是先在腦中攤開整棵決策樹，找出**所有前置條件已滿足、可立即提問**的問題集合（即 frontier），**一輪內把整個 frontier 一次問完**；使用者回答後，依新資訊重新計算下一輪的 frontier，如此反覆，直到 frontier 淨空（沒有問題可問）為止 |
+| 3 | **事實與決策二分（v1.1.0 引入，機制沿用）** | 可從程式碼、工具或既有文件查得的**事實**，交由背景子代理平行查找，不佔用提問輪次、不阻塞當輪其他問題；只有真正的**決策**需要使用者回答。只有下游問題依賴某項還在進行中的探索時，該問題才需等待 |
+| 4 | **確認閘門（v1.1.0 引入，機制沿用）** | 在使用者明確確認「已達成共同理解」之前，不得依討論結果採取行動——這一停止閘門在改版後依然保留 |
 
-> **為什麼 v1.1.0 要拆分第 4、5 條**：CHANGELOG 說明，舊版「若問題能靠探索程式碼回答，就用探索取代提問」這條規則原本是為「與真人對話」的情境撰寫；但當 `grilling` 被其他 Skill（例如第 14 章的 `wayfinder`）在「解決票券」的框架下呼叫時，這條規則會被誤讀成「決策也可以自行探索回答」。拆分事實與決策，正是為了避免巢狀呼叫時 grilling 自問自答、跳過真人確認。
+**單輪提問的固定格式**（v1.2.0 起統一）：
+
+```text
+❓ **Q1** - **<問題標題>**
+<問題內文，可能有多段，或列出多個選項>
+
+➡️ <建議答案，獨立成行>
+
+❓ **Q2** - **<下一題標題>**
+...
+```
+
+每輪以編號清單呈現，建議答案固定另起一行以 ➡️ 標示、與問題本文視覺分離，使用者可以直接依編號逐一回覆，不需要覆誦問題內容。
 
 **Prompt Flow**：
 
 ```mermaid
 flowchart TD
-    A["開發者提出計畫"] --> B["grilling：走到當前分支<br/>可查證的事實→查工具／程式碼<br/>決策→留給使用者"]
-    B --> C{"仍有疑問？"}
-    C -->|"是，一次問一題並附建議答案"| D["開發者回答"]
-    D --> B
-    C -->|"分支已釐清"| E{"還有下一分支？"}
-    E -->|"是"| B
-    E -->|"否"| F{"使用者確認已達成<br/>共同理解？（確認閘門）"}
-    F -->|"否"| B
-    F -->|"是"| G["產出共識摘要與建議方案，方可行動"]
+    A["使用者提出計畫／決策／想法"] --> B["grilling：攤開決策樹，<br/>計算當前 frontier"]
+    B --> C["事實類問題 → 背景子代理平行查找<br/>（不佔用提問輪次）"]
+    B --> D["決策類問題 → 整個 frontier<br/>一次性列成一輪提問<br/>（❓ Qn + ➡️ 建議答案）"]
+    D --> E["使用者一次回覆整輪"]
+    E --> F["依回答重新計算<br/>下一輪 frontier"]
+    F --> G{"frontier 是否<br/>已淨空？"}
+    G -->|"否"| B
+    G -->|"是"| H{"使用者確認已達成<br/>共同理解？（確認閘門）"}
+    H -->|"否"| B
+    H -->|"是"| I["產出共識摘要與建議方案，方可行動"]
 ```
+
+> **退出機制**：若團隊偏好舊版「一次一問」的節奏，可在全域 `CLAUDE.md` 中加入一行設定切換回逐題模式；查證當下這個退出選項本身未受本次重構影響，維持可用。`grill-me`、`grill-with-docs`、`triage` 三者呼叫 grilling 時，皆同步採用逐輪提問，行為一致。
 
 ### 5.3 grill-with-docs — 結合 Domain 的深度挑戰
 
@@ -1369,7 +1401,9 @@ describe('calculateTotal', () => {
 
 ## 第 8 章：to-spec — 規格文件產生（原 to-prd）
 
-> **重大訂正（v1.1.0，2026-07-08）**：`to-prd` 已在 CHANGELOG「Unify the planning skills」條目中**更名為 `to-spec`**。作者說明：「*"spec" is now the single through-line term*」——往後專案內部統一使用「spec」而非「PRD」作為規劃文件的通用詞彙，但 SKILL.md 仍在開頭保留「*you may know this document as a PRD*」一句，方便舊使用者辨識這是同一份文件的新名字。舊指令 `/to-prd` 查證當下**已從倉庫中移除**，執行會直接找不到指令。
+> **重大訂正（v1.1.0，2026-07-08）**：`to-prd` 已在 CHANGELOG「Unify the planning skills」條目中**更名為 `to-spec`**。作者說明：「*"spec" is now the single through-line term*」——往後專案內部統一使用「spec」而非「PRD」作為規劃文件的通用詞彙。舊指令 `/to-prd` 查證當下**已從倉庫中移除**，執行會直接找不到指令。
+>
+> **後續追蹤（v1.2.0）**：v1.1.0 剛更名時，SKILL.md 開頭仍保留一句「*you may know this document as a PRD*」的過渡性提示，方便舊使用者辨識。CHANGELOG「Finish the `to-prd` → `to-spec` rename」條目記載，v1.2.0 已**完全移除這句提示**——查證當下 `to-spec/SKILL.md`、本地 Markdown 追蹤器範本、`code-review`（改談「originating issue/spec」而非「issue/PRD」）與 GitHub／GitLab 追蹤器範本中「PRD」一詞已全數清除，"spec" 是文件中唯一使用的通用詞彙，更名程序至此才算真正完成。
 
 ### 8.1 AI 對話轉 Spec 流程
 
@@ -1697,48 +1731,42 @@ Ticket #4: [enhancement] + [needs-triage]→ 新提出，尚未分類的需求
 
 > **歷史訂正沿用**：更早版本手冊列出的六條規則中，「Hardcode Everything」與「Single File Preferred」經查核 `prototype/SKILL.md` **查無此文字**，屬於錯誤描述。
 >
-> **本次訂正（v4.0.0）**：逐字重新核對 `prototype/SKILL.md`，前 5 條規則內容不變，但**第 6 條的標題與內容已更新**——原標題「Delete or absorb when done」已改為「**Capture it when done**」，語意從「刪除或吸收」精修為「把原型本身當作一手史料保留下來」。
+> **v4.0.0 訂正沿用**：逐字重新核對 `prototype/SKILL.md`，前 5 條規則內容不變，但第 6 條的標題與內容已更新——原標題「Delete or absorb when done」已改為「**Capture it when done**」，語意從「刪除或吸收」精修為「把原型本身當作一手史料保留下來」。
+>
+> **本次訂正（v5.0.0，v1.2.0 帶來）**：`prototype` 是本次改版中變化最大的 Skill 之一。CHANGELOG「Reshape the prototype skill」條目明確圍繞**兩個核心概念**重新設計整個 Skill：**(1) demo 本身就是一份可分享的單一 HTML 檔案**、**(2) 原型是一手史料（primary source）**。前者直接推翻了下方 10.2 節原本描述的「Logic 分支＝終端機互動程式」，後者則把第 6 條規則的「拋棄分支」正式定名為 `prototype/<name>` 命名慣例。以下內容已依此全面重寫。
 
 | # | 規則 | 說明 |
 |---|------|------|
 | 1 | **Throwaway from day one** | 原型從建立的第一天就清楚標記為拋棄品，且放在貼近實際使用位置（緊鄰要用到它的模組或頁面），但命名要讓人一眼看出這是原型、不是正式程式碼；沿用專案既有的 routing 慣例，不另創頂層結構 |
-| 2 | **One command to run** | 原型必須用專案既有的 task runner 啟動（`pnpm <name>`、`python <path>`、`bun <path>` 等），使用者不需思考就能執行 |
+| 2 | **One command to run** | 原型必須用專案既有的 task runner 啟動（`pnpm <name>`、`python <path>`、`bun <path>` 等），使用者不需思考就能執行；Logic 分支改版後甚至不需要 task runner——雙擊 HTML 檔案即可開啟 |
 | 3 | **No persistence by default** | 狀態預設存在記憶體中，不做資料持久化；若問題本身就涉及資料庫，才使用有明確「PROTOTYPE — wipe me」命名的暫存 DB 或本地檔案 |
 | 4 | **Skip the polish** | 不寫測試、不做 runnability 以外的錯誤處理、不做抽象化，重點是快速學到東西 |
 | 5 | **Surface the state** | 每次操作（Logic）或切換變體（UI）後，印出／渲染完整相關狀態，讓驗證者能立即看到變化 |
-| 6 | **Capture it when done**（原「Delete or absorb when done」） | 把已驗證的決策併入正式程式碼；接著把**原型本身當作一手史料（primary source）保留**：commit 到 main 之外的拋棄分支，並在對應的實作 Ticket 上留一個指向該分支的 context pointer；驗證得到的答案（結論與所回答的問題）也要記錄在 Ticket 或 commit 訊息中。main 分支上只保留已驗證的決策本身 |
+| 6 | **Capture it when done**（原「Delete or absorb when done」） | 把已驗證的決策併入正式程式碼；接著把**原型本身當作一手史料（primary source）保留**——commit 到 main 之外、以 **`prototype/<name>` 命名**的拋棄分支，並在對應的實作 Issue 上留一個指向該分支的 context pointer；驗證得到的答案（結論與所回答的問題）也要記錄在 Issue、ADR 或 commit 訊息中。main 分支上只保留已驗證的決策本身 |
+
+> **「拋棄」不再等於「刪除」（v1.2.0）**：舊版流程中，原型驗證完就地刪除或被直接改寫成正式程式碼；改版後，原型本身被視為**可回溯的探索紀錄**——它不會消失，而是活在 `prototype/<name>` 分支上，讓日後想知道「當初為什麼這樣設計」的人可以直接回頭查看原型長什麼樣子，而不只是讀到一句結論。
 
 **如何選擇分支**：`prototype/SKILL.md` 說明分支選擇依據使用者的提問、周邊程式碼，或直接詢問使用者；若問題本身模糊、使用者又不在場，**預設依周邊程式碼判斷**——後端模組傾向 Logic 分支、頁面或元件傾向 UI 分支，並在原型開頭註明這個假設。選錯分支會浪費整個原型，因此兩個分支產出的成品型態差異很大，值得謹慎判斷。
 
-### 10.2 Logic 分支 — 終端互動原型
+### 10.2 Logic 分支 — 單一 HTML 檔案原型（v1.2.0 全面改版）
 
-適合驗證**商業邏輯**、**資料處理**、**演算法**等非視覺化需求。原型以 CLI 應用程式的形式建立，產出 `LOGIC.md` 作為指引：
+適合驗證**商業邏輯**、**資料處理**、**演算法**等非視覺化需求，用來回答「這個狀態模型感覺對不對？」（Does this state model feel right?）這類問題。
+
+> **重大訂正（v1.2.0）**：先前版本手冊描述 Logic 分支「以 CLI 應用程式形式建立、產出可在終端機執行的互動式程式」——**這個描述已過時**。CHANGELOG 明確記載：「*The logic branch now produces one self-contained file (plain HTML/CSS/JS, no build, no server) instead of a terminal app.*」Logic 分支現在與 UI 分支一樣，產出的是**單一自包含的 HTML 檔案**（純 HTML／CSS／JS，無需建置、無需啟動伺服器），差別在於：Logic 分支驗證的是「狀態模型與商業邏輯」，UI 分支驗證的是「視覺與互動設計」。改版理由是讓**非工程背景的利害關係人**（PM、業務、客戶）也能雙擊檔案直接操作，用他們自己熟悉的業務語言驅動原型，不必具備任何開發環境。
 
 ```bash
-/prototype create a CLI to test the coupon discount calculation logic
+/prototype create a prototype to validate the coupon discount calculation logic
 ```
 
-**LOGIC.md 格式**：
+**改版後的 Logic 分支輸出結構**：
 
-```markdown
-# Prototype: Coupon Discount Calculator
+| 組成 | 說明 |
+|------|------|
+| **具名狀態面板（labelled state panel）** | 畫面固定顯示目前完整的內部狀態，且每個欄位都標註清楚的業務語意，而非只印原始資料結構 |
+| **常駐自由操作按鈕（always-available free-play buttons）** | 對應每個可能的操作／事件，使用者可隨時任意組合按下，探索非預期路徑 |
+| **分頁式導覽情境（tabbed guided walkthroughs）** | 每個分頁代表一個具體情境（scenario），底下列出依序按下的按鈕清單，讓不熟悉系統的人也能照著步驟重現一段已知流程 |
 
-## Goal
-驗證折扣計算邏輯在多種情境下的正確性
-
-## Run
-npm start
-
-## Scenarios
-1. 百分比折扣 + 最低消費
-2. 固定金額折扣 + 累計
-3. 折扣上限限制
-
-## Learnings
-[原型結束後填寫]
-```
-
-產出可直接在終端機執行的互動式程式，輸入測試資料即可驗證計算結果。
+驗證完成後，其中**可攜的純邏輯模組（portable pure-logic module）會被萃取、正式併入產品程式碼**；HTML 外殼本身連同整份原型則依規則 6 保留在 `prototype/<name>` 拋棄分支上，不會進入 main。
 
 ### 10.3 UI 分支 — 多方案視覺原型
 
@@ -1783,13 +1811,13 @@ npm run dev
 
 ```mermaid
 flowchart TD
-    A["需要驗證什麼？"] --> B{"視覺化需求？"}
-    B -->|"是"| C["UI 分支<br/>產出 UI.md<br/>多方案比較"]
-    B -->|"否"| D["Logic 分支<br/>產出 LOGIC.md<br/>CLI 互動"]
-    C --> E["一條指令啟動"]
+    A["需要驗證什麼？"] --> B{"視覺化 / 業務語意需求？"}
+    B -->|"UI 設計方案比較"| C["UI 分支<br/>單一 HTML 檔案<br/>多方案 URL 切換"]
+    B -->|"狀態模型 / 商業邏輯"| D["Logic 分支<br/>單一 HTML 檔案<br/>狀態面板 + 自由操作 + 導覽情境"]
+    C --> E["雙擊或一條指令開啟，<br/>無需建置、無需伺服器"]
     D --> E
     E --> F["驗證 / 比較，<br/>每次操作後印出完整狀態"]
-    F --> G["Capture it when done：<br/>決策併入正式碼，原型 commit 到<br/>拋棄分支並留 context pointer"]
+    F --> G["Capture it when done：<br/>可攜邏輯併入正式碼；<br/>原型整體 commit 到 prototype/&lt;name&gt; 分支，<br/>並在實作 Issue 留 context pointer"]
 ```
 
 **最佳實踐**：
@@ -1797,12 +1825,13 @@ flowchart TD
 | 實踐 | 說明 |
 |------|------|
 | 限時 2 小時 | 原型不值得花太多時間 |
-| 驗證後 Capture 而非直接刪除 | 不要試圖「改善」原型變成正式程式碼；已驗證的決策併入正式碼，原型本身 commit 到拋棄分支保留為一手史料 |
+| 驗證後 Capture 而非直接刪除 | 不要試圖「改善」原型變成正式程式碼；已驗證的決策併入正式碼，原型整體 commit 到 `prototype/<name>` 拋棄分支保留為一手史料，main 分支不留原型檔案 |
 | 隨時印出完整狀態 | 每次操作或切換變體都應可見完整狀態，方便驗證 |
-| 一條指令啟動 | 使用專案既有的 task runner，確保任何人都能立即執行 |
+| 善用免建置特性 | Logic／UI 分支皆已改為單一 HTML 檔案，可直接分享給非工程背景的利害關係人雙擊操作，不必要求對方具備開發環境 |
 | 不加測試、不做多餘錯誤處理 | 原型不是生產程式碼，Skip the polish |
 | 預設不做持久化 | 狀態留在記憶體即可，除非驗證目標就是持久化本身 |
 | 分支不確定時依周邊程式碼判斷 | 後端模組傾向 Logic 分支、頁面／元件傾向 UI 分支，並註明假設 |
+| 於實作 Issue 留下 context pointer | 便於日後回溯到 `prototype/<name>` 分支查看原型全貌，而非只讀到一句結論 |
 
 ---
 
@@ -1835,9 +1864,11 @@ flowchart TD
     E --> F["Phase 6<br/>📝 Cleanup + post-mortem<br/>清理並事後回顧"]
 ```
 
+> **新增：Redact（密鑰隱匿）機制（v1.2.3）**：CHANGELOG「Make `diagnosing-bugs` redact secrets」條目為 SKILL.md 新增一個橫跨全流程的 **Redact** 規範，而非獨立成一個 Phase——凡是 Agent 要展示指令、輸出或任何被捕獲的成果（captured artifact）時，**第一個動作永遠是先隱匿密鑰**：把敏感值寫成 `<REDACTED>`；回饋迴路一律針對環境變數（env vars）建構，讓真正的憑證只留在環境中、不落入對話紀錄；捕獲下來的成果只引用真正承載訊號的行，而非整段貼上。連帶影響 **Phase 1 的完成判準**也隨之修正——原本要求「貼上呼叫指令與其輸出」，現在明確要求「以隱匿後的版本展示」，Phase 1 向使用者索取的捕獲成果也必須是**已隱匿**的版本。企業導入時應理解：這是防止除錯過程把 API Key、密碼、Token 等機敏資訊意外貼進對話紀錄或日後留存的 Ticket／Issue 中的內建防線，不需要另行以團隊規範補強這一層基本防護。
+
 ### 11.2 Phase 1 — Build a Feedback Loop（建立回饋迴路）
 
-Phase 1 是 diagnosing-bugs 中最關鍵的階段。目標是建立一個**可重複執行的回饋迴路**，讓你能快速驗證每個假設。
+Phase 1 是 diagnosing-bugs 中最關鍵的階段。目標是建立一個**可重複執行的回饋迴路**，讓你能快速驗證每個假設，且展示的每一步都需先套用上方的 Redact 規範。
 
 **十種建立回饋迴路的方法**：
 
@@ -1986,7 +2017,7 @@ improve-codebase-architecture 委派 `codebase-design` 的詞彙與判斷工具�
 
 ```mermaid
 flowchart TD
-    A["階段 1<br/>🔍 Explore<br/>掃描模組，套用 Deletion Test"] --> B["階段 2<br/>📋 Present candidates<br/>as an HTML report<br/>視覺化 HTML 報告"]
+    A["階段 1<br/>🔍 Explore<br/>YAGNI 篩選 + 掃描模組<br/>套用 Deletion Test"] --> B["階段 2<br/>📋 Present candidates<br/>as an HTML report<br/>視覺化 HTML 報告"]
     B --> C["階段 3<br/>🔧 Grilling loop<br/>針對選定候選項<br/>與使用者質詢討論"]
 ```
 
@@ -1995,6 +2026,7 @@ flowchart TD
 - 掃描專案中所有模組（類別、套件、微服務）
 - 套用 Deletion Test 評估每個模組的價值
 - 檢查是否違反現有 ADR 決策
+- **新增：YAGNI 範疇篩選（v1.2.0）**——CHANGELOG「Add a YAGNI scoping filter」條目說明，Explore 步驟不再對整個程式庫平均掃描：若使用者已指名方向就依指名範疇探索；否則**改讀最近約 20 筆 commit 訊息，將探索範圍向「近期實際有變動」的路徑傾斜**。理由是：「一個沒人碰的角落裡的加深機會，是一次永遠兌現不了的重構——槓桿只有在你持續編輯的地方才划算」，因此報告不再浪費篇幅整理程式庫中早已停止異動的靜態角落
 
 **階段 2：Present candidates as an HTML report**
 
@@ -2018,6 +2050,9 @@ flowchart TD
 | 用 Deletion Test 驗證 | 每次重構後重新套用 Deletion Test 確認改善 |
 | 搭配 /tdd 執行重構 | 確保重構不破壞既有功能（注意 Refactor 屬於 Review 階段，見第 7 章） |
 | 記錄到 ADR | 每個重大重構決策都記入 ADR |
+| 需要跨活躍路徑之外的區塊時明確指名 | Explore 階段預設依 YAGNI 篩選聚焦近期異動路徑，若想盤點長期未觸碰的舊模組，需在指令中明確指名該方向 |
+
+> **跨平台相容性補強（v1.2.3）**：CHANGELOG 記載，`code-review`、`codebase-design` 與 `improve-codebase-architecture` 三者原本在「派送 subagent」的步驟中，直接引用了 Claude Code 專屬的工具名稱與 Agent 類型字串；v1.2.3 已將這些平台專屬名稱抽離，使同一段指令在 Codex 等其他 Harness 上也能被正確遵循，呼應第 1.3 節「雙引擎中繼資料」的整體方向。
 
 ---
 
@@ -2127,7 +2162,9 @@ triage 在對 Issue 添加 AI 生成的評論時，會**自動附加 AI 聲明**
 
 > **歷史訂正沿用**：更早版本手冊第 14.1 節介紹的 `caveman` Skill **已在 v1.0.0 被刪除**，作者說明原因為「was a duplicate, never meant to be public」（本就是重複品，從未打算公開）。`write-a-skill` 已由重寫版的 `writing-great-skills` 取代。
 >
-> **本次訂正（v4.0.0，v1.1.0 帶來）**：`wayfinder` 已由 in-progress 轉正進入 Engineering，新增獨立的 14.6 節說明；`research` 為全新 Skill，新增 14.7 節說明；`resolving-merge-conflicts` 已正式收錄進 plugin.json，14.5 節警語隨之移除；In-progress 清單更新，原編號 14.6–14.9 依序順延為 14.8–14.11。
+> **v4.0.0 訂正沿用**：`wayfinder` 已由 in-progress 轉正進入 Engineering；`research` 為全新 Skill；`resolving-merge-conflicts` 已正式收錄進 plugin.json。
+>
+> **本次訂正（v5.0.0，v1.2.0～v1.2.3 帶來）**：`writing-great-skills` 更名並重構為 `writing-for-agents`（見 14.3 節）；`wizard`（14.8 節）、`to-questionnaire`（14.9 節）由 in-progress 畢業轉正，新增專節；新增一詞修正 Skill `wait-what`（14.10 節）；`ask-matt` 路由表大幅擴充（14.1 節）；原編號 14.8–14.11 依序順延為 **14.11–14.14**，其中原「已棄用的 Skills」一節（原 14.11）已全面改寫為「已移除與整併的 Skills」（現 14.14），因為那 4 個項目已不只是棄用標記，而是被徹底移除。
 
 ### 14.1 ask-matt — Skill 路由器
 
@@ -2139,7 +2176,19 @@ triage 在對 Issue 添加 AI 生成的評論時，會**自動附加 AI 聲明**
 /ask-matt 我想重構一個模組但不確定該用哪個指令
 ```
 
-> **v1.1.0 更新**：CHANGELOG 記載 `ask-matt` 的路由表一口氣補齊了五個先前遺漏的 Skill：`tdd`（編織進 `implement` 驅動的 red-green 引擎）、`diagnosing-bugs`（新增「東西壞了」的進入點——先前完全沒有 Bug 對應的路由）、`domain-modeling` 與 `codebase-design`（新增「底層詞彙」區塊）、以及 `grilling`（共用質詢原語）；`prototype` 也從附屬說明擴充為獨立條目。作者同時在 `CLAUDE.md` 加入一條維護規則：未來任何 Skill 的新增／更名／刪除，或主流程變動，都會觸發 `ask-matt` 的重新檢查——這也是本手冊查證時確認 `ask-matt` 路由與現行 22 個 Skill 保持同步的原因。目前主流程為 `idea → /to-spec → /to-tickets → /implement`；當工作量超過單一 Session 容量時，`ask-matt` 會改指向第 14.6 節的 `/wayfinder`。
+> **v1.1.0 更新（沿用）**：CHANGELOG 記載 `ask-matt` 的路由表一口氣補齊了五個先前遺漏的 Skill：`tdd`（編織進 `implement` 驅動的 red-green 引擎）、`diagnosing-bugs`（新增「東西壞了」的進入點）、`domain-modeling` 與 `codebase-design`（新增「底層詞彙」區塊）、以及 `grilling`（共用質詢原語）；`prototype` 也從附屬說明擴充為獨立條目。作者同時在 `CLAUDE.md` 加入一條維護規則：未來任何 Skill 的新增／更名／刪除，或主流程變動，都會觸發 `ask-matt` 的重新檢查。
+
+**本次訂正（v1.2.0）：路由表再度大幅擴充**，這次的重點不再是補齊遺漏的 Skill 名稱，而是把「該在什麼時機切換到哪個 Skill」的判斷邏輯講清楚：
+
+| 更新面向 | 內容 |
+|----------|------|
+| **Phase Boundaries（階段邊界）決策樹** | 新增一份決策樹，把「一個 Session 內的一段工作（質詢、實作、QA 等）結束後，該拿當前的 context 怎麼辦」拆成五個選項，依序評估：**(1) Continue**（留在原視窗，唯一能讓對話保持一手史料而非摘要的選項，優先排除）→ **(2) `/clear`**（後續工作與這段無關時，直接清空）→ **(3) `/handoff`**（唯有東西需要「移動」——換 Harness、換目錄、交給同事、或分岔出一個側支任務——才需要，見下方訂正）→ **(4) Subagent**（工作範圍夠窄、可完全交由背景代理處理）→ **(5) `/compact`**（**現在被定位為預設選項、而非優先選項**，排在決策樹最後，因為壓縮摘要必然遺漏細節） |
+| **`/handoff` 定位訂正** | 舊路由把 `/handoff` 描述得過於寬泛，讀起來像是「跨越 context window 的通用橋樑」。新版明確收窄：只有在同一個 Harness、同一個目錄下**沒有東西需要移動**時，`/handoff` 就不是正確選擇，應改用 `/compact` |
+| **Smart Zone Token 門檻更新** | 建議在對話累積到約 **150,000 tokens**（在最先進模型上，先前版本記載約 120,000 tokens）前，於一個 Phase Boundary 執行 `/compact`，避免模型推理銳度隨 context 膨脹而下滑 |
+| **`/wayfinder` 路由的兩個常見錯誤** | 新增專門提醒：**(1) 過度伸手**——`wayfinder` 是最重、認知負擔最高的流程，一個單一 Session 就能搞定的功能不該送進 wayfinder，應直接用 `/grill-with-docs`；**(2) 交接時走錯路**——地圖繪製完成、要開始建置時，正確做法是併入主流程的 `/to-spec`（把地圖上散落的決策收斂成一份可執行計畫），而不是直接把地圖丟給 `/implement` 跳過規格化步驟（除非最終發現工作量其實很小） |
+| **補齊先前完全遺漏的路由** | `/grilling`、`/resolving-merge-conflicts` 過去完全沒有出現在路由表中，現已補上；`grill-me` 與 `grill-with-docs` 的判斷依據也更明確化為「**是否在一個工作目錄（working directory）中**」——有工作目錄用 `grill-with-docs`（留下 CONTEXT.md／ADR 痕跡），沒有則用 `grill-me`（純對話，不留痕跡） |
+
+目前主流程仍為 `idea → /grill-with-docs → /to-spec → /to-tickets → /implement`；當工作量超過單一 Session 容量時，`ask-matt` 會改指向第 14.6 節的 `/wayfinder`，但如上表所述，這個轉向需謹慎判斷，避免大材小用。
 
 ### 14.2 handoff — 跨 Agent 交接
 
@@ -2156,35 +2205,41 @@ triage 在對 Issue 添加 AI 生成的評論時，會**自動附加 AI 聲明**
 - 使用 `mktemp` 建立臨時檔案儲存交接文件，避免污染專案目錄
 - 可以用路徑或 URL 引用特定的工作成果（artifacts）
 
-**適用場景**：
+**適用場景（依 14.1 節 ask-matt 路由表訂正後的精確定義）**：
 
-- 切換到不同的 AI Agent 會話
-- 需要另一位團隊成員接手
-- 長時間對話需要重新啟動
+- 換一個 Harness（例如從 Claude Code 換到 Codex）
+- 換一個工作目錄
+- 交給另一位團隊成員接手
+- 從目前對話分岔出一個獨立的側支任務
 
-> **仍屬實驗性質**：`in-progress` 分類仍有一個獨立的 `claude-handoff` Skill（見第 14.10 節），與本節的 `handoff` 功能相近但屬於實驗性質，尚不建議用於生產流程。
+> **與 `/compact` 的分工**：若上述四種「東西需要移動」的情境都不成立，單純只是 context window 快滿了，正確選擇是 `/compact` 而非 `/handoff`，詳見第 14.1 節。
+>
+> **仍屬實驗性質**：`in-progress` 分類仍有一個獨立的 `claude-handoff` Skill（見第 14.13 節），與本節的 `handoff` 功能相近但屬於實驗性質，尚不建議用於生產流程。
 
-### 14.3 writing-great-skills — 自訂 Skill 開發
+### 14.3 writing-for-agents（原 writing-great-skills）— 供 Agent 消費之文件撰寫規範
 
-**分類**：Productivity（User-invoked）
+**分類**：Productivity（**Model-invoked**，v1.2.0 起由 User-invoked 改為 Model-invoked）
 
-> **名稱訂正沿用**：更早版本手冊介紹的 `write-a-skill` 已在 v1.0.0 被**重寫並更名為 `writing-great-skills`**（作者標註為「rewritten from the ground」）。
+> **重大訂正（v1.2.0，Breaking Change）**：CHANGELOG 明確標註這是一次 **Breaking** 變更——`writing-great-skills` 已**更名為 `writing-for-agents`**，且經過大幅重構，舊名稱**沒有保留別名**，直接失效。若團隊教材或 CLAUDE.md 仍寫著 `/writing-great-skills`，需立即更新為 `/writing-for-agents`；v1.2.2 另修了一個小 Bug——Codex 端因為一個殘留的 `policy.allow_implicit_invocation: false` 設定，導致這個已改名的 Skill無法被模型自動觸發，只能靠使用者手動輸入 `$writing-for-agents` 才會生效，v1.2.2 已修正此問題並同步更新 README 中過時的介面說明文字。
 
-**用途**：建立新的自訂 Skill，包含正確的目錄結構與 YAML Frontmatter，並提供撰寫高品質 Skill 描述的準則（例如避免「no-op instruction」，見第 1.1 節）。
+**範疇擴大**：舊版 `writing-great-skills` 專注於「如何撰寫一個 Skill」；新版 `writing-for-agents` 的範疇擴大為「**如何撰寫任何供 Agent 消費的文件**」——涵蓋 Skill 本身、`AGENTS.md`／`CLAUDE.md`、以及任何透過 context pointer 被引用進來的外部文件，只要讀者是 AI Agent 而非人類，都適用同一套準則。
 
 ```bash
-/writing-great-skills create a skill for generating API documentation
+/writing-for-agents 幫我審查這份 CLAUDE.md 是否有結構問題
 ```
 
-**產出結構範例**：
+**內容重組**：
 
-```text
-api-doc-generator/
-├── SKILL.md           # 主指令檔
-└── REFERENCE.md       # 選用參考文件
-```
+| 變更 | 說明 |
+|------|------|
+| **`GLOSSARY.md` 併入 `SKILL.md`** | 原本獨立的詞彙表檔案已合併，每個術語只在一處做權威定義；原本的「*Avoid*」同義詞清單與獨立的 Predictability（可預測性）定義段落已刪除，不再重複維護 |
+| **Skill 專屬機制移至新檔 `SKILL-MECHANICS.md`** | Frontmatter 格式、Model-invoked／User-invoked 的選擇準則、Router Skill 設計、切分職責的判斷依據等「只跟撰寫 Skill 有關」的機制性內容，從主文件抽出獨立成檔，讓 `SKILL.md` 本體聚焦在通用的「為 Agent 寫文件」原則 |
+| **新增 Cache（快取）準則** | Pruning（精簡）段落新增一項判準：**單一事實來源應盡量指向環境本身**，而非文件——`package.json` 的 scripts、設定檔、目錄結構、`--help` 輸出等，環境本身就是權威來源；文件重複記載這些內容只是一份「快取」，只有在「查找成本高」時才值得寫。真正該寫進文件的，是 Agent **無法靠查找自行得知**的東西：沒寫下來的慣例、決策背後的原因、沒有任何設定檔會坦白的坑 |
+| **兩種負擔的區分** | **Context load**（脈絡負擔）：文件被固定載入時的成本，不論是否真正用到都要付出 token 與注意力；**Cognitive load**（認知負擔）：人類使用者需要判斷「什麼時候該查閱哪份文件」的負擔。撰寫時應同時考量兩者，避免為了降低其中一種負擔而加重另一種 |
 
-> **v1.1.0 新增兩種「Steering」失效模式**：CHANGELOG 記載新增了 **Negation（否定／大象效應）** 與 **Negative Space（負空間／留白盲區）** 兩種容易被忽略的引導失誤。Negation 指「說出不要做什麼」反而會把被禁止的行為拉進 Agent 的注意力範圍、使其更容易發生（如同「別去想大象」），解方是改用正面措辭直接描述期望行為；Negative Space 指一份 Skill 對某件事**保持沉默**時，該決定其實被隱性委派給 Agent 的先驗傾向，而非真的保持中立，解方是重新審視草稿中的每一處留白，逐一決定要填上明確規則、還是刻意保留為開放分支。
+> **觸發時機**：由於已改為 Model-invoked，`writing-for-agents` 會在 Agent 判斷使用者正在**建立或編輯 Skill**、或**修改 `AGENTS.md`／`CLAUDE.md`** 時自動介入，不需使用者手動呼叫。
+
+**v1.1.0「Steering」失效模式（沿用，仍是本 Skill 的核心內容）**：CHANGELOG 記載新增了 **Negation（否定／大象效應）** 與 **Negative Space（負空間／留白盲區）** 兩種容易被忽略的引導失誤。Negation 指「說出不要做什麼」反而會把被禁止的行為拉進 Agent 的注意力範圍、使其更容易發生（如同「別去想大象」），解方是改用正面措辭直接描述期望行為；Negative Space 指一份 Skill 對某件事**保持沉默**時，該決定其實被隱性委派給 Agent 的先驗傾向，而非真的保持中立，解方是重新審視草稿中的每一處留白，逐一決定要填上明確規則、還是刻意保留為開放分支。
 
 ### 14.4 implement 與 code-review — 實作與雙軸審查
 
@@ -2199,6 +2254,8 @@ api-doc-generator/
 ```
 
 > **v1.1.0 新增 Fowler 壞味道基準線**：CHANGELOG 記載 `code-review` 在 Standards 這條軸上新增了一份**固定的 Fowler Bad Smells 基準**（而非新增第三條審查軸），內建約 12 種高訊噪比的壞味道：Mysterious Name（神秘命名）、Duplicated Code（重複程式碼）、Feature Envy（依戀情節）、Data Clumps（資料泥團）、Primitive Obsession（基本型別偏執）、Repeated Switches（重複的 Switch）、Shotgun Surgery（散彈式修改）、Divergent Change（發散式變更）、Speculative Generality（投機性一般化）、Message Chains（訊息鏈）、Middle Man（中間人）、Refused Bequest（拒收遺產）。有兩條約束確保它不會喧賓奪主：**專案自訂的文件化規範優先於此基準**；**每個壞味道都以「值得討論的判斷」呈現，而非直接判定為違規**。
+>
+> **用詞統一（v1.2.0）**：隨 `to-prd` → `to-spec` 更名程序完成（見第 8.1 節），`code-review` 的 frontmatter description、雙軸摘要與尋找來源規格的搜尋順序，皆已改談「originating issue/spec」而非「issue/PRD」，用詞與其餘 Skill 保持一致。另外，`code-review` 在 v1.2.3 也與 `codebase-design`、`improve-codebase-architecture` 一併移除了 subagent 派送步驟中 Claude Code 專屬的工具名稱，使其可在 Codex 等其他 Harness 上正確運作（見第 12.2 節）。
 
 ### 14.5 teach 與 resolving-merge-conflicts
 
@@ -2212,9 +2269,11 @@ api-doc-generator/
 
 **分類**：Engineering（User-invoked，`disable-model-invocation: true`）
 
-**用途**：規劃「超過單一 Agent Session 容量」的大型模糊任務，將其描繪為 Issue Tracker 上的**共享地圖（shared map）**，再逐一解決地圖上的「決策票券」，直到抵達目的地的路徑清晰為止。實際 description：「Plan a huge chunk of work — more than one agent session can hold — as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way to the destination is clear.」
+**用途**：規劃「超過單一 Agent Session 容量」的大型模糊任務，將其描繪為 Issue Tracker 上的**共享地圖（shared map）**，再逐一解決地圖上的「**決策票券（Decision Ticket）**」，直到抵達目的地的路徑清晰為止。實際 description：「Plan a huge chunk of work — more than one agent session can hold — as a shared map of decision tickets on your issue tracker, and resolve them one at a time until the way to the destination is clear.」
 
 > **背景**：`wayfinder` 原名 `decision-mapping`，v1.1.0 CHANGELOG「Graduate and reframe wayfinder」條目說明改名原因——「*"Decision map" was jargony and inaccurate — only one ticket type is actually a decision.*」重新命名為 wayfinder 後，統一以「迷霧（fog of war）」「前緣（frontier）」「地圖（the map）」等領航隱喻貫穿整個 Skill，而非疊加一個生造詞彙。作者也明確定位它是**情境式的補充入口，而非取代既有主流程**：「*settle wayfinder's place in the docs as a situational on-ramp, not the new main entry flow — the grill-led idea → ship chain stays the front door*」——一般規模功能仍走 `grill-me/grill-with-docs → to-spec → to-tickets` 這條主線，只有規模真正超出單一 Session 才「拉高」進入 wayfinder。
+>
+> **用詞正名（v1.2.0）**：CHANGELOG「Name the `/wayfinder` unit a decision ticket」條目說明，過去使用者常把 wayfinder 的票券單位誤讀成一般的「實作票券」（一段要被執行的建置工作），但 wayfinder 實際用它承載的是「**決策票券**」——其解法本身就是一個決策，而非一段可執行的程式碼變更。v1.2.0 起，Skill description 與開場白已正式引入「Decision ticket」這個詞並解釋其定義，`ask-matt`／Engineering README 與說明文件同步跟進；日常對話中仍可用通稱「ticket」，但 `CONTEXT.md` 現在會將「Decision ticket」記錄為正式領域術語，不再與「避免使用 ticket 一詞」的一般性指引相衝突。
 
 **觸發方式**：
 
@@ -2238,7 +2297,7 @@ api-doc-generator/
 |------|-----------|------|
 | `research` | **AFK** | 交由 `/research` 子代理閱讀文件、第三方 API、既有知識庫，找出決策所需的事實 |
 | `prototype` | **HITL** | 透過 `/prototype` 產出粗略但具體的成品供人類評判「看起來╱用起來對不對」 |
-| `grilling` | **HITL（預設情境）** | 透過 `/grilling` 與 `/domain-modeling` 一次一問地進行對話式決策 |
+| `grilling` | **HITL（預設情境）** | 透過 `/grilling` 與 `/domain-modeling` 逐輪提問（round-by-round）進行對話式決策，見第 5.2 節 |
 | `task` | **HITL 或 AFK** | 純執行性工作（例如申請服務帳號、搬移資料），本身不是決策，但擋住了決策的進行；Agent 能自己做的就自己做（AFK），不能的就交給人類一份精確清單（HITL） |
 
 > **與 to-tickets 的差異提醒**：第 9.4 節已說明 `to-tickets` **沒有**正式的 HITL/AFK 分類，預設所有票券都是 `ready-for-agent`。`wayfinder` 的 HITL/AFK 分類是它自己的機制，兩者服務的規模不同，不可混用——一般功能開發用 `to-tickets`，真正大到裝不進單一 Session 的模糊專案才用 `wayfinder`。
@@ -2268,9 +2327,68 @@ api-doc-generator/
 | **只信第一手來源** | 官方文件、原始碼、規格書、第一方 API——而非二手轉述或部落格摘要；每個論點都必須能追溯回其來源 |
 | **單一 Markdown 產出** | 調研結果彙整成一份檔案，並依專案既有慣例決定存放位置；若無先例，則自行判斷合理位置並向使用者說明 |
 
-**與 wayfinder 的關係**：`research` 是 `wayfinder` 四種票券類型之一（見 14.6 節），當地圖上某張票券的性質是「需要先查清楚一個事實才能繼續決策」時，會直接派出 `/research` 子代理平行處理；但 `research` 本身也可獨立呼叫，不需要透過 `wayfinder`。
+**與 wayfinder 的關係**：`research` 是 `wayfinder` 四種決策票券類型之一（見 14.6 節），當地圖上某張票券的性質是「需要先查清楚一個事實才能繼續決策」時，會直接派出 `/research` 子代理平行處理；但 `research` 本身也可獨立呼叫，不需要透過 `wayfinder`。
 
-### 14.8 git-guardrails-claude-code — Git 安全護欄
+### 14.8 wizard — 互動式人工程序精靈（v1.2.0 新收錄）
+
+**分類**：Engineering（**Model-invoked**）
+
+**用途**：產生一份**互動式 bash 腳本**，帶著人類一步步走完一段只有人類能做的手動程序——例如第三方服務開通、一次性資料遷移、A→B 狀態轉換等。實際 description 涵蓋四個觸發情境：**佈建基礎設施**、**設定憑證或 CI Secrets**、**走過不熟悉的第三方 Dashboard**、以及**一次性遷移或系統切換**；並明文排除一種情境——**Agent 自己就能做到的步驟，不應該呼叫 wizard**。
+
+```bash
+# Model-invoked：Agent 判斷符合情境時會自動產生腳本
+# 也可手動觸發
+/wizard 設定 Stripe Webhook 並把簽章密鑰寫進 GitHub Actions Secrets
+```
+
+**核心設計**：
+
+| 項目 | 說明 |
+|------|------|
+| **產出物** | 一支可執行的 `.sh` 腳本，逐步開啟指定 URL、告知使用者該點什麼、擷取使用者輸入的值，並寫入 `.env` 檔案與 GitHub Actions Secrets |
+| **共用範本 `template.sh`** | 進度顯示、確認閘門、跨平台 URL 開啟（含 WSL）、隱藏式密鑰輸入、冪等（idempotent）的 `.env` upsert、`gh secret`／`gh variable` 寫入與失敗時的優雅降級——這些體驗細節已內建在共用範本中，範本本體「永遠不手動修改」，Skill 的職責只在於界定程序範圍、並撰寫屬於該次程序的**階段（stages）** |
+| **為何歸類 Engineering 而非 Productivity** | 因為它需要讀取 `.env*`、`docker-compose*`、框架設定檔，以及 `.github/workflows/` 中所有 `secrets.*`／`vars.*` 參照來界定範圍，還會寫入 CI Secrets，並以 `bash -n` 與 `shellcheck` 驗證產出的腳本，屬於工程性工作 |
+| **為何是 Model-invoked** | 讓 Agent 能在**執行到某一步、發現只有人類能繼續**的當下就地產生精靈腳本，而不是把一長串編號步驟丟進聊天視窗、指望使用者照著讀；`/wizard` 手動觸發的行為不受影響，Model-invoked 只是新增了 Agent 主動伸手的能力 |
+
+> **v1.2.3 更新**：CHANGELOG 記載範本已**移除時間估計功能**——原本的 `TOTAL_MINUTES` 與「剩餘時間」顯示已刪除，`stage` 呼叫現在只需要傳入名稱，進度改以「第幾階段／共幾階段」計數，而非估算耗時，理由是時間估計在實務上經常失準、反而誤導使用者。
+
+### 14.9 to-questionnaire — 決策問卷產生器（v1.2.0 由 in-progress 畢業轉正）
+
+**分類**：Productivity（User-invoked）
+
+**用途**：把一個「使用者自己回答不了、需要問另一個人」的決策，轉換成一份結構化的 Markdown 問卷，讓對方可以非同步填寫，或在會議中一起過一遍。可視為 **`/grill-me` 的反向操作**——`grill-me` 是質詢使用者本人，`to-questionnaire` 是幫使用者準備一份要拿去問「別人」的問卷。
+
+```bash
+/to-questionnaire 我不確定法遵團隊對這個資料保留政策的實際要求，幫我準備一份問卷去問他們
+```
+
+**設計核心：質詢「發送」而非「主題」**：一般的 grilling 會話是針對主題本身逐一質詢使用者；但 `to-questionnaire` 存在的前提正是「使用者對主題本身答不出來」，因此它反過來只質詢使用者**唯一答得出來的部分**——問卷要寄給誰、以及使用者需要從對方那裡得到什麼——再把每一題都精準對準「使用者已知」與「對方才知道」之間的落差。
+
+**產出結構（三步驟流程）**：
+
+1. **界定收件人**：對方的角色、專業背景、與這個決策的關係，藉此決定問卷的語氣與需要多少背景說明
+2. **界定知識落差**：使用者自己無法獨立解決的具體決策或事實是什麼
+3. **產出問卷**：包含目的說明（附決策脈絡）、後設資訊（寄件人／收件人／用途）、給不熟悉背景者的導讀段落、填寫指引（期限、預估花費時間）、依重要性排序的分主題問題（每題附答案欄與一行式理由說明，避免對方隨便勾一個答案）、以及收尾的「還有沒有我沒問到的」開放欄位
+
+> **關鍵提醒**：SKILL.md 特別強調「非同步的意思是你可能只有一次機會」——問卷若漏問，往往等不到第二次追問，因此問題的排序與精確度格外重要。
+
+### 14.10 wait-what — 一詞修正冗詞贅句（v1.2.0 新增）
+
+**分類**：Productivity（User-invoked，`disable-model-invocation: true`，SKILL.md 本體僅三行）
+
+**用途**：當 Agent 的某句回覆讓人看不懂或抓不到重點時，輸入這**一個詞**，Agent 就會重新表述剛才那句話——效果類似真人對話中說「等等，什麼意思？」。
+
+```bash
+/wait-what
+```
+
+**運作方式**：觸發後，Agent 會用三個原則重新組織前一則訊息：補上必要的背景脈絡、改用 **ASD-STE100 簡化技術英文（Simplified Technical English）**這套工業界通用的清晰用語標準、並套用當前專案 `CONTEXT.md` 中已定義的共同詞彙，讓重新表述後的內容既精簡又不失真。
+
+> **設計哲學：機制即名稱**。CHANGELOG 特別解釋了命名邏輯——「簡潔類」的 Skill 常常因為越寫越長而失敗（一份 400 行的 Skill 依然無法讓模型變得精簡）；因此這個 Skill 刻意只用**一個精準的引導詞**、不多加任何內容。而且它刻意不採用描述「輸出結果」的名稱（如 `/tldr`、`/no-fluff`）——那類名稱只會讓模型削減字數、卻讓使用者更加不知所云；`wait-what` 描述的是**聽者當下的狀態**，同時要求「更少的字」與「找回缺失的脈絡」兩件事。它也刻意重用團隊全域 `CLAUDE.md` 中已經在用的引導詞，讓 `wait-what`、`CLAUDE.md` 與每個 `CONTEXT.md` 使用同一套詞彙。
+>
+> **限制**：這是一個**事後補救**機制，只修復「剛才那一句」，不會讓 Agent 從此變得精簡、也不能預防下一句再度出現同樣的問題。CHANGELOG 明言：真正的治本之道是透過 `/grill-with-docs` 提前建立團隊共同語言（CONTEXT.md）；`wait-what` 是在還沒有共同語言時的應急工具。
+
+### 14.11 git-guardrails-claude-code — Git 安全護欄
 
 **分類**：Misc（不在 plugin.json 中，需自行留意安裝）
 
@@ -2286,14 +2404,14 @@ api-doc-generator/
 
 > **企業建議**：所有使用 Claude Code 的專案都應啟用此 Skill；雖不在 plugin.json 中，建議團隊將它列為必裝項目並在 CLAUDE.md 中明確要求。
 
-### 14.9 setup-pre-commit 與其他 Misc Skills
+### 14.12 setup-pre-commit 與其他 Misc Skills
 
 Misc 分類共 4 個 Skill，皆**不收錄於 plugin.json**，定位為「偶爾用、不主推」的輔助工具：
 
 | Skill | 用途 |
 |-------|------|
 | `setup-pre-commit` | 配置 pre-commit hooks（lint-staged、格式化、測試等） |
-| `git-guardrails-claude-code` | 見 14.8 節 |
+| `git-guardrails-claude-code` | 見 14.11 節 |
 | `migrate-to-shoehorn` | 遷移至作者的 `shoehorn` 工具鏈（特定情境使用） |
 | `scaffold-exercises` | 產生練習題腳手架（教學情境） |
 
@@ -2301,34 +2419,37 @@ Misc 分類共 4 個 Skill，皆**不收錄於 plugin.json**，定位為「偶�
 /setup-pre-commit
 ```
 
-### 14.10 開發中的 Skills（In-Progress）
+### 14.13 開發中的 Skills（In-Progress，官方定位為 Beta 頻道）
 
-> **本次訂正（v4.0.0）**：查核 `skills/in-progress/` 目錄，現行清單為 **9 個**——`wayfinder` 已轉正移入 Engineering（見 14.6 節），新加入 `batch-grill-me`、`setup-ts-deep-modules`、`to-questionnaire` 三項：
+> **本次訂正（v5.0.0）**：查核 `skills/in-progress/` 目錄，現行清單已由前次查證的 9 個**縮減為 6 個**——`wizard`、`to-questionnaire` 已畢業轉正（見 14.8、14.9 節）；先前記載的 `batch-grill-me` 已從清單消失，CHANGELOG 未明確說明去向，推測其定位已被 v1.2.0 重構後的 `grilling` round-by-round 機制（見第 5.2 節）自然涵蓋，但這僅是合理推測。
+>
+> **定位訂正**：先前版本手冊將 in-progress 定性為「開發中、不穩定、未來可能隨時消失」的內部草稿區。查核 `skills/in-progress/README.md` 原文後發現，作者對這個分類的自我定位其實更明確、也更歡迎外部試用：「*Beta. These skills are public on purpose — try them and tell me what breaks.*」（這是 Beta 頻道，刻意公開，就是要讓人試用並回報問題）。也就是說，這些 Skill**並非隱藏功能**，而是官方刻意維運的公開測試管道，只是不進入 Claude Code Plugin 與頂層 README，且行為隨時可能變動或消失。安裝方式也與已推廣（promoted）Skill 不同，需逐一指名安裝：`npx skills@latest add mattpocock/skills --skill=<name>`。
 
 | Skill | 說明 |
 |-------|------|
-| `batch-grill-me` | 開發中，推測為批次質詢多個項目的 `grill-me` 變體 |
 | `claude-handoff` | 用途與 `handoff` 相近，但仍在調整參數，穩定性未知（見 14.2 節） |
-| `loop-me` | 開發中，推測與重複迭代式工作流程有關 |
-| `setup-ts-deep-modules` | 開發中，推測為 TypeScript 專案的深模組腳手架設定 |
-| `to-questionnaire` | 開發中，推測為將計畫轉為結構化問卷的 Skill |
-| `wizard` | 開發中 |
+| `loop-me` | Beta，推測與重複迭代式工作流程有關 |
+| `setup-ts-deep-modules` | Beta，推測為 TypeScript 專案的深模組腳手架設定 |
 | `writing-beats` | 寫作節拍規劃 |
 | `writing-fragments` | 寫作片段產生 |
 | `writing-shape` | 寫作架構設計 |
 
-> **注意**：以上 Skills 皆不在 `.claude-plugin/plugin.json` 與頂層 README 中，API 可能隨時變更，不建議在生產環境使用；若需嘗試，建議先在非關鍵專案手動載入。`wayfinder` 的轉正歷程（decision-mapping → in-progress → wayfinder → engineering）顯示這份清單具有實質的流動性，企業導入前應養成每季複查一次的習慣。
+> **注意**：以上 Skills 皆不在 `.claude-plugin/plugin.json` 與頂層 README 中，API 可能隨時變更，不建議在生產環境使用；若需嘗試，建議先在非關鍵專案手動載入。`wayfinder`、`wizard`、`to-questionnaire` 三者皆走過「in-progress → 正式收錄」的畢業歷程，顯示這份清單具有實質的流動性，企業導入前應養成每季複查一次的習慣。
 
-### 14.11 已棄用的 Skills（Deprecated）
+### 14.14 已移除與整併的 Skills（原「已棄用」，v1.2.0 全面改寫）
 
-以下 4 個 Skill 已被棄用，不再維護（此清單經查核與現行倉庫一致，無需訂正）：
+> **重大訂正（v5.0.0）**：先前版本手冊記載這 4 個 Skill 屬於「Deprecated（已棄用）」分類，狀態是「不再維護，但仍可查閱」。查核現行倉庫後確認，**這個描述已完全過時**——CHANGELOG「Remove six skills from the repo」條目明確記載，v1.2.0 已將以下 4 個 Skill **從倉庫中徹底移除**，`skills/deprecated/` 資料夾現為**空 bucket**（僅保留一份說明用的 README.md）。作者說明移除理由：這 4 個 Skill 雖然都不在 Claude Code Plugin 中，但過去仍可透過 skills.sh 逐一安裝，v1.2.0 一併終止了這條路徑。以下為官方給出的完整「去向」對照：
 
-| Skill | 替代方案 | 說明 |
+| 已移除 Skill | 功能歸屬 | 說明 |
 |-------|----------|------|
-| `design-an-interface` | `improve-codebase-architecture` / `codebase-design` | 功能已整合到架構改善相關 Skill |
-| `qa` | `tdd` | 測試功能已整合到 TDD Skill |
-| `request-refactor-plan` | `improve-codebase-architecture` | 重構規劃已整合到架構改善 Skill |
-| `ubiquitous-language` | `domain-modeling` | 語言統一功能已整合到 CONTEXT.md／domain-modeling |
+| `ubiquitous-language` | → `/domain-modeling` | 官方說明：新 Skill 建立並維護「整個領域模型」，而不只是從單次對話中傾印一份詞彙表 |
+| `design-an-interface` | → `/codebase-design` | 官方特別強調「沒有功能真正遺失」：其中「設計兩次（design it twice）」技巧——由平行 subagent 各自產出風格迥異的設計方案，源自 Ousterhout——已內建為 `codebase-design` 底下的 `DESIGN-IT-TWICE.md` |
+| `qa` | → `/triage` 與 `/to-tickets` | 測試相關的分類與拆票功能已分散整合進這兩個 Skill |
+| `request-refactor-plan` | → `/to-spec` 與 `/improve-codebase-architecture` | 重構規劃功能已分散整合進這兩個 Skill |
+
+> **同時消失的還有整個 `Personal` 分類**：作者專屬、與己身環境綁定、從未打算給他人使用的 `edit-article` 與 `obsidian-vault`（後者甚至寫死了作者自己的 Obsidian Vault 路徑）也一併移除，`skills/personal/` 資料夾本身已不存在，詳見第 2.5 節。
+>
+> **企業導入行動項目**：若團隊教材、CLAUDE.md 或內部 Wiki 中仍引用 `/ubiquitous-language`、`/design-an-interface`、`/qa`、`/request-refactor-plan` 這 4 個指令，應立即改用上表對應的新指令，因為這些舊指令**不會再回傳「已棄用」的提示訊息，而是直接找不到指令**。
 
 ---
 
@@ -2340,40 +2461,47 @@ Misc 分類共 4 個 Skill，皆**不收錄於 plugin.json**，定位為「偶�
 
 ```mermaid
 flowchart TD
-    A["💡 功能構想"] --> Z{"規模超過<br/>單一 Session？"}
-    Z -->|"是"| W["/wayfinder<br/>繪製決策地圖，逐票解決"]
-    W --> C
-    Z -->|"否"| B["/grill-me<br/>初步質詢與釐清"]
-    B --> C["/grill-with-docs<br/>委派 grilling + domain-modeling<br/>更新 CONTEXT.md／ADR"]
+    A["💡 功能構想"] --> Z{"規模真的超過<br/>單一 Session？<br/>（謹慎判斷，見 14.1 節）"}
+    Z -->|"是"| W["/wayfinder<br/>逐輪繪製決策地圖，<br/>Decision Ticket 逐一解決"]
+    W --> W2["地圖清晰後併入<br/>/to-spec（而非直接 /implement）"]
+    W2 --> D
+    Z -->|"否"| B["/grill-me（無工作目錄）或<br/>/grill-with-docs（有工作目錄）<br/>逐輪提問 + frontier"]
+    B --> C["委派 grilling + domain-modeling<br/>更新 CONTEXT.md／ADR"]
     C --> D["/to-spec<br/>產出 Spec 文件"]
     D --> E["/to-tickets<br/>拆解為 Ticket（agent-grabbable）"]
     E --> F["/tdd 或 /implement<br/>逐一實作 Vertical Slice<br/>RED → GREEN"]
     F --> G{"遇到問題？"}
-    G -->|"Bug"| H["/diagnosing-bugs<br/>六階段除錯流程"]
+    G -->|"Bug"| H["/diagnosing-bugs<br/>六階段除錯流程 + Redact"]
     G -->|"不熟悉程式碼"| I["/ask-matt 或 /codebase-design<br/>釐清架構與定位 Skill"]
     G -->|"需要查文獻／API 事實"| R["/research<br/>背景子代理調研"]
+    G -->|"卡在只有人類能做的手動步驟"| WZ["/wizard<br/>產生互動式引導腳本"]
+    G -->|"回覆看不懂／太冗長"| WW["/wait-what<br/>一詞要求重新表述"]
     G -->|"否"| J{"所有 Ticket<br/>完成？"}
     H --> F
     I --> F
     R --> F
+    WZ --> F
+    WW --> F
     J -->|"否"| F
     J -->|"是"| K["/code-review<br/>雙軸審查（含 Refactor、Fowler 基準）"]
-    K --> L["/improve-codebase-architecture<br/>定期架構審查"]
+    K --> L["/improve-codebase-architecture<br/>YAGNI 範疇篩選 + 定期架構審查"]
     L --> M["✅ 功能交付"]
 ```
 
-> **訂正**：本流程圖已移除 v1.0.0 刪除的 `zoom-out`（改由 `ask-matt`／`codebase-design` 承接「不熟悉程式碼時尋求全局視角」的需求），並將 tdd 循環中原本包含的 Refactor 步驟移至 `/code-review` 階段，對應第 7.3 節的訂正。**v4.0.0 更新**：`/to-prd`／`/to-issues` 依 v1.1.0 改版更名為 `/to-spec`／`/to-tickets`；新增 `/wayfinder`（規模超出單一 Session 時的入口，見第 14.6 節）與 `/research`（背景調研，見第 14.7 節）兩個分支。
+> **訂正**：本流程圖已移除 v1.0.0 刪除的 `zoom-out`（改由 `ask-matt`／`codebase-design` 承接「不熟悉程式碼時尋求全局視角」的需求），並將 tdd 循環中原本包含的 Refactor 步驟移至 `/code-review` 階段，對應第 7.3 節的訂正。**v4.0.0 更新**：`/to-prd`／`/to-issues` 依 v1.1.0 改版更名為 `/to-spec`／`/to-tickets`；新增 `/wayfinder`（規模超出單一 Session 時的入口，見第 14.6 節）與 `/research`（背景調研，見第 14.7 節）兩個分支。**v5.0.0 更新**：`grilling` 相關節點已反映 round-by-round／frontier 機制（見第 5.2 節）；`wayfinder` 完成地圖後應併入 `/to-spec` 而非直接跳 `/implement`（見第 14.1 節 ask-matt 的常見錯誤提醒）；新增 `/wizard`（人工程序精靈，見第 14.8 節）與 `/wait-what`（一詞修正，見第 14.10 節）兩個開發階段的分支節點。
 
 ### 15.2 Skills 組合策略
 
 | 開發階段 | 推薦 Skills 組合 | 說明 |
 |----------|-------------------|------|
-| **大型／模糊專案先定範疇** | wayfinder（決策地圖） | 僅在規模超出單一 Session 容量時使用，見第 14.6 節 |
-| **需求探索** | grill-me → grill-with-docs（grilling + domain-modeling） | 先廣後深 |
-| **規劃** | to-spec → to-tickets | 文件化 → 票券化 |
-| **開發** | tdd／implement（主循環）+ diagnosing-bugs（除錯）+ ask-matt（導航）+ research（背景調研） | 紀律化開發 |
-| **審查** | code-review（含重構、Fowler 基準）+ improve-codebase-architecture | 定期架構健檢 |
-| **協作** | handoff（交接） | 跨會話協作（`caveman` 已於 v1.0.0 移除，不再有等效 Skill） |
+| **大型／模糊專案先定範疇** | wayfinder（決策地圖，完成後併入 to-spec） | 僅在規模真正超出單一 Session 容量時使用，見第 14.1、14.6 節 |
+| **需求探索** | grill-me → grill-with-docs（grilling + domain-modeling，逐輪提問） | 先廣後深；不確定該問使用者本人還是另一個人時，改用 to-questionnaire |
+| **向他人取得決策** | to-questionnaire（決策問卷） | 使用者自己回答不了、需要問領域專家或其他利害關係人時使用，見第 14.9 節 |
+| **規劃** | to-spec → to-tickets | 文件化 → 票券化（本地追蹤器檔名為 spec.md，見第 3.5 節） |
+| **開發** | tdd／implement（主循環）+ diagnosing-bugs（除錯，含 Redact）+ ask-matt（導航）+ research（背景調研）+ wizard（人工程序） | 紀律化開發，遇到只有人類能做的手動步驟時交給 wizard |
+| **溝通除障** | wait-what（一詞修正） | 回覆看不懂或太冗長時的即時補救，見第 14.10 節 |
+| **審查** | code-review（含重構、Fowler 基準）+ improve-codebase-architecture（含 YAGNI 篩選） | 定期架構健檢 |
+| **協作** | handoff（僅限「東西需要移動」時使用，見第 14.1、14.2 節）+ /compact（單純 context 過長時的預設選項） | 跨會話協作（`caveman` 已於 v1.0.0 移除，不再有等效 Skill） |
 
 ### 15.3 迭代循環與回饋機制
 
@@ -2383,8 +2511,10 @@ flowchart TD
 每個 Sprint：
 1. Sprint Planning → /to-tickets 確認本 Sprint 的票券與 blocking edges
 2. 每張 Ticket → /tdd 或 /implement 逐一實作
-3. 遇到問題 → /diagnosing-bugs 除錯，需要查證外部資料時派 /research
-4. Sprint Review → /code-review 統一處理重構，再執行 /improve-codebase-architecture 架構審查
+3. 遇到問題 → /diagnosing-bugs 除錯（自動 Redact 密鑰），需要查證外部資料時派 /research，
+   卡在人工程序時用 /wizard
+4. Sprint Review → /code-review 統一處理重構，再執行 /improve-codebase-architecture
+   （YAGNI 篩選聚焦近期異動路徑）架構審查
 5. Retrospective → 更新 CONTEXT.md 與 ADR（domain-modeling）
 ```
 
@@ -2748,8 +2878,11 @@ jobs:
 | 11 | **漸進式導入** | PoC → Pilot Team → 全團隊 Rollout | 🟡 建議 |
 | 12 | **效率 KPI 追蹤** | 追蹤 AI 生成程式碼的 Review 通過率、TDD 覆蓋率 | 🟢 推薦 |
 | 13 | **追蹤上游 CHANGELOG** | 定期核對 mattpocock/skills 的 CHANGELOG.md，該專案改版頻率高 | 🔴 必要 |
-| 14 | **大型專案先上 wayfinder** | 規模明顯超出單一 Session 容量時，先用 `/wayfinder` 繪製決策地圖，避免中途失焦 | 🟡 建議 |
-| 15 | **版號雙軌並行意識** | 留意 `.claude-plugin/plugin.json` 版號可能領先於 `package.json`／CHANGELOG，導入前以 CHANGELOG 為準 | 🟡 建議 |
+| 14 | **大型專案先上 wayfinder，但避免大材小用** | 規模明顯超出單一 Session 容量時，先用 `/wayfinder` 繪製決策地圖；地圖清晰後併入 `/to-spec` 收斂，避免中途失焦，也避免用在單一 Session 就能搞定的功能上 | 🟡 建議 |
+| 15 | **版號雙軌並行意識** | 留意 `.claude-plugin/plugin.json` 版號理論上仍可能領先於 `package.json`／CHANGELOG，導入前以 CHANGELOG 為準（查證當下三者已對齊） | 🟡 建議 |
+| 16 | **手動程序交給 wizard，不要口頭列步驟** | 遇到只有人類能操作的第三方 Dashboard、憑證申請等程序時，善用 `/wizard` 產生互動式引導腳本，比把步驟寫成文字貼進聊天視窗更不容易出錯 | 🟢 推薦 |
+| 17 | **信任 Redact，但仍需人工複查敏感輸出** | `/diagnosing-bugs` 已內建密鑰自動隱匿機制，但企業環境仍建議定期抽查除錯紀錄，確認沒有意外外洩的機敏資訊 | 🟡 建議 |
+| 18 | **更新團隊教材對 grilling 節奏的描述** | v1.2.0 起 grilling 已改為逐輪提問，若團隊文件或新人訓練教材仍描述「一次一問」，應同步更新，避免新人對互動節奏產生錯誤預期 | 🟡 建議 |
 
 ---
 
@@ -2775,7 +2908,7 @@ jobs:
 | # | 問題 | 可能原因 | 解決方式 |
 |---|------|----------|----------|
 | 1 | **Skills 無法載入** | Skills 未正確安裝 | 重新執行 `npx skills@latest add mattpocock/skills` |
-| 2 | **Claude Code 找不到 Skill** | Skill 未在 plugin.json 中註冊 | 確認 Skill 在 `skills/engineering/` 或 `skills/productivity/` 目錄下（misc/in-progress/personal/deprecated 皆不會被自動發現） |
+| 2 | **Claude Code 找不到 Skill** | Skill 未在 plugin.json 中註冊 | 確認 Skill 在 `skills/engineering/` 或 `skills/productivity/` 目錄下（misc/in-progress/deprecated 皆不會被自動發現；`personal/` 目錄已隨其下 Skill 移除而消失） |
 | 3 | **Context 爆炸（Token 超限）** | CONTEXT.md 或 ADR 檔案過大 | 精簡 CONTEXT.md，移除過時的 ADR |
 | 4 | **Prompt 汙染** | SKILL.md 或 CONTEXT.md 被注入惡意內容 | 檢查 Git diff，還原異常變更 |
 | 5 | **AI 偏離需求** | 未執行 /grill-me 就開始編碼 | 回到需求階段，執行 /grill-me 或 /grill-with-docs |
@@ -2788,14 +2921,19 @@ jobs:
 | 12 | **`/caveman`、`/diagnose`、`/write-a-skill` 等指令找不到** | v1.0.0 已刪除或更名這些 Skill | `caveman` 已移除無替代；`diagnose` 改用 `/diagnosing-bugs`；`write-a-skill` 改用 `/writing-great-skills` |
 | 13 | **不確定該用哪個 Skill** | Skill 數量多，容易選錯 | 使用 `/ask-matt` 詢問應使用哪個 Skill |
 | 14 | **`/to-prd`、`/to-issues` 找不到指令** | v1.1.0（2026-07-08）已將兩者分別更名／合併為 `/to-spec`、`/to-tickets` | 改用新指令；若團隊 CLAUDE.md／AGENTS.md 或內部教材仍寫著舊指令，需一併更新 |
-| 15 | **plugin.json 版號與 CHANGELOG 對不上** | `.claude-plugin/plugin.json` 的版號被獨立提升，未同步寫入 CHANGELOG | 以 `CHANGELOG.md`／GitHub Releases 記載的正式版本為準，plugin.json 版號僅供 Claude Code Plugin 市集使用 |
+| 15 | **plugin.json 版號與 CHANGELOG 對不上** | 舊版曾出現 `.claude-plugin/plugin.json` 版號被獨立提升、未同步寫入 CHANGELOG 的情況 | 查證當下（v1.2.3）三者已重新對齊，此問題已修復；仍建議以 `CHANGELOG.md`／GitHub Releases 記載的正式版本為準 |
+| 16 | **`/writing-great-skills` 找不到指令** | v1.2.0 已將其更名為 `/writing-for-agents`，且**沒有保留舊名別名**（Breaking Change） | 改用 `/writing-for-agents`；因為改為 Model-invoked，多數情況下 Agent 會在偵測到「建立／編輯 Skill」或「修改 AGENTS.md／CLAUDE.md」時自動觸發，不需手動輸入指令 |
+| 17 | **`/ubiquitous-language`、`/design-an-interface`、`/qa`、`/request-refactor-plan` 找不到指令** | v1.2.0 已將這 4 個 Skill**徹底移除**（並非僅棄用標記），`skills/deprecated/` 現為空 bucket | 依第 14.14 節對照表改用 `/domain-modeling`、`/codebase-design`、`/triage`＋`/to-tickets`、`/to-spec`＋`/improve-codebase-architecture` |
+| 18 | **grilling 逐題等待、不再一次列出整輪問題** | 團隊教材或提示詞仍假設 v1.1.0 以前「一次一問」的舊行為 | v1.2.0 起 grilling 預設改為逐輪提問（round-by-round＋frontier），需更新內部教材對此行為的描述；如仍需逐題模式，可在全域 CLAUDE.md 設定退出 |
+| 19 | **`/prototype` 的 Logic 分支不再產出終端機程式** | 團隊教材仍描述 Logic 分支輸出 CLI／終端機互動程式 | v1.2.0 起 Logic 分支已改為單一自包含 HTML 檔案，見第 10.2 節；原型也不再直接刪除，而是保留在 `prototype/<name>` 分支 |
+| 20 | **除錯過程中意外把密鑰貼進對話或 Ticket** | 未留意 `diagnosing-bugs` 的 Redact 機制是否確實套用 | v1.2.3 起 Redact 已內建於 Phase 1 完成判準中，若仍發現密鑰外洩，應視為異常個案並檢查是否繞過了標準除錯流程，見第 11.2 節 |
 
 ---
 
 ## 第 23 章：FAQ — 常見問題
 
 **Q1：mattpocock/skills 支援哪些 AI Agent？**
-> 需分三層理解（見第 1.3 節）：**標準層** agentskills.io 定義 SKILL.md 格式本身；**分發層** skills.sh／`npx skills` CLI（Vercel 維運）負責把符合標準的 SKILL.md 安裝進 20 餘種主流 Agent；**內容層**才是 mattpocock/skills 本身。倉庫 README 只明確提到 Claude Code 與 Codex，並聲明「works with any model」，並未逐一列名 Cursor、GitHub Copilot 等工具——那些是分發層的能力，不是這個倉庫自己的宣告。安裝前建議以 `npx skills@latest add mattpocock/skills` 執行時顯示的清單為準，或直接透過 Claude Code 原生 Plugin（`/plugin install mattpocock-skills@mattpocock`）安裝。
+> 需分三層理解（見第 1.3 節）：**標準層** agentskills.io 定義 SKILL.md 格式本身；**分發層** skills.sh／`npx skills` CLI（Vercel 維運）負責把符合標準的 SKILL.md 安裝進 20 餘種主流 Agent；**內容層**才是 mattpocock/skills 本身。倉庫 README 明確提到 Claude Code 與 Codex，並聲明「works with any model」；v1.2.0 起，倉庫本身也開始為**每個** Skill 內建 `agents/openai.yaml` 中繼資料，讓 Codex 能原生識別（見第 1.3 節），但仍未逐一列名 Cursor、GitHub Copilot 等其他工具——那些仍仰賴分發層 skills.sh CLI 的支援清單。安裝前建議以 `npx skills@latest add mattpocock/skills` 執行時顯示的清單為準，或直接透過 Claude Code 原生 Plugin（`claude plugins install mattpocock-skills`，安裝方式已於 v1.2.0 簡化為單一指令）安裝。
 
 **Q2：安裝後是否需要在每個專案都執行 /setup-matt-pocock-skills？**
 > 是的。每個專案倉庫需要獨立初始化，因為每個專案的 Issue Tracker、Triage Labels、Domain 都不同。
@@ -2804,7 +2942,7 @@ jobs:
 > 延遲自動產生，實際執行者是 `domain-modeling` Skill（`/grill-with-docs` 委派對象）。首次有詞彙被確認定義時才會建立檔案，後續每次質詢會就地更新。`setup-matt-pocock-skills` **不會**建立此檔案。
 
 **Q4：可以自訂新的 Skills 嗎？**
-> 可以。使用 `/writing-great-skills`（v1.0.0 由 `write-a-skill` 重寫更名而來）即可建立符合標準結構的自訂 Skill。
+> 可以。使用 `/writing-for-agents`（v1.0.0 由 `write-a-skill` 重寫更名為 `writing-great-skills`，v1.2.0 再改名並重構為 `writing-for-agents`，且改為 Model-invoked、範疇擴大到任何供 Agent 消費的文件，見第 14.3 節）即可建立符合標準結構的自訂 Skill。
 
 **Q5：Skills 更新後會覆蓋自訂配置嗎？**
 > Skills 更新只影響 `~/.claude/skills/` 中的共享 Skill 檔案，不會覆蓋專案中的 CONTEXT.md、ADR 等檔案。
@@ -2813,7 +2951,7 @@ jobs:
 > 建議一次處理一個 Vertical Slice。完成後 commit，再開始下一個。
 
 **Q7：grill-me 和 grill-with-docs 有什麼差別？**
-> `grill-me` 是通用質詢（不讀取專案檔案），`grill-with-docs` 會讀取並更新 CONTEXT.md 和 ADR。
+> `grill-me` 是通用質詢（不讀取專案檔案），`grill-with-docs` 會讀取並更新 CONTEXT.md 和 ADR。v1.2.0 起，`ask-matt` 路由表把判斷依據講得更明確：**是否身處一個工作目錄（working directory）中**——有的話用 `grill-with-docs`（留下 CONTEXT.md／ADR 痕跡），沒有則用 `grill-me`（純對話、不留痕跡）。兩者底層都委派給 `grilling` 引擎，v1.2.0 起皆已改為逐輪提問（round-by-round＋frontier），不再是一次一問，見第 5.2 節。
 
 **Q8：/diagnosing-bugs（原 diagnose）可以分析生產環境的問題嗎？**
 > 可以，但需要將相關 logs、metrics 資料貼入對話中。AI 不會直接連線至生產環境。
@@ -2843,10 +2981,10 @@ jobs:
 > 使用 `CONTEXT-MAP.md` 映射每個子模組的 CONTEXT.md 路徑。
 
 **Q17：/to-spec（原 /to-prd）是否會進行質詢？**
-> 不會。`/to-spec` 只綜合現有對話與程式碼理解產出 Spec 文件。質詢應在之前使用 `/grill-me` 或 `/grill-with-docs`。`/to-prd` 是這個指令 v1.1.0（2026-07-08）之前的舊名，查證當下已從倉庫中移除。
+> 不會。`/to-spec` 只綜合現有對話與程式碼理解產出 Spec 文件。質詢應在之前使用 `/grill-me` 或 `/grill-with-docs`。`/to-prd` 是這個指令 v1.1.0（2026-07-08）之前的舊名，查證當下已從倉庫中移除；v1.2.0 起，連 SKILL.md 中「你可能認識它叫 PRD」這句過渡性提示也已移除，"spec" 是現在唯一使用的通用詞彙。
 
-**Q18：In-Progress 的 Skills（如 claude-handoff、wizard）可以使用嗎？**
-> 可以手動載入使用，但未在 plugin.json 中註冊，Claude Code 不會自動發現。品質與穩定性不保證，查證當下清單仍在頻繁變動，不建議用於生產流程。**注意**：`wayfinder` 已於 v1.1.0 由 in-progress 轉正進入 Engineering、正式收錄進 plugin.json（見第 14.6 節），不再屬於這個「開發中」分類。
+**Q18：In-Progress 的 Skills 可以使用嗎？**
+> 可以，且官方明確歡迎試用——查核 `skills/in-progress/README.md` 後確認，這個分類的官方定位是「**Beta 頻道**：刻意公開，就是要讓人試用並回報問題」，並非隱藏的內部草稿。但它們未在 plugin.json 中註冊，Claude Code 不會自動發現，需以 `npx skills@latest add mattpocock/skills --skill=<name>` 逐一指名安裝；品質與行為隨時可能變動或消失，不建議用於生產流程。查證當下（2026-08-10）清單已縮減為 6 個：`claude-handoff`、`loop-me`、`setup-ts-deep-modules`、`writing-beats`、`writing-fragments`、`writing-shape`。**注意**：`wayfinder`（v1.1.0）、`wizard`／`to-questionnaire`（v1.2.0）皆已由 in-progress 畢業轉正進入正式 Plugin（見第 14.6、14.8、14.9 節），不再屬於這個「開發中」分類。
 
 **Q19：如何處理團隊內不同成員安裝了不同版本的 Skills？**
 > 建議團隊統一使用相同版本，可在團隊 Wiki 或 README 中記錄建議版本。Skills 本身的更新頻率較高，建議每月同步更新。
@@ -2861,16 +2999,28 @@ jobs:
 > 不能。`caveman` 已在 v1.0.0 被移除，作者說明原因是「本就是重複品，從未打算公開發布」，目前**沒有等效的替代 Skill**。若團隊需要壓縮溝通格式，建議自行在 CLAUDE.md／AGENTS.md 中撰寫團隊慣例，而非依賴此 Skill。
 
 **Q23：`/to-prd`、`/to-issues` 為什麼突然找不到了？**
-> 這兩個指令在 v1.1.0（2026-07-08）的「Unify the planning skills」改版中被取代：`/to-prd` 更名為 `/to-spec`（README 說明「spec」現在是統一的通用詞彙，文件仍保留「你可能認識它叫 PRD」一句方便辨識）；`/to-issues` 與另一個已消失的 `/to-plan` 合併為 `/to-tickets`，`to-issues` 本身則被刪除。核心行為與工作流程位置基本延續（見第 8、9 章），只是指令名稱與部分細節（如票券改用明確的 blocking edges）不同，建議直接更新團隊教材與 CLAUDE.md 中的指令引用。
+> 這兩個指令在 v1.1.0（2026-07-08）的「Unify the planning skills」改版中被取代：`/to-prd` 更名為 `/to-spec`；`/to-issues` 與另一個已消失的 `/to-plan` 合併為 `/to-tickets`，`to-issues` 本身則被刪除。核心行為與工作流程位置基本延續（見第 8、9 章），只是指令名稱與部分細節（如票券改用明確的 blocking edges）不同。SKILL.md 一度保留「你可能認識它叫 PRD」一句過渡性提示方便舊使用者辨識，但 v1.2.0 起這句提示也已移除，"spec" 是現在唯一使用的詞彙，建議直接更新團隊教材與 CLAUDE.md 中的指令引用。
 
 **Q24：`wayfinder` 和 `to-tickets` 都會拆出票券，該用哪一個？**
-> 依規模決定，兩者不互相取代。一般規模的功能開發（幾天到一兩週內可完成）直接用 `/to-spec → /to-tickets`；當工作真的大到連「先寫 Spec」都做不到——例如一整個模組重寫、橫跨多個 Session 才能想清楚——才用 `/wayfinder` 先繪製決策地圖。另一個關鍵差異是分類機制：`to-tickets` 沒有正式的人類參與分類，預設全部票券都是 Agent 可獨立認領（`ready-for-agent`）；`wayfinder` 則有正式的 HITL／AFK 雙分類（見第 14.6 節），因為地圖上的票券本質是「需要決策」，天生就比一般開發票券更常需要人類介入。
+> 依規模決定，兩者不互相取代。一般規模的功能開發（幾天到一兩週內可完成）直接用 `/to-spec → /to-tickets`；當工作真的大到連「先寫 Spec」都做不到——例如一整個模組重寫、橫跨多個 Session 才能想清楚——才用 `/wayfinder` 先繪製決策地圖。另一個關鍵差異是分類機制：`to-tickets` 沒有正式的人類參與分類，預設全部票券都是 Agent 可獨立認領（`ready-for-agent`）；`wayfinder` 則有正式的 HITL／AFK 雙分類（見第 14.6 節），因為地圖上的票券本質是「決策票券（Decision Ticket）」，天生就比一般開發票券更常需要人類介入。`ask-matt` 的路由更新（v1.2.0）也特別提醒：wayfinder 地圖繪製完成後，應併入 `/to-spec` 收斂決策，而不是直接跳去 `/implement`，除非最終發現工作量其實不大。
 
 **Q25：`.claude-plugin/plugin.json` 顯示的版本和 CHANGELOG 對不上，該以哪個為準？**
-> 以 `CHANGELOG.md`／GitHub Releases 記載的正式版本為準（查證當下為 v1.1.0）。`.claude-plugin/plugin.json` 內的版號是 Claude Code Plugin 市集使用的獨立版號軌道，查證當下已提升至 1.2.0 但尚無對應的 CHANGELOG 條目或 GitHub Release，屬於治理上尚未對齊的落差，不代表 Skill 本身的功能已進一步演進。
+> 查證當下（2026-08-10，v1.2.3）**三者已重新對齊**，此問題已修復——`.claude-plugin/plugin.json`、`package.json`、`CHANGELOG.md` 記載的版本一致。若日後再次出現落差，仍建議以 `CHANGELOG.md`／GitHub Releases 記載的正式版本為準；`.claude-plugin/plugin.json` 內的版號本質上是 Claude Code Plugin 市集使用的獨立版號軌道，理論上仍可能再次脫鉤。
 
 **Q26：`/research` 和既有的 `/grilling`／`/domain-modeling` 有什麼不同？**
-> `/research` 針對的是「客觀事實」（第三方 API 行為、官方文件內容），以背景子代理非同步執行、輸出一份附引用來源的 Markdown 檔案；`/grilling`／`/domain-modeling` 針對的是「主觀決策」，需要即時、一次一問地與使用者對話才能定案。兩者互補：`wayfinder` 的地圖上，`research` 票券交給背景代理平行處理，`grilling` 票券則保留給人類即時對話（見第 14.6、14.7 節）。
+> `/research` 針對的是「客觀事實」（第三方 API 行為、官方文件內容），以背景子代理非同步執行、輸出一份附引用來源的 Markdown 檔案；`/grilling`／`/domain-modeling` 針對的是「主觀決策」，需要與使用者對話才能定案（v1.2.0 起改為逐輪提問，而非一次一問，見第 5.2 節）。兩者互補：`wayfinder` 的地圖上，`research` 票券交給背景代理平行處理，`grilling` 票券則保留給人類對話（見第 14.6、14.7 節）。
+
+**Q27：`grilling` 現在是「一次一問」還是「一次全問」？**
+> 都不是精確的描述。v1.2.0 起，`grilling` 採**逐輪提問（round-by-round）＋ frontier（前緣）**機制：每一輪會把「所有前置條件已滿足、可立即提問」的問題**一次性**列成一個編號清單問完，使用者一次回覆整輪，Agent 再依回答重新計算下一輪的 frontier。作者估計原本要問 13 輪的問題，現在約 3 輪就能問完。若團隊偏好舊版逐題等待的節奏，可在全域 CLAUDE.md 設定退出，詳見第 5.2 節。
+
+**Q28：`wizard` 和 `implement`／`tdd` 有什麼不同？該由誰接手？**
+> `implement`／`tdd` 處理的是 **Agent 自己能完成**的程式碼變更；`wizard` 處理的是**只有人類能做**的手動程序——第三方 Dashboard 操作、憑證申請、一次性資料遷移等。SKILL.md 明文排除「Agent 自己就能做到的步驟」不該呼叫 wizard。因為 `wizard` 是 Model-invoked（v1.2.0 起），Agent 在實作過程中一旦碰到只有人類能繼續的步驟，會直接產生一支互動式引導腳本交給使用者操作，而不是把步驟寫成一段文字丟進聊天視窗，詳見第 14.8 節。
+
+**Q29：`to-questionnaire` 和 `grill-me` 有什麼不同？**
+> `grill-me` 質詢的是**使用者自己**，前提是使用者對主題本身答得出來；`to-questionnaire` 則用在使用者**自己也答不出來、需要去問別人**的情境——它反過來質詢使用者「這份問卷要寄給誰」「需要從對方那裡得到什麼」，再據此產生一份可非同步填寫的 Markdown 問卷。可以理解為 `grill-me` 的反向操作，詳見第 14.9 節。
+
+**Q30：mattpocock/skills 現在對 Codex 的支援程度如何？**
+> 較先前版本顯著加深。v1.2.0 起，倉庫本身直接為每個 Skill 內建 `agents/openai.yaml` 中繼資料（對應 Codex 介面所需的顯示名稱與簡短說明），User-invoked Skill 也會加上 Codex 端的 `policy.allow_implicit_invocation: false` 設定；`AGENTS.md` 也新增為指向 `CLAUDE.md` 的符號連結，讓 Codex 讀到與 Claude Code 相同的專案指引。v1.2.3 進一步把 `code-review`、`codebase-design`、`improve-codebase-architecture` 中原本寫死的 Claude Code 專屬工具名稱抽離，使指令在 Codex 上也能被正確遵循。不過，實際「安裝」機制目前仍主要透過 skills.sh CLI 完成，原生 Codex Plugin 仍在規劃中，詳見第 1.3 節。
 
 ---
 
@@ -2878,34 +3028,37 @@ jobs:
 
 ### 24.1 CLI 速查表
 
-> 以下為 `.claude-plugin/plugin.json` 實際註冊的 22 個 Skill（查證版本 v1.2.0，2026-07-22），User-invoked／Model-invoked 分類依 README「Reference」章節逐一核對（見第 2.1 節），依分類與典型使用順序排列。
+> 以下為 `.claude-plugin/plugin.json` 實際註冊的 25 個 Skill（查證版本 v1.2.3，2026-08-10），User-invoked／Model-invoked 分類依 README「Reference」章節逐一核對（見第 2.1 節），依分類與典型使用順序排列。
 
 | 指令 | 分類 | 觸發方式 | 用途 |
 |------|------|----------|------|
 | `/setup-matt-pocock-skills` | Engineering | User-invoked | 專案初始化（必須首先執行） |
-| `/ask-matt` | Engineering | User-invoked | Skill 路由器，不確定用哪個指令時詢問 |
-| `/grill-me` | Productivity | User-invoked | 通用計畫質詢（委派 grilling） |
-| `/grilling` | Productivity | Model-invoked | 共用質詢引擎（通常不直接呼叫） |
-| `/grill-with-docs` | Engineering | User-invoked | 結合 Domain 的深度質詢（委派 grilling + domain-modeling） |
+| `/ask-matt` | Engineering | User-invoked | Skill 路由器，含 Phase Boundaries 決策樹（v1.2.0 更新，見 14.1 節） |
+| `/grill-me` | Productivity | User-invoked | 通用計畫質詢（委派 grilling，無工作目錄時使用） |
+| `/grilling` | Productivity | Model-invoked | 共用質詢引擎，v1.2.0 起改為逐輪提問＋frontier（見 5.2 節） |
+| `/grill-with-docs` | Engineering | User-invoked | 結合 Domain 的深度質詢（委派 grilling + domain-modeling，有工作目錄時使用） |
 | `/domain-modeling` | Engineering | Model-invoked | CONTEXT.md／ADR 讀寫（通常由 grill-with-docs 委派） |
 | `/codebase-design` | Engineering | Model-invoked | 深模組詞彙、Deletion Test、depth-as-leverage |
-| `/wayfinder` | Engineering | User-invoked | 超大型任務的決策地圖規劃（v1.1.0 新收錄，見 14.6 節） |
+| `/wayfinder` | Engineering | User-invoked | 超大型任務的決策地圖規劃，票券單位正名為 Decision Ticket（v1.1.0 新收錄，v1.2.0 正名，見 14.6 節） |
 | `/research` | Engineering | Model-invoked | 背景子代理調研，輸出附引用來源的 Markdown（v1.1.0 新增，見 14.7 節） |
+| `/wizard` | Engineering | Model-invoked | 產生互動式人工程序引導腳本（v1.2.0 由 in-progress 畢業，見 14.8 節） |
 | `/tdd` | Engineering | Model-invoked | 測試驅動開發（RED-GREEN，Refactor 另交 code-review） |
-| `/to-spec` | Engineering | User-invoked | 對話轉 Spec 文件（原 `/to-prd`） |
+| `/to-spec` | Engineering | User-invoked | 對話轉 Spec 文件（原 `/to-prd`，PRD 用詞已於 v1.2.0 完全清除） |
 | `/to-tickets` | Engineering | User-invoked | Spec 拆解為 Ticket，明確宣告 blocking edges（原 `/to-issues`） |
 | `/implement` | Engineering | User-invoked | 依 Spec／Ticket 執行實作，驅動 tdd 並收尾 code-review |
-| `/prototype` | Engineering | Model-invoked | 快速原型建立（Logic／UI 分支） |
-| `/diagnosing-bugs` | Engineering | Model-invoked | 六階段結構化除錯（原名 diagnose） |
-| `/improve-codebase-architecture` | Engineering | User-invoked | 架構改善建議（Explore／Report／Grilling Loop） |
+| `/prototype` | Engineering | Model-invoked | 單一 HTML 檔案快速原型（Logic／UI 分支，v1.2.0 全面改版，見第 10 章） |
+| `/diagnosing-bugs` | Engineering | Model-invoked | 六階段結構化除錯，內建密鑰 Redact（原名 diagnose，v1.2.3 新增 Redact，見第 11 章） |
+| `/improve-codebase-architecture` | Engineering | User-invoked | 架構改善建議，Explore 階段新增 YAGNI 篩選（v1.2.0） |
 | `/code-review` | Engineering | Model-invoked | 雙軸（Standards + Spec）平行 subagent 審查，含 Refactor 與 Fowler 壞味道基準 |
 | `/resolving-merge-conflicts` | Engineering | Model-invoked | 逐一解決 git merge/rebase 衝突（v1.1.0 起正式收錄） |
 | `/triage` | Engineering | User-invoked | 議題分類管理（雙軸系統） |
-| `/handoff` | Productivity | User-invoked | 跨 Agent 交接 |
+| `/handoff` | Productivity | User-invoked | 跨 Agent 交接，v1.2.0 起定位收窄為「東西需要移動」時才用（見 14.1、14.2 節） |
 | `/teach` | Productivity | User-invoked | 多會話教學工作區 |
-| `/writing-great-skills` | Productivity | User-invoked | 自訂 Skill 開發（原名 write-a-skill） |
+| `/to-questionnaire` | Productivity | User-invoked | 把答不了的決策轉成問卷寄給別人（v1.2.0 由 in-progress 畢業，見 14.9 節） |
+| `/wait-what` | Productivity | User-invoked | 一詞要求 Agent 重新表述前一則訊息（v1.2.0 新增，見 14.10 節） |
+| `/writing-for-agents` | Productivity | Model-invoked | 供 Agent 消費文件的撰寫規範（原名 writing-great-skills，v1.2.0 改名並改為 Model-invoked，見 14.3 節） |
 
-> **已於 v1.0.0 移除，無替代**：`caveman`、`zoom-out`。**已於 v1.1.0 移除，由新指令取代**：`to-prd`（→ `to-spec`）、`to-issues`（→ `to-tickets`）。
+> **已於 v1.0.0 移除，無替代**：`caveman`、`zoom-out`。**已於 v1.1.0 移除，由新指令取代**：`to-prd`（→ `to-spec`）、`to-issues`（→ `to-tickets`）。**已於 v1.2.0 徹底移除，功能併入其他 Skill**：`ubiquitous-language`（→ `domain-modeling`）、`design-an-interface`（→ `codebase-design`）、`qa`（→ `triage`／`to-tickets`）、`request-refactor-plan`（→ `to-spec`／`improve-codebase-architecture`），詳見第 14.14 節。
 
 ### 24.2 Prompt Templates
 
@@ -2967,6 +3120,26 @@ jobs:
 並將結論連同引用來源整理成一份 Markdown 檔案。
 ```
 
+**人工程序精靈 Prompt 範本**（`/wizard`，v5.0.0 新增）：
+
+```text
+/wizard
+我需要走完以下手動程序：[程序描述，例如「開通第三方服務並設定 CI Secrets」]
+會用到的服務／Dashboard：[名稱與網址]
+需要擷取並寫入的值：[值的名稱，例如 API_KEY、WEBHOOK_SECRET]
+需要寫入的位置：[.env / GitHub Actions Secrets 等]
+```
+
+**決策問卷 Prompt 範本**（`/to-questionnaire`，v5.0.0 新增）：
+
+```text
+/to-questionnaire
+我無法自行判斷的決策是：[決策內容]
+問卷要寄給：[對方角色／姓名，及其與此決策的關係]
+我需要從對方那裡得到：[具體需要的答案或資訊]
+期限：[需要回覆的時間]
+```
+
 ### 24.3 新進成員 Checklist
 
 **第一天**：
@@ -2974,7 +3147,7 @@ jobs:
 - [ ] 安裝 Claude Code（最新版）
 - [ ] 安裝 Node.js v18+
 - [ ] 安裝 gh CLI 並完成認證（`gh auth login`）
-- [ ] 執行 `npx skills@latest add mattpocock/skills`（選擇所有 Skills）或改用 Claude Code 原生 Plugin（`/plugin install mattpocock-skills@mattpocock`）
+- [ ] 執行 `npx skills@latest add mattpocock/skills`（選擇所有 Skills）或改用 Claude Code 原生 Plugin（`claude plugins install mattpocock-skills`）
 - [ ] 閱讀本手冊第 1-4 章
 
 **第一週**：
@@ -2987,10 +3160,11 @@ jobs:
 
 **第一個月**：
 
-- [ ] 使用 `/grill-me` 完成至少一次需求探索
+- [ ] 使用 `/grill-me` 完成至少一次需求探索，體會逐輪提問（round-by-round）的節奏
 - [ ] 使用 `/to-spec` 產出至少一份 Spec
 - [ ] 使用 `/to-tickets` 拆解至少一個功能，並練習正確宣告 blocking edges
 - [ ] 使用 `/tdd` 完成至少三個 Vertical Slice
+- [ ] 遇到只有人類能做的手動程序時，試用一次 `/wizard`；需要向他人取得決策時試用一次 `/to-questionnaire`
 - [ ] 使用 `/diagnosing-bugs` 解決至少一個 Bug
 - [ ] 若手邊有規模超出單一 Session 的任務，練習用 `/wayfinder` 繪製一次決策地圖
 - [ ] 閱讀本手冊第 17-19 章（SSDLC + Governance + CI/CD）
@@ -3024,22 +3198,24 @@ jobs:
 
 | 資源 | 連結 | 備註 |
 |------|------|------|
-| mattpocock/skills GitHub | [github.com/mattpocock/skills](https://github.com/mattpocock/skills) | 180,641 stars／15,434 forks（2026-07-22 查證） |
-| mattpocock/skills CHANGELOG | [CHANGELOG.md](https://github.com/mattpocock/skills/blob/main/CHANGELOG.md) | 追蹤 Skill 更名／刪除／新增的第一手來源；查證當下最新為 v1.1.0（2026-07-08） |
+| mattpocock/skills GitHub | [github.com/mattpocock/skills](https://github.com/mattpocock/skills) | 211,328 stars／18,273 forks／1,218 watchers（2026-08-10 查證） |
+| mattpocock/skills CHANGELOG | [CHANGELOG.md](https://github.com/mattpocock/skills/blob/main/CHANGELOG.md) | 追蹤 Skill 更名／刪除／新增的第一手來源；查證當下最新為 v1.2.3（累計涵蓋 v1.2.0、v1.2.2、v1.2.3 三次改版） |
 | agentskills.io | [agentskills.io](https://agentskills.io) | Agent Skills 開放標準規格本體，由 Anthropic 主導、開放治理，是三層生態系中的標準層（見第 1.3 節） |
 | skills.sh | [skills.sh](https://skills.sh) | 由 **Vercel** 發佈維運的開放 Agent Skills 生態系分發層網站，非 mattpocock/skills 本身 |
 | Claude Code 官方文件 | [code.claude.com/docs](https://code.claude.com/docs) | 已查證為現行正確網址 |
-| Skills CLI（npx skills） | [npmjs.com/package/skills](https://www.npmjs.com/package/skills) | 查證版本 1.5.19 |
-| 作者電子報（aihero.dev） | [aihero.dev/s/skills-newsletter](https://www.aihero.dev/s/skills-newsletter) | Matt Pocock 本人維運，同步發布 Skill 更新，查證當下約 6 萬訂閱者 |
+| Skills CLI（npx skills） | [npmjs.com/package/skills](https://www.npmjs.com/package/skills) | 查證版本 1.5.22 |
+| 作者電子報（aihero.dev） | [aihero.dev/s/skills-newsletter](https://www.aihero.dev/s/skills-newsletter) | Matt Pocock 本人維運，同步發布 Skill 更新 |
 | ADR 最佳實踐 | [adr.github.io](https://adr.github.io/) | — |
 | Vertical Slice Architecture | [jimmybogard.com](https://jimmybogard.com/vertical-slice-architecture/) | — |
 | TDD 入門指南 | [martinfowler.com](https://martinfowler.com/bliki/TestDrivenDevelopment.html) | — |
 | A Philosophy of Software Design | [web.stanford.edu](https://web.stanford.edu/~ouster/cgi-bin/book.php) | codebase-design 明確揚棄其 Depth 定義，改採 depth-as-leverage，見第 6.4 節 |
+| Simplified Technical English（ASD-STE100） | [asd-ste100.org](https://www.asd-ste100.org/) | `wait-what` 重新表述訊息時採用的工業界清晰用語標準，見第 14.10 節 |
 
 ### 24.6 版本紀錄
 
 | 版本 | 日期 | 變更說明 |
 |------|------|----------|
+| v5.0.0 | 2026-08-10 | 全面查證改版：對照 mattpocock/skills 自 v1.1.0 以來連續三次改版（**v1.2.0、v1.2.2、v1.2.3**，最新提交 2026-08-07）逐項核對原始碼，更新 Star／Fork／npm 套件版本；**grilling 質詢引擎重構**——由「一次一問」改為「逐輪提問＋frontier」，第 5.2 節全面重寫；**prototype 全面改版**——Logic 分支改為單一 HTML 檔案，拋棄分支正名為 `prototype/<name>`，第 10 章全面重寫；`wayfinder` 票券單位正名為 Decision Ticket；`writing-great-skills` 更名並重構為 `writing-for-agents`（Breaking Change，改為 Model-invoked，範疇擴大），新增獨立章節；`wizard`、`to-questionnaire` 由 in-progress 畢業轉正，新增專節；新增 `wait-what` Skill 專節；**6 個 Skill 被徹底移除**（`ubiquitous-language`、`design-an-interface`、`qa`、`request-refactor-plan`、`edit-article`、`obsidian-vault`），`skills/personal/` 分類隨之消失，第 2.5、14.14 節全面改寫；`diagnosing-bugs` 新增 Redact 密鑰隱匿機制；`improve-codebase-architecture` 新增 YAGNI 範疇篩選；`ask-matt` 路由表新增 Phase Boundaries 決策樹與 wayfinder 常見錯誤提醒；Claude Code 原生 Plugin 安裝指令簡化為 `claude plugins install mattpocock-skills`；倉庫新增 Codex 原生雙引擎中繼資料（`agents/openai.yaml`）；`code-review`／`codebase-design`／`improve-codebase-architecture` 移除 Claude Code 專屬工具名稱以利跨 Harness；本地追蹤器規格檔名由 `PRD.md` 正名為 `spec.md`；確認 plugin.json／package.json／CHANGELOG 版號落差已修復並重新對齊；`.claude-plugin/plugin.json` 現收錄 25 個 Skill（原 22 個）；全面更新目錄、章節編號與所有錨點連結；修正 markdown 格式問題 |
 | v4.0.0 | 2026-07-22 | 全面查證改版：對照 mattpocock/skills **v1.1.0**（2026-07-08 發布）原始碼與生態系現況，更新 Star／Fork 數與 npm 套件版本；`to-prd`→`to-spec`、`to-issues`（與已刪除的 `to-plan`）→`to-tickets` 更名／合併，兩章全面重寫並訂正依賴表達方式（blocking edges）；`wayfinder` 由 in-progress 轉正，新增專節說明其決策地圖與 HITL/AFK 分類；新增 `research` Skill 專節；`resolving-merge-conflicts` 結束未收錄過渡期；訂正 grilling 原則（4→5 條，新增確認閘門與事實/決策二分）、prototype 第 6 條規則（Capture it when done）、setup-matt-pocock-skills 的 triage-labels.md 條件式建立；補上 code-review 的 Fowler 壞味道基準與 writing-great-skills 的新失效模式；釐清 agentskills.io／skills.sh／mattpocock-skills 三層生態系架構；新增 Executive Summary 與多則 FAQ／Troubleshooting／Best Practices 條目；全面更新目錄與章節編號；移除檔尾重複的舊版本紀錄區塊 |
 | v3.0.0 | 2026-07-02 | 全面查證改版：對照 mattpocock/skills v1.0.0／v1.0.1（2026-06-17 發布）原始碼與 skills.sh／npm 生態系，訂正 Star 數與多 Agent 聲明範圍；移除已刪除的 `zoom-out`、`caveman`；`diagnose`→`diagnosing-bugs`、`write-a-skill`→`writing-great-skills` 更名；新增 domain-modeling／codebase-design 專章；訂正 tdd 二階段流程與附屬檔數量；訂正 to-issues 的 HITL/AFK 描述、prototype 六規則、improve-codebase-architecture 三階段名稱、triage 的 AGENT-BRIEF.md 性質、setup-matt-pocock-skills 實際建立檔案範圍；重新編排目錄與章節編號；修正 md 格式問題 |
 | v2.0.0 | 2026-05-15 | 全面改版：更新多 Agent 支援、skills.sh 生態系、CONTEXT.md 純 Glossary 格式、ADR 簡化格式、triage 雙軸系統、HITL/AFK 分類、Module Depth 理論、Post-Mortem 階段等（本版部分內容已於 v3.0.0 訂正或推翻，請以本文最新版本為準） |
