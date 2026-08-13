@@ -8,13 +8,13 @@ categories = ['教學']
 
 # GitHub Copilot SSDLC（安全軟體開發生命週期）教學手冊
 
-> **版本**：v2.3  
-> **最後更新**：2026 年 5 月 28 日  
+> **版本**：v2.4  
+> **最後更新**：2026 年 8 月 13 日  
 > **適用對象**：軟體開發團隊全體成員（資深工程師導向）  
 > **文件性質**：企業級內部技術規範與教育訓練教材（企業標準技術白皮書等級）  
 > **撰寫者**：軟體架構團隊  
 > **審核者**：技術委員會  
-> **參考來源**：[GitHub Copilot 官方文件](https://docs.github.com/en/copilot)、[軟體開發標準程序教學手冊](https://chihhung.github.io/Blog/posts/%E6%8C%87%E5%BC%95/%E8%A8%AD%E8%A8%88%E9%96%8B%E7%99%BC/%E8%BB%9F%E9%AB%94%E9%96%8B%E7%99%BC%E6%A8%99%E6%BA%96%E7%A8%8B%E5%BA%8Fsoftware-development-standard-process%E6%95%99%E5%AD%B8%E6%89%8B%E5%86%8A/)、[Agent Skills 開放標準](https://github.com/agentskills/agentskills)、[Copilot Customization Cheat Sheet](https://docs.github.com/en/copilot/reference/customization-cheat-sheet)
+> **參考來源**：[GitHub Copilot 官方文件](https://docs.github.com/en/copilot)、[GitHub Copilot Models and Pricing](https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing)、[軟體開發標準程序教學手冊](https://chihhung.github.io/Blog/posts/%E6%8C%87%E5%BC%95/%E8%A8%AD%E8%A8%88%E9%96%8B%E7%99%BC/%E8%BB%9F%E9%AB%94%E9%96%8B%E7%99%BC%E6%A8%99%E6%BA%96%E7%A8%8B%E5%BA%8Fsoftware-development-standard-process%E6%95%99%E5%AD%B8%E6%89%8B%E5%86%8A/)、[GitHub Copilot 生態圈教學手冊](https://chihhung.github.io/Blog/posts/%E6%95%99%E5%AD%B8/ai%E9%96%8B%E7%99%BC/github-copilot%E7%94%9F%E6%85%8B%E5%9C%88%E6%95%99%E5%AD%B8%E6%89%8B%E5%86%8A/)、[Agent Skills 開放標準](https://github.com/agentskills/agentskills)、[Copilot Customization Cheat Sheet](https://docs.github.com/en/copilot/reference/customization-cheat-sheet)
 
 ---
 
@@ -54,6 +54,7 @@ categories = ['教學']
   - [5.8 Copilot CLI 內建 Agents](#58-copilot-cli-內建-agents)
   - [5.9 第三方 Coding Agents](#59-第三方-coding-agents)
   - [5.10 Agent Skills 開放標準](#510-agent-skills-開放標準)
+  - [5.11 GitHub Copilot App](#511-github-copilot-appagent-native-桌面應用)
 - [第六章：自我學習與優化機制](#第六章自我學習與優化機制)
   - [6.1 AI 自我優化 Workflow](#61-ai-自我優化-workflow)
   - [6.2 Prompt 優化迴圈](#62-prompt-優化迴圈)
@@ -79,6 +80,7 @@ categories = ['教學']
   - [10.2 智慧財產權與授權](#102-智慧財產權與授權)
   - [10.3 安全與資料保護](#103-安全與資料保護)
   - [10.4 合規檢核清單](#104-合規檢核清單)
+  - [10.5 AI Credits 預算控管](#105-ai-credits-預算控管)
 - [附錄 A：檢查清單（Checklist）](#附錄-a檢查清單checklist)
 - [附錄 B：常用 Prompt 範本](#附錄-b常用-prompt-範本)
 - [附錄 C：術語對照表](#附錄-c術語對照表)
@@ -178,12 +180,14 @@ GitHub Copilot（2026 年最新版）包含以下功能模組，涵蓋完整 SSD
 | **Copilot Cloud Agent** | 雲端自主 Agent（原 Copilot Coding Agent），可研究 Repo、建立 PR、支援視覺輸入 | 開發、Code Review | GitHub.com、Copilot CLI、Slack、Teams、Jira、Linear、Azure Boards |
 | **Third-party Coding Agents** | Anthropic Claude 與 OpenAI Codex 等第三方 Coding Agents | 開發 | GitHub.com |
 | **Custom Agents** | 使用 Agent Profile（Markdown）為 Cloud Agent / CLI 建立專門領域的自訂 Agent | 開發 | GitHub.com、VS Code、JetBrains、Eclipse、Xcode、Copilot CLI |
-| **Agent Skills** | 開放標準（Open Standard），Copilot 可載入指令、腳本和資源以執行專門任務 | 開發 | GitHub.com、VS Code、Copilot CLI |
-| **Agent Hooks** | 在 Agent 執行關鍵點（Pre/Post）執行自訂 Shell 命令 | 開發 | GitHub.com |
-| **Agent Management** | 集中管理 Agent 會話、檢查進度 | 全階段 | GitHub.com |
+| **Agent Skills** | 開放標準（Open Standard），Copilot 可載入指令、腳本和資源以執行專門任務 | 開發 | Cloud Agent、Code Review、Copilot CLI、Copilot App、VS Code／JetBrains Agent Mode |
+| **Agent Hooks** | 在 Agent 執行的 8 種生命週期事件（SessionStart／UserPromptSubmit／PreToolUse／PostToolUse／PreCompact／SubagentStart／SubagentStop／Stop）執行自訂 Shell 命令；VS Code 版可相容讀取 Claude Code 的 `.claude/settings.json` | 開發 | GitHub.com（Cloud Agent）、VS Code（Preview）、Copilot CLI |
+| **Agent Plugins（開放標準）** | 由 AWS、Anysphere、Microsoft、OpenAI、Vercel、Google 共同發布，將 Agent Skills 與 MCP Server 打包為單一可攜式套件，透過命名空間目錄（`skills/`、`mcp.json`、`com.github.copilot/`）跨用戶端共用而無需重新打包 | 開發 | VS Code、Copilot CLI、Copilot App、Copilot SDK（全方案） |
+| **Agent Management** | 集中管理 Agent 會話、即時檢視進度、中途引導（Steering） | 全階段 | GitHub.com |
 | **Copilot Code Review** | AI 驅動 Pull Request 審查 | 安全、品質 | GitHub.com、VS Code（Review Selection） |
 | **Copilot PR Summaries** | 自動生成 PR 摘要 | 部署 | GitHub.com |
-| **Copilot CLI** | 命令列 AI 助手，支援與 GitHub.com 互動 | 維運、部署 | Terminal |
+| **Copilot CLI** | 命令列 AI 助手，支援 `/fleet` 多子代理協作、與 GitHub.com 互動 | 維運、部署 | Terminal |
+| **GitHub Copilot App** | Agent-native 桌面應用程式，可平行指揮多個 Agent Session（各自獨立分支與 Git worktree）、管理 PR 完整生命週期、支援雲端沙箱（Preview）與 BYOK（自帶金鑰） | 開發、部署 | macOS、Windows、Linux（所有方案，含 Free） |
 | **Copilot Spaces** | 組織與集中相關內容（程式碼、文件、規格），作為 Copilot 回應的上下文基礎 | 全階段 | GitHub.com |
 | **Copilot Memory** | Agentic 記憶（Public Preview），儲存 Repository-level Facts 與 User-level Preferences，跨功能共享知識（Cloud Agent ↔ Code Review ↔ CLI），28 天未使用自動過期 | 全階段 | Copilot Cloud Agent、Code Review、CLI |
 | **Custom Instructions** | 三層自訂指令：Personal / Repository / Organization | 全階段 | GitHub.com、VS Code、JetBrains、Visual Studio |
@@ -192,20 +196,23 @@ GitHub Copilot（2026 年最新版）包含以下功能模組，涵蓋完整 SSD
 | **GitHub Spark** | 自然語言建構全端應用（Public Preview） | 原型開發 | GitHub.com |
 | **Auto Model Selection** | 自動為不同任務選擇最佳 AI 模型（GA），支援任務複雜度評估與即時可用性路由，使用 Auto 可享 10% 乘數折扣 | 全階段 | Copilot Chat、Cloud Agent、CLI、第三方 Agents |
 
-#### 支援的 AI 模型（2026 年 5 月）
+#### 支援的 AI 模型（2026 年 8 月）
 
-| 模型系列 | 代表模型 | 特色 | 乘數（Multiplier） |
-|---------|---------|------|-------------------|
-| **OpenAI GPT** | ~~GPT-4.1~~（2026-06-01 關閉）、GPT-5 mini、~~GPT-5.2~~（2026-06-01 關閉）、~~GPT-5.2-Codex~~（2026-06-01 關閉）、GPT-5.3-Codex、GPT-5.4、GPT-5.4 mini、GPT-5.4 nano（Pro+ 限定）、GPT-5.5 | 通用程式碼生成、對話 | GPT-5.4: 1x、GPT-5.5: 7.5x（促銷價） |
-| **Anthropic Claude** | Claude Haiku 4.5、Claude Sonnet 4.5/4.6、Claude Opus 4.5/4.6/4.7、Claude Opus 4.6 fast mode（Preview） | 深度推理、安全分析 | Claude Opus 4.7: 15x、Opus 4.6 fast: 30x |
-| **Google Gemini** | Gemini 2.5 Pro、Gemini 3 Flash（Preview）、Gemini 3.1 Pro（Preview）、Gemini 3.5 Flash | 多模態、大上下文 | Gemini 3.5 Flash: 14x |
-| **Fine-tuned** | Raptor mini（GPT-5 mini 微調）、Goldeneye（GPT-5.1-Codex 微調） | 輕量模型 | Raptor mini: 0x、Goldeneye: N/A |
+隨著 2026 年 6 月的計費制度改版（詳見 [1.4 節](#14-github-copilot-方案與定價)），模型的計費基礎已由「固定 Premium Request 乘數」全面轉為「依 Token 用量折算 AI Credits」。下表為目前 Copilot 生態圈涵蓋的主要模型供應商與代表模型：
 
-> ⚠️ **重要通知**：GPT-4.1、GPT-5.2 與 GPT-5.2-Codex 將於 **2026 年 6 月 1 日關閉**，請提前規劃遷移至 GPT-5.3-Codex 或 GPT-5.4。
+| 供應商 | 代表模型 | 特色 | 狀態 |
+|------|------|------|------|
+| **OpenAI** | GPT-5 mini、GPT-5.3-Codex、GPT-5.4、GPT-5.4 mini、GPT-5.4 nano（Pro+/Max 限定）、GPT-5.5、GPT-5.6 系列（Luna／Sol／Terra） | 通用程式碼生成、高速對話 | GA |
+| **Anthropic Claude** | Claude Haiku 4.5、Claude Sonnet 4.5/4.6/5、Claude Opus 4.5/4.6/5、Claude Opus fast mode、**Claude Fable 5** | 深度推理、長上下文、安全分析 | 多數 GA，部分 fast mode 為 Preview |
+| **Google Gemini** | Gemini 3.1 Pro、Gemini 3.5 Flash、Gemini 3.6 Flash | 多模態、大上下文 | Gemini 3.1 Pro 為 Public Preview，其餘 GA |
+| **Microsoft** | MAI-Code-1 系列（如 MAI-Code-1-Flash） | 微軟自研程式碼模型 | GA |
+| **xAI** | Grok 4.5 | 通用推理 | 依方案開放 |
+| **Moonshot AI** | Kimi 系列 | 第三方合作模型 | 依方案開放 |
+| **GitHub Fine-tuned** | Raptor mini（GPT-5 mini 微調） | 輕量、免費層級可用 | GA |
 
-> 📌 模型清單會隨 GitHub 更新而異動，請以 [GitHub Copilot 官方支援模型頁面](https://docs.github.com/en/copilot/reference/ai-models/supported-models) 為準。部分模型僅在特定方案中可用，詳見[附錄 D](#附錄-dgithub-copilot-方案功能對照表)。
+> 📌 模型陣容變動極快，且各方案（Free / Pro / Pro+ / Max / Business / Enterprise）可用的模型範圍不同，請務必以 [GitHub Copilot 官方支援模型頁面](https://docs.github.com/en/copilot/reference/ai-models/supported-models) 即時查詢為準，切勿依賴本手冊列出的型號名稱做採購或合規判斷。部分模型僅在特定方案中可用，詳見[附錄 D](#附錄-dgithub-copilot-方案功能對照表)。
 >
-> 📌 **Model Multipliers 說明**：每個模型依其運算複雜度有不同的 Premium Request 乘數。使用 **Auto Model Selection** 可獲得 **10% 乘數折扣**。GPT-4.1、GPT-5 mini、Raptor mini 為 0x 乘數（不消耗 Premium Requests）。詳見 [Model Multipliers](https://docs.github.com/en/copilot/reference/ai-models/supported-models#model-multipliers)。
+> ⚠️ **Model Multipliers 已成為 Legacy 機制**：固定倍率的 Premium Request 乘數僅適用於「維持在舊制請求計費（Request-based Billing）的年繳 Pro／Pro+ 舊訂閱戶」，詳見 [Model multipliers for annual plans (legacy)](https://docs.github.com/en/copilot/reference/copilot-billing/request-based-billing-legacy/model-multipliers-for-annual-plans)。**2026 年 6 月 1 日起的新訂閱與已轉換帳號一律採用 Usage-based Billing**，依實際 Token 用量折算 AI Credits，不再有統一的「次數乘數」概念；程式碼補全（Inline Suggestions）與 NES 不消耗 Credits，維持無限使用。使用 **Auto Model Selection** 仍可享 **10% 費用折扣**。
 
 **各階段對應**：
 
@@ -254,45 +261,53 @@ graph LR
 
 選擇適合組織規模的 Copilot 方案是導入 AI SSDLC 的第一步。
 
-#### 方案比較（2026 年 6 月）
+#### 方案比較（2026 年 8 月）
 
-> ⚠️ **計費模式變更**：自 2026 年 6 月 1 日起，GitHub Copilot Business 與 Enterprise 改為**使用量計費（Usage-based billing）**，以 **GitHub AI Credits** 為計費單位（1 AI Credit = $0.01 USD）。程式碼補全（Code Completions）與下一編輯建議（NES）不消耗 AI Credits，維持無限使用。詳見 [Usage-based billing](https://docs.github.com/en/copilot/concepts/billing/usage-based-billing-for-organizations-and-enterprises)。
+> ⚠️ **計費模式全面改版**：自 **2026 年 6 月 1 日**起，GitHub Copilot **全面**改為**使用量計費（Usage-based billing）**，不再是單純「Premium Requests 固定次數」制，改以 **GitHub AI Credits**（1 AI Credit = $0.01 USD）依模型 Token 用量折算費用——此變動涵蓋 **所有付費方案**（個人 Pro / Pro+ / Max，以及組織 Business / Enterprise），並非僅限企業方案。程式碼補全（Inline Suggestions）與下一編輯建議（NES）**不消耗 AI Credits**，維持無限使用。詳見 [Usage-based billing for individuals](https://docs.github.com/en/copilot/concepts/billing/usage-based-billing-for-individuals) 與 [Usage-based billing for organizations and enterprises](https://docs.github.com/en/copilot/concepts/billing/usage-based-billing-for-organizations-and-enterprises)。
 
-| 方案 | 定價 | Premium Requests / AI Credits | 適用對象 |
-|------|------|-------------------------------|---------|
-| **Copilot Free** | 免費 | 50 次/月 | 個人開發者體驗 |
-| **Copilot Student** | 免費（學生） | 300 次/月 | 經驗證的學生 |
-| **Copilot Pro** | $10 USD/月 | 300 次/月 | 個人開發者（教師與開源維護者可免費） |
-| **Copilot Pro+** | $39 USD/月 | 1,500 次/月 | AI 進階使用者 |
-| **Copilot Business** | $19 USD/座位/月 | 1,900 AI Credits/使用者/月（池化共享） | 組織與團隊 |
-| **Copilot Enterprise** | $39 USD/座位/月 | 3,900 AI Credits/使用者/月（池化共享） | 企業（含 GitHub Enterprise Cloud） |
+| 方案 | 定價 | 每月 AI Credits 額度 | 額度換算 | 適用對象 |
+|------|------|------|------|------|
+| **Copilot Free** | 免費 | 有限額度 | 僅能使用 **Auto Model Selection**，無法手動指定模型 | 個人開發者體驗 |
+| **Copilot Student** | 免費（經驗證學生） | 有限額度 | 僅能使用 Auto Model Selection | 經驗證的學生 |
+| **Copilot Pro** | $10 USD/月 | 1,500 Credits（基礎 1,000 + 彈性 500） | 約合 $15 USD | 個人開發者（教師與開源維護者可免費） |
+| **Copilot Pro+** | $39 USD/月 | 7,000 Credits（基礎 3,900 + 彈性 3,100） | 約合 $70 USD | AI 進階使用者 |
+| **Copilot Max**（新方案） | $100 USD/月 | 20,000 Credits（基礎 10,000 + 彈性 10,000） | 約合 $200 USD | 重度 Agent / 大型專案使用者 |
+| **Copilot Business** | $19 USD/座位/月 | 1,900 Credits/使用者/月（池化共享，**促銷期間 3,000**） | 組織全體池化 | 組織與團隊 |
+| **Copilot Enterprise** | $39 USD/座位/月 | 3,900 Credits/使用者/月（池化共享，**促銷期間 7,000**） | 組織全體池化 | 企業（含 GitHub Enterprise Cloud） |
 
-> 💡 **AI Credits 池化機制**：企業/組織的 AI Credits 為全體使用者共用池。例如 100 位 Business 使用者的組織擁有 190,000 AI Credits 共享池，而非各自獨立 1,900 額度。當共享池用盡時，可依組織政策選擇按 $0.01/credit 超額計費或暫停使用至下一計費週期。
+> 💡 **「彈性額度（Flex Allotment）」**：個人方案的 AI Credits 由「與訂閱價格對應的基礎額度」＋「隨模型定價與運算效率動態調整的彈性額度」組成，讓 GitHub 可隨 AI 成本變化調整實際可用量，而不必調整訂閱定價。
+>
+> 💡 **促銷加碼（2026-06-01 ～ 2026-09-01）**：Business／Enterprise 組織方案在此期間享有加碼額度（Business 3,000、Enterprise 7,000 Credits/使用者/月），到期後將回復標準額度（1,900／3,900）。若貴組織正在評估導入時程，建議把握促銷期完成 PoC 與初期推廣。
+>
+> 💡 **AI Credits 池化機制**：Business／Enterprise 組織的 AI Credits 為全體使用者共用池，例如 100 位 Business 使用者的組織於促銷期擁有 300,000 Credits 共享池，而非各自獨立額度；每月依 UTC 午夜重置、**未使用額度不結轉**。共享池用盡後，可依組織於 **AI Controls** 設定的政策選擇「允許按 $0.01/Credit 超額計費（Pay-as-you-go）」或「暫停使用至下一計費週期」。詳見 [10.5 節：AI Credits 預算控管](#105-ai-credits-預算控管)。
 
 #### 關鍵功能差異
 
-| 功能 | Free | Student | Pro | Pro+ | Business | Enterprise |
-|------|------|---------|-----|------|----------|------------|
-| Agent Mode | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Cloud Agent | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Code Review（完整） | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| MCP | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Third-party Agents | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Organization Custom Instructions | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Prompt Files | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| PR Summaries | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| GitHub Spark | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
-| 稽核日誌 | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| 內容排除（Content Exclusion） | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| 組織政策管理 | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Inline Suggestions（補全） | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
-| NES（Next Edit Suggestions） | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
+| 功能 | Free | Student | Pro | Pro+ | Max | Business | Enterprise |
+|------|------|---------|-----|------|-----|----------|------------|
+| Agent Mode | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 手動選擇模型 | ❌（僅 Auto） | ❌（僅 Auto） | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Cloud Agent | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| GitHub Copilot App | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Code Review（完整） | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| MCP / Agent Skills / Agent Plugins | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Third-party Agents（Claude / Codex） | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Organization Custom Instructions | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Prompt Files | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| PR Summaries | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| GitHub Spark | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
+| 稽核日誌 | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| 內容排除（Content Exclusion） | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| 組織政策管理 / Budget Controls | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Inline Suggestions（補全） | ✅ | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
+| NES（Next Edit Suggestions） | ✅ | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
 
 > ⚠️ **企業導入建議**
 > 1. 中小型團隊（< 50 人）建議使用 **Copilot Business**，具備組織政策管理與 Cloud Agent
-> 2. 大型企業建議使用 **Copilot Enterprise**，提供更高的 Premium Requests 額度與完整企業管控功能
-> 3. 導入前應先以 **Copilot Pro 30 天免費試用** 進行概念驗證（PoC）
-> 4. 參考 [GitHub Copilot 官方方案頁面](https://docs.github.com/en/copilot/about-github-copilot/subscription-plans-for-github-copilot) 取得最新定價
+> 2. 大型企業建議使用 **Copilot Enterprise**，提供更高的 AI Credits 額度與完整企業管控功能
+> 3. 重度使用 Cloud Agent／Copilot App 平行工作流的個人或小型團隊，可評估 **Copilot Max**（$100/月，20,000 Credits）是否比多組 Pro+ 更具成本效益
+> 4. 導入前應先以 **Copilot Pro 30 天免費試用** 進行概念驗證（PoC），並利用目前的促銷加碼額度視窗
+> 5. 參考 [GitHub Copilot 官方方案頁面](https://docs.github.com/en/copilot/about-github-copilot/subscription-plans-for-github-copilot) 取得最新定價，方案內容與額度數字變動頻繁
 
 ### 1.5 DevSecOps + AI 整合
 
@@ -413,7 +428,7 @@ graph TB
 
 ### 2.2 分層設計（Layered Architecture）
 
-```
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                    Presentation Layer                    │
 │         （Vue 3 / API Gateway / REST Controller）        │
@@ -465,7 +480,7 @@ graph TB
 
 **Spring Boot 專案結構**：
 
-```
+```text
 src/main/java/com/company/project/
 ├── controller/                    # Presentation Layer
 │   ├── CustomerController.java
@@ -649,7 +664,7 @@ npm -v
 
 Copilot Custom Instructions 採用**三層優先順序架構**，由高到低為：
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │  1️⃣  Personal Instructions（個人層級）    │ ← 最高優先
 │     GitHub Settings > Copilot > Personal │
@@ -697,7 +712,7 @@ Copilot Custom Instructions 採用**三層優先順序架構**，由高到低為
 
 **專案層級：路徑特定指引 `.instructions.md`**
 
-可在任意目錄放置 `.instructions.md` 檔案，透過 YAML frontmatter 的 `applyTo` 指定生效範圍：
+可在任意目錄放置 `.instructions.md` 檔案，透過 YAML frontmatter 的 `applyTo` 指定生效範圍。除了傳統的 glob pattern，VS Code 現已支援**語意比對（Semantic Matching）**：Agent 可根據指引檔案的 `description` 與目前任務的語意相似度自動判斷是否套用，不再侷限於檔案路徑規則。
 
 ```markdown
 ---
@@ -727,8 +742,8 @@ applyTo: "**/*Test.java"
 
 | 檔案 | 用途 |
 |------|------|
-| `AGENTS.md` | 所有 GitHub Copilot Agents 共用的指引（根目錄或子目錄） |
-| `CLAUDE.md` | Claude 模型專用指引 |
+| `AGENTS.md` | 跨廠商共用的 Agent 指引標準，可放在根目錄或子目錄；VS Code 對依子目錄分層套用多個 `AGENTS.md` 的支援目前為實驗性功能 |
+| `CLAUDE.md` | Claude 模型專用指引；VS Code 依序搜尋工作區根目錄、`.claude/` 資料夾與使用者家目錄 |
 | `GEMINI.md` | Gemini 模型專用指引 |
 | `COPILOT.md` | GitHub Copilot 專用指引 |
 
@@ -742,8 +757,7 @@ applyTo: "**/*Test.java"
 > 💡 使用 `gh skill` 指令可快速搜尋、安裝社群分享的 Agent Skills。參見 [anthropics/skills](https://github.com/anthropics/skills) 與 [github/awesome-copilot](https://github.com/github/awesome-copilot)。
 
 > ⚠️ **組織層級指引**（Copilot Business / Enterprise 專屬）  
-> 管理者可在 Organization Settings > Copilot > Custom Instructions 設定全組織統一規範，  
-> 確保所有團隊成員遵循一致的安全與編碼標準。
+> 管理者可在 Organization Settings > Copilot > Custom Instructions 設定全組織統一規範。VS Code 會**自動偵測**帳號有權存取的組織層級指引並套用，無需額外設定；三層指引衝突時，優先順序為**個人 > 專案 > 組織**（見上方分層圖）。指引檔案的搜尋位置可透過 VS Code 設定 `chat.instructionsFilesLocations` 自訂。
 
 #### (3) Copilot Agents 與 MCP 設定
 
@@ -784,7 +798,70 @@ VS Code Agent Mode 與 Cloud Agent 均支援 MCP（Model Context Protocol）伺�
 
 > 💡 Cloud Agent 已內建整合 Jira、Slack、Microsoft Teams、Linear、Azure Boards 等工具。詳見 [About Copilot Integrations](https://docs.github.com/en/copilot/concepts/tools/about-copilot-integrations)。
 
-#### (4) Copilot Memory 設定
+#### (4) Agent Hooks 設定（VS Code 本機版，Preview）
+
+Agent Hooks 讓團隊在 Agent 執行的關鍵時間點自動觸發 Shell 命令，例如強制格式化、阻擋危險指令、寫入稽核紀錄。VS Code 版本支援 **8 種生命週期事件**：
+
+| 事件 | 觸發時機 | 常見用途 |
+|------|---------|---------|
+| `SessionStart` | 新對話開始時 | 初始化資源、記錄 Session 開始、驗證專案狀態 |
+| `UserPromptSubmit` | 使用者送出提示時 | 稽核請求內容、注入系統上下文 |
+| `PreToolUse` | Agent 呼叫工具前 | 阻擋危險操作、要求核准、修改工具輸入 |
+| `PostToolUse` | 工具執行完成後 | 自動格式化、記錄結果 |
+| `PreCompact` | 對話內容壓縮前 | 匯出重要內容、保存狀態 |
+| `SubagentStart` | 子代理啟動時 | 追蹤巢狀呼叫 |
+| `SubagentStop` | 子代理完成時 | 彙總結果、清理資源 |
+| `Stop` | Agent 會話結束時 | 產出報告、清理資源、發送通知 |
+
+**設定檔位置**：工作區層級 `.github/hooks/*.json`；使用者層級 `~/.copilot/hooks`；也可寫在自訂代理（`.agent.md`）frontmatter 的 `hooks` 欄位中。VS Code 亦可**相容讀取** Claude Code 格式的 `.claude/settings.json` / `.claude/settings.local.json`，自動將 `lowerCamelCase` 事件名稱轉換為 PascalCase。
+
+**設定範例（提交後自動格式化）**：
+
+```json
+// .github/hooks/format-on-write.json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "npx prettier --write .",
+        "timeout": 30
+      }
+    ]
+  }
+}
+```
+
+Hook 透過 stdin 接收 JSON（含 `timestamp`、`session_id`、`tool_name` 等欄位），並可透過 stdout 回傳 `{"continue": true}` 或 `{"hookSpecificOutput":{"permissionDecision":"deny"}}` 來影響 Agent 後續行為；結束代碼 `2` 代表阻擋並中止處理。
+
+> ⚠️ **安全提醒**：若 Agent 具備編輯 Hook 腳本的權限，理論上可能被 Agent 自身修改後執行。建議搭配 `chat.tools.edits.autoApprove` 設定禁止未經核可的 Hook 腳本編輯，並將 `.github/hooks/` 納入 Branch Protection 或 CODEOWNERS 保護。
+
+#### (5) Agent Plugins 1.0（開放標準，2026-08 發布）
+
+**Agent Plugins** 是由 AWS、Anysphere、Microsoft、OpenAI、Vercel、Google 等業界共同發布的開放標準，目標是「建立一次，跨多個相容用戶端使用」，取代過去各家工具各自維護打包格式的重複工作。
+
+**核心設計**：一個 Plugin 可將 **Agent Skill** 與 **MCP Server**（例如部署手冊文件與其對應的工具整合）捆綁為單一可攜式套件：
+
+```text
+my-deploy-plugin/
+├── skills/                     # Agent Skills 內容
+│   └── deploy-runbook/
+├── mcp.json                    # MCP Server 設定
+└── com.github.copilot/         # Copilot 專屬設定（其他用戶端會忽略此目錄）
+    └── config.yaml
+```
+
+**特性**：
+
+| 特性 | 說明 |
+|------|------|
+| 命名空間目錄 | Custom Agents、Commands、Rules、Hooks 統一存放於命名空間目錄，跨 VS Code、Copilot CLI、Copilot App 共用 |
+| 相容並存 | 既有未針對 Agent Plugins 1.0 打包的 Copilot 外掛（如舊版 Agent Skills）仍可繼續使用，無需強制遷移 |
+| 全方案支援 | VS Code、Copilot CLI、Copilot SDK、GitHub Copilot App 上皆為 GA，且不分方案等級 |
+
+> 💡 **與 Agent Skills 的關係**：Agent Skills 是 Agent Plugins 1.0 規格中「技能」的其中一種內容型態；換言之，Agent Plugins 是更高一層的**打包與散布標準**，而 Agent Skills 專注於「技能本身的內容格式」。既有 `.github/skills/` 內容可直接被納入 Plugin 打包，不需要重寫。
+
+#### (6) Copilot Memory 設定
 
 Copilot Memory 可讓 Copilot 跨對話記住 Repository 知識與個人偏好，並在不同功能之間共享學習成果。
 
@@ -823,8 +900,9 @@ graph LR
 | 跨功能共用 | Cloud Agent、Code Review、CLI 共用記憶 |
 | 引用驗證 | Repository-level Facts 會與目前分支的程式碼比對驗證，只使用仍然正確的事實 |
 | 有效期限 | 28 天未使用的記憶自動過期；被成功使用時計時器重置 |
-| 手動管理 | Repository Owner 可管理 Repo-level Facts；使用者可管理自己的 Preferences |
+| 手動管理 | Repository Owner 可管理 Repo-level Facts；使用者可管理自己的 Preferences；Business／Enterprise 管理員可**批次匯出或刪除**組織內的 Memory 資料 |
 | 安全隔離 | Repo-level Facts 僅限同一 Repository 內使用 |
+| 適用範圍限制 | Memory **僅供** Cloud Agent、Code Review、CLI 使用；Copilot Chat 與 IDE 內的 Agent Mode 目前不讀取 Memory，須改用 Custom Instructions 提供上下文 |
 
 **Memory 會自動學習的內容**：
 
@@ -920,7 +998,7 @@ gitGraph
 
 #### (3) Commit 規範（Conventional Commits）
 
-```
+```text
 <type>(<scope>): <subject>
 
 <body>
@@ -946,7 +1024,7 @@ gitGraph
 
 **Copilot Prompt 範例**：
 
-```
+```text
 @workspace 請根據目前的 git diff，生成符合 Conventional Commits 規範的 commit message，使用繁體中文描述
 ```
 
@@ -965,7 +1043,7 @@ gitGraph
 
 **標準格式**：
 
-```
+```text
 作為 [角色]
 我希望 [功能]
 以便 [業務價值]
@@ -977,7 +1055,7 @@ gitGraph
 
 **Copilot Prompt 範例 — 生成 User Story**：
 
-```
+```text
 @workspace 請根據以下需求，產出完整的 User Story（含驗收條件）：
 
 需求：銀行客戶需要透過網路銀行進行帳戶餘額查詢，
@@ -1013,7 +1091,7 @@ gitGraph
 
 **Prompt 範例 — 需求邊界條件分析**：
 
-```
+```text
 @workspace 請分析以下 User Story 的邊界條件、異常情境、安全風險：
 
 US-001：帳戶餘額查詢
@@ -1032,7 +1110,7 @@ US-001：帳戶餘額查詢
 
 **Copilot Prompt — 生成架構設計文件**：
 
-```
+```text
 @workspace 請根據以下需求，產出系統架構設計文件（SAD）：
 
 系統：銀行帳戶查詢服務
@@ -1055,7 +1133,7 @@ US-001：帳戶餘額查詢
 
 **Copilot Prompt**：
 
-```
+```text
 @workspace 請為帳戶餘額查詢功能設計 RESTful API，產出 OpenAPI 3.0 YAML 規格：
 
 要求：
@@ -1186,7 +1264,7 @@ components:
 
 **Copilot Prompt**：
 
-```
+```text
 @workspace 請為帳戶餘額查詢設計資料庫 Schema（Oracle）：
 
 要求：
@@ -1271,7 +1349,7 @@ CREATE INDEX IDX_AUDIT_TRACE_ID ON AUDIT_LOG(TRACE_ID);
 
 **Copilot Prompt**：
 
-```
+```text
 @workspace 請根據 OpenAPI spec 產生 AccountController，遵循以下規範：
 - Clean Architecture
 - 使用 Jakarta Validation
@@ -1346,7 +1424,7 @@ public class AccountController {
 
 **Copilot Prompt**：
 
-```
+```text
 @workspace 請產生 AccountApplicationService，實作帳戶餘額查詢邏輯：
 - 先從 Redis Cache 查詢
 - Cache Miss 時從 Oracle DB 查詢
@@ -1439,7 +1517,7 @@ public class AccountApplicationService {
 
 **Copilot Prompt**：
 
-```
+```text
 @workspace 請產生 AccountRepository 介面（Domain Layer）和 AccountRepositoryImpl 實作（Infrastructure Layer），
 使用 Spring Data JPA，包含 Custom Query。
 ```
@@ -1448,7 +1526,7 @@ public class AccountApplicationService {
 
 **Copilot Prompt**：
 
-```
+```text
 @workspace 請用 Vue 3 + TypeScript + Composition API 產生帳戶餘額查詢頁面：
 - 使用 Tailwind CSS 樣式
 - 呼叫 GET /api/v1/accounts/{customerId}/balances
@@ -1601,7 +1679,7 @@ onMounted(fetchBalances)
 
 **Copilot Prompt — 自動生成測試**：
 
-```
+```text
 @workspace 請為 AccountApplicationService.getAccountBalances 方法生成完整的 JUnit 5 測試：
 - 使用 Mockito
 - 使用 @DisplayName 中文說明
@@ -1752,7 +1830,7 @@ class AccountApplicationServiceTest {
 
 **Copilot Prompt**：
 
-```
+```text
 @workspace 請為 AccountController 產生整合測試，使用 @SpringBootTest + MockMvc，
 測試 API 回應格式、HTTP Status、認證檢查。
 ```
@@ -1761,7 +1839,7 @@ class AccountApplicationServiceTest {
 
 **Copilot Prompt**：
 
-```
+```text
 @workspace 請用 Playwright (TypeScript) 撰寫帳戶餘額查詢的 E2E 測試：
 - 測試登入 → 查詢餘額 → 驗證顯示結果
 - 測試未登入時應被導向登入頁
@@ -1815,7 +1893,7 @@ test.describe('帳戶餘額查詢', () => {
 
 **Prompt**：
 
-```
+```text
 @workspace 分析 #file:AccountApplicationService.java 的測試覆蓋率缺口，
 列出尚未覆蓋的分支與邊界條件，並生成對應的測試案例。
 ```
@@ -1854,7 +1932,7 @@ graph LR
 
 **Copilot Prompt — 掃描並修補安全問題**：
 
-```
+```text
 @workspace 請檢查 #file:SecurityConfig.java 是否有安全問題，並提供修正版本：
 - CORS 設定是否過於寬鬆
 - CSRF 是否正確處理
@@ -2163,7 +2241,7 @@ logging:
 
 **Copilot Prompt — 日誌分析**：
 
-```
+```text
 @workspace 以下是系統日誌片段，請分析可能的問題原因並建議修復方案：
 
 [貼上日誌內容]
@@ -2263,7 +2341,7 @@ groups:
 
 **Prompt 範例**：
 
-```
+```text
 @workspace 系統出現以下告警，請協助診斷：
 
 告警：HighLatency - P95 回應時間 3.5 秒
@@ -2318,7 +2396,7 @@ graph TB
 
 **模板 1：產生業務邏輯**
 
-```
+```text
 角色：你是一位熟悉銀行業務的 Spring Boot 資深工程師
 上下文：
 - 專案使用 Clean Architecture
@@ -2342,7 +2420,7 @@ graph TB
 
 **模板 2：安全審查**
 
-```
+```text
 請對以下程式碼進行安全審查：
 
 #file:[檔案路徑]
@@ -2364,7 +2442,7 @@ graph TB
 
 **模板 3：效能優化**
 
-```
+```text
 @workspace 請分析以下程式碼的效能瓶頸，並提供優化建議：
 
 #file:[檔案路徑]
@@ -2486,7 +2564,7 @@ description: "執行 OWASP Top 10 安全審查"
 
 **建議的 Prompt Files 目錄結構**：
 
-```
+```text
 .github/prompts/
 ├── dev/
 │   ├── create-controller.prompt.md
@@ -2516,7 +2594,7 @@ description: "執行 OWASP Top 10 安全審查"
 
 **Prompt**：
 
-```
+```text
 請為「客戶管理」功能建立完整的 Clean Architecture 結構：
 
 1. Controller: CustomerController.java
@@ -2537,7 +2615,7 @@ description: "執行 OWASP Top 10 安全審查"
 
 **Copilot Prompt — 重構**：
 
-```
+```text
 @workspace 請重構 #file:LegacyPaymentService.java：
 
 目前問題：
@@ -2687,7 +2765,24 @@ graph TB
 
 #### Custom Agents（自訂代理）
 
-在 `.github/agents/` 目錄建立自訂代理（每個 `.md` 檔案即為一個 Agent 定義）：
+Custom Agents 以 Markdown 檔案定義（稱為 **Agent Profile**），可依組織需求在三個層級建立：
+
+| 層級 | 路徑 | 適用範圍 |
+|------|------|------|
+| Repository 層級 | `.github/agents/AGENT-NAME.md` | 單一 Repository |
+| Organization 層級 | `.github`／`.github-private` 儲存庫內的 `/agents/AGENT-NAME.md` | 組織內所有可存取的 Repository |
+| Enterprise 層級 | 企業指定組織之 `.github-private` 儲存庫內 `/agents/AGENT-NAME.md` | 企業內所有組織 |
+
+**Frontmatter 欄位定義**：
+
+| 欄位 | 必填 | 說明 |
+|------|------|------|
+| `name` | 否 | 顯示名稱，省略時使用檔名 |
+| `description` | 是 | 說明代理的用途與能力，供選單與其他 Agent 判斷是否委派任務 |
+| `prompt` | 視情況 | 定義代理行為的自訂指令；未寫在 frontmatter 時，即為檔案本文內容 |
+| `tools` | 否 | 限制代理可存取的工具，省略則預設可用所有工具 |
+| `mcp-servers` | 否 | 指定此代理可連接的 MCP Server |
+| `handoffs`（VS Code 限定） | 否 | 定義可將對話明確交接給的其他 Agent（`label`／`agent`／`prompt`／`send`），Cloud Agent 目前尚不支援此屬性 |
 
 ```markdown
 <!-- .github/agents/security-reviewer.md -->
@@ -2710,20 +2805,41 @@ tools: ["read_file", "grep_search", "semantic_search"]
 - 修復建議
 ```
 
-#### Agent Hooks（前後置腳本）
+> 💡 **可用環境差異**：Custom Agents 可在 GitHub.com Cloud Agent、VS Code、JetBrains、Copilot CLI 中使用；JetBrains、Eclipse、Xcode 上仍為 Public Preview，部分 VS Code 專屬 frontmatter 屬性（如 `handoffs`）在 Cloud Agent 上會被忽略。與 [5.8 節](#58-copilot-cli-內建-agents)介紹的六個**內建代理**（explore／task／general-purpose／code-review／research／rubber-duck）不同，Custom Agents 是團隊自行定義的專屬角色。
 
-在 `.github/hooks/` 設定 Cloud Agent 執行前後的自動化腳本：
+#### Agent 自動化：排程與事件觸發
+
+Cloud Agent 支援在**無人工介入**的情況下自動執行任務：
+
+| 觸發方式 | 說明 | 範例情境 |
+|---------|------|---------|
+| 排程觸發（Scheduled） | 依 Cron 排程定期啟動 Agent | 每週一自動掃描過時依賴並開 PR |
+| 事件觸發（Event-based） | 依 GitHub 事件（如 Issue 開啟、標籤新增）自動啟動 | Issue 貼上 `ai-fix` 標籤即自動指派 Cloud Agent 處理 |
+
+> 💡 自動化任務同樣會消耗 AI Credits，建議先於 Repository 或 Organization 層級設定 [Budget Controls](#105-ai-credits-預算控管) 再啟用，避免排程任務在非上班時段無節制執行。
+
+#### Agent Hooks（Cloud Agent 前後置腳本）
+
+Cloud Agent 沿用與 VS Code 版本相同的 **8 種生命週期事件**格式（詳見 [3.2 (4) Agent Hooks 設定](#32-github-copilot-設定)），設定檔同樣放在 `.github/hooks/*.json`。以下範例利用 `PreToolUse` 與 `Stop` 事件，在 Agent 提交前檢查程式碼格式、任務結束後執行安全掃描：
 
 ```json
-// .github/hooks.json
+// .github/hooks/quality-gate.json
 {
-  "pre-commit": {
-    "command": "mvn spotless:check && mvn checkstyle:check",
-    "description": "提交前檢查程式碼格式"
-  },
-  "post-push": {
-    "command": "mvn verify -P security-scan",
-    "description": "推送後執行安全掃描"
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "mvn spotless:check && mvn checkstyle:check",
+        "timeout": 60
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "mvn verify -P security-scan",
+        "timeout": 120
+      }
+    ]
   }
 }
 ```
@@ -2743,7 +2859,7 @@ tools: ["read_file", "grep_search", "semantic_search"]
 
 Cloud Agent 支援上傳**螢幕截圖或設計稿**作為輸入：
 
-```
+```text
 請根據附件的 UI 設計稿（Figma 截圖），使用 Vue 3 + Tailwind CSS 實作此頁面。
 [附加圖片]
 ```
@@ -2771,7 +2887,7 @@ Cloud Agent 支援上傳**螢幕截圖或設計稿**作為輸入：
 
 主 Agent 可同時呼叫多個 Subagent 進行並行處理，大幅加速大型任務：
 
-```
+```text
 主 Agent（Task）
 ├── Explore Agent ──→ 搜尋認證相關程式碼 ──┐
 ├── Explore Agent ──→ 搜尋資料庫連線設定 ──┼──→ 彙整結果 → 實作變更
@@ -2779,6 +2895,30 @@ Cloud Agent 支援上傳**螢幕截圖或設計稿**作為輸入：
 ```
 
 > 💡 **Explore Agent** 為唯讀 Agent，不會修改任何檔案。適合在不確定程式碼結構時先行探索，避免不必要的修改。
+
+#### `/fleet`：多子代理協作編排
+
+除了主 Agent 自動委派 Subagent 外，Copilot CLI 提供 **`/fleet`** 指令作為明確的**編排器（Orchestrator）**：將一個大目標拆解為多個子任務，平行啟動多個背景 Subagent 執行、依相依關係排序，並在所有子任務完成後彙整成最終結果。適合「掃描多個模組並各自產出報告」「同時處理多檔案重構」等可平行拆解的大型任務。
+
+#### Handoffs（Agent 交接，VS Code）
+
+**Handoffs** 讓一個 Agent 可將對話**明確且可見地**交接給另一個 Agent 繼續處理，使用者與 Agent 雙方都能清楚看到交接的發生。設定方式為在 Custom Agent 檔案的 YAML frontmatter 加入 `handoffs` 欄位：
+
+```yaml
+---
+name: "planner"
+description: "負責需求釐清與規劃"
+handoffs:
+  - label: "交給實作 Agent"
+    agent: "implementer"
+    prompt: "請依照上述規劃開始實作"
+    send: true
+---
+```
+
+當使用者點選交接按鈕，對話上下文會被保留並切換至目標 Agent；若指定了 `prompt`，該內容會預先填入目標 Agent 的輸入框。此功能目前僅支援 VS Code，Cloud Agent（GitHub.com）尚未支援 `handoffs` 屬性。
+
+> 💡 **典型應用**：Planning → Implementation → Review 的分階段工作流，讓「規劃」「實作」「審查」由專精不同的 Custom Agent 各司其職，而非單一 Agent 身兼多職。
 
 ### 5.9 第三方 Coding Agents
 
@@ -2811,7 +2951,7 @@ Agent Skills 規範由 [agentskills/agentskills](https://github.com/agentskills/
 
 #### 技能儲存階層
 
-```
+```text
 專案層級（Repository 內）：
 ├── .github/skills/          ← GitHub Copilot 專用
 ├── .claude/skills/          ← Claude 專用
@@ -2861,6 +3001,52 @@ instructions: |
 
 > 💡 Agent Skills 與 Custom Instructions 的關鍵差異：Custom Instructions 是被動的文字指引，Agent Skills 可包含工具定義、觸發條件與結構化輸出格式，具備更強的自動化能力。
 
+### 5.11 GitHub Copilot App（Agent-native 桌面應用）
+
+**GitHub Copilot App** 是 2026 年新推出的 **Agent-native 桌面應用程式**（2026-06-17 全面 GA，2026-07-07 起開放所有方案含 Free 使用），可視為 Copilot CLI 的視覺化延伸，讓工程師在單一介面中同時指揮多個平行 Agent 工作流，減少在終端機、IDE、瀏覽器分頁之間切換的成本。
+
+#### 核心能力
+
+```mermaid
+graph TB
+    subgraph CopilotApp[GitHub Copilot App]
+        PARALLEL[平行工作流<br/>每個 Session 獨立分支 / Git worktree]
+        PR[PR 生命週期管理<br/>建立／審查／查看 CI 結果]
+        MODEL[模型選擇 + BYOK<br/>可自帶金鑰接入自有模型]
+        SANDBOX[雲端沙箱 Session<br/>Preview]
+    end
+
+    DEV[開發者] --> PARALLEL
+    DEV --> PR
+    DEV --> MODEL
+    PARALLEL --> SANDBOX
+```
+
+| 能力 | 說明 |
+|------|------|
+| 平行 Session | 可同時執行多個獨立 Agent Session，各自使用專屬分支與 Git worktree，不需等待前一項任務完成 |
+| 三種工作模式 | **Interactive**（逐步協作）、**Plan**（Agent 先規劃、待人工核准後執行）、**Autopilot**（完全自主執行） |
+| PR 生命週期整合 | 直接在應用內建立、關閉、審查 PR，檢視 CI 檢查結果，無需切換至瀏覽器 |
+| 雲端沙箱（Preview） | 新 Session 可選擇在 GitHub 代管的雲端沙箱中執行，不佔用本機資源 |
+| BYOK | 可自帶金鑰（Bring Your Own Key）串接自有模型供應商，即使沒有 Copilot 付費方案也可運作 |
+| 會話歷史與成本分析 | 內建 `/chronicle` 檢視歷史 Session 與 Credits 消耗 |
+| 全域指令與 MCP 設定 | 支援跨 Repository 的全域 Custom Instructions 與 MCP Server 設定 |
+
+#### 支援平台
+
+macOS、Windows、Linux，所有 Copilot 方案（含 Free／GitHub Education）皆可使用。
+
+#### 與其他介面的定位差異
+
+| 介面 | 定位 | 適合情境 |
+|------|------|---------|
+| VS Code Agent Mode | IDE 內建，貼近程式碼編輯情境 | 單一任務、需要密集人工介入的開發 |
+| Copilot CLI | 終端機驅動，可搭配 Shell Script 自動化 | CI/CD、批次腳本、伺服器環境 |
+| **Copilot App** | 桌面應用、Agent-native | **需同時追蹤多個平行任務**、跨 Repository 管理 PR 的 Tech Lead / 資深工程師 |
+| Cloud Agent（GitHub.com） | 雲端執行、可由 Issue／排程／整合工具觸發 | 免安裝、跨團隊共用、自動化觸發情境 |
+
+> 💡 **實務建議**：Copilot App 特別適合需要「同時開多條戰線」的場景，例如一次處理 3-5 個獨立 Bug 修復或小型功能，讓 Agent 各自在獨立分支上工作，開發者僅需在關鍵決策點介入審查，其餘時間可專注於更高價值的架構設計工作。
+
 ---
 
 ## 第六章：自我學習與優化機制
@@ -2894,7 +3080,7 @@ graph TB
 
 **建立 Prompt 版本控制**：
 
-```
+```text
 prompts/
 ├── v1/
 │   ├── controller-generation.md
@@ -2924,7 +3110,7 @@ prompts/
 
 **專案知識庫結構**：
 
-```
+```text
 .github/
 ├── copilot-instructions.md          # 全域 Copilot 指引
 ├── docs/
@@ -2962,7 +3148,7 @@ prompts/
 
 **Copilot Prompt — 自動產生 API 文件**：
 
-```
+```text
 @workspace 請根據 src/main/java/com/company/banking/controller/ 目錄下的所有 Controller，
 自動產生完整的 API 文件（Markdown 格式），包含：
 1. API 端點清單
@@ -2974,7 +3160,7 @@ prompts/
 
 **Copilot Prompt — 自動產生 CHANGELOG**：
 
-```
+```text
 @workspace 請根據 git log 最近 10 個 commit，產生 CHANGELOG.md 更新，
 遵循 Keep a Changelog 格式，分類為 Added / Changed / Fixed / Security。
 ```
@@ -3014,7 +3200,7 @@ graph TB
 
 1. **定義需求**（Copilot Chat）
 
-```
+```text
 @workspace 請幫我規劃「網路銀行帳戶查詢」功能的 User Story 和 API 設計：
 - 客戶登入後查詢所有帳戶餘額
 - 支援 TWD、USD、CNY 多幣別
@@ -3024,25 +3210,25 @@ graph TB
 
 2. **建立架構**（Agent Mode）
 
-```
+```text
 請根據 Clean Architecture 建立完整的專案結構，包含 Controller、Service、Repository、Entity、DTO
 ```
 
 3. **生成程式碼**（Inline Suggestions + Agent Mode）
 
-```
+```text
 請為帳戶查詢功能產生完整的後端程式碼
 ```
 
 4. **生成測試**
 
-```
+```text
 請為產出的程式碼生成 Unit Test 和 Integration Test
 ```
 
 5. **安全審查**（Copilot Code Review）
 
-```
+```text
 請對產出的程式碼進行 OWASP Top 10 安全檢查
 ```
 
@@ -3074,7 +3260,7 @@ sequenceDiagram
 
 **Copilot 生成 SFTP 上傳程式碼**：
 
-```
+```text
 @workspace 請產生安全的 SFTP 檔案上傳 Service：
 - 使用 JSch 或 Apache Commons VFS
 - 支援 SFTP（SSH Key 認證）
@@ -3153,7 +3339,7 @@ public class SftpUploadService {
 
 **Copilot Prompt — 資料驗證框架**：
 
-```
+```text
 @workspace 請建立一個通用的資料驗證框架：
 - 使用 Chain of Responsibility 模式
 - 支援多規則組合
@@ -3348,7 +3534,7 @@ graph TB
 
 **使用 Copilot 識別技術債**：
 
-```
+```text
 @workspace 請掃描專案程式碼，識別技術債：
 
 請檢查：
@@ -3582,6 +3768,7 @@ graph TB
 - [ ] 已啟用公開程式碼過濾（Block matching public code）
 - [ ] 已啟用稽核日誌並設定保留期限
 - [ ] 已設定 Agent Firewall 限制 Cloud Agent 存取範圍
+- [ ] 已設定 Budget Controls 預算控管，避免 AI Credits 超額失控
 
 ### 管理面
 - [ ] 定期審查 Copilot 座位指派（≤ 每月 1 次）
@@ -3595,6 +3782,35 @@ graph TB
 - [ ] 每年至少 1 次 AI 安全與合規培訓
 - [ ] 建立 AI 最佳實務知識庫並持續更新
 ```
+
+### 10.5 AI Credits 預算控管
+
+自 2026 年 6 月全面轉為 Usage-based Billing 後，「失控的 AI 支出」成為企業導入 Copilot 的新風險，GitHub 提供**四層預算控管（Budget Controls）**因應：
+
+```mermaid
+graph TB
+    ENT[Enterprise 層級<br/>總支出上限] --> ORG[Organization 層級<br/>各組織分配額度]
+    ORG --> CC[Cost Center 層級<br/>依部門/專案分攤成本]
+    CC --> USER[User 層級<br/>單一使用者用量上限]
+
+    style ENT fill:#f66,stroke:#333,color:#fff
+```
+
+| 層級 | 控管內容 | 適用情境 |
+|------|---------|---------|
+| **Enterprise** | 設定企業整體的 Metered 支出上限（共享池用盡後的按量計費部分） | 財務部門要求總體 AI 支出不超過年度預算 |
+| **Organization** | 為單一組織設定額度，避免某組織過度消耗集團資源 | 集團下多事業體分別管理 Copilot 用量 |
+| **Cost Center** | 依部門、專案別分攤 AI Credits 成本 | 需要按專案／成本中心分攤 IT 費用的企業 |
+| **User** | 限制單一使用者在計費週期內的 Credits 用量（含共享池與額外計費部分） | 防止單一帳號異常大量呼叫（如誤觸發批次 Agent） |
+
+**運作邏輯**：
+
+- 預算控管**不影響**使用者從共享池正常提取額度；僅在共享池**用盡、進入按量計費（Pay-as-you-go）階段**後才會發生作用
+- Enterprise 層級的支出上限，是共享池用盡後「額外計費部分」的總天花板，不影響使用者從池中正常取用
+- 管理員可在 **AI Controls** 政策中選擇：允許超額按 $0.01/Credit 計費，或直接封鎖「AI credits paid usage」防止超支
+- 建議搭配 [Copilot Cloud Agent 排程／事件自動化](#57-copilot-cloud-agent-進階應用)的用量特別設定 User 層級上限，避免自動化任務失控消耗預算
+
+> ⚠️ **實務建議**：導入初期建議先以「允許超額計費 + 告警通知」的寬鬆模式觀察 2-3 個月實際用量分佈，再依實際數據收緊各層級預算，避免一開始就因額度過緊而影響團隊採用意願。
 
 ---
 
@@ -3716,14 +3932,14 @@ graph TB
 
 ### B.1 需求分析
 
-```
+```text
 @workspace 請根據以下業務需求，產出完整的 User Story（含驗收條件、非功能性需求）：
 [業務需求描述]
 ```
 
 ### B.2 架構設計
 
-```
+```text
 @workspace 請根據以下需求設計系統架構（含元件圖、資料流、安全設計）：
 技術棧：[技術棧]
 需求：[需求描述]
@@ -3731,7 +3947,7 @@ graph TB
 
 ### B.3 後端開發
 
-```
+```text
 @workspace 請根據 Clean Architecture 產生 [功能名稱] 的完整後端程式碼：
 - Controller + DTO
 - Application Service
@@ -3742,7 +3958,7 @@ graph TB
 
 ### B.4 前端開發
 
-```
+```text
 @workspace 請用 Vue 3 + TypeScript + Tailwind CSS 產生 [頁面名稱]：
 - 使用 Composition API
 - 呼叫 [API 端點]
@@ -3752,7 +3968,7 @@ graph TB
 
 ### B.5 測試生成
 
-```
+```text
 @workspace 請為 #file:[檔案路徑] 產生完整的 JUnit 5 測試：
 - 使用 Mockito
 - @DisplayName 中文說明
@@ -3762,14 +3978,14 @@ graph TB
 
 ### B.6 安全審查
 
-```
+```text
 @workspace 請對 #file:[檔案路徑] 進行 OWASP Top 10 安全審查，
 列出發現的問題（含風險等級）和修復程式碼。
 ```
 
 ### B.7 CI/CD
 
-```
+```text
 @workspace 請產生 GitHub Actions CI/CD Pipeline YAML：
 - Build + Test
 - SonarQube 掃描
@@ -3781,7 +3997,7 @@ graph TB
 
 ### B.8 問題診斷
 
-```
+```text
 @workspace 系統出現以下錯誤，請協助診斷：
 [錯誤日誌]
 請提供：根因分析、影響評估、修復方案、預防措施。
@@ -3820,54 +4036,58 @@ graph TB
 
 ## 附錄 D：GitHub Copilot 方案功能對照表
 
-| 功能 | Free | Student | Pro | Pro+ | Business | Enterprise |
-|------|:----:|:-------:|:---:|:----:|:--------:|:----------:|
-| **價格** | 免費 | 免費 | $10/月 | $39/月 | $19/座/月 | $39/座/月 |
-| **Premium Requests / AI Credits** | 50 次/月 | 300 次/月 | 300 次/月 | 1,500 次/月 | 1,900 Credits/使用者/月 | 3,900 Credits/使用者/月 |
-| **── 程式碼補全 ──** | | | | | | |
-| Inline Suggestions | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
-| NES（Next Edit Suggestions） | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
-| **── 對話與代理 ──** | | | | | | |
-| Copilot Chat | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Agent Mode | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Edit Mode | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Cloud Agent | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Third-party Agents | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Custom Agents | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Agent Skills | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Agent Hooks | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **── 自訂與上下文 ──** | | | | | | |
-| Custom Instructions | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Organization Instructions | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Prompt Files（.prompt.md） | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Path-Specific Instructions | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| MCP | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Copilot Memory | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Copilot Spaces | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **── 審查與安全 ──** | | | | | | |
-| Code Review | 有限 | ✅ | ✅ | ✅ | ✅ | ✅ |
-| PR Summaries | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Copilot CLI | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Auto Model Selection | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **── 模型可用性 ──** | | | | | | |
-| GPT-5 mini / Raptor mini（0x） | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Goldeneye（GPT-5.1-Codex 微調） | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| GPT-5.4 / GPT-5.5 | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| GPT-5.4 nano | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Claude Opus 4.5 / 4.6 | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Claude Opus 4.7 | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Claude Opus 4.6 fast mode（Preview） | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Gemini 3.1 Pro / 3.5 Flash | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| **── 企業管控 ──** | | | | | | |
-| Content Exclusion | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| 組織政策管理 | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| 稽核日誌 | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Agent Firewall | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Agent Management | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| IP 代理（IP Indemnity） | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
-| GitHub Spark | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ |
+| 功能 | Free | Student | Pro | Pro+ | Max | Business | Enterprise |
+|------|:----:|:-------:|:---:|:----:|:---:|:--------:|:----------:|
+| **價格** | 免費 | 免費 | $10/月 | $39/月 | $100/月 | $19/座/月 | $39/座/月 |
+| **每月 AI Credits** | 有限額度 | 有限額度 | 1,500 | 7,000 | 20,000 | 1,900/使用者（促銷期 3,000） | 3,900/使用者（促銷期 7,000） |
+| **手動選擇模型** | ❌（僅 Auto） | ❌（僅 Auto） | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **── 程式碼補全 ──** | | | | | | | |
+| Inline Suggestions | ✅ | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
+| NES（Next Edit Suggestions） | ✅ | ✅ | ✅ | ✅ | ✅ | ✅（無限） | ✅（無限） |
+| **── 對話與代理 ──** | | | | | | | |
+| Copilot Chat | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Agent Mode | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Edit Mode | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Cloud Agent | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| GitHub Copilot App | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Third-party Agents（Claude／Codex） | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Custom Agents | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Agent Skills | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Agent Hooks | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Agent Plugins 1.0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **── 自訂與上下文 ──** | | | | | | | |
+| Custom Instructions | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Organization Instructions | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Prompt Files（.prompt.md） | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Path-Specific Instructions | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| MCP | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Copilot Memory | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Copilot Spaces | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **── 審查與安全 ──** | | | | | | | |
+| Code Review | 有限 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| PR Summaries | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Copilot CLI | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Auto Model Selection | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **── 模型可用性（示意，實際以官方頁面為準） ──** | | | | | | | |
+| GPT-5 mini／Raptor mini | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| GPT-5.4／GPT-5.5／GPT-5.6 系列 | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| GPT-5.4 nano | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Claude Sonnet 4.5 / 4.6 / 5 | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Claude Opus 系列／Claude Fable 5 | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Gemini 3.1 Pro（Preview）／3.5+ Flash | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **── 企業管控 ──** | | | | | | | |
+| Content Exclusion | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| 組織政策管理 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Budget Controls 預算控管 | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| 稽核日誌 | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Agent Firewall | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Agent Management | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| IP 代理（IP Indemnity） | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| GitHub Spark | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ |
 
-> 📌 **計費說明**：Business 與 Enterprise 方案自 2026 年 6 月起採用 AI Credits 計費，程式碼補全與 NES 不消耗 Credits。Credits 以組織/企業層級池化共享，詳見 [Usage-based billing](https://docs.github.com/en/copilot/concepts/billing/usage-based-billing-for-organizations-and-enterprises)。
+> 📌 **計費說明**：**全部付費方案**（含個人 Pro／Pro+／Max）自 2026 年 6 月起改採 AI Credits 使用量計費，程式碼補全與 NES 不消耗 Credits。個人方案額度不結轉；組織/企業方案的 Credits 以組織層級池化共享，且目前（2026-06-01～2026-09-01）享有促銷加碼額度。詳見 [1.4 節](#14-github-copilot-方案與定價)與 [Usage-based billing for organizations and enterprises](https://docs.github.com/en/copilot/concepts/billing/usage-based-billing-for-organizations-and-enterprises)。
+>
+> 📌 **模型可用性表為示意性質**：模型陣容與方案對應變動極為頻繁（新模型上架、舊模型下架時常於數週內發生），請勿依賴本表作為採購或合規判斷依據，務必以 [GitHub Copilot 官方支援模型頁面](https://docs.github.com/en/copilot/reference/ai-models/supported-models) 即時查詢結果為準。
 >
 > 📌 功能與方案內容可能隨 GitHub 更新而變動，請以 [GitHub Copilot 官方方案頁面](https://docs.github.com/en/copilot/about-github-copilot/subscription-plans-for-github-copilot) 為準。
 
@@ -3878,9 +4098,9 @@ graph TB
 | 項目 | 內容 |
 |------|------|
 | 文件名稱 | GitHub Copilot SSDLC 教學手冊 |
-| 版本 | v2.3 |
+| 版本 | v2.4 |
 | 建立日期 | 2026-04-15 |
-| 最後更新 | 2026-05-28 |
+| 最後更新 | 2026-08-13 |
 | 撰寫者 | 軟體架構團隊 |
 | 審核者 | 技術委員會 |
 | 適用範圍 | 企業級軟體開發專案 |
@@ -3894,6 +4114,7 @@ graph TB
 | v2.1 | 2026-05-25 | 架構團隊 | 更新 AI 模型清單至 2025 年實際可用版本（GPT-4.1、Claude Sonnet 4、Gemini 2.5 Pro 等）；新增 Copilot Autofix 安全自動修補章節（Ch4.5）；補充 Auto Model Selection 使用說明（Ch1.3）；移除尚未發布的推測性模型版本號 |
 | v2.2 | 2026-05-15 | 架構團隊 | 更新 AI 模型清單：新增 Claude Opus 4.7、Gemini 3.5 Flash、GPT-5.4 mini/nano、GPT-5.5、Raptor mini、Goldeneye；更新 Business/Enterprise 計費模式為 Usage-based billing（AI Credits）；更新附錄 D 方案對照表 |
 | v2.3 | 2026-05-28 | 架構團隊 | 依據 GitHub 官方文件全面校正：更新 AI 模型表新增乘數與關閉通知（GPT-4.1/5.2 將於 6/1 關閉）；重寫 Copilot Memory 章節（區分 Repo-level Facts 與 User-level Preferences、跨功能知識共享）；修正 Custom Agents 路徑為 `.github/agents/`；新增 Agent Management 管理功能與中途引導（Steering）；新增 5.8 CLI 內建 Agents（Explore、Task、Code Review 等）；新增 5.9 第三方 Coding Agents（Anthropic Claude Agent、OpenAI Codex Agent）；新增 5.10 Agent Skills 開放標準；附錄 D 新增模型方案可用性對照；Auto Model Selection 更正為全方案可用；新增 Agent Skills 儲存路徑與 `gh skill` CLI 說明 |
+| v2.4 | 2026-08-13 | 架構團隊 | 依 2026 年 6 月計費改版與最新官方文件全面校正：**計費機制**改寫為全方案（含個人 Pro/Pro+）皆採 Usage-based Billing，新增 **Copilot Max** 方案，Model Multipliers 改列為 Legacy 機制，補充 AI Credits 促銷加碼與個人方案彈性額度（Ch1.4）；**模型清單**更新至 Claude Sonnet 5／Claude Fable 5／GPT-5.6 系列／Gemini 3.6 Flash 等最新陣容（Ch1.3）；新增 **Agent Hooks（VS Code 版）**8 大生命週期事件與設定範例、新增 **Agent Plugins 1.0** 開放標準說明（Ch3.2）；Custom Agents 補充組織／企業層級路徑與 frontmatter 欄位表、新增排程與事件自動化說明（Ch5.7）；新增 **Handoffs** 與 `/fleet` 子代理協作編排說明（Ch5.8）；新增 **5.11 GitHub Copilot App** 全新章節；新增 **10.5 AI Credits 預算控管**（四層 Budget Controls）；Custom Instructions 補充組織層級自動偵測與語意比對 applyTo（Ch3.2）；Copilot Memory 補充管理員批次匯出/刪除與適用範圍限制；附錄 D 新增 Max 方案欄位並修正計費模式說明；修正全文 51 處未標示語言的程式碼區塊（Markdown 格式修正） |
 
 > 📌 **備註**  
 > 本手冊為持續更新文件，如有建議或疑問，請聯繫軟體架構團隊。  
