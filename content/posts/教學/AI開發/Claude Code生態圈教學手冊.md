@@ -6,18 +6,23 @@ tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
 
-> **版本**: 3.3  
-> **最後更新**: 2026年5月31日
-> **適用於**: Claude Code v2.x (GA, 2025-2026)  
+> **版本**: 3.4  
+> **最後更新**: 2026年8月13日
+> **適用於**: Claude Code v2.1.x (GA, 2025-2026)  
 > **Created by**: Eric Cheng
 
 # Claude Code 生態圈教學手冊
 
-> 📖 **版本**: v3.3  
-> 📅 **最後更新**: 2026年5月31日  
+> 📖 **版本**: v3.4  
+> 📅 **最後更新**: 2026年8月13日  
 > 👥 **目標讀者**: 資深軟體工程師、技術主管、架構師  
 > 📋 **基於官方文件**: [Claude Code Documentation](https://code.claude.com/docs/en/overview)  
-> 🆕 **v3.3 更新**: 排程任務新增三方比較（Routines/Desktop/Session）與 `loop.md` 自訂預設提示、Subagents 新增 Resume 機制與 `Agent(agent_type)` 子代理生成限制、Skills 新增 `maxSkillDescriptionChars` 與 compaction 後保留規則（5,000 token/25,000 budget）、Plugins 新增 `claude plugin init` 腳手架命令與 skills-directory plugins、Plugin Hints 推薦安裝機制、`settings.json` 預設設定與 background monitors、Hooks 新增 `if` 欄位進階篩選與 Stop Hook 阻擋上限機制
+> 🆕 **v3.4 更新**：本次為全文逐章節查證修訂，重點如下——
+> **（一）修正核心機制誤植**：Auto Memory 的實際儲存位置與運作方式（`~/.claude/projects/<project>/memory/`，而非文件先前所述機制）；Agent Teams 的 Teammate **預設共用工作目錄**、並非自動取得獨立 git worktree（原文多處以此錯誤前提撰寫範例，已一併修正）；`managed-settings.json` 的正確部署路徑為系統層級目錄，而非使用者可寫入的 `~/.claude/`。
+> **（二）移除三段完全虛構的 API／指令**：Remote Control 並非本機 WebSocket API（實際是手機／瀏覽器接續本機 session 的功能）；Agent SDK 的正確介面是 `query()` async generator（套件為 `@anthropic-ai/claude-agent-sdk` / `claude-agent-sdk`），而非原文的 `ClaudeCode` 類別；`claude --cowork`、`claude config set`、`--max-tokens`、`--disable-tool`、`--api-base-url` 等指令與旗標均不存在。
+> **（三）同步 2026 年 6–8 月間約 30 個版本的功能異動**：權限模式重新命名為 Manual/Accept Edits/Plan/Auto、Subagent 改為預設背景執行並支援 3 層巢狀、`/agents` 互動精靈已移除、`/output-style` 獨立指令已移除（改用 `/config`）、Claude Opus 5 發布、Self-Hosted Environments 進入公開 Beta 等。
+> **（四）系統性掃描修正**：比對官方完整 CLI 旗標與 Hook 事件清單，找出並修正數十處全文散布的虛構旗標、錯誤的 Hook matcher 大小寫、錯誤的權限規則語法（如 `mcp tool edit in directory X` 應為 `Edit(X/**)`），以及過期的官方文件網域（`docs.anthropic.com` → `code.claude.com`）。
+> **（五）修復 Markdown 結構性錯誤**：5 處 code fence 巢狀導致大段內容誤渲染為程式碼區塊，以及 2 處目錄錨點失效，皆已透過實際 Hugo 建置驗證修正。
 
 
 ## 目錄
@@ -117,17 +122,17 @@ categories = ['教學']
     - [3.1.5 第三方 AI Provider](#315-第三方-ai-provider)
     - [3.1.6 VS Code 快捷鍵與命令總覽](#316-vs-code-快捷鍵與命令總覽)
     - [3.1.7 Plan Mode（規劃模式）詳解](#317-plan-mode規劃模式詳解)
-    - [3.1.8 URI Handler 與 Plugin 管理 UI](#318-uri-handler-與-plugin-管理-ui)
+    - [3.1.8 URI Handler 與 Plugin 管理 UI](#318--uri-handler-與-plugin-管理-ui)
     - [3.1.9 VS Code 多實例與 Terminal 整合](#319-vs-code-多實例與-terminal-整合)
   - [3.2 Remote Control（遠端控制）](#32-remote-control遠端控制)
     - [3.2.1 概述](#321-概述)
     - [3.2.2 啟動與連接](#322-啟動與連接)
-    - [3.2.3 API 操作](#323-api-操作)
-    - [3.2.4 應用場景](#324-應用場景)
-    - [3.2.5 Remote Control 進階整合模式](#325-remote-control-進階整合模式)
+    - [3.2.3 連線安全與 Trusted Devices](#323-連線安全與-trusted-devices)
+    - [3.2.4 應用場景：如何在「不在電腦前」的情境中選擇合適機制](#324-應用場景如何在不在電腦前的情境中選擇合適機制)
+    - [3.2.5 手機推播通知與限制](#325-手機推播通知與限制)
   - [3.3 Headless 模式與 SDK](#33-headless-模式與-sdk)
     - [3.3.1 Headless 模式](#331-headless-模式)
-    - [3.3.2 SDK 整合](#332-sdk-整合)
+    - [3.3.2 Agent SDK 整合](#332-agent-sdk-整合)
     - [3.3.3 應用場景](#333-應用場景)
     - [3.3.4 Headless 模式進階用法](#334-headless-模式進階用法)
   - [3.4 整合工作流程](#34-整合工作流程)
@@ -424,29 +429,44 @@ claude update
 **方法 2：使用套件管理器安裝**
 
 ```bash
-# macOS / Linux — Homebrew
+# macOS / Linux — Homebrew（有兩個 cask：claude-code 是穩定通道，落後約一週且會跳過重大回歸版本；
+# claude-code@latest 則是最新通道，新版釋出即可安裝）
 brew install --cask claude-code
+# 或
+brew install --cask claude-code@latest
 
 # Windows — WinGet
 winget install Anthropic.ClaudeCode
+
+# Debian / Fedora / RHEL / Alpine — 系統套件管理器
+apt install claude-code      # Debian / Ubuntu
+dnf install claude-code      # Fedora / RHEL
+apk add claude-code          # Alpine
 ```
 
-**方法 3：VS Code 擴充功能**
+> ⚠️ 原生安裝程式（方法 1）會**自動在背景更新**至最新版；Homebrew 與 WinGet 安裝**不會自動更新**，須自行定期執行 `brew upgrade claude-code`（或 `@latest`）／`winget upgrade Anthropic.ClaudeCode`。
+
+**方法 3：IDE 擴充功能**
 
 ```bash
-# 從 VS Code Marketplace 搜尋 "Claude Code by Anthropic" 安裝
-# 或命令列安裝
+# VS Code：從 Marketplace 搜尋 "Claude Code by Anthropic"，或命令列安裝
 code --install-extension anthropic.claude-code
+# Cursor 使用者可用相同方式安裝（擴充功能相容）
 
-# 安裝完成後以 Cmd+Esc (macOS) 或 Ctrl+Esc (Windows/Linux) 啟動
+# 安裝完成後以 Cmd+Shift+P (macOS) 或 Ctrl+Shift+P (Windows/Linux) 開啟命令面板，
+# 輸入 "Claude Code" 並選擇「Open in New Tab」
+
+# JetBrains（IntelliJ IDEA / PyCharm / WebStorm 等）：
+# 從 JetBrains Marketplace 安裝 "Claude Code" 外掛，重啟 IDE
+# 仍需另外安裝 Claude Code CLI（外掛透過 CLI 運作）
 ```
 
 **方法 4：Desktop App（無需命令列）**
 
-- macOS: 從 [claude.ai](https://claude.ai) 下載 DMG 安裝
-- Windows: 從 [claude.ai](https://claude.ai) 下載 EXE 安裝
+- macOS: 從 [claude.ai](https://claude.ai) 下載 DMG 安裝（支援 Intel 與 Apple Silicon）
+- Windows: 從 [claude.ai](https://claude.ai) 下載 EXE 安裝（x64 與 ARM64）
 
-> 💡 **Desktop App** 提供圖形化安裝介面，適合不熟悉命令列的使用者。
+> 💡 **Desktop App** 提供圖形化安裝介面，可視覺化檢視 diff、同時並行多個工作階段、排程重複性任務，並可一鍵發起雲端工作階段，適合不熟悉命令列的使用者。需要付費訂閱方案。
 
 **步驟 2：認證**
 
@@ -560,7 +580,7 @@ Claude Code 使用**多層級配置系統**，從全域到專案層層覆蓋：
 
 ### 1.1.5 Claude Code 的運作原理
 
-Claude Code 是一個**代理式程式設計系統 (agentic coding system)**，其核心運作方式與傳統的程式碼補全工具有本質差異。
+Claude Code 是一個**代理式程式設計系統 (agentic coding system)**，其核心運作方式與傳統的程式碼補全工具有本質差異。官方文件將 Claude Code 定位為圍繞 Claude 模型打造的「**agentic harness（代理式執行殼層）**」——由它提供工具、context 管理與執行環境，把單純會推理的語言模型變成真正能動手做事的程式開發代理人。
 
 #### 代理式迴圈 (Agentic Loop)
 
@@ -580,29 +600,18 @@ graph TD
     style F fill:#f59e0b,stroke:#d97706,color:#fff
 ```
 
-Claude Code 的核心執行模式是 **Read → Plan → Act → Verify** 循環：
+官方文件將 Agentic Loop 定義為三個交織進行的階段：**蒐集上下文（gather context）→ 採取行動（take action）→ 驗證結果（verify results）**，並依任務動態調整——單純的程式碼提問可能只需要蒐集上下文，Bug 修復會反覆經歷三個階段，大型重構則可能需要密集驗證。這三階段可再拆解為更細的實務步驟：
 
-1. **讀取 (Read)** — 解析使用者意圖，蒐集專案上下文（CLAUDE.md、相關檔案、Git 歷史）
+1. **讀取 (Read)** — 解析使用者意圖，蒐集專案上下文（CLAUDE.md、Auto Memory、相關檔案、Git 歷史）
 2. **規劃 (Plan)** — 擬定執行策略，拆解任務為多步驟
 3. **行動 (Act)** — 透過工具呼叫執行操作（讀寫檔案、執行命令、搜尋程式碼）
 4. **驗證 (Verify)** — 檢查執行結果，確認是否需要進一步操作
 
+你隨時可以在迴圈執行中插話：按 `Esc` 立即中斷並取消目前的工具呼叫，或直接輸入修正內容並按 `Enter`——不會中斷正在執行的動作，Claude 會在目前步驟完成後讀取你的訊息再決定下一步。
+
 #### 內建工具集
 
-Claude Code 擁有一組功能強大的內建工具，自動根據任務需求選擇使用：
-
-| 工具類別 | 工具 | 功能說明 |
-|---------|------|----------|
-| **檔案操作** | `Read` | 讀取檔案內容 |
-| | `Edit` | 編輯現有檔案 |
-| | `Write` | 建立新檔案 |
-| | `MultiEdit` | 批次編輯多個檔案 |
-| **搜尋** | `Grep` | 快速文字搜尋（ripgrep） |
-| | `Glob` | 檔案路徑搜尋 |
-| | `Search` | 語意搜尋 |
-| **命令** | `Bash` | 在 shell 中執行命令 |
-| **瀏覽** | `WebFetch` | 抓取網頁內容 |
-| **子代理** | `Subagent` | 啟動獨立子代理處理子任務 |
+Claude Code 的內建工具依「能動性層級」分為五大類（File operations／Search／Execution／Web／🆕 Code intelligence），完整分類與逐一工具說明見 [1.2.6 工具系統詳解](#126-工具系統詳解)。核心心法：Claude 依提示與過程中蒐集到的資訊自主決定用哪個工具、以什麼順序使用，例如「修好失敗的測試」通常會依序觸發「跑測試 → 讀錯誤輸出 → 搜尋相關原始碼 → 讀取理解 → 編輯修正 → 重跑測試驗證」——每一步的結果都會回饋進迴圈、影響下一步決策。
 
 #### 上下文載入順序
 
@@ -636,11 +645,12 @@ Claude Code 擁有一組功能強大的內建工具，自動根據任務需求�
 
 #### Token 管理與 Context Window
 
-Claude Code 自動管理 context window（上下文視窗），當對話接近 token 上限時：
+Context window 裝載對話歷史、檔案內容、命令輸出、CLAUDE.md、Auto Memory、已載入的 Skills 與系統指令。當對話接近上限時，Claude Code 會**自動**先清除較舊的工具輸出，若仍不夠才對對話做摘要壓縮：
 
-- **自動摘要壓縮** — 使用 `/compact` 命令或自動觸發，將歷史對話壓縮為摘要
+- **自動摘要壓縮** — 使用 `/compact` 命令或自動觸發；你的請求與關鍵程式碼片段會保留，但對話早期的細節指示可能遺失——因此持久性規則應寫進 CLAUDE.md，而不是依賴對話記憶
 - **選擇性載入** — 只載入與當前任務相關的檔案內容
 - **工具結果截斷** — 過長的工具輸出會自動截斷
+- **可控摘要焦點** — 在 CLAUDE.md 中加入「Compact Instructions」段落，或直接對 `/compact` 附帶焦點說明
 
 ```bash
 # 手動壓縮上下文
@@ -648,7 +658,14 @@ Claude Code 自動管理 context window（上下文視窗），當對話接近 t
 
 # 帶有自訂摘要指示的壓縮
 /compact 保留所有與 API 設計相關的討論
+
+# 檢視目前 context window 各項目的用量佔比
+/context
 ```
+
+> ⚠️ **🆕 Thrashing 保護**：若單一檔案或工具輸出過大，導致每次摘要後 context 又立刻被同一內容填滿，Claude Code 會在嘗試幾次後自動停止 auto-compact 並回報錯誤，而不會無限迴圈消耗 token。
+>
+> 💡 Skills 採隨需載入（只有描述常駐 context，實際內容用到才載入），Subagent 則擁有完全獨立的 context——這兩者是除了壓縮之外，控制 context 用量的主要手段，詳見 [2.1 Subagents](#21-subagents-子代理) 與 [2.3 Skills](#23-skills技能系統)。
 
 ---
 
@@ -675,13 +692,17 @@ Desktop App 提供與 Terminal CLI 完全相同的功能，但透過圖形化介
 - 圖形化 MCP Server 管理
 - 圖形化 Plugin 管理
 - 可配置排程任務（Desktop Scheduled Tasks）
+- 同時並排檢視、操作多個工作階段，可一鍵發起雲端工作階段
+- 🆕 **Session Groups**：在側邊欄以右鍵將多個工作階段歸類分組管理
 - 自動更新
 
-> 💡 **Desktop 排程任務**: 與 CLI 的 session-scoped `/loop` 不同，Desktop 排程任務**持久存在**，可在 app 重啟後繼續執行。
+> 💡 **Desktop 排程任務**: 與 CLI 的 session-scoped `/loop` 不同，Desktop 排程任務**持久存在**，可在 app 重啟後繼續執行；雲端執行的 **Routines** 則連電腦關機也不受影響，三者的完整比較見 [2.8 Scheduled Tasks](#28-scheduled-tasks排程任務)。
+
+> 🔀 **跨裝置接續工作**：在 Terminal 中執行 `/desktop` 可將目前 CLI 工作階段交接到 Desktop App（需 claude.ai 訂閱，支援 macOS 與 x64 Windows），改用圖形化介面檢視 diff；反向操作則可用 `claude --teleport` 把手機或 Web 上發起的雲端工作階段拉回本機終端機繼續（需 claude.ai 訂閱）。
 
 #### Web 介面 (claude.ai/code)
 
-Web 介面讓你在**瀏覽器中**使用 Claude Code 的完整功能，程式碼在 Anthropic 的雲端沙箱中執行。
+Web 介面讓你在**瀏覽器中**使用 Claude Code 的完整功能，程式碼在 Anthropic 的雲端沙箱中執行；也可透過 [Claude 行動應用程式](https://claude.ai)（iOS / Android）存取。
 
 **適用場景**：
 
@@ -689,6 +710,7 @@ Web 介面讓你在**瀏覽器中**使用 Claude Code 的完整功能，程式�
 - 在平板或共用電腦上操作
 - 快速原型驗證
 - 程式碼審查（不需本機 clone）
+- 同時平行執行多個長時間任務，完成後再回來查看
 
 **運作方式**：
 
@@ -698,6 +720,17 @@ Web 介面讓你在**瀏覽器中**使用 Claude Code 的完整功能，程式�
                                            可 clone GitHub repo
                                            可安裝依賴、執行測試
                                            可將變更推回 GitHub
+```
+
+**與本機工作階段互轉**：
+
+```bash
+# 從本機終端機把目前任務丟到雲端執行
+claude --cloud
+
+# 之後可在 Claude 行動應用程式接續查看/操作
+# 或反向：在雲端／行動裝置發起的任務，用 --teleport 拉回本機終端機繼續
+claude --teleport
 ```
 
 > ⚠️ **注意**: Web 介面在雲端沙箱中執行，無法存取你的本機檔案系統。需要操作本機檔案請使用 CLI、Desktop App 或 IDE 擴充功能。
@@ -940,70 +973,74 @@ sequenceDiagram
 
 ### 1.2.4 記憶體與設定架構
 
-Claude Code 使用**三層級記憶體系統**，實現跨對話的知識持久化：
+Claude Code 用**兩套互補機制**在無狀態的對話之間傳遞知識：**CLAUDE.md**（你寫的指引）與 **Auto Memory**（Claude 自己寫的筆記）。兩者都會在每次會話開始時載入，且都被 Claude 當作「情境（context）」參考，而非強制生效的設定——若需要不論 Claude 判斷結果都強制阻擋的規則，應改用 `PreToolUse` Hook（見 [2.5 Hooks](#25-hooks鉤子機制)）。
 
 ```mermaid
 graph TD
-    subgraph "記憶體層級"
-        UM[User Memory<br/>~/.claude/memories/]
-        PM[Project Memory<br/>.claude/memories/]
-        SM[Session Memory<br/>會話結束即清除]
+    subgraph "CLAUDE.md（人寫，指令與規範）"
+        MP[Managed Policy<br/>MDM 部署，組織全員強制]
+        US[User<br/>~/.claude/CLAUDE.md]
+        PS[Project<br/>./CLAUDE.md 或 ./.claude/CLAUDE.md]
+        LS[Local<br/>./CLAUDE.local.md，不進版控]
     end
-    
-    subgraph "設定層級（優先級由高到低）"
-        MS[Managed Settings<br/>企業管理員強制]
-        ES[Enterprise Policy<br/>組織政策]
-        PS[Project Settings<br/>.claude/settings.json]
-        US[User Settings<br/>~/.claude/settings.json]
+
+    subgraph "Auto Memory（Claude 寫，學習與心得）"
+        AM["~/.claude/projects/&lt;project&gt;/memory/<br/>MEMORY.md（索引，前 200 行/25KB）<br/>+ 主題檔案（依需要讀取）"]
     end
-    
-    US --> PS --> ES --> MS
-    
-    style MS fill:#ef4444,stroke:#dc2626,color:#fff
-    style ES fill:#f97316,stroke:#ea580c,color:#fff
-    style PS fill:#3b82f6,stroke:#2563eb,color:#fff
-    style US fill:#22c55e,stroke:#16a34a,color:#fff
+
+    MP --> US --> PS --> LS
+
+    style MP fill:#ef4444,stroke:#dc2626,color:#fff
+    style US fill:#3b82f6,stroke:#2563eb,color:#fff
+    style PS fill:#22c55e,stroke:#16a34a,color:#fff
+    style LS fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style AM fill:#f59e0b,stroke:#d97706,color:#fff
 ```
 
-#### 記憶體系統
+#### CLAUDE.md：你寫的持久指引
 
-| 層級 | 路徑 | 生命週期 | 用途 |
-|-----|------|---------|------|
-| **User Memory** | `~/.claude/memories/` | 永久（跨專案） | 使用者偏好、常用模式 |
-| **Project Memory** | `.claude/memories/` | 永久（專案內） | 專案慣例、架構決策 |
-| **Session Memory** | 記憶體（臨時） | 對話結束即清除 | 當前任務上下文 |
+| 範圍 | 位置 | 用途 | 適用情境 |
+|-----|------|------|---------|
+| **Managed Policy**（組織級） | macOS `/Library/Application Support/ClaudeCode/CLAUDE.md`；Linux/WSL `/etc/claude-code/CLAUDE.md`；Windows `C:\Program Files\ClaudeCode\CLAUDE.md` | IT/DevOps 統一部署，個人無法排除 | 公司程式規範、資安政策、合規要求 |
+| **User**（使用者級） | `~/.claude/CLAUDE.md` | 個人跨專案偏好 | 個人程式風格、慣用工具捷徑 |
+| **Project**（專案級） | `./CLAUDE.md` 或 `./.claude/CLAUDE.md` | 團隊共享、版控管理 | 專案架構、規範、常用工作流程 |
+| **Local**（本地覆寫） | `./CLAUDE.local.md` | 僅自己、不進版控 | 個人測試資料、沙箱網址 |
+
+**載入順序**：從工作目錄往上層層尋找 `CLAUDE.md`／`CLAUDE.local.md`，全部串接進 context——不是互相覆蓋，而是「離工作目錄越近的內容排在越後面」（更容易被 Claude 記住）；子目錄中的 `CLAUDE.md` 則採**隨需載入**，只在 Claude 實際讀取該目錄下的檔案時才注入。也支援 `@path/to/file` 匯入語法（最深 4 層遞迴、程式碼區塊中的 `@` 不會被當成匯入），與 `.claude/rules/`（可用 YAML frontmatter 的 `paths` 欄位，將規則限定在符合 glob 樣式的檔案才載入，減少不必要的 context 消耗）。若專案已有 `AGENTS.md`，Claude Code 不會直接讀取，需在 `CLAUDE.md` 中以 `@AGENTS.md` 匯入或建立 symlink。
+
+> 📌 **官方建議長度**：CLAUDE.md 沒有強制行數上限、會完整載入，但官方建議控制在 **200 行以內**——檔案越長，指令遵循度越低。內容持續變多時，優先拆成 `.claude/rules/*.md`（依檔案路徑觸發）或 [Skills](#23-skills技能系統)（依任務觸發），而不是無限堆疊 CLAUDE.md。
+
+#### Auto Memory：Claude 自己寫的學習筆記
+
+Auto Memory 預設開啟，Claude 會在工作中自行判斷值得記住的資訊（建置指令、除錯心得、你的糾正與偏好），主動寫入 `~/.claude/projects/<project>/memory/`（依 Git repository 自動命名，同一個 repo 的所有 worktree 共用一份）：
+
+- `MEMORY.md` 是索引檔，**每次會話僅載入前 200 行或 25KB（取先達到者）**，超出部分不會載入——因此 Claude 會把明細移到主題檔案，索引只留精簡摘要。
+- 主題檔案（如 `debugging.md`）**不會**自動載入，Claude 會在需要時才用一般讀檔工具查閱。
+- 可用 `/memory` 指令瀏覽 / 編輯 / 開啟記憶資料夾，或關閉 Auto Memory（對應 `autoMemoryEnabled` 設定，也可用環境變數 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` 停用）。
+- Auto Memory 僅存在本機（不跨機器 / 雲端環境同步），且不會自動套用到 Subagent 的獨立 context（`/fork` 例外，會繼承主對話的記憶）。
 
 ```bash
-# 記憶體管理命令
-/memory                    # 檢視記憶體狀態
-/memory add "偏好使用函數式風格"  # 新增記憶
+# 開啟 /memory 選單：可瀏覽 CLAUDE.md、CLAUDE.local.md、Auto Memory 資料夾
+/memory
+
+# 確認目前會話實際載入了哪些記憶檔案
+/context
 ```
 
-#### 設定優先級（由低到高）
+> 💡 **判斷準則**：CLAUDE.md 用來下指令（「一律使用 pnpm」「commit 前先跑 lint」），Auto Memory 用來記心得（「這個專案的 API 測試需要本機 Redis」）。想強制要求就寫進 CLAUDE.md 或直接說「加進 CLAUDE.md」；讓 Claude 自然累積經驗則交給 Auto Memory。
+
+#### 設定（settings.json）優先順序
+
+CLAUDE.md／Auto Memory 管的是「情境」，`settings.json` 管的是「權限與行為的強制設定」，兩者是互補的兩條軸線（見 [B.8 配置優先級完整圖](#b8-配置優先級完整圖)）：
 
 ```plaintext
 1. 系統預設值
 2. ~/.claude/settings.json（使用者全域設定）
-3. .claude/settings.json（專案設定）
-4. 環境變數
-5. CLI 旗標與參數
-6. Enterprise Policy（企業政策）
-7. Managed Settings（管理員強制設定）
+3. .claude/settings.json（專案設定，Git 共享）
+4. .claude/settings.local.json（專案本地設定，不進版控）
+5. 環境變數 / CLI 旗標與參數
+6. Managed Settings（企業管理員強制，最高優先級，個人設定無法覆寫）
 ```
-
-#### CLAUDE.md 載入順序
-
-```plaintext
-~/.claude/CLAUDE.md          ← 全域（所有專案共用）
-      ↓
-專案根目錄/CLAUDE.md          ← 專案級
-      ↓
-子目錄/CLAUDE.md              ← 目錄級（遞迴載入至工作目錄）
-      ↓
-CLAUDE.local.md               ← 本地覆蓋（不提交至 Git）
-```
-
-> 💡 **小技巧**: 在 CLAUDE.md 中使用 `@file` 語法可以引用其他檔案內容，例如 `@docs/api-spec.yaml` 會將 API 規格動態載入上下文。
 
 ### 1.2.5 權限與安全模型
 
@@ -1026,6 +1063,19 @@ graph TD
     style F fill:#ef4444,stroke:#dc2626,color:#fff
     style I fill:#f59e0b,stroke:#d97706,color:#fff
 ```
+
+#### 權限模式（Permission Modes）
+
+除了 `allow`/`deny` 規則清單，Claude Code 還有一組會話層級的「權限模式」，決定 Claude 在規則沒有明確匹配時的預設行為。按 `Shift+Tab` 可在四種模式間循環切換：
+
+| 模式 | 行為 | 適用情境 |
+|-----|------|---------|
+| **Manual**（🆕 v2.1.200 由 "default" 更名） | 每次檔案編輯 / Shell 命令都詢問使用者 | 互動式開發、初次熟悉專案 |
+| **Accept Edits** | 自動執行檔案編輯與常見檔案系統命令（如 `mkdir`、`mv`），其餘命令仍會詢問 | 已建立信任、想加快反覆運算速度 |
+| **Plan** | 只分析、提出計畫，不修改原始碼 | 複雜任務先探索、需要人工複核方案 |
+| **Auto** | 以背景安全檢查評估所有動作，符合條件才自動執行 | CI/CD、長時間背景任務、高信任場景 |
+
+> 🆕 **v2.1.207（2026-07-11）**：Auto 模式在 Bedrock、Vertex AI、Foundry 上**不再需要額外 opt-in** 即可使用（可用 `disableAutoMode` 設定停用）。若你的文件或腳本仍寫著 `permissionMode: "ask"` / `"deny"`，請注意目前 CLI／VS Code／JetBrains 介面統一顯示為 **Manual**；`"ask"` 字串本身在設定檔中仍可使用，只是顯示名稱已更新。
 
 #### 權限配置格式
 
@@ -1126,6 +1176,20 @@ graph TB
     style TH fill:#e0e7ff,stroke:#6366f1
 ```
 
+#### 官方五大工具分類
+
+官方文件將內建工具歸納為五大類，每一類代表一種不同層次的「能動性（agency）」：
+
+| 分類 | Claude 能做的事 |
+|------|----------------|
+| **File operations**（檔案操作） | 讀取檔案、編輯程式碼、建立新檔案、重新命名與整理 |
+| **Search**（搜尋） | 依模式尋找檔案、以正規表達式搜尋內容、探索程式碼庫 |
+| **Execution**（執行） | 執行 shell 命令、啟動伺服器、跑測試、操作 git |
+| **Web**（網路） | 搜尋網路、抓取文件、查詢錯誤訊息 |
+| **Code intelligence**（🆕 程式碼智能） | 編輯後即時看到型別錯誤與警告、跳轉到定義、尋找所有參照——需安裝 [code intelligence plugins](#24-plugins插件系統)（以 LSP, Language Server Protocol 為基礎） |
+
+> 📌 Claude 依照你的提示與過程中發現的資訊自主選擇要用哪個工具；上面五類是「能力範疇」，下方表格則是實際會用到的具體工具名稱。
+
 #### 工具詳細說明
 
 | 工具 | 動作 | 權限等級 | 說明 |
@@ -1139,8 +1203,11 @@ graph TB
 | **LS** | 目錄列表 | 唯讀 | 列出目錄內容，顯示檔案和子目錄 |
 | **Bash** | 執行命令 | 危險 | 執行任意 Shell 命令（需額外權限確認） |
 | **Notebook** | Jupyter 操作 | 寫入 | 建立和編輯 Jupyter Notebook |
-| **SubAgent** | 建立子 Agent | 消耗 Token | 建立子 Agent 處理子任務 |
+| **WebSearch / WebFetch** | 網路搜尋與擷取 | 唯讀 | 搜尋網路、抓取並解析網頁內容（單一會話預設上限 200 次，可用 `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION` 調整） |
+| **SubAgent** | 建立子 Agent | 消耗 Token | 建立子 Agent 處理子任務（單一會話預設上限 200 個，可用 `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` 調整） |
 | **Think** | 內部推理 | 無副作用 | Claude 的內部推理步驟（不產生外部操作） |
+| **AskUserQuestion** | 提出結構化問題 | 無副作用 | 以選項清單向使用者澄清需求，🆕 對話框預設不會自動繼續，需等待回應 |
+| **🆕 EndConversation** | 結束會話 | 安全機制 | v2.1.214 新增，Claude 在偵測到極端濫用或越獄嘗試時可主動終止會話 |
 
 #### 工具執行生命週期
 
@@ -1263,7 +1330,7 @@ claude
 
 ```plaintext
 ╭───────────────────────────────────────────────────╮
-│ Claude Code v1.x                                  │
+│ Claude Code v2.1.x                                 │
 │ Project: my-web-app                               │
 │ Memory: CLAUDE.md loaded ✓                        │
 ╰───────────────────────────────────────────────────╯
@@ -1294,10 +1361,10 @@ Claude: 我來分析這個專案...
 
 ### 1.3.2 建立 CLAUDE.md
 
-每個新專案的第一步，建議讓 Claude Code 幫你自動生成 CLAUDE.md：
+每個新專案的第一步，建議直接執行內建的 **`/init`** 命令，讓 Claude Code 分析程式碼庫並自動生成 CLAUDE.md（若檔案已存在，`/init` 會改為提出改善建議，不會覆寫）：
 
 ```plaintext
-You: 根據這個專案的結構和程式碼，幫我建立一份 CLAUDE.md
+You: /init
 
 Claude: 我先仔細分析專案結構...
 [Read] package.json
@@ -1314,6 +1381,8 @@ Claude: 我先仔細分析專案結構...
 - 架構說明
 - 禁止事項
 ```
+
+> 🆕 設定環境變數 `CLAUDE_CODE_NEW_INIT=1` 可啟用互動式多階段 `/init` 流程：先詢問要建立哪些產出物（CLAUDE.md／Skills／Hooks），用 Subagent 探索程式碼庫、以追問補足缺口，最後給出可複核的提案再落地寫入檔案，而不是一次到位直接產生。若專案已有其他工具的規則檔（`.cursor/rules/`、`.github/copilot-instructions.md`，開啟該旗標後還支援 `AGENTS.md`、`.windsurfrules` 等），`/init` 會自動讀取並整合進生成的 CLAUDE.md。也可以直接用 `/import` 一次性搬入其他代理工具（如 AGENTS.md）的指令檔、MCP Server、Subagent 與 Skills 設定（需 v2.1.213 以上）。
 
 建議的 CLAUDE.md 結構：
 
@@ -1561,10 +1630,14 @@ Claude Code 提供多種**內建子代理**，自動根據任務類型啟用：
 
 | 代理名稱 | 用途 | 模型 | 工具限制 |
 |---------|------|------|---------|
-| **Explore** | 快速程式碼探索、搜尋、閱讀 | Claude Haiku | 唯讀工具（Read, Grep, Glob, Search） |
-| **Haiku** | 輕量任務、快速回答 | Claude Haiku | 完整工具集 |
-| **Plan** | 規劃複雜任務、制定策略 | Claude Sonnet/Opus | 完整工具集 |
-| **General-purpose** | 通用子代理 | 與主代理相同 | 完整工具集 |
+| **Explore** | 快速程式碼探索、搜尋、閱讀 | 🆕 繼承主對話模型（Claude API 上限為 Opus） | 唯讀工具，禁用 Write/Edit |
+| **Plan** | Plan Mode 下的研究代理，蒐集上下文以提出計畫 | 繼承主對話模型 | 唯讀工具，禁用 Write/Edit |
+| **General-purpose** | 需要探索與修改並行的複雜多步驟任務 | 繼承主對話模型 | 完整子代理可用工具集 |
+| **claude** | 未匹配到專門代理時的通用備援 | 繼承主對話模型 | 完整子代理可用工具集 |
+| **statusline-setup** | 執行 `/statusline` 設定狀態列時使用 | Sonnet | — |
+| **claude-code-guide** | 回答關於 Claude Code 本身的使用問題 | Haiku | — |
+
+> 🆕 **v2.1.198 變更**：Explore 過去固定使用 Haiku，現在改為**繼承主對話所用的模型**（在 Claude API 上限制最高為 Opus，確保不會比你當前工作階段選用的模型更貴）；若想固定讓 Explore 使用低成本模型，可在專案或使用者層級自訂一個同名為 `Explore` 的 Agent 並指定 `model: haiku`，會覆蓋內建版本。內建代理預設在互動式會話中即已註冊；若要停用內建的 Explore/Plan，可設定 `CLAUDE_CODE_DISABLE_EXPLORE_PLAN_AGENTS=1`。
 
 #### Explore Agent — 快速探索
 
@@ -1572,9 +1645,9 @@ Claude Code 提供多種**內建子代理**，自動根據任務類型啟用：
 
 ```plaintext
 特性：
-- 使用 Haiku 模型（快速、低成本）
-- 只有唯讀工具（Read, Grep, Glob, Search）
-- 適合「找到 X 在哪裡定義」這類探索任務
+- 模型繼承自主對話（Claude API 上限為 Opus），而非固定使用 Haiku
+- 只有唯讀工具，Write/Edit 一律禁用
+- 呼叫時 Claude 會指定徹底程度：quick（快速定位）/ medium（均衡探索）/ very thorough（全面分析）
 - 不會修改任何檔案
 
 自動觸發場景：
@@ -1619,7 +1692,7 @@ Claude Code 提供多種**內建子代理**，自動根據任務類型啟用：
 name: "security-reviewer"
 description: "專責安全審查的代理，檢查 OWASP Top 10 和常見漏洞"
 argument-hint: "提供要審查的檔案路徑或描述"
-model: "claude-sonnet-4-20250514"
+model: "claude-sonnet-5"
 allowed-tools:
   - Read
   - Grep
@@ -1686,17 +1759,17 @@ hooks:
 
 #### 使用 /agents 命令
 
+> ⚠️ **v2.1.198 起行為變更**：`/agents` 不再開啟互動式建立精靈（含 Running／Library 分頁的舊版 UI）；執行後只會提示改用「請 Claude 建立」或直接編輯 `.claude/agents/` 目錄。Agent 檔案格式與存放位置（`.claude/agents/`、`~/.claude/agents/`）完全不變，只移除了終端機精靈介面。v2.1.197（含）以前的版本仍保留舊版精靈。
+
 ```bash
-# 在 Claude Code 對話中查看可用 Agent
+# v2.1.197 及更早版本：開啟互動式精靈
 /agents
 
-# 輸出範例：
-# Available agents:
-#   explore         - Fast read-only codebase exploration  
-#   haiku           - Quick tasks using Haiku model
-#   plan            - Complex task planning
-#   security-reviewer - 專責安全審查的代理（自訂）
-#   api-designer    - API 設計專家（自訂）
+# v2.1.198 之後：直接請 Claude 建立/編輯，或手動管理檔案
+你: 幫我在 ~/.claude/agents/ 建立一個 code-improver agent，
+    負責掃描程式碼並提出可讀性、效能、最佳實踐的改善建議，唯讀、使用 Sonnet
+
+# 查看目前生效的自訂 Agent：於對話中執行 /context，在 "Custom Agents" 區塊確認
 ```
 
 #### 完整自訂 Agent 範例：API Designer
@@ -1706,7 +1779,7 @@ hooks:
 name: "api-designer"
 description: "RESTful API 設計專家，負責設計符合 OpenAPI 規範的 API"
 argument-hint: "描述需要設計的 API 功能"
-model: "claude-sonnet-4-20250514"
+model: "claude-sonnet-5"
 allowed-tools:
   - Read
   - Write
@@ -1903,36 +1976,48 @@ mcpServers:
 
 #### 技巧六：前景與背景執行模式
 
-> 🆕 Subagent 支援兩種執行模式：
+Subagent 支援兩種執行模式：
 
 | 模式 | 行為 | 適用場景 |
 |------|------|---------|
-| **前景（Foreground）** | 主代理等待 Subagent 完成後才繼續 | 需要 Subagent 結果才能進行下一步 |
-| **背景（Background）** | Subagent 在背景執行，主代理可繼續其他工作 | 獨立任務（如掃描、文件生成）不需要即時結果 |
+| **前景（Foreground）** | 主代理等待 Subagent 完成後才繼續，權限提示會直接轉給你 | 需要 Subagent 結果才能進行下一步 |
+| **背景（Background）** 🆕 **v2.1.198 起為預設** | Subagent 在背景執行，主代理可繼續其他工作；工具集縮減為唯讀/編輯類工具（不含如 `Task` 等特殊工具），權限提示仍會浮現在主對話中請你核准 | 獨立任務（如掃描、文件生成）不需要立即結果——現在也是 Claude 的預設選擇 |
+
+> 🆕 **v2.1.198 重大變更**：Subagent 現在**預設在背景執行**（先前為逐步推出的實驗性功能）。Claude 只有在確實需要立刻拿到結果才會改用前景模式。可在 Agent 定義中設定 `background: true` 強制永遠背景執行；若設定 `CLAUDE_CODE_FORK_SUBAGENT=1`，則每個子代理都會以背景模式執行，且 frontmatter 的 `background` 欄位會失效。若要整體停用背景任務功能，設定環境變數 `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1`。也可以手動介入：請 Claude 明確以背景/前景執行任務，或按 `Ctrl+B` 把執行中的任務轉為背景。
 
 ```plaintext
-# 前景執行（預設）
+# 前景執行（Claude 判斷需要立即拿到結果時）
 Claude: 我委派 security-reviewer 分析這段程式碼...
 （等待 security-reviewer 完成）
 Claude: 安全審查結果顯示...
 
-# 背景執行
+# 背景執行（🆕 現在是預設行為）
 Claude: 我在背景啟動了 doc-generator 來產生文件，同時繼續處理你的修改需求...
-（doc-generator 在背景執行）
+（doc-generator 在背景執行，可用 /tasks 查看狀態）
 Claude: 修改已完成。文件生成也在背景完成了，結果如下...
 ```
 
 #### 技巧七：Subagent 持久記憶
 
-> 🆕 Subagent 可以存取三層持久記憶：
+透過 Agent frontmatter 的 **`memory` 欄位**，可讓 Subagent 擁有跨會話持久保存的記憶目錄（屬於 [Auto Memory](#124-記憶體與設定架構) 機制的一部分，若整體停用 Auto Memory，此欄位就不生效）：
 
-| 記憶範圍 | 路徑 | 說明 |
+| `memory` 值 | 實際路徑 | 適用情境 |
 |---------|------|------|
-| **使用者記憶** | `~/.claude/` | 跨所有專案持久保存的使用者偏好 |
-| **專案記憶** | `.claude/` | 專案級的記憶（提交到 Git） |
-| **本地記憶** | `.claude.local/` | 本地記憶（不提交到 Git） |
+| `user` | `~/.claude/agent-memory/<agent-name>/` | 該 Subagent 的學習心得要套用到所有專案 |
+| `project`（建議預設） | `.claude/agent-memory/<agent-name>/` | 專案特定知識，可透過版控與團隊共享 |
+| `local` | `.claude/agent-memory-local/<agent-name>/` | 專案特定但不進版控的個人筆記 |
 
-Subagent 啟動時會自動載入這些記憶，確保 Subagent 了解專案的 context 和規範。
+```yaml
+---
+name: code-reviewer
+description: 審查程式碼品質與最佳實踐
+memory: project
+---
+
+你是程式碼審查專家。審查過程中，請把發現的模式、慣例與常見問題更新到你的記憶中。
+```
+
+啟用後，Subagent 的系統提示會自動包含記憶目錄中 `MEMORY.md` 的前 200 行（或 25KB，取先達到者），並自動取得 Read/Write/Edit 工具以維護自己的記憶檔案。建議明確請 Subagent「先查閱記憶再開始」與「完成後把學到的存回記憶」，才能真正累積效果。
 
 #### 技巧八：Subagent 自動壓縮與恢復
 
@@ -2021,7 +2106,7 @@ Claude 自動偵測可恢復的 Subagent，使用 SendMessage 工具重新連線
 
 ##### api-designer.md
 
-```markdown
+````markdown
 ---
 name: "api-designer"
 description: "設計 RESTful API 端點，產出 OpenAPI 規格"
@@ -2065,7 +2150,7 @@ allowed-tools:
   "OpenAPI 規格": "..."
 }
 ```
-```
+````
 
 ##### test-writer.md
 
@@ -2201,35 +2286,43 @@ flowchart TB
 
 #### 什麼是 Agent Teams？
 
-**Agent Teams** 是 Claude Code 的多代理並行協作功能（又稱 **Cowork 模式**）。它允許一個「領導代理（Lead Agent）」同時協調多個「隊友代理（Teammate Agent）」，各自在獨立的 git worktree 中並行工作，實現真正的多任務同時開發。
+**Agent Teams** 是 Claude Code 的多代理協作功能：一個「領導代理（Lead Agent，也就是你的主對話）」同時協調多個「隊友代理（Teammate）」，各自擁有獨立的 context window、直接互相通訊，而不像 Subagent 只能向主代理回報。
 
-> 🆕 **v3.0 更新**：Agent Teams 目前為**實驗性功能**，需要 Claude Code **v2.1.32+** 版本。啟用方式：
+> ⚠️ **重要修正**：Teammate **預設共用同一個工作目錄**，並不會自動幫每個 Teammate 建立獨立的 git worktree——官方文件明確提醒「兩個 Teammate 同時編輯同一檔案會互相覆寫，務必把工作拆成每人負責不同檔案」。若確實需要檔案系統層級的隔離，須自行手動搭配 [Git Worktree](#314-worktree-整合)（屬於「你自己手動管理的平行 session」，官方文件將其列為 Agent Teams 之外的替代方案，而非 Agent Teams 內建行為）。
+
+> 🧪 **Agent Teams 仍是實驗性功能，預設關閉**。啟用方式是設定環境變數（可放在 `settings.json` 的 `env` 區塊，或直接匯出）：
 >
 > ```bash
 > export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 > claude
 > ```
+>
+> 未設定此環境變數時，Claude Code 完全不會建立團隊目錄，也不會生成或提議 Teammate。
 
 ```mermaid
 graph TB
     subgraph "Agent Teams 架構"
-        U[使用者] -->|claude --cowork| LA[Lead Agent<br>領導代理]
-        
-        LA -->|建立 worktree 1| T1[Teammate 1<br>前端 API 整合]
-        LA -->|建立 worktree 2| T2[Teammate 2<br>後端 Service 層]
-        LA -->|建立 worktree 3| T3[Teammate 3<br>資料庫 Migration]
-        
-        T1 -->|獨立 git worktree| W1[worktree-1/]
-        T2 -->|獨立 git worktree| W2[worktree-2/]
-        T3 -->|獨立 git worktree| W3[worktree-3/]
-        
-        T1 -->|完成回報| LA
-        T2 -->|完成回報| LA
-        T3 -->|完成回報| LA
-        
-        LA -->|合併結果| R[最終整合]
+        U[使用者以自然語言請求] -->|例如：Spawn 3 teammates to review this PR| LA[Lead Agent<br>= 你的主對話]
+
+        LA -->|生成| T1[Teammate 1<br>獨立 context window]
+        LA -->|生成| T2[Teammate 2<br>獨立 context window]
+        LA -->|生成| T3[Teammate 3<br>獨立 context window]
+
+        T1 <-->|Mailbox 直接互通| T2
+        T2 <-->|Mailbox 直接互通| T3
+        T1 <-->|Mailbox 直接互通| T3
+
+        T1 -->|認領/更新| TL[共享 Task List]
+        T2 -->|認領/更新| TL
+        T3 -->|認領/更新| TL
+
+        T1 -->|完成通知| LA
+        T2 -->|完成通知| LA
+        T3 -->|完成通知| LA
+
+        LA -->|綜整結果| R[彙整回報給使用者]
     end
-    
+
     style LA fill:#6366f1,stroke:#4f46e5,color:#fff
     style T1 fill:#dbeafe,stroke:#3b82f6
     style T2 fill:#dcfce7,stroke:#22c55e
@@ -2237,34 +2330,38 @@ graph TB
     style R fill:#f0fdf4,stroke:#16a34a
 ```
 
+> 📌 這裡刻意不畫 worktree：Teammate 預設就在你啟動 Claude Code 的同一個工作目錄下讀寫檔案，彼此看到的是同一份程式碼；隔離的是**each Teammate 的 context window**，不是檔案系統。
+
 #### Lead Agent 與 Teammate 的角色差異
 
-| 特性 | Lead Agent（領導代理） | Teammate Agent（隊友代理） |
+| 特性 | Lead Agent（領導代理） | Teammate（隊友） |
 |------|----------------------|--------------------------|
-| **啟動方式** | `claude --cowork` | 由 Lead Agent 自動啟動 |
-| **工作目錄** | 主倉庫目錄 | 獨立 git worktree |
-| **職責** | 規劃任務、分配工作、整合結果 | 執行具體開發任務 |
-| **互動方式** | 與使用者互動 | 與 Lead Agent 溝通 |
-| **Git 操作** | 合併 worktree 分支 | 在自己的 worktree 中提交 |
-| **並行數量** | 1 個 | 多個同時運行 |
-| **生命週期** | 整個會話期間 | 任務完成後可釋放 |
+| **啟動方式** | 你的主對話本身，設定實驗性旗標後即為 Lead | 由 Lead 依你的自然語言請求生成，或 Lead 主動提議、經你確認 |
+| **工作目錄** | 主對話的工作目錄 | 🆕 預設與 Lead **共用同一個工作目錄**（除非你另外手動指派 worktree） |
+| **職責** | 規劃任務、分配工作、核准計畫、整合結果 | 執行具體開發任務，可主動認領未分配任務 |
+| **互動方式** | 與使用者互動；可直接點選任一 Teammate 傳訊息 | Teammate 之間可直接互傳訊息，不需經過 Lead 轉達 |
+| **Context** | 主對話的 context window | 各自獨立的 context window，載入 CLAUDE.md／MCP／Skills，但不繼承 Lead 的對話歷史 |
+| **並行數量** | 1 個（同一 session 只能有一個 Lead，且不能轉移領導權） | 官方建議 3–5 個為佳，過多會使協調成本抵銷平行效益 |
+| **生命週期** | 整個會話期間 | 任務完成後可請 Lead 要求優雅關閉；session 結束時團隊目錄自動清除 |
 
 ### 2.2.2 啟動與使用 Agent Teams
 
-#### 啟動 Cowork 模式
+#### 啟動 Agent Teams
+
+> ⚠️ **修正**：目前官方文件中**沒有** `claude --cowork`、`/leaders`、`/teammates` 這些指令。啟用方式只有「設定環境變數」，之後**直接用自然語言描述任務與想要的隊友**即可，Claude 會自動生成 Teammate；若判斷任務適合平行處理，Claude 也可能主動提議組隊，但一定會等你確認才會真的生成 Teammate。
 
 ```bash
-# 🆕 先啟用實驗性功能旗標
+# 先啟用實驗性功能旗標（一般會話即可，不需要特殊模式）
 export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
-
-# 以 Cowork 模式啟動（成為 Lead Agent）
-claude --cowork
-
-# 或在互動模式中使用 /agents 啟動
-> /agents
-
-# 也可以在互動式會話中使用 /leaders 或 /teammates 命令管理
+claude
 ```
+
+```text
+你: 我在設計一個追蹤程式碼庫 TODO 註解的 CLI 工具，請生成三位隊友從
+    不同角度探索：一位負責 UX、一位負責技術架構、一位負責唱反調找漏洞。
+```
+
+Claude 會據此生成對應的 Teammate、建立共享任務清單，並在完成後綜整所有人的發現。若明確要求「用 Agent Team」但 Claude 只生成了 Subagent，代理面板本身無法直接分辨兩者（介面相同），需重新明確要求「用 Agent Team」。
 
 #### 🆕 共享任務清單（Shared Task List）
 
@@ -2295,94 +2392,42 @@ Lead Agent → [Mailbox] → Teammate 1
   "請優先處理認證中介層的重構"
 
 Teammate 1 → [Mailbox] → Lead Agent
-  "認證重構完成，發現需要同步更新 middleware/auth.ts"
+  "認證重構完成，middleware/auth.ts 已同步更新"
 
-Lead Agent → [Mailbox] → Teammate 2
-  "注意 auth middleware 有變更，請在你的 worktree 中 pull 最新程式碼"
+Teammate 1 → [Mailbox] → Teammate 2（可直接互傳，不需經過 Lead）
+  "auth middleware 介面有變更，你負責的 OrderAPI 呼叫記得對應調整"
 ```
 
-#### 🆕 顯示模式（Display Modes）
+實際上每個 Agent 的信箱是磁碟上的一個 JSON 檔案：`~/.claude/teams/{team-name}/inboxes/{agent-name}.json`，只有成功寫入該檔案，Claude Code 才會回報「訊息已送達」；格式不合法的訊息項目會被記錄為錯誤並從檔案中移除，其餘合法訊息仍正常送達。
 
-Agent Teams 支援不同的視覺呈現方式：
+#### 顯示模式（Display Modes）
 
-| 模式 | 工具 | 說明 |
+Agent Teams 只有兩種顯示模式（沒有獨立的「多視窗」第三種）：
+
+| 模式 | 說明 | 需求 |
 |------|------|------|
-| **In-process** | 預設 | Lead 與 Teammates 在同一終端中交替顯示 |
-| **Split Panes** | tmux | 🆕 透過 tmux 分割視窗，各 Agent 有獨立面板 |
-| **多視窗** | iTerm2 | 🆕 在 iTerm2 中為每個 Agent 開啟獨立分頁 |
+| **In-process**（🆕 v2.1.179 起為預設） | 所有 Teammate 都在你的主終端機內執行，用上下鍵在代理面板中選擇、Enter 檢視並傳訊息 | 任何終端機皆可，免額外設定 |
+| **Split panes**（分割面板） | 每個 Teammate 各有自己的面板，可同時看到所有輸出，點進面板即可直接互動 | 需要 tmux，或裝有 `it2` CLI 的 iTerm2 |
+
+```json
+// ~/.claude/settings.json — 變更預設顯示模式
+{
+  "teammateMode": "auto"   // "in-process"（預設）｜"auto"｜"tmux"｜"iterm2"
+}
+```
 
 ```bash
-# 使用 tmux 分割面板顯示 (macOS/Linux)
-# Agent Teams 會自動偵測 tmux 環境
-tmux
-claude --cowork  # 每個 Teammate 自動在獨立 pane 中顯示
+# 或針對單一 session 指定（實驗性旗標，--help 不會列出）
+claude --teammate-mode auto
 ```
 
-啟動後，Lead Agent 會進入協調模式，可以：
+`"auto"` 模式會在偵測到你已身處 tmux，或終端機是裝有 `it2` CLI 的 iTerm2 時自動切為分割面板，否則退回 in-process。
 
-1. **分析任務**：理解使用者需求並拆分為可並行的子任務
-2. **建立 Worktree**：為每個子任務建立獨立的 git worktree
-3. **分配隊友**：在每個 worktree 中啟動 teammate agent
-4. **監控進度**：追蹤每個 teammate 的工作狀態
-5. **整合結果**：合併所有 worktree 的變更
+#### 團隊規模與檔案分工建議
 
-#### 實際使用範例
-
-```plaintext
-# 使用者在 Cowork 模式下的對話：
-
-User: 我需要同時完成以下三個任務：
-      1. 重構 UserService，將認證邏輯抽離
-      2. 為 OrderAPI 新增批次查詢端點
-      3. 更新所有相關的單元測試
-
-Lead Agent: 我會建立三個並行工作流來處理這些任務。
-
-[建立 worktree: .worktrees/refactor-auth]
-  → Teammate 1: 重構 UserService 認證邏輯
-
-[建立 worktree: .worktrees/batch-order-api]
-  → Teammate 2: 新增 OrderAPI 批次查詢端點
-
-[建立 worktree: .worktrees/update-tests]
-  → Teammate 3: 等待前兩個任務完成後更新測試
-
-Status:
-  ✓ Teammate 1: 正在分析 UserService 依賴...
-  ✓ Teammate 2: 正在建立 BatchOrderController...
-  ○ Teammate 3: 等待中...
-```
-
-#### Git Worktree 運作機制
-
-Agent Teams 利用 git worktree 實現隔離的並行開發：
-
-```mermaid
-graph LR
-    subgraph "Git 倉庫結構"
-        M[主倉庫<br>main branch] 
-        
-        M -->|git worktree add| W1[.worktrees/task-1<br>branch: teammate-task-1]
-        M -->|git worktree add| W2[.worktrees/task-2<br>branch: teammate-task-2]
-        M -->|git worktree add| W3[.worktrees/task-3<br>branch: teammate-task-3]
-        
-        W1 -->|merge| M
-        W2 -->|merge| M
-        W3 -->|merge| M
-    end
-    
-    style M fill:#6366f1,stroke:#4f46e5,color:#fff
-    style W1 fill:#dbeafe,stroke:#3b82f6
-    style W2 fill:#dcfce7,stroke:#22c55e
-    style W3 fill:#fef3c7,stroke:#f59e0b
-```
-
-**Worktree 的優勢**：
-
-- **完全隔離**：每個 teammate 在獨立的目錄中工作，不會互相干擾
-- **標準 Git 流程**：每個 worktree 就是一個標準的 git 分支，可用常規 Git 工具管理
-- **資源效率**：worktree 共享 `.git` 物件庫，不需要完整 clone
-- **易於整合**：透過 merge 或 rebase 將變更整合回主分支
+- **官方建議 3–5 位 Teammate**：協調成本會隨人數線性增加，超過一定規模後邊際效益遞減；15 個獨立任務時，3 個 Teammate 通常就是不錯的起點。
+- **依「檔案所有權」而非任務名稱拆分工作**：因為 Teammate 共用同一份工作目錄，兩人同時改同一個檔案會互相覆寫，務必讓每位 Teammate 負責彼此不重疊的檔案集合。
+- 若某個 Teammate 確實需要檔案系統層級的完全隔離（例如要做破壞性實驗），可在生成時指名使用一個設有 `isolation: worktree` 的 [Subagent 定義](#21-subagents-子代理) 作為該 Teammate 的類型，讓它在獨立 git worktree 中執行；這是需要另外設定的進階做法，並非預設行為。
 
 ### 2.2.3 Agent Teams 的協調機制
 
@@ -2394,61 +2439,68 @@ Lead Agent 使用智慧型任務分配，考量以下因素：
 flowchart TD
     T[使用者任務] --> A[分析任務依賴關係]
     A --> B{是否可並行?}
-    
-    B -->|是| P[建立並行 worktree]
+
+    B -->|是| P[拆成互不重疊的任務<br>依檔案所有權分工]
     B -->|否| S[建立序列工作流]
-    
-    P --> P1[Teammate A<br>獨立任務 1]
-    P --> P2[Teammate B<br>獨立任務 2]
-    
+
+    P --> P1[Teammate A<br>認領獨立任務 1]
+    P --> P2[Teammate B<br>認領獨立任務 2]
+
     S --> S1[Teammate C<br>前置任務]
-    S1 -->|完成後| S2[Teammate D<br>依賴任務]
-    
+    S1 -->|完成後解除依賴| S2[Teammate D<br>依賴任務]
+
     P1 --> M[Lead Agent 整合]
     P2 --> M
     S2 --> M
-    
-    M --> V[驗證與合併]
-    
+
+    M --> V[驗證與彙整回報]
+
     style T fill:#6366f1,stroke:#4f46e5,color:#fff
     style M fill:#f0fdf4,stroke:#16a34a
     style V fill:#dcfce7,stroke:#22c55e
 ```
 
+> 📌 任務之間可設定相依關係：有未完成依賴的任務無法被認領，等依賴任務完成後才會自動解鎖，全程由 Claude Code 用檔案鎖定機制避免多個 Teammate 搶認領同一任務。
+
 #### 通訊與狀態管理
 
-Teammate Agent 透過以下機制與 Lead Agent 通訊：
+Teammate 透過以下機制與 Lead Agent、彼此協調：
 
 | 機制 | 說明 | 用途 |
 |------|------|------|
-| **任務描述** | Lead 在建立 worktree 時提供的指令 | 初始任務說明 |
-| **檔案系統** | 透過共享的 git 物件 | 程式碼變更 |
-| **狀態回報** | Teammate 完成時返回摘要 | 進度追蹤 |
-| **Hook 事件** | `TeammateIdle`、`WorktreeCreate`、`WorktreeRemove` | 生命週期管理 |
+| **產生時的任務說明** | Lead 生成 Teammate 時給的初始 prompt（不含 Lead 的對話歷史） | 初始任務說明 |
+| **共享工作目錄** | 預設與 Lead 及其他 Teammate 共用同一份檔案（非各自 worktree） | 程式碼變更彼此可見，需自行避免檔案衝突 |
+| **Mailbox 訊息** | 送達會自動通知收件者，Teammate 之間可直接互傳，不需經過 Lead | 即時溝通、回報進度 |
+| **共享 Task List** | 所有 Agent 皆可查看任務狀態、認領未分配任務 | 進度追蹤與工作分配 |
+| **閒置通知** | Teammate 結束回合會自動通知 Lead；因 API 錯誤中斷時會回報失敗與錯誤內容 | 生命週期管理 |
+
+> ⚠️ `WorktreeCreate`／`WorktreeRemove` 是**通用的** Hook 事件，會在任何 git worktree 建立/移除時觸發——包括 `--worktree` 旗標、Subagent 的 `isolation: worktree`，或背景 session——但**不是** Agent Teams 專屬機制，Agent Teams 預設共用工作目錄時完全不會觸發它們。
 
 #### 相關 Hook 事件
 
-Agent Teams 引入了專屬的 Hook 事件，可用於監控和自訂協作流程：
+Agent Teams 提供三個可用於監控與品管的專屬 Hook 事件：
+
+| 事件 | 觸發時機 | 用途 |
+|------|---------|------|
+| `TeammateIdle` | Teammate 即將轉為閒置前 | 以 exit code 2 回饋意見、要求它繼續工作 |
+| `TaskCreated` | 任務被建立時 | 以 exit code 2 阻止建立並回饋原因 |
+| `TaskCompleted` | 任務被標記完成時 | 以 exit code 2 阻止標記完成、要求補做 |
 
 ```json
 {
   "hooks": {
     "TeammateIdle": [
       {
-        "type": "command",
-        "command": "echo '[$(date)] Teammate idle in $(pwd)' >> .claude/team-log.txt"
+        "hooks": [
+          { "type": "command", "command": "echo '[$(date)] Teammate idle' >> .claude/team-log.txt" }
+        ]
       }
     ],
-    "WorktreeCreate": [
+    "TaskCompleted": [
       {
-        "type": "command",
-        "command": "echo '[$(date)] Worktree created: $WORKTREE_PATH' >> .claude/team-log.txt"
-      }
-    ],
-    "WorktreeRemove": [
-      {
-        "type": "command",
-        "command": "echo '[$(date)] Worktree removed: $WORKTREE_PATH' >> .claude/team-log.txt"
+        "hooks": [
+          { "type": "command", "command": "./scripts/verify-task-tests-pass.sh" }
+        ]
       }
     ]
   }
@@ -2462,17 +2514,16 @@ Agent Teams 引入了專屬的 Hook 事件，可用於監控和自訂協作流�
 ```plaintext
 任務：實作「使用者通知偏好設定」功能
 
-Lead Agent 計劃：
-├── Teammate 1 (worktree: notification-backend)
+Lead Agent 計劃（依檔案所有權分工，共用同一份工作目錄）：
+├── Teammate 1（負責 src/models/、src/api/notification-preference*、migrations/）
 │   ├── 建立 NotificationPreference 模型
 │   ├── 實作 CRUD API 端點
 │   └── 新增資料庫 migration
-├── Teammate 2 (worktree: notification-frontend)
+├── Teammate 2（負責 src/components/notification-settings/）
 │   ├── 建立偏好設定頁面元件
 │   ├── 實作表單驗證邏輯
 │   └── 串接後端 API
-└── Teammate 3 (worktree: notification-tests)
-    ├── 等待 Teammate 1 & 2 完成
+└── Teammate 3（任務設有依賴：等 Teammate 1 & 2 的任務完成才解鎖）
     ├── 撰寫後端 API 整合測試
     └── 撰寫前端元件測試
 ```
@@ -2482,14 +2533,14 @@ Lead Agent 計劃：
 ```plaintext
 任務：將 Monolith 中的 Payment 模組拆分為獨立微服務
 
-Lead Agent 計劃：
-├── Teammate 1 (worktree: extract-payment-service)
+Lead Agent 計劃（依任務依賴排序，各自負責不重疊的檔案）：
+├── Teammate 1（負責 src/services/payment/ 抽離）
 │   └── 抽離 Payment 相關程式碼到新模組
-├── Teammate 2 (worktree: update-api-gateway)
+├── Teammate 2（負責 src/gateway/ 路由設定，依賴 Teammate 1 完成）
 │   └── 更新 API Gateway 路由配置
-├── Teammate 3 (worktree: migrate-database)
+├── Teammate 3（負責 db/payment-schema/，可與 Teammate 1 平行進行）
 │   └── 建立獨立的 Payment 資料庫 schema
-└── 整合順序：Teammate 3 → Teammate 1 → Teammate 2
+└── 認領順序（由任務相依關係自動控制）：Teammate 3 與 Teammate 1 平行 → Teammate 2
 ```
 
 #### 場景三：跨團隊程式碼審查
@@ -2506,23 +2557,24 @@ Lead Agent 計劃：
 
 #### ⚠️ 注意事項與最佳實踐
 
-> 1. **任務獨立性**：儘量確保分配給不同 teammate 的任務修改不同的檔案，避免合併衝突
-> 2. **Worktree 管理**：完成後及時清理不再需要的 worktree，避免佔用磁碟空間
-> 3. **依賴排序**：有依賴關係的任務應設定正確的執行順序，避免在不完整的程式碼上工作
-> 4. **合併策略**：Lead Agent 會按序合併各 worktree 的變更，注意處理潛在的合併衝突
-> 5. **成本考量**：每個 teammate 都是獨立的 Claude Code 會話，會產生對應的 API 費用
-> 6. **🆕 實驗性功能**：Agent Teams 需要 v2.1.32+ 版本並設定 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 環境變數
-> 7. **🆕 Teammate 數量**：建議 3-5 個 teammates，過多會增加 Lead Agent 的協調負擔
+> 1. **任務獨立性**：分配給不同 Teammate 的任務務必修改不同的檔案——因為預設共用同一個工作目錄，同檔案的並行修改會直接互相覆寫，不是靠合併機制化解
+> 2. **給足上下文**：Teammate 不會繼承 Lead 的對話歷史，生成時務必把必要背景（受影響的檔案、限制條件、既有約定）寫進 prompt
+> 3. **依賴排序**：有依賴關係的任務應設定正確的 Task 相依，避免在不完整的程式碼上工作
+> 4. **持續盯場**：放著團隊長時間無人看管，出錯或做白工的風險會提高；定期檢查進度、視需要即時導正方向
+> 5. **成本考量**：每個 Teammate 都是獨立的 Claude Code 會話，會產生對應的 API 費用，且用量隨人數線性增加
+> 6. **實驗性功能**：Agent Teams 目前仍是實驗性功能，預設關閉，需設定 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 環境變數才會啟用
+> 7. **Teammate 數量**：官方建議 3–5 個 Teammate 為佳，過多會讓協調成本抵銷平行效益
+> 8. **已知限制**：一個 session 僅能有一個團隊、Teammate 不能再生出自己的 Teammate（無巢狀團隊）、In-process 模式的 Teammate 無法隨 `/resume` 還原（session 恢復後需請 Lead 重新生成）、關閉團隊時 Teammate 會等目前這輪任務做完才真正結束（可能需要一點時間）
 
-#### 🆕 Agent Teams 專屬 Hook 事件
+#### Agent Teams 專屬 Hook 事件
 
 | Hook 事件 | 觸發時機 | 用途 |
 |-----------|---------|------|
-| `TaskCreated` | Lead Agent 建立新任務時 | 記錄任務分配、通知相關人員 |
-| `TaskCompleted` | Teammate 完成任務時 | 觸發下一步任務、更新進度 |
-| `TeammateIdle` | Teammate Agent 閒置時 | Lead Agent 分配新任務 |
-| `WorktreeCreate` | 建立新 worktree 時 | 自動安裝依賴、設定環境 |
-| `WorktreeRemove` | 清理 worktree 時 | 清理暫存資料 |
+| `TaskCreated` | 任務被建立時 | exit code 2 可阻止建立並回饋原因 |
+| `TaskCompleted` | 任務被標記完成時 | exit code 2 可阻止標記完成、要求補做（例如強制先跑測試） |
+| `TeammateIdle` | Teammate 即將轉為閒置前 | exit code 2 可回饋意見、讓它繼續工作而不真正閒置 |
+
+> 📌 `WorktreeCreate`／`WorktreeRemove` 也是可用的 Hook 事件，但屬於通用的 worktree 生命週期事件（`--worktree`、`isolation: worktree`、背景 session 都會觸發），並非 Agent Teams 專屬——除非你額外指定 Teammate 使用 `isolation: worktree` 的 Subagent 定義，否則預設共用工作目錄的 Agent Teams 不會觸發它們。
 
 ### 2.2.5 Agent Teams 進階模式
 
@@ -2603,47 +2655,27 @@ Lead Agent 分配：
 
 ### 2.2.6 Agent Teams 搭配 Hooks
 
-透過 Hooks 可以在 Agent Teams 的關鍵時刻自動執行操作：
+透過 Hooks 可以在 Agent Teams 的關鍵時刻自動執行操作，以下範例用 `TaskCompleted` 強制在任務被標記完成前先跑測試，並用 `TeammateIdle` 記錄每次有 Teammate 閒置：
 
 ```json
 {
   "hooks": {
-    "TeammateNotification": [
+    "TaskCompleted": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "echo '[Teammate Update] $(date)' >> .claude/cowork-log.txt"
+            "command": "./scripts/verify-tests-pass.sh"
           }
         ]
       }
     ],
-    "WorktreeCreate": [
+    "TeammateIdle": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "echo 'Worktree created: ${CLAUDE_WORKTREE_PATH}' >> .claude/worktree-log.txt"
-          }
-        ]
-      }
-    ],
-    "WorktreeRemove": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo 'Worktree removed: ${CLAUDE_WORKTREE_PATH}' >> .claude/worktree-log.txt"
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node .claude/hooks/notify-teammate-done.js"
+            "command": "echo '[Teammate idle] $(date)' >> .claude/team-log.txt"
           }
         ]
       }
@@ -2651,6 +2683,8 @@ Lead Agent 分配：
   }
 }
 ```
+
+`./scripts/verify-tests-pass.sh` 讀取 stdin 的 JSON 輸入判斷任務內容，若驗證失敗以 exit code 2 回傳，Claude Code 就會阻止該任務被標記完成，並把腳本的錯誤訊息回饋給嘗試結案的 Teammate。
 
 ---
 
@@ -2661,6 +2695,8 @@ Lead Agent 分配：
 #### 什麼是 Skills？
 
 **Skills** 是 Claude Code 中可重用、可組合的能力模組。每個 Skill 透過 **SKILL.md** 檔案定義，使用 Markdown 格式搭配 YAML frontmatter 描述其用途、觸發條件與行為指引。Skills 可以被 Agents、Subagents 或使用者直接調用，用來封裝特定領域的專業知識和操作流程。
+
+> 📌 **Custom Commands 已併入 Skills**：`.claude/commands/deploy.md`（舊式扁平檔案）與 `.claude/skills/deploy/SKILL.md`（新式目錄）現在是**同一套機制**，兩者都會產生 `/deploy` 指令、行為完全相同；既有的 `.claude/commands/` 檔案不需遷移也能繼續運作。Skill 目錄形式多出的優勢是：可搭配同目錄下的輔助檔案、frontmatter 可控制「誰能觸發它」（見下方 `disable-model-invocation`），以及 Claude 可依任務自動判斷是否要使用它——這是與純指令最大的差異：**Skill 內容只有在被使用時才載入 context**，比起把等量內容塞進 CLAUDE.md 幾乎不佔用額外 token。
 
 ```mermaid
 graph TB
@@ -3704,6 +3740,8 @@ claude --plugin-url https://example.com/plugins/my-plugin.zip
 #### 手動建立 Plugin 結構
 
 若需要更精細控制，也可手動建立 Plugin 結構：
+
+```bash
 # 建立 Plugin 目錄
 mkdir -p .claude-plugin/{agents,skills,commands}
 
@@ -3836,7 +3874,7 @@ Plugin 可透過根目錄的 `settings.json` 為使用者提供**預設配置**�
 {
   "agent": "spring-architect",
   "subagentStatusLine": true,
-  "model": "claude-sonnet-4-20250514"
+  "model": "claude-sonnet-5"
 }
 ```
 
@@ -3864,13 +3902,16 @@ Plugin 開發者可為其 CLI 工具配置 **Plugin Hints**，當使用者的專
 }
 ```
 
-發佈 Plugin 至社群 Marketplace 時，可透過以下入口提交：
+Anthropic 維護兩個公開 Marketplace：**`claude-plugins-official`**（官方策展，首次互動式啟動 Claude Code 時會自動註冊；若曾在自動註冊前以非互動模式執行、或曾被 marketplace 政策擋下，需自行執行 `claude plugin marketplace add anthropics/claude-plugins-official`）與 **`claude-community`**（社群審核後上架，使用者以 `/plugin marketplace add anthropics/claude-plugins-community` 加入，安裝時以 `@claude-community` 為前綴）。
 
-| 入口 | 網址 |
-|------|------|
-| **Claude.ai 提交** | `claude.ai/settings/plugins/submit` |
-| **Platform 提交** | `platform.claude.com/plugins/submit` |
-| **社群倉庫** | `@claude-community` GitHub organization |
+發佈 Plugin 前，建議先在本機執行 `claude plugin validate ./your-plugin` 驗證結構與 `plugin.json` 格式（審核流程會執行相同檢查，加上自動化安全掃描）。提交至社群 Marketplace 審核的入口：
+
+| 入口 | 適用對象 | 網址 |
+|------|---------|------|
+| **claude.ai 表單** | Team／Enterprise 組織（Owner 預設有權限） | `claude.ai/admin-settings/directory/submissions/plugins/new` |
+| **Console 表單** | 非 Team／Enterprise 的個人開發者 | `platform.claude.com/plugins/submit` |
+
+審核通過的 Plugin 會被釘選到 `anthropics/claude-plugins-community` 倉庫中的特定 commit SHA，並隨後續推送自動更新釘選版本；公開目錄每晚才會同步一次，通過審核到能實際安裝之間可能有延遲。`claude-plugins-official` 則由 Anthropic 自行決策收錄名單，沒有對應的申請流程。
 
 #### 🆕 Background Monitors（背景監控器）
 
@@ -3941,7 +3982,7 @@ Plugin 可定義 `monitors/monitors.json` 配置背景監控器，持續觀察�
 ---
 name: spring-architect
 description: Spring Boot 架構顧問，負責設計 API、規劃模組結構、審查架構決策
-model: claude-sonnet-4-20250514
+model: claude-sonnet-5
 skills:
   - ./skills/entity-design/
   - ./skills/api-design/
@@ -4151,6 +4192,8 @@ Claude Code 支援 **30 種 Hook 事件**，涵蓋整個會話生命週期：
 |----------|---------|-----------------|---------|
 | **`FileChanged`** | 監視的檔案被修改時 | 文字檔案名稱（如 `.envrc\|.env`） | 自動 lint、環境重新載入 |
 | **`CwdChanged`** | 工作目錄切換時 | 無（每次觸發） | 環境感知、重新載入 direnv 設定 |
+| **`WorktreeCreate`** | 建立 git worktree 時（`--worktree`、Subagent `isolation: worktree`、或背景 session） | 無（每次觸發） | 取代預設 git 行為、環境初始化；此事件失敗時一律視為錯誤，不論 exit code |
+| **`WorktreeRemove`** | 移除 git worktree 時（session 結束、Subagent 完成、或刪除背景 session） | 無（每次觸發） | 資源清理 |
 
 #### Subagent 事件
 
@@ -4163,11 +4206,11 @@ Claude Code 支援 **30 種 Hook 事件**，涵蓋整個會話生命週期：
 
 | 事件名稱 | 觸發時機 | Matcher 匹配欄位 | 典型用途 |
 |----------|---------|-----------------|---------|
-| **`TeammateIdle`** | Teammate 閒置時 | 無（每次觸發） | 任務重新分配 |
-| **`TaskCreated`** | 🆕 透過 TaskCreate 建立任務時 | 無（每次觸發） | 任務建立通知、日誌 |
-| **`TaskCompleted`** | 任務完成時 | 無（每次觸發） | 整合通知 |
-| **`WorktreeCreate`** | 建立 git worktree 時 | 無（每次觸發） | 取代預設 git 行為、環境初始化 |
-| **`WorktreeRemove`** | 移除 git worktree 時 | 無（每次觸發） | 資源清理 |
+| **`TeammateIdle`** | Teammate 即將轉為閒置前 | 無（每次觸發） | exit code 2 可回饋意見、留住 Teammate 繼續工作 |
+| **`TaskCreated`** | 任務被建立時 | 無（每次觸發） | exit code 2 可阻止建立並回饋原因 |
+| **`TaskCompleted`** | 任務被標記完成時 | 無（每次觸發） | exit code 2 可阻止標記完成、要求補做 |
+
+> 📌 `WorktreeCreate`／`WorktreeRemove` 常被誤認為 Agent Teams 專屬事件，實際上它們是**通用的 git worktree 生命週期事件**，見下方「檔案與環境事件」——只要透過 `--worktree`、Subagent 的 `isolation: worktree`，或背景 session 建立/移除 worktree 就會觸發，與是否使用 Agent Teams 無關；Agent Teams 預設共用同一份工作目錄，並不會觸發它們。
 
 #### Context 管理事件
 
@@ -5176,8 +5219,6 @@ MCP Server 透過專案根目錄的 `.mcp.json` 檔案配置：
 
 > 📌 **`workspace` 保留名稱**（🆕 v3.2）：MCP Server 名稱 `workspace` 是保留名稱，Claude Code 內部使用。請勿將自訂 MCP Server 命名為 `workspace`。
 
-```
-
 #### Transport 類型比較
 
 | Transport | 配置方式 | 適用場景 | 說明 |
@@ -5667,6 +5708,15 @@ MCP Server 的工具可以使用 `annotations` 欄位宣告 `anthropic/maxResult
 
 Plugins（`.claude-plugin/`）可以包含內建的 MCP Server 配置。安裝 Plugin 後，其定義的 MCP Server 會自動註冊到 Claude Code 中，無需手動在 `.mcp.json` 中配置。
 
+#### 🆕 MCP 工具自動背景化（v2.1.213）
+
+長時間執行的 MCP 工具呼叫（例如觸發一個耗時的資料匯出、長時間查詢）預設在執行超過 **2 分鐘**後會自動轉為背景執行，讓 Claude 可以繼續處理其他工作，等結果就緒時再回來讀取，不會整個工作階段被單一 MCP 工具呼叫卡住：
+
+```bash
+# 調整自動轉背景的時間門檻（毫秒）
+export CLAUDE_CODE_MCP_AUTO_BACKGROUND_MS=300000   # 改為 5 分鐘
+```
+
 ### 2.6.9 MCP 除錯與疑難排解
 
 #### 常見問題
@@ -5674,7 +5724,7 @@ Plugins（`.claude-plugin/`）可以包含內建的 MCP Server 配置。安裝 P
 | 問題 | 原因 | 解決方式 |
 |------|------|---------|
 | MCP Server 連線失敗 | 指令路徑錯誤或套件未安裝 | 確認 `command` 和 `args` 正確，手動執行測試 |
-| 工具未出現在可用清單 | Server 啟動時發生錯誤 | 使用 `claude --mcp-debug` 查看詳細日誌 |
+| 工具未出現在可用清單 | Server 啟動時發生錯誤 | 使用 `claude --debug mcp` 查看詳細日誌（沒有專屬的 `--mcp-debug` 旗標，用通用 `--debug` 加分類） |
 | 環境變數未生效 | `.mcp.json` 中的 `env` 寫法錯誤 | 確認使用 `${VAR}` 語法引用環境變數 |
 | SSE 連線逾時 | 網路不穩定或遠端 Server 回應慢 | 檢查網路連線，增加 timeout 設定 |
 | 認證失敗 | Token 過期或權限不足 | 重新執行 OAuth flow 或更新 API Key |
@@ -5683,8 +5733,8 @@ Plugins（`.claude-plugin/`）可以包含內建的 MCP Server 配置。安裝 P
 #### 除錯命令
 
 ```bash
-# 啟動 MCP debug 模式
-claude --mcp-debug
+# 啟動 debug 模式並過濾 MCP 相關訊息
+claude --debug mcp
 
 # 互動模式中查看 MCP 狀態
 /mcp
@@ -5717,11 +5767,16 @@ cat ~/.claude/logs/mcp-*.log
 
 #### 內建輸出風格
 
+官方共 4 種內建風格（**Default** 加 3 種）：
+
 | 風格 | 說明 | 適用場景 |
 |------|------|---------|
-| **Default** | 預設模式，平衡簡潔與詳細 | 一般開發工作 |
-| **Explanatory** | 解釋模式，提供更多原理說明 | 除錯、理解複雜邏輯 |
-| **Learning** | 教學模式，包含概念教學與範例。🆕 在此模式下，Claude 會在需要人工審核的地方插入 `TODO(human)` 標記，方便搜尋定位 | 學習新技術、新手引導 |
+| **Default** | 既有的系統提示，聚焦有效完成軟體開發任務 | 一般開發工作 |
+| **Proactive** | 立即執行、對例行決策採合理假設而非停下來詢問，比 Auto 權限模式更強調自主執行——但不改變你的權限模式，該有的權限提示仍會照常出現 | 想要更少確認、更快推進，又不想切換權限模式 |
+| **Explanatory** | 在協助完成任務之間穿插「Insights」教學說明 | 除錯、理解實作選擇與程式碼庫模式 |
+| **Learning** | 協作、邊做邊學模式：除了穿插 Insights，還會請你親自完成一小段策略性程式碼，並在該處留下 `TODO(human)` 標記 | 學習新技術、新手引導 |
+
+> 📌 Output Style 是系統提示的一部分，只在**會話開始時**讀取一次；切換後需要 `/clear` 或開新會話才會生效。
 
 > 🆕 **快速切換**：可在會話中執行 `/config` 指令，從互動式選單中選擇 Output Style。選擇後的偏好自動儲存至 `.claude/settings.local.json`（不進 Git）。
 
@@ -5747,32 +5802,33 @@ keep-coding-instructions: true
 
 **自訂風格 frontmatter 欄位**：
 
-| 欄位 | 類型 | 說明 |
-|------|------|------|
-| `name` | string | 風格名稱（用於切換） |
-| `description` | string | 風格描述 |
-| `keep-coding-instructions` | boolean | 是否保留 Claude 預設的寫程式指引（預設 true） |
+| 欄位 | 類型 | 說明 | 預設值 |
+|------|------|------|--------|
+| `name` | string | 風格名稱，未設定則沿用檔名 | 檔名 |
+| `description` | string | 風格描述，顯示在 `/config` 選單中 | 無 |
+| `keep-coding-instructions` | boolean | 是否保留 Claude Code 內建的軟體工程指引（範圍界定、註解風格、驗證方式等） | ⚠️ **`false`**——自訂風格預設會捨棄內建的寫程式指引，僅在你確實還要 Claude 繼續寫程式、只是想改變溝通方式時才設為 `true` |
+| `force-for-plugin` | boolean | 🆕 僅限 Plugin 提供的風格：啟用 Plugin 時自動套用此風格，會覆蓋使用者自己的 `outputStyle` 設定；多個已啟用 Plugin 都設定時，採用最先載入的一個 | `false` |
+
+> ⚠️ **常見誤區修正**：`keep-coding-instructions` 預設是 **關閉**，不是原文誤植的「預設 true」——若你的自訂風格沒有明確設 `true`，Claude 會完全跳脫工程師身分（適合寫作助理、資料分析等非開發情境），這通常不是多數團隊想要的行為，請依需求明確指定。
 
 ### 2.7.2 配置 Output Styles
 
 #### 透過 settings.json 設定
 
+`outputStyle` 是唯一對應的設定欄位，值為內建風格名稱（`"Proactive"`／`"Explanatory"`／`"Learning"`）或自訂風格的 `name`：
+
 ```json
 {
-  "outputStyle": "concise",
-  
-  "outputPreferences": {
-    "codeComments": "minimal",
-    "explanationLevel": "brief",
-    "language": "zh-TW"
-  }
+  "outputStyle": "Explanatory"
 }
 ```
 
-#### 透過 CLAUDE.md 設定
+> ⚠️ **修正**：Output Style 只負責語氣／角色／輸出格式，**不是**用來設定「使用繁體中文」「程式碼註解用英文」這類專案慣例的地方——這類偏好請寫進 CLAUDE.md（見下方），不存在文件中曾提及的 `outputPreferences`（`codeComments`／`explanationLevel`／`language`）設定物件。
+
+#### 透過 CLAUDE.md 設定專案慣例
 
 ```markdown
-# CLAUDE.md 中的輸出風格設定
+# CLAUDE.md 中的輸出偏好（非 Output Style，屬於一般指引）
 
 ## 輸出偏好
 - 回應請使用繁體中文
@@ -5785,10 +5841,11 @@ keep-coding-instructions: true
 #### 即時切換
 
 ```plaintext
-# 在會話中即時調整
-> /output-style concise    # 切換為簡潔模式
-> /output-style detailed   # 切換為詳細模式
+# 在會話中執行 /config，於選單中選擇 Output Style
+> /config
 ```
+
+> ⚠️ **`/output-style` 指令已移除**：獨立的 `/output-style` 指令已於 v2.1.73 標記為棄用、v2.1.91 正式移除，現在一律透過 `/config` 選單，或直接修改設定檔中的 `outputStyle` 欄位（Desktop App 沒有終端機選單，`/config` 會改為開啟系統設定畫面）。
 
 ### 2.7.3 自訂輸出範本
 
@@ -5872,33 +5929,32 @@ keep-coding-instructions: true
 
 ### 2.7.5 Output Styles 覆寫機制
 
-Output Styles 遵循多層級覆寫規則：
+> ⚠️ **修正核心觀念**：Output Style 只有 **一個** 設定來源——`settings.json` 的 `outputStyle` 欄位，依一般 [settings 優先順序](#124-記憶體與設定架構)（Local > Project > User > Managed）解析，**沒有**獨立的「即時指令 > CLAUDE.md > settings.json > 系統預設」四層覆寫鏈，也沒有 CLAUDE.md 中的 `outputPreferences` 設定——CLAUDE.md 與 Output Style 是兩個平行機制，不是誰覆寫誰：
+
+| 機制 | 運作方式 | 何時用 |
+|------|---------|--------|
+| **Output Style** | 直接修改系統提示，套用到每一次回應 | 想要不同的角色／語氣／預設輸出格式 |
+| **CLAUDE.md** | 在系統提示之後，以一則使用者訊息附加 | Claude 應該隨時知道的專案慣例與程式碼庫背景 |
+| **`--append-system-prompt`** | 附加到系統提示尾端，不移除任何內容 | 單次呼叫想額外補充一段指令 |
+| **Agents（Subagent）** | 整段替換為 Agent 自己的系統提示、模型、工具 | 需要範疇獨立的專職助手 |
+| **Skills** | 依呼叫或相關性才載入的任務指引 | 可重複使用的工作流程 |
 
 ```mermaid
 graph TB
-    subgraph "覆寫優先順序（高→低）"
-        L1["會話中即時指令<br>如：/output-style concise"] 
-        L2["專案層 CLAUDE.md<br>outputPreferences 設定"]
-        L3["使用者層 settings.json<br>~/.claude/settings.json"]
-        L4["系統預設<br>normal 模式"]
+    subgraph "outputStyle 設定解析順序（與一般 settings 相同）"
+        L1["Local: .claude/settings.local.json"]
+        L2["Project: .claude/settings.json"]
+        L3["User: ~/.claude/settings.json"]
+        L4["Managed Policy（企業強制）"]
     end
-    
+
     L1 --> L2 --> L3 --> L4
-    
+
     style L1 fill:#fee2e2,stroke:#ef4444
     style L2 fill:#fef3c7,stroke:#f59e0b
     style L3 fill:#dbeafe,stroke:#3b82f6
     style L4 fill:#f3f4f6,stroke:#9ca3af
 ```
-
-**覆寫規則說明**：
-
-| 情境 | 生效的設定 | 說明 |
-|------|----------|------|
-| 未做任何設定 | 系統預設（normal） | 標準輸出模式 |
-| 只設 settings.json | 使用者層設定 | 影響所有專案 |
-| settings.json + CLAUDE.md | CLAUDE.md 優先 | 專案覆寫使用者設定 |
-| 全部都設 + 即時指令 | 即時指令優先 | 當次會話臨時調整 |
 
 ### 2.7.6 與 Agent/Skill 結合
 
@@ -5942,7 +5998,7 @@ output-style: detailed
 
 > 🆕 **v3.0 更新**：三種排程方式、`/loop` 技能、CronCreate/List/Delete 工具
 
-**Scheduled Tasks** 讓你可以設定 Claude Code 定期自動執行特定任務。v3.3 提供三種排程方式，適用於不同場景：
+**Scheduled Tasks** 讓你可以設定 Claude Code 定期自動執行特定任務。目前提供三種排程方式，適用於不同場景：
 
 | 排程方式 | 適用場景 | 需要 | 特性 |
 |---------|---------|------|------|
@@ -5956,17 +6012,23 @@ output-style: detailed
 
 | 比較維度 | Cloud Routines | Desktop Scheduled Tasks | Session `/loop` |
 |---------|---------------|------------------------|-----------------|
-| **執行環境** | Anthropic 雲端 | 本機 Desktop App | 本機 CLI 會話 |
-| **持久性** | ✅ 持久化，帳號級別 | ✅ 持久化，App 重啟後恢復 | ❌ 會話結束即停止 |
-| **離線執行** | ✅ 不需本機開啟 | ❌ 需 Desktop App 運行 | ❌ 需 CLI 會話存活 |
-| **排程語法** | Cron 表達式 | Cron 表達式 | 自然語言 / 間隔語法 |
-| **任務上限** | 依方案而定 | 依裝置設定 | 50 個 / 使用者 |
-| **過期機制** | 無 | 無 | 7 天未觸發自動刪除 |
+| **執行環境** | Anthropic 雲端（預設） | 本機 Desktop App | 本機 CLI 會話 |
+| **需要機器開機** | ❌ 不需要 | ✅ 需要 | ✅ 需要 |
+| **需要會話保持開啟** | ❌ 不需要 | ❌ 不需要 | ✅ 需要 |
+| **重啟後仍持續** | ✅ | ✅ | 僅 `--resume` 且未過期時恢復 |
+| **可存取本機檔案** | ❌（每次都是全新 clone） | ✅ | ✅ |
+| **MCP servers** | 每個任務個別設定 connector | 設定檔與 connector 皆可 | 繼承目前會話 |
+| **權限提示** | ❌ 全自動執行，不會詢問 | 可依任務個別設定 | 繼承目前會話 |
+| **最短間隔** | ⚠️ **1 小時** | 1 分鐘 | 1 分鐘 |
+| **排程語法** | Cron 表達式（CLI 用 `/schedule`） | 圖形化設定 | 自然語言 / 間隔語法，內部轉為 cron |
+| **任務上限** | 依方案而定 | 依裝置設定 | ⚠️ 每個 session 最多 **50 個**（非「每使用者」） |
+| **過期機制** | 無 | 無 | 建立後 **7 天**未觸發自動刪除（一次性任務則是排定時間一過即刪） |
 | **自訂預設行為** | ❌ | ❌ | ✅ 支援 `loop.md` |
-| **觸發時間精度** | 精確 | 精確 | 含 jitter 抖動 |
-| **動態間隔** | ❌ | ❌ | ✅ Claude 可自行決定頻率 |
-| **訂閱需求** | Max 方案 | Desktop App 授權 | 無限制 |
-| **適用情境** | CI/CD、長期監控 | 日常開發輔助 | 臨時性監控、TDD 修復迴圈 |
+| **觸發時間精度** | 精確 | 精確 | 含 jitter 抖動（避免同時炸 API），可選非整點時間避開 |
+| **動態間隔** | ❌ | ❌ | ✅ 不指定間隔時，Claude 可依觀察結果自行決定下次檢查時機（1 分鐘至 1 小時） |
+| **適用情境** | CI/CD、需要「電腦關機也要跑」的長期監控 | 需要本機檔案與工具的日常排程 | 臨時性監控、TDD 修復迴圈、單次提醒 |
+
+> 📌 **選用建議**（官方原則）：需要「電腦關機也可靠執行」→ Cloud Routines；需要存取本機檔案與工具 → Desktop Scheduled Tasks；只是在目前會話中臨時輪詢一下 → `/loop`。
 
 > 📌 **選型建議**：
 > - **需要 7×24 無人值守**的自動化監控 → 選擇 **Cloud Routines**
@@ -6381,46 +6443,27 @@ graph LR
 
 ### 3.1.4 Worktree 整合
 
-VS Code 可以直接管理 Agent Teams 使用的 git worktree：
+> ⚠️ **修正核心觀念**：git worktree 隔離是**手動、通用**的平行工作機制，不是 [Agent Teams](#22-agent-teams多代理協作) 自動幫你做的事——Agent Teams 預設所有 Teammate 共用同一份工作目錄。兩者是各自獨立的功能，可以合併使用（例如指定某個 Teammate 用設有 `isolation: worktree` 的 Subagent 定義），但沒有「用了 Agent Teams 就自動有 worktree」這回事。
 
-- **多 Tab 支援**：每個 worktree 可在獨立的 VS Code 視窗中打開
-- **狀態同步**：主倉庫和 worktree 的 Git 狀態即時同步
-- **合併輔助**：在 VS Code 中直接處理 worktree 合併衝突
+**手動啟用 worktree 隔離**：用 `--worktree`（簡寫 `-w`）旗標啟動一個獨立的 Claude Code session，擁有自己的檔案狀態與分支，同時仍共享 git 歷史——用來讓多個 Claude Code 實例平行處理不同任務時彼此不干擾：
 
-#### Worktree 操作流程
-
-```mermaid
-sequenceDiagram
-    participant U as 使用者
-    participant VS as VS Code
-    participant CC as Claude Code
-    participant Git as Git Worktree
-
-    U->>CC: /agents 啟動 Agent Teams
-    CC->>Git: git worktree add ./worktree-1
-    CC->>Git: git worktree add ./worktree-2
-    Git-->>VS: 新增 Worktree 1 資料夾
-    Git-->>VS: 新增 Worktree 2 資料夾
-    CC->>VS: 在新視窗開啟 Worktree 1
-    CC->>VS: 在新視窗開啟 Worktree 2
-    Note over VS: 每個 Worktree 有獨立的<br>Claude Code 實例
-    CC-->>Git: Teammate 1 在 Worktree 1 工作
-    CC-->>Git: Teammate 2 在 Worktree 2 工作
-    CC->>Git: Lead Agent 整合所有 worktree
-    CC->>Git: git worktree remove ./worktree-1
-    CC->>Git: git worktree remove ./worktree-2
+```bash
+# 在獨立 worktree 中啟動 session，處理 feature-auth 任務
+claude --worktree feature-auth
 ```
 
-#### Worktree 管理最佳實踐
+VS Code 擴充功能本身沒有「自動幫每個任務開新視窗、自動合併 worktree」的圖形化流程；實際操作方式是你自行以 `git worktree` 建立好目錄，再各自於該目錄開一個 VS Code 視窗／Claude Code session：
+
+#### Worktree 管理常用命令
 
 | 操作 | 命令 | 說明 |
 |------|------|------|
-| **建立 Worktree** | `git worktree add ../feature-1 -b feature-1` | 在父目錄建立新 worktree |
+| **建立 Worktree** | `git worktree add ../feature-1 -b feature-1` | 在父目錄建立新 worktree 與對應分支 |
 | **列出 Worktrees** | `git worktree list` | 查看所有 worktree 狀態 |
 | **移除 Worktree** | `git worktree remove ../feature-1` | 移除已完成的 worktree |
 | **清理 Worktree** | `git worktree prune` | 清理已刪除目錄的 worktree 參照 |
 
-> **💡 提示**：使用 Agent Teams 時，Claude Code 會自動管理 worktree 的建立和清除。使用者不需手動操作，但了解底層機制有助於排查問題。
+> 💡 除了 CLI 的 `--worktree`，[Subagent](#21-subagents-子代理) 也可在 frontmatter 設定 `isolation: worktree`，讓該子代理在獨立 worktree 中執行；[Remote Control](#32-remote-control遠端控制) Server 模式也可用 `--spawn worktree` 讓每個新連線自動取得獨立 worktree。三者是各自獨立的開關，依實際需求選用，詳見 [Worktree 深入指南](https://code.claude.com/docs/en/worktrees)。
 
 ### 3.1.5 第三方 AI Provider
 
@@ -6430,7 +6473,7 @@ VS Code Extension 支援配置第三方 AI Provider：
 // VS Code settings.json
 {
   "claude-code.provider": "anthropic",
-  "claude-code.model": "claude-sonnet-4-20250514",
+  "claude-code.model": "claude-sonnet-5",
   
   // 或使用第三方 Provider
   "claude-code.provider": "custom",
@@ -6636,7 +6679,7 @@ Claude Code 與 VS Code 內建終端機深度整合：
   // === Claude Code 核心設定 ===
   "claude-code.enable": true,
   "claude-code.provider": "anthropic",
-  "claude-code.model": "claude-sonnet-4-20250514",
+  "claude-code.model": "claude-sonnet-5",
   
   // === 行為設定 ===
   "claude-code.autoAccept": false,
@@ -6667,459 +6710,82 @@ Claude Code 與 VS Code 內建終端機深度整合：
 
 ### 3.2.1 概述
 
-**Remote Control** 讓你可以透過 WebSocket API 從外部程式控制 Claude Code 的會話，實現自動化腳本、IDE 整合、自訂 UI 等進階應用。
+> ⚠️ **重大修正**：Remote Control **不是**開放給你寫程式串接的本機 WebSocket 自動化 API。它是消費者導向的功能，讓你把**手機、平板或任一裝置的瀏覽器**（透過 [claude.ai/code](https://claude.ai/code) 或 Claude 手機 App）連接到一個正在你電腦上執行的本機 Claude Code 會話，接續操作——例如在辦公室啟動一個任務，走去沙發上用手機繼續看/接手。
 
-```mermaid
-graph LR
-    subgraph "Remote Control 架構"
-        EXT[外部程式<br>腳本/IDE/Web UI] <-->|WebSocket| API[Claude Code<br>WebSocket API]
-        API <--> CC[Claude Code<br>核心引擎]
-    end
-    
-    style EXT fill:#fef3c7,stroke:#f59e0b
-    style API fill:#dbeafe,stroke:#3b82f6
-    style CC fill:#6366f1,stroke:#4f46e5,color:#fff
-```
+**Remote Control** 的核心特性：
+
+- 程式碼執行與檔案系統存取**始終留在你的電腦上**；手機／瀏覽器只是這個本機 session 的一個視窗。
+- 本機端只會發出 **outbound HTTPS 請求**，不會開放任何 inbound port；連線經由 Anthropic API 中繼，所有流量走 TLS。
+- 對話、Subagent 與 dynamic workflow 的進度會**跨裝置即時同步**，可以在終端機、瀏覽器、手機之間交錯發訊息。
+- 可從手機／瀏覽器附加照片或檔案；照片會直接被 Claude 看到，其他檔案會先下載到本機再以 `@` 檔案參照傳入。
+- 目前為 Research Preview，**所有付費方案皆可用**（Pro／Max／Team／Enterprise，不支援純 API Key）；Team／Enterprise 預設關閉，需管理員在 [claude.ai/admin-settings/claude-code](https://claude.ai/admin-settings/claude-code) 開啟。
+
+它與 [Claude Code on the web](#116-desktop-app-與-web-介面)（雲端沙箱執行）不同：Remote Control 執行在**你自己的機器**上，本機 MCP Server、工具與專案設定都能直接沿用；web 版本則是在雲端全新環境執行，適合完全不需要本機環境、想同時跑多個任務的情境。
 
 ### 3.2.2 啟動與連接
 
+三種啟動方式，複雜度與用途遞增：
+
 ```bash
-# 啟動 Claude Code 並開啟 Remote Control
+# 方式一：Server 模式 — 常駐終端機，可同時服務多個遠端連線（預設上限 32 個）
+claude remote-control
+# 按空白鍵可顯示 QR Code 供手機掃描連接
+
+# 方式二：一般互動會話 + 開啟 Remote Control（可同時在本機打字，也能被遠端操作）
 claude --remote-control
+claude --rc "My Project"       # 可選：自訂 session 名稱
 
-# 或在會話中啟用
-> /remote-control start
-
-# API 預設監聽在 localhost 的動態端口
-# 啟動後會輸出 WebSocket URL
+# 方式三：已在會話中，臨時開啟（會延續目前對話歷史）
+> /remote-control
+> /rc My Project
 ```
 
-### 3.2.3 API 操作
+**Server 模式常用旗標**：
 
-透過 WebSocket 可以執行以下操作：
-
-| 操作 | 說明 | 範例 |
-|------|------|------|
-| **send_message** | 傳送訊息給 Claude | 自動化腳本送出任務指令 |
-| **get_status** | 取得目前會話狀態 | 監控 Claude 是否在執行中 |
-| **list_conversations** | 列出對話歷史 | 建立自訂 UI |
-| **execute_command** | 執行 slash command | 自動化工作流程 |
-
-```python
-# Python 範例：透過 WebSocket 控制 Claude Code
-import asyncio
-import websockets
-import json
-
-async def control_claude():
-    uri = "ws://localhost:PORT/ws"
-    async with websockets.connect(uri) as ws:
-        # 傳送任務
-        await ws.send(json.dumps({
-            "type": "send_message",
-            "message": "幫我找出所有未處理的 TODO 註解並建立 issue 清單"
-        }))
-        
-        # 接收回應
-        while True:
-            response = json.loads(await ws.recv())
-            if response["type"] == "response":
-                print(response["content"])
-            elif response["type"] == "done":
-                break
-
-asyncio.run(control_claude())
-```
-
-### 3.2.4 應用場景
-
-| 場景 | 說明 |
+| 旗標 | 說明 |
 |------|------|
-| **自動化腳本** | 透過腳本批次控制 Claude Code 執行任務 |
-| **自訂 IDE 整合** | 在非官方 IDE（如 IntelliJ、Sublime）中整合 |
-| **Web Dashboard** | 建立 Web 介面監控和控制多個 Claude Code 實例 |
-| **CI/CD Pipeline** | 在 CI/CD 流程中透過 API 呼叫 Claude Code |
+| `--name "My Project"` | 自訂顯示在 claude.ai/code 清單中的名稱 |
+| `--spawn <same-dir\|worktree\|session>` | 新連線如何取得工作目錄：`same-dir`（預設，共用目錄，可能衝突）／`worktree`（每個連線各自獨立 worktree）／`session`（單一會話模式，只服務一個連線） |
+| `--capacity <N>` | 同時服務的連線數上限，預設 32 |
+| `-c`／`--continue`、`--session-id <id>` | 恢復先前的 Remote Control 會話（v2.1.200+） |
+| `--sandbox` / `--no-sandbox` | 是否啟用檔案系統／網路沙箱隔離（預設關閉） |
 
-#### 範例：Node.js Remote Control Client
+VS Code 擴充功能中則是在提示框輸入 `/remote-control` 或 `/rc`，連線狀態會顯示在提示框上方的橫幅。
 
-```javascript
-const WebSocket = require('ws');
+**啟用需求檢查**：需以 claude.ai 帳號登入（`/login`，不支援純 API Key 或 `claude setup-token` 產生的長效權杖）；不支援 Amazon Bedrock／Google Cloud Agent Platform／Microsoft Foundry，也不支援自訂 `ANTHROPIC_BASE_URL`（如 LLM gateway）；需先在該專案目錄執行過一次 `claude` 並通過 workspace trust 對話框。
 
-class ClaudeRemoteClient {
-  constructor(url) {
-    this.url = url;
-    this.ws = null;
-  }
+### 3.2.3 連線安全與 Trusted Devices
 
-  async connect() {
-    return new Promise((resolve, reject) => {
-      this.ws = new WebSocket(this.url);
-      this.ws.on('open', resolve);
-      this.ws.on('error', reject);
-    });
-  }
+Remote Control 的連線憑證是多個各自獨立、短時效的憑證，各自僅限單一用途；完整的 session transcript（訊息、回應、工具活動）會保存在 Anthropic 伺服器上以維持跨裝置同步，並依 [Data usage 政策](https://code.claude.com/docs/en/data-usage)保留。可用 `disableRemoteControl` 設定完全關閉此功能；有 Zero Data Retention 合規要求的組織無法啟用。
 
-  async sendMessage(message) {
-    return new Promise((resolve, reject) => {
-      const responses = [];
-      
-      this.ws.on('message', (data) => {
-        const parsed = JSON.parse(data);
-        if (parsed.type === 'response') {
-          responses.push(parsed.content);
-        } else if (parsed.type === 'done') {
-          resolve(responses.join('\n'));
-        }
-      });
+**Trusted Devices**（Beta，Team／Enterprise，預設關閉）：組織可要求「已註冊裝置 + 18 小時內的登入」才能檢視或操作 Remote Control 會話。裝置註冊只在完整登入後才會提示；之後日常只需 Face ID／Touch ID／Windows Hello／Passkey 之類的生物辨識確認，Anthropic 不會收到或儲存生物特徵資料本身，只儲存裝置公鑰與基本中繼資料。遺失裝置可在 [claude.ai/settings/account](https://claude.ai/settings/account#trusted-devices) 自行移除。
 
-      this.ws.send(JSON.stringify({
-        type: 'send_message',
-        message: message
-      }));
-    });
-  }
+### 3.2.4 應用場景：如何在「不在電腦前」的情境中選擇合適機制
 
-  async getStatus() {
-    return new Promise((resolve) => {
-      this.ws.on('message', (data) => {
-        resolve(JSON.parse(data));
-      });
-      this.ws.send(JSON.stringify({ type: 'get_status' }));
-    });
-  }
+Claude Code 提供好幾種讓你「不在電腦前也能工作」的機制，容易互相混淆。官方文件用下表依「觸發方式」「Claude 實際在哪裡執行」「所需設定」區分：
 
-  disconnect() {
-    if (this.ws) this.ws.close();
-  }
-}
+| 機制 | 觸發方式 | Claude 實際執行位置 | 設定需求 | 最適合 |
+|------|---------|-------------------|---------|--------|
+| **[Dispatch](#443-dispatch-行動端整合)** | 在 Claude 手機 App 發訊息交辦任務 | 你的電腦（Desktop App） | 手機 App 與 Desktop App 配對 | 出門在外臨時交辦、設定門檻最低 |
+| **Remote Control** | 從 claude.ai/code 或手機 App 操作一個「正在跑」的 session | 你的電腦（CLI 或 VS Code） | 執行 `claude remote-control` | 接續、操控本機正在進行中的工作 |
+| **[Channels](#44-channels-與-dispatch-深入解析)** | Telegram／Discord 等聊天工具或自架 webhook 推播事件 | 你的電腦（CLI） | 安裝 channel plugin，或自建 | 對 CI 失敗、聊天訊息等外部事件即時反應 |
+| **[Slack 整合](#117-channels-與-dispatch)** | 團隊頻道中 @Claude | Anthropic 雲端 | 安裝 Slack App，並啟用 Web 版 Claude Code | 從團隊聊天直接產出 PR／Review |
+| **[Self-hosted environments](#41-企業級部署)** | 發起雲端 session 並選擇組織自架環境 | 組織自有基礎設施 | 部署 runner（Team／Enterprise） | 雲端 session 但程式碼不能離開內網 |
+| **[Scheduled Tasks](#28-scheduled-tasks排程任務)** | 設定排程（Cron／`/loop`） | CLI／Desktop／雲端（依選擇） | 挑選頻率 | 每天早上 PR review 之類的重複性自動化 |
 
-// 使用範例
-async function main() {
-  const client = new ClaudeRemoteClient('ws://localhost:PORT/ws');
-  await client.connect();
-  
-  // 檢查狀態
-  const status = await client.getStatus();
-  console.log('Claude Code 狀態:', status);
-  
-  // 傳送任務
-  const result = await client.sendMessage(
-    '分析 src/services/ 目錄下所有 Service 的依賴關係，繪製 Mermaid 圖'
-  );
-  console.log('結果:', result);
-  
-  client.disconnect();
-}
+### 3.2.5 手機推播通知與限制
 
-main().catch(console.error);
-```
+**Remote Control 連線期間，Claude 可主動推播通知到手機**：由 Claude 自行判斷何時該推（例如長任務完成、需要你做決定才能繼續），也可以直接在提示中要求「測試跑完通知我」。設定步驟：安裝 Claude 手機 App → 用同一組帳號登入 → 允許系統通知權限 → 在終端機執行 `/config`，開啟 **Push when Claude decides**（主動通知）與／或 **Push when actions required**（需要你回應時通知）。專注在已連線的終端機視窗時，Claude Code 會略過推播；也可設定 `CLAUDE_CODE_CLIENT_PRESENCE_FILE` 搭配螢幕鎖定監控腳本，把「人在電腦前」的判斷擴大到你切到其他視窗、但沒離開座位的情況。
 
-#### 範例：監控 Dashboard
+**已知限制**：
 
-```python
-# dashboard.py - 多實例監控
-import asyncio
-import websockets
-import json
+- **一個互動式 process 只能承載一個遠端連線**：要同時服務多個裝置／多個並行任務，需改用 Server 模式（`claude remote-control`）。
+- **本機 process 必須持續執行**：關掉終端機、關閉 VS Code 或結束 `claude` process，遠端連線就會跟著結束；若是透過 SSH 連進遠端機器操作，建議把 `claude remote-control` 包在 `tmux`／`screen` 裡執行，避免斷線就中止。
+- **長時間離線會逾時**：機器保持開機但斷網超過約 10 分鐘，連線會逾時、process 結束，需重新執行 `claude remote-control`。
+- **部分指令僅限本機終端機**：如 `/plugin`、`/resume` 只能在本機執行；`/compact`、`/clear`、`/context`、`/model <值>`、`/effort <值>` 等純文字型指令則可從手機／網頁端使用。
+- **不支援**：Amazon Bedrock、Google Cloud Agent Platform、Microsoft Foundry，以及自訂 `ANTHROPIC_BASE_URL`（如企業 LLM Gateway）的環境；有 Zero Data Retention 合規要求的組織也無法啟用。
 
-class ClaudeDashboard:
-    def __init__(self):
-        self.instances = {}
-    
-    async def add_instance(self, name, url):
-        """新增一個 Claude Code 實例到監控"""
-        ws = await websockets.connect(url)
-        self.instances[name] = {
-            'ws': ws,
-            'url': url,
-            'status': 'connected'
-        }
-    
-    async def monitor_all(self):
-        """監控所有實例狀態"""
-        while True:
-            for name, instance in self.instances.items():
-                try:
-                    await instance['ws'].send(
-                        json.dumps({'type': 'get_status'})
-                    )
-                    response = json.loads(
-                        await asyncio.wait_for(
-                            instance['ws'].recv(), timeout=5
-                        )
-                    )
-                    instance['status'] = response.get('state', 'unknown')
-                    print(f"[{name}] 狀態: {instance['status']}")
-                except Exception as e:
-                    instance['status'] = 'disconnected'
-                    print(f"[{name}] 連線中斷: {e}")
-            
-            await asyncio.sleep(10)  # 每 10 秒檢查一次
-```
-
-#### Remote Control 安全注意事項
-
-| 項目 | 說明 | 建議 |
-|------|------|------|
-| **綁定地址** | 預設綁定 `localhost` | 勿改為 `0.0.0.0` 除非在受保護網路 |
-| **連線認證** | WebSocket 無內建認證 | 在前端增加 Token 驗證 |
-| **命令注入** | 外部輸入可能含惡意指令 | 對使用者輸入進行清理 |
-| **日誌記錄** | Remote Control 操作不自動記錄 | 在客戶端記錄所有操作 |
-| **超時機制** | 長時間運行可能超時 | 設定合理的 timeout |
-
-### 3.2.5 Remote Control 進階整合模式
-
-#### 模式一：Event-Driven 自動化
-
-利用 Remote Control 監聽 Claude Code 的事件流，在特定事件發生時觸發外部系統：
-
-```python
-# event_driven_automation.py
-import asyncio
-import websockets
-import json
-import subprocess
-
-class EventDrivenAutomation:
-    """基於 Claude Code 事件的自動化觸發器"""
-    
-    def __init__(self, ws_url, handlers=None):
-        self.ws_url = ws_url
-        self.handlers = handlers or {}
-    
-    def on(self, event_type, handler):
-        """註冊事件處理器"""
-        self.handlers[event_type] = handler
-    
-    async def start(self):
-        """啟動事件監聽"""
-        async with websockets.connect(self.ws_url) as ws:
-            # 訂閱所有事件
-            await ws.send(json.dumps({
-                "type": "subscribe",
-                "events": ["tool_use", "file_change", "error", "done"]
-            }))
-            
-            while True:
-                message = json.loads(await ws.recv())
-                event_type = message.get("type", "unknown")
-                
-                if event_type in self.handlers:
-                    await self.handlers[event_type](message)
-
-# 使用範例
-automation = EventDrivenAutomation("ws://localhost:PORT/ws")
-
-async def on_file_change(event):
-    """檔案變更時自動執行測試"""
-    changed_files = event.get("files", [])
-    test_files = [f for f in changed_files if "test" in f or "spec" in f]
-    
-    if test_files:
-        print(f"偵測到測試檔變更: {test_files}")
-        # 自動觸發相關測試
-        result = subprocess.run(
-            ["npm", "test", "--", "--findRelatedTests"] + test_files,
-            capture_output=True, text=True
-        )
-        print(f"測試結果: {'通過' if result.returncode == 0 else '失敗'}")
-
-async def on_error(event):
-    """錯誤發生時通知 Slack"""
-    error_msg = event.get("message", "未知錯誤")
-    # 發送 Slack 通知（簡化範例）
-    print(f"⚠️ Claude Code 錯誤: {error_msg}")
-
-automation.on("file_change", on_file_change)
-automation.on("error", on_error)
-
-# asyncio.run(automation.start())
-```
-
-#### 模式二：多實例負載分配
-
-```python
-# load_balancer.py - 多實例任務分配
-import asyncio
-import websockets
-import json
-from collections import deque
-
-class ClaudeLoadBalancer:
-    """在多個 Claude Code 實例之間分配任務"""
-    
-    def __init__(self):
-        self.instances = {}  # name -> {ws, status, current_task}
-        self.task_queue = deque()
-    
-    async def register_instance(self, name, url):
-        """註冊一個 Claude Code 實例"""
-        ws = await websockets.connect(url)
-        self.instances[name] = {
-            "ws": ws,
-            "url": url,
-            "status": "idle",
-            "current_task": None
-        }
-        print(f"已註冊實例: {name}")
-    
-    def get_idle_instance(self):
-        """取得一個閒置的實例"""
-        for name, inst in self.instances.items():
-            if inst["status"] == "idle":
-                return name
-        return None
-    
-    async def submit_task(self, task):
-        """提交任務到佇列"""
-        self.task_queue.append(task)
-        await self._dispatch()
-    
-    async def _dispatch(self):
-        """分配佇列中的任務給閒置實例"""
-        while self.task_queue:
-            name = self.get_idle_instance()
-            if not name:
-                print("所有實例忙碌中，任務排隊等待")
-                break
-            
-            task = self.task_queue.popleft()
-            inst = self.instances[name]
-            inst["status"] = "busy"
-            inst["current_task"] = task["id"]
-            
-            print(f"分配任務 [{task['id']}] 到 {name}")
-            await inst["ws"].send(json.dumps({
-                "type": "send_message",
-                "message": task["message"]
-            }))
-    
-    async def get_status_report(self):
-        """取得所有實例的狀態報告"""
-        report = []
-        for name, inst in self.instances.items():
-            report.append({
-                "instance": name,
-                "status": inst["status"],
-                "current_task": inst["current_task"]
-            })
-        return report
-
-# 使用範例
-async def main():
-    lb = ClaudeLoadBalancer()
-    
-    # 註冊多個實例
-    await lb.register_instance("worker-1", "ws://localhost:3001/ws")
-    await lb.register_instance("worker-2", "ws://localhost:3002/ws")
-    await lb.register_instance("worker-3", "ws://localhost:3003/ws")
-    
-    # 批次提交任務
-    tasks = [
-        {"id": "review-1", "message": "Review src/auth/ 所有檔案的安全性"},
-        {"id": "review-2", "message": "Review src/api/ 所有 endpoint 的錯誤處理"},
-        {"id": "review-3", "message": "Review src/db/ 所有 query 的 SQL injection 風險"},
-        {"id": "test-1", "message": "為 src/services/OrderService.ts 撰寫完整單元測試"},
-        {"id": "doc-1", "message": "為 src/api/ 所有 controller 生成 OpenAPI 文件"},
-    ]
-    
-    for task in tasks:
-        await lb.submit_task(task)
-    
-    # 查看狀態
-    status = await lb.get_status_report()
-    for s in status:
-        print(f"  {s['instance']}: {s['status']} (任務: {s['current_task']})")
-
-# asyncio.run(main())
-```
-
-#### 模式三：自訂 Web UI 整合
-
-```javascript
-// web-ui-integration.js - 將 Claude Code 嵌入自訂 Web 應用
-const express = require('express');
-const WebSocket = require('ws');
-const app = express();
-
-// Claude Code WebSocket 連線池
-const claudeConnections = new Map();
-
-// REST API 端點，讓前端透過 HTTP 與 Claude Code 互動
-app.post('/api/claude/task', express.json(), async (req, res) => {
-  const { instanceId, message } = req.body;
-  
-  let ws = claudeConnections.get(instanceId);
-  if (!ws || ws.readyState !== WebSocket.OPEN) {
-    ws = new WebSocket(`ws://localhost:${3000 + parseInt(instanceId)}/ws`);
-    await new Promise((resolve) => ws.on('open', resolve));
-    claudeConnections.set(instanceId, ws);
-  }
-  
-  const responses = [];
-  
-  return new Promise((resolve) => {
-    ws.on('message', (data) => {
-      const parsed = JSON.parse(data);
-      if (parsed.type === 'response') {
-        responses.push(parsed.content);
-      } else if (parsed.type === 'done') {
-        res.json({ success: true, result: responses.join('\n') });
-        resolve();
-      }
-    });
-
-    ws.send(JSON.stringify({
-      type: 'send_message',
-      message: message
-    }));
-  });
-});
-
-// 取得所有實例狀態
-app.get('/api/claude/status', async (req, res) => {
-  const statuses = [];
-  for (const [id, ws] of claudeConnections) {
-    statuses.push({
-      id,
-      connected: ws.readyState === WebSocket.OPEN,
-      url: `ws://localhost:${3000 + parseInt(id)}/ws`
-    });
-  }
-  res.json(statuses);
-});
-
-app.listen(8080, () => {
-  console.log('Claude Code Web UI API 啟動於 port 8080');
-});
-```
-
-#### Remote Control 架構決策指南
-
-```mermaid
-graph TD
-    A[需要外部控制 Claude Code?] -->|是| B{使用場景}
-    B -->|單次自動化| C[Headless 模式<br>更簡單直接]
-    B -->|持續監控| D[Remote Control<br>Event 訂閱]
-    B -->|多實例管理| E[Remote Control<br>Load Balancer]
-    B -->|Web 介面| F[Remote Control<br>REST API 包裝]
-    B -->|CI/CD 整合| G{需要即時互動?}
-    G -->|否| C
-    G -->|是| D
-    
-    style A fill:#dbeafe,stroke:#3b82f6
-    style C fill:#dcfce7,stroke:#22c55e
-    style D fill:#fef3c7,stroke:#f59e0b
-    style E fill:#fce7f3,stroke:#ec4899
-    style F fill:#e0e7ff,stroke:#6366f1
-```
-
-| 模式 | 適用場景 | 複雜度 | 效能 |
-|------|---------|--------|------|
-| **直接 WebSocket** | 簡單自動化腳本 | 低 | 高 |
-| **Event-Driven** | 監控、自動觸發 | 中 | 高 |
-| **Load Balancer** | 大量任務批次處理 | 高 | 中 |
-| **REST API 包裝** | Web UI、跨平台整合 | 中 | 中 |
+> 📌 若你的團隊過去看過標榜「Claude Code WebSocket API／`send_message`／`get_status`」這類本機自動化介面的說法——那並非官方功能，如需程式化控制 Claude Code，正確途徑是 [Headless 模式](#33-headless-模式與-sdk)（`claude -p`）或 [Agent SDK](#332-agent-sdk-整合)，而不是 Remote Control。
 
 ---
 
@@ -7200,14 +6866,15 @@ claude -p "分析" --bare --plugin-dir ./my-plugin/
 
 #### 🆕 stream-json 事件類型
 
-| 事件類型 | 說明 | 範例內容 |
+> ⚠️ **修正**：串流的最後一行事件是 **`result`**（不是常見誤傳的 `done`），內含最終回應文字、成本與 session metadata。
+
+| 事件類型 | 說明 | 備註 |
 |----------|------|---------|
-| `system` | 系統訊息（啟動、配置載入） | `{"type":"system","message":"Session started"}` |
-| `text` | Claude 回應文字片段 | `{"type":"text","content":"分析結果..."}` |
-| `tool_use` | 工具呼叫開始 | `{"type":"tool_use","tool":"Read","input":{"file":"src/app.ts"}}` |
-| `tool_result` | 工具執行結果 | `{"type":"tool_result","output":"..."}` |
-| `api_retry` | API 重試事件（速率限制等） | `{"type":"api_retry","attempt":2,"delay_ms":1000}` |
-| `done` | 完成事件，含成本摘要 | `{"type":"done","cost":{"input_tokens":1200,"output_tokens":500}}` |
+| `system`（`subtype: "init"`） | 開場的系統訊息，回報 model、tools、MCP servers、已載入 plugins | 通常是串流第一個事件（除非有 `plugin_install` 或 hook 事件排在前面） |
+| `assistant` / `user` | 對話訊息本體；來自 Subagent 的訊息會帶有 `parent_tool_use_id` 指向產生它的工具呼叫 | 搭配 `--include-partial-messages` 可看到逐字元的 `stream_event`／`text_delta` |
+| `system`（`subtype: "api_retry"`） | API 重試事件（速率限制、伺服器錯誤等） | 含 `attempt`／`max_retries`／`retry_delay_ms`／`error` 分類 |
+| `system`（`subtype: "plugin_install"`） | 🆕 Marketplace Plugin 安裝進度（需設定 `CLAUDE_CODE_SYNC_PLUGIN_INSTALL`） | `status` 為 `started`／`installed`／`failed`／`completed` |
+| **`result`** | **串流的最後一行**，內含最終回應文字（`result` 欄位）、`total_cost_usd`、逐模型費用細項、session ID | 用 `jq -r '.result'` 取出純文字結果 |
 
 #### 🆕 結構化輸出（Structured Output）
 
@@ -7245,112 +6912,112 @@ claude -p "列出所有 API endpoints" \
 
 ### 3.3.2 Agent SDK 整合
 
-> 🆕 v3.0 提供 **Agent SDK**（支援 **Python** 和 **TypeScript**），讓開發者在自己的應用程式中嵌入 Claude Code 的能力：
+> ⚠️ **重大修正**：以下為原文提出的 `ClaudeCode` 類別（`new ClaudeCode({apiKey})`、`.run()`、`.createConversation()`、`.stream()`）與套件名稱 `@anthropic-ai/claude-code` / `claude_code`——**這些都不是實際的 SDK API**。官方 Agent SDK 是以 **`query()` async generator 函式**為核心，套件名稱也不同，已全數替換為正確用法。
+
+Agent SDK（支援 **Python** 與 **TypeScript**）讓開發者在自己的應用程式中嵌入 Claude Code 背後同一套工具、agent loop 與 context 管理機制，用來打造自訂代理。
 
 #### TypeScript SDK
 
+```bash
+npm install @anthropic-ai/claude-agent-sdk
+```
+
 ```typescript
-import { ClaudeCode } from '@anthropic-ai/claude-code';
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-// 建立 Claude Code 實例
-const claude = new ClaudeCode({
-  apiKey: process.env.CLAUDE_API_KEY,
-});
-
-// 執行任務
-const result = await claude.run({
-  prompt: "分析這段程式碼的安全漏洞",
-  context: {
-    files: ["src/auth/login.ts"],
+for await (const message of query({
+  prompt: "分析 src/auth/login.ts 的安全漏洞",
+  options: {
+    model: "claude-sonnet-5",
+    permissionMode: "acceptEdits",
   },
-});
-
-console.log(result.output);
+})) {
+  console.log(message);
+}
 ```
 
 #### Python SDK
 
-> 🆕 v3.0 新增 Python SDK 支援
+```bash
+pip install claude-agent-sdk
+```
 
 ```python
-from claude_code import ClaudeCode
+import asyncio
+from claude_agent_sdk import query, ClaudeAgentOptions
 
-# 建立 Claude Code 實例
-claude = ClaudeCode(api_key=os.environ["CLAUDE_API_KEY"])
+async def main():
+    options = ClaudeAgentOptions(
+        system_prompt="你是資深的安全審查專家",
+        permission_mode="acceptEdits",
+    )
+    async for message in query(prompt="分析 src/auth/ 目錄的安全性", options=options):
+        print(message)
 
-# 執行任務
-result = claude.run(
-    prompt="分析 src/auth/ 目錄的安全性",
-    output_format="json"
-)
-
-print(result.output)
+asyncio.run(main())
 ```
 
 #### Multi-turn 對話
 
-SDK 支援多輪對話模式，適用於需要多步驟互動的場景：
+一次性任務用 `query()` 即可；需要在同一個 session 中保留上下文的多輪對話，改用 **`ClaudeSDKClient`**（Python）或帶 `continue`/`resume` 選項的 `query()`（TypeScript）：
+
+```python
+# Python：ClaudeSDKClient 維持同一會話上下文
+import asyncio
+from claude_agent_sdk import ClaudeSDKClient, AssistantMessage, TextBlock
+
+async def main():
+    async with ClaudeSDKClient() as client:
+        await client.query("分析 src/services/ 的程式碼結構")
+        async for message in client.receive_response():
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if isinstance(block, TextBlock):
+                        print(block.text)
+
+        # 同一會話中的後續追問，保留前面的上下文
+        await client.query("針對你發現的問題，提供具體的重構建議")
+        async for message in client.receive_response():
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if isinstance(block, TextBlock):
+                        print(block.text)
+
+asyncio.run(main())
+```
 
 ```typescript
-import { ClaudeCode, Conversation } from '@anthropic-ai/claude-code';
+// TypeScript：用 continue 選項延續最近一次會話
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-const claude = new ClaudeCode({
-  apiKey: process.env.CLAUDE_API_KEY,
-});
-
-// 建立多輪對話
-const conversation = claude.createConversation({
-  systemPrompt: "你是一個專業的程式碼審查員",
-  workingDirectory: "/path/to/project",
-});
-
-// 第一輪：分析程式碼結構
-const step1 = await conversation.send(
-  "分析 src/services/ 的程式碼結構"
-);
-console.log("結構分析:", step1.output);
-
-// 第二輪：基於第一輪結果，深入分析
-const step2 = await conversation.send(
-  "針對你發現的問題，提供具體的重構建議"
-);
-console.log("重構建議:", step2.output);
-
-// 第三輪：執行重構
-const step3 = await conversation.send(
-  "請執行第一項重構建議"
-);
-console.log("重構結果:", step3.output);
-
-// 結束對話
-await conversation.close();
+for await (const message of query({
+  prompt: "針對你發現的問題，提供具體的重構建議",
+  options: { continue: true },
+})) {
+  console.log(message);
+}
 ```
 
 #### 串流輸出（Streaming）
 
+`query()` 本身就是 async generator，訊息會即時到達，不需要額外的 `.stream()` 方法；設定 `includePartialMessages` 還可拿到逐字元的部分訊息事件：
+
 ```typescript
-const claude = new ClaudeCode({
-  apiKey: process.env.CLAUDE_API_KEY,
-});
+import { query } from "@anthropic-ai/claude-agent-sdk";
 
-// 使用串流模式獲取即時輸出
-const stream = claude.stream({
+for await (const message of query({
   prompt: "解釋 src/core/engine.ts 的運作原理",
-});
-
-for await (const chunk of stream) {
-  switch (chunk.type) {
-    case 'text':
-      process.stdout.write(chunk.content);
+  options: { includePartialMessages: true },
+})) {
+  switch (message.type) {
+    case "assistant_message":
+      console.log("助手回應:", message.content);
       break;
-    case 'tool_use':
-      console.log(`\n[工具呼叫] ${chunk.tool}: ${chunk.input}`);
+    case "tool_use":
+      console.log(`[工具呼叫] ${message.name}`);
       break;
-    case 'tool_result':
-      console.log(`[工具結果] ${chunk.output.substring(0, 100)}...`);
-      break;
-    case 'done':
-      console.log('\n完成');
+    case "partial_message":
+      process.stdout.write(message.delta ?? "");
       break;
   }
 }
@@ -7394,33 +7061,30 @@ claude -p "列出 src/ 下的所有 TODO" --output-format json
 
 #### 場景實作：Slack ChatOps Bot
 
+> 📌 官方本身已提供現成的 [Slack 整合](https://code.claude.com/docs/en/slack)（在頻道中 @Claude 即可觸發），以下範例是想額外自訂 ChatOps 行為時，改用 Agent SDK 自行串接的寫法：
+
 ```typescript
 import { App } from '@slack/bolt';
-import { ClaudeCode } from '@anthropic-ai/claude-code';
+import { query } from '@anthropic-ai/claude-agent-sdk';
 
 const slackApp = new App({
   token: process.env.SLACK_BOT_TOKEN,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
 });
 
-const claude = new ClaudeCode({
-  apiKey: process.env.CLAUDE_API_KEY,
-});
+async function runClaude(prompt: string, cwd: string): Promise<string> {
+  let output = '';
+  for await (const message of query({ prompt, options: { cwd, permissionMode: 'acceptEdits' } })) {
+    if (message.type === 'assistant_message') output += message.content;
+  }
+  return output;
+}
 
 // 監聽 Slack 命令
 slackApp.command('/claude', async ({ command, ack, respond }) => {
   await ack();
-
-  // 使用 Claude Code 執行任務
-  const result = await claude.run({
-    prompt: command.text,
-    workingDirectory: '/path/to/project',
-    outputFormat: 'text',
-  });
-
-  await respond({
-    text: `Claude Code 回覆:\n\`\`\`\n${result.output}\n\`\`\``,
-  });
+  const output = await runClaude(command.text, '/path/to/project');
+  await respond({ text: `Claude Code 回覆:\n\`\`\`\n${output}\n\`\`\`` });
 });
 
 // 監聽 PR 審查請求
@@ -7428,16 +7092,11 @@ slackApp.event('app_mention', async ({ event, say }) => {
   if (event.text.includes('review PR')) {
     const prNumber = event.text.match(/PR #(\d+)/)?.[1];
     if (prNumber) {
-      const result = await claude.run({
-        prompt: `Review PR #${prNumber}. Focus on security and code quality.`,
-        workingDirectory: '/path/to/project',
-        outputFormat: 'json',
-      });
-      
-      await say({
-        text: `PR #${prNumber} 審查完成:\n${result.output}`,
-        thread_ts: event.ts,
-      });
+      const output = await runClaude(
+        `Review PR #${prNumber}. Focus on security and code quality.`,
+        '/path/to/project'
+      );
+      await say({ text: `PR #${prNumber} 審查完成:\n${output}`, thread_ts: event.ts });
     }
   }
 });
@@ -7491,12 +7150,11 @@ fi
 | 最佳實踐 | 說明 |
 |----------|------|
 | **明確的提示** | Headless 模式無法追問，提示必須足夠明確 |
-| **指定輸出格式** | 始終使用 `--output-format` 以便程式解析 |
-| **設定超時** | 使用 `--timeout` 避免無限等待 |
-| **錯誤處理** | 在腳本中處理非零退出碼 |
+| **指定輸出格式** | 始終使用 `--output-format json` 以便程式解析，成本資訊會在 `total_cost_usd` 欄位 |
+| **加速啟動** | CI／腳本情境優先用 `--bare`，跳過 hooks／skills／plugins／MCP／Auto Memory／CLAUDE.md 的自動探索，確保每台機器結果一致 |
+| **錯誤處理** | 依 exit code 分流（0 為成功），並用外部逾時工具（如 `timeout 300 claude -p ...`）包住呼叫，避免無限等待 |
 | **日誌記錄** | 將輸出重定向到日誌檔案以便追蹤 |
-| **Token 預算** | 使用 `--max-tokens` 控制成本 |
-| **安全配置** | 在 CI/CD 中使用 `--allowedTools` 限制可用工具 |
+| **安全配置** | 用 `--allowedTools` 或 `--permission-mode dontAsk` 限制可用工具，CI 中避免無人值守卻擁有完整權限 |
 
 ### 3.3.4 Headless 模式進階用法
 
@@ -7751,10 +7409,10 @@ graph TB
     subgraph "Claude Code 整合"
         A --- A1["claude -p 'analyze requirements'<br>Headless 模式"]
         B --- B1["Agent: architect<br>搭配 MCP 取得文件"]
-        C --- C1["Agent Teams (Cowork)<br>多 Agent 平行開發"]
+        C --- C1["Agent Teams<br>多 Agent 平行開發"]
         D --- D1["Hooks: PostToolUse<br>自動執行測試"]
         E --- E1["claude -p 'review PR'<br>GitHub Actions"]
-        F --- F1["Hooks: PostSession<br>自動部署"]
+        F --- F1["Hooks: SessionEnd<br>自動部署"]
     end
     
     style A fill:#dbeafe,stroke:#3b82f6
@@ -7813,7 +7471,7 @@ graph TB
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "write_file",
+        "matcher": "Write",
         "hooks": [
           {
             "type": "command",
@@ -7824,7 +7482,7 @@ graph TB
     ],
     "PostToolUse": [
       {
-        "matcher": "write_file",
+        "matcher": "Write",
         "hooks": [
           {
             "type": "command",
@@ -7871,19 +7529,19 @@ claude -p "
 #### 場景：Agent Teams 重構大型專案
 
 ```bash
-# 啟動 Cowork 模式進行大型重構
-> /agents
+# 先啟用實驗性功能旗標
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+claude
 
-# 在 Agent 聊天中分配任務
-Lead Agent：「將單體應用拆分為微服務」
+# 直接用自然語言請求，不需要特殊指令
+你：「把單體應用拆分為微服務，請生成三位隊友分頭進行」
 
-# Lead Agent 自動建立 git worktree 並分配 Teammate
-# Teammate 1: 拆分 UserService → user-service/
-# Teammate 2: 拆分 OrderService → order-service/  
-# Teammate 3: 拆分 PaymentService → payment-service/
+# Lead 依檔案／目錄所有權分工（Teammate 預設共用同一份工作目錄）：
+# Teammate 1: 負責 user-service/ 的 UserService 拆分
+# Teammate 2: 負責 order-service/ 的 OrderService 拆分
+# Teammate 3: 負責 payment-service/ 的 PaymentService 拆分
 
-# 每個 Teammate 在獨立 worktree 中工作
-# Lead Agent 負責整合和衝突解決
+# Lead Agent 負責整合與衝突排解
 ```
 
 ### 3.4.3 自動化配置組合範例
@@ -8173,14 +7831,14 @@ Claude Code 支援團隊層級的共享配置，確保團隊成員使用一致�
 {
   "permissions": {
     "deny": [
-      "mcp tool edit in directory /prod/",
-      "shell command rm -rf"
+      "Edit(/prod/**)",
+      "Bash(rm -rf *)"
     ]
   },
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "write_file",
+        "matcher": "Write",
         "hooks": [
           {
             "type": "command",
@@ -8197,14 +7855,14 @@ Claude Code 支援團隊層級的共享配置，確保團隊成員使用一致�
 
 #### 使用 Agent Teams 分工
 
-對於大型功能開發，團隊可以使用 Cowork 模式讓多個 Agent 並行工作：
+對於大型功能開發，團隊可以啟用 Agent Teams（`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`）讓多個 Teammate 並行工作，依「檔案所有權」分工以避免衝突（Teammate 預設共用同一份工作目錄，不是自動各自獨立的 worktree）：
 
-| 角色 | 負責範圍 | 工具 |
+| 角色 | 負責範圍 | 分工依據 |
 |------|---------|------|
-| **Lead Agent** | 整體協調、任務分派、整合 | `/agents` 啟動 Cowork |
-| **Teammate: Frontend** | 前端 UI 元件開發 | 獨立 git worktree |
-| **Teammate: Backend** | 後端 API 和商業邏輯 | 獨立 git worktree |
-| **Teammate: Testing** | 測試案例撰寫 | 獨立 git worktree |
+| **Lead Agent** | 整體協調、任務分派、整合 | 你的主對話 |
+| **Teammate: Frontend** | 前端 UI 元件開發 | 只碰 `src/components/`、`src/pages/` |
+| **Teammate: Backend** | 後端 API 和商業邏輯 | 只碰 `src/api/`、`src/services/` |
+| **Teammate: Testing** | 測試案例撰寫 | 只碰 `tests/`，且任務設依賴，等前兩者完成才認領 |
 
 #### 使用 Git 分支保護避免衝突
 
@@ -8429,7 +8087,7 @@ graph TD
 | 角色 | 主要使用方式 | 推薦配置 |
 |------|------------|---------|
 | **Tech Lead** | 架構設計、Code Review、技術決策 | Plan Mode 為主，配合 Explore Agent |
-| **Senior Dev** | 核心功能開發、重構 | Agent Teams (Cowork)、Subagents |
+| **Senior Dev** | 核心功能開發、重構 | Agent Teams、Subagents |
 | **Junior Dev** | 功能開發、Bug 修復、學習 | 標準模式 + CLAUDE.md 規範引導 |
 | **QA Engineer** | 測試案例撰寫、驗證 | Custom Commands、Headless 模式 |
 | **DevOps** | CI/CD 配置、部署腳本 | Hooks + CI 模式 + MCP 整合 |
@@ -8447,11 +8105,11 @@ graph TD
 - 共用工具函式修改需在 Stand-up 會議中提出
 
 ## Agent Teams 衝突預防
-使用 Cowork 模式時：
+使用 Agent Teams 時：
 1. Lead Agent 先進行模組切分
-2. 每個 Teammate 只在指定的目錄工作
+2. 每個 Teammate 只在指定的檔案／目錄工作（預設共用同一份工作目錄，靠分工而非自動隔離避免衝突）
 3. 公共介面的變更必須經過 Lead Agent 確認
-4. 使用獨立的 git worktree 避免檔案衝突
+4. 若某任務真的需要完全隔離，另外指定該 Teammate 使用設有 `isolation: worktree` 的 Subagent 定義
 ```
 
 #### 團隊知識累積機制
@@ -8606,7 +8264,7 @@ claude -p "為重構後的 UserService 更新測試"
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "write_file",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
@@ -8628,12 +8286,8 @@ claude -p "為重構後的 UserService 更新測試"
 # 帶自訂提示的 compact
 > /compact 保留關於 UserService 重構的決策和進度
 
-# 設定自動 compact
-# 在 settings.json 中：
-{
-  "autoCompact": true,
-  "autoCompactThreshold": 80
-}
+# 調整自動壓縮的觸發視窗大小（CLI 旗標，沒有對應的 settings.json 欄位）
+claude --autocompact auto
 ```
 
 ### 3.6.4 成本控制策略
@@ -8745,7 +8399,7 @@ Claude Code 支援 **Prompt Caching**，相同的 context（如 CLAUDE.md、常�
 | 問題 | 原因 | 解決方案 |
 |------|------|---------|
 | **OAuth 認證失敗** | Token 過期 | 🆕 執行 `claude auth login` 重新認證 |
-| **API Key 衝突** | 🆕 同時設定 OAuth 和 API Key | 確認認證優先順序：OAuth > `ANTHROPIC_API_KEY` > API Key 設定 |
+| **API Key 衝突** | 同時設定 OAuth 和 API Key | 確認認證優先順序：`ANTHROPIC_API_KEY` 環境變數 > OAuth 登入 > Bedrock/Vertex 憑證 > `apiKeyHelper`（見 [1.1.4](#114-安裝與環境配置)）；殘留的舊 `ANTHROPIC_API_KEY` 可能覆蓋訂閱認證，用 `unset ANTHROPIC_API_KEY` 或 `/status` 確認實際生效的認證方式 |
 | **Bedrock/Vertex 認證錯誤** | 雲端憑證配置錯誤 | 確認 AWS/GCP 憑證已正確設定 |
 
 #### 執行時問題
@@ -8790,7 +8444,7 @@ Claude Code Doctor 診斷結果：
 | **企業 MCP** | `managed-mcp.json` | 組織級 MCP Server |
 | **專案記憶** | `.claude/CLAUDE.md` | 專案級指引 |
 | **全域記憶** | `~/.claude/CLAUDE.md` | 全域指引 |
-| **自動記憶** | `.claude/MEMORY.md` | 🆕 Claude 自動維護的記憶 |
+| **自動記憶** | `~/.claude/projects/<project>/memory/MEMORY.md` | 🆕 Claude 自動維護的記憶（依 repo 對應目錄） |
 | **輸出風格** | `~/.claude/output-styles/*.md` | 🆕 自訂輸出風格 |
 | **日誌** | `~/.claude/logs/` | 執行日誌和 MCP 日誌 |
 
@@ -8838,18 +8492,15 @@ claude --verbose
 # 手動觸發壓縮（帶保留指示）
 > /compact 保留關於 UserService 重構的所有決策和進度
 
-# 設定高閾值避免頻繁自動壓縮
-# 在 settings.json 中：
-{
-  "autoCompactThreshold": 90
-}
+# 調高自動壓縮的觸發視窗，減少壓縮頻率（CLI 旗標，非 settings.json 欄位）
+claude --autocompact auto
 ```
 
 #### 🆕 Markdown 格式化問題
 
 | 問題 | 解決方案 |
 |------|---------|
-| 回應中的 Markdown 表格顯示異常 | 使用 `/output-style` 切換到 Explanatory 風格 |
+| 回應中的 Markdown 表格顯示異常 | 執行 `/config` 切換到 Explanatory 風格（`/output-style` 已於 v2.1.91 移除） |
 | 程式碼區塊未正確高亮 | 確認 VS Code 版本 >= 1.98.0 |
 | Mermaid 圖表無法渲染 | 檢查 Hugo/VS Code 的 Mermaid 擴充是否正確配置 |
 
@@ -8885,7 +8536,7 @@ cat .mcp.json | python -m json.tool
 > /mcp
 
 # 重新連接 MCP Server
-> /mcp reset
+> /mcp reconnect
 ```
 
 #### MCP Server 常見錯誤
@@ -8945,12 +8596,12 @@ claude run --help
 
 | 資源 | 網址 | 說明 |
 |------|------|------|
-| **官方文件** | docs.anthropic.com/en/docs/claude-code | 完整官方文件 |
+| **官方文件**（⚠️ 修正：現行網域為 code.claude.com，非舊版 docs.anthropic.com） | code.claude.com/docs/en/overview | 完整官方文件 |
 | **GitHub Repo** | github.com/anthropics/claude-code | 原始碼和 Issue Tracker |
 | **GitHub Discussions** | github.com/anthropics/claude-code/discussions | 社群討論區 |
 | **Discord** | Anthropic 官方 Discord | 即時技術支援 |
-| **Blog** | anthropic.com/blog | 官方公告和深度文章 |
-| **Changelog** | docs.anthropic.com/en/docs/claude-code/changelog | 版本更新日誌 |
+| **Blog** | claude.com/blog | 官方公告和深度文章 |
+| **Changelog** | code.claude.com/docs/en/changelog | 版本更新日誌 |
 | **MCP 官網** | modelcontextprotocol.io | MCP 協定官方文件 |
 | **MCP Servers 目錄** | github.com/modelcontextprotocol/servers | 可用的 MCP Servers 清單 |
 
@@ -8958,7 +8609,7 @@ claude run --help
 
 當需要向社群或 Anthropic 回報問題時，請提供以下資訊：
 
-```markdown
+````markdown
 ## 環境資訊
 - Claude Code 版本: [claude --version]
 - Node.js 版本: [node --version]
@@ -8992,7 +8643,7 @@ claude run --help
 ```
 [claude --debug 的輸出]
 ```
-```
+````
 
 ---
 
@@ -9044,7 +8695,7 @@ graph TB
 | **Shared Config** | 多人開發同一專案 | CLAUDE.md、.mcp.json、.claude/settings.json |
 | **Agent Teams** | 複雜任務並行開發 | Lead-Teammate 架構、task list、mailbox |
 | **Plugin Marketplace** | 跨團隊知識共享 | 公司內部 marketplace、plugin distribution |
-| **Remote Control** | 遠端協助與監控 | Server mode、API 操作 |
+| **Remote Control** | 從手機／瀏覽器接續操作本機 session | Server mode、跨裝置即時同步 |
 | **Channels + Dispatch** | 跨平台即時協作 | 外部訊息推送、行動端操控 |
 | **CI/CD Integration** | 自動化協作 | GitHub Actions、GitLab CI/CD |
 
@@ -9112,18 +8763,23 @@ graph TB
 
 #### Auto Memory 與 MEMORY.md
 
-Claude Code 支援**自動記憶 (Auto Memory)** 機制，會自動將重要的專案事實寫入 MEMORY.md 檔案。
+Claude Code 支援**自動記憶（Auto Memory）**機制：Claude 會在工作過程中自行判斷哪些資訊值得跨會話保留（如建置指令、除錯心得、程式風格偏好），主動寫入 `MEMORY.md` 與其他主題檔案，不需要人工維護。實際儲存位置是 `~/.claude/projects/<project>/memory/`（依 Git repository 自動命名，同一個 repo 底下所有 worktree 共用同一份記憶），而不是專案內的 `.claude/` 目錄：
 
 ```plaintext
 ~/.claude/
-├── CLAUDE.md          # 全域指引（前 200 行自動載入）
+├── CLAUDE.md                          # 全域指引（完整載入，不受行數限制）
 
 專案根目錄/
-├── CLAUDE.md          # 專案指引（前 200 行自動載入）
-├── CLAUDE.local.md    # 個人本地指引（不提交 Git）
+├── CLAUDE.md                          # 專案指引（完整載入，建議 < 200 行以維持遵循度）
+├── CLAUDE.local.md                    # 個人本地指引（不提交 Git）
+
+~/.claude/projects/<project>/memory/   # Auto Memory 儲存目錄（依 repo 自動對應）
+├── MEMORY.md                          # 索引檔（每次會話僅載入前 200 行或 25KB，取先達到者）
+├── debugging.md                       # 主題檔案（依需要才由 Claude 讀取，不會自動載入）
+└── api-conventions.md
 ```
 
-> 📝 **最佳實踐**: CLAUDE.md 的前 200 行會在啟動時自動載入到上下文中。將最重要的規則放在開頭。
+> 📝 **最佳實踐**: `MEMORY.md` 只有前 200 行（或 25KB，以先到者為準）會在會話開始時自動載入；超出部分不會載入，因此 Claude 會主動把明細移到主題檔案，只在 `MEMORY.md` 保留精簡索引。CLAUDE.md 則是完整載入，沒有行數上限，但官方建議控制在 200 行內以維持指令遵循度。可用 `/memory` 指令瀏覽、編輯或關閉 Auto Memory（對應 `autoMemoryEnabled` 設定）。
 
 ### 3.8.3 多人協作工作流程
 
@@ -9204,15 +8860,15 @@ Lead Agent（你的對話）:
 ├── 指派 Teammate 3: "更新前端表單"
 └── 匯總結果 → 確認整合
 
-Teammate 1 (worktree):     Teammate 2 (worktree):     Teammate 3 (worktree):
-├── 讀取 schema            ├── 讀取現有 API            ├── 讀取 UI 元件
-├── 建立 migration         ├── 重構 controllers        ├── 更新表單邏輯
-├── 執行 db:migrate        ├── 更新 middleware          ├── 更新樣式
-└── 回報完成               ├── 撰寫測試               └── 回報完成
-                           └── 回報完成
+Teammate 1（負責 migrations/）  Teammate 2（負責 src/api/）      Teammate 3（負責 src/components/）
+├── 讀取 schema                ├── 讀取現有 API              ├── 讀取 UI 元件
+├── 建立 migration             ├── 重構 controllers          ├── 更新表單邏輯
+├── 執行 db:migrate            ├── 更新 middleware           ├── 更新樣式
+└── 回報完成                   ├── 撰寫測試                  └── 回報完成
+                               └── 回報完成
 ```
 
-> 📌 **建議**: 使用 3-5 個 teammates，每個 teammate 處理一個明確的子任務。每個 teammate 在獨立的 git worktree 中工作，避免衝突。
+> 📌 **建議**: 使用 3-5 個 teammates，每個 teammate 處理一個明確的子任務。⚠️ Teammate **預設共用同一份工作目錄**，不是各自獨立的 git worktree——避免衝突的方法是像上例一樣依檔案／目錄分工，讓每個 Teammate 只碰自己負責的檔案，而非依賴自動隔離。
 
 ### 3.8.5 跨團隊 Plugin Marketplace
 
@@ -9248,14 +8904,14 @@ Teammate 1 (worktree):     Teammate 2 (worktree):     Teammate 3 (worktree):
 
 ### 3.8.6 Remote Control 遠端協作
 
-透過 Remote Control Server Mode，團隊可實現跨機器的協作：
+透過 Remote Control Server 模式，多裝置可同時連進同一台開發機器（本機執行、瀏覽器/手機只是操作視窗）：
 
 ```bash
-# 在開發機器上啟動 server mode
-claude --server --spawn
+# 在開發機器上啟動 server 模式（預設同時最多服務 32 個連線）
+claude remote-control
 
-# 產生 QR Code 供其他裝置連接
-# 或透過 claude.ai/code 連接
+# 按空白鍵顯示 QR Code 供手機掃描連接
+# 或直接開啟輸出的 claude.ai/code 連結
 ```
 
 **適用場景**：
@@ -9320,7 +8976,7 @@ graph TD
 |------|---------|
 | CLAUDE.md 太長（超過 200 行） | 將重要規則放前 200 行，其餘用 `@import` |
 | MCP Server 認證衝突 | 使用 `.mcp.json` 環境變數展開：`${VAR}` |
-| Agent Teams worktree 衝突 | 確保每個 teammate 操作不同的檔案 |
+| Agent Teams 多人同時改到同一檔案 | Teammate 預設共用工作目錄，需依檔案所有權分工；真的要隔離則另指定 `isolation: worktree` |
 | 多人同時修改同一檔案 | 使用 Git 分支策略，搭配 lock 機制 |
 | Hooks 在不同環境行為不同 | 使用 `$CLAUDE_PROJECT_DIR` 參照腳本路徑 |
 | Plugin 版本不一致 | 啟用 marketplace 自動更新 |
@@ -9362,7 +9018,7 @@ graph TB
 
 #### managed-settings.json 配置
 
-管理員部署到每位開發者的 `~/.claude/managed-settings.json`：
+> ⚠️ **修正位置**：`managed-settings.json` 部署在**系統層級路徑**，不是使用者可寫入的 `~/.claude/`（否則使用者能自行覆寫，失去強制管理的意義）：macOS 為 `/Library/Application Support/ClaudeCode/managed-settings.json`；Linux/WSL 為 `/etc/claude-code/managed-settings.json`；Windows 為 `C:\Program Files\ClaudeCode\managed-settings.json`。
 
 ```json
 {
@@ -9379,17 +9035,17 @@ graph TB
       "Bash(rm -rf *)",
       "Bash(curl *)",
       "Bash(wget *)",
-      "mcp tool edit in directory /etc/",
-      "mcp tool edit in directory /prod/"
+      "Edit(/etc/**)",
+      "Edit(/prod/**)"
     ]
   },
   "env": {
     "ANTHROPIC_API_KEY": "",
-    "CLAUDE_CODE_MAX_TOKENS": "100000",
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "100000",
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
   },
   "hooks": {
-    "PostSession": [
+    "SessionEnd": [
       {
         "matcher": "",
         "hooks": [
@@ -9454,7 +9110,7 @@ graph TB
 | 策略 | 實作方式 | 說明 |
 |------|---------|------|
 | **API Key 管理** | 環境變數 + Secret Manager | 不在程式碼中硬編碼 |
-| **審計日誌** | PostSession Hook | 記錄所有 Claude Code 會話 |
+| **審計日誌** | SessionEnd Hook | 記錄所有 Claude Code 會話 |
 | **檔案存取限制** | permissions.deny | 禁止存取敏感目錄 |
 | **網路限制** | 防火牆 + deny 規則 | 限制外部連線 |
 | **資料外洩防護** | .claudeignore + deny | 排除機密檔案 |
@@ -9487,15 +9143,14 @@ Claude Code 支援多種認證方式：
 | **API Gateway** | 透過企業 API Gateway | 自建基礎設施 |
 
 ```bash
-# 設定企業 OAuth
-claude config set oauthProvider "https://sso.company.com"
-
-# 使用企業 API endpoint
-claude config set apiEndpoint "https://api-proxy.company.com/claude"
-
-# 登入（會開啟瀏覽器進行 OAuth 授權）
+# 企業 SSO：OAuth 登入時走組織設定的身分提供者（IdP 設定在 claude.ai 組織後台，非 CLI 指令）
 claude login
+
+# 使用企業 API Proxy／Gateway：透過環境變數指向自訂端點（見 1.1.4）
+export ANTHROPIC_BASE_URL="https://api-proxy.company.com/claude"
 ```
+
+> ⚠️ 沒有 `claude config set oauthProvider`／`apiEndpoint` 這類指令；SSO 身分提供者是在組織的 claude.ai 管理後台設定，自訂 API 端點則一律透過 `ANTHROPIC_BASE_URL` 環境變數控制。
 
 ### 4.1.4 稽核日誌與合規性
 
@@ -9643,29 +9298,29 @@ sequenceDiagram
 ```json
 // managed-settings.json — 生產環境配置（最嚴格）
 {
-  "env": "production",
   "permissions": {
     "allow": [],
     "deny": [
-      "shell command rm -rf",
-      "shell command DROP",
-      "shell command TRUNCATE",
-      "mcp tool edit in directory /prod/",
-      "mcp tool edit in directory /release/",
-      "shell command docker rm",
-      "shell command docker rmi",
-      "shell command kubectl delete"
+      "Bash(rm -rf *)",
+      "Bash(*DROP*)",
+      "Bash(*TRUNCATE*)",
+      "Edit(/prod/**)",
+      "Edit(/release/**)",
+      "Bash(docker rm *)",
+      "Bash(docker rmi *)",
+      "Bash(kubectl delete *)"
     ]
   },
-  "api": {
-    "provider": "bedrock",
-    "region": "ap-northeast-1",
-    "model": "claude-sonnet-4-20250514"
+  "env": {
+    "CLAUDE_CODE_USE_BEDROCK": "1",
+    "AWS_REGION": "ap-northeast-1",
+    "ANTHROPIC_MODEL": "claude-sonnet-5",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
   },
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "write_file|edit_file",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
@@ -9676,7 +9331,7 @@ sequenceDiagram
     ],
     "PreToolUse": [
       {
-        "matcher": "bash",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
@@ -9685,33 +9340,32 @@ sequenceDiagram
         ]
       }
     ]
-  },
-  "disable_nonessential_traffic": true
+  }
 }
 ```
 
 ```json
 // managed-settings.json — 開發環境配置（較寬鬆）
 {
-  "env": "development",
   "permissions": {
     "allow": [
-      "shell command npm",
-      "shell command npx",
-      "shell command git",
-      "shell command docker compose"
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(git *)",
+      "Bash(docker compose *)"
     ],
     "deny": [
-      "shell command rm -rf /",
-      "shell command sudo"
+      "Bash(rm -rf /*)",
+      "Bash(sudo *)"
     ]
   },
-  "api": {
-    "provider": "anthropic",
-    "model": "claude-sonnet-4-20250514"
+  "env": {
+    "ANTHROPIC_MODEL": "claude-sonnet-5"
   }
 }
 ```
+
+> ⚠️ 上方兩份範例原先使用 `shell command X`／`mcp tool edit in directory Y` 這類不存在的權限語法，以及不存在的頂層 `env`（字串）／`api` 設定物件，已修正為文件其他章節已建立的正確語法：`Bash(pattern)`／`Edit(path/**)` 權限規則，與透過 `env` 區塊設定的環境變數（Bedrock/Vertex 等後端切換皆用環境變數，無獨立的 `api.provider` 欄位）。
 
 #### 企業安全 Checklist
 
@@ -9770,7 +9424,7 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           
@@ -9805,14 +9459,13 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          model: claude-sonnet-4-20250514
-          timeout_minutes: 10
-          # 🆕 claude_args 傳遞額外參數
-          claude_args: "--output-format json --bare"
+          # ⚠️ 修正：模型、逾時等 CLI 選項一律透過 claude_args 傳遞，
+          # 沒有獨立的 model / timeout_minutes 輸入欄位
+          claude_args: "--model claude-sonnet-5 --max-turns 10"
           prompt: |
             Perform a thorough code review.
             Check for OWASP Top 10 security issues.
@@ -9824,33 +9477,24 @@ jobs:
       contains(github.event.comment.body, '@claude')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           trigger_phrase: "@claude"
 ```
 
-#### 使用 Amazon Bedrock / Google Vertex AI
+#### 使用 Amazon Bedrock / Google Cloud Agent Platform / Microsoft Foundry
 
-> 🆕 GitHub Actions 支援 Bedrock / Vertex 後端：
+GitHub Actions 支援三種雲端後端，分別用 `use_bedrock: "true"`／`use_vertex: "true"`／`use_foundry: "true"` 切換：
 
 ```yaml
-# 使用 Amazon Bedrock
 - uses: anthropics/claude-code-action@v1
   with:
-    use_bedrock: true
-    aws_region: us-east-1
-    aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-# 使用 Google Vertex AI
-- uses: anthropics/claude-code-action@v1
-  with:
-    use_vertex: true
-    vertex_project_id: ${{ secrets.GCP_PROJECT_ID }}
-    vertex_region: us-east5
+    use_bedrock: "true"
 ```
+
+> ⚠️ **修正**：三種後端皆透過 **OIDC 身分聯合（identity federation）** 認證，不需要（也不支援）把 `aws_access_key_id`／`aws_secret_access_key` 這類長效金鑰直接當作 action 輸入傳入；實際的 Role/Workload Identity 設定步驟請參閱 [Use Claude Code GitHub Actions with cloud providers](https://code.claude.com/docs/en/github-actions-cloud-providers)。
 
 ### 4.2.2 GitLab CI/CD 整合
 
@@ -9986,8 +9630,8 @@ graph TB
 | **API Key 管理** | 不要在程式碼中硬編碼 | 使用 GitHub Secrets / GitLab CI Variables |
 | **網路存取** | Claude Code 會存取外網 | 設定網路政策限制出站流量 |
 | **工具限制** | CI 中應限制可用工具 | 使用 `--allowedTools` 限制為唯讀操作 |
-| **超時設定** | CI 任務可能超時 | 設定合理的 `--timeout` |
-| **成本控制** | CI 觸發頻率可能很高 | 只在特定事件觸發，設定每日預算 |
+| **超時設定** | CI 任務可能超時 | Claude Code CLI 本身沒有 `--timeout` 旗標，改用 CI 平台的 job timeout，或以 shell 的 `timeout` 指令包住呼叫 |
+| **成本控制** | CI 觸發頻率可能很高 | 只在特定事件觸發，用 `--max-budget-usd` 限制單次呼叫花費 |
 | **輸出過濾** | 避免洩漏敏感資訊 | 審查 Claude 的輸出是否包含敏感資料 |
 
 #### CI 觸發策略
@@ -10018,7 +9662,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           
@@ -10067,7 +9711,7 @@ jobs:
       issues: write
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - uses: anthropics/claude-code-action@v1
         with:
@@ -10109,7 +9753,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       
@@ -10121,7 +9765,7 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          model: claude-sonnet-4-20250514
+          model: claude-sonnet-5
           prompt: |
             Review dependency changes in files: ${{ steps.deps.outputs.files }}
             
@@ -10227,7 +9871,7 @@ steps:
 | 平台 | 整合方式 | 官方支援 | 建議用法 |
 |------|---------|---------|---------|
 | **GitHub Actions** | claude-code-action@v1 | ✅ 官方 Action | PR 審查、Issue 分析、Release Notes |
-| **GitLab CI** | Headless Mode (claude -p) | ❌ 需自行設定 | MR 審查、安全掃描 |
+| **GitLab CI** | Headless Mode (claude -p) | ⚠️ GitLab 維護的 Beta 整合（見 [4.2.2](#422-gitlab-cicd-整合)） | MR 審查、安全掃描 |
 | **Bitbucket Pipelines** | Headless Mode (claude -p) | ❌ 需自行設定 | PR 審查、程式碼掃描 |
 | **Azure DevOps** | Headless Mode (claude -p) | ❌ 需自行設定 | PR 審查、品質報告 |
 | **Jenkins** | Headless Mode (claude -p) | ❌ 需自行設定 | 自訂管道整合 |
@@ -10775,7 +10419,7 @@ tools: read_file, grep_search, semantic_search
 
 #### 模式三：測試自動化框架
 
-```markdown
+````markdown
 <!-- .claude/skills/test-framework/SKILL.md -->
 ---
 name: comprehensive-test-generator
@@ -10818,7 +10462,7 @@ tests/
 ├── e2e/           ← E2E 測試
 └── fixtures/       ← 測試資料 factory
 ```
-```
+````
 
 #### 自訂開發成熟度模型
 
@@ -11098,13 +10742,14 @@ claude -p "prompt" --permission-mode acceptEdits   # 自動接受檔案編輯
 echo "prompt" | claude -p -
 cat file.txt | claude -p "分析這個檔案"
 
-# 指定模型
-claude --model claude-sonnet-4-20250514
-claude --model claude-opus-4-20250514
+# 指定模型（可用別名 sonnet/opus/haiku/fable，或完整 model ID）
+claude --model sonnet
+claude --model claude-opus-5
 
-# 🆕 啟動 Server 模式（Remote Control）
-claude --server
-claude --spawn
+# 啟動 Remote Control Server 模式（可同時服務多個遠端連線）
+claude remote-control
+# 或於一般互動會話中直接開啟 Remote Control
+claude --remote-control
 
 # 🆕 啟用 Channels
 claude --channels
@@ -11121,17 +10766,16 @@ claude --verbose
 | `/help` | 顯示所有可用命令 |
 | `/compact` | 壓縮對話歷史以節省 Token |
 | `/compact [指示]` | 帶自訂指示的壓縮 |
-| `/config` | 顯示目前配置 |
+| `/config` | 開啟設定選單（含 Output Style 切換；⚠️ 獨立的 `/output-style` 指令已於 v2.1.91 移除） |
 | `/cost` | 顯示目前會話的 Token 使用量和花費 |
 | `/doctor` | 🆕 執行一站式診斷檢查 |
-| `/memory` | 顯示已載入的 Memory（CLAUDE.md）|
+| `/memory` | 顯示已載入的 Memory（CLAUDE.md、Auto Memory）|
 | `/status` | 顯示系統狀態 |
 | `/bug` | 回報 Bug 給 Anthropic |
-| `/agents` | 啟動 Agent Teams（Cowork）模式 |
+| `/agents` | ⚠️ 管理自訂 Subagent（v2.1.198 起不再開啟建立精靈）；**不是**啟動 Agent Teams 的指令——Agent Teams 是設定 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 後直接用自然語言請求 |
 | `/mcp` | 管理 MCP Server 連線 |
 | `/skills` | 🆕 列出所有可用 Skills |
 | `/loop` | 🆕 啟動反覆執行排程 |
-| `/output-style` | 🆕 切換輸出風格 |
 | `/install-github-app` | 🆕 安裝 GitHub App 整合 |
 | `/clear` | 清除對話歷史 |
 | `/login` | 重新登入 |
@@ -11159,34 +10803,43 @@ claude --verbose
 
 ### A.4 CLI 配置命令
 
+> ⚠️ **修正**：沒有 `claude config list`／`config set`／`config reset` 這類子指令。設定一律透過**編輯 settings.json 檔案**，或在互動式會話中執行 `/config` 開啟選單調整：
+
 ```bash
-# 查看配置
-claude config list
+# 查看目前實際生效的設定與其來源
+> /config
 
-# 設定配置值
-claude config set <key> <value>
+# 直接編輯使用者層級設定檔
+${EDITOR:-vim} ~/.claude/settings.json
 
-# 重設配置
-claude config reset
+# 或編輯專案層級設定檔
+${EDITOR:-vim} .claude/settings.json
+```
 
-# 常用配置項
-claude config set theme dark
-claude config set autoCompact true
-claude config set preferredModel claude-sonnet-4-20250514
+```json
+// ~/.claude/settings.json 範例：設定偏好模型
+{
+  "env": {
+    "ANTHROPIC_MODEL": "claude-sonnet-5"
+  }
+}
 ```
 
 ### A.5 進階 CLI 選項
 
+> ⚠️ **修正**：以下曾誤植 `--max-tokens`、`--disable-tool`、`--memory`、`--api-base-url`、`--mcp-debug`、`--config-dir` 等 **不存在的旗標**，已對照官方 CLI Reference 全數替換為實際存在的用法。
+
 ```bash
-# 指定最大 Token 數
-claude -p "prompt" --max-tokens 4096
+# 限制單次呼叫的最大花費金額（非「最大 Token 數」）
+claude -p "prompt" --max-budget-usd 0.50
 
-# 停用特定工具
-claude --disable-tool Bash
-claude --disable-tool Edit
+# 限制可用的內建工具 / 拒絕特定工具（沒有 --disable-tool，用 --tools 或 --disallowedTools）
+claude -p "prompt" --tools "Read,Grep,Glob"
+claude -p "prompt" --disallowedTools "Bash,Edit"
 
-# 指定 CLAUDE.md 路徑
-claude --memory /path/to/CLAUDE.md
+# CLAUDE.md 沒有指定路徑的旗標——它是依目錄樹自動探索載入的；
+# 若要控制載入哪些設定來源，改用 --setting-sources
+claude -p "prompt" --setting-sources project,local
 
 # 指定允許的權限（非互動模式重要）
 claude -p "prompt" --allowedTools "Read,Edit,Bash(npm test)"
@@ -11198,18 +10851,15 @@ claude -p "prompt" --permission-mode acceptEdits # 自動接受檔案編輯，�
 # 完全跳過權限提示（CI 用，不建議在生產環境使用）
 claude -p "prompt" --dangerously-skip-permissions
 
-# 設定 API Base URL（企業 Proxy）
-claude --api-base-url https://proxy.company.com/v1
+# 企業 Proxy／自訂端點，用環境變數而非 CLI 旗標
+ANTHROPIC_BASE_URL=https://proxy.company.com/v1 claude -p "prompt"
 
-# 啟用 MCP debug
-claude --mcp-debug
+# 啟用 debug 模式（沒有專屬的 --mcp-debug，用通用 --debug 並可過濾分類）
+claude --debug mcp
 
-# 指定配置目錄
-claude --config-dir /custom/config/path
-
-# 多輪 Headless 對話（帶 session ID）
-claude -p "分析這段程式碼" --session-id my-session-123
-claude -p "繼續上面的分析" --session-id my-session-123 --continue
+# 多輪 Headless 對話：先取得本次的 session ID，之後用 --resume 接續
+session_id=$(claude -p "分析這段程式碼" --output-format json | jq -r '.session_id')
+claude -p "繼續上面的分析" --resume "$session_id"
 
 # 🆕 追加系統提示（可與 --bare 搭配）
 claude -p "prompt" --append-system-prompt "額外系統指令"
@@ -11230,19 +10880,16 @@ claude -p "prompt" --bare --plugin-dir ./my-plugin/
 | `CLAUDE_CODE_USE_BEDROCK` | 使用 AWS Bedrock | `0` |
 | `CLAUDE_CODE_USE_VERTEX` | 使用 GCP Vertex AI | `0` |
 | `AWS_REGION` | Bedrock 區域 | `us-east-1` |
-| `ANTHROPIC_MODEL` | 預設模型 | `claude-sonnet-4-20250514` |
-| `CLAUDE_CODE_MAX_TOKENS` | 最大回應 Token 數 | 模型限制 |
-| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | 停用遙測 | `0` |
-| `CLAUDE_CODE_API_BASE_URL` | API 基礎 URL | `https://api.anthropic.com` |
+| `ANTHROPIC_MODEL` | 預設模型 | `claude-sonnet-5` |
+| `CLAUDE_CODE_MAX_OUTPUT_TOKENS` | ⚠️（修正自 `CLAUDE_CODE_MAX_TOKENS`）最大回應 Token 數 | 模型限制 |
+| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | 停用非必要流量／遙測 | `0` |
+| `ANTHROPIC_BASE_URL` | ⚠️（修正自不存在的 `CLAUDE_CODE_API_BASE_URL`）自訂 API 端點，用於企業 Proxy／Gateway | `https://api.anthropic.com` |
 | `CLAUDE_CODE_GIT_BASH_PATH` | 🆕 Windows Git Bash 路徑 | 自動偵測 |
-| `ENABLE_TOOL_SEARCH` | 🆕 啟用 MCP Tool Search（`1` 或 `auto`） | `0` |
-| `MAX_MCP_OUTPUT_TOKENS` | 🆕 MCP 工具回傳最大 Token 數 | `25000` |
-| `CLAUDE_CODE_DISABLE_CRON` | 🆕 停用排程任務功能 | `0` |
-| `FORCE_AUTOUPDATE_PLUGINS` | 🆕 強制自動更新所有 Plugin | `0` |
-| `SLASH_COMMAND_TOOL_CHAR_BUDGET` | 🆕 Skill 輸出字元預算 | - |
-| `HTTP_PROXY` / `HTTPS_PROXY` | 代理伺服器 | -  |
-| `CLAUDE_CODE_CONFIG_DIR` | 自訂配置路徑 | `~/.claude` |
-| `CLAUDE_CODE_SKIP_OOBE` | 跳過首次使用體驗 | `0` |
+| `MCP_TIMEOUT` | MCP Server 連線逾時（毫秒） | `30000` |
+| `CLAUDE_CODE_DISABLE_CRON` | 停用排程任務功能 | `0` |
+| `HTTP_PROXY` / `HTTPS_PROXY` | 代理伺服器 | - |
+
+> ⚠️ 原表格中的 `ENABLE_TOOL_SEARCH`、`MAX_MCP_OUTPUT_TOKENS`、`FORCE_AUTOUPDATE_PLUGINS`、`SLASH_COMMAND_TOOL_CHAR_BUDGET`、`CLAUDE_CODE_CONFIG_DIR`、`CLAUDE_CODE_SKIP_OOBE` 這幾個變數名稱未能在官方環境變數頁面中查證到，可能為過時或不準確的命名，使用前請以 `claude --help` 或 [官方環境變數文件](https://code.claude.com/docs/en/env-vars) 為準。
 
 ### A.7 退出碼（Exit Codes）
 
@@ -11357,8 +11004,8 @@ claude -p "分析 $(git diff --name-only --diff-filter=U) 中的合併衝突，�
 
 | 檔案 | 位置 | 用途 | 優先級 |
 |------|------|------|--------|
-| `managed-settings.json` | `~/.claude/` | 管理員強制設定（最高） | 1（最高）|
-| `settings.json`（Enterprise） | `~/.claude/` | 企業使用者設定 | 2 |
+| `managed-settings.json` | ⚠️ 系統層級路徑（macOS `/Library/Application Support/ClaudeCode/`；Linux `/etc/claude-code/`；Windows `C:\Program Files\ClaudeCode\`），非使用者可寫入的 `~/.claude/` | 管理員強制設定（最高） | 1（最高）|
+| `settings.json`（User） | `~/.claude/` | 使用者全域設定 | 2 |
 | `settings.json`（Project） | `.claude/` | 專案設定 | 3 |
 | `CLAUDE.md` | 各目錄 | 開發指令、規範 | 4 |
 | `.mcp.json` | 專案根目錄 | MCP Server 配置 | - |
@@ -11373,17 +11020,17 @@ claude -p "分析 $(git diff --name-only --diff-filter=U) 中的合併衝突，�
       "Read",
       "Edit",
       "Bash(npm run *)",
-      "mcp tool server_name tool_name"
+      "mcp__server_name__tool_name"
     ],
     "deny": [
       "Bash(rm -rf *)",
-      "mcp tool edit in directory /production/"
+      "Edit(/production/**)"
     ]
   },
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "tool_name",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
@@ -11393,21 +11040,21 @@ claude -p "分析 $(git diff --name-only --diff-filter=U) 中的合併衝突，�
       }
     ],
     "PostToolUse": [],
-    "PrePrompt": [],
-    "PostPrompt": [],
+    "UserPromptSubmit": [],
     "Notification": [],
     "Stop": [],
     "SubagentStop": [],
     "PreCompact": [],
     "PostCompact": [],
-    "PreToolUse_Edit": [],
-    "PostSession": []
+    "SessionEnd": []
   },
   "env": {
     "VARIABLE_NAME": "value"
   }
 }
 ```
+
+> ⚠️ 上例僅列出常用事件；原文曾誤植 `PrePrompt`、`PostPrompt`、`PreToolUse_Edit`、`PostSession` 等不存在的事件名稱與語法（matcher 是獨立欄位，不會像 `PreToolUse_Edit` 這樣併進事件名稱），已修正。完整 30 種事件清單見 [附錄 C.1](#c1-所有事件)。
 
 ### B.3 .mcp.json 完整結構
 
@@ -11490,7 +11137,7 @@ claude -p "分析 $(git diff --name-only --diff-filter=U) 中的合併衝突，�
         ]
       }
     ],
-    "PostSession": [
+    "SessionEnd": [
       {
         "hooks": [
           {
@@ -11503,7 +11150,7 @@ claude -p "分析 $(git diff --name-only --diff-filter=U) 中的合併衝突，�
   },
   "env": {
     "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
-    "ANTHROPIC_API_BASE_URL": "https://claude-proxy.company.internal/v1"
+    "ANTHROPIC_BASE_URL": "https://claude-proxy.company.internal/v1"
   }
 }
 ```
@@ -11678,7 +11325,7 @@ graph TB
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "write_file|edit_file",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
@@ -11687,7 +11334,7 @@ graph TB
         ]
       },
       {
-        "matcher": "bash",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
@@ -11808,13 +11455,13 @@ Claude Code 在需要通知使用者時觸發（如權限確認、閒置提示�
 }
 ```
 
-#### PostSession — 會話結束事件
+#### SessionEnd — 會話結束事件
 
 ```json
 // settings.json — 會話結束時自動生成工作報告
 {
   "hooks": {
-    "PostSession": [
+    "SessionEnd": [
       {
         "matcher": ".*",
         "hooks": [
@@ -11876,7 +11523,7 @@ Claude Code 在需要通知使用者時觸發（如權限確認、閒置提示�
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "write_file|edit_file",
+        "matcher": "Write|Edit",
         "hooks": [
           {
             "type": "command",
@@ -11900,7 +11547,7 @@ Claude Code 在需要通知使用者時觸發（如權限確認、閒置提示�
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "bash",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
@@ -11920,7 +11567,7 @@ Claude Code 在需要通知使用者時觸發（如權限確認、閒置提示�
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "bash",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
@@ -11940,7 +11587,7 @@ Claude Code 在需要通知使用者時觸發（如權限確認、閒置提示�
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "write_file|edit_file|bash",
+        "matcher": "Write|Edit|Bash",
         "hooks": [
           {
             "type": "command",
@@ -12010,7 +11657,7 @@ flowchart TB
 | **PreToolUse** | 阻止工具執行 | stderr 輸出的 `BLOCK:` 開頭訊息會顯示給使用者 |
 | **PostToolUse** | 記錄錯誤並繼續 | 不影響已完成的工具操作 |
 | **Notification** | 靜默失敗 | 通知失敗不應中斷工作流程 |
-| **Stop/PostSession** | 記錄錯誤 | Agent 已停止，Hook 失敗不影響結果 |
+| **Stop/SessionEnd** | 記錄錯誤 | Agent 已停止，Hook 失敗不影響結果 |
 | **PreCompact** | 記錄錯誤並繼續壓縮 | 壓縮操作不應被 Hook 失敗阻止 |
 | **Worktree 事件** | 記錄錯誤 | Worktree 操作已完成，Hook 失敗不影響 |
 
@@ -12417,7 +12064,7 @@ echo "提示: 使用 'claude mcp list' 查看完整列表"
 |------|------|------|
 | **Agentic Loop** | Agentic Loop | Claude Code 的核心執行迴圈：接收指令 → 分析 → 選擇工具 → 執行 → 評估結果 → 重複 |
 | **Agent Skills** | Agent Skills | 🆕 開放標準（agentskills.io），定義跨 AI 編輯器的技能可移植格式 |
-| **Agent Teams** | Agent Teams / Cowork | 多個 Claude Code Agent 透過 git worktree 並行協作的模式 |
+| **Agent Teams** | Agent Teams | 多個 Claude Code Agent（Lead + Teammates）並行協作的模式，Teammate 預設共用同一份工作目錄，非自動使用 git worktree |
 | **alwaysLoad** | alwaysLoad | 🆕 MCP Server 配置欄位，設為 true 可跳過 Tool Search 延遲載入，始終載入工具 |
 | **Channels** | Channels | 🆕 基於 MCP 的事件推送機制，讓外部事件（Telegram/Discord/Webhook）可注入 Claude Code session |
 | **Checkpoint** | Checkpoint | VS Code 中 Claude Code 每次變更前自動建立的還原點 |
@@ -12436,12 +12083,12 @@ echo "提示: 使用 'claude mcp list' 查看完整列表"
 | **MCP** | Model Context Protocol | 連接外部工具和資料來源的標準協議 |
 | **MCP Server** | MCP Server | 實作 MCP 協議、提供特定工具和資源存取的服務程式 |
 | **mcp_tool** | mcp_tool Hook | 🆕 Hook 類型之一，直接呼叫 MCP Server 工具的 Hook |
-| **MEMORY.md** | MEMORY.md | 🆕 Claude Code 自動維護的記憶檔案（`.claude/MEMORY.md`） |
+| **MEMORY.md** | MEMORY.md | 🆕 Claude Code 自動維護的記憶索引檔（`~/.claude/projects/<project>/memory/MEMORY.md`，每次會話僅載入前 200 行或 25KB） |
 | **Output Style** | Output Style | 控制 Claude Code 回應格式的預設風格 |
 | **Permission** | Permission | Claude Code 的權限控制，使用 allow/deny 規則 |
 | **Plugin** | Plugin | 透過 `.claude-plugin/` 目錄安裝的工具擴充 |
 | **Plugin Marketplace** | Plugin Marketplace | 🆕 Claude Code 官方插件市集（claude.com/plugins） |
-| **Remote Control** | Remote Control | 透過 WebSocket API 從外部程式控制 Claude Code |
+| **Remote Control** | Remote Control | 讓手機或瀏覽器（claude.ai/code、Claude App）接續操作本機 Claude Code session 的功能，執行仍在本機進行；不是給開發者串接的 API |
 | **Scheduled Task** | Scheduled Task | 使用 cron 語法排程的自動執行任務 |
 | **settings.json** | settings.json | Claude Code 的核心配置檔案 |
 | **Skill** | Skill | 透過 SKILL.md 定義的可重複使用的專業能力 |
@@ -12449,9 +12096,9 @@ echo "提示: 使用 'claude mcp list' 查看完整列表"
 | **skillOverrides** | skillOverrides | 🆕 在 settings.json 中覆蓋特定 Skill 設定的機制 |
 | **streamable-http** | Streamable HTTP | 🆕 MCP 推薦的遠端傳輸方式，取代已 deprecated 的 SSE |
 | **Subagent** | Subagent | Claude Code 在背景建立的子 Agent，用於平行處理子任務 |
-| **Teammate** | Teammate | Agent Teams 中在獨立 worktree 工作的協作 Agent |
+| **Teammate** | Teammate | Agent Teams 中由 Lead 生成的協作 Agent，各自獨立 context window，預設與 Lead 共用同一份工作目錄 |
 | **Token** | Token | 語言模型處理的基本文字單位（中文約 1-2 字/token） |
-| **Tool** | Tool | Claude Code 可呼叫的內建功能（如 read_file、write_file、bash） |
+| **Tool** | Tool | Claude Code 可呼叫的內建功能（如 Read、Write、Edit、Bash） |
 | **Tool Search** | Tool Search | MCP 工具的延遲載入機制，需要時才搜尋和載入 |
 | **Worktree** | Git Worktree | Git 的工作樹功能，允許一個 repo 有多個工作目錄 |
 | **--bare** | --bare mode | 🆕 跳過自動發現的極速啟動模式 |
@@ -12490,7 +12137,7 @@ echo "提示: 使用 'claude mcp list' 查看完整列表"
 | **Streaming** | Streaming | Headless 模式的串流輸出，即時接收回應（`--output-format stream-json`） |
 | **System Prompt** | System Prompt | Claude Code 的系統級指令，包含核心行為定義 |
 | **Timeout** | Timeout | Claude Code 各種操作的超時設定（秒為單位） |
-| **WebSocket** | WebSocket | Remote Control 使用的雙向通訊協議 |
+| **Trusted Devices** | Trusted Devices | 🆕 Team／Enterprise 專屬功能（Beta），要求裝置註冊 + 近期登入才能操作 Remote Control 會話 |
 
 ---
 
@@ -12512,7 +12159,7 @@ A: Claude Code 在 Windows 上需要 Git Bash。(1) 安裝 Git for Windows (2) �
 
 **Q: 如何在公司防火牆環境使用？**
 
-A: 設定 `HTTP_PROXY` / `HTTPS_PROXY` 環境變數，或使用 `--api-base-url` 指定企業代理。
+A: 設定 `HTTP_PROXY` / `HTTPS_PROXY` 環境變數，或設定 `ANTHROPIC_BASE_URL` 指向企業代理端點（沒有 `--api-base-url` 這個旗標）。
 
 **Q: 🆕 Desktop App 和 CLI 版有什麼差別？**
 
@@ -12530,7 +12177,7 @@ A: 在專案根目錄建立 `CLAUDE.md`，寫入專案的編碼規範、技術�
 
 **Q: 對話越來越慢怎麼辦？**
 
-A: 使用 `/compact` 壓縮對話歷史。長對話中建議定期壓縮。也可以設定 `autoCompact` 自動壓縮。
+A: 使用 `/compact` 壓縮對話歷史。長對話中建議定期壓縮，也可用 `claude --autocompact auto` 調整自動壓縮的觸發時機（沒有對應的 settings.json 欄位）。
 
 **Q: 如何避免 Claude Code 修改不該改的檔案？**
 
@@ -12544,7 +12191,7 @@ A: Claude Code 會將程式碼發送到 Anthropic API（或您配置的 Bedrock/
 
 **Q: 如何批量部署到開發團隊？**
 
-A: 使用 `managed-settings.json` 和 `managed-mcp.json` 建立統一配置，透過 MDM 或群組原則分發到 `~/.claude/` 目錄。
+A: 使用 `managed-settings.json` 和 `managed-mcp.json` 建立統一配置，透過 MDM 或群組原則分發到系統層級路徑（macOS `/Library/Application Support/ClaudeCode/`；Linux `/etc/claude-code/`；Windows `C:\Program Files\ClaudeCode\`）——刻意不放在使用者可寫入的 `~/.claude/`，才能確保設定無法被個別開發者覆寫。
 
 **Q: 支援 SSO 嗎？**
 
@@ -12558,7 +12205,7 @@ A: 取決於使用頻率和模型。Sonnet 模型成本較低，Opus 模型品�
 
 **Q: 如何降低 Token 消耗？**
 
-A: (1) 使用 `/compact` 定期壓縮 (2) 使用 `.claudeignore` 排除不需要的大型檔案 (3) 在 CLAUDE.md 中精簡指令 (4) 使用 `concise` 輸出風格 (5) 善用 Prompt Caching。
+A: (1) 使用 `/compact` 定期壓縮 (2) 使用 `.claudeignore` 排除不需要的大型檔案 (3) 在 CLAUDE.md 中精簡指令、控制在 200 行內 (4) 適當使用 `--bare` 跳過非必要的自動探索 (5) 善用 Prompt Caching。
 
 ### F.5 MCP 整合
 
@@ -12582,11 +12229,11 @@ A: 支援。透過 `.mcp.json` 中的 `env` 屬性設定 API Token，或使用 O
 
 **Q: Agent Teams 最多可以有幾個 Teammate？**
 
-A: 技術上沒有硬性限制，但建議不超過 5 個 Teammate。太多 Teammate 會增加 Lead Agent 的協調成本和 Token 消耗。通常 2-3 個 Teammate 是最佳實踐。
+A: 技術上沒有硬性限制，但官方建議 3-5 個 Teammate 為佳。太多 Teammate 會增加協調成本和 Token 消耗，邊際效益遞減；15 個獨立任務時，3 個 Teammate 通常就是不錯的起點。
 
 **Q: Teammate 之間如何溝通？**
 
-A: Teammate 之間不直接溝通。所有協調由 Lead Agent 負責。Teammate 透過各自的 git worktree 獨立工作，完成後由 Lead Agent 整合結果。如果需要 Teammate 之間互相參考，可使用共享的 CLAUDE.md 傳遞資訊。
+A: ⚠️ 修正：Teammate 之間**可以直接透過 Mailbox 互傳訊息**，不需要每次都經過 Lead Agent 轉達（訊息送達會自動通知收件者）；共享任務清單也讓所有 Agent 都能看到彼此的進度。另外 Teammate 預設是**共用同一份工作目錄**，不是各自獨立的 git worktree——所以分工時務必依「檔案所有權」劃分，避免兩個 Teammate 同時改到同一份檔案。
 
 **Q: Agent Teams 工作中如果某個 Teammate 失敗了怎麼辦？**
 
@@ -12594,7 +12241,7 @@ A: Lead Agent 會收到失敗通知，可以：(1) 重新指派任務給其他 T
 
 **Q: 可以在 CI/CD 中使用 Agent Teams 嗎？**
 
-A: 目前 Agent Teams 需要互動式 session（使用 `/agents` 啟動），不支援在 Headless 模式中直接使用。CI/CD 建議使用 Headless 模式搭配多個平行的 `claude -p` 呼叫來達到類似效果。
+A: 目前 Agent Teams 需要互動式 session（設定 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` 後以自然語言請求生成 Teammate，並非透過 `/agents` 啟動），不支援在 Headless 模式中直接使用。CI/CD 建議使用 Headless 模式搭配多個平行的 `claude -p` 呼叫來達到類似效果。
 
 ### F.7 Skills 與 Plugins
 
@@ -12709,13 +12356,11 @@ graph LR
 ```
 
 **官方資源**：
-- Anthropic 官方文件：[https://docs.anthropic.com/en/docs/claude-code](https://docs.anthropic.com/en/docs/claude-code)
+- Anthropic 官方文件：[https://code.claude.com/docs/en/overview](https://code.claude.com/docs/en/overview)
 - MCP 協議規範：[https://modelcontextprotocol.io](https://modelcontextprotocol.io)
 - MCP Servers 目錄：[https://github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers)
 - Claude Code GitHub：[https://github.com/anthropics/claude-code](https://github.com/anthropics/claude-code)
 
 ---
 
-*最後更新：2026 年 5 月 29日*
 
-*版本：3.1*
