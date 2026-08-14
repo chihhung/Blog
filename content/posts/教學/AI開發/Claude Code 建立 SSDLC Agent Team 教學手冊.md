@@ -37,8 +37,8 @@ lastmod = '2026-07-15T00:00:00+08:00'
   - [2.1 14 項功能概述](#21-14-項功能概述)
   - [2.2 功能矩陣表](#22-功能矩陣表)
   - [2.3 平台差異比較表](#23-平台差異比較表)
-  - [2.4 概念差異比較表](#24-概念差異比較表容易混淆的概念兩兩比較)
-  - [2.5 功能穩定性狀態對照表](#25-功能穩定性狀態對照表experimental--beta--ga)
+  - [2.4 概念差異比較表（容易混淆的概念兩兩比較）](#24-概念差異比較表容易混淆的概念兩兩比較)
+  - [2.5 功能穩定性狀態對照表（Experimental / Beta / GA）](#25-功能穩定性狀態對照表experimental--beta--ga)
   - [2.6 容易混淆術語表](#26-容易混淆術語表)
   - [2.7 Subagent 限制速查表](#27-subagent-限制速查表)
   - [2.8 Config Hierarchy 與 CLAUDE.md 載入順序速查](#28-config-hierarchy-與-claudemd-載入順序速查)
@@ -110,6 +110,7 @@ lastmod = '2026-07-15T00:00:00+08:00'
   - [8.5.6 內建 Skills（v2.1.145+）](#856-內建-skillsv21145)
   - [8.5.7 Skill 評測框架（skill-creator Plugin）](#857-skill-評測框架skill-creator-plugin)
   - [8.5.8 Skill 疑難排解](#858-skill-疑難排解)
+  - [8.5.9 即時偵測、巢狀目錄與雲端 Session 中的 Skill](#859-即時偵測巢狀目錄與雲端-session-中的-skill)
   - [8.6 完整 Skill 範例（7 個）](#86-完整-skill-範例7-個)
   - [8.7 內建 Skills 參考](#87-內建-skills-參考)
   - [8.8 實務建議](#88-實務建議)
@@ -191,7 +192,7 @@ lastmod = '2026-07-15T00:00:00+08:00'
   - [12.9 MCP 安全風險](#129-mcp-安全風險)
   - [12.10 完整範例](#1210-完整範例)
   - [12.11 MCP 安裝與驗證](#1211-mcp-安裝與驗證)
-  - [12.12 list_changed Notification](#1212-list_changed-notification)
+  - [12.12 `list_changed` Notification](#1212-list_changed-notification)
   - [12.13 實務建議](#1213-實務建議)
 - [Ch 13：Programmatic CLI、GitHub Actions 與 GitLab CI/CD](#ch-13programmatic-cligithub-actions-與-gitlab-cicd)
   - [13.1 CLI 互動模式 vs Programmatic CLI](#131-cli-互動模式-vs-programmatic-cli)
@@ -203,7 +204,7 @@ lastmod = '2026-07-15T00:00:00+08:00'
   - [13.7 何時用互動式 vs CI 自動化](#137-何時用互動式-vs-ci-自動化)
   - [13.8 CI/CD 與 Agent 自動化流程圖](#138-cicd-與-agent-自動化流程圖)
   - [13.9 實務建議](#139-實務建議)
-- [Ch 14：將 Agent、Prompt、Skills、Hooks、Memory、MCP 融入 SSDLC](#ch-14將-agentpromptskillshooksmemory-mcp-融入-ssdlc)
+- [Ch 14：將 Agent、Prompt、Skills、Hooks、Memory、MCP 融入 SSDLC](#ch-14將-agentpromptskillshooksmemorymcp-融入-ssdlc)
   - [14.1 為什麼需要融入 SSDLC](#141-為什麼需要融入-ssdlc)
   - [14.2 Agent 協作圖](#142-agent-協作圖)
   - [14.3 SSDLC 14 階段總覽](#143-ssdlc-14-階段總覽)
@@ -248,7 +249,7 @@ lastmod = '2026-07-15T00:00:00+08:00'
   - [17.9 CI 自動化風險](#179-ci-自動化風險)
   - [17.10 Logs / Audit Trail / Compliance](#1710-logs--audit-trail--compliance)
   - [17.11 風險矩陣表](#1711-風險矩陣表)
-  - [17.12 模型使用策略](#1712-模型使用策略何時用-haiku-vs-sonnet-vs-opus)
+  - [17.12 模型使用策略（何時用 Haiku vs Sonnet vs Opus）](#1712-模型使用策略何時用-haiku-vs-sonnet-vs-opus)
   - [17.13 成本監控指標表](#1713-成本監控指標表)
   - [17.14 控制點設計表](#1714-控制點設計表)
   - [17.15 不建議做法清單](#1715-不建議做法清單)
@@ -302,12 +303,12 @@ lastmod = '2026-07-15T00:00:00+08:00'
   - [22.1 範本 1：CLAUDE.md 範本](#221-範本-1claudemd-範本)
   - [22.2 範本 2：.claude/settings.json 範本](#222-範本-2claudesettingsjson-範本)
   - [22.3 範本 3：.mcp.json 範本](#223-範本-3mcpjson-範本)
-  - [22.4 範本 4：Subagent 範本](#224-範本-4subagent-範本claudeagentssecurity-reviewermd)
-  - [22.5 範本 5：SKILL.md 範本](#225-範本-5skillmd-範本claudeskillssecurity-checkskillmd)
-  - [22.6 範本 6：Hook 設定範本](#226-範本-6hook-設定範本settingsjson-hooks-區塊)
+  - [22.4 範本 4：Subagent 範本（.claude/agents/security-reviewer.md）](#224-範本-4subagent-範本claudeagentssecurity-reviewermd)
+  - [22.5 範本 5：SKILL.md 範本（.claude/skills/security-check/SKILL.md）](#225-範本-5skillmd-範本claudeskillssecurity-checkskillmd)
+  - [22.6 範本 6：Hook 設定範本（settings.json hooks 區塊）](#226-範本-6hook-設定範本settingsjson-hooks-區塊)
   - [22.7 範本 7：plugin.json 範本](#227-範本-7pluginjson-範本)
-  - [22.8 範本 8：GitHub Actions Workflow 範本](#228-範本-8github-actions-workflow-範本完整-yaml)
-  - [22.9 範本 9：GitLab CI/CD Job 範本](#229-範本-9gitlab-cicd-job-範本完整-yaml)
+  - [22.8 範本 8：GitHub Actions Workflow 範本（完整 YAML）](#228-範本-8github-actions-workflow-範本完整-yaml)
+  - [22.9 範本 9：GitLab CI/CD Job 範本（完整 YAML）](#229-範本-9gitlab-cicd-job-範本完整-yaml)
   - [22.10 範本 10：Reverse Engineering Prompt 範本](#2210-範本-10reverse-engineering-prompt-範本)
   - [22.11 範本 11：Onboarding Checklist 範本](#2211-範本-11onboarding-checklist-範本)
   - [22.12 範本 12：Governance Policy 範本](#2212-範本-12governance-policy-範本)
@@ -326,7 +327,7 @@ lastmod = '2026-07-15T00:00:00+08:00'
 | **最後更新日期** | 2026-06-26 |
 | **作者 / 角色定位** | 企業級 AI Agent 架構顧問團隊 |
 | **適用對象** | 資深工程師、架構師、技術主管、DevSecOps、人員培訓 |
-| **前提條件** | 需有 Claude Code 存取權限、VS Code（v1.98.0+）、Git |
+| **前提條件** | 需有 Claude Code 存取權限、VS Code（v1.94.0+）、Git |
 | **授權範圍** | 限公司內部使用，不可外流 |
 | **分類** | 技術白皮書 / 教學手冊 |
 
@@ -335,7 +336,7 @@ lastmod = '2026-07-15T00:00:00+08:00'
 在閱讀本手冊前，請確認您已具備以下條件：
 
 1. **Claude Code 存取權限**：已取得企業授權或 API Key，可使用 Claude Code CLI。
-2. **VS Code v1.98.0+**：Claude Code VS Code Extension 需此版本以上方可安裝。
+2. **VS Code v1.94.0+**：Claude Code VS Code Extension 需此版本以上方可安裝。
 3. **Git 版本控制**：本手冊所有範例皆假設在 Git 管理的專案中運作。
 4. **基本 CLI 操作能力**：熟悉終端機指令、環境變數設定。
 5. **SSDLC 基礎知識**：了解安全軟體開發生命週期的基本概念與階段。
@@ -398,7 +399,7 @@ lastmod = '2026-07-15T00:00:00+08:00'
 |---|------|----------|------|
 | 1 | **SSDLC** | Secure Software Development Life Cycle | 安全軟體開發生命週期，將安全實踐融入 SDLC 各階段的方法論 |
 | 2 | **Agent Team** | Agent Team | 由多個 AI Agent 組成的協作團隊，各 Agent 具有專門職責與工具存取權限。🔴 Experimental，需 v2.1.32+ |
-| 3 | **Subagent** | Subagent | 在主 Agent 下執行特定任務的子代理，自 v2.1.172 起支援巢狀呼叫（深度上限 5 層）；Agent Team Teammate 仍不可巢狀 |
+| 3 | **Subagent** | Subagent | 在主 Agent 下執行特定任務的子代理，自 v2.1.172 起支援巢狀呼叫（目前預設深度上限 3 層，可用環境變數調整，詳見 6.7）；Agent Team Teammate 仍不可巢狀 |
 | 4 | **Claude Code CLI** | Claude Code Command Line Interface | Claude Code 的命令列介面工具，為主要互動介面 |
 | 5 | **Programmatic CLI** | Programmatic CLI (formerly Headless) | 以程式化方式驅動 Claude Code 的模式，可用於自動化與 CI/CD 整合。「Headless」為舊稱/legacy 術語 |
 | 6 | **MCP** | Model Context Protocol | 模型上下文協定，允許 Claude Code 連接外部工具與資料來源。HTTP Transport 為優先，SSE 已 Deprecated |
@@ -407,7 +408,7 @@ lastmod = '2026-07-15T00:00:00+08:00'
 | 9 | **Hooks** | Hooks | 在特定事件觸發時執行的動作，類型包括 command、http、mcp_tool、prompt 及 agent（🔴 Experimental） |
 | 10 | **CLAUDE.md** | CLAUDE.md / Memory | 專案級記憶檔案，載入順序：managed policy → user global → project → local，全部累加 |
 | 11 | **Config Hierarchy** | Configuration Hierarchy | 設定檔層級結構：Global（~/.claude/）→ Project（.claude/）→ Enterprise（managed-settings / managed-mcp） |
-| 12 | **Permission Mode** | Permission Mode | 權限模式，控制 Claude Code 操作範圍。可選值：default、plan、acceptEdits、bypassPermissions |
+| 12 | **Permission Mode** | Permission Mode | 權限模式，控制 Claude Code 操作範圍。可選值：default、plan、acceptEdits、auto、dontAsk、bypassPermissions（詳見 4.7 節） |
 | 13 | **Output Styles** | Output Styles | 輸出風格設定，控制回應格式與詳細度。內建：Default、Explanatory、Learning，亦可自訂 |
 | 14 | **Scheduled Tasks** | Scheduled Tasks | 排程任務，session-scoped（會話範圍），7 天到期，最多 50 個任務 |
 | 15 | **GitHub Actions** | GitHub Actions Integration | 🟢 GA，透過 `anthropics/claude-code-action@v1` 將 Claude Code 整合至 GitHub CI/CD |
@@ -656,10 +657,10 @@ GitLab CI/CD 🟡 Beta 整合 Programmatic CLI → 在 MR 建立時自動觸發 
 
 | # | 功能名稱 | 一句話說明 |
 |---|----------|-----------|
-| 1 | **VS Code Extension** | 在 VS Code 中使用 Claude Code 的圖形化介面，需 VS Code v1.98.0+ |
+| 1 | **VS Code Extension** | 在 VS Code 中使用 Claude Code 的圖形化介面，需 VS Code v1.94.0+ |
 | 2 | **Claude Code CLI** | 命令列介面，為 Claude Code 的主要互動方式 |
 | 3 | **Programmatic CLI / Agent SDK** | 以程式化方式驅動 Claude Code，用於自動化與 CI/CD。舊稱 Headless（legacy 術語） |
-| 4 | **Subagents** | 在主 Agent 下執行特定任務的子代理，v2.1.172+ 支援巢狀呼叫（深度上限 5） |
+| 4 | **Subagents** | 在主 Agent 下執行特定任務的子代理，v2.1.172+ 支援巢狀呼叫（目前預設深度上限 3，可調整） |
 | 5 | **Agent Teams** | 多 Agent 協作團隊 🔴 Experimental，需 v2.1.32+ 並設定環境變數 |
 | 6 | **Skills** | 可重用能力模組，以 SKILL.md 定義 |
 | 7 | **Plugins** | 可安裝的擴展套件，以 Subagent 形式執行 |
@@ -677,7 +678,7 @@ GitLab CI/CD 🟡 Beta 整合 Programmatic CLI → 在 MR 建立時自動觸發 
 
 | 功能 | 狀態 | 支援自動化 | 可版控 | 安裝範圍 | 觸發方式 | 需 CLI | 需 VS Code |
 |------|------|-----------|--------|----------|----------|--------|-----------|
-| VS Code Extension | 🟢 GA | ✅ | N/A | 使用者層 | 手動互動 | ❌ | ✅ v1.98.0+ |
+| VS Code Extension | 🟢 GA | ✅ | N/A | 使用者層 | 手動互動 | ❌ | ✅ v1.94.0+ |
 | Claude Code CLI | 🟢 GA | ✅ | N/A | 系統層 | 手動指令 | ✅ | ❌ |
 | Programmatic CLI | 🟢 GA | ✅ | ✅ | 系統層 | 程式呼叫/CI | ✅ | ❌ |
 | Subagents | 🟢 GA | ✅ | ✅ | 專案層 | 主 Agent 呼叫 | ✅ | ❌ |
@@ -711,7 +712,7 @@ GitLab CI/CD 🟡 Beta 整合 Programmatic CLI → 在 MR 建立時自動觸發 
 | **適用場景** | 日常開發 | 進階開發/腳本 | PR 驅動 CI/CD | MR 驅動 CI/CD |
 | **安裝方式** | VS Code Marketplace | npm / Windows PowerShell | YAML Workflow 定義 | .gitlab-ci.yml 定義 |
 | **Windows 安裝** | Marketplace 安裝 | `irm https://claude.ai/install.ps1 \| iex` | N/A（雲端執行） | N/A（雲端執行） |
-| **版本需求** | VS Code v1.98.0+ | Claude Code CLI 最新版 | `anthropics/claude-code-action@v1` | Beta 版本 |
+| **版本需求** | VS Code v1.94.0+ | Claude Code CLI 最新版 | `anthropics/claude-code-action@v1` | Beta 版本 |
 
 ### 2.4 概念差異比較表（容易混淆的概念兩兩比較）
 
@@ -734,10 +735,10 @@ GitLab CI/CD 🟡 Beta 整合 Programmatic CLI → 在 MR 建立時自動觸發 
 
 | # | 功能 | 狀態 | 版本需求 | 啟用方式 | 備註 |
 |---|------|------|----------|----------|------|
-| 1 | VS Code Extension | 🟢 GA | VS Code v1.98.0+ | Marketplace 安裝 | — |
+| 1 | VS Code Extension | 🟢 GA | VS Code v1.94.0+ | Marketplace 安裝 | — |
 | 2 | Claude Code CLI | 🟢 GA | 最新版 | npm 或 PowerShell 安裝 | Windows: `irm https://claude.ai/install.ps1 \| iex` |
 | 3 | Programmatic CLI | 🟢 GA | 最新版 | `claude --print` 或 SDK 呼叫 | 舊稱 Headless（legacy） |
-| 4 | Subagents | 🟢 GA | — | 設定檔定義 | v2.1.172+ 可巢狀（深度上限 5） |
+| 4 | Subagents | 🟢 GA | — | 設定檔定義 | v2.1.172+ 可巢狀（目前預設深度上限 3，可調整） |
 | 5 | Agent Teams | 🔴 Experimental | v2.1.32+ | `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` | 預設未啟用 |
 | 6 | Skills | 🟢 GA | — | SKILL.md 檔案 | frontmatter: name/description/disable-model-invocation/allowed-tools/context |
 | 7 | Plugins | 🟢 GA | — | 安裝啟用 | 不支援 hooks/mcpServers/permissionMode frontmatter |
@@ -758,11 +759,11 @@ GitLab CI/CD 🟡 Beta 整合 Programmatic CLI → 在 MR 建立時自動觸發 
 | 3 | Agent（泛稱） | **Subagent** 或 **Agent Team** | 需區分：單一 Subagent 與多 Agent 組成的 Agent Team |
 | 4 | Rule / Instruction | **CLAUDE.md** | 專案規範/指引統一寫在 CLAUDE.md，不再散落於其他檔案 |
 | 5 | Skill（泛稱） | **SKILL.md** | Skills 必須以 SKILL.md 檔案定義，含 YAML frontmatter |
-| 6 | Teammate（Agent Team 語境） | **Subagent definition** | Agent Team 中的隊友透過 Subagent 定義，僅 tools+model 生效，skills+mcpServers 不會帶入 |
+| 6 | Teammate（Agent Team 語境） | **Subagent definition** | Agent Team 中的隊友透過 Subagent 定義，官方僅排除 skills、mcpServers 不帶入，其餘欄位（tools、model、hooks、permissionMode、disallowed-tools、memory 等）正常生效（詳見 6.11 節） |
 | 7 | Action（泛稱） | **Hook** 或 **GitHub Action** | 需區分：Hook 是 Claude Code 事件觸發；GitHub Action 是 CI/CD Workflow |
 | 8 | Memory（泛稱） | **CLAUDE.md** | Claude Code 的 Memory 機制主要透過 CLAUDE.md 實現 |
 | 9 | Config（泛稱） | **Config Hierarchy** | 設定有明確層級：Global(~/.claude/) → Project(.claude/) → Enterprise(managed-settings/managed-mcp) |
-| 10 | Extension Mode | **Permission Mode** | 正確術語為 Permission Mode，可選值：default / plan / acceptEdits / bypassPermissions |
+| 10 | Extension Mode | **Permission Mode** | 正確術語為 Permission Mode，可選值：default / plan / acceptEdits / auto / dontAsk / bypassPermissions |
 | 11 | GA Version | **Stable Release** | GA (Generally Available) 等同正式穩定版，有 SLA 保障 |
 | 12 | Opus 4.7 | **不在公司允許清單** | Opus 4.7 雖存在但公司僅允許 Sonnet 4.6、Opus 4.6、Haiku 4.5 |
 
@@ -772,7 +773,7 @@ GitLab CI/CD 🟡 Beta 整合 Programmatic CLI → 在 MR 建立時自動觸發 
 
 | 限制項目 | 說明 | 影響 |
 |---------|------|------|
-| **巢狀呼叫深度** | v2.1.172+ 支援巢狀呼叫，深度上限 5 層（舊版不支援） | 過深的巢狀委派會增加延遲與除錯難度，建議優先由主對話明確編排 |
+| **巢狀呼叫深度** | v2.1.172+ 支援巢狀呼叫，目前預設深度上限 3 層、可用 `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` 調整（舊版不支援；v2.1.172–216 曾固定為 5 層，詳見 6.7） | 過深的巢狀委派會增加延遲與除錯難度，建議優先由主對話明確編排 |
 | **Plugin Subagent frontmatter** | Plugins（以 Subagent 執行）不支援 hooks / mcpServers / permissionMode frontmatter | Plugin 無法自帶 Hook 或 MCP 設定 |
 | **Agent Team Teammate 限制** | 透過 Subagent definition 定義的 Teammate，官方僅排除 `skills` 與 `mcpServers` 不帶入 | 其餘欄位（tools、model、disallowed-tools、memory 等）仍正常生效，且 Teammate 不可巢狀 |
 | **上下文隔離** | 每個 Subagent 有獨立的上下文視窗 | 需透過明確的輸入/輸出傳遞資訊 |
@@ -801,7 +802,7 @@ GitLab CI/CD 🟡 Beta 整合 Programmatic CLI → 在 MR 建立時自動觸發 
 
 1. **優先掌握 GA 功能**：14 項功能中有 12 項已 🟢 GA，建議從這些穩定功能開始導入，避免在 Experimental 功能上投入過多架構承諾。
 2. **嚴格區分術語**：團隊內部應統一使用正確術語（如 Programmatic CLI 而非 Headless），避免溝通混亂。
-3. **注意 Subagent 限制**：架構設計時務必考慮 Subagent 自 v2.1.172 起雖可巢狀（深度上限 5）但 Agent Team teammate 仍不可巢狀、Plugin Subagent 不支援 hooks/mcpServers/permissionMode frontmatter 等限制（詳見 6.7、6.11 節）。
+3. **注意 Subagent 限制**：架構設計時務必考慮 Subagent 自 v2.1.172 起雖可巢狀（目前預設深度上限 3，可調整）但 Agent Team teammate 仍不可巢狀、Plugin Subagent 不支援 hooks/mcpServers/permissionMode frontmatter 等限制（詳見 6.7、6.11 節）。
 4. **MCP Transport 遷移**：若現有設定使用 SSE Transport，應儘速遷移至 HTTP Transport，因 SSE 已 ⚫ Deprecated。
 5. **Agent Team Teammate 設計**：透過 Subagent definition 定義 Teammate 時，官方僅明確排除 `skills` 與 `mcpServers` 兩個欄位不帶入，其餘欄位（含 `tools`、`model`、`disallowed-tools`、`memory` 等）維持正常生效，不要誤以為只有 `tools`/`model` 有效（詳見 6.11 節）。
 6. **CLAUDE.md 累加機制**：CLAUDE.md 的四層載入是「累加」而非「覆蓋」，因此要注意避免不同層級的指令衝突。
@@ -1066,15 +1067,15 @@ flowchart LR
         MA1 --> SA1
         MA1 --> SA2
         MA1 --> SA3
-        SA1 -.->|"✅ v2.1.172+ 可巢狀<br/>(深度上限 5)"| X1["可再呼叫<br/>Subagent"]
+        SA1 -.->|"✅ v2.1.172+ 可巢狀<br/>(預設深度上限 3)"| X1["可再呼叫<br/>Subagent"]
     end
 
     subgraph AgentTeamModel["Agent Team 模式 🔴 Experimental"]
         direction TB
         MA2["Orchestrator"]
-        TA1["Teammate A<br/>tools+model 生效"]
-        TA2["Teammate B<br/>tools+model 生效"]
-        TA3["Teammate C<br/>tools+model 生效"]
+        TA1["Teammate A<br/>僅 skills/mcpServers 不帶入"]
+        TA2["Teammate B<br/>僅 skills/mcpServers 不帶入"]
+        TA3["Teammate C<br/>僅 skills/mcpServers 不帶入"]
         MA2 <--> TA1
         MA2 <--> TA2
         MA2 <--> TA3
@@ -1098,7 +1099,7 @@ flowchart LR
 | **計畫審批** | N/A | 支援 plan approval（Teammate 提交計畫後需審批） |
 | **skills 與 mcpServers** | 主 Agent 設定可用 | ❌ 不帶入 Teammate（其餘 frontmatter 欄位如 `disallowed-tools`/`memory`/`context` 皆正常生效，詳見 6.11） |
 | **Session 管理** | 標準 session 管理 | 一個 team per session，無 session resumption |
-| **巢狀需求** | ✅ v2.1.172+ 可巢狀（深度上限 5） | ❌ 不可巢狀（亦不支援巢狀 Team） |
+| **巢狀需求** | ✅ v2.1.172+ 可巢狀（預設深度上限 3，可調整） | ❌ 不可巢狀（亦不支援巢狀 Team） |
 | **版本需求** | 無特殊要求 | v2.1.32+ 且 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` |
 | **生命週期** | 任務完成即結束 | Session 結束即解散 |
 | **建議場景** | Code Review、測試產生、文件撰寫 | 端對端功能開發、多角色協作 |
@@ -1255,7 +1256,7 @@ flowchart LR
 |---------|------|---------|
 | **Git** | Claude Code 需要 Git 進行版本控制操作 | `git --version` |
 | **Node.js 18+**（macOS/Linux npm 安裝時需要） | npm 安裝方式需要 Node.js 環境 | `node --version` |
-| **VS Code v1.98.0+**（若使用 Extension） | Claude Code VS Code Extension 需此版本以上 | VS Code → Help → About |
+| **VS Code v1.94.0+**（若使用 Extension） | Claude Code VS Code Extension 需此版本以上 | VS Code → Help → About |
 | **網路連線** | 安裝與認證均需連線 | — |
 | **企業授權** | 需有 Claude Code 企業存取權限或 API Key | — |
 
@@ -1299,7 +1300,7 @@ claude --version
 git --version
 ```
 
-> ⚠️ **Windows 特別注意**：三種安裝方式皆需要 **Git for Windows** 作為前提。若尚未安裝 Git，請先至 https://git-scm.com/download/win 下載安裝，或使用 `winget install Git.Git`。
+> ⚠️ **Windows 特別注意**：三種安裝方式皆需要 **Git for Windows** 作為前提。若尚未安裝 Git，請先至 <https://git-scm.com/download/win> 下載安裝，或使用 `winget install Git.Git`。
 
 ### 4.3 macOS 安裝
 
@@ -1346,7 +1347,7 @@ claude --version
 
 ### 4.5 VS Code Extension 安裝
 
-1. 確認 VS Code 版本 ≥ **v1.98.0**（Help → About 查看）。
+1. 確認 VS Code 版本 ≥ **v1.94.0**（Help → About 查看）。
 2. 開啟 VS Code → Extensions（Ctrl+Shift+X）。
 3. 搜尋 `Claude Code` 或 `Anthropic`。
 4. 安裝官方 Claude Code Extension。
@@ -1358,14 +1359,17 @@ claude --version
 |------|------|
 | **Spark Icon** | 側邊欄的 Claude Code 圖示，一鍵開啟互動面板 |
 | **Plan Mode** | 在 VS Code 中使用 plan 模式進行規劃 |
-| **Checkpoints / Rewind** | 自動建立檢查點，可回溯至先前狀態 |
+| **Checkpoints / Rewind** | 自動建立檢查點；滑鼠移至任一則訊息可叫出回溯選單，提供三種操作：僅從該訊息點分岔對話（保留目前所有程式碼變更）、僅將檔案回復到該時間點（保留完整對話紀錄）、或兩者同時進行 |
 | **@mentions** | 在 Chat 中 @mention 檔案、符號、Agent |
+| **`@terminal:名稱`** | 引用指定名稱終端機的輸出內容（如錯誤訊息、指令結果），免除手動複製貼上 |
 | **Worktree 支援** | 支援 Git Worktree 多分支同時開發 |
 | **內建 IDE MCP Server** | 以 `mcp__ide__getDiagnostics`、`mcp__ide__executeCode` 兩個工具暴露給模型；Extension 內部還有更多 RPC 工具供面板使用，但僅這兩個會出現在模型可呼叫的工具清單中 |
 | **URI Handler** | 支援 `vscode://anthropic.claude-code/open` 直接開啟，並可帶 `prompt=`/`session=` 參數預填提示詞或指定續接的 session |
 | **Extended Thinking** | 推理過程以可摺疊區塊顯示，`Ctrl+O`（macOS：`Cmd+O`）可展開/收合全部思考區塊 |
 | **多模型切換** | 在輸入框輸入 `/` 開啟指令選單，可即時切換對話使用的模型 |
 | **Session History** | 本機（Local）分頁可依時間搜尋/瀏覽歷史 session，並支援重新命名、移除；AI 會自動為 session 產生標題方便辨識 |
+| **Session 分組（v2.1.229+）** | 側邊欄的 Session 清單可將相關 Session 收整進具名、可摺疊的群組；支援多選（`Cmd/Ctrl` 點選、`Shift` 選取範圍）後批次搬移分組，分組設定按 Workspace 資料夾儲存，跨視窗重新開啟同一資料夾仍保留 |
+| **Focus View（v2.1.221+）** | 隱藏工具呼叫、工具結果與思考過程，僅保留提示詞與 Claude 的回覆文字；待辦清單與待回覆的問題仍會顯示。可於指令選單設定區切換，或用 `Cmd/Ctrl+Option/Alt+F` 快捷鍵，設定會套用到所有已開啟的 Session 並跨 Session 記住 |
 | **Remote Session** | 面板的 Remote 分頁可接續在 claude.ai（需訂閱登入）啟動的雲端 Session，與本機 Session 並列管理 |
 | **面板重新定位** | 面板分頁可拖曳至次要側邊欄、主要側邊欄或編輯器區域自由擺放；多分頁時以藍點標示待授權、橘點標示已於背景完成的分頁 |
 | **`/plugins` GUI 面板** | 提供 Plugins / Marketplaces 分頁的圖形化管理介面，可視覺化瀏覽、安裝並選擇安裝範圍，等同於 CLI 的 `/plugin` 系列指令 |
@@ -1403,6 +1407,7 @@ claude --version
 | Reopen Closed Session | `Cmd+Shift+T` | `Ctrl+Shift+T` | 重新開啟最近關閉的 Session |
 | Insert @-Mention Reference | `Option+K` | `Alt+K` | 插入檔案/符號/Agent 的 @mention 參照 |
 | 展開/收合 Extended Thinking | `Cmd+O` | `Ctrl+O` | 切換所有思考區塊的展開狀態 |
+| Toggle Focus View | `Cmd+Ctrl+F` | `Ctrl+Alt+F` | 切換是否隱藏工具呼叫/結果/思考過程（v2.1.221+） |
 | Open in Side Bar | 命令選單 | 命令選單 | 將 Claude Code 面板移至側邊欄顯示 |
 | Open in Terminal | 命令選單 | 命令選單 | 以內建終端機面板方式開啟（等同 `claudeCode.useTerminal`） |
 | Open in New Window | 命令選單 | 命令選單 | 在獨立的新視窗開啟 Claude Code |
@@ -1495,14 +1500,18 @@ set ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxx
 
 ### 4.7 Permission Mode 比較表
 
-Claude Code 提供四種權限模式，控制 Agent 的操作範圍：
+Claude Code 提供六種權限模式，控制 Agent 的操作範圍（`manual` 為 `default` 的別名，不另立一列）：
 
 | 權限模式 | 可讀取 | 可編輯 | 可執行指令 | 適用場景 | 風險等級 |
 |---------|--------|--------|-----------|---------|---------|
 | **`default`** | ✅ | ⚠️ 需確認 | ⚠️ 需確認 | 一般互動使用，每個操作需人工確認 | 🟢 最低 |
 | **`plan`** | ✅ | ❌ | ❌ | 規劃、設計、分析、審查，僅產出建議不執行 | 🟢 低 |
-| **`acceptEdits`** | ✅ | ✅ 自動 | ⚠️ 需確認 | 開發、測試，自動寫入檔案但執行指令需確認 | 🟡 中 |
-| **`bypassPermissions`** | ✅ | ✅ 自動 | ✅ 自動 | 完全自動化，跳過所有確認 | 🔴 最高 |
+| **`acceptEdits`** | ✅ | ✅ 自動 | ⚠️ 部分自動 | 開發、測試，自動寫入檔案並自動核准常見檔案系統指令（如 `mkdir`/`mv`/`cp`），其餘 Shell 指令仍需確認 | 🟡 中 |
+| **`auto`** | ✅ | ⚙️ 分類器判斷 | ⚙️ 分類器判斷 | 背景分類器即時審查每次工具呼叫與受保護目錄寫入，動態決定允許/拒絕，減少不必要的人工確認同時保留風險判斷 | 🟡 中 |
+| **`dontAsk`** | ✅ | ⚠️ 依允許清單 | ⚠️ 依允許清單 | 僅執行已明確列於 `permissions.allow` 或唯讀指令集合的操作，其餘一律自動拒絕（不彈出詢問）；適合鎖死的 CI 環境 | 🟡 中 |
+| **`bypassPermissions`** | ✅ | ✅ 自動 | ✅ 自動 | 完全自動化，跳過所有確認（`ask` 規則、需互動的 MCP 工具等少數例外仍會詢問） | 🔴 最高 |
+
+> 📌 **版本與治理提醒**：`auto` 與 `dontAsk` 是較晚加入的模式，早期文件或教材若仍只列出 `default`/`plan`/`acceptEdits`/`bypassPermissions` 四種，屬於過時資訊。企業可透過 [`permissions.disableBypassPermissionsMode`](Managed Settings) 完全鎖死 `bypassPermissions`，此時即使 Subagent frontmatter 指定該模式也會被忽略、改用主對話的模式執行。
 
 **Permission Mode 選用決策**：
 
@@ -1614,9 +1623,9 @@ Claude Code 提供四種權限模式，控制 Agent 的操作範圍：
 | # | 錯誤訊息 / 狀況 | 原因 | 解決方式 |
 |---|----------------|------|---------|
 | 1 | `'claude' is not recognized as an internal or external command` | PATH 環境變數未設定 | 重新開啟終端機；若使用 PowerShell 安裝，確認安裝完成後重啟 terminal。Windows 可手動將安裝路徑加入 PATH |
-| 2 | `Error: Git is not installed` | 未安裝 Git for Windows | 安裝 Git for Windows：`winget install Git.Git` 或至 https://git-scm.com/download/win 下載 |
+| 2 | `Error: Git is not installed` | 未安裝 Git for Windows | 安裝 Git for Windows：`winget install Git.Git` 或至 <https://git-scm.com/download/win> 下載 |
 | 3 | `EACCES: permission denied` (npm 安裝) | npm 全域安裝權限不足 | Linux/macOS：使用 `sudo npm install -g` 或更改 npm 全域目錄至使用者空間。不建議用 `sudo` 的替代方案：`npm config set prefix '~/.npm-global'` |
-| 4 | `VS Code Extension 安裝後無 Spark Icon` | VS Code 版本低於 v1.98.0 | 更新 VS Code 至 v1.98.0 以上：Help → Check for Updates |
+| 4 | `VS Code Extension 安裝後無 Spark Icon` | VS Code 版本低於 v1.94.0 | 更新 VS Code 至 v1.94.0 以上：Help → Check for Updates |
 | 5 | `Authentication failed` / 登入逾時 | 網路問題或認證失敗 | 檢查網路連線；嘗試使用 API Key 環境變數作為替代認證方式 |
 | 6 | `Model not available` | 使用了未授權的模型 | 檢查 `settings.json` 中的 `model` 設定，確認使用公司允許的模型：sonnet / opus / haiku |
 | 7 | `WinGet package not found` | WinGet 來源未更新 | 執行 `winget source update` 後重試 |
@@ -1624,7 +1633,7 @@ Claude Code 提供四種權限模式，控制 Agent 的操作範圍：
 ### 4.11 實務建議
 
 1. **Git for Windows 是 Windows 必要前提**：所有三種 Windows 安裝方式都依賴 Git。請在安裝 Claude Code 之前先安裝 Git for Windows。
-2. **VS Code 版本必須 ≥ v1.98.0**：低於此版本的 VS Code 無法安裝或使用 Claude Code Extension 的完整功能。
+2. **VS Code 版本必須 ≥ v1.94.0**：低於此版本的 VS Code 無法安裝或使用 Claude Code Extension 的完整功能。
 3. **API Key 安全管理**：永遠不要將 API Key 寫入 `.claude/settings.json` 或任何版控檔案。使用環境變數或企業 Secret 管理工具。
 4. **Permission Mode 預設用 default 或 plan**：除非有明確需求，否則不要使用 `bypassPermissions`。日常開發使用 `acceptEdits` 即可。
 5. **模型選擇影響成本**：Opus 4.6 的成本顯著高於 Sonnet 4.6，僅在需要深度推理時使用。Haiku 4.5 成本最低，適合文件產生等輕量任務。
@@ -2220,7 +2229,7 @@ Claude Code 提供三種「子代理」機制，各自有不同的隔離等級�
 | **隔離等級** | 獨立 context window；完成後僅回傳摘要 | 獨立 context window；完成後僅回傳摘要 | 獨立 context window，但 Lead 可持續與 Teammate 對話 |
 | **生命週期** | 執行完畢即銷毀 | 執行完畢即銷毀 | 隨 session 存續，可被多次呼叫 |
 | **觸發方式** | Claude 自動決定 or `/subtask` 指令 | `@agent-name` 明確呼叫，或 Claude 依 description 自動匹配 | Lead Agent 依據 description 自動委派 |
-| **可巢狀？** | ✅ v2.1.172+ 可巢狀（深度上限 5） | ✅ v2.1.172+ 可巢狀（深度上限 5） | ❌ 不可巢狀 |
+| **可巢狀？** | ✅ v2.1.172+ 可巢狀（預設深度上限 3，可調整） | ✅ v2.1.172+ 可巢狀（預設深度上限 3，可調整） | ❌ 不可巢狀 |
 | **frontmatter** | 無 | name, description, model, tools/allowed-tools, disallowed-tools, context, hooks, memory, argument-hint | 官方僅排除 **skills**、**mcpServers** 不帶入；其餘欄位（tools、model、disallowed-tools、memory 等）正常生效 |
 | **功能狀態** | 🟢 GA | 🟢 GA | 🔴 Experimental（v2.1.32+） |
 
@@ -2412,16 +2421,35 @@ Subagent 的 `disallowed-tools` 與主對話的 Permission Mode 是**兩道獨�
 
 ### 6.7 巢狀呼叫限制
 
-**版本差異需特別留意**：Subagent 巢狀呼叫的限制已隨版本放寬，但 Agent Team 的限制不變：
+**版本差異需特別留意**：Subagent 巢狀呼叫自 v2.1.172 起開放，但深度上限本身也隨版本多次調整，並非固定不變的「5 層」——若團隊文件或教材仍寫死「上限 5 層」，多半是引用了 v2.1.172–216 這個舊區間的數字，企業導入前務必以 `claude --version` 核對實際版本對應的預設值：
 
-- **Subagent**：自 **v2.1.172 起支援巢狀呼叫**（深度上限 5 層）——一個 Subagent 現在可以再委派給另一個 Subagent。舊版（v2.1.172 之前）不支援巢狀，Subagent 只能自行完成任務或交還主對話處理。
-- **Agent Team Teammate**：**仍不支援巢狀**——Teammate 不能再產生自己的 Team 或委派給其他 Teammate，也不能從 in-process Teammate 內再啟動背景 Subagent。
+| 版本區間 | 巢狀深度預設值 | 是否可調整 |
+|---------|--------------|-----------|
+| < v2.1.172 | 不支援巢狀（0 層） | 不可調整 |
+| v2.1.172 – v2.1.216 | 5 層 | 不可調整（固定值） |
+| v2.1.217 – v2.1.218 | 1 層（等同關閉巢狀，除非另行調高） | 可調整 |
+| **v2.1.219 起（目前預設）** | **3 層** | **可調整** |
+
+自 v2.1.217 起，可用 `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` 環境變數調整此深度上限（設為主對話以下允許的巢狀層數），例如設為 `2` 代表 Subagent 可再委派一層、該層不可繼續往下委派；設為 `1` 等同關閉巢狀：
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "2"
+  }
+}
+```
+
+到達深度上限時，Claude Code 會從該層 Subagent 移除 `Agent` 工具（Forked Subagent 除外——它仍保留 `Agent` 於工具清單中，但呼叫會直接回傳錯誤而非真的產生新的 Subagent）。
+
+- **Subagent**：v2.1.172+ 支援巢狀呼叫——一個 Subagent 可以再委派給另一個 Subagent，深度依上表版本對應的預設值（目前為 3 層），且可透過環境變數調整。
+- **Agent Team Teammate**：**仍不支援巢狀**，且不受上述環境變數影響——Teammate 不能再產生自己的 Team 或委派給其他 Teammate，in-process Teammate 也不能再啟動自己的背景 Subagent（該限制與深度上限無關，是 Agent Team 架構本身的硬性限制）。
 
 ```mermaid
 graph TD
     Main["🤖 Main Claude"] -->|"✅ 可以"| Sub1["🔧 Subagent A"]
     Main -->|"✅ 可以"| Sub2["🔧 Subagent B"]
-    Sub1 -->|"✅ v2.1.172+ 可以（深度上限 5）"| Sub3["🔧 Subagent C"]
+    Sub1 -->|"✅ v2.1.172+ 可以<br/>(目前預設深度上限 3，可調整)"| Sub3["🔧 Subagent C"]
 
     Lead["🤖 Team Lead"] -->|"✅ 可以"| TM1["👥 Teammate A"]
     Lead -->|"✅ 可以"| TM2["👥 Teammate B"]
@@ -2430,7 +2458,11 @@ graph TD
     style TM3 fill:#ffcdd2,stroke:#c62828
 ```
 
-**影響**：舊版環境（< v2.1.172）或使用 Agent Team 時，若需要「A 的結果餵給 B」，仍須由主對話（或 Lead Agent）串接；v2.1.172+ 的 Subagent 巢狀呼叫雖然可行，但每多一層巢狀就多一層獨立 context 與委派延遲，企業實務上仍建議優先由主對話明確編排委派順序，僅在確實需要動態、遞迴式委派時才依賴巢狀呼叫，並留意 5 層深度上限。
+**影響**：舊版環境（< v2.1.172）或使用 Agent Team 時，若需要「A 的結果餵給 B」，仍須由主對話（或 Lead Agent）串接；v2.1.172+ 的 Subagent 巢狀呼叫雖然可行，但每多一層巢狀就多一層獨立 context 與委派延遲，企業實務上仍建議優先由主對話明確編排委派順序，僅在確實需要動態、遞迴式委派時才依賴巢狀呼叫，並留意目前預設 3 層的深度上限。
+
+**併發數上限**：巢狀深度之外，同一 Session 內**同時執行中**的 Subagent 數量預設上限為 **20**，超過時以 `Agent` 工具新增的委派會失敗並回報 `Concurrent subagent limit reached`（提示不要重試），待執行中數量降到上限以下才會再成功；可用 `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` 環境變數調整，啟用 ultracode 的 Session 則不受此上限限制。此上限只計入透過 `Agent` 工具動態產生的 Subagent；`/subtask` 產生的 Fork 與 Resume 既有 Subagent 不受限。
+
+**Subagent 輸出安全掃描（v2.1.210+）**：Subagent 可能讀取了未經人工檢視的檔案、網頁或指令輸出，其中可能夾帶意圖影響主對話的注入文字。Claude Code 在主對話讀取 Subagent 最終回報前會先掃描內容：偵測到模仿 `<system-reminder>` 等內部標籤、或提及 `bypassPermissions`／`--dangerously-skip-permissions` 等權限設定字樣時，會插入反斜線使其失去標籤效力，並在回報開頭加註 `[harness: subagent output matched instruction-shaped pattern(s): ...]` 提示行。此機制**不會**判斷內容是否惡意、也不會改變回報中的指令實際可執行的範圍——後續若因此觸發任何工具呼叫，仍須通過正常的權限與沙箱檢查，因此不能取代「限制 Subagent 可存取的工具與資料」這個根本防線（見 6.6 節）。
 
 ---
 
@@ -2742,7 +2774,7 @@ tools:
 - 需設定環境變數：`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`
 - 一個 session 只能有一個 Agent Team
 - 不支援 session resumption
-- Teammate 的 frontmatter 僅 tools 與 model 生效；skills、mcpServers 不帶入
+- Teammate 的 frontmatter 僅 skills、mcpServers 不帶入；其餘欄位（tools、model、hooks、permissionMode 等）正常生效
 ```
 
 #### 範例 6：Architect Teammate
@@ -2863,7 +2895,7 @@ description: "Orchestrates other teammates"
 
 **✅ 正確做法**：由 Lead Agent 串接多個 Teammate。
 
-> 📌 **版本提醒**：一般 Subagent（`.claude/agents/*.md`，非 Agent Team Teammate 身分）自 **v2.1.172 起支援巢狀呼叫**（深度上限 5），上述限制僅適用於 **Agent Team Teammate**。即便如此，架構設計上仍建議優先由主對話明確編排委派順序，避免過深的巢狀委派鏈增加延遲與除錯難度。
+> 📌 **版本提醒**：一般 Subagent（`.claude/agents/*.md`，非 Agent Team Teammate 身分）自 **v2.1.172 起支援巢狀呼叫**（目前預設深度上限 3，可調整，詳見 6.7），上述限制僅適用於 **Agent Team Teammate**。即便如此，架構設計上仍建議優先由主對話明確編排委派順序，避免過深的巢狀委派鏈增加延遲與除錯難度。
 
 #### ❌ Anti-Pattern 2：Agent Team Teammate 依賴 Skills/MCP
 
@@ -2975,6 +3007,14 @@ Agent Team 支援 Teammate 操作前的計畫審批機制：
 - 此機制搭配 `permission-mode: plan` 使用，提供額外的安全保障
 
 **設計建議**：若同一個 `.md` 檔案需要同時支援一般 Subagent 和 Agent Team Teammate 兩種用法，建議將 skills/mcpServers 的功能直接寫在 body 的指令中，而非依賴 frontmatter。
+
+#### Team 規模建議與跨 Agent 訊息的信任邊界
+
+**團隊規模**：官方文件並未對 Teammate 數量設硬性上限，但建議多數場景以 **3–5 個 Teammate** 為起點——過少無法發揮平行探索的價值，過多則協調成本（溝通、任務指派、衝突處理）會抵銷平行化帶來的效益，且 Token 成本隨 Teammate 數量線性增加（每個 Teammate 都是獨立的 Claude Code 實例）。若任務可拆成 15 個獨立子任務，3 個 Teammate、每人負責 5–6 個任務通常優於一次開 15 個 Teammate。
+
+**Mailbox 可靠性**：每個 Agent 的信箱是 `~/.claude/teams/{team-name}/inboxes/{agent-name}.json` 檔案，Claude Code 讀取時會驗證每筆訊息格式，格式不符的項目會被記錄為錯誤並從檔案中移除，其餘合法訊息仍正常送達（v2.1.207 前，單一格式錯誤的訊息會導致整個信箱每秒重複報錯且完全無法送達，須手動刪除檔案排除；此問題已修復）。訊息（含一般文字與 Plan Approval／Shutdown 等結構化協定訊息）僅在成功寫入收件者信箱檔案後才視為送達成功，寫入失敗（如磁碟已滿、目錄不可寫）時寄件 Agent 會收到錯誤，訊息不會憑空消失也不會誤判送達。
+
+**跨 Agent 訊息不能替代使用者授權**：Teammate 之間透過 `SendMessage` 互傳訊息時，Claude Code 會明確告知接收方「這則訊息來自另一個 Claude Session，而非使用者本人」——任何 Agent 都不能代替使用者核准權限提示，也不能將自己被拒絕的操作轉發給另一個 Teammate 藉此繞過權限檢查。啟用 auto 權限模式時，分類器會將轉發而來的「已核准」宣稱視為未驗證的外部輸入，並在每則跨 Agent 訊息送達前先行審查，判定有風險的訊息不會送達收件者。
 
 ### 6.12 內建 Subagents 與 Agent Team Hooks
 
@@ -3913,6 +3953,14 @@ Claude Code 內建以下 Skill，無需額外安裝即可在任何 Session 中�
 
 **Skill 位置優先序**：同名 Skill 若在多個層級同時存在，優先序為 **enterprise（Managed Settings）> personal（`~/.claude/skills/`）> project（`.claude/skills/`）**——越靠近使用者個人環境的設定，理論上越貼近其當下需求，但企業層級仍可透過 Managed Settings 強制覆蓋，確保合規要求不被個人設定繞過。
 
+### 8.5.9 即時偵測、巢狀目錄與雲端 Session 中的 Skill
+
+**即時偵測（Live Change Detection）**：新增、編輯或刪除 `~/.claude/skills/`、專案 `.claude/skills/`，或透過 `--add-dir` 掛載目錄內的 `.claude/skills/` 下的檔案時，Claude Code 會在**當次 Session 內**自動偵測變更、無需重啟即可套用；但若是「建立一個原本不存在的頂層 Skills 目錄」（該路徑在 Session 啟動當下還不存在），則因監看程序只涵蓋啟動時已存在的目錄，仍須重啟 Claude Code 才會納入監看範圍。
+
+**Monorepo 巢狀 Skills 目錄**：專案 Skills 除了會從啟動目錄一路往上找到 Repo 根目錄的每一層 `.claude/skills/` 外，啟動目錄**以下**的巢狀 `.claude/skills/`（如 `apps/web/.claude/skills/`）也會在 Claude 讀取或編輯該子目錄下的檔案時**自動載入**，讓 Monorepo 中每個子專案能定義只在該子目錄情境下適用的 Skill。若巢狀 Skill 與根目錄 Skill 同名，兩者並存而非互相覆蓋：巢狀版本會以「目錄限定名稱」（如 `/apps/web:deploy`）供明確呼叫；直接呼叫未限定名稱（如 `/deploy`）預設執行根目錄版本，但 Claude Code 會在根目錄版本內容後方附加各巢狀變體清單並指示 Claude 一併套用「目前正在處理的檔案所屬目錄」對應的巢狀版本，因此未限定呼叫在該子目錄情境下仍會一併套用巢狀規則。
+
+**Cowork／雲端 Session 中的 Skill 來源不同**：[Cowork](https://claude.com/product/cowork) 與雲端 Session（含 Routines）**不會**讀取開發者本機的 `~/.claude/skills/`，而是載入該使用者 claude.ai 帳號上啟用的 Skill（於 Session 開始時同步），雲端 Session 額外會讀取已 clone 之 Repo 內委交版控的專案 Skill。因此僅存在於本機 `~/.claude/skills/` 的個人 Skill，在 Routine 執行時會被回報「找不到該 Skill」；若要讓個人 Skill 在這些情境下可用，須改為在 claude.ai 帳號設定中啟用該 Skill，或（僅雲端 Session 適用）將 Skill 改放進專案 `.claude/skills/` 並委交版控，或透過專案 `.claude/settings.json` 宣告的 Plugin 提供。Desktop 排程任務則不受此限——它在本機執行，讀取來源與一般本機 Session 相同。
+
 ---
 
 ### 8.6 完整 Skill 範例（7 個）
@@ -3995,7 +4043,7 @@ allowed-tools:
 
 **SKILL.md 完整範例**：
 
-```markdown
+````markdown
 ---
 name: test-generator
 description: "Generates comprehensive unit tests for source code including happy path, edge cases, boundary values, and error scenarios. Supports JUnit 5, pytest, and Jest."
@@ -4047,7 +4095,7 @@ describe('login', () => {
 - 測試之間不可有依賴（Independent）
 - 測試名稱必須描述行為，不只描述方法名
 - Mock 只用於外部依賴，不 Mock 被測試類別本身
-```
+````
 
 **Supporting Files**：
 - `testing/test-conventions.md`：團隊測試命名慣例與品質標準
@@ -4511,7 +4559,6 @@ Claude Code 提供以下內建 Skills，可直接使用：
 7. **Skill vs. Hook 的選擇**：若需要「每次執行某工具前必定做某檢查」，使用 Hook（確定性）。若需要「智慧判斷是否執行某工作流程」，使用 Skill（依賴 LLM）。
 8. **Supporting Files 精簡原則**：每個 supporting file 都會佔用 context，控制總量避免 context 溢出。建議單一 Skill 的 supporting files 總計不超過 2,000 行。
 
-
 ---
 
 ## Ch 9：建立 Hooks 與 Guardrails
@@ -4565,7 +4612,8 @@ Hooks 支援 4 種正式類型加 1 種實驗類型：
 | **SubagentStop** | Subagent 完成時觸發 | Subagent 輸出驗證 |
 | **SessionEnd** | Session 結束時觸發；matcher 可指定 `clear`／`resume`／`logout`／`prompt_input_exit`／`bypass_permissions_disabled`／`other` 區分結束原因 | Session 結束稽核、清理暫存資源 |
 | **ConfigChange** | 設定檔變更時觸發 | 設定同步、安全通知 |
-| **CwdChanged** | 工作目錄切換時觸發 | context 重整、環境偵測 |
+| **CwdChanged** | 工作目錄切換時觸發（如 Claude 執行 `cd`） | context 重整、環境偵測（可搭配 direnv 類工具） |
+| **DirectoryAdded** | Session 執行期間透過 `/add-dir` 或 SDK `register_repo_root` 新增工作目錄時觸發 | 稽核新增目錄來源、動態載入該目錄的設定 |
 | **FileChanged** | 檔案被修改或建立時觸發 | 敏感檔案監控、格式檢查、自動 lint |
 | **WorktreeCreate** | Git Worktree 被建立時觸發 | 環境初始化、通知團隊 |
 | **WorktreeRemove** | Git Worktree 被移除時觸發 | 資源清理、變更歸檔 |
@@ -5323,11 +5371,16 @@ echo '{"tool_input":{"file_path":"src/App.java"},"tool_name":"Write"}' | bash .c
 ```json
 {
   "hooks": {
-    "Notification": [
+    "PostCompact": [
       {
-        "type": "prompt",
-        "prompt": "⚠️ Context was compacted. Critical reminders:\n1. Current task: Check .claude/current-task.md for active task details\n2. Architecture decisions: See docs/ADR/ for all decisions made this session\n3. Security rules: NEVER modify files in secrets/ or .env*\n4. Test command: mvn test -pl module-name\n5. Branch: Run 'git branch --show-current' to confirm current branch",
-        "description": "Inject critical context after compaction"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "⚠️ Context was compacted. Critical reminders:\n1. Current task: Check .claude/current-task.md for active task details\n2. Architecture decisions: See docs/ADR/ for all decisions made this session\n3. Security rules: NEVER modify files in secrets/ or .env*\n4. Test command: mvn test -pl module-name\n5. Branch: Run 'git branch --show-current' to confirm current branch",
+            "description": "Inject critical context after compaction"
+          }
+        ]
       }
     ]
   }
@@ -5335,12 +5388,11 @@ echo '{"tool_input":{"file_path":"src/App.java"},"tool_name":"Write"}' | bash .c
 ```
 
 **行為說明**：
-- Notification 事件在 compact 發生後觸發。
+- `PostCompact` 事件專屬於 context compaction 完成後觸發，比早期版本常見的「借用 `Notification` 事件、再自行過濾」寫法更精確，不會與權限提示、閒置提醒等其他通知混在一起。
 - `prompt` 類型 Hook 會將指定文字注入到對話中，作為提醒。
 - 關鍵資訊包括：當前任務、架構決策位置、安全規則、測試指令、分支資訊。
 
 **限制與風險**：
-- Notification 事件不僅限於 compact，其他通知也會觸發。需確認事件類型是否有更精確的 matcher。
 - prompt 注入的內容會佔用 context window。
 - 過多的 prompt hook 會導致每次通知都注入大量文字。
 
@@ -5349,11 +5401,16 @@ echo '{"tool_input":{"file_path":"src/App.java"},"tool_name":"Write"}' | bash .c
 ```json
 {
   "hooks": {
-    "Notification": [
+    "PostCompact": [
       {
-        "type": "command",
-        "command": "bash .claude/hooks/post-compact-context.sh",
-        "description": "Dynamically inject context after compaction"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-compact-context.sh",
+            "description": "Dynamically inject context after compaction"
+          }
+        ]
       }
     ]
   }
@@ -5704,18 +5761,28 @@ claude plugin install my-plugin --scope project
 claude plugin install my-plugin --scope local
 ```
 
-**本機開發測試**：開發中的 Plugin 不需先發佈到 Marketplace 才能測試，可直接指向本機目錄或 Git URL：
+**本機開發測試**：開發中的 Plugin 不需先發佈到 Marketplace 才能測試，可直接指向本機目錄或已封裝好的 `.zip` 壓縮檔：
 
 ```bash
 # 直接測試本機目錄中的 Plugin（最常用的開發迭代方式）
 claude --plugin-dir ./my-plugin-dev
 
-# 直接測試遠端 Git URL 中的 Plugin
-claude --plugin-url https://github.com/my-org/my-plugin.git
+# --plugin-dir 也接受本機的 .zip 壓縮檔路徑
+claude --plugin-dir ./my-plugin-dev.zip
+
+# --plugin-url 用於「已封裝成 .zip 並放在遠端 URL」的 Plugin（如 CI 產出的建置產物）
+# 注意：此處必須是可下載的 .zip 檔網址，而非 Git repo 網址；每次啟動都會重新抓取，且僅在該次 Session 生效
+claude --plugin-url https://ci.example.com/artifacts/my-plugin.zip
+
+# 可重複帶多次旗標，同時載入多個本機目錄或遠端 .zip Plugin
+claude --plugin-dir ./plugin-one --plugin-dir ./plugin-two
+claude --plugin-url https://example.com/a.zip --plugin-url https://example.com/b.zip
 
 # 快速建立 Skills 目錄型 Plugin 骨架（見 10.17 節）
 claude plugin init my-tool --type skill
 ```
+
+> ⚠️ **信任提醒**：`--plugin-url` 抓取的內容與一般 Plugin 一樣可在本機以使用者權限執行任意程式碼，僅應指向自己控管或已充分信任的封裝檔案來源；下載或解壓縮失敗時，Claude Code 會略過該 Plugin 並在 `/plugin` 的 Errors 分頁記錄失敗原因，不會中斷整個 Session 啟動。
 
 ### 10.6 Marketplace 差異
 
@@ -6895,16 +6962,26 @@ Scheduled Tasks 的建立與完成可觸發 Hooks：
   "hooks": {
     "TaskCreated": [
       {
-        "type": "command",
-        "command": "bash .claude/hooks/audit-scheduled-task.sh",
-        "description": "Log and validate new scheduled tasks"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/audit-scheduled-task.sh",
+            "description": "Log and validate new scheduled tasks"
+          }
+        ]
       }
     ],
     "TaskCompleted": [
       {
-        "type": "http",
-        "url": "https://slack-webhook.company.com/scheduled-task-report",
-        "description": "Send task completion report to Slack"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "http",
+            "url": "https://slack-webhook.company.com/scheduled-task-report",
+            "description": "Send task completion report to Slack"
+          }
+        ]
       }
     ]
   }
@@ -7098,12 +7175,15 @@ MCP 支援 OAuth 2.0 流程，適用於需要使用者授權的場景（如 GitH
 
 | 值 | 行為 |
 |----|------|
-| `true` | 強制對所有 MCP Server 啟用 Tool Search |
+| （未設定，預設） | 所有 MCP tools 一律延遲載入、按需搜尋；僅在特定情境自動退回全量載入（見下方例外） |
+| `true` | 強制所有 MCP tools 延遲載入（Microsoft Foundry Azure-hosted 部署與 Vertex AI 上早於 Claude 4.5 世代的模型除外，這兩種情境會被伺服器端／平台端強制退回全量載入，此環境變數無法覆寫） |
+| `auto` | 門檻模式：當被延遲的 tool 定義總量低於 context window 的 10% 時，Claude Code 改為全部提前載入；一旦超過 10% 才延遲載入 |
+| `auto:N` | 門檻模式，自訂百分比 N（0–100），如 `auto:5` 代表 5% 門檻 |
 | `false` | 完全停用 Tool Search，所有 tools 一律完整列出 |
-| `auto`（預設） | Claude Code 依 tools 數量自動判斷是否啟用 |
-| `auto:N` | 自訂自動啟用的門檻百分比，超過 N% 的 context 預算才啟用 |
 
-> ⚠️ **模型支援限制**：Haiku 系列模型**不支援** Tool Search；Vertex AI 上僅 Sonnet 4.5、Opus 4.5（v2.1.162+）有限支援。若團隊混用 Haiku 處理輕量任務，需留意該模型會看到完整 tool 清單而非搜尋結果。
+> ⚠️ **重要更正**：`auto` 並非預設值——未設定環境變數時，Claude Code 的預設行為是**全面延遲載入**（等同 `true` 的效果），`auto` 是額外提供的**門檻模式**，需主動設定才會生效。
+>
+> **模型支援**：Tool Search 需要支援 `tool_reference` 區塊的模型，目前為 **Claude Sonnet 4.5、Claude Haiku 4.5、Claude Opus 4.5 及之後的模型**；早於 4.5 世代的 Haiku／Sonnet／Opus 不支援。GCP Vertex AI 上依模型世代判斷：4.5 世代（含）之後的模型行為與 Anthropic API 相同（預設啟用），更早世代的模型會被平台端強制全量載入，`ENABLE_TOOL_SEARCH=true` 無法覆寫。Microsoft Foundry 的 Azure-hosted 部署因服務端直接拒絕 tool search 請求，同樣一律退回全量載入。企業若透過 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` 關閉實驗性功能，Tool Search 會被強制關閉且無法用 `ENABLE_TOOL_SEARCH` 覆寫（v2.1.227+ 可透過 Managed Settings 反向鎖定為開啟）。
 
 ### 12.5 進階 MCP 功能
 
@@ -7893,6 +7973,20 @@ claude -p "分析安全漏洞" --output-format stream-json --verbose | \
   done
 ```
 
+#### 13.2.7 CI 治理：啟動事件檢查與程序終止行為
+
+**用 `system/init` 事件在 CI 中做失敗判斷**：`stream-json` 輸出的第一則事件（`hook_started`／`hook_progress`／`hook_response`、`plugin_install` 等啟動期事件之後）是 `system/init`，除了模型、工具、MCP Server 清單外，還帶有可用於 CI Gate 的欄位：
+
+| 欄位 | 說明 |
+|------|------|
+| `plugins` / `plugin_errors` | 成功載入的 Plugin，以及載入失敗的 Plugin（含相依版本不符、`--plugin-dir` 路徑錯誤等）；`plugin_errors` 有內容時可讓 CI Job 判定失敗，避免「Plugin 悄悄沒載入」被忽略 |
+| `mcp_servers` / `mcp_server_errors` | 已連線的 MCP Server，以及設定驗證失敗被略過的項目（如缺少 `type` 的 `url` 設定）；`mcp_server_errors` 非空陣列時同樣可作為 CI Gate 條件 |
+| `capabilities` | 目前 CLI 版本支援的協定行為字串陣列（如 `interrupt_receipt_v1`），建議以「是否包含特定能力」做 feature-detect，而非比對版本字串 |
+
+**背景任務與程序終止**：`claude -p` 執行完成、標準輸入關閉後，仍在執行的背景 Bash 任務會在約 5 秒寬限期後被終止；背景 Subagent／Workflow 則會被等待其執行完成（預設上限 10 分鐘，見上方 `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS`）。若外部程序（如 CI 逾時機制、Process Supervisor）以 `SIGTERM` 中止 `claude -p`，Claude Code 會中斷目前回合、終止所有子行程、執行 `SessionEnd` Hook，並以 **exit code 143** 結束——CI 腳本可用此區分「Claude 主動失敗」與「被外部強制終止」。
+
+**輸入限制**：透過 stdin 管線傳入的內容上限為 **10MB**，超過會直接失敗並回傳明確錯誤；更大的輸入應先寫入檔案，於 prompt 中以檔案路徑引用，而非直接管線傳入。
+
 ### 13.3 Provider 差異說明
 
 Claude Code 支援多個 Provider，企業需根據合規需求選擇：
@@ -7949,7 +8043,7 @@ GitHub Actions 整合已達 🟢 GA（Generally Available）階段，透過官�
 | `claude_args` | ❌ | 傳遞給 CLI 的額外參數（如 `--bare`） |
 | `trigger_phrase` | ❌ | PR 評論中觸發 Claude 的關鍵字（預設 `@claude`） |
 | `anthropic_api_key` | ✅ | Anthropic API Key（存放在 GitHub Secrets） |
-| `model` | ❌ | 使用的模型（預設依 API Key 決定） |
+| `claude_args: "--model <id>"` | ❌ | 指定使用的模型；`model` **不是**獨立的 Action 輸入欄位，須透過 `claude_args` 傳遞 `--model` CLI 旗標（如 `claude_args: "--model claude-sonnet-5"`），省略時使用 Claude Code 預設模型 |
 | `timeout_minutes` | ❌ | 超時時間（預設 30 分鐘） |
 | `plugin_marketplaces` | ❌ | 要載入的 Marketplace Git URL（換行分隔多個） |
 | `plugins` | ❌ | 要安裝的 Plugin 清單（換行分隔，格式 `plugin-name@marketplace-name`） |
@@ -8119,8 +8213,64 @@ jobs:
 | 問題 | 排查方向 |
 |------|---------|
 | Claude 對 `@claude` mention 沒有回應 | 確認 GitHub App 已正確安裝且有該 Repo 權限；確認 `trigger_phrase` 與留言內容完全一致 |
-| Claude 提交的變更未觸發後續 CI | 部分 Org 設定會排除 Bot 帳號觸發 CI，需檢查 branch protection 規則是否將 Claude 的 commit 視為 Bot 來源 |
-| 認證錯誤（401/403） | 確認 `ANTHROPIC_API_KEY`（或 Bedrock/Vertex 憑證）Secret 名稱與 Workflow 中引用一致，且未過期 |
+| Claude 提交的變更未觸發後續 CI | GitHub 預設不會對使用內建 `GITHUB_TOKEN` 建立的 commit 觸發後續 Workflow；若 Action 設定中傳入了 `github_token: ${{ secrets.GITHUB_TOKEN }}`，移除該行讓其改用 Claude GitHub App 身份認證，或改用自訂 App Token |
+| 認證錯誤（401/403） | 確認 `ANTHROPIC_API_KEY`（或 Bedrock/Vertex 憑證）Secret 名稱與 Workflow 中引用一致，且未過期；先在本機以 `claude` 指令測試同一組憑證是否可用 |
+
+#### 13.4.6 認證方式、觸發權限與組織級治理
+
+**兩種認證輸入**：`anthropic_api_key`（Claude Console 核發的 API Key）與 `claude_code_oauth_token`（以 `claude setup-token` 在本機產生，綁定 Pro / Max / Team / Enterprise 訂閱額度的長效 Token，適合不想另外開 API 帳單的團隊）。兩者擇一傳入對應的 Action 輸入欄位即可，`/install-github-app` 快速安裝時會引導選擇其一並自動存成對應名稱的 Secret。
+
+**組織層級推廣**：若要在整個 GitHub Organization 中一次性啟用，建議：
+
+1. 在 Organization 層級（而非個別 Repo）安裝一次 Claude GitHub App，選擇套用到全部或指定 Repo 清單
+2. 將認證 Secret 存為 **Organization-level Actions Secret**，各 Repo 共用，不需個別複製；共用場景建議用 API Key 而非 OAuth Token（後者綁定核發者個人的訂閱額度）
+3. 將 Workflow 檔案以 [Reusable Workflow](https://docs.github.com/en/actions/using-workflows/reusing-workflows) 形式定義一次，各 Repo 呼叫共用
+
+**免存長效密鑰：OIDC Workload Identity Federation**（Organization 層級專用）：不想在任何地方存放 API Key 時，可讓 Claude Code GitHub Action 以 Workflow 自身的 GitHub OIDC Token 交換 Claude API 存取權限（透過 Claude Console 的 Service Account 設定）：
+
+```yaml
+permissions:
+  id-token: write   # 即使已提供 github_token，此權限仍為 federation 交換所必需
+
+jobs:
+  claude:
+    steps:
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_federation_rule_id: "fdrl_xxxxxxxx"
+          anthropic_organization_id: "your-org-id"
+          anthropic_service_account_id: "svac_xxxxxxxx"   # 選填，federation rule 通常已綁定
+          anthropic_workspace_id: "wrkspc_xxxxxxxx"        # 選填，僅單一 workspace 時可省略
+```
+
+此設定須先在 Claude Console 完成對應的 Federation Rule 與 Service Account 設定，Repo 端不再需要 `ANTHROPIC_API_KEY` 這類長效密鑰。
+
+**誰能觸發 Claude**：不論互動模式（`@claude` mention）或自動化模式（有設定 `prompt`），Claude Code GitHub Action 在啟動前都會做兩道檢查，任一檢查未通過即失敗：
+
+- **Write access 檢查**：Issue／PR 事件的觸發者須對 Repo 有 write 權限；若需允許特定無 write 權限的使用者觸發，設定 `allowed_non_write_users` 並自行傳入 `github_token`。由排程等系統事件觸發（無使用者身份）則略過此檢查。
+- **人類使用者檢查**：任一事件都會拒絕由 Bot 帳號觸發，避免 Claude 的留言又觸發自己形成迴圈；如需允許特定 Bot（含 `schedule` 觸發時 GitHub 歸屬的最後修改 workflow cron 排程之使用者，若該使用者恰好是 Bot），需列入 `allowed_bots`。
+
+**`--comment` 如何驅動 inline PR 留言**：`/code-review` 類 Skill 搭配 `--comment` 參數時，Claude 會將審查結果以「每個發現一則 inline comment，若無發現則一則總結留言」的形式寫回 PR；若省略 `--comment`，結果只會留在 Workflow Run Log 中不會回寫 PR。務必同時在 `claude_args` 中以 `--allowedTools` 明確授權 `mcp__github_inline_comment__create_inline_comment`——即使 Skill 本身的 `allowed-tools` frontmatter 已宣告同一個工具，Action 仍需要這個旗標才會啟動負責回寫留言的 MCP Server。
+
+**GitHub App 完整權限一覽**：Claude GitHub App 為多項 Claude 功能（GitHub Actions 整合、Code Review、Web 版自動修復 PR）共用同一組權限，安裝時會一次授予下列權限，其中部分權限並非 GitHub Actions 整合本身會用到：
+
+| 權限 | 存取層級 |
+|------|---------|
+| Actions | 讀寫 |
+| Checks | 讀寫 |
+| Contents | 讀寫 |
+| Discussions | 讀寫 |
+| Issues | 讀寫 |
+| Members | 唯讀 |
+| Metadata | 唯讀 |
+| Pull requests | 讀寫 |
+| Repository hooks | 讀寫 |
+| Statuses | 唯讀 |
+| Workflows | 讀寫 |
+
+若企業治理要求最小權限，可改為自建僅含 Contents／Issues／Pull requests 三項權限的自訂 GitHub App（僅涵蓋 GitHub Actions 整合本身，Code Review 與 Web 自動修復仍需官方 App）。
+
+**解除安裝**：需依序清除三處殘留——刪除 `.github/workflows/` 中使用 `anthropics/claude-code-action` 的 workflow 檔案；刪除 Repo（或已共用的 Organization 層級）Secrets 中的 `ANTHROPIC_API_KEY` / `CLAUDE_CODE_OAUTH_TOKEN`（刪除 Secret 不會讓憑證本身失效，若要徹底作廢金鑰需回 Claude Console 撤銷）；若未搭配其他 Claude 功能使用，於 Organization 或 Repo 設定的 GitHub Apps 頁面解除安裝 Claude GitHub App。若曾設定雲端 Provider，一併刪除 `AWS_ROLE_TO_ASSUME`、`GCP_*`、`AZURE_*` 等 Provider 專用 Secret。
 
 ### 13.5 GitLab CI/CD 整合 🟡 Beta
 
@@ -8573,14 +8723,16 @@ flowchart TB
 # 互動模式：與 PO 共同分析需求
 claude
 
-# 使用需求分析 Prompt
-> /prompt requirements-analysis
+# 帶入 Prompt Library 中的需求分析範本（@-mention 附加檔案內容）
+> @prompt-library/requirements/requirement-analysis.md 請依此範本分析 JIRA Epic ENG-4521
 
 # Claude 讀取 Jira Epic（透過 MCP）
 # → 拆解為 User Stories
 # → 產出驗收條件
 # → PO 確認後存檔
 ```
+
+> 📌 **實務提醒**：Claude Code 沒有內建的 `/prompt <name>` 指令；Prompt Library 中的範本是純 Markdown 檔案，需以 `@` 附加檔案內容或直接複製貼上使用。若某個 Prompt 被高頻率固定使用，建議依 7.5 節建議將其轉為 Skill（`.claude/skills/<name>/SKILL.md`），即可用 `/<name>` 直接呼叫並取得自動觸發、工具白名單等額外能力。
 
 #### 階段 2：威脅建模
 
@@ -8656,9 +8808,14 @@ claude
   "hooks": {
     "PreToolUse": [
       {
-        "type": "command",
-        "command": "bash scripts/hooks/block-sensitive-files.sh",
-        "description": "阻止修改敏感檔案"
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/block-sensitive-files.sh",
+            "description": "阻止修改敏感檔案"
+          }
+        ]
       }
     ]
   }
@@ -8722,9 +8879,14 @@ claude
   "hooks": {
     "PostToolUse": [
       {
-        "type": "command",
-        "command": "bash scripts/hooks/security-gate.sh",
-        "description": "安全掃描閘門：Critical/High 漏洞 Block（exit code 2）"
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/hooks/security-gate.sh",
+            "description": "安全掃描閘門：Critical/High 漏洞 Block（exit code 2）"
+          }
+        ]
       }
     ]
   }
@@ -9004,7 +9166,7 @@ flowchart TB
 ---
 name: reverse-engineering
 description: "舊系統逆向工程專用 Agent，負責從程式碼、資料庫、設定檔中抽取系統知識並還原架構"
-model: opus-4-6
+model: claude-opus-4-6
 tools:
   - Read
   - Glob
@@ -9054,7 +9216,7 @@ skills:
 
 | 設計面向 | 說明 |
 |---------|------|
-| **model 選擇** | 使用 `opus-4-6` — RE 任務需大量上下文理解與推理，Sonnet 能力不足 |
+| **model 選擇** | 使用 `claude-opus-4-6` — RE 任務需大量上下文理解與推理，Sonnet 能力不足 |
 | **tools 配置** | 以 Read/Grep/Glob/LS 為主，不開放 Write（RE 階段不應修改原始碼） |
 | **MCP 整合** | `database-inspector`：連接 DB 讀取 Schema；`filesystem`：跨目錄存取 |
 | **skills** | 三個專用 Skill：業務規則抽取、DB 分析、API 盤點 |
@@ -9186,7 +9348,7 @@ skills:
 
 **檔案路徑**：`.claude/skills/business-rule-extraction.md`
 
-```markdown
+````markdown
 ---
 name: business-rule-extraction
 description: "從舊系統程式碼中系統性抽取業務規則"
@@ -9260,7 +9422,7 @@ grep -rn "throw new\|BusinessException\|ValidationException" src/
 
 **檔案路徑**：`.claude/skills/database-dependency-analysis.md`
 
-```markdown
+````markdown
 ---
 name: database-dependency-analysis
 description: "分析程式碼中的 SQL/ORM 映射，還原資料庫 ERD 與資料存取模式"
@@ -9335,7 +9497,7 @@ erDiagram
 - [ ] CRUD 矩陣覆蓋所有 Service/DAO 類別
 - [ ] 每個資料表至少記錄一個存取來源
 - [ ] Stored Procedure 已納入分析
-```
+````
 
 ### 15.6 專用 Hooks / Guardrails 範例
 
@@ -9380,9 +9542,11 @@ erDiagram
 #!/usr/bin/env node
 // .claude/hooks/re-write-guard.js
 // RE Agent 寫入保護：僅允許寫入 docs/ 和 reports/ 目錄
+// Claude Code 透過 stdin（而非命令列參數）傳入 JSON 格式的 hook input
 
-const input = JSON.parse(process.argv[2] || '{}');
-const filePath = input.file_path || input.path || '';
+const fs = require('fs');
+const input = JSON.parse(fs.readFileSync(0, 'utf-8') || '{}');
+const filePath = input.tool_input?.file_path || '';
 
 const allowedPrefixes = ['docs/', 'reports/', '.claude/re-output/'];
 const isAllowed = allowedPrefixes.some(prefix => filePath.startsWith(prefix));
@@ -9402,10 +9566,11 @@ process.exit(0);
 #!/usr/bin/env node
 // .claude/hooks/re-quality-check.js
 // 檢查 RE 輸出是否包含無證據的推測性內容
+// Claude Code 透過 stdin（而非命令列參數）傳入 JSON 格式的 hook input
 
 const fs = require('fs');
-const input = JSON.parse(process.argv[2] || '{}');
-const filePath = input.file_path || input.path || '';
+const input = JSON.parse(fs.readFileSync(0, 'utf-8') || '{}');
+const filePath = input.tool_input?.file_path || '';
 
 if (!filePath.startsWith('docs/') && !filePath.startsWith('reports/')) {
   process.exit(0); // 非 RE 輸出，跳過
@@ -9550,7 +9715,6 @@ process.exit(0);
 6. **搭配 `--bare` 使用**：在 CI/CD 中跑 RE 掃描時，使用 `--bare` 跳過 auto-discovery，確保結果一致性。
 7. **Opus 是必須的**：RE 任務涉及大量上下文理解，Haiku/Sonnet 在複雜程式碼分析中容易遺漏。建議使用 Opus 4.6。
 8. **控制掃描範圍**：單次 RE 掃描不要超過 5 萬行程式碼。拆分為模組級掃描，再彙總。
-
 
 ---
 
@@ -9795,9 +9959,9 @@ flowchart TB
 | 6 | 與現有 CI/CD 衝突怎麼辦？ | Claude Code CI 整合是附加的。GitHub Actions 🟢 GA，GitLab CI/CD 🟡 Beta。 |
 | 7 | 如何限制 Agent 修改特定檔案？ | 使用 Hooks（PreToolUse + exit code 2 block）。 |
 | 8 | Plugin 安全嗎？ | Plugin 以 Subagent 形式執行，不支援 hooks/mcpServers/permissionMode。需審核後才可安裝。 |
-| 9 | 如何遷移現有 Prompt？ | 將現有 Prompt 放入 `.claude/prompts/` 目錄，使用 `/prompt` 指令載入。 |
+| 9 | 如何遷移現有 Prompt？ | Prompt Library（`.claude/prompts/` 或團隊自訂目錄）只是純 Markdown 檔案，Claude Code 不會自動載入，需以 `@` 附加檔案內容或複製貼上使用；若某個 Prompt 高頻固定使用，建議改寫為 Skill（`.claude/skills/<name>/SKILL.md`），即可用 `/<name>` 直接呼叫（見 7.5、8.1 節）。 |
 | 10 | MCP 用 SSE 還是 HTTP？ | HTTP 優先，SSE 已 ⚫ Deprecated。新建一律用 HTTP。 |
-| 11 | Subagent 可以再呼叫 Subagent 嗎？ | 可以，v2.1.172+ 支援巢狀呼叫（深度上限 5）；Agent Team Teammate 仍不可巢狀。 |
+| 11 | Subagent 可以再呼叫 Subagent 嗎？ | 可以，v2.1.172+ 支援巢狀呼叫（目前預設深度上限 3，可用 `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` 調整）；Agent Team Teammate 仍不可巢狀。 |
 | 12 | 導入需要多久？ | 依團隊規模，一般 8-12 週可達 Stage 4（自主運作）。 |
 
 ### 16.8 變更公告機制
@@ -9908,7 +10072,6 @@ flowchart TB
 7. **建立 Show & Tell 文化**：每月舉辦跨團隊分享，展示各團隊的 Prompt / Skill / Hook 創新用法。
 8. **例外不是壞事**：合理的例外代表團隊有進階需求。例外申請機制的目的是「可追蹤」，不是「阻擋」。
 
-
 ---
 
 ## Ch 17：安全、治理、稽核與成本控管
@@ -9919,13 +10082,15 @@ flowchart TB
 
 #### 17.1.1 Permission Mode 治理策略
 
-Claude Code 提供 4 種 Permission Mode，企業應依據使用情境制定策略：
+Claude Code 提供 6 種 Permission Mode（完整定義見 4.7 節），企業應依據使用情境制定策略：
 
 | Permission Mode | 描述 | 適用情境 | 企業策略 |
 |----------------|------|---------|---------|
 | **`default`** | 預設模式，高風險操作需確認 | 日常開發 | ✅ 所有團隊預設使用 |
 | **`plan`** | 規劃模式，僅允許讀取與規劃 | 架構評估、RE 分析 | ✅ RE Agent 預設模式 |
-| **`acceptEdits`** | 自動接受檔案編輯，其他操作需確認 | 信任的自動化場景 | ⚠️ 需 Tech Lead 核准 |
+| **`acceptEdits`** | 自動接受檔案編輯與常見檔案系統指令，其他操作需確認 | 信任的自動化場景 | ⚠️ 需 Tech Lead 核准 |
+| **`auto`** | 背景分類器即時審查每次操作，動態核准/拒絕 | 需要減少確認頻率但仍要保留風險判斷的場景 | ⚠️ 需 Tech Lead 核准，建議先在非生產環境試行 |
+| **`dontAsk`** | 僅執行允許清單內的操作，其餘一律自動拒絕、不詢問 | 鎖死的 CI/自動化環境 | ✅ CI/CD 場景優先於 bypassPermissions 考慮 |
 | **`bypassPermissions`** | 跳過所有權限確認 | CI/CD 全自動化 | 🔴 需資安團隊核准 + Hooks 保護 |
 
 #### 17.1.2 權限矩陣
@@ -9944,7 +10109,7 @@ Claude Code 提供 4 種 Permission Mode，企業應依據使用情境制定策�
 | 層級 | 控制內容 | 詳見章節 |
 |------|---------|---------|
 | **① Managed Policy（組織強制層）** | 企業 Managed Settings 統一推送模型清單、Plugin 白名單、MCP Server 允許清單，開發者不可覆蓋 | 2.8、10.15、12.8 |
-| **② Permissions（權限層）** | Permission Mode（`default`/`plan`/`acceptEdits`/`bypassPermissions`）與 `allowed-tools`/`disallowed-tools` | 4.7、17.1.1-17.1.2 |
+| **② Permissions（權限層）** | Permission Mode（`default`/`plan`/`acceptEdits`/`auto`/`dontAsk`/`bypassPermissions`）與 `allowed-tools`/`disallowed-tools` | 4.7、17.1.1-17.1.2 |
 | **③ Hooks（確定性攔截層）** | `PreToolUse`/`PostToolUse` 等事件型 Hook，於工具呼叫前後做確定性驗證與阻擋 | Ch9 |
 | **④ Subagent / Code Review（角色審查層）** | 獨立的 Security/Code Review Agent 以唯讀權限審查產出，作為 AI 對 AI 的第一道複核 | 3.3、Ch6 |
 | **⑤ CI/CD Gates（流程關卡層）** | GitHub Actions / GitLab CI/CD 中的自動化安全掃描與品質 Gate，PR 合併前的最後自動化防線 | Ch13 |
@@ -9988,8 +10153,10 @@ Claude Code 提供 4 種 Permission Mode，企業應依據使用情境制定策�
 
 ```javascript
 // .claude/hooks/file-protect.js
-const input = JSON.parse(process.argv[2] || '{}');
-const filePath = input.file_path || input.path || '';
+// Claude Code 透過 stdin（而非命令列參數）傳入 JSON 格式的 hook input
+const fs = require('fs');
+const input = JSON.parse(fs.readFileSync(0, 'utf-8') || '{}');
+const filePath = input.tool_input?.file_path || '';
 
 const protectedPatterns = [
   /\.env$/,
@@ -10049,7 +10216,7 @@ process.exit(0);
 |------|------|---------|
 | Agent Teams 🔴 Experimental | API 可能變更、功能不穩定 | 僅用於非生產環境 |
 | Subagent 無限迴圈 | Token 大量消耗、成本失控 | 設定 max_turns / timeout |
-| Subagent 過度巢狀委派（v2.1.172+ 可巢狀，深度上限 5） | 委派鏈過長導致延遲與 Token 成本上升；Agent Team Teammate 仍不可巢狀，誤用會執行失敗 | 架構設計優先由主對話明確編排委派順序，僅在必要時使用巢狀呼叫並留意深度上限 |
+| Subagent 過度巢狀委派（v2.1.172+ 可巢狀，目前預設深度上限 3） | 委派鏈過長導致延遲與 Token 成本上升；Agent Team Teammate 仍不可巢狀，誤用會執行失敗 | 架構設計優先由主對話明確編排委派順序，僅在必要時使用巢狀呼叫並留意深度上限 |
 | 多 Agent 並行成本 | Opus 多 Agent 並行費用驚人 | 模型策略（見 17.12） |
 
 ### 17.9 CI 自動化風險
@@ -10115,20 +10282,21 @@ process.exit(0);
 #### 成本控管建議
 
 ```
-# Agent 定義中指定模型
+# Agent 定義中指定模型（model 欄位可用別名 sonnet/opus/haiku/fable，
+# 或完整 model ID 如下方範例；不可省略 claude- 前綴）
 ---
 name: lint-checker
-model: haiku-4-5          # 簡單任務用 Haiku 省成本
+model: claude-haiku-4-5   # 簡單任務用 Haiku 省成本
 ---
 
 ---
 name: code-reviewer
-model: sonnet-4-6         # 一般任務用 Sonnet
+model: claude-sonnet-4-6  # 一般任務用 Sonnet
 ---
 
 ---
 name: architect
-model: opus-4-6           # 複雜任務才用 Opus
+model: claude-opus-4-6    # 複雜任務才用 Opus
 ---
 ```
 
@@ -10170,7 +10338,7 @@ model: opus-4-6           # 複雜任務才用 Opus
 | 5 | 在 CI 中不設 Hooks 使用 `bypassPermissions` | 無安全閘門 | 至少啟用 secret-guard + file-protect |
 | 6 | 使用 SSE Transport 的 MCP | ⚫ Deprecated，安全風險 | 遷移至 HTTP Transport |
 | 7 | Subagent 中設定 `permissionMode` | 不被支援，靜默忽略 | 在主 Agent / settings.json 中設定 |
-| 8 | Agent Team Teammate 嘗試巢狀呼叫 | 不支援，執行失敗（Subagent 本身 v2.1.172+ 已支援巢狀，深度上限 5） | Teammate 場景維持扁平化設計；Subagent 場景可視需要使用巢狀，但避免過深委派鏈 |
+| 8 | Agent Team Teammate 嘗試巢狀呼叫 | 不支援，執行失敗（Subagent 本身 v2.1.172+ 已支援巢狀，目前預設深度上限 3） | Teammate 場景維持扁平化設計；Subagent 場景可視需要使用巢狀，但避免過深委派鏈 |
 | 9 | 使用 Opus 4.7 | 不在公司允許清單 | 使用 Opus 4.6 |
 | 10 | Agent Teams 用於生產關鍵路徑 | 🔴 Experimental，不穩定 | 僅用於開發/測試環境 |
 | 11 | 不記錄 Agent 操作日誌 | 無法稽核、合規風險 | 啟用 Audit Logger Hook |
@@ -10186,7 +10354,6 @@ model: opus-4-6           # 複雜任務才用 Opus
 6. **Plugin subagent 的限制要牢記**：Plugin subagent 不支援 hooks / mcpServers / permissionMode，這是設計限制，無法繞過。
 7. **MCP 遷移至 HTTP 是優先事項**：SSE 已 ⚫ Deprecated，新建一律 HTTP。既有 SSE 應排入遷移計畫。
 8. **Permission Mode 要與 CI/CD 場景分離**：開發環境用 `default`，CI 用 `bypassPermissions` + Hooks。不要混用。
-
 
 ---
 
@@ -10232,7 +10399,7 @@ claude --version
 cp -r ~/.claude ~/.claude.bak.$(date +%Y%m%d)
 
 # Step 4: 執行升級
-npm update -g @anthropic/claude-code
+npm update -g @anthropic-ai/claude-code
 
 # Step 5: 驗證升級
 claude --version
@@ -10247,7 +10414,7 @@ cd your-project && claude --print "echo hello"
 # 檢查 Agent / Skill / Hook 是否因 CLI 升級而需要調整
 
 # Rollback（若有問題）
-npm install -g @anthropic/claude-code@<previous-version>
+npm install -g @anthropic-ai/claude-code@<previous-version>
 ```
 
 #### 18.2.2 VS Code Extension 升級
@@ -10335,22 +10502,27 @@ echo $?  # 應為 2（blocked）
 #### 18.2.6 Plugins 升級
 
 ```bash
-# Step 1: 確認已安裝 Plugin 清單與版本
-claude plugins list
+# Step 1: 確認已安裝 Plugin 清單與版本（單數 plugin，非 plugins）
+claude plugin list
 
-# Step 2: 查看可用更新
-claude plugins outdated
+# Step 2: 刷新指定 Marketplace 的目錄，取得最新版本資訊
+claude plugin marketplace update <marketplace-name>
+# 官方 Marketplace 預設已啟用背景自動更新（Session 啟動後最多延遲 10 分鐘），
+# 第三方／本機開發用 Marketplace 預設不自動更新，需手動執行上述指令或於 /plugin
+# 互動面板的 Marketplaces 分頁手動更新
 
 # Step 3: 審查 Plugin 更新內容（CHANGELOG）
 
-# Step 4: 更新特定 Plugin
-claude plugins update <plugin-name>
+# Step 4: 重新安裝取得最新版本（未提供獨立的「單一 Plugin 更新」子指令，
+# 以重新安裝 = 更新到目錄中最新版本）
+claude plugin install <plugin-name>@<marketplace-name>
 
-# Step 5: 驗證 Plugin 功能
+# Step 5: 若 Session 已在執行中，需 /reload-plugins 才會套用新版本
+# Step 6: 驗證 Plugin 功能
 # ⚠️ 注意：Plugin 以 Subagent 形式執行
 #   不支援 hooks / mcpServers / permissionMode
 
-# Step 6: 記錄版本變更
+# Step 7: 記錄版本變更
 ```
 
 #### 18.2.7 MCP 配置升級
@@ -10427,11 +10599,11 @@ wc -l CLAUDE.md .claude/CLAUDE.md
 
 | 元件 | 回滾方式 | 回滾時間 | 前置準備 |
 |------|---------|---------|---------|
-| Claude Code CLI | `npm install -g @anthropic/claude-code@<version>` | < 5 分鐘 | 記錄升級前版本號 |
+| Claude Code CLI | `npm install -g @anthropic-ai/claude-code@<version>` | < 5 分鐘 | 記錄升級前版本號 |
 | VS Code Extension | Extensions → Install Another Version | < 2 分鐘 | — |
 | Subagents / Skills | `git checkout -- .claude/agents/ .claude/skills/` | < 1 分鐘 | Git 版本控制 |
 | Hooks | `git checkout -- .claude/hooks/` + 還原 settings.json | < 2 分鐘 | 備份 settings.json |
-| Plugins | `claude plugins install <name>@<version>` | < 5 分鐘 | 記錄升級前版本號 |
+| Plugins | `claude plugin uninstall <name>@<marketplace>` 後改用 `--plugin-dir` 指向舊版本本機備份，或改連舊版 commit 的 Marketplace | < 5 分鐘 | Plugin 沒有獨立的「指定版本安裝」CLI 語法，回滾前務必記錄升級前的 Marketplace commit/版本 |
 | MCP 配置 | `git checkout -- .claude/settings.json` | < 1 分鐘 | Git 版本控制 |
 | CLAUDE.md | `git checkout -- CLAUDE.md .claude/CLAUDE.md` | < 1 分鐘 | Git 版本控制 |
 
@@ -10615,9 +10787,6 @@ echo "=== Health Check Complete ==="
 9. **相容矩陣要持續更新**：每次升級後更新 18.3 的相容矩陣，這是團隊最重要的參考文件之一。
 10. **建立升級溝通管道**：CLI 升級影響全團隊。建立固定的升級通知 Slack Channel / Email List。
 
-
-
-
 ---
 
 ## Ch 19：完整實戰案例
@@ -10645,7 +10814,7 @@ echo "=== Health Check Complete ==="
 
 ```bash
 # 安裝 CLI
-npm install -g @anthropic/claude-code
+npm install -g @anthropic-ai/claude-code
 
 # 驗證安裝
 claude --version  # ≥ 2.1.32
@@ -10734,23 +10903,33 @@ Customer Management System：客戶管理系統，包含客戶 CRUD、搜尋、�
     ]
   },
   "hooks": {
-    "PreCommit": [
-      {
-        "type": "command",
-        "command": "bash -c 'grep -rn \"password\\|api_key\\|secret\" --include=\"*.java\" --include=\"*.ts\" --include=\"*.vue\" | grep -v \"test/\" | grep -v \".bak\" && echo \"BLOCKED: Hardcoded secrets detected\" && exit 2 || exit 0'",
-        "description": "Secret Detection Guard"
-      }
-    ],
     "PreToolUse": [
       {
-        "type": "command",
-        "command": "bash -c 'echo \"$(date -u +%Y-%m-%dT%H:%M:%SZ) TOOL=$CLAUDE_TOOL_NAME\" >> .claude/audit.log'",
-        "description": "Audit Logger"
+        "matcher": "Bash(git commit *)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'grep -rn \"password\\|api_key\\|secret\" --include=\"*.java\" --include=\"*.ts\" --include=\"*.vue\" | grep -v \"test/\" | grep -v \".bak\" && echo \"BLOCKED: Hardcoded secrets detected\" && exit 2 || exit 0'",
+            "description": "Secret Detection Guard：git commit 前掃描硬編碼密鑰"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'echo \"$(date -u +%Y-%m-%dT%H:%M:%SZ) TOOL=$CLAUDE_TOOL_NAME\" >> .claude/audit.log'",
+            "description": "Audit Logger"
+          }
+        ]
       }
     ]
   }
 }
 ```
+
+> ⚠️ **修正提醒**：Claude Code 沒有 `PreCommit` 這個 Hook 事件（詳見 9.3 節完整事件表）。要在 `git commit` 執行前攔截，正確做法是用 `PreToolUse` 搭配 `matcher: "Bash(git commit *)"`，僅在 Claude 即將執行 `git commit` 開頭的指令時觸發，而非對所有 Bash 指令都掃描。
 
 **Step 5：配置 MCP**
 
@@ -10910,7 +11089,7 @@ sequenceDiagram
     Claude-->>Dev: 展示產出結果
 
     Dev->>Claude: 確認程式碼無誤，提交
-    Note over Claude: PreCommit Hook: Secret Detection
+    Note over Claude: PreToolUse Hook（matcher: Bash(git commit *)）: Secret Detection
     Claude->>SR: @security-reviewer 審查變更
     SR-->>Claude: 安全審查報告
     Claude->>CR: @code-reviewer 審查品質
@@ -11003,13 +11182,13 @@ jobs:
           fetch-depth: 0
       - uses: anthropics/claude-code-action@v1
         with:
-          model: claude-sonnet-4-6-20250414
           prompt: |
             Review this PR for:
             1. Security issues (OWASP Top 10)
             2. Clean Architecture adherence
             3. Missing tests for new code
             4. JavaDoc completeness
+          claude_args: "--model claude-sonnet-4-6-20250414"
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 ```
 
@@ -11260,7 +11439,7 @@ flowchart TD
 |------|------|---------|
 | **CLAUDE.md 過於冗長** | 超過 500 行時 Claude 會忽略部分指引 | 分層管理，local CLAUDE.md 只放該模組規則 |
 | **Agent 範圍過大** | 一個 Agent 做太多事情，品質下降 | 拆分為專精的 Subagent |
-| **缺少 Hook 保護** | Secret 意外提交 | Sprint 0 就啟用 PreCommit Hook |
+| **缺少 Hook 保護** | Secret 意外提交 | Sprint 0 就啟用 `PreToolUse`（matcher: `Bash(git commit *)`）的 Secret Guard Hook |
 | **忽略安全審查** | 趕工時跳過 security-reviewer | CI Pipeline 強制 Claude Review |
 | **Legacy 分析不徹底** | 遺漏隱含業務邏輯 | 標注 [UNCERTAIN]，安排人工確認 |
 | **MCP 設定遺漏** | 忘記設定 Token 認證 | 使用 HTTP + Bearer Token |
@@ -11342,9 +11521,9 @@ claude config list | grep -i agent
 |---|------|------|
 | 1 | Frontmatter 格式錯誤 | YAML 語法錯誤導致 subagent 未被辨識 |
 | 2 | Description 不夠精確 | LLM 無法判斷何時該委派 |
-| 3 | 使用了不支援的功能 | Subagent 不支援 hooks / mcpServers / permissionMode |
-| 4 | 巢狀呼叫 | Subagent 嘗試呼叫另一個 subagent（不被允許） |
-| 5 | Agent Team 定義中僅 tools+model 生效 | 其他設定被忽略 |
+| 3 | 誤用了「僅限 Plugin Subagent」的限制 | 一般 Custom Subagent（`.claude/agents/*.md`）**支援** `hooks`／`mcpServers`／`permissionMode`；只有透過 **Plugin** 發佈的 Subagent 才不支援這三個欄位（詳見 6.11 節） |
+| 4 | 誤以為巢狀呼叫完全不被允許 | 一般 Subagent 自 v2.1.172 起**可以**巢狀呼叫（目前預設深度上限 3，可調整，見 6.7 節）；僅 **Agent Team Teammate** 仍不可巢狀 |
+| 5 | 以為 Agent Team Teammate 定義中僅 tools+model 生效 | Teammate 場景下官方僅明確排除 `skills` 與 `mcpServers` 不帶入，其餘欄位（含 `hooks`、`permissionMode`、`disallowed-tools`、`memory` 等）仍正常生效（詳見 6.11 節） |
 
 **解決方案**：
 
@@ -11364,21 +11543,22 @@ tools:
   - mcp__sonarqube__analyze
 ---
 
-# ❌ 錯誤：包含不支援的設定
+# ❌ 錯誤：若此檔案是「透過 Plugin 發佈」的 Subagent，
+# 以下三個欄位會被忽略（一般專案/使用者 Subagent 則正常生效）
 ---
 name: security-reviewer
-hooks:            # ← 不被支援
-  PreCommit: ...
-mcpServers:       # ← 不被支援
+hooks:            # ← Plugin Subagent 不被支援
+  PreToolUse: ...
+mcpServers:       # ← Plugin Subagent 不被支援
   sonar: ...
-permissionMode: bypassPermissions  # ← 不被支援
+permissionMode: bypassPermissions  # ← Plugin Subagent 不被支援
 ---
 ```
 
 **預防建議**：
 - Subagent 的 description 要包含「何時觸發」的關鍵字
 - 測試時用 --verbose 觀察委派決策過程
-- 記得：subagent 中僅 `tools` 和 `model` 會生效（Plugin Subagent 才有此限制；一般 Custom Subagent 支援的欄位詳見 6.11 節）
+- 分清楚三種情境的欄位限制：一般 Custom Subagent（`.claude/agents/*.md`）所有欄位皆生效；Plugin 發佈的 Subagent 不支援 `hooks`／`mcpServers`／`permissionMode`；Agent Team Teammate 不帶入 `skills`／`mcpServers`（詳見 6.11 節）
 
 ---
 
@@ -11426,7 +11606,7 @@ context:                            # 提供相關上下文
 ### 20.4 Hooks 為何沒有生效？
 
 **問題描述**：
-設定了 Hooks（如 PreCommit、PostFileEdit），但 Claude Code 操作時未執行 Hook 腳本。
+設定了 Hooks（如想在 `git commit` 前攔截、想在檔案編輯後觸發），但 Claude Code 操作時未執行 Hook 腳本。
 
 **可能原因**：
 
@@ -11435,20 +11615,26 @@ context:                            # 提供相關上下文
 | 1 | Hook 定義位置錯誤 | 必須在 .claude/settings.json 的 hooks 區塊 |
 | 2 | 腳本無執行權限 | Linux/Mac 需 chmod +x |
 | 3 | 腳本路徑錯誤 | 相對路徑以專案根目錄為基準 |
-| 4 | Hook 類型名稱拼錯 | 必須完全匹配：PreCommit、PostFileEdit 等 |
-| 5 | 腳本執行失敗但未阻止流程 | 只有 exit code 2 才會阻止（block） |
-| 6 | agent hook 仍為 experimental | 需確認是否已啟用 |
+| 4 | 使用了不存在的事件名稱 | Claude Code **沒有** `PreCommit`、`PostFileEdit` 這類事件；正確事件名稱必須完全匹配 9.3 節事件表（如 `PreToolUse`、`PostToolUse`），要攔截 `git commit` 應使用 `PreToolUse` 搭配 `matcher: "Bash(git commit *)"`，要在檔案編輯後觸發應使用 `PostToolUse` 搭配 `matcher: "Write\|Edit"` |
+| 5 | 遺漏 `matcher`／內層 `hooks` 陣列包裝 | 每個事件下的陣列項目需為 `{ "matcher": ..., "hooks": [ { "type": ..., "command": ... } ] }` 結構，`type`/`command` 不可直接掛在 `matcher` 同一層（詳見 9.5 節） |
+| 6 | 腳本執行失敗但未阻止流程 | 只有 exit code 2 才會阻止（block） |
+| 7 | agent hook 仍為 experimental | 需確認是否已啟用 |
 
 **解決方案**：
 
 ```json
 {
   "hooks": {
-    "PreCommit": [
+    "PreToolUse": [
       {
-        "type": "command",
-        "command": "bash -c './scripts/security-check.sh'",
-        "description": "安全檢查"
+        "matcher": "Bash(git commit *)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c './scripts/security-check.sh'",
+            "description": "git commit 前安全檢查"
+          }
+        ]
       }
     ]
   }
@@ -11568,10 +11754,10 @@ curl -X POST http://localhost:5433/mcp \
 | 5 | Context 範圍不同 | VS Code 可能自動注入編輯器中的檔案 |
 
 **解決方案**：
-- VS Code 需 v1.98.0+，使用 Spark icon 啟動
+- VS Code 需 v1.94.0+，使用 Spark icon 啟動
 - CLI 在 CI 環境建議使用 --bare 跳過 auto-discovery
 - 兩端的 .claude/settings.json 是共用的，但 VS Code workspace settings 是額外的
-- Permission modes: default / plan / acceptEdits / bypassPermissions
+- Permission modes: default / plan / acceptEdits / auto / dontAsk / bypassPermissions
 
 **預防建議**：
 - 團隊統一 VS Code Extension 和 CLI 版本
@@ -11662,7 +11848,7 @@ subagent 和 agent team 看起來功能重疊，不確定何時用哪個。
 | **穩定性** | 穩定 | 🔴 Experimental（v2.1.32+） |
 | **定義方式** | .claude/agents/*.md | Agent team teammates via subagent def |
 | **協作模式** | 主 Agent 手動委派 | 自動協作（理論上） |
-| **巢狀** | ✅ v2.1.172+ 可巢狀（深度上限 5） | ❌ 不可巢狀 |
+| **巢狀** | ✅ v2.1.172+ 可巢狀（預設深度上限 3，可調整） | ❌ 不可巢狀 |
 | **功能限制** | 完整 frontmatter 皆生效 | 僅排除 skills、mcpServers 不帶入，其餘正常生效 |
 | **適用場景** | 明確的單一任務委派 | 多角色自動協作 |
 
@@ -11687,7 +11873,7 @@ Hooks 和 Skills 都能影響 Claude Code 行為，但職責邊界不清楚。
 
 | 面向 | Hook | Skill |
 |------|------|-------|
-| **觸發方式** | 事件驅動（PreCommit、PostFileEdit 等） | LLM 判斷觸發 或 手動呼叫 |
+| **觸發方式** | 事件驅動（PreToolUse、PostToolUse 等，見 9.3 節） | LLM 判斷觸發 或 手動呼叫 |
 | **執行保證** | 確定性（事件發生就執行） | 機率性（LLM 可能不觸發） |
 | **用途** | 安全閘門、品質門檻 | 程式碼產生、知識注入 |
 | **失敗處理** | exit 2 = block | 無阻止能力 |
@@ -11811,7 +11997,6 @@ on:
 4. **版本升級後重新驗證**：每次 CLI 升級後，跑一次 Smoke Test 確認所有整合正常。
 5. **定期模擬故障**：每季做一次「MCP 斷線」「Hook 失效」的演練，驗證團隊的故障處理能力。
 
-
 ---
 
 ## Ch 21：最佳實務、Anti-Patterns 與 Checklist
@@ -11908,13 +12093,13 @@ on:
 | **影響** | 結果品質差、容易遺漏、難以除錯 |
 | **解法** | 任務分解：每個 Prompt 只做一件事，逐步推進 |
 
-#### Anti-Pattern 5：忽略 Subagent 限制
+#### Anti-Pattern 5：混淆 Subagent 與 Plugin Subagent 的欄位限制
 
 | 項目 | 內容 |
 |------|------|
-| **問題** | 在 Subagent 定義中加入 hooks、mcpServers、permissionMode |
-| **影響** | 這些設定被靜默忽略，行為與預期不符 |
-| **解法** | Subagent 僅 tools + model 生效。其他需求用 Skill 或 Hook 實現 |
+| **問題** | 誤以為所有 Subagent 都不支援 hooks、mcpServers、permissionMode，因而不敢在一般 Custom Subagent 中使用；或反過來，在**透過 Plugin 發佈**的 Subagent 中加入這些欄位並期待生效 |
+| **影響** | 一般 Custom Subagent（`.claude/agents/*.md`）其實完整支援這些欄位，誤用限制會白白放棄可用能力；Plugin Subagent 中設定這些欄位則會被靜默忽略，行為與預期不符 |
+| **解法** | 記清楚三種情境（詳見 6.11 節）：一般 Custom Subagent 全欄位生效；Plugin 發佈的 Subagent 不支援 hooks/mcpServers/permissionMode；Agent Team Teammate 僅不帶入 skills/mcpServers |
 
 #### Anti-Pattern 6：MCP 使用 SSE transport
 
@@ -11936,9 +12121,9 @@ on:
 
 | 項目 | 內容 |
 |------|------|
-| **問題** | 讓 Subagent A 巢狀委派給 Subagent B、B 再委派給 C……缺乏節制（v2.1.172+ 起 Subagent 巢狀呼叫本身是被支援的功能，深度上限 5 層；但 Agent Team Teammate 嘗試巢狀呼叫仍會失敗） |
+| **問題** | 讓 Subagent A 巢狀委派給 Subagent B、B 再委派給 C……缺乏節制（v2.1.172+ 起 Subagent 巢狀呼叫本身是被支援的功能，目前預設深度上限 3 層、可調整；但 Agent Team Teammate 嘗試巢狀呼叫仍會失敗） |
 | **影響** | 委派鏈越深，延遲與 Token 成本越高，除錯也越困難；若在 Agent Team Teammate 中誤用巢狀委派則直接執行失敗 |
-| **解法** | 需要多步驟時優先由主 Agent（或 Lead Agent）依序明確委派；僅在確實需要動態遞迴委派時才使用 Subagent 巢狀呼叫，並留意 5 層深度上限 |
+| **解法** | 需要多步驟時優先由主 Agent（或 Lead Agent）依序明確委派；僅在確實需要動態遞迴委派時才使用 Subagent 巢狀呼叫，並留意目前預設 3 層的深度上限 |
 
 #### Anti-Pattern 9：RE 結果不驗證
 
@@ -11963,7 +12148,7 @@ on:
 | # | 檢查項目 | 負責人 | 完成 |
 |---|---------|-------|------|
 | 1 | Claude Code CLI 已安裝（確認版本 ≥ v2.1.32） | DevOps | ☐ |
-| 2 | VS Code Extension 已安裝（VS Code ≥ v1.98.0） | 全員 | ☐ |
+| 2 | VS Code Extension 已安裝（VS Code ≥ v1.94.0） | 全員 | ☐ |
 | 3 | API Key / 企業認證已設定 | DevOps | ☐ |
 | 4 | 團隊成員已完成 1 小時基礎培訓 | AI Champion | ☐ |
 | 5 | 公司允許使用的模型已確認（Sonnet 4.6 / Opus 4.6 / Haiku 4.5） | 技術主管 | ☐ |
@@ -12054,8 +12239,6 @@ on:
 3. **最佳實務要可驗證**：「程式碼品質要好」不是最佳實務；「Checkstyle 零違規 + 測試覆蓋率 ≥ 80%」才是。
 4. **定期回顧 Anti-Pattern 清單**：每季增補新發現的 Anti-Pattern，移除已不適用的。
 5. **Checklist 可以自動化**：將 Checklist 項目轉為 CI/CD Pipeline 步驟，從人工確認變為自動檢查。
-
-
 
 ---
 
@@ -12176,25 +12359,38 @@ on:
     ]
   },
   "hooks": {
-    "PreCommit": [
-      {
-        "type": "command",
-        "command": "bash -c './scripts/pre-commit-security-check.sh'",
-        "description": "提交前安全檢查：檢測硬編碼密碼、SQL Injection 風險"
-      }
-    ],
-    "PostFileEdit": [
-      {
-        "type": "command",
-        "command": "bash -c './scripts/post-edit-lint.sh \"$CLAUDE_FILE_PATH\"'",
-        "description": "檔案編輯後自動 Lint 檢查"
-      }
-    ],
     "PreToolUse": [
       {
-        "type": "command",
-        "command": "bash -c 'echo \"Tool: $CLAUDE_TOOL_NAME on $CLAUDE_FILE_PATH\" >> .claude/audit.log'",
-        "description": "工具使用稽核日誌"
+        "matcher": "Bash(git commit *)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c './scripts/pre-commit-security-check.sh'",
+            "description": "提交前安全檢查：檢測硬編碼密碼、SQL Injection 風險"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'echo \"Tool: $CLAUDE_TOOL_NAME on $CLAUDE_FILE_PATH\" >> .claude/audit.log'",
+            "description": "工具使用稽核日誌"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c './scripts/post-edit-lint.sh \"$CLAUDE_FILE_PATH\"'",
+            "description": "檔案編輯後自動 Lint 檢查"
+          }
+        ]
       }
     ]
   },
@@ -12444,49 +12640,65 @@ log\.(info|debug|warn|error).*\b(password|token|secret|ssn|creditCard)\b
 ```json
 {
   "hooks": {
-    "PreCommit": [
-      {
-        "type": "command",
-        "command": "bash -c './scripts/hooks/pre-commit-secrets.sh'",
-        "description": "檢查硬編碼密碼與 API Key"
-      },
-      {
-        "type": "command",
-        "command": "bash -c './scripts/hooks/pre-commit-sql-injection.sh'",
-        "description": "檢查 SQL Injection 風險"
-      }
-    ],
-    "PostFileEdit": [
-      {
-        "type": "command",
-        "command": "bash -c './scripts/hooks/post-edit-checkstyle.sh \"$CLAUDE_FILE_PATH\"'",
-        "description": "檔案修改後自動 Checkstyle 檢查"
-      }
-    ],
     "PreToolUse": [
       {
-        "type": "command",
-        "command": "bash -c 'echo \"$(date -u +%Y-%m-%dT%H:%M:%SZ) TOOL=$CLAUDE_TOOL_NAME FILE=$CLAUDE_FILE_PATH\" >> .claude/audit.log'",
-        "description": "工具使用稽核記錄"
+        "matcher": "Bash(git commit *)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c './scripts/hooks/pre-commit-secrets.sh'",
+            "description": "檢查硬編碼密碼與 API Key"
+          },
+          {
+            "type": "command",
+            "command": "bash -c './scripts/hooks/pre-commit-sql-injection.sh'",
+            "description": "檢查 SQL Injection 風險"
+          }
+        ]
       },
       {
-        "type": "command",
-        "command": "bash -c 'if [[ \"$CLAUDE_TOOL_NAME\" == \"Bash\" ]] && echo \"$CLAUDE_TOOL_INPUT\" | grep -qE \"rm -rf|DROP TABLE|format|mkfs\"; then echo \"BLOCKED: Destructive command detected\"; exit 2; fi'",
-        "description": "阻止破壞性指令（exit 2 = block）"
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'echo \"$CLAUDE_TOOL_INPUT\" | grep -qE \"rm -rf|DROP TABLE|format|mkfs\" && { echo \"BLOCKED: Destructive command detected\" >&2; exit 2; } || exit 0'",
+            "description": "阻止破壞性指令（exit 2 = block）"
+          }
+        ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'echo \"$(date -u +%Y-%m-%dT%H:%M:%SZ) TOOL=$CLAUDE_TOOL_NAME FILE=$CLAUDE_FILE_PATH\" >> .claude/audit.log'",
+            "description": "工具使用稽核記錄"
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
-        "type": "command",
-        "command": "bash -c 'if [[ \"$CLAUDE_FILE_PATH\" == *.java ]]; then mvn checkstyle:check -q 2>/dev/null; fi'",
-        "description": "Java 檔案修改後自動品質檢查"
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c './scripts/hooks/post-edit-checkstyle.sh \"$CLAUDE_FILE_PATH\"'",
+            "description": "檔案修改後自動 Checkstyle 檢查"
+          },
+          {
+            "type": "command",
+            "command": "bash -c 'if [[ \"$CLAUDE_FILE_PATH\" == *.java ]]; then mvn checkstyle:check -q 2>/dev/null; fi'",
+            "description": "Java 檔案修改後額外套用 Maven Checkstyle Plugin"
+          }
+        ]
       }
     ]
   }
 }
 ```
 
-> **重要**：Hook 支援的事件類型為 `command` / `http` / `mcp_tool` / `prompt`，以及 `agent`（experimental）。Exit code `2` 表示 block（阻止操作），其他非零 exit code 為警告但不阻止。
+> **重要**：Claude Code **沒有** `PreCommit`／`PostFileEdit` 這類事件；要在 `git commit` 前攔截應使用 `PreToolUse` 搭配 `matcher: "Bash(git commit *)"`，要在檔案編輯後觸發應使用 `PostToolUse` 搭配 `matcher: "Write|Edit"`（完整事件表見 9.3 節）。Hook 支援的 `type` 為 `command` / `http` / `mcp_tool` / `prompt` / `agent`（`agent` 為 experimental）。Exit code `2` 表示 block（阻止操作），其他非零 exit code 為警告但不阻止。
 
 ---
 
@@ -12599,7 +12811,7 @@ jobs:
       - name: Claude Code Security Review
         uses: anthropics/claude-code-action@v1
         with:
-          model: ${{ env.CLAUDE_MODEL }}
+          claude_args: "--model ${{ env.CLAUDE_MODEL }}"
           prompt: |
             You are a senior security engineer reviewing a Pull Request.
 
@@ -12884,7 +13096,7 @@ quality-gate:
 | # | 項目 | 完成 | 備註 |
 |---|------|------|------|
 | 1 | Claude Code CLI 已安裝 | ☐ | `claude --version` ≥ 2.1.32 |
-| 2 | VS Code Extension 已安裝 | ☐ | VS Code ≥ v1.98.0，找到 Spark icon |
+| 2 | VS Code Extension 已安裝 | ☐ | VS Code ≥ v1.94.0，找到 Spark icon |
 | 3 | API Key / 企業認證已設定 | ☐ | 向 DevOps 申請 |
 | 4 | 測試 `claude "Hello"` 可正常回應 | ☐ | |
 | 5 | VS Code 中 Claude Code 面板可正常開啟 | ☐ | Spark icon → 輸入 prompt |
@@ -12896,7 +13108,7 @@ quality-gate:
 | 6 | 已閱讀團隊 CLAUDE.md | ☐ | 了解架構約束與禁止事項 |
 | 7 | 已閱讀安全使用規範 | ☐ | 哪些資料可以/不可以送入 AI |
 | 8 | 已了解公司允許的模型清單 | ☐ | Sonnet 4.6 / Opus 4.6 / Haiku 4.5 |
-| 9 | 已了解 Permission Mode 概念 | ☐ | default / plan / acceptEdits / bypassPermissions |
+| 9 | 已了解 Permission Mode 概念 | ☐ | default / plan / acceptEdits / auto / dontAsk / bypassPermissions |
 | 10 | 已了解 CLAUDE.md 載入順序 | ☐ | managed → global → project → local（累加） |
 
 ## Day 2-3：動手練習
@@ -12907,13 +13119,13 @@ quality-gate:
 | 12 | 使用 Claude Code 完成一次 Code Review | ☐ | 對比人工 Review 結果 |
 | 13 | 使用至少 1 個團隊共享 Prompt | ☐ | 從 .claude/prompts/ 中選用 |
 | 14 | 觸發至少 1 個 Skill | ☐ | 觀察 Skill 行為 |
-| 15 | 觀察至少 1 個 Hook 執行 | ☐ | 觸發 PreCommit Hook |
+| 15 | 觀察至少 1 個 Hook 執行 | ☐ | 觸發 PreToolUse 的 Secret Guard Hook |
 
 ## Day 4-5：進階操作
 
 | # | 項目 | 完成 | 備註 |
 |---|------|------|------|
-| 16 | 了解 Subagent 定義與限制 | ☐ | 僅 tools + model 生效 |
+| 16 | 了解 Subagent 定義與限制 | ☐ | 一般 Custom Subagent 全欄位生效；Plugin 發佈的 Subagent 才不支援 hooks/mcpServers/permissionMode |
 | 17 | 了解 MCP 整合方式 | ☐ | HTTP preferred, SSE deprecated |
 | 18 | 使用 Plan Mode 完成一次重構 | ☐ | VS Code 限定 |
 | 19 | 閱讀團隊的失敗案例記錄 | ☐ | 避免重複踩坑 |
@@ -12991,7 +13203,7 @@ quality-gate:
 | 功能 | 狀態 | 條件 |
 |------|------|------|
 | CLI 互動模式 | 🟢 GA | 遵循本政策 |
-| VS Code Extension | 🟢 GA | VS Code ≥ v1.98.0 |
+| VS Code Extension | 🟢 GA | VS Code ≥ v1.94.0 |
 | Subagent | 穩定 | 遵循 .claude/agents/ 規範 |
 | Skills | 穩定 | 經團隊審查的 SKILL.md |
 | Hooks | 穩定 | 經 DevOps 審查的 Hook 腳本 |
@@ -13021,7 +13233,7 @@ quality-gate:
 2. 所有 MCP Server 必須使用 HTTP transport + Token 認證
 3. CI/CD 中的 Claude Code 必須使用 --bare flag
 4. Hook 腳本必須包含安全檢查（硬編碼密碼、SQL Injection）
-5. Subagent 僅限使用 tools + model，不得嘗試設定 hooks/mcpServers/permissionMode
+5. 若透過 Plugin 發佈 Subagent，僅 tools/model/disallowed-tools 等基本欄位生效，不得嘗試依賴 hooks/mcpServers/permissionMode（一般專案/使用者 Subagent 不受此限）
 
 ### 6.2 稽核要求
 
@@ -13085,4 +13297,3 @@ Config 優先順序：Global → Project → Enterprise (managed-settings / mana
 5. **範本修改走 PR 流程**：範本影響全團隊，修改需經過審查後才合併。
 6. **新版本發布後更新範本**：CLI 升級可能引入新功能或棄用舊功能。範本必須同步更新。
 7. **收集團隊回饋**：使用範本的人最知道哪裡不好用。建立定期回饋機制持續改善。
-

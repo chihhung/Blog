@@ -8,12 +8,12 @@ categories = ['教學']
 
 # GitHub Copilot CLI 教學手冊
 
-> **版本**：基於 GitHub Copilot CLI **v1.0.39**（2026-04-28 發佈）  
-> **GA 日期**：2026-02-25（v0.0.418 起正式 GA）  
+> **版本**：基於 GitHub Copilot CLI **v1.0.80**（2026-08-14 發佈）  
+> **GA 日期**：2026-02-25（v0.0.418 起正式 GA，2026-03-06 起主版號躍升至 1.0）  
 > **適用對象**：資深工程師 / DevOps 工程師 / 架構師  
 > **技術環境**：企業級 Web Application（Spring Boot 3.x / Vue 3 / 微服務架構）  
-> **適用方案**：Copilot Free / Pro / Pro+ / Business / Enterprise  
-> **最後更新**：2026-05-29
+> **適用方案**：Copilot Free / Pro / Pro+ / Business / Enterprise（2026-06-01 起全面轉為 **Usage-based Billing / AI Credits** 計費，詳見第 9.4 節）  
+> **最後更新**：2026-08-14
 
 ---
 
@@ -22,6 +22,8 @@ categories = ['教學']
 - [第 1 章：Copilot CLI 概述](#第-1-章copilot-cli-概述)
   - [1.1 什麼是 GitHub Copilot CLI](#11-什麼是-github-copilot-cli)
   - [1.2 與其他 AI 工具的差異比較](#12-與其他-ai-工具的差異比較)
+    - [1.2.1 與 IDE Copilot 的互補關係](#121-與-ide-copilot-的互補關係)
+    - [1.2.2 與同類 Agentic CLI 競品比較](#122-與同類-agentic-cli-競品比較)
   - [1.3 適用場景](#13-適用場景)
 - [第 2 章：系統架構整合設計](#第-2-章系統架構整合設計)
   - [2.1 Copilot CLI 在企業架構中的角色](#21-copilot-cli-在企業架構中的角色)
@@ -45,13 +47,14 @@ categories = ['教學']
   - [4.8 Plugin 插件生態系](#48-plugin-插件生態系)
   - [4.9 Extensions 擴充機制](#49-extensions-擴充機制)
   - [4.10 Copilot Memory 跨 Session 記憶](#410-copilot-memory-跨-session-記憶)
-  - [4.11 ACP（Agent Client Protocol）](#411-acpagent-client-protocol)
+  - [4.11 ACP（Agent Client Protocol）與 Copilot SDK](#411-acpagent-client-protocol與-copilot-sdk)
   - [4.12 OpenTelemetry 可觀測性](#412-opentelemetry-可觀測性)
-  - [4.13 Critic Agent 自動審查](#413-critic-agent-自動審查)
+  - [4.13 Rubber Duck 建設性批評代理](#413-rubber-duck-建設性批評代理)
   - [4.14 Remote Control 遠端控制](#414-remote-control-遠端控制)
   - [4.15 自訂模型供應商（Custom Model Provider）](#415-自訂模型供應商custom-model-provider)
-  - [4.16 圖片輸入支援](#416-圖片輸入支援)
+  - [4.16 圖片、附件與語音輸入支援](#416-圖片附件與語音輸入支援)
   - [4.17 內建 Agent 系統](#417-內建-agent-系統)
+  - [4.18 Sandbox 安全沙箱（本機／雲端）](#418-sandbox-安全沙箱本機雲端)
 - [第 5 章：進階使用技巧（企業級）](#第-5-章進階使用技巧企業級)
   - [5.1 Prompt Engineering（CLI 版本）](#51-prompt-engineeringcli-版本)
   - [5.2 Context Engineering（讓 AI 更準）](#52-context-engineering讓-ai-更準)
@@ -64,13 +67,14 @@ categories = ['教學']
   - [6.1 工具審批機制](#61-工具審批機制)
   - [6.2 YOLO Mode 說明與風險](#62-yolo-mode-說明與風險)
   - [6.3 企業治理策略](#63-企業治理策略)
+    - [6.3.1 已知落差與業界安全研究（2026 年最新）](#631-已知落差與業界安全研究2026-年最新)
   - [6.4 Hooks 安全防護](#64-hooks-安全防護)
 - [第 7 章：實戰案例](#第-7-章實戰案例)
 - [第 8 章：最佳實務（Best Practices）](#第-8-章最佳實務best-practices)
   - [8.1 如何寫好 Prompt（CLI 版本）](#81-如何寫好-promptcli-版本)
   - [8.2 人機協作（Human-in-the-Loop）](#82-人機協作human-in-the-loop)
   - [8.3 適合與不適合使用的場景](#83-適合與不適合使用的場景)
-  - [8.4 官方推薦工作流程（Explore → Plan → Code → Commit）](#84-官方推薦工作流程explore--plan--code--commit)
+  - [8.4 官方推薦工作流程（Explore → Plan → Review → Implement → Verify → Commit）](#84-官方推薦工作流程explore--plan--review--implement--verify--commit)
   - [8.5 Session 管理最佳實務](#85-session-管理最佳實務)
   - [8.6 權限管理最佳實務](#86-權限管理最佳實務)
   - [8.7 團隊協作與生產力量測](#87-團隊協作與生產力量測)
@@ -106,47 +110,59 @@ GitHub Copilot CLI 是 GitHub 提供的**命令列 AI 代理工具**，讓開發
 - **非同步委派**：透過 `/delegate` 委派工作給 Copilot Coding Agent 背景執行
 - **Autopilot 模式**：全自動完成任務，無需逐步確認
 - **擴充生態系**：支援 Plugin、Extension、Skill、Hook、MCP Server、LSP Server
-- **ACP 協定**：透過 Agent Client Protocol（ACP）標準開放介面，與第三方工具、IDE 或自動化系統整合
-- **Copilot SDK**：基於相同的 Agentic Runtime，可用 SDK 為您的應用程式內建 AI Agent 能力
+- **ACP 協定**：透過 Agent Client Protocol（ACP）標準開放介面，與第三方工具、IDE 或自動化系統整合（Public Preview）
 - **OpenTelemetry 可觀測性**：原生支援 OTEL，追蹤 Agent Session、LLM 呼叫、工具執行的效能指標
-- **Critic Agent**：自動審查計畫與複雜實作，使用互補模型提早發現錯誤（實驗性，v1.0.18+）
-- **Remote Control**：透過 `/remote` 遠端控制 CLI Session，支援跨裝置協作（v1.0.25+）
+- **Remote Control**：透過 `/remote` 遠端控制 CLI Session，支援跨裝置協作（已 GA）
 - **自動模型選擇**：選擇 `auto` 模型讓 Copilot 自動選擇最佳可用模型（v1.0.32+）
 - **位置記憶權限**：工具權限按目錄記憶，跨 Session 持久化（v1.0.37+）
+- **Local / Cloud Sandbox**：`/sandbox enable` 本機沙箱隔離檔案系統與網路存取；`copilot --cloud` 於獨立雲端環境執行（皆為 Public Preview）
+- **Rubber Duck 批評代理**：內建的「建設性批評者」代理，刻意使用與主 Session **不同的模型**進行交叉審查，降低共同盲點風險（已 GA，取代舊稱「Critic Agent」）
+- **Infinite Sessions**：自動壓縮（Compaction）管理 Context，理論上無上限的長任務 Session，並支援 Session 側欄多工作階段管理
+- **Copilot SDK**：六種語言（TypeScript/Python/Go/.NET/Rust/Java）皆已 GA，暴露與 CLI 相同的 Agent Runtime 供程式化整合
+- **語音輸入**：本地端運作的語音轉文字輸入，錄音不上傳雲端（已 GA）
+- **Prompt Scheduling**：`/every`、`/after` 可定期或延遲執行指定 Prompt
 
-> ⚠️ **注意**：舊版的 GitHub CLI Copilot Extension（`gh copilot`）已正式退役，已由全新的 GitHub Copilot CLI（`copilot` 指令）取代。Copilot CLI 於 **2026-02-25 正式 GA**（v0.0.418），目前最新版本為 **v1.0.39**（2026-04-28）。
+> ⚠️ **注意**：舊版的 GitHub CLI Copilot Extension（`gh copilot`）已正式退役，已由全新的 GitHub Copilot CLI（`copilot` 指令）取代。Copilot CLI 於 **2026-02-25 正式 GA**（v0.0.418），2026-03-06 起主版號躍升至 1.0，目前最新版本為 **v1.0.80**（2026-08-14），仍以近乎每週一版的節奏持續發佈。
 
 ### 核心定位
 
 ```
-GitHub Copilot CLI = AI Agent + Terminal + GitHub 深度整合 + 多代理協作 + 擴充生態系 + ACP 開放標準 + OpenTelemetry 可觀測性
+GitHub Copilot CLI = AI Agent + Terminal + GitHub 深度整合 + 多代理協作 + 擴充生態系 + ACP 開放標準 + Sandbox 安全隔離 + Copilot SDK 程式化引擎
 ```
+
+> 📝 **關於 Agent HQ / Mission Control**：GitHub 自 2025-10 起推動「Agent HQ」策略，目標是讓 Copilot、Claude、Codex 等多家代理程式能在 GitHub.com、VS Code、手機、CLI 等同一介面下被「Mission Control」統一指派、監控與治理。這是 Copilot CLI 在市場上與其他純代理型競品最大的差異化定位——它不只是一個 Agent，更希望成為代理協作的控制樞紐。
 
 ### 支援模型一覽
 
+> ⚠️ **模型版號更新極快**：GitHub Copilot 支援的模型清單幾乎每週都有異動（新增/棄用），以下為 **截至 2026-08-14 查證** 的快照，正式導入前請務必以 `/model` 指令查看當下清單為準，不建議在企業文件中寫死特定模型版號。
+
 | 模型 | 類型 | 說明 | 適用場景 |
 |------|------|------|----------|
-| **Claude Opus 4.5** | Anthropic | **預設模型**（1x），最強推理能力 | 複雜架構設計、困難除錯、深層重構 |
-| Claude Sonnet 4.5 | Anthropic | 快速且高效（1x） | 日常編碼、例行任務 |
-| Claude Sonnet 4.6 | Anthropic | 可透過 `/model` 切換 | 一般開發工作 |
-| Claude Opus 4.6 | Anthropic | 高品質推理 | 複雜問題分析 |
-| Claude Opus 4.6 Fast | Anthropic | 快速推理（Preview） | 快速迭代 |
-| Claude Opus 4.7 | Anthropic | 最新高品質推理（v1.0.29 新增） | 最複雜的推理任務 |
-| Haiku 4.5 | Anthropic | 輕量快速 | 簡單查詢 |
-| GPT-5.1 | OpenAI | 通用能力 | 通用開發 |
-| GPT-5.2 Codex | OpenAI | 程式碼生成與審查 | 高量程式碼產出、交叉審查 |
-| GPT-5.4 | OpenAI | 進階推理（v0.0.422 新增） | 進階分析 |
-| GPT-5.4-Mini | OpenAI | 輕量快速（v1.0.7 新增） | 簡單任務 |
-| **auto** | 自動選擇 | 降低速率限制、更低延遲與錯誤 | **推薦**：系統自動最佳化 |
-| 自訂模型 | 自備 | 組織/企業自配模型供應商 | 合規需求、私有部署 |
+| Claude Opus 4.5 | Anthropic | 官方最佳實務文件標示的建議預設，最強推理能力之一 | 複雜架構設計、困難除錯、深層重構 |
+| Claude Sonnet 4.5 / 4.6 / **5** | Anthropic | 快速且高效；Sonnet 5 為 v1.0.67（2026-06-30）新增 | 日常編碼、例行任務 |
+| Claude Opus 4.6 / 4.7 / 4.8 / **Opus 5** | Anthropic | 依序於各版本新增，Opus 4.8 於 v1.0.55（2026-05-28）上線、Opus 5 於 v1.0.75（2026-07-24）上線 | 最複雜的推理任務 |
+| Claude Opus 4.8 Fast | Anthropic | 快速推理，v1.0.66 新增，**已取代並棄用 Opus 4.6 Fast** | 快速迭代 |
+| Claude Haiku 4.5 | Anthropic | 輕量快速 | 簡單查詢 |
+| **Claude Fable 5** | Anthropic | v1.0.61（2026-06-09）新增 | 一般開發工作 |
+| GPT-5.2 Codex / GPT-5.3-Codex | OpenAI | 程式碼生成與審查專用 | 高量程式碼產出、交叉審查 |
+| GPT-5.4 / GPT-5.4-Mini / GPT-5.5 / **GPT-5.6** | OpenAI | GPT-5.6 於 v1.0.70（2026-07-09）新增；一般用途子代理預設優先採用 GPT-5.4/5.5（若可用） | 進階分析、簡單任務（Mini） |
+| Gemini 3 Pro / 3.5 Flash / **3.6 Flash** | Google | 3.6 Flash 於 v1.0.74（2026-07-23）新增 | 通用開發 |
+| Grok 4.5 | xAI | v1.0.76（2026-07-29）新增 | 通用開發 |
+| Kimi K2.7 Code / **Kimi K3** | Moonshot | K3 於 v1.0.79（2026-08-10）新增 | 程式碼生成 |
+| **auto** | 自動選擇 | 降低速率限制、更低延遲與錯誤，且會依任務複雜度智慧選模 | **推薦**：系統自動最佳化 |
+| 自訂模型（BYOK） | 自備 | 組織/企業自配模型供應商（OpenAI 相容 / Azure OpenAI / Anthropic） | 合規需求、私有部署 |
 
-> 💡 **模型選擇建議**（根據[官方最佳實務](https://docs.github.com/copilot/how-tos/copilot-cli/cli-best-practices#select-your-preferred-model)）：
-> - **Auto**：智慧選擇模型，基於即時系統健康狀態與模型效能，降低速率限制並提供更低延遲
-> - **Opus 4.5**（預設）：適合需要深度推理、複雜系統設計、細微 Bug 調查、大量上下文理解的任務
-> - **Sonnet 4.5**：適合速度與成本效率優先的例行任務，能有效處理大多數日常編碼工作
-> - **GPT-5.2 Codex**：適合高量程式碼生成，也可作為其他模型產出的交叉審查工具
-> - 使用 `/model` 指令可在 Session 中途隨時切換模型
+> 📝 **已棄用/移除的模型**（詳見 [10.7 已移除與棄用項目](#107-已移除與棄用項目)）：`gpt-5.1-codex` 系列（v1.0.15 移除）、`gemini-3-pro-preview`（v1.0.13 移除）、Claude Opus 4.6 Fast（v1.0.66 起以 Opus 4.8 Fast 取代）。
+>
+> 💡 **模型選擇建議**（根據[官方最佳實務](https://docs.github.com/copilot/how-tos/copilot-cli/cli-best-practices#select-your-preferred-model)逐字整理）：
+> - **Auto**：「智慧選擇模型，基於即時系統健康狀態與模型效能，降低速率限制並提供更低延遲」（Reduced rate limiting and lower latency and errors）
+> - **Opus 4.5**：「適合需要深度推理、複雜系統設計、細微 Bug 調查、大量上下文理解的任務」，官方文件標示為 Most capable but more costly
+> - **Sonnet 4.5**：「適合速度與成本效率優先的例行任務，能有效處理大多數日常編碼工作」
+> - **GPT-5.2 Codex**：「適合高量程式碼生成，也可作為其他模型產出的交叉審查工具」
+> - v1.0.79 起，`/model` 選單改為分組顯示（Recent / Recommended / New），並改為 **Session-scoped**（僅影響當前 Session），需用 `/config model` 才能設定未來 Session 的預設模型
+> - 使用 `/model plan`（或 `/model --plan`，v1.0.74+）可為 Plan Mode 單獨指定模型
 > - 若組織或企業已配置自訂模型供應商（API Key），這些模型會出現在 `/model` 清單底部
+> - Free / Student 方案（Token 制計費）僅能使用 `auto` 模型
 
 ## 1.2 與其他 AI 工具的差異比較
 
@@ -177,6 +193,20 @@ Copilot CLI 與 VS Code IDE Copilot 可以**無縫銜接**：
 ```
 
 > 💡 **提示**：使用 `/ide` 指令可將 CLI Session 的上下文帶入 VS Code，實現 CLI → IDE 的無縫轉場。
+
+### 1.2.2 與同類 Agentic CLI 競品比較
+
+Copilot CLI 並非市場上唯一的終端原生 AI Agent，企業選型時常與 Claude Code、OpenAI Codex CLI、Gemini CLI 等工具並列評估。以下整理業界近期（2026 年上半年）評測普遍認同的差異點：
+
+| 比較面向 | GitHub Copilot CLI | Claude Code | Gemini CLI |
+|---------|---------------------|--------------|-------------|
+| **生態整合定位** | 主打 **Agent HQ / Mission Control**：可統一管理多家代理程式（含 Claude、Codex）於 GitHub 介面 | 深度子代理編排（Sub-agent Orchestration）與工具鏈迭代能力強 | 免費可用門檻最低（任何 Google 帳號即可） |
+| **多模型選擇** | 廣（Claude / GPT / Gemini / Grok / Kimi 等皆可選） | 以 Anthropic 模型為核心 | 以 Gemini 模型為核心 |
+| **複雜多檔案重構** | 業界評測顯示涉及 10+ 檔案、具架構影響的變更時，錯誤率略高於對手 | 多篇評測（如 SWE-bench Verified）中領先，被視為深度推理標竿 | 中等 |
+| **上手門檻/定價** | Pro 方案 $10/月即涵蓋自動完成、聊天、CLI（性價比常被列為優勢） | 需付費訂閱 | 免費層可用 |
+| **企業治理與稽核** | 原生整合 GitHub Enterprise 的 Agent Control Plane（可視性、稽核、政策） | 依賴自建/第三方治理工具 | 依賴 Google Workspace 生態 |
+
+> 📝 **市場地位參考**：Gartner 於 2026-05 首次發布《Enterprise AI Coding Agents Magic Quadrant》，GitHub 連續第三年被評為 Leader（Ability to Execute 項目最高），OpenAI Codex、Cursor 同列 Leader 象限。GitHub Copilot 服務組織數已達約 14 萬（年增近 3 倍）。企業選型時建議勿僅憑單一評測結論定案，應以自身程式庫規模、既有 GitHub 依賴程度、跨模型彈性需求作實測評估。
 
 ## 1.3 適用場景
 
@@ -542,6 +572,8 @@ copilot
 # 跟隨畫面指示完成 GitHub OAuth 驗證
 ```
 
+> 📝 **登入流程變更**（v1.0.77+）：本地互動式終端機（含無 TTY 情境，如 IDE 整合）預設改用**瀏覽器 OAuth 登入流程**；遠端/無頭（headless）環境仍預設使用 Device Code Flow（RFC 8628）。可用旗標強制指定：`copilot login --web-flow`（強制瀏覽器）或 `copilot login --device-code`（強制裝置碼），亦可加上 `--host <HOST>` 指定 GitHub Enterprise Server 主機。
+
 ### 使用 Personal Access Token（適合 CI/CD）
 
 1. 前往 [Fine-grained personal access tokens](https://github.com/settings/personal-access-tokens/new)
@@ -561,6 +593,8 @@ export GITHUB_TOKEN="ghp_xxxxxxxxxxxx"
 ```
 
 > 💡 **提示**：在 CI/CD 環境中建議使用 `COPILOT_GITHUB_TOKEN` 環境變數搭配 Secrets Manager。
+>
+> ✅ **GitHub Actions 免 PAT（v1.0.68+ / 2026-07-02 起）**：在 GitHub Actions 中執行 Copilot CLI **不再需要簽發長效 PAT**，改用內建的 `GITHUB_TOKEN`，只需在 workflow 中授予 `permissions: copilot-requests: write` 即可。此舉消除了長效 PAT 外洩風險，且 AI Credit 費用會直接歸屬組織帳單而非個人 Token 持有者，是企業 CI/CD 導入時應優先採用的作法（詳見 [10.7 已移除與棄用項目](#107-已移除與棄用項目)前的建議）。
 
 ## 3.5 初始化設定
 
@@ -614,6 +648,9 @@ export COPILOT_HOME="$HOME/.my-copilot"
 | `multiple Copilot licenses detected` | 偵測到多個授權 | 參閱錯誤訊息中的直接連結解決（v1.0.36+） |
 | `session rate limit` | Session 級速率限制 | 等待限制解除；使用 `/compact` 減少 Token 消耗（v1.0.34+） |
 | `remote sessions blocked by policy` | 組織禁用遠端 Session | 聯繫組織管理員調整政策（v1.0.22+） |
+| `sandbox policy denies this path` | 企業 Sandbox 政策鎖定了受限路徑 | 用 `/sandbox policy` 檢視有效政策；聯繫管理員調整，企業層級政策僅能收緊、不能放寬 |
+| `AI credit limit reached` | 個人或組織 AI Credits 額度已用盡（2026-06 起計費模式變更） | 檢查 `/usage`；聯繫管理員調整組織 Credit 池，或等待下期額度重置 |
+| managed settings 抓取失敗但仍可啟動 | v1.0.78+ 行為變更：抓取失敗改為 fail open | 確認網路可連線至企業設定端點；若需嚴格 fail closed，需另行設定 |
 
 ---
 
@@ -1116,13 +1153,20 @@ allowed-tools:
 
 ## 4.8 Plugin 插件生態系
 
-Plugin 是 Copilot CLI 最完整的擴充機制，可打包 MCP Server、LSP Server、Agent、Skill、Hook，形成可分享的功能模組。
+Plugin 是 Copilot CLI **最高層級的擴充封裝單位**：官方定義為「A distributable package that extends Copilot's functionality」「A bundle of components in a single installable unit」。一個 Plugin 內部可以打包 MCP Server、LSP Server、自訂 Agent、**Skill**、Hook、甚至 Extension，形成可分享的完整功能模組。
+
+> 📝 **與 Skill 的關係澄清**：Plugin 與 Skill **不是互相替代的兩種機制**，而是**包含關係**——Skill（見 [4.7](#47-skills-技能系統)）是 Plugin 可以攜帶的組成元件之一。若只需分享單一專門任務指令集，建立 Skill 即可；若要打包一整套跨團隊/跨專案的工具鏈（MCP + Agent + Skill + Hook 一次到位），才需要封裝成 Plugin。
 
 ### Plugin 管理指令
 
 ```bash
 # 開啟 Plugin Marketplace
 /plugin marketplace add
+
+# Marketplace 子指令（v1.0.71+）
+/plugin marketplace list
+/plugin marketplace add <url>
+/plugin marketplace remove <name>
 
 # 從 GitHub Repo 安裝
 /plugin install <github-repo-url>
@@ -1133,19 +1177,23 @@ Plugin 是 Copilot CLI 最完整的擴充機制，可打包 MCP Server、LSP Ser
 # 從 SSH URL 安裝
 /plugin install ssh://git@github.com/org/plugin.git
 
-# 更新已安裝的 Plugin
+# 更新已安裝的 Plugin（可批次更新，v1.0.49+）
 /plugin update
+copilot plugin update --all
 
 # 解除安裝
 /plugin uninstall <name>
 
 # 查看已安裝的 Plugin 清單
 /plugin list
+
+# 精細啟用/停用 Plugin 內個別元件（v1.0.76+）：plugins、instructions、agents、LSP servers、hooks
+/plugins
 ```
 
 ### Plugin 結構
 
-Plugin 使用 `plugin.json` 或 `.claude-plugin/plugin.json` / `.plugin/` 目錄結構：
+Plugin 使用 `plugin.json` 或 `.claude-plugin/plugin.json` / `.plugin/` 目錄結構，`name` 欄位為必填、需為 kebab-case 且 ≤64 字元：
 
 ```json
 // plugin.json
@@ -1153,6 +1201,7 @@ Plugin 使用 `plugin.json` 或 `.claude-plugin/plugin.json` / `.plugin/` 目錄
   "name": "my-enterprise-plugin",
   "version": "1.0.0",
   "description": "企業內部開發輔助工具",
+  "author": "Platform Team",
   "mcpServers": { ... },
   "lspServers": { ... },
   "agents": [ ... ],
@@ -1161,21 +1210,23 @@ Plugin 使用 `plugin.json` 或 `.claude-plugin/plugin.json` / `.plugin/` 目錄
 }
 ```
 
+Marketplace 端則以 `marketplace.json` 描述可探索安裝的 Plugin 清單，供 `/plugin marketplace add` 引用。
+
+> ✅ **Open Plugin Spec 支援**（v1.0.74+）：Copilot CLI 現支援業界通用的 **Open Plugin Spec v1** manifest 格式與 `mcp.json` 設定，降低跨工具（VS Code、Claude Code 等）重複封裝的成本。第一方 Plugin 會於 Session 啟動時自動更新到最新版本（v1.0.78+）。
+
 ### 預設 Marketplace
 
-Copilot CLI 內建以下預設 Marketplace：
-- **copilot-plugins**：官方插件市集
-- **awesome-copilot**：社群精選插件
+Copilot CLI 內建官方與社群精選的預設 Marketplace（實際名稱請以 `/plugin marketplace list` 當下顯示為準，因官方尚未在概念文件中窮舉固定清單）。可在 Repository 設定中定義 `extraKnownMarketplaces` 新增私有市集。
 
-可在 Repository 設定中定義 `extraKnownMarketplaces` 新增私有市集。
-
-> 💡 **提示**：使用 `--plugin-dir` 旗標可在啟動時載入本地開發中的 Plugin，便於開發與測試。外部 Plugin 在 `/plugin list` 中會顯示在獨立的「External Plugins」區段。
+> 💡 **提示**：使用 `--plugin-dir` 旗標可在啟動時載入本地開發中的 Plugin，便於開發與測試；`COPILOT_PLUGIN_DIR_ONLY` 環境變數（v1.0.49+）可限制僅從指定目錄載入，適合鎖定環境的 CI/CD 場景。外部 Plugin 在 `/plugin list` 中會顯示在獨立的「External Plugins」區段。
+>
+> ⚠️ **供應鏈治理提醒**：Plugin／Marketplace 機制本質上是「安裝第三方可執行程式碼與設定」，企業導入時應比照套件管理（npm/Maven）供應鏈風險看待——建議限制可安裝來源、審查 `plugin.json` 內宣告的 MCP/Hook 權限範圍，詳見 [第 6 章：安全與治理](#第-6-章安全與治理)。
 
 ---
 
 ## 4.9 Extensions 擴充機制
 
-Extensions 是輕量級的擴充方式（v1.0.3 起以實驗性功能提供），可以直接用 `@github/copilot-sdk` 為 Copilot 撰寫自訂工具和 Hook。
+Extensions 是比 Plugin 更輕量的擴充方式，可直接用 `@github/copilot-sdk` 為 Copilot 撰寫自訂工具和 Hook。官方指令參考頁確認互動式介面提供 `/extensions`（別名 `/extension`）管理指令；Plugin 自 v1.0.62 起也可隨附 Extension，並可透過 Plugin Marketplace 一併安裝。
 
 ### Extension 管理
 
@@ -1194,7 +1245,7 @@ Extension 可以是 CommonJS 模組（`extension.cjs`）或 ES Module，支援�
 - 提供自訂工具與 Hook
 - 在 Session 啟動或加入時注入功能
 
-> 📝 **注意**：可透過 Extension mode 設定控制擴充性。多個 Extension 的 Hook 會自動合併而非互相覆蓋（v1.0.11+）。
+> 📝 **注意**：可透過 Extension mode 設定控制擴充性。多個 Extension 的 Hook 會自動合併而非互相覆蓋（v1.0.11+）。此功能官方公開文件著墨較少，細節請以 `copilot help` 或 `/extensions` 指令內建說明為準。
 
 ---
 
@@ -1214,7 +1265,7 @@ graph LR
 
 ### 記憶功能
 
-- **自動學習**：Copilot 在工作過程中自動識別並儲存有用的模式
+- **自動學習**：Copilot 在工作過程中自動識別並儲存有用的模式（coding conventions、architectural patterns、cross-file dependencies）
 - **跨 Session 查詢**：詢問過去的工作、修改過的檔案、建立的 PR
 - **手動管理**：Copilot 使用 `store_memory` 工具記錄 Subject、Fact 和 Citations
 
@@ -1224,15 +1275,31 @@ graph LR
 
 # 查詢之前的 PR
 > 顯示我最近建立的 PR 清單和摘要
+
+# 管理記憶（v1.0.49+）
+/memory show     # 檢視目前累積的記憶內容
+/memory off      # 停用記憶功能
+/memory on       # 重新啟用
 ```
 
-> ⚠️ **注意**：Memory 功能在非 Git Repository 中會優雅降級。若 Repository 不存在或無寫入權限，會顯示明確的錯誤提示。此功能屬實驗性質（v0.0.412+）。
+### 發展時程
+
+| 階段 | 時間 |
+|------|------|
+| Early Access（Pro / Pro+） | 2025-12-19 |
+| Public Preview | 2026-01-15 |
+| CLI GA 公告中列為正式功能 | 2026-02-25 |
+| Pro / Pro+ 預設開啟 | 2026-03-04 |
+| 支援 User Preferences（個人偏好記憶） | 2026-05-15 |
+| `/memory on\|off\|show` 控制指令上線 | v1.0.49（2026-05-18） |
+
+> ⚠️ **注意**：Memory 功能在非 Git Repository 中會優雅降級。若 Repository 不存在或無寫入權限，會顯示明確的錯誤提示。
 
 ---
 
-## 4.11 ACP（Agent Client Protocol）
+## 4.11 ACP（Agent Client Protocol）與 Copilot SDK
 
-ACP 是一個開放標準協定，允許第三方工具、IDE 或自動化系統將 Copilot CLI 當作 AI Agent 使用。
+ACP 是一個開放標準協定，允許第三方工具、IDE 或自動化系統將 Copilot CLI 當作 AI Agent 使用。**ACP 支援目前仍為 Public Preview**（官方原文："ACP support in GitHub Copilot CLI is in public preview and subject to change."），企業導入前應留意介面仍可能變動。
 
 ### 啟動 ACP 伺服器
 
@@ -1260,15 +1327,45 @@ copilot --acp
 | Fleet 模式 | 支援平行子代理 |
 | Skills / Plugins / MCP | 完整的擴充體系支援 |
 
-### SDK 整合
+### Copilot SDK：六語言皆已 GA
+
+**Copilot SDK 暴露與 Copilot CLI 完全相同的 Agent Runtime**，讓開發者可用程式化方式將 Copilot 的規劃、工具呼叫、檔案編輯能力內嵌進自己的應用程式，而不需開發者自行組裝 Agent Loop。時程演進非常快：
+
+| 階段 | 時間 |
+|------|------|
+| Technical Preview | 2026-01-14 |
+| Public Preview（開放 Copilot Free / 非 Copilot 用戶 / BYOK 企業） | 2026-04-02 |
+| **GA（六語言同步）** | **2026-06-02** |
+
+**安裝方式（依語言）：**
 
 ```bash
-# 安裝 Copilot CLI（即包含 SDK Runtime）
-npm install -g @github/copilot
+# Node.js / TypeScript
+npm install @github/copilot-sdk
 
-# 使用 Copilot SDK 為應用程式內建 Agent 能力
-# 參閱：https://github.com/github/copilot-sdk
+# Python
+pip install github-copilot-sdk
+
+# Go
+go get github.com/github/copilot-sdk/go
+
+# .NET
+dotnet add package GitHub.Copilot.SDK
+
+# Rust
+cargo add github-copilot-sdk
+
+# Java（Maven）
+# com.github:copilot-sdk-java
 ```
+
+> ⚠️ **重要相依關係**：所有語言 SDK 都透過 JSON-RPC 與「Copilot CLI 伺服器」通訊。**Node.js、Python、.NET 會自動內建捆綁 CLI 執行檔**，但 **Go、Java、Rust 版本需自行安裝 `copilot` CLI 並確保在 PATH 中可用**——換言之，SDK 目前仍是同一套 CLI Agent Runtime 的程式化外殼，並非完全脫鉤的獨立引擎。企業評估 SDK 導入時，仍需將 CLI 的版本管理、授權與治理策略一併納入考量。
+
+**認證方式**：已登入 GitHub 使用者、OAuth GitHub App、環境變數（`COPILOT_GITHUB_TOKEN`/`GH_TOKEN`/`GITHUB_TOKEN`）、BYOK。計費模式與 CLI 相同（詳見第 9.4 節 AI Credits），Copilot Free 方案有限額可用。授權為 MIT License。
+
+### AHP（Agent Host Protocol）：新興的另一協定，注意勿與 ACP 混淆
+
+截至 2026-08 查證，Copilot CLI 出現了一個**仍在 Pre-release 階段**的新協定支援：`copilot --ahp`，可將 CLI 掛載到 Agent Host Protocol 主機（規格由 Microsoft/VS Code 陣營另行發布於 `microsoft.github.io/agent-host-protocol`，MIT License），讓多個終端機同時連上同一 Session 並即時觀看其對話串流；另有 `/ahp cloud <environment-id>`（掛載 Mission Control 雲端環境）與 `/ahp codespace <name>`（轉發 Codespace 的 copilotd port）等子指令。**AHP 與 ACP 是兩個不同協定**，前者是全新、仍在早期驗證階段的能力，尚未進入穩定版，建議企業列為「持續關注」而非現行可依賴的標準功能。
 
 > 💡 **提示**：ACP 客戶端可透過 `session.ui.elicitation` 向使用者顯示互動式對話框，並可透過 `session.shell.exec` / `session.shell.kill` 執行與管理 Shell 指令。ACP 客戶端可切換 allow-all 權限模式、提供 MCP Server（stdio, HTTP, SSE）、註冊自訂 Slash Command，以及配置推理強度。
 
@@ -1276,7 +1373,9 @@ npm install -g @github/copilot
 
 ## 4.12 OpenTelemetry 可觀測性
 
-Copilot CLI 原生支援 OpenTelemetry（OTEL）監控，為 Agent Session、LLM 呼叫、工具執行提供完整的可觀測性。
+Copilot CLI 底層與 Copilot SDK 共用同一套 OTEL 可觀測性管線，為 Agent Session、LLM 呼叫、工具執行提供追蹤能力。
+
+> 📝 **範圍提醒**：OpenTelemetry 章節目前在官方「入門導覽」文件（`about-copilot-cli` / `use-copilot-cli`）中並未獨立列出，較完整的說明集中在 **Copilot SDK 的可觀測性文件**（`docs.github.com/en/copilot/how-tos/copilot-sdk/observability/opentelemetry`）。若企業主要透過互動式 CLI（而非 SDK）使用 Copilot，OTEL 追蹤能力仍可用，但建議以 `copilot help monitoring` 現場確認當下版本的揭露細節，而非假設所有指標都已在 CLI 文件中窮舉。
 
 ### 啟用 OpenTelemetry
 
@@ -1308,40 +1407,69 @@ copilot
 | Token 消耗 | 每次 LLM 呼叫的 Input / Output Token 數 |
 | 推理 Token | 支援模型的推理 Token 消耗（非零時顯示） |
 
-> 💡 **提示**：此功能自 v1.0.4 起引入，v1.0.19-v1.0.20 持續強化。可搭配 Jaeger、Grafana Tempo 或其他 OTEL 相容的觀測平台使用。
+> 💡 **提示**：此功能自 v1.0.4 起引入，v1.0.19-v1.0.20 持續強化。可搭配 Jaeger、Grafana Tempo 或其他 OTEL 相容的觀測平台使用。Span 命名於 v1.0.45 前後改採 **GenAI 語意慣例**（GenAI Semantic Conventions），MCP 工具呼叫統一以標準 `tool_call` Span 呈現；v1.0.61 起，OTLP Exporter（HTTPS）新增 **mTLS 與 Private CA** 支援，適合企業內網稽核環境。
 
 ---
 
-## 4.13 Critic Agent 自動審查
+## 4.13 Rubber Duck 建設性批評代理
 
-Critic Agent 是一個實驗性功能，會自動使用**互補模型**審查計畫與複雜實作，提早發現錯誤。
+> 📝 **正名提醒**：這項功能在早期版本（v1.0.18 起）曾以「Critic Agent」的實驗性型態出現，但 **官方目前正式名稱為「Rubber Duck」**，不建議在文件中繼續沿用「Critic Agent」這個非官方名稱。
 
-### 啟用方式
+Rubber Duck 是 Copilot CLI 內建的「建設性批評者」代理，官方定義逐字："Rubber duck is a built-in agent in GitHub Copilot CLI that acts as a constructive critic."
 
-```bash
-# 需要實驗性模式 + Claude 模型
-copilot --experimental
-# Critic Agent 會在 Plan 審核和複雜實作時自動觸發
-```
+### 核心設計：刻意的異模型交叉審查
 
-### 工作流程
+Rubber Duck 最關鍵的技術亮點在於它**刻意運行在與主 Session 不同的 AI 模型上**（例如主 Session 用 Claude，Rubber Duck 可能改用 GPT），官方理由是不同模型 "less likely to share the same blind spots, biases, or failure modes"——這比用同一模型自我審查更能發現真實問題。
+
+### 運作流程
 
 ```mermaid
 graph LR
-    A[Agent 產生計畫/程式碼] --> B[Critic Agent<br/>使用互補模型審查]
+    A[Agent 產生計畫/程式碼] --> B[Rubber Duck<br/>使用不同模型交叉審查]
     B --> C{發現問題？}
-    C -->|是| D[回饋問題給 Agent]
+    C -->|是| D[依嚴重度分類：阻斷 / 非阻斷 / 建議]
     D --> A
     C -->|否| E[繼續執行]
 ```
 
-> ⚠️ **注意**：此功能自 v1.0.18 起提供，目前僅支援 Claude 模型，需啟用實驗性模式。
+### 使用方式
+
+```bash
+# 手動呼叫，針對特定問題徵詢意見
+/rubber-duck What edge cases are missing?
+
+# 查看／審查系統自動產生的 Skill 草稿變更
+/chronicle skills review
+```
+
+- 非平凡（non-trivial）的變更完成後會**自動觸發**一次 Rubber Duck 審查
+- 可用 `builtInAgents.rubberDuckAutoInvoke` 設定控制是否自動觸發（v1.0.60+）
+
+### 版本演進
+
+| 版本 | 日期 | 里程碑 |
+|------|------|--------|
+| v1.0.18 | 2026-04-01 | 以「Critic Agent」實驗性功能首次登場，僅支援 Claude 模型 |
+| v1.0.41~ | 2026-05-05 | 正名為 Rubber Duck，開始支援 GPT Session（底層仍由 Claude 驅動，實驗性） |
+| v1.0.49 | 2026-05-07 | 支援更多模型（模型限制持續放寬） |
+| **v1.0.58** | **2026-06-02** | **預設啟用**，脫離實驗性狀態 |
+
+> ⚠️ **已知限制**：官方文件明確標示 "currently only available if the main agent is using a Claude or GPT large language model"——若主 Session 使用 Gemini、Grok 等其他模型，Rubber Duck 可能無法使用，導入前建議先行驗證。
 
 ---
 
 ## 4.14 Remote Control 遠端控制
 
-透過 `/remote` 指令，您可以在其他裝置或瀏覽器中遠端控制 CLI Session，實現跨裝置協作。
+透過 `/remote` 指令，您可以在其他裝置或瀏覽器中遠端控制 CLI Session，實現跨裝置協作。官方定義："Remote control lets you monitor and steer a Copilot CLI session from GitHub.com or GitHub Mobile, even after you've stepped away from your machine." **此功能已於 2026-05-18 正式 GA**（涵蓋 Mobile、Web、VS Code；JetBrains 亦已支援）。
+
+### 安全設計與限制
+
+- 僅有**啟動該 Session 的同一 GitHub 帳號**能夠存取遠端控制
+- 所有 Shell 指令、檔案操作、工具執行**仍在本機執行**，GitHub 端只接收 Session 事件串流，不代管實際運算
+- 需 org/enterprise 政策開啟「Store local sessions in the Cloud → View and control」
+- 本機須保持連線在線，Session 才能被遠端存取
+- **僅限互動式 Session**，`--prompt`（`-p`）程式化模式不支援遠端控制
+- 遠端可執行：回應權限請求、核准/拒絕計畫、送出新指令、切換模式、取消操作；但**斜線指令（如 `/allow-all`）不可從遠端介面使用**
 
 ### 啟用遠端控制
 
@@ -1431,7 +1559,7 @@ copilot
 | 特性 | 說明 |
 |------|------|
 | 內建子代理繼承 | `/review`、`/task`、explore、`/fleet` 等內建子代理會自動繼承您的供應商設定 |
-| Premium Requests | 使用自訂供應商時，Premium Request 成本估算會隱藏。Token 使用量（輸入、輸出、快取）仍會顯示 |
+| AI Credits 計費 | 使用自訂供應商時，AI Credit 成本估算會隱藏（因費用改由供應商端結算）。Token 使用量（輸入、輸出、快取）仍會顯示 |
 | `/delegate` 限制 | `/delegate` 指令僅在同時登入 GitHub 時有效，因為它會將 Session 轉交給 GitHub 伺服器端 Copilot |
 | 詳細設定說明 | 執行 `copilot help providers` 查看完整設定指南 |
 
@@ -1439,17 +1567,29 @@ copilot
 
 ---
 
-## 4.16 圖片輸入支援
+## 4.16 圖片、附件與語音輸入支援
 
-Copilot CLI 支援視覺參考輸入，可將設計稿、截圖或圖表直接提供給 AI 分析。
+Copilot CLI 支援視覺參考輸入，可將設計稿、截圖或圖表直接提供給 AI 分析；亦支援語音輸入取代打字。
 
 ### 輸入方式
 
 | 方式 | 操作 | 適用場景 |
 |------|------|---------|
 | **拖放** | 直接將圖片拖放到 CLI 輸入區域 | 桌面操作 |
-| **剪貼簿貼上** | `Ctrl + V` 貼上剪貼簿中的圖片 | 截圖後快速輸入 |
+| **剪貼簿貼上** | `Ctrl + V`（圖片附件）/ `Alt + V`（圖片附件，另一組鍵位） | 截圖後快速輸入 |
 | **檔案引用** | 在 Prompt 中使用 `@` 引用圖片檔案 | 引用設計稿或 Mockup |
+| **程式化附加** | `--attachment` 旗標（`-p`/`--prompt` 模式，v1.0.44+） | CI/CD 或腳本化流程 |
+
+**支援格式**：JPEG、PNG、GIF、WEBP、**PDF**、**HEIC**、**HEIF**——「available on all Copilot plans and are enabled by default」。
+
+### 語音輸入（已 GA，v1.0.58+）
+
+作為打字的替代方案，可直接對著麥克風口述 Prompt，**語音辨識在本地端運作，錄音內容不會上傳雲端**：
+
+```bash
+# 選擇並保存慣用的麥克風裝置（v1.0.71+）
+/voice devices
+```
 
 ### 使用範例
 
@@ -1479,9 +1619,9 @@ Copilot CLI 內建一組專門化的 Agent，由 AI 模型自動判斷何時委�
 | **Explore** | 快速程式碼庫分析，在不汙染主 Context 的情況下回答程式碼相關問題 | 獨立 Context 運行 |
 | **Task** | 執行指令（測試、建置等），成功時簡要摘要，失敗時完整輸出 | 自動摘要結果 |
 | **General Purpose** | 處理複雜多步驟任務，需要完整工具集與高品質推理 | 獨立 Context，保持主對話清晰 |
-| **Code Review** | 審查程式碼變更，專注發現真正問題，最小化雜訊 | 多模型交叉審查 |
+| **Code Review** | 審查程式碼變更，「專注發現真正問題，最小化雜訊」（surfacing only genuine issues, minimizing noise） | 獨立 Context 運行 |
 | **Research** | 跨程式碼庫、相關儲存庫和網路進行深度研究，產出帶有引用的詳細報告 | 深度搜尋與分析 |
-| **Rubber Duck** | 作為建設性批評者，對非瑣碎任務提供回饋 | **自動觸發**，無需手動呼叫 |
+| **Rubber Duck** | 作為建設性批評者，刻意使用與主 Session 不同的模型交叉審查（詳見 [4.13](#413-rubber-duck-建設性批評代理)） | 可用 `/rubber-duck` 手動呼叫，非瑣碎任務後亦會自動觸發 |
 
 ### Agent 使用方式
 
@@ -1506,6 +1646,49 @@ copilot --agent=backend-expert --prompt "重構 UserService"
 | **組織/企業層級** | 組織 `.github-private` Repository 的 `/agents/` 目錄 | 組織下所有專案 |
 
 > ⚠️ **優先順序**：系統 Agent > Repository Agent > 組織 Agent。發生命名衝突時，高優先順序的 Agent 會覆蓋低優先順序的。
+
+---
+
+## 4.18 Sandbox 安全沙箱（本機／雲端）
+
+Sandbox 是 GA 後新增的重要安全機制，讓 Copilot 在**隔離環境**中執行工具操作，降低 Agent 誤操作或惡意 Prompt Injection 造成的實際傷害。目前分為本機與雲端兩種型態，**皆屬 Public Preview**（官方原文："Cloud and local sandboxes for GitHub Copilot are in public preview and subject to change."）。
+
+### 本機 Sandbox（Local Sandboxing）
+
+```bash
+# 啟用本機沙箱
+/sandbox enable
+
+# 檢視目前生效的 Sandbox 政策（路徑、拒絕清單、網路存取狀態，v1.0.79+）
+/sandbox policy
+
+# 針對單次 Session 開關 OS-level shell sandbox，不影響已存設定（v1.0.70+，適合搭配 -p）
+copilot --sandbox
+copilot --no-sandbox
+```
+
+本機 Sandbox 限制檔案系統存取範圍與網路存取，macOS/Linux 下對相對路徑與 symlink 的拒絕清單皆生效（Windows 目前無法依路徑拒絕）。macOS Keychain 存取預設關閉（更嚴格隔離），可視需求於 `/sandbox` 對話框重新啟用；也可選擇性開放 Sandbox 內存取 git/gh 憑證。
+
+### 雲端 Sandbox（Cloud Sandboxing）
+
+```bash
+# 於獨立、雲端代管的隔離環境中執行 Session
+copilot --cloud
+```
+
+### 企業層級 Sandbox 政策（v1.0.76+ / v1.0.79+）
+
+| 能力 | 說明 |
+|------|------|
+| 強制收緊下限 | 企業可透過 Managed Settings 強制設定限制性 Sandbox 下限，**只能收緊、不能放寬**使用者自訂的 Sandbox 政策 |
+| 鎖定欄位提示 | `/sandbox` 對話框會顯示哪些欄位是由組織強制鎖定 |
+| Allow-Auto-Only 政策 | 企業可設定僅允許 `/allow-all auto`（自動安全判斷），但完全封鎖無條件 allow-all |
+| 強制 Proxy | 企業可強制指定 Sandbox 對外請求的 Proxy URL，使用者仍可自控憑證 |
+| MDM 整合 | 支援透過 macOS / Windows 原生 MDM（Mobile Device Management）強制執行 Sandbox 政策（v1.0.77+） |
+
+> ⚠️ **重大設定鍵變更**（v1.0.79，Breaking Change）：`allowDevToolCaches` 已更名為 `allowDevToolAccess`；`sandbox.gitAuth` / `sandbox.ghAuth` 已遷移為 `sandbox.auth.git` / `sandbox.auth.gh`。**這兩項變更均無自動遷移機制**，舊 Key 會被靜默忽略，企業升級前務必手動更新設定檔並驗證 Sandbox 政策仍如預期生效。
+>
+> 💡 **企業導入建議**：Sandbox 是目前官方主推的「降低 Agent 操作風險而不犧牲自主性」機制，建議與 [第 6 章：安全與治理](#第-6-章安全與治理) 的 `--deny-tool` / Hooks 防護策略搭配使用，形成多層防禦（Defense in Depth）。
 
 ---
 
@@ -1738,11 +1921,13 @@ echo "✅ 完成！"
 # 在互動式介面中新增 MCP Server
 /mcp add
 
-# 從 MCP Registry 安裝 MCP Server（引導式配置，v1.0.25+）
-# 系統會引導您完成配置
+# 從 MCP Registry 搜尋並安裝 MCP Server（v1.0.64+ 為 /mcp registry；早期版本為引導式精靈，v1.0.25+）
+/mcp registry
+/mcp search    # 實驗性：搜尋 Registry 內可用的伺服器能力（v1.0.49+）
 
 # 查看已配置的 MCP Server
 /mcp
+/mcp list
 
 # 查看特定 MCP Server 的工具清單
 /mcp show <server-name>
@@ -1790,7 +1975,65 @@ copilot mcp
 }
 ```
 
+### GitHub MCP Registry（github.com/mcp）
+
+GitHub 官方於 2025-09-16 推出集中化的 **MCP Registry**（`https://github.com/mcp`），定位為「Connect models to the real world」——一個可搜尋、可一鍵安裝的 MCP Server 目錄。截至 2026-08 查證約收錄 **219 個 MCP Server**（此數字會持續成長），涵蓋 Figma、Postman、HashiCorp、Dynatrace、Context7、Playwright、Chrome DevTools MCP 等知名工具。可在 CLI 內用 `/mcp registry` 或 `/mcp search` 探索並安裝，無需離開終端機。
+
+### 內建 GitHub MCP Server 官方工具集（Toolsets）
+
+Copilot CLI **內建** GitHub MCP Server，無需另行安裝；預設僅啟用**唯讀（Read-only）**工具集以降低風險與 Token 消耗。可用 `/mcp show github` 檢視狀態。官方定義 20 個標準 Toolset：
+
+| Toolset | 說明 | 預設啟用 |
+|---|---|:---:|
+| `context` | 目前使用者/操作環境背景資訊 | ✅ |
+| `repos` | 儲存庫操作 | ✅ |
+| `issues` | Issue 管理 | ✅ |
+| `pull_requests` | PR 管理 | ✅ |
+| `users` | 使用者搜尋 | ✅ |
+| `actions` | GitHub Actions / CI-CD 操作 | |
+| `code_quality` | 程式碼品質工具 | |
+| `code_security` | 程式碼掃描等安全工具 | |
+| `secret_protection` | 密碼掃描等保護工具 | |
+| `security_advisories` | 安全公告 | |
+| `copilot` / `copilot_issue_intents` | Copilot 相關功能 / Issue 指派意圖 | |
+| `dependabot` | Dependabot 整合 | |
+| `discussions` | GitHub Discussions | |
+| `gists` | Gist 管理 | |
+| `git` | 低階 Git API 操作 | |
+| `labels` | 標籤管理 | |
+| `notifications` | 通知管理 | |
+| `orgs` | 組織相關工具 | |
+| `projects` | GitHub Projects 管理 | |
+| `stargazers` | Star 管理 | |
+
+**控制方式：**
+
+```bash
+# 新增指定工具集
+copilot --add-github-mcp-toolset actions
+
+# 啟用全部工具集
+copilot --enable-all-github-mcp-tools
+
+# 單一工具粒度控制
+copilot --add-github-mcp-tool <tool-name>
+
+# 完全停用內建 MCP Server
+copilot --disable-builtin-mcps
+
+# 唯讀模式：讀取限制優先於任何寫入請求，即便明確要求寫入也會被略過（高安全需求場景）
+copilot --read-only
+```
+
+> 💡 **提示**：也可透過環境變數 `GITHUB_TOOLSETS` 控制。除官方 GitHub MCP Server 外，Copilot CLI 也支援連接任意第三方/自訂 MCP Server（遠端 HTTP、本地 Docker、本地二進位檔三種部署方式皆支援），不侷限於 GitHub 生態系。
+
 ## 5.5 Session 管理與對話引導
+
+### Infinite Sessions：自動 Context 管理
+
+官方將 Copilot CLI 的長任務能力定位為「**Infinite Sessions**」——不需擔心 Context 用盡，系統會透過智慧壓縮（Compaction）自動摘要對話歷史、同時保留關鍵資訊，因此原則上可無限期地在同一 Session 中持續工作。官方提示原文："If you ever need to manually trigger compaction, use `/compact`. This is rarely necessary since the system handles it automatically."
+
+> 💡 **最佳實務**：雖然 Infinite Sessions 允許長時間運作，官方仍建議**保持 Session 聚焦**——處理不相關任務時改用 `/clear` 或 `/new` 重置 Context，而非在同一 Session 中無限累積，這能顯著提升回應品質，官方比喻為「像跟同事開始一段全新的對話」。
 
 ### Session 儲存結構
 
@@ -1884,6 +2127,36 @@ copilot --connect <session-id>
 > - `/clear` 完全放棄目前 Session，`/new` 開啟新對話但保留舊 Session 在背景
 > - `/cd` 在不同 Session 之間維持獨立的工作目錄
 > - Session 選擇器顯示分支名稱、閒置/使用中狀態、支援改進的搜尋
+
+### 多工作階段管理：Worktree / Fork / Rewind / Sessions Sidebar
+
+GA 後新增了一組面向「同時處理多條並行工作」的能力，是企業多工開發情境下的重要新增功能：
+
+```bash
+# 建立/重用獨立 git worktree 並在其中啟動 Session（實驗性，v1.0.64+；-w 為簡寫）
+copilot --worktree [name]
+/worktree new
+/new-worktree          # 建立新 worktree 並直接開新對話（實驗性）
+
+# /worktree 保留未提交變更在原地；/move 則會把未提交變更一併搬過去（v1.0.71+ 拆分）
+/move
+
+# 控制 worktree 從 HEAD 或遠端預設分支啟動（v1.0.79+）
+# 設定鍵：worktreeBaseRef
+
+# 將目前 Session 分叉成獨立新 Session（v1.0.45+）
+/fork
+/branch          # 別名，比照 Claude Code 命名習慣（v1.0.64+）
+
+# 回溯到對話歷史中的任一時間點，不只是上一個快照（v1.0.12+ 起支援 timeline picker）
+/rewind
+# 或按兩下 Esc（Double-Esc）快速回溯
+
+# Session 側欄：管理多個並行 Session（v1.0.76+ 起實驗性，v1.0.78+ 起分頁化）
+# 側欄快捷鍵：n 新建、x 關閉
+```
+
+> ⚠️ **注意**：`/worktree`、`/fork`、Sessions Sidebar 多屬近期新增（部分仍為實驗性/需 `/experimental on`），企業導入前建議先在非關鍵專案驗證行為，並留意這些功能會在檔案系統中建立額外的 git worktree 目錄（`<repo>.worktrees/` 下），需納入磁碟空間與 `.gitignore` 管理考量。
 
 ### 對話引導（Steering the Conversation）
 
@@ -2048,6 +2321,23 @@ Copilot 想要執行：rm -rf ./build/
 - CLI 在不同目錄啟動時會使用各自的權限設定
 - **雙次 Esc 確認**：切換 allow-all 模式時需要按兩次 Esc 鍵確認，防止誤操作（v1.0.36+）
 
+### 核准模式（Approval Modes，v1.0.51+/v1.0.78+）
+
+```bash
+# 切換核准模式：default（逐次詢問）/ assisted / allow-all / show
+/permissions
+/permissions default
+/permissions reset      # 重置本 Session 記憶的核准
+/reset-allowed-tools     # 重置已授予的工具權限（舊指令，功能相近）
+
+# 半自動核准：由「安全判斷」模型自動放行低風險操作，仍攔截高風險操作
+# 需先啟用實驗性模式（v1.0.69+ 起強制要求）
+/experimental on
+/allow-all auto
+```
+
+> ⚠️ **重要**：`/allow-all auto` 的安全判斷模型自 v1.0.78 起**不再可由使用者自行設定**，改為系統自動選擇，避免使用者刻意配置寬鬆的判斷模型以規避風控。企業如需完全禁止繞過人工核准，可透過 Managed Settings 設定 `permissions.disableBypassPermissionsMode`（v1.0.55+）直接**封鎖 allow-all / YOLO 模式的啟用**。
+
 ### 工具權限控制選項
 
 | 選項 | 功能 | 安全等級 | 適用場景 |
@@ -2103,7 +2393,7 @@ copilot --allow-all
 | **系統變更** | 可能修改系統設定檔 | 🟠 高 |
 | **網路存取** | 可能下載不受信任的檔案 | 🟡 中 |
 
-> ⚠️ **企業環境嚴禁使用 YOLO Mode**。如必須使用，應在 VM、Container 或沙箱環境中執行。
+> ⚠️ **企業環境嚴禁使用 YOLO Mode**。如必須使用，應在 VM、Container 或沙箱環境中執行（建議搭配 [4.18 Sandbox](#418-sandbox-安全沙箱本機雲端) 而非完全依賴權限旗標）。企業可透過 `permissions.disableBypassPermissionsMode` 設定於組織層級**直接封鎖** YOLO / allow-all 模式的啟用，不必僅依賴開發者自律。
 
 ## 6.3 企業治理策略
 
@@ -2115,6 +2405,25 @@ copilot --allow-all
 | **MCP Server** | 限制為白名單 | 只允許內部核準的 MCP |
 | **模型選擇** | 限制可用模型 | 避免使用未經評估的模型 |
 | **Trusted Directories** | 限制為專案目錄 | 避免存取系統目錄 |
+
+### 6.3.1 已知落差與業界安全研究（2026 年最新）
+
+導入 Copilot CLI（或任何 Agentic CLI 工具）前，企業安全團隊應了解以下幾項官方文件不會主動提醒、但業界研究已明確揭露的風險：
+
+**① Content Exclusions 不涵蓋 CLI**：多篇資安分析明確指出，Business/Enterprise 方案的「內容排除規則」（Content Exclusions，用來阻擋 Copilot 存取特定檔案/路徑）**不適用於 Copilot CLI、Coding Agent，或 IDE 中的 Agent Mode**——這些「代理式」介面是既有內容排除規則的治理盲區。若組織依賴 Content Exclusions 保護機敏檔案，**必須額外針對 CLI 制定 Trusted Directories 與 `--deny-tool` 規則**，不能假設既有規則自動生效。（來源：CloudThat 企業導入分析）
+
+**② TrustFall 類型漏洞（MCP 自動信任風險）**：Adversa AI 於 2026-05 揭露名為「TrustFall」的漏洞類別——Claude Code、Cursor、Gemini CLI、**Copilot CLI** 等主流 Agentic CLI，在使用者接受「資料夾信任」提示後，會自動核准並啟動該 Repository 內定義的 MCP Server（`.mcp.json`），而信任對話框往往「未明確提及即將啟動 MCP、未列舉將執行的檔案、無法單獨拒絕 MCP 而保留其餘信任授權」。已有實際案例（Miasma worm 曾在 Azure/durabletask 等 Microsoft Azure 儲存庫植入 `.mcp.json` 觸發自動執行）。**這是業界代理式 CLI 的共通問題，非 Copilot CLI 獨有**，但企業導入時務必納入風險清單：Clone 不受信任的 Repository 前，應先人工檢視是否存在 `.mcp.json`，再決定是否信任該目錄。（來源：Adversa AI / DarkReading / The Register）
+
+**③ 密鑰外洩統計**：GitGuardian 研究顯示，啟用 GitHub Copilot 的公開儲存庫，密鑰洩露率達 **6.4%**，較所有公開儲存庫基線 4.6% 高出約 40%——AI 輔助編碼提升生產力的同時，也可能提升機敏資訊意外進入版本控制的機率，強化了「`postToolUse` Hook 稽核 + Pre-commit 密鑰掃描」的必要性（詳見 6.4 節）。
+
+**④ Gartner「比例治理」原則**（2026-05）：Gartner 明確警告「對所有 AI 代理採取統一治理策略，將導致企業專案失敗率升高」，並預測 **到 2027 年，40% 企業將因未區分『代理的行動能力』與『被授予的存取範圍』而下架已部署的代理程式**。建議企業依代理的**自主權等級（Autonomy Level）**做比例治理——例如 Ask Mode（僅建議）、Plan Mode（需人工核准計畫）、Autopilot（自主執行）三種模式，應對應不同的信任邊界與稽核密度，而非用同一套規則管理。
+
+**⑤ 業界治理框架參考**（非官方，但可作為實務補充）：
+
+- **Maxim AI 五步框架**：(1) 盤點裝置上的代理程式與 MCP Server (2) 透過閘道路由代理流量並配置虛擬金鑰 (3) 套用防護機制偵測密鑰/PII 外洩 (4) 裝置層級集中允許/拒絕清單 (5) 透過 MDM 持續稽核部署，解決「Shadow AI」（未受控個人裝置上的 AI 使用）問題
+- **Checkmarx 五大風險與九項對策**：風險含提示注入、不安全建議、密鑰外洩、依賴幻覺仿冒攻擊（AI 建議安裝不存在但被惡意搶注的套件名稱）、隱私合規；對策含人工審查、OWASP 標準、密鑰管理、開發者培訓、DevSecOps 整合、集中治理、限制第三方擴充、敏感程式碼使用政策、審查 MCP 資料流
+
+> 📝 **本節資訊來源**：CloudThat、Adversa AI、DarkReading、The Register、GitGuardian（經 Maxim AI 引用）、Gartner 新聞稿（2026-05-26）、Maxim AI、Checkmarx，皆為 2026 年上半年至查證當下的公開研究，建議企業安全團隊定期關注最新揭露動態，不視為一次性檢查清單。
 
 ### 資安控管措施
 
@@ -2722,69 +3031,89 @@ graph TD
 4. **架構決策**：技術選型、架構設計需人工判斷
 5. **法規遵循**：涉及合規要求的程式碼審查
 
-## 8.4 官方推薦工作流程（Explore → Plan → Code → Commit）
+## 8.4 官方推薦工作流程（Explore → Plan → Review → Implement → Verify → Commit）
 
-根據 [GitHub 官方最佳實務文件](https://docs.github.com/copilot/how-tos/copilot-cli/cli-best-practices)，處理複雜任務時建議遵循以下四步驟工作流：
+根據 [GitHub 官方最佳實務文件](https://docs.github.com/copilot/how-tos/copilot-cli/cli-best-practices)逐字核對，處理複雜任務時官方建議的完整工作流其實是 **六個步驟**，比坊間常簡化引用的「四步驟」多了「Review（覆核計畫）」與「Verify（驗證結果）」兩個關鍵環節：
 
 ### Step 1：Explore（探索）
 
 ```bash
-# 使用 Ask Mode 或 Explore Agent 了解既有程式碼
-> 請分析 @src/auth/ 模組的架構，包含：
-  - 認證流程
-  - Token 管理機制
-  - 與其他模組的依賴關係
+> Read the authentication files but don't write code yet
 ```
 
-- 目的：在修改前，先完整理解現有系統
+- 目的：在修改前，先完整理解現有系統，明確要求「先讀不寫」
 - 建議：切換到 Ask Mode（不產生變更），或使用 `--agent=explore`
 
 ### Step 2：Plan（規劃）
 
 ```bash
-# 切換到 Plan Mode（Shift+Tab 切換）
-> 基於上述分析，規劃將認證從 Session-based 改為 JWT：
-  - 列出需修改的檔案
-  - 標示高風險變更
-  - 定義向後相容策略
-  - 設計 Migration 步驟
+/plan Implement password reset flow
 ```
 
-- 目的：讓 AI 產出結構化計畫，人工確認後再執行
-- 成果：產出 `plan.md`（可透過 `/session plan` 查閱）
+- 官方原文重點："**Models achieve higher success rates when given a concrete plan to follow.**" 在 Plan Mode 下，Copilot 會先分析需求與程式庫、**主動提出釐清問題對齊需求**、建立含核取方塊的結構化計畫、存成 `plan.md`，並**等待你的核准**才會開始實作
+- 按 `Shift+Tab` 切換 Plan Mode，或直接下 `/plan` 指令；可按 `Ctrl+Y` 在編輯器中檢視/編輯計畫
+- **何時該用 Plan Mode**（官方場景表）：複雜多檔案變更、影響面廣的重構、新功能實作 → 建議使用；快速 Bug 修復、單一檔案變更 → 可跳過
 
-### Step 3：Code（實作）
+### Step 3：Review（覆核計畫）
 
 ```bash
-# 切換到 Autopilot Mode，按計畫逐步實作
-> 按照計畫執行 Step 1：建立 JWT Utility 類別
+> Check the plan, suggest modifications
 ```
 
-- 目的：按計畫逐步產生程式碼，每步完成後用 `/diff` 確認
-- 建議：大型任務可分段執行，避免一次產出過多變更
+- 目的：人工審查 AI 提出的計畫是否合理，必要時要求調整範圍或補強遺漏的邊界條件
 
-### Step 4：Commit（提交）
+### Step 4：Implement（實作）
 
 ```bash
-# 完成後建立 PR
-/pr
-> 為上述變更建立 PR，包含完整測試結果與部署注意事項
+> Proceed with the plan
 ```
 
-- 目的：利用 Copilot 自動產生 PR 描述、填寫必要資訊
-- 建議：讓 Copilot 產出 Commit Message 後人工審查
+- 目的：按已核准的計畫逐步產生程式碼；大型任務可要求分階段實作，每步完成後用 `/diff` 確認
+
+### Step 5：Verify（驗證）
+
+```bash
+> Run the tests and fix any failures
+```
+
+- 目的：官方明確將「執行測試並修復失敗」列為獨立步驟，而非隱含在 Commit 之前——避免未經驗證的程式碼直接進入提交流程
+- 建議搭配 `/security-review`（見下方）在提交前先做一輪安全掃描
+
+### Step 6：Commit（提交）
+
+```bash
+> Commit these changes with a descriptive message
+```
+
+- 目的：利用 Copilot 產生 Commit Message／PR 描述，人工做最終審查後提交
+- 可搭配 `/pr` 建立 PR，`/review` 或 `/security-review` 做提交前最後把關
 
 ### 工作流程圖
 
 ```mermaid
 graph LR
     A[Explore<br/>理解現狀] --> B[Plan<br/>設計方案]
-    B --> C[Code<br/>逐步實作]
-    C --> D[Commit<br/>提交審查]
+    B --> R[Review<br/>覆核計畫]
+    R --> C[Implement<br/>逐步實作]
+    C --> V[Verify<br/>執行測試/修復]
+    V --> D[Commit<br/>提交審查]
     D -->|需修正| C
-    C -->|計畫不對| B
+    R -->|計畫不對| B
     B -->|資訊不足| A
+    V -->|測試失敗| C
 ```
+
+### 安全性審查指令（`/security-review`，全使用者開放 v1.0.64+）
+
+```bash
+# 對目前本機變更做安全審查，優先處理高風險發現
+/security-review Review my current local changes for security issues. Prioritize high-severity findings and suggest remediations I can apply before opening a pull request.
+
+# 用多模型交叉審查程式碼變更（可指定使用的模型）
+/review Use Opus 4.5 and Codex 5.2 to review the changes in my current branch against main. Focus on potential bugs and security issues.
+```
+
+> 💡 **建議流程**：先處理 `/security-review` 標示的高風險發現、驗證修復，再進入一般的 PR 審查流程——這是官方文件明確建議的順序，避免安全問題與一般 Code Review 意見混雜處理。
 
 ## 8.5 Session 管理最佳實務
 
@@ -2870,6 +3199,36 @@ copilot \
 - 不得修改 .env、secrets/、certs/ 目錄中的檔案
 ```
 
+### AI Credit Session 額度上限（企業預算控管）
+
+自 2026-06 計費模式改為 AI Credits（詳見第 9.4 節）後，官方新增可對**單一 Session 設定 AI Credits 上限**的能力，避免長時間或複雜任務無預警耗用超乎預期的預算：
+
+```bash
+# 於 Session 中設定/檢視額度上限（實際指令請以 /help 當下版本為準）
+/limits
+```
+
+### 受信任 Repository 的組態鎖定（v1.0.70+）
+
+受信任的 Repository 可透過 `.github/copilot/settings.json` **固定**模型、Reasoning Effort、Context Tier，並延伸 URL / MCP / Skill 的拒絕清單——這讓團隊可以把「核准過的設定」直接寫進版本控制，取代僅靠文件宣導的作法：
+
+```json
+// .github/copilot/settings.json
+{
+  "model": "claude-sonnet-4-5",
+  "effortLevel": "medium",
+  "contextTier": "standard",
+  "denyUrls": ["*.internal-legacy.example.com"]
+}
+```
+
+### 用 `/refine` 改寫雜亂的 Prompt（v1.0.70+）
+
+```bash
+# 把意識流式的口語需求，交給 Copilot 改寫成清楚的 Prompt 再送出
+/refine 我想要那個訂單那邊那個重複扣款的問題查一下順便修掉
+```
+
 ## 8.7 團隊協作與生產力量測
 
 ### 團隊指引建立建議
@@ -2889,7 +3248,7 @@ copilot \
 | Commit 頻率 | Git log 分析 | 每日 / 每週 Commit 次數變化 |
 | PR 週期 | GitHub Insights | 從開 PR 到 Merge 的時間 |
 | Code Review 回退率 | PR 統計 | AI 產生程式碼被退回修改的比例 |
-| Session 利用率 | `/usage` 統計 | Premium Requests 使用效率 |
+| Session 利用率 | `/usage` 統計 | AI Credits 使用效率 |
 | Bug 產出率 | Issue Tracker | AI 協助產生的程式碼之缺陷率 |
 
 ### 持續學習資源
@@ -2945,14 +3304,16 @@ npm outdated -g @github/copilot
 
 ```bash
 # 在 CI/CD 中鎖定版本
-npm install -g @github/copilot@1.0.39
+npm install -g @github/copilot@1.0.80
 
 # 在團隊文件中記錄版本
 # docs/tool-versions.md
-# - Copilot CLI: v1.0.39 (2026-04-28)
-# - 上次升級日期：2026-04-28
-# - 下次評估日期：2026-07-28
+# - Copilot CLI: v1.0.80 (2026-08-14)
+# - 上次升級日期：2026-08-14
+# - 下次評估日期：2026-11-14
 ```
+
+> ⚠️ **版本節奏提醒**：Copilot CLI 近半年來維持**近乎每週一版**的發佈節奏，且不時伴隨 Breaking Change（如 v1.0.79 的 Sandbox 設定鍵重命名）。企業若採「固定版本」策略，建議至少每季度重新評估一次，並在升版前先閱讀 [changelog.md](https://github.com/github/copilot-cli/blob/main/changelog.md) 的 Breaking Change 條目，而非直接跳版。
 
 ## 9.3 常見問題（FAQ）
 
@@ -2967,32 +3328,61 @@ npm install -g @github/copilot@1.0.39
 | 遠端 Session 無法連線 | 1. 確認組織策略未封鎖<br>2. 使用 `--remote` 啟動<br>3. 確認 ACP 伺服器在 localhost |
 | MCP OAuth 認證失敗 | 使用 `/mcp auth` 重新認證 |
 | Session 排序混亂 | 在 Session 選擇器中按 `s` 切換排序方式 |
+| 「Premium Requests」相關說明找不到了 | 2026-06-01 起已改為 AI Credits 計費模式（見第 9.4 節），請更新內部文件中殘留的 Premium Requests 用語 |
+| AI Credits 用盡但沒有自動降級模型 | 新計費模式已取消額度用盡後的降級備援；用 `/usage` 確認額度、`/limits` 預先設定 Session 上限、聯繫管理員調整組織 Credit 池 |
 
 ## 9.4 效能與成本考量
 
-### Premium Requests 配額
+> 🔴 **重大計費模式變革（2026-06-01 生效）**：GitHub Copilot **全面廢除 Premium Request Units（PRU）機制**，改採 **Usage-based Billing（GitHub AI Credits）**。若您的企業文件、預算試算表仍沿用「Premium Requests」概念，**必須立即更新**，因為配額估算方式、超額行為、方案內含額度都已完全不同。
 
-- 每次在互動式介面提交 Prompt 或程式化呼叫都會消耗 **Premium Request 配額**
-- 不同模型的消耗乘數不同：
-  - Claude Sonnet 4.5：1x
-  - 其他模型：依定價而定
+### AI Credits 計費模式
 
-### 節省 Premium Requests 的方法
+- 計費單位改為 **GitHub AI Credits**（1 Credit = US$0.01），按 **Token 實際消耗量**（輸入／輸出／快取 Token，依各模型 API 公示費率折算）計費，取代舊制按「請求次數 × 模型乘數」的方式
+- **程式碼自動完成（Inline Completions）與 Next-edit 建議不消耗 Credits**，維持免費
+- **不再提供「額度用盡後自動降級模型」的備援體驗**——這是與舊制最大的行為差異，額度用盡後互動會直接中止，而非悄悄換成更弱的模型
+
+### 方案與內含額度（截至 2026-08 查證）
+
+| 方案 | 月費 | 內含 AI Credits | 備註 |
+|------|------|------------------|------|
+| Pro | $10/月 | $10 | 座位定價不變，月繳自動遷移 |
+| Pro+ | $39/月 | $39 | 年繳用戶保留原定價至到期，可提前轉換並按比例退款 |
+| Business | $19/使用者/月 | $19 | 企業方案 |
+| Enterprise | $39/使用者/月 | $39 | 需另搭配 GitHub Enterprise Cloud（約 $21/使用者/月），實際總成本約 $60/使用者/月 |
+
+> 📝 過渡期優惠：既有企業客戶於 2026 年 6-8 月獲得額外推廣額度（Business +$30、Enterprise +$70），屬一次性措施，企業預算規劃不應假設長期延續。
+
+### 大上下文視窗對成本的影響（2026-06-04 起）
+
+Copilot 新增 **100 萬 Token 上下文視窗**與可配置推理層級（VS Code / CLI / App 三處同步），可將整個大型 Monorepo 或長文件一次載入單一對話，但因計費已改為 Token 制，**使用大上下文視窗會顯著提高 AI Credit 消耗**。建議僅在真正需要跨大量檔案理解的任務中啟用大 Context Tier，日常任務維持預設層級（約 200K Token）。
+
+### 節省 AI Credits 的方法
 
 1. **合併相關任務到一次 Prompt**（而非多次小任務）
-2. **使用 `/compact` 壓縮 context**（減少 Token 消耗）
+2. **使用 `/compact` 壓縮 Context**（減少 Token 消耗；Infinite Sessions 已會自動處理，非必要不需手動觸發）
 3. **善用 Plan Mode**（一次規劃好再執行，避免反覆修改）
 4. **使用 Custom Instructions**（減少每次 Prompt 的重複說明）
+5. **謹慎使用大上下文視窗 / 高推理層級**（僅在真正需要時開啟）
+6. **善用 `/limits` 為單一 Session 設定 AI Credit 上限**（見 8.6 節），避免長任務失控耗用預算
+7. **`/chronicle cost-tips`**：取得個人化的 Token 用量與省成本建議
+
+### 企業預算治理
+
+- 管理員可透過**組織 Credit 池共享**與**預算控制**功能，集中管理團隊 AI Credits 用量，避免個別開發者超支
+- 建議在 GitHub Actions 中改用內建 `GITHUB_TOKEN`（`permissions: copilot-requests: write`，見 3.4 節），讓 CI/CD 消耗的 Credits 直接歸屬組織帳單，便於成本歸因
 
 ### 監控使用量
 
 ```bash
-# 在互動式介面中查看使用統計
+# 在互動式介面中查看使用統計（含 Session 與週限額進度條）
 /usage
-# 顯示：Premium Requests 使用量、session 時長、編輯行數、Token 統計
+# 顯示：AI Credits 使用量、session 時長、編輯行數、Token 統計
 
 /context
 # 顯示：Context Window 使用情況
+
+# 個人化省成本建議
+/chronicle cost-tips
 ```
 
 ## 9.5 自動更新與發佈頻道
@@ -3073,7 +3463,10 @@ npm install -g @github/copilot@latest
 | `/mcp show` / `/mcp show <name>` | 查看 MCP 狀態與工具清單 |
 | `/mcp enable` / `/mcp disable` | 啟用 / 停用 MCP Server |
 | `/mcp reload` | 重新載入 MCP 設定 |
+| `/mcp registry` | 從 MCP Registry 搜尋並安裝伺服器（v1.0.64+） |
 | `/lsp` / `/lsp show` | 查看 LSP Server 狀態 |
+| `/security-review` | 安全漏洞審查，v1.0.64+ 起全使用者開放 |
+| `/refine` | 將雜亂的口語 Prompt 改寫成清楚版本（v1.0.70+） |
 
 #### Session 管理
 
@@ -3087,6 +3480,10 @@ npm install -g @github/copilot@latest
 | `/session delete` | 刪除指定 Session（v1.0.35+） |
 | `/session delete-all` | 刪除所有 Session（v1.0.35+） |
 | `/restart` | 熱重啟 CLI（保留 Session） |
+| `/fork`（別名 `/branch`） | 將目前 Session 分叉成獨立新 Session（v1.0.45+） |
+| `/worktree`（別名 `/move`） | 建立/切換 git worktree 並攜帶未提交變更（v1.0.66+，細節見 [5.5](#55-session-管理與對話引導)） |
+| `/new-worktree` | 建立新 worktree 並直接開新對話（實驗性，v1.0.78+） |
+| Session Sidebar：`n` / `x` | 側欄新建 / 關閉 Session（v1.0.76+ 起實驗性） |
 
 #### 開發工作流
 
@@ -3119,26 +3516,38 @@ npm install -g @github/copilot@latest
 | `/context` | 查看 Token 使用量 |
 | `/usage` | 查看 Session 使用統計（請求數、Token、程式碼變更量） |
 | `/instructions` | 查看與切換 Custom Instructions 檔案 |
-| `/skills` / `/skills add` | 管理 Skills |
-| `/remote` | 遠端控制管理（v1.0.25+） |
+| `/skills` / `/skills add`（或 `copilot skill`） | 管理 Skills（v1.0.65+ 支援檔案/URL/目錄來源） |
+| `/remote` | 遠端控制管理（已 GA，v1.0.25+ 起提供指令） |
+| `/memory on\|off\|show` | 管理 Copilot Memory（v1.0.49+） |
+| `/limits` | 設定/檢視 AI Credits Session 額度上限 |
+| `/voice devices` | 選擇並保存語音輸入的麥克風裝置（v1.0.71+） |
+| `/every` / `/after` | 定期／延遲排程執行 Prompt（Prompt Scheduling） |
+| `/chronicle search\|cost-tips\|skills review` | 搜尋歷史 Session、省成本建議、審查自動產生的 Skill 草稿 |
+| `/rubber-duck` | 手動呼叫 Rubber Duck 批評代理（見 [4.13](#413-rubber-duck-建設性批評代理)） |
 
 #### 權限與安全
 
 | 指令 | 說明 |
 |------|------|
 | `/yolo` / `/allow-all` | 啟用全部工具權限（**危險！**） |
-| `/allow-all on\|off\|show` | 互動式權限管理（v1.0.35+） |
+| `/allow-all on\|off\|show\|auto` | 互動式權限管理（`auto` 為安全判斷自動放行，需 `/experimental on`，v1.0.35+/v1.0.69+） |
+| `/permissions [default\|assisted\|allow-all\|show\|reset]` | 切換核准模式（v1.0.51+/v1.0.78+） |
 | `/reset-allowed-tools` | 重置已授予的工具權限 |
 | `/add-dir <path>` | 新增受信任目錄 |
+| `/list-dirs` | 查看目前已允許的目錄清單 |
 | `/cwd <path>` 或 `/cd <path>` | 切換工作目錄 |
+| `/sandbox enable` | 啟用本機 Sandbox 隔離 |
+| `/sandbox policy` | 檢視目前生效的 Sandbox 政策（v1.0.79+） |
 
 #### 擴充與插件
 
 | 指令 | 說明 |
 |------|------|
 | `/plugin` | Plugin 管理（install / update / uninstall / list） |
-| `/plugin marketplace add` | 從 Marketplace 安裝 Plugin |
-| `/extensions` | 查看、啟用、停用 Extensions |
+| `/plugin marketplace add\|list\|remove` | Marketplace 管理（v1.0.71+ 新增子指令） |
+| `/plugins` | 精細啟用/停用 Plugin 內個別元件（plugins/instructions/agents/LSP/hooks，v1.0.76+） |
+| `/extensions`（別名 `/extension`） | 查看、啟用、停用 Extensions |
+| `/app` | 開啟 GitHub App 或瀏覽器 fallback（v1.0.62+） |
 
 #### 輔助工具
 
@@ -3165,17 +3574,19 @@ npm install -g @github/copilot@latest
 
 | 快捷鍵 | 說明 |
 |--------|------|
-| `Shift + Tab` | 向前循環模式（Ask → Plan → Autopilot → Shell） |
+| `Shift + Tab` | 三段循環模式：**standard → plan → autopilot**（官方指令參考頁確認之最新行為） |
 | `Tab` | 向前循環模式 |
 | `Esc` | 終止操作 / 拒絕工具 / 清除輸入 |
-| `Double-Esc` | 復原檔案變更到上一個快照 |
+| `Double-Esc` | 開啟 Timeline Picker，可回溯到對話歷史**任一時間點**（不只上一個快照，等同 `/rewind`） |
 | `Ctrl + T` | 切換顯示/隱藏推理過程 |
 | `Ctrl + R` | 反向搜尋指令歷史（如 Bash） |
-| `Ctrl + C` | 中斷執行 |
+| `Ctrl + C` | 中斷執行 / 清除輸入 |
 | `Ctrl + D` | 在空 Prompt 時退出 CLI |
 | `Ctrl + Z` | 暫停 CLI（Unix，`fg` 恢復） |
+| `Ctrl + L` | 清空畫面 |
 | `Ctrl + X, Ctrl + E` | 在外部編輯器中編輯 Prompt |
 | `Ctrl + X, B` | 將目前任務轉為背景執行（v1.0.33+） |
+| `Ctrl + X, /` | Prompt 輸入中途執行斜線指令 |
 | `Ctrl + Y` | 在終端編輯器中編輯 Plan |
 | `Ctrl + G` | 在外部編輯器中編輯 / 關閉 UI 元素 |
 | `Ctrl + F` / `Ctrl + B` | 頁面下 / 上捲動（Alt Screen） |
@@ -3183,10 +3594,15 @@ npm install -g @github/copilot@latest
 | `Ctrl + K` | 刪除到行尾（游標在行尾時合併行） |
 | `Ctrl + N` / `Ctrl + P` | 等同上 / 下方向鍵 |
 | `Ctrl + O` | 展開最近 Timeline |
-| `Ctrl + S` | 執行指令（保留輸入） |
+| `Ctrl + S` | Stash / Pop 目前 Prompt 內容（比照 Claude Code，v1.0.60+ 行為變更） |
+| `Ctrl + V` / `Alt + V` | 從剪貼簿貼上附件 / 圖片附件 |
+| `Ctrl + Enter` / `Ctrl + Q` | Agent 忙碌時將訊息排入佇列 |
+| `Shift + Enter` / `Alt + Enter` | 輸入框內換行 |
+| `$` | 把終端機交還給真正的互動式 Shell |
 | `s` | 在 Session 選擇器中循環排序（v1.0.37+） |
 | `j` / `k` | Vim 風格導航（上/下選擇，v1.0.34+） |
 | `x` | 在 Session 選擇器中刪除 Session（v1.0.35+） |
+| `n` | Sessions Sidebar 新建 Session（v1.0.76+） |
 | `!<command>` | 直接執行 shell 指令 |
 | `&<prompt>` | 等同 `/delegate`（非同步委派） |
 | `@<path>` | 引用檔案內容（支援絕對/相對/父目錄/home 路徑） |
@@ -3210,10 +3626,19 @@ npm install -g @github/copilot@latest
 | `--plan` | 直接進入 Plan 模式（v1.0.30+） |
 | `--effort, --reasoning-effort <level>` | 設定推理強度 |
 | `--experimental` / `--no-experimental` | 啟用 / 停用實驗性功能 |
-| `--remote` | 啟用遠端控制（v1.0.25+） |
+| `--remote` | 啟用遠端控制（已 GA） |
 | `--banner` | 顯示啟動動畫 |
 | `--print-debug-info` | 印出除錯資訊並退出（v1.0.27+） |
 | `--session-idle-timeout <sec>` | Session 閒置逾時時間（v1.0.35+） |
+| `--session-id=<id>` | 恢復已知 Session/Task，或以指定 UUID 開新 Session（v1.0.51+） |
+| `-r` | `--resume` 的簡寫（v1.0.60+） |
+| `-C <directory>` | 啟動前先切換工作目錄，比照 `git -C`（v1.0.43+） |
+| `--worktree [name]` / `-w` | 建立或重用 git worktree 並在其中啟動 Session（實驗性，v1.0.64+） |
+| `--attachment <path>` | 於 `-p`/`--prompt` 模式附加檔案（v1.0.44+） |
+| `--cloud` | 於雲端代管的隔離 Sandbox 環境中執行 Session（Public Preview） |
+| `--sandbox` / `--no-sandbox` | 針對單次 Session 開關本機 Shell Sandbox（v1.0.70+） |
+| `--list-env` | 於 Prompt 模式記錄已載入的 Plugin/Agent/Skill/MCP Server（適合 CI 驗證環境設定） |
+| `--ahp` | 掛載至 Agent Host Protocol 主機（新興協定，Pre-release，見 [4.11](#411-acpagent-client-protocol與-copilot-sdk)） |
 
 #### 工具權限
 
@@ -3252,9 +3677,9 @@ npm install -g @github/copilot@latest
 
 | 選項 | 說明 |
 |------|------|
-| `--acp` | 啟動 ACP（Agent Client Protocol）伺服器 |
+| `--acp` | 啟動 ACP（Agent Client Protocol）伺服器（Public Preview） |
 | `--server` | 伺服器模式 |
-| `--config-dir <dir>` | 覆蓋設定檔目錄 |
+| `--config-dir <dir>` | ⚠️ **已棄用**（v1.0.40 起標示，v1.0.60 完成 Plugin 子指令傳遞），改用 `COPILOT_HOME` 環境變數 |
 | `--bash-env` | 在 Shell Session 中 source BASH_ENV |
 | `--binary-version` | 查詢二進位版本（不啟動 CLI） |
 | `--version` | 顯示版本 |
@@ -3390,6 +3815,9 @@ Bug 描述：{問題描述}
 | `COPILOT_GH_HOST` | 指定 GitHub Enterprise Server 主機（v1.0.15+） |
 | `COPILOT_AGENT_SESSION_ID` | 目前 Agent Session ID（自動設定於子進程，v1.0.20+） |
 | `COPILOT_DISABLE_TERMINAL_TITLE` | 停用 CLI 自動設定的終端標題（v1.0.25+） |
+| `COPILOT_PLUGIN_DIR_ONLY` | 限制僅從指定目錄載入 Plugin（v1.0.49+） |
+| `COPILOT_ENABLE_HTTP2` | 設為 `1` 啟用 HTTP/2 傳輸（v1.0.57 起預設改為 HTTP/1.1 以提升可靠性） |
+| `GITHUB_TOOLSETS` | 控制內建 GitHub MCP Server 啟用的工具集（見 [5.4](#54-與其他工具整合)） |
 
 ### 網路與代理
 
@@ -3490,17 +3918,44 @@ Bug 描述：{問題描述}
 | v1.0.36 | 2026-04-25 | 雙次 Esc 確認 allow-all 切換 |
 | v1.0.37 | 2026-04-27 | 位置感知權限；Session 排序（`s` 鍵）；`/statusline`；`/footer` |
 | v1.0.38 | 2026-04-27 | `/rewind` 回溯指令 |
-| **v1.0.39** | **2026-04-28** | **目前最新版**；HTTP Hook 支援；穩定性與效能改進 |
+| v1.0.39 | 2026-04-28 | HTTP Hook 支援；穩定性與效能改進 |
+| v1.0.40~44 | 2026-05-01~08 | `--attachment` 旗標；MCP `client_credentials` 無頭驗證；Autopilot 預設限制 5 次延續；`--config-dir` 標示棄用 |
+| v1.0.45~48 | 2026-05-11~14 | `/fork` 指令；`/autopilot` 模式切換；OTEL 改採 GenAI 語意慣例 |
+| **v1.0.49** | **2026-05-18** | `/memory on\|off\|show`；`/chronicle search`；`/rubber-duck` 手動呼叫；MCP `/mcp search`（實驗性） |
+| v1.0.51~55 | 2026-05-20~28 | `--session-id`；自訂狀態列；`/security-review`；`preMcpToolCall` Hook；`/autopilot <objective>`（`/goal`）；Opus 4.8 上線 |
+| **v1.0.58** | **2026-06-02** | **Rubber Duck 預設啟用**；`/every`/`/after` 排程；Copilot App 與 Copilot SDK（六語言）**同步 GA**；語音輸入 GA |
+| v1.0.60~61 | 2026-06-05~09 | Anthropic 最大推理層級開放所有方案；`ctrl+s` 改為 Stash/Pop；`--config-dir` 走向棄用；Claude Fable 5 上線 |
+| v1.0.62~65 | 2026-06-13~24 | Shell 工具改輕量 spawn；`/subagents`；`copilot skill`；企業 forward proxy Kerberos 驗證 |
+| **v1.0.66** | **2026-06-30** | Claude Opus 4.8 Fast 上線，**同時棄用 Opus 4.6 Fast**；`/worktree`（`/move`）；`/pr auto`／`/pr automerge` |
+| v1.0.67~69 | 2026-06-30~07-07 | Claude Sonnet 5 上線；`/delegate --base`；`/allow-all auto` 需實驗性模式 |
+| **v1.0.70** | **2026-07-09** | GPT-5.6 上線；`--sandbox`/`--no-sandbox`；`/refine`；受信任 Repo 可鎖定模型/Effort/Context Tier 設定 |
+| v1.0.71~74 | 2026-07-16~23 | Plan Mode 硬性封鎖工作區修改；Subagent 巢狀深度預設 6→4；`/voice devices`；Open Plugin Spec v1 支援 |
+| **v1.0.75~76** | **2026-07-24~29** | Claude Opus 5、Grok 4.5 上線；`/plugins` 精細啟用/停用；Sessions Sidebar（實驗性） |
+| v1.0.77~78 | 2026-07-30~08-03 | 瀏覽器 OAuth 登入成為本地預設；MDM 強制 Sandbox 政策；Timeline 顯示工具耗時；Managed Settings fail open |
+| **v1.0.79** | **2026-08-10** | ⚠️ Sandbox 設定鍵 Breaking Change；`--plan` + `--mode autopilot` 組合；Kimi K3 上線；`/model` 改為分組顯示且 Session-scoped |
+| **v1.0.80** | **2026-08-14** | **目前最新版**；模型設定更新 |
+
+> 📝 **本表為精選里程碑**，並非逐版完整清單（v1.0.39 至 v1.0.80 之間實際發布約 40 個版本，多為修復與小幅強化）。完整版本紀錄請參閱 [changelog.md](https://github.com/github/copilot-cli/blob/main/changelog.md)。
 
 ## 10.7 已移除與棄用項目
 
-| 項目 | 移除版本 | 替代方案 |
+| 項目 | 移除/棄用版本 | 替代方案 |
 |------|---------|---------|
 | `.vscode/mcp.json` 作為 MCP 設定來源 | v1.0.22 | 使用 `.mcp.json` |
 | `.devcontainer/devcontainer.json` 作為 MCP 設定來源 | v1.0.22 | 使用 `.mcp.json` |
 | `codex-mini` 模型 | v1.0.15 | 使用 `auto` 或其他可用模型 |
+| `gpt-5.1-codex` / `gpt-5.1-codex-mini` / `gpt-5.1-codex-max` 模型 | v1.0.15 | 使用 GPT-5.2 Codex 或更新版本 |
+| `gemini-3-pro-preview` 模型 | v1.0.13 | 使用 Gemini 3 Pro 或更新版本 |
+| `--alt-screen` 旗標與 `alt_screen` 設定 | v1.0.12 | Alt Screen 現為永遠啟用 |
+| 已棄用的 `marketplaces` Repository 設定 | v1.0.16 | 改用 `extraKnownMarketplaces` |
+| `--config-dir` 旗標 | v1.0.40 標示棄用，v1.0.60 完成過渡 | 改用 `COPILOT_HOME` 環境變數 |
+| Claude Opus 4.6 Fast 模型 | v1.0.66 | 改用 Claude Opus 4.8 Fast |
+| Subagent 最大巢狀深度預設值（6） | v1.0.71 | 預設降為 4，可用 `subagents.maxDepth` 調整（最高 128） |
+| `allowDevToolCaches` 設定鍵 | v1.0.79（**Breaking，無自動遷移**） | 改用 `allowDevToolAccess` |
+| `sandbox.gitAuth` / `sandbox.ghAuth` 設定鍵 | v1.0.79（**Breaking，無自動遷移**） | 改用 `sandbox.auth.git` / `sandbox.auth.gh` |
+| **Premium Requests（PRU）計費機制** | 2026-06-01（全面停用） | 改用 **AI Credits（Usage-based Billing）**，詳見第 9.4 節 |
 | `o4-mini` 模型（已移除後重新新增） | 短暫移除 | 已重新可用 |
-| `--yolo` 旗標（部分場景） | 未正式棄用 | 建議使用 `--allow-all-tools` |
+| `--yolo` 旗標（部分場景） | 未正式棄用 | 建議使用 `--allow-all-tools`；企業可用 `permissions.disableBypassPermissionsMode` 完全封鎖 |
 
 ---
 
@@ -3542,13 +3997,17 @@ Bug 描述：{問題描述}
 - [ ] 設定 `postToolUse` Hook 記錄稽核日誌
 - [ ] 所有 AI 產生的程式碼必須經過 Code Review
 - [ ] CI/CD Pipeline 包含安全掃描步驟
-- [ ] 定期更新 Copilot CLI 到最新版本
+- [ ] 定期更新 Copilot CLI 到最新版本（留意 Breaking Change，見 10.7）
 - [ ] 確認第三方 MCP Server 政策與組織允許清單一致
 - [ ] 確認 UNC 路徑防護已啟用（v1.0.5+ 預設啟用）
+- [ ] Clone 不受信任的 Repository 前，先人工檢視是否存在 `.mcp.json`（TrustFall 風險，見 6.3.1）
+- [ ] 不假設 Content Exclusions 涵蓋 CLI／Coding Agent／Agent Mode，另行制定 Trusted Directories 規則
+- [ ] 評估啟用 [4.18 Sandbox](#418-sandbox-安全沙箱本機雲端) 作為多層防禦的一環
+- [ ] GitHub Actions 中改用內建 `GITHUB_TOKEN`（`copilot-requests: write`），避免簽發長效 PAT
 
 ## 📊 日常使用檢查清單
 
-- [ ] 使用 `/usage` 監控 Premium Requests 消耗
+- [ ] 使用 `/usage` 監控 AI Credits 消耗（2026-06 起計費模式已由 Premium Requests 改為 AI Credits）
 - [ ] 使用 `/context` 監控 Token 使用量
 - [ ] 適時使用 `/compact` 壓縮 Context
 - [ ] 複雜任務使用 Plan Mode（Shift + Tab）
@@ -3575,21 +4034,25 @@ Bug 描述：{問題描述}
 - [ ] 使用 `/fleet` 平行化大型任務
 - [ ] 使用 ACP 整合至其他工具或 IDE
 - [ ] 使用 Copilot Memory 累積跨 Session 的專案知識
+- [ ] 評估 Copilot SDK（六語言已 GA）將 Agent 能力內嵌進自建應用程式
+- [ ] 使用 `/worktree` / `/fork` 管理多條並行工作
 - [ ] 建立團隊使用規範與最佳實務文件
 
 ---
 
 > 📝 **文件維護**  
-> - 本手冊基於 GitHub Copilot CLI **v1.0.39**（2026 年 4 月 28 日）撰寫，最後更新：2026 年 5 月 29 日
+> - 本手冊基於 GitHub Copilot CLI **v1.0.80**（2026 年 8 月 14 日）撰寫，最後更新：2026 年 8 月 14 日
 > - 官方 Repository：https://github.com/github/copilot-cli
 > - 產品頁面：https://github.com/features/copilot/cli
 > - 官方文件：https://docs.github.com/en/copilot/concepts/agents/copilot-cli/about-copilot-cli
 > - 安裝指南：https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli
 > - 使用指南：https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-copilot-cli
+> - CLI 指令參考：https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference
 > - 最佳實務：https://docs.github.com/copilot/how-tos/copilot-cli/cli-best-practices
 > - Changelog：https://github.com/github/copilot-cli/blob/main/changelog.md
 > - Copilot SDK：https://github.com/github/copilot-sdk
 > - GitHub MCP Registry：https://github.com/mcp
 > - GitHub Skills 互動課程：https://github.com/skills/create-applications-with-the-copilot-cli
+> - 建議每季度檢視並更新本手冊內容，並優先核對 changelog.md 中的 Breaking Change 條目
 > - 建議每季度檢視並更新本手冊內容
 
