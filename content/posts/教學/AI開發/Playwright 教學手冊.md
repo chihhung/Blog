@@ -8,10 +8,24 @@ categories = ['教學']
 
 # Playwright 教學手冊（企業級完整版）
 
-> **版本**：基於 Playwright v1.61.1（2026 年 6 月）  
-> **適用對象**：資深工程師、SDET、QA Lead、DevOps 工程師  
+> **版本**：基於 Playwright v1.62.1（2026 年 7 月）  
+> **適用對象**：資深工程師、SDET、QA Lead、DevOps 工程師、技術決策者  
 > **授權**：Apache 2.0（Playwright 開源授權）  
-> **最後更新**：2026-06-30
+> **最後更新**：2026-08-15
+
+---
+
+## 執行摘要（Executive Summary）
+
+Playwright 是 Microsoft 主導開發的開源瀏覽器自動化框架，自 2020 年首次發布以來，已成為端對端（E2E）測試領域成長最快的解決方案。根據 2026 年業界調查，Playwright 在新專案採用率已達 45.1%，首度超越 Selenium（22.1%）與 Cypress（14.4%），npm 週下載量突破 1,300 萬次，GitHub 星數超過 9.4 萬顆，反映其在測試社群的主流地位。
+
+對企業而言，導入 Playwright 的核心價值在於三個面向：
+
+1. **降低維護成本**：內建 Auto-wait 與 Web-First Assertions 機制，實測可減少約六成因時序問題（Race Condition）導致的 Flaky Test，顯著降低 SDET 團隊的除錯負擔。
+2. **降低基礎設施成本**：原生支援跨瀏覽器（Chromium／Firefox／WebKit）與平行測試，無需額外部署 Selenium Grid 一類的叢集基礎設施，即可於 CI/CD 中橫向擴展。
+3. **加速 AI 導入測試流程**：透過 Playwright MCP、Playwright CLI 與 Playwright Agents（Planner／Generator／Healer），企業可將 LLM Coding Agent 導入測試規劃、產生與自動修復流程，是目前主流測試框架中對 AI Agent 生態系整合最完整的方案。
+
+本手冊以「企業級落地」為核心設計，涵蓋從系統架構設計、多環境配置、CI/CD 整合、安全合規到團隊導入的完整生命週期，適合作為 SDET / QA Lead 規劃導入策略、DevOps 工程師建置 Pipeline，以及技術決策者評估投資報酬率（ROI）的參考文件。內文所有版本標註（如 v1.60+）皆對應 Playwright 官方 [Release Notes](https://playwright.dev/docs/release-notes)，讀者可據此判斷所屬環境的相容性。
 
 ---
 
@@ -30,7 +44,7 @@ categories = ['教學']
   - [2.4 多環境配置](#24-多環境配置)
   - [2.5 與微服務架構整合](#25-與微服務架構整合)
 - [第 3 章：安裝與環境建置](#第-3-章安裝與環境建置)
-  - [3.1 Node.js 安裝](#31-nodejs-安裝typescriptjavascript)
+  - [3.1 Node.js 安裝](#31-nodejs-安裝typescript--javascript)
   - [3.2 Python 安裝](#32-python-安裝)
   - [3.3 Java 安裝](#33-java-安裝)
   - [3.4 專案目錄結構](#34-專案目錄結構企業級推薦)
@@ -68,11 +82,13 @@ categories = ['教學']
   - [5.20 Web Storage API（v1.61+）](#520-web-storage-apiv161)
   - [5.21 Network API 擴展（v1.61+）](#521-network-api-擴展v161)
   - [5.22 Test Runner 增強（v1.61+）](#522-test-runner-增強v161)
+  - [5.23 v1.62 新功能總覽](#523-v162-新功能總覽)
 - [第 6 章：測試設計最佳實踐](#第-6-章測試設計最佳實踐)
   - [6.1 Page Object Model（POM）完整實作](#61-page-object-modelpom完整實作)
   - [6.2 減少 Flaky Test 策略](#62-減少-flaky-test-策略)
   - [6.3 測試命名規範](#63-測試命名規範)
   - [6.4 自訂 Fixtures](#64-自訂-fixtures)
+  - [6.5 測試金字塔中的元件測試策略](#65-測試金字塔中的元件測試策略)
 - [第 7 章：CI/CD 整合（企業級重點）](#第-7-章cicd-整合企業級重點)
   - [7.1 GitHub Actions](#71-github-actions)
   - [7.2 GitLab CI](#72-gitlab-ci)
@@ -115,6 +131,8 @@ categories = ['教學']
   - [13.3 完整 package.json 範本](#133-完整-packagejson-範本)
   - [13.4 .gitignore 範本](#134-gitignore-範本)
   - [13.5 Tag 使用策略](#135-tag-使用策略)
+  - [13.6 Component Testing 專案範本（v1.62+）](#136-component-testing-專案範本v162)
+  - [13.7 README.md 範本](#137-readmemd-範本)
 - [附錄 A：新進成員檢查清單（Checklist）](#附錄-a新進成員檢查清單checklist)
 - [附錄 B：常用指令速查表](#附錄-b常用指令速查表)
 - [附錄 C：參考資源](#附錄-c參考資源)
@@ -127,7 +145,7 @@ categories = ['教學']
 
 Playwright 是由 **Microsoft** 開發並開源的瀏覽器自動化與端對端（E2E）測試框架，採用 **Apache 2.0** 授權。它透過單一 API 驅動 **Chromium**、**Firefox** 與 **WebKit** 三大瀏覽器引擎，支援 Windows、Linux、macOS 跨平台執行。
 
-截至 2026 年 6 月，Playwright 在 GitHub 上已獲得 **92,000+ 顆星**，擁有 **759+ 位貢獻者**，發布 **163 個版本**。
+截至 2026 年 8 月，Playwright 在 GitHub 上已獲得 **94,500+ 顆星**、**6,200+ 次 Fork**，擁有 **790+ 位貢獻者**，累計發布 **165 個版本**。根據 TestGuild 對逾 4 萬名測試工程師的 2026 年度調查，Playwright 在新專案的採用率已達 **45.1%**，首度超越 Selenium（22.1%）與 Cypress（14.4%）；npm 週下載量亦於 2026 年中突破 1,300 萬次，超越 Cypress 成為下載量最高的前端測試框架之一。
 
 #### Playwright 產品線
 
@@ -199,8 +217,13 @@ graph TB
 | **多語言** | Node.js / Python / Java / .NET | Java / Python / C# / Ruby 等 | 僅 JavaScript |
 | **行動裝置模擬** | ✅ Chrome Android / Mobile Safari | ❌ 需 Appium | ❌ 不支援 |
 | **Trace Viewer** | ✅ 內建完整追蹤 | ❌ 無 | ✅ 時間旅行偵錯 |
-| **AI Agent 整合** | ✅ MCP Server / CLI | ❌ 無原生支援 | ❌ 無原生支援 |
+| **元件測試（Component Testing）** | ✅ v1.62+ Stories & Galleries 模型 | ❌ 無 | ✅ 成熟支援 |
+| **AI Agent 整合** | ✅ MCP Server / CLI / Playwright Agents | ❌ 無原生支援 | ❌ 無原生支援 |
 | **授權** | Apache 2.0 | Apache 2.0 | MIT |
+| **2026 新專案採用率** | 45.1%（首度超越 Selenium） | 22.1% | 14.4% |
+| **開發者續用率** | 94%（三者最高） | 中等 | 高 |
+
+> **📊 市場趨勢說明**：Selenium 憑藉最廣泛的語言支援（Java／Python／C#／Ruby／PHP）與舊版瀏覽器相容性，在既有大型維運中的系統仍佔有一席之地；Cypress 在 JavaScript 開發者體驗上具優勢，但瀏覽器涵蓋範圍與跨語言支援相對受限。Playwright 則在速度、穩定性與 AI Agent 生態系整合上取得明顯優勢，是目前多數新專案的預設選擇，但既有 Selenium／Cypress 專案的遷移仍應評估團隊技能與既有測試資產的重寫成本。
 
 ### 1.4 適用場景
 
@@ -219,7 +242,7 @@ graph TB
 | 項目 | 需求 |
 |------|------|
 | **Node.js** | 22.x / 24.x / 26.x（最新穩定版） |
-| **作業系統** | Windows 11+、Windows Server 2019+、WSL、macOS 14+（Sonoma）、Debian 12 / 13（Trixie）、Ubuntu 22.04 / 24.04 / 26.04 |
+| **作業系統** | Windows 11+、Windows Server 2019+、WSL、macOS 14+（Sonoma，WebKit 測試需 macOS 15+）、Debian 12 / 13（Trixie）、Ubuntu 22.04 / 24.04 / 26.04 |
 | **CPU 架構** | x86-64 或 arm64 |
 | **磁碟空間** | 約 500MB（含三個瀏覽器） |
 | **Python**（可選） | 3.9+（使用 Python 版本時） |
@@ -227,6 +250,7 @@ graph TB
 | **.NET**（可選） | .NET 8+（使用 .NET 版本時） |
 
 > **⚠️ 注意事項**：
+>
 > 1. 在企業環境中，若有 Proxy 限制，需額外設定 `HTTPS_PROXY` 環境變數以下載瀏覽器
 > 2. **v1.57+ Breaking**：不再支援 macOS 13 的 WebKit
 > 3. **v1.59+ Breaking**：不再支援 macOS 14 的 WebKit，建議升級至 macOS 15+
@@ -234,7 +258,8 @@ graph TB
 > 5. **v1.61+ Breaking**：不再支援 Node.js 20.x，最低需求 Node.js 22.x
 > 6. **v1.55+ 新增**：支援 Debian 13「Trixie」
 > 7. **v1.61+ 新增**：支援 Ubuntu 26.04
-> 8. **v1.55+ Breaking**：停止支援 Chromium Extension Manifest V2
+> 8. **v1.62+ Breaking**：不再支援 Debian 11，需升級至 Debian 12 / 13
+> 9. **v1.55+ Breaking**：停止支援 Chromium Extension Manifest V2
 
 ---
 
@@ -505,6 +530,7 @@ export default defineConfig({
 ```
 
 **使用方式：**
+
 ```bash
 # 執行 SIT 環境測試
 TEST_ENV=sit npx playwright test
@@ -606,7 +632,7 @@ with sync_playwright() as p:
 <dependency>
   <groupId>com.microsoft.playwright</groupId>
   <artifactId>playwright</artifactId>
-  <version>1.61.1</version>
+  <version>1.62.1</version>
 </dependency>
 ```
 
@@ -628,7 +654,7 @@ public class PlaywrightExample {
 
 ### 3.4 專案目錄結構（企業級推薦）
 
-```
+```text
 playwright-e2e/
 ├── .github/
 │   └── workflows/
@@ -718,12 +744,14 @@ playwright-e2e/
 claude mcp add playwright npx @playwright/mcp@latest
 ```
 
+> **📌 v1.62+ 變更**：Playwright 主套件已內建 MCP Server，可直接透過 `npx playwright mcp` 啟動，無需另外安裝 `@playwright/mcp`。獨立套件仍會持續維護，適合需要獨立鎖定 MCP 版本或提早取得功能的場景；企業內建置若已固定 `@playwright/test` 版本，建議統一改用內建指令以減少相依套件數量。
+
 ### 3.7 Playwright CLI 安裝（Coding Agent 用）
 
 Playwright CLI 是專為 Coding Agent 設計的命令列介面，比 MCP 更省 Token — 命令避免載入大型 Tool Schema 和 Accessibility Tree 到模型上下文中。
 
 ```bash
-# 全域安裝 CLI
+# 全域安裝 CLI（獨立套件，適合鎖定特定版本）
 npm install -g @playwright/cli@latest
 
 # 安裝 Skills（增強 Agent 整合）
@@ -732,6 +760,8 @@ playwright-cli install --skills
 # 開啟監控面板（Dashboard）
 playwright-cli show
 ```
+
+> **📌 v1.62+ 變更**：CLI 現已內建於主套件，安裝 `@playwright/test` 後可直接執行 `npx playwright cli`，等同於獨立安裝的 `playwright-cli`。本章節後續指令範例（`playwright-cli ...`）在 v1.62+ 環境下皆可替換為 `npx playwright cli ...`。
 
 **CLI 常用命令：**
 
@@ -778,12 +808,13 @@ npx playwright init-agents --loop=opencode
 
 ### 3.9 企業環境安裝注意事項
 
-> **⚠️ 企業注意事項**：  
+> **⚠️ 企業注意事項**：
+>
 > 1. 在受限網路環境中，可設定 `PLAYWRIGHT_BROWSERS_PATH` 指向共享瀏覽器路徑  
 > 2. 使用 `HTTPS_PROXY` 設定 Proxy  
 > 3. 可預先下載瀏覽器到離線環境：`npx playwright install --dry-run` 取得下載 URL  
 > 4. 使用 `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` 跳過自動下載（搭配共享路徑使用）  
-> 5. Docker 環境建議直接使用官方映像檔：`mcr.microsoft.com/playwright:v1.61.1-noble`
+> 5. Docker 環境建議直接使用官方映像檔：`mcr.microsoft.com/playwright:v1.62.1-noble`
 
 ---
 
@@ -815,6 +846,7 @@ test('點擊快速開始連結', async ({ page }) => {
 ```
 
 **執行測試：**
+
 ```bash
 # 執行所有測試（Headless 模式）
 npx playwright test
@@ -1031,6 +1063,7 @@ await page.pause();  // 暫停執行，開啟 Inspector
 ```
 
 **Inspector 功能：**
+
 - 逐步執行（Step Over / Step Into）
 - 即時查看 Locator 匹配
 - 修改 Locator 並即時驗證
@@ -1063,6 +1096,7 @@ npx playwright show-report
 ```
 
 **Trace Viewer 包含：**
+
 - 每一步的 DOM 快照
 - 網路請求 / 回應
 - Console log
@@ -1359,6 +1393,7 @@ test('即時幀擷取', async ({ page }) => {
 ```
 
 > **✅ 企業應用場景**：
+>
 > - **Agentic Video Receipts**：Coding Agent 完成任務後錄製帶標註的影片證據，供人類 Review
 > - **AI Vision 分析**：即時將畫面傳送給 Vision Model 進行分析
 > - **操作教學影片**：自動產生帶章節標題的操作教學影片
@@ -1490,37 +1525,74 @@ v1.60 新增 Tracing 層級的 HAR 錄製功能，可在追蹤過程中同時錄
 
 ```typescript
 test('Tracing HAR 錄製範例', async ({ context, page }) => {
-  // 開始追蹤並同步錄製 HAR
-  await context.tracing.startHar({ path: 'trace.har' });
+  // 開始追蹤並同步錄製 HAR（path 為位置參數，非物件選項）
+  // 若檔名以 .zip 結尾，回應內容會以獨立檔案形式附加於壓縮檔中
+  await context.tracing.startHar('trace.har', { content: 'embed' });
 
   await page.goto('/api-heavy-page');
   await page.getByRole('button', { name: '載入資料' }).click();
   await expect(page.getByTestId('data-table')).toBeVisible();
 
-  // 停止 HAR 錄製
+  // 停止 HAR 錄製並寫入磁碟
   await context.tracing.stopHar();
 });
 ```
 
-> **✅ 應用場景**：搭配 Trace Viewer 分析 API 呼叫時序，特別適合診斷微服務間的延遲問題。
+```typescript
+// 進階：startHar() 回傳 Disposable，可搭配 await using 自動收尾
+test('以 await using 自動結束 HAR 錄製', async ({ context, page }) => {
+  await using har = await context.tracing.startHar('trace.har');
+  await page.goto('/api-heavy-page');
+  // 區塊結束時，HAR 會自動 finalize 並寫入磁碟，無需手動呼叫 stopHar()
+});
+```
+
+> **✅ 應用場景**：搭配 Trace Viewer 分析 API 呼叫時序，特別適合診斷微服務間的延遲問題。同一個 `Tracing` 實例同時間僅能有一組 HAR 錄製在進行中。
 
 ### 5.16 Drop API（v1.60+）
 
-新增 `locator.drop()` 方法，簡化拖放操作：
+`locator.drop()` 用於模擬**外部**檔案或剪貼簿資料拖放至頁面元素（例如作業系統檔案總管拖曳檔案到上傳區），並非取代既有的 `locator.dragTo()`（頁面內元素對元素拖放）。Playwright 會在目標元素中心派發原生的 `dragenter`、`dragover`、`drop` 事件，並在頁面內建構合成的 `DataTransfer` 物件，確保跨瀏覽器行為一致。
 
 ```typescript
-test('拖放操作', async ({ page }) => {
+test('拖放檔案至上傳區（模擬外部拖放）', async ({ page }) => {
+  await page.goto('/upload');
+
+  // 模擬將檔案從作業系統拖放到上傳區
+  await page.locator('#dropzone').drop({
+    files: {
+      name: 'report.csv',
+      mimeType: 'text/csv',
+      buffer: Buffer.from('id,name\n1,測試'),
+    },
+  });
+
+  await expect(page.getByText('report.csv')).toBeVisible();
+});
+
+test('拖放純文字與連結資料', async ({ page }) => {
+  await page.goto('/upload');
+
+  await page.locator('#dropzone').drop({
+    data: {
+      'text/plain': 'hello world',
+      'text/uri-list': 'https://example.com',
+    },
+  });
+});
+
+test('看板卡片拖放（沿用既有的 dragTo）', async ({ page }) => {
   await page.goto('/kanban');
 
-  // 將任務卡片拖放至「已完成」欄位
+  // 頁面內元素對元素的拖放，應使用既有的 dragTo()，而非 drop()
   const taskCard = page.getByTestId('task-123');
   const doneColumn = page.getByTestId('column-done');
-  await taskCard.drop(doneColumn);
+  await taskCard.dragTo(doneColumn);
 
-  // 驗證拖放結果
   await expect(doneColumn.getByTestId('task-123')).toBeVisible();
 });
 ```
+
+> **⚠️ 常見誤用**：`drop()` 不接受 `Locator` 作為參數，僅接受 `{ files }` 或 `{ data }`。若目標元素的 `dragover` 監聽器未呼叫 `preventDefault()`，Playwright 會視為拒絕接收並拋出例外，這通常代表應用程式尚未正確實作拖放區的事件處理。
 
 ### 5.17 Aria Snapshots 增強（v1.60+）
 
@@ -1754,6 +1826,7 @@ test('刪除特定 Passkey', async ({ browser }) => {
 ```
 
 > **✅ 企業應用場景**：
+>
 > - **無密碼認證測試**：不需真實 FIDO2 硬體金鑰即可在 CI 中自動測試 Passkey 流程
 > - **多因素認證**：搭配 storageState 實現完整 MFA 測試自動化
 > - **跨瀏覽器驗證**：同一 Passkey 在 Chromium / Firefox / WebKit 上驗證行為一致性
@@ -1864,6 +1937,7 @@ test('驗證憑證到期日', async ({ request }) => {
 ```
 
 > **✅ 企業應用場景**：
+>
 > - **憑證監控**：在 E2E 測試中自動驗證 TLS 憑證有效性，預防過期事故
 > - **合規驗證**：確認 API 端點使用符合安全標準的 TLS 版本（如 TLS 1.3）
 
@@ -1962,6 +2036,111 @@ npx playwright test -G "@visual|@slow"
 ```
 
 > **✅ 最佳實踐**：搭配 `video: 'on-all-retries'` 和 `trace: 'retain-on-failure-and-retries'` 可完整保留 Flaky Test 的所有執行證據，大幅加速根因分析。
+
+### 5.23 v1.62 新功能總覽
+
+Playwright v1.62（2026 年 7 月）是本次改版時最新的穩定版本，帶來元件測試模型的重大改版、可中斷操作、更省空間的截圖格式，以及測試執行控制上的多項強化。以下摘要企業導入時最具參考價值的變更。
+
+```mermaid
+graph TB
+    subgraph "v1.62 重點功能"
+        A[Component Testing 改版] --> A1[Story / Gallery 模型]
+        B[AbortSignal] --> B1[可中斷操作與斷言]
+        C[WebP 截圖] --> C1[視覺回歸儲存空間最佳化]
+        D[Reporter.preprocess] --> D1[執行前動態調整測試清單]
+        E[Isolated Retries] --> E1[降低重試對套件的干擾]
+    end
+```
+
+#### 5.23.1 元件測試改版 — Story 與 Gallery 模型
+
+[Component Testing](https://playwright.dev/docs/test-components) 自 v1.62 起改用 **Story（劇本）與 Gallery（展示頁）** 模型：Story 是把元件包裝在單一情境下（固定 Props、Mock 資料、Provider）的最小可測單元，Gallery 則是實際渲染這些 Story 的展示頁面。新的 `mount()` Fixture 會導覽至 Gallery 並依 id 掛載指定 Story，回傳一個限定在該 Story 根節點的 `Locator`：
+
+```typescript
+import { test, expect } from '@playwright/experimental-ct-react';
+
+test('展開元件應顯示詳細內容', async ({ mount }) => {
+  const component = await mount('components/Expandable/Stateful');
+  await component.getByRole('button').click();
+  await expect(component.getByTestId('expanded')).toHaveValue('true');
+});
+```
+
+> **✅ 企業應用場景**：對於採用 Design System 或共用元件庫（如內部 UI Kit）的團隊，Story/Gallery 模型可讓 UI 元件測試與 Storybook 一類的視覺化文件工具共用同一份 Story 定義，降低維護成本；同時元件層級測試比完整 E2E 更快、更穩定，適合放入 PR 檢查的第一道防線。
+
+#### 5.23.2 AbortSignal — 可中斷的操作與斷言
+
+多數操作與 Web-First 斷言現可接受 `signal` 選項，傳入標準 [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) 以中斷長時間執行的動作、導覽、等待或斷言：
+
+```typescript
+test('可中斷的等待操作', async ({ page }) => {
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), 1000);
+
+  await page.getByRole('button', { name: '送出' }).click({ signal: controller.signal });
+  await expect(page.getByText('已完成')).toBeVisible({ signal: controller.signal });
+});
+```
+
+> **⚠️ 注意**：傳入 `signal` 並不會停用預設的逾時機制；若要完全交由 `AbortSignal` 控制，需額外設定 `timeout: 0`。此功能特別適合 AI Agent 驅動的自動化流程，讓外部邏輯（例如使用者中途取消任務）能即時中止正在執行的瀏覽器操作。
+
+#### 5.23.3 WebP 截圖格式
+
+`toHaveScreenshot()` 與獨立截圖 API 現支援 WebP 格式，可大幅縮小視覺回歸測試的基準圖檔案體積：
+
+```typescript
+test('首頁視覺回歸（WebP 格式）', async ({ page }) => {
+  await page.goto('/');
+  // 副檔名為 .webp 時，比對基準圖以無損 WebP 儲存
+  await expect(page).toHaveScreenshot('homepage.webp');
+});
+
+test('產生可調品質的截圖', async ({ page }) => {
+  await page.goto('/report');
+  // quality 預設 100（無損），數值愈低壓縮率愈高
+  await page.screenshot({ path: 'output/homepage.webp', type: 'webp', quality: 50 });
+});
+```
+
+> **✅ 企業應用場景**：大型專案的視覺回歸基準圖動輒數千張 PNG，改用 WebP 通常可縮減 30% 以上儲存空間，對於將快照存放於 Git LFS 或制品庫（Artifact Repository）的團隊，能有效降低儲存與傳輸成本。
+
+#### 5.23.4 `Reporter.preprocess()` — 執行前動態調整測試清單
+
+新增 `reporter.preprocess()` Hook，於設定解析完成後、`onBegin()` 之前執行，可透過 `TestRun` 物件動態將特定測試標記為 skip、excluded、fixed 或 failing：
+
+```typescript
+// reporters/DynamicSkipReporter.ts
+import type { Reporter } from '@playwright/test/reporter';
+
+class DynamicSkipReporter implements Reporter {
+  async preprocess({ suite, testRun }) {
+    for (const test of suite.allTests()) {
+      if (shouldSkipBasedOnFeatureFlag(test)) {
+        testRun.skip(test);
+      }
+    }
+  }
+}
+export default DynamicSkipReporter;
+```
+
+> **✅ 企業應用場景**：適合搭配內部 Feature Flag 系統或已知問題清單（Known Issues），在測試執行前自動排除尚未上線功能或已回報但尚未修復的測試，避免污染每日回歸測試報告的通過率統計。
+
+#### 5.23.5 Isolated Retries — 隔離重試策略
+
+新增 `testConfig.retryStrategy` 選項控制失敗測試的重試時機。預設值 `'immediate'` 會在有空閒 Worker 時立即重試；新選項 `'isolated'` 則將所有重試集中在套件執行結束後、以單一 Worker 依序執行，降低重試對其他測試併發執行的干擾：
+
+```typescript
+// playwright.config.ts
+export default defineConfig({
+  retries: 2,
+  retryStrategy: 'isolated', // 集中於執行尾聲、單一 Worker 依序重試
+});
+```
+
+> **✅ 應用場景**：當團隊懷疑 Flaky Test 起因於資源競爭（如共用測試帳號、資料庫鎖定）而非程式邏輯錯誤時，`'isolated'` 策略能讓重試在低干擾環境下執行，有助於分辨究竟是環境問題還是測試本身不穩定。
+>
+> **📌 版本相容性提醒**：v1.62 為修改本文件時的最新穩定版，發布週期約 4–6 週一次。導入前請至 [Release Notes](https://playwright.dev/docs/release-notes) 確認是否有更新版本，並留意 Minor 版本可能伴隨的 Breaking Changes（見 [10.2 節](#102-breaking-changes-處理)）。
 
 ---
 
@@ -2159,6 +2338,28 @@ test('儀表板顯示正確資訊', async ({ dashboardPage }) => {
 });
 ```
 
+### 6.5 測試金字塔中的元件測試策略
+
+企業導入 Playwright 時，常見的失衡是將所有驗證邏輯都堆疊在 E2E 層，導致測試套件龐大且執行緩慢。自 v1.62 導入 Story／Gallery 模型後（見 [5.23.1 節](#5231-元件測試改版--story-與-gallery-模型)），建議依「測試金字塔」原則重新分配測試層級：
+
+```mermaid
+graph TB
+    subgraph "測試金字塔（由上至下：數量遞增、成本遞減）"
+        A["E2E 測試<br/>關鍵使用者旅程、跨系統整合<br/>執行慢、成本高、少量"]
+        B["元件測試（Component Testing）<br/>UI 元件邏輯、互動狀態、無障礙屬性<br/>執行中等、成本中等"]
+        C["單元測試<br/>純函式、資料轉換、業務邏輯<br/>執行快、成本低、大量"]
+        A --> B --> C
+    end
+```
+
+| 測試層級 | 建議涵蓋範圍 | Playwright 對應工具 | 執行頻率 |
+|---------|-------------|---------------------|---------|
+| **E2E** | 登入、結帳、轉帳等關鍵跨頁面流程 | `@playwright/test`（Page/Context） | PR 檢查 + 每日回歸 |
+| **Component Testing** | 共用元件的互動邏輯、Props 邊界條件、無障礙屬性 | `@playwright/experimental-ct-*`（v1.62+ Story/Gallery） | 每次 Commit |
+| **單元測試** | 純函式、Reducer、資料格式轉換 | 交由 Vitest / Jest 等單元測試框架負責 | 每次 Commit |
+
+> **✅ 企業應用場景**：擁有共用 UI Kit 或 Design System 的團隊，可將輸入驗證、按鈕狀態切換等邏輯下沉至元件測試層，讓 E2E 套件專注於跨頁面、跨系統的關鍵旅程，通常可將 CI 執行時間縮短 30～50%，同時降低 Flaky Test 發生率（元件測試不涉及真實網路請求與頁面導覽時序）。
+
 ---
 
 ## 第 7 章：CI/CD 整合（企業級重點）
@@ -2257,7 +2458,7 @@ stages:
 
 playwright-tests:
   stage: test
-  image: mcr.microsoft.com/playwright:v1.61.1-noble
+  image: mcr.microsoft.com/playwright:v1.62.1-noble
   parallel: 4
   script:
     - npm ci
@@ -2271,6 +2472,23 @@ playwright-tests:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "main"'
+
+# v1.62+：元件測試獨立成一個 Job，無需啟動完整後端服務，
+# 依測試金字塔策略（見 6.5 節）在每次 Commit 就能快速回饋
+component-tests:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.62.1-noble
+  script:
+    - npm ci
+    - npx playwright test -c playwright-ct.config.ts
+  artifacts:
+    when: always
+    paths:
+      - playwright-report/
+    expire_in: 7 days
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
 ```
 
 ### 7.3 Jenkins Pipeline
@@ -2280,7 +2498,7 @@ playwright-tests:
 pipeline {
     agent {
         docker {
-            image 'mcr.microsoft.com/playwright:v1.61.1-noble'
+            image 'mcr.microsoft.com/playwright:v1.62.1-noble'
         }
     }
 
@@ -2299,6 +2517,13 @@ pipeline {
         stage('Test') {
             steps {
                 sh 'npx playwright test'
+            }
+        }
+
+        // v1.62+：元件測試與 E2E 分離執行，縮短關鍵路徑回饋時間
+        stage('Component Tests') {
+            steps {
+                sh 'npx playwright test -c playwright-ct.config.ts'
             }
         }
     }
@@ -2407,7 +2632,7 @@ export async function sendTeamsNotification(webhookUrl: string, results: {
 
 ```dockerfile
 # Dockerfile.playwright
-FROM mcr.microsoft.com/playwright:v1.61.1-noble
+FROM mcr.microsoft.com/playwright:v1.62.1-noble
 
 WORKDIR /app
 
@@ -2439,8 +2664,9 @@ services:
 docker compose run --rm playwright
 ```
 
-> **✅ 最佳實踐**：  
-> 1. 使用官方 Docker Image `mcr.microsoft.com/playwright:v1.61.1-noble` 確保環境一致  
+> **✅ 最佳實踐**：
+>
+> 1. 使用官方 Docker Image `mcr.microsoft.com/playwright:v1.62.1-noble` 確保環境一致  
 > 2. CI 中使用 Sharding 分散測試負載  
 > 3. 測試失敗時自動保存 Trace / Screenshot / Video  
 > 4. 報告部署至內部伺服器供團隊查看
@@ -2544,7 +2770,7 @@ npx playwright show-report --port 9323
 | **ZIP 封裝** | `--zip` 選項將報告打包為單一 ZIP 檔，方便分享（v1.60+） |
 | **JSON Pretty-Print 切換** | Trace Viewer 中 JSON 回應支援展開/收合格式化（v1.60+） |
 
-### 8.1.1 Speedboard（v1.57+）
+#### 8.1.1 Speedboard（v1.57+）
 
 HTML Reporter 新增 **Speedboard** 分頁，將所有執行的測試按慢速排序，幫助識別效能瓶頸：
 
@@ -2554,7 +2780,7 @@ HTML Reporter 新增 **Speedboard** 分頁，將所有執行的測試按慢速�
 
 > **✅ 建議**：定期檢視 Speedboard，找出不合理的慢速測試並進行優化。
 
-### 8.1.2 Timeline（v1.58+）
+#### 8.1.2 Timeline（v1.58+）
 
 使用 [merged reports](https://playwright.dev/docs/test-sharding#merging-reports-from-multiple-environments) 時，HTML Report 的 Speedboard 分頁現在會顯示 **Timeline**：
 
@@ -2709,7 +2935,7 @@ export default PrometheusReporter;
 
 #### 8.4.2 Grafana Dashboard 查詢範例
 
-```
+```promql
 # 測試通過率
 sum(playwright_test_status{status="passed"}) / sum(playwright_test_status) * 100
 
@@ -2897,6 +3123,8 @@ npx playwright test --shard=4/4  # Machine 4
 | `--shard=N/M` | 跨機器分散 | CI 橫向擴展 |
 | `--workers=N` | 單機多 Worker | 開發機本地測試 |
 
+> **📌 v1.62+ 補充**：若平行執行時的重試（`retries`）常與其他測試搶佔資源導致結果不穩定，可設定 `retryStrategy: 'isolated'`，將重試集中在套件執行尾聲以單一 Worker 依序進行，詳見 [5.23.5 節](#5235-isolated-retries--隔離重試策略)。
+
 ### 9.5 測試資源最佳化
 
 ```typescript
@@ -2938,7 +3166,8 @@ export default defineConfig({
 });
 ```
 
-> **✅ 最佳實踐**：  
+> **✅ 最佳實踐**：
+>
 > 1. 使用 `test.slow()` 標記預期較慢的測試，而非增加全域 timeout  
 > 2. 使用 Tag（如 `@smoke`、`@regression`）分類測試，按需執行  
 > 3. 阻擋第三方資源（Analytics / Ads）加速測試
@@ -2988,6 +3217,7 @@ npx playwright test --update-snapshots
 
 | 版本 | Breaking Changes | 處理方式 |
 |------|-----------------|---------|
+| **v1.62** | 不再支援 Debian 11 | 升級至 Debian 12（Bookworm）或 13（Trixie） |
 | **v1.61** | 不再支援 Node.js 20.x；HAR/Trace 格式調整（WebSocket 請求納入） | 升級至 Node.js 22.x+；確認 HAR 解析工具相容新格式 |
 | **v1.60** | 移除 `Locator.ariaRef()`；移除 `exposeBinding` 的 `handle` 選項；移除 `connect`/`connectOverCDP` 的 `logger` 選項；移除 `videosPath`/`videoSize` Context 選項 | 改用 `ariaSnapshot()`；使用 `exposeBinding` 不含 `handle`；移除 logger 參數；改用 `recordVideo` 選項 |
 | **v1.59** | 移除 macOS 14 WebKit 支援；移除 `@playwright/experimental-ct-svelte` | 升級 macOS 至 15+；改用其他元件測試方案 |
@@ -2998,10 +3228,19 @@ npx playwright test --update-snapshots
 | **Minor** | 新增 API / 新瀏覽器版本 | 通常向下相容，直接升級 |
 | **Browser** | 瀏覽器行為變更 | 更新視覺快照、調整 Locator |
 
-**v1.55~v1.61 新增重要 API 彙整：**
+**v1.55~v1.62 新增重要 API 彙整：**
 
 | 版本 | 新增 API | 說明 |
 |------|---------|------|
+| **v1.62** | Component Testing `mount()` | Story / Gallery 元件測試模型（見 [5.23.1](#5231-元件測試改版--story-與-gallery-模型)） |
+| **v1.62** | 操作與斷言的 `signal` 選項 | 接受 `AbortSignal` 中斷長時間操作 |
+| **v1.62** | `toHaveScreenshot()` / `page.screenshot()` WebP | 視覺回歸快照支援 WebP 格式 |
+| **v1.62** | `reporter.preprocess()` | 執行前動態調整測試清單（skip / fixed / failing） |
+| **v1.62** | `testConfig.retryStrategy` | 新增 `'isolated'` 隔離重試策略 |
+| **v1.62** | `apiResponse.timing()` | API 回應的資源時序資訊 |
+| **v1.62** | `locator.waitForFunction()` | 等待以匹配元素為參數的函式回傳真值 |
+| **v1.62** | `browserContext.storageState()` 含 `credentials` | 儲存狀態一併包含 WebAuthn Passkeys |
+| **v1.62** | `npx playwright mcp` / `npx playwright cli` | MCP Server 與 CLI 內建於主套件，無需另裝 |
 | **v1.61** | `browserContext.credentials` | WebAuthn Passkeys 虛擬認證器 |
 | **v1.61** | `page.localStorage` / `page.sessionStorage` | Web Storage 直接讀寫 API |
 | **v1.61** | `apiResponse.securityDetails()` / `serverAddr()` | API 回應的 TLS 安全資訊 |
@@ -3016,7 +3255,7 @@ npx playwright test --update-snapshots
 | **v1.60** | `expect(page).toMatchAriaSnapshot()` | 頁面層級 Aria Snapshot 斷言 |
 | **v1.60** | `getByRole` — `description` 選項 | 透過 aria-description 篩選元素 |
 | **v1.60** | `toHaveCSS` — `pseudo` 選項 | 驗證偽元素 CSS 屬性 |
-| **v1.60** | `browser.on('context')` 事件 | 監聯新 BrowserContext 建立 |
+| **v1.60** | `browser.on('context')` 事件 | 監聽新 BrowserContext 建立 |
 | **v1.60** | BrowserContext 生命週期事件 | Context 鏡像 Page 的 download / frame 事件 |
 | **v1.60** | `{testFileBaseName}` Token | snapshotPathTemplate 新路徑變數 |
 | **v1.59** | `page.screencast` | 統一影片錄製、動作標註、覆蓋層管理 |
@@ -3039,7 +3278,7 @@ npx playwright test --update-snapshots
 {
   "devDependencies": {
     // ✅ 推薦：固定 Minor 版本
-    "@playwright/test": "~1.61.0",
+    "@playwright/test": "~1.62.0",
     
     // ❌ 避免：自動升級 Major
     // "@playwright/test": "^1.61.0"
@@ -3075,7 +3314,8 @@ npx playwright install --with-deps
 npx playwright test
 ```
 
-> **⚠️ 注意事項**：  
+> **⚠️ 注意事項**：
+>
 > 1. 每次升級都應在分支上進行，通過測試後再合併  
 > 2. 保留升級前的 `package-lock.json` 以便回滾  
 > 3. 升級日誌記錄至 CHANGELOG
@@ -3083,6 +3323,8 @@ npx playwright test
 ---
 
 ## 第 11 章：安全與合規（銀行級）
+
+金融與其他受高度監管產業導入自動化測試時，測試資產本身（程式碼、測試資料、執行記錄）也屬於稽核範圍。本章原則對應常見合規框架的精神：**ISO/IEC 27001**（資訊安全管理，對應測試帳號與存取控制）、**SOC 2**（變更管理與稽核軌跡，對應 CI/CD 與日誌章節）、以及 **OWASP Testing Guide** 中對測試環境資料隔離的建議。實務落地時，仍應以組織內部資安與法遵部門的正式規範為準，本章僅提供技術落地的參考框架。
 
 ### 11.1 敏感資料處理
 
@@ -3327,7 +3569,8 @@ gantt
 | **Week 5** | CI/CD 整合 + 報告 + 監控 | 4h | SDET / DevOps |
 | **Week 6** | 實戰：Pilot 專案 Pair Programming | 8h | 全團隊 |
 
-> **✅ 最佳實踐**：  
+> **✅ 最佳實踐**：
+>
 > 1. 指定一位「Playwright Champion」負責推動導入  
 > 2. 每週 30 分鐘 Playwright 分享會  
 > 3. 建立內部 Wiki 記錄常見問題與解法  
@@ -3339,7 +3582,7 @@ gantt
 
 ### 13.1 專案結構
 
-```
+```text
 playwright-enterprise-template/
 ├── .github/
 │   └── workflows/
@@ -3387,6 +3630,13 @@ playwright-enterprise-template/
 │   └── visual/
 │       ├── homepage.spec.ts            # @visual
 │       └── dashboard.spec.ts           # @visual
+├── tests-ct/                           # Component Testing（v1.62+，見 13.6）
+│   ├── gallery/
+│   │   └── index.html                  # Gallery 展示頁進入點
+│   ├── stories/
+│   │   ├── Button.story.tsx            # @component
+│   │   └── TransferForm.story.tsx      # @component
+│   └── button.ct.spec.ts               # @component
 ├── utils/
 │   ├── helpers.ts                      # 輔助函式
 │   ├── logger.ts                       # 日誌工具
@@ -3400,13 +3650,15 @@ playwright-enterprise-template/
 ├── .env.dev                            # DEV 環境變數
 ├── .env.sit                            # SIT 環境變數
 ├── .env.uat                            # UAT 環境變數
+├── .env.example                        # 環境變數範本（可提交版控）
 ├── .gitignore
 ├── Dockerfile.playwright               # Docker 設定
 ├── docker-compose.yml                  # Docker Compose
 ├── package.json
-├── playwright.config.ts                # Playwright 主配置
+├── playwright.config.ts                # Playwright 主配置（E2E）
+├── playwright-ct.config.ts             # Playwright Component Testing 配置
 ├── tsconfig.json
-└── README.md
+└── README.md                           # 專案說明（見 13.7）
 ```
 
 ### 13.2 完整 playwright.config.ts 範本
@@ -3436,6 +3688,10 @@ export default defineConfig({
   // 重試次數
   retries: process.env.CI ? 2 : 0,
 
+  // v1.62+：CI 中將重試集中於執行尾聲、單一 Worker 依序進行，
+  // 避免重試與其他平行測試搶佔資源而產生二次 Flaky（見 9.4 節）
+  retryStrategy: process.env.CI ? 'isolated' : 'immediate',
+
   // Worker 數量
   workers: process.env.CI ? 4 : undefined,
 
@@ -3447,13 +3703,17 @@ export default defineConfig({
     timeout: 10_000,
     toHaveScreenshot: {
       maxDiffPixelRatio: 0.01,
+      // v1.62+：快照檔名若以 .webp 結尾即改用 WebP 儲存，
+      // 大型專案通常可縮減 30%+ 視覺回歸基準圖的版控體積
     },
   },
 
   // Reporter 設定
   reporter: process.env.CI
     ? [
-        ['html', { open: 'never' }],
+        // v1.62+：mergeFiles 直接在設定檔啟用「檔案合併檢視」，
+        // 免去在 HTML Report UI 中手動切換
+        ['html', { open: 'never', mergeFiles: true }],
         ['junit', { outputFile: 'test-results/junit.xml' }],
         ['json', { outputFile: 'test-results/results.json' }],
         ['./reporters/CustomReporter.ts'],
@@ -3566,18 +3826,21 @@ export default defineConfig({
     "test:regression": "playwright test --grep @regression",
     "test:visual": "playwright test --grep @visual",
     "test:api": "playwright test --grep @api",
+    "test:ct": "playwright test -c playwright-ct.config.ts",
     "test:dev": "TEST_ENV=dev playwright test",
     "test:sit": "TEST_ENV=sit playwright test",
     "test:uat": "TEST_ENV=uat playwright test",
     "report": "playwright show-report",
     "codegen": "playwright codegen",
     "trace": "playwright show-trace",
+    "mcp": "playwright mcp",
     "install:browsers": "playwright install --with-deps",
     "update:snapshots": "playwright test --update-snapshots",
-    "lint": "eslint tests/ pages/ services/ fixtures/ utils/"
+    "lint": "eslint tests/ tests-ct/ pages/ services/ fixtures/ utils/"
   },
   "devDependencies": {
-    "@playwright/test": "~1.61.0",
+    "@playwright/test": "~1.62.0",
+    "@playwright/experimental-ct-react": "~1.62.0",
     "@faker-js/faker": "^9.0.0",
     "dotenv": "^16.0.0",
     "eslint": "^9.0.0",
@@ -3585,6 +3848,8 @@ export default defineConfig({
   }
 }
 ```
+
+> **📌 說明**：`@playwright/experimental-ct-react` 依前端框架而異，Vue 專案改用 `@playwright/experimental-ct-vue`，Svelte 則為 `@playwright/experimental-ct-svelte`；無元件測試需求的專案可整段移除，不影響 E2E 功能。
 
 ### 13.4 .gitignore 範本
 
@@ -3602,6 +3867,9 @@ export default defineConfig({
 # Allure
 /allure-results/
 /allure-report/
+
+# Component Testing（v1.62+，Gallery 建置暫存，「__screenshots__」視覺基準圖仍應提交版控）
+/playwright/.cache/
 
 # Environment
 .env.*
@@ -3647,6 +3915,101 @@ npx playwright test --grep @regression      # 回歸測試
 npx playwright test --grep @security        # 安全相關
 npx playwright test --grep-invert @visual   # 排除視覺測試
 npx playwright test --grep "@smoke|@api"    # Smoke + API
+npx playwright test -c playwright-ct.config.ts --grep @component  # 僅執行元件測試
+```
+
+### 13.6 Component Testing 專案範本（v1.62+）
+
+延續 [6.5 節](#65-測試金字塔中的元件測試策略)的測試金字塔策略，以下為獨立於 E2E 之外的元件測試最小可行範本，包含專用設定檔、Story 定義與 Gallery 進入點。
+
+```typescript
+// playwright-ct.config.ts
+import { defineConfig, devices } from '@playwright/experimental-ct-react';
+
+export default defineConfig({
+  testDir: './tests-ct',
+  snapshotDir: './tests-ct/__snapshots__',
+  timeout: 10_000,
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 1 : 0,
+  reporter: process.env.CI ? [['html', { open: 'never' }]] : [['list']],
+
+  use: {
+    trace: 'on-first-retry',
+    // Gallery 進入點：mount() 會導覽至此頁面並依 id 掛載指定 Story
+    ctViteConfig: {},
+  },
+
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  ],
+});
+```
+
+```tsx
+// tests-ct/stories/TransferForm.story.tsx
+import { TransferForm } from '../../src/components/TransferForm';
+
+// Story：固定 Props 與 Mock 資料，代表單一情境
+export default {
+  component: TransferForm,
+  args: {
+    accounts: [{ id: 'acc-001', label: '活期存款（尾號 8821）' }],
+    maxAmount: 500000,
+  },
+};
+```
+
+```typescript
+// tests-ct/button.ct.spec.ts
+import { test, expect } from '@playwright/experimental-ct-react';
+
+test('轉帳表單於超過限額時應停用送出按鈕 @component', async ({ mount }) => {
+  const component = await mount('stories/TransferForm');
+
+  await component.getByLabel('轉帳金額').fill('600000');
+
+  await expect(component.getByRole('button', { name: '確認轉帳' })).toBeDisabled();
+  await expect(component.getByText('金額超過單筆限額')).toBeVisible();
+});
+```
+
+> **✅ 最佳實踐**：元件測試不需要啟動完整後端服務，Mock 資料直接寫在 Story 中即可，因此執行速度通常是同等 E2E 案例的數倍，適合在每次 Commit 觸發，而非等到 PR 階段才執行。
+
+### 13.7 README.md 範本
+
+```markdown
+# Playwright Enterprise Template
+
+企業級 Playwright E2E／元件測試專案範本，涵蓋多環境配置、CI/CD 整合與安全合規基礎設施。
+
+## 快速開始
+
+\`\`\`bash
+npm ci
+npx playwright install --with-deps
+cp .env.example .env.dev
+npm test
+\`\`\`
+
+## 常用指令
+
+| 指令 | 說明 |
+|------|------|
+| `npm test` | 執行完整 E2E 測試套件 |
+| `npm run test:smoke` | 僅執行 Smoke Test |
+| `npm run test:ct` | 執行元件測試（v1.62+） |
+| `npm run report` | 開啟最近一次的 HTML 報告 |
+| `npm run mcp` | 啟動 Playwright MCP Server（AI Agent 整合） |
+
+## 目錄結構
+
+詳見手冊 [13.1 專案結構](#131-專案結構)。
+
+## 貢獻指南
+
+提交 PR 前請確認：Locator 使用語意化查詢、測試資料獨立、通過 `npm run lint`。詳細規範見 [12.4 Code Review 規範](#124-code-review-規範)。
 ```
 
 ---
@@ -3662,7 +4025,7 @@ npx playwright test --grep "@smoke|@api"    # Smoke + API
 - [ ] 執行 `npx playwright install --with-deps`
 - [ ] 設定環境變數（`.env.dev`）
 - [ ] 執行 `npx playwright test` 驗證環境
-- [ ] 安裝 Playwright CLI（選用）：`npm i -g @playwright/cli@latest`
+- [ ] 確認 CLI／MCP 可用：v1.62+ 可直接用 `npx playwright cli` 與 `npx playwright mcp`（無需另裝套件）
 - [ ] 產生 Playwright Agents 定義（選用）：`npx playwright init-agents`
 
 ### 開發 Checklist
@@ -3676,6 +4039,7 @@ npx playwright test --grep "@smoke|@api"    # Smoke + API
 - [ ] 測試命名清晰（「應該 + 條件 + 結果」）
 - [ ] 使用 Tag 分類測試（`@smoke` / `@regression` / `@visual`）
 - [ ] 善用 `await using` 自動清理資源（v1.59+）
+- [ ] 純 UI 元件邏輯優先寫 Component Test，避免全數塞進 E2E（v1.62+，見 [6.5 節](#65-測試金字塔中的元件測試策略)）
 
 ### Code Review Checklist
 
@@ -3722,6 +4086,7 @@ npx playwright test --grep "@smoke|@api"    # Smoke + API
 | `npx playwright test --update-snapshots` | 更新視覺快照 |
 | `npx playwright test --test-list=file.txt` | 指定測試清單執行（v1.56+） |
 | `npx playwright test --reporter=html --zip` | 產生 ZIP 格式報告（v1.60+） |
+| `npx playwright test --update-snapshots=all` | 更新所有快照（含未變更者），另有 `changed`/`missing`/`none` 模式 |
 
 ### 工具
 
@@ -3747,6 +4112,8 @@ npx playwright test --grep "@smoke|@api"    # Smoke + API
 | `npx playwright trace close` | 關閉 Trace |
 
 ### Playwright CLI（Coding Agent 用）
+
+> v1.62+ 可將下表的 `playwright-cli` 直接替換為 `npx playwright cli`，無需另外安裝 `@playwright/cli`。
 
 | 指令 | 說明 |
 |------|------|
@@ -3775,43 +4142,44 @@ npx playwright test --grep "@smoke|@api"    # Smoke + API
 
 | 資源 | 連結 |
 |------|------|
-| **官方文件** | https://playwright.dev/ |
-| **API 手冊** | https://playwright.dev/docs/api/class-playwright |
-| **GitHub** | https://github.com/microsoft/playwright |
-| **MCP Server** | https://github.com/microsoft/playwright-mcp |
-| **CLI（Coding Agent）** | https://github.com/microsoft/playwright-cli |
-| **VS Code 擴充** | https://github.com/microsoft/playwright-vscode |
-| **Release Notes** | https://github.com/microsoft/playwright/releases |
-| **Discord 社群** | https://aka.ms/playwright/discord |
-| **Microsoft Learn** | https://learn.microsoft.com/en-us/training/modules/build-with-playwright/ |
+| **官方文件** | [playwright.dev](https://playwright.dev/) |
+| **API 手冊** | [playwright.dev/docs/api/class-playwright](https://playwright.dev/docs/api/class-playwright) |
+| **GitHub** | [github.com/microsoft/playwright](https://github.com/microsoft/playwright) |
+| **MCP Server** | [github.com/microsoft/playwright-mcp](https://github.com/microsoft/playwright-mcp) |
+| **CLI（Coding Agent）** | [github.com/microsoft/playwright-cli](https://github.com/microsoft/playwright-cli) |
+| **VS Code 擴充** | [github.com/microsoft/playwright-vscode](https://github.com/microsoft/playwright-vscode) |
+| **Release Notes** | [github.com/microsoft/playwright/releases](https://github.com/microsoft/playwright/releases) |
+| **Discord 社群** | [aka.ms/playwright/discord](https://aka.ms/playwright/discord) |
+| **Microsoft Learn** | [learn.microsoft.com](https://learn.microsoft.com/en-us/training/modules/build-with-playwright/) |
 
 ### 多語言文件
 
 | 語言 | 連結 |
 |------|------|
-| **Python 版本** | https://playwright.dev/python/docs/intro |
-| **Java 版本** | https://playwright.dev/java/docs/intro |
-| **.NET 版本** | https://playwright.dev/dotnet/docs/intro |
+| **Python 版本** | [playwright.dev/python/docs/intro](https://playwright.dev/python/docs/intro) |
+| **Java 版本** | [playwright.dev/java/docs/intro](https://playwright.dev/java/docs/intro) |
+| **.NET 版本** | [playwright.dev/dotnet/docs/intro](https://playwright.dev/dotnet/docs/intro) |
 
 ### 進階主題文件
 
 | 主題 | 連結 |
 |------|------|
-| **Playwright Agents** | https://playwright.dev/docs/test-agents |
-| **CLI Agent 文件** | https://playwright.dev/docs/cli-agent |
-| **MCP 文件** | https://playwright.dev/docs/mcp |
-| **Trace Viewer** | https://playwright.dev/docs/trace-viewer |
-| **Credentials（WebAuthn）** | https://playwright.dev/docs/api/class-credentials |
-| **WebStorage API** | https://playwright.dev/docs/api/class-webstorage |
-| **Accessibility 測試** | https://playwright.dev/docs/accessibility-testing |
-| **Service Workers** | https://playwright.dev/docs/service-workers |
-| **Sharding 與合併報告** | https://playwright.dev/docs/test-sharding |
-| **Getting Started VS Code** | https://playwright.dev/docs/getting-started-vscode |
+| **Playwright Agents** | [playwright.dev/docs/test-agents](https://playwright.dev/docs/test-agents) |
+| **CLI Agent 文件** | [playwright.dev/docs/cli-agent](https://playwright.dev/docs/cli-agent) |
+| **MCP 文件** | [playwright.dev/docs/mcp](https://playwright.dev/docs/mcp) |
+| **Trace Viewer** | [playwright.dev/docs/trace-viewer](https://playwright.dev/docs/trace-viewer) |
+| **Component Testing（v1.62+）** | [playwright.dev/docs/test-components](https://playwright.dev/docs/test-components) |
+| **Credentials（WebAuthn）** | [playwright.dev/docs/api/class-credentials](https://playwright.dev/docs/api/class-credentials) |
+| **WebStorage API** | [playwright.dev/docs/api/class-webstorage](https://playwright.dev/docs/api/class-webstorage) |
+| **Accessibility 測試** | [playwright.dev/docs/accessibility-testing](https://playwright.dev/docs/accessibility-testing) |
+| **Service Workers** | [playwright.dev/docs/service-workers](https://playwright.dev/docs/service-workers) |
+| **Sharding 與合併報告** | [playwright.dev/docs/test-sharding](https://playwright.dev/docs/test-sharding) |
+| **Getting Started VS Code** | [playwright.dev/docs/getting-started-vscode](https://playwright.dev/docs/getting-started-vscode) |
 
 ---
 
-> **文件維護說明**：  
+> **文件維護說明**：
+>
 > - 本文件由測試團隊維護，每季度檢視一次  
 > - Playwright 版本升級時同步更新本文件  
 > - 如有任何問題，請聯繫 SDET Team Lead
-

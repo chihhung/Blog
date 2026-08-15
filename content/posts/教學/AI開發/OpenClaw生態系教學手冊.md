@@ -7,20 +7,22 @@ categories = ['教學']
 +++
 
 
-# OpenClaw 生態系教學手冊
+## OpenClaw 生態系教學手冊
 
-> **版本**: 2026.6.10 | **最後更新**: 2026 年 6 月 30 日  
+> **版本**: 2026.8.1-beta.2（最新 Beta）／2026.7.1-2（最新穩定版）／2026.6.34（Extended-Stable 維護線）| **最後更新**: 2026 年 8 月 15 日  
 > **適用對象**: 企業開發團隊、DevOps 工程師、AI 架構師  
-> **授權**: MIT License  
+> **授權**: MIT License（治理單位：非營利的 **OpenClaw Foundation**）  
 > **官方資源**: [openclaw.ai](https://openclaw.ai/) · [docs.openclaw.ai](https://docs.openclaw.ai/) · [GitHub](https://github.com/openclaw/openclaw) · [ClawHub](https://clawhub.ai/) · [Discord](https://discord.gg/clawd) · [Trust](https://trust.openclaw.ai/) · [DeepWiki](https://deepwiki.com/openclaw/openclaw)
 
 ---
 
 ## 文件總覽
 
-本手冊為企業級 OpenClaw 生態系完整教學指引，涵蓋從核心概念、系統架構設計、安裝部署、開發實戰、企業最佳實務、維運監控、升級策略、DevOps 整合、資安設計到實務案例等十大主題。所有內容均依據 OpenClaw 官方文件（v2026.6.10）撰寫，並以繁體中文呈現，程式碼範例以 Java 為主。
+本手冊為 OpenClaw 生態系完整教學指引，涵蓋從核心概念、系統架構設計、安裝部署、開發實戰、企業導入實務、維運監控、升級策略、DevOps 整合、資安設計到實務案例等十大主題。所有內容均依據 OpenClaw 官方文件、GitHub Release Notes（最後查證至 v2026.8.1-beta.2）撰寫並重新消化整理，以繁體中文呈現，程式碼範例以 Java 為主。
 
-> **重要變更提示**：OpenClaw 自 2025 年 11 月從 Clawdbot / Moltbot 正式更名為 OpenClaw，版本號採用 `vYYYY.M.D` 日期格式。截至 2026 年 6 月已發布 217 個正式版本（含 beta）。自 v2026.5 起，專案引入完整的 **Plugin SDK 架構**，支援 bundled / community / external 三類插件，大幅擴展了通道與功能的可擴展性。v2026.6 系列新增 **Automatic Fast Mode**（短對話自動加速）、**DM Pairing 安全機制**（未知發送者需配對碼驗證）、**官方 Provider 外部化為獨立 npm 套件**、**Session Transcript SDK**（插件可讀/寫/發布對話紀錄）、**GLM-5.2 + Claude Haiku 4.5 模型目錄**、**Telegram Rich HTML 渲染**（表格/清單/blockquote）、**Codex Hosted Search**、**OpenTelemetry Log Export**、**Windows Hub 伴侶應用**、**per-agent usage-cost reporting**、**Trusted Tool Policy Enforcement** 等重大功能。
+> **定位提醒**：OpenClaw 官方定位是「**single-operator 個人 AI 助理閘道**」——由一位操作者（Operator）擁有並信任的自架系統，而非原生的多租戶企業 SaaS 平台。本手冊第五章起討論的「企業導入」內容，指的是企業將 OpenClaw 作為自架基礎設施元件、搭配自身治理與維運框架落地的作法，而非 OpenClaw 官方內建的企業租戶功能，閱讀時請留意這個前提差異。
+>
+> **重要變更提示**：專案於 2025 年 11 月以 **Warelay** 之名首次發布，隨後歷經 **CLAWDIS**（2025-12-03）→ **Clawdbot**（2026-01-02）→ **Moltbot**（2026-01-27，因 Anthropic 商標異議而改名）→ **OpenClaw**（2026-01-30）數次更名。創辦人 **Peter Steinberger** 於 2026-02-14 宣布加入 OpenAI，同日成立非營利的 **OpenClaw Foundation** 接手專案治理，OpenClaw 至今仍採 MIT 授權並由社群持續開發。版本號採用 `vYYYY.M.D` 日期格式，截至 2026 年 8 月中已發布超過 230 個版本（含 stable / beta / extended-stable 維護線），GitHub 星數突破 **386,000**、Fork 數超過 **81,000**。自 v2026.5 起，專案引入完整的 **Plugin SDK 架構**，支援 bundled / community / external 三類插件；`before_agent_start`、根目錄 `openclaw/plugin-sdk` 匯入、`providerAuthEnvVars`、`channelEnvVars` 等舊版介面已於 **2026-07-24** 後排定移除，插件開發者須遷移至新版 hook stage 與 manifest setup descriptor（詳見 4.3、4.9 節）。v2026.6～v2026.8 系列新增 **Automatic Fast Mode**、**DM Pairing 安全機制**、**官方 Provider 外部化為獨立 npm 套件**、**Session Transcript SDK**、**GLM-5.2 / GPT-5.6 Ultra 模型目錄擴充**、**Control UI 與 Onboarding 大改版**、**iOS/Android/macOS 官方應用大幅更新**、**openclaw attach 指令**（接續既有 Gateway Session）、**Secret Egress Host Binding**（跨 CLI / Gateway RPC / Control UI 的密鑰目的地綁定）、**SQLite Snapshot 備份指令**、**外部插件安裝需明確確認未信任來源**等重大功能與資安強化。
 
 ---
 
@@ -147,7 +149,21 @@ categories = ['教學']
 
 ### 1.1 什麼是 OpenClaw
 
-OpenClaw（前稱 Clawdbot / Moltbot）是一個開源的個人 AI 助理框架，由 **Peter Steinberger** 建立，採用 **MIT 授權**發布。OpenClaw 的核心定位是作為一個 **AI Gateway**——一個連接多種即時通訊頻道與大型語言模型（LLM）的中繼平台，讓使用者能夠透過日常使用的通訊軟體（如 WhatsApp、Telegram、Slack、Discord 等）與 AI Agent 進行互動。
+OpenClaw（歷經 Warelay / CLAWDIS / Clawdbot / Moltbot 等更名階段）是一個開源的個人 AI 助理框架，最初由奧地利工程師 **Peter Steinberger** 建立，採用 **MIT 授權**發布，目前由非營利的 **OpenClaw Foundation** 接手治理。OpenClaw 的核心定位是作為一個 **single-operator AI Gateway**——由單一操作者（Operator）擁有並信任、可完全自架的中繼平台，連接多種即時通訊頻道與大型語言模型（LLM），讓使用者能夠透過日常使用的通訊軟體（如 WhatsApp、Telegram、Slack、Discord 等）與 AI Agent 進行互動，同時將資料與帳號憑證留在自己掌控的基礎設施上。
+
+#### 名稱沿革
+
+專案名稱在短短數月內歷經多次更迭，反映其早期爆發式的成長速度：
+
+| 名稱 | 生效日期 | 備註 |
+|------|----------|------|
+| **Warelay** | 2025-11-24 | 首次公開發布時的名稱 |
+| **CLAWDIS** | 2025-12-03 | 第一次更名 |
+| **Clawdbot** | 2026-01-02 | 第二次更名 |
+| **Moltbot** | 2026-01-27 | 因 Anthropic 對「Clawd／Claude」相似性提出商標異議而改名 |
+| **OpenClaw** | 2026-01-30 | 現行名稱，作者表示「Moltbot 唸起來不夠順口」 |
+
+2026 年 2 月 14 日，Steinberger 宣布加入 OpenAI，同日成立非營利的 **OpenClaw Foundation** 作為專案的長期治理主體，確保專案不因創辦人職涯異動而中斷。專案原始碼與授權條款（MIT）維持不變，開發節奏由社群與基金會共同維運。
 
 #### 核心特色
 
@@ -171,15 +187,20 @@ OpenClaw 的吉祥物是 **Molty**——一隻太空龍蝦（Space Lobster）。
 
 #### 專案規模
 
-截至 2026 年 6 月：
+截至 2026 年 8 月中：
 
-- **GitHub Stars**: 381,000+
-- **Contributors**: 2,513+
-- **Forks**: 79,800+
-- **主要語言**: TypeScript (~91.5%)、Swift (~3.3%)、JavaScript (~2.9%)、Kotlin (~1.0%)、Shell (~0.7%)、CSS (~0.4%)
-- **最新穩定版本**: 2026.6.10（2026 年 6 月 24 日發布）
-- **總發布版本數**: 217 個版本（含 stable / beta）
-- **贊助商**: OpenAI、GitHub、NVIDIA、Vercel、Blacksmith、Convex
+- **GitHub Stars**: 386,000+
+- **Forks**: 81,200+
+- **主要語言**: TypeScript (~89.8%)、Swift (~5.0%，官方 iOS/macOS App)、Kotlin (~1.9%，官方 Android App)、JavaScript (~1.7%)、Shell (~0.6%)、CSS (~0.4%)，另含少量 Python/Rust/Go 工具鏈程式碼
+- **單一版本週期貢獻規模**: 以 v2026.7.1 為例，單一版本即彙整 **532 位貢獻者**、**3,063 筆貢獻**、**2,018 個公開 PR**，反映社群活躍度
+- **最新穩定版本**: 2026.7.1-2（2026 年 8 月 4 日發布）
+- **Extended-Stable 維護線**: 2026.6.34（2026 年 8 月 8 日發布，僅安全性與穩定性修補，不含新功能）
+- **最新 Beta 版本**: 2026.8.1-beta.2（2026 年 8 月 15 日發布）
+- **總發布版本數**: 230+ 個版本（含 stable / beta / extended-stable）
+- **治理單位**: OpenClaw Foundation（非營利基金會，2026 年 2 月成立）
+- **贊助商**: OpenAI、GitHub、NVIDIA、Vercel、Blacksmith、Convex 等
+
+> **版本線說明**：OpenClaw 同時維護三條版本線——**Beta**（每週多次發布，含最新功能與實驗性變更）、**Stable**（如 2026.7.1，經過 Beta 週期驗證後的正式功能版）、**Extended-Stable**（如 2026.6.34，僅回補安全與穩定性修補，適合對變更敏感的正式環境採用）。企業導入建議優先評估 Extended-Stable 或已穩定運行數週的 Stable 版本，詳見第七章升級策略。
 
 ### 1.2 核心理念與設計哲學
 
@@ -189,7 +210,7 @@ OpenClaw 的設計哲學圍繞著以下核心理念：
 
 OpenClaw 採用「**個人助理信任模型**」，這與傳統的多租戶 SaaS 平台截然不同。每個 OpenClaw 實體由一位**操作者（Operator）**擁有並管理，Agent 的所有行為都在操作者的信任邊界內執行。
 
-```
+```text
 ┌─────────────────────────────────────────────┐
 │              信任邊界 (Trust Boundary)        │
 │                                             │
@@ -373,7 +394,7 @@ stateDiagram-v2
 
 Agent 的 Workspace 是一個標準目錄結構：
 
-```
+```text
 ~/.openclaw/
 ├── openclaw.json          # 主組態檔（JSON5 格式）
 ├── workspace/              # Agent 工作區根目錄
@@ -588,7 +609,7 @@ Browser 工具使用 **Chrome DevTools Protocol (CDP)** 提供完整的瀏覽器
 
 A2UI（Agent-to-UI）是 OpenClaw 獨特的工具，允許 Agent 產生互動式 UI 元件：
 
-```
+```text
 使用者: 建立一個投票
 Agent: [使用 Canvas 工具產生互動式投票 UI]
 ```
@@ -628,7 +649,7 @@ Dreaming 是 OpenClaw v2026.4 新增的記憶管理子系統，提供 Agent 長�
 - **Wiki 頁面編譯**: 將多次對話中的知識自動編譯為結構化 Wiki 頁面
 - **Memory Palace 日記**: `Memory Palace` 子頁籤提供 Agent 自主整理的記憶日記
 
-```
+```text
 使用者: 匯入我的 ChatGPT 對話歷史
 Agent: [使用 Dreaming 工具匯入並消化對話，產出 Imported Insights 和 Wiki 頁面]
 ```
@@ -698,7 +719,7 @@ OpenClaw 提供 `sessions_*` 系列工具，允許 Agent 之間跨 Session 協�
 | `sessions_spawn` | 建立 Session | 建立新的 Session 並指派 Agent |
 
 > **使用情境**: 透過 Session Tools，你可以在不同聊天介面之間協調工作。例如，在 Slack 的 DevOps Agent 可以委託 Telegram 的報表 Agent 產生報告，然後將結果傳回。詳情參考 [Session tools](https://docs.openclaw.ai/concepts/session-tool)。
-
+>
 > **Cross-channel Session Identity**（v2026.6.10 新增）: 當使用者從一個頻道切換到另一個頻道時（例如從 WhatsApp 轉到 Telegram），Session 的 origin 會自動重置，確保身份識別正確且避免舊頻道殘留的上下文污染新頻道。
 
 #### 聊天指令（Chat Commands）
@@ -758,7 +779,7 @@ OpenClaw 支援超過 30 種通訊頻道（含插件頻道），以下為完整�
 | **Android** | 內建 | ✅ 穩定 | Android Node（Chat、Voice、Canvas、裝置指令） |
 
 > **插件頻道（Plugin Channels）**: OpenClaw 透過 extension 套件機制支援額外頻道整合，如 Mattermost 等。插件頻道安裝後與內建頻道行為一致。
-
+>
 > **WeChat 頻道安裝**: WeChat 頻道由騰訊官方提供插件，安裝方式為 `openclaw plugins install "@tencent-weixin/openclaw-weixin"`，然後執行 `openclaw channels login --channel openclaw-weixin` 掃描 QR Code 即可配對。目前僅支援私人聊天，需遍尋 WeChat ClawBot 插件（WeChat > 我 > 設定 > 插件）。
 
 #### 新增頻道的統一介面
@@ -799,10 +820,15 @@ interface Channel {
 
 | 版本 | 日期 | 重大變更 |
 |------|------|----------|
+| **2026.8.1-beta.2** | 2026-08-15 | **最新 Beta**。Secret Egress Host Binding（跨 CLI/Gateway RPC/Control UI 綁定密鑰目的地主機）、GPT-5.6 Ultra 與 Sol/Terra/Luna 執行期切換、Channel Plugin Ingress Monitor 共用生命週期（IRC/Synology Chat/Google Chat）、`openclaw backup sqlite` 快照備份指令、macOS App Profile 隔離、外部插件安裝需明確 `--force` 確認未信任來源 |
+| **2026.7.2-beta.7** | 2026-08-02 | Crash-recoverable session snapshots、跨平台 durable message delivery、對話分支與回溯（conversation branching/rewinding）、MCP app hosting with ticketed sandboxes |
+| **2026.7.1-2 / 2026.7.1-1** | 2026-08-04 | **最新穩定版**（修補版）。修正 Codex 進度處理、記憶體啟動問題、插件更新復原等穩定性問題 |
+| **2026.7.1** | 2026-07-13 | Control UI 與 Onboarding 大改版、iOS/Android/macOS 官方應用大幅更新、**GPT-5.6 相容性**、Tencent Hy3 完整設定流程、Meta Muse Spark 1.1、`openclaw attach`（外部 harness 接續既有 Gateway Session）、Gateway crash loop 修復（不再無限重啟）、排程任務按需喚醒、遠端瀏覽器分頁控制、Web/iOS/Android 受保護終端機（單一版本彙整 532 位貢獻者、3,063 筆貢獻、2,018 個公開 PR） |
+| **2026.6.34** | 2026-08-08 | **Extended-Stable 維護線**發布，僅安全與穩定性修補（瀏覽器/網路邊界加固、Provider Fallback 更穩健、Discord Gateway 突發流量抑制），不含新功能；同時公告 Plugin SDK 舊介面（`before_agent_start` 等）將於 7/24 後移除 |
 | **2026.5.28** | 2026-05-28 | Claude Opus 4.8 支援、GitHub Copilot agent runtime 整合、Codex Supervisor 插件、ClawPDF 加密 PDF 抽取、Workboard 多 Agent 協調面板、Policy 合規性比對/合規確認、Plugin SDK reply payload hook、SecretRef 插件清單合約、Dreaming-tab agent 選擇器 |
 | **2026.6.8** | 2026-06-14 | **Telegram Rich HTML 渲染**（表格、清單、blockquote、展開式引用）、GLM-5.2 + Claude Haiku 4.5 模型目錄、Usage Footer 原生渲染器、無 API Key 搜尋提供者明確 opt-in、WhatsApp ACP 綁定、iOS 前景 Gateway 重連、記憶體 rollback/cache recovery |  
 | **2026.6.9** | 2026-06-17 | **官方 Provider 外部化為獨立 npm 套件**、Gateway 啟動探索已安裝 channel plugins、Codex Hosted Search、OpenTelemetry Log Export、ClawHub skill provenance 保持、Session workspace rail (Control UI)、iOS Watch 控制、安全強化（秘密編修、open-DM 工具暴露稽核） |
-| **2026.6.10** | 2026-06-24 | **最新穩定版**。Automatic Fast Mode（短對話自動加速）、Session Transcript SDK helpers、Cross-channel Session Identity、Trusted Tool Policy Enforcement、Trusted Package Redirects、Provider 模型目錄推理控制、StepFun Provider 安裝、DM Policy pairing 安全預設 |
+| **2026.6.10** | 2026-06-24 | Automatic Fast Mode（短對話自動加速）、Session Transcript SDK helpers、Cross-channel Session Identity、Trusted Tool Policy Enforcement、Trusted Package Redirects、Provider 模型目錄推理控制、StepFun Provider 安裝、DM Policy pairing 安全預設 |
 | **2026.5.27** | 2026-05-27 | 安全強化（content boundaries）、OpenAI-compatible embedding providers 核心模組、Pixverse 影片生成 Provider、DeepInfra 完整目錄更新、Skill Workshop 提案生命週期 |
 | **2026.5.26** | 2026-05-26 | Transcript capture 核心功能、named auth profiles（多帳號驗證配置）、Activity tab UI、Rastermill 取代 Sharp 影像後端、reaction approvals（Signal/iMessage/WhatsApp）、SSRF policy for Browser、auth rate limiter、Pixverse Provider 初版、Plugin SDK reaction approval helpers |
 | **2026.5.4** | 2026-05-03 | iOS LAN 配對修復、fs-safe 檔案系統安全抽取、VSCode 除錯支援、Gateway 容器權限加固、Crabbox 整合簡化、Plugin SDK 子路徑匯出、WhatsApp Live QA 通道 |
@@ -820,11 +846,9 @@ interface Channel {
 | **2026.2.x** | 2026-02 | Gateway 握手逾時統一、Provider API Key 輪換機制 |
 | **2026.1.x** | 2026-01 | ClawHub 技能市集上線、VirusTotal 合作技能安全掃描、NVIDIA 贊助 |
 | **2025.12.x** | 2025-12 | Docker Compose 官方支援、Podman 安裝文件 |
-| **2025.11.x** | 2025-11 | 重命名為 OpenClaw（前身 Clawdbot / Moltbot） |
-| **2025.10.x** | 2025-10 | Skills 系統大改版、Voice Wake + Talk Mode |
-| **2025.9.x** | 2025-09 | 首次公開發布 |
+| **2025.11.x〜2026.1.x** | 2025-11 ~ 2026-01 | 專案首次公開發布（2025-11-24，時名 Warelay）並歷經名稱沿革期：Warelay → CLAWDIS → Clawdbot → Moltbot → **OpenClaw** 定名，同期完成 Skills 系統與 Voice Wake + Talk Mode 等早期核心功能（完整時間軸見 1.1「名稱沿革」） |
 
-> **注意**: OpenClaw 採用**日期版本號**格式 `vYYYY.M.D`（如 `v2026.3.23`），便於追蹤發布時間。預發布版本使用 `-beta.N` 後綴。
+> **注意**: OpenClaw 採用**日期版本號**格式 `vYYYY.M.D`（如 `v2026.7.1`）。預發布版本使用 `-beta.N` 後綴，穩定版偶有 `-1`、`-2` 等修補後綴（如 `v2026.7.1-2`），Extended-Stable 維護線則沿用當月固定的 `YYYY.M.33` 起始基準（如 `v2026.6.34`）持續回補安全性修補。stable / extended-stable / beta / dev 四條版本線並行發布，詳見第七章 7.1 版本命名規則。
 
 ---
 
@@ -1211,25 +1235,25 @@ OpenClaw 透過 Model References 機制抽象化 LLM 提供者，讓 Agent 可�
   "models": {
     "default": {
       "provider": "openai",
-      "model": "gpt-4o",
+      "model": "gpt-5.6",
       "temperature": 0.7,
       "maxTokens": 4096
     },
     "fast": {
-      "provider": "openai",
-      "model": "gpt-4o-mini",
+      "provider": "anthropic",
+      "model": "claude-haiku-4-5",
       "temperature": 0.3,
       "maxTokens": 2048
     },
     "reasoning": {
       "provider": "anthropic",
-      "model": "claude-sonnet-4-20250514",
+      "model": "claude-opus-4-8",
       "temperature": 0.5,
       "maxTokens": 8192
     },
     "local": {
       "provider": "ollama",
-      "model": "llama3:70b",
+      "model": "glm-5.2",
       "baseUrl": "http://localhost:11434"
     }
   }
@@ -1254,7 +1278,7 @@ OpenClaw 目前支援 **50+ LLM 提供者**，以下列出主要提供者（完�
 
 | 分類 | 提供者 | 模型範例 | 備註 |
 |------|--------|----------|------|
-| **旗艦** | **OpenAI** | GPT-4o, GPT-5.2, GPT-5.5, o3/o4-mini | ChatGPT/Codex OAuth 訂閱支援 |
+| **旗艦** | **OpenAI** | GPT-5.6（含 Ultra）, GPT-5.5, GPT-5.2, o3/o4-mini | ChatGPT/Codex OAuth 訂閱支援，v2026.7.1 起擴大 GPT-5.6 相容路由 |
 | | **Anthropic** | Claude Opus 4, Opus 4.6, Opus 4.8, Sonnet 4, Haiku 4.5 | 預設推薦，長上下文 |
 | | **Google** | Gemini 2.5 Pro, Gemini 2.5 Flash | 多模態，Veo 影片生成 |
 | **雲端** | **Azure OpenAI** | GPT-4o (Azure) | 企業合規 |
@@ -1410,7 +1434,7 @@ OpenClaw v2026.5 引入完整的 **Plugin SDK**，將頻道、工具與 Provider
 
 ##### Plugin SDK 模組
 
-```
+```text
 openclaw/plugin-sdk
 ├── sdk-overview          # SDK 總覽與 API 設計
 ├── sdk-setup             # 插件設定與組態
@@ -1440,19 +1464,21 @@ openclaw/plugin-sdk
 | **Codex Harness** | Agent | Codex Agent 執行環境 |
 | **Zalo Personal** | 頻道 | 越南 Zalo 個人帳號頻道 |
 
-##### 插件開發範例
+##### 插件開發範例（v2026.7.24 遷移後寫法）
+
+> **⚠️ Breaking Change**：舊版 `import { defineChannelPlugin } from 'openclaw/plugin-sdk'` 根路徑匯入方式，連同 `before_agent_start` hook、`providerAuthEnvVars`、`channelEnvVars` 等介面，已於 **2026 年 7 月 24 日後排定移除**（v2026.6.34 Extended-Stable 公告）。新插件開發應改用**細分子路徑匯入（subpath imports）**，例如頻道插件改從 `openclaw/plugin-sdk/channel-core` 匯入 `defineChannelPluginEntry`，並以 manifest setup descriptor 取代硬編碼的啟用/設定邏輯：
 
 ```typescript
-// 最小頻道插件範例
-import { defineChannelPlugin } from '@openclaw/plugin-sdk';
+// 最小頻道插件範例（現行寫法，子路徑匯入）
+import { defineChannelPluginEntry } from 'openclaw/plugin-sdk/channel-core';
 
-export default defineChannelPlugin({
+export default defineChannelPluginEntry({
   name: 'my-channel',
   version: '1.0.0',
 
-  // 插件清單（manifest）
+  // 插件清單（manifest setup descriptor）
   manifest: {
-    activation: {
+    setup: {
       type: 'api-key',
       fields: ['apiKey', 'apiSecret']
     }
@@ -1479,8 +1505,8 @@ export default defineChannelPlugin({
 });
 ```
 
-> **相關文件**: [Plugin SDK Overview](https://docs.openclaw.ai/plugins/sdk-overview) · [Building Plugins](https://docs.openclaw.ai/plugins/building-plugins) · [Plugin Inventory](https://docs.openclaw.ai/plugins/plugin-inventory)
-
+> **相關文件**: [Plugin SDK Overview](https://docs.openclaw.ai/plugins/sdk-overview) · [Building Plugins](https://docs.openclaw.ai/plugins/building-plugins) · [Plugin Inventory](https://docs.openclaw.ai/plugins/plugin-inventory) · [Plugin SDK Migration](https://docs.openclaw.ai/plugins/sdk-migration)。既有插件開發者建議啟用 `@typescript-eslint/no-deprecated` 之類的型別感知 Lint 規則，及早攔截已標記 `@deprecated` 的舊版 SDK 介面呼叫。
+>
 > **v2026.6.9 重要變更 — Provider 外部化**: 自 v2026.6.9 起，官方 Provider（如 OpenAI、Anthropic、Google 等）已從核心套件抽離為獨立 npm 套件（例如 `@openclaw/provider-openai`）。新安裝時 Gateway 會自動探索已安裝的 channel/provider plugin，無需手動註冊。對於現有用戶，升級時 `openclaw doctor` 會自動建議安裝對應套件。
 
 ### 2.9 高可用架構設計
@@ -1510,7 +1536,9 @@ graph TB
     WATCHDOG -->|異常偵測| SYSTEMD
 ```
 
-#### 多節點高可用（企業級）
+#### 多節點高可用（企業自建擴展模式）
+
+> **重要說明**：OpenClaw 官方 Gateway 本身是**單一操作者、單一行程**的設計，並未內建跨節點叢集、共享 Session Store 或負載平衡機制。以下多節點拓撲是企業將 OpenClaw 視為基礎設施元件時，**自行透過標準 DevOps 工具（負載平衡器、外部資料庫）疊加建置**的高可用模式，而非 OpenClaw 原生支援的叢集功能。實作前務必評估 Session 親和性（同一使用者的多輪對話需路由到同一 Gateway 行程，或自行實作跨行程狀態同步），避免破壞對話上下文一致性。
 
 ```mermaid
 graph TB
@@ -1660,7 +1688,7 @@ graph TB
 | 項目 | 需求 |
 |------|------|
 | **作業系統** | macOS 13+、Linux（Ubuntu 22.04+、Debian 12+）、Windows 11+ (WSL2，強烈建議) |
-| **Node.js** | **Node 24**（建議）或 **Node 22.19+**（LTS 相容） |
+| **Node.js** | `>=22.22.3 <23`、`>=24.15.0 <25` 或 `>=25.9.0`（package.json engines 精確版本區間；建議採用 Node 24.15+ LTS） |
 | **記憶體** | 2 GB RAM |
 | **磁碟空間** | 500 MB（不含 LLM 模型） |
 | **網路** | 穩定的網際網路連線（用於 LLM API 呼叫） |
@@ -1681,9 +1709,9 @@ graph TB
 #### 步驟一：確認 Node.js 版本
 
 ```bash
-# 確認 Node.js 版本（建議 Node 24，最低 Node 22.19+）
+# 確認 Node.js 版本（需落在 22.22.3-22.x / 24.15.0-24.x / 25.9.0+ 區間，建議 Node 24 LTS）
 node --version
-# v24.x.x
+# v24.15.x
 
 # 如果版本不足，使用 nvm 升級
 nvm install 24
@@ -1701,10 +1729,11 @@ pnpm add -g openclaw@latest
 
 # 驗證安裝
 openclaw --version
-# openclaw 2026.6.10
+# openclaw 2026.7.1
 ```
 
 > **一鍵安裝（推薦）**: OpenClaw 提供跨平台一鍵安裝腳本，會自動安裝 Node.js 及所有依賴：
+>
 > ```bash
 > # macOS / Linux
 > curl -fsSL https://openclaw.ai/install.sh | bash
@@ -1837,7 +1866,7 @@ version: "3.9"
 
 services:
   openclaw:
-    image: openclaw/openclaw:2026.6.10
+    image: openclaw/openclaw:2026.7.1
     container_name: openclaw-gateway
     restart: unless-stopped
     ports:
@@ -2008,7 +2037,7 @@ OpenClaw 使用 **JSON5** 格式作為設定檔格式，JSON5 是 JSON 的超集
 
 #### 組態檔位置
 
-```
+```text
 ~/.openclaw/openclaw.json
 ```
 
@@ -2222,7 +2251,7 @@ vault kv put secret/openclaw openai_key=sk-xxxxxxxxxxxxxxxx
 
 #### 環境分離策略
 
-```
+```text
 ~/.openclaw/
 ├── openclaw.json              # 共用基礎設定
 ├── openclaw.development.json  # 開發環境覆蓋
@@ -2259,7 +2288,7 @@ vault kv put secret/openclaw openai_key=sk-xxxxxxxxxxxxxxxx
   "models": {
     "default": {
       "provider": "openai",
-      "model": "gpt-4o",
+      "model": "gpt-5.6",
       "apiKey": "${OPENAI_API_KEY}",
     },
   },
@@ -2332,6 +2361,7 @@ openclaw config show
 | `openclaw update` | 更新版本/頻道 | `openclaw update --channel stable\|beta\|dev` |
 | `openclaw message send` | 發送訊息 | `openclaw message send --to +123 --message "Hi"` |
 | `openclaw agent` | 與 Agent 互動 | `openclaw agent --message "Ship checklist" --thinking high` |
+| `openclaw attach`（v2026.7.1 新增） | 外部 harness 接續既有 Gateway Session | `openclaw attach --session <id>`（可接續/檢視 Codex 風格工作流程） |
 | `openclaw migrate` | 跨版本資料遷移 | `openclaw migrate --from claude\|hermes` |
 | `openclaw daemon` | 管理守護程序 | `openclaw daemon install\|uninstall\|status` |
 | `openclaw setup` | 初始化本地環境 | `openclaw setup`（開發模式首次執行） |
@@ -2372,10 +2402,11 @@ openclaw config show
 | `openclaw memory` | 記憶管理 | `openclaw memory search "keyword"` |
 | `openclaw wiki` | Wiki 記憶管理 | `openclaw wiki list` |
 | `openclaw backup` | 備份管理 | `openclaw backup create` |
+| `openclaw backup sqlite`（v2026.8.1 新增） | 全域/per-agent SQLite 快照備份 | `openclaw backup sqlite create\|list\|verify\|restore`（restore 僅允許還原至全新目標，避免誤覆蓋） |
 | `openclaw secrets` | 密鑰管理 | `openclaw secrets set OPENAI_API_KEY` |
 | `openclaw proxy` | 代理設定 | `openclaw proxy set http://proxy:8080` |
 | `openclaw models` | 模型管理與測試 | `openclaw models list` / `openclaw models test` |
-| `openclaw infer` | 直接推論呼叫 | `openclaw infer --model gpt-4o --prompt "Hi"` |
+| `openclaw infer` | 直接推論呼叫 | `openclaw infer --model gpt-5.6 --prompt "Hi"` |
 | `openclaw sandbox` | 沙箱管理 | `openclaw sandbox list` |
 | `openclaw security` | 安全稽核 | `openclaw security audit` |
 | `openclaw health` | 健康檢查 | `openclaw health` |
@@ -2458,7 +2489,7 @@ openclaw onboard --workspace
   "models": {
     "default": {
       "provider": "openai",
-      "model": "gpt-4o",
+      "model": "gpt-5.6",
     },
   },
   "channels": {
@@ -2891,7 +2922,7 @@ public class OpenClawExample {
 
 #### Skill 完整結構
 
-```
+```text
 skills/
 └── enterprise-reporter/
     ├── SKILL.md              # 技能定義（必要）
@@ -4838,7 +4869,7 @@ graph TB
     "models": {
       "allowedProviders": ["openai", "anthropic"],
       "maxTokenBudgetDaily": 1000000,
-      "requireApproval": ["gpt-4o"],
+      "requireApproval": ["gpt-5.6"],
     },
   },
 }
@@ -4905,6 +4936,10 @@ Plugin 開發者可透過 **Session Transcript SDK** 讀取、寫入與發布對
 
 適用場景：合規稽核、對話品質分析、訓練資料收集。需在 Plugin manifest 中宣告 `permissions: ["transcript:read", "transcript:write"]`。
 
+#### Secret Egress Host Binding（v2026.8.1 新增）
+
+為防止密鑰（Secret）被惡意插件或 Prompt Injection 誘導外洩至非預期目的地，v2026.8.1 引入**密鑰目的地主機綁定**機制：每個共用密鑰儲存區（shared secret store）中的密鑰，須明確綁定至允許存取的確切 HTTPS 目的地主機，跨 CLI、Gateway RPC、Control UI 三個介面一致強制執行。未綁定的 sentinel 替換請求會在密鑰明文外洩前直接失敗（fail closed），而非預設放行。企業導入時建議搭配 5.2 節的 Agent 存取控制與 9.2 節的 API Key 管理策略一併設定。
+
 > 詳見 [Security guide](https://docs.openclaw.ai/gateway/security) · [Sandbox config](https://docs.openclaw.ai/gateway/configuration)
 
 #### 安全強化清單
@@ -4948,7 +4983,7 @@ flowchart TD
 # docker-compose.secure.yml
 services:
   openclaw:
-    image: openclaw/openclaw:2026.6.10
+    image: openclaw/openclaw:2026.7.1
     # 非 root 使用者
     user: "1000:1000"
     # 唯讀根檔案系統
@@ -5011,7 +5046,7 @@ services:
 
 #### Prompt 版本管理
 
-```
+```text
 skills/
 └── enterprise-assistant/
     ├── SKILL.md               # 目前版本
@@ -5097,9 +5132,9 @@ graph LR
 ```mermaid
 flowchart TD
     MSG[收到訊息] --> CLASSIFY{訊息分類}
-    CLASSIFY -->|簡單查詢| FAST[使用 GPT-4o-mini<br>成本低]
-    CLASSIFY -->|複雜推論| FULL[使用 GPT-4o<br>成本中]
-    CLASSIFY -->|程式碼生成| REASON[使用 Claude Sonnet<br>成本高]
+    CLASSIFY -->|簡單查詢| FAST[使用 Claude Haiku 4.5<br>成本低]
+    CLASSIFY -->|複雜推論| FULL[使用 GPT-5.6<br>成本中]
+    CLASSIFY -->|程式碼生成| REASON[使用 Claude Opus 4.8<br>成本高]
     
     FAST --> CACHE{快取命中？}
     FULL --> CACHE
@@ -5113,21 +5148,23 @@ flowchart TD
 
 #### 成本計算範例
 
-| 模型 | 1K 次對話/月估算 | 策略 |
+> **⚠️ 費率僅為相對量級示意**：以下數字為說明「混合路由可顯著降低成本」的**相對比例範例**，並非官方牌價。LLM 定價變動頻繁，實際費用請以各 Provider 官方定價頁面（OpenAI、Anthropic、Zhipu 等）與 OpenClaw `openclaw models test` 實測用量為準。
+
+| 模型（示意） | 1K 次對話/月相對成本 | 策略 |
 |------|-----------------|------|
-| GPT-4o | ~$50 | 複雜任務使用 |
-| GPT-4o-mini | ~$5 | 日常查詢使用 |
-| Claude Sonnet 4 | ~$30 | 長文/推論使用 |
-| Claude Opus 4 | ~$120 | 最複雜推論 |
-| MiniMax M2.5 | ~$3 | 輕量級本地/雲端 |
-| Ollama (本地) | ~$0 (硬體成本) | 隱私敏感場景 |
-| **混合策略** | **~$15** | **智慧路由（推薦）** |
+| GPT-5.6 | 高 | 複雜任務使用 |
+| Claude Haiku 4.5 | 低 | 日常查詢使用 |
+| Claude Opus 4.8 | 最高 | 最複雜推論 |
+| GLM-5.2（開源權重） | 中低 | 程式碼/長上下文，Anthropic 相容端點可直連 |
+| MiniMax M2.5 | 低 | 輕量級本地/雲端 |
+| Ollama / vLLM（本地） | 僅硬體成本 | 隱私敏感場景 |
+| **混合策略** | **中低（顯著低於全用旗艦模型）** | **智慧路由（推薦）** |
 
 > **OAuth 訂閱模式**: 若使用 OpenAI ChatGPT/Codex 的 OAuth 訂閱，可降低 API Key 費用。配合 OpenClaw 的 Model Failover 機制自動在 OAuth 與 API Key 間切換。
-
-> **Automatic Fast Mode**（v2026.6.10 新增）: 短對話（少於 3 輪交互）自動使用快速模型（如 GPT-4o-mini）以降低成本與延遲，當對話複雜度增加時自動升級為完整模型。可透過 `agentConfig.fastMode` 設定啟用/停用。
-
-> **Per-agent Usage-cost Reporting**（v2026.6.10 新增）: 每個 Agent 現可獲取獨立的 Token 使用量與費用報告，方便企業按團隊/專案分攞成本。
+>
+> **Automatic Fast Mode**（v2026.6.10 新增）: 短對話（少於 3 輪交互）自動使用快速模型（如 Claude Haiku 4.5）以降低成本與延遲，當對話複雜度增加時自動升級為完整模型。可透過 `agentConfig.fastMode` 設定啟用/停用。
+>
+> **Per-agent Usage-cost Reporting**（v2026.6.10 新增）: 每個 Agent 現可獲取獨立的 Token 使用量與費用報告，方便企業按團隊/專案分攤成本。
 
 ### 5.9 合規與稽核
 
@@ -5166,7 +5203,7 @@ flowchart TD
 
 #### Git 分支策略
 
-```
+```text
 main           ─── 正式環境組態
 ├── develop    ─── 開發環境組態
 │   ├── feature/new-skill-weather    ─── 新技能開發
@@ -5193,7 +5230,7 @@ main           ─── 正式環境組態
 
 ### 6.1 健康檢查機制
 
-OpenClaw 提供多層级健康檢查端點：
+OpenClaw 提供多層級健康檢查端點：
 
 #### 端點說明
 
@@ -5213,7 +5250,7 @@ OpenClaw 提供多層级健康檢查端點：
 ```json
 {
   "status": "healthy",
-  "version": "2026.6.10",
+  "version": "2026.7.1",
   "uptime": "3d 14h 22m",
   "checks": {
     "gateway": {
@@ -5382,7 +5419,7 @@ OpenClaw 使用 **JSONL**（JSON Lines）格式輸出結構化日誌。
 {"level":"info","ts":"2026-03-05T10:30:01.456Z","msg":"頻道已連線","channel":"whatsapp","latency_ms":45}
 {"level":"info","ts":"2026-03-05T10:30:05.789Z","msg":"收到訊息","channel":"telegram","user":"user123","session":"sess_abc"}
 {"level":"debug","ts":"2026-03-05T10:30:06.012Z","msg":"Skill 匹配","skill":"weather","confidence":0.95}
-{"level":"info","ts":"2026-03-05T10:30:08.345Z","msg":"LLM 呼叫完成","model":"gpt-4o","tokens_in":250,"tokens_out":180,"latency_ms":2341}
+{"level":"info","ts":"2026-03-05T10:30:08.345Z","msg":"LLM 呼叫完成","model":"gpt-5.6","tokens_in":250,"tokens_out":180,"latency_ms":2341}
 {"level":"info","ts":"2026-03-05T10:30:08.567Z","msg":"回應已傳送","channel":"telegram","user":"user123","latency_ms":2562}
 ```
 
@@ -5432,7 +5469,7 @@ OpenClaw 原生支援 **OpenTelemetry** 遙測資料匯出，v2026.4.25 新增 *
       },
     },
     "serviceName": "openclaw-gateway",
-    "serviceVersion": "2026.6.10",
+    "serviceVersion": "2026.7.1",
     "resource": {
       "environment": "production",
       "team": "platform",
@@ -5781,7 +5818,7 @@ setup.kibana:
 
 OpenClaw 採用 **日曆版本號**（CalVer）格式，Git tag 帶有 `v` 前綴：
 
-```
+```text
 vYYYY.M.D
 vYYYY.M.D-<patch>      # 同日修補時附加後綴
 ```
@@ -5794,26 +5831,38 @@ vYYYY.M.D-<patch>      # 同日修補時附加後綴
 | `D` | 日期 | 23 |
 | `patch` | 同日修補後綴（選用） | 1, 2, ... |
 
-> 完整版本範例：`v2026.6.10`（2026 年 6 月 24 日發布）
-> 同日修補範例：`v2026.6.10-1`（同日第 1 次修補）
+> 完整版本範例：`v2026.7.1`（2026 年 7 月 13 日發布）
+> 同日修補範例：`v2026.7.1-2`（同日第 2 次修補）
 
 #### 發布頻道
 
-OpenClaw 提供三個發布頻道（Development Channels）供不同穩定性需求：
+OpenClaw 實際提供**四個發布頻道**（Development Channels），較早期文件常見的「stable/beta/dev 三頻道」說法已不完整——v2026.6 起新增 **extended-stable** 頻道：
 
 | 頻道 | 說明 | 適用場景 |
 |------|------|----------|
-| **stable** | 正式穩定版（預設） | 生產環境 |
-| **beta** | 公開測試版 | Staging / 預覽新功能 |
-| **dev** | 開發版（每日建構） | 開發者測試 |
+| **stable** | 正式穩定版（預設），經 beta 週期驗證後發布 | 一般生產環境 |
+| **extended-stable**（v2026.6 新增） | 每月釋出一次的「類 LTS」維護線，**僅回補安全性與穩定性修補、不含新功能**。每月版本線固定以 `YYYY.M.33` 起始（例如 2026.6 線始於 `2026.6.33`，本文撰寫時已推進至 `2026.6.34`） | 對變更敏感、追求最大穩定性的正式環境 |
+| **beta** | 公開測試版，每週多次發布 | Staging / 搶先預覽新功能 |
+| **dev** | main 分支開發版（含未完成功能與可能的破壞性變更） | 開發者測試、貢獻者 |
 
 ```bash
-# 切換到 beta 頻道
+# 切換頻道
+openclaw update --channel stable
+openclaw update --channel extended-stable
 openclaw update --channel beta
+openclaw update --channel dev
 
-# 查看當前頻道
+# 預覽將執行的更新動作（不實際套用）
+openclaw update --dry-run
+
+# 查看目前頻道與可用版本狀態
+openclaw update status --json
+
+# 查看當前版本
 openclaw --version
 ```
+
+> **企業建議**：一般正式環境建議採用 **extended-stable** 頻道，兼顧安全修補即時性與功能變更的最小化；若需要最新功能且能承受較高變更頻率，可評估 stable 頻道並搭配第 7.2～7.3 節的升級前評估與滾動升級流程。
 
 #### 版本生命週期
 
@@ -5821,7 +5870,9 @@ openclaw --version
 graph LR
     DEV[開發版<br>dev channel] --> BETA[測試版<br>beta channel]
     BETA --> STABLE[穩定版<br>stable channel]
-    
+    STABLE -->|每月首個穩定版起| EXT[extended-stable<br>類 LTS 維護線]
+    EXT -->|僅安全/穩定性回補| EXT
+
     STABLE -->|下一版發布| MAINT[進入維護期]
     MAINT -->|+3個月| UNSUP[結束支援]
 ```
@@ -5941,13 +5992,13 @@ openclaw config migrate
 // 舊版 (2026.2.x) → 新版 (2026.3.x) 組態變更
 {
   // 舊版寫法
-  // "llm": { "default": { "provider": "openai", "model": "gpt-4o" } }
+  // "llm": { "default": { "provider": "openai", "model": "gpt-5.6" } }
   
   // 新版寫法（models 與 llm 分離）
   "models": {
     "default": {
       "provider": "openai",
-      "model": "gpt-4o",
+      "model": "gpt-5.6",
     },
   },
 }
@@ -6052,7 +6103,7 @@ jobs:
 {
   "dependencies": {
     // 精確版本鎖定
-    "openclaw": "2026.6.10",
+    "openclaw": "2026.7.1",
   },
 }
 ```
@@ -6062,7 +6113,7 @@ jobs:
 services:
   openclaw:
     # ✅ 使用精確版本
-    image: openclaw/openclaw:2026.6.10
+    image: openclaw/openclaw:2026.7.1
     # ❌ 避免使用 latest
     # image: openclaw/openclaw:latest
 ```
@@ -6145,7 +6196,7 @@ jobs:
     needs: lint
     services:
       openclaw:
-        image: openclaw/openclaw:2026.6.10
+        image: openclaw/openclaw:2026.7.1
         ports:
           - 18789:18789
         options: >-
@@ -6325,7 +6376,7 @@ class OpenClawClientIntegrationTest {
 
 ```dockerfile
 # Dockerfile
-FROM openclaw/openclaw:2026.6.10
+FROM openclaw/openclaw:2026.7.1
 
 # 標籤
 LABEL maintainer="devops@company.com"
@@ -6374,7 +6425,7 @@ spec:
     spec:
       containers:
         - name: openclaw
-          image: openclaw/openclaw:2026.6.10
+          image: openclaw/openclaw:2026.7.1
           ports:
             - containerPort: 18789
               name: websocket
@@ -6479,7 +6530,7 @@ resource "docker_network" "openclaw" {
 }
 
 resource "docker_image" "openclaw" {
-  name         = "openclaw/openclaw:2026.6.10"
+  name         = "openclaw/openclaw:2026.7.1"
   keep_locally = true
 }
 
@@ -6536,7 +6587,7 @@ spec:
         name: openclaw
   values:
     image:
-      tag: "2026.6.10"
+      tag: "2026.7.1"
     resources:
       limits:
         cpu: "2000m"
@@ -6549,12 +6600,12 @@ spec:
 
 ```mermaid
 flowchart LR
-    LB[負載平衡器] --> |100%| BLUE[🔵 Blue<br>v2026.3.31]
-    LB -.-> |0%| GREEN[🟢 Green<br>v2026.6.10]
+    LB[負載平衡器] --> |100%| BLUE[🔵 Blue<br>v2026.6.34]
+    LB -.-> |0%| GREEN[🟢 Green<br>v2026.7.1]
     
     subgraph "切換後"
-        LB2[負載平衡器] -.-> |0%| BLUE2[🔵 Blue<br>v2026.3.31]
-        LB2 --> |100%| GREEN2[🟢 Green<br>v2026.6.10]
+        LB2[負載平衡器] -.-> |0%| BLUE2[🔵 Blue<br>v2026.6.34]
+        LB2 --> |100%| GREEN2[🟢 Green<br>v2026.7.1]
     end
 ```
 
@@ -6901,6 +6952,10 @@ OpenClaw v2026.5 引入完整的沙箱架構，支援三種後端：
 >
 > 詳見 [Sandbox vs Tool Policy vs Elevated](https://docs.openclaw.ai/gateway/sandbox-vs-tool-policy-vs-elevated)。
 
+#### 插件供應鏈安全（Plugin Provenance，v2026.8.1 新增）
+
+延續 9.6 節 OWASP LLM05（供應鏈攻擊）的防護，v2026.8.1 起 CLI 與聊天介面安裝**任意可執行檔的第三方插件**時，須明確加上 `--force` 旗標確認已知悉風險來源；來自 ClawHub、Bundled、官方目錄與既有追蹤更新的信任來源則維持原有免確認流程，避免影響日常維運效率。企業導入建議在插件治理規範中明訂：非官方目錄插件一律須經安全審查後才可加註 `--force` 安裝，並保留審查紀錄以利稽核（見 9.8 節）。
+
 #### DM 配對安全（DM Pairing）
 
 OpenClaw 預設對所有頻道的私訊實施配對驗證：
@@ -6993,6 +7048,8 @@ iptables -A OUTPUT -p tcp --dport 443 -d api.anthropic.com -j ACCEPT
 | **LLM10: Model Theft** | 模型竊取 | N/A（使用 API） |
 
 ### 9.7 Prompt Injection 防禦
+
+> **真實案例警示**：2026 年 2 月，社群曾回報一起 Agent 在缺乏適當工具邊界與核准機制的情況下，遭間接 Prompt Injection 誘導、未經使用者明確同意即自行在外部服務建立交友檔案的事件。此事件凸顯 **Excessive Agency**（OWASP LLM08，見 9.6 節）與工具白名單/Trusted Tool Policy（見 5.4 節）等控制措施並非「可選強化」，而是 Agent 一旦擁有瀏覽器、表單填寫等高影響力工具時的**必要防線**。企業導入時應將「高風險工具需人工核准」列為預設值，而非事後補救。
 
 #### 防禦策略
 
@@ -7093,7 +7150,7 @@ public class PromptInjectionDetector {
 
 ```jsonl
 {"event":"auth.login","user":"admin@company.com","channel":"slack","ip":"10.0.1.100","ts":"2026-03-05T10:00:00Z","result":"success"}
-{"event":"config.change","user":"admin@company.com","field":"models.default.model","old":"gpt-4o-mini","new":"gpt-4o","ts":"2026-03-05T10:05:00Z"}
+{"event":"config.change","user":"admin@company.com","field":"models.default.model","old":"gpt-5.5","new":"gpt-5.6","ts":"2026-03-05T10:05:00Z"}
 {"event":"skill.install","user":"admin@company.com","skill":"weather-reporter@2.0.0","source":"clawhub","ts":"2026-03-05T10:10:00Z"}
 {"event":"access.denied","user":"unknown@external.com","channel":"telegram","reason":"not_in_allowlist","ts":"2026-03-05T10:15:00Z"}
 {"event":"tool.execute","agent":"report-agent","tool":"generate_report","params":{"type":"daily"},"duration_ms":1234,"ts":"2026-03-05T10:20:00Z"}
@@ -7103,7 +7160,7 @@ public class PromptInjectionDetector {
 
 #### AppArmor 設定檔
 
-```
+```text
 # /etc/apparmor.d/openclaw
 profile openclaw flags=(attach_disconnected,mediate_deleted) {
     # 允許讀取設定檔
@@ -8186,7 +8243,7 @@ public class DevOpsCommandExecutor {
                 
                 | 服務 | 版本 | Pods | CPU | Memory | 狀態 |
                 |------|------|------|-----|--------|------|
-                | gateway | v2026.6.10 | 2/2 | 45%% | 1.2GB | ✅ |
+                | gateway | v2026.7.1 | 2/2 | 45%% | 1.2GB | ✅ |
                 | tool-bridge | v1.5.0 | 2/2 | 30%% | 800MB | ✅ |
                 | worker | v1.3.1 | 3/3 | 60%% | 2.1GB | ✅ |
                 
@@ -9549,7 +9606,7 @@ graph TB
 
 ### A.2 環境建置
 
-- [ ] 安裝 Node.js ≥ 22.19+（建議 Node 24）
+- [ ] 安裝 Node.js（`>=22.22.3 <23`、`>=24.15.0 <25` 或 `>=25.9.0`，建議 24.15+ LTS）
 - [ ] 部署 OpenClaw Gateway
 - [ ] 設定 TLS/SSL 加密
 - [ ] 設定防火牆規則
@@ -9701,8 +9758,11 @@ openclaw test model default
 | **Dreaming** | Dreaming / Memory Wiki | 記憶管理系統，支援 ChatGPT 聊天匯入、Wiki 頁面編譯、日記子頁籤瀏覽 |
 | **video_generate** | Video Generate Tool | 影片生成工具，支援 URL 資產交付、參考音訊輸入、自適應長寬比 |
 | **Plugin Manifest** | Plugin Manifest | 插件清單宣告，描述認證、配對與設定步驟的結構化描述符 |
-| **Development Channels** | Development Channels | 開發頻道，stable / beta / dev 三軌發布管道 |
+| **Development Channels** | Development Channels | 開發頻道，stable / extended-stable / beta / dev 四軌發布管道（extended-stable 為 v2026.6 新增的類 LTS 維護線） |
 | **Federated Credential** | Federated Credential | 聯合認證，MS Teams 支援的憑證與受管理 OAuth 設定 |
+| **OpenClaw Foundation** | OpenClaw Foundation | 2026 年 2 月成立的非營利治理基金會，創辦人 Peter Steinberger 轉任 OpenAI 後接手專案長期治理 |
+| **Secret Egress Host Binding** | Secret Egress Host Binding | v2026.8.1 新增的密鑰目的地主機綁定機制，防止密鑰被導向非預期 HTTPS 目的地 |
+| **Plugin Provenance Warning** | Plugin Provenance Warning | v2026.8.1 新增，安裝非信任來源的可執行插件時需明確以 `--force` 確認風險 |
 
 ---
 
@@ -9712,86 +9772,89 @@ openclaw test model default
 
 | 資源 | 網址 |
 |------|------|
-| 官方網站 | https://openclaw.ai |
-| 官方文件 | https://docs.openclaw.ai |
-| GitHub 倉庫 | https://github.com/openclaw/openclaw |
-| ClawHub 技能市場 | https://clawhub.ai |
-| Discord 社群 | https://discord.gg/clawd |
-| DeepWiki（AI 導讀） | https://deepwiki.com/openclaw/openclaw |
-| VirusTotal Trust | https://trust.openclaw.ai |
-| Showcase | https://openclaw.ai/showcase |
-| Blog | https://openclaw.ai/blog |
+| 官方網站 | [https://openclaw.ai](https://openclaw.ai) |
+| 官方文件 | [https://docs.openclaw.ai](https://docs.openclaw.ai) |
+| GitHub 倉庫 | [https://github.com/openclaw/openclaw](https://github.com/openclaw/openclaw) |
+| ClawHub 技能市場 | [https://clawhub.ai](https://clawhub.ai) |
+| Discord 社群 | [https://discord.gg/clawd](https://discord.gg/clawd) |
+| DeepWiki（AI 導讀） | [https://deepwiki.com/openclaw/openclaw](https://deepwiki.com/openclaw/openclaw) |
+| VirusTotal Trust | [https://trust.openclaw.ai](https://trust.openclaw.ai) |
+| Showcase | [https://openclaw.ai/showcase](https://openclaw.ai/showcase) |
+| Blog | [https://openclaw.ai/blog](https://openclaw.ai/blog) |
+| Extended-Stable / LTS 路線圖公告 | [https://openclaw.ai/blog/extended-stable-releases-and-maturity-scorecards](https://openclaw.ai/blog/extended-stable-releases-and-maturity-scorecards) |
+| Release Notes（各版本詳細說明） | [https://docs.openclaw.ai/releases](https://docs.openclaw.ai/releases) |
+| Release Policy（發布政策） | [https://docs.openclaw.ai/reference/RELEASING](https://docs.openclaw.ai/reference/RELEASING) |
 
 ### D.2 技術參考
 
 | 主題 | 資源 |
 |------|------|
-| Node.js 官方 | https://nodejs.org |
-| Docker 文件 | https://docs.docker.com |
-| Kubernetes 文件 | https://kubernetes.io/docs |
-| OpenTelemetry | https://opentelemetry.io |
-| Prometheus | https://prometheus.io |
-| Grafana | https://grafana.com |
-| Tailscale | https://tailscale.com |
+| Node.js 官方 | [https://nodejs.org](https://nodejs.org) |
+| Docker 文件 | [https://docs.docker.com](https://docs.docker.com) |
+| Kubernetes 文件 | [https://kubernetes.io/docs](https://kubernetes.io/docs) |
+| OpenTelemetry | [https://opentelemetry.io](https://opentelemetry.io) |
+| Prometheus | [https://prometheus.io](https://prometheus.io) |
+| Grafana | [https://grafana.com](https://grafana.com) |
+| Tailscale | [https://tailscale.com](https://tailscale.com) |
 
 ### D.3 官方文件深層鏈結
 
 | 主題 | 連結 |
 |------|------|
-| 架構概覽 | https://docs.openclaw.ai/concepts/architecture |
-| 完整組態參考 | https://docs.openclaw.ai/gateway/configuration |
-| Gateway 運維手冊 | https://docs.openclaw.ai/gateway |
-| 安全指南 | https://docs.openclaw.ai/gateway/security |
-| 威脅模型 | https://docs.openclaw.ai/security/THREAT-MODEL-ATLAS |
-| 形式驗證 | https://docs.openclaw.ai/security/formal-verification |
-| 頻道設定 | https://docs.openclaw.ai/channels |
-| 頻道存取群組 | https://docs.openclaw.ai/channels/access-groups |
-| 頻道路由 | https://docs.openclaw.ai/channels/channel-routing |
-| 頻道配對 | https://docs.openclaw.ai/channels/pairing |
-| 工具文件 | https://docs.openclaw.ai/tools |
-| Skills 設定 | https://docs.openclaw.ai/tools/skills-config |
-| 模型設定 | https://docs.openclaw.ai/concepts/models |
-| 模型失效轉移 | https://docs.openclaw.ai/concepts/model-failover |
-| Session 管理 | https://docs.openclaw.ai/concepts/session |
-| Session Tool | https://docs.openclaw.ai/concepts/session-tool |
-| Context Engine | https://docs.openclaw.ai/concepts/context-engine |
-| Compaction | https://docs.openclaw.ai/concepts/compaction |
-| Active Memory | https://docs.openclaw.ai/concepts/active-memory |
-| Delegate Architecture | https://docs.openclaw.ai/concepts/delegate-architecture |
-| Multi-Agent | https://docs.openclaw.ai/concepts/multi-agent |
-| Agent Loop | https://docs.openclaw.ai/concepts/agent-loop |
-| Agent Runtime | https://docs.openclaw.ai/concepts/agent-runtimes |
-| Commitments | https://docs.openclaw.ai/concepts/commitments |
-| Queue 機制 | https://docs.openclaw.ai/concepts/queue |
-| Queue Steering | https://docs.openclaw.ai/concepts/queue-steering |
-| Presence | https://docs.openclaw.ai/concepts/presence |
-| Streaming | https://docs.openclaw.ai/concepts/streaming |
-| Usage Tracking | https://docs.openclaw.ai/concepts/usage-tracking |
-| Plugin SDK | https://docs.openclaw.ai/plugins/sdk-overview |
-| Plugin Inventory | https://docs.openclaw.ai/plugins/plugin-inventory |
-| Building Plugins | https://docs.openclaw.ai/plugins/building-plugins |
-| Plugin Testing | https://docs.openclaw.ai/plugins/sdk-testing |
-| Plugin Migration | https://docs.openclaw.ai/plugins/sdk-migration |
-| Tailscale 指南 | https://docs.openclaw.ai/gateway/tailscale |
-| 遠端存取 | https://docs.openclaw.ai/gateway/remote |
-| Web 控制面板 | https://docs.openclaw.ai/web |
-| Webhook | https://docs.openclaw.ai/automation/webhook |
-| Standing Orders | https://docs.openclaw.ai/automation/standing-orders |
-| Hooks | https://docs.openclaw.ai/automation/hooks |
-| TaskFlow | https://docs.openclaw.ai/automation/taskflow |
-| Background Tasks | https://docs.openclaw.ai/automation/background-tasks |
-| Gmail Pub/Sub | https://docs.openclaw.ai/automation/gmail-pubsub |
-| Gateway 協定 | https://docs.openclaw.ai/gateway/protocol |
-| Gateway 探索與傳輸 | https://docs.openclaw.ai/gateway/discovery |
-| Gateway Pairing | https://docs.openclaw.ai/gateway/pairing |
-| Gateway 健康檢查 | https://docs.openclaw.ai/gateway/health |
-| Gateway 背景程序 | https://docs.openclaw.ai/gateway/background-process |
-| Bonjour/mDNS | https://docs.openclaw.ai/gateway/bonjour |
-| 沙箱 | https://docs.openclaw.ai/gateway/sandbox |
-| Nix 安裝 | https://docs.openclaw.ai/install/nix |
-| 開發頻道切換 | https://docs.openclaw.ai/install/development-channels |
-| 疑難排解 | https://docs.openclaw.ai/channels/troubleshooting |
-| FAQ | https://docs.openclaw.ai/help/faq |
+| 架構概覽 | [https://docs.openclaw.ai/concepts/architecture](https://docs.openclaw.ai/concepts/architecture) |
+| 完整組態參考 | [https://docs.openclaw.ai/gateway/configuration](https://docs.openclaw.ai/gateway/configuration) |
+| Gateway 運維手冊 | [https://docs.openclaw.ai/gateway](https://docs.openclaw.ai/gateway) |
+| 安全指南 | [https://docs.openclaw.ai/gateway/security](https://docs.openclaw.ai/gateway/security) |
+| 威脅模型 | [https://docs.openclaw.ai/security/THREAT-MODEL-ATLAS](https://docs.openclaw.ai/security/THREAT-MODEL-ATLAS) |
+| 形式驗證 | [https://docs.openclaw.ai/security/formal-verification](https://docs.openclaw.ai/security/formal-verification) |
+| 頻道設定 | [https://docs.openclaw.ai/channels](https://docs.openclaw.ai/channels) |
+| 頻道存取群組 | [https://docs.openclaw.ai/channels/access-groups](https://docs.openclaw.ai/channels/access-groups) |
+| 頻道路由 | [https://docs.openclaw.ai/channels/channel-routing](https://docs.openclaw.ai/channels/channel-routing) |
+| 頻道配對 | [https://docs.openclaw.ai/channels/pairing](https://docs.openclaw.ai/channels/pairing) |
+| 工具文件 | [https://docs.openclaw.ai/tools](https://docs.openclaw.ai/tools) |
+| Skills 設定 | [https://docs.openclaw.ai/tools/skills-config](https://docs.openclaw.ai/tools/skills-config) |
+| 模型設定 | [https://docs.openclaw.ai/concepts/models](https://docs.openclaw.ai/concepts/models) |
+| 模型失效轉移 | [https://docs.openclaw.ai/concepts/model-failover](https://docs.openclaw.ai/concepts/model-failover) |
+| Session 管理 | [https://docs.openclaw.ai/concepts/session](https://docs.openclaw.ai/concepts/session) |
+| Session Tool | [https://docs.openclaw.ai/concepts/session-tool](https://docs.openclaw.ai/concepts/session-tool) |
+| Context Engine | [https://docs.openclaw.ai/concepts/context-engine](https://docs.openclaw.ai/concepts/context-engine) |
+| Compaction | [https://docs.openclaw.ai/concepts/compaction](https://docs.openclaw.ai/concepts/compaction) |
+| Active Memory | [https://docs.openclaw.ai/concepts/active-memory](https://docs.openclaw.ai/concepts/active-memory) |
+| Delegate Architecture | [https://docs.openclaw.ai/concepts/delegate-architecture](https://docs.openclaw.ai/concepts/delegate-architecture) |
+| Multi-Agent | [https://docs.openclaw.ai/concepts/multi-agent](https://docs.openclaw.ai/concepts/multi-agent) |
+| Agent Loop | [https://docs.openclaw.ai/concepts/agent-loop](https://docs.openclaw.ai/concepts/agent-loop) |
+| Agent Runtime | [https://docs.openclaw.ai/concepts/agent-runtimes](https://docs.openclaw.ai/concepts/agent-runtimes) |
+| Commitments | [https://docs.openclaw.ai/concepts/commitments](https://docs.openclaw.ai/concepts/commitments) |
+| Queue 機制 | [https://docs.openclaw.ai/concepts/queue](https://docs.openclaw.ai/concepts/queue) |
+| Queue Steering | [https://docs.openclaw.ai/concepts/queue-steering](https://docs.openclaw.ai/concepts/queue-steering) |
+| Presence | [https://docs.openclaw.ai/concepts/presence](https://docs.openclaw.ai/concepts/presence) |
+| Streaming | [https://docs.openclaw.ai/concepts/streaming](https://docs.openclaw.ai/concepts/streaming) |
+| Usage Tracking | [https://docs.openclaw.ai/concepts/usage-tracking](https://docs.openclaw.ai/concepts/usage-tracking) |
+| Plugin SDK | [https://docs.openclaw.ai/plugins/sdk-overview](https://docs.openclaw.ai/plugins/sdk-overview) |
+| Plugin Inventory | [https://docs.openclaw.ai/plugins/plugin-inventory](https://docs.openclaw.ai/plugins/plugin-inventory) |
+| Building Plugins | [https://docs.openclaw.ai/plugins/building-plugins](https://docs.openclaw.ai/plugins/building-plugins) |
+| Plugin Testing | [https://docs.openclaw.ai/plugins/sdk-testing](https://docs.openclaw.ai/plugins/sdk-testing) |
+| Plugin Migration | [https://docs.openclaw.ai/plugins/sdk-migration](https://docs.openclaw.ai/plugins/sdk-migration) |
+| Tailscale 指南 | [https://docs.openclaw.ai/gateway/tailscale](https://docs.openclaw.ai/gateway/tailscale) |
+| 遠端存取 | [https://docs.openclaw.ai/gateway/remote](https://docs.openclaw.ai/gateway/remote) |
+| Web 控制面板 | [https://docs.openclaw.ai/web](https://docs.openclaw.ai/web) |
+| Webhook | [https://docs.openclaw.ai/automation/webhook](https://docs.openclaw.ai/automation/webhook) |
+| Standing Orders | [https://docs.openclaw.ai/automation/standing-orders](https://docs.openclaw.ai/automation/standing-orders) |
+| Hooks | [https://docs.openclaw.ai/automation/hooks](https://docs.openclaw.ai/automation/hooks) |
+| TaskFlow | [https://docs.openclaw.ai/automation/taskflow](https://docs.openclaw.ai/automation/taskflow) |
+| Background Tasks | [https://docs.openclaw.ai/automation/background-tasks](https://docs.openclaw.ai/automation/background-tasks) |
+| Gmail Pub/Sub | [https://docs.openclaw.ai/automation/gmail-pubsub](https://docs.openclaw.ai/automation/gmail-pubsub) |
+| Gateway 協定 | [https://docs.openclaw.ai/gateway/protocol](https://docs.openclaw.ai/gateway/protocol) |
+| Gateway 探索與傳輸 | [https://docs.openclaw.ai/gateway/discovery](https://docs.openclaw.ai/gateway/discovery) |
+| Gateway Pairing | [https://docs.openclaw.ai/gateway/pairing](https://docs.openclaw.ai/gateway/pairing) |
+| Gateway 健康檢查 | [https://docs.openclaw.ai/gateway/health](https://docs.openclaw.ai/gateway/health) |
+| Gateway 背景程序 | [https://docs.openclaw.ai/gateway/background-process](https://docs.openclaw.ai/gateway/background-process) |
+| Bonjour/mDNS | [https://docs.openclaw.ai/gateway/bonjour](https://docs.openclaw.ai/gateway/bonjour) |
+| 沙箱 | [https://docs.openclaw.ai/gateway/sandbox](https://docs.openclaw.ai/gateway/sandbox) |
+| Nix 安裝 | [https://docs.openclaw.ai/install/nix](https://docs.openclaw.ai/install/nix) |
+| 開發頻道切換 | [https://docs.openclaw.ai/install/development-channels](https://docs.openclaw.ai/install/development-channels) |
+| 疑難排解 | [https://docs.openclaw.ai/channels/troubleshooting](https://docs.openclaw.ai/channels/troubleshooting) |
+| FAQ | [https://docs.openclaw.ai/help/faq](https://docs.openclaw.ai/help/faq) |
 
 ### D.4 相關學習資源
 
@@ -9807,42 +9870,34 @@ openclaw test model default
 
 | 平台 | 連結 |
 |------|------|
-| macOS | https://docs.openclaw.ai/platforms/macos |
-| iOS | https://docs.openclaw.ai/platforms/ios |
-| Android | https://docs.openclaw.ai/platforms/android |
-| Windows (WSL2) | https://docs.openclaw.ai/platforms/windows |
-| Linux | https://docs.openclaw.ai/platforms/linux |
-| Docker | https://docs.openclaw.ai/install/docker |
-| Kubernetes | https://docs.openclaw.ai/install/kubernetes |
-| Azure | https://docs.openclaw.ai/install/azure |
-| GCP | https://docs.openclaw.ai/install/gcp |
-| DigitalOcean | https://docs.openclaw.ai/install/digitalocean |
-| Fly.io | https://docs.openclaw.ai/install/fly-io |
-| Railway | https://docs.openclaw.ai/install/railway |
-| Render | https://docs.openclaw.ai/install/render |
-| Hetzner | https://docs.openclaw.ai/install/hetzner |
-| Oracle Cloud | https://docs.openclaw.ai/install/oracle |
-| Raspberry Pi | https://docs.openclaw.ai/install/raspberry-pi |
-| ClawDock | https://docs.openclaw.ai/install/clawdock |
-| Ansible | https://docs.openclaw.ai/install/ansible |
-| Bun | https://docs.openclaw.ai/install/bun |
-
-### D.6 本專案相關文件
-
-| 文件 | 說明 |
-|------|------|
-| [DESIGN_PATTERNS.md](../../../DESIGN_PATTERNS.md) | 設計模式教學 |
-| [README.md](../../../README.md) | 專案說明 |
-| [LEARNING_GUIDE.md](../../LEARNING_GUIDE.md) | 學習指南 |
+| macOS | [https://docs.openclaw.ai/platforms/macos](https://docs.openclaw.ai/platforms/macos) |
+| iOS | [https://docs.openclaw.ai/platforms/ios](https://docs.openclaw.ai/platforms/ios) |
+| Android | [https://docs.openclaw.ai/platforms/android](https://docs.openclaw.ai/platforms/android) |
+| Windows (WSL2) | [https://docs.openclaw.ai/platforms/windows](https://docs.openclaw.ai/platforms/windows) |
+| Linux | [https://docs.openclaw.ai/platforms/linux](https://docs.openclaw.ai/platforms/linux) |
+| Docker | [https://docs.openclaw.ai/install/docker](https://docs.openclaw.ai/install/docker) |
+| Kubernetes | [https://docs.openclaw.ai/install/kubernetes](https://docs.openclaw.ai/install/kubernetes) |
+| Azure | [https://docs.openclaw.ai/install/azure](https://docs.openclaw.ai/install/azure) |
+| GCP | [https://docs.openclaw.ai/install/gcp](https://docs.openclaw.ai/install/gcp) |
+| DigitalOcean | [https://docs.openclaw.ai/install/digitalocean](https://docs.openclaw.ai/install/digitalocean) |
+| Fly.io | [https://docs.openclaw.ai/install/fly-io](https://docs.openclaw.ai/install/fly-io) |
+| Railway | [https://docs.openclaw.ai/install/railway](https://docs.openclaw.ai/install/railway) |
+| Render | [https://docs.openclaw.ai/install/render](https://docs.openclaw.ai/install/render) |
+| Hetzner | [https://docs.openclaw.ai/install/hetzner](https://docs.openclaw.ai/install/hetzner) |
+| Oracle Cloud | [https://docs.openclaw.ai/install/oracle](https://docs.openclaw.ai/install/oracle) |
+| Raspberry Pi | [https://docs.openclaw.ai/install/raspberry-pi](https://docs.openclaw.ai/install/raspberry-pi) |
+| ClawDock | [https://docs.openclaw.ai/install/clawdock](https://docs.openclaw.ai/install/clawdock) |
+| Ansible | [https://docs.openclaw.ai/install/ansible](https://docs.openclaw.ai/install/ansible) |
+| Bun | [https://docs.openclaw.ai/install/bun](https://docs.openclaw.ai/install/bun) |
 
 ---
 
 > **文件資訊**
 >
 > - **文件名稱**: OpenClaw 生態系教學手冊
-> - **版本**: 2.3.0
-> - **基於 OpenClaw 版本**: 2026.6.10
+> - **版本**: 2.4.0
+> - **基於 OpenClaw 版本**: 2026.7.1
 > - **建立日期**: 2026 年 3 月
-> - **最後更新**: 2026 年 6 月 30 日
+> - **最後更新**: 2026 年 8 月 15 日
 > - **維護團隊**: Tutorial Team
 > - **授權**: 本文件僅供內部教學使用
