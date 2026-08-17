@@ -8,8 +8,8 @@ categories = ['指引']
 
 # 軟體開發標準程序（Software Development Standard Process）教學手冊
 
-> **版本**：1.1  
-> **最後更新**：2026 年 5 月  
+> **版本**：1.2  
+> **最後更新**：2026 年 8 月  
 > **適用對象**：軟體開發團隊全體成員  
 > **文件性質**：內部技術規範與教育訓練教材
 
@@ -27,7 +27,7 @@ categories = ['指引']
   - [3.1 需求來源與分類](#31-需求來源與分類)
   - [3.2 功能性與非功能性需求](#32-功能性與非功能性需求)
   - [3.3 需求文件標準](#33-需求文件標準)
-  - [3.4 PRD、SDD、TSD 三大文件體系](#34-prdsddtsd-三大文件體系)
+  - [3.4 PRD、SDD、TSD、程式規格書 四大文件體系](#34-prdsddtsd程式規格書-四大文件體系)
   - [3.5 需求異動管理流程](#35-需求異動管理流程)
 - [第四章：系統分析與設計](#第四章系統分析與設計)
   - [4.1 系統架構設計原則](#41-系統架構設計原則)
@@ -184,7 +184,7 @@ graph TB
 |------|---------|---------|---------|
 | **1. 需求分析** | 收集需求、訪談、分析 | BRD、PRD、FRD、Use Case | BA、SA、PM、產品經理 |
 | **2. 系統設計** | 架構設計、API 設計、DB 設計 | SAD、SDD、API Spec、ERD | SA、架構師 |
-| **3. 開發實作** | 編碼、單元測試、Code Review | TSD、Source Code、Unit Test | 開發工程師 |
+| **3. 開發實作** | 編碼、單元測試、Code Review | TSD、程式規格書、Source Code、Unit Test | 開發工程師 |
 | **4. 測試驗證** | 整合測試、系統測試、UAT | Test Report、Bug List | QA、測試人員 |
 | **5. 部署上線** | 環境部署、資料移轉、切換 | Release Note、部署文件 | DevOps、維運 |
 | **6. 維運監控** | 監控、問題處理、效能調校 | 監控報表、事件記錄 | 維運團隊 |
@@ -213,6 +213,7 @@ flowchart LR
     
     subgraph 開發階段
         C0[TSD<br/>技術規格文件]
+        CS[程式規格書<br/>Program Spec]
         C1[Source Code<br/>原始碼]
         C2[Unit Test<br/>單元測試]
         C3[Tech Doc<br/>技術文件]
@@ -226,7 +227,7 @@ flowchart LR
     
     R1 --> R0 --> R2 --> R3
     R3 --> D1 --> D5 --> D2 --> D3
-    D5 --> C0 --> C1 --> C2
+    D5 --> C0 --> CS --> C1 --> C2
     C1 --> T1 --> T2 --> T3
 ```
 
@@ -345,6 +346,7 @@ graph TB
     FRD --> SRD[SRD<br/>系統需求規格<br/>System Requirements Document]
     SRD --> SDD[SDD<br/>系統設計文件<br/>System Design Document]
     SDD --> TSD[TSD<br/>技術規格文件<br/>Technical Specification Document]
+    TSD --> PSD[程式規格書<br/>Program Specification Document]
     
     style BRD fill:#e3f2fd
     style PRD fill:#e1f5fe
@@ -352,12 +354,14 @@ graph TB
     style SRD fill:#fff3e0
     style SDD fill:#fce4ec
     style TSD fill:#f3e5f5
+    style PSD fill:#ede7f6
 ```
 
-> 💡 **PRD / SDD / TSD 三大文件角色說明**  
+> 💡 **PRD / SDD / TSD / 程式規格書 四大文件角色說明**  
 > - **PRD（產品需求文件）**：轉譯商業目標為具體功能，定義「產品要做什麼」。包含使用者輪廓、核心功能清單、流程圖、介面原型（Wireframe）與非功能性需求，是 UI/UX 設計師與工程團隊的主要開發依據。  
 > - **SDD（系統設計文件）**：制定技術解決方案，規劃「系統要如何實作」。包含系統架構、資料庫綱要（Schema）、API 介面規格、模組劃分與資安規範，確保系統具備擴展性與穩定性。  
-> - **TSD（技術規格文件）**：工程師的實作指南，詳細說明「底層技術與程式碼邏輯」。包含類別與函式設計、演算法邏輯、資料結構、錯誤處理機制及自動化測試規劃。
+> - **TSD（技術規格文件）**：工程師的實作指南，詳細說明「底層技術與程式碼邏輯」。包含類別與函式設計、演算法邏輯、資料結構、錯誤處理機制及自動化測試規劃。  
+> - **程式規格書（Program Specification）**：以「單一程式/批次工作」為單位的實作藍圖，將 TSD 進一步展開為輸入輸出欄位、處理邏輯、畫面或報表版面與錯誤代碼，讓開發人員（含委外廠商）可直接依規格編碼，無需再澄清需求。
 
 #### 各文件內容要求
 
@@ -376,9 +380,9 @@ graph TB
 8. 利害關係人簽核
 ```
 
-### 3.4 PRD、SDD、TSD 三大文件體系
+### 3.4 PRD、SDD、TSD、程式規格書 四大文件體系
 
-> 以下三份文件構成從「需求定義」到「技術實作」的完整文件鏈，確保業務目標可追溯至底層程式碼。
+> 以下四份文件構成從「需求定義」到「技術實作」的完整文件鏈，確保業務目標可追溯至底層程式碼。
 
 **PRD（產品需求文件）**
 
@@ -471,6 +475,33 @@ graph TB
 > - 每個公開方法需標注參數、回傳值、例外與業務規則  
 > - 關鍵演算法需標注時間/空間複雜度  
 > - 每個模組需附帶完整的單元測試案例規格
+
+**程式規格書（Program Specification）**
+
+> 📎 完整範本請參閱：`/posts/教學/templates/design/ProgramSpec_Template.md`
+
+```markdown
+## 程式規格書 標準章節
+
+1. 文件資訊與關聯文件（TSD、SDD）
+2. 程式基本資訊（程式代號、類型、所屬系統、觸發方式/排程、前後置程式）
+3. 功能說明
+4. 輸入規格（輸入來源、欄位定義）
+5. 輸出規格（輸出目的、欄位定義、報表/檔案格式）
+6. 處理邏輯（前置條件、流程敘述、虛擬碼/流程圖、業務規則）
+7. 畫面/報表版面配置
+8. 資料庫/檔案存取設計
+9. 錯誤處理與訊息代碼
+10. 效能與作業排程考量
+11. 測試要點
+12. 附錄（呼叫關係圖、特殊注意事項）
+```
+
+> 💡 **程式規格書實務要點**  
+> - 顆粒度比 TSD 更細：TSD 描述模組/服務層級的類別與方法設計，程式規格書則以「單一程式或批次工作」為單位，精確到欄位、訊息代碼與版面配置  
+> - 特別適用於批次程式、報表程式、介面轉檔程式、委外開發或需逐支程式驗收的場景  
+> - 處理邏輯章節建議採用 ISO/IEC 8631 定義的流程圖/虛擬碼慣例撰寫，確保不同撰寫者的表示法一致  
+> - 委外開發時，程式規格書是驗收的直接依據，內容須避免「口頭補充」
 
 ### 3.5 需求異動管理流程
 
@@ -808,8 +839,9 @@ graph LR
 
 > 📎 本章對應之標準文件範本：  
 > - **TSD（技術規格文件）**：`/posts/教學/templates/design/TSD_Template.md`  
+> - **程式規格書（Program Specification）**：`/posts/教學/templates/design/ProgramSpec_Template.md`  
 > 
-> TSD 是開發階段最重要的技術參考文件，工程師應依據 TSD 中的類別設計、演算法邏輯、資料結構與測試規劃進行編碼實作。
+> TSD 是開發階段最重要的技術參考文件，工程師應依據 TSD 中的類別設計、演算法邏輯、資料結構與測試規劃進行編碼實作。程式規格書則是 TSD 向下展開至「單一程式/批次工作」的實作藍圖，涵蓋輸入輸出欄位、處理邏輯與錯誤代碼，特別適用於批次、報表、介面轉檔或委外開發場景。
 
 ### 5.1 程式碼風格與命名規範
 
@@ -2737,6 +2769,7 @@ graph LR
 | **設計** | SAD | 系統架構設計 | 架構師 |
 | **設計** | API Spec | API 介面規格（OpenAPI） | 開發人員 |
 | **設計** | ERD | 資料庫設計 | SA/DBA |
+| **開發** | 程式規格書 | 程式邏輯與輸入輸出規格說明 | 開發人員/SA |
 | **開發** | README | 專案說明、快速開始 | 開發人員 |
 | **開發** | CHANGELOG | 版本異動記錄 | 開發人員 |
 | **測試** | Test Plan | 測試策略與範圍 | QA |
@@ -3319,6 +3352,7 @@ graph LR
 | 系統架構文件 | SAD_Template.md | /posts/教學/templates/design/ | ISO/IEC/IEEE 42010:2022 |
 | **系統設計文件** | **SDD_Template.md** | **/posts/教學/templates/design/** | **ISO/IEC/IEEE 42010:2022 / ISO/IEC 25010:2023 / ISO/IEC/IEEE 15288:2023** |
 | **技術規格文件** | **TSD_Template.md** | **/posts/教學/templates/design/** | **IEEE 1016-2009 / ISO/IEC/IEEE 15288:2023 / ISO/IEC 25010:2023** |
+| **程式規格書** | **ProgramSpec_Template.md** | **/posts/教學/templates/design/** | **IEEE 1016-2009 / ISO/IEC/IEEE 12207:2017 / ISO/IEC 8631:1989** |
 | API 規格文件 | API_Spec_Template.md | /posts/教學/templates/design/ | OpenAPI 3.1 |
 | 威脅模型 | ThreatModel_Template.md | /posts/教學/templates/design/ | Microsoft STRIDE / ISO 27005 |
 | 資料庫設計文件 | DatabaseDesign_Template.md | /posts/教學/templates/design/ | ISO/IEC 11179 / DAMA DMBOK 2.0 |
@@ -3381,6 +3415,7 @@ graph LR
 | SAD | 系統架構文件 | System Architecture Document |
 | SDD | 系統設計文件 | System Design Document |
 | TSD | 技術規格文件 | Technical Specification Document |
+| PSD | 程式規格書 | Program Specification Document |
 | API | 應用程式介面 | Application Programming Interface |
 | CI/CD | 持續整合/持續部署 | Continuous Integration/Continuous Deployment |
 | UAT | 使用者驗收測試 | User Acceptance Testing |
@@ -3404,9 +3439,9 @@ graph LR
 | 項目 | 內容 |
 |------|------|
 | **文件名稱** | 軟體開發標準程序教學手冊 |
-| **版本** | v1.1 |
+| **版本** | v1.2 |
 | **建立日期** | 2026-02-05 |
-| **最後更新** | 2026-05-19 |
+| **最後更新** | 2026-08-17 |
 | **撰寫者** | 軟體架構團隊 |
 | **審核者** | 技術委員會 |
 | **適用範圍** | 軟體開發專案 |
@@ -3417,6 +3452,7 @@ graph LR
 |------|------|-------|---------|
 | v1.0 | 2026-02-05 | 架構團隊 | 初版發布 |
 | v1.1 | 2026-05-19 | 架構團隊 | 新增 PRD、SDD、TSD 範本與章節整合 |
+| v1.2 | 2026-08-17 | 架構團隊 | 新增程式規格書（Program Specification）文件定義與範本 |
 
 ---
 
