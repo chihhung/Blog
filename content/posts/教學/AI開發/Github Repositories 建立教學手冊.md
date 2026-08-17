@@ -8,15 +8,16 @@ categories = ['教學']
 
 # Github Repositories 建立與維運教學手冊 — 企業級實戰指南
 
-> **版本**：v2.1（2026-07-03）  
+> **版本**：v2.2（2026-08-17）  
 > **適用對象**：技術主管 / 架構師 / 資深工程師 / DevOps 團隊 / 專案經理  
 > **定位**：企業標準技術白皮書  
 > **參考標準**：GitHub Docs（2026） / GitHub Enterprise Best Practices / DevSecOps / SSDLC  
-> **最後審閱日期**：2026-07-03  
+> **最後審閱日期**：2026-08-17  
 > **變更紀錄**：
 >
 > - v2.0 — 新增 Repository 限制與配額、Rulesets 深入指南、Merge Queue、Git LFS、Codespaces、Packages、Private Vulnerability Reporting 等章節；全面校閱並對齊 GitHub 官方文件（2026 年版）
 > - v2.1 — 校正 Git LFS 配額表（改採 2025 年後用量計費模式）；更新 GHAS 功能矩陣以反映 Secret Protection / Code Security 拆分方案；擴充 Rulesets 個人 Bypass Actor 與分支更名規則；補強 Merge Queue GA 狀態與運作細節；新增 8.8 Actions 安全性強化與 2026 路線圖、9.9 開源授權合規檢查；更新 Private Vulnerability Reporting 2026 年營運現況；新增 13.8 GitHub Copilot Code Review、13.9 Copilot 平台最新動態與方案，並擴充 13.6 Coding Agent 進階能力；補充 Codespaces 資料落地與 GitHub CLI Discussions 子指令；修正附錄 A 目錄缺漏與清單格式（改為 GitHub Task List 語法）；全面校對並對齊 GitHub 官方文件（2026 年 7 月版）
+> - v2.2 — 修正 4.2／4.6 節巢狀 code fence 轉義格式錯誤；改寫 1.7 節方案比較表以消除與 GHAS 拆分制度的內部矛盾；補充 Custom Repository Roles 支援 Actions 細粒度權限（2025-06）；補上 Git LFS 與 GHAS（Secret Protection / Code Security）具體計費費率，並新增 GHAS 硬性預算上限（2026-05）；新增 Rulesets 一鍵遷移工具（2026-08）與 Bypass 預設行為差異說明；補充 Actions 組織層級封鎖/SHA Pinning 政策與定價變動提醒；新增 GitHub 官方 MCP Server（`github-mcp-server`）說明取代原僅有社群套件範例；更新 Copilot Code Review MCP／Agent Skills 為 2026-07-29 GA；新增 Copilot Max 方案與 2026-06-01 起「GitHub AI Credits」統一計費制說明；補強 15.3 權限隔離設計與 16.5 AI Workflow 整合兩節內容深度；修正 9.4 節連結文字與章節標題不符問題
 
 ---
 
@@ -339,10 +340,12 @@ GitHub 對 Repository 設有明確的效能與容量限制，企業在規劃架�
 | **GitHub Pages** | ✅ Public | ✅ | ✅ |
 | **Environments** | ✅ Public | ✅ | ✅ |
 | **Dependabot Alerts** | ✅ | ✅ | ✅ |
-| **Secret Scanning** | ✅ Public | ✅ | ✅ + Custom Patterns |
-| **Push Protection** | ✅ Public | ✅ | ✅ |
-| **CodeQL** | ✅ Public | ❌ | ✅ |
-| **Security Overview** | ❌ | ❌ | ✅ |
+| **Secret Scanning（公開 Repo）** | ✅ | ✅ | ✅ |
+| **Secret Scanning（私有/內部 Repo）** | ❌ | ⚠️ 需加購 Secret Protection | ⚠️ 需加購 Secret Protection |
+| **Push Protection（私有/內部 Repo）** | ❌ | ⚠️ 需加購 Secret Protection | ⚠️ 需加購 Secret Protection |
+| **CodeQL（公開 Repo）** | ✅ | ✅ | ✅ |
+| **CodeQL（私有/內部 Repo）** | ❌ | ⚠️ 需加購 Code Security | ⚠️ 需加購 Code Security |
+| **Security Overview** | ❌ | ⚠️ 需加購 Secret Protection / Code Security | ✅ |
 | **SAML SSO** | ❌ | ❌ | ✅ |
 | **SCIM Provisioning** | ❌ | ❌ | ✅ |
 | **Audit Log API** | ❌ | ❌ | ✅ |
@@ -350,7 +353,9 @@ GitHub 對 Repository 設有明確的效能與容量限制，企業在規劃架�
 | **Custom Repo Roles** | ❌ | ❌ | ✅ |
 | **IP Allow List** | ❌ | ❌ | ✅ |
 
-> **企業建議**：中大型企業建議直接選擇 **Enterprise Cloud**，獲得完整的安全功能（GHAS）、合規工具（Audit Log）、身分管理（SSO/SCIM）與組織治理（Rulesets / Custom Roles）。小型團隊可從 **Team** 方案起步，視需求升級。
+> **2025 年 4 月起的重要變化**：GitHub Advanced Security（GHAS）已拆分為 **GitHub Secret Protection** 與 **GitHub Code Security** 兩項可獨立加購的產品，兩者均採「每位活躍提交者」計費，且 **Free、Team、Enterprise 任一方案都能個別採購**——不再是 Enterprise 專屬的綁定式功能。上表私有／內部 Repo 的 Secret Scanning、Push Protection、CodeQL 欄位即反映此一制度；公開 Repo 則所有方案皆內建、免費使用。詳細計費與功能矩陣見 [9.1 SSDLC 流程總覽 — GHAS 功能矩陣](#91-ssdlc-流程總覽)。
+>
+> **企業建議**：中大型企業建議直接選擇 **Enterprise Cloud**，獲得合規工具（Audit Log）、身分管理（SSO/SCIM）與組織治理（Org-level Rulesets / Custom Roles）等 Team 方案沒有的能力；但若僅需 Secret Scanning / CodeQL 等安全掃描能力，**Team 方案加購 Secret Protection / Code Security 即可達成**，不必為此單一需求直接升級 Enterprise。小型團隊可從 **Team** 方案起步，視需求升級。
 
 ---
 
@@ -577,6 +582,8 @@ gh api orgs/acme-bank/teams/backend-core/repos/acme-bank/svc-order-api \
 }
 ```
 
+> **2025 年更新**：Custom Repository Roles 自 2025-06-26 起已正式支援 **GitHub Actions 細粒度權限**（管理 Runner、Secrets、Variables、Environments），可將這些權限納入自訂角色的 `permissions` 清單中。過去 Actions 管理權限只能整包授予（有 Admin 才能管理 Runner/Secrets），此更新補上了最小權限原則在 CI/CD 治理上的缺口——例如可設計一個「Pipeline 維運者」角色，僅能管理 Environments 與 Secrets，但不具備 Repository 刪除等其他 Admin 權限。
+
 ### 3.4 Repository Governance
 
 **Repository Rulesets**（組織層級規則，⚠️ 需 GitHub Team 或 Enterprise；詳見 [7.6 Repository Rulesets 深入指南](#76-repository-rulesets-深入指南)）：
@@ -721,7 +728,7 @@ resource "github_branch_protection" "main" {
 
 ### 4.2 README 設計
 
-```markdown
+````markdown
 # svc-order-api
 
 > 訂單服務 API — 處理訂單建立、查詢、修改、取消等核心業務邏輯
@@ -737,16 +744,16 @@ resource "github_branch_protection" "main" {
 - Docker（for integration tests）
 
 ### 本地啟動
-\```bash
+```bash
 git clone git@github.com:acme-bank/svc-order-api.git
 cd svc-order-api
 mvn spring-boot:run -Dspring.profiles.active=local
-\```
+```
 
 ### 執行測試
-\```bash
+```bash
 mvn verify
-\```
+```
 
 ## 技術棧
 | 項目 | 版本 |
@@ -763,7 +770,7 @@ mvn verify
 ## 聯絡人
 - Tech Lead: @john-doe
 - Team: @acme-bank/backend-order
-```
+````
 
 ### 4.3 LICENSE 選擇
 
@@ -889,7 +896,7 @@ package.json                @acme-bank/frontend-leads @acme-bank/security-team
 
 **CONTRIBUTING.md**：
 
-```markdown
+````markdown
 # Contributing Guide
 
 ## 開發流程
@@ -902,13 +909,13 @@ package.json                @acme-bank/frontend-leads @acme-bank/security-team
 
 ## Commit Message 格式
 
-\```
+```
 <type>(<scope>): <subject>
 
 <body>
 
 <footer>
-\```
+```
 
 Type: feat | fix | docs | style | refactor | test | chore | ci
 
@@ -921,7 +928,7 @@ Type: feat | fix | docs | style | refactor | test | chore | ci
 - feature/JIRA-123-add-order-api
 - fix/JIRA-456-fix-null-pointer
 - hotfix/JIRA-789-security-patch
-```
+````
 
 ### 4.7 Issue Template 與 PR Template
 
@@ -1661,7 +1668,7 @@ git push origin main
 
 **Git LFS 儲存配額**：
 
-GitHub 已於近年將 Git LFS 的計費模式由「預付加購包（$5 / 50GB）」全面改為**用量計費（metered billing）**，超出免費內含額度後直接按實際使用的 GiB 數計費，不再需要手動購買加購包：
+GitHub 自 2024 年 6 月起（先自 Enterprise 帳號開始導入，隨後全面推行）已將 Git LFS 的計費模式由「預付加購包（$5 / 50GB）」全面改為**用量計費（metered billing）**，超出免費內含額度後直接按實際使用的 GiB 數計費，不再需要手動購買加購包：
 
 | GitHub 方案 | 免費內含儲存 | 免費內含頻寬（月） | 超額計費方式 |
 |------------|------------|--------------|---------|
@@ -1669,7 +1676,7 @@ GitHub 已於近年將 Git LFS 的計費模式由「預付加購包（$5 / 50GB�
 | **Team** | 250 GiB | 250 GiB | 按用量計費（無預付方案） |
 | **Enterprise Cloud** | 250 GiB | 250 GiB | 按用量計費（無預付方案） |
 
-由於新制沒有方案內建的硬性配額上限，超額使用不會被擋下，而是直接反映在下一期帳單上；企業應建立主動監控機制，避免非預期的大量 LFS 用量在月結時才被發現。
+**超額計費費率**（依 GitHub Billing 文件）：儲存 **US$0.07 / GiB / 月**，頻寬 **US$0.0875 / GiB / 月**；儲存用量以帳單週期逐時累計計算，頻寬則以月為單位重置。由於新制沒有方案內建的硬性配額上限，超額使用不會被擋下，而是直接反映在下一期帳單上；企業應建立主動監控機制，避免非預期的大量 LFS 用量在月結時才被發現。實際費率請以 [GitHub Billing 官方文件](https://docs.github.com/en/billing/managing-billing-for-git-large-file-storage/about-billing-for-git-large-file-storage)為準。
 
 **企業 .gitattributes 參考配置**：
 
@@ -1914,9 +1921,11 @@ Rulesets 是 GitHub 推出的新一代分支保護機制，相較傳統 Branch P
 | **組織層級** | ❌ 僅 Repo 層級 | ✅ 可在 Organization 層級設定 |
 | **Push Rulesets** | ❌ 不支援 | ✅ 支援檔案路徑/大小/副檔名限制 |
 | **Commit Metadata** | ❌ | ✅ 可限制 Commit Message 格式 |
-| **Bypass 機制** | Admin 可覆寫 | 明確指定 bypass 角色/團隊 |
+| **Bypass 機制** | Repo Admin **預設**可繞過所有規則 | 任何人（含 Admin）**預設不可繞過**，須明確加入 Bypass Actor 清單 |
 | **Fork 保護** | ❌ | ✅ Push Rulesets 延伸至 Fork |
 | **適用方案** | Free（Public）/ Team | Free（Public）/ Team / Enterprise |
+
+> **關鍵安全差異**：這是遷移至 Rulesets 最重要的理由，而非僅是介面或管理便利性的差異。Classic Branch Protection 底層邏輯是「Admin 預設不受保護規則約束」，僅能透過額外勾選 `enforce_admins` 補救；Rulesets 則反過來，預設**任何人都不能繞過**，包含組織 Owner，除非明確將其加入 `bypass_actors` 清單。對於要求「職責分離」的金融業（見 [15.4 Compliance 與稽核](#154-compliance-與稽核)），這代表 Rulesets 從架構上就更貼近稽核要求，而非仰賴管理員記得手動勾選保護選項。
 
 **Rule Layering（規則疊加）機制**：
 
@@ -2036,8 +2045,10 @@ Push Rulesets 可在整個 Repository（含 Fork 網路）層級限制推送行�
 }
 ```
 
+> **2026 年更新：一鍵遷移工具**：GitHub 已於 2026-08-11 在 Repository Settings 中提供**一鍵遷移工具**，可直接將既有 Branch Protection Rules 自動轉換為對應的 Ruleset，無需手動逐項重新設定。對於仍大量使用 Classic Branch Protection 的既有 Repository，這大幅降低了遷移門檻，企業可將「遷移至 Rulesets」列為近期治理待辦事項，而非長期規劃項目。
+>
 > **企業建議**：
-> - 新建 Repository 優先使用 Rulesets 而非 Branch Protection Rules
+> - 新建 Repository 優先使用 Rulesets 而非 Branch Protection Rules；既有 Repository 可透過上述一鍵遷移工具逐步汰換
 > - 在 Organization 層級建立基線 Ruleset（如：所有 Repo 的 default branch 至少需 1 Review）
 > - 善用 Push Rulesets 阻擋敏感檔案（金鑰、憑證）和不允許的檔案類型進入 Repo
 > - 使用 `Disabled` 狀態暫時停用規則，避免刪除後難以還原
@@ -2718,16 +2729,24 @@ Release 一旦發布為 Immutable，其資產（Assets）即無法再新增、�
 
 > 上述不可變 Subject Claim 屬**前瞻性變更**，僅適用於 2026-07-15 之後新建立的 Repository；既有 Repo 的 OIDC 信任策略設定需留意此時間點前後的差異，避免雲端 IAM Role 的信任條件因 Repo 更名/轉移而失效。
 
+**組織／企業層級 Actions Policy（2025-08-15 起）**：
+
+Organization / Enterprise 管理員現可透過 Actions Policy 設定**封鎖第三方 Action** 或**強制要求所有 Action 以 Commit SHA 釘選（SHA Pinning）**，作為組織層級的強制性規則，而非僅能仰賴各 Repo 各自遵循 [17.2 Security Risk 防範](#172-security-risk-防範) 中「Pin Actions to SHA」的建議寫法。企業可先以「僅告警不阻擋」模式試行，確認不影響既有 Workflow 後再切換為強制模式。
+
 **2026 Actions 安全路線圖預設值**：
 
 - 新建立的 Repository，`GITHUB_TOKEN` 預設權限改為**唯讀**，需要寫入權限時必須在 Workflow 中明確宣告 `permissions:` 區塊
 - 首次外部貢獻者（First-time contributor）提交的 PR，其觸發的 Workflow 執行預設**需要維護者手動核准**才會執行，防止惡意 PR 直接執行任意程式碼
+- 官方路線圖並預告後續將推出 **Workflow Lockfile**（將直接與間接依賴的 Action 全數以 Commit SHA 釘選並鎖定版本）、**集中式 Ruleset 管控可觸發 Workflow 的事件與人員**，以及供上線前測試用的 **Evaluate Mode**；上述項目截至本文審閱時尚未全數正式發布，企業可留意 [GitHub Changelog](https://github.blog/changelog/) 掌握實際上線時程
 
+> **Actions 定價提醒**：GitHub-hosted Runner 定價已於 2026-01-01 起調降最高達 39%；另一項原訂向 Self-hosted Runner 收取的「雲端平台使用費」提案，因社群反彈已暫緩實施。本文提及的 Runner / Actions 分鐘等定價數字僅供規劃參考，實際請以 [GitHub Actions 定價頁](https://github.com/features/actions)為準，避免以文件中的數字直接編列預算。
+>
 > **企業建議**：
 > - 新建 Repository 一律確認 `GITHUB_TOKEN` 採最小權限（唯讀）起手，逐一針對需要的 Job 明確宣告 `permissions`，呼應本文第 9 章與 [17.2 Security Risk 防範](#172-security-risk-防範) 的最小權限原則
 > - 對外開源或允許外部貢獻的 Repository，務必確認「首次貢獻者需核准」設定為開啟狀態
 > - 涉及正式環境部署或供應鏈簽章的 Workflow，優先採用 Immutable Releases + Artifact Attestations 組合，取得可驗證的軟體出處
 > - 追蹤 2026-07-15 OIDC 不可變 Claim 生效時程，提前盤點雲端 IAM 信任策略是否仍以 Repo 名稱作為判斷依據
+> - 中大型組織建議在 Organization 層級啟用 SHA Pinning 強制政策，取代仰賴個別開發者自律遵循
 
 ---
 
@@ -2780,7 +2799,16 @@ graph LR
 | Copilot Autofix | ❌ | — | ✅ |
 | Security Overview（組織級安全儀表板） | ❌ | ✅ | ✅ |
 
-> **企業建議**：規劃預算時應以「每位活躍提交者」為單位分別評估 Secret Protection 與 Code Security 的採購範圍，兩者可依 Repo 敏感程度分開導入（例如僅對處理機敏資料的 Repo 加購 Secret Protection），不必比照舊制一次性綁定 Enterprise 方案。
+**計費費率**（每位活躍提交者／月，實際金額請以 [GitHub 官方定價頁](https://github.com/pricing)為準）：
+
+| 產品                      | 費率                      |
+| ------------------------- | ------------------------- |
+| GitHub Secret Protection  | US$19 / 活躍提交者 / 月  |
+| GitHub Code Security      | US$30 / 活躍提交者 / 月  |
+
+> **2026 年更新：硬性預算上限**：GitHub 已於 2026-05-28 為 GHAS 兩項產品新增**硬性預算上限（Hard Budget Limits）**功能，組織管理員可直接設定每月支出上限，用量達上限後不再產生新費用（而非僅止於超額告警），降低活躍提交者人數波動造成的預算失控風險，建議在採購時同步啟用此設定。
+>
+> **企業建議**：規劃預算時應以「每位活躍提交者」為單位分別評估 Secret Protection 與 Code Security 的採購範圍，兩者可依 Repo 敏感程度分開導入（例如僅對處理機敏資料的 Repo 加購 Secret Protection），不必比照舊制一次性綁定 Enterprise 方案；並建議搭配硬性預算上限功能，避免大型組織因提交者人數變動而產生非預期帳單。
 
 ### 9.2 SAST — 靜態應用程式安全測試
 
@@ -2889,11 +2917,11 @@ registries:
     password: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-> **企業建議**：GitHub 已宣布將於 **2026-08-25** 起對「已關閉（closed）」的 Dependabot 安全性警示實施資料保留政策，逾保留期限的歷史紀錄將不再可於平台上查詢。有稽核或合規留存需求的企業，應提前透過 API 匯出並封存已關閉告警的歷史資料，避免影響未來的安全稽核追溯。
+> **企業建議**：依 GitHub 官方公告，「已關閉（closed）」的 Dependabot 安全性警示將自 **2026-08-25** 起實施資料保留政策，逾保留期限的歷史紀錄將不再可於平台上查詢——此生效日距離本次審閱時點僅數日，屬高度時間敏感的變更，正式發布前務必對照 [GitHub Changelog](https://github.blog/changelog/) 確認實際生效狀態與細節是否有異動。有稽核或合規留存需求的企業，應盡快透過 API 匯出並封存已關閉告警的歷史資料，避免影響未來的安全稽核追溯。
 
 ### 9.4 Secret Scanning
 
-**啟用與配置** ⚠️ 需 GitHub Secret Protection（Free / Team / Enterprise 均可獨立加購，詳見 [9.1 GHAS 功能矩陣](#91-ssdlc-流程總覽)）：
+**啟用與配置** ⚠️ 需 GitHub Secret Protection（Free / Team / Enterprise 均可獨立加購，詳見 [9.1 SSDLC 流程總覽 — GHAS 功能矩陣](#91-ssdlc-流程總覽)）：
 
 ```bash
 # 啟用 Secret Scanning
@@ -3916,7 +3944,7 @@ jobs:
 
 ### 13.1 GitHub Copilot 整合
 
-**Copilot 企業配置** ⚠️ 需 GitHub Enterprise：
+**Copilot 企業配置** ⚠️ 需 GitHub Copilot Business 或 Enterprise（組織層級集中式政策管理兩者皆備，Enterprise 額外提供企業級稽核與治理能力，見 [13.9](#139-copilot-平台最新動態與方案) 方案矩陣）：
 
 | 設定項目 | 建議值 | 說明 |
 |---------|-------|------|
@@ -4183,15 +4211,17 @@ GitHub Copilot Extensions 允許第三方工具直接整合進 Copilot Chat，�
 
 MCP 是一種開放協定，讓 AI Agent 能與外部工具和資料來源互動。VS Code 已原生支援 MCP Server 配置。
 
+**GitHub 官方 MCP Server**：GitHub 與 Anthropic 共同開發並維護官方的 [`github/github-mcp-server`](https://github.com/github/github-mcp-server)（開源、Go 撰寫，2025-04 公開預覽），將 Repository 瀏覽、Issue/PR 操作、Code Scanning 告警、Workflow 觸發與查詢等能力，以標準化的 MCP Tool 形式提供給 Copilot Chat 或任何相容 MCP 的用戶端（如 Claude Code）使用。此為官方維護的第一方選擇，優先於社群維護的替代套件；支援唯讀模式與「鎖定模式（Lockdown Mode）」，可限制 Agent 僅能存取指定範圍的操作，降低授權過大的風險。
+
 ```json
 // .vscode/mcp.json — 專案級 MCP 配置
 {
   "servers": {
     "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${input:github-token}"
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${input:github-token}"
       }
     },
     "database": {
@@ -4218,6 +4248,8 @@ MCP 是一種開放協定，讓 AI Agent 能與外部工具和資料來源互動
 }
 ```
 
+> 上例的 `github` 項目採用 GitHub 官方託管的**遠端 MCP Server**（`api.githubcopilot.com/mcp`），無需自行安裝執行檔；若企業有網路隔離需求，`github/github-mcp-server` 亦提供可自架的 Docker 映像作為本地執行選項。
+
 **GitHub Models**：
 
 GitHub Models 提供直接在 GitHub 上試用和整合 AI 模型的功能，涵蓋 OpenAI、Anthropic、Meta、Mistral、xAI 等主要供應商的當代旗艦與輕量模型，型號持續更新（企業於文件中列舉具體型號時應留意模型迭代速度極快，避免寫死特定版本號）：
@@ -4231,6 +4263,7 @@ GitHub Models 提供直接在 GitHub 上試用和整合 AI 模型的功能，涵
 
 > **企業建議**：
 > - Copilot Coding Agent 適合低風險、定義明確的任務，始終要求人工審查
+> - 優先採用 GitHub 官方 `github-mcp-server` 存取 Repository/Issue/PR 等資源，而非自行拼湊社群工具，降低供應鏈風險並取得官方持續維護保證
 > - 建立 MCP Server 封裝內部工具（Jira、Confluence、內部 API），提升 AI 開發體驗
 > - 評估 Copilot Extensions 取代部分自建工具整合
 > - GitHub Models 可用於 PoC 階段的 AI 功能原型開發
@@ -4248,9 +4281,9 @@ Copilot Code Review 讓 Copilot 直接參與 Pull Request 審查流程，自動�
 
 > 官方建議每份指引檔案控制在**約 1,000 行以內**，過長的指引檔案可能導致部分規則在實際審查時被模型忽略，應優先拆分為多個路徑範圍檔案而非集中成單一巨大檔案。
 
-**MCP 與 Agent Skills 整合（公開預覽）**：
+**MCP 與 Agent Skills 整合（✅ 已於 2026-07-29 正式 GA，Pro / Pro+ / Business / Enterprise 均可用）**：
 
-Copilot Code Review 現已支援於審查過程中呼叫 Repository 設定的 MCP Server 與 Agent Skills，預設即啟用 **GitHub MCP Server** 與 **Playwright MCP Server**（例如可在審查 UI 變更的 PR 時，透過 Playwright MCP Server 實際操作頁面驗證行為）。設定路徑：
+Copilot Code Review 於 2026-03-05 起改採 Agentic 架構重新打造審查引擎，並在此基礎上讓審查過程可呼叫 Repository 設定的 MCP Server 與 Agent Skills（此能力已於 2026-07-29 由公開預覽轉為正式 GA），預設即啟用 **GitHub MCP Server** 與 **Playwright MCP Server**（例如可在審查 UI 變更的 PR 時，透過 Playwright MCP Server 實際操作頁面驗證行為）。設定路徑：
 
 ```text
 Repository → Settings → Copilot → MCP servers（JSON 設定）
@@ -4268,8 +4301,24 @@ Repository → Settings → Secrets and variables → Agents（MCP 所需的憑�
 | **GitHub Agentic Workflows** | 公開預覽 | 讓開發者將需要推理判斷的重複性任務（非單純腳本化流程）封裝為可重複執行的 Agentic Workflow |
 | **Copilot Session 遠端監控/操作** | ✅ GA | 可在 github.com 或 GitHub Mobile 遠端檢視、操作進行中的 Agent Session，不需守在 IDE 前 |
 | **GitHub Copilot Pro+** | ✅ GA | 個人層級訂閱方案，可存取 Anthropic、Google、OpenAI 等多家供應商的前沿模型，與組織層級 Business/Enterprise 方案（13.1）為不同購買單位 |
+| **GitHub Copilot Max** | ✅ GA | 2026 年新增的個人最高階方案，提供比 Pro+ 更高的用量額度，定位為重度個人使用者 |
 
-> **企業建議**：Copilot Pro+ 屬**個人訂閱**，可能繞過組織於 Business/Enterprise 方案設定的 Content Exclusion 政策與稽核機制，形成治理死角。應於 [13.5 AI Governance 規範](#135-ai-governance-規範) 中明確規範是否允許員工以個人 Pro+ 訂閱存取公司程式碼，並將此列為資安教育訓練的重點項目。
+**個人與組織方案矩陣**（實際定價請以 [github.com/features/copilot/plans](https://github.com/features/copilot/plans) 為準）：
+
+| 層級 | 方案 | 定位 |
+|------|------|------|
+| 個人 | Free | 基礎補全與 Chat，含基本 Review selection、MCP 支援 |
+| 個人 | Pro | 一般開發者日常使用 |
+| 個人 | Pro+ | 可用 Anthropic / Google / OpenAI 前沿模型 |
+| 個人 | **Max**（新） | 最高用量額度，適合重度單兵作業者 |
+| 組織 | Business | 含雲端 Coding Agent、集中式政策管理 |
+| 組織 | Enterprise | Business 全部能力 + 企業級稽核與治理 |
+
+> **2026 年重大變化：計費模式改為統一用量制**：GitHub 已於 **2026-06-01** 起將 Copilot 所有使用情境（Chat、程式碼補全、Coding Agent、Code Review）**整併為單一「GitHub AI Credits」用量計費模型**，依實際 Model Token 用量計費，**取代舊制固定額度的「Premium Request」配額制**。這對企業財務規劃有直接影響：過去可用「每人每月 N 次 Premium Request」估算成本上限的方式已不再適用，應改以 Token 用量趨勢搭配官方用量儀表板監控實際支出，並留意 Coding Agent（13.6）與 Code Review（13.8）等雲端執行情境的用量現已與其他 Copilot 互動計入同一額度池。
+>
+> **企業建議**：
+> - Copilot Pro+ / Max 屬**個人訂閱**，可能繞過組織於 Business/Enterprise 方案設定的 Content Exclusion 政策與稽核機制，形成治理死角。應於 [13.5 AI Governance 規範](#135-ai-governance-規範) 中明確規範是否允許員工以個人訂閱存取公司程式碼，並將此列為資安教育訓練的重點項目
+> - 財務／採購單位應重新檢視 AI 相關預算編列方式，改以 AI Credits 用量趨勢而非舊制固定配額估算，並評估是否需要如 [9.1](#91-ssdlc-流程總覽) GHAS 硬性預算上限的類似機制來控管 AI 用量支出
 
 ---
 
@@ -4605,6 +4654,8 @@ rules:
 
 ### 15.3 權限隔離設計
 
+大型企業常見的治理失誤，是讓同一批人對「正式環境 Repo」與「開發/測試 Repo」擁有相同層級的權限，導致實驗性質的變更也能直接觸及生產程式碼。權限隔離設計的核心原則是：**權限層級應與 Repo 的風險等級成正比，而非與團隊成員的職稱成正比**。下圖示範同一批開發者對不同風險等級 Repo 應有的差異化權限：
+
 ```mermaid
 graph TB
     subgraph "Production Repos"
@@ -4640,6 +4691,17 @@ graph TB
     P1 --- C2
     P1 --- C3
 ```
+
+**權限層級與 Repo 風險等級對應**：
+
+| Repo 類型 | 一般開發者 | Tech Lead | Release Manager |
+|----------|-----------|-----------|-----------------|
+| Dev/Test（Sandbox、PoC） | Write | Write | Write |
+| Production（正式服務） | Write（僅能開 PR，不可直接 Push） | Maintain（管理 Issue/PR，不可繞過保護） | Admin（含部署核准權） |
+
+同一位開發者在 Sandbox Repo 可自由 Push 實驗性程式碼，但在 Production Repo 僅能透過 PR 提交變更；`release-managers` 團隊則是唯一具備 Production Repo Admin 權限、可核准部署的角色，與 [15.4 Compliance 與稽核](#154-compliance-與稽核) 強調的職責分離原則一致。此設計搭配 Branch Protection（或 [7.6 Repository Rulesets](#76-repository-rulesets-深入指南)）與 Environment Protection 雙重關卡，確保「權限」與「規則」兩層防線同時存在，避免單一設定失誤就導致 Production 曝險。
+
+> **企業建議**：權限隔離不應仰賴人工記憶哪個 Repo 屬於哪個風險等級，建議透過 [2.3 Repository 命名規範](#23-repository-命名規範) 的前綴（如 `svc-` vs `poc-`/`sandbox-`）或 [4.9 Repository Topics](#49-repository-topics-與-autolinks) 標記風險等級，再搭配 Organization-level Ruleset（[3.4](#34-repository-governance)）依命名規則自動套用對應的保護強度，降低人工判斷失誤的空間。
 
 ### 15.4 Compliance 與稽核
 
@@ -4869,6 +4931,8 @@ stages:
 
 ### 16.5 AI Workflow 整合
 
+在艾可銀行的實務場景中，AI 工具並非孤立導入，而是嵌入既有的開發生命週期中，於每個階段扮演不同角色：
+
 **AI 輔助開發全流程**：
 
 | 階段 | AI 工具 | 用途 |
@@ -4879,6 +4943,8 @@ stages:
 | **Review** | Copilot PR Review | 自動 Review + 建議 |
 | **文件** | Copilot | ADR 生成、API 文件 |
 | **維運** | Copilot CLI | 指令建議、Log 分析 |
+
+**Coding Agent 與既有 Pipeline 的銜接**：當 [13.6](#136-github-copilot-coding-agent) 的 Copilot Coding Agent 被指派 Issue 並自動開出 PR 時，該 PR 並不會取得任何特殊待遇——仍須完整通過 [16.3 CI/CD Pipeline](#163-cicd-pipeline-完整設計) 的 Compile、Test、Security Scan 等關卡，並依 CODEOWNERS 指派至少 2 位人工 Reviewer，與人類撰寫的 PR 一視同仁。這是落實 [13.5 AI Governance 規範](#135-ai-governance-規範)「AI 生成程式碼必須人工審查」原則的具體實踐：治理規範不是寫在文件裡的口號，而是直接體現在 Branch Protection / Ruleset 的強制檢查項目中，AI 與人類貢獻者受同一套規則約束。
 
 ### 16.6 SSDLC 完整流程
 
