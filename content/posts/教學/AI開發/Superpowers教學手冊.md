@@ -8,10 +8,10 @@ categories = ['教學']
 
 # Superpowers 教學手冊（企業標準技術白皮書）
 
-> **版本**：v6.0｜**基於**：Superpowers Framework v6.1.1（by Jesse Vincent / obra @ [Prime Radiant](https://primeradiant.com/)）  
-> **最後更新**：2026-07-23｜**適用對象**：資深工程師、Tech Lead、AI Agent 團隊｜**語言**：繁體中文  
-> **GitHub**：https://github.com/obra/superpowers ⭐ 260k stars · 23.2k forks · 36 Contributors  
-> **Plugin Marketplace**：https://claude.com/plugins/superpowers（Anthropic Verified · 885k+ installs）  
+> **版本**：v7.0｜**基於**：Superpowers Framework v6.3.0（by Jesse Vincent / obra @ [Prime Radiant](https://primeradiant.com/)）  
+> **最後更新**：2026-08-18｜**適用對象**：資深工程師、Tech Lead、AI Agent 團隊｜**語言**：繁體中文  
+> **GitHub**：https://github.com/obra/superpowers ⭐ 273k+ stars · 24.4k+ forks · 49+ Contributors（實測查證，[obra/superpowers](https://github.com/obra/superpowers)）  
+> **Plugin Marketplace**：https://claude.com/plugins/superpowers（Anthropic Verified · 1,000,000+ installs）  
 > **Discord 社群**：https://discord.gg/35wsABTejz  
 > **Commercial Support**：sales@primeradiant.com  
 > **License**：MIT
@@ -111,7 +111,8 @@ categories = ['教學']
 - [附錄 F：v5.0.6 重大變更——Inline Self-Review 取代 Subagent Review Loops](#附錄-fv506-重大變更inline-self-review-取代-subagent-review-loops)
 - [附錄 G：v5.1.0 重大變更——Factory Droid、Worktree 重寫與 SDD 連續執行](#附錄-gv510-重大變更factory-droidworktree-重寫與-sdd-連續執行)
 - [附錄 H：v6.0.0 重大變更——SDD 審查重寫、Vendor-Neutral 與三新平台](#附錄-hv600-重大變更sdd-審查重寫vendor-neutral-與三新平台)
-- [附錄 I：v6.1.0／v6.1.1 重大變更——Gemini CLI 停止支援與 Codex 安裝優化](#附錄-iv610v611-重大變更gemini-cli-停止支援與-codex-安裝優化)
+- [附錄 I：v6.2.0 重大變更——Gemini CLI 回歸與 SDD 生命週期改造](#附錄-iv620-重大變更gemini-cli-回歸與-sdd-生命週期改造)
+- [附錄 J：v6.3.0 重大變更——四大新平台、儀式感分級與 SDD 煞車機制](#附錄-jv630-重大變更四大新平台儀式感分級與-sdd-煞車機制)
 
 ---
 
@@ -121,7 +122,7 @@ categories = ['教學']
 
 ## 1.1 什麼是 Superpowers
 
-**Superpowers** 是由 Jesse Vincent（GitHub 帳號 [obra](https://github.com/obra)）與 [Prime Radiant](https://primeradiant.com/) 團隊開發的開源 **完整軟體開發方法論（Complete Software Development Methodology）**，目前是 GitHub 上最受歡迎的 AI 開發方法論專案（⭐ 260k stars、23.2k forks、36 Contributors）。
+**Superpowers** 是由 Jesse Vincent（GitHub 帳號 [obra](https://github.com/obra)）與 [Prime Radiant](https://primeradiant.com/) 團隊開發的開源 **完整軟體開發方法論（Complete Software Development Methodology）**，目前是 GitHub 上最受歡迎的 AI 開發方法論專案之一（截至 2026-08-18 實測：⭐ 273k+ stars、24.4k+ forks、49+ 位資訊者，並持續快速成長中）。Claude Code 官方 Plugin Marketplace 頁面顯示安裝次數已超過 **100 萬次**。
 
 官方定義：
 
@@ -146,7 +147,7 @@ Superpowers 不是一般的 Prompt 模板集，而是一套**完整的軟體開�
 
 - ❌ 不是 Prompt 範本庫（不只教你「怎麼問」——技能會自動觸發）
 - ❌ 不是 AI Agent 執行引擎（不取代 LangChain / AutoGen）
-- ❌ 不是單一 IDE 外掛（支援 Claude Code、Cursor、Codex CLI、Codex App、Factory Droid、OpenCode、GitHub Copilot CLI、**Antigravity**、**Kimi Code**、**Pi** 等 **10 個平台**）
+- ❌ 不是單一 IDE 外掛（支援 Claude Code、Cursor、Codex CLI、Codex App、Factory Droid、OpenCode、GitHub Copilot CLI、Antigravity、Kimi Code、Pi、Gemini CLI、**Devin CLI**、**Grok Build CLI**、**Hermes Agent** 等目前 **14 個支援平台**）
 - ✅ 是一套「讓 AI Agent 自動遵守工程紀律的完整軟體開發方法論」
 
 ### 定位圖
@@ -244,25 +245,29 @@ mindmap
 
 ## 1.5 支援平台總覽
 
-Superpowers v6.1.1 支援 **10 個** AI 編碼平台（Harness）：
+Superpowers v6.3.0 支援 **14 個** AI 編碼平台（Harness）——自 2026 年中以來新增 Devin CLI、Grok Build CLI、Hermes Agent 三個平台，並在 v6.2.0 恢復 Gemini CLI 支援：
 
 | 平台 | 安裝方式 | 支援程度 | Subagent 支援 | 說明 |
 |------|---------|---------|--------------|------|
-| **Claude Code**（Official） | Official Plugin Marketplace | ⭐⭐⭐⭐⭐ | ✅ 完整 | 原生支援，推薦首選 |
-| **Claude Code**（Superpowers Marketplace） | Superpowers Marketplace | ⭐⭐⭐⭐⭐ | ✅ 完整 | 社群維護的替代安裝 |
-| **Cursor** | Plugin Marketplace + Hooks | ⭐⭐⭐⭐⭐ | ✅ 完整 | v4.3.1 起正式支援 |
-| **Antigravity** | `agy plugin install` | ⭐⭐⭐⭐⭐ | ✅ 完整 | v6.0.0 起支援 |
-| **Codex CLI（OpenAI）** | Plugin Marketplace 或 `/plugins` 指令安裝 | ⭐⭐⭐⭐ | ✅ multi_agent | v3.3.0 起支援；**v6.1.0 起可直接透過 Marketplace 安裝** |
-| **Codex App（OpenAI）** | 側邊欄 Plugins → Coding | ⭐⭐⭐⭐ | ✅ named agent dispatch | v5.0.6 起支援 |
+| **Claude Code**（官方 Marketplace） | `/plugin install superpowers@claude-plugins-official` | ⭐⭐⭐⭐⭐ | ✅ 完整 | 原生支援，推薦首選 |
+| **Claude Code**（Superpowers Marketplace） | `/plugin marketplace add obra/superpowers-marketplace` | ⭐⭐⭐⭐⭐ | ✅ 完整 | 社群維護的替代安裝來源 |
+| **Cursor** | `/add-plugin superpowers` | ⭐⭐⭐⭐⭐ | ✅ 完整 | v4.3.1 起正式支援 |
+| **Antigravity** | `agy plugin install obra/superpowers` | ⭐⭐⭐⭐⭐ | ✅ 完整 | v6.0.0 起支援 |
+| **Codex CLI（OpenAI）** | `/plugins` 內搜尋 `superpowers` 後安裝 | ⭐⭐⭐⭐ | ✅ multi_agent | v3.3.0 起支援；v6.1.0 起可直接透過官方 Marketplace 安裝 |
+| **Codex App（OpenAI）** | 側邊欄 Plugins → Coding 區塊安裝 | ⭐⭐⭐⭐ | ✅ named agent dispatch | v5.0.6 起支援 |
+| **Devin CLI** | `devin plugins install obra/superpowers` | ⭐⭐⭐ | ✅ 完整 | **v6.3.0 新增**，安裝後技能自動在 session start 觸發 |
 | **Factory Droid** | `droid plugin marketplace add` | ⭐⭐⭐⭐ | ✅ 完整 | v5.1.0 起支援 |
-| **Kimi Code** | Plugin Marketplace / 直接安裝 | ⭐⭐⭐⭐ | ✅ 完整 | v6.0.0 起支援 |
-| **OpenCode** | One-line install（v5.0.4+）| ⭐⭐⭐⭐ | ✅ Native skill | v3.5.0 起支援 |
-| **GitHub Copilot CLI** | Plugin Marketplace | ⭐⭐⭐⭐ | ✅ 完整 | v5.0.7 起支援 |
-| **Pi** | `pi install git:` | ⭐⭐⭐⭐ | ✅ Native skill | v6.0.0 起支援 |
+| **Gemini CLI** | `gemini extensions install https://github.com/obra/superpowers` | ⭐⭐⭐ | ⚠️ 無原生 Subagent，fallback 至 `executing-plans` | v5.0.1 起支援，**v6.1.0 一度移除，v6.2.0 恢復**（永久移除與否仍待評估） |
+| **Grok Build CLI** | `grok plugin install superpowers@xai-official --trust` | ⭐⭐⭐ | ✅ 完整 | **v6.3.0 新增**安裝指引，透過 xAI 官方 Marketplace |
+| **Hermes Agent** | `hermes plugins install obra/superpowers --enable` | ⭐⭐⭐ | ✅ 完整 | **v6.3.0 新增**，無 post-compaction hook，長 session 壓縮後需重新開始 |
+| **Kimi Code** | Plugin Marketplace / `/plugins install <repo-url>` | ⭐⭐⭐⭐ | ✅ 完整 | v6.0.0 起支援 |
+| **OpenCode** | 透過 `.opencode/INSTALL.md` 指令注入 | ⭐⭐⭐⭐ | ✅ Native skill | v3.5.0 起支援 |
+| **GitHub Copilot CLI** | `copilot plugin install superpowers@superpowers-marketplace` | ⭐⭐⭐⭐ | ✅ 完整 | v5.0.7 起支援 |
+| **Pi** | `pi install git:github.com/obra/superpowers` | ⭐⭐⭐⭐ | ✅ Native skill | v6.0.0 起支援 |
 
 > 💡 **提示**：在不支援 Subagent 的平台上，Superpowers 自動降級為 `executing-plans` 模式（批次執行 + 人工檢查點）。v6.0.0 起，技能不再使用 Claude Code 專屬用語，改為平台無關的通用指令（vendor-neutral）。
 >
-> ⚠️ **平台異動**：**Gemini CLI 已於 v6.1.0（2026-06-30）移除支援**——Google 於 2026-06-18 終止 Gemini CLI 專案，該 Extension 已無法安裝或更新，Superpowers 隨即將其從安裝文件、支援平台清單與測試矩陣中移除。原使用 Gemini CLI 的團隊建議改用 Codex CLI 或 Factory Droid 等具備完整 Subagent 支援的替代平台（詳見[附錄 I](#附錄-iv610v611-重大變更gemini-cli-停止支援與-codex-安裝優化)）。
+> ⚠️ **Gemini CLI 的移除與回歸**：Google 曾於 2026-06-18 宣佈終止 Gemini CLI 專案，Superpowers 隨即在 v6.1.0（2026-06-30）將其移除。但官方團隊事後承認此次移除過早（premature），於 v6.2.0（2026-07-23）重新上架安裝文件與工具對照表，是否永久移除則排入後續評估。這段插曲對企業團隊的啟示是：**上游依賴的第三方平台停止支援消息，不代表下游工具隨即跟進**，建議先觀察一段時間再決定是否調整平台策略（詳見[附錄 I](#附錄-iv620-重大變更gemini-cli-回歸與-sdd-生命週期改造)）。
 
 ## 1.6 版本演進歷程
 
@@ -327,21 +332,38 @@ timeline
     section v6.1（2026-06~07）
       v6.1.0 : using-superpowers bootstrap 精簡（降低 token 成本）
             : Codex 改為可透過 Marketplace 安裝
-            : 移除 Gemini CLI 支援（因 Google 終止該專案）
+            : 移除 Gemini CLI 支援（因 Google 終止該專案，事後證實過早）
       v6.1.1 : 修正 Codex 重複註冊 SessionStart hook
             : 移除孤立的 hooks/session-start-codex
             : 新增 package-codex-plugin.sh 打包腳本
+    section v6.2（2026-07）
+      v6.2.0 : 恢復 Gemini CLI 支援
+            : SDD 工作區改為 Plan-Scoped（.superpowers/sdd/<plan>/）
+            : Review-Fix 回合改為恢復 Implementer 而非重新 dispatch
+            : 並設有五輪循環 Circuit Breaker（控制器裁決）
+            : testing-anti-patterns.md 重寫為 writing-good-tests.md
+            : 技能內容壓縮運動（移除行銷性敏述）
+            : finishing-a-development-branch 不再提供「直接丟棄」選項
+            : Windows SessionStart hook 改由 Git Bash 執行
+    section v6.3（2026-08）
+      v6.3.0 : 新增 Devin CLI、Hermes Agent、Grok Build CLI 三個平台
+            : Brainstorming 儀式感分級（spike / bounded / architectural）
+            : SDD 控制器不再因非災難性衝突而停滞，自行裁決並留下紀錄
+            : 小形同形任務批次化發派（降低 Subagent 成本）
+            : Implementer/Reviewer 不得自行生成 Subagent
+            : 計畫新增 Spec: 指針連結規格文件
+            : finishing-a-development-branch 不再因 worktree 殘留未追蹤檔而強制刪除
 ```
 
 ---
 
 # 第 2 章：整體系統架構設計
 
-> **章節摘要**：本章說明 Superpowers v6.1.1 的 Plugin 架構、技能自動觸發機制、Hooks 系統、多平台支援策略，以及與 CI/CD 系統的整合模式。
+> **章節摘要**：本章說明 Superpowers v6.3.0 的 Plugin 架構、技能自動觸發機制、Hooks 系統、多平台支援策略，以及與 CI/CD 系統的整合模式。
 
 ## 2.1 Superpowers 在 AI 開發架構中的位置
 
-Superpowers 位於「AI Agent 的行為規範層」，介於底層 LLM 與上層應用邏輯之間。v5.0 起轉為 **Plugin 架構**，透過各平台的 Plugin Marketplace 安裝，不再需要手動複製檔案。v6.0.0 新增 Antigravity、Kimi Code、Pi 支援；v6.1.0 移除 Gemini CLI 支援，總共 **10 個平台**：
+Superpowers 位於「AI Agent 的行為規範層」，介於底層 LLM 與上層應用邏輯之間。v5.0 起轉為 **Plugin 架構**，透過各平台的 Plugin Marketplace 安裝，不再需要手動複製檔案。v6.0.0 新增 Antigravity、Kimi Code、Pi 支援；v6.2.0 恢復 Gemini CLI；v6.3.0 新增 Devin CLI、Grok Build CLI、Hermes Agent，總共 **14 個平台**：
 
 ```mermaid
 graph TB
@@ -354,17 +376,21 @@ graph TB
         GIT[GitHub / GitLab]
     end
     
-    subgraph "AI Agent 層（宿主平台，共 10 個）"
+    subgraph "AI Agent 層（宿主平台，共 14 個）"
         CC[Claude Code]
         CU[Cursor]
         AGY[Antigravity]
         CDX[Codex CLI]
         CDXA[Codex App]
         FD[Factory Droid]
+        GEM[Gemini CLI]
         KIMI[Kimi Code]
         OC[OpenCode]
         GCLI[GitHub Copilot CLI]
         PI[Pi]
+        DEVIN[Devin CLI]
+        GROK[Grok Build CLI]
+        HERMES[Hermes Agent]
     end
     
     subgraph "行為規範層（Superpowers Plugin）"
@@ -378,15 +404,15 @@ graph TB
     subgraph "LLM 層"
         CLAUDE[Claude Sonnet / Opus]
         GPT[GPT-4o / o3]
-        GEM[Gemini 2.5]
+        GEM2[Gemini 2.5]
     end
     
     APP --> IDE
-    IDE --> CC & CU & AGY & CDX & CDXA & FD & KIMI & OC & GCLI & PI
-    CC & CU & AGY & CDX & CDXA & FD & KIMI & OC & GCLI & PI --> SP_HOOK
+    IDE --> CC & CU & AGY & CDX & CDXA & FD & GEM & KIMI & OC & GCLI & PI & DEVIN & GROK & HERMES
+    CC & CU & AGY & CDX & CDXA & FD & GEM & KIMI & OC & GCLI & PI & DEVIN & GROK & HERMES --> SP_HOOK
     SP_HOOK --> SP_CORE
     SP_CORE --> SP_VIS & SP_DOC
-    SP_CORE --> CLAUDE & GPT & GEM
+    SP_CORE --> CLAUDE & GPT & GEM2
     IDE --> GIT
     
     style SP_HOOK fill:#fff3e0,stroke:#e65100,color:#000
@@ -409,7 +435,7 @@ graph TB
 | **Visual Companion** | 零依賴 Node.js WebSocket 伺服器（Brainstorming 用） |
 | **Platform Adapters** | 各平台的安裝腳本與設定映射 |
 
-### 2.2.2 倉庫目錄結構（v6.1.1）
+### 2.2.2 倉庫目錄結構（v6.3.0）
 
 ```
 superpowers/                          # GitHub: obra/superpowers
@@ -426,7 +452,7 @@ superpowers/                          # GitHub: obra/superpowers
 │   ├── test-driven-development/
 │   │   ├── SKILL.md
 │   │   └── references/
-│   │       └── testing-anti-patterns.md
+│   │       └── writing-good-tests.md    # v6.2.0：由 testing-anti-patterns.md 重寫為正向範例集
 │   ├── systematic-debugging/
 │   │   ├── SKILL.md
 │   │   └── references/
@@ -475,21 +501,26 @@ superpowers/                          # GitHub: obra/superpowers
 ├── .codex/                           # Codex CLI 配置
 ├── .codex-plugin/                    # Codex Plugin 配置（v5.0.6+）
 ├── .droid-plugin/                    # Factory Droid 配置（v5.1.0+）
+├── .devin-plugin/                    # Devin CLI 配置（v6.3.0+）
+├── .hermes-plugin/                   # Hermes Agent 配置（v6.3.0+）
+├── .agents/plugins/                  # Codex Marketplace 安裝清單（v6.1.0+）
 ├── .kimi-plugin/                     # Kimi Code 配置（v6.0.0+）
 ├── .pi/extensions/                   # Pi 配置（v6.0.0+）
 ├── .opencode/                        # OpenCode 配置
 ├── .github/                          # GitHub CI/CD 與社群設定
-├── .superpowers/sdd/                 # v6.0.3：SDD 工作暫存區（git-ignored）
+├── .superpowers/sdd/                 # v6.2.0：SDD 工作區改為 Plan-Scoped（<plan-basename>/ 子目錄，git-ignored）
 ├── RELEASE-NOTES.md                  # 版本發行紀錄
 ├── CLAUDE.md                         # 貢獻者指南（含 AI Agent 投稿規範）
 ├── AGENTS.md                         # Codex 代理配置（symlink → CLAUDE.md）
+├── GEMINI.md                         # Gemini CLI @import 設定檔（v6.1.0 移除、v6.2.0 恢復）
+├── gemini-extension.json             # Gemini CLI Extension 宣告檔（同上，v6.2.0 恢復）
 ├── CODE_OF_CONDUCT.md                # 社群行為準則
 ├── LICENSE                           # MIT 授權
 ├── package.json
 └── README.md
 ```
 
-> ⚠️ **v6.1.0 平台異動**：`GEMINI.md`、`gemini-extension.json` 與 `skills/using-superpowers/references/gemini-tools.md` 已隨 Gemini CLI 支援移除而從倉庫中移除（詳見[附錄 I](#附錄-iv610v611-重大變更gemini-cli-停止支援與-codex-安裝優化)）。
+> ⚠️ **Gemini 相關檔案的移除與回歸**：`GEMINI.md`、`gemini-extension.json` 與 `skills/using-superpowers/references/gemini-tools.md` 曾於 v6.1.0 隨 Gemini CLI 支援一併從倉庫中移除，但官方團隊後來認定此次移除過於倉促，於 v6.2.0 將這些檔案全數恢復（詳見[附錄 I](#附錄-iv620-重大變更gemini-cli-回歸與-sdd-生命週期改造)）。
 >
 > ⚠️ **v6.0.0 重大變更**：
 > - `spec-reviewer-prompt.md` 和 `code-quality-reviewer-prompt.md` 已合併為單一 `task-reviewer-prompt.md`
@@ -526,6 +557,11 @@ graph LR
         CDX_MKT[Plugin Marketplace<br/>v6.1.0+]
     end
     
+    subgraph "Gemini CLI"
+        GEM_IMPORT[GEMINI.md @import]
+        GEM_STATUS[v6.1.0 移除→v6.2.0 恢復]
+    end
+    
     subgraph "OpenCode"
         OC_INST[instructions.md]
         OC_AGENT[agents/ directory]
@@ -546,8 +582,14 @@ graph LR
         KIMI_PLG[Kimi Code<br/>/plugins marketplace]
         PI_PLG[Pi<br/>pi install git:]
     end
+
+    subgraph "v6.3 新增平台"
+        DEVIN_PLG[Devin CLI<br/>devin plugins install]
+        GROK_PLG[Grok Build CLI<br/>grok plugin install]
+        HERMES_PLG[Hermes Agent<br/>hermes plugins install]
+    end
     
-    SKILLS --> CC_MKT & CU_PLUG & CDX_AGENTS & OC_INST & GCLI_MKT & FD_MKT & AGY_PLG & KIMI_PLG & PI_PLG
+    SKILLS --> CC_MKT & CU_PLUG & CDX_AGENTS & GEM_IMPORT & OC_INST & GCLI_MKT & FD_MKT & AGY_PLG & KIMI_PLG & PI_PLG & DEVIN_PLG & GROK_PLG & HERMES_PLG
     HOOKS --> CC_CLAUDE & CU_HOOK & CDX_AGENTS & OC_INST & GCLI_CTX & FD_CFG
     VIS --> CC_MKT & CU_PLUG
 ```
@@ -617,7 +659,7 @@ hooks/
 
 Hook 的工作流程：
 
-1. **偵測平台**：自動辨識 Claude Code / Cursor / Antigravity / Codex CLI / Codex App / Factory Droid / Kimi Code / OpenCode / Copilot CLI / Pi
+1. **偵測平台**：自動辨識 Claude Code / Cursor / Antigravity / Codex CLI / Codex App / Factory Droid / Gemini CLI / Kimi Code / OpenCode / Copilot CLI / Pi / Devin CLI / Grok Build CLI / Hermes Agent
 2. **注入技能**：將 `using-superpowers` 技能載入 Agent Context
 3. **技能載入 using-superpowers 後**，Agent 即知道完整的 14 個技能索引
 4. **啟動 Visual Companion**（如需要）：自動啟動 Brainstorm Server
@@ -716,7 +758,7 @@ graph LR
 
 # 第 3 章：安裝與環境建置
 
-> **章節摘要**：本章詳述 Superpowers v6.1.1 的安裝方式（以 Plugin Marketplace 為主）、各平台安裝指南、專案初始化流程，以及升級策略。
+> **章節摘要**：本章詳述 Superpowers v6.3.0 的安裝方式（以 Plugin Marketplace 為主）、各平台安裝指南（共 14 個平台），以及專案初始化流程與升級策略。
 
 ## 3.1 前置要求
 
@@ -740,8 +782,12 @@ graph LR
 | **Antigravity** | 最新版 | [antigravity.dev](https://antigravity.dev)（v6.0.0 新增）|
 | **Kimi Code** | 最新版 | [kimi.moonshot.cn](https://kimi.moonshot.cn)（v6.0.0 新增）|
 | **Pi** | 最新版 | [pi.dev](https://pi.dev)（v6.0.0 新增）|
+| **Gemini CLI** | 最新版 | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli)（v5.0.1 起支援，v6.1.0 一度移除、**v6.2.0 恢復**）|
+| **Devin CLI** | 最新版 | [devin.ai](https://devin.ai)（**v6.3.0 新增**）|
+| **Grok Build CLI** | 最新版 | [x.ai](https://x.ai)（**v6.3.0 新增**）|
+| **Hermes Agent** | 最新版 | Hermes 官方發行道（**v6.3.0 新增**）|
 
-> ⚠️ Gemini CLI 已於 v6.1.0（2026-06-30）移除支援，不再列入本表（Google 已終止 Gemini CLI 專案）。
+> 💡 目前共支援 **14 個** AI 編碼平台。Gemini CLI 曾於 v6.1.0（2026-06-30）移除，但於 v6.2.0（2026-07-23）恢復支援，目前正常可用。
 
 ## 3.2 安裝步驟
 
@@ -826,16 +872,19 @@ Fetch and follow instructions from https://raw.githubusercontent.com/obra/superp
 
 > 💡 **v5.0.7 更新**：Bootstrap 注入從 `system.transform` 移至 `messages.transform`，避免 token 膨脹，同時修復與 Qwen 等模型的相容性。
 
-### 已停止支援：Gemini CLI
+### 方式四-B：Gemini CLI（v5.0.1 支援，v6.2.0 恢復）
 
-> ⚠️ **v6.1.0 起已移除**：Google 於 2026-06-18 終止 Gemini CLI 專案，該 Extension 已無法安裝或更新。Superpowers 隨即在 v6.1.0（2026-06-30）將 Gemini CLI 從安裝文件、支援平台清單與相容性矩陣中移除。以下安裝方式僅供曾使用 Gemini CLI 的團隊了解歷史沿革，**已不可再執行**：
+```bash
+# 安裝延伸套件
+gemini extensions install https://github.com/obra/superpowers
+
+# 日後升級
+gemini extensions update superpowers
+```
+
+> ⚠️ **歷史沿革提醒**：Gemini CLI 支援曾於 v6.1.0（2026-06-30）因 Google 宣佈終止 Gemini CLI 專案而被移除，但官方團隊後來認定此次移除過於倉促，於 v6.2.0（2026-07-23）將安裝文件、支援清單與工具對照表全數恢復，是否永久移除仍待後續評估。企業團隊若正在使用 Gemini CLI，建議正常使用但保持密切關注官方公告（詳見[附錄 I](#附錄-iv620-重大變更gemini-cli-回歸與-sdd-生命週期改造)）。
 >
-> ```bash
-> # 已停用（v5.0.1 ~ v6.0.3 曾支援，v6.1.0 起移除）
-> gemini extensions install https://github.com/obra/superpowers
-> ```
->
-> 原使用 Gemini CLI 的團隊建議改用 **Codex CLI**（v6.1.0 起可透過 Marketplace 安裝）或 **Factory Droid** 等具備完整 Subagent 支援的替代平台，詳見[附錄 I](#附錄-iv610v611-重大變更gemini-cli-停止支援與-codex-安裝優化)。
+> ⚠️ **功能限制**：Gemini CLI 無原生 Subagent 支援，Superpowers 技能會自動 fallback 至 `executing-plans`（批次執行 + 人工檢查點）模式。
 
 ### 方式五：GitHub Copilot CLI（v5.0.7 新增）
 
@@ -913,6 +962,51 @@ pi install git:obra/superpowers
 - 使用 `.pi/extensions/` 目錄結構進行配置
 - session-start hook 偵測 `PI_SESSION` 環境變數
 - 工具對照表位於 `references/pi-tools.md`
+
+### 方式五-F：Devin CLI（v6.3.0 新增）
+
+v6.3.0 起正式支援 Devin CLI 平台：
+
+```bash
+# 從本倉庫安裝 Plugin
+devin plugins install obra/superpowers
+
+# 之後更新
+devin plugins update superpowers
+```
+
+**運作原理**：
+- 安裝後技能會在 session start 自動觸發，無需額外設定
+- 為 v6.3.0 三個新平台中整合難度最低的一個（無需自訂 tool-mapping 即可運作）
+
+### 方式五-G：Grok Build CLI（v6.3.0 新增）
+
+v6.3.0 起透過 xAI 官方 Plugin Marketplace 支援 Grok Build CLI：
+
+```bash
+# 透過 xAI 官方 marketplace 安裝
+grok plugin install superpowers@xai-official --trust
+
+# 或於 TUI 內開啟 marketplace 搜尋安裝
+/marketplace
+```
+
+**運作原理**：
+- 安裝來源為 [xai-org/plugin-marketplace](https://github.com/xai-org/plugin-marketplace)
+- `--trust` 旗標為 xAI Marketplace 安裝第三方 Plugin 時的必要確認參數
+
+### 方式五-H：Hermes Agent（v6.3.0 新增）
+
+v6.3.0 起支援 Hermes Agent 平台：
+
+```bash
+# 從本倉庫安裝 Plugin 並啟用
+hermes plugins install obra/superpowers --enable
+```
+
+安裝完成後，需重新啟動所有進行中的 Hermes session 才會生效。
+
+> ⚠️ **限制**：Hermes Agent 目前沒有 post-compaction hook——若 session 在第一輪對話後就發生上下文壓縮（compaction），bootstrap 內容可能遺失。若發現技能不再自動觸發，建議直接開啟新 session。
 
 ### 方式六：搭配 GitHub Copilot 使用（方法論移植）
 
@@ -1076,10 +1170,10 @@ cp -r skills/ /path/to/your-project/superpowers-skills/
 
 ```bash
 # 安裝指定版本
-/plugin install superpowers@6.1.1
+/plugin install superpowers@6.3.0
 
 # 或手動 checkout 特定 tag
-git checkout v6.1.1
+git checkout v6.3.0
 ```
 
 ## 3.7 驗證安裝
@@ -1116,7 +1210,7 @@ git worktree remove ../sp-test
 ```
 ✅ Git Worktree 支援：正常
 ✅ Node.js 版本：v18+
-✅ Superpowers Plugin：已安裝 v6.1.1
+✅ Superpowers Plugin：已安裝 v6.3.0
 ✅ 技能自動觸發：正常（14 個技能已載入）
 ✅ Visual Companion：可啟動（零依賴 Node.js 伺服器）
 ```
@@ -1134,7 +1228,7 @@ git worktree remove ../sp-test
 
 # 第 4 章：核心 Skills 詳解
 
-> **章節摘要**：本章深入介紹 Superpowers v6.1.1 的 14 個內建技能。按照 The Basic Workflow（7 步驟）的順序組織，並涵蓋每個技能的觸發條件、執行流程、Prompt 範例與注意事項。
+> **章節摘要**：本章深入介紹 Superpowers v6.3.0 的 14 個內建技能。按照 The Basic Workflow（7 步驟）的順序組織，並涵蓋每個技能的觸發條件、執行流程、Prompt 範例與注意事項。
 
 > 💡 **v6.0.0 重大變更**：
 > - SDD Review 從 Two-Stage（兩個獨立 reviewer）改為 Single Reviewer with Dual Verdicts（`task-reviewer-prompt.md`），~50% token 節省、~2× 加速。
@@ -1146,7 +1240,7 @@ git worktree remove ../sp-test
 
 ## 4.1 完整技能庫總覽
 
-### 技能清單（v6.1.1）
+### 技能清單（v6.3.0）
 
 | # | 技能名稱 | 類別 | 自動觸發 | 說明 |
 |---|---------|------|---------|------|
@@ -1169,7 +1263,7 @@ git worktree remove ../sp-test
 
 | 名稱 | 說明 |
 |------|------|
-| `testing-anti-patterns.md` | TDD 反模式參考（v4.0.0 新增） |
+| `writing-good-tests.md` | TDD 正向範例集（v6.2.0 由 `testing-anti-patterns.md` 重寫，六條規則均以 GOOD 範例開頭，並加入可證偽性 falsifiability 審查） |
 
 ### 技能依賴關係圖
 
@@ -1234,6 +1328,8 @@ graph TD
 ```
 
 > ⚠️ **重要**：這 7 個步驟是**強制性**的。`using-superpowers` 技能內建「合理化偵測」，防止 Agent 因認為情況簡單而跳過任何步驟。
+>
+> 💡 **v6.3.0 更新**：第 ① 步 brainstorming 不再對所有需求一律適用相同重量的流程。技能會先將需求分級為「spike（快速探索）」、「bounded（有界任務）」或「architectural（架構級）」，小任務可跳過完整的兩份文件（Spec + Plan）儀式，但仍需在實作前停下來等待使用者核准。詳見 [4.3 節](#43-brainstorming需求釐清-visual-companion)。
 
 ---
 
@@ -1364,6 +1460,34 @@ AI Brainstorming 回覆：
 4. **不要在 Brainstorming 階段寫程式碼**
 5. **善用 Visual Companion**：複雜需求使用圖形化介面輔助思考
 
+### 儀式感分級（Ceremony Scaling，v6.3.0 新增）
+
+早期版本的 Brainstorming 對任何需求一律套用相同重量級的流程——至少 5 個問題、完整 Spec Document、Inline Self-Review。社群回饋指出，這套「一體適用」的儀式感對於單行修改或探索性任務（spike）而言過於沉重，反而造成使用者略過整個技能。v6.3.0 引入**任務分級機制**，依需求複雜度自動決定應套用的流程重量：
+
+| 分級 | 適用情境 | 流程要求 |
+|------|---------|---------|
+| **Spike（快速探索）** | 單一檔案修改、除錯性質的小改動、單純的資訊查詢 | 略過雙文件儀式（Spec + Plan），但仍需在動手前簡短確認方向 |
+| **Bounded（有界任務）** | 範圍明確的單一功能、影響 1-3 個模組 | 精簡版提問 + 單一文件（合併 Spec 與 Plan 概念），仍需使用者核准 |
+| **Architectural（架構級）** | 跨模組、跨服務、影響資料模型或對外介面的變更 | 完整流程：蘇格拉底式提問 + Spec Document + Inline Self-Review + 微步驟計畫 |
+
+```mermaid
+graph TD
+    A[收到需求] --> B{任務分級}
+    B -->|Spike| C[簡短確認方向<br/>略過雙文件儀式]
+    B -->|Bounded| D[精簡提問<br/>單一文件]
+    B -->|Architectural| E[完整流程<br/>Spec + Plan + Self-Review]
+    C --> F[使用者核准後才實作]
+    D --> F
+    E --> F
+
+    style C fill:#e8f5e9,stroke:#2e7d32,color:#000
+    style D fill:#fff3e0,stroke:#e65100,color:#000
+    style E fill:#fce4ec,stroke:#c62828,color:#000
+    style F fill:#e3f2fd,stroke:#1565c0,color:#000
+```
+
+> ⚠️ **不變的底線**：無論任務被分到哪一級，**實作前都必須停下來等待使用者核准**——分級只影響「產出多少文件與提問」，不影響「是否需要核准」這個硬性門檻。企業導入時應留意：分級判斷由 Agent 自行推斷，建議在 `CLAUDE.md` 中明確定義團隊對「Bounded」與「Architectural」的邊界（例如：涉及資料庫 Schema 變更一律視為 Architectural），避免 Agent 低估任務複雜度而略過必要的設計審查。
+
 ### Anti-patterns
 
 - ❌ AI 沒有提問就直接開始寫程式碼
@@ -1378,7 +1502,7 @@ AI Brainstorming 回覆：
 
 ### 核心理念
 
-TDD 是 Superpowers 中**最重要的技能**。它強制 AI 遵循「Red → Green → Refactor」循環。v4.0.0 起新增 `testing-anti-patterns.md` 參考，幫助 Agent 避免常見測試錯誤。
+TDD 是 Superpowers 中**最重要的技能**。它強制 AI 遵循「Red → Green → Refactor」循環。v4.0.0 起新增 `testing-anti-patterns.md` 參考，幫助 Agent 避免常見測試錯誤；該文件已於 v6.2.0 重寫為 `writing-good-tests.md`，改以「六條正向規則＋GOOD 範例」呈現，並新增「可證偽性（falsifiability）」檢查——要求每個測試都能明確指出「哪一個產品程式碼變更會讓這個測試失敗」，避免測試流於形式。
 
 ### TDD 三階段循環
 
@@ -1401,7 +1525,7 @@ graph LR
 | **刪除未測試的程式碼** | 如果一段程式碼沒有對應的測試，刪掉它 |
 | **一次一個測試** | 不要批次撰寫所有測試 |
 | **Refactor 不改行為** | 重構階段測試必須始終 Green |
-| **參考 anti-patterns** | 避免 `testing-anti-patterns.md` 中列舉的反模式 |
+| **參考 anti-patterns** | 避免 `writing-good-tests.md`（舊名 `testing-anti-patterns.md`）中列舉的反模式 |
 
 ### 完整實作範例（Java / Spring Boot）
 
@@ -1712,6 +1836,8 @@ Writing Plans 技能將大型任務拆解成**每個步驟 2~5 分鐘可完成�
 > - **Global Constraints 區塊**：計畫頂部明確列出全域約束（如技術棧限制、不得使用的 library 等），確保所有 subagent 共享一致的限制條件。
 > - **per-task Interfaces 區塊**：每個任務可宣告「我需要什麼介面」和「我提供什麼介面」，幫助 orchestrator 正確排序任務依賴。
 > - **Right-sizing guidance**：計畫過大或過小時自動提供調整建議。
+>
+> 💡 **v6.3.0 新增**：計畫頂部新增 **`Spec:` 指標欄位**，直接連結回源始的設計文件（Spec Document）。Subagent-Driven Development 執行前會先讀取這份 Spec，若實作中發現計畫與現有任務有衝突，控制器可依據真實設計意圖裁決，而非單憑推測。
 
 ### 任務拆解方法論
 
@@ -1809,6 +1935,17 @@ graph TD
 v4.0 引入、v5.0 強制化、**v6.0.0 大幅重寫**的核心執行模式。Agent 不直接執行計畫中的每個任務，而是 **dispatch Subagent** 來執行，並對產出進行 Code Review。
 
 > ⚠️ **v6.0.0 重大變更**：SDD Review 從 Two-Stage（兩個獨立 reviewer subagent）改為 **Single Reviewer with Dual Verdicts**（一個 `task-reviewer-prompt.md` 同時產出 Spec Compliance 和 Code Quality 判定）。效能提升約 ~2× 速度、~50% token 節省。
+>
+> 💡 **v6.2.0 重大變更**：
+> - **工作區改為 Plan-Scoped**：舊版 `.superpowers/sdd/` 沒有計畫身份概念，若同一 worktree 中先後執行兩個計畫，後續計畫可能誤讀前一個計畫的 ledger（實寫案例中確實發生過汙染）。現改為每個計畫專屬的 `.superpowers/sdd/<plan-basename>/` 子目錄，審查完成後自動刪除（git 歷史才是永久紀錄）。
+> - **Review-Fix 回合改為恢復 Implementer**：修正回合不再重新 dispatch 一個全新 Subagent，而是恢復原本的 Implementer 並使用精簡的 `re-review-prompt.md` 讓 Reviewer 只檢查修正部分，而非重讀整個任務。
+> - **五輪循環 Circuit Breaker**：若修正回合達到 5 輪仍未通過，自動交由控制器裁決是否繼續、調整範圍或升級給人工。
+>
+> 💡 **v6.3.0 重大變更**：
+> - **控制器不再因非災難性衝突而停滯**：過去遇到計畫衝突或模糊地帶會整個停下來等待人工（曾有實例 session 卡在同一個問題進一步還需近九小時）。現在非災難性、非不可逆的衝突會由控制器自行裁決並留下紀錄，只有破壞性或不可逆的操作仍會停下等待人工確認。
+> - **小型同形任務批次化**：形狀相似的小任務會合併成單一次 dispatch，大幅降低微任務計畫的 Subagent 成本；批次審查仍會逐檔確認每份任務簡介中要求的檔案都真的出現在 diff 中。
+> - **Implementer 與 Reviewer 不得自行生成 Subagent**：避免產生重複審查。
+> - **計畫掌握 `Spec:` 指標**：SDD 在設定階段就會讀取連結的 Spec，計畫衝突可依據真實設計意圖裁決，而非單憑推測。
 
 ### 為什麼需要 Subagent？
 
@@ -1897,8 +2034,12 @@ Subagent Context（隔離的）:
 | Antigravity | ✅ | 原生支援（v6.0.0+） |
 | Kimi Code | ✅ | tool-use 協議（v6.0.0+） |
 | Pi | ✅ | 原生支援（v6.0.0+） |
+| Gemini CLI | ⚠️ | 無原生 Subagent，fallback 至 `executing-plans`（v5.0.1 支援，v6.1.0 一度移除、v6.2.0 恢復） |
+| Devin CLI | ✅ | 完整支援（v6.3.0+） |
+| Grok Build CLI | ✅ | 完整支援（v6.3.0+） |
+| Hermes Agent | ✅ | 完整支援（v6.3.0+，無 post-compaction hook） |
 
-> ⚠️ Gemini CLI（v5.0.1~v6.0.3 期間曾支援，Subagent 需 fallback → `executing-plans`）已於 v6.1.0 隨平台支援一併移除。
+> 💡 Gemini CLI 曾於 v6.1.0 移除，但於 v6.2.0 恢復支援，目前正常可用（仍無原生 Subagent，需 fallback）。
 
 ### Anti-patterns
 
@@ -2042,7 +2183,11 @@ graph TB
 
 開發完成後的標準化收尾流程：
 
-> 💡 **v6.0.0 變更**：此技能改為 **forge-neutral**——不再硬編碼 `gh pr create`。Agent 會偵測專案使用的 Git forge（GitHub / GitLab / Bitbucket 等）並使用對應的指令。
+> 💡 **v6.0.0 變更**：此技能改為 **forge-neutral**——不再硬編碼 `gh pr create`。Agent 會偵測專案使用的 Git forge（GitHub / GitLab / Bitbucket 等）並使用對應的指令，或直接使用 push 後印出的網址建立 PR。
+>
+> ⚠️ **v6.2.0 變更**：完成選單**不再提供「直接丟棄（Discard）」的快速選項**。舊版選單中「丟棄這份工作」與「合併」並列，等於在測試通過、已完成的分支旁邊放了一個「銷毀」按鈕，容易誤觸。丟棄功能仍保留，但改為必須使用者明確提出請求，並搭配輸入確認字串的儀式，才會執行。
+>
+> ⚠️ **v6.3.0 變更**：修正了 worktree 移除的資料遺失風險——當 `git worktree remove` 因工作樹中仍有未提交/未追蹤的變更而拒絕執行時，技能**不會**自動加上 `--force` 強制刪除，而是停下來列出受影響的檔案並詢問使用者，避免尚未提交的工作被靜默銷毀。
 
 ```mermaid
 graph TD
@@ -2053,9 +2198,13 @@ graph TD
     C -->|是| E[整理 commits]
     E --> F[Push to remote]
     F --> G[建立 Pull/Merge Request<br/>（forge-neutral）]
-    G --> H[清理 Worktree]
+    G --> H{worktree 是否有<br/>未追蹤/未提交檔案？}
+    H -->|是| I[列出檔案並詢問使用者]
+    H -->|否| J[清理 Worktree]
+    I --> J
     
     style G fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style I fill:#fff3e0,stroke:#e65100,color:#000
 ```
 
 ### 4.9.2 verification-before-completion（完成前驗證）
@@ -3606,7 +3755,7 @@ public class LogHelper {
 
 # 第 9 章：系統升級與版本管理
 
-> **章節摘要**：本章說明 Superpowers 框架本身的升級策略、Plugin Marketplace 版本管理，以及完整版本歷程（v2.0.0 → v6.1.1）。
+> **章節摘要**：本章說明 Superpowers 框架本身的升級策略、Plugin Marketplace 版本管理，以及完整版本歷程（v2.0.0 → v6.3.0）。
 
 ## 9.1 Superpowers 升級策略
 
@@ -3623,7 +3772,7 @@ public class LogHelper {
 /plugin update superpowers
 
 # 安裝指定版本（企業環境建議鎖定版本）
-/plugin install superpowers@6.1.0
+/plugin install superpowers@6.3.0
 ```
 
 ### 手動安裝的版本管理
@@ -3739,22 +3888,30 @@ cat RELEASE-NOTES.md | head -100
 | **v5.0.6** | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
 | **v5.0.7** | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ |
 | **v5.1.0** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **v6.0.0–v6.0.3** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **v6.1.0+** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **v6.0.0–v6.3.0** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
-> ⚠️ = 可運作但缺少部分功能（如 Subagent 支援、Visual Companion 等）。**Gemini CLI** 曾於 v5.0.0（⚠️ 部分支援）至 v6.0.3（✅ 完整支援）期間列於本表，已於 **v6.1.0 起因 Google 終止該專案而移除**，故本表自 v6.1.0 起不再列出該欄。
+> ⚠️ = 可運作但缺少部分功能（如 Subagent 支援、Visual Companion 等）。以上表格僅列出 v6.0.0 前即存在的 10 個平台的相容性演進；**Gemini CLI**、**Devin CLI**、**Grok Build CLI**、**Hermes Agent** 這 4 個平台的加入時間點請見下表。
 
-### 功能 × 平台 相容性（v6.1.1）
+### 新增平台首次支援版本
 
-| 功能 | Claude Code | Cursor | Codex CLI | Codex App | Factory Droid | OpenCode | Copilot CLI | Antigravity | Kimi Code | Pi |
-|------|-------------|--------|-----------|-----------|---------------|----------|-------------|-------------|-----------|-----|
-| **Basic Workflow** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Subagent-Driven Development** | ✅ | ✅ | ✅ (multi_agent) | ✅ (named dispatch) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Visual Brainstorming Companion** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **Inline Self-Review** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Hooks 系統** | ✅ | ✅ (Rules) | ✅（v6.1.0 起與 Claude 共用 session-start） | ✅（v6.1.0 起可經 Marketplace 安裝） | ✅ | ❌ | ✅ (additionalContext) | ✅ | ✅ | ✅ |
-| **Task Review（Dual Verdicts）** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Context Isolation** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 平台 | 首次支援版本 | 備註 |
+|------|-------------|------|
+| **Gemini CLI** | v5.0.1（2026-03-10） | v6.1.0（2026-06-30）一度移除，v6.2.0（2026-07-23）恢復 |
+| **Devin CLI** | v6.3.0（2026-08-12） | 新增平台，session start 自動觸發 |
+| **Grok Build CLI** | v6.3.0（2026-08-12） | 新增平台，透過 xAI 官方 Marketplace 安裝 |
+| **Hermes Agent** | v6.3.0（2026-08-12） | 新增平台，無 post-compaction hook |
+
+### 功能 × 平台 相容性（v6.3.0，14 個平台）
+
+| 功能 | Claude Code | Cursor | Codex CLI | Codex App | Factory Droid | OpenCode | Copilot CLI | Antigravity | Kimi Code | Pi | Gemini CLI | Devin CLI | Grok Build CLI | Hermes Agent |
+|------|-------------|--------|-----------|-----------|---------------|----------|-------------|-------------|-----------|-----|-----------|-----------|----------------|--------------|
+| **Basic Workflow** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Subagent-Driven Development** | ✅ | ✅ | ✅ (multi_agent) | ✅ (named dispatch) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ fallback | ✅ | ✅ | ✅ |
+| **Visual Brainstorming Companion** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Inline Self-Review** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Hooks 系統** | ✅ | ✅ (Rules) | ✅（與 Claude 共用 session-start） | ✅（可經 Marketplace 安裝） | ✅ | ❌ | ✅ (additionalContext) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⚠️ 無 post-compaction hook |
+| **Task Review（Dual Verdicts）** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Context Isolation** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ### 降級與回退
 
@@ -3806,12 +3963,17 @@ timeline
     section v6.1
         v6.1.0 : Bootstrap 精簡<br/>Codex Marketplace 安裝<br/>移除 Gemini CLI
         v6.1.1 : 修正 Codex hook 重複註冊
+    section v6.2～v6.3
+        v6.2.0 : 恢復 Gemini CLI<br/>SDD Plan-Scoped 工作區<br/>writing-good-tests.md
+        v6.3.0 : Devin/Grok/Hermes 三新平台<br/>Brainstorming 儀式感分級<br/>SDD 煞車機制
 ```
 
 ### 詳細版本紀錄
 
 | 版本 | 日期 | 類型 | 重點變更 |
 |------|------|------|----------|
+| **v6.3.0** | 2026-08-12 | **Minor** | **新增 Devin CLI、Grok Build CLI、Hermes Agent 三平台**；Brainstorming 儀式感分級（spike/bounded/architectural）；SDD 控制器不再因非災難性衝突停滯；小型同形任務批次 dispatch；計畫新增 `Spec:` 指標；`finishing-a-development-branch` worktree 移除安全性修正 |
+| **v6.2.0** | 2026-07-23 | **Minor** | **恢復 Gemini CLI 支援**（v6.1.0 移除過早）；SDD 工作區改為 Plan-Scoped；Review-Fix 回合改為恢復 Implementer；五輪 Circuit Breaker；`testing-anti-patterns.md` 重寫為 `writing-good-tests.md`；技能文件精簡運動；`finishing-a-development-branch` 移除「直接丟棄」快速選項；Windows SessionStart hook 改由 Git Bash 執行 |
 | **v6.1.1** | 2026-07-02 | Patch | 修正 Codex 重複註冊 Claude SessionStart hook（manifest 明確設定 `hooks: {}`）；移除孤立的 `hooks/session-start-codex`；`porting-to-a-new-harness.md` 範例平台由 Codex 改為 Cursor；新增 `package-codex-plugin.sh` |
 | **v6.1.0** | 2026-06-30 | **Minor** | `using-superpowers` bootstrap 精簡（降低 token 成本）；**Codex 改為可透過 Plugin Marketplace 安裝**；**移除 Gemini CLI 支援**（Google 終止該專案） |
 | **v6.0.3** | 2026-06-18 | Patch | SDD scratch files 從 `.git/sdd/` 移至 `.superpowers/sdd/` |
@@ -3838,6 +4000,17 @@ timeline
 | **v2.0.0** | 2025-10-12 | **Initial** | 首次公開版本；5 大基礎技能；Claude Code 專屬 |
 
 ### 重大 Breaking Changes 摘要
+
+#### v6.3.0 Breaking Changes
+- **儀式感分級**：Brainstorming 不再對所有需求套用相同重量級流程，小任務可能略過完整 Spec/Plan 文件
+- **Implementer/Reviewer 不得自行 spawn Subagent**：避免重複審查
+- **finishing-a-development-branch**：worktree 移除若偵測到未追蹤檔案將停下詢問，不再靜默強制刪除
+
+#### v6.2.0 Breaking Changes
+- **Gemini CLI 恢復**：曾於 v6.1.0 移除，v6.2.0 起恢復支援（若團隊已遷移離開 Gemini CLI，需重新評估是否遷回）
+- **SDD 工作區路徑**：`.superpowers/sdd/` 改為每計畫專屬的 `<plan-basename>/` 子目錄，且審查完成後自動刪除
+- **`testing-anti-patterns.md` 更名**：改為 `writing-good-tests.md`，直接引用舊檔名的自訂流程需更新路徑
+- **finishing-a-development-branch**：完成選單移除「直接丟棄」快速選項
 
 #### v6.0.0 Breaking Changes
 - **SDD Review 合併**：`spec-reviewer-prompt.md` + `code-quality-reviewer-prompt.md` 合併為 `task-reviewer-prompt.md`（Single Reviewer Dual Verdicts）
@@ -3896,7 +4069,7 @@ timeline
 
 # 第 10 章：最佳實務（Best Practices）
 
-> **章節摘要**：本章彙整 Superpowers v6.1.1 的核心最佳實務，涵蓋 AI 使用規範、開發流程、架構設計、Subagent 協作、Task Review、Inline Self-Review 等面向。
+> **章節摘要**：本章彙整 Superpowers v6.3.0 的核心最佳實務，涵蓋 AI 使用規範、開發流程、架構設計、Subagent 協作、Task Review、Inline Self-Review 等面向。
 
 ## 10.1 AI 不可跳過測試
 
@@ -4211,7 +4384,7 @@ Round 3: 最終修訂 → Reviewer 強制通過或升級至人類審查
 
 # 第 11 章：反模式（Anti-patterns）
 
-> **章節摘要**：本章系統化列出使用 Superpowers v6.1.1 時最常見的反模式，涵蓋開發、流程、Subagent 協作與組織層面，並提供改正方法。每個反模式都包含具體的錯誤範例與正確做法對照。另可參考官方 `testing-anti-patterns.md`。
+> **章節摘要**：本章系統化列出使用 Superpowers v6.3.0 時最常見的反模式，涵蓋開發、流程、Subagent 協作與組織層面，並提供改正方法。每個反模式都包含具體的錯誤範例與正確做法對照。另可參考官方 `writing-good-tests.md`。
 
 ## 11.1 反模式總覽
 
@@ -4507,7 +4680,7 @@ Subagent B: Module B 的完整 TDD（測試 + 實作 + 重構）
 
 # 第 12 章：企業導入策略
 
-> **章節摘要**：本章提供 Superpowers v6.1.1 在企業團隊中的導入路線圖，涵蓋 Plugin Marketplace 部署、多平台支援、試點策略、治理機制、Code Review 制度，以及 AI 使用規範。
+> **章節摘要**：本章提供 Superpowers v6.3.0 在企業團隊中的導入路線圖，涵蓋 Plugin Marketplace 部署、多平台支援（共 14 個平台）、試點策略、治理機制、Code Review 制度，以及 AI 使用規範。
 
 ## 12.1 團隊導入路線圖
 
@@ -4569,7 +4742,7 @@ graph LR
 
 4. Q&A + 規範說明（20 min）
    - 回答問題
-   - 說明平台選擇（Claude Code / Cursor / Codex CLI / Codex App / Factory Droid / OpenCode / Copilot CLI / Antigravity / Kimi Code / Pi）
+   - 說明平台選擇（Claude Code / Cursor / Codex CLI / Codex App / Factory Droid / Gemini CLI / OpenCode / Copilot CLI / Antigravity / Kimi Code / Pi / Devin CLI / Grok Build CLI / Hermes Agent，共 14 個平台）
    - 說明接下來的試點計畫
 ```
 
@@ -4636,10 +4809,10 @@ graph TB
 ### AI 使用政策範本
 
 ```markdown
-# 團隊 AI 使用政策 v2.1（Superpowers v6.1.1）
+# 團隊 AI 使用政策 v2.2（Superpowers v6.3.0）
 
 ## 1. 適用範圍
-本政策適用於使用 AI 工具（Claude Code、Cursor、Codex CLI、Codex App、Factory Droid、OpenCode、GitHub Copilot CLI、Antigravity、Kimi Code、Pi 等）進行開發的所有團隊成員。
+本政策適用於使用 AI 工具（Claude Code、Cursor、Codex CLI、Codex App、Factory Droid、Gemini CLI、OpenCode、GitHub Copilot CLI、Antigravity、Kimi Code、Pi、Devin CLI、Grok Build CLI、Hermes Agent 等，共 14 個支援平台）進行開發的所有團隊成員。
 
 ## 2. 強制規則
 - 2.1 所有 AI 輔助開發必須遵循 Superpowers 7-Step Basic Workflow
@@ -4703,7 +4876,7 @@ sequenceDiagram
 ### Code Review Checklist（完整版）
 
 ```markdown
-## Superpowers Code Review Checklist（v6.1.1）
+## Superpowers Code Review Checklist（v6.3.0）
 
 ### 📋 流程合規（必查）
 - [ ] 有 Brainstorming 記錄或需求文件參考
@@ -4718,7 +4891,7 @@ sequenceDiagram
 - [ ] 包含邊界條件測試
 - [ ] 測試命名清晰描述行為
 - [ ] 使用 AAA（Arrange-Act-Assert）模式
-- [ ] 無 `testing-anti-patterns.md` 中列舉的反模式
+- [ ] 無 `writing-good-tests.md`（舊名 `testing-anti-patterns.md`）中列舉的反模式
 
 ### 🏗️ 程式碼品質（必查）
 - [ ] 遵循 SOLID 原則
@@ -4783,7 +4956,7 @@ sequenceDiagram
 
 # 第 13 章：完整範例專案
 
-> **章節摘要**：本章提供一個完整的範例專案，從專案架構到程式碼、測試、開發流程示範，展示 Superpowers v6.1.1 的 7-Step Basic Workflow 在實際專案中的全面應用（含 Subagent-Driven Development、Task Review 與 Inline Self-Review）。
+> **章節摘要**：本章提供一個完整的範例專案，從專案架構到程式碼、測試、開發流程示範，展示 Superpowers v6.3.0 的 7-Step Basic Workflow 在實際專案中的全面應用（含 Subagent-Driven Development、Task Review 與 Inline Self-Review）。
 
 ## 13.1 專案概述
 
@@ -5328,7 +5501,7 @@ a09c8f4 test(transfer): add TransferController integration tests
 6. ✅ 使用 `finishing-a-development-branch` 技能完成合併
 7. ✅ 最後更新文件
 
-> 💡 **提示**：這個範例專案展示了 Superpowers v6.1.1 的 7-Step Basic Workflow 在實際專案中的協同運作。建議讀者根據此範例進行練習，並嘗試使用 Subagent-Driven Development 將 Domain / Application / Presentation 層拆分給不同 Subagent 平行開發。
+> 💡 **提示**：這個範例專案展示了 Superpowers v6.3.0 的 7-Step Basic Workflow 在實際專案中的協同運作。建議讀者根據此範例進行練習，並嘗試使用 Subagent-Driven Development 將 Domain / Application / Presentation 層拆分給不同 Subagent 平行開發。
 
 ---
 
@@ -5508,7 +5681,7 @@ sequenceDiagram
 
 **Model Context Protocol（MCP）** 是一種標準化的協議，讓 AI 模型可以存取外部工具與資料來源。將 Superpowers 的技能透過 MCP 暴露，可以讓更多 AI 工具使用 Superpowers 方法論。
 
-> ⚠️ **示意性設計說明**：截至 v6.1.1，官方 `obra/superpowers` 專案**並未內建**任何 MCP Server 元件——Superpowers 是透過 Plugin Marketplace 與 Hooks 機制直接與各平台整合，而非透過 MCP 暴露技能。以下 B.2~B.4 的 MCP Server 架構、JSON 工具定義純屬**本手冊作者提出的延伸整合構想**，用以說明「若要將 Superpowers 的能力以 MCP 工具形式暴露給其他 Agent 使用，可以怎麼設計」，並非官方產出物或現成可安裝的套件。如需實際串接，請自行實作對應的 MCP Server。
+> ⚠️ **示意性設計說明**：截至 v6.3.0，官方 `obra/superpowers` 專案**並未內建**任何 MCP Server 元件——Superpowers 是透過 Plugin Marketplace 與 Hooks 機制直接與各平台整合，而非透過 MCP 暴露技能。以下 B.2~B.4 的 MCP Server 架構、JSON 工具定義純屬**本手冊作者提出的延伸整合構想**，用以說明「若要將 Superpowers 的能力以 MCP 工具形式暴露給其他 Agent 使用，可以怎麼設計」，並非官方產出物或現成可安裝的套件。如需實際串接，請自行實作對應的 MCP Server。
 
 ## B.2 整合架構
 
@@ -5682,18 +5855,20 @@ Agent 內部流程：
 - [ ] 安裝 Maven
 - [ ] 安裝 VS Code + Java Extension Pack
 
-### AI 平台（擇一或多選，共 10 個現行支援平台）
+### AI 平台（擇一或多選，共 14 個現行支援平台）
 - [ ] Claude Code + Superpowers Plugin（`/plugin install superpowers@claude-plugins-official`）
 - [ ] Cursor + Superpowers Plugin（`/add-plugin superpowers`）
 - [ ] Codex CLI + Plugin Marketplace 或 `/plugins` 指令安裝（v6.1.0 起支援 Marketplace）
 - [ ] Codex App + 側邊欄 Plugins → Coding 安裝
 - [ ] Factory Droid + `droid plugin marketplace add`
+- [ ] Gemini CLI + `gemini extensions install`（v6.1.0 一度移除，v6.2.0 起恢復）
 - [ ] OpenCode + Superpowers（`opencode plugin install superpowers`）
 - [ ] GitHub Copilot CLI + Superpowers Plugin Marketplace
 - [ ] Antigravity / Kimi Code / Pi（依團隊採用情形擇一安裝）
+- [ ] Devin CLI / Grok Build CLI / Hermes Agent（v6.3.0 新增，依團隊採用情形擇一安裝）
 - [ ] GitHub Copilot（方法論注入至 `copilot-instructions.md`）
 
-> ⚠️ Gemini CLI 已於 v6.1.0 移除支援（Google 終止該專案），不再列於本清單。
+> 💡 Gemini CLI 曾於 v6.1.0 移除支援，已於 v6.2.0 恢復，目前可正常安裝使用。
 
 ### Superpowers 設定
 - [ ] 確認 Superpowers Plugin 安裝成功（`/plugin list | grep superpowers`）
@@ -5840,7 +6015,15 @@ Agent 內部流程：
 | **Antigravity** | Antigravity 平台 | v6.0.0+ 支援的平台，透過 `agy plugin install` 安裝，原生支援 Subagent dispatch |
 | **Kimi Code** | Kimi Code 平台 | v6.0.0+ 支援的平台，使用 `.kimi-plugin/` 目錄結構，支援 Moonshot tool-use 協議 |
 | **Pi** | Pi 平台 | v6.0.0+ 支援的平台，透過 `pi install git:` 安裝，Native skill 支援 |
-| **Gemini CLI（已停止支援）** | Gemini CLI | v5.0.1~v6.0.3 曾支援；**v6.1.0 起移除**，因 Google 於 2026-06-18 終止 Gemini CLI 專案 |
+| **Gemini CLI** | Gemini CLI 平台 | v5.0.1 起支援；**v6.1.0 一度移除**（Google 終止 Gemini CLI 專案），**v6.2.0 恢復**（官方認定移除過早） |
+| **Devin CLI** | Devin CLI 平台 | v6.3.0+ 支援的平台，透過 `devin plugins install` 安裝 |
+| **Grok Build CLI** | Grok Build CLI 平台 | v6.3.0+ 支援的平台，透過 xAI 官方 Plugin Marketplace 安裝 |
+| **Hermes Agent** | Hermes Agent 平台 | v6.3.0+ 支援的平台，無 post-compaction hook |
+| **writing-good-tests.md** | TDD 正向範例集 | v6.2.0 由 `testing-anti-patterns.md` 重寫而成，六條規則皆以 GOOD 範例開場，並新增可證偽性（falsifiability）檢查 |
+| **Plan-Scoped SDD Workspace** | 計畫範疇工作區 | v6.2.0 起 `.superpowers/sdd/` 改為每計畫專屬的 `<plan-basename>/` 子目錄，避免多計畫共用 ledger 造成汙染 |
+| **Circuit Breaker（SDD）** | 五輪循環斷路器 | v6.2.0 新增，Review-Fix 回合達 5 輪仍未通過時交由控制器裁決 |
+| **Ceremony Scaling** | 儀式感分級 | v6.3.0 新增，Brainstorming 依任務複雜度分為 spike／bounded／architectural 三級，決定所需的文件與提問重量 |
+| **Spec: 指標** | 規格指標欄位 | v6.3.0 新增，計畫文件頂部連結回源始 Spec Document，供 SDD 設定階段讀取以裁決衝突 |
 | **SonarQube Server / SonarQube Cloud** | SonarQube 伺服器版／雲端版 | 2024 年起的品牌統一：自架版稱 SonarQube Server，原 SonarCloud 更名為 SonarQube Cloud |
 | **JUnit（Jupiter）6.x** | JUnit（Jupiter）6.x | 2026 起 JUnit 5 品牌併入統一版號，Platform/Jupiter/Vintage 改用同一版本序號 |
 | **Testcontainers 2.x** | Testcontainers 2.x | 2025-10 起的大版號更新，Maven/Gradle artifact ID 改為 `testcontainers-` 前綴 |
@@ -5849,7 +6032,7 @@ Agent 內部流程：
 
 # 附錄 E：完整版本歷程摘要
 
-> **用途**：提供 Superpowers v2.0.0 至 v6.1.1 的完整版本變更紀錄快速查閱表，方便企業進行版本評估與升級決策。
+> **用途**：提供 Superpowers v2.0.0 至 v6.3.0 的完整版本變更紀錄快速查閱表，方便企業進行版本評估與升級決策。
 
 ## E.1 版本概覽
 
@@ -5878,7 +6061,9 @@ Agent 內部流程：
 | v6.0.2 | 2026-06-09 | Patch | ~235k | 11 |
 | v6.0.3 | 2026-06-18 | Patch | **242k** | 11 |
 | v6.1.0 | 2026-06-30 | **Minor** | ~250k（估） | **10（− Gemini CLI）** |
-| v6.1.1 | 2026-07-02 | Patch | **259,759**（實測，2026-07-23 查證） | 10 |
+| v6.1.1 | 2026-07-02 | Patch | ~257k（估） | 10 |
+| v6.2.0 | 2026-07-23 | **Minor** | ~264k（估） | **11（+ Gemini CLI 恢復）** |
+| v6.3.0 | 2026-08-12 | **Minor** | **273.2k**（實測，2026-08-18 查證） | **14（+ Devin CLI、Grok Build CLI、Hermes Agent）** |
 
 ## E.2 各版本重點功能
 
@@ -6029,16 +6214,40 @@ Agent 內部流程：
 - `docs/porting-to-a-new-harness.md` 中的 shell hook 範例平台由 Codex 改為 Cursor
 - 新增維護者腳本 `package-codex-plugin.sh`，用於產生確定性的 Codex portal 封裝包
 
+### v6.2.0 — Gemini CLI 回歸與 SDD 生命週期改造（2026-07-23）
+
+- **[Breaking]** 恢復 Gemini CLI 支援：官方認定 v6.1.0 的移除決策過於倉促，安裝文件、`gemini-tools.md` 工具對照表與 `GEMINI.md` 全數恢復；是否永久移除仍待正式評估
+- **[Breaking]** SDD 工作區改為 Plan-Scoped：`.superpowers/sdd/` 新增以計畫檔名為單位的子目錄，杜絕多計畫共用同一 ledger 造成的交叉汙染
+- Review-Fix 回合改為恢復原 Implementer，搭配精簡的 `re-review-prompt.md`，而非重新 dispatch 全新 Subagent
+- 新增五輪循環 Circuit Breaker，超過上限交由控制器裁決
+- **[Breaking]** `testing-anti-patterns.md` 重寫為 `writing-good-tests.md`：改以六條正向規則＋GOOD 範例呈現，並加入可證偽性（falsifiability）檢查，同時點名兩種常見缺陷（字串比對偽裝可證偽性、斷言恆常失敗卻毫無保護力）
+- 技能內容大規模精簡：移除 Recap／Social Proof／效益推銷式敘述，改以 Rationalization Table 呈現
+- **[Breaking]** `finishing-a-development-branch` 移除「直接丟棄」快速選項，丟棄操作改為需明確請求＋輸入確認字串；PR 建立改為 forge-agnostic
+- Windows：SessionStart hook 改由 Git Bash 派發，修正 PowerShell／cmd.exe 因命令字串含引號而解析失敗導致 bootstrap 靜默不載入的問題
+
+### v6.3.0 — 四大新平台與 SDD 煞車機制（2026-08-12）
+
+- **新增 3 個平台**：Devin CLI、Hermes Agent、Grok Build CLI 正式列入安裝文件
+- Brainstorming 儀式感分級：需求依複雜度分類為 spike／bounded／architectural，小任務可略過雙文件儀式，但實作前仍需使用者核准
+- **[Breaking]** SDD 控制器不再因非災難性衝突或模糊地帶而整個停滯，改為自行裁決並記錄於 ledger，只有破壞性／不可逆操作才停下等待人工
+- 預先派工前的衝突掃描結果會記錄於 ledger，而非僅口頭宣稱計畫無衝突
+- 小型同形任務可合併為單一次 dispatch，降低微任務計畫的 Subagent 成本
+- **[Breaking]** Implementer 與 Reviewer 不得再自行生成 Subagent，避免重複審查
+- 計畫新增 `Spec:` 指標欄位，SDD 設定階段即讀取設計文件，衝突判斷有據可查
+- Codex：Subagent 等待改為事件驅動而非輪詢，dispatch 時明確指定 model 與 reasoning effort
+- **[Breaking]** `finishing-a-development-branch`：`git worktree remove` 因未追蹤檔被拒絕時，不再自動加 `--force`，改為列出檔案並詢問使用者
+
 ## E.3 升級決策建議
 
 | 目前版本 | 建議升級至 | 風險等級 | 預估影響 |
 |---------|-----------|---------|---------|
-| v2.x–v3.x | v6.1.1 | 🔴 高 | 需要完整遷移計畫（移除 `.superpowers/`、改用 Plugin、SDD 流程變更、確認未依賴已移除的 Gemini CLI） |
-| v4.0–v4.2 | v6.1.1 | 🔴 高 | 需處理 Visual Companion port、Inline Self-Review、SDD reviewer 合併 |
-| v4.3.x | v6.1.1 | 🟡 中 | 主要需處理 SDD Two-Stage → Single Reviewer 變更 |
-| v5.0.0–v5.0.5 | v6.1.1 | 🟡 中 | 需處理 Inline Self-Review、SDD 架構、worktree 路徑變更 |
-| v5.0.6–v5.1.0 | v6.1.1 | 🟢 低 | 需注意 SDD reviewer 合併、worktree 路徑、vendor-neutral 用語、確認未依賴已移除的 Gemini CLI |
-| v6.0.0–v6.0.3 | v6.1.1 | 🟢 低 | 僅需確認未依賴已移除的 Gemini CLI，其餘變更皆為向下相容的小幅優化 |
+| v2.x–v3.x | v6.3.0 | 🔴 高 | 需要完整遷移計畫（移除 `.superpowers/`、改用 Plugin、SDD 流程變更、確認 14 個平台清單） |
+| v4.0–v4.2 | v6.3.0 | 🔴 高 | 需處理 Visual Companion port、Inline Self-Review、SDD reviewer 合併 |
+| v4.3.x | v6.3.0 | 🟡 中 | 主要需處理 SDD Two-Stage → Single Reviewer 變更 |
+| v5.0.0–v5.0.5 | v6.3.0 | 🟡 中 | 需處理 Inline Self-Review、SDD 架構、worktree 路徑變更 |
+| v5.0.6–v5.1.0 | v6.3.0 | 🟢 低 | 需注意 SDD reviewer 合併、worktree 路徑、vendor-neutral 用語 |
+| v6.0.0–v6.1.1 | v6.3.0 | 🟢 低 | 需注意 SDD 工作區改為 Plan-Scoped、`testing-anti-patterns.md` 更名為 `writing-good-tests.md`、finishing-a-development-branch 選單變更 |
+| v6.2.0 | v6.3.0 | 🟢 低 | 僅需留意儀式感分級對 Brainstorming 輸出的影響，其餘變更皆向下相容 |
 
 ---
 
@@ -6347,13 +6556,13 @@ echo ".superpowers/" >> .gitignore
 
 ---
 
-# 附錄 I：v6.1.0／v6.1.1 重大變更——Gemini CLI 停止支援與 Codex 安裝優化
+# 附錄 I：v6.2.0 重大變更——Gemini CLI 回歸與 SDD 生命週期改造
 
-> **用途**：詳細說明 v6.1.0（2026-06-30）與 v6.1.1（2026-07-02）引入的變更，包含 Gemini CLI 停止支援的背景與影響、Codex 安裝方式優化，以及從 v6.0.3 升級至 v6.1.1 的完整遷移指南。
+> **用途**：詳細說明 v6.2.0（2026-07-23）引入的變更，包含 Gemini CLI 從移除到恢復的完整背景、SDD 工作區生命週期改造、測試文件重寫，以及從 v6.1.1 升級至 v6.2.0 的完整遷移指南。
 
-## I.1 變更背景：Gemini CLI 停止支援
+## I.1 Gemini CLI 完整生命週期：從移除到回歸
 
-Google 已於 2026-06-18 終止 Gemini CLI 專案，該 Extension 自此無法安裝或更新。Superpowers 團隊隨即在 v6.1.0（2026-06-30，發布僅 12 天後）將 Gemini CLI 從安裝文件、支援平台清單、相容性矩陣與倉庫檔案（`GEMINI.md`、`gemini-extension.json`、`gemini-tools.md`）中移除。
+v6.1.0（2026-06-30）以「Google 終止 Gemini CLI 專案」為由移除了 Gemini CLI 支援，但這個判斷只過了 23 天就被官方團隊自行推翻——v6.2.0（2026-07-23）的 RELEASE NOTES 明確寫道：「v6.1.0 的移除決策為時過早（premature）」，並將安裝文件與工具對照表全數恢復，同時表示「是否永久移除仍待正式評估」。
 
 ```mermaid
 timeline
@@ -6363,76 +6572,172 @@ timeline
         v5.0.1（2026-03-10） : 原生 Extension 加入 Agentskills 合規
         v5.1.0（2026-04-30） : Subagent dispatch mapping
         v6.0.0（2026-06-06） : 完整支援（Task Review Dual Verdicts 等）
-    section 終止
-        2026-06-18 : Google 終止 Gemini CLI 專案
+    section 移除
+        2026-06-18 : Google 宣布終止 Gemini CLI 專案
         v6.1.0（2026-06-30） : Superpowers 移除 Gemini CLI 支援
+    section 回歸
+        v6.2.0（2026-07-23） : 官方認定移除過早，恢復支援
+                              : 是否永久移除待正式評估
 ```
 
-受影響團隊的因應建議：
+**企業導入的啟示**：這段插曲對導入 Superpowers 的團隊而言是一堂寶貴的風險管理課——**上游依賴的第三方平台停止支援消息，不代表下游工具鏈必須立即跟進移除**。建議企業在遇到類似公告時，先觀察官方社群（Discord、GitHub Issues）一段時間，確認變更已經穩定，再決定是否調整內部的平台選型策略，避免因搶快而反覆折騰團隊的工具鏈設定。
 
-| 原使用情境 | 建議替代方案 |
-|---|---|
-| 純 CLI、輕量整合 | **Codex CLI**（v6.1.0 起可透過 Plugin Marketplace 直接安裝） |
-| 需要完整 Subagent 支援 | **Factory Droid** 或 **Codex CLI**（`multi_agent`） |
-| 偏好原生 IDE 整合 | **Cursor** 或 **Claude Code** |
+## I.2 SDD 工作區生命週期改造：Plan-Scoped Workspace
 
-## I.2 Codex 安裝方式簡化
+v6.0.3 將 SDD（Subagent-Driven Development）的暫存檔從 `.git/sdd/` 移至 `.superpowers/sdd/`，但這個目錄當時仍是「全域共用」的——沒有計畫身份（plan identity）的概念。實務上發現，若在同一個工作樹（worktree）中先執行完一個計畫，接著開始執行下一個計畫，後者可能會誤讀前一個計畫遺留的進度帳本（ledger），造成多輪汙染，過去只能靠臨時的手動排除方式應對。
 
-- Codex CLI 現可直接透過 Plugin Marketplace 安裝（`/plugins` → 搜尋 "superpowers"），不再僅能透過指令注入 INSTALL.md 的方式安裝。
-- Codex 不再自帶獨立的 `hooks/session-start-codex`，改與其他平台共用同一份 `hooks/session-start`，降低維護負擔。
+v6.2.0 將工作區改為 **Plan-Scoped**：
 
-## I.3 Token 成本優化
+| 項目 | v6.0.3～v6.1.1 | v6.2.0+ |
+|------|---------------|---------|
+| 工作區路徑 | `.superpowers/sdd/`（全域共用） | `.superpowers/sdd/<plan-basename>/`（每計畫專屬子目錄） |
+| `task-brief` / `review-package` | 寫入共用目錄 | 寫入各自計畫的子目錄（`review-package` 新增計畫檔案作為第一個參數） |
+| 進度帳本（ledger） | 未記錄所屬計畫 | 第一行即記錄所屬計畫名稱 |
+| 生命週期 | 執行完不主動清除 | 最終審查通過後自動刪除子目錄（git 歷史才是永久紀錄） |
 
-`using-superpowers` 技能的 bootstrap 內容已精簡，降低每個 session 開頭注入的 token 量，對高頻率、長時間運行的 Agent session 尤其有感。
+> 💡 官方在 25/25 組基準與 GREEN 情境測試中驗證：舊機制雖然會拒絕讀取「不屬於自己」的 ledger，但每次恢復執行都要額外花費 6～13 次工具呼叫進行跨計畫的 git 考古；Plan-Scoped 架構讓這個保護機制變成結構性保證，不再需要額外的偵測邏輯。
 
-## I.4 v6.1.1 修補項目
+## I.3 Review-Fix 回合改造與五輪 Circuit Breaker
 
-v6.1.0 上線後，Codex 平台出現因 manifest 未明確宣告 `hooks: {}` 而導致 Claude 的 SessionStart hook 被重複註冊的問題（技能內容被注入兩次）。v6.1.1（2026-07-02）修復如下：
+- **恢復 Implementer 而非重新派工**：過去每一輪修正都會重新 dispatch 一個全新的 Subagent，導致每輪都要重新建立上下文。v6.2.0 改為恢復（resume）原本執行任務的 Implementer，並搭配新的 `re-review-prompt.md`——讓 Reviewer 這次只需要檢查「修正了什麼」，而非重新讀過整個任務。
+- **五輪循環 Circuit Breaker**：修正回合設有 5 輪上限，一旦達到上限，系統會自動交由控制器（Controller）裁決——決定繼續嘗試、縮小範圍，或升級交由人工處理，避免無止盡的修正迴圈耗用資源。
+- `SKILL.md` 依照生命週期重新組織章節結構，其「Red Flags」章節也轉換為與其他技能一致的 Rationalization Table 格式。
 
-| 問題 | 修復方式 |
-|---|---|
-| Codex 重複注入技能內容 | manifest 明確宣告 `hooks: {}` |
-| 孤立的 `session-start-codex` 殘留 | 移除死碼 |
-| `porting-to-a-new-harness.md` 範例已過時 | shell hook 範例平台由 Codex 改為 Cursor |
-| Codex portal 封裝結果不確定 | 新增 `package-codex-plugin.sh` 產生確定性封裝包 |
+## I.4 測試文件重寫：`writing-good-tests.md`
 
-## I.5 從 v6.0.3 升級至 v6.1.1 遷移指南
+`test-driven-development` 技能原本附帶的 `testing-anti-patterns.md`（條列「不要做什麼」的反模式清單）在 v6.2.0 被整個重寫為 **`writing-good-tests.md`**——一份以「正向範例」為主的目錄，六條規則都以 GOOD 範例開場，而非條列禁忌事項。新文件額外納入「可證偽性（falsifiability）」的審查紀律：
+
+1. 明確指出「哪一個產品程式碼變更會讓這個測試失敗」
+2. 測試的期望值必須獨立推導，不能直接抄產品程式碼的邏輯
+3. 最後執行一次「突變測試（mutation check）」作結
+
+文件也點名兩種常見陷阱，並各自搭配一個強制中止的檢查點：
+
+| 陷阱 | 說明 |
+|------|------|
+| **字串比對偽裝可證偽性** | 對腳本、技能定義、Prompt 內容做 grep 式字串比對測試，看似會失敗，實際上完全無法驗證行為是否正確——可觀察的對象永遠應該是「行為」，而非「文字」 |
+| **恆常失敗斷言陷阱** | 斷言本身可能會失敗，但即使失敗也毫無保護力（例如斷言了一個與待測邏輯無關的條件） |
+
+> 💡 官方同時保留了 TDD 技能中「為什麼順序很重要」的說理段落——實測顯示直接整段刪除會讓「先寫程式碼、之後再補測試」這類壓力情境下的測試優先行為明顯退化（控制組 8/10 → 實驗組 5/10，Claude 與 Codex 上皆重現），因此改以逐條 Rationalization Table 的形式保留這些論點，讓 Agent 在合理化藉口出現的當下就能看到對應的反駁。
+
+## I.5 技能內容精簡運動
+
+v6.2.0 對整個技能庫進行了一次大規模的內容瘦身：`brainstorming`、`systematic-debugging`、`dispatching-parallel-agents`、`verification-before-completion`、`executing-plans`、`subagent-driven-development`、`requesting-code-review`、`receiving-code-review`、`using-git-worktrees`、`writing-plans`、`writing-skills` 等技能，一律移除「Bottom Line／Key Principles／Real-World Impact／Advantages」這類回顧式、行銷式的說明段落，將真正有支撐力的論點改寫進 Rationalization Table 的對應列，或搬移至真正會被用到的地方。`using-git-worktrees` 與 `finishing-a-development-branch` 的「守則」段落也一併轉換為統一的 Excuse/Reality 對照表格式。
+
+## I.6 finishing-a-development-branch 選單調整
+
+完成選單過去把「丟棄這份工作（Discard this work）」與「合併（Merge）」並列在同一層級——對一個測試已通過、工作已完成的分支而言，旁邊放一個等同銷毀的選項並不合理。v6.2.0 移除了這個快速選項，丟棄功能仍然存在，但改為必須使用者明確提出請求，並搭配輸入確認字串的儀式才會執行。同一批修改也讓 PR 建立方式變成 forge-agnostic（使用專案本身的 forge CLI，或 push 後印出的網址），並修正了一個實際的 bug：worktree 路徑過去會在清理流程已經切換工作目錄之後才重新計算，導致 provenance 檢查永遠對不上，清理動作因而靜默失效。
+
+## I.7 Windows：SessionStart Hook 改由 Git Bash 執行
+
+Hook 的指令字串以一個帶引號的路徑開頭，這在 PowerShell 與 cmd.exe 上都會出問題：PowerShell 會把帶引號的字串當成運算式解析而噴出剖析錯誤；cmd.exe 的引號剝除規則則會在設定檔路徑中含有 `(` 之類特殊字元時把指令截斷——無論哪一種情況，bootstrap 都會靜默失敗，技能完全不會載入。v6.2.0 讓 Hook 明確宣告 `shell: "bash"`，Claude Code 2.1.81 以上版本會直接解析到 Git for Windows，且在找不到 Git Bash 時會提示可操作的安裝訊息；較舊版本的 Claude Code 會忽略這個未知欄位並維持原行為。官方在 Linux、含特殊字元路徑的 Windows 11（含 Git Bash）與不含 Git Bash 的 Windows 11 三種環境下皆完成端對端驗證。
+
+## I.8 從 v6.1.1 升級至 v6.2.0 遷移指南
 
 ```bash
 # 1. 更新 Plugin
 /plugin update superpowers
 
-# 2. 若團隊曾使用 Gemini CLI，確認已規劃替代平台（見 I.1 建議表）
-#    既有的 gemini extensions 安裝設定在升級後將不再生效
+# 2. 若團隊先前因 v6.1.0 移除 Gemini CLI 而遷移到其他平台，
+#    可評估是否遷回；Gemini CLI 現已恢復正常運作
+gemini extensions install https://github.com/obra/superpowers
 
-# 3. 若使用 Codex，建議直接升級至 v6.1.1 而非停留在 v6.1.0
-#    （v6.1.0 已知的 hook 重複註冊問題已在 v6.1.1 修復）
+# 3. 若自訂流程直接引用了 testing-anti-patterns.md，
+#    改為引用新的 writing-good-tests.md
+grep -rl "testing-anti-patterns.md" your-project/ 
 
-# 4. 驗證所有平台的技能觸發仍正常
-#    開始新 session，測試 Brainstorming 是否正確啟動
+# 4. 驗證 SDD 工作區已改為 Plan-Scoped
+#    （執行一次 subagent-driven-development 後，確認產生
+#    .superpowers/sdd/<你的計畫檔名>/ 子目錄）
+ls .superpowers/sdd/
 ```
 
-### v6.1.0／v6.1.1 需注意的 Breaking Changes
+### v6.2.0 需注意的 Breaking Changes
 
 | 變更 | 影響 | 處理方式 |
 |---|---|---|
-| Gemini CLI 移除 | 該平台既有安裝將無法更新，技能不再載入 | 改用 Codex CLI、Factory Droid 或其他替代平台 |
-| Codex Hook 重複註冊（僅 v6.1.0） | 技能內容可能被注入兩次，增加 token 消耗 | 直接升級至 v6.1.1 |
+| Gemini CLI 恢復 | 曾遷移離開的團隊需重新評估是否遷回 | 依團隊實際需求決定，非強制 |
+| SDD 工作區路徑改變 | 直接讀取 `.superpowers/sdd/` 根目錄的自訂腳本會失效 | 改為讀取 `.superpowers/sdd/<plan-basename>/` |
+| `testing-anti-patterns.md` 更名 | 直接引用舊檔名的文件連結會失效 | 改為引用 `writing-good-tests.md` |
+| finishing-a-development-branch 選單變更 | 依賴「直接丟棄」快速選項的自動化腳本需調整 | 改為走明確請求＋確認字串的流程 |
 
-> 💡 **建議**：由於 v6.1.0 存在 Codex hook 重複註冊的已知問題，企業導入時建議直接鎖定 **v6.1.1** 而非 v6.1.0。
+---
+
+# 附錄 J：v6.3.0 重大變更——四大新平台、儀式感分級與 SDD 煞車機制
+
+> **用途**：詳細說明 v6.3.0（2026-08-12，本手冊撰寫時的最新版本）引入的變更，包含三個新支援平台、Brainstorming 儀式感分級機制、SDD 控制器裁決能力強化，以及從 v6.2.0 升級至 v6.3.0 的完整遷移指南。
+
+## J.1 三個新平台：Devin CLI、Grok Build CLI、Hermes Agent
+
+v6.3.0 是繼 v6.0.0（新增 Antigravity、Kimi Code、Pi）之後第二次大規模擴充支援平台，一口氣加入三個平台，讓 Superpowers 目前總計支援 **14 個**平台：
+
+| 平台 | 安裝方式 | 特性 |
+|------|---------|------|
+| **Devin CLI** | `devin plugins install obra/superpowers` | 三個新平台中整合最單純的一個，安裝後技能即在 session start 自動觸發，不需額外的工具對照設定 |
+| **Grok Build CLI** | `grok plugin install superpowers@xai-official --trust` | 透過 xAI 官方 Plugin Marketplace（[xai-org/plugin-marketplace](https://github.com/xai-org/plugin-marketplace)）安裝 |
+| **Hermes Agent** | `hermes plugins install obra/superpowers --enable` | 需在安裝後重新啟動所有進行中的 session；目前沒有 post-compaction hook，長 session 若在第一輪就發生上下文壓縮，可能遺失 bootstrap 內容 |
+
+## J.2 Brainstorming 儀式感分級（Ceremony Scaling）
+
+過去 Brainstorming 對任何需求一律套用相同重量級的流程，v6.3.0 引入分級機制，將需求分類為 spike（快速探索）、bounded（有界任務）、architectural（架構級）三種，小任務可以略過完整的雙文件儀式（Spec + Plan）。**但無論分級結果為何，實作前都仍然必須停下來等待使用者核准**——分級只影響「產出多少文件與提問」，不影響「是否需要核准」這個硬性門檻。詳細分級標準與範例請見[第 4.3 節](#43-brainstorming需求釐清-visual-companion)。
+
+## J.3 SDD 控制器裁決能力與批次派工
+
+- **不再因非災難性衝突而整個停滯**：過去控制器遇到計畫衝突或模糊地帶時，會讓整個流程停下來等待人工裁決——官方揭露曾有實際案例，一個 session 為了同一個問題卡住將近九小時，而那其實是控制器自己就能做出的決定。v6.3.0 起，非災難性、非不可逆的衝突與模糊之處會由控制器自行裁決並留下正式紀錄；只有破壞性或不可逆的操作，才會停下來等待人工確認。
+- **派工前的衝突掃描會記錄於 ledger**：而不是僅口頭宣稱「計畫沒有衝突」，讓後續稽核有據可查。
+- **小型同形任務批次化派工**：形狀相似的小任務會合併成單一次 dispatch，大幅降低微任務型計畫的 Subagent 呼叫成本；批次審查仍會逐一確認每份任務簡介中要求的檔案，都真的出現在最終的 diff 中。
+
+## J.4 權責邊界收斂：禁止巢狀 Subagent 與 Spec 指標
+
+- **Implementer 與 Reviewer 不得自行生成 Subagent**：過去這種巢狀 dispatch 會造成重複審查的問題，v6.3.0 明確禁止。
+- **計畫新增 `Spec:` 指標欄位**：直接連結回源始的設計文件。SDD 在設定階段就會讀取這份 Spec，若實作中遇到計畫與現有程式碼之間的衝突，控制器可依據真實設計意圖裁決，而非單憑推測。
+- **Codex 整合優化**：Subagent 等待機制改為事件驅動（event-driven）而非高頻輪詢，dispatch 時明確指定 model 與 reasoning effort，multi-agent 參考文件也依 Codex 原始碼重新校對。
+
+## J.5 finishing-a-development-branch：worktree 移除安全性修正
+
+當 `git worktree remove` 因為工作樹中仍有未提交或未追蹤的變更而拒絕執行時，過去的實作可能會訴諸 `--force` 強制刪除。v6.3.0 修正此風險：技能會停下來，明確列出受影響的檔案，並詢問使用者該如何處理，而不是靜默銷毀尚未提交的工作。
+
+## J.6 從 v6.2.0 升級至 v6.3.0 遷移指南
+
+```bash
+# 1. 更新 Plugin
+/plugin update superpowers
+
+# 2. 若團隊要導入新平台（Devin CLI / Grok Build CLI / Hermes Agent），
+#    參照第 3.2 節對應的安裝方式
+
+# 3. 檢視團隊 CLAUDE.md／AGENTS.md 中對 Brainstorming 的客製化規則，
+#    確認是否需要針對「Bounded」與「Architectural」的邊界做出明確定義，
+#    避免儀式感分級判斷不如預期而略過必要的設計審查
+
+# 4. 若有自動化腳本假設 SDD 控制器遇到衝突必定會停下等待人工，
+#    需重新檢視——非災難性衝突現在會由控制器自行裁決
+
+# 5. 驗證所有平台的技能觸發仍正常
+claude --version
+```
+
+### v6.3.0 需注意的 Breaking Changes
+
+| 變更 | 影響 | 處理方式 |
+|---|---|---|
+| Brainstorming 儀式感分級 | 小任務可能不再產出完整 Spec/Plan 文件 | 於 `CLAUDE.md` 明確定義團隊的任務分級邊界 |
+| SDD 控制器自行裁決非災難性衝突 | 過去依賴「衝突必停」假設的稽核流程需調整 | 改為檢視 ledger 中的裁決紀錄 |
+| Implementer/Reviewer 禁止巢狀 Subagent | 依賴巢狀 dispatch 的自訂流程會失效 | 改用官方的批次派工機制 |
 
 ---
 
 > **版本資訊**  
-> 本手冊基於 Superpowers Framework v6.1.1（by Jesse Vincent / obra at Prime Radiant）撰寫  
-> GitHub：https://github.com/obra/superpowers（⭐ 260k+）  
-> 手冊版本：v6.0  
-> 最後更新：2026-07-23  
+> 本手冊基於 Superpowers Framework v6.3.0（by Jesse Vincent / obra at Prime Radiant）撰寫  
+> GitHub：https://github.com/obra/superpowers（⭐ 273k+ stars，2026-08-18 查證）  
+> 手冊版本：v7.0  
+> 最後更新：2026-08-18  
 > 維護人員：[Eric Cheng]  
 > 
 > **參考資源**  
 > - Superpowers GitHub：https://github.com/obra/superpowers  
 > - Superpowers RELEASE-NOTES：https://github.com/obra/superpowers/blob/main/RELEASE-NOTES.md  
+> - Superpowers Plugin Marketplace：https://claude.com/plugins/superpowers  
 > - Superpowers Discord：https://discord.gg/35wsABTejz  
 > - Claude Code 文件：https://code.claude.com/docs  
 > - MCP 協議：https://modelcontextprotocol.io
