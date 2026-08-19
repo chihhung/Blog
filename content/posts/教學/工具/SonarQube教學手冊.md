@@ -84,7 +84,7 @@ categories = ['教學']
 4. **Secure SDLC Platform** — 貫穿需求、設計、開發、測試、上線、維運的安全控制點
 5. **DevSecOps Platform** — 整合 GitHub Actions / GitLab CI/CD / Jenkins 的 Security Gate
 6. **Code Governance Platform** — 跨團隊、跨專案的程式碼治理與品質量化指標
-7. **AI Native Governance Platform（新增）** — 透過 SonarQube 原生的 AI CodeFix、AI Code Assurance 與 SonarQube MCP Server，治理「AI Agent 自主寫程式碼」的 Agent Centric Development（AC/DC）時代下的品質與安全風險
+7. **AI Native Governance Platform（新增）** — 透過 SonarQube 原生的 AI CodeFix、AI Code Assurance、SonarQube MCP Server，以及 2026年新增的 Sonar Vortex、SonarQube Remediation Agent、Gitar，治理「AI Agent 自主寫程式碼」的 Agent Centric Development（AC/DC）時代下的品質與安全風險
 
 ### 👥 目標讀者
 
@@ -111,10 +111,10 @@ SonarSource 在 2024～2026 年間數次調整產品品牌與版本制度，許�
 | 免費自管版 | **SonarQube Community Build**（持續滾動發行，不採年度 LTA 版號） | 原「SonarQube Community Edition」 |
 | SaaS 版本 | **SonarQube Cloud**（Free／Team／Enterprise 三方案，另有公開原始碼專屬 OSS 方案） | 原「SonarCloud」 |
 | IDE 外掛 | **SonarQube for IDE**（VS Code／JetBrains／Eclipse／Visual Studio） | 原「SonarLint」（2024-10-29 正式改名，市場仍混用兩名） |
-| 版本制度 | **年度日曆版號** `YYYY.Release.Patch`（如 2025.1 LTA、2025.4 LTA、2026.1 LTA、2026.2…），每年首發版本即為 **LTA（Long-Term Active）**，發布週期由 18 個月縮短為 12 個月 | 原連續版號（如 9.9、10.x）與 LTS 稱呼 |
+| 版本制度 | **年度日曆版號** `YYYY.Release.Patch`（如 2025.1 LTA、2025.4 LTA、2026.1 LTA、2026.2～2026.4…），LTA 發布節奏由舊制 18 個月縮短為約 12 個月（但**非**機械式「每年僅首發版才是 LTA」，2025 年內即有 2 個 LTA 版號並存，請以官方 Release Cycle Model 頁面即時公告為準）；截至 2026年8月，現行長期維護版本為 **2026.1 LTA** | 原連續版號（如 9.9、10.x）與 LTS 稱呼 |
 | 嚴重度／分類體系 | 預設 **MQR（Multi-Quality Rule）Mode**：三大 Software Quality（Security／Reliability／Maintainability）＋四項 Clean Code Attribute，嚴重度為 **Blocker／High／Medium／Low／Info**；仍可切回舊制 **Standard Experience Mode**（Bug／Vulnerability／Code Smell，嚴重度 Blocker／Critical／Major／Minor／Info） | 原單一舊制敘述，詳見第1章 1.6 |
-| 原生 AI 能力 | **AI CodeFix**、**AI Code Assurance**、**SonarQube MCP Server**（第11章專章） | 全新功能 |
-| 進階安全模組 | **SonarQube Advanced Security**：原生 SCA／IaC 掃描／Secrets Detection／Container SBOM 分析（第12章專章） | 全新模組 |
+| 原生 AI 能力 | **AI CodeFix**、**AI Code Assurance**、**SonarQube MCP Server**（含 2026.3 起 Server／Cloud 原生內建託管模式）、**Sonar Vortex**、**SonarQube Remediation Agent**、**Gitar**（2026年新增，第11章專章） | 全新功能 |
+| 進階安全模組 | **SonarQube Advanced Security**：原生 SCA／IaC 掃描／Secrets Detection／SBOM 匯入分析，**僅 Enterprise／Data Center Edition 提供**（第12章專章） | 全新模組 |
 
 > ⚠️ **注意事項**：本手冊涉及精確 Patch 版號、CI Action 版本號之處，採用「目前主版本為 X，請以官方頁面核對」的活引用寫法，避免文件再度迅速過時；各企業環境版本仍應以官方 Release Notes 核對細節差異。
 
@@ -202,7 +202,7 @@ mindmap
 
 以 **Code Smell** 數量與修復所需工時換算成 **Technical Debt Ratio**：
 
-```
+```text
 Technical Debt Ratio = 修復所有 Code Smell 所需時間 / 重新開發整個程式碼庫所需時間 × 100%
 ```
 
@@ -229,7 +229,7 @@ Technical Debt Ratio = 修復所有 Code Smell 所需時間 / 重新開發整個
 | 優點 | 左移（Shift Left）、可在 Commit 階段攔截 | 驗證真實可利用性，少誤判 | 涵蓋供應鏈風險 |
 | 限制 | 可能有誤判（False Positive） | 需要可執行環境，較晚才能跑 | 不分析自有程式碼邏輯 |
 
-SonarQube 的核心定位是 **SAST**。2025 年起官方推出獨立付費模組 **SonarQube Advanced Security**，將 SCA、IaC 掃描、Secrets Detection、Container/SBOM 分析整合進同一治理介面，取代過去「另外串接外部 SCA 工具」的做法，建立涵蓋原始碼到供應鏈的完整防線（細節見第12章）。
+SonarQube 的核心定位是 **SAST**。2025 年起官方推出獨立付費模組 **SonarQube Advanced Security**，將 SCA、IaC 掃描、Secrets Detection、SBOM 匯入分析整合進同一治理介面，取代過去「另外串接外部 SCA 工具」的做法，建立涵蓋原始碼到供應鏈的完整防線（細節見第12章；SBOM 匯入分析仍需搭配外部工具產生 SBOM，非原生容器映像掃描）。
 
 ### 1.5 與 OWASP Top 10 / CWE / NIST SSDF 的關聯
 
@@ -261,9 +261,11 @@ SonarQube 自 10.x 起導入 **Clean Code Taxonomy**，企業在升級或新導�
 | 切換位置 | Administration > General Settings > Mode（Server／Cloud 皆可整個 Instance 切換） | 同上，可隨時切回舊制 |
 | 適用建議 | 新導入企業、重視與官方最新教材／Rules Explorer 用語一致者 | 已有大量客製化舊嚴重度規則、稽核報表綁定舊分類者，可作為過渡 |
 
-> ⚠️ **注意事項**：切換 Mode 會影響既有 Quality Gate 條件所使用的 metric（如新程式碼違規計算基準），企業若已有大量自訂 Quality Gate／報表，建議先在測試環境驗證切換後數值是否符合預期，避免直接在生產環境切換造成 Quality Gate 結果劇烈跳動。
+> ⚠️ **注意事項**：切換 Mode 會影響既有 Quality Gate 條件所使用的 metric（如新程式碼違規計算基準），企業若已有大量自訂 Quality Gate／報表，建議先在測試環境驗證切換後數值是否符合預期，避免直接在生產環境切換造成 Quality Gate 結果劇烈跳動。**升級情境提醒**：由 SonarQube Server 10.1 或更早版本升級上來的既有 Instance，預設仍會沿用 **Standard Experience Mode**，並不會自動轉為 MQR Mode；只有全新安裝的 Instance 才會直接以 MQR Mode 為預設，若既有環境要改用 MQR Mode 須手動切換並依上述流程完整驗證。
 >
 > 💡 **實務案例**：新導入企業建議直接採用 MQR Mode 作為標準，避免日後二次遷移；已長期使用 SonarQube 的企業若稽核報表大量綁定 Standard Mode 舊術語（如 Critical/Major），可先維持 Standard Mode，待內部報表改版後再規劃切換時程，並將切換規劃為正式變更管理項目而非臨時決定。
+>
+> ⚠️ **趨勢提醒（Security Hotspot 分類逐步淘汰）**：SonarSource 自 **SonarQube Server 2026.4** 起開始淘汰獨立的 **Security Hotspot** 分類——原本會產生 Hotspot 的規則，改為直接產生 **Vulnerability**（Standard Experience Mode）或 **Security Issue**（MQR Mode），需人工複核的精神保留，但不再獨立於一般 Issue 之外呈現；既有專案中已產生的歷史 Hotspot 仍會保留可見。本手冊第7章、第20章、第25章、第27章中提及的 Security Hotspot 相關流程與 API，企業導入前請以當下版本官方文件核對此分類是否已於所屬版本淘汰。
 
 ---
 
@@ -306,8 +308,8 @@ graph TB
 | SonarQube Community Edition | **SonarQube Community Build** | 持續滾動發行，不採年度 LTA 版號，定位為免費自管入門選項 |
 | SonarLint | **SonarQube for IDE** | 2024-10-29 正式改名，市場仍混用兩名 |
 | SonarCloud | **SonarQube Cloud** | 品牌統一為 SonarQube 家族 |
-| LTS（Long-Term Support，每 18 個月一版） | **LTA（Long-Term Active，每 12 個月一版）** | 自 2025.1 起生效，每年首發版本即為 LTA |
-| 連續版號（如 9.9、10.6） | **年度日曆版號** `YYYY.Release.Patch`（如 2025.1、2025.4、2026.1、2026.2） | 自 2025 起生效 |
+| LTS（Long-Term Support，每 18 個月一版） | **LTA（Long-Term Active，約每 12 個月一版）** | 自 2025.1 起生效；注意並非機械式「每年僅第一版是 LTA」——如 2025 年內 **2025.1** 與 **2025.4** 皆掛牌為 LTA，實際節奏請以官方 Release Cycle Model 頁面即時公告為準 |
+| 連續版號（如 9.9、10.6） | **年度日曆版號** `YYYY.Release.Patch`（如 2025.1、2025.4、2026.1、2026.2、2026.3、2026.4） | 自 2025 起生效；截至 2026年8月，**2026.1 LTA** 為現行長期維護版本（已更新至 2026.1.5），年內另發行 2026.2／2026.3／2026.4 一般 Release |
 
 ### 2.3 SonarQube Server 完整功能比較表
 
@@ -319,23 +321,25 @@ graph TB
 | Pull/Merge Request Analysis | ❌ | ✅ | ✅ | ✅ |
 | Security Analysis（Taint Analysis） | 基礎規則 | 進階 | 進階 + 自訂安全規則 | 進階 |
 | AI CodeFix | ❌ | ❌ | ✅ | ✅ |
-| AI Code Assurance | ❌ | ❌ | ✅ | ✅ |
-| Advanced Security（SCA/IaC/Secrets/Container，第12章） | ❌ | 部分功能可加購 | ✅（可加購） | ✅（可加購） |
+| AI Code Assurance | ❌ | ✅ | ✅ | ✅ |
+| Advanced Security（SCA/IaC/Secrets，第12章） | ❌ | ❌ | ✅（可加購，2025.3 起） | ✅（可加購） |
 | Portfolio / 跨專案治理 | ❌ | ❌ | ✅ | ✅ |
-| Application（多模組彙總） | ❌ | ❌ | ✅ | ✅ |
+| Application（多模組彙總） | ❌ | ✅ | ✅ | ✅ |
 | 高可用 / Cluster（HA） | ❌ | ❌ | ❌ | ✅ |
 | OIDC / SAML SSO | ❌（基礎 LDAP） | ✅ | ✅ | ✅ |
 | 部署模式 | Self-host | Self-host | Self-host | Self-host（Cluster） |
 | 適合對象 | 個人／小型團隊／PoC | 中型開發團隊 | 中大型企業 | 超大型／高可用需求企業 |
 
+> ⚠️ **注意事項（版本差異提醒）**：AI Code Assurance、Application 自官方調整後已下放至 **Developer Edition** 即可使用（不再限定 Enterprise 以上）；但 **Advanced Security 加購模組僅開放 Enterprise Edition（2025.3 版起）與 Data Center Edition**，Developer Edition **不提供**任何形式的 Advanced Security 功能（無「部分功能」選項）。上表已依此現況更新，企業選型前仍建議以官方 Edition 比較頁面核對當下版本的實際功能矩陣。
+
 ### 2.4 SonarQube Cloud 方案比較表
 
-| 方案 | LOC 額度 | 使用者數 | AI CodeFix | 適合對象 |
-|---|---|---|---|---|
-| Free | 最多 50K LOC | 最多 5 人 | ❌ | 個人／小型專案試用 |
-| Team | 100K～1.9M LOC（依用量計費） | 無限制 | ✅ | 中型團隊，含 Secrets Detection、30+ 語言 |
-| Enterprise | 5M LOC 起（年約計費） | 無限制 | ✅ | 大型企業，加 SLA、SSO、Portfolio、Audit Log、IP Allowlist、企業專屬語言、導入協助 |
-| OSS（公開原始碼專屬） | 不限（僅限公開倉庫） | 無限制 | ✅ | 開源專案免費使用，不可用於私有專案 |
+| 方案 | LOC 額度 | 使用者數 | AI CodeFix | AI Code Assurance | 適合對象 |
+|---|---|---|---|---|---|
+| Free | 最多 50K LOC | 最多 5 人 | ❌ | ❌ | 個人／小型專案試用 |
+| Team | 100K～1.9M LOC（依用量計費） | 無限制 | ✅ | ✅ | 中型團隊，含 Secrets Detection、30+ 語言 |
+| Enterprise | 5M LOC 起（年約計費） | 無限制 | ✅ | ✅ | 大型企業，加 SLA、SSO、SCIM、Portfolio、Audit Log、IP Allowlist、企業專屬語言、導入協助 |
+| OSS（公開原始碼專屬） | 不限（僅限公開倉庫） | 無限制 | ✅ | ✅ | 開源專案免費使用，不可用於私有專案 |
 
 ### 2.5 企業選型建議
 
@@ -346,7 +350,7 @@ graph TB
 | 多事業群、需跨專案儀表板、合規稽核 | SonarQube Server Enterprise Edition 或 SonarQube Cloud Enterprise | Portfolio + 進階治理是稽核必備 |
 | 銀行／政府、要求地端部署 + 不可單點故障 | SonarQube Server Data Center Edition | HA Cluster 符合 RTO/RPO 要求 |
 | 不想自建維運團隊、快速上線、雲原生團隊 | SonarQube Cloud Team／Enterprise | 免維運 |
-| 需要原生 SCA／IaC／Secrets／Container 掃描 | 任一付費 Edition/Plan + 加購 Advanced Security | 取代另外串接多套外部工具的治理複雜度（第12章） |
+| 需要原生 SCA／IaC／Secrets 掃描 | SonarQube Server **Enterprise/Data Center Edition**（加購）或 Cloud **Team/Enterprise Plan** | Developer Edition 不提供 Advanced Security，需評估升級 Edition；詳見第12章 |
 
 > 💡 **實務案例**：某銀行核心系統因「不可單點故障」與「資料不可出境」雙重合規要求，最終選擇 **SonarQube Server Data Center Edition** 地端部署並建置雙機房 Active-Passive 架構；而其行動 App 開發團隊（無資料落地限制）則採用 **SonarQube Cloud Team/Enterprise** 方案加速導入。
 >
@@ -446,9 +450,16 @@ sequenceDiagram
 
 ### 3.5 SonarQube MCP Server 與 AI Agent 整合點（概覽）
 
-第11章將深入說明 SonarQube MCP Server 的工具清單與設定方式；此處先點出其在系統架構中的位置：MCP Server 是獨立於 Web Server 之外的**選配元件**，對外暴露 Model Context Protocol 介面供 Claude Code、VS Code 等 AI Agent 連線，對內仍透過既有 REST API 向 SonarQube Server／Cloud 查詢 Quality Gate、Issue、SCA 風險等資料——換言之，MCP Server 是「AI Agent 友善的 API 轉接層」，不會改變 Compute Engine 既有的分析運算邏輯。
+第11章將深入說明 SonarQube MCP Server 的工具清單與設定方式；此處先點出其在系統架構中的位置：MCP Server 對外暴露 Model Context Protocol 介面供 Claude Code、GitHub Copilot、Cursor、VS Code 等 AI Agent 連線，對內仍透過既有 REST API 向 SonarQube Server／Cloud 查詢 Quality Gate、Issue、SCA 風險等資料——換言之，MCP Server 是「AI Agent 友善的 API 轉接層」，不會改變 Compute Engine 既有的分析運算邏輯。
 
-> ⚠️ **注意事項**：MCP Server 連線使用的 Token 同樣應遵循最小權限原則，且建議獨立於一般使用者 Token 管理，避免 AI Agent 取得超出查詢/標註範圍的管理權限。
+**部署型態已擴充為兩種**：
+
+| 部署型態 | 說明 | 適用情境 |
+|---|---|---|
+| 獨立 Docker 容器（原有方式） | 另外部署 `mcp/sonarqube` 或官方 `sonarsource/sonarqube-mcp` 映像檔，作為獨立於 Web Server 之外的選配元件 | 維運團隊希望獨立管理 MCP 元件的生命週期、版本與資源配置 |
+| **Server／Cloud 原生內建託管（2026.3 起新增）** | SonarQube Server **2026.3** 起 MCP Server 可作為**內建擴充（Built-in Extension）**由 Server 進程直接託管，透過 `/mcp` 反向代理端點對外暴露（設定鍵為 `sonar.mcp.*`），SonarQube Cloud 亦提供對應的原生、免安裝 MCP 端點 | 免除獨立維運容器的基礎設施負擔，企業導入 MCP 治理的門檻大幅降低 |
+
+> ⚠️ **注意事項**：MCP Server 連線使用的 Token 同樣應遵循最小權限原則，且建議獨立於一般使用者 Token 管理，避免 AI Agent 取得超出查詢/標註範圍的管理權限；採用原生內建託管模式時，官方提供全域管理員層級的 Kill-Switch Token，可於偵測到異常存取時立即停用 MCP 對外介面。
 
 ---
 
@@ -732,14 +743,16 @@ graph TB
 
 ### 5.2 建立 Project 與產生 Token
 
+> ⚠️ **注意事項**：SonarQube 安裝完成後**務必立即變更或停用**預設的 `admin/admin` 帳號密碼。本章起，所有管理類 API 範例統一以 `$SONAR_ADMIN_TOKEN`（一組具管理權限、已設定到期日的 Token）取代帳密登入，示範企業應採用的驗證方式；正式環境**不應**在任何自動化腳本中保留預設帳密或明文密碼。
+
 ```bash
 # 透過 Web UI：Administration > Projects > Create Project
 # 或透過 API 建立
-curl -u admin:admin -X POST "http://localhost:9000/api/projects/create" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/projects/create" \
   -d "project=payment-service&name=Payment Service"
 
 # 產生分析用 Token（建議使用 Project Analysis Token，而非個人 Token）
-curl -u admin:admin -X POST "http://localhost:9000/api/user_tokens/generate" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/user_tokens/generate" \
   -d "name=payment-service-ci&type=PROJECT_ANALYSIS_TOKEN&projectKey=payment-service"
 ```
 
@@ -751,15 +764,15 @@ Quality Profile 決定「哪些規則會被檢查」，依語言各自獨立設�
 
 ```bash
 # 建立企業專屬 Java Profile（繼承 Sonar way 並客製化）
-curl -u admin:admin -X POST "http://localhost:9000/api/qualityprofiles/create" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualityprofiles/create" \
   -d "language=java&name=Enterprise-Java-Profile"
 
 # 設為該語言預設 Profile
-curl -u admin:admin -X POST "http://localhost:9000/api/qualityprofiles/set_default" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualityprofiles/set_default" \
   -d "language=java&qualityProfile=Enterprise-Java-Profile"
 
 # 啟用特定安全規則（例：硬編碼密碼偵測 S2068），severity 依 Instance 所選 Mode 而異
-curl -u admin:admin -X POST "http://localhost:9000/api/qualityprofiles/activate_rule" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualityprofiles/activate_rule" \
   -d "key=java:S2068&targetKey=<profile-key>&severity=BLOCKER"
 ```
 
@@ -770,7 +783,7 @@ curl -u admin:admin -X POST "http://localhost:9000/api/qualityprofiles/activate_
 ### 5.4 Quality Gate（先在此概覽，第7章深入）
 
 ```bash
-curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualitygates/create" \
   -d "name=Enterprise-Gate"
 ```
 
@@ -786,10 +799,10 @@ curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create" \
 
 ```bash
 # 建立 Group 並綁定 Project 權限
-curl -u admin:admin -X POST "http://localhost:9000/api/user_groups/create" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/user_groups/create" \
   -d "name=payment-team"
 
-curl -u admin:admin -X POST "http://localhost:9000/api/permissions/add_group" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/permissions/add_group" \
   -d "groupName=payment-team&projectKey=payment-service&permission=admin"
 ```
 
@@ -837,7 +850,7 @@ sonar.auth.oidc.scopes=openid email profile groups
 ### 5.8 Webhook 設定（通知 CI / ChatOps）
 
 ```bash
-curl -u admin:admin -X POST "http://localhost:9000/api/webhooks/create" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/webhooks/create" \
   -d "name=CI-Callback&url=https://ci.example.com/sonarqube-webhook&project=payment-service"
 ```
 
@@ -869,6 +882,8 @@ sequenceDiagram
 ```
 
 > ⚠️ **注意事項**：Scanner 端的分析結果上傳後，**實際 Issue 運算在 Server 端的 Compute Engine 非同步完成**；CI Pipeline 若要等待 Quality Gate 結果，必須額外呼叫 `report-task.txt` 中的 `ceTaskUrl` 進行輪詢（各官方 Plugin 已封裝此邏輯，如 `waitForQualityGate()`）。
+>
+> ⚠️ **版本提醒（Runtime 需求提高）**：**SonarQube Server 2026.4** 起，執行 SonarScanner 所需的 Runtime 已**不再支援 Java 17**，一律要求 **Java 21** 以上；CI Runner／建置代理若仍停留在 Java 17，需先升級 JDK 才能繼續正常掃描（此需求為 Scanner 執行環境本身，與被掃描專案程式碼所使用的語言版本無關）。
 
 ### 6.2 支援語言總覽
 
@@ -984,6 +999,8 @@ dotnet test --collect:"XPlat Code Coverage"
 dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
 ```
 
+> 💡 **版本提醒**：`dotnet-sonarscanner` 自 v11.0.0 起不再內建打包 SonarScanner CLI，改為執行階段動態下載對應版本；若企業在 **Air-gapped／離線 CI 環境**執行，需額外規劃 CLI 套件的內部鏡像或預先快取，避免執行階段因無法連外而失敗。
+
 ### 6.7 Go 分析範例
 
 ```properties
@@ -1001,15 +1018,17 @@ sonar-scanner -Dsonar.token=$SONAR_TOKEN
 ### 6.8 C / C++ 分析範例（需 Build Wrapper）
 
 ```bash
-# 下載對應平台的 build-wrapper（與 SonarQube 版本對應）
+# 下載對應平台的 build-wrapper（與 SonarQube 版本對應）；輸出已改為標準 compile_commands.json 格式編譯資料庫
 build-wrapper-linux-x86-64 --out-dir bw-output make clean all
 
 sonar-scanner \
   -Dsonar.projectKey=embedded-firmware \
   -Dsonar.sources=. \
-  -Dsonar.cfamily.build-wrapper-output=bw-output \
+  -Dsonar.cfamily.compile-commands=bw-output/compile_commands.json \
   -Dsonar.token=$SONAR_TOKEN
 ```
+
+> ⚠️ **注意事項（設定鍵已變更）**：舊版常見的 `sonar.cfamily.build-wrapper-output` 參數已**棄用**，現行官方文件統一改用 `sonar.cfamily.compile-commands`，直接指向 Build Wrapper 產出的標準 `compile_commands.json` 編譯資料庫；升級既有掃描腳本時請同步更新此參數名稱，避免掃描時無法讀取編譯資訊。
 
 > 💡 **實務案例**：Monorepo 架構建議每個子模組設定獨立 `sonar.projectKey`，並在根目錄使用 `sonar.sources` 搭配 `sonar.inclusions/exclusions` 分別掃描，避免單一 Project 把前後端程式碼混為一談導致 Quality Profile 衝突。
 
@@ -1060,31 +1079,31 @@ graph LR
 ### 7.4 建立企業級 Quality Gate
 
 ```bash
-curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualitygates/create" \
   -d "name=Enterprise-Gate"
 
 # 新程式碼覆蓋率 >= 80%
-curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create_condition" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualitygates/create_condition" \
   -d "gateName=Enterprise-Gate&metric=new_coverage&op=LT&error=80"
 
 # 新程式碼重複率 <= 3%
-curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create_condition" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualitygates/create_condition" \
   -d "gateName=Enterprise-Gate&metric=new_duplicated_lines_density&op=GT&error=3"
 
 # 新程式碼不可有 Bug（Blocker/Critical 等同失敗）
-curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create_condition" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualitygates/create_condition" \
   -d "gateName=Enterprise-Gate&metric=new_reliability_rating&op=GT&error=1"
 
 # 新程式碼不可有 Vulnerability
-curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create_condition" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualitygates/create_condition" \
   -d "gateName=Enterprise-Gate&metric=new_security_rating&op=GT&error=1"
 
 # 100% Security Hotspot 已審查
-curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create_condition" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualitygates/create_condition" \
   -d "gateName=Enterprise-Gate&metric=new_security_hotspots_reviewed&op=LT&error=100"
 
 # 新程式碼維護性 A 級
-curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create_condition" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualitygates/create_condition" \
   -d "gateName=Enterprise-Gate&metric=new_maintainability_rating&op=GT&error=1"
 ```
 
@@ -1103,10 +1122,10 @@ curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create_condi
 | Blocker Issues（Overall） | = 0 | 任何 Blocker 等級問題視為發行阻斷 |
 
 ```bash
-curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create_condition" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualitygates/create_condition" \
   -d "gateName=Banking-Gate&metric=security_rating&op=GT&error=1"
 
-curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create_condition" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualitygates/create_condition" \
   -d "gateName=Banking-Gate&metric=blocker_violations&op=GT&error=0"
 ```
 
@@ -1125,7 +1144,7 @@ curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create_condi
 ### 7.7 將 Quality Gate 指派給專案
 
 ```bash
-curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/select" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/qualitygates/select" \
   -d "gateName=Banking-Gate&projectKey=payment-service"
 ```
 
@@ -1309,7 +1328,7 @@ jobs:
         run: mvn -B clean verify
 
       - name: SonarQube Scan  # Action 版本請至 GitHub Marketplace 核對當前主版本
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -1352,7 +1371,7 @@ jobs:
 官方 **SonarQube MCP Server** 讓 Claude Code 不必離開對話即可直接查詢 Quality Gate 狀態、列出 Issue、檢視 SCA 風險，實現官方所稱的「**vibe-then-verify**」模式：Agent 先依需求快速產出程式碼，再立即透過 MCP 工具自我檢查並修正，縮短「產出→驗證→修復」的回合時間。
 
 ```bash
-# 以 Docker 啟動 SonarQube MCP Server（連線至 SonarQube Cloud／Server，Token 請使用最小權限）
+# 方式一：以 Docker 啟動獨立 SonarQube MCP Server（連線至 SonarQube Cloud／Server，Token 請使用最小權限）
 docker run -i --rm \
   -e SONARQUBE_TOKEN="$SONAR_TOKEN" \
   -e SONARQUBE_ORG="my-org" \
@@ -1365,6 +1384,9 @@ claude mcp add sonarqube -- docker run -i --rm \
   -e SONARQUBE_TOKEN="$SONAR_TOKEN" \
   -e SONARQUBE_ORG="my-org" \
   mcp/sonarqube
+
+# 方式二（2026.3 起）：若 SonarQube Server／Cloud 已啟用原生內建託管，
+# 可直接連線 Server 暴露的 /mcp 端點註冊，不需另外啟動 Docker 容器（設定鍵請參閱官方 sonar.mcp.* 文件）
 ```
 
 註冊完成後，可直接以自然語言請 Claude Code 透過 MCP 工具操作，例如：
@@ -1494,7 +1516,7 @@ jobs:
 2. **PR 模板強制檢查項**：PR Template 加入「SonarQube Quality Gate: Passed」勾選項
 3. **Coding Agent 權限限制**：Copilot Coding Agent 自動建立的 PR，**不可**有自動 Merge 權限，必須經過人工 Approve
 4. **指標追蹤**：每月追蹤 Copilot 協作 PR 的 Quality Gate 一次性通過率，作為導入成效指標
-5. **MCP Server 相容性現況**：截至目前，官方 SonarQube MCP Server 整合範例主要驗證於 Claude Code 等 CLI Agent（第11章 11.3）；GitHub Copilot 仍以標準「IDE 即時提示 + CI Quality Gate」模式整合為主，企業導入前請以官方文件核對 Copilot 對 MCP 的最新支援狀態。
+5. **MCP Server 相容性現況（已更新）**：官方 SonarQube MCP Server 現已提供**文件化**的 GitHub Copilot 整合方式——**Copilot CLI** 可透過 `/mcp add` 指令連線，**Copilot Coding Agent** 則可透過 CI/CD 設定檔中以 `COPILOT_MCP_` 為前綴的 Repository Secret 連線，不再僅限 Claude Code 等 CLI Agent（第11章 11.3）；企業可依團隊慣用工具選擇對應的 MCP 連線方式，設定細節請以官方 SonarQube MCP Server Repository 文件為準。
 
 > 💡 **實務案例**：某團隊將「Quality Gate 一次性通過率」納入導入儀表板，發現前兩個月通過率僅 60%，主因是 Copilot 偏好產生缺少輸入驗證的 REST Controller；補強 Quality Profile 中 Bean Validation 相關 Code Smell 規則並更新團隊 Prompt 範本後，三個月後通過率提升至 92%。
 
@@ -1506,8 +1528,9 @@ jobs:
 
 - 理解 SonarQube 原生 AI 能力與第8~10章「外部工具治理」的差異與互補關係
 - 掌握 AI CodeFix、AI Code Assurance 的運作原理、適用版本與企業導入考量
-- 能設定 SonarQube MCP Server，讓 Claude Code 等 AI Agent 直接查詢/操作分析結果
+- 能設定 SonarQube MCP Server（含官方新增的 Server 內建託管模式），讓 Claude Code、GitHub Copilot 等 AI Agent 直接查詢/操作分析結果
 - 理解 Agent Centric Development Cycle（AC/DC）框架，並對應到既有 SSDLC／DevSecOps 治理架構
+- 認識 2026年新發表的 Sonar Vortex、SonarQube Remediation Agent、Gitar 產品線，及其在 AC/DC 三迴圈中扮演的角色
 
 > 📌 **本章定位**：第8~10章討論「如何用 SonarQube 把關外部 AI 工具」；本章討論「SonarQube 本身內建了哪些 AI 能力」。兩者共同構成企業面對 AI Agent 大量寫程式碼時代的完整治理拼圖。
 
@@ -1520,14 +1543,14 @@ jobs:
 | 適用版本（Server） | Enterprise Edition、Data Center Edition |
 | 適用方案（Cloud） | Team Plan、Enterprise Plan |
 | 支援語言（Cloud 範例） | Java、JavaScript、TypeScript、Python、HTML、CSS、C#、C++ 等 |
-| 可用模型 | SonarSource 代管模型，或企業自帶模型／私有 LLM（含雲端 Hyperscaler 或完全自管的地端 LLM） |
+| 可用模型 | **模型無關（Model-Agnostic）架構**：可用 SonarSource 代管的 Azure OpenAI 模型、企業自建的 Azure OpenAI，或連接任一雲端 Hyperscaler／完全自管的 OpenAI 相容閘道（如 Ollama、LiteLLM、vLLM）串接地端私有 LLM |
 | 套用方式 | Web UI／IDE 一鍵套用建議，人工確認後才提交，不會自動修改程式碼並直接 commit |
 
 ```mermaid
 sequenceDiagram
     participant Dev as 開發者
     participant SQ as SonarQube
-    participant LLM as LLM（代管或自帶）
+    participant LLM as LLM（代管或自帶／自管閘道）
 
     SQ->>SQ: 分析發現 Issue
     Dev->>SQ: 點擊「Generate Fix」
@@ -1538,6 +1561,8 @@ sequenceDiagram
 ```
 
 > ⚠️ **注意事項**：啟用 AI CodeFix 代表程式碼片段會被傳送至所設定的 LLM（即使是企業自帶模型，仍是「離開 SonarQube 本身進程」的資料流動）。金融、政府等對資料外流敏感的企業，應優先評估「自帶私有 LLM／地端模型」選項，並將此資料流納入既有資料治理與供應商風險評估範圍，而非預設使用 SonarSource 代管模型。
+>
+> 💡 **版本提醒**：AI CodeFix 自 **SonarQube Server 2026.2** 起改採模型無關架構，除官方代管與自帶 Azure OpenAI 外，也開放透過 OpenAI 相容閘道（Ollama／LiteLLM／vLLM 等）串接完全自管的地端模型，進一步降低金融、政府等高度資料治理要求產業的導入門檻；企業導入前仍應以當下官方文件核對所屬版本實際支援的模型清單。
 
 ### 11.2 AI Code Assurance：AI 程式碼專屬治理
 
@@ -1547,60 +1572,117 @@ AI Code Assurance 讓企業可以：
 - 對標記為「含 AI 程式碼」的專案，套用**專屬、通常更嚴格**的 Quality Gate（呼應第1章「AI Agent 自主產出規模暴增」的治理需求）
 - 產生**外部徽章（Badge）**，對外證明該專案的 AI 產出已通過企業治理把關（可用於供應商評估、客戶稽核溝通）
 
-> 💡 **實務案例**：與第8章「AI Code Quality Gate 強制檢核」理念一致，AI Code Assurance 把這個概念**產品化**為官方功能，企業不需自行用 Tag／Label 手動拼湊治理機制，可直接使用內建標記與專屬 Gate。
+| 項目 | 現行狀態 |
+|---|---|
+| 內建專屬 Quality Gate | **Sonar way for agentic AI**（取代原「Sonar way for AI code」；仍套用舊版 Gate 的專案會被標示為 **Legacy**，建議規劃遷移） |
+| Gate 新增條件 | 新增 **Dependency Risk** 條件，呼應第12章 SCA 依賴風險治理 |
+| AI 程式碼標記方式 | **人工標記為主要途徑**（見下方 ⚠️ 注意事項） |
+
+> ⚠️ **注意事項（重要變更）**：官方原提供的 **Autodetect AI Code**（依提交模式等訊號自動推測是否為 AI 產生程式碼的功能）已於 **SonarQube 2026.1** 正式**棄用（Deprecated）**，將於後續版本移除；官方建議企業改以**人工標記**（可搭配第8.4節「Commit 訊息規範」等既有治理流程）作為判定專案是否套用 AI Code Assurance 的主要依據，不應僅依賴自動推測結果作為稽核證據。
+>
+> 💡 **實務案例**：與第8章「AI Code Quality Gate 強制檢核」理念一致，AI Code Assurance 把這個概念**產品化**為官方功能，企業不需自行用 Tag／Label 手動拼湊治理機制；建議在遷移至新版 Gate 時，同步盤點既有專案是否仍停留在標示為 Legacy 的舊版 Gate，並將人工標記流程正式納入第23章「新專案導入 Checklist」。
 
 ### 11.3 SonarQube MCP Server：讓 AI Agent 直接操作分析結果
 
 ```mermaid
 graph LR
-    Agent[AI Agent<br/>Claude Code/VS Code等] -->|Model Context Protocol| MCP[SonarQube MCP Server]
+    Agent[AI Agent<br/>Claude Code/GitHub Copilot/Cursor等] -->|Model Context Protocol| MCP[SonarQube MCP Server<br/>獨立容器 或 Server/Cloud 原生託管]
     MCP -->|REST API| SQ[SonarQube Server/Cloud]
     SQ --> DB[(分析結果/Issue/SCA)]
 ```
 
-| 常見可用工具（依官方版本可能調整） | 用途 |
+```bash
+# 方式一：獨立 Docker 容器（Docker MCP Catalog 或 SonarSource 官方 Docker Hub 映像，兩者皆為官方發布）
+docker run -i --rm \
+  -e SONARQUBE_TOKEN="$SONAR_TOKEN" \
+  -e SONARQUBE_ORG="my-org" \
+  mcp/sonarqube
+# 或
+docker run -i --rm \
+  -e SONARQUBE_TOKEN="$SONAR_TOKEN" \
+  -e SONARQUBE_ORG="my-org" \
+  sonarsource/sonarqube-mcp
+
+# 方式二：SonarQube Server 2026.3 起原生內建託管，無需另外部署容器，直接連線 Server 的 /mcp 端點
+# （詳細設定鍵請參閱官方 sonar.mcp.* 相關文件）
+```
+
+| 工具分類 | 用途 |
 |---|---|
-| 查詢 Quality Gate 狀態 | 取得指定專案/分支目前是否通過 |
-| 列出 Issue／Security Hotspot | 取得未解決問題清單與詳細說明 |
-| 查詢 SCA 依賴風險 | 取得第三方套件風險清單（第12章） |
-| 更新 Issue 狀態 | 標記已確認／已解決（仍建議保留人工複核敏感操作的權限分級） |
-| 分析程式碼片段 | 對尚未提交的片段做即時規則檢查 |
+| Quality Gate 查詢 | 取得指定專案/分支目前是否通過 |
+| Issue／Security Hotspot 查詢與更新 | 列出未解決問題、標記已確認／已解決（第1.6節提醒：Security Hotspot 分類自 2026.4 起逐步整併為一般 Issue） |
+| **Dependency Risk／SCA**（新增分類） | 如 `search_dependency_risks`、`check_dependency`，查詢第三方套件風險（第12章） |
+| **架構情境（Vortex 相關）**（新增分類） | 如 `get_current_architecture`、`get_upstream_call_flow`、`get_type_hierarchy`，在 Agent 生成程式碼前提供既有架構脈絡（第11.5節 Sonar Vortex） |
+| **Agentic Readiness Assessment**（Cloud 限定，新增分類） | 評估專案／組織是否具備讓 AI Agent 安全自主開發的治理條件 |
+| Portfolio／Webhook／系統管理 | 跨專案彙總查詢、Webhook 管理、系統健康狀態 |
+
+> ⚠️ 官方工具清單持續擴充（截至 2026年中已達 30 餘項），實際可用工具請以連線當下 MCP Server 版本回報的清單為準，不宜將上表視為固定不變的完整清單。
 
 **企業導入建議**：
 
-1. **獨立 Token 管理**：MCP Server 連線 Token 與一般 CI Token 分開管理，並設定到期日
+1. **獨立 Token 管理**：MCP Server 連線 Token 與一般 CI Token 分開管理，並設定到期日；採原生內建託管模式時，善用官方提供的全域 Kill-Switch Token 作為異常時的緊急停用手段
 2. **最小權限原則**：僅授予查詢與 Issue 狀態更新所需權限，不授予 Administrator／Quality Gate 設定變更權限
 3. **稽核留痕**：透過 MCP 進行的 Issue 狀態變更，仍會留下與 Web UI／API 操作相同的歷史紀錄，可納入既有稽核流程
 4. **與傳統 CLI Scan 並存**：MCP 提供「開發中快速查詢」，正式的 Quality Gate 仍應由 CI Pipeline（第17~19章）強制把關，不可僅依賴 Agent 自主呼叫 MCP 作為唯一驗證手段
 
 實際設定方式見第9章 9.6。
 
+> 💡 **GitHub Copilot 支援現況（已更新）**：官方 SonarQube MCP Server 現已提供**文件化**的 GitHub Copilot 整合方式——**Copilot CLI** 可透過 `/mcp add` 指令連線，**Copilot Coding Agent** 則可透過 CI/CD 設定檔中以 `COPILOT_MCP_` 為前綴的 Repository Secret 連線，不再僅限 Claude Code 等 CLI Agent（對應更新第10章 10.6 第5項）。
+
 ### 11.4 Agent Centric Development Cycle（AC/DC）
 
-AC/DC 是 SonarSource 提出的治理框架，用於描述「AI Agent 大量參與寫程式碼」時代下，品質與安全把關應如何融入開發循環：
+AC/DC 是 SonarSource 提出的治理框架，用於描述「AI Agent 大量參與寫程式碼」時代下，品質與安全把關應如何融入開發循環。框架自 2026年初發布後持續演進：**原始版本**以 **Guide → Generate → Verify → Solve** 四階段迴圈描述整體概念，適合作為理解 AC/DC 精神的入門模型；**現行官方文件**則進一步將其具象化為三個彼此銜接的迴圈，並各自對應 SonarSource 2026年中新推出的產品線（第11.5節）：
 
 ```mermaid
 flowchart LR
-    A[Guide<br/>提供專案規範/架構/程式碼脈絡] --> B[Generate<br/>LLM/Agent 生成程式碼]
-    B --> C[Verify<br/>分析產出的程式碼]
-    C --> D[Solve<br/>修復發現的問題]
-    D -->|經驗回饋| A
+    subgraph L1["Agentic Loop（開發中）"]
+        A[Sonar Vortex<br/>提供架構/規範脈絡] --> B[Agent 生成程式碼]
+        B --> C[即時驗證]
+        C -->|回饋| A
+    end
+    subgraph L2["CI Verification Loop（CI 階段）"]
+        D[Gitar<br/>AI Code Review] --> E{通過 CI?}
+        E -->|否，迭代修復| D
+        E -->|是| F[Merge]
+    end
+    subgraph L3["Code Maintenance Loop（維運階段）"]
+        G[既有技術債/漏洞] --> H[Remediation Agent + AI CodeFix<br/>自主修復]
+        H --> I[提出可合併 PR]
+    end
+    L1 --> L2 --> L3 -->|經驗回饋| L1
 ```
 
-| 階段 | 說明 | 對應 SonarQube 能力 |
+| 迴圈 | 說明 | 對應產品／SonarQube 能力 | 對應原始四階段 |
+|---|---|---|---|
+| **Agentic Loop**（開發中） | 在 Agent 生成程式碼「當下」提供組織規範、既有架構脈絡（呼叫關係、型別階層等），並即時驗證產出 | **Sonar Vortex**、Quality Profile、CLAUDE.md／團隊 Prompt 規範（第8、9章） | Guide + Generate |
+| **CI Verification Loop**（CI 階段） | PR 建立後，AI 驅動的程式碼審查持續迭代修復，直到通過 CI／Quality Gate 才允許合併 | **Gitar**（2026年5月併入 SonarSource）、既有 CI Quality Gate（第17～19章） | Verify |
+| **Code Maintenance Loop**（維運階段） | 針對既有系統累積的技術債、漏洞、架構腐化，由 Agent 自主修復並提出可合併 PR | **SonarQube Remediation Agent**、AI CodeFix | Solve |
+
+三迴圈形成一個持續自我改善的整體：CI Verification／Code Maintenance 迴圈中反覆出現的問題，應回饋至 Agentic Loop（調整規範、補充架構脈絡），讓下一輪產出品質持續提升。此框架與既有 **SSDLC**（第15章）、**DevSecOps**（第16章）並不衝突——AC/DC 是針對「Agent 自主開發」場景的治理視角，可視為 SSDLC／DevSecOps 在 AI 時代的延伸補充，而非取代既有治理框架。
+
+> 💡 SonarSource 官方持續以「**Vibe, then verify**」（先隨性產出，但務必驗證）作為 AC/DC 精神的標語，貫穿其 2025～2026 年多篇版本發布與部落格內容，呼應第9.6節「vibe-then-verify」模式的說明。
+
+### 11.5 2026年新產品線：Sonar Vortex、SonarQube Remediation Agent 與 Gitar
+
+SonarSource 於 2026年5～6月透過併購與新產品發表，大幅擴充 AC/DC 框架的落地能力，企業導入前應先掌握三者定位：
+
+| 產品 | 定位 | 說明 |
 |---|---|---|
-| **Guide** | 在 Agent 寫程式碼之前，提供專案規範、架構資訊、既有程式碼脈絡（如 `CLAUDE.md`、Quality Profile 規則） | Quality Profile、CLAUDE.md／團隊 Prompt 規範（第8、9章） |
-| **Generate** | Agent 依據 Guide 階段提供的脈絡生成程式碼 | （由 AI 工具本身負責） |
-| **Verify** | 分析 Generate 階段產出的程式碼 | SonarQube 分析、Quality Gate、MCP Server 即時查詢 |
-| **Solve** | 修復 Verify 階段發現的問題 | AI CodeFix、Agent 自主修復（如 Claude Code 讀取 Issue 清單自動修復） |
+| **Sonar Vortex** | Agentic Loop 核心引擎 | 在 Agent 生成程式碼「之前與當下」提供組織規範、既有架構脈絡（呼叫關係、型別階層等），並即時驗證產出；官方宣稱可降低重構類任務高達 36% 的 Token 消耗 |
+| **SonarQube Remediation Agent** | Code Maintenance Loop 核心引擎 | 針對已指派的既有技術債（漏洞、架構腐化、可維護性問題）自主修復，並直接提出可合併（Merge-Ready）的 Pull Request |
+| **Gitar** | CI Verification Loop 核心引擎 | 2026年5月併入 SonarSource 的 AI 原生程式碼審查工具，可自動產生修復建議並持續迭代直到通過 CI；可獨立採購，亦可與 SonarQube 整合使用 |
 
-AC/DC 形成一個自我改善迴圈：Verify／Solve 階段的經驗（哪些問題反覆出現）應回饋至 Guide 階段（調整規範、補充脈絡），讓下一輪產出品質持續提升。此框架與既有 **SSDLC**（第15章）、**DevSecOps**（第16章）並不衝突——AC/DC 是針對「Agent 自主開發」場景的治理視角，可視為 SSDLC／DevSecOps 在 AI 時代的延伸補充，而非取代既有治理框架。
+> ⚠️ **注意事項**：上述三項為 2026年中新發表／新併入的產品線，企業導入前務必確認所屬 SonarQube Server／Cloud 版本與授權方案是否已包含對應能力，並比照第11.1、11.2節 AI CodeFix／AI Code Assurance 的治理原則，將「Agent 自主提出的修復 PR」納入既有 Code Review 與 Quality Gate 把關，**不應**因為修復由 Agent 產生就跳過人工複核。
+>
+> 💡 SonarSource 2026年委託調查顯示，僅 48% 的開發者會逐行驗證 AI 產出的程式碼、96% 對 AI 產出品質「不完全信任」——這正是 SonarSource 投入 AC/DC 框架與上述三項產品的市場背景依據，也呼應本手冊第8章「企業不能僅靠 Prompt 提示善意防範風險」的立場。
+>
+> 💡 **實務案例**：**SonarQube Server 2026.4** 已隨此波產品線推出專屬的 **Sonar way for Agentic AI** Quality Gate，相較一般 Quality Gate 對安全性／可靠性與新增依賴風險（如疑似仿冒或幻覺套件名稱）採更嚴格門檻，但對次要可維護性問題採較寬容標準，企業可評估將其套用於已導入上述 Agent 自主修復流程的專案，取代或補強第7章介紹的自訂 Quality Gate。
 
-### 11.5 實務案例與注意事項
+### 11.6 實務案例與注意事項
 
 > 💡 **實務案例**：某團隊導入 SonarQube MCP Server 後，Claude Code 在多輪對話中可即時查詢 Quality Gate 狀態並自主修復，PR 建立前的「人工跑掃描、等結果、回去改」迴圈大幅縮短；但團隊仍保留 CI Pipeline 的正式 Quality Gate 作為最終關卡，避免完全依賴 Agent 自我宣稱「已通過」。
 >
-> ⚠️ **注意事項**：AI CodeFix／AI Code Assurance／MCP Server 都是**輔助工具**，不會改變「人工需對程式碼正確性與安全性負最終責任」的治理原則；企業導入時應同步更新內部規範，明確界定哪些操作（如 Issue 標記為已解決、套用 AI CodeFix 建議）仍需人工確認，避免治理責任在自動化便利性下被悄悄稀釋。
+> ⚠️ **注意事項**：AI CodeFix／AI Code Assurance／MCP Server／Sonar Vortex／Remediation Agent／Gitar 都是**輔助工具**，不會改變「人工需對程式碼正確性與安全性負最終責任」的治理原則；企業導入時應同步更新內部規範，明確界定哪些操作（如 Issue 標記為已解決、套用 AI CodeFix 建議、合併 Remediation Agent 提出的 PR）仍需人工確認，避免治理責任在自動化便利性下被悄悄稀釋。
 
 ---
 
@@ -1609,8 +1691,8 @@ AC/DC 形成一個自我改善迴圈：Verify／Solve 階段的經驗（哪些�
 ### 🎯 學習目標
 
 - 理解 SonarQube Advanced Security 模組的定位、涵蓋範圍與適用版本/方案
-- 掌握 SCA、IaC 安全掃描、Secrets Detection、Container/SBOM 分析的核心能力
-- 理解本模組與第14章 DevSecOps 既有外部工具防線的整合/取代關係
+- 掌握 SCA、IaC 安全掃描、Secrets Detection、SBOM 匯入分析的核心能力
+- 理解本模組與第16章 DevSecOps 既有外部工具防線的整合/取代關係
 
 ### 12.1 模組總覽
 
@@ -1618,15 +1700,15 @@ SonarQube Advanced Security 是 2025 年起推出的**獨立付費加購模組**
 
 | 能力 | 涵蓋範圍 | 對應第1章 1.4 比較 |
 |---|---|---|
-| SCA（Software Composition Analysis） | 第三方依賴風險、惡意套件偵測、授權合規、SBOM | 取代/補強原「外部 SCA 工具」欄位 |
-| IaC 安全掃描 | Terraform、CloudFormation、Azure Resource Manager、Kubernetes、Ansible | 補強基礎設施層級的程式碼化風險 |
+| SCA（Software Composition Analysis） | 第三方依賴風險、惡意套件偵測、授權合規、SBOM 產出 | 取代/補強原「外部 SCA 工具」欄位 |
+| IaC 安全掃描 | Terraform、CloudFormation、Azure Resource Manager、Kubernetes、Ansible、Docker | 補強基礎設施層級的程式碼化風險 |
 | Secrets Detection | API Key、密碼、Token 等敏感資訊外洩偵測 | 與第8章 AI 產出 Hardcoded Secret 風險呼應 |
-| Container/SBOM 分析 | 匯入 SBOM 檔案分析容器內容 | 補強第14章 DevSecOps 第三層 Container Scan |
+| SBOM 匯入分析 | **匯入**外部工具（如 Syft）產生的容器 SBOM 檔案，比對其中套件的已知風險 | 補強第16章 DevSecOps 第三層 Container Scan，**非**取代（詳見12.5節說明） |
 
 | 項目 | 說明 |
 |---|---|
-| 適用版本（Server） | Enterprise Edition、Data Center Edition（可加購） |
-| 適用方案（Cloud） | 視方案開放範圍，請以官方當前方案頁面核對 |
+| 適用版本（Server） | **僅** Enterprise Edition（2025.3 版起）、Data Center Edition（皆為可加購模組）；**Developer Edition 不提供** |
+| 適用方案（Cloud） | SonarQube Cloud **Team Plan、Enterprise Plan**（Free／OSS 方案不含） |
 | 與既有 SAST 關係 | 同一治理介面呈現，無需切換工具或另開報表 |
 
 ### 12.2 SCA：依賴風險與供應鏈安全
@@ -1649,25 +1731,28 @@ flowchart LR
 
 ### 12.3 IaC 安全掃描
 
-支援 Terraform、AWS CloudFormation、Azure Resource Manager、Kubernetes Manifest、Ansible 等常見 IaC 格式，於程式碼階段即發現雲端資源設定風險（如公開的 Storage Bucket、過寬的 Security Group），落實「基礎設施程式碼與應用程式碼同等級把關」。
+支援 Terraform、AWS CloudFormation、Azure Resource Manager、Kubernetes Manifest、Ansible、Docker 等常見 IaC 格式，於程式碼階段即發現雲端資源設定風險（如公開的 Storage Bucket、過寬的 Security Group），落實「基礎設施程式碼與應用程式碼同等級把關」。
 
 ### 12.4 Secrets Detection
 
 掃描原始碼歷史與當前版本，偵測 API Key、雲端服務憑證、資料庫密碼等硬編碼敏感資訊；與第8章「AI 工具為了讓範例能跑而寫死金鑰」風險直接對應，建議所有專案（尤其 AI 協作專案）將此規則設為 Blocker。
 
-### 12.5 Container/SBOM 分析
+### 12.5 SBOM 匯入分析（非原生容器映像掃描）
 
-可匯入容器映像檔的 SBOM，分析容器內安裝的套件與其風險，與 CI Pipeline 中既有的 Container Scan（如 Trivy）形成互補或取代關係，視企業既有工具鏈整合成本決定。
+> ⚠️ **重要澄清**：SonarQube Advanced Security **不會直接掃描容器映像檔本身**，而是透過 `sonar.sca.sbomImportPaths` 等設定，**匯入**由外部工具（如 Syft、CycloneDX 產生器）預先產出的 SBOM 檔案，再比對其中列出套件的已知漏洞與風險。這與 Trivy、Grype 等會直接對映像檔逐層掃描的原生 Container Scan 工具，在運作機制上並不相同，企業規劃第16章 DevSecOps Pipeline 第三層防線時務必留意此差異，避免誤以為導入 Advanced Security 即可完全取代原生 Image Scan 步驟。
+
+實務流程為：CI Pipeline 先以 Syft 等工具對建置完成的映像檔產生 SBOM → 將 SBOM 檔案路徑交給 SonarQube 分析 → SonarQube 比對 SBOM 內套件與已知漏洞資料庫，產出風險清單。
 
 ### 12.6 與既有 DevSecOps 防線的整合
 
-第16章描述的五層 Security Gate（SAST/SCA/Container/DAST/Runtime）中，**第二層 SCA 與第三層 Container Scan** 現可由 SonarQube Advanced Security 原生提供，企業可依下表評估是否整合：
+第16章描述的五層 Security Gate（SAST/SCA/Container/DAST/Runtime）中，**第二層 SCA 可由 SonarQube Advanced Security 原生提供**；**第三層 Container Scan** 則需視企業是否已有 SBOM 產生流程而定——Advanced Security 僅能匯入分析既有 SBOM，仍需**搭配** Syft 等 SBOM 產生工具，且無法取代 Trivy／Grype 等對映像檔本身的逐層掃描能力。企業可依下表評估整合方式：
 
 | 情境 | 建議 |
 |---|---|
 | 已有成熟的外部 SCA/Container Scan 工具鏈 | 可維持現狀，將 Advanced Security 結果作為交叉比對/去重的第二來源 |
-| 尚未導入 SCA/Container Scan，或想降低工具鏈複雜度 | 優先評估以 Advanced Security 取代外部工具，減少治理介面數量 |
-| 高度合規導向（金融/政府） | 兩者並存交叉驗證，降低單一工具誤判/漏判風險，並保留多來源證據鏈供稽核 |
+| 尚未導入 SCA，或想降低依賴風險治理工具鏈複雜度 | 優先評估以 Advanced Security 取代外部 SCA 工具，減少治理介面數量 |
+| 需要 Container 防線 | Advanced Security 僅能補強「已產生 SBOM 之後」的套件風險比對，**仍須**保留 Trivy／Grype 等原生 Image Scan 工具作為第三層主力 |
+| 高度合規導向（金融/政府） | SCA 部分可兩者並存交叉驗證，降低單一工具誤判/漏判風險，並保留多來源證據鏈供稽核 |
 
 ### 12.7 實務案例與注意事項
 
@@ -1722,7 +1807,7 @@ mvn clean verify sonar:sonar \
 透過 Web UI 的 **Measures > Complexity** 與 API 取得跨模組依賴：
 
 ```bash
-curl -u admin:admin "http://localhost:9000/api/measures/component_tree?component=legacy-core-banking&metricKeys=complexity,cognitive_complexity,ncloc&strategy=children"
+curl -u "$SONAR_ADMIN_TOKEN:" "http://localhost:9000/api/measures/component_tree?component=legacy-core-banking&metricKeys=complexity,cognitive_complexity,ncloc&strategy=children"
 ```
 
 ### 13.4 Code Structure Analysis（結構分析）
@@ -1751,14 +1836,24 @@ graph TB
 
 > ⚠️ **注意事項**：逆向工程常會發現「文件上畫的是分層架構，但程式碼裡 Presentation 直接呼叫 DAO」等架構腐化（Architecture Erosion）現象，SonarQube 的 Dependency 分析能提供「實際存在的依賴」證據，而非僅依賴口述歷史。
 
-### 13.6 Database Analysis 配合策略
+### 13.6 官方原生 Architecture Management（2026年新增）
+
+13.3～13.5 介紹的依賴分析與架構還原方法，原本需透過 API／Measures 手動組裝證據；**SonarQube Server 2026.4** 起，官方將原本僅限 SonarQube Cloud 提供的 **Architecture Management（架構管理）** 能力下放至 Server，可原生：
+
+- 視覺化呈現元件（模組／套件／類別）之間的實際依賴關係圖，無需自行組裝 `component_tree` API 結果
+- 自動偵測並標記**架構腐化（Architectural Drift）**：實際依賴關係偏離既定分層原則的位置
+- 與既有 Quality Gate 整合，可將「新增架構違規」納入把關條件
+
+> 💡 **導入建議**：企業若已依 13.3～13.5 的方法建立手動分析流程，可將原生 Architecture Management 視為**加速與視覺化工具**，而非取代——本章介紹的 API 取數方式在客製化報表（如結合非 SonarQube 資料來源）情境下仍有價值；若單純需要架構腐化視覺化與 Quality Gate 整合，優先評估原生功能可大幅降低逆向工程專案的前期建置成本。詳細功能範圍請以所屬版本官方文件為準。
+
+### 13.7 Database Analysis 配合策略
 
 SonarQube 本身不直接分析資料庫 Schema，但可搭配：
 
 1. 掃描 DAO / Repository 層程式碼，找出動態 SQL 拼接（高風險 SQL Injection 來源，常見於 Legacy 系統）
 2. 搭配 Schema 比對工具（如 Liquibase diff、SchemaSpy）產出 ER 圖，與 SonarQube 程式碼依賴圖交叉比對，確認「程式碼宣稱的資料存取路徑」與「實際 SQL 內容」是否一致
 
-### 13.7 實際案例：核心放款系統逆向工程
+### 13.8 實際案例：核心放款系統逆向工程
 
 某銀行核心放款系統（2008 年建置，Struts 1 + 原生 JDBC）導入逆向工程分析：
 
@@ -1851,7 +1946,7 @@ sonar.java.source=21
 
 ```bash
 # 升級前後比較 Technical Debt Ratio 趨勢
-curl -u admin:admin "http://localhost:9000/api/measures/search_history?component=web-frontend&metrics=sqale_debt_ratio&from=2026-01-01"
+curl -u "$SONAR_ADMIN_TOKEN:" "http://localhost:9000/api/measures/search_history?component=web-frontend&metrics=sqale_debt_ratio&from=2026-01-01"
 ```
 
 ### 14.5 框架升級 SOP
@@ -1949,11 +2044,11 @@ flowchart TD
 |---|---|---|---|
 | 第一層：SAST | SonarQube | Commit / PR 階段 | 阻擋 Merge |
 | 第二層：SCA | SonarQube Advanced Security（原生，第12章）或 OWASP Dependency-Check 等外部工具 | CI 階段 | 阻擋 Build 產出 Artifact |
-| 第三層：Container Scan | SonarQube Advanced Security（Container/SBOM，第12章）或 Trivy / Grype | Image Build 後 | 阻擋推送至 Registry |
+| 第三層：Container Scan | Trivy / Grype 等原生 Image Scan 工具（主力），可搭配 SonarQube Advanced Security 匯入 SBOM 做套件風險交叉比對（第12.5節，非取代關係） | Image Build 後 | 阻擋推送至 Registry |
 | 第四層：DAST | OWASP ZAP | Staging 部署後 | 阻擋晉升 Production |
 | 第五層：Runtime | RASP / WAF / 漏洞情報訂閱 | Production 持續監控 | 觸發事件回應流程 |
 
-> 💡 第二、三層是否改用 SonarQube Advanced Security 取代外部工具，請參考第12章 12.6 的整合建議與評估表。
+> 💡 第二層 SCA 是否改用 SonarQube Advanced Security 取代外部工具、第三層 Container Scan 應如何與 Advanced Security 的 SBOM 匯入分析搭配（而非取代），請參考第12章 12.6 的整合建議與評估表。
 
 ### 16.3 完整 DevSecOps Pipeline 範例（GitHub Actions）
 
@@ -1979,7 +2074,7 @@ jobs:
         run: mvn -B clean verify
 
       - name: SAST - SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v4
+        uses: SonarSource/sonarqube-scan-action@v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -2039,7 +2134,7 @@ jobs:
 
 - 掌握 Spring Boot、Vue、Monorepo、Microservices 情境下的 GitHub Actions + SonarQube 整合
 
-> 💡 **版本提醒**：以下範例中 `sonarqube-scan-action`／`sonarqube-quality-gate-action` 等 Action 版本號會隨官方發布持續推進，請至 GitHub Marketplace 對應頁面核對當前主版本後調整。
+> 💡 **版本提醒**：以下範例中 `sonarqube-scan-action`（截至 2026年8月主版本為 **v8**）／`sonarqube-quality-gate-action`（現行主版本仍為 **v1**）等 Action 版本號會隨官方發布持續推進，請至 GitHub Marketplace 對應頁面核對當前主版本後調整。**升級注意**：`sonarqube-scan-action` **v6** 起由 Bash 改寫為 JavaScript（修補命令注入漏洞），`args` 輸入的參數解析方式隨之調整，既有工作流程升級時建議重新確認參數是否需要調整引號／逸出方式；**v8.0.0** 起 `skipSignatureVerification` 預設值改為 `false`（預設啟用 GPG 簽章驗證），自架 Runner 若未安裝 `gpg`／`dirmngr`，需額外安裝或明確設定此參數，否則掃描步驟會失敗。
 
 ### 17.1 Spring Boot 專案完整 YAML
 
@@ -2065,7 +2160,7 @@ jobs:
       - name: Build, Test, Coverage
         run: mvn -B clean verify org.jacoco:jacoco-maven-plugin:report
       - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -2102,7 +2197,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run test:coverage
-      - uses: SonarSource/sonarqube-scan-action@v5
+      - uses: SonarSource/sonarqube-scan-action@v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -2166,7 +2261,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '20' }
       - run: npm ci && npm run test:coverage
-      - uses: SonarSource/sonarqube-scan-action@v5
+      - uses: SonarSource/sonarqube-scan-action@v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -2285,10 +2380,10 @@ sonarqube-check:
 於 SonarQube **Project Settings > General Settings > DevOps Platform Integration**，設定 GitLab 整合：
 
 ```bash
-curl -u admin:admin -X POST "http://localhost:9000/api/alm_settings/create_gitlab" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/alm_settings/create_gitlab" \
   -d "key=corp-gitlab&url=https://gitlab.example.com/api/v4&personalAccessToken=$GITLAB_PAT"
 
-curl -u admin:admin -X POST "http://localhost:9000/api/alm_settings/set_gitlab_binding" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/alm_settings/set_gitlab_binding" \
   -d "almSetting=corp-gitlab&project=payment-service&repository=12345"
 ```
 
@@ -2398,7 +2493,7 @@ pipeline {
 ### 19.2 SonarQube Server 端設定 Jenkins Webhook
 
 ```bash
-curl -u admin:admin -X POST "http://localhost:9000/api/webhooks/create" \
+curl -u "$SONAR_ADMIN_TOKEN:" -X POST "http://localhost:9000/api/webhooks/create" \
   -d "name=Jenkins&url=https://jenkins.example.com/sonarqube-webhook/"
 ```
 
@@ -2467,12 +2562,14 @@ pipeline {
 ### 20.1 認證方式
 
 ```bash
-# 方式一：Token 作為 Basic Auth 帳號（密碼留空）
+# 方式一：Token 作為 Basic Auth 帳號（密碼留空，適用於 Server；下方範例為求簡潔沿用此寫法）
 curl -u "$SONAR_TOKEN:" "http://localhost:9000/api/system/status"
 
-# 方式二：Bearer Token（新版建議方式）
+# 方式二：Bearer Token（官方現行建議方式，Server／Cloud 皆適用）
 curl -H "Authorization: Bearer $SONAR_TOKEN" "http://localhost:9000/api/system/status"
 ```
+
+> ⚠️ **注意事項（Cloud 專屬）**：**SonarQube Cloud** 已於 **2026-06-11** 起完全移除對 `sonar.login` 參數與 Token-as-Basic-Auth 方式的支援（**2026-05-20／21** 起即不再接受 Token 作為 Basic Auth 帳密），**僅接受 Bearer Token**；本章其餘範例為求簡潔沿用 `-u "$SONAR_TOKEN:"` 寫法，若目標為 **SonarQube Cloud**，請一律改用 `-H "Authorization: Bearer $SONAR_TOKEN"`。SonarQube Server（自管）目前仍同時支援兩種方式，但官方建議一律以 Bearer Token 為準。
 
 ### 20.2 Project API
 
@@ -2512,6 +2609,8 @@ curl -u "$SONAR_TOKEN:" -X POST "http://localhost:9000/api/issues/do_transition"
 # 批次取得 Security Hotspot 清單
 curl -u "$SONAR_TOKEN:" "http://localhost:9000/api/hotspots/search?projectKey=payment-service&status=TO_REVIEW"
 ```
+
+> ⚠️ **注意事項（API 棄用提醒）**：`api/hotspots/*` 系列端點自 **SonarQube Server 2026.4** 起已標示為**棄用（Deprecated）**，對應官方逐步淘汰獨立 Security Hotspot 分類的方向（第1.6節）；既有歷史 Hotspot 資料仍可查詢，但新版規則已改為直接產生 Vulnerability（Standard Mode）或 Security Issue（MQR Mode），並統一透過 `api/issues/*` 端點查詢。自動化腳本／稽核報表若依賴 `hotspots/search`，應規劃改用 `issues/search` 並依 Issue 類型／Software Quality 篩選，避免未來版本移除此端點後腳本失效。
 
 ### 20.5 Automation API 應用：自動化稽核報表
 
@@ -2727,7 +2826,7 @@ scrape_configs:
 
 ### 22.1 LTA（Long-Term Active）升級策略
 
-SonarQube Server 自 2025 年起改用**年度日曆版號** `YYYY.Release.Patch`：每年第一個發布版本即為 **LTA（Long-Term Active，取代舊稱 LTS）**，年內後續版本（如 `.2`、`.3`、`.4`）為一般 Release，提供新功能但非長期維護目標版本。LTA 發布週期已由舊制的 18 個月縮短為 12 個月，企業應**優先停留在 LTA 版本**，僅在 LTA 之間升級，避免逐一追逐年中 Release：
+SonarQube Server 自 2025 年起改用**年度日曆版號** `YYYY.Release.Patch`：官方每年會發布一個掛牌為 **LTA（Long-Term Active，取代舊稱 LTS）** 的長期維護版本，年內其餘版本（如 `.2`、`.3`、`.4`）為一般 Release，提供新功能但非長期維護目標版本。**注意**：LTA **不一定**只出現在每年第一個版號——例如 2025 年內 `2025.1` 與 `2025.4` 皆掛牌為 LTA，實際節奏請以官方 Release Cycle Model 頁面即時公告為準，不可僅憑版號規則推測。LTA 發布週期已由舊制的 18 個月縮短為約 12 個月，企業應**優先停留在 LTA 版本**，僅在 LTA 之間升級，避免逐一追逐年中 Release（截至 2026年8月，現行 LTA 為 `2026.1`）：
 
 ```mermaid
 graph LR
@@ -3099,7 +3198,7 @@ A：不可以，一旦 Database Migration 已執行，必須用升級前備份�
 A：是，Database Migration 期間服務無法使用，需安排維護窗口。
 
 **Q42. 如何知道目前版本是否為 LTA？**
-A：查閱官方 Release Notes 或 Web UI 的版本資訊頁面，LTA 版本會明確標示；判斷原則為「每年第一個發布版本即為 LTA」（如 `2026.1`）。
+A：查閱官方 Release Notes 或 Web UI 的版本資訊頁面，LTA 版本會明確標示「LTA」字樣（如 `2026.1 LTA`）；**不要**僅憑「每年第一版」的簡化規則推測，官方曾在同一年內發布 2 個 LTA 版本（如 2025 年的 `2025.1` 與 `2025.4`），務必以官方 Release Cycle Model 頁面當下公告為準。
 
 ### 25.8 維運
 
@@ -3150,13 +3249,22 @@ A：新導入企業建議直接採用現行預設的 MQR Mode；已有大量舊�
 A：是，SonarLint 於 2024-10-29 正式改名為 SonarQube for IDE，功能與外掛本體相同，部分設定鍵名（如 `sonarlint.*`）為相容性考量暫未變更，市場上仍常見兩種稱呼混用。
 
 **Q57. SonarQube Community Build 與舊版 Community Edition 有什麼差異？**
-A：Community Build 是 Community Edition 的後繼名稱，定位仍是免費自管版本，但改為**持續滾動發行**，不採用年度 LTA 版號制度；功能範圍與舊 Community Edition 大致相同，企業由舊版升級時建議改用官方現行下載頁面取得最新安裝檔。
+A：Community Build 是 Community Edition 的後繼名稱，定位仍是免費自管版本，但改為**持續滾動發行**，不採用年度 LTA 版號制度；功能範圍與舊 Community Edition 大致相同，企業由舊版升級時建議改用官方現行下載頁面取得最新安裝檔。**版號格式已與 Server 完全脫鉤**：Community Build 採自有的月曆式版號 `YY.M.0.BuildNumber`（例如 2026年8月發行的版本為 `26.8.0.126808`），自 `24.12.0.100206` 起與 SonarQube Server 版號**不再有對應關係**，升級規劃時不可比照 Server 的 LTA 週期推算。
 
 **Q58. 啟用 AI CodeFix 會不會把程式碼洩漏給外部 LLM？**
 A：使用 SonarSource 代管模型時，程式碼片段確實會傳送至該模型服務；對資料外流敏感的企業，應改用「自帶模型／私有 LLM」選項（可部署於企業雲端或地端），並將此資料流納入既有供應商風險評估與資料治理流程（第11章 11.1）。
 
 **Q59. SonarQube MCP Server 的權限風險是什麼？**
 A：MCP Server 使用的 Token 若權限過大（如具備 Administrator 權限），AI Agent 可能在非預期情況下變更 Quality Gate 設定或大量修改 Issue 狀態；建議獨立管理 MCP 專用 Token，僅授予查詢與 Issue 狀態更新所需的最小權限（第11章 11.3）。
+
+**Q60. Security Hotspot 分類要淘汰了，既有的 Hotspot 審查紀錄怎麼辦？**
+A：既有歷史 Hotspot 資料在升級後仍會保留可見，不會被刪除；但**自 SonarQube Server 2026.4 起，新的分析不再產生新的 Hotspot**，相關規則改為直接產生 Vulnerability（Standard Experience Mode）或 Security Issue（MQR Mode）。企業應提前檢視內部依賴 `hotspots/*` API 或「Security Hotspot 審查率」為稽核指標的流程與報表，規劃改用 Issue 相關端點與指標銜接（第20章 20.4）。
+
+**Q61. Sonar Vortex、SonarQube Remediation Agent、Gitar 是否包含在既有授權內？**
+A：不一定。三者為 2026年中新發表／新併入 SonarSource 的產品線，部分能力綁定特定版本或另需授權（如 Gitar 可獨立採購），企業導入前務必向 SonarSource 業務窗口或官方最新方案頁面確認所屬授權是否已涵蓋，不應假設既有 Enterprise／Data Center 授權自動包含全部新功能（第11章 11.5）。
+
+**Q62. AI Code Assurance 的「Autodetect AI Code」自動偵測功能還能用嗎？**
+A：該功能已於 **SonarQube 2026.1** 起正式棄用，將於後續版本移除；官方建議改以**人工標記**專案／程式碼是否含 AI 產出內容，作為套用 AI Code Assurance 專屬 Quality Gate 的依據，不應再依賴系統自動推測結果（第11章 11.2）。
 
 ---
 
@@ -3421,7 +3529,7 @@ Session Fixation 防護，以及 Cookie 是否設定 HttpOnly/Secure/SameSite。
 | Quality Gate | 一組度量條件，決定程式碼是否「達標」可以合併/發行 |
 | Quality Profile | 特定語言的規則集設定 |
 | Technical Debt | 因採用較快但非最佳方案所累積、未來需償還的修復成本 |
-| Security Hotspot | 需人工複核才能判斷是否為真實風險的敏感程式碼 |
+| Security Hotspot | 需人工複核才能判斷是否為真實風險的敏感程式碼；分類自 **SonarQube Server 2026.4** 起逐步淘汰，改直接歸類為 Vulnerability／Security Issue（第1.6節） |
 | New Code | 依設定基準（如上一版本）判定的本次新增/變更程式碼 |
 | Clean as You Code | 聚焦新程式碼品質、逐步改善既有程式碼的治理策略 |
 | Compute Engine | SonarQube Server 內負責運算分析結果的元件 |
@@ -3432,9 +3540,12 @@ Session Fixation 防護，以及 Cookie 是否設定 HttpOnly/Secure/SameSite。
 | **SonarQube Community Build** | 取代舊「Community Edition」名稱的免費自管版本，持續滾動發行 |
 | **AI CodeFix** | SonarQube 原生功能，透過 LLM 產生 Issue 修復建議（第11章 11.1） |
 | **AI Code Assurance** | SonarQube 原生功能，標記 AI 程式碼並套用專屬 Quality Gate（第11章 11.2） |
-| **SonarQube MCP Server** | 官方 Model Context Protocol 伺服器，供 AI Agent 查詢/操作分析結果（第11章 11.3） |
-| **AC/DC** | Agent Centric Development Cycle，Guide→Generate→Verify→Solve 治理框架（第11章 11.4） |
-| **SonarQube Advanced Security** | 原生 SCA／IaC／Secrets／Container 安全模組（第12章） |
+| **SonarQube MCP Server** | 官方 Model Context Protocol 伺服器，供 AI Agent 查詢/操作分析結果；可獨立部署為 Docker 容器，亦可自 2026.3 起由 Server／Cloud 原生內建託管（第11章 11.3） |
+| **AC/DC** | Agent Centric Development Cycle，治理框架；原始描述為 Guide→Generate→Verify→Solve 四階段，現行官方文件具象化為 Agentic Loop／CI Verification Loop／Code Maintenance Loop 三迴圈（第11章 11.4） |
+| **SonarQube Advanced Security** | 原生 SCA／IaC／Secrets 安全模組，僅 Enterprise／Data Center Edition 提供；容器相關能力為**匯入外部 SBOM 分析**，非原生映像檔掃描（第12章） |
+| **Sonar Vortex** | AC/DC「Agentic Loop」核心引擎，於 Agent 生成程式碼前後提供架構脈絡與即時驗證（第11章 11.5） |
+| **SonarQube Remediation Agent** | AC/DC「Code Maintenance Loop」核心引擎，自主修復既有技術債並提出可合併 PR（第11章 11.5） |
+| **Gitar** | 2026年併入 SonarSource 的 AI 原生程式碼審查工具，為 AC/DC「CI Verification Loop」核心引擎（第11章 11.5） |
 
 ### 27.2 縮寫表
 
@@ -3485,10 +3596,17 @@ graph TB
 - SonarQube MCP Server 官方文件：`https://docs.sonarsource.com/sonarqube-mcp-server/`
 - Agent Centric Development Cycle（AC/DC）官方文件：`https://docs.sonarsource.com/agent-centric-development-cycle`
 - SonarScanner 官方文件：`https://docs.sonarsource.com/sonarqube-server/analyzing-source-code/scanners/`
+- SonarQube Server 版本發布節奏（Release Cycle Model）：`https://docs.sonarsource.com/sonarqube-server/server-update-and-maintenance/update/release-cycle-model`
+- SonarQube Advanced Security 產品頁：`https://www.sonarsource.com/products/sonarqube/advanced-security/`
+- SonarQube Cloud 訂閱方案頁：`https://docs.sonarsource.com/sonarqube-cloud/administering-sonarcloud/managing-subscription/subscription-plans`
+- Sonar Vortex／Remediation Agent 發表新聞稿：`https://www.sonarsource.com/company/press-releases/sonar-launches-sonar-vortex-and-sonarqube-remediation-agent/`
+- Gitar 併入 SonarSource 公告：`https://www.sonarsource.com/blog/welcoming-gitar-to-sonar/`
+- SonarQube Server 2026.4 發布說明：`https://www.sonarsource.com/blog/introducing-sonarqube-server-2026-4/`
 - SonarSource Rules Explorer：`https://rules.sonarsource.com/`
 - OWASP Top 10：`https://owasp.org/Top10/`
 - NIST SSDF (SP 800-218)：`https://csrc.nist.gov/Projects/ssdf`
 - GitHub Actions SonarQube Scan Action：`https://github.com/SonarSource/sonarqube-scan-action`
+- GitHub Actions SonarQube Quality Gate Action：`https://github.com/SonarSource/sonarqube-quality-gate-action`
 - SonarQube MCP Server（GitHub）：`https://github.com/SonarSource/sonarqube-mcp-server`
 
 > ⚠️ 上述為官方資源**索引位置**，請以企業內網實際可存取的版本與當下官方最新文件為準，版本更新可能調整路徑與內容。

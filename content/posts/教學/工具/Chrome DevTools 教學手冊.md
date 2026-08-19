@@ -8,41 +8,141 @@ categories = ['教學']
 
 # Chrome DevTools 教學手冊
 
-> **版本**：Chrome 131+（2026 年最新版）  
-> **適用對象**：前端工程師、後端工程師、架構師、DevOps 工程師  
+> **版本**：Chrome 151+（2026 年 8 月最新穩定版）  
+> **適用對象**：前端工程師、後端工程師、架構師、DevOps 工程師、AI Coding Agent 使用者  
 > **定位**：企業級實戰與維運教學手冊  
-> **最後更新**：2026-02-14
+> **最後更新**：2026-08-19
 
 ---
 
 ## 目錄
 
 - [第一章：Chrome DevTools 架構與核心原理](#第一章chrome-devtools-架構與核心原理)
+  - [1.1 DevTools 整體架構說明](#11-devtools-整體架構說明)
+  - [1.2 Browser 與 Rendering Pipeline](#12-browser-與-rendering-pipeline)
+  - [1.3 DOM / CSSOM / Render Tree](#13-dom--cssom--render-tree)
+  - [1.4 JavaScript Engine（V8）運作原理](#14-javascript-enginev8運作原理)
+  - [1.5 Network Request Lifecycle](#15-network-request-lifecycle)
+  - [1.6 DevTools 與 Chromium 架構關係](#16-devtools-與-chromium-架構關係)
 - [第二章：安裝與環境設定](#第二章安裝與環境設定)
+  - [2.1 Chrome 最新版安裝](#21-chrome-最新版安裝)
+  - [2.2 開啟 DevTools 的方式](#22-開啟-devtools-的方式)
+  - [2.3 常用快捷鍵整理](#23-常用快捷鍵整理)
+  - [2.4 常用設定](#24-常用設定)
+  - [2.5 與 VS Code 整合](#25-與-vs-code-整合)
+  - [2.6 Source Map 設定](#26-source-map-設定)
+  - [2.7 Local Overrides 設定方式](#27-local-overrides-設定方式)
   - [2.8 Device Mode（裝置模擬模式）](#28-device-mode裝置模擬模式)
   - [2.9 Command Menu（命令選單）](#29-command-menu命令選單)
 - [第三章：Elements 面板完整教學](#第三章elements-面板完整教學)
+  - [3.1 DOM 即時編輯](#31-dom-即時編輯)
+  - [3.2 CSS 即時修改](#32-css-即時修改)
+  - [3.3 Box Model 分析](#33-box-model-分析)
+  - [3.4 Layout Debug](#34-layout-debug)
+  - [3.5 Grid / Flexbox 視覺化工具](#35-grid--flexbox-視覺化工具)
+  - [3.6 事件監聽器檢查](#36-事件監聽器檢查)
+  - [3.7 強制狀態（:hover / :active）](#37-強制狀態hover--active)
 - [第四章：Console 深入教學](#第四章console-深入教學)
+  - [4.1 Console API 使用](#41-console-api-使用)
+  - [4.2 進階 Console API](#42-進階-console-api)
+  - [4.3 樣式化 Console 輸出](#43-樣式化-console-輸出)
+  - [4.4 Console 工具函式](#44-console-工具函式)
+  - [4.5 操作 DOM 的 Console 技巧](#45-操作-dom-的-console-技巧)
+  - [4.6 Performance 分析 Console 技巧](#46-performance-分析-console-技巧)
 - [第五章：Sources 面板（JS 除錯核心）](#第五章sources-面板js-除錯核心)
+  - [5.1 設定 Breakpoint（中斷點）](#51-設定-breakpoint中斷點)
+  - [5.2 Conditional Breakpoint（條件斷點）](#52-conditional-breakpoint條件斷點)
+  - [5.3 XHR / Fetch Breakpoint](#53-xhr--fetch-breakpoint)
+  - [5.4 Event Listener Breakpoint](#54-event-listener-breakpoint)
+  - [5.5 Watch 變數](#55-watch-變數)
+  - [5.6 Call Stack 分析](#56-call-stack-分析)
+  - [5.7 Async Stack Trace](#57-async-stack-trace)
+  - [5.8 Blackbox Script（忽略腳本）](#58-blackbox-script忽略腳本)
+  - [5.9 Snippets 使用](#59-snippets-使用)
 - [第六章：Network 面板（API 與效能分析）](#第六章network-面板api-與效能分析)
+  - [6.1 Network 面板概覽](#61-network-面板概覽)
+  - [6.2 Request / Response 結構](#62-request--response-結構)
+  - [6.3 Header / Payload 分析](#63-header--payload-分析)
+  - [6.4 API Debug 技巧](#64-api-debug-技巧)
+  - [6.5 模擬慢速網路](#65-模擬慢速網路)
+  - [6.6 Cache 行為分析](#66-cache-行為分析)
+  - [6.7 HTTP/1.1 vs HTTP/2 分析](#67-http11-vs-http2-分析)
+  - [6.8 WebSocket 除錯](#68-websocket-除錯)
 - [第七章：Performance 面板（效能優化核心）](#第七章performance-面板效能優化核心)
+  - [7.1 Recording 操作](#71-recording-操作)
+  - [7.2 FPS 分析](#72-fps-分析)
+  - [7.3 Main Thread 分析](#73-main-thread-分析)
+  - [7.4 Long Task 問題診斷](#74-long-task-問題診斷)
+  - [7.5 Reflow / Repaint 分析](#75-reflow--repaint-分析)
+  - [7.6 Lighthouse 使用方式](#76-lighthouse-使用方式)
+  - [7.7 Core Web Vitals 分析](#77-core-web-vitals-分析)
   - [7.8 Rendering 面板](#78-rendering-面板)
   - [7.9 Performance 進階功能](#79-performance-進階功能)
 - [第八章：Memory 面板](#第八章memory-面板)
+  - [8.1 Memory 面板概覽](#81-memory-面板概覽)
+  - [8.2 Heap Snapshot](#82-heap-snapshot)
+  - [8.3 Allocation Timeline](#83-allocation-timeline)
+  - [8.4 記憶體洩漏診斷流程](#84-記憶體洩漏診斷流程)
+  - [8.5 SPA 常見 Memory Leak 問題](#85-spa-常見-memory-leak-問題)
 - [第九章：Application 面板](#第九章application-面板)
+  - [9.1 LocalStorage / SessionStorage](#91-localstorage--sessionstorage)
+  - [9.2 IndexedDB](#92-indexeddb)
+  - [9.3 Cookies](#93-cookies)
+  - [9.4 Service Worker](#94-service-worker)
+  - [9.5 PWA Debug](#95-pwa-debug)
 - [第十章：Security 面板](#第十章security-面板)
+  - [10.1 HTTPS 分析](#101-https-分析)
+  - [10.2 Mixed Content 問題](#102-mixed-content-問題)
+  - [10.3 CORS Debug](#103-cors-debug)
+  - [10.4 CSP 分析](#104-csp-分析)
 - [第十一章：Recorder 面板、AI 輔助與其他進階功能](#第十一章recorder-面板ai-輔助與其他進階功能)
   - [11.1 Recorder 面板（使用者流程錄製）](#111-recorder-面板使用者流程錄製)
   - [11.2 AI 輔助功能（Gemini 整合）](#112-ai-輔助功能gemini-整合)
   - [11.3 其他實用面板](#113-其他實用面板)
   - [11.4 遠端除錯](#114-遠端除錯)
-- [第十二章：企業級 Web Application Debug 標準流程](#第十二章企業級-web-application-debug-標準流程)
-- [第十三章：最佳實踐與團隊規範](#第十三章最佳實踐與團隊規範)
+- [第十二章：Chrome DevTools MCP — AI Coding Agent 整合](#第十二章chrome-devtools-mcp--ai-coding-agent-整合)
+  - [12.1 什麼是 Chrome DevTools MCP](#121-什麼是-chrome-devtools-mcp)
+  - [12.2 安裝與設定](#122-安裝與設定)
+  - [12.3 工具能力總覽](#123-工具能力總覽)
+  - [12.4 企業應用場景](#124-企業應用場景)
+  - [12.5 安全性與治理考量](#125-安全性與治理考量)
+- [第十三章：企業級 Web Application Debug 標準流程](#第十三章企業級-web-application-debug-標準流程)
+  - [13.1 前端問題診斷流程](#131-前端問題診斷流程)
+  - [13.2 API 錯誤排查流程](#132-api-錯誤排查流程)
+  - [13.3 效能瓶頸診斷流程](#133-效能瓶頸診斷流程)
+  - [13.4 記憶體問題診斷流程](#134-記憶體問題診斷流程)
+  - [13.5 生產環境 Debug 建議](#135-生產環境-debug-建議)
+  - [13.6 團隊 Debug SOP](#136-團隊-debug-sop)
+- [第十四章：最佳實踐與團隊規範](#第十四章最佳實踐與團隊規範)
+  - [14.1 團隊使用規範](#141-團隊使用規範)
+  - [14.2 Debug Checklist](#142-debug-checklist)
+  - [14.3 效能優化 Checklist](#143-效能優化-checklist)
+  - [14.4 Code Review 與 DevTools 使用建議](#144-code-review-與-devtools-使用建議)
 - [附錄 A：常見問題 FAQ](#附錄-a常見問題-faq)
+  - [Q1：DevTools 開啟後頁面變慢，是正常的嗎？](#q1devtools-開啟後頁面變慢是正常的嗎)
+  - [Q2：為什麼 Console 的 console.log 顯示的物件值與預期不同？](#q2為什麼-console-的-consolelog-顯示的物件值與預期不同)
+  - [Q3：如何在 DevTools 中除錯 minified（壓縮後）的 JavaScript？](#q3如何在-devtools-中除錯-minified壓縮後的-javascript)
+  - [Q4：Network 面板中 (blocked:mixed-content) 是什麼意思？](#q4network-面板中-blockedmixed-content-是什麼意思)
+  - [Q5：為什麼 Lighthouse 每次跑分不一樣？](#q5為什麼-lighthouse-每次跑分不一樣)
+  - [Q6：DevTools 的 Elements 修改為什麼刷新後就消失了？](#q6devtools-的-elements-修改為什麼刷新後就消失了)
+  - [Q7：如何在手機上使用 Chrome DevTools？](#q7如何在手機上使用-chrome-devtools)
+  - [Q8：如何將 DevTools 中的修改轉換為程式碼修改？](#q8如何將-devtools-中的修改轉換為程式碼修改)
 - [附錄 B：面試常考 DevTools 問題](#附錄-b面試常考-devtools-問題)
+  - [基礎題](#基礎題)
+  - [進階題](#進階題)
+  - [架構師題](#架構師題)
 - [附錄 C：團隊培訓建議](#附錄-c團隊培訓建議)
+  - [培訓計劃](#培訓計劃)
+  - [建議培訓方式](#建議培訓方式)
 - [附錄 D：延伸學習資源](#附錄-d延伸學習資源)
+  - [官方資源](#官方資源)
+  - [社群資源](#社群資源)
+  - [Chrome DevTools Protocol 多語言用戶端函式庫](#chrome-devtools-protocol-多語言用戶端函式庫)
+  - [DevTools 生態擴充功能](#devtools-生態擴充功能)
+  - [推薦工具](#推薦工具)
 - [附錄 E：檢查清單（Checklist）](#附錄-e檢查清單checklist)
+  - [新進成員 DevTools 入門清單](#新進成員-devtools-入門清單)
+  - [日常開發 Checklist](#日常開發-checklist)
 
 ---
 
@@ -1133,7 +1233,7 @@ for (let i = 0; i < 1000; i++) {
 
 #### 企業應用場景
 
-`text
+```text
 /api/orders     → 攔截訂單相關 API
 /api/auth       → 攔截認證相關 API
 /api/payment    → 攔截支付相關 API
@@ -1759,7 +1859,7 @@ requestAnimationFrame(() => {
 
 #### 視覺化 Repaint
 
-`text
+```text
 Command Menu (Ctrl+Shift+P) → Show Rendering
 → ✓ Paint flashing（綠色高亮重繪區域）
 → ✓ Layout Shift Regions（藍色高亮位移區域）
@@ -1844,7 +1944,7 @@ Rendering 面板提供多種視覺化工具，協助診斷渲染效能問題。
 
 #### 開啟方式
 
-`text
+```text
 Command Menu (Ctrl+Shift+P) → Show Rendering
 // 或 DevTools 右上角 ⋮ → More tools → Rendering
 ```
@@ -1992,7 +2092,7 @@ Memory 面板用於診斷記憶體問題，包含記憶體洩漏和過度使用�
 
 #### 三步驟找出記憶體洩漏
 
-`text
+```text
 Step 1: 操作前取第一次 Snapshot
 Step 2: 執行疑似洩漏的操作（如開啟/關閉 Modal）
 Step 3: 取第二次 Snapshot
@@ -2222,7 +2322,7 @@ request.onsuccess = (event) => {
 
 #### Cookie 安全最佳實踐
 
-`http
+```http
 Set-Cookie: session_id=abc123;
     HttpOnly;           ← 防止 XSS 竊取
     Secure;             ← 僅 HTTPS 傳送
@@ -2447,7 +2547,7 @@ CSP 可防止 XSS、點擊劫持等攻擊。
 
 #### 企業級 CSP 範例
 
-`http
+```http
 Content-Security-Policy:
     default-src 'self';
     script-src 'self' 'nonce-{random}';
@@ -2474,7 +2574,7 @@ Recorder 面板可讓你直接在 DevTools 中錄製、重播及評估使用者�
 
 #### 開啟方式
 
-`text
+```text
 // 方法一：選單
 DevTools → ⋮ → More tools → Recorder
 
@@ -2517,7 +2617,7 @@ Ctrl+Shift+P → Show Recorder
 
 #### 編輯步驟
 
-`text
+```text
 // 展開步驟查看詳細資訊
 // 每個步驟包含：
 {
@@ -2568,29 +2668,35 @@ Ctrl+Shift+P → Show Recorder
 
 ### 11.2 AI 輔助功能（Gemini 整合）
 
-Chrome DevTools 整合了 Google Gemini AI，可直接在開發工具中使用 AI 協助除錯。
+Chrome DevTools 整合了 Google Gemini，讓開發者可直接在開發工具內以自然語言協助除錯、分析效能與理解程式碼。這是**瀏覽器內建（in-browser）的 AI 助手**，服務對象是「坐在 DevTools 前的工程師」；若要讓 **AI Coding Agent（如 Claude Code）** 自動操作瀏覽器，則屬於第十二章介紹的 Chrome DevTools MCP 範疇，兩者互補但用途不同。
 
 #### 功能概覽
 
-| 功能 | 說明 |
-|------|------|
-| **修正樣式錯誤** | AI 分析元素樣式並建議修正方案 |
-| **分析網路要求** | AI 解析請求/回應標頭，解釋錯誤原因 |
-| **瞭解來源檔案** | AI 說明腳本程式碼的用途 |
-| **調查網頁成效** | AI 分析效能問題並提出優化建議 |
+| 功能 | 涵蓋面板 | 說明 |
+|------|----------|------|
+| **修正樣式錯誤** | Styles（Elements） | AI 分析元素樣式並建議修正方案，可直接套用建議的 CSS |
+| **分析網路要求** | Network | AI 解析請求/回應標頭、狀態碼與時序，解釋失敗原因並提出修正方向 |
+| **瞭解來源檔案** | Sources | AI 說明腳本程式碼的用途、解釋壓縮/混淆後的邏輯 |
+| **調查網頁成效** | Performance | AI 解讀效能追蹤紀錄，定位 Long Task、Layout Shift 等問題並提出優化建議 |
+| **Lighthouse 洞察整合** | Lighthouse / Performance | AI 可讀取 Lighthouse 稽核結果，回答「為什麼 LCP 分數不佳」等開放式問題 |
+| **主控台程式碼生成** | Console | 依需求生成除錯用的 JavaScript 片段 |
+
+> **2026 年更新重點**：AI 輔助面板已從純文字 Markdown 輸出，升級為**代理式（agentic）多步驟推理**呈現方式——面板中會顯示「Agent walkthrough」互動元件（widget），讓你看到 Gemini 呼叫了哪些工具、讀取了哪些資料才得出結論。目前已提供 9 種以上的資料視覺化元件，涵蓋 Lighthouse、Network、Sources、Performance 面板的內容，例如 **Network Track widget**（可一鍵跳轉至對應請求時間軸）與 **Network Requests List widget**（以互動表格呈現結構化的請求參數）。
 
 #### 啟用方式
 
-1. 確認使用最新版 Chrome 並已登入 Google 帳號
-2. 開啟 DevTools → **Settings** → **AI innovations**
-3. 啟用 AI 輔助功能
-4. 同意 Google 服務條款
+1. 確認使用最新版 Chrome（151+）並已登入 Google 帳號
+2. 開啟 DevTools → **Settings**（`F1`）→ **AI assistance**
+3. 依需求逐一啟用各面板的 AI 輔助開關（Styles / Network / Sources / Performance 可分別控制）
+4. 閱讀並同意 Google 服務條款
+
+> **限制**：需年滿 18 歲、須位於功能支援地區，且此功能持續處於「實驗性（experimental）」狀態，介面與行為可能隨版本變動。企業可透過 Chrome 企業政策（Enterprise Policy）集中控管是否啟用、資料是否可用於模型訓練。
 
 #### 使用方式
 
 ##### 樣式除錯
 
-`text
+```text
 // 在 Elements 面板中選取元素
 // 右鍵 → Ask AI 或在 AI 面板中輸入提示
 
@@ -2602,7 +2708,7 @@ Chrome DevTools 整合了 Google Gemini AI，可直接在開發工具中使用 A
 
 ##### 網路除錯
 
-`text
+```text
 // 在 Network 面板中選取請求
 // 右鍵 → Ask AI 或使用 AI 面板
 
@@ -2614,7 +2720,7 @@ Chrome DevTools 整合了 Google Gemini AI，可直接在開發工具中使用 A
 
 ##### 效能分析
 
-`text
+```text
 // 錄製 Performance 追蹤後
 // 在 AI 面板中詢問
 
@@ -2626,7 +2732,7 @@ Chrome DevTools 整合了 Google Gemini AI，可直接在開發工具中使用 A
 
 ##### 原始碼分析
 
-`text
+```text
 // 在 Sources 面板中開啟檔案
 // 選取程式碼片段 → Ask AI
 
@@ -2656,7 +2762,7 @@ Chrome DevTools 提供多個額外的實用面板，可透過 Command Menu 或 `
 
 分析頁面中 JavaScript 和 CSS 的使用率，找出未使用的程式碼。
 
-`text
+```text
 開啟：Ctrl+Shift+P → Show Coverage
 ```
 
@@ -2683,7 +2789,7 @@ import { specificFunction } from './utils'; // 只引入需要的函式
 
 提供頁面 CSS 的統計分析，快速找出可改善的項目。
 
-`text
+```text
 開啟：Ctrl+Shift+P → Show CSS Overview
 ```
 
@@ -2699,7 +2805,7 @@ import { specificFunction } from './utils'; // 只引入需要的函式
 
 檢查和修改頁面上的 CSS 動畫和 CSS Transition。
 
-`text
+```text
 開啟：Ctrl+Shift+P → Show Animations
 ```
 
@@ -2715,7 +2821,7 @@ import { specificFunction } from './utils'; // 只引入需要的函式
 
 追蹤在 DevTools 中對 HTML、CSS 和 JavaScript 做的所有修改。
 
-`text
+```text
 開啟：Ctrl+Shift+P → Show Changes
 ```
 
@@ -2730,7 +2836,7 @@ import { specificFunction } from './utils'; // 只引入需要的函式
 
 自動偵測頁面中的問題，包含相容性、效能和安全性問題。
 
-`text
+```text
 開啟：Ctrl+Shift+P → Show Issues
 ```
 
@@ -2747,7 +2853,7 @@ import { specificFunction } from './utils'; // 只引入需要的函式
 
 視覺化頁面的合成圖層（Compositing Layers），診斷 GPU 相關效能問題。
 
-`text
+```text
 開啟：Ctrl+Shift+P → Show Layers
 ```
 
@@ -2762,7 +2868,7 @@ import { specificFunction } from './utils'; // 只引入需要的函式
 
 即時監控頁面的效能指標。
 
-`text
+```text
 開啟：Ctrl+Shift+P → Show Performance Monitor
 ```
 
@@ -2781,7 +2887,7 @@ import { specificFunction } from './utils'; // 只引入需要的函式
 
 模擬裝置感應器和地理位置。
 
-`text
+```text
 開啟：Ctrl+Shift+P → Show Sensors
 ```
 
@@ -2796,7 +2902,7 @@ import { specificFunction } from './utils'; // 只引入需要的函式
 
 模擬驗證器（Authenticator），用於測試 WebAuthn 身份驗證流程。
 
-`text
+```text
 開啟：Ctrl+Shift+P → Show WebAuthn
 ```
 
@@ -2811,7 +2917,7 @@ import { specificFunction } from './utils'; // 只引入需要的函式
 
 對影音媒體播放器進行除錯。
 
-`text
+```text
 開啟：Ctrl+Shift+P → Show Media
 ```
 
@@ -2890,9 +2996,190 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 
 ---
 
-## 第十二章：企業級 Web Application Debug 標準流程
+## 第十二章：Chrome DevTools MCP — AI Coding Agent 整合
 
-### 12.1 前端問題診斷流程
+第 11.2 節介紹的 AI assistance 是「人坐在 DevTools 前，AI 從旁協助」；本章介紹的 **Chrome DevTools MCP**（正式名稱 *Chrome DevTools for agents*）則是反過來——讓 **AI Coding Agent（如 Claude Code、Cursor、GitHub Copilot、Gemini CLI）直接操控與檢查一個真實的 Chrome 瀏覽器**，是 2025～2026 年 Chrome 團隊在「Agentic Web」方向最重要的開發者工具投資之一，也是官方 [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp) 專案的核心價值。
+
+> **延伸閱讀**：本章僅涵蓋將 Chrome DevTools MCP 與本手冊各章節對應所需的核心概念。完整的安裝步驟、45+ 工具逐一參考、企業架構設計（單機／團隊共享／CI/CD／雲端）、安全治理、版本升級 SOP 與風險評估，請參閱本站另一篇專門手冊：[Chrome DevTools MCP（Model Context Protocol）教學手冊](../chrome-devtools-mcpmodel-context-protocol教學手冊/)。
+
+### 12.1 什麼是 Chrome DevTools MCP
+
+**MCP（Model Context Protocol）** 是 Anthropic 提出、目前已成為業界共通標準的協定，用來讓 LLM Agent 以結構化的方式呼叫外部工具。`chrome-devtools-mcp` 就是一個以 MCP 協定包裝 Chrome DevTools 能力的伺服器：它在底層透過 **Puppeteer** 驅動 Chrome，並將 DevTools 的除錯、效能分析、網路檢查等能力，包裝成 AI Agent 可以呼叫的「工具（tools）」。
+
+```mermaid
+graph LR
+    subgraph "AI Coding Agent 端"
+        A["Claude Code / Cursor /<br/>Copilot / Gemini CLI"]
+    end
+
+    subgraph "chrome-devtools-mcp"
+        B["MCP Server<br/>(Node.js)"]
+        C["Puppeteer<br/>自動等待 / 操作封裝"]
+    end
+
+    subgraph "瀏覽器端"
+        D["Chrome<br/>(Stable / Canary /<br/>Chrome for Testing)"]
+        E["Chrome DevTools Protocol<br/>(CDP)"]
+    end
+
+    A -- "MCP tool call<br/>(stdio / JSON-RPC)" --> B
+    B --> C
+    C -- "CDP" --> E
+    E --> D
+```
+
+#### 與既有方案的本質差異
+
+| 面向 | 11.2 節：AI assistance（瀏覽器內） | 第十二章：Chrome DevTools MCP |
+|------|-----------------------------------|-------------------------------|
+| **使用者** | 坐在電腦前操作 DevTools 的工程師 | AI Coding Agent（在編輯器 / CLI 中運作） |
+| **互動方式** | 在 DevTools 面板內以自然語言提問 | Agent 透過 MCP 工具呼叫，自主操作瀏覽器 |
+| **典型情境** | 「這個 CSS 為什麼跑版？」 | 「幫我把這個功能實作完，並確認頁面能正常運作、效能沒有退步」 |
+| **執行者** | Gemini（Google 雲端模型） | 你正在使用的任何支援 MCP 的 Agent／模型 |
+| **產出** | 建議與解說文字 | 實際的瀏覽器操作結果、截圖、追蹤紀錄、結構化資料 |
+
+### 12.2 安裝與設定
+
+#### 基本需求
+
+| 項目 | 需求 |
+|------|------|
+| **Node.js** | LTS 版本 |
+| **npm** | 隨 Node.js 安裝 |
+| **Chrome** | 最新穩定版（官方僅正式支援 Google Chrome 與 Chrome for Testing） |
+
+#### 標準設定（適用大多數 MCP Client）
+
+在支援 MCP 的用戶端設定檔中加入：
+
+```json
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    }
+  }
+}
+```
+
+#### 各工具整合方式
+
+| 工具 | 設定方式 |
+|------|----------|
+| **Claude Code**（推薦：Plugin） | `/plugin marketplace add ChromeDevTools/chrome-devtools-mcp`，再執行 `/plugin install chrome-devtools-mcp@chrome-devtools-plugins` |
+| **Claude Desktop** | `claude mcp add chrome-devtools --scope user npx chrome-devtools-mcp@latest` |
+| **VS Code / GitHub Copilot** | 命令面板 → `Chat: Install Plugin From Source` → 輸入 `ChromeDevTools/chrome-devtools-mcp` |
+| **Cursor** | Cursor Settings → MCP → New MCP Server，貼上上方標準設定 JSON |
+| **Gemini CLI / Antigravity / Cline / Codex / Copilot CLI** | 於各自的 MCP 設定檔中加入相同的 `command` / `args` |
+
+#### 常用啟動參數
+
+| 參數 | 說明 |
+|------|------|
+| `--headless` | 無 UI 模式執行，適合 CI/CD |
+| `--isolated` | 使用臨時使用者資料目錄，瀏覽器關閉後自動清除（不殘留登入態） |
+| `--browser-url=<url>` | 連接到已在執行的 Chrome（如 `http://127.0.0.1:9222`） |
+| `--channel=<stable\|beta\|dev\|canary>` | 指定使用的 Chrome 版本頻道 |
+| `--viewport=1280x720` | 設定初始視窗大小 |
+| `--screenshot-format=jpeg\|png\|webp` | 設定截圖輸出格式 |
+| `--slim` | 僅載入基本瀏覽器操作工具，減少 Agent 的工具選單負擔 |
+| `--no-performance-crux` | 停用效能工具對 Google CrUX API 的查詢 |
+| `--no-usage-statistics` | 停用使用統計回傳 |
+| `--experimentalPageIdRouting` | 支援多個 Agent 併發共用同一伺服器實例 |
+
+精簡模式範例（僅需基本操作，適合大多數自動化情境）：
+
+```json
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest", "--slim", "--headless"]
+    }
+  }
+}
+```
+
+#### 連接既有 Chrome 實例
+
+除了讓 MCP Server 自行啟動全新的 Chrome，也可以連上你**已經在使用**的瀏覽器分頁（保留登入狀態、Cookie 等，適合除錯需要登入的內部系統）：
+
+1. 以遠端除錯埠啟動 Chrome：
+   ```bash
+   google-chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-profile-stable
+   ```
+2. 在 MCP 設定中加入 `--browser-url=http://127.0.0.1:9222`
+3. Chrome 144+ 也支援在 `chrome://inspect/#remote-debugging` 中直接開啟遠端除錯並搭配 `--autoConnect` 自動連線，免除手動埠轉送
+
+> **驗證安裝**：在支援的 MCP Client（如 Claude Code）中輸入類似 `Check the performance of https://developers.chrome.com` 的提示，若 Agent 能自動開啟瀏覽器並回傳效能追蹤結果，即代表設定成功。
+
+### 12.3 工具能力總覽
+
+`chrome-devtools-mcp`（v1.6+）目前提供超過 40 個工具，依用途分為以下類別：
+
+| 類別 | 代表工具 | 說明 |
+|------|----------|------|
+| **輸入自動化** | `click`、`click_at`、`fill`、`fill_form`、`hover`、`drag`、`type_text`、`press_key`、`upload_file`、`handle_dialog` | 模擬使用者操作，內建 Puppeteer 自動等待機制，減少 flaky 操作 |
+| **導覽控制** | `navigate_page`、`new_page`、`close_page`、`list_pages`、`select_page`、`wait_for` | 管理分頁與頁面導覽，支援多分頁情境 |
+| **模擬** | `emulate`、`resize_page` | 模擬裝置、網路節流、視窗尺寸等條件 |
+| **效能分析** | `performance_start_trace`、`performance_stop_trace`、`performance_analyze_insight` | 錄製 Performance 追蹤並萃取可行動的效能洞察（對應第七章） |
+| **網路檢查** | `list_network_requests`、`get_network_request` | 列出與查詢請求詳情，等同 Network 面板的程式化存取（對應第六章） |
+| **除錯** | `evaluate_script`、`list_console_messages`、`get_console_message`、`take_screenshot`、`take_snapshot`、`lighthouse_audit`、`screencast_start`、`screencast_stop` | 執行 JS、讀取 Console 訊息、截圖、DOM 快照、Lighthouse 稽核 |
+| **記憶體分析** | `take_heapsnapshot`、`compare_heapsnapshots`、`query_heapsnapshot_objects`、`get_heapsnapshot_retainers`、`get_heapsnapshot_dominators` 等 13 個工具 | 對應第八章 Heap Snapshot 全流程，可讓 Agent 自主比對兩次快照找出洩漏 |
+| **擴充功能管理** | `install_extension`、`list_extensions`、`reload_extension`、`uninstall_extension`、`trigger_extension_action` | 安裝、載入與觸發瀏覽器擴充功能，用於擴充功能開發測試 |
+| **WebMCP** | `list_webmcp_tools`、`execute_webmcp_tool` | 呼叫頁面自身透過 WebMCP 規範暴露的工具（新興的「網頁即工具」模式） |
+| **PWA** | `install_pwa`、`launch_pwa`、`uninstall_pwa`、`get_os_app_state` | 安裝、啟動與檢查 PWA 於作業系統中的狀態 |
+| **第三方開發工具** | `list_3p_developer_tools`、`execute_3p_developer_tool` | 呼叫第三方整合的開發工具（可擴充生態） |
+
+> 完整工具簽章與參數請參考官方 [Tool Reference](https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/main/docs/tool-reference.md)。
+
+### 12.4 企業應用場景
+
+| 場景 | 說明 |
+|------|------|
+| **AI 驅動的功能驗證** | 開發完成後直接請 Agent「打開頁面、完成註冊流程、確認沒有 Console 錯誤」，取代人工重複點擊驗證 |
+| **效能迴歸把關** | Agent 在 PR 中自動執行 `performance_start_trace` → `performance_analyze_insight`，比對修改前後的 LCP / TBT，超標時於 PR 留言 |
+| **Bug 重現與報告產出** | 請 Agent 依重現步驟操作頁面，自動收集 Console 訊息、Network 請求與截圖，產出符合 13.6 節標準格式的 Bug 報告 |
+| **記憶體洩漏自動排查** | Agent 依 8.4 節的三步驟流程，自動取兩次 Heap Snapshot 並呼叫 `compare_heapsnapshots` 找出可疑物件 |
+| **無障礙與 SEO 稽核** | 透過 `lighthouse_audit` 工具，讓 Agent 在每次重大變更後自動跑一次 Lighthouse 並摘要結果 |
+| **PWA / 擴充功能開發迴圈** | 安裝、重新載入、觸發擴充功能動作，加速手動重複部署測試的迴圈 |
+
+#### 與 Recorder（11.1 節）、Puppeteer/Playwright 腳本的分工
+
+| 工具 | 誰在操作 | 適合情境 |
+|------|----------|----------|
+| **Recorder 面板** | 人工錄製，之後可重播 / 匯出成固定腳本 | 已知且穩定的回歸測試流程 |
+| **Puppeteer / Playwright（手寫腳本）** | 工程師撰寫確定性的自動化腳本 | CI 中穩定執行的 E2E 測試 |
+| **Chrome DevTools MCP** | AI Agent 依當下情境**即時決策**要呼叫哪些工具 | 探索性除錯、需要理解與推理的問題（效能瓶頸定位、Bug 根因分析）、開發流程中的即時驗證 |
+
+三者並非互斥：常見做法是用 MCP 讓 Agent 探索並定位問題、產出重現步驟，再交由人工用 Recorder 錄製、匯出為 Puppeteer/Playwright 腳本，固化進 CI。
+
+### 12.5 安全性與治理考量
+
+> **重要警語（官方原文）**：*"chrome-devtools-mcp exposes content of the browser instance to the MCP clients allowing them to inspect, debug, and modify any data in the browser or DevTools instance."* 這代表任何連接到此 MCP Server 的 Agent，理論上都能讀取該瀏覽器分頁中的所有資料。
+
+| 風險 | 說明 | 建議做法 |
+|------|------|----------|
+| **遠端除錯埠無驗證** | `--remote-debugging-port` 開啟後，本機任何行程都能透過該埠完全控制瀏覽器 | 僅在受信任的本機環境使用；不要在含有生產環境登入態的瀏覽器上開啟除錯埠 |
+| **資料外洩** | Agent 可讀取頁面上顯示的任何內容，包括表單、Cookie、內部系統資料 | 避免在連接 MCP 的瀏覽器 session 中操作含機密資料的頁面；企業內部系統建議使用專用測試帳號 |
+| **瀏覽器相容性** | 官方僅正式支援 Google Chrome 與 Chrome for Testing | 其他 Chromium 系瀏覽器（Edge、Brave 等）可能行為不一致，不建議用於正式驗證 |
+| **遙測與隱私** | 預設會回傳使用統計，效能工具預設會查詢 Google CrUX API | 可用 `--no-usage-statistics`、`--no-performance-crux` 關閉 |
+| **多 Agent 併發風險** | 多個 Agent 共用同一瀏覽器設定檔可能互相干擾 | 搭配 `--isolated` 為每個工作階段建立獨立設定檔，並視需要開啟 `--experimentalPageIdRouting` |
+
+#### 企業建議做法
+
+- **CI/CD 中一律使用 `--headless --isolated`**：確保每次執行都是乾淨環境，不殘留前次 session 的登入態或快取
+- **不要在正式環境的憑證/帳號下使用 MCP 探索性除錯**：改用測試帳號 + 測試環境
+- **將 MCP Server 的可用範圍納入內部 AI 治理規範**：明確告知團隊「AI Agent 透過此工具可以看到瀏覽器中的一切」，比照對待任何具備螢幕分享能力的工具
+
+> **實務案例**：在企業導入 AI Coding Agent 的初期，建議先在**內部沙箱環境**（非生產帳號、假資料）試行 Chrome DevTools MCP 一段時間，確認團隊對「Agent 可完全操控瀏覽器」這件事的資安承受度後，再逐步開放給日常開發流程使用。
+
+---
+
+## 第十三章：企業級 Web Application Debug 標準流程
+
+### 13.1 前端問題診斷流程
 
 ```mermaid
 flowchart TD
@@ -2921,7 +3208,7 @@ flowchart TD
     G --> G3["RWD 問題?"]
 ```
 
-### 12.2 API 錯誤排查流程
+### 13.2 API 錯誤排查流程
 
 ```mermaid
 flowchart TD
@@ -2961,7 +3248,7 @@ flowchart TD
 | 9 | CORS Headers 是否設定 | Network → Headers → Response Headers |
 | 10 | 快取行為是否預期 | Network → Size 欄位 |
 
-### 12.3 效能瓶頸診斷流程
+### 13.3 效能瓶頸診斷流程
 
 ```mermaid
 flowchart TD
@@ -2987,7 +3274,7 @@ flowchart TD
     G -->|否| I["檢查其他指標<br/>FCP / SI / TBT"]
 ```
 
-### 12.4 記憶體問題診斷流程
+### 13.4 記憶體問題診斷流程
 
 | 步驟 | 操作 | 工具 |
 |------|------|------|
@@ -3001,7 +3288,7 @@ flowchart TD
 | 8 | 找出洩漏源 | Retainers 面板 |
 | 9 | 修復並驗證 | 重複步驟 3-7 |
 
-### 12.5 生產環境 Debug 建議
+### 13.5 生產環境 Debug 建議
 
 | 建議 | 說明 |
 |------|------|
@@ -3026,7 +3313,7 @@ module.exports = {
 // 輸入 .map 檔案 URL
 ```
 
-### 12.6 團隊 Debug SOP
+### 13.6 團隊 Debug SOP
 
 #### 標準作業流程
 
@@ -3080,9 +3367,9 @@ flowchart LR
 
 ---
 
-## 第十三章：最佳實踐與團隊規範
+## 第十四章：最佳實踐與團隊規範
 
-### 13.1 團隊使用規範
+### 14.1 團隊使用規範
 
 #### DevTools 使用規範
 
@@ -3111,7 +3398,7 @@ flowchart LR
 }
 ```
 
-### 13.2 Debug Checklist
+### 14.2 Debug Checklist
 
 #### 前端 Debug 檢查清單
 
@@ -3128,7 +3415,7 @@ flowchart LR
 - [ ] **Cookie 設定安全**：HttpOnly / Secure / SameSite
 - [ ] **Source Map 正常**：Sources 面板可對應原始碼
 
-### 13.3 效能優化 Checklist
+### 14.3 效能優化 Checklist
 
 #### 載入效能
 
@@ -3164,7 +3451,7 @@ flowchart LR
 - [ ] 避免動態插入 DOM 造成位移
 - [ ] 廣告/動態內容預留空間
 
-### 13.4 Code Review 與 DevTools 使用建議
+### 14.4 Code Review 與 DevTools 使用建議
 
 #### Code Review 時使用 DevTools 驗證
 
@@ -3312,30 +3599,68 @@ DevTools 的修改預設是暫時性的。使用 **Local Overrides** 或 **Works
 | 資源 | 連結 |
 |------|------|
 | Chrome DevTools 官方文件 | https://developer.chrome.com/docs/devtools/ |
-| Chrome DevTools Protocol | https://chromedevtools.github.io/devtools-protocol/ |
+| Chrome DevTools Protocol（CDP 規範與 TypeScript 型別） | https://chromedevtools.github.io/devtools-protocol/ |
+| Chrome DevTools MCP（第十二章介紹的 Agent 整合工具） | https://github.com/ChromeDevTools/chrome-devtools-mcp |
+| Awesome Chrome DevTools（社群精選清單，本手冊部分內容參考自此） | https://github.com/ChromeDevTools/awesome-chrome-devtools |
+| 「What's new in DevTools」逐版更新部落格系列 | https://developer.chrome.com/blog/ |
 | Web.dev（效能最佳實踐） | https://web.dev/ |
 | Lighthouse 文件 | https://developer.chrome.com/docs/lighthouse/ |
-| Chrome Release Notes | https://developer.chrome.com/blog/ |
+| Chrome Release Notes（版本發布紀錄） | https://chromereleases.googleblog.com/ |
 
 ### 社群資源
 
 | 資源 | 說明 |
 |------|------|
-| **Chrome DevTools Tips** | https://devtoolstips.org/ |
-| **Can I Use** | 檢查瀏覽器相容性 |
-| **web-vitals** | Google 的 Web Vitals JavaScript 庫 |
-| **Lighthouse CI** | CI/CD 整合 Lighthouse |
+| **DevTools Tips** | https://devtoolstips.org/ — 圖文並茂的每週小技巧收集 |
+| **Dev Tips** | 以動畫 GIF 形式展示的 DevTools 操作提示集合 |
+| **Can I DevTools?** | 追蹤各版 DevTools 工作流變化的電子報與文件 |
+| **Chrome Secret Menus** | 整理 `chrome://` 系列內部診斷頁面的指南 |
+| **Can I Use** | 檢查 Web API / CSS 特性的瀏覽器相容性 |
+| **web-vitals** | Google 官方 Web Vitals 量測 JavaScript 函式庫 |
+
+### Chrome DevTools Protocol 多語言用戶端函式庫
+
+除了直接使用 DevTools UI，許多團隊會直接以程式碼呼叫 CDP 建構自訂的自動化或監控工具，以下為社群整理的各語言主流實作（詳見 [awesome-chrome-devtools](https://github.com/ChromeDevTools/awesome-chrome-devtools)）：
+
+| 語言 | 函式庫 |
+|------|--------|
+| **JavaScript / Node.js** | Puppeteer（官方維護）、chrome-remote-interface |
+| **TypeScript** | chrome-debugging-client、Taiko |
+| **Python** | Pyppeteer、PyCDP、ChromeController |
+| **Go** | chromedp、Rod、gcd、godet |
+| **Java** | chrome-devtools-java-client、jvppeteer |
+| **C# / .NET** | PuppeteerSharp、dotnet-chrome-protocol |
+| **Ruby** | Ferrum、Cuprite |
+| **Kotlin** | chrome-reactive-kotlin |
+| **PHP** | PuPHPeteer、chrome-devtools-protocol |
+| **跨瀏覽器（Chromium / Firefox / WebKit）** | Playwright（微軟維護） |
+
+> **選型建議**：純 Chrome/Chromium 自動化、需要 DevTools 深度整合（如效能追蹤、Coverage）優先選 **Puppeteer**；需要跨瀏覽器（含 Safari/Firefox）自動化測試優先選 **Playwright**；若團隊主力語言非 Node.js，可依上表選擇對應語言的 CDP 綁定，或直接透過第十二章介紹的 **Chrome DevTools MCP** 讓 AI Agent 代為操作。
+
+### DevTools 生態擴充功能
+
+| 擴充功能 | 用途 |
+|----------|------|
+| **React Developer Tools** | 檢查 React 元件樹、Props/State、Profiler 效能分析 |
+| **Vue.js DevTools** | 檢查 Vue 元件、Vuex/Pinia 狀態、時間旅行除錯 |
+| **Redux DevTools** | 檢查 Redux Action/State，支援時間旅行與狀態重放 |
+| **Angular DevTools** | Angular 元件樹檢查、變更偵測效能分析 |
+| **Ember Inspector** | Ember.js 物件與路由檢查 |
+| **Lighthouse（內建）** | 見第七章 7.6 節 |
+| **axe DevTools** | 深度無障礙稽核，補足 Lighthouse Accessibility 的覆蓋範圍 |
 
 ### 推薦工具
 
 | 工具 | 用途 |
 |------|------|
-| **Puppeteer** | 自動化 Chrome 操作（效能測試、截圖） |
-| **Playwright** | 跨瀏覽器自動化測試 |
-| **Lighthouse CI** | CI/CD 效能門檻檢查 |
-| **WebPageTest** | 線上效能分析 |
-| **Sentry** | 生產環境錯誤追蹤 |
-| **Workbox** | Service Worker 工具組 |
+| **Puppeteer** | Node.js 自動化 Chrome 操作（效能測試、截圖、爬蟲） |
+| **Playwright** | 跨瀏覽器（Chromium/Firefox/WebKit）自動化測試 |
+| **Chrome DevTools MCP** | 讓 AI Coding Agent 直接操控與檢查瀏覽器（見第十二章） |
+| **Lighthouse CI** | CI/CD 效能門檻檢查，防止效能回歸 |
+| **WebPageTest** | 線上多地點、多裝置效能分析 |
+| **Sentry** | 生產環境錯誤追蹤與 Source Map 還原 |
+| **Workbox** | Service Worker / 快取策略工具組 |
+| **Betwixt** | 系統層級的網路請求檢查代理，補足 Network 面板無法涵蓋的原生 App 流量 |
 
 ---
 
@@ -3399,5 +3724,5 @@ DevTools 的修改預設是暫時性的。使用 **Local Overrides** 或 **Works
 
 > **本手冊版權**：內部培訓教材，僅供團隊使用。  
 > **聯絡方式**：如有問題或建議，請聯繫前端架構團隊。  
-> **最後更新**：2026-02-14
+> **最後更新**：2026-08-19
 
