@@ -2,19 +2,20 @@
 date = '2026-07-01T10:00:00+08:00'
 draft = false
 title = 'Pi Code Agent 教學手冊'
-lastmod = '2026-08-15T12:00:00+08:00'
+lastmod = '2026-08-20T18:00:00+08:00'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
 
 ## Pi Code Agent 教學手冊（Enterprise Edition）
 
-> **版本**：v0.84.2（2026 年 8 月 14 日發布，手冊內容核校至 2026 年 8 月 15 日）  
+> **版本**：v0.84.2（2026 年 8 月 14 日發布，手冊內容核校至 2026 年 8 月 20 日）  
 > **適用對象**：資深工程師、架構師、DevOps 工程師  
 > **技術棧**：Java / Spring Boot / Vue / TypeScript / Redis / Kafka / PostgreSQL  
 > **授權**：MIT License  
 > **開發公司**：[Earendil Inc.](https://earendil.com/)(原作者 Mario Zechner「badlogic」2026 年 4 月將專案併入 Earendil)  
-> **開源統計**：⭐ 90.5k+ Stars、11.2k+ Forks、280+ Contributors、255+ Releases(GitHub API 即時查詢)
+> **開源統計**：⭐ 94.1k+ Stars、11.6k+ Forks、278+ Contributors、255+ Releases、310+ Watchers(GitHub API 即時查詢，2026-08-20 核對；`Unreleased` 分支已累積數項待發布的修復與 Extension 事件強化，尚未正式掛上版本號)  
+> **倉庫健康度**：Open Issues 87、Open PRs 48(新貢獻者提交會自動關閉待每日人工審查，見 [CONTRIBUTING.md](https://github.com/earendil-works/pi/blob/main/CONTRIBUTING.md))；語言組成 TypeScript 94% / JavaScript 5.3% / Shell 0.3% / CSS 0.3% / C 0.1%,單一 TypeScript 為主的技術棧有利企業內部靜態分析工具鏈整合
 
 ---
 
@@ -1221,7 +1222,7 @@ await session.prompt("請審查 src/main/java 目錄下的 Controller 是否符�
 // 詳見 docs/sdk.md 與 examples/sdk/(從最小範例到完整控制皆有涵蓋)
 ```
 
-> **企業實際案例**：[OpenClaw](https://open-claw.bot/)(原名 ClawdBot,2026/1 陸續更名為 Moltbot、OpenClaw,由 Peter Steinberger 開發,GitHub 累積超過 **11 萬顆星**)是目前 Pi SDK 最具代表性的下游應用——它是一套可自架的個人 AI 助理閘道,讓使用者透過 WhatsApp、Telegram 或終端傳訊息,由內嵌的 Pi Agent 在使用者自己的機器上執行指令(搜尋檔案、跑腳本、讀 Log 等)。OpenClaw 官方文件的 [Pi 整合章節](https://open-claw.bot/docs/platforms/pi/) 說明了其如何以 Pi SDK 將編碼 Agent 直接嵌入訊息閘道架構,是觀摩「SDK 模式如何落地為終端產品」的絕佳範例。
+> **企業實際案例**：[OpenClaw](https://openclaw.ai/)（原名 ClawdBot，2026/1 陸續更名為 Moltbot、OpenClaw，由 Peter Steinberger 發起，現已轉由非營利的 [OpenClaw Foundation](https://openclaw.org/) 開發維護），GitHub（[openclaw/openclaw](https://github.com/openclaw/openclaw)）累積達 **386.8k+ Stars、81.3k+ Forks、2,914+ Contributors**（2026-08-20 核對）,是 Pi 生態中最具代表性的下游應用之一——它是一套可自架的個人 AI 助理閘道，讓使用者透過 WhatsApp、Telegram 或終端傳訊息，由內嵌的 Agent 在使用者自己的機器上執行指令（搜尋檔案、跑腳本、讀 Log 等）。**重要澄清**：OpenClaw 早期確實直接建立於 Pi SDK 之上，但隨專案規模擴張，相關整合程式碼後來已被重構、並部分內部化為自有的 Agent Runtime；其 [README](https://github.com/openclaw/openclaw#readme) 仍明確鳴謝 Mario Zechner 及 Pi 對本專案的支持。對企業而言，這是一個觀摩「SDK 模式如何從落地產品逐步演進為自建執行層」的實證案例，而非視為目前仍完全依賴 Pi SDK 運作的系統。若需更新相關整合細節，建議直接查閱 [OpenClaw 文件](https://docs.openclaw.ai/) 與其 GitHub CHANGELOG。
 
 ---
 
@@ -3114,7 +3115,7 @@ Pi Code Agent 是一個**極簡但極度可擴充**的 AI 程式碼開發工具�
 | Compaction 內部機制 | [docs/compaction.md](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/compaction.md) |
 | Sessions(分支/Fork/Tree) | [docs/sessions.md](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/sessions.md) |
 | Custom Provider | [docs/custom-provider.md](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/custom-provider.md) |
-| OpenClaw(SDK 落地案例，116k+ Stars) | [open-claw.bot/docs/platforms/pi](https://open-claw.bot/docs/platforms/pi/) |
+| OpenClaw(SDK 起源案例，386.8k+ Stars) | [docs.openclaw.ai](https://docs.openclaw.ai/) |
 
 #### 平台安裝細節
 
@@ -3138,7 +3139,7 @@ Pi Code Agent 是一個**極簡但極度可擴充**的 AI 程式碼開發工具�
 | Hugging Face 公開 Session 資料集 | [huggingface.co](https://huggingface.co/datasets/badlogicgames/pi-mono) |
 | Earendil Inc.(現任開發公司) | [earendil.com](https://earendil.com/) |
 
-> **文件核校方法說明**：本手冊第 1-16 章所有版本號、統計數據、指令與 API 簽章,皆透過 GitHub API 與上表列出的官方原始文件於 2026 年 8 月 15 日直接核對,而非轉引第三方部落格或既有中文教學內容改寫。
+> **文件核校方法說明**：本手冊第 1-16 章所有版本號、統計數據、指令與 API 簽章,皆透過 GitHub API 與上表列出的官方原始文件於 2026 年 8 月 20 日直接核對,而非轉引第三方部落格或既有中文教學內容改寫。核對當下最新正式版本仍為 v0.84.2（2026-08-14 發布）,`CHANGELOG.md` 的 `[Unreleased]` 區段已累積 UTF-8 BOM 設定檔解析修復、`session_compact_failed` Extension 事件等項目,惟尚未掛上正式版本號,故本次核校不將其視為已發布功能。
 
 ---
 
@@ -3225,4 +3226,4 @@ Pi Code Agent 是一個**極簡但極度可擴充**的 AI 程式碼開發工具�
 
 ---
 
-> **文件維護**：本手冊隨 Pi Code Agent 版本更新而修訂。最後更新日期：2026 年 8 月 15 日（對應 Pi Code Agent v0.84.2）。
+> **文件維護**：本手冊隨 Pi Code Agent 版本更新而修訂。最後更新日期：2026 年 8 月 20 日（對應 Pi Code Agent v0.84.2，已逐項比對官方 GitHub 倉庫、CHANGELOG 與 Releases 頁面確認無更新版本）。

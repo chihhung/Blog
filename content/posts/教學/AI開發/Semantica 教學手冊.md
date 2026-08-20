@@ -1017,13 +1017,13 @@ MIGRATED_TO · REPLACED_BY · CAUSED_BY · SUPPORTED_BY · DERIVED_FROM · DECID
 erDiagram
     Requirement ||--o{ BusinessRule : "IMPLEMENTS_REQUIREMENT"
     BusinessRule ||--o{ ArchitectureDecision : "DECIDED_BY"
-    ArchitectureDecision ||--o{ Class : "DEFINED_BY"
-    Class ||--o{ Method : "CONTAINS"
+    ArchitectureDecision ||--o{ CodeClass : "DEFINED_BY"
+    CodeClass ||--o{ Method : "CONTAINS"
     Method ||--o{ API : "EXPOSES"
     API ||--o{ Database : "READS/WRITES"
-    Class ||--o{ Test : "TESTED_BY"
-    Class ||--o{ Deployment : "DEPLOYED_TO"
-    Class ||--o{ Dependency : "DEPENDS_ON"
+    CodeClass ||--o{ Test : "TESTED_BY"
+    CodeClass ||--o{ Deployment : "DEPLOYED_TO"
+    CodeClass ||--o{ Dependency : "DEPENDS_ON"
     Method ||--o{ Method : "CALLS"
 ```
 
