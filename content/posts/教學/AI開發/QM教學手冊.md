@@ -1,6 +1,6 @@
 +++
 date = '2026-08-21T11:43:14+08:00'
-draft = flase
+draft = false
 title = 'QM教學手冊'
 tags = ['教學', 'AI開發']
 categories = ['教學']
