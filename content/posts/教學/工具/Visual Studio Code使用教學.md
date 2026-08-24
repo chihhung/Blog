@@ -1,6 +1,6 @@
 ﻿+++
 date = '2025-10-31T00:00:00+08:00'
-lastmod = '2026-03-11T00:00:00+08:00'
+lastmod = '2026-08-24T00:00:00+08:00'
 draft = false
 title = 'Visual Studio Code使用教學'
 tags = ['教學', '工具','AI開發']
@@ -11,6 +11,8 @@ categories = ['教學']
 
 > **完整的 VS Code 開發環境設定與實戰指南**  
 > 涵蓋前端 (Vue 3 + TypeScript) 與後端 (Spring Boot) 開發，適用於團隊協作與企業級專案開發
+
+**文件範圍與適用對象**：本手冊面向前後端開發人員、平台／DevOps 工程師與 IT 治理團隊，內容涵蓋 VS Code 從安裝設定、日常開發、AI Agent 輔助開發，到團隊協作、企業級治理與部署維運的完整生命週期。文件依據 [code.visualstudio.com/docs](https://code.visualstudio.com/docs) 官方文件系列查證撰寫，對應版本為 **VS Code v1.134**（2026 年 8 月）；由於 GitHub Copilot／Agent 相關功能迭代速度遠快於核心編輯器（約每月釋出新版），第 3.6 節與第 6.9 節內容請視為該時間點的快照，正式導入前建議對照官方 [Release Notes](https://code.visualstudio.com/updates) 複核最新異動。
 
 ## 📋 目錄
 
@@ -48,8 +50,8 @@ categories = ['教學']
   - [3.6.2 Copilot Chat 對話式助手](#362-copilot-chat-對話式助手)
   - [3.6.3 Inline Chat（行內聊天）](#363-inline-chat行內聊天)
   - [3.6.4 智慧動作](#364-智慧動作-smart-actions)
-  - [3.6.5 Agent 模式與 Agent Sessions](#365-agent-模式與-agent-sessions)
-  - [3.6.6 Autopilot 與 Agent 權限控制](#366-autopilot-與-agent-權限控制)
+  - [3.6.5 Agent 模式與工作階段 (Sessions)](#365-agent-模式與工作階段-sessions)
+  - [3.6.6 權限與核准控制（含 Autopilot）](#366-權限與核准控制含-autopilot)
   - [3.6.7 Plan Agent（計畫代理）](#367-plan-agent計畫代理)
   - [3.6.8 自訂指示檔](#368-自訂指示檔-custom-instructions)
   - [3.6.9 MCP 伺服器整合](#369-mcp-伺服器整合)
@@ -58,6 +60,7 @@ categories = ['教學']
   - [3.6.12 Prompt Files（提示檔案）](#3612-prompt-files提示檔案)
   - [3.6.13 Hooks（生命週期鉤子）](#3613-hooks生命週期鉤子)
   - [3.6.14 語言模型選擇](#3614-語言模型選擇)
+  - [3.6.15 Agent Plugins（代理外掛）](#3615-agent-plugins代理外掛)
 - [3.7 實務案例與注意事項](#37-實務案例與注意事項)
 
 ### 4. 專案特定開發流程指引
@@ -96,7 +99,8 @@ categories = ['教學']
 - [6.5 遠端開發與 SSH](#65-遠端開發與-ssh)
 - [6.6 工作區管理進階技巧](#66-工作區管理進階技巧)
 - [6.7 設定檔 (Profiles) 管理](#67-設定檔-profiles-管理)
-- [6.8 Chat Customizations 編輯器](#68-chat-customizations-編輯器)
+- [6.8 Agent Customizations 編輯器](#68-agent-customizations-編輯器)
+- [6.9 企業級管理與治理原則 (Enterprise Policies)](#69-企業級管理與治理原則-enterprise-policies)
 
 ### 7. 最佳實務
 - [7.1 常見問題 (FAQ) 與解決方式](#71-常見問題-faq-與解決方式)
@@ -171,6 +175,8 @@ categories = ['教學']
 **亮色主題：**
 - **Light+ (default light)** - VS Code 預設亮色主題
 - **Material Theme Lighter** - Material Design 亮色版本
+
+> **社群趨勢（非官方推薦，僅供參考）**：截至 2026 年，Marketplace 安裝數最高的主題為 **GitHub Themes** 與 **One Dark Pro**；**Catppuccin**、**Tokyo Night** 則是近期成長最快的社群主題。字型方面，**Fira Code**（連字符支援最廣泛）、**JetBrains Mono**（多字重、護眼設計）與 **Cascadia Code**（Windows Terminal／Visual Studio 內建，Windows 環境零安裝門檻）皆為社群常見選擇，可依團隊喜好調整，非強制規範。
 
 **安裝主題步驟：**
 1. 按 `Ctrl + Shift + X` 開啟擴充功能面板
@@ -284,15 +290,19 @@ code --install-extension GitHub.copilot
 VS Code 提供設定同步功能，讓您在不同設備間保持一致的開發環境。
 
 **啟用步驟：**
-1. 按 `Ctrl + Shift + P` 開啟命令面板
-2. 輸入 `Settings Sync: Turn On`
+1. 點擊左下角管理圖示（齒輪）或活動列的帳戶圖示
+2. 選擇 `Turn on Settings Sync...`
 3. 選擇要同步的項目：
    - ✅ 設定 (Settings)
    - ✅ 快捷鍵綁定 (Keybindings)
    - ✅ 擴充功能 (Extensions)
    - ✅ 使用者程式碼片段 (User Snippets)
+   - ✅ 使用者工作 (User Tasks)
    - ✅ UI 狀態 (UI State)
-4. 使用 Microsoft 或 GitHub 帳戶登入
+   - ✅ 設定檔 (Profiles)
+4. 使用 **Microsoft 帳戶**或 **GitHub 帳戶**登入
+
+> **注意**：Settings Sync 目前不支援 GitHub Enterprise 帳戶登入；企業環境如需集中管理設定，請改用第 6.9 節介紹的原則 (Policy) 機制。
 
 #### 1.4.2 同步項目說明
 
@@ -300,13 +310,17 @@ VS Code 提供設定同步功能，讓您在不同設備間保持一致的開發
 - **設定檔** - editor、theme、font 等個人偏好設定
 - **擴充功能** - 已安裝的擴充功能清單
 - **快捷鍵** - 自訂的快捷鍵綁定
-- **程式碼片段** - 自訂的程式碼片段
+- **程式碼片段與工作** - 自訂的程式碼片段、User Tasks
 - **UI 狀態** - 面板配置、視窗大小等
+- **設定檔 (Profiles)** - 完整的 Profile 組合（含各 Profile 專屬的擴充功能與設定）
 
 **不會同步的內容：**
-- 工作區特定設定
+- 工作區特定設定（`.vscode/settings.json`）
+- 標記為 `machine` 或 `machine-overridable` 範圍的機器專屬設定
 - 本地檔案路徑
 - 敏感資訊（如 tokens、密碼）
+
+> **提示**：連線到遠端視窗（Remote-SSH、Dev Containers、WSL）時，Settings Sync **不會**同步擴充功能到該遠端環境，須於遠端另行安裝所需擴充功能。
 
 #### 1.4.3 管理同步設定
 
@@ -1039,6 +1053,31 @@ code --install-extension ms-vscode-remote.remote-containers
 }
 ```
 
+> **開放規格**：`devcontainer.json` 遵循開放的 [Dev Container Specification](https://containers.dev)，設定可跨 VS Code、GitHub Codespaces 等多種工具通用。
+
+**生命週期腳本執行順序：**
+
+`devcontainer.json` 支援六個依序執行的生命週期指令，適合將依賴安裝、資料庫初始化等步驟拆分到對應階段：
+
+| 順序 | 屬性 | 執行時機 |
+|------|------|----------|
+| 1 | `initializeCommand` | 容器建立前，於**主機端**執行 |
+| 2 | `onCreateCommand` | 容器建立時執行一次 |
+| 3 | `updateContentCommand` | 內容更新時執行（例如重新開啟時） |
+| 4 | `postCreateCommand` | 容器建立完成後執行一次 |
+| 5 | `postStartCommand` | 每次容器啟動後執行 |
+| 6 | `postAttachCommand` | 每次 VS Code 連接到容器後執行 |
+
+**Features（功能模組）**：可透過 `features` 屬性以宣告方式加入自足式的安裝單元（例如 CLI 工具），以 OCI Artifact 形式從公開或私有登錄庫散布：
+```json
+{
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  }
+}
+```
+亦可用 `dev.containers.defaultFeatures` 使用者設定，讓所有容器預設安裝特定 Features。
+
 **4. Docker Compose 設定：**
 ```yaml
 version: '3.8'
@@ -1120,12 +1159,21 @@ Ctrl + Shift + P：
    - 點擊 "Changes" 旁的 `+` 暫存所有變更
 
 3. **提交變更**
-   - 在訊息框輸入提交訊息
+   - 在訊息框輸入提交訊息，或點擊訊息框上方的**閃光圖示**由 AI 依變更內容自動產生提交訊息建議
    - 按 `Ctrl + Enter` 或點擊 ✓ 提交
 
 4. **推送到遠端**
    - 點擊狀態列的同步按鈕
    - 或按 `Ctrl + Shift + P` → `Git: Push`
+
+**原生進階版本控制功能：**
+
+| 功能 | 說明 |
+|------|------|
+| **Source Control Graph** | 於 Source Control 面板下方以視覺化圖形檢視提交歷史與分支關係 |
+| **Timeline 檢視** | 於檔案總管底部檢視單一檔案的完整變更歷程（含提交、儲存點） |
+| **Worktrees 支援** | 在同一份倉庫下同時建立多個工作目錄，方便平行處理不同分支而不必反覆切換 |
+| **Stash 管理** | 於 Source Control 面板直接建立、檢視、還原 Git Stash |
 
 #### 3.1.2 GitLens 擴充功能使用
 
@@ -1236,7 +1284,7 @@ VS Code 內建了三方合併編輯器 (3-way Merge Editor)，可視覺化解決
 1. 發生合併衝突時，在 Git 面板點擊衝突檔案
 2. 選擇 **Resolve in Merge Editor**
 3. 上方顯示「來源」與「目標」兩個分支的版本，下方為合併結果
-4. 使用 **Accept Incoming / Accept Current / Accept Both** 按鈕選擇保留的內容
+4. 使用 **Accept Incoming / Accept Current / Accept Both** 按鈕選擇保留的內容，或使用 **AI 輔助衝突解決**選項讓 Copilot 依上下文提出建議合併結果
 5. 完成後點擊 **Complete Merge**
 
 ### 3.2 常用快捷鍵
@@ -1306,10 +1354,12 @@ VS Code 內建了三方合併編輯器 (3-way Merge Editor)，可視覺化解決
 4. **移除斷點**：再次點擊斷點，或按 `F9`
 
 **斷點類型：**
-- **一般斷點**：程式執行到此處會暫停
-- **條件斷點**：只有滿足條件時才暫停
-- **日誌斷點**：輸出訊息但不暫停執行
-- **函式斷點**：在特定函式被呼叫時暫停
+- **一般斷點（Line breakpoint）**：程式執行到此處會暫停
+- **條件斷點（Conditional breakpoint）**：可依運算式、命中次數或觸發條件決定是否暫停
+- **日誌斷點（Logpoint）**：以菱形圖示顯示，輸出訊息但不暫停執行
+- **函式斷點（Function breakpoint）**：依函式名稱設定，不需綁定特定行號
+- **行內斷點（Inline breakpoint）**：可指定同一行中特定欄位（column）位置暫停，適合處理壓縮/精簡化程式碼
+- **資料斷點（Data breakpoint）**：當指定變數被讀取或寫入時觸發
 
 #### 3.3.2 前端偵錯 (Vue 3 + TypeScript)
 
@@ -1384,6 +1434,16 @@ VS Code 內建了三方合併編輯器 (3-way Merge Editor)，可視覺化解決
 - **切換終端機**：點擊終端機標籤
 - **分割終端機**：點擊分割按鈕或按 `Ctrl + Shift + 5`
 - **關閉終端機**：點擊垃圾桶圖示或按 `Ctrl + Shift + ` `
+
+**進階終端機功能：**
+
+| 功能 | 說明 |
+|------|------|
+| **Shell Integration** | 基於 OSC 633 序列，於左側邊欄／捲軸標示每個指令的成功／失敗狀態，並支援指令偵測與結束代碼追蹤 |
+| **可點擊連結** | 按住 `Ctrl`／`Cmd` 並將滑鼠停留在輸出的檔案路徑或 URL 上，點擊即可開啟編輯器或瀏覽器 |
+| **指令歷史導覽** | `Ctrl + Up` / `Ctrl + Down` 於輸出中的先前指令間跳轉，每則指令旁會顯示可重新執行的圖示 |
+| **Sticky Scroll** | 捲動時將目前執行中或部分可見的指令固定顯示於終端機頂端，方便瀏覽長輸出；設定 `"terminal.integrated.stickyScroll.enabled": true` 啟用，點擊標題可跳轉至該指令位置 |
+| **Terminal Chat（終端機內建 Copilot）** | 在終端機中直接開啟行內對話尋求 Shell 指令協助，回覆提供 **Run**（直接執行）與 **Insert**（插入以便編輯）兩種動作 |
 
 #### 3.4.2 多工作區管理
 
@@ -1638,9 +1698,11 @@ try {
 
 ### 3.6 AI 輔助開發 — GitHub Copilot
 
-GitHub Copilot 是 VS Code 中最強大的 AI 輔助工具，能大幅提升開發效率。VS Code 1.111 版引入了全新的 **Agent 模式**，代理可以自主規劃、實作並驗證變更，標誌著 AI 輔助開發的全新時代。
+GitHub Copilot 是 VS Code 中最強大的 AI 輔助工具，能大幅提升開發效率。自 2025 年底起，VS Code 將「Ask」「Edit」「Agent」三種對話模式逐步整合為統一的**代理架構 (Agents)**：對話、工作區操作與變更執行都建立在同一套「代理迴圈 (agent loop)」與**工作階段 (Session)** 概念之上，並可在 Chat 面板、Agents 視窗、瀏覽器（vscode.dev/agents）、CLI 與 GitHub Copilot App 之間無縫交接。截至 2026 年 8 月（VS Code v1.134），這是 VS Code 發展最快速的功能領域，建議定期查閱 [VS Code Release Notes](https://code.visualstudio.com/updates) 掌握最新變動。
 
 > **前置條件**：需先安裝 **GitHub Copilot** 擴充功能（參見 [1.3.5 AI 輔助開發](#135-ai-輔助開發)），並登入 GitHub 帳號。Copilot Chat 功能已內建於 Copilot 擴充功能中，無需單獨安裝。
+>
+> ⚠️ **重大變更提醒（v1.126，2026年6月）**：獨立的「**Edit 模式**」已正式棄用並移除，其編輯能力已完全併入 **Agent 模式**。舊版教學或書籍中提及的「Edit Mode」目前已不存在於模式選單中，若你的專案仍在使用舊版 VS Code，請盡快升級並改用 Agent 模式。同時，原本的「Chat Modes」（`.chatmode.md`）已更名為「**Custom Agents**」（`.agent.md`），舊檔案建議重新命名副檔名以確保相容性。
 
 #### 3.6.1 程式碼自動完成與 Next Edit Suggestions
 
@@ -1687,26 +1749,57 @@ public long calculateWorkingDays(LocalDate start, LocalDate end) {
 
 #### 3.6.2 Copilot Chat 對話式助手
 
-按 `Ctrl + Alt + I` 開啟 Chat 面板（已內建於 Copilot 擴充功能中）。
+按 `Ctrl + Alt + I` 開啟 Chat 面板（已內建於 Copilot 擴充功能中）。目前官方以 [AI features cheat sheet](https://code.visualstudio.com/docs/agents/reference/ai-features-cheat-sheet) 作為指令與工具的權威速查表，以下為依用途分類整理的常用項目。
 
-**常用 Chat 指令：**
+**斜線指令（依用途分類）：**
 
-| 指令 | 功能 | 使用方式 |
-|------|------|----------|
-| `/explain` | 解釋選取的程式碼 | 選取程式碼後輸入 `/explain` |
-| `/fix` | 修正程式碼問題 | 選取有問題的程式碼後輸入 `/fix` |
-| `/tests` | 產生單元測試 | 選取程式碼後輸入 `/tests` |
-| `/doc` | 產生文件註解 | 選取程式碼後輸入 `/doc` |
-| `/init` | 初始化專案 AI 設定 | 分析專案並產生自訂指示檔 |
-| `/fork` | 分叉對話 | 將對話分支以探索不同方案 |
-| `/create-instruction` | 建立指示檔 | 根據描述產生 `.instructions.md` 檔案 |
-| `/create-agent` | 建立自訂代理 | 建立 `.agent.md` 檔案 |
-| `/create-skill` | 建立代理技能 | 建立 Agent Skill 資料夾 |
-| `/create-hook` | 建立 Hook | 建立自動化 hook 設定 |
-| `@workspace` | 查詢整個專案 | 輸入 `@workspace 這個專案的架構是什麼？` |
-| `#file` | 參考特定檔案 | 輸入 `#file:pom.xml 有哪些依賴？` |
-| `#selection` | 參考選取文字 | 選取程式碼後輸入 `#selection 如何優化？` |
-| `#debugEventsSnapshot` | 代理除錯快照 | 附加代理除錯事件作為上下文 |
+| 分類 | 指令 | 功能 |
+|------|------|------|
+| 程式碼任務 | `/explain`、`/fix`、`/doc`、`/tests`、`/setupTests` | 解釋、修正、產生文件註解、產生測試、建立測試環境 |
+| 對話管理 | `/clear`、`/compact`、`/fork`、`/debug`、`/troubleshoot` | 清空對話、壓縮上下文、分叉對話、除錯、疑難排解 |
+| 專案腳手架 | `/new`、`/newNotebook`、`/init`、`/startDebugging`、`/search` | 建立新專案、新 Notebook、初始化 AI 設定、啟動偵錯、搜尋 |
+| 規劃 | `/plan` | 切換至 Plan Agent，產生實作計畫（見 3.6.7） |
+| 客製化管理 | `/agents`、`/hooks`、`/instructions`、`/prompts`、`/skills` | 開啟對應客製化項目的管理選單 |
+| AI 輔助建立 | `/create-prompt`、`/create-instruction`、`/create-skill`、`/create-agent`、`/create-hook` | 依描述自動產生對應的客製化檔案 |
+| 核准控制 | `/yolo`（`/autoApprove`）、`/disableYolo`（`/disableAutoApprove`） | 全域啟用／停用自動核准所有工具呼叫 |
+| 動態指令 | `/<skill-name>`、`/<prompt-name>` | 執行指定的 Agent Skill 或 Prompt File |
+
+**內建 `@` 對話參與者（目前僅保留三種）：**
+
+| 參與者 | 用途 |
+|--------|------|
+| `@github` | 查詢 GitHub 倉庫、Issues、Pull Requests |
+| `@terminal` | 詢問整合終端機、Shell 指令相關問題 |
+| `@vscode` | 詢問 VS Code 本身功能、設定、擴充功能 API |
+
+> **重要變更**：舊版用於查詢整個專案的 `@workspace` 參與者已不存在於目前的內建清單中。現行 Agent 模式會透過內建工具（如 `#search`／`codebase`）自動判斷何時需要搜尋整個工作區，通常不需要手動輸入 `@workspace`；一般對話與提問已預設具備代理能力。
+
+**常用 `#` 工具／上下文參考（節選）：**
+
+| 工具群組 | 範例 | 說明 |
+|----------|------|------|
+| `#read` | `#file:pom.xml`、`#selection` | 讀取指定檔案、選取內容 |
+| `#search` | `#search/codebase`、`#search/usages` | 語義搜尋整個工作區、查找符號使用位置 |
+| `#edit` | `#edit/createFile`、`#edit/editFiles` | 建立、編輯檔案 |
+| `#execute` | `#execute/runInTerminal`、`#execute/testFailure` | 執行終端機指令、分析失敗測試 |
+| `#web` | `#web/fetch` | 擷取網頁內容作為上下文 |
+| `#agent` | `#agent/runSubagent` | 呼叫子代理（Subagent）處理獨立子任務 |
+| `#todos` | — | 追蹤代理任務進度清單 |
+| `#githubRepo` | `#githubRepo:owner/repo` | 參考特定 GitHub 倉庫內容 |
+
+**常用鍵盤快捷鍵：**
+
+| 動作 | 快捷鍵 |
+|------|--------|
+| 開啟 Chat 面板 | `Ctrl + Alt + I` |
+| 開啟行內聊天 | `Ctrl + I` |
+| 新增對話工作階段 | `Ctrl + N`（於 Chat 面板內） |
+| 切換至 Agent 模式 | `Ctrl + Shift + I` |
+| 開啟快速對話 (Quick Chat) | `Ctrl + Shift + Alt + L` |
+| 顯示模型選擇器 | `Ctrl + Alt + .` |
+| AI 智慧重新命名 | `F2` |
+| 在目前對話中搜尋 (Find in Chat) | `Ctrl + F` |
+| 切換上／下一則提示 | `Ctrl + Alt + Up` / `Ctrl + Alt + Down` |
 
 #### 3.6.3 Inline Chat（行內聊天）
 
@@ -1734,12 +1827,24 @@ public long calculateWorkingDays(LocalDate start, LocalDate end) {
 - **產生 Commit Message**：根據變更自動產生提交訊息
 - **語義搜尋**：跨專案進行語義搜尋
 
-#### 3.6.5 Agent 模式與 Agent Sessions
+#### 3.6.5 Agent 模式與工作階段 (Sessions)
 
-**Agent 模式是 VS Code 最重要的 AI 新功能**，它讓 Copilot 從「被動建議」進化為「主動執行」。Agent 可以自主規劃任務、編輯多個檔案、執行終端機指令、呼叫工具，並在遇到錯誤時自動修正。
+**Agent 模式是 VS Code 最重要的 AI 功能**，它讓 Copilot 從「被動建議」進化為「主動執行」。Agent 的核心運作機制稱為**代理迴圈 (Agent Loop)**：Agent 使用語言模型持續推理上下文並呼叫工具，重複此迴圈直到任務完成、需要使用者輸入，或被手動中止為止。
 
-**啟動 Agent Session：**
-1. 按 `Ctrl + Alt + I` 開啟 Chat 面板
+**工作階段 (Session) 概念：**
+
+一個 Session 保存了單一任務的完整對話、工作區狀態、變更紀錄與執行狀態，讓你可以暫停、恢復，或將任務交接給其他介面。同一個 Session 可以在以下介面間無縫切換：
+
+| 介面 | 說明 |
+|------|------|
+| **Chat 面板** | VS Code 內建的互動式對話面板 |
+| **Agents 視窗**（原 Agent Sessions） | 集中管理所有進行中／已完成 Session 的專屬視窗，可透過標題列或 `Chat: Open Agents Window` 指令開啟 |
+| **瀏覽器** | 透過 `vscode.dev/agents` 於瀏覽器中檢視與操作 |
+| **CLI** | 透過命令列工具操作 Session |
+| **GitHub Copilot App** | 透過 GitHub 行動應用程式追蹤與回覆 |
+
+**啟動 Agent 任務：**
+1. 按 `Ctrl + Alt + I` 開啟 Chat 面板（預設即為 Agent 模式）
 2. 輸入高階任務描述，例如：
 
 ```
@@ -1748,10 +1853,10 @@ public long calculateWorkingDays(LocalDate start, LocalDate end) {
 
 3. Agent 會自動：建立檔案、安裝依賴、執行指令、自我修正錯誤
 
-**Agent Session 管理：**
-- 可同時執行多個 Agent Session，各自專注在不同任務
-- Sessions 面板提供集中管理檢視，監控所有活動中的 session
-- 可在不同 session 間切換，檢視檔案變更，接續之前的工作
+**Agents 視窗管理功能：**
+- 可同時執行多個 Session，各自專注在不同任務，並支援拖放分組整理
+- 編輯器面板可將開啟的檔案／差異與對話並列顯示，共用同一組分頁列
+- 追蹤整個對話（而非僅最後一次請求）的模型用量／額度消耗，並可個別檢視子代理的用量
 
 **Agent 執行位置：**
 
@@ -1760,50 +1865,58 @@ public long calculateWorkingDays(LocalDate start, LocalDate end) {
 | **本地 (Local)** | 在 VS Code 中互動式執行 | 日常開發、即時回饋 |
 | **背景 (Background)** | 在本機背景自主執行 | 耗時任務、自動化工作 |
 | **雲端 (Cloud)** | 透過 Pull Request 在雲端協作 | 團隊協作、複雜變更 |
-| **第三方 (Third-party)** | 使用 Anthropic Claude、OpenAI 等代理 | 特定模型需求 |
+| **第三方代理主機 (Third-party Agent Host)** | 使用 Anthropic Claude Agent、OpenAI Codex Agent 等代理主機 | 特定模型或工作流程需求 |
 
-> **提示**：可隨時將任務從一種代理類型移交到另一種，完整的對話歷史會自動保留。
+> **提示**：可隨時將任務從一種代理類型移交到另一種，完整的對話歷史會自動保留。此能力建立在新的**代理主機 (Agent Host)** 與 **Agent Host Protocol (AHP)** 架構之上，該架構也是多視窗共用同一 Session、以及 3.6.6 節 Autopilot 功能的底層基礎。
 
 **Agent 可執行的操作範例：**
 - 端到端建構新功能
 - 偵錯並修復失敗的測試
 - 重構或遷移程式碼庫
 - 建立分支並開啟 Pull Request
-- 測試與瀏覽 Web 應用程式（實驗性）
+- 使用**代理式瀏覽器工具**（Agentic Browser Tools，已正式發布）操作真實網頁：導覽頁面、擷取畫面、驗證 Web 應用程式行為
 
-#### 3.6.6 Autopilot 與 Agent 權限控制
+#### 3.6.6 權限與核准控制（含 Autopilot）
 
-VS Code 1.111 引入了 Agent 權限控制等級，讓你決定代理擁有多大的自主權：
+VS Code 提供分層的權限控制機制，讓你決定 Agent 擁有多大的自主權。目前於 Chat 面板的權限選擇器中可選擇以下**核准層級**：
 
-| 權限等級 | 說明 |
+| 核准層級 | 說明 |
 |----------|------|
 | **Default Approvals** | 使用你設定的核准規則，需要核准的工具會顯示確認對話框 |
-| **Bypass Approvals** | 自動核准所有工具呼叫，不顯示確認對話框，自動重試錯誤 |
-| **Autopilot（預覽）** | 自動核准所有工具呼叫、自動重試錯誤、自動回應問題，代理自主工作直到任務完成 |
+| **Assisted permissions** | 由語言模型即時評估每個工具呼叫的風險，判定為低風險者自動核准 |
+| **Bypass Approvals** | 自動核准所有工具呼叫，不顯示確認對話框 |
 
-**啟用 Autopilot：**
-```json
-{
-  "chat.autopilot.enabled": true
-}
-```
+> **注意**：**Autopilot 嚴格來說是一種「代理模式」，而非上述核准層級之一**。啟用後，代理會自動核准所有工具呼叫、自動重試錯誤，並在遇到澄清性問題時自動回答，持續自主工作直到判定任務完成為止，執行於 3.6.5 節提及的 Agent Host 之上。
 
-> ⚠️ **安全提醒**：Bypass Approvals 和 Autopilot 會繞過手動核准提示，包括可能具破壞性的操作（如檔案編輯、終端機指令、外部工具呼叫）。首次啟用時會顯示確認警告。
+**細部核准設定：**
 
-**權限設定方式：**
-- 在 Chat 面板的權限選擇器中選擇等級
-- 權限等級僅適用於目前的 session
-- 可隨時在 session 中切換不同等級
+| 設定 | 用途 |
+|------|------|
+| `chat.permissions.default` | 新 Session 的預設核准層級 |
+| `chat.tools.terminal.autoApprove` | 終端機指令自動核准規則（可用布林值或以 `/` 包覆的正規表示式） |
+| `chat.tools.terminal.enableAutoApprove` | 是否啟用終端機自動核准 |
+| `chat.tools.terminal.blockDetectedFileWrites` | 封鎖偵測到的危險檔案寫入操作 |
+| `chat.tools.eligibleForAutoApproval` | 設定永遠排除於自動核准之外的工具清單 |
+| `chat.tools.global.autoApprove` | 全域自動核准工具呼叫 |
+
+> ⚠️ **安全提醒**：Bypass Approvals 與 Autopilot 會繞過手動核准提示，包括可能具破壞性的操作（如檔案編輯、終端機指令、外部工具呼叫）。危險指令（如 `rm`、`del`）預設仍會被封鎖。首次啟用時會顯示確認警告，且權限等級僅適用於目前 Session，可隨時切換。也可用斜線指令 `/yolo`（或 `/autoApprove`）快速啟用全域自動核准、以 `/disableYolo` 停用。MCP 伺服器的工具呼叫另有獨立的核准範圍（Session／工作區／使用者層級），詳見 3.6.9 節。企業環境可透過集中原則（見 6.9 節）強制限制或停用自動核准功能。統一管理入口為指令 `Chat: Manage Tool Approval`。
 
 #### 3.6.7 Plan Agent（計畫代理）
 
-Plan Agent 是內建的計畫代理，可在撰寫任何程式碼之前，將任務分解為結構化的實作計畫。
+Plan Agent 是內建的計畫代理，可在撰寫任何程式碼之前，將任務分解為結構化的實作計畫，並遵循以下**四階段流程**：
+
+| 階段 | 說明 |
+|------|------|
+| **1. Discovery（探索）** | 使用唯讀工具研究任務、分析程式碼庫 |
+| **2. Alignment（校準）** | 詢問澄清問題以釐清模糊需求 |
+| **3. Design（設計）** | 草擬結構化的實作計畫 |
+| **4. Refinement（精煉）** | 根據你的回饋反覆調整計畫內容 |
 
 **使用方式：**
-1. 在 Chat 中切換到 Plan Agent
-2. 描述你的任務需求
-3. Plan Agent 會分析你的程式碼庫、詢問澄清問題，並產生逐步計畫
-4. 確認計畫後，可移交給實作代理執行（本地、背景或雲端）
+1. 於 Chat 中輸入 `/plan`，或從代理選擇器切換至 Plan Agent
+2. 描述你的任務需求，Plan Agent 會依上述四階段與你互動
+3. **重要限制**：在計畫經過審核並確認前，Plan Agent **不會**進行任何程式碼變更
+4. 計畫確認後，透過 **Handoffs（交接）** 功能一鍵將計畫移交給實作代理（本地、背景或雲端），並自動保留完整上下文；也可先儲存計畫供日後使用
 
 **適用場景：**
 - 大型功能開發前的規劃
@@ -1852,38 +1965,55 @@ applyTo: '**/*.py'
 - 使用 4 個空格縮排
 ```
 
-**指示檔存放位置：**
+**四種指示檔機制彙整（會同時合併套用，非互斥）：**
 
-| 範圍 | 位置 |
-|------|------|
-| 工作區 | `.github/instructions/` 資料夾 |
-| 工作區（Claude 格式） | `.claude/rules/` 資料夾 |
-| 使用者層級 | `~/.copilot/instructions`、`~/.claude/rules`，或目前 Profile 的 instructions 資料夾 |
+| 檔案類型 | 位置 | 適用範圍 | 啟用設定 |
+|----------|------|----------|----------|
+| `.github/copilot-instructions.md` | 倉庫根目錄 / `.github/` | 永遠套用、整個工作區 | 預設開啟 |
+| `AGENTS.md` | 工作區根目錄（可含子資料夾） | 永遠套用；跨工具通用標準，多種 AI 代理皆可辨識 | `chat.useAgentsMdFile`；巢狀支援（實驗性）`chat.useNestedAgentsMdFiles` |
+| `*.instructions.md` | `.github/instructions/`（工作區）或 `~/.copilot/instructions`（使用者） | 依 `applyTo` glob 條件動態套用，例如 `**/*.ts,**/*.tsx` | `chat.includeApplyingInstructions`；自訂位置 `chat.instructionsFilesLocations` |
+| `CLAUDE.md` | 工作區根目錄、`.claude/`，或 `~/.claude/CLAUDE.md` | 永遠套用，與 Claude Code 相容 | `chat.useClaudeMdFile`；注意此格式使用 **`paths`** 屬性而非 `applyTo`，遵循 Claude 的規則格式 |
+
+**指示套用優先順序**：當指示內容互相衝突時，優先順序為「個人（使用者層級）」> 「倉庫層級（`.github/copilot-instructions.md` / `AGENTS.md`）」> 「組織層級」。但官方文件強調：所有類型的指示都會一併提供給 AI，優先順序僅在**發生直接衝突**時才生效，其餘情況為疊加套用。
 
 **快速產生指示檔：**
 - 在 Chat 中輸入 `/init` — 分析專案並產生 `copilot-instructions.md`
 - 在 Chat 中輸入 `/create-instruction` — 根據描述產生特定指示檔
 
 **組織層級指示：**
-可在 GitHub 組織層級定義共用指示，跨多個工作區和倉庫自動套用：
+可在 GitHub 組織層級定義共用指示，跨多個工作區和倉庫自動套用，並顯示在 Chat 的 Instructions 選單中：
 ```json
 {
   "github.copilot.chat.organizationInstructions.enabled": true
 }
 ```
 
-> **提示**：使用 Chat 面板的齒輪圖示 > **Instructions & Rules** 可查看和管理所有已載入的指示檔。
+**撰寫建議**：指示內容應簡短且自成一體，說明「為什麼」而非只說「是什麼」，提供具體程式碼範例，並依主題拆分為多個 `.instructions.md` 檔案分別管理，同時將指示檔納入版本控制。
+
+> **提示**：使用 Chat 面板的齒輪圖示 > **Instructions & Rules**，或指令 `Chat: Open Customizations`，可查看和管理所有已載入的指示檔（見 3.6.10 節的 Agent Customizations 編輯器）。
 
 #### 3.6.9 MCP 伺服器整合
 
 **MCP（Model Context Protocol）** 是一個開放標準，用於將 AI 模型連接到外部工具與服務。在 VS Code 中，MCP 伺服器為 Agent 提供資料庫查詢、API 呼叫、瀏覽器操作等工具。
 
-**快速開始：**
-1. 開啟擴充功能面板 (`Ctrl + Shift + X`)，搜尋 `@mcp`
-2. 從 MCP 伺服器圖庫中安裝需要的伺服器
-3. 確認信任後，VS Code 會自動發現伺服器的工具
+**快速開始（多種安裝方式）：**
+1. 開啟擴充功能面板 (`Ctrl + Shift + X`)，搜尋 `@mcp`，從 MCP 伺服器圖庫中安裝
+2. 或執行 `Ctrl + Shift + P` → `MCP: Add Server`（精靈式引導設定）
+3. 或直接編輯 `mcp.json`
+4. 或透過命令列 `code --add-mcp` 快速加入
+5. 確認信任後，VS Code 會自動發現伺服器的工具
+
+**設定範圍：**
+
+| 範圍 | 位置 | 適用情境 |
+|------|------|----------|
+| 工作區 | `.vscode/mcp.json` | 可提交至版本控制，供團隊共用 |
+| 使用者層級 | `Ctrl + Shift + P` → `MCP: Open User Configuration` | 存放個人 API 金鑰等私密設定，可隨 Settings Sync 的 MCP Servers 選項同步 |
 
 **手動設定 MCP 伺服器（`.vscode/mcp.json`）：**
+
+> **注意**：頂層鍵名固定為 **`servers`**（而非部分其他 MCP 用戶端慣用的 `mcpServers`），這是 VS Code 有意為之的差異，設定時請特別留意。
+
 ```json
 {
   "servers": {
@@ -1898,6 +2028,8 @@ applyTo: '**/*.py'
   }
 }
 ```
+
+> **工具數量上限**：Copilot 目前對單一 Session 最多支援 **128 個工具**，啟用 MCP 伺服器時應謹慎挑選，避免超出上限或稀釋 Agent 的工具選擇準確度。
 
 **MCP 伺服器提供的能力：**
 
@@ -1939,11 +2071,11 @@ applyTo: '**/*.py'
 
 #### 3.6.10 Custom Agents（自訂代理）
 
-Custom Agents 讓 AI 擔任特定角色，例如安全審查員、資料庫管理員或文件撰寫者。每個代理定義自己的行為、可用工具和語言模型偏好。
+Custom Agents 讓 AI 擔任特定角色，例如安全審查員、資料庫管理員或文件撰寫者，每個代理定義自己的行為、可用工具、語言模型偏好與可呼叫的子代理。此機制原稱為「Chat Modes」（`.chatmode.md`），已正式更名並統一為 Custom Agents（`.agent.md`）；若專案中仍有舊版 `.chatmode.md` 檔案，建議重新命名以確保相容。
 
 **建立 `.agent.md` 檔案：**
 
-在 `.github/agents/` 資料夾中建立：
+在 `.github/agents/`（或相容 Claude 格式的 `.claude/agents/`）資料夾中建立：
 
 ```markdown
 ---
@@ -1953,6 +2085,10 @@ tools:
   - run_in_terminal
   - read_file
   - grep_search
+model: ['Claude Opus 4.5', 'GPT-5.2']
+agents: []
+user-invocable: true
+disable-model-invocation: false
 ---
 # 安全審查代理
 
@@ -1964,29 +2100,47 @@ tools:
 - 產生安全審查報告
 ```
 
-**Agent-scoped hooks（v1.111 新功能，預覽）：**
+**Frontmatter 欄位說明：**
 
-可在代理的 YAML frontmatter 中定義專屬的 hooks，僅在選擇該代理或透過 `runSubagent` 呼叫時執行：
+| 欄位 | 說明 |
+|------|------|
+| `name` / `description` | 代理名稱與用途描述 |
+| `tools` | 此代理可使用的工具清單 |
+| `model` | 偏好的語言模型，可為單一字串或依優先順序排列的陣列 |
+| `agents` | 此代理可呼叫的子代理（Subagent）；`*` 代表全部允許、`[]` 代表不允許呼叫任何子代理 |
+| `handoffs` | 定義可交接（Handoff）的目標代理，提供導引式的任務轉移 |
+| `user-invocable` | 是否可由使用者手動選取此代理（預設 `true`） |
+| `disable-model-invocation` | 是否禁止其他代理透過 `runSubagent` 自動呼叫此代理（預設 `false`） |
 
+**子代理 (Subagent) 執行模式：**
+- 在獨立的上下文視窗中執行，不繼承主對話的完整歷史，有助於保持主對話上下文精簡
+- 以同步方式執行：主代理會等待子代理完成後才繼續
+- 多個獨立分析任務可平行呼叫子代理
+- 僅將**最終結果**回傳給呼叫端；透過 `#agent/runSubagent` 工具觸發
+- 若需允許子代理再呼叫其他子代理（遞迴呼叫），需設定 `chat.subagents.allowInvocationsFromSubagents`
+
+**使用方式：**
+- 在 Chat 中輸入 `/create-agent` 使用 AI 輔助建立
+- 或使用指令 `Chat: New Custom Agent`
+- 或透過 **Agent Customizations 編輯器**（齒輪圖示 → Configure Chat → Agents 分頁）集中管理，該編輯器同時可管理 Skills、Instructions、Prompts 與 Hooks，並顯示各項目的來源（內建／使用者／工作區／組織／擴充功能）
+
+**組織與跨倉庫共用：**
 ```json
 {
-  "chat.useCustomAgentHooks": true
+  "github.copilot.chat.organizationCustomAgents.enabled": true,
+  "chat.useCustomizationsInParentRepositories": true
 }
 ```
 
-**使用方式：**
-- 在 Chat 中輸入 `/create-agent` 快速建立
-- 或使用 Chat Customizations 編輯器：`Ctrl + Shift + P` → `Chat: Open Chat Customizations`
-
 #### 3.6.11 Agent Skills（代理技能）
 
-Agent Skills 將專業能力打包為可重複使用的技能資料夾，包含指示、腳本和資源。Skills 基於[開放標準](https://agentskills.io/)，可跨 VS Code、GitHub Copilot CLI 和 GitHub Copilot coding agent 使用。
+Agent Skills 將專業能力打包為可重複使用的技能資料夾，包含指示、腳本和資源。**此功能目前已為正式發布版本 (General Availability)**；其中「Forked Context」執行模式（見下）仍為實驗性功能，須透過 `github.copilot.chat.skillTool.enabled` 啟用。Skills 基於[開放標準 agentskills.io](https://agentskills.io/)，可跨 VS Code、GitHub Copilot CLI 和 GitHub Copilot coding agent 使用，同一份 Skill 無需修改即可於三種介面共用。
 
 **Skill 資料夾結構：**
 ```
 .github/skills/
 ├── deploy/
-│   ├── SKILL.md        # 技能描述與指示
+│   ├── SKILL.md        # 技能描述與指示（frontmatter: name、description、argument-hint 等）
 │   ├── scripts/        # 自動化腳本
 │   └── templates/      # 範本檔案
 └── testing/
@@ -1994,13 +2148,29 @@ Agent Skills 將專業能力打包為可重複使用的技能資料夾，包含�
     └── scripts/
 ```
 
+> **命名限制**：資料夾名稱須與 `SKILL.md` 中的 `name` 欄位一致，僅限小寫字母、數字與連字號，長度上限 64 字元；`description` 上限 1024 字元。
+
+**三層漸進式載入機制**（確保上下文使用效率）：
+1. **探索層**：Agent 僅讀取 `name` 與 `description` 兩個 metadata 欄位，判斷此 Skill 是否與當前任務相關
+2. **指示層**：判定相關或使用者明確呼叫時，才載入 `SKILL.md` 完整內容
+3. **資源層**：僅在指示內容明確參照時，才載入 `scripts/`、`templates/` 等附屬檔案
+
+**個人層級位置**：`~/.copilot/skills/`、`~/.claude/skills/`、`~/.agents/skills/`（或透過 `chat.agentSkillsLocations` 自訂）。
+
+**`context: fork`（實驗性）**：在 frontmatter 中設定後，此 Skill 會於獨立的子代理上下文中執行，僅將最終結果回傳主對話，適合會產生大量中間輸出的技能。
+
 **建立 Skill：**
 - 在 Chat 中輸入 `/create-skill` 使用 AI 生成
+- 或於 Agent Customizations 編輯器選擇「New Skill」
 - 或手動建立 `SKILL.md` 檔案定義技能行為
+
+**社群資源**：可參考 `github/awesome-copilot`、`anthropics/skills` 等公開倉庫取得現成的 Skill 範例；部分 Skill 也會直接捆綁在 3.6.15 節介紹的 **Agent Plugins** 之中發布。
+
+**與 Custom Instructions 的差異**：Instructions 僅描述程式碼慣例、且僅於 VS Code / GitHub.com 適用、永遠套用或依 glob 條件套用；Skills 則用於封裝可攜式的專業能力與工作流程，可包含腳本與資源，並依需要才載入。
 
 #### 3.6.12 Prompt Files（提示檔案）
 
-Prompt Files 將常見任務編碼為 Markdown 檔案，可作為 Chat 中的斜線命令使用。
+Prompt Files 將常見任務編碼為 Markdown 檔案，需**手動觸發**（不像 Instructions 會自動套用），適合封裝重複性的一次性任務，例如腳手架產生、修測試、準備 PR 說明等。
 
 **建立 `.prompt.md` 檔案：**
 
@@ -2010,6 +2180,8 @@ Prompt Files 將常見任務編碼為 Markdown 檔案，可作為 Chat 中的斜
 ---
 name: 'scaffold-component'
 description: '建立 Vue 3 元件的完整腳手架'
+agent: 'agent'
+tools: ['edit/createFile']
 ---
 請依照以下結構建立一個新的 Vue 3 Composition API 元件：
 1. 建立 `src/components/${input:componentName}.vue`
@@ -2018,49 +2190,122 @@ description: '建立 Vue 3 元件的完整腳手架'
 4. 更新相關的 index.ts 匯出
 ```
 
+**Frontmatter 欄位**：`description`、`name`（預設為檔名）、`argument-hint`、`agent`（可指定 `ask`、`agent`、`plan` 或自訂代理名稱）、`model`、`tools`（支援萬用字元，如 `<server>/*`）。工具解析優先順序為：Prompt File 自訂的 `tools` > 所指定 Custom Agent 的 `tools` > 該代理的預設工具集。
+
 **使用方式：**
-- 在 Chat 中輸入 `/scaffold-component` 即可觸發
-- 使用 `/create-prompt` 讓 AI 幫你生成提示檔案
+- 於 Chat 輸入框輸入 `/scaffold-component`（可附加參數，如 `/scaffold-component componentName=UserCard`）
+- 或執行指令 `Chat: Run Prompt`
+- 或開啟該檔案並點擊編輯器標題列的執行按鈕
+- 使用 `/create-prompt` 讓 AI 幫你生成提示檔案；`/prompts` 開啟設定選單
+
+**存放位置**：工作區預設為 `.github/prompts`（可透過 `chat.promptFilesLocations` 自訂）；也可存放於使用者層級 Profile 目錄，跨工作區共用。
+
+> **發展趨勢**：官方已提供 `chat.customizations.promptMigration.enabled` 設定，用於將既有 Prompt Files 逐步轉換為 3.6.11 節的 **Agent Skills**——這代表 Skills 是官方規劃中 Prompt Files 的長期演進方向，新專案可優先考慮直接採用 Skills。
 
 #### 3.6.13 Hooks（生命週期鉤子）
 
-Hooks 在 Agent 工作階段的關鍵生命週期點執行自訂 shell 命令，用於強制執行安全政策、格式化程式碼或建立稽核軌跡。
+Hooks 在 Agent 工作階段的關鍵生命週期點執行自訂 shell 命令，用於強制執行安全政策、格式化程式碼或建立稽核軌跡。**此功能目前仍為 Preview（預覽）狀態，設定格式與行為可能於未來版本調整。**
 
-**設定 Hooks（`.vscode/settings.json`）：**
+**八個生命週期事件：**
+
+| 事件 | 觸發時機 |
+|------|----------|
+| `SessionStart` | Session 開始時 |
+| `UserPromptSubmit` | 使用者送出提示時 |
+| `PreToolUse` | 工具呼叫執行前（可用於**阻擋**該次呼叫） |
+| `PostToolUse` | 工具呼叫執行後 |
+| `PreCompact` | 對話上下文壓縮前 |
+| `SubagentStart` | 子代理啟動時 |
+| `SubagentStop` | 子代理結束時 |
+| `Stop` | Session 結束時 |
+
+**運作機制**：每個事件觸發時，會以 JSON 格式將資料透過 **stdin** 傳給指定的 shell 指令；該指令可將 JSON 寫入 **stdout** 以影響後續行為，包含直接**阻擋某次工具呼叫**。Hooks 為確定性 (deterministic) 執行——只要事件發生就必定執行，不同於由模型自行判斷的行為。
+
+**設定 Hooks（工作區 `.github/hooks/*.json`，或相容 Claude 格式的 `.claude/settings.json`）：**
 ```json
 {
-  "chat.hooks": {
-    "afterFileEdit": {
-      "command": "ruff format ${file}",
-      "description": "編輯後自動格式化 Python 檔案"
-    }
+  "hooks": {
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "ruff format ${file}",
+        "timeout": 30
+      }
+    ]
   }
 }
 ```
 
 **常見 Hook 使用場景：**
-- 檔案編輯後自動執行格式化
-- 提交前執行 lint 檢查
-- Agent 完成任務後執行測試
-- 建立變更稽核記錄
+- 封鎖危險操作（如 `rm -rf`、`DROP TABLE`）
+- 檔案編輯後自動執行格式化 / Lint
+- Agent 完成任務後自動執行測試
+- 建立完整的工具呼叫稽核記錄
+- 於提示送出前注入額外的專案上下文
 
-> **v1.111 新功能**：Agent-scoped hooks 讓你為特定代理定義專屬的前置/後置處理邏輯，不影響其他 Chat 互動。啟用方式：設定 `"chat.useCustomAgentHooks": true`。
+**Agent-scoped Hooks**：可直接在 Custom Agent 的 `.agent.md` frontmatter 中定義專屬 hooks，僅在選擇該代理或透過 `runSubagent` 呼叫時執行，不影響其他 Chat 互動。啟用方式：設定 `"chat.useCustomAgentHooks": true`；自訂搜尋位置可用 `chat.hookFilesLocations`。
+
+**使用方式**：於 Chat 輸入 `/hooks` 開啟設定選單，或 `/create-hook` 使用 AI 輔助產生。
+
+> **企業提醒**：組織可透過原則（見 6.9 節）全域停用 Hooks 功能；若團隊成員回報 Hooks 無效，請優先確認是否受組織原則限制。
 
 #### 3.6.14 語言模型選擇
 
 VS Code 支援在不同任務間切換 AI 模型，選擇最適合當前需求的模型：
 
 **切換模型：**
-1. 在 Chat 面板的模型選擇器中選擇
+1. 在 Chat 面板的模型選擇器中選擇（快捷鍵 `Ctrl + Alt + .`）
 2. 快速任務使用較快的模型，複雜架構決策使用更強大的模型
+3. 選擇 **Auto**（自動選模，已為正式版）：系統會依任務複雜度與模型即時可用性，自動路由至合適的模型；將滑鼠停留在回覆上可查看實際生成的模型
+4. 於**語言模型編輯器**（Language Models editor）中可釘選常用模型，方便快速切換
 
 **支援的模型類型：**
-- GitHub Copilot 提供的預設模型
-- 第三方代理（Anthropic Claude、OpenAI 等）
-- 自帶 API Key 存取其他模型
-- 本地部署的模型
+- GitHub Copilot 提供的預設模型（涵蓋 OpenAI、Anthropic、Google Gemini 等，並可透過 Azure 代管存取）
+- 第三方代理主機（Anthropic Claude Agent、OpenAI Codex Agent 等，見 3.6.5 節）
+- **BYOK（Bring Your Own Key，自帶金鑰）**：可連接個人 API 金鑰使用 Chat Completions、Responses 或 Anthropic Messages API 相容的供應商（Azure、Anthropic、Hugging Face、Gemini、OpenAI、OpenRouter，亦支援 Ollama / Foundry Local 等本地部署模型），且**無需 GitHub 帳號或 Copilot 訂閱**即可用於一般對話與工具任務（但行內自動完成與語意搜尋仍需 GitHub 帳號驗證）
 
-> **參考資源**：[GitHub Copilot 完整文件](https://code.visualstudio.com/docs/copilot/overview)、[AI 自訂概覽](https://code.visualstudio.com/docs/copilot/customization/overview)、[MCP 伺服器設定](https://code.visualstudio.com/docs/copilot/customization/mcp-servers)
+> **提示**：模型選擇器中會分開列出「Copilot 內建模型」與「BYOK 模型」兩組，方便在對話過程中自由切換供應商。由於模型版本與供應商陣容變動頻繁（約每月更新），具體模型名稱請以 VS Code 內的模型選擇器即時清單為準，本文不列出固定版本號。
+
+**GitHub Copilot 方案與額度（摘要，以官方頁面為準）：**
+
+| 方案 | 費用 | 重點 |
+|------|------|------|
+| Copilot Free | 免費 | 每月 2,000 次補全；僅提供 Auto 自動選模 |
+| Copilot Pro | US$10／月 | 可手動選擇模型；每月約 1,500 點 AI 額度 |
+| Copilot Pro+ | US$39／月 | 進階模型存取；每月約 7,000 點額度 |
+| Copilot Max | US$100／月 | 個人方案最高階，優先存取高階模型；每月約 20,000 點額度 |
+| Copilot Business | US$19／使用者／月 | 組織集中管理；每人每月約 1,900 點額度 |
+| Copilot Enterprise | US$39／使用者／月 | 僅限 GitHub Enterprise Cloud，含企業級管理能力 |
+
+> **參考資源**：[Build with agents in VS Code](https://code.visualstudio.com/docs/agents/overview)、[AI Customization 總覽](https://code.visualstudio.com/docs/agent-customization/overview)、[MCP 伺服器設定](https://code.visualstudio.com/docs/agent-customization/mcp-servers)、[GitHub Copilot 方案](https://docs.github.com/en/copilot/get-started/plans)
+
+#### 3.6.15 Agent Plugins（代理外掛）
+
+**Agent Plugins 1.0** 是 2026 年 8 月新推出的開放標準，用於將 **Agent Skills、MCP 伺服器**（以及 VS Code 專屬的 Custom Agents、Hooks、斜線指令）打包為單一可安裝單元，可跨 **GitHub Copilot in VS Code、GitHub Copilot CLI 與 GitHub Copilot App** 使用，且不綁定特定廠商。
+
+**外掛結構：**
+
+```text
+my-plugin/
+├── plugin.json          # 元資料，含 $schema 指向 agent-plugins.org 1.0 規格
+├── skills/               # 內含的 Agent Skills
+├── mcp.json              # 內含的 MCP 伺服器設定
+└── com.github.copilot/   # VS Code / Copilot 專屬命名空間
+    ├── agents/
+    ├── hooks/
+    └── commands/
+```
+
+**安裝方式：**
+- 擴充功能面板篩選 `@agentPlugins`
+- Agent Customizations 編輯器的 **Plugin** 分頁
+- 指令 `Chat: Install Plugin From Source`（貼上 Git URL 即可安裝）
+- 透過 GitHub Copilot CLI 安裝後自動同步至 VS Code
+
+**外掛市集（Marketplace）：**
+預設可從 GitHub 官方的 `copilot-plugins` 與 `awesome-copilot` 倉庫安裝，亦可透過 `chat.plugins.marketplaces` 設定擴充（支援 `owner/repo` 簡寫、完整 URL 或本機路徑）。首次從新市集安裝時會顯示信任確認提示。
+
+> ⚠️ **安全提醒**：Agent Plugins 可能包含會在你機器上執行程式碼的 Hooks 與 MCP 伺服器，安裝前務必確認發佈者身分與外掛內容，僅安裝來自信任來源的外掛。
 
 ### 3.7 實務案例與注意事項
 
@@ -2074,10 +2319,12 @@ VS Code 支援在不同任務間切換 AI 模型，選擇最適合當前需求�
 - 定期同步遠端分支，避免合併衝突
 - 善用 VS Code 的多游標編輯功能提升效率（`Ctrl + Alt + Up/Down`）
 - 使用程式碼片段（Snippets）加速常用程式碼撰寫
-- 善用 GitHub Copilot Agent 模式處理跨檔案重構和大型任務
+- 善用 GitHub Copilot Agent 模式處理跨檔案重構和大型任務，並以 Plan Agent 先行規劃再交接執行
 - 使用 `/init` 指令初始化專案的 AI 自訂設定
-- 設定 MCP 伺服器擴展 Agent 的外部工具存取能力
-- 建立 `.instructions.md` 檔案確保 AI 產生的程式碼符合專案慣例
+- 設定 MCP 伺服器擴展 Agent 的外部工具存取能力，並留意 128 個工具的上限
+- 建立 `.instructions.md` 或 `AGENTS.md` 檔案確保 AI 產生的程式碼符合專案慣例
+- 將團隊常用的工作流程封裝為 Agent Skills 或 Agent Plugins，跨 VS Code、Copilot CLI 共用
+- 涉及破壞性操作（檔案刪除、資料庫遷移、生產環境指令）時，避免使用 Autopilot／Bypass Approvals，改用 Default Approvals 逐一確認
 
 ---
 
@@ -3246,9 +3493,16 @@ code --install-extension gitlab.gitlab-workflow
 
 ### 6.2 擴充功能開發入門
 
+> **文件位置提醒**：擴充功能開發（Extension API）的官方文件入口為 [code.visualstudio.com/api](https://code.visualstudio.com/api)；`docs/extension-docs/overview` 頁面實際上是「Container Tools」「Data Science」「Azure 工具」等特定工作流程擴充功能的導覽頁，並非 API 文件本身，若尋找 API／腳手架文件請直接以 `/api` 為準。
+
 #### 6.2.1 建立基本擴充功能
 
-**初始化擴充功能專案：**
+**初始化擴充功能專案（免安裝方式）：**
+```bash
+npx --package yo --package generator-code -- yo code
+```
+
+**或全域安裝後使用：**
 ```bash
 npm install -g yo generator-code
 yo code
@@ -3260,6 +3514,22 @@ yo code
 - New Language Support
 - New Code Snippets
 - New Keymap
+
+腳手架流程中還會詢問：擴充功能名稱／識別碼／描述、是否初始化 Git、**打包工具**（unbundled／webpack／esbuild）、套件管理器（npm／yarn／pnpm）。產生的進入點為 `src/extension.ts`，內含必要的 `activate()` 與選用的 `deactivate()` 函式；`package.json` 中的 `engines.vscode` 欄位用於宣告相容的 VS Code 版本。按 `F5` 即可啟動「Extension Development Host」除錯視窗測試擴充功能。
+
+**AI／Chat 相關 API（近期擴充重點）：** Chat Participant API、Language Model Tool API、Language Model Chat Providers、Prompt TSX（用於結構化組裝 AI 提示），以及 MCP 開發指南——這是目前 Extension API 文件成長最快的領域，反映 VS Code 對代理式擴展能力的持續投入。
+
+#### 6.2.2 發佈擴充功能
+
+使用官方 CLI 工具 **`vsce`**：
+```bash
+npm install -g @vscode/vsce
+vsce login <publisher-id>
+vsce package
+vsce publish
+```
+
+> ⚠️ **重要期限提醒**：Azure DevOps 將於 **2026 年 12 月 1 日**停用全域個人存取權杖 (PAT)。目前以 PAT（`Marketplace > Manage` 權限範圍）發佈擴充功能仍可運作，但屬於即將淘汰的舊方法。官方建議改用**基於 Microsoft Entra ID 的發佈方式**（workload identity federation／受控識別，例如 `vsce publish --azure-credential`），及早規劃遷移可避免期限逼近時的發佈中斷風險。
 
 ### 6.3 工作流程自動化
 
@@ -3528,6 +3798,17 @@ deploy:
 
 ### 6.5 遠端開發與 SSH
 
+**Remote Development 擴充套件包**目前包含四個延伸模組，依情境選用：
+
+| 擴充功能 | 適用情境 |
+|----------|----------|
+| **Remote - SSH** | 透過 SSH 連線到任意遠端主機／VM 開發 |
+| **Dev Containers** | 於 Docker/OCI 容器內開發（見 2.4 節） |
+| **WSL** | 於 Windows Subsystem for Linux 內開發 |
+| **Remote - Tunnels** | 透過安全通道連接遠端機器，**不需**預先設定 SSH，適合防火牆較嚴格或無法開放連接埠的環境 |
+
+每種擴充功能都會在遠端作業系統安裝獨立的 **VS Code Server**，本機端不需要存放任何原始碼；絕大多數 VS Code 擴充功能無需修改即可在遠端環境中運作。
+
 #### 6.5.1 Remote SSH 設定
 
 **安裝 Remote SSH 擴充功能：**
@@ -3550,6 +3831,13 @@ Host dev-server
 1. `Ctrl + Shift + P` → `Remote-SSH: Connect to Host`
 2. 選擇預設的主機或輸入新的連線
 3. VS Code 會在遠端建立伺服器並同步擴充功能
+
+**遠端主機系統需求（重點摘要）：**
+- 本機需具備相容 OpenSSH 的用戶端（**Windows 不支援 PuTTY**）
+- 遠端主機建議至少 1 GB RAM（2 GB + 雙核心較佳）
+- Linux 遠端主機需具備 `/bin/bash`、`tar`，以及 `curl` 或 `wget`
+- **glibc 版本要求**：目前官方預先建置的伺服器僅相容 **glibc 2.28 以上**（如 Debian 10、RHEL 8、Ubuntu 20.04 以上版本）；使用 **musl-based 的 Alpine Linux 不受官方支援**
+- 密碼含 passphrase 的 SSH 金鑰可能導致 Git 操作卡住，建議搭配 `ssh-agent` 使用
 
 #### 6.5.2 遠端開發最佳實務
 
@@ -3696,37 +3984,106 @@ VS Code 提供多種預設 Profile 範本：
 
 之後每次開啟該資料夾，VS Code 會自動切換到對應的 Profile。
 
-### 6.8 Chat Customizations 編輯器
+### 6.8 Agent Customizations 編輯器
 
-VS Code 在 v1.111 引入了 **Chat Customizations 編輯器**，提供集中式的圖形化介面來管理所有 AI 相關的客製化設定，不再需要手動編輯 JSON 檔案或散落在各處的設定。
+VS Code 引入了 **Agent Customizations 編輯器**（早期版本稱為 Chat Customizations 編輯器），提供集中式的圖形化介面來管理所有 AI 相關的客製化設定，不再需要手動編輯 JSON 檔案或散落在各處的設定。
 
-#### 6.8.1 開啟 Chat Customizations 編輯器
+#### 6.8.1 開啟 Agent Customizations 編輯器
 
-- `Ctrl + Shift + P` → `Chat: Open Customization Editor`
+- `Ctrl + Shift + P` → `Chat: Open Customizations`
 - 或從 Copilot Chat 面板的齒輪圖示進入
 
 #### 6.8.2 可管理的項目
 
 | 項目 | 說明 |
 |------|------|
-| **Custom Instructions** | 集中瀏覽與編輯所有客製化指令檔（`copilot-instructions.md`、`.instructions.md`、`AGENTS.md`） |
+| **Custom Instructions** | 集中瀏覽與編輯所有客製化指令檔（`copilot-instructions.md`、`.instructions.md`、`AGENTS.md`、`CLAUDE.md`） |
 | **MCP Servers** | 檢視所有已設定的 MCP 伺服器、啟用/停用個別伺服器 |
-| **Custom Agents** | 管理 `.agent.md` 定義的自訂 Agent |
+| **Custom Agents** | 管理 `.agent.md` 定義的自訂 Agent 與子代理關係 |
+| **Agent Skills** | 瀏覽已安裝的 Agent Skills（見 3.6.11 節） |
 | **Prompt Files** | 瀏覽 `.prompt.md` 可重複使用的 Prompt 檔案 |
 | **Hooks** | 管理 Agent 生命週期的前/後置腳本 |
-| **Language Models** | 選擇預設使用的語言模型 |
+| **Plugins** | 安裝與管理 Agent Plugins（見 3.6.15 節） |
+| **Language Models** | 選擇並釘選預設使用的語言模型 |
+
+每個項目都會標示其來源（內建 / 使用者層級 / 工作區層級 / 組織層級 / 擴充功能），並提供診斷資訊協助排查設定衝突。
 
 #### 6.8.3 使用情境
 
 ```text
 典型工作流程：
-1. 使用 Chat Customizations 編輯器確認所有設定正確
+1. 使用 Agent Customizations 編輯器確認所有設定正確
 2. 新增或修改 MCP Server 設定
 3. 調整 Custom Instructions 優先順序
-4. 確認 Agent 權限層級
+4. 確認 Agent 權限層級與已安裝的 Plugins
 ```
 
-> **提示**：Chat Customizations 編輯器會顯示所有作用域（使用者層級、工作區層級、資料夾層級）的設定，方便一覽全貌。
+> **提示**：Agent Customizations 編輯器會顯示所有作用域（使用者層級、工作區層級、資料夾層級、組織層級）的設定，方便一覽全貌。
+
+### 6.9 企業級管理與治理原則 (Enterprise Policies)
+
+VS Code 提供完整的企業治理機制，讓 IT 部門能在受管理的裝置上集中設定政策、限制擴充功能來源，並針對近年快速發展的 AI Agent 功能訂立使用邊界。詳細規格請參閱 [VS Code for Enterprise](https://code.visualstudio.com/docs/enterprise/overview) 官方文件。
+
+#### 6.9.1 集中部署與原則管理
+
+| 部署／管理方式 | 說明 |
+|-----------------|------|
+| **Microsoft Intune** | 透過 MDM 集中部署原則設定 |
+| **Active Directory 群組原則 (ADMX)** | 於 Windows 網域環境套用原則範本 |
+| **macOS MDM** | macOS 裝置的集中管理方案 |
+| **Settings Sync** | 確保跨裝置設定一致性 |
+| **預先安裝擴充功能** | 於機器映像中預先安裝，首次啟動即可用 |
+
+**擴充功能治理：**
+
+```json
+{
+  "extensions.allowed": {
+    "publisher.extension-id": true,
+    "unwanted-publisher.*": false
+  }
+}
+```
+
+可依發佈者、擴充功能 ID 或版本進行允許清單控管，並可設定私有／自架 Marketplace（`ExtensionGalleryServiceUrl`）取代公開 Marketplace。
+
+#### 6.9.2 AI／Agent 治理原則（近期擴充重點）
+
+隨著 Agent 功能快速發展，VS Code 企業原則已大幅擴充至 AI 治理範疇，涵蓋網路存取控制、沙箱執行與可觀測性：
+
+| 原則 | 對應設定 | 用途 |
+|------|----------|------|
+| `ChatAgentMode` | `chat.agent.enabled` | 啟用／停用 Agent 模式 |
+| `ChatAgentNetworkFilter` | `ChatAgentAllowedNetworkDomains` / `ChatAgentDeniedNetworkDomains` | 限制 Agent 工具呼叫可存取的網域 |
+| `ChatAgentSandboxEnabled` | `ChatAgentSandboxAllowNetwork`、`ChatAgentSandboxAllowAutoApprove` | 控制 Agent 沙箱執行環境的網路與自動核准權限 |
+| `Claude3PIntegration` / `Codex3PIntegration` | `chat.agentHost.claudeAgent.enabled` / `chat.agentHost.codexAgent.enabled` | 啟用／停用第三方代理主機（Claude Agent、Codex Agent） |
+| `ChatMCP` | `chat.mcp.access` | 控制 MCP 存取層級 |
+| `ChatAllowedMcpServers` / `ChatDeniedMcpServers` | — | MCP 伺服器允許／拒絕清單 |
+| `ChatAllowManagedMcpServersOnly` | — | 強制僅允許企業代管的 MCP 伺服器 |
+| `ChatHooks` | `chat.useHooks` | 啟用／停用 Hooks 功能 |
+| `ChatToolsAutoApprove` | `chat.tools.global.autoApprove` | 控制工具自動核准原則 |
+| `CopilotOtelEnabled` | `CopilotOtelEndpoint`、`CopilotOtelProtocol` 等 | 將 Copilot / Agent 遙測資料匯出至企業自建的 OpenTelemetry 收集器 |
+
+> **企業導入建議**：導入 Agent 功能前，建議資安團隊優先評估 `ChatAgentNetworkFilter`（網域白名單）、`ChatAgentSandboxEnabled`（沙箱隔離）與 `ChatAllowManagedMcpServersOnly`（MCP 供應鏈控管）三項原則，作為降低 Agent 對外部系統誤操作風險的第一道防線；OTel 匯出功能則可協助建立 Agent 操作的稽核與合規紀錄。
+
+#### 6.9.3 網路與代理伺服器設定
+
+| 設定 | 用途 |
+|------|------|
+| `http.proxy` | 指定 HTTPS Proxy 位址 |
+| `http.proxyStrictSSL` | 是否嚴格驗證 Proxy SSL 憑證 |
+| `http.noProxy` | 不經過 Proxy 的網域清單 |
+
+**必要對外連線網域（防火牆允許清單）：**
+
+```text
+update.code.visualstudio.com
+marketplace.visualstudio.com
+*.gallery.vsassets.io
+vscode.download.prss.microsoft.com
+```
+
+VS Code 預設會直接沿用作業系統的 Proxy 設定；企業網路若採用自簽憑證，須額外設定信任的憑證鏈結。
 
 ---
 
@@ -4230,7 +4587,6 @@ refactor(api): simplify error handling logic
   "gitlens.blame.compact": false
 }
 ```
-```
 
 ---
 
@@ -4422,24 +4778,43 @@ refactor(api): simplify error handling logic
 
 **官方文件：**
 - [Visual Studio Code 官方文件](https://code.visualstudio.com/docs)
+- [Getting Started 總覽](https://code.visualstudio.com/docs/getstarted/overview)
+- [Core Editor 總覽](https://code.visualstudio.com/docs/core-editor/overview)
+- [Source Control 總覽](https://code.visualstudio.com/docs/sourcecontrol/overview)
+- [Terminal 使用指南](https://code.visualstudio.com/docs/terminal/getting-started)
+- [Debugging 總覽](https://code.visualstudio.com/docs/debugtest/debugging)
+- [Languages 總覽](https://code.visualstudio.com/docs/languages/overview)
 - [Vue.js 官方文件](https://vuejs.org/)
 - [Spring Boot 官方文件](https://spring.io/projects/spring-boot)
 - [TypeScript 官方文件](https://www.typescriptlang.org/docs/)
-- [GitHub Copilot 文件](https://code.visualstudio.com/docs/copilot/overview)
 
 **AI / Agent 相關文件：**
-- [Copilot Agent Mode](https://code.visualstudio.com/docs/copilot/chat/chat-agent-mode)
-- [MCP Servers 設定指南](https://code.visualstudio.com/docs/copilot/chat/mcp-servers)
-- [Custom Instructions](https://code.visualstudio.com/docs/copilot/copilot-customization)
-- [AI Customization 總覽](https://code.visualstudio.com/docs/copilot/copilot-extensibility-overview)
-- [Prompt Files 與 Custom Agents](https://code.visualstudio.com/docs/copilot/copilot-customization#_reusable-prompt-files-experimental)
-- [VS Code v1.111 Release Notes](https://code.visualstudio.com/updates/v1_111)
+- [Build with agents in VS Code（總覽）](https://code.visualstudio.com/docs/agents/overview)
+- [GitHub Copilot 安裝與設定](https://code.visualstudio.com/docs/setup/copilot)
+- [核准與權限管理](https://code.visualstudio.com/docs/agents/run/approvals)
+- [AI Features Cheat Sheet](https://code.visualstudio.com/docs/agents/reference/ai-features-cheat-sheet)
+- [Custom Instructions](https://code.visualstudio.com/docs/agent-customization/custom-instructions)
+- [Custom Agents](https://code.visualstudio.com/docs/agent-customization/custom-agents)
+- [MCP Servers 設定指南](https://code.visualstudio.com/docs/agent-customization/mcp-servers)
+- [Agent Skills](https://code.visualstudio.com/docs/agent-customization/agent-skills)
+- [Prompt Files](https://code.visualstudio.com/docs/agent-customization/prompt-files)
+- [Hooks](https://code.visualstudio.com/docs/agent-customization/hooks)
+- [Agent Plugins](https://code.visualstudio.com/docs/agent-customization/agent-plugins)
+- [Language Models（模型選擇與 BYOK）](https://code.visualstudio.com/docs/agent-customization/language-models)
+- [GitHub Copilot 方案](https://docs.github.com/en/copilot/get-started/plans)
+- [VS Code 最新 Release Notes](https://code.visualstudio.com/updates)
+
+**企業與治理：**
+- [VS Code for Enterprise 總覽](https://code.visualstudio.com/docs/enterprise/overview)
+- [Enterprise 原則參考](https://code.visualstudio.com/docs/enterprise/policies)
+- [Extension API 總覽](https://code.visualstudio.com/api)
 
 **學習資源：**
 - [VS Code Tips and Tricks](https://code.visualstudio.com/docs/getstarted/tips-and-tricks)
 - [Java 在 VS Code 中的使用](https://code.visualstudio.com/docs/languages/java)
 - [TypeScript 開發指南](https://code.visualstudio.com/docs/languages/typescript)
 - [Remote Development 指南](https://code.visualstudio.com/docs/remote/remote-overview)
+- [Dev Containers 指南](https://code.visualstudio.com/docs/devcontainers/containers)
 - [VS Code Profiles](https://code.visualstudio.com/docs/editor/profiles)
 - [Workspace Trust](https://code.visualstudio.com/docs/editor/workspace-trust)
 
@@ -4453,11 +4828,13 @@ refactor(api): simplify error handling logic
 - [SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode)
 - [Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
 
+> **文件時效性提醒**：本節連結均於 2026 年 8 月查證有效；GitHub Copilot 相關功能迭代速度遠快於 VS Code 核心版本（約每月更新），建議讀者以 [VS Code Release Notes](https://code.visualstudio.com/updates) 及 GitHub Changelog 的「GitHub Copilot in Visual Studio Code」系列文章掌握最新異動。
 
 ### 9.2 版本歷程
 
 | 版本 | 日期 | 更新內容 | 作者 |
-|------|------|----------|------|
+|------|------|------|------|
+| 5.0 | 2026-08-24 | 依官方文件全面查證更新（對應 VS Code v1.134）：3.6 節 AI／Agent 章節大幅改寫（Edit 模式移除並併入 Agent 模式、新增 Assisted Permissions、Plan Agent 四階段流程與 Handoffs、Agent Skills 轉為 GA、新增 3.6.15 Agent Plugins）；新增 6.9 企業級管理與治理原則（含 AI／Agent 治理原則）；更新 Settings Sync（Profiles 同步）、Source Control（Graph／Timeline／Worktrees／AI 提交訊息）、Debugging（行內／資料斷點）、Terminal（Shell Integration／Sticky Scroll／Terminal Chat）、Dev Containers（Features／生命週期腳本）、Remote Development（Remote - Tunnels）、擴充功能發佈（Entra ID／PAT 淘汰提醒）等章節；修正 Markdown 格式與目錄連結問題 | 開發團隊 |
 | 4.0 | 2026-03-11 | 配合 VS Code v1.111 全面更新 Copilot / Agent 章節：新增 Agent Mode、Autopilot、MCP Servers、Custom Agents、Skills、Prompt Files、Hooks、Chat Customizations 編輯器；Copilot Chat 已合併至 Copilot 主擴充功能；更新參考資源連結 | 開發團隊 |
 | 3.0 | 2025-08-29 | 新增 GitHub Copilot/AI 輔助開發、Profiles 管理、Workspace Trust、三方合併編輯器；更新 Python 工具為 Ruff；移除已棄用擴充功能 | 開發團隊 |
 | 2.0 | 2025-08-29 | 新增 GitLab 整合、安全性最佳實務、遠端開發 | 開發團隊 |
@@ -4466,7 +4843,7 @@ refactor(api): simplify error handling logic
 
 ---
 
-*文件版本：4.0*  
-*最後更新：2026年3月11日*  
+*文件版本：5.0*  
+*最後更新：2026年8月24日*  
 *維護團隊：開發部技術團隊*
 
