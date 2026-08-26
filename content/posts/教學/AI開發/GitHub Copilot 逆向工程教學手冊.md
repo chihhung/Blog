@@ -1,5 +1,5 @@
 +++
-date = '2026-04-02T17:22:50+08:00'
+date = '2026-08-26T00:00:00+08:00'
 draft = false
 title = 'GitHub Copilot 逆向工程教學手冊'
 tags = ['教學', 'AI開發','指引']
@@ -8,10 +8,10 @@ categories = ['教學']
 
 # GitHub Copilot 逆向工程教學手冊（Java Web）
 
-> **版本**：2.0  
-> **最後更新**：2026-04-02  
+> **版本**：2.1  
+> **最後更新**：2026-08-26  
 > **適用對象**：資深工程師、架構師、技術主管  
-> **技術棧**：Java 21+ / Spring Boot 3.x～4.x / GitHub Copilot（Chat / Agent Mode / Cloud Agent / CLI / MCP）  
+> **技術棧**：Java 21 LTS（既有系統延續）／25 LTS（新專案建議）／Spring Boot 4.1.x（建議）～4.0.x（維護中，3.x 系列已於 2026-06-30 EOL）／ GitHub Copilot（Chat / Agent Mode / Plan Agent / Cloud Agent / CLI / MCP）  
 
 ---
 
@@ -203,7 +203,7 @@ flowchart TB
 | **Copilot Spaces** | 組織相關內容為上下文空間 | 將舊系統文件、程式碼、分析結果組織為統一上下文 |
 | **Copilot Code Review** | AI 自動程式碼審查（已採用 Agentic 架構） | 自動審查轉換後的程式碼品質與安全性 |
 | **Next Edit Suggestions（NES）** | 預測下一個編輯位置並自動建議 | 加速逐行轉換程式碼的效率 |
-| **多模型支援** | GPT-5.4、Gemini 3.1 Pro、Claude 等多模型切換 | 對不同語言或任務選擇最佳模型 |
+| **多模型支援** | 涵蓋 OpenAI（GPT-5.x 系列）、Anthropic（Claude Haiku/Sonnet/Opus 系列）、Google（Gemini 3.x 系列）等多家供應商模型，並支援 Auto 自動選模 | 對不同語言或任務選擇最佳模型；陣容每月變動，實際清單請以編輯器內模型選單為準 |
 
 **Copilot 在逆向工程中的四大角色**：
 
@@ -2116,6 +2116,18 @@ Legacy 函式：
 
 Custom Instructions 讓你在 `.github/copilot-instructions.md` 中定義專案級的 AI 行為規範。Copilot 在回答問題或產生程式碼時，會自動參考這些指令，確保所有產出符合團隊的逆向工程標準。
 
+#### 目前支援的指令檔案類型
+
+除了全域的 `.github/copilot-instructions.md`，官方現已同時支援以下幾種指令檔案，可依情境選用或並用：
+
+| 檔案 | 適用範圍 | 說明 |
+| --- | --- | --- |
+| `.github/copilot-instructions.md` | 整個 Repo | 全域性規範，本節主要範例即此類型 |
+| `.github/instructions/**/*.instructions.md` | 特定路徑（可用 glob 限定） | 例如只對 `legacy/**` 或 `src/main/java/**` 套用不同規範，適合新舊程式碼並存的逆向工程專案 |
+| `AGENTS.md`（含巢狀子資料夾） | 整個 Repo 或子目錄，跨工具通用 | 開放標準（[agents.md](https://agents.md/)），若團隊同時使用 Claude Code、Codex CLI 等多種 AI 工具，可用同一份 `AGENTS.md` 避免重複維護多份指令 |
+
+> **💡 選型建議**：僅使用 GitHub Copilot 的團隊可專注於 `copilot-instructions.md` + 路徑限定的 `.instructions.md`；若團隊同時導入多種 AI 開發工具，改採開放的 `AGENTS.md` 標準能降低維護成本。
+
 #### 逆向工程專用 Custom Instructions 範例
 
 ```markdown
@@ -2256,11 +2268,11 @@ description: 分析 Legacy 程式碼並產出結構化報告
 
 ```mermaid
 flowchart TB
-    A{系統規模} --> |"小型<br/>< 10 萬行"| B[單體架構<br/>Monolith]
+    A{系統規模} --> |"小型<br/>小於 10 萬行"| B[單體架構<br/>Monolith]
     A --> |"中型<br/>10-50 萬行"| C[模組化單體<br/>Modular Monolith]
-    A --> |"大型<br/>> 50 萬行"| D{團隊規模}
-    D --> |"< 5 人"| C
-    D --> |"> 5 人"| E[微服務<br/>Microservices]
+    A --> |"大型<br/>大於 50 萬行"| D{團隊規模}
+    D --> |"小於 5 人"| C
+    D --> |"大於 5 人"| E[微服務<br/>Microservices]
     
     B --> F[Spring Boot<br/>單一部署]
     C --> G[Spring Boot<br/>模組化 + API Gateway]
@@ -2863,20 +2875,22 @@ Legacy-Source: legacy-cms/Modules/modCustomer.bas
 
 #### OWASP Top 10 2025 對照清單
 
-在逆向工程中，應對照最新的 OWASP Top 10 2025 標準進行安全檢查：
+OWASP Top 10:2025 已於 2026 年 1 月正式發布（2025 年 11 月 OWASP Global AppSec 大會公告），相較 2021 版新增 2 個分類、改名 2 個、SSRF 併入 Broken Access Control，且 Security Misconfiguration 由第 5 名躍升至第 2 名。在逆向工程中，應對照這份最新標準進行安全檢查：
 
 | OWASP 2025 風險 | 逆向工程中的常見問題 | 預防措施 |
 |----------------|-------------------|---------|
-| A01: Broken Access Control | 舊系統缺乏 RBAC | Spring Security + Method-level Security |
-| A02: Cryptographic Failures | 舊系統使用 MD5/SHA1 | BCrypt / Argon2 + Spring Vault |
-| A03: Injection | Legacy 字串拼接 SQL | JPA 參數化查詢 + Input Validation |
-| A04: Insecure Design | 缺乏威脅建模 | 重建時進行 Threat Modeling |
-| A05: Security Misconfiguration | 預設密碼、開放端口 | Spring Security Auto-Configuration |
-| A06: Vulnerable Components | 舊版 Library 已有 CVE | 使用最新穩定版 + Dependabot |
+| A01: Broken Access Control | 舊系統缺乏 RBAC；SSRF（伺服器端請求偽造）已於 2025 版併入本類 | Spring Security + Method-level Security + 外部請求 URL 白名單 |
+| A02: Security Misconfiguration | 預設密碼、開放測試端口、除錯介面未關閉（2025 版排名由第 5 躍升第 2，需優先處理） | Spring Security Auto-Configuration + 環境別設定檔隔離 |
+| A03: Software Supply Chain Failures | 舊系統相依套件來源不明、CI/CD 流程缺乏簽章驗證（**2025 年新分類**，擴展自舊版「易受攻擊與過時組件」） | SBOM 產出 + Dependabot + 套件來源與簽章驗證（如 Sigstore） |
+| A04: Cryptographic Failures | 舊系統使用 MD5/SHA1（2025 版排名由第 2 降至第 4） | BCrypt / Argon2 + Spring Vault |
+| A05: Injection | Legacy 字串拼接 SQL（2025 版排名由第 3 降至第 5） | JPA 參數化查詢 + Input Validation |
+| A06: Insecure Design | 缺乏威脅建模（2025 版排名由第 4 降至第 6） | 重建時進行 Threat Modeling |
 | A07: Authentication Failures | 弱密碼策略、無 MFA | Spring Security + OAuth2/OIDC |
-| A08: Data Integrity Failures | 無簽章驗證 | JWT + Digital Signature |
-| A09: Logging Failures | 缺乏稽核日誌 | SLF4J + ELK + Audit Trail |
-| A10: SSRF | 舊系統直連外部服務 | URL 白名單 + Network Segmentation |
+| A08: Software or Data Integrity Failures | 無簽章驗證、反序列化未過濾 | JWT + Digital Signature + 反序列化白名單 |
+| A09: Security Logging and Alerting Failures | 缺乏稽核日誌與異常告警機制（2025 版更名，強調告警能力） | SLF4J + ELK + Audit Trail + 告警規則 |
+| A10: Mishandling of Exceptional Conditions | 舊系統例外處理不當、錯誤訊息外洩系統內部細節（**2025 年新分類**，聚焦例外處理與邏輯錯誤） | 統一例外處理（`@ControllerAdvice`）+ 錯誤訊息脫敏 + Fail-safe 預設值 |
+
+> 資料來源：[OWASP Top 10:2025](https://owasp.org/Top10/2025/)。分類會隨官方版本持續調整，正式導入前請以官方頁面為準。
 
 ---
 
@@ -3474,14 +3488,17 @@ public class CustomerService {
 #### 逆向工程專用命令
 
 | 命令 | 說明 | 範例 |
-|-----|------|------|
-| `@workspace` | 分析整個工作區 | `@workspace 列出所有模組及其功能` |
+| --- | --- | --- |
+| `@workspace` | 分析整個工作區（傳統寫法，仍可用） | `@workspace 列出所有模組及其功能` |
+| `#codebase` | 搜尋並帶入工作區程式碼上下文（**目前建議寫法**） | `#codebase 列出所有模組及其功能` |
 | `/explain` | 解釋程式碼 | `/explain 這段 SP 的商業邏輯是什麼` |
 | `/fix` | 修正問題 | `/fix 修正此程式碼的 SQL Injection` |
 | `/tests` | 產生測試 | `/tests 為此 Service 產生完整測試` |
 | `/doc` | 產生文件 | `/doc 產生 JavaDoc` |
 | `#file` | 指定檔案 | `#file:modCustomer.bas 分析此模組` |
 | `#selection` | 選取範圍 | `#selection 將選取的程式碼轉為 Java` |
+
+> **💡 `@workspace` vs `#codebase`**：兩者目前都未被棄用，Copilot 也會在相關情境下自動索引工作區內容，不一定要顯式輸入。但官方建議日常使用逐步改用 `#codebase`——它更靈活、可與其他 `#` context variable（如 `#file`、`#selection`）併用，且能在 Agent Mode 等代理式工作流程中正常運作，而 `@workspace` 主要設計給傳統 Chat 模式。本手冊後續 Prompt 範例仍以 `@workspace` 為主（沿用既有寫法），實務上可依專案慣例替換為 `#codebase`。
 
 #### Copilot Chat 最佳實務
 
@@ -3516,41 +3533,44 @@ Step 4：跨模組追蹤
 
 ### 9.3 Copilot CLI
 
-#### 逆向工程常用 CLI 指令
+GitHub Copilot CLI 已於 2026-02-25 正式 GA（先前為 Preview），是獨立於 VS Code 的**終端機原生 Agent**，可在命令列中規劃任務、編輯檔案、執行測試並自我迭代，不同於舊版 `gh copilot suggest`（gh CLI 擴充套件的單次建議指令）。
+
+#### 安裝與啟動
 
 ```bash
-# 使用 Copilot CLI 快速分析專案結構
-gh copilot suggest "分析此目錄下所有 VB 檔案的模組結構"
+# 需 Node.js 22 以上
+npm install -g @github/copilot
 
-# 批次產出分析報告
-gh copilot suggest "寫一個 script 掃描所有 .bas 檔案，列出 Public Function 清單"
-
-# 快速建立 Spring Boot 專案
-gh copilot suggest "使用 Spring Initializr CLI 建立含 JPA 和 Security 的專案"
-
-# 程式碼統計
-gh copilot suggest "統計此目錄下各語言的程式碼行數"
+# 啟動互動式 Session（首次需執行 /login 完成 GitHub 帳號驗證）
+copilot
 ```
 
-#### Copilot Agent Mode（自動化逆向）
+#### 逆向工程情境下的實際用法
 
+```bash
+# 互動模式：啟動後直接以自然語言下達任務
+copilot
+> 分析 legacy-cms/ 目錄下所有 .bas 與 .frm 檔案，列出模組清單、
+  Public 方法與存取的資料庫 Table，並將結果寫入 docs/cli-analysis.md
+
+# 一次性腳本模式：適合寫進 CI/CD 或批次腳本，用 -p 傳入 Prompt
+copilot -p "統計 legacy-cms/ 目錄下各語言的程式碼行數，並依模組分類輸出表格"
+
+# Session 內常用斜線指令
+/model              # 切換或查詢目前使用的模型
+/context            # 檢視目前 Session 的 Token 用量與上下文組成
 ```
-# 使用 Copilot Agent 進行自動化分析
 
-在 VS Code 中啟用 Agent Mode（@workspace）：
+#### Copilot CLI 的關鍵能力（2026 現況）
 
-Prompt：
-「請自動分析此 Legacy 專案（legacy-cms/），並依序完成：
-1. 掃描所有程式檔案，產出模組清單
-2. 識別所有資料庫操作（Table / SP）
-3. 抽取所有商業規則
-4. 產出系統架構圖（Mermaid）
-5. 產出 ERD（Mermaid）
-6. 建議 Spring Boot 專案結構
-7. 將結果整理為 Markdown 報告
+| 能力 | 說明 | 對逆向工程的價值 |
+| --- | --- | --- |
+| 跨 Session 記憶 | 可在新的 Session 中詢問先前分析過的檔案、PR、決策 | 長期逆向工程專案可分次執行而不遺失上下文 |
+| 100 萬 Token 上下文 | VS Code、CLI、Copilot App 皆已支援超長上下文 | 一次性分析大型 Legacy 模組不必手動分段 |
+| 跨平台 | macOS / Linux / Windows 皆可用，支援 npm / Homebrew / WinGet 安裝 | 可整合進既有 CI/CD 或 Windows 開發機工作流程 |
+| 全螢幕 Alt-screen 模式 | 提供滑鼠選取、翻頁捲動等完整終端機體驗（實驗性功能） | 長篇分析報告閱讀體驗更佳 |
 
-請將報告存為 docs/reverse-engineering-report.md」
-```
+> **💡 實務建議**：Copilot CLI 適合搭配 Shell Script 做「批次、可重複執行」的分析工作（例如每個模組跑一次 `copilot -p`），VS Code 內的 Agent Mode（見 [9.6 節](#96-copilot-agent-mode-與-cloud-agent)）則更適合需要邊看程式碼邊互動調整的深度分析。指令與可用模型持續更新，請以 [官方文件](https://docs.github.com/en/copilot/how-tos/copilot-cli/use-copilot-cli/overview) 為準。
 
 ---
 
@@ -3688,14 +3708,17 @@ public class OpenApiConfig {
 
 **2. 選擇適合的 AI 模型**
 
-Agent Mode 支援多種模型，建議按任務類型選擇：
+Agent Mode 支援多供應商模型，建議按任務類型選擇（模型名稱以 2026 年 8 月現況為例，實際陣容每月變動，請以編輯器內模型選單或 [官方定價頁](https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing) 為準）：
 
 | 任務類型 | 建議模型 | 說明 |
 |---------|---------|------|
-| 程式碼分析 / 複雜推理 | Claude Opus 4 / GPT-5.4 | 深度邏輯分析 |
-| 程式碼生成 / 轉換 | GPT-5.4 / GPT-5.3-Codex | 高品質程式碼產出 |
-| 快速問答 / 輕度任務 | GPT-5.4 mini / Gemini 3.1 Pro | 回應速度優先 |
-| 自動選擇 | Auto（預設） | 系統自動選最佳模型 |
+| 程式碼分析 / 複雜推理 | Claude Opus 系列（4.7 以上）/ GPT-5.5 | 深度邏輯分析，成本較高 |
+| 程式碼生成 / 轉換 | GPT-5.4 / GPT-5.3-Codex | 高品質程式碼產出，成本效益平衡 |
+| 快速問答 / 輕度任務 | GPT-5 mini / GPT-5.4 mini / Claude Haiku 4.5 | 回應速度優先、AI Credits 消耗較低 |
+| 大上下文 / 多模態 | Gemini 3.1 Pro 系列 | 適合長文件分析；**注意** 2026-05 起 Gemini 已自 Copilot 網頁版 Chat 移除，但 VS Code／IDE 端仍可選用 |
+| 自動選擇 | Auto（預設） | 系統依任務自動選擇最佳模型，也是控制 AI Credits 成本的簡便做法 |
+
+> **💡 成本提醒**：自 2026-06-01 起 Copilot 已全面改為 **AI Credits（Token 用量計費）**，不同模型消耗的 Credits 差距可達 10-60 倍。日常問答建議優先使用輕量模型，複雜任務再切換高階模型，詳見 [附錄 D](#附錄-d成本效益分析roi-評估)。
 
 **3. 搭配 Hooks 自動化驗證**
 
@@ -3736,7 +3759,11 @@ agent:
 **使用情境**：
 - 指派 GitHub Issue 給 `@copilot`，Agent 自動完成遷移並提交 PR
 - 適合「邊界清晰」的模組遷移任務
-- Cloud Agent 效能已提升 50%（2026.03 更新）
+- 2026 年起 Cloud Agent 已不再侷限於「PR 流程」：可先在分支上研究（Research）、規劃（Plan）、修改程式碼，反覆迭代後再開 PR，彈性更高（詳見 [GitHub Changelog](https://github.blog/changelog/2026-04-01-research-plan-and-code-with-copilot-cloud-agent/)）
+
+#### 最新發展：統一的 Agents 體驗
+
+VS Code 自 2025-11 起把原本的「Chat Modes」正式更名為「**Agents**」，目前內建模式為 **Ask / Edit / Agent / Plan**（部分版本另有 Research 模式），並於 2026-07 推出 **Agents 視窗（Preview）**——可在單一介面集中管理多個本機 Agent Session 與遠端 Cloud Agent Session，並排檢視程式碼變更與對話紀錄，不用再分別切換 Chat 視窗與 GitHub 網頁。逆向工程專案常同時進行多模組分析與遷移，建議留意此介面以簡化多工管理。
 
 ---
 
@@ -3821,7 +3848,18 @@ flowchart LR
 
 #### Agentic Code Review
 
-2026 年 Copilot Code Review 已升級為 **Agentic 架構**——AI 會像真人 Reviewer 一樣深入理解上下文後給出具體建議：
+2026 年 3 月起 Copilot Code Review 已升級為 **Agentic 架構**——AI 會主動用工具探索儲存庫、讀取關聯檔案、追蹤跨檔案相依關係，建立完整上下文後才產出審查意見，而非單純看 diff：
+
+#### 2026 年最新更新
+
+| 更新項目 | 內容 | 上線時間 |
+| --- | --- | --- |
+| **Effort Levels（審查深度）** | 提供 Lite / Balanced 兩種審查強度，可依 PR 複雜度與風險調整審查深度與耗用成本 | 2026-08-07 GA |
+| **嚴重度標籤** | 每則評論標示 High / Medium / Low 嚴重度，方便排定處理優先順序 | 2026 年中 |
+| **Fix with Copilot** | 原本的「Implement suggestion」按鈕已改名為 **Fix with Copilot**，可透過 Cloud Agent 一鍵套用審查建議 | 2026-05 |
+| **雙軌計費** | Code Review 同時消耗 **AI Credits**（Token 用量）與 **GitHub Actions minutes** | 2026-06-01 起 |
+
+> **⚠️ 計費提醒**：導入 PR 自動 Code Review 前，建議在 GitHub Actions 用量指標中追蹤 `copilot-pull-request-reviewer` workflow 的耗用量，避免大量 PR 觸發時超出預期的 Actions 分鐘數與 AI Credits 額度。
 
 **在 PR 中自動請求 Copilot Code Review**：
 
@@ -3869,27 +3907,30 @@ jobs:
 
 #### Copilot Spaces — 組織逆向工程上下文
 
-Copilot Spaces 讓你將分散的文件、程式碼、分析結果組織為統一的上下文空間，AI 在回答時會參考 Space 中的所有內容：
+Copilot Spaces 讓你將分散的文件、程式碼、分析結果組織為統一的上下文空間，AI 在回答時會參考 Space 中的所有內容。Spaces 的 REST API 已於 2026-05-18 GA，可用程式化方式管理個人或組織的 Space。
 
 **建議的 Space 組織**：
 
 | Space 名稱 | 包含內容 | 用途 |
-|-----------|---------|------|
+| --- | --- | --- |
 | Legacy-CMS-Analysis | 舊系統程式碼、DB Schema、分析報告 | 分析階段參考 |
 | Migration-Specs | SRS、SDS、API 規格、ERD | 開發階段設計參考 |
 | Business-Rules | BR 清冊、驗證條件、計算公式 | 確保商業邏輯完整 |
 | Security-Audit | OWASP 檢查結果、SonarQube 報告 | 安全審查參考 |
 
-#### Copilot Memory — 跨對話累積知識
+**在 VS Code 中存取 Space**：透過 GitHub MCP Server（見 [9.7 節](#97-mcp-server-整合)）即可在 Agent Mode 對話中呼叫 `list_copilot_spaces` / `get_copilot_space` 工具，讀取指定 Space 內的內容作為上下文，不需離開編輯器切換到網頁版操作。
 
-Copilot Memory（Public Preview）會自動記憶倉庫級的上下文資訊：
+#### Copilot「記憶」機制 — 依介面而異，並非單一功能
 
-- 記住舊系統的架構特徵與技術棧
-- 記住已識別的商業規則
-- 記住團隊的編碼慣例
-- 跨多次對話保持分析的連續性
+**重要澄清**：目前官方並沒有一個統一、跨所有介面的「Copilot Memory」功能會自動記住整個 Repo 的分析歷史。實際上是依使用介面分散實作的幾種機制，範圍與持久性各不相同，使用前務必分清楚：
 
-> **💡 實務建議**：在逆向工程初期，建議透過多次 Chat 對話「訓練」Copilot Memory，讓它深入理解舊系統的架構與商業邏輯。後續分析時 AI 的產出品質會顯著提升。
+| 機制 | 所在介面 | 記住什麼 | 是否跨 Session 保留 |
+| --- | --- | --- | --- |
+| **Plan Agent Session Memory** | VS Code Plan Agent | 當次對話產出的實作計畫（`/memories/session/plan.md`） | ❌ 對話結束即清除，不會保留到下次開啟 |
+| **Copilot CLI 跨 Session 記憶** | Copilot CLI | 先前處理過的檔案、PR、決策 | ✅ 可在新 Session 中詢問過去的工作內容 |
+| **Custom Instructions / AGENTS.md** | 所有介面 | 團隊編碼慣例、專案規範（非對話記憶，而是每次都重新載入的固定指令） | ✅ 以檔案形式存在 Repo 中，非「記憶」但效果類似 |
+
+> **💡 實務建議**：逆向工程專案若需要「累積理解、跨多次對話延續」的效果，目前最務實的做法是：(1) 用 Copilot CLI 進行需要跨 Session 延續的長期分析工作；(2) 把已確認的商業規則、架構特徵寫入 Custom Instructions 或 Copilot Spaces，作為每次對話都會載入的固定上下文，而不是依賴「AI 自動記住」。這兩者是目前唯一有官方文件佐證、行為穩定的做法。
 
 ---
 
@@ -4079,9 +4120,9 @@ mindmap
 
 | 工具 | 建議版本 | 說明 |
 |-----|---------|------|
-| **JDK** | 21 LTS / 25 LTS | 21 為當前企業主流，25 為下一代 LTS |
-| **Spring Boot** | 3.4.x / 4.0.x | 3.4.x 穩定首選；4.0.5 為最新版 |
-| **Spring Framework** | 6.2.x / 7.0.x | 對應 Spring Boot 3.x / 4.x |
+| **JDK** | 21 LTS / 25 LTS | 21 為既有企業系統主流，25（2025-09 GA）為新專案建議 LTS |
+| **Spring Boot** | 4.0.x（維護中）/ 4.1.x（建議） | 4.1.0 已於 2026-06-10 發布為新專案建議版本；**3.x 系列已於 2026-06-30 全面 EOL**（最終 patch 3.5.16），既有 3.x 專案應規劃升級 |
+| **Spring Framework** | 6.2.x（對應 Spring Boot 3.x，已進入維護期）/ 7.0.x（對應 Spring Boot 4.x） | 新專案請直接採用 7.0.x |
 | **Maven** | 3.9+ / 4.0+ | 4.0 支援更好的模組化 |
 | **Gradle** | 8.x+ | 替代 Maven 的選項 |
 | **VS Code** | Latest | 每月更新，建議追蹤最新版 |
@@ -4100,18 +4141,16 @@ mindmap
 | **JUnit** | 5.11+ | 單元測試框架 |
 | **Testcontainers** | 1.20+ | 整合測試容器化 |
 
-#### AI 模型版本對照（2026 年 Q1）
+### AI 模型版本對照（2026 年 Q3，供應商別）
 
-| 模型 | 狀態 | 建議用途 |
+| 供應商 | 代表模型（2026-08 現況） | 備註 |
 |-----|------|---------|
-| **GPT-5.4** | GA | 通用程式碼生成與分析 |
-| **GPT-5.4 mini** | GA | 快速回應、輕度任務 |
-| **GPT-5.3-Codex** | LTS | 程式碼專用、長期支援 |
-| **Claude Opus 4** | GA | 深度推理、複雜分析 |
-| **Gemini 3.1 Pro** | GA | 多模態、大上下文窗口 |
-| **Auto（自動選擇）** | 預設 | 系統根據任務自動選擇最佳模型 |
+| **OpenAI** | GPT-5 mini、GPT-5.3-Codex、GPT-5.4（+ mini）、GPT-5.5 | GPT-4.1、GPT-5.2 系列已下架 |
+| **Anthropic** | Claude Haiku 4.5、Sonnet 4.x 系列、Opus 4.x 系列 | 型號迭代速度快，建議以最新次版本為準 |
+| **Google** | Gemini 3.1 Pro、3.5 / 3.6 Flash | 2026-05 起已自 Copilot **網頁版** Chat 移除，但 VS Code / IDE 端仍可用 |
+| **自動選擇** | Auto（預設） | 系統依任務自動選擇最佳模型，也是控管 AI Credits 成本的簡便做法 |
 
-> **⚠️ 注意**：AI 模型更新頻繁，建議定期查閱 [GitHub Blog Changelog](https://github.blog/changelog/) 追蹤最新支援的模型。
+> **⚠️ 注意**：AI 模型陣容每月變動，且自 2026-06-01 起所有模型互動皆以 **AI Credits（Token 用量計費）** 扣抵，各模型成本差距可達數十倍。導入前請查閱 [GitHub Blog Changelog](https://github.blog/changelog/) 與[官方模型定價頁](https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing)確認即時清單與費率，不建議依本表逐字採用固定模型名稱。
 
 ---
 
@@ -4148,15 +4187,18 @@ flowchart LR
 
 ### GitHub Copilot 授權成本
 
+> **⚠️ 計費模式重大變更（2026-06-01 起生效）**：GitHub Copilot 已從「Premium Requests（固定次數）」全面改為「**GitHub AI Credits（Token 用量計費）**」。程式碼補全（Inline Suggestions）與 Next Edit Suggestions 不消耗 AI Credits、無限使用；Chat、Agent Mode、Code Review、Copilot CLI 才會依 Token 用量扣抵 AI Credits。以下月費為方案基本費，實際可用額度依模型選擇與用量而定，Business/Enterprise 採組織共池機制。詳細費率請查 [官方定價頁](https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing)。
+
 | 方案 | 月費/人 | 適用 | 包含功能 |
 |-----|--------|------|---------|
-| **Copilot Free** | $0 | 個人試用 | 有限 Chat + 建議 |
-| **Copilot Pro** | $10 | 個人開發者 | 無限建議 + Chat |
-| **Copilot Pro+** | $39 | 進階使用者 | Agent Mode + Cloud Agent + 更多模型 |
-| **Copilot Business** | $19 | 企業團隊 | 政策管理 + 稽核 |
-| **Copilot Enterprise** | $39 | 大型企業 | Spaces + 進階安全 + 完整管治 |
+| **Copilot Free** | $0 | 個人試用 | 有限 AI Credits 額度 + 基礎補全 |
+| **Copilot Pro** | $10 | 個人開發者 | 無限補全 + 基礎 AI Credits 額度 |
+| **Copilot Pro+** | $39 | 進階個人使用者 | 更高 AI Credits 額度、可用進階模型與 Agent Mode |
+| **Copilot Max** | $100 | 重度 AI 使用者（新增方案） | 最高個人 AI Credits 額度，適合大量 Agent Mode / Cloud Agent 任務 |
+| **Copilot Business** | $19 | 企業團隊 | 組織級 AI Credits 共池、政策管理、稽核、Cloud Agent |
+| **Copilot Enterprise** | $39 | 大型企業 | Business 全功能 + Copilot Spaces + 進階安全與治理 |
 
-> **💡 ROI 重點**：以 10 人團隊、50 人月中型逆向工程專案為例，Copilot Enterprise 年費約 $4,680（10 人 × $39 × 12 月），相比節省的 26 人月人力成本（假設人月成本 $8,000），投資回報率超過 **40 倍**。
+> **💡 ROI 重點（簡化對比，非完整總體 ROI）**：以 10 人團隊、50 人月中型逆向工程專案為例，Copilot Enterprise 授權年費約 $4,680（10 人 × $39 × 12 月），相比節省的 26 人月人力成本（假設人月成本 $8,000，約 $208,000），單純「授權費 vs. 節省人力成本」比較下投資回報率超過 **40 倍**。**請注意**：此計算僅比較授權費與節省的人力成本，並未納入上方 ROI 框架圖列出的培訓成本、風險成本，也未計入完成 24 人月工作本身的人力薪資，因此不代表專案的完整總體 ROI，僅供快速評估授權投資的直觀參考。
 
 ---
 
@@ -4173,6 +4215,6 @@ flowchart LR
 
 ---
 
-*© 2026 企業架構團隊 — GitHub Copilot 逆向工程教學手冊 v2.0*
+*© 2026 企業架構團隊 — GitHub Copilot 逆向工程教學手冊 v2.1*
 
 
