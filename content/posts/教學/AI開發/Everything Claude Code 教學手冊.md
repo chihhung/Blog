@@ -8,22 +8,30 @@ categories = ['教學']
 
 # Everything Claude Code (ECC) 教學手冊
 
-> **版本**：v2.1.0（2026 年 7 月，「Plan Canvas, Kimi Harness, and Self-Hosted Compute」）／main 分支已進入 v2.2.0 開發週期（guided setup 尚未正式發行，請勿在正式環境提前依賴）  
+> **文件版本**：v3.0（2026-08-28 全面查證改版）  
+> **對應 ECC 版本**：**v2.2.0**（CHANGELOG 標記發行日 2026-08-25，主題為「Guided Setup、Antigravity 2.0 原生安裝、Unified Memory Vault」）；前一個大版本為 v2.1.0（2026-07-28，「Plan Canvas, Kimi Harness, and Self-Hosted Compute」）  
 > **適用對象**：軟體工程師（初階～資深）、系統架構師、DevOps / SRE、AI 平台工程師、技術主管（導入評估用）  
 > **授權**：MIT License（開源永久免費；另有 ECC Tools Pro／Enterprise 為選配的託管 GitHub App 服務，詳見 3.2 與附錄 F）  
 > **官方 GitHub**：<https://github.com/affaan-m/ECC>（原倉庫名 `everything-claude-code` 已重新命名為 `ECC`，舊網址會自動轉導）  
 > **官方網站**：<https://ecc.tools>  
+> **npm 套件**：[`ecc-universal`](https://www.npmjs.com/package/ecc-universal)（安裝器與 CLI）、[`ecc-agentshield`](https://www.npmjs.com/package/ecc-agentshield)（安全稽核器）  
 > **GitHub Marketplace（GitHub App）**：<https://github.com/marketplace/ecc-tools>  
 > **Discord 社群**：<https://discord.gg/36yGMHGFbR>  
-> **社群統計（2026-08 查證）**：241,511 Stars ∣ 36,619 Forks ∣ 299 位貢獻者 ∣ 21+ 語言／框架 Rules 生態系  
+> **繁體中文官方 README**：<https://github.com/affaan-m/ECC/blob/main/docs/zh-TW/README.md>  
+> **社群統計（2026-08-28 查證）**：約 243,900 Stars ∣ 約 36,900 Forks ∣ 331 位貢獻者 ∣ 21+ 語言／框架 Rules 生態系 ∣ 52 個開放 Issue ∣ 125 個開放 PR  
 > **核心元件規模**：68 Agents ∣ 286 Skills ∣ 94 Command Shims（legacy，逐步遷移至 Skills）  
+> **程式語言組成**：JavaScript 70.3% ∣ Rust 21.4%（`ecc2/` 控制平面）∣ Python 4.6% ∣ Shell 2.4% ∣ TypeScript 1.2%  
 > **官方指南（現已收錄於 repo 中，非社群媒體貼文）**：  
 > — [The Shortform Guide](https://github.com/affaan-m/ECC/blob/main/the-shortform-guide.md)（入門首選）  
 > — [The Longform Guide](https://github.com/affaan-m/ECC/blob/main/the-longform-guide.md)（進階深入：Token 最佳化、記憶持久化、Eval、平行化）  
 > — [The Security Guide](https://github.com/affaan-m/ECC/blob/main/the-security-guide.md)（攻擊面、沙箱化、CVE、AgentShield）  
+> — [Commands Quick Reference](https://github.com/affaan-m/ECC/blob/main/COMMANDS-QUICK-REF.md)（94 個指令的完整索引與退役對照）  
+> — [MCP Connector Policy](https://github.com/affaan-m/ECC/blob/main/docs/MCP-CONNECTOR-POLICY.md)（預設連接器准入規則）  
 > **獨立參考資料**：[Anthropic 官方《Claude Code Best Practices》](https://code.claude.com/docs/en/best-practices) — ECC 是建構在 Claude Code 原生能力（Plan Mode、Hooks、Skills、Subagents、Checkpoints）之上的一層工程框架，而非取代品；本手冊會在各章節明確標示「Claude Code 原生功能」與「ECC 擴充功能」的分野。
 >
 > ⚠️ **企業導入提醒**：ECC 是由單一維護者（Affaan Mustafa）主導、社群共同貢獻的開源專案，並非 Anthropic 官方產品。採用前請參閱第十三章〈企業導入評估與風險考量〉，理解其治理模式、社群爭議（過度工程化批評）與替代方案比較，再決定導入範圍。
+>
+> ⚠️ **數字時效性聲明**：本手冊所有元件數量（Agents／Skills／Commands）與社群統計皆為快照，ECC 每週都在變動。**請勿以本文任何固定數字作為採購、稽核或合約依據**；正式查核請以 `npx ecc-universal doctor`、`ecc list-installed` 或 `/plugin list ecc@ecc` 的實際輸出為準。
 
 ---
 
@@ -45,6 +53,7 @@ categories = ['教學']
   - [2.6 Contexts（動態上下文注入）](#26-contexts動態上下文注入)
   - [2.7 MCP Server 配置](#27-mcp-server-配置)
   - [2.8 Claude Code 原生功能與 ECC 擴充功能分工](#28-claude-code-原生功能與-ecc-擴充功能分工)
+  - [2.9 Unified Memory Vault（跨 Harness 統一記憶庫）](#29-unified-memory-vault跨-harness-統一記憶庫)
 - [第三章：安裝與環境建置](#第三章安裝與環境建置)
   - [3.1 前置需求](#31-前置需求)
   - [3.2 Plugin 安裝（推薦）](#32-plugin-安裝推薦)
@@ -56,6 +65,7 @@ categories = ['教學']
   - [3.8 套件管理器偵測](#38-套件管理器偵測)
   - [3.9 故障復原與診斷](#39-故障復原與診斷)
   - [3.10 自架模型、自訂端點與 GPU 運算](#310-自架模型自訂端點與-gpu-運算)
+  - [3.11 平台支援分級與跨作業系統相容性](#311-平台支援分級與跨作業系統相容性)
 - [第四章：企業級 Web 系統架構設計（搭配 ECC）](#第四章企業級-web-系統架構設計搭配-ecc)
   - [4.1 企業系統架構背景](#41-企業系統架構背景)
   - [4.2 ECC Agent 分工架構](#42-ecc-agent-分工架構)
@@ -65,12 +75,12 @@ categories = ['教學']
 - [第五章：開發流程（AI 驅動）](#第五章開發流程ai-驅動)
   - [5.1 AI 驅動開發總覽](#51-ai-驅動開發總覽)
   - [5.2 /plan — 需求規劃](#52-plan--需求規劃)
-  - [5.3 /design — 架構設計](#53-design--架構設計)
-  - [5.4 /implement（TDD）— 實作](#54-implementtdd-實作)
-  - [5.5 /test — 測試](#55-test--測試)
+  - [5.3 架構設計 — architect Agent](#53-架構設計--architect-agent)
+  - [5.4 實作（TDD）— `tdd-workflow` Skill](#54-實作tdd-tdd-workflow-skill)
+  - [5.5 測試 — `e2e-testing` Skill 與 `/test-coverage`](#55-測試--e2e-testing-skill-與-test-coverage)
   - [5.6 /code-review — 程式碼審查](#56-code-review--程式碼審查)
-  - [5.7 /deploy — 部署](#57-deploy--部署)
-  - [5.8 /verify — 驗證迴圈](#58-verify--驗證迴圈)
+  - [5.7 部署 — `deployment-patterns` Skill](#57-部署--deployment-patterns-skill)
+  - [5.8 驗證迴圈 — `verification-loop` 與 `eval-harness` Skill](#58-驗證迴圈--verification-loop-與-eval-harness-skill)
   - [5.9 Plan Canvas — 視覺化計畫審查](#59-plan-canvas--視覺化計畫審查)
 - [第六章：測試與品質控管](#第六章測試與品質控管)
   - [6.1 TDD Skill 實作](#61-tdd-skill-實作)
@@ -93,6 +103,7 @@ categories = ['教學']
   - [9.1 ECC 版本升級策略](#91-ecc-版本升級策略)
   - [9.2 Skills / Agents 管理](#92-skills--agents-管理)
   - [9.3 相容性與故障排除](#93-相容性與故障排除)
+  - [9.4 v2.1 → v2.2 升級實務檢查表](#94-v21--v22-升級實務檢查表)
 - [第十章：最佳實踐（Best Practices）](#第十章最佳實踐best-practices)
   - [10.1 避免上下文污染](#101-避免上下文污染)
   - [10.2 Agent 設計原則](#102-agent-設計原則)
@@ -101,6 +112,20 @@ categories = ['教學']
   - [10.5 平行化策略](#105-平行化策略)
   - [10.6 Claude Code 原生生產力功能](#106-claude-code-原生生產力功能)
 - [第十一章：常見問題與排錯](#第十一章常見問題與排錯)
+  - [Q1：Agent 無法理解需求](#q1agent-無法理解需求)
+  - [Q2：記憶錯亂 / 重複犯錯](#q2記憶錯亂--重複犯錯)
+  - [Q3：Token 爆掉 / 達到日限](#q3token-爆掉--達到日限)
+  - [Q4：指令失效](#q4指令失效)
+  - [Q5：Hooks 不運作 / "Duplicate hooks file" 錯誤](#q5hooks-不運作--duplicate-hooks-file-錯誤)
+  - [Q6：能否只使用部分元件？](#q6能否只使用部分元件)
+  - [Q7：是否支援 Cursor / OpenCode / Codex / GitHub Copilot / Zed 以外的工具？](#q7是否支援-cursor--opencode--codex--github-copilot--zed-以外的工具)
+  - [Q8：是否支援自訂 API 端點或模型閘道？](#q8是否支援自訂-api-端點或模型閘道)
+  - [Q9：ECC 配置被清除了怎麼辦？](#q9ecc-配置被清除了怎麼辦)
+  - [Q10：ECC 是 Anthropic 官方產品嗎？](#q10ecc-是-anthropic-官方產品嗎)
+  - [Q11：想自架開源模型，ECC 能用嗎？](#q11想自架開源模型而非使用-anthropic-claudeecc-能用嗎)
+  - [Q12：Memory Vault 跟 Instinct、CLAUDE.md 有什麼差別？](#q12unified-memory-vault-跟-instinct-系統claudemd-有什麼差別)
+  - [Q13：公司都用 Windows，可以導入 ECC 嗎？](#q13公司都用-windows可以導入-ecc-嗎)
+  - [Q14：團隊該選哪一種安裝路徑？](#q14團隊該選哪一種安裝路徑)
 - [第十二章：進階應用](#第十二章進階應用)
   - [12.1 多 Agent 協作（Multi-Agent System）](#121-多-agent-協作multi-agent-system)
   - [12.2 與其他 AI 工具整合](#122-與其他-ai-工具整合)
@@ -111,6 +136,7 @@ categories = ['教學']
   - [12.7 Operator Status Snapshots](#127-operator-status-snapshots)
   - [12.8 Cross-Harness Architecture](#128-cross-harness-architecture)
   - [12.9 ECC Tools Pro / Enterprise（託管 GitHub App）](#129-ecc-tools-pro--enterprise託管-github-app)
+  - [12.10 v2.2 新增進階能力（Council Review、Nasiko、Living Docs）](#1210-v22-新增進階能力council-reviewnasikoliving-docs)
 - [第十三章：企業導入評估與風險考量](#第十三章企業導入評估與風險考量)
   - [13.1 採用效益與整體擁有成本](#131-採用效益與整體擁有成本)
   - [13.2 已知限制與社群爭議](#132-已知限制與社群爭議)
@@ -126,6 +152,8 @@ categories = ['教學']
   - [F. 生態系工具與社群資源](#f-生態系工具與社群資源)
   - [G. 版本變更摘要](#g-版本變更摘要)
   - [H. 資料來源與查證方法](#h-資料來源與查證方法)
+  - [I. 指令退役與遷移對照表](#i-指令退役與遷移對照表)
+  - [J. 環境變數總表](#j-環境變數總表)
 
 ---
 
@@ -146,25 +174,26 @@ plan → test → implement → review → verify → remember → improve
 > **「Optimize the context window. Persist everything else.」**
 > （最佳化上下文窗口，其餘一切都應被持久化保存。）
 
-ECC **不只是一組配置檔**，而是一套完整的系統，包含（2026-08 查證數字，來源：官方 repo API）：
+ECC **不只是一組配置檔**，而是一套完整的系統，包含（2026-08-28 查證數字，來源：官方 repo README 與目錄清單）：
 
 | 元件 | 數量 | 說明 |
 | ------ | ----------------- | ------ |
-| Agents（代理） | 68 個 | 專業化子代理，處理特定任務 |
-| Skills（技能） | 286 個 | 可重用的工作流程定義（主要工作介面） |
-| Commands（指令） | 94 個 | Legacy 斜線指令 Shim（逐步遷移至 Skills） |
-| Hooks（鉤子） | 事件驅動 | SessionStart / PreToolUse / PostToolUse 等生命週期自動化 |
-| Rules（規則） | 21+ 語言／框架包 + common | 依語言/框架選配的永久遵循準則 |
+| Agents（代理） | 68 個 | 專業化子代理，擁有獨立上下文與工具權限 |
+| Skills（技能） | 286 個 | 可重用的工作流程定義（**現行主要工作介面**） |
+| Commands（指令） | 94 個 | 斜線指令 Shim（逐步遷移至 Skills，已有 12 個正式退役，見附錄 I） |
+| Hooks（鉤子） | 事件驅動 | SessionStart / PreToolUse / PostToolUse / Stop 等生命週期自動化 |
+| Rules（規則） | 21+ 語言／框架包 + `common` | 依語言／框架選配的永久遵循準則 |
 | MCP Servers | 1 個預設（`chrome-devtools`）+ 選配目錄 | 2026 年 6 月連接器政策審查後大幅精簡（詳見 2.7） |
+| Memory Vault | `.ecc/memory/`、`~/.ecc/memory/` | 跨 Harness 統一記憶庫（v2.2 主力功能，詳見 2.9） |
 
-> ⚠️ **版本說明**：上表反映 main 分支現況；正式發行版 v2.1.0（2026-07-27）的公告數字為 67 agents／281 skills／94 commands，此後持續有社群 PR 併入，故當前主分支數字略高。企業導入時請以 `node scripts/ecc.js version` 或 `/plugin list ecc@ecc` 的實際查詢結果為準，不要以任何文件中的固定數字作為採購或稽核依據。
+> ⚠️ **版本與數字一致性說明**：上表反映 v2.2.0（2026-08-25）發行後的 main 分支現況。實務上官方文件自身就存在數字漂移（README 頁首寫 286 skills、同一份 README 的 「What's Inside」區塊寫 284 skills），因為目錄內容每週都有社群 PR 併入。先前版本的公告數字依序為：v2.0.0（64 / 261 / 84）→ v2.1.0（67 / 281 / 94）→ v2.2.0（68 / 286 / 94）。**企業導入時請一律以實際執行結果為準**：`npx ecc-universal doctor`、`ecc list-installed`、`/plugin list ecc@ecc`。
 
 **核心定位**：
 
 - ✅ 解決 AI 編碼代理在長對話中的「上下文污染」與「遺忘決策」問題
-- ✅ 提供持續學習與記憶持久化機制（Continuous Learning v2 / Instinct 系統）
-- ✅ 跨平台支援：Claude Code（原生）、Codex（原生 Plugin）、Cursor、OpenCode、Gemini、Zed、GitHub Copilot、Antigravity、Qwen、Hermes、OpenClaw、Kimi Code、CodeBuddy、JoyCode、Kiro、Trae 等 13+ Harness（詳見 3.5）
-- ✅ 241,511+ Stars、36,619+ Forks、299+ 位貢獻者（2026-08 查證）
+- ✅ 提供持續學習與記憶持久化機制（Continuous Learning v2 / Instinct 系統、Unified Memory Vault）
+- ✅ 跨平台支援：Claude Code（原生）、Codex（原生 Plugin）、Cursor、OpenCode、Gemini、Zed、GitHub Copilot、Antigravity、Qwen、Hermes、OpenClaw、Kimi Code、CodeBuddy、JoyCode、Kiro、Trae、Pi 等 13+ Harness（**但能力分級差異極大**，務必先讀 3.11 支援矩陣）
+- ✅ 約 243,900 Stars、約 36,900 Forks、331 位貢獻者（2026-08-28 查證）
 - ✅ MIT License，OSS 版本永久免費；另有 ECC Tools（GitHub App）提供 Pro / Enterprise 託管服務
 - ⚠️ 非 Anthropic 官方產品，屬於社群維護的第三方框架——採用前請詳閱第十三章的風險考量
 
@@ -180,6 +209,8 @@ ECC **不只是一組配置檔**，而是一套完整的系統，包含（2026-0
 | 品質控管 | 靠人工檢查 | 自動 TDD + Code Review + Verification Loop |
 | 可擴展性 | 低 | 模組化 Skills + Plugin 體系 |
 | 計畫審查 | 純文字往返 | Plan Canvas 瀏覽器視覺化審查（v2.1.0+，見 5.9） |
+| 跨工具交接 | 重新貼一次 Prompt | Unified Memory Vault 的 `ecc memory handoff`（v2.2+，見 2.9） |
+| 安裝治理 | 手動複製檔案 | Manifest 驅動安裝 + ownership ledger + `doctor` / `repair` / `uninstall`（v2.2+） |
 
 > 💡 這個比較表呈現的是**設計哲學**上的差異，而非「有 ECC 才有這些能力」。Claude Code 本身已內建 Plan Mode、Hooks、Skills、Subagents、Checkpoints 等原生機制（見 Anthropic 官方 [Best Practices for Claude Code](https://code.claude.com/docs/en/best-practices)）。ECC 的價值在於：把這些原生積木**預先組裝**成一套跨語言、跨團隊可複用的標準作業程序，並補上 Anthropic 未提供的安全掃描（AgentShield）、多 Harness 移植（Adapter Layer）、和社群共享的 Skill/Agent 目錄。第 2.8 節會逐項釐清「Claude Code 原生」與「ECC 擴充」的邊界。
 
@@ -216,6 +247,7 @@ graph TB
         Hooks["🪝 Hooks<br/>Auto-Triggered Actions"]
         Rules["📏 Rules (21+ 語言)<br/>Always-Follow Guidelines"]
         MCP["🔗 MCP Configs (1 default)<br/>chrome-devtools + opt-in"]
+        MemVault["🗃️ Memory Vault<br/>.ecc/memory + ~/.ecc/memory"]
     end
 
     subgraph "Ecosystem Tools"
@@ -226,6 +258,7 @@ graph TB
         PlanCanvas["🖼️ Plan Canvas<br/>Browser Plan Review"]
         ECC2["🚀 ECC 2.0<br/>Rust Control Plane"]
         Ito["⚙️ Itô GPU Bridge<br/>Self-Hosted Compute"]
+        Installer["🧭 Guided Installer (v2.2)<br/>ecc-universal setup / install --guided"]
     end
 
     subgraph "Supported Harnesses (13+)"
@@ -238,7 +271,7 @@ graph TB
         Copilot["GitHub Copilot"]
         Kimi["Kimi Code"]
         Hermes["Hermes"]
-        Others["OpenClaw · Antigravity · Qwen ·<br/>CodeBuddy · JoyCode · Kiro · Trae"]
+        Others["OpenClaw · Antigravity · Qwen ·<br/>CodeBuddy · JoyCode · Kiro · Trae · Pi"]
     end
 
     Plugin --> Agents
@@ -254,6 +287,7 @@ graph TB
     PlanCanvas --> Plugin
     ECC2 --> Plugin
     Ito --> Kimi
+    Installer --> Plugin
 
     ClaudeCode --> Plugin
     Codex --> Plugin
@@ -265,7 +299,14 @@ graph TB
     Kimi --> Plugin
     Hermes --> Plugin
     Others --> Plugin
+
+    ClaudeCode -.-> MemVault
+    Codex -.-> MemVault
+    Kimi -.-> MemVault
+    Hermes -.-> MemVault
 ```
+
+> 💡 **圖中虛線**代表 v2.2 新增的 Unified Memory Vault：它不經由 Plugin 層，而是各 Harness 直接讀寫的**共用 Markdown 記憶庫**，因此可以在 Claude Code、Codex、Kimi Code 之間交接工作（詳見 2.9）。
 
 ### 1.5 Agent / Skills / Hooks / Commands 關係圖
 
@@ -276,7 +317,7 @@ graph LR
     end
 
     subgraph "Entry Points"
-        SlashCmd["/plan, /tdd, /code-review<br/>Slash Commands"]
+        SlashCmd["/plan, /code-review, /build-fix<br/>Slash Commands"]
         SkillInvoke["Skills Direct Invoke<br/>skills/tdd-workflow/"]
     end
 
@@ -338,9 +379,18 @@ ECC 自 2025 年 9 月起持續快速迭代，以下為主要里程碑（已依�
 | v2.0.0-rc.1 | 2026-04-28 | Hermes operator story 公開發行候選版；跨 Harness 可重用基板文件化（`docs/architecture/cross-harness.md`） |
 | v2.0.0 | 2026-06-09 | **正式定位為 Agent Harness Operating System**；`orch-*` 編排器族與動態工作流團隊編排上線；ECC Discord 社群成立；`kubernetes-patterns` skill、Worktree-lifecycle service |
 | v2.1.0 | 2026-07-27 | **Plan Canvas**（瀏覽器內視覺化計畫審查）；**Kimi Code Harness**（Moonshot AI 官方合作）；**Itô GPU 自架運算整合**；新增 Hermes / OpenClaw 安裝目標；GateGuard 路徑排除（`GATEGUARD_EXEMPT_GLOBS`）；PostToolUse Hooks 整併為同步/非同步派發器；供應鏈強化（偵測 `sk-ant-` 等 Anthropic API Key 洩漏）；67 agents、281 skills、94 commands |
-| main（開發中） | 2026-08 至今 | 邁向 **v2.2.0**：`ecc-universal setup` / `install --guided` 導引式安裝精靈（多 Harness 一次設定）、JoyCode Harness、MCP 預設連接器政策正式生效（僅 `chrome-devtools`）。npm 套件 `ecc-universal` 目前仍停留在 2.1.0，2.2.0 導引指令**尚未正式發布**，企業環境請勿提前依賴 |
+| **v2.2.0** | **2026-08-25** | **導引式（manifest-driven）安裝**：跨 Harness 一次設定、安裝歸屬台帳（ownership ledger）、健康檢查、修復、解除安裝；**Antigravity 2.0 原生安裝**（`.agents/`）；**Unified Memory Vault**（`ecc memory`，跨 Harness 統一記憶庫）；Itô skill 家族（`ito-baskets`）；實驗性 **Nasiko CLI 生命週期橋接**；**多模型評議審查（multi-model council review）**；dev-team 協作、代理評估、**living-docs 治理**、安全終端開啟、**TasteForge 多模態工作流**（`tasteforge-video`）；輕量 **Pi adapter**（`.pi/`）；MCP 預設連接器縮減為 1 個；OpenCode 家目錄遷移至 `~/.config/opencode`；發行流程強化（tag 必須落在 `origin/main`、npm 錯誤 fail-closed、三平台打包測試、staging dist-tag）。相對 v2.1.0 的差異為 **108 commits、530 檔案、+40,299 / −4,679 行**；68 agents、286 skills、94 commands |
+| main（開發中） | 2026-08-25 之後 | 持續併入社群 PR；請以 `CHANGELOG.md` 的 `[Unreleased]` 區塊為準 |
 
-> ⚠️ **版本使用建議**：正式環境／CI 應鎖定已標記 Release 的版本（目前為 **v2.1.0**），並透過 `git tag` 或 npm 版本鎖定安裝，避免直接追蹤 `main` 分支的開發中變更。
+> ⚠️ **版本使用建議**：正式環境／CI 應鎖定已標記 Release 的版本（目前為 **v2.2.0**），並透過 `git tag` 或 npm 版本鎖定安裝，避免直接追蹤 `main` 分支的開發中變更。
+>
+> ⚠️ **npm 發行落差（重要）**：ECC 的 GitHub Release 建立時機被 npm 推廣流程所把關，因此**可能出現 CHANGELOG 已標 2.2.0、但 GitHub Releases 頁面的 Latest 仍顯示 v2.1.0 的情況**。官方 README 對此的建議是：使用 npm 套件指令前，先執行
+>
+> ```bash
+> npm view ecc-universal version
+> ```
+>
+> 若仍回報 `2.1.0`，代表 2.2 的套件尚未推廣至 `latest` dist-tag，此時請改用 Claude Code 原生 plugin 指令路徑（`/plugin marketplace add` + `/plugin install`），不要硬套 2.2 的 `ecc-universal` 指令。
 >
 > 💡 完整變更記錄請參閱 [CHANGELOG.md](https://github.com/affaan-m/ECC/blob/main/CHANGELOG.md) 及 [Releases](https://github.com/affaan-m/ECC/releases)。
 
@@ -603,35 +653,99 @@ class UserControllerTest {
 
 #### 2.3.1 主要指令（Slash Commands）
 
-> ⚠️ **分辨來源**：下表刻意標註每個指令的**來源**。`/compact`、`/clear`、`/cost`、`/model` 等是 **Claude Code CLI 原生指令**，無論是否安裝 ECC 都能使用；ECC 只是在最佳實踐（第十章）中建議「何時使用」。真正屬於 ECC 帶來的，是 `/plan`、`/tdd`、`/code-review` 等對應到特定 Agent／Skill 的工作流指令，以及 `/harness-audit`、`/loop-start` 等 ECC 專屬能力。
+> ⚠️ **分辨來源**：下表刻意標註每個指令的**來源**。`/compact`、`/clear`、`/cost`、`/model` 等是 **Claude Code CLI 原生指令**，無論是否安裝 ECC 都能使用；ECC 只是在最佳實踐（第十章）中建議「何時使用」。真正屬於 ECC 帶來的，是 `/plan`、`/code-review`、`/build-fix` 等對應到特定 Agent／Skill 的工作流指令，以及 `/harness-audit`、`/loop-start` 等 ECC 專屬能力。
 
-| 指令 | 來源 | 功能 | 對應 Agent |
+> 🚨 **2026 年最重要的變更：部分斜線指令已「退役」**  
+> ECC 正在把工作流從「斜線指令」遷移到「Skills」。**12 個舊指令（含 `/tdd`、`/e2e`、`/verify`、`/docs`）已被移出預設安裝**，其檔案改置於 repo 的 `legacy-command-shims/commands/` 目錄，**不會**隨 plugin 或 `install.sh` 安裝。若你照舊教學輸入 `/tdd`，在新版環境中會得到「找不到指令」。完整對照請見 **附錄 I**，本手冊第五、六章的流程說明也已同步改寫為 Skill 呼叫方式。
+
+**常用指令速查（依來源標註）**：
+
+| 指令 | 來源 | 功能 | 對應 Agent／Skill |
 | ------ | ------ | ------ | ----------- |
 | `/plan "需求描述"` | ECC | 建立實作計劃 | planner |
-| `/tdd` | ECC | 啟動 TDD 工作流 | tdd-guide |
+| `/plan-canvas` | ECC | 開啟瀏覽器視覺化計畫審查（見 5.9） | planner |
+| `/plan-prd` | ECC | 由 PRD 產生計畫 | planner |
+| `/feature-dev` | ECC | 端到端功能開發流程 | 多 Agent |
 | `/code-review` | ECC（同名 Claude Code 原生 Skill 亦存在） | 程式碼審查 | code-reviewer |
+| `/review-pr` | ECC | 審查 Pull Request | code-reviewer |
 | `/build-fix` | ECC | 修復建構錯誤 | build-error-resolver |
-| `/e2e` | ECC | 產生 E2E 測試 | e2e-runner |
+| `/quality-gate` | ECC | 品質閘門檢查 | — |
+| `/santa-loop` | ECC | **對抗式雙重審查收斂迴圈**：兩個獨立模型審查者都必須通過才放行 | 多模型 |
 | `/security-scan` | ECC | 安全掃描 | security-reviewer |
 | `/refactor-clean` | ECC | 移除無用程式碼 | refactor-cleaner |
 | `/update-docs` | ECC | 更新文件 | doc-updater |
+| `/update-codemaps` | ECC | 更新程式碼地圖 | — |
 | `/learn` | ECC | 從 Session 中萃取模式 | — |
+| `/learn-eval` | ECC | Session 結束時萃取學習並評估 | — |
+| `/evolve` | ECC | 將學習提煉為 Instinct／Skill | — |
+| `/save-session`／`/resume-session` | ECC | 儲存／回復 Session 狀態（寫入 `~/.claude/session-data/`） | — |
+| `/checkpoint` | ECC | 建立工作檢查點 | — |
+| `/harness-audit` | ECC | 稽核 Harness 可靠度 | — |
+| `/loop-start`／`/loop-status` | ECC | 啟動／查詢自主迴圈 | loop-operator |
+| `/model-route` | ECC | 依複雜度路由模型 | — |
+| `/cost-report` | ECC | 產生成本報告 | — |
+| `/multi-plan`／`/multi-execute` | ECC（需額外安裝 `ccg-workflow`） | 多 Agent 任務分解／協作執行 | — |
 | `/compact` | **Claude Code 原生** | 手動壓縮上下文（可加參數，如 `/compact 聚焦 API 變更`） | — |
 | `/clear` | **Claude Code 原生** | 清除上下文（免費重置） | — |
 | `/cost` | **Claude Code 原生** | 檢查 Token 花費 | — |
-| `/model sonnet` | **Claude Code 原生** | 切換模型（日常） | — |
-| `/model opus` | **Claude Code 原生** | 切換模型（深度推理） | — |
+| `/model sonnet`／`/model opus` | **Claude Code 原生** | 切換模型（日常／深度推理） | — |
 | `/rewind` | **Claude Code 原生** | 開啟 Checkpoint 選單，回復對話／程式碼狀態（見 10.6） | — |
 | `/goal` | **Claude Code 原生** | 設定持續評估條件，讓 Agent 迭代至條件成立才停止 | — |
 | `/plugin` | **Claude Code 原生** | 瀏覽並安裝 Plugin Marketplace | — |
-| `/harness-audit` | ECC | 稽核 Harness 可靠度 | — |
-| `/loop-start` | ECC | 啟動自主迴圈 | loop-operator |
-| `/quality-gate` | ECC | 品質閘門檢查 | — |
-| `/model-route` | ECC | 依複雜度路由模型 | — |
-| `/multi-plan` | ECC（需額外安裝 `ccg-workflow`） | 多 Agent 任務分解 | — |
-| `/multi-execute` | ECC（需額外安裝 `ccg-workflow`） | 多 Agent 協作執行 | — |
 
-#### 2.3.2 Hooks 機制
+#### 2.3.2 完整指令目錄（94 個，依用途分類）
+
+以下為官方 `COMMANDS-QUICK-REF.md` 的分類全貌。企業導入時可據此決定要安裝哪些 profile，避免把 94 個指令的描述全部塞進模型上下文。
+
+| 分類 | 指令 |
+| ------ | ------ |
+| **核心工作流** | `/plan`、`/plan-canvas`、`/plan-prd`、`/feature-dev`、`/code-review`、`/review-pr`、`/build-fix`、`/quality-gate`、`/santa-loop` |
+| **測試（依語言）** | `/test-coverage`、`/go-test`、`/kotlin-test`、`/rust-test`、`/cpp-test`、`/flutter-test`、`/react-test` |
+| **程式碼審查（依語言）** | `/code-review`、`/python-review`、`/go-review`、`/kotlin-review`、`/rust-review`、`/cpp-review`、`/flutter-review`、`/vue-review`、`/react-review`、`/fastapi-review` |
+| **建構修復（依語言）** | `/build-fix`、`/go-build`、`/kotlin-build`、`/rust-build`、`/cpp-build`、`/gradle-build`、`/flutter-build`、`/react-build` |
+| **編排式功能流程** | `/orch-add-feature`、`/orch-build-mvp`、`/orch-change-feature`、`/orch-fix-defect`、`/orch-refine-code`、`/orch-review` |
+| **PRP 工作流** | `/prp-prd`、`/prp-plan`、`/prp-implement`、`/prp-commit`、`/prp-pr` |
+| **Epic 協作（GitHub 原生）** | `/epic-decompose`、`/epic-validate`、`/epic-claim`、`/epic-sync`、`/epic-review`、`/epic-publish`、`/epic-unblock` |
+| **規劃與架構** | `/plan`、`/multi-plan`、`/multi-workflow`、`/multi-backend`、`/multi-frontend`、`/multi-execute` |
+| **Session 管理** | `/save-session`、`/resume-session`、`/sessions`、`/checkpoint`、`/aside` |
+| **學習與演進** | `/learn`、`/learn-eval`、`/evolve`、`/promote`、`/prune`、`/instinct-status`、`/instinct-export`、`/instinct-import`、`/skill-create`、`/skill-health` |
+| **重構** | `/refactor-clean` |
+| **文件與研究** | `/ecc-guide`、`/update-docs`、`/update-codemaps` |
+| **迴圈與自動化** | `/loop-start`、`/loop-status`、`/gan-build`、`/gan-design` |
+| **專案與基礎設施** | `/projects`、`/project-init`、`/harness-audit`、`/model-route`、`/pm2`、`/setup-pm`、`/auto-update`、`/cost-report`、`/security-scan`、`/jira`、`/pr`、`/hookify`、`/hookify-configure`、`/hookify-list`、`/hookify-help` |
+| **行銷** | `/marketing-campaign` |
+
+> 💡 **Session 路徑差異**：`/save-session` 寫入 `~/.claude/session-data/`，而較舊的 `/sessions` 讀取的是 `~/.claude/sessions/`。兩者路徑不同，若你發現 `/sessions` 看不到剛存的 Session，這是已知的歷史包袱，不是壞掉。
+
+**官方快速決策指南**（直接譯自 `COMMANDS-QUICK-REF.md`）：
+
+| 情境 | 該用什麼 |
+| ------ | --------- |
+| 要開發新功能 | 先 `/plan`，再用 `tdd-workflow` skill |
+| 程式碼已寫完 | `/code-review` |
+| 建構壞掉 | `/build-fix` |
+| 需要查最新的線上文件 | `documentation-lookup` skill |
+| Session 即將結束 | `/save-session` 或 `/learn-eval` |
+| 要接續上次工作 | `/resume-session` |
+| 上下文快爆了 | `context-budget` skill |
+| 想萃取這次的經驗 | 先 `/learn-eval`，再 `/evolve` |
+| 同樣的事情做很多次 | `/loop-start` |
+
+#### 2.3.3 `ecc` CLI（安裝健康度與回饋）
+
+除了在 Harness 內使用的斜線指令，ECC 另提供一組**在終端機執行**的管理 CLI。v2.2 的導引式安裝把安裝歸屬（ownership）記錄成台帳，這組指令才得以精確運作。
+
+| 指令 | 用途 |
+| ------ | ------ |
+| `ecc list-installed` | 列出目前已安裝的 ECC 元件與其歸屬 Harness |
+| `ecc doctor` | 健康檢查：偵測缺漏、路徑錯置、重複安裝 |
+| `ecc repair` | 依 manifest 修復損壞或缺漏的安裝 |
+| `ecc uninstall` | 依歸屬台帳安全移除（保留使用者自行修改過的檔案） |
+| `ecc feedback` | 產生回饋／問題回報範本（**不會自動上傳任何診斷資料**） |
+
+> 🔐 **隱私設計**：`ecc feedback` 刻意不自動蒐集或上傳診斷資訊，需由使用者自行檢視內容後決定是否提交。企業環境若有資料外流疑慮，可先在隔離環境檢閱產出的檔案。
+
+#### 2.3.4 Hooks 機制
 
 Hooks 在特定工具事件發生時自動觸發，無需手動介入。
 
@@ -821,6 +935,8 @@ ECC 官方訂出兩項門檻，**必須同時滿足**才能新增為預設連接
 
 > 「Popular（受歡迎）不是理由；job is stateful and universal（任務具狀態性且普遍適用）才是理由。」——MCP-CONNECTOR-POLICY.md
 
+官方另訂出一條**數量上限的治理原則**：「預設集合永遠維持在十個以下；實務上，2026 年嚴肅的 Harness 所採取的業界預設是 **零到兩個連接器**，加上 Harness 自帶的內建工具。」這句話對企業很有參考價值：若你的內部平台團隊目前預設幫全公司開了十幾個 MCP Server，你實際上是在**用每位工程師的上下文窗口補貼少數人的便利性**。
+
 #### 2.7.4 MCP 配置管理
 
 ```bash
@@ -858,6 +974,78 @@ export ECC_DISABLED_MCPS="chrome-devtools"
 
 > 💡 **一句話總結**：Claude Code 提供「積木」（Hooks、Skills、Subagents、Plan Mode、Checkpoints 的執行引擎），ECC 提供「預先搭好、可跨團隊複用的積木組合」（具體的 Agent 角色、Skill 工作流、安全掃描規則、跨 Harness 移植層）。導入 ECC 前，建議先讀過 Anthropic 官方 [Best Practices for Claude Code](https://code.claude.com/docs/en/best-practices)，確認團隊已理解原生積木的用法，再評估是否需要 ECC 這層「預組裝」框架（第十三章有完整的決策框架）。
 
+### 2.9 Unified Memory Vault（跨 Harness 統一記憶庫）
+
+**Unified Memory Vault 是 v2.2.0 最具企業價值的新增能力**。它要解決的問題很具體：一個團隊往往同時使用多個 Harness（資深工程師用 Claude Code、某些 CI 任務用 Codex、部分成員用 Kimi Code），但**每個 Harness 的記憶都是孤島**，導致同一個架構決策要在不同工具裡重述一次。Memory Vault 把記憶從「工具內部狀態」拉出來，變成**位於檔案系統上、人可閱讀、可納版控的 Markdown**。
+
+#### 2.9.1 設計原則與儲存位置
+
+| 範圍 | 路徑 | 適用內容 | 是否進版控 |
+| ------ | ------ | --------- | ----------- |
+| 專案／團隊 | `.ecc/memory/` | 架構決策、專案慣例、交接事項 | 建議 commit（團隊共享） |
+| 個人（使用者級） | `~/.ecc/memory/` | 個人偏好、跨專案的個人筆記 | 不進版控 |
+
+三項核心設計決策：
+
+1. **本地優先、可檢視**：不是二進位資料庫、不是雲端服務，而是你可以用 `cat` 看、用 `git diff` 審查的 Markdown。企業稽核時這點極為重要。
+2. **跨 Harness**：同一份記憶可被 Claude Code、Codex、Hermes、OpenClaw、Kimi 讀取。
+3. **記憶不是可執行政策**：見下方信任邊界。
+
+#### 2.9.2 `ecc memory` 指令集
+
+```bash
+# 安裝 CLI（若尚未安裝）
+npm install -g ecc-universal
+
+# 初始化（專案範圍）
+ecc memory init --scope project
+
+# 寫入一筆記憶（內文必須由 stdin 或檔案傳入）
+ecc memory save --title "決定採用 Outbox Pattern" --body-file ./decision.md
+
+# 產生交接摘要（供下一個 Harness 接手）
+ecc memory handoff
+
+# 搜尋，並針對目標 Harness 格式化輸出
+ecc memory search "outbox" --target-harness codex
+
+# 讀取單筆記憶
+ecc memory read
+
+# 健康檢查（權限、格式、損壞偵測）
+ecc memory doctor
+```
+
+> 🔐 **為什麼內文不能直接寫在指令列？**這是刻意的安全設計。記憶內文只接受 `--stdin` 或 `--body-file`，**不接受作為 CLI 參數值**，目的是避免惡意內容透過 shell 展開、歷史紀錄或參數注入路徑流入記憶庫。
+
+#### 2.9.3 信任邊界（企業導入必讀）
+
+> **「Memory is unreviewed context, not executable policy.」**（記憶是未經審查的上下文，不是可執行的政策。）
+
+這句官方聲明的實務含意是：
+
+- 記憶庫內容會被注入模型上下文，因此它是**提示注入（prompt injection）的攻擊面**。若一個外部貢獻者能將內容寫入 `.ecc/memory/`，他就能影響所有團員的 Agent 行為。
+- 因此，**`.ecc/memory/` 必須納入 Code Review 範圍**，建議在 `CODEOWNERS` 中指定審查者。
+- 不要把安全規則、權限政策、部署授權寫在記憶庫——那些應該寫在 Rules（2.4）或 Hooks（2.3.4），它們才是強制執行的機制。
+- 記憶庫不應存放 Secret。`ecc memory doctor` 會做基本檢查，但不取代 CI 的 Secret 掃描。
+
+#### 2.9.4 選配的 `ecc-memory-mcp` Server
+
+ECC 另提供一個 **stdio MCP Server**，將 `save` / `search` / `read` / `doctor` 四個有界的操作暴露給模型。需特別注意：
+
+- **預設不啟用**。這符合 2.7 的連接器政策（不普遍就不預設）。
+- 啟用後等於讓模型**自行決定何時寫入團隊記憶**，請先評估治理風險。
+- 對應 Skill：`skills/unified-memory/SKILL.md`。
+
+#### 2.9.5 已知缺陷：Windows 原生環境的寫入失敗
+
+v2.2.0 修復了一個非常值得記錄的問題，因為它直接影響 Windows 使用者：
+
+- **症狀**：在 **Windows** 搭配 **Node 22.12–22.16 或 24.0–24.1** 時，`ecc memory` 的寫入與 `--body-file` 讀取全數失敗。
+- **根因**：libuv 在處理基於路徑的 `stat()`／`lstat()` 時走 `GetFileInformationByName`，**未回傳 volume serial**，而 `fstat()` 則有回傳；記憶庫的 TOCTOU（time-of-check to time-of-use）防護機制因此認定每一次操作都不一致而全數拒絕。
+- **修復**：上游已在 **libuv 1.51.0** 修正；ECC 端則改為要求 `BigInt` 型別的 stat 值，避免 Windows 檔案 ID 超過 `Number.MAX_SAFE_INTEGER` 後兩個不同檔案塔縮成同一個身分。
+- **實務建議**：若你仍在舊版 ECC，請避開上述 Node 版本區間，或直接升級至 v2.2.0。另見 3.11 的 Windows 原生限制與 Issue **#2626**。
+
 ---
 
 ## 第三章：安裝與環境建置
@@ -873,9 +1061,79 @@ export ECC_DISABLED_MCPS="chrome-devtools"
 
 ### 3.2 Plugin 安裝（推薦）
 
-> ⚠️ **只選一種安裝路徑（per Harness）**：同一個 Harness 只能選**一種**安裝方式。例如 Claude Code 用 Plugin 安裝後，**不要**再疊加執行 `install.sh --profile full`，這會造成重複元件和衝突行為（症狀：指令重複出現、Hook 執行兩次）。若已經疊加安裝，直接跳到「Reset / Uninstall ECC」小節復原，不需要重灌整個環境。不同 Harness 之間可以同時各自安裝一種方式，例如「Claude Code Plugin + Codex 原生 Plugin」是被允許的組合。
+> ⚠️ **只選一種安裝路徑（per Harness）**：同一個 Harness 只能選**一種**安裝方式。例如 Claude Code 用 Plugin 安裝後，**不要**再疊加執行 `install.sh --profile full`，這會造成重複元件和衝突行為（症狀：指令重複出現、Hook 執行兩次）。若已經疊加安裝，直接跳到「Reset / Uninstall ECC」小節復原，不需要重灌整個環境。
 >
-> ⚠️ **2.2.0 導引式安裝尚未發布**：官方 README 目前明確標示，`npx ecc-universal setup` 與 `npx ecc-universal install --guided` 兩個導引式安裝精靈屬於 **v2.2.0** 的功能，而 npm 上的 `ecc-universal` 套件目前仍停留在 **2.1.0**。在 2.2.0 正式發布前，請使用下方的原生 `/plugin` 指令安裝，不要提前執行導引式安裝指令。
+> **可行的組合**：Claude Code Plugin + Codex 原生 Plugin；Claude Code Plugin + Codex legacy sync。  
+> **應避免的組合**：Claude Code Plugin + 完整手動安裝；Codex sync + Codex marketplace plugin。
+
+#### 3.2.0 v2.2 導引式安裝（Guided Setup）
+
+v2.2.0 起，ECC 提供 **manifest 驅動的導引式安裝**，是目前官方推薦的新手入口。它會逐步詢問要安裝哪些 Harness、範圍（scope）、Hook 嚴格度與 profile，並把每個被寫入的檔案記進**歸屬台帳（ownership ledger）**，讓後續的 `doctor` / `repair` / `uninstall` 能精準運作。
+
+**單一 Harness（Claude Code）設定或更新**：
+
+```bash
+npx ecc-universal setup
+```
+
+此指令會引導完成 Claude Code plugin 的安裝／更新、選擇 scope 與 hook profile。
+
+**多 Harness 一次設定（目前支援 Claude Code、Codex、Kimi Code）**：
+
+```bash
+npx ecc-universal install --guided
+```
+
+**自動化／CI 用的非互動形式**：
+
+```bash
+npx ecc-universal install --guided \
+  --harness claude --harness codex --harness kimi \
+  --claude-scope local --claude-hooks standard \
+  --profile core --yes
+```
+
+**先試跑再決定（強烈建議企業環境先做這步）**：
+
+```bash
+# 預覽將對 Codex 做哪些變更，不實際寫入
+npx ecc-universal install --guided --harness codex --dry-run
+
+# 預覽 core profile 安裝到 Kimi 的結果
+npx ecc-universal install --profile core --target kimi --dry-run
+```
+
+**其他常用別名**：
+
+```bash
+# 依主題諮詢建議的元件組合
+npx ecc-universal consult "security reviews" --target claude
+
+# 最小安裝，但額外帶入某個能力群組
+npx ecc-universal install --profile minimal --target claude --with capability:machine-learning
+
+# 針對特定 Harness 做健康檢查
+npx ecc-universal doctor --target kimi
+```
+
+**套件執行器對照**：
+
+| 套件管理器 | 指令 | 備註 |
+| ----------- | ------ | ------ |
+| npm | `npx ecc-universal setup` | 最通用 |
+| pnpm | `pnpm dlx ecc-universal setup` | — |
+| Yarn（Berry / 2+） | `yarn dlx ecc-universal setup` | — |
+| Bun | `bunx ecc-universal setup` | — |
+| **Yarn Classic（1.x）** | **不支援 `yarn dlx`** | 請改用 `npx`、全域安裝，或升級 Yarn |
+
+> 🚫 **常見錯誤：不要執行 `npx ecc-install ...`**  
+> `ecc-install` 是 `ecc-universal` 套件**內部的執行檔名稱**，並不是一個已發布到 npm 的套件。直接 `npx ecc-install` 會去 npm 抓到不存在（或非官方）的套件，這既會失敗、也是潛在的供應鏈風險。正確入口一律是 `ecc-universal`。
+
+> ⚠️ **執行前先確認 npm 版本**：如 1.6 所述，GitHub Release 與 npm 推廣之間存在落差。執行導引式安裝前先跑 `npm view ecc-universal version`；若仍是 `2.1.0`，請改用下方原生 `/plugin` 路徑。
+
+**進階管理型 adapter** 仍走 `ecc install --target ...`，涵蓋：`cursor`、`antigravity`、`gemini`、`opencode`、`codebuddy`、`joycode`、`qwen`、`zed`、`hermes`、`openclaw`。
+
+**安裝出問題時**：使用官方 issue 範本 <https://github.com/affaan-m/ECC/issues/new?template=install-problem.yml>，或執行 `ecc feedback` 產生回報內容（不會自動上傳）。
 
 #### ECC 三個公開標識符
 
@@ -1038,27 +1296,36 @@ npx ecc-install typescript
 
 ### 3.5 跨 Harness 整合（13+ 平台總覽）
 
-ECC v2.1.0 官方支援的 Harness 已從早期的 5 種擴展為 **13+ 種**。下表為總覽，各平台細節於後續小節說明：
+ECC 官方支援的 Harness 已從早期的 5 種擴展為 **13+ 種**（v2.2.0 再加入 Pi adapter 與原生 Antigravity 2.0 安裝）。下表為總覽，各平台細節於後續小節說明；**能力分級差異請務必搭配 3.11 的支援矩陣一起看**：
 
 | Harness | 安裝方式 | 支援等級 |
 | --- | --- | --- |
 | Claude Code | `/plugin install ecc@ecc`（見 3.2） | 原生（Canonical，功能最完整） |
 | Codex（App + CLI） | `codex plugin marketplace add affaan-m/ECC` | 原生 Plugin（穩定） |
-| Cursor | `./install.sh --profile minimal --target cursor` | Capability-limited adapter |
-| OpenCode | `npm install && npm run build:opencode && ./install.sh --profile full --target opencode` | Capability-limited adapter |
-| Gemini CLI | `./install.sh --profile minimal --target gemini` | Capability-limited adapter |
-| Zed | `./install.sh --profile minimal --target zed` | Capability-limited adapter |
-| GitHub Copilot | 已內建於 repo（`.github/`），無需安裝 | Instruction + Prompt 層（無 Hook/Agent） |
-| Antigravity | `./install.sh --profile minimal --target antigravity` | Capability-limited adapter |
-| Qwen CLI | `./install.sh --profile minimal --target qwen` | Capability-limited adapter |
-| Hermes | `./install.sh --profile minimal --target hermes` | Capability-limited adapter（v2.1.0 新增） |
+| Cursor | `./install.sh --profile minimal --target cursor` | Beta 專案 adapter |
+| OpenCode | `npm install && npm run build:opencode && ./install.sh --profile full --target opencode` | Beta（需先建置 plugin） |
+| Gemini CLI | `./install.sh --profile minimal --target gemini` | 實驗性 adapter |
+| Zed | `./install.sh --profile minimal --target zed` | 實驗性 adapter |
+| GitHub Copilot | 已內建於 repo（`.github/`），無需安裝 | 純 Instruction 層（無 Hook/Agent） |
+| Antigravity | `./install.sh --profile minimal --target antigravity` | **v2.2 起支援 Antigravity 2.0 原生安裝**（寫入 `.agents/`，含 rules、workflows、skills 與適配過的 agents） |
+| Qwen CLI | `./install.sh --profile minimal --target qwen` | 實驗性 adapter |
+| Hermes | `./install.sh --profile minimal --target hermes` | 實驗性 adapter（v2.1.0 新增） |
 | OpenClaw | `./install.sh --profile minimal --target openclaw` | 受管理的 Home 目錄安裝（v2.1.0 新增） |
 | Kimi Code | `./install.sh --profile minimal --target kimi` | 專案本地 `.kimi-code/` 安裝（v2.1.0 新增，Moonshot AI 官方合作） |
 | CodeBuddy（騰訊） | `./install.sh --profile minimal --target codebuddy` | 專案本地 `.codebuddy/` 安裝 |
-| JoyCode | `./install.sh --profile minimal --target joycode` | 專案本地 `.joycode/` 安裝（main 分支新增） |
+| JoyCode | `./install.sh --profile minimal --target joycode` | 專案本地 `.joycode/` 安裝 |
+| **Pi** | 隨 v2.2 附帶的輕量 adapter（`.pi/`） | **v2.2 新增**，thin adapter，僅做檔案放置 |
 | Kiro / Trae | 參閱對應 `.kiro/` / `.trae/` 目錄 | 社群維護的安裝配置 |
 
-> ⚠️ **不要對同一個 Harness 混用官方支援 Feature Parity 假設**：不同 Harness 的能力天花板不同（例如 Copilot 沒有 Hook/Subagent API）。導入前務必查閱本章與附錄 D 的功能對照表，不要預設「裝了 ECC 就等於 Claude Code 的完整體驗」。找不到原生對應目標的 Harness，可參考 [Manual Adaptation Guide](https://github.com/affaan-m/ECC/blob/main/docs/MANUAL-ADAPTATION-GUIDE.md) 手動移植一小部分 Skill 與工作流程指引。
+> ⚠️ **不要對同一個 Harness 混用官方支援 Feature Parity 假設**：不同 Harness 的能力天花板不同（例如 Copilot 沒有 Hook/Subagent API）。導入前務必查閱 3.11、本章與附錄 D 的功能對照表，不要預設「裝了 ECC 就等於 Claude Code 的完整體驗」。找不到原生對應目標的 Harness，可參考 [Manual Adaptation Guide](https://github.com/affaan-m/ECC/blob/main/docs/MANUAL-ADAPTATION-GUIDE.md) 手動移植一小部分 Skill 與工作流程指引。
+
+> 📌 **v2.2 的 OpenCode 路徑遷移（升級者必讀）**：OpenCode 的 Home 安裝位置已改為**正式的 `~/.config/opencode`**。升級時 ECC 會：
+>
+> 1. 把舊路徑 `~/.opencode` 底下**未經修改的 ECC 託管檔案**安全搬移過去；
+> 2. **保留**使用者自行修改過的舊檔案（不覆蓋、不刪除），由你自行決定如何合併。
+>
+> 另外，OpenCode 的隨附 agents **不再固定綁 Anthropic provider**，改為繼承使用者所選的模型。這代表升級後若你沒有在 OpenCode 中選好 provider 與 model，agents 可能無法運作（見 Issue #2617）。
+
 
 #### Cursor IDE
 
@@ -1149,7 +1416,11 @@ Gemini 透過 `.gemini/GEMINI.md` 和共用安裝管道提供實驗性的專案�
 .\install.ps1 --target antigravity typescript
 ```
 
-Antigravity 整合包含工作流程、Skills 和扁平化 Rules，位於 `.agent/` 目錄中。詳見 [Antigravity Guide](https://github.com/affaan-m/ECC/blob/main/docs/ANTIGRAVITY-GUIDE.md)。
+Antigravity 整合包含工作流程、Skills 和扁平化 Rules。**v2.2.0 起新增 Antigravity 2.0 的原生安裝路徑，內容寫入 `.agents/` 目錄**（含 rules、workflows、skills 與適配過的 agents）；舊版 Antigravity 使用的是 `.agent/` 目錄。若你同時看到兩個目錄，代表環境曾經跨版本安裝過，請執行 `ecc doctor` 確認歸屬並以 `ecc repair` 清理。詳見 [Antigravity Guide](https://github.com/affaan-m/ECC/blob/main/docs/ANTIGRAVITY-GUIDE.md)。
+
+#### Pi（v2.2.0 新增，thin adapter）
+
+v2.2.0 加入了一個**輕量（thin）的 Pi adapter**，內容放置於專案的 `.pi/` 目錄。定位上這是「檔案放置已驗證，但不主張功能對等」的最小整合：不提供 ECC Hook Runtime、不保證 Agent 委派行為，適合用來把 Rules 與部分 Skills 帶進 Pi 的工作環境，不適合當作主要開發 Harness。
 
 #### Kimi Code（Moonshot AI 官方合作，v2.1.0 新增）
 
@@ -1293,6 +1564,7 @@ python3 ./ecc_dashboard.py
 ```
 
 功能：
+
 - 分頁介面：Agents、Skills、Commands、Rules、Settings
 - 深色/淺色主題切換
 - 字型自訂（字體家族 & 大小）
@@ -1345,6 +1617,19 @@ node scripts/ecc.js doctor
 # 步驟 3：自動修復（通常可恢復 ECC-managed 檔案）
 node scripts/ecc.js repair
 ```
+
+**若已透過 npm 全域安裝 `ecc-universal`**，上述指令有更簡短的等價形式，且可加上 `--target` 針對特定 Harness：
+
+```bash
+ecc list-installed
+ecc doctor
+ecc doctor --target kimi
+ecc repair
+ecc uninstall            # 依歸屬台帳安全移除，保留你改過的檔案
+ecc feedback             # 產生問題回報內容（不會自動上傳診斷資料）
+```
+
+> 💡 **v2.2 的差異**：導引式安裝會建立**歸屬台帳（ownership ledger）**，記錄每個檔案是由哪一次安裝寫入的。因此 v2.2 的 `repair` 在做選擇性重裝時會**合併先前的台帳**，不會再留下孤兒檔案；`uninstall` 也改為依「歸屬證據」判斷，能保留使用者自行修改過的檔案。若只想清掉標記檔而不動內容，需要**明確加上 opt-in 參數**。
 
 > 💡 若已透過 `/plugin install ecc@ecc` 安裝，也可以直接在 Claude Code 對話中使用命名空間指令 `/ecc:doctor`、`/ecc:repair`，效果等同上方的 `node scripts/ecc.js` 指令。
 
@@ -1407,6 +1692,67 @@ kimi
 > ⚠️ **重要邊界（企業採購與合規務必知悉）**：贊助連結本身是被動的，不會觸發 RFQ、預訂容量、佈建運算或設定服務。`ecc ito find` 送出的是真實的即時詢價請求，但**不會**預訂容量。透過 Itô 的受管理推論服務**尚未上線**。ECC 完全不提供報價鎖定、採購、工作負載執行或推論路徑本身——這些都是 Itô 平台自己的職責範圍，ECC 只是薄橋接層。任何 GPU 供應商都可以替代使用，ECC 對供應商保持中立。
 >
 > 💡 **企業自架建議**：若你的資安政策不允許程式碼離開內部網路，此路徑讓你可以完全在自有 GPU 上運行開源模型（如 Kimi），同時仍取得 ECC 的 Agent/Skill/Hook 框架——但務必自行承擔模型品質、延遲與可用性的差異，這與使用 Anthropic 官方託管的 Claude 模型有本質不同的風險輪廓（見 13.1 的 TCO 討論）。
+
+**`ito-compute-cli` 尚未發布至公開套件庫**。若要實際使用 `ecc ito` 橋接，需自行從 Itô 的私有 runtime repo 建置：
+
+```bash
+# 於 Itô runtime repo 的 cli/ito-compute-cli 目錄
+npm ci && npm run check
+
+# 將 ECC 指向建置產物的絕對路徑
+export ECC_ITO_CLI_EXECUTABLE=/absolute/path/to/dist/bin/ito.js
+```
+
+`ecc ito login` **不會**繼承 `ITO_API_KEY`（避免非互動式環境誤用長期金鑰）；`auth`、`find`、`status` 則會轉發該環境變數。`ecc ito evals` 屬額外閘控功能，需同時滿足：`ITO_ENABLE_SIXTYTWO_LIVE=1`、傳入 `--live-sixtytwo`、安裝 `sixtytwo-cli==0.3.33`、明確指定節點清單，以及提供絕對路徑的設定目錄。相關 MCP 工具為 `ito_auth`、`ito_find`、`ito_status`；對應 Skill 為 `skills/ito-compute/SKILL.md`。
+
+### 3.11 平台支援分級與跨作業系統相容性
+
+這一節是**企業導入前最該讀的一節**。ECC 官方在 README 中提供了兩張誠實度極高的支援矩陣，明確標示哪些 Harness 只是「檔案放對位置」而非「功能對等」。用官方自己的話說：
+
+> `stable`、`beta`、`experimental`、`instruction-only` 是**能力陳述（capability statements）**，不是行銷分級。
+
+#### 3.11.1 Harness 支援分級矩陣
+
+| Harness | 分級 | 安裝方式 | 已知限制 |
+| --- | --- | --- | --- |
+| **Claude Code** | Stable（主要平台） | Plugin 或選擇性安裝器 | Plugin 會把完整目錄「廣告」給模型；若在意上下文佔用，改用選擇性／手動安裝 |
+| **Codex** | Sync 為 Supported；Marketplace 為實驗性 | Repo 設定或 `sync-ecc-to-codex.sh` | **無 ECC Hook Runtime**；marketplace 套件可能未把共享 repo 內容納入 Codex 快取 |
+| **Cursor** | Beta 專案 adapter | 選擇性安裝器寫入 `.cursor/` | Agent 探索行為依 Cursor 版本而異；Hook 集合與 Claude 不完全一致（Issue **#2419**） |
+| **OpenCode** | Beta（需先建置 plugin） | 先 build plugin，再跑選擇性安裝器 | 僅提供目錄的子集；**必須先連好 provider 並選定 model**（Issue **#2617**） |
+| **GitHub Copilot** | Instruction-only | 直接使用已 commit 的 instructions 與 prompt 檔 | **無 Hook、無 Runtime Agent、無委派、無原生 Skill 探索** |
+| **Gemini / Zed / Antigravity / Qwen / Hermes / OpenClaw / Kimi / CodeBuddy / JoyCode** | 實驗性／最小 adapter | 各自的選擇性安裝目標 | **僅測試檔案放置位置，不主張功能對等** |
+
+#### 3.11.2 作業系統相容性矩陣
+
+| 作業系統 | 狀態 | 備註 |
+| --- | --- | --- |
+| **Linux** | 核心功能支援 | 選配功能可能另需 Bash／Python／供應商工具 |
+| **macOS** | 核心功能支援 | 獨立式 GAN shell 路徑**不相容於系統內建的 Bash 3.2**；另有計分解析缺陷（Issue **#2674**）。建議 `brew install bash` 後使用新版 |
+| **Windows + WSL** | 核心功能支援 | 走 Linux 路徑；與 Windows 主機端的整合程度視工具而異 |
+| **Windows 原生** | 有限制地支援 | Continuous Learning v2 的 observer daemon（Issue **#2489**）與 Memory Vault 寫入（Issue **#2626**）皆有開放中的缺陷；需要 shell 的功能請安裝 Git Bash 或改用 WSL |
+
+> 🏢 **給企業評估者的三個實務結論**：
+>
+> 1. **Windows 原生不是首選**。若團隊以 Windows 為主，請把 **WSL2 列為標準開發環境**，可一次繞開 observer daemon 與 Memory Vault 的兩個已知缺陷，也讓 GAN、GateGuard 等 shell-backed 功能正常運作。
+> 2. **不要用 Copilot 評估 ECC**。Copilot 只拿得到 instruction 層，缺少 Hook 與 Agent，導入評估若以此為樣本會嚴重低估 ECC 的價值（也會誤判成本）。
+> 3. **PoC 一律鎖 Claude Code**。先在 stable 平台驗證投資報酬，再視需求把 Rules／Skills 以 adapter 方式推廣到其他 Harness。
+
+#### 3.11.3 跨工具能力對照（摘要）
+
+| 能力 | Claude Code | Codex | Cursor | OpenCode | GitHub Copilot |
+| --- | --- | --- | --- | --- | --- |
+| Instructions | 原生 | 原生 `AGENTS.md` | 專案 Rules | Plugin instructions | 原生 instruction 檔 |
+| Skills | 原生安裝集合 | 原生同步集合 | 依建置而定 | 已建置的子集 | **僅能以 prompt 引用** |
+| Agents | 原生 | Codex 多代理角色 | 依建置而定 | Plugin agents | **不支援** |
+| ECC Hooks | 原生 plugin hooks | **不支援** | Cursor hook adapter | Plugin 事件 | **不支援** |
+| MCP | 可用，需明確啟用 | 透過 sync 併入 TOML | 需明確設定 | 由 provider 設定 | **ECC 不提供** |
+
+三個關鍵設計決策，值得企業在制定內部標準時借鏡：
+
+1. **根目錄的 `AGENTS.md` 是通用的跨工具檔案**（Copilot 例外，它讀 `.github/copilot-instructions.md`）。把團隊共識寫在這裡，可同時被多數 Harness 讀到。
+2. **DRY adapter 模式**：Cursor 直接複用 Claude 的 Hook 腳本，而不是複製一份維護。內部自建工具鏈時也應採同樣做法。
+3. **`SKILL.md` + YAML frontmatter 是目前最通用的技能格式**，可跨 Claude Code、Codex、OpenCode 使用。Codex 缺少 Hook 的問題，則以 `AGENTS.md` + `model_instructions_file` + sandbox 權限三者組合來補償。
+
 
 ---
 
@@ -1532,10 +1878,10 @@ graph TB
     
     subgraph "ECC Agent Overlay"
         ECC_Plan["🤖 ECC /plan<br/>需求 → 任務拆解"]
-        ECC_TDD["🤖 ECC /tdd<br/>TDD 開發"]
+        ECC_TDD["🤖 tdd-workflow skill<br/>TDD 開發"]
         ECC_Review["🤖 ECC /code-review<br/>品質審查"]
         ECC_Security["🤖 ECC /security-scan<br/>安全掃描"]
-        ECC_E2E["🤖 ECC /e2e<br/>E2E 測試"]
+        ECC_E2E["🤖 e2e-testing skill<br/>E2E 測試"]
     end
     
     Vue --> GW
@@ -1598,14 +1944,16 @@ sequenceDiagram
 
 ```mermaid
 graph LR
-    P["/plan<br/>📋 規劃"] --> D["/design<br/>🏗️ 設計"]
-    D --> I["/tdd<br/>💻 實作"]
-    I --> T["/e2e<br/>🧪 測試"]
+    P["/plan<br/>📋 規劃"] --> D["/plan（architect）<br/>🏗️ 設計"]
+    D --> I["tdd-workflow<br/>💻 實作"]
+    I --> T["e2e-testing<br/>🧪 測試"]
     T --> R["/code-review<br/>🔍 審查"]
-    R --> Deploy["/deploy<br/>🚀 部署"]
-    Deploy --> Learn["/learn<br/>🧠 學習"]
+    R --> Deploy["deployment-patterns<br/>🚀 部署"]
+    Deploy --> Learn["/learn-eval → /evolve<br/>🧠 學習"]
     Learn -.->|"下個迭代"| P
 ```
+
+> 💡 上圖已依 **2026 年的指令退役現況**重畫：流程中的實作、測試、部署三個環節已不再使用 `/tdd`、`/e2e`、`/deploy` 斜線指令，而是以 **Skill** 為入口。這也是 ECC 整體的方向：斜線指令常駐佔用上下文，Skill 則是按需載入。
 
 ### 5.2 /plan — 需求規劃
 
@@ -1653,7 +2001,9 @@ graph LR
 - Token refresh race conditions
 ```
 
-### 5.3 /design — 架構設計
+### 5.3 架構設計 — architect Agent
+
+> 💡 **沒有 `/design` 這個指令**。架構設計是由 `/plan` 委派給 `architect` agent 完成的，或直接用 `/plan-prd`、`/multi-plan` 進入更大規模的規劃流程。
 
 ```bash
 /ecc:plan "Design the authentication module architecture"
@@ -1666,13 +2016,21 @@ graph LR
 - 序列圖（認證流程）
 - 安全考量
 
-### 5.4 /implement（TDD）— 實作
+### 5.4 實作（TDD）— `tdd-workflow` Skill
 
-```bash
-/tdd
+> 🚨 **退役提醒**：舊版教學中的 `/tdd` 指令**已退役**，現在的正式入口是 `tdd-workflow` Skill。舊指令檔案仍保留在 repo 的 `legacy-command-shims/commands/` ，但**不會**隨預設安裝。
+
+```text
+使用 tdd-workflow skill 實作 AuthService
 ```
 
-**Agent 行為**（tdd-guide）：
+你也可以直接描述任務，讓模型自行載入對應 Skill（這正是 Skill 優於 Slash Command 的原因：**按需載入，不常駐佔用上下文**）：
+
+```text
+幫我用 TDD 方式實作 AuthService，先寫失敗測試
+```
+
+**Skill 行為**（`tdd-workflow`，搭配 `tdd-guide` agent）：
 
 ```text
 1. Define interfaces first          → 定義 AuthService 介面
@@ -1737,11 +2095,15 @@ public class AuthServiceImpl implements AuthService {
 }
 ```
 
-### 5.5 /test — 測試
+### 5.5 測試 — `e2e-testing` Skill 與 `/test-coverage`
 
-```bash
-/e2e      # 產生 Playwright E2E 測試
+> 🚨 **退役提醒**：`/e2e` 指令**已退役**，改由 `e2e-testing` Skill 接手。而覆蓋率分析的 `/test-coverage` **仍是有效指令**，後者並未退役。
+
+```text
+使用 e2e-testing skill 產生登入流程的 Playwright E2E 測試
 ```
+
+若使用特定語言的測試指令，可直接呼叫：`/go-test`、`/kotlin-test`、`/rust-test`、`/cpp-test`、`/flutter-test`、`/react-test`（這些都屬於現行的 94 個指令）。
 
 **E2E 測試範例**：
 
@@ -1780,30 +2142,41 @@ test.describe('Authentication Flow', () => {
 - 效能問題
 - 測試覆蓋率缺口
 
-### 5.7 /deploy — 部署
+### 5.7 部署 — `deployment-patterns` Skill
+
+> 💡 **沒有 `/deploy` 這個指令**。部署相關的工作流由 `deployment-patterns` Skill 提供，搭配下方三道閘門。
 
 ```bash
 # 使用 deployment-patterns skill
 /security-scan    # 部署前安全掃描
-/e2e              # 關鍵用戶流測試
 /test-coverage    # 驗證 80%+ 覆蓋率
+```
+
+搭配 `e2e-testing` Skill 執行關鍵用戶流測試：
+
+```text
+使用 e2e-testing skill 跑一次關鍵用戶流程回歸
 ```
 
 > 💡 **Best Practice**：部署前三道閘門 — Security Scan → E2E → Coverage。全部通過才允許部署。
 
-### 5.8 /verify — 驗證迴圈
+### 5.8 驗證迴圈 — `verification-loop` 與 `eval-harness` Skill
+
+> 🚨 **退役提醒**：`/verify` 與 `/eval` 兩個指令**均已退役**，分別由 `verification-loop` 與 `eval-harness` Skill 取代。`/checkpoint` **仍是有效指令**。
 
 ECC 提供持續驗證機制，確保每次變更都通過完整品質閘門：
 
 ```bash
-# 儲存當前驗證狀態的 Checkpoint
+# 儲存當前驗證狀態的 Checkpoint（現行指令）
 /checkpoint
+```
 
+```text
 # 執行完整驗證迴圈
-/verify
+使用 verification-loop skill 執行完整驗證
 
-# 根據自定義標準評估
-/eval
+# 依自訂標準評估
+使用 eval-harness skill 依驗收標準評估本次變更
 ```
 
 **驗證迴圈流程**：
@@ -1822,11 +2195,12 @@ graph LR
 
 **驗證類型**：
 
-| 類型 | 指令 | 說明 |
+| 類型 | 指令／入口 | 說明 |
 | ------ | ------ | ------ |
-| Checkpoint 驗證 | `/checkpoint` → `/verify` | 儲存狀態後執行一次性驗證 |
+| Checkpoint 驗證 | `/checkpoint` → `verification-loop` skill | 儲存狀態後執行一次性驗證 |
 | 持續驗證 | `verification-loop` skill | 每次程式碼變更自動執行 build → test → lint → typecheck → security |
 | 評估驅動開發 | `eval-harness` skill | 定義評估標準，以 pass@k 指標衡量品質 |
+| 對抗式雙重審查 | `/santa-loop` | 兩個獨立模型審查者必須都通過才收斂（v2.2 強化） |
 
 **Eval Harness 評估指標**：
 
@@ -1918,6 +2292,35 @@ graph TD
 4. **安全性**：SQL Injection、XSS、不安全的資料處理
 5. **效能**：N+1 查詢、不必要的 IO
 6. **測試**：是否有對應測試、edge case 是否覆蓋
+
+**語言專用審查指令**：`/python-review`、`/go-review`、`/kotlin-review`、`/rust-review`、`/cpp-review`、`/flutter-review`、`/react-review`、`/vue-review`、`/fastapi-review`。這些會在通用審查之上，額外套用該語言的慣例與常見陷阱。
+
+#### 6.2.1 `/santa-loop` — 對抗式雙重審查收斂迴圈
+
+ECC 提供一個比單次 Code Review 更嚴格的機制：`/santa-loop`。它的設計前提是**單一審查者（無論人或模型）都會有盲點**，因此：
+
+1. 由**兩個獨立的模型審查者**分別審查同一份變更；
+2. **兩者都必須通過**，迴圈才收斂；
+3. 只要任一方提出未解決的問題，就回到修正階段重跑。
+
+```text
+執行 /santa-loop 審查這次的 PR 變更
+```
+
+```mermaid
+graph LR
+    Code["變更提交"] --> R1["審查者 A<br/>獨立上下文"]
+    Code --> R2["審查者 B<br/>獨立上下文"]
+    R1 --> Gate{兩者皆通過?}
+    R2 --> Gate
+    Gate -->|否| Fix["修正"]
+    Fix --> Code
+    Gate -->|是| Done["收斂，允許合併"]
+```
+
+> 🏢 **企業適用場景**：這種「雙人覆核」在金融、醫療、公部門系統本來就是稽核要求。`/santa-loop` 讓 AI 產出的變更也套用同一套控制原則，是把 ECC 帶進受監理環境時很有說服力的論據。代價是**成本至少加倍**，建議只套用在高風險模組（認證、金流、權限）而非全部程式碼。
+
+> 💡 **v2.2 延伸**：v2.2.0 另外加入了**多模型評議審查（multi-model council review）**，把「兩個審查者」推廣為「一組不同模型組成的評議會」，用模型多樣性降低同源偏誤。詳見 12.10。
 
 ### 6.3 Plankton 程式碼品質
 
@@ -2036,14 +2439,14 @@ graph TD
 `eval-harness` skill 提供結構化的評估機制，讓你定義明確的品質標準：
 
 ```bash
-# 儲存當前驗證狀態
+# 儲存當前驗證狀態（現行指令）
 /checkpoint
+```
 
-# 執行驗證
-/verify
-
-# 根據自定義標準評估
-/eval
+```text
+# 執行驗證與評估（/verify 與 /eval 已退役，改用 Skill）
+使用 verification-loop skill 執行驗證
+使用 eval-harness skill 依驗收標準評估
 ```
 
 **評估框架核心概念**：
@@ -2316,8 +2719,21 @@ git describe --tags  # 查看目前所在的最近 Release Tag
 # 更新到最新「已發行」版本（建議走 tag，而非直接追蹤 main）
 cd ECC
 git fetch --tags
-git checkout v2.1.0   # 鎖定到目前最新穩定 Release，而非 origin/main
+git checkout v2.2.0   # 鎖定到目前最新穩定 Release，而非 origin/main
 npm install
+```
+
+**已安裝 npm 套件者的升級路徑**：
+
+```bash
+# 先確認 npm 上的版本（參見 1.6 的發行落差說明）
+npm view ecc-universal version
+
+# 重跑導引式設定（v2.2 推薦的升級入口）
+npx ecc-universal setup
+
+# 升級後驗證
+npx ecc-universal doctor
 ```
 
 > ⚠️ **升級時同樣適用「只選一種安裝路徑」原則**：若你是透過 Plugin 安裝，升級只需 `/plugin update ecc` 或重跑 `/plugin install ecc@ecc`；**不要**額外執行 `./install.sh --profile full`。只有走「手動安裝」路徑的使用者，才需要重跑 `./install.sh`（依 3.3 節指定的語言包，而非 `--profile full`）。
@@ -2379,6 +2795,45 @@ node scripts/ecc.js repair           # 修復（通常可恢復）
 | multi-* 指令無法運行 | 安裝 ccg-workflow：`npx ccg-workflow` |
 | MCP 衝突 | 設定 `ECC_DISABLED_MCPS` 排除重複 |
 | Windows 路徑問題 | 配置目錄是 `%USERPROFILE%\.claude` |
+| 輸入 `/tdd`、`/e2e`、`/verify` 顯示找不到指令 | 這些指令**已退役**，改用對應 Skill（見附錄 I） |
+| `npx ecc-install` 失敗 | `ecc-install` 不是 npm 套件，正確入口是 `ecc-universal`（見 3.2.0） |
+| `yarn dlx ecc-universal` 失敗 | Yarn Classic 1.x 無 `dlx`，請改用 `npx` 或升級 Yarn |
+| Windows 上 `ecc memory` 全數寫入失敗 | Node 22.12–22.16 / 24.0–24.1 的 libuv 缺陷，請升級至 ECC v2.2.0（見 2.9.5） |
+| OpenCode 升級後 agents 不動作 | v2.2 起 agents 不再鎖 Anthropic provider，需自行選定 provider 與 model（Issue #2617） |
+
+### 9.4 v2.1 → v2.2 升級實務檢查表
+
+v2.2.0 相對 v2.1.0 的差異規模為 **108 commits、530 個檔案、+40,299 / −4,679 行**，並非小版本修訂。企業環境升級前請逐項確認：
+
+**升級前**
+
+- [ ] 執行 `ecc list-installed`，記錄目前的安裝路徑與元件清單
+- [ ] 確認 `npm view ecc-universal version` 已推廣至 2.2.x（若仍為 2.1.0，請改走 `/plugin` 路徑）
+- [ ] 先用 `--dry-run` 預覽變更：`npx ecc-universal install --guided --harness <target> --dry-run`
+- [ ] 備份或 commit 當前的 `.claude/`、`.codex/`、`.cursor/` 等專案內設定
+
+**MCP 預設集合變更（最容易遭殌的一項）**
+
+- [ ] 確認團隊是否依賴 `github`、`context7`、`exa`、`memory`、`playwright`、`sequential-thinking` 這六個**已退出預設集合**的連接器
+- [ ] 若有依賴，在 `mcp-configs/mcp-servers.json` 中**手動重新啟用**，或改用對應 Skill（`github-ops`、`documentation-lookup`、`exa-search`）
+
+**指令退役**
+
+- [ ] 搜尋內部文件、CI 腳本與教學材料中的 `/tdd`、`/e2e`、`/verify`、`/eval`、`/docs` 等 12 個退役指令（清單見附錄 I）
+- [ ] 將其改寫為對應 Skill 呼叫
+
+**平台與路徑**
+
+- [ ] OpenCode：確認 `~/.opencode` → `~/.config/opencode` 的遷移結果，並重新選定 provider / model
+- [ ] Antigravity：確認是否同時存在 `.agent/`（舊）與 `.agents/`（新），必要時以 `ecc repair` 清理
+- [ ] Windows 團隊：評估是否改用 WSL2（見 3.11.2）
+
+**升級後驗證**
+
+- [ ] `ecc doctor`（必要時加 `--target <harness>`）全數通過
+- [ ] `ecc memory doctor` 確認記憶庫可讀寫
+- [ ] 跑一次 `node tests/run-all.js` 確認本地環境健康
+- [ ] 將 `.ecc/memory/` 納入 `CODEOWNERS` 與 Code Review 範圍（見 2.9.3）
 
 ---
 
@@ -2561,18 +3016,23 @@ graph TD
 ```
 
 額外措施：
+
 - 保持 < 10 MCPs、< 80 tools 啟用
 - 使用 `/clear` 在不相關任務間
 - 使用 `/cost` 定期監控
 
 ### Q4：指令失效
 
-**檢查清單**：
+**最常見的原因：你用的是已退役的指令**。`/tdd`、`/e2e`、`/verify`、`/eval`、`/docs` 等 12 個指令已被移出預設安裝，改由對應 Skill 接手，完整對照見**附錄 I**。
+
+**其余檢查清單**：
+
 1. `claude --version` 確認 ≥ v2.1.0
 2. `/plugin list ecc@ecc` 確認 Plugin 已安裝
 3. 確認 rules 已手動安裝
 4. 確認 hooks 未重複宣告
 5. `multi-*` 指令需額外安裝 `npx ccg-workflow`
+6. 執行 `ecc doctor` 看是否有安裝歸屬問題
 
 ### Q5：Hooks 不運作 / "Duplicate hooks file" 錯誤
 
@@ -2590,7 +3050,7 @@ graph TD
 
 ### Q7：是否支援 Cursor / OpenCode / Codex / GitHub Copilot / Zed 以外的工具？
 
-**是**。ECC v2.1.0 同時支援 **13+ 種 Harness**（詳見 3.5）：
+**是**。ECC 目前同時支援 **13+ 種 Harness**（詳見 3.5），但**能力分級差異極大**，請務必搭配 3.11 的支援矩陣一起看：
 
 | 工具 | 安裝指令 |
 | ------ | --------- |
@@ -2639,11 +3099,39 @@ claude
 
 ### Q10：ECC 是 Anthropic 官方產品嗎？
 
-**不是**。ECC 是由社群維護者 Affaan Mustafa 發起、299+ 位貢獻者共同開發的**第三方開源專案**，並非 Anthropic 官方發行或背書的產品。Anthropic 官方僅提供 Claude Code 平台本身與其 [Best Practices 文件](https://code.claude.com/docs/en/best-practices)；ECC 是建立在該平台之上的社群框架。企業導入前，建議完整閱讀第十三章的風險考量，特別是關於單一核心維護者與治理模式的討論。
+**不是**。ECC 是由社群維護者 Affaan Mustafa 發起、**331 位貢獻者**共同開發的**第三方開源專案**，並非 Anthropic 官方發行或背書的產品。Anthropic 官方僅提供 Claude Code 平台本身與其 [Best Practices 文件](https://code.claude.com/docs/en/best-practices)；ECC 是建立在該平台之上的社群框架。企業導入前，建議完整閱讀第十三章的風險考量，特別是關於單一核心維護者與治理模式的討論。
 
 ### Q11：想自架開源模型（而非使用 Anthropic Claude），ECC 能用嗎？
 
-**可以**，但需要理解這是完全不同的風險輪廓。ECC v2.1.0 提供了 Kimi Code + Itô GPU 的官方參考路徑（見 3.10），也支援任何相容 `ANTHROPIC_BASE_URL` 協議的自訂閘道。但自架模型的推論品質、延遲、可用性與 Anthropic 官方託管的 Claude 模型並不相同，ECC 的 Agent/Skill 設計都是以 Claude 系列模型的推理能力為基準調校，換成其他開源模型時，實際效果可能有落差，需要自行評估與測試。
+**可以**，但需要理解這是完全不同的風險輪廓。ECC 提供了 Kimi Code + Itô GPU 的官方參考路徑（見 3.10），也支援任何相容 `ANTHROPIC_BASE_URL` 協議的自訂閘道。但自架模型的推論品質、延遲、可用性與 Anthropic 官方託管的 Claude 模型並不相同，ECC 的 Agent/Skill 設計都是以 Claude 系列模型的推理能力為基準調校，換成其他開源模型時，實際效果可能有落差，需要自行評估與測試。另請注意：**透過 Itô 的受管理推論服務尚未上線**，且 `ito-compute-cli` 尚未發布至公開套件庫，需自行建置（見 3.10.2）。
+
+### Q12：Unified Memory Vault 跟 Instinct 系統、CLAUDE.md 有什麼差別？
+
+三者解決的是不同層次的問題，不是三選一：
+
+| 機制 | 內容性質 | 載入時機 | 跨 Harness？ |
+| ------ | --------- | --------- | ------------- |
+| `CLAUDE.md` / `AGENTS.md` | 專案永久規範 | **每次 Session 常駐** | `AGENTS.md` 可；`CLAUDE.md` 否 |
+| Instinct 系統 | 從實際 Session 學到的模式，帶信心分數 | 相關時才召回 | 否（ECC 內部） |
+| **Memory Vault** | 決策紀錄、交接摘要 | 們召式（`search` / `read`） | **是（核心設計目的）** |
+
+實務上的分工建議：「永遠要遵守的規則」寫 `AGENTS.md`（或 Rules）；「這次為什麼這樣決定」寫 Memory Vault；「模型自己摸索出來的手感」交給 Instinct 系統。
+
+### Q13：公司都用 Windows，可以導入 ECC 嗎？
+
+**可以，但強烈建議以 WSL2 為標準開發環境**。Windows 原生環境屬於官方所謂的「有限制地支援」，目前至少有兩個開放中的缺陷：Continuous Learning v2 的 observer daemon（Issue **#2489**）與 Memory Vault 寫入（Issue **#2626**）；另外所有 shell-backed 功能（GAN、GateGuard 部分路徑）都需要 Git Bash 或 WSL。改用 WSL2 可一次繞開這些問題，也讓環境與 CI（通常是 Linux）一致。詳見 3.11.2。
+
+### Q14：團隊該選哪一種安裝路徑？
+
+一句話：**一個 Harness 只選一種，不要疊加**。
+
+| 情境 | 建議路徑 |
+| ------ | --------- |
+| 個人兒、想快速試用 | Claude Code `/plugin install ecc@ecc` |
+| 團隊首次導入、多 Harness | `npx ecc-universal install --guided`（先 `--dry-run`） |
+| 在意上下文佔用、只要少數元件 | 選擇性安裝：`install --profile minimal --with capability:<領域>` |
+| CI／自動化環境 | `install --guided ... --yes` 非互動形式，並鎖定版本 |
+| 只想帶規範進 Copilot | 直接使用 repo 內的 `.github/copilot-instructions.md`（無需安裝） |
 
 ---
 
@@ -2945,6 +3433,74 @@ graph TB
 
 > ⚠️ **採購注意事項**：ECC Tools 的付費方案與本機 ECC 配置是**兩套獨立系統**。若本機 Claude Code 設定被清除，不代表需要重新採購 Pro/Enterprise 授權；反之，帳務或 Marketplace 存取問題也不會透過 `node scripts/ecc.js repair` 解決（見 3.9、11 章 Q9）。企業採購前建議直接向官方確認目前的方案內容與定價，而非依賴任何第三方文件（包含本手冊）中的價格數字。
 
+> 💡 **免費額度參考**：官方 README 曾標示公開 Repo 免費方案為每月 10 次分析、Pro 為每月 50 次分析。此類額度變動頻繁，請以官方定價頁為準。
+
+### 12.10 v2.2 新增進階能力（Council Review、Nasiko、Living Docs）
+
+v2.2.0 一次帶進多個仍在成熟中的進階能力。這些功能**成熟度不一**，本節逐一標示，避免企業誤把實驗性功能排進正式流程。
+
+#### 12.10.1 多模型評議審查（Multi-Model Council Review）
+
+延續 6.2.1 `/santa-loop` 的對抗式思路，但把「兩個審查者」擴充為**一組由不同模型組成的評議會**。
+
+- **要解決的問題**：同一個模型審查自己（或同源模型）寫的程式碼時，會系統性地漏掉同一類錯誤——這是**同源偏誤（correlated blind spots）**。
+- **做法**：讓不同供應商／不同家族的模型各自獨立審查，再彙整意見。
+- **企業價值**：對受監理產業而言，這是「多重獨立控制」的技術實現，可作為稽核論據。
+- **代價**：成本隨評議會人數線性上升，且需要同時具備多家 provider 的存取權。
+
+> 🏢 **建議做法**：只對高風險變更（認證、金流、權限、個資處理）啟用評議會審查，其餘走一般 `/code-review`。
+
+#### 12.10.2 Nasiko CLI 生命週期橋接（實驗性）
+
+v2.2.0 加入的 **Nasiko CLI lifecycle bridge**，讓 ECC 能管理外部 CLI 工具的生命週期（啟動、鎖定、復原）。同版本也修復了此橋接的**鎖定復原（lock recovery）**問題與 tar 驗證強化。
+
+> ⚠️ **明確標示為實驗性（experimental）**。生產環境不建議依賴，評估用途可先在隔離環境試行。
+
+#### 12.10.3 Living Docs 治理
+
+**living-docs governance** 處理的是一個非常實際的痛點：**文件與程式碼失同步**。ECC 的做法是把文件視為需要治理的產物，而非一次性產出——搭配 `/update-docs`、`/update-codemaps` 兩個現行指令，讓文件更新成為工作流的一環而非事後補救。
+
+> 💡 這與本手冊本身面對的問題完全相同：一份講述快速迭代開源專案的技術文件，若沒有治理機制，半年內就會半數失效。這也是本手冊在 1.1 明確加上「數字時效性聲明」的原因。
+
+#### 12.10.4 TasteForge 多模態工作流
+
+v2.2.0 引入 **TasteForge** 多模態工作流，包含 `tasteforge-video` skill，把影音等非文字素材納入 Agent 的處理範圍。目前定位偏向內容創作與行銷場景（可與 `/marketing-campaign` 搭配），對一般後端／企業系統開發流程的直接助益有限。
+
+#### 12.10.5 Epic 協作與 PRP 工作流
+
+這兩組指令族在企業多人協作場景中特別實用，但過去的教學材料較少提及：
+
+**Epic 協作（GitHub 原生）**：`/epic-decompose`（拆解大型需求）→ `/epic-validate`（驗證拆解合理性）→ `/epic-claim`（認領工作項）→ `/epic-sync`（同步狀態）→ `/epic-review`（審查）→ `/epic-publish`（發布）→ `/epic-unblock`（解除阻塞）。
+
+```mermaid
+graph LR
+    D["/epic-decompose"] --> V["/epic-validate"]
+    V --> C["/epic-claim"]
+    C --> S["/epic-sync"]
+    S --> R["/epic-review"]
+    R --> P["/epic-publish"]
+    S -.->|"遇到阻塞"| U["/epic-unblock"]
+    U --> S
+```
+
+**PRP（Product Requirement Prompt）工作流**：`/prp-prd`（需求文件）→ `/prp-plan`（計畫）→ `/prp-implement`（實作）→ `/prp-commit`（提交）→ `/prp-pr`（開 PR）。這是一條把「需求 → PR」全程串起來的線性流程，適合規格明確、變異度低的任務。
+
+> 🏢 **選型建議**：Epic 族適合**多人平行**、需要在 GitHub Issue 層級追蹤的專案；PRP 族適合**單人端到端**、規格已定的任務。兩者不建議混用在同一個工作項上。
+
+#### 12.10.6 其他 v2.2 新增項目速覽
+
+| 項目 | 說明 | 成熟度 |
+| ------ | ------ | ------ |
+| Itô skill 家族（`ito-baskets`） | GPU 運算資源的組合式管理 | 隨 Itô 平台狀態而定 |
+| dev-team 協作 | 模擬開發團隊角色分工的協作流程 | 新增，觀察中 |
+| 代理評估（agent evaluation） | 評估 Agent 本身表現的框架 | 新增，觀察中 |
+| 安全終端開啟（secure terminal opening） | 以受控方式開啟終端，降低誤執行風險 | 與 GateGuard 互補 |
+| 發行產物生命週期測試 | 對打包後的 npm artifact 做跨平台測試 | 已納入 CI |
+| Docker 化 CLI 測試 | 以容器隔離測試 CLI 行為 | 已納入 CI |
+| 強化的 Python 驗證 | 提升 Python 相關流程的驗證嚴謹度 | 已納入 CI |
+
+> 💡 **v2.2 的發行流程強化本身就值得學習**：新版要求「tag 必須精確落在 `origin/main` 上」、「npm registry 發生錯誤時 fail-closed（而非略過）」、「在 Linux／macOS／Windows 三平台測試已打包的 artifact」、「先發到 staging dist-tag 驗證後才推廣為 `latest`」。這是一組相當標準的供應鏈防護實務，值得任何要發布 npm 套件的團隊借鏡。
+
 ---
 
 ## 第十三章：企業導入評估與風險考量
@@ -2959,10 +3515,12 @@ graph TB
 
 | 成本項目 | 說明 |
 | --- | --- |
-| 學習曲線 | 68 Agents、286 Skills、21+ Rules 語言包——團隊需要時間理解「該用哪個」，而非「有沒有」 |
+| 學習曲線 | 68 Agents、286 Skills、94 Commands、21+ Rules 語言包——團隊需要時間理解「該用哪個」，而非「有沒有」 |
 | 選配與治理紀律 | 若不遵守「只裝需要的」原則（3.2、2.4 反覆強調），上下文窗口反而會被無用的 Rules/Skills 侵蝕，抵銷效益 |
-| 版本追蹤成本 | ECC 幾乎每週有變更（見 1.6），企業需要指派人力追蹤 CHANGELOG、評估是否升級 |
-| 跨 Harness 期望落差 | 若團隊同時使用多種 Harness，需要接受「非 Claude Code 環境功能受限」的事實（見 2.8、12.2），不能假設處處對等 |
+| 版本追蹤成本 | ECC 幾乎每週有變更（見 1.6），且小版本升級可能包含大幅變更（v2.1→v2.2 就改了 530 個檔案、四萬多行），企業需要指派人力追蹤 CHANGELOG、評估是否升級 |
+| **指令／路徑退役的遷移成本** | 實際發生過的例子：12 個斜線指令退役、MCP 預設從 14 個減至 1 個、OpenCode 家目錄搬遷。內部教材與 CI 腳本都需跟著改 |
+| 跨 Harness 期望落差 | 若團隊同時使用多種 Harness，需要接受「非 Claude Code 環境功能受限」的事實（見 3.11、2.8、12.2），不能假設處處對等 |
+| **作業系統成本** | Windows 原生環境有已知缺陷（#2489、#2626），若團隊以 Windows 為主，需評估導入 WSL2 的教育與維運成本（見 3.11.2） |
 | 供應商風險 | 見 13.2 的治理模式討論 |
 
 ### 13.2 已知限制與社群爭議
@@ -2971,13 +3529,25 @@ graph TB
 
 **「過度工程化」批評**：獨立評論（如 Medium 上針對 ECC 的分析文章）指出，ECC 的多語言 Rules 架構、內建編排引擎（Orchestrator 家族）等，超出多數團隊實際需要的複雜度，常見的反對意見是「大多數人只需要一份寫得好的 CLAUDE.md，不需要一整套生態系」。這個批評對「小團隊、單一語言棧」的專案尤其成立。
 
-**治理模式與維護者風險**：ECC 目前由單一核心維護者（Affaan Mustafa）主導開發節奏與架構決策方向，雖然已有 299+ 位貢獻者參與，且社群規模（Star 數、Discord 成員數）已達到「即使原作者停止投入，社群也可能接手維護」的量級，但企業導入前仍應評估：
+**治理模式與維護者風險**：ECC 目前由單一核心維護者（Affaan Mustafa）主導開發節奏與架構決策方向，雖已有 **331 位貢獻者**參與，且社群規模（約 24 萬 Star、Discord 成員數）已達到「即使原作者停止投入，社群也可能接手維護」的量級，但企業導入前仍應評估：
+
 - 若專案更新停滯，內部是否有能力自行維護 Fork？
 - 關鍵安全更新（如 AgentShield 規則庫）的回應速度是否符合企業 SLA 要求？
+- 目前開放中的 Issue 約 52 件、待審 PR 約 125 件（2026-08-28）。PR 積壓高於 Issue 這件事本身是中性訊號（代表社群踴躍欲試），但也反映**審查瓶頸集中於少數人**的現實。
+
+**治理面的正向訊號**：官方 README 中的平台支援矩陣（見 3.11）**主動標示哪些 Harness 只是「檔案放對位置」而非功能對等**，並直接列出已知缺陷的 Issue 編號（#2419、#2489、#2617、#2626、#2674）。這種「不自我美化」的文件態度在開源專案中並不常見，對企業評估而言是**提高可信度的正向因素**。
+
+**安全回應管道**：ECC 提供私密漏洞回報流程（見 [`SECURITY.md`](https://github.com/affaan-m/ECC/blob/main/SECURITY.md)），並備有[供應鏈事件應變程序](https://github.com/affaan-m/ECC/blob/main/docs/security/supply-chain-incident-response.md)。企業資安團隊在導入前應先確認此流程是否滿足內部的漏洞揭露 SLA 要求。
 
 **「多不代表好」的自我修正案例**：值得注意的是，ECC 官方自己也在 2026 年 6 月的 MCP 連接器審查中，主動從「14 個預設 MCP」收斂為「1 個」（見 2.7），這說明專案本身具備自我糾錯能力，但也反過來印證了外部批評的合理性——確實存在「為了功能豐富度而過度擴張」的傾向，需要靠事後治理修正。
 
-**版本波動與文件時效性**：本手冊撰寫過程中即發現，官方 README 出現過「建議先用 npx 導引安裝」又於同一版本說明中撤回該建議（"published too soon...that recommendation is withdrawn until release 2.2"）的情況——顯示活躍社群專案的文件與實際發行節奏可能不同步，企業導入時應以官方 Release Tag 與 CHANGELOG 為準，而非任何時間點的 README 快照。
+**版本波動與文件時效性**：本手冊撰寫過程中即發現多個實例：
+
+- 官方 README 出現過「建議先用 npx 導引安裝」又於同一版本說明中撤回該建議（“published too soon…that recommendation is withdrawn until release 2.2”）的情況；
+- **CHANGELOG 已標 2.2.0，但 GitHub Releases 頁面的 Latest 可能仍顯示 v2.1.0**（因 npm 推廣把關發行建立）；
+- **同一份 README 內部數字不一致**：頁首寫 286 skills、“What's Inside” 區塊寫 284 skills。
+
+這顯示活躍社群專案的文件與實際發行節奏可能不同步。企業導入時應以**官方 Release Tag 與 CHANGELOG** 為準，並以**實際執行 `ecc doctor` / `ecc list-installed` 的輸出**作為稽核證據，而非任何時間點的 README 快照（包含本手冊）。
 
 ### 13.3 與 Anthropic 官方最佳實踐的定位關係
 
@@ -3018,13 +3588,20 @@ graph TB
 
 ### A. 常用指令 Cheat Sheet
 
+> ⚠️ **v2.2 重要變更**：`/tdd`、`/e2e`、`/verify`、`/eval`、`/orchestrate` 等 12 個指令已**退役**，改以 Skill 形式提供。下表已移除退役指令；完整對照請見[附錄 I](#i-指令退役與遷移對照表)。
+
+**斜線指令（Slash Commands）**
+
 | 類別 | 指令 | 說明 |
 | ------ | ------ | ------ |
-| **規劃** | `/ecc:plan "需求"` | 建立實作計劃 |
-| **開發** | `/tdd` | TDD 開發流程 |
-| **審查** | `/code-review` | 程式碼審查 |
+| **規劃** | `/plan "需求"` | 建立實作計劃（產出後自動開啟 Plan Canvas，見 5.9） |
+| **規劃** | `/plan-canvas` | 單獨開啟計畫視覺化畫布 |
+| **規劃** | `/plan-prd` | 從 PRD 產生實作計畫 |
+| **開發** | `/feature-dev` | 端到端功能開發流程 |
 | **建構** | `/build-fix` | 修復建構錯誤 |
-| **測試** | `/e2e` | E2E 測試產生 |
+| **審查** | `/code-review` | 程式碼審查（fresh context） |
+| **審查** | `/review-pr` | 針對 Pull Request 審查 |
+| **審查** | `/santa-loop` | 對抗式雙重審查收斂迴圈（見 6.2.1） |
 | **測試** | `/test-coverage` | 測試覆蓋率分析 |
 | **安全** | `/security-scan` | AgentShield 掃描 |
 | **重構** | `/refactor-clean` | 清除無用程式碼 |
@@ -3033,8 +3610,7 @@ graph TB
 | **學習** | `/learn` | 萃取模式 |
 | **學習** | `/learn-eval` | 萃取並評估模式 |
 | **驗證** | `/checkpoint` | 儲存驗證狀態 |
-| **驗證** | `/verify` | 執行驗證迴圈 |
-| **驗證** | `/eval` | 根據標準評估 |
+| **驗證** | `/quality-gate` | 品質閘門檢查 |
 | **Instincts** | `/instinct-status` | 查看已學習 |
 | **Instincts** | `/instinct-import` | 匯入 Instincts |
 | **Instincts** | `/instinct-export` | 匯出 Instincts |
@@ -3050,27 +3626,50 @@ graph TB
 | **上下文** | `/clear` | 清除（免費重置） |
 | **上下文** | `/compact` | 壓縮（邏輯斷點） |
 | **成本** | `/cost` | 檢查 Token 花費 |
+| **成本** | `/cost-report` | 產出成本報告 |
 | **多 Agent** | `/multi-plan` | 多 Agent 任務分解 |
 | **多 Agent** | `/multi-execute` | 多 Agent 協作執行 |
 | **多 Agent** | `/multi-backend` | 後端多服務編排 |
 | **多 Agent** | `/multi-frontend` | 前端多服務編排 |
 | **多 Agent** | `/multi-workflow` | 通用多服務工作流 |
-| **編排** | `/orchestrate` | 多 Agent 協調 |
+| **Epic** | `/epic-decompose`、`/epic-claim`、`/epic-sync` … | GitHub 原生 Epic 協作（見 12.10.5） |
+| **PRP** | `/prp-prd`、`/prp-plan`、`/prp-implement`、`/prp-commit`、`/prp-pr` | 需求到 PR 的線性流程 |
 | **PM2** | `/pm2` | PM2 服務生命週期管理 |
 | **稽核** | `/harness-audit` | Harness 狀態稽核 |
-| **品質** | `/quality-gate` | 品質閘門檢查 |
 | **迴圈** | `/loop-start` | 啟動自主迴圈 |
 | **迴圈** | `/loop-status` | 檢查迴圈狀態 |
 | **Session** | `/sessions` | Session 歷史管理 |
+| **Session** | `/save-session` | 儲存目前 Session |
 | **設定** | `/setup-pm` | 設定套件管理器 |
-| **Go** | `/go-review` | Go 程式碼審查 |
-| **Go** | `/go-test` | Go TDD 工作流 |
-| **Go** | `/go-build` | 修復 Go 建構錯誤 |
+| **Go** | `/go-review`、`/go-test`、`/go-build` | Go 專屬審查／TDD／建構修復 |
 | **Python** | `/python-review` | Python 程式碼審查 |
-| **Plan Canvas** | `/plan`（產出後自動開啟瀏覽器） | 視覺化計畫審查（v2.1.0+，見 5.9） |
-| **自架運算** | `ecc ito find` | Itô GPU 節點即時詢價（見 3.10） |
-| **診斷** | `node scripts/ecc.js doctor` | 診斷本機設定問題 |
-| **診斷** | `node scripts/ecc.js repair` | 自動修復遺失/損壞的元件 |
+
+**常用 Skill（以自然語言觸發，非斜線指令）**
+
+| Skill | 觸發方式範例 |
+| ------ | ------ |
+| `tdd-workflow` | 「使用 tdd-workflow skill 為這個模組寫測試並實作」 |
+| `e2e-testing` | 「使用 e2e-testing skill 產生登入流程的端到端測試」 |
+| `verification-loop` | 「使用 verification-loop skill 驗證這次變更」 |
+| `eval-harness` | 「使用 eval-harness skill 依驗收標準評估」 |
+| `documentation-lookup` | 「使用 documentation-lookup skill 查 React 19 的 API」 |
+
+**CLI 與診斷**
+
+| 指令 | 說明 |
+| ------ | ------ |
+| `npx ecc-universal setup` | 導引式安裝（v2.2，見 3.2.0） |
+| `ecc list-installed` | 列出已安裝元件（依 ownership ledger） |
+| `ecc doctor` | 診斷本機設定問題 |
+| `ecc doctor --target kimi` | 針對特定 Harness 診斷 |
+| `ecc repair` | 自動修復遺失／損壞的元件 |
+| `ecc uninstall` | 依安裝紀錄反安裝 |
+| `ecc feedback` | 提交使用回饋 |
+| `ecc memory init --scope project` | 初始化 Memory Vault（見 2.9） |
+| `ecc memory save` / `handoff` / `search` / `read` / `doctor` | Memory Vault 日常操作 |
+| `ecc ito find` | Itô GPU 節點即時詢價（見 3.10） |
+| `npx -y ecc-agentshield scan --path .` | 獨立執行 AgentShield 供應鏈掃描 |
+| `node tests/run-all.js` | 由原始碼安裝時執行完整測試套件 |
 
 ### B. Skills 範例模板
 
@@ -3145,34 +3744,43 @@ Describe expected output format.
 
 ### D. 跨工具功能對照表
 
-| 功能 | Claude Code | Cursor | Codex App+CLI | OpenCode |
-| ------ | ------------- | -------- | --------------- | ---------- |
-| **Config Format** | settings.json | hooks.json + rules/ | config.toml | opencode.json |
-| **Context File** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
-| **Secret Detection** | Hook-based | beforeSubmitPrompt | Sandbox-based | Hook-based |
-| **Auto-Format** | PostToolUse hook | afterFileEdit hook | N/A | file.edited hook |
-| **Installation** | Plugin | `--target cursor` | sync script | npm plugin |
+> 完整的支援分級（穩定／Beta／實驗性）與作業系統相容性請見 3.11。本表只列檔案層的具體差異。
+
+| 功能 | Claude Code | Cursor | Codex App+CLI | OpenCode | Antigravity |
+| ------ | ------------- | -------- | --------------- | ---------- | ------------- |
+| **支援分級** | 穩定（完整） | Beta | 穩定 | Beta | 實驗性 |
+| **Config Format** | `settings.json` | `hooks.json` + `rules/` | `config.toml` | `opencode.json` | `.agents/` 目錄 |
+| **Context File** | CLAUDE.md + AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md | AGENTS.md |
+| **Secret Detection** | Hook-based | `beforeSubmitPrompt` | Sandbox-based | Hook-based | 有限 |
+| **Auto-Format** | PostToolUse hook | `afterFileEdit` hook | N/A | `file.edited` hook | N/A |
+| **Installation** | Plugin（`ecc@ecc`） | `--target cursor` | `codex plugin add ecc@ecc` | npm plugin | `--target antigravity` |
+| **Rules 支援** | 需手動複製（Plugin 不派送 rules） | 原生 `rules/` | 部分 | 部分 | 有限 |
+| **Hooks 執行** | 完整 | 部分事件 | 部分 | 部分 | 不支援 |
+
+> ⚠️ **不要把「有適配器」等同於「功能對等」**。部分 Harness 的適配器僅將檔案放到正確位置，實際能不能被讀取、能不能執行 hooks，取決於該工具本身的能力（見 3.11.1）。
 
 ### E. 檢查清單（Checklist）
 
 #### 🔰 新進成員快速上手
 
 - [ ] 安裝 Claude Code CLI（建議使用最新版，以取得 Plan Mode / Auto Mode / `/goal` 等原生功能）
-- [ ] 安裝 Node.js ≥ 18
-- [ ] Clone ECC repo：`git clone https://github.com/affaan-m/ECC.git`
+- [ ] 安裝 Node.js ≥ 18（**Windows 原生環境請避開 Node 22.12–22.16 與 24.0–24.1**，見 2.9.5）
+- [ ] 確認安裝路徑：導引式（`npx ecc-universal setup`）或 Plugin 安裝（見 11 章 Q14）
+- [ ] Clone ECC repo（若採原始碼安裝）：`git clone https://github.com/affaan-m/ECC.git`
 - [ ] 安裝 ECC Plugin：`/plugin marketplace add https://github.com/affaan-m/ECC` + `/plugin install ecc@ecc`
 - [ ] 手動安裝 Rules（僅安裝需要的語言包，見 3.2）：`mkdir -p ~/.claude/rules/ecc && cp -R rules/common rules/typescript ~/.claude/rules/ecc/`
 - [ ] 設定環境變數：`MAX_THINKING_TOKENS=10000`、`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50`
+- [ ] 執行 `ecc doctor` 確認安裝健康度
 - [ ] 瀏覽 Dashboard：`npm run dashboard`
-- [ ] 試運行 `/ecc:plan "Hello World feature"`
-- [ ] 試運行 `/tdd`
+- [ ] 試運行 `/plan "Hello World feature"`
+- [ ] 試運行 `tdd-workflow` Skill（以自然語言觸發，**`/tdd` 已退役**）
 - [ ] 試運行 `/code-review`
 
 #### ✅ 日常開發檢查
 
 - [ ] 開發前執行 `/plan` 規劃
-- [ ] 使用 TDD 流程（`/tdd`）
-- [ ] 完成後執行 `/code-review`
+- [ ] 使用 TDD 流程（`tdd-workflow` Skill）
+- [ ] 完成後執行 `/code-review`（高風險變更再加 `/santa-loop`）
 - [ ] 部署前執行 `/security-scan`
 - [ ] 覆蓋率 ≥ 80%（`/test-coverage`）
 - [ ] 不相關任務間使用 `/clear`
@@ -3191,10 +3799,20 @@ Describe expected output format.
 
 - [ ] 所有測試通過
 - [ ] Security Scan Exit Code ≠ 2
-- [ ] E2E 測試通過
+- [ ] E2E 測試通過（`e2e-testing` Skill）
 - [ ] 覆蓋率 ≥ 80%
-- [ ] 文件已更新（`/update-docs`）
+- [ ] 文件已更新（`/update-docs`、`/update-codemaps`）
 - [ ] Code Review 完成
+
+#### 🔄 v2.1 → v2.2 升級檢查
+
+完整清單見 9.4。最關鍵的五項：
+
+- [ ] 確認 npm 實際發行版本：`npm view ecc-universal version`
+- [ ] 盤點內部教材與 CI 腳本中的 12 個退役指令（見附錄 I）
+- [ ] 確認 MCP 預設集合變更不影響現行流程（見 2.7）
+- [ ] OpenCode 使用者：確認家目錄已從 `~/.opencode` 遷至 `~/.config/opencode`
+- [ ] 升級後執行 `ecc doctor` 並保留輸出作為稽核證據
 
 ### F. 生態系工具與社群資源
 
@@ -3206,7 +3824,8 @@ Describe expected output format.
 | **AgentShield** | 安全稽核掃描器（1282 tests、102 rules） | [GitHub](https://github.com/affaan-m/agentshield) ∣ [npm](https://www.npmjs.com/package/ecc-agentshield) |
 | **Skill Creator** | 從 Git History 產生 Skills 的 GitHub App | [GitHub App](https://github.com/apps/skill-creator) ∣ [ecc.tools](https://ecc.tools) |
 | **ECC Tools** | GitHub Marketplace App（Free / Pro / Enterprise，見 12.9） | [Marketplace](https://github.com/marketplace/ecc-tools) ∣ [Pricing](https://ecc.tools/pricing) |
-| **ecc-universal** | 跨 Harness 安裝／CLI npm 套件（2.1.0 起亦支援 OpenCode） | [npm](https://www.npmjs.com/package/ecc-universal) |
+| **ecc-universal** | 跨 Harness 安裝／CLI npm 套件（v2.2 新增導引式安裝與 `ecc memory`） | [npm](https://www.npmjs.com/package/ecc-universal) |
+| **Unified Memory Vault** | 跨 Harness 統一記憶庫（v2.2 新增，見 2.9） | `ecc memory` 子指令 ∣ 選配 `ecc-memory-mcp` |
 | **Dashboard GUI** | 桌面儀表板（Tkinter） | `npm run dashboard` 或 `python3 ecc_dashboard.py` |
 | **ECC 2.0 Control-Pane** | Rust 控制平面（v2.0.0 起穩定版） | `ecc2/` 目錄 |
 | **Plan Canvas** | 瀏覽器內視覺化計畫審查（v2.1.0 新增，見 5.9） | `ecc-plan-canvas` CLI/JSON 協定 |
@@ -3268,6 +3887,11 @@ ECC v2.1.0 起正式公開多家官方贊助夥伴，反映專案商業化與永
 | **Hermes Setup / Migration Guide** | Hermes 安裝與 OpenClaw 遷移路徑 | [Setup](https://github.com/affaan-m/ECC/blob/main/docs/HERMES-SETUP.md) ∣ [Migration](https://github.com/affaan-m/ECC/blob/main/docs/HERMES-OPENCLAW-MIGRATION.md) |
 | **Antigravity / Qwen / JoyCode Guide** | 個別 Harness 安裝細節 | `docs/ANTIGRAVITY-GUIDE.md` ∣ `docs/QWEN-GUIDE.md` ∣ `docs/JOYCODE-GUIDE.md` |
 | **Manual Adaptation Guide** | 無原生目標的 Harness 手動移植 | [GitHub](https://github.com/affaan-m/ECC/blob/main/docs/MANUAL-ADAPTATION-GUIDE.md) |
+| **Commands Quick Reference** | 94 個指令的官方速查表（見 2.3.2） | [GitHub](https://github.com/affaan-m/ECC/blob/main/docs/COMMANDS-QUICK-REF.md) |
+| **Security Policy** | 私密漏洞回報流程與支援範圍 | [SECURITY.md](https://github.com/affaan-m/ECC/blob/main/SECURITY.md) |
+| **Supply-Chain Incident Response** | 供應鏈事件應變程序（企業資安審查必讀） | [GitHub](https://github.com/affaan-m/ECC/blob/main/docs/security/supply-chain-incident-response.md) |
+
+> 🏢 **企業資安審查建議順序**：`SECURITY.md` → `the-security-guide.md` → `docs/security/supply-chain-incident-response.md` → `docs/MCP-CONNECTOR-POLICY.md`。這四份文件共同構成 ECC 的安全治理論述，也是導入審查時最常被要求提供的依據。
 
 #### F.6 多語言文件
 
@@ -3304,22 +3928,29 @@ ECC 提供多種語言的 README／文件翻譯（截至 2026-08，已達 13 種
 | v2.0.0-rc.1 | 2026-04-28 | — | — | — | — | Hermes operator story 候選版；跨 Harness 基板文件化 |
 | v2.0.0 | 2026-06-09 | 64 | 261 | 84 | 1000+ | **穩定版**：orch-* 家族；Worktree-lifecycle；ECC Discord 社群 |
 | v2.1.0 | 2026-07-27 | 67 | 281 | 94 (shim) | 1000+ | Plan Canvas；Kimi Code／Hermes／OpenClaw；Itô GPU 整合；GateGuard 路徑排除 |
-| main（開發中） | 2026-08 至今 | 68 | 286 | 94 | 1000+ | 邁向 v2.2.0：guided setup 精靈、JoyCode、MCP 政策正式生效 |
+| **v2.2.0** | **2026-08-25** | **68** | **286** | **94** | 1000+ | **導引式安裝（Guided Setup）；Antigravity 2.0 原生安裝；Unified Memory Vault；多模型評議審查；Nasiko 橋接；living-docs 治理；TasteForge；12 個指令退役為 Skill** |
+| main（開發中） | 2026-08-25 至今 | 68 | 286 | 94 | 1000+ | 邁向下一個次版本；請以 CHANGELOG 為準 |
 
-> ⚠️ 上表數字取自各版本官方 Release Notes 與 CHANGELOG，部分早期版本未在公告中揭露 Agent/Skill/Command 精確數字（以「—」標示），不代表當時不存在該元件。main 分支數字為 2026-08 查證當下的即時 GitHub API 結果，會持續變動。
+> 📊 **v2.1.0 → v2.2.0 變更規模**：108 個 commit、530 個檔案變更、+40,299 ／ −4,679 行。這是一個**小版號但實質大幅度**的版本，企業升級前務必完成 9.4 的檢查清單。
+
+> ⚠️ 上表數字取自各版本官方 Release Notes 與 CHANGELOG，部分早期版本未在公告中揭露 Agent/Skill/Command 精確數字（以「—」標示），不代表當時不存在該元件。另需注意：**官方 README 自身就存在 286 與 284 skills 的不一致**（見 1.1），且 GitHub Releases 頁面可能因 npm 推廣把關而尚未建立 v2.2.0 的 Release 條目。
 >
 > 完整記錄：[CHANGELOG.md](https://github.com/affaan-m/ECC/blob/main/CHANGELOG.md) ∣ [Releases](https://github.com/affaan-m/ECC/releases)
 
 ### H. 資料來源與查證方法
 
-本手冊改版（2026-08）遵循「吸收後重新整理，不逐字轉載」原則撰寫，主要查證管道如下：
+本手冊改版遵循「吸收後重新整理，不逐字轉載」原則撰寫，主要查證管道如下：
 
 **一手來源（官方）**
 
 - [affaan-m/ECC GitHub Repository](https://github.com/affaan-m/ECC) — 原始碼、目錄結構、`README.md`、`CHANGELOG.md`
-- GitHub REST API（`repos/affaan-m/ECC`、`/releases`、`/tags`、`/contents/*`、`/contributors`）— 即時統計數字（Stars、Forks、Contributors）與元件目錄計數
-- 官方 Releases 頁面與逐版 Release Notes（v1.2.0 ～ v2.1.0）
-- 官方文件：`docs/MCP-CONNECTOR-POLICY.md`、`the-shortform-guide.md`、`the-longform-guide.md`、`the-security-guide.md`
+- [ECC `README.md`（原始檔）](https://raw.githubusercontent.com/affaan-m/ECC/main/README.md) — 元件計數、平台支援矩陣、安裝路徑、已知問題 Issue 編號
+- [ECC `CHANGELOG.md`（原始檔）](https://raw.githubusercontent.com/affaan-m/ECC/main/CHANGELOG.md) — v2.2.0 逐項 Added / Changed / Fixed
+- [ECC 繁體中文 README](https://github.com/affaan-m/ECC/blob/main/docs/zh-TW/README.md) — 中文術語對照
+- GitHub REST API（`repos/affaan-m/ECC`、`/releases`、`/tags`、`/contents/*`、`/contributors`）— 即時統計數字（Stars、Forks、Contributors、開放 Issue／PR 數）與元件目錄計數
+- 官方 Releases 頁面與逐版 Release Notes（v1.2.0 ～ v2.2.0）
+- 官方文件：`docs/MCP-CONNECTOR-POLICY.md`、`docs/COMMANDS-QUICK-REF.md`、`the-shortform-guide.md`、`the-longform-guide.md`、`the-security-guide.md`、`SECURITY.md`、`docs/security/supply-chain-incident-response.md`
+- npm registry：`ecc-universal`、`ecc-agentshield` 的實際發行版本
 - [ecc.tools](https://ecc.tools) 官方網站與 [Pricing 頁面](https://ecc.tools/pricing)
 
 **一手來源（Anthropic 官方）**
@@ -3331,17 +3962,91 @@ ECC 提供多種語言的 README／文件翻譯（截至 2026-08，已達 13 種
 - Medium 獨立評論文章〈Everything Claude Code: Inside the 82K-Star Agent Harness That's Dividing the Developer Community〉
 - 其他公開技術部落格對 ECC 的介紹與評測文章（DataCamp、Augment Code 等；用於交叉核對 Star 數成長趨勢與功能描述，非直接引用其表述方式）
 
-**查證時間戳記**：2026-08-21（本手冊改版當日）。由於 ECC 更新頻率極高，任何具體數字（版本號、元件計數、社群統計）都應被視為「該時間點的快照」，正式導入評估請務必重新查證最新狀態，而非直接沿用本文件數字。
+**查證方法論**
 
-**本次改版與前版（v2.0.0 版本，2026-06）的主要差異**：更新至 v2.1.0 官方統計；修正被誇大或過時的社群數據；新增 Plan Canvas、自架模型／Itô GPU、Kimi/Hermes/OpenClaw/JoyCode 等 v2.1.0 新功能；新增 2.8 節釐清 Claude Code 原生功能與 ECC 擴充功能邊界；新增第十三章企業導入風險考量（含社群批評聲音）；修正官方指南連結（由 X/Twitter 貼文更新為 repo 內正式文件）；修正多處 Markdown 格式問題（表格對齊、程式碼區塊語言標示、引用區塊空行）。
+1. **以原始檔優先**：所有 GitHub 文件均取 `raw.githubusercontent.com` 版本，避免網頁渲染層的內容截斷。
+2. **交叉比對**：README 敘述、CHANGELOG 條目、實際目錄結構三者互相驗證；發現不一致時（如 286 vs. 284 skills）在本文中如實標示，而非擇一採用。
+3. **標示成熟度**：凡官方標為 experimental / beta 者，本文一律沿用同等標示，不代為升級。
+4. **保留 Issue 編號**：所有已知缺陷均附上原始 Issue 編號，讀者可自行追蹤修復狀態。
+
+**查證時間戳記**：2026-08-28（本次 v3.0 改版當日）。由於 ECC 更新頻率極高，任何具體數字（版本號、元件計數、社群統計）都應被視為「該時間點的快照」，正式導入評估請務必重新查證最新狀態，而非直接沿用本文件數字。
+
+**本次改版（v3.0）與前版（v2.0，2026-08-21）的主要差異**：
+
+- 全文對齊 **ECC v2.2.0**（2026-08-25），新增 v2.2 導引式安裝、Unified Memory Vault、多模型評議審查、Nasiko、living-docs、TasteForge 等內容
+- 新增 2.9（Unified Memory Vault）、3.2.0（Guided Setup）、3.11（平台支援分級與跨 OS 相容性）、6.2.1（`/santa-loop`）、9.4（升級檢查表）、12.10（v2.2 新增進階能力）
+- **全面標示 12 個退役指令**並改寫為 Skill 呼叫方式，新增附錄 I 遷移對照表
+- 新增附錄 J 環境變數總表
+- 修正社群統計數字（331 位貢獻者，取代舊的 299+）
+- 新增「數字時效性聲明」與 npm 發行落差警示
+- 第十三章補入治理正向訊號、PR 積壓觀察、安全回應管道評估項
+
+### I. 指令退役與遷移對照表
+
+v2.2 起，下列 12 個斜線指令已**退役**，其功能改由同名 Skill 提供。Skill 以自然語言觸發（例如「使用 `tdd-workflow` skill 完成這個功能」），或由 Agent 依情境自動載入。
+
+| 退役指令 | 改用 Skill | 說明 |
+| ------ | ------ | ------ |
+| `/tdd` | `tdd-workflow` | RED / GREEN / REFACTOR 三階段閘門 |
+| `/eval` | `eval-harness` | 依驗收標準評估產出 |
+| `/verify` | `verification-loop` | 驗證迴圈 |
+| `/e2e` | `e2e-testing` | 端到端測試產生 |
+| `/docs` | `documentation-lookup` | 外部文件查詢 |
+| `/claw` | `nanoclaw-repl` | NanoClaw REPL |
+| `/context-budget` | `context-budget` | 上下文預算管理 |
+| `/devfleet` | `claude-devfleet` | 開發機隊管理 |
+| `/orchestrate` | `dmux-workflows` + `autonomous-agent-harness` | 拆為兩個職責更明確的 Skill |
+| `/prompt-optimize` | `prompt-optimizer` | 提示詞最佳化 |
+| `/rules-distill` | `rules-distill` | Rules 萃取 |
+| `/agent-sort` | `agent-sort` | Agent 排序與挑選 |
+
+**遷移注意事項**
+
+- 退役指令的原始定義檔仍保留在 repo 的 `legacy-command-shims/commands/` 目錄，但**預設安裝不會包含**。若組織有強烈的相容性需求，可自行複製，但不建議長期依賴。
+- 團隊內部教材、Onboarding 文件、CI 腳本、以及任何寫死指令字串的自動化流程，都需要一併盤點更新（見 9.4）。
+- 為什麼要改？Skill 可以被 Agent **依情境自動載入**，而斜線指令必須由人明確輸入。改為 Skill 後，同一份工作流既能被人主動呼叫，也能在 Agent 判斷需要時自動生效——這是設計上的實質改善，而非單純改名。
+
+> 💡 **快速自我檢查**：在專案根目錄執行 `grep -rn "/tdd\|/e2e\|/verify\|/eval\|/orchestrate" --include="*.md" --include="*.yml" --include="*.yaml" .`，即可找出待更新的殘留引用。
+
+### J. 環境變數總表
+
+本手冊各章節提及的環境變數彙整如下，方便一次設定與稽核。
+
+**ECC 行為控制**
+
+| 變數 | 用途 | 參考章節 |
+| ------ | ------ | ------ |
+| `ECC_HOOK_PROFILE` | 選擇 Hook 設定檔（如 `minimal`、`standard`），控制載入哪些 Hook | 2.3.4 |
+| `ECC_DISABLED_HOOKS` | 以逗號分隔停用特定 Hook | 2.3.4 |
+| `ECC_DISABLED_MCPS` | 以逗號分隔停用特定 MCP 連接器 | 2.7 |
+| `GATEGUARD_EXEMPT_GLOBS` | GateGuard 的路徑排除樣式，用於放行特定目錄的破壞性操作 | 7 |
+
+**Claude Code / 模型路由**
+
+| 變數 | 用途 | 參考章節 |
+| ------ | ------ | ------ |
+| `ANTHROPIC_BASE_URL` | 指向自架或代理的 API 端點 | 3.10 |
+| `ANTHROPIC_AUTH_TOKEN` | 自架端點使用的驗證權杖 | 3.10 |
+| `MAX_THINKING_TOKENS` | 提高推理預算（建議 `10000`） | 8 |
+| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | 覆寫自動壓縮觸發百分比（建議 `50`） | 8 |
+
+**Itô 自架運算整合**
+
+| 變數 | 用途 | 參考章節 |
+| ------ | ------ | ------ |
+| `ECC_ITO_CLI_EXECUTABLE` | 指定自行建置的 `ito-compute-cli` 執行檔路徑 | 3.10.2 |
+| `ITO_API_KEY` | Itô 平台 API 金鑰（由 ECC 程序繼承） | 3.10.2 |
+| `ITO_ENABLE_SIXTYTWO_LIVE` | 設為 `1` 才會啟用實機 eval（預設關閉） | 3.10.2 |
+
+> 🔐 **機密管理提醒**：`ANTHROPIC_AUTH_TOKEN`、`ITO_API_KEY` 屬於機密資訊，**不得**寫入 `CLAUDE.md`、`AGENTS.md`、Memory Vault 或任何進版控的檔案。請使用作業系統的機密管理機制（如 macOS Keychain、Windows Credential Manager）或企業級 Secret Manager，並確認 `.env` 已列入 `.gitignore`（見附錄 E 安全檢查）。
 
 ---
 
-> **文件維護**：本手冊基於 ECC v2.1.0（2026 年 7 月）撰寫，並查核至 2026 年 8 月的 main 分支現況。ECC 更新頻繁（近乎每週發版），建議定期查閱 [官方 CHANGELOG](https://github.com/affaan-m/ECC/blob/main/CHANGELOG.md) 和 [Releases](https://github.com/affaan-m/ECC/releases)，切勿將本文件中的任何數字（版本號、元件數量、統計數據）視為永久不變的事實。
+> **文件維護**：本手冊基於 ECC **v2.2.0**（2026-08-25 CHANGELOG 發行日）撰寫，並查核至 2026-08-28 的 main 分支現況。ECC 更新頻繁（近乎每週發版），建議定期查閱 [官方 CHANGELOG](https://github.com/affaan-m/ECC/blob/main/CHANGELOG.md) 和 [Releases](https://github.com/affaan-m/ECC/releases)，切勿將本文件中的任何數字（版本號、元件數量、統計數據）視為永久不變的事實。
 >
 > **授權**：ECC 使用 MIT License，可自由使用、修改和商用；OSS 版本永久免費。ECC Tools（GitHub App）另提供 Pro / Enterprise 選配託管服務，詳見附錄 F。
 >
-> **社群**：241K+ Stars、299+ Contributors（2026-08 查證）。歡迎貢獻 Skills、Agents、Hooks 或 Rules。詳見 [CONTRIBUTING.md](https://github.com/affaan-m/ECC/blob/main/CONTRIBUTING.md)。加入 [ECC Discord](https://discord.gg/36yGMHGFbR) 社群討論。
+> **社群**：約 243,900 Stars、331 位貢獻者（2026-08-28 查證）。歡迎貢獻 Skills、Agents、Hooks 或 Rules。詳見 [CONTRIBUTING.md](https://github.com/affaan-m/ECC/blob/main/CONTRIBUTING.md)。加入 [ECC Discord](https://discord.gg/36yGMHGFbR) 社群討論。
 >
 > **追蹤作者**：[@affaanmustafa](https://x.com/affaanmustafa)（X / Twitter）
 >

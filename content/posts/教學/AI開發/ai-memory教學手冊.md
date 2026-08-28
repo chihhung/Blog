@@ -1,5 +1,6 @@
 +++
 date = '2026-08-26T19:50:48+08:00'
+lastmod = '2026-08-28T21:30:00+08:00'
 draft = false
 title = 'Ai Memory教學手冊'
 tags = ['教學', 'AI開發']
@@ -10,9 +11,9 @@ categories = ['教學']
 
 > **ai-memory —— AI Coding Agent 跨 Session、跨 Agent 長期記憶系統企業導入完整指南**
 >
-> Version：`v1.32.1`（依 `Cargo.toml` 查證，2026-08-26 查證時之最新版本）
+> Version：`v1.33.0`（依 `Cargo.toml` 的 `[workspace.package] version` 查證，2026-08-28 查證時之最新版本；`v1.33.0` 於 2026-08-28 發布）
 >
-> Research Date：2026-08-26
+> Research Date：2026-08-26（初版）／2026-08-28（第二次全文複查與版本更新）
 >
 > 適用對象：Software Developer、Tech Lead、Software Architect、AI Architect、DevSecOps 工程師
 >
@@ -32,7 +33,7 @@ categories = ['教學']
 
 3. **查證方法論**：本手冊撰寫前，透過對官方 Repository 逐一檔案（`README.md`、`docs/ARCHITECTURE.md`、`docs/design-decisions.md`、`docs/auto-scope.md`、`docs/marker-file.md`、`docs/managed-workstreams.md`、`docs/llm-provider-comparison.md`、`docs/companion-crates.md`、`docs/auto-improvement-loop.md`、`docs/install.md`、`docs/windows.md`、`docs/macos.md`、`docs/deploy.md`、`docs/https-via-proxy.md`、`docs/users.md`、`docs/lifecycle-ops.md`、`docs/mcp-install.md`、`docs/usage.md`、`AGENTS.md`、`CLAUDE.md`、`CHANGELOG.md`、`Cargo.toml`、`hooks/`、`docker/`、`packaging/`、`crates/`）的 fetch 與比對後撰寫，並交叉查證 Claude Code、OpenAI Codex CLI、GitHub Copilot / VS Code 的官方 MCP／Hooks 文件現況。所有版本號、CLI 指令、環境變數、設定範例皆逐字或近逐字取自官方文件，非憑空杜撰。
 
-4. **關於版本號不一致的說明**：`Cargo.toml` 記載目前版本為 `1.32.1`，但 `packaging/aur/PKGBUILD*` 內仍寫著 `pkgver=0.3.2`。經查證這是 AUR 發布流程使用的版本佔位符（placeholder），會在 GitHub Actions release workflow 執行時自動替換為實際版號後才推送到 AUR，並非兩個真實存在的不同版本，讀者無需因此感到矛盾。
+4. **關於版本號不一致的說明**：`Cargo.toml` 記載目前版本為 `1.33.0`，但 `packaging/aur/PKGBUILD*` 內仍寫著 `pkgver=0.3.2`。經查證這是 AUR 發布流程使用的版本佔位符（placeholder），會在 GitHub Actions release workflow 執行時自動替換為實際版號後才推送到 AUR，並非兩個真實存在的不同版本，讀者無需因此感到矛盾。
 
 5. **Windows 支援狀態的重要澄清**：官方 README 的 Support Matrix **明確寫著「Windows via WSL2 = Supported」、「Native Windows = Experimental」**，並在 `docs/windows.md` 中特別註明「Windows hook support is new and needs real-world testing against native Windows agent builds.」。本手冊全文遵照此原文表述，**不會**將 Native Windows 寫成「完整支援」。
 
@@ -88,10 +89,12 @@ categories = ['教學']
 |---|---|---|
 | Repository | `akitaonrails/ai-memory` | 官方已實作 |
 | 核心口號 | "Quit Claude Code mid-task, start OpenAI Codex in the same directory, continue without re-explaining the architecture." | 官方已實作，README |
-| 目前版本 | `1.32.1`（`Cargo.toml`） | 官方已實作 |
+| 目前版本 | `1.33.0`（`Cargo.toml`，2026-08-28 發布） | 官方已實作 |
 | 語言／Runtime | Rust 2024 edition，最低 Rust 1.95 | 官方已實作 |
 | License | MIT | 官方已實作 |
-| Star 數 | 約 4.7k（查證當下） | Source-confirmed |
+| Star 數 | 約 5.1k（5,058，2026-08-28 查證當下；兩天內自 4.7k 成長） | Source-confirmed，GitHub API |
+| Fork 數 | 353（2026-08-28 查證當下） | Source-confirmed，GitHub API |
+| HTTP Client TLS 信任來源 | `reqwest` + `rustls-tls-native-roots`，**讀取作業系統信任庫**（`1.32.2` 起；先前為 `rustls-tls` 僅信任內建 webpki roots） | 官方已實作，`Cargo.toml` / `CHANGELOG.md` |
 | Workspace Crate 數 | 10 個（`ai-memory-core/-store/-wiki/-mcp/-hooks/-llm/-consolidate/-web/-workstream/-cli`） | Source-confirmed，`Cargo.toml` |
 | MCP Tool 數量 | 18 個（read-only 8、destructive 8、write 2） | 官方已實作，`docs/ARCHITECTURE.md` |
 | 預設 Server Port | `49374`，預設 bind `127.0.0.1`（loopback only） | 官方已實作，README |
@@ -108,73 +111,259 @@ categories = ['教學']
 <!-- TOC-AUTO-BEGIN -->
 ## 目錄（Table of Contents）
 
+> 目錄採兩層結構：第一層為章（`#`），第二層為節（`##`），皆可直接點擊跳至本文對應段落。
+
 **Part I：基礎認識**
 
 - [1. Executive Summary：ai-memory 是什麼](#1-executive-summaryai-memory-是什麼)
+  - [1.1 ai-memory 解決什麼問題](#11-ai-memory-解決什麼問題)
+  - [1.2 為什麼 AI Coding Agent 需要 Long-Term Memory](#12-為什麼-ai-coding-agent-需要-long-term-memory)
+  - [1.3 實際案例：Claude Code → Codex 的斷點與接續](#13-實際案例claude-code--codex-的斷點與接續)
+  - [1.4 適合的使用場景](#14-適合的使用場景)
+  - [1.5 最終實作目標（本手冊願景）](#15-最終實作目標本手冊願景)
 - [2. 核心概念](#2-核心概念)
+  - [2.1 核心概念定義表](#21-核心概念定義表)
+  - [2.2 概念關係圖](#22-概念關係圖)
 - [3. 系統架構](#3-系統架構)
+  - [3.1 儲存目錄結構](#31-儲存目錄結構)
+  - [3.2 Crate 佈局](#32-crate-佈局)
+  - [3.3 Steady-State Processing Loop](#33-steady-state-processing-loop)
+  - [3.4 MCP Tool Surface：18 個工具](#34-mcp-tool-surface18-個工具)
+  - [3.5 資料表 Schema 重點](#35-資料表-schema-重點)
+  - [3.6 Memory Tiers（M8 Policy）](#36-memory-tiersm8-policy)
+  - [3.7 十五條 Cross-Cutting Invariants](#37-十五條-cross-cutting-invariants)
 - [4. 為什麼不需要傳統 Vector Database](#4-為什麼不需要傳統-vector-database)
+  - [4.1 比較表](#41-比較表)
+  - [4.2 官方實際拒絕的方案與理由](#42-官方實際拒絕的方案與理由)
+  - [4.3 採用的替代方案：SQLite + Packed Vectors](#43-採用的替代方案sqlite--packed-vectors)
+  - [4.4 FTS5、Embedding、LLM 各自的角色](#44-fts5embeddingllm-各自的角色)
 - [5. Project Isolation（專案隔離機制）](#5-project-isolation專案隔離機制)
+  - [5.1 問題背景](#51-問題背景)
+  - [5.2 三種 Auto Scope 模式](#52-三種-auto-scope-模式)
+  - [5.3 Marker File：專案識別的第二層](#53-marker-file專案識別的第二層)
 - [6. MCP 與 ai-memory：不是一般的 Memory Database](#6-mcp-與-ai-memory不是一般的-memory-database)
+  - [6.1 MCP（Model Context Protocol）基本概念](#61-mcpmodel-context-protocol基本概念)
+  - [6.2 ai-memory 作為 MCP Server 的角色定位](#62-ai-memory-作為-mcp-server-的角色定位)
+  - [6.3 Transport 選型：stdio vs HTTP](#63-transport-選型stdio-vs-http)
 
 **Part II：安裝與部署**
 
 - [7. Installation（安裝指南）](#7-installation安裝指南)
+  - [7.1 Linux（含 Arch Linux / AUR）](#71-linux含-arch-linux--aur)
+  - [7.2 macOS](#72-macos)
+  - [7.3 Windows](#73-windows)
+  - [7.4 Docker（跨平台通用）](#74-docker跨平台通用)
+  - [7.5 安裝後驗證](#75-安裝後驗證)
 - [8. Docker Architecture（Docker 部署架構）](#8-docker-architecturedocker-部署架構)
+  - [8.1 企業推薦部署拓樸](#81-企業推薦部署拓樸)
+  - [8.2 本機開發用 docker-compose.yml](#82-本機開發用-docker-composeyml)
+  - [8.3 Homelab／團隊共用生產部署範本](#83-homelab團隊共用生產部署範本)
+  - [8.4 部署模式比較](#84-部署模式比較)
 - [9. Server Configuration（伺服器設定）](#9-server-configuration伺服器設定)
+  - [9.1 資料目錄與設定檔](#91-資料目錄與設定檔)
+  - [9.2 config.toml 完整範例](#92-configtoml-完整範例)
+  - [9.3 環境變數總表](#93-環境變數總表)
+  - [9.4 Web UI](#94-web-ui)
 - [10. Security（安全性）](#10-security安全性)
+  - [10.1 Authentication 與 Loopback 預設](#101-authentication-與-loopback-預設)
+  - [10.2 Auth Token 與 Allowed Hosts 的重要性](#102-auth-token-與-allowed-hosts-的重要性)
+  - [10.3 MCP Security](#103-mcp-security)
+  - [10.4 Rate Limiting（Hook 端）](#104-rate-limitinghook-端)
+  - [10.5 TLS／Reverse Proxy](#105-tlsreverse-proxy)
+  - [10.6 多使用者認證模型](#106-多使用者認證模型)
+  - [10.7 Secret Management 與 Log Security](#107-secret-management-與-log-security)
+  - [10.8 Prompt Leakage／Tool Output Leakage／Credential Leakage 風險提醒](#108-prompt-leakagetool-output-leakagecredential-leakage-風險提醒)
+  - [10.9 Access Control 總結表](#109-access-control-總結表)
 
 **Part III：AI Coding Agent 整合**
 
 - [11. Claude Code 整合](#11-claude-code-整合)
+  - [11.1 官方支援狀態](#111-官方支援狀態)
+  - [11.2 安裝指令](#112-安裝指令)
+  - [11.3 Static HTTP MCP vs Session-aware Stdio Bridge：決策指南](#113-static-http-mcp-vs-session-aware-stdio-bridge決策指南)
+  - [11.4 Claude Code Lifecycle Hooks](#114-claude-code-lifecycle-hooks)
+  - [11.5 capture-assistant 旗標（Double Opt-in）](#115-capture-assistant-旗標double-opt-in)
 - [12. OpenAI Codex 整合](#12-openai-codex-整合)
+  - [12.1 官方支援狀態](#121-官方支援狀態)
+  - [12.2 為什麼 Codex 需要手動 finalize-session](#122-為什麼-codex-需要手動-finalize-session)
+  - [12.3 安裝指令](#123-安裝指令)
+  - [12.4 MCP Transport](#124-mcp-transport)
 - [13. GitHub Copilot / VS Code 整合](#13-github-copilot--vs-code-整合)
+  - [13.1 官方支援狀態：務必準確傳達](#131-官方支援狀態務必準確傳達)
+  - [13.2 VS Code MCP 設定方式](#132-vs-code-mcp-設定方式)
+  - [13.3 能力邊界總結](#133-能力邊界總結)
 - [14. 多 Agent 支援矩陣總表](#14-多-agent-支援矩陣總表)
+  - [14.1 快速判讀原則](#141-快速判讀原則)
 - [15. 其他重點 Agent 簡述](#15-其他重點-agent-簡述)
+  - [15.1 Cursor](#151-cursor)
+  - [15.2 Gemini CLI](#152-gemini-cli)
+  - [15.3 OpenCode](#153-opencode)
+  - [15.4 OpenClaw](#154-openclaw)
+  - [15.5 Kiro CLI](#155-kiro-cli)
+  - [15.6 其他 Agent 簡表](#156-其他-agent-簡表)
 
 **Part IV：實戰案例**
 
 - [16. 第一個完整實作：Claude Code → ai-memory → Codex](#16-第一個完整實作claude-code--ai-memory--codex)
+  - [16.1 情境設定](#161-情境設定)
+  - [16.2 Day 1（Claude Code）：探索與分析](#162-day-1claude-code探索與分析)
+  - [16.3 Day 2（Codex）：接續工作](#163-day-2codex接續工作)
+  - [16.4 驗收標準](#164-驗收標準)
 - [17. Web Application 開發案例](#17-web-application-開發案例)
+  - [17.1 情境技術棧](#171-情境技術棧)
+  - [17.2 開發階段與應保存的 Memory 對照表](#172-開發階段與應保存的-memory-對照表)
+  - [17.3 AI Prompt 範例](#173-ai-prompt-範例)
 - [18. Reverse Engineering 案例](#18-reverse-engineering-案例)
+  - [18.1 情境技術棧](#181-情境技術棧)
+  - [18.2 執行流程](#182-執行流程)
+  - [18.3 核心原則：AI 不可以把推測當成事實](#183-核心原則ai-不可以把推測當成事實)
+  - [18.4 AI Prompt 範例](#184-ai-prompt-範例)
+  - [18.5 應保存的內容](#185-應保存的內容)
 - [19. Framework Upgrade 案例](#19-framework-upgrade-案例)
+  - [19.1 情境範例](#191-情境範例)
+  - [19.2 應記錄的內容類型](#192-應記錄的內容類型)
+  - [19.3 銜接 ai-memory 自身版本升級的活教材](#193-銜接-ai-memory-自身版本升級的活教材)
 - [20. Enterprise Multi-Agent Workflow](#20-enterprise-multi-agent-workflow)
+  - [20.1 8-Agent Pipeline 示意](#201-8-agent-pipeline-示意)
+  - [20.2 哪些資訊可以共享／哪些不能共享](#202-哪些資訊可以共享哪些不能共享)
+  - [20.3 如何避免 Agent 污染 Memory](#203-如何避免-agent-污染-memory)
 - [21. AI Agent Handoff Protocol](#21-ai-agent-handoff-protocol)
+  - [21.1 ai-memory 原生 Handoff 機制](#211-ai-memory-原生-handoff-機制)
+  - [21.2 公司建議 Handoff 格式](#212-公司建議-handoff-格式)
+  - [21.3 讓不同 Vendor 的 Agent 都能理解相同格式](#213-讓不同-vendor-的-agent-都能理解相同格式)
 
 **Part V：治理與維運**
 
 - [22. Memory Governance Policy](#22-memory-governance-policy)
+  - [22.1 Memory Lifecycle](#221-memory-lifecycle)
+  - [22.2 Governance 十三項要點](#222-governance-十三項要點)
 - [23. Git Strategy](#23-git-strategy)
+  - [23.1 Wiki 的 Git 版控本質](#231-wiki-的-git-版控本質)
+  - [23.2 Memory Repository 應與 Source Repository 分離嗎？](#232-memory-repository-應與-source-repository-分離嗎)
+  - [23.3 Branch／Commit／Remote 策略建議](#233-branchcommitremote-策略建議)
 - [24. Backup / Disaster Recovery](#24-backup--disaster-recovery)
+  - [24.1 備份策略](#241-備份策略)
+  - [24.2 多層備份建議](#242-多層備份建議)
+  - [24.3 Restore 相關指令](#243-restore-相關指令)
+  - [24.4 Disaster Recovery Runbook](#244-disaster-recovery-runbook)
 - [25. Monitoring / Operations](#25-monitoring--operations)
+  - [25.1 ai-memory status 健康檢查](#251-ai-memory-status-健康檢查)
+  - [25.2 Ingest Counters 與 Hook Drain 診斷](#252-ingest-counters-與-hook-drain-診斷)
+  - [25.3 監控面向總表](#253-監控面向總表)
 - [26. CLI Command Reference](#26-cli-command-reference)
+  - [26.1 生命週期與 Session 管理](#261-生命週期與-session-管理)
+  - [26.2 MCP／Hooks／Skills 安裝](#262-mcphooksskills-安裝)
+  - [26.3 專案／Session 維運](#263-專案session-維運)
+  - [26.4 內容品質與學習迴圈](#264-內容品質與學習迴圈)
+  - [26.5 備份／升級／認證／使用者](#265-備份升級認證使用者)
 - [27. Troubleshooting](#27-troubleshooting)
+  - [27.1 MCP 無法連線](#271-mcp-無法連線)
+  - [27.2 Agent 看不到 Memory](#272-agent-看不到-memory)
+  - [27.3 Handoff 沒有出現](#273-handoff-沒有出現)
+  - [27.4 Hook 沒有執行](#274-hook-沒有執行)
+  - [27.5 Project 被錯誤辨識／Memory 混到其他 Project](#275-project-被錯誤辨識memory-混到其他-project)
+  - [27.6 Windows Hook 問題](#276-windows-hook-問題)
+  - [27.7 WSL2 問題](#277-wsl2-問題)
+  - [27.8 Docker 網路問題](#278-docker-網路問題)
+  - [27.9 Bearer Token 問題](#279-bearer-token-問題)
+  - [27.10 Remote Server 問題](#2710-remote-server-問題)
+  - [27.11 Git 問題](#2711-git-問題)
+  - [27.12 SQLite / FTS5 問題](#2712-sqlite--fts5-問題)
+  - [27.13 LLM Provider 問題](#2713-llm-provider-問題)
+  - [27.14 Embedding Provider 問題](#2714-embedding-provider-問題)
+  - [27.15 Session 沒有正確 Finalize](#2715-session-沒有正確-finalize)
 
 **Part VI：比較與定位**
 
 - [28. 與其他 Memory Solution 比較](#28-與其他-memory-solution-比較)
+  - [28.1 比較矩陣](#281-比較矩陣)
+  - [28.2 ai-memory 與 CLAUDE.md／AGENTS.md 不是互相取代的關係](#282-ai-memory-與-claudemdagentsmd-不是互相取代的關係)
 - [29. Static vs Dynamic Context](#29-static-vs-dynamic-context)
+  - [29.1 比較表](#291-比較表)
+  - [29.2 企業建議架構](#292-企業建議架構)
 - [30. 與 Spec-Driven Development 整合](#30-與-spec-driven-development-整合)
+  - [30.1 整合流程](#301-整合流程)
+  - [30.2 與 spec-kit 等工具搭配的建議](#302-與-spec-kit-等工具搭配的建議)
 - [31. 與 SSDLC 整合](#31-與-ssdlc-整合)
+  - [31.1 AI-assisted SSDLC 流程](#311-ai-assisted-ssdlc-流程)
+  - [31.2 ai-memory 在各階段保存的內容](#312-ai-memory-在各階段保存的內容)
 
 **Part VII：企業導入**
 
 - [32. 企業導入架構（Level 1-3）](#32-企業導入架構level-1-3)
+  - [32.1 Level 1 — Individual Developer](#321-level-1--individual-developer)
+  - [32.2 Level 2 — Team](#322-level-2--team)
+  - [32.3 Level 3 — Enterprise](#323-level-3--enterprise)
+  - [32.4 三層級比較](#324-三層級比較)
 - [33. 企業導入建議（Phase 1-4）](#33-企業導入建議phase-1-4)
+  - [33.1 四階段導入時程](#331-四階段導入時程)
+  - [33.2 各階段細節](#332-各階段細節)
 - [34. 同仁使用規範](#34-同仁使用規範)
+  - [34.1 開始工作前](#341-開始工作前)
+  - [34.2 開始 Agent Session](#342-開始-agent-session)
+  - [34.3 工作過程中](#343-工作過程中)
+  - [34.4 遇到錯誤時](#344-遇到錯誤時)
+  - [34.5 Session 結束前](#345-session-結束前)
 - [35. AI Agent 使用 Prompt 範例](#35-ai-agent-使用-prompt-範例)
+  - [35.1 新專案](#351-新專案)
+  - [35.2 接續工作](#352-接續工作)
+  - [35.3 Reverse Engineering](#353-reverse-engineering)
+  - [35.4 Framework Upgrade](#354-framework-upgrade)
+  - [35.5 Debugging](#355-debugging)
+  - [35.6 Code Review](#356-code-review)
+  - [35.7 Architecture Analysis](#357-architecture-analysis)
+  - [35.8 Security Analysis](#358-security-analysis)
+  - [35.9 Handoff](#359-handoff)
 - [36. 最佳實務（DO / DON'T）](#36-最佳實務do--dont)
+  - [36.1 DO](#361-do)
+  - [36.2 DON'T](#362-dont)
 - [37. Anti-pattern](#37-anti-pattern)
+  - [37.1 Memory Dump](#371-memory-dump)
+  - [37.2 Memory Pollution](#372-memory-pollution)
+  - [37.3 Memory Without Validation](#373-memory-without-validation)
+  - [37.4 Static Instructions Overload](#374-static-instructions-overload)
+  - [37.5 Vendor-specific Memory](#375-vendor-specific-memory)
+  - [37.6 No Handoff Protocol](#376-no-handoff-protocol)
 - [38. Performance / Scalability](#38-performance--scalability)
+  - [38.1 影響效能的面向](#381-影響效能的面向)
+  - [38.2 LLM Consolidation 效能實測](#382-llm-consolidation-效能實測)
+  - [38.3 規模化容量：誠實面對資訊缺口](#383-規模化容量誠實面對資訊缺口)
 - [39. Upgrade Strategy Runbook](#39-upgrade-strategy-runbook)
+  - [39.1 版本歷程重點](#391-版本歷程重點)
+  - [39.2 Upgrade Runbook](#392-upgrade-runbook)
 - [40. Enterprise Reference Architecture 與最終推薦架構](#40-enterprise-reference-architecture-與最終推薦架構)
+  - [40.1 完整 Enterprise Reference Architecture](#401-完整-enterprise-reference-architecture)
+  - [40.2 依三種情境的最終推薦架構](#402-依三種情境的最終推薦架構)
+  - [40.3 七層架構總覽](#403-七層架構總覽)
 
 **Part VIII：收尾**
 
 - [41. Company Standard for ai-memory](#41-company-standard-for-ai-memory)
+  - [41.1 十五項標準](#411-十五項標準)
+  - [41.2 SOP 速查卡（可直接列印張貼）](#412-sop-速查卡可直接列印張貼)
 - [42. 重要原則：不要神化 ai-memory](#42-重要原則不要神化-ai-memory)
+  - [42.1 ai-memory 能解決的問題](#421-ai-memory-能解決的問題)
+  - [42.2 ai-memory 不能自動解決的問題](#422-ai-memory-不能自動解決的問題)
+  - [42.3 核心風險觀念](#423-核心風險觀念)
+  - [42.4 給企業導入者的一句話](#424-給企業導入者的一句話)
 - [43. 最終 Checklist](#43-最終-checklist)
+  - [Installation Checklist](#installation-checklist)
+  - [Configuration Checklist](#configuration-checklist)
+  - [MCP Checklist](#mcp-checklist)
+  - [Claude Code Checklist](#claude-code-checklist)
+  - [Codex Checklist](#codex-checklist)
+  - [Copilot Checklist](#copilot-checklist)
+  - [Security Checklist](#security-checklist)
+  - [Backup Checklist](#backup-checklist)
+  - [Handoff Checklist](#handoff-checklist)
+  - [Project Isolation Checklist](#project-isolation-checklist)
+  - [Upgrade Checklist](#upgrade-checklist)
+  - [Troubleshooting Checklist](#troubleshooting-checklist)
+  - [Enterprise Deployment Checklist](#enterprise-deployment-checklist)
 - [44. FAQ、References 與文件自我審查](#44-faqreferences-與文件自我審查)
+  - [44.1 FAQ](#441-faq)
+  - [44.2 References](#442-references)
+  - [44.3 文件自我審查 Checklist](#443-文件自我審查-checklist)
 
 <!-- TOC-AUTO-END -->
 
@@ -382,7 +571,9 @@ flowchart TD
 └── client-projects.json # 私有 Checkout 連結，不透過 API 曝露
 ```
 
-## 3.2 Crate 佈局（Source-confirmed，`Cargo.toml` workspace members）
+## 3.2 Crate 佈局
+
+> 來源：Source-confirmed，`Cargo.toml` workspace members。
 
 ```text
 crates/
@@ -400,7 +591,7 @@ crates/
 
 官方文件強調：「Each crate has single responsibility; no circular dependencies.」（官方已實作，`AGENTS.md`）
 
-## 3.3 Steady-State Processing Loop（穩態資料流程）
+## 3.3 Steady-State Processing Loop
 
 ```mermaid
 flowchart TD
@@ -440,7 +631,7 @@ flowchart TD
 
 > 此圖依官方 `docs/ARCHITECTURE.md`「Steady-State Processing Loop」8 步驟（Hook Ingestion → Sanitization → Session Summaries → Consolidation → Auto-Improvement → Query Resolution → Retention & Decay → Backups）重繪，實線關係皆為官方已實作。
 
-## 3.4 MCP Tool Surface（18 個工具，官方已實作）
+## 3.4 MCP Tool Surface：18 個工具
 
 | 分類 | 工具 |
 |---|---|
@@ -450,7 +641,9 @@ flowchart TD
 
 > 官方文件特別強調此數字是刻意精簡的設計決策：`docs/ARCHITECTURE.md` 以標題「MCP tool surface (18 tools)」明確定調，`docs/design-decisions.md` 則進一步說明精簡的動機——「basic-memory has ~25 tools, agentmemory has 53」，兩相對照即可看出 ai-memory 刻意將工具數量壓低以降低使用者混淆（官方已實作，彙整自 `docs/ARCHITECTURE.md` 與 `docs/design-decisions.md` 兩份文件，非單一逐字引用）。
 
-## 3.5 資料表 Schema 重點（官方已實作，`docs/ARCHITECTURE.md`「Schema Highlights」）
+## 3.5 資料表 Schema 重點
+
+> 來源：官方已實作，`docs/ARCHITECTURE.md`「Schema Highlights」。
 
 | Table | 用途 |
 |---|---|
@@ -465,7 +658,13 @@ flowchart TD
 | `entities` / `entity_page_links` | 從 Frontmatter 衍生的名詞索引 |
 | `audit_log` | 每筆變動，可依時間戳倒序定址 |
 
-## 3.6 Memory Tiers（M8 Policy，官方已實作）
+### Session 頁面 Frontmatter 的 `agent` 欄位（1.33.0）
+
+1.33.0 起，`sessions/<id>.md` 頁面的 Frontmatter 新增 `agent` 欄位，標示該 Session **最初來源的 harness**（例如 `claude-code`、`codex`）（官方已實作，CHANGELOG 1.33.0，對應 Issue #494）。
+
+實作上的關鍵細節（企業稽核時很重要）：該值取自**已持久化的 session 資料列**，而非寫入當下的行程，因此 LLM Rewrite、Compaction Checkpoint、Spool Drain、以及產生新版本的 Supersede 動作，**都不會誤把後續寫入者當成來源 Agent**；人工手動寫入的頁面則不會被標註 `agent`。這使得「這筆記憶到底是哪個 Agent 產生的」成為可靠的稽核欄位，可供第 20.3 節的 Memory 污染追查與第 22 章的 Governance 審查使用（建議架構）。
+
+## 3.6 Memory Tiers（M8 Policy）
 
 | Tier | 保留策略 |
 |---|---|
@@ -474,7 +673,9 @@ flowchart TD
 | **Semantic** | 無限期，只能透過 LLM Rewrite 被 Supersede，**不會自動刪除** |
 | **Procedural** | 無限期，未被重新觀測則頻率衰減 |
 
-## 3.7 十五條 Cross-Cutting Invariants（官方已實作，`docs/ARCHITECTURE.md` 與 `AGENTS.md` 皆列出）
+## 3.7 十五條 Cross-Cutting Invariants
+
+> 來源：官方已實作，`docs/ARCHITECTURE.md` 與 `AGENTS.md` 皆列出。
 
 1. 啟動時單一設定讀取路徑（不在其他地方散落 `std::env::var`）
 2. 單一 Writer 的 SQLite Actor（透過 mpsc channel）
@@ -516,7 +717,9 @@ flowchart TD
 | Human Readable | ✓，純 Markdown 檔案（官方已實作） | 通常較弱，向量不可讀 |
 | Backup/搬遷 | `git clone` 或 `rsync` 即可（官方已實作） | 通常需要專用 DB 備份機制 |
 
-## 4.2 官方實際拒絕的方案與理由（官方已實作，`docs/design-decisions.md`）
+## 4.2 官方實際拒絕的方案與理由
+
+> 來源：官方已實作，`docs/design-decisions.md`。
 
 | 方案 | 被拒絕的理由（依官方文件） |
 |---|---|
@@ -526,7 +729,7 @@ flowchart TD
 
 > ⚠️ 需誠實澄清（2026-08-26 複查修正）：`docs/design-decisions.md` 的該段落標題原文即為 **"Why not LanceDB/Qdrant/Kuzu/CozoDB/SurrealDB?"**，Qdrant 確實與其他四者一併被官方文件明文提及；但緊接的項目符號只逐一列出 LanceDB、Kuzu/Ladybug、CozoDB、SurrealDB 各自的拒絕理由，**唯獨沒有**針對 Qdrant 給出專屬論述。因此正確的說法是：「官方文件的段落標題明確提及 Qdrant，但未提供其個別拒絕理由」，而非「官方文件完全未討論 Qdrant」——可合理推測其考量與 SurrealDB 相近（避免引入非必要的專用向量資料庫依賴），但這部分屬合理推論，非官方逐字說明（標示為推測/Hypothesis）。
 
-## 4.3 採用的替代方案：SQLite + Packed Vectors（官方已實作）
+## 4.3 採用的替代方案：SQLite + Packed Vectors
 
 > "Packed vectors in SQLite keep v1 dependency-light; `sqlite-vec` remains the scale-up path once brute-force cosine stops being enough."
 
@@ -535,7 +738,7 @@ flowchart TD
 - 每個 LLM/Embedding Provider 都手寫 typed HTTP client，刻意不使用類似 LiteLLM 的統一抽象層，理由是避免「靜默丟棄參數」的風險。
 - 3-tuple identity（workspace, project, page_path）從第一天就編碼進 Schema，避免日後才補做遷移。
 
-## 4.4 FTS5、Embedding、LLM 各自的角色（官方已實作，對應第 2 章定義）
+## 4.4 FTS5、Embedding、LLM 各自的角色
 
 ```mermaid
 flowchart LR
@@ -565,7 +768,9 @@ flowchart LR
 
 # 5. Project Isolation（專案隔離機制）
 
-## 5.1 問題背景（官方已實作，`docs/auto-scope.md`）
+## 5.1 問題背景
+
+> 來源：官方已實作，`docs/auto-scope.md`。
 
 `ai-memory serve` 維護一個「目前作用中專案」的指標，供 MCP 讀取工具在省略 workspace/project 參數時使用。預設是**單一 process-wide slot**：當多個 Session 同時在共用安裝上執行時，一個專案的 Hook 可能覆寫另一個並行 Session 需要的指標，造成記憶污染風險：
 
@@ -576,7 +781,7 @@ flowchart LR
     SLOT -->|"錯誤地"| MIX["Project A 記憶混入 Project B"]
 ```
 
-## 5.2 三種 Auto Scope 模式（官方已實作）
+## 5.2 三種 Auto Scope 模式
 
 | Mode | Key 依據 | 適用情境 |
 |---|---|---|
@@ -602,7 +807,9 @@ max_entries = 4096        # Hard cap; oldest insertions evicted first
 - Actor 身份來源：Hook Payload、Auth Middleware、MCP Request Headers（`X-Memory-Actor-Session-Id` 或 `Mcp-Session-Id`）
 - 記憶體佔用極小（即使 4,096 筆條目也只需要幾十 KB）
 
-## 5.3 Marker File（`.ai-memory.toml`）—— 專案識別的第二層（官方已實作，`docs/marker-file.md`）
+## 5.3 Marker File：專案識別的第二層
+
+> 來源：官方已實作，`docs/marker-file.md`；Marker File 檔名為 `.ai-memory.toml`。
 
 Marker File 解決的問題：多客戶顧問情境、Monorepo、需要 Context 分離的開發者，不能單純用「目錄名稱」猜測專案。
 
@@ -681,7 +888,9 @@ flowchart TB
 
 > ⚠️ 需特別說明：上圖將 GitHub Copilot 與 Claude Code、Codex、Cursor 並列為 MCP Client，這在「都能讀寫 MCP Tools」的意義上成立，但**並非對等的自動化交接體驗**。官方 Support Matrix 明確標示 GitHub Copilot／VS Code 目前為 **「MCP-only，無 Lifecycle Hooks」**（詳見第 13 章）。SessionEnd 自動產生 Handoff、SessionStart 自動注入 Handoff 這兩個自動化環節都依賴 Hooks，因此對 Copilot 並不成立；若要讓 Copilot 參與跨 Agent 交接，仍需使用者或 Prompt 明確引導它呼叫 `memory_query`／`memory_handoff_accept` 等 MCP Tools，而非像 Claude Code／Codex 之間那樣「免手動」自動完成。
 
-## 6.3 Transport 選型：stdio vs HTTP（官方已實作，`docs/mcp-install.md`）
+## 6.3 Transport 選型：stdio vs HTTP
+
+> 來源：官方已實作，`docs/mcp-install.md`。
 
 | Transport | 適用情境 |
 |---|---|
@@ -802,6 +1011,17 @@ ai-memory install-hooks --agent claude-code --apply
 
 > ⚠️ **重要提醒**（官方已實作）：務必在**啟動 Claude Code 的同一個環境**執行 `install-mcp` 與 `install-hooks`，避免 WSL2 與 Native Windows 的執行檔路徑不一致而導致 Hook 失效。Native Windows Build 對 Claude Code 支援 Exec Form（直接呼叫執行檔，比 Shell-based 快 3-5 倍），但其他 Agent（Codex、Cursor、Devin 等）在 Native Windows 上的行為仍待社群驗證。
 
+### Native Windows 的最低版本要求：請直接使用 1.33.0（含）以上
+
+若貴團隊在 **Native Windows** 上使用 Hook 擷取，本手冊將「升級至 1.33.0（含）以上」列為**企業導入的硬性前置條件**，原因是 1.33.0 修正了兩個會造成**資料靜默遺失**的 PowerShell Hook 缺陷（官方已實作，CHANGELOG 1.33.0）：
+
+| 缺陷 | 影響 | 1.33.0 的修正 | 對應 Issue |
+|---|---|---|---|
+| Request Body 以 legacy code page 編碼 | Prompt／路徑／Tool 輸出含**中文**等非 ASCII 字元時，事件回 **HTTP 400** 並從記憶中消失；純 ASCII 事件則一切正常，極難從表面征兆發現 | 以明確 UTF-8 bytes 編碼 JSON body，並宣告 `charset=utf-8`；新增 native Windows loopback 逐位元組往返測試（含中文與葡文） | #500 |
+| Hook 指派區域變數 `$home` | PowerShell 變數名不區分大小寫，與唯讀自動變數 `$HOME` 衝突，**每一個帶 cwd 的 Hook payload 都噴 `VariableNotWritable`** | 改用 `$userHome` | #498 |
+
+對繁體中文使用者而言，第一項缺陷幾乎等同於「Hook 擷取形同虛設」：因為一般開發情境下，Prompt 與檔案路徑幾乎一定含中文，實際被保存的事件會遠低於預期，且 Server 端不會發出任何告警（建議架構）。詳見第 27.6 節。
+
 ## 7.4 Docker（跨平台通用）
 
 ```bash
@@ -867,7 +1087,9 @@ flowchart TB
     WIKI -->|"git push / rsync"| BACKUP["Backup"]
 ```
 
-## 8.2 本機開發用 `docker/docker-compose.yml`（官方已實作，逐字取得）
+## 8.2 本機開發用 docker-compose.yml
+
+> 來源：官方已實作，逐字取自 `docker/docker-compose.yml`。
 
 ```yaml
 services:
@@ -902,7 +1124,9 @@ volumes:
 
 > 重點：預設 Bind 到 Loopback（`127.0.0.1:49374`），若要供 LAN 使用需改成 `0.0.0.0:49374` 並搭配 Reverse Proxy（見第 10 章）。
 
-## 8.3 Homelab／團隊共用生產部署 `docker-compose.prod.yml.example`（官方已實作，逐字取得）
+## 8.3 Homelab／團隊共用生產部署範本
+
+> 來源：官方已實作，逐字取自 `docker-compose.prod.yml.example`。
 
 ```yaml
 name: ai-memory
@@ -964,7 +1188,9 @@ services:
 - 設定檔：`<data_dir>/config.toml`（官方已實作）
 - Server URL／Port／Bind Address：透過 `ai-memory serve --transport http --bind <host:port>` 啟動時指定，預設 `127.0.0.1:49374`（官方已實作）
 
-## 9.2 `config.toml` 完整範例（官方已實作，逐字彙整自 README／`docs/auto-scope.md`／`docs/auto-improvement-loop.md`）
+## 9.2 config.toml 完整範例
+
+> 來源：官方已實作，逐字彙整自 README／`docs/auto-scope.md`／`docs/auto-improvement-loop.md`。
 
 ```toml
 [auto_scope]
@@ -995,7 +1221,9 @@ root_subject = "<root-subject>"
 
 > 注意：README 範例用 `mode = "per_session"`，`docs/auto-scope.md` 範例用 `mode = "single"`（預設值）並列出全部三個選項——兩者不矛盾，`single` 是預設，`per_session` 是依情境調整後的範例（官方已實作，詳見第 5 章）。
 
-## 9.3 環境變數總表（官方已實作，逐字取自 README／`docs/install.md`）
+## 9.3 環境變數總表
+
+> 來源：官方已實作，逐字取自 README／`docs/install.md`。
 
 **Server 端：**
 
@@ -1045,6 +1273,10 @@ ai-memory serve --transport http --bind 127.0.0.1:49374 --enable-web
 
 （官方已實作，`docs/usage.md`）
 
+**安全強化（1.33.0）**：Web UI 在渲染已儲存的 Markdown 時，現已**阻擋自動抓取外部圖片 URL**（外部連結仍可點擊，同源相對路徑圖片仍正常顯示）（官方已實作，CHANGELOG 1.33.0，對應 Issue #491）。這項變更對企業意義重大：Agent 寫入的頁面可能含有來自外部來源的 Markdown，若瀏覽器自動拉取外部圖片，等於向第三方伺服器洩漏**檢視者 IP、時間點與 User-Agent**，形成追蹤像素（tracking pixel）風險。使用 Web UI 瀉覽記憶內容的團隊，應將 1.33.0 列為建議最低版本（建議架構）。
+
+> Web UI 預設不啟用（需顯式加上 `--enable-web`）；若透過 HTTPS Reverse Proxy 對外提供，請搭配 `AI_MEMORY_AUTH__SECURE_COOKIE=true`（第 10.5 節）。
+
 ### 本章 Checklist
 
 - [ ] `config.toml` 已依團隊規模設定 `auto_scope` 模式
@@ -1065,7 +1297,7 @@ ai-memory serve --transport http --bind 127.0.0.1:49374 --enable-web
 
 也就是說：**只要 Server 綁定的不是 loopback，就必須設定 `AI_MEMORY_AUTH_TOKEN`，否則連線會被拒絕**（Fail Closed 設計，1.27.0 版引入的 Breaking Change，見第 39 章）。
 
-## 10.2 `AI_MEMORY_AUTH_TOKEN` + `AI_MEMORY_ALLOWED_HOSTS` 的重要性
+## 10.2 Auth Token 與 Allowed Hosts 的重要性
 
 ```mermaid
 flowchart LR
@@ -1088,7 +1320,9 @@ flowchart LR
 
 官方原文（官方已實作）："Busy shared hook servers can also set `AI_MEMORY_HOOK_RATE_PER_SEC` (tokens per second per actor/session source) and optionally `AI_MEMORY_HOOK_RATE_BURST` to bound one runaway session without blocking unrelated hook sources."
 
-## 10.5 TLS／Reverse Proxy（官方已實作，`docs/https-via-proxy.md`）
+## 10.5 TLS／Reverse Proxy
+
+> 來源：官方已實作，`docs/https-via-proxy.md`。
 
 - ai-memory **本身不做 TLS Termination**，需搭配 Caddy／nginx／Cloudflare Tunnel。
 - Loopback-only 或 stdio Transport **不需要** TLS。
@@ -1097,7 +1331,18 @@ flowchart LR
 - 官方原文："If you can't take one of these paths cleanly, keep ai-memory loopback-only."
 - 官方範本：`docker/compose.tls.caddy.yml`（Caddy + Let's Encrypt/內部 CA）、`docker/compose.tls.cloudflared.yml`（Cloudflare Tunnel，無需開放埠）。
 
-## 10.6 多使用者認證模型（官方已實作，`docs/users.md`）
+### 內部 CA／企業 PKI 情境的關鍵前置條件（1.32.2）
+
+這是企業導入時**最容易被忽略、且會造成資料靜默遺失**的一項（官方已實作，CHANGELOG 1.32.2）：
+
+- **1.32.1（含）以前**：原生 `ai-memory` Client 使用 `rustls-tls`，只信任內建的 Mozilla `webpki-roots`，**不讀取作業系統信任庫**。因此 Caddy `tls internal`、公司自建 PKI、TLS 攝取型資安設備簽發的憑證，**即使已依官方 Path 2 安裝到 OS 信任庫，原生 Client 仍會拒絕**（`invalid peer certificate: UnknownIssuer`）。由於 `ai-memory hook` 走同一個 Client，後果是生命週期擷取完全失效但不報錯。
+- **1.32.2（含）以後**：Client 改用 `rustls-tls-native-roots`，**改為讀取平台信任庫**，runtime image 也一併安裝 `ca-certificates`，Path 2 指南自此才真正端到端可用（對應 Issue #492，已於 2026-08-26 關閉）。
+
+> 企業驗收要點：採用內部 CA 時，**不可以「瀏覽器可以連」或「`curl` 成功」作為驗收標準**（它們走的是 OS 信任庫，們會誤判為正常），必須以原生 Client 實際跑一次（例如 `ai-memory finalize-session`）並確認 Server 端 Ingest Counters 有實際增加（建議架構）。
+
+## 10.6 多使用者認證模型
+
+> 來源：官方已實作，`docs/users.md`。
 
 四層認證模型：**Anonymous → Root → Proxy-asserted → DB User**（外加 401 Rejected）。單一租戶但支援具名歸屬（無 Per-page RBAC）。
 
@@ -1213,7 +1458,7 @@ flowchart TD
 - ai-memory 對應的 `hooks/claude-code/` 目錄下有 **18 個檔案**（9 組 `.sh`＋`.ps1`），對應 Claude Code 的 9 種生命週期事件：`session-start`、`user-prompt-submit`、`pre-tool-use`、`post-tool-use`、`pre-compact`、`stop`、`session-end`、`subagent-start`、`subagent-stop`（Source-confirmed，GitHub Contents API 驗證）。
 - Claude Code 是目前唯一在 `hooks/` 目錄下有 `subagent-start`／`subagent-stop` 兩個事件的 Agent，對應其 Subagent 架構（Source-confirmed）。
 
-## 11.5 `--capture-assistant`（Double Opt-in）
+## 11.5 capture-assistant 旗標（Double Opt-in）
 
 官方支援矩陣提及：「Optionally captures the assistant's final turn on `Stop` when installed with `--capture-assistant` and the server enables `capture_assistant` (double opt-in, off by default).」（官方已實作）——即必須**同時**在 Client 端安裝時加上 `--capture-assistant` **且**在 Server 端啟用對應設定，兩個開關都要打開才會生效，預設關閉。
 
@@ -1244,7 +1489,7 @@ flowchart TD
 
 > **Codex — Supported**："MCP config + lifecycle hooks; native commands enforce capture exclusions. **No automatic true session-end hook**, so run `ai-memory finalize-session` when you need a final summary/handoff."
 
-## 12.2 為什麼 Codex 需要手動 `finalize-session`
+## 12.2 為什麼 Codex 需要手動 finalize-session
 
 這是本手冊必須特別強調的一點：**Codex CLI 沒有真正的 SessionEnd 生命週期事件**。這個事實可以從兩個獨立來源交叉驗證：
 
@@ -1310,7 +1555,7 @@ ai-memory 的靜態 HTTP MCP 註冊方式即對應 Codex 的 Streamable HTTP Tra
 
 # 13. GitHub Copilot / VS Code 整合
 
-## 13.1 官方支援狀態（務必準確傳達，不可誇大）
+## 13.1 官方支援狀態：務必準確傳達
 
 依 README Support Matrix（官方已實作）：
 
@@ -1320,7 +1565,7 @@ ai-memory 的靜態 HTTP MCP 註冊方式即對應 Codex 的 Streamable HTTP Tra
 >
 > 🔄 **更新提醒（2026-08-26 複查）**：README 這句「no lifecycle hooks (Copilot does not expose them yet)」描述的是 **ai-memory 與 Copilot 整合現況**，但 Copilot 平台本身已不再完全靜止——VS Code 官方文件 `code.visualstudio.com/docs/agent-customization/hooks`（頁面日期 2026-08-19）已記載 VS Code 端的 **Agent Hooks（目前標示為 Preview）**，涵蓋 `SessionStart`、`UserPromptSubmit`、`PreToolUse`、`PostToolUse`、`PreCompact`、`SubagentStart`、`SubagentStop`、`Stop` 共 8 個事件（外部查證），設定路徑為工作區層級的 `.github/hooks/*.json`；但注意其 `Stop` 事件與 Codex 相同，並非真正可攜帶終止原因的 `SessionEnd`。另外，GitHub 官方文件 `docs.github.com/en/copilot/reference/hooks-reference` 說明**獨立的 GitHub Copilot CLI／Copilot Cloud Agent**（與本章討論的 VS Code Copilot 擴充套件是不同產品線）已具備更完整的 12 事件 Schema，其中 `sessionEnd` 甚至帶有 `reason`（`complete`/`error`/`abort`/`timeout`/`user_exit`）欄位。**但截至查證時，ai-memory 官方 README 的 Support Matrix 仍只列出「VS Code Copilot」一項且維持 MCP-only 標示，尚未針對上述任一新 Hook 能力提供對應的 `install-hooks --agent copilot` 安裝器**——換言之，落差目前在 ai-memory 這一側，而不是 Copilot 平台已經沒有 Hook 能力；讀者仍應以官方 README Support Matrix 當下內容為準，並留意此差距可能隨 ai-memory 後續版本縮小。
 
-## 13.2 VS Code MCP 設定方式（外部查證，VS Code 官方文件）
+## 13.2 VS Code MCP 設定方式
 
 VS Code 的 MCP 設定檔為 `.vscode/mcp.json`，**根鍵是 `servers`**（不是常見誤解的 `mcpServers`），且**只在 Copilot Agent Mode 下生效**（外部查證，`code.visualstudio.com/docs/copilot/customization/mcp-servers`）：
 
@@ -1453,19 +1698,21 @@ OpenCode 走生成式 TypeScript Plugin 路線，而非靜態 Shell Script Hook�
 
 需注意官方特別標註 Kiro CLI **v2 與 v3 兩個引擎版本互不相容**，安裝前須確認團隊使用的版本（官方已實作）。
 
-## 15.6 其他 Agent（企業導入價值較低，簡表帶過）
+## 15.6 其他 Agent 簡表
 
 | Agent | 支援狀態摘要 |
 |---|---|
 | Command Code | Supported，需注意 `Stop` 僅為輪次邊界 |
 | Devin CLI | Supported，無 Subagent 事件 |
 | Grok Build CLI | Supported，需手動接受 Handoff |
-| Kimi Code | Supported，10 個 Hook 事件 |
+| Kimi Code | Supported，10 個 Hook 事件（註冊方式有陰，見下方說明） |
 | Zero | Supported，但不支援 Handoff 自動注入 |
 | Antigravity CLI | Supported，需 `finalize-session` |
 | Zed / Claude Desktop / Swival CLI | MCP-only |
 | Crush / Pool | 部分能力（Managed-only／Hooks-only） |
 | Hermes Agent | 社群維護，非官方一手支援 |
+
+> ⚠️ **Kimi Code 註冊陷阱**（官方已實作，CHANGELOG 1.32.2 明確記載）：若透過 Kimi 自家的 `kimi mcp add` 註冊，會寫入**缺少 `?flavor=moonshot` 查詢參數的裸 `/mcp` URL**，導致 Moonshot 拒絕 `memory_read_page` 的 root-level `anyOf` schema，**每一個 model turn 都會壞掉**。更麻煩的是 `kimi mcp test` 不會送出 schema，因此**永遠通過**，讓 Server 看起來完全健康。正確做法是使用 `ai-memory install-mcp --client kimi-code --apply` 由官方安裝器寫入帶 `?flavor=moonshot` 的 URL，或手動校正 `~/.kimi-code/mcp.json`（建議架構）。
 
 ### 本章 Checklist
 
@@ -1876,7 +2123,7 @@ Next Steps / Important Files），整理今天的工作內容，
 
 # 22. Memory Governance Policy
 
-## 22.1 Memory Lifecycle（對照 ai-memory 實際機制重繪）
+## 22.1 Memory Lifecycle
 
 ```mermaid
 flowchart LR
@@ -1958,7 +2205,9 @@ flowchart LR
 
 # 24. Backup / Disaster Recovery
 
-## 24.1 備份策略（官方已實作，`docs/deploy.md`／`docs/lifecycle-ops.md`）
+## 24.1 備份策略
+
+> 來源：官方已實作，`docs/deploy.md`／`docs/lifecycle-ops.md`。
 
 ```bash
 ai-memory backup --output-path "/tmp/backup-$(date +%Y%m%d).tar.gz"
@@ -1977,7 +2226,9 @@ ai-memory backup --output-path "/tmp/backup-$(date +%Y%m%d).tar.gz"
 | Docker Volume | `docker volume` Snapshot 或 Host 路徑 rsync（見第 8.3 節 `docker-compose.prod.yml.example` 的 Host Volume 掛載設計） | 每日 |
 | 異地備援 | rsync／restic／btrfs snapshot 送至異地儲存 | 每週 |
 
-## 24.3 Restore 相關指令（官方已實作，`docs/lifecycle-ops.md`）
+## 24.3 Restore 相關指令
+
+> 來源：官方已實作，`docs/lifecycle-ops.md`。
 
 ```bash
 # 還原前必須先停止 Server：restore 是直接操作磁碟的離線動作，
@@ -1991,7 +2242,7 @@ ai-memory reset --confirm   # 危險操作，需明確 --confirm
 >
 > 官方強調：所有破壞性維運指令都需要明確加上 `--confirm` 旗標，避免誤操作（官方已實作）。
 
-## 24.4 Disaster Recovery Runbook（建議架構 SOP，串接官方指令）
+## 24.4 Disaster Recovery Runbook
 
 `ai-memory backup` 產生的 tarball 已同時包含 Wiki Tree、SQLite Snapshot 與 `config.toml`，因此只要備份檔完好，單一 `ai-memory restore` 指令即可一次還原三者，不需要再手動 `git clone`。獨立的 `git clone` 只用於「已無任何 `ai-memory backup` 檔案、僅剩 Wiki 的 Git Remote」這種次要復原情境，此時應改搭配 `ai-memory reindex` 從 Wiki 內容重建 SQLite 索引，而非呼叫 `restore`（建議架構）。
 
@@ -2021,18 +2272,22 @@ flowchart TD
 
 # 25. Monitoring / Operations
 
-## 25.1 `ai-memory status`（官方已實作）
+## 25.1 ai-memory status 健康檢查
 
 ```bash
 ai-memory status
 ai-memory status --json
 ```
 
-用於檢查 Server 健康狀態、Provider 連線狀態。
+用於檢查 Server 健康狀態、Provider 連線狀態。建議將 `--json` 輸出串接至企業監控平台（例如以排程工作定時執行並將結果推送至 Prometheus Pushgateway 或 Log Pipeline），而非依賴工程師手動執行（建議架構）。
 
-## 25.2 Ingest Counters（官方已實作，CHANGELOG 1.32.0 新增）
+## 25.2 Ingest Counters 與 Hook Drain 診斷
 
 1.32.0 版新增：Server 端回報 Accepted／Dropped-by-policy／Shed／Rate-limited 事件數與最後到達時間戳，可用於觀察 Hook 擷取是否正常運作（官方已實作）。同一版本也讓 `ai-memory status` 一併回報 `capture_mode`（是否為 `allowlist`），方便區分「Hook 根本沒送達」與「該 Repo 本來就沒有 opt-in Allowlist」這兩種容易混淆的情況（官方已實作，CHANGELOG 1.32.0）。
+
+1.32.2 版進一步補強了 **Client 端** 的可觀測性：`hook-drain` 每一輪如果發生「排隊事件」、「丟棄事件」或「發現 lock 被其他行程持有而跳過」，都會各自輸出一行 stderr 訊息（官方已實作，CHANGELOG 1.32.2，對應 Issue #493）。這項改善**不改變交付行為**，目的是讓原本完全靜默的 drain 行為變得可被驗證：企業導入時應將 `<data-dir>/logs/hook-drain.log` 納入日誌蒐集範圍，並對「長時間無任何 drain 訊息」建立告警（建議架構）。
+
+> 實務判讀原則：**Server 端 Ingest Counters 回報 0 + Client 端 `hook-spool/` 持續堆積**，代表問題在傳輸段（網路、TLS、drain）；**Counters 有 Dropped-by-policy 但 Accepted 為 0**，代表事件有送達但被擷取政策擋下，兩者的排查方向完全不同（建議架構）。
 
 ## 25.3 監控面向總表
 
@@ -2040,6 +2295,7 @@ ai-memory status --json
 |---|---|---|
 | Server 健康狀態 | `ai-memory status` | 官方已實作 |
 | Ingest 事件量 | Ingest Counters（1.32.0+） | 官方已實作 |
+| Hook Drain 傳輸行為 | `logs/hook-drain.log` stderr 訊息（1.32.2+） | 官方已實作 |
 | 磁碟使用量 | `<data_dir>` 目錄大小（`wiki/`、`db/`、`raw/`） | 建議架構（監控方式），目錄本身官方已實作 |
 | Memory 成長趨勢 | Wiki 頁面數量、SQLite `pages` Table 列數變化 | 建議架構 |
 | Git Repository 大小 | `git count-objects -v` | 建議架構 |
@@ -2085,6 +2341,8 @@ ai-memory status --json
 | `ai-memory install-skills [--scope global] [--agent <agent>] [--print] [--target-dir <dir>] [--force]` | 安裝 Skills |
 | `ai-memory setup-agent --agent <agent> --to <path> [--host-prefix <prefix>]` | 一次性解出內建腳本並印出設定（常用於 Docker 環境安裝 Hook） |
 | `ai-memory uninstall --apply` | 反安裝 |
+
+> **跨平台一致性修正（1.33.0）**：managed routing 的 `SKILL.md` payload 現已保證**跨平台 byte-identical**。在 1.33.0 之前，Windows build 會將 CRLF 嵌入內建資源，而 Linux／macOS build 為 LF，導致同一個 tag 經 CLI 安裝與經 `memory_install_self_routing` 寫入的內容**位元組不同**；現已統一為 LF（官方已實作，CHANGELOG 1.33.0，對應 Issue #502）。對於將 Skills 納入 Git 版控、或以 Checksum 驗證設定漂移的企業而言，這項修正消除了「每台 Windows 機器都產生假 diff」的雜訊（建議架構）。
 
 ## 26.3 專案／Session 維運
 
@@ -2172,7 +2430,9 @@ ai-memory status --json
 1. 確認 `install-hooks` 是否在啟動 Agent 的**同一個環境**執行（尤其是 Windows／WSL2 混用情境，第 7.3 節）
 2. 檢查 `hooks/<agent>/` 對應腳本是否存在且有執行權限
 3. 檢查是否命中 `[capture] ignore_paths` 排除規則（第 5.3 節）
-4. **macOS 使用者請特別留意**：截至查證時，官方 Repository 有一則社群回報的未修復 Issue（[#493](https://github.com/akitaonrails/ai-memory/issues/493)，標題「macOS native hook-drain never transmits: spooled events are silently never delivered (v1.32.1)」）指出 macOS 原生 Client 的 `hook-drain` 可能完全不發出網路請求，事件被靜默滯留在本機 `hook-spool/` 目錄且無任何錯誤訊息；若在 macOS 上長期看不到任何 Hook 事件送達，建議直接檢查本機 `hook-spool/` 是否持續堆積，而非只排查 Server 端（Source-confirmed，GitHub Issue，官方尚未確認／修復，請以 Issue 當下狀態為準）。
+4. **macOS 使用者請特別留意**：官方 Repository 有一則社群回報、截至 2026-08-28 仍為 **Open** 狀態（已被官方標上 `bug` 標籤）的 Issue（[#493](https://github.com/akitaonrails/ai-memory/issues/493)，標題「macOS native hook-drain never transmits: spooled events are silently never delivered (v1.32.1)」）指出 macOS 原生 Client 的 `hook-drain` 可能完全不發出網路請求，事件被靜默滯留在本機 `hook-spool/` 目錄且無任何錯誤訊息；若在 macOS 上長期看不到任何 Hook 事件送達，建議直接檢查本機 `hook-spool/` 是否持續堆積，而非只排查 Server 端。回報者以 `nc -l` 監聽埠探測，確認 drain 連一個位元組都沒送出；但以 `curl` 手動 POST 同一封 envelope 到 `/hook` 則可正常取得 `202 queued`，證明 Server 端與 envelope 內容都正常，**問題只在 drain 的發送步驟**（Source-confirmed，GitHub Issue #493）。
+   - **目前已知進展**：1.32.2 已針對此 Issue 新增可觀測性（drain 每一輪的排隊／丟棄／lock 衝突各輸出一行 stderr，見第 25.2 節），但**並未修正傳輸行為**；截至 2026-08-28，1.33.0 的 CHANGELOG 仍未列出此項修正（Source-confirmed，GitHub Issue 與 CHANGELOG）。
+   - **實務建議**：升級至 1.32.2（含）以上後再讀 `logs/hook-drain.log`，可區分「drain 完全沒被呼叫」與「drain 有執行但送不出去」。若確認命中此問題，短期規避方式為回退至 `.sh` Hook 腳本（但會損失 pre-spool `ignore_paths` 排除與 Allowlist 強制這兩項 native-hook 專屬保護，需以另一層控制補上）（建議架構）。
 
 ## 27.5 Project 被錯誤辨識／Memory 混到其他 Project
 
@@ -2187,6 +2447,19 @@ ai-memory status --json
 1. `install-mcp`／`install-hooks` 是否在同一環境執行
 2. 是否混用了 WSL2 與 Native Windows 的執行檔路徑
 3. 若問題持續，考慮改用官方標示為「Supported」的 WSL2 路徑
+
+### 繁體中文環境必讀：1.33.0 之前的 UTF-8 編碼缺陷
+
+這是**台灣企業導入最容易踩到、且征兆極度隱晦**的一個問題（官方已實作，CHANGELOG 1.33.0，對應 Issue #500）：
+
+- **症狀**：純 ASCII 內容的 Hook 事件一切正常；但只要 Prompt、檔案路徑或 Tool 輸出含有**非 ASCII 字元（中文、日文、葡文等）**，該筆事件送到 `/hook` 就會回 **HTTP 400** 並從記憶中消失。
+- **根因**：1.33.0 之前，PowerShell 相容 Hook 以字串形式交付 request body，Windows PowerShell 5.1 會依 **host 相依的 legacy code page**（在繁中 Windows 上通常是 Big5／950）而非 UTF-8 進行編碼，伺服器端解析 JSON 時即失敗。
+- **修正**：1.33.0 起，PowerShell 相容 Hook 改以**明確的 UTF-8 bytes** 編碼 JSON body，並在 `Content-Type` 宣告 `charset=utf-8`；官方同時新增了 native Windows loopback 測試，逐位元組驗證中文與葡文內容的往返一致性。
+- **行動**：任何在 **Native Windows + 繁中環境**使用 Hook 擷取的團隊，應將升級至 **1.33.0（含）以上列為必要條件**；若暫時無法升級，應假設所有含中文的 Session 記憶都未被保存，不可依賴其完整性（建議架構）。
+
+### 1.33.0 同時修正的 PowerShell `$home` 衝突
+
+1.33.0（對應 Issue #498）一併修正：PowerShell 相容 Hook 先前會指派區域變數 `$home`，而 PowerShell 變數名不區分大小寫，此與唯讀自動變數 `$HOME` 衝突，導致**每一個帶有 cwd 的 Hook payload 都噴 `VariableNotWritable` 錯誤**；修正後改用 `$userHome`。若你在 Windows 上看到 `VariableNotWritable` 字樣，就是這個問題，升級至 1.33.0 即可（官方已實作，CHANGELOG 1.33.0）。
 
 ## 27.7 WSL2 問題
 
@@ -2208,7 +2481,9 @@ ai-memory status --json
 
 - 確認 TLS Reverse Proxy 是否正確設定（Caddy／Cloudflare Tunnel，第 10.5 節）
 - 確認 `AI_MEMORY_ALLOWED_HOSTS` 是否包含正確的網域/主機名稱，避免被 DNS Rebinding 防護誤擋
-- **已知風險（第 10.5 節 Caddy 內部 CA 部署模式適用）**：截至查證時，官方 Repository 有一則社群回報的未修復 Issue（[#492](https://github.com/akitaonrails/ai-memory/issues/492)，標題「Native ai-memory client rejects Caddy's internal CA (UnknownIssuer) even after Path 2's trust-install step — hook capture fails silently」）指出，即使依官方 `docs/https-via-proxy.md`「Path 2」步驟安裝了 Caddy 內部 CA 信任，原生 `ai-memory` Hook Client 仍可能因底層 TLS 函式庫（`rustls` 只信任內建 `webpki-roots`，不讀取作業系統信任庫）而拒絕該憑證，造成 Hook 擷取靜默失敗——瀏覽器／curl／MCP Client 不受影響，只有原生 Hook Client 受此問題影響。若採用本手冊建議的 Caddy 內部 CA 部署模式，建議額外驗證原生 Hook Client 的連線狀況，而不只驗證瀏覽器可正常連線（Source-confirmed，GitHub Issue，官方尚未確認／修復，請以 Issue 當下狀態為準）。
+- **重要修正（1.32.2）：原生 Client 現已信任作業系統憑證庫**。在 1.32.1（含）以前的版本，原生 `ai-memory` Client 的 HTTP 元件使用 `rustls-tls`，只信任**內建的 Mozilla webpki-roots**，**完全不讀取作業系統信任庫**；因此只要是 Caddy `tls internal` 內部 CA、企業 MITM 資安設備、或公司自建私有 PKI 簽發的憑證，都會回 `invalid peer certificate: UnknownIssuer`——且因為 `ai-memory hook` 也走同一個 Client，**官方自家的 HTTPS-via-Proxy Path 2 指南會導致生命週期擷取端到端靜默失敗**（事件在本機 spool 排隊，drain 永遠送不出去）。此問題對應 [Issue #492](https://github.com/akitaonrails/ai-memory/issues/492)，**已於 2026-08-26 由作者關閉**（state_reason: completed），修正隨 **1.32.2** 發布：Client 改用 `rustls-tls-native-roots` 讀取平台信任庫，且 runtime image 一併安裝 `ca-certificates`（Source-confirmed，GitHub Issue + CHANGELOG 1.32.2 + `Cargo.toml`）。
+- **企業行動清單**：若貴公司使用 **自建 CA、內部 PKI 或 TLS 攝取型 Proxy**，請將 Client 升級至 **1.32.2（含）以上列為強制性前置條件**；升級前的過渡期，可改以 `http://` 直連 Loopback／內網位址避開（僅限受控網段）（建議架構）。
+- **驗證方法**：不要只用瀏覽器或 `curl` 驗證（它們走 OpenSSL／系統信任庫，會誤判為正常），必須以原生 Client 實際執行一次，例如 `ai-memory finalize-session --agent claude-code`，確認不會出現 `UnknownIssuer`（建議架構）。
 
 ## 27.11 Git 問題
 
@@ -2742,7 +3017,9 @@ Risks / Tests / Next Steps / Important Files），整理今天的工作內容，
 | Git Repository Size | 隨 Wiki 頁面歷史增長，需納入第 24 章備份策略考量 |
 | Concurrent Agents / Users | 依 Auto Scope 模式（`single`／`per_session`／`per_actor`）與四層認證模型（第 10.6 節）而定 |
 
-## 38.2 LLM Consolidation 效能實測（官方已實作，`docs/llm-provider-comparison.md` 內部 Benchmark）
+## 38.2 LLM Consolidation 效能實測
+
+> 來源：官方已實作，`docs/llm-provider-comparison.md` 內部 Benchmark。
 
 | Provider | 排名 | 備註 |
 |---|---|---|
@@ -2778,10 +3055,14 @@ Risks / Tests / Next Steps / Important Files），整理今天的工作內容，
 
 # 39. Upgrade Strategy Runbook
 
-## 39.1 版本歷程重點（官方已實作，`CHANGELOG.md` 摘要，`1.18.0 → 1.32.1`）
+## 39.1 版本歷程重點
+
+> 來源：官方已實作，`CHANGELOG.md` 摘要，涵蓋 `1.18.0 → 1.33.0`。
 
 | 版本 | 重點 |
 |---|---|
+| 1.33.0 | Session 頁面 Frontmatter 新增 `agent` 欄位標示來源 harness（#494）；Web UI 檢視 Markdown 時**阻擋自動抓取外部圖片 URL**（#491）；managed routing `SKILL.md` 跨平台 byte-identical（#502）；**PowerShell Hook 改以 UTF-8 編碼修正中文內容 HTTP 400**（#500）；修正 PowerShell `$home` 變數衝突（#498） |
+| 1.32.2 | **原生 Client 改用 `rustls-tls-native-roots`，改為信任作業系統憑證庫**（#492，第 10.5、27.10 節）；runtime image 安裝 `ca-certificates`；`hook-drain` 新增 stderr 可觀測性訊息（#493，第 25.2 節）；修正 scaffolding 過濾誤丟短 Prompt（#484）；記載 Kimi Code `kimi mcp add` 會寫入缺少 `?flavor=moonshot` 的裸 URL 而破壞每個 turn |
 | 1.32.1 | 修正 `memory_forget_sweep` 文件說明；修正向量檢索結果標題/摘要為空的 Bug |
 | 1.32.0 | 新增 **Pool（Poolside Agent CLI）** 支援；新增 Ingest Counters（`ai-memory status` 新增事件計數與 `capture_mode` 欄位，第 25.2 節）；新增 `install-hooks --capture-mode allowlist`；Session Page 新增 `summary` Frontmatter 統計欄位 |
 | 1.31.1 | Docker `upgrade` 會先驗證容器所有權；Windows Docker Wrapper 透過 `host.docker.internal` 連線 |
@@ -2796,7 +3077,17 @@ Risks / Tests / Next Steps / Important Files），整理今天的工作內容，
 | 1.20.1 | Docker Wrapper 自我升級改為使用 Checksum 驗證過的 GitHub Release 資產，不再抓取 mutable 的 `main` 分支（安全強化） |
 | 1.18.0 | 新增 Grok Build CLI 支援 |
 
-> 版本歸屬經逐一比對官方完整 `CHANGELOG.md` 複查（查證日：2026-08-26），避免將功能誤植到相近但錯誤的版號。
+> 版本歸屬經逐一比對官方完整 `CHANGELOG.md` 複查（首次查證日：2026-08-26；複查日：2026-08-28），避免將功能誤植到相近但錯誤的版號。
+
+### 優先升級建議（依風險分級）
+
+| 你的環境 | 最低建議版本 | 理由 |
+|---|---|---|
+| Native Windows + 繁中／任何非 ASCII 內容 | **1.33.0** | 未升級則含中文的 Hook 事件會回 HTTP 400 而靜默遺失（#500） |
+| 自建 CA／內部 PKI／Caddy `tls internal`／TLS 攝取型 Proxy | **1.32.2** | 未升級則原生 Client 拒絕憑證，Hook 擷取端到端靜默失敗（#492） |
+| 任何非 Loopback HTTP 部署 | **1.27.0** | 未認證的非 Loopback 存取自此版起 Fail Closed，不可回退至更舊版本 |
+| 使用 Web UI 瀉覽外部來源 Markdown | **1.33.0** | 1.33.0 起阻擋自動抓取外部圖片 URL，降低追蹤像素與位址外洩風險（#491） |
+| macOS 原生 Hook 擷取 | **1.32.2**（但問題未完全解決） | 1.32.2 只新增 drain 可觀測性，#493 截至 2026-08-28 仍為 Open（第 27.4 節） |
 
 ## 39.2 Upgrade Runbook
 
