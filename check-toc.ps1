@@ -27,7 +27,7 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
     $l = $lines[$i]
     if ($l -match '^\s*```') { $inCode = -not $inCode; continue }
     if ($inCode) { continue }
-    if ($l -match '^(#{2,4})\s+(.*)$') {
+    if ($l -match '^(#{1,4})\s+(.*)$') {
         $headings += [pscustomobject]@{
             Line   = $i + 1
             Text   = $Matches[2].Trim()
