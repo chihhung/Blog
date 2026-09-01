@@ -9,28 +9,47 @@ categories = ['教學']
 
 ## OpenClaw 生態系教學手冊
 
-> **版本**: 2026.8.1-beta.2（最新 Beta）／2026.7.1-2（最新穩定版）／2026.6.34（Extended-Stable 維護線）| **最後更新**: 2026 年 8 月 15 日  
-> **適用對象**: 企業開發團隊、DevOps 工程師、AI 架構師  
-> **授權**: MIT License（治理單位：非營利的 **OpenClaw Foundation**）  
-> **官方資源**: [openclaw.ai](https://openclaw.ai/) · [docs.openclaw.ai](https://docs.openclaw.ai/) · [GitHub](https://github.com/openclaw/openclaw) · [ClawHub](https://clawhub.ai/) · [Discord](https://discord.gg/clawd) · [Trust](https://trust.openclaw.ai/) · [DeepWiki](https://deepwiki.com/openclaw/openclaw)
+> - **版本**: 2026.8.1（最新穩定版，官方別名 **OpenClaw 2.0**）／2026.8.1-beta.4（最新 Beta，誤植發布為 `2026.9.1-beta.1`）／2026.6.34（Extended-Stable 維護線）
+> - **最後更新**: 2026 年 9 月 1 日
+> - **適用對象**: 企業開發團隊、DevOps 工程師、AI 架構師
+> - **授權**: MIT License（治理單位：非營利的 **OpenClaw Foundation**）
+> - **官方資源**: [openclaw.ai](https://openclaw.ai/) · [docs.openclaw.ai](https://docs.openclaw.ai/) · [GitHub](https://github.com/openclaw/openclaw) · [ClawHub](https://clawhub.ai/) · [Discord](https://discord.gg/clawd) · [Trust](https://trust.openclaw.ai/) · [DeepWiki](https://deepwiki.com/openclaw/openclaw)
 
 ---
 
 ## 文件總覽
 
-本手冊為 OpenClaw 生態系完整教學指引，涵蓋從核心概念、系統架構設計、安裝部署、開發實戰、企業導入實務、維運監控、升級策略、DevOps 整合、資安設計到實務案例等十大主題。所有內容均依據 OpenClaw 官方文件、GitHub Release Notes（最後查證至 v2026.8.1-beta.2）撰寫並重新消化整理，以繁體中文呈現，程式碼範例以 Java 為主。
+本手冊為 OpenClaw 生態系完整教學指引，涵蓋從核心概念、系統架構設計、安裝部署、開發實戰、企業導入實務、維運監控、升級策略、DevOps 整合、資安設計、實務案例，到多人協作治理與分散式執行等十二大主題。所有內容均依據 OpenClaw 官方文件、GitHub Release Notes（最後查證至 **v2026.8.1 / OpenClaw 2.0**，2026-08-31 發布）撰寫並重新消化整理，以繁體中文呈現；整合與案例類程式碼範例以 Java（Spring Boot）為主，Plugin SDK、Code Mode 與 Gateway Protocol Client 等官方以 TypeScript 定義契約之處則以 **Java / TypeScript 雙軌並陳**。
 
-> **定位提醒**：OpenClaw 官方定位是「**single-operator 個人 AI 助理閘道**」——由一位操作者（Operator）擁有並信任的自架系統，而非原生的多租戶企業 SaaS 平台。本手冊第五章起討論的「企業導入」內容，指的是企業將 OpenClaw 作為自架基礎設施元件、搭配自身治理與維運框架落地的作法，而非 OpenClaw 官方內建的企業租戶功能，閱讀時請留意這個前提差異。
+> **定位提醒**：OpenClaw 的原始定位是「**single-operator 個人 AI 助理閘道**」——由一位操作者（Operator）擁有並信任的自架系統。自 **v2026.8.1（OpenClaw 2.0）** 起，官方加入了多使用者 Gateway、對話分享角色與 Teams 協作能力，定位延伸為「**單一信任域內的多人協作**」。
 >
-> **重要變更提示**：專案於 2025 年 11 月以 **Warelay** 之名首次發布，隨後歷經 **CLAWDIS**（2025-12-03）→ **Clawdbot**（2026-01-02）→ **Moltbot**（2026-01-27，因 Anthropic 商標異議而改名）→ **OpenClaw**（2026-01-30）數次更名。創辦人 **Peter Steinberger** 於 2026-02-14 宣布加入 OpenAI，同日成立非營利的 **OpenClaw Foundation** 接手專案治理，OpenClaw 至今仍採 MIT 授權並由社群持續開發。版本號採用 `vYYYY.M.D` 日期格式，截至 2026 年 8 月中已發布超過 230 個版本（含 stable / beta / extended-stable 維護線），GitHub 星數突破 **386,000**、Fork 數超過 **81,000**。自 v2026.5 起，專案引入完整的 **Plugin SDK 架構**，支援 bundled / community / external 三類插件；`before_agent_start`、根目錄 `openclaw/plugin-sdk` 匯入、`providerAuthEnvVars`、`channelEnvVars` 等舊版介面已於 **2026-07-24** 後排定移除，插件開發者須遷移至新版 hook stage 與 manifest setup descriptor（詳見 4.3、4.9 節）。v2026.6～v2026.8 系列新增 **Automatic Fast Mode**、**DM Pairing 安全機制**、**官方 Provider 外部化為獨立 npm 套件**、**Session Transcript SDK**、**GLM-5.2 / GPT-5.6 Ultra 模型目錄擴充**、**Control UI 與 Onboarding 大改版**、**iOS/Android/macOS 官方應用大幅更新**、**openclaw attach 指令**（接續既有 Gateway Session）、**Secret Egress Host Binding**（跨 CLI / Gateway RPC / Control UI 的密鑰目的地綁定）、**SQLite Snapshot 備份指令**、**外部插件安裝需明確確認未信任來源**等重大功能與資安強化。
+> 但請務必注意官方對此的明確聲明：**這些協作控制項不是租戶隔離，也不是安全邊界**（見 `docs/concepts/multi-user.md` 與 2.0 發布說明「Sharing and Incognito」段）。它們限制的是「同一套受信任的 OpenClaw 安裝內部」的協作行為，而非在互不信任的租戶之間建立隔離。因此本手冊第五章起討論的「企業導入」，指的仍是企業將 OpenClaw 作為自架基礎設施元件、搭配自身治理與維運框架落地的作法，而非 OpenClaw 官方內建的多租戶 SaaS 功能。這是企業讀者最容易誤判的一點，第十一章會完整展開。
+>
+> **重要變更提示**：專案於 2025 年 11 月以 **Warelay** 之名首次發布，隨後歷經 **CLAWDIS**（2025-12-03）→ **Clawdbot**（2026-01-02）→ **Moltbot**（2026-01-27，因 Anthropic 商標異議而改名）→ **OpenClaw**（2026-01-30）數次更名。創辦人 **Peter Steinberger** 於 2026-02-14 宣布加入 OpenAI，同日成立非營利的 **OpenClaw Foundation** 接手專案治理；專案至今仍採 **MIT 授權**（`LICENSE` 標示 Copyright (c) 2026 OpenClaw Foundation）並由社群持續開發。版本號採用 `vYYYY.M.D` 日期格式，GitHub 星數已達 **388,429**、Fork 數 **81,541**（2026-09-01 查證）。
+>
+> **v2026.8.1（OpenClaw 2.0）是專案史上最大的一次改版**，彙整超過 **16,000 個 Pull Request**，觸及安裝、訊息、記憶、技能、模型、自動化、瀏覽器、原生應用、插件與安全等所有面向。九項最重大的變更為：**全新 Control UI**（以對話為中心重建）、**多人協作與分享角色**、**Cloud Workers 與 Paired Devices 分散式執行**、**Session 與 Transcript 改用 SQLite 儲存**、**Secret Store 密鑰治理**、**Automations（Cron 更名，指令並存）**、**Skill Workshop 與自我學習**、**Built-in Memory 取代 QMD**、**Code Mode 介面重寫（破壞性）**。詳見 1.11 節的導讀對照表。
+>
+> **三個必須留意的時程性期限**（逾期將影響升級）：
+>
+> | 期限 | 事項 |
+> |------|------|
+> | **2026-09-01** | Plugin SDK 舊版 subpath 匯入正式關閉，須改用 `openclaw/plugin-sdk/*` 聚焦命名空間 |
+> | **2026-09-18** | 組態若仍含已退休的設定鍵，須在此日前執行 `openclaw doctor --fix` |
+> | **2026-10-12** | beta.5 session-store bridge 相容層失效 |
 
 ---
+
+<!-- TOC-AUTO-BEGIN -->
 
 ## 目錄
 
 - [第一章：OpenClaw 核心概念](#第一章openclaw-核心概念)
   - [1.1 什麼是 OpenClaw](#11-什麼是-openclaw)
   - [1.2 核心理念與設計哲學](#12-核心理念與設計哲學)
+    - [1.2.1 個人助理優先（Personal Assistant First）](#121-個人助理優先personal-assistant-first)
+    - [1.2.2 頻道無關（Channel Agnostic）](#122-頻道無關channel-agnostic)
+    - [1.2.3 技能驅動（Skill-Driven）](#123-技能驅動skill-driven)
+    - [1.2.4 可組合架構（Composable Architecture）](#124-可組合架構composable-architecture)
   - [1.3 Gateway 架構總覽](#13-gateway-架構總覽)
   - [1.4 Pi Agent 執行環境](#14-pi-agent-執行環境)
   - [1.5 Skills 技能系統](#15-skills-技能系統)
@@ -39,9 +58,13 @@ categories = ['教學']
   - [1.8 多頻道支援（Channels）](#18-多頻道支援channels)
   - [1.9 與傳統 LLM 聊天機器人的比較](#19-與傳統-llm-聊天機器人的比較)
   - [1.10 OpenClaw 版本歷程](#110-openclaw-版本歷程)
+  - [1.11 OpenClaw 2.0 重點導讀](#111-openclaw-20-重點導讀)
 - [第二章：系統架構設計](#第二章系統架構設計)
   - [2.1 整體架構圖](#21-整體架構圖)
   - [2.2 Gateway 核心元件](#22-gateway-核心元件)
+    - [2.2.1 WebSocket 控制平面](#221-websocket-控制平面)
+    - [2.2.2 訊息路由器](#222-訊息路由器)
+    - [2.2.3 組態管理器](#223-組態管理器)
   - [2.3 Agent Runtime 架構](#23-agent-runtime-架構)
   - [2.4 訊息流程與通訊協議](#24-訊息流程與通訊協議)
   - [2.5 Skills 載入與優先序](#25-skills-載入與優先序)
@@ -50,9 +73,10 @@ categories = ['教學']
   - [2.8 Companion Apps 架構](#28-companion-apps-架構)
   - [2.9 高可用架構設計](#29-高可用架構設計)
   - [2.10 企業部署拓撲](#210-企業部署拓撲)
+  - [2.11 Session 儲存架構：SQLite 遷移](#211-session-儲存架構sqlite-遷移)
 - [第三章：安裝與環境建置](#第三章安裝與環境建置)
   - [3.1 系統需求](#31-系統需求)
-  - [3.2 本地開發安裝（npm）](#32-本地開發安裝npm)
+  - [3.2 本地開發安裝](#32-本地開發安裝)
   - [3.3 Docker Compose 部署](#33-docker-compose-部署)
   - [3.4 從原始碼建置](#34-從原始碼建置)
   - [3.5 Podman 與 Nix 安裝](#35-podman-與-nix-安裝)
@@ -61,6 +85,7 @@ categories = ['教學']
   - [3.8 多環境組態管理](#38-多環境組態管理)
   - [3.9 Hot Reload 與組態更新](#39-hot-reload-與組態更新)
   - [3.10 CLI 指令參考](#310-cli-指令參考)
+  - [3.11 Secret Store 與密鑰治理（v2026.8.1 新增）](#311-secret-store-與密鑰治理v202681-新增)
 - [第四章：開發實戰教學](#第四章開發實戰教學)
   - [4.1 第一個 OpenClaw Agent](#41-第一個-openclaw-agent)
   - [4.2 Java 整合 OpenClaw API](#42-java-整合-openclaw-api)
@@ -72,6 +97,7 @@ categories = ['教學']
   - [4.8 多 Agent 協作開發](#48-多-agent-協作開發)
   - [4.9 錯誤處理與重試機制](#49-錯誤處理與重試機制)
   - [4.10 Java Spring Boot 整合範例](#410-java-spring-boot-整合範例)
+  - [4.11 Gateway Protocol Client 開發（v2026.8.1 新增）](#411-gateway-protocol-client-開發v202681-新增)
 - [第五章：企業最佳實務](#第五章企業最佳實務)
   - [5.1 技能模組化設計](#51-技能模組化設計)
   - [5.2 權限與存取控制](#52-權限與存取控制)
@@ -94,6 +120,7 @@ categories = ['教學']
   - [6.8 容量規劃](#68-容量規劃)
   - [6.9 日誌聚合與分析](#69-日誌聚合與分析)
   - [6.10 Grafana 儀表板範例](#610-grafana-儀表板範例)
+  - [6.11 Gateway 重啟復原（v2026.8.1 新增）](#611-gateway-重啟復原v202681-新增)
 - [第七章：系統升級策略](#第七章系統升級策略)
   - [7.1 版本命名規則](#71-版本命名規則)
   - [7.2 升級前評估](#72-升級前評估)
@@ -127,6 +154,7 @@ categories = ['教學']
   - [9.8 稽核日誌](#98-稽核日誌)
   - [9.9 容器沙箱安全](#99-容器沙箱安全)
   - [9.10 零信任架構](#910-零信任架構)
+  - [9.11 插件與供應鏈安全（v2026.8.1 新增）](#911-插件與供應鏈安全v202681-新增)
 - [第十章：實戰案例](#第十章實戰案例)
   - [10.1 案例一：自動化報表 Agent](#101-案例一自動化報表-agent)
   - [10.2 案例二：智慧客服 Agent](#102-案例二智慧客服-agent)
@@ -138,10 +166,46 @@ categories = ['教學']
   - [10.8 案例八：資料分析管線 Agent](#108-案例八資料分析管線-agent)
   - [10.9 案例九：安全監控 Agent](#109-案例九安全監控-agent)
   - [10.10 案例十：完整企業部署案例](#1010-案例十完整企業部署案例)
+- [第十一章：多人協作與 Teams 治理](#第十一章多人協作與-teams-治理)
+  - [11.1 多使用者 Gateway 模型](#111-多使用者-gateway-模型)
+  - [11.2 對話分享與角色](#112-對話分享與角色)
+  - [11.3 Presence 與揭露邊界](#113-presence-與揭露邊界)
+  - [11.4 Incognito 模式](#114-incognito-模式)
+  - [11.5 裝置與配對治理](#115-裝置與配對治理)
+  - [11.6 企業落地建議與風險聲明](#116-企業落地建議與風險聲明)
+- [第十二章：分散式執行 —— Cloud Workers 與 Paired Devices](#第十二章分散式執行--cloud-workers-與-paired-devices)
+  - [12.1 兩條路徑的差異](#121-兩條路徑的差異)
+  - [12.2 Cloud Worker Profile 設定](#122-cloud-worker-profile-設定)
+  - [12.3 Session Placement 與位址保持](#123-session-placement-與位址保持)
+  - [12.4 失聯與恢復行為](#124-失聯與恢復行為)
+  - [12.5 Portable Worker Bundle 的邊界](#125-portable-worker-bundle-的邊界)
+  - [12.6 派工與回收範例](#126-派工與回收範例)
 - [附錄 A：企業導入檢查清單](#附錄-a企業導入檢查清單)
+  - [A.1 導入前準備](#a1-導入前準備)
+  - [A.2 環境建置](#a2-環境建置)
+  - [A.3 組態與整合](#a3-組態與整合)
+  - [A.4 安全設定](#a4-安全設定)
+  - [A.5 監控設定](#a5-監控設定)
+  - [A.6 營運就緒](#a6-營運就緒)
 - [附錄 B：疑難排解常見問題](#附錄-b疑難排解常見問題)
+  - [B.1 連線問題](#b1-連線問題)
+  - [B.2 效能問題](#b2-效能問題)
+  - [B.3 技能問題](#b3-技能問題)
+  - [B.4 診斷指令](#b4-診斷指令)
 - [附錄 C：名詞解釋](#附錄-c名詞解釋)
 - [附錄 D：參考資源](#附錄-d參考資源)
+  - [D.1 官方資源](#d1-官方資源)
+  - [D.2 技術參考](#d2-技術參考)
+  - [D.3 官方文件深層鏈結](#d3-官方文件深層鏈結)
+  - [D.4 相關學習資源](#d4-相關學習資源)
+  - [D.5 平台與部署指南](#d5-平台與部署指南)
+  - [D.6 OpenClaw 2.0 新增主題文件](#d6-openclaw-20-新增主題文件)
+- [附錄 E：OpenClaw 2.0 升級遷移指南](#附錄-eopenclaw-20-升級遷移指南)
+  - [E.1 升級決策樹](#e1-升級決策樹)
+  - [E.2 升級流程（依序執行）](#e2-升級流程依序執行)
+  - [E.3 降版還原程序](#e3-降版還原程序)
+  - [E.4 三個期限速查表](#e4-三個期限速查表)
+<!-- TOC-AUTO-END -->
 
 ---
 
@@ -599,6 +663,7 @@ Browser 工具使用 **Chrome DevTools Protocol (CDP)** 提供完整的瀏覽器
 ```
 
 功能包含：
+
 - 導航至指定 URL
 - 擷取頁面內容（文字/截圖）
 - 填寫表單
@@ -741,7 +806,7 @@ OpenClaw 提供 `sessions_*` 系列工具，允許 Agent 之間跨 Session 協�
 
 ### 1.8 多頻道支援（Channels）
 
-OpenClaw 支援超過 30 種通訊頻道（含插件頻道），以下為完整列表：
+OpenClaw 支援 **40 種以上**通訊頻道（含插件頻道），涵蓋消費端通訊軟體、企業協作平台、電信簡訊、去中心化協議與 Agent 間協定。以下為完整列表：
 
 #### 支援頻道一覽
 
@@ -777,8 +842,18 @@ OpenClaw 支援超過 30 種通訊頻道（含插件頻道），以下為完整�
 | **macOS** | 內建 | ✅ 穩定 | macOS 選單列應用（Menu Bar App） |
 | **iOS** | 內建 | ✅ 穩定 | iOS Node（Canvas、Voice Wake、相機） |
 | **Android** | 內建 | ✅ 穩定 | Android Node（Chat、Voice、Canvas、裝置指令） |
+| **SMS / MMS / RCS** | Twilio | ✅ 穩定 | 電信簡訊與 RCS，適合無網路應用情境 |
+| **WeCom（企業微信）** | 官方 API | ✅ 穩定 | 騰訊企業微信，與消費端 WeChat 為不同頻道 |
+| **ClickClack** | 官方 API | ✅ 穩定 | 官方文件列為獨立頻道 |
+| **Reef** | 官方 API | ✅ 穩定 | OpenClaw 生態系內部頻道 |
+| **Raft** | 官方 API | 🔄 測試 | OpenClaw 生態系內部頻道 |
+| **Buzz** | 官方 API | ✅ 穩定 | 輕量通知型頻道 |
+| **A2A（Agent-to-Agent）** | A2A 協定 | ✅ 穩定 | Agent 之間的直接訊息傳遞，非人類使用者頻道 |
+| **Zalo ClawBot** | 官方 API | ✅ 穩定 | Zalo 的 Bot 模式（與官方帳號／個人帳號並列的第三種接法） |
 
 > **插件頻道（Plugin Channels）**: OpenClaw 透過 extension 套件機制支援額外頻道整合，如 Mattermost 等。插件頻道安裝後與內建頻道行為一致。
+>
+> **頻道治理功能（v2026.8.1）**: 除頻道本身外，官方另提供跨頻道的治理機制 —— **Access Groups**（存取群組）、**Broadcast Groups**（廣播群組）、**Channel Routing**（頻道路由）、**Bot Loop Protection**（機器人迴圈防護）與 **Ambient Room Events**（環境房間事件）。企業部署多頻道時，這些機制比單一頻道設定更關鍵，詳見第五章 5.2 與第十一章。
 >
 > **WeChat 頻道安裝**: WeChat 頻道由騰訊官方提供插件，安裝方式為 `openclaw plugins install "@tencent-weixin/openclaw-weixin"`，然後執行 `openclaw channels login --channel openclaw-weixin` 掃描 QR Code 即可配對。目前僅支援私人聊天，需遍尋 WeChat ClawBot 插件（WeChat > 我 > 設定 > 插件）。
 
@@ -820,15 +895,18 @@ interface Channel {
 
 | 版本 | 日期 | 重大變更 |
 |------|------|----------|
-| **2026.8.1-beta.2** | 2026-08-15 | **最新 Beta**。Secret Egress Host Binding（跨 CLI/Gateway RPC/Control UI 綁定密鑰目的地主機）、GPT-5.6 Ultra 與 Sol/Terra/Luna 執行期切換、Channel Plugin Ingress Monitor 共用生命週期（IRC/Synology Chat/Google Chat）、`openclaw backup sqlite` 快照備份指令、macOS App Profile 隔離、外部插件安裝需明確 `--force` 確認未信任來源 |
-| **2026.7.2-beta.7** | 2026-08-02 | Crash-recoverable session snapshots、跨平台 durable message delivery、對話分支與回溯（conversation branching/rewinding）、MCP app hosting with ticketed sandboxes |
-| **2026.7.1-2 / 2026.7.1-1** | 2026-08-04 | **最新穩定版**（修補版）。修正 Codex 進度處理、記憶體啟動問題、插件更新復原等穩定性問題 |
-| **2026.7.1** | 2026-07-13 | Control UI 與 Onboarding 大改版、iOS/Android/macOS 官方應用大幅更新、**GPT-5.6 相容性**、Tencent Hy3 完整設定流程、Meta Muse Spark 1.1、`openclaw attach`（外部 harness 接續既有 Gateway Session）、Gateway crash loop 修復（不再無限重啟）、排程任務按需喚醒、遠端瀏覽器分頁控制、Web/iOS/Android 受保護終端機（單一版本彙整 532 位貢獻者、3,063 筆貢獻、2,018 個公開 PR） |
+| **2026.8.1**<br>（**OpenClaw 2.0**） | 2026-08-31 | **最新穩定版，專案史上最大改版（彙整逾 16,000 個 PR）**。九大主軸：① 以對話為中心重建的 **Control UI**（Session Rail、`/btw` 側線對話、審批內嵌於對話）② **多人協作與分享角色**（read／suggest／draft／participate、Incognito）③ **Cloud Workers 與 Paired Devices 分散式執行** ④ **Session 與 Transcript 改用 SQLite 儲存**（含降版限制）⑤ **Secret Store**（Protected／Agent-readable 雙軌）⑥ **Automations**（`cron` 更名，兩套指令並存）⑦ **Skill Workshop 與自我學習**（off／propose／auto）⑧ **Built-in Memory 取代 QMD** ⑨ **Code Mode 介面重寫**。破壞性變更：OpenProse 插件移除、`codex/*` → `openai/*` 路由遷移、部分官方 Provider 外部化為獨立套件 |
+| **2026.8.1-beta.4** | 2026-08-28 | ⚠️ **誤植發布為 `2026.9.1-beta.1`**，官方已聲明其實際版本為 2026.8.1-beta.4，**不得視為新於 stable 2026.8.1**。內容為可靠性修補：Gateway 重啟復原保留已受理回合、組態寫入於 watcher 交接期間的可靠性、Codex runtime 升至 0.150.1、Linux 安裝改用 Node 24 LTS |
+| **2026.8.1-beta.3** | 2026-08-24 | 2.0 發布前的最後一輪 Beta 驗證 |
+| **2026.8.1-beta.2** | 2026-08-15 | Secret Egress Host Binding（跨 CLI/Gateway RPC/Control UI 綁定密鑰目的地主機）、GPT-5.6 Ultra 與 Sol/Terra/Luna 執行期切換、Channel Plugin Ingress Monitor 共用生命週期（IRC/Synology Chat/Google Chat）、`openclaw backup sqlite` 快照備份指令、macOS App Profile 隔離、外部插件安裝需明確 `--force` 確認未信任來源 |
 | **2026.6.34** | 2026-08-08 | **Extended-Stable 維護線**發布，僅安全與穩定性修補（瀏覽器/網路邊界加固、Provider Fallback 更穩健、Discord Gateway 突發流量抑制），不含新功能；同時公告 Plugin SDK 舊介面（`before_agent_start` 等）將於 7/24 後移除 |
-| **2026.5.28** | 2026-05-28 | Claude Opus 4.8 支援、GitHub Copilot agent runtime 整合、Codex Supervisor 插件、ClawPDF 加密 PDF 抽取、Workboard 多 Agent 協調面板、Policy 合規性比對/合規確認、Plugin SDK reply payload hook、SecretRef 插件清單合約、Dreaming-tab agent 選擇器 |
-| **2026.6.8** | 2026-06-14 | **Telegram Rich HTML 渲染**（表格、清單、blockquote、展開式引用）、GLM-5.2 + Claude Haiku 4.5 模型目錄、Usage Footer 原生渲染器、無 API Key 搜尋提供者明確 opt-in、WhatsApp ACP 綁定、iOS 前景 Gateway 重連、記憶體 rollback/cache recovery |  
-| **2026.6.9** | 2026-06-17 | **官方 Provider 外部化為獨立 npm 套件**、Gateway 啟動探索已安裝 channel plugins、Codex Hosted Search、OpenTelemetry Log Export、ClawHub skill provenance 保持、Session workspace rail (Control UI)、iOS Watch 控制、安全強化（秘密編修、open-DM 工具暴露稽核） |
+| **2026.7.1-2 / 2026.7.1-1** | 2026-08-04 | 前一代穩定版的修補版。修正 Codex 進度處理、記憶體啟動問題、插件更新復原等穩定性問題 |
+| **2026.7.2-beta.7** | 2026-08-02 | Crash-recoverable session snapshots、跨平台 durable message delivery、對話分支與回溯（conversation branching/rewinding）、MCP app hosting with ticketed sandboxes |
+| **2026.7.1** | 2026-07-13 | Control UI 與 Onboarding 大改版、iOS/Android/macOS 官方應用大幅更新、**GPT-5.6 相容性**、Tencent Hy3 完整設定流程、Meta Muse Spark 1.1、`openclaw attach`（外部 harness 接續既有 Gateway Session）、Gateway crash loop 修復（不再無限重啟）、排程任務按需喚醒、遠端瀏覽器分頁控制、Web/iOS/Android 受保護終端機（單一版本彙整 532 位貢獻者、3,063 筆貢獻、2,018 個公開 PR） |
 | **2026.6.10** | 2026-06-24 | Automatic Fast Mode（短對話自動加速）、Session Transcript SDK helpers、Cross-channel Session Identity、Trusted Tool Policy Enforcement、Trusted Package Redirects、Provider 模型目錄推理控制、StepFun Provider 安裝、DM Policy pairing 安全預設 |
+| **2026.6.9** | 2026-06-17 | **官方 Provider 外部化為獨立 npm 套件**、Gateway 啟動探索已安裝 channel plugins、Codex Hosted Search、OpenTelemetry Log Export、ClawHub skill provenance 保持、Session workspace rail (Control UI)、iOS Watch 控制、安全強化（秘密編修、open-DM 工具暴露稽核） |
+| **2026.6.8** | 2026-06-14 | **Telegram Rich HTML 渲染**（表格、清單、blockquote、展開式引用）、GLM-5.2 + Claude Haiku 4.5 模型目錄、Usage Footer 原生渲染器、無 API Key 搜尋提供者明確 opt-in、WhatsApp ACP 綁定、iOS 前景 Gateway 重連、記憶體 rollback/cache recovery |
+| **2026.5.28** | 2026-05-28 | Claude Opus 4.8 支援、GitHub Copilot agent runtime 整合、Codex Supervisor 插件、ClawPDF 加密 PDF 抽取、Workboard 多 Agent 協調面板、Policy 合規性比對/合規確認、Plugin SDK reply payload hook、SecretRef 插件清單合約、Dreaming-tab agent 選擇器 |
 | **2026.5.27** | 2026-05-27 | 安全強化（content boundaries）、OpenAI-compatible embedding providers 核心模組、Pixverse 影片生成 Provider、DeepInfra 完整目錄更新、Skill Workshop 提案生命週期 |
 | **2026.5.26** | 2026-05-26 | Transcript capture 核心功能、named auth profiles（多帳號驗證配置）、Activity tab UI、Rastermill 取代 Sharp 影像後端、reaction approvals（Signal/iMessage/WhatsApp）、SSRF policy for Browser、auth rate limiter、Pixverse Provider 初版、Plugin SDK reaction approval helpers |
 | **2026.5.4** | 2026-05-03 | iOS LAN 配對修復、fs-safe 檔案系統安全抽取、VSCode 除錯支援、Gateway 容器權限加固、Crabbox 整合簡化、Plugin SDK 子路徑匯出、WhatsApp Live QA 通道 |
@@ -849,6 +927,32 @@ interface Channel {
 | **2025.11.x〜2026.1.x** | 2025-11 ~ 2026-01 | 專案首次公開發布（2025-11-24，時名 Warelay）並歷經名稱沿革期：Warelay → CLAWDIS → Clawdbot → Moltbot → **OpenClaw** 定名，同期完成 Skills 系統與 Voice Wake + Talk Mode 等早期核心功能（完整時間軸見 1.1「名稱沿革」） |
 
 > **注意**: OpenClaw 採用**日期版本號**格式 `vYYYY.M.D`（如 `v2026.7.1`）。預發布版本使用 `-beta.N` 後綴，穩定版偶有 `-1`、`-2` 等修補後綴（如 `v2026.7.1-2`），Extended-Stable 維護線則沿用當月固定的 `YYYY.M.33` 起始基準（如 `v2026.6.34`）持續回補安全性修補。stable / extended-stable / beta / dev 四條版本線並行發布，詳見第七章 7.1 版本命名規則。
+>
+> ⚠️ **不可單憑版本號大小判斷新舊**：2026-08-28 發布的套件被誤植為 `2026.9.1-beta.1`，但其實際內容為 `2026.8.1-beta.4`，**比 2026-08-31 的穩定版 `2026.8.1` 還舊**。官方已在發布說明中特別警示此事，並要求穩定版使用者直接安裝或升級至 `2026.8.1`。這是採用日期版本號的專案在人為誤植下會產生的典型陷阱，升級前請以官方發布說明為準，而非套件登錄的版本排序。
+
+### 1.11 OpenClaw 2.0 重點導讀
+
+v2026.8.1（OpenClaw 2.0）的變更幅度遠超一般改版，且橫跨本手冊多個章節。為方便既有讀者快速定位，下表將 2.0 的主要變更對應到本手冊的章節位置：
+
+| 2.0 主題 | 變更性質 | 本手冊對應章節 |
+|---------|---------|--------------|
+| 全新 Control UI（對話為中心、Session Rail、`/btw`） | 體驗重構 | 2.8、3.10 |
+| Session／Transcript 改用 SQLite 儲存 | **架構變更**（含降版限制） | 2.11、6.7、附錄 E |
+| 多人協作、分享角色、Incognito | **新增能力** | 第十一章 |
+| Cloud Workers 與 Paired Devices 分散式執行 | **新增能力** | 第十二章 |
+| Secret Store（Protected／Agent-readable） | **新增能力** | 3.11、9.2 |
+| Automations（`cron` 更名，指令並存） | 更名 + 功能擴充 | 3.10、4.7、10.7 |
+| Skill Workshop 與自我學習（off／propose／auto） | **新增能力** | 4.3、9.7 |
+| Built-in Memory 取代 QMD | **遷移**（需 `doctor --fix`） | 4.6、7.5 |
+| Code Mode 介面重寫 | **破壞性變更** | 4.4 |
+| Plugin SDK subpath 收斂 | **破壞性變更**（2026-09-01 生效） | 4.9 |
+| 引導式設定（偵測既有訂閱／API Key／本地模型） | 體驗重構 | 3.6 |
+| Per-session 權限模式 | **新增能力**（非回溯性） | 5.2 |
+| Gateway 重啟復原（suspend／resume／drain） | **新增能力** | 6.11 |
+| 未信任外部內容標記 | 安全強化 | 9.1 |
+| 插件能力審查與供應鏈檢查 | 安全強化 | 9.11 |
+
+> **升級路徑建議**：若你目前執行的是 v2026.7.x，請先閱讀 **附錄 E：OpenClaw 2.0 升級遷移指南**，再依第七章的升級策略執行。2.0 包含四項需要 `openclaw doctor --fix` 介入的遷移，以及三個有明確截止日的相容性期限。
 
 ---
 
@@ -1334,6 +1438,52 @@ OpenClaw 目前支援 **50+ LLM 提供者**，以下列出主要提供者（完�
 
 > **模型建議**: 官方建議使用最新世代最強模型以獲得最佳體驗與最低 Prompt Injection 風險。模型設定與 CLI 操作詳見 [Models](https://docs.openclaw.ai/concepts/models)。
 
+#### 模型目錄的探索策略（v2026.8.1 變更）
+
+2.0 之前，開啟模型選單會觸發完整的 Provider 掃描，造成明顯延遲。2.0 起改為**目錄優先**策略：
+
+- Chat 與 Models 頁面直接從 OpenClaw 已持有的目錄開啟，不等待 Provider 掃描。
+- 即時探索只在你**開啟模型畫面或明確要求重新整理**時執行。
+- 若探索失敗，內建項目與最後一次可用的清單仍然保留，不會變成空白。
+
+`/model` 的作用域也明確化為三層，且持久性變更需要對應權限：
+
+| 作用域 | 效果 | 權限需求 |
+|-------|------|---------|
+| 僅本對話 | 只改變當前 Session | 一般使用者 |
+| 單一 Agent | 改變該 Agent 的預設 | 需具備變更權限 |
+| 共用預設 | 改變全域預設模型 | 需具備變更權限 |
+
+> **注意**：清單顯示的是「OpenClaw 能辨識的模型」，但**實際可用與否由 Provider、帳號、區域、端點、方案與定價共同決定**。能在清單中看到，不等於該帳號有權呼叫。
+
+#### 脈絡窗與推理層級（v2026.8.1 更新）
+
+2.0 對脈絡窗與推理設定做了明確化，這是企業評估成本與能力上限時的關鍵資訊：
+
+| 路由 | 標準脈絡窗 | 可選上限 | 說明 |
+|------|-----------|---------|------|
+| GPT-5.5 / GPT-5.6（一般執行） | 272,000 token | **922,000 token 輸入窗（opt-in）** | 需明確選用，非預設 |
+| Claude 5 CLI 對話 | 200K | **1M（Control UI 可選）** | 限支援的路由與介面 |
+
+推理層級（reasoning effort）在 2.0 起會**跟隨所選模型與 runtime 一起保存**，即使對話被還原或認證路由重建也不會遺失。各層級的可用性依 runtime 而異：
+
+| Runtime | 最高推理層級 | 適用模型 |
+|---------|------------|---------|
+| Native Codex | `Ultra` | Sol、Terra |
+| Native Codex | `Max` | Luna |
+| Embedded OpenClaw | `Ultra`（對映語意不同） | 對映至該 Provider 支援的最高 effort |
+
+> ⚠️ **重要差異**：Embedded OpenClaw 的 `Ultra` **並非等同於 Native Codex 的 Ultra**。前者是「對映到該 Provider 所支援的最高 effort」並額外加上委派工作的指引，後者是 Codex 原生的推理層級。兩者行為不同，跨 runtime 比較效能或成本時不可直接對等看待。
+>
+> 上述脈絡窗選項**僅限支援的路由、介面與帳號**。同一個模型在不同 Provider 帳號或端點下，可用的上限可能不同。
+
+#### Compaction 與失效轉移的行為修正
+
+- **Compaction** 改用「最新且可信的脈絡計數」，不再受累計快取計費或重複歷史影響；在支援的 Responses 檢查點會保留工具輸出，若儲存的檢查點被拒絕則回退為完整歷史。
+- **脈絡上限改為逐模型設定**（原為 Provider 層級），`openclaw doctor` 可協助遷移綁定於明確模型項目的舊設定。
+- **多帳號失效轉移**：同一 Provider 若某帳號遇到認證或配額冷卻，會依你設定的憑證順序切換到下一個授權帳號，**不會改變已選定的 Provider 與模型**，待其恢復後回復原偏好。未設定明確帳號清單時，環境變數金鑰仍可使用。
+- **Codex 訂閱制執行不會靜默切換為按量計費的 API Key** —— 這是成本治理上重要的保證。永久性的認證、模型、媒體與長視窗配額失敗會停止重試，僅暫時性速率限制與可重試的伺服器錯誤保留重試或同 Provider 授權回退行為。
+
 ### 2.7 ClawHub 技能市集架構
 
 [ClawHub](https://clawhub.ai) 是 OpenClaw 的技能市集，類似 npm 之於 Node.js：
@@ -1394,29 +1544,61 @@ OpenClaw 提供 Companion Apps 作為多平台入口。Gateway 本身即能提�
 
 | 平台 | 技術棧 | 功能 |
 |------|--------|------|
-| **macOS** | Swift (Menu Bar App) | Gateway 健康監控、Voice Wake + PTT、Talk Mode overlay、WebChat、除錯工具、遠端 Gateway 控制 |
-| **iOS** | Swift (Node App) | Canvas、Voice Wake、Talk Mode、相機、螢幕錄製、Bonjour + 裝置配對 |
-| **Android** | Kotlin (Node App) | Connect/Chat/Voice 分頁、Canvas、相機/螢幕錄製、Android 裝置指令 |
-| **Windows** | TypeScript (Hub App)（v2026.6.10 新增） | 原生 Windows 伴侶應用、Gateway 健康狀態、系統列床快速存取、WebChat 內嵌 |
+| **macOS** | Swift (Menu Bar App) | Gateway 健康監控、Voice Wake + PTT、Talk Mode overlay、WebChat、除錯工具、遠端 Gateway 控制、**Quick Chat**（v2026.8.1） |
+| **iOS / iPadOS** | Swift (Node App) | 單一 Chat 介面整合打字／聽寫／語音訊息／附件／即時 Talk，Canvas、Voice Wake、相機、螢幕錄製、Bonjour + 裝置配對 |
+| **Apple Watch** | Swift (watchOS) | 訊息、審批、回覆與指令，**跨重啟／Gateway 變更／導航／重試仍保留**並與手機對帳 |
+| **Android** | Kotlin (Node App) | 精簡 composer（聽寫／語音訊息／即時 Talk／模型與思考層級／脈絡用量／附件）、Canvas、裝置指令、Sharesheet 匯入 |
+| **Wear OS** | Kotlin (watchOS 對應) | 透過配對手機連線（**Watch 端不儲存 Gateway 憑證**）、逐字稿、回覆、停止執行、Agent Pulse（唯讀） |
+| **Windows** | TypeScript (Hub App)（v2026.6.10 新增） | 原生 Windows 伴侶應用、Gateway 健康狀態、系統列快速存取、WebChat 內嵌 |
+| **Linux 桌面** | TypeScript（v2026.8.1 新增） | 首次執行設定、系統匣與服務控制、內嵌 Control UI、深層連結、開機自啟、Quick Chat |
 
 ```mermaid
 graph TB
     subgraph "Companion Apps"
-        MAC[macOS Menu Bar App<br>Swift]
-        IOS[iOS Node<br>Swift]
+        MAC[macOS Menu Bar App<br>Swift + Quick Chat]
+        IOS[iOS / iPadOS Node<br>Swift]
+        WATCH[Apple Watch<br>watchOS]
         AND[Android Node<br>Kotlin]
+        WEAR[Wear OS<br>經手機轉接]
         WIN[Windows Hub<br>TypeScript]
+        LNX[Linux Desktop<br>TypeScript]
     end
-    
+
     subgraph "Gateway"
         WS[WebSocket Server<br>Port 18789]
     end
-    
+
     MAC -->|WebSocket| WS
     IOS -->|WebSocket| WS
     AND -->|WebSocket| WS
     WIN -->|WebSocket| WS
+    LNX -->|WebSocket| WS
+    WATCH -.->|經 iPhone| IOS
+    WEAR -.->|經 Android<br>不存憑證| AND
 ```
+
+#### v2026.8.1 原生應用重點變更
+
+**macOS Quick Chat** 可從選單列或全域快捷鍵在當前使用中的應用之上開啟，內含最近更新的五個對話選擇器，能就地串流回覆、切換 Agent、接受聽寫並選擇模型與推理層級。兩項作業系統權限會擴充其能力：
+
+| 權限 | 解鎖能力 |
+|------|---------|
+| Screen Recording | 視窗或區域擷取 |
+| Accessibility | 讀取焦點應用的有界文字，並可將最終答案貼回原本工作處 |
+
+> 擷取到的脈絡會在送出後或 Quick Chat 隱藏時清除。
+
+**進度卡與 Widget 的跨平台支援並不一致**，這在規劃企業標準配備時必須留意：
+
+| 呈現形式 | 支援平台 | 限制 |
+|---------|---------|------|
+| 持久化進度卡 | iOS、macOS、Android | 需連線的 Gateway 支援已儲存卡片；**舊版 Gateway 只能顯示即時卡片，重啟後無法還原**，Android 的回退機制偶有殘留過期完成狀態 |
+| Agent 產生的 Widget | iOS、Android、macOS、Linux Quick Chat | 需用戶端聲明支援；連線的 Mac 可另在原生 Canvas 面板呈現；**Linux Quick Chat 使用自訂 Gateway TLS leaf pin 時僅支援純文字** |
+| 可展開的檔案差異 | iPhone、iPad、Mac | 支援平台明顯較窄 |
+
+> **Linux 桌面應用的發布狀態**：官方已完成 .deb 與 AppImage 的建置與發布路徑，但發布說明載明「其作為 v2026.8.1 下載項目的可用性尚未驗證」。Summon 快捷鍵在 X11 可用，Wayland 保留系統匣項目，審批決策仍需在 Dashboard 或命令列完成。企業若規劃 Linux 桌面部署，建議先確認實際可取得的套件版本。
+
+#### Plugin Manifest 機制
 
 > **Plugin Manifest 機制**（v2026.4.11 新增）: 插件清單現可宣告激活（activation）與設定（setup）描述符，描述所需的認證、配對與組態步驟。這消除了核心程式碼中的硬編碼特殊處理，讓第三方插件的安裝設定流程更加統一。
 
@@ -1464,9 +1646,11 @@ openclaw/plugin-sdk
 | **Codex Harness** | Agent | Codex Agent 執行環境 |
 | **Zalo Personal** | 頻道 | 越南 Zalo 個人帳號頻道 |
 
-##### 插件開發範例（v2026.7.24 遷移後寫法）
+##### 插件開發範例（現行寫法）
 
-> **⚠️ Breaking Change**：舊版 `import { defineChannelPlugin } from 'openclaw/plugin-sdk'` 根路徑匯入方式，連同 `before_agent_start` hook、`providerAuthEnvVars`、`channelEnvVars` 等介面，已於 **2026 年 7 月 24 日後排定移除**（v2026.6.34 Extended-Stable 公告）。新插件開發應改用**細分子路徑匯入（subpath imports）**，例如頻道插件改從 `openclaw/plugin-sdk/channel-core` 匯入 `defineChannelPluginEntry`，並以 manifest setup descriptor 取代硬編碼的啟用/設定邏輯：
+> **⚠️ Breaking Change（狀態：已生效）**：舊版 `import { defineChannelPlugin } from 'openclaw/plugin-sdk'` 根路徑匯入方式，連同 `before_agent_start` hook、`providerAuthEnvVars`、`channelEnvVars` 等介面，已於 **2026 年 7 月 24 日後移除**（v2026.6.34 Extended-Stable 公告）。
+>
+> **v2026.8.1 進一步收斂**：契約整理**移除了 7 月與 8 月的已退休 SDK 路徑**，並以 `gateway_stop` **取代 `deactivate` 別名**。舊版 subpath 匯入的相容窗口已於 **2026-09-01 關閉**。新插件開發須使用**細分子路徑匯入（subpath imports）**，例如頻道插件改從 `openclaw/plugin-sdk/channel-core` 匯入 `defineChannelPluginEntry`，並以 manifest setup descriptor 取代硬編碼的啟用／設定邏輯：
 
 ```typescript
 // 最小頻道插件範例（現行寫法，子路徑匯入）
@@ -1677,6 +1861,70 @@ graph TB
     OTEL --> GRF & ES & ALERT
 ```
 
+### 2.11 Session 儲存架構：SQLite 遷移
+
+v2026.8.1 最具架構影響力的變更，是將原本以檔案為後端的狀態改為 **SQLite 後端儲存**。這項變更影響備份策略、容器 Volume 規劃與降版可行性，是企業升級前必須理解的前提。
+
+#### 遷移範圍
+
+| 資料類別 | 2.0 前 | 2.0 後 |
+|---------|-------|-------|
+| Sessions 與 Transcripts | 檔案式 | **SQLite** |
+| 選定的裝置與認證紀錄 | 檔案／JSON | **SQLite** |
+| 會議擷取（Meeting capture） | 檔案 | **SQLite** |
+| Runtime journals | 檔案 | **SQLite** |
+
+遷移後可透過同一套工具建立、驗證與還原**可攜式快照（portable snapshot）**，讓備份與復原在事故發生前就具備可驗證的路徑（詳見 6.7）。
+
+#### 架構示意
+
+```mermaid
+graph TB
+    subgraph "Gateway Process"
+        AGENT[Agent Runtime]
+        SESS[Session Manager]
+    end
+
+    subgraph "State Directory 狀態目錄"
+        DB[(SQLite<br/>sessions / transcripts<br/>devices / auth<br/>meetings / journals)]
+        WAL[WAL 日誌]
+        FILES[工作區檔案<br/>MEMORY.md / USER.md<br/>skills/]
+    end
+
+    subgraph "備份"
+        SNAP[Portable Snapshot<br/>create → verify → restore]
+    end
+
+    AGENT --> SESS
+    SESS --> DB
+    DB --- WAL
+    AGENT --> FILES
+    DB --> SNAP
+    FILES --> SNAP
+```
+
+#### 降版限制（升級前必讀）
+
+> ⚠️ **這是單向性較強的變更**。官方發布說明明確警告：
+>
+> - **遷移後建立的 Session 不會出現在舊版中**。
+> - 若要降版到舊的檔案式版本，**必須先用當前 CLI 還原已封存的舊版 transcript 產物**，否則資料在舊版看不到。
+> - 升級前應建立**可驗證的備份**（`openclaw backup`），而非僅複製目錄。
+
+#### 其他已知限制
+
+官方載明的邊界條件，規劃維運程序時須一併納入：
+
+| 項目 | 限制 |
+|------|------|
+| 舊版儲存遷移 | **部分舊儲存需先停止擁有該狀態的行程**，`openclaw doctor --fix` 才能遷移 |
+| 待處理的配對請求與 bootstrap 代碼 | **不會被匯入** |
+| macOS tunnel 遷移 | 產生的資料**無法被僅支援 JSON 的舊版建置讀取** |
+| 還原行為 | **拒絕覆寫既有目標**，須還原至全新目標 |
+| Node + SQLite 版本 | 已知有漏洞的組合會**在狀態開啟前擋下**，並提示應升級內嵌 Node runtime 或系統共用的 SQLite 函式庫 |
+
+> **資料安全強化**：2.0 針對 SQLite 後端做了大量健全性修補，包含防止 WAL split-brain 清理損毀資料庫，以及將「已證實損毀」的判定隔離處理。即便如此，**SQLite 檔案本身並未加密**，其機密性仍取決於狀態目錄的檔案系統權限（與 Secret Store 相同的前提，見 3.11）。
+
 ---
 
 ## 第三章：安裝與環境建置
@@ -1704,9 +1952,34 @@ graph TB
 | **磁碟空間** | 50 GB SSD |
 | **CPU** | 4 cores |
 
-### 3.2 本地開發安裝（npm）
+### 3.2 本地開發安裝
 
-#### 步驟一：確認 Node.js 版本
+自 v2026.8.1 起，**官方安裝器是建議的首選路徑**；npm／pnpm 全域安裝則保留給需要自行掌控套件管理器的情境。
+
+#### 路徑一：官方安裝器（推薦）
+
+安裝器會自動處理 Node.js 與相依套件，並在 2.0 中強化了幾項安裝後的可用性：
+
+```bash
+# macOS / Linux / WSL2
+curl -fsSL https://openclaw.ai/install.sh | bash
+
+# Windows (PowerShell)
+iwr -useb https://openclaw.ai/install.ps1 | iex
+```
+
+v2026.8.1 的安裝器改善重點：
+
+- **macOS**：從「下載」資料夾或磁碟映像開啟的 App 會主動詢問是否移入「應用程式」資料夾——只有位於該處，更新與登入時啟動才能正常運作。
+- **Linux 與其他 Unix**：安裝器會讓 `openclaw` 在**新開的終端機工作階段中直接可用**，不再要求你手動編輯 shell 啟動檔。
+- **安全預設**：會**在變更任何東西之前擋下**「將 OpenClaw 暴露於網路且未設認證」的安裝方式。
+- **重裝保護**：若準備階段被取消或失敗，既有的可用設定會被保留；安裝器也會給 OpenClaw 足夠的啟動時間，再回報是否可連線。
+
+> **Windows 使用者**: 若不使用原生 Windows 建置，仍強烈建議採用 WSL2 環境。
+
+#### 路徑二：npm / pnpm 全域安裝
+
+##### 步驟一：確認 Node.js 版本
 
 ```bash
 # 確認 Node.js 版本（需落在 22.22.3-22.x / 24.15.0-24.x / 25.9.0+ 區間，建議 Node 24 LTS）
@@ -1718,31 +1991,29 @@ nvm install 24
 nvm use 24
 ```
 
-#### 步驟二：全域安裝 OpenClaw
+##### 步驟二：全域安裝 OpenClaw
 
 ```bash
-# 使用 npm 全域安裝
-npm install -g openclaw@latest
+# 使用 npm 全域安裝（2.0 起需明確允許安裝腳本）
+npm install -g openclaw@latest --allow-scripts=openclaw
 
 # 或使用 pnpm
 pnpm add -g openclaw@latest
 
 # 驗證安裝
 openclaw --version
-# openclaw 2026.7.1
+# openclaw 2026.8.1
 ```
 
-> **一鍵安裝（推薦）**: OpenClaw 提供跨平台一鍵安裝腳本，會自動安裝 Node.js 及所有依賴：
+> **`--allow-scripts=openclaw` 的意義**：新版 npm 預設封鎖套件的安裝腳本。OpenClaw 需要安裝腳本完成執行檔佈署，故須以此旗標明確授權。這是「預設安全、明確授權」的設計，而非可省略的樣板參數。
+>
+> ⚠️ **一條需要手動修復的升級路徑**：若你目前在 **OpenClaw 2026.7.1 且使用 pnpm 11**，請手動執行一次：
 >
 > ```bash
-> # macOS / Linux
-> curl -fsSL https://openclaw.ai/install.sh | bash
->
-> # Windows (PowerShell)
-> powershell -c "irm https://openclaw.ai/install.ps1 | iex"
+> pnpm add -g openclaw@latest
 > ```
 >
-> **Windows 使用者**: 強烈建議使用 WSL2 環境。
+> 另請注意 **OpenClaw 不會替你升級 Node.js**，Node 版本需自行確認符合上述區間。
 
 #### 步驟三：使用 Onboard 精靈初始化
 
@@ -2034,6 +2305,34 @@ nix profile install github:openclaw/nix-openclaw
 ### 3.6 初始設定與 JSON5 組態
 
 OpenClaw 使用 **JSON5** 格式作為設定檔格式，JSON5 是 JSON 的超集，支援註解、尾逗號等開發友善特性。
+
+#### 引導式設定（v2026.8.1 重構）
+
+2.0 將初次設定從「逐項填寫」改為「**先偵測既有資源，再驗證後保存**」。這對企業導入的意義在於：既有的 AI 存取權可以直接成為設定的一部分，而不是另一件要重新申請的事。
+
+引導式設定的偵測與驗證流程：
+
+```mermaid
+graph LR
+    A[開始設定] --> B{偵測既有 AI 存取}
+    B --> C[已驗證的 Codex／<br/>ChatGPT／Claude CLI 登入]
+    B --> D[API Key]
+    B --> E[Provider 自身登入流程]
+    B --> F[符合條件的 Ollama／<br/>LM Studio 本地模型]
+    C & D & E & F --> G[實測該模型能否回答]
+    G -->|通過| H[保存模型與憑證]
+    G -->|未通過| B
+    H --> I[交棒至 Web App 或終端機]
+```
+
+關鍵設計要點：
+
+- **驗證後才保存**：系統會先證明「所選的那個確切模型」能夠回應，才會保留該模型與憑證。本地模型畫面在該選擇通過啟用測試前，**不會顯示「開始聊天」**。
+- **OpenAI 帳號**：使用該登入帳號**實際可存取**的模型，同時保留你自行設定的路由。
+- **本地模型**：管理者可準備支援的本地模型並看到即時進度；經驗證的本地模型會**自動採用精簡工具介面（lean tool surface）**以符合其能力。
+- **設定完成後直接交棒**：圖形化的 Mac／Linux／Windows 工作階段會開啟 Web App；SSH 等無頭環境則提供一組已認證的連結與 port-forward 指示，並保留終端機聊天。
+
+> **組態錯誤的行為變更**：2.0 起，錯誤的組態**會直接停止並給出可行動的答案**，而不是靜默地用別的設定啟動 OpenClaw。打包建置、CLI 檢查、服務 preflight 與 Gateway 啟動都會顯示檔案、行號、完整設定路徑、可用值（若有）以及收到內容的安全版本。**格式錯誤的頂層純量檔案會 fail closed**，不再載入預設值。這對生產環境是重要的可靠性提升——設定錯誤不再變成難以察覺的行為偏差。
 
 #### 組態檔位置
 
@@ -2415,7 +2714,23 @@ openclaw config show
 | `openclaw voicecall` | 語音通話管理 | `openclaw voicecall list` |
 | `openclaw mcp` | MCP 伺服器管理 | `openclaw mcp list` |
 | `openclaw tasks` | 背景任務管理 | `openclaw tasks list` |
-| `openclaw commitments` | 承諾追蹤 | `openclaw commitments list` |
+| `openclaw automations` | **自動化管理（`cron` 的新名稱，v2026.8.1）** | `openclaw automations list`（與 `openclaw cron` 為同一指令族） |
+| `openclaw connect` | **配對並連線另一台電腦作為執行主機** | `openclaw connect`（見第十二章） |
+| `openclaw worker` | **Cloud Worker 管理** | `openclaw worker list` |
+| `openclaw claws` | **實驗性：將 Agent 打包為可散布的 Claw** | `openclaw claws plan ./my-claw`（需 `OPENCLAW_EXPERIMENTAL_CLAWS=1`） |
+| `openclaw fleet` | 多 Gateway／多裝置機群檢視 | `openclaw fleet status` |
+| `openclaw triage` | 問題分流輔助 | `openclaw triage` |
+| `openclaw workboard` | 多 Agent 協調看板 | `openclaw workboard list` |
+| `openclaw transcripts` | 逐字稿管理與匯出 | `openclaw transcripts list` |
+| `openclaw directory` | 聯絡人／參與者目錄 | `openclaw directory list` |
+| `openclaw policy` | 工具與存取政策管理 | `openclaw policy show` |
+| `openclaw audit` | 稽核紀錄查詢 | `openclaw audit list` |
+| `openclaw resume` | 接續先前的工作階段 | `openclaw resume <session>` |
+| `openclaw system` | 系統資源與壓力概覽 | `openclaw system` |
+| `openclaw configure` | 非互動式組態設定 | `openclaw configure --set agent.model=...` |
+| `openclaw openshell` | OpenShell 整合 | `openclaw openshell` |
+| `openclaw docs` | 開啟／查詢官方文件 | `openclaw docs search "cloud worker"` |
+| `openclaw path` | 顯示狀態與組態路徑 | `openclaw path` |
 | `openclaw approvals` | 操作審批 | `openclaw approvals list` |
 | `openclaw acp` | Agent Communication Protocol | `openclaw acp send <agent> "message"` |
 | `openclaw completion` | Shell 自動完成 | `openclaw completion bash\|zsh\|fish` |
@@ -2427,9 +2742,25 @@ openclaw config show
 | 指令 | 說明 | 範例 |
 |------|------|------|
 | `openclaw doctor` | 完整診斷與遷移建議 | `openclaw doctor` |
-| `openclaw health` | 健康檢查 | `openclaw health --deep` |
+| `openclaw doctor --fix` | **套用組態遷移與修復**（2.0 四項遷移的執行指令） | `openclaw doctor --fix` |
+| `openclaw doctor --json` | **唯讀的建議性檢查**（不變更任何東西） | `openclaw doctor --json` |
+| `openclaw doctor --lint --all` | 需要略過預設執行中的建議性檢查時使用 | `openclaw doctor --lint --all` |
+| `openclaw health` | **執行中系統**的健康檢查（含插件與服務狀態） | `openclaw health --deep` |
+| `openclaw plugins doctor` | **本地插件探索與組態**檢查（與 `health` 分工不同） | `openclaw plugins doctor` |
 | `openclaw config validate` | 驗證組態 | `openclaw config validate` |
 | `openclaw channels test` | 測試頻道連線 | `openclaw channels test whatsapp` |
+| `openclaw skills check` | **完整技能清單**（模型可見目錄可能被壓縮，此為權威來源） | `openclaw skills check` |
+| `openclaw update --dry-run` | **預覽升級路徑而不變更**組態、交接、清理或重啟狀態 | `openclaw update --dry-run` |
+| `openclaw memory forget` | 依 session／hook 來源／參與者預覽並清除衍生記憶 | `openclaw memory forget --session <id>` |
+| `openclaw gateway install --force` | 變更服務目標（狀態目錄／組態路徑／port）時必須明確指定 | `openclaw gateway install --force` |
+
+> **`doctor` 與 `health` 的分工（v2026.8.1 明確化）**：
+>
+> - `openclaw doctor`：偏重**本機探索與組態**的靜態檢查。2.0 起它花較少篇幅列舉健康項目，改為聚焦「壞了什麼、下一步該做什麼」。可復原的互動式啟動失敗會提供一次經確認的 `doctor --fix` 嘗試；不可復原的組態則保持原狀，並給出檢查、編輯或移開的明確指示。
+> - `openclaw health`：回報**執行中系統**的插件與服務狀態。
+> - `openclaw plugins doctor`：專責本地插件的探索與組態檢查。
+>
+> 三者不可互相取代。診斷時的建議順序為 `doctor` → `health` → `plugins doctor`。
 
 #### 聊天指令（Chat Commands）
 
@@ -2446,6 +2777,74 @@ openclaw config show
 | `/restart` | 重啟 Gateway（群組中僅擁有者可用） |
 | `/activation mention\|always` | 群組啟動模式（僅群組） |
 | `/elevated on\|off` | 切換提升權限 bash 存取（需授權） |
+| `/btw`（v2026.8.1） | **開啟獨立的多輪側線對話**，可問旁支問題而不打斷正在進行的工作、也不污染主線歷史 |
+| `/model`（v2026.8.1 強化） | 切換模型，可選擇**僅本對話**／單一 Agent／共用預設（後兩者需權限） |
+| `/loop`（v2026.8.1） | 將當前對話轉為週期性自動化或提醒，執行時檢查少量近期脈絡並回傳單一最終答案至同一聊天室 |
+| `/learn`（v2026.8.1） | 明確觸發自我學習，將本次工作轉為**待審提案**（不會直接改動線上技能） |
+| `$skill-name`（v2026.8.1） | 在訊息中直接指名技能，**單次最多 8 個**，含未開放給模型自動選用的技能 |
+
+> **`/loop` 的行為邊界**：它以**全新執行**開始，而非延續原本的逐字稿；在沒有對話脈絡下建立的工作會保持隔離。這點在設計自動化時很重要——不要假設它能看見完整的歷史對話。
+
+---
+
+### 3.11 Secret Store 與密鑰治理（v2026.8.1 新增）
+
+2.0 引入 **團隊範圍的本地 Secret Store**，將密鑰明確分為兩類。這個區分是整套密鑰治理的核心，混淆兩者會直接造成外洩。
+
+#### 兩類密鑰的本質差異
+
+| 類別 | 用途 | 模型可見性 | 風險特性 |
+|------|------|-----------|---------|
+| **Protected（受保護值）** | 注入 Gateway 託管的 HTTPS 請求 | **不進入模型可見文字** | 可保持不出現在明文組態與對話脈絡中 |
+| **Agent-readable（Agent 可讀環境值）** | 提供給 Gateway 託管的指令使用 | **模型與指令可讀** | **接收它的指令仍可將其印出或傳送出去** |
+
+> ⚠️ **這是兩種不同的授權，不是同一機制的兩種強度**。將本應為 Protected 的憑證放入 Agent-readable，等同於直接交給模型與其呼叫的任何指令。
+
+#### 保護機制
+
+Protected 值可透過三種方式在不落入明文的前提下抵達目的地：
+
+1. **遮罩式請求（masked request）**——以遮罩提示向使用者索取憑證，值不會出現在聊天中。
+2. **Vault 或 1Password 參照**——組態中只存放參照，不存放值本身。
+3. **目的地綁定替換（destination-bound substitution）**——將值綁定至特定目的地後再替換，避免被導向他處。
+
+```json5
+// 以參照方式引用密鑰，組態中不出現實際值
+{
+  secrets: {
+    // Protected：僅供 Gateway 託管的 HTTPS 請求使用，不進入模型脈絡
+    protected: {
+      PAYMENT_API_TOKEN: { ref: "vault://kv/openclaw/payment#token" },
+      CRM_WEBHOOK_SECRET: { ref: "op://Engineering/CRM/webhook-secret" },
+    },
+    // Agent-readable：Agent 與其指令可讀，僅放置可承受被讀取的值
+    agentReadable: {
+      REPORT_OUTPUT_DIR: "/var/openclaw/reports",
+    },
+  },
+}
+```
+
+#### 必須理解的限制（官方明確揭露）
+
+> ⚠️ **Secret Store 並非加密保險庫**。官方載明以下邊界，企業在做風險評估時不可忽略：
+>
+> | 限制 | 說明 |
+> |------|------|
+> | **非靜態加密** | Secret Store 的值**未於靜態加密**，其機密性完全取決於 OpenClaw 狀態目錄的**檔案系統權限** |
+> | **目的地綁定的適用範圍** | 僅適用於 **Gateway 託管的 HTTPS 指令**，且該子行程需遵循其 proxy 設定 |
+> | **不在保護範圍內的路徑** | **raw socket、容器、遠端節點、Provider 原生 harness、純 HTTP、WebSocket** 皆在此路徑之外 |
+>
+> 換言之：若你的威脅模型包含「取得主機檔案系統存取權的攻擊者」，Secret Store 本身**不構成防線**，必須另外以作業系統層級的權限控制、磁碟加密與最小權限原則補足。真正的高價值憑證應存放於 Vault／1Password 並以參照方式引用，讓 OpenClaw 僅持有參照而非值。
+
+#### 連帶的編修（redaction）強化
+
+2.0 同時擴大了自動編修的覆蓋範圍：
+
+- 常見的憑證與簽章參數樣式，會在**日誌、診斷、Agent 錯誤訊息與 Control UI 失敗訊息**中被編修。
+- 聊天歷史會移除**內嵌媒體位元組、本地路徑、私有 shell 列、複製的提示脈絡，以及傳遞失敗的酬載**。
+
+> **仍需明確選擇的遙測項目**：額外的功能統計、Android 已安裝應用程式明細、iOS 健康摘要都需要明確選擇啟用（健康資料另有**兩道預設關閉的關卡**）。更新檢查預設開啟（可停用）；**約略的 Activity 位置對可路由位址預設啟用**，且首次使用時可能下載本地城市資料庫——這兩項預設值在隱私敏感的環境中應主動檢視。
 
 ---
 
@@ -3218,6 +3617,71 @@ public class ToolBridgeServer {
 }
 ```
 
+#### Skill 生命週期與 Skill Workshop（v2026.8.1）
+
+2.0 將原本零散的技能操作，連成一條完整且可稽核的路徑：
+
+```mermaid
+graph LR
+    A[建立技能<br/>引導式流程] --> B[驗證<br/>openclaw skills check]
+    B --> C[安裝／發現<br/>ClawHub 或本地]
+    C --> D[在對話中使用<br/>$skill-name]
+    D --> E[Skill Workshop<br/>審閱提案]
+    E -->|套用| F[已套用修訂版<br/>依技能分組的歷史]
+    E -->|拒絕| G[退回]
+    E -->|隔離| H[Quarantine]
+```
+
+##### 建立與驗證
+
+建立技能現在是一條引導式路徑：從**選擇調用方式**開始，經過加入支援檔案、儲存，到驗證結果。檢查器理解調用中繼資料，能在寫入任何東西**之前**就抓出「描述過長」這類問題。
+
+技能載入的錯誤處理也更精細：格式錯誤的中繼資料、無法讀取的檔案、過大的指令、被遮蔽的副本，都會**歸咎到造成問題的那個技能**，其餘有效技能照常載入，不會因一個壞技能而讓整個目錄不可用。
+
+> **持久性 Gateway Session 中的熱更新**：對正規技能與 managed-worktree 技能的編輯，會在**下一個回合**生效；必要的技能指令會被完整讀取。但**進行中的對話會維持它載入時的版本**，直到下一個回合為止。
+
+##### 在對話中調用技能
+
+| 方式 | 說明 |
+|------|------|
+| 聊天中的技能選擇器 | 將參照加入草稿而**不送出** |
+| `$skill-name` | 直接指名，**單次最多 8 個**，含被隱藏於模型自動選用之外的技能 |
+| Code Mode | 可在既有沙箱與允許清單範圍內列出並讀取符合條件的技能 |
+
+> ⚠️ **大型技能目錄會被壓縮**：模型可見的目錄在數量龐大時可能被壓縮，因此 **`openclaw skills check` 才是完整清單的權威來源**。做技能盤點與稽核時，不要以模型看到的清單為準。
+
+##### Skill Workshop：提案審閱
+
+Skill Workshop 將提案、檢查、決策與已套用歷史整合為單一工作流。你可以檢視提案的指令與支援檔案、查看插件提供的掃描器／基準測試／評分器結果、修訂提案，然後**套用、拒絕或隔離**它。
+
+治理上的關鍵保證：
+
+| 保證 | 說明 |
+|------|------|
+| **提案綁定確切修訂版** | 每個決策都綁定你所審閱的那個確切修訂版；**後續修訂會重新回到審閱流程** |
+| **注入攻擊阻擋** | **關鍵等級的 prompt-injection 發現會直接阻擋套用** |
+| **中斷可復原** | 中斷的套用可以復原，且**不會覆寫已在他處變更的目標** |
+| **遠端 Gateway 為權威** | 明確選定的遠端 Gateway 是該變更的權威來源 |
+| **掃描不改動線上技能** | 過往工作掃描只產生待審提案，**不會直接編輯線上技能** |
+
+##### 自我學習（Self-learning）
+
+OpenClaw 可將實質性的工作與持續性的糾正，轉化為可重用的技能。學習模式有三種：
+
+| 模式 | 行為 |
+|------|------|
+| `off` | 停用自動修復 |
+| `propose` | 將變更排入審閱佇列 |
+| `auto` | 可建立或更新 **Workshop 擁有的**技能，支援針對性修補或同回合修復 |
+
+> **預設值與升級行為**：全新與未設定的安裝**預設為 `auto`**；**升級則保留既有選擇**。企業若對自動修改有治理要求，應在部署基準中明確設定為 `propose` 或 `off`，不要依賴預設值。
+
+**所有權界線是這套機制最重要的保護**：
+
+> 你自己撰寫的技能，以及所有權在他處的共享技能，**仍然屬於原擁有者**。自動學習**可以對它們提出改善建議，但不能自行改寫或移除**。明確的 `/learn` 或過往工作掃描，同樣只會產生待審提案。
+>
+> 在支援的 Agent runtime 上，選用的背景審查會獨立執行，不會打斷對話或發文至聊天中。當學習模式與排程工作設定都允許時，一個可見的每週工作會審查技能集合、記錄使用情況與結果、保留特化技能，並建立**可復原的備份**（還原備份始終是明確的選擇，不會自動發生）。
+
 ### 4.4 自訂 Tool 開發
 
 #### OpenClaw 工具定義格式
@@ -3429,6 +3893,101 @@ public class ToolRegistry {
 }
 ```
 
+#### ⚠️ Code Mode 破壞性變更（v2026.8.1）
+
+這是 2.0 中對開發者影響最直接的破壞性變更，**升級前必須確認你的 Code Mode 程式碼已完成遷移**。
+
+Code Mode 現在將授權的工具視為**一般的非同步函式**，讓 Agent 能在單一程式中組合來自對話、檔案與 Session 的可信結果，或並行執行彼此獨立的呼叫。官方明確聲明：**這是最終介面，而非疊加在舊介面旁的另一層**。
+
+因此以下四項舊介面**已經移除**：
+
+| 已移除項目 | 說明 |
+|-----------|------|
+| `tools` 物件 | 舊的工具集合存取物件 |
+| `ALL_TOOLS` | 全部工具的匯出常數 |
+| exact-ID 呼叫 | 以確切工具 ID 進行呼叫的方式 |
+| raw call envelope | 原始呼叫封包格式 |
+
+##### 新舊寫法對照（TypeScript）
+
+```typescript
+// ❌ 舊寫法（v2026.8.1 起已失效）
+const result = await tools.call({
+  id: 'web.fetch',
+  arguments: { url: 'https://example.com/report' },
+});
+const all = ALL_TOOLS.filter((t) => t.id.startsWith('web.'));
+
+// ✅ 新寫法：授權工具即一般 async function
+const result = await webFetch({ url: 'https://example.com/report' });
+
+// 並行執行彼此獨立的呼叫
+const [page, notes, session] = await Promise.all([
+  webFetch({ url: 'https://example.com/report' }),
+  memorySearch({ query: '季度營收' }),
+  sessionRead({ sessionId: currentSessionId }),
+]);
+```
+
+##### 等價的 Java 呼叫端寫法
+
+若你的整合層以 Java 撰寫，對應的模式是以 `CompletableFuture` 組合彼此獨立的工具呼叫：
+
+```java
+package com.tutorial.openclaw.codemode;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.Map;
+
+/**
+ * Code Mode 工具組合的 Java 對應寫法。
+ *
+ * <p>對應 TypeScript 中「授權工具即一般 async function」的模型：
+ * 每個工具呼叫回傳 CompletableFuture，彼此獨立者可並行組合。
+ */
+public class CodeModeComposition {
+
+    private final OpenClawToolClient client;
+
+    public CodeModeComposition(OpenClawToolClient client) {
+        this.client = client;
+    }
+
+    /**
+     * 並行取得頁面內容、記憶搜尋結果與 Session 內容後合併。
+     *
+     * @param url       欲擷取的頁面
+     * @param query     記憶搜尋關鍵字
+     * @param sessionId 目標 Session
+     * @return 合併後的結果
+     */
+    public CompletableFuture<Map<String, Object>> gather(
+            String url, String query, String sessionId) {
+
+        CompletableFuture<Map<String, Object>> page =
+                client.invokeAsync("web_fetch", Map.of("url", url));
+        CompletableFuture<Map<String, Object>> notes =
+                client.invokeAsync("memory_search", Map.of("query", query));
+        CompletableFuture<Map<String, Object>> session =
+                client.invokeAsync("session_read", Map.of("sessionId", sessionId));
+
+        return CompletableFuture.allOf(page, notes, session)
+                .thenApply(ignored -> Map.of(
+                        "page", page.join(),
+                        "notes", notes.join(),
+                        "session", session.join()));
+    }
+}
+```
+
+> **能力邊界仍未放寬**：程式能組合的範圍，**仍然止於它被授權使用的工具，以及那些工具所宣告的結構化結果**。Code Mode 的介面變得更自然，但並不擴大權限——這點在做安全評估時很重要。
+
+#### Tool Search 的改善
+
+`Tool Search` 在 2.0 中能更好地把自然語言請求轉為可發現的能力，並支援**在單一結構化請求中搜尋多個能力群組**，同時新增了既有的 Session 封存與釘選動作。
+
+> **限制**：政策仍可隱藏工具，且**沒有有效答案的請求可以回傳空結果**。既有的單一查詢請求與回應格式維持可用，不需立即遷移。
+
 ### 4.5 工作流程編排
 
 #### 多步驟工作流程設計
@@ -3623,6 +4182,69 @@ public class WorkflowEngine {
 ```
 
 ### 4.6 記憶體與上下文管理
+
+#### Built-in Memory 取代 QMD（v2026.8.1 遷移）
+
+2.0 起，**Built-in Memory 擁有核心的搜尋與回想路徑**。原本使用 QMD 的安裝需執行遷移：
+
+```bash
+# 移除已退休的 QMD 設定並重建索引
+openclaw doctor --fix
+```
+
+`doctor --fix` 在此遷移中會：移除已退休的 QMD 設定、延續你明確啟用的額外路徑與 Session 索引、保留 Agent 資料庫中已相容的資料列，並**從正規的 Markdown 重建索引**。
+
+> ⚠️ **遷移會退休三項 QMD 專屬能力**：由於資料被帶入不同的核心，**QMD 專屬的 reranking、query expansion、跨 Agent 逐字稿搜尋將不再提供**。格式錯誤的結構、不相容的向量維度，以及沒有安全歸屬的資料會被**停下待修復**，不會靜默丟棄。若你的工作流程依賴上述三項能力，升級前須先規劃替代方案。
+
+各記憶元件在 2.0 後的分工：
+
+| 元件 | 角色 |
+|------|------|
+| **Built-in Memory** | 核心搜尋與回想路徑 |
+| **LanceDB** | 向量儲存外掛 |
+| **Memory Wiki** | 人工維護的筆記（匯入時會被保留） |
+| **外部 embedding 服務** | 選用的向量化來源 |
+| **`MEMORY.md`** | 可整併的觀察結果 |
+| **`USER.md`** | 持久性指令 |
+
+#### 跨對話回想與其邊界
+
+在符合條件的個人安裝上，Agent **預設**可從**同一個 Agent 的其他私人對話**中回想相關脈絡，包含「重置 Session 前那一刻重要的內容」。
+
+> **回想的邊界（不可誤解為全域搜尋）**：回想**僅限於該 Agent 的私人對話**。以下一律排除在外：
+>
+> - 群組、頻道、共享別名
+> - **其他 Agent** 的對話
+> - 已刪除的歷史
+> - 被政策封鎖的來源
+>
+> 此外，**明確的 direct-message 隔離設定永遠優先**（會覆蓋回想行為）。
+
+#### 搜尋能力與 Session 生命週期變更
+
+- **內建搜尋**現在理解檔名、完整與部分的 Unicode 路徑，以及設定的額外路徑；會擴展過於嚴格而結果稀少的比對；在選用的 embedding provider 無法啟動時，**仍保留關鍵字結果**。搜尋始終限縮在設定的根目錄與 Agent 邊界內，而**必要的 embedding provider 則 fail closed**。
+- **Session 預設行為變更**：未設定重置政策的 Session **會跨日保持開啟**（2.0 之前會自動重置）。持久性的重置或壓縮標記會說明可見的歷史變化。這項預設變更會影響長期執行的 Agent 的脈絡成本，升級後應重新檢視。
+- **對話分支與回溯**：Web、macOS、iOS、Android 上以 SQLite 為後端的聊天，可回溯至某則使用者訊息、**分叉對話**，並在保留的分支之間切換。
+
+> ⚠️ **回溯只改變逐字稿分支，不會回復副作用**。它**不會復原檔案、已送出的訊息，或其他工具產生的外部影響**。把它理解為「對話歷史的版本控制」，而非「操作的復原鍵」。
+
+#### 記憶的來源標記與清除
+
+自動記憶維持**有界且經來源把關（provenance-gated）**：來自網路或受限 Session 的內容會保留「未信任來源」標記，**不會進入自動脈絡**，但明確的搜尋仍可將其帶出。
+
+> **此保護僅適用於新追蹤的素材**；較舊、未被追蹤的檔案維持其既有分類。這代表升級後既有的記憶並不會自動獲得來源標記保護。
+
+清除衍生記憶：
+
+```bash
+# 先預覽：可依 session、hook 來源或參與者篩選
+openclaw memory forget --session <session-id> --dry-run
+
+# 確認後執行
+openclaw memory forget --session <session-id>
+```
+
+> ⚠️ **`memory forget` 的清除範圍有限**。它依照記錄的 provenance 執行，因此**以下內容可能仍然存在**：原始逐字稿、較舊且無血緣資訊的筆記、其他 Agent 的儲存、直接或外部的寫入、匯出檔案與備份。**套用前務必先檢視預覽結果**——若你的目的是符合資料刪除的法遵要求，這個指令本身並不足以構成完整證據，需搭配備份與匯出的清理程序。
 
 #### 上下文管理器
 
@@ -3832,6 +4454,74 @@ public class ContextManager {
 ```
 
 ### 4.7 Webhook 與排程任務
+
+#### Automations：Cron 的新名稱（v2026.8.1）
+
+2.0 將排程工作統一命名為 **Automations**，橫跨 Agent 工具、Control UI、命令列、文件與原生應用。
+
+> **這是更名，不是取代**。官方明確保證向下相容：`openclaw automations` 與 `openclaw cron` 提供**同一組指令族**，而舊的 `/cron` 路由、`cron.*` 設定與 RPC 名稱、排程運算式、識別碼與已儲存的工作**全部繼續運作**。既有自動化不需要因為更名而修改。
+
+```bash
+# 以下兩者等價
+openclaw automations list
+openclaw cron list
+```
+
+各介面的能力並不對等，規劃維運分工時須留意：
+
+| 介面 | 能力 |
+|------|------|
+| **Control UI** | 最完整：搜尋、篩選、建立、複製、檢視、編輯、執行、暫停、移除，含進階傳遞與失敗路由 |
+| **iOS / Android** | 各自支援的欄位與動作；**Android 的變更需管理員範圍**，唯讀連線僅能檢視 |
+| 無法替換酬載的用戶端 | 腳本型自動化**可見但唯讀** |
+
+#### 條件式與事件串流觸發
+
+自動化不再限於時間排程，可等待**條件或受監控的事件串流**：
+
+| 觸發類型 | 建立方式 | Control UI 支援 | 限制 |
+|---------|---------|----------------|------|
+| **條件（Condition）** | Control UI 可建立、篩選、編輯、檢視 | 完整 | **檢查間隔至少 30 秒**；儲存前會先驗證；記錄檢查與命中但不為每次未命中建立執行 |
+| **串流排程（Stream）** | 僅命令列或 Agent | **唯讀** | 有界緩衝、批次處理與重啟退避 |
+
+> 觸發機制可以完全停用。**條件間隔的 30 秒下限**是硬性限制，設計高頻監控時需改用其他機制。
+
+#### 執行、傳遞與完成是三件獨立的事
+
+這是 2.0 在自動化可觀測性上最重要的改變，也是排錯時最容易誤判的地方：
+
+```mermaid
+graph LR
+    A[自動化觸發] --> B[執行工作]
+    B -->|成功| C[產生結果]
+    C --> D{傳遞結果}
+    D -->|成功| E[完成]
+    D -->|失敗| F["狀態：not-delivered<br/>（工作本身已成功）"]
+```
+
+| 事實 | 意義 |
+|------|------|
+| **是否執行** | 工作本身是否跑完 |
+| **是否傳遞** | 結果是否成功送達目的地 |
+| **整個請求是否完成** | 兩者皆成立 |
+
+> **關鍵解讀**：一個工作**可以執行成功、卻仍標示為 `not-delivered`**（當預設的 announce 傳遞失敗時）。反之，明確要求傳遞時可能讓 `cron run --wait` 失敗，**但不會重跑已經完成的工作**。刻意的抑制不算失敗。
+
+#### 失敗告警與自動停用
+
+| 機制 | 預設值 |
+|------|-------|
+| 路由型失敗告警 | **連續 2 次失敗**觸發，冷卻 **1 小時** |
+| 週期性 `cron` / `every` 工作自動停用 | **連續 10 次執行失敗**後停用，並說明如何重新啟用 |
+
+> **僅傳遞失敗不會累計該連續次數**；一次成功執行或手動重新啟用即可重置計數。
+
+#### 其他重要變更
+
+- **`HEARTBEAT.md` 已停止在 runtime 讀取**。既有使用該檔案的安裝**必須執行 `openclaw doctor --fix`** 才能遷移有效的工作（見 7.5）。
+- **統一容量限制**：週期性排程、一次性工作、手動啟動、佇列工作、重啟補跑、結束時工作、指令與有界腳本，現在**共用同一個設定的容量上限**。等待中的工作會在有空間時開始。
+- **腳本仍有限制**：時間、工具呼叫次數、節奏與狀態皆有上限，且可以完全停用。成功的腳本可保留少量狀態、通知目的地、喚醒主對話，或要求稍後再檢查一次。
+- **時區處理**：時區感知的排程會**略過本地時間中不存在的時刻**，在本地時間重複時**選擇第一個真實發生的時刻**，並在重啟後繼續遵守明確的位移設定。
 
 #### Webhook 處理器
 
@@ -4532,6 +5222,47 @@ String response = retryPolicy.execute(() -> {
 });
 ```
 
+#### Plugin SDK 匯入路徑遷移對照（v2026.8.1）
+
+舊版的粗粒度 subpath 已收斂為聚焦命名空間。以下為官方公告的對照關係：
+
+| 舊版 subpath | 遷移目標 |
+|-------------|---------|
+| `plugin-sdk-config-runtime-subpath` | `api.pluginConfig` 與對應的聚焦匯入 |
+| `plugin-sdk-channel-*-subpath` | `openclaw/plugin-sdk/channel-outbound` 及相關命名空間 |
+| `plugin-sdk-infra-runtime-subpath` | 聚焦匯入：`delivery`、`diagnostic`、`error`、`exec`、`fetch`、`ssrf` |
+| `deactivate`（別名） | **`gateway_stop`** |
+
+```typescript
+// ❌ 舊寫法（相容窗口已於 2026-09-01 關閉）
+import { registerChannel } from 'openclaw/plugin-sdk';
+import { fetchWithSsrfGuard } from 'openclaw/plugin-sdk/infra-runtime';
+
+export function deactivate() { /* ... */ }
+
+// ✅ 新寫法：聚焦命名空間
+import { registerOutboundChannel } from 'openclaw/plugin-sdk/channel-outbound';
+import { fetchWithSsrfGuard } from 'openclaw/plugin-sdk/ssrf';
+
+export function gateway_stop() { /* ... */ }
+```
+
+> **其他需同步遷移的項目**：
+>
+> - 使用 **v2026.7.2 beta** 的 question、worker 或 session-catalog 形狀的用戶端，需改用**更名並扁平化後的契約**。
+> - 自訂的 `agents.defaults.cliBackends` 指令、參數、環境變數、別名與解析器，現在**必須放進 backend plugin**，且該執行檔需可被 OpenClaw 服務存取。
+> - **beta.5 session-store bridge** 仍可使用至 **2026-10-12**。
+>
+> **Hook 政策的位階**：Hook 政策**位於頻道准入、沙箱、審批、owner-only 工具等主機政策之下**。換言之，插件 hook 無法繞過主機層級的安全控制。另外，Codex hook 轉接的 timeout 清理**僅適用於 POSIX 主機，不含 Windows**。
+
+#### 插件更新與執行期世代
+
+2.0 讓插件更新**保留一個 runtime 世代給已在進行中的工作**：已受理的訊息、完成項目與 worker 會以它們啟動時的插件版本執行完畢，後續工作**只在替換版本成功載入後**才會移轉過去。若熱重載失敗，OpenClaw 會還原最後一組有效的指令、Provider、hook、記憶體與其他註冊項目。
+
+> **失敗隔離**：已知的插件自身失敗可被**隔離（quarantine）**，不會拖垮健康的插件或整個 OpenClaw。但無效的組態、失敗的遷移、歸屬不明與無法驗證的狀態，**仍會阻止啟用**。
+>
+> **Context-engine 插件**：可在長 Session 中推進持久狀態，方法是將限制套用於**已受理的回合**而非全部累計歷史。既有的 v1 引擎在採用新介面前維持其完整歷史契約；**單一受理回合超過 8 MiB 或 20,000 events 仍會停止**。
+
 ### 4.10 Java Spring Boot 整合範例
 
 #### Spring Boot OpenClaw 整合
@@ -4741,6 +5472,108 @@ logging:
 
 ---
 
+### 4.11 Gateway Protocol Client 開發（v2026.8.1 新增）
+
+2.0 為「建置 Gateway 用戶端或嵌入 OpenClaw」的開發者提供了正式的契約：**具型別的協定 schema、執行期驗證、認證、重連、readiness、timeout，以及 browser 與 Node 進入點指引**。
+
+> **發布狀態**：Gateway protocol 與參考用戶端已準備為**日曆版號的 npm 套件**，會在發布列車推送時變為可安裝。撰寫本文時應以官方 [Gateway protocol](https://docs.openclaw.ai/gateway/protocol) 文件確認當前可用版本。
+
+#### TypeScript 參考用戶端
+
+```typescript
+import { createGatewayClient } from '@openclaw/gateway-client';
+
+const client = createGatewayClient({
+  url: 'wss://gateway.internal.example.com:18789',
+  auth: { type: 'token', token: process.env.OPENCLAW_GATEWAY_TOKEN! },
+  // 執行期驗證：不符 schema 的訊息會被拒絕而非靜默接受
+  validate: 'strict',
+  // 重連與就緒等待
+  reconnect: { maxRetries: 10, backoffMs: 500 },
+  readinessTimeoutMs: 15_000,
+});
+
+await client.ready();
+
+const reply = await client.sendMessage({
+  sessionId: 'ops-daily-report',
+  text: '生成今日維運報表',
+  timeoutMs: 120_000,
+});
+
+console.log(reply.text);
+await client.close();
+```
+
+#### Java 對應實作
+
+Java 端沒有官方參考用戶端，需自行以 WebSocket 實作並對齊同一組契約要素。重點在於**明確處理 readiness 與 timeout**，而非僅建立連線即視為可用：
+
+```java
+package com.tutorial.openclaw.gateway;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.WebSocket;
+import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Gateway Protocol 用戶端的 Java 實作骨架。
+ *
+ * <p>對齊官方契約的四個要素：認證、執行期驗證、重連、readiness／timeout。
+ * 與 TypeScript 參考用戶端的差異在於 Java 端需自行維護 schema 驗證，
+ * 建議搭配 JSON Schema 驗證器對齊官方 protocol schema。
+ */
+public class GatewayProtocolClient implements AutoCloseable {
+
+    private static final Duration READINESS_TIMEOUT = Duration.ofSeconds(15);
+
+    private final URI endpoint;
+    private final String token;
+    private final CompletableFuture<Void> ready = new CompletableFuture<>();
+    private WebSocket socket;
+
+    public GatewayProtocolClient(URI endpoint, String token) {
+        this.endpoint = endpoint;
+        this.token = token;
+    }
+
+    /**
+     * 建立連線並等待 Gateway 回報就緒。
+     *
+     * <p>注意：連線建立不等於可用。必須等待 readiness 訊號，
+     * 否則在 Gateway 啟動期間送出的請求可能被拒絕。
+     *
+     * @throws IllegalStateException 若在逾時前未收到就緒訊號
+     */
+    public void connectAndAwaitReady() throws Exception {
+        this.socket = HttpClient.newHttpClient()
+                .newWebSocketBuilder()
+                .header("Authorization", "Bearer " + token)
+                .connectTimeout(Duration.ofSeconds(10))
+                .buildAsync(endpoint, new ProtocolListener(ready))
+                .get(10, TimeUnit.SECONDS);
+
+        try {
+            ready.get(READINESS_TIMEOUT.toSeconds(), TimeUnit.SECONDS);
+        } catch (Exception e) {
+            throw new IllegalStateException("Gateway 未在逾時前回報就緒", e);
+        }
+    }
+
+    @Override
+    public void close() {
+        if (socket != null) {
+            socket.sendClose(WebSocket.NORMAL_CLOSURE, "client shutdown");
+        }
+    }
+}
+```
+
+> **為什麼 readiness 是必要的**：2.0 的 Gateway 在重啟後，**健康檢查、Agent 清單與核心控制項會先變為可用**，而選用的 catalog、插件與遷移工作則延後執行（見 6.11）。若用戶端在連線建立當下就送出需要 catalog 的請求，可能會遇到較長的等待或失敗。明確等待 readiness 訊號可避免這類競態。
+
 ## 第五章：企業最佳實務
 
 ### 5.1 技能模組化設計
@@ -4786,6 +5619,40 @@ graph TB
 | **文件完整** | README + SKILL.md 完整說明 | 包含使用範例、限制說明 |
 
 ### 5.2 權限與存取控制
+
+#### Per-Session 權限模式（v2026.8.1 新增）
+
+2.0 讓**每個 Session 各自選擇權限姿態**，取代過去只能全域設定的模式。這是企業落地時最實用的控制點之一。
+
+| 模式 | 存取範圍 |
+|------|---------|
+| `read-only` | 唯讀，不可變更 |
+| `guarded` | 受保護的有限操作 |
+| `workspace` | 限於工作區範圍 |
+| `full` | 完整存取，**僅限管理員** |
+
+在用戶端有暴露對應控制項時，各 Session 還可個別覆寫 MCP 伺服器、技能或網頁搜尋的可用性。
+
+> ⚠️ **這項設定是非回溯性的（nonretroactive）**。官方明確載明：**尚未設定權限模式的既有 Session，會維持先前的全域姿態**。這代表升級到 2.0 之後，你不會自動獲得更嚴格的保護——**既有 Session 仍沿用舊行為**。企業若要落實最小權限，必須主動為既有 Session 指定模式，或建立新 Session。
+>
+> ⚠️ **另一項必須理解的邊界**：官方聲明這些是「**選用的角色（opt-in roles），用來限制單一受信任 OpenClaw 安裝內部的協作**」，而**不是在互相敵對的租戶之間建立隔離**。詳見第十一章。
+
+#### 可重用的指令權限綁定
+
+可重用的指令權限現在能**綁定到確切的參數與工作目錄**；腳本型指令會在執行前**重新檢查當初被審閱過的位元組**。
+
+> **綁定的覆蓋範圍與其缺口**：
+>
+> - ✅ 綁定涵蓋：**已審閱的指令本身**與**腳本位元組**。
+> - ⚠️ 不涵蓋：**直譯器與變動中的相依套件可能引入獨立的行為**。
+> - ⚠️ 不透明的包裝程式（opaque wrapper）與可能啟動其他程式的指令**可能會再次詢問**。
+>
+> 換言之，這個機制防的是「同一指令被悄悄換成不同參數」，而**不是**「指令所呼叫的下游相依套件被替換」。供應鏈風險需另以 9.11 的機制處理。
+
+#### 委派與排程工作的政策繼承
+
+- **排程與委派的工作會保留其發起時的政策**，不會因執行環境而放寬。
+- 來自另一台機器的不確定結果會**回報為 unknown，而非以猜測重試**——這對稽核完整性很重要，避免把「不知道」記錄成「成功」。
 
 #### DM 配對（DM Pairing）
 
@@ -4898,6 +5765,20 @@ OpenClaw 的安全模型預設信任主 Session（操作者本人），但對群
   },
 }
 ```
+
+#### 審批請求的權威性綁定（v2026.8.1）
+
+2.0 讓每個審批請求擁有**單一持久紀錄**，由已授權的瀏覽器與支援的行動裝置共用。這解決了過去多裝置環境下審批狀態不一致的問題：
+
+| 保證 | 說明 |
+|------|------|
+| **首個有效回覆定案** | 第一個有效答覆即決定結果，避免重複審批 |
+| **重連無法復活已完成請求** | 斷線重連不會讓已決定的請求重新出現 |
+| **被放棄的請求會被取消** | 不會無限期懸置 |
+| **中止執行會清除其待處理審批** | 避免遺留孤兒請求 |
+| **30 天滾動歷史** | 供事後追溯查閱 |
+
+審批請求會**出現在觸發它的那個對話中**，其他對話則顯示安靜的提示指標。**關閉審批佇列會讓請求維持待處理，而不會意外核准或拒絕**——這個預設行為對避免誤操作很重要。
 
 **沙箱預設工具白名單**: `bash`、`process`、`read`、`write`、`edit`、`sessions_list`、`sessions_history`、`sessions_send`、`sessions_spawn`
 
@@ -5198,6 +6079,25 @@ flowchart TD
   },
 }
 ```
+
+#### Incognito 模式的合規邊界（v2026.8.1）
+
+2.0 引入 Incognito 對話。它**預設關閉**，且範圍刻意設計得比一般理解的「無痕」更窄。在法遵評估時，**必須以「它不保證什麼」為準，而非以名稱推測**。
+
+| Incognito **確實**做到 | Incognito **不會**做到 |
+|---------------------|---------------------|
+| 對話保存在行程記憶體中 | ❌ **Model Provider 仍然收到訊息** |
+| 不寫入一般逐字稿 | ❌ **工具仍可寫入檔案或影響外部服務** |
+| 不寫入自動的 OpenClaw 記憶到磁碟 | ❌ **不含內容的稽核 metadata 仍會保留** |
+| Gateway 重啟後即消失 | ❌ **操作 Gateway 的人仍可看到進行中的工作** |
+
+> ⚠️ **對合規的意涵**：Incognito **不能**被當作「資料不出境」「不留痕跡」或「符合特定資料刪除要求」的技術控制。它降低的是**本機持久化**的範圍，而非**資料處理者的接觸範圍**。若你的法遵要求涵蓋 Model Provider 端的資料處理，Incognito 完全不影響該面向——那需要透過 Provider 選擇、資料處理協議與部署位置來處理。
+
+#### 記憶清除與可稽核性的落差
+
+在設計資料刪除流程時，需理解 `openclaw memory forget` 的能力邊界（詳見 4.6）。它依 provenance 清除**可歸屬的衍生記憶**，但**原始逐字稿、無血緣資訊的舊筆記、其他 Agent 的儲存、直接或外部寫入、匯出與備份可能仍然存在**。
+
+> **企業建議**：將「記憶清除」與「備份與匯出清理」視為**兩道必須分別執行的程序**。僅執行前者不足以構成完整的刪除證據。
 
 ### 5.10 團隊協作規範
 
@@ -5657,12 +6557,58 @@ groups:
 
 ### 6.7 備份與災難復原
 
-#### 備份策略
+#### 官方可攜式快照（v2026.8.1 建議路徑）
+
+自 Session 與 Transcript 改用 SQLite 後端（見 2.11），**檔案層級的複製已不再是可靠的備份方式**。2.0 提供了「建立 → 驗證 → 還原」的完整工具鏈，讓備份在事故發生**之前**就具備可驗證性。
+
+```bash
+# 1) 建立完整備份
+openclaw backup create
+
+# 2) 驗證備份（升級前的必要步驟）
+openclaw backup verify <backup-id>
+
+# 3) 列出可用備份
+openclaw backup list
+
+# 4) 還原（僅能還原至全新目標）
+openclaw backup restore <backup-id> --target /path/to/new-state-dir
+```
+
+新版完整備份的行為保證：
+
+- **保留設定的 Agent 狀態根目錄與安全的相對連結**。
+- **不會把進行中的封存工作誤判為停滯**。
+- 預設或自訂佈局都透過**同一套受保護的流程**還原。
+
+> ⚠️ **備份不涵蓋的範圍**（必須另行處理）：
+>
+> | 項目 | 說明 |
+> |------|------|
+> | 受管理的 `dev/` checkout | **需要另外備份** |
+> | 本地原始碼修改 | **需要另外備份** |
+> | 含絕對路徑 `plugin-skills/` 連結的舊封存 | **仍會被拒絕** |
+>
+> **還原的安全預設**：`restore` **拒絕覆寫既有目標**。這是刻意的保護，代表災難復原程序必須規劃「乾淨的還原目的地」，而非就地覆蓋。
+
+#### 重設與解除安裝的保護機制
+
+`openclaw reset` 與 `openclaw uninstall` 在 2.0 中**拒絕在下列條件成立前移除資料**：
+
+1. Gateway 服務已被拆除；
+2. OpenClaw 能確認**沒有其他行程擁有該狀態**。
+
+若拆除或擁有權檢查失敗，**狀態會原地保留**。此外，僅移除狀態的解除安裝**不會動到已設定的工作區**。
+
+#### 傳統檔案層級備份（補充用途）
+
+以下腳本仍適用於組態與技能等純檔案資產的補充備份，但**不可作為 Session 與 Transcript 的唯一備份手段**：
 
 ```bash
 #!/bin/bash
 # backup-openclaw.sh
-# OpenClaw 備份腳本
+# OpenClaw 補充備份腳本（組態／技能等檔案資產）
+# 注意：Session 與 Transcript 請改用 openclaw backup create
 
 BACKUP_DIR="/backups/openclaw/$(date +%Y%m%d_%H%M%S)"
 OPENCLAW_DIR="$HOME/.openclaw"
@@ -5809,6 +6755,71 @@ setup.kibana:
   }
 }
 ```
+
+### 6.11 Gateway 重啟復原（v2026.8.1 新增）
+
+2.0 為 Gateway 重啟建立了明確的復原契約。理解**它保證什麼、以及邊界在哪裡**，是規劃維護窗口的前提。
+
+#### Suspend / Resume 與 Drain
+
+在支援的快照或目標式重啟之前，Gateway 的 suspend 與 resume 可以：
+
+1. **暫停新的一般工作**；
+2. **回報阻礙項目（blockers）**；
+3. **排空（drain）OpenClaw 已追蹤的**：Agent 執行、傳遞、排程工作、佇列、Session 與背景指令。
+
+```mermaid
+sequenceDiagram
+    participant OP as 維運人員
+    participant GW as Gateway
+    participant W as 進行中工作
+
+    OP->>GW: suspend
+    GW-->>OP: 回報 blockers
+    GW->>W: 停止受理新工作
+    W-->>GW: 已追蹤工作陸續完成（drain）
+    OP->>GW: 重啟
+    GW-->>OP: 健康檢查／Agent 清單／核心控制項先可用
+    Note over GW: catalog／plugin／migration 延後執行
+    GW->>W: 恢復受理
+```
+
+其他保證：
+
+- **失敗的組態重載會保留先前的一致狀態**（不會半套用）。
+- **快速連續的組態寫入會保留待處理的重啟意圖**，不會被丟棄。
+
+#### 重啟後的可用性順序
+
+重啟之後，**健康檢查、Agent 清單與核心控制項會先變為可用**，而選用的 catalog、插件與遷移工作則**延後而非移除**。
+
+> **實務影響**：因為 catalog 工作被延後，**第一個明確的 catalog 請求仍可能耗時較久**。監控告警的門檻設定應考慮這段暖機期，否則會產生假警報。用戶端則應明確等待 readiness 訊號（見 4.11）。
+
+#### ⚠️ 復原邊界之外的項目（規劃維護窗口時必讀）
+
+官方明確載明，上述等待**僅涵蓋 OpenClaw 所追蹤的工作**。以下項目**不在復原邊界內**：
+
+| 不在復原範圍內 | 意涵 |
+|--------------|------|
+| **新的頻道或外部 ingress** | 重啟期間抵達的外部請求不受保護 |
+| **既有的插件連線** | 需自行重新建立 |
+| **未註冊的背景工作** | OpenClaw 不知道它的存在，無法排空 |
+| **傳入訊息的持久化收訖（durable receipt）** | **不保證重啟期間的訊息不遺失** |
+| **外部監管的安裝** | 必須自行消費交接訊號並完成其重啟 |
+
+> **對高可用設計的意涵**：若你的場景不能容許重啟期間的訊息遺失，**必須在 OpenClaw 之外建立訊息緩衝層**（例如訊息佇列），而不能依賴 Gateway 的重啟復原機制。這是 2.9 高可用架構設計中最容易被高估的一環。
+
+#### 自動化的重啟復原
+
+自動化排程有其獨立的復原邏輯，會**區分「真正錯過的工作」與「已完成或已不屬於當前自動化的工作」**：
+
+| 會恢復 | 不會恢復（維持退休） |
+|-------|------------------|
+| 佇列中與延後的執行 | 已完成的時段 |
+| 重新排程的一次性提醒 | 已刪除或已退休的工作 |
+| 重啟或時鐘變更期間錯過的排程時間 | 舊的排程、來自已被替換的排程器的工作 |
+
+> ⚠️ **exactly-once 不在保證範圍內**：舊版的執行中標記會**維持中斷狀態**，因為系統無法確認外部副作用是否已經發生。官方明確聲明「**外部系統中的 exactly-once 執行仍在排程器的復原邊界之外**」。若自動化會觸發不可重複的外部操作（付款、發信、建立資源），**冪等性必須由你的外部系統自行保證**。
 
 ---
 
@@ -5986,6 +6997,36 @@ openclaw config validate
 openclaw config migrate
 ```
 
+#### v2026.8.1 的四項 Doctor 遷移
+
+升級至 OpenClaw 2.0 時，有四項遷移由 `openclaw doctor --fix` 統一處理。**建議在升級後、正式使用前一次執行完畢**：
+
+```bash
+openclaw doctor --fix
+```
+
+| # | 遷移項目 | 若不執行的後果 |
+|---|---------|--------------|
+| 1 | **OpenProse 插件移除** | 插件已從產品移除，殘留設定會造成啟動問題；另需依上游的 Agent Skill 遷移指引處理 |
+| 2 | **`codex/*` 與 `openai-codex/*` → `openai/*` 路由** | 舊的模型參照無法解析到正確路由 |
+| 3 | **QMD → Built-in Memory** | 記憶搜尋與回想無法運作（詳見 4.6，注意三項 QMD 專屬能力會退休） |
+| 4 | **`HEARTBEAT.md` 停止在 runtime 讀取** | **既有的 heartbeat 工作不會執行**，必須遷移才能保留有效工作 |
+
+> ⚠️ **執行期限：2026-09-18**。官方載明「若你升級的組態仍含已退休的設定鍵，請在 2026 年 9 月 18 日前執行 `openclaw doctor --fix`」。
+>
+> **Doctor 的遷移行為**：當新舊設定鍵衝突時，**保留正規值**；移除已不具作用的設定。但請注意——**已明確退休的調校值會回到內建預設值**，若你原先依賴這些調校，升級後效能特性可能改變，需重新驗證。
+
+#### 服務目標的保護
+
+Gateway 服務修復現在會**保留已安裝的狀態目錄、組態路徑、port、受管理環境與符合條件的檔案式憑證**，不會靜默地重新指向服務目標。
+
+```bash
+# 若確實要變更上述目標，必須明確指定 --force
+openclaw gateway install --force
+```
+
+> **Linux 額外保護**：服務指令會**拒絕相互衝突的 user unit 與 system unit**，並顯示哪一個 unit 擁有該 Gateway。這解決了過去雙 unit 並存導致的難以診斷問題。
+
 #### 手動遷移範例
 
 ```json5
@@ -6030,6 +7071,42 @@ curl -s https://api.github.com/repos/openclaw/openclaw/releases/latest | \
 | 組態格式變更 | 使用 `openclaw config migrate` |
 | 頻道驅動升級 | 更新對應的第三方 API Token |
 | 棄用功能移除 | 提前遷移到替代功能 |
+
+#### v2026.8.1（OpenClaw 2.0）破壞性變更完整清單
+
+| # | 破壞性變更 | 影響對象 | 處理方式 | 章節 |
+|---|-----------|---------|---------|------|
+| 1 | **OpenProse 插件移除** | 使用該插件者 | `openclaw doctor --fix` + 上游 Agent Skill 遷移 | 7.5 |
+| 2 | **`codex/*`、`openai-codex/*` → `openai/*` 路由** | 使用 Codex 模型參照者 | `openclaw doctor --fix` | 7.5 |
+| 3 | **Plugin SDK 舊 subpath 匯入移除** | 插件開發者 | 改用 `openclaw/plugin-sdk/*` 聚焦命名空間 | 4.9 |
+| 4 | **`deactivate` → `gateway_stop`** | 插件開發者 | 更名匯出函式 | 4.9 |
+| 5 | **Code Mode 介面重寫** | Code Mode 使用者 | 移除 `tools` 物件、`ALL_TOOLS`、exact-ID 呼叫、raw call envelope | 4.4 |
+| 6 | **Session／Transcript 改用 SQLite** | 所有使用者 | 升級前建立可驗證備份；**降版須先還原舊版逐字稿產物** | 2.11、附錄 E |
+| 7 | **QMD 記憶退休** | 使用 QMD 者 | `doctor --fix`；**reranking／query expansion／跨 Agent 逐字稿搜尋將失去** | 4.6 |
+| 8 | **`HEARTBEAT.md` 停止 runtime 讀取** | 使用 heartbeat 者 | `doctor --fix` 遷移 | 4.7、7.5 |
+| 9 | **官方 Provider 外部化為獨立套件** | 使用相關 Provider 者 | 新設定需安裝對應套件並重啟 | 下方說明 |
+| 10 | **`agents.defaults.cliBackends` 自訂項目** | 自訂 CLI backend 者 | 須移入 backend plugin | 4.9 |
+| 11 | **v2026.7.2 beta 契約形狀變更** | 使用該 beta 契約的用戶端 | 改用更名並扁平化後的契約 | 4.9 |
+| 12 | **Canvas 範圍收斂** | Canvas 使用者 | 聚焦 macOS presenter 與 session-board A2UI；**獨立工作區、eval／snapshot 介面、原生 push／reset 指令，以及 iOS／Android／Linux 用戶端已移除** | — |
+| 13 | **Managed worktree 抑制 Git hooks** | 依賴隱含 hooks 的儲存庫 | 須將設定移入明確路徑（管理員另跑設定腳本） | 9.9 |
+
+##### 外部化為獨立套件的官方 Provider
+
+以下 Provider 與整合現在**需個別安裝**：
+
+> Cohere、Meta、BytePlus、ComfyUI、OpenCode、Voyage、Vydra、Volcengine、Mistral、NovitaAI、Teams meetings、Zoom meetings
+>
+> **新設定**：安裝對應套件後重啟 OpenClaw。
+> **既有已啟用的設定**：會在外部產物可用時自行重新定位。
+> **例外**：OpenCode Go **仍為內建**，因其外部佔位套件不可用。
+
+#### 三個相容期限總表
+
+| 期限 | 事項 | 逾期後果 |
+|------|------|---------|
+| **2026-09-01** | Plugin SDK 舊 subpath 匯入關閉 | 插件無法載入 |
+| **2026-09-18** | 含已退休設定鍵者須執行 `doctor --fix` | 組態可能無法通過驗證 |
+| **2026-10-12** | beta.5 session-store bridge 相容層失效 | 依賴該 bridge 的用戶端中斷 |
 
 ### 7.8 自動化升級管線
 
@@ -6791,6 +7868,39 @@ sequenceDiagram
 - **主 Session（main）**: 一對一直接對話，工具在主機上執行，完整存取權限
 - **非主 Session（non-main）**: 群組/頻道對話，bash 在 Docker 容器中執行
 
+#### 未信任外部內容的標記（v2026.8.1）
+
+2.0 對「模型會讀到什麼」建立了明確的邊界。來自 **search、fetch、MCP、插件、Browser 以及其他網路支援工具**的回傳文字，在進入模型之前會被：
+
+1. **設限（bounded）**——限制長度與規模；
+2. **正規化（normalized）**——統一格式；
+3. **標記為未信任外部內容（untrusted external content）**。
+
+> ⚠️ **這項機制的真實效力必須被正確理解**。官方的措辭極為誠實：「**這讓來源與邊界變得明確，但模型仍然可能被它所讀到的惡意素材影響**」。
+>
+> 換言之，這是**縱深防禦的一層，而非 Prompt Injection 的解方**。它讓模型（與稽核者）知道「這段內容來自外部且不可信」，但**並不能阻止模型被說服**。9.7 的防禦措施仍然全部必要。
+
+其他同步強化的注入面向：
+
+| 面向 | 強化內容 |
+|------|---------|
+| 終端機與 CSV 輸出 | 中和已涵蓋的**控制序列**與**公式注入**形式 |
+| 組態 | 拒絕會造成 **prototype pollution** 的路徑 |
+| Browser 與 MCP App | 瀏覽器參照、可執行等待、導覽與 MCP App 授權，會**針對產生它們的文件與即時權限重新檢查** |
+
+> ⚠️ **瀏覽器導覽強制的覆蓋範圍有缺口**：強制機制涵蓋「受管理動作期間所選頁面的文件流量」與一段有界的寬限期。但**彈出視窗、Service Worker、背景請求、部分重新導向與遠端後端，都在該邊界之外**。若你的威脅模型包含惡意網頁主動發起的側通道，這些缺口需另行處理。
+
+#### 網路政策強化
+
+| 項目 | 2.0 行為 |
+|------|---------|
+| NAT64 目標 | **預設封鎖**未指定與 local-use 的 NAT64 目標 |
+| 重新導向 | 驗證受保護的重新導向與無認證的瀏覽器來源 |
+| 遙測 Proxy | 設定的 proxy 無效時**停止遙測**，而非繞過它 |
+| 私有自動化 Webhook 目的地 | 需**明確的主機例外**，或啟用較寬鬆的私有網路開關 |
+
+> ⚠️ **私有網路開關的副作用**：較寬鬆的那個設定會**將信任範圍擴大到每一個已設定的 cron webhook**，而非僅限你當下想開放的那一個。企業環境應優先使用精確的主機例外。
+
 ### 9.2 API Key 管理
 
 #### 安全儲存策略
@@ -7201,6 +8311,27 @@ services:
       - /tmp:noexec,nosuid,size=50m
 ```
 
+#### v2026.8.1 沙箱強化與其殘留風險
+
+**沙箱身分（sandbox identity）現在包含擁有該執行的工作區**，並針對訪客與 worker 建立更細的界線：
+
+| 情境 | 2.0 行為 |
+|------|---------|
+| 新建且需要沙箱的 guest session | **每位已驗證訪客取得各自的身分**；工作區**僅能唯讀共享** |
+| 另一台機器上的 worker session | 可**選擇加入 per-session 容器** |
+| 預設執行方式 | **仍為直接執行**（非沙箱） |
+| 貢獻者控制的程式碼 | 在指定的**未信任程式碼沙箱**中準備 |
+
+> ⚠️ **per-guest 邊界的缺口**：官方明確載明，**訪客所建立的子 session 並未建立相同的 per-guest 邊界**。若你的模型依賴訪客隔離，需注意這一層不會自動延伸。
+
+**檔案存取檢查**在 2.0 中能攔截更多逃逸嘗試——透過具名根目錄的逃逸、被拒絕的目錄、超量讀取，以及 POSIX symlink 父層。
+
+> ⚠️ **仍存在的 TOCTOU 時間窗**：官方誠實載明，**symlink 的圍堵是在檔案系統操作「之前」檢查，而非在核准的根目錄下以原子方式進行**，因此「**檢查與使用之間，路徑仍有被變更的時間窗**」。在多租戶或有本機惡意行為者的情境中，這個時間窗是真實的攻擊面，需以作業系統層級的隔離（獨立使用者、容器、mount namespace）補強。
+
+**Managed worktree 會抑制儲存庫的 Git hooks**，除非管理員刻意執行獨立的設定腳本。
+
+> ⚠️ **這是破壞性變更**：**原本依賴隱含 Git hooks 的儲存庫，必須將該設定移入明確路徑**，否則 hooks 不會執行（見 7.7 第 13 項）。
+
 ### 9.10 零信任架構
 
 #### 零信任原則在 OpenClaw 的應用
@@ -7225,6 +8356,52 @@ graph TB
     LEAST --> RBAC
     ASSUME --> SEGMENT & AUDIT
 ```
+
+### 9.11 插件與供應鏈安全（v2026.8.1 新增）
+
+2.0 針對「安裝來源不明的程式碼」建立了一套明確的審查機制。這對企業而言是導入 ClawHub 與第三方插件的前提條件。
+
+#### 能力審查（Capability Review）
+
+受管理的外部插件安裝，現在會顯示**一次綁定至該安裝產物的能力審查**，且**當更新要求更多權限時會再次詢問**。
+
+```mermaid
+graph LR
+    A[安裝外部插件] --> B[能力審查<br/>綁定該 artifact]
+    B -->|核准| C[安裝]
+    C --> D[更新]
+    D -->|要求更多權限| B
+    D -->|權限不變| E[直接更新]
+```
+
+> ⚠️ **能力審查的適用範圍與其限制**（官方明確載明）：
+>
+> | 項目 | 狀態 |
+> |------|------|
+> | 受管理的**外部**安裝 | ✅ 適用 |
+> | **內建（bundled）插件** | ❌ **跳過此提示** |
+> | **已啟用的舊有插件** | ❌ **保留其既有存取權** |
+> | 內建執行 | 保有具名的相容性例外 |
+>
+> **更關鍵的認知**：審查顯示的是「**插件要求做什麼**」，而**真實性與程式碼安全性仍取決於 artifact 完整性、登錄身分與程式碼審查**。能力審查告訴你插件「聲稱」要什麼權限，**不驗證它是否值得信任**。
+
+#### ClawHub 與技能安裝的完整性
+
+| 機制 | 說明 |
+|------|------|
+| **安全判定綁定版本** | 技能安全判定綁定到**確切的發布者與版本** |
+| **GitHub 安裝需完整 commit SHA** | **不接受可變的 branch 或 tag**——這阻斷了「先發布乾淨版本、事後改寫 tag」的攻擊 |
+| **直接下載驗證** | 驗證宣告的 digest，並在支援的大小限制內檢查完整封存檔 |
+| **安裝器回應檢查** | 受管理的 Homebrew 或 NodeSource 安裝器，在回應失敗、為空、發生重新導向或**缺少 shebang** 時停止 |
+| **本地編輯保護** | 技能更新會保護本地與並行的編輯，除非操作者**明確強制覆寫** |
+
+> ⚠️ **完整 commit SHA 的保護邊界**：SHA **釘住的是下載的封存位元組**，但**來源 metadata 仍取決於解析器**。同樣地，安裝器的回應檢查**只確認下載內容看起來像一個腳本**，不驗證腳本行為。
+>
+> **實務建議**：外部插件與技能應比照第三方相依套件納入軟體供應鏈管理——建立允許清單、釘選版本與 SHA、納入定期的相依套件掃描（見 [Dependency Locking](https://docs.openclaw.ai/gateway/security/dependency-locking)）。**不要把 OpenClaw 的安裝檢查當作供應鏈安全的全部**。
+
+#### 舊有技能安裝的基準線
+
+較舊、未帶指紋的追蹤安裝，**需要一次強制更新才能建立該基準**。升級後應盤點既有技能，確認其指紋基準已建立。
 
 ---
 
@@ -8268,11 +9445,11 @@ public class DevOpsCommandExecutor {
                 
                 找到 **3** 筆錯誤記錄:
                 
-                ```
+                ~~~text
                 [14:23:01] ERROR Connection timeout to database (retry 1/3)
                 [14:23:05] ERROR Connection timeout to database (retry 2/3)
                 [14:23:10] WARN  Database connection restored
-                ```
+                ~~~
                 
                 **分析**: 資料庫連線短暫中斷，已自動恢復。建議檢查資料庫連線池設定。
                 """, service, timeRange, keyword);
@@ -9594,6 +10771,333 @@ graph TB
 
 ---
 
+## 第十一章：多人協作與 Teams 治理
+
+> **本章前提**：v2026.8.1 為 OpenClaw 加入了多使用者協作能力，使其從純粹的 single-operator 系統，延伸為「單一信任域內的多人協作」。但官方對此有一句**必須反覆強調**的聲明：**這些控制項不是租戶隔離，也不是安全邊界**。本章在介紹每項能力的同時，會同步說明其治理邊界。
+
+### 11.1 多使用者 Gateway 模型
+
+在多使用者 Gateway 上，一個對話會保留**建立者身分**，以及**每位可識別使用者的提示內容**可見性。
+
+參與者、Session、Agent 與請求者的身分，現在會**隨著更多工作一起傳遞**，用於歸屬（attribution）而**不擴大存取權**——這個區分很重要：身分傳遞讓你知道「誰做了什麼」，但不會因此讓誰能做更多事。
+
+| 身分路徑 | 適用範圍 |
+|---------|---------|
+| 受管理的 GitHub 身分 | 本地命令列與 API 工作、作者 metadata |
+| **Git transport、沙箱、遠端機器、Cloud Workers** | **各自使用獨立的身分路徑**（不套用上述身分） |
+
+> **維運意涵**：不要假設「在 Control UI 中看到的使用者身分」會一路傳遞到遠端執行環境。跨越到 Cloud Worker 或沙箱時，身分會換軌，稽核串接需自行處理。
+
+### 11.2 對話分享與角色
+
+擁有者或管理員可決定他人對一個對話的參與程度：
+
+| 角色 | 能力 |
+|------|------|
+| **read** | 讀取對話 |
+| **suggest** | 提出建議（**建議會保留其作者身分**） |
+| **draft** | 在草稿中作業（**草稿可被建立與發布而不會產生競態**） |
+| **participate** | 直接參與對話 |
+
+```mermaid
+graph TB
+    OWNER[對話擁有者／管理員] -->|授予角色| R[read<br/>唯讀]
+    OWNER -->|授予角色| S[suggest<br/>提出建議]
+    OWNER -->|授予角色| D[draft<br/>草稿作業]
+    OWNER -->|授予角色| P[participate<br/>直接參與]
+
+    R & S & D & P --> CONV[共享對話]
+    CONV -.->|保留| META[建立者身分<br/>各人提示可見性<br/>建議作者歸屬]
+```
+
+> ⚠️ **權限撤銷有可見性延遲**：官方明確載明「**已撤銷的存取權，可能在 UI 重新整理或 Gateway 拒絕該動作之前，短暫看起來仍然可用**」。這代表撤銷**不是即時生效於畫面上**。若需要立即阻斷，應同時在 Gateway 層面確認該動作已被拒絕，而非僅以 UI 顯示為準。
+
+### 11.3 Presence 與揭露邊界
+
+輕量的 presence 與輸入中提示，讓人容易看出誰在線上，同時不會讓單人使用情境變得雜亂。
+
+使用者可自行管理**顯示名稱與頭像**。被允許的 Online 卡片可以顯示某人正在處理什麼，但有明確的揭露限制：
+
+> **Online 卡片不會揭露**：
+>
+> - ❌ IP 位址
+> - ❌ 檢視者無權開啟的對話
+
+### 11.4 Incognito 模式
+
+Incognito **預設關閉**，且範圍刻意設計得比一般理解更窄。其能力與**不保證事項**已於 5.9 完整列出，此處摘要其治理重點：
+
+| 保證 | 不保證 |
+|------|-------|
+| 對話留在行程記憶體 | Model Provider **仍收到訊息** |
+| 不寫入一般逐字稿與自動記憶 | 工具**仍可寫檔或影響外部服務** |
+| Gateway 重啟即消失 | **不含內容的稽核 metadata 仍保留** |
+| — | **Gateway 操作者仍可看見進行中的工作** |
+
+> **正確定位**：Incognito 是一項**減少本機持久化**的功能，不是隱私或法遵控制。詳見 5.9。
+
+### 11.5 裝置與配對治理
+
+2.0 將**配對權限移至裝置紀錄本身**，這是一項重要的治理改善：
+
+| 機制 | 行為 |
+|------|------|
+| **移除或重新配對裝置** | **退休其舊有的連線與 worker 存取權** |
+| 非管理員的裝置權杖 | **只能管理自己的配對** |
+| macOS 與 Android | 可檢視配對狀態 |
+| 管理員 | 可建立**短期有效的一次貼上指令**供機器加入 |
+
+#### 受信任 Proxy 與 Tailscale 身分的邊界
+
+> ⚠️ **這是最容易誤解的一點**：經驗證的 proxy 或 Tailscale 身分**僅適用於當前連線，不會改寫持久的配對紀錄**。換言之，網路層的身分驗證**不等於**裝置已被授權配對。
+>
+> **受信任 proxy 背後的瀏覽器自動註冊**預設關閉，啟用後仍受限於已設定的角色與存取範圍。
+
+#### SSH 身分檢查（預設開啟）
+
+針對私有網路機器的獨立 SSH 身分檢查**預設為開啟**，並遵循一般的 OpenSSH HostName 規則。
+
+> **若你的政策要求「僅限手動配對」**：必須**主動停用此 SSH 身分檢查**，並且**不要設定 CIDR 自動核准**。這兩項需同時處理，只做其一仍會留下自動配對路徑。
+
+### 11.6 企業落地建議與風險聲明
+
+#### 這套機制適合的場景
+
+✅ 單一組織、單一信任域內的團隊協作
+✅ 需要工作交接、共同檢視與歸屬追蹤的情境
+✅ 已有外部身分治理框架，OpenClaw 僅作為協作介面
+
+#### 這套機制**不適合**的場景
+
+> ⚠️ **請勿將 OpenClaw 的協作角色用於以下場景**：
+>
+> ❌ **多租戶 SaaS**——官方明確聲明「這些是選用的角色，用來限制單一受信任 OpenClaw 安裝內部的協作，而**不是在互相敵對的租戶之間建立隔離**」。
+> ❌ **需要強制隔離的客戶資料分區**——角色控制的是協作行為，不是資料邊界。
+> ❌ **把角色當作唯一的存取控制層**——它應與作業系統權限、網路分段、per-session 權限模式（5.2）疊加使用。
+
+#### 建議的治理疊層
+
+```mermaid
+graph TB
+    L1[第 1 層：網路分段與零信任<br/>9.4 / 9.10]
+    L2[第 2 層：Gateway 認證與裝置配對<br/>11.5]
+    L3[第 3 層：per-session 權限模式<br/>5.2]
+    L4[第 4 層：對話分享角色<br/>11.2]
+    L5[第 5 層：審批綁定與稽核<br/>5.4 / 9.8]
+
+    L1 --> L2 --> L3 --> L4 --> L5
+
+    NOTE["協作角色（第 4 層）是最上層的便利機制<br/>不可獨立作為安全邊界"]
+    L4 -.-> NOTE
+```
+
+> **真正的隔離需求該怎麼做**：若企業確實需要租戶間隔離，正確做法是**為每個信任域部署獨立的 Gateway 實例**（見 [Multiple Gateways](https://docs.openclaw.ai/gateway/multiple-gateways) 與 [Multi-tenant Hosting](https://docs.openclaw.ai/gateway/multi-tenant-hosting)），而非依賴單一 Gateway 內的角色設定。
+
+---
+
+## 第十二章：分散式執行 —— Cloud Workers 與 Paired Devices
+
+> v2026.8.1 讓工作不再必須停留在執行 OpenClaw 的主機上。但**這是兩條不同的路徑，需求與失效行為都不同**，混用會導致難以診斷的問題。本章釐清兩者的差異與各自的邊界。
+
+### 12.1 兩條路徑的差異
+
+| 面向 | **Cloud Worker** | **Paired Device（配對電腦）** |
+|------|-----------------|---------------------------|
+| 定位 | 租用或雲端佈建的機器 | 你自己的另一台電腦 |
+| 前提條件 | 已設定的 **worker profile** 與 **OpenClaw runtime** | **相容版本、同意（consent）、可用容量**，以及對所請求指令的支援 |
+| 執行內容 | 在選定的儲存庫中啟動 Session | 使用 **OpenClaw 驗證並提供的 worker bundle** 執行完整回合 |
+| 建立方式 | Control UI「New Session」的 Where 選項 | `openclaw connect` |
+| 失聯行為 | **下一則訊息時自動更換**新的 worker | **保留 placement 並等待該裝置回歸** |
+| 回收 | 可稍後**收回主機**（reclaim） | — |
+
+```mermaid
+graph TB
+    subgraph "Gateway（永遠的擁有者）"
+        CONV[對話]
+        WS[已調和的工作區]
+        CRED[模型憑證]
+        PLACE[placement 紀錄]
+    end
+
+    subgraph "執行位置（可移動）"
+        LOCAL[本機 Gateway]
+        PAIRED[配對電腦<br/>openclaw connect]
+        CLOUD[Cloud Worker<br/>Crabbox / Daytona]
+    end
+
+    CONV --> LOCAL
+    CONV --> PAIRED
+    CONV --> CLOUD
+
+    NOTE["指令、檔案編輯與工具工作在遠端執行<br/>但對話、工作區、憑證與 placement 始終屬於 Gateway"]
+    PLACE -.-> NOTE
+```
+
+### 12.2 Cloud Worker Profile 設定
+
+Control UI 的 New Session 頁面會探索已設定的 worker profile，將其陳列在 **Where** 之下，強制套用派工所需的 **managed-worktree 契約**，並把第一個回合交給啟用中的 worker。
+
+```bash
+# 檢視已設定的 worker profile
+openclaw worker list
+```
+
+#### 支援的佈建後端
+
+| 後端 | 說明 |
+|------|------|
+| **Crabbox** | 官方佈建工具，支援 **AWS** 與 **Hetzner** 後端 |
+| **Daytona** | 另一佈建選項 |
+
+> ⚠️ **兩項官方已承認的文件不同步**（撰寫本文時仍存在，設定時請以實際行為為準）：
+>
+> | 項目 | 狀況 |
+> |------|------|
+> | Cloud Workers 設定指南 | **誇大了 Crabbox 以外的 Provider 所顯示的 profile 資訊** |
+> | Daytona 指南 | 宣稱 `settings.class` 可省略，但**profile 驗證實際上仍要求該欄位** |
+>
+> **建議**：**Daytona profile 應保持 `settings.class` 明確設定**，直到指南與產品契約一致為止。
+
+#### 選擇執行主機
+
+在 Paired Device 情境中，可選擇 **Auto**，讓 Gateway 自行挑選符合資格、已連線的 Session 主機：
+
+> **Auto 的挑選規則**：對 OpenClaw worker 回合，選擇**可用 worker 槽位最多**的主機；**平手時以裝置 ID 決勝**。
+
+### 12.3 Session Placement 與位址保持
+
+當執行位置在 Gateway、配對裝置與 Cloud Worker 之間移動時，**Session 會保留其位址**。
+
+**Gateway 始終是下列項目的擁有者**：
+
+- 對話本身
+- 已調和的工作區（reconciled workspace）
+- 模型憑證
+- placement 紀錄
+
+而**指令、檔案編輯與工具工作則在遠端執行**。這個分工是理解整套機制的關鍵：**遠端機器提供的是算力，不是權威**。
+
+> **持久性保證**：若遠端機器消失，**Session 與其持久狀態仍然存續**。差別只在於「如何恢復」（見 12.4）。
+
+### 12.4 失聯與恢復行為
+
+```mermaid
+graph TB
+    A[遠端機器消失] --> B{目的地類型}
+    B -->|Cloud Worker| C[下一則訊息時<br/>自動更換 worker]
+    B -->|Paired Device| D[保留 placement<br/>等待裝置回歸]
+    C --> E[Session 與持久狀態存續]
+    D --> E
+```
+
+| 目的地 | 恢復方式 |
+|-------|---------|
+| **Cloud Worker** | **下一則訊息時自動更換**，無需人工介入 |
+| **離線的 Paired Device** | **保留其 placement 並等待該裝置回來**——不會自動改派 |
+
+> **維運意涵**：Paired Device 的「等待」行為代表**該裝置長期離線會讓 Session 卡住**。若需要高可用性，應使用 Cloud Worker 而非 Paired Device。
+
+### 12.5 Portable Worker Bundle 的邊界
+
+配對電腦執行的是 **OpenClaw 驗證並提供的 worker bundle**，而**不是該台機器上碰巧安裝的任何程式碼**。這是一項重要的安全性質——它避免了「遠端機器上的環境污染影響執行結果」。
+
+> ⚠️ **但這個設計有一個真實的功能邊界**：官方明確載明，**可攜式 worker bundle 不包含目的地機器的原生終端機模組**。
+>
+> 因此，**依賴真正互動式終端機的工作，存在實際的限制**。在規劃要派送到配對電腦的工作類型時，需要先確認它不需要互動式 TTY。
+
+### 12.6 派工與回收範例
+
+#### TypeScript
+
+```typescript
+import { createGatewayClient } from '@openclaw/gateway-client';
+
+const client = createGatewayClient({
+  url: 'wss://gateway.internal.example.com:18789',
+  auth: { type: 'token', token: process.env.OPENCLAW_GATEWAY_TOKEN! },
+});
+await client.ready();
+
+// 在指定的 Cloud Worker profile 上建立 Session
+const session = await client.createSession({
+  agent: 'ops-agent',
+  where: { type: 'cloud-worker', profile: 'crabbox-hetzner-medium' },
+  // 派工需要 managed-worktree 契約
+  workspace: { type: 'managed-worktree', repository: 'git@github.com:example/infra.git' },
+  openingMessage: '執行本週的基礎設施合規掃描',
+});
+
+// 稍後將該 Session 收回主機
+await client.reclaimSession({ sessionId: session.id, to: 'gateway' });
+```
+
+#### Java
+
+```java
+package com.tutorial.openclaw.distributed;
+
+import java.util.Map;
+
+/**
+ * Cloud Worker 派工與回收的 Java 呼叫端。
+ *
+ * <p>注意：Gateway 始終是對話、工作區、憑證與 placement 的擁有者，
+ * 遠端機器僅提供執行算力。因此回收（reclaim）不需要搬移狀態，
+ * 只是變更 placement。
+ */
+public class CloudWorkerDispatcher {
+
+    private final OpenClawGatewayClient client;
+
+    public CloudWorkerDispatcher(OpenClawGatewayClient client) {
+        this.client = client;
+    }
+
+    /**
+     * 在指定的 Cloud Worker profile 上建立 Session。
+     *
+     * @param agent          代理名稱
+     * @param workerProfile  已設定的 worker profile 名稱
+     * @param repositoryUrl  managed-worktree 所需的儲存庫
+     * @param openingMessage 首個回合的訊息
+     * @return 新建立的 Session ID
+     */
+    public String dispatchToCloudWorker(
+            String agent, String workerProfile, String repositoryUrl, String openingMessage) {
+
+        Map<String, Object> request = Map.of(
+                "agent", agent,
+                "where", Map.of("type", "cloud-worker", "profile", workerProfile),
+                // 派工強制要求 managed-worktree 契約
+                "workspace", Map.of(
+                        "type", "managed-worktree",
+                        "repository", repositoryUrl),
+                "openingMessage", openingMessage);
+
+        Map<String, Object> session = client.invoke("sessions_create", request);
+        return (String) session.get("id");
+    }
+
+    /**
+     * 將 Session 收回主機執行。
+     *
+     * <p>由於持久狀態本就由 Gateway 擁有，此操作僅變更 placement，
+     * 不涉及狀態搬移。
+     *
+     * @param sessionId 目標 Session
+     */
+    public void reclaimToGateway(String sessionId) {
+        client.invoke("sessions_reclaim", Map.of(
+                "sessionId", sessionId,
+                "to", "gateway"));
+    }
+}
+```
+
+> **企業導入建議**：Cloud Worker 適合「可水平擴充、無互動式終端需求、需要隔離執行環境」的批次型工作（例如合規掃描、大量重構、CI 前置驗證）。**需要互動式終端或存取特定本機資源的工作，仍應留在 Gateway 主機或配對電腦上**。
+
+---
+
 ## 附錄 A：企業導入檢查清單
 
 ### A.1 導入前準備
@@ -9824,7 +11328,7 @@ openclaw test model default
 | Multi-Agent | [https://docs.openclaw.ai/concepts/multi-agent](https://docs.openclaw.ai/concepts/multi-agent) |
 | Agent Loop | [https://docs.openclaw.ai/concepts/agent-loop](https://docs.openclaw.ai/concepts/agent-loop) |
 | Agent Runtime | [https://docs.openclaw.ai/concepts/agent-runtimes](https://docs.openclaw.ai/concepts/agent-runtimes) |
-| Commitments | [https://docs.openclaw.ai/concepts/commitments](https://docs.openclaw.ai/concepts/commitments) |
+| Standing Intents | [https://docs.openclaw.ai/concepts/standing-intents](https://docs.openclaw.ai/concepts/standing-intents) |
 | Queue 機制 | [https://docs.openclaw.ai/concepts/queue](https://docs.openclaw.ai/concepts/queue) |
 | Queue Steering | [https://docs.openclaw.ai/concepts/queue-steering](https://docs.openclaw.ai/concepts/queue-steering) |
 | Presence | [https://docs.openclaw.ai/concepts/presence](https://docs.openclaw.ai/concepts/presence) |
@@ -9838,19 +11342,19 @@ openclaw test model default
 | Tailscale 指南 | [https://docs.openclaw.ai/gateway/tailscale](https://docs.openclaw.ai/gateway/tailscale) |
 | 遠端存取 | [https://docs.openclaw.ai/gateway/remote](https://docs.openclaw.ai/gateway/remote) |
 | Web 控制面板 | [https://docs.openclaw.ai/web](https://docs.openclaw.ai/web) |
-| Webhook | [https://docs.openclaw.ai/automation/webhook](https://docs.openclaw.ai/automation/webhook) |
+| Webhook | [https://docs.openclaw.ai/plugins/webhooks](https://docs.openclaw.ai/plugins/webhooks) |
 | Standing Orders | [https://docs.openclaw.ai/automation/standing-orders](https://docs.openclaw.ai/automation/standing-orders) |
 | Hooks | [https://docs.openclaw.ai/automation/hooks](https://docs.openclaw.ai/automation/hooks) |
 | TaskFlow | [https://docs.openclaw.ai/automation/taskflow](https://docs.openclaw.ai/automation/taskflow) |
-| Background Tasks | [https://docs.openclaw.ai/automation/background-tasks](https://docs.openclaw.ai/automation/background-tasks) |
-| Gmail Pub/Sub | [https://docs.openclaw.ai/automation/gmail-pubsub](https://docs.openclaw.ai/automation/gmail-pubsub) |
+| Background Tasks | [https://docs.openclaw.ai/automation/tasks](https://docs.openclaw.ai/automation/tasks) |
+| Gmail／IMAP 郵件監看 | [https://docs.openclaw.ai/automation/imap](https://docs.openclaw.ai/automation/imap) |
 | Gateway 協定 | [https://docs.openclaw.ai/gateway/protocol](https://docs.openclaw.ai/gateway/protocol) |
 | Gateway 探索與傳輸 | [https://docs.openclaw.ai/gateway/discovery](https://docs.openclaw.ai/gateway/discovery) |
 | Gateway Pairing | [https://docs.openclaw.ai/gateway/pairing](https://docs.openclaw.ai/gateway/pairing) |
 | Gateway 健康檢查 | [https://docs.openclaw.ai/gateway/health](https://docs.openclaw.ai/gateway/health) |
 | Gateway 背景程序 | [https://docs.openclaw.ai/gateway/background-process](https://docs.openclaw.ai/gateway/background-process) |
 | Bonjour/mDNS | [https://docs.openclaw.ai/gateway/bonjour](https://docs.openclaw.ai/gateway/bonjour) |
-| 沙箱 | [https://docs.openclaw.ai/gateway/sandbox](https://docs.openclaw.ai/gateway/sandbox) |
+| 沙箱 | [https://docs.openclaw.ai/gateway/sandboxing](https://docs.openclaw.ai/gateway/sandboxing) |
 | Nix 安裝 | [https://docs.openclaw.ai/install/nix](https://docs.openclaw.ai/install/nix) |
 | 開發頻道切換 | [https://docs.openclaw.ai/install/development-channels](https://docs.openclaw.ai/install/development-channels) |
 | 疑難排解 | [https://docs.openclaw.ai/channels/troubleshooting](https://docs.openclaw.ai/channels/troubleshooting) |
@@ -9880,24 +11384,214 @@ openclaw test model default
 | Azure | [https://docs.openclaw.ai/install/azure](https://docs.openclaw.ai/install/azure) |
 | GCP | [https://docs.openclaw.ai/install/gcp](https://docs.openclaw.ai/install/gcp) |
 | DigitalOcean | [https://docs.openclaw.ai/install/digitalocean](https://docs.openclaw.ai/install/digitalocean) |
-| Fly.io | [https://docs.openclaw.ai/install/fly-io](https://docs.openclaw.ai/install/fly-io) |
-| Railway | [https://docs.openclaw.ai/install/railway](https://docs.openclaw.ai/install/railway) |
-| Render | [https://docs.openclaw.ai/install/render](https://docs.openclaw.ai/install/render) |
+| Fly.io | [https://docs.openclaw.ai/install/fly](https://docs.openclaw.ai/install/fly) |
+| Daytona | [https://docs.openclaw.ai/install/daytona](https://docs.openclaw.ai/install/daytona) |
+| Hostinger | [https://docs.openclaw.ai/install/hostinger](https://docs.openclaw.ai/install/hostinger) |
 | Hetzner | [https://docs.openclaw.ai/install/hetzner](https://docs.openclaw.ai/install/hetzner) |
 | Oracle Cloud | [https://docs.openclaw.ai/install/oracle](https://docs.openclaw.ai/install/oracle) |
 | Raspberry Pi | [https://docs.openclaw.ai/install/raspberry-pi](https://docs.openclaw.ai/install/raspberry-pi) |
-| ClawDock | [https://docs.openclaw.ai/install/clawdock](https://docs.openclaw.ai/install/clawdock) |
+| Cloudflare | [https://docs.openclaw.ai/install/cloudflare](https://docs.openclaw.ai/install/cloudflare) |
 | Ansible | [https://docs.openclaw.ai/install/ansible](https://docs.openclaw.ai/install/ansible) |
 | Bun | [https://docs.openclaw.ai/install/bun](https://docs.openclaw.ai/install/bun) |
+
+### D.6 OpenClaw 2.0 新增主題文件
+
+以下為 v2026.8.1 新增或大幅改寫的官方文件，對應本手冊第十一、十二章與各章的 2.0 更新段落：
+
+| 主題 | 連結 | 本手冊對應 |
+|------|------|-----------|
+| v2026.8.1 發布說明 | [https://docs.openclaw.ai/releases/2026.8.1](https://docs.openclaw.ai/releases/2026.8.1) | 1.11、附錄 E |
+| Cloud Workers | [https://docs.openclaw.ai/gateway/cloud-workers](https://docs.openclaw.ai/gateway/cloud-workers) | 12.2 |
+| Cloud Sessions | [https://docs.openclaw.ai/gateway/cloud-sessions](https://docs.openclaw.ai/gateway/cloud-sessions) | 12.1、12.3 |
+| 多使用者 | [https://docs.openclaw.ai/concepts/multi-user](https://docs.openclaw.ai/concepts/multi-user) | 第十一章 |
+| Built-in Memory | [https://docs.openclaw.ai/concepts/memory-builtin](https://docs.openclaw.ai/concepts/memory-builtin) | 4.6 |
+| 記憶搜尋 | [https://docs.openclaw.ai/concepts/memory-search](https://docs.openclaw.ai/concepts/memory-search) | 4.6 |
+| 記憶來源標記 | [https://docs.openclaw.ai/concepts/memory-provenance](https://docs.openclaw.ai/concepts/memory-provenance) | 4.6 |
+| Session 搜尋 | [https://docs.openclaw.ai/concepts/session-search](https://docs.openclaw.ai/concepts/session-search) | 4.6 |
+| Skill Workshop | [https://docs.openclaw.ai/tools/skill-workshop](https://docs.openclaw.ai/tools/skill-workshop) | 4.3 |
+| 自我學習 | [https://docs.openclaw.ai/tools/self-learning](https://docs.openclaw.ai/tools/self-learning) | 4.3 |
+| Code Mode | [https://docs.openclaw.ai/tools/code-mode](https://docs.openclaw.ai/tools/code-mode) | 4.4 |
+| Secret Store | [https://docs.openclaw.ai/gateway/secrets](https://docs.openclaw.ai/gateway/secrets) | 3.11 |
+| 1Password 整合 | [https://docs.openclaw.ai/gateway/1password](https://docs.openclaw.ai/gateway/1password) | 3.11 |
+| 重啟復原 | [https://docs.openclaw.ai/gateway/restart-recovery](https://docs.openclaw.ai/gateway/restart-recovery) | 6.11 |
+| 權限模式 | [https://docs.openclaw.ai/gateway/permission-modes](https://docs.openclaw.ai/gateway/permission-modes) | 5.2 |
+| 插件權限請求 | [https://docs.openclaw.ai/plugins/plugin-permission-requests](https://docs.openclaw.ai/plugins/plugin-permission-requests) | 9.11 |
+| Agent Plugin Bundles | [https://docs.openclaw.ai/plugins/bundles](https://docs.openclaw.ai/plugins/bundles) | 2.8 |
+| SDK 子路徑 | [https://docs.openclaw.ai/plugins/sdk-subpaths](https://docs.openclaw.ai/plugins/sdk-subpaths) | 4.9 |
+| 相依套件鎖定 | [https://docs.openclaw.ai/gateway/security/dependency-locking](https://docs.openclaw.ai/gateway/security/dependency-locking) | 9.11 |
+| 安全檔案操作 | [https://docs.openclaw.ai/gateway/security/secure-file-operations](https://docs.openclaw.ai/gateway/security/secure-file-operations) | 9.9 |
+| 多 Gateway 部署 | [https://docs.openclaw.ai/gateway/multiple-gateways](https://docs.openclaw.ai/gateway/multiple-gateways) | 11.6 |
+| 多租戶託管 | [https://docs.openclaw.ai/gateway/multi-tenant-hosting](https://docs.openclaw.ai/gateway/multi-tenant-hosting) | 11.6 |
+| 資料庫結構 | [https://docs.openclaw.ai/reference/database-schemas](https://docs.openclaw.ai/reference/database-schemas) | 2.11 |
+| 備份 | [https://docs.openclaw.ai/install/backups](https://docs.openclaw.ai/install/backups) | 6.7 |
+| 更新 | [https://docs.openclaw.ai/install/updating](https://docs.openclaw.ai/install/updating) | 附錄 E |
+| Teams | [https://docs.openclaw.ai/start/teams](https://docs.openclaw.ai/start/teams) | 第十一章 |
+
+---
+
+## 附錄 E：OpenClaw 2.0 升級遷移指南
+
+> **適用對象**：目前執行 v2026.7.x 或更早版本，準備升級至 **v2026.8.1（OpenClaw 2.0）** 的維運人員。
+>
+> **為何需要獨立的遷移指南**：2.0 包含 **13 項破壞性變更**、**4 項需 `doctor --fix` 介入的遷移**，以及 **1 項改變儲存後端的架構變更（SQLite）**。逐項照做可避免升級後才發現無法回頭。
+
+### E.1 升級決策樹
+
+```mermaid
+graph TB
+    START[準備升級至 2.0] --> Q1{是否使用<br/>OpenProse 插件？}
+    Q1 -->|是| A1[規劃 Agent Skill 遷移]
+    Q1 -->|否| Q2
+    A1 --> Q2{是否使用 QMD 記憶？}
+    Q2 -->|是| A2["確認可失去 reranking／<br/>query expansion／<br/>跨 Agent 逐字稿搜尋"]
+    Q2 -->|否| Q3
+    A2 --> Q3{是否使用 Code Mode？}
+    Q3 -->|是| A3[改寫程式碼：移除 tools／<br/>ALL_TOOLS／exact-ID 呼叫]
+    Q3 -->|否| Q4
+    A3 --> Q4{是否有自訂插件？}
+    Q4 -->|是| A4["遷移 SDK subpath<br/>deactivate → gateway_stop"]
+    Q4 -->|否| Q5
+    A4 --> Q5{能否接受<br/>降版困難？}
+    Q5 -->|否| STOP["暫緩升級<br/>先建立可驗證備份與還原演練"]
+    Q5 -->|是| GO[執行 E.2 升級流程]
+```
+
+### E.2 升級流程（依序執行）
+
+#### 步驟 1：升級前檢查清單
+
+- [ ] 記錄目前版本：`openclaw --version`
+- [ ] 確認 Node 版本落在 `>=22.22.3 <23`、`>=24.15.0 <25` 或 `>=25.9.0`
+- [ ] 確認**沒有**已知有漏洞的 Node + SQLite 組合（2.0 會在狀態開啟前擋下）
+- [ ] 盤點使用中的插件，標記外部插件與其來源
+- [ ] 盤點 Code Mode 程式碼，搜尋 `tools.`、`ALL_TOOLS`
+- [ ] 確認是否使用 OpenProse、QMD、`HEARTBEAT.md`、`codex/*` 模型參照
+- [ ] 確認是否使用已外部化的 Provider（Cohere、Meta、BytePlus、ComfyUI、OpenCode、Voyage、Vydra、Volcengine、Mistral、NovitaAI、Teams／Zoom meetings）
+- [ ] 確認是否有依賴隱含 Git hooks 的 managed worktree
+
+#### 步驟 2：建立可驗證備份（**不可略過**）
+
+```bash
+# 建立完整備份
+openclaw backup create
+
+# 驗證備份可用（這一步是「可驗證」的關鍵，不要跳過）
+openclaw backup verify <backup-id>
+
+# 另行備份備份工具不涵蓋的項目
+#   - 受管理的 dev/ checkout
+#   - 本地原始碼修改
+```
+
+> ⚠️ **為何檔案複製不再足夠**：Session 與 Transcript 已改用 SQLite 後端。直接複製目錄可能取得不一致的資料庫狀態（WAL 尚未合併）。務必使用 `openclaw backup`。
+
+#### 步驟 3：執行升級
+
+```bash
+# 先預覽升級路徑，不變更任何狀態
+openclaw update --dry-run
+
+# 確認無誤後執行
+openclaw update
+```
+
+> **若你在 2026.7.1 + pnpm 11**：需手動執行一次 `pnpm add -g openclaw@latest`。**OpenClaw 不會替你升級 Node**。
+
+#### 步驟 4：執行四項遷移
+
+```bash
+openclaw doctor --fix
+```
+
+逐項確認結果：
+
+- [ ] OpenProse 插件已移除，並已依上游指引完成 Agent Skill 遷移
+- [ ] `codex/*`、`openai-codex/*` 模型參照已轉為 `openai/*`
+- [ ] QMD 已遷移至 Built-in Memory，索引已從正規 Markdown 重建
+- [ ] `HEARTBEAT.md` 的有效工作已遷移至 Automations
+
+> ⚠️ **期限：2026-09-18**。逾期未處理已退休設定鍵可能導致組態無法通過驗證。
+>
+> **注意**：已明確退休的調校值會**回到內建預設值**。若原先依賴這些調校，升級後需**重新驗證效能特性**。
+
+#### 步驟 5：驗證
+
+```bash
+# 版本確認
+openclaw --version          # 應顯示 2026.8.1
+
+# 分層診斷（順序有意義）
+openclaw doctor             # 組態與本機探索
+openclaw health             # 執行中系統的插件與服務狀態
+openclaw plugins doctor     # 插件探索與組態
+
+# 技能完整清單（模型可見目錄可能被壓縮，這裡才是權威來源）
+openclaw skills check
+
+# 頻道連線
+openclaw channels list
+```
+
+#### 步驟 6：升級後的設定檢視
+
+2.0 變更了數項預設值，**升級不會自動套用較嚴格的姿態**，需主動檢視：
+
+| 項目 | 預設行為 | 建議動作 |
+|------|---------|---------|
+| **Per-session 權限模式** | **非回溯性**——既有 Session 沿用舊全域姿態 | 為既有 Session 明確指定模式，或建立新 Session |
+| **自我學習模式** | 全新安裝為 `auto`；**升級保留既有選擇** | 有治理要求者明確設為 `propose` 或 `off` |
+| **Session 重置** | 未設定重置政策者**跨日保持開啟** | 檢視長期執行 Agent 的脈絡成本 |
+| **記憶來源標記** | **僅適用新追蹤素材**，舊檔案維持既有分類 | 評估既有記憶是否需重新分類 |
+| **Activity 位置** | 對可路由位址**預設啟用** | 隱私敏感環境應檢視並停用 |
+| **SSH 身分檢查** | **預設開啟** | 僅限手動配對者須停用，並確認未設 CIDR 自動核准 |
+
+### E.3 降版還原程序
+
+> ⚠️ **降版的可行性受 SQLite 遷移限制**。在執行降版前必須理解：**遷移後建立的 Session 不會出現在舊版中**。
+
+降版步驟：
+
+1. **先用當前（2.0）CLI 還原已封存的舊版逐字稿產物**——此步驟必須在降版**之前**完成，降版後就無法執行。
+2. 確認要還原的目標為**全新目錄**（`restore` 拒絕覆寫既有目標）。
+3. 安裝指定的舊版本。
+4. 從備份還原。
+
+```bash
+# 步驟 1（必須在降版前，以 2.0 CLI 執行）
+openclaw transcripts restore-legacy
+
+# 步驟 3
+npm install -g openclaw@2026.7.1-2 --allow-scripts=openclaw
+
+# 步驟 4
+openclaw backup restore <backup-id> --target /path/to/fresh-state-dir
+```
+
+其他降版限制：
+
+| 項目 | 限制 |
+|------|------|
+| 遷移後建立的 Session | **不會出現在舊版** |
+| macOS tunnel 遷移產物 | **無法被僅支援 JSON 的舊版建置讀取** |
+| 待處理的配對請求與 bootstrap 代碼 | **不會被匯入** |
+| 部分舊儲存的遷移 | 需先**停止擁有該狀態的行程** |
+
+### E.4 三個期限速查表
+
+| 期限 | 事項 | 逾期後果 | 對應章節 |
+|------|------|---------|---------|
+| **2026-09-01** | Plugin SDK 舊 subpath 匯入關閉 | 插件無法載入 | 4.9 |
+| **2026-09-18** | 執行 `openclaw doctor --fix` | 組態可能無法通過驗證 | 7.5 |
+| **2026-10-12** | beta.5 session-store bridge 失效 | 依賴該 bridge 的用戶端中斷 | 4.9 |
 
 ---
 
 > **文件資訊**
 >
 > - **文件名稱**: OpenClaw 生態系教學手冊
-> - **版本**: 2.4.0
-> - **基於 OpenClaw 版本**: 2026.7.1
+> - **版本**: 3.0.0
+> - **基於 OpenClaw 版本**: 2026.8.1（OpenClaw 2.0）
 > - **建立日期**: 2026 年 3 月
-> - **最後更新**: 2026 年 8 月 15 日
+> - **最後更新**: 2026 年 9 月 1 日
 > - **維護團隊**: Tutorial Team
 > - **授權**: 本文件僅供內部教學使用
