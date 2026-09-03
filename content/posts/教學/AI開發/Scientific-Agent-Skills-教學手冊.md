@@ -100,13 +100,13 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
 
 > 為什麼是 Skill、標準長什麼樣、架構如何組成（第 1–8 章）
 
-1. [1. Executive Summary — 三分鐘讀懂](#1-executive-summary--三分鐘讀懂)
+[1. Executive Summary — 三分鐘讀懂](#1-executive-summary--三分鐘讀懂)
     - [1.1 一句話說明](#11-一句話說明)
     - [1.2 它解決什麼問題](#12-它解決什麼問題)
     - [1.3 對本公司最重要的五個結論](#13-對本公司最重要的五個結論)
     - [1.4 建議行動](#14-建議行動)
 
-2. [2. Scientific Agent Skills 是什麼](#2-scientific-agent-skills-是什麼)
+[2. Scientific Agent Skills 是什麼](#2-scientific-agent-skills-是什麼)
     - [2.1 定義](#21-定義)
     - [2.2 從 Claude Scientific Skills 到 Scientific Agent Skills](#22-從-claude-scientific-skills-到-scientific-agent-skills)
     - [2.3 K-Dense AI 的定位](#23-k-dense-ai-的定位)
@@ -116,7 +116,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [2.7 學術基礎：arXiv:2609.00065 論文解析](#27-學術基礎arxiv260900065-論文解析)
     - [2.8 本章實務注意事項](#28-本章實務注意事項)
 
-3. [3. Agent Skills Standard 完整解析](#3-agent-skills-standard-完整解析)
+[3. Agent Skills Standard 完整解析](#3-agent-skills-standard-完整解析)
     - [3.1 Skill 的基本結構](#31-skill-的基本結構)
     - [3.2 SKILL.md 格式](#32-skillmd-格式)
     - [3.3 Progressive Disclosure（漸進式揭露）](#33-progressive-disclosure漸進式揭露)
@@ -125,13 +125,13 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [3.6 標準的治理結構與版本沿革](#36-標準的治理結構與版本沿革)
     - [3.7 本章實務案例](#37-本章實務案例)
 
-4. [4. 系統架構](#4-系統架構)
+[4. 系統架構](#4-系統架構)
     - [4.1 完整分層架構](#41-完整分層架構)
     - [4.2 各層責任](#42-各層責任)
     - [4.3 一次完整請求的流程](#43-一次完整請求的流程)
     - [4.4 本章實務注意事項](#44-本章實務注意事項)
 
-5. [5. Repository 架構深入分析](#5-repository-架構深入分析)
+[5. Repository 架構深入分析](#5-repository-架構深入分析)
     - [5.1 頂層結構](#51-頂層結構)
     - [5.2 每個重要目錄的存在目的](#52-每個重要目錄的存在目的)
     - [5.3 Skill 的建立與更新規範](#53-skill-的建立與更新規範)
@@ -140,7 +140,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [5.6 自行複驗指令](#56-自行複驗指令)
     - [5.7 本章實務案例](#57-本章實務案例)
 
-6. [6. Skills 分類全覽](#6-skills-分類全覽)
+[6. Skills 分類全覽](#6-skills-分類全覽)
     - [6.1 兩種分類視角](#61-兩種分類視角)
     - [6.2 🟢 橫向可用 Skill（企業工程團隊可直接使用）](#62--橫向可用-skill企業工程團隊可直接使用)
     - [6.3 🟡 有限跨用 Skill](#63--有限跨用-skill)
@@ -148,7 +148,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [6.5 特別介紹：`autoskill`（值得知道但**不建議企業使用**）](#65-特別介紹autoskill值得知道但不建議企業使用)
     - [6.6 本章實務案例](#66-本章實務案例)
 
-7. [7. Scientific Databases 架構](#7-scientific-databases-架構)
+[7. Scientific Databases 架構](#7-scientific-databases-架構)
     - [7.1 為什麼這一章對企業很重要](#71-為什麼這一章對企業很重要)
     - [7.2 完整資料庫清單（依領域重新分類）](#72-完整資料庫清單依領域重新分類)
     - [7.3 檢索架構](#73-檢索架構)
@@ -157,7 +157,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [7.6 provenance、快取與可重現性](#76-provenance快取與可重現性)
     - [7.7 本章實務案例](#77-本章實務案例)
 
-8. [8. Python Package Skills](#8-python-package-skills)
+[8. Python Package Skills](#8-python-package-skills)
     - [8.1 核心問題：Agent 明明會寫 Python，為什麼還需要 Python Package Skill？](#81-核心問題agent-明明會寫-python為什麼還需要-python-package-skill)
     - [8.2 用 `rdkit` Skill 拆解八個具體價值](#82-用-rdkit-skill-拆解八個具體價值)
     - [8.3 Repository 中的重要 Python Package Skills](#83-repository-中的重要-python-package-skills)
@@ -168,7 +168,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
 
 > 在 Windows / WSL 與各家 Agent 上實際跑起來（第 9–15 章）
 
-9. [9. 安裝教學](#9-安裝教學)
+[9. 安裝教學](#9-安裝教學)
     - [9.1 先決條件](#91-先決條件)
     - [9.2 四種安裝方式的比較](#92-四種安裝方式的比較)
     - [9.3 方式 1：GitHub CLI（企業首選）](#93-方式-1github-cli企業首選)
@@ -178,7 +178,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [9.7 安裝驗證流程](#97-安裝驗證流程)
     - [9.8 本章實務案例](#98-本章實務案例)
 
-10. [10. Windows / WSL 環境實作](#10-windows--wsl-環境實作)
+[10. Windows / WSL 環境實作](#10-windows--wsl-環境實作)
     - [10.1 兩種架構選擇](#101-兩種架構選擇)
     - [10.2 Windows 10 / 11 前置安裝](#102-windows-10--11-前置安裝)
     - [10.3 WSL2 安裝與設定](#103-wsl2-安裝與設定)
@@ -188,7 +188,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [10.7 Windows 端常用指令對照](#107-windows-端常用指令對照)
     - [10.8 本章實務案例](#108-本章實務案例)
 
-11. [11. 與 Claude Code 整合](#11-與-claude-code-整合)
+[11. 與 Claude Code 整合](#11-與-claude-code-整合)
     - [11.1 Skill 探索路徑（官方定義）](#111-skill-探索路徑官方定義)
     - [11.2 三個 Claude Code 特有的重要行為](#112-三個-claude-code-特有的重要行為)
     - [11.3 巢狀目錄與 Monorepo 支援](#113-巢狀目錄與-monorepo-支援)
@@ -201,7 +201,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [11.10 企業級部署控制（受管理設定）](#1110-企業級部署控制受管理設定)
     - [11.11 本章實務案例](#1111-本章實務案例)
 
-12. [12. 與 Codex 整合](#12-與-codex-整合)
+[12. 與 Codex 整合](#12-與-codex-整合)
     - [12.1 Skill 探索路徑](#121-skill-探索路徑)
     - [12.2 Frontmatter](#122-frontmatter)
     - [12.3 呼叫方式](#123-呼叫方式)
@@ -209,7 +209,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [12.5 與 AGENTS.md 的關係](#125-與-agentsmd-的關係)
     - [12.6 本章實務案例](#126-本章實務案例)
 
-13. [13. 與 Cursor 整合](#13-與-cursor-整合)
+[13. 與 Cursor 整合](#13-與-cursor-整合)
     - [13.1 Skill 探索路徑（相容性最好的 Agent）](#131-skill-探索路徑相容性最好的-agent)
     - [13.2 關鍵差異：Cursor 會遞迴掃描](#132-關鍵差異cursor-會遞迴掃描)
     - [13.3 Cursor 特有的 Frontmatter 欄位](#133-cursor-特有的-frontmatter-欄位)
@@ -217,7 +217,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [13.5 安裝](#135-安裝)
     - [13.6 本章實務案例](#136-本章實務案例)
 
-14. [14. 與 Gemini CLI / GitHub Copilot / 其他 Agent 整合](#14-與-gemini-cli--github-copilot--其他-agent-整合)
+[14. 與 Gemini CLI / GitHub Copilot / 其他 Agent 整合](#14-與-gemini-cli--github-copilot--其他-agent-整合)
     - [14.1 Gemini CLI](#141-gemini-cli)
     - [14.2 GitHub Copilot](#142-github-copilot)
     - [14.3 各 Agent 路徑完整對照表](#143-各-agent-路徑完整對照表)
@@ -225,7 +225,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [14.5 ⭐ Spring AI 整合（Java 企業最重要的一節）](#145--spring-ai-整合java-企業最重要的一節)
     - [14.6 本章實務案例](#146-本章實務案例)
 
-15. [15. Skill / Agent / MCP / Rule / Hook / Plugin 比較](#15-skill--agent--mcp--rule--hook--plugin-比較)
+[15. Skill / Agent / MCP / Rule / Hook / Plugin 比較](#15-skill--agent--mcp--rule--hook--plugin-比較)
     - [15.1 完整比較表](#151-完整比較表)
     - [15.2 關係圖](#152-關係圖)
     - [15.3 什麼問題該用什麼機制？決策樹](#153-什麼問題該用什麼機制決策樹)
@@ -238,7 +238,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
 
 > 從 Lab 到逆向工程、框架遷移與前後端升級實戰（第 16–22 章）
 
-16. [16. 基礎使用 — Lab 1 到 Lab 5](#16-基礎使用--lab-1-到-lab-5)
+[16. 基礎使用 — Lab 1 到 Lab 5](#16-基礎使用--lab-1-到-lab-5)
     - [Lab 0：環境準備（共同前置）](#lab-0環境準備共同前置)
     - [Lab 1：讓 Agent 查詢 Scientific Database](#lab-1讓-agent-查詢-scientific-database)
     - [Lab 2：使用 Python Scientific Skill](#lab-2使用-python-scientific-skill)
@@ -247,7 +247,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [Lab 5：把 Scientific Skill 用於軟體工程](#lab-5把-scientific-skill-用於軟體工程)
     - [16.6 五個 Lab 的能力對照](#166-五個-lab-的能力對照)
 
-17. [17. Scientific Agent Skills for Software Engineering](#17-scientific-agent-skills-for-software-engineering)
+[17. Scientific Agent Skills for Software Engineering](#17-scientific-agent-skills-for-software-engineering)
     - [17.1 誠實的起點：官方定位與企業需求的落差](#171-誠實的起點官方定位與企業需求的落差)
     - [17.2 三層架構](#172-三層架構)
     - [17.3 A 層：企業推薦的 14 個 Skill 清單](#173-a-層企業推薦的-14-個-skill-清單)
@@ -257,7 +257,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [17.7 其他 Web 開發場景](#177-其他-web-開發場景)
     - [17.8 本章實務案例](#178-本章實務案例)
 
-18. [18. Reverse Engineering 逆向工程](#18-reverse-engineering-逆向工程)
+[18. Reverse Engineering 逆向工程](#18-reverse-engineering-逆向工程)
     - [18.1 完整工作流](#181-完整工作流)
     - [18.2 使用的 Skill 對照](#182-使用的-skill-對照)
     - [18.3 Prompt 1：Repository Reverse Engineering（總體）](#183-prompt-1repository-reverse-engineering總體)
@@ -270,7 +270,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [18.10 Prompt 8：Risk Analysis & Modernization Plan](#1810-prompt-8risk-analysis--modernization-plan)
     - [18.11 本章實務案例](#1811-本章實務案例)
 
-19. [19. Framework Migration 框架遷移](#19-framework-migration-框架遷移)
+[19. Framework Migration 框架遷移](#19-framework-migration-框架遷移)
     - [19.1 核心原則：禁止憑記憶遷移](#191-核心原則禁止憑記憶遷移)
     - [19.2 強制的證據來源階層](#192-強制的證據來源階層)
     - [19.3 完整遷移工作流](#193-完整遷移工作流)
@@ -278,7 +278,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [19.5 Migration Matrix 範本](#195-migration-matrix-範本)
     - [19.6 本章實務案例](#196-本章實務案例)
 
-20. [20. Java 升級實戰](#20-java-升級實戰)
+[20. Java 升級實戰](#20-java-升級實戰)
     - [20.1 Java 版本現況（2026-09-03 查證）](#201-java-版本現況2026-09-03-查證)
     - [20.2 升級路徑](#202-升級路徑)
     - [20.3 各階段的主要挑戰](#203-各階段的主要挑戰)
@@ -286,7 +286,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [20.5 Java 升級檢查清單](#205-java-升級檢查清單)
     - [20.6 本章實務案例](#206-本章實務案例)
 
-21. [21. Spring Boot 升級實戰](#21-spring-boot-升級實戰)
+[21. Spring Boot 升級實戰](#21-spring-boot-升級實戰)
     - [21.1 Spring Boot 版本現況（2026-09-03 查證）](#211-spring-boot-版本現況2026-09-03-查證)
     - [21.2 關鍵策略洞察](#212-關鍵策略洞察)
     - [21.3 Spring Boot 2.x → 3.x：Jakarta EE 遷移](#213-spring-boot-2x--3xjakarta-ee-遷移)
@@ -295,7 +295,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [21.6 Spring Boot 升級檢查清單](#216-spring-boot-升級檢查清單)
     - [21.7 本章實務案例](#217-本章實務案例)
 
-22. [22. Vue 3 企業前端開發](#22-vue-3-企業前端開發)
+[22. Vue 3 企業前端開發](#22-vue-3-企業前端開發)
     - [22.1 版本現況（2026-09-03 查證）](#221-版本現況2026-09-03-查證)
     - [22.2 Scientific Agent Skills 在前端開發的角色](#222-scientific-agent-skills-在前端開發的角色)
     - [22.3 自建 `bank-vue-development` Skill 完整範本](#223-自建-bank-vue-development-skill-完整範本)
@@ -306,7 +306,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
 
 > 企業級 AI Engineering 架構與 Banking System 完整案例（第 23–24 章）
 
-23. [23. 企業級 AI Engineering 架構](#23-企業級-ai-engineering-架構)
+[23. 企業級 AI Engineering 架構](#23-企業級-ai-engineering-架構)
     - [23.1 建議的企業目錄架構](#231-建議的企業目錄架構)
     - [23.2 三種 Skill 的治理差異](#232-三種-skill-的治理差異)
     - [23.3 `VENDOR.md` 範本（第三方 Skill 治理紀錄）](#233-vendormd-範本第三方-skill-治理紀錄)
@@ -316,7 +316,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [23.7 Evidence-Based Software Engineering](#237-evidence-based-software-engineering)
     - [23.8 本章實務案例](#238-本章實務案例)
 
-24. [24. Banking System 案例研究](#24-banking-system-案例研究)
+[24. Banking System 案例研究](#24-banking-system-案例研究)
     - [24.1 系統全貌](#241-系統全貌)
     - [24.2 各子系統的 Skill 應用矩陣](#242-各子系統的-skill-應用矩陣)
     - [24.3 Case 1：Legacy 分行系統逆向工程](#243-case-1legacy-分行系統逆向工程)
@@ -330,7 +330,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
 
 > 安全、治理、維護、升級、疑難排解與最佳實務（第 25–30 章）
 
-25. [25. Security 安全指南](#25-security-安全指南)
+[25. Security 安全指南](#25-security-安全指南)
     - [25.1 Skill 不只是 Markdown](#251-skill-不只是-markdown)
     - [25.2 Agent Skills 特有的攻擊面](#252-agent-skills-特有的攻擊面)
     - [25.3 官方安全機制解析](#253-官方安全機制解析)
@@ -341,7 +341,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [25.8 危險模式速查](#258-危險模式速查)
     - [25.9 本章實務案例](#259-本章實務案例)
 
-26. [26. Governance 企業治理](#26-governance-企業治理)
+[26. Governance 企業治理](#26-governance-企業治理)
     - [26.1 完整治理流程](#261-完整治理流程)
     - [26.2 各關卡的把關重點](#262-各關卡的把關重點)
     - [26.3 授權稽核（金融業必做）](#263-授權稽核金融業必做)
@@ -351,7 +351,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [26.7 稽核日誌](#267-稽核日誌)
     - [26.8 本章實務案例](#268-本章實務案例)
 
-27. [27. Maintenance 維護](#27-maintenance-維護)
+[27. Maintenance 維護](#27-maintenance-維護)
     - [27.1 維護什麼](#271-維護什麼)
     - [27.2 檢查更新](#272-檢查更新)
     - [27.3 Skill Diff：評估變更影響](#273-skill-diff評估變更影響)
@@ -361,7 +361,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [27.7 建立內部 Skill Registry](#277-建立內部-skill-registry)
     - [27.8 本章實務案例](#278-本章實務案例)
 
-28. [28. Upgrade 升級策略](#28-upgrade-升級策略)
+[28. Upgrade 升級策略](#28-upgrade-升級策略)
     - [28.1 升級流程](#281-升級流程)
     - [28.2 各步驟詳解](#282-各步驟詳解)
     - [28.3 回滾方案](#283-回滾方案)
@@ -369,7 +369,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [28.5 升級檢查清單](#285-升級檢查清單)
     - [28.6 本章實務案例](#286-本章實務案例)
 
-29. [29. Troubleshooting 疑難排解](#29-troubleshooting-疑難排解)
+[29. Troubleshooting 疑難排解](#29-troubleshooting-疑難排解)
     - [29.1 診斷流程](#291-診斷流程)
     - [問題 1：Agent 完全找不到任何 Skill](#問題-1agent-完全找不到任何-skill)
     - [問題 2：clone 整個 repo 後 Claude Code 找不到 Skill](#問題-2clone-整個-repo-後-claude-code-找不到-skill)
@@ -399,7 +399,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [29.2 診斷指令速查](#292-診斷指令速查)
     - [29.3 本章實務案例](#293-本章實務案例)
 
-30. [30. Best Practices Top 20](#30-best-practices-top-20)
+[30. Best Practices Top 20](#30-best-practices-top-20)
     - [30.1 完整清單](#301-完整清單)
     - [30.2 DO / DON'T 速查](#302-do--dont-速查)
     - [30.3 本章實務案例](#303-本章實務案例)
@@ -408,7 +408,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
 
 > Roadmap、Workshop、速查表、管理層摘要、FAQ 與附錄（第 31–37 章）
 
-31. [31. 企業導入 Roadmap](#31-企業導入-roadmap)
+[31. 企業導入 Roadmap](#31-企業導入-roadmap)
     - [31.1 六階段總覽](#311-六階段總覽)
     - [31.2 Phase 0：Research（研究）](#312-phase-0research研究)
     - [31.3 Phase 1：PoC（概念驗證）](#313-phase-1poc概念驗證)
@@ -420,12 +420,12 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [31.9 常見的導入失敗模式](#319-常見的導入失敗模式)
     - [31.10 本章實務案例](#3110-本章實務案例)
 
-32. [32. Workshop 與快速入門](#32-workshop-與快速入門)
+[32. Workshop 與快速入門](#32-workshop-與快速入門)
     - [32.1 30 分鐘快速入門](#321-30-分鐘快速入門)
     - [32.2 一日實戰 Workshop](#322-一日實戰-workshop)
     - [32.3 本章實務案例](#323-本章實務案例)
 
-33. [33. Cheat Sheet 速查表](#33-cheat-sheet-速查表)
+[33. Cheat Sheet 速查表](#33-cheat-sheet-速查表)
     - [33.1 Installation](#331-installation)
     - [33.2 Skill Structure](#332-skill-structure)
     - [33.3 Progressive Disclosure](#333-progressive-disclosure)
@@ -437,7 +437,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [33.9 關鍵數字（截至 2026-09-03）](#339-關鍵數字截至-2026-09-03)
     - [33.10 官方 URL](#3310-官方-url)
 
-34. [34. CTO / CIO Executive Summary](#34-cto--cio-executive-summary)
+[34. CTO / CIO Executive Summary](#34-cto--cio-executive-summary)
     - [34.1 這是什麼](#341-這是什麼)
     - [34.2 為什麼企業需要它](#342-為什麼企業需要它)
     - [34.3 對開發生產力的實際影響](#343-對開發生產力的實際影響)
@@ -449,7 +449,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [34.9 給管理層的三個問題](#349-給管理層的三個問題)
     - [34.10 一頁摘要](#3410-一頁摘要)
 
-35. [35. FAQ 常見問答](#35-faq-常見問答)
+[35. FAQ 常見問答](#35-faq-常見問答)
     - [Q1：Scientific Agent Skills 能幫我們寫 Java / Vue 程式碼嗎？](#q1scientific-agent-skills-能幫我們寫-java--vue-程式碼嗎)
     - [Q2：我們是金融業，這個以生物學為主的 Skill 庫有用嗎？](#q2我們是金融業這個以生物學為主的-skill-庫有用嗎)
     - [Q3：163 個 Skill 全裝會怎樣？](#q3163-個-skill-全裝會怎樣)
@@ -471,7 +471,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [Q19：導入需要多久？](#q19導入需要多久)
     - [Q20：如果 Repository 停止維護了怎麼辦？](#q20如果-repository-停止維護了怎麼辦)
 
-36. [36. References 參考來源](#36-references-參考來源)
+[36. References 參考來源](#36-references-參考來源)
     - [36.1 主要研究對象](#361-主要研究對象)
     - [36.2 Agent Skills 開放標準](#362-agent-skills-開放標準)
     - [36.3 各 Agent 官方文件](#363-各-agent-官方文件)
@@ -481,7 +481,7 @@ $r = Invoke-RestMethod -Uri "https://api.github.com/repos/K-Dense-AI/scientific-
     - [36.7 K-Dense 相關](#367-k-dense-相關)
     - [36.8 引用原則聲明](#368-引用原則聲明)
 
-37. [37. Appendix 附錄與檢查清單](#37-appendix-附錄與檢查清單)
+[37. Appendix 附錄與檢查清單](#37-appendix-附錄與檢查清單)
     - [附錄 A：163 個 Skill 完整清單（2026-09-03）](#附錄-a163-個-skill-完整清單2026-09-03)
     - [附錄 B：78 個資料庫完整清單](#附錄-b78-個資料庫完整清單)
     - [附錄 C：企業推薦的 14 個 Skill](#附錄-c企業推薦的-14-個-skill)
