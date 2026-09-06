@@ -5,13 +5,6 @@ title = 'Codex CLI教學手冊'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
-+++
-date = '2026-09-06T00:00:00+08:00'
-draft = false
-title = 'Codex CLI 教學手冊'
-tags = ['教學', 'AI開發']
-categories = ['教學']
-+++
 
 <!-- markdownlint-disable MD013 MD024 MD025 MD028 MD029 MD033 MD036 MD060 -->
 
