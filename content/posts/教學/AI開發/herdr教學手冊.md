@@ -1,5 +1,6 @@
 +++
 date = '2026-08-12T13:10:43+08:00'
+lastmod = '2026-09-06T10:00:00+08:00'
 draft = false
 title = 'Herdr教學手冊'
 tags = ['教學', 'AI開發']
@@ -11,9 +12,9 @@ categories = ['教學']
 > **Herdr —— 企業級 AI Coding Agent Runtime / Multi-Agent Workspace 完整導入指南**
 > 適用對象：資深 Software Architect、SA、Backend/Frontend Engineer、AI Agent 平台團隊、DevSecOps、Tech Lead、PM/PG/QA、企業導入負責人
 > 文件性質：企業內部「Herdr + AI Coding Agent（Claude Code／GitHub Copilot CLI／Codex）」導入、開發與維運培訓教材
-> 版本基準：`herdrdev/herdr`（Apache License 2.0，2026-08-03 relicense 自 AGPL-3.0-or-later），最新 Release **v0.8.0**（2026-08-03）
-> 　　　　　官方文件基準：`herdr.dev/docs/*`（Install、Quick Start、Concepts、Agents、Configuration、Keyboard、Socket API、Plugins、Marketplace、Compare）
-> 查證日期：2026-08-12
+> 版本基準：`herdrdev/herdr`（Apache License 2.0，於 v0.8.0／2026-08-03 relicense 自 AGPL-3.0-or-later），最新 Stable Release **v0.8.2**（2026-08-19）
+> 　　　　　官方文件基準：`herdr.dev/docs/*` 全部 20 個頁面（Install、Quick Start、Concepts、Agents、Integrations、Agent Automation、Agent Skill、Session State、Persistence & Remote、How to Work、Configuration、Config Reference、Keyboard、CLI Reference、Socket API、Plugins、Marketplace、Troubleshooting、Windows、Compare）
+> 查證日期：2026-09-06（初版 2026-08-12，本次為 v0.8.2 版本複查；異動對照見 Appendix G）
 > 技術堆疊：Rust 單一執行檔（Server + Client）、TOML 設定檔、本機 Socket API（Unix Domain Socket／Windows Named Pipe）
 
 ---
@@ -38,7 +39,9 @@ categories = ['教學']
 
 4. **一個必須從第一頁就知道的定位澄清**：Herdr **不是** AI Model、**不是** IDE、**不是** 完整 Agent Orchestrator、**不是** CI/CD Platform、**不是** Kubernetes、**不是** 完整 Observability Platform。它是「AI Coding Agent 長時間運作所需要的 Terminal Runtime + Workspace 管理層」。第 2 章與第 55 章會反覆界定這個範圍，避免過度宣稱。
 
-5. **Windows 支援現況聲明**：截至查證日期（2026-08-12），Herdr 的原生 Windows 版本明確標示為 **preview-only beta**（官方已實作，windows-beta 文件），並非 Stable Production Support。本手冊所有涉及 Windows 的內容都會清楚標註此限制，不會寫成穩定生產可用。
+5. **Windows 支援現況聲明（本次複查最重要的異動）**：截至查證日期（2026-09-06），Herdr 的原生 Windows 版本**已於 v0.8.2（2026-08-19）轉為正式支援（General Availability）**，Stable 成為 Windows 的預設更新通道（官方已實作，Windows 文件／v0.8.2 Release Notes）。這推翻了本手冊初版（2026-08-12 基準）「Windows 為 preview-only beta」的描述，**若你手上有本手冊的舊版本，第 8 章請以本版為準**。
+
+   但「GA」不等於「功能與 Linux/macOS 對等」。官方仍明列數項原生 Windows **不支援**的功能，其中對企業架構決策影響最大的是：**Direct Terminal Attach**、**Live Server Handoff**、以及**不能作為 `herdr --remote` 的被連線目標主機**。完整清單與中性的「原生 Windows vs WSL2」決策矩陣見第 8.3～8.4 節。本手冊不再以「Preview 不穩定」作為建議 WSL2 的理由，改以「你的流程是否用到上述缺口功能」作為判準。
 
 6. **銀行/企業案例聲明**：本手冊中出現的銀行/金融業案例（例如 Web Application 開發實戰、逆向工程、Framework Upgrade 案例中的 `bank-web-platform`、`PaymentController` 等）均為**教學示範用途之虛構情境**，用於示範 Herdr 承載 AI Coding Agent 工作流程的方式，並非真實客戶專案。涉及既有框架的深入機制，請參閱本 Repository 既有手冊：
    - [Spring boot 4.x 教學手冊](../framework/Spring%20boot%204.x%20教學手冊.md)
@@ -80,31 +83,33 @@ categories = ['教學']
 | 項目 | 值 | 來源標示 |
 |---|---|---|
 | Repository | `herdrdev/herdr` | 官方已實作 |
-| License | Apache License 2.0（2026-08-03 由 AGPL-3.0-or-later relicense） | 官方已實作，CHANGELOG |
-| 最新 Release | v0.8.0（2026-08-03） | 官方已實作 |
+| License | Apache License 2.0（2026-08-03 於 v0.8.0 由 AGPL-3.0-or-later relicense） | 官方已實作，CHANGELOG |
+| 最新 Stable Release | **v0.8.2（2026-08-19）** | 官方已實作，Release 頁面 |
+| Preview Channel 節奏 | 於 Stable 之間持續產出 preview build（查證日最新為 `2026-08-31-b1ff4582e968`），取自 master 分支 | 官方已實作，Release 頁面 |
 | 主要語言/型態 | Rust，單一執行檔（Server + Client 共用一支 binary） | 官方已實作 |
 | 官方定位 | 「the runtime your coding agents live on」 | 官方已實作，README |
 | Linux/macOS 安裝 | `curl -fsSL https://herdr.dev/install.sh \| sh`（Stable channel），另有 Homebrew／mise／Nix | 官方已實作 |
-| Windows 安裝 | `powershell -ExecutionPolicy Bypass -c "irm https://herdr.dev/install.ps1 \| iex"`，**preview-only beta** | 官方已實作，windows-beta 文件 |
+| Windows 安裝 | `powershell -ExecutionPolicy Bypass -c "irm https://herdr.dev/install.ps1 \| iex"`；端點防護阻擋時改用 `curl.exe -fsSLo install.cmd https://herdr.dev/install.cmd && install.cmd && del install.cmd`。**v0.8.2 起為正式支援（GA），Stable 為預設通道**，但仍有明列功能缺口（見第 8 章） | 官方已實作，Install／Windows 文件 |
 | 核心概念階層 | Session → Server／Client → Workspace → Tab → Pane → Agent | 官方已實作，concepts 文件 |
 | 預設 Prefix Key | `ctrl+b` | 官方已實作，keyboard 文件 |
 | Agent 狀態 | `working`／`idle`／`blocked`／`done`／`unknown` | 官方已實作，agents 文件 |
 | Agent 偵測機制 | Lifecycle Hooks（權威，少數 Agent 支援）／Screen Manifest（TOML 規則比對終端畫面，預設 fallback） | 官方已實作，agents 文件 |
-| 明確支援之 Agent（screen-detected，約 19 種） | Claude Code、Codex、GitHub Copilot CLI、Cursor Agent CLI、OpenCode、Devin CLI、Kimi Code CLI、Hermes Agent、Qoder CLI、Droid、Kilo Code CLI、MastraCode、Amp、Grok CLI、Antigravity CLI、Kiro CLI、Maki、Pi、OMP | 官方已實作，agents 文件 |
+| 明確支援之 Agent（充分測試，約 20 種） | Claude Code、Codex、GitHub Copilot CLI、Cursor Agent CLI、OpenCode、Devin CLI、Kimi Code CLI、Hermes Agent、Qoder CLI、**Qwen Code（v0.8.2 新增）**、Droid、Kilo Code CLI、MastraCode、Amp、Grok CLI、Antigravity CLI、Kiro CLI、Maki、Pi、OMP | 官方已實作，agents 文件 |
 | 較不成熟支援 | Gemini CLI、Cline（「detected but less thoroughly tested」） | 官方已實作，agents 文件 |
 | 設定檔路徑 | Linux/macOS：`~/.config/herdr/config.toml`；Windows：`%APPDATA%\herdr\config.toml` | 官方已實作，configuration 文件 |
 | Plugin Manifest | `herdr-plugin.toml` | 官方已實作，plugins 文件 |
 | Socket API 傳輸 | 本機 Unix Domain Socket（Windows 為 Named Pipe），newline-delimited JSON | 官方已實作，socket-api 文件 |
-| GitHub Star 數 | 約 2.8 萬（27,771，2026-08-12 即時計數器，會持續變動） | Source-confirmed，不建議在企業簡報中引用固定數字 |
-| 開發活躍度 | Master 分支查證當日（2026-08-12）仍有多筆 commit（效能優化、Windows 偵測修正、視窗標題同步等），屬高頻迭代專案 | Source-confirmed，GitHub commit 歷史 |
+| GitHub Star 數 | 約 3.56 萬（35.6k，2026-09-06 即時計數器；相較 2026-08-12 的 27,771 在不到一個月內成長逾 28%） | Source-confirmed，不建議在企業簡報中引用固定數字 |
+| 開發活躍度 | v0.8.2 發布後 master 分支已累積 99+ 筆 commit，並持續產出 preview build；查證當日仍有約 238 個 open issue 與 32 個 open PR，屬高頻迭代專案 | Source-confirmed，GitHub commit／issue 歷史 |
 | npm／cargo 安裝 | **官方未提供**作為終端使用者安裝管道（cargo 僅出現於「從原始碼建置」的開發者流程） | Source-confirmed |
 | Troubleshooting 官方頁面 | 官方提供獨立 Troubleshooting 頁面（`herdr.dev/docs/troubleshooting/`），涵蓋 IME 定位、按鍵重複觸發、修飾鍵 Arrow、Server 未更新、PATH、Keybinding 衝突、Remote 認證失敗、診斷 Log 八大常見情境 | 官方已實作，troubleshooting 文件（見第 44 章） |
 
 ---
 
-> 以下目錄為可點擊錨點連結，可直接跳轉至本文對應章節。此區塊由 `tools/markdown/generate_toc.py` 自動維護，請勿手動編輯 `TOC-AUTO` 標記之間的內容。
+> 以下目錄為可點擊錨點連結，可直接跳轉至本文對應章節。`TOC-AUTO` 標記之間的內容需與內文標題保持一致，修改章節標題後請一併更新此區塊，並以本 Repository 根目錄的 `check-toc.ps1` 驗證錨點正確性（`./check-toc.ps1 -Path <本檔路徑>`，三類問題皆應回報「無」）；Markdown 格式則以 `check-md.ps1` 驗證。
 
 <!-- TOC-AUTO-BEGIN -->
+
 ## 目錄（Table of Contents）
 
 - [1. 文件說明](#1-文件說明)
@@ -116,54 +121,55 @@ categories = ['教學']
   - [2.1 Herdr 是什麼](#21-herdr-是什麼)
   - [2.2 Herdr 不只是這些](#22-herdr-不只是這些)
   - [2.3 Herdr 在 AI Software Development Lifecycle 中的位置](#23-herdr-在-ai-software-development-lifecycle-中的位置)
-  - [2.4 Herdr 是否等於 Agent？是否取代 Claude Code / Codex / Copilot？](#24-herdr-是否等於-agent-是否取代-claude-code-codex-copilot)
-  - [2.5 Herdr 與 IDE、Agent Orchestrator 的關係](#25-herdr-與-ide-agent-orchestrator-的關係)
+  - [2.4 Herdr 是否等於 Agent？是否取代 Claude Code / Codex / Copilot？](#24-herdr-是否等於-agent是否取代-claude-code--codex--copilot)
+  - [2.5 Herdr 與 IDE、Agent Orchestrator 的關係](#25-herdr-與-ideagent-orchestrator-的關係)
   - [2.6 Herdr 的核心價值（企業視角）](#26-herdr-的核心價值企業視角)
   - [2.7 AI Prompt 範例](#27-ai-prompt-範例)
   - [2.8 本章 Checklist 與小結](#28-本章-checklist-與小結)
 - [3. 為什麼企業需要 Herdr](#3-為什麼企業需要-herdr)
   - [3.1 傳統 AI Coding Workflow 的真實痛點](#31-傳統-ai-coding-workflow-的真實痛點)
   - [3.2 Herdr 如何改善](#32-herdr-如何改善)
-  - [3.3 Scenario：一位資深工程師的一天](#33-scenario-一位資深工程師的一天)
+  - [3.3 Scenario：一位資深工程師的一天](#33-scenario一位資深工程師的一天)
   - [3.4 本章 Checklist 與小結](#34-本章-checklist-與小結)
 - [4. Herdr 核心概念](#4-herdr-核心概念)
   - [4.1 六大核心概念](#41-六大核心概念)
   - [4.2 概念階層圖](#42-概念階層圖)
   - [4.3 ID 命名規則實例](#43-id-命名規則實例)
-  - [4.4 Server／Client 分離的意義](#44-server-client-分離的意義)
-  - [4.5 Scenario：一個中型 Web 專案的 Workspace 規劃](#45-scenario-一個中型-web-專案的-workspace-規劃)
+  - [4.4 Server／Client 分離的意義](#44-serverclient-分離的意義)
+  - [4.5 Scenario：一個中型 Web 專案的 Workspace 規劃](#45-scenario一個中型-web-專案的-workspace-規劃)
   - [4.6 AI Prompt 範例](#46-ai-prompt-範例)
   - [4.7 本章 Checklist 與小結](#47-本章-checklist-與小結)
 - [5. Herdr 系統架構](#5-herdr-系統架構)
   - [5.1 架構總覽](#51-架構總覽)
   - [5.2 Process Lifecycle](#52-process-lifecycle)
   - [5.3 Session Persistence 與 Terminal Persistence](#53-session-persistence-與-terminal-persistence)
-  - [5.4 Detach / Attach](#54-detach-attach)
-  - [5.5 Agent Detection：兩層機制](#55-agent-detection-兩層機制)
-  - [5.6 Client/Server 分離、Local 與 Remote 執行](#56-client-server-分離-local-與-remote-執行)
-  - [5.7 Scenario：架構師評估導入風險](#57-scenario-架構師評估導入風險)
+  - [5.4 Detach / Attach](#54-detach--attach)
+  - [5.5 Agent Detection：兩層機制](#55-agent-detection兩層機制)
+  - [5.6 Client/Server 分離、Local 與 Remote 執行](#56-clientserver-分離local-與-remote-執行)
+  - [5.7 Scenario：架構師評估導入風險](#57-scenario架構師評估導入風險)
   - [5.8 AI Prompt 範例](#58-ai-prompt-範例)
   - [5.9 本章 Checklist 與小結](#59-本章-checklist-與小結)
-- [6. Herdr 與 tmux／zellij／IDE／Agent Orchestrator 比較](#6-herdr-與-tmux-zellij-ide-agent-orchestrator-比較)
+- [6. Herdr 與 tmux／zellij／IDE／Agent Orchestrator 比較](#6-herdr-與-tmuxzellijideagent-orchestrator-比較)
   - [6.1 完整比較表](#61-完整比較表)
   - [6.2 為什麼不應該只把 Herdr 當成 tmux replacement](#62-為什麼不應該只把-herdr-當成-tmux-replacement)
   - [6.3 Herdr 與 Agent Orchestrator 的界線](#63-herdr-與-agent-orchestrator-的界線)
-  - [6.4 Scenario：架構師選型會議](#64-scenario-架構師選型會議)
+  - [6.4 Scenario：架構師選型會議](#64-scenario架構師選型會議)
   - [6.5 本章 Checklist 與小結](#65-本章-checklist-與小結)
-- [7. 安裝環境：Linux／macOS](#7-安裝環境-linux-macos)
+- [7. 安裝環境：Linux／macOS](#7-安裝環境linuxmacos)
   - [7.1 系統需求](#71-系統需求)
   - [7.2 安裝方式](#72-安裝方式)
   - [7.3 PATH 設定](#73-path-設定)
   - [7.4 驗證安裝](#74-驗證安裝)
   - [7.5 啟動](#75-啟動)
   - [7.6 本章 Checklist 與小結](#76-本章-checklist-與小結)
-- [8. 安裝環境：Windows](#8-安裝環境-windows)
-  - [8.1 Windows 支援現況：Preview-only Beta](#81-windows-支援現況-preview-only-beta)
-  - [8.2 安裝方式（Windows Preview）](#82-安裝方式windows-preview)
+- [8. 安裝環境：Windows](#8-安裝環境windows)
+  - [8.1 Windows 支援現況：正式支援（GA）](#81-windows-支援現況正式支援ga)
+  - [8.2 安裝方式（Windows）](#82-安裝方式windows)
   - [8.3 已知限制](#83-已知限制)
   - [8.4 Windows 原生 vs WSL2 Linux 的分析建議](#84-windows-原生-vs-wsl2-linux-的分析建議)
-  - [8.5 Scenario：企業 Windows 開發機導入評估](#85-scenario-企業-windows-開發機導入評估)
+  - [8.5 Scenario：企業 Windows 開發機導入評估](#85-scenario企業-windows-開發機導入評估)
   - [8.6 本章 Checklist 與小結](#86-本章-checklist-與小結)
+  - [8.7 v0.8.2 的 Windows 相關新增能力](#87-v082-的-windows-相關新增能力)
 - [9. 安裝驗證與 Installation Checklist](#9-安裝驗證與-installation-checklist)
   - [9.1 驗證指令](#91-驗證指令)
   - [9.2 常見安裝後檢查項目](#92-常見安裝後檢查項目)
@@ -173,56 +179,57 @@ categories = ['教學']
   - [10.1 十步驟從零開始](#101-十步驟從零開始)
   - [10.2 Troubleshooting（Quick Start 階段）](#102-troubleshootingquick-start-階段)
   - [10.3 本章 Checklist 與小結](#103-本章-checklist-與小結)
-- [11. Keyboard／Mouse 操作](#11-keyboard-mouse-操作)
+- [11. Keyboard／Mouse 操作](#11-keyboardmouse-操作)
   - [11.1 三種操作模式](#111-三種操作模式)
   - [11.2 常用鍵盤操作（預設鍵位）](#112-常用鍵盤操作預設鍵位)
   - [11.3 Copy Mode 內操作](#113-copy-mode-內操作)
   - [11.4 滑鼠操作](#114-滑鼠操作)
-  - [11.5 Scenario：鍵盤 vs 滑鼠的團隊規範](#115-scenario-鍵盤-vs-滑鼠的團隊規範)
+  - [11.5 Scenario：鍵盤 vs 滑鼠的團隊規範](#115-scenario鍵盤-vs-滑鼠的團隊規範)
   - [11.6 本章 Checklist 與小結](#116-本章-checklist-與小結)
+  - [11.7 v0.8.2 鍵盤／滑鼠新增能力](#117-v082-鍵盤滑鼠新增能力)
 - [12. Workspace 設計（企業級規範）](#12-workspace-設計企業級規範)
   - [12.1 企業級 Workspace 命名與分層原則（建議架構）](#121-企業級-workspace-命名與分層原則建議架構)
-  - [12.2 範例一：企業 Web Application Workspace](#122-範例一-企業-web-application-workspace)
-  - [12.3 範例二：以角色分層的 Workspace](#123-範例二-以角色分層的-workspace)
+  - [12.2 範例一：企業 Web Application Workspace](#122-範例一企業-web-application-workspace)
+  - [12.3 範例二：以角色分層的 Workspace](#123-範例二以角色分層的-workspace)
   - [12.4 何時該用哪種模式](#124-何時該用哪種模式)
-  - [12.5 Scenario：從單人開發擴展到團隊協作](#125-scenario-從單人開發擴展到團隊協作)
+  - [12.5 Scenario：從單人開發擴展到團隊協作](#125-scenario從單人開發擴展到團隊協作)
   - [12.6 AI Prompt 範例](#126-ai-prompt-範例)
   - [12.7 本章 Checklist 與小結](#127-本章-checklist-與小結)
-- [13. Claude Code + Herdr 實戰](#13-claude-code-herdr-實戰)
+- [13. Claude Code + Herdr 實戰](#13-claude-code--herdr-實戰)
   - [13.1 啟動與基本操作](#131-啟動與基本操作)
   - [13.2 如何保持 Session](#132-如何保持-session)
   - [13.3 如何觀察狀態](#133-如何觀察狀態)
   - [13.4 如何重新 Attach](#134-如何重新-attach)
   - [13.5 如何處理 Blocked](#135-如何處理-blocked)
   - [13.6 如何避免多個 Claude Code 修改同一份程式碼造成衝突](#136-如何避免多個-claude-code-修改同一份程式碼造成衝突)
-  - [13.7 Scenario：一人多 Claude Code 分工](#137-scenario-一人多-claude-code-分工)
-  - [13.8 AI Prompt 範例（Backend Agent，供 Claude Code 使用）](#138-ai-prompt-範例backend-agent-供-claude-code-使用)
+  - [13.7 Scenario：一人多 Claude Code 分工](#137-scenario一人多-claude-code-分工)
+  - [13.8 AI Prompt 範例（Backend Agent，供 Claude Code 使用）](#138-ai-prompt-範例backend-agent供-claude-code-使用)
   - [13.9 本章 Checklist 與小結](#139-本章-checklist-與小結)
-- [14. GitHub Copilot CLI + Herdr 實戰](#14-github-copilot-cli-herdr-實戰)
+- [14. GitHub Copilot CLI + Herdr 實戰](#14-github-copilot-cli--herdr-實戰)
   - [14.1 基本流程](#141-基本流程)
-  - [14.2 與 Claude Code／Codex 共存](#142-與-claude-code-codex-共存)
-  - [14.3 Scenario：測試補強分工](#143-scenario-測試補強分工)
-  - [14.4 AI Prompt 範例（Test Agent，供 Copilot CLI 使用）](#144-ai-prompt-範例test-agent-供-copilot-cli-使用)
+  - [14.2 與 Claude Code／Codex 共存](#142-與-claude-codecodex-共存)
+  - [14.3 Scenario：測試補強分工](#143-scenario測試補強分工)
+  - [14.4 AI Prompt 範例（Test Agent，供 Copilot CLI 使用）](#144-ai-prompt-範例test-agent供-copilot-cli-使用)
   - [14.5 本章 Checklist 與小結](#145-本章-checklist-與小結)
-- [15. Codex + Herdr 實戰](#15-codex-herdr-實戰)
+- [15. Codex + Herdr 實戰](#15-codex--herdr-實戰)
   - [15.1 基本流程](#151-基本流程)
   - [15.2 與其他 Agent 分工](#152-與其他-agent-分工)
-  - [15.3 Scenario：Issue 導向修復](#153-scenario-issue-導向修復)
-  - [15.4 AI Prompt 範例（Frontend Agent，供 Codex 使用）](#154-ai-prompt-範例frontend-agent-供-codex-使用)
+  - [15.3 Scenario：Issue 導向修復](#153-scenarioissue-導向修復)
+  - [15.4 AI Prompt 範例（Frontend Agent，供 Codex 使用）](#154-ai-prompt-範例frontend-agent供-codex-使用)
   - [15.5 本章 Checklist 與小結](#155-本章-checklist-與小結)
 - [16. Multi-Agent Software Development](#16-multi-agent-software-development)
   - [16.1 總覽圖](#161-總覽圖)
-  - [16.2 Pattern A：Parallel（平行分工）](#162-pattern-a-parallel平行分工)
-  - [16.3 Pattern B：Sequential（序列接力）](#163-pattern-b-sequential序列接力)
-  - [16.4 Pattern C：Reviewer（交叉驗證）](#164-pattern-c-reviewer交叉驗證)
-  - [16.5 Pattern D：Research + Implementation（研究先行）](#165-pattern-d-research-implementation研究先行)
+  - [16.2 Pattern A：Parallel（平行分工）](#162-pattern-aparallel平行分工)
+  - [16.3 Pattern B：Sequential（序列接力）](#163-pattern-bsequential序列接力)
+  - [16.4 Pattern C：Reviewer（交叉驗證）](#164-pattern-creviewer交叉驗證)
+  - [16.5 Pattern D：Research + Implementation（研究先行）](#165-pattern-dresearch--implementation研究先行)
   - [16.6 四種模式比較](#166-四種模式比較)
-  - [16.7 Scenario：混合模式的真實案例](#167-scenario-混合模式的真實案例)
+  - [16.7 Scenario：混合模式的真實案例](#167-scenario混合模式的真實案例)
   - [16.8 本章 Checklist 與小結](#168-本章-checklist-與小結)
 - [17. Web Application 開發實戰](#17-web-application-開發實戰)
   - [17.1 技術 Stack 與 Herdr 的關係](#171-技術-stack-與-herdr-的關係)
   - [17.2 開發流程中 Herdr 的角色](#172-開發流程中-herdr-的角色)
-  - [17.3 Scenario：一個 Sprint 的實際運作](#173-scenario-一個-sprint-的實際運作)
+  - [17.3 Scenario：一個 Sprint 的實際運作](#173-scenario一個-sprint-的實際運作)
   - [17.4 AI Prompt 範例（Architecture Agent）](#174-ai-prompt-範例architecture-agent)
   - [17.5 本章 Checklist 與小結](#175-本章-checklist-與小結)
 - [18. Web Application Multi-Agent Workspace 範例](#18-web-application-multi-agent-workspace-範例)
@@ -240,11 +247,11 @@ categories = ['教學']
   - [20.1 案例背景](#201-案例背景)
   - [20.2 Agent 分工流程](#202-agent-分工流程)
   - [20.3 Herdr 如何讓這些 Agent 長時間並行或序列執行](#203-herdr-如何讓這些-agent-長時間並行或序列執行)
-  - [20.4 Scenario：Spring Boot 3.x → 4.x 升級](#204-scenario-spring-boot-3-x-4-x-升級)
+  - [20.4 Scenario：Spring Boot 3.x → 4.x 升級](#204-scenariospring-boot-3x--4x-升級)
   - [20.5 本章 Checklist 與小結](#205-本章-checklist-與小結)
 - [21. Framework Upgrade Agent Workflow](#21-framework-upgrade-agent-workflow)
   - [21.1 十二階段總覽](#211-十二階段總覽)
-  - [21.2 Scenario：以 Herdr Tab 對應 Phase 進度](#212-scenario-以-herdr-tab-對應-phase-進度)
+  - [21.2 Scenario：以 Herdr Tab 對應 Phase 進度](#212-scenario以-herdr-tab-對應-phase-進度)
   - [21.3 本章 Checklist 與小結](#213-本章-checklist-與小結)
 - [22. AI Agent Blocked State 深入解析](#22-ai-agent-blocked-state-深入解析)
   - [22.1 Agent 卡住不等於 Agent 崩潰](#221-agent-卡住不等於-agent-崩潰)
@@ -252,31 +259,31 @@ categories = ['教學']
   - [22.3 狀態決策圖](#223-狀態決策圖)
   - [22.4 團隊 SOP](#224-團隊-sop)
   - [22.5 本章 Checklist 與小結](#225-本章-checklist-與小結)
-- [23. Herdr + Git](#23-herdr-git)
+- [23. Herdr + Git](#23-herdr--git)
   - [23.1 Multi-Agent 的 Git 分支規範](#231-multi-agent-的-git-分支規範)
-  - [23.2 Branch／Commit／Diff／Merge／Review／Rollback 搭配 Herdr](#232-branch-commit-diff-merge-review-rollback-搭配-herdr)
+  - [23.2 Branch／Commit／Diff／Merge／Review／Rollback 搭配 Herdr](#232-branchcommitdiffmergereviewrollback-搭配-herdr)
   - [23.3 本章 Checklist 與小結](#233-本章-checklist-與小結)
-- [24. Herdr + Git Worktree + Multi-Agent](#24-herdr-git-worktree-multi-agent)
+- [24. Herdr + Git Worktree + Multi-Agent](#24-herdr--git-worktree--multi-agent)
   - [24.1 進階架構](#241-進階架構)
   - [24.2 為什麼 Worktree 架構比共用 Working Directory 更安全](#242-為什麼-worktree-架構比共用-working-directory-更安全)
-  - [24.3 Scenario：實務操作示意](#243-scenario-實務操作示意)
+  - [24.3 Scenario：實務操作示意](#243-scenario實務操作示意)
   - [24.4 本章 Checklist 與小結](#244-本章-checklist-與小結)
 - [25. Remote Development](#25-remote-development)
   - [25.1 Herdr 與 SSH 的使用方式](#251-herdr-與-ssh-的使用方式)
   - [25.2 斷線與恢復情境](#252-斷線與恢復情境)
   - [25.3 具名 Session（Named Sessions）](#253-具名-sessionnamed-sessions)
-  - [25.4 Remote Attach：平台支援矩陣與設定](#254-remote-attach-平台支援矩陣與設定)
+  - [25.4 Remote Attach：平台支援矩陣與設定](#254-remote-attach平台支援矩陣與設定)
   - [25.5 Direct Terminal Attach 與 Bridge API](#255-direct-terminal-attach-與-bridge-api)
-  - [25.6 適合企業 Server／Dev VM／Cloud VM 的情境](#256-適合企業-server-dev-vm-cloud-vm-的情境)
+  - [25.6 適合企業 Server／Dev VM／Cloud VM 的情境](#256-適合企業-serverdev-vmcloud-vm-的情境)
   - [25.7 本章 Checklist 與小結](#257-本章-checklist-與小結)
-- [26. Herdr API／Automation](#26-herdr-api-automation)
+- [26. Herdr API／Automation](#26-herdr-apiautomation)
   - [26.1 三層整合介面](#261-三層整合介面)
   - [26.2 三個自動化原語（Primitive）](#262-三個自動化原語primitive)
-  - [26.3 Agent 身分、啟動與控制介面](#263-agent-身分-啟動與控制介面)
-  - [26.4 Agent Skill：讓 Agent 自己操作 Herdr](#264-agent-skill-讓-agent-自己操作-herdr)
+  - [26.3 Agent 身分、啟動與控制介面](#263-agent-身分啟動與控制介面)
+  - [26.4 Agent Skill：讓 Agent 自己操作 Herdr](#264-agent-skill讓-agent-自己操作-herdr)
   - [26.5 實際可用範例](#265-實際可用範例)
   - [26.6 Socket API 傳輸格式](#266-socket-api-傳輸格式)
-  - [26.7 目前版本不提供 / 尚未確認支援](#267-目前版本不提供-尚未確認支援)
+  - [26.7 目前版本不提供 / 尚未確認支援](#267-目前版本不提供--尚未確認支援)
   - [26.8 本章 Checklist 與小結](#268-本章-checklist-與小結)
 - [27. Agent-to-Agent Automation](#27-agent-to-agent-automation)
   - [27.1 概念示意](#271-概念示意)
@@ -291,56 +298,63 @@ categories = ['教學']
   - [28.4 Marketplace](#284-marketplace)
   - [28.5 企業內部 Plugin 可能用途（建議架構）](#285-企業內部-plugin-可能用途建議架構)
   - [28.6 本章 Checklist 與小結](#286-本章-checklist-與小結)
+  - [28.7 Plugin 執行環境與管理指令補充](#287-plugin-執行環境與管理指令補充)
+    - [28.7.1 注入的環境變數](#2871-注入的環境變數)
+    - [28.7.2 Startup Hook 的正確語意](#2872-startup-hook-的正確語意)
+    - [28.7.3 Pane 放置位置與 id 命名限制](#2873-pane-放置位置與-id-命名限制)
+    - [28.7.4 完整管理指令](#2874-完整管理指令)
+    - [28.7.5 Marketplace 的實際運作機制](#2875-marketplace-的實際運作機制)
 - [29. Agent Integration 深度](#29-agent-integration-深度)
   - [29.1 三種整合深度比較](#291-三種整合深度比較)
-  - [29.2 為什麼 Agent Integration 越深，Herdr 越能正確理解 Agent Lifecycle](#292-為什麼-agent-integration-越深-herdr-越能正確理解-agent-lifecycle)
-  - [29.3 以 Claude Code／Codex／GitHub Copilot CLI 為例](#293-以-claude-code-codex-github-copilot-cli-為例)
-  - [29.4 自建/客製 Agent 的整合方式](#294-自建-客製-agent-的整合方式)
+  - [29.2 為什麼 Agent Integration 越深，Herdr 越能正確理解 Agent Lifecycle](#292-為什麼-agent-integration-越深herdr-越能正確理解-agent-lifecycle)
+  - [29.3 以 Claude Code／Codex／GitHub Copilot CLI 為例](#293-以-claude-codecodexgithub-copilot-cli-為例)
+  - [29.4 自建/客製 Agent 的整合方式](#294-自建客製-agent-的整合方式)
   - [29.5 本章 Checklist 與小結](#295-本章-checklist-與小結)
 - [30. Herdr Configuration](#30-herdr-configuration)
   - [30.1 設定檔位置與格式](#301-設定檔位置與格式)
   - [30.2 常用操作](#302-常用操作)
   - [30.3 常見設定區塊（示意）](#303-常見設定區塊示意)
   - [30.4 本章 Checklist 與小結](#304-本章-checklist-與小結)
+  - [30.5 `config.toml` 主要區塊一覽](#305-configtoml-主要區塊一覽)
 - [31. 系統維護 SOP](#31-系統維護-sop)
   - [31.1 維運週期總覽](#311-維運週期總覽)
   - [31.2 Session Cleanup](#312-session-cleanup)
-  - [31.3 Process／磁碟檢查（建議架構，搭配作業系統既有工具）](#313-process-磁碟檢查建議架構-搭配作業系統既有工具)
-  - [31.4 Workspace／Agent／Plugin 清理](#314-workspace-agent-plugin-清理)
+  - [31.3 Process／磁碟檢查（建議架構，搭配作業系統既有工具）](#313-process磁碟檢查建議架構搭配作業系統既有工具)
+  - [31.4 Workspace／Agent／Plugin 清理](#314-workspaceagentplugin-清理)
   - [31.5 本章 Checklist 與小結](#315-本章-checklist-與小結)
 - [32. Herdr 升級](#32-herdr-升級)
   - [32.1 `herdr update`](#321-herdr-update)
-  - [32.2 Stable／Preview Channel](#322-stable-preview-channel)
+  - [32.2 Stable／Preview Channel](#322-stablepreview-channel)
   - [32.3 不同安裝方式的更新策略比較](#323-不同安裝方式的更新策略比較)
-  - [32.4 Server/Client 相容性與 Live Handoff](#324-server-client-相容性與-live-handoff)
+  - [32.4 Server/Client 相容性與 Live Handoff](#324-serverclient-相容性與-live-handoff)
   - [32.5 Upgrade SOP Checklist](#325-upgrade-sop-checklist)
   - [32.6 本章 Checklist 與小結](#326-本章-checklist-與小結)
-- [33. Backup／Recovery](#33-backup-recovery)
+- [33. Backup／Recovery](#33-backuprecovery)
   - [33.1 需要備份的項目](#331-需要備份的項目)
-  - [33.2 最重要的觀念：Session Recovery ≠ Code Recovery](#332-最重要的觀念-session-recovery-code-recovery)
+  - [33.2 最重要的觀念：Session Recovery ≠ Code Recovery](#332-最重要的觀念session-recovery--code-recovery)
   - [33.3 本章 Checklist 與小結](#333-本章-checklist-與小結)
 - [34. Security](#34-security)
   - [34.1 風險分析](#341-風險分析)
   - [34.2 風險項目清單](#342-風險項目清單)
-  - [34.3 AI Coding Agent + Herdr Security Checklist](#343-ai-coding-agent-herdr-security-checklist)
+  - [34.3 AI Coding Agent + Herdr Security Checklist](#343-ai-coding-agent--herdr-security-checklist)
   - [34.4 本章 Checklist 與小結](#344-本章-checklist-與小結)
-- [35. Banking／Enterprise Environment](#35-banking-enterprise-environment)
-  - [35.1 典型企業/銀行網路拓樸](#351-典型企業-銀行網路拓樸)
+- [35. Banking／Enterprise Environment](#35-bankingenterprise-environment)
+  - [35.1 典型企業/銀行網路拓樸](#351-典型企業銀行網路拓樸)
   - [35.2 需考量的企業限制](#352-需考量的企業限制)
   - [35.3 本章 Checklist 與小結](#353-本章-checklist-與小結)
 - [36. AI Coding Governance](#36-ai-coding-governance)
   - [36.1 治理流程](#361-治理流程)
   - [36.2 禁止事項](#362-禁止事項)
   - [36.3 本章 Checklist 與小結](#363-本章-checklist-與小結)
-- [37. SSDLC + Herdr](#37-ssdlc-herdr)
+- [37. SSDLC + Herdr](#37-ssdlc--herdr)
   - [37.1 各階段配置 Agent](#371-各階段配置-agent)
   - [37.2 Herdr 在其中負責什麼](#372-herdr-在其中負責什麼)
   - [37.3 本章 Checklist 與小結](#373-本章-checklist-與小結)
-- [38. Spec-Driven Development + Herdr](#38-spec-driven-development-herdr)
+- [38. Spec-Driven Development + Herdr](#38-spec-driven-development--herdr)
   - [38.1 架構](#381-架構)
   - [38.2 Herdr 如何成為 Agent Runtime Layer](#382-herdr-如何成為-agent-runtime-layer)
   - [38.3 本章 Checklist 與小結](#383-本章-checklist-與小結)
-- [39. Loop Engineering + Herdr](#39-loop-engineering-herdr)
+- [39. Loop Engineering + Herdr](#39-loop-engineering--herdr)
   - [39.1 循環流程](#391-循環流程)
   - [39.2 Herdr 如何提供長時間執行環境](#392-herdr-如何提供長時間執行環境)
   - [39.3 本章 Checklist 與小結](#393-本章-checklist-與小結)
@@ -348,16 +362,16 @@ categories = ['教學']
   - [40.1 企業級 AI Development Team 設計](#401-企業級-ai-development-team-設計)
   - [40.2 使用 Herdr 建立對應 Workspace](#402-使用-herdr-建立對應-workspace)
   - [40.3 本章 Checklist 與小結](#403-本章-checklist-與小結)
-- [41. PM／SA／Architect／SD／PG／QA／DevOps／Security 使用方式](#41-pm-sa-architect-sd-pg-qa-devops-security-使用方式)
+- [41. PM／SA／Architect／SD／PG／QA／DevOps／Security 使用方式](#41-pmsaarchitectsdpgqadevopssecurity-使用方式)
   - [41.1 本章 Checklist 與小結](#411-本章-checklist-與小結)
 - [42. Team Operating Model](#42-team-operating-model)
-  - [Rule 1：一個 Agent 一個明確責任](#rule-1-一個-agent-一個明確責任)
-  - [Rule 2：一個 Workspace 對應一個 Project](#rule-2-一個-workspace-對應一個-project)
-  - [Rule 3：重大修改一定建立 Git Checkpoint](#rule-3-重大修改一定建立-git-checkpoint)
-  - [Rule 4：Agent 不可直接覆蓋其他 Agent 的工作](#rule-4-agent-不可直接覆蓋其他-agent-的工作)
-  - [Rule 5：Blocked Agent 必須有人處理](#rule-5-blocked-agent-必須有人處理)
-  - [Rule 6：AI Agent 不可直接進 Production](#rule-6-ai-agent-不可直接進-production)
-  - [Rule 7：所有 AI 產生的重大程式碼必須經過 Test + Review](#rule-7-所有-ai-產生的重大程式碼必須經過-test-review)
+  - [Rule 1：一個 Agent 一個明確責任](#rule-1一個-agent-一個明確責任)
+  - [Rule 2：一個 Workspace 對應一個 Project](#rule-2一個-workspace-對應一個-project)
+  - [Rule 3：重大修改一定建立 Git Checkpoint](#rule-3重大修改一定建立-git-checkpoint)
+  - [Rule 4：Agent 不可直接覆蓋其他 Agent 的工作](#rule-4agent-不可直接覆蓋其他-agent-的工作)
+  - [Rule 5：Blocked Agent 必須有人處理](#rule-5blocked-agent-必須有人處理)
+  - [Rule 6：AI Agent 不可直接進 Production](#rule-6ai-agent-不可直接進-production)
+  - [Rule 7：所有 AI 產生的重大程式碼必須經過 Test + Review](#rule-7所有-ai-產生的重大程式碼必須經過-test--review)
   - [42.1 本章 Checklist 與小結](#421-本章-checklist-與小結)
 - [43. 常見錯誤](#43-常見錯誤)
 - [44. Troubleshooting Decision Tree](#44-troubleshooting-decision-tree)
@@ -366,8 +380,9 @@ categories = ['教學']
 - [45. 效能與資源管理](#45-效能與資源管理)
   - [45.1 需要關注的資源面向](#451-需要關注的資源面向)
   - [45.2 Multi-Agent 數量如何規劃](#452-multi-agent-數量如何規劃)
-  - [45.3 Scenario：資源規劃實務](#453-scenario-資源規劃實務)
-  - [45.4 本章 Checklist 與小結](#454-本章-checklist-與小結)
+  - [45.3 Scenario：資源規劃實務](#453-scenario資源規劃實務)
+  - [45.4 v0.8.2 對資源規劃的兩項影響](#454-v082-對資源規劃的兩項影響)
+  - [45.5 本章 Checklist 與小結](#455-本章-checklist-與小結)
 - [46. 可觀測性](#46-可觀測性)
   - [46.1 可觀測的狀態面向](#461-可觀測的狀態面向)
   - [46.2 Herdr 狀態資訊 vs 完整 Observability Platform](#462-herdr-狀態資訊-vs-完整-observability-platform)
@@ -378,7 +393,7 @@ categories = ['教學']
   - [47.3 本章 Checklist 與小結](#473-本章-checklist-與小結)
 - [48. KPI](#48-kpi)
   - [48.1 建議 KPI 清單](#481-建議-kpi-清單)
-  - [48.2 為什麼避免只用「AI 寫了多少行程式碼」](#482-為什麼避免只用-ai-寫了多少行程式碼)
+  - [48.2 為什麼避免只用「AI 寫了多少行程式碼」](#482-為什麼避免只用ai-寫了多少行程式碼)
   - [48.3 本章 Checklist 與小結](#483-本章-checklist-與小結)
 - [49. Herdr 導入建議](#49-herdr-導入建議)
   - [適合使用](#適合使用)
@@ -386,7 +401,7 @@ categories = ['教學']
   - [必須搭配](#必須搭配)
   - [不應該做的事情](#不應該做的事情)
   - [POC 建議](#poc-建議)
-  - [Production／企業建議](#production-企業建議)
+  - [Production／企業建議](#production企業建議)
   - [Enterprise Governance 建議](#enterprise-governance-建議)
   - [49.1 本章 Checklist 與小結](#491-本章-checklist-與小結)
 - [50. 最終企業標準 SOP](#50-最終企業標準-sop)
@@ -430,12 +445,17 @@ categories = ['教學']
   - [Architecture Recommendation](#architecture-recommendation)
   - [55.1 本章 Checklist 與小結](#551-本章-checklist-與小結)
 - [56. 結語](#56-結語)
-- [Appendix A：Command Reference](#appendix-a-command-reference)
-- [Appendix B：Configuration Reference](#appendix-b-configuration-reference)
-- [Appendix C：Architecture Diagrams 索引](#appendix-c-architecture-diagrams-索引)
-- [Appendix D：Glossary](#appendix-d-glossary)
-- [Appendix E：Official References](#appendix-e-official-references)
-- [Appendix F：Research Sources](#appendix-f-research-sources)
+- [Appendix A：Command Reference](#appendix-acommand-reference)
+- [Appendix B：Configuration Reference](#appendix-bconfiguration-reference)
+- [Appendix C：Architecture Diagrams 索引](#appendix-carchitecture-diagrams-索引)
+- [Appendix D：Glossary](#appendix-dglossary)
+- [Appendix E：Official References](#appendix-eofficial-references)
+- [Appendix F：Research Sources](#appendix-fresearch-sources)
+- [Appendix G：版本異動對照（v0.8.0 → v0.8.2）](#appendix-g版本異動對照v080--v082)
+  - [G.1 讀者層級的 Breaking Change（必讀）](#g1-讀者層級的-breaking-change必讀)
+  - [G.2 v0.8.2（2026-08-19）主要異動](#g2-v0822026-08-19主要異動)
+  - [G.3 v0.8.1 說明](#g3-v081-說明)
+  - [G.4 本手冊本次的自我更正](#g4-本手冊本次的自我更正)
 
 <!-- TOC-AUTO-END -->
 
@@ -541,7 +561,7 @@ Herdr 本身不寫程式、不做 code review、不執行 build，這些工作�
 | 隨裝置恢復 | 從筆電、Server、任何有終端機的裝置重新 attach 同一個 Session | 官方已實作 |
 | 結構化 Workspace | Session→Workspace→Tab→Pane 階層，方便按專案/任務組織 | 官方已實作 |
 | 自動化介面 | CLI + Socket API，可被腳本或其他 Agent 呼叫 | 官方已實作 |
-| Agent-agnostic | 不綁定特定 Agent 廠商，同時支援約 19 種 Agent CLI | 官方已實作 |
+| Agent-agnostic | 不綁定特定 Agent 廠商，同時支援約 20 種 Agent CLI（`--kind` 可指定 22 個值） | 官方已實作 |
 
 ### 2.7 AI Prompt 範例
 
@@ -596,11 +616,11 @@ Terminal 6 → git status / git diff
 ```mermaid
 flowchart LR
     subgraph Before["導入前"]
-        T1["Terminal 1-6\n(各自獨立、易失聯)"]
+        T1["Terminal 1-6<br/>(各自獨立、易失聯)"]
     end
     subgraph After["導入 Herdr 後"]
-        Server["Herdr Server\n(常駐、狀態集中)"]
-        W["Workspace\n(結構化組織)"]
+        Server["Herdr Server<br/>(常駐、狀態集中)"]
+        W["Workspace<br/>(結構化組織)"]
         Server --> W
     end
     Before -. "重構" .-> After
@@ -647,7 +667,7 @@ Herdr 官方文件（concepts 文件）定義了以下核心概念，彼此構�
 
 ```mermaid
 flowchart TD
-    Session["Session\n(持久化 Server 命名空間)"] --> Server["Server"]
+    Session["Session<br/>(持久化 Server 命名空間)"] --> Server["Server"]
     Server --> Client1["Client (筆電)"]
     Server --> Client2["Client (公司桌機)"]
     Server --> Workspace1["Workspace: bank-web-platform"]
@@ -729,13 +749,13 @@ flowchart TD
     Server --> WM["Workspace Manager"]
     Server --> TM["Tab Manager"]
     Server --> PM["Pane Manager"]
-    Server --> TR["Terminal Runtime\n(PTY on Unix / ConPTY on Windows)"]
-    Server --> AD["Agent Detection\n(Screen Manifest / Lifecycle Hooks)"]
+    Server --> TR["Terminal Runtime<br/>(PTY on Unix / ConPTY on Windows)"]
+    Server --> AD["Agent Detection<br/>(Screen Manifest / Lifecycle Hooks)"]
     Server --> AS["Agent State Tracking"]
     Server --> Sock["Socket API"]
     Sock --> CLI["herdr CLI"]
     Server --> Plugin["Plugin System"]
-    TR --> Agents["Coding Agents\n(Claude Code / Codex / Copilot CLI / ...)"]
+    TR --> Agents["Coding Agents<br/>(Claude Code / Codex / Copilot CLI / ...)"]
 ```
 
 （建議架構：此圖為本手冊依官方文件描述之元件重新繪製之整合視圖，元件邊界依官方 docs 站 Install/Concepts/Agents/Socket API/Plugins 頁面之敘述整理，非官方原始碼模組圖）
@@ -801,7 +821,7 @@ Herdr 用兩層機制判斷一個 Pane 裡是不是在跑 Agent、目前狀態�
 | Integration 能力軸線 | 作用 | 目前支援之 Agent | 來源標示 |
 |---|---|---|---|
 | **Lifecycle Authority（狀態權威）** | 安裝後由 Hook／Plugin 主動回報 `idle`／`working`／`blocked`，Herdr 對該 Pane 不再使用 Screen Manifest 猜測 | Pi、OMP、Kimi Code CLI、OpenCode、Kilo Code CLI、MastraCode | 官方已實作 |
-| **Session Identity（原生 Session 回復）** | 安裝後回報原生 Session 參照，供 Server 重啟後以 `--resume`／`--session` 等原生指令復原對話，但狀態仍由 Screen Manifest 判斷 | Claude Code、Codex、GitHub Copilot CLI、Devin CLI、Droid、Qoder CLI、Cursor Agent CLI、Hermes Agent、Antigravity CLI、Grok CLI | 官方已實作 |
+| **Session Identity（原生 Session 回復）** | 安裝後回報原生 Session 參照，供 Server 重啟後以 `--resume`／`--session` 等原生指令復原對話，但狀態仍由 Screen Manifest 判斷 | Claude Code、Codex、GitHub Copilot CLI、Devin CLI、Droid、Qoder CLI、**Qwen Code（v0.8.2 新增）**、Cursor Agent CLI、Hermes Agent、Antigravity CLI、Grok CLI 等（官方稱共 13 個 Agent 具備此能力） | 官方已實作 |
 
 換句話說，**安裝了 Claude Code／Codex／Copilot CLI 的官方 Integration，並不會讓狀態判斷變成 Lifecycle Hook 權威**——這三者的狀態來源仍是 Screen Manifest，Integration 只是讓 Server 重啟後能自動 `claude --resume <id>` 之類的方式復原對話（Source-confirmed，session-state／integrations 文件，第 29 章有更完整的整合深度比較）。
 
@@ -811,7 +831,7 @@ Herdr 用兩層機制判斷一個 Pane 裡是不是在跑 Agent、目前狀態�
 |---|---|---|
 | Local 執行 | `herdr` 在本機啟動 Server 並附掛 Client | 官方已實作 |
 | SSH Remote 執行 | 先 `ssh` 進遠端主機，再於遠端執行 `herdr`，Server 跑在遠端 | 官方已實作，how-to-work 文件 |
-| Thin Client Remote | `herdr --remote <host>` 從本機直接以精簡 Client 連上遠端 Server | 官方已實作（Windows 上此模式標示為 beta/部分限制，見第 8 章） |
+| Thin Client Remote | `herdr --remote <host>` 從本機直接以精簡 Client 連上遠端 Server | 官方已實作（Windows 自 v0.8.2 起可作為發起連線的 Client；但 **Windows 不可作為被連線的 Server 端**，見第 8.3、25.4 節） |
 | API 自動化 | 透過 Socket API／CLI 由腳本或其他程式操作 Herdr（不經過互動式 TUI） | 官方已實作 |
 
 ### 5.7 Scenario：架構師評估導入風險
@@ -944,44 +964,76 @@ herdr
 
 ## 8. 安裝環境：Windows
 
-### 8.1 Windows 支援現況：Preview-only Beta
+### 8.1 Windows 支援現況：正式支援（GA）
 
-**必須明確標示**：截至查證日期（2026-08-12），Herdr 的原生 Windows 版本是 **preview-only beta**（官方已實作，windows-beta 文件），**不是** Stable Production Support。這代表：
+**本節於 2026-09-06 複查時全面改寫。** Herdr 的原生 Windows 版本已於 **v0.8.2（2026-08-19）轉為正式支援（General Availability）**，官方 Windows 文件的措辭是「Native Windows support is generally available」（官方已實作，Windows 文件）。這帶來三項對企業導入直接相關的改變：
 
-- Windows 只能透過 Preview Channel 取得，`herdr channel set stable` 在 Windows 上會被拒絕（官方已實作）。
-- Windows 使用 ConPTY 而非 Unix 的 PTY 模型，底層行為與 Linux/macOS 不完全相同（官方已實作）。
-- 多項功能在 Windows 上被標示為 beta／部分支援／尚未驗證／不支援，包含：直接 terminal attach、`--remote` 目標主機模式、Live Server Handoff、Unix FD Handoff、簽章執行檔/SmartScreen 相關處理（官方已實作，windows-beta 文件）。
+- **Stable 成為 Windows 的預設更新通道**。過去「Windows 只能待在 Preview、`herdr channel set stable` 會被拒絕」的限制已不存在；Windows 現在與 Linux/macOS 一樣可用 `herdr channel set stable` / `herdr channel set preview` 雙向切換（官方已實作，Install／Windows 文件）。
+- **既有的 Preview 安裝不會自動轉為 Stable**。官方明確說明，在 GA 之前就裝好、且停留在 Preview 通道的安裝會**維持在 Preview**，必須手動執行 `herdr channel set stable` 才會切回穩定通道（官方已實作）。企業若在 2026-08-19 之前已於 Windows 機器上部署 Herdr，升級 SOP（第 32 章）應額外加入這一步的稽核。
+- **終端模型仍是 ConPTY，而非 Unix PTY**（官方已實作）。Herdr 在 Windows 上**內建捆綁一份 Microsoft ConPTY runtime**，原因是較舊的 Windows 10 build 會吞掉 Kitty keyboard protocol 的按鍵序列；若企業環境有政策或相容性考量需要改用系統內建的 ConPTY，可設定環境變數 `HERDR_WINDOWS_CONPTY=system` 退回（官方已實作，Windows 文件）。
 
-> **企業使用建議**：在 Production 或關鍵開發流程上，不應假設 Windows 原生版本與 Linux/macOS 版本行為完全一致。若企業標準開發環境是 Windows，建議先以小規模 POC 驗證 Preview 版本的穩定度（見第 8.3 節的 WSL2 建議）。
+> **企業使用建議（建議架構）**：GA **不等於**「功能與 Linux/macOS 對等」。官方在宣告 GA 的同時，仍以獨立段落列出一批原生 Windows 不支援或僅部分支援的功能（見第 8.3 節）。因此正確的導入判準已經不是「Preview 穩不穩」，而是「**我的工作流程有沒有用到那批缺口功能**」——這正是第 8.4 節決策矩陣要回答的問題。
 
-官方對 Windows 版本的未來定位刻意保持開放，windows-beta 文件明確將其定調為「學習階段」，並列出三種可能結局：**未來可能轉為 Stable**、**在成熟前持續停留於 Preview**、或**若維護成本不划算則縮減範圍**（官方已實作，windows-beta 文件）。這代表企業不應把「Windows 即將轉為 Stable」當作既定時程規劃的前提，任何 Windows 導入決策都應建立在「目前是 Preview，且官方未承諾轉正時程」這個事實之上（建議架構）。
+**與本手冊舊版的差異提醒**：初版（2026-08-12 基準）曾引述官方對 Windows 未來定位的三種可能結局（轉為 Stable／持續停留 Preview／縮減範圍），並據此建議企業不要把「即將轉正」當作規劃前提。**該段落已因 v0.8.2 的 GA 而失效並移除**——官方選擇的是第一種結局。舊版讀者若曾以「Windows 不會轉正」為前提做過架構決策，建議依本章重新評估。
 
-### 8.2 安裝方式（Windows Preview）
+### 8.2 安裝方式（Windows）
 
 ```powershell
-# Windows — Preview Channel（唯一目前提供的 Windows 通道）
+# Windows — 官方安裝腳本（GA 後預設即為 Stable Channel）
 powershell -ExecutionPolicy Bypass -c "irm https://herdr.dev/install.ps1 | iex"
+```
+
+部分企業的端點防護（EDR／AppLocker／防毒軟體）會攔截 `irm ... | iex` 這種「下載後直接執行」的模式。官方為此提供了一組改走實體檔案的備援指令（官方已實作，Install 文件）：
+
+```powershell
+# 端點防護阻擋上述指令時的官方備援方式
+curl.exe -fsSLo install.cmd https://herdr.dev/install.cmd && install.cmd && del install.cmd
 ```
 
 驗證安裝：
 
 ```powershell
 herdr --version
+
+# GA 後，全新安裝應顯示 stable；
+# 若這裡顯示 preview，代表這是 GA 之前留下的舊安裝，需手動切換（見第 8.1 節）
 herdr channel show
+herdr channel set stable
 ```
 
 ### 8.3 已知限制
 
-| 項目 | Windows 現況 | 來源標示 |
+GA 之後，Windows 的限制清單從「整個平台都是 Preview」收斂為「**特定功能明確不支援 / 部分支援**」。以下依官方 Windows 文件現況分成三類，企業評估時請直接對照自己的使用情境（官方已實作，Windows 文件）：
+
+**（一）明確不支援**
+
+| 功能 | 影響 | 對應章節 |
 |---|---|---|
-| 發布通道 | 僅 Preview，無法切換 Stable | 官方已實作 |
-| 終端模型 | ConPTY（非 Unix PTY） | 官方已實作 |
-| 直接 Terminal Attach | Beta／部分限制 | 官方已實作 |
-| `--remote` 目標主機模式 | Beta／部分限制 | 官方已實作 |
-| Live Server Handoff | 未完全驗證 | 官方已實作 |
-| Unix FD Handoff | 不適用（Windows 無此機制） | 官方已實作 |
-| 簽章執行檔／SmartScreen | 可能觸發 Windows SmartScreen 警示，需使用者手動允許 | Source-confirmed |
-| Plugin 支援 | 標示為 Preview | 官方已實作 |
+| Direct Terminal Attach | 無法用 `herdr terminal attach`／`herdr agent attach` 只附掛單一終端；唯讀稽核牆等應用受限 | 第 25.5 節 |
+| 作為 `--remote` 的**目標主機** | 不能建置「集中式 Windows Dev Server 供多人 `--remote` 連入」的架構 | 第 25.4 節 |
+| Live Server Handoff | 升級／換 Server 時無法保留存活 Pane，必須規劃重啟時間窗口 | 第 5.3、32.4 節 |
+| Unix FD Handoff | Windows 無此作業系統機制，屬平台性差異 | 第 5.3 節 |
+| Unix foreground process group | 前景行程群組語意不同，部分訊號／中斷行為與 Unix 不一致 | — |
+| Herdr 剪貼簿影像橋接（原生 Pane 內） | `--remote` 情境下的貼上影像便利功能在原生 Windows Pane 不可用 | 第 25.4 節 |
+| 簽章執行檔／避開 SmartScreen | 首次執行可能觸發 SmartScreen 警示，需使用者或 IT 手動允許 | 第 35 章 |
+
+**（二）部分支援**
+
+| 功能 | 現況 |
+|---|---|
+| Shell `cd` 之後的即時工作目錄追蹤 | 部分支援；透過 OSC7 的 shell integration 可正常運作 |
+| CJK IME 合成視窗定位 | 部分支援，與游標繪製模式相互影響（見下方「已知行為差異」與第 44 章 Troubleshooting） |
+| 韓文 IME 的輸入法前綴切換 | 屬 opt-in 實驗性功能，需明確啟用 |
+| Kitty graphics 圖形渲染 | 取決於所用終端機；**Windows Terminal 不支援** |
+| Host cursor（原生游標）渲染 | 部分支援，有已知閃爍／跳動問題 |
+
+**（三）已知行為差異**
+
+- 原生游標在輸出頻繁時可能閃爍、跳動或顯示過期位置，因此 Herdr 在 Windows 上**預設採用自繪游標（drawn cursor）**（官方已實作）。
+- 但自繪游標模式**無法正確錨定中／日／韓 IME 的輸入視窗**——這是一組互相衝突的取捨。若團隊大量使用中文輸入法，需調整 `host_cursor` 設定並實測，官方 Troubleshooting 頁面對此有專節（見第 44 章）。
+- 鍵盤／滑鼠回報行為取決於終端機；`ctrl+j` 在 Windows Terminal 與 Alacritty 中會被保留（官方已實作）。
+
+> **相較舊版已移除的兩列**：「發布通道僅 Preview、無法切換 Stable」與「Plugin 支援標示為 Preview」在 v0.8.2 之後均已不成立，本表不再列出。
 
 ### 8.4 Windows 原生 vs WSL2 Linux 的分析建議
 
@@ -997,26 +1049,55 @@ Windows
  └── VS Code / IntelliJ（連接 WSL2 或直接操作 Windows 端）
 ```
 
-| 評估面向 | Windows 原生 Herdr（Preview） | WSL2 內的 Linux Herdr（Stable） |
-|---|---|---|
-| 發布通道成熟度 | Preview-only | Stable |
-| 終端模型 | ConPTY（較新、部分功能受限） | Unix PTY（與官方主要開發/測試環境一致） |
-| Remote/Attach 完整度 | 部分限制 | 完整（比照 Linux） |
-| 與既有 Linux 開發工具鏈相容性（Maven、部分 CI 腳本） | 需另外確認 Windows 相容性 | 天然相容 |
-| 導入風險（企業 Production/關鍵專案） | 較高，功能仍在演進 | 較低，站在官方最成熟的支援基礎上 |
-| 使用便利性（原生 Windows 使用者） | 較高（不需額外設定 WSL2） | 需額外安裝/設定 WSL2 |
+GA 之後，兩條路線**都站在 Stable 通道上**，因此比較的基準已從「哪一邊比較穩」轉為「**哪一邊具備我需要的功能**」。以下為中性並列的決策矩陣（官方已實作項目依 Windows 文件；評估欄位為建議架構）：
 
-**本手冊建議（建議架構，非官方立場）**：對於企業內部需要穩定性優先的 AI Coding Agent 開發場景，**優先建議在 WSL2 內安裝 Linux 版 Herdr**，理由是官方 Stable Channel 與主要功能驗證都以 Linux/macOS 為主；Windows 原生版本適合用於個人 POC、輕量測試，或評估未來遷移路徑，暫不建議作為企業關鍵開發流程的唯一環境。若團隊已高度依賴 Windows 原生工具鏈（例如 .NET 相關開發），則可將 Windows 原生 Preview 版本視為觀察對象，持續追蹤官方 Stable 化進度。
+| 評估面向 | Windows 原生 Herdr（GA） | WSL2 內的 Linux Herdr |
+|---|---|---|
+| 發布通道 | **Stable（預設）** | **Stable** |
+| 終端模型 | ConPTY（內建捆綁 Microsoft ConPTY runtime，可用 `HERDR_WINDOWS_CONPTY=system` 退回系統版） | Unix PTY（與官方主要開發／測試環境一致） |
+| Direct Terminal Attach | **不支援** | 支援 |
+| Live Server Handoff | **不支援**（升級需重啟時間窗口） | 支援（實驗性，需 `--handoff` 旗標） |
+| 作為 `--remote` 的目標主機 | **不支援** | 支援 |
+| 作為 `--remote` 的發起 Client | 支援（v0.8.2 新增） | 支援 |
+| CJK IME 輸入體驗 | 部分限制（與自繪游標取捨衝突，見第 8.3 節） | 完整（依所用終端機而定） |
+| Kitty graphics | 依終端機而定，Windows Terminal 不支援 | 依終端機而定 |
+| 與 Windows 原生工具鏈相容性（.NET、MSBuild、Windows 專屬 SDK） | **天然相容** | 需跨界呼叫，路徑／權限較複雜 |
+| 與 Linux 工具鏈相容性（Maven、Shell 腳本、容器） | 需另外確認 Windows 相容性 | **天然相容** |
+| 使用便利性 | 較高（不需額外安裝 WSL2） | 需額外安裝／設定 WSL2 |
+
+**決策準則（建議架構，非官方立場）**——不再有單一推薦答案，請依下列判準擇一：
+
+- **選 WSL2 內的 Linux Herdr**，若你的流程符合任一項：需要 Direct Terminal Attach（例如資安唯讀稽核牆，第 25.5 節）／需要 Live Handoff 做無中斷升級（第 32.4 節）／規劃「集中式 Dev Server 供多人 `--remote` 連入」的架構（第 25.4、25.6 節）／團隊重度使用中文輸入法與 Agent 對話／主要工具鏈是 Linux 導向（Maven、Shell 腳本、容器化建置）。
+- **選原生 Windows Herdr**，若你的流程符合：主要開發標的是 .NET／Windows 專屬 SDK，跨進 WSL2 反而增加路徑與權限複雜度／團隊只需要「本機開多個 Agent Pane、斷線後可重新 attach」的核心價值，用不到上述缺口功能／希望降低導入摩擦（不需要求每位同仁先裝設定 WSL2）。
+- **兩者皆可時**，建議以「團隊既有工具鏈的重心」作為 tie-breaker，而不是以平台成熟度——因為在 GA 之後，這兩者的成熟度差距已不再是決策主軸。
 
 ### 8.5 Scenario：企業 Windows 開發機導入評估
 
-一個以 Windows 為標準配發機種的企業團隊，在導入 Herdr 前應該先問：「這個 Agent 開發流程，是否可以接受在 WSL2 裡運作？」多數情況下答案是肯定的（Claude Code、Codex、Copilot CLI 本身在 WSL2 環境下運作已相當成熟），此時建議直接採用 WSL2 + Linux Herdr 路線，避免承擔 Windows Preview 版本的不確定性。
+一個以 Windows 為標準配發機種的企業團隊，在導入 Herdr 前應該問的問題，已經**不再是**「能不能接受在 WSL2 裡運作」，而是：**「我們規劃的 Herdr 使用方式，有沒有踩到第 8.3 節那七項不支援的功能？」**
+
+實務上的判讀方式是把團隊的預期用法逐條對照：如果只是「每人在自己的 Windows 筆電上開 3～5 個 Pane 跑 Claude Code／Codex／Copilot CLI，晚上關掉 Client、隔天重新 attach」，那麼七項缺口一項都不會踩到，**原生 Windows 已是完全合理的正式選項**，不需要為此要求全團隊導入 WSL2。反過來，如果架構藍圖裡出現「集中式 Dev Server」「資安唯讀監看牆」「升級不可中斷」任何一項，那就必須走 Linux（WSL2 或獨立的 Linux/macOS 主機），因為那三項在原生 Windows 上是**功能缺口，不是穩定度問題，不會靠多測試幾輪解決**。
 
 ### 8.6 本章 Checklist 與小結
 
-- [ ] 已明確認知 Windows 版本為 Preview-only Beta，非 Stable
-- [ ] 已評估是否採用 WSL2 + Linux Herdr 作為企業標準路線
-- [ ] 若使用 Windows 原生版本，已知悉直接 attach／`--remote`／Live Handoff 等功能的限制
+- [ ] 已知悉 Windows 自 v0.8.2 起為正式支援（GA），Stable 為預設通道，本手冊舊版的 Preview 描述已失效
+- [ ] 若為 GA 前既有安裝，已執行 `herdr channel show` 確認通道，必要時以 `herdr channel set stable` 手動切換
+- [ ] 已逐條對照第 8.3 節的「明確不支援」七項，確認團隊規劃的用法是否踩到
+- [ ] 已依 8.4 節決策準則（而非平台成熟度）選定原生 Windows 或 WSL2 路線，並記錄選擇理由
+- [ ] 若團隊重度使用中文輸入法，已實測 CJK IME 與游標繪製模式的取捨（見第 44 章）
+
+### 8.7 v0.8.2 的 Windows 相關新增能力
+
+除了 GA 本身，v0.8.2 還針對 Windows 補上了數項具體能力，這些是評估「原生 Windows 是否足夠」時應一併納入的正面因素（官方已實作，v0.8.2 Release Notes）：
+
+| 新增能力 | 說明 | 企業意義 |
+|---|---|---|
+| Windows client 可用 `herdr --remote` | Windows 上的 Herdr 可作為 Thin Client，連上 Linux／macOS 的遠端 Server | 讓「Windows 筆電 + Linux Dev Server」成為官方支援的正式組合，是多數企業最實際的落地路線（見第 25.4 節） |
+| 原生 Windows 支援更多 Agent | Cursor Agent CLI、MastraCode、Hermes Agent、Grok CLI 取得原生 Windows 支援 | 原生 Windows 的可用 Agent 選擇明顯擴大，不再侷限於少數幾種 |
+| `Ctrl+1`～`Ctrl+9` 鍵位可正確辨識 | 修正 Windows 上這組直接鍵位失效的問題 | 影響第 11 章的 Tab／Workspace 快速切換鍵位規劃 |
+| PowerShell 工作目錄同步修正 | 修正 PowerShell 下 Pane 工作目錄未正確同步的問題 | 影響 Pane 分割時繼承工作目錄的正確性 |
+| Windows ARM64 安裝器改善 | 修正 ARM64 平台的安裝流程 | 使用 Snapdragon 等 ARM 架構 Windows 裝置的團隊可正常導入 |
+
+> **建議架構**：對絕大多數以 Windows 為標準配發機種的企業，本手冊認為 v0.8.2 之後最務實的架構是「**Windows 原生 Herdr 作為 `--remote` Client + Linux Dev VM 作為 Server**」——它同時取得 Windows 端的原生使用體驗與 Linux 端的完整功能（Direct Attach、Live Handoff、集中管理），且完全落在官方支援範圍內，不需要每位同仁自行維護 WSL2 環境。
 
 ---
 
@@ -1193,13 +1274,20 @@ Herdr 定義三種互動模式（官方已實作，concepts／keyboard 文件）
 
 ### 11.3 Copy Mode 內操作
 
-進入 Copy Mode（`prefix+[`）後：
+進入 Copy Mode（`prefix+[`）後（官方已實作，keyboard 文件）：
 
-| 操作 | 鍵位 |
-|---|---|
-| 開始選取 | `v` 或 `space` |
-| 複製選取內容 | `y` 或 `Enter` |
-| 搜尋 | `/`（向下搜尋）／`?`（向上搜尋） |
+| 分類 | 操作 | 鍵位 |
+|---|---|---|
+| 選取 | 開始選取 | `v` 或 `space` |
+| 選取 | 複製選取內容 | `y` 或 `Enter` |
+| 搜尋 | 向下／向上搜尋（純文字比對） | `/` ／ `?` |
+| 移動 | 上下左右（仿 Vim） | `h` ／ `j` ／ `k` ／ `l` |
+| 移動 | 以「詞」為單位移動 | `w`（下一詞首）／`b`（上一詞首）／`e`（詞尾） |
+| 移動 | 以「大詞」（空白分隔）為單位移動 | `W` ／ `B` ／ `E`（**v0.8.2 新增**，見第 11.7 節） |
+| 移動 | 段落／括號區塊跳躍 | `{` ／ `}` |
+| 移動 | 分頁捲動 | 依 keyboard 文件所載之分頁鍵位 |
+
+> **`w/b/e` 與 `W/B/E` 的差異**：小寫版本會在標點符號處停下（例如 `PaymentController.findById(id)` 會被拆成多段），大寫的 big-word 版本只以空白分隔，整串會被視為一個單位。實務上從 Agent 輸出中複製一整個檔案路徑、完整類別名稱或一段指令時，大寫版本效率明顯較高（建議架構）。
 
 ### 11.4 滑鼠操作
 
@@ -1219,6 +1307,30 @@ Herdr 採「滑鼠優先」設計（官方已實作，README／首頁敘述）�
 - [ ] 能分辨 Terminal Mode／Prefix Mode／Navigate Mode 的差異
 - [ ] 熟悉至少 8 個常用鍵位（split／navigate／detach／zoom／copy mode）
 - [ ] 知道滑鼠可以完成大部分基本操作，鍵盤非必要但能提升效率
+- [ ] 已知悉 Copy Mode 的 big-word motions（`W`／`B`／`E`）可加速複製長路徑與類別名稱
+
+### 11.7 v0.8.2 鍵盤／滑鼠新增能力
+
+v0.8.2 針對操作效率新增了數項與本章直接相關的能力，既有團隊鍵位規範（第 11.5 節）可據此檢討是否調整（官方已實作，v0.8.2 Release Notes／keyboard 文件）：
+
+| 新增能力 | 說明 | 實務價值 |
+|---|---|---|
+| Copy Mode big-word motions | 新增 `W`／`B`／`E`，以空白分隔為單位移動 | 複製 Agent 輸出中的完整檔案路徑、Stack Trace 類別名稱、整段指令時，按鍵次數大幅減少（見第 11.3 節） |
+| Tab 重新排序鍵位 | 可選的鍵位綁定，直接調整 Tab 順序 | 讓 Tab 順序對應專案階段（如第 21.2 節「以 Tab 對應 Phase 進度」）時，可用鍵盤即時重排 |
+| 直接調整 Pane 大小 | 可選的鍵位綁定，**不需先進入 resize mode**（原 `prefix+r`）即可調整 | 多 Agent 並行監看時（第 16 章），快速放大目前關注的 Agent Pane |
+| 右鍵手勢路由 | 右鍵可路由給 Pane 內支援 mouse reporting 的程式 | Pane 內執行 vim、htop 等程式時，右鍵行為交由該程式處理，不再被 Herdr 選單攔截 |
+| 桌面版 Tab Bar 狀態項目可設定 | 可於 Tab Bar 顯示 zoom 狀態、主機名稱、日期時間、指令輸出 | 遠端多主機作業時，可一眼確認「現在這個 Herdr 是哪一台機器」，降低誤操作風險（見第 30.5 節 `[ui]` 區塊） |
+
+**鍵位還原指令（Source-confirmed）**：
+
+```bash
+# 將鍵盤綁定還原為官方 v2 預設鍵位
+herdr config reset-keys
+```
+
+> 此指令見於官方 configuration 文件，但該頁面未逐一列出「v2 預設鍵位」與舊版鍵位的完整差異對照。企業若曾大量自訂 `[keys]` 區塊，**執行前務必先備份 `config.toml`**（見第 33 章），並於執行後以 `prefix+?` 叫出即時說明畫面確認實際鍵位，不要假設與本手冊第 11.2 節的表格完全一致。
+
+**企業應用建議（建議架構）**：Tab 重新排序與直接調整 Pane 大小這兩組鍵位屬於「可選綁定」，預設可能未啟用。若團隊採用第 12 章的 Workspace 分層規範、且經常需要在多個 Agent Pane 之間切換注意力，建議在團隊共用的 `config.toml` 範本中統一啟用並固定鍵位，避免每位成員自訂造成互相支援時的操作落差。
 
 ---
 
@@ -1584,13 +1696,13 @@ Test Agent
 
 ```mermaid
 flowchart LR
-    Herdr["Herdr Workspace"] --> Arch["Architecture Pane\n(Claude Code)"]
-    Herdr --> FE["Frontend Pane\n(Codex)"]
-    Herdr --> BE["Backend Pane\n(Claude Code)"]
-    Herdr --> DB["Database Pane\n(Copilot CLI)"]
-    Herdr --> Test["Test Pane\n(Codex)"]
-    Herdr --> Sec["Security Pane\n(Claude Code)"]
-    Herdr --> Rev["Review Pane\n(Copilot CLI)"]
+    Herdr["Herdr Workspace"] --> Arch["Architecture Pane<br/>(Claude Code)"]
+    Herdr --> FE["Frontend Pane<br/>(Codex)"]
+    Herdr --> BE["Backend Pane<br/>(Claude Code)"]
+    Herdr --> DB["Database Pane<br/>(Copilot CLI)"]
+    Herdr --> Test["Test Pane<br/>(Codex)"]
+    Herdr --> Sec["Security Pane<br/>(Claude Code)"]
+    Herdr --> Rev["Review Pane<br/>(Copilot CLI)"]
 ```
 
 Herdr 提供的是圖中每一個 Pane 的執行環境與狀態可視化；每個 Pane 內實際執行的 `mvn`、`npm`、`git`、AI Agent 指令，都是既有工具鏈本身的能力，不是 Herdr 提供的功能。
@@ -2059,7 +2171,9 @@ herdr --remote workbox
 
 ### 25.5 Direct Terminal Attach 與 Bridge API
 
-除了完整的 Workspace UI，Herdr 也提供「只附掛單一終端機」的輕量模式，適合只需要盯著特定 Pane、或需要把 Herdr 終端畫面橋接進第三方工具（例如企業內部監控面板）的情境（官方已實作，persistence-remote 文件；**Direct Terminal Attach 在 Windows Preview 上僅支援 Unix 目標**）：
+除了完整的 Workspace UI，Herdr 也提供「只附掛單一終端機」的輕量模式，適合只需要盯著特定 Pane、或需要把 Herdr 終端畫面橋接進第三方工具（例如企業內部監控面板）的情境（官方已實作，persistence-remote 文件）。
+
+> **平台限制（v0.8.2 更新）**：Direct Terminal Attach 在**原生 Windows 上明確不支援**（官方已實作，Windows 文件）。這不是「Preview 階段尚未驗證」，而是 GA 之後仍列在不支援清單中的功能缺口。需要此能力的企業（例如第 25.5 節末的資安唯讀稽核牆）必須把 Herdr Server 放在 Linux／macOS 上，見第 8.4 節決策矩陣。
 
 ```bash
 # 依 Agent 名稱附掛
@@ -2145,7 +2259,7 @@ review_pane=$(printf '%s\n' "$split" | jq -r '.result.pane.pane_id')
 herdr agent start reviewer --kind codex --pane "$review_pane" -- -m gpt-5.4
 ```
 
-`--kind` 目前支援的 Agent 值（官方已實作，agent-automation 文件）：`pi`、`claude`、`codex`、`gemini`、`cursor`、`devin`、`agy`（Antigravity CLI）、`cline`、`omp`、`mastracode`、`opencode`、`copilot`、`kimi`、`kiro`、`droid`、`amp`、`grok`、`hermes`、`kilo`、`qodercli`、`maki`。
+`--kind` 目前支援的 Agent 值共 22 個（官方已實作，agent-automation 文件）：`pi`、`claude`、`codex`、`gemini`、`cursor`、`devin`、`agy`（Antigravity CLI）、`cline`、`omp`、`mastracode`、`opencode`、`copilot`、`kimi`、`kiro`、`droid`、`amp`、`grok`、`hermes`、`kilo`、`qodercli`、**`qwen`（Qwen Code，v0.8.2 新增）**、`maki`。
 
 依「原始終端」或「Agent 語意」兩種需求，官方定義了對應的控制介面（官方已實作，agent-automation 文件）：
 
@@ -2313,7 +2427,7 @@ flowchart TD
 |---|---|
 | `id` / `name` / `version` / `description` | Plugin 基本識別資訊 |
 | `min_herdr_version` | 相容的最低 Herdr 版本 |
-| `platforms` | 支援平台（Windows 支援目前標示為 Preview） |
+| `platforms` | 該 Plugin 宣告支援的平台（Linux／macOS／Windows；Windows 自 v0.8.2 GA 後不再整體標示為 Preview，實際相容性仍以各 Plugin 自身宣告為準） |
 | `[[build]]` | 建置步驟 |
 | `[[startup]]` | Plugin 啟動時執行的動作 |
 | `[[actions]]` | 使用者可觸發的動作（含 `id`/`title`/`contexts`/`command`） |
@@ -2324,12 +2438,14 @@ flowchart TD
 ### 28.3 安裝與管理
 
 ```bash
-# 從 GitHub repo 安裝
-herdr plugin install owner/repo
+# 從 GitHub repo 安裝（可指定 subdir，讓一個 repo 內含多個可獨立安裝的 Plugin）
+herdr plugin install owner/repo[/subdir]
 
-# 本機開發模式（連結本地目錄）
-herdr plugin link
+# 本機開發模式（連結本地目錄，不執行 build，適合開發中反覆修改）
+herdr plugin link /path/to/plugin
 ```
+
+`herdr plugin install` 的流程是：clone 該 repo → 顯示內容預覽供使用者確認 → 執行 Manifest 中宣告的 `[[build]]` 指令 → 註冊 Plugin。**若 build 失敗，Plugin 不會被註冊**（官方已實作，plugins 文件）。完整管理指令見第 28.7 節。
 
 ### 28.4 Marketplace
 
@@ -2347,7 +2463,83 @@ Herdr Marketplace 會自動索引在 GitHub 上標記 `herdr-plugin` topic 的�
 
 - [ ] 已理解 Plugin = 目錄 + `herdr-plugin.toml`，指令可用任意語言撰寫
 - [ ] 已確認欲使用/開發之 Plugin 的 `min_herdr_version` 相容性
-- [ ] Windows 環境使用 Plugin 前已確認目前為 Preview 狀態
+- [ ] Windows 環境使用 Plugin 前，已確認該 Plugin 的 `platforms` 欄位確實宣告支援 Windows（平台整體已 GA，但個別 Plugin 未必跨平台）
+- [ ] 已理解 `[[startup]]` 為一次性非同步初始化，未誤用為常駐監督機制（見第 28.7 節）
+
+### 28.7 Plugin 執行環境與管理指令補充
+
+第 28.1～28.4 節說明了 Plugin 的「結構」與「安裝」，本節補上企業自行開發 Plugin 時實際會用到的**執行環境契約**與**完整生命週期指令**（官方已實作，plugins 文件）。
+
+#### 28.7.1 注入的環境變數
+
+Herdr 執行 Plugin 指令時會注入一組環境變數，這是 Plugin 與 Herdr 之間的主要介面——**官方明確表示沒有獨立的 Plugin SDK，整個 Herdr CLI 就是 Plugin API**（見第 28.1 節），因此 Plugin 的作法是「讀環境變數 → 呼叫 `$HERDR_BIN_PATH` 執行 CLI」。
+
+| 環境變數 | 內容 | 供應時機 |
+|---|---|---|
+| `HERDR_BIN_PATH` | 目前 Herdr 執行檔的絕對路徑 | 一律注入 |
+| `HERDR_SOCKET_PATH` | 目前 Session 的 Socket 路徑 | 一律注入 |
+| `HERDR_PLUGIN_ID` | 目前執行中的 Plugin 自身 id | 一律注入 |
+| `HERDR_PLUGIN_CONFIG_DIR` | 該 Plugin 專屬的設定目錄 | 一律注入 |
+| `HERDR_PLUGIN_STATE_DIR` | 該 Plugin 專屬的狀態目錄 | 一律注入 |
+| `HERDR_PLUGIN_EVENT` | 觸發本次執行的事件名稱（Startup Hook 為 `startup`） | 事件觸發時 |
+| `HERDR_WORKSPACE_ID`／`HERDR_PANE_ID` | 觸發當下的情境識別碼 | **僅在有對應情境時**注入 |
+
+**為什麼要用 `$HERDR_BIN_PATH` 而不是直接寫 `herdr`**：前者保證呼叫到的是「正在管理這個 Session 的那一份執行檔」，即使使用者的 `PATH` 中有多個版本、或 Herdr 尚未加入 `PATH`，Plugin 仍能正確運作（建議架構，依官方設計意圖之延伸說明）。
+
+> **設計重點**：config／state 目錄刻意與 Plugin 原始碼目錄分離。原因是透過 GitHub 安裝的 Plugin，其原始碼目錄是一份「由 Herdr 管理的 checkout」，可能因更新而被覆寫；使用者設定與執行期狀態放在獨立目錄才不會遺失（官方已實作）。企業自建 Plugin 時**不應**把設定寫回原始碼目錄。
+
+#### 28.7.2 Startup Hook 的正確語意
+
+`[[startup]]` 是最容易被誤用的欄位。官方定義是：**每個已啟用的 Plugin，在 Session 復原完成之後，非同步執行一次**，執行時帶 `HERDR_PLUGIN_EVENT=startup`（官方已實作）。
+
+| 它是 | 它不是 |
+|---|---|
+| 一次性（one-shot）的初始化動作 | 常駐的監督（supervisor）機制 |
+| 非同步執行，不阻塞 Herdr 啟動 | 保證在使用者操作前完成的同步前置作業 |
+| 在 Session 版面復原**之後**觸發 | 在 Server 啟動的最早期觸發 |
+
+**常見誤用（建議架構）**：把需要長期存活的背景服務（例如企業內部 CI 狀態輪詢程式）直接寫在 `[[startup]]` 裡並期待它一直跑著。正確作法是讓 Startup Hook 負責「啟動／確認該服務存在」這個一次性動作，服務本身的存活管理交給作業系統的服務機制（systemd、Windows Service）或 Herdr 的 `[[panes]]`。
+
+#### 28.7.3 Pane 放置位置與 id 命名限制
+
+`[[panes]]` 的 `placement` 欄位可用值（官方已實作）：
+
+| `placement` | 呈現方式 | 適用情境 |
+|---|---|---|
+| `overlay` | 覆蓋於目前畫面之上 | 臨時性的資訊查看 |
+| `popup` | 彈出式視窗 | 需要輸入的快速互動 |
+| `split` | 分割出新的 Pane | 需要與既有 Pane 並排長期顯示 |
+| `tab` | 開新 Tab | 內容量大、需要完整畫面 |
+| `zoomed` | 以全螢幕方式開啟 | 需要專注檢視的內容（如完整 Diff） |
+
+Plugin **id 的合法字元**限於 ASCII 字母、數字，以及 `.`、`:`、`_`、`-`（官方已實作）。企業內部 Plugin 建議採用具命名空間的 id（例如 `acme.security:precommit-check`），避免與社群 Plugin 衝突（建議架構）。
+
+#### 28.7.4 完整管理指令
+
+```bash
+# 列出已註冊的 Plugin
+herdr plugin list
+
+# 手動觸發某個 Plugin 的 Action
+herdr plugin action invoke <action-id>
+
+# 查出某個 Plugin 的設定目錄位置（用於編輯其 config）
+herdr plugin config-dir <id>
+
+# 移除透過 GitHub 安裝的 Plugin
+herdr plugin uninstall <id>
+
+# 解除本機開發模式的連結（對應 herdr plugin link）
+herdr plugin unlink <id>
+```
+
+> **`uninstall` 與 `unlink` 不可混用**：`uninstall` 針對 GitHub 安裝（Herdr 管理的 checkout），`unlink` 針對 `plugin link` 連結的本機目錄。對本機連結執行 `uninstall` 不會有預期效果（官方已實作）。維運清理時（第 31.4 節）請先以 `herdr plugin list` 確認每個 Plugin 的來源類型。
+
+#### 28.7.5 Marketplace 的實際運作機制
+
+Herdr Marketplace 並非一個需要送審的商店，而是一份**自動索引**：它掃描 GitHub 上標記 `herdr-plugin` topic 的公開 repo，Manifest 需位於 repo 根目錄或子目錄，索引**約每 30 分鐘更新一次**；發布者只需加上 topic 並提供安裝指令即可，且「一張 repo 卡片可以包含多個可獨立安裝的 Plugin」（官方已實作，marketplace 文件）。v0.8.2 針對 Manifest 探索與版本發布做了改善（官方已實作，v0.8.2 Release Notes）。
+
+> **企業資安提醒（建議架構，呼應第 34 章）**：正因為 Marketplace 是「自動索引公開 repo」而非「審核後上架」，**被 Marketplace 收錄不代表經過官方安全審查**。Plugin 在安裝時會執行 `[[build]]` 指令、執行期可透過 `$HERDR_BIN_PATH` 操作整個 Herdr Session，權限相當高。企業導入 Plugin 前應比照第三方相依套件的供應鏈風險流程處理：檢視原始碼、鎖定版本、優先自建內部 Plugin，並在第 31.4 節的月度清理中移除未使用者。
 
 ---
 
@@ -2357,13 +2549,13 @@ Herdr Marketplace 會自動索引在 GitHub 上標記 `herdr-plugin` topic 的�
 
 ```mermaid
 flowchart LR
-    Screen["Screen Detection\n(畫面特徵比對)"] --> Lifecycle["Lifecycle Integration\n(Agent 主動回報狀態)"]
-    Lifecycle --> Plugin["Plugin Integration\n(深度客製化行為)"]
+    Screen["Screen Detection<br/>(畫面特徵比對)"] --> Lifecycle["Lifecycle Integration<br/>(Agent 主動回報狀態)"]
+    Lifecycle --> Plugin["Plugin Integration<br/>(深度客製化行為)"]
 ```
 
 | 整合方式 | 判斷依據 | 準確度 | 目前支援之 Agent（示例） |
 |---|---|---|---|
-| Screen Detection | TOML 規則比對終端畫面快照（標題、OSC 序列、畫面樣式） | 中（依賴畫面樣式穩定性） | Claude Code、Codex、GitHub Copilot CLI、Cursor Agent CLI 等約 19 種 |
+| Screen Detection | TOML 規則比對終端畫面快照（標題、OSC 序列、畫面樣式） | 中（依賴畫面樣式穩定性） | Claude Code、Codex、GitHub Copilot CLI、Cursor Agent CLI、Qwen Code 等約 20 種 |
 | Lifecycle Integration | Agent 主動透過整合機制回報自身狀態 | 高（權威來源） | Pi、OMP、Kimi Code CLI、OpenCode、Kilo Code CLI、MastraCode |
 | Plugin Integration | 透過 Herdr Plugin 系統客製化 Action/Event/Pane | 依實作而定 | 依企業/社群自行開發之 Plugin |
 | Unsupported Agent | 無對應規則，狀態長期顯示 `unknown` | 低 | 未列於官方支援清單之 Agent CLI |
@@ -2383,7 +2575,7 @@ Screen Detection 本質上是「看畫面猜狀態」，當 Agent CLI 更新其�
 **官方整合套件安裝／解除安裝指令一覽**（官方已實作，integrations 文件；`--kind` 值與此處整合名稱可能不同，請以官方文件為準）：
 
 ```bash
-herdr integration install {pi|omp|claude|codex|copilot|devin|droid|kimi|opencode|kilo|hermes|qodercli|cursor|mastracode|antigravity-cli|grok}
+herdr integration install {pi|omp|claude|codex|copilot|devin|droid|kimi|opencode|kilo|hermes|qodercli|qwen|cursor|mastracode|antigravity-cli|grok}
 herdr integration uninstall <同上任一名稱>
 herdr integration status   # 檢查各整合套件的已安裝版本
 ```
@@ -2398,8 +2590,11 @@ herdr integration status   # 檢查各整合套件的已安裝版本
 | Cursor Agent CLI | `1` | `cursor-agent --resume <id>` |
 | Grok CLI | `1` | `grok --resume <id>` |
 | OpenCode | `5` | `opencode --session <id>` |
+| Qwen Code（v0.8.2 新增） | 以 `herdr integration status` 實測為準 | 依 Qwen Code 原生 resume 語法 |
 
 版本不足、未安裝、或 Session 參照失效時，該 Pane 會在 Server 重啟後退回成一個位於原本工作目錄的全新 Shell，而不是自動復原對話（官方已實作）。
+
+> **Qwen Code 標示說明（Source-confirmed）**：v0.8.2 Release Notes 明載新增「Qwen Code detection for idle, working, and user-confirmation states with optional native session restore」，但官方文件未逐一列出其最低整合版本數字。企業導入前請以實際安裝版本執行 `herdr integration status` 取得當前要求值，勿引用本表推測數字。
 
 ### 29.4 自建/客製 Agent 的整合方式
 
@@ -2471,6 +2666,34 @@ prefix = "ctrl+b"
 - [ ] 已確認自身平台對應的設定檔路徑
 - [ ] 已執行 `herdr --default-config` 取得目前版本的完整預設設定作為基準
 - [ ] 修改設定後已用 `herdr server reload-config` 驗證生效，而非重啟整個 Server
+- [ ] 已對照第 30.5 節區塊總表，確認團隊共用設定範本涵蓋必要區塊
+
+### 30.5 `config.toml` 主要區塊一覽
+
+第 30.3 節的示意只說明了「設定檔有分區」這個概念。本節依官方 configuration 文件補上各區塊的實際職責與關鍵欄位，作為企業撰寫團隊共用設定範本時的對照表（官方已實作，configuration 文件）。
+
+| 區塊 | 職責 | 關鍵欄位／可用值 |
+|---|---|---|
+| `[keys]` | 鍵盤綁定與自訂指令 | Prefix Key 預設 `ctrl+b`；綁定格式為 `"prefix+n"`（前綴式）或 `"ctrl+alt+n"`（直接式）；可選的索引式綁定 `"prefix+1..9"` 用於快速切換 Tab／Workspace |
+| `[[keys.command]]` | 自訂指令綁定（`[keys]` 下的陣列表） | 指令型別可為 `popup`（彈出視窗）、`pane`（新 Pane）、`shell`（直接執行）、`plugin_action`（觸發 Plugin 動作） |
+| `[theme]` | 視覺主題 | 內建主題如 `"catppuccin"`、`"terminal"`；`auto_switch = true` 搭配 `light_name` / `dark_name` 可跟隨系統明暗切換 |
+| `[theme.custom]` | 個別顏色覆寫 | 例如 `sidebar_bg`（v0.8.2 新增） |
+| `[ui]` | 介面版面 | Sidebar 各列的組成 token：`state_icon`、`workspace`、`agent`、`$custom`；Tab Bar 位置與右側狀態區；`window_title` 支援 `{hostname}`、`{workspace}` 等變數（v0.8.2 新增）；`pane_outer_borders`（v0.8.2 新增） |
+| `[ui.toast]` | 通知呈現方式 | `"herdr"`（Herdr 內建提示）／`"terminal"`（終端機通知）／`"system"`（作業系統通知）／`"off"`（關閉） |
+| `[ui.sound]` | 音效提示 | 指定 mp3 檔案路徑；支援 per-agent 覆寫（不同 Agent 用不同提示音） |
+| `[terminal]` | Shell 行為 | `default_shell`、`shell_mode`、`new_cwd`（新 Pane 的工作目錄繼承策略） |
+| `[session]` | Session 復原行為 | `resume_agents_on_restore`（預設 `true`，見第 5.3 節） |
+| `[experimental]` | 實驗性功能 | `pane_history`（預設 `false`，見第 5.3 節）；Kitty graphics、IME 游標追蹤、輸入法切換等 |
+| `[remote]` | 遠端連線行為 | `manage_ssh_config`（預設由 Herdr 產生臨時 SSH 設定，設為 `false` 改用純 `ssh`，見第 25.4 節） |
+
+**企業導入建議（建議架構）**——上表中對企業最有價值的四個設定點：
+
+1. **`[ui] window_title` 搭配 `{hostname}`**：多主機環境下，把主機名稱寫進視窗標題是成本最低的誤操作防護。工程師同時開著「本機」與「正式環境 Dev VM」兩個 Herdr 時，這一行設定可避免在錯誤的機器上執行破壞性指令（呼應第 34 章）。
+2. **`[ui.toast]` 選 `"system"`**：讓 Agent 進入 `blocked` 時發出作業系統層級通知，工程師切到別的視窗做事時仍能被喚回，直接改善第 22 章「Blocked Agent 必須有人處理」的落實率。
+3. **`[ui.sound]` 的 per-agent 覆寫**：多 Agent 並行時（第 16 章），不同提示音可讓人不看畫面就知道是哪一個 Agent 需要介入。
+4. **`[[keys.command]]` 的 `shell` 型別**：把企業標準的 Pre-commit 檢查、內部掃描腳本綁成一個鍵位，降低「規範存在但沒人執行」的落差（呼應第 36 章治理）。
+
+> **兩個必須遵守的查證原則**：（一）本表僅列已於官方文件明確確認的核心欄位，**不是完整清單**；實際可用欄位、型別與預設值請以當前安裝版本的 `herdr --default-config` 即時輸出為準。（二）官方另提供可搜尋的 **Config Reference 頁面**（`herdr.dev/docs/config-reference/`），可依鍵名篩選瀏覽每個欄位的型別、預設值與允許值，撰寫企業設定範本時建議直接以該頁面交叉核對（官方已實作）。
 
 ---
 
@@ -2536,10 +2759,14 @@ herdr update
 # 查看目前 channel
 herdr channel show
 
-# 切換 channel（Linux/macOS 可切換 stable；Windows 目前僅 Preview，切換 stable 會被拒絕）
+# 切換 channel（v0.8.2 起 Windows 亦支援雙向切換，不再有平台限制）
 herdr channel set stable
 herdr channel set preview
 ```
+
+兩個通道的定位（官方已實作，Install 文件）：**Stable** 為預設且官方建議的一般使用通道；**Preview** 取自 master 分支的預發布建置，能較早拿到修正，但也可能出現回歸（regression）。
+
+> **v0.8.2 升級注意事項**：Windows 轉為 GA 之後，**GA 之前就停留在 Preview 通道的既有安裝不會自動切回 Stable**（官方已實作，Windows 文件）。企業若在 2026-08-19 之前已於 Windows 部署 Herdr，應在升級 SOP 中加入一步稽核：執行 `herdr channel show`，若顯示 `preview` 且該機器並非刻意要跟進預發布版本，則執行 `herdr channel set stable` 切回。詳見第 8.1 節。
 
 ### 32.3 不同安裝方式的更新策略比較
 
@@ -2549,11 +2776,13 @@ herdr channel set preview
 | Homebrew | `brew upgrade herdr` | 官方已實作 |
 | mise | `mise up herdr` 或 `mise use -g herdr@latest`（依 mise 版本語法而定） | Source-confirmed，請以 mise 官方語法為準 |
 | Nix | `nix profile upgrade` 或重新 `nix run`／`nix build` 指定新版本 | Source-confirmed |
-| Windows Preview | `herdr update`（僅能維持在 Preview Channel） | 官方已實作 |
+| Windows（install.ps1／install.cmd） | `herdr update` | 官方已實作；v0.8.2 起 Stable 為預設通道，GA 前的舊安裝需手動 `herdr channel set stable`（見第 8.1 節） |
 
 ### 32.4 Server/Client 相容性與 Live Handoff
 
-升級 Server 版本後，正在連線的舊版 Client 可能出現不相容情形；官方提供 `--handoff` 相關機制（`herdr update --handoff`）協助降低升級時的服務中斷（官方已實作，CLI 文件），但**此機制在 Windows 上尚未完全驗證**（見第 8.3 節），Windows 環境升級時建議規劃明確的重啟時間窗口，而非假設可以無縫切換。
+升級 Server 版本後，正在連線的舊版 Client 可能出現不相容情形；官方提供 `--handoff` 相關機制（`herdr update --handoff`）協助降低升級時的服務中斷（官方已實作，CLI 文件）。
+
+> **平台限制（v0.8.2 更新）**：Live Server Handoff 在**原生 Windows 上明確不支援**（官方已實作，Windows 文件）。本手冊初版寫的是「尚未完全驗證」，經 GA 後複查應更正為**明確不支援**——這是功能缺口而非驗證進度問題。原生 Windows 環境升級 Herdr 時，**必須**規劃明確的重啟時間窗口並事先通知使用者，不能假設可以無縫切換。需要無中斷升級能力的企業，應將 Server 置於 Linux／macOS（見第 8.4 節決策矩陣）。另需注意 Handoff 僅適用於 Herdr 自身更新器管理的安裝方式，Homebrew／mise／Nix 安裝無法使用（見第 5.3 節）。
 
 ### 32.5 Upgrade SOP Checklist
 
@@ -2574,7 +2803,8 @@ herdr channel set preview
 ### 32.6 本章 Checklist 與小結
 
 - [ ] 已確認團隊各成員採用的安裝方式，並使用對應的更新指令
-- [ ] Windows 環境升級已規劃明確的重啟時間窗口，未假設無縫切換
+- [ ] 原生 Windows 環境升級已規劃明確的重啟時間窗口（Live Handoff 不支援，非「未驗證」）
+- [ ] 已稽核 GA 前的 Windows 既有安裝是否仍停留在 Preview 通道，必要時已手動切回 Stable
 - [ ] 已完整走過 Upgrade SOP Checklist 十步驟
 
 ---
@@ -2959,13 +3189,13 @@ ai-dev-team
 flowchart TD
     Start["Herdr 無法啟動或行為異常"] --> Q1{"command not found?"}
     Q1 -->|"是"| Path["檢查 PATH 設定（見第 43 章 #1）"]
-    Q1 -->|"否"| Q2{"Server 相關問題?\n(無法啟動/無法連線)"}
+    Q1 -->|"否"| Q2{"Server 相關問題?<br/>(無法啟動/無法連線)"}
     Q2 -->|"是"| ServerDiag["執行 herdr status 診斷 Server/Session 狀態（見第 43 章 #5-7）"]
-    Q2 -->|"否"| Q3{"Agent 相關問題?\n(未偵測/狀態錯誤)"}
+    Q2 -->|"否"| Q3{"Agent 相關問題?<br/>(未偵測/狀態錯誤)"}
     Q3 -->|"是"| AgentDiag["確認 Agent Process 是否存活、對照支援清單（見第 43 章 #2-4）"]
     Q3 -->|"否"| Q4{"Integration/Plugin 相關問題?"}
     Q4 -->|"是"| IntegDiag["檢查整合套件安裝狀態與版本相容性（見第 43 章 #12-13）"]
-    Q4 -->|"否"| Q5{"平台特有問題?\n(Windows)"}
+    Q4 -->|"否"| Q5{"平台特有問題?<br/>(Windows)"}
     Q5 -->|"是"| WinDiag["對照第 8.3 節 Windows Preview 已知限制"]
     Q5 -->|"否"| Escalate["蒐集完整 Log/重現步驟，回報官方 GitHub Issue"]
 ```
@@ -3023,11 +3253,34 @@ flowchart TD
 
 一個團隊在導入初期，於一台 16 核心/64GB 記憶體的 Dev Server 上，先以 4 個 Agent 並行測試一週，觀察到 CPU 使用率尖峰約 60%、記憶體尖峰約 40%，據此評估仍有擴充空間，逐步增加到 8 個 Agent 並行，並持續監控（建議架構，示範用資源規劃方法而非提供絕對數字）。
 
-### 45.4 本章 Checklist 與小結
+### 45.4 v0.8.2 對資源規劃的兩項影響
+
+v0.8.2 有兩項變更會直接影響本章的容量估算基準，既有的資源規劃數據需要重新校準（官方已實作，v0.8.2 Release Notes）：
+
+**（一）Headless Server 預設虛擬終端尺寸由 80×24 提升為 120×40**
+
+這是一項容易被忽略但影響實際的變更。所謂 headless server 是指「Server 正在運行、但當下沒有任何 Client 附掛」的狀態——例如工程師 detach 後 Agent 仍在背景工作的整段期間。此時 Herdr 必須為每個 Pane 維持一個虛擬終端緩衝區，其尺寸即由此預設值決定。
+
+| 影響面向 | 說明 |
+|---|---|
+| 記憶體估算 | 單一畫面的儲存格數量從 1,920（80×24）增為 4,800（120×40），約為 2.5 倍。Pane 數量多、且長時間處於 detached 狀態的環境（正是第 25.6 節建議的企業 Dev VM 架構），記憶體基線會明顯高於舊版估算 |
+| 自動化腳本擷取量 | `herdr pane read`、`herdr agent read` 在未指定 `--lines` 時擷取的可視畫面內容變多；以正規表示式比對輸出的腳本（`pane wait-output`）需重新確認比對邏輯不受更寬畫面的換行位置變化影響 |
+| Agent 輸出換行行為 | Agent CLI 通常依終端寬度自行換行。寬度從 80 變為 120 會改變 Agent 輸出的實際換行位置，若企業腳本曾針對 80 欄的換行位置做過硬編碼假設，需重新驗證（見第 26 章自動化原語） |
+
+**建議做法（建議架構）**：升級至 v0.8.2 後，重新量測一次 detached 狀態下每個 Pane 的記憶體佔用，再據以修正第 45.2 節的並行數量規劃；自動化腳本則優先改用 `--source recent-unwrapped`（取得未依畫面寬度換行的原始輸出）搭配明確的 `--lines`，讓腳本行為不受終端尺寸變動影響。
+
+**（二）多 Pane Session 的 CPU 回歸修正**
+
+v0.8.2 修正了一項「忙碌的多 Pane Session 造成 CPU 使用率異常偏高」的回歸問題（官方已實作）。若團隊曾在 v0.8.0／v0.8.1 期間量測過 CPU 基線並據此限制並行 Agent 數量，**該基線在 v0.8.2 之後偏保守**，建議重新量測後再決定是否放寬並行上限，避免以過時數據不必要地限縮團隊產能。
+
+### 45.5 本章 Checklist 與小結
 
 - [ ] 已從小規模並行數量開始驗證，逐步擴充
 - [ ] 未依賴任何未經自身環境驗證的「建議並行數量」作為容量規劃依據
 - [ ] 已建立定期清理長時間 Session scrollback 的習慣
+- [ ] 升級 v0.8.2 後已重新量測記憶體基線（預設虛擬終端尺寸已變更為 120×40）
+- [ ] 自動化腳本已改用 `--source recent-unwrapped` 搭配明確 `--lines`，不依賴終端尺寸假設
+- [ ] 若 CPU 基線量測於 v0.8.0／v0.8.1 期間取得，已於升級後重新量測並檢討並行上限
 
 ---
 
@@ -3037,7 +3290,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    AgentState["Agent State\n(working/idle/blocked/done/unknown)"] --> Obs["Observability 基礎"]
+    AgentState["Agent State<br/>(working/idle/blocked/done/unknown)"] --> Obs["Observability 基礎"]
     WorkspaceState["Workspace State"] --> Obs
     ProcessState["Process State"] --> Obs
     Obs -.->|"不等於"| APM["完整 APM / Observability Platform"]
@@ -3080,6 +3333,7 @@ flowchart TD
 ### 47.2 Enterprise Rollout 五階段
 
 **Phase 1：POC**
+
 - 目標：驗證 Herdr 基本功能與團隊接受度
 - 人員：1-2 位資深工程師
 - 技術：單機安裝，單一小型專案
@@ -3090,6 +3344,7 @@ flowchart TD
 - Exit Criteria：核心團隊認可 Herdr 帶來可感知的效率提升
 
 **Phase 2：Pilot Team**
+
 - 目標：驗證 Multi-Agent 協作模式在真實任務中的可行性
 - 人員：一個 5-8 人小組
 - 技術：導入 Git Worktree 隔離、基本 Workspace 規範
@@ -3100,6 +3355,7 @@ flowchart TD
 - Exit Criteria：Pilot 任務成功交付，無重大資安事件
 
 **Phase 3：Development Team**
+
 - 目標：擴大到整個開發團隊常態使用
 - 人員：全體開發團隊
 - 技術：導入遠端 Dev Server 部署（第 25 章）、正式維運 SOP（第 31 章）
@@ -3110,6 +3366,7 @@ flowchart TD
 - Exit Criteria：連續一個季度無重大 Incident，KPI 達到團隊自訂門檻
 
 **Phase 4：Department**
+
 - 目標：跨團隊/跨部門推廣
 - 人員：整個工程部門
 - 技術：標準化 Workspace 命名規範、集中式維運（第 31-33 章）
@@ -3120,6 +3377,7 @@ flowchart TD
 - Exit Criteria：治理政策正式生效並被各團隊遵循
 
 **Phase 5：Enterprise**
+
 - 目標：成為企業標準 AI Coding 工作流程的一部分
 - 人員：全企業相關技術人員
 - 技術：與企業 IT 治理、資安平台深度整合
@@ -3695,7 +3953,7 @@ tmux 管理終端機 Pane 的存續，但不理解 Pane 裡面在跑什麼；Her
 
 Herdr 代表的是 AI Coding Agent 工具鏈演進中一個具體的分層需求：當 Agent 從「單次問答工具」演變成「可以長時間自主工作的協作者」，開發者需要的不再只是更聰明的 Agent，而是一個能讓這些 Agent 安全、透明、可恢復地運作的執行環境。
 
-本手冊嘗試把 Herdr 官方文件中分散的能力描述，重新組織成一份可以直接支撐企業導入決策、日常操作、維運治理的完整教材。但如第 1 章重要聲明所述，Herdr 仍是一個快速演進中的年輕專案，本手冊所記錄的 CLI 指令、Agent 支援清單、Windows 支援狀態，都只是查證當下（2026-08-12）的快照。
+本手冊嘗試把 Herdr 官方文件中分散的能力描述，重新組織成一份可以直接支撐企業導入決策、日常操作、維運治理的完整教材。但如第 1 章重要聲明所述，Herdr 仍是一個快速演進中的年輕專案，本手冊所記錄的 CLI 指令、Agent 支援清單、Windows 支援狀態，都只是查證當下（2026-09-06）的快照。本次複查距初版僅三週餘，卻已出現「Windows 由 preview beta 轉為正式支援」這種足以推翻既有導入決策的變更（見 Appendix G），這正是上述提醒的最佳註腳——**請務必以你實際安裝的版本與當下的官方文件為準**。
 
 對於準備導入的團隊，本手冊最後想強調的一句話是：**先讓 Herdr 承載你已經在做的事情（讓現有的 Claude Code／Codex／Copilot CLI 工作流程更穩定、更可觀察），再逐步探索它能為 Multi-Agent 協作帶來的額外可能性；不要反過來，為了用 Herdr 而重新設計整套開發流程。**
 
@@ -3713,7 +3971,8 @@ Herdr 代表的是 AI Coding Agent 工具鏈演進中一個具體的分層需求
 | `herdr --version` | 顯示版本 | 官方已實作 |
 | `herdr update [--handoff]` | 更新 Herdr（自我管理安裝適用） | 官方已實作 |
 | `herdr completion {zsh\|bash\|fish\|powershell\|elvish}`（別名 `completions`） | 產生 Shell 自動完成腳本 | 官方已實作 |
-| `herdr channel show \| set` | 查看/切換 Stable／Preview Channel | 官方已實作 |
+| `herdr channel show \| set {stable\|preview}` | 查看/切換 Stable／Preview Channel（v0.8.2 起 Windows 亦可雙向切換，見第 8.1、32.2 節） | 官方已實作 |
+| `herdr config reset-keys` | 將鍵盤綁定還原為 v2 預設鍵位（執行前請先備份 `config.toml`，見第 11.7 節） | Source-confirmed，configuration 文件 |
 | `herdr status [server\|client]` | 查看 Server／Client 狀態 | 官方已實作 |
 | `herdr api schema [--json] [--output PATH]` | 取得 Socket API Schema | 官方已實作 |
 | `herdr server stop / reload-config / agent-manifests / update-agent-manifests / reload-agent-manifests` | Server 管理子指令群 | 官方已實作 |
@@ -3728,7 +3987,7 @@ Herdr 代表的是 AI Coding Agent 工具鏈演進中一個具體的分層需求
 | `herdr terminal attach <id> [--takeover]` / `herdr agent attach <name>` | 直接附掛單一終端（Windows Preview 上僅支援 Unix 目標，見第 25.5 節） | 官方已實作 |
 | `herdr terminal session observe <pane> [--cols] [--rows]` | 唯讀 Bridge：串流畫面訊框（見第 25.5 節） | 官方已實作 |
 | `herdr terminal session control <pane> [--takeover]` | 可寫入 Bridge：串流畫面訊框＋接受輸入/縮放/捲動指令 | 官方已實作 |
-| `herdr plugin install owner/repo[/subdir] / link` | Plugin 安裝／本機連結 | 官方已實作 |
+| `herdr plugin install owner/repo[/subdir] / link / list / uninstall / unlink / config-dir / action invoke` | Plugin 完整生命週期管理（見第 28.7 節） | 官方已實作 |
 | `herdr --skill`（v0.8.0 新增） | 印出與當前執行檔版本對應之 Agent Skill 內容（見第 26.4 節） | 官方已實作，CHANGELOG |
 | `herdr agent start <name> --kind <kind> --pane <id> [-- 原生參數]` | 在既有 Pane 中啟動指定 Agent（見第 26.3 節） | 官方已實作 |
 | `herdr agent prompt <name> "<text>" [--wait] [--until <state>] [--timeout ms]` | 對 Agent 送出 Prompt，可選擇等待完成 | 官方已實作 |
@@ -3756,6 +4015,11 @@ Herdr 代表的是 AI Coding Agent 工具鏈演進中一個具體的分層需求
 | `[experimental] pane_history` | 是否於 Server 重啟後回放近期畫面內容，預設 `false`（見第 5.3 節） | 官方已實作 |
 | `[session] resume_agents_on_restore` | 是否於 Server 重啟後嘗試 Native Session Restore，預設 `true` | 官方已實作 |
 | `[remote] manage_ssh_config` | 是否由 Herdr 產生臨時 SSH 設定與連線重用 Socket，設為 `false` 改用純 `ssh`（見第 25.4 節） | 官方已實作 |
+| `[ui] window_title` | 視窗標題格式，支援 `{hostname}`／`{workspace}` 等變數（v0.8.2 新增，見第 30.5 節） | 官方已實作 |
+| `[ui] pane_outer_borders` | Pane 外框顯示設定（v0.8.2 新增） | 官方已實作 |
+| `[theme.custom] sidebar_bg` | Sidebar 背景色覆寫（v0.8.2 新增） | 官方已實作 |
+| `[ui.toast]` 通知管道 | `herdr`／`terminal`／`system`／`off`（見第 30.5 節，建議 Blocked 通知選 `system`） | 官方已實作 |
+| 各區塊職責總表 | 見第 30.5 節 `config.toml` 主要區塊一覽 | — |
 | 搜尋式 Config Reference 頁面 | `herdr.dev/docs/config-reference/`，可依鍵名篩選瀏覽每個 `config.toml` 欄位的型別、預設值、允許值 | 官方已實作 |
 
 > 完整欄位清單請以 `herdr --default-config` 於當前版本之即時輸出為準，或瀏覽官方 Config Reference 頁面，本表僅列已於官方文件明確確認之核心項目。
@@ -3814,7 +4078,9 @@ Herdr 代表的是 AI Coding Agent 工具鏈演進中一個具體的分層需求
 | Worktree | Git 原生功能，讓同一 Repo 可在多個目錄各自 checkout 不同分支 |
 | Socket API | Herdr 本機 Socket 通訊介面，CLI 為其封裝 |
 | Plugin Manifest | `herdr-plugin.toml`，定義 Plugin 之 Action/Event/Pane 等 |
-| Stable/Preview Channel | 官方發布通道；Windows 目前僅提供 Preview |
+| Stable/Preview Channel | 官方兩條發布通道。Stable 為預設；Preview 取自 master 分支的預發布建置。v0.8.2 起 Windows 亦支援雙向切換，見第 8.1、32.2 節 |
+| ConPTY | Windows 的虛擬終端機制，對應 Unix 的 PTY。Herdr 在 Windows 上內建捆綁 Microsoft ConPTY runtime，可用 `HERDR_WINDOWS_CONPTY=system` 退回系統版，見第 8.1 節 |
+| Big-word motion | Copy Mode 中以空白分隔（而非以標點分隔）為單位的游標移動，對應 `W`／`B`／`E` 三個按鍵，見第 11.7 節 |
 
 ---
 
@@ -3850,12 +4116,87 @@ Herdr 代表的是 AI Coding Agent 工具鏈演進中一個具體的分層需求
 | 項目 | 內容 |
 |---|---|
 | 主要研究基準 Repository | `herdrdev/herdr`（GitHub，經 `gh api` 直接讀取 Repository metadata、Releases、Commits、原始檔案內容） |
-| 研究基準 Release | v0.8.0（2026-08-03，Apache License 2.0）；並交叉核對截至查證日 2026-08-12 的 master 分支最新 commit，確認無更新之正式 Release |
+| 研究基準 Release | **v0.8.2（2026-08-19，Apache License 2.0）**；並交叉核對截至查證日 2026-09-06 的 Release 頁面與 master 分支狀態，確認 v0.8.2 為當時最新之正式 Stable Release（其後僅有 preview build，最新為 `2026-08-31-b1ff4582e968`）。初版研究基準為 v0.8.0（2026-08-03） |
 | 研究基準文件來源 | GitHub `README.md`／`CHANGELOG.md`（完整讀取 v0.7.2～v0.8.0 區間）／`AGENTS.md`／`CONTRIBUTING.md`／`LICENSE`／`skills/herdr/SKILL.md`／`docs/next/website/src/content/docs/*.mdx`（install、concepts、agents、windows-beta、cli-reference、keyboard、plugins、socket-api、configuration、config-reference、troubleshooting、agent-automation、agent-skill、integrations、session-state、persistence-remote） |
 | 官方網站文件來源 | `herdr.dev/`、`herdr.dev/docs/`、`herdr.dev/docs/install/`、`herdr.dev/docs/quick-start/`、`herdr.dev/docs/concepts/`、`herdr.dev/docs/agents/`、`herdr.dev/docs/how-to-work/`、`herdr.dev/agent-guide.md`、`herdr.dev/docs/windows-beta/`、`herdr.dev/docs/configuration/`、`herdr.dev/docs/config-reference/`、`herdr.dev/docs/keyboard/`、`herdr.dev/docs/socket-api/`、`herdr.dev/docs/session-state/`、`herdr.dev/docs/persistence-remote/`、`herdr.dev/docs/integrations/`、`herdr.dev/docs/agent-automation/`、`herdr.dev/docs/agent-skill/`、`herdr.dev/docs/troubleshooting/`、`herdr.dev/docs/plugins/`、`herdr.dev/docs/marketplace/`、`herdr.dev/compare/` |
-| 查證日期 | 2026-08-12（初版與本次複查均於同日完成；複查修正 Troubleshooting 頁面誤判，並補強 Agent Automation／Agent Skill／Integrations／Session State／Persistence-Remote 五個先前未深入驗證頁面之內容） |
-| 仍建議持續追蹤之項目 | `docs/next/website/src/content/docs/cli-reference.mdx` 完整旗標清單（版本演進快，建議以當前安裝版本 `--help`／`herdr api schema --json` 為準，不逐一窮舉）；官方 `ja/`、`zh-cn/` 在地化文件頁面之翻譯完整度（存在但未逐頁核對） |
-| 本手冊撰寫慣例依據 | 本 Repository `.github/教學/AI開發/TencentDB-Agent-Memory 教學手冊.md`（結構範本）、`tools/markdown/generate_toc.py`／`check_fences.py`（格式驗證工具） |
+| 查證日期 | **2026-09-06（第二次複查，本版）**；初版與第一次複查為 2026-08-12 |
+| 本次（2026-09-06）複查範圍與結論 | 逐頁重新核對官方 20 個文件頁與 GitHub Release 頁面。**結論一**：本手冊既有的 Agent Automation／Agent Skill／Integrations／Session State／Persistence-Remote 深度內容經比對均正確，未發現需更正之處。**結論二**：v0.8.2 將 Windows 由 preview-only beta 轉為 GA，推翻本手冊初版多處聲明，已於第 8 章整章及第 5.6、25.5、28.2、32.2～32.6 節、Appendix D 全面更正。**結論三**：新增 Qwen Code 支援、v0.8.2 各項 UI／鍵盤／資源相關變更已補入對應章節。完整異動見 Appendix G |
+| 仍建議持續追蹤之項目 | （一）`docs/next/website/src/content/docs/cli-reference.mdx` 完整旗標清單（版本演進快，建議以當前安裝版本 `--help`／`herdr api schema --json` 為準，不逐一窮舉）。（二）官方 `ja/`、`zh-cn/` 在地化文件頁面之翻譯完整度（存在但未逐頁核對）。（三）**Windows GA 後的功能缺口收斂進度**——第 8.3 節列出的七項「明確不支援」是否於後續版本補上，直接影響第 8.4 節決策矩陣，建議每次升級時重新核對官方 Windows 文件。（四）**Preview build 節奏**——官方在 Stable 之間持續產出 preview build，企業若採 Preview 通道需自行建立追蹤機制。（五）`herdr config reset-keys` 所指的「v2 預設鍵位」完整對照表，官方文件尚未逐一列出 |
+| 本手冊撰寫慣例依據 | 本 Repository `.github/教學/AI開發/TencentDB-Agent-Memory 教學手冊.md`（結構範本）；格式驗證使用本 Repository 根目錄實際存在的 `check-toc.ps1`（目錄錨點一致性驗證）與 `check-md.ps1`（Markdown 格式驗證）。**更正**：初版此欄曾誤載為 `tools/markdown/generate_toc.py`／`check_fences.py`，該路徑於本 Repository 並不存在，且目錄為手動維護＋工具驗證，並無自動產生器 |
 
 ---
+
+## Appendix G：版本異動對照（v0.8.0 → v0.8.2）
+
+本附錄供**已讀過本手冊舊版（2026-08-12 / v0.8.0 基準）的讀者**快速比對本次更新了什麼、哪些舊認知需要作廢。若你是第一次閱讀本手冊，可略過本附錄。
+
+### G.1 讀者層級的 Breaking Change（必讀）
+
+本次更新只有**一項**會讓舊版讀者的既有認知直接失效，但它影響範圍很大：
+
+| 項目 | 舊版說法（已失效） | 現況（v0.8.2 起） | 受影響章節 |
+|---|---|---|---|
+| **Windows 支援狀態** | preview-only beta，非 Stable Production Support；`herdr channel set stable` 會被拒絕；官方未承諾轉正時程 | **正式支援（GA）**，Stable 為預設通道，可雙向切換 channel | 重要聲明第 5 點、速查表、**第 8 章全章**、5.6、25.5、28.2、28.6、32.2、32.3、32.4、32.6、Appendix D |
+
+**若你曾依舊版做過決策，請重新檢視這三件事**：
+
+1. 若曾因「Windows 是 Preview」而要求全團隊改用 WSL2 —— 該理由已不成立。請改依第 8.4 節的**功能缺口**判準重新評估（關鍵問題已不是「穩不穩」，而是「有沒有用到 Direct Attach／Live Handoff／作為 remote host」）。
+2. 若曾在 GA 之前於 Windows 部署 Herdr —— 該安裝**仍停留在 Preview 通道且不會自動切換**，請執行 `herdr channel show` 稽核，必要時 `herdr channel set stable`（見第 8.1、32.2 節）。
+3. 若升級 SOP 中寫著「Windows 的 Live Handoff 尚未驗證」—— 應更正為**明確不支援**，這是功能缺口而非驗證進度問題，必須規劃重啟時間窗口（見第 32.4 節）。
+
+### G.2 v0.8.2（2026-08-19）主要異動
+
+以下依官方 Release Notes 分類整理，並標註本手冊對應已更新的章節（官方已實作，v0.8.2 Release Notes）：
+
+**Changed（行為變更）**
+
+| 異動 | 影響 | 本手冊對應章節 |
+|---|---|---|
+| Windows 支援轉為 GA，透過 Stable 發布 | 見 G.1 | 第 8 章 |
+| Headless Server 預設虛擬終端尺寸 80×24 → **120×40** | 記憶體基線、自動化腳本輸出擷取量、Agent 輸出換行位置 | 第 45.4 節 |
+| 桌面版 Tab 標籤改為置中並採對稱留白 | 純視覺呈現 | — |
+| 實驗性 Pane 圖形強化（分層邊界、色彩處理改善） | 實驗性功能 | 第 30.5 節 `[experimental]` |
+
+**Added（新增功能）**
+
+| 異動 | 本手冊對應章節 |
+|---|---|
+| **Qwen Code** 偵測（idle／working／使用者確認三種狀態）與可選的原生 Session 還原 | 速查表、5.5、26.3、29.1、29.3 |
+| Windows client 可用 `herdr --remote` 連上 Linux／macOS 遠端 Server | 8.7、5.6、25.4 |
+| Cursor Agent CLI、MastraCode、Hermes Agent、Grok CLI 取得**原生 Windows 支援** | 8.7 |
+| `ui.window_title` 視窗標題同步（支援 `{hostname}`／`{workspace}` 變數） | 30.5、Appendix B |
+| 桌面版 Tab Bar 可設定狀態項目（zoom 狀態、主機名稱、日期時間、指令輸出） | 11.7、30.5 |
+| Tab 重新排序、免進 resize mode 直接調整 Pane 大小的可選鍵位 | 11.7 |
+| Copy Mode 新增 big-word motions `W`／`B`／`E` | 11.3、11.7、Appendix D |
+| 右鍵手勢可路由給支援 mouse reporting 的程式 | 11.7 |
+| `ui.pane_outer_borders`、`theme.custom.sidebar_bg` 等 UI 自訂選項 | 30.5、Appendix B |
+| Plugin Marketplace 的 Manifest 探索與版本發布改善 | 28.7.5 |
+| CLI help 改為導向純文字指南、文件索引與內建控制 Skill | 26.4 |
+
+**Fixed（修正，逾 50 項，節錄與企業相關者）**
+
+| 修正 | 本手冊對應章節 |
+|---|---|
+| 忙碌的多 Pane Session **CPU 使用率回歸**問題 | 45.4（舊版 CPU 基線偏保守，建議重新量測） |
+| macOS 上中文 IME 輸入無法正確送入 Pane | 44（Troubleshooting） |
+| Windows 無法辨識 `Ctrl+1`～`Ctrl+9` 鍵位 | 8.7、11.7 |
+| PowerShell 工作目錄同步 | 8.7 |
+| Windows ARM64 安裝器 | 8.7 |
+| Claude Code 的 spinner 影格偵測、Qwen Code 狀態偵測準確度 | 5.5、29.3 |
+| Unix CLI pipe 關閉處理、Agent prompt 處理與 Pane 初始化 | 26 |
+
+### G.3 v0.8.1 說明
+
+官方 Release 頁面未單獨展示 v0.8.1 的完整 Release Notes，其內容多已併入 v0.8.2 的累積說明中（Source-confirmed）。企業若需逐版差異，請直接查閱官方 `CHANGELOG.md` 或以 `git log v0.8.0..v0.8.2` 比對，勿以本附錄作為逐版稽核依據。
+
+### G.4 本手冊本次的自我更正
+
+除了官方版本異動，本次複查也修正了兩處本手冊自身的問題：
+
+| 問題 | 更正 | 位置 |
+|---|---|---|
+| 目錄維護說明指向 `tools/markdown/generate_toc.py`，但該檔於本 Repository 並不存在 | 改為指向實際存在的 `check-toc.ps1`／`check-md.ps1`，並說明目錄為「手動維護＋工具驗證」而非自動產生 | 目錄前註記、Appendix F |
+| 共 21 處 Mermaid 節點標籤內使用 `\n` 作為換行，該寫法在 Mermaid 中不生效，會被原樣顯示為 `\n` 兩個字元 | 全數改用 `<br/>` | 3.1、4.2、5.1、19.1、29.1、44、46.1 等圖表 |
+
+> **後續維護提醒**：Herdr 屬高頻迭代專案（v0.8.0 → v0.8.2 之間不到三週就出現了推翻既有聲明的 GA 變更）。本手冊建議企業**至少每季複查一次**官方 Release Notes 與 Windows 文件，並優先確認第 8.3 節的功能缺口清單是否收斂——那是本手冊中最可能隨版本失效的內容。
 
