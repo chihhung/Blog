@@ -60,6 +60,9 @@ jobs:
         uses: actions/upload-pages-artifact@v5
         with:
           path: ./public
+          # 加上 run_attempt 避免「Re-run failed jobs」時，同一個 run 內殘留舊 attempt 的
+          # github-pages artifact，造成 deploy-pages 抓到重複同名 artifact 而失敗
+          name: github-pages-${{ github.run_attempt }}
 
   # 部署工作
   deploy:
@@ -72,3 +75,5 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
