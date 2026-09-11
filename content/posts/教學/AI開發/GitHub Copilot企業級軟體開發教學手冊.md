@@ -1,6 +1,6 @@
 +++
 date = '2026-09-10T22:30:13+08:00'
-draft = true
+draft = false
 title = 'GitHub Copilot企業級軟體開發教學手冊'
 tags = ['教學', 'AI開發']
 categories = ['教學']
