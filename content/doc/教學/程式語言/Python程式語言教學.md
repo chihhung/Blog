@@ -5,7 +5,35 @@ title = 'Python程式語言教學'
 tags = ['教學', '程式語言']
 categories = ['教學']
 +++
+
+<!-- markdownlint-disable MD013 MD024 MD025 MD033 MD036 MD041 -->
+<!--
+  本檔案的 markdownlint 例外說明（刻意保留、非疏漏）：
+  - MD013 line-length：技術白皮書含長表格、長 URL 與長引用，不強制折行。
+  - MD024 no-duplicate-heading：各章固定樣板小節必然重複，且刻意不進目錄，包含
+    「🎯 學習目標」「💡 實務案例」「⚠️ 注意事項」「📝 小測驗」「🏷️ 認證考試對應」。
+    這些重複錨點為設計結果，不應以改寫標題的方式消除。
+  - MD025 single-title：檔首為 Hugo TOML front matter，H1 僅一個（手冊標題）。
+  - MD033 inline-html：以一對 HTML 註解標記界定自動產生的目錄區塊，供 check-toc.ps1 驗證。
+  - MD036 no-emphasis-as-heading：步驟／Case 等流程標籤刻意不進目錄，故以粗體呈現。
+  - MD041 first-line-heading：檔首為 Hugo TOML front matter。
+
+  另注意：本檔 5.x 節的 Markdown 範例使用「四個反引號」巢狀圍籬（````markdown），
+  這是 CommonMark 的合法巢狀寫法，請勿改為三個反引號，否則渲染會壞掉。
+  倉庫的 check-md.ps1 會因此誤報「程式碼區塊未關閉（檔尾）」，該筆為已知誤報。
+-->
+
 # Python 程式語言教學手冊
+
+> - **版本**：2.0
+> - **最後更新**：2026 年 9 月（內容查核基準日 2026-09-21）
+> - **適用於**：Python 3.13 / 3.14（現行穩定版）～ 3.15（2026-10-01 發布）
+> - **適用對象**：初學者至企業級開發人員、PCEP／PCAP 認證考生
+> - **目標**：語言基礎 ＋ 企業工程實務（工具鏈、非同步、安全供應鏈）＋ 認證準備
+
+---
+
+<!-- TOC-AUTO-BEGIN -->
 
 ## 目錄
 
@@ -15,7 +43,7 @@ categories = ['教學']
      - 1.1.2 [Windows 系統安裝](#112-windows-系統安裝)
      - 1.1.3 [Linux 系統安裝](#113-linux-系統安裝)
      - 1.1.4 [開發環境設置](#114-開發環境設置)
-     - 1.1.5 [專案結構](#115-專案結構)
+     - 1.1.5 [虛擬環境管理](#115-虛擬環境管理)
    - 1.2 [語法基礎](#12-語法基礎)
      - 1.2.1 [Python 語法規則](#121-python-語法規則)
      - 1.2.2 [變數與命名規則](#122-變數與命名規則)
@@ -29,13 +57,13 @@ categories = ['教學']
      - 1.3.3 [例外處理](#133-例外處理)（含例外群組 `except*`）
      - 1.3.4 [進階流程控制](#134-進階流程控制)
    - 1.4 [函式、模組與套件管理](#14-函式模組與套件管理)
-     - 1.4.1 [函式定義與使用](#141-函式定義與使用)
-     - 1.4.2 [模組與套件](#142-模組與套件)
-     - 1.4.3 [套件管理與發布](#143-套件管理與發布)
+     - 1.4.1 [函式基礎](#141-函式基礎)
+     - 1.4.2 [模組系統](#142-模組系統)
+     - 1.4.3 [套件管理](#143-套件管理)（含 uv、PEP 735、PEP 751 與套件發布）
 
 2. [進階應用](#2-進階應用)
    - 2.1 [面向物件程式設計](#21-面向物件程式設計)
-     - 2.1.1 [類別與物件](#211-類別與物件)
+     - 2.1.1 [類別與物件基礎](#211-類別與物件基礎)
      - 2.1.2 [封裝與屬性](#212-封裝與屬性)
      - 2.1.3 [繼承](#213-繼承)
      - 2.1.4 [多型](#214-多型)
@@ -63,7 +91,15 @@ categories = ['教學']
      - 2.5.2 [Python 3.12 新特性](#252-python-312-新特性)
      - 2.5.3 [Python 3.13 新特性](#253-python-313-新特性)
      - 2.5.4 [Python 3.14 新特性](#254-python-314-新特性2025-年-10-月發布)
-     - 2.5.5 [Python 3.15 新特性（開發中）](#255-python-315-新特性開發中)
+     - 2.5.5 [Python 3.15 新特性](#255-python-315-新特性2026-年-10-月發布)
+     - 2.5.6 [版本生命週期與遷移策略](#256-版本生命週期與遷移策略)
+   - 2.6 [非同步與併發程式設計](#26-非同步與併發程式設計)
+     - 2.6.1 [併發模型選型](#261-併發模型選型)
+     - 2.6.2 [asyncio 基礎](#262-asyncio-基礎)
+     - 2.6.3 [結構化併發](#263-結構化併發)
+     - 2.6.4 [同步原語與佇列](#264-同步原語與佇列)
+     - 2.6.5 [free-threaded 與子直譯器實戰](#265-free-threaded-與子直譯器實戰)
+     - 2.6.6 [除錯、觀測與常見反模式](#266-除錯觀測與常見反模式)
 
 3. [專案實務應用](#3-專案實務應用)
    - 3.1 [程式碼風格與規範](#31-程式碼風格與規範)
@@ -81,6 +117,12 @@ categories = ['教學']
      - 3.3.2 [專案管理工具](#332-專案管理工具)
      - 3.3.3 [溝通協作工具](#333-溝通協作工具)
      - 3.3.4 [自動化工具](#334-自動化工具)
+   - 3.4 [安全性與供應鏈管理](#34-安全性與供應鏈管理)
+     - 3.4.1 [相依套件弱點掃描](#341-相依套件弱點掃描)
+     - 3.4.2 [靜態安全分析](#342-靜態安全分析)
+     - 3.4.3 [密鑰與設定管理](#343-密鑰與設定管理)
+     - 3.4.4 [供應鏈完整性](#344-供應鏈完整性)
+     - 3.4.5 [常見 Python 安全陷阱](#345-常見-python-安全陷阱)
 
 4. [Python 認證考試指引](#4-python-認證考試指引)
    - 4.1 [PCEP 認證指引](#41-pcep-認證指引)
@@ -92,8 +134,20 @@ categories = ['教學']
      - 4.3.1 [學習路線規劃](#431-學習路線規劃)
      - 4.3.2 [練習資源](#432-練習資源)
      - 4.3.3 [考試當天技巧](#433-考試當天技巧)
+     - 4.3.4 [完整認證階梯](#434-完整認證階梯)
 
 5. [檢查清單](#5-檢查清單)
+   - 5.1 [環境設置檢查清單](#51-環境設置檢查清單)
+   - 5.2 [程式碼品質檢查清單](#52-程式碼品質檢查清單)
+   - 5.3 [專案結構檢查清單](#53-專案結構檢查清單)
+   - 5.4 [測試檢查清單](#54-測試檢查清單)
+   - 5.5 [部署準備檢查清單](#55-部署準備檢查清單)
+   - 5.6 [認證考試檢查清單](#56-認證考試檢查清單)
+   - 5.7 [持續學習檢查清單](#57-持續學習檢查清單)
+   - 5.8 [安全與供應鏈檢查清單](#58-安全與供應鏈檢查清單)
+
+[結語](#結語)
+<!-- TOC-AUTO-END -->
 
 ---
 
@@ -102,6 +156,7 @@ categories = ['教學']
 ### 1.1 Python 安裝與環境設置
 
 #### 🎯 學習目標
+
 - 了解 Python 的特性與應用領域
 - 在 Windows 和 Linux 系統上安裝 Python
 - 設定開發環境與工具
@@ -110,19 +165,46 @@ categories = ['教學']
 #### 1.1.1 Python 簡介
 
 Python 是一種高階、直譯式的程式語言，具有以下特點：
+
 - **簡潔易讀**：語法簡單，接近自然語言
 - **跨平台**：可在 Windows、Linux、macOS 上執行
 - **豐富生態系統**：擁有大量第三方函式庫
 - **多用途**：適用於網頁開發、資料科學、AI、自動化等
 
+##### 版本生命週期與選版依據
+
+Python 採 **PEP 602** 的年度發布節奏：每年 10 月發布一個新的功能版本，之後約 2 年的 bugfix 階段、再 3 年的 security-only 階段，合計 5 年支援期。企業選版務必以官方生命週期為準，不要只看「最新版」。
+
+| 版本 | 首次發布 | 目前狀態 | 終止支援 |
+| --- | --- | --- | --- |
+| 3.15 | 2026-10-01 | Prerelease（RC 階段） | 2031-10 |
+| 3.14 | 2025-10-07 | Bugfix | 2030-10 |
+| 3.13 | 2024-10-07 | Bugfix | 2029-10 |
+| 3.12 | 2023-10-02 | Security-only | 2028-10 |
+| 3.11 | 2022-10-24 | Security-only | 2027-10 |
+| 3.10 | 2021-10-04 | Security-only | 2026-10 |
+| 3.9 | 2020-10-05 | End-of-life | 已於 2025-10-31 終止 |
+
+> 資料來源：[Status of Python versions — Python Developer's Guide](https://devguide.python.org/versions/)（查核日期：2026-09-21）
+
+**選版建議（2026 年基準）：**
+
+- **新專案**：Python 3.14（處於 bugfix 階段、生態系相容性已成熟）
+- **既有生產系統**：3.13 或 3.14；仍停留在 3.12 以下者應排定升級，因 3.12 已無 bug 修補、僅收安全性修補
+- **需立即汰換**：3.9 已 EOL、3.10 將於 2026-10 EOL，這兩者已不應出現在生產環境
+- **評估中**：3.15（2026-10-01 發布）帶來 UTF-8 預設編碼等行為變更，建議先在 CI 加入 3.15 矩陣測試，確認相容後再導入
+
 #### 1.1.2 Windows 系統安裝
 
 ##### 步驟 1：下載 Python
+
 1. 前往 [Python 官網](https://www.python.org/downloads/)
-2. 下載最新的穩定版本（建議 Python 3.12 以上）
+2. 下載穩定版本（建議 Python 3.13 以上；新專案建議 3.14）
 3. 選擇 Windows x86-64 executable installer
+4. 若需 free-threaded 版本（無 GIL），在安裝程式的 **Customize installation → Advanced Options** 勾選 *Download free-threaded binaries*，安裝後以 `python3.14t` 啟動
 
 ##### 步驟 2：安裝 Python
+
 ```bash
 # 安裝選項建議：
 ☑ Add Python to PATH
@@ -132,6 +214,7 @@ Python 是一種高階、直譯式的程式語言，具有以下特點：
 ```
 
 ##### 步驟 3：驗證安裝
+
 ```powershell
 # 在 PowerShell 中執行
 python --version
@@ -141,6 +224,7 @@ pip --version
 #### 1.1.3 Linux 系統安裝
 
 ##### Ubuntu/Debian 系統：
+
 ```bash
 # 更新套件清單
 sudo apt update
@@ -154,6 +238,7 @@ pip3 --version
 ```
 
 ##### CentOS/RHEL 系統：
+
 ```bash
 # 安裝 Python 3
 sudo yum install python3 python3-pip
@@ -170,22 +255,40 @@ pip3 --version
 
 ##### 推薦的開發工具：
 
-1. **Visual Studio Code**
-   ```bash
-   # 推薦擴充套件
-   - Python (Microsoft)
-   - Python Docstring Generator
-   - Python Indent
-   - Pylance
-   ```
+1. **Visual Studio Code**（免費，目前市占最高）
 
-2. **PyCharm Community Edition**
-   - 功能完整的 Python IDE
-   - 內建除錯器和測試工具
+   推薦擴充套件：
+
+   - **Python**（Microsoft）—— 基礎支援
+   - **Pylance** —— 型別檢查與 IntelliSense（底層為 pyright）
+   - **Ruff**（Astral）—— 檢查與格式化，取代舊的 flake8／black／isort 擴充套件
+   - **Python Debugger**（debugpy）—— 除錯器
+
+2. **PyCharm**
+   - 功能完整的 Python IDE，內建除錯器、測試執行器與重構工具
+   - 2025 年起 Community 與 Professional 合併為單一發行版，基礎功能免費
+
+3. **命令列工具鏈（建議一併安裝）**
+
+   ```bash
+   # uv：環境、套件與 Python 版本的一站式管理工具（Astral）
+   # Windows (PowerShell)
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+   # Linux / macOS
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   # 用 uv 直接安裝與切換 Python 版本，不必另外裝 pyenv
+   uv python install 3.14
+   uv python list
+   ```
 
 #### 1.1.5 虛擬環境管理
 
+虛擬環境讓每個專案擁有獨立的套件目錄，避免不同專案的依賴互相污染。以下先介紹標準函式庫的 `venv`（PCEP／PCAP 考試範圍），再介紹 uv 的現代做法。
+
 ##### 建立虛擬環境：
+
 ```bash
 # Windows
 python -m venv myproject_env
@@ -195,6 +298,7 @@ python3 -m venv myproject_env
 ```
 
 ##### 啟動虛擬環境：
+
 ```bash
 # Windows
 myproject_env\Scripts\activate
@@ -204,11 +308,13 @@ source myproject_env/bin/activate
 ```
 
 ##### 停用虛擬環境：
+
 ```bash
 deactivate
 ```
 
 ##### 管理套件：
+
 ```bash
 # 安裝套件
 pip install package_name
@@ -226,27 +332,57 @@ pip freeze > requirements.txt
 pip install -r requirements.txt
 ```
 
+##### 現代做法：使用 uv 管理環境
+
+`uv` 把「建立虛擬環境、安裝依賴、鎖定版本、執行程式」整合為單一工具，且因以 Rust 實作，解析與安裝速度通常比 pip 快一個數量級。自 2025 年起已成為 Python 專案的主流選擇。
+
+```bash
+# 在現有目錄初始化專案（產生 pyproject.toml）
+uv init myproject
+cd myproject
+
+# 新增依賴：自動建立 .venv、寫入 pyproject.toml 並更新 uv.lock
+uv add requests
+uv add --dev pytest ruff        # 開發依賴寫入 [dependency-groups]
+
+# 依 lock 檔還原完全一致的環境（CI 用這個）
+uv sync
+
+# 不必手動 activate，直接在專案環境中執行
+uv run python main.py
+uv run pytest
+
+# 指定專案使用的 Python 版本
+uv python pin 3.14
+```
+
+> `venv` + `pip` 仍是認證考試的標準答案，且在無法安裝額外工具的受限環境中必備；uv 則是日常開發與 CI 的推薦做法。詳細的依賴宣告與鎖檔格式見 [1.4.3 套件管理](#143-套件管理)。
+
 #### 💡 實務案例
 
 **專案目錄結構範例：**
-```
+
+```text
 my_python_project/
 │
-├── venv/                   # 虛擬環境
-├── src/                    # 原始碼
-│   ├── __init__.py
-│   ├── main.py
-│   └── utils/
+├── .venv/                  # 虛擬環境（慣例目錄名，uv 預設使用）
+├── src/                    # 原始碼（src-layout，避免誤 import 到未安裝的套件）
+│   └── my_python_project/
+│       ├── __init__.py
+│       ├── main.py
+│       └── utils/
 ├── tests/                  # 測試檔案
 ├── docs/                   # 文件
-├── requirements.txt        # 依賴清單
-├── README.md              # 專案說明
-└── .gitignore             # Git 忽略檔案
+├── pyproject.toml          # 專案設定：依賴、建置後端、工具設定（PEP 621／PEP 735）
+├── uv.lock                 # uv 的跨平台鎖檔
+├── pylock.toml             # PEP 751 標準鎖檔（可由 uv export 產生，供其他工具使用）
+├── README.md               # 專案說明
+└── .gitignore              # Git 忽略檔案
 ```
 
 #### ⚠️ 注意事項
 
-1. **版本相容性**：建議使用 Python 3.12 以上版本
+1. **版本相容性**：建議使用 Python 3.13 以上版本（3.12 已進入 security-only、3.9 已 EOL）
 2. **路徑問題**：確保 Python 已加入 PATH 環境變數
 3. **權限問題**：Linux 系統可能需要 sudo 權限安裝套件
 4. **虛擬環境**：每個專案都應使用獨立的虛擬環境
@@ -259,12 +395,14 @@ my_python_project/
 4. `pip freeze` 指令的作用是什麼？
 
 **參考答案：**
+
 1. 語法簡潔易讀，接近自然語言
 2. 執行 `python --version` 和 `pip --version`
 3. 隔離不同專案的依賴，避免版本衝突
 4. 列出當前環境中所有已安裝的套件及其版本
 
 #### 🏷️ 認證考試對應
+
 - **PCEP**: 模組 1 - Python 基礎概念
 - **PCAP**: 模組 1 - 控制和評估、使用模組和套件
 
@@ -273,6 +411,7 @@ my_python_project/
 ### 1.2 語法基礎
 
 #### 🎯 學習目標
+
 - 掌握 Python 基本語法規則
 - 了解變數宣告與命名規則
 - 學習各種資料型態的使用
@@ -281,6 +420,7 @@ my_python_project/
 #### 1.2.1 Python 語法規則
 
 ##### 縮排 (Indentation)
+
 Python 使用縮排來定義程式碼區塊，這是 Python 最重要的語法特色：
 
 ```python
@@ -295,6 +435,7 @@ print("這會產生錯誤")
 ```
 
 ##### 註解 (Comments)
+
 ```python
 # 單行註解
 print("Hello, World!")  # 行末註解
@@ -311,6 +452,7 @@ print("Hello, World!")  # 行末註解
 ```
 
 ##### 分號與分行
+
 ```python
 # Python 不需要分號結尾
 print("Hello")
@@ -331,6 +473,7 @@ total = (1 + 2 + 3 +
 #### 1.2.2 變數與命名規則
 
 ##### 變數宣告
+
 ```python
 # Python 是動態型別語言，不需要宣告變數型別
 name = "張三"
@@ -340,6 +483,7 @@ is_student = True
 ```
 
 ##### 命名規則
+
 ```python
 # 合法的變數名稱
 user_name = "John"
@@ -354,6 +498,7 @@ PI = 3.14159
 ```
 
 ##### 命名慣例
+
 ```python
 # 變數和函式：使用小寫字母和底線
 user_name = "張三"
@@ -376,6 +521,7 @@ __private_var = "private"
 #### 1.2.3 資料型態
 
 ##### 數值型態
+
 ```python
 # 整數 (int)
 age = 25
@@ -392,6 +538,7 @@ complex_num = 3 + 4j
 ```
 
 ##### 字串型態 (str)
+
 ```python
 # 字串建立
 name = "張三"
@@ -429,6 +576,7 @@ reversed_text = text[::-1]  # 'nohtyP'
 ```
 
 ##### 布林型態 (bool)
+
 ```python
 # 布林值
 is_active = True
@@ -451,6 +599,7 @@ if None:         # None 為 False
 ```
 
 ##### 串列型態 (list)
+
 ```python
 # 建立串列
 numbers = [1, 2, 3, 4, 5]
@@ -471,6 +620,7 @@ subset = numbers[1:4]       # 切片
 ```
 
 ##### 字典型態 (dict)
+
 ```python
 # 建立字典
 student = {
@@ -492,6 +642,7 @@ for key, value in student.items():
 ```
 
 ##### 元組型態 (tuple)
+
 ```python
 # 建立元組
 coordinates = (10, 20)
@@ -507,6 +658,7 @@ red, green, blue = rgb_color
 ```
 
 ##### 集合型態 (set)
+
 ```python
 # 建立集合
 numbers = {1, 2, 3, 4, 5}
@@ -528,6 +680,7 @@ difference = set1 - set2    # 差集: {1, 2}
 #### 1.2.4 運算子
 
 ##### 算術運算子
+
 ```python
 a = 10
 b = 3
@@ -543,6 +696,7 @@ power = a ** b          # 1000 (次方)
 ```
 
 ##### 比較運算子
+
 ```python
 x = 5
 y = 10
@@ -556,6 +710,7 @@ less_equal = x <= y     # True  (小於等於)
 ```
 
 ##### 邏輯運算子
+
 ```python
 # and, or, not
 result1 = True and False   # False
@@ -569,6 +724,7 @@ can_drive = age >= 18 and has_license  # True
 ```
 
 ##### 賦值運算子
+
 ```python
 x = 10
 
@@ -582,6 +738,7 @@ x **= 3   # x = x ** 3, 結果: 1.0
 ```
 
 ##### 身份運算子
+
 ```python
 a = [1, 2, 3]
 b = a
@@ -597,6 +754,7 @@ print(a == c)        # True  (內容相同)
 ```
 
 ##### 成員運算子
+
 ```python
 # in 和 not in
 fruits = ["apple", "banana", "orange"]
@@ -609,6 +767,7 @@ has_hello = "Hello" in text        # True
 ```
 
 ##### 海象運算子 (Walrus Operator, Python 3.8+)
+
 ```python
 # := 賦值表達式，可在表達式中同時賦值並使用
 # 傳統寫法
@@ -637,6 +796,7 @@ if (match := len(text)) > 10:
 #### 💡 實務案例
 
 **型別轉換與驗證：**
+
 ```python
 def safe_input_number(prompt):
     """安全地從使用者輸入取得數字"""
@@ -653,6 +813,7 @@ age = safe_input_number("請輸入年齡: ")
 ```
 
 **資料型態檢查：**
+
 ```python
 def analyze_data(data):
     """分析資料的型態和內容"""
@@ -690,6 +851,7 @@ analyze_data({"name": "John", "age": 30})
 5. `10 // 3` 和 `10 / 3` 的差異是什麼？
 
 **參考答案：**
+
 1. 縮排 (Indentation)
 2. `user_name` 和 `_private` 是合法的
 3. `"53"` (字串串接)
@@ -697,16 +859,18 @@ analyze_data({"name": "John", "age": 30})
 5. `//` 是整數除法 (結果: 3)，`/` 是一般除法 (結果: 3.333...)
 
 #### 🏷️ 認證考試對應
+
 - **PCEP**: 模組 2 - 資料型態、變數、基本 I/O 操作、運算子
 - **PCAP**: 模組 1 - 控制和評估、資料聚合
 
 ---
 
-### 1.2.5 型別提示 (Type Hints)
+#### 1.2.5 型別提示 (Type Hints)
 
-Python 3.5+ 引入了型別提示，3.9+ 大幅簡化語法，3.12+ 引入了新的型別參數語法。型別提示不會影響執行時行為，但有助於程式碼可讀性和靜態分析。
+Python 3.5+ 引入了型別提示，3.9+ 大幅簡化語法，3.12+ 引入了新的型別參數語法，3.14+ 改為延遲求值。型別提示不會影響執行時行為，但有助於程式碼可讀性和靜態分析。
 
-#### 基本型別標註
+##### 基本型別標註
+
 ```python
 # 變數型別標註
 name: str = "Alice"
@@ -738,7 +902,8 @@ def find_user(user_id: int) -> dict | None:
     return None
 ```
 
-#### 進階型別提示
+##### 進階型別提示
+
 ```python
 from typing import (
     Callable, Iterator, Generator,
@@ -788,23 +953,62 @@ stack = Stack[int]()
 stack.push(42)
 ```
 
-#### 使用 mypy 靜態檢查
+##### 靜態型別檢查工具
+
+型別提示本身不會在執行時被強制，必須搭配靜態檢查器才有價值。兩大主流：
+
 ```bash
-# 安裝 mypy
-pip install mypy
+# mypy：型別檢查的參考實作，規則最貼近 PEP 定義
+uv add --dev mypy
+mypy src/
+mypy --strict src/            # 嚴格模式：要求所有函式都有完整標註
 
-# 檢查型別
-mypy my_script.py
-
-# 嚴格模式
-mypy --strict my_script.py
+# pyright：微軟開發，VS Code 的 Pylance 底層引擎，速度快、推斷較積極
+uv add --dev pyright
+pyright src/
 ```
+
+設定寫在 `pyproject.toml`，讓 IDE 與 CI 使用同一組規則：
+
+```toml
+[tool.mypy]
+python_version = "3.14"
+strict = true
+warn_unreachable = true
+# 第三方套件缺少型別資訊時不報錯
+ignore_missing_imports = true
+
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "strict"
+include = ["src"]
+```
+
+##### 標註的執行時行為（Python 3.14+ 重要變更）
+
+Python 3.14 起標註改為**延遲求值**（PEP 649／PEP 749），不再需要 `from __future__ import annotations`，且前向參考不必再寫成字串：
+
+```python
+# Python 3.14+：TreeNode 尚未定義完成也能直接寫在標註中
+class TreeNode:
+    def add_child(self, child: TreeNode) -> None: ...
+
+# 需要在執行時取得標註時，使用 annotationlib（Python 3.14+）
+import annotationlib
+
+annotationlib.get_annotations(TreeNode.add_child, format=annotationlib.Format.VALUE)
+# 也可取得未求值的字串形式，避免觸發匯入
+annotationlib.get_annotations(TreeNode.add_child, format=annotationlib.Format.STRING)
+```
+
+詳見 [2.5.4 Python 3.14 新特性](#254-python-314-新特性2025-年-10-月發布)。
 
 ---
 
 ### 1.3 流程控制
 
 #### 🎯 學習目標
+
 - 掌握條件判斷的語法與應用
 - 學習各種迴圈結構的使用
 - 了解例外處理機制
@@ -813,6 +1017,7 @@ mypy --strict my_script.py
 #### 1.3.1 條件判斷 (if 語句)
 
 ##### 基本 if 語句
+
 ```python
 # 基本條件判斷
 age = 18
@@ -841,6 +1046,7 @@ else:
 ```
 
 ##### 複合條件
+
 ```python
 age = 25
 has_license = True
@@ -864,6 +1070,7 @@ if student_grade in valid_grades:
 ```
 
 ##### 條件表達式 (三元運算子)
+
 ```python
 # 一般寫法
 age = 20
@@ -887,6 +1094,7 @@ discount = get_discount(True)  # 0.1
 `match/case` 語句提供了比多個 `if-elif-else` 更強大且可讀的分支邏輯：
 
 ##### 基本模式匹配
+
 ```python
 # 基本 match/case
 def http_status(status):
@@ -907,6 +1115,7 @@ print(http_status(999))  # Unknown status: 999
 ```
 
 ##### 結構化模式 (Structural Patterns)
+
 ```python
 # 匹配序列
 def process_command(command):
@@ -928,6 +1137,7 @@ process_command("add a b c")         # 新增項目: ['a', 'b', 'c']
 ```
 
 ##### 匹配類別與守衛條件
+
 ```python
 from dataclasses import dataclass
 
@@ -967,6 +1177,7 @@ def process_event(event):
 #### 1.3.2 迴圈結構
 
 ##### for 迴圈
+
 ```python
 # 遍歷序列
 fruits = ["apple", "banana", "orange"]
@@ -1007,6 +1218,7 @@ for index, name in enumerate(names, start=1):
 ```
 
 ##### while 迴圈
+
 ```python
 # 基本 while 迴圈
 count = 0
@@ -1033,6 +1245,7 @@ print(f"1 到 100 的總和: {total}")
 ##### 迴圈控制
 
 ###### break 語句
+
 ```python
 # 在 for 迴圈中使用 break
 for i in range(10):
@@ -1050,6 +1263,7 @@ while True:
 ```
 
 ###### continue 語句
+
 ```python
 # 跳過偶數
 for i in range(10):
@@ -1066,6 +1280,7 @@ for num in numbers:
 ```
 
 ###### else 子句
+
 ```python
 # for-else：迴圈正常結束時執行
 for i in range(5):
@@ -1093,6 +1308,7 @@ else:
 ```
 
 ##### 巢狀迴圈
+
 ```python
 # 九九乘法表
 for i in range(1, 10):
@@ -1116,6 +1332,7 @@ for row in matrix:
 #### 1.3.3 例外處理
 
 ##### 基本例外處理
+
 ```python
 # try-except 基本語法
 try:
@@ -1129,6 +1346,7 @@ except ZeroDivisionError:
 ```
 
 ##### 捕獲多種例外
+
 ```python
 try:
     value = input("請輸入數字: ")
@@ -1144,6 +1362,7 @@ except Exception as e:
 ```
 
 ##### 完整的例外處理結構
+
 ```python
 def safe_divide(a, b):
     try:
@@ -1167,6 +1386,7 @@ print(safe_divide(10, "2")) # 型別錯誤
 ```
 
 ##### 自定義例外
+
 ```python
 # 定義自定義例外
 class CustomError(Exception):
@@ -1197,6 +1417,7 @@ except ValueError:
 ```
 
 ##### 例外群組 (Exception Groups, Python 3.11+)
+
 ```python
 # ExceptionGroup 可同時處理多個例外
 def validate_form(data):
@@ -1224,16 +1445,49 @@ except* TypeError as eg:
     for e in eg.exceptions:
         print(f"  - {e}")
 
-# Python 3.14+: except 不再需要括號包裹多個例外類型
-# try:
-#     ...
-# except ValueError, TypeError as e:  # Python 3.14+ 新語法
-#     print(e)
+```
+
+##### 免括號的多重例外捕捉（Python 3.14+，PEP 758）
+
+Python 3.14 起，**在未使用 `as` 子句時**，`except` 與 `except*` 可省略括號：
+
+```python
+# Python 3.14+ 新語法
+try:
+    connect_to_server()
+except TimeoutError, ConnectionRefusedError:
+    print("網路連線失敗")
+
+# 注意：有 as 子句時仍必須加括號
+try:
+    connect_to_server()
+except (TimeoutError, ConnectionRefusedError) as e:
+    print(f"網路連線失敗: {e}")
+```
+
+##### finally 區塊的控制流警告（Python 3.14+，PEP 765）
+
+在 `finally` 區塊中使用 `return`／`break`／`continue` 會吞掉正在傳播的例外，是長年的錯誤來源。Python 3.14 起編譯器會對此發出 `SyntaxWarning`：
+
+```python
+def risky():
+    try:
+        raise ValueError("重要錯誤")
+    finally:
+        return "OK"   # SyntaxWarning：例外被默默吞掉，函式回傳 "OK"
+
+# 正確做法：finally 只做資源清理，不改變控制流
+def safe():
+    try:
+        raise ValueError("重要錯誤")
+    finally:
+        cleanup()     # 只清理，讓例外正常傳播
 ```
 
 #### 1.3.4 進階流程控制
 
 ##### 列表推導式 (List Comprehension)
+
 ```python
 # 基本列表推導式
 numbers = [1, 2, 3, 4, 5]
@@ -1255,6 +1509,7 @@ print(uppercase_words)  # ['PYTHON', 'PROGRAMMING']
 ```
 
 ##### 字典推導式和集合推導式
+
 ```python
 # 字典推導式
 numbers = [1, 2, 3, 4, 5]
@@ -1268,6 +1523,7 @@ print(unique_chars)  # {'H', 'E', 'L', 'O', 'W', 'R', 'D'}
 ```
 
 ##### 生成器表達式
+
 ```python
 # 生成器表達式（記憶體效率更高）
 numbers = (x**2 for x in range(1000000))  # 不會立即計算所有值
@@ -1282,6 +1538,7 @@ for i, square in enumerate(numbers):
 #### 💡 實務案例
 
 **輸入驗證函式：**
+
 ```python
 def get_valid_input(prompt, input_type=str, validator=None):
     """
@@ -1329,6 +1586,7 @@ grade = get_valid_input(
 ```
 
 **批次資料處理：**
+
 ```python
 def process_student_data(students):
     """處理學生資料並產生統計報告"""
@@ -1402,6 +1660,7 @@ print("統計報告:", report['statistics'])
 5. 列表推導式 `[x for x in range(10) if x % 2 == 0]` 的結果是什麼？
 
 **參考答案：**
+
 1. 不會，因為 `and` 運算子會短路評估
 2. 當迴圈正常結束（沒有遇到 `break`）時執行
 3. `continue` 跳過本次迭代，`break` 完全跳出迴圈
@@ -1409,6 +1668,7 @@ print("統計報告:", report['statistics'])
 5. `[0, 2, 4, 6, 8]`
 
 #### 🏷️ 認證考試對應
+
 - **PCEP**: 模組 3 - 布林值、條件執行、迴圈、串列和串列處理、邏輯和位元運算
 - **PCAP**: 模組 1 - 控制和評估、資料聚合
 
@@ -1417,6 +1677,7 @@ print("統計報告:", report['statistics'])
 ### 1.4 函式、模組與套件管理
 
 #### 🎯 學習目標
+
 - 學習函式的定義與呼叫
 - 掌握參數傳遞的各種方式
 - 了解模組的建立與使用
@@ -1425,6 +1686,7 @@ print("統計報告:", report['statistics'])
 #### 1.4.1 函式基礎
 
 ##### 函式定義與呼叫
+
 ```python
 # 基本函式定義
 def greet():
@@ -1461,6 +1723,7 @@ print(f"姓名: {name}, 年齡: {age}")
 ##### 參數類型
 
 ###### 位置參數
+
 ```python
 def introduce(name, age, city):
     print(f"我是 {name}，{age} 歲，住在 {city}")
@@ -1470,6 +1733,7 @@ introduce("Alice", 25, "台北")
 ```
 
 ###### 關鍵字參數
+
 ```python
 # 使用關鍵字指定參數
 introduce(city="高雄", name="Bob", age=30)
@@ -1479,6 +1743,7 @@ introduce("Charlie", age=35, city="台中")
 ```
 
 ###### 預設參數
+
 ```python
 def greet_with_title(name, title="先生"):
     """帶有預設稱謂的問候函式"""
@@ -1501,6 +1766,7 @@ def add_item_safe(item, target_list=None):
 ```
 
 ###### 可變參數
+
 ```python
 # *args：接收任意數量的位置參數
 def sum_all(*numbers):
@@ -1533,6 +1799,7 @@ flexible_function("hello", 1, 2, 3, name="Bob", age=30)
 ##### 函式進階特性
 
 ###### 函式作為物件
+
 ```python
 # 函式可以賦值給變數
 def square(x):
@@ -1565,6 +1832,7 @@ print(triple(10))  # 30
 ```
 
 ###### Lambda 函式
+
 ```python
 # 基本 lambda 函式
 square = lambda x: x ** 2
@@ -1592,6 +1860,7 @@ print(students)
 ```
 
 ###### 裝飾器基礎
+
 ```python
 # 簡單的裝飾器
 def timing_decorator(func):
@@ -1620,6 +1889,7 @@ result = slow_function()  # 會印出執行時間
 #### 1.4.2 模組系統
 
 ##### 建立模組
+
 ```python
 # math_utils.py 檔案內容
 """
@@ -1656,6 +1926,7 @@ class Calculator:
 ```
 
 ##### 匯入模組
+
 ```python
 # 完整匯入
 import math_utils
@@ -1678,6 +1949,7 @@ area2 = calc_area(5)
 ```
 
 ##### 模組搜尋路徑
+
 ```python
 import sys
 
@@ -1692,6 +1964,7 @@ sys.path.append("/path/to/my/modules")
 ```
 
 ##### 套件 (Packages)
+
 ```python
 # 套件目錄結構
 """
@@ -1719,6 +1992,7 @@ from my_package.subpackage import submodule
 #### 1.4.3 套件管理
 
 ##### pip 基本使用
+
 ```bash
 # 安裝套件
 pip install package_name
@@ -1748,6 +2022,7 @@ pip show package_name
 ```
 
 ##### 虛擬環境管理
+
 ```bash
 # 建立虛擬環境
 python -m venv myproject_env
@@ -1765,13 +2040,129 @@ deactivate
 pip freeze > requirements.txt
 
 # 依賴清單範例 (requirements.txt)
-requests==2.28.1
-numpy>=1.21.0
-pandas==1.5.2
-matplotlib==3.6.2
+requests==2.32.3
+numpy>=2.1.0
+pandas==2.2.3
+matplotlib==3.9.2
+```
+
+##### 以 pyproject.toml 宣告依賴（PEP 621 / PEP 735）
+
+`requirements.txt` 沒有正式規格，且無法區分「發布用依賴」與「開發用依賴」。現代做法是把所有專案中繼資料集中在 `pyproject.toml`：
+
+```toml
+[project]
+name = "myproject"
+version = "0.1.0"
+requires-python = ">=3.13"
+# 執行時依賴：安裝本套件的人也會裝到
+dependencies = [
+    "httpx>=0.28",
+    "pydantic>=2.10",
+]
+
+# PEP 735 依賴群組：不會發布到 PyPI，也不會被下游安裝
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+    "mypy>=1.14",
+]
+docs = ["sphinx>=8.1"]
+# 群組可互相引用
+all = [{ include-group = "dev" }, { include-group = "docs" }]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+```
+
+| 宣告位置 | 用途 | 會被下游安裝？ |
+| --- | --- | --- |
+| `[project].dependencies` | 執行時必需 | 是 |
+| `[project.optional-dependencies]` | 選用功能，如 `pip install myproject[redis]` | 使用者指定時 |
+| `[dependency-groups]`（PEP 735） | 開發期工具，如測試、檢查、文件 | **否** |
+
+> PEP 735 於 2024 年 10 月定案，填補了「開發依賴無標準宣告位置」的長年缺口。新專案應直接使用 `[dependency-groups]`。
+
+```bash
+# 安裝依賴群組
+uv sync --group dev
+pip install --group dev        # pip 亦已支援
+```
+
+##### 鎖檔與可重現建置（PEP 751）
+
+`pyproject.toml` 記錄的是**版本範圍**，兩次安裝可能得到不同版本。要讓建置可重現，必須有鎖檔——記錄每個套件的**確切版本與雜湊值**。
+
+PEP 751 定義了標準鎖檔格式 `pylock.toml`，讓鎖檔不再綁定單一工具：
+
+```bash
+# uv：以 uv.lock 為主要格式，可匯出為標準格式供其他工具使用
+uv lock
+uv export --format pylock.toml -o pylock.toml
+
+# pip：25.1 起提供實驗性的 pip lock
+pip lock -r requirements.txt -o pylock.toml
+
+# 從標準鎖檔安裝（pip 26.1 起，實驗性）
+pip install -r pylock.toml
+```
+
+| 工具 | 原生鎖檔 | PEP 751 支援狀況 |
+| --- | --- | --- |
+| uv | `uv.lock`（跨平台） | 可匯出 `pylock.toml` |
+| pip | 無 | `pip lock`（25.1+）與 `pip install -r pylock.toml`（26.1+），皆為實驗性 |
+| PDM | `pdm.lock` | 可匯出 |
+| Poetry | `poetry.lock` | 截至 2026 年 4 月尚未支援 |
+
+**實務建議**：鎖檔必須提交進版本控制；CI 使用 `uv sync --frozen` 確保不會意外更新依賴。鎖檔中的雜湊值同時具備供應鏈防護作用，詳見 [3.4.4 供應鏈完整性](#344-供應鏈完整性)。
+
+##### 套件建置與發布
+
+```bash
+# 1. 建置：產生 wheel（.whl）與原始碼發行版（.tar.gz）
+uv build
+# 或使用標準工具
+python -m build
+
+# 2. 檢查產物中繼資料是否正確
+uv run twine check dist/*
+
+# 3. 先發到 TestPyPI 驗證
+uv publish --publish-url https://test.pypi.org/legacy/
+
+# 4. 正式發布
+uv publish
+```
+
+**建議改用 Trusted Publishing**：以 GitHub Actions 的 OIDC 身分直接向 PyPI 驗證，不需在 CI 中保存長期 API token，可根除 token 外洩風險：
+
+```yaml
+# .github/workflows/publish.yml
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write          # Trusted Publishing 必需，取得 OIDC token
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv build
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        # 不需要 password / api-token
 ```
 
 ##### 常用第三方套件
+
 ```python
 # requests - HTTP 請求
 import requests
@@ -1797,6 +2188,7 @@ tomorrow = now + timedelta(days=1)
 #### 💡 實務案例
 
 **模組化設計範例：**
+
 ```python
 # config.py - 設定檔模組
 """應用程式設定"""
@@ -1878,6 +2270,7 @@ if __name__ == "__main__":
 ```
 
 **自動化腳本範例：**
+
 ```python
 # file_processor.py
 """檔案處理自動化腳本"""
@@ -1953,6 +2346,7 @@ if __name__ == "__main__":
 5. lambda 函式有什麼限制？
 
 **參考答案：**
+
 1. 使用 `*args` 和 `**kwargs`
 2. 可能會污染命名空間，造成名稱衝突
 3. 標示目錄為 Python 套件，控制套件匯入行為
@@ -1960,6 +2354,7 @@ if __name__ == "__main__":
 5. 只能包含表達式，不能包含語句，通常用於簡單的函式
 
 #### 🏷️ 認證考試對應
+
 - **PCEP**: 模組 4 - 函式、元組、字典、例外處理
 - **PCAP**: 模組 2 - 模組和套件
 
@@ -1970,6 +2365,7 @@ if __name__ == "__main__":
 ### 2.1 面向物件程式設計
 
 #### 🎯 學習目標
+
 - 理解類別和物件的概念
 - 掌握封裝、繼承、多型的原理
 - 學習特殊方法的使用
@@ -1978,6 +2374,7 @@ if __name__ == "__main__":
 #### 2.1.1 類別與物件基礎
 
 ##### 定義類別
+
 ```python
 class Student:
     """學生類別"""
@@ -2022,6 +2419,7 @@ student1.display_info()
 ```
 
 ##### 屬性訪問控制
+
 ```python
 class BankAccount:
     """銀行帳戶類別"""
@@ -2065,6 +2463,7 @@ print(f"餘額: {account.get_balance()}")  # 1500
 #### 2.1.2 封裝與屬性
 
 ##### 使用 property 裝飾器
+
 ```python
 class Temperature:
     """溫度類別，支援攝氏和華氏轉換"""
@@ -2110,6 +2509,7 @@ print(f"攝氏: {temp.celsius:.2f}°C")  # 自動轉換
 ```
 
 ##### 描述器 (Descriptors)
+
 ```python
 class ValidatedAttribute:
     """驗證屬性的描述器"""
@@ -2147,6 +2547,7 @@ person = Person("Alice", 25)
 #### 2.1.3 繼承
 
 ##### 基本繼承
+
 ```python
 class Animal:
     """動物基類"""
@@ -2203,6 +2604,7 @@ dog.sleep()  # 小白 正在睡覺（繼承的方法）
 ```
 
 ##### 多重繼承
+
 ```python
 class Flyable:
     """飛行能力 mixin"""
@@ -2238,6 +2640,7 @@ print(Duck.__mro__)
 #### 2.1.4 多型
 
 ##### 方法重寫與多型
+
 ```python
 class Shape:
     """形狀基類"""
@@ -2302,6 +2705,7 @@ for shape in shapes:
 #### 2.1.5 特殊方法 (Magic Methods)
 
 ##### 常用特殊方法
+
 ```python
 class Vector:
     """向量類別，展示特殊方法的使用"""
@@ -2381,6 +2785,7 @@ print(v1)           # Vector(3, 5)
 #### 💡 實務案例
 
 **設計模式：單例模式**
+
 ```python
 class Singleton:
     """單例模式實現"""
@@ -2430,6 +2835,7 @@ print(db1 is db2)  # True，同一個實例
 ```
 
 **觀察者模式**
+
 ```python
 class Subject:
     """主題（被觀察者）"""
@@ -2534,6 +2940,7 @@ print(astuple(p2))  # ('滑鼠', 500, 10, ['周邊', '辦公'])
 ```
 
 ##### 進階 dataclass 功能
+
 ```python
 from dataclasses import dataclass, field
 
@@ -2592,6 +2999,7 @@ print(emp.full_name)  # John Doe
 5. `@property` 裝飾器的用途是什麼？
 
 **參考答案：**
+
 1. `__new__` 建立實例，`__init__` 初始化實例
 2. 實現 `__len__` 方法
 3. 呼叫父類的方法，支援多重繼承
@@ -2599,6 +3007,7 @@ print(emp.full_name)  # John Doe
 5. 將方法轉換為屬性，支援 getter/setter
 
 #### 🏷️ 認證考試對應
+
 - **PCEP**: 不涉及（PCEP 不包含 OOP）
 - **PCAP**: 模組 3 - 物件導向程式設計
 
@@ -2607,6 +3016,7 @@ print(emp.full_name)  # John Doe
 ### 2.2 檔案處理與例外處理
 
 #### 🎯 學習目標
+
 - 掌握檔案讀寫操作
 - 學習各種檔案格式處理
 - 熟悉例外處理機制
@@ -2615,6 +3025,7 @@ print(emp.full_name)  # John Doe
 #### 2.2.1 檔案基本操作
 
 ##### 檔案讀取
+
 ```python
 # 基本讀取方式
 file = open('example.txt', 'r', encoding='utf-8')
@@ -2637,6 +3048,7 @@ with open('example.txt', 'r', encoding='utf-8') as file:
 ```
 
 ##### 檔案寫入
+
 ```python
 # 寫入模式（覆蓋原檔案）
 with open('output.txt', 'w', encoding='utf-8') as file:
@@ -2654,6 +3066,7 @@ with open('output.txt', 'w', encoding='utf-8') as file:
 ```
 
 ##### 檔案模式
+
 ```python
 # 常用檔案模式
 modes = {
@@ -2677,6 +3090,7 @@ with open('copy.jpg', 'wb') as file:
 #### 2.2.2 進階檔案處理
 
 ##### CSV 檔案處理
+
 ```python
 import csv
 
@@ -2706,6 +3120,7 @@ with open('output.csv', 'w', newline='', encoding='utf-8') as file:
 ```
 
 ##### JSON 檔案處理
+
 ```python
 import json
 
@@ -2730,6 +3145,7 @@ parsed_data = json.loads(json_string)
 ```
 
 ##### XML 檔案處理
+
 ```python
 import xml.etree.ElementTree as ET
 
@@ -2761,6 +3177,7 @@ tree.write('output.xml', encoding='utf-8', xml_declaration=True)
 #### 2.2.3 例外處理機制
 
 ##### 基本例外處理
+
 ```python
 # try-except 基本結構
 try:
@@ -2776,6 +3193,7 @@ except Exception as e:
 ```
 
 ##### 完整例外處理結構
+
 ```python
 try:
     # 可能發生例外的程式碼
@@ -2804,6 +3222,7 @@ finally:
 ```
 
 ##### 自定義例外
+
 ```python
 class CustomError(Exception):
     """自定義例外類別"""
@@ -2833,6 +3252,7 @@ except ValidationError as e:
 ```
 
 ##### 例外鏈與重新拋出
+
 ```python
 def process_file(filename):
     try:
@@ -2858,6 +3278,7 @@ def main():
 #### 2.2.4 上下文管理器
 
 ##### 自定義上下文管理器
+
 ```python
 class FileManager:
     def __init__(self, filename, mode):
@@ -2884,6 +3305,7 @@ with FileManager('test.txt', 'w') as f:
 ```
 
 ##### 使用 contextlib
+
 ```python
 from contextlib import contextmanager
 import os
@@ -2908,6 +3330,7 @@ print(f"回到原目錄: {os.getcwd()}")
 #### 💡 實務案例
 
 **日誌檔案分析器：**
+
 ```python
 import re
 from datetime import datetime
@@ -2978,6 +3401,7 @@ analyzer.print_summary()
 5. 如何創建自定義例外類別？
 
 **參考答案：**
+
 1. 自動管理資源，確保檔案等資源得到正確釋放
 2. 指定正確的編碼格式，如 `encoding='utf-8'`
 3. `except Exception` 可以取得例外物件，`except:` 會捕捉所有例外包括系統退出
@@ -2985,6 +3409,7 @@ analyzer.print_summary()
 5. 繼承 `Exception` 類別並定義 `__init__` 方法
 
 #### 🏷️ 認證考試對應
+
 - **PCEP**: 模組 4 - 函式、元組、字典、例外處理
 - **PCAP**: 模組 2 - 字串、串列操作、例外處理
 
@@ -2993,6 +3418,7 @@ analyzer.print_summary()
 ### 2.3 常用標準函式庫
 
 #### 🎯 學習目標
+
 - 熟悉 Python 標準函式庫的重要模組
 - 學習日期時間處理
 - 掌握正規表達式的使用
@@ -3001,6 +3427,7 @@ analyzer.print_summary()
 #### 2.3.1 日期時間處理
 
 ##### datetime 模組
+
 ```python
 from datetime import datetime, date, time, timedelta
 
@@ -3036,6 +3463,7 @@ print(f"兩小時後: {two_hours_later}")
 ```
 
 ##### 時區處理
+
 ```python
 from datetime import datetime, timezone, timedelta
 import pytz  # 需要安裝: pip install pytz
@@ -3058,6 +3486,7 @@ print(f"轉換後時間: {local_time}")
 #### 2.3.2 正規表達式
 
 ##### re 模組基礎
+
 ```python
 import re
 
@@ -3081,6 +3510,7 @@ print(f"替換後: {cleaned_text}")
 ```
 
 ##### 進階正規表達式
+
 ```python
 # 群組捕獲
 log_pattern = r'(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}) \[(\w+)\] (.+)'
@@ -3107,6 +3537,7 @@ emails = compiled_pattern.findall(text)
 #### 2.3.3 系統操作
 
 ##### os 模組
+
 ```python
 import os
 
@@ -3134,6 +3565,7 @@ os.environ['MY_VAR'] = 'Hello World'
 ```
 
 ##### pathlib 模組（推薦）
+
 ```python
 from pathlib import Path
 
@@ -3158,6 +3590,7 @@ if file_path.exists():
 ```
 
 ##### subprocess 模組
+
 ```python
 import subprocess
 
@@ -3178,6 +3611,7 @@ except subprocess.CalledProcessError as e:
 #### 2.3.4 網路程式設計基礎
 
 ##### urllib 模組
+
 ```python
 import urllib.request
 import urllib.parse
@@ -3200,6 +3634,7 @@ url = f'https://api.github.com/search/repositories?{query_string}'
 ```
 
 ##### http.server 模組
+
 ```python
 import http.server
 import socketserver
@@ -3228,6 +3663,7 @@ def start_server(port=8000):
 #### 2.3.5 其他重要模組
 
 ##### collections 模組
+
 ```python
 from collections import Counter, defaultdict, namedtuple, deque
 
@@ -3255,6 +3691,7 @@ print(f"雙端佇列: {list(dq)}")
 ```
 
 ##### itertools 模組
+
 ```python
 import itertools
 
@@ -3278,6 +3715,7 @@ print(f"產品組合: {products}")
 ```
 
 ##### functools 模組
+
 ```python
 import functools
 import time
@@ -3316,6 +3754,7 @@ def slow_function():
 #### 💡 實務案例
 
 **網頁內容分析器：**
+
 ```python
 import urllib.request
 import re
@@ -3393,6 +3832,7 @@ class WebContentAnalyzer:
 5. 如何安全地執行系統命令？
 
 **參考答案：**
+
 1. `datetime.now() - timedelta(days=1)`
 2. 一個或多個數字字元
 3. `os.path.join()` 會根據作業系統使用正確的路徑分隔符
@@ -3400,6 +3840,7 @@ class WebContentAnalyzer:
 5. 使用 `subprocess.run()` 並處理例外
 
 #### 🏷️ 認證考試對應
+
 - **PCEP**: 模組 2 - 基本運算子、資料型態
 - **PCAP**: 模組 2 - 字串、串列操作、模組和套件
 
@@ -3408,6 +3849,7 @@ class WebContentAnalyzer:
 ### 2.4 測試與除錯
 
 #### 🎯 學習目標
+
 - 學習 Python 測試框架的使用
 - 掌握單元測試的撰寫方法
 - 了解除錯技巧與工具
@@ -3416,6 +3858,7 @@ class WebContentAnalyzer:
 #### 2.4.1 單元測試基礎
 
 ##### unittest 模組
+
 ```python
 import unittest
 
@@ -3474,6 +3917,7 @@ if __name__ == '__main__':
 ```
 
 ##### 測試斷言方法
+
 ```python
 class TestAssertions(unittest.TestCase):
     
@@ -3511,6 +3955,7 @@ class TestAssertions(unittest.TestCase):
 #### 2.4.2 進階測試技術
 
 ##### 測試類別和物件
+
 ```python
 class BankAccount:
     def __init__(self, initial_balance=0):
@@ -3573,6 +4018,7 @@ class TestBankAccount(unittest.TestCase):
 ```
 
 ##### 測試替身（Test Doubles）
+
 ```python
 import unittest.mock as mock
 import requests
@@ -3617,6 +4063,7 @@ class TestApiCalls(unittest.TestCase):
 #### 2.4.3 pytest 框架
 
 ##### pytest 基礎
+
 ```python
 # test_with_pytest.py
 import pytest
@@ -3659,6 +4106,7 @@ def test_addition_parametrized(a, b, expected):
 ```
 
 ##### pytest fixtures
+
 ```python
 import pytest
 
@@ -3712,6 +4160,7 @@ def test_database_query(database_connection):
 #### 2.4.4 除錯技巧
 
 ##### 使用 pdb 除錯器
+
 ```python
 import pdb
 
@@ -3739,6 +4188,7 @@ def problematic_function(numbers):
 ```
 
 ##### 日誌除錯
+
 ```python
 import logging
 
@@ -3783,6 +4233,7 @@ def complex_calculation(data):
 ```
 
 ##### 效能分析
+
 ```python
 import time
 import cProfile
@@ -3830,6 +4281,7 @@ def profile_function():
 #### 2.4.5 測試驅動開發 (TDD)
 
 ##### TDD 開發流程示例
+
 ```python
 import unittest
 
@@ -3908,6 +4360,7 @@ class PasswordValidator:
 #### 💡 實務案例
 
 **測試覆蓋率報告：**
+
 ```python
 # 安裝 coverage: pip install coverage
 # 執行: coverage run -m pytest test_module.py
@@ -3969,6 +4422,7 @@ addopts =
 5. 如何測試程式碼中的例外處理？
 
 **參考答案：**
+
 1. `setUp()` 在每個測試前執行初始化，`tearDown()` 在每個測試後執行清理
 2. 用來替代真實依賴的物件，包括 Mock、Stub、Fake 等
 3. 紅燈（寫測試）→ 綠燈（寫實作）→ 重構（改善程式碼）
@@ -3976,6 +4430,7 @@ addopts =
 5. 使用 `assertRaises()` 或 `pytest.raises()`
 
 #### 🏷️ 認證考試對應
+
 - **PCEP**: 不涉及（PCEP 不包含測試）
 - **PCAP**: 模組 4 - 雜項（包含基本測試概念）
 
@@ -3984,13 +4439,19 @@ addopts =
 ### 2.5 Python 現代特性（3.11 ~ 3.15）
 
 #### 🎯 學習目標
-- 了解 Python 3.11 ~ 3.15 的重要新特性
+
+- 了解 Python 3.11 ～ 3.15 的重要新特性與其對應的 PEP
 - 掌握 f-string 改進、tomllib、free-threaded 模式等功能
 - 認識模板字串（t-string）、懶惰匯入（lazy imports）等前沿特性
+- 具備判斷「何時該升級、升級有何風險」的版本遷移能力
+
+> **本節體例**：每個特性標註引入版本與 PEP 編號；涉及行為變更者另列**遷移風險**與**回退開關**。
+> Python 3.15 的內容以 3.15 RC 階段文件為準（查核日期 2026-09-21），正式版發布後請覆核。
 
 #### 2.5.1 Python 3.11 新特性
 
 ##### 增強的錯誤訊息
+
 ```python
 # Python 3.11 的錯誤訊息會精確標示問題位置
 # 例如以下程式碼：
@@ -4002,6 +4463,7 @@ addopts =
 ```
 
 ##### tomllib 標準函式庫
+
 ```python
 # Python 3.11+ 內建 TOML 解析器
 import tomllib
@@ -4019,6 +4481,7 @@ print(config["project"]["version"])
 ```
 
 ##### asyncio.TaskGroup
+
 ```python
 import asyncio
 
@@ -4045,6 +4508,7 @@ async def main():
 #### 2.5.2 Python 3.12 新特性
 
 ##### f-string 改進
+
 ```python
 # Python 3.12+ 允許在 f-string 中使用嵌套引號和反斜線
 members = ["Alice", "Bob", "Charlie"]
@@ -4068,6 +4532,7 @@ print(result)  # Matrix sum: 10
 ```
 
 ##### 型別參數語法 (PEP 695)
+
 ```python
 # Python 3.12+ 新的型別參數語法
 # 舊寫法
@@ -4099,6 +4564,7 @@ type Matrix = list[Vector]
 #### 2.5.3 Python 3.13 新特性
 
 ##### 改進的互動式直譯器 (REPL)
+
 ```python
 # Python 3.13 的新 REPL 功能：
 # - 多行編輯與歷史記錄
@@ -4112,6 +4578,7 @@ type Matrix = list[Vector]
 ```
 
 ##### Free-threaded CPython（實驗性，PEP 703）
+
 ```python
 # Python 3.13 引入實驗性的 free-threaded 模式（無 GIL）
 # 需要在編譯或安裝時啟用：python3.13t
@@ -4135,6 +4602,7 @@ def cpu_intensive_task(n):
 ```
 
 ##### JIT 編譯器（實驗性，PEP 744）
+
 ```python
 # Python 3.13 引入實驗性的 JIT (Just-In-Time) 編譯器
 # 基於 copy-and-patch 技術，可提升部分場景下的執行效能
@@ -4152,6 +4620,7 @@ def cpu_intensive_task(n):
 #### 2.5.4 Python 3.14 新特性（2025 年 10 月發布）
 
 ##### 模板字串 (Template Strings / t-strings, PEP 750)
+
 ```python
 # t-string 是 f-string 的延伸，提供結構化的字串處理能力
 # 使用 t"..." 前綴，回傳 Template 物件而非直接產生字串
@@ -4185,6 +4654,7 @@ safe_html = html_escape(t"<p>User said: {user_input}</p>")
 ```
 
 ##### 延遲標註求值 (PEP 649/749)
+
 ```python
 # Python 3.14 將標註（annotations）改為延遲求值
 # 可以在標註中使用尚未定義的名稱
@@ -4203,10 +4673,12 @@ class TreeNode:
 ```
 
 ##### 多重直譯器 (PEP 734)
+
 ```python
-# Python 3.14 在標準函式庫中加入 interpreters 模組
-# 每個子直譯器有獨立的 GIL，可實現真正的並行
-import interpreters
+# Python 3.14 在標準函式庫中加入 concurrent.interpreters 模組
+# 注意模組路徑是 concurrent.interpreters，不是頂層的 interpreters
+# 每個子直譯器有獨立的 GIL，可在同一個行程內實現真正的並行
+from concurrent import interpreters
 
 # 建立子直譯器
 interp = interpreters.create()
@@ -4214,11 +4686,85 @@ interp = interpreters.create()
 # 在子直譯器中執行程式碼
 interp.exec("print('Hello from sub-interpreter!')")
 
-# 子直譯器之間透過 Channel 通訊
-# 每個直譯器有獨立的 GIL → 真正的平行執行
+# 也可呼叫函式並取回結果
+def square(n):
+    return n * n
+
+result = interp.call(square, 12)
+print(result)  # 144
+
+interp.close()
 ```
 
+搭配 `concurrent.futures` 的執行器，可用熟悉的 API 把 CPU 密集工作分散到多個直譯器：
+
+```python
+from concurrent.futures import InterpreterPoolExecutor
+
+def cpu_bound(n: int) -> int:
+    return sum(i * i for i in range(n))
+
+with InterpreterPoolExecutor(max_workers=4) as executor:
+    results = list(executor.map(cpu_bound, [10**6] * 4))
+print(results)
+```
+
+> **限制**：子直譯器之間不共用物件，傳遞的資料必須可序列化或屬於可共享型別；部分 C 擴充套件尚未支援多直譯器，導入前務必實測。
+
+##### 安全的外部除錯介面 (PEP 768)
+
+Python 3.14 提供零開銷的除錯附掛介面，可對**正在執行中的生產程序**取得堆疊，不必事先埋入除錯碼——這是企業維運上價值極高的能力：
+
+```bash
+# 直接附掛到執行中的程序（PID 12345）
+python -m pdb -p 12345
+```
+
+```python
+import sys
+
+# 底層 API：在目標程序中執行一段程式碼
+sys.remote_exec(pid, "/path/to/script.py")
+```
+
+**安全控管**：此介面預設啟用，可用 `PYTHON_DISABLE_REMOTE_DEBUG` 環境變數或 `-X disable-remote-debug` 關閉；在多租戶或高敏感環境中建議於容器映像層級關閉。
+
+##### asyncio 內省工具
+
+排查「非同步任務卡住」過去極為困難，Python 3.14 提供了現成工具：
+
+```bash
+# 列出執行中程序的所有 asyncio 任務
+python -m asyncio ps 12345
+
+# 以樹狀結構顯示任務的呼叫關係（找出誰在等誰）
+python -m asyncio pstree 12345
+```
+
+```python
+import asyncio
+
+# 在程式內取得目前的非同步呼叫圖
+asyncio.print_call_graph()
+graph = asyncio.capture_call_graph()
+```
+
+##### 其他重要改進
+
+| 項目 | 說明 |
+| --- | --- |
+| REPL 語法高亮 | 互動式直譯器預設啟用語法著色與匯入自動補全；設 `PYTHON_BASIC_REPL` 可回退 |
+| `annotationlib` | 新模組，以 `VALUE`／`FORWARDREF`／`STRING` 三種格式取得延遲求值的標註 |
+| `pathlib` 強化 | 新增 `Path.copy()`、`Path.move()` 與 `Path.info` 屬性 |
+| UUIDv7 | `uuid.uuid7()`，時間排序的 UUID，適合作為資料庫主鍵 |
+| `map(strict=True)` | 長度不一致時拋出 `ValueError`，與 `zip(strict=)` 一致 |
+| free-threaded 成熟 | 相對於預設建置的效能損耗自 3.13 的約 40% 降至 5–10% |
+| tail-call 直譯器 | 以 Clang 19+ 建置可再獲約 3–5% 效能；需 `--with-tail-call-interp` |
+| 免括號 except | PEP 758，見 [1.3.3 例外處理](#133-例外處理) |
+| finally 控制流警告 | PEP 765，見 [1.3.3 例外處理](#133-例外處理) |
+
 ##### Zstandard 壓縮支援 (PEP 784)
+
 ```python
 # Python 3.14 標準函式庫新增 compression.zstd 模組
 import compression.zstd as zstd
@@ -4233,64 +4779,585 @@ decompressed = zstd.decompress(compressed)
 assert decompressed == data
 ```
 
-#### 2.5.5 Python 3.15 新特性（開發中）
+#### 2.5.5 Python 3.15 新特性（2026 年 10 月發布）
 
-> ⚠️ Python 3.15 目前處於開發階段，以下特性可能在正式發布時有所變動。
+Python 3.15 依 PEP 790 的排程於 **2026-10-01** 發布（RC2 為 2026-09-01），支援至 2031-10。
+
+> 本節內容以 3.15 RC 階段的官方文件為準（查核日期 2026-09-21）。正式版發布後，細節請以 [What's new in Python 3.15](https://docs.python.org/3.15/whatsnew/3.15.html) 覆核。
+
+##### UTF-8 成為預設編碼 (PEP 686) —— 影響最大的變更
+
+這是 3.15 對既有專案**衝擊面最廣**的變更。在此之前，`open()` 未指定 `encoding` 時會採用系統的地區設定編碼；在繁體中文 Windows 上即為 `cp950`，長年是亂碼與 `UnicodeDecodeError` 的主要來源。3.15 起一律預設 UTF-8：
+
+```python
+# Python 3.15 起，未指定 encoding 時一律使用 UTF-8，與作業系統地區設定無關
+with open("data.txt") as f:      # 等同 encoding="utf-8"
+    content = f.read()
+
+# 仍需讀取舊的 cp950 / big5 檔案時，必須明確指定
+with open("legacy.txt", encoding="cp950") as f:
+    content = f.read()
+```
+
+- **遷移風險**：若既有程式碼依賴系統編碼讀寫本地檔案（例如處理舊系統匯出的 Big5 檔），升級後會讀出亂碼或拋例外。
+- **回退開關**：設定 `PYTHONUTF8=0` 或啟動時加 `-X utf8=0` 可恢復舊行為。
+- **建議做法**：不要依賴回退開關。升級前先在 3.14 以 `-X warn_default_encoding` 執行測試套件，找出所有未指定 `encoding` 的呼叫點並逐一補上。
 
 ##### 明確懶惰匯入 (PEP 810)
+
 ```python
-# Python 3.15 引入 lazy 關鍵字，支援明確的延遲匯入
-# 模組在首次使用時才真正載入，加速程式啟動
+# lazy 為軟關鍵字，將模組的實際載入延後到第一次使用該名稱時
+lazy import numpy as np
+lazy from pandas import DataFrame
 
-lazy import numpy as np          # 延遲匯入
-lazy from pandas import DataFrame  # 延遲匯入特定名稱
-
-# np 和 DataFrame 在實際使用前不會被載入
-# 這對大型套件（如 numpy、pandas）特別有用
-# 可顯著加速程式啟動時間
+# 此時 numpy 與 pandas 都尚未載入，程式啟動不受其影響
+def analyze(path: str):
+    df = DataFrame()        # 到這一行才真正載入 pandas
+    return np.mean(df.values)
 ```
+
+對匯入大型套件的 CLI 工具，啟動時間改善相當可觀。三種控制方式：
+
+| 方式 | 用途 |
+| --- | --- |
+| `lazy import` 語句 | 逐條指定，最精確 |
+| `-X lazy_imports` / `PYTHON_LAZY_IMPORTS` | 全域啟用，適合 CLI 入口 |
+| 模組層級 `__lazy_modules__` 清單 | 供向後相容，不需改寫 import 語句 |
+
+> **注意**：具有匯入副作用的模組（例如在匯入時註冊 plugin 或修改全域狀態）不適合延遲匯入，副作用發生的時機會改變。
 
 ##### frozendict 內建型別 (PEP 814)
+
 ```python
-# Python 3.15 引入不可變字典型別
+# frozendict 進入 builtins，與 frozenset 地位相同，不需匯入
 config = frozendict({"host": "localhost", "port": 8080})
 
-# 不可變 → 可作為字典的鍵或放入集合
+# 所有鍵與值皆可雜湊時，frozendict 本身即可雜湊
 settings_cache = {config: "cached_result"}
 
-# 嘗試修改會拋出 TypeError
-# config["host"] = "remote"  # TypeError
+config["host"] = "remote"   # TypeError：不支援項目指派
+
+# 保留插入順序，但比較時忽略順序
+assert frozendict({"a": 1, "b": 2}) == frozendict({"b": 2, "a": 1})
 ```
 
-##### 效能分析套件 (PEP 799)
+適用於「想傳出設定字典但不希望呼叫端改動」的場合，可取代過去的防禦性複製。`copy`、`json`、`pickle`、`pprint` 等模組均已支援。
+
+##### 推導式支援解包 (PEP 798)
+
 ```python
-# Python 3.15 標準函式庫新增 profiling 套件
-# 包含 Tachyon 取樣分析器
+# 串列、集合、字典推導式與生成器運算式都支援 * 與 ** 解包
+lists = [[1, 2], [3, 4], [5]]
+flat = [*L for L in lists]              # [1, 2, 3, 4, 5]
 
-import profiling
-
-# 使用取樣分析器（低開銷）
-with profiling.SamplingProfiler() as profiler:
-    # 執行要分析的程式碼
-    result = sum(i ** 2 for i in range(1000000))
-
-profiler.print_stats()
+# 取代過去的巢狀寫法 [x for L in lists for x in L]
+dicts = [{"a": 1}, {"b": 2}]
+merged = {**d for d in dicts}           # {'a': 1, 'b': 2}
 ```
 
-#### 💡 版本遷移建議
+##### sentinel 內建型別 (PEP 661)
 
-```
-Python 版本選擇建議（2025 年）：
-- 新專案：建議使用 Python 3.12 或 3.13
-- 生產環境：3.12（穩定版）或 3.13
-- 學習/實驗：3.14（享受最新特性）
+用於區分「沒有傳入參數」與「傳入了 `None`」，取代過去自訂哨兵物件的各種土法：
 
-升級注意事項：
-1. 使用 pyupgrade 自動更新語法
-2. 執行完整測試套件
-3. 檢查第三方套件相容性
-4. 逐步遷移，避免跨多個主要版本
+```python
+MISSING = sentinel("MISSING")
+
+def update(value=MISSING):
+    if value is MISSING:
+        return "未提供參數"
+    return f"設定為 {value}"   # 包含 value=None 的情況
+
+update()        # '未提供參數'
+update(None)    # '設定為 None'
 ```
+
+哨兵物件具有簡潔的 `repr`、複製後維持同一性，且可被 pickle。
+
+##### 型別系統強化
+
+| PEP | 內容 |
+| --- | --- |
+| PEP 800 | Disjoint bases：讓型別檢查器理解兩個類別永不共用實例，強化 `isinstance` 的型別窄化 |
+| PEP 728 | `TypedDict` 支援宣告額外項目的型別 |
+| PEP 747 | `TypeForm`，可標註「型別本身」作為值傳遞 |
+
+##### 效能分析套件 (PEP 799) 與 Tachyon
+
+標準函式庫新增 `profiling` 套件，把既有的分析工具整理到統一命名空間下，並加入全新的高頻取樣分析器 **Tachyon**：
+
+```bash
+# 取樣分析器：對執行中的程序取樣，不需修改程式碼，開銷極低
+python -m profiling.sampling -p 12345
+
+# 分析一支腳本並輸出火焰圖
+python -m profiling.sampling --flamegraph -o profile.html my_script.py
+```
+
+```python
+# 傳統的確定性追蹤分析器移到 profiling.tracing
+from profiling import tracing
+
+tracing.run("sum(i ** 2 for i in range(1_000_000))")
+```
+
+- `profiling.sampling`（Tachyon）：取樣率最高可達 1,000,000 Hz，支援 wall-clock／CPU／GIL 持有時間等多種模式，輸出格式含 pstats、collapsed stacks、flamegraph、gecko、heatmap 與即時 TUI，並支援非同步程式的分析。
+- `profiling.tracing`：確定性追蹤，`cProfile` 保留為相容別名；舊的 `profile` 模組已棄用，預計 3.17 移除。
+
+##### JIT 效能提升
+
+3.13 引入的 copy-and-patch JIT 在 3.15 大幅升級，相對於標準直譯器的幾何平均提升：**x86-64 Linux 約 8–9%**、**AArch64 macOS 約 12–13%**。同時 PEP 831 讓 CPython 預設保留 frame pointer，使 `perf` 等系統級分析器能正確還原 Python 堆疊。
+
+##### 其他變更與棄用
+
+| 項目 | 說明 |
+| --- | --- |
+| `math.integer`（PEP 791） | 新模組，收納整數專用的數學函式 |
+| `re.prefixmatch()` | 新名稱；`re.match()` 語意易混淆，已軟性棄用 |
+| `tomllib` | 支援 TOML 1.1.0 |
+| `asyncio` | 新增 `TaskGroup.cancel()` 可提早中止整個任務群組 |
+| `subprocess` | Linux 5.3+ 上 `Popen.wait()` 改為事件驅動，不再輪詢 |
+| `threading` | 新增 `serialize_iterator()`、`synchronized_iterator()`、`concurrent_tee()`，配合 free-threaded 使用 |
+| `sqlite3` | CLI 支援 SQL 關鍵字與資料表名稱補全、彩色輸出 |
+| 錯誤訊息 | 巢狀屬性建議（`Did you mean '.inner.area'?`）、跨語言方法名提示（`.push()` → `.append()`） |
+| 移除 | `__cached__` 模組屬性（自 3.13 起棄用） |
+
+#### 2.5.6 版本生命週期與遷移策略
+
+##### 版本選擇建議（2026 年基準）
+
+| 情境 | 建議版本 | 理由 |
+| --- | --- | --- |
+| 新專案 | **3.14** | 處於 bugfix 階段，生態系相容性已成熟 |
+| 既有生產系統 | 3.13 或 3.14 | 皆在 bugfix 階段，可持續取得缺陷修補 |
+| 停留在 3.12 | 排定升級 | 已進入 security-only，不再修補一般缺陷 |
+| 停留在 3.10／3.9 | **立即汰換** | 3.9 已 EOL；3.10 於 2026-10 EOL |
+| 需要 CPU 平行 | 3.14 free-threaded（`python3.14t`） | PEP 779 起為正式支援，效能損耗已降至 5–10% |
+| 前瞻評估 | 3.15 | 先加入 CI 矩陣測試，重點驗證 PEP 686 的編碼變更 |
+
+##### 升級作業流程
+
+```bash
+# 1. 以新版本建立平行環境，不動既有環境
+uv venv --python 3.14 .venv-314
+
+# 2. 檢查第三方套件是否支援目標版本
+uv pip install --python .venv-314 -r requirements.txt
+
+# 3. 自動更新語法至目標版本慣用寫法
+uv run pyupgrade --py314-plus $(git ls-files '*.py')
+# 或使用 ruff 的 pyupgrade 規則集
+uv run ruff check --select UP --fix .
+
+# 4. 開啟棄用警告執行完整測試套件，讓問題浮現
+uv run --python .venv-314 python -W error::DeprecationWarning -m pytest
+
+# 5. 升級到 3.15 前，先找出所有未指定 encoding 的檔案操作
+uv run python -X warn_default_encoding -m pytest
+```
+
+##### 升級注意事項
+
+1. **一次跨一個版本**：3.11 → 3.12 → 3.13，不要直接從 3.9 跳到 3.14，問題難以歸因。
+2. **在 CI 中加入目標版本的矩陣**：正式切換前讓新版本先跑上數週。
+3. **優先檢查 C 擴充套件**：純 Python 套件通常無痛，含原生擴充者（numpy、pandas、lxml、psycopg）需確認已發布對應 ABI 的 wheel。
+4. **free-threaded 建置需獨立驗證**：套件即使支援 3.14，也未必支援 3.14t。
+5. **鎖定版本後再升級**：先有 `uv.lock` 或 `pylock.toml`，才能在出問題時精確回退。
+
+---
+
+### 2.6 非同步與併發程式設計
+
+#### 🎯 學習目標
+
+- 依工作性質（I/O-bound vs CPU-bound）正確選擇併發模型
+- 掌握 `async`／`await` 與事件迴圈的運作方式
+- 使用 `TaskGroup` 撰寫具備結構化併發保證的程式
+- 了解 free-threaded 與子直譯器在 CPU 平行上的定位與限制
+- 辨識並避免非同步程式的常見反模式
+
+#### 2.6.1 併發模型選型
+
+Python 提供的併發機制不只一種，選錯模型會讓效能不升反降。**先判斷工作是 I/O-bound 還是 CPU-bound，再選模型。**
+
+| 模型 | 適用工作 | 平行執行 CPU？ | 記憶體共享 | 典型場景 |
+| --- | --- | --- | --- | --- |
+| `asyncio` | I/O-bound、高併發 | 否（單執行緒） | 共享 | 大量網路請求、Web 服務、爬蟲 |
+| `threading` | I/O-bound、阻塞式 API | 否（受 GIL 限制） | 共享 | 呼叫沒有 async 版本的阻塞式函式庫 |
+| `multiprocessing` | CPU-bound | 是 | 不共享（需序列化） | 影像處理、數值運算 |
+| free-threaded（3.14+） | CPU-bound、需共享狀態 | **是** | 共享 | 記憶體中的大型資料結構平行處理 |
+| 子直譯器（3.14+） | CPU-bound、需隔離 | **是** | 不共享（同行程） | 外掛沙箱、多租戶工作負載 |
+
+**判斷準則：**
+
+- 程式大部分時間在**等待**（網路、磁碟、資料庫）→ `asyncio`；若函式庫沒有 async 版本則用 `threading`。
+- 程式大部分時間在**計算** → `multiprocessing`；若資料量大到序列化成本無法接受，改用 free-threaded。
+- 需要隔離、避免互相影響 → 子直譯器。
+
+```python
+# 快速判斷：用 time 分別量測 CPU 時間與牆鐘時間
+import time
+
+t_wall = time.perf_counter()
+t_cpu = time.process_time()
+
+do_work()
+
+wall = time.perf_counter() - t_wall
+cpu = time.process_time() - t_cpu
+# cpu / wall 接近 1 → CPU-bound；接近 0 → I/O-bound
+print(f"CPU 佔比: {cpu / wall:.1%}")
+```
+
+#### 2.6.2 asyncio 基礎
+
+##### 協程與事件迴圈
+
+```python
+import asyncio
+
+async def fetch_user(user_id: int) -> dict:
+    """以 async def 定義的函式稱為協程 (coroutine)"""
+    await asyncio.sleep(0.5)        # 模擬 I/O 等待，期間事件迴圈可執行其他任務
+    return {"id": user_id, "name": f"User{user_id}"}
+
+async def main() -> None:
+    # 直接 await：循序執行，總耗時 1.0 秒
+    a = await fetch_user(1)
+    b = await fetch_user(2)
+    print(a, b)
+
+asyncio.run(main())     # 建立事件迴圈、執行 main()、結束後關閉迴圈
+```
+
+**關鍵觀念**：`await` 讓出控制權給事件迴圈，不是「平行執行」。單純連續 `await` 仍是循序的——要真正併發，必須先把協程包成任務。
+
+##### 併發執行多個任務
+
+```python
+async def main() -> None:
+    # 方式一：gather —— 併發執行並依序取得結果，總耗時 0.5 秒
+    results = await asyncio.gather(
+        fetch_user(1),
+        fetch_user(2),
+        fetch_user(3),
+    )
+    print(results)
+
+    # 方式二：as_completed —— 誰先完成先處理，適合逐筆串流輸出
+    tasks = [fetch_user(i) for i in range(5)]
+    for coro in asyncio.as_completed(tasks):
+        result = await coro
+        print(f"完成: {result}")
+```
+
+##### 把阻塞式函式接進事件迴圈
+
+事件迴圈是單執行緒的，**任何阻塞呼叫都會凍結整個迴圈**。使用 `asyncio.to_thread()` 將其移至執行緒池：
+
+```python
+import asyncio
+import requests          # 同步的 HTTP 函式庫，會阻塞
+
+async def fetch_sync_api(url: str) -> str:
+    # 錯誤：直接呼叫會阻塞整個事件迴圈
+    # return requests.get(url).text
+
+    # 正確：丟到執行緒池，事件迴圈得以繼續運作
+    response = await asyncio.to_thread(requests.get, url)
+    return response.text
+```
+
+> 更好的做法是改用原生支援非同步的函式庫，例如以 `httpx` 或 `aiohttp` 取代 `requests`。
+
+#### 2.6.3 結構化併發
+
+##### TaskGroup（Python 3.11+）
+
+`TaskGroup` 保證「離開 `async with` 區塊時，所有子任務必定已完成或已被取消」，杜絕任務洩漏：
+
+```python
+import asyncio
+
+async def fetch_data(url: str) -> str:
+    await asyncio.sleep(1)
+    return f"Data from {url}"
+
+async def main() -> None:
+    async with asyncio.TaskGroup() as tg:
+        t1 = tg.create_task(fetch_data("https://api.example.com/users"))
+        t2 = tg.create_task(fetch_data("https://api.example.com/products"))
+        t3 = tg.create_task(fetch_data("https://api.example.com/orders"))
+    # 離開區塊時，三個任務都已結束，可安全取結果
+    print(t1.result(), t2.result(), t3.result())
+
+asyncio.run(main())
+```
+
+**與 `gather` 的差別**：任一子任務拋出例外時，`TaskGroup` 會**自動取消其餘任務**，並以 `ExceptionGroup` 一次回報所有錯誤；`gather` 預設會讓其他任務繼續跑完。
+
+```python
+async def unreliable(n: int) -> int:
+    await asyncio.sleep(n * 0.1)
+    if n == 2:
+        raise ValueError(f"任務 {n} 失敗")
+    return n
+
+async def main() -> None:
+    try:
+        async with asyncio.TaskGroup() as tg:
+            for i in range(5):
+                tg.create_task(unreliable(i))
+    except* ValueError as eg:
+        # 以 except* 處理例外群組，見 1.3.3 例外處理
+        for e in eg.exceptions:
+            print(f"捕捉到: {e}")
+```
+
+> Python 3.15 起新增 `TaskGroup.cancel()`，可在區塊內主動中止整個群組（例如已取得足夠結果時）。
+
+##### 逾時控制
+
+```python
+async def main() -> None:
+    # asyncio.timeout()：Python 3.11+ 的建議寫法
+    try:
+        async with asyncio.timeout(2.0):
+            await fetch_data("https://slow.example.com")
+    except TimeoutError:
+        print("請求逾時")
+
+    # 需要動態延長期限時
+    async with asyncio.timeout(5.0) as cm:
+        await first_step()
+        cm.reschedule(asyncio.get_running_loop().time() + 10.0)
+        await second_step()
+```
+
+##### 取消與清理
+
+```python
+async def worker() -> None:
+    try:
+        while True:
+            await do_one_unit()
+    except asyncio.CancelledError:
+        await cleanup()      # 清理資源
+        raise                # 務必重新拋出，否則取消機制會失效
+```
+
+> **常見錯誤**：捕捉 `CancelledError` 後不重新拋出，會讓 `TaskGroup` 與 `timeout` 無法正常終止任務。
+
+#### 2.6.4 同步原語與佇列
+
+即使 asyncio 是單執行緒，只要在 `await` 之間存取共享狀態，仍可能出現競態條件：
+
+```python
+import asyncio
+
+# Semaphore：限制同時進行的請求數，避免打爆對方伺服器
+semaphore = asyncio.Semaphore(10)
+
+async def fetch_limited(url: str) -> str:
+    async with semaphore:
+        return await fetch(url)
+
+# Lock：保護跨 await 的臨界區
+lock = asyncio.Lock()
+balance = 0
+
+async def deposit(amount: int) -> None:
+    global balance
+    async with lock:
+        current = balance
+        await asyncio.sleep(0)      # 沒有 lock 的話，這裡會讓出控制權造成競態
+        balance = current + amount
+```
+
+##### 生產者—消費者模式
+
+```python
+async def producer(queue: asyncio.Queue[int], n: int) -> None:
+    for i in range(n):
+        await queue.put(i)
+    await queue.join()              # 等待所有項目被處理完畢
+
+async def consumer(queue: asyncio.Queue[int], worker_id: int) -> None:
+    while True:
+        item = await queue.get()
+        try:
+            await process(item)
+        finally:
+            queue.task_done()       # 務必在 finally 中呼叫
+
+async def main() -> None:
+    queue: asyncio.Queue[int] = asyncio.Queue(maxsize=100)  # 設上限以產生背壓
+    async with asyncio.TaskGroup() as tg:
+        workers = [tg.create_task(consumer(queue, i)) for i in range(5)]
+        await producer(queue, 1000)
+        for w in workers:
+            w.cancel()              # 佇列清空後收掉消費者
+```
+
+#### 2.6.5 free-threaded 與子直譯器實戰
+
+##### free-threaded 建置（PEP 703／PEP 779）
+
+自 Python 3.14 起，free-threaded 建置為**正式支援**（3.13 時僅為實驗性），可讓多執行緒真正平行使用多核心：
+
+```bash
+# 以 uv 安裝 free-threaded 版本
+uv python install 3.14t
+uv run --python 3.14t python -c "import sys; print(sys._is_gil_enabled())"   # False
+```
+
+```python
+from concurrent.futures import ThreadPoolExecutor
+
+def cpu_bound(n: int) -> int:
+    return sum(i * i for i in range(n))
+
+# 標準建置：受 GIL 限制，多執行緒對 CPU 密集工作幾乎沒有加速
+# free-threaded 建置：可線性擴展到多核心，且執行緒間共享記憶體、無序列化成本
+with ThreadPoolExecutor(max_workers=8) as pool:
+    results = list(pool.map(cpu_bound, [10**7] * 8))
+```
+
+**導入注意事項：**
+
+- 需另行安裝，可執行檔名為 `python3.14t`，與一般建置並存。
+- 相較預設建置，單執行緒效能損耗約 **5–10%**（3.13 時約 40%）。
+- **C 擴充套件必須另行編譯支援**，尚未支援者會退回啟用 GIL；升級前務必確認 numpy、pandas 等關鍵依賴的支援狀況。
+- 原本被 GIL 意外「保護」的競態條件會浮現，共享狀態需明確加鎖。
+
+##### 子直譯器（PEP 734）
+
+若需要平行又要隔離，子直譯器是比 `multiprocessing` 更輕量的選擇——同一行程、無行程建立成本，但各自擁有獨立的 GIL 與模組狀態。用法見 [2.5.4 Python 3.14 新特性](#254-python-314-新特性2025-年-10-月發布)。
+
+##### 三者取捨
+
+| 面向 | multiprocessing | free-threaded | 子直譯器 |
+| --- | --- | --- | --- |
+| 平行 CPU | 是 | 是 | 是 |
+| 資料傳遞成本 | 高（跨行程序列化） | 極低（直接共享） | 中（同行程但需序列化） |
+| 隔離性 | 最高 | 無 | 高 |
+| 啟動成本 | 高 | 極低 | 低 |
+| 生態系支援 | 成熟 | 發展中 | 發展中 |
+
+#### 2.6.6 除錯、觀測與常見反模式
+
+##### 線上診斷
+
+```bash
+# 找出卡住的任務（Python 3.14+）
+python -m asyncio ps 12345
+python -m asyncio pstree 12345
+
+# 附掛到執行中的程序除錯（PEP 768）
+python -m pdb -p 12345
+
+# 非同步感知的取樣分析（Python 3.15+）
+python -m profiling.sampling -p 12345
+```
+
+##### 開發期偵錯模式
+
+```python
+# 啟用 debug 模式：偵測未被 await 的協程、執行過久的回呼
+asyncio.run(main(), debug=True)
+# 或以環境變數 PYTHONASYNCIODEBUG=1 啟用
+```
+
+##### 常見反模式
+
+| 反模式 | 後果 | 正確做法 |
+| --- | --- | --- |
+| 在協程中呼叫 `time.sleep()`、`requests.get()` 等阻塞函式 | 整個事件迴圈凍結 | 改用 `asyncio.sleep()`、`httpx`，或包 `asyncio.to_thread()` |
+| 忘記 `await`，只呼叫協程 | 協程從未執行，發出 `RuntimeWarning` | 開啟 `debug=True` 及早發現 |
+| `asyncio.create_task()` 後不保留參考 | 任務可能被 GC 回收而中途消失 | 使用 `TaskGroup`，或把任務存進集合 |
+| 捕捉 `CancelledError` 後不重新拋出 | 取消與逾時機制失效 | `except asyncio.CancelledError: ...; raise` |
+| 無上限地 `gather` 數千個請求 | 耗盡連線與記憶體，或被對方限流 | 以 `Semaphore` 限制併發數 |
+| 用 `asyncio` 處理 CPU 密集工作 | 完全沒有加速，還增加複雜度 | 改用 `multiprocessing` 或 free-threaded |
+
+#### 💡 實務案例
+
+**帶重試、限流與逾時的併發抓取器：**
+
+```python
+import asyncio
+import httpx
+
+async def fetch_with_retry(
+    client: httpx.AsyncClient,
+    url: str,
+    semaphore: asyncio.Semaphore,
+    max_retries: int = 3,
+) -> str | None:
+    """限流 + 逾時 + 指數退避重試"""
+    async with semaphore:
+        for attempt in range(max_retries):
+            try:
+                async with asyncio.timeout(10.0):
+                    response = await client.get(url)
+                    response.raise_for_status()
+                    return response.text
+            except (httpx.HTTPError, TimeoutError) as e:
+                if attempt == max_retries - 1:
+                    print(f"{url} 最終失敗: {e}")
+                    return None
+                # 指數退避：1s, 2s, 4s
+                await asyncio.sleep(2 ** attempt)
+    return None
+
+async def fetch_all(urls: list[str], concurrency: int = 10) -> dict[str, str]:
+    semaphore = asyncio.Semaphore(concurrency)
+    results: dict[str, str] = {}
+
+    async with httpx.AsyncClient() as client:
+        async with asyncio.TaskGroup() as tg:
+            tasks = {
+                url: tg.create_task(fetch_with_retry(client, url, semaphore))
+                for url in urls
+            }
+
+    for url, task in tasks.items():
+        if (content := task.result()) is not None:
+            results[url] = content
+    return results
+
+if __name__ == "__main__":
+    urls = [f"https://example.com/page/{i}" for i in range(100)]
+    data = asyncio.run(fetch_all(urls))
+    print(f"成功取得 {len(data)} / {len(urls)} 筆")
+```
+
+#### ⚠️ 注意事項
+
+1. **不要混用模型**：在同一段邏輯中同時使用 `asyncio` 與 `threading` 共享狀態，是極難除錯的來源。
+2. **事件迴圈只有一個**：`asyncio.run()` 不可巢狀呼叫；在已有迴圈的環境（如 Jupyter）中請用 `await` 而非 `asyncio.run()`。
+3. **加上背壓**：佇列與併發數一定要設上限，否則負載尖峰時會耗盡記憶體。
+4. **free-threaded 不是免費午餐**：GIL 移除後，過去偶然安全的程式碼可能開始出錯。
+5. **先量測再優化**：多數「效能問題」其實是單一慢查詢或 N+1 問題，改用非同步並不會解決。
+
+#### 📝 小測驗
+
+1. `await asyncio.sleep(1)` 與 `time.sleep(1)` 在協程中的差別是什麼？
+2. `asyncio.gather()` 與 `asyncio.TaskGroup` 在某個子任務失敗時的行為有何不同？
+3. 為什麼 `asyncio.create_task()` 的回傳值需要保留參考？
+4. CPU 密集的工作應該選哪種併發模型？為什麼不是 `asyncio`？
+5. 在協程中捕捉 `asyncio.CancelledError` 後，為什麼必須重新拋出？
+
+**參考答案：**
+
+1. `asyncio.sleep()` 讓出控制權給事件迴圈，其他任務可繼續執行；`time.sleep()` 阻塞整個執行緒，事件迴圈完全停擺。
+2. `TaskGroup` 會取消其餘所有子任務並以 `ExceptionGroup` 一次回報；`gather()` 預設讓其他任務繼續執行完畢。
+3. 事件迴圈只持有任務的弱參考，沒有強參考時任務可能在執行途中被垃圾回收而消失。
+4. `multiprocessing` 或 free-threaded 建置。`asyncio` 是單執行緒協作式排程，CPU 密集工作不會讓出控制權，無法取得任何平行加速。
+5. 不重新拋出等於「拒絕被取消」，會讓 `TaskGroup` 與 `asyncio.timeout()` 的取消機制失效，導致程式掛住。
+
+#### 🏷️ 認證考試對應
+
+- **PCAP**: 模組 5 - Miscellaneous（生成器、迭代器與進階函式概念）
+- **企業實務**：非同步與併發非 PCEP／PCAP 考試範圍，但屬於企業級 Python 開發的核心能力
 
 ---
 
@@ -4299,6 +5366,7 @@ Python 版本選擇建議（2025 年）：
 ### 3.1 程式碼風格與規範
 
 #### 🎯 學習目標
+
 - 掌握 PEP 8 程式碼風格規範
 - 學習撰寫乾淨且可維護的程式碼
 - 了解程式碼檢查工具的使用
@@ -4307,6 +5375,7 @@ Python 版本選擇建議（2025 年）：
 #### 3.1.1 PEP 8 風格指南
 
 ##### 命名慣例
+
 ```python
 # 正確的命名方式
 
@@ -4349,6 +5418,7 @@ class BankAccount:
 ```
 
 ##### 程式碼佈局
+
 ```python
 # 匯入順序
 import os           # 標準庫
@@ -4407,6 +5477,7 @@ last_part = text[6:]
 ```
 
 ##### 行長度與換行
+
 ```python
 # 每行最多 79 字元（程式碼）或 72 字元（註解）
 
@@ -4446,6 +5517,7 @@ if ((user.is_authenticated() and user.has_permission('read')) and
 #### 3.1.2 文件字串與註解
 
 ##### 文件字串 (Docstrings)
+
 ```python
 def calculate_discount(price, discount_rate, member_type="regular"):
     """
@@ -4519,6 +5591,7 @@ class UserManager:
 ```
 
 ##### 註解最佳實務
+
 ```python
 def process_payment(amount, payment_method):
     """處理付款"""
@@ -4556,7 +5629,95 @@ x = x + 1  # 好：補償邊界條件造成的偏移
 
 #### 3.1.3 程式碼檢查工具
 
+Python 的程式碼品質工具可分為三類，缺一不可：
+
+| 類別 | 作用 | 現代首選 | 傳統組合 |
+| --- | --- | --- | --- |
+| Linter | 找出錯誤與不良寫法 | **Ruff** | pylint、flake8 |
+| Formatter | 統一排版 | **Ruff format** | black |
+| 型別檢查 | 驗證型別一致性 | **mypy** 或 **pyright** | （無傳統對應） |
+
+##### 使用 Ruff（建議首選）
+
+Ruff 以 Rust 實作，在單一工具中重新實作了 flake8 及其數十個外掛、isort、pyupgrade、bandit 等規則，執行速度通常快上 10～100 倍。自 2025 年起已成為新專案的預設選擇。
+
+```bash
+# 安裝
+uv add --dev ruff
+
+# 檢查（取代 flake8 / pylint）
+uv run ruff check .
+
+# 自動修正可修復的問題
+uv run ruff check --fix .
+
+# 格式化（取代 black）
+uv run ruff format .
+
+# CI 模式：只檢查不修改，有問題即回傳非零結束碼
+uv run ruff check --no-fix .
+uv run ruff format --check .
+```
+
+設定集中在 `pyproject.toml`，不需要額外的 `.flake8`、`.isort.cfg`：
+
+```toml
+[tool.ruff]
+line-length = 88
+target-version = "py314"
+exclude = [".git", "__pycache__", ".venv", "build", "dist"]
+
+[tool.ruff.lint]
+# 選用規則集：每個字母前綴對應一組原本獨立的工具
+select = [
+    "E", "W",   # pycodestyle：PEP 8 排版
+    "F",        # Pyflakes：未使用的匯入、未定義的名稱
+    "I",        # isort：匯入排序
+    "UP",       # pyupgrade：自動採用新版語法
+    "B",        # flake8-bugbear：常見的邏輯陷阱
+    "SIM",      # flake8-simplify：可簡化的寫法
+    "S",        # flake8-bandit：安全性問題（見 3.4.2）
+    "ANN",      # flake8-annotations：要求型別標註
+]
+ignore = [
+    "E501",     # 行長度交由 formatter 處理
+    "ANN101",   # 不要求標註 self
+]
+
+[tool.ruff.lint.per-file-ignores]
+# 測試檔案允許 assert 與缺少標註
+"tests/**/*.py" = ["S101", "ANN"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["myproject"]
+```
+
+**從舊工具遷移的對應關係：**
+
+| 舊工具 | Ruff 對應規則集 | 說明 |
+| --- | --- | --- |
+| flake8 | `E`, `W`, `F` | 核心規則完全覆蓋 |
+| isort | `I` | `ruff check --select I --fix` 即可排序 |
+| black | `ruff format` | 格式化結果與 black 高度相容 |
+| pyupgrade | `UP` | 自動升級語法至 `target-version` |
+| bandit | `S` | 安全性檢查 |
+| pylint | 部分（`PL` 前綴） | pylint 的跨檔案分析與設計類警告尚未完全覆蓋，對品質要求極高的專案可兩者並用 |
+
+##### 型別檢查工具
+
+型別檢查與 linter 是互補的，Ruff 不做型別推斷。詳見 [1.2.5 型別提示](#125-型別提示-type-hints)。
+
+```bash
+uv run mypy src/          # 規則最貼近 PEP 定義
+uv run pyright src/       # 速度快、推斷積極，Pylance 的底層引擎
+```
+
+##### 傳統工具組合（維護既有專案時仍會遇到）
+
+以下四項在新專案中已可由 Ruff 單一工具取代，但既有專案的維護、以及認證考試的名詞辨識仍需了解。
+
 ##### 使用 pylint
+
 ```bash
 # 安裝 pylint
 pip install pylint
@@ -4575,6 +5736,7 @@ pylint --disable=C0103,R0903 my_script.py
 ```
 
 ##### 使用 flake8
+
 ```bash
 # 安裝 flake8
 pip install flake8
@@ -4593,6 +5755,7 @@ exclude =
 ```
 
 ##### 使用 black (程式碼格式化)
+
 ```bash
 # 安裝 black
 pip install black
@@ -4611,6 +5774,7 @@ black --diff my_script.py
 ```
 
 ##### 使用 isort (匯入排序)
+
 ```bash
 # 安裝 isort
 pip install isort
@@ -4631,6 +5795,7 @@ multi_line_output = 3
 #### 3.1.4 程式碼品質實務
 
 ##### 函式設計原則
+
 ```python
 # 單一職責原則 - 每個函式只做一件事
 def calculate_tax(income):
@@ -4685,15 +5850,19 @@ def process_order(order_data):
 ```
 
 ##### 錯誤處理最佳實務
+
 ```python
 import logging
-from typing import Optional, List, Dict, Any
+from typing import Any
 
 # 設定日誌
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def safe_divide(a: float, b: float) -> Optional[float]:
+# Python 3.9+ 可直接使用內建型別作為泛型（list[int]、dict[str, Any]）
+# Python 3.10+ 可用 X | None 取代 Optional[X]
+# typing.List / typing.Dict / typing.Optional 已不建議在新程式碼中使用
+def safe_divide(a: float, b: float) -> float | None:
     """
     安全除法，處理除零錯誤
     
@@ -4713,7 +5882,7 @@ def safe_divide(a: float, b: float) -> Optional[float]:
         logger.error(f"型別錯誤: {e}")
         return None
 
-def process_user_data(user_data: Dict[str, Any]) -> bool:
+def process_user_data(user_data: dict[str, Any]) -> bool:
     """
     處理使用者資料，包含完整的錯誤處理
     
@@ -4771,7 +5940,8 @@ def validate_business_rules(data):
 #### 💡 實務案例
 
 **專案結構範例：**
-```
+
+```text
 my_python_project/
 │
 ├── src/                    # 原始碼目錄
@@ -4828,6 +5998,7 @@ my_python_project/
 5. 什麼是單一職責原則？
 
 **參考答案：**
+
 1. 79 字元（程式碼）或 72 字元（註解）
 2. PascalCase（每個單字首字母大寫）
 3. 以雙底線開頭（如 `__private_attr`）
@@ -4835,6 +6006,7 @@ my_python_project/
 5. 一個函式或類別應該只有一個改變的理由，專注於單一功能
 
 #### 🏷️ 認證考試對應
+
 - **PCEP**: 模組 4 - 函式、元組、字典、例外處理（部分）
 - **PCAP**: 模組 2 - 模組和套件（部分）
 
@@ -4843,6 +6015,7 @@ my_python_project/
 ### 3.2 專案開發實務
 
 #### 🎯 學習目標
+
 - 掌握專案結構設計原則
 - 學習版本控制的最佳實務
 - 了解持續整合與部署概念
@@ -4851,14 +6024,19 @@ my_python_project/
 #### 3.2.1 專案結構設計
 
 ##### 標準專案結構
-```
+
+採用 **src-layout**（原始碼放在 `src/` 下）是目前的建議做法：測試時必須先安裝套件才能匯入，可及早發現封裝設定錯誤，避免「本機能跑、安裝後卻缺檔案」的問題。
+
+```text
 my_python_project/
 │
 ├── README.md                 # 專案說明文件
-├── requirements.txt          # 依賴清單
-├── setup.py                  # 安裝腳本
+├── pyproject.toml            # 專案設定：中繼資料、依賴、工具設定（PEP 621／735）
+├── uv.lock                   # 鎖檔：確保可重現建置（須提交進版控）
+├── pylock.toml               # PEP 751 標準鎖檔（可由 uv export 產生）
 ├── .gitignore               # Git 忽略檔案
-├── .env.example             # 環境變數範例
+├── .env.example             # 環境變數範例（絕不提交 .env 本身）
+├── .pre-commit-config.yaml  # 提交前自動檢查
 ├── Makefile                 # 自動化腳本
 ├── LICENSE                  # 授權檔案
 │
@@ -4906,43 +6084,47 @@ my_python_project/
 ```toml
 # pyproject.toml
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
-build-backend = "setuptools.backends._legacy:_Backend"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "my-python-project"
 version = "0.1.0"
 description = "A sample Python project"
 readme = "README.md"
-license = {text = "MIT"}
-requires-python = ">=3.12"
+license = "MIT"
+requires-python = ">=3.13"
 authors = [
     {name = "Your Name", email = "your.email@example.com"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "requests>=2.31",
+    "httpx>=0.28",
 ]
 
+# 選用功能：使用者以 pip install my-python-project[redis] 取得
 [project.optional-dependencies]
+redis = ["redis>=5.2"]
+
+# PEP 735 依賴群組：開發期專用，不會發布也不會被下游安裝
+[dependency-groups]
 dev = [
-    "pytest>=8.0",
-    "black>=24.0",
-    "ruff>=0.4",
-    "mypy>=1.10",
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.8",
+    "mypy>=1.14",
+    "pip-audit>=2.7",
 ]
 docs = [
-    "sphinx>=7.0",
-    "sphinx-rtd-theme>=2.0",
+    "sphinx>=8.1",
+    "sphinx-rtd-theme>=3.0",
 ]
 
 [project.scripts]
@@ -4952,28 +6134,42 @@ myproject = "myproject.main:main"
 Homepage = "https://github.com/yourusername/my-python-project"
 Repository = "https://github.com/yourusername/my-python-project"
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.uv]
+# 預設同步哪些依賴群組
+default-groups = ["dev"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py312"
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B", "SIM", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.14"
 strict = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=src --cov-report=term-missing --strict-markers"
 ```
+
+**為什麼是 hatchling 而非 setuptools？**
+`setuptools` 仍可正常使用，但 `hatchling` 對 src-layout 零設定、不需要 `[tool.setuptools.packages.find]`，且是 PyPA 官方教學採用的建置後端。既有使用 `setuptools` 的專案不需要為此遷移。
 
 > 📝 **傳統 setup.py 方式**（舊專案參考）：
-> 如果需要支援較舊的建置工具，仍可使用 `setup.py`，但新專案強烈建議採用 `pyproject.toml`。
-```
+> 若需支援較舊的建置工具，仍可保留 `setup.py`，但新專案應一律採用 `pyproject.toml`。
+> 注意 `setup.py install` 已被移除，安裝一律改用 `pip install .`。
 
 ##### 配置管理
+
 ```python
 # src/myproject/config.py
 import os
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
 
 @dataclass
 class DatabaseConfig:
@@ -4988,7 +6184,9 @@ class AppConfig:
     debug: bool = False
     secret_key: str = "default-secret-key"
     log_level: str = "INFO"
-    database: DatabaseConfig = DatabaseConfig()
+    # 必須用 default_factory；直接寫 DatabaseConfig() 會拋出
+    # ValueError: mutable default ... for field database is not allowed
+    database: DatabaseConfig = field(default_factory=DatabaseConfig)
 
 def load_config() -> AppConfig:
     """從環境變數載入配置"""
@@ -5015,6 +6213,7 @@ config = load_config()
 #### 3.2.2 版本控制最佳實務
 
 ##### Git 工作流程
+
 ```bash
 # 專案初始化
 git init
@@ -5034,6 +6233,7 @@ git commit -m "refactor: 重構資料庫連接邏輯"
 ```
 
 ##### .gitignore 檔案
+
 ```gitignore
 # Python
 __pycache__/
@@ -5098,39 +6298,56 @@ Thumbs.db
 ```
 
 ##### Pre-commit Hooks
+
 ```yaml
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-merge-conflict
       - id: check-yaml
       - id: check-json
+      - id: check-added-large-files
 
-  - repo: https://github.com/psf/black
-    rev: 22.10.0
+  # Ruff 一次取代 black + flake8 + isort
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.6
     hooks:
-      - id: black
-        language_version: python3
-
-  - repo: https://github.com/pycqa/flake8
-    rev: 5.0.4
-    hooks:
-      - id: flake8
+      - id: ruff              # 檢查
+        args: [--fix]
+      - id: ruff-format       # 格式化
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.991
+    rev: v1.14.1
     hooks:
       - id: mypy
         additional_dependencies: [types-requests]
+
+  # 阻擋密鑰意外提交，見 3.4.3
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+```
+
+```bash
+# 安裝 hooks（只需執行一次）
+uv run pre-commit install
+
+# 對既有程式碼全面套用
+uv run pre-commit run --all-files
+
+# 定期更新 hook 版本
+uv run pre-commit autoupdate
 ```
 
 #### 3.2.3 持續整合與部署
 
 ##### GitHub Actions 配置
+
 ```yaml
 # .github/workflows/ci.yml
 name: CI/CD Pipeline
@@ -5145,48 +6362,64 @@ jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.12', '3.13', '3.14']
+        # 只保留仍在支援期內的版本；3.15 先行驗證相容性
+        python-version: ['3.13', '3.14', '3.15']
 
     steps:
     - uses: actions/checkout@v4
-    
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        enable-cache: true
+
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    
+      run: uv python install ${{ matrix.python-version }}
+
     - name: Install dependencies
+      # --frozen 確保完全依照鎖檔安裝，CI 不會意外升級依賴
+      run: uv sync --frozen --group dev
+
+    - name: Lint with Ruff
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r requirements-dev.txt
-    
-    - name: Lint with flake8
-      run: |
-        flake8 src tests --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 src tests --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    
+        uv run ruff check --output-format=github .
+        uv run ruff format --check .
+
     - name: Type check with mypy
-      run: mypy src
-    
+      run: uv run mypy src
+
     - name: Test with pytest
-      run: |
-        pytest tests/ --cov=src --cov-report=xml
-    
+      run: uv run pytest tests/ --cov=src --cov-report=xml
+
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v5
       with:
-        file: ./coverage.xml
+        files: ./coverage.xml
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v5
+
+    # 掃描相依套件的已知弱點，見 3.4.1
+    - name: Audit dependencies
+      run: uvx pip-audit --strict
+
+    # Ruff 的 S 規則集（bandit），見 3.4.2
+    - name: Static security analysis
+      run: uvx ruff check --select S .
 
   deploy:
-    needs: test
+    needs: [test, security]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
+    - uses: actions/checkout@v4
+
     - name: Deploy to production
       run: |
         echo "部署到生產環境"
@@ -5194,44 +6427,57 @@ jobs:
 ```
 
 ##### Docker 容器化
+
+以 uv 進行多階段建置：建置階段安裝依賴，執行階段只複製結果，映像更小且不含建置工具。
+
 ```dockerfile
 # Dockerfile
-FROM python:3.10-slim
+# ---------- 建置階段 ----------
+FROM ghcr.io/astral-sh/uv:python3.14-bookworm-slim AS builder
 
 WORKDIR /app
 
-# 安裝系統依賴
-RUN apt-get update && apt-get install -y \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
 
-# 複製依賴檔案
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# 先只複製依賴宣告，讓 Docker 層快取在原始碼變動時仍可重用
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project --no-dev
 
-# 複製源碼
+# 再複製原始碼並安裝專案本身
 COPY src/ ./src/
-COPY tests/ ./tests/
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
+
+# ---------- 執行階段 ----------
+FROM python:3.14-slim-bookworm
+
+WORKDIR /app
 
 # 建立非 root 用戶
 RUN useradd --create-home --shell /bin/bash app
+
+# 只複製建好的虛擬環境與原始碼，不帶入建置工具
+COPY --from=builder --chown=app:app /app/.venv /app/.venv
+COPY --from=builder --chown=app:app /app/src /app/src
+
 USER app
 
-# 設定環境變數
-ENV PYTHONPATH=/app/src
-ENV PYTHONUNBUFFERED=1
+ENV PATH="/app/.venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
 
-# 健康檢查
+# 健康檢查（使用標準函式庫，不必為此多裝套件）
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD python -c "import requests; requests.get('http://localhost:8000/health')"
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 
-# 啟動命令
 CMD ["python", "-m", "myproject.main"]
 ```
 
 ```yaml
 # docker-compose.yml
-version: '3.8'
+# 注意：Compose Specification 已不需要 version 欄位，新版會忽略並發出警告
 
 services:
   app:
@@ -5273,6 +6519,7 @@ volumes:
 #### 3.2.4 專案文件撰寫
 
 ##### README.md 範本
+
 ````markdown
 # My Python Project
 
@@ -5294,8 +6541,9 @@ volumes:
 
 ### 環境需求
 
-- Python 3.12+
+- Python 3.13+
 - Git
+- [uv](https://docs.astral.sh/uv/)（建議）
 
 ### 安裝步驟
 
@@ -5305,15 +6553,15 @@ volumes:
    cd project
    ```
 
-2. 建立虛擬環境
+2. 建立環境並安裝依賴
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # Windows: venv\Scripts\activate
-   ```
+   # 使用 uv（推薦）：依鎖檔還原完全一致的環境
+   uv sync
 
-3. 安裝依賴
-   ```bash
-   pip install -r requirements.txt
+   # 或使用標準工具
+   python -m venv .venv
+   source .venv/bin/activate  # Windows: .venv\Scripts\activate
+   pip install -e ".[dev]"
    ```
 
 4. 設定環境變數
@@ -5385,6 +6633,7 @@ black src tests
 ````
 
 ##### API 文件範例
+
 ````markdown
 # API 文件
 
@@ -5438,6 +6687,7 @@ if user:
 #### 💡 實務案例
 
 **完整專案範例：**
+
 ```python
 # src/myproject/main.py
 import logging
@@ -5493,6 +6743,7 @@ if __name__ == "__main__":
 5. 如何撰寫好的提交訊息？
 
 **參考答案：**
+
 1. 隔離專案依賴，避免版本衝突
 2. 自動執行測試和建置的過程，確保程式碼品質
 3. 環境一致性、可移植性、資源隔離
@@ -5500,6 +6751,7 @@ if __name__ == "__main__":
 5. 簡潔明確，使用動詞開頭，說明變更的目的
 
 #### 🏷️ 認證考試對應
+
 - **PCEP**: 不涉及（專案管理超出範圍）
 - **PCAP**: 模組 2 - 模組和套件（部分相關）
 
@@ -5508,6 +6760,7 @@ if __name__ == "__main__":
 ### 3.3 團隊協作工具
 
 #### 🎯 學習目標
+
 - 掌握協作開發工具的使用
 - 學習程式碼審查的最佳實務
 - 了解專案管理工具的應用
@@ -5516,6 +6769,7 @@ if __name__ == "__main__":
 #### 3.3.1 程式碼審查 (Code Review)
 
 ##### Pull Request 流程
+
 ```markdown
 ## Pull Request 範本
 
@@ -5552,6 +6806,7 @@ if __name__ == "__main__":
 ```
 
 ##### 程式碼審查指南
+
 ```python
 # 良好的程式碼審查實務
 
@@ -5607,6 +6862,7 @@ def handle_review_feedback():
 #### 3.3.2 專案管理工具
 
 ##### GitHub Issues 管理
+
 ```markdown
 <!-- Issue 範本 -->
 
@@ -5637,6 +6893,7 @@ def handle_review_feedback():
 ```
 
 ##### 專案看板管理
+
 ```python
 # 使用 GitHub Projects API 自動化專案管理
 
@@ -5710,6 +6967,7 @@ class ProjectManager:
 #### 3.3.3 溝通協作工具
 
 ##### 文件協作
+
 ```python
 # 使用 Sphinx 自動產生文件
 
@@ -5783,6 +7041,7 @@ Indices and tables
 ```
 
 ##### 團隊溝通規範
+
 ```markdown
 # 團隊溝通指南
 
@@ -5841,6 +7100,7 @@ Indices and tables
 #### 3.3.4 自動化工具
 
 ##### GitHub Actions 工作流程
+
 ```yaml
 # .github/workflows/auto-assign.yml
 name: Auto Assign
@@ -5877,6 +7137,7 @@ jobs:
 ```
 
 ##### 自動化腳本
+
 ```python
 #!/usr/bin/env python3
 # scripts/daily_report.py
@@ -5955,6 +7216,7 @@ if __name__ == "__main__":
 #### 💡 實務案例
 
 **完整協作工作流程：**
+
 ```python
 # 團隊協作工作流程自動化
 
@@ -6021,6 +7283,7 @@ class TeamCollaborationWorkflow:
 5. 如何選擇適合的團隊溝通工具？
 
 **參考答案：**
+
 1. 提高程式碼品質、知識分享、發現潛在問題
 2. 變更說明、測試資訊、相關議題、檢查清單
 3. 每日短時間會議，同步團隊進度和解決阻礙
@@ -6028,8 +7291,412 @@ class TeamCollaborationWorkflow:
 5. 考慮團隊規模、溝通需求、預算、整合能力
 
 #### 🏷️ 認證考試對應
+
 - **PCEP**: 不涉及（團隊協作超出範圍）
 - **PCAP**: 不涉及（團隊協作超出範圍）
+
+---
+
+### 3.4 安全性與供應鏈管理
+
+#### 🎯 學習目標
+
+- 建立相依套件的弱點掃描機制
+- 以靜態分析在提交前攔截安全問題
+- 正確管理密鑰與敏感設定
+- 透過鎖檔、SBOM 與 Trusted Publishing 確保供應鏈完整性
+- 辨識並避免 Python 特有的安全陷阱
+
+> 現代 Python 應用的攻擊面，多數不在自己寫的程式碼，而在**數百個遞移依賴**與**CI/CD 憑證**上。本節聚焦於這兩處。
+
+#### 3.4.1 相依套件弱點掃描
+
+一個典型的 Python 專案會間接引入數十至數百個套件，任何一個出現 CVE 都會影響整個應用。
+
+##### pip-audit
+
+PyPA 官方維護的弱點掃描工具，比對 PyPI Advisory Database 與 OSV 資料庫：
+
+```bash
+# 以 uvx 免安裝執行
+uvx pip-audit
+
+# 掃描目前環境
+uv run pip-audit
+
+# 掃描鎖檔而非已安裝環境（CI 建議做法，不需先建環境）
+uvx pip-audit -r pylock.toml
+
+# 發現任何弱點即失敗，用於 CI 閘門
+uvx pip-audit --strict
+
+# 嘗試自動升級到已修補的版本
+uvx pip-audit --fix
+```
+
+##### 分層防護策略
+
+| 層級 | 工具 | 時機 |
+| --- | --- | --- |
+| 開發者本機 | `pre-commit` + pip-audit | 提交前 |
+| Pull Request | CI 中的 `pip-audit --strict` | 每次 PR |
+| 持續監控 | GitHub Dependabot / Renovate | 每日自動掃描並開 PR |
+| 定期稽核 | SBOM 比對 | 每季 |
+
+```yaml
+# .github/dependabot.yml — 讓 Dependabot 自動監控並提出升級 PR
+version: 2
+updates:
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      # 把修補版更新合併成單一 PR，減少雜訊
+      patch-updates:
+        update-types: ["patch"]
+```
+
+> **實務建議**：不要對所有弱點一律阻擋。先依 CVSS 分數與「是否位於實際執行路徑上」分級，否則開發團隊會很快學會忽略警告。
+
+#### 3.4.2 靜態安全分析
+
+##### Ruff 的 S 規則集
+
+Ruff 已內建 bandit 的規則（`S` 前綴），不需要額外安裝工具：
+
+```bash
+uvx ruff check --select S .
+```
+
+```toml
+[tool.ruff.lint]
+select = ["E", "F", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+# 測試檔案中的 assert 是正常寫法，不應觸發 S101
+"tests/**/*.py" = ["S101"]
+```
+
+常見的 `S` 規則：
+
+| 規則 | 問題 |
+| --- | --- |
+| S101 | 使用 `assert`（最佳化模式 `-O` 下會被移除，不可用於安全檢查） |
+| S105／S106 | 疑似硬編碼的密碼 |
+| S301 | 使用 `pickle` 反序列化不可信資料 |
+| S307 | 使用 `eval` |
+| S324 | 使用不安全的雜湊演算法（MD5、SHA1） |
+| S501 | 停用 TLS 憑證驗證（`verify=False`） |
+| S602／S605 | 以 `shell=True` 執行子行程 |
+| S608 | 以字串拼接組出 SQL |
+
+##### Bandit（獨立工具）
+
+需要更詳盡的報告格式或 Ruff 尚未覆蓋的規則時：
+
+```bash
+uvx bandit -r src/ -f json -o bandit-report.json
+
+# 只回報中等以上嚴重度與信心度
+uvx bandit -r src/ -ll -ii
+```
+
+#### 3.4.3 密鑰與設定管理
+
+##### 基本原則
+
+1. **密鑰絕不進入原始碼與版本控制**——包括註解、測試資料與 Jupyter notebook 的輸出。
+2. **以環境變數注入**，不同環境使用不同的值。
+3. **提交 `.env.example` 而非 `.env`**，讓新成員知道需要哪些變數，但不洩漏實際值。
+
+```python
+# src/myproject/settings.py
+import os
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+class Settings(BaseSettings):
+    """以 pydantic-settings 讀取並驗證環境變數"""
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="forbid",       # 出現未宣告的變數即報錯，避免拼字錯誤被忽略
+    )
+
+    database_url: str
+    secret_key: str = Field(min_length=32)
+    debug: bool = False
+
+settings = Settings()   # 缺少必填變數時，啟動即失敗而非執行到一半才爆
+```
+
+> **為什麼要在啟動時驗證？** 設定錯誤應該讓程式立刻無法啟動（fail fast），而不是在半夜的尖峰時段才因為某個沒設到的變數而出錯。
+
+##### .gitignore 必備項目
+
+```gitignore
+# 密鑰與憑證，絕不可提交
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.yaml
+```
+
+##### 提交前攔截
+
+```yaml
+# .pre-commit-config.yaml 片段
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+```
+
+```bash
+# 建立基線：記錄已知的誤判，之後只對新出現的密鑰告警
+uvx detect-secrets scan > .secrets.baseline
+```
+
+> **密鑰一旦外洩就視為已失效**。從 Git 歷史中移除並不足夠——歷史可能已被複製、被搜尋引擎索引。**正確的處置順序是：先輪換金鑰，再清理歷史。**
+
+#### 3.4.4 供應鏈完整性
+
+##### 以鎖檔與雜湊驗證防範套件被竄改
+
+鎖檔記錄的不只是版本，還有每個發行檔的雜湊值。安裝時若雜湊不符即中止，可防範套件在傳輸途中或於 registry 上被替換：
+
+```bash
+# uv 預設驗證鎖檔中的雜湊
+uv sync --frozen
+
+# pip 的對應做法
+pip install --require-hashes -r requirements.txt
+```
+
+##### 依賴混淆與惡意套件
+
+| 攻擊手法 | 說明 | 防範 |
+| --- | --- | --- |
+| Typosquatting | 註冊 `reqeusts`、`python-dateutil` 等近似名稱 | 從官方文件複製套件名，不要手打 |
+| 依賴混淆 | 在公開 PyPI 註冊與內部私有套件同名的套件，讓解析器優先取得公開版本 | 為內部套件加上組織前綴；設定 `--index-strategy unsafe-best-match` 以外的嚴格來源策略 |
+| 帳號接管 | 維護者帳號被入侵後發布惡意版本 | 鎖檔 + 升級前檢視 changelog；啟用 Dependabot 的升級 PR 審查 |
+
+```toml
+# 明確指定索引來源，避免內部套件被公開同名套件取代
+[[tool.uv.index]]
+name = "internal"
+url = "https://pypi.internal.example.com/simple"
+explicit = true            # 只有明確指定的套件才從此來源取得
+
+[tool.uv.sources]
+my-internal-lib = { index = "internal" }
+```
+
+##### SBOM（軟體物料清單）
+
+企業採購與資安稽核日益要求提供 SBOM，列出軟體的完整成分：
+
+```bash
+# 產生 CycloneDX 格式的 SBOM
+uvx cyclonedx-py environment -o sbom.json
+
+# 由鎖檔產生（不需建立環境）
+uvx cyclonedx-py requirements pylock.toml -o sbom.json
+```
+
+##### Trusted Publishing
+
+發布套件時不使用長期 API token，改以 GitHub Actions 的 OIDC 身分向 PyPI 驗證。token 不存在，就不會外洩。設定方式見 [1.4.3 套件管理](#143-套件管理)。
+
+| 做法 | 風險 |
+| --- | --- |
+| 在 CI Secrets 存放 PyPI API token | token 長期有效，一旦外洩可持續發布惡意版本 |
+| **Trusted Publishing（OIDC）** | 憑證在單次工作流程中產生且短時效，無長期機密可竊取 |
+
+#### 3.4.5 常見 Python 安全陷阱
+
+##### 反序列化
+
+```python
+import pickle
+import json
+
+# 危險：pickle 可在反序列化時執行任意程式碼
+data = pickle.loads(untrusted_bytes)        # 等同執行對方提供的程式
+
+# 安全：對不可信來源使用 JSON
+data = json.loads(untrusted_string)
+```
+
+```python
+import yaml
+
+# 危險：yaml.load 預設可具現化任意 Python 物件
+config = yaml.load(user_input, Loader=yaml.Loader)
+
+# 安全：safe_load 只處理基本型別
+config = yaml.safe_load(user_input)
+```
+
+##### 動態執行
+
+```python
+# 危險：即使有過濾，eval 的沙箱化實務上無法做對
+result = eval(user_expression)
+
+# 安全：對數學運算使用 ast.literal_eval，或專用的運算式解析器
+import ast
+result = ast.literal_eval(user_expression)   # 只接受字面值，不執行程式
+```
+
+##### 子行程注入
+
+```python
+import subprocess
+
+# 危險：shell=True 加上字串拼接 → 命令注入
+subprocess.run(f"ping {user_host}", shell=True)
+# user_host = "example.com; rm -rf /" 會被一併執行
+
+# 安全：以引數串列傳遞，不經過 shell
+subprocess.run(["ping", "-c", "4", user_host], check=True)
+```
+
+##### SQL 注入
+
+```python
+# 危險：字串拼接
+cursor.execute(f"SELECT * FROM users WHERE name = '{name}'")
+
+# 安全：參數化查詢，由驅動程式負責跳脫
+cursor.execute("SELECT * FROM users WHERE name = ?", (name,))
+```
+
+Python 3.14 的 t-string（PEP 750）讓「安全的字串組裝」有了語言層級的支援——模板保留了「哪些是靜態文字、哪些是使用者輸入」的結構資訊，處理函式因此能對插值部分強制跳脫，而 f-string 在求值當下就已經失去這項資訊：
+
+```python
+from string.templatelib import Template, Interpolation
+
+def safe_sql(template: Template) -> tuple[str, list]:
+    """把 t-string 轉為參數化查詢，插值一律變成佔位符"""
+    query, params = [], []
+    for item in template:
+        if isinstance(item, str):
+            query.append(item)
+        elif isinstance(item, Interpolation):
+            query.append("?")
+            params.append(item.value)
+    return "".join(query), params
+
+# 使用者輸入不可能變成 SQL 語法的一部分
+sql, params = safe_sql(t"SELECT * FROM users WHERE name = {name}")
+cursor.execute(sql, params)
+```
+
+同樣的模式可用於 HTML 跳脫以防範 XSS，範例見 [2.5.4 Python 3.14 新特性](#254-python-314-新特性2025-年-10-月發布)。
+
+##### 路徑穿越
+
+```python
+from pathlib import Path
+
+UPLOAD_DIR = Path("/var/app/uploads").resolve()
+
+def save_upload(filename: str, content: bytes) -> None:
+    # 危險：filename = "../../etc/passwd" 可寫到任意位置
+    # target = UPLOAD_DIR / filename
+
+    # 安全：解析後確認仍在允許的目錄之內
+    target = (UPLOAD_DIR / filename).resolve()
+    if not target.is_relative_to(UPLOAD_DIR):
+        raise ValueError(f"非法的檔案路徑: {filename}")
+    target.write_bytes(content)
+```
+
+##### 其他重點
+
+| 陷阱 | 正確做法 |
+| --- | --- |
+| `assert` 用於安全檢查 | `python -O` 會移除所有 assert；安全檢查一律用 `if ... raise` |
+| `random` 產生 token | 改用 `secrets.token_urlsafe()` |
+| 以 `==` 比對密碼雜湊 | 改用 `secrets.compare_digest()`，避免時序攻擊 |
+| `requests.get(url, verify=False)` | 絕不停用 TLS 驗證；憑證有問題應修正憑證 |
+| 記錄日誌時輸出完整請求 | 過濾 Authorization 標頭、密碼與個資欄位 |
+| MD5／SHA1 儲存密碼 | 改用 `argon2` 或 `bcrypt` 等專為密碼設計的演算法 |
+
+#### 💡 實務案例
+
+**完整的安全檢查 CI 工作流程：**
+
+```yaml
+# .github/workflows/security.yml
+name: Security
+
+on:
+  pull_request:
+  schedule:
+    - cron: '0 2 * * 1'      # 每週一凌晨全面掃描，捕捉新公布的 CVE
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+
+      - name: 相依套件弱點掃描
+        run: uvx pip-audit -r pylock.toml --strict
+
+      - name: 靜態安全分析
+        run: uvx ruff check --select S --output-format=github .
+
+      - name: 密鑰掃描（含完整歷史）
+        run: |
+          uvx detect-secrets scan --baseline .secrets.baseline
+          uvx detect-secrets audit --report --fail-on-unaudited .secrets.baseline
+
+      - name: 產生 SBOM
+        run: uvx cyclonedx-py requirements pylock.toml -o sbom.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json
+```
+
+#### ⚠️ 注意事項
+
+1. **掃描不等於安全**：工具只能找出已知問題，無法替代威脅建模與程式碼審查。
+2. **控制誤報量**：誤報過多會讓團隊養成忽略警告的習慣，比沒有掃描更危險。設好基線並定期整理。
+3. **外洩優先輪換**：密鑰外洩時，先輪換再清理歷史，順序不能顛倒。
+4. **升級也有風險**：為修補 CVE 而升級可能引入破壞性變更；務必有鎖檔與測試套件才敢升。
+5. **供應鏈防護要涵蓋 CI**：CI 憑證與 runner 本身也是攻擊目標，GitHub Actions 建議以完整 SHA 而非標籤釘選第三方 action。
+
+#### 📝 小測驗
+
+1. 為什麼不應該用 `assert` 做安全性檢查？
+2. `pickle.loads()` 處理不可信資料有什麼風險？
+3. Trusted Publishing 相較於 API token 的安全優勢是什麼？
+4. 鎖檔中的雜湊值有什麼安全作用？
+5. 比對密碼雜湊時，為什麼要用 `secrets.compare_digest()` 而不是 `==`？
+
+**參考答案：**
+
+1. 以 `-O` 旗標執行時，所有 `assert` 會被編譯器移除，安全檢查將完全失效。
+2. `pickle` 在反序列化過程中可具現化任意物件並執行程式碼，等同讓對方在你的程序中執行任意指令。
+3. OIDC 憑證僅在單次工作流程中有效且短時效，不存在可被竊取或長期濫用的靜態機密。
+4. 安裝時會驗證下載內容的雜湊，若套件在傳輸途中或於 registry 上遭替換即會中止安裝。
+5. `==` 在第一個不同的位元組就回傳，比對耗時會洩漏正確前綴的長度，可被時序攻擊利用；`compare_digest()` 為常數時間比對。
+
+#### 🏷️ 認證考試對應
+
+- **PCEP／PCAP**: 不涉及（安全性超出認證範圍）
+- **企業實務**：安全與供應鏈管理為企業級交付的必要條件，亦是資安稽核的檢核重點
 
 ---
 
@@ -6038,16 +7705,39 @@ class TeamCollaborationWorkflow:
 ### 4.1 PCEP 認證指引
 
 #### 🎯 考試概述
-**Python Institute Certified Entry-Level Python Programmer (PCEP)**
-- 考試時間：65 分鐘
-- 題目數量：30 題
-- 通過分數：70%
-- 考試語言：英語
-- 考試方式：線上監考或測試中心
+
+**Python Institute Certified Entry-Level Python Programmer（PCEP-30-02）**
+
+| 項目 | 內容 |
+| --- | --- |
+| 考試代碼 | PCEP-30-02（官方狀態：ACTIVE） |
+| 題目數量 | 30 題 |
+| 通過分數 | 各區塊加權後總平均 ≥ 70% |
+| 題型 | 單選、複選、程式碼題、情境題、互動題 |
+| 考試語言 | 英語 |
+| 考試方式 | OpenEDG 線上監考或授權測試中心 |
+| 先修條件 | 無 |
+| 有效期限 | 終身有效，不需重新認證 |
+
+##### 官方考試配分（Exam Blocks）
+
+| Block | 主題 | 題數 | 配分 |
+| --- | --- | --- | --- |
+| 1 | Computer Programming and Python Fundamentals | 7 | 18% |
+| 2 | Control Flow – Conditional Blocks and Loops | 8 | 29% |
+| 3 | Data Collections – Tuples, Dictionaries, Lists, and Strings | 7 | 25% |
+| 4 | Functions and Exceptions | 8 | 28% |
+| **合計** | | **30** | **100%** |
+
+> **備讀重點**：Block 2 與 Block 4 合計佔 57%，流程控制與函式／例外是分數最集中之處，應優先掌握。
+> 資料來源：[PCEP-30-0x Exam Syllabus](https://pythoninstitute.org/pcep-exam-syllabus)（查核日期：2026-09-21）
+>
+> ⚠️ Python Institute 已將 PCEP-30-02 的改版排程於 2026 年第三季。這屬於例行版本更新而非退場，報考前請至官網確認當下的有效版本代碼與大綱。
 
 #### 4.1.1 考試範圍與重點
 
 ##### 模組 1：Python 基礎概念 (18%)
+
 ```python
 # 重點主題：
 # - Python 的特性和應用
@@ -6065,6 +7755,7 @@ print("Line2")                     # Line1Line2
 ```
 
 ##### 模組 2：資料型態、變數、基本 I/O、運算子 (29%)
+
 ```python
 # 重點：數值型態轉換
 x = "123"
@@ -6089,6 +7780,7 @@ numbers.extend([5, 6])  # [1, 2, 3, 4, 5, 6]
 ```
 
 ##### 模組 3：布林值、條件執行、迴圈、串列處理 (29%)
+
 ```python
 # 布林運算重點
 print(True and False)   # False
@@ -6121,6 +7813,7 @@ evens = [x for x in range(10) if x % 2 == 0]  # [0, 2, 4, 6, 8]
 ```
 
 ##### 模組 4：函式、元組、字典、例外處理 (24%)
+
 ```python
 # 函式參數
 def greet(name, greeting="Hello"):
@@ -6152,7 +7845,8 @@ finally:
 #### 4.1.2 PCEP 考試技巧
 
 ##### 時間管理
-```
+
+```text
 - 平均每題 2.2 分鐘
 - 快速回答確定的題目
 - 標記不確定的題目，最後回來檢查
@@ -6160,6 +7854,7 @@ finally:
 ```
 
 ##### 常見陷阱
+
 ```python
 # 1. 變數作用域
 def func():
@@ -6196,15 +7891,37 @@ print(5 // 2)  # 2
 ### 4.2 PCAP 認證指引
 
 #### 🎯 考試概述
-**Python Institute Certified Associate in Python Programming (PCAP)**
-- 考試時間：65 分鐘
-- 題目數量：40 題
-- 通過分數：70%
-- 先決條件：建議先取得 PCEP
+
+**Python Institute Certified Associate in Python Programming（PCAP-31-03）**
+
+| 項目 | 內容 |
+| --- | --- |
+| 考試代碼 | PCAP-31-03（官方狀態：ACTIVE） |
+| 題目數量 | 40 題 |
+| 通過分數 | 各區塊加權後總平均 ≥ 70% |
+| 題型 | 單選、複選、程式碼題、情境題、互動題 |
+| 計分方式 | 每題最高 40 分，原始分數正規化後以百分比呈現 |
+| 先決條件 | 無強制要求，但建議先取得 PCEP |
+| 能力定位 | 設計、撰寫、除錯多模組 Python 程式，並運用核心 OOP 技術 |
+
+##### 官方考試配分（Exam Blocks）
+
+| Block | 主題 | 題數 | 配分 |
+| --- | --- | --- | --- |
+| 1 | Modules and Packages | 6 | 12% |
+| 2 | Exceptions | 5 | 14% |
+| 3 | Strings | 8 | 18% |
+| 4 | Object-Oriented Programming | 12 | 34% |
+| 5 | Miscellaneous（List Comprehensions, Lambdas, Closures, I/O） | 9 | 22% |
+| **合計** | | **40** | **100%** |
+
+> **備讀重點**：OOP 單獨佔 34%，是 PCAP 的決勝區塊，務必熟練繼承、MRO、特殊方法與封裝。
+> 資料來源：[PCAP-31-0x Exam Syllabus](https://pythoninstitute.org/pcap-exam-syllabus)（查核日期：2026-09-21）
 
 #### 4.2.1 考試範圍重點
 
 ##### 模組 1：控制和評估、資料聚合 (25%)
+
 ```python
 # 進階迴圈控制
 matrix = [[1, 2], [3, 4], [5, 6]]
@@ -6222,6 +7939,7 @@ unique_chars = {char for char in "hello world" if char.isalpha()}
 ```
 
 ##### 模組 2：模組和套件 (25%)
+
 ```python
 # 模組匯入方式
 import math
@@ -6246,6 +7964,7 @@ if __name__ == "__main__":
 ```
 
 ##### 模組 3：物件導向程式設計 (25%)
+
 ```python
 # 類別和繼承
 class Vehicle:
@@ -6296,6 +8015,7 @@ class D(B, C):
 ```
 
 ##### 模組 4：雜項 (25%)
+
 ```python
 # 生成器和迭代器
 def fibonacci():
@@ -6338,7 +8058,8 @@ total = reduce(lambda x, y: x + y, numbers)
 #### 4.3.1 學習路線規劃
 
 ##### PCEP 準備時程（8-12 週）
-```
+
+```text
 週次 1-2：Python 基礎
 - 安裝和環境設置
 - 基本語法和資料型態
@@ -6369,7 +8090,8 @@ total = reduce(lambda x, y: x + y, numbers)
 ```
 
 ##### PCAP 準備時程（12-16 週）
-```
+
+```text
 週次 1-4：PCEP 基礎鞏固
 - 確保 PCEP 知識點熟練
 
@@ -6392,7 +8114,8 @@ total = reduce(lambda x, y: x + y, numbers)
 #### 4.3.2 練習資源
 
 ##### 官方資源
-```
+
+```text
 1. Python Institute 官網
    - 考試說明書
    - 樣本題目
@@ -6410,6 +8133,7 @@ total = reduce(lambda x, y: x + y, numbers)
 ```
 
 ##### 實作練習
+
 ```python
 # PCEP 練習題範例
 
@@ -6490,7 +8214,8 @@ class Calculator:
 #### 4.3.3 考試當天技巧
 
 ##### 考前準備
-```
+
+```text
 1. 環境檢查
    - 網路連線穩定
    - 攝影機和麥克風正常
@@ -6508,7 +8233,8 @@ class Calculator:
 ```
 
 ##### 答題策略
-```
+
+```text
 1. 時間分配
    - PCEP: 30題/65分鐘 ≈ 2分鐘/題
    - PCAP: 40題/65分鐘 ≈ 1.6分鐘/題
@@ -6524,6 +8250,47 @@ class Calculator:
    - 驗證答案邏輯
 ```
 
+#### 4.3.4 完整認證階梯
+
+Python Institute（OpenEDG）的認證分為通用程式設計主線與兩條專業旁支。
+
+##### 主線：通用 Python 程式設計
+
+| 層級 | 認證 | 代碼 | 題數 | 能力定位 |
+| --- | --- | --- | --- | --- |
+| 入門 | PCEP – Certified Entry-Level Python Programmer | PCEP-30-02 | 30 | 語法基礎、流程控制、資料集合、函式與例外 |
+| 準專業 | PCAP – Certified Associate in Python Programming | PCAP-31-03 | 40 | 模組與套件、OOP、字串處理、推導式與閉包 |
+| 專業 I | PCPP1 – Certified Professional in Python Programming 1 | PCPP-32-1xx | — | 進階 OOP、GUI（tkinter）、檔案處理、PEP 規範、math／os／datetime |
+| 專業 II | PCPP2 – Certified Professional in Python Programming 2 | PCPP-32-2xx | — | 程序間通訊、網路程式設計、SQL 資料庫、設計模式、套件製作與測試 |
+
+##### 旁支：領域專業認證
+
+| 認證 | 定位 |
+| --- | --- |
+| PCED – Certified Entry-Level Data Analyst with Python | 資料分析入門：資料清理、統計基礎、視覺化 |
+| PCAD – Certified Associate Data Analyst with Python | 資料分析進階：pandas／NumPy、探索式分析、建模基礎 |
+
+##### 學習路徑建議
+
+```text
+                     ┌──────────────────────────────┐
+  完全新手 ────────▶ │ PCEP（本手冊第 1 章）        │
+                     └──────────────┬───────────────┘
+                                    ▼
+                     ┌──────────────────────────────┐
+  有基礎者起點 ────▶ │ PCAP（本手冊第 2 章）        │
+                     └──────────────┬───────────────┘
+                                    ▼
+                  ┌─────────────────┴─────────────────┐
+                  ▼                                   ▼
+        ┌───────────────────┐              ┌────────────────────┐
+        │ PCPP1 → PCPP2     │              │ PCED → PCAD        │
+        │ 通用軟體工程方向  │              │ 資料分析方向       │
+        └───────────────────┘              └────────────────────┘
+```
+
+> **對企業工程師的務實建議**：PCEP／PCAP 對建立語言基礎與求職履歷有實質幫助；但本手冊第 3 章的工具鏈、測試、CI/CD 與安全供應鏈實務**不在任何認證範圍內**，卻是實際工作中權重最高的能力。認證與實務應並行累積，不要因為「不考」就略過第 3 章。
+
 ---
 
 ## 5. 檢查清單
@@ -6531,38 +8298,47 @@ class Calculator:
 ### 5.1 環境設置檢查清單
 
 #### Python 環境
-- [ ] Python 3.12+ 已安裝
+
+- [ ] Python 3.13+ 已安裝（3.12 已進入 security-only、3.9 已 EOL）
 - [ ] pip 工具可正常使用
 - [ ] 已設定 PATH 環境變數
-- [ ] 虛擬環境工具已準備
+- [ ] 虛擬環境工具已準備（`venv` 或 uv）
+- [ ] 已確認目標版本仍在官方支援期內
 
 #### 開發工具
+
 - [ ] VS Code 或 PyCharm 已安裝
-- [ ] Python 擴充套件已安裝
-- [ ] 程式碼格式化工具（black, flake8）
+- [ ] Python 與 Pylance 擴充套件已安裝
+- [ ] 檢查與格式化工具已就緒（Ruff；舊專案可為 black + flake8）
+- [ ] 型別檢查工具已就緒（mypy 或 pyright）
 - [ ] 版本控制工具（Git）
 
 #### 套件管理
-- [ ] requirements.txt 檔案建立
+
+- [ ] 依賴宣告於 `pyproject.toml`（而非僅有 `requirements.txt`）
+- [ ] 開發依賴以 PEP 735 `[dependency-groups]` 區分
+- [ ] 鎖檔已產生並提交版控（`uv.lock` 或 `pylock.toml`）
 - [ ] 虛擬環境已啟動
 - [ ] 必要套件已安裝
-- [ ] 開發依賴已區分
 
 ### 5.2 程式碼品質檢查清單
 
 #### 程式碼風格
+
 - [ ] 遵循 PEP 8 命名慣例
 - [ ] 適當的縮排（4個空格）
 - [ ] 行長度不超過 79 字元
 - [ ] 匯入語句按標準排序
 
 #### 文件和註解
+
 - [ ] 所有函式都有 docstring
 - [ ] 複雜邏輯有適當註解
 - [ ] README.md 檔案完整
 - [ ] API 文件已建立
 
 #### 錯誤處理
+
 - [ ] 適當的例外處理
 - [ ] 輸入驗證完整
 - [ ] 錯誤訊息有意義
@@ -6571,12 +8347,14 @@ class Calculator:
 ### 5.3 專案結構檢查清單
 
 #### 目錄結構
+
 - [ ] 源碼目錄（src/）
 - [ ] 測試目錄（tests/）
 - [ ] 文件目錄（docs/）
 - [ ] 設定檔案分離
 
 #### 檔案組織
+
 - [ ] 模組職責清晰
 - [ ] 避免循環匯入
 - [ ] `__init__.py` 檔案適當
@@ -6585,12 +8363,14 @@ class Calculator:
 ### 5.4 測試檢查清單
 
 #### 測試覆蓋
+
 - [ ] 單元測試已撰寫
 - [ ] 測試覆蓋率 > 80%
 - [ ] 邊界條件已測試
 - [ ] 錯誤情況已測試
 
 #### 測試品質
+
 - [ ] 測試名稱有意義
 - [ ] 測試獨立性
 - [ ] 測試資料清理
@@ -6599,12 +8379,14 @@ class Calculator:
 ### 5.5 部署準備檢查清單
 
 #### 環境配置
+
 - [ ] 生產環境設定
 - [ ] 敏感資訊加密
 - [ ] 環境變數設定
 - [ ] 依賴版本鎖定
 
 #### 安全性
+
 - [ ] 輸入驗證完整
 - [ ] SQL 注入防護
 - [ ] 權限控制實現
@@ -6613,6 +8395,7 @@ class Calculator:
 ### 5.6 認證考試檢查清單
 
 #### PCEP 準備
+
 - [ ] Python 基礎語法熟練
 - [ ] 資料型態操作熟悉
 - [ ] 控制結構理解
@@ -6620,6 +8403,7 @@ class Calculator:
 - [ ] 基本 I/O 操作
 
 #### PCAP 準備
+
 - [ ] 物件導向概念理解
 - [ ] 模組和套件使用
 - [ ] 進階資料結構
@@ -6627,6 +8411,7 @@ class Calculator:
 - [ ] 生成器和迭代器
 
 #### 考試技巧
+
 - [ ] 時間管理策略
 - [ ] 模擬考試練習
 - [ ] 弱點分析改進
@@ -6635,16 +8420,58 @@ class Calculator:
 ### 5.7 持續學習檢查清單
 
 #### 技能提升
+
 - [ ] 定期練習編程
 - [ ] 閱讀他人程式碼
 - [ ] 參與開源專案
 - [ ] 學習新的函式庫
 
 #### 社群參與
+
 - [ ] 加入 Python 社群
 - [ ] 參加技術聚會
 - [ ] 分享學習心得
 - [ ] 幫助其他學習者
+
+#### 版本追蹤
+
+- [ ] 已訂閱 [Python Insider](https://blog.python.org/) 掌握發布動態
+- [ ] 每年 10 月新版發布後，檢視 What's New 並評估升級
+- [ ] CI 中已納入下一個版本的矩陣測試
+- [ ] 已確認專案使用的版本尚未接近 EOL
+
+### 5.8 安全與供應鏈檢查清單
+
+#### 相依套件
+
+- [ ] CI 中已加入 `pip-audit --strict` 閘門
+- [ ] 已啟用 Dependabot 或 Renovate 自動監控
+- [ ] 鎖檔含雜湊值，安裝時以 `uv sync --frozen` 驗證
+- [ ] 內部套件已設定明確的索引來源，可防依賴混淆
+
+#### 程式碼
+
+- [ ] Ruff 已啟用 `S` 規則集（bandit）
+- [ ] 無 `pickle`／`yaml.load`／`eval` 處理不可信輸入
+- [ ] 子行程呼叫一律使用引數串列，未使用 `shell=True` 拼接
+- [ ] SQL 全面採用參數化查詢
+- [ ] 檔案路徑已做 `is_relative_to()` 邊界檢查
+- [ ] 安全檢查未使用 `assert`（`-O` 下會被移除）
+
+#### 密鑰
+
+- [ ] `.env` 已列入 `.gitignore`，僅提交 `.env.example`
+- [ ] pre-commit 已啟用 detect-secrets
+- [ ] 設定於應用啟動時驗證，缺漏即 fail fast
+- [ ] 日誌輸出已過濾憑證與個資欄位
+- [ ] 密碼雜湊使用 argon2／bcrypt，比對使用 `secrets.compare_digest()`
+
+#### 發布與稽核
+
+- [ ] PyPI 發布已改用 Trusted Publishing（OIDC），CI 中無長期 token
+- [ ] 可依需求產生 CycloneDX 格式 SBOM
+- [ ] 第三方 GitHub Action 已以完整 SHA 釘選
+- [ ] 已建立密鑰外洩的輪換程序（先輪換、再清歷史）
 
 ---
 
@@ -6669,6 +8496,20 @@ class Calculator:
 
 Python 的學習之路沒有終點，只有不斷的成長和進步。祝您在 Python 程式設計的道路上取得成功！
 
+### 官方參考資源
+
+| 資源 | 用途 |
+| --- | --- |
+| [Python 官方文件](https://www.python.org/doc/) | 語言參考、標準函式庫、教學 |
+| [Getting Started](https://www.python.org/about/gettingstarted/) | 初學者入門指引與資源彙整 |
+| [What's New in Python](https://docs.python.org/3/whatsnew/) | 各版本新特性與不相容變更 |
+| [Status of Python versions](https://devguide.python.org/versions/) | 版本生命週期與 EOL 時程 |
+| [PEP Index](https://peps.python.org/) | 所有語言提案的權威來源 |
+| [Python Packaging User Guide](https://packaging.python.org/) | 打包、發布與依賴管理的官方指南 |
+| [PyPI](https://pypi.org/) | 套件索引與搜尋 |
+| [Python Institute](https://pythoninstitute.org/) | PCEP／PCAP／PCPP 認證大綱與報考 |
+
 ---
 
 *本教學手冊由專業講師團隊編撰，定期更新以確保內容的準確性和實用性。如有建議或問題，歡迎回饋討論。*
+*版本 2.0 — 最後更新 2026 年 9 月，內容查核基準日 2026-09-21。*
