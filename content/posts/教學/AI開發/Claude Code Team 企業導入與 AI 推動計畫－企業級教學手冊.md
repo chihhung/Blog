@@ -19,10 +19,10 @@ categories = ['教學']
 
 | 項目 | 內容 |
 | --- | --- |
-| **文件版本** | **v2.0.0** |
+| **文件版本** | **v2.1.0** |
 | **初版日期** | 2026-09-17（v1.0.0） |
-| **本版更新日期** | **2026-09-17**（v2.0.0 變更摘要見 [C.5.2 變更紀錄](#c52-變更紀錄)） |
-| **最後查證日期** | **2026-09-17**。以官方文件索引 `https://code.claude.com/docs/llms.txt` 所列 **192 頁**為母體，逐頁覆核核心治理與導入頁面，並比對 6 份 `support.claude.com` 方案文件。**查證清單與未覆核項目**見 [附錄 C.2](#c2-參考資料與查證來源) |
+| **本版更新日期** | **2026-09-24**（v2.1.0 與 v2.0.0 變更摘要見 [C.5.2 變更紀錄](#c52-變更紀錄)） |
+| **最後查證日期** | **2026-09-24**。以官方文件索引 `https://code.claude.com/docs/llms.txt` 所列 **197 頁**為母體，逐頁覆核核心治理與導入頁面；比對 Claude Code changelog 至 **v2.1.281（2026-09-23）**、What's New 至 **W37**；並重新比對 6 份指定的 `support.claude.com` 方案文件及 4 份相關支援文件（Enterprise 方案、JIT／SCIM、usage credits、consumption guide）。**查證清單與未覆核項目**見 [附錄 C.2](#c2-參考資料與查證來源) |
 | **官方文件站** | `https://code.claude.com/docs/en/overview`（**注意**：舊網址 `docs.claude.com/en/docs/claude-code/*` 已 301 轉址至此，本手冊 v1.0.0 之前的外部引用均需更新） |
 | **文件定位** | **企業標準技術白皮書**。組織導入、治理制度、推動計畫與度量體系導向；**不是** Claude Code 指令手冊，**不是** 官方文件翻譯，**不是** AI 概論 |
 | **目標產品** | Claude Code，於 Claude for Teams / Enterprise 方案（並涵蓋 Anthropic Console、Amazon Bedrock、Claude Platform on AWS、Google Cloud's Agent Platform、Microsoft Foundry 等 Provider 的導入取捨） |
@@ -30,7 +30,8 @@ categories = ['教學']
 | **涵蓋治理機制** | Managed Settings（Server-managed／plist／registry／`managed-settings.json`）、Permission Rules、Permission Modes（Manual／Auto／Accept Edits／Plan）、Sandboxing、Managed MCP、Plugin Marketplace 限制、Hook 限制與 `ConfigChange`、登入與版本強制、Corporate Launcher、OpenTelemetry、Analytics 與 Analytics API、Spend Limits、Zero Data Retention |
 | **涵蓋推動制度** | Workshop 體系、Pilot Program、四層 KPI、月報與 Dashboard、AI Maturity Model、AI Governance、Risk Register、12 個月 Roadmap，並對照 Anthropic 官方 Champion Kit 與 Communications Kit |
 | **適用對象** | IT 部門與軟體開發部門主管、Enterprise Architect、Software Architect、SA、SD、PG、QA、PM、DevOps / SRE、DevSecOps、資安、AI Governance 小組、管理階層 |
-| **篇幅** | 7 部、**52 章** + **3 個附錄（A–C）** |
+| **對照的外部標準** | NIST SSDF（SP 800-218／800-218A）、NIST AI RMF 與 GenAI Profile（AI 600-1）、ISO/IEC 42001、OWASP Top 10 for LLM Applications 2025、OWASP Top 10 for Agentic Applications 2026、DORA AI Capabilities Model、台灣金管會《金融業運用人工智慧（AI）指引》與《人工智慧基本法》（第 53 章） |
+| **篇幅** | 7 部、**53 章** + **3 個附錄（A–C）** |
 | **姊妹文件** | [Claude Code企業級軟體開發教學手冊](./Claude%20Code企業級軟體開發教學手冊.md)（產品機制與實作細節）、[Claude Code生態圈教學手冊](./Claude%20Code生態圈教學手冊.md)（生態系總覽）。本手冊**自成完整**，重複的機制會重新以「導入與治理」視角寫齊，不要求讀者先讀其他文件 |
 
 ---
@@ -53,7 +54,7 @@ Claude Code 的產品架構在 2025–2026 年間變動幅度極大：預設權�
 
 > ⚠️ **關於時效性的重要聲明**
 >
-> 本手冊中所有涉及 **方案（Plan）、席位（Seat）、定價（Pricing）、用量限制（Usage Limit）、模型（Model）、Analytics 指標、Claude Code 功能與治理設定鍵** 的敘述，皆以「**截至 2026-09-17**」為基準。
+> 本手冊中所有涉及 **方案（Plan）、席位（Seat）、定價（Pricing）、用量限制（Usage Limit）、模型（Model）、Analytics 指標、Claude Code 功能與治理設定鍵** 的敘述，皆以「**截至 2026-09-24**」為基準。
 >
 > 這些資訊由 Anthropic 官方文件查證而得，但**變動頻率極高**（官方每週發布 What's New）。實際導入時請務必以 Anthropic 最新官方文件與貴組織實際合約為準。
 >
@@ -63,9 +64,10 @@ Claude Code 的產品架構在 2025–2026 年間變動幅度極大：預設權�
 
 ## 目錄
 
-> 📌 目錄為兩層結構：章 + 小節，全部可點擊跳轉。每章開頭另有該章的迷你目錄。
+> 📌 目錄為兩層結構：章 + 小節，全部可點擊跳轉；每一部可點選標題收合或展開。每章開頭另有該章的迷你目錄，`###` 子節請由迷你目錄或章內導覽。第 47～51、53 章為改版新增章節，依主題分屬各部，但實體位置在第 46 章之後。標示「（v2.0 新增）」「（v2.1 新增）」者為改版新增的內容。
 
-### 第一部：戰略與轉型
+<details open>
+<summary><strong>第一部：戰略與轉型</strong>（4 章）</summary>
 
 - [第 1 章　導讀：如何使用本手冊](#第-1-章導讀如何使用本手冊)
   - [1.1 本手冊要解決什麼問題](#11-本手冊要解決什麼問題)
@@ -104,7 +106,10 @@ Claude Code 的產品架構在 2025–2026 年間變動幅度極大：預設權�
   - [4.8 本章注意事項](#48-本章注意事項)
   - [4.9 本章檢查清單](#49-本章檢查清單)
 
-### 第二部：平台建置
+</details>
+
+<details open>
+<summary><strong>第二部：平台建置</strong>（11 章）</summary>
 
 - [第 5 章　Team 組織、席位與權限管理](#第-5-章team-組織席位與權限管理)
   - [5.1 本章要建立什麼](#51-本章要建立什麼)
@@ -218,7 +223,10 @@ Claude Code 的產品架構在 2025–2026 年間變動幅度極大：預設權�
   - [49.9 本章注意事項](#499-本章注意事項)
   - [49.10 本章檢查清單](#4910-本章檢查清單)
 
-### 第三部：工程流程
+</details>
+
+<details open>
+<summary><strong>第三部：工程流程</strong>（11 章）</summary>
 
 - [第 14 章　SSDLC + Claude Code](#第-14-章ssdlc--claude-code)
   - [14.1 為什麼要重寫 SSDLC 文件](#141-為什麼要重寫-ssdlc-文件)
@@ -298,7 +306,7 @@ Claude Code 的產品架構在 2025–2026 年間變動幅度極大：預設權�
 - [第 22 章　AI-assisted Testing](#第-22-章ai-assisted-testing)
   - [22.1 核心論點：測試品質是 AI 的能力上限](#221-核心論點測試品質是-ai-的能力上限)
   - [22.2 AI 的七步測試迴圈](#222-ai-的七步測試迴圈)
-  - [22.3 步驟 ②：測試缺口分析（最有價值的一步）](#223-步驟-②測試缺口分析最有價值的一步)
+  - [22.3 步驟 ②：測試缺口分析（最有價值的一步）](#223-步驟-測試缺口分析最有價值的一步)
   - [22.4 各類測試的 AI 應用](#224-各類測試的-ai-應用)
   - [22.5 測試品質的自動檢查](#225-測試品質的自動檢查)
   - [22.6 本章實務案例](#226-本章實務案例)
@@ -326,7 +334,10 @@ Claude Code 的產品架構在 2025–2026 年間變動幅度極大：預設權�
   - [48.7 本章注意事項](#487-本章注意事項)
   - [48.8 本章檢查清單](#488-本章檢查清單)
 
-### 第四部：導入與推動
+</details>
+
+<details open>
+<summary><strong>第四部：導入與推動</strong>（9 章）</summary>
 
 - [第 24 章　Workshop 教育訓練計畫](#第-24-章workshop-教育訓練計畫)
   - [24.1 訓練設計原則](#241-訓練設計原則)
@@ -425,7 +436,10 @@ Claude Code 的產品架構在 2025–2026 年間變動幅度極大：預設權�
   - [50.8 本章注意事項](#508-本章注意事項)
   - [50.9 本章檢查清單](#509-本章檢查清單)
 
-### 第五部：管理與治理
+</details>
+
+<details open>
+<summary><strong>第五部：管理與治理</strong>（9 章）</summary>
 
 - [第 32 章　月報制度](#第-32-章月報制度)
   - [32.1 月報的三個目的](#321-月報的三個目的)
@@ -496,8 +510,22 @@ Claude Code 的產品架構在 2025–2026 年間變動幅度極大：預設權�
   - [51.6 本章實務案例](#516-本章實務案例)
   - [51.7 本章注意事項](#517-本章注意事項)
   - [51.8 本章檢查清單](#518-本章檢查清單)
+- [第 53 章　外部標準與法規框架對照](#第-53-章外部標準與法規框架對照)　**（v2.1 新增）**
+  - [53.1 為什麼需要外部標準對照](#531-為什麼需要外部標準對照)
+  - [53.2 安全開發：NIST SSDF](#532-安全開發nist-ssdf)
+  - [53.3 AI 治理管理系統：NIST AI RMF 與 ISO/IEC 42001](#533-ai-治理管理系統nist-ai-rmf-與-isoiec-42001)
+  - [53.4 Agent 安全：OWASP LLM 與 Agentic Top 10](#534-agent-安全owasp-llm-與-agentic-top-10)
+  - [53.5 工程效能：DORA AI Capabilities Model](#535-工程效能dora-ai-capabilities-model)
+  - [53.6 法規：台灣與歐盟](#536-法規台灣與歐盟)
+  - [53.7 整合對照矩陣](#537-整合對照矩陣)
+  - [53.8 本章實務案例](#538-本章實務案例)
+  - [53.9 本章注意事項](#539-本章注意事項)
+  - [53.10 本章檢查清單](#5310-本章檢查清單)
 
-### 第六部：完整實戰範例
+</details>
+
+<details open>
+<summary><strong>第六部：完整實戰範例</strong>（5 章）</summary>
 
 - [第 39 章　範例一：Banking Web Application](#第-39-章範例一banking-web-application)
   - [39.1 案例設定](#391-案例設定)
@@ -564,7 +592,10 @@ Claude Code 的產品架構在 2025–2026 年間變動幅度極大：預設權�
   - [43.13 本章注意事項](#4313-本章注意事項)
   - [43.14 本章檢查清單](#4314-本章檢查清單)
 
-### 第七部：結論與附錄
+</details>
+
+<details open>
+<summary><strong>第七部：結論與附錄</strong>（4 章）</summary>
 
 - [第 44 章　建立正確的 AI 導入文化](#第-44-章建立正確的-ai-導入文化)
   - [44.1 兩個必須被糾正的錯誤認知](#441-兩個必須被糾正的錯誤認知)
@@ -595,6 +626,8 @@ Claude Code 的產品架構在 2025–2026 年間變動幅度極大：預設權�
   - [附錄 B：檢查清單總表](#附錄-b檢查清單總表)
   - [附錄 C：名詞對照與參考資料](#附錄-c名詞對照與參考資料)
   - [結語](#結語)
+
+</details>
 
 ---
 
@@ -652,7 +685,7 @@ Claude Code 的產品架構在 2025–2026 年間變動幅度極大：預設權�
 
 ## 1.2 讀者地圖：你該先讀哪幾章
 
-本手冊共 52 章，**沒有人需要從頭讀到尾**。請依角色挑選：
+本手冊共 53 章，**沒有人需要從頭讀到尾**。請依角色挑選：
 
 ```mermaid
 flowchart TD
@@ -665,7 +698,7 @@ flowchart TD
     Start --> PMSA["PM / SA"]
 
     Mgr --> M1["第 2、4、34、38、43、46 章"]
-    Gov --> G1["第 12、16、23、36、37、49 章"]
+    Gov --> G1["第 12、16、23、36、37、49、53 章"]
     Arch --> A1["第 4、7～13、14、15、19、47、51 章"]
     Dev --> D1["第 6、8、10、11、17、20、21 章"]
     QA --> Q1["第 16、21、22、48 章"]
@@ -682,6 +715,15 @@ flowchart TD
 | 第 49 章　Managed Settings 強制治理 | 資安、IT 平台、AI Governance | 決定貴組織的 AI 政策是「寫在規範裡」還是「機器會擋」 |
 | 第 50 章　官方 Adoption Kit 與企業推動素材對照 | AI 推動小組、Tech Lead、Champion | 避免重造輪子；官方已有 Champion Kit 與 Communications Kit |
 | 第 51 章　Agent SDK 與企業自動化 | 架構師、平台團隊 | 決定何時該從「用 CLI」升級為「自己寫 Agent 服務」 |
+
+**v2.1 新增與重大更正的建議讀者**：
+
+| 章節 | 誰一定要讀 | 為什麼 |
+| --- | --- | --- |
+| 第 16 章 16.5.2　Team 方案的預設起始模式已是 Auto | **資安、AI Governance、IT 平台** | **Team 方案若沒有部署 Managed Settings，全組織預設由分類器代替人審核動作** |
+| 第 5 章 5.5.3、5.5.6　模型選擇與組織層級管控 | Owner、Team Lead、財務 | 官方預設模型已改為 Opus 5.5，會影響 Standard 席位的額度消耗 |
+| 第 23 章 23.8.6　Artifacts 與 Claude Tag 的資料外流治理 | 資安、法遵 | Artifacts 在 Team 方案**預設開啟** |
+| 第 53 章　外部標準與法規框架對照 | AI Governance、稽核、法遵、金融業 IT | 回應稽核、客戶問卷與主管機關時，把既有制度對應到 SSDF、ISO 42001、OWASP、金管會指引 |
 
 **建議的閱讀順序（新進同仁）**：
 
@@ -1219,13 +1261,13 @@ claude "執行 mvn verify，分析所有失敗的測試，
 | **工作模型** | 使用它的人「怎麼工作」？ | 判斷流程要怎麼改 |
 | **導入模型** | 組織要「準備什麼」才能用？ | 判斷導入成本與治理需求 |
 
-> 📌 **重要前提**：GitHub Copilot 自身也在快速演進（Copilot Chat、Copilot Edits、Copilot Workspace、Copilot Coding Agent 等）。本章的對照基準為**截至 2026-09-17 兩個產品的一般可用（GA）能力**，且本 repo 另有 [github copilot生態圈教學手冊](./github%20copilot生態圈教學手冊.md) 可對照。實際評估時請以當下版本為準。
+> 📌 **重要前提**：GitHub Copilot 自身也在快速演進（Copilot Chat、Copilot Edits、Copilot Workspace、Copilot Coding Agent 等）。本章的對照基準為**截至 2026-09-24 兩個產品的一般可用（GA）能力**，且本 repo 另有 [github copilot生態圈教學手冊](./github%20copilot生態圈教學手冊.md) 可對照。實際評估時請以當下版本為準。
 
 ---
 
 ## 3.2 完整對照表
 
-> 📌 下表為**截至 2026-09-17** 的能力對照，並以「能力模型」而非「功能清單」描述。請以兩家官方最新文件為準。
+> 📌 下表為**截至 2026-09-24** 的能力對照，並以「能力模型」而非「功能清單」描述。請以兩家官方最新文件為準。
 
 | 面向 | GitHub Copilot | Claude Code Team |
 | --- | --- | --- |
@@ -1248,7 +1290,7 @@ claude "執行 mvn verify，分析所有失敗的測試，
 | **Enterprise Governance** | 依 GitHub Enterprise 的政策與稽核體系 | 依 Anthropic Team / Enterprise 的組織設定與席位管理（第 5 章）＋ **Managed Settings 技術強制層**（第 49 章）＋ 組織自建的 Hook / Rule 治理層 |
 | **政策強制機制** | 以平台設定與組織政策為主 | **Managed Settings 四層投遞**（Server-managed／plist／registry／檔案），優先於使用者與專案設定；可鎖定權限規則、MCP、Plugin、Hook、登入方式、可用模型、版本下限（第 49 章） |
 | **執行隔離** | 以 IDE 與平台沙箱為主 | **OS 層 Sandboxed Bash**：檔案系統與網路隔離、網域白名單；可與權限規則互補（第 23、49 章） |
-| **權限模型** | 以 IDE 操作確認為主 | **四種 Permission Mode**：Manual（逐項確認）／Auto（分類器模型代為審核）／Accept Edits／Plan；組織可停用 Auto Mode（第 16、49 章） |
+| **權限模型** | 以 IDE 操作確認為主 | **四種 Permission Mode**：Manual（逐項確認）／Auto（分類器模型代為審核）／Accept Edits／Plan；**Team 方案的內建起始模式為 Auto**（2026-08-14 起），組織可以 Managed Settings 改變起始模式或停用 Auto Mode（第 16、49 章） |
 | **部署選項** | 以 GitHub 雲端與 GHES 為主 | **多 Provider**：Claude 訂閱、Anthropic Console、Amazon Bedrock、Claude Platform on AWS、Google Cloud's Agent Platform、Microsoft Foundry，或自架 Gateway（第 47 章） |
 | **Usage Analytics** | GitHub 側的 Copilot metrics | Team / Enterprise Analytics Dashboard：Lines accepted、Accept rate、活躍度、Leaderboard、Contribution 指標（Beta，需 GitHub App）；另有 **Enterprise Analytics API**（僅 Enterprise）與 Spend Report（第 31 章） |
 | **可觀測性** | 平台側報表 | 除官方 Dashboard 外，另可**匯出 OpenTelemetry metrics / events / traces 至企業自有觀測平台**（第 31、33 章） |
@@ -1408,7 +1450,7 @@ flowchart TD
 
 > ⚠️ **兩個工具同時安裝在同一個 IDE 時，行內補全可能互相干擾**。建議在 IDE 設定中明確擇一啟用行內補全功能，避免建議打架。具體設定方式**需依組織使用的 IDE 版本決定**。
 
-> 📌 **Copilot 的能力持續演進中**。本章對照為截至 2026-09-17 的狀態，建議每半年由 AI Governance 小組重新檢視一次（第 28 章的社群活動可作為檢視場合）。
+> 📌 **Copilot 的能力持續演進中**。本章對照為截至 2026-09-24 的狀態，建議每半年由 AI Governance 小組重新檢視一次（第 28 章的社群活動可作為檢視場合）。
 
 > 📌 **成本結構不同**：Copilot 通常為固定席位費；Claude Code Team 為席位費 + 可能的超額用量。預算編列方式需要調整（第 5、31 章）。
 
@@ -1591,7 +1633,7 @@ flowchart TB
 | **Managed Settings** | **組織強制政策的下發通道**（Server-managed／plist／registry／檔案），優先於使用者與專案設定 | **第 49 章** |
 | **Spend Limits** | 組織層級與個人層級的支出上限 | 第 5 章 |
 
-> 📌 截至 2026-09-17，Claude Code 包含於每個 Team 方案席位中；席位與用量的具體管理位於 Organization settings。詳見第 5 章。
+> 📌 截至 2026-09-24，Claude Code 包含於每個 Team 方案席位中；席位與用量的具體管理位於 Organization settings。詳見第 5 章。
 
 > 🎯 **Managed Settings 是本架構中「治理層」與「執行層」之間唯一的技術橋樑。** 沒有它，治理層寫的所有政策都只是文件——工程師可以在自己機器上用 `.claude/settings.local.json` 全部覆寫掉。
 
@@ -1628,7 +1670,7 @@ company-ai-development/          ← 企業唯一的 AI 工程資產來源
 | **Slack / 行動 App / Chrome** | 輕量查詢、審查 | 部分 | 中 | 依組織政策決定是否開放 |
 | **CI/CD**（GitHub Actions / GitLab CI） | 自動化 review、排程任務 | **否** | **高**（無人監督） | 最小權限帳號 + 唯讀為主 + 強制 PR（第 20、48 章） |
 
-> 📌 截至 2026-09-17，各介面的使用**共用同一組方案額度**。這表示成本管理不能只看其中一個介面（第 31 章）。
+> 📌 截至 2026-09-24，各介面的使用**共用同一組方案額度**。這表示成本管理不能只看其中一個介面（第 31 章）。
 
 > ⚠️ **CI/CD 與 Cloud Session 上的 Agent 必須使用獨立的、權限最小化的憑證**，絕不可沿用開發者個人憑證。詳見第 20、23、48 章。
 
@@ -1745,7 +1787,7 @@ Agent 會做出很多技術決策。若不記錄，三個月後沒有人知道�
 
 ## 4.6 方案功能矩陣：架構決策前必須先看的一張表
 
-> 📌 **本節為 v2.0 新增**。截至 2026-09-17，依 Anthropic 官方 Feature availability 頁面整理。**功能可用性會隨版本變動，導入前請重新查證。**
+> 📌 **本節為 v2.0 新增**。截至 2026-09-24，依 Anthropic 官方 Feature availability 頁面整理。**功能可用性會隨版本變動，導入前請重新查證。**
 
 架構設計最容易犯的錯，是**先畫好架構圖，才發現貴組織的方案根本沒有那個功能**。下表是動手之前應先確認的清單。
 
@@ -1758,21 +1800,31 @@ Agent 會做出很多技術決策。若不記錄，三個月後沒有人知道�
 | Remote Control | ✓ | ✓ | **需管理員啟用** | **需管理員啟用** |
 | Channels | ✓ | ✓ | **需管理員啟用** | **需管理員啟用** |
 | Computer use | ✓ | ✓ | ✗ | ✗ |
+| Dispatch（Desktop） | ✓ | ✓ | ✗ | ✗ |
 | Code Review | ✗ | ✗ | ✓ | ✓ |
-| Artifacts | ✓ | ✓ | ✓ | **需管理員啟用** |
+| Artifacts | ✓ | ✓ | ✓（**預設開啟**；公開連結需 Owner 啟用） | **需管理員啟用** |
+| Self-hosted environments（v2.1 新增） | ✗ | ✗ | ✓（Public Beta，預設關閉） | ✓（Public Beta，預設關閉） |
+| Claude Tag（Slack 共用身分，v2.1 新增） | ✗ | ✗ | ✓ | ✓ |
 | Analytics Dashboard + Contribution 指標 | ✗ | ✗ | ✓ | ✓ |
 | **Enterprise Analytics API** | ✗ | ✗ | **✗** | ✓ |
 | Server-managed settings | ✗ | ✗ | ✓ | ✓ |
-| SSO | ✗ | ✗ | ✓ | ✓ |
-| **SCIM** | ✗ | ✗ | **✗** | ✓ |
+| SSO、JIT provisioning | ✗ | ✗ | ✓ | ✓ |
+| **SCIM** | ✗ | ✗ | **✗【⚠️ 文件不一致】** | ✓ |
 | **Compliance API** | ✗ | ✗ | **✗** | ✓ |
 | **Zero Data Retention（ZDR）** | ✗ | ✗ | **✗** | ✓（非標準內含，需 Anthropic 個別啟用且帳號需符合資格） |
+| 組織層級模型限制／預設模型／effort 上限（v2.1 新增） | ✗ | ✗ | ✗（改用 Managed Settings） | ✓ |
+| **內建起始權限模式**（v2.1 新增） | Auto | Auto | **Auto** | Manual |
 
-**這張表對架構決策的三個直接影響**：
+> ⚠️ **SCIM 的文件不一致（v2.1 新增）**：截至 2026-09-24，「What is the Team plan」支援頁的功能清單列有「SCIM support」；但 Feature availability 頁、「Set up JIT or SCIM provisioning」頁（明文：*SCIM provisioning is available for Enterprise and Console organizations only*）與 Enterprise 方案頁三處都寫 SCIM 為 Enterprise 專屬。本手冊**以三處一致的說法（Team 無 SCIM）作為規劃基準**，並列入 [C.3](#c3-本手冊明確標示為待確認的事項)。**若 Team 方案的 JML 自動化設計仰賴 SCIM，必須先取得 Anthropic 書面確認。**
 
-1. **若組織需要 SCIM 自動化人員異動**（第 5 章 JML 流程），Team 方案做不到，必須走 Enterprise。這會直接改變第 5 章的席位管理設計。
+> ⚠️ **「內建起始權限模式」是 v2.1 最重要的新增事實**【官方】：自 2026-08-14 起，Pro、Max、**Team** 方案在終端機與 VS Code 擴充中，新 session 的內建起始模式是 **Auto Mode**；Enterprise、Console API key 與第三方雲端 Provider 則是 Manual（設定值 `default`）。**Team 方案若沒有部署任何 Managed Settings，全組織預設就是由分類器代替人審核動作**。治理意涵見第 16 章 16.5 與第 49 章 49.5。
+
+**這張表對架構決策的四個直接影響**：
+
+1. **若組織需要 SCIM 自動化人員異動**（第 5 章 JML 流程），以目前多數官方文件的說法，Team 方案做不到，必須走 Enterprise。這會直接改變第 5 章的席位管理設計。Team 方案可改用 **JIT＋IdP 群組對應**做到「半自動」（第 5 章 5.6.3）。
 2. **若組織需要程式化取得用量資料來建自己的 Dashboard**（第 33 章），Team 方案沒有 Analytics API，只能靠 CSV 匯出或 OpenTelemetry。
-3. **若法遵要求 ZDR**，必須是 Enterprise **且**通過 Anthropic 資格審核；且開啟 ZDR 後 **Contribution 指標將不可用**（第 31 章），度量體系需改用 OpenTelemetry 重建。
+3. **若法遵要求 ZDR**，必須是 Enterprise **且**通過 Anthropic 資格審核；且開啟 ZDR 後 **Contribution 指標、Code Review、Ultrareview 都不可用**（第 21、31 章），度量體系需改用 OpenTelemetry 重建。
+4. **若組織要依角色限制模型或 effort**（例如「一般成員不可用 Opus」），Team 方案沒有 admin console 的伺服器端管控，只能以 Managed Settings 的 `availableModels`、`enforceAvailableModels`、`maxEffortLevel` 在用戶端強制（第 5 章 5.5.6、第 49 章 49.4）。
 
 ### 4.6.2 依 Provider（以認證方式區分）【官方】
 
@@ -1872,28 +1924,30 @@ Agent 會做出很多技術決策。若不記錄，三個月後沒有人知道�
 2. 建立 **JML（Joiner / Mover / Leaver）** 標準流程
 3. 建立**席位配置與用量預算**的決策依據
 
-> 📌 **本章所有方案、席位、定價、用量相關敘述皆為「截至 2026-09-17」的查證結果**，Anthropic 可能隨時調整。實際導入請以官方最新文件與貴組織合約為準。
+> 📌 **本章所有方案、席位、定價、用量相關敘述皆為「截至 2026-09-24」的查證結果**，Anthropic 可能隨時調整。實際導入請以官方最新文件與貴組織合約為準。
 
 ---
 
 ## 5.2 Team 與 Enterprise 方案的基本事實
 
-### 5.2.1 Team 方案已查證的事實（截至 2026-09-17）【官方】
+### 5.2.1 Team 方案已查證的事實（截至 2026-09-24）【官方】
 
 | 項目 | 內容 |
 | --- | --- |
 | 席位下限 / 上限 | 最少 2 個成員；**最多 150 個席位**（超過須升級 Enterprise） |
 | 席位類型 | **Standard** 與 **Premium**（官方中文介面亦稱「進階席位」）兩種 |
-| 用量倍率 | Standard 每個 session 約為 Pro 的 **1.25 倍**；Premium 約為 **6.25 倍**。**按成員個別計算，非全團隊共用池**，每週重置 |
+| 用量倍率 | Standard 每個 session 約為 Pro 的 **1.25 倍**；Premium 約為 **6.25 倍**。**按成員個別計算，非全團隊共用池** |
+| **額度視窗**（v2.1 補充） | 5 小時 rolling window＋每週上限；**每週上限在指派給各帳號的固定日期重置**（不是全組織同一天）。額度**與 Claude chat、Cowork 共用** |
 | 定價 | Standard：月付 $25／年付約 $20 每月；Premium：月付 $125／年付約 $100 每月（未稅，依地區調整） |
 | Claude Code 取得 | **Claude Code 包含於每一個 Team 方案席位**中 |
-| 身分管理 | SSO、JIT provisioning、網域擷取（domain capture）、角色型權限 |
-| **支出上限** | **可於組織層級與個人層級設定支出上限（spend cap）** |
-| 其他包含項目 | 所有可用模型、Cowork、Projects、知識庫、企業搜尋與工作場所連接器（Google Drive／Gmail／Google Calendar／GitHub／Microsoft 365／Slack） |
-| 上下文視窗 | 200K |
-| 超額處理 | 可啟用 **usage credits**，讓成員在達到方案內含額度後繼續工作 |
-| 管理位置 | Organization settings > Organization（購買或重新指派席位） |
+| 身分管理 | SSO、JIT provisioning、網域擷取（domain capture）、角色型權限；**SCIM 見 5.2.5【⚠️ 文件不一致】** |
+| **支出上限** | **可於組織層級與個人層級設定支出上限（spend cap）**；席位等級（Standard／Premium）層級的上限**僅 Enterprise** 提供 |
+| 其他包含項目 | 所有可用模型、Cowork、Projects、知識庫、企業搜尋（預先設定、自動佈建）與工作場所連接器（Google Drive／Gmail／Google Calendar／GitHub／Microsoft 365／Slack）；尖峰時段優先存取；新功能搶先使用 |
+| 上下文視窗 | 200K（Claude app 對話）；Claude Code 中 Opus 5.5、Sonnet 5、Fable 5.1 等模型支援 **1M token** 上下文（見 5.5.3） |
+| 超額處理 | 可啟用 **usage credits**，讓成員在達到方案內含額度後繼續工作。Team 為**預付**（可設自動儲值），以標準 API 費率計價 |
+| 管理位置 | Organization settings > Organization（購買或重新指派席位）；Organization settings > Usage（usage credits 與支出上限） |
 | Analytics 最低版本 | Claude Code 2.0.28 以上 |
+| **Claude Code 最低建議版本**（v2.1 新增） | 支援文件以 **v2.1.273 以上**作為排除問題與 claude.ai skills 同步的前提（第 11 章 11.5.2） |
 
 > 📌 **「1.25 倍 / 6.25 倍」該怎麼用**：這是**相對於 Pro 方案單一 session** 的倍率，不是絕對 token 數。它可用於**相對比較**（Premium 約為 Standard 的 5 倍），但**不足以據此推算絕對用量預算**——因為 Pro 的基準值本身未公開。編列預算請以 Pilot 實測值為準（第 25 章），不要用倍率反推。
 
@@ -1904,25 +1958,36 @@ Agent 會做出很多技術決策。若不記錄，三個月後沒有人知道�
 | 需求 | Team | Enterprise | 影響的章節 |
 | --- | :---: | :---: | --- |
 | 席位數超過 150 | ✗ | ✓ | 第 5、38 章 |
-| **SCIM 自動化人員異動** | ✗ | ✓ | 第 5 章 JML 流程 |
+| **SCIM 自動化人員異動** | ✗【⚠️ 文件不一致，見 5.2.5】 | ✓ | 第 5 章 JML 流程 |
 | **Compliance API**（合規稽核介接） | ✗ | ✓ | 第 23、36 章 |
+| **稽核日誌（Audit logs）**（v2.1 補充） | ✗ | ✓ | 第 23、36 章 |
 | **Enterprise Analytics API**（程式化取得用量與成本） | ✗ | ✓ | 第 31、33 章 |
 | **Zero Data Retention（ZDR）** | ✗ | ✓（**非標準內含**，須 Anthropic 個別啟用且帳號符合資格） | 第 23、36 章 |
+| **自訂資料保留期**（v2.1 補充） | ✗ | ✓ | 第 23 章 |
+| **客戶自管加密金鑰（CMEK）**（v2.1 補充） | ✗ | ✓ | 第 23 章 |
+| **僅限美國境內推論（US-only inference）**（v2.1 補充） | ✗ | ✓ | 第 23、53 章（資料落地） |
+| **IP allowlisting**（透過 tenant restrictions，v2.1 補充） | ✗ | ✓ | 第 23 章 |
+| **自訂角色（Role-based custom roles）**（v2.1 補充） | ✗ | ✓ | 第 5 章 5.3 |
+| **HIPAA-ready 設定與 BAA 資格**（v2.1 補充） | ✗ | ✓（**不涵蓋 Claude Code**，見下方警示） | 第 23 章 |
+| **組織層級模型限制、預設模型、effort 上限**（v2.1 補充） | ✗ | ✓ | 第 5 章 5.5.6 |
+| **席位等級層級的支出上限**（v2.1 補充） | ✗ | ✓ | 第 5 章 5.5.4 |
 
-**Enterprise 的席位形態有兩種，計費方式不同**：
+**Enterprise 的席位形態（v2.1 依 Enterprise 方案頁更新）**：
 
 | 形態 | 說明 |
 | --- | --- |
-| **新版（自助式）Enterprise** | Claude Code 包含於每一個 Enterprise 席位，無須另行購買 |
-| **舊版 Enterprise** | 區分「Chat + Claude Code 席位」（用量計費）與「Premium 席位」（席位計費）；Owner 須自行購買或重新指派 |
+| **現行（用量計費）Enterprise** | **單一全包式席位**，按人按月、年繳。**席位費只涵蓋平台存取**，Claude、Claude Code、Cowork 的用量**另依標準 API 費率計費**，**沒有方案或席位層級的用量上限**。自助式最少 **20 席**、業務協助採購最少 **50 席**；多幣別僅限業務協助採購，自助式僅收美元 |
+| **舊版 Enterprise** | 仍使用「Chat／Chat + Claude Code 席位」或「Standard／Premium 席位」的組織，**在合約續約時轉換為現行用量計費模式**；Owner 須自行購買或重新指派席位 |
 
-**用量計費型的 Enterprise 方案**沒有每席位用量上限，而是依實際消耗以 API 費率計費。這種方案的預算控制邏輯與席位制完全不同，第 29～33 章的成本管理設計需相應調整。
+**用量計費型的 Enterprise 方案**沒有每席位用量上限，而是依實際消耗以 API 費率計費。這種方案的預算控制邏輯與席位制完全不同，第 29～33 章的成本管理設計需相應調整。官方 consumption guide 的原則是「**先保守設限，依申請再調高**」——調高上限比事後處理超支容易得多。
+
+> ⚠️ **Team 與舊版 Enterprise 客戶的續約風險**【建議】：若目前是舊版席位制 Enterprise，**續約後會轉為用量計費**，第 5.4 節的席位配置策略、第 32 章月報中的成本欄位、第 29 章的成本 KPI 都要重新設計。請在續約前 1～2 季開始以 OpenTelemetry 蒐集實際 token 用量作為議價與預算依據。
 
 > ⚠️ **HIPAA 相關的重要限制**【官方】：官方於 2026-06-11 更新說明，**HIPAA-ready 的 Enterprise 方案，其 HIPAA 涵蓋範圍不包含 Claude Code**，即使席位已內含 Claude Code。醫療照護或處理 PHI 的組織，**不可假設 Claude Code 受既有 BAA 保護**。導入前必須與法務及 Anthropic 窗口逐項確認，詳見第 23、36 章。
 
 ### 5.2.3 Analytics API 的可得性（v1.0.0 標示為「待確認」，v2.0 已查證）【官方】
 
-v1.0.0 將「Analytics 是否提供 API 介接」列為待確認。截至 2026-09-17 已可確認：
+v1.0.0 將「Analytics 是否提供 API 介接」列為待確認。截至 2026-09-24 已可確認：
 
 | 認證方式 | 可用的 API | 取得方式 |
 | --- | --- | --- |
@@ -1938,12 +2003,25 @@ v1.0.0 將「Analytics 是否提供 API 介接」列為待確認。截至 2026-0
 
 | 項目 | 狀態 |
 | --- | --- |
-| 5 小時 / 每週 rolling window 的精確數值 | **【待確認】** 官方明確表示不公開具體數字，且會依模型與方案調整。官方立場是以 CLI 內的提示與重置時間為準 |
-| usage credits 的計價方式與最小購買單位 | **【待確認】** |
-| Team 方案是否支援自訂資料保留期 | **【待確認】**（ZDR 僅 Enterprise，一般保留期見官方 Privacy Center） |
-| 支出上限（spend cap）觸及後的實際行為 | **【待確認】** 是硬性阻擋或僅告警，需實測 |
-| 台灣地區的實際計價幣別與稅務處理 | **需依組織實際合約決定** |
-| Premium 席位是否可與 usage credits 併用及其優先順序 | **【待確認】** |
+| 5 小時 / 每週 rolling window 的精確數值 | **【待確認】** 官方明確表示不公開具體數字，且會依模型與方案調整。官方立場是以 CLI 內的提示與重置時間為準；個人可用 `/usage` 查看目前消耗與驅動因子（第 30 章） |
+| usage credits 的計價方式與最小購買單位 | **v2.1 部分查證**：以**標準 API 費率**計價；Team 為**預付**並可設「餘額低於門檻時自動儲值」；席位制 Enterprise 為**月底依實際用量後付**。**最小購買單位仍【待確認】** |
+| Team 方案是否支援自訂資料保留期 | **v2.1 查證**：**不支援**。自訂資料保留期為 Enterprise 專屬功能；商用方案（Team／Enterprise／API）標準保留期為 **30 天**（第 23 章 23.8） |
+| 支出上限（spend cap）觸及後的實際行為 | **v2.1 查證：硬性阻擋**。官方原文：成員「在下一個計費週期之前，或上限被調整之前，無法再使用 Claude、Cowork 或 Claude Code」。credits 用完但沒有設上限時，成員需等待席位額度重置 |
+| 台灣地區的實際計價幣別與稅務處理 | **需依組織實際合約決定**（Enterprise 自助式僅收美元；多幣別限業務協助採購） |
+| Premium 席位是否可與 usage credits 併用及其優先順序 | **部分查證**：usage credits 適用於 Standard 與 Premium 席位成員，在「達到內含額度之後」才開始計費；**兩者的精確扣抵順序官方未說明，仍【待確認】** |
+| **Team 方案是否支援 SCIM**（v2.1 新增） | **【⚠️ 文件不一致】**，見 5.2.5 |
+
+> ⚠️ **「支出上限＝硬性阻擋」對衝刺期的影響**【建議】：v2.0 將此列為待確認並建議實測。v2.1 已查證為硬性阻擋，因此**必須事先設計「緊急放行」程序**：由誰（Owner／Primary Owner）、在多長時間內（建議 1 個工作小時內）、依什麼條件（專案經理書面申請＋部門主管核准）調高個人上限；並在第 32 章月報中揭露每次放行紀錄。
+
+### 5.2.5 官方文件不一致與本手冊採用的規劃基準（v2.1 新增）【⚠️ 文件不一致】
+
+| 項目 | 說法 A | 說法 B | 本手冊的規劃基準 |
+| --- | --- | --- | --- |
+| **Team 是否支援 SCIM** | 「What is the Team plan」功能清單列有「SCIM support」 | Feature availability、「Set up JIT or SCIM provisioning」、Enterprise 方案頁三處皆寫 SCIM 僅 Enterprise（與 Console） | **Team 無 SCIM**。JML 以 JIT＋群組對應＋月度對帳設計（5.6.3、5.7） |
+| **誰能看 Claude Code Analytics** | 支援文件：Team 僅 Owner 與 Primary Owner | code.claude.com Analytics 頁：Admins 與 Owners 可檢視 | **以最小權限規劃**：Team 只授權 Owner 檢視；若要讓 Admin 檢視，先實測（第 31 章 31.1.6） |
+| **Contribution 指標支援的 Git 平台** | 支援文件：需 GitHub Cloud | code.claude.com Analytics 頁：支援 GitHub Cloud 與 GitHub Enterprise Server | **GHES 用戶先以 Pilot 驗證**再納入 KPI（第 31 章 31.1.4） |
+
+> 🎯 **處理文件不一致的原則**：(1) 以「多數且較新的技術文件」為規劃基準；(2) 把差異列入 [C.3](#c3-本手冊明確標示為待確認的事項)；(3) **凡會影響稽核控制設計的項目，一律向 Anthropic 窗口取得書面確認後才寫進內規**。
 
 ---
 
@@ -1962,9 +2040,11 @@ Anthropic 組織提供角色型權限。**企業必須先把這些角色對應�
 | **Admin**（若方案支援） | 平台團隊工程師 | 2～4 人 | 使用者管理、日常維運 |
 | **Member** | 全體開發同仁 | 其餘 | 使用 Claude Code |
 
+> 📌 **v2.1 補充：IdP 群組對應時使用的角色名稱**【官方】。依「Set up JIT or SCIM provisioning」支援文件，IdP 群組可對應到的角色為 **Owner、Admin、User、Custom**（「User」即上表的 Member）。其中 **Custom（自訂角色）為 Enterprise 專屬**；Primary Owner 不透過群組對應指派。另外，**只有 Primary Owner 能啟用 Enterprise Analytics API**，且 Enterprise 的 Admin **看不到 Spend 區塊**——這兩點在設計「誰能看成本」時必須納入。
+
 > ⚠️ **Primary Owner 只能有一位，且必須有明確的代理人安排**。若該人員離職或長假，組織會無法處理計費與席位問題。建議在企業內規中明訂代理機制。
 
-> **【⚠️ 文件不一致】** 截至 2026-09-17，Anthropic 官方兩處文件對 Analytics 檢視權限的描述**並不一致**：
+> **【⚠️ 文件不一致】** 截至 2026-09-24，Anthropic 官方兩處文件對 Analytics 檢視權限的描述**並不一致**：
 >
 > | 來源 | 描述 |
 > | --- | --- |
@@ -1993,7 +2073,7 @@ Anthropic 組織提供角色型權限。**企業必須先把這些角色對應�
 
 ## 5.4 席位配置策略：誰該拿 Premium
 
-Standard 與 Premium 的價差約 5 倍，用量差距約 5 倍（1.25x vs 6.25x，截至 2026-09-17）。因此問題不是「誰比較重要」，而是**「誰的工作型態會大量消耗用量」**。
+Standard 與 Premium 的價差約 5 倍，用量差距約 5 倍（1.25x vs 6.25x，截至 2026-09-24）。因此問題不是「誰比較重要」，而是**「誰的工作型態會大量消耗用量」**。
 
 ### 5.4.1 用量消耗的主要驅動因子
 
@@ -2078,7 +2158,7 @@ flowchart TB
 
 > 📌 **v2.0 變更**：新增第 4 層。前三層都依賴「人會遵守」或「事後發現」，第 4 層則是**機器直接擋下來**。經驗上，只有第 1～3 層的組織，成本失控事件仍會週期性發生（見 4.7 本章實務案例）。第 4 層的設定細節見第 49 章。
 
-### 5.5.2 第 1 層：官方建議的成本節約習慣（截至 2026-09-17）
+### 5.5.2 第 1 層：官方建議的成本節約習慣（截至 2026-09-24）
 
 官方在「Models, usage and limits in Claude Code」中提出五項習慣，本手冊將其轉化為**可執行的團隊規範**：
 
@@ -2092,37 +2172,60 @@ flowchart TB
 
 ### 5.5.3 模型選擇指引
 
-> 📌 **官方立場**：Claude Code 可用的模型**會隨時間變動**，官方明確表示 **`/model` 指令是唯一的真實來源**，並刻意不在文件中固定列出模型名稱。下表以模型**層級（tier）**描述，不綁定特定版本代號，以免手冊過時。實際可用模型請在貴組織環境執行 `/model` 確認。
+> 📌 **官方立場**：Claude Code 可用的模型**會隨時間變動**，官方明確表示 **`/model` 指令是唯一的真實來源**。下表以**模型別名（alias）**為主軸，版本代號只作為「截至查證日」的參考，實際可用模型請在貴組織環境執行 `/model` 確認。
 
-截至 2026-09-17，Claude Code 提供三個模型層級，可用 `/model` 切換：
+**v2.1 重大更新：預設模型與模型陣容已經改變**【官方】。截至 2026-09-24，官方 Model configuration 頁面所列，以 Claude 訂閱（Pro／Max／Team Standard／Team Premium／Enterprise）登入時，`/model` 的 **Default 選項為 Opus 5.5**，且 Opus 5.5 的預設 effort 為 **`medium`**（其他支援 effort 的模型預設為 `high`）。v2.0 所寫的「Sonnet 為預設」**已不再成立**。
 
-| 模型 | 官方定位 | 企業建議使用場景 | 不建議場景 |
-| --- | --- | --- | --- |
-| **Sonnet**（預設） | 多數編碼任務的推薦選項，快速、能力強、成本效率佳 | 日常功能開發、單元測試、Bug 修正、Code Review、文件撰寫 | — |
-| **Opus** | 需要深度推理的複雜問題，例如大型重構與架構決策 | 架構設計、大規模重構規劃、Legacy 逆向分析、升版相容性評估 | 簡單 CRUD、格式調整 |
-| **Haiku** | 最快且最便宜，適合快速編輯與簡單任務 | 格式調整、commit message、簡單重新命名、批次小修改 | 需要跨檔推理的任務 |
+| 別名 | 官方定位 | 截至 2026-09-24 解析到的模型（Anthropic API） | 企業建議使用場景 | 不建議場景 |
+| --- | --- | --- | --- | --- |
+| **`default`** | 清除覆寫，回到帳號類型的預設 | Opus 5.5（Team／Enterprise 訂閱） | — | — |
+| **`fable`** | 能力最強、適合最長的 session | Fable 5.1（需 v2.1.257+）；其他 Provider 解析為 Fable 5 | 跨系統架構決策、超大型 Legacy 逆向工程 | **日常開發**；**非互動式批次**（見下方計費警示） |
+| **`best`** | 可用中最強的模型 | 有 `fable` 則用 `fable`，否則 `opus` | 不建議寫進團隊規範（解析結果會隨方案變動） | — |
+| **`opus`** | 複雜推理 | Opus 5.5 | 架構設計、大規模重構規劃、升版相容性評估 | 簡單 CRUD、格式調整 |
+| **`sonnet`** | 日常編碼 | Sonnet 5 | 日常功能開發、單元測試、Bug 修正、文件撰寫 | — |
+| **`haiku`** | 快速、低成本 | 最新 Haiku | 格式調整、commit message、批次小修改；也適合設為 subagent 模型 | 需要跨檔推理的任務 |
+| **`opusplan`** | 規劃用 Opus、執行用 Sonnet | Opus → Sonnet | **Plan Mode 為主的工作流**：先以 Opus 出計畫、再以 Sonnet 實作，兼顧品質與成本 | — |
+| **`sonnet[1m]`／`opus[1m]`** | 1M token 上下文視窗 | 對應模型的長上下文版本 | Monorepo 全域分析、長篇規格比對 | 一般任務（上下文越長，每回合成本越高） |
 
-**團隊規範建議**：
+> ⚠️ **Fable 的計費陷阱**【官方】：在部分方案上，**Fable 的用量計入 usage credits**。互動式 session 會先顯示同意提示；但 **`-p` 非互動模式會直接計費、不會詢問**；使用組織計費的 Enterprise 成員也不會看到提示。**若組織在 CI 或排程腳本（第 48 章）中寫了 `--model fable` 或 `best`，可能在沒有任何人察覺的情況下持續消耗 usage credits**。建議以 `availableModels` 在 CI 環境排除 `fable`（第 49 章 49.4），並列為風險 R-31（第 37 章）。
+
+> ⚠️ **第三方 Provider 的別名解析不同**：`sonnet` 在 Amazon Bedrock、Google Cloud Agent Platform、Microsoft Foundry 上解析為 Sonnet 4.5，在 Claude Platform on AWS 上解析為 Sonnet 4.6；Microsoft Foundry 的預設模型也與訂閱方案不同。**混合 Provider 的組織，同一份團隊規範在不同 Provider 上會跑到不同模型**，需以 `ANTHROPIC_DEFAULT_OPUS_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL` 等環境變數釘選版本（第 47 章）。
+
+**effort（推理強度）分級**【官方】：
+
+| 模型 | 支援的 effort 等級 | 預設 |
+| --- | --- | --- |
+| Fable 5.1／Fable 5 | `low`、`medium`、`high`、`xhigh`、`max` | `high` |
+| Opus 5.5 | `low`、`medium`、`high`、`xhigh`、`max` | **`medium`** |
+| Opus 5、Sonnet 5、Opus 4.8 | `low`、`medium`、`high`、`xhigh`、`max` | `high` |
+| Opus 4.7 | 同上 | `xhigh` |
+
+另有特殊等級 **`ultracode`**（`claude --effort ultracode` 或 `/effort ultracode`）：以 `xhigh` 搭配 dynamic workflows 一次協調大量 subagent。**它的 token 消耗遠高於一般 session**，組織停用 workflows 或 effort 上限低於 `xhigh` 時即不可用。
+
+**團隊規範建議**【建議】：
 
 ```markdown
-## 模型使用規範
+## 模型使用規範（v2.1）
 
-1. **預設使用 Sonnet**。除非符合下列例外。
-2. **使用 Opus 的條件**（需符合任一）：
+1. **日常開發使用 `sonnet`**。Team Standard 席位的額度只有 Pro 的 1.25 倍，
+   若沿用官方預設的 Opus 5.5，額度會明顯較快耗盡（見 5.5.6 的預設模型設定）。
+2. **使用 `opus` 或 `opusplan` 的條件**（需符合任一）：
    - 影響 3 個以上模組的架構決策
    - 超過 50 個檔案的重構規劃
    - Legacy 系統的商業規則抽取
    - 框架升版的相容性分析
-3. **使用 Haiku 的條件**：
-   - 單檔、無跨檔影響的機械性修改
-4. **Opus 使用需在 PR 描述中說明理由**（供第 31 章成本分析使用）。
+3. **使用 `fable` 的條件**：需 Tech Lead 事前同意，且只能在互動式 session 使用；
+   **禁止在 CI、排程、`-p` 腳本中使用 `fable` 與 `best`**。
+4. **使用 `haiku` 的條件**：單檔、無跨檔影響的機械性修改；subagent 可預設 `haiku`。
+5. **effort 預設不超過 `high`**；`xhigh`、`max`、`ultracode` 限架構與升版任務使用。
+6. **Opus／Fable 的使用需在 PR 描述中說明理由**（供第 31 章成本分析使用）。
 ```
 
-> ✅ **v2.0 補充：以「推理強度（effort level）」做更細的成本控制**【官方】。除了換模型，Claude Code 另提供 effort level 調整，且組織可用 `maxEffortLevel` 設定上限（全域或逐模型）。這比「禁止使用 Opus」更精細——允許使用高階模型但限制其推理深度，在成本與能力之間取得平衡。Enterprise 方案另可在組織後台設定「依角色的 effort 上限」，由伺服器端強制。設定方式見第 49 章。
+> ✅ **以「推理強度（effort level）」做更細的成本控制**【官方】。除了換模型，組織可用 `maxEffortLevel` 設定 effort 上限（全域或逐模型、所有 Provider 皆適用）。這比「禁止使用 Opus」更精細——允許使用高階模型但限制其推理深度。Enterprise 方案另可在組織後台設定「依角色、依模型的 effort 上限」，由伺服器端強制（v2.1.195+）。完整的模型治理設計見 5.5.6 與第 49 章 49.4。
 
 ### 5.5.4 第 3 層：usage credits 與支出上限政策
 
-截至 2026-09-17，席位制方案在成員達到內含額度後，**組織可選擇啟用 usage credits 讓成員繼續工作**。此外，**Team 方案已支援在組織層級與個人層級設定支出上限（spend cap）**。
+截至 2026-09-24，席位制方案在成員達到內含額度後，**組織可選擇啟用 usage credits 讓成員繼續工作**。此外，**Team 方案已支援在組織層級與個人層級設定支出上限（spend cap）**。
 
 企業必須**事先**決定以下政策，不要等到有人被擋住才臨時決定：
 
@@ -2135,9 +2238,22 @@ flowchart TB
 | 成本歸屬 | 依專案歸屬，於月報中呈現（第 32 章） |
 | 例外處理 | 專案衝刺期可申請臨時提高，需部門主管核准 |
 
-> ⚠️ **【待確認】** 支出上限觸及後的實際行為（硬性阻擋、或僅發送告警）官方未明確說明。**請在 Pilot 期間以低額度實測**，並依實測結果設計第 32 章的告警與升級流程。若是硬性阻擋，必須事先規劃「衝刺期緊急放行」的作業程序，否則會在最忙的時候讓整個團隊停擺。
+> ⚠️ **支出上限觸及後的行為（v2.1 已查證）**【官方】：**硬性阻擋**。成員「在下一個計費週期之前，或上限被調整之前，無法再使用 Claude、Cowork 或 Claude Code」。因此**必須事先規劃「衝刺期緊急放行」的作業程序**（見 5.2.4 的建議），否則會在最忙的時候讓整個團隊停擺。Pilot 期間仍建議以低額度實測一次，確認通知路徑與放行時效。
 
-> ⚠️ **成本分析的重大盲點**：截至 2026-09-17，對於**席位制方案且啟用 usage credits** 的組織，匯出的花費報表**只反映超出席位額度的花費**，不包含席位內含的用量。
+**支出上限的層級與設定位置（v2.1 補充）**【官方】：
+
+| 層級 | Team | 席位制 Enterprise | 設定位置 |
+| --- | :---: | :---: | --- |
+| 組織層級（每月） | ✓ | ✓ | Organization settings > Usage |
+| 席位等級層級（Standard／Premium 分開設） | ✗ | ✓ | 同上 |
+| 群組層級（依 RBAC 群組） | ✗ | ✓（consumption guide） | 同上 |
+| 個別成員（每月） | ✓ | ✓ | Spend limits by user → 「…」→ Edit limit |
+
+**成員端的可見性**：成員執行 `/usage` 可看到**自己本月的 usage credits 花費與適用於自己的上限**（組織層級的上限不會顯示）；沒有帳單權限的成員執行 `/usage-credits` 時，只會送出申請給管理員（互動模式下會先確認；`-p` 模式與 Remote Control 不送出）。另可用 `/insights` 產生個人使用模式的 HTML 報告（第 30 章）。
+
+> 📌 **哪些功能一定走 usage credits**【官方】：**Code Review**（平均每次 $15–25）、**Ultrareview**（Team／Enterprise 沒有免費次數，每次約 $5–25）與部分方案上的 **Fable** 模型，**不消耗席位額度，而是直接計入 usage credits**。若組織沒有啟用 usage credits，這些功能就無法使用；若啟用了，**這些用量會和一般超額混在同一份支出報表**，第 32 章月報需拆開呈現（第 21 章 21.5.2、第 37 章 R-31）。
+
+> ⚠️ **成本分析的重大盲點**：截至 2026-09-24，對於**席位制方案且啟用 usage credits** 的組織，匯出的花費報表**只反映超出席位額度的花費**，不包含席位內含的用量。
 >
 > 這代表：一個「花費報表為 $0」的使用者，可能是**完全沒用**，也可能是**用好用滿但剛好沒超額**——兩者在報表上無法區分。若要看到完整用量（含席位內含的部分），必須改用 **OpenTelemetry 匯出**（第 31 章）。第 30 章「個人使用率管理」若誤用花費報表作為使用率指標，會得到完全錯誤的結論。
 
@@ -2151,6 +2267,35 @@ flowchart TB
 | 第 4 層（技術強制） | IT 平台 + AI Governance | 每季 | Managed Settings 政策更新（第 49 章） |
 
 > 🎯 **成本失控幾乎從來不是「模型太貴」，而是「使用方法不對」**。第 30 章會說明：頻繁觸及上限的使用者，通常是不清除上下文、任務切得太大、或該用低階模型卻用高階模型——**直接提高額度等於用錢掩蓋問題**。
+
+### 5.5.6 組織層級的模型與 effort 管控（v2.1 新增）【官方】
+
+v2.1 查證後，模型治理已經從「寫在規範裡請大家遵守」變成「可以技術強制」。依方案不同，可用的管控手段分成兩條路：
+
+| 管控目的 | Enterprise（claude.ai admin console，伺服器端強制） | Team 與第三方 Provider（Managed Settings，用戶端強制） |
+| --- | --- | --- |
+| 限制可用模型 | **Organization model restrictions**：依角色停用模型，約 1 分鐘生效；Haiku 永遠可用 | `availableModels`（支援別名、版本前綴、精確版本；空陣列 `[]` 只留 Default） |
+| 讓 Default 也受限制 | 同上（與 `availableModels` 兩者都允許才可用） | `enforceAvailableModels: true`：Default 解析為 `availableModels` 中第一個可用模型 |
+| 設定新 session 的預設模型 | **Organization default model**：依角色設定；「強制預設」僅開放給部分組織，需洽 Anthropic 窗口 | Managed Settings 的 `model`，或環境變數 `ANTHROPIC_DEFAULT_MODEL`（組織已設預設模型、`enforceAvailableModels` 開啟、或值為 `default`／`inherit`／`opusplan`／`haiku` 時會被忽略） |
+| 自訂 `/model` 選單 | — | `modelPicker`（使用者或 managed 層級） |
+| 限制 effort | **Organization effort limits**：依角色、依模型設定上限（v2.1.195+），伺服器端強制 | `maxEffortLevel`（全域或逐模型；兩種上限同時存在時取較低者） |
+| 備援模型 | — | `fallbackModel`（最多 3 個，超出 `availableModels` 的項目會被捨棄） |
+| 釘選版本（第三方 Provider） | — | `ANTHROPIC_DEFAULT_OPUS_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_FABLE_MODEL`、`CLAUDE_CODE_SUBAGENT_MODEL` |
+
+> 📌 **Enterprise admin console 的模型管控，到不了 Amazon Bedrock、Google Cloud Agent Platform、Microsoft Foundry 與 Claude Platform on AWS 的 session**。混合 Provider 的組織，必須兩條路一起做。
+
+**Team 方案的建議設定（依席位分級）**【建議】：
+
+| 對象 | 建議政策 | 以 Managed Settings 落實 |
+| --- | --- | --- |
+| 全組織 | 排除 `fable` 於非互動環境；effort 上限 `high` | CI／排程主機的 managed settings：`availableModels` 不列 `fable`；`maxEffortLevel: "high"` |
+| Standard 席位成員 | 預設 `sonnet`，需要時手動切 `opus`／`opusplan` | `model: "sonnet"`（**不開** `enforceAvailableModels`，保留切換彈性） |
+| Premium 席位成員 | 保留官方預設（Opus 5.5，effort `medium`） | 不覆寫 |
+| 受監管專案 | 只允許經評估的模型版本，並納入變更管理 | `availableModels` 使用**精確版本**＋`enforceAvailableModels: true` |
+
+> ⚠️ **Team 的 Server-managed settings 是「全組織一份」**。若要依席位或專案套用不同模型政策，需搭配檔案式或 MDM 版本的 Managed Settings 依裝置群組投遞（第 49 章 49.3）；或者乾脆以「Standard 預設 sonnet」作為全組織預設，Premium 成員再自行切換。
+
+> 🎯 **模型治理的正確順序**：先以 Pilot 資料（第 25 章）確認各類任務在不同模型與 effort 下的品質差異，**再**設上限。沒有資料就先鎖死 Opus，常見結果是「成本省了，但架構類任務的重工成本更高」。
 
 ---
 
@@ -2176,13 +2321,13 @@ flowchart TB
     style DEPROV fill:#f8d7da
 ```
 
-> 📌 **v2.0 更新**：截至 2026-09-17，Team 方案提供 **SSO、JIT provisioning、網域擷取（domain capture）** 與角色型權限；**SCIM 為 Enterprise 方案專屬**【官方】。
+> 📌 **v2.0 更新**：截至 2026-09-24，Team 方案提供 **SSO、JIT provisioning、網域擷取（domain capture）** 與角色型權限；**SCIM 為 Enterprise 方案專屬**【官方】。
 >
 > 這對本節流程設計有直接影響：
 >
 > | 方案 | 人員異動如何反映到 Claude 組織 | 對 JML 流程的意義 |
 > | --- | --- | --- |
-> | **Team** | 無 SCIM。新進靠 SSO/JIT 自動建立；**離職與轉調必須人工處理** | 5.7 節的 Leaver 流程**必須有人工檢核點與月度對帳**，否則席位會殘留 |
+> | **Team** | 無 SCIM（官方文件有不一致，見 5.2.5）。新進靠 SSO/JIT 自動建立；**JIT＋群組對應可在下次登入時更新角色與席位等級（5.6.3）**；**離職必須人工處理** | 5.7 節的 Leaver 流程**必須有人工檢核點與月度對帳**，否則席位會殘留 |
 > | **Enterprise** | SCIM 可由 IdP 自動同步建立、更新、停用 | 可自動化，但仍建議保留季度對帳 |
 >
 > ⚠️ **Team 方案最常見的稽核缺失就是「離職人員席位未釋出」**，根因正是沒有 SCIM 而流程又只靠人記得。5.7.3 節的月度對帳機制**在 Team 方案是必要控制，不是選配**。
@@ -2192,6 +2337,33 @@ flowchart TB
 「網域擷取」可讓使用企業信箱網域註冊的使用者自動納入組織管理。
 
 > ⚠️ **啟用前必須先盤點**：組織內是否已有同仁用公司信箱註冊了**個人付費帳號**？啟用網域擷取可能影響這些既有帳號。請先發公告並給予緩衝期。
+
+### 5.6.3 以 IdP 群組對應角色與席位等級（v2.1 新增）【官方】
+
+v2.1 查證發現：**JIT 與 SCIM 都支援「群組對應（group mapping）」**，而且在 Team 與席位制 Enterprise 上，群組除了能對應**角色**，還能對應**席位等級（Premium／Standard）**。這讓沒有 SCIM 的 Team 方案也能做到「半自動」的 JML。
+
+| 機制 | 可用方案 | 角色對應 | 席位等級對應 | 異動何時生效 |
+| --- | --- | --- | --- | --- |
+| **JIT＋群組對應** | Team、Enterprise、Console | Owner／Admin／User（Enterprise 另有 Custom） | Team、席位制 Enterprise：Premium／Standard | **使用者下次登入時**依群組成員資格更新 |
+| **SCIM＋群組對應** | Enterprise、Console | 同上 | 席位制 Enterprise：Premium／Standard | **自動同步**，不需等使用者登入 |
+| 單一席位型 Enterprise | Enterprise（用量計費） | 同上 | 不適用（只有一種席位） | — |
+
+**Team 方案的建議群組設計**【建議】：
+
+| IdP 群組 | 對應角色 | 對應席位 | 群組擁有者（核准人） |
+| --- | --- | --- | --- |
+| `claude-owners` | Owner | Premium | CIO 授權代表 |
+| `claude-admins` | Admin | Standard | AI Governance 召集人 |
+| `claude-premium` | User | **Premium** | 部門主管（依 5.4.2 席位配置決策表核准） |
+| `claude-standard` | User | **Standard** | Team Lead |
+
+> ⚠️ **JIT 的關鍵限制：「下次登入才生效」**。對 Joiner 與 Mover（升降席位）來說這已經夠用；但對 **Leaver** 而言，**從 IdP 移除群組並不會立即讓 Claude 組織中的成員消失**——已登入的 session 與既有成員資格仍會存在，直到管理員手動移除。因此：
+>
+> 1. **Leaver 仍必須人工「移除組織成員＋釋出席位」**（5.7.3），並保留月度對帳；
+> 2. **席位降級（Premium → Standard）的生效時間要以「下次登入」計算**，財務月結時請留意跨月情形；
+> 3. 群組對應的規則本身屬於**權限設定**，其變更應走 AI Governance 的變更流程，並納入季度稽核（附錄 A.14）。
+
+> 📌 **SSO 啟用前的注意事項**：官方另有一篇「啟用 SSO 與 JIT／SCIM 前的重要考量」支援文件（`support.claude.com/en/articles/10276682`），涵蓋既有帳號轉移、網域驗證與緊急存取。**請在 Pilot 前由 IAM 團隊逐項確認**。
 
 ---
 
@@ -2240,7 +2412,7 @@ sequenceDiagram
 
 | 檢查項目 | 動作 |
 | --- | --- |
-| 席位類型是否需調整 | 新職務若非高消耗型態，降回 Standard |
+| 席位類型是否需調整 | 新職務若非高消耗型態，降回 Standard。**若已採用 5.6.3 的群組對應，只需在 IdP 調整群組**，於使用者下次登入時生效 |
 | 舊專案 Repository 權限 | **立即移除** |
 | 新專案 Repository 權限 | 開通 |
 | 舊專案的 MCP Server 存取 | **立即移除** |
@@ -2302,7 +2474,7 @@ sequenceDiagram
 
 > ⚠️ **Primary Owner 必須有代理人安排**，並在企業內規中明訂。
 
-> 📌 **所有方案 / 定價 / 用量數字皆為截至 2026-09-17 的查證結果**。Anthropic 可能調整，請以官方最新文件為準，並建議每季度複查一次。
+> 📌 **所有方案 / 定價 / 用量數字皆為截至 2026-09-24 的查證結果**。Anthropic 可能調整，請以官方最新文件為準，並建議每季度複查一次。
 
 > 📌 **待確認事項清單**（5.2.2 節）請務必在正式簽約前向 Anthropic 業務窗口確認，不要依賴本手冊或任何二手資料。
 
@@ -2316,8 +2488,13 @@ sequenceDiagram
 - [ ] Owner 人數已控制在 2～3 人
 - [ ] 已建立權責分離表（5.3.2 節）
 - [ ] 已建立席位配置決策表與動態調整機制
-- [ ] 已建立模型選擇規範（Sonnet / Opus / Haiku）
+- [ ] 已建立模型選擇規範（`sonnet`／`opus`／`opusplan`／`haiku`／`fable`，含 effort 上限）（v2.1 更新）
+- [ ] 已確認官方預設模型（截至 2026-09-24 為 Opus 5.5）對 Standard 席位額度的影響，並決定是否以 Managed Settings 改預設（5.5.6）
+- [ ] CI／排程環境已排除 `fable` 與 `best`，避免非互動模式靜默計入 usage credits（5.5.3）
 - [ ] 已決定 usage credits 政策與月度上限
+- [ ] 已建立「支出上限觸及＝硬性阻擋」的緊急放行程序（5.2.4、5.5.4）
+- [ ] 已評估採用 JIT＋IdP 群組對應角色與席位等級（5.6.3）
+- [ ] 已向 Anthropic 窗口書面確認 Team 方案是否支援 SCIM（5.2.5）
 - [ ] 已完成 HR → IAM → SSO → Claude 的整合設計
 - [ ] 網域擷取啟用前已盤點既有個人帳號
 - [ ] Joiner / Mover / Leaver 三份 SOP 已文件化並生效
@@ -2357,7 +2534,7 @@ sequenceDiagram
 | Claude Code | 最新穩定版 | **2.0.28+**（Analytics 需求） | 每月檢查更新 |
 | Node.js | LTS | 依 Claude Code 安裝方式決定 | **需依實際安裝方式確認** |
 | Git | 2.40+ | 2.40 | 需支援 worktree |
-| IDE | VS Code / JetBrains | — | 截至 2026-09-17 官方支援 VS Code、Cursor 等 VS Code fork、JetBrains 系列 IDE；與 CLI 共用同一組訂閱額度 |
+| IDE | VS Code / JetBrains | — | 截至 2026-09-24 官方支援 VS Code、Cursor 等 VS Code fork、JetBrains 系列 IDE；與 CLI 共用同一組訂閱額度 |
 | 終端機 | Windows Terminal / iTerm2 / GNOME Terminal | — | 需支援 UTF-8 與 ANSI |
 | Shell | PowerShell 7+（Win）／zsh 或 bash（macOS/Linux） | PS 7.0 | Windows 建議另裝 Git Bash |
 | Java | 依專案（21 / 25） | — | 第 19、41 章 |
@@ -2369,7 +2546,7 @@ sequenceDiagram
 
 | 平台 | 優點 | 需特別處理 | 建議 |
 | --- | --- | --- | --- |
-| **Windows（原生）** | 與企業既有管理一致（AD / GPO / 防毒） | 路徑分隔符、CRLF 換行、部分 POSIX 工具缺失、防毒攔截 | **搭配 Git Bash 或 WSL** |
+| **Windows（原生）** | 與企業既有管理一致（AD / GPO / 防毒） | 路徑分隔符、CRLF 換行、部分 POSIX 工具缺失、防毒攔截 | **建議搭配 Git Bash 或 WSL**。v2.1 補充【官方】：自 2026 年 4 月起 **Git for Windows 已非必要**，未安裝 Bash 時 Claude Code 改用 **PowerShell** 作為 shell 工具；但 Hook 腳本（6.5.3、6.5.4）若以 Bash 撰寫，仍需 Git Bash |
 | **WSL2** | POSIX 環境完整、與 Linux CI 一致 | 檔案系統效能（跨 `/mnt/c` 慢）、網路 Proxy 需額外設定、企業防毒可能干擾 | **專案檔案放在 WSL 檔案系統內**，不要放 `/mnt/c` |
 | **macOS** | 開發體驗佳、POSIX 原生 | 企業管理工具（MDM）配置、憑證鏈 | 適合架構師與資深同仁 |
 | **Linux** | 與生產環境一致、效能最佳 | 企業桌面支援度、AD 整合 | 適合 DevOps 與平台團隊 |
@@ -2395,6 +2572,9 @@ sequenceDiagram
 | Remote Control | **Team / Enterprise 需管理員啟用** | **預設關閉** | 第 48 章 |
 | Channels | **Team / Enterprise 需管理員啟用** | 依需求 | 第 13 章 |
 | Slack / 行動 App / Chrome | 依組織設定 | 依資料分級政策決定 | 第 23 章 |
+| **Claude Tag**（Slack 共用身分，v2.1 新增） | Team / Enterprise 需管理員設定存取範圍 | 以**組織共用身分**執行，與個人帳號的 Claude Code in Slack 不同；**必須先定義可存取的 repo 與 connectors** | 第 23 章 |
+| **Artifacts**（v2.1 新增） | **Team 預設開啟**；Enterprise 需 Owner 啟用；公開連結需 Owner 另行啟用 | **Team 建議先確認「公開分享」維持關閉**，並評估是否關閉「artifact connectors」 | 第 23 章 23.8.6 |
+| **Self-hosted environments**（v2.1 新增，Public Beta） | 預設關閉，Owner 於 Cloud environments 頁啟用 | 需在內網維運 runner；**Beta 功能不放進關鍵路徑** | 第 48 章 |
 | GitHub Actions / GitLab CI | 需建立專用憑證 | 需獨立最小權限帳號 | 第 20、48 章 |
 
 > 🎯 **「預設關閉、逐項開通」是本手冊對所有非互動式介面的一致立場。** 理由見 2.3.13：這些介面讓 AI 在無人監看下執行，原本依賴工程師即時攔截的防線不存在。
@@ -2416,6 +2596,13 @@ sequenceDiagram
 | **Output Styles** | 調整回應風格 | 可統一團隊產出格式 |
 | **Fast Mode** | 加速回應（**Team/Enterprise 需 Owner 啟用**） | 需組織層級決策是否開啟 |
 | **Advisor** | 將困難決策升級處理 | 適合架構決策場景 |
+| **`/usage`**（v2.1 新增） | 拆解是哪些 skill、subagent、plugin、MCP server 在消耗方案額度；Team／Enterprise 另顯示個人 usage credits 花費與上限 | **第 30 章個人使用率管理的第一手工具**，比月底看報表早發現問題 |
+| **`/insights`**（v2.1 新增） | 分析近期 session，產出「工作方式」的 HTML 報告（摩擦點、誤用模式） | 適合 Champion 在一對一輔導時使用（第 30、50 章）；**會消耗額度** |
+| **`/doctor`（別名 `/checkup`）**（v2.1 新增） | 完整的環境健檢，可診斷並修復設定問題 | 取代部分 6.6 節自製驗收腳本的工作 |
+| **`/skill-doctor`**（v2.1 新增） | 顯示每個 skill 佔用的上下文成本與使用頻率 | 第 11 章 Skill Catalog 的汰換依據 |
+| **`/code-review`**（v2.1 新增） | 本機對目前分支做正確性審查（背景 subagent） | 第 21 章分層 Review 的本機層 |
+| **Agent view（`claude agents`）**（v2.1 新增） | 一個畫面看所有 session 的狀態（執行中、等待你、完成） | 平行作業時避免「忘了有一個 Agent 在等核准」；組織可停用（第 49 章） |
+| **`--safe-mode`／`--restricted`**（v2.1 新增） | 前者停用所有自訂設定以利排錯；後者不載入可執行指令的工具與使用者／專案設定 | 支援與評測用；**`--restricted` 適合共用機器上的評測腳本** |
 
 ---
 
@@ -2617,7 +2804,7 @@ flowchart TB
     ],
     "deny": [
       "Bash(rm -rf:*)",
-      "Bash(git push --force:*)",
+      "Bash(git push --force *)",
       "Bash(git reset --hard:*)",
       "Bash(curl:*)",
       "Bash(wget:*)",
@@ -2672,7 +2859,7 @@ flowchart TB
 
 > ⚠️ **`curl` / `wget` 被禁止是刻意的**。允許 Agent 任意對外連線是 data exfiltration 的主要途徑（第 23 章）。若專案確實需要，應以 allowlist 指定特定網域，並經資安核准。
 >
-> 📌 **補充（官方預設行為）**：截至 2026-09-17，會從網路取得內容的指令（如 `curl`、`wget`）**在 Manual 模式下本來就不會被自動核准**，需逐次確認。上述 `deny` 規則的作用是把「需確認」升級為「完全禁止」。
+> 📌 **補充（官方預設行為）**：截至 2026-09-24，會從網路取得內容的指令（如 `curl`、`wget`）**在 Manual 模式下本來就不會被自動核准**，需逐次確認。上述 `deny` 規則的作用是把「需確認」升級為「完全禁止」。
 
 > ⚠️ **v2.0 重要更正：permission rules 擋不住決心繞過的人**【官方】
 >
@@ -3657,6 +3844,28 @@ flowchart TB
 | 子目錄層 | 該模組特有規則（前端 / 批次 / 報表） | 重複專案層的內容 | **是** |
 
 > ⚠️ **不要在使用者層放團隊規則**。那樣新人的環境會缺少這些規則，造成行為不一致。
+
+### 8.4.1 組織層 CLAUDE.md 與 AGENTS.md 的處理（v2.1 新增）【官方】
+
+上圖的三層之上，其實還有一層**組織政策層（Managed policy CLAUDE.md）**，由 IT／DevOps 部署到固定路徑，**每個 session 都會載入，且使用者無法以 `claudeMdExcludes` 排除**：
+
+| 作業系統 | 路徑 |
+| --- | --- |
+| macOS | `/Library/Application Support/ClaudeCode/CLAUDE.md` |
+| Linux、WSL | `/etc/claude-code/CLAUDE.md` |
+| Windows | `C:\Program Files\ClaudeCode\CLAUDE.md` |
+
+> 🎯 **建議放進組織層的內容**【建議】：只放「任何專案都不可違反」的少數條文（例如第 23 章 AI Coding Security Policy 的 MUST NOT 摘要、資料分級的禁止事項），**控制在 50 行以內**（與第 49 章 49.4.5 一致）。它會出現在全組織每一個 session 的上下文裡，寫得越長，全組織的成本越高（5.5.2）。
+
+**AGENTS.md 後援（v2.1.277 起）**：許多 repository 已為其他 coding agent 準備了 `AGENTS.md`。Claude Code 的讀取規則如下：
+
+| repository 內的檔案 | Claude Code 讀取的內容 |
+| --- | --- |
+| 只有 `AGENTS.md`（工作目錄及其上層都沒有 `CLAUDE.md`／`CLAUDE.local.md`） | `AGENTS.md` |
+| 同時有 `AGENTS.md` 與 `CLAUDE.md` | **只讀 `CLAUDE.md`**（`AGENTS.md` 被忽略） |
+| `CLAUDE.md` 以 import 引入 `AGENTS.md` | `CLAUDE.md`＋被引入的 `AGENTS.md` |
+
+> ⚠️ **兩個陷阱**：(1) **Amazon Bedrock、Google Cloud Agent Platform、Microsoft Foundry 上目前不支援直接讀 `AGENTS.md`**；(2) 同時存在兩個檔案時 `AGENTS.md` 會被**靜默忽略**，其中的規則等於不存在。**企業標準做法**：以 `CLAUDE.md` 為準（8.2 的 19 個區塊），若需與其他工具共用，就在 `CLAUDE.md` 中 import `AGENTS.md`，並在 8.5 的品質檢查腳本加入「偵測到 `AGENTS.md` 但未被 import」的警告。
 
 ---
 
@@ -4852,7 +5061,7 @@ var pool = Executors.newFixedThreadPool(200, Thread.ofVirtual().factory());
 ## 相關資源
 
 - 企業 Java 編碼規範：`rules/coding.md`
-- 本 repo 的 Java 25 教學：`.github/教學/程式語言/Java25升版教學.md`
+- 本 repo 的 Java 25 教學：`content/posts/教學/程式語言/Java25升版教學.md`
 - 官方文件：以 OpenJDK 官方發行說明為準
 ````
 
@@ -4905,6 +5114,48 @@ flowchart LR
 - [ ] L3 Skill 的腳本已經資安審查
 - [ ] 內容與既有 Rule / Skill 無矛盾
 - [ ] 檔案大小合理（過大應拆至 `references/`）
+
+### 11.5.2 claude.ai 同步技能的治理（v2.1 新增）【官方】
+
+v2.1 查證時最需要注意的變化：**Skill 的來源不再只有 repo**。以 claude.ai 帳號登入的終端機 session，會自動載入成員在 claude.ai 啟用的 skills（v2.1.275 起同步 plugins），**不需要任何設定**。
+
+| 行為 | 說明 |
+| --- | --- |
+| 下載位置 | `~/.claude/skills/synced/`（此資料夾名稱為保留字，自建 skill 不可命名為 `synced`） |
+| 同步頻率 | session 啟動時背景下載，執行中約每 10 分鐘檢查一次變更 |
+| 方向 | **只下載、不上傳**。在本機修改同步來的 skill 不會回寫 claude.ai，下次同步可能被覆蓋 |
+| 必定同步的 skill | 部分 Anthropic 內建 skill（如 `pdf`、`xlsx`）一律同步；其餘依成員在 claude.ai 的開關 |
+| 名稱衝突 | 本機、專案、plugin 的同名 skill **優先**；同步版本只能以 `/anthropic-skills:<name>` 執行（v2.1.228 起比對時忽略大小寫、全形與不可見字元） |
+| 辨識方式 | `/skills` 與 `/context` 將其歸類在「claude.ai sync」 |
+| Cowork 與 cloud session | **不讀取**本機 `~/.claude/skills/`，只載入 claude.ai 帳號啟用的 skills |
+| 組織關閉 Skills | 終端機停止同步並移除已下載的 skills（移到 `~/.claude/skills/.trash/`，可在保留期內復原；v2.1.273 起移除、v2.1.280 修正殘留問題） |
+
+**這對本章 Skill 生命週期（11.5）的影響**：
+
+1. **兩條供應鏈並存**：第 7 章共用 repo 的 skills 走 PR 審查；claude.ai 同步的 skills **沒有經過任何審查**。在 Cowork 與 cloud session 中，**只有 claude.ai 這條路**。
+2. **企業 Skill Catalog 要決定「正式發佈管道」**：若組織希望 cloud session 與 Cowork 也使用標準 skills，就必須在 claude.ai 端上架，並對 claude.ai 端的上架建立同等的審查流程。
+3. **本機同名 skill 會蓋過同步版本**：這可以當作「企業版本優先」的保險，但也代表**同步版本更新後，本機舊版仍然生效**，需在 11.5 的版本檢查中一併涵蓋。
+
+**控制手段**：
+
+| 目的 | 做法 | 層級 |
+| --- | --- | --- |
+| 單機停止同步 | `syncClaudeAiSkills: false`（plugins 用 `syncClaudeAiPlugins: false`） | 使用者或 Managed Settings；**任一 admin 來源設為 `false` 即關閉** |
+| 全組織停止同步 | 在 claude.ai 組織設定關閉 Skills | claude.ai admin |
+| 只允許 plugin 或 managed 來源的 skills | `strictPluginOnlyCustomization`（同時阻擋 claude.ai 同步） | Managed Settings |
+
+> 🎯 **建議做法**【建議】：一般專案**允許同步**，但把「claude.ai 端上架 skill」納入第 7 章的資產審查；受監管專案以 Managed Settings 設 `syncClaudeAiSkills: false` 與 `syncClaudeAiPlugins: false`，確保 session 中只有經審查的資產。
+
+### 11.5.3 以數據管理 Skill Catalog：`/skill-doctor` 與 plugin eval（v2.1 新增）【官方】
+
+v2.0 的 Skill 品質檢查（11.5.1）完全靠人工。v2.1 查證時，官方已提供兩個可以量化的工具：
+
+| 工具 | 回答的問題 | 在本手冊流程中的用途 |
+| --- | --- | --- |
+| **`/skill-doctor`** | 每個 skill 佔用多少上下文？多常被使用？ | 每季汰換：**高成本、低使用**的 skill 優先下架或拆分（對應 11.6 問題 3「Skill 太大」） |
+| **`claude plugin eval`** | 裝了這個 plugin（及其中的 skills）後，任務結果是否比沒裝更好？ | 上架審查：以測試案例與評分器比對「有／無 plugin」的基準線；`claude plugin eval init` 可先產生案例與評分器草稿 |
+
+> ✅ **建議把 plugin eval 的結果列為 Skill／Plugin 上架的必要證據**：沒有評測數據的 skill，無法回答「它到底有沒有讓結果變好」，也就無法在第 27 章的知識回饋循環中判斷是否值得保留。
 
 ---
 
@@ -5052,7 +5303,7 @@ flowchart TB
 
 ### 12.1.1 各機制對應的官方強制鍵一覽（v2.0 新增）【官方】
 
-v1.0.0 的治理設計主要建立在「流程審查 + 版控 + Hook 偵測」之上。截至 2026-09-17，六種機制**全部都有對應的官方強制鍵**。下表是本章其餘各節的索引：
+v1.0.0 的治理設計主要建立在「流程審查 + 版控 + Hook 偵測」之上。截至 2026-09-24，六種機制**全部都有對應的官方強制鍵**。下表是本章其餘各節的索引：
 
 | 機制 | 官方強制鍵 | 本手冊章節 |
 | --- | --- | --- |
@@ -5198,7 +5449,7 @@ exit 2
 
 ### 12.2.6 Hook 的技術強制與稽核（v2.0 新增）【官方】
 
-上表 12.2.5 的規範，在 v1.0.0 只能靠「約定」與 Code Review 落實——工程師仍可在自己的 `~/.claude/settings.json` 裡加任意 Hook，而 Hook 本身是**可執行程式碼**。截至 2026-09-17，官方已提供對應的強制與稽核機制：
+上表 12.2.5 的規範，在 v1.0.0 只能靠「約定」與 Code Review 落實——工程師仍可在自己的 `~/.claude/settings.json` 裡加任意 Hook，而 Hook 本身是**可執行程式碼**。截至 2026-09-24，官方已提供對應的強制與稽核機制：
 
 | 設定鍵 / 機制 | 作用 | 對應 12.2.5 的哪條規範 |
 | --- | --- | --- |
@@ -5233,7 +5484,7 @@ MCP Server 是外部程序，可能：
 
 > 🎯 **v2.0 重大更正**：v1.0.0 將「Claude Code 是否提供原生的組織層級 MCP allowlist 強制機制」列為**待確認**，並要求企業自行用流程與 Hook 拼湊管控。
 >
-> **截至 2026-09-17 已確認：官方提供完整的原生強制機制**【官方】。企業**不應**再自行拼湊，而應直接使用 Managed Settings 中的 MCP 控制鍵。
+> **截至 2026-09-24 已確認：官方提供完整的原生強制機制**【官方】。企業**不應**再自行拼湊，而應直接使用 Managed Settings 中的 MCP 控制鍵。
 
 #### 官方原生的 MCP 控制機制【官方】
 
@@ -5413,7 +5664,7 @@ Plugin 可以打包 Agent、Command、Skill、Hook、MCP 設定。**因此 Plugi
 
 ### 12.4.3 Plugin Marketplace 的技術管控（v2.0 新增）【官方】
 
-12.4.1、12.4.2 是**流程**管控，回答「該不該裝」。但流程擋不住「工程師自己去裝了」。截至 2026-09-17，官方提供下列 Marketplace 層級的強制機制：
+12.4.1、12.4.2 是**流程**管控，回答「該不該裝」。但流程擋不住「工程師自己去裝了」。截至 2026-09-24，官方提供下列 Marketplace 層級的強制機制：
 
 | 設定鍵 | 作用 | 擋住的風險 |
 | --- | --- | --- |
@@ -5434,6 +5685,22 @@ Plugin 可以打包 Agent、Command、Skill、Hook、MCP 設定。**因此 Plugi
 > | 概念驗證 / 沙箱環境 | 可放寬，但**環境必須與正式開發環境實體隔離** |
 
 > 📌 **組織應自建內部 Plugin Marketplace**。官方支援建立與發布自有 marketplace，這比「禁止所有 plugin」更務實：把通過 12.4.2 審查的 plugin 集中發布，再用 `strictKnownMarketplaces` 限定只能從這裡安裝。這同時滿足了治理與第 27 章的資產沉澱需求。
+
+### 12.4.4 v2.1 新增的 Plugin 與 Connector 治理要點【官方】
+
+v2.0 以後，Plugin 與 MCP 的周邊機制又有數項變動，會直接影響本章的管控設計：
+
+| 變動 | 說明 | 對治理的影響 |
+| --- | --- | --- |
+| **claude.ai plugins 同步**（v2.1.275） | 以 claude.ai 帳號登入的終端機 session，會同步成員在 claude.ai 啟用的 plugins；`/plugin` 的已安裝清單會以短名稱顯示 | 與 skills 同步相同，**繞過內部 marketplace 審查**；受監管環境設 `syncClaudeAiPlugins: false`（見 11.5.2） |
+| **為組織推薦 plugin**（relevance） | 在內部 `marketplace.json` 的 plugin 項目加上 `relevance` 區塊（例如讀到 `.tf` 檔或執行 `terraform` 時），Claude Code 會在 spinner 提示、session 開始時與 `/plugin` 的 Discover 頁推薦；**比對只在本機進行，不回傳 Anthropic**；**永遠需要使用者確認才安裝** | 內部 marketplace 必須列入 `pluginSuggestionMarketplaces`（非官方 marketplace 還要在 `extraKnownMarketplaces` 或 `strictKnownMarketplaces` 宣告來源）才會生效。這是**推廣經審查 plugin 的正向手段**，可搭配第 50 章的 Champion 推動 |
+| **Plugin evals**（`claude plugin eval`） | 以測試案例評分，並與「未安裝 plugin」的基準線比較 | 列為上架審查（12.4.2）的必要證據（見 11.5.3） |
+| **相依版本約束** | plugin 可宣告相依 plugin 的版本範圍 | 內部 marketplace 應要求宣告，避免上游更新造成連鎖失效 |
+| **`claude plugin validate` 的 MCP 檢查**（v2.1.281） | 會回報被靜默捨棄的 MCP 項目與不安全的 URL | 納入內部 marketplace 的 CI 檢查 |
+| **Connector 工具可由組織設為 `ask`** | 組織對 claude.ai connectors 的特定工具設定「需詢問」時，Claude Code 會遵守——**即使在 Auto Mode 下也會直接詢問使用者**；在不詢問的 `dontAsk` 模式下則直接拒絕 | 高風險寫入類 connector 工具應在 claude.ai 端設為 `ask` |
+| **`disableClaudeAiConnectors`** | 不讓 Claude Code 取得 claude.ai connectors | 受監管環境建議開啟，連線一律改走 `managedMcpServers` |
+
+> ⚠️ **版本相依的政策失效（v2.1 查證）**【官方】：changelog v2.1.280 修正了一個問題——**同時存在 Server-managed settings 時，經 MDM 或 `managed-settings.json` 設定的 `allowManagedMcpServersOnly`、`deniedMcpServers`、`disableClaudeAiConnectors` 會被忽略**。也就是說，**混用兩種投遞方式的組織，在 v2.1.280 以前的版本上，MCP 管控可能根本沒有生效**。建議以 `requiredMinimumVersion` 要求 v2.1.280 以上（第 49 章 49.4），並用 `/status` 與 OTel 的 `claude_code.managed_settings_resolved` 事件驗證（第 31 章 31.6.3）。
 
 ---
 
@@ -6315,6 +6582,10 @@ model: opus
 | **Worktrees** | 以 git worktree 開多個隔離工作區 | — | 見 6.7；隔離檔案但不隔離執行能力 |
 | **Cross-session messaging** | session 之間互相傳訊 | — | 跨機器傳訊需 Remote Control；受方案與版本限制 |
 
+> 📌 **v2.1 補充：平行化已經「預設開啟」**【官方】。依 What's New W24～W33：**subagents 預設在背景執行**（W27）、**subagent 可再產生 subagent**（背景鏈最多 5 層，W24）、**fork mode 在互動 session 中預設開啟**（Claude 可把支線任務交給繼承完整對話的 subagent，W33）、`/fork` 可把對話複製成新的背景 session（W29）、`@` 可提及另一個 session（W33）。背景 subagent 的權限詢問會浮現在主 session，而不是自動拒絕（W26）。
+>
+> **治理意涵**：v2.0 的 13.9.2 平行度上限是以「人主動開幾條工作線」計算；v2.1 起，**即使工程師只開一個 session，Claude 也可能自行展開多層背景子代理**。成本與審查壓力的上限，應改以 `maxEffortLevel`、workflows 開關（第 49 章）與第 31 章 Usage 子分頁的「依 agent 類型的 sessions」來觀察與控制。
+
 ### 13.9.2 企業建議的平行度上限【建議】
 
 平行化的收益不是線性的。**瓶頸會從「AI 產出速度」轉移到「人類審查速度」**，而後者無法靠加開 session 解決。
@@ -6688,6 +6959,19 @@ flowchart LR
 | **Gate 2** | ADR 未核准、無人類覆核紀錄 | 架構師 | 可，需架構委員會同意 |
 | **Gate 3** | 有未處理的 Critical 安全發現 | 資安 | **否**（金融業紅線） |
 | **Gate 4** | DoD 未達成、無回滾方案 | 變更管理委員會 | 可，需高階主管核准 |
+
+### 14.4.1 與 NIST SSDF 的對照（v2.1 新增）
+
+本章的十三階段與 Gate，可以直接作為 NIST SSDF（SP 800-218）的實施證據：
+
+| 本章 | 對應 SSDF 實務群組 | 最常被稽核抽查的證據 |
+| --- | --- | --- |
+| 需求、設計階段與 Gate | PO.1、PW.1 | 安全需求紀錄、ADR 與人類覆核紀錄 |
+| 開發階段 | PW.4、PW.5 | Rules 版本、相依套件掃描 |
+| Review、測試階段與 Gate | **PW.7**、PW.8 | **人類核准的 PR 紀錄**、測試報告 |
+| 維運與回饋 | RV.1～RV.3 | 事件報告、新增的 Rule（第 27 章） |
+
+完整對照（含 SP 800-218A 與 SSDF v1.2 初稿的狀態）見 [第 53 章 53.2](#532-安全開發nist-ssdf)。
 
 ---
 
@@ -7260,6 +7544,40 @@ flowchart TB
 | L3（⛔） | **不依賴模式**，一律 `deny` + 沙箱網路／檔案隔離 | 第 49 章 |
 
 > 🎯 **一句話**：**Approval Matrix 定義「誰該批准什麼」，Permission Mode 決定「人是否真的會被問到」。兩者必須一起設計，否則矩陣會變成一份沒有執行力的文件。**
+
+### 16.5.2 Team 方案的預設起始模式已是 Auto（v2.1 新增）【官方】
+
+> ⚠️ **這是 v2.1 最重要的單一更正**。v2.0 撰寫 16.5.1 時，假設組織要「主動開啟」Auto Mode 才會面對上述問題。**自 2026-08-14 起，Pro、Max 與 Team 方案的內建起始權限模式已經改為 Auto**。
+
+| 執行方式 | 內建起始模式（未設定任何 `defaultMode` 時） |
+| --- | --- |
+| **Team**（以及 Pro、Max）在終端機或 VS Code 擴充 | **`auto`** |
+| Enterprise 方案、Console API key | `default`（Manual） |
+| Amazon Bedrock、Google Cloud Agent Platform、Microsoft Foundry、Claude Platform on AWS、指向 LLM gateway 的 session | `default`（Manual）；但 Auto 仍出現在 `Shift+Tab` 循環中 |
+| 任一設定檔將 `disableAutoMode` 設為 `"disable"` | `default`（Manual） |
+| `claude -p` 非互動模式或 Agent SDK | `default`（Manual）——CI 與排程的起始模式不受此次變更影響（第 48 章） |
+| 無法取得 feature flags，或安裝／升級後第一個尚未取得 flags 的 session | `default`（Manual） |
+
+> 📌 內建 `auto` 預設需要 Claude Code **v2.1.228 以上（macOS、Linux、WSL）**或 **v2.1.233 以上（原生 Windows）**；更早的版本仍是 Manual。第一次以 Auto 起始時，終端機會顯示一次通知，VS Code 擴充則顯示一張提示卡片。
+
+**起始模式的決定順序與幾個反直覺的細節**：
+
+1. `--permission-mode` 旗標 → 設定檔中的 `permissions.defaultMode`（依設定優先順序）→ 方案的內建預設。
+2. **專案層 `.claude/settings.json`／`.claude/settings.local.json` 裡寫 `defaultMode: "auto"` 或 `"bypassPermissions"` 不會生效**——這是防止「clone 一個 repo 就被切到自動模式」的設計。
+3. **VS Code 擴充不讀專案層設定來決定起始模式**；在 Team 方案上，它讀 Managed Settings 或 `~/.claude/settings.json` 的 `defaultMode`（需能取得 feature flags），首次安裝或升級後的第一個 session 可能忽略所有設定檔。
+4. Team 成員若在 `~/.claude/settings.json` 設了非 `auto` 的 `defaultMode`，session 仍會照該設定起始，但 Claude Code 會**詢問一次**是否改成 Auto；**使用者若同意，個人設定就被改為 `auto`，組織端不會知道**。因此「請大家在個人設定寫 Manual」不能當作控制措施。
+5. Desktop 會**依資料夾記住**使用者在模式選單的選擇，且優先於 `defaultMode`（Plan 除外）。
+6. 在 Team／Enterprise 上，Desktop 的 **Bypass permissions 由組織政策控制**。
+
+**對 Team 方案組織的治理意涵**【建議】：
+
+| 情境 | 後果 | 必要行動 |
+| --- | --- | --- |
+| 沒有部署任何 Managed Settings | **全組織預設由分類器代替人審核**；16.5 的 🟨／🟧 核准實際上不會發生 | **立即決定政策**，至少對受監管專案部署 `disableAutoMode: "disable"` |
+| 只在專案 `.claude/settings.json` 寫 `defaultMode: "default"` | 終端機 session 會遵守，但 **VS Code 擴充不讀**；使用者仍可 `Shift+Tab` 切到 Auto | 用 Managed Settings 設 `permissions.defaultMode`；要禁止就用 `disableAutoMode` |
+| 允許 Auto，但稽核要求人為核准軌跡 | 核准人欄位「不可為 AI」的留存要求無法滿足 | 依 49.5 的環境分級決策；L3 操作一律 `permissions.deny` |
+
+> 📌 **設定值備忘**【官方】：Manual 的設定值是 `default`，v2.1.200 起也接受別名 `manual`；`disableAutoMode` 可寫在最上層或 `permissions` 之下，值為 `"disable"`。Auto Mode 的分類器在 Enterprise、API 與第三方 Provider 上**計入 token 用量**；v2.1.278 起這些環境預設改用**伺服器端分類器**（不另收分類器費用，可用 `CLAUDE_CODE_AUTO_MODE_SERVER=0` 退出）。
 
 ---
 
@@ -9164,7 +9482,7 @@ jobs:
 
 ### 20.6.3 官方 CI/CD 整合方案（v2.0 新增）【官方】
 
-v1.0.0 將「採用官方 Action 或自建腳本」列為待確認。截至 2026-09-17，官方已提供完整的 CI/CD 整合：
+v1.0.0 將「採用官方 Action 或自建腳本」列為待確認。截至 2026-09-24，官方已提供完整的 CI/CD 整合：
 
 | 整合方案 | 適用平台 | 備註 |
 | --- | --- | --- |
@@ -9188,14 +9506,18 @@ v1.0.0 將「採用官方 Action 或自建腳本」列為待確認。截至 2026
 
 ### 20.6.4 官方審查工具的分工（v2.0 新增）【官方】
 
-官方現有三種不同定位的審查工具，**不應混用**：
+官方現有多種不同定位的審查工具（v2.1 由 4 種增為 6 種），**不應混用**：
 
 | 工具 | 執行時機 | 定位 | 方案要求 |
 | --- | --- | --- | --- |
 | **Security guidance plugin** | **session 進行中** | 讓 Claude 檢視並修正自己剛產出的漏洞 | — |
 | **`/security-review`** | 開 PR 前，在本機 | 對當前分支變更的即時安全掃描 | — |
-| **Code Review** | PR 上 | 正式的程式碼審查 | **Team / Enterprise**（Pro / Max 無） |
-| **Ultrareview** | 依需求 | 深度多代理審查 | 需 claude.ai 帳號 |
+| **`/code-review`**（v2.1 新增） | 開 PR 前，在本機 | 對目前分支做正確性審查（背景 subagent） | — |
+| **Code Review** | PR 上 | 正式的程式碼審查；**不 approve 也不 block PR** | **Team / Enterprise**（Pro / Max 無）；**依 token 計費，平均每次 $15–25，經 usage credits**；ZDR 組織不可用 |
+| **Ultrareview** | 依需求 | 深度多代理審查 | 需 claude.ai 帳號；Team／Enterprise 每次約 $5–25（usage credits）；ZDR 與第三方雲端 Provider 不可用 |
+| **Claude Security plugin**（v2.1 新增） | 依需求（全庫或 diff） | 多 Agent 威脅建模與漏洞搜尋，發現可轉成修補 | 付費方案；計入方案額度 |
+
+> 📌 **v2.1 補充**：各工具的成本、觸發模式與治理建議見第 21 章 21.5.2。**Code Review 不能設為 branch protection 的必要檢查來取代人類核准**。
 
 **建議的三道閘門配置**【建議】：
 
@@ -9545,7 +9867,7 @@ AI Review 最大的敵人是誤報。誤報多了，Reviewer 就會開始忽略�
 
 ### 21.5.1 官方審查工具與本框架的關係（v2.0 新增）【官方】
 
-v1.0.0 的 21.2 十一面向檢查框架，假設組織自行以 Command（第 10 章）實作 AI Review。截至 2026-09-17，官方已提供多個現成工具。**兩者不是取代關係，而是分工關係**：
+v1.0.0 的 21.2 十一面向檢查框架，假設組織自行以 Command（第 10 章）實作 AI Review。截至 2026-09-24，官方已提供多個現成工具。**兩者不是取代關係，而是分工關係**：
 
 | 官方工具 | 涵蓋什麼 | **不涵蓋**什麼（仍須本框架補上） |
 | --- | --- | --- |
@@ -9567,6 +9889,26 @@ v1.0.0 的 21.2 十一面向檢查框架，假設組織自行以 Command（第 1
 | 5 | **人類 Reviewer** | **21.4 清單：判斷、取捨、責任** |
 
 > ⚠️ **導入官方工具時最容易犯的錯，是把第 3 層拿掉**。結果是 AI Review 意見全部變成「通用最佳實務」，與組織實際規範脫節——這正是 21.6 實務案例中「41% 風格意見」的來源。
+
+### 21.5.2 官方審查工具的可用性、成本與治理（v2.1 新增）【官方】
+
+21.5.1 的分層組合在 v2.1 查證時有幾項重要的成本與可用性事實，**直接影響第 5 章的預算與第 20 章的 CI 設計**：
+
+| 工具 | 執行位置 | 可用方案 | 成本 | ZDR 組織 | 其他限制 |
+| --- | --- | --- | --- | --- | --- |
+| **`/code-review`**（本機） | 本機，背景 subagent | 所有方案 | 計入一般方案額度 | 可用 | 只回報正確性問題 |
+| **`/security-review`** | 本機 | 所有方案 | 計入一般方案額度 | 可用 | 單次掃描分支 |
+| **Security guidance plugin** | 本機 session 中 | 所有方案 | 計入一般方案額度 | 可用 | 在 Claude 撰寫時即時審查 |
+| **Claude Security plugin** | 本機 session 中（多 Agent） | 付費方案（需 dynamic workflows） | **每次掃描計入方案額度**，Agent 數多、消耗大 | 可用 | Python 3.9＋、Git |
+| **Code Review**（PR 託管服務，Research Preview） | Anthropic 基礎設施 | **Team、Enterprise** | **依 token 計費，平均每次 $15–25**，**經 usage credits 另計**；可在 admin 設定每月上限 | **不可用** | 需 Owner／Primary Owner 啟用並安裝 GitHub App；觸發方式：開 PR、每次 push、或手動 `@claude review` |
+| **Ultrareview**（`/code-review ultra`，Research Preview） | Anthropic 雲端沙箱 | 需 claude.ai 帳號；**Bedrock／Vertex／Foundry 不可用** | Team／Enterprise **沒有免費次數**，每次約 **$5–25**，經 usage credits 計費；啟動前會顯示預估成本 | **不可用** | 分支審查會把 repo 狀態打包上傳雲端 |
+| **Claude Security**（託管服務） | Anthropic 託管 | Enterprise | 依合約 | — | 持續監看已連結的 repositories |
+
+**三個治理重點**【建議】：
+
+1. **Code Review 的觸發模式決定成本**。設為「每次 push 都審查」的 repo，一個 PR 來回修改 5 次就是 5 次審查。建議預設採「開 PR 時一次＋必要時手動 `@claude review`」，並在 admin 設定每月上限。**上限觸及時，Code Review 會在 PR 上留一則「已略過」的說明，直到下個計費週期或上限調高**——這表示 21.4 的人類 Review 絕不能因此省略。
+2. **Code Review 不會 approve 或 block PR**，發現只以嚴重度標記的行內留言呈現。**第 20 章的 branch protection 規則不能把它當成必要檢查（required check）來取代人類核准**；可用 `CLAUDE.md` 或 `REVIEW.md` 調整它要標記的內容，把 21.2 的十一面向寫進 `REVIEW.md` 是讓第 3 層（組織規範）進入託管審查的最簡單方法。
+3. **Ultrareview 的「分支審查」會上傳本機 repo 狀態**，包含未提交的變更；只有審查 PR 時才不從本機上傳。**處理 🔴 機密資料的 repo 應以政策限制只能審查 PR，或不使用 Ultrareview**（第 23 章 23.2）。
 
 ---
 
@@ -9678,7 +10020,7 @@ v1.0.0 的 21.2 十一面向檢查框架，假設組織自行以 Command（第 1
 
 # 第 22 章　AI-assisted Testing
 
-> **本章目錄**：[22.1 核心論點：測試品質是 AI 的能力上限](#221-核心論點測試品質是-ai-的能力上限) ｜ [22.2 AI 的七步測試迴圈](#222-ai-的七步測試迴圈) ｜ [22.3 步驟 ②：測試缺口分析（最有價值的一步）](#223-步驟-②測試缺口分析最有價值的一步) ｜ [22.4 各類測試的 AI 應用](#224-各類測試的-ai-應用) ｜ [22.5 測試品質的自動檢查](#225-測試品質的自動檢查) ｜ [22.6 本章實務案例](#226-本章實務案例) ｜ [22.7 本章注意事項](#227-本章注意事項) ｜ [22.8 本章檢查清單](#228-本章檢查清單)
+> **本章目錄**：[22.1 核心論點：測試品質是 AI 的能力上限](#221-核心論點測試品質是-ai-的能力上限) ｜ [22.2 AI 的七步測試迴圈](#222-ai-的七步測試迴圈) ｜ [22.3 步驟 ②：測試缺口分析（最有價值的一步）](#223-步驟-測試缺口分析最有價值的一步) ｜ [22.4 各類測試的 AI 應用](#224-各類測試的-ai-應用) ｜ [22.5 測試品質的自動檢查](#225-測試品質的自動檢查) ｜ [22.6 本章實務案例](#226-本章實務案例) ｜ [22.7 本章注意事項](#227-本章注意事項) ｜ [22.8 本章檢查清單](#228-本章檢查清單)
 
 ## 22.1 核心論點：測試品質是 AI 的能力上限
 
@@ -10644,7 +10986,9 @@ Claude Code 提供對 Bash 指令的沙箱執行，具備**檔案系統隔離**�
 | 事項 | 說明 |
 | --- | --- |
 | **模型訓練** | 在 **Team、Enterprise、Claude API 與雲端 Provider 方案**上，Anthropic **不以貴組織的程式碼或提示訓練模型** |
-| 保留期 | 由所採用的 API Provider 決定 |
+| 保留期（v2.1 查證） | **商用方案（Team、Enterprise、API）標準保留期為 30 天**；自訂保留期為 Enterprise 專屬；採第三方雲端 Provider 時依該 Provider 的條款 |
+| 本機逐字稿（v2.1 新增） | Claude Code 會以**明文**將 session 逐字稿存於 `~/.claude/projects/`，預設保留 **30 天**（以 `cleanupPeriodDays` 調整）；**Desktop 與 Cowork 的逐字稿預設不受此期限限制**。這是端點資料外洩與離職交接（5.7.3）必須涵蓋的範圍 |
+| `/feedback` 逐字稿（v2.1 新增） | 透過 `/feedback`、`/bug`、`/share` 送出的逐字稿**保留 5 年**；session 品質問卷若選擇上傳，逐字稿保留至多 6 個月。**建議以政策禁止在含機敏資料的 session 送出 feedback**，或以 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 一併關閉 |
 | **Zero Data Retention（ZDR）** | 請求完成後不留存任何資料。**僅 Claude for Enterprise 的合格帳號**，且**非標準內含**，需 Anthropic 個別啟用 |
 | 遙測關閉 | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`（第 49 章） |
 | 第三方雲端 Provider | 對 Anthropic 的錯誤回報與遙測**預設即為關閉** |
@@ -10690,10 +11034,55 @@ Claude Code 提供對 Bash 指令的沙箱執行，具備**檔案系統隔離**�
 | --- | --- | --- |
 | **`/security-review`** | 對當前分支的變更執行即時安全掃描 | 第 21 章 |
 | **Security guidance plugin** | 讓 Claude 在 session 進行中檢視並修正自己產出的漏洞 | 第 21 章 |
-| **Claude security（全庫掃描）** | 掃描整個 codebase 的漏洞 | 本章 |
+| **Claude Security plugin**（v2.1 更新） | 在 session 內以多 Agent 建立威脅模型、搜尋漏洞、獨立複核每個發現，再把你選定的發現轉成修補；可只掃描分支 diff、PR 或單一 commit。需付費方案（使用 dynamic workflows）、Python 3.9+；**每次掃描計入方案額度** | 本章、第 21 章 |
+| **Claude Security（託管服務）**（v2.1 新增） | 持續監看已連結的 repositories 的託管掃描服務，**Enterprise 方案** | 本章 |
+| **Code Review**（PR 層） | 多 Agent 的 PR 正確性與安全審查，Team／Enterprise，**ZDR 組織不可用** | 第 21 章 21.5.2 |
 | **HackerOne 漏洞回報** | 回報 Claude Code 本身的安全漏洞 | — |
 
 > ✅ **`/security-review` 應納入第 20 章的 PR 前置檢查**。它的定位是「AI 產碼的第一道安全篩檢」，**不取代** SAST 與人工資安審查（第 21 章 21.1 的核心原則同樣適用）。
+
+### 23.8.6 新協作介面的資料外流治理：Artifacts、Claude Tag 與 claude.ai 同步（v2.1 新增）【官方】
+
+v2.0 的資料保護設計（23.2）假設「AI 的產出只會落在 repo 與終端機」。2026 年下半年起，Claude Code 新增了幾個**把產出送到 repo 以外**的管道，其中部分在 Team 方案上**預設開啟**。
+
+**Artifacts 的風險輪廓**：Artifact 是 Claude Code 從 session 發佈到 claude.ai 的**互動式網頁**，內容可以取自整個 codebase 與 session 透過 MCP 取得的資料；它存放在 Anthropic 營運的基礎設施上，**session 持續進行時會就地更新**。
+
+| 面向 | Team | Enterprise | 風險說明 |
+| --- | --- | --- | --- |
+| 功能是否開啟 | **預設開啟** | Owner 啟用；有 RBAC 時可依角色限定 | Team 若未檢視設定，全員都能發佈 |
+| 公開連結（不需登入即可瀏覽） | 預設關閉，Owner 可開啟 | 同左 | **開啟後等於把程式碼片段放上網際網路** |
+| 組織內分享與 editor 角色 | ✓ | ✓ | 被分享者可留言、可被設為 editor |
+| **Artifact 呼叫 MCP connectors** | 有獨立開關（Settings > Capabilities） | 同左 | 每位瀏覽者以**自己的** connectors 取得即時資料；呼叫 connectors 的 artifact **一律不能公開分享** |
+| 保留政策 | Settings > Data & privacy controls，私有與已分享可分別設定 | 同左 | 未設定即依預設保留 |
+| 稽核 | Audit log | Audit log；**Compliance API 可列出、讀取、刪除 artifacts** | Team 無 Compliance API，事後清查較困難 |
+| 不可用的組織 | — | 啟用 CMEK、HIPAA 或 ZDR 的組織 | — |
+
+**建議的組織設定**【建議】：
+
+| 資料分級（23.2.1） | Artifacts | 公開連結 | Artifact connectors |
+| --- | --- | --- | --- |
+| 🟢 公開／一般 | 允許 | 經申請 | 允許 |
+| 🟡 內部 | 允許（僅組織內分享） | **禁止** | 依 connector 白名單 |
+| 🔴 機密／受監管 | **以 `permissions.deny: ["Artifact"]` 或 `enableArtifact: false` 關閉**（專案層級可用） | 禁止 | 禁止 |
+
+> 📌 **技術關閉方式**【官方】：個人或專案可在設定檔寫 `"enableArtifact": false`、設定環境變數 `CLAUDE_CODE_DISABLE_ARTIFACT=1`，或把 `Artifact` 加進 `permissions.deny`。**由 Managed Settings 或 `--settings` 關閉後，任何設定檔都無法再開啟**（v2.1.242 起，專案層級的 `enableArtifact: false` 也會生效）。
+
+**Claude Tag 與 Claude Code in Slack 的差異**：Claude Tag 在 Slack 頻道中以**組織的共用身分**執行，任何頻道成員都能把 `@Claude` 標記進討論串指派任務；舊的 Claude Code in Slack 則是以**個人帳號**執行。**共用身分意味著「誰下的指令」與「誰的權限」脫鉤**——請在啟用前定義 Claude Tag 可存取的 repositories 與 connectors，並把它視為一個需要最小權限設計的服務帳號（第 12 章 12.5）。
+
+**claude.ai 同步進終端機的資產**：以 claude.ai 帳號登入的終端機 session，會**自動下載成員在 claude.ai 啟用的 skills 與 plugins**（第 11 章 11.5.2、第 12 章 12.4.4）。這些資產**沒有經過第 7 章共用 repo 的 PR 審查**。受監管環境請以 `syncClaudeAiSkills: false`、`syncClaudeAiPlugins: false` 或 `strictPluginOnlyCustomization` 關閉。
+
+> ⚠️ **最容易被忽略的一點**：「Artifacts 預設開啟」與「claude.ai 同步預設開啟」都是**功能上線時自動生效**，而不是組織主動導入。**這正是第 49 章強調「每季複查設定鍵」的原因**——新功能的預設值，本身就是政策缺口的來源（第 37 章 R-32、R-33）。
+
+### 23.8.7 與外部安全標準的對照（v2.1 新增）
+
+本章的控制措施與下列外部標準直接相關，完整對照矩陣見 [第 53 章](#第-53-章外部標準與法規框架對照)：
+
+| 外部標準 | 對應本章 | 第 53 章位置 |
+| --- | --- | --- |
+| OWASP Top 10 for LLM Applications 2025（LLM01 Prompt Injection、LLM02 Sensitive Information Disclosure、LLM03 Supply Chain、LLM06 Excessive Agency） | 23.2、23.3、23.4 | 53.4 |
+| OWASP Top 10 for Agentic Applications 2026（ASI01～ASI10） | 23.3、23.7、23.8.6 | 53.4 |
+| NIST SSDF（SP 800-218）PS／PW／RV 實務群組 | 23.4、23.5、23.6 | 53.2 |
+| ISO/IEC 27001、SOC 2（供應商側保證） | 23.8.1 | 53.3 |
 
 ---
 
@@ -10834,6 +11223,11 @@ Claude Code 提供對 Bash 指令的沙箱執行，具備**檔案系統隔離**�
 - [ ] 無例外項目已明確標示
 - [ ] 事件通報流程已建立且「通報不究責」
 - [ ] 稽核日誌機制已建立
+- [ ] 已檢視 Artifacts 的組織設定：公開分享、artifact connectors、保留政策（23.8.6，v2.1 新增）
+- [ ] 機密／受監管專案已以 `enableArtifact: false` 或 `permissions.deny: ["Artifact"]` 關閉 Artifacts（v2.1 新增）
+- [ ] Claude Tag 啟用前已定義可存取的 repositories 與 connectors（v2.1 新增）
+- [ ] 已決定是否允許 claude.ai 的 skills／plugins 同步進終端機（v2.1 新增）
+- [ ] 已完成本章控制措施與 OWASP LLM／Agentic Top 10 的對照（第 53 章，v2.1 新增）
 
 ### 教育與演練
 
@@ -10845,7 +11239,8 @@ Claude Code 提供對 Bash 指令的沙箱執行，具備**檔案系統隔離**�
 ### 法務
 
 - [ ] 已向 Anthropic 確認資料訓練政策
-- [ ] 已向 Anthropic 確認資料保留期
+- [ ] 已向 Anthropic 確認資料保留期（官方標準為 30 天，v2.1 查證；仍建議取得合約條款）
+- [ ] 已規範本機逐字稿（`~/.claude/projects/`，預設 30 天、明文）與 `/feedback` 逐字稿（保留 5 年）的處理方式（v2.1 新增）
 - [ ] 已向 Anthropic 確認智慧財產權與賠償條款
 - [ ] 已取得書面說明並經法務審閱
 
@@ -10927,10 +11322,11 @@ flowchart TB
 ### 教材大綱
 
 1. Agent 與 Chat 的差異（第 2 章 2.2 節）
-2. 基本操作：啟動、`/clear`、`/compact`、`/model`、`/cost`
+2. 基本操作：啟動、`/clear`、`/compact`、`/model`、`/cost`、`/usage`（v2.1）
 3. 任務定義的三要素：**目標、範圍、驗收標準**
 4. 讀取結果的方法：看 AI 說了什麼、看 AI 做了什麼、看 diff
-5. 模型選擇規範（第 5 章 5.5.3 節）
+5. 模型選擇規範（第 5 章 5.5.3 節），含 `opusplan` 與 effort 等級（v2.1）
+6. **權限模式與 `Shift+Tab`**：認識 Manual／Auto／Accept Edits／Plan，以及組織對起始模式的規定（第 16 章 16.5.2，v2.1）
 
 ### Lab
 
@@ -11472,7 +11868,9 @@ flowchart TB
 3. **Prompt Injection 與 Tool Injection**
 4. MCP 會把資料送出去（第 12 章實務案例）
 5. 供應鏈風險與 slopsquatting
-6. 事件通報流程（通報不究責）
+6. **新的資料外流管道**：Artifacts 的分享範圍、Claude Tag、claude.ai 同步資產（第 23 章 23.8.6，v2.1）
+7. **Auto Mode 不等於「有人核准」**：分類器能擋什麼、不能擋什麼（第 16 章 16.5.1～16.5.2，v2.1）
+8. 事件通報流程（通報不究責）
 
 ### Lab
 
@@ -13370,7 +13768,7 @@ flowchart TD
 
 > ⚠️ **v2.0 重要提醒：本章的防範難度已經提高。**
 >
-> v1.0.0 撰寫時，「把 Analytics 變成員工排名」需要有人**刻意去做**。截至 2026-09-17，官方 Analytics Dashboard **內建 Leaderboard（排行榜）**並可匯出全部使用者 CSV——排名現在是**打開頁面就看得到**。
+> v1.0.0 撰寫時，「把 Analytics 變成員工排名」需要有人**刻意去做**。截至 2026-09-24，官方 Analytics Dashboard **內建 Leaderboard（排行榜）**並可匯出全部使用者 CSV——排名現在是**打開頁面就看得到**。
 >
 > 此外，Contribution 指標的歸因演算法有系統性偏誤（改寫逾 20% 不歸因、21 天視窗、非 claude.ai 組織不計），**用它評估個人會系統性懲罰正確的工作方式**。
 >
@@ -13569,6 +13967,18 @@ flowchart TB
 | 我的建議 | |
 ```
 
+### 30.4.3 讓個人先看到自己的數據：`/usage`、`/insights` 與 Member analytics（v2.1 新增）【官方】
+
+v2.0 的個人分析流程（30.4.1）是「主管看報表 → 找人談」。v2.1 查證時，官方已提供讓**工程師自己先看到數據**的工具。本手冊建議**把順序反過來**：先讓個人自我檢視，一對一時再以同一份數據討論。
+
+| 工具 | 誰能用 | 看到什麼 | 在 30.3 四象限中的用途 |
+| --- | --- | --- | --- |
+| **`/usage`** | Pro、Max、Team、Enterprise 成員 | 目前的方案額度消耗，並**拆解是哪些 skill、subagent、plugin、MCP server 在消耗**；Team／Enterprise 另顯示本月個人 usage credits 花費與適用於自己的上限 | **Q4（高使用／低品質）**：找出「一個設定錯誤的 MCP server 或過大的 skill 吃掉大半額度」這類非行為問題 |
+| **`/insights`** | 所有方案、所有 Provider | 分析本機近期 session，產出**工作方式**的 HTML 報告（工作主題、摩擦點、誤用模式），存於 `~/.claude/usage-data/report.html` | **Q3（低使用／低採用）**：讓工程師自己看到卡在哪裡；**報告只在本機，除非本人分享，主管看不到**。執行本身會消耗額度 |
+| **Member analytics**（Settings › Usage） | Enterprise **用量計費**方案成員（管理員開關，預設開啟） | 依產品、模型、skill 分類的個人用量與支出上限狀態 | 所有象限：個人每月自我檢視 |
+
+> 🎯 **這三個工具的共同價值是「非懲罰性」**：數據先給本人看，符合 30.5 的個人資料保護原則，也降低 R-19（Metric Gaming）的誘因。**請勿要求工程師繳交 `/insights` 報告**——一旦變成繳交物，它就從自我改善工具變成監控工具，第 44 章的文化原則會被破壞。
+
 ---
 
 ## 30.5 個人資料的保護
@@ -13585,7 +13995,7 @@ flowchart TB
 | **本人可查閱** | 應讓本人看得到自己的資料 |
 | **法遵核准** | **匯出個人層級資料前需取得 HR / 法遵同意**（第 5 章 5.3.2 節） |
 
-> 📌 **截至 2026-09-17**，官方 Analytics 提供每人月度 lines of code accepted 與 CSV 匯出（含成員資料）。**如何使用這些資料受貴組織個資政策規範**，務必先諮詢 HR 與法遵。
+> 📌 **截至 2026-09-24**，官方 Analytics 提供每人月度 lines of code accepted 與 CSV 匯出（含成員資料）。**如何使用這些資料受貴組織個資政策規範**，務必先諮詢 HR 與法遵。
 
 ---
 
@@ -13693,20 +14103,21 @@ flowchart TB
 
 ## 31.1 官方 Analytics 提供什麼
 
-> 📌 **以下內容為截至 2026-09-17 由 Anthropic 官方支援文件查證的結果**。功能與指標可能隨時調整，請以官方最新文件為準。
+> 📌 **以下內容為截至 2026-09-24 由 Anthropic 官方支援文件查證的結果**。功能與指標可能隨時調整，請以官方最新文件為準。
 
 ### 31.1.1 分頁結構
 
-截至 2026-09-17，Team / Enterprise 的 Usage Analytics 包含下列分頁：
+截至 2026-09-24，Team / Enterprise 的 Usage Analytics 包含下列分頁：
 
-| 分頁 | 內容 |
+| 分頁 | 內容（v2.1 依支援文件更新） |
 | --- | --- |
-| **Overview** | 摘要指標、活躍成員、採用程度、skills/connectors、生產力成果、花費 |
-| **Claude Chat** | 對話量、專案建立、artifact 產出 |
-| **Claude Code** | Pull Request、程式碼行數、採用率、成本指標 |
-| **Claude Design** | 日/週/月活躍使用者 |
-| **Cowork** | Session 活動與使用者參與 |
-| **Surveys** | 組織範圍的意見收集 |
+| **Overview** | 每週活躍成員（WAU）、在 Code 中建立的 PR、Cowork sessions；**活躍成員／已指派席位**（可依產品篩選，含 Claude Design）；群組與成員清單；**採用程度（adoption level）與產品黏著度（stickiness）**；Skills 使用（每次使用成本、使用次數）；Connectors（使用人數、讀／寫動作數）；**「How agentic is their work?」（Beta）**；建立的 PR、Design、檔案操作、對話、MCP 寫入；**估計節省時間** |
+| **Spend** | Usage limits、spend concentration、總花費（MTD／QTD／YTD／近一年，**同時顯示實際價與牌價**）、依模型花費；**Enterprise 的 Admin 看不到此區塊** |
+| **Claude Chat** | 每日對話數與參與率、總對話數、前幾名成員、每日建立的 Projects 與參與率、Project 明細、每日 artifact 數與前 10 名 |
+| **Claude Code** | 拆為 **Productivity／Usage／Value** 三個子分頁（31.1.2、31.1.3、31.1.7） |
+| **Claude Design** | 日／週／月活躍使用者與趨勢（UTC、每日更新）；需組織啟用 |
+| **Cowork** | 每日 sessions、參與率、日／週／月活躍使用者 |
+| **Surveys** | 管理員可建立產品內問卷卡片，依介面與群組檢視回覆率，可逐份匯出 CSV（31.1.7） |
 
 ### 31.1.2 Claude Code 相關指標
 
@@ -13718,17 +14129,26 @@ flowchart TB
 | **Lines accepted over time** | 組織 | 每日趨勢 |
 | **Top commands** | 組織 | 最常使用的指令 |
 | 個人月度 LOC | 個人 | 含 email，可 CSV 匯出 |
+| **Pull requests opened per user**（v2.1 補充） | 個人 | 每位使用者開啟的 PR 數（Contribution 指標的一部分，需 GitHub 整合） |
 
-### 31.1.3 Value 分頁（Beta，截至 2026-09-17）
+> 📌 **v2.1 補充：Claude Code 分頁的 Productivity 子分頁**彙整了 PRs with Claude Code、LOC、採用率、建議接受率與可匯出的 Leaderboard；本節與 31.1.4 的指標都落在此子分頁。
+
+### 31.1.3 Value 分頁（Beta，截至 2026-09-24）
 
 | 指標 | 說明 |
 | --- | --- |
 | Estimated productivity lift | 估算的生產力提升 |
-| Cost per commit | 每次提交的成本 |
+| **Time recovered annually**（v2.1 補充） | 估算每年節省的時間 |
+| Cost per commit／**per PR／per session**（v2.1 補充） | 每次提交、每個 PR、每個 session 的成本 |
 | Estimated annual value | 估算的年度價值 |
-| — | **計算公式的輸入值可調整** |
+| **Top spenders、Spend concentration**（v2.1 補充） | 花費最高的成員與花費集中度 |
+| **Automation leverage**（v2.1 補充） | 自動化槓桿（非互動式與背景工作的比重） |
+| **Observed metrics** | 實際觀測值，與上述估算並列 |
+| — | **所有公式都在頁面上顯示，輸入的假設值可調整並重新計算** |
 
-### 31.1.4 Contribution 指標（Public Beta，截至 2026-09-17）【Preview】
+> ⚠️ **Value 分頁的數字是「估算」，而且假設值可以被調整**【建議】。第 32 章月報若引用 Value 分頁，**必須同時記錄當時使用的假設值**（例如每小時人力成本、每個 PR 的基準工時），否則下個月有人調整了假設，趨勢就失去可比性。更好的做法是把 Value 分頁當作「與管理階層溝通的起點」，實際 ROI 仍以第 29 章的四層 KPI 為準。
+
+### 31.1.4 Contribution 指標（Public Beta，截至 2026-09-24）【Preview】
 
 > ⚠️ **這是本手冊 v2.0 更新幅度最大的一節。** Contribution 指標是「向管理階層證明 AI 效益」的主要依據，但它的**歸因演算法有明確的邊界與誤差**。不理解這些邊界就拿去做決策，會得到錯誤結論。
 
@@ -13797,7 +14217,7 @@ flowchart TB
 >
 > 則**唯一的解法是以 OpenTelemetry 自建度量體系**（31.6 節），而不是等到第一次交月報時才發現沒有資料。
 
-### 31.1.5 Spend Report 與其欄位（截至 2026-09-17）【官方】
+### 31.1.5 Spend Report 與其欄位（截至 2026-09-24）【官方】
 
 | 指標 | 說明 |
 | --- | --- |
@@ -13805,7 +14225,7 @@ flowchart TB
 | 依模型花費 | 各模型的花費分布 |
 | Usage limits | 用量限制狀況 |
 | **Spend concentration** | 花費集中度 |
-| CSV 匯出 | 最多 90 天歷史，含每使用者、每模型 |
+| CSV 匯出 | 期間可選：本月至今、上個月、近 90 天、自訂（最多回溯 90 天）；**資料延遲 1 天**；含每使用者、每模型 |
 
 **Spend Report CSV 的欄位**【官方】：
 
@@ -13824,10 +14244,12 @@ flowchart TB
 > **後果**：一位使用者顯示花費 $0，可能是「完全沒用」也可能是「用好用滿但沒超額」。**Spend Report 不能當作使用率指標**（第 30 章）。
 
 > 📌 **Spend Report 位於組織的 analytics 設定頁，不在 Claude Code Analytics Dashboard 內**。兩者是不同的頁面，權限也可能不同。
+>
+> 📌 **v2.1 補充**：**席位制 Enterprise 若未啟用 usage credits，就沒有 Spend 報表**；啟用後也只顯示超額花費。Code Review、Ultrareview 與部分方案的 Fable 用量也會出現在此報表（第 5 章 5.5.4）。
 
 ### 31.1.6 存取權限與資料特性
 
-| 項目 | 內容（截至 2026-09-17） |
+| 項目 | 內容（截至 2026-09-24） |
 | --- | --- |
 | Dashboard 位置 | Team / Enterprise：`claude.ai/analytics/claude-code`；API 客戶：`platform.claude.com/claude-code` |
 | **Team 方案可檢視者** | Owner、Primary Owner（**見下方文件不一致說明**） |
@@ -13845,6 +14267,18 @@ flowchart TB
 >
 > ✅ **建議**：把「每月 1 日匯出上月 CSV 並歸檔」列為第 32 章月報流程的第一個步驟，並指定負責人。**漏一個月，那個月的資料就永久消失了。**
 
+### 31.1.7 v2.1 新增的觀測面：Usage 子分頁、Surveys 與 Member analytics【官方】
+
+v2.1 查證時，Analytics 新增了三個對**治理**（而不只是效益）很有用的觀測面：
+
+| 觀測面 | 內容 | 本手冊的用途 |
+| --- | --- | --- |
+| **Claude Code › Usage 子分頁** | 使用 skills 的人數、**已知的 MCP servers**、最常用的 skills／servers、工具使用、功能採用、依 agent 類型的 sessions（每日更新） | **治理稽核**：比對第 12 章 MCP Allowlist 與實際出現的 MCP servers，找出未經審查的連線；比對第 11 章 Skill Catalog 與實際使用，找出「沒人用的 skill」 |
+| **Surveys 分頁** | 管理員建立產品內問卷卡片，依介面與群組檢視回覆率，可逐份匯出 CSV；回覆即時彙整 | 取代第 29 章 KPI 第 4 層（體驗）原本要另外發的滿意度問卷；**問卷題目應與第 34 章成熟度評估對齊** |
+| **Member analytics** | Enterprise **用量計費**方案的成員，可在 **Settings › Usage** 看到自己依產品、模型、skill 分類的用量與支出上限狀態；由管理員以「Member analytics」開關控制，**2026-07-11 起預設開啟** | 支撐第 30 章「個人自我管理」；但這是**組織層級開關**，開啟前需依第 30 章的隱私原則取得 HR／法遵同意 |
+
+> 📌 **Overview 分頁的「採用程度」、「產品黏著度」與「How agentic is their work?」**可以直接對應第 34 章 AI Maturity Model 的 L2→L3 判斷（從「會用」到「委派 agentic 任務」）。但「How agentic」仍是 **Beta**，演算法未公開，**只作為輔助觀察，不列入正式 KPI**。
+
 ---
 
 ## 31.2 三個必須理解的資料限制
@@ -13853,7 +14287,7 @@ flowchart TB
 
 ### 31.2.1 限制 1：資料每月重置
 
-**截至 2026-09-17，Analytics 顯示的是當月資料，每月月初重置。**
+**截至 2026-09-24，Analytics 顯示的是當月資料，每月月初重置。**
 
 | 影響 | 因應 |
 | --- | --- |
@@ -13865,7 +14299,7 @@ flowchart TB
 
 ### 31.2.2 限制 2：席位制 + usage credits 的花費資料不完整
 
-**截至 2026-09-17，對於席位制方案且啟用 usage credits 的組織，匯出的花費報表只反映「超出席位額度」的花費。**
+**截至 2026-09-24，對於席位制方案且啟用 usage credits 的組織，匯出的花費報表只反映「超出席位額度」的花費。**
 
 | 影響 | 因應 |
 | --- | --- |
@@ -14140,8 +14574,11 @@ export OTEL_EXPORTER_OTLP_ENDPOINT=http://<企業 collector>:4317
 | `claude_code.tool_result` | 工具執行完成 |
 | `claude_code.api_request` | 發出 API 請求 |
 | **`claude_code.tool_decision`** | **工具權限決策** |
+| **`claude_code.managed_settings_resolved`**（v2.1 新增，v2.1.274＋） | 機器解析 Managed Settings 時：使用了哪些來源、policy helper 是否健康、為何拒絕啟動。可搭配 `OTEL_LOG_MANAGED_SETTINGS=1` 輸出經遮罩的設定摘要 |
 
-所有 event 均帶有 `prompt.id`，可用於關聯同一次互動的各個事件。
+所有 event 均帶有 `prompt.id`，可用於關聯同一次互動的各個事件。v2.1.274 起，`claude_code.llm_request` trace span 另帶有 **`effort`** 屬性，可據此分析 effort 等級與成本的關係（第 5 章 5.5.3）。
+
+> ✅ **`managed_settings_resolved` 讓「政策是否真的生效」第一次變成可持續監控的指標**。第 49 章 49.7 的驗收過去只能抽樣 `/status`；現在可以對全組織每台機器持續檢查，**並對「沒有回報 managed 來源」的機器發出告警**——這正是第 37 章 R-21（政策覆蓋缺口）的偵測性控制。
 
 > ✅ **`tool_decision` 是稽核的關鍵事件**。它記錄了「哪些操作被核准、哪些被拒絕」，是第 20 章 AI Evidence 留存與第 36 章治理稽核的直接資料來源——**且它不受權限模式影響，Auto 模式下的決策一樣會記錄**。
 
@@ -14281,7 +14718,7 @@ claude_code.interaction
 
 ## 31.8 本章注意事項
 
-> ⚠️ **Analytics 資料每月重置**（截至 2026-09-17）。必須每月固定匯出存檔。
+> ⚠️ **Analytics 資料每月重置**（截至 2026-09-24）。必須每月固定匯出存檔。
 
 > ⚠️ **席位制 + credits 的花費報表只含超額部分**。總成本需自行加上席位費用。
 
@@ -14862,7 +15299,7 @@ Claude Code Team Dashboard
 | --- | --- | --- |
 | Session 趨勢 | 折線（日） | 突然暴增需檢視是否異常 |
 | Top Commands | 橫條 | 若前 3 名都是基本對話 → 訓練不足 |
-| **Model Mix** | 圓餅 | **Opus 佔比 > 25% 轉黃**（成本風險） |
+| **Model Mix** | 圓餅 | **Opus／Fable 佔比超過組織門檻轉黃**（成本風險；門檻依 5.5.6 的模型政策設定，見 33.6 的 v2.1 提醒） |
 | MCP 使用 | 表格 | **出現未核准的 MCP 立即轉紅** |
 
 ### 33.3.3 Engineering（工程）
@@ -14985,12 +15422,16 @@ Claude Code Team Dashboard
 | 🔴 **品質惡化** | 缺陷數連 2 週高於基準 | AI Governance + Team Lead | 暫緩擴散，檢視 Review 與測試 |
 | 🔴 **假測試** | 覆蓋率↑ 但 Mutation Score↓ | QA + AI Governance | 第 22 章的缺口分析 |
 | 🔴 **安全事件** | Critical 發現 > 0、未核准 MCP | 資安 + AI Governance | 立即處理 |
-| 🟠 **成本異常** | 月成本超預算 20%、Opus 佔比 > 25% | AI Governance + Team Lead | 檢視模型使用與 `/clear` 習慣 |
+| 🔴 **政策未生效**（v2.1 新增） | 任一機器未回報預期的 managed 來源（OTel `managed_settings_resolved`），或受監管專案出現 Auto Mode 的 `tool_decision` | IT 平台 + 資安 | 依第 49 章 49.7 重新投遞與驗收 |
+| 🟠 **成本異常** | 月成本超預算 20%、Opus／Fable 佔比超過組織設定的門檻 | AI Governance + Team Lead | 檢視模型使用與 `/clear` 習慣 |
+| 🟠 **付費功能暴增**（v2.1 新增） | Code Review、Ultrareview、Fable 的 usage credits 花費週增 > 50% | Owner + AI Governance | 檢查觸發模式與 CI 模型設定（第 21 章 21.5.2、R-31） |
 | 🟠 **Review 塞車** | PR Lead Time 連 2 週上升 | Team Lead | 分層 Review（第 21 章） |
 | 🟠 **核准塞車** | 平均核准等待 > 8 小時 | AI Governance | 重新校準 Approval Matrix |
 | 🟡 **採用下滑** | 採用率連 2 月下降 | Team Lead | 訪談找障礙（第 30 章） |
 | 🟡 **回饋停滯** | 連 3 月無新增資產 | AI Governance | 檢視回饋循環（第 27 章） |
 | 🟡 **未標記** | AI 參與度未標記 > 0 | Team Lead | 檢查 Hook |
+
+> ⚠️ **v2.1 提醒：「Opus 佔比」門檻需要重新校準**。v2.0 以「Opus 佔比 > 25%」作為成本異常條件，前提是 Sonnet 為預設模型。截至 2026-09-24 官方預設已改為 Opus 5.5（第 5 章 5.5.3），**若組織沒有以 Managed Settings 改預設，這個預警會持續觸發而失去意義**。請依組織的模型政策（5.5.6）重新設定門檻。
 
 ---
 
@@ -15348,6 +15789,21 @@ flowchart LR
 ```
 
 > 🎯 **「最低面向決定等級」是本自評表最重要的設計**。很多組織技術面滿分但治理面 0 分，總分看起來不錯，實際上風險極高。
+
+### 34.4.1 以 DORA AI Capabilities 作為升級前置條件（v2.1 新增）
+
+DORA 2025 研究指出 AI 是「放大器」：組織能力不足時，導入 AI 只會放大既有問題。建議在自評表之外，**把 DORA 七項能力列為 Level 2 → Level 3 的前置檢核**：
+
+| DORA 能力 | 升到 Level 3 前應達成 |
+| --- | --- |
+| Clear and communicated AI stance | 第 36 章政策已發布，工程師能說出允許與禁止事項 |
+| Strong version control practices | AI 變更全數經 PR，且可追溯（第 20 章） |
+| Working in small batches | AI 單次變更的平均規模已納入月報追蹤 |
+| Quality internal platforms | 第 6 章標準環境與第 49 章 Managed Settings 已上線 |
+| Healthy data ecosystems／AI-accessible internal data | 第 7 章共用 repo 與第 12 章 MCP Allowlist 已運作 |
+| User-centric focus | 第 17 章需求均有可驗證的驗收條件 |
+
+七項能力的完整說明與對照見 [第 53 章 53.5](#535-工程效能dora-ai-capabilities-model)。
 
 ---
 
@@ -16041,6 +16497,18 @@ AI 的權限應限縮至完成任務所需的最小範圍。設計時應假設 A
 | **納入月報** | 定期檢視遵守狀況 |
 | **公開案例** | 月度社群分享違反的後果（不指名） |
 
+### 36.4.3 與外部治理框架的對照（v2.1 新增）
+
+本章政策條文在外部稽核時，最常被要求對應到下列框架：
+
+| 外部框架 | 本章對應 | 說明 |
+| --- | --- | --- |
+| NIST AI RMF：GOVERN | 36.2 Constitution、36.3 Policy | 治理文化、政策與問責 |
+| ISO/IEC 42001 附錄 A.2（AI 政策）、A.9（AI 系統的使用） | 36.3、36.4 | 政策與使用控制 |
+| 金管會《金融業運用 AI 指引》：治理與問責 | 36.3、第 45 章 | 金融業應向風險管理委員會定期報告 |
+
+逐項對照與證據清單見 [第 53 章 53.3](#533-ai-治理管理系統nist-ai-rmf-與-isoiec-42001) 與 [53.6](#536-法規台灣與歐盟)。
+
 ---
 
 ## 36.5 政策的溝通
@@ -16257,6 +16725,11 @@ AI 的權限應限縮至完成任務所需的最小範圍。設計時應假設 A
 | R-27 | **Leaderboard Misuse**（官方排行榜被誤用為績效） | 4 | 3 | 12 | 🟠 | 1. **明文政策禁止公開個人排名**（第 31 章 31.5.1）<br/>2. 限縮檢視權限<br/>3. 理解歸因偏誤會懲罰正確做法 | AI Governance | 政策稽核、同仁回饋 | **待完成** |
 | R-28 | **Champion Burnout**（推動者因無時間上限而放棄） | 4 | 3 | 12 | 🟠 | 1. **每週時間上限並由主管認列**（第 50 章 50.3.2）<br/>2. 第二位 Champion 接班機制<br/>3. Champion 不負責回答資安問題 | 部門主管 | Champion 留任率、頻道活躍度 | **待完成** |
 | R-29 | **Silent Policy Failure**（設定鍵改名或棄用而無聲失效） | 3 | 4 | 12 | 🟠 | 1. **每次版本更新後複查設定鍵**（第 49 章 49.7.2）<br/>2. `requiredMinimumVersion` 收斂版本範圍<br/>3. 定期以實際操作驗證政策仍生效 | IT 平台 | 版本升級檢核、季度政策實測 | **待完成** |
+| R-30 | **Default Auto Mode**（Team 方案未設定即以 Auto 起始，核准矩陣實質失效）（v2.1） | 4 | 4 | 16 | 🟠 | 1. **以 Managed Settings 明確決定起始模式**（第 16 章 16.5.2）<br/>2. 受監管環境 `disableAutoMode: "disable"`<br/>3. L3 操作一律 `permissions.deny`<br/>4. VS Code 擴充另行驗證 | 資安主管 | `Shift+Tab` 抽驗、OTel `tool_decision` | **待完成** |
+| R-31 | **Silent Credit Burn**（Fable、Code Review、Ultrareview 在非互動或自動觸發下持續消耗 usage credits）（v2.1） | 3 | 3 | 9 | 🟡 | 1. CI／排程以 `availableModels` 排除 `fable`、`best`（第 5 章 5.5.3）<br/>2. Code Review 設月度上限（第 21 章 21.5.2）<br/>3. 月報拆列此類花費 | Owner | Spend 報表、個人支出上限告警 | 持續 |
+| R-32 | **Artifact Exposure**（Artifacts 預設開啟，內容經公開連結或 connectors 外流）（v2.1） | 3 | 4 | 12 | 🟠 | 1. 確認公開分享維持關閉（第 23 章 23.8.6）<br/>2. 機密專案 `enableArtifact: false`<br/>3. 設定保留政策<br/>4. Enterprise 以 Compliance API 定期清查 | 資安主管 | Audit log、季度設定檢核 | **待完成** |
+| R-33 | **Unreviewed Synced Assets**（claude.ai 同步的 skills／plugins 未經內部審查即進入 session）（v2.1） | 3 | 3 | 9 | 🟡 | 1. 決定是否允許同步（第 11 章 11.5.2）<br/>2. 受監管環境 `syncClaudeAiSkills`／`syncClaudeAiPlugins` 設 `false`<br/>3. claude.ai 端上架納入第 7 章審查 | AI Governance | Analytics › Usage 子分頁的 skills 清單（第 31 章 31.1.7） | 持續 |
+| R-34 | **Default Model Drift**（官方預設模型改變，造成額度與成本結構變化而無人察覺）（v2.1） | 4 | 2 | 8 | 🟡 | 1. 以 `model`／`availableModels` 明確設定預設（第 5 章 5.5.6）<br/>2. 每週追蹤 What's New（第 49 章 49.7.2）<br/>3. 月報追蹤「觸及上限的人數」 | IT 平台 | 觸及上限次數、依模型花費 | 持續 |
 
 ---
 
@@ -16264,7 +16737,7 @@ AI 的權限應限縮至完成任務所需的最小範圍。設計時應假設 A
 
 | 月份 | 🔴 極高 | 🟠 高 | 🟡 中 | 🟢 低 | 新增 | 關閉 |
 | --- | --- | --- | --- | --- | --- | --- |
-| 2026-09 | **1** | **18** | **10** | 0 | **R-21～R-29（v2.0）** | — |
+| 2026-09 | **1** | **20** | **13** | 0 | **R-21～R-29（v2.0）、R-30～R-34（v2.1）** | — |
 
 ## 本月風險變化
 
@@ -16346,6 +16819,21 @@ AI 的權限應限縮至完成任務所需的最小範圍。設計時應假設 A
 | 新興風險掃描 | 產業案例、產品變化帶來的新風險 |
 | 關閉已消失的風險 | — |
 
+### 37.5.3 以外部風險清單檢核登錄簿的完整性（v2.1 新增）
+
+每季深度檢視時，建議以 **OWASP Top 10 for Agentic Applications 2026（ASI01～ASI10）** 與 **NIST AI 600-1（GenAI Profile）** 的風險類別，反向檢查本登錄簿是否有遺漏：
+
+| 外部風險類別 | 本登錄簿對應 | 檢核問題 |
+| --- | --- | --- |
+| ASI01 Agent Goal Hijack | R-09（Prompt／Tool Injection） | 處理外部內容的任務是否強制沙箱？ |
+| ASI03 Identity and Privilege Abuse | R-22（部分涵蓋） | Claude Tag 共用身分、個人帳號登入（`forceLoginOrgUUID`）是否已納入？若無，建議新增專屬風險 |
+| ASI04 Agentic Supply Chain | R-05、R-06、R-33 | claude.ai 同步資產是否已納入？ |
+| ASI09 Human-Agent Trust Exploitation | R-23、**R-30** | Team 方案的預設 Auto Mode 是否已處理？ |
+| LLM10 Unbounded Consumption | R-10、**R-31** | 自動觸發的付費功能是否有上限？ |
+| GenAI：Value Chain and Component Integration | R-05、R-06、R-14、R-33 | 新 MCP／Plugin 上架是否都經審查？ |
+
+完整對照見 [第 53 章 53.4](#534-agent-安全owasp-llm-與-agentic-top-10)。
+
 ---
 
 ## 37.6 本章實務案例
@@ -16389,7 +16877,7 @@ AI 的權限應限縮至完成任務所需的最小範圍。設計時應假設 A
 **後續行動**：
 
 1. R-12 升為**最高優先**，導入分層 Review（第 21 章）
-2. 新增風險 **R-21：Silent Degradation（緩慢惡化型風險）**，並定義偵測方式
+2. 新增一項組織自訂風險 **「Silent Degradation（緩慢惡化型風險）」**，並定義偵測方式（註：此為該組織當時的自訂編號；本手冊 v2.0 起 R-21 已用於「Policy Coverage Gap」，組織採用時請另行編號）
 3. 風險登錄簿新增欄位：**「本月是否發生」**，強迫每月確認
 
 **一年後**：
@@ -16494,10 +16982,10 @@ flowchart LR
 | **Duration** | 6～8 週 |
 | **Objective** | 建立平台、治理與訓練的最小可行版本 |
 | **Owner** | AI Governance 小組 + 平台團隊 |
-| **Deliverables** | 1. 組織與席位設定（第 5 章）<br/>2. JML 流程（第 5 章）<br/>3. 環境標準化 SOP + 驗收腳本（第 6 章）<br/>4. 企業 `settings.json` + 五個必要 Hook（第 6、12 章）<br/>5. **AI Coding Security Policy**（第 23 章）<br/>6. **Approval Matrix**（第 16 章）<br/>7. 共用 repo 骨架（第 7 章）<br/>8. `CLAUDE.md` 範本 + lint（第 8 章）<br/>9. Workshop 1-3、9 教材（第 24 章）<br/>10. **基準指標量測**（第 25 章） |
+| **Deliverables** | 1. 組織與席位設定（第 5 章）<br/>2. JML 流程（第 5 章）<br/>3. 環境標準化 SOP + 驗收腳本（第 6 章）<br/>4. 企業 `settings.json` + 五個必要 Hook（第 6、12 章）<br/>5. **AI Coding Security Policy**（第 23 章）<br/>6. **Approval Matrix**（第 16 章）<br/>7. 共用 repo 骨架（第 7 章）<br/>8. `CLAUDE.md` 範本 + lint（第 8 章）<br/>9. Workshop 1-3、9 教材（第 24 章）<br/>10. **基準指標量測**（第 25 章）<br/>11. **Managed Settings 安全底線，含起始權限模式決策**（第 49 章、第 16 章 16.5.2，v2.1 新增）<br/>12. **模型與支出上限政策**（第 5 章 5.5.4～5.5.6，v2.1 新增） |
 | **KPI** | 環境驗收通過率 100%、治理文件齊備 |
 | **Risk** | 為求快而省略治理，Pilot 後難以補上 |
-| **Exit Criteria** | ✅ 環境 SOP 可用且驗收腳本通過<br/>✅ 安全政策與 Approval Matrix 已發布<br/>✅ 五個必要 Hook 已部署並測試<br/>✅ Workshop 1-3、9 教材完成<br/>✅ **基準指標已量測** |
+| **Exit Criteria** | ✅ 環境 SOP 可用且驗收腳本通過<br/>✅ 安全政策與 Approval Matrix 已發布<br/>✅ 五個必要 Hook 已部署並測試<br/>✅ Workshop 1-3、9 教材完成<br/>✅ **基準指標已量測**<br/>✅ **Team 方案：Auto Mode 政策已以 Managed Settings 落實並驗收**（v2.1） |
 
 > 🎯 **Phase 1 是投資報酬率最高的階段**。這裡省下的時間，Phase 2-3 會以 5 倍代價償還。
 
@@ -16634,6 +17122,7 @@ gantt
 | 風險深度檢視與評分校準 | 第 37 章 |
 | Approval Matrix 合理性檢視（駁回率） | 第 16 章 |
 | 產品更新與對照表檢視 | 第 3 章 |
+| **新功能預設值檢視**（Artifacts、同步資產、預設模型、起始權限模式等）（v2.1 新增） | 第 23 章 23.8.6、第 49 章 |
 
 ### 38.3.5 每半年固定活動
 
@@ -16643,6 +17132,7 @@ gantt
 | 紅隊演練（含社交工程） | 第 23 章 |
 | 教材更新 | 第 24 章 |
 | 席位配置檢討 | 第 5 章 |
+| **外部標準對照證據清單更新**（v2.1 新增，至少每年一次） | 第 53 章 |
 
 ---
 
@@ -19232,8 +19722,10 @@ Hibernate 6 的 5 個行為差異中：
 | **Impact** | 無實際資料損壞（開發環境），但**稽核缺失成立**：組織無法證明其核准流程被執行。後續需補做流程有效性證明。 |
 | **Detection** | 稽核抽查核准紀錄時發現缺漏。**若非稽核，可能永遠不會被發現。** |
 | **Prevention** | 1. **受監管環境關閉 Auto Mode**（第 49 章 49.5）<br/>2. L3 操作一律列入 `permissions.deny`，**不依賴模式**<br/>3. 第 16 章 16.5.1 的模式對應表<br/>4. 以 OTel `tool_decision` 事件監控實際決策 |
-| **Corrective Action** | 對受監管專案群組部署 `permissions.disableAutoMode` + `permissions.defaultMode: manual`；migration 相關指令列入 deny；補建 OTel 決策日誌。 |
+| **Corrective Action** | 對受監管專案群組以 Managed Settings 部署 `"disableAutoMode": "disable"` + `"permissions": {"defaultMode": "default"}`；migration 相關指令列入 deny；補建 OTel 決策日誌。 |
 | **Lesson Learned** | 🎯 **Approval Matrix 定義「誰該批准什麼」，Permission Mode 決定「人是否真的會被問到」。**<br/>**寫在文件裡的核准要求，若沒有技術強制，在 Auto Mode 下等於不存在。** |
+
+> ⚠️ **v2.1 補充：在 Team 方案上，這個案例不再需要「有人沒關」**【官方】。自 2026-08-14 起，Team 方案的內建起始權限模式就是 Auto（第 16 章 16.5.2）。v2.0 撰寫此案例時的情境是「工程師自己切到 Auto」；**現在只要組織沒有部署任何 Managed Settings，所有 Team 成員的新 session 都從 Auto 開始**。案例標題中的「未關」因此應理解為「**組織未做決定**」。這也是第 37 章新增 R-30（Default Auto Mode）的原因。
 
 ---
 
@@ -19784,7 +20276,7 @@ C 部門在管理階層要求下，做了三件事：
 
 > 🎯 **技術差不多，成效差三倍——差別在治理與文化。**
 >
-> **這是本手冊 52 章最重要的一個實證。**
+> **這是本手冊 53 章最重要的一個實證。**
 
 ---
 
@@ -20764,7 +21256,7 @@ flowchart LR
 
 > **本章目錄**：[47.1 為什麼這一章必須在 Pilot 之前讀](#471-為什麼這一章必須在-pilot-之前讀) ｜ [47.2 六種 Provider 的決策表【官方】](#472-六種-provider-的決策表官方) ｜ [47.3 決策樹【建議】](#473-決策樹建議) ｜ [47.4 Gateway：什麼時候需要、代價是什麼](#474-gateway什麼時候需要代價是什麼) ｜ [47.5 企業網路與憑證【官方】](#475-企業網路與憑證官方) ｜ [47.6 本章實務案例](#476-本章實務案例) ｜ [47.7 本章注意事項](#477-本章注意事項) ｜ [47.8 本章檢查清單](#478-本章檢查清單)
 
-> 📌 **本章為 v2.0 新增**。所有事實敘述以 2026-09-17 官方 Feature availability、Enterprise deployment overview、Gateways 等頁面為依據。**功能可用性變動頻繁，導入前務必重新查證。**
+> 📌 **本章為 v2.0 新增**。所有事實敘述以 2026-09-17（v2.1 於 2026-09-24 複核）官方 Feature availability、Enterprise deployment overview、Gateways 等頁面為依據。**功能可用性變動頻繁，導入前務必重新查證。**
 
 ## 47.1 為什麼這一章必須在 Pilot 之前讀
 
@@ -20829,6 +21321,10 @@ flowchart LR
 <sup>※1</sup> 指 Cloud sessions、Desktop、行動 App、Slack、Routines、Ultrareview、Code Review、Remote Control、Chrome 擴充、Computer use、Artifacts、語音輸入等。
 
 > 📌 **官方提供的替代方案**：走第三方雲端 Provider 時，排程可用 `/loop` 取代 `/schedule`；雲端 session 可用 GitHub Actions 或 GitLab CI/CD 取代；網路查詢可用 WebFetch 指定特定 URL 取代 web search。
+
+> 📌 **v2.1 補充：第三方 Provider 上的 Auto Mode**【官方】：v2.1.207 起，Bedrock、Google Cloud Agent Platform、Microsoft Foundry 上的 Auto Mode **不再需要** `CLAUDE_CODE_ENABLE_AUTO_MODE=1` 才能開啟（變數仍被接受但無作用），但這些 Provider 的**起始模式仍是 Manual**。v2.1.278 起，Enterprise、API 與這三個 Provider 的 Auto Mode 預設使用**伺服器端分類器**，分類器不另外計費；可用 `CLAUDE_CODE_AUTO_MODE_SERVER=0` 退出。
+
+> 📌 **v2.1 補充：模型別名在不同 Provider 解析不同**。例如 `sonnet` 在 Anthropic API 解析為 Sonnet 5，在 Bedrock／Vertex／Foundry 為 Sonnet 4.5；Microsoft Foundry 的預設模型也不同於訂閱方案（第 5 章 5.5.3）。**混合部署的組織必須以 `ANTHROPIC_DEFAULT_*_MODEL` 環境變數釘選版本**，否則同一份規範在不同 Provider 上會跑出不同品質。
 
 > ⚠️ **第三方雲端 Provider 的預設遙測行為**：在 Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry、Claude Platform on AWS 上，**對 Anthropic 的錯誤回報與遙測預設為關閉**。這對隱私是好事，但也代表官方 Analytics 不會有資料——再次印證度量體系必須自建。
 
@@ -20907,6 +21403,18 @@ flowchart TD
 | **對第三方雲端 Provider 下發 Server-managed settings** | 自架 Claude apps gateway 可讓這群使用者也獲得遠端政策下發能力 |
 
 > 🎯 **對受監管產業而言，Gateway 常常是「讓第三方雲端 Provider 可治理」的關鍵拼圖**。它同時補上了 47.3.1 的政策覆蓋缺口與 Bedrock 缺少的成本控制能力。
+
+**v2.1 補充：Claude apps gateway 近期新增的企業能力**【官方】（changelog v2.1.273～v2.1.281）：
+
+| 能力 | 設定 | 用途 |
+| --- | --- | --- |
+| **Bedrock Guardrails** | Bedrock upstream 的 `guardrail: {id, version}` | 對每個請求套用 Amazon Bedrock guardrail（內容過濾、PII 遮罩），把資料分級政策（第 23 章 23.2）落到網關層 |
+| **IAM 角色切換** | Bedrock upstream 的 `assume_role`（經 STS） | 不在網關上存放長期金鑰 |
+| **遙測標籤** | `telemetry.resource_attributes` | 在遙測中加上固定標籤（部門、成本中心），支援第 32 章成本分攤 |
+| **上游自訂標頭** | upstream 的 `headers:` | 企業 Proxy 需要的識別標頭 |
+| **LLM gateway 提示標頭** | `CLAUDE_CODE_GATEWAY_HINT_HEADERS=1` | 送出請求類別、agent 類型、compaction 等標頭，讓通用 LLM gateway 做路由與計量 |
+| **優雅關機** | `CLAUDE_GATEWAY_DRAIN_TIMEOUT_MS`（預設 25 秒） | 升級網關時不中斷進行中的請求，降低「Gateway 掛掉＝全體停工」的衝擊 |
+| **登入確認** | 儲存憑證前確認登入帳號，並在 `/status` 顯示 | 防止以錯誤帳號登入網關 |
 
 ### 47.4.3 Gateway 的代價【官方】
 
@@ -21041,7 +21549,7 @@ flowchart TD
 
 > **本章目錄**：[48.1 為什麼這一章要獨立出來](#481-為什麼這一章要獨立出來) ｜ [48.2 五種非互動式介面【官方】](#482-五種非互動式介面官方) ｜ [48.3 開放前必須完成的事：Readiness Gate【建議】](#483-開放前必須完成的事readiness-gate建議) ｜ [48.4 各介面的建議政策【建議】](#484-各介面的建議政策建議) ｜ [48.5 失控時怎麼停【建議】](#485-失控時怎麼停建議) ｜ [48.6 本章實務案例](#486-本章實務案例) ｜ [48.7 本章注意事項](#487-本章注意事項) ｜ [48.8 本章檢查清單](#488-本章檢查清單)
 
-> 📌 **本章為 v2.0 新增**。事實敘述以 2026-09-17 官方 Claude Code on the web、Cloud environments、Self-hosted environments、Remote Control、Routines、Headless、Security 等頁面為依據。
+> 📌 **本章為 v2.0 新增**。事實敘述以 2026-09-17（v2.1 於 2026-09-24 複核）官方 Claude Code on the web、Cloud environments、Self-hosted environments、Remote Control、Routines、Headless、Security 等頁面為依據。
 
 ## 48.1 為什麼這一章要獨立出來
 
@@ -21074,8 +21582,8 @@ flowchart TD
 | **Cloud Sessions** | 在 Anthropic 託管的隔離 VM 中執行 session | 需 claude.ai 帳號。Enterprise 需 premium 或 Chat + Claude Code 席位 |
 | **Routines（`/schedule`）** | 排程重複執行提示 | 需 claude.ai 帳號。第三方雲端 Provider 上改用 `/loop` |
 | **GitHub Actions / GitLab CI/CD** | 在 CI pipeline 中執行 | 依 Provider 而異（第 47 章、20.6.3） |
-| **Headless（`-p`）** | 程式化呼叫 Claude Code | 全 Provider |
-| **Self-hosted environments** | 將 cloud session 路由至組織自有基礎設施 | 需 claude.ai 帳號 |
+| **Headless（`-p`）** | 程式化呼叫 Claude Code | 全 Provider。**內建起始權限模式為 Manual**（不受 Team 方案「預設 Auto」影響，見第 16 章 16.5.2）；首個非互動回合等待 MCP 啟動的時間可用 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS` 限制 |
+| **Self-hosted environments** | 將 cloud session 路由至組織自有基礎設施 | **Team／Enterprise Public Beta**（v2.1 查證），預設關閉，Owner 在 Cloud environments 頁啟用，且需先啟用 cloud sessions；**ZDR 組織不可用**；只支援 GitHub repositories |
 
 > 📌 **Remote Control 不屬於本章範疇**。它由網頁介面連線到**本機執行中**的 Claude Code 行程，程式碼執行與檔案存取全部留在本機，**人仍在控制鏈上**。它的風險屬性接近 IDE，而非 Cloud Session。但要注意：Team / Enterprise 需管理員啟用，且連線期間對話逐字稿會存於 Anthropic 伺服器以供跨裝置同步。
 
@@ -21110,6 +21618,20 @@ flowchart TD
 - 已有成熟的容器平台與資安維運能量
 
 否則，**託管環境的內建控制通常優於多數組織自建的水準**。
+
+**v2.1 補充：自架環境的架構事實**【官方】：
+
+| 事實 | 對治理的意義 |
+| --- | --- |
+| 由三部分組成：**Environment**（在 claude.ai admin 建立的命名目的地）、**Runner**（在內網主機上執行 session 的程式，類似自架 CI runner）、**Session** | Runner 映像檔與機隊由組織建置維運 |
+| 所有連線都是**由內往外**：Runner 輪詢 `api.anthropic.com` 的佇列，每個 session 行程各自建立串流、推論與 git 連線 | 不需開放入站防火牆，但**出站白名單必須包含 Anthropic API** |
+| **模型推論仍走 Anthropic API**，不能改走 Bedrock、Vertex、Foundry 或 LLM gateway | **「程式碼不出內網」不成立**——session 內容仍會送到 `api.anthropic.com` 推論；自架只保證 checkout 與建置產物留在內網 |
+| Runner 認領第一個 session 後會**鎖定給同一位擁有者**，不同擁有者的程式碼不會混在同一個 runner | 仍建議以短生命週期 runner（autoscaling orchestrator）降低殘留風險 |
+| Environment secret（管理介面稱 environment key）**只在建立時顯示一次** | 必須立即存入組織的密鑰管理系統 |
+| 用量與託管環境相同，**計入組織的 Claude Code 用量** | 自架不會省下模型費用 |
+| v2.1.275 起，Team／Enterprise 的環境選單分為 **Personal 與 Organization** 兩區；組織環境在 Code 分頁只顯示唯讀摘要，編輯需到 admin 設定 | 組織共用環境的網路層級與 setup script 由 Owner 集中管理 |
+
+> ⚠️ **最常見的誤解**：「我們自架了，所以資料沒有出去」。**錯**。自架改變的是「程式碼在哪裡被 checkout 與執行」，不是「推論在哪裡發生」。若法遵要求的是「程式碼不得送出境外」，自架環境**不能**滿足；需回到第 47 章評估 Provider 與資料落地選項（例如 Enterprise 的 US-only inference 並不等於台灣境內）。
 
 ---
 
@@ -21334,7 +21856,7 @@ flowchart TD
 
 > **本章目錄**：[49.1 本章要解決什麼問題](#491-本章要解決什麼問題) ｜ [49.2 優先順序與合併語意【官方】](#492-優先順序與合併語意官方) ｜ [49.3 四種投遞機制【官方】](#493-四種投遞機制官方) ｜ [49.4 該設哪些鍵：依治理目標分類](#494-該設哪些鍵依治理目標分類) ｜ [49.5 專題：Auto Mode 要不要關【建議】](#495-專題auto-mode-要不要關建議) ｜ [49.6 分階段部署順序【建議】](#496-分階段部署順序建議) ｜ [49.7 驗收與稽核](#497-驗收與稽核) ｜ [49.8 本章實務案例](#498-本章實務案例) ｜ [49.9 本章注意事項](#499-本章注意事項) ｜ [49.10 本章檢查清單](#4910-本章檢查清單)
 
-> 📌 **本章為 v2.0 新增，是本次改版中最重要的一章**。所有設定鍵以 2026-09-17 官方 Deploy managed settings、Settings files and precedence、All settings、Set up Claude Code for your organization 等頁面為依據。
+> 📌 **本章為 v2.0 新增，是本次改版中最重要的一章**。所有設定鍵以 2026-09-17（v2.1 於 2026-09-24 複核）官方 Deploy managed settings、Settings files and precedence、All settings、Set up Claude Code for your organization 等頁面為依據。
 >
 > ⚠️ **設定鍵名稱是本手冊最易過時的內容**。採用任何一個鍵之前，請以官方 [All settings](https://code.claude.com/docs/en/settings-reference) 頁面核對。
 
@@ -21469,8 +21991,9 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 | `permissions.allow` / `permissions.deny` | 允許或拒絕特定工具與指令 | **陣列合併**，allow 可被工程師擴充（49.2.2） |
 | **`allowManagedPermissionRulesOnly`** | **讓 Managed Settings 成為權限規則的唯一來源** | **專案層與使用者層的權限規則全部失效**，包含第 6 章 6.5.2 的專案設定範本 |
 | `permissions.disableBypassPermissionsMode` | 停用 `--dangerously-skip-permissions` | 建議**一律設定**；此旗標是所有權限控制的總開關 |
-| `permissions.defaultMode` | 指定 session 啟動時的權限模式 | VS Code 擴充對此鍵的支援依方案而異 |
-| **`permissions.disableAutoMode`** | **移除 Auto Mode** | 見 49.5 的決策討論 |
+| `permissions.defaultMode` | 指定 session 啟動時的權限模式；Manual 的值為 `default`（v2.1.200 起可寫 `manual`） | VS Code 擴充只在 Pro／Max／Team 讀取此鍵；**專案層寫 `auto` 不生效**（第 16 章 16.5.2） |
+| **`permissions.disableAutoMode`**（或最上層 `disableAutoMode`） | **移除 Auto Mode**，值為 **`"disable"`** | **Team 方案未設定時預設即為 Auto**（v2.1 更正）；見 49.5 的決策討論 |
+| `permissions.blockReadsOutsideWorkingDirectories`（v2.1 新增） | 在所有權限模式下，讓檔案工具拒絕讀取工作目錄以外的路徑 | 可降低讀取 `~/.ssh`、其他專案等敏感路徑的風險；需要跨 repo 參照的工作流程要改用 `additionalDirectories` |
 | `sandbox.enabled` | 啟用沙箱 Bash | 可能影響需要廣泛檔案存取的既有工作流程 |
 | `sandbox.network.allowedDomains` | 網路白名單（**OS 層強制**） | **這是唯一不受指令字面影響的網路管控**（第 6 章 6.5.2） |
 
@@ -21495,11 +22018,14 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 
 | 設定鍵 | 作用 | 副作用 / 注意 |
 | --- | --- | --- |
-| `availableModels` | 限制模型選擇器中可見的模型 | **取代語意**，非合併 |
+| `availableModels` | 限制模型選擇器中可見的模型 | **取代語意**，非合併；**CI／排程環境建議排除 `fable`**（第 5 章 5.5.3） |
 | `enforceAvailableModels` | 連自動選擇的預設模型也受限 | 搭配上一鍵使用 |
+| `model`（v2.1 補充） | 設定新 session 的預設模型 | Team 方案可藉此把 Standard 席位預設為 `sonnet`（第 5 章 5.5.6） |
+| `modelPicker`（v2.1 新增） | 自訂 `/model` 選單列出的模型、順序與標籤 | 僅使用者或 managed 層級 |
+| `fallbackModel`（v2.1 新增） | 主模型過載時依序嘗試的備援模型（最多 3 個） | 不在 `availableModels` 內的項目會被捨棄 |
 | `maxEffortLevel` | 限制推理強度上限（全域或逐模型） | **比「禁用 Opus」更精細的成本控制**（第 5 章 5.5.3） |
 | `minimumVersion` | 防止自動更新降級到低於此版本 | 僅擋降級 |
-| `requiredMinimumVersion` / `requiredMaximumVersion` | **版本超出範圍時直接拒絕啟動** | **比 `minimumVersion` 強硬**；設定過嚴會讓工程師無法工作 |
+| `requiredMinimumVersion` / `requiredMaximumVersion` | **版本超出範圍時直接拒絕啟動**（僅 managed 層級） | **比 `minimumVersion` 強硬**；設定過嚴會讓工程師無法工作。**v2.1 建議下限至少 v2.1.280**（修正 MDM 與 server-managed 並存時 MCP 鍵被忽略的問題，第 12 章 12.4.4） |
 
 > ✅ **Enterprise 方案的伺服器端替代方案**【官方】：若成員以 claude.ai 或 Anthropic API 登入且組織為 Enterprise，可直接在組織管理後台設定**組織模型限制**、**組織預設模型**、**依角色的 effort 上限**，由伺服器端強制，**無須部署任何檔案**。
 >
@@ -21514,6 +22040,11 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 | `disableAgentView` | 關閉 `claude agents`、`--bg`、`/background` 與背景監督行程 | 影響第 13 章平行化能力；**多數情況下 `processWrapper` 是更好的選擇** |
 | `processWrapper` | 要求背景代理行程經由企業啟動器執行 | 讓 EDR 可監控，**無須整個關閉 Agent View** |
 | `env` 設定 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` | 關閉對 Anthropic 的非必要遙測、錯誤回報與問卷 | **不影響**組織自有的 OpenTelemetry 匯出 |
+| `enableArtifact: false`（v2.1 新增） | 關閉 Artifact 工具 | 由 managed 或 `--settings` 關閉後，任何設定檔都無法再開啟（第 23 章 23.8.6） |
+| `disableClaudeAiConnectors`（v2.1 新增） | 不取得 claude.ai connectors | 連線一律改走 `managedMcpServers` |
+| `cleanupPeriodDays`（v2.1 新增） | 本機逐字稿的保留天數（預設 30） | 機敏專案可縮短；但會影響 `/resume` 與事後調查（第 23 章 23.8.2） |
+| `attribution`（v2.1 新增） | 自訂或關閉 commit／PR 中的 AI 署名（`attribution.commit`、`attribution.pr`） | **不建議關閉**：第 12 章 12.2.4 與第 31 章的 AI 產碼追溯仰賴署名 |
+| Desktop 政策區塊（v2.1.281 起） | Desktop 的 policy 區塊新增 `blockReadsOutsideWorkingDirectories` 與 `disableBypassPermissionsMode` | Desktop 與 CLI 的政策需分別確認都已下發 |
 
 > 📌 **`forceLoginOrgUUID` 常被忽略但很重要**。沒有它，工程師可以用個人 Pro/Max 帳號登入 Claude Code，在公司機器上處理公司程式碼，卻**完全不在組織的 Analytics、稽核與資料處理條款涵蓋範圍內**。這是一個真實且常見的治理破口。
 
@@ -21532,6 +22063,8 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 | 必須遵守的輸出原則（如「不確定就說不確定」） | 冗長的程式碼規範 |
 | 事件通報窗口 | 會頻繁變動的內容 |
 
+> 📌 **部署路徑與 AGENTS.md 的處理**見第 8 章 8.4.1（v2.1 新增）。
+
 > ⚠️ **組織 CLAUDE.md 會佔用每一個 session 的上下文空間**。第 5 章 5.5.2 要求專案 `CLAUDE.md` 精簡在 200 行內，組織層更應嚴格——**建議控制在 50 行以內**。否則等於對全組織的每一次對話課稅。
 
 ---
@@ -21547,7 +22080,9 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 | **Accept Edits** | 自動核准檔案編輯與一組固定的檔案系統指令（`mkdir`、`touch`、`rm`、`mv`、`cp`、`sed`）於工作目錄內；其他仍詢問 |
 | **Plan** | 先提出計畫，經同意才執行 |
 
-> 📌 session 起始採用哪個模式，取決於**方案、啟動的介面、使用者設定與組織設定**。第三方雲端 Provider 上的內建起始模式為 **Manual**。
+> 📌 session 起始採用哪個模式，取決於**方案、啟動的介面、使用者設定與組織設定**。第三方雲端 Provider、Enterprise 方案、Console API key、`claude -p` 與 Agent SDK 的內建起始模式為 **Manual**。
+
+> ⚠️ **v2.1 更正**【官方】：**Team 方案（以及 Pro、Max）自 2026-08-14 起的內建起始模式是 Auto**（需 v2.1.228＋／Windows v2.1.233＋）。v2.0 把本節寫成「要不要關」的選擇題，但對 Team 方案而言，**不做決定就等於選了 Auto**。完整的起始模式判定規則見第 16 章 16.5.2。
 
 ### 49.5.2 決策架構
 
@@ -21564,9 +22099,29 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 
 | 環境 | 建議 | 設定 |
 | --- | --- | --- |
-| 受監管專案、接觸生產資料 | **關閉 Auto Mode** | `permissions.disableAutoMode` + `permissions.defaultMode: manual` |
-| 一般開發 | **允許 Auto Mode，但搭配沙箱** | `sandbox.enabled` + 明確的 `permissions.deny` |
+| 受監管專案、接觸生產資料 | **關閉 Auto Mode** | `"disableAutoMode": "disable"` + `"permissions": {"defaultMode": "default"}`（皆以 Managed Settings 下發） |
+| 一般開發 | **允許 Auto Mode，但搭配沙箱** | `sandbox.enabled` + 明確的 `permissions.deny`；以 `autoMode.environment` 登錄受信任的 repo、bucket 與服務，降低誤擋 |
 | 探索 / 實驗環境 | 允許 | — |
+
+**受監管專案的 Managed Settings 範例（v2.1 新增）**：
+
+```json
+{
+  "disableAutoMode": "disable",
+  "permissions": {
+    "defaultMode": "default",
+    "disableBypassPermissionsMode": "disable",
+    "blockReadsOutsideWorkingDirectories": true,
+    "deny": [
+      "Bash(git push --force *)",
+      "Read(./.env)",
+      "Read(./secrets/**)"
+    ]
+  }
+}
+```
+
+> 📌 設定完成後，請工程師執行 `/status` 確認 `Setting sources` 顯示 `Enterprise managed settings`，並以 `Shift+Tab` 確認循環中已沒有 Auto。VS Code 擴充需另行確認（第 16 章 16.5.2 第 3 點）。
 
 > 🎯 **關鍵認知**：**Auto Mode 與 Sandbox 是互補而非互斥的**。Auto Mode 降低詢問次數（體驗），Sandbox 在 OS 層保證邊界（安全）。**兩者一起用，比「關掉 Auto Mode 但不開沙箱」更安全，也更好用。**
 
@@ -21613,6 +22168,9 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 | deny 規則生效 | 實際嘗試被禁止的指令 | 遭阻擋 |
 | allow 無法被擴充（若採階段 6） | 在個人設定加寬鬆 allow 後重試 | 仍遭阻擋 |
 | 沙箱網路白名單生效 | 嘗試連線白名單外網域 | 遭阻擋 |
+| **Auto Mode 政策生效**（v2.1 新增） | 終端機按 `Shift+Tab` 循環；另開 VS Code 擴充新對話 | 受監管環境的循環中沒有 Auto；VS Code 起始模式與設計一致 |
+| **版本範圍生效**（v2.1 新增） | 以低於 `requiredMinimumVersion` 的版本啟動 | 拒絕啟動 |
+| **政策解析可觀測**（v2.1 新增） | OTel 事件 `claude_code.managed_settings_resolved` | 每台機器都回報預期的 managed 來源與 policy helper 狀態 |
 
 ### 49.7.2 持續稽核【建議】
 
@@ -21684,7 +22242,9 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 
 - [ ] 已完成 49.3.3 的投遞矩陣，**每個 Provider 群組都有對應機制**
 - [ ] 已確認組織是否有 WSL 使用者，並規劃 `wslInheritsWindowsSettings`
-- [ ] 已決定 Auto Mode 政策（依環境分級，49.5）
+- [ ] 已決定 Auto Mode 政策（依環境分級，49.5）；**Team 方案已意識到未設定即為 Auto**（v2.1）
+- [ ] 已決定模型與 effort 政策，含 CI 環境排除 `fable`（49.4.3、第 5 章 5.5.6，v2.1）
+- [ ] 已決定 Artifacts、claude.ai 同步、claude.ai connectors 的政策（49.4.4、第 23 章 23.8.6，v2.1）
 - [ ] 已盤點既有的專案層 Hook、MCP、Plugin（階段 6 的前置作業）
 - [ ] 已設計例外申請流程與 SLA（第 36 章、附錄 A.22）
 
@@ -21694,6 +22254,7 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 - [ ] `permissions.disableBypassPermissionsMode` 已設定
 - [ ] `forceLoginOrgUUID` 已設定
 - [ ] `disableSideloadFlags` 已設定
+- [ ] `requiredMinimumVersion` 已設定且不低於 v2.1.280（v2.1）
 - [ ] 每個階段都先在 3～5 人測試群組驗證過典型日常工作
 - [ ] 每次政策變更都已記錄於第 32 章月報
 
@@ -21718,13 +22279,13 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 
 > **本章目錄**：[50.1 為什麼要有這一章](#501-為什麼要有這一章) ｜ [50.2 官方素材一覽【官方】](#502-官方素材一覽官方) ｜ [50.3 Champion Kit 逐項對照【官方】](#503-champion-kit-逐項對照官方) ｜ [50.4 Communications Kit 與 Anthropic Academy【官方】](#504-communications-kit-與-anthropic-academy官方) ｜ [50.5 企業必須加嚴的部分【建議】](#505-企業必須加嚴的部分建議) ｜ [50.6 整合後的推動素材清單【建議】](#506-整合後的推動素材清單建議) ｜ [50.7 本章實務案例](#507-本章實務案例) ｜ [50.8 本章注意事項](#508-本章注意事項) ｜ [50.9 本章檢查清單](#509-本章檢查清單)
 
-> 📌 **本章為 v2.0 新增**。以 2026-09-17 官方 Champion kit、Communications kit、Set up Claude Code for your organization 等頁面為依據。
+> 📌 **本章為 v2.0 新增**。以 2026-09-17（v2.1 於 2026-09-24 複核）官方 Champion kit、Communications kit、Set up Claude Code for your organization 等頁面為依據。
 
 ## 50.1 為什麼要有這一章
 
 第 24～28 章花了大量篇幅設計 Workshop、Pilot、知識回饋循環與每月社群。這些設計在 v1.0.0 撰寫時是必要的——因為**官方沒有提供現成的推動素材**。
 
-截至 2026-09-17，情況已經改變。Anthropic 發布了兩份官方導入素材，以及自學課程。
+截至 2026-09-24，情況已經改變。Anthropic 發布了兩份官方導入素材，以及自學課程。
 
 > 🎯 **本章的目的不是要組織改用官方素材，而是要回答三個問題**：
 >
@@ -21853,6 +22414,10 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 | **Communications Kit** | 作為第 24 章開訓公告、第 38 章 Roadmap 對內溝通的素材基底；需替換為組織用語與實際政策 |
 | **Claude 101** | 建議列為**全體必修前置**，於第 24 章 Workshop 1 之前完成 |
 | **Claude Code in Action** | 建議列為**開發角色必修前置** |
+| **Claude Code 101**（v2.1 補充） | 官方 admin 設定指南推薦給開發者的入門課程；可與 Claude 101 擇一作為開發角色的前置 |
+| **`/powerup` 互動課程**（v2.1 新增） | CLI 內建的互動式練習，適合作為 Workshop 1 課後的自主練習 |
+
+> 📌 **v2.1 補充**：官方課程平台已由 `anthropic.skilljar.com` 改以 **Claude Academy（`https://academy.claude.com/`）** 為入口；請更新內部學習平台與 Workshop 講義中的連結。
 
 > ✅ **把自學課程列為 Workshop 的前置條件，可大幅提升 Workshop 品質**。第 24 章的講師時間應該花在「我們公司怎麼做」，而不是「Claude Code 是什麼」——後者官方課程已經講得比多數內部講師好。
 
@@ -21984,7 +22549,7 @@ Claude Code 解析設定時的優先順序如下（**由高至低，高者勝出
 
 > **本章目錄**：[51.1 一個必須先問清楚的問題](#511-一個必須先問清楚的問題) ｜ [51.2 何時該用 SDK，何時不該【建議】](#512-何時該用-sdk何時不該建議) ｜ [51.3 SDK 提供的能力【官方】](#513-sdk-提供的能力官方) ｜ [51.4 企業治理要求【建議】](#514-企業治理要求建議) ｜ [51.5 與其他章節的關係](#515-與其他章節的關係) ｜ [51.6 本章實務案例](#516-本章實務案例) ｜ [51.7 本章注意事項](#517-本章注意事項) ｜ [51.8 本章檢查清單](#518-本章檢查清單)
 
-> 📌 **本章為 v2.0 新增**。以 2026-09-17 官方 Agent SDK 文件系列為依據。
+> 📌 **本章為 v2.0 新增**。以 2026-09-17（v2.1 於 2026-09-24 複核）官方 Agent SDK 文件系列為依據。
 >
 > ⚠️ **本章不是 SDK 程式教學**。官方文件（TypeScript 與 Python 參考）已涵蓋 API 細節。本章回答的是企業問題：**什麼時候該用 SDK、誰可以用、要付出什麼治理代價。**
 
@@ -22107,6 +22672,8 @@ flowchart TD
 | 8 | **憑證由 Secret 管理機制提供**，不硬編碼 | — |
 | 9 | **執行環境隔離**（容器或沙箱） | 第 23 章 23.7 |
 | 10 | **遵循官方 Securely deploying AI agents 指引** | 官方安全部署文件 |
+| 11 | **明確設定權限模式**（v2.1 新增）：Agent SDK 與 `claude -p` 的內建起始模式為 Manual（`default`），不受 Team 方案「預設 Auto」影響；**若程式中自行指定 `auto` 或 `bypassPermissions`，需經 51.4.1 准入審查** | 權限設定（第 16 章 16.5.2） |
+| 12 | **確認 Artifacts 等發佈類工具的狀態**（v2.1 新增）：Artifacts 在 Agent SDK 中**預設關閉**，若要開啟需評估資料外流（第 23 章 23.8.6） | 工具設定 |
 
 > ⚠️ **第 7 項常被忽略但很關鍵**。若下游系統靠解析自然語言回應來決定行為，**模型輸出的微小變化就會造成生產事故**，且這種失效模式難以測試。SDK 提供結構化輸出正是為了避免這個問題——**務必使用它**。
 
@@ -22230,6 +22797,313 @@ flowchart TD
 - [ ] 已納入平台團隊值班範圍
 - [ ] 效益以**被採用的產出**計算，並納入第 32 章月報
 - [ ] 每季檢視採用率；持續偏低時應檢討是否停用
+
+---
+
+# 第 53 章　外部標準與法規框架對照
+
+> **本章目錄**：[53.1 為什麼需要外部標準對照](#531-為什麼需要外部標準對照) ｜ [53.2 安全開發：NIST SSDF](#532-安全開發nist-ssdf) ｜ [53.3 AI 治理管理系統：NIST AI RMF 與 ISO/IEC 42001](#533-ai-治理管理系統nist-ai-rmf-與-isoiec-42001) ｜ [53.4 Agent 安全：OWASP LLM 與 Agentic Top 10](#534-agent-安全owasp-llm-與-agentic-top-10) ｜ [53.5 工程效能：DORA AI Capabilities Model](#535-工程效能dora-ai-capabilities-model) ｜ [53.6 法規：台灣與歐盟](#536-法規台灣與歐盟) ｜ [53.7 整合對照矩陣](#537-整合對照矩陣) ｜ [53.8 本章實務案例](#538-本章實務案例) ｜ [53.9 本章注意事項](#539-本章注意事項) ｜ [53.10 本章檢查清單](#5310-本章檢查清單)
+
+> 📌 **本章為 v2.1 新增**。v2.0 的治理制度（第 14、23、36、37 章）是從 Claude Code 的產品機制往上推導的，**沒有對應到任何外部標準**。這在內部推動時問題不大，但一遇到**稽核、資安評鑑、金融檢查或客戶的供應商問卷**，對方問的第一句話通常是「你們對應的是哪一個標準？」本章補上這一層。
+>
+> 標準與法規的狀態以 **2026-09-24** 查證為準。本章**不是**各標準的完整解說，而是回答「本手冊的哪一項制度，可以拿來當作哪一項要求的證據」。
+
+---
+
+## 53.1 為什麼需要外部標準對照
+
+導入 Claude Code 之後，組織會同時面對三種外部要求：
+
+| 要求來源 | 典型問題 | 本手冊原本的回答方式 | 缺什麼 |
+| --- | --- | --- | --- |
+| **資安稽核／ISO 27001 驗證** | 「AI 產生的程式碼如何納入安全開發流程？」 | 第 14 章 SSDLC 矩陣 | 沒有對應到 SSDF 或 ISO 的控制項編號 |
+| **AI 治理評鑑／客戶問卷** | 「貴公司的 AI 風險管理框架是什麼？」 | 第 36 章 Governance、第 37 章 Risk Register | 沒有說明與 NIST AI RMF／ISO 42001 的關係 |
+| **主管機關（金融、醫療、公部門）** | 「是否符合 AI 運用指引？」 | 第 23 章資料保護 | 沒有逐條對照 |
+
+> 🎯 **本章的原則**：**不是為了「合規而合規」加一堆新文件**，而是把本手冊既有的制度與產出（Approval Matrix、Risk Register、AI Evidence、月報、Managed Settings）**標註成外部標準可接受的證據**。多數要求其實已經做了，只是沒有被「翻譯」成稽核員看得懂的語言。
+
+**本章涵蓋的標準與其定位**：
+
+| 標準／法規 | 發布者 | 性質 | 回答的問題 | 對 Claude Code 導入的相關度 |
+| --- | --- | --- | --- | --- |
+| **NIST SP 800-218（SSDF v1.1）** | 美國 NIST | 自願性框架（美國聯邦採購要求） | 安全開發要做哪些實務 | ★★★ 直接相關 |
+| **NIST SP 800-218A** | 美國 NIST | SSDF 的 GenAI 社群剖繪 | 開發 AI 模型與系統的額外實務 | ★☆☆ 主要對象是模型開發者 |
+| **NIST AI RMF 1.0＋AI 600-1（GenAI Profile）** | 美國 NIST | 自願性風險管理框架 | 如何治理 AI 風險 | ★★☆ |
+| **ISO/IEC 42001:2023** | ISO／IEC | 可驗證的管理系統標準 | 如何建立 AI 管理系統（AIMS） | ★★☆（若組織要取得驗證則 ★★★） |
+| **OWASP Top 10 for LLM Applications 2025** | OWASP GenAI Security Project | 社群風險清單 | LLM 應用的主要風險 | ★★★ |
+| **OWASP Top 10 for Agentic Applications 2026** | OWASP GenAI Security Project | 社群風險清單（2025-12-09 發布） | 自主 Agent 的主要風險 | ★★★ 最貼近 Claude Code |
+| **DORA AI Capabilities Model（2025）** | Google Cloud DORA | 研究模型 | 哪些組織能力會放大 AI 的效益 | ★★☆ 對應推動制度 |
+| **台灣《人工智慧基本法》** | 總統府（2026-01-14 公布施行） | 法律（原則性） | 國家 AI 治理原則 | ★☆☆ 間接 |
+| **金管會《金融業運用人工智慧（AI）指引》** | 金管會（2024-06-20） | 行政指引 | 金融業運用 AI 的治理要求 | ★★★（金融業） |
+| **EU AI Act** | 歐盟 | 法規 | AI 系統的風險分級義務 | ★☆☆（程式開發輔助工具通常不屬高風險；有歐盟業務者需確認） |
+
+---
+
+## 53.2 安全開發：NIST SSDF
+
+### 53.2.1 SSDF 的結構與版本狀態【官方】
+
+NIST SP 800-218（SSDF v1.1，2022）把安全開發實務分為四群：
+
+| 實務群組 | 全名 | 重點 |
+| --- | --- | --- |
+| **PO** | Prepare the Organization | 定義安全需求、角色、工具鏈、安全的開發環境 |
+| **PS** | Protect the Software | 保護程式碼不被未授權存取與竄改、保存發行版本 |
+| **PW** | Produce Well-Secured Software | 設計、重用、撰寫、審查、測試安全的軟體 |
+| **RV** | Respond to Vulnerabilities | 識別、修補漏洞，並分析根因 |
+
+> 📌 **版本狀態**：NIST 已於 **2025-12-17** 發布 **SP 800-218r1（SSDF v1.2）初稿**徵求意見（至 2026-01-30），依據美國行政命令 EO 14306。**截至 2026-09-24，本手冊未查證到定稿發布資訊【待確認】**；對照時仍以 v1.1 為主，定稿後需複查。
+>
+> **SP 800-218A**（2024-07）是 SSDF 針對**生成式 AI 與雙重用途基礎模型**的社群剖繪，主要對象是**模型與 AI 系統的開發者**。對「使用 Claude Code 開發一般軟體」的組織而言，它的參考價值在於：**把 AI 模型供應商視為軟體供應鏈的一環來評估**（對應 PO 與供應商管理），而不是要求組織自己去做模型訓練的安全控制。
+
+### 53.2.2 SSDF 實務與本手冊制度的對照【建議】
+
+| SSDF 實務 | 要求摘要 | 本手冊對應制度 | 可提交的證據 |
+| --- | --- | --- | --- |
+| **PO.1** 定義安全需求 | 把安全需求納入開發基礎設施與流程 | 第 23 章 AI Coding Security Policy、第 9 章 `rules/security.md` | 政策文件、Rules 版本紀錄 |
+| **PO.2** 角色與責任 | 定義安全開發的角色、責任與訓練 | 第 5 章角色對應、第 16 章 Approval Matrix、第 24 章 Workshop 9 | 角色對應表、訓練紀錄 |
+| **PO.3** 支援工具鏈 | 使用自動化工具鏈並管理其安全 | 第 6 章環境標準化、第 12 章 Hook／Plugin／MCP 治理、第 49 章 Managed Settings | Managed Settings 版本、`/status` 驗收紀錄 |
+| **PO.4** 安全檢查標準 | 定義並使用軟體安全檢查的標準 | 第 14 章 Gate、第 21 章十一面向框架 | Gate 通過紀錄 |
+| **PO.5** 安全的開發環境 | 隔離並強化開發環境 | 第 23 章 23.7 沙箱、第 48 章 Cloud Session 控制、第 6 章 worktree | 沙箱設定、網路白名單 |
+| **PS.1** 保護程式碼 | 防止未授權存取與竄改 | 第 20 章分支保護、第 48 章「push 限制於當前分支」、`permissions.deny` | Branch protection 設定、deny 規則 |
+| **PS.2** 完整性驗證 | 提供驗證軟體完整性的機制 | 第 20 章 commit 簽章與 AI 標記、第 12 章 12.2.4 | 簽章紀錄、`claude-code-assisted` 標籤 |
+| **PS.3** 保存發行 | 保存並保護每個發行版本 | 既有發行流程（本手冊不改變） | — |
+| **PW.1** 安全設計 | 設計時即滿足安全需求 | 第 13 章 Architect Agent、第 4 章 ADR | ADR、人類覆核紀錄 |
+| **PW.4** 重用安全元件 | 採用經驗證的元件 | 第 23 章 23.4 供應鏈、23.6 相依套件 | 相依掃描報告 |
+| **PW.5** 安全撰碼 | 依安全撰碼實務撰寫程式碼 | 第 8 章 CLAUDE.md、第 9 章 Rules、Security guidance plugin | Rules 版本、plugin 啟用紀錄 |
+| **PW.7** 程式碼審查 | 審查與分析人類可讀的程式碼 | **第 21 章 AI Review＋人類 Review 分層**、21.5.2 官方審查工具 | PR Review 紀錄（**人類核准人不可為 AI**） |
+| **PW.8** 測試 | 測試可執行程式碼 | 第 22 章 AI-assisted Testing、R-13 False Green 防範 | 測試報告、斷言變更審查 |
+| **RV.1** 識別漏洞 | 持續識別漏洞 | Claude Security plugin／託管服務、`/security-review`、SAST | 掃描報告 |
+| **RV.2** 評估與修補 | 排定優先順序並修補 | 第 23 章事件流程 | 修補紀錄 |
+| **RV.3** 根因分析 | 分析根因並改善流程 | **第 27 章知識回饋循環**、附錄 A.17 事件報告 | 事件報告、新增的 Rule |
+
+> 🎯 **AI 產碼最關鍵的 SSDF 證據是 PW.7**。稽核員會問：「AI 寫的程式碼，是誰審查的？」第 16 章要求核准人「不可為 AI」、第 21 章要求人類 Reviewer 清單，**再加上第 16 章 16.5.2 的起始模式設定**，才能完整回答這個問題。**若 Team 方案組織沒有處理「預設 Auto Mode」，PW.7 的證據鏈會在「誰核准了這個動作」這一環斷掉。**
+
+---
+
+## 53.3 AI 治理管理系統：NIST AI RMF 與 ISO/IEC 42001
+
+### 53.3.1 NIST AI RMF 與 GenAI Profile【官方】
+
+NIST AI RMF 1.0（2023-01）以四個功能組織 AI 風險管理；**NIST AI 600-1（2024-07）**是針對生成式 AI 的剖繪，列出 GenAI 特有或加劇的風險（例如虛構內容 confabulation、資訊安全、智慧財產、資料隱私、價值鏈與元件整合等）。
+
+| AI RMF 功能 | 意義 | 本手冊對應 |
+| --- | --- | --- |
+| **GOVERN** | 建立治理文化、政策、角色與問責 | 第 36 章 Governance Policy、第 45 章 Operating Model、第 5 章權責分離 |
+| **MAP** | 界定情境、識別風險 | 第 4 章企業架構、第 47 章 Provider 決策、第 23 章 23.1 攻擊面 |
+| **MEASURE** | 分析、評估、追蹤風險 | 第 29～33 章 KPI／Analytics／OTel、第 37 章風險評分 |
+| **MANAGE** | 依優先順序處理風險並持續監控 | 第 37 章 Risk Register 的緩解措施與月度檢視、第 49 章技術強制 |
+
+**GenAI Profile 中與 Claude Code 最相關的風險**【建議】：
+
+| GenAI 風險類別 | Claude Code 情境 | 本手冊控制 |
+| --- | --- | --- |
+| **Confabulation（虛構）** | 呼叫不存在的 API、虛構套件名稱 | 第 23 章 23.4.2 套件驗證、第 22 章測試、R-13 |
+| **Information Security** | Prompt／Tool Injection、憑證外洩 | 第 23 章 23.3、第 12 章 MCP 治理、沙箱 |
+| **Intellectual Property** | 產出含授權不相容的程式碼 | 第 23 章 23.6.2 授權合規 |
+| **Data Privacy** | 真實客戶資料進入上下文 | 第 23 章 23.2 資料分級、Approval Matrix #22 |
+| **Value Chain and Component Integration** | 第三方 MCP、Plugin、claude.ai 同步資產 | 第 12 章、第 11 章 11.5.2、R-33 |
+| **Human-AI Configuration** | 過度信任、Auto Mode 下的人類缺席 | 第 16 章、第 44 章文化、R-23、R-30 |
+
+### 53.3.2 ISO/IEC 42001:2023 與本手冊的對照【建議】
+
+ISO/IEC 42001 是**可以取得第三方驗證**的 AI 管理系統（AIMS）標準，結構與 ISO 27001 相同（第 4～10 條管理系統要求＋附錄 A 控制目標）。若組織已有 ISO 27001，**可以沿用同一套管理系統架構擴充**。
+
+| ISO 42001 附錄 A 控制領域 | 本手冊可作為證據的制度 |
+| --- | --- |
+| **A.2** AI 相關政策 | 第 36 章 AI Coding Governance Policy、第 23 章 Security Policy |
+| **A.3** 內部組織 | 第 5 章角色、第 45 章 AI Governance 小組、第 50 章 Champion |
+| **A.4** AI 系統的資源 | 第 6 章標準環境、第 7 章共用 repo、第 47 章 Provider 決策 |
+| **A.5** AI 系統的影響評估 | 第 37 章 Risk Register、第 48 章 Readiness Gate |
+| **A.6** AI 系統生命週期 | 第 14 章 SSDLC、第 11 章 Skill 生命週期、第 7 章資產版本策略 |
+| **A.7** AI 系統的資料 | 第 23 章 23.2 資料分級、23.8 資料保留 |
+| **A.8** 對利害關係人的資訊 | 第 32 章月報、第 46 章管理階層溝通、第 50 章 Communications Kit |
+| **A.9** AI 系統的使用 | 第 16 章 Approval Matrix、第 49 章 Managed Settings、附錄 B 日常檢查清單 |
+| **A.10** 第三方與客戶關係 | 第 23 章 23.8 供應商合規文件、附錄 C.3 待確認事項、第 12 章 MCP／Plugin 上架審查 |
+
+> 📌 **組織在 ISO 42001 中的角色**：對 Claude Code 而言，貴組織是 **AI 系統的使用者（user）**，Anthropic 是**供應者（provider）**。42001 仍要求使用者建立使用政策、影響評估與第三方管理——這正是第 36、37、23.8 章的內容。**Anthropic 的 SOC 2 Type 2、ISO 27001（第 23 章 23.8.1）屬於 A.10 的供應商保證證據**。截至 2026-09-24，本手冊未查證 Anthropic 是否已取得 ISO 42001 驗證，**請向 Trust Center 確認【待確認】**。
+
+---
+
+## 53.4 Agent 安全：OWASP LLM 與 Agentic Top 10
+
+### 53.4.1 OWASP Top 10 for LLM Applications 2025【官方】
+
+| 編號 | 風險 | Claude Code 情境 | 本手冊控制 |
+| --- | --- | --- | --- |
+| **LLM01** | Prompt Injection | Issue、PR 留言、網頁、文件中的惡意指令 | 第 23 章 23.3、沙箱、`WebFetch` 限制 |
+| **LLM02** | Sensitive Information Disclosure | 憑證、客戶資料進入上下文或產出 | 第 23 章 23.2、`Read(./.env)` deny、Artifacts 治理（23.8.6） |
+| **LLM03** | Supply Chain | MCP server、Plugin、相依套件 | 第 12 章、第 23 章 23.4、`disableSideloadFlags` |
+| **LLM04** | Data and Model Poisoning | 被污染的 CLAUDE.md、Rules、Skill | 第 7 章 PR 審查、CODEOWNERS、11.5.2 同步資產 |
+| **LLM05** | Improper Output Handling | 未驗證的產出直接進入建置或部署 | 第 21、22 章 Review 與測試、第 48 章 CI 唯讀 |
+| **LLM06** | Excessive Agency | Agent 擁有超出任務所需的工具與權限 | 第 12 章 12.5 最小權限、第 16 章、第 49 章 |
+| **LLM07** | System Prompt Leakage | 組織 CLAUDE.md、Rules 中含內部資訊 | 第 8 章：CLAUDE.md 不放機敏資訊 |
+| **LLM08** | Vector and Embedding Weaknesses | 以 RAG 型 MCP 存取內部知識庫 | 第 12 章 MCP 上架審查（資料分級） |
+| **LLM09** | Misinformation | 虛構 API、錯誤的商業規則 | 第 18 章 Legacy 分析的人工驗證、第 42 章案例 4、5 |
+| **LLM10** | Unbounded Consumption | 失控的 token 消耗、自動觸發的付費功能 | 第 5 章支出上限、R-10、**R-31** |
+
+### 53.4.2 OWASP Top 10 for Agentic Applications 2026【官方】
+
+這份清單（2025-12-09 發布）針對**會規劃、有記憶、呼叫工具、以委派權限行動**的 Agent——這正是 Claude Code 的形態，因此是**本手冊最應該對照的外部清單**。
+
+| 編號 | 風險 | Claude Code 的具體樣態 | 主要控制（技術） | 主要控制（流程） |
+| --- | --- | --- | --- | --- |
+| **ASI01** | Agent Goal Hijack | 外部內容改變 Agent 的任務目標（例如 Issue 中埋的指令） | 沙箱網路白名單、`WebFetch` 網域限制 | 第 23 章 23.3、處理外部內容前先 Plan |
+| **ASI02** | Tool Misuse and Exploitation | 合法工具被用於非預期目的（例如以 `curl` 外送資料） | `permissions.deny`＋**沙箱**（deny 只比對字面） | 第 16 章 Approval Matrix |
+| **ASI03** | Identity and Privilege Abuse | Agent 沿用開發者的完整權限；Claude Tag 共用身分 | `forceLoginOrgUUID`、最小權限服務帳號、`blockReadsOutsideWorkingDirectories` | 第 5 章 JML、第 23 章 23.8.6 |
+| **ASI04** | Agentic Supply Chain Vulnerabilities | 未審查的 MCP、Plugin、Skill、claude.ai 同步資產 | `allowManagedMcpServersOnly`、`strictKnownMarketplaces`、`syncClaudeAiSkills` | 第 12 章上架審查、第 7 章 |
+| **ASI05** | Unexpected Code Execution | Hook、plugin 可執行檔、`acceptEdits` 下寫入可執行檔 | `allowManagedHooksOnly`、沙箱 | 第 12 章 Hook 治理 |
+| **ASI06** | Memory & Context Poisoning | 被竄改的 CLAUDE.md、Rules、自動記憶 | CODEOWNERS、組織層 CLAUDE.md 不可排除 | 第 8 章 8.5 品質檢查 |
+| **ASI07** | Insecure Inter-Agent Communication | Subagent、Agent Teams、跨 session 訊息傳遞未驗證的內容 | 限制可用工具的 subagent 定義 | 第 13、15 章交接文件 |
+| **ASI08** | Cascading Failures | 一個錯誤的計畫被多個平行 Agent 放大；dynamic workflows、ultracode | effort 上限、workflows 停用選項 | 第 15 章人類檢查點、小批次交付 |
+| **ASI09** | Human-Agent Trust Exploitation | 開發者過度信任、Auto Mode 下人類缺席 | 起始模式設定（16.5.2） | 第 44 章文化、R-23、R-30 |
+| **ASI10** | Rogue Agents | 背景 Agent、排程 Routines 在無人監看下偏離任務 | `disableAgentView`／`processWrapper`、OTel 監控 | 第 48 章 Readiness Gate 與「失控時怎麼停」 |
+
+> 🎯 **對照後的一個重要發現**：ASI02、ASI03、ASI09 三項的主要控制都指向**第 16 章 16.5.2 的起始權限模式**與**第 23 章的沙箱**。這再次說明 v2.1 最重要的更正（Team 方案預設 Auto）不是一個產品細節，而是 Agentic 安全的核心控制點。
+
+---
+
+## 53.5 工程效能：DORA AI Capabilities Model
+
+### 53.5.1 DORA 2025 的核心發現【官方】
+
+Google Cloud DORA 的 **2025 State of AI-assisted Software Development** 報告的核心結論是：**AI 是「放大器」**——它放大高績效組織的優勢，也放大體質不佳組織的問題。報告同時提出 **DORA AI Capabilities Model**，列出七項會放大 AI 效益的組織能力。Anthropic 的 Analytics 官方文件也建議把 Contribution 指標與 **DORA 指標**並用來判斷導入成效。
+
+### 53.5.2 七項能力與本手冊推動制度的對照【建議】
+
+| DORA AI 能力 | 意義 | 本手冊對應 | 組織自評問題 |
+| --- | --- | --- | --- |
+| **Clear and communicated AI stance** | 明確且被溝通的 AI 立場 | 第 36 章 Constitution、第 44 章文化、第 50 章 Communications Kit | 工程師能說出「哪些可以用 AI、哪些不行」嗎？ |
+| **Healthy data ecosystems** | 健康的資料生態 | 第 23 章資料分級、第 33 章 Dashboard 資料來源 | AI 能取得的資料是否乾淨、分級清楚？ |
+| **AI-accessible internal data** | AI 可存取的內部資料 | 第 12 章 MCP、第 7 章共用 repo、第 8 章 CLAUDE.md | Agent 能讀到正確的內部規範與文件嗎？ |
+| **Strong version control practices** | 紮實的版本控制 | 第 20 章 Git 整合、第 6 章 worktree、Checkpointing | 每一次 AI 變更都能被追溯與回復嗎？ |
+| **Working in small batches** | 小批次工作 | 第 3 章 3.3.2、第 17 章流程、第 15 章 | AI 的單次變更是否小到能被有效審查？ |
+| **User-centric focus** | 以使用者為中心 | 第 17 章需求與驗收條件（Given-When-Then） | AI 的產出是否對應到真實使用者需求？ |
+| **Quality internal platforms** | 高品質的內部平台 | 第 6 章標準環境、第 49 章 Managed Settings、第 47 章 Gateway | 工程師不需要自己拼湊環境就能安全使用 AI 嗎？ |
+
+> 🎯 **DORA 的「放大器」結論與本手冊第 43 章的觀察一致**：三個技術水準相近的部門，成效可以差三倍。第 34 章 AI Maturity Model 的自評表，建議**加入上述七個自評問題**，作為 Level 2 → Level 3 的前置條件。第 29 章的四層 KPI 中，第 3 層（交付）建議直接採用 DORA 的四個關鍵指標（部署頻率、變更前置時間、變更失敗率、復原時間），以便與業界基準比較。
+
+---
+
+## 53.6 法規：台灣與歐盟
+
+### 53.6.1 台灣《人工智慧基本法》【官方】
+
+| 項目 | 內容（截至 2026-09-24） |
+| --- | --- |
+| 公布施行 | **2026-01-14**（華總一義字第 11500001671 號） |
+| 性質 | **基本法**：宣示原則、要求政府建立制度，**主要規範對象為政府**，對企業的直接義務有限 |
+| 中央主管機關 | 國家科學及技術委員會（各目的事業主管機關負責其主管事務） |
+| 風險分類 | 依第 16 條由數位發展部研擬 AI 風險分類框架【待確認其定稿與施行狀態】 |
+
+**對 Claude Code 導入的意義**【建議】：基本法本身不直接規範「企業使用 AI 開發工具」，但**各目的事業主管機關會依基本法訂定產業規範**。組織應指定法遵窗口追蹤主管機關的後續子法與指引，並把追蹤結果列入第 37 章 R-15 的季度檢視。
+
+### 53.6.2 金管會《金融業運用人工智慧（AI）指引》【官方】
+
+| 項目 | 內容 |
+| --- | --- |
+| 核心原則與推動政策 | 2023-10-17 訂定：治理與問責、公平與以人為本、隱私與客戶權益、系統穩健與安全、透明與可解釋、永續發展 |
+| 指引 | **2024-06-20** 訂定，依核心原則提出生命週期各階段的具體作法 |
+| 同業自律 | 銀行公會《金融機構運用人工智慧技術作業規範》 |
+| 最新動態 | 金管會於 **2026-05-07** 向立法院財委會報告，宣布將把「**可程式化 AI**」、「**代理 AI（AI Agent）**」與「**AI 風險分類**」納入指引【待確認修訂定稿】 |
+
+**金融業導入 Claude Code 的對照重點**【建議】：
+
+| 指引關切面向 | 本手冊對應 | 金融業應加嚴之處 |
+| --- | --- | --- |
+| 治理與問責 | 第 36 章、第 45 章、第 5 章權責分離 | AI Governance 小組應向風險管理委員會定期報告 |
+| 系統穩健與安全 | 第 23、49 章 | 受監管專案一律關閉 Auto Mode（49.5）、強制沙箱 |
+| 隱私與客戶權益 | 第 23 章 23.2 資料分級 | **真實客戶資料絕對禁止進入 AI**（Approval Matrix #22），並以技術控制落實 |
+| 透明與可解釋 | 第 20 章 AI 標記、第 31 章歸因、ADR | AI 參與程度需可追溯至每一個 PR |
+| 第三方風險管理 | 第 23 章 23.8、附錄 C.3 | **委外作業與雲端服務相關規範**需另行評估（Anthropic 屬雲端服務供應商），並確認資料處理地點 |
+| **代理 AI（修訂中）** | 第 16、48、49 章 | 指引修訂定稿後，需重新對照「代理 AI」的具體要求——**Claude Code 正是代理 AI** |
+
+> ⚠️ **第 39 章 Banking 範例的讀者請特別注意**：金融業使用 Claude Code 的資料處理地點問題，Enterprise 方案的「US-only inference」**並不等於資料留在台灣**。請由法遵依委外與雲端相關規範評估，並取得 Anthropic 的書面說明。
+
+### 53.6.3 EU AI Act【官方】
+
+| 項目 | 內容（截至 2026-09-24） |
+| --- | --- |
+| 生效 | 2024-08 生效，分階段適用 |
+| 通用目的 AI（GPAI）模型義務 | 2025-08-02 起適用，**義務主體是模型提供者**（Anthropic），不是使用 Claude Code 的組織 |
+| 第 50 條透明義務 | **2026-08-02 起適用** |
+| **Digital Omnibus on AI** | 2026-07-24 刊登公報、2026-07-27 生效：附件 III 的高風險義務延至 **2027-12-02**；附件 I 產品內嵌 AI 延至 **2028-08-02** |
+| 第 4 條 AI 素養 | 原要求提供者與部署者確保人員具備 AI 素養；**Digital Omnibus 是否調整此義務，請以官方公報確認【待確認】** |
+
+**對 Claude Code 導入的意義**【建議】：「使用 AI 撰寫程式碼」本身通常**不屬於**高風險 AI 系統的使用情境。但若組織**用 Claude Code 開發的產品本身**是附件 III 所列的高風險系統（例如信用評分、招募），則該產品的開發紀錄、測試與人類監督證據會被檢視——**第 20 章的 AI Evidence 與第 16 章的核准紀錄就會成為產品合規文件的一部分**。無論 AI 素養義務最終如何調整，**第 24 章的 Workshop 體系都是展現組織 AI 素養的最佳證據**。
+
+---
+
+## 53.7 整合對照矩陣
+
+下表以本手冊章節為列，標示可作為各標準證據的程度（● 主要證據 ○ 輔助證據）：
+
+| 本手冊章節 | SSDF | AI RMF | ISO 42001 | OWASP LLM／Agentic | DORA | 金管會指引 |
+| --- | :---: | :---: | :---: | :---: | :---: | :---: |
+| 第 5 章 組織、席位與權限 | ○ | ● | ● | ○ | — | ● |
+| 第 6 章 環境標準化 | ● | — | ○ | ○ | ● | ○ |
+| 第 7～13 章 AI 資產標準 | ● | ○ | ● | ● | ○ | ○ |
+| 第 14 章 SSDLC | ● | ○ | ● | ○ | ○ | ● |
+| 第 16 章 Human-in-the-Loop | ● | ● | ● | ● | — | ● |
+| 第 20～22 章 Git／Review／Testing | ● | ○ | ○ | ○ | ● | ○ |
+| 第 23 章 安全治理 | ● | ● | ● | ● | ○ | ● |
+| 第 24 章 Workshop | ● | ○ | ● | ○ | ○ | ● |
+| 第 27 章 知識回饋循環 | ● | ○ | ● | ○ | ● | ○ |
+| 第 29～33 章 度量與月報 | ○ | ● | ● | ○ | ● | ● |
+| 第 36 章 Governance | ○ | ● | ● | ○ | ● | ● |
+| 第 37 章 Risk Register | ○ | ● | ● | ● | — | ● |
+| 第 47～49 章 部署與強制治理 | ● | ○ | ● | ● | ● | ● |
+
+> ✅ **實務用法**：當稽核員或客戶問卷問到某個標準時，先從此表找到對應章節，再到該章的「檢查清單」取出已完成的項目與證據。**建議由 AI Governance 小組每年依此表更新一次「標準對照證據清單」**，放在 `governance/standards-mapping.md`。
+
+---
+
+## 53.8 本章實務案例
+
+**情境**：某金融資訊子公司導入 Claude Code Team 方案 4 個月後，母公司稽核室要求「以 ISO 42001 與金管會 AI 指引為基準」提出 AI 治理現況報告，期限兩週。
+
+**初步反應**：AI Governance 小組認為要從頭建立一套 ISO 42001 文件，估計需要 3 個月。
+
+**實際做法**：
+
+1. 以 53.7 的矩陣為骨架，逐一列出 ISO 42001 附錄 A 各控制領域對應的**既有**文件：第 36 章政策、第 37 章 Risk Register、第 16 章 Approval Matrix、第 32 章月報
+2. 發現 **8 成以上的控制已有證據**，只是散落各處
+3. 真正的缺口只有三項：
+   - **A.5 影響評估**：Risk Register 有風險，但沒有針對「受影響的利害關係人」的評估 → 補一頁影響評估範本
+   - **A.10 第三方**：未向 Anthropic 取得資料處理地點的書面說明 → 列入 C.3 待確認並啟動詢問
+   - **金管會指引「系統穩健」**：稽核抽查時發現 **Team 方案的新 session 預設進入 Auto Mode**，受監管專案卻沒有部署 `disableAutoMode` → 立即部署 Managed Settings，並補做 R-30 的緩解紀錄
+4. 兩週內提交報告，缺口以行動計畫呈現
+
+**結果**：稽核室接受報告，並要求把 53.7 矩陣納入年度內部稽核的標準工作底稿。
+
+> 🎯 **教訓**：外部標準對照**不是另起爐灶**，而是把既有制度「翻譯」成稽核語言。真正有價值的是對照過程中**逼出來的缺口**——這個案例中最重要的發現（預設 Auto Mode），正是產品預設值改變後，沒有被任何內部流程察覺的問題。
+
+---
+
+## 53.9 本章注意事項
+
+| # | 注意事項 | 說明 |
+| --- | --- | --- |
+| 1 | **對照不等於符合** | 本章矩陣表示「可作為證據」，是否符合仍由稽核員或驗證機構判斷 |
+| 2 | **標準版本會更新** | SSDF v1.2、金管會指引「代理 AI」修訂、EU AI Act 後續指引都在變動，**每年至少複查一次本章** |
+| 3 | **OWASP 清單是社群文件** | 適合作為威脅建模的檢查表，不是法規；不要在合約中承諾「完全符合 OWASP」 |
+| 4 | **ISO 42001 驗證範圍要明確** | 若要取得驗證，範圍應界定為「AI 輔助軟體開發流程」，而不是「組織所有 AI 使用」，否則工作量會失控 |
+| 5 | **供應商證據與自身證據要分開** | Anthropic 的 SOC 2／ISO 27001 證明的是供應商，**不能取代組織自身的使用控制** |
+| 6 | **法規解讀需由法遵確認** | 本章的法規說明為導入規劃參考，**不構成法律意見** |
+
+---
+
+## 53.10 本章檢查清單
+
+- [ ] 已確認組織需要回應的外部標準與法規清單（53.1）
+- [ ] 已建立 `governance/standards-mapping.md`，並以 53.7 矩陣為骨架
+- [ ] SSDF PW.7（程式碼審查）的證據鏈已確認完整，包含起始權限模式設定（53.2.2）
+- [ ] 已以 OWASP Agentic Top 10 對 Claude Code 做過一次威脅建模（53.4.2）
+- [ ] 已把 DORA 七項能力的自評問題納入第 34 章成熟度自評（53.5.2）
+- [ ] 金融業：已對照金管會指引，並指定窗口追蹤「代理 AI」修訂（53.6.2）
+- [ ] 已確認組織是否有歐盟業務，及用 Claude Code 開發的產品是否屬 EU AI Act 高風險系統（53.6.3）
+- [ ] 已向 Anthropic 確認其 ISO 42001 驗證狀態與資料處理地點（C.3）
+- [ ] 本章已排入每年一次的複查（C.5.1）
 
 ---
 
@@ -22846,10 +23720,20 @@ flowchart TD
 | Tool Injection | 工具注入 | 透過工具回傳內容植入惡意指示，**比 Prompt Injection 更危險** | 23 |
 | Usage Credits | 用量額度 | 席位內含額度用盡後可續用的機制 | 5 |
 | Worktree | 工作樹 | Git 的隔離工作目錄機制 | 6 |
+| AGENTS.md（v2.1） | — | 其他 coding agent 慣用的指示檔；無 CLAUDE.md 時由 Claude Code 讀取（v2.1.277＋） | 8 |
+| Artifacts（v2.1） | 互動式成果頁 | 由 session 發佈到 claude.ai 的互動網頁，可分享、可呼叫 connectors | 23 |
+| Auto Mode | 自動模式 | 由分類器模型代替人審核動作的權限模式；**Team 方案的內建起始模式** | 16、49 |
+| Claude Tag（v2.1） | — | 以組織共用身分在 Slack 頻道執行的 Claude | 23 |
+| Effort level | 推理強度 | 控制模型思考深度的等級（low～max、ultracode） | 5 |
+| Group mapping（v2.1） | 群組對應 | 以 IdP 群組決定 Claude 組織中的角色與席位等級 | 5 |
+| Managed Settings | 受管設定 | 組織下發、優先於使用者與專案設定的政策設定 | 49 |
+| OWASP Agentic Top 10（v2.1） | — | OWASP 針對自主 Agent 的十大風險（ASI01～ASI10） | 53 |
+| SSDF（v2.1） | 安全軟體開發框架 | NIST SP 800-218 | 53 |
+| ZDR（Zero Data Retention） | 零資料保留 | 請求完成後不留存資料，Enterprise 合格帳號個別啟用 | 23 |
 
 ### C.2 參考資料與查證來源
 
-> ⚠️ **下列資料為本手冊 v2.0 的查證來源**。所有涉及方案、定價、用量、模型、功能、設定鍵的資訊皆以「**截至 2026-09-17**」為基準，**請以 Anthropic 最新官方文件為準**。
+> ⚠️ **下列資料為本手冊 v2.0 與 v2.1 的查證來源**。所有涉及方案、定價、用量、模型、功能、設定鍵的資訊皆以「**截至 2026-09-24**」為基準，**請以 Anthropic 最新官方文件為準**。
 
 > 📌 **v2.0 重要變更：官方文件站已整站遷移。**
 >
@@ -22857,7 +23741,9 @@ flowchart TD
 > | --- | --- |
 > | 舊網址 | `https://docs.claude.com/en/docs/claude-code/*` （**已 301 轉址**） |
 > | **現行網址** | **`https://code.claude.com/docs/en/*`** |
-> | **官方文件索引** | **`https://code.claude.com/docs/llms.txt`**（本次查證時列有 **192 頁**） |
+> | **官方文件索引** | **`https://code.claude.com/docs/llms.txt`**（v2.0 查證時 192 頁；**v2.1 查證時 197 頁**） |
+> | **Changelog** | `https://code.claude.com/docs/en/changelog`（v2.1 查證至 **v2.1.281，2026-09-23**） |
+> | **What's New** | `https://code.claude.com/docs/en/whats-new`（v2.1 查證至 **W37，2026-09-07～11**） |
 > | 繁體中文索引 | `https://code.claude.com/docs/_llms/zh-hant.md` |
 >
 > **若貴組織的內部文件、書籤或自動化腳本仍引用舊網址，請一併更新。**
@@ -22874,6 +23760,12 @@ flowchart TD
 | 6 | Models, usage and limits in Claude Code | `https://support.claude.com/en/articles/14552983` | 第 5 章 |
 | 7 | What is the Enterprise plan | `https://support.claude.com/en/articles/9797531` | 第 5 章 |
 | 8 | Claude Enterprise consumption guide | `https://support.claude.com/en/articles/14782391` | 第 5、32 章 |
+| 9 | Set up JIT or SCIM provisioning（v2.1 新增） | `https://support.claude.com/en/articles/13133195` | 第 5 章 5.2.5、5.6.3 |
+| 10 | Manage usage credits for Team and seat-based Enterprise plans（v2.1 新增） | `https://support.claude.com/en/articles/12005970` | 第 5 章 5.2.4、5.5.4 |
+| 11 | Manage usage credits for paid Claude plans（v2.1 新增） | `https://support.claude.com/en/articles/12429409` | 第 5 章 |
+| 12 | Important considerations before enabling SSO and JIT/SCIM（v2.1 新增） | `https://support.claude.com/en/articles/10276682` | 第 5 章 5.6.3 |
+
+> 📌 **v2.1 查證備註**：指定的兩份繁體中文支援文件（`/zh-TW/articles/9266767`、`/zh-TW/articles/9267247`）於查證時發生轉址迴圈，改以相同編號的英文版（`/en/articles/9266767-what-is-the-team-plan`、`/en/articles/9267247-getting-started-with-the-team-plan`）查證，內容以英文版為準。
 
 #### C.2.2 官方技術文件（v2.0 新增，已逐頁覆核）
 
@@ -22925,6 +23817,18 @@ flowchart TD
 | 44 | Agent SDK（overview 與 secure-deployment） | `agent-sdk/overview`、`agent-sdk/secure-deployment` | **第 51 章** |
 | 45 | Checkpointing | `checkpointing` | 第 6 章 |
 | 46 | Legal and compliance | `legal-and-compliance` | 第 23 章 |
+| 47 | Choose a permission mode（v2.1 複核：Team 預設 Auto） | `permission-modes` | **第 16 章 16.5.2**、第 49 章 |
+| 48 | Model configuration（v2.1 複核：預設模型、別名、effort） | `model-config` | **第 5 章 5.5.3、5.5.6** |
+| 49 | Extend Claude with skills（synced skills） | `skills` | 第 11 章 11.5.2 |
+| 50 | Recommend plugins for your org | `plugin-relevance` | 第 12 章 12.4.4 |
+| 51 | Test plugins with evals | `plugin-evals` | 第 11 章 11.5.3 |
+| 52 | Artifacts | `artifacts` | **第 23 章 23.8.6** |
+| 53 | Claude Tag | `claude-tag` | 第 23 章 23.8.6 |
+| 54 | Scan your codebase for vulnerabilities（Claude Security plugin） | `claude-security` | 第 21 章 21.5.2、第 23 章 |
+| 55 | Find bugs with ultrareview | `ultrareview` | 第 21 章 21.5.2 |
+| 56 | Memory（managed CLAUDE.md、AGENTS.md） | `memory` | 第 8 章 8.4.1 |
+| 57 | Changelog | `changelog` | 第 12、16、49 章 |
+| 58 | What's new（W13～W37） | `whats-new` | 全文 |
 
 #### C.2.3 其他官方來源
 
@@ -22936,34 +23840,37 @@ flowchart TD
 | Compliance API | `https://platform.claude.com/docs/en/api/compliance` |
 | Claude Enterprise Administrator Guide | `https://claude.com/resources/tutorials/claude-enterprise-administrator-guide` |
 | CISO's guide to agentic AI | `https://claude.com/blog/ciso-guide-to-agentic-ai` |
-| Anthropic Academy（Claude 101、Claude Code in Action） | `https://anthropic.skilljar.com/` |
+| Claude Academy（Claude 101、Claude Code 101、Claude Code in Action；v2.1 更新入口） | `https://academy.claude.com/` |
 
 #### C.2.4 未覆核項目（誠實揭露）
 
-> 📌 **本手冊不宣稱已覆核官方全部 192 頁。** 下列領域本次未逐頁覆核，引用時請自行查證：
+> 📌 **本手冊不宣稱已覆核官方全部 197 頁。** 下列領域本次未逐頁覆核，引用時請自行查證：
 
 | 領域 | 說明 |
 | --- | --- |
 | Agent SDK 的 API 細節（TypeScript / Python 參考） | 第 51 章僅涵蓋治理面，未涉及 API 用法 |
 | 各 Provider 的逐步安裝設定 | 第 47 章僅涵蓋決策面 |
 | Self-hosted environments 的部署細節 | 第 48 章僅涵蓋責任歸屬 |
-| Chrome、行動 App、Slack、Claude Tag 的操作細節 | 僅列入介面清單 |
-| Plugin evals、Channels reference、Deep links 等參考頁 | 未涉及 |
-| 每週 What's New（2026 W13～W37） | 未逐週比對；**建議組織自行訂閱** |
+| Chrome、行動 App、Slack 的操作細節 | 僅列入介面清單；Claude Tag 的治理面已於 v2.1 補充（23.8.6），操作細節在 claude.com 另有文件 |
+| Plugin evals 的評分器與報告格式、Channels reference、Deep links 等參考頁 | v2.1 僅涵蓋 plugin evals 的治理用途（11.5.3） |
+| Desktop 系列頁面（iOS Simulator、Linux beta、WSL、排程任務） | 僅涵蓋 WSL 政策（49.3.4）與 Desktop policy 鍵 |
+| Agent view、跨 session 訊息、Projects（`claude-projects`） | 僅列入 6.2.4 功能清單 |
+| Claude apps gateway 的部署與設定細節 | 僅涵蓋 47.4 的治理面新能力 |
+| 每週 What's New | **v2.1 已比對 W13～W37 的標題摘要**；W38 以後尚未發布或未比對，**建議組織自行訂閱** |
 
 #### C.2.5 v1.0.0 已查證且 v2.0 複核仍正確的事實摘要
 
-| 項目 | 內容（截至 2026-09-17） |
+| 項目 | 內容（截至 2026-09-24） |
 | --- | --- |
 | Team 席位 | 最少 2 人、最多 150 席；Standard 與 Premium |
-| 用量倍率 | Standard 約 Pro 的 1.25 倍；Premium 約 6.25 倍 |
+| 用量倍率 | Standard 約 Pro 的 1.25 倍；Premium 約 6.25 倍；**每週上限於各帳號的固定日期重置**（v2.1） |
 | 定價 | Standard 月付 $25／年付約 $20 每月；Premium 月付 $125／年付約 $100 每月（未稅、依地區調整） |
 | Claude Code 取得 | 包含於每個 Team 席位 |
 | 登入 | `claude` → "Claude account with subscription" → OAuth |
 | IDE 支援 | VS Code、Cursor 等 fork、JetBrains；與 CLI 共用額度 |
-| 超額 | 可啟用 usage credits |
-| 模型 | Sonnet（預設）/ Opus / Haiku，以 `/model` 切換 |
-| 成本工具 | `/clear`、`/compact`、`/cost` |
+| 超額 | 可啟用 usage credits（標準 API 費率；Team 預付、可自動儲值）；**支出上限觸及即硬性阻擋**（v2.1 查證） |
+| 模型 | **v2.1 更正**：`/model` 預設為 **Opus 5.5**（effort `medium`）；另有 `sonnet`（Sonnet 5）、`haiku`、`fable`（Fable 5.1）、`opusplan`、`[1m]` 變體，以 `/model` 切換（第 5 章 5.5.3） |
+| 成本工具 | `/clear`、`/compact`、`/cost`、`/context`；**v2.1 新增** `/usage`（拆解額度消耗來源）、`/insights`、`/usage-credits` |
 | Analytics 權限 | **【⚠️ 文件不一致】** 見第 5 章 5.3.1 |
 | Claude Code 指標 | Lines of code accepted、Suggestion accept rate、Activity trends、每人月度 LOC、CSV 匯出 |
 | Contribution（Public Beta） | PR merged（有/無 Claude Code）、LOC shipped、Leaderboard；**歸因演算法見第 31 章 31.1.4.3** |
@@ -22985,6 +23892,33 @@ flowchart TD
 | 5 | 適用的合規認證 | **SOC 2 Type 2、ISO 27001**，可於 Anthropic Trust Center 取得 | 23.8.1 |
 | 6 | CI 應採官方 Action 或自建腳本 | **官方已提供** GitHub Actions、GitHub Enterprise Server、GitLab CI/CD 整合 | 20.6.3 |
 
+**v2.1 解除的待確認事項**（v2.0 列於 C.3，v2.1 已查證）：
+
+| # | v2.0 的待確認事項 | **v2.1 查證結果** | 章節 |
+| --- | --- | --- | --- |
+| 7 | 支出上限觸及後的實際行為 | **硬性阻擋**，至下個計費週期或上限調整為止 | 5.2.4、5.5.4 |
+| 8 | 一般（非 ZDR）方案的資料保留期 | **商用方案標準 30 天**；本機逐字稿預設 30 天；`/feedback` 逐字稿 5 年 | 23.8.2 |
+| 9 | Team 方案是否支援自訂資料保留期 | **不支援**（Enterprise 專屬） | 5.2.2、5.2.4 |
+| 10 | usage credits 的計價方式 | **標準 API 費率**；Team 預付可自動儲值、席位制 Enterprise 月底後付（**最小購買單位仍待確認**） | 5.2.4 |
+
+#### C.2.7 外部標準與法規來源（v2.1 新增）
+
+| 標準／法規 | 來源 | 引用章節 |
+| --- | --- | --- |
+| NIST SP 800-218（SSDF v1.1） | `https://csrc.nist.gov/pubs/sp/800/218/final` | 第 14、53 章 |
+| NIST SP 800-218r1（SSDF v1.2 初稿，2025-12-17） | `https://www.nist.gov/news-events/news/2025/12/secure-software-development-framework-ssdf-version-12-available-public` | 第 53 章 |
+| NIST SP 800-218A（GenAI SSDF 社群剖繪） | `https://csrc.nist.gov/pubs/sp/800/218/a/final` | 第 53 章 |
+| NIST AI RMF 1.0 與 AI 600-1（GenAI Profile） | `https://www.nist.gov/itl/ai-risk-management-framework` | 第 36、53 章 |
+| ISO/IEC 42001:2023 | `https://www.iso.org/standard/81230.html` | 第 36、53 章 |
+| OWASP Top 10 for LLM Applications 2025 | `https://genai.owasp.org/llm-top-10/` | 第 23、53 章 |
+| OWASP Top 10 for Agentic Applications 2026 | `https://genai.owasp.org/2025/12/09/owasp-top-10-for-agentic-applications-the-benchmark-for-agentic-security-in-the-age-of-autonomous-ai/` | 第 23、37、53 章 |
+| DORA 2025 State of AI-assisted Software Development | `https://dora.dev/dora-report-2025/` | 第 34、53 章 |
+| DORA AI Capabilities Model | `https://services.google.com/fh/files/misc/2025_dora_ai_capabilities_model.pdf` | 第 34、53 章 |
+| 人工智慧基本法 | `https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=H0160093` | 第 53 章 |
+| 金融業運用人工智慧（AI）指引 | `https://law.fsc.gov.tw/LawContent.aspx?id=GL003920` | 第 53 章 |
+| 金融業運用 AI 之核心原則與相關推動政策 | `https://law.fsc.gov.tw/LawContent.aspx?id=GL003916` | 第 53 章 |
+| EU AI Act Digital Omnibus（歐盟理事會新聞稿） | `https://www.consilium.europa.eu/en/press/press-releases/2026/06/29/artificial-intelligence-council-gives-final-green-light-to-simplify-and-streamline-rules/` | 第 53 章 |
+
 ### C.3 本手冊明確標示為「待確認」的事項
 
 > 🚫 **下列事項本手冊未查證到公開資訊，一律不做臆測。導入前請向 Anthropic 業務窗口確認並取得書面說明。**
@@ -22992,38 +23926,44 @@ flowchart TD
 | # | 待確認事項 | 為什麼重要 | 章節 |
 | --- | --- | --- | --- |
 | 1 | 5 小時 / 每週 rolling window 的精確數值 | 影響用量規劃。**官方明確表示不公開**，以 CLI 內提示為準 | 5 |
-| 2 | usage credits 的計價方式與最小購買單位 | 影響預算編列 | 5 |
-| 3 | **支出上限觸及後的實際行為**（硬性阻擋或僅告警） | **影響衝刺期的作業連續性**，建議 Pilot 期實測 | 5 |
-| 4 | Team 方案是否支援自訂資料保留期 | 法遵要求 | 5、23 |
-| 5 | Premium 席位與 usage credits 併用的優先順序 | 成本歸屬 | 5 |
+| 2 | usage credits 的**最小購買單位**（計價方式 v2.1 已查證為 API 費率） | 影響預算編列 | 5 |
+| 3 | ~~支出上限觸及後的實際行為~~ | **v2.1 已查證：硬性阻擋**（C.2.6 #7） | 5 |
+| 4 | ~~Team 方案是否支援自訂資料保留期~~ | **v2.1 已查證：不支援**（C.2.6 #9） | 5、23 |
+| 5 | Premium 席位與 usage credits 併用的精確扣抵順序 | 成本歸屬 | 5 |
 | 6 | 台灣地區的實際計價幣別與稅務處理 | 財務作業 | 5 |
-| 7 | **一般（非 ZDR）方案的實際資料保留期** | **法遵必問** | 23、46 |
+| 7 | 一般（非 ZDR）方案的資料保留期——**v2.1 已查證為 30 天**，但**仍建議取得合約條款的書面確認** | 法遵必問 | 23、46 |
 | 8 | **AI 產出程式碼的智慧財產權歸屬** | **法務必問** | 23、46 |
 | 9 | **賠償條款** | **法務必問** | 23、46 |
 | 10 | **HIPAA 覆蓋範圍的逐項書面確認** | **醫療產業必問**；官方已明示不含 Claude Code | **23.8.3** |
 | 11 | ZDR 的資格條件與申請流程 | 法遵規劃 | 23 |
 | 12 | Java 25 的完整 breaking change 清單 | 升版規劃 | 19、41 |
 | 13 | Spring Boot 4 的完整 breaking change 清單 | 升版規劃 | 19、41 |
+| 14 | **Team 方案是否支援 SCIM**（v2.1 新增）【⚠️ 文件不一致】 | JML 自動化設計 | **5.2.5** |
+| 15 | **誰能檢視 Claude Code Analytics**（Team 的 Admin 是否可見）【⚠️ 文件不一致】 | 報表權限設計 | 5.3.1、31.1.6 |
+| 16 | **Contribution 指標是否支援 GitHub Enterprise Server**【⚠️ 文件不一致】 | GHES 組織的 KPI 設計 | 5.2.5、31.1.4 |
+| 17 | 「強制組織預設模型」的開放條件（v2.1 新增） | Enterprise 模型治理 | 5.5.6 |
+| 18 | Anthropic 是否取得 ISO/IEC 42001 驗證、資料處理地點（v2.1 新增） | 供應商評估（ISO 42001 A.10、金管會指引） | 53.3、53.6 |
+| 19 | NIST SSDF v1.2 定稿與金管會指引「代理 AI」修訂的發布狀態（v2.1 新增） | 標準對照的基準版本 | 53.2、53.6 |
 
 ### C.4 本 repo 內可交叉參考的教學手冊
 
 | 主題 | 檔案 |
 | --- | --- |
-| Claude Code 操作細節 | `.github/教學/AI開發/Claude Code生態圈教學手冊.md` |
-| Claude Code SSDLC | `.github/教學/AI開發/Claude Code SSDLC（AI軟體開發生命週期）教學手冊.md` |
-| Agent Team 建置 | `.github/教學/AI開發/Claude Code 建立 SSDLC Agent Team 教學手冊.md` |
-| AI 治理 | `.github/教學/AI開發/AI 治理教學手冊.md` |
-| Agent Skills | `.github/教學/AI開發/claude agent skills教學手冊.md`、`Agent Skills教學手冊.md` |
-| MCP | `.github/教學/AI開發/Anthropic Model Context Protocol (MCP) 教學手冊.md` |
-| GitHub Copilot 對照 | `.github/教學/AI開發/github copilot生態圈教學手冊.md` |
-| Java 25 | `.github/教學/程式語言/Java25升版教學.md` |
-| Spring Boot 4 升版 | `.github/教學/framework/Spring boot 4.x升版教學.md` |
-| Clean Architecture | `.github/教學/分析與設計/Clean Architecture教學.md` |
-| Hexagonal Architecture | `.github/教學/分析與設計/Hexagonal Architecture設計教學.md` |
-| DDD | `.github/教學/分析與設計/Domain-Driven Design教學.md` |
-| 重構 | `.github/教學/分析與設計/Refactoring重構教學.md` |
-| JMeter | `.github/教學/工具/Jmeter使用教學.md` |
-| Playwright | `.github/教學/AI開發/Playwright 教學手冊.md` |
+| Claude Code 操作細節 | `content/posts/教學/AI開發/Claude Code生態圈教學手冊.md` |
+| Claude Code SSDLC | `content/posts/教學/AI開發/Claude Code SSDLC（AI軟體開發生命週期）教學手冊.md` |
+| Agent Team 建置 | `content/posts/教學/AI開發/Claude Code 建立 SSDLC Agent Team 教學手冊.md` |
+| AI 治理 | `content/posts/教學/AI開發/AI 治理教學手冊.md` |
+| Agent Skills | `content/posts/教學/AI開發/claude agent skills教學手冊.md`、`Agent Skills教學手冊.md` |
+| MCP | `content/posts/教學/AI開發/Anthropic Model Context Protocol (MCP) 教學手冊.md` |
+| GitHub Copilot 對照 | `content/posts/教學/AI開發/github copilot生態圈教學手冊.md` |
+| Java 25 | `content/posts/教學/程式語言/Java25升版教學.md` |
+| Spring Boot 4 升版 | `content/posts/教學/framework/Spring boot 4.x升版教學.md` |
+| Clean Architecture | `content/posts/教學/分析與設計/Clean Architecture教學.md` |
+| Hexagonal Architecture | `content/posts/教學/分析與設計/Hexagonal Architecture設計教學.md` |
+| DDD | `content/posts/教學/分析與設計/Domain-Driven Design教學.md` |
+| 重構 | `content/posts/教學/分析與設計/Refactoring重構教學.md` |
+| JMeter | `content/posts/教學/工具/Jmeter使用教學.md` |
+| Playwright | `content/posts/教學/AI開發/Playwright 教學手冊.md` |
 
 ### C.5 本手冊的維護
 
@@ -23033,7 +23973,7 @@ flowchart TD
 | **檢視頻率** | **每季**（易變資訊）／**每年**（整體架構） |
 | **版本策略** | 語意化版本 `vMAJOR.MINOR.PATCH` |
 | **變更流程** | PR + AI Governance 審查 |
-| **存放位置** | 本 repo `.github/教學/AI開發/` |
+| **存放位置** | 本 repo `content/posts/教學/AI開發/` |
 
 #### C.5.1 每季必須複查的章節
 
@@ -23047,6 +23987,8 @@ flowchart TD
 | **第 47 章** | **Provider 功能矩陣變動頻繁**（✗ 可能變 ✓） |
 | **第 49 章** | **設定鍵可能改名或棄用，且失效時不會報錯** |
 | 第 50 章 | 官方 Adoption Kit 內容會更新 |
+| **第 16 章 16.5.2**（v2.1） | **各方案的內建起始權限模式可能再次調整** |
+| **第 53 章**（v2.1，每年） | 外部標準與法規改版（SSDF v1.2、金管會指引修訂、EU AI Act） |
 | 第 19、41 章 | Java / Spring Boot 版本資訊 |
 
 > ⚠️ **第 49 章的複查最容易被忽略也最危險**。設定鍵被改名或棄用時**不會報錯，只會安靜失效**——組織會以為政策還在，實際上已經沒有了（第 37 章 R-29）。
@@ -23056,7 +23998,21 @@ flowchart TD
 | 版本 | 日期 | 變更 | 變更人 |
 | --- | --- | --- | --- |
 | v1.0.0 | 2026-09-17 | 初版發布，47 章 | AI Governance 小組 |
-| **v2.0.0** | **2026-09-17** | **依 Anthropic 官方最新文件全面改版**，47 → 52 章。詳見下方摘要 | AI Governance 小組 |
+| v2.0.0 | 2026-09-17 | 依 Anthropic 官方最新文件全面改版，47 → 52 章。詳見下方摘要 | AI Governance 小組 |
+| **v2.1.0** | **2026-09-24** | **依官方文件（197 頁、changelog 至 v2.1.281）增量改版**，52 → 53 章。詳見下方摘要 | AI Governance 小組 |
+
+**v2.1.0 變更摘要**：
+
+| 類別 | 變更內容 |
+| --- | --- |
+| **新增章節** | 第 53 章 外部標準與法規框架對照（NIST SSDF／AI RMF、ISO/IEC 42001、OWASP LLM／Agentic Top 10、DORA、台灣 AI 基本法與金管會指引、EU AI Act） |
+| **重大更正** | **16.5.2、49.5：Team 方案自 2026-08-14 起內建起始權限模式為 Auto**（v2.0 假設需主動開啟）<br/>**5.5.3：預設模型改為 Opus 5.5**（v2.0 寫 Sonnet 為預設），新增 `fable`、`opusplan` 與 effort 分級<br/>49.4.1、49.5：`disableAutoMode` 的值為 `"disable"`、Manual 的設定值為 `default`<br/>31.1：Analytics 分頁結構改版（Overview、Spend、Claude Code 三子分頁、Surveys、Member analytics）<br/>6.2.2：Windows 不再需要 Git for Windows |
+| **新增小節** | 5.2.5 官方文件不一致、5.5.6 組織層級模型與 effort 管控、5.6.3 IdP 群組對應席位、8.4.1 組織層 CLAUDE.md 與 AGENTS.md、11.5.2 claude.ai 同步技能治理、11.5.3 `/skill-doctor` 與 plugin eval、12.4.4 Plugin 與 Connector 治理要點、14.4.1 SSDF 對照、16.5.2 Team 預設 Auto、21.5.2 官方審查工具成本、23.8.6 Artifacts／Claude Tag 資料外流治理、23.8.7 外部安全標準對照、30.4.3 個人用量工具、31.1.7 Usage 子分頁／Surveys／Member analytics、34.4.1 DORA 前置條件、36.4.3 外部治理框架對照、37.5.3 外部風險清單檢核 |
+| **新增事實** | Enterprise 現行為用量計費單一席位（自助 20 席起）；Enterprise 專屬功能擴充（稽核日誌、CMEK、US-only inference、IP allowlisting、自訂角色）；支出上限層級；Code Review／Ultrareview 成本；自架環境推論仍走 Anthropic API；v2.1.280 修正 MCP 政策鍵失效；Claude apps gateway 新能力；`managed_settings_resolved` OTel 事件 |
+| **解除待確認** | 4 項（C.2.6 #7～#10）；**新增待確認** 6 項（C.3 #14～#19），其中 3 項為官方文件不一致 |
+| **新增風險** | R-30～R-34（第 37 章）：Default Auto Mode、Silent Credit Burn、Artifact Exposure、Unreviewed Synced Assets、Default Model Drift |
+| **修正錯誤** | 37.6 案例中與 R-21 編號衝突的自訂風險；附錄 C.4 檔案路徑（`.github/教學/` → `content/posts/教學/`）；Anthropic Academy 入口改為 `academy.claude.com` |
+| **結構與格式** | 主目錄每一部改為可摺疊（`<details open>`），並依實際標題重建；新增小節同步更新各章迷你目錄；修正 md 格式問題 |
 
 **v2.0.0 變更摘要**：
 
@@ -23074,7 +24030,7 @@ flowchart TD
 
 ## 結語
 
-本手冊共 52 章，從戰略、平台、部署架構、流程、治理強制、導入推動、度量到文化，涵蓋 Claude Code Team 企業導入的完整路徑。
+本手冊共 53 章，從戰略、平台、部署架構、流程、治理強制、導入推動、度量、文化到外部標準對照，涵蓋 Claude Code Team 企業導入的完整路徑。
 
 如果只能記住三件事：
 
@@ -23091,7 +24047,7 @@ flowchart TD
 
 > **每一次 AI 犯的錯，都應該轉化為組織的規則或知識，而非重複發生。**
 >
-> **這是「組織越用越強」的唯一機制，也是本手冊全部 52 章真正想達成的目標。**
+> **這是「組織越用越強」的唯一機制，也是本手冊全部 53 章真正想達成的目標。**
 
 ---
 

