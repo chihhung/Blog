@@ -1,3982 +1,3074 @@
-﻿+++
++++
 date = '2025-10-31T00:00:00+08:00'
 draft = false
 title = 'Podman Desktop使用教學'
-tags = ['教學', '工具']
+tags = ['教學', '工具', 'Podman', '容器']
 categories = ['教學']
 +++
+
 # Podman Desktop 使用教學手冊
 
-## 📋 目錄
+| 項目 | 內容 |
+| --- | --- |
+| **文件版本** | 2.0 |
+| **最後更新** | 2026 年 9 月 29 日 |
+| **適用版本** | Podman Desktop 1.29.x（主要基準，穩定版 1.29.3）；兼述 1.30 預覽版 |
+| **內建引擎** | Podman 6.0.2（Windows、Apple Silicon Mac）、Podman 5.8.5（Intel Mac）；1.30 預覽版升為 6.1.2／5.8.7 |
+| **企業版** | Red Hat build of Podman Desktop 1.2（2026 年 2 月 GA） |
+| **適用對象** | 後端與前端工程師、系統架構師、平台工程、DevOps、桌面管理（IT）與資安人員 |
+| **文件定位** | 企業標準技術白皮書／內部標準教材 |
+| **使用情境** | 大型企業、金融業（銀行、證券、保險）的開發者桌面容器環境 |
+| **文件維護** | 內部技術團隊 |
+| **Created by** | Eric Cheng |
 
-- [1. 基礎入門](#1-基礎入門)
-  - [1.1 Podman 與 Podman Desktop 介紹](#11-podman-與-podman-desktop-介紹)
-  - [1.2 與 Docker 的比較](#12-與-docker-的比較)
-  - [1.3 安裝 Podman Desktop](#13-安裝-podman-desktop)
-  - [1.4 基本操作介面導覽](#14-基本操作介面導覽)
-- [2. 專案實務應用](#2-專案實務應用)
-  - [2.1 在專案中使用 Podman Desktop](#21-在專案中使用-podman-desktop)
-  - [2.2 容器管理實務](#22-容器管理實務)
-  - [2.3 映像檔管理](#23-映像檔管理)
-  - [2.4 Volume 與 Network 管理](#24-volume-與-network-管理)
-  - [2.5 IDE 整合](#25-ide-整合)
-- [3. 進階操作與最佳實務](#3-進階操作與最佳實務)
-  - [3.1 Podman CLI 與 Desktop 搭配使用](#31-podman-cli-與-desktop-搭配使用)
-  - [3.2 Compose 支援與多容器應用管理](#32-compose-支援與多容器應用管理)
-  - [3.3 安全性與資源管理最佳實踐](#33-安全性與資源管理最佳實踐)
-  - [3.4 與 Kubernetes/OpenShift 對接基礎](#34-與-kubernetesopenshift-對接基礎)
-- [4. 認證考試準備](#4-認證考試準備)
-  - [4.1 Podman 認證知識範圍](#41-podman-認證知識範圍)
-  - [4.2 常見考題型態與解題練習](#42-常見考題型態與解題練習)
-  - [4.3 學習地圖與練習資源](#43-學習地圖與練習資源)
-- [5. 檢查清單](#5-檢查清單)
-  - [5.1 安裝驗證清單](#51-安裝驗證清單)
-  - [5.2 開發環境設定清單](#52-開發環境設定清單)
-  - [5.3 專案部署清單](#53-專案部署清單)
-  - [5.4 安全性檢查清單](#54-安全性檢查清單)
-  - [5.5 效能優化清單](#55-效能優化清單)
-  - [5.6 故障排除清單](#56-故障排除清單)
-  - [5.7 認證考試準備清單](#57-認證考試準備清單)
-  - [5.8 日常維護清單](#58-日常維護清單)
+> ⚠️ **v2.0 重大改版說明**：v1.0 以 Podman 4.x 時代為基準，許多畫面描述已經和實際介面不符，安裝流程也還停留在 Windows 10 與手動 `dism` 指令。另外，v1.0 的檔案結構有損壞：總結之後接著斷掉的程式碼片段、重複的第 3～5 章精簡版，以及放錯位置的 2.5.3～2.5.5 節。本版以 Podman Desktop 1.29 與 Podman 6 為基準全面改寫，新增企業集中管理（Managed configuration）、受限環境安裝、擴充功能生態、Kubernetes 整合、Podman AI Lab、疑難排解等章節。Podman 引擎本身的 CLI、Quadlet、網路與供應鏈細節，請搭配本站《Podman 使用教學手冊》v2.0 閱讀。完整更正清單請見[附錄 D：版本紀錄](#附錄-d版本紀錄)，查證來源請見[附錄 E：查證紀錄](#附錄-e查證紀錄)。
+
+<!-- TOC-AUTO-BEGIN -->
+
+## 目錄
+
+- [執行摘要](#執行摘要)
+- [1. Podman Desktop 概觀與架構](#1-podman-desktop-概觀與架構)
+  - [1.1 什麼是 Podman Desktop](#11-什麼是-podman-desktop)
+  - [1.2 架構與元件](#12-架構與元件)
+    - [1.2.1 整體架構](#121-整體架構)
+    - [1.2.2 平台與 machine provider](#122-平台與-machine-provider)
+  - [1.3 版本節奏與版本對照](#13-版本節奏與版本對照)
+  - [1.4 與 Docker Desktop 的比較](#14-與-docker-desktop-的比較)
+  - [1.5 社群版與 Red Hat build of Podman Desktop](#15-社群版與-red-hat-build-of-podman-desktop)
+  - [1.6 專案治理與社群](#16-專案治理與社群)
+  - [1.7 💡 本章實務建議](#17--本章實務建議)
+- [2. 安裝與初始設定](#2-安裝與初始設定)
+  - [2.1 系統需求與平台支援](#21-系統需求與平台支援)
+  - [2.2 Windows 安裝](#22-windows-安裝)
+    - [2.2.1 安裝 Podman Desktop](#221-安裝-podman-desktop)
+    - [2.2.2 選擇 machine provider：WSL 2 或 Hyper-V](#222-選擇-machine-providerwsl-2-或-hyper-v)
+    - [2.2.3 安裝 Podman 引擎](#223-安裝-podman-引擎)
+  - [2.3 macOS 安裝](#23-macos-安裝)
+  - [2.4 Linux 安裝](#24-linux-安裝)
+  - [2.5 首次啟動與 Onboarding](#25-首次啟動與-onboarding)
+  - [2.6 從 Podman 5 升級到 Podman 6](#26-從-podman-5-升級到-podman-6)
+  - [2.7 受限環境與離線安裝](#27-受限環境與離線安裝)
+  - [2.8 更新與解除安裝](#28-更新與解除安裝)
+  - [2.9 💡 本章實務建議](#29--本章實務建議)
+- [3. 介面導覽](#3-介面導覽)
+  - [3.1 版面配置](#31-版面配置)
+  - [3.2 導覽列與各資源頁](#32-導覽列與各資源頁)
+  - [3.3 常用操作與效率功能](#33-常用操作與效率功能)
+  - [3.4 狀態列、Task Manager 與 Troubleshooting](#34-狀態列task-manager-與-troubleshooting)
+  - [3.5 外觀與協助工具](#35-外觀與協助工具)
+  - [3.6 📝 實務練習：第一個容器](#36--實務練習第一個容器)
+  - [3.7 💡 本章實務建議](#37--本章實務建議)
+- [4. Podman machine 管理](#4-podman-machine-管理)
+  - [4.1 為什麼需要 Podman machine](#41-為什麼需要-podman-machine)
+  - [4.2 Provider 選擇](#42-provider-選擇)
+  - [4.3 建立與設定 machine](#43-建立與設定-machine)
+  - [4.4 Rootless 與 Rootful 切換](#44-rootless-與-rootful-切換)
+  - [4.5 企業網路：VPN、Proxy 與憑證](#45-企業網路vpnproxy-與憑證)
+    - [4.5.1 VPN：User mode networking](#451-vpnuser-mode-networking)
+    - [4.5.2 Proxy](#452-proxy)
+    - [4.5.3 CA 憑證（SSL 攔截環境）](#453-ca-憑證ssl-攔截環境)
+  - [4.6 GPU 存取](#46-gpu-存取)
+  - [4.7 多個 machine、遠端 Podman 與 WSL 互通](#47-多個-machine遠端-podman-與-wsl-互通)
+  - [4.8 💡 本章實務建議](#48--本章實務建議)
+- [5. 容器、Pod 與映像檔操作](#5-容器pod-與映像檔操作)
+  - [5.1 容器](#51-容器)
+    - [5.1.1 建立與啟動](#511-建立與啟動)
+    - [5.1.2 監控、日誌與終端機](#512-監控日誌與終端機)
+    - [5.1.3 生命週期與清理](#513-生命週期與清理)
+  - [5.2 Pod](#52-pod)
+  - [5.3 映像檔](#53-映像檔)
+    - [5.3.1 拉取](#531-拉取)
+    - [5.3.2 建置](#532-建置)
+    - [5.3.3 推送、儲存與匯入](#533-推送儲存與匯入)
+    - [5.3.4 映像檔最佳化](#534-映像檔最佳化)
+    - [5.3.5 清理與空間管理](#535-清理與空間管理)
+  - [5.4 Registry 與 Mirror](#54-registry-與-mirror)
+  - [5.5 Volume](#55-volume)
+  - [5.6 Network](#56-network)
+  - [5.7 Secret](#57-secret)
+  - [5.8 實務案例：Java 微服務本機開發環境](#58-實務案例java-微服務本機開發環境)
+  - [5.9 💡 本章實務建議](#59--本章實務建議)
+- [6. Compose 與 Docker 相容](#6-compose-與-docker-相容)
+  - [6.1 設定 Compose](#61-設定-compose)
+  - [6.2 執行 Compose 應用](#62-執行-compose-應用)
+  - [6.3 Docker 相容模式](#63-docker-相容模式)
+    - [6.3.1 Settings > Docker Compatibility](#631-settings--docker-compatibility)
+    - [6.3.2 使用 DOCKER_HOST](#632-使用-docker_host)
+    - [6.3.3 同時顯示 Docker 引擎](#633-同時顯示-docker-引擎)
+  - [6.4 從 Docker Desktop 遷移](#64-從-docker-desktop-遷移)
+    - [6.4.1 遷移評估清單](#641-遷移評估清單)
+    - [6.4.2 遷移步驟](#642-遷移步驟)
+    - [6.4.3 Docker 使用者要知道的差異](#643-docker-使用者要知道的差異)
+  - [6.5 💡 本章實務建議](#65--本章實務建議)
+- [7. Kubernetes 與 OpenShift 整合](#7-kubernetes-與-openshift-整合)
+  - [7.1 本機叢集選項](#71-本機叢集選項)
+  - [7.2 建立 Kind 叢集](#72-建立-kind-叢集)
+  - [7.3 Minikube、Lima 與 MicroShift](#73-minikubelima-與-microshift)
+  - [7.4 OpenShift Local 與 Developer Sandbox](#74-openshift-local-與-developer-sandbox)
+  - [7.5 管理 Kubernetes context](#75-管理-kubernetes-context)
+  - [7.6 部署與操作 Kubernetes 資源](#76-部署與操作-kubernetes-資源)
+    - [7.6.1 Apply YAML](#761-apply-yaml)
+    - [7.6.2 Deploy to Kubernetes](#762-deploy-to-kubernetes)
+    - [7.6.3 Port forwarding](#763-port-forwarding)
+  - [7.7 Podman 與 Kubernetes YAML 的往返](#77-podman-與-kubernetes-yaml-的往返)
+  - [7.8 💡 本章實務建議](#78--本章實務建議)
+- [8. 擴充功能生態](#8-擴充功能生態)
+  - [8.1 內建擴充功能](#81-內建擴充功能)
+  - [8.2 擴充功能目錄](#82-擴充功能目錄)
+  - [8.3 安裝與管理](#83-安裝與管理)
+  - [8.4 企業管控](#84-企業管控)
+  - [8.5 重點擴充功能](#85-重點擴充功能)
+    - [8.5.1 Podman Quadlet](#851-podman-quadlet)
+    - [8.5.2 Bootable Containers（bootc）](#852-bootable-containersbootc)
+    - [8.5.3 Grype 與 Image Layers Explorer](#853-grype-與-image-layers-explorer)
+  - [8.6 開發擴充功能入門](#86-開發擴充功能入門)
+  - [8.7 💡 本章實務建議](#87--本章實務建議)
+- [9. Podman AI Lab](#9-podman-ai-lab)
+  - [9.1 功能概觀](#91-功能概觀)
+  - [9.2 資源需求](#92-資源需求)
+  - [9.3 操作流程](#93-操作流程)
+  - [9.4 應用程式整合範例](#94-應用程式整合範例)
+  - [9.5 企業使用注意事項](#95-企業使用注意事項)
+  - [9.6 💡 本章實務建議](#96--本章實務建議)
+- [10. 企業導入與集中管理](#10-企業導入與集中管理)
+  - [10.1 Managed configuration 原理](#101-managed-configuration-原理)
+  - [10.2 檔案位置](#102-檔案位置)
+  - [10.3 部署流程](#103-部署流程)
+  - [10.4 常見管理用例](#104-常見管理用例)
+    - [10.4.1 強制公司 proxy 與關閉遙測](#1041-強制公司-proxy-與關閉遙測)
+    - [10.4.2 預設 registry 與 mirror（1.24）](#1042-預設-registry-與-mirror124)
+    - [10.4.3 控制引擎更新](#1043-控制引擎更新)
+    - [10.4.4 管控擴充功能與應用程式更新](#1044-管控擴充功能與應用程式更新)
+  - [10.5 Proxy、CA 與網路整合](#105-proxyca-與網路整合)
+  - [10.6 遙測與隱私](#106-遙測與隱私)
+  - [10.7 settings.json 重點鍵值](#107-settingsjson-重點鍵值)
+  - [10.8 疑難排解](#108-疑難排解)
+  - [10.9 💡 本章實務建議](#109--本章實務建議)
+- [11. 安全性與合規](#11-安全性與合規)
+  - [11.1 威脅模型與控制對照](#111-威脅模型與控制對照)
+  - [11.2 執行期安全](#112-執行期安全)
+  - [11.3 映像檔安全](#113-映像檔安全)
+  - [11.4 更新與弱點管理](#114-更新與弱點管理)
+  - [11.5 稽核與合規檢查點](#115-稽核與合規檢查點)
+  - [11.6 💡 本章實務建議](#116--本章實務建議)
+- [12. 開發工作流程與 IDE 整合](#12-開發工作流程與-ide-整合)
+  - [12.1 內循環（Inner Loop）開發流程](#121-內循環inner-loop開發流程)
+  - [12.2 VS Code](#122-vs-code)
+    - [12.2.1 Dev Containers 搭配 Podman](#1221-dev-containers-搭配-podman)
+  - [12.3 IntelliJ IDEA](#123-intellij-idea)
+  - [12.4 Testcontainers](#124-testcontainers)
+  - [12.5 開發環境設定管理](#125-開發環境設定管理)
+  - [12.6 Windows 開發環境自動化腳本](#126-windows-開發環境自動化腳本)
+  - [12.7 與 CI 對齊](#127-與-ci-對齊)
+  - [12.8 💡 本章實務建議](#128--本章實務建議)
+- [13. 疑難排解](#13-疑難排解)
+  - [13.1 診斷流程](#131-診斷流程)
+  - [13.2 Podman Desktop 日誌與 Troubleshooting 頁](#132-podman-desktop-日誌與-troubleshooting-頁)
+  - [13.3 Windows 常見問題](#133-windows-常見問題)
+  - [13.4 macOS 常見問題](#134-macos-常見問題)
+  - [13.5 Linux 常見問題](#135-linux-常見問題)
+  - [13.6 引擎、網路與效能問題](#136-引擎網路與效能問題)
+  - [13.7 回報問題](#137-回報問題)
+  - [13.8 💡 本章實務建議](#138--本章實務建議)
+- [14. 實務練習與認證準備](#14-實務練習與認證準備)
+  - [14.1 分階段學習計畫](#141-分階段學習計畫)
+  - [14.2 📝 基礎實務練習](#142--基礎實務練習)
+  - [14.3 📝 企業實務練習](#143--企業實務練習)
+  - [14.4 認證概述](#144-認證概述)
+  - [14.5 EX188 考試目標與本手冊對照](#145-ex188-考試目標與本手冊對照)
+  - [14.6 學習資源](#146-學習資源)
+  - [14.7 💡 本章實務建議](#147--本章實務建議)
+- [附錄 A：GUI ↔ CLI 對照](#附錄-agui--cli-對照)
+- [附錄 B：設定檔範本](#附錄-b設定檔範本)
+  - [B.1 個人 settings.json 建議值](#b1-個人-settingsjson-建議值)
+  - [B.2 Managed configuration 範本](#b2-managed-configuration-範本)
+  - [B.3 devcontainer.json（Java＋Podman）](#b3-devcontainerjsonjavapodman)
+  - [B.4 開發用 compose.yaml 骨架](#b4-開發用-composeyaml-骨架)
+  - [B.5 .wslconfig（Windows）](#b5-wslconfigwindows)
+- [附錄 C：檢查清單](#附錄-c檢查清單)
+  - [C.1 安裝驗證](#c1-安裝驗證)
+  - [C.2 開發環境設定](#c2-開發環境設定)
+  - [C.3 專案部署前（本機驗證）](#c3-專案部署前本機驗證)
+  - [C.4 安全與合規](#c4-安全與合規)
+  - [C.5 效能與資源](#c5-效能與資源)
+  - [C.6 故障排除](#c6-故障排除)
+  - [C.7 認證準備](#c7-認證準備)
+  - [C.8 日常維護與 IT 管理](#c8-日常維護與-it-管理)
+- [附錄 D：版本紀錄](#附錄-d版本紀錄)
+  - [D.1 版本歷程](#d1-版本歷程)
+  - [D.2 v1.0 → v2.0 更正表](#d2-v10--v20-更正表)
+  - [D.3 v2.0 新增章節](#d3-v20-新增章節)
+- [附錄 E：查證紀錄](#附錄-e查證紀錄)
+  - [E.1 待確認事項](#e1-待確認事項)
+- [附錄 F：參考資料](#附錄-f參考資料)
+  - [F.1 官方文件](#f1-官方文件)
+  - [F.2 社群與原始碼](#f2-社群與原始碼)
+  - [F.3 Red Hat 資源](#f3-red-hat-資源)
+  - [F.4 生態系工具](#f4-生態系工具)
+- [📚 總結](#-總結)
+
+<!-- TOC-AUTO-END -->
 
 ---
 
-## 1. 基礎入門
+## 執行摘要
 
-### 1.1 Podman 與 Podman Desktop 介紹
+**一句話結論**：Podman Desktop 是開源（Apache-2.0）、跨平台的容器與 Kubernetes 桌面工具，屬於 CNCF Sandbox 專案。它用圖形介面管理 Podman 引擎、`podman machine`、Kind／Minikube／OpenShift 等本機叢集，並提供可以由 IT 集中鎖定的企業設定。對於想要替換 Docker Desktop、又需要集中管理開發者桌面的企業，它是目前最完整的開源選項。
 
-#### 🎯 學習目標
-- 理解 Podman 的核心概念與背景
-- 了解 Podman Desktop 的功能與特色
-- 掌握容器化技術的基本原理
+**本手冊回答的六個問題**
 
-#### 什麼是 Podman？
+| # | 決策問題 | 建議 | 章節 |
+| --- | --- | --- | --- |
+| 1 | 可以用 Podman Desktop 取代 Docker Desktop 嗎？ | 一般的建置、執行、Compose、Testcontainers 都可以。先盤點依賴 Docker 專屬擴充功能或 Docker Hub 付費功能的團隊，再分批遷移 | [第 6 章](#6-compose-與-docker-相容) |
+| 2 | 要用社群版還是 Red Hat build？ | 需要 SLA、弱點修補承諾、集中授權的單位選 Red Hat build；其他情況用社群版加上 Managed configuration 即可 | [1.5](#15-社群版與-red-hat-build-of-podman-desktop) |
+| 3 | IT 要怎麼統一管理 proxy、registry、遙測？ | 用 **Managed configuration**（`default-settings.json`＋`locked.json`），搭配 Intune、Jamf、GPO 或 Ansible 派送 | [第 10 章](#10-企業導入與集中管理) |
+| 4 | 舊筆電（Windows 10、Intel Mac）還能用嗎？ | Podman Desktop 本身可以執行，但 Intel Mac 的引擎固定在 Podman 5.8.x；Windows 10 不在 Podman 6 的支援範圍內。要列入設備汰換計畫 | [2.1](#21-系統需求與平台支援) |
+| 5 | 在 VPN、proxy、SSL 攔截的網路下能用嗎？ | 可以。使用 airgap 安裝檔、設定 proxy、建立 machine 時匯入主機 CA（`--import-native-ca`），VPN 環境再啟用 User mode networking | [2.7](#27-受限環境與離線安裝)、[4.5](#45-企業網路vpnproxy-與憑證) |
+| 6 | 本機開發怎麼銜接 Kubernetes／OpenShift？ | 在本機用 Kind 或 MicroShift（MINC）驗證 YAML，用 Developer Sandbox 或 OpenShift Local 驗證 OpenShift 特性，正式環境交給 CI／CD | [第 7 章](#7-kubernetes-與-openshift-整合) |
 
-**Podman（Pod Manager）** 是由 Red Hat 開發的開源容器引擎，提供無守護程序（daemonless）的容器管理解決方案。
-
-##### 核心特色：
-- **無根容器（Rootless containers）**：增強安全性
-- **無守護程序架構**：降低系統資源消耗
-- **OCI 相容性**：支援 Open Container Initiative 標準
-- **Pod 概念**：支援多容器組合管理
+**企業導入路線圖**
 
 ```mermaid
-graph TD
-    A[用戶] --> B[Podman CLI]
-    A --> C[Podman Desktop GUI]
-    B --> D[容器運行時]
-    C --> D
-    D --> E[容器]
-    D --> F[映像檔]
-    D --> G[Volume]
-    D --> H[Network]
-    
-    style A fill:#e1f5fe
-    style B fill:#f3e5f5
-    style C fill:#f3e5f5
-    style D fill:#e8f5e8
+flowchart LR
+    P1["階段一<br/>試點<br/>建立標準 machine 規格"] --> P2["階段二<br/>集中設定<br/>Managed configuration"]
+    P2 --> P3["階段三<br/>全面派送<br/>Intune／Jamf／GPO"]
+    P3 --> P4["階段四<br/>移除 Docker Desktop<br/>Docker 相容與 CI 驗證"]
+    P4 --> P5["階段五<br/>平台銜接<br/>Kind／OpenShift 內循環"]
 ```
 
-#### 什麼是 Podman Desktop？
+**v2.0 的主要變化**
 
-**Podman Desktop** 是 Podman 的圖形化使用者介面，提供直觀的容器管理體驗。
-
-##### 主要功能：
-- 📱 **視覺化管理**：圖形化操作介面
-- 🔧 **整合開發**：與開發工具無縫整合
-- 📊 **監控面板**：即時監控容器狀態
-- 🚀 **一鍵部署**：簡化部署流程
-
-#### 實務案例：開發環境隔離
-
-假設您正在開發一個 Java 專案，需要：
-- Java 17 運行環境
-- PostgreSQL 14 資料庫
-- Redis 快取服務
-
-使用 Podman Desktop 可以輕鬆建立隔離的開發環境：
-
-```bash
-# 建立開發環境 Pod
-podman pod create --name dev-env --publish 8080:8080 --publish 5432:5432
-
-# 啟動 PostgreSQL 容器
-podman run -d --pod dev-env \
-  --name postgres \
-  -e POSTGRES_PASSWORD=password \
-  postgres:14
-
-# 啟動 Redis 容器
-podman run -d --pod dev-env \
-  --name redis \
-  redis:7-alpine
-```
-
-#### ⚠️ 注意事項
-- Podman Desktop 需要管理員權限進行初始設定
-- Windows 環境需要 WSL2 支援
-- 建議定期更新以獲得最新功能與安全修復
+- 🆕 新增 Podman machine 管理、Kubernetes 與 OpenShift 整合、擴充功能生態、Podman AI Lab、企業導入與集中管理、安全性與合規、疑難排解等章節。
+- ⚠️ 更正安裝流程（WSL 改用 `wsl --install --no-distribution`、Windows Podman 安裝檔改為 MSI、macOS 以 `.dmg` 為主）、介面描述（依 1.29 實際畫面改寫）、Docker 相容做法（改用 Settings > Docker Compatibility 與 `DOCKER_HOST`）。
+- ⚠️ 移除不存在的 VS Code 擴充功能（`redhat.vscode-podman`）、已停止發布的 `openjdk:*` 映像檔，以及已失效的 Katacoda 練習連結。
+- 🧹 移除 v1.0 重複與損壞的段落，目錄改為自動產生，並涵蓋到第三層標題。
 
 ---
 
-### 1.2 與 Docker 的比較
+## 1. Podman Desktop 概觀與架構
 
-#### 🎯 學習目標
-- 了解 Podman 與 Docker 的差異
-- 選擇適合的容器化解決方案
-- 理解遷移考量因素
+### 1.1 什麼是 Podman Desktop
 
-#### 架構比較
+Podman Desktop 是一套開源、跨平台（Windows、macOS、Linux）的桌面應用程式，用圖形介面管理容器、Pod、映像檔與 Kubernetes 資源。它本身**不是容器引擎**，而是透過 Podman（也可以同時接上 Docker 引擎）的 API 操作工作負載。在 Windows 與 macOS 上，容器實際跑在由 `podman machine` 建立的 Linux 虛擬機裡。
+
+官方把它定位成「把容器與 Kubernetes 的能力帶到你電腦上」的開發者工具，重點功能如下：
+
+| 功能面向 | 說明 |
+| --- | --- |
+| 容器與 Pod 管理 | 建立、啟動、停止、刪除容器與 Pod；檢視日誌、進入終端機、檢視 Kubernetes YAML |
+| 映像檔管理 | 建置（Containerfile／Dockerfile）、拉取、推送、儲存與匯入映像檔；檢視映像檔歷史與分層 |
+| Volume、Network、Secret | 1.23 起 Network 有獨立頁面；1.25 起可以用 UI 建立 macvlan、ipvlan、IPv6 網路；1.29 起新增 Secrets 頁 |
+| Podman machine | 建立、設定、啟停 VM；切換 rootless／rootful；支援 WSL 2、Hyper-V、Apple Hypervisor、libkrun／krunkit |
+| Docker 相容 | 讓 Docker CLI、Compose 與第三方工具（Testcontainers 等）直接使用 Podman 引擎 |
+| Kubernetes | 建立 Kind、Minikube、MicroShift 叢集；管理 kubeconfig context；套用 YAML、Port forwarding、把 Pod 部署到叢集 |
+| 擴充功能 | 從目錄安裝 AI Lab、bootc、OpenShift Local、Quadlet、Grype 等擴充功能，也可以自行開發 |
+| 企業功能 | VPN／proxy 支援、registry 與 mirror 管理、離線（airgap）安裝、Managed configuration 集中鎖定設定 |
+
+> 📌 **專有名詞**：本手冊中的「引擎」指 Podman（或 Docker）容器引擎；「machine」指 `podman machine` 建立的 Linux VM；「provider」指 Podman Desktop 用來接入某種資源的擴充點，例如 Podman、Kind、Minikube、OpenShift Local。
+
+### 1.2 架構與元件
+
+#### 1.2.1 整體架構
 
 ```mermaid
-graph TB
-    subgraph "Docker 架構"
-        A1[Docker CLI] --> B1[Docker Daemon]
-        B1 --> C1[containerd]
-        C1 --> D1[runc]
-        D1 --> E1[容器]
+flowchart TB
+    subgraph Host["開發者電腦（Windows／macOS／Linux）"]
+        UI["Podman Desktop<br/>Electron＋Svelte UI"]
+        EXT["擴充功能<br/>Podman、Docker、Kind、Compose、AI Lab…"]
+        CLI["CLI 工具<br/>podman、kubectl、kind、compose"]
+        UI --> EXT
     end
-    
-    subgraph "Podman 架構"
-        A2[Podman CLI] --> B2[libpod]
-        B2 --> C2[conmon]
-        C2 --> D2[runc]
-        D2 --> E2[容器]
+    subgraph VM["podman machine（Win／mac 才有）"]
+        API["Podman REST API<br/>socket／named pipe"]
+        ENG["Podman 引擎<br/>crun、Netavark、containers-storage"]
+        CT["容器與 Pod"]
+        API --> ENG --> CT
     end
-    
-    style B1 fill:#ffebee
-    style B2 fill:#e8f5e8
+    K8S["Kubernetes 叢集<br/>Kind、Minikube、OpenShift"]
+    REG["Registry<br/>Quay、Docker Hub、企業 Harbor"]
+    EXT -- socket --> API
+    CLI -- socket --> API
+    EXT -- kubeconfig --> K8S
+    ENG -- pull／push --> REG
 ```
 
-#### 詳細對比表
+- **UI 層**：以 Electron 打包，前端使用 Svelte。應用程式本身不含容器執行環境，所有動作都透過 provider 呼叫引擎 API。
+- **擴充功能層**：Podman、Docker、Compose、Kind、Kubectl CLI、Registries 等都是**內建擴充功能**；AI Lab、bootc、OpenShift Local 等則從目錄安裝。
+- **引擎層**：Linux 上直接連本機的 Podman socket；Windows 與 macOS 則連到 `podman machine` 暴露出來的 socket 或 named pipe。
+- **設定層**：使用者設定存在 `settings.json`；IT 可以用 `default-settings.json` 與 `locked.json` 覆寫（見[第 10 章](#10-企業導入與集中管理)）。
 
-| 特性 | Docker | Podman | 說明 |
-|------|--------|--------|------|
-| **架構** | 守護程序架構 | 無守護程序 | Podman 直接與容器運行時通信 |
-| **安全性** | 需要 root 權限 | 支援無根執行 | Podman 可在一般用戶權限下運行 |
-| **指令相容性** | Docker CLI | 相容 Docker CLI | 大部分 Docker 指令可直接使用 |
-| **Pod 支援** | ❌ | ✅ | Podman 原生支援 Kubernetes Pod 概念 |
-| **系統整合** | systemd 整合有限 | 原生 systemd 支援 | 更好的 Linux 系統整合 |
-| **企業支援** | Docker Inc. | Red Hat | 不同的商業支援模式 |
+#### 1.2.2 平台與 machine provider
 
-#### 指令對照範例
+| 平台 | machine provider | 預設 | 備註 |
+| --- | --- | --- | --- |
+| Windows x64／ARM64 | WSL 2、Hyper-V | WSL 2 | Hyper-V 需要專業版或企業版，並以系統管理員身分執行 Podman Desktop 才看得到 Hyper-V machine |
+| macOS Apple Silicon | libkrun（GPU enabled）、Apple Hypervisor | libkrun（1.21 起） | Podman 6 CLI 預設也改用 krunkit，與 Desktop 一致 |
+| macOS Intel | Apple Hypervisor | Apple Hypervisor | 不能用 libkrun；內建引擎固定在 Podman 5.8.x |
+| Linux | 不需要 machine | — | 直接使用本機 Podman；也可以建立 machine 做隔離測試 |
 
-```bash
-# Docker 指令
-docker run -d --name web nginx
-docker ps
-docker stop web
-docker rm web
+### 1.3 版本節奏與版本對照
 
-# Podman 指令（完全相同）
-podman run -d --name web nginx
-podman ps
-podman stop web
-podman rm web
-```
+Podman Desktop 大約**每月發布一個次要版本**，先出 prerelease，再發布穩定版與修補版。2026 年的版本歷程如下（依 GitHub Releases）：
 
-#### 選擇建議
+| 版本 | 穩定版日期 | 重點 |
+| --- | --- | --- |
+| 1.25.1 | 2026-01-22 | 上一頁／下一頁導覽；進階網路建立（macvlan、ipvlan、IPv6）；新版 Kubernetes 功能預設啟用；Kube play 可以取消；Windows Podman 安裝檔改為 MSI |
+| 1.26.1／1.26.2 | 2026-03 | 同步主機憑證到 machine；擴充功能須經使用者授權才能取得登入資訊；依環境篩選；可以停用自訂擴充功能與隱藏擴充功能目錄 |
+| 1.27.1／1.27.2 | 2026-04／05 | 高對比主題與強調色；導覽歷史下拉；擴充功能 `package.json` JSON Schema |
+| 1.28.2／1.28.3 | 2026-06／07 | Dashboard 系統總覽（CPU、記憶體、磁碟）；容器埠號可點擊；重新整理後回到原頁面；Podman 5.8.3 |
+| 1.29.0～1.29.3 | 2026-07-27～09-01 | **支援 Podman 6**；Secrets 頁；自動加上 `--import-native-ca`；Podman 5 → 6 升級引導；可以關閉應用程式自動更新 |
+| 1.30.0／1.30.1 | 2026-09（prerelease） | 內建引擎升為 Podman 6.1.2／5.8.7；以內部重構（Svelte 5 移轉）為主 |
 
-**選擇 Podman 的情境：**
-- 🔒 重視安全性（無根容器）
-- 🏢 企業環境（Red Hat 支援）
-- 🐧 Linux 原生整合需求
-- ☸️ Kubernetes 部署準備
+**內建 Podman 引擎對照**（取自原始碼 `extensions/podman/packages/extension/src/podman.json`）：
 
-**選擇 Docker 的情境：**
-- 🌐 社群生態系豐富
-- 📚 學習資源充足
-- 🔄 現有 Docker 工作流程
-- 👥 團隊已熟悉 Docker
+| Podman Desktop | Windows x64／ARM64 | macOS Apple Silicon | macOS Intel |
+| --- | --- | --- | --- |
+| 1.29.3 | Podman 6.0.2（MSI） | Podman 6.0.2 | Podman 5.8.5 |
+| 1.30.1（預覽） | Podman 6.1.2 | Podman 6.1.2 | Podman 5.8.7 |
 
-#### 🔄 遷移建議
+> 💡 **企業建議**：以「次要版本」為單位制定基準（例如全公司統一 1.29.x），修補版可以自動更新；次要版本升級先在試點群組跑兩週。Linux 發行版與 RHEL 隨附的 Podman 版本不一定和 Desktop 內建的一致，請以 `podman version` 為準。
 
-從 Docker 遷移到 Podman 的步驟：
+### 1.4 與 Docker Desktop 的比較
 
-1. **評估現況**
-   ```bash
-   # 列出現有 Docker 容器
-   docker ps -a
-   
-   # 檢查映像檔
-   docker images
-   ```
+| 比較項目 | Podman Desktop | Docker Desktop |
+| --- | --- | --- |
+| 授權 | Apache-2.0，企業使用免費 | 員工 250 人以上**或**年營收 1,000 萬美元以上的企業，必須購買付費訂閱 |
+| 引擎架構 | Podman：daemonless、預設 rootless | dockerd 常駐 daemon |
+| Pod 與 Kubernetes YAML | 原生支援 Pod，可以產生與套用 Kubernetes YAML | 沒有 Pod 概念；內建單節點 Kubernetes |
+| 多引擎 | 可以同時顯示 Podman 與 Docker 引擎的資源 | 只管理自己的引擎 |
+| 本機叢集 | Kind、Minikube、MicroShift（MINC）、Lima、OpenShift Local | 內建 Kubernetes |
+| 企業集中設定 | Managed configuration（JSON 檔＋鎖定清單） | Settings Management（需要 Business 訂閱） |
+| 離線安裝 | 提供 airgap 安裝檔 | 需要另外準備 |
+| 擴充功能 | 開放目錄，以 OCI 映像檔發布 | Docker Extensions Marketplace |
+| 商業支援 | Red Hat build of Podman Desktop | Docker 付費方案 |
 
-2. **建立 alias（過渡期）**
-   ```bash
-   # 在 ~/.bashrc 或 ~/.zshrc 中加入
-   alias docker=podman
-   ```
+**選擇建議**
 
-3. **逐步遷移**
-   - 先在開發環境測試
-   - 驗證 Dockerfile 相容性
-   - 更新 CI/CD 腳本
+- **選 Podman Desktop**：需要避免 Docker Desktop 授權費用、要求 rootless 與最小權限、使用 RHEL／OpenShift 生態系、需要離線安裝或集中鎖定設定。
+- **暫時保留 Docker Desktop**：團隊深度依賴 Docker 專屬擴充功能、Docker Build Cloud、Docker Scout 等付費服務，或第三方工具明確不支援 Podman。
+- **混合期**：Podman Desktop 可以同時顯示 Docker 引擎的容器，適合作為遷移過渡。
 
-#### ⚠️ 注意事項
-- Docker Compose 在 Podman 4.0+ 版本才完全支援
-- 某些 Docker 特定功能可能需要調整
-- 建議在非關鍵環境先行測試
+### 1.5 社群版與 Red Hat build of Podman Desktop
+
+| 項目 | 社群版（podman-desktop.io） | Red Hat build of Podman Desktop |
+| --- | --- | --- |
+| 取得方式 | 官網、WinGet、Flathub 等免費下載 | Red Hat Developer 下載；另有付費支援方案 |
+| 支援 | 社群（GitHub、Discord） | SLA、弱點修補、可以直接聯繫產品工程師 |
+| 版本 | 每月發布 | 獨立版號（2026-02-17 GA，目前文件版本為 1.2） |
+| 文件 | podman-desktop.io/docs | docs.redhat.com（含 air-gapped 安裝、標準政策設定、Red Hat 內容存取） |
+| 適合對象 | 一般開發團隊、試點 | 受法規或內控要求「軟體必須有廠商支援」的單位，例如金融業 |
+
+> 📌 Red Hat build 的底層仍是同一套開源程式碼，Managed configuration、擴充功能機制與本手冊介紹的操作方式相同。
+
+### 1.6 專案治理與社群
+
+- **治理**：Podman Desktop 於 2024 年 11 月成為 **CNCF Sandbox 專案**，採中立的開放治理。Podman 引擎也在 2025 年成為 CNCF Sandbox 專案，原始碼於 2026 年 8 月移到 GitHub 組織 `podman-container-tools`。
+- **規模**：官網公布下載量已突破 500 萬次，GitHub 約 8,000 顆星。
+- **社群管道**：
+  - Discord 與 GitHub Discussions：日常問答。
+  - 社群會議：**每月第 4 個星期四，美東時間 9:00–10:00**（台灣時間當晚 21:00–22:00 或 22:00–23:00，依夏令時間而定）；議程公布在 GitHub，錄影放在 YouTube 播放清單。
+  - 社群媒體：Bluesky、X、LinkedIn、Mastodon（@podmandesktop）。
+- **參與方式**：程式碼、文件、錯誤回報、功能建議、教學與簡報分享都歡迎；GitHub Projects 上可以看到目前的 sprint。
+
+### 1.7 💡 本章實務建議
+
+1. **把 Podman Desktop 當成「管理面」，Podman 當成「執行面」**：排錯時先確認問題出在 UI、machine 還是引擎。
+2. **先決定平台基準**：Windows 11＋WSL 2、Apple Silicon＋libkrun 是官方主推組合，其他組合要另外驗證。
+3. **授權盤點**：Docker Desktop 的付費門檻是「員工 250 人以上或營收 1,000 萬美元以上」，金融業幾乎都在範圍內，可以把授權費用列入替換效益評估。
+4. **受監理單位評估 Red Hat build**：有「開源軟體須有廠商支援」內控規定時，優先評估 Red Hat build。
+5. **指定窗口追蹤社群會議與發布說明**：每月的版本變化不小（例如 1.29 的 Podman 6 升級），要有專人評估影響。
 
 ---
 
-### 1.3 安裝 Podman Desktop
+## 2. 安裝與初始設定
 
-#### 🎯 學習目標
-- 完成 Windows 10/11 環境的 Podman Desktop 安裝
-- 配置必要的系統設定
-- 驗證安裝是否成功
+### 2.1 系統需求與平台支援
 
-#### 系統需求
+| 項目 | Windows | macOS | Linux |
+| --- | --- | --- | --- |
+| 作業系統 | Windows 11（x64 或 ARM64）；Windows 10 19043 以上可以安裝 Desktop，但不在 Podman 6 支援範圍內 | Apple Silicon（M1 以上）建議；Intel Mac 只能使用 Podman 5.8.x | 支援 Flatpak 的發行版；RHEL 10 可以用 `dnf` 安裝 |
+| 記憶體 | Podman machine 至少 6 GB（官方需求），建議主機 16 GB 以上 | 同左 | 不需要 machine 時沒有額外需求 |
+| 虛擬化 | BIOS 啟用 VT-x／AMD-V；在 VM 裡執行 Windows 時要開啟巢狀虛擬化 | 內建 Hypervisor.framework | — |
+| 權限 | 啟用 WSL 或 Hyper-V 功能、建立 Hyper-V machine 需要系統管理員權限 | 安裝 Podman 時需要輸入系統密碼 | 安裝 Flatpak 與 Podman 需要 sudo |
+| 其他 | WSL 2（`wsl --update`）或 Hyper-V | — | Podman 穩定版（由發行版套件庫提供） |
 
-**最低需求：**
-- Windows 10 Build 19041 以上 或 Windows 11
-- 8GB RAM（建議 16GB）
-- 50GB 可用磁碟空間
-- 啟用 WSL 2
-- 啟用虛擬化技術
+> ⚠️ **v2.0 更正**：v1.0 寫「Windows 10 Build 19041 以上、8 GB RAM、50 GB 磁碟」。官方文件目前列的是「Windows 10 Build 19043 以上或 Windows 11、machine 需要 6 GB RAM」；但 Podman 6.0 起已經不再支援 Windows 10，而 Podman Desktop 1.29 在 Windows 上內建的正是 Podman 6。**企業基準請以 Windows 11 為準**，Windows 10 設備要列入汰換或維持在 Podman 5.8.x（見[附錄 E.1](#e1-待確認事項)）。
 
-**檢查系統需求：**
+**檢查 Windows 環境（PowerShell）**
 
 ```powershell
-# 檢查 Windows 版本
-Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion
+# Windows 版本與組建
+Get-ComputerInfo | Select-Object OsName, OsVersion, OsBuildNumber
 
-# 檢查虛擬化支援
+# 韌體虛擬化是否啟用
 Get-ComputerInfo | Select-Object HyperVRequirementVirtualizationFirmwareEnabled
 
-# 檢查記憶體
-Get-ComputerInfo | Select-Object TotalPhysicalMemory
+# 實體記憶體（GB）
+[math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 1)
+
+# WSL 狀態
+wsl --status
 ```
 
-#### 安裝步驟
+### 2.2 Windows 安裝
 
-##### 步驟 1：啟用 WSL 2
+#### 2.2.1 安裝 Podman Desktop
+
+| 方式 | 指令或做法 | 適用情境 |
+| --- | --- | --- |
+| 安裝程式 | 從官網下載 `podman-desktop-<版本>-setup-x64.exe`（ARM64 為 `-setup-arm64.exe`） | 個人安裝 |
+| WinGet | `winget install RedHat.Podman-Desktop` | 開發者自助安裝、腳本 |
+| 靜默安裝 | `podman-desktop-<版本>-setup-x64.exe /S` | Intune、SCCM 等派送工具 |
+| Chocolatey | `choco install podman-desktop` | 已使用 Chocolatey 的環境 |
+| Scoop | `scoop bucket add extras`，再 `scoop install podman-desktop` | 使用者層級安裝 |
+
+安裝程式提供兩種**安裝範圍**：
+
+- **Anyone who uses this computer（所有使用者）**：需要系統管理員權限，適合由 IT 派送的共用設備。
+- **Only for me（僅目前使用者）**：不需要系統管理員權限，適合開發者自助安裝。
 
 ```powershell
-# 以管理員身份執行 PowerShell
+# WinGet 安裝與升級
+winget install RedHat.Podman-Desktop
+winget upgrade RedHat.Podman-Desktop
 
-# 啟用 WSL 功能
-dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
-
-# 啟用虛擬機器平台
-dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
-
-# 重新啟動電腦
-Restart-Computer
+# 查詢已安裝版本
+winget list --id RedHat.Podman-Desktop
 ```
 
-重啟後繼續：
+#### 2.2.2 選擇 machine provider：WSL 2 或 Hyper-V
+
+| 比較 | WSL 2（預設） | Hyper-V |
+| --- | --- | --- |
+| Windows 版本 | 所有版本 | 專業版、企業版 |
+| 效能 | WSL 2 原生虛擬化，檔案共享方便 | 隔離較完整 |
+| 建立 machine | 一般使用者即可（啟用功能時需要系統管理員） | 需要系統管理員 |
+| GPU（NVIDIA） | 支援 | 不支援 |
+| 在 Desktop 中看到 machine | 一般權限即可 | 要以系統管理員身分執行 Podman Desktop |
+| 適合情境 | 一般開發者（建議） | 資安要求與 WSL 隔離、或公司政策禁用 WSL |
+
+**啟用 WSL 2（不安裝預設的 Ubuntu）**
 
 ```powershell
-# 設定 WSL 2 為預設版本
-wsl --set-default-version 2
-
-# 安裝 Ubuntu（可選，但建議）
-wsl --install -d Ubuntu-22.04
+# 以系統管理員身分執行
+wsl --update
+wsl --install --no-distribution
+# 重新開機後確認
+wsl --status
 ```
 
-##### 步驟 2：下載並安裝 Podman Desktop
+> ⚠️ **v2.0 更正**：v1.0 使用 `dism.exe` 分別啟用 WSL 與 VirtualMachinePlatform，再 `wsl --install -d Ubuntu-22.04`。Podman machine 會自己建立 WSL 發行版，**不需要**另外安裝 Ubuntu；`wsl --install --no-distribution` 會一次啟用所需功能。Windows 10 LTSC 例外，見[13.3](#133-windows-常見問題)。
 
-1. **官方下載**
-   - 前往：https://podman-desktop.io/downloads
-   - 選擇 Windows 版本下載
+**啟用 Hyper-V**
 
-2. **使用 Winget 安裝（推薦）**
-   ```powershell
-   # 使用 Windows Package Manager
-   winget install RedHat.Podman-Desktop
-   ```
+```powershell
+# PowerShell（系統管理員）
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+# 重新開機後確認
+Get-Service vmcompute
+```
 
-3. **使用 Chocolatey 安裝**
-   ```powershell
-   # 如果已安裝 Chocolatey
-   choco install podman-desktop
-   ```
+#### 2.2.3 安裝 Podman 引擎
 
-##### 步驟 3：初始設定
+Podman Desktop 首次啟動時會出現 **Get started with Podman Desktop** 畫面，按 **Start Onboarding** 後：
 
-1. **啟動 Podman Desktop**
-   - 從開始選單啟動
-   - 首次啟動會進行初始化設定
+1. 按 **Next** → **Yes**，進入 **Podman Setup**，預設 provider 為 WSLv2，可以改選 Windows Hyper-V。
+2. 按 **Install** 安裝 Podman。1.25 起 Windows 版 Podman 改用 **MSI 安裝檔**，不再需要系統管理員權限。
+3. 按 **Next** → **Create** 建立 Podman machine。
+4. 依畫面安裝 `kubectl` 與 `compose` CLI，最後回到 Dashboard。
 
-2. **設定 Podman 引擎**
-   ```powershell
-   # 檢查 Podman 是否正確安裝
-   podman --version
-   
-   # 初始化 Podman 機器（Windows 必要）
-   podman machine init
-   
-   # 啟動 Podman 機器
+也可以略過 Onboarding，之後再從 Dashboard 通知的 **Set up** 按鈕，或 **Settings > Resources** 的 Podman 卡片上的 **Setup Podman** 完成。1.29 起略過時會跳出確認視窗，提醒容器環境還沒設定完成。
+
+### 2.3 macOS 安裝
+
+| 方式 | 說明 | 建議 |
+| --- | --- | --- |
+| `.dmg`（官方建議） | 下載 universal 版（或 arm64、x64 版），拖曳到 Applications | ✅ 建議。會一起處理 Podman 與 CLI，避免路徑衝突 |
+| Homebrew | `brew install --cask podman-desktop` | ⚠️ 官方**不建議**，不保證穩定 |
+| airgap `.dmg` | `podman-desktop-airgap-<版本>-arm64.dmg` 等 | 受限網路環境，見[2.7](#27-受限環境與離線安裝) |
+
+> ⚠️ **注意**：如果已經用 Homebrew 裝了 Podman，請二選一：先 `brew uninstall podman` 再用 `.dmg`；或全部都用 Homebrew。兩種來源混用會造成 Podman Desktop 找錯執行檔。
+
+**安裝流程**：開啟 Podman Desktop → **Start Onboarding** → 安裝 Podman（輸入系統密碼，按 **Install Software**）→ 建立 Podman machine → 安裝 `kubectl` 與 `compose`。完成後到 **Settings > Resources** 確認 machine 為 Running。
+
+**Intel Mac 的限制**：Podman 6 只支援 Apple Silicon。Podman Desktop 1.29 在 Intel Mac 上仍然可以使用全部功能，但內建引擎固定在 Podman 5.8.x，介面上也會提示目前使用的引擎版本。
+
+### 2.4 Linux 安裝
+
+**方式一：Flathub（官方建議）**
+
+```bash
+# 啟用 Flathub（使用者層級）
+flatpak remote-add --if-not-exists --user flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# 安裝與啟動
+flatpak install --user flathub io.podman_desktop.PodmanDesktop
+flatpak run io.podman_desktop.PodmanDesktop
+
+# 更新
+flatpak update --user io.podman_desktop.PodmanDesktop
+```
+
+**方式二：RHEL 10（訂閱套件庫）**
+
+```bash
+sudo subscription-manager repos --enable rhel-10-for-$(arch)-extensions-rpms
+sudo dnf install podman-desktop
+```
+
+RHEL 訂閱已包含 Podman，Podman Desktop 會自動偵測並使用它。
+
+**方式三：Flatpak bundle 或 tar.gz**：從 GitHub Releases 下載 `podman-desktop-<版本>.flatpak` 或 `podman-desktop-<版本>-x64.tar.gz`，適合無法連線 Flathub 的環境。
+
+> 📌 Linux 上 Podman Desktop **不會**幫你安裝 Podman，請先用發行版的套件管理員安裝 Podman。rootless 設定（`/etc/subuid`、`/etc/subgid`）請參考《Podman 使用教學手冊》第 2 章。
+
+### 2.5 首次啟動與 Onboarding
+
+```mermaid
+flowchart TD
+    A[啟動 Podman Desktop] --> B{已偵測到 Podman？}
+    B -- 否 --> C[Start Onboarding<br/>安裝 Podman]
+    B -- 是 --> D{需要 machine？<br/>Windows／macOS}
+    C --> D
+    D -- 是 --> E[建立 Podman machine]
+    D -- 否，Linux --> F[安裝 kubectl／compose CLI]
+    E --> F
+    F --> G[Dashboard<br/>確認 Podman is running]
+    G --> H[選用：遙測設定<br/>Docker 相容、Registry 登入]
+```
+
+完成 Onboarding 後建議立即確認：
+
+```bash
+podman version            # 用戶端與伺服器端版本
+podman machine list       # machine 狀態（Windows／macOS）
+podman info --format '{{.Host.RemoteSocket.Path}}'
+podman run --rm quay.io/podman/hello
+```
+
+### 2.6 從 Podman 5 升級到 Podman 6
+
+Podman Desktop 1.29 偵測到引擎要從 5.x 升到 6.x 時，會啟動自動化流程，**提示刪除所有資料**（容器、Volume、網路與 Podman machine）後重建。
+
+| 步驟 | 動作 | 說明 |
+| --- | --- | --- |
+| 1 | 盤點要保留的資料 | 需要保留的 Volume 先匯出（`podman volume export`），映像檔推到 registry 或 `podman save` |
+| 2 | 停止所有 machine | `podman machine stop` |
+| 3 | Hyper-V 使用者 | 先執行 `podman machine reset`，自動清理可能無法完整重設 Hyper-V 狀態 |
+| 4 | 升級 | 在 Desktop 依提示升級，或重新執行 Onboarding |
+| 5 | 重建 machine | 1.29 會自動加上 `--import-native-ca`；用腳本建立時要自己加 |
+| 6 | 還原資料 | 匯入 Volume、重新拉取映像檔 |
+
+> ⚠️ **注意**：官方建議 5 → 6 時**從頭重建環境**。沿用 5.x 的設定可能導致 Podman 6 無法拉取映像檔。
+
+### 2.7 受限環境與離線安裝
+
+受限網路環境常見三個問題與對策：
+
+| 問題 | 對策 |
+| --- | --- |
+| 安裝時要從網路下載元件 | 使用 **airgap 安裝檔**（`podman-desktop-airgap-<版本>-setup-x64.exe`、`podman-desktop-airgap-<版本>-arm64.dmg` 等），內含 Podman Desktop 與 Podman，但**不含** Compose、Kind 等工具 |
+| machine 的網段與 VPN 衝突，主機連不到 machine 內的服務 | 建立 machine 時啟用 **User mode networking（traffic relayed by a user process）** |
+| 防火牆只允許經 proxy 出站 | 在 **Settings > Proxy** 設定 proxy，並匯入 proxy 的 CA 憑證 |
+
+**Windows 離線安裝步驟**
+
+1. 在有網路的電腦下載 airgap 安裝檔，確認雜湊值後複製到目標電腦。
+2. 以系統管理員執行 `wsl --install --no-distribution` 並重新開機。
+3. 執行安裝檔，開啟 Dashboard 按 **Set up** 建立 machine。
+4. 使用 VPN 時，在 **Create Podman machine** 畫面勾選 User mode networking。
+
+**Linux 離線安裝**：使用 `podman-desktop-<版本>-x64.tar.gz`，解壓後執行 `podman-desktop`。這個壓縮檔**不含 Podman CLI**，Podman 要另外從內部套件庫安裝。
+
+> 💡 Compose、kubectl、Kind 等 CLI 在離線環境要由 IT 預先放到 `PATH`，或放在內部檔案伺服器讓開發者自行下載。
+
+### 2.8 更新與解除安裝
+
+**更新**：Podman Desktop 啟動時檢查更新（`preferences.update.reminder`）。1.29 起可以用 `preferences.update.appUpdate` 完全關閉應用程式更新，企業可以鎖定這個設定，改由派送工具統一升級。
+
+**解除安裝**：
+
+| 平台 | 解除 Podman Desktop | 清除設定 |
+| --- | --- | --- |
+| Windows | 控制台或 `winget uninstall -e --id RedHat.Podman-Desktop`；Chocolatey／Scoop 用各自的 uninstall | `~/.local/share/containers/podman-desktop/`、`~/AppData/Roaming/Podman Desktop` |
+| macOS | `brew uninstall podman-desktop` 或刪除 App | `~/.local/share/containers/podman-desktop` |
+| Linux | `flatpak uninstall io.podman_desktop.PodmanDesktop` | `~/.local/share/containers/podman-desktop` |
+
+要一併移除 Podman 與所有 machine 時，先執行 `podman machine reset -f`，再依平台移除 Podman（macOS `.pkg` 安裝的 Podman 位於 `/opt/podman`）。
+
+### 2.9 💡 本章實務建議
+
+1. **標準化安裝來源**：Windows 用 WinGet 或 IT 派送的 MSI／EXE，macOS 用 `.dmg`，Linux 用 Flathub 或 RHEL 套件庫；不要混用 Homebrew 與官方安裝檔。
+2. **Windows 預設 WSL 2**：只有公司政策禁用 WSL 時才改用 Hyper-V。
+3. **離線環境一律使用 airgap 安裝檔**，並把 Compose、kubectl 等 CLI 納入內部軟體庫。
+4. **升級到 Podman 6 前先備份資料**，並安排在非上線期間進行；Hyper-V 使用者先 `podman machine reset`。
+5. **關閉自動更新、改由 IT 控管版本**，可以避免開發者各自升級造成環境不一致。
+
+---
+
+## 3. 介面導覽
+
+> ⚠️ **v2.0 更正**：v1.0 描述的「All Containers／Running／Stopped 子選單」「Pull Images／Local Images 選單」「在 Preferences 調整 CPU 與記憶體」等畫面並不存在。本章依 Podman Desktop 1.29 的實際介面改寫。machine 的 CPU、記憶體、磁碟是在 **Settings > Resources** 的 Podman 卡片上調整。
+
+### 3.1 版面配置
+
+```mermaid
+flowchart LR
+    subgraph Window["Podman Desktop 視窗"]
+        T["標題列<br/>搜尋列、上一頁／下一頁"]
+        N["左側導覽列<br/>Dashboard、Containers、Pods、Images…"]
+        M["主工作區<br/>清單、詳細頁、表單"]
+        S["狀態列<br/>引擎狀態、Kubernetes context、Tasks、Troubleshooting"]
+    end
+    T --- M
+    N --- M
+    M --- S
+```
+
+| 區域 | 功能 |
+| --- | --- |
+| 標題列 | 全域搜尋（容器、映像檔、文件）；上一頁／下一頁（長按可以看歷史清單） |
+| 左側導覽列 | 各資源頁與擴充功能頁面；1.29 起可以拖曳邊緣調整寬度（48～240 px），寬度窄時只顯示圖示 |
+| 主工作區 | 資源清單、詳細資訊分頁（Summary、Logs、Inspect、Kube、Terminal 等） |
+| 狀態列 | 引擎與 provider 狀態、目前 Kubernetes context、Task Manager、Troubleshooting 入口 |
+
+### 3.2 導覽列與各資源頁
+
+| 頁面 | 主要功能 | 對應 CLI |
+| --- | --- | --- |
+| **Dashboard** | 引擎狀態、系統總覽（CPU、記憶體、磁碟，1.28 起）、Explore Features、Learning Center | `podman info`、`podman system df` |
+| **Containers** | 建立、啟停、批次啟動／刪除、Logs、Terminal、Inspect、Kube YAML、Deploy to Kubernetes、Export | `podman ps/run/logs/exec` |
+| **Pods** | 由容器或 Kubernetes YAML 建立 Pod；檢視成員容器狀態；Deploy to Kubernetes | `podman pod`、`podman kube play` |
+| **Images** | Pull（可取消）、Build、Push、Save、Import、編輯名稱與標籤、檢視歷史；推送到 Kind／Minikube | `podman pull/build/push/save/load` |
+| **Networks** | 1.23 起的獨立頁面；1.25 起可以建立 bridge、macvlan、ipvlan、IPv6、internal 網路 | `podman network` |
+| **Volumes** | 建立、刪除、檢視使用中的容器；清除未使用的 Volume | `podman volume` |
+| **Secrets** | 1.29 起新增；建立、檢視、刪除 secret（僅 Podman 引擎） | `podman secret` |
+| **Kubernetes** | Nodes、Deployments、Services、Ingresses、Routes、ConfigMaps、Secrets、PVC、Jobs、CronJobs、Port Forwarding 等 | `kubectl` |
+| **Extensions** | Installed、Catalog、Local Extensions 三個分頁 | — |
+| **Settings** | Resources、Proxy、Registries、Authentication、CLI Tools、Kubernetes、Docker Compatibility、Preferences、Troubleshooting | — |
+
+> 📌 1.26 起 Containers、Pods、Images、Volumes、Networks 頁面都可以**依環境篩選**（例如只看某個 machine 或遠端連線的資源）；1.24 起清單會顯示資源所屬的連線名稱。
+
+### 3.3 常用操作與效率功能
+
+- **指令面板（Command Palette）**：按 `F1` 叫出，可以執行不在選單中的指令，例如 1.26 新增的 `Podman: Synchronize certificates to all VMs`（Podman 6 已改用 `--import-native-ca`，1.29 在偵測到 Podman 6 時會停用這個手動同步）。
+- **全域搜尋列**：從標題列快速找到容器、映像檔、Pod、Volume 或文件頁面（1.23 起強化）。
+- **上一頁／下一頁**：工具列按鈕、指令面板或快速鍵（Windows／Linux 為 `Alt + ←／→`，macOS 為 `Cmd + ←／→` 或 `Cmd + [／]`）；長按按鈕顯示歷史清單（1.27）。
+- **欄位自訂**：清單欄位與 Dashboard 區塊可以自訂顯示與排序（1.23），表格展開狀態會在切換頁面後保留（1.29）。
+- **批次操作**：多選容器後可以一次啟動或刪除，預設會跳出確認（`userConfirmation.bulk`）。
+- **容器埠號連結**：容器詳細頁中對應的埠號可以直接點擊，用瀏覽器開啟（1.28）。
+
+### 3.4 狀態列、Task Manager 與 Troubleshooting
+
+| 元件 | 用途 |
+| --- | --- |
+| 引擎狀態 | 顯示 Podman（與 Docker）是否連線；可以固定常用項目（`statusBar.pinnedItems`） |
+| Kubernetes context | 點擊可以切換目前的 context |
+| Task Manager | 顯示拉取映像檔、建立 machine、安裝擴充功能（含下載進度，1.28）等背景工作 |
+| Troubleshooting | Logs、Gather logs（打包成 zip）、Ping 引擎、Reconnect Providers、Stores、Cleanup／Purge data |
+
+1.26 起 **Settings** 也新增 Troubleshooting 入口；1.28 起 Troubleshooting 日誌帶有時間戳記，方便和引擎日誌對照。
+
+### 3.5 外觀與協助工具
+
+- **主題**：System、Light、Dark（`preferences.appearance`）；1.27 起新增**高對比**淺色與深色主題，以及強調色。
+- **縮放**：`preferences.zoomLevel`（-3～3）。
+- **編輯器與終端機字型**：`editor.integrated.fontSize`、`terminal.integrated.fontSize`、`terminal.integrated.lineHeight`。
+- **開機啟動**：`preferences.login.start`（預設開啟）、`preferences.login.minimize`。
+
+### 3.6 📝 實務練習：第一個容器
+
+1. 到 **Images**，按 **Pull**，輸入 `docker.io/library/nginx:alpine`，觀察 Task Manager 的進度（1.26 起可以取消）。
+2. 拉取完成後按映像檔右側的 ▶（Run Image），**Container name** 填 `my-web`，**Port mapping** 設定主機 `8080` 對應容器 `80`，按 **Start Container**。
+3. 在容器的 **Summary** 分頁點擊 `8080` 埠號連結，確認出現 nginx 歡迎頁。
+4. 切換到 **Logs** 分頁觀察存取紀錄，再到 **Terminal** 分頁執行 `nginx -v`。
+5. 用 **Inspect** 分頁檢視完整設定（`Ctrl+F`／`⌘+F` 可以搜尋），再用 **Kube** 分頁檢視 Podman 產生的 Kubernetes YAML。
+6. 停止並刪除容器。
+
+對應的 CLI：
+
+```bash
+podman pull docker.io/library/nginx:alpine
+podman run -d --name my-web -p 8080:80 docker.io/library/nginx:alpine
+podman logs -f my-web
+podman exec -it my-web nginx -v
+podman kube generate my-web
+podman rm -f my-web
+```
+
+### 3.7 💡 本章實務建議
+
+1. **教育訓練以 Dashboard → Containers → Images → Settings > Resources 的順序介紹**，先讓新人能自行排除「引擎沒啟動」這類問題。
+2. **熟悉 Troubleshooting 的 Gather logs**：提報問題時一律附上 zip，能大幅縮短支援時間。
+3. **善用指令面板與搜尋列**，許多進階功能（例如同步憑證）只能從指令面板執行。
+4. **每個 GUI 操作都對照一次 CLI**，方便日後寫成腳本或放進 CI。
+
+---
+
+## 4. Podman machine 管理
+
+> 🆕 **v2.0 新增**：v1.0 只在安裝步驟提到 `podman machine init`。本章說明 machine 的 provider、建立參數、rootless／rootful 切換、企業網路與 GPU 設定。
+
+### 4.1 為什麼需要 Podman machine
+
+容器需要 Linux 核心。Windows 與 macOS 沒有 Linux 核心，所以 Podman 會建立一台輕量的 Linux VM（**Podman machine**，作業系統映像檔以 Fedora 為基礎），Podman Desktop 與 `podman` CLI 都透過這台 VM 的 socket 或 named pipe 操作容器。Linux 主機則直接使用本機的 Podman，不需要 machine。
+
+```mermaid
+flowchart LR
+    subgraph Host["Windows／macOS 主機"]
+        PD[Podman Desktop]
+        CLI[podman CLI<br/>remote client]
+        DOCKER[docker CLI／Testcontainers]
+    end
+    subgraph M["Podman machine（Linux VM）"]
+        SVC[podman.socket]
+        ENG[Podman 引擎]
+    end
+    PD -- "socket／npipe" --> SVC
+    CLI -- "ssh＋socket" --> SVC
+    DOCKER -- "Docker 相容 API" --> SVC
+    SVC --> ENG
+```
+
+### 4.2 Provider 選擇
+
+| Provider | 平台 | 特點 | 建議 |
+| --- | --- | --- | --- |
+| WSL 2 | Windows | 預設；效能好；支援 NVIDIA GPU | ✅ 一般開發者 |
+| Hyper-V | Windows 專業版、企業版 | 隔離較完整；需要系統管理員；不支援 GPU | 公司禁用 WSL 時 |
+| libkrun／krunkit（GPU enabled） | macOS Apple Silicon | 預設（Desktop 1.21 起、Podman 6 CLI 也是）；支援虛擬 GPU（Vulkan） | ✅ Apple Silicon |
+| Apple Hypervisor（applehv） | macOS | Apple 原生虛擬化；Intel Mac 唯一選項 | Intel Mac、或 libkrun 有相容性問題時 |
+
+> 📌 Podman 6 起，`podman machine list` 會把**所有 provider** 的 machine 一起列出，Podman Desktop 1.29 也改用單一 API 呼叫取得清單，速度更快。provider 只決定「新建 machine 的預設值」，也可以用 `podman machine init --provider hyperv` 覆寫。
+
+### 4.3 建立與設定 machine
+
+**GUI**：**Settings > Resources** → Podman 卡片 → **Create new**，可以設定：
+
+| 欄位 | 說明 | 建議值（一般 Java／Node 開發） |
+| --- | --- | --- |
+| Name | machine 名稱 | `podman-machine-default` |
+| CPU(s) | vCPU 數量 | 4 |
+| Memory | 記憶體 | 8 GB（跑 Kind 或 AI Lab 時 12～16 GB） |
+| Disk size | 磁碟大小 | 100 GB |
+| Image Path／Image URL | 自訂開機映像檔（本機檔案、URL 或 registry 參照） | 通常留空；企業可以指向內部 registry 的映像檔 |
+| Machine with root privileges | 預設使用 rootful 連線 | Windows 上使用 Kind 時**必須**開啟 |
+| User mode networking（Windows） | 經由使用者行程轉送流量 | 使用 VPN 時開啟 |
+| Provider Type | 選擇 provider | Windows 只有系統管理員看得到；macOS Apple Silicon 預設 GPU enabled（LibKrun） |
+
+**CLI 對照**
+
+```bash
+# 建立並啟動（Podman 6：建議一律加 --import-native-ca）
+podman machine init --cpus 4 --memory 8192 --disk-size 100 --import-native-ca --now
+
+# 建立 rootful、使用 user-mode networking 的 machine（Windows＋VPN＋Kind）
+podman machine init --rootful --user-mode-networking --import-native-ca kind-vm
+
+# 調整既有 machine（需先停止）
+podman machine stop
+podman machine set --cpus 6 --memory 12288
+podman machine start
+
+# 檢視
+podman machine list
+podman machine inspect podman-machine-default
+```
+
+> ⚠️ **注意**：`--memory` 的單位是 MiB。調整 CPU、記憶體前 machine 必須處於停止狀態；磁碟只能加大、不能縮小。
+
+**Podman 6 對 machine 的重要變化**
+
+- 在 macOS 與 Windows 上修改主機的 `containers.conf`，會一致地套用到 machine 內（1.29 發布說明所稱的 VM configuration parity）。
+- 新增 `podman machine os update` 更新 VM 作業系統（WSL 不支援）。
+- 詳細內容請見《Podman 使用教學手冊》第 2 章。
+
+### 4.4 Rootless 與 Rootful 切換
+
+Podman machine 預設為 **rootless** 連線。1.22 起，macOS 與 Windows 可以直接在 Podman Desktop 切換 rootless／rootful；1.23 起 **Settings > Resources** 會標示每台 machine 目前的模式。
+
+| 情境 | 模式 |
+| --- | --- |
+| 一般開發、建置映像檔 | rootless（預設，最小權限） |
+| Windows 上跑 Kind、MicroShift（MINC） | rootful |
+| 需要綁定 1024 以下的埠號、特殊裝置 | rootful（列入例外清單） |
+
+```bash
+podman machine stop
+podman machine set --rootful          # 切換為 rootful
+podman machine set --rootful=false    # 切回 rootless
+podman machine start
+
+# 切換預設連線（每台 machine 都有 rootless 與 -root 兩個連線）
+podman system connection ls
+podman system connection default podman-machine-default-root
+```
+
+### 4.5 企業網路：VPN、Proxy 與憑證
+
+#### 4.5.1 VPN：User mode networking
+
+machine 會取得與主機不同的網段。使用 VPN 時，主機可能連不到 machine 內的服務，machine 也可能無法解析 VPN 內的 DNS（錯誤訊息如 `Temporary failure in name resolution`）。Windows 上建立 machine 時勾選 **User mode networking**，流量會經由主機的使用者行程轉送，跟著走 VPN。
+
+#### 4.5.2 Proxy
+
+1. **Settings > Proxy**：選擇 System（沿用系統設定）、Manual（手動輸入 HTTP、HTTPS、No proxy）或 Disabled，對應設定鍵為 `proxy.enabled`（0／1／2）、`proxy.http`、`proxy.https`、`proxy.no`。
+2. Podman Desktop 會把 proxy 設定帶進 machine；1.22 起支援 **Transparent proxy**，會替所有 HTTP／HTTPS 請求設定 CA 憑證，避免自簽憑證錯誤。
+3. 企業環境建議用 Managed configuration 鎖定 proxy（見[10.4](#104-常見管理用例)）。
+
+#### 4.5.3 CA 憑證（SSL 攔截環境）
+
+| 版本 | 做法 |
+| --- | --- |
+| Podman 6＋Desktop 1.29 | 建立 machine 時自動加上 `--import-native-ca`，每次開機匯入主機信任的 CA。**用 CLI 或腳本建立時要自己加上** |
+| Podman 5＋Desktop 1.26～1.28 | 指令面板（`F1`）執行 `Podman: Synchronize certificates to all VMs` |
+| 手動（任何版本） | 把 CA 放進 machine 的 `/etc/pki/ca-trust/source/anchors/`，執行 `update-ca-trust` 後重啟 machine |
+
+```bash
+# 手動加入憑證（Podman 5 或特殊情況）
+podman machine ssh podman-machine-default
+sudo cp /mnt/c/certs/corp-root-ca.crt /etc/pki/ca-trust/source/anchors/   # Windows 路徑範例
+sudo update-ca-trust
+exit
+podman machine stop && podman machine start
+```
+
+> ⚠️ **注意**：沒有匯入公司 CA 時，常見的錯誤是 `x509: certificate signed by unknown authority`，拉取映像檔或登入 registry 都會失敗。
+
+### 4.6 GPU 存取
+
+| 平台 | 條件 | 做法 |
+| --- | --- | --- |
+| Windows | NVIDIA Pascal 以上顯示卡；**只支援 WSL 2** | 主機安裝最新 NVIDIA 驅動 → 在 machine 內安裝 NVIDIA Container Toolkit 並產生 CDI 規格 |
+| macOS Apple Silicon | M1 以上；machine 使用 libkrun | 容器內使用修補過的 Mesa 驅動，以 Vulkan 存取虛擬 GPU（只支援 compute shader，不支援繪圖） |
+| Linux | NVIDIA 或 AMD 驅動 | 直接在主機安裝 Container Toolkit；Podman 6 新增 AMD GPU 支援 |
+
+**Windows＋NVIDIA 設定**
+
+```bash
+# 進入 machine（以下指令在 machine 內執行）
+podman machine ssh
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | \
+  sudo tee /etc/yum.repos.d/nvidia-container-toolkit.repo
+sudo yum install -y nvidia-container-toolkit
+sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+nvidia-ctk cdi list
+exit
+
+# 回到主機驗證
+podman run --rm --device nvidia.com/gpu=all nvidia/cuda:12.4.1-base-ubi9 nvidia-smi
+```
+
+> 📌 更新 CUDA 驅動或變更 MIG 設定後，如果容器內出現 `Failed to initialize NVML`，請在 machine 內重新執行 `nvidia-ctk cdi generate`，必要時重啟 machine。
+
+### 4.7 多個 machine、遠端 Podman 與 WSL 互通
+
+- **多個 machine**：可以分別建立「日常開發（rootless）」與「Kind 專用（rootful）」兩台，但同一時間通常只啟動一台，避免記憶體不足。
+- **遠端 Podman**：Podman Desktop 可以管理遠端 Linux 主機上的 Podman。
+
+```bash
+# 遠端主機（rootless 使用者）
+systemctl --user enable --now podman.socket
+
+# 本機：用 SSH 金鑰新增連線
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519
+podman system connection add build-server \
+  --identity ~/.ssh/id_ed25519 \
+  ssh://dev@build-server.corp.example/run/user/1000/podman/podman.sock
+podman system connection default build-server
+podman ps
+```
+
+- **從其他 WSL 發行版使用 machine**：可以讓 Ubuntu 等 WSL 發行版裡的 `podman`／`docker` CLI 連到 Podman machine 的 socket，詳細步驟見官方文件〈Accessing Podman from another WSL instance〉。
+
+### 4.8 💡 本章實務建議
+
+1. **制定 machine 標準規格**：例如 4 vCPU、8 GB、100 GB，並寫進新人上手文件；AI Lab 或 Kind 使用者另訂較高規格。
+2. **rootless 是預設**：只有 Kind、MINC 或特殊需求才開 rootful，並另建一台專用 machine。
+3. **SSL 攔截環境一定要處理 CA**：Podman 6 用 `--import-native-ca`；自動化腳本也要加上。
+4. **VPN 使用者預設開啟 User mode networking**，可以減少大部分「machine 連不到內網」的問題。
+5. **GPU 工作負載在 Windows 上一律使用 WSL 2**，並把 NVIDIA Container Toolkit 的安裝寫成腳本。
+
+---
+
+## 5. 容器、Pod 與映像檔操作
+
+本章以「GUI 操作步驟＋CLI 對照」的方式說明日常操作。CLI 的完整選項請見《Podman 使用教學手冊》第 3～6 章。
+
+### 5.1 容器
+
+#### 5.1.1 建立與啟動
+
+**GUI**：**Images** → 映像檔右側 ▶（Run Image）→ 檢視或修改設定 → **Start Container**。常用設定分頁：
+
+| 分頁 | 可以設定的項目 |
+| --- | --- |
+| Basic | 容器名稱、指令、Entrypoint、Volume 掛載、埠號對應、環境變數與 env 檔 |
+| Advanced | 使用者、重啟策略、自動移除、TTY／互動模式 |
+| Networking | 網路、主機名稱、DNS、額外 hosts |
+| Security | 唯讀根檔案系統、Capabilities 增減、Privileged、SELinux 選項 |
+| Secrets（1.29） | 以檔案或環境變數掛載 secret |
+
+**CLI 對照**
+
+```bash
+podman run -d --name api \
+  -p 8080:8080 \
+  -e SPRING_PROFILES_ACTIVE=dev \
+  --restart=on-failure:3 \
+  --read-only --tmpfs /tmp \
+  --cap-drop=ALL \
+  --label app=api --label team=payments \
+  registry.corp.example/payments/api:1.4.2
+```
+
+#### 5.1.2 監控、日誌與終端機
+
+| 需求 | GUI | CLI |
+| --- | --- | --- |
+| 即時日誌 | 容器詳細頁 **Logs**（1.20 起可以停止串流，不必關閉視窗） | `podman logs -f --tail 100 api` |
+| 進入終端機 | **Terminal** 分頁 | `podman exec -it api sh` |
+| 檢視設定 | **Inspect** 分頁（可以搜尋） | `podman inspect api` |
+| 資源使用 | Dashboard 系統總覽、容器清單欄位 | `podman stats --no-stream` |
+| Kubernetes YAML | **Kube** 分頁 | `podman kube generate api` |
+
+#### 5.1.3 生命週期與清理
+
+```mermaid
+stateDiagram-v2
+    [*] --> Created: create
+    Created --> Running: start
+    Running --> Paused: pause
+    Paused --> Running: unpause
+    Running --> Exited: stop／程序結束
+    Exited --> Running: start／restart
+    Exited --> [*]: rm
+    Created --> [*]: rm
+```
+
+- **批次操作**：多選後按 **Start**（1.20 起支援批次啟動）或 **Delete**。
+- **清理**：Containers 頁的 **Prune** 會刪除所有已停止的容器；對應 `podman container prune`。
+- **匯出**：容器選單的 **Export** 可以把容器檔案系統存成 tar；對應 `podman export`。
+
+### 5.2 Pod
+
+Pod 是 Podman 相對於 Docker 的主要特色：同一個 Pod 內的容器共用網路命名空間（彼此用 `localhost` 通訊），行為和 Kubernetes Pod 一致。
+
+| 建立方式 | GUI | CLI |
+| --- | --- | --- |
+| 由既有容器組成 | Containers 頁多選容器 → **Create Pod** → 確認 Pod 名稱與對外埠號 → **Create Pod** | `podman pod create` 後以 `--pod` 建立容器 |
+| 由 Kubernetes YAML 建立 | Containers 或 Pods 頁的 **Play Kubernetes YAML**；1.22 起可以選 **Create File from Scratch** 直接在畫面上撰寫 YAML | `podman kube play app.yaml` |
+
+> 📌 1.25 起 **Kube play 可以隨時取消**，適合處理下載時間很長或設定錯誤的部署。Podman Desktop 團隊建議 Pod 內的映像檔一律以**非 root 使用者**執行，這樣同一份 YAML 也能通過 Kubernetes restricted Pod Security Standard 與 OpenShift 的 restricted-v2 SCC。
+
+### 5.3 映像檔
+
+#### 5.3.1 拉取
+
+**Images** → **Pull** → 輸入完整名稱（例如 `registry.access.redhat.com/ubi10/ubi-minimal:latest`）。1.26 起拉取過程可以取消，完成後有快速動作按鈕（例如直接 Run）。
+
+> ⚠️ **注意**：請使用**完整名稱**（含 registry 主機）。短名稱（例如 `nginx`）會依 `registries.conf` 的搜尋清單解析，在企業環境中可能拉到非預期的來源。
+
+#### 5.3.2 建置
+
+**Images** → **Build** → 選擇 Containerfile／Dockerfile、建置情境目錄、映像檔名稱與目標平台。1.24 起可以為多階段建置**選擇 target stage**。
+
+```dockerfile
+# Containerfile：Spring Boot 多階段建置（非 root 執行）
+FROM registry.access.redhat.com/ubi9/openjdk-21:latest AS build
+WORKDIR /workspace
+COPY --chown=185 mvnw pom.xml ./
+COPY --chown=185 .mvn .mvn
+RUN ./mvnw -B -q dependency:go-offline
+COPY --chown=185 src src
+RUN ./mvnw -B -q package -DskipTests
+
+FROM registry.access.redhat.com/ubi9/openjdk-21-runtime:latest
+WORKDIR /deployments
+COPY --from=build /workspace/target/*.jar app.jar
+USER 185
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/deployments/app.jar"]
+```
+
+```bash
+# CLI 對照：建置與只建置到 build stage
+podman build -t localhost/payments-api:dev .
+podman build --target build -t localhost/payments-api:build-cache .
+
+# 多架構建置（例如同時產出 amd64 與 arm64）
+podman build --platform linux/amd64,linux/arm64 --manifest localhost/payments-api:1.0 .
+```
+
+> ⚠️ **v2.0 更正**：v1.0 的範例使用 `openjdk:17-jdk`。Docker Hub 上的 `openjdk` 官方映像檔已經停止維護。本版改用 Red Hat UBI 的 OpenJDK 映像檔（`ubi9/openjdk-21`，預設以 UID 185 執行），社群映像檔可以選擇 `eclipse-temurin`。
+
+#### 5.3.3 推送、儲存與匯入
+
+| 動作 | GUI | CLI |
+| --- | --- | --- |
+| 修改名稱與標籤 | 映像檔選單 **Edit image** | `podman tag` |
+| 推送到 registry | **Push Image**（需要先在 Settings > Registries 登入） | `podman push` |
+| 推送到本機叢集 | **Push image to Kind cluster**／Minikube | `kind load image-archive` 等 |
+| 存成檔案 | **Save**（可以多選） | `podman save -o images.tar img1 img2` |
+| 從檔案匯入 | Images 頁 **Import** | `podman load -i images.tar` |
+| 檢視歷史與分層 | **History** 分頁；安裝 Image Layers Explorer 擴充功能可以逐層檢視 | `podman history` |
+
+#### 5.3.4 映像檔最佳化
+
+| 原則 | 做法 | 效果 |
+| --- | --- | --- |
+| 多階段建置 | 建置工具只留在 build stage，執行階段用 runtime 映像檔 | 映像檔縮小，攻擊面減少 |
+| 善用層快取 | 先複製 `pom.xml`／`package.json` 並下載相依套件，再複製原始碼 | 修改程式碼時不必重新下載相依套件 |
+| 精簡基底映像檔 | `ubi-minimal`、`*-runtime`、Hummingbird、distroless | 減少套件與弱點數量 |
+| 合併與清理 | 同一個 `RUN` 內安裝與清除快取（`microdnf clean all`） | 避免快取留在映像檔層中 |
+| 排除不需要的檔案 | `.containerignore`（見[11.3](#113-映像檔安全)） | 建置情境變小，也避免機敏檔案外洩 |
+| 固定版本 | 基底映像檔使用明確標籤或 digest | 建置結果可以重現 |
+
+```dockerfile
+# ❌ 不建議：每次改程式碼都重新下載相依套件，且以 root 執行
+FROM docker.io/library/maven:3-eclipse-temurin-21
+COPY . /app
+WORKDIR /app
+RUN mvn package
+CMD ["java", "-jar", "target/app.jar"]
+
+# ✅ 建議：見 5.3.2 的多階段建置範例
+```
+
+#### 5.3.5 清理與空間管理
+
+| 動作 | GUI | CLI |
+| --- | --- | --- |
+| 檢視空間使用 | Dashboard 系統總覽 | `podman system df -v` |
+| 刪除無標籤映像檔 | Images 頁 **Prune**（可選 dangling 或全部未使用） | `podman image prune` |
+| 刪除所有未使用映像檔 | 同上 | `podman image prune -a` |
+| 刪除 24 小時前建立的未使用映像檔 | — | `podman image prune -a --filter until=24h` |
+| 全面清理 | Troubleshooting → Purge（高風險） | `podman system prune -a` |
+
+> ⚠️ **注意**：`podman system prune --volumes` 會刪除未被容器使用的 Volume，包含資料庫資料。執行前請先確認或備份。
+
+### 5.4 Registry 與 Mirror
+
+**Settings > Registries** 內建 Docker Hub、Red Hat Quay、GitHub、Google Container Registry 的設定，按 **Configure** 輸入帳號與密碼（或 OAuth token）即可登入。私有 registry 則按 **Add registry**，輸入位址與帳密。
+
+**自簽憑證的 registry**：Podman Desktop 會出現 Invalid Certificate 警告，按 **Yes** 仍可加入；接著要在 machine 內的 `registries.conf` 把它標記為 insecure，或者（建議）把 CA 匯入 machine（見[4.5.3](#453-ca-憑證ssl-攔截環境)）。
+
+```bash
+# 在 machine 內編輯 registries.conf（Windows／macOS）
+podman machine ssh --username root
+vi /etc/containers/registries.conf.d/50-corp.conf
+```
+
+```toml
+# /etc/containers/registries.conf.d/50-corp.conf
+[[registry]]
+prefix = "docker.io"
+location = "docker.io"
+
+[[registry.mirror]]
+location = "harbor.corp.example/dockerhub-proxy"
+
+[[registry]]
+prefix = "untrusted.example.com"
+location = "untrusted.example.com"
+blocked = true
+```
+
+> 💡 **企業做法**：1.24 起可以用 Managed configuration 的 `registries.defaults` 統一派送 registry 與 mirror，不必請每位開發者手動修改（見[10.4](#104-常見管理用例)）。
+
+### 5.5 Volume
+
+| 類型 | 說明 | 適用情境 |
+| --- | --- | --- |
+| Named volume | 由 Podman 管理，存在 machine 的 storage 內 | 資料庫資料、快取 |
+| Bind mount | 掛載主機目錄 | 原始碼熱重載 |
+| tmpfs | 記憶體內暫存 | 唯讀根檔案系統下的暫存目錄 |
+
+```bash
+podman volume create pgdata
+podman run -d --name pg -v pgdata:/var/lib/postgresql/data \
+  -e POSTGRES_PASSWORD=devpass docker.io/library/postgres:17
+
+# 備份與還原
+podman volume export pgdata --output pgdata.tar
+podman volume import pgdata pgdata.tar
+```
+
+**Windows bind mount 注意事項**
+
+- WSL machine 會把 Windows 磁碟掛在 `/mnt/c` 等路徑，`-v C:\src\app:/app` 可以直接使用，但跨檔案系統的 I/O 較慢。大量檔案（例如 `node_modules`、Maven repository）建議改用 named volume。
+- 權限問題常見於 rootless 容器寫入 bind mount，可以加上 `:U`（自動調整擁有者）或 `--userns=keep-id`。
+
+### 5.6 Network
+
+1.23 起 Network 有獨立頁面；1.25 起可以直接在 UI 建立進階網路：
+
+| 選項 | 說明 |
+| --- | --- |
+| Driver | bridge（預設）、macvlan、ipvlan |
+| IPv6 | 啟用雙堆疊 |
+| Internal | 不連外部的隔離網路 |
+| Subnet／IP range／Gateway | 自訂位址範圍，避開公司內網網段 |
+| DNS | 自訂 DNS 伺服器 |
+
+```bash
+podman network create --subnet 10.89.10.0/24 --gateway 10.89.10.1 app-net
+podman network create --internal backend-net
+podman run -d --name db --network backend-net docker.io/library/postgres:17
+podman network connect app-net db
+```
+
+> ⚠️ **注意**：預設網路 `podman` 使用 `10.88.0.0/16`。如果和公司 VPN 或內網衝突，請調整 `containers.conf` 的 `default_subnet`，或為專案建立自訂網段的網路。
+
+### 5.7 Secret
+
+1.29 新增 **Secrets** 頁，可以建立、檢視與刪除 secret（只支援 Podman 引擎）。執行容器時，在 Run Image 對話框把 secret 掛成**檔案**或**環境變數**。
+
+```bash
+# 建立 secret（從標準輸入，避免留在 shell history）
+printf '%s' 'S3cr3t!' | podman secret create db-password -
+
+# 以檔案掛載（預設 /run/secrets/db-password）
+podman run -d --name api --secret db-password registry.corp.example/payments/api:1.4.2
+
+# 以環境變數掛載
+podman run -d --name api --secret db-password,type=env,target=DB_PASSWORD \
+  registry.corp.example/payments/api:1.4.2
+```
+
+> ⚠️ **注意**：不要把密碼寫在 Containerfile、Compose 檔或映像檔的環境變數裡。`podman inspect` 看得到一般環境變數，但看不到 secret 的內容。
+
+### 5.8 實務案例：Java 微服務本機開發環境
+
+**需求**：Spring Boot API、PostgreSQL 17、Redis 8，全部在同一個 Pod 內，方便日後轉成 Kubernetes YAML。
+
+```bash
+# 1. 建立 Pod（對外開放 API 8080；資料庫只在 Pod 內使用）
+podman pod create --name payments-dev -p 8080:8080
+
+# 2. 資料庫與快取
+printf '%s' 'devpass' | podman secret create pg-password -
+podman volume create payments-pgdata
+podman run -d --pod payments-dev --name pg \
+  --secret pg-password,type=env,target=POSTGRES_PASSWORD \
+  -e POSTGRES_DB=payments -e POSTGRES_USER=app \
+  -v payments-pgdata:/var/lib/postgresql/data \
+  docker.io/library/postgres:17
+podman run -d --pod payments-dev --name redis docker.io/library/redis:8
+
+# 3. 應用程式（Pod 內以 localhost 連線）
+podman run -d --pod payments-dev --name api \
+  --secret pg-password,type=env,target=SPRING_DATASOURCE_PASSWORD \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/payments \
+  -e SPRING_DATASOURCE_USERNAME=app \
+  -e SPRING_DATA_REDIS_HOST=localhost \
+  localhost/payments-api:dev
+
+# 4. 產生 Kubernetes YAML，交給平台團隊或放進 Git
+podman kube generate payments-dev -f payments-dev.yaml
+```
+
+在 Podman Desktop 中，**Pods** 頁會顯示 `payments-dev` 與三個成員容器；Pod 選單的 **Deploy to Kubernetes** 可以直接部署到 Kind 等叢集（見[第 7 章](#7-kubernetes-與-openshift-整合)）。
+
+> ⚠️ **v2.0 更正**：v1.0 的範例把 PostgreSQL 密碼以 `-e POSTGRES_PASSWORD=password` 明文傳入，並使用 `postgres:14`、`redis:7-alpine`。本版改用 secret 與較新的主要版本。PostgreSQL 14 將於 2026 年 11 月結束社群支援。
+
+### 5.9 💡 本章實務建議
+
+1. **映像檔一律寫完整名稱並固定版本**（或 digest），不要依賴短名稱與 `latest`。
+2. **開發環境優先用 Pod**：Pod 的網路模型和 Kubernetes 一致，之後可以直接轉成 YAML。
+3. **密碼走 Secret**：1.29 的 Secrets 頁讓非 CLI 使用者也能正確使用 secret。
+4. **Windows 上的大量小檔案放在 named volume**，只有原始碼用 bind mount。
+5. **網段規劃要和網路團隊確認**，避免容器網路與 VPN、內網衝突。
+
+---
+
+## 6. Compose 與 Docker 相容
+
+### 6.1 設定 Compose
+
+Podman Desktop 可以幫你安裝 Compose 的參考實作（Docker Compose v2 執行檔）：
+
+1. **Settings > Resources** → Compose 卡片 → **Setup**，依提示完成。
+2. 驗證：
+
+```bash
+docker-compose version    # Compose 執行檔已在 PATH
+podman compose version    # podman compose 會呼叫同一個 provider
+```
+
+`podman compose` 是一個**包裝指令**：它會依 `containers.conf` 的 `compose_providers` 設定，呼叫 `docker-compose` 或 Python 版的 `podman-compose`。企業建議統一使用其中一種，並在內部文件寫明。
+
+| 實作 | 優點 | 注意事項 |
+| --- | --- | --- |
+| Docker Compose v2（Podman Desktop 安裝） | 與 Docker 使用者習慣一致，支援完整的 Compose 規格 | 透過 Docker 相容 API 操作 Podman |
+| podman-compose（Python） | 原生呼叫 Podman，可以把服務放進 Pod | 部分進階 Compose 語法的支援較慢 |
+
+### 6.2 執行 Compose 應用
+
+```yaml
+# compose.yaml：本機開發用
+services:
+  db:
+    image: docker.io/library/postgres:17
+    environment:
+      POSTGRES_DB: payments
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD_FILE: /run/secrets/pg_password
+    secrets:
+      - pg_password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d payments"]
+      interval: 10s
+      retries: 5
+  cache:
+    image: docker.io/library/redis:8
+  api:
+    build: .
+    image: localhost/payments-api:dev
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/payments
+      SPRING_DATA_REDIS_HOST: cache
+    depends_on:
+      db:
+        condition: service_healthy
+secrets:
+  pg_password:
+    file: ./secrets/pg_password.txt
+volumes:
+  pgdata:
+```
+
+```bash
+podman compose -f compose.yaml up -d
+podman compose ps
+podman compose logs -f api
+podman compose down            # 保留 volume
+podman compose down -v         # 連同 volume 一起刪除
+```
+
+Compose 會在資源上加上 `com.docker.compose.project` 與 `com.docker.compose.service` 標籤。Podman Desktop 偵測到這些標籤後，會在 **Containers** 頁把同一個專案的容器收成一組，名稱後面加上 `(compose)`，例如 `payments (compose)`，可以整組啟停或檢視日誌。
+
+> ⚠️ **注意**：`secrets/pg_password.txt` 要加進 `.gitignore`。Compose 檔只適合本機開發；正式環境請改用 Kubernetes 或 Quadlet。
+
+### 6.3 Docker 相容模式
+
+#### 6.3.1 Settings > Docker Compatibility
+
+先到 **Settings > Preferences > Docker Compatibility** 打開開關（`dockerCompatibility.enabled`），**Settings** 清單會多出 **Docker Compatibility** 頁面。macOS 上 Podman Desktop 透過 `podman-mac-helper` 把 `/var/run/docker.sock` 連結到 machine 的 `podman.sock`，啟用時要輸入系統密碼並重啟 machine。
+
+驗證方式：`docker info --format=json | jq -r .ServerVersion` 應該回傳 **Podman** 的版本，而不是 Docker 的版本。
+
+Docker Compatibility 頁面的設定：
+
+| 設定 | 說明 | 平台 |
+| --- | --- | --- |
+| System socket status | 檢查預設 Docker socket 是否可以連線 | 全部 |
+| Docker CLI Context | 從下拉清單選擇 Docker CLI 使用的 context（1.23 起會自動為 Podman machine 建立 Docker context） | 全部 |
+| Podman Compose CLI Support | 檢查 Compose 是否可用，不可用時按 **Setup...** 安裝 | 全部 |
+| Third-Party Docker Tool Compatibility | 讓第三方 Docker 工具透過 `/var/run/docker.sock` 使用 Podman | **只有 macOS**，且預設開啟 |
+
+預設 socket 路徑：
+
+- macOS、Linux：`/var/run/docker.sock`
+- Windows：`npipe:////./pipe/docker_engine`（Podman machine 預設也會監聽這個 pipe）
+
+#### 6.3.2 使用 DOCKER_HOST
+
+在 Windows 與 Linux 上沒有 Third-Party Docker Tool Compatibility 設定，建議用 `DOCKER_HOST` 讓工具直接連 Podman：
+
+```powershell
+# Windows：查詢 Podman pipe
+podman machine inspect --format '{{.ConnectionInfo.PodmanPipe.Path}}'
+# 輸出如 \\.\pipe\podman-machine-default；反斜線改成斜線並加上 npipe:// 前綴
+$env:DOCKER_HOST = "npipe:////./pipe/podman-machine-default"
+# 永久設定（使用者層級）
+[Environment]::SetEnvironmentVariable("DOCKER_HOST", "npipe:////./pipe/podman-machine-default", "User")
+```
+
+```bash
+# macOS
+export DOCKER_HOST="unix://$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')"
+
+# Linux（rootless）
+export DOCKER_HOST="unix://$(podman info --format '{{.Host.RemoteSocket.Path}}')"
+```
+
+也可以改用 Docker context，不必設定環境變數：
+
+```bash
+docker context create podman \
+  --docker "host=unix://${HOME}/.local/share/containers/podman/machine/podman.sock"
+docker context use podman
+docker ps    # 實際查詢的是 Podman
+```
+
+> ⚠️ **v2.0 更正**：v1.0 用 `podman system service --time=0 unix:///var/run/docker.sock` 來「啟用 Docker 相容」。在 Windows 與 macOS 上，Podman API 服務是由 machine 提供的，這個指令在主機上沒有作用；請改用本節的 Docker Compatibility 設定頁或 `DOCKER_HOST`。
+
+#### 6.3.3 同時顯示 Docker 引擎
+
+如果主機上還有 Docker Desktop 在執行，Podman Desktop 內建的 Docker 擴充功能會自動註冊它的 socket，讓你在同一個畫面看到兩個引擎的容器。遷移期間可以用來對照；正式切換後建議停用 Docker 擴充功能，避免誤用。
+
+### 6.4 從 Docker Desktop 遷移
+
+#### 6.4.1 遷移評估清單
+
+| 檢查項目 | 風險 | 對策 |
+| --- | --- | --- |
+| 使用 Docker 專屬擴充功能 | 無法沿用 | 找 Podman Desktop 擴充功能替代，或保留少數 Docker Desktop 授權 |
+| Compose 檔使用 `network_mode: host`、特權容器 | rootless 行為不同 | 改用 Pod 或 rootful machine |
+| 映像檔使用短名稱 | 可能被要求選擇來源或拉錯映像檔 | 改為完整名稱 |
+| Testcontainers、Gradle、IDE 外掛 | 預設找 Docker socket | 設定 `DOCKER_HOST`，Testcontainers 另外設定 Ryuk（見[12.4](#124-testcontainers)） |
+| CI 使用 Docker-in-Docker | 行為不同 | CI 改用 Buildah 或 Podman rootless 建置 |
+| 綁定 1024 以下埠號 | rootless 無法綁定 | 改用高埠號，或 rootful machine |
+
+#### 6.4.2 遷移步驟
+
+```mermaid
+flowchart LR
+    A["盤點<br/>Compose、腳本、CI"] --> B["安裝 Podman Desktop<br/>建立 machine"]
+    B --> C["匯出需要保留的資料<br/>映像檔、Volume"]
+    C --> D["啟用 Docker 相容<br/>或設定 DOCKER_HOST"]
+    D --> E["驗證<br/>compose up、Testcontainers"]
+    E --> F["移除 Docker Desktop<br/>收回授權"]
+```
+
+**保留舊容器與映像檔**
+
+```bash
+# 在 Docker 端匯出
+docker save -o myimage.tar myimage:1.0
+docker export mycontainer -o mycontainer.tar
+
+# 在 Podman 端匯入
+podman load -i myimage.tar
+podman import mycontainer.tar mycontainer:imported
+```
+
+匯入完成後，映像檔會出現在 Podman Desktop 的 **Images** 頁。
+
+#### 6.4.3 Docker 使用者要知道的差異
+
+| 主題 | Docker | Podman |
+| --- | --- | --- |
+| 架構 | 常駐 daemon | daemonless；需要 API 時由 socket 啟動 |
+| 預設權限 | 以 root 執行（另有 rootless 模式） | 預設 rootless |
+| 短名稱 | 預設補上 `docker.io` | 依 `registries.conf` 的搜尋清單解析 |
+| Pod | 沒有 | 原生支援 |
+| Kubernetes YAML | 沒有 | `kube generate`／`kube play` |
+| systemd | 沒有 | Quadlet |
+| 指令 | `docker ...` | `podman ...`（大多數子指令相同） |
+
+### 6.5 💡 本章實務建議
+
+1. **統一 Compose 實作**：建議使用 Podman Desktop 安裝的 Docker Compose v2，並在 `containers.conf` 固定 `compose_providers`。
+2. **Windows 開發者一律設定使用者層級的 `DOCKER_HOST`**，減少 IDE 與建置工具的相容性問題。
+3. **分批遷移**：先遷移只用 CLI 與 Compose 的團隊，再處理依賴 Docker 擴充功能或 Docker-in-Docker 的團隊。
+4. **遷移完成後停用 Docker 擴充功能並移除 Docker Desktop**，確實收回授權。
+5. **Compose 只用於本機**：正式環境轉成 Kubernetes YAML 或 Quadlet。
+
+---
+
+## 7. Kubernetes 與 OpenShift 整合
+
+> 🆕 **v2.0 新增**：v1.0 只介紹了 `podman kube generate/play` 與一段 OpenShift YAML。本章補上 Podman Desktop 內建的本機叢集、context 管理、Apply YAML、部署與 Port forwarding 功能。
+
+### 7.1 本機叢集選項
+
+| 選項 | 擴充功能 | 前置條件 | 適合情境 |
+| --- | --- | --- | --- |
+| **Kind** | 內建 Kind | kind CLI（可以由 Desktop 安裝）；Windows 上 machine 要 rootful | 一般 Kubernetes 開發、CI 對齊 |
+| **Minikube** | minikube | minikube CLI | 需要 minikube addons 的團隊 |
+| **MicroShift（MINC）** | MINC | rootful machine；Windows 要在 WSL 啟用 cgroup v2 | 輕量 OpenShift API、邊緣情境 |
+| **Lima** | 內建 Lima | lima CLI（macOS、Linux） | 以 k3s／k8s 範本建立 VM 叢集 |
+| **OpenShift Local** | Red Hat OpenShift Local | Red Hat 帳號、pull secret；資源需求較高 | 完整 OpenShift（含 Web Console）或 MicroShift preset |
+| **Developer Sandbox** | Developer Sandbox | Red Hat 帳號 | 免費雲端 OpenShift（1 個專案、14 GB RAM、40 GB 儲存，30 天） |
+| **既有叢集** | — | kubeconfig | 公司的開發或測試叢集 |
+
+```mermaid
+flowchart LR
+    DEV["本機容器／Pod"] -->|"Deploy to Kubernetes"| KIND["Kind／MINC<br/>本機驗證"]
+    DEV -->|"Push image to cluster"| KIND
+    KIND --> SB["Developer Sandbox／OpenShift Local<br/>OpenShift 特性驗證"]
+    SB --> CI["CI／CD<br/>GitOps"]
+    CI --> PROD["正式叢集"]
+```
+
+### 7.2 建立 Kind 叢集
+
+1. **安裝 kind CLI**：**Settings > CLI tools** → Kind 卡片 **Install**；或在建立叢集時依提示安裝。
+2. **Windows 前置作業**：Kind 需要 rootful machine。
+
+   ```bash
+   podman machine stop
+   podman machine set --rootful
    podman machine start
    ```
 
-3. **驗證安裝**
-   ```powershell
-   # 測試容器執行
-   podman run hello-world
-   
-   # 檢查系統資訊
-   podman system info
-   ```
-
-#### 設定流程圖
-
-```mermaid
-flowchart TD
-    A[開始安裝] --> B{檢查系統需求}
-    B -->|符合| C[啟用 WSL 2]
-    B -->|不符合| D[升級系統]
-    D --> C
-    C --> E[重新啟動]
-    E --> F[下載 Podman Desktop]
-    F --> G[執行安裝程式]
-    G --> H[初始化設定]
-    H --> I[建立 Podman 機器]
-    I --> J[啟動服務]
-    J --> K[驗證安裝]
-    K --> L{安裝成功?}
-    L -->|是| M[完成]
-    L -->|否| N[檢查錯誤日誌]
-    N --> O[重新安裝]
-    O --> H
-```
-
-#### 常見問題排除
-
-**問題 1：WSL 2 安裝失敗**
-```powershell
-# 檢查 Windows 版本
-winver
-
-# 手動下載 WSL 2 核心更新
-# https://aka.ms/wsl2kernel
-```
-
-**問題 2：虛擬化未啟用**
-- 進入 BIOS 設定
-- 啟用 Intel VT-x 或 AMD-V
-- 啟用 Hyper-V（在 Windows 功能中）
-
-**問題 3：權限問題**
-```powershell
-# 確保以管理員身份執行
-Start-Process powershell -Verb runAs
-```
-
-#### 驗證清單
-
-- [ ] Windows 版本符合需求
-- [ ] WSL 2 正常運作
-- [ ] Podman Desktop 安裝完成
-- [ ] Podman 機器啟動成功
-- [ ] 可以執行基本容器
-- [ ] GUI 介面正常顯示
-
-#### ⚠️ 注意事項
-- 安裝過程中需要重新啟動電腦
-- 確保網路連線穩定，下載過程可能較長
-- 企業環境可能需要設定代理伺服器
-- 建議關閉防毒軟體的即時掃描（安裝期間）
-
----
-
-### 1.4 基本操作介面導覽
-
-#### 🎯 學習目標
-- 熟悉 Podman Desktop 的使用者介面
-- 掌握各功能區域的用途
-- 學會基本的 GUI 操作
-
-#### 主介面概覽
-
-Podman Desktop 的主介面分為幾個主要區域：
-
-```mermaid
-graph TD
-    A[主選單列] --> B[側邊導航欄]
-    B --> C[主工作區]
-    C --> D[狀態列]
-    
-    B1[容器] --> B
-    B2[映像檔] --> B
-    B3[Pod] --> B
-    B4[Volume] --> B
-    B5[設定] --> B
-    
-    style A fill:#e3f2fd
-    style B fill:#f3e5f5
-    style C fill:#e8f5e8
-    style D fill:#fff3e0
-```
-
-#### 1.4.1 側邊導航欄功能
-
-##### 🐳 容器管理
-- **All Containers**：檢視所有容器
-- **Running**：執行中的容器
-- **Stopped**：已停止的容器
-- **Created**：已建立但未啟動的容器
-
-##### 📦 映像檔管理
-- **Local Images**：本地映像檔列表
-- **Pull Images**：下載新映像檔
-- **Build Images**：建置自訂映像檔
-
-##### ☸️ Pod 管理
-- **All Pods**：Pod 列表與狀態
-- **Create Pod**：建立新的 Pod
-
-##### 💾 儲存管理
-- **Volumes**：持久化儲存管理
-- **Networks**：網路設定管理
-
-#### 1.4.2 容器檢視詳解
-
-當點擊「容器」頁面時，您會看到：
-
-**容器列表欄位：**
-- **Name**：容器名稱
-- **Image**：使用的映像檔
-- **Status**：運行狀態
-- **Created**：建立時間
-- **Actions**：操作按鈕
-
-**狀態指示器：**
-- 🟢 **Running**：容器正在執行
-- 🔴 **Stopped**：容器已停止
-- 🟡 **Paused**：容器已暫停
-- ⚪ **Created**：容器已建立但未啟動
-
-#### 1.4.3 基本操作示範
-
-##### 建立第一個容器
-
-1. **透過 GUI 建立**
-   - 點擊「Images」→「Pull Images」
-   - 搜尋：`nginx`
-   - 點擊「Pull」下載
-   - 下載完成後，點擊映像檔旁的「Run」
-   - 設定容器名稱：`my-web-server`
-   - 設定埠號對應：`8080:80`
-   - 點擊「Start Container」
-
-2. **檢視容器狀態**
-   ```bash
-   # CLI 對照指令
-   podman ps
-   ```
-
-3. **存取服務**
-   - 開啟瀏覽器
-   - 前往：http://localhost:8080
-   - 應該看到 Nginx 歡迎頁面
-
-##### 容器生命週期管理
-
-```mermaid
-stateDiagram-v2
-    [*] --> Created
-    Created --> Running : Start
-    Running --> Paused : Pause
-    Paused --> Running : Unpause
-    Running --> Stopped : Stop
-    Stopped --> Running : Restart
-    Created --> [*] : Remove
-    Stopped --> [*] : Remove
-```
-
-**透過 GUI 操作：**
-- **▶️ Start**：啟動容器
-- **⏸️ Pause**：暫停容器
-- **⏹️ Stop**：停止容器
-- **🔄 Restart**：重新啟動
-- **🗑️ Delete**：刪除容器
-
-#### 1.4.4 映像檔管理介面
-
-##### 映像檔操作
-
-1. **搜尋與下載映像檔**
-   - 點擊「Images」→「Pull Images」
-   - 在搜尋框輸入映像檔名稱
-   - 選擇標籤（Tag）
-   - 點擊「Pull」開始下載
-
-2. **檢視映像檔詳細資訊**
-   - 點擊映像檔名稱
-   - 查看：
-     - Size（大小）
-     - Layers（層級結構）
-     - Created（建立時間）
-     - Tags（標籤）
-
-3. **建置自訂映像檔**
-   - 點擊「Build Image」
-   - 選擇 Dockerfile 位置
-   - 設定建置標籤
-   - 監控建置進度
-
-#### 1.4.5 設定與偏好
-
-##### 一般設定
-
-前往「Settings」→「Preferences」：
-
-**Resources（資源設定）**
-- CPU 核心數量
-- 記憶體分配
-- 磁碟空間限制
-
-**Docker Compatibility（Docker 相容性）**
-```bash
-# 啟用 Docker Socket 相容性
-podman system service --time=0 unix:///var/run/docker.sock
-```
-
-**Experimental Features（實驗性功能）**
-- Kubernetes YAML 支援
-- 進階網路功能
-- 監控與日誌增強
-
-#### 1.4.6 監控與日誌
-
-##### 即時監控
-
-1. **容器資源使用**
-   - 選擇執行中的容器
-   - 點擊「Stats」標籤
-   - 查看 CPU、記憶體、網路使用情況
-
-2. **容器日誌**
-   - 選擇容器
-   - 點擊「Logs」標籤
-   - 即時查看應用程式輸出
+3. **Settings > Resources** → Kind 卡片 → **Create new ...**，可以使用預設設定（可修改埠號等），或指定 Kind 設定檔（設定檔的值優先）。
+4. 建立完成後，從系統匣的 **Kubernetes** 選單或狀態列把 context 切到 `kind-<叢集名稱>`。
 
 ```bash
-# CLI 對照指令
-podman logs -f container-name
-podman stats container-name
+kind get clusters
+kubectl cluster-info --context kind-dev
 ```
 
-#### 實務練習
-
-**練習 1：建立 Web 服務容器**
-1. 下載 `httpd` 映像檔
-2. 建立名為 `apache-web` 的容器
-3. 對應埠號 `8081:80`
-4. 測試存取服務
-
-**練習 2：管理容器生命週期**
-1. 啟動容器
-2. 暫停容器
-3. 恢復執行
-4. 停止並移除容器
-
-#### ⚠️ 介面使用注意事項
-
-- 🔄 某些操作可能需要幾秒鐘完成，請耐心等待
-- 📊 資源監控數據每 2-3 秒更新一次
-- 🔍 使用搜尋功能快速找到特定容器或映像檔
-- 💡 右鍵點擊項目可能有額外的操作選項
-- ⚙️ 定期檢查設定，確保資源配置適當
-
----
-
-## 2. 專案實務應用
-
-### 2.1 在專案中使用 Podman Desktop
-
-#### 🎯 學習目標
-- 學會在實際專案中整合 Podman Desktop
-- 掌握開發環境容器化最佳實務
-- 建立可重複使用的開發環境
-
-#### 2.1.1 Java 開發環境容器化
-
-在本 Java 教學專案中，我們可以使用 Podman Desktop 建立一致的開發環境。
-
-##### 建立 Java 開發容器
-
-**方式一：使用 GUI 建立**
-
-1. **搜尋 Java 映像檔**
-   - 開啟 Podman Desktop
-   - 點擊「Images」→「Pull Images」
-   - 搜尋：`openjdk:17-jdk`
-   - 點擊「Pull」下載
-
-2. **建立開發容器**
-   ```bash
-   # CLI 對照指令
-   podman run -it --name java-dev \
-     -v /d/developer/repos/java_tutorial:/workspace \
-     -w /workspace \
-     openjdk:17-jdk bash
-   ```
-
-**方式二：使用 Dockerfile**
-
-建立 `Dockerfile.dev`：
-
-```dockerfile
-FROM openjdk:17-jdk
-
-# 安裝開發工具
-RUN apt-get update && apt-get install -y \
-    git \
-    maven \
-    curl \
-    vim \
-    && rm -rf /var/lib/apt/lists/*
-
-# 設定工作目錄
-WORKDIR /workspace
-
-# 複製專案設定檔
-COPY pom.xml .
-RUN mvn dependency:go-offline
-
-# 設定環境變數
-ENV JAVA_HOME=/usr/local/openjdk-17
-ENV MAVEN_HOME=/usr/share/maven
-
-CMD ["bash"]
-```
-
-透過 Podman Desktop 建置：
-- 點擊「Images」→「Build Image」
-- 選擇 Dockerfile.dev
-- 標籤：`java-tutorial:dev`
-- 點擊「Build」
-
-##### 專案結構整合
-
-```mermaid
-graph TD
-    A[本地專案目錄] --> B[容器掛載點]
-    B --> C[Java 開發環境]
-    C --> D[Maven 編譯]
-    C --> E[單元測試]
-    C --> F[程式執行]
-    
-    G[Podman Desktop] --> H[容器管理]
-    H --> C
-    
-    style A fill:#e3f2fd
-    style C fill:#e8f5e8
-    style G fill:#f3e5f5
-```
-
-#### 2.1.2 多容器開發環境
-
-實際專案通常需要多個服務，我們可以使用 Pod 來組織：
-
-##### 建立完整開發環境 Pod
-
-```bash
-# 建立開發環境 Pod
-podman pod create --name dev-env \
-  --publish 8080:8080 \
-  --publish 5432:5432 \
-  --publish 6379:6379
-
-# Java 應用容器
-podman run -d --pod dev-env \
-  --name java-app \
-  -v /d/developer/repos/java_tutorial:/workspace \
-  -w /workspace \
-  java-tutorial:dev \
-  mvn spring-boot:run
-
-# PostgreSQL 資料庫
-podman run -d --pod dev-env \
-  --name postgres \
-  -e POSTGRES_DB=tutorial \
-  -e POSTGRES_USER=dev \
-  -e POSTGRES_PASSWORD=devpass \
-  -v postgres-data:/var/lib/postgresql/data \
-  postgres:14
-
-# Redis 快取
-podman run -d --pod dev-env \
-  --name redis \
-  redis:7-alpine
-```
-
-**透過 Podman Desktop 操作：**
-
-1. **建立 Pod**
-   - 點擊「Pods」→「Create Pod」
-   - 名稱：`dev-env`
-   - 埠號對應：`8080:8080,5432:5432,6379:6379`
-
-2. **加入容器到 Pod**
-   - 在建立容器時選擇「Add to Pod」
-   - 選擇 `dev-env` Pod
-
-#### 2.1.3 開發工作流程
-
-##### 日常開發流程
-
-```mermaid
-flowchart TD
-    A[開始開發] --> B[啟動開發環境 Pod]
-    B --> C[開啟 IDE]
-    C --> D[編寫程式碼]
-    D --> E[在容器中測試]
-    E --> F{測試通過?}
-    F -->|否| D
-    F -->|是| G[提交程式碼]
-    G --> H[停止開發環境]
-    
-    style B fill:#e8f5e8
-    style E fill:#fff3e0
-    style G fill:#e3f2fd
-```
-
-**具體操作步驟：**
-
-1. **啟動開發環境**
-   ```bash
-   # 一鍵啟動所有服務
-   podman pod start dev-env
-   ```
-
-2. **連接服務進行開發**
-   - 資料庫連線：`localhost:5432`
-   - Redis 連線：`localhost:6379`
-   - 應用程式：`http://localhost:8080`
-
-3. **即時測試與除錯**
-   ```bash
-   # 在容器中執行測試
-   podman exec -it java-app mvn test
-   
-   # 檢視應用程式日誌
-   podman logs -f java-app
-   ```
-
-4. **結束開發**
-   ```bash
-   # 停止整個 Pod
-   podman pod stop dev-env
-   ```
-
-#### 2.1.4 環境配置管理
-
-##### 使用 Podman Compose
-
-建立 `docker-compose.yml`（Podman 4.0+ 支援）：
+**把本機映像檔推到 Kind**：Images 頁 → 映像檔選單 → **Push image to Kind cluster**。Kind 無法列出已載入的映像檔，請用 `imagePullPolicy: Never` 的 Pod 驗證：
 
 ```yaml
-version: '3.8'
-
-services:
-  java-app:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    ports:
-      - "8080:8080"
-    volumes:
-      - .:/workspace
-    working_dir: /workspace
-    depends_on:
-      - postgres
-      - redis
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - DB_HOST=postgres
-      - REDIS_HOST=redis
-
-  postgres:
-    image: postgres:14
-    environment:
-      POSTGRES_DB: tutorial
-      POSTGRES_USER: dev
-      POSTGRES_PASSWORD: devpass
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-
-volumes:
-  postgres-data:
-```
-
-**透過 Podman Desktop 使用：**
-- 點擊「Compose」→「Start Compose」
-- 選擇 `docker-compose.yml` 文件
-- 監控所有服務狀態
-
-##### 環境變數管理
-
-建立 `.env` 檔案：
-
-```bash
-# 資料庫設定
-DB_HOST=postgres
-DB_PORT=5432
-DB_NAME=tutorial
-DB_USER=dev
-DB_PASSWORD=devpass
-
-# Redis 設定
-REDIS_HOST=redis
-REDIS_PORT=6379
-
-# 應用程式設定
-APP_PORT=8080
-LOG_LEVEL=DEBUG
-```
-
-#### ⚠️ 專案整合注意事項
-
-- 📂 確保專案檔案權限正確設定
-- 🔄 定期更新基礎映像檔以獲得安全修復
-- 💾 重要資料使用 Volume 持久化儲存
-- 🌐 網路設定要考慮安全性
-- 🔧 環境變數不要包含敏感資訊
-
----
-
-### 2.2 容器管理實務
-
-#### 🎯 學習目標
-- 掌握容器生命週期管理
-- 學會容器監控與除錯
-- 了解容器資源優化技巧
-
-#### 2.2.1 容器生命週期管理
-
-##### 建立與啟動容器
-
-**最佳實務範例：**
-
-```bash
-# 建立具名容器並設定標籤
-podman run -d \
-  --name web-server \
-  --label "environment=development" \
-  --label "project=java-tutorial" \
-  --publish 8080:80 \
-  --restart unless-stopped \
-  nginx:alpine
-```
-
-**透過 Podman Desktop：**
-1. 選擇映像檔點擊「Run」
-2. 設定容器名稱與標籤
-3. 配置埠號對應
-4. 選擇重啟策略
-5. 點擊「Start Container」
-
-##### 容器狀態管理
-
-```mermaid
-stateDiagram-v2
-    [*] --> Created: podman create
-    Created --> Running: podman start
-    Running --> Paused: podman pause
-    Paused --> Running: podman unpause
-    Running --> Stopped: podman stop
-    Stopped --> Running: podman start
-    Created --> [*]: podman rm
-    Stopped --> [*]: podman rm
-    Running --> [*]: podman rm -f
-```
-
-**GUI 操作對照：**
-- **建立**：Images → Run → 設定參數
-- **啟動**：Containers → 選擇容器 → Start
-- **暫停**：Containers → 選擇容器 → Pause
-- **停止**：Containers → 選擇容器 → Stop
-- **刪除**：Containers → 選擇容器 → Delete
-
-#### 2.2.2 容器監控與除錯
-
-##### 即時監控
-
-**資源使用監控：**
-
-```bash
-# 監控容器資源使用
-podman stats web-server
-
-# 監控所有容器
-podman stats --all
-```
-
-**透過 Podman Desktop：**
-- 選擇容器 → 點擊「Stats」標籤
-- 查看 CPU、記憶體、網路、I/O 使用情況
-- 設定監控警告閾值
-
-##### 日誌管理
-
-**檢視容器日誌：**
-
-```bash
-# 即時查看日誌
-podman logs -f web-server
-
-# 查看最近 100 行日誌
-podman logs --tail 100 web-server
-
-# 查看特定時間範圍的日誌
-podman logs --since "2025-01-01T00:00:00Z" web-server
-```
-
-**GUI 日誌檢視：**
-- 選擇容器 → 點擊「Logs」標籤
-- 使用過濾器搜尋特定內容
-- 設定日誌自動重新整理
-
-##### 容器除錯
-
-**進入容器進行除錯：**
-
-```bash
-# 進入執行中的容器
-podman exec -it web-server /bin/bash
-
-# 以 root 使用者進入
-podman exec -it --user root web-server /bin/bash
-
-# 執行特定指令
-podman exec web-server cat /etc/nginx/nginx.conf
-```
-
-**透過 Podman Desktop：**
-- 選擇容器 → 點擊「Terminal」標籤
-- 在容器內執行除錯指令
-
-#### 2.2.3 容器資源優化
-
-##### 記憶體與 CPU 限制
-
-```bash
-# 設定資源限制
-podman run -d \
-  --name limited-app \
-  --memory="512m" \
-  --cpus="1.5" \
-  --memory-swap="1g" \
-  java-tutorial:dev
-```
-
-**透過 GUI 設定：**
-- 建立容器時 → 點擊「Advanced」
-- 設定 Memory Limit、CPU Limit
-- 配置 Swap 使用限制
-
-##### 健康檢查
-
-**定義健康檢查：**
-
-```dockerfile
-# 在 Dockerfile 中定義
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
-```
-
-```bash
-# 執行時定義健康檢查
-podman run -d \
-  --name web-app \
-  --health-cmd="curl -f http://localhost:8080/health || exit 1" \
-  --health-interval=30s \
-  --health-timeout=3s \
-  --health-retries=3 \
-  java-tutorial:dev
-```
-
-##### 自動重啟策略
-
-```bash
-# 設定重啟策略
-podman run -d \
-  --name resilient-app \
-  --restart=unless-stopped \
-  java-tutorial:dev
-```
-
-**重啟策略說明：**
-- `no`：不自動重啟（預設）
-- `always`：總是重啟
-- `unless-stopped`：除非手動停止否則重啟
-- `on-failure`：失敗時重啟
-
-#### 2.2.4 容器安全管理
-
-##### 使用者權限控制
-
-```bash
-# 以非 root 使用者執行
-podman run -d \
-  --name secure-app \
-  --user 1000:1000 \
-  --read-only \
-  --tmpfs /tmp \
-  java-tutorial:dev
-```
-
-##### 網路安全
-
-```bash
-# 建立自訂網路
-podman network create --driver bridge secure-network
-
-# 在隔離網路中執行容器
-podman run -d \
-  --name isolated-app \
-  --network secure-network \
-  java-tutorial:dev
-```
-
-##### Secrets 管理
-
-```bash
-# 建立 secret
-echo "super-secret-password" | podman secret create db-password -
-
-# 在容器中使用 secret
-podman run -d \
-  --name app-with-secret \
-  --secret db-password \
-  java-tutorial:dev
-```
-
-#### 2.2.5 容器備份與還原
-
-##### 備份容器
-
-```bash
-# 建立容器快照
-podman commit web-server web-server-backup:$(date +%Y%m%d)
-
-# 匯出容器為 tar 檔
-podman export web-server > web-server-backup.tar
-
-# 匯出映像檔
-podman save web-server-backup:20250831 > web-server-image.tar
-```
-
-##### 還原容器
-
-```bash
-# 從 tar 檔匯入
-podman import web-server-backup.tar web-server:restored
-
-# 載入映像檔
-podman load < web-server-image.tar
-```
-
-#### ⚠️ 容器管理注意事項
-
-- 🔒 定期更新容器映像檔以獲得安全修復
-- 📊 監控容器資源使用，避免影響主機效能
-- 🗑️ 定期清理無用的容器和映像檔
-- 💾 重要資料使用 Volume 或 Bind Mount 保存
-- 🌐 適當配置網路安全策略
-
----
-
-### 2.3 映像檔管理
-
-#### 🎯 學習目標
-- 掌握映像檔的建置與管理
-- 學會優化映像檔大小與安全性
-- 建立映像檔版本控制策略
-
-#### 2.3.1 映像檔基礎操作
-
-##### 搜尋與下載映像檔
-
-**透過 CLI：**
-
-```bash
-# 搜尋映像檔
-podman search java
-
-# 下載特定版本
-podman pull openjdk:17-jdk-alpine
-
-# 下載所有標籤
-podman pull --all-tags nginx
-```
-
-**透過 Podman Desktop：**
-1. 點擊「Images」→「Pull Images」
-2. 搜尋：`openjdk`
-3. 選擇版本：`17-jdk-alpine`
-4. 點擊「Pull」開始下載
-
-##### 檢視映像檔資訊
-
-```bash
-# 列出本地映像檔
-podman images
-
-# 檢視映像檔詳細資訊
-podman inspect openjdk:17-jdk-alpine
-
-# 檢視映像檔歷史
-podman history openjdk:17-jdk-alpine
-
-# 檢視映像檔層級
-podman image tree openjdk:17-jdk-alpine
-```
-
-#### 2.3.2 建置自訂映像檔
-
-##### Dockerfile 最佳實務
-
-**Java 應用程式 Dockerfile 範例：**
-
-```dockerfile
-# 多階段建置 - 編譯階段
-FROM maven:3.8.6-openjdk-17 AS builder
-
-WORKDIR /app
-COPY pom.xml .
-RUN mvn dependency:go-offline
-
-COPY src ./src
-RUN mvn clean package -DskipTests
-
-# 多階段建置 - 運行階段
-FROM openjdk:17-jre-alpine
-
-# 安全性：建立非 root 使用者
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -u 1001 -S appuser -G appgroup
-
-# 安裝必要工具
-RUN apk add --no-cache curl
-
-WORKDIR /app
-
-# 複製編譯後的 JAR 檔
-COPY --from=builder /app/target/*.jar app.jar
-
-# 設定檔案權限
-RUN chown -R appuser:appgroup /app
-
-# 切換到非 root 使用者
-USER appuser
-
-# 健康檢查
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8080/actuator/health || exit 1
-
-# 暴露埠號
-EXPOSE 8080
-
-# 啟動指令
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-```
-
-##### 透過 Podman Desktop 建置
-
-1. **準備建置環境**
-   - 點擊「Images」→「Build Image」
-   - 選擇包含 Dockerfile 的目錄
-
-2. **設定建置參數**
-   - Image Name：`java-tutorial`
-   - Tag：`v1.0.0`
-   - Build Args（如需要）
-
-3. **監控建置過程**
-   - 查看建置日誌
-   - 監控建置進度
-   - 檢查錯誤訊息
-
-#### 2.3.3 映像檔優化
-
-##### 減少映像檔大小
-
-**優化策略對比：**
-
-```dockerfile
-# ❌ 不良實務
-FROM openjdk:17-jdk
-RUN apt-get update
-RUN apt-get install -y curl
-RUN apt-get install -y vim
-COPY app.jar /app.jar
-
-# ✅ 最佳實務
-FROM openjdk:17-jre-alpine
-RUN apk add --no-cache curl && \
-    rm -rf /var/cache/apk/*
-COPY app.jar /app.jar
-```
-
-**大小比較：**
-
-| 映像檔類型 | 大小 | 說明 |
-|-----------|------|------|
-| openjdk:17-jdk | ~680MB | 完整 JDK |
-| openjdk:17-jre | ~470MB | 僅 JRE |
-| openjdk:17-jre-alpine | ~180MB | Alpine Linux |
-| 自訂最小化 | ~150MB | 移除非必要元件 |
-
-##### .dockerignore 設定
-
-建立 `.dockerignore` 檔案：
-
-```gitignore
-# Git 檔案
-.git
-.gitignore
-
-# IDE 檔案
-.vscode
-.idea
-*.iml
-
-# 建置產物
-target/
-*.log
-
-# 測試檔案
-src/test/
-
-# 文件檔案
-docs/
-README.md
-```
-
-#### 2.3.4 映像檔安全性
-
-##### 安全掃描
-
-```bash
-# 使用 Podman 內建掃描
-podman build --security-opt label=disable -t secure-app .
-
-# 檢查映像檔弱點
-podman run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-  aquasec/trivy image java-tutorial:v1.0.0
-```
-
-##### 安全最佳實務
-
-```dockerfile
-# 1. 使用官方基礎映像檔
-FROM openjdk:17-jre-alpine
-
-# 2. 定期更新套件
-RUN apk update && apk upgrade && \
-    apk add --no-cache curl && \
-    rm -rf /var/cache/apk/*
-
-# 3. 建立非 root 使用者
-RUN addgroup -g 1001 -S appgroup && \
-    adduser -u 1001 -S appuser -G appgroup
-
-# 4. 設定適當的檔案權限
-COPY --chown=appuser:appgroup app.jar /app/app.jar
-
-# 5. 切換到非 root 使用者
-USER appuser
-
-# 6. 使用特定版本而非 latest
-# 在 CI/CD 中使用具體版本標籤
-```
-
-#### 2.3.5 映像檔版本控制
-
-##### 標籤策略
-
-```bash
-# 版本標籤策略
-podman tag java-tutorial:latest java-tutorial:v1.0.0
-podman tag java-tutorial:latest java-tutorial:1.0
-podman tag java-tutorial:latest java-tutorial:1
-podman tag java-tutorial:latest java-tutorial:stable
-
-# 環境標籤
-podman tag java-tutorial:latest java-tutorial:dev
-podman tag java-tutorial:latest java-tutorial:staging
-podman tag java-tutorial:latest java-tutorial:prod
-```
-
-##### 映像檔推送與分享
-
-```bash
-# 推送到 Registry
-podman push java-tutorial:v1.0.0 registry.example.com/java-tutorial:v1.0.0
-
-# 匯出映像檔
-podman save java-tutorial:v1.0.0 > java-tutorial-v1.0.0.tar
-
-# 分享映像檔
-scp java-tutorial-v1.0.0.tar user@server:/tmp/
-```
-
-#### 2.3.6 映像檔清理與維護
-
-##### 自動清理
-
-```bash
-# 清理無標籤映像檔
-podman image prune
-
-# 清理所有無用映像檔
-podman image prune -a
-
-# 清理特定時間前的映像檔
-podman image prune --filter "until=72h"
-```
-
-**透過 Podman Desktop：**
-- 點擊「Images」→「Prune Images」
-- 選擇清理選項
-- 確認清理操作
-
-##### 映像檔分析
-
-```bash
-# 分析映像檔層級
-podman image tree java-tutorial:v1.0.0
-
-# 檢視映像檔佔用空間
-podman system df
-
-# 詳細空間分析
-podman system df -v
-```
-
-#### ⚠️ 映像檔管理注意事項
-
-- 🏷️ 使用有意義的標籤命名策略
-- 🔒 定期掃描映像檔安全弱點
-- 📦 優化映像檔大小以提升部署速度
-- 🗑️ 定期清理無用的映像檔
-- 📋 記錄映像檔建置過程與相依性
-
----
-
-## 第二部分總結
-
-在專案實務應用章節中，我們已經涵蓋了：
-
-1. **專案整合實務**：Java 開發環境容器化
-2. **容器管理**：生命週期管理、監控除錯、資源優化
-3. **映像檔管理**：建置、優化、安全性、版本控制
-
----
-
-### 2.4 Volume 與 Network 管理
-
-#### 🎯 學習目標
-- 掌握 Volume 的建立與管理
-- 理解 Network 的配置與最佳實務
-- 學會資料持久化與網路隔離策略
-
-#### 2.4.1 Volume 管理
-
-##### Volume 類型與用途
-
-```mermaid
-graph TD
-    A[Volume 類型] --> B[Named Volume]
-    A --> C[Bind Mount]
-    A --> D[tmpfs Mount]
-    
-    B --> B1[持久化資料]
-    B --> B2[容器間共享]
-    
-    C --> C1[開發環境]
-    C --> C2[配置檔案]
-    
-    D --> D1[暫存資料]
-    D --> D2[高效能需求]
-    
-    style B fill:#e8f5e8
-    style C fill:#fff3e0
-    style D fill:#e3f2fd
-```
-
-##### 建立與管理 Named Volume
-
-**透過 CLI 操作：**
-
-```bash
-# 建立 Named Volume
-podman volume create postgres-data
-
-# 檢視 Volume 詳細資訊
-podman volume inspect postgres-data
-
-# 列出所有 Volume
-podman volume ls
-
-# 使用 Volume
-podman run -d --name postgres \
-  -v postgres-data:/var/lib/postgresql/data \
-  -e POSTGRES_PASSWORD=password \
-  postgres:14
-```
-
-**透過 Podman Desktop：**
-
-1. **建立 Volume**
-   - 點擊「Volumes」→「Create Volume」
-   - 名稱：`postgres-data`
-   - 標籤：`project=java-tutorial`
-
-2. **使用 Volume**
-   - 建立容器時選擇「Volumes」
-   - 選擇 `postgres-data`
-   - 掛載點：`/var/lib/postgresql/data`
-
-##### Bind Mount 實務應用
-
-**開發環境範例：**
-
-```bash
-# Windows 路徑 Bind Mount
-podman run -it --name dev-env \
-  -v "D:\developer\repos\java_tutorial:/workspace:Z" \
-  -w /workspace \
-  openjdk:17-jdk bash
-```
-
-**注意事項：**
-- Windows 使用絕對路徑
-- `:Z` 選項用於 SELinux 標籤
-- 開發時使用 Bind Mount，生產環境使用 Named Volume
-
-##### Volume 備份與還原
-
-```bash
-# 備份 Volume 資料
-podman run --rm \
-  -v postgres-data:/data \
-  -v "D:\backups:/backup" \
-  alpine tar czf /backup/postgres-backup-$(date +%Y%m%d).tar.gz -C /data .
-
-# 還原 Volume 資料
-podman run --rm \
-  -v postgres-data:/data \
-  -v "D:\backups:/backup" \
-  alpine tar xzf /backup/postgres-backup-20250831.tar.gz -C /data
-```
-
-#### 2.4.2 Network 管理
-
-##### 網路架構概覽
-
-```mermaid
-graph TB
-    A[Host 網路] --> B[Bridge 網路]
-    B --> C[Container 1]
-    B --> D[Container 2]
-    B --> E[Container 3]
-    
-    F[自訂網路] --> G[Pod Network]
-    G --> H[Pod 內容器 1]
-    G --> I[Pod 內容器 2]
-    
-    J[外部網路] --> K[NAT/Firewall]
-    K --> B
-    K --> F
-    
-    style B fill:#e8f5e8
-    style F fill:#fff3e0
-    style J fill:#ffebee
-```
-
-##### 建立自訂網路
-
-**基本網路建立：**
-
-```bash
-# 建立 Bridge 網路
-podman network create --driver bridge webapp-network
-
-# 建立具有特定子網的網路
-podman network create \
-  --driver bridge \
-  --subnet 172.20.0.0/16 \
-  --gateway 172.20.0.1 \
-  isolated-network
-
-# 檢視網路詳細資訊
-podman network inspect webapp-network
-```
-
-**透過 Podman Desktop：**
-
-1. **建立網路**
-   - 點擊「Networks」→「Create Network」
-   - 名稱：`webapp-network`
-   - Driver：`bridge`
-   - 子網：`172.20.0.0/16`
-
-2. **網路設定**
-   - Gateway：`172.20.0.1`
-   - IPAM 配置
-   - DNS 設定
-
-##### 容器網路連接
-
-```bash
-# 在建立容器時指定網路
-podman run -d --name web-app \
-  --network webapp-network \
-  nginx:alpine
-
-# 將現有容器連接到網路
-podman network connect webapp-network existing-container
-
-# 從網路中斷開容器
-podman network disconnect webapp-network existing-container
-```
-
-##### 多容器網路通信
-
-**實務範例：Web 應用程式 + 資料庫**
-
-```bash
-# 建立應用網路
-podman network create app-network
-
-# 啟動資料庫容器
-podman run -d --name database \
-  --network app-network \
-  -e POSTGRES_DB=appdb \
-  -e POSTGRES_USER=appuser \
-  -e POSTGRES_PASSWORD=apppass \
-  postgres:14
-
-# 啟動應用程式容器
-podman run -d --name webapp \
-  --network app-network \
-  -p 8080:8080 \
-  -e DB_HOST=database \
-  -e DB_PORT=5432 \
-  java-tutorial:latest
-```
-
-**容器間通信：**
-- 使用容器名稱作為主機名稱
-- 在同一網路內可直接通信
-- 無需暴露不必要的埠號
-
-#### 2.4.3 網路安全策略
-
-##### 網路隔離
-
-```bash
-# 建立隔離的網路環境
-podman network create --internal secure-network
-
-# 在隔離網路中運行敏感服務
-podman run -d --name secure-service \
-  --network secure-network \
-  sensitive-app:latest
-```
-
-##### 防火牆規則
-
-```bash
-# 限制容器網路存取
-podman run -d --name restricted-app \
-  --network none \
-  --add-host=api.example.com:192.168.1.100 \
-  app:latest
-
-# 使用 Slirp4netns 進行使用者網路
-podman run -d --name user-network-app \
-  --network slirp4netns \
-  app:latest
-```
-
-#### 2.4.4 儲存與網路監控
-
-##### 監控 Volume 使用
-
-```bash
-# 檢視 Volume 使用情況
-podman system df -v
-
-# 檢視特定 Volume 的掛載點
-podman volume inspect postgres-data --format "{{.Mountpoint}}"
-
-# 監控 Volume 空間使用
-du -sh $(podman volume inspect postgres-data --format "{{.Mountpoint}}")
-```
-
-##### 網路流量監控
-
-```bash
-# 檢視容器網路統計
-podman stats --format "table {{.Container}}\t{{.NetIO}}"
-
-# 檢視網路介面
-podman exec container-name ip addr show
-```
-
-#### 2.4.5 故障排除
-
-##### Volume 相關問題
-
-**問題：權限錯誤**
-
-```bash
-# 檢查檔案權限
-podman exec -it container-name ls -la /mount/point
-
-# 修正權限問題
-podman exec -it --user root container-name chown -R user:group /mount/point
-```
-
-**問題：Volume 無法掛載**
-
-```bash
-# 檢查 Volume 狀態
-podman volume inspect volume-name
-
-# 重新建立 Volume
-podman volume rm volume-name
-podman volume create volume-name
-```
-
-##### 網路相關問題
-
-**問題：容器無法通信**
-
-```bash
-# 檢查網路連接
-podman network ls
-podman network inspect network-name
-
-# 測試網路連通性
-podman exec container1 ping container2
-podman exec container1 nslookup container2
-```
-
-**問題：埠號衝突**
-
-```bash
-# 檢查埠號使用
-netstat -tulpn | grep 8080
-
-# 變更埠號對應
-podman run -p 8081:8080 app:latest
-```
-
-#### ⚠️ Volume 與 Network 注意事項
-
-- 💾 定期備份重要的 Volume 資料
-- 🔒 適當設定網路隔離策略
-- 📊 監控儲存空間使用情況
-- 🌐 避免不必要的埠號暴露
-- 🔧 使用有意義的命名規則
-
----
-
-### 2.5 IDE 整合
-
-#### 🎯 學習目標
-- 整合 Podman Desktop 與 VS Code
-- 配置 IntelliJ IDEA 容器開發環境
-- 建立高效的容器化開發工作流程
-
-#### 2.5.1 VS Code 整合
-
-##### 安裝必要擴充功能
-
-**必要擴充功能：**
-
-1. **Dev Containers**
-   - 提供容器內開發環境
-   - 支援遠端容器連接
-
-2. **Podman Desktop Extension**
-   - 直接在 VS Code 中管理容器
-   - 整合式容器操作
-
-3. **Docker** (可選)
-   - 語法高亮與 IntelliSense
-   - Dockerfile 支援
-
-```bash
-# 透過 CLI 安裝擴充功能
-code --install-extension ms-vscode-remote.remote-containers
-code --install-extension redhat.vscode-podman
-```
-
-##### 設定開發容器
-
-**建立 `.devcontainer/devcontainer.json`：**
-
-```json
-{
-    "name": "Java Development",
-    "image": "openjdk:17-jdk",
-    
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "vscjava.vscode-java-pack",
-                "redhat.java",
-                "vscjava.vscode-maven"
-            ],
-            "settings": {
-                "java.home": "/usr/local/openjdk-17",
-                "maven.terminal.useJavaHome": true
-            }
-        }
-    },
-    
-    "forwardPorts": [8080],
-    "mounts": [
-        "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
-    ],
-    "workspaceFolder": "/workspace",
-    
-    "postCreateCommand": "mvn dependency:go-offline",
-    
-    "remoteUser": "vscode"
-}
-```
-
-**建立開發容器 Dockerfile：**
-
-```dockerfile
-# .devcontainer/Dockerfile
-FROM openjdk:17-jdk
-
-# 安裝必要工具
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    wget \
-    vim \
-    && rm -rf /var/lib/apt/lists/*
-
-# 建立 vscode 使用者
-RUN groupadd --gid 1000 vscode \
-    && useradd --uid 1000 --gid vscode --shell /bin/bash --create-home vscode
-
-# 安裝 Maven
-ENV MAVEN_VERSION=3.9.4
-RUN curl -fsSL https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
-    | tar xzf - -C /opt \
-    && ln -s /opt/apache-maven-${MAVEN_VERSION} /opt/maven
-
-ENV PATH=/opt/maven/bin:$PATH
-
-USER vscode
-```
-
-##### 使用開發容器
-
-1. **啟動開發容器**
-   - 開啟 VS Code
-   - `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
-   - 等待容器建置完成
-
-2. **開發工作流程**
-   ```bash
-   # 在容器內編譯專案
-   mvn compile
-   
-   # 執行測試
-   mvn test
-   
-   # 啟動應用程式
-   mvn spring-boot:run
-   ```
-
-3. **除錯設定**
-
-**launch.json 設定：**
-
-```json
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "java",
-            "name": "Debug Java App",
-            "request": "launch",
-            "mainClass": "com.tutorial.Application",
-            "projectName": "java-tutorial",
-            "args": "",
-            "vmArgs": "-Dspring.profiles.active=dev"
-        }
-    ]
-}
-```
-
-#### 2.5.2 IntelliJ IDEA 整合
-
-##### 配置 Podman 支援
-
-1. **啟用 Docker 外掛程式**
-   - File → Settings → Plugins
-   - 搜尋並啟用 "Docker" 外掛程式
-
-2. **設定 Podman 連接**
-   - File → Settings → Build, Execution, Deployment → Docker
-   - 點擊 "+" 新增連接
-   - 選擇 "Unix socket"
-   - Socket path: `unix:///run/user/1000/podman/podman.sock`
-
-##### 容器內開發設定
-
-**建立 Run Configuration：**
-
-1. **Docker 容器設定**
-   - Run → Edit Configurations
-   - 點擊 "+" → Docker → Docker Image
-   - Image ID: `openjdk:17-jdk`
-   - Bind mounts: 專案目錄掛載
-
-2. **遠端開發設定**
-   ```bash
-   # 啟動開發容器
-   podman run -d --name idea-dev \
-     -v "D:\developer\repos\java_tutorial:/workspace" \
-     -w /workspace \
-     -p 8080:8080 \
-     -p 5005:5005 \
-     openjdk:17-jdk tail -f /dev/null
-   
-   # 進入容器進行開發
-   podman exec -it idea-dev bash
-   ```
-
----
-
-## 3. 進階操作與最佳實務
-
-### 3.1 Podman CLI 與 Desktop 搭配使用
-
-#### 🎯 學習目標
-
-- 掌握 CLI 與圖形介面的協同作業
-- 學習進階命令列操作技巧
-- 了解自動化腳本撰寫
-
-#### 3.1.1 CLI 進階命令操作
-
-##### 系統資訊與診斷
-
-```bash
-# 系統資訊檢查
-podman system info
-
-# 連接資訊
-podman system connection list
-
-# 磁碟使用量分析
-podman system df
-
-# 事件監控
-podman events --filter type=container
-
-# 系統重置（注意：會清除所有資料）
-podman system reset
-```
-
-##### 進階容器管理
-
-```bash
-# 容器資源使用統計
-podman stats --all --no-stream
-
-# 容器程序檢視
-podman top container_name
-
-# 容器檔案系統檢查
-podman diff container_name
-
-# 執行中容器的檔案複製
-podman cp container_name:/app/logs ./logs
-podman cp ./config.properties container_name:/app/config/
-
-# 容器匯出與匯入
-podman export container_name > container_backup.tar
-podman import container_backup.tar new_image:tag
-```
-
-##### 映像檔進階操作
-
-```bash
-# 映像檔歷史記錄
-podman history image_name
-
-# 映像檔圖層分析
-podman inspect image_name | jq '.[]Layers'
-
-# 映像檔安全掃描（需要安裝 skopeo）
-skopeo inspect docker://registry.access.redhat.com/ubi8/ubi
-
-# 映像檔簽名驗證
-podman image trust show
-```
-
-#### 3.1.2 PowerShell 腳本自動化
-
-##### 自動部署腳本
-
-```powershell
-# deploy-java-app.ps1
-param(
-    [string]$ImageTag = "latest",
-    [string]$ContainerName = "java-tutorial",
-    [int]$Port = 8080
-)
-
-# 停止並移除舊容器
-Write-Host "清理舊容器..." -ForegroundColor Yellow
-podman stop $ContainerName -ErrorAction SilentlyContinue
-podman rm $ContainerName -ErrorAction SilentlyContinue
-
-# 拉取最新映像檔
-Write-Host "拉取映像檔 $ImageTag..." -ForegroundColor Green
-podman pull "java-tutorial:$ImageTag"
-
-# 啟動新容器
-Write-Host "啟動容器 $ContainerName..." -ForegroundColor Green
-podman run -d `
-    --name $ContainerName `
-    -p "${Port}:8080" `
-    -e SPRING_PROFILES_ACTIVE=prod `
-    -v "java-tutorial-logs:/app/logs" `
-    "java-tutorial:$ImageTag"
-
-# 檢查健康狀態
-Start-Sleep -Seconds 10
-$status = podman inspect $ContainerName --format "{{.State.Status}}"
-if ($status -eq "running") {
-    Write-Host "容器啟動成功！" -ForegroundColor Green
-    Write-Host "應用程式網址：http://localhost:$Port" -ForegroundColor Cyan
-} else {
-    Write-Host "容器啟動失敗！" -ForegroundColor Red
-    podman logs $ContainerName
-}
-```
-
-##### 環境管理腳本
-
-```powershell
-# manage-environment.ps1
-param(
-    [ValidateSet("dev", "test", "prod")]
-    [string]$Environment = "dev",
-    
-    [ValidateSet("start", "stop", "restart", "status")]
-    [string]$Action = "status"
-)
-
-$containers = @{
-    "dev" = @("java-tutorial-dev", "postgres-dev", "redis-dev")
-    "test" = @("java-tutorial-test", "postgres-test")
-    "prod" = @("java-tutorial-prod", "postgres-prod", "redis-prod")
-}
-
-function Start-Environment {
-    param([string[]]$ContainerList)
-    
-    foreach ($container in $ContainerList) {
-        Write-Host "啟動 $container..." -ForegroundColor Green
-        podman start $container
-    }
-}
-
-function Stop-Environment {
-    param([string[]]$ContainerList)
-    
-    foreach ($container in $ContainerList) {
-        Write-Host "停止 $container..." -ForegroundColor Yellow
-        podman stop $container
-    }
-}
-
-function Get-EnvironmentStatus {
-    param([string[]]$ContainerList)
-    
-    Write-Host "=== $Environment 環境狀態 ===" -ForegroundColor Cyan
-    foreach ($container in $ContainerList) {
-        $status = podman inspect $container --format "{{.State.Status}}" 2>$null
-        if ($status) {
-            Write-Host "$container : $status" -ForegroundColor Green
-        } else {
-            Write-Host "$container : 不存在" -ForegroundColor Red
-        }
-    }
-}
-
-# 執行動作
-$targetContainers = $containers[$Environment]
-switch ($Action) {
-    "start" { Start-Environment $targetContainers }
-    "stop" { Stop-Environment $targetContainers }
-    "restart" { 
-        Stop-Environment $targetContainers
-        Start-Sleep -Seconds 5
-        Start-Environment $targetContainers
-    }
-    "status" { Get-EnvironmentStatus $targetContainers }
-}
-```
-
-### 3.2 Compose 支援與多容器應用管理
-
-#### 🎯 學習目標
-
-- 掌握 Docker Compose 在 Podman 中的使用
-- 學習多容器應用架構設計
-- 了解服務編排與依賴管理
-
-#### 3.2.1 Podman Compose 基礎
-
-##### 安裝與設定
-
-```bash
-# 安裝 podman-compose
-pip install podman-compose
-
-# 或使用 Docker Compose（需要額外設定）
-# 設定環境變數指向 Podman
-export DOCKER_HOST=unix:///run/user/$UID/podman/podman.sock
-```
-
-##### 基本 Compose 檔案結構
-
-```yaml
-# docker-compose.yml
-version: '3.8'
-
-services:
-  app:
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - DB_HOST=database
-    depends_on:
-      - database
-      - redis
-    volumes:
-      - ./logs:/app/logs
-    networks:
-      - app-network
-
-  database:
-    image: postgres:14
-    environment:
-      POSTGRES_DB: java_tutorial
-      POSTGRES_USER: tutorial_user
-      POSTGRES_PASSWORD: tutorial_pass
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./db/init:/docker-entrypoint-initdb.d
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U tutorial_user"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  redis:
-    image: redis:7-alpine
-    command: redis-server --appendonly yes
-    volumes:
-      - redis_data:/data
-    networks:
-      - app-network
-
-volumes:
-  postgres_data:
-  redis_data:
-
-networks:
-  app-network:
-    driver: bridge
-```
-
-#### 3.2.2 實務應用範例
-
-##### 完整的微服務架構
-
-```yaml
-# microservices-compose.yml
-version: '3.8'
-
-services:
-  # API Gateway
-  gateway:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - user-service
-      - order-service
-    networks:
-      - frontend
-      - backend
-
-  # 用戶服務
-  user-service:
-    build:
-      context: ./user-service
-      dockerfile: Dockerfile
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - DATABASE_URL=jdbc:postgresql://user-db:5432/userdb
-    depends_on:
-      user-db:
-        condition: service_healthy
-    networks:
-      - backend
-    deploy:
-      replicas: 2
-
-  # 訂單服務
-  order-service:
-    build:
-      context: ./order-service  
-      dockerfile: Dockerfile
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - DATABASE_URL=jdbc:postgresql://order-db:5432/orderdb
-      - REDIS_URL=redis://redis:6379
-    depends_on:
-      order-db:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    networks:
-      - backend
-
-  # 用戶資料庫
-  user-db:
-    image: postgres:14
-    environment:
-      POSTGRES_DB: userdb
-      POSTGRES_USER: user_svc
-      POSTGRES_PASSWORD: user_pass
-    volumes:
-      - user_db_data:/var/lib/postgresql/data
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user_svc"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # 訂單資料庫
-  order-db:
-    image: postgres:14
-    environment:
-      POSTGRES_DB: orderdb
-      POSTGRES_USER: order_svc
-      POSTGRES_PASSWORD: order_pass
-    volumes:
-      - order_db_data:/var/lib/postgresql/data
-    networks:
-      - backend
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U order_svc"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # 快取服務
-  redis:
-    image: redis:7-alpine
-    command: redis-server --appendonly yes
-    volumes:
-      - redis_data:/data
-    networks:
-      - backend
-
-  # 監控服務
-  prometheus:
-    image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    networks:
-      - monitoring
-
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
-    networks:
-      - monitoring
-
-volumes:
-  user_db_data:
-  order_db_data:
-  redis_data:
-  prometheus_data:
-  grafana_data:
-
-networks:
-  frontend:
-    driver: bridge
-  backend:
-    driver: bridge
-    internal: true
-  monitoring:
-    driver: bridge
-```
-
-##### Compose 操作命令
-
-```bash
-# 啟動所有服務
-podman-compose up -d
-
-# 查看服務狀態
-podman-compose ps
-
-# 查看日誌
-podman-compose logs -f app
-
-# 擴展服務實例
-podman-compose up --scale app=3
-
-# 停止並移除所有容器
-podman-compose down
-
-# 重建服務
-podman-compose up --build
-
-# 執行單次命令
-podman-compose run app mvn test
-```
-
-### 3.3 安全性與資源管理最佳實踐
-
-#### 🎯 學習目標
-
-- 建立安全的容器化環境
-- 掌握資源限制與監控技巧
-- 了解安全性稽核與合規要求
-
-#### 3.3.1 安全性最佳實踐
-
-##### 映像檔安全
-
-```bash
-# 使用官方基礎映像檔
-FROM openjdk:17-jdk-slim
-
-# 建立非特權使用者
-RUN groupadd --gid 1001 appuser && \
-    useradd --uid 1001 --gid appuser --shell /bin/bash --create-home appuser
-
-# 設定適當的檔案權限
-COPY --chown=appuser:appuser . /app
-WORKDIR /app
-
-# 切換到非特權使用者
-USER appuser
-
-# 移除不必要的套件
-RUN apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-```
-
-##### 執行時安全選項
-
-```bash
-# 使用非特權容器
-podman run --user 1001:1001 \
-  --security-opt no-new-privileges \
-  --cap-drop=ALL \
-  --cap-add=NET_BIND_SERVICE \
-  app:latest
-
-# 限制系統調用
-podman run --security-opt seccomp:default.json \
-  app:latest
-
-# 使用 read-only 根檔案系統
-podman run --read-only \
-  --tmpfs /tmp \
-  --tmpfs /var/run \
-  app:latest
-```
-
-##### 網路安全
-
-```bash
-# 建立隔離網路
-podman network create --internal secure-backend
-
-# 使用主機網路時的安全考量
-podman run --network host \
-  --security-opt label=level:s0:c100,c200 \
-  app:latest
-```
-
-#### 3.3.2 資源管理
-
-##### 記憶體與 CPU 限制
-
-```bash
-# 設定資源限制
-podman run -d \
-  --memory=512m \
-  --memory-swap=1g \
-  --cpus=1.5 \
-  --cpu-shares=1024 \
-  app:latest
-
-# 設定更細緻的 CPU 控制
-podman run -d \
-  --cpuset-cpus=0,1 \
-  --cpu-period=100000 \
-  --cpu-quota=50000 \
-  app:latest
-```
-
-##### 儲存限制
-
-```bash
-# 限制容器檔案系統大小
-podman run -d \
-  --storage-opt size=10G \
-  app:latest
-
-# 設定磁碟 I/O 限制
-podman run -d \
-  --device-read-bps /dev/sda:1mb \
-  --device-write-bps /dev/sda:1mb \
-  app:latest
-```
-
-##### 監控與警報
-
-```yaml
-# monitoring-compose.yml
-version: '3.8'
-
-services:
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    ports:
-      - "8081:8080"
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/containers:/var/lib/containers:ro
-    privileged: true
-
-  node-exporter:
-    image: prom/node-exporter:latest
-    ports:
-      - "9100:9100"
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-```
-
-### 3.4 與 Kubernetes/OpenShift 對接基礎
-
-#### 🎯 學習目標
-
-- 了解 Podman 與 Kubernetes 的整合
-- 掌握 Pod 與 Container 的轉換技巧
-- 學習 OpenShift 開發工作流程
-
-#### 3.4.1 Podman Play Kubernetes
-
-##### 生成 Kubernetes YAML
-
-```bash
-# 從現有容器生成 Pod YAML
-podman generate kube java-tutorial-pod > java-tutorial.yaml
-
-# 從現有容器生成 Deployment YAML
-podman generate kube --service java-tutorial-pod > java-tutorial-deployment.yaml
-```
-
-##### Kubernetes 部署檔案範例
-
-```yaml
-# java-tutorial-k8s.yaml
 apiVersion: v1
 kind: Pod
 metadata:
-  name: java-tutorial-pod
-  labels:
-    app: java-tutorial
+  name: verify-payments-api
 spec:
   containers:
-  - name: app
-    image: java-tutorial:latest
-    ports:
-    - containerPort: 8080
-    env:
-    - name: SPRING_PROFILES_ACTIVE
-      value: "k8s"
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "250m"
-      limits:
-        memory: "512Mi"
-        cpu: "500m"
-    volumeMounts:
-    - name: app-logs
-      mountPath: /app/logs
-  volumes:
-  - name: app-logs
-    emptyDir: {}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: java-tutorial-service
-spec:
-  selector:
-    app: java-tutorial
-  ports:
-  - port: 80
-    targetPort: 8080
-  type: LoadBalancer
+    - name: api
+      image: localhost/payments-api:dev
+      imagePullPolicy: Never
 ```
 
-##### 使用 Podman Play
+### 7.3 Minikube、Lima 與 MicroShift
+
+**Minikube**：安裝 minikube 擴充功能與 CLI 後，**Settings > Resources** → Minikube 卡片 → **Create new ...**；context 名稱為 `minikube`。
+
+**Lima**（macOS、Linux）：目前要先用 CLI 建立執行個體，再讓擴充功能接手。
 
 ```bash
-# 部署到 Podman
-podman play kube java-tutorial-k8s.yaml
-
-# 查看部署狀態
-podman pod ps
-
-# 停止並移除 Pod
-podman play kube --down java-tutorial-k8s.yaml
+limactl start template://k3s      # 單節點 k3s
+limactl start template://k8s      # 單節點 kubeadm k8s
+# 自訂資源
+limactl start --cpus=4 --memory=4 --disk=100 template://k8s
 ```
 
-#### 3.4.2 OpenShift 整合
+接著到 **Settings > Preferences > Extension: Lima** 設定執行個體名稱與類型（kubernetes），並在 **Settings > Preferences > Kubernetes** 指定 Lima 產生的 kubeconfig 路徑。
 
-##### 使用 Source-to-Image (S2I)
+**MicroShift（MINC）**：MINC（MicroShift in a Container）以容器方式執行輕量 OpenShift。
+
+1. 準備 rootful machine；Windows 在 `%UserProfile%\.wslconfig` 的 `[wsl2]` 區段，於 `kernelCommandLine` 加上 `cgroup_no_v1=all`。
+2. 安裝 MINC 擴充功能。
+3. **Settings > Resources** → MicroShift 卡片 → **Create new ...**。
+4. context 切到 `microshift`。
+
+```ini
+# %UserProfile%\.wslconfig
+[wsl2]
+kernelCommandLine = cgroup_no_v1=all
+```
+
+### 7.4 OpenShift Local 與 Developer Sandbox
+
+**OpenShift Local**
+
+1. 安裝 Red Hat OpenShift Local 擴充功能，在 Dashboard 依提示安裝 `crc` 並重新開機。
+2. 選擇 preset：**OpenShift**（單節點完整 OpenShift，含 Web Console，資源需求高）或 **MicroShift**（實驗性、輕量）。
+3. 從 Red Hat OpenShift Local 下載頁複製 **pull secret** 貼上，按 **Initialize and start**。
+
+**Developer Sandbox**
+
+1. 安裝 Developer Sandbox 擴充功能，**Settings > Resources** → **Create new**。
+2. 登入 Developer Sandbox 網站，從 Console 選 **Copy login command** → **Display Token**，複製 `oc login --token=... --server=...`。
+3. 回到 Podman Desktop 貼上登入指令並命名 context。
+
+> ⚠️ **注意**：Developer Sandbox 是 Red Hat 管理的公有雲環境。**不可以**部署含有公司原始碼、客戶資料或內部憑證的映像檔，只適合用公開範例驗證 OpenShift 特性。
+
+### 7.5 管理 Kubernetes context
+
+**Settings > Kubernetes** 可以：
+
+- **切換** context（也可以從狀態列或系統匣選單切換）。
+- **編輯** context 的名稱、cluster、user、namespace。
+- **複製** context，例如為同一叢集建立不同 namespace 的 context。
+- **匯入** kubeconfig：拖放檔案或按 **Choose file**，勾選要匯入的 context。
+- 1.20 起可以在介面中切換 cluster 與 user。
+
+kubeconfig 預設為 `~/.kube/config`，可以在 **Settings > Preferences > Kubernetes** 修改（`kubernetes.Kubeconfig`）。1.25 起**新版 Kubernetes 功能預設啟用**，改用完整的 Kubernetes API 監控 context，穩定性較好。
+
+### 7.6 部署與操作 Kubernetes 資源
+
+#### 7.6.1 Apply YAML
+
+**Kubernetes** 頁的 **Apply YAML** 可以選擇本機 YAML 檔套用到目前的 context；1.22 起也可以直接貼上 YAML 內容，不必先存成檔案。**Kubernetes** 頁可以瀏覽 Nodes、Deployments、Services、Ingresses／Routes、ConfigMaps／Secrets、PVC、Jobs、CronJobs 等資源，檢視 Summary 與 YAML，並直接在介面上編輯後套用。
+
+#### 7.6.2 Deploy to Kubernetes
+
+從 **Pods** 或 **Containers** 頁的選單選 **Deploy to Kubernetes**：
+
+1. 確認目前的 context 與 namespace（namespace 必須已經存在，預設為 `default`）。
+2. 可以勾選「使用預設 Ingress controller 對外公開服務」；若執行映像檔時設定了自訂埠號，還可以選擇 Ingress 主機埠。
+3. 按 **Deploy** → **Done**，在 **Kubernetes > Pods** 確認狀態為 Running。
+
+> 📌 容器必須正確暴露埠號，Podman Desktop 才能產生對應的 Service。映像檔建議以非 root 使用者執行，才能通過 OpenShift 的 restricted-v2 SCC。
+
+#### 7.6.3 Port forwarding
+
+在 **Kubernetes > Pods** 或 **Services** 的詳細頁 **Summary** 分頁，按埠號旁的 **Forward...**，再按 **Open** 用瀏覽器開啟。所有轉送規則集中在 **Kubernetes > Port Forwarding** 頁，可以從這裡刪除。對應 CLI 為 `kubectl port-forward`。
+
+### 7.7 Podman 與 Kubernetes YAML 的往返
 
 ```bash
-# 建立 S2I 建置
-oc new-app java:11~https://github.com/your-org/java-tutorial.git
+# 從既有 Pod 產生 YAML（含 Service）
+podman kube generate payments-dev --service -f payments-dev.yaml
 
-# 建立 BuildConfig
-oc create -f - <<EOF
-apiVersion: build.openshift.io/v1
-kind: BuildConfig
-metadata:
-  name: java-tutorial
-spec:
-  source:
-    git:
-      uri: https://github.com/your-org/java-tutorial.git
-    type: Git
-  strategy:
-    sourceStrategy:
-      from:
-        kind: ImageStreamTag
-        name: java:11
-    type: Source
-  output:
-    to:
-      kind: ImageStreamTag
-      name: java-tutorial:latest
-EOF
+# 在 Podman 上重播 YAML（開發者本機驗證）
+podman kube play payments-dev.yaml
+podman kube play --down payments-dev.yaml
+
+# 套用到 Kind（正式工作負載建議改寫為 Deployment）
+kubectl apply -f payments-dev.yaml --context kind-dev
 ```
 
-##### 部署配置
+**轉到正式環境前的檢查**
+
+- 以 `Deployment`（必要時加上 `HorizontalPodAutoscaler`）取代裸 Pod。
+- 補上 `resources.requests／limits`、`readinessProbe`、`livenessProbe`。
+- 設定 `securityContext`：`runAsNonRoot: true`、`allowPrivilegeEscalation: false`、`capabilities.drop: ["ALL"]`、`seccompProfile.type: RuntimeDefault`。
+- Secret 改由 External Secrets 或 Sealed Secrets 管理，不要把 `podman kube generate` 產生的 Secret 放進 Git。
+
+**整理後的 Deployment 範例**（可以同時部署到 Kind 與 OpenShift）：
 
 ```yaml
-# openshift-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: java-tutorial
+  name: payments-api
   labels:
-    app: java-tutorial
+    app: payments-api
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
-      app: java-tutorial
+      app: payments-api
   template:
     metadata:
       labels:
-        app: java-tutorial
+        app: payments-api
     spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       containers:
-      - name: java-tutorial
-        image: java-tutorial:latest
-        ports:
-        - containerPort: 8080
-        env:
-        - name: SPRING_PROFILES_ACTIVE
-          value: "openshift"
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"  
-            cpu: "500m"
-        readinessProbe:
-          httpGet:
-            path: /actuator/health/readiness
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            path: /actuator/health/liveness
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 30
+        - name: api
+          image: registry.corp.example/payments/api:1.4.2
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://payments-db:5432/payments
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: payments-db
+                  key: password
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: java-tutorial-service
+  name: payments-api
 spec:
   selector:
-    app: java-tutorial
+    app: payments-api
   ports:
-  - port: 8080
-    targetPort: 8080
+    - port: 8080
+      targetPort: 8080
+```
+
+> 📌 這份 YAML 沒有指定 `runAsUser`，OpenShift 會自動配置專案範圍內的 UID；在 Kind 上則使用映像檔的 `USER`（例如 UBI OpenJDK 的 185）。OpenShift 要對外公開時再加上 Route，Kind 則使用 Ingress 或 Port forwarding。
+
+### 7.8 💡 本章實務建議
+
+1. **Kind 是預設的本機叢集**，並在 Windows 上另外準備一台 rootful machine 專門給 Kind 使用。
+2. **需要 OpenShift API（Route、SCC）時用 MINC 或 OpenShift Local**；Developer Sandbox 只放公開範例。
+3. **統一 kubeconfig 管理**：公司叢集的 context 由平台團隊提供，並用 namespace 區隔。
+4. **Deploy to Kubernetes 只用於開發驗證**；正式部署一律走 CI／CD 與 GitOps。
+5. **映像檔從開發階段就以非 root 執行**，避免到了 OpenShift 才發現被 SCC 擋下。
+
 ---
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: java-tutorial-route
-spec:
-  to:
-    kind: Service
-    name: java-tutorial-service
-  port:
-    targetPort: 8080
-```
 
----
+## 8. 擴充功能生態
 
-## 4. 認證考試準備
+> 🆕 **v2.0 新增**：擴充功能是 Podman Desktop 與一般容器 GUI 最大的差異。本章整理目錄中的擴充功能、安裝方式、企業管控與開發入門。
 
-### 4.1 Podman 認證知識範圍
+### 8.1 內建擴充功能
 
-#### 🎯 學習目標
+以下擴充功能隨 Podman Desktop 一起安裝，可以在 **Extensions > Installed** 停用或啟用：
 
-- 掌握 Red Hat 容器認證考試要點
-- 了解考試格式與評分標準
-- 建立系統性學習計畫
+| 分類 | 擴充功能 | 功能 |
+| --- | --- | --- |
+| 引擎 | Podman | 建立與監控 Podman machine，連接 Podman socket |
+| 引擎 | Docker | 偵測並註冊正在執行的 Docker 引擎 socket |
+| Kubernetes | Kind、Lima、Kube Context | 建立 Kind 叢集、接入 Lima 執行個體、檢視與切換 context |
+| CLI | Compose、Kubectl CLI | 安裝與更新 `docker-compose`、`kubectl` |
+| 其他 | Registries | 提供常見 registry 的預設設定 |
 
-#### 4.1.1 認證類型與適用對象
+### 8.2 擴充功能目錄
 
-##### Red Hat Certified Specialist in Containers and Kubernetes (EX180)
+下表為 2026-09-29 查詢 `registry.podman-desktop.io` 目錄的結果（共 23 個）：
 
-**適用對象：**
-- 系統管理員
-- 雲端架構師
-- DevOps 工程師
-- 容器平台管理員
+| 擴充功能 | 發行者 | 版本 | 分類 | 用途 |
+| --- | --- | --- | --- | --- |
+| Podman AI Lab | Red Hat | 1.9.3 | AI | 本機執行 LLM、Playground、Inference Server、Recipes（見[第 9 章](#9-podman-ai-lab)） |
+| Bootable Containers | Red Hat | 1.14.1 | Containers | 把容器映像檔轉成可開機的磁碟映像檔（bootc） |
+| Red Hat OpenShift Local | Red Hat | 2.4.0 | Kubernetes | 管理本機 OpenShift／MicroShift 叢集 |
+| Developer Sandbox | Red Hat | 0.1.0 | Kubernetes | 申請並連線到免費的雲端 OpenShift |
+| Red Hat Authentication | Red Hat | 1.2.1 | Authentication | 登入 Red Hat Developers（SSO），可以免費使用 RHEL 映像檔與 RPM |
+| RHEL VMs | Red Hat | 0.13.0 | RHEL、VMs | 快速建立 RHEL 虛擬機 |
+| RHEL Lightspeed | Red Hat | 0.2.0 | AI | RHEL 的 AI 助理 |
+| Red Hat OpenShift Checker | Red Hat | 0.1.5 | Containers | 分析 Containerfile 中在 OpenShift 上可能出問題的指令 |
+| Red Hat Extension Pack | Red Hat | 1.0.1 | Extension Packs | 一次安裝 Red Hat 系列擴充功能 |
+| Hummingbird | Red Hat | 0.1.1 | Containers | 整合 Project Hummingbird（精簡、非 root 的基底映像檔） |
+| Podman Quadlet | Podman Desktop | 0.12.1 | Containers | 在 Podman Desktop 中整合 Quadlet（systemd 單元） |
+| Image Layers Explorer | Podman Desktop | 0.3.0 | Containers | 逐層分析映像檔內容 |
+| Grype | Podman Desktop | 0.1.0 | Vulnerability Scanner | 整合 Grype（弱點掃描）與 Syft（SBOM） |
+| PostgreSQL | Podman Desktop | 0.5.0 | Database | 管理本機開發用的 PostgreSQL 服務 |
+| Kubernetes Dashboard | Podman Desktop | 0.5.0 | Kubernetes | 監控 Kubernetes 叢集資源 |
+| Kubernetes Contexts | Podman Desktop | 0.2.0 | Kubernetes | 進階 context 管理 |
+| Kubernetes Extension Pack | Podman Desktop | 0.1.0 | Extension Packs | Kubernetes 相關擴充功能組合 |
+| Kreate | Podman Desktop | 0.3.0 | Kubernetes | 提供建立 Kubernetes 資源的範本與說明 |
+| GitHub Account Authentication | Podman Desktop | 0.2.0 | Authentication | GitHub 帳號登入 |
+| Apple container extension | Podman Desktop | 0.1.0 | Containers | 在 macOS 上列出與管理 Apple container |
+| minikube | Podman Desktop | 0.4.0 | Kubernetes | 建立 Minikube 叢集 |
+| MINC | minc-org | 0.4.0 | Kubernetes | MicroShift in a Container |
+| Headlamp | Headlamp | 0.24.0 | Kubernetes | 可擴充的 Kubernetes Web UI |
 
-**先備條件：**
-- Red Hat Certified System Administrator (RHCSA) 或同等經驗
-- Linux 系統管理基礎
-- 容器化概念理解
+> 📌 目錄內容會持續變動，版本號請以 **Extensions > Catalog** 當下顯示為準。部分擴充功能（例如 minikube、Headlamp、OpenShift Checker）更新頻率較低，導入前要評估維護狀況。
 
-#### 4.1.2 考試範圍對照
+### 8.3 安裝與管理
 
-##### 核心技能領域
+| 方式 | 做法 |
+| --- | --- |
+| 從目錄安裝 | **Extensions > Catalog** → 選擇擴充功能 → **Install**；1.28 起 Task Manager 會顯示下載進度 |
+| 從 Dashboard 推薦 | Dashboard 的推薦橫幅或 Explore Features 區塊 |
+| 自訂擴充功能 | **Extensions** → **Install custom...** → 輸入 OCI 映像檔參照（例如 `quay.io/<組織>/<擴充功能>:<版本>`） |
+| 本機開發模式 | 1.20 起正式版也可以開啟 Development Mode，在 **Local Extensions** 分頁載入本機資料夾，即時測試 |
 
-```mermaid
-mindmap
-  root((EX180 考試範圍))
-    容器基礎
-      映像檔管理
-      容器生命週期
-      儲存管理
-      網路配置
-    Podman 操作
-      CLI 命令熟練度
-      無根容器
-      Pod 管理
-      系統整合
-    Kubernetes 基礎
-      YAML 撰寫
-      Pod 部署
-      Service 配置
-      故障排除
-    安全性
-      SELinux 整合
-      使用者權限
-      映像檔掃描
-      安全政策
-```
+**更新**：預設會自動檢查並安裝擴充功能更新（`extensions.autoCheckUpdates`、`extensions.autoUpdate`）。
 
-##### 具體考試主題
+**授權控管**：1.26 起，擴充功能要使用既有帳號或要求新登入時，Podman Desktop 會跳出允許／拒絕提示，擴充功能不能再悄悄取得登入資訊。
 
-**1. 容器基礎知識 (25%)**
-- 容器與映像檔概念
-- 容器生命週期管理
-- 映像檔建置與管理
-- Registry 操作
+### 8.4 企業管控
 
-**2. Podman 操作 (35%)**
-- Podman CLI 熟練使用
-- 無根容器執行
-- Pod 建立與管理
-- 儲存與網路配置
+| 設定鍵 | 預設 | 用途 |
+| --- | --- | --- |
+| `extensions.catalog.enabled` | `true` | 設為 `false` 時隱藏擴充功能目錄 |
+| `extensions.customExtensions.enabled` | `true` | 設為 `false` 時隱藏 **Install custom...** 按鈕 |
+| `extensions.localExtensions.enabled` | `true` | 是否顯示 Local Extensions 分頁 |
+| `extensions.autoUpdate` | `true` | 是否自動安裝更新 |
+| `extensions.ignoreRecommendations` | `false` | 關閉擴充功能推薦 |
+| `extensions.registryUrl`（內部設定） | `https://registry.podman-desktop.io/api/extensions.json` | 目錄來源 URL |
 
-**3. Kubernetes 整合 (25%)**
-- YAML 檔案撰寫
-- Pod 部署與管理
-- Service 與 Route 配置
-- Kubernetes 對接
+搭配 Managed configuration 鎖定這些設定（見[10.4](#104-常見管理用例)），就能做到「只允許 IT 核准的擴充功能」。
 
-**4. 安全性與故障排除 (15%)**
-- SELinux 容器政策
-- 安全性最佳實踐
-- 問題診斷與解決
-- 日誌分析
+> 💡 **企業白名單做法**：隱藏目錄與自訂安裝後，由 IT 以 OCI 映像檔形式把核准的擴充功能鏡像到內部 registry，再用派送腳本安裝；或評估把 `extensions.registryUrl` 指向內部維護的目錄檔（屬於內部設定，要先在試點環境驗證，見[附錄 E.1](#e1-待確認事項)）。
 
-#### 4.1.3 實務考試準備
+### 8.5 重點擴充功能
 
-##### 環境準備
+#### 8.5.1 Podman Quadlet
 
-```bash
-# 建立練習環境
-podman machine init --cpus 2 --memory 4096 --disk-size 20
-podman machine start
+Quadlet 讓 systemd 以宣告式單元檔（`.container`、`.pod`、`.kube`、`.network`、`.volume` 等）管理容器。Podman Quadlet 擴充功能把 Quadlet 整合進 Podman Desktop，可以在 GUI 中檢視與管理 machine 內或 Linux 主機上的 Quadlet 單元（實際支援的操作依擴充功能版本而定）。1.29 發布說明也建議搭配這個擴充功能使用 Podman 6 改良後的 Quadlet。
 
-# 安裝必要工具
-sudo dnf install -y podman skopeo buildah
-pip install podman-compose
+適合想在本機驗證「正式環境以 systemd 執行」設定的團隊。Quadlet 的語法與正式部署做法見《Podman 使用教學手冊》第 8 章。
 
-# 設定練習專案
-git clone https://github.com/containers/podman-bootcamp.git
-cd podman-bootcamp
-```
+#### 8.5.2 Bootable Containers（bootc）
 
-##### 核心命令練習清單
+bootc 讓你用 Containerfile 定義作業系統，建置成可開機的磁碟映像檔（qcow2、raw、ISO、AMI 等）。擴充功能提供建置精靈，可以把映像檔轉成磁碟映像檔並在 VM 中測試，適合邊緣裝置或標準化 RHEL 主機映像檔。
 
-```bash
-# 映像檔管理
-podman search <term>
-podman pull <image>
-podman images
-podman rmi <image>
-podman build -t <tag> .
-podman push <image>
+#### 8.5.3 Grype 與 Image Layers Explorer
 
-# 容器管理
-podman run <options> <image>
-podman ps -a
-podman start/stop/restart <container>
-podman rm <container>
-podman exec -it <container> <command>
-podman logs <container>
+- **Grype**：整合 Grype 弱點掃描與 Syft SBOM 產生，適合開發者在推送前自我檢查。
+- **Image Layers Explorer**：逐層查看檔案變化，找出意外加入的大型檔案或機敏檔案。
 
-# Pod 管理
-podman pod create --name <name>
-podman pod start/stop <pod>
-podman pod ps
-podman pod rm <pod>
+### 8.6 開發擴充功能入門
 
-# 系統管理
-podman info
-podman system df
-podman system prune
-podman volume ls/create/rm
-podman network ls/create/rm
-```
+擴充功能以 TypeScript（或 JavaScript）撰寫，透過 `@podman-desktop/api` 與 Podman Desktop 互動，可以貢獻：
 
-### 4.2 常見考題型態與解題練習
+- 指令（出現在指令面板）、選單（容器、映像檔、Pod、Volume 的右鍵選單；1.28 起支援 Volume）
+- 狀態列項目、系統匣選單、設定項目
+- Webview 頁面（1.29 起可以接入全域上一頁／下一頁）
+- Onboarding 流程、CLI 工具安裝、進度工作
 
-#### 🎯 學習目標
+**官方範本**
 
-- 熟悉考試題型與解題策略
-- 透過實務練習提升應試能力
-- 掌握時間管理技巧
+| 範本 | 用途 |
+| --- | --- |
+| minimal template | 最小範例，啟用時顯示 Hello World 對話框 |
+| webview template | 含前端頁面的範例 |
+| full template | 前端、後端、共用三個套件，使用 Svelte、TailwindCSS 與 `@podman-desktop/ui-svelte` |
 
-#### 4.2.1 實作題型分析
-
-##### 題型一：容器部署與配置
-
-**範例題目：**
-使用 nginx:alpine 映像檔建立一個名為 `web-server` 的容器，要求：
-1. 將主機的 8080 埠對應到容器的 80 埠
-2. 掛載主機目錄 `/home/user/html` 到容器的 `/usr/share/nginx/html`
-3. 設定環境變數 `NGINX_PORT=80`
-4. 容器必須在背景執行
-
-**標準解答：**
-
-```bash
-# 建立主機目錄
-mkdir -p /home/user/html
-echo "<h1>Test Page</h1>" > /home/user/html/index.html
-
-# 啟動容器
-podman run -d \
-  --name web-server \
-  -p 8080:80 \
-  -v /home/user/html:/usr/share/nginx/html:Z \
-  -e NGINX_PORT=80 \
-  nginx:alpine
-
-# 驗證容器狀態
-podman ps
-curl http://localhost:8080
-```
-
-##### 題型二：映像檔建置
-
-**範例題目：**
-建立一個自訂 Java 應用程式映像檔，要求：
-1. 基於 `openjdk:17-jdk-alpine`
-2. 複製應用程式 JAR 檔到 `/app/app.jar`
-3. 建立使用者 `appuser` (UID: 1001)
-4. 以非特權使用者執行
-5. 暴露 8080 埠
-
-**標準解答：**
+**發布方式**：擴充功能以 OCI 映像檔發布。
 
 ```dockerfile
-FROM openjdk:17-jdk-alpine
-
-# 建立應用程式使用者
-RUN addgroup -g 1001 appgroup && \
-    adduser -D -u 1001 -G appgroup appuser
-
-# 建立應用程式目錄
-RUN mkdir -p /app && chown appuser:appgroup /app
-
-# 複製應用程式檔案
-COPY --chown=appuser:appgroup app.jar /app/app.jar
-
-# 切換使用者
-USER appuser
-
-# 設定工作目錄
-WORKDIR /app
-
-# 暴露埠號
-EXPOSE 8080
-
-# 啟動命令
-CMD ["java", "-jar", "app.jar"]
+# Containerfile：擴充功能不需要執行環境
+FROM scratch
+LABEL org.opencontainers.image.title="Corp Registry Helper" \
+      org.opencontainers.image.description="Internal registry helper" \
+      org.opencontainers.image.vendor="corp" \
+      io.podman-desktop.api.version=">= 1.29.0"
+COPY package.json /extension/
+COPY icon.png /extension/
+COPY dist /extension/dist
 ```
 
 ```bash
-# 建置映像檔
-podman build -t java-app:v1.0 .
-
-# 執行驗證
-podman run -d --name test-app -p 8080:8080 java-app:v1.0
+podman build -t registry.corp.example/pd-ext/registry-helper:1.0.0 .
+podman push registry.corp.example/pd-ext/registry-helper:1.0.0
 ```
 
-##### 題型三：Pod 管理
+- `io.podman-desktop.api.version` 指定需要的最低 Podman Desktop 版本。
+- 含原生執行檔時，要為各平台建置映像檔並用 manifest 合併。
+- 要公開上架時，向 `podman-desktop-catalog` 倉庫送 PR；1.27 起提供擴充功能 `package.json` 的 JSON Schema。
 
-**範例題目：**
-建立一個名為 `webapp-pod` 的 Pod，包含兩個容器：
-1. `nginx` 容器使用 `nginx:alpine` 映像檔
-2. `app` 容器使用 `python:3.9-alpine` 映像檔
-3. 兩個容器共享網路和儲存空間
-4. 將主機的 8080 埠對應到 nginx 的 80 埠
+### 8.7 💡 本章實務建議
 
-**標準解答：**
+1. **建立擴充功能核准清單**：優先核准 Red Hat 與 Podman Desktop 官方維護、近半年內有更新的擴充功能。
+2. **金融業建議鎖定 `extensions.customExtensions.enabled=false`**，避免開發者安裝來源不明的擴充功能。
+3. **Grype 與 Image Layers Explorer 列為開發者標準配備**，把資安檢查往左移。
+4. **內部工具可以做成擴充功能**：例如一鍵登入內部 registry、套用公司 machine 規格。
+5. **擴充功能也要納入弱點與版本管理**，跟 Podman Desktop 本體一起評估升級。
+
+---
+
+## 9. Podman AI Lab
+
+> 🆕 **v2.0 新增**：Podman AI Lab 是 Red Hat 維護的擴充功能（目前 1.9.3），讓開發者在本機以容器方式執行開源 LLM，不必把資料送到外部服務。
+
+### 9.1 功能概觀
+
+| 功能 | 說明 |
+| --- | --- |
+| **Catalog（模型目錄）** | 精選的開源模型清單，可以一鍵下載；也可以匯入本機模型檔 |
+| **Services（模型服務）** | 在容器中啟動 Inference Server，以多數 LLM 服務通用的 chat API（OpenAI 相容格式）提供模型 |
+| **Playgrounds** | 在畫面上測試模型、調整參數（溫度、最大 token 數等）、設定 system prompt |
+| **Recipes Catalog** | 聊天機器人、程式碼產生、文字摘要等範例應用，一鍵啟動完整的 AI 應用（模型服務＋前端） |
+| **推論執行環境** | 預設 llama.cpp；Intel 硬體可以選 OpenVINO |
+
+```mermaid
+flowchart LR
+    CAT["Catalog<br/>下載模型"] --> SVC["Services<br/>Inference Server 容器"]
+    SVC --> PG["Playground<br/>調整參數與 prompt"]
+    SVC --> APP["應用程式<br/>OpenAI 相容 API"]
+    CAT --> REC["Recipes<br/>範例 AI 應用"]
+```
+
+### 9.2 資源需求
+
+- 每個模型約需要 **4 GiB 記憶體**與至少 **4 顆 CPU**。
+- 官方建議 Podman machine 至少 **12 GB 記憶體、4 顆 CPU**。
+- Windows 上的 WSL machine 會和其他 WSL 發行版共用記憶體與 CPU，必要時調整 `%UserProfile%\.wslconfig` 的 `memory` 與 `processors`。
+- GPU 加速：Windows 用 WSL 2＋NVIDIA（見[4.6](#46-gpu-存取)）；macOS Apple Silicon 啟動模型服務時會提示建立 GPU enabled（libkrun）machine。
+
+```ini
+# %UserProfile%\.wslconfig：讓 WSL 可以使用 16 GB 記憶體與 8 顆 CPU
+[wsl2]
+memory=16GB
+processors=8
+```
+
+### 9.3 操作流程
+
+1. **安裝**：**Extensions > Catalog** → Podman AI Lab → **Install**，左側導覽列會出現 AI Lab 圖示。
+2. **下載模型**：AI Lab → **Catalog** → 點擊模型的下載圖示。
+3. **啟動模型服務**：AI Lab → **Services** → **New Model Service** → 選擇模型、確認埠號 → **Create service** → **Open service details**。詳細頁會提供各語言的用戶端範例程式碼（例如 Java＋Quarkus LangChain4j）。
+4. **建立 Playground**：AI Lab → **Playgrounds** → **New Playground** → 選擇推論執行環境與模型 → **Create playground**，在畫面上調整參數並提問。
+5. **啟動 Recipe**：AI Lab → **Recipe Catalog** → 選擇範例 → **Start** → 選擇模型，AI Lab 會拉取範例程式、把模型複製到 machine、啟動模型服務並建立應用程式。
+
+### 9.4 應用程式整合範例
+
+模型服務啟動後，應用程式可以用 OpenAI 相容的 chat API 呼叫（埠號以服務詳細頁顯示為準）：
 
 ```bash
-# 建立 Pod
-podman pod create --name webapp-pod -p 8080:80
-
-# 啟動 nginx 容器
-podman run -d \
-  --pod webapp-pod \
-  --name nginx \
-  nginx:alpine
-
-# 啟動 Python 應用容器
-podman run -d \
-  --pod webapp-pod \
-  --name app \
-  python:3.9-alpine \
-  python -m http.server 8000
-
-# 驗證 Pod 狀態
-podman pod ps
-podman ps --pod
+curl -s http://localhost:35000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+        "messages": [
+          {"role": "system", "content": "你是銀行客服助理，只回答與帳戶操作有關的問題。"},
+          {"role": "user", "content": "如何變更網路銀行密碼？"}
+        ],
+        "temperature": 0.2
+      }'
 ```
-
-#### 4.2.2 進階實作練習
-
-##### 練習一：多容器應用部署
-
-**目標：** 部署一個包含 Web 前端、API 後端和資料庫的完整應用
-
-```bash
-# 1. 建立自訂網路
-podman network create app-network
-
-# 2. 啟動資料庫
-podman run -d \
-  --name postgres-db \
-  --network app-network \
-  -e POSTGRES_DB=appdb \
-  -e POSTGRES_USER=appuser \
-  -e POSTGRES_PASSWORD=apppass \
-  -v postgres_data:/var/lib/postgresql/data \
-  postgres:13
-
-# 3. 啟動 API 後端
-podman run -d \
-  --name api-backend \
-  --network app-network \
-  -e DB_HOST=postgres-db \
-  -e DB_PORT=5432 \
-  -e DB_NAME=appdb \
-  api-backend:latest
-
-# 4. 啟動 Web 前端
-podman run -d \
-  --name web-frontend \
-  --network app-network \
-  -p 8080:80 \
-  -e API_URL=http://api-backend:8080 \
-  web-frontend:latest
-
-# 5. 驗證應用運行
-curl http://localhost:8080
-```
-
-##### 練習二：安全性強化
-
-**目標：** 實作容器安全性最佳實踐
-
-```bash
-# 1. 建立安全容器
-podman run -d \
-  --name secure-app \
-  --user 1001:1001 \
-  --security-opt no-new-privileges \
-  --cap-drop=ALL \
-  --cap-add=NET_BIND_SERVICE \
-  --read-only \
-  --tmpfs /tmp \
-  --tmpfs /var/run \
-  secure-app:latest
-
-# 2. 檢查安全設定
-podman inspect secure-app | jq '.[]SecurityOpt'
-podman inspect secure-app | jq '.[]HostConfig.ReadonlyRootfs'
-```
-
-### 4.3 學習地圖與練習資源
-
-#### 🎯 學習目標
-
-- 建立系統性學習路徑
-- 掌握有效的練習方法
-- 了解持續學習資源
-
-#### 4.3.1 階段性學習計畫
-
-##### 第一階段：基礎建立（2-3週）
-
-**第1週：容器基礎概念**
-- [ ] 容器vs虛擬機器差異
-- [ ] 映像檔與容器關係
-- [ ] Podman vs Docker 比較
-- [ ] 安裝與環境設定
-
-**第2週：基本操作**
-- [ ] 映像檔搜尋與下載
-- [ ] 容器建立與管理
-- [ ] 基本網路與儲存
-- [ ] 日誌查看與除錯
-
-**第3週：進階操作**
-- [ ] Dockerfile 撰寫
-- [ ] 映像檔建置
-- [ ] Volume 管理
-- [ ] 網路配置
-
-##### 第二階段：實務應用（3-4週）
-
-**第4週：Pod 與編排**
-- [ ] Pod 概念與操作
-- [ ] 多容器應用管理
-- [ ] 服務發現與通信
-- [ ] Compose 使用
-
-**第5週：安全性實務**
-- [ ] 無根容器
-- [ ] SELinux 整合
-- [ ] 安全掃描
-- [ ] 權限管理
-
-**第6週：CI/CD 整合**
-- [ ] 自動化建置
-- [ ] 部署流程
-- [ ] 監控與日誌
-- [ ] 故障排除
-
-**第7週：Kubernetes 對接**
-- [ ] YAML 撰寫
-- [ ] Pod 部署
-- [ ] Service 配置
-- [ ] 疑難排解
-
-##### 第三階段：認證準備（1-2週）
-
-**第8週：考試準備**
-- [ ] 模擬考試練習
-- [ ] 弱點強化
-- [ ] 時間管理練習
-- [ ] 最終複習
-
-#### 4.3.2 實務練習專案
-
-##### 專案一：微服務應用
-
-**目標：** 建立完整的微服務架構
-
-```bash
-# 專案結構
-microservices-demo/
-├── api-gateway/
-│   ├── Dockerfile
-│   ├── nginx.conf
-│   └── src/
-├── user-service/
-│   ├── Dockerfile
-│   ├── pom.xml
-│   └── src/
-├── order-service/
-│   ├── Dockerfile
-│   ├── pom.xml
-│   └── src/
-├── database/
-│   ├── init-scripts/
-│   └── docker-compose.yml
-└── monitoring/
-    ├── prometheus/
-    ├── grafana/
-    └── docker-compose.yml
-```
-
-**實作步驟：**
-
-1. **建立基礎設施**
-   ```bash
-   # 建立網路
-   podman network create frontend
-   podman network create backend
-   
-   # 啟動資料庫
-   podman run -d --name postgres \
-     --network backend \
-     -e POSTGRES_MULTIPLE_DATABASES=userdb,orderdb \
-     -v ./database/init-scripts:/docker-entrypoint-initdb.d \
-     postgres:13
-   ```
-
-2. **部署微服務**
-   ```bash
-   # 建置服務映像檔
-   podman build -t user-service:v1 ./user-service
-   podman build -t order-service:v1 ./order-service
-   
-   # 啟動服務
-   podman run -d --name user-service \
-     --network backend \
-     user-service:v1
-     
-   podman run -d --name order-service \
-     --network backend \
-     order-service:v1
-   ```
-
-3. **配置 API Gateway**
-   ```bash
-   # 啟動 API Gateway
-   podman run -d --name api-gateway \
-     --network frontend \
-     --network backend \
-     -p 8080:80 \
-     -v ./api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro \
-     nginx:alpine
-   ```
-
-##### 專案二：CI/CD 管道
-
-**目標：** 建立自動化建置與部署流程
 
 ```yaml
-# .github/workflows/ci-cd.yml
-name: CI/CD Pipeline
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'adopt'
-    
-    - name: Run tests
-      run: mvn test
-
-  build-and-deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    
-    steps:
-    - uses: actions/checkout@v2
-    
-    - name: Build with Maven
-      run: mvn clean package
-    
-    - name: Build container image
-      run: |
-        podman build -t java-tutorial:${{ github.sha }} .
-        podman tag java-tutorial:${{ github.sha }} java-tutorial:latest
-    
-    - name: Deploy to staging
-      run: |
-        podman stop java-tutorial-staging || true
-        podman rm java-tutorial-staging || true
-        podman run -d --name java-tutorial-staging \
-          -p 8081:8080 \
-          java-tutorial:latest
+# Spring AI：application.yaml（連到本機 AI Lab 模型服務）
+spring:
+  ai:
+    openai:
+      base-url: http://localhost:35000
+      api-key: not-used
+      chat:
+        options:
+          temperature: 0.2
 ```
 
-#### 4.3.3 學習資源與社群
+> 📌 同一套程式碼只要改 `base-url`，就能在本機 AI Lab、內部 GPU 叢集（例如 OpenShift AI）與其他 OpenAI 相容服務之間切換。
 
-##### 官方資源
+### 9.5 企業使用注意事項
 
-1. **Red Hat 訓練課程**
-   - DO180: Introduction to Containers, Kubernetes, and Red Hat OpenShift
-   - DO188: Red Hat OpenShift Development I: Introduction to Containers
-   - 線上實驗室：https://lab.redhat.com/
+| 面向 | 建議 |
+| --- | --- |
+| 資料 | 模型在本機容器中執行，prompt 不會送到外部；但下載模型需要連線 Hugging Face 等來源，受限環境要預先下載並以本機檔案匯入 |
+| 授權 | 每個模型的授權不同（Apache-2.0、Llama 社群授權等），導入前由法遵確認可以商業使用 |
+| 安全 | 模型服務預設只監聽本機；不要把埠號對外開放；Recipe 的範例程式只作為原型參考 |
+| 資源 | 開發筆電同時跑模型、IDE 與 Kind 很容易記憶體不足，建議 32 GB 以上的設備才開放使用 |
+| 治理 | 核准可用的模型清單，並記錄用途；正式服務轉由平台團隊的推論平台提供 |
 
-2. **官方文件**
-   - Podman 官方文件：https://docs.podman.io/
-   - Red Hat 產品文件：https://access.redhat.com/documentation/
+### 9.6 💡 本章實務建議
 
-##### 實務練習平台
-
-1. **線上實驗室**
-   - Katacoda：https://katacoda.com/courses/container-platform
-   - Play with Docker：https://labs.play-with-docker.com/
-   - Red Hat Developer Sandbox：https://developers.redhat.com/developer-sandbox
-
-2. **開源專案貢獻**
-   - Podman GitHub：https://github.com/containers/podman
-   - Buildah GitHub：https://github.com/containers/buildah
-   - 參與社群討論與 Bug 回報
-
-##### 認證準備資源
-
-1. **模擬考試**
-   - Red Hat Learning Subscription
-   - 第三方練習平台
-   - 社群分享的練習題
-
-2. **學習群組**
-   - Red Hat 學習社群
-   - LinkedIn 專業群組
-   - Discord/Slack 技術頻道
+1. **把 AI Lab 定位成「原型與開發測試工具」**，正式推論服務交給平台團隊。
+2. **先由法遵核准模型清單**，再開放開發者下載。
+3. **程式一律透過 OpenAI 相容 API 呼叫**，保留日後切換推論平台的彈性。
+4. **給 AI 開發者較高的 machine 規格**（12～16 GB 記憶體），並優先配發有 GPU 的設備。
+5. **受限網路環境預先準備模型檔**，放在內部檔案伺服器供匯入。
 
 ---
 
-## 5. 檢查清單
+## 10. 企業導入與集中管理
 
-### 5.1 安裝驗證清單
+> 🆕 **v2.0 新增**：v1.0 完全沒有涵蓋企業集中管理。Podman Desktop 1.23 推出 **Managed configuration**，1.24、1.26 陸續增加 registry、擴充功能相關的管理設定。這是大規模導入時最重要的一章。
 
-#### Podman Desktop 安裝檢查
+### 10.1 Managed configuration 原理
 
-- [ ] **系統需求確認**
-  - [ ] Windows 10/11 版本檢查
-  - [ ] WSL2 已啟用並更新
-  - [ ] 虛擬化功能已啟用
-  - [ ] 至少 4GB RAM 可用空間
-  - [ ] 至少 20GB 磁碟空間
+Podman Desktop 把設定分成三個 JSON 檔：
 
-- [ ] **Podman Desktop 安裝**
-  - [ ] 從官方網站下載最新版本
-  - [ ] 安裝程式執行無錯誤
-  - [ ] 首次啟動成功
-  - [ ] Podman Machine 初始化完成
-  - [ ] 虛擬機器狀態為 "Running"
+| 檔案 | 擁有者 | 用途 |
+| --- | --- | --- |
+| `settings.json` | 使用者（可讀寫） | 使用者在 UI 中修改的一般設定 |
+| `default-settings.json` | 系統管理員（使用者唯讀） | 管理員提供的**預設值** |
+| `locked.json` | 系統管理員（使用者唯讀） | **鎖定**的設定鍵清單，這些鍵一律使用 `default-settings.json` 的值 |
 
-- [ ] **基本功能測試**
-  - [ ] 拉取測試映像檔：`podman pull hello-world`
-  - [ ] 執行測試容器：`podman run hello-world`
-  - [ ] 檢視容器列表：`podman ps -a`
-  - [ ] 清理測試容器：`podman rm -a`
+**兩種管理強度**
 
-- [ ] **CLI 整合測試**
-  - [ ] PowerShell 中執行 `podman version`
-  - [ ] 檢查 Podman Machine 狀態：`podman machine list`
-  - [ ] 測試基本容器操作
+- **預設值（只寫在 `default-settings.json`）**：啟動時，若使用者的 `settings.json` 還沒有這個鍵，就把值複製過去（每個鍵只複製一次）。使用者之後可以自行修改。和內建預設值相同的值不會被複製。
+- **鎖定（同時列在 `locked.json`）**：每次讀取都強制使用管理值，使用者的修改會被忽略，UI 上顯示鎖頭圖示或 **Managed** 標籤。
 
-### 5.2 開發環境設定清單
-
-#### Java 開發環境
-
-- [ ] **JDK 環境**
-  - [ ] JDK 17 或更高版本已安裝
-  - [ ] JAVA_HOME 環境變數設定正確
-  - [ ] Maven 或 Gradle 建置工具可用
-
-- [ ] **IDE 整合**
-  - [ ] VS Code 安裝 Podman 擴充功能
-  - [ ] IntelliJ IDEA Docker 外掛程式啟用
-  - [ ] Eclipse Docker Tooling 可用
-
-- [ ] **專案設定**
-  - [ ] Dockerfile 已建立
-  - [ ] .dockerignore 檔案已配置
-  - [ ] Maven/Gradle 建置配置完成
-  - [ ] 容器化測試通過
-
-#### 容器開發工作流程
-
-- [ ] **映像檔建置**
-  - [ ] 基礎映像檔選擇適當
-  - [ ] 多階段建置優化完成
-  - [ ] 映像檔大小合理（< 500MB）
-  - [ ] 安全性掃描通過
-
-- [ ] **本地開發**
-  - [ ] 開發容器設定完成
-  - [ ] Volume 掛載正確
-  - [ ] 熱重載功能正常
-  - [ ] 除錯配置完成
-
-### 5.3 專案部署清單
-
-#### 單容器應用部署
-
-- [ ] **預部署檢查**
-  - [ ] 映像檔建置成功
-  - [ ] 環境變數清單確認
-  - [ ] 埠號衝突檢查
-  - [ ] 依賴服務確認
-
-- [ ] **部署執行**
-  - [ ] 容器啟動成功
-  - [ ] 健康檢查通過
-  - [ ] 日誌輸出正常
-  - [ ] 外部存取測試
-
-- [ ] **部署後驗證**
-  - [ ] 功能測試完整
-  - [ ] 效能指標正常
-  - [ ] 資源使用合理
-  - [ ] 監控指標可見
-
-#### 多容器應用部署
-
-- [ ] **Compose 檔案準備**
-  - [ ] services 定義完整
-  - [ ] networks 配置正確
-  - [ ] volumes 設定適當
-  - [ ] 依賴關係明確
-
-- [ ] **編排部署**
-  - [ ] `podman-compose up` 成功
-  - [ ] 所有服務正常啟動
-  - [ ] 服務間通信正常
-  - [ ] 負載平衡功能正常
-
-### 5.4 安全性檢查清單
-
-#### 映像檔安全
-
-- [ ] **基礎映像檔**
-  - [ ] 使用官方或認證映像檔
-  - [ ] 基礎映像檔已更新到最新版本
-  - [ ] 已知漏洞掃描通過
-  - [ ] 不必要的套件已移除
-
-- [ ] **映像檔建置**
-  - [ ] 非特權使用者執行
-  - [ ] 敏感資訊未寫入映像檔
-  - [ ] 檔案權限設定正確
-  - [ ] 建置過程可重現
-
-#### 執行時安全
-
-- [ ] **容器配置**
-  - [ ] 使用非特權使用者
-  - [ ] 只讀根檔案系統
-  - [ ] 不必要的 capabilities 已移除
-  - [ ] 安全性選項已設定
-
-- [ ] **網路安全**
-  - [ ] 網路隔離配置
-  - [ ] 不必要的埠號未暴露
-  - [ ] TLS 加密已啟用
-  - [ ] 防火牆規則已設定
-
-### 5.5 效能優化清單
-
-#### 資源管理
-
-- [ ] **記憶體優化**
-  - [ ] 記憶體限制已設定
-  - [ ] JVM 堆疊大小已調整
-  - [ ] 記憶體洩漏檢查通過
-  - [ ] OOM Killer 保護已啟用
-
-- [ ] **CPU 優化**
-  - [ ] CPU 限制已設定
-  - [ ] CPU 親和性已優化
-  - [ ] 多執行緒配置合理
-  - [ ] CPU 使用率監控
-
-#### 儲存與網路
-
-- [ ] **儲存優化**
-  - [ ] Volume 類型選擇適當
-  - [ ] 磁碟 I/O 效能正常
-  - [ ] 備份策略已制定
-  - [ ] 清理政策已實施
-
-- [ ] **網路優化**
-  - [ ] 網路延遲最小化
-  - [ ] 頻寬使用合理
-  - [ ] 連接池配置優化
-  - [ ] DNS 解析快速
-
-### 5.6 故障排除清單
-
-#### 常見問題診斷
-
-- [ ] **容器啟動問題**
-  - [ ] 檢查映像檔是否存在
-  - [ ] 驗證啟動命令正確性
-  - [ ] 確認環境變數設定
-  - [ ] 檢查資源限制
-
-- [ ] **網路連接問題**
-  - [ ] 檢查埠號映射
-  - [ ] 驗證網路配置
-  - [ ] 確認防火牆設定
-  - [ ] 測試 DNS 解析
-
-#### 效能問題排查
-
-- [ ] **資源瓶頸**
-  - [ ] 監控 CPU 使用率
-  - [ ] 檢查記憶體使用量
-  - [ ] 分析磁碟 I/O
-  - [ ] 評估網路流量
-
-- [ ] **應用程式問題**
-  - [ ] 檢查應用程式日誌
-  - [ ] 分析錯誤訊息
-  - [ ] 驗證配置設定
-  - [ ] 執行健康檢查
-
-### 5.7 認證考試準備清單
-
-#### 知識準備
-
-- [ ] **核心概念**
-  - [ ] 容器 vs 虛擬機器差異
-  - [ ] 映像檔與容器關係
-  - [ ] Podman 架構理解
-  - [ ] 無根容器概念
-
-- [ ] **操作技能**
-  - [ ] CLI 命令熟練度
-  - [ ] Dockerfile 撰寫能力
-  - [ ] Pod 管理技巧
-  - [ ] 故障排除技能
-
-#### 實務練習
-
-- [ ] **實作練習**
-  - [ ] 完成所有教學範例
-  - [ ] 獨立完成專案練習
-  - [ ] 模擬考試通過
-  - [ ] 時間管理練習
-
-- [ ] **準備工作**
-  - [ ] 考試環境熟悉
-  - [ ] 參考資料整理
-  - [ ] 弱點強化完成
-  - [ ] 心理狀態調整
-
-### 5.8 日常維護清單
-
-#### 定期檢查
-
-- [ ] **系統維護**
-  - [ ] Podman Desktop 版本更新
-  - [ ] 系統資源使用檢查
-  - [ ] 日誌輪替設定
-  - [ ] 磁碟空間清理
-
-- [ ] **安全性更新**
-  - [ ] 基礎映像檔更新
-  - [ ] 安全性掃描執行
-  - [ ] 漏洞修補應用
-  - [ ] 存取權限檢查
-
-#### 備份與災難復原
-
-- [ ] **資料備份**
-  - [ ] Volume 資料備份
-  - [ ] 配置檔案備份
-  - [ ] 映像檔匯出
-  - [ ] 備份測試驗證
-
-- [ ] **災難復原**
-  - [ ] 復原程序文件化
-  - [ ] 復原測試執行
-  - [ ] RTO/RPO 目標達成
-  - [ ] 備援環境準備
-
----
-
-## 🎯 總結
-
-這份 Podman Desktop 使用教學手冊提供了從基礎入門到進階應用的完整學習路徑。透過系統性的學習和實務練習，新進開發同仁可以：
-
-1. **快速上手** Podman Desktop 的安裝與基本操作
-2. **掌握實務技能** 包含專案整合、容器管理、映像檔建置
-3. **學習進階技巧** 涵蓋安全性管理、CI/CD 整合、Kubernetes 對接
-4. **準備認證考試** 具備 Red Hat 容器認證所需知識
-5. **建立最佳實務** 養成良好的容器化開發習慣
-
-**建議學習順序：**
-1. 先閱讀基礎入門章節，完成安裝設定
-2. 透過專案實務應用章節，建立實際開發經驗
-3. 學習進階操作與最佳實務，提升專業技能
-4. 使用檢查清單驗證學習成果
-5. 持續練習並參與社群討論
-
-**持續學習資源：**
-- 官方文件：https://docs.podman.io/
-- 社群論壇：https://github.com/containers/podman/discussions
-- Red Hat 訓練：https://www.redhat.com/en/services/training
-- 實務練習：https://katacoda.com/courses/container-platform
-
-記住，容器技術發展快速，建議定期關注最新發展並持續學習。祝您在容器化開發的路上順利前進！
-     -p 8080:8080 \
-     -p 5005:5005 \
-     openjdk:17-jdk \
-     sleep infinity
-   ```
-
-3. **遠端除錯配置**
-   - Run → Edit Configurations
-   - 點擊 "+" → Remote JVM Debug
-   - Host: localhost
-   - Port: 5005
-
-##### 專案設定整合
-
-**build.gradle.kts 或 pom.xml 整合：**
-
-```xml
-<!-- pom.xml 中的容器化支援 -->
-<plugin>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-maven-plugin</artifactId>
-    <configuration>
-        <jvmArguments>
-            -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
-        </jvmArguments>
-    </configuration>
-</plugin>
-```
-
-#### 2.5.3 開發工作流程最佳實務
-
-##### 容器化開發生命週期
+**讀取優先順序**
 
 ```mermaid
 flowchart TD
-    A[開啟 IDE] --> B[啟動開發容器]
-    B --> C[同步專案檔案]
-    C --> D[安裝相依套件]
-    D --> E[開發程式碼]
-    E --> F[即時編譯測試]
-    F --> G{測試通過?}
-    G -->|否| E
-    G -->|是| H[提交程式碼]
-    H --> I[停止開發容器]
-    
-    style B fill:#e8f5e8
-    style F fill:#fff3e0
-    style H fill:#e3f2fd
+    Q["讀取設定鍵"] --> L{"鍵在 locked.json 中？"}
+    L -- 是 --> M["使用 default-settings.json 的值<br/>（最高優先）"]
+    L -- 否 --> U{"使用者 settings.json 有值？"}
+    U -- 是 --> V["使用使用者的值"]
+    U -- 否 --> D["使用 Podman Desktop 內建預設值"]
 ```
 
-##### 多環境開發設定
+### 10.2 檔案位置
 
-**開發環境配置：**
+| 平台 | 使用者設定 | 管理預設值與鎖定清單 |
+| --- | --- | --- |
+| Windows | `%USERPROFILE%\.local\share\containers\podman-desktop\configuration\settings.json` | `%PROGRAMDATA%\Podman Desktop\default-settings.json`、`locked.json` |
+| macOS | `~/.local/share/containers/podman-desktop/configuration/settings.json` | `/Library/Application Support/io.podman_desktop.PodmanDesktop/default-settings.json`、`locked.json` |
+| Linux | `~/.local/share/containers/podman-desktop/configuration/settings.json` | `/usr/share/podman-desktop/default-settings.json`、`locked.json` |
+
+> ⚠️ **注意**：管理檔必須由 root／Administrator 擁有，所有使用者可讀、只有管理員可寫（Linux／macOS 建議 `chmod 644`）。設定鍵要用**點號格式**（`proxy.http`），不能寫成巢狀物件。
+
+### 10.3 部署流程
+
+```mermaid
+flowchart LR
+    A["1. 撰寫<br/>default-settings.json<br/>locked.json"] --> B["2. 驗證 JSON 語法<br/>與設定鍵名稱"]
+    B --> C["3. 試點群組派送"]
+    C --> D["4. 重啟 Podman Desktop<br/>檢查 [Managed-by] 日誌"]
+    D --> E["5. 全面派送<br/>納入組態管理"]
+```
+
+| 平台 | 建議派送工具 |
+| --- | --- |
+| Windows | Group Policy、Microsoft Intune、SCCM、Ansible、PowerShell 腳本 |
+| macOS | Jamf Pro、Microsoft Intune、Kandji、SimpleMDM、Ansible、PKG 安裝檔 |
+| Linux | Ansible、Puppet、Chef、Salt、RPM／DEB 套件、Shell 腳本 |
+
+**Windows 派送腳本範例（PowerShell，以系統身分執行）**
+
+```powershell
+$dir = Join-Path $env:ProgramData 'Podman Desktop'
+New-Item -ItemType Directory -Force -Path $dir | Out-Null
+# 以 UTF-8（無 BOM）寫入，避免 JSON 解析失敗
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+
+$defaults = @'
+{
+  "proxy.enabled": 1,
+  "proxy.http": "http://proxy.corp.example:8080",
+  "proxy.https": "http://proxy.corp.example:8080",
+  "proxy.no": "localhost,127.0.0.1,.corp.example",
+  "telemetry.enabled": false,
+  "preferences.update.appUpdate": false,
+  "extensions.customExtensions.enabled": false
+}
+'@
+[IO.File]::WriteAllText((Join-Path $dir 'default-settings.json'), $defaults, $utf8)
+
+$locked = @'
+{
+  "locked": [
+    "proxy.enabled", "proxy.http", "proxy.https", "proxy.no",
+    "telemetry.enabled", "preferences.update.appUpdate",
+    "extensions.customExtensions.enabled"
+  ]
+}
+'@
+[IO.File]::WriteAllText((Join-Path $dir 'locked.json'), $locked, $utf8)
+```
+
+**Linux 派送（Ansible 片段）**
 
 ```yaml
-# docker-compose.dev.yml
-version: '3.8'
-services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - .:/workspace
-      - maven-cache:/root/.m2
-    environment:
-      - SPRING_PROFILES_ACTIVE=dev
-      - DEBUG=true
-    ports:
-      - "8080:8080"
-      - "5005:5005"  # Debug port
-
-  database:
-    image: postgres:14
-    environment:
-      POSTGRES_DB: tutorial_dev
-      POSTGRES_USER: dev
-      POSTGRES_PASSWORD: devpass
-    ports:
-      - "5432:5432"
-
-volumes:
-  maven-cache:
+- name: 部署 Podman Desktop 管理設定
+  hosts: dev_workstations
+  become: true
+  tasks:
+    - name: 建立目錄
+      ansible.builtin.file:
+        path: /usr/share/podman-desktop
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+    - name: 複製管理設定檔
+      ansible.builtin.copy:
+        src: "files/{{ item }}"
+        dest: "/usr/share/podman-desktop/{{ item }}"
+        owner: root
+        group: root
+        mode: "0644"
+      loop:
+        - default-settings.json
+        - locked.json
 ```
 
-##### 除錯與測試策略
+**驗證**
 
-**容器內除錯：**
+1. 重新啟動 Podman Desktop。
+2. **Help > Troubleshooting** → **Logs** 分頁，確認有類似下列訊息：
 
-```bash
-# 啟動除錯模式
-podman run -it --name debug-session \
-  -v "$(pwd):/workspace" \
-  -w /workspace \
-  -p 8080:8080 \
-  -p 5005:5005 \
-  openjdk:17-jdk \
-  java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 \
-  -jar target/app.jar
+   ```text
+   [Managed-by]: Loaded managed ...
+   [Managed-by]: Applied default settings for: proxy.http, telemetry.enabled
+   ```
+
+3. **Settings > Preferences** 中，被鎖定的設定顯示 **Managed** 標籤且無法修改。1.28 起 **Resources** 頁也會顯示 managed-by 標示。
+
+> 📌 `Applied default settings` 只會在「把預設值複製到使用者設定」時出現，每個鍵一次；已經複製過的鍵，之後重啟就不會再出現這一行。
+
+### 10.4 常見管理用例
+
+#### 10.4.1 強制公司 proxy 與關閉遙測
+
+```json
+{
+  "proxy.enabled": 1,
+  "proxy.http": "http://proxy.corp.example:8080",
+  "proxy.https": "http://proxy.corp.example:8080",
+  "proxy.no": "localhost,127.0.0.1,.corp.example",
+  "telemetry.enabled": false
+}
 ```
 
-**測試環境隔離：**
+`proxy.enabled`：0＝使用系統設定、1＝手動、2＝停用。
 
-```bash
-# 執行整合測試
-podman run --rm \
-  -v "$(pwd):/workspace" \
-  -w /workspace \
-  --network test-network \
-  maven:3.8.6-openjdk-17 \
-  mvn test -Dspring.profiles.active=test
+#### 10.4.2 預設 registry 與 mirror（1.24）
+
+`registries.defaults` 對應 Podman 的 `registries.conf` 格式。每個元素是 `registry` 或 `registry.mirror`，**mirror 必須緊接在它所屬的 registry 後面**。
+
+```json
+{
+  "registries.defaults": [
+    { "registry": { "prefix": "docker.io", "location": "docker.io" } },
+    { "registry.mirror": { "location": "harbor.corp.example/dockerhub-proxy" } },
+    { "registry": { "prefix": "quay.io", "location": "quay.io" } },
+    { "registry.mirror": { "location": "harbor.corp.example/quay-proxy" } },
+    { "registry": { "prefix": "untrusted.example.com", "location": "untrusted.example.com", "blocked": true } }
+  ]
+}
 ```
 
-#### 2.5.4 生產力工具整合
+| 屬性 | 適用 | 必填 | 說明 |
+| --- | --- | --- | --- |
+| `prefix` | registry | 是 | 要比對的前綴，例如 `quay.io` |
+| `location` | registry、mirror | 是 | registry 或 mirror 的位址 |
+| `insecure` | registry、mirror | 否 | 允許不安全連線（預設 `false`） |
+| `blocked` | registry | 否 | 封鎖拉取（預設 `false`） |
 
-##### Git 整合
+#### 10.4.3 控制引擎更新
 
-**在容器內使用 Git：**
+`providers.allowUpdate`（隱藏設定，專供管理使用）決定哪些擴充功能可以在 **Resources** 頁提供引擎更新按鈕：
 
-```bash
-# 設定 Git 配置
-podman exec -it dev-container git config --global user.name "Your Name"
-podman exec -it dev-container git config --global user.email "your@email.com"
-
-# 掛載 SSH 金鑰
-podman run -it \
-  -v ~/.ssh:/home/user/.ssh:ro \
-  -v "$(pwd):/workspace" \
-  dev-image
+```json
+{ "providers.allowUpdate": [] }
 ```
 
-##### 效能監控
+- `["*"]`：預設，全部允許。
+- `[]`：全部封鎖，引擎版本由 IT 統一升級。
+- `["podman-desktop.podman"]`：只允許 Podman 擴充功能。
 
-**開發環境效能監控：**
+#### 10.4.4 管控擴充功能與應用程式更新
 
-```bash
-# 監控容器資源使用
-podman stats dev-container
-
-# 監控建置時間
-time mvn clean package
+```json
+{
+  "extensions.catalog.enabled": false,
+  "extensions.customExtensions.enabled": false,
+  "preferences.update.appUpdate": false
+}
 ```
 
-#### 2.5.5 故障排除
+搭配 `locked.json` 鎖定後，開發者看不到擴充功能目錄與 **Install custom...** 按鈕，也不會自行升級 Podman Desktop。
 
-##### 常見 IDE 整合問題
+### 10.5 Proxy、CA 與網路整合
 
-**問題：VS Code 無法連接到容器**
+| 需求 | 做法 | 章節 |
+| --- | --- | --- |
+| Podman Desktop 本身走 proxy | Managed configuration 鎖定 `proxy.*` | [10.4.1](#1041-強制公司-proxy-與關閉遙測) |
+| machine 內的 Podman 走 proxy | Desktop 會把 proxy 帶進 machine；也可以在 `containers.conf` 設定 | [4.5.2](#452-proxy) |
+| SSL 攔截 | Podman 6：`--import-native-ca`；並把公司根憑證派送到作業系統信任庫 | [4.5.3](#453-ca-憑證ssl-攔截環境) |
+| VPN | User mode networking | [4.5.1](#451-vpnuser-mode-networking) |
+| 內部 mirror | `registries.defaults` | [10.4.2](#1042-預設-registry-與-mirror124) |
 
-```bash
-# 檢查容器狀態
-podman ps -a
+### 10.6 遙測與隱私
 
-# 重新啟動容器
-podman restart dev-container
+- `telemetry.enabled`（預設 `true`）會把匿名使用資料傳給 Red Hat。首次啟動會詢問使用者。
+- **CI 環境自動停用**：偵測到 `CI`、`CONTINUOUS_INTEGRATION`、`BUILD_NUMBER`、`GITHUB_ACTIONS`、`GITLAB_CI`、`JENKINS_URL`、`TF_BUILD` 等環境變數（值不為空、`false` 或 `0`）時，這次執行不會送出遙測，並記錄 `CI environment detected: telemetry is disabled for this run.`；設定檔本身不會被修改。
+- 金融業建議直接以 Managed configuration 鎖定 `telemetry.enabled=false`，並寫進資訊資產清冊。
 
-# 檢查容器日誌
-podman logs dev-container
-```
+### 10.7 settings.json 重點鍵值
 
-**問題：IntelliJ 無法除錯**
+| 設定鍵 | 預設值 | 說明 | 建議管理方式 |
+| --- | --- | --- | --- |
+| `proxy.enabled` | `0` | 0 系統、1 手動、2 停用 | 鎖定 |
+| `proxy.http`／`proxy.https`／`proxy.no` | `""` | Proxy 位址與例外清單 | 鎖定 |
+| `telemetry.enabled` | `true` | 匿名遙測 | 鎖定為 `false` |
+| `registries.defaults` | `[]` | 預設 registry 與 mirror | 預設值或鎖定 |
+| `providers.allowUpdate` | `["*"]` | 允許提供引擎更新的擴充功能 | 鎖定 |
+| `preferences.update.appUpdate` | `true` | 應用程式更新（1.29） | 鎖定為 `false`（由 IT 升級時） |
+| `preferences.update.reminder` | `"startup"` | 更新提醒：`startup` 或 `never` | 預設值 |
+| `extensions.catalog.enabled` | `true` | 顯示擴充功能目錄 | 依政策鎖定 |
+| `extensions.customExtensions.enabled` | `true` | 顯示自訂安裝按鈕 | 鎖定為 `false` |
+| `extensions.autoUpdate` | `true` | 自動更新擴充功能 | 預設值 |
+| `dockerCompatibility.enabled` | `false` | 顯示 Docker 相容設定頁 | 預設值 `true`（遷移期間） |
+| `kubernetes.Kubeconfig` | `"~/.kube/config"` | kubeconfig 路徑 | 使用者自訂 |
+| `preferences.{extensionId}.engine.autostart` | `true` | 啟動時自動啟動引擎，例如 `preferences.podman.engine.autostart` | 預設值 |
+| `preferences.login.start` | `true` | 開機自動啟動 | 預設值 |
+| `preferences.appearance` | `"system"` | 主題 | 使用者自訂 |
+| `userConfirmation.bulk` | `true` | 批次操作前確認 | 預設值 |
+| `preferences.navigationBarLayout` | `"icon + title"` | **1.29 起棄用**，改用 `preferences.navigationBarWidth` | 不再使用 |
 
-```bash
-# 確認除錯埠號開放
-podman port debug-container
+完整清單見官方〈Settings Reference〉；範本見[附錄 B.2](#b2-managed-configuration-範本)。
 
-# 測試除錯連接
-telnet localhost 5005
-```
+### 10.8 疑難排解
 
-**問題：檔案同步問題**
+| 症狀 | 檢查項目 |
+| --- | --- |
+| 鎖定沒有生效 | 檔案路徑是否正確；檔案擁有者是否為 root／Administrator；JSON 語法；是否重啟 Podman Desktop |
+| 顯示鎖定但值不對 | `locked.json` 的鍵名是否和 `default-settings.json` **完全一致**；是否使用點號格式 |
+| 日誌沒有 `[Managed-by]` 訊息 | 檔案不在正確位置或 JSON 有語法錯誤 |
+| 預設值沒有套用到使用者 | 使用者 `settings.json` 已經有這個鍵（預設值不會覆寫）；需要強制時改用鎖定 |
 
-```bash
-# 檢查掛載點
-podman inspect dev-container | grep -A 5 "Mounts"
+### 10.9 💡 本章實務建議
 
-# 重新掛載
-podman run --rm -v "$(pwd):/workspace" alpine ls -la /workspace
-```
-
-#### ⚠️ IDE 整合注意事項
-
-- 🔄 定期更新 IDE 擴充功能
-- 📁 確保專案路徑對應正確
-- 🚀 使用快取優化建置速度
-- 🔍 設定適當的除錯斷點
-- 💡 利用 IDE 的容器管理功能
+1. **最少要鎖定四類設定**：proxy、遙測、自訂擴充功能、應用程式更新。
+2. **registry 與 mirror 用預設值派送**，讓開發者在必要時可以另外新增專案用的 registry。
+3. **設定檔納入版本控管**（Git），派送前經過 PR 審查與 JSON 驗證。
+4. **每次升級 Podman Desktop 都檢查 Settings Reference 的變動**，例如 1.29 棄用 `preferences.navigationBarLayout`。
+5. **需要廠商支援時搭配 Red Hat build**，它的文件另有標準政策設定與離線環境的完整指引。
 
 ---
 
-## 第二部分完整總結
+## 11. 安全性與合規
 
-專案實務應用章節包含了完整的開發工作流程：
+本章聚焦「開發者桌面」這一層的安全控制。映像檔簽章、SBOM、正式主機強化等主題請見《Podman 使用教學手冊》第 10、11 章。
 
-1. **專案整合**：Java 開發環境容器化與多容器架構
-2. **容器管理**：完整的生命週期管理與監控
-3. **映像檔管理**：建置、優化、安全性最佳實務
-4. **儲存與網路**：Volume 持久化與網路隔離策略
-5. **IDE 整合**：VS Code 與 IntelliJ IDEA 的完整整合
+### 11.1 威脅模型與控制對照
 
-接下來我將撰寫第三部分「進階操作與最佳實務」，包含 Podman CLI 進階操作、Compose 支援、安全性管理等內容。您希望我繼續嗎？
+| 威脅 | 情境 | 控制措施 | 章節 |
+| --- | --- | --- | --- |
+| 容器逃逸取得主機權限 | 惡意映像檔或弱點 | rootless machine、`--cap-drop=ALL`、非 root 使用者 | [11.2](#112-執行期安全) |
+| 拉到惡意或被竄改的映像檔 | 短名稱、公開 registry | 完整名稱、內部 mirror、封鎖未核准 registry | [10.4.2](#1042-預設-registry-與-mirror124) |
+| 機密外洩 | 密碼寫在 Compose、環境變數、映像檔 | Podman Secret、`.gitignore`、推送前掃描 | [5.7](#57-secret) |
+| 不受控的擴充功能 | 開發者自行安裝來源不明的擴充功能 | 鎖定 `extensions.customExtensions.enabled=false`；1.26 起的授權提示 | [8.4](#84-企業管控) |
+| 已知弱點未修補 | 桌面軟體、引擎、映像檔版本老舊 | 版本基準、集中升級、弱點掃描 | [11.4](#114-更新與弱點管理) |
+| 資料外傳 | 遙測、雲端沙箱、AI 服務 | 鎖定遙測；禁止把內部程式碼部署到 Developer Sandbox；AI 使用本機模型 | [10.6](#106-遙測與隱私) |
+
+### 11.2 執行期安全
+
+**預設採用 rootless**：Podman machine 預設為 rootless 連線。即使容器被攻破，攻擊者在 machine 內也只有一般使用者權限。
+
+**容器執行的最低要求**（GUI 的 **Security** 分頁或 CLI）：
+
+```bash
+podman run -d --name api \
+  --user 185 \
+  --read-only --tmpfs /tmp \
+  --cap-drop=ALL \
+  --security-opt=no-new-privileges \
+  --pids-limit=512 --memory=1g --cpus=2 \
+  -p 127.0.0.1:8080:8080 \
+  registry.corp.example/payments/api:1.4.2
+```
+
+- `-p 127.0.0.1:8080:8080` 只綁定本機介面，避免同網段的其他人連進開發中的服務。
+- 映像檔的 `USER` 設為非 root，才能在 OpenShift 的 restricted-v2 SCC 下執行。
+- 避免使用 `--privileged` 與 `--network host`；確實需要時列入例外清單並說明理由。
+
+### 11.3 映像檔安全
+
+| 控制 | 工具或做法 |
+| --- | --- |
+| 可信任的基底映像檔 | Red Hat UBI、Project Hummingbird、公司核准的基底映像檔清單 |
+| 固定版本 | 使用明確的版本標籤或 digest（`@sha256:...`），不要用 `latest` |
+| 弱點掃描 | Grype 擴充功能（Grype＋Syft）；CI 再用 Trivy、Clair 或企業掃描平台複查 |
+| 分層檢查 | Image Layers Explorer，找出意外放進映像檔的憑證、`.env`、大型檔案 |
+| OpenShift 相容性 | Red Hat OpenShift Checker 擴充功能 |
+| 來源限制 | `registries.defaults` 設定 mirror 與 `blocked`（見[10.4.2](#1042-預設-registry-與-mirror124)） |
+
+```dockerfile
+# .containerignore：避免把機敏檔案送進建置情境
+.git
+.env
+*.pem
+*.key
+secrets/
+target/
+node_modules/
+```
+
+### 11.4 更新與弱點管理
+
+Podman Desktop 幾乎每個版本都修補相依套件的 CVE（1.27、1.28 的發布說明都特別提到）。建議的版本管理流程：
+
+1. **訂閱發布資訊**：GitHub Releases、官方部落格、Red Hat build 的發布說明。
+2. **分級處理**：修補版（例如 1.29.2 → 1.29.3）在一週內派送；次要版本（1.29 → 1.30）先在試點群組驗證兩週。
+3. **引擎與桌面分開管理**：用 `providers.allowUpdate` 與 `preferences.update.appUpdate` 關閉使用者自行升級，由 IT 統一派送。
+4. **擴充功能**：`extensions.autoUpdate` 可以保持開啟，但只允許核准清單內的擴充功能。
+5. **紀錄**：把各設備的 Podman Desktop 版本、Podman 版本、machine 版本納入資產管理系統。
+
+### 11.5 稽核與合規檢查點
+
+| 檢查點 | 證據 |
+| --- | --- |
+| 軟體授權合規 | Podman Desktop 為 Apache-2.0；Docker Desktop 移除紀錄 |
+| 集中設定 | `default-settings.json`、`locked.json` 的版本控管紀錄與派送紀錄 |
+| 遙測 | `telemetry.enabled` 已鎖定為 `false` |
+| 擴充功能 | 核准清單與 `extensions.customExtensions.enabled=false` |
+| 版本 | 設備清冊中的 Podman Desktop／Podman 版本符合基準 |
+| 網路 | 只允許經由公司 proxy 與內部 mirror 取得映像檔 |
+| 資料 | Developer Sandbox 與 AI 服務的使用規範 |
+
+### 11.6 💡 本章實務建議
+
+1. **rootless＋非 root 映像檔＋`--cap-drop=ALL`** 是開發環境的最低要求。
+2. **開發服務只綁定 `127.0.0.1`**，避免在公司網段曝露未完成的服務。
+3. **推送前自我掃描**：Grype 擴充功能＋`.containerignore`。
+4. **Podman Desktop 也是需要修補的軟體**，納入弱點管理流程。
+5. **把本章的檢查點做成年度稽核清單**（見[附錄 C.4](#c4-安全與合規)）。
 
 ---
 
-## 3. 進階操作與最佳實務
+## 12. 開發工作流程與 IDE 整合
 
-### 3.1 Podman CLI 與 Desktop 搭配使用
+### 12.1 內循環（Inner Loop）開發流程
 
-#### 🎯 學習目標
-- 掌握 Podman CLI 進階指令
-- 學會 CLI 與 GUI 的最佳搭配方式
-- 了解自動化腳本開發
+```mermaid
+flowchart LR
+    A["撰寫程式碼<br/>IDE"] --> B["本機建置與測試<br/>Maven／Gradle＋Testcontainers"]
+    B --> C["建置映像檔<br/>podman build"]
+    C --> D["本機整合測試<br/>Pod／Compose"]
+    D --> E["叢集驗證<br/>Kind／MINC"]
+    E --> F["git push<br/>CI／CD"]
+    F -.->|"回饋"| A
+```
 
-#### 建議使用場景
+| 階段 | 工具 | Podman Desktop 的角色 |
+| --- | --- | --- |
+| 撰寫與除錯 | VS Code、IntelliJ IDEA | 提供容器引擎、Dev Container 執行環境 |
+| 單元與整合測試 | Testcontainers | 透過 Docker 相容 API 提供容器 |
+| 本機整合 | Pod、Compose | 圖形化檢視日誌與狀態 |
+| 叢集驗證 | Kind、MINC | 推送映像檔、Deploy to Kubernetes、Port forwarding |
 
-| 任務類型 | 建議工具 | 理由 |
-|---------|---------|------|
-| 日常開發 | GUI + CLI | GUI 監控，CLI 快速操作 |
-| 批次操作 | CLI | 腳本化，可重複執行 |
-| 學習階段 | GUI | 視覺化，容易理解 |
-| 生產環境 | CLI | 自動化，記錄化 |
-| 除錯分析 | CLI | 詳細輸出，管道處理 |
+### 12.2 VS Code
 
----
+> ⚠️ **v2.0 更正**：v1.0 列出的 `redhat.vscode-podman`「Podman Desktop Extension」在 VS Code Marketplace 上**查無此擴充功能**。Podman Desktop 官方部落格推薦的是下列兩個擴充功能。
 
-### 3.2 Compose 支援與多容器應用管理
+| 擴充功能 | ID | 用途 |
+| --- | --- | --- |
+| Container Tools（Microsoft） | `ms-azuretools.vscode-containers` | Containerfile／Dockerfile 語法支援、建置映像檔、管理容器；Docker 沒有執行時會透過 `DOCKER_HOST` 使用 Podman |
+| Pod Manager（社群） | `dreamcatcher45.podmanager` | 直接管理 Podman 的容器、映像檔、Volume、網路 |
+| Dev Containers（Microsoft） | `ms-vscode-remote.remote-containers` | 在容器中開發 |
 
-#### 🎯 學習目標
-- 掌握 Podman Compose 的使用
-- 學會複雜多容器應用的編排
-- 了解服務發現與負載平衡
+```bash
+code --install-extension ms-azuretools.vscode-containers
+code --install-extension ms-vscode-remote.remote-containers
+```
 
-#### 基本 Compose 檔案結構
+**讓 Container Tools 使用 Podman**：在 macOS 上開啟 Podman Desktop 的 **Settings > Docker Compatibility > Third-Party Docker Tool Compatibility**；Windows 與 Linux 則設定 `DOCKER_HOST`（見[6.3.2](#632-使用-docker_host)）。
+
+#### 12.2.1 Dev Containers 搭配 Podman
+
+VS Code 使用者設定（`settings.json`）：
+
+```json
+{
+  "dev.containers.dockerPath": "podman"
+}
+```
+
+專案的 `.devcontainer/devcontainer.json`：
+
+```json
+{
+  "name": "payments-api",
+  "image": "mcr.microsoft.com/devcontainers/java:21",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "installMaven": "true"
+    }
+  },
+  "runArgs": ["--userns=keep-id"],
+  "containerUser": "vscode",
+  "updateRemoteUserUID": true,
+  "forwardPorts": [8080, 5005],
+  "mounts": [
+    "source=payments-m2,target=/home/vscode/.m2,type=volume"
+  ],
+  "postCreateCommand": "mvn -B -q dependency:go-offline",
+  "customizations": {
+    "vscode": {
+      "extensions": ["vscjava.vscode-java-pack", "vmware.vscode-spring-boot"]
+    }
+  }
+}
+```
+
+- `--userns=keep-id` 讓容器內的使用者對應到主機使用者，避免 rootless 下的原始碼檔案權限問題。
+- Maven 本機倉庫放在 named volume（`payments-m2`），重建容器時不必重新下載相依套件，在 Windows 上也比 bind mount 快。
+- 使用 **Dev Containers: Reopen in Container** 開啟。
+
+> ⚠️ **v2.0 更正**：v1.0 的 devcontainer 使用 `openjdk:17-jdk` 並以 `apt-get` 安裝工具；該映像檔已停止維護，而且以 Oracle Linux 為基礎、沒有 `apt-get`。本版改用 Dev Containers 官方的 Java 映像檔與 Features。
+
+### 12.3 IntelliJ IDEA
+
+1. **Settings > Build, Execution, Deployment > Docker** → **+** 新增連線。
+2. 選擇 **Podman**（新版 IntelliJ 會自動偵測 Podman machine）；若沒有這個選項，改選 **TCP socket／Docker API URL** 並輸入：
+   - Windows：`npipe:////./pipe/podman-machine-default`
+   - macOS：`unix:///Users/<使用者>/.local/share/containers/podman/machine/podman.sock`（或開啟 Third-Party Docker Tool Compatibility 後使用 `/var/run/docker.sock`）
+   - Linux：`unix:///run/user/<UID>/podman/podman.sock`
+3. 在 **Services** 工具視窗可以檢視容器、映像檔、日誌，並從 Containerfile 直接建置與執行。
+
+**遠端除錯 Spring Boot 容器**
+
+```bash
+podman run -d --name api-debug -p 8080:8080 -p 5005:5005 \
+  -e JAVA_TOOL_OPTIONS="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005" \
+  localhost/payments-api:dev
+```
+
+IntelliJ：**Run > Edit Configurations** → **+** → **Remote JVM Debug**，Host 填 `localhost`、Port 填 `5005`。VS Code 則在 `launch.json` 使用 `"request": "attach"`：
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Attach to api-debug",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": 5005
+    }
+  ]
+}
+```
+
+### 12.4 Testcontainers
+
+Testcontainers 透過 Docker API 建立測試用容器。搭配 Podman 時：
+
+```bash
+# macOS（未開啟 Third-Party Docker Tool Compatibility 時）
+export DOCKER_HOST="unix://$(podman machine inspect --format '{{.ConnectionInfo.PodmanSocket.Path}}')"
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+
+# Linux（rootless）
+systemctl --user enable --now podman.socket
+export DOCKER_HOST="unix://${XDG_RUNTIME_DIR}/podman/podman.sock"
+```
+
+```powershell
+# Windows
+$env:DOCKER_HOST = "npipe:////./pipe/podman-machine-default"
+```
+
+也可以寫在家目錄的 `~/.testcontainers.properties`，讓所有專案共用（官方教學的做法）：
+
+```properties
+docker.host=unix:///Users/<使用者>/.local/share/containers/podman/machine/podman.sock
+```
+
+**Ryuk（資源清理容器）**：官方教學指出，Podman 以 **rootless** 模式執行時必須停用 Ryuk：
+
+```bash
+export TESTCONTAINERS_RYUK_DISABLED=true
+```
+
+停用 Ryuk 後，測試異常中斷時容器不會自動清除。請在 CI 的測試步驟結束後執行 `podman container prune -f`（或用 label 過濾刪除），本機則定期從 Containers 頁清理。第一次設定時可以開啟 Testcontainers 的 DEBUG 日誌，確認它讀到了 Podman 的 socket。
+
+```java
+// Spring Boot 3.1+：以 Testcontainers 啟動 PostgreSQL 17
+@Testcontainers
+@SpringBootTest
+class PaymentRepositoryIT {
+
+    @Container
+    @ServiceConnection
+    static PostgreSQLContainer<?> postgres =
+        new PostgreSQLContainer<>(DockerImageName.parse("docker.io/library/postgres:17"));
+
+    @Autowired
+    PaymentRepository repository;
+
+    @Test
+    void savesPayment() {
+        var saved = repository.save(new Payment("TWD", new BigDecimal("1000")));
+        assertThat(saved.getId()).isNotNull();
+    }
+}
+```
+
+### 12.5 開發環境設定管理
+
+```text
+payments-api/
+├── .devcontainer/
+│   └── devcontainer.json
+├── .containerignore
+├── Containerfile
+├── compose.yaml            # 本機依賴服務
+├── compose.override.yaml   # 個人覆寫（不進版控）
+├── k8s/
+│   └── payments-dev.yaml   # podman kube generate 產出後整理
+├── secrets/                # 不進版控
+└── src/
+```
+
+- 環境差異用 Spring Profile 與環境變數處理，**不要**為不同環境建置不同映像檔。
+- 個人設定放在 `compose.override.yaml` 或 `.env`，並列入 `.gitignore`。
+- 團隊共用的 machine 規格、`DOCKER_HOST` 設定寫在 README 或新人上手腳本中。
+
+### 12.6 Windows 開發環境自動化腳本
+
+新人上手或每日開工時，可以用 PowerShell 腳本檢查並啟動環境：
+
+```powershell
+# dev-env.ps1：啟動 Podman machine 與專案依賴服務
+param(
+    [ValidateSet('up', 'down', 'status')]
+    [string]$Action = 'up',
+    [string]$Machine = 'podman-machine-default',
+    [string]$ComposeFile = 'compose.yaml'
+)
+$ErrorActionPreference = 'Stop'
+
+function Start-PodmanMachine {
+    $state = podman machine inspect $Machine --format '{{.State}}'
+    if ($state -ne 'running') {
+        Write-Host "啟動 machine：$Machine"
+        podman machine start $Machine
+    }
+    $env:DOCKER_HOST = "npipe:////./pipe/$Machine"
+}
+
+switch ($Action) {
+    'up' {
+        Start-PodmanMachine
+        podman compose -f $ComposeFile up -d
+        podman compose -f $ComposeFile ps
+    }
+    'down' {
+        podman compose -f $ComposeFile down
+    }
+    'status' {
+        podman machine list
+        podman ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+    }
+}
+```
+
+```powershell
+.\dev-env.ps1 -Action up
+.\dev-env.ps1 -Action status
+```
+
+### 12.7 與 CI 對齊
+
+本機用 Podman 建置的映像檔，CI 也應該用相同的工具鏈（Buildah／Podman）建置，避免「本機可以、CI 不行」。以 GitHub Actions 為例：
 
 ```yaml
-version: '3.8'
+# .github/workflows/image.yml
+name: build-image
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: 建置映像檔（Buildah）
+        id: build
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: payments-api
+          tags: ${{ github.sha }}
+          containerfiles: ./Containerfile
+      - name: 推送到 registry
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build.outputs.image }}
+          tags: ${{ steps.build.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+```
 
+> 📌 GitLab CI、Jenkins、Azure Pipelines 也可以用 `quay.io/podman/stable` 或 `quay.io/buildah/stable` 映像檔執行 rootless 建置。CI 端的簽章、SBOM 與掃描流程請見《Podman 使用教學手冊》第 11 章。
+
+### 12.8 💡 本章實務建議
+
+1. **統一 IDE 擴充功能清單**：VS Code 用 Container Tools＋Dev Containers；IntelliJ 用內建 Docker／Podman 整合。
+2. **Dev Container 一律加 `--userns=keep-id`**，並把相依套件快取放在 named volume。
+3. **Testcontainers 的 Podman 設定寫進專案文件與 CI**，避免每個人各自摸索 Ryuk 問題。
+4. **除錯埠號只在開發映像檔或執行參數中開啟**，不要寫死在正式 Containerfile。
+5. **本機 Pod 產生的 YAML 要整理後才進版控**（改成 Deployment、移除 Secret）。
+
+---
+
+## 13. 疑難排解
+
+### 13.1 診斷流程
+
+```mermaid
+flowchart TD
+    S["發生問題"] --> A{"Dashboard 顯示<br/>Podman is running？"}
+    A -- 否 --> B["檢查 machine<br/>podman machine list"]
+    B --> B1{"machine 在執行？"}
+    B1 -- 否 --> B2["podman machine start<br/>查看錯誤訊息"]
+    B1 -- 是 --> B3["Troubleshooting → Reconnect Providers"]
+    A -- 是 --> C{"CLI 正常？<br/>podman run quay.io/podman/hello"}
+    C -- 否 --> D["引擎或網路問題<br/>見 13.3～13.6"]
+    C -- 是 --> E["UI 問題<br/>Troubleshooting → Logs／Stores"]
+    E --> F["Gather logs 打包 zip<br/>回報支援窗口"]
+```
+
+**第一步永遠是分辨問題在哪一層**：UI（Podman Desktop）、machine（VM）、引擎（Podman）、網路（proxy、VPN、DNS）。
+
+### 13.2 Podman Desktop 日誌與 Troubleshooting 頁
+
+點擊狀態列的 **Troubleshooting** 圖示（或 **Help > Troubleshooting**、**Settings > Troubleshooting**）：
+
+| 分頁或功能 | 用途 |
+| --- | --- |
+| Logs | 檢視 Podman Desktop 日誌（1.28 起含時間戳記） |
+| Gather logs | 一鍵把所有日誌打包成 `.zip` |
+| Ping | 檢查引擎回應時間 |
+| Check containers | 檢查容器清單的回應時間 |
+| Reconnect Providers | 重新連線引擎 socket |
+| Stores | 檢視前端資料 store 的事件，例如容器沒有出現在清單時，看 containers store 的事件 |
+| Cleanup／Purge data | 刪除引擎中**所有**資源（高風險，操作前先備份） |
+
+### 13.3 Windows 常見問題
+
+| 症狀 | 原因 | 處理方式 |
+| --- | --- | --- |
+| `podman machine stop` 失敗，日誌出現 `Error stopping sysd: exit status 1` | machine 損壞 | `wsl --list` 找到 machine 名稱，`wsl --unregister podman-machine-default` 後重建 |
+| Podman Desktop 看不到 machine | 權限不同：Hyper-V machine 只有以系統管理員執行時看得到 | 用 `wsl --list`、`podman system connection list`、`podman machine ls` 確認；卡住時 `podman machine reset`；重啟 Podman Desktop；再不行就 `taskkill.exe /F /im wslservice.exe` 重啟 WSL |
+| 從命令列啟動 Podman Desktop 後，關閉終端機也把它關掉 | 終端機附加到 Electron 行程 | 啟動前設定 `ELECTRON_NO_ATTACH_CONSOLE=true` |
+| VPN 下出現 `Temporary failure in name resolution` | machine 網路沒有經過 VPN | 重建 machine 並啟用 User mode networking |
+| `Get-NetTCPConnection` 相關錯誤、埠號轉送失效 | WSL 版本過舊 | `wsl --update`，必要時重建 machine |
+| Windows 10 Enterprise LTSC 21H2 偵測不到 WSL2 machine | LTSC 上 `wsl --install --no-distribution` 無效 | 依官方文件先安裝一個 WSL 發行版完成設定，之後可以再移除 |
+| 建立 Hyper-V machine 失敗 | 權限不足 | 以系統管理員執行 Podman Desktop；Podman 6 可以先由管理員執行 `podman system hyperv-prep` |
+| 升級到 Podman 6 後拉取映像檔失敗 | 沿用了 5.x 的設定 | 依[2.6](#26-從-podman-5-升級到-podman-6)清除資料並重建 |
+
+```powershell
+# 常用診斷指令
+wsl --status
+wsl --list --verbose
+podman machine list
+podman system connection list
+podman machine inspect podman-machine-default
+```
+
+### 13.4 macOS 常見問題
+
+| 症狀 | 原因 | 處理方式 |
+| --- | --- | --- |
+| 找不到 Podman 引擎 | 同時有 Homebrew 與 `.pkg` 安裝的 Podman，路徑衝突 | 只保留一種安裝來源；必要時在 Preferences 指定 Podman 執行檔路徑 |
+| Create Podman machine 頁面警告找不到 krunkit | Apple Silicon 缺少 krunkit | 手動安裝 krunkit，或改用 GitHub 發布的 Podman 安裝檔 |
+| Apple Silicon 上 machine 無法啟動 | 舊版 machine 映像檔或 provider 不相容 | `podman machine rm` 後重新 `podman machine init`；也可以暫時改用 Apple Hypervisor |
+| Intel Mac 無法升級到 Podman 6 | Podman 6 只支援 Apple Silicon | 維持 5.8.x，排入設備汰換 |
+| Docker 工具連不到 Podman | Third-Party Docker Tool Compatibility 未啟用 | 在 Docker Compatibility 頁啟用並重啟 machine |
+
+### 13.5 Linux 常見問題
+
+| 症狀 | 處理方式 |
+| --- | --- |
+| Flatpak 版找不到 Podman | 確認主機已安裝 Podman，且使用者層級的 `podman.socket` 已啟用（`systemctl --user enable --now podman.socket`） |
+| Wayland 下主視窗無法顯示 | 1.22 起有對應的處理；仍有問題時以 X11 工作階段或 XWayland 執行 |
+| 需要測試特定版本的 Flatpak | 先移除 Flathub 版與 `~/.var/app/io.podman_desktop.PodmanDesktop`，再 `flatpak install --user <檔名>.flatpak`；測完再裝回 Flathub 版 |
+| rootless 容器無法啟動 | 檢查 `/etc/subuid`、`/etc/subgid`，詳見《Podman 使用教學手冊》第 14 章 |
+
+### 13.6 引擎、網路與效能問題
+
+| 症狀 | 檢查 | 處理方式 |
+| --- | --- | --- |
+| `x509: certificate signed by unknown authority` | 公司 SSL 攔截 | `--import-native-ca` 或手動匯入 CA（見[4.5.3](#453-ca-憑證ssl-攔截環境)） |
+| 拉取映像檔逾時 | proxy 設定 | 檢查 **Settings > Proxy** 與 `proxy.no` 是否包含內部 registry |
+| `address already in use` | 埠號衝突 | Windows：`Get-NetTCPConnection -LocalPort 8080`；macOS／Linux：`lsof -i :8080`；改用其他主機埠 |
+| 容器清單空白、映像檔不見 | 連到錯誤的 connection（rootless／rootful） | `podman system connection ls` 檢查預設連線，rootful machine 要切到 `-root` 連線 |
+| bind mount 很慢 | Windows 跨檔案系統 I/O | 大量檔案改放 named volume |
+| machine 記憶體不足、容器被 OOM 終止 | `podman stats`、Dashboard 系統總覽 | 停止 machine 後 `podman machine set --memory` 加大 |
+| 磁碟空間不足 | `podman system df` | `podman system prune`（加 `-a --volumes` 前先確認）；`podman machine set --disk-size` 加大 |
+
+**最後手段：重設**
+
+```bash
+# ⚠️ 會刪除所有 machine、容器、映像檔與 Volume
+podman machine reset -f
+```
+
+Podman Desktop 本身的設定損壞時，可以先備份再刪除 `~/.local/share/containers/podman-desktop/`（Windows 為 `%USERPROFILE%\.local\share\containers\podman-desktop\`）。
+
+### 13.7 回報問題
+
+1. 用 **Gather logs** 打包日誌。
+2. 附上 `podman version`、`podman info`、`podman machine inspect` 的輸出（先移除內部主機名稱與帳號）。
+3. 說明作業系統版本、Podman Desktop 版本、machine provider、是否使用 VPN／proxy。
+4. 內部先由支援窗口判斷；確認是產品問題後，再到 GitHub Issues 或 Red Hat 支援（Red Hat build 使用者）回報。
+
+### 13.8 💡 本章實務建議
+
+1. **建立內部 FAQ**：把本章的表格加上公司特有的 proxy、VPN、CA 問題。
+2. **提報問題一律附 Gather logs 的 zip**。
+3. **先確認 connection**：很多「資源不見」的問題其實是連到 rootless／rootful 的另一個連線。
+4. **重設前先備份**：`podman machine reset -f` 會刪除所有資料。
+5. **定期清理**：每月執行一次 `podman system df` 與 `prune`，避免磁碟用盡。
+
+---
+
+## 14. 實務練習與認證準備
+
+### 14.1 分階段學習計畫
+
+| 階段 | 時間 | 目標 | 對應章節 | 驗收方式 |
+| --- | --- | --- | --- | --- |
+| 入門 | 第 1 週 | 安裝、建立 machine、執行第一個容器、看懂各頁面 | 第 2、3 章 | 完成 [3.6](#36--實務練習第一個容器) 練習 |
+| 基礎 | 第 2～3 週 | 建置映像檔、Pod、Volume、Network、Secret、Compose | 第 5、6 章 | 完成 [14.2](#142--基礎實務練習) 練習 1～3 |
+| 進階 | 第 4～6 週 | machine 調校、Kind、Deploy to Kubernetes、Testcontainers | 第 4、7、12 章 | 完成練習 4～5 |
+| 企業 | 第 7～8 週 | Managed configuration、安全基準、疑難排解 | 第 10、11、13 章 | 完成 [14.3](#143--企業實務練習) |
+| 認證 | 第 9～12 週 | EX188 考試目標（以 CLI 為主） | [14.4](#144-認證概述) | 完成模擬題並在限時內作答 |
+
+### 14.2 📝 基礎實務練習
+
+**練習 1：映像檔建置與推送**
+
+1. 用 [5.3.2](#532-建置) 的 Containerfile 建置 `localhost/payments-api:dev`。
+2. 在 Images 頁檢視 History，並用 Image Layers Explorer 找出最大的一層。
+3. 用 Grype 擴充功能掃描，記錄 Critical 與 High 弱點數量。
+4. 改名為 `registry.corp.example/<你的帳號>/payments-api:0.1.0` 並推送。
+
+**練習 2：Pod 與 Kubernetes YAML**
+
+1. 依 [5.8](#58-實務案例java-微服務本機開發環境) 建立 `payments-dev` Pod。
+2. 在 **Kube** 分頁或用 `podman kube generate` 產生 YAML。
+3. 刪除 Pod 後，用 **Play Kubernetes YAML** 重新建立，確認服務恢復。
+
+**練習 3：Compose 與 Docker 相容**
+
+1. 用 [6.2](#62-執行-compose-應用) 的 `compose.yaml` 啟動服務，確認 Containers 頁出現 `(compose)` 群組。
+2. 設定 `DOCKER_HOST` 或啟用 Docker 相容，以 `docker ps` 查看相同的容器。
+3. 執行 `docker info --format=json | jq -r .ServerVersion`，確認回傳的是 Podman 版本。
+
+**練習 4：Kind 內循環**
+
+1. 建立 rootful machine 與 Kind 叢集。
+2. 把 `payments-api:dev` 推送到 Kind，套用 `imagePullPolicy: Never` 的 Pod。
+3. 用 **Deploy to Kubernetes** 部署 `payments-dev` Pod，再用 Port forwarding 從瀏覽器存取。
+
+**練習 5：Testcontainers**
+
+1. 依 [12.4](#124-testcontainers) 設定 `DOCKER_HOST`。
+2. 執行含 PostgreSQL Testcontainer 的整合測試，觀察 Containers 頁中測試容器的建立與刪除。
+
+### 14.3 📝 企業實務練習
+
+**情境**：你是平台團隊成員，要替 200 位開發者導入 Podman Desktop。
+
+1. 撰寫 `default-settings.json` 與 `locked.json`：鎖定 proxy、遙測、自訂擴充功能、應用程式更新；以預設值派送 Docker Hub 與 Quay 的內部 mirror。
+2. 在測試機部署，從 Troubleshooting 日誌確認 `[Managed-by]` 訊息，並確認 Preferences 顯示 **Managed** 標籤。
+3. 撰寫一頁新人上手指引：安裝方式、machine 標準規格、`DOCKER_HOST` 設定、常見問題。
+4. 設計版本升級流程：修補版與次要版本的驗證與派送時程。
+5. 列出擴充功能核准清單，並說明每個擴充功能的核准理由。
+
+### 14.4 認證概述
+
+> ⚠️ **v2.0 更正**：v1.0 的第 4 章以 Red Hat 容器認證為題，但沒有明確的考試代號與官方目標，還附上沒有出處的「題型比例」。本版改依 Red Hat 官方考試頁面整理（查證日 2026-09-29），並沿用本站《Podman 使用教學手冊》v2.0 的查證結果。
+
+| 認證 | 考試 | 與 Podman／Podman Desktop 的關聯 |
+| --- | --- | --- |
+| **Red Hat Certified Developer in Cloud-native Applications** | **EX188**（實機操作，2.5 小時） | 以 RHEL 10、Podman v5、OpenShift 4.22 為基準；主要的 Podman 認證 |
+| Red Hat Certified System Administrator（RHCSA） | EX200 | 考試目標包含以 Podman 管理容器，並用 systemd 讓 rootless 容器開機自動啟動 |
+| Certified Kubernetes Application Developer（CKAD） | CNCF／Linux Foundation | Pod、YAML、Port forwarding 等概念可以直接延伸 |
+
+官方建議課程為 **DO188**（Red Hat OpenShift Developer I: Introduction to Containers with Podman）。EX180 已於 2023 年退役，由 EX188 取代。
+
+> ⚠️ **注意**：考試環境是 **Linux 命令列**，**沒有** Podman Desktop。請把 Podman Desktop 當成學習時觀察結果的工具，每個 GUI 操作都要能用 CLI 完成（見[附錄 A](#附錄-agui--cli-對照)）。
+
+### 14.5 EX188 考試目標與本手冊對照
+
+| # | 考試目標（中文整理） | GUI 練習 | CLI 重點 | 本手冊章節 |
+| --- | --- | --- | --- | --- |
+| 1 | 以 Podman 與 Containerfile 建置映像檔（基底、內容、使用者、工作目錄、埠號、環境變數、建置參數、volume、權限） | Images → Build | `podman build`、`--build-arg` | [5.3](#53-映像檔) |
+| 2 | 管理映像檔（私有 registry、tag、推拉、備份映像檔與容器狀態的差異） | Settings > Registries、Push、Save | `podman login/tag/push/save/load/commit` | [5.3.3](#533-推送儲存與匯入)、[5.4](#54-registry-與-mirror) |
+| 3 | 在本機執行容器（logs、events、inspect、環境參數、對外公開） | Containers → Logs／Inspect | `podman run/logs/events/inspect` | [5.1](#51-容器) |
+| 4 | 執行多容器應用（相依性、環境變數、secret、volume、設定） | Pods、Secrets、Compose | `podman pod`、`podman secret`、`podman compose` | [5.2](#52-pod)、[5.7](#57-secret)、[第 6 章](#6-compose-與-docker-相容) |
+| 5 | 疑難排解容器化應用（資源描述、日誌、連線到執行中的容器） | Terminal、Troubleshooting | `podman exec`、`podman logs` | [第 13 章](#13-疑難排解) |
+
+完整的考試目標拆解、模擬題與考試策略，請見《Podman 使用教學手冊》第 16 章。
+
+### 14.6 學習資源
+
+| 類型 | 資源 |
+| --- | --- |
+| 官方文件 | podman-desktop.io/docs（安裝、Podman、Docker 遷移、Kubernetes、AI Lab、擴充功能、疑難排解） |
+| 官方教學 | podman-desktop.io/tutorial（Compose、Kind、AI 應用等逐步教學） |
+| 發布資訊 | podman-desktop.io/blog（每月發布說明）、GitHub Releases |
+| 社群 | Discord、GitHub Discussions、每月社群會議與 YouTube 錄影 |
+| Red Hat | Red Hat Developer 的 Podman Desktop 頁面、Red Hat build of Podman Desktop 文件、DO188 課程、Developer Sandbox |
+| 引擎 | docs.podman.io、本站《Podman 使用教學手冊》 |
+
+> ⚠️ **v2.0 更正**：v1.0 列出的 Katacoda 練習連結已隨 Katacoda 停止服務而失效；GitHub 連結也從 `containers/podman` 改為 `podman-container-tools/podman`。
+
+### 14.7 💡 本章實務建議
+
+1. **以「能交付」為驗收標準**：每個階段都要完成練習並展示結果。
+2. **企業練習由平台團隊負責**，一般開發者完成基礎與進階即可。
+3. **考照一定要練 CLI**：GUI 熟練不代表能通過實機考試。
+4. **每月的社群會議與發布說明列為平台團隊的固定追蹤事項**。
+5. **把練習成果（YAML、設定檔、上手指引）收進內部知識庫**，作為下一批新人的教材。
+
+---
+
+## 附錄 A：GUI ↔ CLI 對照
+
+| 工作 | Podman Desktop 操作 | CLI |
+| --- | --- | --- |
+| 查看引擎資訊 | Dashboard | `podman info`、`podman version` |
+| 建立 machine | Settings > Resources > Podman > Create new | `podman machine init --now` |
+| 調整 machine 資源 | Podman 卡片 → 編輯（machine 停止時） | `podman machine set --cpus 4 --memory 8192` |
+| 切換 rootful | Podman 卡片 | `podman machine set --rootful` |
+| 拉取映像檔 | Images > Pull | `podman pull <完整名稱>` |
+| 建置映像檔 | Images > Build | `podman build -t <名稱> .` |
+| 推送映像檔 | Images > ⋮ > Push Image | `podman push <名稱>` |
+| 存成檔案／匯入 | Images > Save／Import | `podman save -o x.tar`／`podman load -i x.tar` |
+| 執行容器 | Images > ▶ Run Image | `podman run -d --name <名稱> -p 8080:80 <映像檔>` |
+| 查看日誌 | Containers > 容器 > Logs | `podman logs -f <名稱>` |
+| 進入容器 | Containers > 容器 > Terminal | `podman exec -it <名稱> sh` |
+| 檢視設定 | Containers > 容器 > Inspect | `podman inspect <名稱>` |
+| 產生 Kubernetes YAML | Containers／Pods > Kube | `podman kube generate <名稱>` |
+| 由 YAML 建立 Pod | Play Kubernetes YAML | `podman kube play app.yaml` |
+| 由容器建立 Pod | Containers > 多選 > Create Pod | `podman pod create` ＋ `--pod` |
+| 建立網路 | Networks > Create | `podman network create` |
+| 建立 Volume | Volumes > Create | `podman volume create` |
+| 建立 Secret | Secrets > Create | `podman secret create <名稱> -` |
+| 登入 registry | Settings > Registries | `podman login <registry>` |
+| Compose 啟動 | 終端機（Desktop 顯示群組） | `podman compose up -d` |
+| 部署到 Kubernetes | Pods > ⋮ > Deploy to Kubernetes | `kubectl apply -f` |
+| Port forwarding | Kubernetes > Pod > Summary > Forward... | `kubectl port-forward` |
+| 切換 Kubernetes context | 狀態列／Settings > Kubernetes | `kubectl config use-context` |
+| 清理資源 | 各頁 Prune | `podman system prune` |
+
+## 附錄 B：設定檔範本
+
+### B.1 個人 settings.json 建議值
+
+```json
+{
+  "preferences.appearance": "system",
+  "preferences.login.start": true,
+  "preferences.podman.engine.autostart": true,
+  "dockerCompatibility.enabled": true,
+  "kubernetes.Kubeconfig": "~/.kube/config",
+  "terminal.integrated.fontSize": 12,
+  "editor.integrated.fontSize": 13,
+  "userConfirmation.bulk": true
+}
+```
+
+### B.2 Managed configuration 範本
+
+`default-settings.json`：
+
+```json
+{
+  "proxy.enabled": 1,
+  "proxy.http": "http://proxy.corp.example:8080",
+  "proxy.https": "http://proxy.corp.example:8080",
+  "proxy.no": "localhost,127.0.0.1,.corp.example",
+  "telemetry.enabled": false,
+  "preferences.update.appUpdate": false,
+  "providers.allowUpdate": [],
+  "extensions.customExtensions.enabled": false,
+  "extensions.ignoreRecommendations": true,
+  "dockerCompatibility.enabled": true,
+  "registries.defaults": [
+    { "registry": { "prefix": "docker.io", "location": "docker.io" } },
+    { "registry.mirror": { "location": "harbor.corp.example/dockerhub-proxy" } },
+    { "registry": { "prefix": "quay.io", "location": "quay.io" } },
+    { "registry.mirror": { "location": "harbor.corp.example/quay-proxy" } }
+  ]
+}
+```
+
+`locked.json`：
+
+```json
+{
+  "locked": [
+    "proxy.enabled",
+    "proxy.http",
+    "proxy.https",
+    "proxy.no",
+    "telemetry.enabled",
+    "preferences.update.appUpdate",
+    "providers.allowUpdate",
+    "extensions.customExtensions.enabled"
+  ]
+}
+```
+
+> 📌 `registries.defaults`、`dockerCompatibility.enabled` 以「預設值」派送、不鎖定，讓專案團隊仍可以自行新增 registry。
+
+### B.3 devcontainer.json（Java＋Podman）
+
+```json
+{
+  "name": "java-podman",
+  "image": "mcr.microsoft.com/devcontainers/java:21",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": { "installMaven": "true" }
+  },
+  "runArgs": ["--userns=keep-id"],
+  "containerUser": "vscode",
+  "updateRemoteUserUID": true,
+  "forwardPorts": [8080, 5005],
+  "mounts": ["source=m2-cache,target=/home/vscode/.m2,type=volume"],
+  "postCreateCommand": "mvn -B -q dependency:go-offline"
+}
+```
+
+### B.4 開發用 compose.yaml 骨架
+
+```yaml
 services:
-  webapp:
-    build: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      - database
+  db:
+    image: docker.io/library/postgres:17
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-
-  database:
-    image: postgres:14
-    environment:
-      POSTGRES_DB: tutorial
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    volumes: [dbdata:/var/lib/postgresql/data]
+    ports: ["127.0.0.1:5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 10s
+      retries: 5
+  cache:
+    image: docker.io/library/redis:8
+    ports: ["127.0.0.1:6379:6379"]
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
 volumes:
-  postgres-data:
+  dbdata:
 ```
 
----
+### B.5 .wslconfig（Windows）
 
-### 3.3 安全性與資源管理最佳實踐
-
-#### 🎯 學習目標
-- 掌握容器安全性最佳實務
-- 學會資源限制與監控
-- 了解合規性要求與稽核
-
-#### 安全最佳實務清單
-
-- 🔒 使用官方基礎映像檔
-- 👤 始終使用非 root 使用者
-- 🔐 妥善管理機密資訊
-- 🌐 最小化網路暴露
-- 📋 定期進行安全掃描
-
----
-
-### 3.4 與 Kubernetes/OpenShift 對接基礎
-
-#### 🎯 學習目標
-- 了解 Podman 與 Kubernetes 的整合
-- 學會生成 Kubernetes YAML
-- 掌握 OpenShift 部署流程
-
-#### 生成 Kubernetes YAML
-
-```bash
-# 從 Pod 生成 Kubernetes 部署檔案
-podman generate kube web-pod > deployment.yaml
+```ini
+# %UserProfile%\.wslconfig
+[wsl2]
+memory=16GB
+processors=8
+# 使用 MINC（MicroShift）時才需要
+# kernelCommandLine = cgroup_no_v1=all
 ```
 
----
-
-## 4. 認證考試準備
-
-### 4.1 認證知識範圍
-
-#### 🎯 學習目標
-- 了解 Red Hat 容器認證要求
-- 掌握考試重點知識領域
-- 制定有效的學習計畫
-
-#### Red Hat EX188 考試範圍
-
-1. **容器和映像檔管理 (25%)**
-2. **容器映像檔建置 (20%)**
-3. **Pod 管理 (15%)**
-4. **持久儲存 (15%)**
-5. **網路配置 (10%)**
-6. **安全性 (10%)**
-7. **systemd 整合 (5%)**
-
----
-
-### 4.2 常見考題型態與解題練習
-
-#### 範例題目：容器基本操作
-
-**任務：** 建立一個名為 "webapp" 的容器
-- 使用 nginx:alpine 映像檔
-- 對應埠號 8080:80
-- 背景執行
-- 開機自動啟動
-
-**解答：**
-```bash
-podman run -d --name webapp -p 8080:80 nginx:alpine
-podman generate systemd --new --files --name webapp
-sudo systemctl enable container-webapp.service
-```
-
----
-
-### 4.3 學習地圖與練習資源
-
-#### 學習計畫建議
-
-**第1-2週：** 基礎概念與安裝
-**第3-4週：** 容器與映像檔管理
-**第5-6週：** Pod 與網路配置
-**第7週：** 認證考試準備
-
----
-
-## 5. 檢查清單
-
-### 5.1 安裝驗證清單
-
-#### Podman Desktop 安裝檢查
-
-- [ ] **系統需求確認**
-  - [ ] Windows 10/11 版本符合需求
-  - [ ] 8GB+ RAM 可用
-  - [ ] 50GB+ 磁碟空間
-  - [ ] 虛擬化技術已啟用
-
-- [ ] **WSL 2 設定**
-  - [ ] WSL 功能已啟用
-  - [ ] 虛擬機器平台已啟用
-  - [ ] WSL 2 設為預設版本
-  - [ ] Linux 發行版正常運作
-
-- [ ] **Podman Desktop 安裝**
-  - [ ] 應用程式安裝完成
-  - [ ] Podman 機器初始化成功
-  - [ ] Podman 機器啟動正常
-  - [ ] GUI 介面正常顯示
-
-- [ ] **功能驗證**
-  - [ ] 可以執行基本容器 (`podman run hello-world`)
-  - [ ] 可以下載映像檔
-  - [ ] 容器狀態監控正常
-  - [ ] 日誌查看功能正常
-
-### 5.2 開發環境設定清單
-
-#### Java 開發環境檢查
-
-- [ ] **映像檔準備**
-  - [ ] OpenJDK 17 映像檔已下載
-  - [ ] Maven 工具映像檔已下載
-  - [ ] 自訂開發映像檔建置成功
-
-- [ ] **容器配置**
-  - [ ] 專案目錄正確掛載
-  - [ ] 埠號對應設定正確
-  - [ ] 環境變數配置完成
-  - [ ] 網路連接正常
-
-- [ ] **IDE 整合**
-  - [ ] VS Code 擴充功能已安裝
-  - [ ] 開發容器配置完成
-  - [ ] 除錯設定正常
-  - [ ] IntelliJ IDEA Docker 外掛程式啟用
-
-### 5.3 專案部署清單
-
-#### 多容器應用部署檢查
-
-- [ ] **應用架構**
-  - [ ] Web 應用程式容器
-  - [ ] 資料庫容器
-  - [ ] 快取服務容器
-  - [ ] 反向代理容器（如需要）
-
-- [ ] **網路配置**
-  - [ ] 自訂網路建立
-  - [ ] 容器間網路連通
-  - [ ] 外部存取設定
-  - [ ] 安全性配置
-
-- [ ] **資料管理**
-  - [ ] Volume 建立與掛載
-  - [ ] 資料持久化設定
-  - [ ] 備份策略制定
-  - [ ] 權限設定正確
-
-- [ ] **服務監控**
-  - [ ] 健康檢查設定
-  - [ ] 日誌監控配置
-  - [ ] 資源使用監控
-  - [ ] 自動重啟策略
-
-### 5.4 安全性檢查清單
-
-#### 容器安全配置檢查
-
-- [ ] **映像檔安全**
-  - [ ] 使用官方或可信任的基礎映像檔
-  - [ ] 定期更新映像檔
-  - [ ] 安全掃描已執行
-  - [ ] 弱點評估完成
-
-- [ ] **運行時安全**
-  - [ ] 非 root 使用者執行
-  - [ ] 最小權限原則
-  - [ ] 唯讀檔案系統（適用時）
-  - [ ] 網路隔離設定
-
-- [ ] **資料安全**
-  - [ ] 機密資訊使用 secrets
-  - [ ] 敏感資料加密
-  - [ ] 存取控制設定
-  - [ ] 稽核日誌啟用
-
-### 5.5 效能優化清單
-
-#### 資源管理檢查
-
-- [ ] **容器資源限制**
-  - [ ] CPU 限制設定
-  - [ ] 記憶體限制設定
-  - [ ] I/O 限制設定（如需要）
-  - [ ] 資源監控啟用
-
-- [ ] **映像檔優化**
-  - [ ] 多階段建置使用
-  - [ ] 層級數量最小化
-  - [ ] .dockerignore 設定
-  - [ ] 映像檔大小優化
-
-- [ ] **儲存優化**
-  - [ ] Volume 使用策略
-  - [ ] 暫存檔案管理
-  - [ ] 日誌輪替設定
-  - [ ] 清理策略制定
-
-### 5.6 故障排除清單
-
-#### 常見問題檢查
-
-- [ ] **安裝問題**
-  - [ ] 檢查系統需求
-  - [ ] 驗證權限設定
-  - [ ] 確認網路連線
-  - [ ] 查看錯誤日誌
-
-- [ ] **容器問題**
-  - [ ] 檢查容器狀態
-  - [ ] 驗證映像檔完整性
-  - [ ] 確認網路配置
-  - [ ] 檢視容器日誌
-
-- [ ] **效能問題**
-  - [ ] 監控資源使用
-  - [ ] 檢查磁碟空間
-  - [ ] 網路連通性測試
-  - [ ] 應用程式效能分析
-
-### 5.7 認證考試準備清單
-
-#### 考試技能檢查
-
-- [ ] **基礎技能**
-  - [ ] 容器建立、啟動、停止
-  - [ ] 映像檔搜尋、下載、管理
-  - [ ] 基本 Dockerfile 撰寫
-  - [ ] CLI 指令熟練度
-
-- [ ] **進階技能**
-  - [ ] Pod 建立與管理
-  - [ ] 網路配置
-  - [ ] Volume 管理
-  - [ ] systemd 整合
-
-- [ ] **實務技能**
-  - [ ] 故障排除能力
-  - [ ] 安全性配置
-  - [ ] 效能調優
-  - [ ] 自動化腳本撰寫
-
-### 5.8 日常維護清單
-
-#### 定期維護工作
-
-- [ ] **每日檢查**
-  - [ ] 容器狀態監控
-  - [ ] 日誌檢查
-  - [ ] 資源使用監控
-  - [ ] 備份狀態確認
-
-- [ ] **每週檢查**
-  - [ ] 映像檔更新檢查
-  - [ ] 安全掃描執行
-  - [ ] 清理無用資源
-  - [ ] 效能報告檢視
-
-- [ ] **每月檢查**
-  - [ ] 系統更新檢查
-  - [ ] 備份策略檢討
-  - [ ] 安全政策更新
-  - [ ] 技能學習評估
-
----
-
-## 🎯 總結
-
-這份 Podman Desktop 使用教學手冊提供了從基礎入門到進階應用的完整學習路徑。透過系統性的學習和實務練習，新進開發同仁可以：
-
-1. **快速上手** Podman Desktop 的安裝與基本操作
-2. **掌握實務技能** 包含專案整合、容器管理、映像檔建置
-3. **學習進階技巧** 涵蓋安全性管理、CI/CD 整合、Kubernetes 對接
-4. **準備認證考試** 具備 Red Hat 容器認證所需知識
-5. **建立最佳實務** 養成良好的容器化開發習慣
-
-**建議學習順序：**
-1. 先閱讀基礎入門章節，完成安裝設定
-2. 透過專案實務應用章節，建立實際開發經驗
-3. 學習進階操作與最佳實務，提升專業技能
-4. 使用檢查清單驗證學習成果
-5. 持續練習並參與社群討論
-
-**持續學習資源：**
-- 官方文件：https://docs.podman.io/
-- 社群論壇：https://github.com/containers/podman/discussions
-- Red Hat 訓練：https://www.redhat.com/en/services/training
-- 實務練習：https://katacoda.com/courses/container-platform
-
-記住，容器技術發展快速，建議定期關注最新發展並持續學習。祝您在容器化開發的路上順利前進！
+修改後執行 `wsl --shutdown`，再重新啟動 Podman machine 才會生效。
+
+## 附錄 C：檢查清單
+
+### C.1 安裝驗證
+
+- [ ] 作業系統符合基準（Windows 11 或 Apple Silicon；例外設備已登記）
+- [ ] Podman Desktop 版本符合公司基準（例如 1.29.x）
+- [ ] `podman version` 用戶端與伺服器端版本一致
+- [ ] machine 規格符合標準（CPU、記憶體、磁碟），狀態為 Running
+- [ ] `podman run --rm quay.io/podman/hello` 成功
+- [ ] Compose、kubectl CLI 已安裝（**Settings > CLI tools**）
+- [ ] 公司 CA 已匯入（`--import-native-ca`），可以拉取內部 registry 映像檔
+- [ ] Managed configuration 已生效（Preferences 顯示 **Managed**）
+
+### C.2 開發環境設定
+
+- [ ] `DOCKER_HOST` 或 Docker Compatibility 已設定，`docker info` 回傳 Podman 版本
+- [ ] IDE 已安裝核准的擴充功能（Container Tools、Dev Containers）
+- [ ] Dev Container 使用 `--userns=keep-id`，相依套件快取放在 named volume
+- [ ] Testcontainers 可以在 Podman 上執行（rootless 時已停用 Ryuk，並有清理機制）
+- [ ] 已登入需要的 registry（**Settings > Registries**）
+- [ ] 專案的 `.containerignore`、`.gitignore` 已排除機敏檔案
+
+### C.3 專案部署前（本機驗證）
+
+- [ ] 映像檔使用完整名稱與固定版本
+- [ ] 映像檔以非 root 使用者執行，並設定 `EXPOSE`
+- [ ] 多容器應用已用 Pod 或 Compose 驗證，健康檢查通過
+- [ ] 已用 `podman kube generate` 產生 YAML，並整理為 Deployment
+- [ ] 已在 Kind（或 MINC）驗證部署、Service 與 Port forwarding
+- [ ] Secret 沒有寫進 YAML、Compose 或映像檔
+
+### C.4 安全與合規
+
+- [ ] machine 為 rootless（rootful 例外已登記）
+- [ ] 容器使用 `--cap-drop=ALL`、`no-new-privileges`，避免 `--privileged`
+- [ ] 開發服務只綁定 `127.0.0.1`
+- [ ] 推送前已用 Grype 掃描，無未處理的 Critical 弱點
+- [ ] 遙測已依政策鎖定
+- [ ] 只安裝核准清單內的擴充功能
+- [ ] Developer Sandbox、AI Lab 的使用符合公司規範
+
+### C.5 效能與資源
+
+- [ ] machine 記憶體足以同時執行 IDE、容器與叢集（Kind／AI Lab 使用者 12 GB 以上）
+- [ ] Windows 上的大量小檔案放在 named volume
+- [ ] 容器設定 `--memory`、`--cpus` 上限
+- [ ] 每月執行 `podman system df` 與 `prune`
+- [ ] 同一時間只啟動需要的 machine 與叢集
+
+### C.6 故障排除
+
+- [ ] 已確認問題層級（UI、machine、引擎、網路）
+- [ ] 已檢查預設 connection（rootless／rootful）
+- [ ] 已檢查 proxy、CA、VPN（User mode networking）
+- [ ] 已用 Gather logs 打包日誌
+- [ ] 已記錄版本資訊（Podman Desktop、Podman、作業系統、provider）
+
+### C.7 認證準備
+
+- [ ] 能不依賴 GUI，用 CLI 完成附錄 A 的所有工作
+- [ ] 熟悉 Containerfile 指令、`podman build` 參數
+- [ ] 熟悉 registry 登入、tag、push、save／load 與 commit 的差異
+- [ ] 熟悉 Pod、Secret、Volume、網路的建立與排錯
+- [ ] 完成《Podman 使用教學手冊》第 16 章的模擬題
+
+### C.8 日常維護與 IT 管理
+
+- [ ] 每月檢視 Podman Desktop 發布說明與 Settings Reference 變更
+- [ ] 修補版一週內派送，次要版本完成試點後派送
+- [ ] Managed configuration 檔案有版本控管與派送紀錄
+- [ ] 擴充功能核准清單每季檢視一次
+- [ ] 需要保留的 Volume 已定期備份（`podman volume export`）
+- [ ] 設備清冊中的 Podman Desktop／Podman 版本符合基準
+
+## 附錄 D：版本紀錄
+
+### D.1 版本歷程
+
+| 版本 | 日期 | 說明 |
+| --- | --- | --- |
+| 1.0 | 2025-10-31 | 初版：基礎入門、專案實務、進階操作、認證準備、檢查清單 |
+| 2.0 | 2026-09-29 | 以 Podman Desktop 1.29／Podman 6 為基準全面改寫；新增 9 個章節；修正檔案結構損壞與重複段落；目錄改為自動產生 |
+
+### D.2 v1.0 → v2.0 更正表
+
+| # | v1.0 內容 | 問題 | v2.0 處理 | 章節 |
+| --- | --- | --- | --- | --- |
+| 1 | 總結之後接著斷掉的程式碼片段、錯置的 2.5.3～2.5.5、第 3～5 章重複的精簡版、游離的「第二部分總結」 | 檔案結構損壞，內容重複 | 全文重新組織，移除重複段落 | 全文 |
+| 2 | 目錄只到第二層，且與內容不一致 | 目錄無法連到錯置段落 | 依標題自動產生三層目錄 | 目錄 |
+| 3 | Windows 10 19041、8 GB RAM、50 GB 磁碟 | 與官方需求不符；Podman 6 不支援 Windows 10 | 改為官方需求並以 Windows 11 為企業基準 | [2.1](#21-系統需求與平台支援) |
+| 4 | 以 `dism` 啟用 WSL、`wsl --install -d Ubuntu-22.04` | 不必另外安裝 Ubuntu | 改用 `wsl --install --no-distribution` | [2.2.2](#222-選擇-machine-providerwsl-2-或-hyper-v) |
+| 5 | 安裝後手動 `podman machine init` | 由 Onboarding 完成；Windows Podman 安裝檔已改為 MSI | 改寫為 Onboarding 流程 | [2.2.3](#223-安裝-podman-引擎) |
+| 6 | 「Podman Desktop 需要管理員權限進行初始設定」 | 使用者範圍安裝與 MSI 版 Podman 不需要管理員權限 | 區分需要與不需要管理員權限的步驟 | [2.2](#22-windows-安裝) |
+| 7 | 側邊欄有 All Containers／Running／Stopped、Pull Images／Local Images 等子選單 | 與實際介面不符 | 依 1.29 實際介面改寫 | [第 3 章](#3-介面導覽) |
+| 8 | 在 Preferences 調整 CPU、記憶體、磁碟 | 實際在 Settings > Resources 的 Podman 卡片 | 更正位置 | [4.3](#43-建立與設定-machine) |
+| 9 | `podman system service --time=0 unix:///var/run/docker.sock` 作為 Docker 相容做法 | 在 Windows／macOS 主機上無效 | 改用 Docker Compatibility 設定頁與 `DOCKER_HOST` | [6.3](#63-docker-相容模式) |
+| 10 | VS Code 擴充功能 `redhat.vscode-podman` | Marketplace 查無此擴充功能 | 改為 Container Tools、Pod Manager、Dev Containers | [12.2](#122-vs-code) |
+| 11 | devcontainer 與範例使用 `openjdk:17-jdk`，並用 `apt-get` | 映像檔已停止維護，且以 Oracle Linux 為基礎沒有 `apt-get` | 改用 UBI OpenJDK 21 與 Dev Containers 官方映像檔 | [5.3.2](#532-建置)、[12.2.1](#1221-dev-containers-搭配-podman) |
+| 12 | `postgres:14`、`redis:7-alpine`，密碼以 `-e` 明文傳入 | 版本老舊（PostgreSQL 14 將於 2026-11 結束支援）；密碼外露 | 改用 `postgres:17`、`redis:8` 與 Podman Secret | [5.8](#58-實務案例java-微服務本機開發環境) |
+| 13 | IntelliJ 設定 `unix:///run/user/1000/podman/podman.sock` | 只適用 Linux | 分平台列出 socket／pipe 路徑 | [12.3](#123-intellij-idea) |
+| 14 | 認證章節沒有明確考試代號，附無出處的題型比例 | 無法查證 | 改依 EX188 官方目標整理，並註明考試環境沒有 GUI | [14.4](#144-認證概述) |
+| 15 | Katacoda 練習連結、`github.com/containers/podman/discussions` | Katacoda 已停止服務；專案已搬遷 | 改列官方教學、社群與新的 GitHub 組織 | [14.6](#146-學習資源) |
+| 16 | 「建議關閉防毒軟體的即時掃描（安裝期間）」 | 不符合企業資安政策 | 刪除；改為使用 IT 派送的安裝檔 | [2.9](#29--本章實務建議) |
+| 17 | 「使用 Podman 內建掃描」卻執行 `podman build --security-opt label=disable`；「安全掃描」用 `skopeo inspect` | Podman 沒有內建弱點掃描；`label=disable` 是**停用** SELinux 標籤，反而降低安全性；`skopeo inspect` 只讀取 metadata | 改為 Grype 擴充功能與 CI 掃描平台 | [11.3](#113-映像檔安全) |
+
+### D.3 v2.0 新增章節
+
+| 章節 | 內容 |
+| --- | --- |
+| [執行摘要](#執行摘要) | 六個決策問題、企業導入路線圖 |
+| [1.3](#13-版本節奏與版本對照)、[1.5](#15-社群版與-red-hat-build-of-podman-desktop)、[1.6](#16-專案治理與社群) | 版本對照、Red Hat build、CNCF 治理與社群 |
+| [2.6](#26-從-podman-5-升級到-podman-6)、[2.7](#27-受限環境與離線安裝) | Podman 5 → 6 升級、airgap 離線安裝 |
+| [第 4 章](#4-podman-machine-管理) | Podman machine：provider、rootful 切換、VPN、proxy、CA、GPU、遠端連線 |
+| [5.6](#56-network)、[5.7](#57-secret) | Networks 頁、Secrets 頁 |
+| [第 7 章](#7-kubernetes-與-openshift-整合) | Kind、Minikube、Lima、MINC、OpenShift Local、Developer Sandbox、context、Port forwarding |
+| [第 8 章](#8-擴充功能生態) | 擴充功能目錄、企業管控、開發與發布 |
+| [第 9 章](#9-podman-ai-lab) | Podman AI Lab |
+| [第 10 章](#10-企業導入與集中管理) | Managed configuration、派送、遙測、settings.json 鍵值 |
+| [第 11 章](#11-安全性與合規) | 威脅模型、執行期與映像檔安全、稽核檢查點 |
+| [第 13 章](#13-疑難排解) | 分平台疑難排解 |
+| [附錄 A](#附錄-agui--cli-對照)、[附錄 B](#附錄-b設定檔範本) | GUI ↔ CLI 對照、設定檔範本 |
+
+## 附錄 E：查證紀錄
+
+查證日期：2026-09-29。
+
+| # | 查證事項 | 來源 |
+| --- | --- | --- |
+| 1 | 最新穩定版 1.29.3（2026-09-01）；1.30.0／1.30.1 為 prerelease（2026-09-21／09-28） | GitHub Releases API（podman-desktop/podman-desktop） |
+| 2 | 1.29.3 內建 Podman 6.0.2（Windows、macOS arm64）與 5.8.5（macOS x64）；1.30.1 為 6.1.2／5.8.7 | 原始碼 `extensions/podman/packages/extension/src/podman.json`（各版本 tag） |
+| 3 | 1.29：Podman 6 支援、Secrets 頁、`--import-native-ca`、5 → 6 升級引導、Hyper-V 需 `podman machine reset`、Intel Mac 固定 5.x、可以關閉自動更新 | 官方部落格〈Podman Desktop 1.29 Release〉 |
+| 4 | 1.20～1.28 各版本新功能（見 1.3 節表格） | 官方部落格各版本發布說明 |
+| 5 | Managed configuration 三個檔案、各平台路徑、優先順序、`[Managed-by]` 日誌、檔案權限 | 官方文件 Configuration > Managed configuration、Troubleshooting managed configuration |
+| 6 | `registries.defaults`、`providers.allowUpdate` 用例 | 官方文件 Managed configuration use cases |
+| 7 | settings.json 鍵值與預設值、`preferences.navigationBarLayout` 1.29 起棄用、CI 環境遙測停用 | 官方文件 Settings reference |
+| 8 | Windows 安裝方式、安裝範圍、WSL 2／Hyper-V 前置條件（6 GB RAM、19043） | 官方文件 Installation > Windows |
+| 9 | macOS 建議 `.dmg`、Homebrew 不建議 | 官方文件 Installation > macOS |
+| 10 | Linux Flathub 指令、RHEL 10 `dnf install podman-desktop` | 官方文件 Installation > Linux、Installing on RHEL 10 |
+| 11 | airgap 安裝檔內容（不含 Compose、Kind；Linux 版不含 Podman） | 官方文件 Restricted environments；GitHub Releases 資產清單 |
+| 12 | Docker Compatibility 設定項目、socket 路徑、Third-Party 相容只在 macOS | 官方文件 Managing Docker compatibility、Customizing Docker compatibility |
+| 13 | `DOCKER_HOST` 取得方式（Windows pipe、macOS socket、Linux socket） | 官方文件 Using the DOCKER_HOST environment variable |
+| 14 | machine 建立欄位、macOS provider 預設、Kind 需要 rootful | 官方文件 Creating a Podman machine、Configuring Podman for Kind on WSL |
+| 15 | GPU：Windows 只支援 WSL 2＋NVIDIA；Apple Silicon 使用 libkrun 與 Vulkan | 官方文件 GPU container access |
+| 16 | 擴充功能目錄 23 個、版本與分類 | `registry.podman-desktop.io/api/extensions.json` |
+| 17 | 擴充功能以 OCI 映像檔發布、`io.podman-desktop.api.version` 標籤、三種範本 | 官方文件 Publishing、Templates |
+| 18 | AI Lab 1.9.3；每個模型約 4 GiB、machine 建議 12 GB／4 CPU；OpenVINO 僅限 Intel | AI Lab GitHub README 與 Releases；官方部落格 OpenVINO 文章 |
+| 19 | Developer Sandbox：14 GB RAM、40 GB 儲存、30 天 | 官方文件 Configuring access to a Developer Sandbox |
+| 20 | MINC 前置條件（rootful、WSL `cgroup_no_v1=all`） | 官方文件 Creating a MicroShift cluster |
+| 21 | Windows 疑難排解（sysd 錯誤、Hyper-V 可見性、`ELECTRON_NO_ATTACH_CONSOLE`、LTSC） | 官方文件 Troubleshooting Podman on Windows |
+| 22 | Troubleshooting 頁功能（Logs、Gather logs、Ping、Reconnect Providers、Stores、Purge） | 官方文件 Access Podman Desktop logs |
+| 23 | 指令面板快速鍵 F1；上一頁／下一頁快速鍵 | 官方文件 Command Palette；1.25 發布說明 |
+| 24 | VS Code 擴充功能 `ms-azuretools.vscode-containers`、`dreamcatcher45.podmanager`、`ms-vscode-remote.remote-containers` 存在；`redhat.vscode-podman` 不存在 | VS Code Marketplace 查詢 API；官方部落格〈VS Code with Podman Desktop〉 |
+| 25 | Testcontainers：rootless 時停用 Ryuk、`TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE` | 官方教學〈Testcontainers with Podman〉 |
+| 26 | Red Hat build of Podman Desktop 於 2026-02-17 GA，文件最新版本 1.2 | Red Hat 部落格；docs.redhat.com |
+| 27 | CNCF Sandbox（2024-11）、下載量 500 萬、社群會議時間 | 官網首頁、Community 頁、官方部落格 |
+| 28 | Docker Desktop 付費門檻：員工 250 人以上或年營收 1,000 萬美元以上 | Docker 官方定價 FAQ |
+| 29 | EX188 名稱、時長、基準版本；EX180 已退役 | 沿用《Podman 使用教學手冊》v2.0 附錄 E（redhat.com EX188 頁面） |
+| 30 | Podman 6 不支援 Windows 10、Intel Mac | 沿用《Podman 使用教學手冊》v2.0 附錄 E（Podman 6.0 RELEASE_NOTES） |
+
+### E.1 待確認事項
+
+| # | 事項 | 現況 | 追蹤方式 |
+| --- | --- | --- | --- |
+| 1 | 官方安裝文件仍寫「Windows 10 Build 19043 以上」，與 Podman 6 不支援 Windows 10 的說法不一致 | Windows 版 Desktop 1.29 內建 Podman 6；Windows 10 設備的實際行為待驗證 | 追蹤官方文件更新；在 Windows 10 測試機驗證 |
+| 2 | Podman Desktop 1.30 何時發布穩定版 | 2026-09 時仍為 prerelease | GitHub Releases、官方部落格 |
+| 3 | `extensions.registryUrl` 能否作為企業內部擴充功能目錄 | 屬於內部設定，官方未說明是否支援覆寫 | 試點環境驗證；追蹤 GitHub Discussions |
+| 4 | Red Hat build of Podman Desktop 1.2 對應的社群版版本與支援週期 | 公開頁面未載明 | Red Hat 文件與客戶入口網站 |
+| 5 | Run Image 對話框各分頁名稱（Basic、Advanced、Networking、Security）在後續版本是否調整 | 依 1.29 介面整理 | 每次升級次要版本時複核畫面 |
+| 6 | 部分擴充功能（minikube 0.4.0、Headlamp 0.24.0、OpenShift Checker 0.1.5）長期未更新 | 可能已不再維護 | 每季檢視擴充功能目錄 |
+
+## 附錄 F：參考資料
+
+### F.1 官方文件
+
+- [Podman Desktop 官網](https://podman-desktop.io/)
+- [Introduction](https://podman-desktop.io/docs/intro)
+- [Installation](https://podman-desktop.io/docs/installation)
+- [Restricted environments](https://podman-desktop.io/docs/proxy)
+- [Configuring a managed user environment](https://podman-desktop.io/docs/configuration/managed-configuration)
+- [Managed configuration use cases](https://podman-desktop.io/docs/configuration/managed-configuration-use-cases)
+- [Settings reference](https://podman-desktop.io/docs/configuration/settings-reference)
+- [Creating a Podman machine](https://podman-desktop.io/docs/podman/creating-a-podman-machine)
+- [GPU container access](https://podman-desktop.io/docs/podman/gpu)
+- [Migrating from Docker](https://podman-desktop.io/docs/migrating-from-docker)
+- [Compose](https://podman-desktop.io/docs/compose)
+- [Kubernetes](https://podman-desktop.io/docs/kubernetes)
+- [Podman AI Lab](https://podman-desktop.io/docs/ai-lab)
+- [Extensions](https://podman-desktop.io/docs/extensions)
+- [Troubleshooting](https://podman-desktop.io/docs/troubleshooting)
+- [Tutorials](https://podman-desktop.io/tutorial)
+- [Blog（發布說明）](https://podman-desktop.io/blog)
+
+### F.2 社群與原始碼
+
+- [Community](https://podman-desktop.io/community)
+- [GitHub：podman-desktop/podman-desktop](https://github.com/podman-desktop/podman-desktop)
+- [GitHub Releases](https://github.com/podman-desktop/podman-desktop/releases)
+- [擴充功能目錄 JSON](https://registry.podman-desktop.io/api/extensions.json)
+- [Podman AI Lab 擴充功能](https://github.com/containers/podman-desktop-extension-ai-lab)
+- [Flathub：io.podman_desktop.PodmanDesktop](https://flathub.org/apps/io.podman_desktop.PodmanDesktop)
+
+### F.3 Red Hat 資源
+
+- [Red Hat build of Podman Desktop（Red Hat Developer）](https://developers.redhat.com/products/red-hat-build-podman-desktop)
+- [Red Hat build of Podman Desktop 文件](https://docs.redhat.com/en/documentation/red_hat_build_of_podman_desktop/)
+- [Introducing Red Hat build of Podman Desktop](https://www.redhat.com/en/blog/introducing-red-hat-build-podman-desktop-enterprise-ready-local-container-development-environments)
+- [EX188 考試頁面](https://www.redhat.com/en/services/training/ex188-red-hat-certified-specialist-containers-exam)
+- [Developer Sandbox](https://developers.redhat.com/developer-sandbox)
+
+### F.4 生態系工具
+
+- [Podman 文件](https://docs.podman.io/)
+- [Podman（podman-container-tools）](https://github.com/podman-container-tools/podman)
+- [Kind](https://kind.sigs.k8s.io/)
+- [Minikube](https://minikube.sigs.k8s.io/)
+- [Testcontainers](https://testcontainers.com/)
+- [Dev Containers 規格](https://containers.dev/)
+- [Docker 定價 FAQ](https://www.docker.com/pricing/faq/)
+
+## 📚 總結
+
+Podman Desktop 已經從「Podman 的圖形介面」成長為完整的開發者桌面平台：它管理 Podman machine、提供 Docker 相容層、整合 Kind 與 OpenShift、透過擴充功能延伸到 AI 與 bootc，並以 Managed configuration 滿足企業集中管理的需求。
+
+**給不同角色的重點**
+
+| 角色 | 優先閱讀 | 關鍵行動 |
+| --- | --- | --- |
+| 開發者 | 第 2～7、12 章 | 完成安裝與 machine 設定、學會 Pod 與 Compose、設定 IDE 與 Testcontainers |
+| 平台／DevOps | 第 4、7、10、13 章 | 制定 machine 規格、Kind 內循環、Managed configuration、內部 FAQ |
+| IT 桌面管理 | 第 2、10 章、附錄 B | 派送安裝檔與管理設定、控管版本與擴充功能 |
+| 資安與稽核 | 第 10、11 章、附錄 C.4 | 鎖定遙測與擴充功能、映像檔來源管理、年度稽核 |
+| 主管與架構師 | 執行摘要、第 1 章 | 評估 Docker Desktop 替換效益與 Red Hat build 採購 |
+
+**建議導入順序**：試點（標準 machine 規格）→ 集中設定（Managed configuration）→ 全面派送 → 移除 Docker Desktop → Kubernetes 內循環。
+
+Podman Desktop 每月都會發布新版本，請依[附錄 C.8](#c8-日常維護與-it-管理)定期追蹤發布說明，並從[附錄 E.1](#e1-待確認事項)開始下一次改版。
