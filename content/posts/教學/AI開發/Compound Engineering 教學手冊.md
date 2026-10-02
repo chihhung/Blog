@@ -14,7 +14,6 @@ categories = ['教學']
 > **GitHub**：<https://github.com/EveryInc/compound-engineering-plugin>  
 > **文件等級**：企業標準技術白皮書  
 > **最後更新**：2026-06-30
-
 ---
 
 ## 目錄

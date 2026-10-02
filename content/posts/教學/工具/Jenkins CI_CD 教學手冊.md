@@ -5,196 +5,361 @@ title = 'Jenkins CI_CD 教學手冊'
 tags = ['教學', '工具']
 categories = ['教學']
 +++
+
 # Jenkins CI/CD 教學手冊
 
-## 📋 目錄 (Table of Contents)
+## 文件資訊
 
-### 第一部分：基礎概念與環境建置
+| 項目 | 內容 |
+| --- | --- |
+| **文件版本** | 2.0 |
+| **最後更新** | 2026-10-02 |
+| **版本基準** | Jenkins LTS **2.580.1**（2026-09-30）、Java 21／25（controller 與所有 agent）、Helm chart `jenkins` 5.9.64、plugin 版本以 2026-10-02 的 update center 為準；完整矩陣見 [1.4 版本基準與相容性矩陣](#14-版本基準與相容性矩陣) |
+| **文件定位** | 企業標準技術白皮書／內部標準教材：**Jenkins 的規劃、安裝、Pipeline 開發、分散式建置、部署、安全、組態即程式碼、監控、備份升級與供應鏈安全** |
+| **適用對象** | 新進 Java 開發人員（第 1–13 章）、DevOps／平台工程師、系統管理員、架構師、資安與稽核人員 |
+| **前置知識** | Java 與 Maven 基礎、Git、Linux 指令列、容器基本概念；第 14 章以後需要 Kubernetes 基本概念 |
+| **姊妹文件** | 《git使用教學》、《Kubernetes教學手冊》、《Podman使用教學》、《Prometheus與Grafana教學手冊》、《OpenTelemetry教學手冊》、《GitLab使用教學》、《github使用教學》 |
+| **前一版本** | 1.0（2024-03-10，以 Jenkins LTS 2.401.x、JDK 11／17 為基準） |
+| **Created by** | Eric Cheng |
 
-1. [Jenkins 簡介與核心概念](#第1章-jenkins-簡介與核心概念)
-2. [環境安裝與基本設定](#第2章-環境安裝與基本設定)
-3. [Jenkins 介面導覽](#第3章-jenkins-介面導覽)
-4. [Plugin 管理與基礎設定](#第4章-plugin-管理與基礎設定)
+> 📌 **v2.0 改版重點**：章節重新編排為 24 章與 9 個附錄，全面對齊 Jenkins LTS 2.580.1。
+>
+> - **修正錯誤**：修正 v1.0 中已不適用或會造成故障的內容。例如 Java 需求（2.555.1 起只支援 Java 21／25，v1.0 寫 JDK 11）、Compose 把 `docker.sock` 掛進 controller、在 controller 上執行建置、11 個有語法錯誤、無法通過 Declarative 驗證的 Jenkinsfile（`when` 內直接寫布林運算式、`environment` 引用變數、雙引號字串跨行、非法跳脫字元）、已棄用的 Checkstyle／PMD／FindBugs／Extended Choice Parameter plugin、已停止服務的 Katacoda 與 A Cloud Guru 連結，以及在 PowerShell 區塊中使用 bash 續行符號等。
+> - **新增內容**：版本與支援政策、容量規劃、Linux 套件庫新 GPG key、Helm 部署、Plugin 版本鎖定、GitHub App 驗證、Scripted Pipeline 與 CPS、Shared Library 與單元測試、Coverage／Warnings NG 品質門檻、Kubernetes agent、無 Docker daemon 的映像建置、GitOps、SSO（OIDC／SAML／LDAP）、Content Security Policy、JCasC 與 Job DSL、Prometheus／OpenTelemetry 監控、備份與升級、高可用與災難復原、SBOM／簽章與臺灣法規對應、企業導入路線、檢查清單與實作練習。
+> - **追溯依據**：所有差異見 [F.2 v1.0 → v2.0 更正對照表](#f2-v10--v20-更正對照表)，查證依據見 [附錄 G：查證紀錄](#附錄-g查證紀錄)。
 
-### 第二部分：Job 建立與管理
+### 閱讀指引
 
-5. [Freestyle Project 入門](#第5章-freestyle-project-入門)
-6. [憑證與密碼管理](#第6章-憑證與密碼管理)
-7. [Git 整合與版本控制](#第7章-git-整合與版本控制)
-8. [Maven 建置整合](#第8章-maven-建置整合)
+| 讀者角色 | 建議閱讀章節 |
+| --- | --- |
+| 第一次接觸 Jenkins 的 Java 開發人員 | 第 1、2 章 → 3.2 → 第 4 章 → 第 10 章 → 第 13 章 |
+| Pipeline 作者／技術主管 | 第 8–13 章 → 第 16 章 → 第 23 章 |
+| 平台工程師／系統管理員 | 第 3、5 章 → 第 14、15 章 → 第 17–20 章 |
+| Kubernetes 平台團隊 | 3.6 → 第 14、15 章 → 18.5 → 20.4 |
+| 資安／稽核人員 | 第 7 章 → 第 17 章 → 第 21 章 → 24.3 |
+| 架構師／決策者 | 第 1 章 → 第 2 章 → 3.1 → 第 20、22 章 |
 
-### 第三部分：Pipeline 進階應用
+### 本文慣例
 
-9. [Pipeline 基礎與 Declarative Syntax](#第9章-pipeline-基礎與-declarative-syntax)
-10. [Jenkinsfile 結構深度分析](#第10章-jenkinsfile-結構深度分析)
-11. [測試報告與程式碼覆蓋率整合](#第11章-測試報告與程式碼覆蓋率整合)
-12. [靜態程式碼分析與品質檢查](#第12章-靜態程式碼分析與品質檢查)
+| 標記 | 意義 |
+| --- | --- |
+| ✅／❌ | 建議做法／不建議做法 |
+| ⚠️ | 容易出錯或有風險的地方 |
+| 💡 | 實務技巧 |
+| 📌 | 版本差異或改版說明 |
+| 🔒 | 只在 CloudBees CI（商業版）提供的功能 |
+| 🧪 | 實驗性功能，行為可能在後續版本變更 |
+| `<尖括號>` | 需依環境替換的值 |
+| `example.internal` | 範例內部網域，請替換為實際網域 |
 
-### 第四部分：進階功能與故障排除
+> ⚠️ 本手冊的 Jenkinsfile 範例皆以本機啟動的 Jenkins 2.580.1 透過 `pipeline-model-converter/validate` 端點驗證，JCasC 範例以 `configuration-as-code/check` 端點驗證（見 [附錄 G：查證紀錄](#附錄-g查證紀錄)）。範例中的工具名稱統一為 `maven-3.9`、`jdk-21`，憑證 ID 與網域請依實際環境替換。
 
-13. [Pipeline 故障排除與除錯技巧](#第13章-pipeline-故障排除與除錯技巧)
-14. [部署策略與環境管理](#第14章-部署策略與環境管理)
-15. [監控、通知與效能優化](#第15章-監控通知與效能優化)
+## 📑 目錄
 
-### 第五部分：企業級應用與最佳實務
+<!-- TOC-AUTO-BEGIN -->
 
-16. [企業級 CI/CD 架構設計](#第16章-企業級-cicd-架構設計)
-17. [容器化與雲端整合](#第17章-容器化與雲端整合)
-18. [DevOps 文化與實務](#第18章-devops-文化與實務)
-19. [實務案例研究](#第19章-實務案例研究)
+- [1. Jenkins 概觀與版本基準](#1-jenkins-概觀與版本基準)
+  - [1.1 Jenkins 的定位與適用場景](#11-jenkins-的定位與適用場景)
+  - [1.2 CI／CD 基本概念](#12-cicd-基本概念)
+  - [1.3 發行週期：Weekly 與 LTS](#13-發行週期weekly-與-lts)
+  - [1.4 版本基準與相容性矩陣](#14-版本基準與相容性矩陣)
+  - [1.5 從 v1.0 基準到 2.580.1 的重大變化](#15-從-v10-基準到-25801-的重大變化)
+  - [1.6 Jenkins 與 CloudBees CI](#16-jenkins-與-cloudbees-ci)
+  - [1.7 本章重點](#17-本章重點)
+- [2. 架構與核心概念](#2-架構與核心概念)
+  - [2.1 Controller、Agent、Executor 與 Queue](#21-controlleragentexecutor-與-queue)
+  - [2.2 Agent 類型與連線方式](#22-agent-類型與連線方式)
+  - [2.3 Item 類型](#23-item-類型)
+  - [2.4 Pipeline 執行模型](#24-pipeline-執行模型)
+  - [2.5 JENKINS_HOME 目錄結構](#25-jenkins_home-目錄結構)
+  - [2.6 Workspace、Artifact、Stash 與 Fingerprint](#26-workspaceartifactstash-與-fingerprint)
+  - [2.7 參考架構](#27-參考架構)
+  - [2.8 本章重點](#28-本章重點)
+- [3. 安裝與初始設定](#3-安裝與初始設定)
+  - [3.1 系統需求與容量規劃](#31-系統需求與容量規劃)
+  - [3.2 快速體驗：WAR 檔](#32-快速體驗war-檔)
+  - [3.3 Linux 套件安裝（systemd）](#33-linux-套件安裝systemd)
+  - [3.4 Windows 安裝（MSI）](#34-windows-安裝msi)
+  - [3.5 Docker／Podman 容器部署](#35-dockerpodman-容器部署)
+  - [3.6 Kubernetes（Helm）部署](#36-kuberneteshelm部署)
+  - [3.7 Setup Wizard 與初始安全設定](#37-setup-wizard-與初始安全設定)
+  - [3.8 反向代理與 TLS](#38-反向代理與-tls)
+  - [3.9 離線（封閉網路）安裝](#39-離線封閉網路安裝)
+  - [3.10 本章重點](#310-本章重點)
+- [4. 介面導覽與系統管理](#4-介面導覽與系統管理)
+  - [4.1 介面配置（2.516.1 起的新版標頭）](#41-介面配置25161-起的新版標頭)
+  - [4.2 Manage Jenkins 功能分區](#42-manage-jenkins-功能分區)
+  - [4.3 Views 與 Dashboard](#43-views-與-dashboard)
+  - [4.4 系統設定要點](#44-系統設定要點)
+  - [4.5 Script Console 與管理介面的風險](#45-script-console-與管理介面的風險)
+  - [4.6 本章重點](#46-本章重點)
+- [5. Plugin 管理](#5-plugin-管理)
+  - [5.1 Plugin 架構與相依關係](#51-plugin-架構與相依關係)
+  - [5.2 選擇 Plugin 的評估準則](#52-選擇-plugin-的評估準則)
+  - [5.3 以 plugins.txt 與 Plugin Installation Manager Tool 管理](#53-以-pluginstxt-與-plugin-installation-manager-tool-管理)
+  - [5.4 已棄用 Plugin 與替代方案](#54-已棄用-plugin-與替代方案)
+  - [5.5 更新策略與離線 update center](#55-更新策略與離線-update-center)
+  - [5.6 本章重點](#56-本章重點)
+- [6. Job 類型與 Freestyle](#6-job-類型與-freestyle)
+  - [6.1 何時仍使用 Freestyle](#61-何時仍使用-freestyle)
+  - [6.2 Freestyle 設定區塊](#62-freestyle-設定區塊)
+  - [6.3 建置觸發與 Cron 語法](#63-建置觸發與-cron-語法)
+  - [6.4 參數化建置](#64-參數化建置)
+  - [6.5 Freestyle 遷移至 Pipeline](#65-freestyle-遷移至-pipeline)
+  - [6.6 本章重點](#66-本章重點)
+- [7. 憑證與機密管理](#7-憑證與機密管理)
+  - [7.1 Credentials 架構與類型](#71-credentials-架構與類型)
+  - [7.2 憑證作用域](#72-憑證作用域)
+  - [7.3 在 Pipeline 使用憑證](#73-在-pipeline-使用憑證)
+  - [7.4 遮罩的限制與常見外洩途徑](#74-遮罩的限制與常見外洩途徑)
+  - [7.5 外部機密管理](#75-外部機密管理)
+  - [7.6 以 JCasC 管理憑證](#76-以-jcasc-管理憑證)
+  - [7.7 本章重點](#77-本章重點)
+- [8. SCM 整合](#8-scm-整合)
+  - [8.1 Git plugin 與 checkout](#81-git-plugin-與-checkout)
+  - [8.2 GitHub 整合（GitHub App 驗證）](#82-github-整合github-app-驗證)
+  - [8.3 GitLab 整合](#83-gitlab-整合)
+  - [8.4 Bitbucket 與其他 SCM](#84-bitbucket-與其他-scm)
+  - [8.5 Webhook 觸發與輪詢](#85-webhook-觸發與輪詢)
+  - [8.6 Multibranch Pipeline 與 Organization Folder](#86-multibranch-pipeline-與-organization-folder)
+  - [8.7 分支策略與 Pipeline 對應](#87-分支策略與-pipeline-對應)
+  - [8.8 本章重點](#88-本章重點)
+- [9. 建置工具整合（Maven、Gradle 與多語言）](#9-建置工具整合mavengradle-與多語言)
+  - [9.1 工具管理策略](#91-工具管理策略)
+  - [9.2 Maven 最佳實務](#92-maven-最佳實務)
+  - [9.3 Pipeline 中的 Maven 建置](#93-pipeline-中的-maven-建置)
+  - [9.4 Gradle](#94-gradle)
+  - [9.5 相依套件快取](#95-相依套件快取)
+  - [9.6 版本號與發佈](#96-版本號與發佈)
+  - [9.7 其他語言的建置範例](#97-其他語言的建置範例)
+  - [9.8 本章重點](#98-本章重點)
+- [10. Declarative Pipeline 完整語法](#10-declarative-pipeline-完整語法)
+  - [10.1 結構總覽](#101-結構總覽)
+  - [10.2 agent](#102-agent)
+  - [10.3 environment 與字串內插](#103-environment-與字串內插)
+  - [10.4 options](#104-options)
+  - [10.5 parameters 與 triggers](#105-parameters-與-triggers)
+  - [10.6 when 條件](#106-when-條件)
+  - [10.7 parallel 與循序 stages](#107-parallel-與循序-stages)
+  - [10.8 matrix](#108-matrix)
+  - [10.9 input（人工核准）](#109-input人工核准)
+  - [10.10 post 與建置結果](#1010-post-與建置結果)
+  - [10.11 script 區塊與 Declarative 的限制](#1011-script-區塊與-declarative-的限制)
+  - [10.12 完整範例：Spring Boot 服務 Pipeline](#1012-完整範例spring-boot-服務-pipeline)
+  - [10.13 本章重點](#1013-本章重點)
+- [11. Scripted Pipeline、CPS 與進階模式](#11-scripted-pipelinecps-與進階模式)
+  - [11.1 Scripted Pipeline 語法](#111-scripted-pipeline-語法)
+  - [11.2 CPS 限制與 @NonCPS](#112-cps-限制與-noncps)
+  - [11.3 Script Security 沙箱與 Script Approval](#113-script-security-沙箱與-script-approval)
+  - [11.4 Durability 與效能設定](#114-durability-與效能設定)
+  - [11.5 資源鎖定與 milestone](#115-資源鎖定與-milestone)
+  - [11.6 錯誤處理模式](#116-錯誤處理模式)
+  - [11.7 Pipeline 開發工具](#117-pipeline-開發工具)
+  - [11.8 本章重點](#118-本章重點)
+- [12. Shared Libraries](#12-shared-libraries)
+  - [12.1 用途與目錄結構](#121-用途與目錄結構)
+  - [12.2 設定 Library：受信任與非受信任](#122-設定-library受信任與非受信任)
+  - [12.3 vars：自訂全域 step](#123-vars自訂全域-step)
+  - [12.4 src 類別與 resources](#124-src-類別與-resources)
+  - [12.5 Pipeline 範本：封裝整條 Declarative Pipeline](#125-pipeline-範本封裝整條-declarative-pipeline)
+  - [12.6 版本管理與發佈流程](#126-版本管理與發佈流程)
+  - [12.7 單元測試：JenkinsPipelineUnit](#127-單元測試jenkinspipelineunit)
+  - [12.8 本章重點](#128-本章重點)
+- [13. 測試報告、覆蓋率與品質門檻](#13-測試報告覆蓋率與品質門檻)
+  - [13.1 JUnit 測試報告](#131-junit-測試報告)
+  - [13.2 程式碼覆蓋率：Coverage plugin](#132-程式碼覆蓋率coverage-plugin)
+  - [13.3 靜態分析：Warnings Next Generation](#133-靜態分析warnings-next-generation)
+  - [13.4 SonarQube 品質門檻](#134-sonarqube-品質門檻)
+  - [13.5 品質門檻設計](#135-品質門檻設計)
+  - [13.6 回報到 GitHub Checks 與 GitLab MR](#136-回報到-github-checks-與-gitlab-mr)
+  - [13.7 HTML 報告與安全限制](#137-html-報告與安全限制)
+  - [13.8 本章重點](#138-本章重點)
+- [14. Agent 與雲端節點](#14-agent-與雲端節點)
+  - [14.1 Agent 規劃與 Label 設計](#141-agent-規劃與-label-設計)
+  - [14.2 固定 agent：SSH 與 Windows](#142-固定-agentssh-與-windows)
+  - [14.3 Docker agent](#143-docker-agent)
+  - [14.4 Kubernetes plugin](#144-kubernetes-plugin)
+  - [14.5 其他雲端 agent](#145-其他雲端-agent)
+  - [14.6 Agent 安全與隔離](#146-agent-安全與隔離)
+  - [14.7 本章重點](#147-本章重點)
+- [15. 容器映像建置與 Kubernetes 上的 Jenkins](#15-容器映像建置與-kubernetes-上的-jenkins)
+  - [15.1 映像建置方式比較](#151-映像建置方式比較)
+  - [15.2 BuildKit rootless（Kubernetes agent）](#152-buildkit-rootlesskubernetes-agent)
+  - [15.3 Buildah 與 Jib](#153-buildah-與-jib)
+  - [15.4 映像標籤、Digest 與推送](#154-映像標籤digest-與推送)
+  - [15.5 在 Kubernetes 上執行 Jenkins controller（Helm 進階設定）](#155-在-kubernetes-上執行-jenkins-controllerhelm-進階設定)
+  - [15.6 本章重點](#156-本章重點)
+- [16. 部署策略與環境管理](#16-部署策略與環境管理)
+  - [16.1 環境與晉升模型](#161-環境與晉升模型)
+  - [16.2 人工核准與職責分離](#162-人工核准與職責分離)
+  - [16.3 部署到 Kubernetes](#163-部署到-kubernetes)
+  - [16.4 GitOps：Jenkins 負責 CI，Argo CD 負責 CD](#164-gitopsjenkins-負責-ciargo-cd-負責-cd)
+  - [16.5 Blue-Green 部署](#165-blue-green-部署)
+  - [16.6 Canary 部署](#166-canary-部署)
+  - [16.7 回滾](#167-回滾)
+  - [16.8 資料庫結構遷移](#168-資料庫結構遷移)
+  - [16.9 部署到 VM 與傳統主機](#169-部署到-vm-與傳統主機)
+  - [16.10 本章重點](#1610-本章重點)
+- [17. 安全強化](#17-安全強化)
+  - [17.1 威脅模型](#171-威脅模型)
+  - [17.2 驗證（Security Realm）](#172-驗證security-realm)
+  - [17.3 授權策略](#173-授權策略)
+  - [17.4 建置的執行身分（Authorize Project）](#174-建置的執行身分authorize-project)
+  - [17.5 Controller 與 Agent 隔離](#175-controller-與-agent-隔離)
+  - [17.6 Web 安全：CSRF、CSP、Markup 與 Resource Root URL](#176-web-安全csrfcspmarkup-與-resource-root-url)
+  - [17.7 Script Approval 與 Script Console 管控](#177-script-approval-與-script-console-管控)
+  - [17.8 API Token、CLI 與服務帳號](#178-api-tokencli-與服務帳號)
+  - [17.9 安全公告與漏洞處理流程](#179-安全公告與漏洞處理流程)
+  - [17.10 稽核與集中記錄](#1710-稽核與集中記錄)
+  - [17.11 本章重點](#1711-本章重點)
+- [18. Configuration as Code（JCasC）與 Job DSL](#18-configuration-as-codejcasc與-job-dsl)
+  - [18.1 為何要把 Jenkins 設定程式碼化](#181-為何要把-jenkins-設定程式碼化)
+  - [18.2 JCasC 基礎](#182-jcasc-基礎)
+  - [18.3 JCasC 實務](#183-jcasc-實務)
+  - [18.4 Job DSL](#184-job-dsl)
+  - [18.5 在 Kubernetes 上管理設定](#185-在-kubernetes-上管理設定)
+  - [18.6 Jenkins 設定的 GitOps 流程](#186-jenkins-設定的-gitops-流程)
+  - [18.7 本章重點](#187-本章重點)
+- [19. 監控、日誌、效能與通知](#19-監控日誌效能與通知)
+  - [19.1 監控什麼](#191-監控什麼)
+  - [19.2 Prometheus metrics plugin](#192-prometheus-metrics-plugin)
+  - [19.3 OpenTelemetry：Pipeline 追蹤](#193-opentelemetrypipeline-追蹤)
+  - [19.4 日誌](#194-日誌)
+  - [19.5 JVM 與效能調校](#195-jvm-與效能調校)
+  - [19.6 建置保留與磁碟管理](#196-建置保留與磁碟管理)
+  - [19.7 通知](#197-通知)
+  - [19.8 本章重點](#198-本章重點)
+- [20. 備份、升級與高可用](#20-備份升級與高可用)
+  - [20.1 備份策略](#201-備份策略)
+  - [20.2 還原與演練](#202-還原與演練)
+  - [20.3 升級程序](#203-升級程序)
+  - [20.4 高可用與災難復原](#204-高可用與災難復原)
+  - [20.5 本章重點](#205-本章重點)
+- [21. 軟體供應鏈安全與合規](#21-軟體供應鏈安全與合規)
+  - [21.1 威脅與框架](#211-威脅與框架)
+  - [21.2 SBOM（軟體物料清單）](#212-sbom軟體物料清單)
+  - [21.3 弱點掃描](#213-弱點掃描)
+  - [21.4 簽章與 Provenance](#214-簽章與-provenance)
+  - [21.5 Pipeline 的供應鏈防護清單](#215-pipeline-的供應鏈防護清單)
+  - [21.6 臺灣法規與稽核對應](#216-臺灣法規與稽核對應)
+  - [21.7 本章重點](#217-本章重點)
+- [22. 企業導入路線與參考架構](#22-企業導入路線與參考架構)
+  - [22.1 導入路線圖](#221-導入路線圖)
+  - [22.2 平台團隊與治理模型](#222-平台團隊與治理模型)
+  - [22.3 以 DORA 指標衡量成效](#223-以-dora-指標衡量成效)
+  - [22.4 DevOps 文化實務](#224-devops-文化實務)
+  - [22.5 參考情境一：金融機構（示意）](#225-參考情境一金融機構示意)
+  - [22.6 參考情境二：製造業多語言環境（示意）](#226-參考情境二製造業多語言環境示意)
+  - [22.7 舊 Jenkins 整併與遷移](#227-舊-jenkins-整併與遷移)
+  - [22.8 AI 輔助的 Pipeline 維運](#228-ai-輔助的-pipeline-維運)
+  - [22.9 本章重點](#229-本章重點)
+- [23. 故障排除](#23-故障排除)
+  - [23.1 排除問題的方法](#231-排除問題的方法)
+  - [23.2 Pipeline 常見錯誤](#232-pipeline-常見錯誤)
+  - [23.3 Agent 連線問題](#233-agent-連線問題)
+  - [23.4 效能問題](#234-效能問題)
+  - [23.5 Controller 啟動問題](#235-controller-啟動問題)
+  - [23.6 診斷用唯讀腳本](#236-診斷用唯讀腳本)
+  - [23.7 收集支援資訊](#237-收集支援資訊)
+  - [23.8 本章重點](#238-本章重點)
+- [24. 檢查清單](#24-檢查清單)
+  - [24.1 安裝與平台建置](#241-安裝與平台建置)
+  - [24.2 Pipeline 品質](#242-pipeline-品質)
+  - [24.3 安全基準](#243-安全基準)
+  - [24.4 正式上線前](#244-正式上線前)
+  - [24.5 LTS 升級](#245-lts-升級)
+- [附錄 A：指令與 API 速查](#附錄-a指令與-api-速查)
+  - [A.1 Jenkins CLI](#a1-jenkins-cli)
+  - [A.2 REST API](#a2-rest-api)
+  - [A.3 常用 Pipeline step 速查](#a3-常用-pipeline-step-速查)
+  - [A.4 Git、容器與 Kubernetes 常用指令](#a4-git容器與-kubernetes-常用指令)
+- [附錄 B：範本索引](#附錄-b範本索引)
+- [附錄 C：Plugin 建議清單](#附錄-cplugin-建議清單)
+  - [C.1 基準 plugin（2026-10-02）](#c1-基準-plugin2026-10-02)
+  - [C.2 依情境選用](#c2-依情境選用)
+  - [C.3 已棄用與不建議](#c3-已棄用與不建議)
+- [附錄 D：學習資源](#附錄-d學習資源)
+  - [D.1 官方文件](#d1-官方文件)
+  - [D.2 線上課程](#d2-線上課程)
+  - [D.3 社群](#d3-社群)
+  - [D.4 實戰練習](#d4-實戰練習)
+  - [D.5 書籍](#d5-書籍)
+  - [D.6 v1.0 學習資源連結查證結果](#d6-v10-學習資源連結查證結果)
+- [附錄 E：認證](#附錄-e認證)
+  - [E.1 Jenkins 相關認證現況](#e1-jenkins-相關認證現況)
+  - [E.2 相關技術認證與本手冊章節對應](#e2-相關技術認證與本手冊章節對應)
+- [附錄 F：版本紀錄](#附錄-f版本紀錄)
+  - [F.1 版本歷程與章節對照](#f1-版本歷程與章節對照)
+  - [F.2 v1.0 → v2.0 更正對照表](#f2-v10--v20-更正對照表)
+- [附錄 G：查證紀錄](#附錄-g查證紀錄)
+  - [G.1 待確認事項](#g1-待確認事項)
+- [附錄 H：術語表](#附錄-h術語表)
+- [附錄 I：實作練習](#附錄-i實作練習)
+  - [I.1 基礎（第 1–6 章）](#i1-基礎第-16-章)
+  - [I.2 Pipeline 開發（第 7–13 章）](#i2-pipeline-開發第-713-章)
+  - [I.3 平台與部署（第 14–16 章）](#i3-平台與部署第-1416-章)
+  - [I.4 營運與治理（第 17–21 章）](#i4-營運與治理第-1721-章)
+  - [I.5 綜合專題](#i5-綜合專題)
 
-### 附錄
-
-- [附錄 A：常用指令參考](#附錄-a常用指令參考)
-  - [A.1 Jenkins CLI 指令](#a1-jenkins-cli-指令)
-  - [A.2 Git 整合指令](#a2-git-整合指令)
-  - [A.3 Docker 容器指令](#a3-docker-容器指令)
-  - [A.4 Kubernetes 部署指令](#a4-kubernetes-部署指令)
-- [附錄 B：配置範例](#附錄-b配置範例)
-  - [B.1 Jenkins 系統配置範例](#b1-jenkins-系統配置範例)
-  - [B.2 多環境配置範例](#b2-多環境配置範例)
-  - [B.3 安全配置範例](#b3-安全配置範例)
-- [附錄 C：故障排除指南](#附錄-c故障排除指南)
-  - [C.1 常見 Jenkins 問題](#c1-常見-jenkins-問題)
-  - [C.2 網路連接問題](#c2-網路連接問題)
-  - [C.3 Docker 建置問題](#c3-docker-建置問題)
-  - [C.4 性能調優指南](#c4-性能調優指南)
-- [附錄 D：最佳實踐清單](#附錄-d最佳實踐清單)
-  - [D.1 安全最佳實踐](#d1-安全最佳實踐)
-  - [D.2 效能最佳實踐](#d2-效能最佳實踐)
-  - [D.3 維護最佳實踐](#d3-維護最佳實踐)
-- [附錄 E：工具和資源](#附錄-e工具和資源)
-  - [E.1 推薦工具清單](#e1-推薦工具清單)
-  - [E.2 學習資源](#e2-學習資源)
-- [附錄 F：認證考試對照](#附錄-f認證考試對照)
-  - [F.1 Jenkins 認證考試對應](#f1-jenkins-認證考試對應)
-  - [F.2 相關技術認證](#f2-相關技術認證)
-- [附錄 G：版本更新歷史](#附錄-g版本更新歷史)
+<!-- TOC-AUTO-END -->
 
 ---
 
-## 📖 教學手冊說明
+## 1. Jenkins 概觀與版本基準
 
-### 🎯 學習目標
-本教學手冊旨在幫助新進 Java 開發者從零開始學習 Jenkins 與 CI/CD 自動化流程，涵蓋從基礎概念到實務應用的完整知識體系。
+### 1.1 Jenkins 的定位與適用場景
 
-### 👥 目標讀者
-- 新進 Java 開發者
-- 未接觸過 Jenkins 的技術人員
-- 需要建立 CI/CD Pipeline 的開發團隊
+Jenkins 是以 Java 開發的開源自動化伺服器，由 Continuous Delivery Foundation（CDF，隸屬 Linux Foundation）託管。Jenkins 本身只提供排程、執行與擴充框架，**建置、測試、部署、通知與整合等功能都透過 plugin 提供**（2026-10 的 update center 共列出 2,116 個 plugin）。這種架構讓 Jenkins 幾乎能整合任何工具，但也代表 plugin 的選擇與版本治理是導入成敗的關鍵（見 [5. Plugin 管理](#5-plugin-管理)）。
 
-### 🛠️ 技術前提
-- Java 17+ 基礎知識
-- Maven 專案管理經驗
-- Git 版本控制基礎
-- JUnit 測試框架了解
+| 比較面向 | Jenkins（自建） | GitHub Actions／GitLab CI（平台內建） |
+| --- | --- | --- |
+| 部署型態 | 自行架設與維運 controller 與 agent | SaaS 或隨 Git 平台自建 |
+| 擴充方式 | Plugin、Shared Library、任意腳本 | Marketplace actions／CI templates |
+| Pipeline 定義 | `Jenkinsfile`（Groovy DSL） | YAML |
+| 適合場景 | 多種 SCM 並存、封閉網路、需要高度客製化、既有大量 Jenkins 資產、需在特定硬體或內網環境執行 | 程式碼已集中於單一平台、團隊想減少維運負擔 |
+| 主要成本 | 維運人力、plugin 治理、資安更新 | 執行時數或 runner 維運、平台綁定 |
 
-### 📚 認證對應
-本手冊內容對應以下認證考試：
-- Jenkins Certified Engineer (JCE)
-- Cloudbees Jenkins Platform Engineer
-- DevOps Foundation 相關知識點
+✅ 適合導入或續用 Jenkins 的情境：
 
----
+- 組織同時使用 GitLab、GitHub、Bitbucket 或其他 SCM，需要一致的 CI/CD 平台
+- 建置環境位於封閉網路（金融、政府、製造業 OT 網段），需要完全自主掌控
+- 已有大量 Jenkins Job 與 Shared Library，遷移成本高於持續改善
+- 需要複雜的流程控制（人工核准、跨專案觸發、資源鎖定、矩陣建置）
 
-## 第1章 Jenkins 簡介與核心概念
+⚠️ 需要審慎評估的情境：新團隊、程式碼全部在單一 Git 平台、沒有專職平台團隊。這時平台內建 CI 的總持有成本通常較低。
 
-### 🎯 學習目標
-- 理解 Jenkins 在 DevOps 中的角色
-- 掌握 Jenkins 核心架構概念
-- 了解 CI/CD 流程設計原則
+> 📌 **Jenkins X 不是 Jenkins**：Jenkins X 是另一個以 Tekton 為基礎、專為 Kubernetes 設計的 CDF 專案，與本手冊的 Jenkins 沒有程式碼或設定上的相容性。v1.0 把 Jenkins X 文件列為 Jenkins 官方文件，v2.0 已更正（見 [附錄 D：學習資源](#附錄-d學習資源)）。
 
-### 📚 核心概念
+### 1.2 CI／CD 基本概念
 
-#### 1.1 什麼是 Jenkins？
-Jenkins 是一個開源的自動化伺服器，用於實現持續整合（Continuous Integration, CI）和持續部署（Continuous Deployment, CD）。它能夠：
-- 自動化建置、測試和部署流程
-- 整合各種開發工具和服務
-- 提供豐富的插件生態系統
-- 支援分散式建置架構
-
-#### 1.2 Jenkins 核心架構
-
-```mermaid
-graph TB
-    A[Jenkins Master/Controller] --> B[Agent Node 1]
-    A --> C[Agent Node 2]
-    A --> D[Agent Node 3]
-    
-    subgraph "Jenkins Master"
-        E[Web UI]
-        F[Job Scheduler]
-        G[Plugin Manager]
-        H[Build Queue]
-    end
-    
-    subgraph "Agent Node"
-        I[Executor 1]
-        J[Executor 2]
-        K[Workspace]
-    end
-    
-    B --> I
-    B --> J
-    B --> K
-```
-
-**核心組件說明：**
-
-1. **Master/Controller（主控節點）**
-   - 負責管理整個 Jenkins 環境
-   - 處理 Web UI 和 API 請求
-   - 管理 Job 排程和配置
-   - 協調 Agent 節點工作分配
-
-2. **Agent/Node（代理節點）**
-   - 執行實際的建置工作
-   - 可以是物理機器、虛擬機或容器
-   - 提供特定的執行環境（如不同 OS、工具版本）
-
-3. **Executor（執行器）**
-   - Agent 上的工作執行單位
-   - 決定可同時執行的 Job 數量
-   - 每個 Executor 獨立執行一個 Job
-
-4. **Workspace（工作空間）**
-   - Job 執行時的文件存放區域
-   - 包含原始碼、建置產物等
-   - 可設定自動清理政策
-
-5. **Job/Project（工作/專案）**
-   - Jenkins 中的基本工作單位
-   - 定義了一系列的建置步驟
-   - 可以是 Freestyle、Pipeline 等類型
-
-6. **Build Queue（建置佇列）**
-   - 等待執行的 Job 排隊機制
-   - 根據優先級和資源可用性分配
-
-#### 1.3 CI/CD 流程設計
+| 名詞 | 定義 | Jenkins 中的實作 |
+| --- | --- | --- |
+| 持續整合（CI） | 每次提交都自動建置與測試，讓整合問題儘早出現 | Multibranch Pipeline＋Webhook 觸發，執行編譯、單元測試、靜態分析 |
+| 持續交付（Continuous Delivery） | 每次通過 CI 的版本都**可以**隨時部署，正式部署仍需人工決定 | Pipeline 產生可部署產物，`input` 步驟控制正式環境部署 |
+| 持續部署（Continuous Deployment） | 通過所有自動化關卡後**自動**部署到正式環境 | 品質門檻全自動化，搭配 Canary／自動回滾（第 16 章） |
 
 ```mermaid
 flowchart LR
-    A[程式碼提交] --> B[觸發建置]
-    B --> C[原始碼拉取]
-    C --> D[編譯]
-    D --> E[單元測試]
-    E --> F[程式碼品質檢查]
-    F --> G[整合測試]
-    G --> H[打包]
-    H --> I[部署到測試環境]
-    I --> J[自動化測試]
-    J --> K[部署到生產環境]
-    
-    subgraph "持續整合 (CI)"
+    A[開發者提交程式碼] --> B[Webhook 觸發]
+    B --> C[Checkout]
+    C --> D[編譯與單元測試]
+    D --> E[靜態分析與品質門檻]
+    E --> F[打包與映像建置]
+    F --> G[SBOM 與弱點掃描]
+    G --> H[部署至測試環境]
+    H --> I[整合與驗收測試]
+    I --> J{核准}
+    J -->|通過| K[部署至正式環境]
+    J -->|退回| L[通知開發者]
+
+    subgraph CI[持續整合]
         C
         D
         E
         F
-    end
-    
-    subgraph "持續部署 (CD)"
         G
+    end
+    subgraph CD[持續交付／部署]
         H
         I
         J
@@ -202,20837 +367,6713 @@ flowchart LR
     end
 ```
 
-**流程階段說明：**
+一條成熟的 Pipeline 應具備以下特性：
 
-1. **持續整合 (CI) 階段**
-   - **原始碼拉取**：從版本控制系統獲取最新程式碼
-   - **編譯**：將原始碼編譯成可執行文件
-   - **單元測試**：執行自動化單元測試
-   - **程式碼品質檢查**：靜態程式碼分析、格式檢查
+1. **可重現**：相同的 commit 產生相同的產物（固定工具版本、鎖定相依套件、使用容器化 agent）
+2. **快速回饋**：單元測試與靜態分析在 10 分鐘內完成；較慢的測試放在後段或平行執行
+3. **一次建置、多處部署**：產物只建置一次，以同一個映像 digest 或 artifact 版本推進到各環境
+4. **可追溯**：每個部署都能追溯到 commit、建置編號、測試報告、SBOM 與核准人
+5. **以程式碼管理**：Pipeline（`Jenkinsfile`）、系統設定（JCasC）與 Job 定義（Job DSL）都放在版本控制中
 
-2. **持續部署 (CD) 階段**
-   - **整合測試**：跨模組測試
-   - **打包**：建立部署包（如 JAR、WAR）
-   - **環境部署**：部署到各個環境
-   - **自動化測試**：端對端測試、效能測試
+### 1.3 發行週期：Weekly 與 LTS
 
-#### 1.4 Jenkins Job 類型比較
+Jenkins 有兩條發行線：
 
-| 類型 | 適用場景 | 優點 | 缺點 |
-|------|----------|------|------|
-| **Freestyle** | 簡單建置任務 | 易於設定、視覺化配置 | 不易版本控制、複雜邏輯困難 |
-| **Pipeline** | 複雜 CI/CD 流程 | 程式碼化、版本控制、強大邏輯 | 學習曲線較陡 |
-| **Multibranch** | 多分支開發 | 自動探測分支、獨立建置 | 設定較複雜 |
-| **Organization Folder** | 多專案管理 | 自動探測專案、統一管理 | 需要特定目錄結構 |
-
-### 💡 實務案例
-
-#### 案例：Java Web 應用的典型 CI/CD 流程
-
-假設我們有一個 Spring Boot 專案，典型的 Jenkins Pipeline 會包含：
-
-```groovy
-pipeline {
-    agent any
-    
-    stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/company/java-web-app.git'
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                sh 'mvn clean compile'
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
-                }
-            }
-        }
-        
-        stage('Package') {
-            steps {
-                sh 'mvn package'
-            }
-        }
-        
-        stage('Deploy') {
-            steps {
-                sh 'docker build -t myapp .'
-                sh 'docker run -d -p 8080:8080 myapp'
-            }
-        }
-    }
-}
-```
-
-### ⚠️ 注意事項
-
-1. **資源規劃**：根據專案規模規劃 Master/Agent 資源
-2. **安全考量**：設定適當的權限和憑證管理
-3. **備份策略**：定期備份 Jenkins 設定和工作空間
-4. **監控告警**：建立建置失敗和系統異常的通知機制
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| Jenkins 基礎架構 | Master/Agent 概念、Executor、Queue |
-| CI/CD 概念 | 持續整合流程、自動化測試 |
-| Job 類型選擇 | Freestyle vs Pipeline 比較 |
-
----
-
-## 第2章 環境安裝與基本設定
-
-### 🎯 學習目標
-- 在 Windows 環境中安裝 Jenkins
-- 完成基本系統設定
-- 了解多種安裝方式的優缺點
-
-### 📚 核心概念
-
-#### 2.1 Jenkins 安裝方式比較
-
-| 安裝方式 | 優點 | 缺點 | 適用場景 |
-|----------|------|------|----------|
-| **WAR 文件** | 簡單快速、跨平台 | 需手動管理、無服務整合 | 開發測試、快速體驗 |
-| **Windows Service** | 系統整合、自動啟動 | 僅限 Windows | Windows 生產環境 |
-| **Docker** | 環境隔離、版本管理 | 需 Docker 知識 | 容器化環境 |
-| **雲端服務** | 免維護、高可用 | 成本較高、客製化限制 | 企業級應用 |
-
-#### 2.2 系統需求
-
-**最低需求：**
-- **RAM**: 256MB（建議 4GB+）
-- **磁碟空間**: 1GB（建議 50GB+）
-- **Java**: JDK 11 或更高版本
-- **瀏覽器**: Chrome、Firefox、Safari、Edge
-
-**建議配置：**
-- **CPU**: 4 核心以上
-- **RAM**: 8GB 以上
-- **磁碟**: SSD 硬碟
-- **網路**: 穩定的網際網路連線
-
-### 🛠️ 安裝步驟
-
-#### 方法一：WAR 文件安裝（推薦新手）
-
-**步驟 1：安裝 Java JDK**
-
-```powershell
-# 檢查 Java 版本
-java -version
-
-# 如果沒有安裝，請下載 OpenJDK 或 Oracle JDK 17+
-# 下載地址：https://adoptium.net/
-```
-
-**步驟 2：下載 Jenkins WAR**
-
-```powershell
-# 建立 Jenkins 目錄
-mkdir C:\Jenkins
-cd C:\Jenkins
-
-# 下載最新穩定版本
-Invoke-WebRequest -Uri "https://get.jenkins.io/war-stable/latest/jenkins.war" -OutFile "jenkins.war"
-```
-
-**步驟 3：啟動 Jenkins**
-
-```powershell
-# 啟動 Jenkins（指定埠號和主目錄）
-java -jar jenkins.war --httpPort=8080 --prefix=/jenkins
-
-# 或使用自訂設定
-$env:JENKINS_HOME="C:\Jenkins\data"
-java -Xmx2g -jar jenkins.war --httpPort=8080
-```
-
-**步驟 4：首次設定**
-
-1. 開啟瀏覽器，前往 `http://localhost:8080`
-2. 輸入初始管理員密碼：
-
-```powershell
-# 查看初始密碼
-Get-Content "C:\Users\%USERNAME%\.jenkins\secrets\initialAdminPassword"
-```
-
-3. 選擇「安裝建議的插件」
-4. 建立第一個管理員用戶
-5. 設定 Jenkins URL
-
-#### 方法二：Docker 安裝（推薦開發環境）
-
-**步驟 1：安裝 Docker Desktop**
-- 下載：https://www.docker.com/products/docker-desktop
-
-**步驟 2：執行 Jenkins 容器**
-
-```powershell
-# 建立 Jenkins 數據目錄
-mkdir C:\Jenkins\data
-
-# 執行 Jenkins 容器
-docker run -d \
-  --name jenkins \
-  -p 8080:8080 \
-  -p 50000:50000 \
-  -v C:\Jenkins\data:/var/jenkins_home \
-  jenkins/jenkins:lts
-
-# 查看初始密碼
-docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
-```
-
-**步驟 3：進階 Docker 設定**
-
-建立 `docker-compose.yml`：
-
-```yaml
-version: '3.8'
-
-services:
-  jenkins:
-    image: jenkins/jenkins:lts
-    container_name: jenkins
-    restart: unless-stopped
-    ports:
-      - "8080:8080"
-      - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - JAVA_OPTS=-Xmx2g
-      - JENKINS_OPTS=--prefix=/jenkins
-
-volumes:
-  jenkins_home:
-```
-
-啟動：
-```powershell
-docker-compose up -d
-```
-
-#### 方法三：Windows Service 安裝
-
-**步驟 1：下載 Windows 安裝程式**
-- 下載：https://www.jenkins.io/download/
-
-**步驟 2：執行安裝程式**
-```powershell
-# 以管理員身份執行安裝程式
-# 預設安裝路徑：C:\Program Files\Jenkins
-# 預設資料目錄：C:\ProgramData\Jenkins\.jenkins
-```
-
-**步驟 3：服務管理**
-```powershell
-# 啟動服務
-Start-Service Jenkins
-
-# 停止服務
-Stop-Service Jenkins
-
-# 重啟服務
-Restart-Service Jenkins
-
-# 查看服務狀態
-Get-Service Jenkins
-```
-
-### ⚙️ 基本系統設定
-
-#### 2.3 全域安全設定
-
-**步驟 1：設定安全領域**
-1. 前往 「Manage Jenkins」→「Configure Global Security」
-2. 選擇安全領域：
-   - **Jenkins' own user database**：適合小團隊
-   - **LDAP**：企業環境整合
-   - **Active Directory**：Windows 環境
-
-**步驟 2：授權策略**
-```
-授權策略選項：
-├── Anyone can do anything（僅限開發環境）
-├── Legacy mode（不建議）
-├── Logged-in users can do anything（基本安全）
-├── Matrix-based security（細緻權限控制）
-└── Project-based Matrix Authorization（專案層級權限）
-```
-
-**步驟 3：設定 CSRF 保護**
-- 啟用「Prevent Cross Site Request Forgery exploits」
-- 設定「Default Crumb Issuer」
-
-#### 2.4 系統設定優化
-
-**JVM 記憶體設定：**
-```powershell
-# 設定環境變數
-$env:JAVA_OPTS="-Xms1g -Xmx4g -XX:+UseG1GC"
-
-# 或在 jenkins.xml 中設定（Windows Service）
-<arguments>-Xrs -Xmx4g -Dhudson.lifecycle=hudson.lifecycle.WindowsServiceLifecycle</arguments>
-```
-
-**磁碟空間管理：**
-```groovy
-// 在 「Manage Jenkins」→「Script Console」中執行
-import jenkins.model.Jenkins
-
-// 設定全域建置記錄保留策略
-Jenkins.instance.getAllItems().each { item ->
-    if (item.hasProperty('buildDiscarder')) {
-        item.buildDiscarder = new hudson.tasks.LogRotator(-1, 10, -1, -1)
-        item.save()
-    }
-}
-```
-
-#### 2.5 網路與代理設定
-
-**代理伺服器設定：**
-1. 前往「Manage Jenkins」→「Manage Plugins」→「Advanced」
-2. 設定 HTTP Proxy 資訊：
-   - Server: proxy.company.com
-   - Port: 8080
-   - Username/Password（如需要）
-
-**防火牆設定：**
-```powershell
-# 開啟 Windows 防火牆規則
-New-NetFirewallRule -DisplayName "Jenkins HTTP" -Direction Inbound -Protocol TCP -LocalPort 8080
-New-NetFirewallRule -DisplayName "Jenkins Agent" -Direction Inbound -Protocol TCP -LocalPort 50000
-```
-
-### 📊 安裝驗證
-
-#### 2.6 系統健康檢查
-
-**檢查清單：**
+| 發行線 | 版本號範例 | 週期 | 適用 |
+| --- | --- | --- | --- |
+| **Weekly** | 2.584 | 每週發行，包含新功能與修正 | 測試環境、plugin 開發者、想搶先使用新功能的團隊 |
+| **LTS（Long-Term Support）** | 2.580.1 | 每 12 週選定一個 weekly 作為基準，再於其上發行 `.1`、`.2`、`.3` 三個修補版，每 4 週一版；每版發行前 2 週會先有 RC | **正式環境的標準選擇** |
 
 ```mermaid
-flowchart TD
-    A[Jenkins 安裝完成] --> B{Web UI 可訪問?}
-    B -->|是| C{管理員登入成功?}
-    B -->|否| D[檢查服務狀態]
-    C -->|是| E{插件安裝完成?}
-    C -->|否| F[檢查用戶設定]
-    E -->|是| G[建立第一個 Job]
-    E -->|否| H[檢查網路連線]
-    
-    D --> I[重啟 Jenkins 服務]
-    F --> J[重設管理員密碼]
-    H --> K[設定代理伺服器]
-    
-    I --> B
-    J --> C
-    K --> E
+gantt
+    title LTS 12 週發行節奏（示意）
+    dateFormat YYYY-MM-DD
+    axisFormat %m/%d
+    section 2.568 線
+    2.568.3        :milestone, 2026-09-02, 0d
+    section 2.580 線
+    2.580.1 RC     :milestone, 2026-09-16, 0d
+    2.580.1        :milestone, 2026-09-30, 0d
+    2.580.2（預估） :milestone, 2026-10-28, 0d
+    2.580.3（預估） :milestone, 2026-11-25, 0d
 ```
 
-**系統資訊檢查：**
-```groovy
-// 在 Script Console 中執行
-println "Jenkins 版本: " + Jenkins.instance.getVersion()
-println "Java 版本: " + System.getProperty("java.version")
-println "作業系統: " + System.getProperty("os.name")
-println "記憶體使用: " + Runtime.getRuntime().totalMemory()
-println "可用處理器: " + Runtime.getRuntime().availableProcessors()
-```
+✅ 正式環境的版本策略建議：
 
-### 💡 實務案例
+- 使用 LTS，並在每個 `.1` 發行後 2–4 週內完成評估與升級；安全公告修補版（任何一條線）應在公告後 7 天內處理
+- 保留一套與正式環境相同 plugin 組合的**預備環境（staging controller）**，先在預備環境升級並執行冒煙測試（第 20 章）
+- 訂閱 [Jenkins 安全公告](https://www.jenkins.io/security/advisories/)；2026 年 1–9 月已發布 9 次公告，其中 5 次影響 core
 
-#### 案例：企業環境快速部署
+### 1.4 版本基準與相容性矩陣
 
-**情境**：為 20 人開發團隊建立 Jenkins 環境
+以下為本手冊撰寫時（2026-10-02）的版本基準。plugin 版本只列代表性項目，完整建議清單見 [附錄 C：Plugin 建議清單](#附錄-cplugin-建議清單)。
 
-**建議配置：**
-```yaml
-# docker-compose.yml for production
-version: '3.8'
+| 元件 | 版本 | 說明 |
+| --- | --- | --- |
+| Jenkins LTS | **2.580.1**（2026-09-30） | 上一條 LTS 線為 2.568.3（2026-09-02） |
+| Jenkins Weekly | 2.584（2026-09-28） | 僅供參考 |
+| Java（執行 Jenkins） | **Java 21 或 Java 25** | 2.555.1 起不再支援 Java 17；controller、所有 agent、CLI client 都適用 |
+| Java（執行建置） | 任意版本 | 建置用 JDK 與執行 agent 的 JDK 互相獨立，可用工具安裝或容器提供 Java 8／11／17 |
+| 官方容器映像 | `jenkins/jenkins:2.580.1-lts-jdk21`、`-jdk25`、`-rhel-ubi9-jdk21`、`-windowsservercore-ltsc2022`／`ltsc2025` | Debian 基底映像自 2.528.1 起改為 Debian 13（Trixie）；Windows Server 2019 映像自 2.568.1 起停止提供 |
+| Agent 映像 | `jenkins/inbound-agent:3391.va_37fa_a_305d6d-3-jdk21` | remoting 版本隨 core 更新 |
+| Linux 套件 | `pkg.jenkins.io/debian-stable`、`pkg.jenkins.io/rpm-stable` | 2.541.1 起 RPM 統一為 `rpm-stable`，並更換 GPG key（`jenkins.io-2026.key`） |
+| Helm chart | `jenkins/jenkins` 5.9.64（appVersion 2.568.3） | 以 `controller.image.tag` 指定 2.580.1 |
+| Pipeline（aggregator） | `workflow-aggregator` 608.v67378e9d3db_1 | |
+| Pipeline: Declarative | 2.2293.v6e7193cec599 | |
+| Configuration as Code | 2131.vb_a_13ed96f755 | |
+| Kubernetes plugin | 4557.ve746270f672f | |
+| Git plugin | 5.10.1 | |
+| Pipeline Graph View | 1041.v107d70db_b_1a_f | setup wizard 建議 plugin，取代 Stage View 的地位 |
 
-services:
-  jenkins:
-    image: jenkins/jenkins:lts
-    container_name: jenkins-prod
-    restart: always
-    ports:
-      - "80:8080"
-      - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - JAVA_OPTS=-Xmx8g -XX:+UseG1GC
-      - JENKINS_OPTS=--prefix=/
-    networks:
-      - jenkins-network
+> 💡 plugin 版本號採用「`<流水號>.v<git hash>`」格式（例如 `4557.ve746270f672f`），流水號越大越新。比較版本時不要只看小數點後的雜湊值。
 
-  jenkins-agent:
-    image: jenkins/inbound-agent:latest
-    container_name: jenkins-agent-1
-    environment:
-      - JENKINS_URL=http://jenkins:8080
-      - JENKINS_AGENT_NAME=agent-1
-      - JENKINS_SECRET=<agent-secret>
-    depends_on:
-      - jenkins
-    networks:
-      - jenkins-network
+### 1.5 從 v1.0 基準到 2.580.1 的重大變化
 
-volumes:
-  jenkins_home:
+v1.0 以 LTS 2.401.x 為基準。以下整理此後各 LTS 線影響導入與升級的變化，詳細升級步驟見第 20 章。
 
-networks:
-  jenkins-network:
-    driver: bridge
-```
+| LTS 線 | 變化 | 對本手冊的影響 |
+| --- | --- | --- |
+| 2.426.1 | 支援 Java 21；最後一條支援 Java 11 的 LTS 線 | — |
+| 2.479.1 | **必須使用 Java 17 以上**；升級為 Spring Security 6、Jakarta EE 9；LDAP 等 plugin 必須同步升級 | 3.1、20.3 |
+| 2.492.1 | YUI 預設停用；agent protocol 清單不可再設定，JCasC 的 `agentProtocols` 區段會導致啟動中止 | 18.3 |
+| 2.504.1 | YUI 完全移除；移除 jCIFS 與 j-Interop（不能再從 UI 安裝 Windows 服務或以 DCOM 啟動 Windows agent） | 3.4、14.2 |
+| 2.516.1 | 標頭列重新設計（Manage Jenkins 移到右上角）；本機使用者密碼上限 72 bytes（bcrypt）；Cookie 預設 `SameSite=Lax` | 4.1、17.2 |
+| 2.528.1 | 容器映像改用 Debian 13；Timestamper 必須先升級；JCasC `myViewsTabBar` 棄用 | 3.5、20.3 |
+| 2.541.1 | Core 內建 Content Security Policy（預設不強制）；RPM 套件庫統一；Linux 套件更換 GPG key | 3.3、17.6 |
+| 2.555.1 | **必須使用 Java 21 或 25**；Java 17 映像停止提供；`DefaultCrumbIssuer` 不再納入 IP，JCasC 必須移除 `crumbIssuer` 區段 | 3.1、18.3、20.3 |
+| 2.568.1 | 停止提供 Windows Server 2019 controller 映像 | 3.4 |
+| 2.580.1 | 9 個 detached plugin 不再打包在 `jenkins.war`（離線環境需預先放入 plugin） | 5.5、20.3 |
 
-### ⚠️ 注意事項
+### 1.6 Jenkins 與 CloudBees CI
 
-1. **安全第一**：
-   - 永遠不要使用預設密碼
-   - 定期更新 Jenkins 版本
-   - 限制網路存取範圍
+CloudBees CI 是以 Jenkins LTS 為基礎的商業發行版，主要差異如下。本手冊以開源 Jenkins 為主，只在必要時以 🔒 標示商業版功能。
 
-2. **效能監控**：
-   - 監控記憶體使用量
-   - 設定適當的建置保留政策
-   - 定期清理工作空間
+| 能力 | 開源 Jenkins | 🔒 CloudBees CI |
+| --- | --- | --- |
+| Controller 數量 | 各自獨立，需自行建立治理方式（JCasC＋Git） | Operations Center 集中管理多個 controller |
+| 高可用 | 單一 controller（active／passive 需自行設計，見 20.4） | 提供 HA（active／active）模式 |
+| Plugin 治理 | 自行以 `plugins.txt` 鎖定版本並測試相容性 | CloudBees Assurance Program 提供經驗證的 plugin 組合 |
+| RBAC | Matrix 或 Role-based Strategy plugin | 內建 RBAC 與群組委派 |
+| 支援 | 社群 | 商業支援與 SLA |
 
-3. **備份策略**：
-   - 定期備份 `JENKINS_HOME`
-   - 版本控制重要設定
-   - 測試恢復程序
+### 1.7 本章重點
 
-4. **資源規劃**：
-   - 根據併發建置數量規劃資源
-   - 考慮代理節點的擴展性
-   - 監控磁碟空間使用
+- 正式環境使用 LTS，並把安全公告當作最高優先的變更
+- 2.555.1 之後 controller **與所有 agent** 都必須執行 Java 21 或 25；建置用的 JDK 版本則不受限制
+- Jenkins 的能力來自 plugin，plugin 治理與版本鎖定是導入的第一項工程（第 5 章）
+- 以 Pipeline、JCasC、Job DSL 把 Jenkins 本身也納入版本控制，是本手冊所有企業實務的基礎
 
-### 🔍 認證對應知識點
+## 2. 架構與核心概念
 
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| Jenkins 安裝 | WAR、Docker、Windows Service 安裝 |
-| 系統安全 | 全域安全設定、授權策略 |
-| 系統管理 | JVM 調優、磁碟管理、代理設定 |
-
-### 📝 練習作業
-
-1. **基礎練習**：使用 WAR 文件在本機安裝 Jenkins
-2. **進階練習**：使用 Docker Compose 建立 Jenkins 叢集
-3. **實務練習**：設定企業級安全策略和權限管理
-
----
-
-## 第3章 Jenkins 介面導覽
-
-### 🎯 學習目標
-- 熟悉 Jenkins Web UI 各個區域功能
-- 掌握基本操作和導航技巧
-- 了解系統監控和管理介面
-
-### 📚 核心概念
-
-#### 3.1 Jenkins 主介面架構
+### 2.1 Controller、Agent、Executor 與 Queue
 
 ```mermaid
-graph TD
-    A[Jenkins 主頁] --> B[左側選單]
-    A --> C[主要內容區]
-    A --> D[頁首區域]
-    
-    B --> E[New Item]
-    B --> F[People]
-    B --> G[Build History]
-    B --> H[Manage Jenkins]
-    B --> I[My Views]
-    
-    C --> J[Dashboard View]
-    C --> K[Job 列表]
-    C --> L[Build Queue]
-    C --> M[Build Executor Status]
-    
-    D --> N[使用者資訊]
-    D --> O[搜尋功能]
-    D --> P[通知區域]
-```
-
-#### 3.2 主要功能區域詳解
-
-**1. 左側選單 (Left Navigation)**
-
-| 功能 | 說明 | 權限需求 |
-|------|------|----------|
-| **New Item** | 建立新的 Job/Pipeline | Job Create |
-| **People** | 查看使用者列表和權限 | Overall Read |
-| **Build History** | 所有建置歷史記錄 | Overall Read |
-| **Manage Jenkins** | 系統管理和設定 | Overall Administer |
-| **My Views** | 個人化視圖管理 | View Create |
-| **Credentials** | 憑證管理 | Credentials View |
-
-**2. 主要內容區域**
-
-```
-Dashboard 內容配置：
-├── Jenkins 標頭橫幅
-├── 建置佇列 (Build Queue)
-├── 建置執行器狀態 (Build Executor Status)
-├── 專案/Job 列表
-└── 視圖標籤 (View Tabs)
-```
-
-**3. Job 狀態圖示說明**
-
-| 圖示 | 狀態 | 說明 |
-|------|------|------|
-| 🔵 藍色圓球 | Success | 建置成功 |
-| 🔴 紅色圓球 | Failed | 建置失敗 |
-| 🟡 黃色圓球 | Unstable | 建置不穩定（測試失敗但編譯成功） |
-| ⚫ 灰色圓球 | Aborted/Disabled | 建置中止或 Job 停用 |
-| ⚡ 閃爍動畫 | Building | 正在建置中 |
-
-#### 3.3 Job 管理介面
-
-**Job 詳細頁面結構：**
-
-```mermaid
-graph LR
-    A[Job 首頁] --> B[建置歷史]
-    A --> C[工作空間]
-    A --> D[設定]
-    A --> E[狀態]
-    
-    B --> F[Build #1]
-    B --> G[Build #2]
-    F --> H[Console Output]
-    F --> I[Changes]
-    F --> J[Test Results]
-    
-    C --> K[檔案瀏覽器]
-    D --> L[General]
-    D --> M[Source Code Management]
-    D --> N[Build Triggers]
-    D --> O[Build Steps]
-    D --> P[Post-build Actions]
-```
-
-**建置詳細資訊：**
-- **Console Output**：完整的建置日誌
-- **Changes**：本次建置包含的程式碼變更
-- **Test Results**：測試執行結果和報告
-- **Workspace**：建置過程中的檔案內容
-- **Build Artifacts**：建置產生的檔案
-
-### 🛠️ 實用操作技巧
-
-#### 3.4 Dashboard 自訂化
-
-**建立自訂視圖：**
-
-1. **List View（列表視圖）**
-```
-步驟：
-1. 點選「New View」
-2. 選擇「List View」
-3. 設定過濾條件：
-   - Job 名稱正則表達式
-   - 狀態過濾（成功/失敗/不穩定）
-   - 時間範圍
-4. 選擇顯示欄位：
-   - Status（狀態圖示）
-   - Weather（趨勢圖示）
-   - Name（Job 名稱）
-   - Last Success（最後成功時間）
-   - Last Failure（最後失敗時間）
-   - Last Duration（執行時間）
-```
-
-2. **Build Pipeline View（建置管道視圖）**
-```
-安裝 Build Pipeline Plugin 後：
-1. 新增「Build Pipeline View」
-2. 設定上游專案
-3. 顯示觸發關係
-4. 配置管道視覺化
-```
-
-**視圖設定範例：**
-```groovy
-// 透過 Script Console 批量建立視圖
-import hudson.model.*
-import hudson.plugins.view.dashboard.*
-
-def jenkins = Jenkins.instance
-
-// 建立開發團隊視圖
-def devView = new ListView("Development Team")
-devView.setIncludeRegex(".*-dev.*|.*-feature.*")
-jenkins.addView(devView)
-
-// 建立生產視圖  
-def prodView = new ListView("Production")
-prodView.setIncludeRegex(".*-prod.*|.*-release.*")
-jenkins.addView(prodView)
-
-jenkins.save()
-```
-
-#### 3.5 搜尋和過濾功能
-
-**全域搜尋技巧：**
-```
-搜尋語法：
-├── job:project-name     # 搜尋特定 Job
-├── build:123           # 搜尋特定建置編號
-├── node:agent-1        # 搜尋特定節點
-├── user:john.doe       # 搜尋特定使用者相關項目
-└── view:my-view        # 搜尋特定視圖
-```
-
-**進階過濾：**
-```javascript
-// 使用瀏覽器開發者工具執行
-// 隱藏已停用的 Job
-document.querySelectorAll('tr.job-disabled').forEach(row => {
-    row.style.display = 'none';
-});
-
-// 只顯示失敗的 Job
-document.querySelectorAll('tr:not(.job-status-failed)').forEach(row => {
-    if (row.querySelector('.job-status')) {
-        row.style.display = 'none';
-    }
-});
-```
-
-#### 3.6 系統管理介面
-
-**Manage Jenkins 主要功能：**
-
-```mermaid
-graph TD
-    A[Manage Jenkins] --> B[Configure System]
-    A --> C[Global Tool Configuration]
-    A --> D[Manage Plugins]
-    A --> E[Manage Nodes and Clouds]
-    A --> F[Configure Global Security]
-    A --> G[Manage Credentials]
-    A --> H[System Information]
-    A --> I[System Log]
-    A --> J[Load Statistics]
-    
-    B --> K[Jenkins Location]
-    B --> L[Global Properties]
-    B --> M[Email Configuration]
-    
-    C --> N[JDK Installations]
-    C --> O[Git Installations]
-    C --> P[Maven Installations]
-    
-    D --> Q[Available Plugins]
-    D --> R[Installed Plugins]
-    D --> S[Advanced Settings]
-```
-
-**系統資訊查看：**
-```groovy
-// System Information 頁面顯示的關鍵資訊
-println "Jenkins 版本: ${Jenkins.getVersion()}"
-println "Java 版本: ${System.getProperty('java.version')}"
-println "記憶體使用情況:"
-println "  - 總記憶體: ${Runtime.getRuntime().totalMemory() / 1024 / 1024} MB"
-println "  - 最大記憶體: ${Runtime.getRuntime().maxMemory() / 1024 / 1024} MB"
-println "  - 可用記憶體: ${Runtime.getRuntime().freeMemory() / 1024 / 1024} MB"
-
-// 檢查磁碟空間
-def workspace = new File(System.getProperty('JENKINS_HOME'))
-println "磁碟空間:"
-println "  - 總空間: ${workspace.getTotalSpace() / 1024 / 1024 / 1024} GB"
-println "  - 可用空間: ${workspace.getFreeSpace() / 1024 / 1024 / 1024} GB"
-```
-
-### 📊 監控和報告
-
-#### 3.7 建置監控
-
-**Load Statistics 解讀：**
-
-```mermaid
-graph LR
-    A[Load Statistics] --> B[Queue Length]
-    A --> C[Executor Utilization]
-    
-    B --> D[等待建置數量]
-    B --> E[等待時間分析]
-    
-    C --> F[執行器使用率]
-    C --> G[空閒時間分析]
-    
-    style B fill:#ff9999
-    style C fill:#99ff99
-    style F fill:#ffff99
-```
-
-**關鍵指標說明：**
-- **Queue Length**：建置佇列長度，高值表示資源不足
-- **Executor Utilization**：執行器使用率，應保持在 70-80%
-- **Response Time**：系統回應時間，影響使用者體驗
-
-**效能調優建議：**
-```bash
-# 監控腳本範例
-#!/bin/bash
-
-# 檢查建置佇列長度
-QUEUE_LENGTH=$(curl -s "http://localhost:8080/queue/api/json" | jq '.items | length')
-echo "目前佇列長度: $QUEUE_LENGTH"
-
-# 檢查執行器狀態
-BUSY_EXECUTORS=$(curl -s "http://localhost:8080/computer/api/json" | jq '[.computer[].executors[] | select(.currentExecutable != null)] | length')
-TOTAL_EXECUTORS=$(curl -s "http://localhost:8080/computer/api/json" | jq '[.computer[].executors[]] | length')
-UTILIZATION=$(echo "scale=2; $BUSY_EXECUTORS * 100 / $TOTAL_EXECUTORS" | bc)
-echo "執行器使用率: $UTILIZATION%"
-
-# 警告閾值檢查
-if [ $QUEUE_LENGTH -gt 10 ]; then
-    echo "警告: 建置佇列過長！"
-fi
-
-if [ $(echo "$UTILIZATION > 90" | bc) -eq 1 ]; then
-    echo "警告: 執行器使用率過高！"
-fi
-```
-
-#### 3.8 日誌管理
-
-**系統日誌分類：**
-
-| 日誌類型 | 路徑 | 用途 |
-|----------|------|------|
-| **Jenkins 主日誌** | `$JENKINS_HOME/logs/jenkins.log` | 系統啟動和核心事件 |
-| **Job 建置日誌** | Job Console Output | 個別建置執行記錄 |
-| **外掛程式日誌** | System Log 頁面 | 外掛程式除錯資訊 |
-| **安全日誌** | Security 相關日誌 | 登入、權限變更記錄 |
-
-**日誌等級設定：**
-```groovy
-// 在 Script Console 中設定日誌等級
-import java.util.logging.*
-
-// 設定 Git 插件的日誌等級為 DEBUG
-Logger.getLogger("hudson.plugins.git").setLevel(Level.FINE)
-
-// 設定 Pipeline 日誌等級
-Logger.getLogger("org.jenkinsci.plugins.workflow").setLevel(Level.FINE)
-
-// 設定根日誌處理器
-def rootLogger = Logger.getLogger("")
-def handler = new ConsoleHandler()
-handler.setLevel(Level.FINE)
-rootLogger.addHandler(handler)
-```
-
-### 💡 實務案例
-
-#### 案例：團隊 Dashboard 設計
-
-**情境**：為 Java 開發團隊設計 Dashboard
-
-**解決方案：**
-
-1. **主視圖設計**
-```
-團隊 Dashboard 配置：
-├── 視圖 1：「Active Development」
-│   ├── 顯示所有 feature 分支建置
-│   ├── 過濾條件：job name 包含 "feature"
-│   └── 顯示欄位：Status, Weather, Name, Last Success
-├── 視圖 2：「Release Pipeline」  
-│   ├── 顯示發布相關的建置
-│   ├── Pipeline View 格式
-│   └── 包含部署階段狀態
-└── 視圖 3：「Failed Builds」
-    ├── 只顯示失敗的建置
-    ├── 按失敗時間排序
-    └── 包含負責人資訊
-```
-
-2. **監控 Widget 設定**
-```html
-<!-- 自訂 Dashboard HTML -->
-<div class="jenkins-dashboard">
-    <div class="metrics-row">
-        <div class="metric-card">
-            <h3>建置成功率</h3>
-            <div class="metric-value" id="success-rate">85%</div>
-        </div>
-        <div class="metric-card">
-            <h3>平均建置時間</h3>
-            <div class="metric-value" id="avg-duration">5m 30s</div>
-        </div>
-        <div class="metric-card">
-            <h3>待修復建置</h3>
-            <div class="metric-value failure" id="failed-count">3</div>
-        </div>
-    </div>
-</div>
-```
-
-### ⚠️ 注意事項
-
-1. **效能考量**：
-   - 避免在 Dashboard 顯示過多 Job
-   - 適當設定重新整理頻率
-   - 使用 View 過濾減少載入時間
-
-2. **權限管理**：
-   - 根據團隊角色設定不同視圖
-   - 敏感資訊設定適當的存取權限
-   - 定期檢查使用者權限
-
-3. **使用者體驗**：
-   - 保持介面簡潔明瞭
-   - 使用有意義的 Job 命名規則
-   - 提供清楚的狀態指示
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| Jenkins UI 導航 | Dashboard、Views、Job 管理 |
-| 系統監控 | Load Statistics、日誌管理 |
-| 使用者管理 | People、權限、安全設定 |
-
----
-
-## 第4章 Plugin 管理與基礎設定
-
-### 🎯 學習目標
-- 掌握 Jenkins 插件管理機制
-- 安裝和設定核心插件
-- 了解插件版本管理和相依性
-- 建立 Java 開發所需的基礎環境
-
-### 📚 核心概念
-
-#### 4.1 Jenkins 插件架構
-
-```mermaid
-graph TD
-    A[Jenkins Core] --> B[Plugin Manager]
-    B --> C[Update Center]
-    C --> D[Official Plugins]
-    C --> E[Community Plugins]
-    C --> F[Third-party Plugins]
-    
-    A --> G[Extension Points]
-    G --> H[Build Steps]
-    G --> I[SCM Providers]
-    G --> J[Notification Systems]
-    G --> K[Authentication]
-    
-    subgraph "Plugin Categories"
-        L[Build Tools]
-        M[Source Control]
-        N[Testing & Quality]
-        O[Deployment]
-        P[Monitoring]
+flowchart TB
+    subgraph Controller[Jenkins Controller]
+        UI[Web UI／REST API／CLI]
+        Q[Build Queue]
+        S[Scheduler 與 Load Balancer]
+        P[Plugin 與設定<br/>JENKINS_HOME]
+        CPS[Pipeline 引擎<br/>CPS 解譯 Groovy]
     end
+    subgraph A1[Agent：linux-agent-01]
+        E1[Executor 1]
+        E2[Executor 2]
+        W1[Workspace]
+    end
+    subgraph A2[Cloud Agent：Kubernetes Pod]
+        E3[Executor]
+        W2[Workspace]
+    end
+    UI --> Q --> S
+    S -->|分派| E1
+    S -->|分派| E3
+    CPS -.->|遠端執行 sh／bat 等 step| A1
+    CPS -.->|遠端執行 step| A2
 ```
 
-**插件分類與功能：**
+| 元件 | 職責 | 設計重點 |
+| --- | --- | --- |
+| **Controller**（舊稱 master） | 提供 UI／API、保存設定與建置紀錄、排程、執行 Pipeline 的 Groovy 邏輯（CPS） | 只負責協調，**不執行建置**；`JENKINS_HOME` 需要可靠的儲存與備份 |
+| **Agent**（舊稱 slave／node） | 透過 remoting 與 controller 連線，在自己的 workspace 執行建置步驟 | 依工具鏈、作業系統或安全等級區分 label；建議容器化或可拋棄式 |
+| **Executor** | Agent 上的執行槽，一個 executor 同時執行一個建置（或一個 `node {}` 區塊） | 數量通常等於 CPU 核心數或更少；容器化 agent 通常設為 1 |
+| **Build Queue** | 等待可用 executor 的工作佇列 | 佇列持續累積代表 agent 容量不足或 label 設定錯誤 |
+| **Label** | 標記 agent 能力（如 `linux && docker`），Pipeline 以 label 表達式選擇 agent | 以「能力」命名而非主機名稱，方便擴充與替換 |
 
-| 類別 | 核心插件 | 功能說明 |
-|------|----------|----------|
-| **建置工具** | Maven, Gradle, Ant | 專案建置和依賴管理 |
-| **版本控制** | Git, SVN, Mercurial | 原始碼管理整合 |
-| **測試品質** | JUnit, Jacoco, Checkstyle | 測試報告和程式碼品質 |
-| **部署發布** | Deploy to Container, SSH | 應用程式部署 |
-| **通知告警** | Email, Slack, Teams | 建置結果通知 |
-| **安全認證** | LDAP, Active Directory | 使用者驗證整合 |
+> ⚠️ **Built-in node（內建節點）不應執行建置**：在 controller 上執行建置會讓建置程式碼直接存取 `JENKINS_HOME`（含所有憑證的加密金鑰），也會與 controller 搶奪 CPU 與記憶體。官方硬體建議明確指出「在 controller 配置 executor 通常是不良做法」。請把 built-in node 的 executor 數設為 `0`（JCasC：`jenkins.numExecutors: 0`）。v1.0 的多個範例使用 `agent any` 且未設定此值，等同允許在 controller 上執行建置。
 
-#### 4.2 插件生命週期管理
+### 2.2 Agent 類型與連線方式
+
+| 類型 | 生命週期 | 典型實作 | 適用 |
+| --- | --- | --- | --- |
+| **Permanent agent**（固定節點） | 長期存在，由管理者建立 | VM、實體機、Windows／macOS 建置機 | 需要特殊硬體、授權軟體、macOS／iOS 簽章 |
+| **Cloud agent**（動態節點） | 依需求建立、建置後銷毀 | Kubernetes plugin、Amazon EC2、Azure VM Agents、Docker plugin | 一般 Linux 建置；彈性擴充、環境一致 |
+
+| 連線方式 | 方向 | 連接埠 | 說明 |
+| --- | --- | --- | --- |
+| **SSH**（SSH Build Agents plugin） | Controller → Agent | Agent 的 22 | Controller 以 SSH 登入並啟動 `agent.jar`；適合 Linux 固定節點 |
+| **Inbound（TCP）** | Agent → Controller | Controller 的 TCP agent port（容器映像慣例 50000） | Agent 主動連線；需開放額外連接埠 |
+| **Inbound（WebSocket）** | Agent → Controller | 與 Web UI 相同的 HTTP(S) 埠 | ✅ 不需額外連接埠，能穿過反向代理與負載平衡器；新部署建議使用 |
+
+Inbound agent 的啟動指令格式如下（取自 2.580.1 的 agent 頁面）：
+
+```bash
+java -jar agent.jar \
+  -url https://jenkins.example.internal/ \
+  -secret @/home/jenkins/agent-secret \
+  -name "linux-agent-01" \
+  -webSocket \
+  -workDir "/home/jenkins/agent"
+```
+
+> 💡 `-secret @<檔案>` 從檔案讀取密鑰，避免密鑰出現在行程清單與 shell 歷史。Agent 的 Java 版本也必須是 21 或 25。
+
+### 2.3 Item 類型
+
+| 類型 | 定義方式 | 使用建議 |
+| --- | --- | --- |
+| **Pipeline** | `Jenkinsfile`（Declarative 或 Scripted） | 單一分支或特定用途的流程（例如排程維運工作） |
+| **Multibranch Pipeline** | 掃描 repository 的分支、PR、tag，各自依 `Jenkinsfile` 建立子 Job | ✅ 應用程式 CI/CD 的**預設選擇** |
+| **Organization Folder** | 掃描整個 GitHub organization／GitLab group／Bitbucket project，自動建立 Multibranch | 大型組織統一治理 |
+| **Folder** | 分組容器，可設定 folder 層級的憑證、Shared Library 與權限 | 依團隊或產品線分隔 |
+| **Freestyle project** | UI 表單設定 | 只用於簡單維運工作；新專案不建議（第 6 章） |
+| **Multi-configuration（Matrix）project** | UI 表單設定的矩陣建置 | 以 Declarative `matrix` 取代（10.8） |
+
+每次執行 Job 產生一個 **Run**（UI 上稱為 Build），保存在 `jobs/<name>/builds/<編號>/`，內容包括主控台記錄、測試結果、產物與 Pipeline 的流程圖節點（FlowNode）。
+
+### 2.4 Pipeline 執行模型
+
+Pipeline 的 Groovy 程式碼**在 controller 上**以 CPS（Continuation Passing Style）方式解譯執行，只有 `sh`、`bat`、`checkout` 等 step 會透過 remoting 在 agent 上執行。這個模型帶來三個重要後果：
+
+1. **Pipeline 可以在 controller 重啟後繼續**：CPS 會把執行狀態序列化保存，重啟後從中斷點恢復（受 durability 設定影響，見 11.4）
+2. **Groovy 邏輯會消耗 controller 資源**：在 Pipeline 中解析大型 JSON、執行大量迴圈或字串處理，都會拖慢整個 controller。重度運算應放到 agent 的 `sh` 步驟中
+3. **不是所有 Groovy 語法都能使用**：CPS 轉換後部分寫法行為不同（例如閉包、`each` 的某些用法），且沙箱會限制可呼叫的方法（11.2、11.3）
+
+```mermaid
+sequenceDiagram
+    participant C as Controller（CPS 引擎）
+    participant A as Agent
+    C->>C: 解譯 Jenkinsfile Groovy 程式碼
+    C->>A: 配置 executor 與 workspace（node／agent）
+    C->>A: 執行 sh 'mvn -B verify'
+    A-->>C: 回傳結束碼與輸出
+    C->>C: 依結果決定下一步（when、post）
+    C->>A: junit、archiveArtifacts（檔案從 agent 讀取）
+```
+
+### 2.5 JENKINS_HOME 目錄結構
+
+| 路徑 | 內容 | 備份 |
+| --- | --- | --- |
+| `config.xml` | 全域設定（安全領域、授權策略、雲端設定等） | ✅ 必要 |
+| `*.xml`（根目錄其他檔案） | 各 plugin 的全域設定 | ✅ 必要 |
+| `credentials.xml` | 全域憑證（加密後） | ✅ 必要，需搭配 `secrets/` |
+| `secrets/` | `master.key`、`hudson.util.Secret` 等加密金鑰 | ✅ 必要，**與備份分開存放並嚴格控管** |
+| `jobs/<name>/config.xml` | Job 設定 | ✅ 必要 |
+| `jobs/<name>/builds/` | 建置紀錄、主控台記錄、測試結果、產物 | 依保存政策 |
+| `users/` | 本機使用者、API token、個人設定 | ✅ 必要 |
+| `nodes/` | 固定 agent 的設定 | ✅ 必要 |
+| `plugins/` | 已安裝的 `.jpi` 與解壓後的目錄 | 可由 `plugins.txt` 重建 |
+| `workspace/` | Built-in node 的 workspace | ❌ 不需要 |
+| `caches/`、`war/`、`logs/` | 快取、解壓後的 war、系統記錄 | ❌ 不需要 |
+| `fingerprints/` | 產物指紋紀錄 | 視需求 |
+
+> ⚠️ `secrets/master.key` 與 `credentials.xml` 一起外洩，就等於所有憑證外洩。備份檔需要加密，並限制可存取的人員（第 20 章）。
+
+### 2.6 Workspace、Artifact、Stash 與 Fingerprint
+
+| 機制 | 位置 | 保存期間 | 用途 |
+| --- | --- | --- | --- |
+| Workspace | Agent 上 | 直到被清除或 agent 銷毀 | 建置過程的工作目錄 |
+| Stash／unstash | Controller 暫存 | 該次 Pipeline 結束即刪除（可用 `preserveStashes` 保留） | 同一次 Pipeline 不同 stage／agent 之間傳遞小型檔案 |
+| Artifact（`archiveArtifacts`） | Controller（或外部 artifact manager） | 依 build discarder 設定 | 保存建置產物供下載 |
+| Fingerprint | Controller | 長期 | 追蹤產物在不同 Job 間的流向 |
+
+✅ 大型產物（JAR、容器映像、安裝包）應推送到 Nexus、Artifactory、Harbor 等儲存庫，Jenkins 只保存報告與中繼資料。Stash 適合 5 MB 以內的檔案，大量使用會拖慢 controller。
+
+### 2.7 參考架構
+
+| 規模 | 建置量 | 架構 |
+| --- | --- | --- |
+| 小型（單一團隊） | 每日 < 200 次 | 1 個 controller（4 vCPU／8 GB）、built-in node 0 executor、2–4 個固定或 Docker agent |
+| 中型（事業單位） | 每日 200–2,000 次 | 1 個 controller（8 vCPU／16–32 GB、SSD）、Kubernetes 動態 agent、JCasC＋Git 管理設定、外部 artifact 儲存庫、Prometheus 監控 |
+| 大型（企業） | 每日 > 2,000 次或多個獨立組織 | 依組織或安全等級拆分多個 controller（每個 controller 皆以 JCasC 建立），共用 Shared Library 與 plugin 清單；考慮 🔒 CloudBees CI 的集中管理 |
 
 ```mermaid
 flowchart LR
-    A[搜尋插件] --> B[檢查相依性]
-    B --> C[下載安裝]
-    C --> D[重啟 Jenkins]
-    D --> E[配置設定]
-    E --> F[測試功能]
-    F --> G[監控效能]
-    G --> H[版本更新]
-    H --> I[移除/停用]
+    Dev[開發者] -->|push／PR| SCM[(GitLab／GitHub)]
+    SCM -->|Webhook| LB[反向代理／Ingress<br/>TLS 終止]
+    LB --> C[Jenkins Controller<br/>JCasC＋plugins.txt]
+    C -->|Kubernetes API| K8s[Kubernetes 叢集<br/>動態 Pod agent]
+    C -->|SSH／WebSocket| VM[固定 agent<br/>Windows／macOS]
+    K8s --> Repo[(Nexus／Harbor)]
+    C --> Mon[Prometheus／OTel]
+    C --> Vault[(Vault／Secrets Manager)]
+    Git[(設定 Git repo<br/>JCasC／Job DSL／Shared Library)] --> C
 ```
 
-### 🛠️ 核心插件安裝與設定
+> 💡 拆分 controller 的時機：單一 controller 的 JVM heap 超過 16–24 GB 仍頻繁 Full GC、啟動時間超過 15 分鐘、不同團隊對 plugin 版本有衝突需求，或資安分級要求隔離（例如正式環境部署與一般 CI 分開）。
 
-#### 4.3 Java 開發必備插件
+### 2.8 本章重點
 
-**基礎套件（Building 套件）：**
+- Controller 只負責協調，built-in node 的 executor 設為 0
+- 新部署的 inbound agent 使用 WebSocket，不需要開放 50000 埠
+- Pipeline 的 Groovy 程式碼在 controller 上執行，重度運算要放到 agent 的 `sh` 步驟
+- `secrets/` 是 Jenkins 最敏感的目錄；備份要加密並與一般備份分開控管
 
-1. **Git Plugin**
+## 3. 安裝與初始設定
+
+### 3.1 系統需求與容量規劃
+
+**官方最低與建議需求**（2.580.1 安裝文件）：
+
+| 項目 | 最低 | 小型團隊建議 | 說明 |
+| --- | --- | --- | --- |
+| 記憶體 | 256 MB | 4 GB 以上 | 實際需求從數百 MB 到數十 GB，取決於 Job 數量、建置紀錄與 plugin |
+| 磁碟 | 1 GB（容器建議 10 GB） | 50 GB 以上 | `JENKINS_HOME` 建議放在獨立的 SSD 磁碟或 PV |
+| Java | **Java 21 或 25** | Eclipse Temurin 21 | Controller、agent、CLI 都適用；只測試 HotSpot JVM，不建議 OpenJ9 |
+| 瀏覽器 | 近期版本的 Chrome、Edge、Firefox、Safari | — | |
+
+**企業容量規劃參考**（經驗值，需以實際監控資料校正）：
+
+| 規模 | Controller | JVM heap（`-Xmx`） | `JENKINS_HOME` | 同時建置數 |
+| --- | --- | --- | --- | --- |
+| 小型 | 4 vCPU／8 GB | 4 GB | 100 GB SSD | ≤ 20 |
+| 中型 | 8 vCPU／16–32 GB | 8–16 GB | 300–500 GB SSD | 20–150 |
+| 大型 | 16 vCPU／64 GB | 16–24 GB | 1 TB 以上（建置紀錄與產物外移） | > 150，或拆分 controller |
+
+> ⚠️ 不要讓 heap 超過實體記憶體的 70%，也不建議單一 controller 使用 32 GB 以上的 heap（G1 GC 停頓時間會明顯增加）。容量不足時優先**拆分 controller、外移產物、縮短建置保留期間**，而不是無限加大 heap。
+
+**網路需求**：
+
+| 方向 | 連接埠 | 用途 |
+| --- | --- | --- |
+| 使用者 → Controller | 443（經反向代理）或 8080 | Web UI、REST API、Webhook、WebSocket agent |
+| Inbound TCP agent → Controller | 50000（可自訂） | 只有使用 TCP inbound agent 才需要；改用 WebSocket 即可關閉 |
+| Controller → SSH agent | 22 | SSH Build Agents |
+| Controller → 外部 | 443 | update center（`updates.jenkins.io`）、SCM、artifact 儲存庫；封閉網路見 3.9 |
+
+### 3.2 快速體驗：WAR 檔
+
+適合在個人電腦上學習或驗證 plugin，**不適合正式環境**。
+
+```powershell
+# Windows：確認 Java 版本（必須是 21 或 25）
+java -version
+
+# 下載指定的 LTS 版本（建議固定版本號，不要用 latest）
+New-Item -ItemType Directory -Force -Path C:\Jenkins | Out-Null
+Invoke-WebRequest -Uri "https://get.jenkins.io/war-stable/2.580.1/jenkins.war" -OutFile "C:\Jenkins\jenkins.war"
+
+# 指定 JENKINS_HOME 後啟動
+$env:JENKINS_HOME = "C:\Jenkins\home"
+java -Xmx2g -jar C:\Jenkins\jenkins.war --httpPort=8080
+
+# 另開視窗讀取初始管理員密碼
+Get-Content "$env:JENKINS_HOME\secrets\initialAdminPassword"
 ```
-功能：Git 版本控制整合
-安裝方式：Manage Jenkins → Manage Plugins → Available → 搜尋 "Git"
-設定位置：Manage Jenkins → Global Tool Configuration → Git
-```
-
-2. **Maven Integration Plugin**
-```
-功能：Maven 專案建置支援
-相依插件：Maven Invoker Plugin
-設定項目：
-- Maven installations
-- MAVEN_OPTS 設定
-- Local repository 路徑
-```
-
-3. **JUnit Plugin**
-```
-功能：測試結果報告和視覺化
-支援格式：JUnit XML, TestNG XML
-配置選項：
-- Test result archiving
-- Failure notification
-- Trend analysis
-```
-
-**進階功能插件：**
-
-4. **Pipeline Plugin Suite**
-```bash
-# Pipeline 相關插件組合
-Pipeline: Groovy
-Pipeline: Stage View  
-Pipeline: Build Step
-Pipeline: Input Step
-Pipeline: Milestone Step
-```
-
-5. **Blue Ocean**
-```
-功能：現代化 Pipeline 視覺化介面
-特色：
-- 直觀的 Pipeline 編輯器
-- 美觀的執行視圖
-- 分支探索功能
-```
-
-#### 4.4 實務插件安裝腳本
-
-**自動化插件安裝：**
-
-```groovy
-// install-plugins.groovy
-// 放置於 $JENKINS_HOME/init.groovy.d/ 目錄下
-
-import jenkins.model.*
-import hudson.model.*
-import hudson.PluginWrapper
-import hudson.PluginManager
-
-def jenkins = Jenkins.getInstance()
-def pm = jenkins.getPluginManager()
-def uc = jenkins.getUpdateCenter()
-
-// 定義必要插件列表
-def plugins = [
-    'git',
-    'maven-plugin', 
-    'junit',
-    'jacoco',
-    'checkstyle',
-    'workflow-aggregator',  // Pipeline suite
-    'blueocean',
-    'build-timeout',
-    'timestamper',
-    'ws-cleanup',
-    'ant',
-    'gradle',
-    'email-ext',
-    'slack',
-    'credentials-binding'
-]
-
-// 檢查並安裝插件
-def needRestart = false
-plugins.each { pluginName ->
-    if (!pm.getPlugin(pluginName)) {
-        println "安裝插件: ${pluginName}"
-        def deployment = uc.getPlugin(pluginName).deploy()
-        deployment.get()
-        needRestart = true
-    } else {
-        println "插件已安裝: ${pluginName}"
-    }
-}
-
-// 如果有新插件安裝，重啟 Jenkins
-if (needRestart) {
-    println "重啟 Jenkins 以啟用新插件..."
-    jenkins.restart()
-}
-```
-
-**批量插件管理腳本：**
 
 ```bash
-#!/bin/bash
-# install-jenkins-plugins.sh
-
-JENKINS_URL="http://localhost:8080"
-JENKINS_USER="admin"
-JENKINS_TOKEN="your-api-token"
-
-# 核心插件列表
-PLUGINS=(
-    "git"
-    "maven-plugin"
-    "junit"
-    "jacoco"
-    "workflow-aggregator"
-    "blueocean"
-    "email-ext"
-    "slack"
-    "credentials-binding"
-    "build-timeout"
-    "timestamper"
-    "ws-cleanup"
-)
-
-# 安裝插件函數
-install_plugin() {
-    local plugin_name=$1
-    echo "安裝插件: $plugin_name"
-    
-    curl -X POST "${JENKINS_URL}/pluginManager/installNecessaryPlugins" \
-         --user "${JENKINS_USER}:${JENKINS_TOKEN}" \
-         --data-urlencode "plugin.${plugin_name}.default=on"
-}
-
-# 批量安裝
-for plugin in "${PLUGINS[@]}"; do
-    install_plugin "$plugin"
-done
-
-echo "插件安裝完成，請重啟 Jenkins"
+# Linux／macOS
+java -version
+curl -fLO https://get.jenkins.io/war-stable/2.580.1/jenkins.war
+export JENKINS_HOME="$HOME/jenkins-home"
+java -Xmx2g -jar jenkins.war --httpPort=8080
+cat "$JENKINS_HOME/secrets/initialAdminPassword"
 ```
 
-#### 4.5 全域工具設定
+> 📌 v1.0 在 PowerShell 中使用 `C:\Users\%USERNAME%\...`（`%USERNAME%` 是 cmd.exe 語法，PowerShell 不會展開）與 bash 的 `\` 續行，兩者在 PowerShell 都無法執行，v2.0 已更正。
 
-**Java JDK 設定：**
+<!-- markdownlint-disable-next-line MD028 -->
+> 💡 下載後可以用 `https://get.jenkins.io/war-stable/2.580.1/jenkins.war.sha256` 比對 SHA-256 雜湊值（PowerShell：`Get-FileHash C:\Jenkins\jenkins.war -Algorithm SHA256`）。
 
-```groovy
-// 透過 Script Console 設定 JDK
-import hudson.model.*
-import hudson.tools.*
-import hudson.util.DescribableList
-import jenkins.model.*
+### 3.3 Linux 套件安裝（systemd）
 
-def jenkins = Jenkins.getInstance()
-def jdkDesc = jenkins.getDescriptor("hudson.model.JDK")
-
-// 新增 JDK 17 設定
-def jdkList = [
-    new JDK("JDK-17", "/usr/lib/jvm/java-17-openjdk"),
-    new JDK("JDK-11", "/usr/lib/jvm/java-11-openjdk"),
-    new JDK("JDK-8", "/usr/lib/jvm/java-8-openjdk")
-]
-
-jdkDesc.setInstallations(jdkList as JDK[])
-jenkins.save()
-```
-
-**Maven 設定：**
-
-```groovy
-// Maven 全域設定
-import hudson.tasks.Maven
-import hudson.tools.*
-
-def mavenDesc = jenkins.getDescriptor("hudson.tasks.Maven\$MavenInstallation")
-def mavenInstallations = [
-    new Maven.MavenInstallation("Maven-3.9", "/opt/maven", []),
-    new Maven.MavenInstallation("Maven-3.8", "/opt/maven-3.8", [])
-]
-
-mavenDesc.setInstallations(mavenInstallations as Maven.MavenInstallation[])
-jenkins.save()
-```
-
-**Git 設定：**
-
-```groovy
-// Git 全域設定
-import hudson.plugins.git.*
-import hudson.tools.*
-
-def gitDesc = jenkins.getDescriptor("hudson.plugins.git.GitTool")
-def gitInstallations = [
-    new GitTool("Default", "/usr/bin/git", [])
-]
-
-gitDesc.setInstallations(gitInstallations as GitTool[])
-
-// 設定全域 Git 配置
-def gitSCM = jenkins.getDescriptor("hudson.plugins.git.GitSCM")
-gitSCM.setGlobalConfigName("Jenkins CI")
-gitSCM.setGlobalConfigEmail("jenkins@company.com")
-gitSCM.setCreateAccountBasedOnEmail(false)
-
-jenkins.save()
-```
-
-### 📊 插件效能與監控
-
-#### 4.6 插件效能優化
-
-**記憶體使用監控：**
-
-```groovy
-// 插件記憶體使用分析
-import hudson.PluginManager
-import hudson.PluginWrapper
-import jenkins.model.Jenkins
-
-def jenkins = Jenkins.getInstance()
-def pm = jenkins.getPluginManager()
-
-println "插件記憶體使用統計："
-println "=" * 50
-
-pm.getPlugins().sort { it.shortName }.each { plugin ->
-    def wrapper = plugin as PluginWrapper
-    def classLoader = wrapper.classLoader
-    
-    // 估算類別載入數量
-    def loadedClasses = classLoader.getLoadedClasses()?.size() ?: 0
-    
-    println sprintf("%-30s | 狀態: %-8s | 類別: %4d", 
-                   wrapper.shortName,
-                   wrapper.isEnabled() ? "啟用" : "停用",
-                   loadedClasses)
-}
-
-// 系統記憶體統計
-def runtime = Runtime.getRuntime()
-println "\n系統記憶體統計："
-println "總記憶體: ${runtime.totalMemory() / 1024 / 1024} MB"
-println "已用記憶體: ${(runtime.totalMemory() - runtime.freeMemory()) / 1024 / 1024} MB"
-println "可用記憶體: ${runtime.freeMemory() / 1024 / 1024} MB"
-```
-
-**插件相依性檢查：**
-
-```groovy
-// 檢查插件相依性衝突
-import hudson.PluginWrapper
-import jenkins.model.Jenkins
-
-def jenkins = Jenkins.getInstance()
-def pm = jenkins.getPluginManager()
-
-println "插件相依性分析："
-println "=" * 60
-
-pm.getPlugins().each { plugin ->
-    def wrapper = plugin as PluginWrapper
-    def dependencies = wrapper.getDependencies()
-    
-    if (dependencies.size() > 0) {
-        println "\n插件: ${wrapper.shortName} (${wrapper.version})"
-        dependencies.each { dep ->
-            def depPlugin = pm.getPlugin(dep.shortName)
-            def status = depPlugin?.isEnabled() ? "✓" : "✗"
-            println "  ${status} ${dep.shortName} (需要: ${dep.version})"
-        }
-    }
-}
-```
-
-#### 4.7 插件更新管理策略
-
-**安全更新檢查：**
+**Debian／Ubuntu**（2.541.1 起使用新的 `jenkins.io-2026.key`）：
 
 ```bash
-#!/bin/bash
-# check-plugin-updates.sh
+sudo apt update
+sudo apt install -y fontconfig openjdk-21-jre
 
-JENKINS_HOME="/var/jenkins_home"
-PLUGIN_DIR="${JENKINS_HOME}/plugins"
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
 
-echo "檢查插件安全更新..."
-
-# 檢查有安全修復的插件
-curl -s "https://updates.jenkins.io/current/update-center.json" | \
-    jq -r '.plugins | to_entries[] | select(.value.buildDate > "2024-01-01") | 
-           "\(.key): \(.value.version) (安全修復: \(.value.securityWarnings // [] | length))"'
-
-# 檢查本地安裝的插件版本
-echo -e "\n本地插件版本："
-for plugin in ${PLUGIN_DIR}/*.jpi; do
-    plugin_name=$(basename "$plugin" .jpi)
-    if [ -f "${PLUGIN_DIR}/${plugin_name}/META-INF/MANIFEST.MF" ]; then
-        version=$(grep "Plugin-Version" "${PLUGIN_DIR}/${plugin_name}/META-INF/MANIFEST.MF" | cut -d' ' -f2)
-        echo "${plugin_name}: ${version}"
-    fi
-done
+sudo apt update
+sudo apt install -y jenkins
 ```
 
-### 💡 實務案例
-
-#### 案例：Java 開發團隊插件配置
-
-**情境**：為 Java Spring Boot 專案配置完整的 CI/CD 插件環境
-
-**解決方案：**
-
-1. **核心開發插件組合**
-```yaml
-# jenkins-plugins.yml
-core_plugins:
-  version_control:
-    - git
-    - github
-    - github-branch-source
-  
-  build_tools:
-    - maven-plugin
-    - gradle
-    - ant
-  
-  testing_quality:
-    - junit
-    - jacoco
-    - checkstyle
-    - spotbugs
-    - sonar
-  
-  pipeline:
-    - workflow-aggregator
-    - pipeline-stage-view
-    - blue-ocean
-  
-  deployment:
-    - ssh-slaves
-    - publish-over-ssh
-    - docker-plugin
-  
-  notification:
-    - email-ext
-    - slack
-    - teams
-  
-  utilities:
-    - build-timeout
-    - timestamper
-    - ws-cleanup
-    - credentials-binding
-```
-
-2. **環境配置腳本**
-```groovy
-// setup-java-environment.groovy
-import jenkins.model.*
-import hudson.model.*
-import hudson.tools.*
-
-def jenkins = Jenkins.getInstance()
-
-// 1. 配置 JDK
-def jdkDesc = jenkins.getDescriptor("hudson.model.JDK")
-def jdkInstallations = [
-    new JDK("JDK-17", System.getenv("JAVA_HOME") ?: "/usr/lib/jvm/java-17-openjdk"),
-    new JDK("JDK-11", "/usr/lib/jvm/java-11-openjdk")
-]
-jdkDesc.setInstallations(jdkInstallations as JDK[])
-
-// 2. 配置 Maven
-def mavenDesc = jenkins.getDescriptor("hudson.tasks.Maven\$MavenInstallation")
-def mavenInstallations = [
-    new Maven.MavenInstallation("Maven-3.9", "/opt/maven", [])
-]
-mavenDesc.setInstallations(mavenInstallations as Maven.MavenInstallation[])
-
-// 3. 配置 Git
-def gitDesc = jenkins.getDescriptor("hudson.plugins.git.GitTool")
-def gitInstallations = [
-    new GitTool("Default", "/usr/bin/git", [])
-]
-gitDesc.setInstallations(gitInstallations as GitTool[])
-
-// 4. 設定全域屬性
-def globalProps = jenkins.getGlobalNodeProperties()
-def envVars = new hudson.slaves.EnvironmentVariablesNodeProperty([
-    "MAVEN_OPTS": "-Xmx2g -XX:+UseG1GC",
-    "JAVA_TOOL_OPTIONS": "-Dfile.encoding=UTF-8"
-])
-globalProps.replaceBy([envVars])
-
-jenkins.save()
-println "Java 開發環境配置完成！"
-```
-
-### ⚠️ 注意事項
-
-1. **插件安全性**：
-   - 定期檢查安全通報
-   - 避免安裝來源不明的插件
-   - 建立插件白名單制度
-
-2. **版本相容性**：
-   - 測試環境先行更新
-   - 檢查插件相依性
-   - 保留版本回滾機制
-
-3. **效能影響**：
-   - 監控插件對系統效能的影響
-   - 避免安裝過多非必要插件
-   - 定期清理未使用的插件
-
-4. **備份策略**：
-   - 備份插件配置
-   - 記錄插件版本清單
-   - 建立災難恢復計劃
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| Plugin 管理 | 安裝、更新、相依性管理 |
-| 工具配置 | JDK、Maven、Git 設定 |
-| 系統最佳化 | 效能監控、記憶體管理 |
-
-### 📝 練習作業
-
-1. **基礎練習**：安裝 Java 開發必備的 10 個核心插件
-2. **進階練習**：建立自動化插件管理腳本
-3. **實務練習**：設計企業級插件管理策略和標準
-
----
-
-## 第5章 Freestyle Project 入門
-
-### 🎯 學習目標
-- 掌握 Freestyle Project 的建立和配置
-- 了解各種建置步驟的設定方法
-- 學會設定觸發條件和後置動作
-- 建立第一個 Java 專案的自動化建置
-
-### 📚 核心概念
-
-#### 5.1 Freestyle Project 概述
-
-Freestyle Project 是 Jenkins 中最基本的 Job 類型，提供圖形化介面來配置建置流程。雖然功能不如 Pipeline 強大，但學習曲線平緩，適合初學者理解 CI/CD 基本概念。
-
-```mermaid
-graph TD
-    A[Freestyle Project] --> B[General Settings]
-    A --> C[Source Code Management]
-    A --> D[Build Triggers]
-    A --> E[Build Environment]
-    A --> F[Build Steps]
-    A --> G[Post-build Actions]
-    
-    B --> H[Project Name]
-    B --> I[Description]
-    B --> J[Discard Old Builds]
-    
-    C --> K[Git/SVN]
-    C --> L[Branch Selection]
-    C --> M[Credentials]
-    
-    D --> N[Build Periodically]
-    D --> O[Poll SCM]
-    D --> P[GitHub Hook]
-    
-    F --> Q[Execute Shell]
-    F --> R[Invoke Maven]
-    F --> S[Windows Batch]
-    
-    G --> T[Archive Artifacts]
-    G --> U[Publish Test Results]
-    G --> V[Email Notification]
-```
-
-#### 5.2 配置區域詳解
-
-**基本設定區域 (General)：**
-
-| 設定項目 | 說明 | 建議值 |
-|----------|------|--------|
-| **Project Name** | 專案識別名稱 | 使用有意義的命名規則 |
-| **Description** | 專案描述 | 包含專案目的和負責人 |
-| **Discard Old Builds** | 建置保留策略 | 保留最近 20 次建置 |
-| **Restrict Node** | 限制執行節點 | 根據環境需求選擇 |
-| **Disable Project** | 暫時停用專案 | 維護期間使用 |
-
-**進階設定選項：**
-
-```groovy
-// 透過 Script Console 批量設定專案屬性
-import jenkins.model.*
-import hudson.model.*
-
-def jenkins = Jenkins.getInstance()
-
-// 設定建置保留策略
-jenkins.getAllItems(Job.class).each { job ->
-    if (job.name.startsWith("java-")) {
-        job.buildDiscarder = new hudson.tasks.LogRotator(
-            -1,    // daysToKeep: -1 表示不限制天數
-            20,    // numToKeep: 保留最近 20 次建置
-            -1,    // artifactDaysToKeep
-            5      // artifactNumToKeep: 保留 5 次建置的產物
-        )
-        job.save()
-        println "已更新 ${job.name} 的建置保留策略"
-    }
-}
-```
-
-### 🛠️ 實務配置步驟
-
-#### 5.3 建立第一個 Java 專案
-
-**步驟 1：建立新的 Freestyle Project**
+**RHEL／Rocky／AlmaLinux／Fedora／openSUSE**（2.541.1 起統一使用 `rpm-stable` 套件庫）：
 
 ```bash
-專案建立流程：
-1. 點選「New Item」
-2. 輸入專案名稱：java-tutorial-build
-3. 選擇「Freestyle project」
-4. 點選「OK」
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+  https://pkg.jenkins.io/rpm-stable/jenkins.repo
+sudo dnf upgrade -y
+sudo dnf install -y fontconfig java-21-openjdk
+sudo dnf install -y jenkins
+sudo systemctl daemon-reload
+sudo systemctl enable --now jenkins
 ```
 
-**步驟 2：基本資訊設定**
+> ⚠️ 升級到 2.541.1 以上時，套件管理工具會要求接受新的 GPG key。舊的 `redhat-stable`／`opensuse-stable` 會自動轉向 `rpm-stable`；如需降版到 2.541.1 以前，要改用 `redhat-stable-legacy` 套件庫。
+
+**以 systemd drop-in 調整設定**：主要的 unit 檔是唯讀的，所有自訂都放在 `override.conf`。
+
+```bash
+sudo systemctl edit jenkins
+```
+
+```ini
+[Service]
+Environment="JAVA_HOME=/usr/lib/jvm/java-21-openjdk"
+Environment="JAVA_OPTS=-Djava.awt.headless=true -Xms4g -Xmx4g -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+AlwaysPreTouch -Duser.timezone=Asia/Taipei"
+Environment="JENKINS_PORT=8080"
+Environment="JENKINS_LISTEN_ADDRESS=127.0.0.1"
+Environment="CASC_JENKINS_CONFIG=/var/lib/jenkins/casc/"
+# 大型實例啟動較慢時延長逾時
+TimeoutStartSec=900
+```
+
+```bash
+sudo chmod 0600 /etc/systemd/system/jenkins.service.d/override.conf
+sudo systemctl restart jenkins
+sudo systemctl status jenkins
+journalctl -u jenkins -f
+```
+
+> 💡 `JENKINS_LISTEN_ADDRESS=127.0.0.1` 讓 Jenkins 只接受本機連線，再由同一台主機上的反向代理對外提供 HTTPS（3.8）。
+
+### 3.4 Windows 安裝（MSI）
+
+Windows 的 controller 使用 MSI 安裝程式安裝為 Windows 服務。2.504.1 起已移除「從 Jenkins UI 安裝為服務」的功能，只能使用 MSI。
+
+1. 先安裝 Java 21（例如 Eclipse Temurin 21 MSI）
+2. 從 [jenkins.io/download](https://www.jenkins.io/download/) 下載 LTS 的 Windows 安裝程式
+3. **服務帳號**：選擇專用的本機或網域帳號（需具備「以服務方式登入（Log on as a service）」權限），**不要使用 LocalSystem**。LocalSystem 等同 Windows 的 root，一旦 Jenkins 或 plugin 被入侵，影響範圍是整台主機
+4. 指定連接埠與 Java 目錄，完成安裝
+
+**無人值守安裝**（適合以 Ansible、SCCM、Intune 大量部署）：
+
+```powershell
+# 先建立服務帳號並授予 Log on as a service 權限（略）
+$svcPassword = Read-Host -AsSecureString "服務帳號密碼"
+$plain = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($svcPassword))
+
+msiexec.exe /i "C:\Install\jenkins.msi" /qn /norestart `
+  INSTALLDIR="D:\Jenkins" `
+  JAVA_HOME="<JDK 21 安裝目錄，例如 C:\Program Files\Eclipse Adoptium\jdk-21.x.x-hotspot>" `
+  PORT=8080 `
+  SERVICE_USERNAME="CORP\svc-jenkins" `
+  SERVICE_PASSWORD="$plain" `
+  /L*v "C:\Install\jenkins-install.log"
+```
+
+**服務管理**：
+
+```powershell
+Get-Service Jenkins
+Restart-Service Jenkins
+
+# 查看實際的 JENKINS_HOME 與 JVM 參數（設定在安裝目錄的 jenkins.xml）
+Select-String -Path "D:\Jenkins\jenkins.xml" -Pattern "JENKINS_HOME|<arguments>"
+```
+
+MSI 安裝程式（`jenkinsci/packaging` 的 `msi/build/jenkins.wxs`）寫入 `jenkins.xml` 的預設值如下：
+
+| 設定 | 預設值 |
+| --- | --- |
+| `JENKINS_HOME`（`<env>`） | 服務帳號的 `%LocalAppData%\Jenkins\.jenkins`；以 LocalSystem 執行時為 `%ProgramData%\Jenkins\.jenkins` |
+| `<executable>` | 安裝時選擇的 `<JAVA_HOME>\bin\java.exe` |
+| `<arguments>` | `-Xrs -Xmx256m -Dhudson.lifecycle=hudson.lifecycle.WindowsServiceLifecycle -jar "<安裝目錄>\jenkins.war" --httpPort=<PORT> --webroot="<JENKINS_ROOT>war"` |
+
+⚠️ 預設 heap 只有 **256 MB**，正式使用前一定要調高。編輯 `jenkins.xml` 的 `<arguments>`（先備份原檔），只修改 JVM 參數，其餘保持不變：
+
+```xml
+<arguments>-Xrs -Xms4g -Xmx4g -XX:+UseG1GC -Dhudson.lifecycle=hudson.lifecycle.WindowsServiceLifecycle -jar "D:\Jenkins\jenkins.war" --httpPort=8080 --webroot="C:\Users\svc-jenkins\AppData\Local\Jenkins\war"</arguments>
+```
+
+修改後執行 `Restart-Service Jenkins`。v1.0 把這段 XML 放在 PowerShell 區塊中，直接執行會出錯，v2.0 已分開。
+
+> 📌 容器化的 Windows controller 只提供 Windows Server Core 2022／2025 映像（2019 已於 2.568.1 停止提供）。Windows 建置通常以 **Windows agent** 處理即可，controller 建議放在 Linux。
+
+### 3.5 Docker／Podman 容器部署
+
+✅ 正式的容器部署原則：
+
+- 固定映像版本（`jenkins/jenkins:2.580.1-lts-jdk21`），不要使用 `latest` 或 `lts`
+- `JENKINS_HOME` 使用具名 volume 或持久化磁碟
+- **不要把 `/var/run/docker.sock` 掛進 controller**：任何能在 controller 執行程式碼的人（包括有 Script Console 或建置權限者）都能藉此取得主機 root 權限。建置容器映像改在 agent 上進行（第 15 章）
+- controller 的 executor 設為 0，建置交給 agent
+
+**以 Dockerfile 預先安裝 plugin**：
+
+```dockerfile
+FROM jenkins/jenkins:2.580.1-lts-jdk21
+
+# 關閉 setup wizard，改由 JCasC 完成初始設定
+ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
+ENV CASC_JENKINS_CONFIG=/var/jenkins_home/casc/jenkins.yaml
+
+COPY --chown=jenkins:jenkins plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
+
+COPY --chown=jenkins:jenkins casc/ /usr/share/jenkins/ref/casc/
+```
+
+`plugins.txt` 的寫法見 [5.3 以 plugins.txt 與 Plugin Installation Manager Tool 管理](#53-以-pluginstxt-與-plugin-installation-manager-tool-管理)，JCasC 見第 18 章。
+
+**Compose 範例：controller＋WebSocket inbound agent**（Docker Compose v2 與 `podman compose` 皆可使用，不需要 `version:` 欄位）：
 
 ```yaml
-# 專案基本設定
-project_name: "java-tutorial-build"
-description: |
-  Java Tutorial 專案自動化建置
-  - 編譯 Java 原始碼
-  - 執行單元測試
-  - 生成測試報告
-  
-build_retention:
-  days_to_keep: -1
-  num_to_keep: 20
-  artifact_days_to_keep: -1  
-  artifact_num_to_keep: 5
+name: jenkins
 
-restrictions:
-  node_label: ""  # 空白表示可在任何節點執行
-  concurrent_builds: false  # 不允許並行建置
+services:
+  controller:
+    build: .
+    image: registry.example.internal/platform/jenkins-controller:2.580.1-1
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"   # 只對本機開放，由反向代理對外
+    environment:
+      JAVA_OPTS: >-
+        -Djenkins.install.runSetupWizard=false
+        -Xms2g -Xmx2g -XX:+UseG1GC
+        -Duser.timezone=Asia/Taipei
+    # JCasC 會把 /run/secrets/<名稱> 的內容代入 ${<名稱>}，例如 ${jenkins_admin_password}
+    secrets:
+      - jenkins_admin_password
+    volumes:
+      - jenkins_home:/var/jenkins_home
+
+  agent-1:
+    image: jenkins/inbound-agent:3391.va_37fa_a_305d6d-3-jdk21
+    restart: unless-stopped
+    depends_on:
+      - controller
+    environment:
+      JENKINS_URL: http://controller:8080/
+      JENKINS_AGENT_NAME: agent-1
+      JENKINS_SECRET: "@/run/secrets/agent1_secret"   # agent.jar 的 -secret @檔案 語法
+      JENKINS_WEB_SOCKET: "true"
+      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+    secrets:
+      - agent1_secret
+    volumes:
+      - agent1_work:/home/jenkins/agent
+
+secrets:
+  jenkins_admin_password:
+    file: ./secrets/jenkins_admin_password
+  agent1_secret:
+    file: ./secrets/agent1_secret
+
+volumes:
+  jenkins_home:
+  agent1_work:
 ```
 
-**步驟 3：原始碼管理設定**
+> 💡 `agent-1` 需要先在 controller 建立同名的固定節點（JCasC 範例見 [18.2 JCasC 基礎](#182-jcasc-基礎)），再把節點頁面上的 secret 寫入 `./secrets/agent1_secret`。`JENKINS_URL`、`JENKINS_AGENT_NAME`、`JENKINS_SECRET`、`JENKINS_WEB_SOCKET`、`JENKINS_AGENT_WORKDIR` 都是 `jenkins/inbound-agent` 映像啟動腳本支援的環境變數；`JENKINS_SECRET` 以 `@` 開頭時，`agent.jar` 會從該檔案讀取 secret，避免 secret 出現在 `docker inspect` 結果中。
+
+**官方的 Docker-in-Docker 教學環境**：jenkins.io 的 Docker 安裝教學使用 `docker:dind`（`--privileged`）搭配自訂映像，**只適合學習用途**。正式環境請改用第 14、15 章的 Kubernetes agent 與無 daemon 映像建置。
+
+### 3.6 Kubernetes（Helm）部署
+
+官方 Helm chart `jenkins/jenkins`（5.9.64）預設就以 JCasC 設定 controller、以 Kubernetes plugin 動態建立 Pod agent、controller executor 為 0。
 
 ```bash
-# Git 設定範例
-Repository URL: https://github.com/your-org/java-tutorial.git
-Credentials: jenkins-github-token
-Branches to build: */master
-Repository browser: (auto)
-
-# 進階 Git 設定
-Additional Behaviours:
-- Clean before checkout: 是
-- Checkout to sub-directory: src
-- Polling ignores commits: 忽略特定路徑變更
+helm repo add jenkins https://charts.jenkins.io
+helm repo update
+helm upgrade --install jenkins jenkins/jenkins \
+  --namespace jenkins --create-namespace \
+  --version 5.9.64 \
+  -f values-prod.yaml
 ```
 
-**設定 Git 憑證：**
-
-```groovy
-// 建立 Git 憑證 (透過 Script Console)
-import com.cloudbees.plugins.credentials.*
-import com.cloudbees.plugins.credentials.domains.*
-import com.cloudbees.plugins.credentials.impl.*
-import hudson.util.Secret
-
-def domain = Domain.global()
-def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
-
-// 建立 GitHub Token 憑證
-def githubToken = new StringCredentialsImpl(
-    CredentialsScope.GLOBAL,
-    "github-token",
-    "GitHub API Token",
-    Secret.fromString("your-github-token")
-)
-
-store.addCredentials(domain, githubToken)
-println "GitHub 憑證建立完成"
-```
-
-#### 5.4 建置觸發設定
-
-**觸發方式比較：**
-
-| 觸發方式 | 使用時機 | 設定語法 | 優缺點 |
-|----------|----------|----------|--------|
-| **手動觸發** | 測試、緊急修正 | - | 完全可控，但需人工介入 |
-| **定時建置** | 夜間建置、報告生成 | `H 2 * * *` | 定時執行，但可能建置不必要版本 |
-| **SCM 輪詢** | 程式碼變更檢測 | `H/5 * * * *` | 及時檢測，但增加伺服器負載 |
-| **Webhook** | 即時觸發 | GitHub Hook | 最即時，但需要網路設定 |
-
-**Cron 語法詳解：**
-
-```bash
-# Jenkins Cron 語法 (分 時 日 月 週)
-# 使用 H 表示 Hash，避免同時啟動
-
-# 範例設定
-H 2 * * *        # 每日凌晨 2 點左右
-H H(0-7) * * *   # 每日 0-7 點間的隨機時間
-H/15 * * * *     # 每 15 分鐘
-H 8-17/2 * * 1-5 # 週一到週五，8-17 點間每 2 小時
-
-# 實際專案建議
-H 9,12,17 * * 1-5  # 工作日的 9 點、12 點、17 點
-```
-
-**SCM 輪詢最佳實務：**
-
-```bash
-# 推薦設定
-Poll SCM Schedule: H/10 * * * *  # 每 10 分鐘檢查一次
-
-# 進階設定：忽略特定檔案變更
-Included Regions:
-src/.*
-pom.xml
-
-Excluded Regions:
-README\.md
-docs/.*
-\.gitignore
-```
-
-#### 5.5 建置環境設定
-
-**環境變數配置：**
-
-```groovy
-// 常用環境變數設定
-def envVars = [
-    "JAVA_HOME": "/usr/lib/jvm/java-17-openjdk",
-    "MAVEN_HOME": "/opt/maven",
-    "MAVEN_OPTS": "-Xmx2g -XX:+UseG1GC",
-    "PATH": "\${MAVEN_HOME}/bin:\${JAVA_HOME}/bin:\${PATH}"
-]
-
-// 在 Job 設定中的環境變數區塊
-Environment Variables:
-JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8
-MAVEN_ARGS: -B -V -e
-BUILD_TIMESTAMP: ${BUILD_TIMESTAMP}
-```
-
-**超時設定：**
+`values-prod.yaml` 範例：
 
 ```yaml
-# 建置超時設定
-build_timeout:
+controller:
+  image:
+    tag: "2.580.1-lts-jdk21"     # 明確指定時，chart 不會再附加 tagLabel
+  numExecutors: 0
+  admin:
+    createSecret: false
+    existingSecret: jenkins-admin   # 事先以 kubectl 或 External Secrets Operator 建立
+    userKey: jenkins-admin-user
+    passwordKey: jenkins-admin-password
+  javaOpts: "-Xms4g -Xmx4g -XX:+UseG1GC -Duser.timezone=Asia/Taipei"
+  resources:
+    requests:
+      cpu: "2"
+      memory: "6Gi"
+    limits:
+      memory: "6Gi"
+  jenkinsUrl: https://jenkins.example.internal/
+  installPlugins:
+    - kubernetes:4557.ve746270f672f
+    - workflow-aggregator:608.v67378e9d3db_1
+    - git:5.10.1
+    - configuration-as-code:2131.vb_a_13ed96f755
+  installLatestPlugins: false        # 相依 plugin 安裝最低相容版本，避免意外升級
+  initializeOnce: true               # 只在第一次安裝時下載 plugin
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hostName: jenkins.example.internal
+    tls:
+      - secretName: jenkins-tls
+        hosts:
+          - jenkins.example.internal
+  JCasC:
+    configScripts:
+      welcome: |
+        jenkins:
+          systemMessage: "本 Jenkins 由 JCasC 管理，請勿在 UI 直接修改設定"
+
+persistence:
   enabled: true
-  timeout_minutes: 30
-  timeout_action: "abort"  # abort, fail,或 unstable
-  
-timeout_strategy:
-  - absolute_timeout: 30 分鐘
-  - no_activity_timeout: 10 分鐘  # 10 分鐘無輸出就中止
-  - elastic_timeout: 200%  # 根據歷史建置時間動態調整
+  storageClass: fast-ssd
+  size: 200Gi
+
+agent:
+  enabled: true
+  image:
+    repository: "jenkins/inbound-agent"
+    tag: "3391.va_37fa_a_305d6d-3-jdk21"
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      memory: "2Gi"
+
+networkPolicy:
+  enabled: true
 ```
 
-#### 5.6 建置步驟配置
+> ⚠️ Chart 的 `controller.replicas` 最大只能是 1。Jenkins controller 是單一實例應用程式，不能以增加副本達成高可用（見 [20.4 高可用與災難復原](#204-高可用與災難復原)）。
 
-**Maven 建置步驟：**
+<!-- markdownlint-disable-next-line MD028 -->
+> 💡 Jenkins Kubernetes Operator（`jenkinsci/kubernetes-operator`）仍在維護，但社群與官方文件以 Helm chart 為主要部署方式；新導入建議使用 Helm＋JCasC。
 
-```xml
-<!-- 建置步驟 1：編譯 -->
-Goals: clean compile
-Maven Version: Maven-3.9
-POM: pom.xml
-Properties:
-  maven.test.skip=true
-  java.awt.headless=true
+### 3.7 Setup Wizard 與初始安全設定
 
-<!-- 建置步驟 2：測試 -->  
-Goals: test
-Maven Version: Maven-3.9
-Properties:
-  maven.test.failure.ignore=true
-  junit.jupiter.execution.parallel.enabled=true
-```
+以 WAR、套件或 MSI 安裝時，第一次開啟 Jenkins 會進入 Setup Wizard：
 
-**Shell 腳本建置步驟：**
+1. **解鎖**：輸入 `JENKINS_HOME/secrets/initialAdminPassword` 的內容
+2. **安裝 plugin**：選擇「Install suggested plugins」。2.580.1 的建議清單包括 Folders、OWASP Markup Formatter、Build Timeout、Credentials Binding、Timestamper、Workspace Cleanup、Ant、Gradle、Pipeline、GitHub Branch Source、Pipeline: GitHub Groovy Libraries、Pipeline Graph View、Git、SSH Build Agents、Matrix Authorization Strategy、LDAP、Email Extension、Mailer、Dark Theme
+3. **建立第一個管理員帳號**：不要略過此步驟；略過時帳號會是 `admin`，密碼為初始密碼
+4. **設定 Jenkins URL**：填入使用者實際存取的 HTTPS 網址（例如 `https://jenkins.example.internal/`），Webhook、通知連結與 agent 連線都依賴此設定
 
-```bash
-#!/bin/bash
-# 建置步驟腳本範例
+**完成 wizard 後立即檢查的安全設定**（Manage Jenkins → Security）：
 
-set -e  # 遇到錯誤立即停止
+| 項目 | 建議值 |
+| --- | --- |
+| Security Realm | 企業環境改用 LDAP／Active Directory／OIDC／SAML（[17.2 驗證（Security Realm）](#172-驗證security-realm)） |
+| Authorization | Matrix-based 或 Role-based，**不要使用「Anyone can do anything」或「Legacy mode」** |
+| Built-in node executors | `0` |
+| Agent TCP port | 使用 WebSocket agent 時設為 Disable |
+| Markup Formatter | Safe HTML（OWASP Markup Formatter） |
+| CSRF Protection | 預設啟用，不要關閉 |
+| API token | 不允許建立 legacy token |
 
-echo "=== 開始建置 Java Tutorial 專案 ==="
-echo "建置編號: ${BUILD_NUMBER}"
-echo "建置時間: $(date)"
-echo "Git 版本: ${GIT_COMMIT:0:8}"
+> 📌 2.555.1 起 CSRF crumb 不再包含用戶端 IP；JCasC 若仍保留 `crumbIssuer.standard.excludeClientIPFromCrumb` 區段，Jenkins 會中止啟動（[18.3 JCasC 實務](#183-jcasc-實務)）。
 
-# 1. 環境檢查
-echo "=== 環境檢查 ==="
-java -version
-mvn -version
-echo "工作目錄: $(pwd)"
+### 3.8 反向代理與 TLS
 
-# 2. 清理舊檔案
-echo "=== 清理環境 ==="
-mvn clean
+正式環境應由反向代理（Nginx、Apache、HAProxy、Ingress）負責 TLS，Jenkins 只監聽本機或叢集內部位址。以下是 jenkins.io 官方 Nginx 範例的重點設定，已加上 HTTPS 與 WebSocket：
 
-# 3. 編譯專案
-echo "=== 編譯專案 ==="
-mvn compile -B -V
+```nginx
+upstream jenkins {
+  keepalive 32;
+  server 127.0.0.1:8080;
+}
 
-# 4. 執行測試
-echo "=== 執行測試 ==="
-mvn test -B \
-    -Dmaven.test.failure.ignore=true \
-    -Djunit.jupiter.execution.parallel.enabled=true \
-    -Djunit.jupiter.execution.parallel.mode.default=concurrent
+# WebSocket agent 與 HTTP keepalive 都需要
+map $http_upgrade $connection_upgrade {
+  default upgrade;
+  ''      '';
+}
 
-# 5. 檢查測試結果
-if [ -f target/surefire-reports/TEST-*.xml ]; then
-    echo "測試報告已生成"
-    find target/surefire-reports -name "*.xml" -exec basename {} \;
-else
-    echo "警告: 未找到測試報告"
-fi
+server {
+  listen 443 ssl;
+  http2 on;
+  server_name jenkins.example.internal;
 
-echo "=== 建置完成 ==="
-```
+  ssl_certificate     /etc/nginx/tls/jenkins.crt;
+  ssl_certificate_key /etc/nginx/tls/jenkins.key;
+  ssl_protocols       TLSv1.2 TLSv1.3;
 
-**Windows 批次腳本：**
+  ignore_invalid_headers off;
 
-```batch
-@echo off
-REM Windows 建置腳本
+  location / {
+    proxy_pass         http://jenkins;
+    proxy_redirect     default;
+    proxy_http_version 1.1;
 
-echo === 開始建置 Java Tutorial 專案 ===
-echo 建置編號: %BUILD_NUMBER%
-echo 建置時間: %DATE% %TIME%
+    proxy_set_header   Connection        $connection_upgrade;
+    proxy_set_header   Upgrade           $http_upgrade;
+    proxy_set_header   Host              $http_host;
+    proxy_set_header   X-Real-IP         $remote_addr;
+    proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header   X-Forwarded-Proto $scheme;
+    proxy_max_temp_file_size 0;
 
-REM 環境檢查
-echo === 環境檢查 ===
-java -version
-call mvn -version
+    client_max_body_size    100m;   # 依上傳的 artifact／plugin 大小調整
+    proxy_connect_timeout   90;
+    proxy_send_timeout      90;
+    proxy_read_timeout      90;
+    proxy_request_buffering off;    # HTTP 模式的 Jenkins CLI 需要
+  }
+}
 
-REM 清理並編譯
-echo === 清理並編譯 ===
-call mvn clean compile -B -V
-if %ERRORLEVEL% neq 0 (
-    echo 編譯失敗
-    exit /b 1
-)
-
-REM 執行測試
-echo === 執行測試 ===
-call mvn test -B -Dmaven.test.failure.ignore=true
-if %ERRORLEVEL% neq 0 (
-    echo 測試階段有問題，但繼續執行
-)
-
-echo === 建置完成 ===
-```
-
-### 📊 後置動作配置
-
-#### 5.7 測試結果發佈
-
-**JUnit 測試報告：**
-
-```yaml
-# JUnit 後置動作設定
-junit_reports:
-  test_results_xml: "target/surefire-reports/*.xml"
-  keep_long_stdio: true
-  test_data_publishers:
-    - claim_test_data_publisher
-    - attachment_publisher
-  
-options:
-  allow_empty_results: false
-  skip_publishing_checks: false
-  skip_marking_build_unstable: false
-```
-
-**測試趨勢圖表：**
-
-```groovy
-// 透過 Script Console 自訂測試報告
-import hudson.tasks.junit.*
-import hudson.model.*
-
-def job = Jenkins.instance.getItem("java-tutorial-build")
-def testResultAction = job.getLastBuild()?.getAction(TestResultAction.class)
-
-if (testResultAction) {
-    println "測試統計："
-    println "總測試數: ${testResultAction.totalCount}"
-    println "失敗測試: ${testResultAction.failCount}"
-    println "跳過測試: ${testResultAction.skipCount}"
-    println "成功率: ${((testResultAction.totalCount - testResultAction.failCount) * 100 / testResultAction.totalCount).round(2)}%"
+server {
+  listen 80;
+  server_name jenkins.example.internal;
+  return 301 https://$host$request_uri;
 }
 ```
 
-#### 5.8 產物保存
+設定完成後到 Manage Jenkins → System 確認 **Jenkins URL** 為 `https://jenkins.example.internal/`。若 Manage Jenkins 頁面出現「It appears that your reverse proxy set up is broken」警示，通常是 `X-Forwarded-Proto`、`Host` 標頭或 Jenkins URL 不一致。
 
-**Artifact 保存設定：**
+### 3.9 離線（封閉網路）安裝
 
-```yaml
-# 產物保存配置
-archive_artifacts:
-  files: |
-    target/*.jar
-    target/site/**/*
-    logs/*.log
-  excludes: |
-    target/*-sources.jar
-    target/*-javadoc.jar
-  fingerprint: true
-  only_if_successful: false
-  default_excludes: true
-  case_sensitive: true
-```
-
-**進階產物管理：**
-
-```groovy
-// 自動清理舊產物腳本
-import hudson.model.*
-import jenkins.model.*
-
-def maxBuildsToKeep = 10
-def job = Jenkins.instance.getItem("java-tutorial-build")
-
-job.builds.findAll { build ->
-    build.number <= (job.lastBuild.number - maxBuildsToKeep)
-}.each { build ->
-    println "清理建置 #${build.number} 的產物"
-    build.artifacts.each { artifact ->
-        artifact.file.delete()
-    }
-}
-```
-
-#### 5.9 通知設定
-
-**Email 通知配置：**
-
-```yaml
-# Email 擴展通知設定
-email_notification:
-  recipients:
-    - developer@company.com
-    - team-lead@company.com
-  
-  triggers:
-    - always: false
-    - failure: true
-    - recovery: true
-    - unstable: true
-    - first_failure: true
-    - fixed: true
-  
-  content:
-    subject: "Jenkins 建置通知: $PROJECT_NAME - $BUILD_STATUS"
-    body: |
-      專案: $PROJECT_NAME
-      建置編號: $BUILD_NUMBER
-      建置狀態: $BUILD_STATUS
-      建置時間: $BUILD_TIMESTAMP
-      Git 版本: $GIT_COMMIT
-      
-      變更摘要:
-      $CHANGES
-      
-      詳細資訊: $BUILD_URL
-      
-      Console 輸出: $BUILD_URL/console
-```
-
-### 💡 實務案例
-
-#### 案例：Java Spring Boot 專案建置
-
-**情境**：為 Spring Boot 專案建立完整的 Freestyle 建置流程
-
-**專案結構：**
-```
-java-spring-boot-app/
-├── src/
-│   ├── main/java/
-│   └── test/java/
-├── pom.xml
-├── Dockerfile
-└── README.md
-```
-
-**完整配置範例：**
-
-```yaml
-# Job 設定：spring-boot-build
-general:
-  name: "spring-boot-build"
-  description: "Spring Boot 應用程式自動化建置"
-  
-scm:
-  git:
-    url: "https://github.com/company/spring-boot-app.git"
-    branch: "*/develop"
-    credentials: "github-token"
-    
-triggers:
-  scm_polling: "H/5 * * * *"  # 每 5 分鐘檢查一次
-  
-build_environment:
-  timeout: 20  # 20 分鐘超時
-  delete_workspace: true
-  
-environment_variables:
-  SPRING_PROFILES_ACTIVE: "test"
-  MAVEN_OPTS: "-Xmx1g"
-  
-build_steps:
-  - maven:
-      goals: "clean compile"
-      properties:
-        maven.test.skip: true
-        
-  - maven:
-      goals: "test"
-      properties:
-        maven.test.failure.ignore: true
-        spring.profiles.active: test
-        
-  - maven:
-      goals: "package"
-      properties:
-        maven.test.skip: true
-        
-  - shell: |
-      echo "建置 Docker 映像檔"
-      docker build -t spring-boot-app:${BUILD_NUMBER} .
-      docker tag spring-boot-app:${BUILD_NUMBER} spring-boot-app:latest
-
-post_build:
-  archive_artifacts:
-    files: "target/*.jar,Dockerfile"
-    
-  junit:
-    results: "target/surefire-reports/*.xml"
-    
-  email:
-    recipients: "dev-team@company.com"
-    send_to_requester: true
-```
-
-**建置腳本完整版：**
+封閉網路無法連到 `updates.jenkins.io`，需要事先在可連網的建置機準備所有檔案：
 
 ```bash
-#!/bin/bash
-# spring-boot-build.sh
+# 在可連網的機器上：依 plugins.txt 下載 plugin 及其相依項目
+curl -fLO https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/2.15.0/jenkins-plugin-manager-2.15.0.jar
+curl -fLO https://get.jenkins.io/war-stable/2.580.1/jenkins.war
 
-set -e
-export LANG=en_US.UTF-8
+java -jar jenkins-plugin-manager-2.15.0.jar \
+  --war jenkins.war \
+  --plugin-file plugins.txt \
+  --plugin-download-directory ./plugins \
+  --verbose
 
-echo "=== Spring Boot 專案建置開始 ==="
-echo "建置編號: ${BUILD_NUMBER}"
-echo "Git 分支: ${GIT_BRANCH}"
-echo "Git 版本: ${GIT_COMMIT}"
-
-# 1. 環境準備
-echo "=== 環境準備 ==="
-java -version
-mvn --version
-docker --version
-
-# 設定 Maven 本地倉庫
-export MAVEN_CONFIG="${WORKSPACE}/.mvn"
-mkdir -p ${MAVEN_CONFIG}
-
-# 2. 原始碼分析
-echo "=== 原始碼分析 ==="
-echo "Java 檔案數量: $(find src/main/java -name "*.java" | wc -l)"
-echo "測試檔案數量: $(find src/test/java -name "*.java" | wc -l)"
-
-# 3. 依賴下載
-echo "=== 下載依賴 ==="
-mvn dependency:resolve -B -q
-
-# 4. 編譯
-echo "=== 編譯專案 ==="
-mvn clean compile -B -V \
-    -Dmaven.compiler.showWarnings=true \
-    -Dmaven.compiler.showDeprecation=true
-
-# 5. 單元測試
-echo "=== 執行單元測試 ==="
-mvn test -B \
-    -Dmaven.test.failure.ignore=true \
-    -Dspring.profiles.active=test \
-    -Djunit.jupiter.execution.parallel.enabled=true
-
-# 6. 程式碼覆蓋率
-if [ -f "pom.xml" ] && grep -q "jacoco" pom.xml; then
-    echo "=== 生成程式碼覆蓋率報告 ==="
-    mvn jacoco:report
-fi
-
-# 7. 打包
-echo "=== 打包應用程式 ==="
-mvn package -B -DskipTests=true
-
-# 8. Docker 映像檔
-if [ -f "Dockerfile" ]; then
-    echo "=== 建置 Docker 映像檔 ==="
-    APP_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-    docker build -t spring-boot-app:${APP_VERSION} .
-    docker tag spring-boot-app:${APP_VERSION} spring-boot-app:${BUILD_NUMBER}
-    
-    echo "Docker 映像檔建置完成:"
-    docker images | grep spring-boot-app
-fi
-
-# 9. 建置摘要
-echo "=== 建置摘要 ==="
-if [ -d "target" ]; then
-    echo "JAR 檔案:"
-    ls -la target/*.jar 2>/dev/null || echo "無 JAR 檔案"
-    
-    echo "建置產物大小:"
-    du -sh target/ 2>/dev/null || echo "無 target 目錄"
-fi
-
-echo "=== 建置完成 ==="
+# 封裝後經由核准的媒體或檔案交換區傳入封閉網路
+tar czf jenkins-2.580.1-offline.tgz jenkins.war plugins/ plugins.txt
+sha256sum jenkins-2.580.1-offline.tgz > jenkins-2.580.1-offline.tgz.sha256
 ```
 
-### ⚠️ 注意事項
+在封閉網路中，把 `plugins/*.jpi` 放到 `JENKINS_HOME/plugins/`（或打包進容器映像）後再啟動 Jenkins。
 
-1. **效能優化**：
-   - 適當設定建置保留策略
-   - 使用 Maven 本地倉庫快取
-   - 避免不必要的 clean 操作
+> ⚠️ 2.580.1 起，bouncycastle API、Instance Identity、SSH server、JavaMail API 等 9 個 detached plugin 不再打包於 `jenkins.war`。連網環境會自動下載；**離線環境必須把它們列入 `plugins.txt`**，否則依賴它們的 plugin 會無法載入。plugin-installation-manager-tool 會依 `--war` 指定的版本自動解析這些相依項目。
 
-2. **安全考量**：
-   - 敏感資訊使用憑證管理
-   - 限制 Job 執行權限
-   - 定期檢查腳本內容
+<!-- markdownlint-disable-next-line MD028 -->
+> 💡 大型封閉網路可以架設內部 update center 鏡像（例如以 Nexus／Artifactory 的 generic proxy 或 `jenkins-infra/update-center2` 產生的靜態站台），再到 Manage Jenkins → Plugins → Advanced settings 修改 Update Site URL。
 
-3. **維護性**：
-   - 使用有意義的命名規則
-   - 添加充分的註解和文件
-   - 建立標準化的建置模板
+### 3.10 本章重點
 
-4. **錯誤處理**：
-   - 適當的錯誤處理和重試機制
-   - 清楚的錯誤訊息
-   - 失敗時的清理動作
+- 正式環境使用 Linux 套件、容器映像或 Helm 部署固定版本的 LTS，並以 Java 21 執行
+- 不要掛載 `docker.sock`、不要在 controller 執行建置、不要使用 LocalSystem 執行 Windows 服務
+- 由反向代理負責 TLS 與 WebSocket，並正確設定 Jenkins URL
+- 離線環境要預先下載 plugin，2.580.1 起還要把 detached plugin 列入清單
 
-### 🔍 認證對應知識點
+## 4. 介面導覽與系統管理
 
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| Job 建立與配置 | Freestyle Project 設定、建置步驟 |
-| 原始碼管理 | Git 整合、分支策略、憑證管理 |
-| 建置觸發 | Cron 語法、SCM 輪詢、Webhook |
-| 後置動作 | 產物保存、測試報告、通知設定 |
+### 4.1 介面配置（2.516.1 起的新版標頭）
 
-### 📝 練習作業
+2.516.1 重新設計了頁首，v1.0 的截圖與「左側選單 → Manage Jenkins」說明已不適用：
 
-1. **基礎練習**：建立一個簡單的 Java Hello World 專案建置
-2. **進階練習**：設定包含測試報告和程式碼覆蓋率的完整建置
-3. **實務練習**：建立多環境部署的建置流程
+| 區域 | 位置 | 內容 |
+| --- | --- | --- |
+| 頁首左側 | 上方 | Jenkins 標誌與**麵包屑導覽**（Dashboard › Folder › Job › #建置編號），每一層都有下拉選單可直接跳到設定、建置紀錄等動作 |
+| 頁首右側 | 上方 | 搜尋（command palette，快捷鍵 `Ctrl`+`K`／`⌘`+`K`）、**Manage Jenkins（齒輪圖示）**、通知、使用者選單（個人設定、API token、登出）、More actions（Support Core 等 plugin 動作） |
+| 側邊欄 | 左側 | 目前頁面可執行的動作（New Item、Build Now、Configure、Pipeline Overview 等） |
+| 主內容 | 中央 | Job 清單（Dashboard）、建置狀態、Pipeline 流程圖 |
+| 建置執行狀態 | Dashboard 左下 | Build Queue 與各 agent 的 executor 狀態 |
 
----
+**Pipeline 視覺化**：2.580.1 的 setup wizard 建議安裝 **Pipeline Graph View**，在 Job 與建置頁面提供「Pipeline Overview」（stage 流程圖、每個 step 的記錄、平行分支）。舊的 Pipeline: Stage View 仍可安裝，但已不在建議清單中。Blue Ocean 雖仍有維護發行，但已多年沒有新功能，新導入不建議依賴。
 
-## 第6章 憑證與密碼管理
+> 💡 個人化設定（使用者選單 → Appearance）可切換 Dark Theme、調整主控台字型；2.528.1 起每位使用者也可以選擇自己的 Views Tab Bar 樣式。
 
-### 🎯 學習目標
-- 掌握 Jenkins 憑證管理系統
-- 了解不同類型憑證的使用場景
-- 學會安全地管理敏感資訊
-- 建立企業級憑證管理策略
+### 4.2 Manage Jenkins 功能分區
 
-### 📚 核心概念
+以下為 2.580.1 安裝本手冊建議 plugin 後的 Manage Jenkins 頁面（部分項目由 plugin 提供）：
 
-#### 6.1 憑證管理系統架構
+| 分區 | 項目 | 用途 | 管理建議 |
+| --- | --- | --- | --- |
+| System Configuration | System | Jenkins URL、系統訊息、全域屬性、各 plugin 全域設定 | 以 JCasC 管理 |
+| | Tools | JDK、Maven、Gradle、Git 等工具安裝設定 | 優先改用容器化 agent（9.1） |
+| | Plugins | 安裝、更新、停用 plugin，進階設定（proxy、update site） | 以 `plugins.txt` 管理（5.3） |
+| | Nodes | 固定 agent 管理、built-in node 設定 | executor 數 0 |
+| | Clouds | Kubernetes、EC2、Azure VM 等動態 agent 設定 | 以 JCasC 管理 |
+| | Configuration as Code | 檢視、重新載入、匯出 JCasC | 第 18 章 |
+| | Appearance | 主題、主控台顯示 | |
+| | Managed files | Config File Provider 管理的 `settings.xml`、`.npmrc` 等 | 9.2 |
+| | Lockable Resources | 共用資源（測試環境、硬體裝置）鎖定 | 11.5 |
+| Security | Security | 安全領域、授權策略、agent 連線、CSRF、API token、CSP | 第 17 章 |
+| | Credentials | 憑證管理 | 第 7 章 |
+| | Credential Providers | 啟用的憑證來源與類型 | 停用不需要的 provider |
+| | Users | 本機使用者（只有使用 Jenkins 自有使用者資料庫時） | 企業環境改用 SSO |
+| Status Information | System Information | 系統屬性、環境變數、plugin 清單、thread dump | 故障排除（第 23 章） |
+| | Logs | 系統記錄與自訂 log recorder | 23.1 |
+| | Load Statistics | 佇列長度與 executor 使用率 | 容量規劃 |
+| | About Jenkins | 版本與第三方授權 | |
+| Troubleshooting | Manage Old Data | plugin 移除後殘留的舊設定資料 | 升級後檢查 |
+| Tools and Actions | Reload Configuration from Disk | 從磁碟重新讀取所有設定 | ⚠️ 會中斷進行中的操作，以 JCasC reload 取代 |
+| | Jenkins CLI | 下載 `jenkins-cli.jar` 與指令說明 | 附錄 A |
+| | Script Console | 以管理員權限執行任意 Groovy | ⚠️ 見 4.5 |
+| | Prepare for Shutdown | 停止接受新建置，等待執行中的建置結束 | 維護前使用 |
 
-Jenkins 憑證管理提供了安全存儲和使用敏感資訊的機制，包括密碼、API 金鑰、SSH 金鑰、憑證檔案等。
+### 4.3 Views 與 Dashboard
+
+| View 類型 | 來源 | 用途 |
+| --- | --- | --- |
+| List View | Core | 依名稱、正規表示式或手動勾選列出 Job |
+| My View | Core | 顯示目前使用者有權限的 Job |
+| Folder | Folders plugin | ✅ **建議的主要組織方式**：可設定權限、憑證、Shared Library，取代大量 View |
+| Build Monitor View | Build Monitor plugin | 大型螢幕顯示建置狀態（團隊看板） |
+
+✅ 組織 Job 的建議做法：
+
+1. 以 **Folder** 依「事業單位／產品／團隊」分層，每個團隊在自己的 folder 內管理 Multibranch Pipeline
+2. 以 **Organization Folder** 自動對應 GitHub organization 或 GitLab group，新的 repository 自動出現
+3. View 只用於跨 folder 的看板需求（例如「所有正式環境部署 Job」），以正規表示式篩選並以 JCasC 定義
 
 ```mermaid
-graph TD
-    A[Credentials Plugin] --> B[Credential Stores]
-    B --> C[System Store]
-    B --> D[User Store]
-    B --> E[Folder Store]
-    
-    C --> F[Global Credentials]
-    D --> G[User-specific Credentials]
-    E --> H[Folder-level Credentials]
-    
-    subgraph "Credential Types"
-        I[Username/Password]
-        J[SSH Username/Private Key]
-        K[Secret Text/File]
-        L[Certificate]
-        M[Docker Registry]
-    end
-    
-    F --> I
-    F --> J
-    F --> K
-    G --> L
-    H --> M
+flowchart TD
+    Root[Dashboard] --> BU1[Folder：payments]
+    Root --> BU2[Folder：channels]
+    Root --> Ops[Folder：platform-ops]
+    BU1 --> T1[Organization Folder：payments-gitlab-group]
+    T1 --> R1[Multibranch：payment-api]
+    T1 --> R2[Multibranch：settlement-batch]
+    BU2 --> R3[Multibranch：mobile-bff]
+    Ops --> J1[Pipeline：nightly-backup-verify]
+    Ops --> J2[Pipeline：seed-job（Job DSL）]
 ```
 
-#### 6.2 憑證類型與使用場景
+### 4.4 系統設定要點
 
-| 憑證類型 | 使用場景 | 安全等級 | 範例 |
-|----------|----------|----------|------|
-| **Username/Password** | 資料庫連線、HTTP 認證 | 中等 | Git HTTPS、數據庫 |
-| **SSH Username/Private Key** | Git SSH、遠端伺服器 | 高 | GitHub SSH、部署伺服器 |
-| **Secret Text** | API Token、密碼 | 高 | GitHub Token、Slack Token |
-| **Secret File** | 設定檔、憑證檔 | 高 | SSL 憑證、設定檔 |
-| **Certificate** | SSL/TLS 憑證 | 最高 | HTTPS 客戶端憑證 |
+Manage Jenkins → System 中最常需要調整的設定（JCasC 鍵名見第 18 章）：
 
-#### 6.3 憑證作用域管理
+| 設定 | 建議值 | 說明 |
+| --- | --- | --- |
+| Jenkins URL | `https://jenkins.example.internal/` | 必須與使用者實際存取的網址一致 |
+| System Admin e-mail address | `jenkins-noreply@example.internal` | 通知信寄件者 |
+| System Message | 維運公告、變更凍結通知 | 支援 Safe HTML |
+| `# of executors`（built-in node） | `0` | 在 Nodes → Built-In Node 設定 |
+| Quiet period | `5` 秒 | 合併短時間內的多次觸發 |
+| SCM checkout retry count | `2` | 減少網路瞬斷造成的失敗 |
+| Global properties → Environment variables | 只放非機密的全域變數（例如內部 registry 位址） | 機密一律使用 Credentials |
+| Global Build Discarders | 依 Job 類型設定保留天數與筆數（19.6） | 避免磁碟耗盡 |
 
-```mermaid
-graph LR
-    A[Global] --> B[System-wide Access]
-    C[User] --> D[User-specific Access]
-    E[Project] --> F[Project-level Access]
-    
-    B --> G[All Jobs]
-    B --> H[All Users]
-    
-    D --> I[Personal Jobs Only]
-    
-    F --> J[Folder Jobs Only]
-    F --> K[Restricted Access]
-    
-    style A fill:#ff9999
-    style C fill:#99ff99
-    style E fill:#ffff99
-```
+> ⚠️ 不要在 Global properties 放置密碼或 token：這些值會以明文出現在系統設定、`config.xml` 與每次建置的環境變數中。
 
-### 🛠️ 憑證建立與管理
+### 4.5 Script Console 與管理介面的風險
 
-#### 6.4 建立 Git 存取憑證
+Script Console（Manage Jenkins → Script Console）可以用 controller 的權限執行任意 Groovy 程式碼，**等同於 controller 主機上的完整權限**，包括讀取 `secrets/` 並解密所有憑證。
 
-**GitHub Personal Access Token：**
+✅ 管理原則：
+
+- 只有少數平台管理員擁有 `Overall/Administer` 權限，並使用個人帳號（非共用帳號）登入，以 Audit Trail plugin 記錄操作（[17.10 稽核與集中記錄](#1710-稽核與集中記錄)）
+- 例行性的管理動作改用 **JCasC、Job DSL 或 REST API**，不要依賴 Script Console 腳本
+- 一定要使用 Script Console 時，先在預備環境測試，並把腳本保存在 Git 中審查
+
+以下為唯讀的查詢範例（不修改任何設定），可在 Script Console 執行：
 
 ```groovy
-// 透過 Script Console 建立 GitHub Token
-import com.cloudbees.plugins.credentials.*
-import com.cloudbees.plugins.credentials.domains.*
-import com.cloudbees.plugins.credentials.impl.*
-import hudson.util.Secret
 import jenkins.model.Jenkins
 
-def domain = Domain.global()
-def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
+def j = Jenkins.get()
+println "Jenkins 版本：${Jenkins.VERSION}"
+println "Java 版本：${System.getProperty('java.version')}（${System.getProperty('java.vendor')}）"
+println "Built-in node executors：${j.numExecutors}"
+println "Agent 數量：${j.nodes.size()}"
+def rt = Runtime.runtime
+println String.format('Heap：已使用 %,d MB／上限 %,d MB',
+        (rt.totalMemory() - rt.freeMemory()).intdiv(1024 * 1024),
+        rt.maxMemory().intdiv(1024 * 1024))
 
-// 建立 GitHub Personal Access Token
-def githubToken = new StringCredentialsImpl(
-    CredentialsScope.GLOBAL,
-    "github-pat",
-    "GitHub Personal Access Token",
-    Secret.fromString("ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-)
-
-store.addCredentials(domain, githubToken)
-println "GitHub Personal Access Token 建立完成"
+// 列出所有啟用中的 plugin 與版本（可轉成 plugins.txt）
+j.pluginManager.plugins
+    .findAll { it.isEnabled() }
+    .sort { it.shortName }
+    .each { println "${it.shortName}:${it.version}" }
 ```
 
-**SSH 金鑰憑證：**
+> 📌 v1.0 的「設定全域建置記錄保留策略」腳本會直接改寫所有 Job 並呼叫 `item.save()`，在 Multibranch 子 Job 上不會生效（會被下次掃描覆蓋），也無法追蹤變更。v2.0 改用 Global Build Discarders 與 Jenkinsfile 的 `buildDiscarder` 選項（[19.6 建置保留與磁碟管理](#196-建置保留與磁碟管理)）。
 
-```groovy
-// 建立 SSH 金鑰憑證
-import com.cloudbees.jenkins.plugins.sshcredentials.impl.*
-import com.cloudbees.plugins.credentials.*
-import com.cloudbees.plugins.credentials.domains.*
+### 4.6 本章重點
 
-def domain = Domain.global()
-def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
+- 2.516.1 起 Manage Jenkins 位於頁首右側齒輪圖示，Pipeline 視覺化改用 Pipeline Graph View
+- 以 Folder 與 Organization Folder 組織 Job，View 只用於跨團隊看板
+- 系統設定以 JCasC 管理；Global properties 不放機密
+- Script Console 等同主機完整權限，只限少數管理員使用並保留稽核紀錄
 
-// 從檔案讀取私鑰
-def privateKeyFile = new File("/home/jenkins/.ssh/id_rsa")
-def privateKey = privateKeyFile.text
+## 5. Plugin 管理
 
-def sshKey = new BasicSSHUserPrivateKey(
-    CredentialsScope.GLOBAL,
-    "github-ssh",
-    "jenkins",  // username
-    new BasicSSHUserPrivateKey.DirectEntryPrivateKeySource(privateKey),
-    "",  // passphrase
-    "GitHub SSH Key for Jenkins"
-)
+### 5.1 Plugin 架構與相依關係
 
-store.addCredentials(domain, sshKey)
-println "SSH 金鑰憑證建立完成"
+Plugin 以 `.jpi`（或 `.hpi`）檔案形式放在 `JENKINS_HOME/plugins/`，啟動時由 core 載入。每個 plugin 都宣告：
+
+- **最低 core 版本**（`Jenkins-Version`）：例如 Coverage 3.3394 需要 2.555.3 以上，Warnings NG 13.10294 需要 2.555.3 以上
+- **相依 plugin 與最低版本**：例如 `workflow-aggregator` 只是一個「聚合」plugin，本身沒有功能，會帶入約 20 個 Pipeline 相關 plugin
+- **Detached plugin**：原本屬於 core、後來拆分出來的功能（JUnit、Mailer、Matrix Authorization 等）。2.580.1 起這些 plugin 不再打包在 `jenkins.war` 中，由 update center 依需要下載
+
+```mermaid
+flowchart TD
+    WA[workflow-aggregator<br/>Pipeline] --> WJ[workflow-job]
+    WA --> WCPS[workflow-cps]
+    WA --> PMD[pipeline-model-definition<br/>Declarative]
+    WA --> PGL[pipeline-groovy-lib<br/>Shared Library]
+    WA --> WDS[workflow-durable-task-step<br/>sh／bat]
+    PMD --> CB[credentials-binding]
+    WCPS --> SS[script-security<br/>沙箱]
+    K8s[kubernetes] --> WDS
+    K8s --> KC[kubernetes-client-api]
+    GBS[github-branch-source] --> SCMAPI[scm-api]
+    GBS --> GIT[git]
 ```
 
-#### 6.5 資料庫連線憑證
+> ⚠️ 相依鏈中任何一個 plugin 有漏洞，都會影響整個 Jenkins。plugin 數量越少，攻擊面與升級風險越小。一般企業 controller 建議控制在 150 個以內（含相依項目）。
 
-**MySQL 資料庫憑證：**
+### 5.2 選擇 Plugin 的評估準則
 
-```groovy
-// 建立資料庫連線憑證
-import com.cloudbees.plugins.credentials.impl.*
-import hudson.util.Secret
+安裝任何 plugin 前，先在 [plugins.jenkins.io](https://plugins.jenkins.io/) 確認以下項目：
 
-def dbCredentials = new UsernamePasswordCredentialsImpl(
-    CredentialsScope.GLOBAL,
-    "mysql-db",
-    "MySQL Database Connection",
-    "app_user",  // username
-    "secure_password_123"  // password
-)
+| 準則 | 判斷方式 | 不建議安裝的訊號 |
+| --- | --- | --- |
+| 維護狀態 | 最近一次發行日期、GitHub 活動、是否標示「up for adoption」 | 超過 2 年沒有發行；標示需要新維護者 |
+| 安全公告 | plugin 頁面的 Security warnings 區塊 | 有「尚未修補」的公告 |
+| 棄用狀態 | update center 的 `deprecations` 清單 | 標示 deprecated |
+| Health score | plugin 頁面的健康分數（測試、相依項目更新、CI 狀態等） | 分數偏低 |
+| 安裝數 | plugin 頁面的安裝趨勢 | 安裝數極少且下降中 |
+| 替代方案 | 能否用 Pipeline step、`sh` 指令或既有 plugin 達成 | 只為單一小功能引入大量相依 |
 
-store.addCredentials(domain, dbCredentials)
-println "資料庫憑證建立完成"
+> 💡 很多需求不需要 plugin：呼叫 REST API 可以用 `sh 'curl ...'`；解析 JSON／YAML 可以用 Pipeline Utility Steps 的 `readJSON`／`readYaml`；發送 Teams／Slack 訊息也可以直接呼叫 webhook。
 
-// 安全連線字串範例
-def connectionString = "jdbc:mysql://db.company.com:3306/app_db"
-def secretConnectionString = new StringCredentialsImpl(
-    CredentialsScope.GLOBAL,
-    "mysql-connection-string",
-    "MySQL Connection String",
-    Secret.fromString(connectionString)
-)
+### 5.3 以 plugins.txt 與 Plugin Installation Manager Tool 管理
 
-store.addCredentials(domain, secretConnectionString)
+✅ **企業標準做法**：plugin 清單與版本放在 Git，以 [Plugin Installation Manager Tool](https://github.com/jenkinsci/plugin-installation-manager-tool)（2.15.0）安裝；容器映像中的 `jenkins-plugin-cli` 就是同一個工具。UI 上的「Install」只用於預備環境的評估。
+
+**本手冊的基準 `plugins.txt`**（2026-10-02 的 update center 版本，已以 2.580.1 解析相依並確認無安全警示）：
+
+```text
+configuration-as-code:2131.vb_a_13ed96f755
+job-dsl:3732.v9a_c49a_61a_313
+cloudbees-folder:6.1106.v3a_d9a_6d2465e
+workflow-aggregator:608.v67378e9d3db_1
+pipeline-graph-view:1041.v107d70db_b_1a_f
+pipeline-groovy-lib:806.v408277b_33d1d
+pipeline-utility-steps:3.810.va_7672d206740
+pipeline-milestone-step:152.v6e22b_8cfc66c
+lockable-resources:1560.va_b_cd589f23eb_
+timestamper:1.30
+ansicolor:542.v03d235fee02d
+build-timeout:1.41
+ws-cleanup:0.49
+git:5.10.1
+github-branch-source:1983.vfa_27ed961853
+gitlab-branch-source:744.vb_d0403d08ec7
+credentials-binding:728.v902a_273b_8947
+ssh-agent:433.v9e73d67c3f74
+hashicorp-vault-plugin:384.vda_86ec66c537
+kubernetes:4557.ve746270f672f
+docker-workflow:653.v2f2c08eff0ec
+junit:1431.vc0d98912a_756
+coverage:3.3394.v60e914558d29
+warnings-ng:13.10294.v3c81839da_a_e7
+sonar:2.19.0
+pipeline-maven:1760.v9a_a_e6dcb_0444
+config-file-provider:1013.v73c323e52b_1f
+matrix-auth:3.3
+role-strategy:918.v91e5468d8db_2
+oic-auth:4.718.ve731df6ca_88a_
+ldap:825.v2fca_37dd5b_cb_
+authorize-project:534.v2f208c45e11c
+audit-trail:456.v39d2fd1ed556
+prometheus:860.v532442b_44e9a_
+opentelemetry:3.1603.ve3fa_cc8a_b_f5e
+email-ext:2038.v7b_8817a_499d9
+mailer:534.v1b_36f5864073
+antisamy-markup-formatter:173.v680e3a_b_69ff3
+versioncolumn:400.v3c5c3004f31d
+support-core:1865.v45d40b_778b_cb_
 ```
 
-#### 6.6 API 金鑰管理
+各 plugin 的用途與替代說明見 [附錄 C：Plugin 建議清單](#附錄-cplugin-建議清單)。
 
-**第三方服務 API 金鑰：**
-
-```groovy
-// 批量建立 API 金鑰
-def apiKeys = [
-    "slack-webhook": "https://hooks.slack.com/services/YOUR_WORKSPACE/YOUR_CHANNEL/YOUR_TOKEN",
-    "sonarqube-token": "squ_YOUR_SONARQUBE_TOKEN_HERE",
-    "docker-hub-token": "dckr_pat_YOUR_DOCKER_HUB_TOKEN_HERE",
-    "aws-access-key": "YOUR_AWS_ACCESS_KEY_ID_HERE",
-    "azure-client-secret": "YOUR_AZURE_CLIENT_SECRET_HERE"
-]
-
-apiKeys.each { id, token ->
-    def apiCredential = new StringCredentialsImpl(
-        CredentialsScope.GLOBAL,
-        id,
-        "${id.replace('-', ' ').toUpperCase()} API Token",
-        Secret.fromString(token)
-    )
-    
-    store.addCredentials(domain, apiCredential)
-    println "已建立 ${id} API 憑證"
-}
-```
-
-#### 6.7 憑證檔案管理
-
-**SSL 憑證和設定檔：**
-
-```groovy
-// 建立憑證檔案
-import org.jenkinsci.plugins.plaincredentials.impl.*
-import hudson.util.Secret
-
-// SSL 憑證檔案
-def sslCertFile = new File("/etc/ssl/certs/app.company.com.pem")
-def sslCertCredential = new FileCredentialsImpl(
-    CredentialsScope.GLOBAL,
-    "ssl-cert-file",
-    "SSL Certificate File",
-    sslCertFile.name,
-    SecretBytes.fromBytes(sslCertFile.bytes)
-)
-
-// Kubernetes 設定檔
-def kubeConfigFile = new File("/home/jenkins/.kube/config")
-def kubeConfigCredential = new FileCredentialsImpl(
-    CredentialsScope.GLOBAL,
-    "kube-config",
-    "Kubernetes Config File",
-    "config",
-    SecretBytes.fromBytes(kubeConfigFile.bytes)
-)
-
-store.addCredentials(domain, sslCertCredential)
-store.addCredentials(domain, kubeConfigCredential)
-println "憑證檔案建立完成"
-```
-
-### 📊 憑證使用與整合
-
-#### 6.8 在 Freestyle Job 中使用憑證
-
-**環境變數注入：**
-
-```yaml
-# Freestyle Job 中的憑證使用
-build_environment:
-  bindings:
-    - credential_id: "github-pat"
-      variable: "GITHUB_TOKEN"
-    - credential_id: "mysql-db"
-      username_variable: "DB_USER"
-      password_variable: "DB_PASS"
-    - credential_id: "slack-webhook"
-      variable: "SLACK_URL"
-```
-
-**Shell 腳本中使用憑證：**
+**常用指令**：
 
 ```bash
-#!/bin/bash
-# 在建置腳本中使用憑證
+PIMT="java -jar jenkins-plugin-manager-2.15.0.jar --war jenkins.war"
 
-echo "=== 使用憑證進行 Git 操作 ==="
-# GitHub Token 已透過環境變數注入為 GITHUB_TOKEN
-git config --global credential.helper store
-echo "https://jenkins:${GITHUB_TOKEN}@github.com" > ~/.git-credentials
+# 1. 檢查清單能否解析、是否有安全警示（不下載）
+$PIMT -f plugins.txt --no-download --view-security-warnings
 
-echo "=== 使用資料庫憑證 ==="
-# 資料庫憑證已注入為 DB_USER 和 DB_PASS
-mysql -h db.company.com -u ${DB_USER} -p${DB_PASS} app_db <<EOF
-SELECT COUNT(*) FROM users;
-EOF
+# 2. 列出可更新的版本，輸出成新的 plugins.txt 供審查
+$PIMT -f plugins.txt --available-updates --output txt > plugins-updates.txt
 
-echo "=== 發送 Slack 通知 ==="
-# Slack Webhook URL 已注入為 SLACK_URL
-curl -X POST "${SLACK_URL}" \
-     -H 'Content-type: application/json' \
-     --data "{\"text\":\"建置 #${BUILD_NUMBER} 完成\"}"
+# 3. 下載到指定目錄（用於建立映像或離線套件）
+$PIMT -f plugins.txt -d ./plugins --verbose
 ```
 
-#### 6.9 Pipeline 中的憑證使用
+> 💡 `--latest false` 讓相依 plugin 使用「最低相容版本」而非最新版，可降低意外升級的風險；Helm chart 的對應設定是 `controller.installLatestPlugins: false`。
 
-**Declarative Pipeline 憑證綁定：**
+**變更流程**：
+
+```mermaid
+flowchart LR
+    A[提出 plugin 變更<br/>修改 plugins.txt 的 MR／PR] --> B[CI：PIMT 解析與<br/>安全警示檢查]
+    B --> C[建立新的 controller 映像]
+    C --> D[部署至預備 controller<br/>執行冒煙 Pipeline]
+    D --> E{審查通過?}
+    E -->|是| F[排程更新正式 controller]
+    E -->|否| A
+```
+
+### 5.4 已棄用 Plugin 與替代方案
+
+以下為 v1.0 使用或企業常見、但目前已棄用、有未修補漏洞或不建議新導入的 plugin（依 2026-10-02 update center 資料）：
+
+| Plugin | 狀態 | 替代方案 |
+| --- | --- | --- |
+| Checkstyle、PMD、FindBugs（`checkstyle`、`pmd`、`findbugs`） | 已棄用並自 update center 下架 | **Warnings Next Generation**（`recordIssues`，13.3） |
+| JaCoCo（`jacoco`）、Cobertura（`cobertura`）、Code Coverage API（`code-coverage-api`） | 長期未發行（Cobertura 最後發行於 2021、Code Coverage API 於 2023） | **Coverage**（`recordCoverage`，13.2） |
+| Extended Choice Parameter | **已棄用且有多個未修補漏洞**（SECURITY-1350、1351、2232 等） | Active Choices（`uno-choice`）或 Declarative 內建參數 |
+| Office 365 Connector | 已自 update center 下架；Microsoft 365 Connectors 已停用 | Teams Workflows webhook＋`httpRequest` 或 `curl`（19.7） |
+| Build Pipeline、Delivery Pipeline 類視覺化 plugin | 以 Freestyle 串接為前提 | Pipeline＋Pipeline Graph View |
+| Maven Integration（Maven project 類型） | 仍有維護，但官方建議改用 Pipeline | Pipeline＋Pipeline Maven Integration（9.3） |
+| Pipeline: Stage View | 仍可安裝，不在建議清單 | Pipeline Graph View |
+| Folder-based Authorization Strategy（`folder-auth`） | **有未修補漏洞**（SECURITY-3062） | Matrix Authorization（folder 層級權限）或 Role-based Strategy |
+| GitHub Pull Request Builder（`ghprb`） | **有未修補漏洞** | GitHub Branch Source（Multibranch） |
+| Environment Injector（`envinject`） | 與 Java 17+ 的模組系統衝突，需要 `--add-opens` | Pipeline `environment`／`withEnv` |
+
+> ⚠️ 已安裝的 plugin 若出現在 Manage Jenkins 的安全警示或棄用通知中，請在下一次維護窗口前移除或替換，並在 [24.5 LTS 升級](#245-lts-升級) 的升級檢查清單中追蹤。
+
+### 5.5 更新策略與離線 update center
+
+| 更新類型 | 頻率 | 做法 |
+| --- | --- | --- |
+| 安全公告修補 | 公告後 7 天內 | 只更新受影響的 plugin，於預備環境驗證後上線 |
+| 例行更新 | 每月一次 | 以 `--available-updates` 產生差異清單，整批驗證 |
+| Core LTS 升級 | 每季（跟隨 `.1` 或 `.2`） | **升級前後各更新一次 plugin**（官方升級指南要求），見 [20.3 升級程序](#203-升級程序) |
+
+**離線或受控網路**：
+
+- 在 Manage Jenkins → Plugins → Advanced settings 把 Update Site 改成內部鏡像，或完全停用線上更新，只透過映像或 `plugins/` 目錄部署
+- 2.580.1 起 detached plugin 不在 war 中，離線部署時 plugin 清單必須完整（由 PIMT 以 `--war` 解析即可得到）
+- 以 PIMT 的 `--jenkins-update-center` 與 `--jenkins-update-center-download-url` 參數指向內部鏡像
+
+### 5.6 本章重點
+
+- Plugin 清單與版本放在 Git，以 Plugin Installation Manager Tool 建置映像或離線套件
+- 安裝前檢查維護狀態、安全公告與棄用狀態；能用 Pipeline step 或指令解決的需求就不要加 plugin
+- Checkstyle／PMD／FindBugs／JaCoCo plugin 改用 Warnings NG 與 Coverage；移除 Extended Choice Parameter 等有未修補漏洞的 plugin
+- Core 升級前後都要更新 plugin
+
+## 6. Job 類型與 Freestyle
+
+### 6.1 何時仍使用 Freestyle
+
+Freestyle project 以 UI 表單設定，設定內容存在 `config.xml`，無法隨程式碼一起審查與版本控制。v2.0 的定位是：
+
+| 情境 | 建議 |
+| --- | --- |
+| 應用程式 CI/CD | ❌ 不使用 Freestyle，改用 Multibranch Pipeline |
+| 簡單的維運工作（例如每日清理暫存檔、呼叫一支腳本） | ⚠️ 可以使用，但建議改成 Pipeline 並以 Job DSL 建立，方便追蹤 |
+| 既有大量 Freestyle Job | 依 [6.5 Freestyle 遷移至 Pipeline](#65-freestyle-遷移至-pipeline) 的優先順序逐步遷移 |
+| 學習 Jenkins 基本概念 | ✅ 適合用來理解觸發、建置步驟、後置動作的概念 |
+
+### 6.2 Freestyle 設定區塊
+
+| 區塊 | 內容 | Pipeline 對應 |
+| --- | --- | --- |
+| General | 描述、捨棄舊建置、參數化、限制執行節點（label） | `options { buildDiscarder() }`、`parameters {}`、`agent { label }` |
+| Source Code Management | Git repository、憑證、分支 | `checkout scm` |
+| Build Triggers | 定期建置、SCM 輪詢、遠端觸發、其他 Job 完成後觸發 | `triggers {}`、Multibranch webhook |
+| Build Environment | 清除 workspace、逾時、時間戳記、憑證綁定 | `options { timeout() }`、`withCredentials` |
+| Build Steps | Shell、Windows batch、Maven、Gradle 等步驟 | `steps { sh … }` |
+| Post-build Actions | 測試報告、產物保存、通知、觸發其他 Job | `post {}` 與對應 step |
+
+#### 範例：每日清理暫存目錄的 Freestyle Job
+
+1. New Item → 名稱 `ops-clean-tmp` → Freestyle project
+2. General：勾選「Discard old builds」，保留 14 天、最多 30 筆；「Restrict where this project can be run」填 `linux && ops`
+3. Build Triggers：勾選「Build periodically」，排程 `H 2 * * *`
+4. Build Environment：勾選「Terminate a build if it's stuck」（逾時 30 分鐘）與「Add timestamps to the Console Output」
+5. Build Steps → Execute shell：
+
+   ```bash
+   #!/usr/bin/env bash
+   set -euo pipefail
+   # 刪除 7 天前的暫存檔，只處理指定目錄
+   find /data/app/tmp -type f -mtime +7 -print -delete
+   df -h /data
+   ```
+
+6. Post-build Actions：E-mail Notification，收件者填維運群組信箱
+
+> ⚠️ Freestyle 的 shell 步驟預設以 `/bin/sh -xe` 執行；在腳本第一行加上 `#!/usr/bin/env bash` 與 `set -euo pipefail`，才能在管線指令失敗時正確中止。
+
+### 6.3 建置觸發與 Cron 語法
+
+Jenkins 的排程語法為 5 個欄位：`分 時 日 月 星期`，並支援 `H`（hash）分散負載：
+
+| 寫法 | 意義 |
+| --- | --- |
+| `H * * * *` | 每小時一次，分鐘由 Job 名稱雜湊決定（不同 Job 錯開） |
+| `H/15 * * * *` | 每 15 分鐘一次（起始分鐘錯開） |
+| `H 2 * * 1-5` | 週一到週五凌晨 2 點的某一分鐘 |
+| `H(0-29) 3 * * *` | 每天 3:00–3:29 之間的某一分鐘 |
+| `H H(0-5) * * *` | 每天 0:00–5:59 之間的某個時間 |
+| `@midnight` | 每天 0:00–2:59 之間（等同 `H H(0-2) * * *`） |
+| `TZ=Asia/Taipei`（第一行） | 指定排程時區；之後的排程以此時區解讀 |
+
+```text
+TZ=Asia/Taipei
+# 週一到週五 08:00–08:59 之間執行夜間測試的結果彙整
+H 8 * * 1-5
+```
+
+✅ 一律使用 `H`，避免所有 Job 在整點同時啟動造成尖峰（v1.0 範例的 `0 2 * * *` 會讓所有 Job 同時在 2:00 執行）。
+
+**觸發方式比較**：
+
+| 方式 | 延遲 | 對 SCM 的負擔 | 建議 |
+| --- | --- | --- | --- |
+| Webhook（GitHub／GitLab／Bitbucket） | 秒級 | 低 | ✅ 預設方式（[8.5 Webhook 觸發與輪詢](#85-webhook-觸發與輪詢)） |
+| SCM 輪詢（Poll SCM） | 依排程 | 高（大量 Job 時會拖慢 SCM） | 只在無法接收 webhook 時使用，排程至少 `H/15` |
+| 定期建置（Build periodically） | 依排程 | 無 | 夜間建置、定期掃描、維運工作 |
+| 上游 Job 觸發 | 秒級 | 無 | 改用 Pipeline 的 `build job:` step 或 `triggers { upstream(...) }` |
+| 遠端觸發（Trigger builds remotely） | 秒級 | 無 | ⚠️ 不建議：token 寫在 URL；改用具備 API token 的服務帳號呼叫 REST API |
+
+### 6.4 參數化建置
+
+| 參數類型 | 用途 | 注意事項 |
+| --- | --- | --- |
+| String | 版本號、目標主機 | 在 shell 中使用時要加上引號，避免指令注入 |
+| Choice | 部署環境（dev／sit／uat） | 第一個選項為預設值 |
+| Boolean | 是否執行選擇性步驟 | |
+| Password | ⚠️ 不建議 | 值會（加密後）保存在每一筆建置紀錄中，執行者每次都要手動輸入，也容易在 shell 中被意外輸出；改用 Credentials 參數或 `withCredentials` |
+| Credentials | 讓使用者在執行時選擇憑證 | 需搭配憑證權限控管 |
+| File | 上傳檔案 | 在 Pipeline 中支援度有限 |
+| Active Choices（plugin） | 動態選項（例如從 registry 讀取 tag 清單） | 腳本需經 Script Approval |
+
+> ⚠️ **指令注入**：使用者輸入的參數若直接拼接進 shell 字串（例如 `sh "deploy.sh ${params.TARGET}"`），輸入 `x; rm -rf /` 就會執行任意指令。Pipeline 中請以環境變數傳遞並在 shell 內加上引號：`sh 'deploy.sh "$TARGET"'`（Groovy 單引號字串不內插），詳見 [10.3 environment 與字串內插](#103-environment-與字串內插)。
+
+### 6.5 Freestyle 遷移至 Pipeline
+
+**遷移優先順序**：
+
+1. 正式環境部署 Job（最需要稽核與審查）
+2. 經常修改設定的 Job
+3. 多個 Freestyle 以上下游串接的流程（改成單一 Pipeline 的多個 stage）
+4. 其餘維運 Job（以 Job DSL 批次建立）
+
+**對照範例**：一個「Git checkout → Maven 建置 → 發佈 JUnit 報告 → 保存 JAR → 寄信」的 Freestyle Job，改寫成 Declarative Pipeline：
 
 ```groovy
 pipeline {
-    agent any
-    
-    environment {
-        // 直接使用憑證 ID
-        GITHUB_TOKEN = credentials('github-pat')
-        
-        // 分別取得使用者名稱和密碼
-        DB_CREDS = credentials('mysql-db')
-    }
-    
-    stages {
-        stage('Checkout') {
-            steps {
-                // 使用 SSH 金鑰
-                git credentialsId: 'github-ssh',
-                    url: 'git@github.com:company/java-tutorial.git'
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                withCredentials([
-                    string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN'),
-                    usernamePassword(credentialsId: 'nexus-deploy', 
-                                   usernameVariable: 'NEXUS_USER',
-                                   passwordVariable: 'NEXUS_PASS')
-                ]) {
-                    sh '''
-                        mvn clean package sonar:sonar \
-                            -Dsonar.login=${SONAR_TOKEN}
-                        
-                        mvn deploy \
-                            -Dnexus.username=${NEXUS_USER} \
-                            -Dnexus.password=${NEXUS_PASS}
-                    '''
-                }
-            }
-        }
-        
-        stage('Deploy') {
-            steps {
-                withCredentials([file(credentialsId: 'kube-config', variable: 'KUBECONFIG')]) {
-                    sh '''
-                        kubectl apply -f k8s/deployment.yaml
-                        kubectl rollout status deployment/java-tutorial
-                    '''
-                }
-            }
-        }
-    }
-}
-```
-
-### 🔒 安全最佳實務
-
-#### 6.10 憑證安全策略
-
-**權限控制原則：**
-
-```groovy
-// 實施最小權限原則
-import com.cloudbees.plugins.credentials.*
-import hudson.security.*
-
-// 建立角色基礎的憑證存取控制
-def strategy = new ProjectMatrixAuthorizationStrategy()
-
-// 開發者角色 - 只能查看特定憑證
-strategy.add(CredentialsProvider.VIEW, "developers")
-strategy.add(CredentialsProvider.USE_ITEM, "developers")
-
-// 管理員角色 - 完整憑證管理權限
-strategy.add(CredentialsProvider.CREATE, "admins")
-strategy.add(CredentialsProvider.UPDATE, "admins")
-strategy.add(CredentialsProvider.DELETE, "admins")
-strategy.add(CredentialsProvider.MANAGE_DOMAINS, "admins")
-
-Jenkins.instance.setAuthorizationStrategy(strategy)
-```
-
-**憑證輪替自動化：**
-
-```groovy
-// 憑證過期檢查和通知
-import com.cloudbees.plugins.credentials.*
-import java.time.*
-import java.time.temporal.ChronoUnit
-
-def domain = Domain.global()
-def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
-
-def expiringCredentials = []
-def now = Instant.now()
-
-store.getCredentials(domain).each { credential ->
-    if (credential.hasProperty('expirationDate')) {
-        def expirationDate = credential.expirationDate
-        if (expirationDate && ChronoUnit.DAYS.between(now, expirationDate.toInstant()) <= 30) {
-            expiringCredentials.add([
-                id: credential.id,
-                description: credential.description,
-                daysUntilExpiry: ChronoUnit.DAYS.between(now, expirationDate.toInstant())
-            ])
-        }
-    }
-}
-
-if (expiringCredentials.size() > 0) {
-    println "即將過期的憑證："
-    expiringCredentials.each { cred ->
-        println "- ${cred.description} (${cred.id}): ${cred.daysUntilExpiry} 天後過期"
-    }
-    
-    // 發送通知郵件
-    def emailSubject = "Jenkins 憑證即將過期通知"
-    def emailBody = "以下憑證即將過期，請及時更新：\n\n" + 
-                   expiringCredentials.collect { 
-                       "- ${it.description}: ${it.daysUntilExpiry} 天後過期" 
-                   }.join('\n')
-    
-    // 這裡可以整合郵件發送邏輯
-}
-```
-
-#### 6.11 憑證備份與復原
-
-**憑證匯出腳本：**
-
-```groovy
-// 憑證備份腳本
-import com.cloudbees.plugins.credentials.*
-import com.cloudbees.plugins.credentials.domains.*
-import groovy.json.JsonBuilder
-import java.text.SimpleDateFormat
-
-def domain = Domain.global()
-def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
-
-def credentialsList = []
-def dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-
-store.getCredentials(domain).each { credential ->
-    def credInfo = [
-        id: credential.id,
-        description: credential.description,
-        scope: credential.scope.toString(),
-        type: credential.class.simpleName,
-        exportTime: dateFormat.format(new Date())
-    ]
-    
-    // 不匯出實際的敏感資料，只匯出結構資訊
-    switch (credential.class.simpleName) {
-        case 'UsernamePasswordCredentialsImpl':
-            credInfo.username = credential.username
-            credInfo.hasPassword = credential.password != null
-            break
-        case 'StringCredentialsImpl':
-            credInfo.hasSecret = credential.secret != null
-            break
-        case 'BasicSSHUserPrivateKey':
-            credInfo.username = credential.username
-            credInfo.hasPrivateKey = credential.privateKey != null
-            break
-    }
-    
-    credentialsList.add(credInfo)
-}
-
-def backupData = [
-    exportDate: dateFormat.format(new Date()),
-    jenkinsVersion: Jenkins.getVersion(),
-    credentialsCount: credentialsList.size(),
-    credentials: credentialsList
-]
-
-def json = new JsonBuilder(backupData)
-def backupFile = new File("${System.getProperty('JENKINS_HOME')}/credentials-backup-${new Date().format('yyyyMMdd')}.json")
-backupFile.text = json.toPrettyString()
-
-println "憑證結構備份完成: ${backupFile.absolutePath}"
-println "備份了 ${credentialsList.size()} 個憑證的結構資訊"
-```
-
-### 💡 實務案例
-
-#### 案例：企業級憑證管理架構
-
-**情境**：為大型企業建立分層憑證管理體系
-
-**解決方案架構：**
-
-```mermaid
-graph TD
-    A[企業憑證管理] --> B[全域層級]
-    A --> C[部門層級]
-    A --> D[專案層級]
-    
-    B --> E[基礎設施憑證]
-    B --> F[企業服務憑證]
-    
-    C --> G[部門 Git 憑證]
-    C --> H[部門工具憑證]
-    
-    D --> I[專案資料庫憑證]
-    D --> J[專案 API 憑證]
-    
-    subgraph "管理策略"
-        K[自動輪替]
-        L[權限控制]
-        M[稽核日誌]
-        N[災難復原]
-    end
-```
-
-**實施配置：**
-
-```groovy
-// 企業憑證管理設定
-def setupEnterpriseCredentials() {
-    def domain = Domain.global()
-    def store = Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore()
-    
-    // 1. 全域基礎設施憑證
-    def infrastructureCredentials = [
-        [
-            id: "ldap-service-account",
-            type: "userpass",
-            username: "svc-jenkins",
-            password: System.getenv("LDAP_SERVICE_PASSWORD"),
-            description: "LDAP Service Account for Authentication"
-        ],
-        [
-            id: "backup-storage-key",
-            type: "secret",
-            secret: System.getenv("BACKUP_STORAGE_ACCESS_KEY"),
-            description: "Backup Storage Access Key"
-        ]
-    ]
-    
-    // 2. 開發工具憑證
-    def developmentCredentials = [
-        [
-            id: "github-enterprise-token",
-            type: "secret",
-            secret: System.getenv("GITHUB_ENTERPRISE_TOKEN"),
-            description: "GitHub Enterprise API Token"
-        ],
-        [
-            id: "sonarqube-enterprise-token",
-            type: "secret", 
-            secret: System.getenv("SONARQUBE_TOKEN"),
-            description: "SonarQube Enterprise Token"
-        ],
-        [
-            id: "nexus-repository-creds",
-            type: "userpass",
-            username: "jenkins-deploy",
-            password: System.getenv("NEXUS_DEPLOY_PASSWORD"),
-            description: "Nexus Repository Manager Credentials"
-        ]
-    ]
-    
-    // 3. 雲端服務憑證
-    def cloudCredentials = [
-        [
-            id: "aws-deployment-role",
-            type: "secret",
-            secret: System.getenv("AWS_ROLE_ARN"),
-            description: "AWS Deployment Role ARN"
-        ],
-        [
-            id: "azure-service-principal",
-            type: "userpass",
-            username: System.getenv("AZURE_CLIENT_ID"),
-            password: System.getenv("AZURE_CLIENT_SECRET"),
-            description: "Azure Service Principal"
-        ]
-    ]
-    
-    // 建立憑證
-    [infrastructureCredentials, developmentCredentials, cloudCredentials].flatten().each { credConfig ->
-        def credential
-        switch (credConfig.type) {
-            case "userpass":
-                credential = new UsernamePasswordCredentialsImpl(
-                    CredentialsScope.GLOBAL,
-                    credConfig.id,
-                    credConfig.description,
-                    credConfig.username,
-                    credConfig.password
-                )
-                break
-            case "secret":
-                credential = new StringCredentialsImpl(
-                    CredentialsScope.GLOBAL,
-                    credConfig.id,
-                    credConfig.description,
-                    Secret.fromString(credConfig.secret)
-                )
-                break
-        }
-        
-        if (credential) {
-            store.addCredentials(domain, credential)
-            println "已建立憑證: ${credConfig.id}"
-        }
-    }
-    
-    Jenkins.instance.save()
-    println "企業憑證管理設定完成"
-}
-
-// 執行設定
-setupEnterpriseCredentials()
-```
-
-### ⚠️ 注意事項
-
-1. **安全原則**：
-   - 永遠不要在 Console Output 中顯示敏感資訊
-   - 使用最小權限原則分配憑證存取權
-   - 定期輪替重要憑證
-
-2. **效能考量**：
-   - 避免在高頻率執行的 Job 中重複建立憑證
-   - 使用憑證快取機制
-   - 監控憑證讀取效能
-
-3. **合規要求**：
-   - 記錄憑證存取日誌
-   - 實施憑證稽核機制
-   - 符合企業安全政策
-
-4. **災難復原**：
-   - 定期備份憑證設定
-   - 建立憑證復原程序
-   - 測試災難復原流程
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| 憑證管理 | 憑證類型、作用域、安全策略 |
-| 安全實務 | 權限控制、憑證輪替、稽核 |
-| 整合應用 | Pipeline 憑證使用、環境變數注入 |
-
-### 📝 練習作業
-
-1. **基礎練習**：建立 GitHub、資料庫和 API 憑證
-2. **進階練習**：實施憑證過期監控和自動通知
-3. **實務練習**：設計企業級憑證管理和權限控制策略
-
----
-
-## 第7章 Git 整合與版本控制
-
-### 🎯 學習目標
-- 掌握 Jenkins 與 Git 的深度整合
-- 了解分支策略和工作流程
-- 學會設定 Git Hook 和自動觸發
-- 建立多分支開發的建置策略
-
-### 📚 核心概念
-
-#### 7.1 Git 整合架構
-
-Jenkins 透過 Git Plugin 提供完整的版本控制整合，支援多種 Git 託管平台和工作流程。
-
-```mermaid
-graph TD
-    A[Git Repository] --> B[Jenkins Git Integration]
-    B --> C[SCM Polling]
-    B --> D[Webhook Triggers]
-    B --> E[Branch Discovery]
-    
-    C --> F[Scheduled Checks]
-    D --> G[Push Events]
-    D --> H[Pull Request Events]
-    E --> I[Multibranch Pipeline]
-    
-    subgraph "Git Platforms"
-        J[GitHub]
-        K[GitLab]
-        L[Bitbucket]
-        M[Azure DevOps]
-    end
-    
-    B --> J
-    B --> K
-    B --> L
-    B --> M
-    
-    subgraph "Authentication"
-        N[SSH Keys]
-        O[Personal Tokens]
-        P[OAuth Apps]
-    end
-    
-    B --> N
-    B --> O
-    B --> P
-```
-
-#### 7.2 Git 工作流程與分支策略
-
-**常見分支策略比較：**
-
-| 策略 | 適用場景 | 分支結構 | Jenkins 建置策略 |
-|------|----------|----------|------------------|
-| **Git Flow** | 大型專案、定期發布 | master/develop/feature/release/hotfix | 針對每種分支類型設定不同建置流程 |
-| **GitHub Flow** | 持續部署、敏捷開發 | master/feature | 簡化的建置和部署流程 |
-| **GitLab Flow** | 混合環境、多環境部署 | master/production/pre-production | 環境特定的建置配置 |
-| **Trunk-based** | 高頻率整合 | master/short-lived-feature | 快速整合和反饋機制 |
-
-```mermaid
-gitGraph
-    commit id: "Initial"
-    branch develop
-    checkout develop
-    commit id: "Dev Setup"
-    
-    branch feature/user-auth
-    checkout feature/user-auth
-    commit id: "Add login"
-    commit id: "Add logout"
-    
-    checkout develop
-    merge feature/user-auth
-    commit id: "Integration test"
-    
-    branch release/v1.0
-    checkout release/v1.0
-    commit id: "Release prep"
-    
-    checkout main
-    merge release/v1.0
-    commit id: "v1.0 Release"
-    
-    checkout develop
-    merge main
-```
-
-#### 7.3 Git 設定最佳實務
-
-**全域 Git 設定：**
-
-```groovy
-// 透過 Script Console 設定 Git 全域配置
-import hudson.plugins.git.*
-import jenkins.model.*
-
-def jenkins = Jenkins.getInstance()
-def gitSCM = jenkins.getDescriptor("hudson.plugins.git.GitSCM")
-
-// 設定全域 Git 使用者資訊
-gitSCM.setGlobalConfigName("Jenkins CI/CD")
-gitSCM.setGlobalConfigEmail("jenkins@company.com")
-
-// 設定 Git 行為
-gitSCM.setCreateAccountBasedOnEmail(false)
-gitSCM.setUseExistingAccountWithSameEmail(true)
-
-// 設定 Git 工具路徑
-def gitTool = jenkins.getDescriptor("hudson.plugins.git.GitTool")
-def installations = [
-    new GitTool("Default", "/usr/bin/git", []),
-    new GitTool("Git-2.40", "/usr/local/git-2.40/bin/git", [])
-]
-gitTool.setInstallations(installations as GitTool[])
-
-jenkins.save()
-println "Git 全域設定完成"
-```
-
-### 🛠️ Git 專案設定
-
-#### 7.4 單一分支專案設定
-
-**基本 Git 設定：**
-
-```yaml
-# Freestyle Job Git 設定
-source_code_management:
-  git:
-    repositories:
-      - url: "https://github.com/company/java-tutorial.git"
-        credentials_id: "github-pat"
-        name: "origin"
-    
-    branches_to_build:
-      - "*/master"
-      - "*/main"
-    
-    browser: "github"
-    browser_url: "https://github.com/company/java-tutorial"
-    
-    additional_behaviours:
-      - clean_before_checkout: true
-      - checkout_to_subdirectory: "source"
-      - clone_option:
-          shallow: true
-          depth: 10
-          timeout: 20
-      - submodule_option:
-          disable_submodules: false
-          recursive_submodules: true
-          timeout: 20
-```
-
-**進階 Git 設定腳本：**
-
-```bash
-#!/bin/bash
-# git-setup.sh - Git 環境設定腳本
-
-set -e
-
-echo "=== Git 環境設定 ==="
-
-# 1. 檢查 Git 版本
-echo "Git 版本檢查:"
-git --version
-
-# 2. 設定 Git 配置
-echo "設定 Git 全域配置:"
-git config --global user.name "Jenkins CI"
-git config --global user.email "jenkins@company.com"
-git config --global init.defaultBranch main
-git config --global pull.rebase false
-git config --global core.autocrlf input
-
-# 3. 設定 Git 憑證快取
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    git config --global credential.helper 'cache --timeout=3600'
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    git config --global credential.helper osxkeychain
-fi
-
-# 4. 設定 Git 別名
-git config --global alias.co checkout
-git config --global alias.br branch
-git config --global alias.ci commit
-git config --global alias.st status
-git config --global alias.lg "log --oneline --graph --decorate"
-
-# 5. 驗證設定
-echo "Git 配置驗證:"
-git config --list | grep -E "(user\.|init\.|pull\.|core\.)"
-
-echo "=== Git 環境設定完成 ==="
-```
-
-#### 7.5 多分支專案設定
-
-**Multibranch Pipeline 設定：**
-
-```groovy
-// 建立 Multibranch Pipeline
-import jenkins.branch.*
-import jenkins.plugins.git.*
-import org.jenkinsci.plugins.workflow.multibranch.*
-
-def jenkins = Jenkins.getInstance()
-
-// 建立 Multibranch Pipeline Job
-def job = new WorkflowMultiBranchProject(jenkins, "java-tutorial-multibranch")
-
-// 設定 Git 分支來源
-def gitSource = new GitSCMSource(
-    "java-tutorial-git",  // source id
-    "https://github.com/company/java-tutorial.git",  // repository url
-    "github-pat",  // credentials id
-    "*",  // includes - 包含所有分支
-    "",   // excludes - 排除的分支 
-    false // ignore on push notifications
-)
-
-// 設定分支探索策略
-def branchDiscoveryTrait = new jenkins.plugins.git.traits.BranchDiscoveryTrait()
-def originPRDiscoveryTrait = new jenkins.plugins.git.traits.OriginPullRequestDiscoveryTrait(1) // 只建置 merge 後的結果
-
-gitSource.setTraits([
-    branchDiscoveryTrait,
-    originPRDiscoveryTrait,
-    new jenkins.plugins.git.traits.CleanBeforeCheckoutTrait(),
-    new jenkins.plugins.git.traits.CloneOptionTrait(false, false, "", 10)
-])
-
-// 設定 Branch Source
-def branchSourceCriteria = new jenkins.branch.DefaultBranchPropertyStrategy(new jenkins.branch.BranchProperty[0])
-def branchSource = new BranchSource(gitSource, branchSourceCriteria)
-
-job.getSourcesList().add(branchSource)
-
-// 設定 Jenkinsfile 路徑
-job.setProjectFactory(new org.jenkinsci.plugins.workflow.multibranch.WorkflowBranchProjectFactory())
-
-// 設定建置觸發器
-def periodicFolderTrigger = new com.cloudbees.hudson.plugins.folder.computed.PeriodicFolderTrigger("5m")
-job.addTrigger(periodicFolderTrigger)
-
-jenkins.add(job, job.name)
-jenkins.save()
-
-println "Multibranch Pipeline 建立完成: ${job.name}"
-```
-
-#### 7.6 分支特定建置策略
-
-**分支條件建置 Jenkinsfile：**
-
-```groovy
-// Jenkinsfile - 分支條件建置
-pipeline {
-    agent any
-    
-    environment {
-        BRANCH_TYPE = "${env.BRANCH_NAME.startsWith('feature/') ? 'feature' : 
-                       env.BRANCH_NAME.startsWith('release/') ? 'release' :
-                       env.BRANCH_NAME.startsWith('hotfix/') ? 'hotfix' :
-                       env.BRANCH_NAME == 'master' ? 'master' :
-                       env.BRANCH_NAME == 'develop' ? 'develop' : 'other'}"
-    }
-    
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-                script {
-                    env.GIT_COMMIT_SHORT = sh(
-                        script: "git rev-parse --short HEAD",
-                        returnStdout: true
-                    ).trim()
-                    
-                    env.GIT_COMMIT_MESSAGE = sh(
-                        script: "git log -1 --pretty=%B",
-                        returnStdout: true
-                    ).trim()
-                }
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                script {
-                    echo "建置分支類型: ${env.BRANCH_TYPE}"
-                    echo "Git 版本: ${env.GIT_COMMIT_SHORT}"
-                    echo "提交訊息: ${env.GIT_COMMIT_MESSAGE}"
-                    
-                    // 基本建置 - 所有分支都執行
-                    sh 'mvn clean compile -B'
-                }
-            }
-        }
-        
-        stage('Test') {
-            parallel {
-                stage('Unit Tests') {
-                    steps {
-                        sh 'mvn test -B'
-                    }
-                    post {
-                        always {
-                            junit 'target/surefire-reports/*.xml'
-                        }
-                    }
-                }
-                
-                stage('Integration Tests') {
-                    when {
-                        anyOf {
-                            environment name: 'BRANCH_TYPE', value: 'develop'
-                            environment name: 'BRANCH_TYPE', value: 'release'
-                            environment name: 'BRANCH_TYPE', value: 'master'
-                        }
-                    }
-                    steps {
-                        sh 'mvn verify -P integration-tests -B'
-                    }
-                }
-            }
-        }
-        
-        stage('Code Quality') {
-            when {
-                not {
-                    environment name: 'BRANCH_TYPE', value: 'feature'
-                }
-            }
-            steps {
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                        mvn sonar:sonar \
-                            -Dsonar.login=${SONAR_TOKEN} \
-                            -Dsonar.branch.name=${BRANCH_NAME}
-                    '''
-                }
-            }
-        }
-        
-        stage('Package') {
-            when {
-                anyOf {
-                    environment name: 'BRANCH_TYPE', value: 'develop'
-                    environment name: 'BRANCH_TYPE', value: 'release'
-                    environment name: 'BRANCH_TYPE', value: 'master'
-                    environment name: 'BRANCH_TYPE', value: 'hotfix'
-                }
-            }
-            steps {
-                sh 'mvn package -DskipTests -B'
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-            }
-        }
-        
-        stage('Deploy to Dev') {
-            when {
-                environment name: 'BRANCH_TYPE', value: 'develop'
-            }
-            steps {
-                echo "部署到開發環境"
-                sh './scripts/deploy-dev.sh'
-            }
-        }
-        
-        stage('Deploy to Staging') {
-            when {
-                environment name: 'BRANCH_TYPE', value: 'release'
-            }
-            steps {
-                echo "部署到測試環境"
-                sh './scripts/deploy-staging.sh'
-            }
-        }
-        
-        stage('Deploy to Production') {
-            when {
-                anyOf {
-                    environment name: 'BRANCH_TYPE', value: 'master'
-                    environment name: 'BRANCH_TYPE', value: 'hotfix'
-                }
-            }
-            steps {
-                script {
-                    def deployApproval = input(
-                        message: '確認部署到生產環境？',
-                        ok: '部署',
-                        parameters: [
-                            choice(
-                                name: 'DEPLOY_ENVIRONMENT',
-                                choices: ['production', 'production-blue', 'production-green'],
-                                description: '選擇部署目標環境'
-                            )
-                        ]
-                    )
-                    
-                    echo "部署到生產環境: ${deployApproval}"
-                    sh "./scripts/deploy-prod.sh ${deployApproval}"
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            cleanWs()
-        }
-        
-        success {
-            script {
-                if (env.BRANCH_TYPE in ['master', 'develop']) {
-                    slackSend(
-                        channel: '#ci-cd',
-                        color: 'good',
-                        message: ":white_check_mark: 建置成功 - ${env.JOB_NAME} #${env.BUILD_NUMBER}\n" +
-                                "分支: ${env.BRANCH_NAME}\n" +
-                                "提交: ${env.GIT_COMMIT_SHORT}\n" +
-                                "訊息: ${env.GIT_COMMIT_MESSAGE}"
-                    )
-                }
-            }
-        }
-        
-        failure {
-            slackSend(
-                channel: '#ci-cd',
-                color: 'danger',
-                message: ":x: 建置失敗 - ${env.JOB_NAME} #${env.BUILD_NUMBER}\n" +
-                        "分支: ${env.BRANCH_NAME}\n" +
-                        "提交: ${env.GIT_COMMIT_SHORT}\n" +
-                        "詳情: ${env.BUILD_URL}"
-            )
-        }
-    }
-}
-```
-
-### 📊 Git Hook 與自動觸發
-
-#### 7.7 GitHub Webhook 設定
-
-**GitHub Webhook 配置步驟：**
-
-1. **在 GitHub 專案設定 Webhook**
-```bash
-# GitHub Webhook 設定
-Payload URL: http://jenkins.company.com/github-webhook/
-Content type: application/json
-Secret: your-webhook-secret
-
-Events:
-- Push events
-- Pull request events
-- Branch or tag creation
-- Branch or tag deletion
-```
-
-2. **Jenkins Webhook 接收設定**
-```groovy
-// 設定 GitHub Webhook
-import org.jenkinsci.plugins.github.GitHubPlugin
-import org.jenkinsci.plugins.github.config.GitHubPluginConfig
-
-def gitHubConfig = GitHubPluginConfig.get()
-gitHubConfig.setManageHooks(true)
-gitHubConfig.setOverrideHookUrl("http://jenkins.company.com/github-webhook/")
-
-// 設定 GitHub Server
-def githubServer = new org.jenkinsci.plugins.github.config.GitHubServerConfig("github-pat")
-githubServer.setName("GitHub.com")
-githubServer.setApiUrl("https://api.github.com")
-githubServer.setManageHooks(true)
-
-gitHubConfig.setConfigs([githubServer])
-gitHubConfig.save()
-
-println "GitHub Webhook 設定完成"
-```
-
-3. **Webhook 安全驗證**
-```groovy
-// Webhook 安全驗證腳本
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
-import java.security.MessageDigest
-
-def verifyGitHubWebhook(payload, signature, secret) {
-    def mac = Mac.getInstance("HmacSHA1")
-    def secretKey = new SecretKeySpec(secret.getBytes(), "HmacSHA1")
-    mac.init(secretKey)
-    
-    def expectedSignature = "sha1=" + mac.doFinal(payload.getBytes()).encodeHex().toString()
-    
-    return MessageDigest.isEqual(
-        expectedSignature.getBytes(),
-        signature.getBytes()
-    )
-}
-
-// 在 Pipeline 中使用
-if (verifyGitHubWebhook(env.WEBHOOK_PAYLOAD, env.WEBHOOK_SIGNATURE, env.WEBHOOK_SECRET)) {
-    echo "Webhook 驗證成功"
-} else {
-    error "Webhook 驗證失敗"
-}
-```
-
-#### 7.8 Pull Request 建置
-
-**PR 建置策略：**
-
-```groovy
-// Pull Request 建置 Jenkinsfile
-pipeline {
-    agent any
-    
-    stages {
-        stage('PR Validation') {
-            when {
-                changeRequest()
-            }
-            parallel {
-                stage('Code Style Check') {
-                    steps {
-                        sh 'mvn checkstyle:check'
-                    }
-                }
-                
-                stage('Security Scan') {
-                    steps {
-                        sh 'mvn spotbugs:check'
-                    }
-                }
-                
-                stage('Dependency Check') {
-                    steps {
-                        sh 'mvn dependency-check:check'
-                    }
-                }
-            }
-        }
-        
-        stage('Build & Test') {
-            steps {
-                sh 'mvn clean compile test'
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'target/site/jacoco',
-                        reportFiles: 'index.html',
-                        reportName: 'JaCoCo Coverage Report'
-                    ])
-                }
-            }
-        }
-        
-        stage('PR Comment') {
-            when {
-                changeRequest()
-            }
-            steps {
-                script {
-                    def testResults = junit testResults: 'target/surefire-reports/*.xml'
-                    def comment = "## 🤖 自動化建置結果\n\n" +
-                                 "**建置狀態**: ✅ 成功\n" +
-                                 "**測試結果**: ${testResults.totalCount} 個測試，${testResults.failCount} 個失敗\n" +
-                                 "**建置時間**: ${currentBuild.durationString}\n\n" +
-                                 "[查看詳細報告](${env.BUILD_URL})"
-                    
-                    // 使用 GitHub API 發布評論
-                    withCredentials([string(credentialsId: 'github-pat', variable: 'GITHUB_TOKEN')]) {
-                        sh """
-                            curl -X POST \
-                                -H "Authorization: token ${GITHUB_TOKEN}" \
-                                -H "Content-Type: application/json" \
-                                -d '{"body": "${comment}"}' \
-                                "https://api.github.com/repos/company/java-tutorial/issues/${env.CHANGE_ID}/comments"
-                        """
-                    }
-                }
-            }
-        }
-    }
-}
-```
-
-### 💡 實務案例
-
-#### 案例：Git Flow 自動化工作流程
-
-**情境**：實施完整的 Git Flow 自動化建置和部署
-
-**架構設計：**
-
-```mermaid
-graph TD
-    A[Feature Branch] --> B[Feature Build]
-    C[Develop Branch] --> D[Dev Build & Deploy]
-    E[Release Branch] --> F[Release Build & Test]
-    G[Master Branch] --> H[Production Build]
-    H --> I[Production Deploy]
-    
-    B --> J[Code Quality Check]
-    B --> K[Unit Tests]
-    
-    D --> L[Integration Tests]
-    D --> M[Deploy to Dev Environment]
-    
-    F --> N[Full Test Suite]
-    F --> O[Deploy to Staging]
-    
-    I --> P[Blue-Green Deployment]
-    I --> Q[Health Check]
-    
-    R[Hotfix Branch] --> S[Hotfix Build]
-    S --> T[Emergency Deploy]
-```
-
-**實施配置：**
-
-```yaml
-# Git Flow 自動化配置
-multibranch_pipeline:
-  name: "java-tutorial-gitflow"
-  
-  branch_strategies:
-    feature_branches:
-      pattern: "feature/*"
-      build_steps:
-        - compile
-        - unit_test
-        - code_quality_check
-      notifications:
-        - slack_channel: "#development"
-        - email: "developers@company.com"
-    
-    develop_branch:
-      pattern: "develop"
-      build_steps:
-        - compile
-        - unit_test
-        - integration_test
-        - security_scan
-        - deploy_to_dev
-      notifications:
-        - slack_channel: "#ci-cd"
-        - email: "team-leads@company.com"
-    
-    release_branches:
-      pattern: "release/*"
-      build_steps:
-        - compile
-        - full_test_suite
-        - performance_test
-        - deploy_to_staging
-        - manual_approval
-      notifications:
-        - slack_channel: "#releases"
-        - email: "qa-team@company.com"
-    
-    master_branch:
-      pattern: "master"
-      build_steps:
-        - compile
-        - regression_test
-        - security_final_check
-        - deploy_to_production
-        - post_deploy_verification
-      notifications:
-        - slack_channel: "#production"
-        - email: "ops-team@company.com"
-    
-    hotfix_branches:
-      pattern: "hotfix/*"
-      build_steps:
-        - compile
-        - critical_tests
-        - emergency_deploy
-        - immediate_verification
-      notifications:
-        - slack_channel: "#emergency"
-        - email: "all-teams@company.com"
-```
-
-### ⚠️ 注意事項
-
-1. **分支策略**：
-   - 選擇適合團隊的分支模型
-   - 建立清楚的分支命名規則
-   - 定期清理已合併的分支
-
-2. **安全考量**：
-   - 保護重要分支（master/main）
-   - 限制強制推送權限
-   - 驗證 Webhook 來源
-
-3. **效能優化**：
-   - 使用淺層克隆減少網路傳輸
-   - 適當設定 Git 快取
-   - 並行處理多分支建置
-
-4. **監控與維護**：
-   - 監控建置佇列長度
-   - 定期檢查孤立分支
-   - 清理舊的建置記錄
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| Git 整合 | SCM 設定、分支策略、Webhook |
-| 多分支管理 | Multibranch Pipeline、分支條件建置 |
-| 自動化觸發 | Pull Request 建置、Git Hook |
-
-### 📝 練習作業
-
-1. **基礎練習**：設定 GitHub 專案的基本 Git 整合
-2. **進階練習**：實施 Multibranch Pipeline 與 PR 建置
-3. **實務練習**：建立完整的 Git Flow 自動化工作流程
-
----
-
-## 第8章 Maven 建置整合
-
-### 🎯 學習目標
-- 掌握 Jenkins 與 Maven 的完整整合
-- 了解 Maven 生命週期在 CI/CD 中的應用
-- 學會配置多模組專案的建置策略
-- 建立 Maven 建置的最佳實務
-
-### 📚 核心概念
-
-#### 8.1 Maven 與 Jenkins 整合架構
-
-Maven 作為 Java 專案的標準建置工具，與 Jenkins 深度整合提供完整的自動化建置解決方案。
-
-```mermaid
-graph TD
-    A[Maven Project] --> B[Jenkins Maven Integration]
-    B --> C[Maven Plugin]
-    B --> D[Maven Invoker Plugin]
-    B --> E[Maven Deploy Plugin]
-    
-    C --> F[Build Lifecycle]
-    F --> G[validate]
-    F --> H[compile]
-    F --> I[test]
-    F --> J[package]
-    F --> K[verify]
-    F --> L[install]
-    F --> M[deploy]
-    
-    subgraph "Maven Features in Jenkins"
-        N[Dependency Management]
-        O[Multi-module Support]
-        P[Test Report Integration]
-        Q[Artifact Publishing]
-        R[Site Generation]
-    end
-    
-    B --> N
-    B --> O
-    B --> P
-    B --> Q
-    B --> R
-```
-
-#### 8.2 Maven 生命週期與建置階段
-
-**Maven 標準生命週期：**
-
-| 階段 | 目的 | Jenkins 應用 | 典型耗時 |
-|------|------|--------------|----------|
-| **validate** | 驗證專案結構 | 專案結構檢查 | < 1 分鐘 |
-| **compile** | 編譯原始碼 | 編譯錯誤檢查 | 2-5 分鐘 |
-| **test** | 執行單元測試 | 測試報告生成 | 5-15 分鐘 |
-| **package** | 打包成 JAR/WAR | 建立部署包 | 1-3 分鐘 |
-| **verify** | 整合測試驗證 | 品質門檻檢查 | 10-30 分鐘 |
-| **install** | 安裝到本地倉庫 | 依賴快取 | 1-2 分鐘 |
-| **deploy** | 部署到遠端倉庫 | 制品發布 | 2-5 分鐘 |
-
-#### 8.3 Maven 設定最佳實務
-
-**settings.xml 配置：**
-
-```xml
-<!-- $JENKINS_HOME/.m2/settings.xml -->
-<?xml version="1.0" encoding="UTF-8"?>
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 
-                              http://maven.apache.org/xsd/settings-1.0.0.xsd">
-    
-    <!-- 本地倉庫設定 -->
-    <localRepository>${JENKINS_HOME}/.m2/repository</localRepository>
-    
-    <!-- 離線模式 -->
-    <offline>false</offline>
-    
-    <!-- 插件群組 -->
-    <pluginGroups>
-        <pluginGroup>org.sonarsource.scanner.maven</pluginGroup>
-        <pluginGroup>org.jacoco</pluginGroup>
-    </pluginGroups>
-    
-    <!-- 伺服器認證 -->
-    <servers>
-        <server>
-            <id>nexus-snapshots</id>
-            <username>${env.NEXUS_USERNAME}</username>
-            <password>${env.NEXUS_PASSWORD}</password>
-        </server>
-        <server>
-            <id>nexus-releases</id>
-            <username>${env.NEXUS_USERNAME}</username>
-            <password>${env.NEXUS_PASSWORD}</password>
-        </server>
-        <server>
-            <id>sonarqube</id>
-            <username>${env.SONAR_TOKEN}</username>
-            <password></password>
-        </server>
-    </servers>
-    
-    <!-- 鏡像設定 -->
-    <mirrors>
-        <mirror>
-            <id>nexus-public</id>
-            <mirrorOf>central</mirrorOf>
-            <name>Nexus Public Repository</name>
-            <url>http://nexus.company.com:8081/repository/maven-public/</url>
-        </mirror>
-    </mirrors>
-    
-    <!-- 配置檔案 -->
-    <profiles>
-        <profile>
-            <id>nexus</id>
-            <repositories>
-                <repository>
-                    <id>central</id>
-                    <url>http://central</url>
-                    <releases><enabled>true</enabled></releases>
-                    <snapshots><enabled>true</enabled></snapshots>
-                </repository>
-            </repositories>
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>central</id>
-                    <url>http://central</url>
-                    <releases><enabled>true</enabled></releases>
-                    <snapshots><enabled>true</enabled></snapshots>
-                </pluginRepository>
-            </pluginRepositories>
-        </profile>
-        
-        <profile>
-            <id>ci-cd</id>
-            <properties>
-                <maven.test.failure.ignore>false</maven.test.failure.ignore>
-                <maven.javadoc.skip>true</maven.javadoc.skip>
-                <maven.source.skip>true</maven.source.skip>
-                <skipITs>false</skipITs>
-            </properties>
-        </profile>
-    </profiles>
-    
-    <!-- 啟用的配置檔案 -->
-    <activeProfiles>
-        <activeProfile>nexus</activeProfile>
-        <activeProfile>ci-cd</activeProfile>
-    </activeProfiles>
-</settings>
-```
-
-### 🛠️ Jenkins Maven 專案設定
-
-#### 8.4 Freestyle Maven 專案
-
-**Maven 建置步驟設定：**
-
-```yaml
-# Freestyle Job Maven 設定
-build_steps:
-  - maven_step_1:
-      goals: "clean compile"
-      maven_version: "Maven-3.9"
-      pom: "pom.xml"
-      properties:
-        maven.compiler.source: "17"
-        maven.compiler.target: "17"
-        project.build.sourceEncoding: "UTF-8"
-      
-  - maven_step_2:
-      goals: "test"
-      maven_version: "Maven-3.9"
-      properties:
-        maven.test.failure.ignore: "true"
-        junit.jupiter.execution.parallel.enabled: "true"
-        junit.jupiter.execution.parallel.mode.default: "concurrent"
-        
-  - maven_step_3:
-      goals: "package"
-      maven_version: "Maven-3.9"
-      properties:
-        maven.test.skip: "true"
-        maven.javadoc.skip: "true"
-
-post_build_actions:
-  - archive_artifacts:
-      artifacts: "target/*.jar,target/*.war"
-      fingerprint: true
-      
-  - junit_report:
-      test_results: "target/surefire-reports/*.xml"
-      keep_long_stdio: true
-      
-  - jacoco_report:
-      exec_pattern: "target/jacoco.exec"
-      class_pattern: "target/classes"
-      source_pattern: "src/main/java"
-```
-
-#### 8.5 Pipeline Maven 整合
-
-**完整 Maven Pipeline：**
-
-```groovy
-// Jenkinsfile - Maven 完整建置流程
-pipeline {
-    agent any
-    
-    tools {
-        maven 'Maven-3.9'
-        jdk 'JDK-17'
-    }
-    
-    environment {
-        MAVEN_OPTS = '-Xmx2g -XX:+UseG1GC -Dmaven.repo.local=$WORKSPACE/.m2/repository'
-        MAVEN_CLI_OPTS = '-B -V -e -s $JENKINS_HOME/.m2/settings.xml'
-    }
-    
+    agent { label 'linux && maven' }
     options {
-        buildDiscarder(logRotator(numToKeepStr: '20'))
-        timeout(time: 60, unit: 'MINUTES')
-        skipStagesAfterUnstable()
-        parallelsAlwaysFailFast()
-    }
-    
-    stages {
-        stage('Environment Setup') {
-            steps {
-                script {
-                    // 顯示環境資訊
-                    sh '''
-                        echo "=== 環境資訊 ==="
-                        java -version
-                        mvn -version
-                        echo "工作目錄: $(pwd)"
-                        echo "Maven 本地倉庫: $MAVEN_OPTS"
-                    '''
-                    
-                    // 建立必要目錄
-                    sh 'mkdir -p $WORKSPACE/.m2/repository'
-                }
-            }
-        }
-        
-        stage('Dependency Resolution') {
-            steps {
-                echo '解析並下載依賴'
-                sh "mvn ${MAVEN_CLI_OPTS} dependency:resolve dependency:resolve-sources"
-            }
-        }
-        
-        stage('Code Validation') {
-            parallel {
-                stage('Compile') {
-                    steps {
-                        echo '編譯原始碼'
-                        sh "mvn ${MAVEN_CLI_OPTS} clean compile"
-                    }
-                }
-                
-                stage('Validate POM') {
-                    steps {
-                        echo '驗證 POM 檔案'
-                        sh "mvn ${MAVEN_CLI_OPTS} validate"
-                    }
-                }
-                
-                stage('Dependency Check') {
-                    steps {
-                        echo '檢查依賴衝突'
-                        sh "mvn ${MAVEN_CLI_OPTS} dependency:analyze"
-                    }
-                }
-            }
-        }
-        
-        stage('Testing') {
-            parallel {
-                stage('Unit Tests') {
-                    steps {
-                        echo '執行單元測試'
-                        sh """
-                            mvn ${MAVEN_CLI_OPTS} test \
-                                -Dmaven.test.failure.ignore=true \
-                                -Djunit.jupiter.execution.parallel.enabled=true \
-                                -Djunit.jupiter.execution.parallel.mode.default=concurrent
-                        """
-                    }
-                    post {
-                        always {
-                            junit 'target/surefire-reports/*.xml'
-                            
-                            publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: true,
-                                keepAll: true,
-                                reportDir: 'target/site/jacoco',
-                                reportFiles: 'index.html',
-                                reportName: 'JaCoCo Coverage Report'
-                            ])
-                        }
-                    }
-                }
-                
-                stage('Integration Tests') {
-                    when {
-                        not { changeRequest() }
-                    }
-                    steps {
-                        echo '執行整合測試'
-                        sh """
-                            mvn ${MAVEN_CLI_OPTS} verify \
-                                -DskipUnitTests=true \
-                                -Dfailsafe.rerunFailingTestsCount=2
-                        """
-                    }
-                    post {
-                        always {
-                            junit 'target/failsafe-reports/*.xml'
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('Code Quality Analysis') {
-            parallel {
-                stage('SonarQube Analysis') {
-                    when {
-                        anyOf {
-                            branch 'master'
-                            branch 'develop'
-                        }
-                    }
-                    steps {
-                        withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                            sh """
-                                mvn ${MAVEN_CLI_OPTS} sonar:sonar \
-                                    -Dsonar.login=${SONAR_TOKEN} \
-                                    -Dsonar.branch.name=${env.BRANCH_NAME}
-                            """
-                        }
-                    }
-                }
-                
-                stage('Code Style Check') {
-                    steps {
-                        sh "mvn ${MAVEN_CLI_OPTS} checkstyle:check"
-                        
-                        recordIssues(
-                            enabledForFailure: true,
-                            tools: [checkStyle(pattern: 'target/checkstyle-result.xml')]
-                        )
-                    }
-                }
-                
-                stage('Security Scan') {
-                    steps {
-                        sh "mvn ${MAVEN_CLI_OPTS} spotbugs:check"
-                        
-                        recordIssues(
-                            enabledForFailure: true,
-                            tools: [spotBugs(pattern: 'target/spotbugsXml.xml')]
-                        )
-                    }
-                }
-            }
-        }
-        
-        stage('Package') {
-            steps {
-                echo '打包應用程式'
-                sh """
-                    mvn ${MAVEN_CLI_OPTS} package \
-                        -DskipTests=true \
-                        -Dmaven.javadoc.skip=true
-                """
-                
-                archiveArtifacts(
-                    artifacts: 'target/*.jar,target/*.war',
-                    fingerprint: true,
-                    onlyIfSuccessful: true
-                )
-            }
-        }
-        
-        stage('Documentation') {
-            when {
-                branch 'master'
-            }
-            steps {
-                echo '生成專案文件'
-                sh "mvn ${MAVEN_CLI_OPTS} site"
-                
-                publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'target/site',
-                    reportFiles: 'index.html',
-                    reportName: 'Maven Site Documentation'
-                ])
-            }
-        }
-        
-        stage('Deploy to Repository') {
-            when {
-                anyOf {
-                    branch 'master'
-                    branch 'develop'
-                }
-            }
-            steps {
-                echo '部署到 Maven 倉庫'
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'nexus-deploy',
-                        usernameVariable: 'NEXUS_USERNAME',
-                        passwordVariable: 'NEXUS_PASSWORD'
-                    )
-                ]) {
-                    sh """
-                        mvn ${MAVEN_CLI_OPTS} deploy \
-                            -DskipTests=true \
-                            -Dnexus.username=${NEXUS_USERNAME} \
-                            -Dnexus.password=${NEXUS_PASSWORD}
-                    """
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            echo '清理工作空間'
-            sh 'mvn clean'
-            
-            // 保留重要的建置資訊
-            sh '''
-                echo "=== 建置摘要 ==="
-                echo "建置編號: ${BUILD_NUMBER}"
-                echo "Git 版本: $(git rev-parse --short HEAD)"
-                echo "建置時間: $(date)"
-                
-                if [ -f target/*.jar ]; then
-                    echo "JAR 檔案: $(ls -la target/*.jar)"
-                fi
-            '''
-        }
-        
-        success {
-            script {
-                if (env.BRANCH_NAME in ['master', 'develop']) {
-                    emailext(
-                        subject: "✅ 建置成功: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                        body: """
-                            專案: ${env.JOB_NAME}
-                            建置編號: ${env.BUILD_NUMBER}
-                            分支: ${env.BRANCH_NAME}
-                            建置時間: ${env.BUILD_TIMESTAMP}
-                            
-                            建置日誌: ${env.BUILD_URL}console
-                            測試報告: ${env.BUILD_URL}testReport
-                            程式碼覆蓋率: ${env.BUILD_URL}jacoco
-                        """,
-                        to: "${env.CHANGE_AUTHOR_EMAIL ?: 'dev-team@company.com'}"
-                    )
-                }
-            }
-        }
-        
-        failure {
-            emailext(
-                subject: "❌ 建置失敗: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                    專案: ${env.JOB_NAME}
-                    建置編號: ${env.BUILD_NUMBER}
-                    分支: ${env.BRANCH_NAME}
-                    失敗階段: ${env.STAGE_NAME}
-                    
-                    錯誤詳情: ${env.BUILD_URL}console
-                    
-                    請檢查建置日誌並修正問題。
-                """,
-                to: "${env.CHANGE_AUTHOR_EMAIL ?: 'dev-team@company.com'}"
-            )
-        }
-        
-        unstable {
-            echo '建置不穩定 - 可能有測試失敗'
-        }
-        
-        cleanup {
-            cleanWs(
-                cleanWhenNotBuilt: false,
-                deleteDirs: true,
-                disableDeferredWipeout: true,
-                notFailBuild: true
-            )
-        }
-    }
-}
-```
-
-### 📊 多模組專案管理
-
-#### 8.6 多模組專案結構
-
-**典型多模組專案架構：**
-
-```
-enterprise-app/
-├── pom.xml                    # 父 POM
-├── common/                    # 共用模組
-│   ├── pom.xml
-│   └── src/
-├── core/                      # 核心業務邏輯
-│   ├── pom.xml
-│   └── src/
-├── web/                       # Web 層
-│   ├── pom.xml
-│   └── src/
-├── integration-tests/         # 整合測試
-│   ├── pom.xml
-│   └── src/
-└── distribution/              # 打包分發
-    ├── pom.xml
-    └── src/
-```
-
-**父 POM 設定範例：**
-
-```xml
-<!-- 父 pom.xml -->
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
-                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    
-    <groupId>com.company</groupId>
-    <artifactId>enterprise-app</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    
-    <name>Enterprise Application</name>
-    <description>多模組企業應用程式</description>
-    
-    <!-- 子模組定義 -->
-    <modules>
-        <module>common</module>
-        <module>core</module>
-        <module>web</module>
-        <module>integration-tests</module>
-        <module>distribution</module>
-    </modules>
-    
-    <!-- 屬性定義 -->
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        
-        <!-- 版本管理 -->
-        <spring-boot.version>3.1.0</spring-boot.version>
-        <junit.version>5.9.3</junit.version>
-        <mockito.version>5.3.1</mockito.version>
-        
-        <!-- 插件版本 -->
-        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-        <maven-surefire-plugin.version>3.1.0</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.1.0</maven-failsafe-plugin.version>
-        <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
-    </properties>
-    
-    <!-- 依賴管理 -->
-    <dependencyManagement>
-        <dependencies>
-            <!-- Spring Boot BOM -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            
-            <!-- 內部模組依賴 -->
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    
-    <!-- 構建設定 -->
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven-compiler-plugin.version}</version>
-                    <configuration>
-                        <source>${maven.compiler.source}</source>
-                        <target>${maven.compiler.target}</target>
-                        <encoding>${project.build.sourceEncoding}</encoding>
-                    </configuration>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven-surefire-plugin.version}</version>
-                    <configuration>
-                        <parallel>methods</parallel>
-                        <threadCount>10</threadCount>
-                        <includes>
-                            <include>**/*Test.java</include>
-                            <include>**/*Tests.java</include>
-                        </includes>
-                    </configuration>
-                </plugin>
-                
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>${jacoco-maven-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>prepare-agent</goal>
-                            </goals>
-                        </execution>
-                        <execution>
-                            <id>report</id>
-                            <phase>test</phase>
-                            <goals>
-                                <goal>report</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-        
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-    
-    <!-- 配置檔案 -->
-    <profiles>
-        <profile>
-            <id>ci</id>
-            <properties>
-                <maven.javadoc.skip>true</maven.javadoc.skip>
-                <maven.source.skip>true</maven.source.skip>
-            </properties>
-        </profile>
-        
-        <profile>
-            <id>integration-tests</id>
-            <modules>
-                <module>integration-tests</module>
-            </modules>
-        </profile>
-    </profiles>
-</project>
-```
-
-#### 8.7 多模組建置策略
-
-**並行建置 Pipeline：**
-
-```groovy
-// 多模組並行建置 Jenkinsfile
-pipeline {
-    agent any
-    
-    tools {
-        maven 'Maven-3.9'
-        jdk 'JDK-17'
-    }
-    
-    environment {
-        MAVEN_OPTS = '-Xmx4g -XX:+UseG1GC'
-        MAVEN_CLI_OPTS = '-B -V -e -T 4'  // 4 個執行緒並行建置
-    }
-    
-    stages {
-        stage('Multi-module Build') {
-            parallel {
-                stage('Common Module') {
-                    steps {
-                        dir('common') {
-                            sh "mvn ${MAVEN_CLI_OPTS} clean compile test"
-                        }
-                    }
-                    post {
-                        always {
-                            junit 'common/target/surefire-reports/*.xml'
-                        }
-                    }
-                }
-                
-                stage('Core Module') {
-                    steps {
-                        dir('core') {
-                            sh "mvn ${MAVEN_CLI_OPTS} clean compile test"
-                        }
-                    }
-                    post {
-                        always {
-                            junit 'core/target/surefire-reports/*.xml'
-                        }
-                    }
-                }
-                
-                stage('Web Module') {
-                    steps {
-                        dir('web') {
-                            sh "mvn ${MAVEN_CLI_OPTS} clean compile test"
-                        }
-                    }
-                    post {
-                        always {
-                            junit 'web/target/surefire-reports/*.xml'
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('Integration Build') {
-            steps {
-                echo '整合建置所有模組'
-                sh "mvn ${MAVEN_CLI_OPTS} clean package -P ci"
-            }
-        }
-        
-        stage('Integration Tests') {
-            steps {
-                echo '執行跨模組整合測試'
-                sh "mvn ${MAVEN_CLI_OPTS} verify -P integration-tests"
-            }
-            post {
-                always {
-                    junit 'integration-tests/target/failsafe-reports/*.xml'
-                }
-            }
-        }
-        
-        stage('Aggregate Reports') {
-            steps {
-                echo '聚合測試報告'
-                sh "mvn ${MAVEN_CLI_OPTS} jacoco:report-aggregate"
-                
-                publishHTML([
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: 'target/site/jacoco-aggregate',
-                    reportFiles: 'index.html',
-                    reportName: 'Aggregated Coverage Report'
-                ])
-            }
-        }
-    }
-}
-```
-
-### 💡 實務案例
-
-#### 案例：企業級 Maven 建置最佳實務
-
-**情境**：為大型 Java 企業應用建立標準化的 Maven 建置流程
-
-**解決方案架構：**
-
-```mermaid
-graph TB
-    A[企業 Maven 標準] --> B[依賴管理]
-    A --> C[建置生命週期]
-    A --> D[品質門檻]
-    A --> E[制品管理]
-    
-    B --> F[BOM 管理]
-    B --> G[版本策略]
-    B --> H[安全掃描]
-    
-    C --> I[並行建置]
-    C --> J[測試策略]
-    C --> K[文件生成]
-    
-    D --> L[程式碼覆蓋率]
-    D --> M[程式碼品質]
-    D --> N[安全檢查]
-    
-    E --> O[Nexus 整合]
-    E --> P[版本管理]
-    E --> Q[發布策略]
-```
-
-### ⚠️ 注意事項
-
-1. **效能優化**：
-   - 使用並行建置（-T 參數）
-   - 設定適當的記憶體配置
-   - 利用 Maven 本地倉庫快取
-
-2. **依賴管理**：
-   - 定期更新依賴版本
-   - 檢查依賴衝突
-   - 使用 BOM 統一版本管理
-
-3. **測試策略**：
-   - 區分單元測試和整合測試
-   - 設定合理的測試超時時間
-   - 並行執行測試以提高效率
-
-4. **制品管理**：
-   - 建立清楚的版本策略
-   - 定期清理舊版本制品
-   - 備份重要的發布版本
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| Maven 整合 | 生命週期、建置設定、多模組管理 |
-| 自動化建置 | Pipeline 整合、並行建置、測試策略 |
-| 制品管理 | 倉庫設定、版本管理、發布流程 |
-
-### 📝 練習作業
-
-1. **基礎練習**：設定單一模組 Maven 專案的完整建置流程
-2. **進階練習**：建立多模組專案的並行建置策略
-3. **實務練習**：實施企業級 Maven 建置標準和最佳實務
-
----
-
-## 第9章 Pipeline 基礎與 Declarative Syntax
-
-### 🎯 學習目標
-- 掌握 Jenkins Pipeline 的核心概念和優勢
-- 理解 Declarative 和 Scripted Pipeline 的差異
-- 學會撰寫基本的 Declarative Pipeline
-- 建立可重用和可維護的 Pipeline 結構
-
-### 📚 核心概念
-
-#### 9.1 Pipeline 概述與優勢
-
-Jenkins Pipeline 將建置流程定義為程式碼（Pipeline as Code），提供比 Freestyle Project 更強大的功能和可維護性。
-
-```mermaid
-graph TD
-    A[Jenkins Pipeline] --> B[Pipeline as Code]
-    A --> C[版本控制整合]
-    A --> D[複雜流程支援]
-    A --> E[可重用性]
-    
-    B --> F[Jenkinsfile]
-    F --> G[Declarative Syntax]
-    F --> H[Scripted Syntax]
-    
-    C --> I[Git 整合]
-    C --> J[分支策略]
-    C --> K[Code Review]
-    
-    D --> L[並行執行]
-    D --> M[條件判斷]
-    D --> N[錯誤處理]
-    
-    E --> O[Shared Libraries]
-    E --> P[Template Pipeline]
-    E --> Q[標準化流程]
-    
-    subgraph "Pipeline 執行流程"
-        R[Checkout] --> S[Build]
-        S --> T[Test]
-        T --> U[Deploy]
-    end
-```
-
-**Pipeline vs Freestyle Project 比較：**
-
-| 特性 | Freestyle Project | Pipeline |
-|------|------------------|----------|
-| **配置方式** | Web UI 圖形介面 | 程式碼定義 |
-| **版本控制** | 難以版本控制 | 完整版本控制 |
-| **複雜度支援** | 適合簡單流程 | 支援複雜邏輯 |
-| **重用性** | 難以重用 | 高度可重用 |
-| **維護性** | 手動維護 | 程式化維護 |
-| **並行支援** | 有限 | 原生支援 |
-| **條件執行** | 基礎條件 | 豐富的條件邏輯 |
-| **錯誤處理** | 基本錯誤處理 | 精細錯誤控制 |
-
-#### 9.2 Declarative vs Scripted Pipeline
-
-**語法比較：**
-
-```groovy
-// Declarative Pipeline (推薦)
-pipeline {
-    agent any
-    
-    stages {
-        stage('Build') {
-            steps {
-                sh 'mvn compile'
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-    }
-}
-```
-
-```groovy
-// Scripted Pipeline (傳統方式)
-node {
-    try {
-        stage('Build') {
-            sh 'mvn compile'
-        }
-        
-        stage('Test') {
-            sh 'mvn test'
-        }
-    } catch (Exception e) {
-        currentBuild.result = 'FAILURE'
-        throw e
-    }
-}
-```
-
-**選擇指南：**
-
-| 場景 | 建議語法 | 原因 |
-|------|----------|------|
-| **新專案** | Declarative | 結構清晰、易於理解 |
-| **複雜邏輯** | Scripted | 更大的靈活性 |
-| **團隊協作** | Declarative | 標準化結構 |
-| **維護性** | Declarative | 更好的可讀性 |
-
-### 🛠️ Declarative Pipeline 基礎結構
-
-#### 9.3 基本語法元素
-
-**完整的 Pipeline 結構：**
-
-```groovy
-// 基本 Declarative Pipeline 結構
-pipeline {
-    // 執行代理設定
-    agent {
-        label 'linux'
-    }
-    
-    // 工具定義
-    tools {
-        maven 'Maven-3.9'
-        jdk 'JDK-17'
-    }
-    
-    // 環境變數
-    environment {
-        APP_NAME = 'java-tutorial'
-        BUILD_VERSION = "${env.BUILD_NUMBER}"
-        MAVEN_OPTS = '-Xmx2g'
-    }
-    
-    // 全域選項
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '20'))
-        timeout(time: 60, unit: 'MINUTES')
-        skipStagesAfterUnstable()
-        parallelsAlwaysFailFast()
-        disableConcurrentBuilds()
-    }
-    
-    // 觸發器
-    triggers {
-        cron('H 2 * * *')  // 每日凌晨 2 點
-        pollSCM('H/15 * * * *')  // 每 15 分鐘檢查 SCM
-    }
-    
-    // 參數定義
-    parameters {
-        choice(
-            name: 'ENVIRONMENT',
-            choices: ['dev', 'staging', 'production'],
-            description: '部署環境選擇'
-        )
-        booleanParam(
-            name: 'SKIP_TESTS',
-            defaultValue: false,
-            description: '跳過測試階段'
-        )
-        string(
-            name: 'DEPLOY_VERSION',
-            defaultValue: 'latest',
-            description: '部署版本'
-        )
-    }
-    
-    // 建置階段
-    stages {
-        stage('Preparation') {
-            steps {
-                echo "開始建置 ${env.APP_NAME} 版本 ${env.BUILD_VERSION}"
-                echo "目標環境: ${params.ENVIRONMENT}"
-                
-                // 環境檢查
-                sh '''
-                    echo "=== 環境資訊 ==="
-                    java -version
-                    mvn -version
-                    echo "工作目錄: $(pwd)"
-                '''
-            }
-        }
-        
-        stage('Checkout') {
-            steps {
-                // Git checkout
-                checkout scm
-                
-                script {
-                    // 設定 Git 相關環境變數
-                    env.GIT_COMMIT_SHORT = sh(
-                        script: "git rev-parse --short HEAD",
-                        returnStdout: true
-                    ).trim()
-                    
-                    env.GIT_BRANCH_NAME = sh(
-                        script: "git rev-parse --abbrev-ref HEAD",
-                        returnStdout: true
-                    ).trim()
-                }
-                
-                echo "Git 版本: ${env.GIT_COMMIT_SHORT}"
-                echo "Git 分支: ${env.GIT_BRANCH_NAME}"
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                echo '編譯應用程式'
-                sh 'mvn clean compile -B'
-            }
-        }
-        
-        stage('Test') {
-            when {
-                not { params.SKIP_TESTS }
-            }
-            parallel {
-                stage('Unit Tests') {
-                    steps {
-                        sh 'mvn test -B'
-                    }
-                    post {
-                        always {
-                            junit 'target/surefire-reports/*.xml'
-                        }
-                    }
-                }
-                
-                stage('Integration Tests') {
-                    when {
-                        anyOf {
-                            branch 'master'
-                            branch 'develop'
-                        }
-                    }
-                    steps {
-                        sh 'mvn verify -P integration-tests -B'
-                    }
-                    post {
-                        always {
-                            junit 'target/failsafe-reports/*.xml'
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('Package') {
-            steps {
-                sh 'mvn package -DskipTests -B'
-                
-                // 保存建置產物
-                archiveArtifacts(
-                    artifacts: 'target/*.jar',
-                    fingerprint: true
-                )
-            }
-        }
-        
-        stage('Deploy') {
-            when {
-                anyOf {
-                    branch 'master'
-                    branch 'develop'
-                    expression { params.ENVIRONMENT != 'production' || env.BRANCH_NAME == 'master' }
-                }
-            }
-            steps {
-                script {
-                    def deployTarget = params.ENVIRONMENT
-                    echo "部署到 ${deployTarget} 環境"
-                    
-                    switch(deployTarget) {
-                        case 'dev':
-                            sh './scripts/deploy-dev.sh'
-                            break
-                        case 'staging':
-                            sh './scripts/deploy-staging.sh'
-                            break
-                        case 'production':
-                            // 生產環境需要人工確認
-                            input message: '確認部署到生產環境？',
-                                  ok: '部署',
-                                  submitterParameter: 'DEPLOYER'
-                            
-                            echo "部署者: ${env.DEPLOYER}"
-                            sh './scripts/deploy-production.sh'
-                            break
-                        default:
-                            error "未知的部署環境: ${deployTarget}"
-                    }
-                }
-            }
-        }
-    }
-    
-    // 後置處理
-    post {
-        always {
-            echo '建置流程完成'
-            
-            // 清理工作空間
-            cleanWs()
-        }
-        
-        success {
-            echo '建置成功！'
-            
-            script {
-                // 發送成功通知
-                if (env.BRANCH_NAME in ['master', 'develop']) {
-                    emailext(
-                        subject: "✅ 建置成功: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                        body: """
-                            專案: ${env.JOB_NAME}
-                            建置編號: ${env.BUILD_NUMBER}
-                            Git 版本: ${env.GIT_COMMIT_SHORT}
-                            部署環境: ${params.ENVIRONMENT}
-                            
-                            建置時間: ${currentBuild.durationString}
-                            建置日誌: ${env.BUILD_URL}console
-                        """,
-                        to: 'dev-team@company.com'
-                    )
-                }
-            }
-        }
-        
-        failure {
-            echo '建置失敗！'
-            
-            emailext(
-                subject: "❌ 建置失敗: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                body: """
-                    專案: ${env.JOB_NAME}
-                    建置編號: ${env.BUILD_NUMBER}
-                    失敗階段: ${env.STAGE_NAME}
-                    Git 版本: ${env.GIT_COMMIT_SHORT}
-                    
-                    錯誤詳情請查看: ${env.BUILD_URL}console
-                """,
-                to: 'dev-team@company.com'
-            )
-        }
-        
-        unstable {
-            echo '建置不穩定 - 測試失敗但編譯成功'
-        }
-        
-        changed {
-            echo '建置狀態已改變'
-        }
-    }
-}
-```
-
-#### 9.4 Agent 配置策略
-
-**不同的 Agent 配置方式：**
-
-```groovy
-pipeline {
-    // 1. 任意可用的 Agent
-    agent any
-    
-    // 2. 指定標籤的 Agent
-    // agent { label 'linux && maven' }
-    
-    // 3. Docker 容器 Agent
-    // agent {
-    //     docker {
-    //         image 'maven:3.9.0-openjdk-17'
-    //         args '-v /tmp:/tmp'
-    //     }
-    // }
-    
-    // 4. Kubernetes Pod Agent
-    // agent {
-    //     kubernetes {
-    //         yaml """
-    //             apiVersion: v1
-    //             kind: Pod
-    //             spec:
-    //               containers:
-    //               - name: maven
-    //                 image: maven:3.9.0-openjdk-17
-    //                 command:
-    //                 - cat
-    //                 tty: true
-    //         """
-    //     }
-    // }
-    
-    stages {
-        stage('Build on Specific Agent') {
-            agent {
-                label 'windows'  // 在特定階段使用不同的 Agent
-            }
-            steps {
-                bat 'mvn clean compile'
-            }
-        }
-        
-        stage('Test in Docker') {
-            agent {
-                docker {
-                    image 'maven:3.9.0-openjdk-17'
-                    reuseNode true  // 重用節點避免重新 checkout
-                }
-            }
-            steps {
-                sh 'mvn test'
-            }
-        }
-    }
-}
-```
-
-#### 9.5 條件執行 (When)
-
-**豐富的條件判斷：**
-
-```groovy
-pipeline {
-    agent any
-    
-    parameters {
-        choice(name: 'DEPLOY_ENV', choices: ['dev', 'staging', 'prod'])
-        booleanParam(name: 'RUN_PERF_TESTS', defaultValue: false)
-    }
-    
-    stages {
-        stage('Build') {
-            steps {
-                sh 'mvn compile'
-            }
-        }
-        
-        stage('Unit Tests') {
-            when {
-                // 總是執行單元測試
-                expression { return true }
-            }
-            steps {
-                sh 'mvn test'
-            }
-        }
-        
-        stage('Integration Tests') {
-            when {
-                // 僅在主要分支執行整合測試
-                anyOf {
-                    branch 'master'
-                    branch 'develop'
-                    branch 'release/*'
-                }
-            }
-            steps {
-                sh 'mvn verify -P integration-tests'
-            }
-        }
-        
-        stage('Performance Tests') {
-            when {
-                allOf {
-                    // 同時滿足多個條件
-                    branch 'master'
-                    params.RUN_PERF_TESTS
-                    environment name: 'DEPLOY_ENV', value: 'staging'
-                }
-            }
-            steps {
-                sh './scripts/performance-tests.sh'
-            }
-        }
-        
-        stage('Security Scan') {
-            when {
-                // 非特性分支都要執行安全掃描
-                not {
-                    branch 'feature/*'
-                }
-            }
-            steps {
-                sh 'mvn spotbugs:check'
-            }
-        }
-        
-        stage('Deploy to Development') {
-            when {
-                // 使用 Groovy 表達式
-                expression {
-                    return params.DEPLOY_ENV == 'dev' && 
-                           env.BRANCH_NAME != 'master'
-                }
-            }
-            steps {
-                sh './scripts/deploy-dev.sh'
-            }
-        }
-        
-        stage('Deploy to Staging') {
-            when {
-                allOf {
-                    branch 'develop'
-                    environment name: 'DEPLOY_ENV', value: 'staging'
-                }
-            }
-            steps {
-                sh './scripts/deploy-staging.sh'
-            }
-        }
-        
-        stage('Deploy to Production') {
-            when {
-                allOf {
-                    branch 'master'
-                    environment name: 'DEPLOY_ENV', value: 'prod'
-                    // 確認是穩定建置
-                    expression { 
-                        return currentBuild.result == null || 
-                               currentBuild.result == 'SUCCESS' 
-                    }
-                }
-            }
-            steps {
-                // 生產部署需要人工確認
-                script {
-                    def confirmation = input(
-                        message: '確認部署到生產環境？',
-                        ok: '部署',
-                        parameters: [
-                            choice(
-                                name: 'DEPLOYMENT_STRATEGY',
-                                choices: ['blue-green', 'rolling', 'canary'],
-                                description: '選擇部署策略'
-                            )
-                        ]
-                    )
-                    
-                    echo "部署策略: ${confirmation}"
-                    sh "./scripts/deploy-production.sh ${confirmation}"
-                }
-            }
-        }
-        
-        stage('Cleanup') {
-            when {
-                // 不論成功失敗都要清理
-                expression { return true }
-            }
-            steps {
-                sh './scripts/cleanup.sh'
-            }
-        }
-    }
-}
-```
-
-### 📊 Pipeline 最佳實務
-
-#### 9.6 模組化和重用
-
-**函式定義和重用：**
-
-```groovy
-pipeline {
-    agent any
-    
-    stages {
-        stage('Build') {
-            steps {
-                buildApplication()
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                runTests()
-            }
-        }
-        
-        stage('Deploy') {
-            steps {
-                deployApplication('staging')
-            }
-        }
-    }
-}
-
-// 定義可重用的函式
-def buildApplication() {
-    echo '開始建置應用程式'
-    sh '''
-        mvn clean compile -B \
-            -Dmaven.compiler.showWarnings=true \
-            -Dmaven.compiler.showDeprecation=true
-    '''
-}
-
-def runTests() {
-    echo '執行測試套件'
-    sh 'mvn test -B'
-    
-    // 發布測試結果
-    publishTestResults testResultsPattern: 'target/surefire-reports/*.xml'
-    
-    // 發布程式碼覆蓋率
-    publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: 'target/site/jacoco',
-        reportFiles: 'index.html',
-        reportName: 'Coverage Report'
-    ])
-}
-
-def deployApplication(environment) {
-    echo "部署到 ${environment} 環境"
-    
-    script {
-        switch(environment) {
-            case 'dev':
-                sh './deploy/dev-deploy.sh'
-                break
-            case 'staging':
-                sh './deploy/staging-deploy.sh'
-                break
-            case 'production':
-                input message: '確認生產部署？'
-                sh './deploy/prod-deploy.sh'
-                break
-            default:
-                error "未知的環境: ${environment}"
-        }
-    }
-    
-    // 部署後驗證
-    verifyDeployment(environment)
-}
-
-def verifyDeployment(environment) {
-    echo "驗證 ${environment} 環境部署"
-    
-    timeout(time: 5, unit: 'MINUTES') {
-        script {
-            def healthCheckUrl = getHealthCheckUrl(environment)
-            def maxRetries = 30
-            def retryCount = 0
-            
-            while (retryCount < maxRetries) {
-                def response = sh(
-                    script: "curl -s -o /dev/null -w '%{http_code}' ${healthCheckUrl}",
-                    returnStdout: true
-                ).trim()
-                
-                if (response == '200') {
-                    echo "部署驗證成功！"
-                    break
-                } else {
-                    echo "等待服務啟動... (${retryCount + 1}/${maxRetries})"
-                    sleep 10
-                    retryCount++
-                }
-            }
-            
-            if (retryCount >= maxRetries) {
-                error "部署驗證失敗 - 服務未能正常啟動"
-            }
-        }
-    }
-}
-
-def getHealthCheckUrl(environment) {
-    def urls = [
-        'dev': 'http://dev.company.com/health',
-        'staging': 'http://staging.company.com/health', 
-        'production': 'http://www.company.com/health'
-    ]
-    return urls[environment]
-}
-```
-
-#### 9.7 錯誤處理策略
-
-**全面的錯誤處理：**
-
-```groovy
-pipeline {
-    agent any
-    
-    options {
-        skipStagesAfterUnstable()
-        timeout(time: 60, unit: 'MINUTES')
-    }
-    
-    stages {
-        stage('Build with Error Handling') {
-            steps {
-                script {
-                    try {
-                        sh 'mvn clean compile'
-                        
-                        // 檢查編譯警告
-                        def warnings = sh(
-                            script: "mvn compile 2>&1 | grep -c 'WARNING' || true",
-                            returnStdout: true
-                        ).trim().toInteger()
-                        
-                        if (warnings > 10) {
-                            echo "警告: 發現 ${warnings} 個編譯警告"
-                            currentBuild.result = 'UNSTABLE'
-                        }
-                        
-                    } catch (Exception e) {
-                        echo "編譯失敗: ${e.getMessage()}"
-                        currentBuild.result = 'FAILURE'
-                        
-                        // 收集編譯錯誤資訊
-                        sh 'mvn compile > compile-error.log 2>&1 || true'
-                        archiveArtifacts artifacts: 'compile-error.log'
-                        
-                        throw e
-                    }
-                }
-            }
-        }
-        
-        stage('Test with Retry') {
-            steps {
-                retry(3) {
-                    script {
-                        try {
-                            sh 'mvn test'
-                        } catch (Exception e) {
-                            echo "測試失敗，準備重試..."
-                            sh 'mvn clean'  // 清理後重試
-                            throw e
-                        }
-                    }
-                }
-            }
-            post {
-                always {
-                    junit testResults: 'target/surefire-reports/*.xml',
-                          allowEmptyResults: true
-                }
-                failure {
-                    script {
-                        // 分析測試失敗原因
-                        def failedTests = sh(
-                            script: "find target/surefire-reports -name '*.xml' -exec grep -l 'failure\\|error' {} \\;",
-                            returnStdout: true
-                        ).trim()
-                        
-                        if (failedTests) {
-                            echo "失敗的測試檔案: ${failedTests}"
-                            
-                            // 保存失敗的測試日誌
-                            sh 'tar -czf failed-tests.tar.gz target/surefire-reports/'
-                            archiveArtifacts artifacts: 'failed-tests.tar.gz'
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('Deploy with Rollback') {
-            when {
-                expression { currentBuild.result != 'FAILURE' }
-            }
-            steps {
-                script {
-                    def deploymentSuccess = false
-                    try {
-                        // 備份當前版本
-                        sh './scripts/backup-current-version.sh'
-                        
-                        // 執行部署
-                        sh './scripts/deploy.sh'
-                        
-                        // 驗證部署
-                        timeout(time: 5, unit: 'MINUTES') {
-                            sh './scripts/verify-deployment.sh'
-                        }
-                        
-                        deploymentSuccess = true
-                        echo "部署成功完成"
-                        
-                    } catch (Exception e) {
-                        echo "部署失敗: ${e.getMessage()}"
-                        
-                        // 自動回滾
-                        echo "開始自動回滾..."
-                        sh './scripts/rollback.sh'
-                        
-                        // 驗證回滾
-                        sh './scripts/verify-rollback.sh'
-                        echo "回滾完成"
-                        
-                        currentBuild.result = 'FAILURE'
-                        throw e
-                    } finally {
-                        // 清理備份檔案（如果部署成功）
-                        if (deploymentSuccess) {
-                            sh './scripts/cleanup-backup.sh'
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    post {
-        failure {
-            script {
-                // 收集失敗時的系統資訊
-                sh '''
-                    echo "=== 系統狀態 ===" > failure-report.txt
-                    echo "建置時間: $(date)" >> failure-report.txt
-                    echo "Git 版本: $(git rev-parse HEAD)" >> failure-report.txt
-                    echo "Java 版本: $(java -version 2>&1)" >> failure-report.txt
-                    echo "Maven 版本: $(mvn -version)" >> failure-report.txt
-                    echo "磁碟使用率: $(df -h)" >> failure-report.txt
-                    echo "記憶體使用率: $(free -h)" >> failure-report.txt
-                '''
-                
-                archiveArtifacts artifacts: 'failure-report.txt'
-                
-                // 發送詳細的失敗通知
-                emailext(
-                    subject: "🚨 緊急：建置失敗 - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                    body: """
-                        ⚠️ 建置失敗詳情 ⚠️
-                        
-                        專案: ${env.JOB_NAME}
-                        建置編號: ${env.BUILD_NUMBER}
-                        失敗階段: ${env.STAGE_NAME}
-                        失敗時間: ${new Date()}
-                        Git 版本: ${env.GIT_COMMIT}
-                        
-                        🔍 快速診斷：
-                        - 建置日誌: ${env.BUILD_URL}console
-                        - 測試報告: ${env.BUILD_URL}testReport
-                        - 失敗報告: ${env.BUILD_URL}artifact/failure-report.txt
-                        
-                        🛠️ 建議檢查項目：
-                        1. 最近的程式碼變更
-                        2. 依賴版本衝突
-                        3. 環境設定變更
-                        4. 測試資料或測試環境狀態
-                        
-                        請盡快檢查並修復問題。
-                    """,
-                    to: 'dev-team@company.com,ops-team@company.com',
-                    attachLog: true
-                )
-            }
-        }
-    }
-}
-```
-
-### 💡 實務案例
-
-#### 案例：企業級 Java 應用 Pipeline
-
-**情境**：為企業級 Spring Boot 應用建立完整的 CI/CD Pipeline
-
-**解決方案：**
-
-```groovy
-// enterprise-java-app-pipeline.groovy
-pipeline {
-    agent none
-    
-    options {
-        buildDiscarder(logRotator(
-            numToKeepStr: '50',
-            artifactNumToKeepStr: '20'
-        ))
-        timeout(time: 2, unit: 'HOURS')
-        skipStagesAfterUnstable()
-        parallelsAlwaysFailFast()
-        disableConcurrentBuilds()
-    }
-    
-    environment {
-        APP_NAME = 'enterprise-java-app'
-        REGISTRY_URL = 'registry.company.com'
-        SONAR_PROJECT_KEY = 'enterprise-java-app'
-        NEXUS_REPO = 'http://nexus.company.com:8081'
-    }
-    
-    parameters {
-        choice(
-            name: 'BUILD_TYPE',
-            choices: ['snapshot', 'release', 'hotfix'],
-            description: '建置類型'
-        )
-        choice(
-            name: 'DEPLOY_ENVIRONMENT',
-            choices: ['none', 'dev', 'staging', 'production'],
-            description: '部署目標環境'
-        )
-        booleanParam(
-            name: 'SKIP_TESTS',
-            defaultValue: false,
-            description: '跳過測試（僅限緊急情況）'
-        )
-        booleanParam(
-            name: 'FORCE_DEPLOY',
-            defaultValue: false,
-            description: '強制部署（跳過確認）'
-        )
-    }
-    
-    stages {
-        stage('Preparation & Validation') {
-            agent {
-                label 'maven && jdk17'
-            }
-            steps {
-                // 參數驗證
-                script {
-                    validateParameters()
-                    setupBuildEnvironment()
-                }
-                
-                // 程式碼檢出
-                checkout scm
-                
-                // 設定建置資訊
-                script {
-                    env.BUILD_VERSION = generateBuildVersion()
-                    env.GIT_COMMIT_SHORT = sh(
-                        script: "git rev-parse --short HEAD",
-                        returnStdout: true
-                    ).trim()
-                    
-                    currentBuild.displayName = "#${env.BUILD_NUMBER} - ${env.BUILD_VERSION}"
-                    currentBuild.description = "Type: ${params.BUILD_TYPE}, Target: ${params.DEPLOY_ENVIRONMENT}"
-                }
-                
-                echo "=== 建置資訊 ==="
-                echo "應用名稱: ${env.APP_NAME}"
-                echo "建置版本: ${env.BUILD_VERSION}"
-                echo "建置類型: ${params.BUILD_TYPE}"
-                echo "Git 版本: ${env.GIT_COMMIT_SHORT}"
-                echo "目標環境: ${params.DEPLOY_ENVIRONMENT}"
-            }
-        }
-        
-        stage('Code Quality & Security') {
-            parallel {
-                stage('Static Analysis') {
-                    agent {
-                        label 'maven && jdk17'
-                    }
-                    steps {
-                        sh 'mvn clean compile -B'
-                        
-                        // 程式碼風格檢查
-                        sh 'mvn checkstyle:check'
-                        recordIssues(
-                            enabledForFailure: true,
-                            tools: [checkStyle(pattern: 'target/checkstyle-result.xml')]
-                        )
-                        
-                        // SpotBugs 分析
-                        sh 'mvn spotbugs:check'
-                        recordIssues(
-                            enabledForFailure: true,
-                            tools: [spotBugs(pattern: 'target/spotbugsXml.xml')]
-                        )
-                        
-                        // PMD 分析
-                        sh 'mvn pmd:check'
-                        recordIssues(
-                            enabledForFailure: false,
-                            tools: [pmdParser(pattern: 'target/pmd.xml')]
-                        )
-                    }
-                }
-                
-                stage('Security Scan') {
-                    agent {
-                        label 'security-scanner'
-                    }
-                    steps {
-                        // 依賴安全檢查
-                        sh 'mvn dependency-check:check'
-                        
-                        // OWASP 安全掃描
-                        publishHTML([
-                            allowMissing: false,
-                            alwaysLinkToLastBuild: true,
-                            keepAll: true,
-                            reportDir: 'target',
-                            reportFiles: 'dependency-check-report.html',
-                            reportName: 'OWASP Dependency Check'
-                        ])
-                        
-                        // Secrets 掃描
-                        sh './scripts/scan-secrets.sh'
-                    }
-                }
-                
-                stage('License Check') {
-                    agent {
-                        label 'maven && jdk17'
-                    }
-                    steps {
-                        // 授權合規檢查
-                        sh 'mvn license:check'
-                        sh 'mvn license:aggregate-third-party-report'
-                        
-                        publishHTML([
-                            allowMissing: false,
-                            alwaysLinkToLastBuild: true,
-                            keepAll: true,
-                            reportDir: 'target/site',
-                            reportFiles: 'aggregate-third-party-report.html',
-                            reportName: 'License Report'
-                        ])
-                    }
-                }
-            }
-        }
-        
-        stage('Build & Test') {
-            parallel {
-                stage('Maven Build') {
-                    agent {
-                        label 'maven && jdk17'
-                    }
-                    steps {
-                        script {
-                            if (!params.SKIP_TESTS) {
-                                // 完整建置含測試
-                                sh 'mvn clean package -B'
-                            } else {
-                                // 跳過測試的建置
-                                echo "⚠️ 警告：跳過測試建置"
-                                sh 'mvn clean package -DskipTests -B'
-                            }
-                        }
-                        
-                        // 保存建置產物
-                        archiveArtifacts(
-                            artifacts: 'target/*.jar,target/*.war',
-                            fingerprint: true
-                        )
-                    }
-                    post {
-                        always {
-                            script {
-                                if (!params.SKIP_TESTS) {
-                                    // 發布測試結果
-                                    junit testResults: 'target/surefire-reports/*.xml',
-                                          allowEmptyResults: true
-                                    
-                                    // 發布程式碼覆蓋率
-                                    publishHTML([
-                                        allowMissing: false,
-                                        alwaysLinkToLastBuild: true,
-                                        keepAll: true,
-                                        reportDir: 'target/site/jacoco',
-                                        reportFiles: 'index.html',
-                                        reportName: 'JaCoCo Coverage Report'
-                                    ])
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                stage('Docker Build') {
-                    agent {
-                        label 'docker'
-                    }
-                    when {
-                        not { params.BUILD_TYPE == 'none' }
-                    }
-                    steps {
-                        script {
-                            // 建置 Docker 映像檔
-                            def imageName = "${env.REGISTRY_URL}/${env.APP_NAME}:${env.BUILD_VERSION}"
-                            def latestImage = "${env.REGISTRY_URL}/${env.APP_NAME}:latest"
-                            
-                            sh """
-                                docker build -t ${imageName} .
-                                docker tag ${imageName} ${latestImage}
-                            """
-                            
-                            // 推送到 Registry
-                            withCredentials([usernamePassword(
-                                credentialsId: 'docker-registry',
-                                usernameVariable: 'REGISTRY_USER',
-                                passwordVariable: 'REGISTRY_PASS'
-                            )]) {
-                                sh """
-                                    echo ${REGISTRY_PASS} | docker login ${env.REGISTRY_URL} -u ${REGISTRY_USER} --password-stdin
-                                    docker push ${imageName}
-                                    docker push ${latestImage}
-                                """
-                            }
-                            
-                            env.DOCKER_IMAGE = imageName
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('SonarQube Analysis') {
-            agent {
-                label 'maven && jdk17'
-            }
-            when {
-                anyOf {
-                    branch 'master'
-                    branch 'develop'
-                    changeRequest()
-                }
-            }
-            steps {
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    script {
-                        def sonarArgs = "-Dsonar.login=${SONAR_TOKEN}"
-                        
-                        if (env.CHANGE_ID) {
-                            // Pull Request 分析
-                            sonarArgs += " -Dsonar.pullrequest.key=${env.CHANGE_ID}"
-                            sonarArgs += " -Dsonar.pullrequest.branch=${env.CHANGE_BRANCH}"
-                            sonarArgs += " -Dsonar.pullrequest.base=${env.CHANGE_TARGET}"
-                        } else {
-                            // 分支分析
-                            sonarArgs += " -Dsonar.branch.name=${env.BRANCH_NAME}"
-                        }
-                        
-                        sh "mvn sonar:sonar ${sonarArgs}"
-                    }
-                }
-                
-                // 等待 Quality Gate 結果
-                timeout(time: 10, unit: 'MINUTES') {
-                    script {
-                        def qg = waitForQualityGate()
-                        if (qg.status != 'OK') {
-                            echo "SonarQube Quality Gate 失敗: ${qg.status}"
-                            currentBuild.result = 'UNSTABLE'
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('Deploy') {
-            when {
-                allOf {
-                    not { params.DEPLOY_ENVIRONMENT == 'none' }
-                    expression { currentBuild.result != 'FAILURE' }
-                }
-            }
-            steps {
-                script {
-                    deployToEnvironment(params.DEPLOY_ENVIRONMENT)
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            node('master') {
-                // 建置統計和清理
-                script {
-                    generateBuildReport()
-                }
-            }
-        }
-        
-        success {
-            node('master') {
-                script {
-                    sendNotification('success')
-                }
-            }
-        }
-        
-        failure {
-            node('master') {
-                script {
-                    sendNotification('failure')
-                    triggerFailureAnalysis()
-                }
-            }
-        }
-    }
-}
-
-// === 輔助函式定義 ===
-
-def validateParameters() {
-    // 參數驗證邏輯
-    if (params.BUILD_TYPE == 'release' && env.BRANCH_NAME != 'master') {
-        error "Release 建置只能在 master 分支執行"
-    }
-    
-    if (params.DEPLOY_ENVIRONMENT == 'production' && params.BUILD_TYPE != 'release') {
-        error "生產環境只能部署 release 版本"
-    }
-}
-
-def setupBuildEnvironment() {
-    // 設定建置環境
-    sh '''
-        export MAVEN_OPTS="-Xmx4g -XX:+UseG1GC"
-        export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
-    '''
-}
-
-def generateBuildVersion() {
-    def version = "1.0.0"
-    
-    switch(params.BUILD_TYPE) {
-        case 'snapshot':
-            return "${version}-SNAPSHOT-${env.BUILD_NUMBER}"
-        case 'release':
-            return version
-        case 'hotfix':
-            return "${version}-HOTFIX-${env.BUILD_NUMBER}"
-        default:
-            return "${version}-${env.BUILD_NUMBER}"
-    }
-}
-
-def deployToEnvironment(environment) {
-    echo "部署到 ${environment} 環境"
-    
-    def needsApproval = (environment == 'production') && !params.FORCE_DEPLOY
-    
-    if (needsApproval) {
-        def approval = input(
-            message: "確認部署到 ${environment} 環境？",
-            ok: '部署',
-            parameters: [
-                choice(
-                    name: 'DEPLOY_STRATEGY',
-                    choices: ['blue-green', 'rolling', 'canary'],
-                    description: '部署策略'
-                )
-            ],
-            submitterParameter: 'APPROVER'
-        )
-        
-        env.DEPLOY_STRATEGY = approval
-        env.DEPLOYMENT_APPROVER = env.APPROVER
-    }
-    
-    // 執行部署
-    sh "./scripts/deploy-${environment}.sh ${env.BUILD_VERSION}"
-    
-    // 部署後驗證
-    verifyDeployment(environment)
-}
-
-def verifyDeployment(environment) {
-    echo "驗證 ${environment} 環境部署"
-    
-    timeout(time: 10, unit: 'MINUTES') {
-        sh "./scripts/verify-${environment}.sh"
-    }
-    
-    // 健康檢查
-    sh "./scripts/health-check-${environment}.sh"
-}
-
-def generateBuildReport() {
-    sh '''
-        echo "=== 建置報告 ===" > build-report.txt
-        echo "建置時間: $(date)" >> build-report.txt
-        echo "建置持續時間: ${currentBuild.durationString}" >> build-report.txt
-        echo "建置結果: ${currentBuild.result ?: 'SUCCESS'}" >> build-report.txt
-    '''
-    
-    archiveArtifacts artifacts: 'build-report.txt'
-}
-
-def sendNotification(status) {
-    def color = status == 'success' ? 'good' : 'danger'
-    def emoji = status == 'success' ? '✅' : '❌'
-    
-    slackSend(
-        channel: '#ci-cd',
-        color: color,
-        message: "${emoji} ${env.APP_NAME} 建置 ${status}\n" +
-                "版本: ${env.BUILD_VERSION}\n" +
-                "環境: ${params.DEPLOY_ENVIRONMENT}\n" +
-                "詳情: ${env.BUILD_URL}"
-    )
-}
-
-def triggerFailureAnalysis() {
-    // 觸發失敗分析工作
-    build job: 'failure-analysis',
-          parameters: [
-              string(name: 'FAILED_JOB', value: env.JOB_NAME),
-              string(name: 'BUILD_NUMBER', value: env.BUILD_NUMBER)
-          ],
-          wait: false
-}
-```
-
-### ⚠️ 注意事項
-
-1. **效能優化**：
-   - 合理使用並行執行
-   - 避免不必要的重複操作
-   - 適當設定超時時間
-
-2. **可維護性**：
-   - 使用函式模組化複雜邏輯
-   - 添加充分的註解和文件
-   - 遵循一致的命名規則
-
-3. **安全考量**：
-   - 謹慎處理敏感資訊
-   - 使用憑證管理系統
-   - 記錄重要操作的稽核日誌
-
-4. **錯誤處理**：
-   - 實施適當的重試機制
-   - 提供清楚的錯誤訊息
-   - 建立回滾和恢復策略
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| Pipeline 語法 | Declarative vs Scripted、基本結構 |
-| 條件執行 | When 條件、分支策略 |
-| 錯誤處理 | Try-catch、Retry、回滾機制 |
-| 最佳實務 | 模組化、重用性、維護性 |
-
-### 📝 練習作業
-
-1. **基礎練習**：建立基本的 Declarative Pipeline
-2. **進階練習**：實施複雜的條件執行和錯誤處理
-3. **實務練習**：設計企業級的模組化 Pipeline 架構
-
----
-
-## 第10章 Jenkinsfile 結構深度分析
-
-### 🎯 學習目標
-- 深入理解 Jenkinsfile 的結構和最佳實務
-- 掌握 Pipeline 進階語法和功能
-- 學會建立可重用和可擴展的 Pipeline 庫
-- 實施企業級的 Pipeline 治理策略
-
-### 📚 核心概念
-
-#### 10.1 Jenkinsfile 結構剖析
-
-Jenkinsfile 是 Pipeline as Code 的核心，它定義了整個建置流程。深入理解其結構對於建立高品質的 CI/CD 流程至關重要。
-
-```mermaid
-graph TB
-    A[Jenkinsfile] --> B[Pipeline Block]
-    B --> C[Agent Declaration]
-    B --> D[Tools Configuration]
-    B --> E[Environment Variables]
-    B --> F[Options]
-    B --> G[Triggers]
-    B --> H[Parameters]
-    B --> I[Stages]
-    B --> J[Post Actions]
-    
-    I --> K[Stage 1]
-    I --> L[Stage 2]
-    I --> M[Stage N]
-    
-    K --> N[Steps]
-    K --> O[When Conditions]
-    K --> P[Post Actions]
-    
-    N --> Q[Shell Commands]
-    N --> R[Pipeline Steps]
-    N --> S[Script Blocks]
-    
-    subgraph "執行環境"
-        T[Jenkins Master]
-        U[Build Agent 1]
-        V[Build Agent 2]
-        W[Docker Container]
-    end
-    
-    C --> T
-    C --> U
-    C --> V
-    C --> W
-```
-
-**標準 Jenkinsfile 模板：**
-
-```groovy
-#!/usr/bin/env groovy
-
-/**
- * 企業級 Jenkins Pipeline 模板
- * 
- * 功能特性：
- * - 多環境支援
- * - 自動化測試
- * - 程式碼品質檢查
- * - 自動部署
- * - 失敗回滾
- * - 通知整合
- * 
- * @author DevOps Team
- * @version 2.0
- * @since 2024-01-01
- */
-
-// === Pipeline 主體定義 ===
-pipeline {
-    // 執行代理設定
-    agent {
-        label 'linux && maven && docker'
-    }
-    
-    // 工具版本定義
-    tools {
-        maven 'Maven-3.9.5'
-        jdk 'OpenJDK-17'
-        nodejs 'NodeJS-18'  // 用於前端建置
-    }
-    
-    // 全域環境變數
-    environment {
-        // 應用程式資訊
-        APP_NAME = 'enterprise-app'
-        APP_VERSION = readMavenPom().getVersion()
-        
-        // 建置資訊
-        BUILD_TIMESTAMP = sh(script: 'date +%Y%m%d%H%M%S', returnStdout: true).trim()
-        BUILD_USER = wrap([$class: 'BuildUser']) {
-            script {
-                return env.BUILD_USER ?: 'system'
-            }
-        }
-        
-        // Docker 設定
-        DOCKER_REGISTRY = 'registry.company.com'
-        DOCKER_NAMESPACE = 'applications'
-        DOCKER_IMAGE_NAME = "${DOCKER_REGISTRY}/${DOCKER_NAMESPACE}/${APP_NAME}"
-        
-        // SonarQube 設定
-        SONAR_PROJECT_KEY = "${APP_NAME}"
-        SONAR_HOST_URL = 'https://sonar.company.com'
-        
-        // 部署設定
-        DEPLOYMENT_NAMESPACE = 'default'
-        HEALTH_CHECK_URL = "https://${APP_NAME}.company.com/actuator/health"
-        
-        // 通知設定
-        SLACK_CHANNEL = '#ci-cd-notifications'
-        EMAIL_RECIPIENTS = 'dev-team@company.com'
-        
-        // 建置選項
-        MAVEN_OPTS = '-Xmx2g -XX:+UseG1GC -XX:+UseStringDeduplication'
-        JAVA_TOOL_OPTIONS = '-Dfile.encoding=UTF-8 -Djava.awt.headless=true'
-    }
-    
-    // 全域選項配置
-    options {
-        // 建置保留策略
-        buildDiscarder(logRotator(
-            numToKeepStr: '50',           // 保留建置數量
-            daysToKeepStr: '30',          // 保留天數
-            artifactNumToKeepStr: '20',   // 保留產物數量
-            artifactDaysToKeepStr: '14'   // 保留產物天數
-        ))
-        
-        // 超時設定
-        timeout(time: 120, unit: 'MINUTES')
-        
-        // 建置選項
-        skipStagesAfterUnstable()         // 不穩定後跳過階段
-        skipDefaultCheckout()             // 跳過預設 checkout
-        parallelsAlwaysFailFast()         // 並行失敗快速停止
-        disableConcurrentBuilds()         // 禁用併發建置
-        preserveStashes()                 // 保留 stash
-        
-        // 記錄選項
-        timestamps()                      // 加入時間戳記
-        ansiColor('xterm')               // 支援彩色輸出
-        
-        // Git 選項
-        gitLabConnection('GitLab')
-        gitlabBuilds(builds: ['build', 'test', 'deploy'])
-    }
-    
-    // 觸發器配置
-    triggers {
-        // 定時觸發 - 每日凌晨 2 點
-        cron(env.BRANCH_NAME == 'master' ? 'H 2 * * *' : '')
-        
-        // SCM 輪詢 - 主要分支每 5 分鐘檢查一次
-        pollSCM(env.BRANCH_NAME in ['master', 'develop'] ? 'H/5 * * * *' : '')
-        
-        // 上游專案觸發
-        upstream(
-            upstreamProjects: 'shared-libraries,common-dependencies',
-            threshold: hudson.model.Result.SUCCESS
-        )
-    }
-    
-    // 參數定義
-    parameters {
-        // 建置類型選擇
-        choice(
-            name: 'BUILD_TYPE',
-            choices: ['standard', 'quick', 'full', 'release'],
-            description: '''
-            建置類型說明：
-            - standard: 標準建置（包含單元測試）
-            - quick: 快速建置（跳過測試，僅編譯）
-            - full: 完整建置（包含整合測試和程式碼分析）
-            - release: 發布建置（完整流程 + 部署）
-            '''
-        )
-        
-        // 部署環境選擇
-        choice(
-            name: 'DEPLOY_ENVIRONMENT',
-            choices: ['none', 'dev', 'staging', 'uat', 'production'],
-            description: '選擇部署目標環境'
-        )
-        
-        // 部署策略選擇
-        choice(
-            name: 'DEPLOY_STRATEGY',
-            choices: ['rolling', 'blue-green', 'canary'],
-            description: '部署策略選擇'
-        )
-        
-        // 進階選項
-        booleanParam(
-            name: 'SKIP_TESTS',
-            defaultValue: false,
-            description: '跳過測試階段（不建議用於正式環境）'
-        )
-        
-        booleanParam(
-            name: 'FORCE_DEPLOY',
-            defaultValue: false,
-            description: '強制部署（跳過人工確認）'
-        )
-        
-        booleanParam(
-            name: 'ENABLE_DEBUG',
-            defaultValue: false,
-            description: '啟用詳細除錯資訊'
-        )
-        
-        // 字串參數
-        string(
-            name: 'CUSTOM_VERSION',
-            defaultValue: '',
-            description: '自訂版本號（留空使用 pom.xml 版本）'
-        )
-        
-        text(
-            name: 'DEPLOY_NOTES',
-            defaultValue: '',
-            description: '部署備註（將記錄在部署日誌中）'
-        )
-        
-        // 密碼參數
-        password(
-            name: 'EMERGENCY_TOKEN',
-            defaultValue: '',
-            description: '緊急部署令牌（僅限生產環境緊急部署）'
-        )
-    }
-    
-    // === 建置階段定義 ===
-    stages {
-        stage('🔍 Pre-build Validation') {
-            steps {
-                script {
-                    // 顯示建置資訊
-                    displayBuildInfo()
-                    
-                    // 參數驗證
-                    validateBuildParameters()
-                    
-                    // 環境檢查
-                    validateBuildEnvironment()
-                    
-                    // 設定建置版本
-                    setupBuildVersion()
-                }
-            }
-        }
-        
-        stage('📥 Source Checkout') {
-            steps {
-                script {
-                    // 清理工作空間
-                    cleanWs()
-                    
-                    // 檢出原始碼
-                    checkoutSource()
-                    
-                    // 設定 Git 資訊
-                    setupGitEnvironment()
-                    
-                    // 依賴檢查
-                    validateDependencies()
-                }
-            }
-        }
-        
-        stage('🔧 Build & Compile') {
-            when {
-                not { params.BUILD_TYPE == 'none' }
-            }
-            parallel {
-                stage('Backend Build') {
-                    steps {
-                        script {
-                            buildBackend()
-                        }
-                    }
-                    post {
-                        always {
-                            recordCompilerWarnings()
-                        }
-                    }
-                }
-                
-                stage('Frontend Build') {
-                    when {
-                        expression {
-                            return fileExists('package.json')
-                        }
-                    }
-                    steps {
-                        script {
-                            buildFrontend()
-                        }
-                    }
-                }
-                
-                stage('Documentation Build') {
-                    when {
-                        anyOf {
-                            params.BUILD_TYPE == 'full'
-                            params.BUILD_TYPE == 'release'
-                        }
-                    }
-                    steps {
-                        script {
-                            buildDocumentation()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('🧪 Quality Assurance') {
-            when {
-                not { params.SKIP_TESTS }
-            }
-            parallel {
-                stage('Unit Tests') {
-                    steps {
-                        script {
-                            runUnitTests()
-                        }
-                    }
-                    post {
-                        always {
-                            publishTestResults(
-                                testResultsPattern: 'target/surefire-reports/*.xml',
-                                allowEmptyResults: true
-                            )
-                            
-                            publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: true,
-                                keepAll: true,
-                                reportDir: 'target/site/jacoco',
-                                reportFiles: 'index.html',
-                                reportName: 'Code Coverage Report'
-                            ])
-                        }
-                    }
-                }
-                
-                stage('Integration Tests') {
-                    when {
-                        anyOf {
-                            params.BUILD_TYPE == 'full'
-                            params.BUILD_TYPE == 'release'
-                            branch 'master'
-                            branch 'develop'
-                        }
-                    }
-                    steps {
-                        script {
-                            runIntegrationTests()
-                        }
-                    }
-                    post {
-                        always {
-                            publishTestResults(
-                                testResultsPattern: 'target/failsafe-reports/*.xml',
-                                allowEmptyResults: true
-                            )
-                        }
-                    }
-                }
-                
-                stage('Performance Tests') {
-                    when {
-                        allOf {
-                            anyOf {
-                                params.BUILD_TYPE == 'full'
-                                params.BUILD_TYPE == 'release'
-                            }
-                            branch 'master'
-                        }
-                    }
-                    steps {
-                        script {
-                            runPerformanceTests()
-                        }
-                    }
-                    post {
-                        always {
-                            publishHTML([
-                                allowMissing: true,
-                                alwaysLinkToLastBuild: true,
-                                keepAll: true,
-                                reportDir: 'target/jmeter/reports',
-                                reportFiles: 'index.html',
-                                reportName: 'Performance Test Report'
-                            ])
-                        }
-                    }
-                }
-                
-                stage('Security Tests') {
-                    when {
-                        anyOf {
-                            params.BUILD_TYPE == 'full'
-                            params.BUILD_TYPE == 'release'
-                        }
-                    }
-                    steps {
-                        script {
-                            runSecurityTests()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('📊 Code Analysis') {
-            when {
-                anyOf {
-                    params.BUILD_TYPE == 'full'
-                    params.BUILD_TYPE == 'release'
-                    branch 'master'
-                    branch 'develop'
-                    changeRequest()
-                }
-            }
-            parallel {
-                stage('Static Analysis') {
-                    steps {
-                        script {
-                            runStaticAnalysis()
-                        }
-                    }
-                }
-                
-                stage('SonarQube Analysis') {
-                    steps {
-                        script {
-                            runSonarQubeAnalysis()
-                        }
-                    }
-                }
-                
-                stage('Dependency Check') {
-                    steps {
-                        script {
-                            runDependencyCheck()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('📦 Package & Archive') {
-            when {
-                expression { currentBuild.result != 'FAILURE' }
-            }
-            parallel {
-                stage('JAR Package') {
-                    steps {
-                        script {
-                            packageApplication()
-                        }
-                    }
-                    post {
-                        success {
-                            archiveArtifacts(
-                                artifacts: 'target/*.jar,target/*.war',
-                                fingerprint: true,
-                                allowEmptyArchive: false
-                            )
-                        }
-                    }
-                }
-                
-                stage('Docker Image') {
-                    when {
-                        not { params.BUILD_TYPE == 'quick' }
-                    }
-                    steps {
-                        script {
-                            buildDockerImage()
-                        }
-                    }
-                }
-                
-                stage('Helm Chart') {
-                    when {
-                        anyOf {
-                            params.BUILD_TYPE == 'full'
-                            params.BUILD_TYPE == 'release'
-                        }
-                    }
-                    steps {
-                        script {
-                            packageHelmChart()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('🚀 Deploy') {
-            when {
-                allOf {
-                    not { params.DEPLOY_ENVIRONMENT == 'none' }
-                    expression { currentBuild.result != 'FAILURE' }
-                    anyOf {
-                        params.BUILD_TYPE == 'release'
-                        expression { params.FORCE_DEPLOY }
-                        expression { env.BRANCH_NAME in ['master', 'develop'] }
-                    }
-                }
-            }
-            steps {
-                script {
-                    deployApplication(params.DEPLOY_ENVIRONMENT)
-                }
-            }
-        }
-        
-        stage('✅ Post-Deploy Verification') {
-            when {
-                allOf {
-                    not { params.DEPLOY_ENVIRONMENT == 'none' }
-                    expression { currentBuild.result != 'FAILURE' }
-                }
-            }
-            steps {
-                script {
-                    verifyDeployment(params.DEPLOY_ENVIRONMENT)
-                }
-            }
-        }
-    }
-    
-    // === 後置處理 ===
-    post {
-        always {
-            script {
-                // 收集建置資訊
-                collectBuildMetrics()
-                
-                // 清理工作空間
-                performCleanup()
-                
-                echo "建置流程完成於 ${new Date()}"
-            }
-        }
-        
-        success {
-            script {
-                echo "✅ 建置成功完成！"
-                
-                // 發送成功通知
-                sendNotification('success')
-                
-                // 更新建置狀態
-                updateBuildStatus('SUCCESS')
-                
-                // 觸發下游工作
-                triggerDownstreamJobs()
-            }
-        }
-        
-        failure {
-            script {
-                echo "❌ 建置失敗！"
-                
-                // 收集失敗資訊
-                collectFailureInformation()
-                
-                // 發送失敗通知
-                sendNotification('failure')
-                
-                // 更新建置狀態
-                updateBuildStatus('FAILURE')
-                
-                // 觸發失敗分析
-                triggerFailureAnalysis()
-            }
-        }
-        
-        unstable {
-            script {
-                echo "⚠️ 建置不穩定！"
-                
-                // 發送警告通知
-                sendNotification('unstable')
-                
-                // 更新建置狀態
-                updateBuildStatus('UNSTABLE')
-            }
-        }
-        
-        aborted {
-            script {
-                echo "🛑 建置已中止！"
-                
-                // 發送中止通知
-                sendNotification('aborted')
-                
-                // 清理資源
-                cleanupAbortedBuild()
-            }
-        }
-        
-        changed {
-            script {
-                echo "🔄 建置狀態已改變"
-                
-                // 記錄狀態變化
-                logStatusChange()
-            }
-        }
-        
-        fixed {
-            script {
-                echo "🔧 建置已修復！"
-                
-                // 發送修復通知
-                sendNotification('fixed')
-            }
-        }
-        
-        regression {
-            script {
-                echo "📉 建置回歸！"
-                
-                // 發送回歸警告
-                sendNotification('regression')
-                
-                // 觸發回歸分析
-                triggerRegressionAnalysis()
-            }
-        }
-    }
-}
-
-// === 輔助函式庫 ===
-
-/**
- * 顯示建置資訊
- */
-def displayBuildInfo() {
-    echo """
-    ╔══════════════════════════════════════════════════════════════════╗
-    ║                           建置資訊                                ║
-    ╠══════════════════════════════════════════════════════════════════╣
-    ║ 應用程式名稱: ${env.APP_NAME}
-    ║ 建置編號: ${env.BUILD_NUMBER}
-    ║ 建置類型: ${params.BUILD_TYPE}
-    ║ Git 分支: ${env.BRANCH_NAME}
-    ║ Git 版本: ${env.GIT_COMMIT}
-    ║ 建置時間: ${env.BUILD_TIMESTAMP}
-    ║ 建置使用者: ${env.BUILD_USER}
-    ║ 部署環境: ${params.DEPLOY_ENVIRONMENT}
-    ║ 部署策略: ${params.DEPLOY_STRATEGY}
-    ╚══════════════════════════════════════════════════════════════════╝
-    """
-}
-
-/**
- * 驗證建置參數
- */
-def validateBuildParameters() {
-    echo "驗證建置參數..."
-    
-    // 檢查建置類型
-    if (!params.BUILD_TYPE in ['standard', 'quick', 'full', 'release']) {
-        error "無效的建置類型: ${params.BUILD_TYPE}"
-    }
-    
-    // 檢查部署環境權限
-    if (params.DEPLOY_ENVIRONMENT == 'production') {
-        if (env.BRANCH_NAME != 'master' && !params.FORCE_DEPLOY) {
-            error "生產環境部署只能從 master 分支執行，或使用 FORCE_DEPLOY 參數"
-        }
-        
-        if (params.BUILD_TYPE != 'release' && !params.FORCE_DEPLOY) {
-            error "生產環境只能部署 release 建置類型"
-        }
-    }
-    
-    // 檢查緊急部署令牌
-    if (params.DEPLOY_ENVIRONMENT == 'production' && params.FORCE_DEPLOY) {
-        if (!params.EMERGENCY_TOKEN) {
-            error "生產環境強制部署需要緊急部署令牌"
-        }
-        // 在實際環境中，這裡應該驗證令牌的有效性
-    }
-    
-    // 檢查自訂版本格式
-    if (params.CUSTOM_VERSION) {
-        if (!params.CUSTOM_VERSION.matches(/^\d+\.\d+\.\d+(-\w+)?$/)) {
-            error "自訂版本格式無效: ${params.CUSTOM_VERSION}，正確格式: x.y.z 或 x.y.z-suffix"
-        }
-    }
-    
-    echo "✅ 參數驗證通過"
-}
-
-/**
- * 驗證建置環境
- */
-def validateBuildEnvironment() {
-    echo "檢查建置環境..."
-    
-    // 檢查必要工具
-    def requiredTools = ['java', 'mvn', 'git', 'docker']
-    
-    requiredTools.each { tool ->
-        def result = sh(script: "which ${tool}", returnStatus: true)
-        if (result != 0) {
-            error "找不到必要工具: ${tool}"
-        }
-    }
-    
-    // 檢查 Java 版本
-    def javaVersion = sh(script: 'java -version 2>&1 | head -1', returnStdout: true).trim()
-    echo "Java 版本: ${javaVersion}"
-    
-    // 檢查 Maven 版本
-    def mavenVersion = sh(script: 'mvn -version | head -1', returnStdout: true).trim()
-    echo "Maven 版本: ${mavenVersion}"
-    
-    // 檢查 Docker 版本
-    def dockerVersion = sh(script: 'docker --version', returnStdout: true).trim()
-    echo "Docker 版本: ${dockerVersion}"
-    
-    // 檢查磁碟空間
-    def diskUsage = sh(script: "df -h ${env.WORKSPACE} | tail -1 | awk '{print \$5}'", returnStdout: true).trim()
-    echo "磁碟使用率: ${diskUsage}"
-    
-    if (diskUsage.replace('%', '').toInteger() > 90) {
-        error "磁碟空間不足: ${diskUsage}"
-    }
-    
-    // 檢查記憶體使用率
-    def memUsage = sh(script: "free | grep Mem | awk '{printf \"%.1f\", \$3/\$2 * 100.0}'", returnStdout: true).trim()
-    echo "記憶體使用率: ${memUsage}%"
-    
-    echo "✅ 環境檢查通過"
-}
-
-/**
- * 設定建置版本
- */
-def setupBuildVersion() {
-    script {
-        if (params.CUSTOM_VERSION) {
-            env.BUILD_VERSION = params.CUSTOM_VERSION
-        } else {
-            // 從 pom.xml 讀取版本
-            def pomVersion = readMavenPom().getVersion()
-            
-            switch(params.BUILD_TYPE) {
-                case 'release':
-                    env.BUILD_VERSION = pomVersion.replace('-SNAPSHOT', '')
-                    break
-                case 'quick':
-                case 'standard':
-                case 'full':
-                    env.BUILD_VERSION = "${pomVersion}-${env.BUILD_NUMBER}"
-                    break
-                default:
-                    env.BUILD_VERSION = "${pomVersion}-${env.BUILD_NUMBER}"
-            }
-        }
-        
-        echo "建置版本: ${env.BUILD_VERSION}"
-        
-        // 更新建置顯示名稱
-        currentBuild.displayName = "#${env.BUILD_NUMBER} - v${env.BUILD_VERSION}"
-        currentBuild.description = "Type: ${params.BUILD_TYPE} | Target: ${params.DEPLOY_ENVIRONMENT}"
-    }
-}
-
-/**
- * 檢出原始碼
- */
-def checkoutSource() {
-    echo "檢出原始碼..."
-    
-    // 執行 Git checkout
-    checkout scm
-    
-    // 顯示 Git 資訊
-    sh '''
-        echo "Git 資訊:"
-        echo "  當前分支: $(git branch --show-current)"
-        echo "  最新提交: $(git log -1 --oneline)"
-        echo "  提交作者: $(git log -1 --pretty=format:'%an <%ae>')"
-        echo "  提交時間: $(git log -1 --pretty=format:'%ad')"
-        echo "  工作目錄: $(pwd)"
-        echo "  檔案數量: $(find . -name '*.java' | wc -l) Java 檔案"
-    '''
-}
-
-/**
- * 設定 Git 環境資訊
- */
-def setupGitEnvironment() {
-    script {
-        // 設定 Git 相關環境變數
-        env.GIT_COMMIT_SHORT = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
-        env.GIT_COMMIT_FULL = sh(script: "git rev-parse HEAD", returnStdout: true).trim()
-        env.GIT_BRANCH_NAME = sh(script: "git rev-parse --abbrev-ref HEAD", returnStdout: true).trim()
-        env.GIT_AUTHOR_NAME = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
-        env.GIT_AUTHOR_EMAIL = sh(script: "git log -1 --pretty=format:'%ae'", returnStdout: true).trim()
-        env.GIT_COMMIT_MESSAGE = sh(script: "git log -1 --pretty=format:'%s'", returnStdout: true).trim()
-        env.GIT_COMMIT_TIME = sh(script: "git log -1 --pretty=format:'%ai'", returnStdout: true).trim()
-        
-        // 檢查是否有未提交的變更
-        def hasChanges = sh(script: "git status --porcelain", returnStdout: true).trim()
-        if (hasChanges) {
-            echo "⚠️ 警告: 工作目錄有未提交的變更"
-            echo hasChanges
-        }
-        
-        echo "Git 環境設定完成"
-    }
-}
-
-/**
- * 驗證專案依賴
- */
-def validateDependencies() {
-    echo "驗證專案依賴..."
-    
-    // 檢查 Maven 專案結構
-    if (!fileExists('pom.xml')) {
-        error "找不到 pom.xml 檔案"
-    }
-    
-    // 驗證 pom.xml 語法
-    sh 'mvn help:effective-pom -q > /dev/null'
-    
-    // 檢查依賴衝突
-    sh 'mvn dependency:analyze-only -q'
-    
-    // 下載依賴
-    sh 'mvn dependency:resolve-sources -q'
-    
-    echo "✅ 依賴驗證完成"
-}
-
-/**
- * 建置後端應用
- */
-def buildBackend() {
-    echo "建置後端應用..."
-    
-    // 清理 target 目錄
-    sh 'mvn clean -q'
-    
-    // 編譯專案
-    def compileCmd = 'mvn compile -B'
-    
-    if (params.ENABLE_DEBUG) {
-        compileCmd += ' -X'  // 詳細輸出
-    }
-    
-    if (params.BUILD_TYPE == 'quick') {
-        compileCmd += ' -T 1C'  // 並行編譯
-    }
-    
-    sh compileCmd
-    
-    echo "✅ 後端建置完成"
-}
-
-/**
- * 建置前端應用
- */
-def buildFrontend() {
-    echo "建置前端應用..."
-    
-    dir('frontend') {
-        // 安裝 Node.js 依賴
-        sh 'npm ci'
-        
-        // 執行前端建置
-        sh 'npm run build'
-        
-        // 執行前端測試
-        if (!params.SKIP_TESTS) {
-            sh 'npm run test:ci'
-        }
-    }
-    
-    echo "✅ 前端建置完成"
-}
-
-/**
- * 建置文件
- */
-def buildDocumentation() {
-    echo "建置專案文件..."
-    
-    // 生成 JavaDoc
-    sh 'mvn javadoc:javadoc -q'
-    
-    // 生成站點文件
-    sh 'mvn site -q'
-    
-    // 發布文件
-    publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: 'target/site',
-        reportFiles: 'index.html',
-        reportName: 'Project Documentation'
-    ])
-    
-    echo "✅ 文件建置完成"
-}
-
-/**
- * 執行單元測試
- */
-def runUnitTests() {
-    echo "執行單元測試..."
-    
-    def testCmd = 'mvn test -B'
-    
-    if (params.ENABLE_DEBUG) {
-        testCmd += ' -X'
-    }
-    
-    // 設定測試參數
-    testCmd += ' -Dmaven.test.failure.ignore=true'  // 即使測試失敗也繼續
-    testCmd += ' -Djacoco.destFile=target/jacoco.exec'  // 程式碼覆蓋率
-    
-    sh testCmd
-    
-    echo "✅ 單元測試完成"
-}
-
-/**
- * 執行整合測試
- */
-def runIntegrationTests() {
-    echo "執行整合測試..."
-    
-    // 啟動測試用資料庫
-    sh 'docker-compose -f docker-compose-test.yml up -d'
-    
-    try {
-        // 等待服務啟動
-        sleep 30
-        
-        // 執行整合測試
-        sh 'mvn verify -P integration-tests -B'
-        
-    } finally {
-        // 清理測試環境
-        sh 'docker-compose -f docker-compose-test.yml down -v'
-    }
-    
-    echo "✅ 整合測試完成"
-}
-
-/**
- * 收集建置指標
- */
-def collectBuildMetrics() {
-    script {
-        def buildDuration = currentBuild.duration ?: 0
-        def buildResult = currentBuild.result ?: 'SUCCESS'
-        
-        // 記錄建置指標
-        sh """
-            echo "build_duration_ms:${buildDuration}" >> build-metrics.txt
-            echo "build_result:${buildResult}" >> build-metrics.txt
-            echo "build_timestamp:${env.BUILD_TIMESTAMP}" >> build-metrics.txt
-            echo "git_commit:${env.GIT_COMMIT_SHORT}" >> build-metrics.txt
-        """
-        
-        // 保存建置指標
-        archiveArtifacts artifacts: 'build-metrics.txt', allowEmptyArchive: true
-    }
-}
-
-/**
- * 發送通知
- */
-def sendNotification(status) {
-    def statusMap = [
-        'success': [emoji: '✅', color: 'good', title: '建置成功'],
-        'failure': [emoji: '❌', color: 'danger', title: '建置失敗'],
-        'unstable': [emoji: '⚠️', color: 'warning', title: '建置不穩定'],
-        'aborted': [emoji: '🛑', color: '#808080', title: '建置中止'],
-        'fixed': [emoji: '🔧', color: 'good', title: '建置修復'],
-        'regression': [emoji: '📉', color: 'danger', title: '建置回歸']
-    ]
-    
-    def config = statusMap[status]
-    if (!config) return
-    
-    // Slack 通知
-    slackSend(
-        channel: env.SLACK_CHANNEL,
-        color: config.color,
-        message: """
-            ${config.emoji} *${config.title}*
-            
-            *專案:* ${env.APP_NAME}
-            *版本:* ${env.BUILD_VERSION}
-            *分支:* ${env.BRANCH_NAME}
-            *建置:* #${env.BUILD_NUMBER}
-            *類型:* ${params.BUILD_TYPE}
-            *環境:* ${params.DEPLOY_ENVIRONMENT}
-            *時間:* ${currentBuild.durationString}
-            
-            *詳情:* ${env.BUILD_URL}
-        """.stripIndent()
-    )
-    
-    // 電子郵件通知
-    emailext(
-        subject: "${config.emoji} ${config.title}: ${env.APP_NAME} #${env.BUILD_NUMBER}",
-        body: generateEmailBody(status),
-        to: env.EMAIL_RECIPIENTS,
-        attachLog: status == 'failure'
-    )
-}
-
-/**
- * 產生電子郵件內容
- */
-def generateEmailBody(status) {
-    return """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .header { background-color: #f5f5f5; padding: 10px; border-radius: 5px; }
-                .content { margin: 20px 0; }
-                .footer { margin-top: 30px; font-size: 12px; color: #666; }
-                .success { color: #28a745; }
-                .failure { color: #dc3545; }
-                .warning { color: #ffc107; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h2 class="${status}">Jenkins 建置通知</h2>
-            </div>
-            
-            <div class="content">
-                <p><strong>專案名稱:</strong> ${env.APP_NAME}</p>
-                <p><strong>建置編號:</strong> #${env.BUILD_NUMBER}</p>
-                <p><strong>建置版本:</strong> ${env.BUILD_VERSION}</p>
-                <p><strong>Git 分支:</strong> ${env.BRANCH_NAME}</p>
-                <p><strong>Git 版本:</strong> ${env.GIT_COMMIT_SHORT}</p>
-                <p><strong>建置類型:</strong> ${params.BUILD_TYPE}</p>
-                <p><strong>部署環境:</strong> ${params.DEPLOY_ENVIRONMENT}</p>
-                <p><strong>建置時間:</strong> ${currentBuild.durationString}</p>
-                <p><strong>建置狀態:</strong> ${currentBuild.result ?: 'SUCCESS'}</p>
-                
-                <h3>快速連結</h3>
-                <ul>
-                    <li><a href="${env.BUILD_URL}">建置詳情</a></li>
-                    <li><a href="${env.BUILD_URL}console">建置日誌</a></li>
-                    <li><a href="${env.BUILD_URL}testReport">測試報告</a></li>
-                    <li><a href="${env.BUILD_URL}artifact/">建置產物</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer">
-                <p>此郵件由 Jenkins CI/CD 系統自動發送</p>
-                <p>建置時間: ${new Date()}</p>
-            </div>
-        </body>
-        </html>
-    """.stripIndent()
-}
-```
-
-#### 10.2 高級 Pipeline 模式
-
-**多分支 Pipeline 策略：**
-
-```groovy
-// 多分支建置策略
-pipeline {
-    agent any
-    
-    stages {
-        stage('Branch Strategy') {
-            parallel {
-                stage('Master Branch') {
-                    when { branch 'master' }
-                    stages {
-                        stage('Production Build') {
-                            steps {
-                                echo "執行生產建置流程"
-                                sh 'mvn clean package -P production'
-                            }
-                        }
-                        stage('Production Deploy') {
-                            steps {
-                                script {
-                                    input message: '確認部署到生產環境？',
-                                          ok: '部署',
-                                          submitterParameter: 'DEPLOYER'
-                                    
-                                    echo "部署者: ${env.DEPLOYER}"
-                                    sh './deploy-production.sh'
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                stage('Develop Branch') {
-                    when { branch 'develop' }
-                    stages {
-                        stage('Development Build') {
-                            steps {
-                                echo "執行開發建置流程"
-                                sh 'mvn clean package -P development'
-                            }
-                        }
-                        stage('Auto Deploy to Dev') {
-                            steps {
-                                sh './deploy-development.sh'
-                            }
-                        }
-                    }
-                }
-                
-                stage('Feature Branch') {
-                    when { branch 'feature/*' }
-                    stages {
-                        stage('Feature Build') {
-                            steps {
-                                echo "執行特性分支建置"
-                                sh 'mvn clean compile test'
-                            }
-                        }
-                        stage('Code Review') {
-                            steps {
-                                script {
-                                    // 觸發程式碼審查流程
-                                    def reviewResult = sh(
-                                        script: './scripts/trigger-code-review.sh',
-                                        returnStdout: true
-                                    ).trim()
-                                    
-                                    echo "程式碼審查結果: ${reviewResult}"
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                stage('Release Branch') {
-                    when { branch 'release/*' }
-                    stages {
-                        stage('Release Build') {
-                            steps {
-                                echo "執行發布建置流程"
-                                sh 'mvn clean package -P release'
-                            }
-                        }
-                        stage('Release Testing') {
-                            steps {
-                                sh 'mvn verify -P release-tests'
-                            }
-                        }
-                        stage('Create Release') {
-                            steps {
-                                script {
-                                    def releaseVersion = env.BRANCH_NAME.replace('release/', '')
-                                    sh "git tag -a v${releaseVersion} -m 'Release ${releaseVersion}'"
-                                    sh "git push origin v${releaseVersion}"
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                stage('Hotfix Branch') {
-                    when { branch 'hotfix/*' }
-                    stages {
-                        stage('Hotfix Build') {
-                            steps {
-                                echo "執行熱修復建置流程"
-                                sh 'mvn clean package -P hotfix'
-                            }
-                        }
-                        stage('Emergency Deploy') {
-                            steps {
-                                script {
-                                    def confirmation = input(
-                                        message: '這是緊急熱修復，確認立即部署？',
-                                        ok: '緊急部署',
-                                        submitterParameter: 'EMERGENCY_DEPLOYER'
-                                    )
-                                    
-                                    echo "緊急部署授權者: ${env.EMERGENCY_DEPLOYER}"
-                                    sh './deploy-hotfix.sh'
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-```
-
-### 🔄 Pipeline 最佳實務模式
-
-#### 10.3 可重用 Pipeline 庫
-
-**建立 Shared Library：**
-
-```groovy
-// vars/standardPipeline.groovy
-def call(Map config) {
-    pipeline {
-        agent any
-        
-        options {
-            buildDiscarder(logRotator(numToKeepStr: '20'))
-            timeout(time: config.timeout ?: 60, unit: 'MINUTES')
-            skipStagesAfterUnstable()
-        }
-        
-        environment {
-            APP_NAME = config.appName
-            APP_VERSION = config.appVersion ?: '1.0.0'
-        }
-        
-        stages {
-            stage('Checkout') {
-                steps {
-                    checkout scm
-                }
-            }
-            
-            stage('Build') {
-                steps {
-                    script {
-                        if (config.buildTool == 'maven') {
-                            buildWithMaven(config)
-                        } else if (config.buildTool == 'gradle') {
-                            buildWithGradle(config)
-                        } else {
-                            error "不支援的建置工具: ${config.buildTool}"
-                        }
-                    }
-                }
-            }
-            
-            stage('Test') {
-                when {
-                    expression { config.runTests != false }
-                }
-                steps {
-                    script {
-                        runTestSuite(config)
-                    }
-                }
-            }
-            
-            stage('Deploy') {
-                when {
-                    expression { config.deploy == true }
-                }
-                steps {
-                    script {
-                        deployApplication(config)
-                    }
-                }
-            }
-        }
-        
-        post {
-            always {
-                script {
-                    sendNotifications(config)
-                }
-            }
-        }
-    }
-}
-
-def buildWithMaven(config) {
-    sh "mvn clean ${config.mavenGoals ?: 'package'} -B"
-}
-
-def buildWithGradle(config) {
-    sh "./gradlew clean ${config.gradleTasks ?: 'build'}"
-}
-
-def runTestSuite(config) {
-    def testProfiles = config.testProfiles ?: ['unit-tests']
-    
-    testProfiles.each { profile ->
-        echo "執行測試設定檔: ${profile}"
-        sh "mvn test -P ${profile}"
-    }
-    
-    publishTestResults testResultsPattern: 'target/surefire-reports/*.xml'
-}
-
-def deployApplication(config) {
-    def environment = config.deployEnvironment ?: 'dev'
-    
-    echo "部署到 ${environment} 環境"
-    sh "./scripts/deploy-${environment}.sh"
-}
-
-def sendNotifications(config) {
-    if (config.notifications?.slack) {
-        slackSend(
-            channel: config.notifications.slack.channel,
-            message: "建置 ${currentBuild.currentResult}: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
-        )
-    }
-    
-    if (config.notifications?.email) {
-        emailext(
-            to: config.notifications.email.recipients,
-            subject: "建置通知: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: "建置狀態: ${currentBuild.currentResult}"
-        )
-    }
-}
-```
-
-**使用 Shared Library：**
-
-```groovy
-// Jenkinsfile
-@Library('company-shared-library') _
-
-standardPipeline {
-    appName = 'my-java-app'
-    appVersion = '2.0.0'
-    buildTool = 'maven'
-    mavenGoals = 'clean package'
-    runTests = true
-    testProfiles = ['unit-tests', 'integration-tests']
-    deploy = true
-    deployEnvironment = 'staging'
-    timeout = 90
-    
-    notifications = [
-        slack: [
-            channel: '#ci-cd'
-        ],
-        email: [
-            recipients: 'dev-team@company.com'
-        ]
-    ]
-}
-```
-
-### 💡 實務案例分析
-
-#### 案例：微服務架構的 Pipeline 設計
-
-**情境**：為微服務架構設計統一但靈活的 Pipeline
-
-**解決方案：**
-
-```groovy
-// 微服務通用 Pipeline
-pipeline {
-    agent none
-    
-    parameters {
-        choice(
-            name: 'SERVICE_SCOPE',
-            choices: ['all', 'modified', 'specific'],
-            description: '服務建置範圍'
-        )
-        string(
-            name: 'SPECIFIC_SERVICES',
-            defaultValue: '',
-            description: '指定服務列表（逗號分隔）'
-        )
-        booleanParam(
-            name: 'PARALLEL_BUILD',
-            defaultValue: true,
-            description: '並行建置服務'
-        )
-    }
-    
-    stages {
-        stage('Service Discovery') {
-            agent any
-            steps {
-                script {
-                    // 發現所有微服務
-                    env.ALL_SERVICES = discoverServices()
-                    
-                    // 根據參數決定建置服務
-                    env.BUILD_SERVICES = determineBuildServices(
-                        params.SERVICE_SCOPE,
-                        params.SPECIFIC_SERVICES
-                    )
-                    
-                    echo "發現服務: ${env.ALL_SERVICES}"
-                    echo "建置服務: ${env.BUILD_SERVICES}"
-                }
-            }
-        }
-        
-        stage('Build Services') {
-            steps {
-                script {
-                    def services = env.BUILD_SERVICES.split(',')
-                    
-                    if (params.PARALLEL_BUILD && services.size() > 1) {
-                        // 並行建置
-                        def parallelStages = [:]
-                        
-                        services.each { service ->
-                            parallelStages[service] = {
-                                buildService(service.trim())
-                            }
-                        }
-                        
-                        parallel parallelStages
-                    } else {
-                        // 序列建置
-                        services.each { service ->
-                            buildService(service.trim())
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('Integration Tests') {
-            agent any
-            when {
-                expression { env.BUILD_SERVICES.split(',').size() > 1 }
-            }
-            steps {
-                script {
-                    runIntegrationTests(env.BUILD_SERVICES)
-                }
-            }
-        }
-        
-        stage('Deploy Services') {
-            steps {
-                script {
-                    def services = env.BUILD_SERVICES.split(',')
-                    deployServices(services)
-                }
-            }
-        }
-    }
-}
-
-def discoverServices() {
-    def services = []
-    
-    // 掃描專案目錄找出所有微服務
-    def serviceDirectories = sh(
-        script: "find . -name 'pom.xml' -not -path './pom.xml' | dirname | sort",
-        returnStdout: true
-    ).trim().split('\n')
-    
-    serviceDirectories.each { dir ->
-        def serviceName = dir.replace('./', '')
-        services.add(serviceName)
-    }
-    
-    return services.join(',')
-}
-
-def determineBuildServices(scope, specificServices) {
-    switch(scope) {
-        case 'all':
-            return env.ALL_SERVICES
-            
-        case 'specific':
-            return specificServices
-            
-        case 'modified':
-            // 檢查 Git 變更，只建置有變更的服務
-            def changedFiles = sh(
-                script: "git diff --name-only HEAD~1 HEAD",
-                returnStdout: true
-            ).trim()
-            
-            def modifiedServices = []
-            def allServices = env.ALL_SERVICES.split(',')
-            
-            allServices.each { service ->
-                if (changedFiles.contains(service)) {
-                    modifiedServices.add(service)
-                }
-            }
-            
-            return modifiedServices.join(',')
-            
-        default:
-            return env.ALL_SERVICES
-    }
-}
-
-def buildService(serviceName) {
-    node('maven') {
-        echo "建置服務: ${serviceName}"
-        
-        dir(serviceName) {
-            // 建置服務
-            sh 'mvn clean package -B'
-            
-            // 建置 Docker 映像檔
-            def imageTag = "${serviceName}:${env.BUILD_NUMBER}"
-            sh "docker build -t ${imageTag} ."
-            
-            // 推送映像檔
-            sh "docker push ${imageTag}"
-            
-            // 儲存映像檔標籤供後續使用
-            writeFile file: "${serviceName}.image", text: imageTag
-            stash includes: "${serviceName}.image", name: "${serviceName}-image"
-        }
-    }
-}
-
-def runIntegrationTests(services) {
-    echo "執行微服務整合測試: ${services}"
-    
-    // 啟動測試環境
-    sh 'docker-compose -f docker-compose-test.yml up -d'
-    
-    try {
-        // 等待服務啟動
-        sleep 60
-        
-        // 執行整合測試
-        sh 'mvn verify -P integration-tests'
-        
-    } finally {
-        // 清理測試環境
-        sh 'docker-compose -f docker-compose-test.yml down -v'
-    }
-}
-
-def deployServices(services) {
-    services.each { service ->
-        node('kubectl') {
-            echo "部署服務: ${service}"
-            
-            // 獲取映像檔標籤
-            unstash "${service}-image"
-            def imageTag = readFile("${service}.image").trim()
-            
-            // 更新 Kubernetes 部署
-            sh """
-                kubectl set image deployment/${service} ${service}=${imageTag}
-                kubectl rollout status deployment/${service}
-            """
-        }
-    }
-}
-```
-
-### ⚠️ 注意事項
-
-1. **效能優化**：
-   - 合理使用 stash/unstash
-   - 避免過深的嵌套
-   - 適當設定超時時間
-
-2. **錯誤處理**：
-   - 使用 try-catch-finally
-   - 設定適當的重試機制
-   - 提供清楚的錯誤訊息
-
-3. **安全考量**：
-   - 避免在日誌中暴露敏感資訊
-   - 使用 Jenkins 憑證管理
-   - 限制腳本權限
-
-4. **維護性**：
-   - 保持 Jenkinsfile 簡潔
-   - 使用函式模組化
-   - 添加充分的註解
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| Jenkinsfile 語法 | 完整結構分析、語法元素 |
-| Pipeline 模式 | 多分支策略、微服務模式 |
-| 最佳實務 | 可重用庫、錯誤處理 |
-| 進階功能 | 並行執行、條件判斷 |
-
-### 📝 練習作業
-
-1. **基礎練習**：分析和改進現有的 Jenkinsfile 結構
-2. **進階練習**：建立可重用的 Shared Library
-3. **實務練習**：設計微服務架構的 Pipeline 策略
-
----
-
-## 第11章 測試報告與程式碼覆蓋率整合
-
-### 🎯 學習目標
-- 整合各種測試框架到 Jenkins Pipeline
-- 設定和配置程式碼覆蓋率工具
-- 建立全面的測試報告系統
-- 實施測試品質門檻和自動化決策
-
-### 📚 核心概念
-
-#### 11.1 測試框架整合架構
-
-Jenkins 支援多種測試框架的整合，提供統一的測試報告和分析功能。
-
-```mermaid
-graph TB
-    A[Jenkins Pipeline] --> B[測試執行階段]
-    B --> C[單元測試]
-    B --> D[整合測試]
-    B --> E[功能測試]
-    B --> F[效能測試]
-    B --> G[安全測試]
-    
-    C --> H[JUnit]
-    C --> I[TestNG]
-    C --> J[Spock]
-    
-    D --> K[Spring Boot Test]
-    D --> L[Testcontainers]
-    D --> M[WireMock]
-    
-    E --> N[Selenium]
-    E --> O[Cypress]
-    E --> P[REST Assured]
-    
-    F --> Q[JMeter]
-    F --> R[Gatling]
-    
-    G --> S[OWASP ZAP]
-    G --> T[SonarQube Security]
-    
-    H --> U[測試報告]
-    I --> U
-    J --> U
-    K --> U
-    L --> U
-    M --> U
-    N --> V[UI 測試報告]
-    O --> V
-    P --> W[API 測試報告]
-    Q --> X[效能測試報告]
-    R --> X
-    S --> Y[安全測試報告]
-    T --> Y
-    
-    U --> Z[JUnit Plugin]
-    V --> AA[HTML Publisher]
-    W --> AA
-    X --> AA
-    Y --> AA
-    
-    Z --> AB[Jenkins 測試儀表板]
-    AA --> AB
-    
-    subgraph "程式碼覆蓋率"
-        AC[JaCoCo]
-        AD[Cobertura]
-        AE[Emma]
-        AC --> AF[覆蓋率報告]
-        AD --> AF
-        AE --> AF
-        AF --> AB
-    end
-    
-    subgraph "品質門檻"
-        AG[測試通過率]
-        AH[程式碼覆蓋率]
-        AI[效能指標]
-        AJ[安全漏洞]
-        AG --> AK[Quality Gate]
-        AH --> AK
-        AI --> AK
-        AJ --> AK
-    end
-```
-
-#### 11.2 JUnit 測試整合
-
-**基本 JUnit 配置：**
-
-```groovy
-// Jenkinsfile - JUnit 整合
-pipeline {
-    agent any
-    
-    tools {
-        maven 'Maven-3.9'
-        jdk 'JDK-17'
-    }
-    
-    environment {
-        MAVEN_OPTS = '-Xmx2g'
-        SUREFIRE_REPORTS = 'target/surefire-reports'
-        FAILSAFE_REPORTS = 'target/failsafe-reports'
-    }
-    
-    stages {
-        stage('Unit Tests') {
-            steps {
-                echo "執行單元測試..."
-                
-                // 執行單元測試並生成報告
-                sh '''
-                    mvn clean test -B \
-                        -Dmaven.test.failure.ignore=true \
-                        -Dsurefire.rerunFailingTestsCount=2 \
-                        -Dsurefire.parallel=methods \
-                        -Dsurefire.threadCount=4
-                '''
-                
-                // 處理測試結果
-                script {
-                    def testResults = analyzeSurefireResults()
-                    env.UNIT_TEST_RESULTS = testResults
-                }
-            }
-            post {
-                always {
-                    // 發布 JUnit 測試結果
-                    junit(
-                        testResults: "${env.SUREFIRE_REPORTS}/*.xml",
-                        allowEmptyResults: true,
-                        keepLongStdio: true,
-                        healthScaleFactor: 1.0,
-                        testDataPublishers: [
-                            // 發布測試穩定性數據
-                            [$class: 'StabilityTestDataPublisher']
-                        ]
-                    )
-                    
-                    // 記錄測試趨勢
-                    recordTestTrend()
-                }
-                
-                failure {
-                    script {
-                        // 分析測試失敗原因
-                        analyzeTestFailures()
-                        
-                        // 收集失敗測試的詳細資訊
-                        collectFailedTestDetails()
-                    }
-                }
-            }
-        }
-        
-        stage('Integration Tests') {
-            steps {
-                echo "執行整合測試..."
-                
-                // 啟動測試環境
-                sh 'docker-compose -f docker-compose-test.yml up -d'
-                
-                // 等待服務啟動
-                script {
-                    waitForServices()
-                }
-                
-                // 執行整合測試
-                sh '''
-                    mvn verify -P integration-tests -B \
-                        -Dmaven.test.failure.ignore=true \
-                        -Dfailsafe.rerunFailingTestsCount=1
-                '''
-            }
-            post {
-                always {
-                    // 停止測試環境
-                    sh 'docker-compose -f docker-compose-test.yml down -v'
-                    
-                    // 發布整合測試結果
-                    junit(
-                        testResults: "${env.FAILSAFE_REPORTS}/*.xml",
-                        allowEmptyResults: true
-                    )
-                }
-            }
-        }
-        
-        stage('UI Tests') {
-            when {
-                anyOf {
-                    branch 'master'
-                    branch 'develop'
-                    expression { params.RUN_UI_TESTS == true }
-                }
-            }
-            steps {
-                echo "執行 UI 測試..."
-                
-                // 執行 Selenium 測試
-                sh '''
-                    mvn test -P ui-tests -B \
-                        -Dselenium.browser=chrome \
-                        -Dselenium.headless=true \
-                        -Dmaven.test.failure.ignore=true
-                '''
-            }
-            post {
-                always {
-                    // 發布 UI 測試結果
-                    junit 'target/selenium-reports/*.xml'
-                    
-                    // 收集螢幕截圖
-                    archiveArtifacts(
-                        artifacts: 'target/screenshots/**/*.png',
-                        allowEmptyArchive: true
-                    )
-                    
-                    // 發布 Selenium 報告
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'target/selenium-reports',
-                        reportFiles: 'index.html',
-                        reportName: 'Selenium Test Report'
-                    ])
-                }
-            }
-        }
-        
-        stage('API Tests') {
-            steps {
-                echo "執行 API 測試..."
-                
-                // 執行 REST Assured 測試
-                sh '''
-                    mvn test -P api-tests -B \
-                        -Dapi.base.url=http://localhost:8080 \
-                        -Dmaven.test.failure.ignore=true
-                '''
-            }
-            post {
-                always {
-                    // 發布 API 測試結果
-                    junit 'target/rest-assured-reports/*.xml'
-                    
-                    // 發布 API 測試報告
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'target/rest-assured-reports',
-                        reportFiles: 'index.html',
-                        reportName: 'API Test Report'
-                    ])
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                // 彙總所有測試結果
-                summarizeTestResults()
-                
-                // 生成測試儀表板
-                generateTestDashboard()
-            }
-        }
-    }
-}
-
-// === 輔助函式 ===
-
-def analyzeSurefireResults() {
-    def surefireDir = "${env.WORKSPACE}/${env.SUREFIRE_REPORTS}"
-    
-    if (!fileExists(surefireDir)) {
-        return "無測試結果"
-    }
-    
-    def testResults = sh(
-        script: """
-            cd ${surefireDir}
-            total=\$(find . -name "TEST-*.xml" -exec grep -l "testcase" {} \\; | wc -l)
-            passed=\$(find . -name "TEST-*.xml" -exec grep -L "failure\\|error" {} \\; | wc -l)
-            failed=\$(find . -name "TEST-*.xml" -exec grep -l "failure\\|error" {} \\; | wc -l)
-            echo "總計:\$total,通過:\$passed,失敗:\$failed"
-        """,
-        returnStdout: true
-    ).trim()
-    
-    return testResults
-}
-
-def waitForServices() {
-    timeout(time: 5, unit: 'MINUTES') {
-        script {
-            def services = ['database:5432', 'redis:6379', 'app:8080']
-            
-            services.each { service ->
-                def (host, port) = service.split(':')
-                
-                echo "等待 ${service} 服務啟動..."
-                
-                sh """
-                    while ! nc -z ${host} ${port}; do
-                        echo "等待 ${service}..."
-                        sleep 2
-                    done
-                    echo "${service} 已啟動"
-                """
-            }
-        }
-    }
-}
-
-def analyzeTestFailures() {
-    script {
-        def failureAnalysis = sh(
-            script: '''
-                # 分析測試失敗模式
-                find target -name "*.xml" -exec grep -l "failure\\|error" {} \\; | while read file; do
-                    echo "=== $file ==="
-                    grep -A 5 -B 5 "failure\\|error" "$file"
-                done > test-failure-analysis.txt
-            ''',
-            returnStatus: true
-        )
-        
-        if (failureAnalysis == 0) {
-            archiveArtifacts artifacts: 'test-failure-analysis.txt'
-        }
-    }
-}
-
-def collectFailedTestDetails() {
-    script {
-        // 收集失敗測試的堆疊追蹤
-        sh '''
-            mkdir -p failed-tests-details
-            
-            find target -name "*.xml" -exec grep -l "failure\\|error" {} \\; | while read file; do
-                basename_file=$(basename "$file")
-                xmlstarlet sel -t -m "//failure" -v "concat(@message, '\\n', text())" "$file" > "failed-tests-details/${basename_file}.failure"
-                xmlstarlet sel -t -m "//error" -v "concat(@message, '\\n', text())" "$file" > "failed-tests-details/${basename_file}.error"
-            done
-        '''
-        
-        archiveArtifacts(
-            artifacts: 'failed-tests-details/**',
-            allowEmptyArchive: true
-        )
-    }
-}
-
-def recordTestTrend() {
-    script {
-        // 記錄測試趨勢數據
-        def testStats = sh(
-            script: '''
-                total_tests=$(find target -name "TEST-*.xml" -exec xmlstarlet sel -t -v "sum(//testsuite/@tests)" {} +)
-                failed_tests=$(find target -name "TEST-*.xml" -exec xmlstarlet sel -t -v "sum(//testsuite/@failures)" {} +)
-                error_tests=$(find target -name "TEST-*.xml" -exec xmlstarlet sel -t -v "sum(//testsuite/@errors)" {} +)
-                skipped_tests=$(find target -name "TEST-*.xml" -exec xmlstarlet sel -t -v "sum(//testsuite/@skipped)" {} +)
-                
-                echo "${total_tests:-0},${failed_tests:-0},${error_tests:-0},${skipped_tests:-0}"
-            ''',
-            returnStdout: true
-        ).trim()
-        
-        def (total, failed, errors, skipped) = testStats.split(',')
-        
-        // 記錄到文件以供趨勢分析
-        writeFile file: 'test-trend.csv', text: "${env.BUILD_NUMBER},${total},${failed},${errors},${skipped}\n"
-        archiveArtifacts artifacts: 'test-trend.csv'
-    }
-}
-
-def summarizeTestResults() {
-    script {
-        def summary = sh(
-            script: '''
-                echo "=== 測試結果摘要 ==="
-                
-                # 單元測試
-                if [ -d "target/surefire-reports" ]; then
-                    unit_total=$(find target/surefire-reports -name "TEST-*.xml" -exec xmlstarlet sel -t -v "sum(//testsuite/@tests)" {} +)
-                    unit_failed=$(find target/surefire-reports -name "TEST-*.xml" -exec xmlstarlet sel -t -v "sum(//testsuite/@failures)" {} +)
-                    echo "單元測試: ${unit_total:-0} 總計, ${unit_failed:-0} 失敗"
-                fi
-                
-                # 整合測試
-                if [ -d "target/failsafe-reports" ]; then
-                    integration_total=$(find target/failsafe-reports -name "TEST-*.xml" -exec xmlstarlet sel -t -v "sum(//testsuite/@tests)" {} +)
-                    integration_failed=$(find target/failsafe-reports -name "TEST-*.xml" -exec xmlstarlet sel -t -v "sum(//testsuite/@failures)" {} +)
-                    echo "整合測試: ${integration_total:-0} 總計, ${integration_failed:-0} 失敗"
-                fi
-                
-                # UI 測試
-                if [ -d "target/selenium-reports" ]; then
-                    ui_total=$(find target/selenium-reports -name "TEST-*.xml" -exec xmlstarlet sel -t -v "sum(//testsuite/@tests)" {} +)
-                    ui_failed=$(find target/selenium-reports -name "TEST-*.xml" -exec xmlstarlet sel -t -v "sum(//testsuite/@failures)" {} +)
-                    echo "UI 測試: ${ui_total:-0} 總計, ${ui_failed:-0} 失敗"
-                fi
-            ''',
-            returnStdout: true
-        )
-        
-        echo summary
-        writeFile file: 'test-summary.txt', text: summary
-        archiveArtifacts artifacts: 'test-summary.txt'
-    }
-}
-
-def generateTestDashboard() {
-    script {
-        // 生成測試儀表板 HTML
-        def dashboardHtml = '''
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>測試儀表板</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
-                .passed { color: green; }
-                .failed { color: red; }
-                .skipped { color: orange; }
-                table { border-collapse: collapse; width: 100%; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                th { background-color: #f2f2f2; }
-            </style>
-        </head>
-        <body>
-            <h1>Jenkins 測試儀表板</h1>
-            <div class="test-section">
-                <h2>建置資訊</h2>
-                <p>建置編號: ''' + env.BUILD_NUMBER + '''</p>
-                <p>建置時間: ''' + new Date() + '''</p>
-                <p>Git 版本: ''' + (env.GIT_COMMIT ?: 'N/A') + '''</p>
-            </div>
-            
-            <div class="test-section">
-                <h2>測試結果概覽</h2>
-                <table>
-                    <tr>
-                        <th>測試類型</th>
-                        <th>總計</th>
-                        <th>通過</th>
-                        <th>失敗</th>
-                        <th>跳過</th>
-                        <th>通過率</th>
-                    </tr>
-                    <tr>
-                        <td>單元測試</td>
-                        <td id="unit-total">-</td>
-                        <td id="unit-passed" class="passed">-</td>
-                        <td id="unit-failed" class="failed">-</td>
-                        <td id="unit-skipped" class="skipped">-</td>
-                        <td id="unit-rate">-</td>
-                    </tr>
-                    <tr>
-                        <td>整合測試</td>
-                        <td id="integration-total">-</td>
-                        <td id="integration-passed" class="passed">-</td>
-                        <td id="integration-failed" class="failed">-</td>
-                        <td id="integration-skipped" class="skipped">-</td>
-                        <td id="integration-rate">-</td>
-                    </tr>
-                </table>
-            </div>
-            
-            <div class="test-section">
-                <h2>快速連結</h2>
-                <ul>
-                    <li><a href="testReport/">JUnit 測試報告</a></li>
-                    <li><a href="jacoco/">程式碼覆蓋率報告</a></li>
-                    <li><a href="HTML_20Report/">詳細測試報告</a></li>
-                </ul>
-            </div>
-        </body>
-        </html>
-        '''
-        
-        writeFile file: 'test-dashboard.html', text: dashboardHtml
-        
-        publishHTML([
-            allowMissing: false,
-            alwaysLinkToLastBuild: true,
-            keepAll: true,
-            reportDir: '.',
-            reportFiles: 'test-dashboard.html',
-            reportName: 'Test Dashboard'
-        ])
-    }
-}
-```
-
-#### 11.3 JaCoCo 程式碼覆蓋率整合
-
-**JaCoCo 配置和整合：**
-
-```xml
-<!-- pom.xml - JaCoCo 配置 -->
-<project>
-    <properties>
-        <jacoco.version>0.8.10</jacoco.version>
-        <jacoco.destFile>${project.build.directory}/jacoco.exec</jacoco.destFile>
-        <jacoco.dataFile>${project.build.directory}/jacoco.exec</jacoco.dataFile>
-        <jacoco.minimum.coverage>0.80</jacoco.minimum.coverage>
-    </properties>
-    
-    <build>
-        <plugins>
-            <!-- JaCoCo Maven Plugin -->
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco.version}</version>
-                <configuration>
-                    <destFile>${jacoco.destFile}</destFile>
-                    <dataFile>${jacoco.dataFile}</dataFile>
-                    <excludes>
-                        <!-- 排除不需要覆蓋率檢查的類別 -->
-                        <exclude>**/config/**</exclude>
-                        <exclude>**/dto/**</exclude>
-                        <exclude>**/Application.class</exclude>
-                        <exclude>**/*Test.class</exclude>
-                        <exclude>**/*IT.class</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <!-- 準備 agent -->
-                    <execution>
-                        <id>jacoco-initialize</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    
-                    <!-- 整合測試 agent -->
-                    <execution>
-                        <id>jacoco-initialize-integration</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>prepare-agent-integration</goal>
-                        </goals>
-                    </execution>
-                    
-                    <!-- 生成報告 -->
-                    <execution>
-                        <id>jacoco-site</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                    
-                    <!-- 整合測試報告 -->
-                    <execution>
-                        <id>jacoco-integration-report</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>report-integration</goal>
-                        </goals>
-                    </execution>
-                    
-                    <!-- 合併報告 -->
-                    <execution>
-                        <id>jacoco-merge</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>merge</goal>
-                        </goals>
-                        <configuration>
-                            <fileSets>
-                                <fileSet>
-                                    <directory>${project.build.directory}</directory>
-                                    <includes>
-                                        <include>*.exec</include>
-                                    </includes>
-                                </fileSet>
-                            </fileSets>
-                            <destFile>${project.build.directory}/jacoco-merged.exec</destFile>
-                        </configuration>
-                    </execution>
-                    
-                    <!-- 覆蓋率檢查 -->
-                    <execution>
-                        <id>jacoco-check</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
-                            <rules>
-                                <rule>
-                                    <element>BUNDLE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>INSTRUCTION</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>${jacoco.minimum.coverage}</minimum>
-                                        </limit>
-                                        <limit>
-                                            <counter>BRANCH</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.75</minimum>
-                                        </limit>
-                                        <limit>
-                                            <counter>CLASS</counter>
-                                            <value>MISSEDCOUNT</value>
-                                            <maximum>10</maximum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                                
-                                <!-- 套件層級規則 -->
-                                <rule>
-                                    <element>PACKAGE</element>
-                                    <limits>
-                                        <limit>
-                                            <counter>LINE</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.70</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                                
-                                <!-- 類別層級規則 -->
-                                <rule>
-                                    <element>CLASS</element>
-                                    <excludes>
-                                        <exclude>*.config.*</exclude>
-                                        <exclude>*.dto.*</exclude>
-                                    </excludes>
-                                    <limits>
-                                        <limit>
-                                            <counter>METHOD</counter>
-                                            <value>COVEREDRATIO</value>
-                                            <minimum>0.60</minimum>
-                                        </limit>
-                                    </limits>
-                                </rule>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    
-    <profiles>
-        <!-- 程式碼覆蓋率設定檔 -->
-        <profile>
-            <id>coverage</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <executions>
-                            <!-- 詳細覆蓋率報告 -->
-                            <execution>
-                                <id>jacoco-detailed-report</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                                <configuration>
-                                    <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
-                                    <outputDirectory>${project.reporting.outputDirectory}/jacoco-detailed</outputDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-</project>
-```
-
-**Jenkins Pipeline 中的 JaCoCo 整合：**
-
-```groovy
-// Pipeline 中的程式碼覆蓋率處理
-pipeline {
-    agent any
-    
-    environment {
-        JACOCO_EXEC_FILE = 'target/jacoco-merged.exec'
-        COVERAGE_THRESHOLD = '80'
-    }
-    
-    stages {
-        stage('Code Coverage Analysis') {
-            steps {
-                echo "執行程式碼覆蓋率分析..."
-                
-                // 執行測試並生成覆蓋率資料
-                sh '''
-                    mvn clean test verify -P coverage \
-                        -Djacoco.destFile=${JACOCO_EXEC_FILE} \
-                        -Djacoco.minimum.coverage=0.${COVERAGE_THRESHOLD}
-                '''
-                
-                // 生成詳細覆蓋率報告
-                sh 'mvn jacoco:report -P coverage'
-                
-                script {
-                    // 分析覆蓋率結果
-                    analyzeCoverageResults()
-                    
-                    // 檢查覆蓋率門檻
-                    checkCoverageThreshold()
-                }
-            }
-            post {
-                always {
-                    // 發布 JaCoCo 覆蓋率報告
-                    jacoco(
-                        execPattern: '**/jacoco*.exec',
-                        classPattern: '**/target/classes',
-                        sourcePattern: '**/src/main/java',
-                        inclusionPattern: '**/*.class',
-                        exclusionPattern: '**/config/**,**/dto/**,**/*Test*.class',
-                        changeBuildStatus: true,
-                        minimumInstructionCoverage: '70',
-                        minimumBranchCoverage: '65',
-                        minimumComplexityCoverage: '60',
-                        minimumLineCoverage: '75',
-                        minimumMethodCoverage: '70',
-                        minimumClassCoverage: '80',
-                        maximumInstructionCoverage: '100',
-                        maximumBranchCoverage: '100',
-                        maximumComplexityCoverage: '100',
-                        maximumLineCoverage: '100',
-                        maximumMethodCoverage: '100',
-                        maximumClassCoverage: '100'
-                    )
-                    
-                    // 發布 HTML 覆蓋率報告
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'target/site/jacoco',
-                        reportFiles: 'index.html',
-                        reportName: 'JaCoCo Coverage Report',
-                        reportTitles: '程式碼覆蓋率報告'
-                    ])
-                    
-                    // 發布詳細覆蓋率報告
-                    publishHTML([
-                        allowMissing: true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'target/site/jacoco-detailed',
-                        reportFiles: 'index.html',
-                        reportName: 'Detailed Coverage Report'
-                    ])
-                }
-                
-                failure {
-                    script {
-                        // 覆蓋率不足的處理
-                        handleCoverageFailure()
-                    }
-                }
-            }
-        }
-        
-        stage('Coverage Trend Analysis') {
-            steps {
-                script {
-                    // 分析覆蓋率趨勢
-                    analyzeCoverageTrend()
-                    
-                    // 生成覆蓋率趨勢報告
-                    generateCoverageTrendReport()
-                }
-            }
-        }
-    }
-}
-
-def analyzeCoverageResults() {
-    script {
-        // 解析 JaCoCo XML 報告
-        if (fileExists('target/site/jacoco/jacoco.xml')) {
-            def coverage = sh(
-                script: '''
-                    xmlstarlet sel -t -v "//counter[@type='INSTRUCTION']/@covered" target/site/jacoco/jacoco.xml
-                    xmlstarlet sel -t -v "//counter[@type='INSTRUCTION']/@missed" target/site/jacoco/jacoco.xml
-                    xmlstarlet sel -t -v "//counter[@type='BRANCH']/@covered" target/site/jacoco/jacoco.xml
-                    xmlstarlet sel -t -v "//counter[@type='BRANCH']/@missed" target/site/jacoco/jacoco.xml
-                    xmlstarlet sel -t -v "//counter[@type='LINE']/@covered" target/site/jacoco/jacoco.xml
-                    xmlstarlet sel -t -v "//counter[@type='LINE']/@missed" target/site/jacoco/jacoco.xml
-                ''',
-                returnStdout: true
-            ).trim().split('\n')
-            
-            if (coverage.size() >= 6) {
-                def instructionCovered = coverage[0] as Integer
-                def instructionMissed = coverage[1] as Integer
-                def branchCovered = coverage[2] as Integer
-                def branchMissed = coverage[3] as Integer
-                def lineCovered = coverage[4] as Integer
-                def lineMissed = coverage[5] as Integer
-                
-                def instructionTotal = instructionCovered + instructionMissed
-                def branchTotal = branchCovered + branchMissed
-                def lineTotal = lineCovered + lineMissed
-                
-                def instructionRate = instructionTotal > 0 ? (instructionCovered / instructionTotal * 100).round(2) : 0
-                def branchRate = branchTotal > 0 ? (branchCovered / branchTotal * 100).round(2) : 0
-                def lineRate = lineTotal > 0 ? (lineCovered / lineTotal * 100).round(2) : 0
-                
-                env.INSTRUCTION_COVERAGE = instructionRate.toString()
-                env.BRANCH_COVERAGE = branchRate.toString()
-                env.LINE_COVERAGE = lineRate.toString()
-                
-                echo """
-                程式碼覆蓋率分析結果:
-                - 指令覆蓋率: ${instructionRate}% (${instructionCovered}/${instructionTotal})
-                - 分支覆蓋率: ${branchRate}% (${branchCovered}/${branchTotal})
-                - 行覆蓋率: ${lineRate}% (${lineCovered}/${lineTotal})
-                """
-            }
-        } else {
-            echo "找不到 JaCoCo XML 報告"
-        }
-    }
-}
-
-def checkCoverageThreshold() {
-    script {
-        def instructionCoverage = (env.INSTRUCTION_COVERAGE ?: '0') as Double
-        def threshold = env.COVERAGE_THRESHOLD as Double
-        
-        if (instructionCoverage < threshold) {
-            echo "⚠️ 警告: 程式碼覆蓋率 ${instructionCoverage}% 低於門檻 ${threshold}%"
-            currentBuild.result = 'UNSTABLE'
-            
-            // 生成覆蓋率改善建議
-            generateCoverageImprovementSuggestions()
-        } else {
-            echo "✅ 程式碼覆蓋率 ${instructionCoverage}% 達到門檻要求"
-        }
-    }
-}
-
-def handleCoverageFailure() {
-    script {
-        // 收集未覆蓋的程式碼資訊
-        sh '''
-            if [ -f target/site/jacoco/jacoco.csv ]; then
-                echo "=== 未達覆蓋率門檻的類別 ===" > coverage-analysis.txt
-                awk -F',' 'NR>1 && $4+$5>0 { 
-                    coverage = $4/($4+$5)*100; 
-                    if(coverage < 70) 
-                        printf "%s: %.1f%% (%d/%d instructions)\\n", $3, coverage, $4, $4+$5 
-                }' target/site/jacoco/jacoco.csv >> coverage-analysis.txt
-                
-                echo "" >> coverage-analysis.txt
-                echo "=== 改善建議 ===" >> coverage-analysis.txt
-                echo "1. 增加單元測試覆蓋關鍵業務邏輯" >> coverage-analysis.txt
-                echo "2. 檢查並移除死代碼" >> coverage-analysis.txt
-                echo "3. 考慮重構複雜的方法以提高可測試性" >> coverage-analysis.txt
-            fi
-        '''
-        
-        archiveArtifacts artifacts: 'coverage-analysis.txt', allowEmptyArchive: true
-    }
-}
-
-def generateCoverageImprovementSuggestions() {
-    script {
-        def suggestions = """
-        📊 程式碼覆蓋率改善建議
-        
-        目前覆蓋率: ${env.INSTRUCTION_COVERAGE}%
-        目標覆蓋率: ${env.COVERAGE_THRESHOLD}%
-        
-        🎯 改善策略:
-        1. 識別未覆蓋的關鍵業務邏輯
-        2. 增加邊界條件測試
-        3. 提高分支覆蓋率
-        4. 檢查異常處理路徑
-        5. 重構複雜方法以提高可測試性
-        
-        📈 覆蓋率提升計劃:
-        - 短期目標: 提升至 ${(env.COVERAGE_THRESHOLD as Integer) + 5}%
-        - 中期目標: 提升至 85%
-        - 長期目標: 維持在 90% 以上
-        """
-        
-        writeFile file: 'coverage-improvement-suggestions.md', text: suggestions
-        archiveArtifacts artifacts: 'coverage-improvement-suggestions.md'
-    }
-}
-
-def analyzeCoverageTrend() {
-    script {
-        // 記錄覆蓋率趨勢數據
-        def coverageData = "${env.BUILD_NUMBER},${env.INSTRUCTION_COVERAGE ?: 0},${env.BRANCH_COVERAGE ?: 0},${env.LINE_COVERAGE ?: 0},${new Date().format('yyyy-MM-dd')}"
-        
-        writeFile file: 'coverage-trend.csv', text: coverageData + '\n'
-        
-        // 如果存在歷史數據，合併
-        if (fileExists('coverage-history.csv')) {
-            sh 'cat coverage-history.csv coverage-trend.csv > temp.csv && mv temp.csv coverage-history.csv'
-        } else {
-            sh 'echo "build,instruction,branch,line,date" > coverage-history.csv'
-            sh 'cat coverage-trend.csv >> coverage-history.csv'
-        }
-        
-        archiveArtifacts artifacts: 'coverage-history.csv'
-    }
-}
-
-def generateCoverageTrendReport() {
-    script {
-        // 生成覆蓋率趨勢 HTML 報告
-        def trendHtml = '''
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>程式碼覆蓋率趨勢</title>
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .chart-container { width: 800px; height: 400px; margin: 20px auto; }
-                .metrics { display: flex; justify-content: space-around; margin: 20px; }
-                .metric { text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-                .metric-value { font-size: 2em; font-weight: bold; }
-                .metric-label { color: #666; }
-            </style>
-        </head>
-        <body>
-            <h1>程式碼覆蓋率趨勢分析</h1>
-            
-            <div class="metrics">
-                <div class="metric">
-                    <div class="metric-value">''' + (env.INSTRUCTION_COVERAGE ?: '0') + '''%</div>
-                    <div class="metric-label">指令覆蓋率</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-value">''' + (env.BRANCH_COVERAGE ?: '0') + '''%</div>
-                    <div class="metric-label">分支覆蓋率</div>
-                </div>
-                <div class="metric">
-                    <div class="metric-value">''' + (env.LINE_COVERAGE ?: '0') + '''%</div>
-                    <div class="metric-label">行覆蓋率</div>
-                </div>
-            </div>
-            
-            <div class="chart-container">
-                <canvas id="coverageChart"></canvas>
-            </div>
-            
-            <script>
-                // 這裡可以加入 Chart.js 圖表代碼
-                const ctx = document.getElementById('coverageChart').getContext('2d');
-                const chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Build #''' + (env.BUILD_NUMBER) + ''''],
-                        datasets: [{
-                            label: '指令覆蓋率',
-                            data: [''' + (env.INSTRUCTION_COVERAGE ?: '0') + '''],
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                max: 100
-                            }
-                        }
-                    }
-                });
-            </script>
-        </body>
-        </html>
-        '''
-        
-        writeFile file: 'coverage-trend-report.html', text: trendHtml
-        
-        publishHTML([
-            allowMissing: false,
-            alwaysLinkToLastBuild: true,
-            keepAll: true,
-            reportDir: '.',
-            reportFiles: 'coverage-trend-report.html',
-            reportName: 'Coverage Trend Report'
-        ])
-    }
-}
-```
-
-### 💡 實務案例
-
-#### 案例：多模組專案的測試整合
-
-**情境**：為大型多模組 Maven 專案建立統一的測試和覆蓋率報告
-
-**解決方案：**
-
-```groovy
-// 多模組測試整合 Pipeline
-pipeline {
-    agent any
-    
-    environment {
-        AGGREGATE_COVERAGE_THRESHOLD = '75'
-        MODULE_COVERAGE_THRESHOLD = '70'
-    }
-    
-    stages {
-        stage('Module Discovery') {
-            steps {
-                script {
-                    // 發現所有模組
-                    def modules = discoverModules()
-                    env.PROJECT_MODULES = modules.join(',')
-                    echo "發現模組: ${env.PROJECT_MODULES}"
-                }
-            }
-        }
-        
-        stage('Parallel Module Testing') {
-            steps {
-                script {
-                    def modules = env.PROJECT_MODULES.split(',')
-                    def parallelStages = [:]
-                    
-                    modules.each { module ->
-                        parallelStages["Test ${module}"] = {
-                            testModule(module.trim())
-                        }
-                    }
-                    
-                    parallel parallelStages
-                }
-            }
-        }
-        
-        stage('Aggregate Coverage Report') {
-            steps {
-                script {
-                    generateAggregateCoverageReport()
-                }
-            }
-            post {
-                always {
-                    // 發布聚合覆蓋率報告
-                    jacoco(
-                        execPattern: '**/target/jacoco*.exec',
-                        classPattern: '**/target/classes',
-                        sourcePattern: '**/src/main/java'
-                    )
-                    
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'target/site/jacoco-aggregate',
-                        reportFiles: 'index.html',
-                        reportName: 'Aggregate Coverage Report'
-                    ])
-                }
-            }
-        }
-        
-        stage('Quality Gate Evaluation') {
-            steps {
-                script {
-                    evaluateQualityGate()
-                }
-            }
-        }
-    }
-}
-
-def discoverModules() {
-    def modules = []
-    
-    // 掃描所有包含 pom.xml 的子目錄
-    def moduleDirs = sh(
-        script: "find . -mindepth 2 -name 'pom.xml' | sed 's|/pom.xml||' | sed 's|./||' | sort",
-        returnStdout: true
-    ).trim().split('\n')
-    
-    moduleDirs.each { dir ->
-        if (dir && !dir.contains('target')) {
-            modules.add(dir)
-        }
-    }
-    
-    return modules
-}
-
-def testModule(moduleName) {
-    echo "測試模組: ${moduleName}"
-    
-    dir(moduleName) {
-        // 單元測試
-        sh 'mvn clean test -B'
-        
-        // 整合測試
-        sh 'mvn verify -P integration-tests -B'
-        
-        // 發布模組測試結果
-        junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
-        junit testResults: 'target/failsafe-reports/*.xml', allowEmptyResults: true
-        
-        // 檢查模組覆蓋率
-        script {
-            checkModuleCoverage(moduleName)
-        }
-    }
-}
-
-def generateAggregateCoverageReport() {
-    echo "生成聚合覆蓋率報告..."
-    
-    // 收集所有模組的 JaCoCo 執行檔
-    sh '''
-        mkdir -p target/jacoco-aggregate
-        find . -name "jacoco*.exec" -path "*/target/*" | while read file; do
-            cp "$file" "target/jacoco-aggregate/$(basename $(dirname $(dirname $file)))-$(basename $file)"
-        done
-    '''
-    
-    // 合併所有執行檔
-    sh '''
-        cd target/jacoco-aggregate
-        java -jar ${JENKINS_HOME}/tools/jacoco/jacoco-cli.jar merge *.exec --destfile merged-jacoco.exec
-    '''
-    
-    // 生成聚合報告
-    sh '''
-        mkdir -p target/site/jacoco-aggregate
-        java -jar ${JENKINS_HOME}/tools/jacoco/jacoco-cli.jar report target/jacoco-aggregate/merged-jacoco.exec \
-            --classfiles */target/classes \
-            --sourcefiles */src/main/java \
-            --html target/site/jacoco-aggregate \
-            --xml target/site/jacoco-aggregate/jacoco.xml
-    '''
-}
-
-def checkModuleCoverage(moduleName) {
-    if (fileExists("target/site/jacoco/jacoco.xml")) {
-        def coverage = sh(
-            script: "xmlstarlet sel -t -v '//counter[@type=\"INSTRUCTION\"]/@covered' target/site/jacoco/jacoco.xml",
-            returnStdout: true
-        ).trim() as Integer
-        
-        def missed = sh(
-            script: "xmlstarlet sel -t -v '//counter[@type=\"INSTRUCTION\"]/@missed' target/site/jacoco/jacoco.xml",
-            returnStdout: true
-        ).trim() as Integer
-        
-        def total = coverage + missed
-        def rate = total > 0 ? (coverage / total * 100).round(2) : 0
-        
-        echo "模組 ${moduleName} 覆蓋率: ${rate}%"
-        
-        if (rate < (env.MODULE_COVERAGE_THRESHOLD as Double)) {
-            echo "⚠️ 警告: 模組 ${moduleName} 覆蓋率 ${rate}% 低於門檻 ${env.MODULE_COVERAGE_THRESHOLD}%"
-            currentBuild.result = 'UNSTABLE'
-        }
-    }
-}
-
-def evaluateQualityGate() {
-    script {
-        def qualityGateResults = [:]
-        
-        // 檢查聚合覆蓋率
-        if (fileExists('target/site/jacoco-aggregate/jacoco.xml')) {
-            def aggregateCoverage = calculateAggregateCoverage()
-            qualityGateResults['coverage'] = aggregateCoverage
-            
-            if (aggregateCoverage < (env.AGGREGATE_COVERAGE_THRESHOLD as Double)) {
-                echo "❌ Quality Gate 失敗: 聚合覆蓋率 ${aggregateCoverage}% 低於門檻 ${env.AGGREGATE_COVERAGE_THRESHOLD}%"
-                currentBuild.result = 'FAILURE'
-            } else {
-                echo "✅ Quality Gate 通過: 聚合覆蓋率 ${aggregateCoverage}%"
-            }
-        }
-        
-        // 檢查測試通過率
-        def testResults = calculateTestPassRate()
-        qualityGateResults['testPassRate'] = testResults
-        
-        if (testResults < 95) {
-            echo "❌ Quality Gate 失敗: 測試通過率 ${testResults}% 低於 95%"
-            currentBuild.result = 'FAILURE'
-        }
-        
-        // 生成 Quality Gate 報告
-        generateQualityGateReport(qualityGateResults)
-    }
-}
-
-def calculateAggregateCoverage() {
-    def coverage = sh(
-        script: "xmlstarlet sel -t -v '//counter[@type=\"INSTRUCTION\"]/@covered' target/site/jacoco-aggregate/jacoco.xml",
-        returnStdout: true
-    ).trim() as Integer
-    
-    def missed = sh(
-        script: "xmlstarlet sel -t -v '//counter[@type=\"INSTRUCTION\"]/@missed' target/site/jacoco-aggregate/jacoco.xml",
-        returnStdout: true
-    ).trim() as Integer
-    
-    def total = coverage + missed
-    return total > 0 ? (coverage / total * 100).round(2) : 0
-}
-
-def calculateTestPassRate() {
-    // 計算所有模組的測試通過率
-    def totalTests = 0
-    def passedTests = 0
-    
-    sh '''
-        find . -name "TEST-*.xml" -path "*/target/*" | while read file; do
-            tests=$(xmlstarlet sel -t -v "sum(//testsuite/@tests)" "$file")
-            failures=$(xmlstarlet sel -t -v "sum(//testsuite/@failures)" "$file")
-            errors=$(xmlstarlet sel -t -v "sum(//testsuite/@errors)" "$file")
-            
-            total_tests=$((total_tests + tests))
-            failed_tests=$((failures + errors))
-            passed_tests=$((total_tests - failed_tests))
-            
-            echo "$total_tests,$passed_tests" >> test-summary.tmp
-        done
-        
-        if [ -f test-summary.tmp ]; then
-            tail -1 test-summary.tmp > final-test-summary.txt
-        fi
-    '''
-    
-    if (fileExists('final-test-summary.txt')) {
-        def summary = readFile('final-test-summary.txt').trim().split(',')
-        totalTests = summary[0] as Integer
-        passedTests = summary[1] as Integer
-    }
-    
-    return totalTests > 0 ? (passedTests / totalTests * 100).round(2) : 0
-}
-
-def generateQualityGateReport(results) {
-    def reportHtml = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Quality Gate 報告</title>
-        <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            .gate-status { padding: 20px; margin: 10px; border-radius: 5px; }
-            .pass { background-color: #d4edda; color: #155724; }
-            .fail { background-color: #f8d7da; color: #721c24; }
-            .metric { margin: 10px 0; }
-        </style>
-    </head>
-    <body>
-        <h1>Quality Gate 評估報告</h1>
-        <div class="gate-status ${currentBuild.result == 'SUCCESS' ? 'pass' : 'fail'}">
-            <h2>總體狀態: ${currentBuild.result ?: 'SUCCESS'}</h2>
-        </div>
-        
-        <h3>品質指標</h3>
-        <div class="metric">
-            <strong>程式碼覆蓋率:</strong> ${results.coverage ?: 'N/A'}% 
-            (門檻: ${env.AGGREGATE_COVERAGE_THRESHOLD}%)
-        </div>
-        <div class="metric">
-            <strong>測試通過率:</strong> ${results.testPassRate ?: 'N/A'}% 
-            (門檻: 95%)
-        </div>
-        
-        <h3>建議行動</h3>
-        <ul>
-            <li>持續提升程式碼覆蓋率</li>
-            <li>修復失敗的測試案例</li>
-            <li>增加邊界條件測試</li>
-            <li>定期檢查和重構測試代碼</li>
-        </ul>
-    </body>
-    </html>
-    """
-    
-    writeFile file: 'quality-gate-report.html', text: reportHtml
-    
-    publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: '.',
-        reportFiles: 'quality-gate-report.html',
-        reportName: 'Quality Gate Report'
-    ])
-}
-```
-
-### ⚠️ 注意事項
-
-1. **效能考量**：
-   - 合理設定測試超時時間
-   - 使用並行測試提高效率
-   - 避免產生過大的測試報告
-
-2. **報告品質**：
-   - 確保測試報告的可讀性
-   - 提供詳細的失敗資訊
-   - 建立趨勢分析機制
-
-3. **覆蓋率策略**：
-   - 設定合理的覆蓋率門檻
-   - 排除不需要測試的代碼
-   - 關注程式碼品質而非單純數字
-
-4. **維護性**：
-   - 定期清理舊的測試報告
-   - 保持測試案例的更新
-   - 建立測試最佳實務指南
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| 測試框架整合 | JUnit、TestNG、Selenium 整合 |
-| 程式碼覆蓋率 | JaCoCo 配置、報告生成 |
-| 品質門檻 | Quality Gate 設定、評估 |
-| 報告管理 | HTML 發布、趨勢分析 |
-
-### 📝 練習作業
-
-1. **基礎練習**：設定 JUnit 和 JaCoCo 的基本整合
-2. **進階練習**：建立多模組專案的聚合測試報告
-3. **實務練習**：實施完整的 Quality Gate 評估機制
-
----
-
-## 第12章 靜態程式碼分析與品質檢查
-
-### 🎯 學習目標
-- 整合多種靜態程式碼分析工具
-- 建立全面的程式碼品質檢查機制
-- 實施程式碼品質門檻和自動化決策
-- 設定 SonarQube 與 Jenkins 的深度整合
-
-### 📚 核心概念
-
-#### 12.1 靜態程式碼分析工具生態系統
-
-靜態程式碼分析是確保程式碼品質的重要環節，透過多種工具的組合可以全面檢查程式碼的各個面向。
-
-```mermaid
-graph TB
-    A[靜態程式碼分析] --> B[程式碼風格檢查]
-    A --> C[程式碼品質分析]
-    A --> D[安全漏洞檢測]
-    A --> E[效能分析]
-    A --> F[架構合規檢查]
-    
-    B --> G[Checkstyle]
-    B --> H[SpotBugs]
-    B --> I[PMD]
-    B --> J[Google Java Format]
-    
-    C --> K[SonarQube]
-    C --> L[CodeClimate]
-    C --> M[Codacy]
-    
-    D --> N[SpotBugs Security]
-    D --> O[Find Security Bugs]
-    D --> P[OWASP Dependency Check]
-    D --> Q[Snyk]
-    
-    E --> R[JProfiler]
-    E --> S[YourKit]
-    E --> T[JVM 分析工具]
-    
-    F --> U[ArchUnit]
-    F --> V[Structure101]
-    F --> W[JDepend]
-    
-    G --> X[Jenkins Warnings Plugin]
-    H --> X
-    I --> X
-    K --> Y[SonarQube Scanner]
-    N --> Z[OWASP ZAP]
-    P --> Z
-    
-    X --> AA[Jenkins 報告儀表板]
-    Y --> AA
-    Z --> AA
-    
-    subgraph "品質門檻"
-        BB[程式碼覆蓋率 > 80%]
-        CC[重複程式碼 < 3%]
-        DD[複雜度 < 15]
-        EE[安全漏洞 = 0]
-        FF[程式碼異味 < 5]
-        
-        BB --> GG[Quality Gate]
-        CC --> GG
-        DD --> GG
-        EE --> GG
-        FF --> GG
-    end
-    
-    subgraph "整合流程"
-        HH[Git Commit] --> II[Webhook 觸發]
-        II --> JJ[Jenkins Pipeline]
-        JJ --> KK[並行程式碼分析]
-        KK --> LL[品質門檻檢查]
-        LL --> MM[合併決策]
-        MM --> NN[自動部署/人工審查]
-    end
-```
-
-#### 12.2 Checkstyle 整合配置
-
-**Maven 配置 (pom.xml)：**
-
-```xml
-<project>
-    <properties>
-        <checkstyle.version>10.12.4</checkstyle.version>
-        <checkstyle.config.location>config/checkstyle/checkstyle.xml</checkstyle.config.location>
-        <checkstyle.suppressions.location>config/checkstyle/suppressions.xml</checkstyle.suppressions.location>
-    </properties>
-    
-    <build>
-        <plugins>
-            <!-- Checkstyle Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <configLocation>${checkstyle.config.location}</configLocation>
-                    <suppressionsLocation>${checkstyle.suppressions.location}</suppressionsLocation>
-                    <encoding>UTF-8</encoding>
-                    <consoleOutput>true</consoleOutput>
-                    <failsOnError>true</failsOnError>
-                    <linkXRef>false</linkXRef>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>${checkstyle.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            
-            <!-- PMD Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.21.0</version>
-                <configuration>
-                    <sourceEncoding>UTF-8</sourceEncoding>
-                    <minimumTokens>100</minimumTokens>
-                    <targetJdk>17</targetJdk>
-                    <analysisCache>true</analysisCache>
-                    <rulesets>
-                        <ruleset>config/pmd/pmd-rules.xml</ruleset>
-                    </rulesets>
-                    <excludeRoots>
-                        <excludeRoot>target/generated-sources</excludeRoot>
-                    </excludeRoots>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>pmd-check</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                            <goal>cpd-check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <!-- SpotBugs Plugin -->
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.7.3.6</version>
-                <configuration>
-                    <effort>Max</effort>
-                    <threshold>Low</threshold>
-                    <xmlOutput>true</xmlOutput>
-                    <htmlOutput>true</htmlOutput>
-                    <excludeFilterFile>config/spotbugs/spotbugs-exclude.xml</excludeFilterFile>
-                    <includeFilterFile>config/spotbugs/spotbugs-include.xml</includeFilterFile>
-                    <plugins>
-                        <plugin>
-                            <groupId>com.h3xstream.findsecbugs</groupId>
-                            <artifactId>findsecbugs-plugin</artifactId>
-                            <version>1.12.0</version>
-                        </plugin>
-                    </plugins>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>spotbugs-check</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <!-- OWASP Dependency Check -->
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>8.4.0</version>
-                <configuration>
-                    <formats>
-                        <format>HTML</format>
-                        <format>XML</format>
-                        <format>JSON</format>
-                    </formats>
-                    <failBuildOnCVSS>7</failBuildOnCVSS>
-                    <suppressionFile>config/dependency-check/suppressions.xml</suppressionFile>
-                    <cveValidForHours>4</cveValidForHours>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    
-    <profiles>
-        <!-- 程式碼品質檢查設定檔 -->
-        <profile>
-            <id>code-quality</id>
-            <build>
-                <plugins>
-                    <!-- 更嚴格的程式碼檢查 -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-checkstyle-plugin</artifactId>
-                        <configuration>
-                            <configLocation>config/checkstyle/checkstyle-strict.xml</configLocation>
-                            <failsOnError>true</failsOnError>
-                            <violationSeverity>warning</violationSeverity>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        
-        <!-- 安全檢查設定檔 -->
-        <profile>
-            <id>security-check</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.owasp</groupId>
-                        <artifactId>dependency-check-maven</artifactId>
-                        <configuration>
-                            <failBuildOnCVSS>4</failBuildOnCVSS>
-                            <enableRetired>true</enableRetired>
-                            <enableExperimental>true</enableExperimental>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-</project>
-```
-
-**Checkstyle 配置檔案 (config/checkstyle/checkstyle.xml)：**
-
-```xml
-<?xml version="1.0"?>
-<!DOCTYPE module PUBLIC
-        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
-        "https://checkstyle.org/dtds/configuration_1_3.dtd">
-
-<module name="Checker">
-    <property name="charset" value="UTF-8"/>
-    <property name="severity" value="warning"/>
-    <property name="fileExtensions" value="java, properties, xml"/>
-    
-    <!-- 抑制警告過濾器 -->
-    <module name="SuppressionFilter">
-        <property name="file" value="${checkstyle.suppressions.location}"/>
-        <property name="optional" value="true"/>
-    </module>
-    
-    <!-- 檔案層級檢查 -->
-    <module name="FileTabCharacter">
-        <property name="eachLine" value="true"/>
-    </module>
-    
-    <module name="FileLength">
-        <property name="max" value="2000"/>
-    </module>
-    
-    <module name="LineLength">
-        <property name="max" value="120"/>
-        <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
-    </module>
-    
-    <!-- TreeWalker 檢查 -->
-    <module name="TreeWalker">
-        <!-- 註解檢查 -->
-        <module name="AnnotationLocation">
-            <property name="id" value="AnnotationLocationMostCases"/>
-            <property name="tokens" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF"/>
-        </module>
-        
-        <module name="AnnotationUseStyle"/>
-        <module name="MissingDeprecated"/>
-        <module name="MissingOverride"/>
-        
-        <!-- 程式碼區塊檢查 -->
-        <module name="AvoidNestedBlocks"/>
-        <module name="EmptyBlock"/>
-        <module name="EmptyCatchBlock">
-            <property name="exceptionVariableName" value="expected"/>
-        </module>
-        
-        <module name="LeftCurly"/>
-        <module name="NeedBraces"/>
-        <module name="RightCurly">
-            <property name="id" value="RightCurlySame"/>
-            <property name="tokens" value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO"/>
-        </module>
-        
-        <!-- 類別設計檢查 -->
-        <module name="FinalClass"/>
-        <module name="HideUtilityClassConstructor"/>
-        <module name="InterfaceIsType"/>
-        <module name="OneTopLevelClass"/>
-        <module name="VisibilityModifier">
-            <property name="packageAllowed" value="true"/>
-            <property name="protectedAllowed" value="true"/>
-        </module>
-        
-        <!-- 程式碼複雜度檢查 -->
-        <module name="CyclomaticComplexity">
-            <property name="max" value="15"/>
-        </module>
-        
-        <module name="JavaNCSS">
-            <property name="methodMaximum" value="50"/>
-            <property name="classMaximum" value="1500"/>
-        </module>
-        
-        <module name="NPathComplexity">
-            <property name="max" value="200"/>
-        </module>
-        
-        <!-- 程式碼風格檢查 -->
-        <module name="ArrayTypeStyle"/>
-        <module name="CommentsIndentation"/>
-        <module name="Indentation">
-            <property name="basicOffset" value="4"/>
-            <property name="braceAdjustment" value="0"/>
-            <property name="caseIndent" value="4"/>
-            <property name="throwsIndent" value="8"/>
-            <property name="lineWrappingIndentation" value="8"/>
-            <property name="arrayInitIndent" value="4"/>
-        </module>
-        
-        <module name="OuterTypeFilename"/>
-        <module name="UpperEll"/>
-        
-        <!-- 匯入檢查 -->
-        <module name="AvoidStarImport"/>
-        <module name="IllegalImport"/>
-        <module name="RedundantImport"/>
-        <module name="UnusedImports">
-            <property name="processJavadoc" value="false"/>
-        </module>
-        
-        <module name="ImportOrder">
-            <property name="groups" value="/^java\./,javax,org,com"/>
-            <property name="ordered" value="true"/>
-            <property name="separated" value="true"/>
-            <property name="option" value="top"/>
-        </module>
-        
-        <!-- 方法設計檢查 -->
-        <module name="MethodLength">
-            <property name="max" value="150"/>
-        </module>
-        
-        <module name="ParameterNumber">
-            <property name="max" value="7"/>
-            <property name="ignoreOverriddenMethods" value="true"/>
-        </module>
-        
-        <!-- 命名檢查 -->
-        <module name="ClassTypeParameterName">
-            <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
-        </module>
-        
-        <module name="ConstantName"/>
-        <module name="LocalFinalVariableName"/>
-        <module name="LocalVariableName"/>
-        <module name="MemberName"/>
-        <module name="MethodName"/>
-        <module name="MethodTypeParameterName">
-            <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
-        </module>
-        
-        <module name="PackageName">
-            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
-        </module>
-        
-        <module name="ParameterName"/>
-        <module name="StaticVariableName"/>
-        <module name="TypeName"/>
-        
-        <!-- 空白檢查 -->
-        <module name="EmptyForInitializerPad"/>
-        <module name="EmptyForIteratorPad"/>
-        <module name="EmptyLineSeparator">
-            <property name="allowNoEmptyLineBetweenFields" value="true"/>
-        </module>
-        
-        <module name="GenericWhitespace"/>
-        <module name="MethodParamPad"/>
-        <module name="NoWhitespaceAfter"/>
-        <module name="NoWhitespaceBefore"/>
-        <module name="OperatorWrap">
-            <property name="option" value="NL"/>
-            <property name="tokens" value="BAND, BOR, BSR, BXOR, DIV, EQUAL, GE, GT, LAND, LE, LITERAL_INSTANCEOF, LOR, LT, MINUS, MOD, NOT_EQUAL, PLUS, QUESTION, SL, SR, STAR, METHOD_REF"/>
-        </module>
-        
-        <module name="ParenPad"/>
-        <module name="TypecastParenPad"/>
-        <module name="WhitespaceAfter"/>
-        <module name="WhitespaceAround">
-            <property name="allowEmptyConstructors" value="true"/>
-            <property name="allowEmptyMethods" value="true"/>
-            <property name="allowEmptyTypes" value="true"/>
-            <property name="allowEmptyLoops" value="true"/>
-        </module>
-    </module>
-</module>
-```
-
-#### 12.3 Jenkins Pipeline 中的程式碼分析整合
-
-**完整的程式碼品質檢查 Pipeline：**
-
-```groovy
-pipeline {
-    agent any
-    
-    tools {
-        maven 'Maven-3.9'
-        jdk 'JDK-17'
-    }
-    
-    environment {
-        SONAR_PROJECT_KEY = 'enterprise-java-app'
-        SONAR_HOST_URL = 'https://sonar.company.com'
-        QUALITY_GATE_TIMEOUT = '10'
-    }
-    
-    parameters {
-        choice(
-            name: 'ANALYSIS_LEVEL',
-            choices: ['basic', 'standard', 'strict', 'security'],
-            description: '程式碼分析級別'
-        )
-        booleanParam(
-            name: 'FAIL_ON_QUALITY_GATE',
-            defaultValue: true,
-            description: '品質門檻失敗時中止建置'
-        )
-        booleanParam(
-            name: 'GENERATE_REPORTS',
-            defaultValue: true,
-            description: '生成詳細分析報告'
-        )
-    }
-    
-    stages {
-        stage('🔍 Code Analysis Setup') {
-            steps {
-                script {
-                    // 根據分析級別設定參數
-                    setupAnalysisParameters()
-                    
-                    // 建立分析結果目錄
-                    sh 'mkdir -p target/analysis-reports'
-                }
-            }
-        }
-        
-        stage('📋 Static Code Analysis') {
-            parallel {
-                stage('Checkstyle Analysis') {
-                    steps {
-                        echo "執行 Checkstyle 程式碼風格檢查..."
-                        
-                        script {
-                            def checkstyleProfile = getCheckstyleProfile()
-                            sh "mvn checkstyle:check -P ${checkstyleProfile}"
-                        }
-                    }
-                    post {
-                        always {
-                            // 發布 Checkstyle 結果
-                            recordIssues(
-                                enabledForFailure: true,
-                                aggregatingResults: true,
-                                tools: [checkStyle(
-                                    pattern: 'target/checkstyle-result.xml',
-                                    reportEncoding: 'UTF-8'
-                                )]
-                            )
-                            
-                            // 生成 Checkstyle 報告
-                            publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: true,
-                                keepAll: true,
-                                reportDir: 'target/site',
-                                reportFiles: 'checkstyle.html',
-                                reportName: 'Checkstyle Report'
-                            ])
-                        }
-                    }
-                }
-                
-                stage('PMD Analysis') {
-                    steps {
-                        echo "執行 PMD 程式碼品質分析..."
-                        
-                        sh 'mvn pmd:pmd pmd:cpd'
-                    }
-                    post {
-                        always {
-                            // 發布 PMD 結果
-                            recordIssues(
-                                enabledForFailure: true,
-                                tools: [
-                                    pmdParser(pattern: 'target/pmd.xml'),
-                                    cpd(pattern: 'target/cpd.xml')
-                                ]
-                            )
-                            
-                            // 發布 PMD 報告
-                            publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: true,
-                                keepAll: true,
-                                reportDir: 'target/site',
-                                reportFiles: 'pmd.html',
-                                reportName: 'PMD Report'
-                            ])
-                        }
-                    }
-                }
-                
-                stage('SpotBugs Analysis') {
-                    steps {
-                        echo "執行 SpotBugs 錯誤檢測..."
-                        
-                        sh '''
-                            mvn compile spotbugs:spotbugs
-                            
-                            # 如果是安全分析級別，執行額外的安全檢查
-                            if [ "${ANALYSIS_LEVEL}" = "security" ]; then
-                                mvn spotbugs:check -Dspotbugs.threshold=Low
-                            fi
-                        '''
-                    }
-                    post {
-                        always {
-                            // 發布 SpotBugs 結果
-                            recordIssues(
-                                enabledForFailure: true,
-                                tools: [spotBugs(
-                                    pattern: 'target/spotbugsXml.xml',
-                                    useRankAsPriority: true
-                                )]
-                            )
-                            
-                            // 發布 SpotBugs 報告
-                            publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: true,
-                                keepAll: true,
-                                reportDir: 'target/site',
-                                reportFiles: 'spotbugs.html',
-                                reportName: 'SpotBugs Report'
-                            ])
-                        }
-                    }
-                }
-                
-                stage('Dependency Security Check') {
-                    when {
-                        anyOf {
-                            params.ANALYSIS_LEVEL == 'security'
-                            params.ANALYSIS_LEVEL == 'strict'
-                        }
-                    }
-                    steps {
-                        echo "執行依賴安全檢查..."
-                        
-                        script {
-                            def cvssThreshold = params.ANALYSIS_LEVEL == 'security' ? '4' : '7'
-                            
-                            sh """
-                                mvn dependency-check:check -Dfailures.cvss=${cvssThreshold}
-                            """
-                        }
-                    }
-                    post {
-                        always {
-                            // 發布依賴檢查報告
-                            publishHTML([
-                                allowMissing: false,
-                                alwaysLinkToLastBuild: true,
-                                keepAll: true,
-                                reportDir: 'target',
-                                reportFiles: 'dependency-check-report.html',
-                                reportName: 'OWASP Dependency Check Report'
-                            ])
-                            
-                            // 保存安全報告
-                            archiveArtifacts(
-                                artifacts: 'target/dependency-check-report.*',
-                                allowEmptyArchive: true
-                            )
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('🎯 SonarQube Analysis') {
-            when {
-                anyOf {
-                    branch 'master'
-                    branch 'develop'
-                    changeRequest()
-                    params.ANALYSIS_LEVEL == 'strict'
-                }
-            }
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        runSonarQubeAnalysis()
-                    }
-                }
-            }
-        }
-        
-        stage('📊 Quality Gate Evaluation') {
-            when {
-                anyOf {
-                    branch 'master'
-                    branch 'develop'
-                    changeRequest()
-                }
-            }
-            steps {
-                script {
-                    evaluateQualityGate()
-                }
-            }
-        }
-        
-        stage('📈 Analysis Report Generation') {
-            when {
-                params.GENERATE_REPORTS
-            }
-            steps {
-                script {
-                    generateAnalysisReport()
-                    generateTrendAnalysis()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                // 收集所有分析結果
-                collectAnalysisResults()
-                
-                // 生成摘要報告
-                generateSummaryReport()
-            }
-        }
-        
-        failure {
-            script {
-                // 分析失敗處理
-                handleAnalysisFailure()
-            }
-        }
-    }
-}
-
-// === 輔助函式 ===
-
-def setupAnalysisParameters() {
-    script {
-        switch(params.ANALYSIS_LEVEL) {
-            case 'basic':
-                env.CHECKSTYLE_CONFIG = 'checkstyle-basic.xml'
-                env.PMD_RULESET = 'pmd-basic.xml'
-                env.SPOTBUGS_EFFORT = 'Default'
-                break
-                
-            case 'standard':
-                env.CHECKSTYLE_CONFIG = 'checkstyle.xml'
-                env.PMD_RULESET = 'pmd-rules.xml'
-                env.SPOTBUGS_EFFORT = 'Default'
-                break
-                
-            case 'strict':
-                env.CHECKSTYLE_CONFIG = 'checkstyle-strict.xml'
-                env.PMD_RULESET = 'pmd-strict.xml'
-                env.SPOTBUGS_EFFORT = 'Max'
-                break
-                
-            case 'security':
-                env.CHECKSTYLE_CONFIG = 'checkstyle-security.xml'
-                env.PMD_RULESET = 'pmd-security.xml'
-                env.SPOTBUGS_EFFORT = 'Max'
-                env.ENABLE_SECURITY_RULES = 'true'
-                break
-        }
-        
-        echo "分析級別: ${params.ANALYSIS_LEVEL}"
-        echo "Checkstyle 配置: ${env.CHECKSTYLE_CONFIG}"
-        echo "PMD 規則集: ${env.PMD_RULESET}"
-        echo "SpotBugs 分析強度: ${env.SPOTBUGS_EFFORT}"
-    }
-}
-
-def getCheckstyleProfile() {
-    switch(params.ANALYSIS_LEVEL) {
-        case 'strict':
-        case 'security':
-            return 'code-quality'
-        default:
-            return 'default'
-    }
-}
-
-def runSonarQubeAnalysis() {
-    echo "執行 SonarQube 分析..."
-    
-    def sonarArgs = [
-        "-Dsonar.login=${SONAR_TOKEN}",
-        "-Dsonar.host.url=${env.SONAR_HOST_URL}",
-        "-Dsonar.projectKey=${env.SONAR_PROJECT_KEY}",
-        "-Dsonar.projectName=${env.JOB_NAME}",
-        "-Dsonar.projectVersion=${env.BUILD_NUMBER}",
-        "-Dsonar.sources=src/main/java",
-        "-Dsonar.tests=src/test/java",
-        "-Dsonar.java.binaries=target/classes",
-        "-Dsonar.java.test.binaries=target/test-classes",
-        "-Dsonar.jacoco.reportPaths=target/jacoco.exec",
-        "-Dsonar.junit.reportPaths=target/surefire-reports",
-        "-Dsonar.surefire.reportsPath=target/surefire-reports"
-    ]
-    
-    // 根據建置類型添加特定參數
-    if (env.CHANGE_ID) {
-        // Pull Request 分析
-        sonarArgs.addAll([
-            "-Dsonar.pullrequest.key=${env.CHANGE_ID}",
-            "-Dsonar.pullrequest.branch=${env.CHANGE_BRANCH}",
-            "-Dsonar.pullrequest.base=${env.CHANGE_TARGET}"
-        ])
-    } else {
-        // 分支分析
-        sonarArgs.add("-Dsonar.branch.name=${env.BRANCH_NAME}")
-    }
-    
-    // 安全分析額外參數
-    if (params.ANALYSIS_LEVEL == 'security') {
-        sonarArgs.addAll([
-            "-Dsonar.security.hotspots.includeNewCode=true",
-            "-Dsonar.security.review.enabled=true"
-        ])
-    }
-    
-    def sonarArgsString = sonarArgs.join(' ')
-    sh "mvn sonar:sonar ${sonarArgsString}"
-}
-
-def evaluateQualityGate() {
-    echo "等待 SonarQube Quality Gate 結果..."
-    
-    timeout(time: env.QUALITY_GATE_TIMEOUT as Integer, unit: 'MINUTES') {
-        script {
-            def qg = waitForQualityGate()
-            
-            env.QUALITY_GATE_STATUS = qg.status
-            
-            echo "Quality Gate 狀態: ${qg.status}"
-            
-            if (qg.status != 'OK') {
-                def conditions = qg.conditions ?: []
-                conditions.each { condition ->
-                    if (condition.status != 'OK') {
-                        echo "❌ ${condition.metricKey}: ${condition.actualValue} (門檻: ${condition.errorThreshold})"
-                    }
-                }
-                
-                if (params.FAIL_ON_QUALITY_GATE) {
-                    error "SonarQube Quality Gate 失敗: ${qg.status}"
-                } else {
-                    echo "⚠️ Quality Gate 失敗但設定為繼續建置"
-                    currentBuild.result = 'UNSTABLE'
-                }
-            } else {
-                echo "✅ SonarQube Quality Gate 通過"
-            }
-        }
-    }
-}
-
-def generateAnalysisReport() {
-    echo "生成程式碼分析報告..."
-    
-    script {
-        // 收集各工具的分析結果
-        def analysisData = [:]
-        
-        // Checkstyle 結果
-        if (fileExists('target/checkstyle-result.xml')) {
-            def checkstyleViolations = sh(
-                script: "xmlstarlet sel -t -v 'count(//error)' target/checkstyle-result.xml",
-                returnStdout: true
-            ).trim()
-            analysisData['checkstyle'] = checkstyleViolations
-        }
-        
-        // PMD 結果
-        if (fileExists('target/pmd.xml')) {
-            def pmdViolations = sh(
-                script: "xmlstarlet sel -t -v 'count(//violation)' target/pmd.xml",
-                returnStdout: true
-            ).trim()
-            analysisData['pmd'] = pmdViolations
-        }
-        
-        // SpotBugs 結果
-        if (fileExists('target/spotbugsXml.xml')) {
-            def spotbugsViolations = sh(
-                script: "xmlstarlet sel -t -v 'count(//BugInstance)' target/spotbugsXml.xml",
-                returnStdout: true
-            ).trim()
-            analysisData['spotbugs'] = spotbugsViolations
-        }
-        
-        // 生成 HTML 報告
-        def reportHtml = generateAnalysisReportHtml(analysisData)
-        writeFile file: 'target/analysis-reports/code-analysis-report.html', text: reportHtml
-        
-        publishHTML([
-            allowMissing: false,
-            alwaysLinkToLastBuild: true,
-            keepAll: true,
-            reportDir: 'target/analysis-reports',
-            reportFiles: 'code-analysis-report.html',
-            reportName: 'Code Analysis Report'
-        ])
-    }
-}
-
-def generateAnalysisReportHtml(analysisData) {
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>程式碼分析報告</title>
-        <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            .header { background-color: #f5f5f5; padding: 15px; border-radius: 5px; }
-            .metric-card { 
-                display: inline-block; 
-                margin: 10px; 
-                padding: 15px; 
-                border: 1px solid #ddd; 
-                border-radius: 5px; 
-                text-align: center; 
-                width: 150px;
-            }
-            .metric-value { font-size: 2em; font-weight: bold; }
-            .metric-label { color: #666; }
-            .good { color: #28a745; }
-            .warning { color: #ffc107; }
-            .danger { color: #dc3545; }
-            .recommendations { margin-top: 30px; }
-            .recommendations ul { list-style-type: none; padding: 0; }
-            .recommendations li { 
-                margin: 10px 0; 
-                padding: 10px; 
-                background-color: #f8f9fa; 
-                border-left: 4px solid #007bff; 
-            }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <h1>程式碼分析報告</h1>
-            <p>建置編號: ${env.BUILD_NUMBER}</p>
-            <p>分析時間: ${new Date()}</p>
-            <p>分析級別: ${params.ANALYSIS_LEVEL}</p>
-        </div>
-        
-        <h2>分析結果概覽</h2>
-        <div class="metrics">
-            <div class="metric-card">
-                <div class="metric-value ${getStatusClass(analysisData.checkstyle)}">${analysisData.checkstyle ?: '0'}</div>
-                <div class="metric-label">Checkstyle 違規</div>
-            </div>
-            
-            <div class="metric-card">
-                <div class="metric-value ${getStatusClass(analysisData.pmd)}">${analysisData.pmd ?: '0'}</div>
-                <div class="metric-label">PMD 違規</div>
-            </div>
-            
-            <div class="metric-card">
-                <div class="metric-value ${getStatusClass(analysisData.spotbugs)}">${analysisData.spotbugs ?: '0'}</div>
-                <div class="metric-label">SpotBugs 錯誤</div>
-            </div>
-            
-            <div class="metric-card">
-                <div class="metric-value ${env.QUALITY_GATE_STATUS == 'OK' ? 'good' : 'danger'}">${env.QUALITY_GATE_STATUS ?: 'N/A'}</div>
-                <div class="metric-label">Quality Gate</div>
-            </div>
-        </div>
-        
-        <div class="recommendations">
-            <h2>改善建議</h2>
-            <ul>
-                <li>📋 定期檢視並修復 Checkstyle 風格問題</li>
-                <li>🔍 關注 PMD 報告的程式碼品質建議</li>
-                <li>🐛 優先修復 SpotBugs 發現的潛在錯誤</li>
-                <li>🎯 維持 SonarQube Quality Gate 通過狀態</li>
-                <li>📈 持續監控程式碼品質趨勢</li>
-            </ul>
-        </div>
-        
-        <h2>快速連結</h2>
-        <ul>
-            <li><a href="../Checkstyle_20Report/">Checkstyle 詳細報告</a></li>
-            <li><a href="../PMD_20Report/">PMD 詳細報告</a></li>
-            <li><a href="../SpotBugs_20Report/">SpotBugs 詳細報告</a></li>
-            <li><a href="${env.SONAR_HOST_URL}/dashboard?id=${env.SONAR_PROJECT_KEY}">SonarQube 儀表板</a></li>
-        </ul>
-    </body>
-    </html>
-    """
-}
-
-def getStatusClass(value) {
-    if (!value || value == '0') return 'good'
-    def intValue = value as Integer
-    if (intValue <= 5) return 'good'
-    if (intValue <= 20) return 'warning'
-    return 'danger'
-}
-
-def generateTrendAnalysis() {
-    script {
-        // 記錄趨勢數據
-        def trendData = "${env.BUILD_NUMBER},${analysisData.checkstyle ?: 0},${analysisData.pmd ?: 0},${analysisData.spotbugs ?: 0},${env.QUALITY_GATE_STATUS ?: 'UNKNOWN'},${new Date().format('yyyy-MM-dd')}"
-        
-        writeFile file: 'analysis-trend.csv', text: trendData + '\n'
-        
-        // 如果存在歷史數據，合併
-        if (fileExists('analysis-history.csv')) {
-            sh 'cat analysis-history.csv analysis-trend.csv > temp.csv && mv temp.csv analysis-history.csv'
-        } else {
-            sh 'echo "build,checkstyle,pmd,spotbugs,quality_gate,date" > analysis-history.csv'
-            sh 'cat analysis-trend.csv >> analysis-history.csv'
-        }
-        
-        archiveArtifacts artifacts: 'analysis-history.csv'
-    }
-}
-
-def collectAnalysisResults() {
-    script {
-        // 收集所有分析結果文件
-        sh '''
-            mkdir -p target/complete-analysis-results
-            
-            # 複製所有分析報告
-            find target -name "*.xml" -path "*/site/*" -exec cp {} target/complete-analysis-results/ \\;
-            find target -name "*.html" -path "*/site/*" -exec cp {} target/complete-analysis-results/ \\;
-            
-            # 複製 SonarQube 相關文件
-            if [ -d ".sonar" ]; then
-                cp -r .sonar target/complete-analysis-results/
-            fi
-        '''
-        
-        archiveArtifacts(
-            artifacts: 'target/complete-analysis-results/**',
-            allowEmptyArchive: true
-        )
-    }
-}
-
-def generateSummaryReport() {
-    script {
-        def summary = """
-        ═══════════════════════════════════════════════════════════
-                           程式碼品質分析摘要
-        ═══════════════════════════════════════════════════════════
-        
-        建置資訊:
-        ├─ 專案: ${env.JOB_NAME}
-        ├─ 建置編號: ${env.BUILD_NUMBER}
-        ├─ 分析級別: ${params.ANALYSIS_LEVEL}
-        ├─ Git 分支: ${env.BRANCH_NAME}
-        └─ 分析時間: ${new Date()}
-        
-        分析結果:
-        ├─ Checkstyle 違規: ${analysisData?.checkstyle ?: '0'}
-        ├─ PMD 違規: ${analysisData?.pmd ?: '0'}
-        ├─ SpotBugs 錯誤: ${analysisData?.spotbugs ?: '0'}
-        └─ Quality Gate: ${env.QUALITY_GATE_STATUS ?: 'N/A'}
-        
-        建置狀態: ${currentBuild.result ?: 'SUCCESS'}
-        
-        ═══════════════════════════════════════════════════════════
-        """
-        
-        echo summary
-        writeFile file: 'code-quality-summary.txt', text: summary
-        archiveArtifacts artifacts: 'code-quality-summary.txt'
-    }
-}
-
-def handleAnalysisFailure() {
-    script {
-        echo "程式碼分析失敗，收集診斷資訊..."
-        
-        sh '''
-            echo "=== 分析失敗診斷 ===" > analysis-failure-diagnosis.txt
-            echo "失敗時間: $(date)" >> analysis-failure-diagnosis.txt
-            echo "失敗階段: ${STAGE_NAME}" >> analysis-failure-diagnosis.txt
-            echo "" >> analysis-failure-diagnosis.txt
-            
-            echo "=== 工具版本資訊 ===" >> analysis-failure-diagnosis.txt
-            mvn -version >> analysis-failure-diagnosis.txt
-            echo "" >> analysis-failure-diagnosis.txt
-            
-            echo "=== 專案結構 ===" >> analysis-failure-diagnosis.txt
-            find . -name "*.java" | head -20 >> analysis-failure-diagnosis.txt
-            echo "" >> analysis-failure-diagnosis.txt
-            
-            echo "=== Maven 依賴樹 ===" >> analysis-failure-diagnosis.txt
-            mvn dependency:tree | head -50 >> analysis-failure-diagnosis.txt
-        '''
-        
-        archiveArtifacts artifacts: 'analysis-failure-diagnosis.txt'
-        
-        // 發送失敗通知
-        emailext(
-            subject: "🔍 程式碼分析失敗: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-            body: """
-                程式碼分析失敗通知
-                
-                專案: ${env.JOB_NAME}
-                建置編號: ${env.BUILD_NUMBER}
-                失敗階段: ${env.STAGE_NAME}
-                分析級別: ${params.ANALYSIS_LEVEL}
-                
-                請檢查分析日誌並修復相關問題。
-                
-                建置日誌: ${env.BUILD_URL}console
-                分析報告: ${env.BUILD_URL}artifact/analysis-failure-diagnosis.txt
-            """,
-            to: 'dev-team@company.com'
-        )
-    }
-}
-```
-
-### 💡 實務案例
-
-#### 案例：企業級程式碼品質治理
-
-**情境**：為大型企業建立統一的程式碼品質標準和自動化檢查機制
-
-**解決方案包含：**
-
-1. **分層的程式碼品質標準**
-2. **自動化的品質門檻**
-3. **持續的品質監控**
-4. **團隊協作的品質改善流程**
-
-```groovy
-// 企業級程式碼品質治理 Pipeline
-pipeline {
-    agent none
-    
-    parameters {
-        choice(
-            name: 'QUALITY_PROFILE',
-            choices: ['development', 'integration', 'release', 'critical'],
-            description: '品質檢查設定檔'
-        )
-    }
-    
-    stages {
-        stage('Quality Profile Setup') {
-            agent any
-            steps {
-                script {
-                    setupQualityProfile(params.QUALITY_PROFILE)
-                }
-            }
-        }
-        
-        stage('Multi-Level Analysis') {
-            parallel {
-                stage('Code Style & Format') {
-                    agent { label 'analysis' }
-                    steps {
-                        runCodeStyleAnalysis()
-                    }
-                }
-                
-                stage('Code Quality & Complexity') {
-                    agent { label 'analysis' }
-                    steps {
-                        runCodeQualityAnalysis()
-                    }
-                }
-                
-                stage('Security & Vulnerability') {
-                    agent { label 'security' }
-                    steps {
-                        runSecurityAnalysis()
-                    }
-                }
-                
-                stage('Architecture Compliance') {
-                    agent { label 'architecture' }
-                    steps {
-                        runArchitectureAnalysis()
-                    }
-                }
-            }
-        }
-        
-        stage('Quality Gate Evaluation') {
-            agent any
-            steps {
-                script {
-                    evaluateEnterpriseQualityGate()
-                }
-            }
-        }
-        
-        stage('Quality Metrics Dashboard') {
-            agent any
-            steps {
-                script {
-                    generateQualityDashboard()
-                }
-            }
-        }
-    }
-}
-
-def setupQualityProfile(profile) {
-    def profiles = [
-        'development': [
-            checkstyleConfig: 'checkstyle-dev.xml',
-            pmdRuleset: 'pmd-dev.xml',
-            securityLevel: 'basic',
-            coverageThreshold: 60
-        ],
-        'integration': [
-            checkstyleConfig: 'checkstyle-standard.xml',
-            pmdRuleset: 'pmd-standard.xml',
-            securityLevel: 'standard',
-            coverageThreshold: 70
-        ],
-        'release': [
-            checkstyleConfig: 'checkstyle-strict.xml',
-            pmdRuleset: 'pmd-strict.xml',
-            securityLevel: 'strict',
-            coverageThreshold: 80
-        ],
-        'critical': [
-            checkstyleConfig: 'checkstyle-critical.xml',
-            pmdRuleset: 'pmd-critical.xml',
-            securityLevel: 'critical',
-            coverageThreshold: 90
-        ]
-    ]
-    
-    def config = profiles[profile]
-    
-    env.CHECKSTYLE_CONFIG = config.checkstyleConfig
-    env.PMD_RULESET = config.pmdRuleset
-    env.SECURITY_LEVEL = config.securityLevel
-    env.COVERAGE_THRESHOLD = config.coverageThreshold.toString()
-    
-    echo "設定品質檢查設定檔: ${profile}"
-    echo "覆蓋率門檻: ${env.COVERAGE_THRESHOLD}%"
-}
-
-def runCodeStyleAnalysis() {
-    // 程式碼風格分析實作
-    sh """
-        mvn checkstyle:check -Dcheckstyle.config.location=${env.CHECKSTYLE_CONFIG}
-        mvn formatter:validate
-        mvn impsort:check
-    """
-}
-
-def runCodeQualityAnalysis() {
-    // 程式碼品質分析實作
-    sh """
-        mvn pmd:check -Dpmd.ruleset=${env.PMD_RULESET}
-        mvn spotbugs:check
-        mvn jacoco:check -Djacoco.haltOnFailure=false
-    """
-}
-
-def runSecurityAnalysis() {
-    // 安全分析實作
-    def securityCommands = [
-        'basic': 'mvn dependency-check:check -DfailBuildOnCVSS=8',
-        'standard': 'mvn dependency-check:check -DfailBuildOnCVSS=7',
-        'strict': 'mvn dependency-check:check -DfailBuildOnCVSS=5',
-        'critical': 'mvn dependency-check:check -DfailBuildOnCVSS=3'
-    ]
-    
-    sh securityCommands[env.SECURITY_LEVEL]
-}
-
-def runArchitectureAnalysis() {
-    // 架構合規檢查實作
-    sh '''
-        mvn archunit:test
-        mvn dependency:analyze
-        mvn enforcer:enforce
-    '''
-}
-
-def evaluateEnterpriseQualityGate() {
-    // 企業級品質門檻評估
-    script {
-        def qualityResults = [:]
-        
-        // 收集各項指標
-        qualityResults.codeStyle = getCheckstyleViolationCount()
-        qualityResults.codeQuality = getPmdViolationCount()
-        qualityResults.bugs = getSpotBugsCount()
-        qualityResults.coverage = getCodeCoverage()
-        qualityResults.security = getSecurityVulnerabilityCount()
-        
-        // 評估總體品質
-        def overallQuality = calculateOverallQuality(qualityResults)
-        
-        // 決定建置結果
-        if (overallQuality < 70) {
-            currentBuild.result = 'FAILURE'
-            error "程式碼品質不符合企業標準: ${overallQuality}%"
-        } else if (overallQuality < 85) {
-            currentBuild.result = 'UNSTABLE'
-            echo "警告: 程式碼品質需要改善: ${overallQuality}%"
-        } else {
-            echo "程式碼品質符合企業標準: ${overallQuality}%"
-        }
-        
-        env.OVERALL_QUALITY = overallQuality.toString()
-    }
-}
-
-def generateQualityDashboard() {
-    // 生成企業級品質儀表板
-    script {
-        def dashboardData = collectQualityMetrics()
-        def dashboardHtml = generateEnterpriseQualityDashboard(dashboardData)
-        
-        writeFile file: 'enterprise-quality-dashboard.html', text: dashboardHtml
-        
-        publishHTML([
-            allowMissing: false,
-            alwaysLinkToLastBuild: true,
-            keepAll: true,
-            reportDir: '.',
-            reportFiles: 'enterprise-quality-dashboard.html',
-            reportName: 'Enterprise Quality Dashboard'
-        ])
-    }
-}
-```
-
-### ⚠️ 注意事項
-
-1. **工具配置**：
-   - 保持工具版本的一致性
-   - 定期更新規則集
-   - 建立例外處理機制
-
-2. **效能優化**：
-   - 使用分析快取
-   - 並行執行分析工具
-   - 避免重複分析
-
-3. **報告管理**：
-   - 建立報告保留策略
-   - 提供趨勢分析
-   - 確保報告的可存取性
-
-4. **團隊協作**：
-   - 建立品質標準文件
-   - 提供修復指南
-   - 實施品質教育訓練
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| 靜態分析工具 | Checkstyle、PMD、SpotBugs 配置 |
-| SonarQube 整合 | Quality Gate、分析配置 |
-| 安全檢查 | OWASP 工具、漏洞檢測 |
-| 品質治理 | 企業標準、自動化決策 |
-
-### 📝 練習作業
-
-1. **基礎練習**：配置基本的靜態程式碼分析工具
-2. **進階練習**：建立多層次的程式碼品質檢查機制
-3. **實務練習**：實施企業級的程式碼品質治理策略
-
----
-
-## 總結
-
-恭喜您完成了 Jenkins CI/CD 教學手冊的前12章！您已經學習了：
-
-### 已完成章節回顧
-
-1. **第1-4章**：Jenkins 基礎架構和環境設定
-2. **第5-8章**：專案類型和基本整合
-3. **第9-12章**：Pipeline 進階應用和品質控制
-
-### 技能掌握檢核
-
-✅ Jenkins 安裝和基本配置  
-✅ 使用者和權限管理  
-✅ Plugin 生態系統應用  
-✅ Freestyle Project 建立  
-✅ 憑證和安全管理  
-✅ Git 整合和版本控制  
-✅ Maven 專案建置  
-✅ Pipeline 語法和結構  
-✅ Jenkinsfile 深度應用  
-✅ 測試整合和覆蓋率  
-✅ 靜態程式碼分析  
-✅ 品質門檻和自動化決策  
-
-### 下一步學習建議
-
-繼續學習第13-19章，將涵蓋：
-- Pipeline 故障排除和最佳實務
-- 部署策略和環境管理
-- 監控和效能優化
-- 企業級 CI/CD 架構設計
-
-持續實務練習，將理論知識轉化為實際技能！
-
----
-
-## 第13章 Pipeline 故障排除與除錯技巧
-
-### 🎯 學習目標
-
-- 掌握 Pipeline 常見問題的診斷方法
-- 學會使用 Jenkins 內建的除錯工具
-- 建立系統性的故障排除流程
-- 實施預防性的錯誤處理機制
-
-### 📚 核心概念
-
-#### 13.1 Pipeline 故障診斷架構
-
-Jenkins Pipeline 的故障排除需要系統性的方法，從日誌分析到效能監控的全方位診斷。
-
-```mermaid
-graph TB
-    A[Pipeline 故障] --> B[初步診斷]
-    B --> C[日誌分析]
-    B --> D[環境檢查]
-    B --> E[資源監控]
-    
-    C --> F[Console Log]
-    C --> G[Build Log]
-    C --> H[Agent Log]
-    C --> I[System Log]
-    
-    D --> J[Node 狀態]
-    D --> K[工具版本]
-    D --> L[權限檢查]
-    D --> M[網路連線]
-    
-    E --> N[CPU 使用率]
-    E --> O[記憶體使用]
-    E --> P[磁碟空間]
-    E --> Q[網路頻寬]
-    
-    F --> R[錯誤訊息提取]
-    G --> R
-    H --> R
-    I --> R
-    
-    J --> S[環境修復]
-    K --> S
-    L --> S
-    M --> S
-    
-    N --> T[資源調整]
-    O --> T
-    P --> T
-    Q --> T
-    
-    R --> U[問題分類]
-    S --> U
-    T --> U
-    
-    U --> V[語法錯誤]
-    U --> W[環境問題]
-    U --> X[資源問題]
-    U --> Y[權限問題]
-    U --> Z[整合問題]
-    
-    V --> AA[解決方案]
-    W --> AA
-    X --> AA
-    Y --> AA
-    Z --> AA
-    
-    subgraph "預防機制"
-        BB[健康檢查]
-        CC[資源監控]
-        DD[自動重試]
-        EE[錯誤通知]
-        FF[日誌保留]
-    end
-    
-    subgraph "除錯工具"
-        GG[Jenkins CLI]
-        HH[Script Console]
-        II[Blue Ocean]
-        JJ[Pipeline Steps Reference]
-        KK[Groovy Sandbox]
-    end
-```
-
-#### 13.2 常見 Pipeline 錯誤類型與解決方案
-
-**語法錯誤診斷：**
-
-```groovy
-// 常見錯誤示例和修復方法
-pipeline {
-    agent any
-    
-    stages {
-        stage('語法檢查示範') {
-            steps {
-                script {
-                    try {
-                        // 常見錯誤 1: 未正確引用變數
-                        // 錯誤寫法
-                        // echo "Build number: $BUILD_NUMBER"  // 在 script 區塊中應使用 env
-                        
-                        // 正確寫法
-                        echo "Build number: ${env.BUILD_NUMBER}"
-                        
-                        // 常見錯誤 2: 字串插值問題
-                        def version = "1.0.0"
-                        // 錯誤寫法
-                        // sh 'echo "Version: $version"'  // 單引號不支援字串插值
-                        
-                        // 正確寫法
-                        sh "echo 'Version: ${version}'"
-                        
-                        // 常見錯誤 3: 並行區塊結構錯誤
-                        // 錯誤寫法示例（會在實際範例中修正）
-                        
-                    } catch (Exception e) {
-                        echo "捕獲錯誤: ${e.getMessage()}"
-                        currentBuild.result = 'FAILURE'
-                        throw e
-                    }
-                }
-            }
-        }
-        
-        stage('環境診斷') {
-            steps {
-                script {
-                    // 系統環境檢查
-                    environmentDiagnostics()
-                    
-                    // 工具版本檢查
-                    toolVersionCheck()
-                    
-                    // 權限檢查
-                    permissionCheck()
-                }
-            }
-        }
-        
-        stage('資源診斷') {
-            steps {
-                script {
-                    // 資源使用情況檢查
-                    resourceDiagnostics()
-                    
-                    // 網路連線檢查
-                    networkConnectivityCheck()
-                }
-            }
-        }
-    }
-    
-    post {
-        failure {
-            script {
-                // 失敗時的詳細診斷
-                detailedFailureDiagnostics()
-                
-                // 收集診斷資訊
-                collectDiagnosticInfo()
-            }
-        }
-    }
-}
-
-// === 診斷函式庫 ===
-
-def environmentDiagnostics() {
-    echo "=== 環境診斷 ==="
-    
-    // 檢查 Jenkins 版本
-    def jenkinsVersion = Jenkins.instance.getVersion()
-    echo "Jenkins 版本: ${jenkinsVersion}"
-    
-    // 檢查 Node 資訊
-    def nodeInfo = sh(script: 'uname -a', returnStdout: true).trim()
-    echo "節點資訊: ${nodeInfo}"
-    
-    // 檢查環境變數
-    sh '''
-        echo "=== 重要環境變數 ==="
-        echo "JAVA_HOME: ${JAVA_HOME:-未設定}"
-        echo "PATH: ${PATH}"
-        echo "WORKSPACE: ${WORKSPACE:-未設定}"
-        echo "BUILD_NUMBER: ${BUILD_NUMBER:-未設定}"
-        echo "JOB_NAME: ${JOB_NAME:-未設定}"
-    '''
-    
-    // 檢查 Java 版本
-    try {
-        def javaVersion = sh(script: 'java -version 2>&1', returnStdout: true)
-        echo "Java 版本:\n${javaVersion}"
-    } catch (Exception e) {
-        echo "⚠️ Java 版本檢查失敗: ${e.getMessage()}"
-    }
-}
-
-def toolVersionCheck() {
-    echo "=== 工具版本檢查 ==="
-    
-    def tools = [
-        'maven': 'mvn -version',
-        'git': 'git --version',
-        'docker': 'docker --version',
-        'node': 'node --version',
-        'npm': 'npm --version'
-    ]
-    
-    tools.each { tool, command ->
-        try {
-            def version = sh(script: command, returnStdout: true).trim()
-            echo "${tool}: ${version}"
-        } catch (Exception e) {
-            echo "⚠️ ${tool} 未安裝或不可用: ${e.getMessage()}"
-        }
-    }
-}
-
-def permissionCheck() {
-    echo "=== 權限檢查 ==="
-    
-    // 檢查工作空間權限
-    sh '''
-        echo "工作空間權限:"
-        ls -la ${WORKSPACE} || echo "無法存取工作空間"
-        
-        echo "當前使用者:"
-        whoami
-        
-        echo "使用者群組:"
-        groups
-        
-        echo "可寫入目錄測試:"
-        touch ${WORKSPACE}/permission_test.tmp && rm ${WORKSPACE}/permission_test.tmp && echo "✅ 可寫入" || echo "❌ 無法寫入"
-    '''
-    
-    // 檢查 Docker 權限（如果適用）
-    try {
-        sh 'docker ps > /dev/null 2>&1'
-        echo "✅ Docker 權限正常"
-    } catch (Exception e) {
-        echo "⚠️ Docker 權限問題或 Docker 未安裝"
-    }
-}
-
-def resourceDiagnostics() {
-    echo "=== 資源診斷 ==="
-    
-    // CPU 使用率
-    sh '''
-        echo "=== CPU 資訊 ==="
-        nproc
-        cat /proc/loadavg
-        
-        echo "=== 記憶體使用 ==="
-        free -h
-        
-        echo "=== 磁碟使用 ==="
-        df -h
-        
-        echo "=== 程序資訊 ==="
-        ps aux | head -10
-    '''
-}
-
-def networkConnectivityCheck() {
-    echo "=== 網路連線檢查 ==="
-    
-    def endpoints = [
-        'google.com:80',
-        'github.com:443',
-        'maven.repository.com:443'
-    ]
-    
-    endpoints.each { endpoint ->
-        try {
-            def (host, port) = endpoint.split(':')
-            sh "timeout 5 bash -c '</dev/tcp/${host}/${port}' && echo '✅ ${endpoint} 可連線' || echo '❌ ${endpoint} 無法連線'"
-        } catch (Exception e) {
-            echo "⚠️ ${endpoint} 連線測試失敗: ${e.getMessage()}"
-        }
-    }
-}
-
-def detailedFailureDiagnostics() {
-    echo "=== 詳細失敗診斷 ==="
-    
-    // 分析建置失敗原因
-    def buildResult = currentBuild.result
-    def failedStage = env.STAGE_NAME ?: '未知階段'
-    
-    echo "建置結果: ${buildResult}"
-    echo "失敗階段: ${failedStage}"
-    
-    // 檢查最近的錯誤日誌
-    try {
-        def recentLogs = sh(
-            script: 'tail -100 /var/log/jenkins/jenkins.log 2>/dev/null || echo "無法存取 Jenkins 日誌"',
-            returnStdout: true
-        )
-        echo "最近的 Jenkins 日誌:\n${recentLogs}"
-    } catch (Exception e) {
-        echo "無法讀取 Jenkins 日誌: ${e.getMessage()}"
-    }
-    
-    // 檢查 Agent 狀態
-    def nodeName = env.NODE_NAME ?: 'master'
-    echo "當前節點: ${nodeName}"
-    
-    // 收集系統狀態
-    sh '''
-        echo "=== 系統狀態快照 ==="
-        date
-        uptime
-        last | head -5
-    '''
-}
-
-def collectDiagnosticInfo() {
-    echo "收集診斷資訊..."
-    
-    // 建立診斷報告
-    sh '''
-        mkdir -p diagnostic-reports
-        
-        # 基本系統資訊
-        {
-            echo "=== 診斷報告 - $(date) ==="
-            echo "建置編號: ${BUILD_NUMBER}"
-            echo "專案: ${JOB_NAME}"
-            echo "失敗階段: ${STAGE_NAME:-未知}"
-            echo "節點: ${NODE_NAME:-master}"
-            echo ""
-            
-            echo "=== 系統資訊 ==="
-            uname -a
-            echo ""
-            
-            echo "=== Java 版本 ==="
-            java -version 2>&1
-            echo ""
-            
-            echo "=== 環境變數 ==="
-            env | grep -E "(JAVA_HOME|PATH|WORKSPACE|BUILD_)" | sort
-            echo ""
-            
-            echo "=== 磁碟使用 ==="
-            df -h
-            echo ""
-            
-            echo "=== 記憶體使用 ==="
-            free -h
-            echo ""
-            
-        } > diagnostic-reports/system-info.txt
-        
-        # Maven 資訊（如果適用）
-        if command -v mvn >/dev/null 2>&1; then
-            {
-                echo "=== Maven 版本 ==="
-                mvn -version
-                echo ""
-                
-                echo "=== Maven 設定 ==="
-                mvn help:effective-settings 2>/dev/null | head -50 || echo "無法取得 Maven 設定"
-                echo ""
-                
-            } > diagnostic-reports/maven-info.txt
-        fi
-        
-        # Git 資訊
-        if [ -d .git ]; then
-            {
-                echo "=== Git 資訊 ==="
-                git status
-                echo ""
-                git log --oneline -5
-                echo ""
-                git remote -v
-                echo ""
-                
-            } > diagnostic-reports/git-info.txt
-        fi
-    '''
-    
-    // 保存診斷報告
-    archiveArtifacts(
-        artifacts: 'diagnostic-reports/**',
-        allowEmptyArchive: true
-    )
-}
-```
-
-#### 13.3 進階除錯技術
-
-**使用 Jenkins Script Console 進行除錯：**
-
-```groovy
-// Script Console 除錯範例
-pipeline {
-    agent any
-    
-    stages {
-        stage('Script Console 除錯示範') {
-            steps {
-                script {
-                    // 啟用詳細日誌
-                    enableVerboseLogging()
-                    
-                    // 動態調整日誌級別
-                    adjustLogLevel('DEBUG')
-                    
-                    // 即時變數檢查
-                    inspectVariables()
-                    
-                    // Pipeline 狀態檢查
-                    checkPipelineState()
-                }
-            }
-        }
-        
-        stage('Groovy Sandbox 除錯') {
-            steps {
-                script {
-                    // 安全的 Groovy 程式碼除錯
-                    debugGroovyCode()
-                    
-                    // 方法調用追蹤
-                    traceMethodCalls()
-                }
-            }
-        }
-        
-        stage('Blue Ocean 除錯資訊') {
-            steps {
-                script {
-                    // 為 Blue Ocean 添加除錯資訊
-                    addBlueOceanDebugInfo()
-                }
-            }
-        }
-    }
-}
-
-def enableVerboseLogging() {
-    echo "啟用詳細日誌記錄..."
-    
-    // 設定環境變數以啟用詳細日誌
-    env.MAVEN_OPTS = "${env.MAVEN_OPTS ?: ''} -X"
-    env.JENKINS_DEBUG = 'true'
-    
-    echo "詳細日誌已啟用"
-}
-
-def adjustLogLevel(level) {
-    echo "調整日誌級別為: ${level}"
-    
-    // 動態調整 Logger 級別
-    script {
-        def logger = java.util.logging.Logger.getLogger("jenkins.pipeline")
-        def logLevel = java.util.logging.Level.parse(level)
-        logger.setLevel(logLevel)
-        
-        echo "日誌級別已設定為: ${level}"
-    }
-}
-
-def inspectVariables() {
-    echo "=== 變數檢查 ==="
-    
-    // 檢查環境變數
-    echo "重要環境變數:"
-    env.getEnvironment().each { key, value ->
-        if (key.startsWith('BUILD_') || key.startsWith('JOB_') || key.startsWith('GIT_')) {
-            echo "  ${key} = ${value}"
-        }
-    }
-    
-    // 檢查 Pipeline 特定變數
-    echo "Pipeline 變數:"
-    echo "  currentBuild.number = ${currentBuild.number}"
-    echo "  currentBuild.result = ${currentBuild.result ?: 'SUCCESS'}"
-    echo "  currentBuild.duration = ${currentBuild.duration ?: 0}"
-    
-    // 檢查參數
-    if (params) {
-        echo "建置參數:"
-        params.each { key, value ->
-            echo "  ${key} = ${value}"
-        }
-    } else {
-        echo "無建置參數"
-    }
-}
-
-def checkPipelineState() {
-    echo "=== Pipeline 狀態檢查 ==="
-    
-    // 檢查當前階段
-    echo "當前階段: ${env.STAGE_NAME}"
-    
-    // 檢查 Agent 資訊
-    echo "執行節點: ${env.NODE_NAME ?: 'master'}"
-    echo "工作空間: ${env.WORKSPACE}"
-    
-    // 檢查建置歷史
-    def previousBuild = currentBuild.previousBuild
-    if (previousBuild) {
-        echo "上次建置結果: ${previousBuild.result}"
-        echo "上次建置時間: ${new Date(previousBuild.timeInMillis)}"
-    } else {
-        echo "這是第一次建置"
-    }
-    
-    // 檢查變更集
-    def changeSet = currentBuild.changeSets
-    if (changeSet) {
-        echo "變更數量: ${changeSet.size()}"
-        changeSet.each { change ->
-            echo "  變更: ${change.commitId} - ${change.msg}"
-        }
-    } else {
-        echo "無程式碼變更"
-    }
-}
-
-def debugGroovyCode() {
-    echo "=== Groovy 程式碼除錯 ==="
-    
-    try {
-        // 除錯 Groovy 語法
-        def testCode = '''
-            def message = "Hello, Jenkins!"
-            return message.toUpperCase()
-        '''
-        
-        def result = evaluate(testCode)
-        echo "Groovy 測試結果: ${result}"
-        
-        // 除錯物件檢查
-        inspectGroovyObjects()
-        
-    } catch (Exception e) {
-        echo "Groovy 除錯失敗: ${e.getMessage()}"
-        echo "堆疊追蹤: ${e.getStackTrace().join('\n')}"
-    }
-}
-
-def inspectGroovyObjects() {
-    // 檢查 Jenkins 物件
-    echo "Jenkins 實例資訊:"
-    def jenkins = Jenkins.instance
-    echo "  版本: ${jenkins.version}"
-    echo "  根目錄: ${jenkins.rootDir}"
-    echo "  節點數量: ${jenkins.nodes.size()}"
-    
-    // 檢查當前工作
-    def job = Jenkins.instance.getItemByFullName(env.JOB_NAME)
-    if (job) {
-        echo "工作資訊:"
-        echo "  顯示名稱: ${job.displayName}"
-        echo "  描述: ${job.description ?: '無描述'}"
-        echo "  最後建置: ${job.lastBuild?.number ?: '無'}"
-    }
-}
-
-def traceMethodCalls() {
-    echo "=== 方法調用追蹤 ==="
-    
-    // 包裝方法以進行追蹤
-    def originalSh = this.&sh
-    
-    this.metaClass.sh = { String command ->
-        echo "🔍 執行 shell 命令: ${command}"
-        def startTime = System.currentTimeMillis()
-        
-        try {
-            def result = originalSh(command)
-            def duration = System.currentTimeMillis() - startTime
-            echo "✅ 命令執行成功，耗時: ${duration}ms"
-            return result
-        } catch (Exception e) {
-            def duration = System.currentTimeMillis() - startTime
-            echo "❌ 命令執行失敗，耗時: ${duration}ms，錯誤: ${e.getMessage()}"
-            throw e
-        }
-    }
-}
-
-def addBlueOceanDebugInfo() {
-    echo "=== Blue Ocean 除錯資訊 ==="
-    
-    // 添加 Blue Ocean 可視化的除錯資訊
-    def debugInfo = [
-        timestamp: new Date(),
-        buildNumber: env.BUILD_NUMBER,
-        stageName: env.STAGE_NAME,
-        nodeName: env.NODE_NAME,
-        workspace: env.WORKSPACE
-    ]
-    
-    // 將除錯資訊寫入檔案供 Blue Ocean 顯示
-    writeJSON file: 'debug-info.json', json: debugInfo
-    
-    // 建立除錯標記
-    publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: '.',
-        reportFiles: 'debug-info.json',
-        reportName: 'Debug Info'
-    ])
-}
-```
-
-#### 13.4 效能問題診斷
-
-**Pipeline 效能監控與優化：**
-
-```groovy
-pipeline {
-    agent none
-    
-    options {
-        // 啟用時間戳記
+        buildDiscarder(logRotator(daysToKeepStr: '30', numToKeepStr: '50'))
+        timeout(time: 30, unit: 'MINUTES')
         timestamps()
-        
-        // 設定超時
-        timeout(time: 60, unit: 'MINUTES')
-        
-        // 啟用 Profiler
+    }
+    triggers {
+        pollSCM('H/15 * * * *')   // 能接收 webhook 時請移除，改用 Multibranch
+    }
+    tools {
+        jdk 'jdk-21'
+        maven 'maven-3.9'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn -B -ntp clean verify'
+            }
+        }
+    }
+    post {
+        always {
+            junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+        }
+        success {
+            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+        }
+        failure {
+            mail to: 'team-payments@example.internal',
+                 subject: "建置失敗：${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "請查看 ${env.BUILD_URL}"
+        }
+    }
+}
+```
+
+> 💡 遷移時可先在 Freestyle Job 的設定頁逐一對照 6.2 的表格。社群的「Convert To Pipeline」plugin 已因 RCE 漏洞（SECURITY-2963、2966）不再建議使用，請手動改寫。
+
+### 6.6 本章重點
+
+- 新的應用程式 CI/CD 一律使用 Multibranch Pipeline；Freestyle 只保留給簡單維運工作
+- 排程使用 `H` 分散負載，並以 `TZ=` 明確指定時區
+- 參數不要直接拼接進 shell 字串；不要使用 Password 參數保存機密
+- Freestyle 遷移以正式環境部署 Job 為第一優先
+
+## 7. 憑證與機密管理
+
+### 7.1 Credentials 架構與類型
+
+Jenkins 的 Credentials plugin 提供統一的憑證儲存與存取介面。憑證以 controller 的 `secrets/` 金鑰加密後存放，Pipeline 只以 **ID** 引用，不在程式碼中出現實際值。
+
+```mermaid
+flowchart LR
+    subgraph Providers[憑證來源 Credentials Provider]
+        P1[Jenkins 內建儲存<br/>System／Folder／User]
+        P2[Kubernetes Secret<br/>kubernetes-credentials-provider]
+        P3[AWS Secrets Manager<br/>唯讀 provider]
+        P4[HashiCorp Vault<br/>Vault credentials／withVault]
+    end
+    Providers --> API[Credentials API<br/>以 ID 查詢]
+    API --> B1[withCredentials]
+    API --> B2[environment credentials]
+    API --> B3[checkout／sshagent／<br/>docker.withRegistry 等 step]
+    B1 --> M[主控台輸出遮罩]
+```
+
+| 類型 | 用途 | Pipeline 綁定方式 |
+| --- | --- | --- |
+| Username with password | Git over HTTPS、Nexus、資料庫帳號 | `usernamePassword(...)`、`credentials()` 產生 `_USR`／`_PSW` |
+| Secret text | API token、Webhook URL、SonarQube token | `string(...)` |
+| Secret file | `kubeconfig`、`settings.xml`、服務帳號 JSON 金鑰 | `file(...)`（取得暫存檔路徑） |
+| SSH Username with private key | Git over SSH、部署到 Linux 主機 | `sshUserPrivateKey(...)`、`sshagent([...])` |
+| Certificate（PKCS#12） | 用戶端憑證驗證、程式碼簽章 | `certificate(...)` |
+| GitHub App | GitHub Branch Source 的 API 與 checkout 驗證 | 由 SCM 設定使用（[8.2 GitHub 整合（GitHub App 驗證）](#82-github-整合github-app-驗證)） |
+| GitLab Personal／Group Access Token | GitLab Branch Source | 由 SCM 設定使用（[8.3 GitLab 整合](#83-gitlab-整合)） |
+| Vault Token／AppRole 等 | 存取 HashiCorp Vault | `withVault(...)` |
+
+### 7.2 憑證作用域
+
+| 作用域 | 誰可以使用 | 適用 |
+| --- | --- | --- |
+| **System** | 只有 Jenkins 本身（例如連線 agent、SCM 掃描、寄信），Job **不能**使用 | Agent SSH 金鑰、Kubernetes cloud 憑證、SMTP 帳號 |
+| **Global** | 所有 Job（只要知道 ID） | 少數真正全域共用的唯讀憑證 |
+| **Folder** | 該 folder 內的 Job | ✅ **建議預設**：團隊與環境專屬的憑證放在對應的 folder |
+| **User** | 以該使用者身分執行的建置（需搭配 Authorize Project） | 個人測試；正式流程不建議 |
+
+✅ 建議的憑證分層：
+
+```text
+Dashboard
+├── （System）agent-ssh-key、k8s-cloud-token、smtp-relay
+├── （Global）nexus-readonly、sonar-token-readonly
+├── payments/                         ← Folder credentials
+│   ├── gitlab-payments-token
+│   ├── nexus-deployer-payments
+│   └── prod/                         ← 子 folder：只有正式部署 Job 放在這裡
+│       └── kubeconfig-prod-payments
+└── channels/
+    └── ...
+```
+
+> ⚠️ Global 憑證可被**任何** Job 引用。只要有人能修改任何一個 Jenkinsfile（例如在 PR 中），就可能把 Global 憑證送到外部。正式環境憑證務必放在權限受控的 folder，並限制哪些分支或 Job 可以執行部署（[17.4 建置的執行身分（Authorize Project）](#174-建置的執行身分authorize-project)）。
+
+### 7.3 在 Pipeline 使用憑證
+
+#### 方法一：`environment` 區塊搭配 `credentials()`
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    environment {
+        // Username with password：自動產生 NEXUS、NEXUS_USR、NEXUS_PSW
+        NEXUS = credentials('nexus-deployer-payments')
+        // Secret text：直接取得值
+        SONAR_TOKEN = credentials('sonar-token')
+    }
+    stages {
+        stage('Publish') {
+            steps {
+                // ✅ 單引號：由 shell 展開環境變數，Groovy 不內插
+                sh 'mvn -B -ntp deploy -Dnexus.user="$NEXUS_USR" -Dnexus.password="$NEXUS_PSW"'
+            }
+        }
+    }
+}
+```
+
+#### 方法二：`withCredentials` 限縮使用範圍（✅ 建議，憑證只在區塊內有效）
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    environment {
+        CHART_VERSION = '1.4.2'
+    }
+    stages {
+        stage('Deploy') {
+            steps {
+                withCredentials([
+                    file(credentialsId: 'kubeconfig-sit-payments', variable: 'KUBECONFIG'),
+                    usernamePassword(credentialsId: 'harbor-robot-payments',
+                                     usernameVariable: 'REG_USER',
+                                     passwordVariable: 'REG_PASS')
+                ]) {
+                    sh '''
+                        set -euo pipefail
+                        echo "$REG_PASS" | helm registry login harbor.example.internal -u "$REG_USER" --password-stdin
+                        helm upgrade --install payment-api oci://harbor.example.internal/charts/payment-api \
+                          --version "$CHART_VERSION" --namespace payments-sit --wait
+                    '''
+                }
+            }
+        }
+    }
+}
+```
+
+#### 方法三：SSH 金鑰（`sshagent`）
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Tag') {
+            steps {
+                sshagent(credentials: ['gitlab-deploy-key']) {
+                    sh '''
+                        git tag -a "v${BUILD_NUMBER}" -m "release ${BUILD_NUMBER}"
+                        git push origin "v${BUILD_NUMBER}"
+                    '''
+                }
+            }
+        }
+    }
+}
+```
+
+> 💡 `sshagent` 需要 SSH Agent plugin，且 agent 上要有 `ssh-agent` 指令。Windows agent 建議改用 HTTPS＋token。
+
+### 7.4 遮罩的限制與常見外洩途徑
+
+Jenkins 只會把憑證的**原始值**在主控台輸出中替換為 `****`。以下情況**不會**被遮罩：
+
+| 外洩途徑 | 範例 | 防範 |
+| --- | --- | --- |
+| Groovy 字串內插 | `sh "curl -u admin:${PASS} ..."`（雙引號） | 一律用單引號字串，讓 shell 展開變數。Jenkins 會在記錄中警告「A secret was passed to "sh" using Groovy String interpolation, which is insecure」 |
+| 編碼後的值 | `echo $PASS \| base64`、URL encode 後的 token | 不要對機密做任何轉換後輸出 |
+| 拆字或部分輸出 | `echo ${PASS:0:4}` | 禁止任何形式的輸出 |
+| 寫入檔案並保存為產物 | 把 `settings.xml` 一起 `archiveArtifacts` | 在 `post { cleanup { ... } }` 刪除，或寫到 workspace 以外 |
+| 指令列參數 | `mvn -Dpassword=$PASS`（同主機其他使用者可用 `ps` 看到） | 改用環境變數或設定檔（Config File Provider） |
+| `set -x` 偵錯模式 | shell 回顯展開後的指令 | 使用憑證的區塊內不要 `set -x` |
+| 測試報告、HTML 報告 | 測試把連線字串寫入報告 | 程式碼審查與報告掃描 |
+
+> ⚠️ 遮罩不是安全邊界。**任何可以修改 Jenkinsfile 的人都能取得該 Pipeline 可用的所有憑證**（例如把值寫到外部網址）。真正的控管手段是「憑證放在哪個 folder」與「誰能修改哪些 Pipeline、哪些分支能部署」（第 17 章）。
+
+### 7.5 外部機密管理
+
+| 方案 | 運作方式 | 適用 |
+| --- | --- | --- |
+| **HashiCorp Vault plugin** | `withVault` 在建置時讀取機密並設為環境變數；也可作為 JCasC 的 secret source | 已有 Vault 的組織；需要動態機密（資料庫短效帳號） |
+| **Kubernetes Credentials Provider** | 把帶有 `jenkins.io/credentials-type` 標籤的 Kubernetes Secret 映射為 Jenkins 憑證（唯讀） | Jenkins 跑在 Kubernetes，機密由 External Secrets Operator 同步 |
+| **AWS Secrets Manager Credentials Provider** | 把帶有 `jenkins:credentials:type` 標籤的 Secrets Manager 機密映射為 Jenkins 憑證（唯讀） | AWS 環境 |
+| **Azure Key Vault plugin** | 以 Key Vault 作為 credentials provider 與 JCasC secret source | Azure 環境 |
+
+**Vault 範例**（KV v2，engine version 預設為 2）：
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Integration Test') {
+            steps {
+                withVault(configuration: [vaultUrl: 'https://vault.example.internal',
+                                          vaultCredentialId: 'vault-approle-ci',
+                                          engineVersion: 2],
+                          vaultSecrets: [[path: 'kv/payments/sit/db',
+                                          secretValues: [[envVar: 'DB_USER', vaultKey: 'username'],
+                                                         [envVar: 'DB_PASS', vaultKey: 'password']]]]) {
+                    sh './gradlew integrationTest'
+                }
+            }
+        }
+    }
+}
+```
+
+**Kubernetes Secret 映射為 Jenkins 憑證**：
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nexus-deployer-payments          # 即 Jenkins 憑證 ID
+  namespace: jenkins                     # Jenkins controller 所在的 namespace
+  labels:
+    "jenkins.io/credentials-type": "usernamePassword"
+  annotations:
+    "jenkins.io/credentials-description": "Nexus deployer（由 External Secrets 同步）"
+type: Opaque
+stringData:
+  username: payments-deployer
+  password: "<由 External Secrets Operator 自 Vault 同步，勿手動填寫>"
+```
+
+> 💡 外部機密管理的主要效益是**集中輪替與稽核**。Jenkins 端的憑證 ID 保持不變，輪替在 Vault／Secrets Manager 完成，Pipeline 不需要修改。
+
+### 7.6 以 JCasC 管理憑證
+
+JCasC 可以宣告憑證，但**實際值不能寫在 YAML 中**，要以變數引用 secret source（環境變數、`/run/secrets/` 檔案、Kubernetes Secret、Vault）：
+
+```yaml
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "nexus-readonly"
+              description: "Nexus 唯讀帳號"
+              username: "ci-reader"
+              password: "${nexus_readonly_password}"
+          - string:
+              scope: GLOBAL
+              id: "sonar-token"
+              description: "SonarQube analysis token"
+              secret: "${sonar_token}"
+          - basicSSHUserPrivateKey:
+              scope: SYSTEM
+              id: "agent-ssh-key"
+              description: "SSH agent 連線金鑰"
+              username: "jenkins"
+              privateKeySource:
+                directEntry:
+                  privateKey: "${readFile:/run/secrets/agent_ssh_key}"
+```
+
+Folder 層級的憑證以 Job DSL 建立 folder 時一併宣告，或由團隊管理員在 UI 中維護。
+
+> ⚠️ JCasC 的匯出功能（`/configuration-as-code/viewExport`）會輸出加密後的 `{AQAAABAAAAAQ...}` 字串。這些密文只能由同一個 controller 的 `secrets/` 解密，不能用在其他 controller，也不應提交到 Git。
+
+### 7.7 本章重點
+
+- 憑證以 ID 引用，預設放在 folder 層級；System 範圍只給 Jenkins 本身使用
+- 一律用單引號字串讓 shell 展開機密變數；遮罩只能防止意外輸出，不能防止惡意取用
+- 能修改 Pipeline 的人就能取得其可用的憑證，正式環境憑證必須搭配 folder 權限與分支控管
+- 大型組織以 Vault／Kubernetes Secret／Secrets Manager 集中管理與輪替機密
+
+## 8. SCM 整合
+
+### 8.1 Git plugin 與 checkout
+
+| 寫法 | 使用時機 |
+| --- | --- |
+| `checkout scm` | ✅ Multibranch／Organization Folder：取出觸發此次建置的分支或 PR（含 merge 結果），憑證沿用 branch source 設定 |
+| `git url: ..., branch: ..., credentialsId: ...` | 單一分支 Pipeline 的簡化寫法 |
+| `checkout scmGit(...)` | 需要淺層複製、子模組、sparse checkout、指定參考 repository 等進階選項 |
+
+**大型 repository 的進階 checkout**（Declarative 預設會自動 checkout，先以 `skipDefaultCheckout()` 關閉）：
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    options {
         skipDefaultCheckout()
     }
-    
     stages {
-        stage('效能基準測量') {
-            agent any
+        stage('Checkout') {
             steps {
-                script {
-                    // 記錄開始時間
-                    def stageStartTime = System.currentTimeMillis()
-                    
-                    // 執行基準測試
-                    performanceBenchmark()
-                    
-                    // 記錄結束時間
-                    def stageDuration = System.currentTimeMillis() - stageStartTime
-                    echo "階段執行時間: ${stageDuration}ms"
-                    
-                    // 記錄效能資料
-                    recordPerformanceData('benchmark', stageDuration)
-                }
-            }
-        }
-        
-        stage('並行效能測試') {
-            parallel {
-                stage('CPU 密集任務') {
-                    agent { label 'cpu-intensive' }
-                    steps {
-                        script {
-                            measureExecutionTime('CPU 密集任務') {
-                                // 模擬 CPU 密集任務
-                                sh 'for i in {1..1000}; do echo $i > /dev/null; done'
-                            }
-                        }
-                    }
-                }
-                
-                stage('I/O 密集任務') {
-                    agent { label 'io-intensive' }
-                    steps {
-                        script {
-                            measureExecutionTime('I/O 密集任務') {
-                                // 模擬 I/O 密集任務
-                                sh 'find /usr -name "*.so" > /dev/null 2>&1 || true'
-                            }
-                        }
-                    }
-                }
-                
-                stage('網路密集任務') {
-                    agent { label 'network-intensive' }
-                    steps {
-                        script {
-                            measureExecutionTime('網路密集任務') {
-                                // 模擬網路密集任務
-                                sh 'for url in google.com github.com; do curl -s $url > /dev/null; done'
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('記憶體使用分析') {
-            agent any
-            steps {
-                script {
-                    analyzeMemoryUsage()
-                }
-            }
-        }
-        
-        stage('瓶頸識別') {
-            agent any
-            steps {
-                script {
-                    identifyBottlenecks()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            node('master') {
-                script {
-                    // 生成效能報告
-                    generatePerformanceReport()
-                    
-                    // 分析效能趨勢
-                    analyzePerformanceTrends()
-                }
-            }
-        }
-    }
-}
-
-def performanceBenchmark() {
-    echo "執行效能基準測試..."
-    
-    // CPU 基準測試
-    def cpuStartTime = System.currentTimeMillis()
-    sh 'dd if=/dev/zero of=/dev/null bs=1M count=100 2>/dev/null'
-    def cpuDuration = System.currentTimeMillis() - cpuStartTime
-    env.CPU_BENCHMARK = cpuDuration.toString()
-    
-    // 磁碟 I/O 基準測試
-    def ioStartTime = System.currentTimeMillis()
-    sh 'dd if=/dev/zero of=test.tmp bs=1M count=10 && rm test.tmp'
-    def ioDuration = System.currentTimeMillis() - ioStartTime
-    env.IO_BENCHMARK = ioDuration.toString()
-    
-    echo "CPU 基準: ${cpuDuration}ms"
-    echo "I/O 基準: ${ioDuration}ms"
-}
-
-def measureExecutionTime(taskName, closure) {
-    def startTime = System.currentTimeMillis()
-    echo "開始執行: ${taskName}"
-    
-    try {
-        closure()
-        def duration = System.currentTimeMillis() - startTime
-        echo "✅ ${taskName} 完成，耗時: ${duration}ms"
-        
-        // 記錄到效能數據
-        recordPerformanceData(taskName, duration)
-        
-        return duration
-    } catch (Exception e) {
-        def duration = System.currentTimeMillis() - startTime
-        echo "❌ ${taskName} 失敗，耗時: ${duration}ms，錯誤: ${e.getMessage()}"
-        throw e
-    }
-}
-
-def recordPerformanceData(taskName, duration) {
-    // 建立效能資料記錄
-    def performanceData = [
-        timestamp: new Date().format('yyyy-MM-dd HH:mm:ss'),
-        buildNumber: env.BUILD_NUMBER,
-        taskName: taskName,
-        duration: duration,
-        nodeName: env.NODE_NAME
-    ]
-    
-    // 寫入效能資料檔案
-    def dataFile = "performance-data-${env.BUILD_NUMBER}.json"
-    def existingData = []
-    
-    if (fileExists(dataFile)) {
-        existingData = readJSON file: dataFile
-    }
-    
-    existingData.add(performanceData)
-    writeJSON file: dataFile, json: existingData
-}
-
-def analyzeMemoryUsage() {
-    echo "=== 記憶體使用分析 ==="
-    
-    // JVM 記憶體使用
-    script {
-        def runtime = Runtime.getRuntime()
-        def maxMemory = runtime.maxMemory() / 1024 / 1024
-        def totalMemory = runtime.totalMemory() / 1024 / 1024
-        def freeMemory = runtime.freeMemory() / 1024 / 1024
-        def usedMemory = totalMemory - freeMemory
-        
-        echo "JVM 記憶體使用:"
-        echo "  最大記憶體: ${maxMemory} MB"
-        echo "  已分配記憶體: ${totalMemory} MB"
-        echo "  可用記憶體: ${freeMemory} MB"
-        echo "  已使用記憶體: ${usedMemory} MB"
-        echo "  使用率: ${(usedMemory/maxMemory*100).round(2)}%"
-        
-        // 記錄記憶體使用資料
-        env.MEMORY_USAGE_PERCENT = ((usedMemory/maxMemory*100).round(2)).toString()
-    }
-    
-    // 系統記憶體使用
-    sh '''
-        echo "系統記憶體使用:"
-        free -h
-        
-        echo "程序記憶體使用 (前10名):"
-        ps aux --sort=-%mem | head -11
-    '''
-}
-
-def identifyBottlenecks() {
-    echo "=== 瓶頸識別分析 ==="
-    
-    // 分析建置步驟耗時
-    def buildSteps = currentBuild.rawBuild.getAction(org.jenkinsci.plugins.workflow.actions.WorkflowRunAction)?.getExecutionPromise()?.get()?.getAllNodes()
-    
-    if (buildSteps) {
-        echo "建置步驟耗時分析:"
-        buildSteps.each { node ->
-            if (node.getAction(org.jenkinsci.plugins.workflow.actions.TimingAction)) {
-                def timing = node.getAction(org.jenkinsci.plugins.workflow.actions.TimingAction)
-                def duration = timing ? timing.getDuration() : 0
-                echo "  ${node.getDisplayName()}: ${duration}ms"
-            }
-        }
-    }
-    
-    // 檢查系統瓶頸
-    sh '''
-        echo "=== 系統瓶頸檢查 ==="
-        
-        echo "CPU 負載:"
-        cat /proc/loadavg
-        
-        echo "磁碟 I/O 統計:"
-        iostat -x 1 1 2>/dev/null || echo "iostat 不可用"
-        
-        echo "網路統計:"
-        netstat -i
-        
-        echo "程序樹:"
-        pstree -p $$ | head -10
-    '''
-    
-    // 分析瓶頸並提供建議
-    analyzeBottleneckSuggestions()
-}
-
-def analyzeBottleneckSuggestions() {
-    script {
-        def suggestions = []
-        
-        // 基於記憶體使用率提供建議
-        def memoryUsage = (env.MEMORY_USAGE_PERCENT ?: '0') as Double
-        if (memoryUsage > 80) {
-            suggestions.add("記憶體使用率過高 (${memoryUsage}%)，建議增加 JVM 記憶體或優化代碼")
-        }
-        
-        // 基於 CPU 基準提供建議
-        def cpuBenchmark = (env.CPU_BENCHMARK ?: '0') as Long
-        if (cpuBenchmark > 5000) {
-            suggestions.add("CPU 效能較慢，建議使用更強的 Agent 或並行化處理")
-        }
-        
-        // 基於 I/O 基準提供建議
-        def ioBenchmark = (env.IO_BENCHMARK ?: '0') as Long
-        if (ioBenchmark > 3000) {
-            suggestions.add("磁碟 I/O 效能較慢，建議使用 SSD 或優化檔案操作")
-        }
-        
-        if (suggestions.isEmpty()) {
-            echo "✅ 未發現明顯的效能瓶頸"
-        } else {
-            echo "⚠️ 效能優化建議:"
-            suggestions.each { suggestion ->
-                echo "  - ${suggestion}"
-            }
-        }
-        
-        // 寫入建議到檔案
-        writeFile file: 'performance-suggestions.txt', text: suggestions.join('\n')
-        archiveArtifacts artifacts: 'performance-suggestions.txt', allowEmptyArchive: true
-    }
-}
-
-def generatePerformanceReport() {
-    echo "生成效能報告..."
-    
-    script {
-        // 收集所有效能資料
-        def allPerformanceData = []
-        
-        // 讀取本次建置的效能資料
-        def currentDataFile = "performance-data-${env.BUILD_NUMBER}.json"
-        if (fileExists(currentDataFile)) {
-            allPerformanceData = readJSON file: currentDataFile
-        }
-        
-        // 生成 HTML 效能報告
-        def reportHtml = generatePerformanceReportHtml(allPerformanceData)
-        writeFile file: 'performance-report.html', text: reportHtml
-        
-        publishHTML([
-            allowMissing: false,
-            alwaysLinkToLastBuild: true,
-            keepAll: true,
-            reportDir: '.',
-            reportFiles: 'performance-report.html',
-            reportName: 'Performance Report'
-        ])
-        
-        // 保存效能資料
-        archiveArtifacts artifacts: 'performance-data-*.json', allowEmptyArchive: true
-    }
-}
-
-def generatePerformanceReportHtml(performanceData) {
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>效能分析報告</title>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            .metric-card { 
-                display: inline-block; 
-                margin: 10px; 
-                padding: 15px; 
-                border: 1px solid #ddd; 
-                border-radius: 5px; 
-                width: 200px; 
-                text-align: center; 
-            }
-            .metric-value { font-size: 1.5em; font-weight: bold; }
-            .metric-label { color: #666; }
-            .chart-container { width: 800px; height: 400px; margin: 20px auto; }
-            table { border-collapse: collapse; width: 100%; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-        </style>
-    </head>
-    <body>
-        <h1>Pipeline 效能分析報告</h1>
-        
-        <div class="metrics">
-            <div class="metric-card">
-                <div class="metric-value">${env.CPU_BENCHMARK ?: 'N/A'}</div>
-                <div class="metric-label">CPU 基準 (ms)</div>
-            </div>
-            
-            <div class="metric-card">
-                <div class="metric-value">${env.IO_BENCHMARK ?: 'N/A'}</div>
-                <div class="metric-label">I/O 基準 (ms)</div>
-            </div>
-            
-            <div class="metric-card">
-                <div class="metric-value">${env.MEMORY_USAGE_PERCENT ?: 'N/A'}%</div>
-                <div class="metric-label">記憶體使用率</div>
-            </div>
-        </div>
-        
-        <h2>任務執行時間</h2>
-        <table>
-            <tr>
-                <th>任務名稱</th>
-                <th>執行時間 (ms)</th>
-                <th>執行節點</th>
-                <th>時間戳記</th>
-            </tr>
-            ${performanceData.collect { data ->
-                "<tr><td>${data.taskName}</td><td>${data.duration}</td><td>${data.nodeName}</td><td>${data.timestamp}</td></tr>"
-            }.join('\n')}
-        </table>
-        
-        <div class="chart-container">
-            <canvas id="performanceChart"></canvas>
-        </div>
-        
-        <script>
-            const ctx = document.getElementById('performanceChart').getContext('2d');
-            const chart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: [${performanceData.collect { "'${it.taskName}'" }.join(', ')}],
-                    datasets: [{
-                        label: '執行時間 (ms)',
-                        data: [${performanceData.collect { it.duration }.join(', ')}],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        </script>
-    </body>
-    </html>
-    """
-}
-
-def analyzePerformanceTrends() {
-    echo "分析效能趨勢..."
-    
-    // 這裡可以實作跨建置的效能趨勢分析
-    // 比較與歷史建置的效能差異
-    // 識別效能回歸問題
-    // 生成趨勢報告
-}
-```
-
-### 💡 實務案例
-
-#### 案例：大型專案的 Pipeline 故障排除
-
-**情境**：企業級專案遇到複雜的建置失敗問題，需要系統性診斷
-
-**解決方案：**
-
-```groovy
-// 企業級故障排除 Pipeline
-pipeline {
-    agent none
-    
-    parameters {
-        choice(
-            name: 'DIAGNOSTIC_LEVEL',
-            choices: ['basic', 'detailed', 'comprehensive'],
-            description: '診斷級別'
-        )
-        booleanParam(
-            name: 'ENABLE_PROFILING',
-            defaultValue: false,
-            description: '啟用效能分析'
-        )
-        booleanParam(
-            name: 'COLLECT_SYSTEM_LOGS',
-            defaultValue: true,
-            description: '收集系統日誌'
-        )
-    }
-    
-    stages {
-        stage('故障排除初始化') {
-            agent any
-            steps {
-                script {
-                    initializeTroubleshooting()
-                }
-            }
-        }
-        
-        stage('多層次診斷') {
-            parallel {
-                stage('環境診斷') {
-                    agent any
-                    steps {
-                        script {
-                            comprehensiveEnvironmentDiagnostics()
-                        }
-                    }
-                }
-                
-                stage('效能診斷') {
-                    agent any
-                    when {
-                        params.ENABLE_PROFILING
-                    }
-                    steps {
-                        script {
-                            performanceProfileDiagnostics()
-                        }
-                    }
-                }
-                
-                stage('網路診斷') {
-                    agent any
-                    steps {
-                        script {
-                            networkDiagnostics()
-                        }
-                    }
-                }
-                
-                stage('安全診斷') {
-                    agent any
-                    steps {
-                        script {
-                            securityDiagnostics()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('問題分析') {
-            agent any
-            steps {
-                script {
-                    analyzeCollectedDiagnostics()
-                }
-            }
-        }
-        
-        stage('解決方案推薦') {
-            agent any
-            steps {
-                script {
-                    recommendSolutions()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            node('master') {
-                script {
-                    generateTroubleshootingReport()
-                }
+                checkout scmGit(
+                    branches: [[name: 'main']],
+                    userRemoteConfigs: [[url: 'https://gitlab.example.internal/payments/monorepo.git',
+                                         credentialsId: 'gitlab-payments-token']],
+                    extensions: [
+                        cloneOption(shallow: true, depth: 20, noTags: false, timeout: 20),
+                        sparseCheckout(sparseCheckoutPaths: [[path: 'services/payment-api/'],
+                                                             [path: 'build-logic/']]),
+                        submodule(recursiveSubmodules: true, parentCredentials: true),
+                        cleanBeforeCheckout(deleteUntrackedNestedRepositories: true)
+                    ])
             }
         }
     }
 }
 ```
 
-### ⚠️ 注意事項
-
-1. **日誌管理**：
-   - 設定合適的日誌級別
-   - 定期清理舊日誌
-   - 保護敏感資訊
-
-2. **效能影響**：
-   - 避免過度診斷影響效能
-   - 合理使用監控工具
-   - 平衡詳細度與速度
-
-3. **安全考量**：
-   - 不要在日誌中暴露敏感資訊
-   - 限制診斷工具的存取權限
-   - 保護診斷報告
-
-4. **可維護性**：
-   - 建立標準化的故障排除流程
-   - 文件化常見問題解決方案
-   - 培訓團隊成員
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| Pipeline 除錯 | Script Console、Groovy Sandbox |
-| 故障診斷 | 日誌分析、環境檢查 |
-| 效能監控 | 資源診斷、瓶頸識別 |
-| 問題解決 | 系統性故障排除流程 |
-
-### 📝 練習作業
-
-1. **基礎練習**：學習使用 Jenkins Script Console 進行基本除錯
-2. **進階練習**：建立完整的 Pipeline 效能監控機制
-3. **實務練習**：設計企業級的故障排除和診斷流程
-
----
-
-## 第14章 部署策略與環境管理
-
-### 🎯 學習目標
-
-- 掌握多環境部署的設計模式
-- 學會實施零停機部署策略
-- 建立環境隔離與配置管理
-- 實現自動化的部署流程與回滾機制
-
-### 📚 核心概念
-
-#### 14.1 多環境部署架構
-
-企業級的 CI/CD 需要支援多個環境的自動化部署，每個環境都有其特定的用途和配置需求。
-
-```mermaid
-graph TB
-    A[Source Control] --> B[CI Pipeline]
-    B --> C{Build Success?}
-    C -->|Yes| D[Artifact Repository]
-    C -->|No| E[Build Failed]
-    
-    D --> F[Development Environment]
-    F --> G{Dev Tests Pass?}
-    G -->|Yes| H[Testing Environment]
-    G -->|No| I[Dev Failed]
-    
-    H --> J{Integration Tests Pass?}
-    J -->|Yes| K[Staging Environment]
-    J -->|No| L[Test Failed]
-    
-    K --> M{UAT Pass?}
-    M -->|Yes| N[Production Environment]
-    M -->|No| O[UAT Failed]
-    
-    subgraph "部署策略"
-        P[Blue-Green Deployment]
-        Q[Canary Deployment]
-        R[Rolling Deployment]
-        S[A/B Testing]
-    end
-    
-    N --> P
-    N --> Q
-    N --> R
-    N --> S
-    
-    subgraph "監控與回滾"
-        T[Health Checks]
-        U[Metrics Collection]
-        V[Automated Rollback]
-        W[Manual Rollback]
-    end
-    
-    P --> T
-    Q --> U
-    R --> V
-    S --> W
-    
-    subgraph "環境配置"
-        X[Config Management]
-        Y[Secret Management]
-        Z[Environment Variables]
-        AA[Database Migrations]
-    end
-    
-    F --> X
-    H --> Y
-    K --> Z
-    N --> AA
-```
-
-#### 14.2 環境隔離與配置管理
-
-**多環境 Pipeline 配置：**
-
-```groovy
-// 多環境部署 Pipeline
-pipeline {
-    agent any
-    
-    parameters {
-        choice(
-            name: 'TARGET_ENVIRONMENT',
-            choices: ['dev', 'test', 'staging', 'production'],
-            description: '目標部署環境'
-        )
-        choice(
-            name: 'DEPLOYMENT_STRATEGY',
-            choices: ['blue-green', 'canary', 'rolling', 'direct'],
-            description: '部署策略'
-        )
-        booleanParam(
-            name: 'SKIP_TESTS',
-            defaultValue: false,
-            description: '跳過測試（僅限非生產環境）'
-        )
-        booleanParam(
-            name: 'ENABLE_ROLLBACK',
-            defaultValue: true,
-            description: '啟用自動回滾'
-        )
-    }
-    
-    environment {
-        // 動態設定環境變數
-        ENVIRONMENT = "${params.TARGET_ENVIRONMENT}"
-        DEPLOYMENT_STRATEGY = "${params.DEPLOYMENT_STRATEGY}"
-        
-        // 版本資訊
-        BUILD_VERSION = "${env.BUILD_NUMBER}-${env.GIT_COMMIT?.take(7)}"
-        ARTIFACT_NAME = "myapp-${BUILD_VERSION}.jar"
-    }
-    
-    stages {
-        stage('環境驗證') {
-            steps {
-                script {
-                    validateEnvironmentConfig()
-                    validateDeploymentPermissions()
-                }
-            }
-        }
-        
-        stage('構建與測試') {
-            when {
-                not { params.SKIP_TESTS }
-            }
-            parallel {
-                stage('單元測試') {
-                    steps {
-                        script {
-                            runUnitTests()
-                        }
-                    }
-                }
-                
-                stage('整合測試') {
-                    when {
-                        not { params.TARGET_ENVIRONMENT == 'dev' }
-                    }
-                    steps {
-                        script {
-                            runIntegrationTests()
-                        }
-                    }
-                }
-                
-                stage('安全掃描') {
-                    when {
-                        anyOf {
-                            equals expected: 'staging', actual: params.TARGET_ENVIRONMENT
-                            equals expected: 'production', actual: params.TARGET_ENVIRONMENT
-                        }
-                    }
-                    steps {
-                        script {
-                            runSecurityScans()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('環境準備') {
-            steps {
-                script {
-                    prepareTargetEnvironment()
-                    setupEnvironmentConfiguration()
-                }
-            }
-        }
-        
-        stage('部署執行') {
-            steps {
-                script {
-                    executeDeploymentStrategy()
-                }
-            }
-        }
-        
-        stage('部署驗證') {
-            steps {
-                script {
-                    verifyDeployment()
-                    runHealthChecks()
-                }
-            }
-        }
-        
-        stage('煙霧測試') {
-            steps {
-                script {
-                    runSmokeTests()
-                }
-            }
-        }
-    }
-    
-    post {
-        success {
-            script {
-                notifyDeploymentSuccess()
-                updateDeploymentRegistry()
-            }
-        }
-        
-        failure {
-            script {
-                if (params.ENABLE_ROLLBACK && params.TARGET_ENVIRONMENT in ['staging', 'production']) {
-                    executeAutomaticRollback()
-                }
-                notifyDeploymentFailure()
-            }
-        }
-        
-        always {
-            script {
-                collectDeploymentMetrics()
-                cleanupTemporaryResources()
-            }
-        }
-    }
-}
-
-// === 環境管理函式 ===
-
-def validateEnvironmentConfig() {
-    echo "驗證環境配置: ${env.ENVIRONMENT}"
-    
-    // 載入環境特定配置
-    def envConfig = loadEnvironmentConfig(env.ENVIRONMENT)
-    
-    // 驗證必要配置項目
-    def requiredConfigs = [
-        'database_url', 'api_endpoint', 'log_level',
-        'max_heap_size', 'instance_count'
-    ]
-    
-    requiredConfigs.each { config ->
-        if (!envConfig.containsKey(config)) {
-            error("缺少必要配置: ${config}")
-        }
-    }
-    
-    echo "✅ 環境配置驗證通過"
-    
-    // 設定環境變數
-    envConfig.each { key, value ->
-        env["ENV_${key.toUpperCase()}"] = value.toString()
-    }
-}
-
-def loadEnvironmentConfig(environment) {
-    def configFile = "config/${environment}/application.properties"
-    
-    if (!fileExists(configFile)) {
-        error("環境配置檔案不存在: ${configFile}")
-    }
-    
-    def config = [:]
-    def configContent = readFile(configFile)
-    
-    configContent.split('\n').each { line ->
-        if (line.trim() && !line.startsWith('#')) {
-            def parts = line.split('=', 2)
-            if (parts.size() == 2) {
-                config[parts[0].trim()] = parts[1].trim()
-            }
-        }
-    }
-    
-    return config
-}
-
-def validateDeploymentPermissions() {
-    echo "驗證部署權限..."
-    
-    // 檢查環境特定權限
-    def requiredPermissions = getRequiredPermissions(env.ENVIRONMENT)
-    
-    requiredPermissions.each { permission ->
-        if (!hasPermission(permission)) {
-            error("缺少必要權限: ${permission}")
-        }
-    }
-    
-    echo "✅ 部署權限驗證通過"
-}
-
-def getRequiredPermissions(environment) {
-    def permissions = [
-        'dev': ['deploy:dev', 'read:config'],
-        'test': ['deploy:test', 'read:config', 'read:secrets'],
-        'staging': ['deploy:staging', 'read:config', 'read:secrets', 'write:monitoring'],
-        'production': ['deploy:production', 'read:config', 'read:secrets', 'write:monitoring', 'admin:rollback']
-    ]
-    
-    return permissions[environment] ?: []
-}
-
-def hasPermission(permission) {
-    // 實際實作中會整合企業的權限管理系統
-    // 這裡簡化為檢查環境變數或 Jenkins 權限
-    return true  // 簡化實作
-}
-
-def prepareTargetEnvironment() {
-    echo "準備目標環境: ${env.ENVIRONMENT}"
-    
-    // 檢查環境健康狀態
-    checkEnvironmentHealth()
-    
-    // 準備部署目錄
-    sh """
-        # 建立部署目錄結構
-        mkdir -p deployment/${env.ENVIRONMENT}/{current,releases,shared}
-        
-        # 設定權限
-        chmod 755 deployment/${env.ENVIRONMENT}
-        
-        # 建立符號連結
-        ln -sf deployment/${env.ENVIRONMENT}/current /opt/myapp-${env.ENVIRONMENT} || true
-    """
-    
-    // 準備資料庫遷移
-    if (needsDatabaseMigration()) {
-        prepareDatabaseMigration()
-    }
-    
-    echo "✅ 環境準備完成"
-}
-
-def checkEnvironmentHealth() {
-    echo "檢查環境健康狀態..."
-    
-    // 檢查必要服務
-    def services = ['database', 'cache', 'message_queue']
-    
-    services.each { service ->
-        def healthCheck = getServiceHealthCheckCommand(service)
-        try {
-            sh healthCheck
-            echo "✅ ${service} 服務正常"
-        } catch (Exception e) {
-            error("❌ ${service} 服務不可用: ${e.getMessage()}")
-        }
-    }
-}
-
-def getServiceHealthCheckCommand(service) {
-    def commands = [
-        'database': "curl -f ${env.ENV_DATABASE_URL}/health || exit 1",
-        'cache': "redis-cli -h ${env.ENV_CACHE_HOST} ping",
-        'message_queue': "curl -f ${env.ENV_MQ_MANAGEMENT_URL}/api/health"
-    ]
-    
-    return commands[service] ?: "echo '未知服務: ${service}'"
-}
-
-def setupEnvironmentConfiguration() {
-    echo "設定環境配置..."
-    
-    // 生成環境特定的配置檔案
-    generateApplicationConfig()
-    
-    // 設定環境變數
-    setupEnvironmentVariables()
-    
-    // 配置日誌設定
-    configureLogging()
-    
-    // 設定監控配置
-    setupMonitoring()
-}
-
-def generateApplicationConfig() {
-    def configTemplate = """
-server:
-  port: ${env.ENV_SERVER_PORT ?: 8080}
-  
-spring:
-  profiles:
-    active: ${env.ENVIRONMENT}
-  datasource:
-    url: ${env.ENV_DATABASE_URL}
-    username: ${env.ENV_DB_USERNAME}
-    password: ${env.ENV_DB_PASSWORD}
-    
-logging:
-  level:
-    root: ${env.ENV_LOG_LEVEL ?: 'INFO'}
-    com.tutorial: DEBUG
-  file:
-    name: /var/log/myapp-${env.ENVIRONMENT}.log
-    
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,metrics,info
-  endpoint:
-    health:
-      show-details: always
-"""
-    
-    writeFile file: "application-${env.ENVIRONMENT}.yml", text: configTemplate
-    
-    echo "✅ 應用程式配置已生成"
-}
-
-def setupEnvironmentVariables() {
-    // 設定 JVM 參數
-    env.JAVA_OPTS = "-Xmx${env.ENV_MAX_HEAP_SIZE ?: '512m'} -Xms${env.ENV_MIN_HEAP_SIZE ?: '256m'}"
-    env.SPRING_PROFILES_ACTIVE = env.ENVIRONMENT
-    
-    // 設定應用程式參數
-    env.APP_CONFIG_FILE = "application-${env.ENVIRONMENT}.yml"
-    
-    echo "✅ 環境變數設定完成"
-}
-
-def configureLogging() {
-    def logConfigTemplate = """
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/log/myapp-${env.ENVIRONMENT}.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/var/log/myapp-${env.ENVIRONMENT}.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-    
-    <root level="${env.ENV_LOG_LEVEL ?: 'INFO'}">
-        <appender-ref ref="FILE" />
-    </root>
-</configuration>
-"""
-    
-    writeFile file: "logback-${env.ENVIRONMENT}.xml", text: logConfigTemplate
-    
-    echo "✅ 日誌配置完成"
-}
-
-def setupMonitoring() {
-    if (env.ENVIRONMENT in ['staging', 'production']) {
-        // 設定 Prometheus 監控
-        setupPrometheusMonitoring()
-        
-        // 設定健康檢查
-        setupHealthChecks()
-        
-        // 設定告警規則
-        setupAlertingRules()
-    }
-}
-
-def executeDeploymentStrategy() {
-    echo "執行部署策略: ${env.DEPLOYMENT_STRATEGY}"
-    
-    switch (env.DEPLOYMENT_STRATEGY) {
-        case 'blue-green':
-            executeBlueGreenDeployment()
-            break
-        case 'canary':
-            executeCanaryDeployment()
-            break
-        case 'rolling':
-            executeRollingDeployment()
-            break
-        case 'direct':
-            executeDirectDeployment()
-            break
-        default:
-            error("不支援的部署策略: ${env.DEPLOYMENT_STRATEGY}")
-    }
-}
-```
-
-#### 14.3 Blue-Green 部署策略
-
-**Blue-Green 部署實作：**
-
-```groovy
-def executeBlueGreenDeployment() {
-    echo "執行 Blue-Green 部署..."
-    
-    try {
-        // 確定當前活躍環境
-        def currentEnvironment = getCurrentActiveEnvironment()
-        def targetEnvironment = currentEnvironment == 'blue' ? 'green' : 'blue'
-        
-        echo "當前活躍環境: ${currentEnvironment}"
-        echo "目標部署環境: ${targetEnvironment}"
-        
-        // 部署到目標環境
-        deployToEnvironment(targetEnvironment)
-        
-        // 驗證目標環境
-        validateTargetEnvironment(targetEnvironment)
-        
-        // 執行煙霧測試
-        runSmokeTestsOnEnvironment(targetEnvironment)
-        
-        // 切換流量
-        switchTrafficToEnvironment(targetEnvironment)
-        
-        // 驗證切換後的狀態
-        validateTrafficSwitch(targetEnvironment)
-        
-        // 更新環境標記
-        updateActiveEnvironmentMarker(targetEnvironment)
-        
-        echo "✅ Blue-Green 部署成功完成"
-        
-    } catch (Exception e) {
-        echo "❌ Blue-Green 部署失敗: ${e.getMessage()}"
-        
-        // 如果已經開始切換流量，嘗試回滾
-        if (env.TRAFFIC_SWITCHED == 'true') {
-            rollbackTrafficSwitch()
-        }
-        
-        throw e
-    }
-}
-
-def getCurrentActiveEnvironment() {
-    // 檢查負載均衡器配置或環境標記檔案
-    try {
-        def activeEnv = sh(
-            script: "cat /opt/myapp-${env.ENVIRONMENT}/active_environment.txt 2>/dev/null || echo 'blue'",
-            returnStdout: true
-        ).trim()
-        
-        return activeEnv ?: 'blue'
-    } catch (Exception e) {
-        echo "無法確定當前活躍環境，預設使用 blue"
-        return 'blue'
-    }
-}
-
-def deployToEnvironment(targetEnvironment) {
-    echo "部署到 ${targetEnvironment} 環境..."
-    
-    // 停止目標環境的應用程式
-    stopApplicationInEnvironment(targetEnvironment)
-    
-    // 備份當前版本
-    backupCurrentVersion(targetEnvironment)
-    
-    // 部署新版本
-    sh """
-        # 建立新的發布目錄
-        RELEASE_DIR="deployment/${env.ENVIRONMENT}/releases/${env.BUILD_VERSION}"
-        mkdir -p \$RELEASE_DIR
-        
-        # 複製應用程式檔案
-        cp ${env.ARTIFACT_NAME} \$RELEASE_DIR/
-        cp application-${env.ENVIRONMENT}.yml \$RELEASE_DIR/
-        cp logback-${env.ENVIRONMENT}.xml \$RELEASE_DIR/
-        
-        # 更新 ${targetEnvironment} 環境的符號連結
-        ln -sfn \$RELEASE_DIR deployment/${env.ENVIRONMENT}/${targetEnvironment}
-        
-        # 設定權限
-        chmod +x \$RELEASE_DIR/${env.ARTIFACT_NAME}
-    """
-    
-    // 啟動應用程式
-    startApplicationInEnvironment(targetEnvironment)
-    
-    echo "✅ ${targetEnvironment} 環境部署完成"
-}
-
-def stopApplicationInEnvironment(environment) {
-    echo "停止 ${environment} 環境的應用程式..."
-    
-    sh """
-        # 停止應用程式程序
-        PID_FILE="/var/run/myapp-${env.ENVIRONMENT}-${environment}.pid"
-        
-        if [ -f \$PID_FILE ]; then
-            PID=\$(cat \$PID_FILE)
-            if kill -0 \$PID 2>/dev/null; then
-                echo "停止程序: \$PID"
-                kill \$PID
-                
-                # 等待程序停止
-                for i in {1..30}; do
-                    if ! kill -0 \$PID 2>/dev/null; then
-                        break
-                    fi
-                    sleep 1
-                done
-                
-                # 強制終止（如果需要）
-                if kill -0 \$PID 2>/dev/null; then
-                    echo "強制終止程序: \$PID"
-                    kill -9 \$PID
-                fi
-            fi
-            rm -f \$PID_FILE
-        fi
-    """
-}
-
-def backupCurrentVersion(environment) {
-    echo "備份 ${environment} 環境的當前版本..."
-    
-    sh """
-        BACKUP_DIR="deployment/${env.ENVIRONMENT}/backups/\$(date +%Y%m%d_%H%M%S)"
-        CURRENT_DIR="deployment/${env.ENVIRONMENT}/${environment}"
-        
-        if [ -d "\$CURRENT_DIR" ]; then
-            mkdir -p \$BACKUP_DIR
-            cp -r \$CURRENT_DIR/* \$BACKUP_DIR/ 2>/dev/null || true
-            echo "備份完成: \$BACKUP_DIR"
-        fi
-    """
-}
-
-def startApplicationInEnvironment(environment) {
-    echo "啟動 ${environment} 環境的應用程式..."
-    
-    def port = environment == 'blue' ? 8080 : 8081
-    
-    sh """
-        cd deployment/${env.ENVIRONMENT}/${environment}
-        
-        # 設定 JVM 參數
-        export JAVA_OPTS="${env.JAVA_OPTS}"
-        export SERVER_PORT=${port}
-        
-        # 啟動應用程式
-        nohup java \$JAVA_OPTS -jar ${env.ARTIFACT_NAME} \\
-            --spring.config.location=application-${env.ENVIRONMENT}.yml \\
-            --logging.config=logback-${env.ENVIRONMENT}.xml \\
-            --server.port=\$SERVER_PORT > application.log 2>&1 &
-        
-        # 記錄程序 ID
-        echo \$! > /var/run/myapp-${env.ENVIRONMENT}-${environment}.pid
-        
-        echo "應用程式已啟動，PID: \$!"
-    """
-    
-    // 等待應用程式啟動
-    waitForApplicationStartup(environment, port)
-}
-
-def waitForApplicationStartup(environment, port) {
-    echo "等待 ${environment} 環境應用程式啟動..."
-    
-    def maxAttempts = 60
-    def attempt = 0
-    
-    while (attempt < maxAttempts) {
-        try {
-            sh "curl -f http://localhost:${port}/actuator/health"
-            echo "✅ ${environment} 環境應用程式已啟動"
-            return
-        } catch (Exception e) {
-            attempt++
-            if (attempt < maxAttempts) {
-                sleep(5)
-            }
-        }
-    }
-    
-    error("❌ ${environment} 環境應用程式啟動超時")
-}
-
-def validateTargetEnvironment(environment) {
-    echo "驗證 ${environment} 環境..."
-    
-    def port = environment == 'blue' ? 8080 : 8081
-    
-    // 健康檢查
-    sh "curl -f http://localhost:${port}/actuator/health"
-    
-    // 檢查關鍵功能
-    sh """
-        # 檢查應用程式資訊
-        curl -f http://localhost:${port}/actuator/info
-        
-        # 檢查指標
-        curl -f http://localhost:${port}/actuator/metrics
-        
-        # 檢查應用程式版本
-        VERSION=\$(curl -s http://localhost:${port}/actuator/info | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
-        if [ "\$VERSION" != "${env.BUILD_VERSION}" ]; then
-            echo "版本不匹配: 期望 ${env.BUILD_VERSION}，實際 \$VERSION"
-            exit 1
-        fi
-    """
-    
-    echo "✅ ${environment} 環境驗證通過"
-}
-
-def runSmokeTestsOnEnvironment(environment) {
-    echo "在 ${environment} 環境執行煙霧測試..."
-    
-    def port = environment == 'blue' ? 8080 : 8081
-    def baseUrl = "http://localhost:${port}"
-    
-    // 執行關鍵 API 測試
-    sh """
-        # 測試健康端點
-        curl -f ${baseUrl}/actuator/health
-        
-        # 測試主要 API 端點
-        curl -f ${baseUrl}/api/status
-        
-        # 測試資料庫連線
-        curl -f ${baseUrl}/api/health/database
-        
-        # 測試快取連線
-        curl -f ${baseUrl}/api/health/cache
-    """
-    
-    // 執行業務邏輯測試
-    runBusinessLogicTests(baseUrl)
-    
-    echo "✅ ${environment} 環境煙霧測試通過"
-}
-
-def runBusinessLogicTests(baseUrl) {
-    // 實作業務邏輯相關的煙霧測試
-    sh """
-        # 測試用戶認證
-        TOKEN=\$(curl -s -X POST ${baseUrl}/api/auth/login \\
-            -H "Content-Type: application/json" \\
-            -d '{"username":"test","password":"test"}' | \\
-            grep -o '"token":"[^"]*"' | cut -d'"' -f4)
-        
-        if [ -z "\$TOKEN" ]; then
-            echo "認證測試失敗"
-            exit 1
-        fi
-        
-        # 測試受保護的端點
-        curl -f -H "Authorization: Bearer \$TOKEN" ${baseUrl}/api/user/profile
-        
-        echo "業務邏輯測試通過"
-    """
-}
-
-def switchTrafficToEnvironment(environment) {
-    echo "切換流量到 ${environment} 環境..."
-    
-    // 更新負載均衡器配置
-    updateLoadBalancerConfig(environment)
-    
-    // 等待配置生效
-    sleep(10)
-    
-    // 驗證流量切換
-    verifyTrafficRouting(environment)
-    
-    // 標記流量已切換
-    env.TRAFFIC_SWITCHED = 'true'
-    
-    echo "✅ 流量已切換到 ${environment} 環境"
-}
-
-def updateLoadBalancerConfig(environment) {
-    def port = environment == 'blue' ? 8080 : 8081
-    
-    // 更新 Nginx 配置（範例）
-    sh """
-        # 生成新的 upstream 配置
-        cat > /etc/nginx/conf.d/myapp-${env.ENVIRONMENT}.conf << EOF
-upstream myapp_${env.ENVIRONMENT} {
-    server localhost:${port};
-}
-
-server {
-    listen 80;
-    server_name myapp-${env.ENVIRONMENT}.example.com;
-    
-    location / {
-        proxy_pass http://myapp_${env.ENVIRONMENT};
-        proxy_set_header Host \\\$host;
-        proxy_set_header X-Real-IP \\\$remote_addr;
-    }
-    
-    location /health {
-        proxy_pass http://myapp_${env.ENVIRONMENT}/actuator/health;
-    }
-}
-EOF
-        
-        # 測試配置
-        nginx -t
-        
-        # 重新載入配置
-        nginx -s reload
-    """
-}
-
-def verifyTrafficRouting(environment) {
-    echo "驗證流量路由到 ${environment} 環境..."
-    
-    def expectedPort = environment == 'blue' ? 8080 : 8081
-    
-    sh """
-        # 多次請求驗證路由
-        for i in {1..10}; do
-            # 透過負載均衡器發送請求
-            RESPONSE=\$(curl -s http://myapp-${env.ENVIRONMENT}.example.com/api/info)
-            
-            # 檢查回應是否來自正確的環境
-            PORT=\$(echo "\$RESPONSE" | grep -o '"port":[0-9]*' | cut -d':' -f2)
-            
-            if [ "\$PORT" != "${expectedPort}" ]; then
-                echo "流量路由錯誤: 期望端口 ${expectedPort}，實際端口 \$PORT"
-                exit 1
-            fi
-            
-            sleep 1
-        done
-        
-        echo "流量路由驗證成功"
-    """
-}
-
-def validateTrafficSwitch(environment) {
-    echo "驗證流量切換後的狀態..."
-    
-    // 監控關鍵指標
-    monitorKeyMetrics(environment)
-    
-    // 檢查錯誤率
-    checkErrorRate()
-    
-    // 檢查回應時間
-    checkResponseTime()
-    
-    echo "✅ 流量切換驗證完成"
-}
-
-def monitorKeyMetrics(environment) {
-    // 監控 CPU、記憶體、磁碟 I/O 等關鍵指標
-    sh """
-        echo "監控 ${environment} 環境的關鍵指標..."
-        
-        # CPU 使用率
-        CPU_USAGE=\$(top -bn1 | grep "Cpu(s)" | awk '{print \$2}' | awk -F'%' '{print \$1}')
-        echo "CPU 使用率: \${CPU_USAGE}%"
-        
-        # 記憶體使用率
-        MEMORY_USAGE=\$(free | grep Mem | awk '{printf "%.1f", \$3/\$2 * 100.0}')
-        echo "記憶體使用率: \${MEMORY_USAGE}%"
-        
-        # 應用程式 JVM 指標
-        curl -s http://localhost:${environment == 'blue' ? 8080 : 8081}/actuator/metrics/jvm.memory.used
-    """
-}
-
-def checkErrorRate() {
-    // 檢查應用程式錯誤率
-    sh """
-        # 檢查最近的錯誤日誌
-        ERROR_COUNT=\$(tail -1000 /var/log/myapp-${env.ENVIRONMENT}.log | grep -i error | wc -l)
-        
-        if [ \$ERROR_COUNT -gt 10 ]; then
-            echo "警告: 錯誤數量過高 (\$ERROR_COUNT)"
-            # 可以選擇觸發回滾
-        else
-            echo "錯誤率正常 (\$ERROR_COUNT 個錯誤)"
-        fi
-    """
-}
-
-def checkResponseTime() {
-    // 檢查 API 回應時間
-    sh """
-        # 測試主要 API 的回應時間
-        RESPONSE_TIME=\$(curl -o /dev/null -s -w '%{time_total}' http://myapp-${env.ENVIRONMENT}.example.com/api/status)
-        
-        # 轉換為毫秒
-        RESPONSE_TIME_MS=\$(echo "\$RESPONSE_TIME * 1000" | bc)
-        
-        echo "API 回應時間: \${RESPONSE_TIME_MS}ms"
-        
-        # 如果回應時間超過閾值，發出警告
-        if [ \$(echo "\$RESPONSE_TIME_MS > 1000" | bc) -eq 1 ]; then
-            echo "警告: API 回應時間過長"
-        fi
-    """
-}
-
-def updateActiveEnvironmentMarker(environment) {
-    echo "更新活躍環境標記為: ${environment}"
-    
-    sh """
-        echo "${environment}" > /opt/myapp-${env.ENVIRONMENT}/active_environment.txt
-        echo "更新時間: \$(date)" >> /opt/myapp-${env.ENVIRONMENT}/deployment_history.log
-        echo "版本: ${env.BUILD_VERSION}" >> /opt/myapp-${env.ENVIRONMENT}/deployment_history.log
-    """
-}
-
-def rollbackTrafficSwitch() {
-    echo "執行流量切換回滾..."
-    
-    def currentActive = getCurrentActiveEnvironment()
-    def previousActive = currentActive == 'blue' ? 'green' : 'blue'
-    
-    echo "回滾到 ${previousActive} 環境"
-    
-    // 切換回原來的環境
-    updateLoadBalancerConfig(previousActive)
-    
-    // 驗證回滾
-    verifyTrafficRouting(previousActive)
-    
-    echo "✅ 流量回滾完成"
-}
-```
-
-#### 14.4 Canary 部署策略
-
-**Canary 部署實作：**
-
-```groovy
-def executeCanaryDeployment() {
-    echo "執行 Canary 部署..."
-    
-    try {
-        // 部署 Canary 版本
-        deployCanaryVersion()
-        
-        // 配置流量分割
-        configureTrafficSplitting(5) // 5% 流量到 Canary
-        
-        // 監控 Canary 版本
-        monitorCanaryVersion()
-        
-        // 逐步增加流量
-        graduallIncreaseTraffic()
-        
-        // 完全切換到新版本
-        completeCanaryDeployment()
-        
-        echo "✅ Canary 部署成功完成"
-        
-    } catch (Exception e) {
-        echo "❌ Canary 部署失敗: ${e.getMessage()}"
-        rollbackCanaryDeployment()
-        throw e
-    }
-}
-
-def deployCanaryVersion() {
-    echo "部署 Canary 版本..."
-    
-    // 部署到專用的 Canary 節點
-    sh """
-        # 建立 Canary 部署目錄
-        CANARY_DIR="deployment/${env.ENVIRONMENT}/canary"
-        mkdir -p \$CANARY_DIR
-        
-        # 部署新版本到 Canary 環境
-        cp ${env.ARTIFACT_NAME} \$CANARY_DIR/
-        cp application-${env.ENVIRONMENT}.yml \$CANARY_DIR/
-        
-        # 啟動 Canary 實例（使用不同端口）
-        cd \$CANARY_DIR
-        nohup java ${env.JAVA_OPTS} -jar ${env.ARTIFACT_NAME} \\
-            --spring.config.location=application-${env.ENVIRONMENT}.yml \\
-            --server.port=8082 > canary.log 2>&1 &
-        
-        echo \$! > /var/run/myapp-${env.ENVIRONMENT}-canary.pid
-    """
-    
-    // 等待 Canary 實例啟動
-    waitForApplicationStartup('canary', 8082)
-}
-
-def configureTrafficSplitting(percentage) {
-    echo "配置流量分割: ${percentage}% 到 Canary"
-    
-    // 更新負載均衡器配置以分割流量
-    sh """
-        cat > /etc/nginx/conf.d/myapp-${env.ENVIRONMENT}-canary.conf << EOF
-upstream myapp_${env.ENVIRONMENT}_production {
-    server localhost:8080 weight=${100 - percentage};
-}
-
-upstream myapp_${env.ENVIRONMENT}_canary {
-    server localhost:8082 weight=${percentage};
-}
-
-upstream myapp_${env.ENVIRONMENT}_combined {
-    server localhost:8080 weight=${100 - percentage};
-    server localhost:8082 weight=${percentage};
-}
-
-server {
-    listen 80;
-    server_name myapp-${env.ENVIRONMENT}.example.com;
-    
-    location / {
-        proxy_pass http://myapp_${env.ENVIRONMENT}_combined;
-        proxy_set_header Host \\\$host;
-        proxy_set_header X-Real-IP \\\$remote_addr;
-        
-        # 添加 Canary 標頭
-        add_header X-Canary-Deployment "active" always;
-    }
-}
-EOF
-        
-        nginx -t && nginx -s reload
-    """
-}
-
-def monitorCanaryVersion() {
-    echo "監控 Canary 版本..."
-    
-    def monitoringDuration = 300 // 5分鐘
-    def startTime = System.currentTimeMillis()
-    
-    while ((System.currentTimeMillis() - startTime) < (monitoringDuration * 1000)) {
-        // 檢查 Canary 健康狀態
-        checkCanaryHealth()
-        
-        // 檢查錯誤率
-        def errorRate = getCanaryErrorRate()
-        if (errorRate > 5.0) { // 錯誤率超過 5%
-            throw new Exception("Canary 錯誤率過高: ${errorRate}%")
-        }
-        
-        // 檢查回應時間
-        def responseTime = getCanaryResponseTime()
-        if (responseTime > 2000) { // 回應時間超過 2 秒
-            throw new Exception("Canary 回應時間過長: ${responseTime}ms")
-        }
-        
-        sleep(30) // 每 30 秒檢查一次
-    }
-    
-    echo "✅ Canary 監控通過"
-}
-
-def graduallIncreaseTraffic() {
-    def trafficSteps = [5, 10, 25, 50, 75, 100]
-    
-    trafficSteps.each { percentage ->
-        echo "增加 Canary 流量到 ${percentage}%"
-        
-        configureTrafficSplitting(percentage)
-        
-        // 監控一段時間
-        monitorCanaryAtPercentage(percentage)
-        
-        if (percentage < 100) {
-            sleep(300) // 等待 5 分鐘再進行下一步
-        }
-    }
-}
-
-def monitorCanaryAtPercentage(percentage) {
-    echo "監控 ${percentage}% 流量下的 Canary 表現..."
-    
-    // 監控關鍵指標
-    def metrics = collectCanaryMetrics()
-    
-    // 檢查業務指標
-    validateBusinessMetrics(metrics)
-    
-    // 記錄監控結果
-    recordCanaryMetrics(percentage, metrics)
-}
-
-def completeCanaryDeployment() {
-    echo "完成 Canary 部署..."
-    
-    // 停止舊版本
-    stopProductionVersion()
-    
-    // 將 Canary 版本提升為生產版本
-    promoteCanaryToProduction()
-    
-    // 清理 Canary 資源
-    cleanupCanaryResources()
-}
-
-def rollbackCanaryDeployment() {
-    echo "回滾 Canary 部署..."
-    
-    // 停止 Canary 實例
-    sh """
-        PID_FILE="/var/run/myapp-${env.ENVIRONMENT}-canary.pid"
-        if [ -f \$PID_FILE ]; then
-            PID=\$(cat \$PID_FILE)
-            kill \$PID 2>/dev/null || true
-            rm -f \$PID_FILE
-        fi
-    """
-    
-    // 恢復原來的負載均衡器配置
-    configureTrafficSplitting(0)
-    
-    // 清理 Canary 資源
-    cleanupCanaryResources()
-    
-    echo "✅ Canary 回滾完成"
-}
-```
-
-### 💡 實務案例
-
-#### 案例：微服務架構的漸進式部署
-
-**情境**：大型微服務系統需要協調多個服務的部署，確保服務間的相容性
-
-**解決方案：**
-
-```groovy
-// 微服務協調部署 Pipeline
-pipeline {
-    agent none
-    
-    parameters {
-        string(name: 'SERVICES', defaultValue: 'user-service,order-service,payment-service', description: '要部署的服務列表')
-        choice(name: 'DEPLOYMENT_ORDER', choices: ['parallel', 'sequential', 'dependency-based'], description: '部署順序')
-    }
-    
-    stages {
-        stage('服務依賴分析') {
-            agent any
-            steps {
-                script {
-                    analyzeServiceDependencies()
-                    generateDeploymentPlan()
-                }
-            }
-        }
-        
-        stage('微服務部署') {
-            steps {
-                script {
-                    executeServiceDeployments()
-                }
-            }
-        }
-        
-        stage('服務整合測試') {
-            agent any
-            steps {
-                script {
-                    runCrossServiceTests()
-                }
-            }
-        }
-    }
-}
-```
-
-### ⚠️ 注意事項
-
-1. **資料庫遷移**：
-   - 確保向後相容性
-   - 使用遷移腳本版本控制
-   - 準備回滾計畫
-
-2. **狀態管理**：
-   - 考慮會話親和性
-   - 處理快取一致性
-   - 管理外部服務依賴
-
-3. **監控告警**：
-   - 設定關鍵指標閾值
-   - 建立自動回滾觸發條件
-   - 實作即時通知機制
-
-4. **安全考量**：
-   - 保護部署憑證
-   - 限制部署權限
-   - 記錄部署審計日誌
-
-### 🔍 認證對應知識點
-
-| 認證項目 | 對應章節內容 |
-|----------|--------------|
-| 部署策略 | Blue-Green、Canary、Rolling |
-| 環境管理 | 多環境配置、隔離策略 |
-| 自動化部署 | Pipeline 部署流程 |
-| 故障處理 | 回滾機制、監控告警 |
-
-### 練習作業 - 第14章
-
-1. **基礎練習**：實作簡單的多環境部署 Pipeline
-2. **進階練習**：設計並實作 Blue-Green 部署策略
-3. **實務練習**：建立完整的微服務部署協調機制
-
----
-
-## 第15章 監控、通知與效能優化
-
-### 目標導向
-
-- 建立全面的 CI/CD 監控體系
-- 實施智慧化的通知機制
-- 掌握效能優化的最佳實務
-- 建構可觀測性的完整解決方案
-
-### 核心架構
-
-#### 15.1 監控體系架構設計
-
-現代 CI/CD 需要多層次的監控體系，從基礎設施到應用程式的全方位可觀測性。
-
-```mermaid
-graph TB
-    A[監控體系] --> B[基礎設施監控]
-    A --> C[應用程式監控]
-    A --> D[業務指標監控]
-    A --> E[安全監控]
-    
-    B --> F[Jenkins Server]
-    B --> G[Agent Nodes]
-    B --> H[Database]
-    B --> I[Network]
-    
-    C --> J[Build Metrics]
-    C --> K[Deployment Metrics]
-    C --> L[Test Results]
-    C --> M[Code Quality]
-    
-    D --> N[Build Success Rate]
-    D --> O[Deployment Frequency]
-    D --> P[Lead Time]
-    D --> Q[MTTR]
-    
-    E --> R[Security Scans]
-    E --> S[Vulnerability Alerts]
-    E --> T[Compliance Checks]
-    E --> U[Access Logs]
-    
-    subgraph "監控工具"
-        V[Prometheus]
-        W[Grafana]
-        X[ELK Stack]
-        Y[Jaeger]
-        Z[SonarQube]
-    end
-    
-    subgraph "通知渠道"
-        AA[Email]
-        BB[Slack]
-        CC[Microsoft Teams]
-        DD[Webhook]
-        EE[SMS]
-    end
-    
-    subgraph "告警策略"
-        FF[閾值告警]
-        GG[趨勢預警]
-        HH[異常檢測]
-        II[智慧降噪]
-    end
-    
-    B --> V
-    C --> W
-    D --> X
-    E --> Y
-    
-    V --> FF
-    W --> GG
-    X --> HH
-    Y --> II
-    
-    FF --> AA
-    GG --> BB
-    HH --> CC
-    II --> DD
-```
-
-#### 15.2 Jenkins 監控整合
-
-**全方位監控 Pipeline：**
-
-```groovy
-// 監控整合 Pipeline
-pipeline {
-    agent any
-    
-    options {
-        timestamps()
-        timeout(time: 30, unit: 'MINUTES')
-        
-        // 啟用監控選項
-        parallelsAlwaysFailFast()
-    }
-    
-    environment {
-        // 監控配置
-        MONITORING_ENABLED = 'true'
-        METRICS_ENDPOINT = 'http://prometheus:9090'
-        GRAFANA_ENDPOINT = 'http://grafana:3000'
-        
-        // 通知配置
-        SLACK_CHANNEL = '#ci-cd-alerts'
-        EMAIL_RECIPIENTS = 'devops@company.com'
-        
-        // 效能基準線
-        BUILD_TIME_THRESHOLD = '300' // 5分鐘
-        TEST_COVERAGE_THRESHOLD = '80'
-        QUALITY_GATE_THRESHOLD = 'A'
-    }
-    
-    stages {
-        stage('監控系統初始化') {
-            steps {
-                script {
-                    initializeMonitoring()
-                    setupMetricsCollection()
-                    validateMonitoringEndpoints()
-                }
-            }
-        }
-        
-        stage('建置監控') {
-            parallel {
-                stage('代碼建置') {
-                    steps {
-                        script {
-                            def buildStartTime = System.currentTimeMillis()
-                            
-                            try {
-                                // 執行建置
-                                runBuildWithMonitoring()
-                                
-                                // 記錄建置指標
-                                recordBuildMetrics(buildStartTime, 'SUCCESS')
-                                
-                            } catch (Exception e) {
-                                recordBuildMetrics(buildStartTime, 'FAILED')
-                                throw e
-                            }
-                        }
-                    }
-                }
-                
-                stage('依賴監控') {
-                    steps {
-                        script {
-                            monitorDependencies()
-                            checkSecurityVulnerabilities()
-                        }
-                    }
-                }
-                
-                stage('資源監控') {
-                    steps {
-                        script {
-                            monitorResourceUsage()
-                            trackSystemPerformance()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('測試監控') {
-            steps {
-                script {
-                    executeTestsWithMonitoring()
-                    analyzeTestResults()
-                    generateTestMetrics()
-                }
-            }
-        }
-        
-        stage('品質監控') {
-            steps {
-                script {
-                    runQualityAnalysisWithMonitoring()
-                    evaluateQualityGates()
-                    publishQualityMetrics()
-                }
-            }
-        }
-        
-        stage('部署監控') {
-            when {
-                branch 'master'
-            }
-            steps {
-                script {
-                    deployWithMonitoring()
-                    validateDeploymentHealth()
-                    monitorPostDeploymentMetrics()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                // 收集最終指標
-                collectFinalMetrics()
-                
-                // 生成監控報告
-                generateMonitoringReport()
-                
-                // 更新儀表板
-                updateDashboards()
-            }
-        }
-        
-        success {
-            script {
-                sendSuccessNotification()
-                updateSuccessMetrics()
-            }
-        }
-        
-        failure {
-            script {
-                sendFailureAlert()
-                triggerIncidentResponse()
-                updateFailureMetrics()
-            }
-        }
-        
-        unstable {
-            script {
-                sendUnstableWarning()
-                analyzeInstabilityTrends()
-            }
-        }
-    }
-}
-
-// === 監控初始化函式 ===
-
-def initializeMonitoring() {
-    echo "初始化監控系統..."
-    
-    // 設定監控標籤
-    env.BUILD_TIMESTAMP = new Date().format('yyyy-MM-dd HH:mm:ss')
-    env.BUILD_ID = "${env.JOB_NAME}-${env.BUILD_NUMBER}"
-    env.GIT_BRANCH = env.BRANCH_NAME ?: 'unknown'
-    
-    // 建立監控上下文
-    def monitoringContext = [
-        buildId: env.BUILD_ID,
-        jobName: env.JOB_NAME,
-        buildNumber: env.BUILD_NUMBER,
-        gitBranch: env.GIT_BRANCH,
-        timestamp: env.BUILD_TIMESTAMP,
-        executor: env.NODE_NAME ?: 'master'
-    ]
-    
-    // 儲存監控上下文
-    writeJSON file: 'monitoring-context.json', json: monitoringContext
-    
-    echo "✅ 監控系統初始化完成"
-}
-
-def setupMetricsCollection() {
-    echo "設定指標收集..."
-    
-    // 設定 Prometheus 指標
-    setupPrometheusMetrics()
-    
-    // 設定自定義指標
-    setupCustomMetrics()
-    
-    // 設定日誌聚合
-    setupLogAggregation()
-    
-    echo "✅ 指標收集設定完成"
-}
-
-def setupPrometheusMetrics() {
-    // 設定 Prometheus 監控端點
-    sh '''
-        # 建立 Prometheus 配置
-        cat > prometheus.yml << EOF
-global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
-
-rule_files:
-  - "jenkins_rules.yml"
-
-scrape_configs:
-  - job_name: 'jenkins'
-    static_configs:
-      - targets: ['localhost:8080']
-    metrics_path: '/prometheus'
-    
-  - job_name: 'jenkins-nodes'
-    static_configs:
-      - targets: ['node1:8080', 'node2:8080']
-    metrics_path: '/prometheus'
-
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets:
-          - alertmanager:9093
-EOF
-
-        # 建立告警規則
-        cat > jenkins_rules.yml << EOF
-groups:
-  - name: jenkins.rules
-    rules:
-      - alert: JenkinsBuildDurationHigh
-        expr: jenkins_job_duration_milliseconds > 300000
-        for: 2m
-        labels:
-          severity: warning
-        annotations:
-          summary: "Jenkins build duration is high"
-          description: "Build {{ \\$labels.job }} took {{ \\$value }}ms"
-          
-      - alert: JenkinsJobFailureRate
-        expr: rate(jenkins_job_failed_total[5m]) > 0.1
-        for: 1m
-        labels:
-          severity: critical
-        annotations:
-          summary: "High job failure rate detected"
-          description: "Job failure rate is {{ \\$value }} per second"
-EOF
-    '''
-}
-
-def setupCustomMetrics() {
-    // 建立自定義指標收集器
-    sh '''
-        mkdir -p metrics
-        
-        # 建置時間指標
-        cat > metrics/build_metrics.py << 'EOF'
-import json
-import time
-from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
-
-class BuildMetricsCollector:
-    def __init__(self):
-        self.registry = CollectorRegistry()
-        self.build_duration = Gauge('jenkins_build_duration_seconds', 
-                                  'Build duration in seconds', 
-                                  ['job_name', 'build_number'], 
-                                  registry=self.registry)
-        self.test_coverage = Gauge('jenkins_test_coverage_percent', 
-                                 'Test coverage percentage', 
-                                 ['job_name', 'build_number'], 
-                                 registry=self.registry)
-        self.quality_score = Gauge('jenkins_quality_score', 
-                                 'Code quality score', 
-                                 ['job_name', 'build_number'], 
-                                 registry=self.registry)
-    
-    def record_build_duration(self, job_name, build_number, duration):
-        self.build_duration.labels(job_name=job_name, 
-                                 build_number=build_number).set(duration)
-    
-    def record_test_coverage(self, job_name, build_number, coverage):
-        self.test_coverage.labels(job_name=job_name, 
-                                build_number=build_number).set(coverage)
-    
-    def record_quality_score(self, job_name, build_number, score):
-        self.quality_score.labels(job_name=job_name, 
-                                build_number=build_number).set(score)
-    
-    def push_metrics(self, gateway_url):
-        push_to_gateway(gateway_url, job='jenkins_build', registry=self.registry)
-EOF
-    '''
-}
-
-def setupLogAggregation() {
-    // 設定 ELK Stack 日誌聚合
-    sh '''
-        # 建立 Filebeat 配置
-        cat > filebeat.yml << EOF
-filebeat.inputs:
-- type: log
-  enabled: true
-  paths:
-    - /var/log/jenkins/*.log
-    - /var/log/jenkins/jobs/*/builds/*/log
-  fields:
-    service: jenkins
-    environment: ${ENVIRONMENT}
-  fields_under_root: true
-
-output.logstash:
-  hosts: ["logstash:5044"]
-
-processors:
-  - add_host_metadata:
-      when.not.contains.tags: forwarded
-  - add_docker_metadata: ~
-  - add_kubernetes_metadata: ~
-EOF
-
-        # 建立 Logstash 配置
-        cat > logstash.conf << EOF
-input {
-  beats {
-    port => 5044
-  }
-}
-
-filter {
-  if [service] == "jenkins" {
-    grok {
-      match => { "message" => "%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:level} %{GREEDYDATA:message}" }
-    }
-    
-    date {
-      match => [ "timestamp", "ISO8601" ]
-    }
-    
-    if [level] == "ERROR" {
-      mutate {
-        add_tag => [ "error" ]
-      }
-    }
-  }
-}
-
-output {
-  elasticsearch {
-    hosts => ["elasticsearch:9200"]
-    index => "jenkins-logs-%{+YYYY.MM.dd}"
-  }
-}
-EOF
-    '''
-}
-
-def validateMonitoringEndpoints() {
-    echo "驗證監控端點..."
-    
-    // 檢查 Prometheus
-    try {
-        sh "curl -f ${env.METRICS_ENDPOINT}/api/v1/query?query=up"
-        echo "✅ Prometheus 連線正常"
-    } catch (Exception e) {
-        echo "⚠️ Prometheus 連線失敗: ${e.getMessage()}"
-    }
-    
-    // 檢查 Grafana
-    try {
-        sh "curl -f ${env.GRAFANA_ENDPOINT}/api/health"
-        echo "✅ Grafana 連線正常"
-    } catch (Exception e) {
-        echo "⚠️ Grafana 連線失敗: ${e.getMessage()}"
-    }
-    
-    // 檢查 Elasticsearch
-    try {
-        sh "curl -f http://elasticsearch:9200/_cluster/health"
-        echo "✅ Elasticsearch 連線正常"
-    } catch (Exception e) {
-        echo "⚠️ Elasticsearch 連線失敗: ${e.getMessage()}"
-    }
-}
-
-// === 建置監控函式 ===
-
-def runBuildWithMonitoring() {
-    echo "執行帶監控的建置..."
-    
-    // 記錄建置開始指標
-    recordMetric('build_started', [
-        job_name: env.JOB_NAME,
-        build_number: env.BUILD_NUMBER,
-        timestamp: System.currentTimeMillis()
-    ])
-    
-    // 監控建置步驟
-    monitorBuildSteps {
-        // 實際建置邏輯
-        sh '''
-            echo "開始 Maven 建置..."
-            mvn clean compile -DskipTests=true
-            
-            echo "建置完成，檢查產出..."
-            ls -la target/classes/
-        '''
-    }
-    
-    echo "✅ 建置完成"
-}
-
-def monitorBuildSteps(closure) {
-    def stepStartTime = System.currentTimeMillis()
-    
-    try {
-        // 執行建置步驟
-        closure()
-        
-        def duration = System.currentTimeMillis() - stepStartTime
-        
-        // 記錄成功指標
-        recordMetric('build_step_duration', [
-            step_name: 'compile',
-            duration_ms: duration,
-            status: 'success'
-        ])
-        
-    } catch (Exception e) {
-        def duration = System.currentTimeMillis() - stepStartTime
-        
-        // 記錄失敗指標
-        recordMetric('build_step_duration', [
-            step_name: 'compile',
-            duration_ms: duration,
-            status: 'failed',
-            error: e.getMessage()
-        ])
-        
-        throw e
-    }
-}
-
-def recordBuildMetrics(startTime, status) {
-    def duration = System.currentTimeMillis() - startTime
-    def durationSeconds = duration / 1000
-    
-    echo "記錄建置指標: 狀態=${status}, 耗時=${durationSeconds}秒"
-    
-    // 記錄到 Prometheus
-    recordMetric('build_duration', [
-        job_name: env.JOB_NAME,
-        build_number: env.BUILD_NUMBER,
-        status: status,
-        duration_seconds: durationSeconds,
-        branch: env.GIT_BRANCH
-    ])
-    
-    // 檢查是否超過閾值
-    if (durationSeconds > (env.BUILD_TIME_THRESHOLD as Integer)) {
-        sendPerformanceAlert("建置時間超過閾值", "建置耗時 ${durationSeconds} 秒，超過閾值 ${env.BUILD_TIME_THRESHOLD} 秒")
-    }
-    
-    // 更新統計資料
-    updateBuildStatistics(status, durationSeconds)
-}
-
-def monitorDependencies() {
-    echo "監控依賴項目..."
-    
-    // 分析依賴項目
-    sh '''
-        echo "分析 Maven 依賴..."
-        mvn dependency:analyze > dependency-analysis.txt 2>&1
-        
-        echo "檢查過時的依賴..."
-        mvn versions:display-dependency-updates > dependency-updates.txt 2>&1
-        
-        echo "檢查漏洞..."
-        mvn org.owasp:dependency-check-maven:check > security-check.txt 2>&1
-    '''
-    
-    // 解析依賴分析結果
-    def analysisResult = readFile('dependency-analysis.txt')
-    def unusedDeps = extractUnusedDependencies(analysisResult)
-    def outdatedDeps = extractOutdatedDependencies(readFile('dependency-updates.txt'))
-    
-    // 記錄依賴指標
-    recordMetric('dependency_unused_count', [
-        job_name: env.JOB_NAME,
-        count: unusedDeps.size()
-    ])
-    
-    recordMetric('dependency_outdated_count', [
-        job_name: env.JOB_NAME,
-        count: outdatedDeps.size()
-    ])
-    
-    // 如果有問題依賴，發送通知
-    if (unusedDeps.size() > 0 || outdatedDeps.size() > 0) {
-        sendDependencyAlert(unusedDeps, outdatedDeps)
-    }
-}
-
-def checkSecurityVulnerabilities() {
-    echo "檢查安全漏洞..."
-    
-    try {
-        // 使用 OWASP Dependency Check
-        sh 'mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7'
-        
-        // 解析安全報告
-        def securityReport = parseSecurityReport()
-        
-        // 記錄安全指標
-        recordMetric('security_vulnerabilities', [
-            job_name: env.JOB_NAME,
-            high_severity: securityReport.highSeverity,
-            medium_severity: securityReport.mediumSeverity,
-            low_severity: securityReport.lowSeverity
-        ])
-        
-        // 如果有高嚴重性漏洞，發送警告
-        if (securityReport.highSeverity > 0) {
-            sendSecurityAlert(securityReport)
-        }
-        
-    } catch (Exception e) {
-        echo "安全檢查失敗: ${e.getMessage()}"
-        recordMetric('security_check_failed', [
-            job_name: env.JOB_NAME,
-            error: e.getMessage()
-        ])
-    }
-}
-
-def monitorResourceUsage() {
-    echo "監控資源使用情況..."
-    
-    // 收集系統資源指標
-    sh '''
-        # CPU 使用率
-        echo "CPU 使用率:" > resource-usage.txt
-        top -bn1 | grep "Cpu(s)" >> resource-usage.txt
-        
-        # 記憶體使用
-        echo "記憶體使用:" >> resource-usage.txt
-        free -h >> resource-usage.txt
-        
-        # 磁碟使用
-        echo "磁碟使用:" >> resource-usage.txt
-        df -h >> resource-usage.txt
-        
-        # 網路狀態
-        echo "網路狀態:" >> resource-usage.txt
-        netstat -i >> resource-usage.txt
-    '''
-    
-    // 解析並記錄資源指標
-    def resourceData = parseResourceUsage()
-    
-    recordMetric('system_cpu_usage', [
-        node_name: env.NODE_NAME,
-        usage_percent: resourceData.cpuUsage
-    ])
-    
-    recordMetric('system_memory_usage', [
-        node_name: env.NODE_NAME,
-        usage_percent: resourceData.memoryUsage,
-        total_gb: resourceData.totalMemory
-    ])
-    
-    recordMetric('system_disk_usage', [
-        node_name: env.NODE_NAME,
-        usage_percent: resourceData.diskUsage,
-        available_gb: resourceData.availableDisk
-    ])
-    
-    // 檢查資源警告閾值
-    checkResourceThresholds(resourceData)
-}
-
-def trackSystemPerformance() {
-    echo "追蹤系統效能..."
-    
-    // 測量 I/O 效能
-    def ioPerformance = measureIOPerformance()
-    
-    // 測量網路延遲
-    def networkLatency = measureNetworkLatency()
-    
-    // 記錄效能指標
-    recordMetric('system_io_performance', [
-        node_name: env.NODE_NAME,
-        read_mbps: ioPerformance.readMbps,
-        write_mbps: ioPerformance.writeMbps
-    ])
-    
-    recordMetric('system_network_latency', [
-        node_name: env.NODE_NAME,
-        latency_ms: networkLatency
-    ])
-}
-
-// === 測試監控函式 ===
-
-def executeTestsWithMonitoring() {
-    echo "執行帶監控的測試..."
-    
-    def testStartTime = System.currentTimeMillis()
-    
-    try {
-        // 執行單元測試
-        runUnitTestsWithMonitoring()
-        
-        // 執行整合測試
-        runIntegrationTestsWithMonitoring()
-        
-        // 記錄測試成功指標
-        def duration = System.currentTimeMillis() - testStartTime
-        recordMetric('test_execution_duration', [
-            job_name: env.JOB_NAME,
-            duration_seconds: duration / 1000,
-            status: 'success'
-        ])
-        
-    } catch (Exception e) {
-        def duration = System.currentTimeMillis() - testStartTime
-        recordMetric('test_execution_duration', [
-            job_name: env.JOB_NAME,
-            duration_seconds: duration / 1000,
-            status: 'failed',
-            error: e.getMessage()
-        ])
-        throw e
-    }
-}
-
-def runUnitTestsWithMonitoring() {
-    echo "執行單元測試並監控..."
-    
-    sh '''
-        # 執行測試並生成報告
-        mvn test -Dmaven.test.failure.ignore=true
-        
-        # 生成測試覆蓋率報告
-        mvn jacoco:report
-    '''
-    
-    // 解析測試結果
-    def testResults = parseTestResults('target/surefire-reports')
-    def coverageResults = parseCoverageResults('target/site/jacoco')
-    
-    // 記錄測試指標
-    recordTestMetrics(testResults, coverageResults)
-    
-    // 發布測試報告
-    publishTestResults trustExitCode: true, testResultsPattern: 'target/surefire-reports/*.xml'
-    publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: 'target/site/jacoco',
-        reportFiles: 'index.html',
-        reportName: 'Coverage Report'
-    ])
-}
-
-def runIntegrationTestsWithMonitoring() {
-    echo "執行整合測試並監控..."
-    
-    sh '''
-        # 啟動測試環境
-        docker-compose -f docker-compose.test.yml up -d
-        
-        # 等待服務就緒
-        sleep 30
-        
-        # 執行整合測試
-        mvn failsafe:integration-test failsafe:verify
-        
-        # 清理測試環境
-        docker-compose -f docker-compose.test.yml down
-    '''
-    
-    // 解析整合測試結果
-    def integrationResults = parseTestResults('target/failsafe-reports')
-    
-    // 記錄整合測試指標
-    recordMetric('integration_test_results', [
-        job_name: env.JOB_NAME,
-        total_tests: integrationResults.total,
-        passed_tests: integrationResults.passed,
-        failed_tests: integrationResults.failed,
-        skipped_tests: integrationResults.skipped
-    ])
-}
-
-def analyzeTestResults() {
-    echo "分析測試結果..."
-    
-    // 分析測試趨勢
-    analyzeTestTrends()
-    
-    // 識別不穩定的測試
-    identifyFlakyTests()
-    
-    // 分析測試覆蓋率趨勢
-    analyzeCoverageTrends()
-}
-
-def generateTestMetrics() {
-    echo "生成測試指標..."
-    
-    // 生成測試效能報告
-    generateTestPerformanceReport()
-    
-    // 更新測試儀表板
-    updateTestDashboard()
-    
-    // 發送測試總結
-    sendTestSummary()
-}
-
-// === 品質監控函式 ===
-
-def runQualityAnalysisWithMonitoring() {
-    echo "執行代碼品質分析並監控..."
-    
-    def qualityStartTime = System.currentTimeMillis()
-    
-    try {
-        // SonarQube 分析
-        runSonarQubeAnalysis()
-        
-        // Checkstyle 檢查
-        runCheckstyleAnalysis()
-        
-        // PMD 分析
-        runPMDAnalysis()
-        
-        // SpotBugs 分析
-        runSpotBugsAnalysis()
-        
-        def duration = System.currentTimeMillis() - qualityStartTime
-        recordMetric('quality_analysis_duration', [
-            job_name: env.JOB_NAME,
-            duration_seconds: duration / 1000,
-            status: 'success'
-        ])
-        
-    } catch (Exception e) {
-        def duration = System.currentTimeMillis() - qualityStartTime
-        recordMetric('quality_analysis_duration', [
-            job_name: env.JOB_NAME,
-            duration_seconds: duration / 1000,
-            status: 'failed',
-            error: e.getMessage()
-        ])
-        throw e
-    }
-}
-
-def runSonarQubeAnalysis() {
-    echo "執行 SonarQube 分析..."
-    
-    withSonarQubeEnv('SonarQube') {
-        sh '''
-            mvn sonar:sonar \\
-                -Dsonar.projectKey=${JOB_NAME} \\
-                -Dsonar.projectName="${JOB_NAME}" \\
-                -Dsonar.projectVersion=${BUILD_NUMBER}
-        '''
-    }
-    
-    // 等待品質閘門結果
-    timeout(time: 10, unit: 'MINUTES') {
-        def qg = waitForQualityGate()
-        
-        // 記錄品質閘門結果
-        recordMetric('sonarqube_quality_gate', [
-            job_name: env.JOB_NAME,
-            status: qg.status,
-            project_key: env.JOB_NAME
-        ])
-        
-        if (qg.status != 'OK') {
-            echo "品質閘門未通過: ${qg.status}"
-            sendQualityGateAlert(qg)
-        }
-    }
-}
-
-def evaluateQualityGates() {
-    echo "評估品質閘門..."
-    
-    // 讀取 SonarQube 結果
-    def sonarResults = readSonarQubeResults()
-    
-    // 評估品質標準
-    def qualityScore = calculateQualityScore(sonarResults)
-    
-    // 記錄品質指標
-    recordMetric('code_quality_score', [
-        job_name: env.JOB_NAME,
-        quality_score: qualityScore,
-        bugs: sonarResults.bugs,
-        vulnerabilities: sonarResults.vulnerabilities,
-        code_smells: sonarResults.codeSmells,
-        coverage: sonarResults.coverage,
-        duplicated_lines: sonarResults.duplicatedLines
-    ])
-    
-    // 檢查品質閾值
-    if (qualityScore < (env.QUALITY_GATE_THRESHOLD as Integer)) {
-        error("代碼品質不符合標準: ${qualityScore} < ${env.QUALITY_GATE_THRESHOLD}")
-    }
-}
-
-def publishQualityMetrics() {
-    echo "發布品質指標..."
-    
-    // 發布 Checkstyle 報告
-    publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: 'target/site',
-        reportFiles: 'checkstyle.html',
-        reportName: 'Checkstyle Report'
-    ])
-    
-    // 發布 PMD 報告
-    publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: 'target/site',
-        reportFiles: 'pmd.html',
-        reportName: 'PMD Report'
-    ])
-    
-    // 發布 SpotBugs 報告
-    publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: 'target/site',
-        reportFiles: 'spotbugs.html',
-        reportName: 'SpotBugs Report'
-    ])
-    
-    // 歸檔品質指標檔案
-    archiveArtifacts artifacts: 'target/site/**', allowEmptyArchive: true
-}
-
-// === 部署監控函式 ===
-
-def deployWithMonitoring() {
-    echo "執行帶監控的部署..."
-    
-    def deployStartTime = System.currentTimeMillis()
-    
-    try {
-        // 預部署檢查
-        preDeploymentHealthCheck()
-        
-        // 執行部署
-        executeDeployment()
-        
-        // 部署後驗證
-        postDeploymentVerification()
-        
-        def duration = System.currentTimeMillis() - deployStartTime
-        recordMetric('deployment_duration', [
-            job_name: env.JOB_NAME,
-            environment: env.ENVIRONMENT,
-            duration_seconds: duration / 1000,
-            status: 'success'
-        ])
-        
-    } catch (Exception e) {
-        def duration = System.currentTimeMillis() - deployStartTime
-        recordMetric('deployment_duration', [
-            job_name: env.JOB_NAME,
-            environment: env.ENVIRONMENT,
-            duration_seconds: duration / 1000,
-            status: 'failed',
-            error: e.getMessage()
-        ])
-        throw e
-    }
-}
-
-def validateDeploymentHealth() {
-    echo "驗證部署健康狀態..."
-    
-    // 健康檢查
-    def healthCheckResults = performHealthChecks()
-    
-    // 記錄健康檢查結果
-    recordMetric('deployment_health_check', [
-        job_name: env.JOB_NAME,
-        environment: env.ENVIRONMENT,
-        status: healthCheckResults.overall,
-        services_healthy: healthCheckResults.healthyServices,
-        services_unhealthy: healthCheckResults.unhealthyServices
-    ])
-    
-    if (healthCheckResults.overall != 'healthy') {
-        sendDeploymentHealthAlert(healthCheckResults)
-    }
-}
-
-def monitorPostDeploymentMetrics() {
-    echo "監控部署後指標..."
-    
-    // 監控應用程式指標
-    monitorApplicationMetrics()
-    
-    // 監控業務指標
-    monitorBusinessMetrics()
-    
-    // 設定部署後監控
-    setupPostDeploymentMonitoring()
-}
-```
-
-### 通知與告警機制
-
-#### 15.3 智慧通知系統
-
-**多渠道通知 Pipeline：**
-
-```groovy
-def sendSuccessNotification() {
-    echo "發送成功通知..."
-    
-    def notification = buildNotificationPayload('success')
-    
-    // 發送到多個渠道
-    parallel(
-        "Email": {
-            sendEmailNotification(notification)
-        },
-        "Slack": {
-            sendSlackNotification(notification)
-        },
-        "Teams": {
-            sendTeamsNotification(notification)
-        },
-        "Webhook": {
-            sendWebhookNotification(notification)
-        }
-    )
-}
-
-def sendFailureAlert() {
-    echo "發送失敗警告..."
-    
-    def alert = buildAlertPayload('failure')
-    
-    // 分級通知
-    if (isProductionBranch()) {
-        sendUrgentAlert(alert)
-    } else {
-        sendStandardAlert(alert)
-    }
-    
-    // 觸發事故管理流程
-    if (isCriticalFailure()) {
-        triggerIncidentManagement(alert)
-    }
-}
-
-def buildNotificationPayload(status) {
-    def payload = [
-        status: status,
-        jobName: env.JOB_NAME,
-        buildNumber: env.BUILD_NUMBER,
-        buildUrl: env.BUILD_URL,
-        branch: env.GIT_BRANCH,
-        commit: env.GIT_COMMIT,
-        timestamp: new Date().format('yyyy-MM-dd HH:mm:ss'),
-        duration: currentBuild.durationString,
-        executor: env.NODE_NAME ?: 'master'
-    ]
-    
-    // 添加測試結果
-    if (fileExists('target/surefire-reports')) {
-        def testResults = parseTestResults('target/surefire-reports')
-        payload.testResults = testResults
-    }
-    
-    // 添加品質指標
-    if (fileExists('target/sonar')) {
-        def qualityResults = readSonarQubeResults()
-        payload.qualityResults = qualityResults
-    }
-    
-    return payload
-}
-
-def sendSlackNotification(notification) {
-    def color = notification.status == 'success' ? 'good' : 'danger'
-    def emoji = notification.status == 'success' ? ':white_check_mark:' : ':x:'
-    
-    def message = """
-${emoji} *${notification.status.toUpperCase()}* - ${notification.jobName} #${notification.buildNumber}
-*Branch:* ${notification.branch}
-*Duration:* ${notification.duration}
-*Executor:* ${notification.executor}
-"""
-    
-    if (notification.testResults) {
-        message += """
-*Tests:* ${notification.testResults.passed}/${notification.testResults.total} passed
-"""
-    }
-    
-    if (notification.qualityResults) {
-        message += """
-*Quality:* ${notification.qualityResults.qualityGate}
-"""
-    }
-    
-    slackSend(
-        channel: env.SLACK_CHANNEL,
-        color: color,
-        message: message,
-        teamDomain: 'yourteam',
-        token: 'slack-token'
-    )
-}
-
-def sendEmailNotification(notification) {
-    def subject = "${notification.status.toUpperCase()} - ${notification.jobName} #${notification.buildNumber}"
-    
-    def body = """
-<html>
-<body>
-<h2>Build ${notification.status.toUpperCase()}</h2>
-<table border="1" cellpadding="5">
-    <tr><td><b>Job</b></td><td>${notification.jobName}</td></tr>
-    <tr><td><b>Build Number</b></td><td>${notification.buildNumber}</td></tr>
-    <tr><td><b>Branch</b></td><td>${notification.branch}</td></tr>
-    <tr><td><b>Duration</b></td><td>${notification.duration}</td></tr>
-    <tr><td><b>Timestamp</b></td><td>${notification.timestamp}</td></tr>
-</table>
-
-<h3>Links</h3>
-<ul>
-    <li><a href="${notification.buildUrl}">Build Details</a></li>
-    <li><a href="${notification.buildUrl}console">Console Output</a></li>
-</ul>
-"""
-    
-    if (notification.testResults) {
-        body += """
-<h3>Test Results</h3>
-<table border="1" cellpadding="5">
-    <tr><td><b>Total</b></td><td>${notification.testResults.total}</td></tr>
-    <tr><td><b>Passed</b></td><td>${notification.testResults.passed}</td></tr>
-    <tr><td><b>Failed</b></td><td>${notification.testResults.failed}</td></tr>
-    <tr><td><b>Skipped</b></td><td>${notification.testResults.skipped}</td></tr>
-</table>
-"""
-    }
-    
-    body += """
-</body>
-</html>
-"""
-    
-    emailext(
-        subject: subject,
-        body: body,
-        mimeType: 'text/html',
-        to: env.EMAIL_RECIPIENTS
-    )
-}
-
-def sendTeamsNotification(notification) {
-    def webhook = env.TEAMS_WEBHOOK_URL
-    def color = notification.status == 'success' ? '00FF00' : 'FF0000'
-    
-    def payload = [
-        "@type": "MessageCard",
-        "@context": "http://schema.org/extensions",
-        "themeColor": color,
-        "summary": "Jenkins Build ${notification.status}",
-        "sections": [[
-            "activityTitle": "Jenkins Build ${notification.status.toUpperCase()}",
-            "activitySubtitle": "${notification.jobName} #${notification.buildNumber}",
-            "facts": [
-                ["name": "Branch", "value": notification.branch],
-                ["name": "Duration", "value": notification.duration],
-                ["name": "Executor", "value": notification.executor]
-            ]
-        ]],
-        "potentialAction": [[
-            "@type": "OpenUri",
-            "name": "View Build",
-            "targets": [["os": "default", "uri": notification.buildUrl]]
-        ]]
-    ]
-    
-    httpRequest(
-        httpMode: 'POST',
-        url: webhook,
-        contentType: 'APPLICATION_JSON',
-        requestBody: writeJSON(returnText: true, json: payload)
-    )
-}
-```
-
-### 效能優化策略
-
-#### 15.4 Pipeline 效能優化
-
-**效能優化範例：**
-
-```groovy
-// 效能優化 Pipeline
-pipeline {
-    agent none
-    
-    options {
-        // 並行執行優化
-        parallelsAlwaysFailFast()
-        
-        // 建置保留策略
-        buildDiscarder(logRotator(
-            numToKeepStr: '10',
-            daysToKeepStr: '30',
-            artifactNumToKeepStr: '5'
-        ))
-        
-        // 超時控制
-        timeout(time: 45, unit: 'MINUTES')
-    }
-    
-    stages {
-        stage('快取優化初始化') {
-            agent any
-            steps {
-                script {
-                    optimizeCacheStrategy()
-                    setupDistributedCache()
-                }
-            }
-        }
-        
-        stage('並行建置優化') {
-            parallel {
-                stage('代碼編譯') {
-                    agent { label 'compile-agent' }
-                    steps {
-                        script {
-                            // 使用編譯快取
-                            restoreCompilationCache()
-                            
-                            // 增量編譯
-                            runIncrementalCompilation()
-                            
-                            // 儲存編譯快取
-                            saveCompilationCache()
-                        }
-                    }
-                }
-                
-                stage('依賴下載') {
-                    agent { label 'maven-agent' }
-                    steps {
-                        script {
-                            // 使用 Maven 本地快取
-                            optimizeMavenCache()
-                            
-                            // 並行下載依賴
-                            downloadDependenciesParallel()
-                        }
-                    }
-                }
-                
-                stage('靜態分析') {
-                    agent { label 'analysis-agent' }
-                    steps {
-                        script {
-                            // 只分析變更的檔案
-                            runIncrementalAnalysis()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('測試優化') {
-            parallel {
-                stage('單元測試') {
-                    agent { label 'test-agent' }
-                    steps {
-                        script {
-                            // 並行測試執行
-                            runParallelUnitTests()
-                        }
-                    }
-                }
-                
-                stage('整合測試') {
-                    agent { label 'integration-agent' }
-                    steps {
-                        script {
-                            // 測試容器化
-                            runContainerizedTests()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('部署優化') {
-            when { branch 'master' }
-            agent { label 'deploy-agent' }
-            steps {
-                script {
-                    // 零停機部署
-                    runZeroDowntimeDeployment()
-                    
-                    // 部署驗證
-                    validateDeploymentOptimized()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            node('master') {
-                script {
-                    // 效能分析
-                    analyzePerformanceMetrics()
-                    
-                    // 優化建議
-                    generateOptimizationRecommendations()
-                }
-            }
-        }
-    }
-}
-
-def optimizeCacheStrategy() {
-    echo "優化快取策略..."
-    
-    // 設定分散式快取
-    sh '''
-        # 設定 Redis 快取
-        redis-cli ping || echo "Redis 快取不可用"
-        
-        # 設定檔案系統快取
-        mkdir -p /opt/jenkins-cache/{maven,gradle,npm,docker}
-        
-        # 設定 NFS 共享快取（如果可用）
-        mount | grep nfs || echo "NFS 共享快取不可用"
-    '''
-    
-    // 快取預熱
-    preWarmCache()
-    
-    echo "✅ 快取策略優化完成"
-}
-
-def restoreCompilationCache() {
-    echo "恢復編譯快取..."
-    
-    // 從分散式快取恢復
-    sh '''
-        CACHE_KEY="${JOB_NAME}-${GIT_COMMIT}"
-        
-        # 檢查快取是否存在
-        if redis-cli exists "compile:${CACHE_KEY}" > /dev/null; then
-            echo "找到編譯快取: ${CACHE_KEY}"
-            
-            # 恢復編譯結果
-            redis-cli get "compile:${CACHE_KEY}" | base64 -d | tar -xzf - -C target/ 2>/dev/null || true
-        else
-            echo "未找到編譯快取"
-        fi
-    '''
-}
-
-def runIncrementalCompilation() {
-    echo "執行增量編譯..."
-    
-    // 檢測變更的檔案
-    def changedFiles = sh(
-        script: 'git diff --name-only HEAD~1',
-        returnStdout: true
-    ).trim().split('\n')
-    
-    if (changedFiles.size() > 0) {
-        echo "檢測到 ${changedFiles.size()} 個變更檔案"
-        
-        // 只編譯變更的模組
-        def changedModules = detectChangedModules(changedFiles)
-        
-        if (changedModules.size() > 0) {
-            echo "編譯變更的模組: ${changedModules.join(', ')}"
-            sh "mvn compile -pl ${changedModules.join(',')}"
-        } else {
-            echo "執行完整編譯"
-            sh "mvn compile"
-        }
-    } else {
-        echo "無變更檔案，跳過編譯"
-    }
-}
-
-def runParallelUnitTests() {
-    echo "執行並行單元測試..."
-    
-    // 自動檢測可用的 CPU 核心數
-    def availableCores = sh(
-        script: 'nproc',
-        returnStdout: true
-    ).trim() as Integer
-    
-    def threadCount = Math.max(1, (availableCores * 0.8) as Integer)
-    
-    echo "使用 ${threadCount} 個執行緒執行測試"
-    
-    sh """
-        mvn test \\
-            -Dmaven.test.parallel=classes \\
-            -Dmaven.test.perCoreThreadCount=false \\
-            -Dmaven.test.threadCount=${threadCount} \\
-            -Dmaven.test.forkCount=${threadCount} \\
-            -Dmaven.test.reuseForks=true
-    """
-}
-
-def runContainerizedTests() {
-    echo "執行容器化測試..."
-    
-    // 使用 Docker 容器並行執行測試
-    sh '''
-        # 啟動測試資料庫容器
-        docker run -d --name test-db \\
-            -e POSTGRES_DB=testdb \\
-            -e POSTGRES_USER=test \\
-            -e POSTGRES_PASSWORD=test \\
-            -p 5432:5432 \\
-            postgres:13
-        
-        # 等待資料庫就緒
-        while ! docker exec test-db pg_isready; do
-            sleep 1
-        done
-        
-        # 執行整合測試
-        mvn failsafe:integration-test \\
-            -Dtest.database.url=jdbc:postgresql://localhost:5432/testdb
-        
-        # 清理測試容器
-        docker stop test-db
-        docker rm test-db
-    '''
-}
-
-def analyzePerformanceMetrics() {
-    echo "分析效能指標..."
-    
-    // 收集建置效能資料
-    def performanceData = [
-        buildDuration: currentBuild.duration,
-        buildNumber: env.BUILD_NUMBER,
-        timestamp: new Date().time,
-        stages: collectStageMetrics()
-    ]
-    
-    // 分析效能趨勢
-    analyzePerformanceTrends(performanceData)
-    
-    // 識別效能瓶頸
-    identifyPerformanceBottlenecks(performanceData)
-    
-    // 生成效能報告
-    generatePerformanceReport(performanceData)
-}
-
-def generateOptimizationRecommendations() {
-    echo "生成優化建議..."
-    
-    def recommendations = []
-    
-    // 基於歷史資料分析
-    def historicalData = getHistoricalPerformanceData()
-    
-    // 檢查建置時間趨勢
-    if (isBuildTimeIncreasing(historicalData)) {
-        recommendations.add([
-            type: 'build_time',
-            message: '建置時間呈上升趨勢，建議檢查依賴項目或增加快取策略',
-            priority: 'high'
-        ])
-    }
-    
-    // 檢查測試執行時間
-    if (isTestTimeExcessive(historicalData)) {
-        recommendations.add([
-            type: 'test_time',
-            message: '測試執行時間過長，建議增加並行度或優化測試程式碼',
-            priority: 'medium'
-        ])
-    }
-    
-    // 檢查資源使用率
-    if (isResourceUnderUtilized(historicalData)) {
-        recommendations.add([
-            type: 'resource_usage',
-            message: '資源使用率偏低，可以增加並行任務或使用更小的 Agent',
-            priority: 'low'
-        ])
-    }
-    
-    // 輸出建議
-    if (recommendations.size() > 0) {
-        echo "=== 效能優化建議 ==="
-        recommendations.each { rec ->
-            echo "[${rec.priority.toUpperCase()}] ${rec.type}: ${rec.message}"
-        }
-        
-        // 儲存建議到檔案
-        writeJSON file: 'optimization-recommendations.json', json: recommendations
-        archiveArtifacts artifacts: 'optimization-recommendations.json'
-    } else {
-        echo "目前效能表現良好，無特別優化建議"
-    }
-}
-```
-
-### 實務監控案例
-
-#### 案例：企業級監控儀表板
-
-**Grafana 儀表板配置：**
-
-```json
-{
-  "dashboard": {
-    "title": "Jenkins CI/CD 監控儀表板",
-    "panels": [
-      {
-        "title": "建置成功率",
-        "type": "stat",
-        "targets": [
-          {
-            "expr": "rate(jenkins_job_success_total[1h]) / rate(jenkins_job_total[1h]) * 100"
-          }
-        ]
-      },
-      {
-        "title": "平均建置時間",
-        "type": "graph",
-        "targets": [
-          {
-            "expr": "avg(jenkins_job_duration_seconds) by (job_name)"
-          }
-        ]
-      },
-      {
-        "title": "部署頻率",
-        "type": "graph",
-        "targets": [
-          {
-            "expr": "rate(jenkins_deployment_total[24h])"
-          }
-        ]
-      },
-      {
-        "title": "測試覆蓋率趨勢",
-        "type": "graph",
-        "targets": [
-          {
-            "expr": "jenkins_test_coverage_percent"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-### 注意要點
-
-1. **監控資料保留**：
-   - 設定合適的資料保留策略
-   - 平衡儲存成本與查詢需求
-   - 實施資料壓縮與歸檔
-
-2. **告警降噪**：
-   - 避免過度告警造成疲勞
-   - 實施智慧告警聚合
-   - 設定告警優先級
-
-3. **效能影響**：
-   - 監控系統本身的資源消耗
-   - 避免影響主要 CI/CD 流程
-   - 合理配置採樣頻率
-
-4. **安全隱私**：
-   - 保護敏感監控資料
-   - 控制監控資料存取權限
-   - 遵循資料保護法規
-
-### 認證相關知識
-
-| 認證項目 | 對應內容 |
-|----------|----------|
-| 監控設定 | Prometheus、Grafana 整合 |
-| 通知機制 | 多渠道通知策略 |
-| 效能優化 | Pipeline 效能調校 |
-| 可觀測性 | 全方位監控體系 |
-
-### 練習實作 - 第15章
-
-1. **基礎練習**：建立基本的 Jenkins 監控配置
-2. **進階練習**：實作多渠道智慧通知系統
-3. **實務練習**：設計完整的企業級監控解決方案
-
----
-
-## 第16章 企業級 CI/CD 架構設計
-
-### 架構願景
-
-- 設計可擴展的大規模 Jenkins 架構
-- 實現高可用性和負載均衡策略
-- 建立災難恢復和業務連續性方案
-- 制定 CI/CD 治理和安全框架
-
-### 企業架構藍圖
-
-#### 16.1 大規模 Jenkins 架構設計
-
-企業級 CI/CD 需要支援數千個專案、數萬次建置，並確保系統的穩定性和可擴展性。
-
-```mermaid
-graph TB
-    subgraph "Load Balancer Layer"
-        LB1[Load Balancer 1]
-        LB2[Load Balancer 2]
-    end
-    
-    subgraph "Jenkins Master Cluster"
-        JM1[Jenkins Master 1<br/>Active]
-        JM2[Jenkins Master 2<br/>Hot Standby]
-        JM3[Jenkins Master 3<br/>Cold Standby]
-    end
-    
-    subgraph "Agent Pool Management"
-        AP1[Static Agent Pool]
-        AP2[Dynamic Agent Pool]
-        AP3[Cloud Agent Pool]
-        AP4[Container Agent Pool]
-    end
-    
-    subgraph "Storage Layer"
-        SS1[Shared Storage<br/>NFS/GlusterFS]
-        DB1[(Primary Database<br/>PostgreSQL)]
-        DB2[(Replica Database)]
-        AR1[Artifact Repository<br/>Nexus/Artifactory]
-    end
-    
-    subgraph "Monitoring & Security"
-        PM1[Prometheus]
-        GF1[Grafana]
-        ELK[ELK Stack]
-        SEC[Security Scanner]
-        LDAP[LDAP/AD]
-    end
-    
-    subgraph "External Integrations"
-        SCM[Source Control<br/>Git/SVN]
-        CHAT[Chat Integration<br/>Slack/Teams]
-        TICK[Ticketing System<br/>Jira/ServiceNow]
-        CLOUD[Cloud Providers<br/>AWS/Azure/GCP]
-    end
-    
-    Users --> LB1
-    Users --> LB2
-    
-    LB1 --> JM1
-    LB2 --> JM1
-    LB1 --> JM2
-    LB2 --> JM2
-    
-    JM1 --> AP1
-    JM1 --> AP2
-    JM1 --> AP3
-    JM1 --> AP4
-    
-    JM2 --> AP1
-    JM2 --> AP2
-    JM2 --> AP3
-    JM2 --> AP4
-    
-    JM1 --> SS1
-    JM2 --> SS1
-    JM3 --> SS1
-    
-    JM1 --> DB1
-    JM2 --> DB1
-    DB1 --> DB2
-    
-    AP1 --> AR1
-    AP2 --> AR1
-    AP3 --> AR1
-    AP4 --> AR1
-    
-    JM1 --> PM1
-    JM1 --> ELK
-    JM1 --> SEC
-    JM1 --> LDAP
-    
-    PM1 --> GF1
-    
-    JM1 --> SCM
-    JM1 --> CHAT
-    JM1 --> TICK
-    JM1 --> CLOUD
-    
-    style JM1 fill:#e1f5fe
-    style JM2 fill:#fff3e0
-    style JM3 fill:#fce4ec
-    style DB1 fill:#e8f5e8
-    style DB2 fill:#fff8e1
-```
-
-#### 16.2 高可用性架構實作
-
-**Jenkins Master 高可用性配置：**
-
-```groovy
-// 高可用性 Jenkins 配置
-pipeline {
-    agent none
-    
-    options {
-        // 啟用建置分散式執行
-        parallelsAlwaysFailFast()
-        
-        // 設定重試機制
-        retry(3)
-        
-        // 超時控制
-        timeout(time: 2, unit: 'HOURS')
-        
-        // 啟用檢查點
-        checkoutToSubdirectory('source')
-    }
-    
-    environment {
-        // 高可用性配置
-        HA_ENABLED = 'true'
-        CLUSTER_MODE = 'active-standby'
-        FAILOVER_THRESHOLD = '30'
-        
-        // 分散式存儲配置
-        SHARED_WORKSPACE = '/shared/jenkins-workspace'
-        ARTIFACT_REPOSITORY = 'https://nexus.company.com/repository'
-        
-        // 資料庫集群配置
-        DB_PRIMARY = 'jdbc:postgresql://db-primary:5432/jenkins'
-        DB_REPLICA = 'jdbc:postgresql://db-replica:5432/jenkins'
-        
-        // 監控端點
-        HEALTH_CHECK_URL = 'http://localhost:8080/computer/api/json'
-        METRICS_ENDPOINT = 'http://prometheus:9090'
-    }
-    
-    stages {
-        stage('高可用性初始化') {
-            steps {
-                script {
-                    initializeHAEnvironment()
-                    validateClusterHealth()
-                    setupFailoverMechanisms()
-                }
-            }
-        }
-        
-        stage('分散式建置執行') {
-            parallel {
-                stage('主要建置路徑') {
-                    agent { label 'primary-pool' }
-                    steps {
-                        script {
-                            executeWithFailover('primary') {
-                                runPrimaryBuildTasks()
-                            }
-                        }
-                    }
-                }
-                
-                stage('備援建置路徑') {
-                    agent { label 'backup-pool' }
-                    when {
-                        expression { params.ENABLE_BACKUP_BUILD == true }
-                    }
-                    steps {
-                        script {
-                            executeWithFailover('backup') {
-                                runBackupBuildTasks()
-                            }
-                        }
-                    }
-                }
-                
-                stage('雲端建置路徑') {
-                    agent { label 'cloud-pool' }
-                    when {
-                        expression { isCloudBuildRequired() }
-                    }
-                    steps {
-                        script {
-                            executeWithFailover('cloud') {
-                                runCloudBuildTasks()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('集群狀態監控') {
-            agent { label 'monitoring-node' }
-            steps {
-                script {
-                    monitorClusterHealth()
-                    validateDataConsistency()
-                    checkFailoverReadiness()
-                }
-            }
-        }
-        
-        stage('災難恢復測試') {
-            when {
-                expression { params.RUN_DR_TEST == true }
-            }
-            agent { label 'dr-test-node' }
-            steps {
-                script {
-                    runDisasterRecoveryTest()
-                    validateBackupIntegrity()
-                    testFailoverProcedures()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            node('monitoring-node') {
-                script {
-                    collectHAMetrics()
-                    updateClusterStatus()
-                    generateHAReport()
-                }
-            }
-        }
-        
-        failure {
-            script {
-                triggerFailoverIfNeeded()
-                notifyOpsTeam()
-                escalateToManagement()
-            }
-        }
-    }
-}
-
-// === 高可用性管理函式 ===
-
-def initializeHAEnvironment() {
-    echo "初始化高可用性環境..."
-    
-    // 檢查集群配置
-    validateClusterConfiguration()
-    
-    // 設定共享存儲
-    setupSharedStorage()
-    
-    // 初始化資料庫連線池
-    initializeDatabaseConnections()
-    
-    // 設定負載均衡
-    configureLoadBalancer()
-    
-    echo "✅ 高可用性環境初始化完成"
-}
-
-def validateClusterConfiguration() {
-    echo "驗證集群配置..."
-    
-    sh '''
-        # 檢查集群節點狀態
-        echo "=== 集群節點狀態 ==="
-        
-        # 檢查主節點
-        curl -f ${JENKINS_URL}/computer/api/json?pretty=true > cluster-status.json
-        
-        # 解析節點狀態
-        python3 << 'EOF'
-import json
-import sys
-
-with open('cluster-status.json', 'r') as f:
-    data = json.load(f)
-
-total_nodes = len(data['computer'])
-online_nodes = sum(1 for node in data['computer'] if not node.get('offline', True))
-offline_nodes = total_nodes - online_nodes
-
-print(f"總節點數: {total_nodes}")
-print(f"在線節點: {online_nodes}")
-print(f"離線節點: {offline_nodes}")
-
-if offline_nodes > total_nodes * 0.3:
-    print("警告: 超過30%的節點離線")
-    sys.exit(1)
-
-print("集群狀態正常")
-EOF
-    '''
-    
-    // 檢查網路連通性
-    validateNetworkConnectivity()
-    
-    // 檢查存儲可用性
-    validateStorageAvailability()
-}
-
-def setupSharedStorage() {
-    echo "設定共享存儲..."
-    
-    sh '''
-        # 檢查 NFS 掛載
-        if ! mount | grep -q "${SHARED_WORKSPACE}"; then
-            echo "掛載共享存儲..."
-            sudo mount -t nfs nfs-server:/shared/jenkins ${SHARED_WORKSPACE}
-        fi
-        
-        # 檢查存儲可用性
-        if [ ! -w "${SHARED_WORKSPACE}" ]; then
-            echo "錯誤: 共享存儲不可寫入"
-            exit 1
-        fi
-        
-        # 建立必要目錄結構
-        mkdir -p ${SHARED_WORKSPACE}/{builds,workspaces,artifacts,logs}
-        
-        # 設定權限
-        chmod 755 ${SHARED_WORKSPACE}
-        
-        echo "✅ 共享存儲設定完成"
-    '''
-}
-
-def initializeDatabaseConnections() {
-    echo "初始化資料庫連線..."
-    
-    script {
-        // 測試主資料庫連線
-        try {
-            sh "psql '${env.DB_PRIMARY}' -c 'SELECT 1;'"
-            echo "✅ 主資料庫連線正常"
-            env.DB_PRIMARY_STATUS = 'healthy'
-        } catch (Exception e) {
-            echo "❌ 主資料庫連線失敗: ${e.getMessage()}"
-            env.DB_PRIMARY_STATUS = 'unhealthy'
-        }
-        
-        // 測試備援資料庫連線
-        try {
-            sh "psql '${env.DB_REPLICA}' -c 'SELECT 1;'"
-            echo "✅ 備援資料庫連線正常"
-            env.DB_REPLICA_STATUS = 'healthy'
-        } catch (Exception e) {
-            echo "❌ 備援資料庫連線失敗: ${e.getMessage()}"
-            env.DB_REPLICA_STATUS = 'unhealthy'
-        }
-        
-        // 檢查資料同步狀態
-        if (env.DB_PRIMARY_STATUS == 'healthy' && env.DB_REPLICA_STATUS == 'healthy') {
-            validateDatabaseReplication()
-        }
-    }
-}
-
-def configureLoadBalancer() {
-    echo "配置負載均衡器..."
-    
-    sh '''
-        # 更新 HAProxy 配置
-        cat > haproxy.cfg << 'EOF'
-global
-    daemon
-    maxconn 4096
-    log stdout local0
-
-defaults
-    mode http
-    timeout connect 5000ms
-    timeout client 50000ms
-    timeout server 50000ms
-    option httpchk GET /login
-
-frontend jenkins_frontend
-    bind *:8080
-    default_backend jenkins_servers
-
-backend jenkins_servers
-    balance roundrobin
-    option httpchk GET /computer/api/json
-    
-    server jenkins1 jenkins-master-1:8080 check
-    server jenkins2 jenkins-master-2:8080 check backup
-    server jenkins3 jenkins-master-3:8080 check backup
-
-listen stats
-    bind *:8404
-    stats enable
-    stats uri /stats
-    stats refresh 30s
-EOF
-
-        # 驗證配置
-        haproxy -c -f haproxy.cfg
-        
-        # 重新載入配置
-        sudo systemctl reload haproxy
-        
-        echo "✅ 負載均衡器配置完成"
-    '''
-}
-
-def executeWithFailover(poolType, closure) {
-    def maxRetries = 3
-    def retryCount = 0
-    def lastException = null
-    
-    while (retryCount < maxRetries) {
-        try {
-            echo "執行 ${poolType} 建置 (嘗試 ${retryCount + 1}/${maxRetries})"
-            
-            // 檢查節點池健康狀態
-            if (!isPoolHealthy(poolType)) {
-                throw new Exception("節點池 ${poolType} 不健康")
-            }
-            
-            // 執行實際任務
-            closure()
-            
-            echo "✅ ${poolType} 建置執行成功"
-            return
-            
-        } catch (Exception e) {
-            lastException = e
-            retryCount++
-            
-            echo "❌ ${poolType} 建置失敗 (嘗試 ${retryCount}): ${e.getMessage()}"
-            
-            if (retryCount < maxRetries) {
-                // 等待後重試
-                sleep(30)
-                
-                // 嘗試切換到其他節點池
-                if (shouldSwitchPool(poolType, e)) {
-                    poolType = getAlternativePool(poolType)
-                    echo "切換到備援節點池: ${poolType}"
-                }
-            }
-        }
-    }
-    
-    // 所有重試都失敗，拋出最後的例外
-    error("${poolType} 建置在 ${maxRetries} 次嘗試後仍然失敗: ${lastException.getMessage()}")
-}
-
-def isPoolHealthy(poolType) {
-    try {
-        def poolStatus = sh(
-            script: "curl -s ${env.JENKINS_URL}/computer/api/json | jq '.computer[] | select(.displayName | contains(\"${poolType}\")) | .offline'",
-            returnStdout: true
-        ).trim()
-        
-        return poolStatus == 'false'
-    } catch (Exception e) {
-        echo "檢查節點池 ${poolType} 狀態失敗: ${e.getMessage()}"
-        return false
-    }
-}
-
-def shouldSwitchPool(currentPool, exception) {
-    // 根據錯誤類型決定是否切換節點池
-    def errorMessage = exception.getMessage().toLowerCase()
-    
-    if (errorMessage.contains('timeout') || 
-        errorMessage.contains('connection') || 
-        errorMessage.contains('network')) {
-        return true
-    }
-    
-    if (currentPool == 'primary-pool') {
-        return true  // 主節點池失敗時總是嘗試切換
-    }
-    
-    return false
-}
-
-def getAlternativePool(currentPool) {
-    def poolMapping = [
-        'primary-pool': 'backup-pool',
-        'backup-pool': 'cloud-pool',
-        'cloud-pool': 'primary-pool'
-    ]
-    
-    return poolMapping[currentPool] ?: 'backup-pool'
-}
-
-def monitorClusterHealth() {
-    echo "監控集群健康狀態..."
-    
-    // 收集集群指標
-    def clusterMetrics = collectClusterMetrics()
-    
-    // 檢查關鍵指標
-    validateClusterMetrics(clusterMetrics)
-    
-    // 預測潛在問題
-    predictClusterIssues(clusterMetrics)
-    
-    // 更新監控儀表板
-    updateClusterDashboard(clusterMetrics)
-}
-
-def collectClusterMetrics() {
-    echo "收集集群指標..."
-    
-    def metrics = [:]
-    
-    // Jenkins Master 指標
-    metrics.masterStatus = getMasterStatus()
-    
-    // Agent 節點指標
-    metrics.agentStatus = getAgentStatus()
-    
-    // 資料庫指標
-    metrics.databaseStatus = getDatabaseStatus()
-    
-    // 存儲指標
-    metrics.storageStatus = getStorageStatus()
-    
-    // 網路指標
-    metrics.networkStatus = getNetworkStatus()
-    
-    return metrics
-}
-
-def validateDataConsistency() {
-    echo "驗證數據一致性..."
-    
-    sh '''
-        # 檢查主備資料庫一致性
-        echo "檢查資料庫一致性..."
-        
-        # 比較主備資料庫的關鍵表
-        PRIMARY_COUNT=$(psql "${DB_PRIMARY}" -t -c "SELECT COUNT(*) FROM builds;")
-        REPLICA_COUNT=$(psql "${DB_REPLICA}" -t -c "SELECT COUNT(*) FROM builds;")
-        
-        echo "主資料庫建置記錄: ${PRIMARY_COUNT}"
-        echo "備援資料庫建置記錄: ${REPLICA_COUNT}"
-        
-        DIFF=$((PRIMARY_COUNT - REPLICA_COUNT))
-        if [ ${DIFF#-} -gt 10 ]; then
-            echo "警告: 主備資料庫記錄差異過大 (${DIFF})"
-        else
-            echo "✅ 資料庫同步狀態正常"
-        fi
-        
-        # 檢查共享存儲一致性
-        echo "檢查存儲一致性..."
-        find ${SHARED_WORKSPACE} -name "*.lock" -mtime +1 -delete
-        
-        # 驗證關鍵檔案存在
-        if [ ! -f "${SHARED_WORKSPACE}/cluster.lock" ]; then
-            touch "${SHARED_WORKSPACE}/cluster.lock"
-        fi
-        
-        echo "✅ 存儲一致性檢查完成"
-    '''
-}
-
-def checkFailoverReadiness() {
-    echo "檢查容災準備狀態..."
-    
-    // 檢查備援節點狀態
-    validateStandbyNodes()
-    
-    // 檢查備份完整性
-    validateBackupIntegrity()
-    
-    // 檢查容災腳本
-    validateFailoverScripts()
-    
-    // 模擬容災場景
-    if (params.RUN_FAILOVER_SIMULATION == true) {
-        simulateFailoverScenario()
-    }
-}
-
-def validateStandbyNodes() {
-    echo "驗證備援節點..."
-    
-    sh '''
-        # 檢查備援 Jenkins Master
-        echo "檢查備援 Jenkins Master..."
-        
-        # 嘗試連接備援節點
-        if curl -f http://jenkins-master-2:8080/computer/api/json > /dev/null 2>&1; then
-            echo "✅ 備援 Master 2 狀態正常"
-        else
-            echo "❌ 備援 Master 2 不可用"
-        fi
-        
-        if curl -f http://jenkins-master-3:8080/computer/api/json > /dev/null 2>&1; then
-            echo "✅ 備援 Master 3 狀態正常"
-        else
-            echo "❌ 備援 Master 3 不可用"
-        fi
-        
-        # 檢查備援節點配置同步
-        echo "檢查配置同步狀態..."
-        
-        rsync -av --dry-run /var/lib/jenkins/ jenkins-master-2:/var/lib/jenkins/ | tail -1
-        rsync -av --dry-run /var/lib/jenkins/ jenkins-master-3:/var/lib/jenkins/ | tail -1
-    '''
-}
-
-def runDisasterRecoveryTest() {
-    echo "執行災難恢復測試..."
-    
-    try {
-        // 建立測試環境
-        setupDRTestEnvironment()
-        
-        // 模擬災難場景
-        simulateDisasterScenario()
-        
-        // 執行恢復程序
-        executeRecoveryProcedures()
-        
-        // 驗證恢復結果
-        validateRecoveryResults()
-        
-        echo "✅ 災難恢復測試成功"
-        
-    } finally {
-        // 清理測試環境
-        cleanupDRTestEnvironment()
-    }
-}
-
-def setupDRTestEnvironment() {
-    echo "設定災難恢復測試環境..."
-    
-    sh '''
-        # 建立測試命名空間
-        kubectl create namespace jenkins-dr-test || true
-        
-        # 部署測試 Jenkins 實例
-        helm install jenkins-dr-test jenkins/jenkins \\
-            --namespace jenkins-dr-test \\
-            --set persistence.enabled=false \\
-            --set rbac.create=true
-        
-        # 等待部署完成
-        kubectl wait --for=condition=Ready pod/jenkins-dr-test-0 \\
-            --namespace jenkins-dr-test --timeout=300s
-        
-        echo "✅ DR 測試環境設定完成"
-    '''
-}
-
-def simulateDisasterScenario() {
-    echo "模擬災難場景..."
-    
-    sh '''
-        # 模擬主節點失效
-        echo "模擬主 Jenkins Master 失效..."
-        
-        # 停止主節點服務（模擬）
-        # systemctl stop jenkins  # 在實際環境中不執行
-        
-        # 模擬網路分割
-        echo "模擬網路分割..."
-        
-        # 模擬資料庫故障
-        echo "模擬資料庫故障..."
-        
-        echo "災難場景模擬完成"
-    '''
-}
-
-def executeRecoveryProcedures() {
-    echo "執行恢復程序..."
-    
-    sh '''
-        # 啟動容災程序
-        echo "執行自動容災..."
-        
-        # 1. 檢測主節點狀態
-        if ! curl -f http://jenkins-master-1:8080/computer/api/json; then
-            echo "主節點不可用，啟動容災程序"
-            
-            # 2. 提升備援節點
-            echo "提升備援節點為主節點..."
-            
-            # 3. 更新負載均衡器配置
-            echo "更新負載均衡器配置..."
-            
-            # 4. 重新配置 DNS
-            echo "更新 DNS 記錄..."
-            
-            # 5. 驗證服務可用性
-            echo "驗證服務恢復..."
-        fi
-        
-        echo "✅ 恢復程序執行完成"
-    '''
-}
-
-def validateRecoveryResults() {
-    echo "驗證恢復結果..."
-    
-    // 檢查服務可用性
-    def servicesHealthy = checkServicesHealth()
-    
-    // 檢查數據完整性
-    def dataIntact = verifyDataIntegrity()
-    
-    // 檢查功能正常性
-    def functionalityWorking = testBasicFunctionality()
-    
-    if (!servicesHealthy || !dataIntact || !functionalityWorking) {
-        error("災難恢復驗證失敗")
-    }
-    
-    echo "✅ 災難恢復驗證成功"
-}
-
-// === 治理和安全函式 ===
-
-def setupGovernanceFramework() {
-    echo "設定治理框架..."
-    
-    // 建立角色權限矩陣
-    setupRoleBasedAccessControl()
-    
-    // 設定合規檢查
-    setupComplianceChecks()
-    
-    // 建立審計日誌
-    setupAuditLogging()
-    
-    // 設定變更管理
-    setupChangeManagement()
-}
-
-def setupRoleBasedAccessControl() {
-    echo "設定角色基礎存取控制..."
-    
-    sh '''
-        # 建立角色定義檔案
-        cat > roles-definition.yaml << 'EOF'
-roles:
-  jenkins-admin:
-    permissions:
-      - "hudson.model.Hudson.Administer"
-      - "hudson.model.Computer.Configure"
-      - "hudson.model.Run.Delete"
-      - "hudson.model.View.Configure"
-    members:
-      - "admin@company.com"
-      - "devops-team@company.com"
-      
-  project-lead:
-    permissions:
-      - "hudson.model.Item.Configure"
-      - "hudson.model.Item.Build"
-      - "hudson.model.Run.Update"
-    members:
-      - "project-leads@company.com"
-      
-  developer:
-    permissions:
-      - "hudson.model.Item.Read"
-      - "hudson.model.Item.Build"
-      - "hudson.model.Run.Replay"
-    members:
-      - "developers@company.com"
-      
-  read-only:
-    permissions:
-      - "hudson.model.Item.Read"
-      - "hudson.model.Run.Artifacts"
-    members:
-      - "stakeholders@company.com"
-
-security-realms:
-  ldap:
-    server: "ldap://ldap.company.com:389"
-    root-dn: "dc=company,dc=com"
-    user-search-base: "ou=users"
-    group-search-base: "ou=groups"
-    
-  saml:
-    idp-metadata-url: "https://sso.company.com/metadata"
-    sp-entity-id: "jenkins.company.com"
-EOF
-
-        echo "✅ RBAC 配置建立完成"
-    '''
-}
-
-def setupComplianceChecks() {
-    echo "設定合規檢查..."
-    
-    sh '''
-        # 建立合規檢查腳本
-        cat > compliance-checks.sh << 'EOF'
-#!/bin/bash
-
-# SOX 合規檢查
-check_sox_compliance() {
-    echo "執行 SOX 合規檢查..."
-    
-    # 檢查變更控制
-    if [ ! -f "/var/lib/jenkins/change-control.log" ]; then
-        echo "警告: 缺少變更控制日誌"
-        return 1
-    fi
-    
-    # 檢查職責分離
-    check_segregation_of_duties
-    
-    # 檢查審計日誌
-    check_audit_logs
-    
-    echo "✅ SOX 合規檢查完成"
-}
-
-# GDPR 合規檢查
-check_gdpr_compliance() {
-    echo "執行 GDPR 合規檢查..."
-    
-    # 檢查數據加密
-    check_data_encryption
-    
-    # 檢查數據保留政策
-    check_data_retention
-    
-    # 檢查存取日誌
-    check_access_logs
-    
-    echo "✅ GDPR 合規檢查完成"
-}
-
-# ISO 27001 合規檢查
-check_iso27001_compliance() {
-    echo "執行 ISO 27001 合規檢查..."
-    
-    # 檢查資訊安全政策
-    check_security_policies
-    
-    # 檢查風險評估
-    check_risk_assessment
-    
-    # 檢查事故回應
-    check_incident_response
-    
-    echo "✅ ISO 27001 合規檢查完成"
-}
-
-# 執行所有合規檢查
-main() {
-    echo "開始合規檢查..."
-    
-    check_sox_compliance
-    check_gdpr_compliance
-    check_iso27001_compliance
-    
-    echo "✅ 所有合規檢查完成"
-}
-
-main "$@"
-EOF
-
-        chmod +x compliance-checks.sh
-        
-        echo "✅ 合規檢查腳本建立完成"
-    '''
-}
-
-def setupAuditLogging() {
-    echo "設定審計日誌..."
-    
-    sh '''
-        # 建立審計日誌配置
-        cat > audit-logging.xml << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <!-- 審計日誌 Appender -->
-    <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/var/log/jenkins/audit.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>/var/log/jenkins/audit.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <maxHistory>365</maxHistory>
-            <totalSizeCap>10GB</totalSizeCap>
-        </rollingPolicy>
-        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-            <providers>
-                <timestamp/>
-                <logLevel/>
-                <loggerName/>
-                <mdc/>
-                <arguments/>
-                <message/>
-                <stackTrace/>
-            </providers>
-        </encoder>
-    </appender>
-    
-    <!-- 安全事件日誌 -->
-    <logger name="hudson.security" level="INFO" additivity="false">
-        <appender-ref ref="AUDIT"/>
-    </logger>
-    
-    <!-- 系統配置變更日誌 -->
-    <logger name="hudson.model.UpdateCenter" level="INFO" additivity="false">
-        <appender-ref ref="AUDIT"/>
-    </logger>
-    
-    <!-- 用戶操作日誌 -->
-    <logger name="hudson.model.User" level="INFO" additivity="false">
-        <appender-ref ref="AUDIT"/>
-    </logger>
-</configuration>
-EOF
-
-        echo "✅ 審計日誌配置完成"
-    '''
-}
-```
-
-#### 16.3 可擴展性與效能調校
-
-**動態擴展架構：**
-
-```groovy
-// 動態擴展管理 Pipeline
-pipeline {
-    agent { label 'scaling-controller' }
-    
-    parameters {
-        choice(
-            name: 'SCALING_ACTION',
-            choices: ['auto', 'scale-up', 'scale-down', 'optimize'],
-            description: '擴展操作'
-        )
-        string(
-            name: 'TARGET_CAPACITY',
-            defaultValue: '80',
-            description: '目標容量百分比'
-        )
-    }
-    
-    environment {
-        // 擴展配置
-        MIN_AGENTS = '10'
-        MAX_AGENTS = '100'
-        SCALE_UP_THRESHOLD = '80'
-        SCALE_DOWN_THRESHOLD = '30'
-        
-        // 雲端配置
-        AWS_REGION = 'ap-northeast-1'
-        AZURE_REGION = 'East Asia'
-        GCP_ZONE = 'asia-east1-a'
-        
-        // Kubernetes 配置
-        K8S_NAMESPACE = 'jenkins-agents'
-        HELM_CHART = 'jenkins/jenkins-agent'
-    }
-    
-    stages {
-        stage('容量評估') {
-            steps {
-                script {
-                    assessCurrentCapacity()
-                    analyzeBuildQueue()
-                    predictCapacityNeeds()
-                }
-            }
-        }
-        
-        stage('擴展決策') {
-            steps {
-                script {
-                    def scalingDecision = makeScalingDecision()
-                    env.SCALING_DECISION = scalingDecision.action
-                    env.TARGET_AGENT_COUNT = scalingDecision.targetCount.toString()
-                }
-            }
-        }
-        
-        stage('執行擴展') {
-            parallel {
-                stage('AWS 擴展') {
-                    when {
-                        expression { needsAWSScaling() }
-                    }
-                    steps {
-                        script {
-                            scaleAWSAgents()
-                        }
-                    }
-                }
-                
-                stage('Azure 擴展') {
-                    when {
-                        expression { needsAzureScaling() }
-                    }
-                    steps {
-                        script {
-                            scaleAzureAgents()
-                        }
-                    }
-                }
-                
-                stage('GCP 擴展') {
-                    when {
-                        expression { needsGCPScaling() }
-                    }
-                    steps {
-                        script {
-                            scaleGCPAgents()
-                        }
-                    }
-                }
-                
-                stage('Kubernetes 擴展') {
-                    when {
-                        expression { needsK8sScaling() }
-                    }
-                    steps {
-                        script {
-                            scaleKubernetesAgents()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('擴展驗證') {
-            steps {
-                script {
-                    validateScalingResults()
-                    optimizeResourceAllocation()
-                    updateCapacityMetrics()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                recordScalingMetrics()
-                generateScalingReport()
-                notifyScalingResults()
-            }
-        }
-    }
-}
-
-def assessCurrentCapacity() {
-    echo "評估當前容量..."
-    
-    def capacityData = [:]
-    
-    // 取得 Agent 狀態
-    def agentStatus = sh(
-        script: '''
-            curl -s ${JENKINS_URL}/computer/api/json | jq -r '.computer[] | [.displayName, .offline, .idle] | @csv'
-        ''',
-        returnStdout: true
-    ).trim()
-    
-    // 解析 Agent 資料
-    def agents = []
-    agentStatus.split('\n').each { line ->
-        def parts = line.split(',')
-        if (parts.size() == 3) {
-            agents.add([
-                name: parts[0].replaceAll('"', ''),
-                offline: parts[1] == 'true',
-                idle: parts[2] == 'true'
-            ])
-        }
-    }
-    
-    capacityData.totalAgents = agents.size()
-    capacityData.onlineAgents = agents.count { !it.offline }
-    capacityData.busyAgents = agents.count { !it.offline && !it.idle }
-    capacityData.utilizationRate = capacityData.onlineAgents > 0 ? 
-        (capacityData.busyAgents / capacityData.onlineAgents * 100).round(2) : 0
-    
-    echo "容量評估結果:"
-    echo "  總 Agent 數: ${capacityData.totalAgents}"
-    echo "  在線 Agent 數: ${capacityData.onlineAgents}"
-    echo "  忙碌 Agent 數: ${capacityData.busyAgents}"
-    echo "  使用率: ${capacityData.utilizationRate}%"
-    
-    // 儲存容量資料
-    writeJSON file: 'capacity-assessment.json', json: capacityData
-    
-    return capacityData
-}
-
-def analyzeBuildQueue() {
-    echo "分析建置佇列..."
-    
-    def queueData = sh(
-        script: '''
-            curl -s ${JENKINS_URL}/queue/api/json | jq -r '{
-                "queueLength": .items | length,
-                "waitingJobs": [.items[] | {
-                    "name": .task.name,
-                    "inQueueSince": .inQueueSince,
-                    "why": .why
-                }]
-            }'
-        ''',
-        returnStdout: true
-    )
-    
-    def queue = readJSON text: queueData
-    
-    echo "建置佇列分析:"
-    echo "  佇列長度: ${queue.queueLength}"
-    
-    if (queue.queueLength > 0) {
-        echo "  等待中的工作:"
-        queue.waitingJobs.each { job ->
-            def waitTime = (System.currentTimeMillis() - job.inQueueSince) / 1000 / 60
-            echo "    ${job.name}: 等待 ${waitTime.round(1)} 分鐘 (${job.why})"
-        }
-    }
-    
-    return queue
-}
-
-def predictCapacityNeeds() {
-    echo "預測容量需求..."
-    
-    // 分析歷史資料
-    def historicalData = getHistoricalCapacityData()
-    
-    // 預測未來容量需求
-    def prediction = runCapacityPredictionModel(historicalData)
-    
-    echo "容量需求預測:"
-    echo "  預測時間範圍: 下一小時"
-    echo "  預測最大需求: ${prediction.maxDemand} agents"
-    echo "  建議容量: ${prediction.recommendedCapacity} agents"
-    echo "  置信度: ${prediction.confidence}%"
-    
-    return prediction
-}
-
-def makeScalingDecision() {
-    echo "制定擴展決策..."
-    
-    // 讀取容量評估結果
-    def capacity = readJSON file: 'capacity-assessment.json'
-    
-    def decision = [
-        action: 'maintain',
-        targetCount: capacity.onlineAgents,
-        reason: '容量充足'
-    ]
-    
-    // 決策邏輯
-    if (capacity.utilizationRate > (env.SCALE_UP_THRESHOLD as Integer)) {
-        def additionalAgents = Math.ceil(capacity.onlineAgents * 0.2)
-        decision.action = 'scale-up'
-        decision.targetCount = Math.min(
-            capacity.onlineAgents + additionalAgents,
-            env.MAX_AGENTS as Integer
-        )
-        decision.reason = "使用率過高 (${capacity.utilizationRate}%)"
-        
-    } else if (capacity.utilizationRate < (env.SCALE_DOWN_THRESHOLD as Integer)) {
-        def reductionAgents = Math.ceil(capacity.onlineAgents * 0.1)
-        decision.action = 'scale-down'
-        decision.targetCount = Math.max(
-            capacity.onlineAgents - reductionAgents,
-            env.MIN_AGENTS as Integer
-        )
-        decision.reason = "使用率過低 (${capacity.utilizationRate}%)"
-    }
-    
-    echo "擴展決策:"
-    echo "  操作: ${decision.action}"
-    echo "  目標數量: ${decision.targetCount}"
-    echo "  原因: ${decision.reason}"
-    
-    return decision
-}
-
-def scaleKubernetesAgents() {
-    echo "擴展 Kubernetes Agents..."
-    
-    def targetCount = env.TARGET_AGENT_COUNT as Integer
-    
-    sh """
-        # 更新 HelmChart 值
-        cat > agent-values.yaml << EOF
-replicaCount: ${targetCount}
-
-resources:
-  requests:
-    cpu: "500m"
-    memory: "1Gi"
-  limits:
-    cpu: "2000m"
-    memory: "4Gi"
-
-nodeSelector:
-  node-type: jenkins-agent
-
-tolerations:
-  - key: "jenkins-agent"
-    operator: "Equal"
-    value: "true"
-    effect: "NoSchedule"
-
-affinity:
-  podAntiAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-    - weight: 100
-      podAffinityTerm:
-        labelSelector:
-          matchLabels:
-            app: jenkins-agent
-        topologyKey: kubernetes.io/hostname
-EOF
-
-        # 升級 Helm 部署
-        helm upgrade jenkins-agents ${env.HELM_CHART} \\
-            --namespace ${env.K8S_NAMESPACE} \\
-            --values agent-values.yaml \\
-            --wait --timeout=300s
-        
-        # 驗證擴展結果
-        kubectl get pods -n ${env.K8S_NAMESPACE} \\
-            -l app=jenkins-agent \\
-            --field-selector=status.phase=Running \\
-            --no-headers | wc -l
-    """
-    
-    echo "✅ Kubernetes Agents 擴展完成"
-}
-
-def scaleAWSAgents() {
-    echo "擴展 AWS Agents..."
-    
-    def targetCount = env.TARGET_AGENT_COUNT as Integer
-    
-    sh """
-        # 更新 Auto Scaling Group
-        aws autoscaling update-auto-scaling-group \\
-            --auto-scaling-group-name jenkins-agents-asg \\
-            --desired-capacity ${targetCount} \\
-            --region ${env.AWS_REGION}
-        
-        # 等待實例啟動
-        aws autoscaling wait instance-in-service \\
-            --auto-scaling-group-name jenkins-agents-asg \\
-            --region ${env.AWS_REGION}
-        
-        echo "✅ AWS Auto Scaling 更新完成"
-    """
-}
-
-def validateScalingResults() {
-    echo "驗證擴展結果..."
-    
-    // 等待 Agent 註冊
-    sleep(60)
-    
-    // 重新評估容量
-    def newCapacity = assessCurrentCapacity()
-    
-    // 驗證目標是否達成
-    def targetCount = env.TARGET_AGENT_COUNT as Integer
-    def actualCount = newCapacity.onlineAgents
-    
-    if (Math.abs(actualCount - targetCount) > 2) {
-        echo "警告: 實際 Agent 數量 (${actualCount}) 與目標 (${targetCount}) 差異較大"
-    } else {
-        echo "✅ 擴展目標達成: ${actualCount}/${targetCount} agents"
-    }
-    
-    // 驗證 Agent 健康狀態
-    validateAgentHealth()
-}
-
-def optimizeResourceAllocation() {
-    echo "優化資源配置..."
-    
-    // 分析 Agent 工作負載分佈
-    analyzeAgentWorkloadDistribution()
-    
-    // 調整 Agent 標籤和配置
-    optimizeAgentLabels()
-    
-    // 平衡工作負載
-    balanceWorkloadDistribution()
-}
-
-def generateScalingReport() {
-    echo "生成擴展報告..."
-    
-    def report = [
-        timestamp: new Date(),
-        scalingAction: env.SCALING_DECISION,
-        targetCount: env.TARGET_AGENT_COUNT as Integer,
-        beforeScaling: readJSON(file: 'capacity-assessment.json'),
-        afterScaling: assessCurrentCapacity(),
-        metrics: collectScalingMetrics()
-    ]
-    
-    // 生成 HTML 報告
-    def reportHtml = generateScalingReportHtml(report)
-    writeFile file: 'scaling-report.html', text: reportHtml
-    
-    publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: '.',
-        reportFiles: 'scaling-report.html',
-        reportName: 'Scaling Report'
-    ])
-    
-    // 保存報告資料
-    writeJSON file: 'scaling-report.json', json: report
-    archiveArtifacts artifacts: 'scaling-report.*'
-}
-```
-
-### 治理實務案例
-
-#### 案例：多租戶 CI/CD 平台
-
-**組織隔離與資源管理：**
+| 擴充選項 | 效果 | 注意事項 |
+| --- | --- | --- |
+| `cloneOption(shallow: true, depth: N)` | 只取最近 N 個 commit，大幅減少時間與磁碟 | 需要完整歷史的工具（例如 SonarQube 的 blame、`git describe`）要調大 depth |
+| `sparseCheckout` | 只取出指定目錄 | Monorepo 適用 |
+| `cloneOption(reference: '/cache/repo.git')` | 以 agent 上的參考 repository 加速 | 參考 repository 要定期更新 |
+| `cleanBeforeCheckout` | 每次建置前清除未追蹤檔案 | 固定 agent 建議開啟 |
+| `submodule(parentCredentials: true)` | 子模組沿用主 repository 的憑證 | |
+
+> ⚠️ Git plugin 5.x 的 `git` 指令來自 agent 本身。請確保 agent 映像中的 Git 版本足夠新（建議 2.40 以上），並設定 Manage Jenkins → Security → Git Host Key Verification 為「Known hosts file」或「Manually provided keys」，**不要使用「No verification」**。
+
+### 8.2 GitHub 整合（GitHub App 驗證）
+
+✅ 連接 GitHub（含 GitHub Enterprise Server）時，使用 **GitHub App** 而不是個人 Personal Access Token：
+
+| 比較 | Personal Access Token | GitHub App |
+| --- | --- | --- |
+| 身分 | 綁定個人帳號；人員離職即失效 | 組織擁有的應用程式 |
+| API rate limit | 每小時 5,000 次（與該使用者共用） | 每個安裝獨立計算，隨 repository 數增加 |
+| 權限 | 粗略（scope） | 細緻（逐項權限、可限定 repository） |
+| 狀態回報 | Commit status | Commit status 與 Checks API |
+
+**建立步驟**：
+
+1. GitHub organization → Settings → Developer settings → GitHub Apps → New GitHub App
+2. Webhook URL 填 `https://jenkins.example.internal/github-webhook/`，並設定 Webhook secret
+3. 權限：Commit statuses（Read and write）、Contents（Read-only；需要推送 tag 時改 Read and write）、Metadata（Read-only）、Pull requests（Read-only）；使用 Checks 回報時加上 Checks（Read and write）
+4. 產生 private key，並轉換為 Jenkins 需要的 PKCS#8 格式：
+
+   ```bash
+   openssl pkcs8 -topk8 -inform PEM -outform PEM \
+     -in jenkins-ci.2026-10-02.private-key.pem \
+     -out converted-github-app.pem -nocrypt
+   ```
+
+5. 把 App 安裝到 organization（可限定 repository）
+6. 在 Jenkins 新增「GitHub App」類型憑證（或以 JCasC 宣告，金鑰由 secret source 提供）：
+
+   ```yaml
+   credentials:
+     system:
+       domainCredentials:
+         - credentials:
+             - gitHubApp:
+                 id: "github-app"
+                 description: "GitHub App：jenkins-ci"
+                 appID: "123456"
+                 privateKey: "${github_app_private_key}"
+   ```
+
+7. Manage Jenkins → System → GitHub → GitHub Server：設定 API URL（GitHub Enterprise 為 `https://github.example.internal/api/v3`）與 Webhook shared secret
+
+> 💡 GitHub App 憑證在 Multibranch 中被 `withCredentials` 取用時，可透過「repository access strategy」與「default permissions strategy」限縮到只讀取目前 repository，降低 PR 中惡意程式碼取得寫入權限的風險。
+
+### 8.3 GitLab 整合
+
+使用 **GitLab Branch Source** plugin（Multibranch／Organization Folder）。舊的 `gitlab-plugin` 適合 Freestyle 或單一 Pipeline 的觸發，兩者不要在同一個 Job 混用。
 
 ```yaml
-# 多租戶配置範例
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: multi-tenant-config
-data:
-  tenants.yaml: |
-    tenants:
-      - name: "team-alpha"
-        namespace: "jenkins-team-alpha"
-        resources:
-          cpu: "4"
-          memory: "8Gi"
-          storage: "100Gi"
-        agents:
-          min: 2
-          max: 10
-        permissions:
-          - "Item.Build"
-          - "Item.Configure"
-        repositories:
-          - "git@github.com:company/team-alpha-*"
-          
-      - name: "team-beta"
-        namespace: "jenkins-team-beta"
-        resources:
-          cpu: "2"
-          memory: "4Gi"
-          storage: "50Gi"
-        agents:
-          min: 1
-          max: 5
-        permissions:
-          - "Item.Build"
-          - "Item.Read"
-        repositories:
-          - "git@github.com:company/team-beta-*"
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - gitlabPersonalAccessToken:
+              scope: SYSTEM
+              id: "gitlab-ci-token"
+              description: "GitLab 服務帳號 token（api scope）"
+              token: "${gitlab_ci_token}"
+          - string:
+              scope: SYSTEM
+              id: "gitlab-webhook-secret"
+              description: "GitLab webhook secret token"
+              secret: "${gitlab_webhook_secret}"
+unclassified:
+  gitLabServers:
+    servers:
+      - name: "gitlab-internal"
+        serverUrl: "https://gitlab.example.internal"
+        credentialsId: "gitlab-ci-token"
+        manageWebHooks: true
+        manageSystemHooks: false
+        webhookSecretCredentialsId: "gitlab-webhook-secret"
 ```
 
-### 關鍵注意事項
+> 📌 GitLab Branch Source 已把 `secretToken` 標示為 deprecated，改以 `webhookSecretCredentialsId` 引用 Secret text 憑證。plugin README 的 JCasC 範例仍是舊寫法；在 2.580.1 搭配目前版本使用 `secretToken`，`configuration-as-code/check` 會直接回報「'secretToken' is deprecated」並拒絕套用。
 
-1. **高可用性設計**：
-   - 避免單點故障
-   - 實施自動容災切換
-   - 定期測試災難恢復程序
-   - 監控系統健康狀態
+| 項目 | 說明 |
+| --- | --- |
+| Token | 建議使用 GitLab **Group Access Token** 或服務帳號的 PAT，scope 為 `api`；只有需要 system hook 時才給管理員權限 |
+| Webhook 路徑 | `https://jenkins.example.internal/gitlab-webhook/post`（plugin 自動管理時會自動建立） |
+| System hook 路徑 | `https://jenkins.example.internal/gitlab-systemhook/post`（新專案自動出現在 Organization Folder） |
+| Webhook secret | 必須設定（`webhookSecretCredentialsId`），Jenkins 會驗證 webhook 的 `X-Gitlab-Token` |
 
-2. **效能最佳化**：
-   - 合理配置資源限制
-   - 實施智慧化擴展策略
-   - 優化建置流程並行度
-   - 監控並調整系統效能
+### 8.4 Bitbucket 與其他 SCM
 
-3. **安全與合規**：
-   - 實施強制存取控制
-   - 建立完整審計追蹤
-   - 遵循行業合規要求
-   - 定期進行安全評估
+| SCM | Plugin | Webhook 路徑 |
+| --- | --- | --- |
+| Bitbucket Cloud／Data Center | Bitbucket Branch Source（`cloudbees-bitbucket-branch-source`） | `/bitbucket-scmsource-hook/notify` |
+| Gitea | Gitea plugin | `/gitea-webhook/post` |
+| 任意 Git 伺服器 | Git plugin＋Generic Webhook Trigger | 依 plugin 設定 |
+| Subversion | Subversion plugin | 以輪詢或 post-commit hook 呼叫 REST API |
 
-4. **治理與管理**：
-   - 建立清晰的角色權限
-   - 實施變更管理流程
-   - 監控資源使用情況
-   - 提供自助服務能力
-
-### 認證知識對應
-
-| 認證項目 | 對應內容 |
-|----------|----------|
-| 高可用性設計 | Master 集群、容災機制 |
-| 擴展性架構 | 動態擴展、多雲部署 |
-| 安全治理 | RBAC、合規檢查 |
-| 營運管理 | 監控、維護、優化 |
-
-### 實務練習 - 第16章
-
-1. **基礎練習**：設計簡單的 Jenkins 高可用性架構
-2. **進階練習**：實作動態擴展和多雲部署策略
-3. **實務練習**：建立完整的企業級治理框架
-
----
-
-## 第17章 容器化與雲端整合
-
-### 現代化願景
-
-- 掌握 Docker 與 Jenkins 的深度整合
-- 實現 Kubernetes 原生 CI/CD 解決方案
-- 建立多雲環境的統一部署策略
-- 打造彈性可擴展的容器化 Pipeline
-
-### 容器化 CI/CD 架構
-
-#### 17.1 Docker 與 Jenkins 整合
-
-容器化是現代 CI/CD 的核心技術，提供一致的運行環境和高效的資源利用。
+### 8.5 Webhook 觸發與輪詢
 
 ```mermaid
-graph TB
-    subgraph "Jenkins Master"
-        JM[Jenkins Master<br/>Container]
-        JV[Jenkins Volume<br/>Persistent Storage]
-    end
-    
-    subgraph "Docker Infrastructure"
-        DE[Docker Engine]
-        DR[Docker Registry<br/>Harbor/ECR/ACR]
-        DN[Docker Network<br/>Bridge/Overlay]
-    end
-    
-    subgraph "Agent Containers"
-        DA1[Docker Agent 1<br/>Java/Maven]
-        DA2[Docker Agent 2<br/>Node.js/npm]
-        DA3[Docker Agent 3<br/>Python/pip]
-        DA4[Docker Agent 4<br/>Go/Docker]
-    end
-    
-    subgraph "Build Containers"
-        BC1[Build Container<br/>Dynamic Creation]
-        BC2[Test Container<br/>Isolated Testing]
-        BC3[Security Scan<br/>Vulnerability Check]
-        BC4[Deploy Container<br/>Deployment Tools]
-    end
-    
-    subgraph "Application Containers"
-        AC1[App Container 1<br/>Production Ready]
-        AC2[App Container 2<br/>Staging Version]
-        AC3[App Container 3<br/>Testing Version]
-    end
-    
-    JM --> DE
-    JM --> JV
-    DE --> DR
-    DE --> DN
-    
-    JM --> DA1
-    JM --> DA2
-    JM --> DA3
-    JM --> DA4
-    
-    DA1 --> BC1
-    DA2 --> BC2
-    DA3 --> BC3
-    DA4 --> BC4
-    
-    BC1 --> DR
-    BC2 --> DR
-    BC3 --> DR
-    BC4 --> DR
-    
-    DR --> AC1
-    DR --> AC2
-    DR --> AC3
-    
-    style JM fill:#e1f5fe
-    style DR fill:#e8f5e8
-    style BC1 fill:#fff3e0
-    style AC1 fill:#f3e5f5
+sequenceDiagram
+    participant Dev as 開發者
+    participant SCM as GitHub／GitLab
+    participant RP as 反向代理
+    participant J as Jenkins
+    Dev->>SCM: git push／建立 MR／PR
+    SCM->>RP: POST /github-webhook/（或 /gitlab-webhook/post）
+    RP->>J: 轉送（保留 Host 與 X-Forwarded-*）
+    J->>J: 驗證 webhook secret
+    J->>J: 比對 Multibranch 的 branch source
+    J->>J: 建立或排入對應分支／PR 的建置
+    J-->>SCM: 回報 commit status／Checks（pending → success／failure）
 ```
 
-**完整的容器化 CI/CD Pipeline：**
+✅ Webhook 的部署注意事項：
+
+- Jenkins URL 必須是 SCM 能連到的位址；若 Jenkins 在內網而 SCM 是 SaaS，只對 webhook 路徑開放公開入口（或使用 SCM 的 IP 允許清單），**不要把整個 Jenkins UI 暴露到網際網路**
+- 一定要設定 webhook secret
+- 保留低頻率的週期掃描（例如 `H H * * *`）作為 webhook 遺失時的補救，不要以高頻輪詢取代 webhook
+
+### 8.6 Multibranch Pipeline 與 Organization Folder
+
+Multibranch 以 **branch source** 定義「掃描哪個 repository」，以 **traits（Behaviours）** 定義「發現哪些分支、PR、tag，以及信任哪些 fork」。
+
+| Trait | 建議設定 | 原因 |
+| --- | --- | --- |
+| Discover branches | 「Exclude branches that are also filed as PRs」 | 避免同一個分支在 branch 與 PR 各建置一次 |
+| Discover pull requests from origin | 「Merging the pull request with the current target branch revision」 | 驗證合併後的結果 |
+| Discover pull requests from forks | Trust：「From users with Admin or Write permission」 | ⚠️ fork 的 PR 可修改 Jenkinsfile；信任外部 fork 等同允許任何人在 Jenkins 執行程式碼 |
+| Discover tags | 視發佈流程需要 | 搭配 Basic Branch Build Strategies 避免掃描時一次建置所有歷史 tag |
+| Orphaned Item Strategy | 刪除已不存在分支的 Job，保留 7–14 天 | 控制 Job 數量與磁碟 |
+
+> ⚠️ **不受信任的 PR**：對於不受信任來源的 PR，Jenkins 會改用**目標分支**的 Jenkinsfile 執行，但 PR 的程式碼（例如 `pom.xml`、測試、建置腳本）仍會被執行。公開專案或外部協作者的 PR 應在隔離的 agent 上建置，且無法取用部署憑證（[17.4 建置的執行身分（Authorize Project）](#174-建置的執行身分authorize-project)）。
+
+**以 Job DSL 建立 Multibranch（GitHub）**：
 
 ```groovy
-// 容器化 CI/CD Pipeline
-pipeline {
-    agent none
-    
-    parameters {
-        choice(
-            name: 'BUILD_MODE',
-            choices: ['standard', 'multi-stage', 'buildkit', 'kaniko'],
-            description: '容器建置模式'
-        )
-        choice(
-            name: 'REGISTRY_TYPE',
-            choices: ['docker-hub', 'harbor', 'ecr', 'acr', 'gcr'],
-            description: '容器註冊表類型'
-        )
-        booleanParam(
-            name: 'ENABLE_SECURITY_SCAN',
-            defaultValue: true,
-            description: '啟用安全性掃描'
-        )
-        booleanParam(
-            name: 'DEPLOY_TO_K8S',
-            defaultValue: false,
-            description: '部署至 Kubernetes'
-        )
-    }
-    
-    environment {
-        // Docker 配置
-        DOCKER_REGISTRY = getDockerRegistry(params.REGISTRY_TYPE)
-        DOCKER_REPO = "${DOCKER_REGISTRY}/company/java-tutorial"
-        DOCKER_TAG = "${BUILD_NUMBER}-${GIT_COMMIT.take(8)}"
-        DOCKER_BUILDKIT = '1'
-        
-        // Kubernetes 配置
-        K8S_NAMESPACE = 'java-tutorial'
-        K8S_CLUSTER = 'production-cluster'
-        HELM_CHART_VERSION = '1.0.0'
-        
-        // 安全掃描配置
-        TRIVY_CACHE_DIR = '/tmp/trivy-cache'
-        SNYK_TOKEN = credentials('snyk-api-token')
-        
-        // 雲端配置
-        AWS_DEFAULT_REGION = 'ap-northeast-1'
-        AZURE_LOCATION = 'East Asia'
-        GCP_ZONE = 'asia-east1-a'
-    }
-    
-    stages {
-        stage('容器環境準備') {
-            agent {
-                docker {
-                    image 'docker:24-dind'
-                    args '--privileged -v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
-            steps {
-                script {
-                    setupDockerEnvironment()
-                    validateDockerDaemon()
-                    authenticateRegistry()
-                }
-            }
-        }
-        
-        stage('原始碼檢出與分析') {
-            agent {
-                docker {
-                    image 'alpine/git:latest'
-                    args '-v maven-cache:/root/.m2'
-                }
-            }
-            steps {
-                checkout scm
-                script {
-                    analyzeDockerfile()
-                    validateContainerSecurity()
-                    generateBuildContext()
-                }
-            }
-        }
-        
-        stage('多階段容器建置') {
-            parallel {
-                stage('標準建置') {
-                    when {
-                        expression { params.BUILD_MODE == 'standard' }
-                    }
-                    agent {
-                        docker {
-                            image 'docker:24'
-                            args '-v /var/run/docker.sock:/var/run/docker.sock'
+// Job DSL：建立 folder 與 Multibranch Pipeline
+folder('payments') {
+    displayName('Payments 產品線')
+    description('由 seed job 管理，請勿在 UI 修改')
+}
+
+multibranchPipelineJob('payments/payment-api') {
+    branchSources {
+        branchSource {
+            source {
+                github {
+                    id('payments-payment-api')
+                    repoOwner('example-org')
+                    repository('payment-api')
+                    repositoryUrl('https://github.com/example-org/payment-api')
+                    configuredByUrl(true)
+                    credentialsId('github-app')
+                    traits {
+                        gitHubBranchDiscovery {
+                            strategyId(1)   // 1：排除同時是 PR 的分支
                         }
-                    }
-                    steps {
-                        script {
-                            buildStandardDockerImage()
+                        gitHubPullRequestDiscovery {
+                            strategyId(1)   // 1：與目標分支合併後建置
                         }
-                    }
-                }
-                
-                stage('多階段建置') {
-                    when {
-                        expression { params.BUILD_MODE == 'multi-stage' }
-                    }
-                    agent {
-                        docker {
-                            image 'docker:24'
-                            args '-v /var/run/docker.sock:/var/run/docker.sock'
-                        }
-                    }
-                    steps {
-                        script {
-                            buildMultiStageDockerImage()
-                        }
-                    }
-                }
-                
-                stage('BuildKit 建置') {
-                    when {
-                        expression { params.BUILD_MODE == 'buildkit' }
-                    }
-                    agent {
-                        docker {
-                            image 'moby/buildkit:latest'
-                            args '--privileged'
-                        }
-                    }
-                    steps {
-                        script {
-                            buildWithBuildKit()
-                        }
-                    }
-                }
-                
-                stage('Kaniko 建置') {
-                    when {
-                        expression { params.BUILD_MODE == 'kaniko' }
-                    }
-                    agent {
-                        kubernetes {
-                            yaml """
-                                apiVersion: v1
-                                kind: Pod
-                                spec:
-                                  containers:
-                                  - name: kaniko
-                                    image: gcr.io/kaniko-project/executor:latest
-                                    command:
-                                    - sleep
-                                    args:
-                                    - 99d
-                                    volumeMounts:
-                                    - name: kaniko-secret
-                                      mountPath: /kaniko/.docker
-                                  volumes:
-                                  - name: kaniko-secret
-                                    secret:
-                                      secretName: regcred
-                            """
-                        }
-                    }
-                    steps {
-                        container('kaniko') {
-                            script {
-                                buildWithKaniko()
+                        gitHubForkDiscovery {
+                            strategyId(1)
+                            trust {
+                                gitHubTrustPermissions()
                             }
                         }
                     }
                 }
             }
         }
-        
-        stage('容器安全掃描') {
-            when {
-                expression { params.ENABLE_SECURITY_SCAN == true }
+    }
+    factory {
+        workflowBranchProjectFactory {
+            scriptPath('Jenkinsfile')
+        }
+    }
+    orphanedItemStrategy {
+        discardOldItems {
+            daysToKeep(14)
+        }
+    }
+}
+```
+
+**以 Job DSL 建立 Organization Folder（GitLab group）**：
+
+```groovy
+// Job DSL：GitLab group 對應 Organization Folder
+organizationFolder('payments-gitlab') {
+    displayName('Payments（GitLab group）')
+    organizations {
+        gitLabSCMNavigator {
+            projectOwner('payments')
+            serverName('gitlab-internal')
+            credentialsId('gitlab-ci-token')
+            traits {
+                subGroupProjectDiscoveryTrait()
+                gitLabBranchDiscovery {
+                    strategyId(1)
+                }
+                originMergeRequestDiscoveryTrait {
+                    strategyId(1)
+                }
             }
+        }
+    }
+    projectFactories {
+        workflowMultiBranchProjectFactory {
+            scriptPath('Jenkinsfile')
+        }
+    }
+    orphanedItemStrategy {
+        discardOldItems {
+            daysToKeep(14)
+        }
+    }
+}
+```
+
+### 8.7 分支策略與 Pipeline 對應
+
+| 分支策略 | 分支 | Pipeline 行為（以 `when` 實作，見 [10.6 when 條件](#106-when-條件)） |
+| --- | --- | --- |
+| **Trunk-based／GitHub Flow**（✅ 建議） | `main`＋短期 feature 分支、PR | PR：建置、測試、品質門檻；`main`：再加上映像建置、部署 dev／sit；tag `v*`：部署 uat／prod |
+| GitLab Flow（環境分支） | `main` → `pre-production` → `production` | 合併到環境分支即觸發該環境部署 |
+| Git Flow | `develop`、`release/*`、`hotfix/*`、`main` | `develop`：部署 dev；`release/*`：部署 sit／uat；`main`＋tag：部署 prod |
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Build & Test') {
+            steps {
+                sh './mvnw -B -ntp verify'
+            }
+        }
+        stage('Deploy DEV') {
+            when {
+                branch 'main'
+            }
+            steps {
+                echo '部署至 dev'
+            }
+        }
+        stage('Deploy PROD') {
+            when {
+                buildingTag()
+                tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
+            }
+            steps {
+                echo "部署 ${env.TAG_NAME} 至 prod"
+            }
+        }
+    }
+}
+```
+
+> 📌 v1.0 的分支條件範例在 `environment` 區塊中，以寫在一般雙引號字串內、跨越多行的三元運算式計算 `BRANCH_TYPE`；一般雙引號字串不能跨行，Pipeline 直接出現語法錯誤。v2.0 改以 `when { branch ... }` 判斷，需要計算時放在 `script {}` 區塊中。
+
+### 8.8 本章重點
+
+- Multibranch 中使用 `checkout scm`；大型 repository 以淺層複製與 sparse checkout 加速
+- GitHub 使用 GitHub App，GitLab 使用 Group Access Token；webhook 一定要設定 secret
+- Fork PR 只信任具寫入權限的使用者，並在隔離 agent 上建置
+- 以 Job DSL 建立 Multibranch 與 Organization Folder，分支策略優先採用 trunk-based
+
+## 9. 建置工具整合（Maven、Gradle 與多語言）
+
+### 9.1 工具管理策略
+
+| 方式 | 做法 | 優點 | 缺點 |
+| --- | --- | --- | --- |
+| **容器化 agent**（✅ 建議） | `agent { docker { image 'maven:3.9.16-eclipse-temurin-21' } }` 或 Kubernetes Pod 中的 `maven` 容器 | 版本由映像固定、可重現、不同專案互不干擾 | 需要容器執行環境 |
+| **Maven／Gradle Wrapper**（✅ 建議並用） | repository 內的 `mvnw`／`gradlew` 指定工具版本 | 開發者本機與 CI 一致 | 仍需要 agent 提供 JDK |
+| Global Tool Configuration | Manage Jenkins → Tools 定義 `jdk-21`、`maven-3.9`，Pipeline 以 `tools {}` 引用 | 不需容器；適合 Windows／固定 agent | 自動安裝需連網；版本變更影響所有 Job |
+
+> 📌 版本基準（2026-10-02）：Maven 3.9.16 為穩定基準；Maven **3.10.0** 於 2026-10-01 發行，導入前請先以專案實際建置驗證；Maven 4 仍在 RC 階段。Gradle 為 9.8.0。官方映像 `maven:3.9.16-eclipse-temurin-21`、`maven:3.10.0-eclipse-temurin-21`、`gradle:9.8.0-jdk21` 皆已確認存在。
+
+**以 JCasC 定義工具**（不使用自動安裝，路徑由 agent 映像或組態管理工具提供）：
+
+```yaml
+tool:
+  jdk:
+    installations:
+      - name: "jdk-21"
+        home: "/opt/java/jdk-21"
+      - name: "jdk-17"
+        home: "/opt/java/jdk-17"
+  maven:
+    installations:
+      - name: "maven-3.9"
+        home: "/opt/maven/apache-maven-3.9.16"
+```
+
+> 💡 建置用的 JDK 與執行 agent 的 JDK 互相獨立。即使 agent 必須以 Java 21 執行，仍然可以用 `tools { jdk 'jdk-17' }` 或 `maven:3.9.16-eclipse-temurin-17` 映像建置 Java 17 的專案。
+
+### 9.2 Maven 最佳實務
+
+| 項目 | 建議 | 原因 |
+| --- | --- | --- |
+| 批次模式 | `mvn -B -ntp` | 關閉互動與下載進度輸出，主控台記錄縮小 90% 以上 |
+| 目標 | PR 用 `verify`，發佈用 `deploy` | `install` 會寫入共用的本機 repository，造成 Job 之間互相污染 |
+| 版本 | 以 `-Drevision=<版本>`（CI-friendly versions）或 `versions:set` 設定 | 不要在 CI 中修改 `pom.xml` 再提交回去 |
+| `settings.xml` | 以 Config File Provider 管理，帳密由 Credentials 注入 | 不要把 `settings.xml` 放在 repository 或 agent 映像中 |
+| 鏡像 | 所有相依套件透過內部 Nexus／Artifactory 代理 | 速度、可用性、供應鏈控管（第 21 章） |
+| 測試失敗處理 | 不要用 `-Dmaven.test.failure.ignore=true` 讓建置「成功」；由 `junit` step 把結果標記為 UNSTABLE | 避免失敗的測試被忽略 |
+| 平行建置 | `-T 1C` | 多模組專案縮短時間（需確認 plugin 是 thread-safe） |
+
+**以 Config File Provider 管理 `settings.xml`**（JCasC）：
+
+```yaml
+unclassified:
+  globalConfigFiles:
+    configs:
+      - mavenSettings:
+          id: "maven-settings-nexus"
+          name: "Maven settings（內部 Nexus）"
+          comment: "所有 Maven 專案共用；帳密由 Credentials 注入"
+          isReplaceAll: true
+          serverCredentialMappings:
+            - serverId: "nexus"
+              credentialsId: "nexus-deployer"
+          content: |
+            <settings xmlns="http://maven.apache.org/SETTINGS/1.2.0">
+              <mirrors>
+                <mirror>
+                  <id>nexus</id>
+                  <mirrorOf>*</mirrorOf>
+                  <url>https://nexus.example.internal/repository/maven-public/</url>
+                </mirror>
+              </mirrors>
+              <servers>
+                <server>
+                  <id>nexus</id>
+                </server>
+              </servers>
+            </settings>
+```
+
+`serverCredentialMappings` 會在建置時把 `nexus-deployer` 憑證的帳號密碼填入 `<server id="nexus">`，`settings.xml` 本身不含任何機密。
+
+### 9.3 Pipeline 中的 Maven 建置
+
+#### 方式一：容器化 agent＋Config File Provider（✅ 建議）
+
+```groovy
+pipeline {
+    agent {
+        docker {
+            image 'maven:3.9.16-eclipse-temurin-21'
+            label 'linux && docker'
+            args '-v maven-repo-cache:/root/.m2/repository'
+        }
+    }
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '30'))
+    }
+    stages {
+        stage('Build & Test') {
+            steps {
+                configFileProvider([configFile(fileId: 'maven-settings-nexus', variable: 'MAVEN_SETTINGS')]) {
+                    sh 'mvn -B -ntp -s "$MAVEN_SETTINGS" clean verify'
+                }
+            }
+            post {
+                always {
+                    junit testResults: '**/target/surefire-reports/*.xml,**/target/failsafe-reports/*.xml',
+                          allowEmptyResults: true
+                }
+            }
+        }
+        stage('Publish') {
+            when {
+                branch 'main'
+            }
+            steps {
+                configFileProvider([configFile(fileId: 'maven-settings-nexus', variable: 'MAVEN_SETTINGS')]) {
+                    sh 'mvn -B -ntp -s "$MAVEN_SETTINGS" deploy -DskipTests -Drevision="1.4.${BUILD_NUMBER}"'
+                }
+            }
+        }
+    }
+}
+```
+
+#### 方式二：Pipeline Maven Integration（`withMaven`）
+
+`withMaven` 會自動設定 Maven 與 settings，並在建置後**自動發佈** JUnit、SpotBugs 等報告與產物指紋，也能追蹤上下游 Maven 專案的相依觸發。
+
+```groovy
+pipeline {
+    agent { label 'linux && maven' }
+    stages {
+        stage('Build') {
+            steps {
+                withMaven(maven: 'maven-3.9',
+                          jdk: 'jdk-21',
+                          mavenSettingsConfig: 'maven-settings-nexus',
+                          mavenLocalRepo: '.repository',
+                          publisherStrategy: 'EXPLICIT',
+                          options: [junitPublisher(healthScaleFactor: 1.0),
+                                    artifactsPublisher(disabled: true)]) {
+                    sh 'mvn -B clean verify'
+                }
+            }
+        }
+    }
+}
+```
+
+> ⚠️ `withMaven` 的自動發佈會把建置產物複製到 controller。大型專案請以 `publisherStrategy: 'EXPLICIT'` 只啟用需要的 publisher，並停用 `artifactsPublisher`，產物改推送到 Nexus。
+
+### 9.4 Gradle
+
+```groovy
+pipeline {
+    agent {
+        docker {
+            image 'gradle:9.8.0-jdk21'
+            label 'linux && docker'
+        }
+    }
+    environment {
+        GRADLE_USER_HOME = "${env.WORKSPACE}/.gradle-home"
+    }
+    stages {
+        stage('Build') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'nexus-reader',
+                                                  usernameVariable: 'ORG_GRADLE_PROJECT_nexusUser',
+                                                  passwordVariable: 'ORG_GRADLE_PROJECT_nexusPassword')]) {
+                    sh './gradlew --no-daemon --build-cache --console=plain clean build'
+                }
+            }
+            post {
+                always {
+                    junit testResults: '**/build/test-results/test/*.xml', allowEmptyResults: true
+                }
+            }
+        }
+    }
+}
+```
+
+| 建議 | 說明 |
+| --- | --- |
+| 使用 `./gradlew` | 版本由 `gradle/wrapper/gradle-wrapper.properties` 固定，並在 CI 驗證 wrapper checksum（`distributionSha256Sum`） |
+| `--no-daemon` | 容器化或短命 agent 中不需要 daemon |
+| `ORG_GRADLE_PROJECT_<name>` | Gradle 會把此環境變數視為 project property，避免把帳密寫在 `gradle.properties` |
+| Build Cache | 以內部 Gradle remote cache（Develocity 或自建 HTTP cache）加速 |
+
+### 9.5 相依套件快取
+
+| Agent 類型 | 快取策略 |
+| --- | --- |
+| 固定 agent | 每個 agent 一份本機 repository；以 `mvn -Dmaven.repo.local=...` 依 Job 分隔，避免平行建置互相覆寫 |
+| Docker agent | 以具名 volume 掛載 `/root/.m2/repository`（9.3 範例） |
+| Kubernetes agent | 以 PVC（ReadWriteMany）或節點本機的 hostPath 快取；或完全依賴內部 Nexus 代理，接受較長的下載時間以換取隔離性（14.4） |
+
+> ⚠️ 共用快取可能被惡意建置寫入竄改過的套件（快取毒化）。處理不受信任 PR 的 agent 不應與正式發佈 Pipeline 共用快取。
+
+### 9.6 版本號與發佈
+
+```mermaid
+flowchart LR
+    A[PR 建置<br/>verify] -->|合併| B[main 建置<br/>1.4.BUILD_NUMBER-SNAPSHOT 或 1.4.BUILD_NUMBER]
+    B --> C[推送至 Nexus<br/>maven-snapshots／maven-releases]
+    C --> D[建置容器映像<br/>tag＝版本＋commit SHA]
+    D --> E[依 digest 晉升至各環境]
+```
+
+✅ 建議做法：
+
+- 版本號由 Pipeline 決定（例如 `1.4.${BUILD_NUMBER}` 或 `git describe`），以 Maven CI-friendly `${revision}` 傳入，不在 CI 中修改並提交 `pom.xml`
+- 正式版產物在 Nexus 設為不可覆寫（disable redeploy）
+- 同一個產物只建置一次，之後各環境以相同版本或映像 digest 晉升（[16.1 環境與晉升模型](#161-環境與晉升模型)）
+
+### 9.7 其他語言的建置範例
+
+企業中 Java 以外的專案也應走相同的流程：容器化工具鏈、固定版本、測試報告轉成 JUnit XML、相依套件經內部代理。
+
+| 語言 | 映像（2026-10-02 確認存在） | 相依套件代理 | 測試報告 |
+| --- | --- | --- | --- |
+| Node.js | `node:24-bookworm-slim`（Active LTS）、`node:22-bookworm-slim` | `.npmrc` 的 `registry=` 指向 Nexus npm proxy（Config File Provider 管理） | `jest-junit`、`mocha-junit-reporter` |
+| Python | `python:3.13-slim`、`python:3.14-slim` | `PIP_INDEX_URL` 指向 Nexus PyPI proxy | `pytest --junitxml` |
+| .NET | `mcr.microsoft.com/dotnet/sdk:10.0`（LTS） | `nuget.config` 指向 Nexus NuGet proxy | `dotnet test --logger "junit"`（JunitXml.TestLogger） |
+| Go | `golang:1.26-bookworm` | `GOPROXY` 指向 Nexus Go proxy 或 Athens | `gotestsum --junitfile` |
+
+```groovy
+pipeline {
+    agent none
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+    }
+    stages {
+        stage('Polyglot Build') {
             parallel {
-                stage('Trivy 漏洞掃描') {
+                stage('Node.js') {
                     agent {
                         docker {
-                            image 'aquasec/trivy:latest'
-                            args '--entrypoint="" -v trivy-cache:/root/.cache'
+                            image 'node:24-bookworm-slim'
+                            label 'linux && docker'
                         }
                     }
                     steps {
-                        script {
-                            runTrivySecurityScan()
+                        dir('web') {
+                            configFileProvider([configFile(fileId: 'npmrc-nexus', targetLocation: '.npmrc')]) {
+                                sh 'npm ci && npm run lint && npm test -- --ci --reporters=default --reporters=jest-junit'
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            junit testResults: 'web/junit.xml', allowEmptyResults: true
                         }
                     }
                 }
-                
-                stage('Snyk 安全掃描') {
+                stage('Python') {
                     agent {
                         docker {
-                            image 'snyk/snyk:docker'
-                            args '--entrypoint=""'
+                            image 'python:3.13-slim'
+                            label 'linux && docker'
                         }
                     }
+                    environment {
+                        PIP_INDEX_URL = 'https://nexus.example.internal/repository/pypi-proxy/simple'
+                        PIP_DISABLE_PIP_VERSION_CHECK = '1'
+                    }
                     steps {
-                        script {
-                            runSnykSecurityScan()
+                        dir('analytics') {
+                            sh '''
+                                python -m venv .venv
+                                . .venv/bin/activate
+                                pip install -r requirements.txt -r requirements-dev.txt
+                                pytest --junitxml=reports/pytest.xml --cov=src --cov-report=xml:reports/coverage.xml
+                            '''
+                        }
+                    }
+                    post {
+                        always {
+                            junit testResults: 'analytics/reports/pytest.xml', allowEmptyResults: true
+                            recordCoverage(tools: [[parser: 'COBERTURA', pattern: 'analytics/reports/coverage.xml']], id: 'python-coverage', name: 'Python 覆蓋率')
                         }
                     }
                 }
-                
-                stage('Hadolint Dockerfile 檢查') {
+                stage('.NET') {
                     agent {
                         docker {
-                            image 'hadolint/hadolint:latest'
-                            args '--entrypoint=""'
+                            image 'mcr.microsoft.com/dotnet/sdk:10.0'
+                            label 'linux && docker'
                         }
                     }
+                    environment {
+                        DOTNET_CLI_TELEMETRY_OPTOUT = '1'
+                        DOTNET_NOLOGO = '1'
+                    }
                     steps {
-                        script {
-                            runHadolintDockerfileLint()
+                        dir('billing-service') {
+                            sh '''
+                                dotnet restore --configfile nuget.config
+                                dotnet build -c Release --no-restore
+                                dotnet test -c Release --no-build --logger "junit;LogFilePath=TestResults/junit.xml"
+                            '''
+                        }
+                    }
+                    post {
+                        always {
+                            junit testResults: 'billing-service/**/TestResults/junit.xml', allowEmptyResults: true
                         }
                     }
                 }
-                
-                stage('容器合規檢查') {
+                stage('Go') {
                     agent {
                         docker {
-                            image 'aquasec/kube-bench:latest'
-                            args '--entrypoint=""'
+                            image 'golang:1.26-bookworm'
+                            label 'linux && docker'
                         }
                     }
+                    environment {
+                        GOPROXY = 'https://nexus.example.internal/repository/go-proxy/,direct'
+                        GOFLAGS = '-mod=readonly'
+                    }
                     steps {
-                        script {
-                            runContainerComplianceCheck()
+                        dir('gateway') {
+                            sh '''
+                                go vet ./...
+                                go run gotest.tools/gotestsum@v1.13.0 --junitfile reports/junit.xml -- -race -coverprofile=reports/cover.out ./...
+                            '''
+                        }
+                    }
+                    post {
+                        always {
+                            junit testResults: 'gateway/reports/junit.xml', allowEmptyResults: true
+                            recordCoverage(tools: [[parser: 'GO_COV', pattern: 'gateway/reports/cover.out']], id: 'go-coverage', name: 'Go 覆蓋率')
                         }
                     }
                 }
             }
         }
-        
-        stage('容器測試與驗證') {
+    }
+}
+```
+
+> 💡 `configFileProvider` 的 `targetLocation` 會把 `.npmrc` 寫入目前目錄，建置結束後自動刪除；`.npmrc` 中的 token 可透過 Config File Provider 的憑證對應填入，不必寫在 repository。Windows 原生的 .NET Framework 專案則需要 Windows agent（`agent { label 'windows && msbuild' }`）與 `bat`／`powershell` step。
+
+### 9.8 本章重點
+
+- 優先使用容器化 agent 與 Wrapper 固定工具版本；Global Tools 只用於固定 agent
+- `settings.xml` 以 Config File Provider 管理，帳密以 `serverCredentialMappings` 注入
+- Maven 使用 `-B -ntp verify`，測試結果交給 `junit` step 判定 UNSTABLE
+- 快取要依信任等級分隔，正式發佈不與不受信任的 PR 共用快取
+
+## 10. Declarative Pipeline 完整語法
+
+### 10.1 結構總覽
+
+Declarative Pipeline 是 Jenkins 官方建議的 Pipeline 寫法：結構固定、可在執行前驗證、支援從指定 stage 重新執行（Restart from Stage）。以下骨架列出所有區段（directive），實務上只需要其中一部分：
+
+```groovy
+pipeline {
+    agent none                       // 必填：pipeline 層級的執行環境
+    environment {                    // 環境變數
+        APP_NAME = 'payment-api'
+    }
+    options {                        // 執行選項
+        timeout(time: 1, unit: 'HOURS')
+    }
+    parameters {                     // 建置參數
+        booleanParam(name: 'SKIP_IT', defaultValue: false, description: '略過整合測試')
+    }
+    triggers {                       // 觸發條件
+        cron('H 2 * * 1-5')
+    }
+    stages {
+        stage('Build') {
+            agent { label 'linux' }  // stage 層級 agent
+            environment {            // stage 層級環境變數
+                MAVEN_OPTS = '-Xmx1g'
+            }
+            options {                // stage 層級選項
+                timeout(time: 20, unit: 'MINUTES')
+            }
+            when {                   // 執行條件
+                not { expression { params.SKIP_IT } }
+            }
+            steps {
+                echo "Building ${APP_NAME}"
+            }
+            post {                   // stage 結束後動作
+                always {
+                    echo 'stage 結束'
+                }
+            }
+        }
+    }
+    post {                           // pipeline 結束後動作
+        failure {
+            echo '建置失敗'
+        }
+    }
+}
+```
+
+| 區段 | Pipeline 層級 | Stage 層級 | 說明 |
+| --- | --- | --- | --- |
+| `agent` | 必填 | 選填 | `agent none` 表示由各 stage 自行指定 |
+| `environment` | ✅ | ✅ | |
+| `options` | ✅ | ✅（部分選項） | 見 10.4 |
+| `parameters` | ✅ | ❌ | |
+| `triggers` | ✅ | ❌ | Multibranch 通常不需要 |
+| `tools` | ✅ | ✅ | 需要 Global Tool Configuration |
+| `input` | ❌ | ✅ | 見 10.9 |
+| `when` | ❌ | ✅ | 見 10.6 |
+| `steps`／`stages`／`parallel`／`matrix` | — | 四擇一 | 一個 stage 只能有其中一種 |
+| `post` | ✅ | ✅ | 見 10.10 |
+
+### 10.2 agent
+
+| 寫法 | 說明 |
+| --- | --- |
+| `agent any` | 任一可用 agent。⚠️ 若 built-in node 有 executor，可能在 controller 執行；正式環境建議改用 label |
+| `agent none` | Pipeline 層級不配置 agent，各 stage 自行指定；`input` 等待期間不會占用 executor |
+| `agent { label 'linux && docker' }` | 以 label 表達式選擇（支援 `&&`、`\|\|`、`!`） |
+| `agent { node { label 'linux'; customWorkspace '/data/ws/payment' } }` | 指定 workspace 路徑 |
+| `agent { docker { image '...'; label '...'; args '...' } }` | 在具備 Docker 的 agent 上，以容器執行 steps（Docker Pipeline plugin） |
+| `agent { dockerfile { filename 'ci/Dockerfile'; dir '.' } }` | 先以 repository 中的 Dockerfile 建立映像再執行 |
+| `agent { kubernetes { yaml '...'; defaultContainer 'maven' } }` | 動態建立 Pod（Kubernetes plugin，[14.4 Kubernetes plugin](#144-kubernetes-plugin)） |
+
+**stage 層級 agent 與 `reuseNode`**：
+
+```groovy
+pipeline {
+    agent { label 'linux && docker' }
+    stages {
+        stage('Build') {
             agent {
                 docker {
-                    image 'docker:24'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                    image 'maven:3.9.16-eclipse-temurin-21'
+                    reuseNode true      // 在 pipeline 層級配置的同一個 agent 與 workspace 上啟動容器
                 }
             }
             steps {
-                script {
-                    runContainerTests()
-                    validateContainerHealth()
-                    performanceTestContainer()
-                    validateImageSize()
-                }
+                sh 'mvn -B -ntp package -DskipTests'
             }
         }
-        
-        stage('容器註冊與發布') {
+        stage('Scan') {
             agent {
                 docker {
-                    image 'docker:24'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                    image 'aquasec/trivy:0.75.0'
+                    args '--entrypoint=""'
+                    reuseNode true
                 }
             }
             steps {
-                script {
-                    pushToRegistry()
-                    createImageManifest()
-                    signContainerImage()
-                    updateImageCatalog()
-                }
+                sh 'trivy fs --exit-code 0 --format table .'
             }
         }
-        
-        stage('Kubernetes 部署') {
+    }
+}
+```
+
+> 💡 沒有 `reuseNode true` 時，stage 層級的 docker agent 會另外配置 executor 與 workspace，前一個 stage 的產出不會出現在新的 workspace 中，需要 `stash`／`unstash` 傳遞。
+
+### 10.3 environment 與字串內插
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    environment {
+        APP_NAME     = 'payment-api'                         // 字串常數
+        IMAGE_REPO   = "harbor.example.internal/payments/${APP_NAME}"   // 可引用先前定義的變數
+        GIT_SHORT    = "${env.GIT_COMMIT?.take(8) ?: 'local'}"
+        NEXUS        = credentials('nexus-deployer-payments')  // 函式呼叫
+    }
+    stages {
+        stage('Info') {
+            steps {
+                // Groovy 雙引號：由 Groovy 內插（適合非機密值）
+                echo "Image: ${IMAGE_REPO}:${GIT_SHORT}"
+                // 單引號：交給 shell 展開（機密與使用者輸入一律使用這種寫法）
+                sh 'echo "Deploying $APP_NAME as $NEXUS_USR"'
+                script {
+                    // 執行期間計算的值，以 env.X 指派
+                    env.BUILD_TS = new Date().format('yyyyMMddHHmm', TimeZone.getTimeZone('Asia/Taipei'))
+                }
+                sh 'echo "Build timestamp: $BUILD_TS"'
+            }
+        }
+    }
+}
+```
+
+| 規則 | 說明 |
+| --- | --- |
+| `environment` 的值 | 只能是字串（單／雙引號）或函式呼叫；❌ 不能是變數名稱、三元運算式或多行運算式（v1.0 第 10 章的 `APP_NAME = config.appName` 即因此驗證失敗） |
+| 複雜計算 | 放在 `script {}` 中，以 `env.NAME = ...` 指派 |
+| `env.X` 的型別 | 一律是字串；`env.FLAG = false` 之後 `if (env.FLAG)` 會是 true（非空字串），請比較 `env.FLAG == 'true'` |
+| 常用內建變數 | `BUILD_NUMBER`、`BUILD_URL`、`JOB_NAME`、`WORKSPACE`、`BRANCH_NAME`、`CHANGE_ID`（PR 編號）、`CHANGE_TARGET`、`TAG_NAME`、`GIT_COMMIT`、`NODE_NAME`；完整清單在 `<Jenkins URL>/env-vars.html` |
+
+> ⚠️ **Shell 注入**：`sh "deploy.sh ${params.TARGET}"` 會讓 Groovy 先把使用者輸入拼進指令。Declarative 會把參數同時設為環境變數，請寫成 `sh 'deploy.sh "$TARGET"'`。
+
+### 10.4 options
+
+| 選項 | 層級 | 用途 |
+| --- | --- | --- |
+| `buildDiscarder(logRotator(numToKeepStr: '30', daysToKeepStr: '30', artifactNumToKeepStr: '5'))` | Pipeline | 建置保留政策 |
+| `disableConcurrentBuilds(abortPrevious: true)` | Pipeline | 同一分支有新建置時中止舊建置（PR 建置適用）；不加參數則排隊等待 |
+| `timeout(time: 30, unit: 'MINUTES')` | 兩者 | 逾時中止；stage 層級可細分 |
+| `retry(count: 2, conditions: [agent(), nonresumable()])` | 兩者 | 只在 agent 中斷或 controller 重啟後無法恢復時重試，**不重試一般失敗** |
+| `timestamps()` | 兩者 | 主控台加上時間戳記（Timestamper） |
+| `ansiColor('xterm')` | 兩者 | 顯示 ANSI 顏色（AnsiColor plugin） |
+| `skipDefaultCheckout()` | 兩者 | 不自動 checkout |
+| `skipStagesAfterUnstable()` | Pipeline | 測試失敗（UNSTABLE）後略過後續 stage |
+| `parallelsAlwaysFailFast()` | Pipeline | 所有 `parallel` 預設 fail-fast |
+| `preserveStashes(buildCount: 5)` | Pipeline | 保留 stash 供 Restart from Stage 使用 |
+| `durabilityHint('PERFORMANCE_OPTIMIZED')` | Pipeline | 降低 I/O（[11.4 Durability 與效能設定](#114-durability-與效能設定)） |
+| `quietPeriod(10)` | Pipeline | 觸發後等待秒數 |
+| `checkoutToSubdirectory('src')` | Pipeline | checkout 到子目錄 |
+| `newContainerPerStage()` | Pipeline | 搭配 docker agent，每個 stage 使用新容器 |
+| `lock('sit-env')` | 兩者 | 鎖定共用資源（[11.5 資源鎖定與 milestone](#115-資源鎖定與-milestone)） |
+| `disableResume()` | Pipeline | controller 重啟後不恢復（避免重複部署） |
+
+### 10.5 parameters 與 triggers
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    parameters {
+        choice(name: 'TARGET_ENV', choices: ['sit', 'uat'], description: '部署環境（第一個為預設值）')
+        string(name: 'IMAGE_TAG', defaultValue: '', description: '要部署的映像 tag，空白表示使用本次建置')
+        booleanParam(name: 'RUN_PERF_TESTS', defaultValue: false, description: '是否執行效能測試')
+        text(name: 'RELEASE_NOTE', defaultValue: '', description: '版本說明')
+        password(name: 'NOT_RECOMMENDED', defaultValue: '', description: '❌ 示範用途：請改用 Credentials')
+    }
+    triggers {
+        cron('TZ=Asia/Taipei\nH 2 * * 1-5')
+        upstream(upstreamProjects: 'payments/payment-lib/main', threshold: hudson.model.Result.SUCCESS)
+    }
+    stages {
+        stage('Show') {
+            steps {
+                echo "TARGET_ENV=${params.TARGET_ENV}, RUN_PERF_TESTS=${params.RUN_PERF_TESTS}"
+            }
+        }
+    }
+}
+```
+
+> ⚠️ 參數與觸發條件會在 Pipeline **第一次執行後**才寫入 Job 設定。新建的 Job 第一次建置不會顯示參數畫面，且使用預設值。Multibranch 的每個分支都會套用 Jenkinsfile 中的 `triggers`，請以 `when` 或分支判斷避免所有 feature 分支都排程執行。
+
+### 10.6 when 條件
+
+| 條件 | 範例 | 說明 |
+| --- | --- | --- |
+| `branch` | `branch 'main'`、`branch pattern: 'release/.*', comparator: 'REGEXP'` | 只適用 Multibranch |
+| `buildingTag()` | `buildingTag()` | 正在建置 tag |
+| `tag` | `tag 'v*'`、`tag pattern: 'v\\d+.*', comparator: 'REGEXP'` | 建置符合的 tag |
+| `changeRequest()` | `changeRequest target: 'main'` | PR／MR 建置 |
+| `changeset` | `changeset 'services/payment/**'` | 本次變更包含符合的檔案 |
+| `changelog` | `changelog '.*\\[skip-it\\].*'` | commit 訊息符合 |
+| `environment` | `environment name: 'DEPLOY_ENV', value: 'sit'` | 環境變數等於某值 |
+| `equals` | `equals expected: 'uat', actual: params.TARGET_ENV` | 兩值相等 |
+| `expression` | `expression { params.RUN_PERF_TESTS }` | 任意 Groovy 布林運算式 |
+| `triggeredBy` | `triggeredBy 'TimerTrigger'`、`triggeredBy cause: 'UserIdCause'` | 依觸發原因 |
+| `not`／`allOf`／`anyOf` | `allOf { branch 'main'; not { changeRequest() } }` | 組合條件 |
+| `beforeAgent true` | | 先判斷條件再配置 agent（✅ 節省資源） |
+| `beforeInput true` | | 先判斷條件再顯示 input |
+| `beforeOptions true` | | 先判斷條件再套用 stage options（例如 lock、timeout） |
+
+```groovy
+pipeline {
+    agent none
+    parameters {
+        booleanParam(name: 'RUN_PERF_TESTS', defaultValue: false, description: '是否執行效能測試')
+    }
+    stages {
+        stage('Perf Test') {
+            agent { label 'perf' }
             when {
-                expression { params.DEPLOY_TO_K8S == true }
+                beforeAgent true
+                anyOf {
+                    branch 'main'
+                    expression { params.RUN_PERF_TESTS }   // ✅ 布林參數必須包在 expression 中
+                }
+            }
+            steps {
+                sh './run-perf.sh'
+            }
+        }
+        stage('Deploy SIT') {
+            agent { label 'deploy' }
+            when {
+                beforeAgent true
+                allOf {
+                    branch 'main'
+                    not { changeRequest() }
+                    triggeredBy cause: 'UserIdCause'
+                }
+            }
+            steps {
+                echo '僅在 main 分支且由使用者手動觸發時部署'
+            }
+        }
+    }
+}
+```
+
+> 📌 **v1.0 最常見的錯誤**：在 `when` 中直接寫 `params.RUN_PERF_TESTS` 或 `params.ENABLE_PROFILING`。Declarative 只接受上表中的條件，裸露的布林運算式會產生「Expected a when condition」錯誤，Pipeline 根本無法啟動。v1.0 有 8 個範例、共 22 處犯了此錯誤（以 2.580.1 的驗證端點逐一確認）。
+
+### 10.7 parallel 與循序 stages
+
+```groovy
+pipeline {
+    agent none
+    options {
+        parallelsAlwaysFailFast()
+    }
+    stages {
+        stage('Verify') {
+            parallel {
+                stage('Unit Test') {
+                    agent { label 'linux' }
+                    steps {
+                        sh './mvnw -B -ntp test'
+                    }
+                }
+                stage('Static Analysis') {
+                    agent { label 'linux' }
+                    steps {
+                        sh './mvnw -B -ntp -DskipTests spotbugs:check checkstyle:check'
+                    }
+                }
+                stage('Frontend') {
+                    agent { label 'linux && node' }
+                    stages {                      // 平行分支內的循序 stages
+                        stage('Install') {
+                            steps {
+                                sh 'npm ci'
+                            }
+                        }
+                        stage('Test') {
+                            steps {
+                                sh 'npm test -- --ci'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+| 規則 | 說明 |
+| --- | --- |
+| 巢狀限制 | `parallel` 內的 stage 不能再有 `parallel`（可以有循序 `stages`） |
+| Fail-fast | `failFast true`（單一 parallel）或 `parallelsAlwaysFailFast()`（全域）：任一分支失敗即中止其他分支 |
+| 資源 | 每個分支各自配置 agent；分支數量不要超過 agent 容量，否則只會在佇列等待 |
+
+### 10.8 matrix
+
+`matrix` 以多個軸（axis）的組合產生平行 stage，取代舊的 Multi-configuration project：
+
+```groovy
+pipeline {
+    agent none
+    stages {
+        stage('Compatibility') {
+            matrix {
+                axes {
+                    axis {
+                        name 'JDK'
+                        values '17', '21', '25'
+                    }
+                    axis {
+                        name 'DB'
+                        values 'postgres16', 'oracle19c'
+                    }
+                }
+                excludes {
+                    exclude {
+                        axis {
+                            name 'JDK'
+                            values '25'
+                        }
+                        axis {
+                            name 'DB'
+                            values 'oracle19c'
+                        }
+                    }
+                }
+                agent {
+                    docker {
+                        image "maven:3.9.16-eclipse-temurin-${JDK}"
+                        label 'linux && docker'
+                    }
+                }
+                stages {
+                    stage('Test') {
+                        steps {
+                            sh 'mvn -B -ntp verify -Pit-${DB}'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+> 💡 軸的值會成為環境變數（`$JDK`、`$DB`）。在 `docker.image` 這類需要 Groovy 求值的位置用雙引號內插；在 `sh` 中用單引號讓 shell 展開。
+
+### 10.9 input（人工核准）
+
+```groovy
+pipeline {
+    agent none
+    stages {
+        stage('Deploy PROD') {
+            agent { label 'deploy-prod' }
+            when {
+                beforeAgent true
+                beforeInput true
+                buildingTag()
+            }
+            input {
+                message '確認部署到正式環境？'
+                ok '部署'
+                submitter 'payments-release-managers'   // 群組或使用者 ID，逗號分隔
+                submitterParameter 'APPROVER'           // 核准人 ID 寫入此變數
+                parameters {
+                    string(name: 'CHANGE_TICKET', defaultValue: '', description: '變更單號（必填）')
+                }
+            }
+            steps {
+                echo "核准人：${APPROVER}，變更單：${CHANGE_TICKET}"
+            }
+        }
+    }
+}
+```
+
+> ⚠️ stage 層級的 `input` 會在**配置 agent 之前**等待，因此不占用 executor。若在 `steps` 中呼叫 `input` step，等待期間會一直占用 agent。務必搭配 `options { timeout(...) }` 避免建置永遠等待（[16.2 人工核准與職責分離](#162-人工核准與職責分離)）。
+
+### 10.10 post 與建置結果
+
+| 條件 | 執行時機 |
+| --- | --- |
+| `always` | 無論結果都執行 |
+| `success`／`failure`／`unstable`／`aborted` | 對應結果 |
+| `changed` | 結果與上一次不同 |
+| `fixed` | 上一次失敗或不穩定，本次成功 |
+| `regression` | 上一次成功，本次失敗、不穩定或中止 |
+| `unsuccessful` | 結果不是 SUCCESS |
+| `notBuilt` | 結果為 NOT_BUILT |
+| `cleanup` | 所有其他 post 條件之後，最後執行（清理 workspace、刪除暫存資源） |
+
+| 結果 | 意義 | 設定方式 |
+| --- | --- | --- |
+| SUCCESS | 成功 | |
+| UNSTABLE | 建置完成但品質未達標（測試失敗、品質門檻） | `junit` 有失敗的測試、`unstable('原因')`、品質門檻 |
+| FAILURE | 建置失敗 | 指令結束碼非 0、`error('原因')` |
+| ABORTED | 被中止 | 使用者中止、`timeout`、新建置中止舊建置 |
+| NOT_BUILT | 未建置 | stage 因 `when` 被略過 |
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Test') {
+            steps {
+                sh './mvnw -B -ntp verify'
+            }
+        }
+    }
+    post {
+        always {
+            junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+        }
+        fixed {
+            echo "建置已恢復：${env.BUILD_URL}"
+        }
+        regression {
+            echo "建置轉為失敗，通知最近提交者"
+        }
+        cleanup {
+            cleanWs(deleteDirs: true, notFailBuild: true)
+        }
+    }
+}
+```
+
+### 10.11 script 區塊與 Declarative 的限制
+
+`script {}` 可以在 `steps` 中撰寫 Scripted 語法（迴圈、條件、變數、呼叫 Shared Library 的類別），但：
+
+| 限制 | 說明 | 對策 |
+| --- | --- | --- |
+| 方法過大 | 整個 Pipeline 會被編譯成一個 Groovy 方法，超過 JVM 64 KB 上限會出現「Method code too large」 | 把邏輯搬到 Shared Library（第 12 章） |
+| `script` 過多 | Declarative 的可讀性與可驗證性下降 | 單一 `script` 區塊超過 15 行即應考慮抽到 Library |
+| 不能直接寫 Groovy 宣告 | 在 `pipeline {}` 外可以 `def` 函式，但會受沙箱與 CPS 限制 | 只放極簡單的輔助函式 |
+| 驗證 | Declarative 驗證不會檢查 `script` 內容的語意 | 以 Replay 或單元測試驗證（[11.7 Pipeline 開發工具](#117-pipeline-開發工具)） |
+
+### 10.12 完整範例：Spring Boot 服務 Pipeline
+
+以下範例整合本章內容，適用 Multibranch：PR 只做建置、測試、品質檢查；`main` 推送映像並部署 SIT；`v*` tag 經核准後部署正式環境。映像建置、品質門檻、部署細節分別見第 13、15、16 章。
+
+```groovy
+pipeline {
+    agent none
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '50', artifactNumToKeepStr: '5'))
+        disableConcurrentBuilds(abortPrevious: true)
+        timeout(time: 60, unit: 'MINUTES')
+        timestamps()
+        skipStagesAfterUnstable()
+    }
+    environment {
+        APP_NAME   = 'payment-api'
+        REGISTRY   = 'harbor.example.internal'
+        IMAGE_REPO = "${REGISTRY}/payments/${APP_NAME}"
+    }
+    stages {
+        stage('Build & Test') {
+            agent {
+                docker {
+                    image 'maven:3.9.16-eclipse-temurin-21'
+                    label 'linux && docker'
+                    args '-v maven-repo-cache:/root/.m2/repository'
+                }
+            }
+            steps {
+                configFileProvider([configFile(fileId: 'maven-settings-nexus', variable: 'MAVEN_SETTINGS')]) {
+                    sh 'mvn -B -ntp -s "$MAVEN_SETTINGS" clean verify'
+                }
+                stash name: 'app-jar', includes: 'target/*.jar'
+            }
+            post {
+                always {
+                    junit testResults: 'target/surefire-reports/*.xml', allowEmptyResults: true
+                    recordCoverage(tools: [[parser: 'JACOCO', pattern: 'target/site/jacoco/jacoco.xml']],
+                                   qualityGates: [[threshold: 70.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE']])
+                    recordIssues(tools: [spotBugs(pattern: 'target/spotbugsXml.xml'),
+                                         checkStyle(pattern: 'target/checkstyle-result.xml')],
+                                 qualityGates: [[threshold: 1, type: 'NEW', criticality: 'UNSTABLE']])
+                }
+            }
+        }
+        stage('Image') {
+            when {
+                beforeAgent true
+                anyOf {
+                    branch 'main'
+                    buildingTag()
+                }
             }
             agent {
                 kubernetes {
-                    yaml """
-                        apiVersion: v1
-                        kind: Pod
-                        spec:
-                          serviceAccountName: jenkins-deployer
-                          containers:
-                          - name: kubectl
-                            image: bitnami/kubectl:latest
-                            command:
-                            - sleep
-                            args:
-                            - 99d
-                          - name: helm
-                            image: alpine/helm:latest
-                            command:
-                            - sleep
-                            args:
-                            - 99d
-                    """
+                    yamlFile 'ci/buildkit-pod.yaml'
+                    defaultContainer 'buildkit'
                 }
             }
             steps {
-                container('kubectl') {
-                    script {
-                        deployToKubernetes()
-                    }
-                }
-                container('helm') {
-                    script {
-                        deployWithHelm()
-                    }
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            node('docker') {
+                unstash 'app-jar'
                 script {
-                    collectContainerMetrics()
-                    generateContainerReport()
-                    cleanupDockerResources()
+                    env.IMAGE_TAG = env.TAG_NAME ?: "${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(8)}"
+                }
+                withCredentials([usernamePassword(credentialsId: 'harbor-robot-payments',
+                                                  usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
+                    sh '''
+                        set -eu
+                        mkdir -p ~/.docker
+                        AUTH=$(printf '%s:%s' "$REG_USER" "$REG_PASS" | base64 | tr -d '\\n')
+                        printf '{"auths":{"%s":{"auth":"%s"}}}' "$REGISTRY" "$AUTH" > ~/.docker/config.json
+                        buildctl-daemonless.sh build \
+                          --frontend dockerfile.v0 --local context=. --local dockerfile=. \
+                          --output type=image,name="$IMAGE_REPO:$IMAGE_TAG",push=true
+                    '''
                 }
             }
         }
-        
-        success {
-            script {
-                notifyContainerDeploymentSuccess()
-                updateContainerCatalog()
+        stage('Deploy SIT') {
+            when {
+                beforeAgent true
+                branch 'main'
+            }
+            agent { label 'deploy' }
+            options {
+                lock(resource: 'payments-sit')
+            }
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig-sit-payments', variable: 'KUBECONFIG')]) {
+                    sh 'helm upgrade --install "$APP_NAME" ./chart -n payments-sit --set image.tag="$IMAGE_TAG" --wait --timeout 10m'
+                }
             }
         }
-        
+        stage('Deploy PROD') {
+            when {
+                beforeAgent true
+                beforeInput true
+                tag pattern: 'v\\d+\\.\\d+\\.\\d+', comparator: 'REGEXP'
+            }
+            options {
+                timeout(time: 2, unit: 'HOURS')
+            }
+            input {
+                message '部署到正式環境？'
+                ok '部署'
+                submitter 'payments-release-managers'
+                submitterParameter 'APPROVER'
+            }
+            agent { label 'deploy-prod' }
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig-prod-payments', variable: 'KUBECONFIG')]) {
+                    sh 'helm upgrade --install "$APP_NAME" ./chart -n payments-prod --set image.tag="$IMAGE_TAG" --wait --timeout 15m'
+                }
+                echo "核准人：${APPROVER}"
+            }
+        }
+    }
+    post {
         failure {
-            script {
-                analyzeContainerFailure()
-                notifyContainerDeploymentFailure()
-            }
+            emailext to: 'team-payments@example.internal',
+                     subject: "[FAILED] ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                     body: "建置失敗：${env.BUILD_URL}console"
         }
     }
 }
-
-// === 容器化管理函式 ===
-
-def setupDockerEnvironment() {
-    echo "設定 Docker 環境..."
-    
-    sh '''
-        # 檢查 Docker 版本
-        docker --version
-        docker-compose --version
-        
-        # 設定 Docker 配置
-        mkdir -p ~/.docker
-        
-        # 啟用 Docker BuildKit
-        export DOCKER_BUILDKIT=1
-        export COMPOSE_DOCKER_CLI_BUILD=1
-        
-        # 檢查 Docker 守護程序狀態
-        docker info
-        
-        # 清理舊的容器和映像
-        docker system prune -f
-        
-        echo "✅ Docker 環境設定完成"
-    '''
-}
-
-def authenticateRegistry() {
-    echo "認證容器註冊表..."
-    
-    script {
-        switch(params.REGISTRY_TYPE) {
-            case 'docker-hub':
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                }
-                break
-                
-            case 'harbor':
-                withCredentials([usernamePassword(credentialsId: 'harbor-credentials', usernameVariable: 'HARBOR_USER', passwordVariable: 'HARBOR_PASS')]) {
-                    sh 'echo $HARBOR_PASS | docker login harbor.company.com -u $HARBOR_USER --password-stdin'
-                }
-                break
-                
-            case 'ecr':
-                sh '''
-                    # AWS ECR 認證
-                    aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | \\
-                        docker login --username AWS --password-stdin ${DOCKER_REGISTRY}
-                '''
-                break
-                
-            case 'acr':
-                withCredentials([usernamePassword(credentialsId: 'azure-sp-credentials', usernameVariable: 'AZURE_CLIENT_ID', passwordVariable: 'AZURE_CLIENT_SECRET')]) {
-                    sh '''
-                        # Azure ACR 認證
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant ${AZURE_TENANT_ID}
-                        az acr login --name ${ACR_NAME}
-                    '''
-                }
-                break
-                
-            case 'gcr':
-                withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                    sh '''
-                        # Google Container Registry 認證
-                        gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
-                        gcloud auth configure-docker
-                    '''
-                }
-                break
-        }
-    }
-    
-    echo "✅ 容器註冊表認證完成"
-}
-
-def analyzeDockerfile() {
-    echo "分析 Dockerfile..."
-    
-    sh '''
-        # 檢查 Dockerfile 存在
-        if [ ! -f "Dockerfile" ]; then
-            echo "錯誤: 找不到 Dockerfile"
-            exit 1
-        fi
-        
-        # 分析 Dockerfile 結構
-        echo "=== Dockerfile 分析 ==="
-        
-        # 統計層數
-        LAYERS=$(grep -c "^FROM\\|^RUN\\|^COPY\\|^ADD" Dockerfile)
-        echo "映像層數: $LAYERS"
-        
-        # 檢查基礎映像
-        BASE_IMAGE=$(grep "^FROM" Dockerfile | tail -1 | awk '{print $2}')
-        echo "基礎映像: $BASE_IMAGE"
-        
-        # 檢查是否使用多階段建置
-        STAGES=$(grep -c "^FROM" Dockerfile)
-        if [ $STAGES -gt 1 ]; then
-            echo "多階段建置: 是 ($STAGES 階段)"
-        else
-            echo "多階段建置: 否"
-        fi
-        
-        # 檢查安全最佳實務
-        echo "=== 安全檢查 ==="
-        
-        if grep -q "USER" Dockerfile; then
-            echo "✅ 使用非 root 用戶"
-        else
-            echo "❌ 警告: 未指定非 root 用戶"
-        fi
-        
-        if grep -q "HEALTHCHECK" Dockerfile; then
-            echo "✅ 包含健康檢查"
-        else
-            echo "❌ 警告: 缺少健康檢查"
-        fi
-        
-        echo "✅ Dockerfile 分析完成"
-    '''
-}
-
-def buildMultiStageDockerImage() {
-    echo "執行多階段 Docker 建置..."
-    
-    sh '''
-        # 建立多階段 Dockerfile
-        cat > Dockerfile.multistage << 'EOF'
-# 第一階段：建置環境
-FROM maven:3.9-eclipse-temurin-17 AS builder
-
-# 設定工作目錄
-WORKDIR /app
-
-# 複製 pom.xml 文件先下載依賴（利用 Docker 層快取）
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
-
-# 複製原始碼並建置
-COPY src ./src
-RUN mvn clean package -DskipTests -B
-
-# 第二階段：運行環境
-FROM eclipse-temurin:17-jre-alpine AS runtime
-
-# 建立非 root 用戶
-RUN addgroup -g 1001 appgroup && \\
-    adduser -D -u 1001 -G appgroup appuser
-
-# 安裝運行時工具
-RUN apk add --no-cache \\
-    curl \\
-    jq \\
-    tzdata \\
-    && rm -rf /var/cache/apk/*
-
-# 設定時區
-ENV TZ=Asia/Taipei
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# 設定工作目錄
-WORKDIR /app
-
-# 從建置階段複製 JAR 文件
-COPY --from=builder /app/target/*.jar app.jar
-
-# 設定檔案權限
-RUN chown -R appuser:appgroup /app
-USER appuser
-
-# 健康檢查
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\
-    CMD curl -f http://localhost:8080/actuator/health || exit 1
-
-# 暴露埠號
-EXPOSE 8080
-
-# 設定 JVM 參數
-ENV JAVA_OPTS="-Xmx512m -Xms256m -XX:+UseG1GC -XX:+UseContainerSupport"
-
-# 啟動應用程式
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
-EOF
-
-        # 執行多階段建置
-        docker build \\
-            --file Dockerfile.multistage \\
-            --tag ${DOCKER_REPO}:${DOCKER_TAG} \\
-            --tag ${DOCKER_REPO}:latest \\
-            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \\
-            --build-arg VCS_REF=${GIT_COMMIT} \\
-            --build-arg VERSION=${BUILD_NUMBER} \\
-            --target runtime \\
-            .
-        
-        # 顯示建置結果
-        docker images ${DOCKER_REPO}:${DOCKER_TAG}
-        
-        echo "✅ 多階段 Docker 建置完成"
-    '''
-}
-
-def buildWithBuildKit() {
-    echo "使用 BuildKit 進行建置..."
-    
-    sh '''
-        # 啟用 BuildKit
-        export DOCKER_BUILDKIT=1
-        
-        # 建立 BuildKit 建置器
-        docker buildx create --name mybuilder --use
-        docker buildx inspect --bootstrap
-        
-        # 執行多平台建置
-        docker buildx build \\
-            --platform linux/amd64,linux/arm64 \\
-            --file Dockerfile.multistage \\
-            --tag ${DOCKER_REPO}:${DOCKER_TAG} \\
-            --tag ${DOCKER_REPO}:latest \\
-            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \\
-            --build-arg VCS_REF=${GIT_COMMIT} \\
-            --build-arg VERSION=${BUILD_NUMBER} \\
-            --cache-from type=local,src=/tmp/.buildx-cache \\
-            --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \\
-            --push \\
-            .
-        
-        # 更新快取
-        rm -rf /tmp/.buildx-cache
-        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-        
-        echo "✅ BuildKit 建置完成"
-    '''
-}
-
-def buildWithKaniko() {
-    echo "使用 Kaniko 進行建置..."
-    
-    sh '''
-        # 準備 Kaniko 配置
-        mkdir -p /workspace
-        cp -r . /workspace/
-        
-        # 執行 Kaniko 建置
-        /kaniko/executor \\
-            --dockerfile=/workspace/Dockerfile.multistage \\
-            --context=/workspace \\
-            --destination=${DOCKER_REPO}:${DOCKER_TAG} \\
-            --destination=${DOCKER_REPO}:latest \\
-            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \\
-            --build-arg VCS_REF=${GIT_COMMIT} \\
-            --build-arg VERSION=${BUILD_NUMBER} \\
-            --cache=true \\
-            --cache-ttl=24h \\
-            --compressed-caching=false
-        
-        echo "✅ Kaniko 建置完成"
-    '''
-}
-
-def runTrivySecurityScan() {
-    echo "執行 Trivy 安全掃描..."
-    
-    sh '''
-        # 更新 Trivy 資料庫
-        trivy image --download-db-only
-        
-        # 執行漏洞掃描
-        trivy image \\
-            --format table \\
-            --exit-code 0 \\
-            --severity HIGH,CRITICAL \\
-            ${DOCKER_REPO}:${DOCKER_TAG}
-        
-        # 生成 JSON 報告
-        trivy image \\
-            --format json \\
-            --output trivy-report.json \\
-            ${DOCKER_REPO}:${DOCKER_TAG}
-        
-        # 檢查嚴重漏洞
-        CRITICAL_COUNT=$(cat trivy-report.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL")] | length')
-        HIGH_COUNT=$(cat trivy-report.json | jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="HIGH")] | length')
-        
-        echo "嚴重漏洞: $CRITICAL_COUNT"
-        echo "高危漏洞: $HIGH_COUNT"
-        
-        # 設定安全閾值
-        if [ "$CRITICAL_COUNT" -gt 0 ]; then
-            echo "❌ 發現嚴重安全漏洞，建置失敗"
-            exit 1
-        fi
-        
-        if [ "$HIGH_COUNT" -gt 5 ]; then
-            echo "⚠️ 高危漏洞過多，需要處理"
-        fi
-        
-        echo "✅ Trivy 安全掃描完成"
-    '''
-    
-    publishHTML([
-        allowMissing: false,
-        alwaysLinkToLastBuild: true,
-        keepAll: true,
-        reportDir: '.',
-        reportFiles: 'trivy-report.json',
-        reportName: 'Trivy Security Report'
-    ])
-}
-
-def runContainerTests() {
-    echo "執行容器測試..."
-    
-    sh '''
-        # 啟動測試容器
-        docker run -d \\
-            --name test-container-${BUILD_NUMBER} \\
-            --health-cmd="curl -f http://localhost:8080/actuator/health || exit 1" \\
-            --health-interval=10s \\
-            --health-timeout=5s \\
-            --health-retries=3 \\
-            -p 8080:8080 \\
-            ${DOCKER_REPO}:${DOCKER_TAG}
-        
-        # 等待容器啟動
-        echo "等待容器啟動..."
-        sleep 30
-        
-        # 檢查容器狀態
-        CONTAINER_STATUS=$(docker inspect test-container-${BUILD_NUMBER} --format='{{.State.Health.Status}}')
-        echo "容器健康狀態: $CONTAINER_STATUS"
-        
-        if [ "$CONTAINER_STATUS" != "healthy" ]; then
-            echo "❌ 容器健康檢查失敗"
-            docker logs test-container-${BUILD_NUMBER}
-            exit 1
-        fi
-        
-        # 執行功能測試
-        echo "執行功能測試..."
-        
-        # 測試健康檢查端點
-        curl -f http://localhost:8080/actuator/health
-        
-        # 測試應用程式端點
-        curl -f http://localhost:8080/
-        
-        # 測試 API 端點
-        curl -f http://localhost:8080/api/health
-        
-        echo "✅ 容器測試完成"
-    '''
-}
-
-def validateImageSize() {
-    echo "驗證映像大小..."
-    
-    sh '''
-        # 取得映像資訊
-        IMAGE_SIZE=$(docker images ${DOCKER_REPO}:${DOCKER_TAG} --format "table {{.Size}}" | tail -1)
-        
-        echo "映像大小: $IMAGE_SIZE"
-        
-        # 檢查映像層數
-        LAYER_COUNT=$(docker history ${DOCKER_REPO}:${DOCKER_TAG} --no-trunc | wc -l)
-        echo "映像層數: $LAYER_COUNT"
-        
-        # 分析映像組成
-        docker history ${DOCKER_REPO}:${DOCKER_TAG} --no-trunc
-        
-        # 設定大小閾值（例如 500MB）
-        SIZE_MB=$(docker images ${DOCKER_REPO}:${DOCKER_TAG} --format "table {{.Size}}" | tail -1 | sed 's/MB//' | sed 's/GB/*1000/' | bc 2>/dev/null || echo "0")
-        
-        if [ "$SIZE_MB" -gt 500 ]; then
-            echo "⚠️ 警告: 映像大小超過 500MB"
-        fi
-        
-        echo "✅ 映像大小驗證完成"
-    '''
-}
-
-def pushToRegistry() {
-    echo "推送映像到註冊表..."
-    
-    sh '''
-        # 推送映像
-        docker push ${DOCKER_REPO}:${DOCKER_TAG}
-        docker push ${DOCKER_REPO}:latest
-        
-        # 建立映像標籤
-        docker tag ${DOCKER_REPO}:${DOCKER_TAG} ${DOCKER_REPO}:build-${BUILD_NUMBER}
-        docker push ${DOCKER_REPO}:build-${BUILD_NUMBER}
-        
-        # 如果是主分支，建立 stable 標籤
-        if [ "${GIT_BRANCH}" = "origin/main" ] || [ "${GIT_BRANCH}" = "origin/master" ]; then
-            docker tag ${DOCKER_REPO}:${DOCKER_TAG} ${DOCKER_REPO}:stable
-            docker push ${DOCKER_REPO}:stable
-        fi
-        
-        echo "✅ 映像推送完成"
-    '''
-}
-
-def signContainerImage() {
-    echo "簽署容器映像..."
-    
-    sh '''
-        # 使用 Cosign 簽署映像
-        if command -v cosign &> /dev/null; then
-            echo "使用 Cosign 簽署映像..."
-            
-            # 生成金鑰對（如果不存在）
-            if [ ! -f cosign.key ]; then
-                cosign generate-key-pair
-            fi
-            
-            # 簽署映像
-            cosign sign --key cosign.key ${DOCKER_REPO}:${DOCKER_TAG}
-            
-            # 驗證簽章
-            cosign verify --key cosign.pub ${DOCKER_REPO}:${DOCKER_TAG}
-            
-            echo "✅ 映像簽署完成"
-        else
-            echo "⚠️ Cosign 未安裝，跳過映像簽署"
-        fi
-    '''
-}
 ```
 
-#### 17.2 Kubernetes 原生 CI/CD
+> 💡 範例中 `IMAGE_TAG` 在 `Image` stage 以 `env.IMAGE_TAG` 設定後，後續 stage（即使在不同 agent）都可讀取。`ci/buildkit-pod.yaml` 見 [15.2 BuildKit rootless（Kubernetes agent）](#152-buildkit-rootlesskubernetes-agent)。
 
-**Kubernetes 整合架構：**
+### 10.13 本章重點
 
-```yaml
-# Kubernetes Jenkins 部署配置
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: jenkins-system
-  labels:
-    name: jenkins-system
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: jenkins-master
-  namespace: jenkins-system
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: jenkins-master
-  template:
-    metadata:
-      labels:
-        app: jenkins-master
-    spec:
-      serviceAccountName: jenkins
-      securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
-      containers:
-      - name: jenkins
-        image: jenkins/jenkins:lts-jdk17
-        ports:
-        - containerPort: 8080
-          name: http
-        - containerPort: 50000
-          name: agent
-        env:
-        - name: JENKINS_OPTS
-          value: "--httpPort=8080"
-        - name: JAVA_OPTS
-          value: "-Xmx2048m -Dhudson.slaves.NodeProvisioner.initialDelay=0 -Dhudson.slaves.NodeProvisioner.MARGIN=50 -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85"
-        volumeMounts:
-        - name: jenkins-home
-          mountPath: /var/jenkins_home
-        - name: docker-sock
-          mountPath: /var/run/docker.sock
-        livenessProbe:
-          httpGet:
-            path: /login
-            port: 8080
-          initialDelaySeconds: 60
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /login
-            port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 5
-        resources:
-          requests:
-            memory: "2Gi"
-            cpu: "1000m"
-          limits:
-            memory: "4Gi"
-            cpu: "2000m"
-      volumes:
-      - name: jenkins-home
-        persistentVolumeClaim:
-          claimName: jenkins-pvc
-      - name: docker-sock
-        hostPath:
-          path: /var/run/docker.sock
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: jenkins-service
-  namespace: jenkins-system
-spec:
-  type: LoadBalancer
-  ports:
-  - name: http
-    port: 80
-    targetPort: 8080
-  - name: agent
-    port: 50000
-    targetPort: 50000
-  selector:
-    app: jenkins-master
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: jenkins-pvc
-  namespace: jenkins-system
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 50Gi
-  storageClassName: fast-ssd
-```
+- `when` 只接受內建條件，布林運算式必須包在 `expression {}` 中；加上 `beforeAgent true` 節省資源
+- `environment` 的值只能是字串或函式呼叫，複雜計算放在 `script {}` 並以 `env.X` 指派
+- 機密與使用者輸入一律以單引號字串交給 shell 展開
+- 人工核准使用 stage 層級 `input` 搭配 `timeout`，不占用 executor
+- 本章所有範例皆已通過 Jenkins 2.580.1 的 Declarative 驗證
 
-**Kubernetes 原生 CI/CD Pipeline：**
+## 11. Scripted Pipeline、CPS 與進階模式
+
+### 11.1 Scripted Pipeline 語法
+
+Scripted Pipeline 是以 `node` 為起點的 Groovy 程式，彈性最高，但沒有 Declarative 的結構驗證、`post`、`when`、Restart from Stage 等功能。
+
+| 比較 | Declarative | Scripted |
+| --- | --- | --- |
+| 結構 | 固定區段，執行前驗證 | 任意 Groovy 程式 |
+| 學習門檻 | 低 | 需要 Groovy 與 CPS 知識 |
+| 錯誤處理 | `post` 條件 | `try`／`catch`／`finally` |
+| Restart from Stage | ✅ | ❌ |
+| 建議用途 | ✅ 應用程式 Pipeline 的標準寫法 | Shared Library 內部實作、高度動態的流程（例如依設定檔產生 stage） |
 
 ```groovy
-// Kubernetes 原生 CI/CD Pipeline
+// Scripted Pipeline：依 services.yaml 動態產生平行建置
+node('linux') {
+    stage('Checkout') {
+        checkout scm
+    }
+
+    def services = []
+    stage('Plan') {
+        def cfg = readYaml file: 'services.yaml'
+        services = cfg.services.findAll { it.enabled }.collect { it.name }
+        echo "本次建置：${services}"
+    }
+
+    stage('Build') {
+        def branches = [:]
+        for (svc in services) {
+            def name = svc   // 迴圈變數必須先複製，否則所有閉包都會拿到最後一個值
+            branches[name] = {
+                node('linux && docker') {
+                    checkout scm
+                    dir("services/${name}") {
+                        sh './mvnw -B -ntp verify'
+                    }
+                }
+            }
+        }
+        branches.failFast = true
+        parallel branches
+    }
+}
+```
+
+**Scripted 的錯誤處理**：
+
+```groovy
+node('linux') {
+    try {
+        stage('Test') {
+            checkout scm
+            sh './mvnw -B -ntp verify'
+        }
+        currentBuild.result = 'SUCCESS'
+    } catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+        // 使用者中止或 timeout：不要吞掉，保留 ABORTED 狀態
+        currentBuild.result = 'ABORTED'
+        throw e
+    } catch (err) {
+        currentBuild.result = 'FAILURE'
+        throw err
+    } finally {
+        junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+        cleanWs(notFailBuild: true)
+    }
+}
+```
+
+> ⚠️ `catch (err)` 若沒有重新拋出，使用者按下「中止」或 `timeout` 觸發時建置仍會繼續執行，甚至顯示為成功。一定要先處理 `FlowInterruptedException` 並重新拋出。
+
+### 11.2 CPS 限制與 @NonCPS
+
+Pipeline 的 Groovy 程式碼經過 CPS 轉換，以便在任何一個 step 之間暫停、序列化並在 controller 重啟後恢復。這帶來以下限制：
+
+| 限制 | 症狀 | 對策 |
+| --- | --- | --- |
+| **不可序列化的物件跨越 step** | `java.io.NotSerializableException: java.util.regex.Matcher` | 在 `@NonCPS` 方法中處理，或把物件設為區域變數並在 step 之前釋放（`m = null`） |
+| **CPS 與非 CPS 方法互相呼叫** | 記錄出現「expected to call ... but wound up catching ...」，結果錯誤 | 傳給 Java／Groovy 內建方法的閉包（例如 `sort { a, b -> }`、`toSorted`）放到 `@NonCPS` 方法中 |
+| **`@NonCPS` 方法不能呼叫 step** | 在 `@NonCPS` 方法中呼叫 `sh`、`echo` 會失敗或行為異常 | `@NonCPS` 只做純運算，回傳結果後再由一般方法呼叫 step |
+| **效能** | 大量迴圈、字串處理使 controller CPU 飆高 | 把資料處理交給 agent 上的腳本（`sh 'python3 parse.py'`） |
+
+```groovy
+// ✅ 正確：@NonCPS 只做純運算，不呼叫任何 step
+@NonCPS
+def parseVersion(String text) {
+    def m = (text =~ /version\s*=\s*"([^"]+)"/)
+    return m.find() ? m.group(1) : null
+}
+
+@NonCPS
+def sortByPriority(List<Map> items) {
+    return items.sort(false) { a, b -> a.priority <=> b.priority }
+}
+
+node('linux') {
+    checkout scm
+    def text = readFile 'gradle.properties'
+    def version = parseVersion(text)
+    echo "版本：${version}"
+    def ordered = sortByPriority(readYaml(file: 'deploy-order.yaml').targets)
+    for (t in ordered) {
+        echo "部署 ${t.name}"
+    }
+}
+```
+
+### 11.3 Script Security 沙箱與 Script Approval
+
+所有使用者撰寫的 Pipeline（Jenkinsfile、非受信任的 Shared Library）都在 **Groovy 沙箱**中執行，只能呼叫白名單中的方法。呼叫未核准的方法時建置會失敗，並在 Manage Jenkins → In-process Script Approval 出現待核准項目。
+
+| 原則 | 說明 |
+| --- | --- |
+| 預設拒絕 | 能用 Pipeline step 完成的事（`readJSON`、`readYaml`、`writeFile`、`httpRequest`）就不要核准對應的 Java API |
+| 高風險方法一律拒絕 | `java.lang.Runtime.exec`、`java.io.File`、`groovy.lang.GroovyShell`、`jenkins.model.Jenkins.get`、`hudson.model.*` 的寫入方法、反射相關方法，核准後等同讓所有 Pipeline 作者取得 controller 權限 |
+| 集中審查 | Script Approval 只有管理員能操作，核准前需有第二人覆核並記錄原因 |
+| 改用受信任的 Library | 確實需要特權操作時，封裝在**受信任的全域 Shared Library**（不在沙箱中執行）並嚴格控管該 repository 的寫入權限（[12.2 設定 Library：受信任與非受信任](#122-設定-library受信任與非受信任)） |
+
+> ⚠️ 受信任的全域 Shared Library 等同 controller 上的管理員程式碼。對該 repository 有寫入權限的人，實際上就擁有 Jenkins 管理員權限。
+
+### 11.4 Durability 與效能設定
+
+| Durability 等級 | 行為 | 適用 |
+| --- | --- | --- |
+| `MAX_SURVIVABILITY`（預設） | 每個 step 後同步寫入狀態，controller 意外停止也能恢復 | 正式部署 Pipeline |
+| `SURVIVABLE_NONATOMIC` | 每個 step 後寫入但不保證原子性 | 一般建置 |
+| `PERFORMANCE_OPTIMIZED` | 只在 Pipeline 結束或正常關機時寫入，I/O 大幅降低；controller 異常停止時執行中的建置無法恢復 | ✅ 大部分 CI 建置（可重跑） |
+
+設定方式：
+
+- 全域：Manage Jenkins → System → Pipeline Speed/Durability Settings
+- 單一 Pipeline：`options { durabilityHint('PERFORMANCE_OPTIMIZED') }`
+- Multibranch：分支屬性策略中的「Pipeline branch speed/durability override」
+
+**其他效能要點**：
+
+| 問題 | 改善方式 |
+| --- | --- |
+| 主控台記錄過大（單次數百 MB） | Maven 加 `-ntp`、測試輸出導向檔案、移除 `set -x` |
+| 大量短 `sh` step | 合併成一個 `sh '''...'''` 腳本；每個 step 都有 controller 往返與狀態寫入成本 |
+| `readFile`／`readJSON` 讀取大檔 | 在 agent 上以 `jq`、`python3` 處理，只把結果傳回 |
+| 數百個平行分支 | 以 `matrix` 或分批執行，平行數不超過 agent 容量 |
+| 大型 `stash` | 改推送至 artifact 儲存庫 |
+
+### 11.5 資源鎖定與 milestone
+
+**Lockable Resources**：確保同一時間只有一個建置使用共用的測試環境、裝置或授權：
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Integration Test') {
+            options {
+                // 從標記為 sit-env 的資源池中取得一個，資源名稱寫入 LOCKED_ENV
+                lock(label: 'sit-env', quantity: 1, variable: 'LOCKED_ENV')
+            }
+            steps {
+                sh 'echo "使用環境：$LOCKED_ENV" && ./run-it.sh "$LOCKED_ENV"'
+            }
+        }
+        stage('Deploy UAT') {
+            steps {
+                // inversePrecedence：較新的建置優先取得鎖
+                lock(resource: 'payments-uat', inversePrecedence: true) {
+                    milestone(ordinal: 10, label: 'deploy-uat')
+                    sh './deploy.sh uat'
+                }
+            }
+        }
+    }
+}
+```
+
+**Milestone**：較新的建置通過某個 milestone 後，尚未通過該 milestone 的較舊建置會被自動中止，避免舊版本在新版本之後部署。常與 `lock(inversePrecedence: true)` 和 `input` 搭配使用。
+
+```mermaid
+sequenceDiagram
+    participant B10 as 建置 #10
+    participant B11 as 建置 #11
+    participant L as lock: payments-uat
+    B10->>L: 取得鎖，開始部署
+    B11->>L: 等待鎖
+    B10->>B10: 通過 milestone 10
+    B10-->>L: 釋放鎖
+    B11->>L: 取得鎖
+    B11->>B11: 通過 milestone 10
+```
+
+若較新的 #11 先通過 milestone 10，而 #10 尚未通過，#10 會被自動中止。
+
+### 11.6 錯誤處理模式
+
+| Step | 用途 | 範例 |
+| --- | --- | --- |
+| `catchError` | 捕捉錯誤並設定建置與 stage 結果，Pipeline 繼續執行 | `catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') { sh './flaky-check.sh' }` |
+| `warnError` | 錯誤時把建置與 stage 設為 UNSTABLE 並繼續 | `warnError('lint 失敗') { sh 'npm run lint' }` |
+| `unstable` | 主動把建置設為 UNSTABLE | `unstable('覆蓋率下降')` |
+| `error` | 主動讓建置失敗 | `error('缺少變更單號')` |
+| `retry` | 重試區塊 | `retry(count: 3) { sh './download-deps.sh' }` |
+| `timeout` | 限制區塊執行時間 | `timeout(time: 5, unit: 'MINUTES') { ... }` |
+| `sh returnStatus: true` | 取得結束碼而不拋錯 | `def rc = sh(script: './check.sh', returnStatus: true)` |
+| `sh returnStdout: true` | 取得輸出（記得 `.trim()`） | `def sha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()` |
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Optional Checks') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE', message: '授權檢查失敗，不影響建置') {
+                    sh './license-check.sh'
+                }
+                script {
+                    def rc = sh(script: './api-compat-check.sh', returnStatus: true)
+                    if (rc == 2) {
+                        unstable('API 相容性有警告')
+                    } else if (rc != 0) {
+                        error("API 相容性檢查失敗，結束碼 ${rc}")
+                    }
+                }
+            }
+        }
+        stage('Download') {
+            steps {
+                retry(count: 3) {
+                    timeout(time: 2, unit: 'MINUTES') {
+                        sh 'curl -fsSLo tool.tgz https://nexus.example.internal/repository/tools/tool-1.2.3.tgz'
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+> ⚠️ `retry` 只適合處理暫時性的外部錯誤（網路、下載）。對測試或建置步驟使用 `retry` 會掩蓋不穩定的測試（flaky test），應修正根本原因。
+
+### 11.7 Pipeline 開發工具
+
+| 工具 | 位置 | 用途 |
+| --- | --- | --- |
+| **Snippet Generator** | Job 頁面 → Pipeline Syntax（`/pipeline-syntax`） | 以表單產生任一 step 的正確語法 |
+| **Declarative Directive Generator** | 同上，切換分頁 | 產生 `options`、`when`、`agent` 等區段 |
+| **Steps Reference** | `<Jenkins URL>/pipeline-syntax/html`、[jenkins.io/doc/pipeline/steps](https://www.jenkins.io/doc/pipeline/steps/) | 已安裝 plugin 的完整 step 參考 |
+| **Replay** | 建置頁面 → Replay | 修改這次建置使用的 Jenkinsfile／Library 後重新執行，不需提交 |
+| **Restart from Stage** | 建置頁面（Declarative） | 從指定 stage 重新執行 |
+| **Declarative 驗證** | REST API 或 CLI | 提交前檢查語法 |
+| **JenkinsPipelineUnit** | Shared Library 測試框架 | [12.7 單元測試：JenkinsPipelineUnit](#127-單元測試jenkinspipelineunit) |
+
+**提交前驗證 Jenkinsfile**：
+
+```bash
+# 方法一：REST API（需要 API token；Jenkins 2.580.1 實測可用）
+curl -fsS -u "$JENKINS_USER:$JENKINS_TOKEN" \
+  -X POST -F "jenkinsfile=<Jenkinsfile" \
+  https://jenkins.example.internal/pipeline-model-converter/validate
+
+# 方法二：Jenkins CLI
+java -jar jenkins-cli.jar -s https://jenkins.example.internal/ -webSocket \
+  -auth "@$HOME/.jenkins-cli-auth" declarative-linter < Jenkinsfile
+```
+
+> 💡 可以把上述指令加入 Git pre-commit hook 或 IDE 的外部工具。VS Code 的「Jenkins Pipeline Linter Connector」擴充套件也是呼叫同一個端點。本手冊的 Jenkinsfile 範例都以此端點驗證。
+
+### 11.8 本章重點
+
+- 應用程式 Pipeline 使用 Declarative，Scripted 用於 Shared Library 內部與動態流程
+- `catch` 一定要重新拋出 `FlowInterruptedException`，否則中止與逾時會失效
+- `@NonCPS` 只做純運算；不可序列化的物件不要跨越 step
+- Script Approval 預設拒絕；特權操作封裝在受信任 Library 並控管其寫入權限
+- 可重跑的 CI 建置使用 `PERFORMANCE_OPTIMIZED`；以 `lock` 與 `milestone` 確保部署順序
+
+## 12. Shared Libraries
+
+### 12.1 用途與目錄結構
+
+Shared Library 把重複的 Pipeline 邏輯集中在一個 Git repository，讓數百個 Jenkinsfile 共用同一套經過測試的建置、掃描、部署步驟。它是企業建立「黃金路徑（golden path）」的核心工具（[22.2 平台團隊與治理模型](#222-平台團隊與治理模型)）。
+
+```text
+jenkins-shared-library/
+├── vars/                              # 全域變數（自訂 step），檔名即 step 名稱
+│   ├── mavenBuild.groovy
+│   ├── mavenBuild.txt                 # 說明文件，顯示在 Pipeline Syntax 頁面
+│   ├── notifyTeams.groovy
+│   └── standardJavaPipeline.groovy    # 封裝整條 Declarative Pipeline
+├── src/                               # Groovy 類別（標準 Java 套件結構）
+│   └── com/example/ci/
+│       ├── Version.groovy
+│       └── TeamsCard.groovy
+├── resources/                         # 非 Groovy 檔案，以 libraryResource 讀取
+│   └── com/example/ci/
+│       ├── pod-maven.yaml
+│       └── teams-card.json
+├── test/groovy/                       # JenkinsPipelineUnit 單元測試
+│   └── MavenBuildTest.groovy
+├── build.gradle
+└── CHANGELOG.md
+```
+
+| 目錄 | 內容 | 執行方式 |
+| --- | --- | --- |
+| `vars/` | 每個檔案定義一個全域 step，`call()` 方法是進入點 | 在 Jenkinsfile 中直接以檔名呼叫：`mavenBuild(goals: 'verify')` |
+| `src/` | 一般 Groovy 類別 | `import com.example.ci.Version` 後使用 |
+| `resources/` | YAML、JSON、腳本範本 | `libraryResource 'com/example/ci/pod-maven.yaml'` |
+
+### 12.2 設定 Library：受信任與非受信任
+
+| 設定位置 | 信任等級 | 沙箱 | 適用 |
+| --- | --- | --- | --- |
+| Manage Jenkins → System → **Global Trusted Pipeline Libraries** | 受信任 | ❌ 不在沙箱中執行，可呼叫任何 Java API | 平台團隊維護、需要特權操作的 Library；**repository 寫入權限必須嚴格控管** |
+| Manage Jenkins → System → **Global Untrusted Pipeline Libraries** | 非受信任 | ✅ 沙箱 | 全公司共用、但不需要特權的 Library |
+| Folder → Pipeline Libraries | 非受信任 | ✅ 沙箱 | 團隊自己的 Library |
+| Jenkinsfile 中 `library identifier: ..., retriever: ...` 動態載入 | 非受信任 | ✅ 沙箱 | 臨時測試 |
+
+**以 JCasC 設定**（已以 2.580.1 的 `configuration-as-code/check` 驗證）：
+
+```yaml
+unclassified:
+  globalLibraries:
+    libraries:
+      - name: "corp-pipeline-lib"
+        defaultVersion: "v2.3.0"
+        allowVersionOverride: true
+        implicit: false
+        includeInChangesets: false
+        retriever:
+          modernSCM:
+            libraryPath: "."
+            scm:
+              git:
+                remote: "https://gitlab.example.internal/platform/jenkins-shared-library.git"
+                credentialsId: "gitlab-ci-token"
+  globalUntrustedLibraries:
+    libraries:
+      - name: "corp-utils"
+        defaultVersion: "v1.8.0"
+        allowVersionOverride: true
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: "https://gitlab.example.internal/platform/jenkins-utils.git"
+                credentialsId: "gitlab-ci-token"
+```
+
+| 選項 | 建議 | 說明 |
+| --- | --- | --- |
+| `defaultVersion` | 固定的 tag（例如 `v2.3.0`） | ❌ 不要用 `main`：Library 的任何提交都會立刻影響所有 Pipeline |
+| `allowVersionOverride` | `true` | 讓 Jenkinsfile 以 `@Library('corp-pipeline-lib@v2.4.0-rc1')` 測試新版本 |
+| `implicit` | `false` | `true` 會自動載入到所有 Pipeline，難以追蹤相依關係 |
+| `includeInChangesets` | `false` | 避免 Library 的變更出現在每個專案的變更紀錄與觸發條件 |
+
+### 12.3 vars：自訂全域 step
+
+`vars/mavenBuild.groovy`：
+
+```groovy
+// vars/mavenBuild.groovy
+def call(Map config = [:]) {
+    String goals = config.get('goals', 'clean verify')
+    String settingsId = config.get('settingsId', 'maven-settings-nexus')
+    boolean publishTests = config.get('publishTests', true)
+
+    // 只允許英數、空白與 Maven 常用符號，避免把任意字串拼進 shell
+    if (!(goals ==~ /[A-Za-z0-9 :._\-=]+/)) {
+        error "mavenBuild: goals 含有不允許的字元：${goals}"
+    }
+
+    try {
+        configFileProvider([configFile(fileId: settingsId, variable: 'MAVEN_SETTINGS')]) {
+            withEnv(["MVN_GOALS=${goals}"]) {
+                sh 'mvn -B -ntp -s "$MAVEN_SETTINGS" $MVN_GOALS'
+            }
+        }
+    } finally {
+        if (publishTests) {
+            junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
+        }
+    }
+}
+```
+
+`vars/mavenBuild.txt`（顯示在 Pipeline Syntax → Global Variables Reference）：
+
+```text
+mavenBuild(goals: 'clean verify', settingsId: 'maven-settings-nexus', publishTests: true)
+  以 Config File Provider 的 settings.xml 執行 Maven，並發佈 JUnit 報告。
+  goals 只允許英數、空白與 : . _ - = 字元。
+```
+
+**在 Jenkinsfile 中使用**：
+
+```groovy
+@Library('corp-pipeline-lib@v2.3.0') _
+
+pipeline {
+    agent { label 'linux && maven' }
+    stages {
+        stage('Build') {
+            steps {
+                mavenBuild(goals: 'clean verify')
+            }
+        }
+    }
+}
+```
+
+> 💡 `@Library('name@version') _` 結尾的底線是必要的語法（註解需要附加在某個宣告上）。也可以使用 `library 'corp-pipeline-lib@v2.3.0'` step 在執行期間動態載入。
+
+### 12.4 src 類別與 resources
+
+`src/com/example/ci/Version.groovy`：
+
+```groovy
+package com.example.ci
+
+/** 語意化版本計算，不呼叫任何 Pipeline step，可直接以 JUnit 測試 */
+class Version implements Serializable {
+    private static final long serialVersionUID = 1L
+    final int major
+    final int minor
+    final int patch
+
+    Version(int major, int minor, int patch) {
+        this.major = major
+        this.minor = minor
+        this.patch = patch
+    }
+
+    static Version parse(String text) {
+        def parts = text.replaceFirst(/^v/, '').tokenize('.')
+        if (parts.size() != 3) {
+            throw new IllegalArgumentException("不是有效的版本號：${text}")
+        }
+        return new Version(parts[0] as int, parts[1] as int, parts[2] as int)
+    }
+
+    Version nextPatch() {
+        return new Version(major, minor, patch + 1)
+    }
+
+    @Override
+    String toString() {
+        return "${major}.${minor}.${patch}"
+    }
+}
+```
+
+需要呼叫 Pipeline step 的類別，必須把 Pipeline 的 `script` 物件（`this`）傳進去：
+
+```groovy
+// src/com/example/ci/Notifier.groovy
+package com.example.ci
+
+class Notifier implements Serializable {
+    private static final long serialVersionUID = 1L
+    private final def steps
+
+    Notifier(steps) {
+        this.steps = steps
+    }
+
+    void teams(String credentialsId, String text) {
+        def payload = groovy.json.JsonOutput.toJson([text: text])
+        steps.withCredentials([steps.string(credentialsId: credentialsId, variable: 'TEAMS_WEBHOOK')]) {
+            steps.writeFile file: 'teams-payload.json', text: payload
+            steps.sh 'curl -fsS -H "Content-Type: application/json" -d @teams-payload.json "$TEAMS_WEBHOOK"'
+        }
+    }
+}
+```
+
+```groovy
+// 在 Jenkinsfile 的 script 區塊中使用
+@Library('corp-pipeline-lib@v2.3.0') _
+import com.example.ci.Notifier
+
+pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Notify') {
+            steps {
+                script {
+                    new Notifier(this).teams('teams-webhook-payments', "部署完成：${env.JOB_NAME} #${env.BUILD_NUMBER}")
+                }
+            }
+        }
+    }
+}
+```
+
+**resources 的使用**（例如共用的 Kubernetes Pod 範本）：
+
+```groovy
+// vars/withMavenPod.groovy：以 Library 內的 Pod 範本建立 Kubernetes agent
+def call(Closure body) {
+    def podYaml = libraryResource 'com/example/ci/pod-maven.yaml'
+    podTemplate(yaml: podYaml) {
+        node(POD_LABEL) {
+            container('maven') {
+                body()
+            }
+        }
+    }
+}
+```
+
+### 12.5 Pipeline 範本：封裝整條 Declarative Pipeline
+
+把整條 Declarative Pipeline 放在 `vars/` 中，各專案的 Jenkinsfile 只需要幾行設定，平台團隊即可集中推行標準（品質門檻、掃描、部署核准）：
+
+```groovy
+// vars/standardJavaPipeline.groovy
+def call(Map cfg) {
+    String appName = cfg.appName ?: error('standardJavaPipeline: 必須指定 appName')
+    String jdk = cfg.get('jdk', '21')
+    double coverage = cfg.get('minLineCoverage', 70.0) as double
+
+    pipeline {
+        agent none
+        options {
+            buildDiscarder(logRotator(numToKeepStr: '50'))
+            disableConcurrentBuilds(abortPrevious: true)
+            timeout(time: 60, unit: 'MINUTES')
+            timestamps()
+        }
+        environment {
+            APP_NAME = "${appName}"
+        }
+        stages {
+            stage('Build & Test') {
+                agent {
+                    docker {
+                        image "maven:3.9.16-eclipse-temurin-${jdk}"
+                        label 'linux && docker'
+                    }
+                }
+                steps {
+                    mavenBuild(goals: 'clean verify', publishTests: true)
+                }
+                post {
+                    always {
+                        recordCoverage(tools: [[parser: 'JACOCO']],
+                                       qualityGates: [[threshold: coverage, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE']])
+                    }
+                }
+            }
+            stage('Deploy DEV') {
+                when {
+                    beforeAgent true
+                    branch 'main'
+                }
+                agent { label 'deploy' }
+                steps {
+                    echo "部署 ${APP_NAME} 至 dev"
+                }
+            }
+        }
+    }
+}
+```
+
+各專案的 `Jenkinsfile` 只剩：
+
+```groovy
+@Library('corp-pipeline-lib@v2.3.0') _
+
+standardJavaPipeline(appName: 'payment-api', jdk: '21', minLineCoverage: 75)
+```
+
+> ⚠️ 封裝整條 Pipeline 時，`vars` 中只能有一個 `pipeline {}`，且必須是 `call` 方法的最後一個陳述式。提供「逃生口」（例如 `cfg.extraStages` 或允許專案改用自己的 Jenkinsfile），避免特殊需求的專案被迫繞過平台標準。
+
+### 12.6 版本管理與發佈流程
+
+```mermaid
+flowchart LR
+    A[Library MR／PR] --> B[CI：單元測試＋<br/>JenkinsPipelineUnit]
+    B --> C[合併到 main]
+    C --> D[建立 tag v2.4.0-rc1]
+    D --> E["試點專案以<br/>@Library('lib@v2.4.0-rc1') 驗證"]
+    E --> F[建立正式 tag v2.4.0<br/>更新 CHANGELOG]
+    F --> G[以 JCasC 調整<br/>defaultVersion]
+```
+
+| 原則 | 說明 |
+| --- | --- |
+| 語意化版本 | 不相容的變更（參數改名、預設行為改變）提升主版號 |
+| 不可變 tag | 已發佈的 tag 不得移動；設定 Git 伺服器的 protected tags |
+| 程式碼審查 | 受信任 Library 至少兩人審查；CODEOWNERS 指定平台團隊 |
+| 棄用流程 | 舊參數保留至少一個次版本，並以 `echo` 輸出棄用警告 |
+
+### 12.7 單元測試：JenkinsPipelineUnit
+
+[JenkinsPipelineUnit](https://github.com/jenkinsci/JenkinsPipelineUnit)（v1.31，2026-07）以模擬（mock）的方式在本機執行 Pipeline 腳本，驗證呼叫了哪些 step、參數是否正確。它**需要 Java 21**，使用與 Jenkins 相同的 Groovy 2.4.21，目前不相容 Groovy 4；本身的測試以 JUnit Jupiter 6.1.3 撰寫。
+
+`build.gradle`：
+
+```groovy
+plugins {
+    id 'groovy'
+}
+
+repositories {
+    mavenCentral()
+    maven { url 'https://repo.jenkins-ci.org/releases/' }
+}
+
+dependencies {
+    implementation 'org.codehaus.groovy:groovy-all:2.4.21'
+    testImplementation 'com.lesfurets:jenkins-pipeline-unit:1.31'
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.1.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:6.1.3'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+sourceSets {
+    main { groovy { srcDirs = ['src', 'vars'] } }
+    test { groovy { srcDirs = ['test/groovy'] } }
+}
+```
+
+`test/groovy/MavenBuildTest.groovy`：
+
+```groovy
+import com.lesfurets.jenkins.unit.BasePipelineTest
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+
+import static org.junit.jupiter.api.Assertions.assertThrows
+import static org.junit.jupiter.api.Assertions.assertTrue
+
+class MavenBuildTest extends BasePipelineTest {
+
+    @Override
+    @BeforeEach
+    void setUp() throws Exception {
+        super.setUp()
+        helper.registerAllowedMethod('configFile', [Map]) { Map m -> m }
+        helper.registerAllowedMethod('configFileProvider', [List, Closure]) { List l, Closure c -> c() }
+        helper.registerAllowedMethod('junit', [Map], null)
+    }
+
+    @Test
+    void runsMavenWithGivenGoals() {
+        def script = loadScript('vars/mavenBuild.groovy')
+        script.call(goals: 'clean verify')
+        assertTrue(helper.callStack.any { it.methodName == 'sh' && it.argsToString().contains('$MVN_GOALS') })
+        assertTrue(helper.callStack.any { it.methodName == 'junit' })
+    }
+
+    @Test
+    void rejectsUnsafeGoals() {
+        def script = loadScript('vars/mavenBuild.groovy')
+        helper.registerAllowedMethod('error', [String]) { String msg -> throw new IllegalStateException(msg) }
+        assertThrows(IllegalStateException) {
+            script.call(goals: 'verify; curl http://evil.example')
+        }
+    }
+}
+```
+
+> 💡 JenkinsPipelineUnit 驗證的是「呼叫了哪些 step」，不會真的執行 Jenkins。發佈前仍要以 `@Library('...@<rc tag>')` 在試點專案上實際執行一次（12.6 的流程）。
+
+### 12.8 本章重點
+
+- Library 以固定 tag 作為 `defaultVersion`，新版本先以 rc tag 在試點專案驗證
+- 受信任 Library 不在沙箱中執行，其 repository 寫入權限等同 Jenkins 管理員權限
+- `vars` 提供自訂 step 與整條 Pipeline 範本；`src` 放純邏輯類別，需要 step 時傳入 `this`
+- 以 JenkinsPipelineUnit 撰寫單元測試，並在 Library 自己的 CI 中執行
+
+## 13. 測試報告、覆蓋率與品質門檻
+
+### 13.1 JUnit 測試報告
+
+`junit` step（JUnit plugin）解析 JUnit XML 格式的報告，產生測試趨勢圖、失敗測試清單，並在有失敗測試時把建置設為 **UNSTABLE**。幾乎所有語言的測試框架都能輸出此格式（Maven Surefire／Failsafe、Gradle、pytest `--junitxml`、Jest `jest-junit`、Go `go-junit-report`）。
+
+```groovy
+pipeline {
+    agent { label 'linux && maven' }
+    stages {
+        stage('Test') {
+            steps {
+                sh './mvnw -B -ntp verify'
+            }
+            post {
+                always {
+                    junit testResults: '**/target/surefire-reports/TEST-*.xml, **/target/failsafe-reports/TEST-*.xml',
+                          allowEmptyResults: false,
+                          skipPublishingChecks: false,
+                          stdioRetention: 'FAILED',
+                          healthScaleFactor: 1.0
+                }
+            }
+        }
+    }
+}
+```
+
+| 參數 | 建議值 | 說明 |
+| --- | --- | --- |
+| `testResults` | 明確的路徑樣式 | 多個樣式以逗號分隔 |
+| `allowEmptyResults` | 測試必定存在的專案設 `false` | 找不到報告時讓建置失敗，避免「沒有執行任何測試卻顯示成功」 |
+| `stdioRetention` | `'FAILED'` | 只保留失敗測試的標準輸出，節省 controller 磁碟 |
+| `skipPublishingChecks` | `false` | 搭配 GitHub Checks 時在 PR 上顯示測試結果（13.6） |
+| `skipMarkingBuildUnstable` | 一般為 `false` | 設為 `true` 時測試失敗不影響建置結果（不建議） |
+
+> ⚠️ 不要在 Maven 加上 `-Dmaven.test.failure.ignore=true` 之後又忽略 UNSTABLE 結果。測試失敗應該阻擋合併與部署；若有不穩定測試，應標記並修正，而不是全面忽略。
+
+### 13.2 程式碼覆蓋率：Coverage plugin
+
+**Coverage** plugin（`recordCoverage`）取代了 JaCoCo、Cobertura、Code Coverage API 等舊 plugin，支援 JaCoCo、Cobertura、Clover、Go cover、LCOV、OpenCover、PIT（突變測試）等格式，並可針對「修改的程式行」計算覆蓋率。
+
+```groovy
+pipeline {
+    agent { label 'linux && maven' }
+    stages {
+        stage('Test') {
+            steps {
+                sh './mvnw -B -ntp verify'   // pom.xml 中已設定 jacoco-maven-plugin 的 report goal
+            }
+            post {
+                always {
+                    discoverReferenceBuild(referenceJob: 'payments/payment-api/main')
+                    recordCoverage(tools: [[parser: 'JACOCO', pattern: '**/target/site/jacoco/jacoco.xml']],
+                                   id: 'jacoco',
+                                   name: 'JaCoCo 覆蓋率',
+                                   sourceCodeRetention: 'MODIFIED',
+                                   sourceDirectories: [[path: 'src/main/java']],
+                                   qualityGates: [
+                                       [threshold: 70.0, metric: 'LINE', baseline: 'PROJECT', criticality: 'UNSTABLE'],
+                                       [threshold: 80.0, metric: 'LINE', baseline: 'MODIFIED_LINES', criticality: 'UNSTABLE'],
+                                       [threshold: -1.0, metric: 'LINE', baseline: 'PROJECT_DELTA', criticality: 'NOTE']
+                                   ])
+                }
+            }
+        }
+    }
+}
+```
+
+| Baseline | 意義 | 建議用途 |
+| --- | --- | --- |
+| `PROJECT` | 整個專案的覆蓋率 | 底線門檻（例如 70%） |
+| `MODIFIED_LINES` | 本次變更的程式行 | ✅ PR 的主要門檻：新寫的程式要有測試（例如 80%） |
+| `MODIFIED_FILES` | 本次變更的檔案 | 較寬鬆的變更門檻 |
+| `PROJECT_DELTA`／`MODIFIED_LINES_DELTA`／`MODIFIED_FILES_DELTA` | 與參考建置相比的差值 | 防止覆蓋率持續下降 |
+| `INDIRECT` | 間接影響的程式碼 | 進階分析 |
+
+> 💡 `MODIFIED_LINES` 與 `*_DELTA` 需要知道「和誰比較」：以 `discoverReferenceBuild` 指定參考 Job（通常是目標分支），PR 建置才能正確計算差異。
+
+<!-- markdownlint-disable-next-line MD028 -->
+> 📌 v1.0 使用 JaCoCo plugin 的 `jacoco(execPattern: ..., minimumInstructionCoverage: ...)`，並在第 4 章的必要 plugin 清單中列出已自 update center 下架的 `checkstyle` plugin。v2.0 覆蓋率全面改用 `recordCoverage`，靜態分析改用 `recordIssues`。品質門檻的失敗等級使用 `criticality`（`NOTE`、`UNSTABLE`、`ERROR`、`FAILURE`）。
+
+### 13.3 靜態分析：Warnings Next Generation
+
+**Warnings NG**（`recordIssues`）可解析超過 100 種工具的報告，取代已下架的 Checkstyle、PMD、FindBugs plugin。
+
+```groovy
+pipeline {
+    agent { label 'linux && maven' }
+    stages {
+        stage('Static Analysis') {
+            steps {
+                sh './mvnw -B -ntp -DskipTests verify checkstyle:checkstyle pmd:pmd pmd:cpd spotbugs:spotbugs'
+            }
+            post {
+                always {
+                    discoverReferenceBuild(referenceJob: 'payments/payment-api/main')
+                    recordIssues(enabledForFailure: true,
+                                 aggregatingResults: false,
+                                 sourceCodeRetention: 'MODIFIED',
+                                 tools: [java(),
+                                         javaDoc(),
+                                         checkStyle(pattern: '**/target/checkstyle-result.xml'),
+                                         pmdParser(pattern: '**/target/pmd.xml'),
+                                         cpd(pattern: '**/target/cpd.xml'),
+                                         spotBugs(pattern: '**/target/spotbugsXml.xml', useRankAsPriority: true)],
+                                 qualityGates: [
+                                     [threshold: 1, type: 'NEW_ERROR', criticality: 'FAILURE'],
+                                     [threshold: 1, type: 'NEW_HIGH', criticality: 'UNSTABLE'],
+                                     [threshold: 10, type: 'NEW', criticality: 'UNSTABLE']
+                                 ])
+                }
+            }
+        }
+    }
+}
+```
+
+| 品質門檻類型 | 意義 |
+| --- | --- |
+| `TOTAL`、`TOTAL_ERROR`／`HIGH`／`NORMAL`／`LOW` | 目前所有問題數 |
+| `NEW`、`NEW_ERROR`／`HIGH`／`NORMAL`／`LOW` | ✅ 相對於參考建置**新增**的問題（建議以此為主，避免既有技術債阻擋所有建置） |
+| `DELTA`、`DELTA_*` | 與參考建置的數量差 |
+| `TOTAL_MODIFIED`、`NEW_MODIFIED` | 只計算本次修改檔案中的問題 |
+
+| 常用 tool | 報告來源 |
+| --- | --- |
+| `java()`、`javaDoc()`、`mavenConsole()` | 直接解析主控台輸出中的編譯器與 Maven 警告 |
+| `checkStyle()`、`pmdParser()`、`cpd()`、`spotBugs()` | Maven／Gradle plugin 產生的 XML |
+| `errorProne()` | Error Prone 編譯器外掛 |
+| `esLint()` | ESLint checkstyle 格式輸出 |
+| `owaspDependencyCheck()`、`trivy()` | 相依套件弱點報告（第 21 章） |
+| `sonarQube()` | SonarQube 的問題報告 |
+| `taskScanner(includePattern: '**/*.java', highTags: 'FIXME', normalTags: 'TODO')` | 程式碼中的待辦標記 |
+
+### 13.4 SonarQube 品質門檻
+
+```mermaid
+sequenceDiagram
+    participant J as Jenkins Pipeline
+    participant S as SonarQube
+    J->>S: mvn sonar:sonar（withSonarQubeEnv 注入 URL 與 token）
+    S-->>J: 回傳 analysis task ID
+    S->>S: 背景計算 Quality Gate
+    S->>J: Webhook POST /sonarqube-webhook/
+    J->>J: waitForQualityGate 收到結果
+    J->>J: 未通過 → abortPipeline 使建置失敗
+```
+
+**JCasC 設定**：
+
+```yaml
+unclassified:
+  sonarglobalconfiguration:
+    buildWrapperEnabled: true
+    installations:
+      - name: "sonarqube"
+        serverUrl: "https://sonarqube.example.internal"
+        credentialsId: "sonar-token"
+```
+
+**Pipeline**：
+
+```groovy
+pipeline {
+    agent { label 'linux && maven' }
+    stages {
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh './mvnw -B -ntp verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=payments_payment-api'
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+    }
+}
+```
+
+✅ 設定要點：
+
+- 在 SonarQube 的 Administration → Configuration → Webhooks 新增 `https://jenkins.example.internal/sonarqube-webhook/`，並設定 secret（Jenkins 端在 SonarQube server 設定中填入同一個 secret）
+- `waitForQualityGate` 一定要包在 `timeout` 中；webhook 遺失時才不會無限等待
+- `sonar-maven-plugin` 的版本應在 `pom.xml` 的 `pluginManagement` 中固定，避免每次解析最新版
+- PR 分析（branch／PR decoration）需要 SonarQube Developer Edition 以上或 SonarQube Cloud；Community Build 只分析主分支
+
+### 13.5 品質門檻設計
+
+| 關卡 | PR 建置 | 主分支建置 | 正式發佈 |
+| --- | --- | --- | --- |
+| 編譯與單元測試 | 必須全部通過（FAILURE） | 同左 | 同左 |
+| 新增程式碼覆蓋率（`MODIFIED_LINES`） | ≥ 80%（UNSTABLE） | — | — |
+| 專案覆蓋率（`PROJECT`） | 不低於參考建置（NOTE） | ≥ 70%（UNSTABLE） | ≥ 70%（FAILURE） |
+| 新增靜態分析問題 | `NEW_ERROR` ≥ 1 → FAILURE；`NEW_HIGH` ≥ 1 → UNSTABLE | 同左 | 同左 |
+| SonarQube Quality Gate | 通過（PR decoration） | 通過 | 通過 |
+| 相依套件高風險弱點（第 21 章） | 新增即 UNSTABLE | Critical → FAILURE | Critical／High → FAILURE |
+
+> 💡 搭配 `options { skipStagesAfterUnstable() }`：品質門檻把建置設為 UNSTABLE 後，後續的映像建置與部署 stage 會自動略過。合併規則（GitHub branch protection／GitLab「Pipelines must succeed」）要求 Jenkins 回報的狀態為成功。
+
+### 13.6 回報到 GitHub Checks 與 GitLab MR
+
+| 平台 | 機制 | 設定 |
+| --- | --- | --- |
+| GitHub | **Checks API**（`checks-api`＋`github-checks` plugin，需使用 GitHub App 憑證） | `junit`、`recordCoverage`、`recordIssues` 會自動發佈對應的 Check run，在 PR 中逐行顯示註解；以 `skipPublishingChecks: true` 關閉 |
+| GitHub | Commit status | GitHub Branch Source 自動回報建置狀態 |
+| GitLab | Pipeline 狀態 | GitLab Branch Source 自動以 `jenkinsci/<job>` 名稱回報 commit status，可在專案設定為合併前提 |
+
+### 13.7 HTML 報告與安全限制
+
+測試框架產生的 HTML 報告（例如 Playwright、Allure、Gatling）可以用 HTML Publisher plugin 的 `publishHTML` 發佈。Jenkins 預設以 Content Security Policy 限制這些檔案中的 JavaScript 與 CSS，因此報告可能無法正常顯示。
+
+| 做法 | 說明 |
+| --- | --- |
+| ✅ 設定 **Resource Root URL** | Manage Jenkins → Security → Resource Root URL，指定另一個網域（例如 `https://jenkins-files.example.internal/`）提供使用者上傳或建置產生的檔案；這些檔案在獨立的網域中執行，不影響 Jenkins 本身的安全 |
+| ⚠️ 放寬 `hudson.model.DirectoryBrowserSupport.CSP` | 會讓惡意建置產物在 Jenkins 網域執行腳本、竊取使用者 session，**不建議** |
+| 改用外部報告伺服器 | 把報告上傳到物件儲存或報告平台，Jenkins 只放連結 |
+
+### 13.8 本章重點
+
+- `junit` 讓測試失敗成為 UNSTABLE；`allowEmptyResults: false` 防止「沒有測試卻成功」
+- 覆蓋率用 Coverage plugin（`recordCoverage`），靜態分析用 Warnings NG（`recordIssues`），PR 以「新增程式碼」為門檻
+- SonarQube 以 webhook＋`waitForQualityGate` 包在 `timeout` 中
+- HTML 報告透過 Resource Root URL 提供，不要放寬全域 CSP
+
+## 14. Agent 與雲端節點
+
+### 14.1 Agent 規劃與 Label 設計
+
+| 規劃面向 | 建議 |
+| --- | --- |
+| Label 命名 | 以**能力**命名：`linux`、`windows`、`docker`、`maven`、`node`、`gpu`、`macos-xcode16`；避免主機名稱 |
+| 信任分級 | `ci-untrusted`（外部 PR）、`ci`（一般建置）、`deploy`／`deploy-prod`（部署專用，網路可達正式環境） |
+| Executor 數 | 固定 agent：CPU 核心數的 50–100%；容器化或雲端 agent：1 |
+| 生命週期 | ✅ 優先使用可拋棄的雲端 agent（每次建置全新環境）；固定 agent 用於特殊硬體或授權 |
+| Java | Agent 程序必須以 Java 21 或 25 執行（2.555.1 起） |
+
+```mermaid
+flowchart LR
+    subgraph Trust0[信任等級：低]
+        U[ci-untrusted<br/>外部 PR、fork]
+    end
+    subgraph Trust1[信任等級：中]
+        C[ci<br/>內部分支、PR]
+    end
+    subgraph Trust2[信任等級：高]
+        D[deploy<br/>dev／sit／uat]
+        P[deploy-prod<br/>正式環境]
+    end
+    U -. 無法存取 .-> Cred[(部署憑證)]
+    C -. 無法存取 .-> Cred
+    D --> Cred
+    P --> Cred
+```
+
+### 14.2 固定 agent：SSH 與 Windows
+
+**Linux 固定 agent（SSH Build Agents）**，以 JCasC 定義：
+
+```yaml
+jenkins:
+  nodes:
+    - permanent:
+        name: "linux-build-01"
+        labelString: "linux docker maven ci"
+        numExecutors: 4
+        remoteFS: "/home/jenkins/agent"
+        mode: EXCLUSIVE
+        retentionStrategy: "always"
+        launcher:
+          ssh:
+            host: "build-01.example.internal"
+            port: 22
+            credentialsId: "agent-ssh-key"
+            javaPath: "/usr/lib/jvm/java-21-openjdk/bin/java"
+            launchTimeoutSeconds: 60
+            maxNumRetries: 3
+            retryWaitTime: 15
+            sshHostKeyVerificationStrategy:
+              knownHostsFileKeyVerificationStrategy: {}
+```
+
+| 設定 | 說明 |
+| --- | --- |
+| `mode: EXCLUSIVE` | 只執行 label 符合的建置（避免 `agent any` 跑到此節點） |
+| `sshHostKeyVerificationStrategy` | ✅ 使用 known_hosts 驗證主機金鑰；❌ 不要用「Non verifying」 |
+| `javaPath` | 明確指定 Java 21 路徑 |
+
+**Windows 固定 agent**：2.504.1 移除了 DCOM（「Let Jenkins control this Windows agent as a Windows service」）啟動方式，請改用以下其中一種：
+
+| 方式 | 做法 |
+| --- | --- |
+| ✅ Inbound（WebSocket）＋Windows 服務 | 以 [WinSW](https://github.com/winsw/winsw) 等服務包裝工具把 `java -jar agent.jar -url ... -secret @secret.txt -name ... -webSocket -workDir D:\jenkins` 註冊為 Windows 服務，以專用服務帳號執行 |
+| SSH（Windows OpenSSH Server） | SSH Build Agents plugin 支援連線 Windows 的 OpenSSH，設定方式與 Linux 相同 |
+
+**WinSW 設定範例**（WinSW 最新穩定版為 2.12.0；把 `WinSW-x64.exe` 改名為 `jenkins-agent.exe`，與同名的 `jenkins-agent.xml` 放在同一目錄）：
+
+```xml
+<service>
+  <id>jenkins-agent</id>
+  <name>Jenkins Agent (win-build-01)</name>
+  <description>Jenkins inbound agent，以 WebSocket 連線 controller</description>
+  <executable>C:\Program Files\Eclipse Adoptium\jdk-21\bin\java.exe</executable>
+  <arguments>-Xmx1g -jar D:\jenkins\agent.jar -url https://jenkins.example.internal/ -secret @D:\jenkins\agent-secret.txt -name win-build-01 -webSocket -workDir D:\jenkins\work</arguments>
+  <log mode="roll-by-size">
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>8</keepFiles>
+  </log>
+  <onfailure action="restart" delay="10 sec"/>
+</service>
+```
+
+```powershell
+# 以系統管理員身分執行
+Set-Location D:\jenkins
+Invoke-WebRequest -Uri "https://jenkins.example.internal/jnlpJars/agent.jar" -OutFile "D:\jenkins\agent.jar"
+.\jenkins-agent.exe install
+# 服務登入帳號建議使用群組受管理服務帳戶（gMSA），密碼由 AD 自動輪替
+sc.exe config jenkins-agent obj= "CORP\svc-jenkins-agt$"
+icacls D:\jenkins\agent-secret.txt /inheritance:r /grant "CORP\svc-jenkins-agt$:R" /grant "Administrators:F"
+Start-Service jenkins-agent
+```
+
+> 💡 Windows agent 上的建置會以服務帳號身分執行。需要存取網路磁碟或簽章憑證時，使用網域服務帳號並只授予必要權限；不要以 LocalSystem 執行。
+
+### 14.3 Docker agent
+
+| 機制 | Plugin | 運作方式 | 適用 |
+| --- | --- | --- | --- |
+| `agent { docker { ... } }` | Docker Pipeline | 在具備 Docker 的 agent 上，以容器執行 steps（workspace 以 volume 掛入） | 已有 Docker 主機的團隊 |
+| Docker Cloud | Docker plugin | 依需求在 Docker 主機上啟動整個 agent 容器 | 小型環境的動態 agent |
+
+```groovy
+pipeline {
+    agent none
+    stages {
+        stage('Backend') {
+            agent {
+                docker {
+                    image 'maven:3.9.16-eclipse-temurin-21'
+                    label 'linux && docker'
+                    registryUrl 'https://harbor.example.internal'
+                    registryCredentialsId 'harbor-robot-ci'
+                    args '--network=ci-net -v maven-repo-cache:/root/.m2/repository'
+                    alwaysPull true
+                }
+            }
+            steps {
+                sh 'mvn -B -ntp verify'
+            }
+        }
+        stage('Frontend') {
+            agent {
+                docker {
+                    image 'node:24-bookworm-slim'
+                    label 'linux && docker'
+                }
+            }
+            steps {
+                sh 'npm ci && npm run build'
+            }
+        }
+    }
+}
+```
+
+> ⚠️ Docker agent 主機上的 Docker daemon 等同 root。任何能修改 Jenkinsfile 的人都可以 `args '-v /:/host'` 掛載主機根目錄。使用 Docker agent 時，主機只能用於建置（不放其他服務與機密），並依信任等級分開主機；更好的做法是改用 Kubernetes agent 搭配 Pod Security（14.4、14.6）。
+
+### 14.4 Kubernetes plugin
+
+Kubernetes plugin 依建置需求動態建立 Pod，每個 Pod 自動包含一個連回 controller 的 `jnlp` 容器，以及 Pipeline 指定的工具容器。
+
+```mermaid
+sequenceDiagram
+    participant C as Jenkins Controller
+    participant K as Kubernetes API
+    participant P as Agent Pod
+    C->>K: 建立 Pod（jnlp＋maven＋buildkit 容器）
+    K->>P: 排程並啟動容器
+    P->>C: jnlp 容器以 WebSocket 連線
+    C->>P: 在 maven 容器中執行 sh 步驟
+    C->>K: 建置結束，刪除 Pod
+```
+
+**Cloud 設定（JCasC）**：
+
+```yaml
+jenkins:
+  clouds:
+    - kubernetes:
+        name: "kubernetes"
+        namespace: "jenkins-agents"
+        jenkinsUrl: "http://jenkins.jenkins.svc.cluster.local:8080/"
+        webSocket: true
+        containerCapStr: "100"
+        maxRequestsPerHostStr: "64"
+        podRetention: "never"
+        waitForPodSec: 600
+        templates:
+          - name: "maven-jdk21"
+            label: "k8s-maven"
+            nodeUsageMode: EXCLUSIVE
+            serviceAccount: "jenkins-agent"
+            idleMinutes: 0
+            yaml: |
+              apiVersion: v1
+              kind: Pod
+              spec:
+                automountServiceAccountToken: false
+                securityContext:
+                  runAsUser: 1000
+                  runAsGroup: 1000
+                  fsGroup: 1000
+                  runAsNonRoot: true
+                  seccompProfile:
+                    type: RuntimeDefault
+                containers:
+                  - name: maven
+                    image: maven:3.9.16-eclipse-temurin-21
+                    command: ["sleep"]
+                    args: ["infinity"]
+                    env:
+                      - name: MAVEN_CONFIG
+                        value: /home/jenkins/.m2
+                    resources:
+                      requests:
+                        cpu: "1"
+                        memory: 2Gi
+                      limits:
+                        memory: 3Gi
+                    securityContext:
+                      allowPrivilegeEscalation: false
+                      capabilities:
+                        drop: ["ALL"]
+```
+
+**在 Jenkinsfile 中宣告 Pod**（範本放在 repository 的 `ci/pod.yaml`，或使用 cloud 中定義的 label）：
+
+```groovy
 pipeline {
     agent {
         kubernetes {
+            inheritFrom 'maven-jdk21'
+            defaultContainer 'maven'
             yaml '''
                 apiVersion: v1
                 kind: Pod
                 spec:
-                  serviceAccountName: jenkins-agent
                   containers:
-                  - name: maven
-                    image: maven:3.9-eclipse-temurin-17
-                    command:
-                    - sleep
-                    args:
-                    - 99d
-                    volumeMounts:
-                    - name: maven-cache
-                      mountPath: /root/.m2
-                  - name: docker
-                    image: docker:24-dind
-                    securityContext:
-                      privileged: true
-                    volumeMounts:
-                    - name: docker-sock
-                      mountPath: /var/run
-                  - name: kubectl
-                    image: bitnami/kubectl:latest
-                    command:
-                    - sleep
-                    args:
-                    - 99d
-                  - name: helm
-                    image: alpine/helm:latest
-                    command:
-                    - sleep
-                    args:
-                    - 99d
-                  volumes:
-                  - name: maven-cache
-                    persistentVolumeClaim:
-                      claimName: maven-cache-pvc
-                  - name: docker-sock
-                    emptyDir: {}
+                    - name: node
+                      image: node:24-bookworm-slim
+                      command: ["sleep"]
+                      args: ["infinity"]
+                      resources:
+                        requests:
+                          cpu: "500m"
+                          memory: 1Gi
             '''
         }
     }
-    
-    environment {
-        APP_NAME = 'java-tutorial'
-        K8S_NAMESPACE = 'java-tutorial'
-        HELM_CHART = './k8s/helm-chart'
-        DOCKER_REGISTRY = 'harbor.company.com'
-        DOCKER_REPO = "${DOCKER_REGISTRY}/library/${APP_NAME}"
-        IMAGE_TAG = "${BUILD_NUMBER}-${GIT_COMMIT.take(8)}"
-    }
-    
     stages {
-        stage('原始碼建置') {
+        stage('Backend') {
             steps {
-                container('maven') {
-                    sh '''
-                        mvn clean compile test package -DskipTests=false
-                        mvn sonar:sonar
-                    '''
-                }
+                sh 'mvn -B -ntp -Dmaven.repo.local=/home/jenkins/agent/.m2 verify'
             }
         }
-        
-        stage('容器建置') {
+        stage('Frontend') {
             steps {
-                container('docker') {
-                    sh '''
-                        # 建置應用程式映像
-                        docker build -t ${DOCKER_REPO}:${IMAGE_TAG} .
-                        docker push ${DOCKER_REPO}:${IMAGE_TAG}
-                    '''
+                container('node') {
+                    sh 'npm ci && npm test -- --ci'
                 }
-            }
-        }
-        
-        stage('Kubernetes 部署') {
-            steps {
-                container('helm') {
-                    sh '''
-                        # 更新 Helm 依賴
-                        helm dependency update ${HELM_CHART}
-                        
-                        # 部署到 Kubernetes
-                        helm upgrade --install ${APP_NAME} ${HELM_CHART} \\
-                            --namespace ${K8S_NAMESPACE} \\
-                            --create-namespace \\
-                            --set image.repository=${DOCKER_REPO} \\
-                            --set image.tag=${IMAGE_TAG} \\
-                            --set environment=production \\
-                            --wait --timeout=300s
-                    '''
-                }
-            }
-        }
-        
-        stage('部署驗證') {
-            steps {
-                container('kubectl') {
-                    sh '''
-                        # 檢查部署狀態
-                        kubectl rollout status deployment/${APP_NAME} -n ${K8S_NAMESPACE}
-                        
-                        # 檢查 Pod 狀態
-                        kubectl get pods -n ${K8S_NAMESPACE} -l app=${APP_NAME}
-                        
-                        # 執行健康檢查
-                        kubectl run health-check --rm -i --restart=Never \\
-                            --image=curlimages/curl -- \\
-                            curl -f http://${APP_NAME}.${K8S_NAMESPACE}.svc.cluster.local:8080/actuator/health
-                    '''
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            container('kubectl') {
-                sh '''
-                    # 收集部署資訊
-                    kubectl describe deployment ${APP_NAME} -n ${K8S_NAMESPACE} > deployment-info.txt
-                    kubectl get events -n ${K8S_NAMESPACE} --sort-by=.metadata.creationTimestamp > events.txt
-                '''
-                archiveArtifacts artifacts: '*.txt'
             }
         }
     }
 }
 ```
 
-#### 17.3 多雲環境整合
-
-**多雲部署策略：**
-
-```groovy
-// 多雲環境整合 Pipeline
-pipeline {
-    agent none
-    
-    parameters {
-        choice(
-            name: 'TARGET_CLOUDS',
-            choices: ['aws-only', 'azure-only', 'gcp-only', 'multi-cloud', 'all-clouds'],
-            description: '目標雲端環境'
-        )
-        choice(
-            name: 'DEPLOYMENT_STRATEGY',
-            choices: ['blue-green', 'canary', 'rolling', 'recreate'],
-            description: '部署策略'
-        )
-        booleanParam(
-            name: 'ENABLE_DISASTER_RECOVERY',
-            defaultValue: true,
-            description: '啟用災難恢復'
-        )
-    }
-    
-    environment {
-        // AWS 配置
-        AWS_REGION = 'ap-northeast-1'
-        AWS_EKS_CLUSTER = 'production-eks-cluster'
-        AWS_ECR_REGISTRY = '123456789012.dkr.ecr.ap-northeast-1.amazonaws.com'
-        
-        // Azure 配置
-        AZURE_LOCATION = 'East Asia'
-        AZURE_AKS_CLUSTER = 'production-aks-cluster'
-        AZURE_ACR_REGISTRY = 'productionacr.azurecr.io'
-        
-        // GCP 配置
-        GCP_ZONE = 'asia-east1-a'
-        GCP_GKE_CLUSTER = 'production-gke-cluster'
-        GCP_GCR_REGISTRY = 'gcr.io/company-project'
-        
-        // 應用程式配置
-        APP_NAME = 'java-tutorial'
-        APP_VERSION = "${BUILD_NUMBER}"
-        NAMESPACE = 'production'
-    }
-    
-    stages {
-        stage('多雲環境準備') {
-            parallel {
-                stage('AWS 環境準備') {
-                    when {
-                        expression { 
-                            params.TARGET_CLOUDS.contains('aws') || 
-                            params.TARGET_CLOUDS == 'all-clouds' 
-                        }
-                    }
-                    agent {
-                        docker {
-                            image 'amazon/aws-cli:latest'
-                            args '--entrypoint=""'
-                        }
-                    }
-                    steps {
-                        script {
-                            setupAWSEnvironment()
-                        }
-                    }
-                }
-                
-                stage('Azure 環境準備') {
-                    when {
-                        expression { 
-                            params.TARGET_CLOUDS.contains('azure') || 
-                            params.TARGET_CLOUDS == 'all-clouds' 
-                        }
-                    }
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/azure-cli:latest'
-                            args '--entrypoint=""'
-                        }
-                    }
-                    steps {
-                        script {
-                            setupAzureEnvironment()
-                        }
-                    }
-                }
-                
-                stage('GCP 環境準備') {
-                    when {
-                        expression { 
-                            params.TARGET_CLOUDS.contains('gcp') || 
-                            params.TARGET_CLOUDS == 'all-clouds' 
-                        }
-                    }
-                    agent {
-                        docker {
-                            image 'google/cloud-sdk:alpine'
-                            args '--entrypoint=""'
-                        }
-                    }
-                    steps {
-                        script {
-                            setupGCPEnvironment()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('多雲容器建置與推送') {
-            parallel {
-                stage('AWS ECR 推送') {
-                    when {
-                        expression { shouldDeployToAWS() }
-                    }
-                    agent {
-                        docker {
-                            image 'amazon/aws-cli:latest'
-                            args '--entrypoint="" -v /var/run/docker.sock:/var/run/docker.sock'
-                        }
-                    }
-                    steps {
-                        script {
-                            buildAndPushToECR()
-                        }
-                    }
-                }
-                
-                stage('Azure ACR 推送') {
-                    when {
-                        expression { shouldDeployToAzure() }
-                    }
-                    agent {
-                        docker {
-                            image 'mcr.microsoft.com/azure-cli:latest'
-                            args '--entrypoint="" -v /var/run/docker.sock:/var/run/docker.sock'
-                        }
-                    }
-                    steps {
-                        script {
-                            buildAndPushToACR()
-                        }
-                    }
-                }
-                
-                stage('GCP GCR 推送') {
-                    when {
-                        expression { shouldDeployToGCP() }
-                    }
-                    agent {
-                        docker {
-                            image 'google/cloud-sdk:alpine'
-                            args '--entrypoint="" -v /var/run/docker.sock:/var/run/docker.sock'
-                        }
-                    }
-                    steps {
-                        script {
-                            buildAndPushToGCR()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('多雲部署執行') {
-            parallel {
-                stage('AWS EKS 部署') {
-                    when {
-                        expression { shouldDeployToAWS() }
-                    }
-                    agent {
-                        kubernetes {
-                            yaml """
-                                apiVersion: v1
-                                kind: Pod
-                                spec:
-                                  containers:
-                                  - name: aws-cli
-                                    image: amazon/aws-cli:latest
-                                    command:
-                                    - sleep
-                                    args:
-                                    - 99d
-                                  - name: kubectl
-                                    image: bitnami/kubectl:latest
-                                    command:
-                                    - sleep
-                                    args:
-                                    - 99d
-                                  - name: helm
-                                    image: alpine/helm:latest
-                                    command:
-                                    - sleep
-                                    args:
-                                    - 99d
-                            """
-                        }
-                    }
-                    steps {
-                        container('aws-cli') {
-                            script {
-                                configureAWSCredentials()
-                            }
-                        }
-                        container('kubectl') {
-                            script {
-                                deployToEKS()
-                            }
-                        }
-                        container('helm') {
-                            script {
-                                deployAWSHelmChart()
-                            }
-                        }
-                    }
-                }
-                
-                stage('Azure AKS 部署') {
-                    when {
-                        expression { shouldDeployToAzure() }
-                    }
-                    agent {
-                        kubernetes {
-                            yaml """
-                                apiVersion: v1
-                                kind: Pod
-                                spec:
-                                  containers:
-                                  - name: azure-cli
-                                    image: mcr.microsoft.com/azure-cli:latest
-                                    command:
-                                    - sleep
-                                    args:
-                                    - 99d
-                                  - name: kubectl
-                                    image: bitnami/kubectl:latest
-                                    command:
-                                    - sleep
-                                    args:
-                                    - 99d
-                                  - name: helm
-                                    image: alpine/helm:latest
-                                    command:
-                                    - sleep
-                                    args:
-                                    - 99d
-                            """
-                        }
-                    }
-                    steps {
-                        container('azure-cli') {
-                            script {
-                                configureAzureCredentials()
-                            }
-                        }
-                        container('kubectl') {
-                            script {
-                                deployToAKS()
-                            }
-                        }
-                        container('helm') {
-                            script {
-                                deployAzureHelmChart()
-                            }
-                        }
-                    }
-                }
-                
-                stage('GCP GKE 部署') {
-                    when {
-                        expression { shouldDeployToGCP() }
-                    }
-                    agent {
-                        kubernetes {
-                            yaml """
-                                apiVersion: v1
-                                kind: Pod
-                                spec:
-                                  containers:
-                                  - name: gcloud
-                                    image: google/cloud-sdk:alpine
-                                    command:
-                                    - sleep
-                                    args:
-                                    - 99d
-                                  - name: kubectl
-                                    image: bitnami/kubectl:latest
-                                    command:
-                                    - sleep
-                                    args:
-                                    - 99d
-                                  - name: helm
-                                    image: alpine/helm:latest
-                                    command:
-                                    - sleep
-                                    args:
-                                    - 99d
-                            """
-                        }
-                    }
-                    steps {
-                        container('gcloud') {
-                            script {
-                                configureGCPCredentials()
-                            }
-                        }
-                        container('kubectl') {
-                            script {
-                                deployToGKE()
-                            }
-                        }
-                        container('helm') {
-                            script {
-                                deployGCPHelmChart()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('多雲部署驗證') {
-            parallel {
-                stage('AWS 驗證') {
-                    when {
-                        expression { shouldDeployToAWS() }
-                    }
-                    steps {
-                        script {
-                            validateAWSDeployment()
-                        }
-                    }
-                }
-                
-                stage('Azure 驗證') {
-                    when {
-                        expression { shouldDeployToAzure() }
-                    }
-                    steps {
-                        script {
-                            validateAzureDeployment()
-                        }
-                    }
-                }
-                
-                stage('GCP 驗證') {
-                    when {
-                        expression { shouldDeployToGCP() }
-                    }
-                    steps {
-                        script {
-                            validateGCPDeployment()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('災難恢復配置') {
-            when {
-                expression { params.ENABLE_DISASTER_RECOVERY == true }
-            }
-            steps {
-                script {
-                    setupDisasterRecovery()
-                    testFailoverMechanisms()
-                    validateBackupStrategies()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                collectMultiCloudMetrics()
-                generateMultiCloudReport()
-            }
-        }
-        
-        success {
-            script {
-                notifyMultiCloudSuccess()
-                updateServiceMesh()
-            }
-        }
-        
-        failure {
-            script {
-                rollbackMultiCloudDeployment()
-                notifyMultiCloudFailure()
-            }
-        }
-    }
-}
-
-// === 多雲管理函式 ===
-
-def setupAWSEnvironment() {
-    echo "設定 AWS 環境..."
-    
-    sh '''
-        # 安裝必要工具
-        yum update -y
-        yum install -y jq curl
-        
-        # 配置 AWS CLI
-        aws configure set default.region ${AWS_REGION}
-        
-        # 檢查 AWS 認證
-        aws sts get-caller-identity
-        
-        # 檢查 EKS 集群
-        aws eks describe-cluster --name ${AWS_EKS_CLUSTER} --region ${AWS_REGION}
-        
-        # 更新 kubeconfig
-        aws eks update-kubeconfig --name ${AWS_EKS_CLUSTER} --region ${AWS_REGION}
-        
-        echo "✅ AWS 環境設定完成"
-    '''
-}
-
-def buildAndPushToECR() {
-    echo "建置並推送到 AWS ECR..."
-    
-    sh '''
-        # ECR 登入
-        aws ecr get-login-password --region ${AWS_REGION} | \\
-            docker login --username AWS --password-stdin ${AWS_ECR_REGISTRY}
-        
-        # 建置映像
-        docker build -t ${AWS_ECR_REGISTRY}/${APP_NAME}:${APP_VERSION} .
-        docker tag ${AWS_ECR_REGISTRY}/${APP_NAME}:${APP_VERSION} ${AWS_ECR_REGISTRY}/${APP_NAME}:latest
-        
-        # 推送映像
-        docker push ${AWS_ECR_REGISTRY}/${APP_NAME}:${APP_VERSION}
-        docker push ${AWS_ECR_REGISTRY}/${APP_NAME}:latest
-        
-        echo "✅ ECR 推送完成"
-    '''
-}
-
-def deployToEKS() {
-    echo "部署到 AWS EKS..."
-    
-    sh '''
-        # 更新 kubeconfig
-        aws eks update-kubeconfig --name ${AWS_EKS_CLUSTER} --region ${AWS_REGION}
-        
-        # 檢查集群連接
-        kubectl cluster-info
-        
-        # 建立命名空間（如果不存在）
-        kubectl create namespace ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
-        
-        # 部署應用程式
-        kubectl set image deployment/${APP_NAME} \\
-            ${APP_NAME}=${AWS_ECR_REGISTRY}/${APP_NAME}:${APP_VERSION} \\
-            --namespace=${NAMESPACE}
-        
-        # 等待部署完成
-        kubectl rollout status deployment/${APP_NAME} --namespace=${NAMESPACE} --timeout=300s
-        
-        echo "✅ EKS 部署完成"
-    '''
-}
-
-def setupDisasterRecovery() {
-    echo "設定災難恢復..."
-    
-    sh '''
-        # 建立跨雲備份策略
-        echo "建立災難恢復配置..."
-        
-        # AWS 備份配置
-        if [ "${TARGET_CLOUDS}" = "multi-cloud" ] || [ "${TARGET_CLOUDS}" = "all-clouds" ]; then
-            # 配置 AWS Backup
-            aws backup create-backup-plan \\
-                --backup-plan '{
-                    "BackupPlanName": "MultiCloudBackupPlan",
-                    "Rules": [{
-                        "RuleName": "DailyBackups",
-                        "TargetBackupVault": "default",
-                        "ScheduleExpression": "cron(0 2 * * ? *)",
-                        "Lifecycle": {
-                            "DeleteAfterDays": 30
-                        }
-                    }]
-                }' || true
-            
-            # Azure 備份配置
-            az backup policy create \\
-                --resource-group backup-rg \\
-                --vault-name backup-vault \\
-                --name MultiCloudBackupPolicy \\
-                --policy disaster-recovery-policy.json || true
-            
-            # GCP 備份配置
-            gcloud compute snapshots create multi-cloud-snapshot \\
-                --source-disk=production-disk \\
-                --zone=${GCP_ZONE} || true
-        fi
-        
-        echo "✅ 災難恢復配置完成"
-    '''
-}
-```
-
-### 容器化最佳實務
-
-#### 實務案例：微服務容器化
-
-**微服務 Dockerfile 範例：**
-
-```dockerfile
-# 微服務最佳實務 Dockerfile
-# 階段1：建置階段
-FROM maven:3.9-eclipse-temurin-17-alpine AS builder
-
-# 設定建置參數
-ARG BUILD_DATE
-ARG VCS_REF
-ARG VERSION
-
-# 建立應用程式目錄
-WORKDIR /app
-
-# 複製依賴文件（利用 Docker 層快取）
-COPY pom.xml ./
-COPY .mvn .mvn/
-COPY mvnw ./
-
-# 下載依賴
-RUN mvn dependency:go-offline -B
-
-# 複製原始碼
-COPY src src/
-
-# 執行建置
-RUN mvn clean package -DskipTests -B && \
-    mkdir -p target/dependency && \
-    cd target/dependency && \
-    jar -xf ../*.jar
-
-# 階段2：運行時階段
-FROM eclipse-temurin:17-jre-alpine AS runtime
-
-# 安裝必要的運行時工具
-RUN apk add --no-cache \
-    curl \
-    jq \
-    tzdata \
-    tini \
-    && rm -rf /var/cache/apk/*
-
-# 建立非特權用戶
-RUN addgroup -g 1001 appgroup && \
-    adduser -D -u 1001 -G appgroup -h /app appuser
-
-# 設定時區
-ENV TZ=Asia/Taipei
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# 設定工作目錄
-WORKDIR /app
-
-# 複製應用程式依賴
-COPY --from=builder /app/target/dependency/BOOT-INF/lib lib/
-COPY --from=builder /app/target/dependency/META-INF META-INF/
-COPY --from=builder /app/target/dependency/BOOT-INF/classes .
-
-# 設定檔案權限
-RUN chown -R appuser:appgroup /app
-
-# 切換到非特權用戶
-USER appuser
-
-# 健康檢查
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/actuator/health || exit 1
-
-# 暴露埠號
-EXPOSE 8080
-
-# 設定標籤
-LABEL maintainer="DevOps Team <devops@company.com>" \
-      org.opencontainers.image.title="Java Tutorial Microservice" \
-      org.opencontainers.image.description="Spring Boot microservice for Java tutorial" \
-      org.opencontainers.image.version="${VERSION}" \
-      org.opencontainers.image.created="${BUILD_DATE}" \
-      org.opencontainers.image.revision="${VCS_REF}" \
-      org.opencontainers.image.vendor="Company Name" \
-      org.opencontainers.image.licenses="MIT"
-
-# 設定 JVM 參數
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:+UseG1GC -XX:MaxRAMPercentage=75.0"
-
-# 使用 tini 作為 init 程序
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# 啟動命令
-CMD ["sh", "-c", "java $JAVA_OPTS -cp .:lib/* com.tutorial.Application"]
-```
-
-### 關鍵注意事項
-
-1. **容器安全**：
-   - 使用官方基礎映像
-   - 定期更新容器映像
-   - 實施安全掃描
-   - 避免特權容器
-
-2. **效能最佳化**：
-   - 多階段建置減少映像大小
-   - 適當的資源限制
-   - 健康檢查配置
-   - 快取策略最佳化
-
-3. **可觀測性**：
-   - 結構化日誌輸出
-   - 指標收集端點
-   - 分散式追蹤
-   - 健康狀態監控
-
-4. **生產就緒**：
-   - 適當的重啟策略
-   - 資源配額管理
-   - 網路安全策略
-   - 備份與恢復計畫
-
-### 認證知識對應
-
-| 認證項目 | 對應內容 |
-|----------|----------|
-| 容器技術 | Docker、BuildKit、Kaniko |
-| 編排平台 | Kubernetes、Helm |
-| 雲端整合 | AWS、Azure、GCP |
-| 安全性 | 漏洞掃描、映像簽署 |
-
-### 實務練習 - 第17章
-
-1. **基礎練習**：建立簡單的容器化 CI/CD Pipeline
-2. **進階練習**：實作 Kubernetes 原生部署流程
-3. **實務練習**：設計完整的多雲容器化架構
-
----
-
-## 第18章 DevOps 文化與實務
-
-### 文化轉型願景
-
-- 理解 DevOps 的核心理念和價值觀
-- 建立高效能團隊協作模式
-- 實現持續改進的組織文化
-- 推動數位轉型與創新實踐
-
-### DevOps 文化基石
-
-#### 18.1 DevOps 理念與原則
-
-DevOps 不僅是技術實踐，更是文化革命，需要組織、流程和人員的全面轉型。
-
-```mermaid
-graph TB
-    subgraph "DevOps 核心價值"
-        CV1[協作<br/>Collaboration]
-        CV2[溝通<br/>Communication]
-        CV3[整合<br/>Integration]
-        CV4[自動化<br/>Automation]
-        CV5[監控<br/>Monitoring]
-        CV6[共享<br/>Sharing]
-    end
-    
-    subgraph "組織轉型"
-        OT1[打破孤島<br/>Break Silos]
-        OT2[跨功能團隊<br/>Cross-functional Teams]
-        OT3[共享責任<br/>Shared Responsibility]
-        OT4[快速反饋<br/>Fast Feedback]
-    end
-    
-    subgraph "技術實踐"
-        TP1[持續整合<br/>Continuous Integration]
-        TP2[持續部署<br/>Continuous Deployment]
-        TP3[基礎設施即程式碼<br/>Infrastructure as Code]
-        TP4[監控與日誌<br/>Monitoring & Logging]
-    end
-    
-    subgraph "業務成果"
-        BO1[更快交付<br/>Faster Delivery]
-        BO2[更高品質<br/>Higher Quality]
-        BO3[更佳穩定性<br/>Better Stability]
-        BO4[更強創新<br/>Enhanced Innovation]
-    end
-    
-    CV1 --> OT1
-    CV2 --> OT2
-    CV3 --> OT3
-    CV4 --> TP1
-    CV5 --> TP4
-    CV6 --> OT4
-    
-    OT1 --> TP1
-    OT2 --> TP2
-    OT3 --> TP3
-    OT4 --> TP4
-    
-    TP1 --> BO1
-    TP2 --> BO1
-    TP3 --> BO2
-    TP4 --> BO3
-    
-    BO1 --> BO4
-    BO2 --> BO4
-    BO3 --> BO4
-    
-    style CV1 fill:#e1f5fe
-    style TP1 fill:#e8f5e8
-    style BO1 fill:#fff3e0
-```
-
-**DevOps 成熟度評估 Pipeline：**
-
-```groovy
-// DevOps 成熟度評估與改進 Pipeline
-pipeline {
-    agent { label 'assessment-node' }
-    
-    parameters {
-        choice(
-            name: 'ASSESSMENT_SCOPE',
-            choices: ['team', 'department', 'organization', 'full-stack'],
-            description: '評估範圍'
-        )
-        choice(
-            name: 'ASSESSMENT_TYPE',
-            choices: ['culture', 'process', 'technology', 'comprehensive'],
-            description: '評估類型'
-        )
-        booleanParam(
-            name: 'GENERATE_IMPROVEMENT_PLAN',
-            defaultValue: true,
-            description: '生成改進計畫'
-        )
-    }
-    
-    environment {
-        // 評估配置
-        ASSESSMENT_FRAMEWORK = 'DORA'  // DevOps Research and Assessment
-        MATURITY_LEVELS = '5'  // 成熟度等級數
-        REPORT_FORMAT = 'comprehensive'
-        
-        // 指標配置
-        LEAD_TIME_TARGET = '24h'        // 交付週期目標
-        DEPLOYMENT_FREQ_TARGET = '10'   // 每日部署次數目標
-        MTTR_TARGET = '1h'             // 平均恢復時間目標
-        CHANGE_FAIL_RATE_TARGET = '5%' // 變更失敗率目標
-        
-        // 團隊配置
-        TEAM_SIZE_MIN = '5'
-        TEAM_SIZE_MAX = '9'
-        CROSS_FUNCTIONAL_RATIO = '80%'
-        
-        // 工具評估
-        TOOL_CATEGORIES = 'scm,ci,cd,monitoring,collaboration,security'
-    }
-    
-    stages {
-        stage('評估初始化') {
-            steps {
-                script {
-                    initializeAssessment()
-                    loadAssessmentFramework()
-                    prepareAssessmentTools()
-                }
-            }
-        }
-        
-        stage('文化成熟度評估') {
-            when {
-                expression { 
-                    params.ASSESSMENT_TYPE == 'culture' || 
-                    params.ASSESSMENT_TYPE == 'comprehensive' 
-                }
-            }
-            parallel {
-                stage('協作文化評估') {
-                    steps {
-                        script {
-                            assessCollaborationCulture()
-                        }
-                    }
-                }
-                
-                stage('學習文化評估') {
-                    steps {
-                        script {
-                            assessLearningCulture()
-                        }
-                    }
-                }
-                
-                stage('創新文化評估') {
-                    steps {
-                        script {
-                            assessInnovationCulture()
-                        }
-                    }
-                }
-                
-                stage('透明度文化評估') {
-                    steps {
-                        script {
-                            assessTransparencyCulture()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('流程成熟度評估') {
-            when {
-                expression { 
-                    params.ASSESSMENT_TYPE == 'process' || 
-                    params.ASSESSMENT_TYPE == 'comprehensive' 
-                }
-            }
-            parallel {
-                stage('開發流程評估') {
-                    steps {
-                        script {
-                            assessDevelopmentProcess()
-                        }
-                    }
-                }
-                
-                stage('部署流程評估') {
-                    steps {
-                        script {
-                            assessDeploymentProcess()
-                        }
-                    }
-                }
-                
-                stage('監控流程評估') {
-                    steps {
-                        script {
-                            assessMonitoringProcess()
-                        }
-                    }
-                }
-                
-                stage('回饋流程評估') {
-                    steps {
-                        script {
-                            assessFeedbackProcess()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('技術成熟度評估') {
-            when {
-                expression { 
-                    params.ASSESSMENT_TYPE == 'technology' || 
-                    params.ASSESSMENT_TYPE == 'comprehensive' 
-                }
-            }
-            parallel {
-                stage('自動化程度評估') {
-                    steps {
-                        script {
-                            assessAutomationLevel()
-                        }
-                    }
-                }
-                
-                stage('工具鏈評估') {
-                    steps {
-                        script {
-                            assessToolchain()
-                        }
-                    }
-                }
-                
-                stage('基礎設施評估') {
-                    steps {
-                        script {
-                            assessInfrastructure()
-                        }
-                    }
-                }
-                
-                stage('安全實踐評估') {
-                    steps {
-                        script {
-                            assessSecurityPractices()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('DORA 指標測量') {
-            steps {
-                script {
-                    measureLeadTime()
-                    measureDeploymentFrequency()
-                    measureMTTR()
-                    measureChangeFailureRate()
-                    calculateDORAScore()
-                }
-            }
-        }
-        
-        stage('成熟度分析') {
-            steps {
-                script {
-                    analyzeMaturityLevel()
-                    identifyStrengthsAndGaps()
-                    benchmarkIndustryStandards()
-                    prioritizeImprovementAreas()
-                }
-            }
-        }
-        
-        stage('改進計畫生成') {
-            when {
-                expression { params.GENERATE_IMPROVEMENT_PLAN == true }
-            }
-            steps {
-                script {
-                    generateImprovementRoadmap()
-                    createActionItems()
-                    defineSuccessMetrics()
-                    estimateResourceRequirements()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                generateAssessmentReport()
-                publishResults()
-                scheduleFollowUp()
-            }
-        }
-        
-        success {
-            script {
-                notifyStakeholders()
-                updateMaturityDatabase()
-            }
-        }
-    }
-}
-
-// === DevOps 評估函式 ===
-
-def initializeAssessment() {
-    echo "初始化 DevOps 成熟度評估..."
-    
-    sh '''
-        # 建立評估工作區
-        mkdir -p assessment/{culture,process,technology,metrics,reports}
-        
-        # 載入評估問卷
-        cat > assessment/culture-questionnaire.yaml << 'EOF'
-culture_assessment:
-  collaboration:
-    - question: "團隊成員之間是否有定期的跨職能協作會議？"
-      weight: 10
-      scale: 1-5
-    - question: "是否存在明確的溝通渠道和協作工具？"
-      weight: 8
-      scale: 1-5
-    - question: "團隊成員是否願意分享知識和最佳實踐？"
-      weight: 9
-      scale: 1-5
-      
-  learning:
-    - question: "組織是否鼓勵實驗和從失敗中學習？"
-      weight: 10
-      scale: 1-5
-    - question: "是否有正式的學習和培訓計畫？"
-      weight: 7
-      scale: 1-5
-    - question: "團隊成員是否有時間進行技能提升？"
-      weight: 8
-      scale: 1-5
-      
-  innovation:
-    - question: "是否鼓勵團隊成員提出改進建議？"
-      weight: 9
-      scale: 1-5
-    - question: "是否有創新時間或黑客松活動？"
-      weight: 6
-      scale: 1-5
-    - question: "新想法是否能快速測試和驗證？"
-      weight: 8
-      scale: 1-5
-      
-  transparency:
-    - question: "工作進展和問題是否對所有團隊成員可見？"
-      weight: 9
-      scale: 1-5
-    - question: "決策過程是否透明和包容？"
-      weight: 8
-      scale: 1-5
-    - question: "是否有定期的回顧和反思會議？"
-      weight: 7
-      scale: 1-5
-EOF
-
-        echo "✅ DevOps 評估初始化完成"
-    '''
-}
-
-def assessCollaborationCulture() {
-    echo "評估協作文化..."
-    
-    sh '''
-        # 收集協作指標
-        echo "收集協作文化指標..."
-        
-        # 會議頻率分析
-        WEEKLY_MEETINGS=$(grep -c "meeting" calendar.log 2>/dev/null || echo "0")
-        echo "每週會議次數: $WEEKLY_MEETINGS"
-        
-        # 跨團隊溝通分析
-        CROSS_TEAM_MESSAGES=$(grep -c "cross-team" communication.log 2>/dev/null || echo "0")
-        echo "跨團隊溝通: $CROSS_TEAM_MESSAGES"
-        
-        # 知識分享分析
-        KNOWLEDGE_SHARES=$(grep -c "knowledge-share" activity.log 2>/dev/null || echo "0")
-        echo "知識分享次數: $KNOWLEDGE_SHARES"
-        
-        # 計算協作得分
-        python3 << 'EOF'
-import json
-
-# 協作文化指標權重
-weights = {
-    'meeting_frequency': 0.3,
-    'cross_team_communication': 0.4,
-    'knowledge_sharing': 0.3
-}
-
-# 收集指標值（模擬）
-metrics = {
-    'meeting_frequency': min(5, max(1, 3.5)),  # 基於會議頻率
-    'cross_team_communication': min(5, max(1, 4.0)),  # 基於溝通品質
-    'knowledge_sharing': min(5, max(1, 3.8))   # 基於分享活動
-}
-
-# 計算加權得分
-collaboration_score = sum(metrics[key] * weights[key] for key in metrics)
-
-# 儲存結果
-result = {
-    'category': 'collaboration_culture',
-    'score': round(collaboration_score, 2),
-    'level': 'Developing' if collaboration_score < 3 else 'Performing' if collaboration_score < 4 else 'Optimizing',
-    'metrics': metrics,
-    'recommendations': []
-}
-
-if collaboration_score < 3:
-    result['recommendations'].extend([
-        '建立定期的跨職能協作會議',
-        '引入協作工具和實踐',
-        '制定知識分享激勵機制'
-    ])
-elif collaboration_score < 4:
-    result['recommendations'].extend([
-        '優化現有協作流程',
-        '擴大跨團隊合作範圍',
-        '建立最佳實踐分享平台'
-    ])
-
-with open('assessment/culture/collaboration.json', 'w') as f:
-    json.dump(result, f, indent=2)
-
-print(f"協作文化得分: {collaboration_score:.2f}")
-print(f"成熟度等級: {result['level']}")
-EOF
-
-        echo "✅ 協作文化評估完成"
-    '''
-}
-
-def assessDevelopmentProcess() {
-    echo "評估開發流程..."
-    
-    sh '''
-        # 分析開發流程指標
-        echo "分析開發流程成熟度..."
-        
-        # 版本控制使用情況
-        if [ -d ".git" ]; then
-            BRANCH_COUNT=$(git branch -r | wc -l)
-            COMMIT_FREQUENCY=$(git log --since="1 week ago" --oneline | wc -l)
-            echo "分支數量: $BRANCH_COUNT"
-            echo "週提交次數: $COMMIT_FREQUENCY"
-        fi
-        
-        # 程式碼審查覆蓋率
-        PR_COUNT=$(find .git -name "*pull*" -type f 2>/dev/null | wc -l || echo "0")
-        echo "Pull Request 數量: $PR_COUNT"
-        
-        # 自動化測試覆蓋率
-        if [ -f "target/site/jacoco/index.html" ]; then
-            COVERAGE=$(grep -o "Total.*[0-9]\+%" target/site/jacoco/index.html | tail -1 | grep -o "[0-9]\+%" || echo "0%")
-            echo "測試覆蓋率: $COVERAGE"
-        fi
-        
-        # 建置頻率
-        if [ -f "Jenkinsfile" ]; then
-            BUILD_TRIGGERS=$(grep -c "triggers" Jenkinsfile || echo "0")
-            echo "建置觸發器: $BUILD_TRIGGERS"
-        fi
-        
-        # 計算開發流程成熟度
-        python3 << 'EOF'
-import json
-import os
-
-def assess_development_process():
-    # 收集指標
-    metrics = {
-        'version_control_usage': 5,  # Git 使用完整性
-        'code_review_coverage': 4,   # 程式碼審查覆蓋率
-        'automated_testing': 4,      # 自動化測試程度
-        'build_automation': 5,       # 建置自動化程度
-        'documentation': 3           # 文件化程度
-    }
-    
-    # 權重配置
-    weights = {
-        'version_control_usage': 0.2,
-        'code_review_coverage': 0.25,
-        'automated_testing': 0.25,
-        'build_automation': 0.2,
-        'documentation': 0.1
-    }
-    
-    # 計算總分
-    total_score = sum(metrics[key] * weights[key] for key in metrics)
-    
-    # 判定成熟度等級
-    if total_score >= 4.5:
-        level = "Optimizing"
-        description = "開發流程高度成熟，具備完整的自動化和最佳實踐"
-    elif total_score >= 3.5:
-        level = "Performing"
-        description = "開發流程良好，部分領域仍有改進空間"
-    elif total_score >= 2.5:
-        level = "Developing"
-        description = "開發流程基本建立，需要加強自動化和標準化"
-    else:
-        level = "Initial"
-        description = "開發流程不夠成熟，需要全面改進"
-    
-    # 生成建議
-    recommendations = []
-    if metrics['code_review_coverage'] < 4:
-        recommendations.append("提高程式碼審查覆蓋率，建立強制審查政策")
-    if metrics['automated_testing'] < 4:
-        recommendations.append("增加自動化測試，提高測試覆蓋率")
-    if metrics['documentation'] < 4:
-        recommendations.append("改善文件化，建立標準文件模板")
-    
-    result = {
-        'category': 'development_process',
-        'score': round(total_score, 2),
-        'level': level,
-        'description': description,
-        'metrics': metrics,
-        'recommendations': recommendations
-    }
-    
-    # 儲存結果
-    os.makedirs('assessment/process', exist_ok=True)
-    with open('assessment/process/development.json', 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    print(f"開發流程得分: {total_score:.2f}")
-    print(f"成熟度等級: {level}")
-    
-    return result
-
-assess_development_process()
-EOF
-
-        echo "✅ 開發流程評估完成"
-    '''
-}
-
-def measureLeadTime() {
-    echo "測量交付週期..."
-    
-    sh '''
-        # 計算從提交到生產的時間
-        echo "分析交付週期指標..."
-        
-        python3 << 'EOF'
-import json
-import datetime
-from datetime import timedelta
-import random
-
-def measure_lead_time():
-    # 模擬交付週期數據收集
-    # 在實際環境中，這些數據來自 Git、Jenkins、部署系統等
-    
-    # 最近30天的交付數據
-    deliveries = []
-    for i in range(30):
-        # 模擬不同的交付週期
-        commit_to_prod_hours = random.uniform(4, 72)  # 4小時到3天
-        deliveries.append({
-            'date': (datetime.datetime.now() - timedelta(days=i)).isoformat(),
-            'lead_time_hours': commit_to_prod_hours,
-            'commit_id': f"abc{1000+i}",
-            'success': random.choice([True, True, True, False])  # 75% 成功率
-        })
-    
-    # 分析指標
-    successful_deliveries = [d for d in deliveries if d['success']]
-    
-    if successful_deliveries:
-        lead_times = [d['lead_time_hours'] for d in successful_deliveries]
-        
-        avg_lead_time = sum(lead_times) / len(lead_times)
-        median_lead_time = sorted(lead_times)[len(lead_times)//2]
-        p95_lead_time = sorted(lead_times)[int(len(lead_times)*0.95)]
-        
-        # DORA 基準比較
-        if avg_lead_time <= 24:
-            performance_level = "Elite"
-        elif avg_lead_time <= 168:  # 1週
-            performance_level = "High"
-        elif avg_lead_time <= 720:  # 1個月
-            performance_level = "Medium"
-        else:
-            performance_level = "Low"
-        
-        result = {
-            'metric': 'lead_time',
-            'avg_hours': round(avg_lead_time, 2),
-            'median_hours': round(median_lead_time, 2),
-            'p95_hours': round(p95_lead_time, 2),
-            'performance_level': performance_level,
-            'sample_size': len(successful_deliveries),
-            'target_hours': 24
-        }
-        
-        # 儲存結果
-        with open('assessment/metrics/lead_time.json', 'w') as f:
-            json.dump(result, f, indent=2)
-        
-        print(f"平均交付週期: {avg_lead_time:.2f} 小時")
-        print(f"效能等級: {performance_level}")
-    
-    return result
-
-measure_lead_time()
-EOF
-
-        echo "✅ 交付週期測量完成"
-    '''
-}
-
-def measureDeploymentFrequency() {
-    echo "測量部署頻率..."
-    
-    sh '''
-        # 分析部署頻率
-        echo "收集部署頻率數據..."
-        
-        python3 << 'EOF'
-import json
-import datetime
-from datetime import timedelta
-import random
-
-def measure_deployment_frequency():
-    # 模擬部署數據
-    deployments = []
-    
-    # 最近30天的部署記錄
-    for i in range(30):
-        daily_deployments = random.randint(0, 15)  # 每日0-15次部署
-        date = datetime.datetime.now() - timedelta(days=i)
-        
-        for j in range(daily_deployments):
-            deployments.append({
-                'date': date.isoformat(),
-                'environment': random.choice(['dev', 'staging', 'prod']),
-                'success': random.choice([True, True, True, False])
-            })
-    
-    # 分析生產環境部署
-    prod_deployments = [d for d in deployments if d['environment'] == 'prod' and d['success']]
-    
-    # 計算每日部署頻率
-    deployment_days = {}
-    for deployment in prod_deployments:
-        date_key = deployment['date'].split('T')[0]
-        deployment_days[date_key] = deployment_days.get(date_key, 0) + 1
-    
-    daily_avg = len(prod_deployments) / 30 if prod_deployments else 0
-    
-    # DORA 基準比較
-    if daily_avg >= 1:
-        performance_level = "Elite"
-    elif daily_avg >= 0.2:  # 每週1次
-        performance_level = "High"
-    elif daily_avg >= 0.03:  # 每月1次
-        performance_level = "Medium"
-    else:
-        performance_level = "Low"
-    
-    result = {
-        'metric': 'deployment_frequency',
-        'daily_average': round(daily_avg, 2),
-        'total_deployments': len(prod_deployments),
-        'deployment_days': len(deployment_days),
-        'performance_level': performance_level,
-        'target_daily': 1
-    }
-    
-    # 儲存結果
-    with open('assessment/metrics/deployment_frequency.json', 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    print(f"每日平均部署次數: {daily_avg:.2f}")
-    print(f"效能等級: {performance_level}")
-    
-    return result
-
-measure_deployment_frequency()
-EOF
-
-        echo "✅ 部署頻率測量完成"
-    '''
-}
-
-def generateImprovementRoadmap() {
-    echo "生成改進路線圖..."
-    
-    sh '''
-        # 整合所有評估結果
-        echo "整合評估結果並生成改進計畫..."
-        
-        python3 << 'EOF'
-import json
-import os
-from datetime import datetime, timedelta
-
-def generate_roadmap():
-    # 讀取評估結果
-    assessment_results = {}
-    
-    # 讀取文化評估
-    if os.path.exists('assessment/culture/collaboration.json'):
-        with open('assessment/culture/collaboration.json', 'r') as f:
-            assessment_results['culture'] = json.load(f)
-    
-    # 讀取流程評估
-    if os.path.exists('assessment/process/development.json'):
-        with open('assessment/process/development.json', 'r') as f:
-            assessment_results['process'] = json.load(f)
-    
-    # 讀取 DORA 指標
-    metrics = {}
-    for metric in ['lead_time', 'deployment_frequency']:
-        file_path = f'assessment/metrics/{metric}.json'
-        if os.path.exists(file_path):
-            with open(file_path, 'r') as f:
-                metrics[metric] = json.load(f)
-    
-    # 生成改進路線圖
-    roadmap = {
-        'assessment_date': datetime.now().isoformat(),
-        'overall_maturity': 'Developing',  # 基於綜合評估
-        'priority_areas': [],
-        'improvement_phases': [],
-        'success_metrics': {},
-        'estimated_timeline': '12 months'
-    }
-    
-    # 第一階段：基礎改進 (0-3個月)
-    phase1 = {
-        'phase': 1,
-        'name': '基礎建設與流程標準化',
-        'duration': '3 months',
-        'objectives': [
-            '建立標準化的開發流程',
-            '提高自動化程度',
-            '改善團隊協作'
-        ],
-        'actions': [
-            {
-                'action': '實施標準化 Git 工作流程',
-                'owner': 'Development Team',
-                'timeline': '2 weeks',
-                'success_criteria': '100% 的程式碼變更通過 PR 流程'
-            },
-            {
-                'action': '建立 CI/CD Pipeline',
-                'owner': 'DevOps Team',
-                'timeline': '4 weeks',
-                'success_criteria': '自動化建置和部署到測試環境'
-            },
-            {
-                'action': '導入程式碼審查實踐',
-                'owner': 'Tech Lead',
-                'timeline': '2 weeks',
-                'success_criteria': '所有 PR 都有至少一位審查者'
-            }
-        ]
-    }
-    
-    # 第二階段：能力提升 (3-6個月)
-    phase2 = {
-        'phase': 2,
-        'name': '能力提升與文化建設',
-        'duration': '3 months',
-        'objectives': [
-            '提升團隊技能',
-            '建立學習文化',
-            '改善監控和回饋'
-        ],
-        'actions': [
-            {
-                'action': '建立內部技術分享會',
-                'owner': 'All Teams',
-                'timeline': '1 week setup, ongoing',
-                'success_criteria': '每週一次技術分享，全員參與'
-            },
-            {
-                'action': '實施測試驅動開發',
-                'owner': 'Development Team',
-                'timeline': '6 weeks',
-                'success_criteria': '測試覆蓋率達到 80%'
-            },
-            {
-                'action': '建立監控和告警系統',
-                'owner': 'DevOps Team',
-                'timeline': '4 weeks',
-                'success_criteria': '關鍵指標 100% 監控覆蓋'
-            }
-        ]
-    }
-    
-    # 第三階段：最佳化 (6-12個月)
-    phase3 = {
-        'phase': 3,
-        'name': '持續最佳化與創新',
-        'duration': '6 months',
-        'objectives': [
-            '達到行業領先水準',
-            '建立創新文化',
-            '實現持續改進'
-        ],
-        'actions': [
-            {
-                'action': '實施金絲雀部署',
-                'owner': 'DevOps Team',
-                'timeline': '4 weeks',
-                'success_criteria': '生產部署零停機時間'
-            },
-            {
-                'action': '建立實驗平台',
-                'owner': 'Innovation Team',
-                'timeline': '8 weeks',
-                'success_criteria': '每月至少 2 個新實驗'
-            },
-            {
-                'action': '實施混沌工程',
-                'owner': 'SRE Team',
-                'timeline': '6 weeks',
-                'success_criteria': '系統韌性得分 > 95%'
-            }
-        ]
-    }
-    
-    roadmap['improvement_phases'] = [phase1, phase2, phase3]
-    
-    # 成功指標
-    roadmap['success_metrics'] = {
-        'lead_time': '< 24 hours',
-        'deployment_frequency': '> 1 per day',
-        'change_failure_rate': '< 5%',
-        'mttr': '< 1 hour',
-        'team_satisfaction': '> 4.0/5.0',
-        'customer_satisfaction': '> 4.5/5.0'
-    }
-    
-    # 儲存路線圖
-    os.makedirs('assessment/reports', exist_ok=True)
-    with open('assessment/reports/improvement_roadmap.json', 'w') as f:
-        json.dump(roadmap, f, indent=2)
-    
-    print("✅ 改進路線圖生成完成")
-    print(f"預估改進時間: {roadmap['estimated_timeline']}")
-    print(f"改進階段數: {len(roadmap['improvement_phases'])}")
-    
-    return roadmap
-
-generate_roadmap()
-EOF
-
-        echo "✅ 改進路線圖生成完成"
-    '''
-}
-```
-
-#### 18.2 團隊協作與溝通
-
-**高效能團隊模式：**
-
-```groovy
-// 團隊協作效能監控 Pipeline
-pipeline {
-    agent { label 'collaboration-monitor' }
-    
-    triggers {
-        cron('0 9 * * 1')  // 每週一上午9點執行
-    }
-    
-    environment {
-        TEAM_SIZE = '8'
-        SPRINT_LENGTH = '2'  // 週
-        COLLABORATION_TOOLS = 'slack,jira,confluence,github'
-        MEETING_EFFICIENCY_TARGET = '75'  // 百分比
-    }
-    
-    stages {
-        stage('團隊健康度檢查') {
-            parallel {
-                stage('溝通效率分析') {
-                    steps {
-                        script {
-                            analyzeCommunicationEfficiency()
-                        }
-                    }
-                }
-                
-                stage('協作品質評估') {
-                    steps {
-                        script {
-                            assessCollaborationQuality()
-                        }
-                    }
-                }
-                
-                stage('知識分享追蹤') {
-                    steps {
-                        script {
-                            trackKnowledgeSharing()
-                        }
-                    }
-                }
-                
-                stage('團隊滿意度調查') {
-                    steps {
-                        script {
-                            conductTeamSatisfactionSurvey()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('協作工具最佳化') {
-            steps {
-                script {
-                    optimizeCollaborationTools()
-                    updateTeamDashboard()
-                    generateCollaborationInsights()
-                }
-            }
-        }
-        
-        stage('團隊發展建議') {
-            steps {
-                script {
-                    generateTeamDevelopmentPlan()
-                    scheduleTeamBuilding()
-                    createLearningPaths()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                publishTeamHealthReport()
-                notifyTeamLeads()
-            }
-        }
-    }
-}
-
-def analyzeCommunicationEfficiency() {
-    echo "分析溝通效率..."
-    
-    sh '''
-        # 分析溝通模式
-        python3 << 'EOF'
-import json
-import random
-from datetime import datetime, timedelta
-
-def analyze_communication():
-    # 模擬溝通數據收集
-    comm_data = {
-        'meetings': {
-            'total_hours': random.randint(15, 35),  # 每週會議時間
-            'effective_hours': random.randint(10, 25),
-            'participants_avg': random.uniform(4, 8),
-            'preparation_score': random.uniform(2, 5)
-        },
-        'async_communication': {
-            'messages_per_day': random.randint(50, 150),
-            'response_time_hours': random.uniform(0.5, 8),
-            'thread_resolution_rate': random.uniform(0.7, 0.95)
-        },
-        'documentation': {
-            'docs_updated_weekly': random.randint(3, 15),
-            'wiki_contributions': random.randint(2, 10),
-            'knowledge_base_usage': random.uniform(0.6, 0.9)
-        }
-    }
-    
-    # 計算溝通效率分數
-    meeting_efficiency = comm_data['meetings']['effective_hours'] / comm_data['meetings']['total_hours']
-    async_efficiency = min(1, 24 / comm_data['async_communication']['response_time_hours'])
-    doc_efficiency = comm_data['documentation']['knowledge_base_usage']
-    
-    overall_efficiency = (meeting_efficiency * 0.4 + async_efficiency * 0.35 + doc_efficiency * 0.25) * 100
-    
-    result = {
-        'communication_efficiency': round(overall_efficiency, 2),
-        'meeting_efficiency': round(meeting_efficiency * 100, 2),
-        'async_efficiency': round(async_efficiency * 100, 2),
-        'documentation_efficiency': round(doc_efficiency * 100, 2),
-        'raw_data': comm_data,
-        'recommendations': []
-    }
-    
-    # 生成建議
-    if meeting_efficiency < 0.7:
-        result['recommendations'].append('改善會議準備和議程設定')
-    if async_efficiency < 0.8:
-        result['recommendations'].append('建立更快的回應時間標準')
-    if doc_efficiency < 0.8:
-        result['recommendations'].append('提高文件化品質和使用率')
-    
-    with open('communication_analysis.json', 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    print(f"溝通效率: {overall_efficiency:.2f}%")
-    return result
-
-analyze_communication()
-EOF
-    '''
-}
-
-def trackKnowledgeSharing() {
-    echo "追蹤知識分享活動..."
-    
-    sh '''
-        # 知識分享指標分析
-        python3 << 'EOF'
-import json
-import random
-from datetime import datetime, timedelta
-
-def track_knowledge_sharing():
-    # 模擬知識分享數據
-    sharing_data = {
-        'tech_talks': {
-            'monthly_sessions': random.randint(2, 8),
-            'avg_attendance': random.uniform(0.6, 0.9),
-            'satisfaction_score': random.uniform(3.5, 5.0)
-        },
-        'documentation': {
-            'new_docs_monthly': random.randint(5, 20),
-            'doc_updates_monthly': random.randint(10, 40),
-            'tutorial_creation': random.randint(1, 5)
-        },
-        'mentoring': {
-            'mentor_pairs': random.randint(2, 6),
-            'mentoring_hours_monthly': random.randint(8, 24),
-            'skill_transfer_success': random.uniform(0.7, 0.95)
-        },
-        'cross_training': {
-            'cross_functional_sessions': random.randint(1, 4),
-            'skill_matrix_coverage': random.uniform(0.6, 0.85),
-            'backup_capability': random.uniform(0.5, 0.8)
-        }
-    }
-    
-    # 計算知識分享指數
-    tech_talk_score = min(5, sharing_data['tech_talks']['monthly_sessions'] / 2) * sharing_data['tech_talks']['avg_attendance']
-    doc_score = min(5, sharing_data['documentation']['new_docs_monthly'] / 4)
-    mentoring_score = min(5, sharing_data['mentoring']['mentor_pairs'] / 2) * sharing_data['mentoring']['skill_transfer_success']
-    cross_training_score = sharing_data['cross_training']['skill_matrix_coverage'] * 5
-    
-    knowledge_sharing_index = (tech_talk_score + doc_score + mentoring_score + cross_training_score) / 4
-    
-    result = {
-        'knowledge_sharing_index': round(knowledge_sharing_index, 2),
-        'component_scores': {
-            'tech_talks': round(tech_talk_score, 2),
-            'documentation': round(doc_score, 2),
-            'mentoring': round(mentoring_score, 2),
-            'cross_training': round(cross_training_score, 2)
-        },
-        'raw_data': sharing_data,
-        'improvement_areas': []
-    }
-    
-    # 識別改進領域
-    if tech_talk_score < 3:
-        result['improvement_areas'].append('增加技術分享會頻率')
-    if doc_score < 3:
-        result['improvement_areas'].append('提高文件創建和更新')
-    if mentoring_score < 3:
-        result['improvement_areas'].append('建立正式的導師制度')
-    if cross_training_score < 3:
-        result['improvement_areas'].append('加強跨職能培訓')
-    
-    with open('knowledge_sharing_analysis.json', 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    print(f"知識分享指數: {knowledge_sharing_index:.2f}/5.0")
-    return result
-
-track_knowledge_sharing()
-EOF
-    '''
-}
-```
-
-#### 18.3 持續改進文化
-
-**持續改進實踐框架：**
+| 設定 | 建議 |
+| --- | --- |
+| `webSocket: true` | Agent 透過 controller 的 HTTP 服務連線，不需要開放 50000 埠與額外的 Service |
+| Agent namespace | 與 controller 分開，設定 ResourceQuota、LimitRange、NetworkPolicy |
+| `automountServiceAccountToken: false` | 建置容器預設不需要 Kubernetes API 權限；需要部署時改用專用 kubeconfig 憑證 |
+| Pod Security | Namespace 套用 Pod Security Admission `restricted`（或至少 `baseline`）；不允許 privileged 容器 |
+| 資源 | 每個容器都設定 requests 與 memory limits，避免 OOM 影響同節點的其他 Pod |
+| `podRetention: never` | 建置結束即刪除；除錯時暫時改為 `onFailure` |
+| `idleMinutes` | 0（每次全新 Pod）；建置頻繁且需要暖快取時可設 5–10 |
+
+> ⚠️ 建置容器的 `command` 必須讓容器保持執行（例如 `sleep infinity`），否則容器啟動後立即結束，Pipeline 會卡在等待容器。Kubernetes plugin 會自動加入 `jnlp` 容器，不需要自行定義（除非要指定映像版本）。
+
+### 14.5 其他雲端 agent
+
+| Plugin | 環境 | 特點 |
+| --- | --- | --- |
+| Amazon EC2 | AWS | 依 AMI 動態建立 EC2 執行個體，支援 Spot、閒置自動終止；搭配 IAM role 而非存取金鑰 |
+| Azure VM Agents | Azure | 依映像建立 VM，支援 Managed Identity |
+| Google Compute Engine | GCP | 依執行個體範本建立 VM |
+| Docker plugin | Docker 主機 | 小型環境的動態容器 agent |
+
+適用情境：需要完整 VM 的建置（Windows、需 privileged 權限的整合測試、GPU）、或尚未導入 Kubernetes 的組織。
+
+### 14.6 Agent 安全與隔離
+
+| 控制 | 說明 |
+| --- | --- |
+| **Agent → Controller 安全** | 自 2.326 起永遠啟用，agent 無法任意讀寫 controller 檔案；不要以系統屬性關閉 |
+| 依信任等級分開 agent | 外部 PR 只能在 `ci-untrusted` 執行，該 agent 網路上無法連到內部系統與部署目標 |
+| 限制 Job 可使用的 agent | 以 Job Restrictions 等 plugin 或 folder 層級的 cloud 設定，讓只有 `prod` folder 的 Job 能使用 `deploy-prod` |
+| 可拋棄式 agent | 雲端 agent 每次建置後銷毀，避免前一次建置留下的惡意檔案或憑證 |
+| 不在 agent 上保存長期憑證 | 憑證由 Jenkins 在建置時注入，結束即刪除 |
+| 網路出口控管 | 建置環境只能連到內部 artifact 儲存庫與必要的外部網址（防止資料外洩與相依套件混淆攻擊） |
+
+### 14.7 本章重點
+
+- Label 以能力與信任等級命名；部署 agent 與一般建置 agent 分開
+- 固定 agent 使用 SSH（驗證主機金鑰）或 WebSocket inbound；Windows 不再支援 DCOM 啟動
+- Kubernetes agent 使用 WebSocket、獨立 namespace、非 root、resource limits，並關閉 service account token 自動掛載
+- Docker agent 主機等同 root，需依信任等級分開或改用 Kubernetes
+
+## 15. 容器映像建置與 Kubernetes 上的 Jenkins
+
+### 15.1 映像建置方式比較
+
+| 方式 | 需要的權限 | 風險 | 建議 |
+| --- | --- | --- | --- |
+| 掛載主機 `docker.sock` | 主機 Docker daemon（等同 root） | ❌ 建置可控制整台主機與其上所有容器 | 不使用（v1.0 的 Compose 範例即為此作法） |
+| Docker-in-Docker（`docker:dind`） | `privileged: true` | ⚠️ privileged 容器可逃逸到節點 | 只用於隔離的專用節點或學習環境 |
+| **BuildKit rootless** | 非 root；需放寬 seccomp／AppArmor，或使用 `--oci-worker-no-process-sandbox` | 低 | ✅ Kubernetes 上的首選 |
+| Buildah／Podman rootless | 非 root；需要 user namespace 或 `/dev/fuse` | 低 | ✅ RHEL／OpenShift 環境 |
+| Kaniko | 以 root 在容器內執行（不需 privileged） | 中 | ⚠️ Google 已於 2025-06 封存原專案；Chainguard 維護分支（`chainguard-forks/kaniko`）。新導入建議改用 BuildKit |
+| 雲端建置服務（AWS CodeBuild、Google Cloud Build） | 由雲端服務提供 | 低 | 已使用公有雲的團隊 |
+| Jib（Maven／Gradle plugin） | 不需容器執行環境 | 低 | ✅ 純 Java 應用，不需要 Dockerfile |
+
+### 15.2 BuildKit rootless（Kubernetes agent）
+
+`ci/buildkit-pod.yaml`（第 10 章完整範例使用的 Pod 範本），參考 `moby/buildkit` 的官方 `job.rootless.yaml`：
 
 ```yaml
-# 持續改進配置
-continuous_improvement:
-  philosophy:
-    kaizen: true
-    fail_fast: true
-    learn_fast: true
-    experiment_driven: true
-    
-  practices:
-    retrospectives:
-      frequency: "sprint_end"
-      duration: "90_minutes"
-      participants: "entire_team"
-      formats:
-        - "start_stop_continue"
-        - "mad_sad_glad"
-        - "timeline_review"
-        - "root_cause_analysis"
-        
-    experiments:
-      hypothesis_driven: true
-      time_boxed: true
-      measurable_outcomes: true
-      learning_focused: true
-      
-    feedback_loops:
-      customer_feedback:
-        frequency: "weekly"
-        channels: ["surveys", "interviews", "analytics"]
-      internal_feedback:
-        frequency: "daily"
-        channels: ["standups", "slack", "reviews"]
-      system_feedback:
-        frequency: "real_time"
-        channels: ["monitoring", "alerts", "logs"]
-        
-  metrics:
-    improvement_velocity:
-      target: "2_improvements_per_sprint"
-      tracking: "backlog_items"
-    experiment_success_rate:
-      target: "60%"
-      tracking: "hypothesis_validation"
-    cycle_time_reduction:
-      target: "5%_per_quarter"
-      tracking: "lead_time_metrics"
+apiVersion: v1
+kind: Pod
+spec:
+  automountServiceAccountToken: false
+  containers:
+    - name: buildkit
+      image: moby/buildkit:v0.33.1-rootless
+      command: ["cat"]
+      tty: true
+      env:
+        - name: BUILDKITD_FLAGS
+          value: --oci-worker-no-process-sandbox
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        seccompProfile:
+          type: Unconfined
+        appArmorProfile:
+          type: Unconfined
+      resources:
+        requests:
+          cpu: "1"
+          memory: 2Gi
+        limits:
+          memory: 4Gi
+      volumeMounts:
+        - name: buildkitd
+          mountPath: /home/user/.local/share/buildkit
+  volumes:
+    - name: buildkitd
+      emptyDir: {}
 ```
 
-**持續改進 Pipeline：**
-
 ```groovy
-// 持續改進追蹤 Pipeline
 pipeline {
-    agent { label 'improvement-tracker' }
-    
-    triggers {
-        cron('0 17 * * 5')  // 每週五下午5點執行
+    agent {
+        kubernetes {
+            yamlFile 'ci/buildkit-pod.yaml'
+            defaultContainer 'buildkit'
+        }
     }
-    
-    parameters {
-        choice(
-            name: 'IMPROVEMENT_SCOPE',
-            choices: ['process', 'technology', 'culture', 'all'],
-            description: '改進範圍'
-        )
-    }
-    
     environment {
-        SPRINT_LENGTH = '2'  // 週
-        IMPROVEMENT_TARGET = '2'  // 每個 Sprint 的改進項目
-        EXPERIMENT_DURATION = '4'  // 週
+        IMAGE = "harbor.example.internal/payments/payment-api:${env.BUILD_NUMBER}"
     }
-    
     stages {
-        stage('改進機會識別') {
-            parallel {
-                stage('回顧分析') {
-                    steps {
-                        script {
-                            analyzeRetrospectives()
-                        }
-                    }
-                }
-                
-                stage('指標分析') {
-                    steps {
-                        script {
-                            analyzePerformanceMetrics()
-                        }
-                    }
-                }
-                
-                stage('反饋收集') {
-                    steps {
-                        script {
-                            collectStakeholderFeedback()
-                        }
-                    }
-                }
-                
-                stage('趨勢分析') {
-                    steps {
-                        script {
-                            analyzeTrends()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('改進實驗設計') {
+        stage('Build & Push') {
             steps {
-                script {
-                    designImprovementExperiments()
-                    prioritizeImprovements()
-                    createExperimentPlan()
+                withCredentials([file(credentialsId: 'harbor-dockerconfig-payments', variable: 'DOCKER_CONFIG_JSON')]) {
+                    sh '''
+                        set -eu
+                        export DOCKER_CONFIG="$(mktemp -d)"
+                        cp "$DOCKER_CONFIG_JSON" "$DOCKER_CONFIG/config.json"
+                        buildctl-daemonless.sh build \
+                          --frontend dockerfile.v0 \
+                          --local context=. \
+                          --local dockerfile=. \
+                          --opt build-arg:APP_VERSION="$BUILD_NUMBER" \
+                          --export-cache type=registry,ref=harbor.example.internal/payments/payment-api:buildcache,mode=max \
+                          --import-cache type=registry,ref=harbor.example.internal/payments/payment-api:buildcache \
+                          --output type=image,name="$IMAGE",push=true \
+                          --metadata-file build-metadata.json
+                        rm -rf "$DOCKER_CONFIG"
+                    '''
                 }
-            }
-        }
-        
-        stage('改進執行追蹤') {
-            steps {
-                script {
-                    trackActiveImprovements()
-                    measureExperimentProgress()
-                    validateHypotheses()
-                }
-            }
-        }
-        
-        stage('學習與分享') {
-            steps {
-                script {
-                    documentLearnings()
-                    shareSuccessStories()
-                    updateBestPractices()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                generateImprovementReport()
-                scheduleNextActions()
+                archiveArtifacts artifacts: 'build-metadata.json', fingerprint: true
             }
         }
     }
 }
+```
 
-def designImprovementExperiments() {
-    echo "設計改進實驗..."
-    
-    sh '''
-        # 設計改進實驗
-        python3 << 'EOF'
-import json
-import random
-from datetime import datetime, timedelta
+| 重點 | 說明 |
+| --- | --- |
+| `command: ["cat"]`＋`tty: true` | 讓容器保持執行，等待 Jenkins 呼叫 `sh` |
+| `BUILDKITD_FLAGS=--oci-worker-no-process-sandbox` | 不建立 PID namespace，降低對節點設定的需求（官方範例的做法） |
+| `seccompProfile`／`appArmorProfile: Unconfined` | rootless BuildKit 需要；`appArmorProfile` 欄位需要 Kubernetes 1.30 以上。若叢集以 Pod Security `restricted` 強制，需為建置 namespace 設定例外 |
+| Registry 快取 | `--export-cache`／`--import-cache` 讓每次全新 Pod 也能重用層快取 |
+| `--metadata-file` | 輸出包含映像 **digest** 的 JSON，供後續簽章與部署使用（16.1、21.4） |
+| 憑證 | 以 Secret file 型態保存 `config.json`（Harbor robot account），建置後刪除 |
 
-def design_experiments():
-    # 從識別的改進機會中設計實驗
-    improvement_opportunities = [
-        {
-            'area': 'code_review_process',
-            'problem': '程式碼審查週期過長',
-            'hypothesis': '引入自動化程式碼檢查可以減少 50% 的審查時間',
-            'experiment': '實施 SonarQube 自動檢查',
-            'metrics': ['review_time', 'defect_rate', 'developer_satisfaction'],
-            'duration_weeks': 4,
-            'success_criteria': {
-                'review_time_reduction': 0.3,
-                'defect_rate_increase': 0.1,
-                'satisfaction_increase': 0.2
+### 15.3 Buildah 與 Jib
+
+**Buildah（rootless，以 vfs 儲存驅動避免需要 `/dev/fuse`）**：
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+export STORAGE_DRIVER=vfs
+buildah bud --layers --format oci -t "harbor.example.internal/payments/payment-api:${BUILD_NUMBER}" .
+buildah push --digestfile image.digest "harbor.example.internal/payments/payment-api:${BUILD_NUMBER}"
+cat image.digest
+```
+
+**Jib（不需要 Dockerfile 與容器執行環境）**：
+
+```bash
+./mvnw -B -ntp compile com.google.cloud.tools:jib-maven-plugin:3.5.2:build \
+  -Djib.to.image="harbor.example.internal/payments/payment-api:${BUILD_NUMBER}" \
+  -Djib.to.auth.username="$REG_USER" \
+  -Djib.to.auth.password="$REG_PASS"
+```
+
+> 💡 Jib 會把相依套件、資源、類別分層，程式碼變更時只需推送最上層，速度很快。Jib 的帳密參數會出現在行程清單中，正式環境建議改用 `~/.docker/config.json` 或 credential helper。
+
+### 15.4 映像標籤、Digest 與推送
+
+| 原則 | 說明 |
+| --- | --- |
+| 唯一且不可變的 tag | `<版本>-<commit 短 SHA>` 或 `<建置編號>-<commit 短 SHA>`；registry 設定 tag immutability |
+| 以 digest 部署 | 部署清單使用 `image@sha256:...`，避免 tag 被覆寫後部署到不同內容 |
+| 一次建置、逐環境晉升 | dev／sit／uat／prod 使用同一個 digest；需要時以 `crane copy` 或 registry replication 複製到正式環境 registry，而不是重新建置 |
+| 基底映像 | 使用組織核可的基底映像並固定 digest；以 Renovate／Dependabot 自動更新 |
+| 不在映像中放機密 | 建置參數與層歷史可被讀取，機密以 BuildKit `--secret` 掛載 |
+
+### 15.5 在 Kubernetes 上執行 Jenkins controller（Helm 進階設定）
+
+延續 [3.6 Kubernetes（Helm）部署](#36-kuberneteshelm部署) 的基本安裝，正式環境還需要以下設定：
+
+```yaml
+controller:
+  image:
+    tag: "2.580.1-lts-jdk21"
+  numExecutors: 0
+  javaOpts: >-
+    -XX:InitialRAMPercentage=50 -XX:MaxRAMPercentage=70
+    -XX:+UseG1GC -XX:+UseStringDeduplication
+    -Duser.timezone=Asia/Taipei
+  resources:
+    requests:
+      cpu: "2"
+      memory: 8Gi
+    limits:
+      memory: 8Gi
+  # 機密以 Kubernetes Secret 掛載到 /run/secrets，JCasC 以 ${<secret>-<key>} 引用
+  additionalExistingSecrets:
+    - name: jenkins-casc-secrets
+      keyName: gitlab-ci-token
+    - name: jenkins-casc-secrets
+      keyName: sonar-token
+  JCasC:
+    defaultConfig: true
+    configScripts:
+      tools: |
+        tool:
+          git:
+            installations:
+              - name: "Default"
+                home: "git"
+  sidecars:
+    configAutoReload:
+      enabled: true       # ConfigMap 變更後自動重新載入 JCasC
+  prometheus:
+    enabled: true         # 建立 ServiceMonitor，抓取 /prometheus
+    scrapeInterval: 60s
+  podSecurityContextOverride:
+    runAsUser: 1000
+    runAsNonRoot: true
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  nodeSelector:
+    workload: platform
+  priorityClassName: platform-critical
+
+persistence:
+  enabled: true
+  storageClass: fast-ssd
+  size: 300Gi
+
+networkPolicy:
+  enabled: true
+```
+
+| 項目 | 建議 |
+| --- | --- |
+| JVM 記憶體 | 以 `MaxRAMPercentage` 依容器 limit 計算 heap；memory requests 等於 limits，避免被驅逐 |
+| 儲存 | `ReadWriteOnce` 的 SSD 類 StorageClass；啟用 VolumeSnapshot 作為備份手段之一（20.1） |
+| 排程 | 以 `nodeSelector`／`priorityClassName` 放在平台專用節點，避免與建置 Pod 搶資源 |
+| JCasC 機密 | `additionalExistingSecrets` 掛載的鍵在 JCasC 中以 `${<secret 名稱>-<key>}` 引用，例如 `${jenkins-casc-secrets-sonar-token}` |
+| 升級 | 先更新 `plugins.txt`／`installPlugins` 與映像 tag，在預備環境以 `helm upgrade --dry-run` 與實際部署驗證（20.3） |
+| Ingress | 只對 webhook 路徑開放外部入口時，使用 chart 的 `secondaryingress` 設定 |
+
+### 15.6 本章重點
+
+- 不要掛載 `docker.sock`；Kubernetes 上以 BuildKit rootless 建置映像，純 Java 專案可用 Jib
+- Kaniko 原專案已封存，新導入改用 BuildKit 或 Buildah
+- 映像以唯一 tag 推送、以 digest 部署並逐環境晉升
+- Helm 部署 controller 時固定映像版本、以 Secret 掛載 JCasC 機密，並啟用 ServiceMonitor
+
+## 16. 部署策略與環境管理
+
+### 16.1 環境與晉升模型
+
+```mermaid
+flowchart LR
+    B["建置一次<br/>image@sha256:abc"] --> DEV[dev<br/>自動部署]
+    DEV -->|自動測試通過| SIT[sit<br/>自動部署]
+    SIT -->|整合測試通過| UAT[uat<br/>核准後部署]
+    UAT -->|驗收通過＋變更核准| PROD[prod<br/>核准後部署<br/>Canary／Blue-Green]
+```
+
+| 原則 | 說明 |
+| --- | --- |
+| **一次建置、逐環境晉升** | 所有環境部署同一個映像 digest 或產物版本；環境差異只在設定（Helm values、ConfigMap、Secret） |
+| 環境設定與程式碼分離 | 每個環境的設定放在部署 repository（GitOps）或 Helm values 檔，機密由 Vault／External Secrets 提供 |
+| 越接近正式環境，控管越嚴 | dev 自動部署；uat／prod 需要核准、限定 agent、限定憑證 folder |
+| 部署可追溯 | 記錄「哪個 commit、哪個 digest、誰核准、何時部署到哪裡」（16.2、21.6） |
+| 部署可回復 | 每次部署都要有明確的回滾方式並定期演練（16.7） |
+
+### 16.2 人工核准與職責分離
+
+```groovy
+pipeline {
+    agent none
+    options {
+        disableResume()   // controller 重啟後不自動恢復，避免核准後重複部署
+    }
+    stages {
+        stage('Approve PROD') {
+            options {
+                timeout(time: 4, unit: 'HOURS')
             }
-        },
-        {
-            'area': 'deployment_process',
-            'problem': '部署失敗率高',
-            'hypothesis': '增加端到端測試可以降低 40% 的部署失敗率',
-            'experiment': '建立 E2E 測試套件',
-            'metrics': ['deployment_success_rate', 'rollback_frequency', 'customer_complaints'],
-            'duration_weeks': 6,
-            'success_criteria': {
-                'success_rate_increase': 0.4,
-                'rollback_reduction': 0.5,
-                'complaint_reduction': 0.3
+            input {
+                message '核准部署 payment-api 到正式環境'
+                ok '核准部署'
+                submitter 'payments-release-managers,cab-approvers'
+                submitterParameter 'APPROVER'
+                parameters {
+                    string(name: 'CHANGE_TICKET', defaultValue: '', description: '變更單號（例如 CHG-2026-1234）')
+                }
             }
-        },
-        {
-            'area': 'team_communication',
-            'problem': '會議效率低',
-            'hypothesis': '結構化議程和時間盒可以提高 25% 的會議效率',
-            'experiment': '實施會議最佳實踐',
-            'metrics': ['meeting_satisfaction', 'decision_speed', 'action_item_completion'],
-            'duration_weeks': 3,
-            'success_criteria': {
-                'satisfaction_increase': 0.25,
-                'decision_speed_increase': 0.3,
-                'completion_rate_increase': 0.2
+            steps {
+                script {
+                    if (!(env.CHANGE_TICKET ==~ /CHG-\d{4}-\d+/)) {
+                        error "變更單號格式錯誤：${env.CHANGE_TICKET}"
+                    }
+                    def causes = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+                    def triggeredBy = causes ? causes[0].userId : null
+                    if (triggeredBy && env.APPROVER == triggeredBy) {
+                        error '觸發者不得核准自己的部署（職責分離）'
+                    }
+                }
+                echo "核准人：${APPROVER}，變更單：${CHANGE_TICKET}"
             }
         }
-    ]
-    
-    # 為每個實驗生成詳細計畫
-    experiments = []
-    for i, opp in enumerate(improvement_opportunities):
-        experiment = {
-            'id': f'EXP-{datetime.now().strftime("%Y%m%d")}-{i+1:02d}',
-            'title': opp['experiment'],
-            'area': opp['area'],
-            'problem_statement': opp['problem'],
-            'hypothesis': opp['hypothesis'],
-            'start_date': datetime.now().isoformat(),
-            'end_date': (datetime.now() + timedelta(weeks=opp['duration_weeks'])).isoformat(),
-            'status': 'planned',
-            'metrics': opp['metrics'],
-            'success_criteria': opp['success_criteria'],
-            'baseline_measurements': {},
-            'implementation_plan': {
-                'phases': [
-                    {
-                        'phase': 1,
-                        'name': '準備階段',
-                        'duration_weeks': 1,
-                        'tasks': ['收集基線數據', '準備實驗環境', '培訓參與者']
-                    },
-                    {
-                        'phase': 2,
-                        'name': '執行階段',
-                        'duration_weeks': opp['duration_weeks'] - 2,
-                        'tasks': ['實施改進', '監控指標', '收集反饋']
-                    },
-                    {
-                        'phase': 3,
-                        'name': '評估階段',
-                        'duration_weeks': 1,
-                        'tasks': ['分析結果', '驗證假設', '決定下一步']
+    }
+}
+```
+
+| 控制項 | 做法 |
+| --- | --- |
+| 指定核准者 | `submitter` 使用群組（LDAP／SSO 群組），不要寫個人帳號 |
+| 職責分離 | 開發者不能核准自己的變更；上例以 `currentBuild.getBuildCauses()` 取得手動觸發者並與核准人比對；更嚴謹的做法是由核准系統（ITSM）的 API 驗證變更單狀態與核准人 |
+| 等待逾時 | stage 層級 `timeout`，逾時視為不核准（ABORTED） |
+| 不占用 executor | stage 層級 `input` 在配置 agent 前等待 |
+| 稽核紀錄 | 核准人、時間、變更單號寫入建置描述（`currentBuild.description`）並送到集中記錄（[17.10 稽核與集中記錄](#1710-稽核與集中記錄)） |
+
+> 💡 與 ITSM（ServiceNow、Jira Service Management）整合時，常見做法是由 Pipeline 呼叫 ITSM API 建立或查詢變更單，取代人工輸入；核准結果以 webhook 或輪詢回到 Jenkins。
+
+### 16.3 部署到 Kubernetes
+
+**Helm（4.x）**：
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+# 以 digest 部署；--rollback-on-failure 取代 Helm 3 的 --atomic（Helm 4 已標示 deprecated）
+helm upgrade --install payment-api oci://harbor.example.internal/charts/payment-api \
+  --version "${CHART_VERSION}" \
+  --namespace payments-sit \
+  --values "deploy/values-sit.yaml" \
+  --set image.repository=harbor.example.internal/payments/payment-api \
+  --set image.digest="${IMAGE_DIGEST}" \
+  --rollback-on-failure \
+  --wait \
+  --timeout 10m
+helm history payment-api --namespace payments-sit --max 5
+```
+
+| 旗標 | Helm 4.3 行為 |
+| --- | --- |
+| `--wait` | 單獨使用代表 `watcher` 策略（以 kstatus 判斷資源就緒）；未指定時為 `hookOnly` |
+| `--rollback-on-failure` | 失敗時自動回滾到上一個成功版本，並預設啟用 `--wait=watcher`；`--atomic` 仍可用但已 deprecated |
+| `--timeout` | 等待的上限（預設 5 分鐘） |
+
+**kubectl／Kustomize**：
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+cd deploy/overlays/sit
+kustomize edit set image payment-api="harbor.example.internal/payments/payment-api@${IMAGE_DIGEST}"
+kubectl apply -k . --server-side --field-manager=jenkins
+kubectl rollout status deployment/payment-api -n payments-sit --timeout=10m
+```
+
+> ⚠️ 部署憑證（kubeconfig）應對應到**只能操作該 namespace** 的 ServiceAccount（RBAC），並以 Secret file 憑證保存在對應環境的 folder。不要讓 Jenkins 使用叢集管理員的 kubeconfig。
+
+### 16.4 GitOps：Jenkins 負責 CI，Argo CD 負責 CD
+
+在 GitOps 模式中，Jenkins 不直接連線正式叢集，而是**更新部署 repository** 中的映像版本，由叢集內的 Argo CD（v3.5）或 Flux 自動同步：
+
+```mermaid
+sequenceDiagram
+    participant J as Jenkins
+    participant R as Registry
+    participant G as GitOps repo（deploy-config）
+    participant A as Argo CD
+    participant K as Kubernetes
+    J->>R: 推送映像，取得 digest
+    J->>G: 建立 MR：更新 overlays/prod 的 image digest
+    G->>G: 審查與核准（取代 Jenkins input）
+    G-->>A: 合併後觸發同步
+    A->>K: 套用資源
+    A-->>J: （選用）以通知或 API 回報同步結果
+```
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    parameters {
+        string(name: 'IMAGE_DIGEST', defaultValue: '', description: 'sha256:...')
+    }
+    stages {
+        stage('Update GitOps repo') {
+            steps {
+                dir('deploy-config') {
+                    git url: 'https://gitlab.example.internal/payments/deploy-config.git',
+                        branch: 'main', credentialsId: 'gitlab-gitops-bot'
+                    withCredentials([usernamePassword(credentialsId: 'gitlab-gitops-bot',
+                                                      usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                        sh '''
+                            set -euo pipefail
+                            BRANCH="release/payment-api-${BUILD_NUMBER}"
+                            git checkout -b "$BRANCH"
+                            cd overlays/prod
+                            kustomize edit set image payment-api="harbor.example.internal/payments/payment-api@${IMAGE_DIGEST}"
+                            cd ../..
+                            git -c user.name="jenkins-bot" -c user.email="jenkins-bot@example.internal" \
+                              commit -am "payment-api: ${IMAGE_DIGEST} (build ${BUILD_NUMBER})"
+                            git push "https://${GIT_USER}:${GIT_TOKEN}@gitlab.example.internal/payments/deploy-config.git" "$BRANCH" \
+                              -o merge_request.create -o merge_request.target=main \
+                              -o merge_request.title="Deploy payment-api build ${BUILD_NUMBER} to prod"
+                        '''
                     }
+                }
+            }
+        }
+    }
+}
+```
+
+| 比較 | Jenkins 直接部署 | GitOps（Argo CD／Flux） |
+| --- | --- | --- |
+| 正式叢集憑證 | 存放在 Jenkins | 不需要（叢集主動拉取） |
+| 核准方式 | Jenkins `input` | GitOps repo 的 MR 審查與 protected branch |
+| 漂移偵測 | 無 | 持續比對並可自動修正 |
+| 回滾 | 重新執行舊版本部署 | `git revert` |
+| 適用 | 傳統 VM、尚未導入 GitOps 的環境 | ✅ Kubernetes 正式環境的建議模式 |
+
+> 💡 `git push -o merge_request.create` 是 GitLab 的 push option；GitHub 可改用 `gh pr create`。
+
+### 16.5 Blue-Green 部署
+
+Blue-Green 同時保留兩套完整環境，切換流量即完成部署，回滾只需切回。
+
+```mermaid
+flowchart LR
+    U[使用者] --> S[Service／Ingress<br/>selector: version=green]
+    S --> G[Green v1.5<br/>新版本]
+    S -. 切換前 .-> B[Blue v1.4<br/>舊版本，保留供回滾]
+```
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+NS=payments-prod
+NEW_COLOR="${NEW_COLOR:?需要 NEW_COLOR（blue 或 green）}"
+
+# 1. 部署新顏色的 Deployment（不接流量）
+helm upgrade --install "payment-api-${NEW_COLOR}" ./chart -n "$NS" \
+  --set color="${NEW_COLOR}" --set image.digest="${IMAGE_DIGEST}" --wait --timeout 10m
+
+# 2. 對新版本執行冒煙測試（透過不對外的 preview Service）
+./smoke-test.sh "http://payment-api-${NEW_COLOR}-preview.${NS}.svc.cluster.local:8080"
+
+# 3. 切換正式 Service 的 selector
+kubectl -n "$NS" patch service payment-api \
+  -p "{\"spec\":{\"selector\":{\"app\":\"payment-api\",\"color\":\"${NEW_COLOR}\"}}}"
+```
+
+> ⚠️ Blue-Green 需要兩倍的運算資源，且資料庫 schema 必須同時相容新舊版本（先擴充、後收斂的 expand／contract 遷移）。
+
+### 16.6 Canary 部署
+
+Canary 先把小比例流量導向新版本，觀察指標後逐步擴大。✅ 建議以 **Argo Rollouts**（v1.10）或 Flagger 實作流量切分與自動分析，Jenkins 只負責觸發與等待結果：
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: payment-api
+  namespace: payments-prod
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: payment-api
+  strategy:
+    canary:
+      steps:
+        - setWeight: 10
+        - pause: { duration: 10m }
+        - analysis:
+            templates:
+              - templateName: http-error-rate
+        - setWeight: 50
+        - pause: { duration: 15m }
+        - setWeight: 100
+  template:
+    metadata:
+      labels:
+        app: payment-api
+    spec:
+      containers:
+        - name: payment-api
+          image: harbor.example.internal/payments/payment-api@sha256:0000000000000000000000000000000000000000000000000000000000000000
+```
+
+```groovy
+pipeline {
+    agent { label 'deploy-prod' }
+    stages {
+        stage('Canary') {
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig-prod-payments', variable: 'KUBECONFIG')]) {
+                    sh '''
+                        set -euo pipefail
+                        kubectl argo rollouts set image payment-api \
+                          payment-api="harbor.example.internal/payments/payment-api@${IMAGE_DIGEST}" -n payments-prod
+                        kubectl argo rollouts status payment-api -n payments-prod --timeout 60m
+                    '''
+                }
+            }
+        }
+    }
+    post {
+        failure {
+            withCredentials([file(credentialsId: 'kubeconfig-prod-payments', variable: 'KUBECONFIG')]) {
+                sh 'kubectl argo rollouts abort payment-api -n payments-prod'
+            }
+        }
+    }
+}
+```
+
+| 策略 | 資源成本 | 回滾速度 | 風險暴露 | 適用 |
+| --- | --- | --- | --- | --- |
+| Rolling update（Kubernetes 預設） | 低 | 中 | 全部使用者逐步接觸新版 | 一般服務 |
+| Blue-Green | 高（兩倍） | 秒級 | 切換瞬間全部 | 需要瞬間切換、易回滾的服務 |
+| Canary | 中 | 秒級 | 小比例 | ✅ 高流量、可觀測性完整的服務 |
+
+### 16.7 回滾
+
+| 情境 | 回滾方式 |
+| --- | --- |
+| Helm 部署失敗 | `--rollback-on-failure` 自動回滾；手動：`helm rollback payment-api <revision> -n <ns>` |
+| GitOps | `git revert` 部署 repository 的提交，由 Argo CD 同步 |
+| Argo Rollouts | `kubectl argo rollouts abort`（停在穩定版本）或 `undo` |
+| Blue-Green | 切回舊顏色的 selector |
+| 資料庫遷移 | 只採用向後相容的遷移；破壞性變更延到下一個版本，並在變更單中寫明回滾計畫 |
+
+✅ 回滾 Pipeline 本身也要以 Jenkinsfile 管理，並每季在預備環境演練一次。
+
+### 16.8 資料庫結構遷移
+
+應用程式部署常伴隨資料庫結構變更。遷移腳本應與程式碼一起版本控制，由 Pipeline 在部署**之前**執行，並遵守「先擴充、後收斂」（expand／contract）原則，讓新舊版本程式都能使用同一個 schema。
+
+| 階段 | 動作 | 範例 |
+| --- | --- | --- |
+| 擴充（expand） | 只新增：新欄位（可為 NULL 或有預設值）、新資料表、新索引 | `ALTER TABLE payment ADD COLUMN channel VARCHAR(20) NULL` |
+| 部署新版程式 | 新程式同時寫入新舊欄位，讀取新欄位 | |
+| 資料回填 | 批次把舊資料轉到新欄位 | 以獨立的維運 Pipeline 分批執行 |
+| 收斂（contract） | 確認不再需要回滾到舊版後，才移除舊欄位 | 下一個版本再執行 |
+
+```groovy
+pipeline {
+    agent { label 'deploy' }
+    parameters {
+        choice(name: 'TARGET_ENV', choices: ['sit', 'uat'], description: '目標環境')
+    }
+    stages {
+        stage('DB Migrate') {
+            agent {
+                docker {
+                    image 'flyway/flyway:13.9.0'
+                    args '--entrypoint=""'
+                    label 'deploy && docker'
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: "db-migrator-payments-${params.TARGET_ENV}",
+                                                  usernameVariable: 'FLYWAY_USER', passwordVariable: 'FLYWAY_PASSWORD')]) {
+                    sh '''
+                        set -eu
+                        export FLYWAY_URL="jdbc:postgresql://pg-${TARGET_ENV}.example.internal:5432/payments"
+                        flyway -locations=filesystem:db/migration info
+                        flyway -locations=filesystem:db/migration -validateMigrationNaming=true validate
+                        flyway -locations=filesystem:db/migration migrate
+                    '''
+                }
+            }
+        }
+        stage('Deploy App') {
+            steps {
+                echo "部署應用程式到 ${params.TARGET_ENV}（16.3）"
+            }
+        }
+    }
+}
+```
+
+| 原則 | 說明 |
+| --- | --- |
+| 遷移帳號與應用程式帳號分開 | 只有遷移帳號具有 DDL 權限，憑證放在對應環境的 folder |
+| 先 `validate` 再 `migrate` | 確認已執行的腳本沒有被修改（checksum） |
+| 不可修改已發佈的遷移腳本 | 修正一律以新的版本號腳本處理 |
+| 正式環境另行核准 | 大型資料表的 DDL 可能鎖表，需評估執行時間並安排維護窗口 |
+| 回滾策略 | 優先以「向前修正」（新的遷移腳本）處理；破壞性變更延到收斂階段 |
+
+### 16.9 部署到 VM 與傳統主機
+
+尚未容器化的應用，建議由 Jenkins 呼叫 **Ansible**，而不是在 Pipeline 中撰寫大量 SSH 指令：
+
+```groovy
+pipeline {
+    agent { label 'deploy' }
+    stages {
+        stage('Deploy to VMs') {
+            steps {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ansible-deploy-key',
+                                                   keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')]) {
+                    sh '''
+                        set -euo pipefail
+                        ansible-playbook -i inventories/sit/hosts.yml deploy.yml \
+                          --private-key "$SSH_KEY" -u "$SSH_USER" \
+                          -e "app_version=${BUILD_NUMBER}" \
+                          --diff
+                    '''
+                }
+            }
+        }
+    }
+}
+```
+
+> 💡 Ansible playbook 以 `serial` 參數控制每批更新的主機數，搭配負載平衡器的摘除與加回，即可實作 VM 環境的滾動部署。
+
+### 16.10 本章重點
+
+- 一次建置、以 digest 逐環境晉升；環境差異只在設定
+- 正式部署使用 stage 層級 `input`＋`timeout`＋群組核准，並保留職責分離與稽核紀錄
+- Helm 4 改用 `--rollback-on-failure`；Kubernetes 正式環境優先採用 GitOps，Jenkins 不持有正式叢集憑證
+- Canary 以 Argo Rollouts／Flagger 實作，Jenkins 負責觸發與等待結果；回滾流程要定期演練
+- 資料庫遷移在部署前執行，遵守 expand／contract 原則，遷移帳號與應用程式帳號分開
+
+## 17. 安全強化
+
+### 17.1 威脅模型
+
+Jenkins 同時擁有**原始碼、建置環境、各環境的部署憑證**，是攻擊者橫向移動與供應鏈攻擊的高價值目標。
+
+```mermaid
+flowchart TB
+    subgraph 外部
+        A1[未授權存取 UI／API]
+        A2[惡意 PR／fork]
+        A3[有漏洞的 plugin]
+    end
+    subgraph 內部
+        A4[過度授權的帳號]
+        A5[Script Console／受信任 Library 濫用]
+        A6[憑證外洩]
+    end
+    A1 --> J[Jenkins Controller]
+    A2 --> AG[Agent 上執行任意程式碼]
+    A3 --> J
+    A4 --> J
+    A5 --> J
+    AG --> A6
+    J --> A6
+    A6 --> T[正式環境／原始碼／制品庫遭入侵]
+```
+
+| 威脅 | 主要控制 | 章節 |
+| --- | --- | --- |
+| 未授權存取 | SSO＋MFA、關閉匿名讀取、反向代理與網路分段 | 17.2、3.8 |
+| 權限過大 | 最小權限的 Matrix／Role-based 授權，管理員人數最少化 | 17.3 |
+| 建置以 SYSTEM 身分執行 | Authorize Project（建置以觸發者身分執行） | 17.4 |
+| 惡意 Pipeline 程式碼 | 分支／fork 信任設定、agent 隔離、憑證 folder 化 | 8.6、14.6、7.2 |
+| Controller 被入侵 | built-in node 0 executor、agent → controller 安全、Script Approval | 17.5、17.7 |
+| Web 攻擊（XSS／CSRF） | CSRF、CSP、Safe HTML、Resource Root URL | 17.6 |
+| Plugin 漏洞 | 安全公告處理流程、精簡 plugin | 17.9、第 5 章 |
+| 無法追溯 | Audit Trail、集中記錄 | 17.10 |
+
+### 17.2 驗證（Security Realm）
+
+| 方式 | Plugin | 建議 |
+| --- | --- | --- |
+| **OpenID Connect（OIDC）** | OpenId Connect Authentication（`oic-auth`） | ✅ 首選：對接 Keycloak、Microsoft Entra ID、Okta 等，由 IdP 負責 MFA |
+| SAML 2.0 | SAML | 已有 SAML IdP（ADFS 等）時使用 |
+| LDAP／Active Directory | LDAP、Active Directory | 沒有 SSO 時的企業目錄整合；務必使用 LDAPS |
+| Jenkins 自有使用者資料庫 | Core | 只用於實驗環境或緊急帳號；2.516.1 起密碼上限 72 bytes（bcrypt） |
+
+**OIDC 範例**（Keycloak；已以 2.580.1＋`oic-auth` 4.718 驗證）：
+
+```yaml
+jenkins:
+  securityRealm:
+    oic:
+      clientId: "jenkins"
+      clientSecret: "${oidc_client_secret}"
+      serverConfiguration:
+        wellKnown:
+          wellKnownOpenIDConfigurationUrl: "https://sso.example.internal/realms/corp/.well-known/openid-configuration"
+          scopesOverride: "openid profile email groups"
+      userNameField: "preferred_username"
+      fullNameFieldName: "name"
+      emailFieldName: "email"
+      groupsFieldName: "groups"
+      logoutFromOpenidProvider: true
+      postLogoutRedirectUrl: "https://jenkins.example.internal/"
+      properties:
+        - pkce
+        - escapeHatch:
+            username: "break-glass-admin"
+            secret: "${oidc_escape_hatch_password}"
+            group: "jenkins-admins"
+```
+
+| 設定 | 說明 |
+| --- | --- |
+| `pkce` | 啟用 PKCE，防止授權碼攔截 |
+| `groupsFieldName` | IdP 必須在 ID token 或 userinfo 中提供群組 claim，Jenkins 授權才能以群組設定 |
+| `escapeHatch` | 「破窗」緊急帳號：IdP 故障時仍能登入。密碼存放在保險箱，使用後立即輪替並檢討 |
+| `logoutFromOpenidProvider` | 登出時一併結束 IdP session |
+
+**LDAP 範例**：
+
+```yaml
+jenkins:
+  securityRealm:
+    ldap:
+      configurations:
+        - server: "ldaps://ldap.example.internal:636"
+          rootDN: "dc=example,dc=internal"
+          managerDN: "cn=svc-jenkins-bind,ou=service,dc=example,dc=internal"
+          managerPasswordSecret: "${ldap_bind_password}"
+          userSearchBase: "ou=people"
+          userSearch: "uid={0}"
+          groupSearchBase: "ou=groups"
+          groupSearchFilter: "(&(objectClass=groupOfNames)(cn={0}))"
+          groupMembershipStrategy:
+            fromGroupSearch:
+              filter: "(&(objectClass=groupOfNames)(member={0}))"
+          displayNameAttributeName: "displayName"
+          mailAddressAttributeName: "mail"
+      cache:
+        size: 200
+        ttl: 300
+      userIdStrategy: "caseInsensitive"
+      groupIdStrategy: "caseInsensitive"
+```
+
+> 📌 2.479.1 升級到 Spring Security 6 時，LDAP plugin 必須同步升級到相容版本（官方升級指南）。升級 core 前務必先更新 LDAP、Active Directory、SAML、OIDC 等驗證 plugin，否則可能無法登入（[20.3 升級程序](#203-升級程序)）。
+
+### 17.3 授權策略
+
+| 策略 | Plugin | 適用 |
+| --- | --- | --- |
+| Matrix-based security | Matrix Authorization Strategy | 中小型組織；搭配 **folder 層級的 matrix** 給團隊權限 |
+| Role-based Strategy | Role-based Authorization Strategy | 大型組織；以正規表示式把 Job 分組並對應角色 |
+| Logged-in users can do anything | Core | ❌ 只用於個人實驗環境 |
+| Anyone can do anything／Legacy mode | Core | ❌ 不使用 |
+
+**最小權限原則**：
+
+| 角色 | 權限 |
+| --- | --- |
+| 平台管理員（2–4 人） | `Overall/Administer` |
+| 所有登入使用者 | `Overall/Read`（必要時加 `Job/Discover`） |
+| 團隊開發者 | 該團隊 folder 的 `Job/Read`、`Job/Build`、`Job/Cancel`、`Job/Workspace`、`Run/Replay` |
+| 發佈管理者 | `prod` 子 folder 的 `Job/Read`、`Job/Build`；`input` 核准 |
+| 唯讀稽核 | `Overall/Read`、`Job/Read`、`Job/ExtendedRead`（檢視設定但不可修改） |
+
+> ⚠️ `Job/Configure` 與 `Run/Replay` 都能改變 Pipeline 實際執行的程式碼，等同取得該 Job 可用的所有憑證。正式部署 Job 不授予這兩個權限；Multibranch 的 Pipeline 內容由 Git 審查流程控管。
+
+**Role-based Strategy 範例**：
+
+```yaml
+jenkins:
+  authorizationStrategy:
+    roleBased:
+      roles:
+        global:
+          - name: "admin"
+            description: "Jenkins 平台管理員"
+            permissions:
+              - "Overall/Administer"
+            entries:
+              - group: "jenkins-admins"
+          - name: "reader"
+            description: "所有登入使用者"
+            permissions:
+              - "Overall/Read"
+            entries:
+              - group: "authenticated"
+        items:
+          - name: "payments-developer"
+            description: "Payments 團隊：可執行與檢視（不含 prod）"
+            pattern: "payments/(?!prod/).*"
+            permissions:
+              - "Job/Read"
+              - "Job/Build"
+              - "Job/Cancel"
+              - "Job/Workspace"
+              - "Run/Replay"
+            entries:
+              - group: "payments-devs"
+          - name: "payments-release"
+            description: "Payments 正式部署"
+            pattern: "payments/prod/.*"
+            permissions:
+              - "Job/Read"
+              - "Job/Build"
+            entries:
+              - group: "payments-release-managers"
+```
+
+**Matrix 搭配 folder 權限**（全域只給讀取，團隊權限設在 folder，以 Job DSL 建立）：
+
+```groovy
+// Job DSL：建立 prod 子 folder，阻斷繼承並只授權發佈管理者
+folder('payments')
+folder('payments/prod') {
+    properties {
+        authorizationMatrix {
+            inheritanceStrategy {
+                nonInheriting()
+            }
+            entries {
+                group {
+                    name('payments-release-managers')
+                    permissions(['Job/Read', 'Job/Build'])
+                }
+                group {
+                    name('jenkins-admins')
+                    permissions(['Job/Read', 'Job/Build', 'Job/Configure', 'Job/Cancel'])
+                }
+            }
+        }
+    }
+}
+```
+
+### 17.4 建置的執行身分（Authorize Project）
+
+預設情況下，建置以 **SYSTEM** 身分執行，可以觸發任何 Job、讀取任何 Job 的產物。安裝 **Authorize Project** plugin 並設定全域策略，讓建置以「觸發建置的使用者」身分執行：
+
+```yaml
+security:
+  queueItemAuthenticator:
+    authenticators:
+      - global:
+          strategy: "triggeringUsersAuthorizationStrategy"
+```
+
+| 效果 | 說明 |
+| --- | --- |
+| `build job: '...'` | 只能觸發觸發者有 `Job/Build` 權限的 Job |
+| `copyArtifacts` | 只能複製觸發者看得到的 Job 產物 |
+| User 範圍憑證 | 可以使用觸發者自己的 User 憑證 |
+
+> 💡 由 webhook 或排程觸發的建置沒有「使用者」，會以匿名身分執行，可能因權限不足失敗。為這類建置在 Job 層級設定「Run as specific user」（服務帳號），或為匿名身分授予最小必要權限。
+
+### 17.5 Controller 與 Agent 隔離
+
+| 控制 | 設定 |
+| --- | --- |
+| Built-in node 不執行建置 | `jenkins.numExecutors: 0` |
+| Agent → Controller 存取控制 | 2.326 起永遠啟用，不得以系統屬性停用 |
+| 停用不使用的 TCP agent port | 全部使用 WebSocket／SSH 時：`jenkins.slaveAgentPort: -1` |
+| Agent 依信任分級 | [14.6 Agent 安全與隔離](#146-agent-安全與隔離) |
+| Controller 網路 | 只有反向代理可連入 8080；controller 對外連線限制在 SCM、update center（或內部鏡像）、IdP、agent |
+
+### 17.6 Web 安全：CSRF、CSP、Markup 與 Resource Root URL
+
+```yaml
+jenkins:
+  disableRememberMe: true
+  markupFormatter:
+    rawHtml:
+      disableSyntaxHighlighting: false
+security:
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+  contentSecurityPolicy:
+    enforce: true
+  gitHostKeyVerificationConfiguration:
+    sshHostKeyVerificationStrategy: "knownHostsFileVerificationStrategy"
+  globalJobDslSecurityConfiguration:
+    useScriptSecurity: true
+unclassified:
+  resourceRoot:
+    url: "https://jenkins-files.example.internal/"
+```
+
+| 設定 | 說明 |
+| --- | --- |
+| CSRF | 預設啟用；2.555.1 起 crumb 不再綁定用戶端 IP，JCasC 不可再設定 `crumbIssuer.standard.excludeClientIPFromCrumb` |
+| **Content Security Policy**（2.541.1 起 core 內建） | `contentSecurityPolicy.enforce: true` 啟用強制模式；預設只回報（`Content-Security-Policy-Report-Only`）。啟用前先在預備環境確認所有 plugin 頁面正常；舊的 CSP plugin 需停用或升級到 2.x |
+| Markup Formatter | `rawHtml` 是 OWASP Markup Formatter 提供的 **Safe HTML**（會過濾腳本），不是原始 HTML |
+| Resource Root URL | 讓建置產物、HTML 報告在獨立網域提供，避免惡意檔案在 Jenkins 網域執行腳本 |
+| `disableRememberMe` | 停用「記住我」，session 隨瀏覽器關閉失效（SSO 環境由 IdP 管理 session） |
+| Legacy API token | 不允許建立；使用者自行產生具名稱的 token，定期檢視使用統計並撤銷未使用的 token |
+| Git host key 驗證 | 使用 known_hosts，避免中間人攻擊 |
+| Job DSL script security | 以沙箱執行 Job DSL 腳本（`useScriptSecurity: true`） |
+
+### 17.7 Script Approval 與 Script Console 管控
+
+| 控制 | 做法 |
+| --- | --- |
+| 預設拒絕 | `security.scriptApproval.approvedSignatures` 以 JCasC 管理，每一項都要有變更紀錄與理由 |
+| 定期清理 | 每季檢視已核准的簽章，移除不再使用的項目 |
+| Script Console | 只有管理員；操作由 Audit Trail 記錄（`logScriptUsage`） |
+| Groovy init scripts（`init.groovy.d`） | 只在映像建置時放入，由 Git 審查；不要在執行中的 controller 上手動新增 |
+| 受信任 Shared Library | 寫入權限比照管理員管理（[12.2 設定 Library：受信任與非受信任](#122-設定-library受信任與非受信任)） |
+
+### 17.8 API Token、CLI 與服務帳號
+
+| 用途 | 做法 |
+| --- | --- |
+| 外部系統呼叫 Jenkins REST API | 建立專用服務帳號（SSO 環境可用本機帳號或 IdP 的 service account），產生具名 API token，只授予必要權限 |
+| CLI | 使用 `-webSocket` 或 `-http` 模式＋`-auth @檔案`；SSH CLI 預設停用 |
+| Token 管理 | 記錄每個 token 的擁有者、用途、到期日；離職或系統下線時撤銷 |
+| 呼叫方式 | API token 透過 HTTP Basic 驗證傳送，**一定要走 HTTPS**；使用 API token 時不需要 CSRF crumb |
+
+> ⚠️ WebSocket 模式的 CLI 需要先設定 Jenkins URL；未設定時握手會回傳 403，回應標頭為 `X-CLI-Error: Jenkins URL is not configured`（2.580.1 實測）。
+
+### 17.9 安全公告與漏洞處理流程
+
+Jenkins 安全團隊以**安全公告（Security Advisory）**發布 core 與 plugin 漏洞，通常在週三發布，並會提前在 `jenkinsci-advisories` 郵件清單預告。2026 年 1–9 月共有 9 次公告，其中 5 次影響 core（2026-02-18、03-18、06-10、08-05、09-02）；例如 2026-06-10 修補了 2.567／LTS 2.555.2 以前可由攻擊者控制的 `config.xml` 觸發的反序列化問題。
+
+```mermaid
+flowchart LR
+    A[訂閱 jenkinsci-advisories<br/>與安全公告 RSS] --> B[公告發布]
+    B --> C[比對 plugins.txt<br/>PIMT --view-security-warnings]
+    C --> D{受影響且可利用?}
+    D -->|是| E[評估暫時緩解措施<br/>停用 plugin／限制權限]
+    E --> F[預備環境更新與測試]
+    F --> G[正式環境更新<br/>目標 7 天內]
+    D -->|否| H[記錄評估結果<br/>排入例行更新]
+    G --> I[更新稽核紀錄]
+    H --> I
+```
+
+| 嚴重度（CVSS） | 修補目標 |
+| --- | --- |
+| Critical／High | 7 天內（可被未授權使用者利用者 72 小時內） |
+| Medium | 30 天內 |
+| Low | 下一次例行更新 |
+
+> 💡 Manage Jenkins 頁面的「Warnings」與 update center 的安全警示會列出已安裝 plugin 的已知漏洞。也可以把 `PIMT --view-security-warnings` 加入每日排程，結果送到資安團隊。
+
+### 17.10 稽核與集中記錄
+
+```yaml
+unclassified:
+  audit-trail:
+    logBuildCause: true
+    logCredentialsUsage: true
+    displayUserName: true
+    pattern: ".*/(?:configSubmit|doDelete|postBuildResult|enable|disable|cancelQueue|stop|toggleLogKeep|doWipeOutWorkspace|createItem|createView|toggleOffline|cancelQuietDown|quietDown|restart|exit|safeExit)/?.*"
+    loggers:
+      - logFile:
+          log: "/var/log/jenkins/audit-%g.log"
+          limit: 100
+          count: 10
+```
+
+| 記錄來源 | 內容 | 保存 |
+| --- | --- | --- |
+| Audit Trail plugin | 設定變更、建置觸發者、憑證使用、Script Console 使用 | 送到 SIEM，保存期限依法規（21.6） |
+| Job Configuration History plugin | Job 與系統設定的差異歷史 | 補充 Audit Trail 的「改了什麼」 |
+| 系統記錄（`journalctl`／容器 stdout） | 登入失敗、錯誤 | 集中到 ELK／Loki |
+| 建置紀錄 | 誰觸發、誰核准、部署了什麼 | 依保存政策；正式部署紀錄另存到不可竄改的儲存 |
+
+### 17.11 本章重點
+
+- 以 OIDC／SAML 對接 SSO 並由 IdP 負責 MFA，保留一個受控的破窗帳號
+- 授權採最小權限：全域只給讀取，團隊權限設在 folder；`Job/Configure` 與 `Run/Replay` 視同憑證存取權
+- 以 Authorize Project 讓建置以觸發者身分執行
+- 啟用 Content Security Policy 強制模式與 Resource Root URL；停用 legacy API token
+- 建立安全公告處理流程，Critical／High 7 天內修補；Audit Trail 記錄送 SIEM
+
+## 18. Configuration as Code（JCasC）與 Job DSL
+
+### 18.1 為何要把 Jenkins 設定程式碼化
+
+| 問題（UI 手動設定） | JCasC＋Job DSL 的解法 |
+| --- | --- |
+| 設定散落在 `config.xml`，無法審查與追溯 | YAML／Groovy 放在 Git，透過 MR／PR 審查 |
+| 預備環境與正式環境設定不一致 | 同一份設定，以變數區分環境 |
+| 災難復原要從備份還原整個 `JENKINS_HOME` | 新 controller＋JCasC＋Job DSL 即可重建設定與 Job（建置紀錄另行備份） |
+| 新增團隊或專案需要管理員手動操作 | 修改 seed 設定即可自動建立 folder、權限、Multibranch |
+| 升級時不清楚哪些設定已棄用 | JCasC 在啟動時檢查並拒絕已棄用的設定 |
+
+```mermaid
+flowchart LR
+    G[(jenkins-config repo<br/>casc/*.yaml<br/>jobs/*.groovy<br/>plugins.txt)] -->|MR 審查| CI[設定驗證 Pipeline<br/>check 端點／預備環境]
+    CI --> IMG[controller 映像<br/>或 Helm values]
+    IMG --> C[Jenkins Controller]
+    C -->|啟動時套用| J[JCasC：系統設定、憑證、雲端、安全]
+    J -->|jobs: 區段| D[Job DSL：folder、Multibranch、Organization Folder]
+```
+
+### 18.2 JCasC 基礎
+
+**載入位置**（依序）：
+
+1. 環境變數 `CASC_JENKINS_CONFIG`：單一檔案、目錄（載入其中所有 `.yaml`／`.yml`）或 URL，可用逗號分隔多個來源
+2. 系統屬性 `casc.jenkins.config`
+3. 預設：`$JENKINS_HOME/jenkins.yaml`
+
+**根層級鍵**：
+
+| 鍵 | 內容 |
+| --- | --- |
+| `jenkins` | Core 設定：安全領域、授權、節點、雲端、executor、系統訊息、視圖 |
+| `credentials` | 系統範圍憑證 |
+| `security` | 安全相關的全域設定（API token、CSP、Script Approval、建置授權等） |
+| `tool` | 工具安裝（JDK、Maven、Git） |
+| `unclassified` | 其餘 plugin 的全域設定（位置、郵件、Shared Library、SonarQube 等） |
+| `appearance` | 主題等外觀設定 |
+| `jobs` | Job DSL 腳本（需要 Job DSL plugin） |
+| `configuration-as-code` | JCasC 本身的行為設定 |
+
+**完整的基礎範例**（含第 3.5 節 Compose 範例需要的 inbound agent 節點）：
+
+```yaml
+configuration-as-code:
+  deprecated: reject      # 預設值：遇到已棄用設定即中止啟動
+  unknown: reject
+
+jenkins:
+  systemMessage: "本 Jenkins 由 JCasC 管理（jenkins-config repo），請勿在 UI 修改設定"
+  numExecutors: 0
+  mode: EXCLUSIVE
+  slaveAgentPort: -1
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${jenkins_admin_password}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  nodes:
+    - permanent:
+        name: "agent-1"
+        labelString: "linux docker"
+        remoteFS: "/home/jenkins/agent"
+        numExecutors: 2
+        launcher:
+          inbound:
+            webSocket: true
+
+unclassified:
+  location:
+    url: "https://jenkins.example.internal/"
+    adminAddress: "jenkins-noreply@example.internal"
+  timestamper:
+    allPipelines: true
+  buildDiscarders:
+    configuredBuildDiscarders:
+      - "jobBuildDiscarder"
+      - simpleBuildDiscarder:
+          discarder:
+            logRotator:
+              daysToKeepStr: "60"
+              numToKeepStr: "100"
+              artifactDaysToKeepStr: "14"
+              artifactNumToKeepStr: "10"
+```
+
+> 💡 不知道某個設定的 YAML 寫法時，先在預備環境的 UI 設定好，再到 Manage Jenkins → Configuration as Code → **View Configuration**（`/configuration-as-code/viewExport`）匯出對照；`/configuration-as-code/reference` 列出目前安裝的 plugin 支援的所有鍵。匯出結果包含加密後的機密，不能直接提交到 Git。
+
+### 18.3 JCasC 實務
+
+**機密**：YAML 中只寫變數，值由 secret source 提供（[7.6 以 JCasC 管理憑證](#76-以-jcasc-管理憑證)）：
+
+| 來源 | 寫法 | 說明 |
+| --- | --- | --- |
+| 環境變數 | `${SONAR_TOKEN}` | 簡單，但環境變數可能出現在 System Information 頁面與行程資訊 |
+| 檔案（Docker／Kubernetes Secret） | `${sonar_token}` 對應 `/run/secrets/sonar_token` | ✅ 建議；目錄可用環境變數 `SECRETS` 修改 |
+| 讀取任意檔案 | `${readFile:/path/to/file}`、`${trim:${readFile:...}}` | 憑證檔、金鑰 |
+| Base64 | `${base64:...}`、`${decodeBase64:...}`、`${readFileBase64:...}` | PKCS#12 等二進位檔 |
+| Vault／AWS／Azure | 對應的 secret source plugin | 集中管理 |
+| 預設值 | `${VAR:-預設值}` | 變數不存在時使用 |
+| 跳脫 | `^${NOT_A_VARIABLE}` | 輸出字面上的 `${...}`（例如 Job DSL 腳本中的 Groovy 字串） |
+
+**多檔合併**：`CASC_JENKINS_CONFIG` 指向目錄時，所有檔案會合併。相同的清單項目（例如兩個檔案都定義 `jenkins.nodes`）會**衝突並中止**，因此請依主題切分檔案：
+
+```text
+casc/
+├── 00-jenkins.yaml          # jenkins: 核心設定
+├── 10-security.yaml         # jenkins.securityRealm／authorizationStrategy、security:
+├── 20-credentials.yaml      # credentials:
+├── 30-clouds.yaml           # jenkins.clouds:
+├── 40-tools.yaml            # tool:
+├── 50-unclassified.yaml     # unclassified:
+└── 90-jobs.yaml             # jobs:
+```
+
+**重新載入**：
+
+| 方式 | 指令 |
+| --- | --- |
+| UI | Manage Jenkins → Configuration as Code → Reload existing configuration |
+| CLI | `java -jar jenkins-cli.jar -s https://jenkins.example.internal/ -webSocket -auth @auth reload-jcasc-configuration` |
+| REST | `curl -X POST -u "$USER:$TOKEN" https://jenkins.example.internal/configuration-as-code/reload` |
+| Kubernetes | Helm chart 的 `configAutoReload` sidecar 監看 ConfigMap 並自動觸發 |
+| 驗證（不套用） | `curl -X POST -u "$USER:$TOKEN" --data-binary @jenkins.yaml -H 'Content-Type: application/x-yaml' https://jenkins.example.internal/configuration-as-code/check`；回傳 `[]` 表示通過 |
+
+> ⚠️ Reload 只套用 YAML 中**有出現**的設定；從 YAML 刪除某個設定，不代表 Jenkins 會移除它（例如刪掉的節點仍然存在）。最可靠的方式是以新容器重新啟動 controller，讓所有設定從 YAML 重新產生。
+
+**已棄用設定導致啟動中止**（升級時最常見的問題）：
+
+| 設定 | 自哪一版起 | 處理 |
+| --- | --- | --- |
+| `jenkins.agentProtocols` | 2.492.1 | 刪除；不需要 TCP agent 時改設 `slaveAgentPort: -1` |
+| `jenkins.crumbIssuer.standard.excludeClientIPFromCrumb` | 2.555.1 | 刪除整個 `crumbIssuer` 區段；2.580.1 的 check 端點會回報「Invalid configuration elements」 |
+| `jenkins.myViewsTabBar` | 2.516.1／2.528.1 | 刪除，改由使用者個人設定 |
+| GitLab Branch Source 的 `secretToken` | plugin 目前版本 | 改用 `webhookSecretCredentialsId`（[8.3 GitLab 整合](#83-gitlab-整合)） |
+
+若需要過渡期，可在 YAML 加上以下設定讓 JCasC 只發出警告（升級完成後應移除）：
+
+```yaml
+configuration-as-code:
+  deprecated: warn
+```
+
+### 18.4 Job DSL
+
+Job DSL 以 Groovy DSL 描述 Job，最適合建立 **folder、Multibranch、Organization Folder、維運用 Pipeline Job** 等「Job 的外殼」；Pipeline 邏輯仍然寫在 Jenkinsfile 中。
+
+**在 JCasC 中直接執行 Job DSL**：
+
+```yaml
+jobs:
+  - file: /var/jenkins_home/casc/jobs/seed.groovy
+  - script: >
+      folder('platform-ops') {
+        displayName('平台維運')
+      }
+```
+
+**維運用 Pipeline Job**（Pipeline 內容取自 Git）：
+
+```groovy
+// Job DSL：每日驗證備份可還原的 Pipeline Job
+folder('platform-ops') {
+    displayName('平台維運')
+}
+
+pipelineJob('platform-ops/backup-restore-verify') {
+    description('每日以最新備份在隔離環境啟動 Jenkins 並執行冒煙測試（第 20 章）')
+    logRotator {
+        daysToKeep(30)
+    }
+    properties {
+        pipelineTriggers {
+            triggers {
+                cron {
+                    spec('TZ=Asia/Taipei\nH 5 * * *')
+                }
+            }
+        }
+    }
+    definition {
+        cpsScm {
+            scm {
+                git {
+                    remote {
+                        url('https://gitlab.example.internal/platform/jenkins-ops.git')
+                        credentials('gitlab-ci-token')
+                    }
+                    branch('*/main')
+                }
+            }
+            scriptPath('pipelines/backup-restore-verify.Jenkinsfile')
+            lightweight(true)
+        }
+    }
+}
+```
+
+**依團隊清單批次建立 folder 與 Organization Folder**：
+
+```groovy
+// Job DSL：teams 清單可改為讀取 YAML（readFileFromWorkspace）
+def teams = [
+    [id: 'payments', name: 'Payments', gitlabGroup: 'payments', devs: 'payments-devs'],
+    [id: 'channels', name: 'Channels', gitlabGroup: 'channels', devs: 'channels-devs'],
+]
+
+teams.each { t ->
+    folder(t.id) {
+        displayName(t.name)
+        properties {
+            authorizationMatrix {
+                entries {
+                    group {
+                        name(t.devs)
+                        permissions(['Job/Read', 'Job/Build', 'Job/Cancel', 'Job/Workspace'])
+                    }
+                }
+            }
+        }
+    }
+    organizationFolder("${t.id}/gitlab") {
+        displayName("${t.name}（GitLab group）")
+        organizations {
+            gitLabSCMNavigator {
+                projectOwner(t.gitlabGroup)
+                serverName('gitlab-internal')
+                credentialsId('gitlab-ci-token')
+                traits {
+                    subGroupProjectDiscoveryTrait()
+                    gitLabBranchDiscovery {
+                        strategyId(1)
+                    }
+                    originMergeRequestDiscoveryTrait {
+                        strategyId(1)
+                    }
+                }
+            }
+        }
+        projectFactories {
+            workflowMultiBranchProjectFactory {
+                scriptPath('Jenkinsfile')
+            }
+        }
+    }
+}
+```
+
+| 實務要點 | 說明 |
+| --- | --- |
+| API 參考 | `<Jenkins URL>/plugin/job-dsl/api-viewer/index.html` 列出目前安裝的 plugin 所支援的所有 DSL 方法 |
+| Script Security | `useScriptSecurity: true`（17.6）讓 seed 腳本在沙箱中執行 |
+| 移除策略 | Seed job 的「Action for removed jobs」設為 `DISABLE` 或 `DELETE`，避免 DSL 移除的 Job 殘留 |
+| 測試 | 以 Job DSL 的 Gradle 範例專案或在預備 controller 執行 seed，確認產生的 Job 正確 |
+
+> 💡 本章與第 8、17 章的 Job DSL 範例，都已在本機 Jenkins 2.580.1 以 `DslScriptLoader` 實際執行並成功建立 Job。
+
+### 18.5 在 Kubernetes 上管理設定
+
+| 設定來源 | Helm chart 對應 | 變更流程 |
+| --- | --- | --- |
+| JCasC YAML | `controller.JCasC.configScripts`（產生 ConfigMap） | 修改 values → `helm upgrade` → sidecar 自動 reload |
+| JCasC 機密 | `controller.additionalExistingSecrets`（掛載到 `/run/secrets`） | External Secrets Operator 從 Vault 同步 |
+| Plugin | `controller.installPlugins` 或自建映像 | 變更後重新部署（重新啟動 controller） |
+| Job | JCasC `jobs:` 區段的 Job DSL | 同 JCasC |
+
+> ⚠️ Plugin 的變更一定需要重新啟動 controller。建議以**自建映像**固定 plugin（[3.5 Docker／Podman 容器部署](#35-dockerpodman-容器部署)），Helm 只負責部署映像，避免每次 Pod 重建都從網路下載 plugin。
+
+### 18.6 Jenkins 設定的 GitOps 流程
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    environment {
+        STAGING_URL = 'https://jenkins-staging.example.internal'
+    }
+    stages {
+        stage('Validate JCasC') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'jenkins-staging-api',
+                                                  usernameVariable: 'J_USER', passwordVariable: 'J_TOKEN')]) {
+                    sh '''
+                        set -euo pipefail
+                        for f in casc/*.yaml; do
+                          result=$(curl -fsS -u "$J_USER:$J_TOKEN" -X POST \
+                            -H 'Content-Type: application/x-yaml' --data-binary @"$f" \
+                            "$STAGING_URL/configuration-as-code/check")
+                          echo "$f: $result"
+                          [ "$result" = "[]" ] || exit 1
+                        done
+                    '''
+                }
+            }
+        }
+        stage('Validate plugins') {
+            steps {
+                sh 'java -jar tools/jenkins-plugin-manager-2.15.0.jar --war tools/jenkins.war -f plugins.txt --no-download --view-security-warnings'
+            }
+        }
+        stage('Build controller image') {
+            when {
+                branch 'main'
+            }
+            steps {
+                echo '以 BuildKit 建置 controller 映像並推送（第 15 章）'
+            }
+        }
+    }
+}
+```
+
+> 💡 **漂移偵測**：每日排程匯出正式 controller 的設定（`viewExport`），與 Git 中的 YAML 比對，發現有人在 UI 手動修改時發出告警。
+
+### 18.7 本章重點
+
+- 系統設定用 JCasC、Job 外殼用 Job DSL、建置邏輯用 Jenkinsfile，三者都放在 Git
+- 機密以 secret source 注入；依主題切分 YAML 檔案避免合併衝突
+- 升級前以 `check` 端點驗證 YAML；2.492.1／2.555.1 起已棄用的 `agentProtocols`、`crumbIssuer` 設定會導致啟動中止
+- Plugin 變更以重建映像部署；以每日匯出比對偵測 UI 手動修改
+
+## 19. 監控、日誌、效能與通知
+
+### 19.1 監控什麼
+
+| 層級 | 指標 | 告警條件（建議起點） |
+| --- | --- | --- |
+| 可用性 | Controller 是否回應、`/login` HTTP 200 | 連續 2 分鐘失敗 |
+| 佇列 | 佇列長度、卡住的項目、等待時間 | 佇列 > 20 持續 15 分鐘；任何項目 stuck |
+| 容量 | Executor 使用率、上線 agent 數 | 使用率 > 90% 持續 30 分鐘；agent 離線 |
+| JVM | Heap 使用率、GC 時間、執行緒數、死結 | Old Gen 使用率 > 85%；GC 時間占比 > 10%；任何 deadlock |
+| 磁碟 | `JENKINS_HOME` 可用空間 | < 20% 警告、< 10% 緊急 |
+| 建置成效 | 成功率、平均建置時間、失敗類型 | 主分支連續失敗；建置時間較基準增加 50% |
+| 健康檢查 | Metrics plugin 健康檢查分數 | 分數 < 1 |
+| 安全 | 有安全警示的 plugin 數、登入失敗 | > 0 |
+
+### 19.2 Prometheus metrics plugin
+
+Prometheus metrics plugin（860.v532442b_44e9a_）在 `/prometheus/` 提供 Prometheus 格式的指標。以下指標名稱取自本機 Jenkins 2.580.1 實際抓取的結果：
+
+| 類別 | 指標 |
+| --- | --- |
+| 可用性 | `default_jenkins_up`、`default_jenkins_uptime`、`default_jenkins_version_info` |
+| 佇列 | `jenkins_queue_size_value`、`jenkins_queue_buildable_value`、`jenkins_queue_blocked_value`、`jenkins_queue_stuck_value`、`jenkins_queue_pending_value` |
+| Executor／節點 | `jenkins_executor_count_value`、`jenkins_executor_in_use_value`、`jenkins_executor_free_value`、`jenkins_node_online_value`、`jenkins_node_offline_value`、`default_jenkins_executors_queue_length` |
+| 建置計數 | `jenkins_runs_success_total`、`jenkins_runs_failure_total`、`jenkins_runs_unstable_total`、`jenkins_runs_aborted_total` |
+| 等待與執行時間 | `jenkins_job_queuing_duration`、`jenkins_job_building_duration`、`jenkins_job_total_duration`（summary） |
+| 每個 Job 的建置 | `default_jenkins_builds_duration_milliseconds_summary`、`default_jenkins_builds_last_build_result_ordinal` 等（`default_jenkins_builds_*`） |
+| 健康檢查 | `jenkins_health_check_score`、`jenkins_health_check_count` |
+| Plugin | `jenkins_plugins_active`、`jenkins_plugins_failed`、`jenkins_plugins_withUpdate` |
+| 磁碟 | `default_jenkins_file_store_available_bytes`、`default_jenkins_file_store_capacity_bytes`、`default_jenkins_disk_usage_bytes`（需要 CloudBees Disk Usage Simple plugin） |
+| JVM | `vm_memory_heap_usage`、`vm_gc_*`、`vm_deadlock_count`、`jvm_memory_bytes_used`、`jvm_threads_current` |
+
+**JCasC 設定**：
+
+```yaml
+unclassified:
+  prometheusConfiguration:
+    path: "prometheus"
+    useAuthenticatedEndpoint: true
+    defaultNamespace: "default"
+    collectingMetricsPeriodInSeconds: 120
+    collectDiskUsage: true
+    collectNodeStatus: true
+    countSuccessfulBuilds: true
+    countFailedBuilds: true
+    countUnstableBuilds: true
+    countAbortedBuilds: true
+    countNotBuiltBuilds: true
+    perBuildMetrics: false
+    processingDisabledBuilds: false
+```
+
+> ⚠️ `useAuthenticatedEndpoint: true` 時，抓取帳號需要 `Metrics/View` 權限，Prometheus 以 basic auth（服務帳號＋API token）抓取。不開啟驗證時 `/prometheus/` 會公開所有 Job 名稱與建置資訊，只能在網路層嚴格限制來源。`perBuildMetrics` 會為每次建置產生時間序列，大型實例應保持關閉以避免高基數。
+
+**Prometheus 抓取設定**：
+
+```yaml
+scrape_configs:
+  - job_name: jenkins
+    metrics_path: /prometheus/
+    scheme: https
+    basic_auth:
+      username: svc-prometheus
+      password_file: /etc/prometheus/secrets/jenkins-api-token
+    static_configs:
+      - targets: ["jenkins.example.internal"]
+```
+
+**告警規則範例**（PromQL）：
+
+```yaml
+groups:
+  - name: jenkins
+    rules:
+      - alert: JenkinsDown
+        expr: up{job="jenkins"} == 0 or default_jenkins_up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Jenkins controller 無法抓取或未就緒"
+      - alert: JenkinsQueueBacklog
+        expr: jenkins_queue_size_value > 20
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "建置佇列持續累積（{{ $value }} 個項目）"
+      - alert: JenkinsQueueStuck
+        expr: jenkins_queue_stuck_value > 0
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "有建置卡在佇列中（label 無對應 agent 或 cloud 無法建立 Pod）"
+      - alert: JenkinsExecutorSaturation
+        expr: jenkins_executor_in_use_value / clamp_min(jenkins_executor_count_value, 1) > 0.9
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Executor 使用率超過 90%"
+      - alert: JenkinsDiskLow
+        expr: default_jenkins_file_store_available_bytes / default_jenkins_file_store_capacity_bytes < 0.1
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "JENKINS_HOME 磁碟可用空間低於 10%"
+      - alert: JenkinsHealthCheckFailed
+        expr: jenkins_health_check_score < 1
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Jenkins 健康檢查未全部通過"
+```
+
+> 💡 Kubernetes 上以 Helm chart 的 `controller.prometheus.enabled: true` 建立 ServiceMonitor（[15.5 在 Kubernetes 上執行 Jenkins controller（Helm 進階設定）](#155-在-kubernetes-上執行-jenkins-controllerhelm-進階設定)）。Grafana 儀表板設計與 PromQL 細節請參考姊妹手冊《Prometheus與Grafana教學手冊》。
+
+### 19.3 OpenTelemetry：Pipeline 追蹤
+
+OpenTelemetry plugin 把每次建置轉成**分散式追蹤（trace）**：Pipeline 是根 span，每個 stage、step 是子 span，可在 Jaeger、Grafana Tempo、Elastic 中分析哪個步驟最慢、失敗集中在哪裡。
+
+```yaml
+unclassified:
+  openTelemetry:
+    endpoint: "http://otel-collector.observability.svc:4317"
+    serviceName: "jenkins"
+    serviceNamespace: "ci"
+    exportOtelConfigurationAsEnvironmentVariables: true
+    ignoredSteps: "dir,echo,isUnix,pwd,properties"
+    authentication:
+      noAuthentication: {}
+    observabilityBackends:
+      - grafana:
+          grafanaBaseUrl: "https://grafana.example.internal"
+          grafanaOrgId: "1"
+          tempoDataSourceIdentifier: "tempo"
+```
+
+| 功能 | 說明 |
+| --- | --- |
+| 建置追蹤 | 每個 stage／step 的開始、結束時間與結果 |
+| 環境變數傳遞 | `exportOtelConfigurationAsEnvironmentVariables: true` 把 `OTEL_EXPORTER_OTLP_ENDPOINT`、`TRACEPARENT` 傳給建置，讓 Maven（OTel Maven extension）、測試程式的 span 串接到同一個 trace |
+| 指標 | 同時輸出 Jenkins 的 OTel 指標（可與 Prometheus plugin 二擇一） |
+| 日誌 | 可設定把建置主控台記錄送到 Loki／Elasticsearch，減輕 controller 磁碟負擔 |
+
+> 💡 Collector 的部署與設定見《OpenTelemetry教學手冊》。
+
+### 19.4 日誌
+
+| 日誌 | 位置 | 處理方式 |
+| --- | --- | --- |
+| 系統記錄 | systemd：`journalctl -u jenkins`；容器：stdout；Windows：`<JENKINS_HOME>\jenkins.err.log` | 送到 ELK／Loki |
+| 自訂 log recorder | Manage Jenkins → System Log → Add recorder（例如 `hudson.plugins.git`、`org.csanchez.jenkins.plugins.kubernetes` 設為 FINE） | 只在除錯期間開啟，結束後移除 |
+| 建置主控台記錄 | `jobs/<name>/builds/<n>/log` | 依建置保留政策；可經 OTel plugin 外送 |
+| 稽核記錄 | Audit Trail（[17.10 稽核與集中記錄](#1710-稽核與集中記錄)） | 送到 SIEM |
+
+### 19.5 JVM 與效能調校
+
+**Controller JVM 參數建議**（Java 21）：
+
+```text
+-Xms8g -Xmx8g
+-XX:+UseG1GC
+-XX:+UseStringDeduplication
+-XX:+AlwaysPreTouch
+-XX:+ParallelRefProcEnabled
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=/var/lib/jenkins/heapdumps
+-Xlog:gc*,safepoint:file=/var/log/jenkins/gc.log:time,uptime,level,tags:filecount=10,filesize=20m
+-Djava.awt.headless=true
+-Duser.timezone=Asia/Taipei
+```
+
+| 參數 | 理由 |
+| --- | --- |
+| `-Xms` 等於 `-Xmx` | 避免 heap 動態擴縮造成停頓；容器中改用 `-XX:MaxRAMPercentage` |
+| G1GC | Java 21 預設即為 G1；大 heap 下停頓時間穩定 |
+| GC log | 事後分析 Full GC 與停頓的必要資料 |
+| Heap dump | OOM 時保留現場；確保磁碟空間足夠（約等於 heap 大小） |
+
+**常見效能問題**：
+
+| 症狀 | 常見原因 | 處理 |
+| --- | --- | --- |
+| UI 緩慢、CPU 高 | 大量 Pipeline 同時執行複雜 Groovy 邏輯 | 把運算移到 agent（[11.4 Durability 與效能設定](#114-durability-與效能設定)）；檢視 thread dump |
+| Heap 持續上升 | 建置紀錄過多、某 plugin 記憶體洩漏 | 縮短建置保留；以 heap dump 分析 |
+| 啟動很慢 | Job 與建置紀錄數量龐大 | 清理舊資料、拆分 controller |
+| 磁碟 I/O 高 | `MAX_SURVIVABILITY` 加上大量短 step | 一般建置改 `PERFORMANCE_OPTIMIZED`、合併 `sh` 步驟 |
+| SCM 掃描拖慢系統 | Organization Folder 頻繁全量掃描 | 以 webhook 為主，週期掃描降為每日 |
+
+### 19.6 建置保留與磁碟管理
+
+| 機制 | 設定 |
+| --- | --- |
+| Jenkinsfile 的 `buildDiscarder` | `options { buildDiscarder(logRotator(numToKeepStr: '50', artifactNumToKeepStr: '5')) }` |
+| **Global Build Discarders**（Manage Jenkins → System） | 全域的預設保留政策，對沒有設定的 Job 也生效（JCasC 範例見 [18.2 JCasC 基礎](#182-jcasc-基礎)） |
+| Orphaned Item Strategy | Multibranch／Organization Folder 刪除已不存在的分支 Job（[8.6 Multibranch Pipeline 與 Organization Folder](#86-multibranch-pipeline-與-organization-folder)） |
+| Workspace 清理 | `cleanWs()`（`post { cleanup { } }`）；雲端 agent 隨 Pod 銷毀 |
+| 產物外移 | 大型產物推送到 Nexus／Artifactory，Jenkins 只保存報告 |
+| 重要建置保留 | 正式部署建置以 `keep-build`（CLI）或 UI「Keep this build forever」保留，並另存部署紀錄 |
+
+### 19.7 通知
+
+> 📌 Microsoft 365 Connectors（Office 365 Connector plugin 使用的 Incoming Webhook）已停止服務，Office 365 Connector plugin 也已自 update center 下架。Teams 通知改用 **Teams Workflows**（Power Automate）的 webhook URL，以 Adaptive Card 格式傳送。
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    stages {
+        stage('Build') {
+            steps {
+                sh './mvnw -B -ntp verify'
+            }
+        }
+    }
+    post {
+        failure {
+            // Email：通知造成失敗的提交者與觸發者
+            emailext subject: "[${currentBuild.currentResult}] ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                     body: "建置結果：${currentBuild.currentResult}\n詳細資訊：${env.BUILD_URL}",
+                     recipientProviders: [culprits(), requestor(), developers()],
+                     to: 'team-payments@example.internal'
+            // Slack
+            slackSend channel: '#payments-ci', color: 'danger',
+                      tokenCredentialId: 'slack-bot-token',
+                      message: "建置失敗：${env.JOB_NAME} #${env.BUILD_NUMBER} (<${env.BUILD_URL}|開啟>)"
+        }
+        fixed {
+            script {
+                // Teams Workflows webhook：以 Adaptive Card 傳送
+                def card = [
+                    type: 'message',
+                    attachments: [[
+                        contentType: 'application/vnd.microsoft.card.adaptive',
+                        content: [
+                            '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
+                            type: 'AdaptiveCard',
+                            version: '1.5',
+                            body: [[type: 'TextBlock', weight: 'Bolder', text: "建置已恢復：${env.JOB_NAME} #${env.BUILD_NUMBER}"]],
+                            actions: [[type: 'Action.OpenUrl', title: '開啟建置', url: env.BUILD_URL]]
+                        ]
+                    ]]
                 ]
-            },
-            'risk_mitigation': {
-                'risks': ['參與者抗拒', '技術困難', '資源不足'],
-                'mitigations': ['溝通變更益處', '技術支援', '階段性實施']
+                writeFile file: 'teams-card.json', text: groovy.json.JsonOutput.toJson(card)
+            }
+            withCredentials([string(credentialsId: 'teams-workflow-webhook-payments', variable: 'TEAMS_URL')]) {
+                sh 'curl -fsS -H "Content-Type: application/json" -d @teams-card.json "$TEAMS_URL"'
             }
         }
-        experiments.append(experiment)
-    
-    # 儲存實驗計畫
-    with open('improvement_experiments.json', 'w') as f:
-        json.dump({
-            'design_date': datetime.now().isoformat(),
-            'experiments': experiments,
-            'total_experiments': len(experiments)
-        }, f, indent=2)
-    
-    print(f"設計了 {len(experiments)} 個改進實驗")
-    for exp in experiments:
-        print(f"- {exp['id']}: {exp['title']}")
-    
-    return experiments
-
-design_experiments()
-EOF
-    '''
+    }
 }
 ```
 
-### DevOps 轉型案例
+| 原則 | 說明 |
+| --- | --- |
+| 只通知需要行動的人 | 失敗通知給造成失敗的提交者（`culprits()`）與觸發者；成功通知通常不需要 |
+| 使用 `fixed`／`regression` | 只在狀態改變時通知，減少噪音 |
+| Webhook URL 是機密 | 以 Secret text 憑證保存，不寫在 Jenkinsfile |
+| 封裝到 Shared Library | 統一訊息格式（[12.4 src 類別與 resources](#124-src-類別與-resources)） |
 
-#### 案例研究：企業 DevOps 轉型
+### 19.8 本章重點
 
-**轉型前後對比：**
+- 以 Prometheus plugin 監控可用性、佇列、executor、磁碟與 JVM，`/prometheus/` 需驗證
+- 以 OpenTelemetry plugin 追蹤 Pipeline 各 stage 的時間與失敗
+- Controller 以固定 heap 的 G1GC 執行，保留 GC log 與 heap dump
+- 以 Global Build Discarders 與 Orphaned Item Strategy 控制磁碟；Teams 通知改用 Workflows webhook
 
-```yaml
-transformation_case_study:
-  company: "TechCorp Enterprise"
-  industry: "Financial Services"
-  team_size: 150
-  
-  before_transformation:
-    culture:
-      silos: true
-      blame_culture: true
-      risk_aversion: high
-      learning_culture: low
-    
-    processes:
-      release_cycle: "quarterly"
-      deployment_time: "4-6 hours"
-      rollback_time: "2-4 hours"
-      change_approval: "weeks"
-    
-    technology:
-      automation_level: "20%"
-      monitoring_coverage: "basic"
-      infrastructure: "manual"
-      testing: "manual_qa"
-    
-    metrics:
-      lead_time: "3 months"
-      deployment_frequency: "quarterly"
-      mttr: "8 hours"
-      change_failure_rate: "25%"
-  
-  after_transformation:
-    culture:
-      collaboration: high
-      experimentation: encouraged
-      shared_responsibility: true
-      continuous_learning: embedded
-    
-    processes:
-      release_cycle: "daily"
-      deployment_time: "15 minutes"
-      rollback_time: "5 minutes"
-      change_approval: "automated"
-    
-    technology:
-      automation_level: "85%"
-      monitoring_coverage: "comprehensive"
-      infrastructure: "code_managed"
-      testing: "automated_pyramid"
-    
-    metrics:
-      lead_time: "2 days"
-      deployment_frequency: "multiple_daily"
-      mttr: "15 minutes"
-      change_failure_rate: "2%"
-  
-  transformation_journey:
-    duration: "18 months"
-    phases:
-      - name: "Foundation Building"
-        duration: "6 months"
-        focus: ["culture", "basic_automation", "team_structure"]
-        
-      - name: "Capability Development"
-        duration: "8 months"
-        focus: ["advanced_automation", "monitoring", "processes"]
-        
-      - name: "Optimization"
-        duration: "4 months"
-        focus: ["fine_tuning", "scaling", "innovation"]
-    
-    key_success_factors:
-      - "Executive sponsorship"
-      - "Gradual culture change"
-      - "Skill development investment"
-      - "Tool standardization"
-      - "Measurement and feedback"
-    
-    challenges_overcome:
-      - "Resistance to change"
-      - "Legacy system constraints"
-      - "Skill gaps"
-      - "Regulatory compliance"
-      - "Vendor coordination"
+## 20. 備份、升級與高可用
+
+### 20.1 備份策略
+
+把 Jenkins 的資產分成三類，分別用不同方式保護：
+
+| 類別 | 內容 | 保護方式 |
+| --- | --- | --- |
+| **可由程式碼重建** | 系統設定、雲端、安全、Job 外殼、plugin 清單、Shared Library | Git（JCasC、Job DSL、`plugins.txt`、controller 映像） |
+| **需要備份的狀態** | 建置紀錄、測試報告、Job 的下一個建置編號、使用者 API token、folder 憑證、`secrets/` | 檔案或快照備份（本節） |
+| **不需要備份** | workspace、`caches/`、`war/`、暫存 | 排除 |
+
+| 方法 | 優點 | 注意事項 |
+| --- | --- | --- |
+| **儲存層快照**（LVM、ZFS、EBS／Azure Disk snapshot、Kubernetes VolumeSnapshot） | 快速、一致性好、對 Jenkins 影響小 | 需在快照前讓 Jenkins 進入安靜狀態或接受 crash-consistent；快照要複製到另一個區域 |
+| **檔案備份（tar／rsync）** | 簡單、可攜 | 執行期間檔案仍在變動；排除不需要的目錄 |
+| ThinBackup plugin（2.1.5） | UI 設定、可排程、可只備份設定 | 備份檔放在 controller 本機，仍需另外外送 |
+
+**檔案備份腳本範例**（Linux 套件安裝；以 `age` 加密後上傳到物件儲存）：
+
+```bash
+#!/usr/bin/env bash
+# /usr/local/sbin/jenkins-backup.sh：每日 02:30 由 systemd timer 執行
+set -euo pipefail
+
+JENKINS_HOME=/var/lib/jenkins
+STAMP=$(date +%Y%m%d-%H%M%S)
+WORK=/var/backups/jenkins
+ARCHIVE="${WORK}/jenkins-home-${STAMP}.tar.zst"
+RECIPIENT_FILE=/etc/jenkins-backup/age-recipients.txt   # 備份加密公鑰
+BUCKET=s3://backup-jenkins-prod/daily
+
+mkdir -p "$WORK"
+
+# 排除可重建或不需要的目錄；secrets/ 一併備份但整個封存檔會加密
+tar --zstd -cf "$ARCHIVE" -C "$JENKINS_HOME" \
+  --exclude='./workspace' \
+  --exclude='./caches' \
+  --exclude='./war' \
+  --exclude='./logs' \
+  --exclude='./plugins/*/' \
+  --exclude='./jobs/*/workspace*' \
+  --exclude='./.cache' \
+  --exclude='./tmp' \
+  .
+
+age -R "$RECIPIENT_FILE" -o "${ARCHIVE}.age" "$ARCHIVE"
+sha256sum "${ARCHIVE}.age" > "${ARCHIVE}.age.sha256"
+rm -f "$ARCHIVE"
+
+aws s3 cp "${ARCHIVE}.age" "${BUCKET}/" --only-show-errors
+aws s3 cp "${ARCHIVE}.age.sha256" "${BUCKET}/" --only-show-errors
+
+# 本機只保留 3 份
+ls -1t "${WORK}"/jenkins-home-*.tar.zst.age | tail -n +4 | xargs -r rm -f
 ```
 
-### 關鍵成功因素
+| 原則 | 說明 |
+| --- | --- |
+| 加密 | 備份含 `secrets/` 與加密後的憑證，等同所有憑證；**一定要加密**，解密私鑰與備份分開保存 |
+| 異地 | 至少一份複製到不同區域或不同帳號（防勒索軟體與帳號遭入侵） |
+| 不可變 | 物件儲存啟用 Object Lock／WORM，保存期間內不可刪除 |
+| RPO | 每日備份＋儲存層每小時快照，可達 RPO ≤ 1 小時 |
+| 保存期限 | 依稽核要求（[21.6 臺灣法規與稽核對應](#216-臺灣法規與稽核對應)） |
 
-1. **領導力支持**：
-   - 高階主管的承諾與支持
-   - 明確的願景和目標
-   - 充足的資源投入
-   - 持續的變革推動
+### 20.2 還原與演練
 
-2. **文化轉變**：
-   - 建立學習型組織
-   - 鼓勵實驗和創新
-   - 消除指責文化
-   - 促進跨團隊協作
+**還原步驟**：
 
-3. **技能發展**：
-   - 持續的培訓計畫
-   - 知識分享機制
-   - 導師制度建立
-   - 外部專家支援
+1. 準備新的 controller（相同 Jenkins 版本與 plugin 組合；以 controller 映像或 `plugins.txt` 安裝）
+2. 停止 Jenkins，清空或備份新主機的 `JENKINS_HOME`
+3. 解密並解壓縮備份到 `JENKINS_HOME`，修正擁有者（`chown -R jenkins:jenkins`）
+4. 若 Jenkins URL 不同，修改 JCasC 的 `unclassified.location.url`
+5. 啟動 Jenkins，檢查 Manage Jenkins 的警示、Old Data、plugin 載入錯誤
+6. 驗證：登入（SSO）、憑證可用（執行一個使用憑證的測試 Job）、agent 連線、webhook 觸發、最近的建置紀錄可瀏覽
 
-4. **測量與改進**：
-   - 建立關鍵指標
-   - 定期評估進展
-   - 快速回饋機制
-   - 持續最佳化
+> ⚠️ `secrets/master.key` 必須和 `credentials.xml`、各 Job 的 `config.xml` 來自**同一份備份**，否則所有憑證都無法解密。
 
-### 認證知識對應
+✅ **演練**：以 [18.4 Job DSL](#184-job-dsl) 的 `platform-ops/backup-restore-verify` Job 每日在隔離環境（無法連到正式部署目標）以最新備份啟動 Jenkins 並執行冒煙測試；每半年進行一次完整的災難復原演練並記錄實際 RTO。
 
-| 認證項目 | 對應內容 |
-|----------|----------|
-| DevOps 文化 | 協作、學習、實驗文化 |
-| 團隊協作 | 跨功能團隊、溝通實踐 |
-| 持續改進 | 回顧、實驗、學習循環 |
-| 變革管理 | 轉型策略、變革領導 |
+### 20.3 升級程序
 
-### 實務練習 - 第18章
+**升級前準備**：
 
-1. **基礎練習**：評估當前團隊的 DevOps 成熟度
-2. **進階練習**：設計團隊協作改進計畫
-3. **實務練習**：制定完整的 DevOps 轉型路線圖
+| 檢查項目 | 說明 |
+| --- | --- |
+| 閱讀升級指南 | [jenkins.io/doc/upgrade-guide](https://www.jenkins.io/doc/upgrade-guide/)：**跨越的每一條 LTS 線都要看**（例如從 2.401.x 升到 2.580.1，需閱讀 2.414 至 2.580 各線的說明） |
+| Java 版本 | 2.555.1 起 controller 與所有 agent 都必須是 Java 21／25；先升級 Java，再升級 Jenkins |
+| Plugin | **升級前先把 plugin 更新到最新**，升級後再更新一次（官方要求） |
+| 必須同步升級的 plugin | 2.479.1：LDAP、Reverse Proxy Auth、CAS、Windows Negotiate SSO；2.516.1：Active Directory 2.40 以上、Entra ID 580.v2f665882b_a_71 以上、Customizable Header；2.528.1：Timestamper |
+| JCasC | 移除 `agentProtocols`、`crumbIssuer`、`myViewsTabBar` 等已棄用設定（[18.3 JCasC 實務](#183-jcasc-實務)） |
+| 離線環境 | 2.580.1 起 detached plugin 不在 war 中，先放入 `plugins/` |
+| 備份 | 升級前完成一次完整備份與儲存層快照 |
 
----
-
-## 第19章 實務案例研究
-
-### 案例研究願景
-
-- 深入分析真實企業的 CI/CD 導入經驗
-- 學習不同行業和規模的最佳實踐
-- 理解常見挑戰及其解決方案
-- 提供可復用的實施策略和模板
-
-### 企業導入案例分析
-
-#### 19.1 案例一：大型金融機構 CI/CD 轉型
-
-**公司背景：**
-- 公司：亞洲領先銀行集團
-- 規模：10,000+ IT人員
-- 系統：500+ 核心應用系統
-- 挑戰：嚴格合規要求、龐大遺留系統
+**升級流程**：
 
 ```mermaid
-graph TB
-    subgraph "轉型前架構"
-        LB1[季度發布週期]
-        LB2[手動部署流程]
-        LB3[孤島式團隊]
-        LB4[紙本審批流程]
-        LB5[分離的測試環境]
-    end
-    
-    subgraph "轉型策略"
-        TS1[階段性轉型]
-        TS2[合規自動化]
-        TS3[文化變革]
-        TS4[技能提升]
-        TS5[工具標準化]
-    end
-    
-    subgraph "轉型後架構"
-        TA1[每日發布能力]
-        TA2[全自動化流水線]
-        TA3[跨功能敏捷團隊]
-        TA4[數位化審批]
-        TA5[統一測試平台]
-    end
-    
-    LB1 --> TS1 --> TA1
-    LB2 --> TS2 --> TA2
-    LB3 --> TS3 --> TA3
-    LB4 --> TS4 --> TA4
-    LB5 --> TS5 --> TA5
-    
-    style LB1 fill:#ffebee
-    style TS1 fill:#fff3e0
-    style TA1 fill:#e8f5e8
+flowchart TD
+    A[閱讀升級指南<br/>確認 Java 與 plugin 需求] --> B[正式環境：更新 plugin 至最新]
+    B --> C[預備環境：複製正式設定<br/>升級 core 與 plugin]
+    C --> D[冒煙測試：登入、代表性 Pipeline、<br/>agent、webhook、部署到測試環境]
+    D --> E{通過?}
+    E -->|否| F[修正 plugin／設定<br/>或延後升級]
+    F --> C
+    E -->|是| G[公告維護窗口<br/>Prepare for Shutdown]
+    G --> H[備份與快照]
+    H --> I[正式環境升級 core]
+    I --> J[更新 plugin 並重新啟動]
+    J --> K[驗證與觀察 24 小時]
 ```
 
-**實施策略與 Pipeline：**
+**各安裝方式的升級指令**：
+
+```bash
+# Debian／Ubuntu：指定版本並鎖定
+sudo apt update
+sudo apt install -y jenkins=2.580.1
+sudo apt-mark hold jenkins
+
+# RHEL 系列：指定版本（版本鎖定需 dnf versionlock 外掛）
+sudo dnf install -y jenkins-2.580.1
+sudo dnf versionlock add jenkins
+
+# 容器／Helm：修改映像 tag（例如 2.580.1-lts-jdk21）後重新部署
+helm upgrade jenkins jenkins/jenkins -n jenkins --version 5.9.64 -f values-prod.yaml \
+  --set controller.image.tag=2.580.1-lts-jdk21
+```
+
+**回退計畫**：
+
+| 情境 | 做法 |
+| --- | --- |
+| Core 升級後異常 | 停止服務 → 還原升級前的儲存層快照 → 安裝舊版 core → 啟動 |
+| 單一 plugin 異常 | Manage Jenkins → Plugins → Installed 的「Downgrade」（Jenkins 保留上一版 `.bak`），或以舊版 `.jpi` 取代 |
+| RPM 降版到 2.541.1 以前 | 需改用 `redhat-stable-legacy` 套件庫（2.541.1 起統一為 `rpm-stable`） |
+| 2.516.1 以後降版 | 需手動建立 `legacyIds` 檔案以避免啟動緩慢（官方升級指南說明） |
+
+> ⚠️ Core 降版不保證能讀取新版寫入的設定格式。**回退的可靠手段是還原快照**，不是直接安裝舊版。
+
+### 20.4 高可用與災難復原
+
+開源 Jenkins 的 controller 是**單一實例**應用程式：同一個 `JENKINS_HOME` 不能由兩個 controller 同時使用，也不能透過增加副本擴充。高可用的設計重點是「縮短故障後的恢復時間」：
+
+| 方案 | RTO（參考） | RPO | 說明 |
+| --- | --- | --- | --- |
+| **Kubernetes StatefulSet（replicas: 1）＋PV** | 5–15 分鐘 | 0（PV 保留） | 節點故障時 Pod 自動重建並重新掛載 PV；需注意 RWO 磁碟的跨可用區限制 |
+| VM＋共用儲存的 active／passive | 10–30 分鐘 | 0 | 以叢集軟體（Pacemaker 等）確保**同時只有一台**掛載與啟動，避免資料損毀 |
+| 以程式碼重建（JCasC＋Job DSL＋映像）＋還原建置紀錄 | 30–120 分鐘 | 依備份頻率 | ✅ 災難復原（跨區域）的基本能力；建置紀錄可接受部分遺失時最簡單 |
+| 依組織拆分多個 controller | — | — | 縮小單一故障的影響範圍 |
+| 🔒 CloudBees CI HA（active／active） | 秒到分鐘 | 0 | 商業版功能 |
+
+```mermaid
+flowchart LR
+    subgraph RegionA[主要區域]
+        C1[Jenkins Controller<br/>StatefulSet replicas=1]
+        PV1[(PV：JENKINS_HOME)]
+        C1 --- PV1
+    end
+    subgraph RegionB[災備區域]
+        IMG[controller 映像<br/>＋JCasC／Job DSL]
+        PV2[(還原的 JENKINS_HOME)]
+    end
+    PV1 -->|每小時快照／每日加密備份| OBJ[(異地物件儲存<br/>Object Lock)]
+    OBJ -->|災難時還原| PV2
+    G[(Git：jenkins-config)] --> IMG
+```
+
+✅ 降低對單一 controller 依賴的設計：
+
+- **Controller 故障期間不影響正式環境運作**：部署採 GitOps（16.4），即使 Jenkins 停機，正式環境仍由 Argo CD 維持
+- **Webhook 遺失可補救**：Multibranch 保留每日掃描（8.5）
+- **建置可重跑**：CI 建置使用 `PERFORMANCE_OPTIMIZED`，controller 重啟後重新觸發即可
+- **重要紀錄不只存在 Jenkins**：部署紀錄、核准紀錄、測試報告另存到外部系統（21.6）
+
+### 20.5 本章重點
+
+- 設定以程式碼重建，狀態以加密、異地、不可變的備份保護；`secrets/` 與其他檔案必須來自同一份備份
+- 每日自動還原驗證，每半年完整災難復原演練
+- 升級前閱讀所有跨越 LTS 線的升級指南，先升 Java、升級前後都更新 plugin，回退以快照還原
+- 開源 Jenkins 無法 active／active；以 Kubernetes 自動重建、程式碼重建與 GitOps 降低停機影響
+
+## 21. 軟體供應鏈安全與合規
+
+### 21.1 威脅與框架
+
+CI/CD 是軟體供應鏈的核心環節。近年的重大事件（建置系統遭植入後門、相依套件被劫持、CI 憑證外洩）都顯示：**只保護原始碼與正式環境不夠，建置過程本身也必須可信**。
+
+| 框架 | 重點 | 在 Jenkins 的落實 |
+| --- | --- | --- |
+| **SLSA**（Supply-chain Levels for Software Artifacts） | 建置來源可驗證（provenance）、建置平台隔離、不可竄改 | 以 Pipeline 產生 provenance 並簽章；建置在可拋棄 agent；JCasC 管理平台 |
+| **NIST SSDF**（SP 800-218） | 安全開發框架：保護軟體、產出安全軟體、回應弱點 | 品質門檻、弱點掃描、SBOM、漏洞處理流程 |
+| **OWASP Top 10 CI/CD Security Risks** | 流程控制不足、身分與存取管理不足、相依套件鏈濫用、Pipeline 執行汙染（PPE）、憑證衛生不足等 10 項 | 第 7、8、14、17 章的控制 |
+
+```mermaid
+flowchart LR
+    S[原始碼<br/>簽章 commit／分支保護] --> B[建置<br/>可拋棄 agent<br/>相依套件經內部代理]
+    B --> T[測試與掃描<br/>SAST／SCA／Secret]
+    T --> A[產物<br/>SBOM＋簽章＋provenance]
+    A --> R[(Registry／Nexus<br/>不可覆寫)]
+    R --> D[部署<br/>admission 驗證簽章]
+```
+
+### 21.2 SBOM（軟體物料清單）
+
+| 工具 | 格式 | 用途 |
+| --- | --- | --- |
+| CycloneDX Maven plugin（2.9.3） | CycloneDX JSON／XML | 從 Maven 相依樹產生，最精確 |
+| Syft（v1.54.0） | CycloneDX、SPDX | 掃描容器映像或檔案系統，涵蓋 OS 套件 |
 
 ```groovy
-// 金融機構合規 CI/CD Pipeline
 pipeline {
-    agent none
-    
-    options {
-        // 合規要求
-        preserveStashes(buildCount: 10)
-        timeout(time: 4, unit: 'HOURS')
-        buildDiscarder(logRotator(numToKeepStr: '50'))
-        
-        // 審計追蹤
-        skipDefaultCheckout(true)
-        timestamps()
+    agent { label 'linux && maven' }
+    stages {
+        stage('SBOM') {
+            steps {
+                sh '''
+                    set -euo pipefail
+                    ./mvnw -B -ntp org.cyclonedx:cyclonedx-maven-plugin:2.9.3:makeAggregateBom \
+                      -DoutputFormat=json -DoutputName=bom
+                    syft "harbor.example.internal/payments/payment-api@${IMAGE_DIGEST}" \
+                      -o cyclonedx-json=image-sbom.cdx.json
+                '''
+                archiveArtifacts artifacts: 'target/bom.json, image-sbom.cdx.json', fingerprint: true
+            }
+        }
     }
-    
+}
+```
+
+> 💡 SBOM 應與產物一起保存（Nexus／Registry 的 OCI artifact 或 Dependency-Track），讓新的 CVE 公布時能快速查出受影響的版本與部署位置。
+
+### 21.3 弱點掃描
+
+| 類型 | 工具（範例） | 階段 | 門檻建議 |
+| --- | --- | --- | --- |
+| 相依套件（SCA） | OWASP Dependency-Check、Grype（v0.119.0）、Trivy（v0.75.0） | PR 與主分支 | 新增 Critical／High → UNSTABLE；正式發佈有 Critical → FAILURE |
+| 容器映像 | Trivy、Grype | 映像建置後 | 同上，另檢查基底映像是否為核可版本 |
+| 靜態程式碼（SAST） | SonarQube、Semgrep、SpotBugs＋FindSecBugs | PR | 新增高風險問題 → UNSTABLE |
+| IaC／設定 | Trivy config、Checkov | PR | Kubernetes manifest 不允許 privileged、hostPath |
+| 機密 | Gitleaks（v8.30.1） | PR | 發現即 FAILURE，並輪替外洩的機密 |
+
+```groovy
+pipeline {
+    agent { label 'linux && docker' }
+    stages {
+        stage('Image Scan') {
+            agent {
+                docker {
+                    image 'aquasec/trivy:0.75.0'
+                    args '--entrypoint=""'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh '''
+                    trivy image --scanners vuln --severity CRITICAL,HIGH \
+                      --format json --output trivy-report.json \
+                      --exit-code 0 \
+                      "harbor.example.internal/payments/payment-api@${IMAGE_DIGEST}"
+                '''
+            }
+            post {
+                always {
+                    recordIssues(tools: [trivy(pattern: 'trivy-report.json')],
+                                 qualityGates: [[threshold: 1, type: 'TOTAL_ERROR', criticality: 'FAILURE'],
+                                                [threshold: 1, type: 'NEW_HIGH', criticality: 'UNSTABLE']])
+                }
+            }
+        }
+        stage('Secret Scan') {
+            agent {
+                docker {
+                    image 'zricethezav/gitleaks:v8.30.1'
+                    args '--entrypoint=""'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'gitleaks git --redact --report-format sarif --report-path gitleaks.sarif .'
+            }
+        }
+    }
+}
+```
+
+> 💡 掃描以 `--exit-code 0` 輸出報告，再交給 Warnings NG 的品質門檻判斷，可以區分「既有問題」與「新增問題」，避免歷史技術債阻擋所有建置。Trivy 在 Warnings NG 中的嚴重度對應：Critical → ERROR、High → HIGH。
+
+### 21.4 簽章與 Provenance
+
+**以 Cosign（v3.1.3）簽章映像與附加 SBOM attestation**，金鑰保存在 Vault 或雲端 KMS，不落地在 agent：
+
+```groovy
+pipeline {
+    agent { label 'linux' }
+    environment {
+        IMAGE_REF = "harbor.example.internal/payments/payment-api@${params.IMAGE_DIGEST}"
+    }
     parameters {
-        choice(
-            name: 'ENVIRONMENT',
-            choices: ['dev', 'sit', 'uat', 'pre-prod', 'prod'],
-            description: '目標環境'
-        )
-        choice(
-            name: 'RELEASE_TYPE',
-            choices: ['hotfix', 'regular', 'emergency'],
-            description: '發布類型'
-        )
-        booleanParam(
-            name: 'SKIP_SECURITY_SCAN',
-            defaultValue: false,
-            description: '跳過安全掃描（僅緊急發布）'
-        )
-        booleanParam(
-            name: 'REQUIRE_MANUAL_APPROVAL',
-            defaultValue: true,
-            description: '要求人工審批'
-        )
+        string(name: 'IMAGE_DIGEST', defaultValue: '', description: 'sha256:...')
     }
-    
-    environment {
-        // 合規配置
-        SOX_COMPLIANCE = 'true'
-        PCI_DSS_COMPLIANCE = 'true'
-        GDPR_COMPLIANCE = 'true'
-        
-        // 審計配置
-        AUDIT_TRAIL_ENABLED = 'true'
-        COMPLIANCE_CHECKER = 'enabled'
-        SECURITY_SCANNING = 'mandatory'
-        
-        // 審批流程
-        CHANGE_ADVISORY_BOARD = 'enabled'
-        FOUR_EYES_PRINCIPLE = 'enforced'
-        SEGREGATION_OF_DUTIES = 'strict'
-        
-        // 環境配置
-        VAULT_ADDR = 'https://vault.bank.com'
-        COMPLIANCE_DB = 'jdbc:postgresql://compliance-db:5432/audit'
-        NOTIFICATION_CHANNEL = '#devops-compliance'
-    }
-    
     stages {
-        stage('合規檢查初始化') {
-            agent { label 'compliance-agent' }
+        stage('Sign & Attest') {
             steps {
-                script {
-                    initializeComplianceCheck()
-                    validateUserPermissions()
-                    logAuditTrail('PIPELINE_START')
-                }
-            }
-        }
-        
-        stage('原始碼檢出與掃描') {
-            agent { label 'security-scanner' }
-            steps {
-                checkout scm
-                script {
-                    validateSourceIntegrity()
-                    scanForSensitiveData()
-                    checkLicenseCompliance()
-                    generateSourceReport()
-                }
-            }
-        }
-        
-        stage('合規建置流程') {
-            agent { label 'build-agent' }
-            steps {
-                script {
-                    executeSecureBuild()
-                    validateBuildIntegrity()
-                    createBuildManifest()
-                    archiveComplianceArtifacts()
-                }
-            }
-        }
-        
-        stage('多層安全掃描') {
-            when {
-                not { params.SKIP_SECURITY_SCAN }
-            }
-            parallel {
-                stage('SAST 掃描') {
-                    agent { label 'sast-scanner' }
-                    steps {
-                        script {
-                            runStaticAnalysis()
-                            validateSecurityCompliance()
-                        }
-                    }
-                }
-                
-                stage('DAST 掃描') {
-                    agent { label 'dast-scanner' }
-                    steps {
-                        script {
-                            runDynamicAnalysis()
-                            validateRuntimeSecurity()
-                        }
-                    }
-                }
-                
-                stage('依賴性掃描') {
-                    agent { label 'dependency-scanner' }
-                    steps {
-                        script {
-                            scanDependencyVulnerabilities()
-                            validateLicenseCompliance()
-                        }
-                    }
-                }
-                
-                stage('容器掃描') {
-                    agent { label 'container-scanner' }
-                    steps {
-                        script {
-                            scanContainerVulnerabilities()
-                            validateContainerCompliance()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('合規測試執行') {
-            parallel {
-                stage('功能測試') {
-                    agent { label 'test-automation' }
-                    steps {
-                        script {
-                            runFunctionalTests()
-                            validateBusinessRequirements()
-                        }
-                    }
-                }
-                
-                stage('效能測試') {
-                    agent { label 'performance-test' }
-                    steps {
-                        script {
-                            runPerformanceTests()
-                            validatePerformanceCompliance()
-                        }
-                    }
-                }
-                
-                stage('安全測試') {
-                    agent { label 'security-test' }
-                    steps {
-                        script {
-                            runSecurityTests()
-                            validateSecurityRequirements()
-                        }
-                    }
-                }
-                
-                stage('合規測試') {
-                    agent { label 'compliance-test' }
-                    steps {
-                        script {
-                            runComplianceTests()
-                            validateRegulatoryRequirements()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('變更審批流程') {
-            when {
-                expression { params.REQUIRE_MANUAL_APPROVAL == true }
-            }
-            agent { label 'approval-agent' }
-            steps {
-                script {
-                    requestChangeApproval()
-                    waitForCABApproval()
-                    validateApprovalChain()
-                    logApprovalDecision()
-                }
-            }
-        }
-        
-        stage('合規部署執行') {
-            agent { label 'deployment-agent' }
-            steps {
-                script {
-                    validateDeploymentReadiness()
-                    executeControlledDeployment()
-                    validateDeploymentSuccess()
-                    updateConfigurationManagement()
-                }
-            }
-        }
-        
-        stage('部署後驗證') {
-            parallel {
-                stage('健康檢查') {
-                    agent { label 'health-check' }
-                    steps {
-                        script {
-                            runHealthChecks()
-                            validateSystemStability()
-                        }
-                    }
-                }
-                
-                stage('合規驗證') {
-                    agent { label 'compliance-validator' }
-                    steps {
-                        script {
-                            validateCompliancePostDeployment()
-                            verifyControlsEffectiveness()
-                        }
-                    }
-                }
-                
-                stage('煙霧測試') {
-                    agent { label 'smoke-test' }
-                    steps {
-                        script {
-                            runSmokeTests()
-                            validateCriticalFunctions()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('合規報告生成') {
-            agent { label 'reporting-agent' }
-            steps {
-                script {
-                    generateComplianceReport()
-                    createAuditDocumentation()
-                    updateRiskRegister()
-                    notifyStakeholders()
+                withCredentials([string(credentialsId: 'vault-token-cosign', variable: 'VAULT_TOKEN')]) {
+                    sh '''
+                        set -euo pipefail
+                        export VAULT_ADDR=https://vault.example.internal
+                        cosign sign --key hashivault://cosign-payments "$IMAGE_REF"
+                        cosign attest --key hashivault://cosign-payments \
+                          --type cyclonedx --predicate image-sbom.cdx.json "$IMAGE_REF"
+                    '''
                 }
             }
         }
     }
-    
-    post {
-        always {
-            node('compliance-agent') {
-                script {
-                    finalizeAuditTrail()
-                    archiveComplianceEvidence()
-                    updateComplianceDashboard()
-                }
-            }
-        }
-        
-        success {
-            script {
-                notifySuccessfulDeployment()
-                updateChangeManagementSystem()
-                schedulePostImplementationReview()
-            }
-        }
-        
-        failure {
-            script {
-                initiateIncidentResponse()
-                notifySecurityTeam()
-                generateFailureReport()
-                logComplianceViolation()
-            }
-        }
-    }
-}
-
-// === 金融合規函式 ===
-
-def initializeComplianceCheck() {
-    echo "初始化合規檢查..."
-    
-    sh '''
-        # 設定合規環境
-        echo "設定金融業合規環境..."
-        
-        # 檢查必要的合規工具
-        which sonarqube-scanner || { echo "SonarQube Scanner 未安裝"; exit 1; }
-        which bandit || { echo "Bandit 安全掃描器未安裝"; exit 1; }
-        which safety || { echo "Safety 依賴掃描器未安裝"; exit 1; }
-        
-        # 設定審計日誌
-        mkdir -p audit-logs compliance-reports security-scans
-        
-        # 初始化合規檢查清單
-        cat > compliance-checklist.json << 'EOF'
-{
-  "sox_compliance": {
-    "change_control": false,
-    "segregation_of_duties": false,
-    "audit_trail": false,
-    "access_controls": false
-  },
-  "pci_dss_compliance": {
-    "secure_coding": false,
-    "encryption": false,
-    "access_logging": false,
-    "vulnerability_scanning": false
-  },
-  "gdpr_compliance": {
-    "data_classification": false,
-    "privacy_by_design": false,
-    "consent_management": false,
-    "data_retention": false
-  }
-}
-EOF
-
-        echo "✅ 合規檢查初始化完成"
-    '''
-}
-
-def validateUserPermissions() {
-    echo "驗證用戶權限..."
-    
-    sh '''
-        # 檢查用戶權限
-        echo "檢查部署權限..."
-        
-        USER_ID=$(whoami)
-        echo "當前用戶: $USER_ID"
-        
-        # 檢查環境部署權限
-        python3 << 'EOF'
-import json
-import os
-
-def check_deployment_permissions():
-    user_id = os.getenv('BUILD_USER_ID', 'unknown')
-    environment = os.getenv('ENVIRONMENT', 'dev')
-    
-    # 權限矩陣（簡化範例）
-    permissions = {
-        'dev': ['developer', 'tech-lead', 'devops', 'admin'],
-        'sit': ['tech-lead', 'devops', 'admin'],
-        'uat': ['devops', 'admin', 'business-analyst'],
-        'pre-prod': ['devops', 'admin'],
-        'prod': ['admin', 'release-manager']
-    }
-    
-    # 模擬用戶角色檢查
-    user_roles = ['devops']  # 從 LDAP/AD 獲取
-    
-    allowed_roles = permissions.get(environment, [])
-    has_permission = any(role in allowed_roles for role in user_roles)
-    
-    result = {
-        'user_id': user_id,
-        'environment': environment,
-        'user_roles': user_roles,
-        'required_roles': allowed_roles,
-        'permission_granted': has_permission
-    }
-    
-    with open('permission-check.json', 'w') as f:
-        json.dump(result, f, indent=2)
-    
-    if not has_permission:
-        print(f"❌ 用戶 {user_id} 沒有 {environment} 環境的部署權限")
-        exit(1)
-    else:
-        print(f"✅ 用戶 {user_id} 具有 {environment} 環境的部署權限")
-
-check_deployment_permissions()
-EOF
-    '''
-}
-
-def runStaticAnalysis() {
-    echo "執行靜態程式碼分析..."
-    
-    sh '''
-        # SonarQube 分析
-        echo "執行 SonarQube 靜態分析..."
-        
-        sonar-scanner \\
-            -Dsonar.projectKey=banking-app \\
-            -Dsonar.sources=src \\
-            -Dsonar.host.url=$SONAR_HOST_URL \\
-            -Dsonar.login=$SONAR_AUTH_TOKEN \\
-            -Dsonar.qualitygate.wait=true \\
-            -Dsonar.java.binaries=target/classes
-        
-        # 檢查品質閾值
-        QUALITY_GATE_STATUS=$(curl -s -u $SONAR_AUTH_TOKEN: \\
-            "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=banking-app" | \\
-            jq -r '.projectStatus.status')
-        
-        if [ "$QUALITY_GATE_STATUS" != "OK" ]; then
-            echo "❌ SonarQube 品質閾值檢查失敗"
-            exit 1
-        fi
-        
-        # Python 安全掃描
-        if [ -f "requirements.txt" ]; then
-            echo "執行 Python 安全掃描..."
-            bandit -r . -f json -o security-scans/bandit-report.json || true
-            safety check --json --output security-scans/safety-report.json || true
-        fi
-        
-        # Java 安全掃描
-        if [ -f "pom.xml" ]; then
-            echo "執行 Java 安全掃描..."
-            mvn org.owasp:dependency-check-maven:check \\
-                -DfailBuildOnCVSS=7 \\
-                -Dformat=JSON \\
-                -DoutputDirectory=security-scans/
-        fi
-        
-        echo "✅ 靜態分析完成"
-    '''
-}
-
-def requestChangeApproval() {
-    echo "請求變更審批..."
-    
-    sh '''
-        # 生成變更請求
-        echo "生成變更請求文件..."
-        
-        python3 << 'EOF'
-import json
-from datetime import datetime, timedelta
-
-def create_change_request():
-    change_request = {
-        "change_id": f"CHG-{datetime.now().strftime('%Y%m%d%H%M%S')}",
-        "title": f"Deploy {os.getenv('JOB_NAME', 'Application')} to {os.getenv('ENVIRONMENT', 'Production')}",
-        "description": "Automated deployment via Jenkins CI/CD pipeline",
-        "risk_level": "Medium",
-        "change_type": "Standard",
-        "business_justification": "Deliver new features and bug fixes to customers",
-        "technical_details": {
-            "application": os.getenv('JOB_NAME', 'banking-app'),
-            "version": os.getenv('BUILD_NUMBER', '1.0.0'),
-            "environment": os.getenv('ENVIRONMENT', 'prod'),
-            "deployment_method": "Blue-Green Deployment"
-        },
-        "testing_evidence": {
-            "unit_tests": "Passed",
-            "integration_tests": "Passed",
-            "security_scans": "Passed",
-            "performance_tests": "Passed"
-        },
-        "rollback_plan": {
-            "method": "Automated rollback via Jenkins",
-            "estimated_time": "5 minutes",
-            "data_recovery": "Database rollback available"
-        },
-        "approval_workflow": {
-            "technical_approver": "tech-lead@bank.com",
-            "business_approver": "product-owner@bank.com",
-            "security_approver": "security-team@bank.com",
-            "cab_review": True
-        },
-        "implementation_window": {
-            "start_time": (datetime.now() + timedelta(hours=2)).isoformat(),
-            "end_time": (datetime.now() + timedelta(hours=4)).isoformat(),
-            "maintenance_window": True
-        },
-        "created_by": os.getenv('BUILD_USER_EMAIL', 'jenkins@bank.com'),
-        "created_at": datetime.now().isoformat(),
-        "status": "pending_approval"
-    }
-    
-    with open('change-request.json', 'w') as f:
-        json.dump(change_request, f, indent=2)
-    
-    print(f"變更請求已創建: {change_request['change_id']}")
-    return change_request
-
-import os
-create_change_request()
-EOF
-
-        # 提交到變更管理系統
-        echo "提交變更請求到 CAB..."
-        
-        # 模擬 API 呼叫到變更管理系統
-        curl -X POST \\
-            -H "Content-Type: application/json" \\
-            -H "Authorization: Bearer $CAB_API_TOKEN" \\
-            -d @change-request.json \\
-            "$CAB_SYSTEM_URL/api/change-requests" || echo "CAB 系統連接失敗，使用離線模式"
-        
-        echo "✅ 變更請求已提交"
-    '''
-}
-
-def executeControlledDeployment() {
-    echo "執行受控部署..."
-    
-    sh '''
-        # 執行藍綠部署
-        echo "開始藍綠部署流程..."
-        
-        python3 << 'EOF'
-import json
-import time
-import random
-
-def execute_blue_green_deployment():
-    deployment_config = {
-        "strategy": "blue-green",
-        "environment": os.getenv('ENVIRONMENT', 'prod'),
-        "application": os.getenv('JOB_NAME', 'banking-app'),
-        "version": os.getenv('BUILD_NUMBER', '1.0.0'),
-        "deployment_steps": []
-    }
-    
-    steps = [
-        "準備藍色環境",
-        "部署新版本到藍色環境",
-        "執行藍色環境健康檢查",
-        "執行煙霧測試",
-        "切換流量到藍色環境",
-        "監控系統穩定性",
-        "更新綠色環境為備用"
-    ]
-    
-    for i, step in enumerate(steps, 1):
-        print(f"步驟 {i}: {step}")
-        
-        # 模擬部署步驟執行
-        time.sleep(2)
-        
-        success = random.choice([True, True, True, False])  # 75% 成功率
-        
-        step_result = {
-            "step_number": i,
-            "description": step,
-            "status": "success" if success else "failed",
-            "timestamp": time.time(),
-            "duration": random.uniform(30, 120)
-        }
-        
-        deployment_config["deployment_steps"].append(step_result)
-        
-        if not success:
-            print(f"❌ 步驟 {i} 失敗，啟動回滾程序")
-            break
-        else:
-            print(f"✅ 步驟 {i} 完成")
-    
-    # 判斷整體部署結果
-    failed_steps = [s for s in deployment_config["deployment_steps"] if s["status"] == "failed"]
-    deployment_config["overall_status"] = "failed" if failed_steps else "success"
-    
-    with open('deployment-result.json', 'w') as f:
-        json.dump(deployment_config, f, indent=2)
-    
-    if failed_steps:
-        print("❌ 部署失敗，需要回滾")
-        exit(1)
-    else:
-        print("✅ 部署成功完成")
-
-import os
-execute_blue_green_deployment()
-EOF
-    '''
-}
-
-def generateComplianceReport() {
-    echo "生成合規報告..."
-    
-    sh '''
-        # 整合所有合規檢查結果
-        echo "整合合規檢查結果..."
-        
-        python3 << 'EOF'
-import json
-import os
-from datetime import datetime
-
-def generate_compliance_report():
-    # 收集所有合規相關文件
-    compliance_data = {
-        "report_metadata": {
-            "generated_at": datetime.now().isoformat(),
-            "pipeline_id": os.getenv('BUILD_ID', 'unknown'),
-            "environment": os.getenv('ENVIRONMENT', 'unknown'),
-            "application": os.getenv('JOB_NAME', 'unknown'),
-            "version": os.getenv('BUILD_NUMBER', 'unknown')
-        },
-        "compliance_checks": {},
-        "security_scans": {},
-        "test_results": {},
-        "deployment_evidence": {},
-        "audit_trail": []
-    }
-    
-    # SOX 合規檢查
-    compliance_data["compliance_checks"]["sox"] = {
-        "change_control": True,
-        "segregation_of_duties": True,
-        "audit_trail": True,
-        "access_controls": True,
-        "documentation": True,
-        "overall_status": "compliant"
-    }
-    
-    # PCI DSS 合規檢查
-    compliance_data["compliance_checks"]["pci_dss"] = {
-        "secure_coding": True,
-        "encryption": True,
-        "access_logging": True,
-        "vulnerability_scanning": True,
-        "network_security": True,
-        "overall_status": "compliant"
-    }
-    
-    # GDPR 合規檢查
-    compliance_data["compliance_checks"]["gdpr"] = {
-        "data_classification": True,
-        "privacy_by_design": True,
-        "consent_management": True,
-        "data_retention": True,
-        "breach_notification": True,
-        "overall_status": "compliant"
-    }
-    
-    # 安全掃描結果
-    compliance_data["security_scans"] = {
-        "static_analysis": {
-            "tool": "SonarQube",
-            "status": "passed",
-            "critical_issues": 0,
-            "high_issues": 2,
-            "medium_issues": 5
-        },
-        "dynamic_analysis": {
-            "tool": "OWASP ZAP",
-            "status": "passed",
-            "critical_vulnerabilities": 0,
-            "high_vulnerabilities": 0,
-            "medium_vulnerabilities": 1
-        },
-        "dependency_scan": {
-            "tool": "OWASP Dependency Check",
-            "status": "passed",
-            "critical_cves": 0,
-            "high_cves": 0,
-            "medium_cves": 3
-        }
-    }
-    
-    # 測試結果
-    compliance_data["test_results"] = {
-        "unit_tests": {"status": "passed", "coverage": "85%"},
-        "integration_tests": {"status": "passed", "coverage": "78%"},
-        "security_tests": {"status": "passed", "coverage": "90%"},
-        "performance_tests": {"status": "passed", "response_time": "< 2s"}
-    }
-    
-    # 部署證據
-    compliance_data["deployment_evidence"] = {
-        "change_approval": "CHG-20240310120000",
-        "deployment_method": "Blue-Green",
-        "rollback_tested": True,
-        "monitoring_enabled": True,
-        "backup_verified": True
-    }
-    
-    # 計算整體合規得分
-    compliance_score = calculate_compliance_score(compliance_data)
-    compliance_data["overall_compliance_score"] = compliance_score
-    
-    # 生成 HTML 報告
-    html_report = generate_html_report(compliance_data)
-    
-    # 儲存報告
-    with open('compliance-reports/compliance-report.json', 'w') as f:
-        json.dump(compliance_data, f, indent=2)
-    
-    with open('compliance-reports/compliance-report.html', 'w') as f:
-        f.write(html_report)
-    
-    print(f"✅ 合規報告已生成，得分: {compliance_score}/100")
-    return compliance_data
-
-def calculate_compliance_score(data):
-    # 簡化的合規得分計算
-    base_score = 100
-    
-    # 安全掃描扣分
-    security_deductions = 0
-    for scan_type, results in data["security_scans"].items():
-        if results.get("critical_issues", 0) > 0 or results.get("critical_vulnerabilities", 0) > 0:
-            security_deductions += 20
-        elif results.get("high_issues", 0) > 0 or results.get("high_vulnerabilities", 0) > 0:
-            security_deductions += 10
-    
-    # 測試失敗扣分
-    test_deductions = 0
-    for test_type, results in data["test_results"].items():
-        if results["status"] != "passed":
-            test_deductions += 15
-    
-    final_score = max(0, base_score - security_deductions - test_deductions)
-    return final_score
-
-def generate_html_report(data):
-    html_template = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>合規檢查報告</title>
-        <style>
-            body {{ font-family: Arial, sans-serif; margin: 40px; }}
-            .header {{ background-color: #f8f9fa; padding: 20px; border-radius: 5px; }}
-            .section {{ margin: 20px 0; }}
-            .compliant {{ color: green; font-weight: bold; }}
-            .non-compliant {{ color: red; font-weight: bold; }}
-            .warning {{ color: orange; font-weight: bold; }}
-            table {{ border-collapse: collapse; width: 100%; }}
-            th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-            th {{ background-color: #f2f2f2; }}
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <h1>CI/CD 合規檢查報告</h1>
-            <p><strong>應用程式:</strong> {data['report_metadata']['application']}</p>
-            <p><strong>版本:</strong> {data['report_metadata']['version']}</p>
-            <p><strong>環境:</strong> {data['report_metadata']['environment']}</p>
-            <p><strong>生成時間:</strong> {data['report_metadata']['generated_at']}</p>
-            <p><strong>整體合規得分:</strong> <span class="compliant">{data['overall_compliance_score']}/100</span></p>
-        </div>
-        
-        <div class="section">
-            <h2>合規檢查摘要</h2>
-            <table>
-                <tr><th>合規框架</th><th>狀態</th><th>詳細結果</th></tr>
-                <tr><td>SOX</td><td class="compliant">合規</td><td>所有控制點通過</td></tr>
-                <tr><td>PCI DSS</td><td class="compliant">合規</td><td>安全要求滿足</td></tr>
-                <tr><td>GDPR</td><td class="compliant">合規</td><td>隱私保護到位</td></tr>
-            </table>
-        </div>
-        
-        <div class="section">
-            <h2>安全掃描結果</h2>
-            <table>
-                <tr><th>掃描類型</th><th>工具</th><th>狀態</th><th>高危問題</th></tr>
-                <tr><td>靜態分析</td><td>SonarQube</td><td class="compliant">通過</td><td>2</td></tr>
-                <tr><td>動態分析</td><td>OWASP ZAP</td><td class="compliant">通過</td><td>0</td></tr>
-                <tr><td>依賴性掃描</td><td>OWASP DC</td><td class="compliant">通過</td><td>0</td></tr>
-            </table>
-        </div>
-        
-        <div class="section">
-            <h2>測試覆蓋率</h2>
-            <table>
-                <tr><th>測試類型</th><th>狀態</th><th>覆蓋率</th></tr>
-                <tr><td>單元測試</td><td class="compliant">通過</td><td>85%</td></tr>
-                <tr><td>整合測試</td><td class="compliant">通過</td><td>78%</td></tr>
-                <tr><td>安全測試</td><td class="compliant">通過</td><td>90%</td></tr>
-                <tr><td>效能測試</td><td class="compliant">通過</td><td>&lt; 2s</td></tr>
-            </table>
-        </div>
-    </body>
-    </html>
-    """
-    return html_template
-
-generate_compliance_report()
-EOF
-
-        echo "✅ 合規報告生成完成"
-    '''
 }
 ```
 
-**轉型成果與經驗總結：**
+| 項目 | 說明 |
+| --- | --- |
+| 只簽 digest | 永遠簽 `image@sha256:...`，不要簽 tag |
+| 金鑰管理 | `--key hashivault://`、`awskms://`、`azurekms://`、`gcpkms://`、`k8s://`；只有 `deploy`／`release` agent 能取得簽章權限 |
+| 透明度記錄 | Cosign 預設上傳到公開的 Rekor 透明度記錄；內部映像若不能公開中繼資料，請以 `--signing-config` 指向內部的 Rekor／TSA，或依 Cosign v3 文件關閉上傳（參數在 v3 有調整，導入時請以 `cosign sign --help` 確認） |
+| 部署端驗證 | Kubernetes 以 Sigstore policy-controller、Kyverno 或 OPA Gatekeeper 在 admission 階段驗證簽章，未簽章或簽章不符的映像拒絕部署 |
+| Provenance | 以 `cosign attest --type slsaprovenance1` 附加建置來源資訊（commit、建置 URL、Jenkinsfile、builder 身分）；Jenkins 沒有內建 SLSA provenance 產生器，需在 Shared Library 中組出 predicate |
 
-```yaml
-transformation_results:
-  metrics_improvement:
-    lead_time:
-      before: "12 weeks"
-      after: "3 days"
-      improvement: "96% reduction"
-    
-    deployment_frequency:
-      before: "quarterly"
-      after: "daily"
-      improvement: "30x increase"
-    
-    change_failure_rate:
-      before: "35%"
-      after: "3%"
-      improvement: "91% reduction"
-    
-    mttr:
-      before: "24 hours"
-      after: "30 minutes"
-      improvement: "98% reduction"
-  
-  business_impact:
-    time_to_market: "80% faster"
-    customer_satisfaction: "+25%"
-    operational_efficiency: "+60%"
-    compliance_overhead: "-70%"
-    
-  lessons_learned:
-    success_factors:
-      - "漸進式轉型策略"
-      - "強力的高階支持"
-      - "合規自動化優先"
-      - "持續技能投資"
-      
-    challenges_overcome:
-      - "文化阻力: 透過漸進式變革和成功案例展示"
-      - "技術債務: 建立現代化路線圖"
-      - "合規複雜性: 自動化合規檢查"
-      - "技能缺口: 內部培訓和外部顧問"
+### 21.5 Pipeline 的供應鏈防護清單
+
+| 風險（OWASP CI/CD Top 10） | 控制 |
+| --- | --- |
+| 流程控制不足 | 主分支保護、強制 MR／PR 審查、正式部署需核准（16.2） |
+| 身分與存取管理不足 | SSO＋MFA、最小權限、服務帳號與 token 盤點（17.2、17.8） |
+| 相依套件鏈濫用 | 所有相依套件經內部代理（Nexus／Artifactory）、鎖定版本、阻擋相依套件混淆（內部套件命名空間） |
+| Pipeline 執行汙染（PPE） | 不受信任 PR 使用目標分支的 Jenkinsfile、在隔離 agent 執行、無法取得憑證（8.6、14.6） |
+| Pipeline 存取控制不足 | 憑證放在 folder、Authorize Project（7.2、17.4） |
+| 憑證衛生不足 | 外部機密管理、輪替、遮罩與單引號字串（7.4、7.5） |
+| 系統設定不安全 | JCasC、安全基準、定期稽核（第 18 章、24.3） |
+| 第三方服務治理不足 | Plugin 治理與 Webhook secret（第 5 章、8.5） |
+| 產物完整性驗證不足 | 簽章與 admission 驗證（21.4） |
+| 記錄與可視性不足 | Audit Trail、建置紀錄外送（17.10） |
+
+### 21.6 臺灣法規與稽核對應
+
+以下為常見法遵要求與本手冊控制措施的對應。**條文編號與適用範圍請以全國法規資料庫及主管機關最新公告為準**，並由組織的法遵單位確認。
+
+| 要求來源 | 要求重點 | Jenkins 對應控制 |
+| --- | --- | --- |
+| 資通安全管理法及其子法（資通安全責任等級分級辦法、資通安全事件通報及應變辦法） | 依責任等級辦理資安防護、存取控制、事件通報 | SSO 與最小權限（17.2–17.3）、安全公告處理（17.9）、稽核記錄送 SIEM（17.10）、事件時能快速撤銷憑證與停用 Pipeline |
+| 金管會「金融資安行動方案」、銀行公會相關自律規範 | 系統開發安全、變更管理、職責分離、紀錄保存 | 正式部署核准與職責分離（16.2）、變更單號串接、部署紀錄保存、程式碼審查 |
+| 個人資料保護法 | 測試資料不得使用未經處理的正式個資 | 測試環境資料遮罩；Pipeline 不得把正式資料複製到測試環境 |
+| ISO/IEC 27001:2022 附錄 A（8.25 安全開發生命週期、8.28 安全程式設計、8.32 變更管理、8.9 組態管理） | 安全開發、變更與組態管理 | 品質與安全門檻（第 13、21 章）、JCasC／Job DSL（第 18 章）、核准流程（16.2） |
+
+**稽核時常被要求提供的證據**：
+
+| 證據 | 來源 |
+| --- | --- |
+| 正式環境變更清單（何時、何版本、誰核准） | 部署 Pipeline 的建置紀錄、`input` 核准人、變更單號（另存到外部系統） |
+| 權限設定與定期審查紀錄 | JCasC 的授權設定（Git 歷史）、每季權限審查紀錄 |
+| 弱點掃描與修補紀錄 | Warnings NG 報告、Dependency-Track、修補 MR |
+| 系統設定變更紀錄 | Git（JCasC）＋Audit Trail＋Job Configuration History |
+| 備份與還原演練紀錄 | 20.2 的演練 Job 與報告 |
+
+### 21.7 本章重點
+
+- 以 SLSA、NIST SSDF、OWASP CI/CD Top 10 為框架檢視 Pipeline
+- 每次發佈產生 SBOM，執行 SCA／映像／機密掃描，以「新增問題」為門檻
+- 以 Cosign 簽章映像與附加 attestation，金鑰放在 KMS／Vault，部署端以 admission 驗證
+- 部署、核准、權限、掃描、備份演練的紀錄都要能在稽核時提出
+
+## 22. 企業導入路線與參考架構
+
+### 22.1 導入路線圖
+
+```mermaid
+flowchart LR
+    P0[階段 0：盤點<br/>2–4 週] --> P1[階段 1：平台基礎<br/>1–2 個月]
+    P1 --> P2[階段 2：試點<br/>1–2 個月]
+    P2 --> P3[階段 3：推廣<br/>3–6 個月]
+    P3 --> P4[階段 4：持續改善]
 ```
 
-#### 19.2 案例二：新創科技公司快速成長
+| 階段 | 目標 | 主要工作 | 完成標準 |
+| --- | --- | --- | --- |
+| 0 盤點 | 了解現況 | 盤點既有 Jenkins（版本、plugin、Job 數、Freestyle 比例）、SCM、部署方式、資安要求 | 現況報告與差距分析 |
+| 1 平台基礎 | 建立可重建、安全的平台 | Helm／映像＋JCasC＋`plugins.txt`、SSO、授權模型、Kubernetes agent、監控、備份（第 3、5、14、17–20 章） | 可在 1 小時內從 Git 重建一個新的 controller |
+| 2 試點 | 驗證黃金路徑 | 選 2–3 個代表性專案，以 Shared Library 的標準 Pipeline 完成 CI、品質門檻、部署到 SIT（第 10–13、16 章） | 試點專案的部署頻率與前置時間可量測 |
+| 3 推廣 | 擴大到所有團隊 | Organization Folder 自動納管、Freestyle 遷移、教育訓練、內部文件 | 80% 專案使用標準 Pipeline |
+| 4 持續改善 | 以數據驅動改善 | DORA 指標、建置時間與失敗原因分析、plugin 精簡、每季升級 | 指標逐季改善 |
 
-**公司背景：**
-- 公司：SaaS 新創企業
-- 規模：50人技術團隊
-- 產品：雲端協作平台
-- 挑戰：快速擴展、有限資源
+### 22.2 平台團隊與治理模型
+
+| 角色 | 職責 |
+| --- | --- |
+| **平台團隊**（Platform Engineering） | 維運 Jenkins 平台、維護 Shared Library 與黃金路徑、plugin 治理、升級、監控、對內支援 |
+| 應用程式團隊 | 維護自己的 Jenkinsfile 與測試、遵循黃金路徑、提出平台需求 |
+| 資安團隊 | 制定安全基準、審查受信任 Library 與 Script Approval、追蹤安全公告與掃描結果 |
+| 稽核／法遵 | 定義紀錄保存與證據需求（[21.6 臺灣法規與稽核對應](#216-臺灣法規與稽核對應)） |
+
+**黃金路徑（Golden Path）**：平台團隊提供「照著做就能安全上線」的預設路徑，而不是強制規定：
+
+| 黃金路徑元件 | 實作 |
+| --- | --- |
+| 專案範本 | 包含 `Jenkinsfile`（呼叫 `standardJavaPipeline`）、Dockerfile、Helm chart、品質設定的 repository 範本 |
+| 標準 Pipeline | Shared Library 的 `vars/standardJavaPipeline.groovy` 等（[12.5 Pipeline 範本：封裝整條 Declarative Pipeline](#125-pipeline-範本封裝整條-declarative-pipeline)） |
+| 自動納管 | Organization Folder 掃描 GitLab group／GitHub organization（[8.6 Multibranch Pipeline 與 Organization Folder](#86-multibranch-pipeline-與-organization-folder)） |
+| 文件與支援 | 內部入口網站、FAQ、每週 office hour |
+| 逃生口 | 特殊需求的團隊可使用自訂 Jenkinsfile，但仍需通過相同的安全門檻 |
+
+**治理會議節奏**：
+
+| 會議 | 頻率 | 議題 |
+| --- | --- | --- |
+| Plugin 與安全審查 | 每月 | 新 plugin 申請、安全公告處理狀況、Script Approval 項目 |
+| 平台變更審查 | 每次升級前 | LTS 升級計畫、預備環境測試結果 |
+| 指標回顧 | 每季 | DORA 指標、建置時間、失敗原因、平台可用性 |
+
+### 22.3 以 DORA 指標衡量成效
+
+| 指標 | 定義 | 從 Jenkins 取得資料的方式 |
+| --- | --- | --- |
+| 部署頻率 | 一段時間內部署到正式環境的次數 | 正式部署 Job 的成功建置數（Prometheus `default_jenkins_builds_success_build_count_total` 或 REST API） |
+| 變更前置時間 | 從 commit 到正式環境運作的時間 | 部署建置的時間 − 對應 commit 的時間（`GIT_COMMIT` 的 commit 時間） |
+| 變更失敗率 | 造成故障、需要回滾或修補的部署比例 | 部署紀錄＋事件管理系統（回滾 Pipeline 執行次數） |
+| 失敗部署恢復時間 | 部署造成故障後恢復服務所需時間 | 事件管理系統 |
+| 重工率（Rework rate） | 非計畫性的修補部署比例 | 以 hotfix 分支或標記統計 |
+
+> 💡 DORA 指標的目的是**團隊自我改善**，不是比較團隊績效。把指標當成考核工具，會導致拆小部署、隱藏失敗等扭曲行為。
+
+### 22.4 DevOps 文化實務
+
+| 實務 | 在 Jenkins 的具體做法 |
+| --- | --- |
+| 主分支隨時可發佈 | 主分支建置失敗時團隊優先修復（「stop the line」）；以 `regression` 通知提交者 |
+| 小批量、頻繁整合 | PR 生命週期 < 2 天；PR 建置 10 分鐘內回饋 |
+| 自動化優先 | 任何重複兩次以上的人工步驟都要評估自動化 |
+| 無責檢討（Blameless postmortem） | 部署事故後檢討流程與系統，而非追究個人；改善項目落實到 Pipeline（例如新增檢查） |
+| 共享責任 | 開發團隊能看到自己服務的建置、部署與監控數據 |
+| 持續學習 | 平台團隊定期分享 Pipeline 最佳實務與失敗案例 |
+
+### 22.5 參考情境一：金融機構（示意）
+
+> 以下情境綜合常見的金融業導入經驗，用於說明架構與決策，**不代表特定機構的實際資料**。
+
+| 項目 | 內容 |
+| --- | --- |
+| 現況 | 3 套各自維護的 Jenkins（2.3xx 版）、約 1,200 個 Job（七成 Freestyle）、部署以人工登入主機執行腳本 |
+| 限制 | 封閉網路、正式環境變更需經變更管理委員會（CAB）核准、須保存變更紀錄供金檢 |
+| 架構決策 | 依安全等級拆分為「一般 CI controller」與「正式部署 controller」；兩者皆以 Helm＋JCasC 部署於內部 Kubernetes；離線 update center 鏡像（[3.9 離線（封閉網路）安裝](#39-離線封閉網路安裝)） |
+| 關鍵控制 | SSO＋MFA；正式部署只能由 `prod` folder 中的 Pipeline、在 `deploy-prod` agent 執行；`input` 核准串接 ITSM 變更單；所有部署紀錄送 SIEM |
+| 遷移策略 | 先遷移正式部署 Job（最高稽核價值），再以 Organization Folder 納管各應用程式 repository；Freestyle 以 Job DSL 重建為 Pipeline |
+| 量測 | 部署前置時間、部署失敗率、稽核證據準備時間 |
+
+### 22.6 參考情境二：製造業多語言環境（示意）
+
+| 項目 | 內容 |
+| --- | --- |
+| 現況 | Java 後端、.NET 桌面程式、嵌入式 C/C++ 韌體、Python 資料分析並存；Windows 與 Linux 建置機混用 |
+| 架構決策 | 單一 controller＋多種 agent：Kubernetes Pod（Java、Python、前端）、Windows 固定 agent（.NET、簽章）、專用硬體 agent（韌體燒錄與硬體在環測試，以 Lockable Resources 管理裝置） |
+| 關鍵控制 | Label 依能力命名（`windows && msbuild`、`hil && board-x1`）；韌體映像簽章；OT 網段的 agent 只能以 WebSocket 主動連線 controller |
+| 量測 | 建置排隊時間、硬體資源使用率、韌體發佈週期 |
+
+### 22.7 舊 Jenkins 整併與遷移
+
+```mermaid
+flowchart TD
+    A[盤點舊 controller<br/>Job、plugin、憑證、agent] --> B[分類 Job<br/>保留／遷移／淘汰]
+    B --> C[新平台以 JCasC 建立<br/>只安裝必要 plugin]
+    C --> D[憑證重新建立<br/>（不搬移舊 credentials.xml）]
+    D --> E[以 Job DSL／Organization Folder<br/>建立新 Job]
+    E --> F[平行運作一段時間<br/>比對結果]
+    F --> G[切換 webhook 與排程]
+    G --> H[舊 controller 唯讀<br/>保留建置紀錄至期限後下線]
+```
+
+| 原則 | 說明 |
+| --- | --- |
+| 不搬移整個 `JENKINS_HOME` | 舊的 plugin 設定與殘留資料會一起帶過去；新平台從程式碼建立 |
+| 憑證重新建立 | 藉機輪替所有憑證，並放到正確的 folder 層級 |
+| 淘汰長期未執行的 Job | 6 個月未執行的 Job 先停用、3 個月後刪除 |
+| 平行運作 | 關鍵 Pipeline 新舊平台同時執行一段時間，比對產物與結果 |
+
+### 22.8 AI 輔助的 Pipeline 維運
+
+生成式 AI 可以協助撰寫 Jenkinsfile、分析建置失敗原因、整理升級指南，但必須遵守以下原則：
+
+| 原則 | 說明 |
+| --- | --- |
+| 不送出機密 | 建置記錄、`config.xml`、JCasC 匯出檔可能含有憑證或內部資訊；只能送到組織核可、具資料保護約定的 AI 服務 |
+| 一律驗證 | AI 產生的 Jenkinsfile 必須通過 Declarative 驗證（[11.7 Pipeline 開發工具](#117-pipeline-開發工具)）、Shared Library 單元測試與程式碼審查；本手冊在 v1.0 中發現的 11 個語法錯誤範例，正是未經驗證的典型問題 |
+| 以官方文件為準 | plugin 參數、JCasC 鍵名常隨版本變更（例如 8.3 的 `secretToken`），請以 Snippet Generator、`/configuration-as-code/reference` 確認 |
+| 人做決策 | 是否核准部署、是否接受 Script Approval、是否放寬安全設定，由負責人決定 |
+
+### 22.9 本章重點
+
+- 依「盤點 → 平台基礎 → 試點 → 推廣 → 持續改善」分階段導入，平台基礎完成的標準是「能從 Git 重建 controller」
+- 平台團隊提供黃金路徑與逃生口，以 DORA 指標支持團隊自我改善
+- 依安全等級拆分 controller 與 agent；舊平台遷移時從程式碼重建並輪替憑證
+- AI 產出的 Pipeline 與設定一律經過驗證與審查
+
+## 23. 故障排除
+
+### 23.1 排除問題的方法
+
+```mermaid
+flowchart TD
+    A[收到問題回報] --> B{影響範圍?}
+    B -->|單一 Job| C[檢視主控台記錄<br/>Pipeline Overview 找出失敗 step]
+    B -->|多個 Job／整個平台| D[檢查 controller 健康<br/>監控、系統記錄、磁碟]
+    C --> E{最近有變更?}
+    D --> E
+    E -->|Jenkinsfile／Library| F[比對 commit，用 Replay 驗證修正]
+    E -->|Plugin／Core 升級| G[檢查升級指南與 plugin 已知問題<br/>必要時回退]
+    E -->|環境（agent、網路、憑證）| H[檢查 agent 記錄、連線、憑證有效期]
+    F --> I[修正並記錄]
+    G --> I
+    H --> I
+```
+
+✅ 基本原則：
+
+- 先看**第一個**錯誤訊息，而不是最後一行（後續錯誤通常是連鎖反應）
+- 在預備環境重現；不要在正式 controller 上直接試驗修正
+- 調整 log 層級時建立專用的 log recorder，問題解決後移除（[19.4 日誌](#194-日誌)）
+
+### 23.2 Pipeline 常見錯誤
+
+| 錯誤訊息（節錄） | 原因 | 解決方式 |
+| --- | --- | --- |
+| `Expected a when condition` | `when` 中直接寫布林運算式 | 改為 `expression { params.X }`（[10.6 when 條件](#106-when-條件)） |
+| `Environment variable values must either be single quoted, double quoted, or function calls` | `environment` 中使用變數、三元運算式 | 改到 `script { env.X = ... }`（[10.3 environment 與字串內插](#103-environment-與字串內插)） |
+| `No such DSL method 'xxx' found among steps` | 對應 plugin 未安裝或拼字錯誤 | 以 Snippet Generator 確認 step 名稱；安裝 plugin |
+| `Invalid parameter "xxx", did you mean "yyy"?` | step 參數名稱錯誤（Declarative 驗證可提前發現） | 以 Snippet Generator 產生正確參數 |
+| `Tool type "maven" does not have an install of "xxx" configured` | `tools {}` 名稱與 Manage Jenkins → Tools 不一致 | 統一工具名稱（本手冊為 `maven-3.9`、`jdk-21`）或改用容器化 agent |
+| `RejectedAccessException: Scripts not permitted to use method ...` | 沙箱阻擋未核准的方法 | 改用 Pipeline step；確有必要再由管理員評估核准（[11.3 Script Security 沙箱與 Script Approval](#113-script-security-沙箱與-script-approval)） |
+| `java.io.NotSerializableException` | 不可序列化的物件跨越 step | 移到 `@NonCPS` 方法（[11.2 CPS 限制與 @NonCPS](#112-cps-限制與-noncps)） |
+| `Method code too large` | Pipeline 太大，超過 JVM 方法大小上限 | 把邏輯移到 Shared Library |
+| `A secret was passed to "sh" using Groovy String interpolation, which is insecure` | 機密在雙引號字串中被 Groovy 內插 | 改用單引號，讓 shell 展開（[7.4 遮罩的限制與常見外洩途徑](#74-遮罩的限制與常見外洩途徑)） |
+| `Could not find credentials entry with ID 'xxx'` | 憑證 ID 錯誤，或憑證位於其他 folder／System 範圍 | 確認憑證所在 folder 與作用域（[7.2 憑證作用域](#72-憑證作用域)） |
+| `There are no nodes with the label 'xxx'` | label 無對應 agent 或 cloud 範本 | 確認 label 表達式；檢查 cloud 設定 |
+| 建置一直停在 `Waiting for next available executor` | Agent 不足、label 錯誤、Pod 無法排程 | 檢查佇列原因（23.6 腳本）；Kubernetes 檢查 Pod 事件 |
+| `script returned exit code 1` | Shell 指令失敗 | 往上找實際錯誤；`sh` 預設 `-xe`，在腳本中加 `set -euo pipefail` 讓錯誤更早出現 |
+| `hudson.plugins.git.GitException ... returned status code 128` | 憑證錯誤、主機金鑰驗證失敗、網路 | 檢查 Git Host Key Verification 設定與 known_hosts；確認憑證權限 |
+| Controller 重啟後，執行中的建置沒有恢復而直接失敗（使用 `disableResume()` 的建置開頭會顯示 `Resume disabled by user, switching to high-performance, low-durability mode.`） | `PERFORMANCE_OPTIMIZED` 或 `disableResume()` 的預期行為 | 重新觸發建置；需要可恢復的 Pipeline 改用 `MAX_SURVIVABILITY` |
+
+### 23.3 Agent 連線問題
+
+| 症狀 | 常見原因 | 檢查與處理 |
+| --- | --- | --- |
+| WebSocket agent 無法連線，HTTP 400／404 | 反向代理未轉送 `Upgrade`／`Connection` 標頭 | 依 [3.8 反向代理與 TLS](#38-反向代理與-tls) 設定 `proxy_http_version 1.1` 與 Upgrade 標頭 |
+| Agent 啟動即結束，訊息提及 Java 版本 | Agent 不是 Java 21／25 | 升級 agent 的 Java；容器 agent 使用 `-jdk21` 映像 |
+| `Unexpected termination of the channel` | 網路中斷、agent 被 OOM 殺掉、負載平衡器閒置逾時 | 檢查 agent 系統記錄與 `dmesg`；調高負載平衡器的閒置逾時 |
+| Inbound agent 驗證失敗 | secret 與節點名稱不符、節點被重建後 secret 改變 | 重新取得節點頁面的 secret |
+| TCP inbound agent 無法連線 | Agent TCP port 已停用（`slaveAgentPort: -1`） | 改用 `-webSocket`，或開放並指定固定 port |
+| Kubernetes Pod 一直 `Pending` | 資源不足、nodeSelector／taint 不符、ResourceQuota 用盡 | `kubectl describe pod`、檢查 namespace quota |
+| Pod `ImagePullBackOff` | 映像名稱錯誤、registry 憑證未設定 | 設定 `imagePullSecrets` 或 registry mirror |
+| 建置卡在等待容器 | 工具容器未設定 `sleep infinity`／`cat`＋`tty` 而直接結束 | 修正 Pod 範本（[14.4 Kubernetes plugin](#144-kubernetes-plugin)） |
+| SSH agent 連線失敗 | 主機金鑰未在 known_hosts、Java 路徑錯誤 | 更新 known_hosts；設定 `javaPath` |
+
+### 23.4 效能問題
+
+**收集 thread dump**（controller 緩慢、卡住時最重要的資料）：
+
+```bash
+# 方法一：Jenkins UI（需管理員）：<Jenkins URL>/threadDump
+# 方法二：JDK 工具（在 controller 主機上，以 jenkins 使用者執行），間隔 10 秒取 3 次
+PID=$(pgrep -u jenkins -f 'jenkins.war' | head -1)
+for i in 1 2 3; do
+  jcmd "$PID" Thread.print -l > "/tmp/jenkins-threads-$(date +%H%M%S).txt"
+  sleep 10
+done
+# GC 與 heap 概況
+jcmd "$PID" GC.heap_info
+```
+
+| 觀察 | 可能原因 |
+| --- | --- |
+| 大量執行緒停在同一個 plugin 的方法 | 該 plugin 的效能問題或死結；查詢 plugin 的已知問題 |
+| 許多 `CpsVmExecutorService` 執行緒忙碌 | Pipeline Groovy 運算過重（[11.4 Durability 與效能設定](#114-durability-與效能設定)） |
+| GC log 顯示頻繁 Full GC | Heap 不足或記憶體洩漏；取 heap dump 分析 |
+| 執行緒停在 SCM 或網路呼叫 | 外部系統（SCM、LDAP、update center）回應緩慢 |
+
+### 23.5 Controller 啟動問題
+
+| 症狀（系統記錄） | 原因 | 處理 |
+| --- | --- | --- |
+| Java 版本過舊的錯誤，Jenkins 拒絕啟動 | 2.555.1 起需要 Java 21／25 | 安裝 Java 21，設定 `JAVA_HOME` 或 systemd `JENKINS_JAVA_CMD`（[3.3 Linux 套件安裝（systemd）](#33-linux-套件安裝systemd)） |
+| JCasC 回報 `'agentProtocols' is deprecated` 等並中止 | YAML 含已棄用設定 | 移除該設定（[18.3 JCasC 實務](#183-jcasc-實務)）；過渡期可設 `deprecated: warn` |
+| `Failed Loading plugin ...`、相依 plugin 版本不足 | plugin 組合不一致；離線環境缺少 detached plugin | 以 PIMT 重新解析完整清單（[5.3 以 plugins.txt 與 Plugin Installation Manager Tool 管理](#53-以-pluginstxt-與-plugin-installation-manager-tool-管理)） |
+| `java.net.BindException: Address already in use` | 連接埠被占用 | 檢查其他服務或殘留的 Jenkins 行程 |
+| 啟動時間極長、systemd 逾時 | Job 與建置紀錄過多 | 調高 `TimeoutStartSec`；清理舊資料 |
+| `No space left on device` | 磁碟滿 | 清理建置紀錄、workspace；擴充磁碟 |
+| 登入後畫面空白、樣式錯亂 | 反向代理改寫路徑、CSP 強制模式與舊 plugin 不相容 | 檢查 Jenkins URL 與代理設定；暫時將 CSP 改回 report-only 並找出不相容的 plugin |
+
+### 23.6 診斷用唯讀腳本
+
+以下腳本只讀取狀態，可在 Script Console 執行（已在 2.580.1 實測）：
 
 ```groovy
-// 新創企業敏捷 CI/CD Pipeline
-pipeline {
-    agent any
-    
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-        timeout(time: 30, unit: 'MINUTES')
-        skipDefaultCheckout(true)
-    }
-    
-    parameters {
-        choice(
-            name: 'DEPLOYMENT_STRATEGY',
-            choices: ['feature-flag', 'canary', 'blue-green', 'rolling'],
-            description: '部署策略'
-        )
-        booleanParam(
-            name: 'ENABLE_FEATURE_FLAGS',
-            defaultValue: true,
-            description: '啟用功能開關'
-        )
-        string(
-            name: 'FEATURE_PERCENTAGE',
-            defaultValue: '10',
-            description: '新功能流量百分比'
-        )
-    }
-    
-    environment {
-        // 敏捷配置
-        MOVE_FAST_BREAK_THINGS = 'false'  // 現在是 "move fast with stable infra"
-        FEATURE_FLAG_SERVICE = 'https://featureflags.startup.com'
-        MONITORING_STACK = 'datadog'
-        
-        // 成長階段配置
-        SCALE_OUT_ENABLED = 'true'
-        AUTO_SCALING = 'aggressive'
-        COST_OPTIMIZATION = 'enabled'
-        
-        // 實驗配置
-        A_B_TESTING = 'enabled'
-        ANALYTICS_TRACKING = 'comprehensive'
-        USER_FEEDBACK = 'real-time'
-    }
-    
-    stages {
-        stage('敏捷開發檢出') {
-            steps {
-                checkout scm
-                script {
-                    setupDevelopmentEnvironment()
-                    enableFastFeedback()
-                }
-            }
-        }
-        
-        stage('快速建置與測試') {
-            parallel {
-                stage('快速建置') {
-                    steps {
-                        script {
-                            executeFastBuild()
-                            optimizeBuildCache()
-                        }
-                    }
-                }
-                
-                stage('並行測試') {
-                    steps {
-                        script {
-                            runParallelTests()
-                            generateQuickReport()
-                        }
-                    }
-                }
-                
-                stage('即時品質檢查') {
-                    steps {
-                        script {
-                            runLightweightQualityChecks()
-                            validateCodeStandards()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('功能開關部署') {
-            when {
-                expression { params.ENABLE_FEATURE_FLAGS == true }
-            }
-            steps {
-                script {
-                    deployWithFeatureFlags()
-                    configureTrafficSplitting()
-                    setupABTesting()
-                }
-            }
-        }
-        
-        stage('實時監控與回饋') {
-            parallel {
-                stage('效能監控') {
-                    steps {
-                        script {
-                            setupPerformanceMonitoring()
-                            trackBusinessMetrics()
-                        }
-                    }
-                }
-                
-                stage('用戶回饋收集') {
-                    steps {
-                        script {
-                            enableUserFeedbackCollection()
-                            setupAnalyticsPipeline()
-                        }
-                    }
-                }
-                
-                stage('即時告警') {
-                    steps {
-                        script {
-                            configureIntelligentAlerting()
-                            setupSlackIntegration()
-                        }
-                    }
-                }
-            }
-        }
-        
-        stage('數據驅動決策') {
-            steps {
-                script {
-                    analyzeUserBehavior()
-                    calculateFeatureSuccess()
-                    generateInsights()
-                    triggerNextIteration()
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            script {
-                updateMetricsDashboard()
-                notifyTeam()
-            }
-        }
-        
-        success {
-            script {
-                if (shouldPromoteFeature()) {
-                    promoteToAllUsers()
-                }
-            }
-        }
-        
-        failure {
-            script {
-                if (params.ENABLE_FEATURE_FLAGS) {
-                    disableFeatureFlag()
-                }
-                rollbackQuickly()
-            }
-        }
-    }
+import jenkins.model.Jenkins
+
+// 1. 佇列中每個項目等待的原因
+Jenkins.get().queue.items.each { item ->
+    println "${item.task.fullDisplayName} | 已等待 ${(System.currentTimeMillis() - item.inQueueSince).intdiv(1000)} 秒 | 原因：${item.why}"
 }
 
-def setupDevelopmentEnvironment() {
-    echo "設定敏捷開發環境..."
-    
-    sh '''
-        # 新創企業快速開發設定
-        echo "設定新創企業開發環境..."
-        
-        # 安裝快速開發工具
-        npm install --global @startup/dev-tools || echo "Dev tools already installed"
-        
-        # 設定開發環境變數
-        export NODE_ENV=development
-        export DEBUG=true
-        export FAST_REFRESH=true
-        
-        # 建立開發便利腳本
-        cat > quick-dev.sh << 'EOF'
-#!/bin/bash
-# 快速開發腳本
-
-echo "🚀 啟動快速開發模式..."
-
-# 啟動本地服務
-npm run dev &
-npm run test:watch &
-npm run lint:watch &
-
-echo "✅ 開發環境就緒"
-EOF
-
-        chmod +x quick-dev.sh
-        
-        echo "✅ 敏捷開發環境設定完成"
-    '''
+// 2. 離線的 agent 與原因
+Jenkins.get().computers.findAll { it.offline && it.name }.each { c ->
+    println "離線：${c.name} | 原因：${c.offlineCauseReason ?: '（無）'}"
 }
 
-def deployWithFeatureFlags() {
-    echo "使用功能開關部署..."
-    
-    sh '''
-        # 功能開關部署
-        echo "配置功能開關部署..."
-        
-        python3 << 'EOF'
-import json
-import requests
-import os
-
-def deploy_with_feature_flags():
-    feature_config = {
-        "feature_name": f"feature-{os.getenv('BUILD_NUMBER', '1')}",
-        "enabled": True,
-        "rollout_percentage": int(os.getenv('FEATURE_PERCENTAGE', '10')),
-        "target_groups": ["beta_users", "internal_team"],
-        "metadata": {
-            "version": os.getenv('BUILD_NUMBER', '1'),
-            "environment": "production",
-            "deployed_by": os.getenv('BUILD_USER_EMAIL', 'ci@startup.com'),
-            "deployment_time": "2024-03-10T12:00:00Z"
-        },
-        "conditions": {
-            "user_type": "premium",
-            "region": ["US", "EU"],
-            "device_type": "mobile"
-        },
-        "metrics_tracking": {
-            "conversion_rate": True,
-            "user_engagement": True,
-            "error_rate": True,
-            "performance_impact": True
-        }
-    }
-    
-    # 模擬功能開關服務 API 呼叫
-    try:
-        # response = requests.post(
-        #     f"{os.getenv('FEATURE_FLAG_SERVICE')}/api/flags",
-        #     json=feature_config,
-        #     headers={"Authorization": f"Bearer {os.getenv('FF_API_TOKEN')}"}
-        # )
-        print(f"✅ 功能開關已配置: {feature_config['feature_name']}")
-        print(f"📊 流量百分比: {feature_config['rollout_percentage']}%")
-    except Exception as e:
-        print(f"❌ 功能開關配置失敗: {e}")
-    
-    # 儲存配置以供後續使用
-    with open('feature-flag-config.json', 'w') as f:
-        json.dump(feature_config, f, indent=2)
-    
-    return feature_config
-
-deploy_with_feature_flags()
-EOF
-
-        echo "✅ 功能開關部署完成"
-    '''
-}
-
-def analyzeUserBehavior() {
-    echo "分析用戶行為..."
-    
-    sh '''
-        # 用戶行為分析
-        echo "執行用戶行為分析..."
-        
-        python3 << 'EOF'
-import json
-import random
-from datetime import datetime, timedelta
-
-def analyze_user_behavior():
-    # 模擬用戶行為數據
-    behavior_data = {
-        "analysis_period": {
-            "start": (datetime.now() - timedelta(hours=24)).isoformat(),
-            "end": datetime.now().isoformat()
-        },
-        "feature_usage": {
-            "new_feature_adoption": random.uniform(0.05, 0.25),
-            "user_engagement_score": random.uniform(3.0, 5.0),
-            "feature_completion_rate": random.uniform(0.6, 0.9),
-            "user_satisfaction": random.uniform(3.5, 4.8)
-        },
-        "performance_metrics": {
-            "page_load_time": random.uniform(1.2, 3.5),
-            "api_response_time": random.uniform(100, 500),
-            "error_rate": random.uniform(0.01, 0.05),
-            "uptime_percentage": random.uniform(0.995, 0.999)
-        },
-        "business_metrics": {
-            "conversion_rate": random.uniform(0.02, 0.08),
-            "retention_rate": random.uniform(0.7, 0.9),
-            "user_lifetime_value": random.uniform(50, 200),
-            "churn_rate": random.uniform(0.02, 0.1)
-        },
-        "cohort_analysis": {
-            "new_users": random.randint(100, 500),
-            "returning_users": random.randint(1000, 5000),
-            "power_users": random.randint(50, 200)
-        }
-    }
-    
-    # 計算功能成功分數
-    adoption_score = behavior_data["feature_usage"]["new_feature_adoption"] * 100
-    engagement_score = behavior_data["feature_usage"]["user_engagement_score"] * 20
-    performance_score = (1 - behavior_data["performance_metrics"]["error_rate"]) * 100
-    business_score = behavior_data["business_metrics"]["conversion_rate"] * 1000
-    
-    overall_score = (adoption_score + engagement_score + performance_score + business_score) / 4
-    
-    # 生成決策建議
-    recommendations = []
-    if adoption_score < 15:
-        recommendations.append("提高功能可發現性和用戶引導")
-    if engagement_score < 80:
-        recommendations.append("改善用戶體驗和功能完整性")
-    if performance_score < 95:
-        recommendations.append("優化系統效能和穩定性")
-    if business_score < 40:
-        recommendations.append("調整功能設計以提高轉換率")
-    
-    analysis_result = {
-        "overall_success_score": round(overall_score, 2),
-        "component_scores": {
-            "adoption": round(adoption_score, 2),
-            "engagement": round(engagement_score, 2),
-            "performance": round(performance_score, 2),
-            "business": round(business_score, 2)
-        },
-        "raw_data": behavior_data,
-        "recommendations": recommendations,
-        "next_actions": []
-    }
-    
-    # 決定下一步行動
-    if overall_score >= 70:
-        analysis_result["next_actions"].append("擴大功能推廣至更多用戶")
-        analysis_result["decision"] = "promote"
-    elif overall_score >= 50:
-        analysis_result["next_actions"].append("進行小幅改進後重新測試")
-        analysis_result["decision"] = "iterate"
-    else:
-        analysis_result["next_actions"].append("暫停功能推廣，進行重大修改")
-        analysis_result["decision"] = "pause"
-    
-    with open('user-behavior-analysis.json', 'w') as f:
-        json.dump(analysis_result, f, indent=2)
-    
-    print(f"📈 用戶行為分析完成")
-    print(f"🏆 功能成功分數: {overall_score:.2f}/100")
-    print(f"💡 建議行動: {analysis_result['decision']}")
-    
-    return analysis_result
-
-analyze_user_behavior()
-EOF
-
-        echo "✅ 用戶行為分析完成"
-    '''
+// 3. 停用或載入失敗的 plugin
+Jenkins.get().pluginManager.with { pm ->
+    pm.plugins.findAll { !it.isEnabled() }.each { println "已停用：${it.shortName} ${it.version}" }
+    pm.failedPlugins.each { println "載入失敗：${it.name} -> ${it.cause}" }
 }
 ```
 
-#### 19.3 案例三：傳統製造業數位轉型
+### 23.7 收集支援資訊
 
-**公司背景：**
-- 公司：傳統汽車零件製造商
-- 規模：2000人，其中IT 100人
-- 挑戰：遺留系統、保守文化、安全要求
+| 工具 | 用途 |
+| --- | --- |
+| **Support Core plugin** | Manage Jenkins → Support（或頁首 More actions），產生包含系統資訊、plugin 清單、thread dump、記錄、設定摘要的 support bundle；可啟用 **Support Bundle Anonymization** 遮蔽 Job 名稱、使用者等資訊 |
+| CLI `support` 指令 | `java -jar jenkins-cli.jar -s <URL> -webSocket -auth @auth support > bundle.zip` |
+| System Information 頁面 | 系統屬性、環境變數、plugin 版本 |
+| `/manage/about` | 版本與授權資訊 |
 
-**轉型實施策略：**
+> ⚠️ Support bundle 可能包含內部主機名稱、環境變數與設定內容。對外提供（例如向社群或廠商求助）前務必啟用匿名化並人工檢查內容。
 
-```yaml
-manufacturing_transformation:
-  approach: "Brownfield Modernization"
-  timeline: "36 months"
-  
-  phase_1_foundation:
-    duration: "12 months"
-    objectives:
-      - "建立基礎 CI/CD 能力"
-      - "現代化核心開發流程"
-      - "培養 DevOps 文化"
-    
-    initiatives:
-      - name: "Legacy System Assessment"
-        description: "評估現有系統現代化可能性"
-        timeline: "3 months"
-        
-      - name: "Pilot Project Selection"
-        description: "選擇低風險試點專案"
-        timeline: "1 month"
-        
-      - name: "DevOps Training Program"
-        description: "全面 DevOps 技能培訓"
-        timeline: "6 months"
-        
-      - name: "Tool Chain Setup"
-        description: "建立標準化工具鏈"
-        timeline: "4 months"
-  
-  phase_2_scaling:
-    duration: "12 months"
-    objectives:
-      - "擴展至更多應用系統"
-      - "建立自動化測試能力"
-      - "實施持續監控"
-    
-  phase_3_optimization:
-    duration: "12 months"
-    objectives:
-      - "達到完全自動化"
-      - "建立持續改進文化"
-      - "成為行業標竿"
+### 23.8 本章重點
 
-transformation_challenges:
-  technical:
-    - "COBOL 遺留系統整合"
-    - "AS/400 主機現代化"
-    - "網路安全合規性"
-    - "即時製造系統連接"
-    
-  cultural:
-    - "保守的工程文化"
-    - "變革抗拒"
-    - "技能缺口"
-    - "世代差異"
-    
-  business:
-    - "製造不能中斷"
-    - "嚴格的品質要求"
-    - "成本控制壓力"
-    - "法規遵循"
+- 先界定影響範圍，再看第一個錯誤；在預備環境重現與修正
+- 多數 Pipeline 錯誤可透過 Declarative 驗證與 Snippet Generator 提前發現
+- Agent 問題優先檢查 Java 版本、反向代理的 WebSocket 標頭與 label
+- 效能問題以 thread dump、GC log 為依據；求助時使用匿名化的 support bundle
 
-solutions_implemented:
-  technical_solutions:
-    api_gateway: "建立 API 閘道連接遺留系統"
-    strangler_pattern: "逐步替換舊系統"
-    microservices: "新功能採用微服務架構"
-    hybrid_cloud: "混合雲部署策略"
-    
-  cultural_solutions:
-    mentorship: "建立跨世代導師制度"
-    success_stories: "內部成功案例分享"
-    gradual_adoption: "漸進式技術採用"
-    training_investment: "大量培訓投資"
-```
+## 24. 檢查清單
 
-### 最佳實踐總結
+### 24.1 安裝與平台建置
 
-#### 共同成功因素
+| # | 項目 | 參考 |
+| --- | --- | --- |
+| 1 | 使用 LTS 2.580.1（或之後的 LTS），以固定版本的套件、映像或 Helm 部署 | 3.3–3.6 |
+| 2 | Controller 與所有 agent 使用 Java 21 或 25 | 1.4 |
+| 3 | Built-in node 的 executor 為 0 | 2.1 |
+| 4 | 未掛載 `docker.sock`；Windows 服務不以 LocalSystem 執行 | 3.4、3.5 |
+| 5 | 反向代理提供 HTTPS 與 WebSocket，Jenkins URL 設定正確 | 3.8 |
+| 6 | `plugins.txt` 固定版本並放在 Git，以 PIMT 安裝 | 5.3 |
+| 7 | 系統設定以 JCasC 管理，Job 以 Job DSL／Organization Folder 建立 | 第 18 章 |
+| 8 | Agent 使用 WebSocket 或 SSH（主機金鑰驗證）；未使用的 TCP agent port 已停用 | 2.2、14.2 |
+| 9 | 監控（Prometheus／OTel）與告警已上線 | 第 19 章 |
+| 10 | 備份、異地複製、每日還原驗證已上線 | 20.1–20.2 |
 
-1. **漸進式轉型**：
-   - 從小規模試點開始
-   - 證明價值後再擴展
-   - 避免大爆炸式變革
-   - 持續學習和調整
+### 24.2 Pipeline 品質
 
-2. **文化先行**：
-   - 投資於人員培訓
-   - 建立學習型組織
-   - 獎勵協作和創新
-   - 管理變革阻力
+| # | 項目 | 參考 |
+| --- | --- | --- |
+| 1 | 使用 Multibranch／Organization Folder 與 Declarative Pipeline | 8.6、第 10 章 |
+| 2 | Jenkinsfile 提交前通過 Declarative 驗證 | 11.7 |
+| 3 | 設定 `buildDiscarder`、`timeout`、`disableConcurrentBuilds(abortPrevious: true)`（PR） | 10.4 |
+| 4 | `when` 使用 `beforeAgent true`；布林條件包在 `expression {}` | 10.6 |
+| 5 | 機密與使用者輸入一律以單引號字串交給 shell | 7.4、10.3 |
+| 6 | 測試報告（`junit`）、覆蓋率（`recordCoverage`）、靜態分析（`recordIssues`）以新增程式碼為門檻 | 第 13 章 |
+| 7 | 工具版本以容器映像或 Wrapper 固定 | 9.1 |
+| 8 | 重複邏輯放在 Shared Library，以固定 tag 引用並有單元測試 | 第 12 章 |
+| 9 | 產物只建置一次，以 digest 逐環境晉升 | 15.4、16.1 |
+| 10 | 失敗通知只送給需要行動的人（`regression`／`fixed`） | 19.7 |
 
-3. **技術務實**：
-   - 選擇適合的技術棧
-   - 重視自動化和監控
-   - 建立可觀測性
-   - 確保安全性
+### 24.3 安全基準
 
-4. **業務對齊**：
-   - 明確的業務價值
-   - 持續的投資回報
-   - 利害關係人支持
-   - 清晰的成功指標
+| # | 項目 | 參考 |
+| --- | --- | --- |
+| 1 | SSO（OIDC／SAML）＋MFA；破窗帳號受控 | 17.2 |
+| 2 | Matrix／Role-based 授權，全域只給讀取，管理員 2–4 人 | 17.3 |
+| 3 | 正式部署 Job 未授予 `Job/Configure`、`Run/Replay` 給一般開發者 | 17.3 |
+| 4 | Authorize Project 已啟用 | 17.4 |
+| 5 | 憑證放在 folder 層級；正式環境憑證只有 `prod` folder 可用 | 7.2 |
+| 6 | 外部 fork PR 只信任具寫入權限者，並在隔離 agent 執行 | 8.6、14.6 |
+| 7 | CSP 強制模式、Resource Root URL、Safe HTML 已設定 | 17.6 |
+| 8 | Legacy API token 停用；服務帳號 token 有盤點與到期管理 | 17.8 |
+| 9 | Script Approval 以 JCasC 管理並定期清理；受信任 Library 的寫入權限受控 | 11.3、17.7 |
+| 10 | 無已棄用或有未修補漏洞的 plugin | 5.4 |
+| 11 | 安全公告處理流程與修補時限已定義並執行 | 17.9 |
+| 12 | Audit Trail 送 SIEM；設定變更可追溯到 Git | 17.10 |
+| 13 | SBOM、弱點掃描、映像簽章與 admission 驗證已上線 | 第 21 章 |
 
-#### 關鍵學習點
+### 24.4 正式上線前
 
-1. **不同行業的適應性**：
-   - 金融業重視合規和安全
-   - 新創公司追求速度和靈活性
-   - 製造業需要穩定性和品質
+| # | 項目 |
+| --- | --- |
+| 1 | 預備 controller 與正式 controller 的 core、plugin、JCasC 一致 |
+| 2 | 代表性 Pipeline（建置、測試、映像、部署 SIT）在預備環境通過 |
+| 3 | Webhook 從各 SCM 實際觸發成功；每日掃描作為備援 |
+| 4 | Agent 擴充測試：同時觸發預期尖峰 1.5 倍的建置，佇列可於可接受時間內消化 |
+| 5 | 監控與告警已實際觸發測試（例如停止一個 agent） |
+| 6 | 還原演練完成，RTO／RPO 符合目標 |
+| 7 | 操作手冊（runbook）、值班聯絡方式、升級與回退程序已文件化 |
+| 8 | 使用者文件與教育訓練完成 |
 
-2. **規模化挑戰**：
-   - 大企業需要更多治理
-   - 小企業需要更多自動化
-   - 中型企業需要平衡兩者
+### 24.5 LTS 升級
 
-3. **技術債務管理**：
-   - 遺留系統現代化策略
-   - 技術債務償還計畫
-   - 新舊系統並存管理
+| # | 項目 | 參考 |
+| --- | --- | --- |
+| 1 | 已閱讀所有跨越 LTS 線的升級指南 | 20.3 |
+| 2 | Java 版本符合新版需求（controller 與 agent） | 1.5 |
+| 3 | 升級前已更新 plugin；確認必須同步升級的 plugin | 20.3 |
+| 4 | JCasC 以 `check` 端點驗證，已移除棄用設定 | 18.3 |
+| 5 | 已棄用與有安全警示的 plugin 已處理 | 5.4 |
+| 6 | 預備環境升級與冒煙測試通過 | 20.3 |
+| 7 | 完整備份與儲存層快照已完成 | 20.1 |
+| 8 | 維護窗口已公告；使用 Prepare for Shutdown | 4.2 |
+| 9 | 升級後再次更新 plugin，觀察 24 小時監控指標 | 20.3 |
+| 10 | 回退計畫（快照還原）已演練 | 20.3 |
 
-### 案例對比分析
+## 附錄 A：指令與 API 速查
 
-| 維度 | 金融機構 | 新創企業 | 製造業 |
-|------|----------|----------|---------|
-| **主要驅動力** | 合規性 | 成長速度 | 數位化 |
-| **最大挑戰** | 合規複雜性 | 資源限制 | 文化阻力 |
-| **成功關鍵** | 自動化合規 | 功能開關 | 漸進轉型 |
-| **轉型時間** | 18個月 | 6個月 | 36個月 |
-| **投資重點** | 安全工具 | 監控分析 | 培訓文化 |
-
-### 認證知識對應
-
-| 認證項目 | 對應內容 |
-|----------|----------|
-| 實務應用 | 真實企業案例分析 |
-| 行業適應 | 不同行業的特殊需求 |
-| 轉型策略 | 漸進式vs革命式方法 |
-| 成功因素 | 文化、技術、業務對齊 |
-
-### 實務練習 - 第19章
-
-1. **基礎練習**：分析自己組織的轉型需求和挑戰
-2. **進階練習**：設計適合自己行業的 CI/CD 策略
-3. **實務練習**：制定完整的企業轉型實施計畫
-
----
-
-## 附錄
-
-### 附錄 A：常用指令參考
-
-#### A.1 Jenkins CLI 指令
+### A.1 Jenkins CLI
 
 ```bash
-# Jenkins CLI 基本使用
-java -jar jenkins-cli.jar -s http://localhost:8080/ help
+# 下載 CLI（版本與 controller 相同）
+curl -fsSLO https://jenkins.example.internal/jnlpJars/jenkins-cli.jar
 
-# 用戶和權限管理
-java -jar jenkins-cli.jar -s http://localhost:8080/ list-jobs
-java -jar jenkins-cli.jar -s http://localhost:8080/ create-job job-name < job-config.xml
-java -jar jenkins-cli.jar -s http://localhost:8080/ build job-name
-java -jar jenkins-cli.jar -s http://localhost:8080/ cancel-quiet-down
+# 驗證檔：內容為「使用者:API token」，權限 600
+printf '%s:%s' "svc-ci" "<API token>" > ~/.jenkins-cli-auth
+chmod 600 ~/.jenkins-cli-auth
 
-# 系統管理
-java -jar jenkins-cli.jar -s http://localhost:8080/ restart
-java -jar jenkins-cli.jar -s http://localhost:8080/ safe-restart
-java -jar jenkins-cli.jar -s http://localhost:8080/ reload-configuration
+J="java -jar jenkins-cli.jar -s https://jenkins.example.internal/ -webSocket -auth @$HOME/.jenkins-cli-auth"
 
-# 節點管理
-java -jar jenkins-cli.jar -s http://localhost:8080/ connect-node node-name
-java -jar jenkins-cli.jar -s http://localhost:8080/ disconnect-node node-name
-java -jar jenkins-cli.jar -s http://localhost:8080/ online-node node-name
-java -jar jenkins-cli.jar -s http://localhost:8080/ offline-node node-name
-
-# Pipeline 相關
-java -jar jenkins-cli.jar -s http://localhost:8080/ replay-pipeline build-number
-java -jar jenkins-cli.jar -s http://localhost:8080/ stop-builds job-name
+$J who-am-i                                  # 確認身分與權限
+$J version
+$J list-plugins | sort                       # 已安裝 plugin
+$J list-jobs payments                        # 列出 folder 內的 Job
+$J build payments/payment-api/main -s -v     # 觸發並等待完成、輸出記錄
+$J build ops-job -p TARGET_ENV=sit -s        # 帶參數
+$J console payments/payment-api/main 42      # 取得建置記錄
+$J stop-builds payments/payment-api/main
+$J declarative-linter < Jenkinsfile          # 驗證 Jenkinsfile
+$J reload-jcasc-configuration                # 重新載入 JCasC
+$J check-configuration < jenkins.yaml        # 檢查 JCasC（不套用）
+$J export-configuration > exported.yaml      # 匯出 JCasC
+$J offline-node linux-build-01 -m "維護中"
+$J online-node linux-build-01
+$J keep-build payments/payment-api/main 42   # 永久保留某次建置
+$J quiet-down                                # 停止接受新建置
+$J cancel-quiet-down
+$J safe-restart                              # 等待執行中的建置完成後重新啟動
 ```
 
-#### A.2 Git 整合指令
+> 💡 以上指令名稱取自 2.580.1 的 `help` 輸出。WebSocket 模式需要先設定 Jenkins URL（[17.8 API Token、CLI 與服務帳號](#178-api-tokencli-與服務帳號)）。
+
+### A.2 REST API
+
+| 用途 | 方法與路徑 |
+| --- | --- |
+| 任意物件的 JSON | `GET <物件 URL>/api/json?tree=...`（以 `tree` 只取需要的欄位，避免回應過大） |
+| 列出 Job 與狀態 | `GET /api/json?tree=jobs[name,color,url]` |
+| 觸發建置 | `POST /job/<name>/build` |
+| 帶參數觸發 | `POST /job/<name>/buildWithParameters?TARGET_ENV=sit` |
+| 最近一次建置 | `GET /job/<name>/lastBuild/api/json?tree=number,result,timestamp,duration` |
+| 建置記錄 | `GET /job/<name>/<n>/consoleText` |
+| 佇列 | `GET /queue/api/json?tree=items[id,why,inQueueSince,task[name]]` |
+| 節點 | `GET /computer/api/json?tree=computer[displayName,offline,offlineCauseReason]` |
+| 取得／更新 Job 設定 | `GET`／`POST /job/<name>/config.xml` |
+| 驗證 Jenkinsfile | `POST /pipeline-model-converter/validate`（表單欄位 `jenkinsfile`） |
+| 驗證 JCasC | `POST /configuration-as-code/check`（body 為 YAML） |
+| 重新載入 JCasC | `POST /configuration-as-code/reload` |
+| Prometheus 指標 | `GET /prometheus/` |
 
 ```bash
-# Git 基本操作
-git clone https://github.com/user/repo.git
-git checkout -b feature/new-feature
-git add .
-git commit -m "feat: 新增功能"
-git push origin feature/new-feature
+# Folder／Multibranch 的路徑：每一層都是 /job/<名稱>；分支名稱中的 / 需編碼為 %2F
+BASE=https://jenkins.example.internal
+JOB="job/payments/job/payment-api/job/feature%252Flogin"   # 分支 feature/login
+curl -fsS -u "$J_USER:$J_TOKEN" "$BASE/$JOB/lastBuild/api/json?tree=number,result"
 
-# Git 標籤管理
-git tag -a v1.0.0 -m "Release version 1.0.0"
-git push origin v1.0.0
-git tag -l
-git show v1.0.0
-
-# Git 分支策略
-git flow init
-git flow feature start feature-name
-git flow feature finish feature-name
-git flow release start 1.0.0
-git flow release finish 1.0.0
-
-# Git 鉤子設定
-#!/bin/bash
-# pre-commit hook
-npm run lint
-npm run test
+# 觸發帶參數的建置，從回應標頭取得佇列項目 URL
+curl -fsS -u "$J_USER:$J_TOKEN" -X POST -D - -o /dev/null \
+  "$BASE/job/platform-ops/job/deploy/buildWithParameters?TARGET_ENV=sit" | grep -i '^location:'
 ```
 
-#### A.3 Docker 容器指令
+> 💡 使用 API token 時不需要 CSRF crumb。Multibranch 的分支名稱若含 `/`，URL 中要寫成 `%252F`（`%2F` 再編碼一次）。
+
+### A.3 常用 Pipeline step 速查
+
+| Step | 用途 | 範例 |
+| --- | --- | --- |
+| `sh`／`bat`／`powershell` | 執行指令 | `sh(script: 'git rev-parse HEAD', returnStdout: true).trim()` |
+| `checkout scm` | 取出原始碼 | |
+| `dir` | 切換目錄 | `dir('frontend') { sh 'npm ci' }` |
+| `withEnv` | 設定環境變數 | `withEnv(['MAVEN_OPTS=-Xmx1g']) { ... }` |
+| `withCredentials` | 綁定憑證 | 7.3 |
+| `stash`／`unstash` | 跨 agent 傳遞小型檔案 | `stash name: 'jar', includes: 'target/*.jar'` |
+| `archiveArtifacts` | 保存產物 | `archiveArtifacts artifacts: 'target/*.jar', fingerprint: true` |
+| `junit`／`recordCoverage`／`recordIssues` | 報告與品質門檻 | 第 13 章 |
+| `readJSON`／`readYaml`／`writeJSON`／`readProperties` | 讀寫設定檔（Pipeline Utility Steps） | `def cfg = readYaml file: 'app.yaml'` |
+| `fileExists`／`readFile`／`writeFile` | 檔案操作 | |
+| `timeout`／`retry`／`waitUntil` | 流程控制 | 11.6 |
+| `catchError`／`warnError`／`unstable`／`error` | 結果控制 | 11.6 |
+| `input` | 人工核准 | 10.9 |
+| `lock`／`milestone` | 資源鎖定與順序 | 11.5 |
+| `build` | 觸發其他 Job | `build job: 'payments/integration-test', wait: true, parameters: [string(name: 'VERSION', value: env.VERSION)]` |
+| `cleanWs` | 清除 workspace | `cleanWs(deleteDirs: true, notFailBuild: true)` |
+| `emailext`／`slackSend` | 通知 | 19.7 |
+
+### A.4 Git、容器與 Kubernetes 常用指令
 
 ```bash
-# Docker 基本操作
-docker build -t app:latest .
-docker run -d -p 8080:8080 app:latest
-docker ps
-docker logs container-id
-docker exec -it container-id /bin/bash
+# Git：建置中取得資訊
+git rev-parse --short=8 HEAD               # 短 commit SHA
+git describe --tags --always --dirty       # 最近的 tag
+git log -1 --format='%an <%ae> %s'         # 最近提交者與訊息
+git diff --name-only "origin/${CHANGE_TARGET:-main}"...HEAD   # PR 變更的檔案
 
-# Docker Compose
-docker-compose up -d
-docker-compose down
-docker-compose logs -f service-name
-docker-compose scale service-name=3
+# 容器映像（無 daemon）
+buildctl-daemonless.sh build --frontend dockerfile.v0 --local context=. --local dockerfile=. \
+  --output type=image,name=harbor.example.internal/payments/payment-api:1.4.2,push=true
+crane digest harbor.example.internal/payments/payment-api:1.4.2       # 取得 digest
+trivy image --severity CRITICAL,HIGH harbor.example.internal/payments/payment-api:1.4.2
+cosign verify --key cosign.pub "harbor.example.internal/payments/payment-api@${IMAGE_DIGEST}"
 
-# Docker 清理
-docker system prune -f
-docker image prune -f
-docker container prune -f
-docker volume prune -f
-
-# 多階段建置
-docker build --target production -t app:prod .
-docker build --target development -t app:dev .
+# Kubernetes
+kubectl -n payments-sit rollout status deployment/payment-api --timeout=10m
+kubectl -n payments-sit get events --sort-by=.lastTimestamp | tail -20
+kubectl -n jenkins-agents get pods -l jenkins/label=k8s-maven
+helm -n payments-sit history payment-api --max 5
+helm -n payments-sit rollback payment-api 12
 ```
 
-#### A.4 Kubernetes 部署指令
-
-```bash
-# kubectl 基本操作
-kubectl get pods
-kubectl get services
-kubectl get deployments
-kubectl describe pod pod-name
-
-# 部署管理
-kubectl apply -f deployment.yaml
-kubectl rollout status deployment/app
-kubectl rollout undo deployment/app
-kubectl scale deployment app --replicas=5
-
-# 配置和密碼管理
-kubectl create configmap app-config --from-file=config.properties
-kubectl create secret generic app-secrets --from-literal=password=secret
-kubectl get configmap app-config -o yaml
-kubectl get secret app-secrets -o yaml
-
-# 日誌和除錯
-kubectl logs -f deployment/app
-kubectl exec -it pod-name -- /bin/bash
-kubectl port-forward service/app 8080:80
-```
-
-### 附錄 B：配置範例
-
-#### B.1 Jenkins 系統配置範例
-
-```xml
-<!-- Jenkins 全域工具配置 -->
-<hudson>
-  <tool>
-    <name>Maven 3.8.6</name>
-    <home>/opt/maven</home>
-    <properties>
-      <hudson.tasks.Maven_-MavenInstallation>
-        <name>Maven 3.8.6</name>
-        <home>/opt/maven</home>
-      </hudson.tasks.Maven_-MavenInstallation>
-    </properties>
-  </tool>
-  
-  <tool>
-    <name>OpenJDK 17</name>
-    <home>/opt/jdk-17</home>
-    <properties>
-      <hudson.model.JDK>
-        <name>OpenJDK 17</name>
-        <home>/opt/jdk-17</home>
-      </hudson.model.JDK>
-    </properties>
-  </tool>
-</hudson>
-```
-
-```groovy
-// Jenkins 全域 Pipeline 庫
-@Library('shared-pipeline-library') _
-
-pipeline {
-    agent any
-    
-    tools {
-        maven 'Maven 3.8.6'
-        jdk 'OpenJDK 17'
-    }
-    
-    environment {
-        SONAR_TOKEN = credentials('sonar-token')
-        DOCKER_REGISTRY = 'registry.company.com'
-    }
-    
-    stages {
-        stage('標準建置流程') {
-            steps {
-                buildApplication()
-                runTests()
-                codeQualityCheck()
-                buildDockerImage()
-                deployToStaging()
-            }
-        }
-    }
-}
-```
-
-#### B.2 多環境配置範例
-
-```yaml
-# config/environments.yaml
-environments:
-  development:
-    jenkins_url: "http://jenkins-dev.company.com:8080"
-    git_branch: "develop"
-    deployment_strategy: "rolling"
-    monitoring:
-      enabled: true
-      retention_days: 7
-    resources:
-      cpu_limit: "1"
-      memory_limit: "2Gi"
-    replicas: 1
-    
-  staging:
-    jenkins_url: "http://jenkins-staging.company.com:8080"
-    git_branch: "release/*"
-    deployment_strategy: "blue-green"
-    monitoring:
-      enabled: true
-      retention_days: 30
-    resources:
-      cpu_limit: "2"
-      memory_limit: "4Gi"
-    replicas: 2
-    
-  production:
-    jenkins_url: "http://jenkins.company.com:8080"
-    git_branch: "main"
-    deployment_strategy: "canary"
-    monitoring:
-      enabled: true
-      retention_days: 90
-    resources:
-      cpu_limit: "4"
-      memory_limit: "8Gi"
-    replicas: 5
-    approval_required: true
-    backup_enabled: true
-```
-
-#### B.3 安全配置範例
-
-```xml
-<!-- Jenkins 安全設定 -->
-<authorizationStrategy class="hudson.security.GlobalMatrixAuthorizationStrategy">
-  <permission>hudson.model.Hudson.Administer:admin</permission>
-  <permission>hudson.model.Hudson.Read:authenticated</permission>
-  <permission>hudson.model.Item.Build:developers</permission>
-  <permission>hudson.model.Item.Read:developers</permission>
-  <permission>hudson.model.Run.Delete:admin</permission>
-  <permission>hudson.model.Run.Update:admin</permission>
-</authorizationStrategy>
-
-<securityRealm class="hudson.security.LDAPSecurityRealm">
-  <server>ldap://ldap.company.com:389</server>
-  <rootDN>dc=company,dc=com</rootDN>
-  <userSearchBase>ou=users</userSearchBase>
-  <userSearch>uid={0}</userSearch>
-  <groupSearchBase>ou=groups</groupSearchBase>
-</securityRealm>
-```
-
-```yaml
-# RBAC 權限配置
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  namespace: jenkins
-  name: jenkins-deployer
-rules:
-- apiGroups: [""]
-  resources: ["pods", "services", "configmaps", "secrets"]
-  verbs: ["get", "list", "create", "update", "patch", "delete"]
-- apiGroups: ["apps"]
-  resources: ["deployments", "replicasets"]
-  verbs: ["get", "list", "create", "update", "patch", "delete"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: jenkins-deployer-binding
-  namespace: jenkins
-subjects:
-- kind: ServiceAccount
-  name: jenkins
-  namespace: jenkins
-roleRef:
-  kind: Role
-  name: jenkins-deployer
-  apiGroup: rbac.authorization.k8s.io
-```
-
-### 附錄 C：故障排除指南
-
-#### C.1 常見 Jenkins 問題
-
-```bash
-# 問題：Jenkins 無法啟動
-# 解決方案：檢查日誌和配置
-
-# 1. 檢查 Jenkins 日誌
-tail -f /var/log/jenkins/jenkins.log
-
-# 2. 檢查磁碟空間
-df -h
-
-# 3. 檢查記憶體使用
-free -h
-
-# 4. 檢查 Jenkins 進程
-ps aux | grep jenkins
-
-# 5. 重啟 Jenkins 服務
-sudo systemctl restart jenkins
-sudo systemctl status jenkins
-```
-
-```groovy
-// 問題：Pipeline 記憶體不足
-// 解決方案：調整 JVM 參數
-
-pipeline {
-    agent any
-    
-    options {
-        // 增加建置超時時間
-        timeout(time: 60, unit: 'MINUTES')
-        // 保留建置歷史
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-    }
-    
-    environment {
-        // 調整 Maven JVM 參數
-        MAVEN_OPTS = '-Xmx2g -Xms1g'
-        // 調整 Gradle JVM 參數
-        GRADLE_OPTS = '-Xmx2g -Dorg.gradle.daemon=false'
-    }
-    
-    stages {
-        stage('記憶體優化建置') {
-            steps {
-                script {
-                    // 清理工作空間
-                    deleteDir()
-                    
-                    // 執行建置
-                    sh 'mvn clean compile -DskipTests'
-                    
-                    // 分批執行測試
-                    sh 'mvn test -Dtest=UnitTests'
-                    sh 'mvn test -Dtest=IntegrationTests'
-                }
-            }
-        }
-    }
-    
-    post {
-        always {
-            // 清理建置快取
-            sh 'mvn dependency:purge-local-repository'
-        }
-    }
-}
-```
-
-#### C.2 網路連接問題
-
-```bash
-# 問題：Git 克隆失敗
-# 解決方案：網路和認證檢查
-
-# 1. 測試網路連接
-ping github.com
-telnet github.com 443
-
-# 2. 檢查 Git 配置
-git config --list
-git config --global http.proxy http://proxy.company.com:8080
-
-# 3. 測試 Git 連接
-git ls-remote https://github.com/user/repo.git
-
-# 4. 檢查 SSH 金鑰
-ssh -T git@github.com
-ssh-add -l
-
-# 5. 更新 Git 憑證
-git credential-manager-core erase
-```
-
-#### C.3 Docker 建置問題
-
-```bash
-# 問題：Docker 建置失敗
-# 解決方案：映像和權限檢查
-
-# 1. 檢查 Docker 狀態
-docker version
-docker info
-systemctl status docker
-
-# 2. 清理 Docker 資源
-docker system prune -f
-docker builder prune -f
-
-# 3. 檢查 Dockerfile
-docker build --no-cache -t app:debug .
-docker history app:debug
-
-# 4. 除錯建置過程
-docker build --progress=plain -t app:debug .
-
-# 5. 檢查容器日誌
-docker run --rm app:debug
-docker logs container-id
-```
-
-#### C.4 性能調優指南
-
-```yaml
-# Jenkins 性能調優配置
-jenkins_optimization:
-  jvm_settings:
-    heap_size: "-Xmx4g -Xms2g"
-    garbage_collector: "-XX:+UseG1GC"
-    additional_options: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
-  
-  system_settings:
-    jenkins_args: "--sessionTimeout=60 --sessionEviction=300"
-    build_executors: 4
-    quiet_period: 5
-    scm_checkout_retry_count: 3
-  
-  plugin_optimization:
-    disabled_plugins:
-      - "ant"
-      - "translation"
-    essential_plugins:
-      - "workflow-aggregator"
-      - "git"
-      - "docker-plugin"
-      - "kubernetes"
-  
-  workspace_management:
-    cleanup_policy: "delete_after_days"
-    cleanup_days: 7
-    concurrent_builds: false
-    custom_workspace: "/opt/jenkins/workspace"
-```
-
-### 附錄 D：最佳實踐清單
-
-#### D.1 安全最佳實踐
-
-```markdown
-## Jenkins 安全檢查清單
-
-### 認證和授權
-- [ ] 啟用適當的安全領域（LDAP/AD/SAML）
-- [ ] 配置細粒度的授權策略
-- [ ] 定期審查用戶權限
-- [ ] 禁用匿名讀取權限
-- [ ] 啟用雙因素認證
-
-### 網路安全
-- [ ] 配置 HTTPS 和有效的 SSL 憑證
-- [ ] 限制網路存取（防火牆/VPN）
-- [ ] 使用反向代理（Nginx/Apache）
-- [ ] 禁用不必要的端口和服務
-- [ ] 配置內容安全政策（CSP）
-
-### 系統安全
-- [ ] 定期更新 Jenkins 和外掛程式
-- [ ] 配置安全的 JVM 參數
-- [ ] 限制檔案系統存取權限
-- [ ] 使用專用的服務帳戶運行 Jenkins
-- [ ] 啟用安全審計日誌
-
-### 憑證管理
-- [ ] 使用 Jenkins 憑證存儲
-- [ ] 避免在程式碼中硬編碼密碼
-- [ ] 定期輪換敏感憑證
-- [ ] 限制憑證存取權限
-- [ ] 使用外部密碼管理器（Vault）
-
-### Pipeline 安全
-- [ ] 驗證和審查 Pipeline 程式碼
-- [ ] 限制 Pipeline 權限
-- [ ] 使用沙盒執行環境
-- [ ] 避免執行不受信任的程式碼
-- [ ] 實施程式碼審查流程
-```
-
-#### D.2 效能最佳實踐
-
-```yaml
-performance_best_practices:
-  resource_management:
-    - "適當調整 JVM 堆記憶體大小"
-    - "使用 G1GC 垃圾收集器"
-    - "配置適當的建置執行器數量"
-    - "實施工作空間清理策略"
-    
-  build_optimization:
-    - "使用並行建置"
-    - "實施建置快取策略"
-    - "優化 Maven/Gradle 配置"
-    - "使用多階段 Pipeline"
-    
-  monitoring_alerts:
-    - "監控系統資源使用率"
-    - "設定建置時間閾值告警"
-    - "追蹤磁碟空間使用"
-    - "監控外掛程式性能影響"
-    
-  scaling_strategies:
-    - "使用分散式建置代理"
-    - "實施動態代理分配"
-    - "配置雲端彈性擴展"
-    - "使用容器化建置環境"
-```
-
-#### D.3 維護最佳實踐
-
-```bash
-#!/bin/bash
-# Jenkins 維護腳本範例
-
-# 每日維護任務
-daily_maintenance() {
-    echo "執行每日維護..."
-    
-    # 清理過期建置
-    find /var/lib/jenkins/jobs/*/builds -mtime +30 -delete
-    
-    # 清理工作空間
-    find /var/lib/jenkins/workspace -mtime +7 -delete
-    
-    # 檢查磁碟空間
-    df -h | awk '$5 > 80 { print "警告：磁碟使用率超過 80%：" $0 }'
-    
-    # 備份重要配置
-    tar -czf /backup/jenkins-config-$(date +%Y%m%d).tar.gz /var/lib/jenkins/config.xml
-}
-
-# 每週維護任務
-weekly_maintenance() {
-    echo "執行每週維護..."
-    
-    # 更新外掛程式
-    java -jar jenkins-cli.jar -s http://localhost:8080/ list-plugins | \
-        grep -E "^[^(]*\([^)]*\)$" | \
-        awk '{print $1}' | \
-        xargs -I {} java -jar jenkins-cli.jar -s http://localhost:8080/ install-plugin {}
-    
-    # 系統健康檢查
-    curl -f http://localhost:8080/manage/systemInfo || echo "系統檢查失敗"
-    
-    # 日誌輪轉
-    logrotate /etc/logrotate.d/jenkins
-}
-
-# 每月維護任務
-monthly_maintenance() {
-    echo "執行每月維護..."
-    
-    # 完整系統備份
-    tar -czf /backup/jenkins-full-$(date +%Y%m).tar.gz /var/lib/jenkins/
-    
-    # 性能報告生成
-    java -jar jenkins-cli.jar -s http://localhost:8080/ groovy = < performance-report.groovy
-    
-    # 安全審計
-    java -jar jenkins-cli.jar -s http://localhost:8080/ groovy = < security-audit.groovy
-}
-
-# 主函數
-case "$1" in
-    daily)   daily_maintenance ;;
-    weekly)  weekly_maintenance ;;
-    monthly) monthly_maintenance ;;
-    *)       echo "用法: $0 {daily|weekly|monthly}" ;;
-esac
-```
-
-### 附錄 E：工具和資源
-
-#### E.1 推薦工具清單
-
-```yaml
-recommended_tools:
-  ide_plugins:
-    vscode:
-      - "Jenkins Pipeline Linter"
-      - "Jenkinsfile Support"
-      - "GitLens"
-      - "Docker"
-      
-    intellij:
-      - "Jenkins Control Plugin"
-      - "Pipeline Syntax"
-      - "Kubernetes"
-      - "Docker Integration"
-  
-  cli_tools:
-    - name: "Jenkins CLI"
-      description: "官方命令列工具"
-      install: "wget http://localhost:8080/jnlpJars/jenkins-cli.jar"
-      
-    - name: "Blue Ocean CLI"
-      description: "現代化 Pipeline 介面"
-      install: "npm install -g blueocean-cli"
-      
-    - name: "JenkinsFile Runner"
-      description: "本地 Pipeline 測試"
-      install: "docker pull jenkins/jenkinsfile-runner"
-  
-  monitoring_tools:
-    - name: "Prometheus + Grafana"
-      description: "系統監控和視覺化"
-      
-    - name: "ELK Stack"
-      description: "日誌聚合和分析"
-      
-    - name: "Jenkins Monitoring Plugin"
-      description: "內建監控功能"
-  
-  security_tools:
-    - name: "OWASP Dependency Check"
-      description: "依賴性漏洞掃描"
-      
-    - name: "SonarQube"
-      description: "程式碼品質和安全分析"
-      
-    - name: "Trivy"
-      description: "容器映像漏洞掃描"
-```
-
-#### E.2 學習資源
-
-```markdown
-## 學習資源推薦
-
-### 官方文檔
-- [Jenkins 官方文檔](https://www.jenkins.io/doc/)
-- [Pipeline 語法參考](https://www.jenkins.io/doc/book/pipeline/syntax/)
-- [外掛程式索引](https://plugins.jenkins.io/)
-- [Jenkins X 文檔](https://jenkins-x.io/docs/)
-
-### 線上課程
-- [Jenkins 基礎課程 - Udemy](https://www.udemy.com/course/jenkins-beginner-to-guru/)
-- [CI/CD 實戰 - Coursera](https://www.coursera.org/learn/continuous-integration-deployment)
-- [DevOps 工程師認證 - A Cloud Guru](https://acloudguru.com/course/devops-engineer)
-
-### 社群資源
-- [Jenkins 用戶社群](https://community.jenkins.io/)
-- [Stack Overflow - Jenkins](https://stackoverflow.com/questions/tagged/jenkins)
-- [Reddit - r/jenkins](https://www.reddit.com/r/Jenkins/)
-- [Jenkins 用戶群組](https://www.meetup.com/topics/jenkins/)
-
-### 實戰練習
-- [Jenkins 實驗室](https://github.com/jenkins-docs/simple-java-maven-app)
-- [Pipeline 範例庫](https://github.com/jenkinsci/pipeline-examples)
-- [Katacoda Jenkins 教學](https://www.katacoda.com/courses/jenkins)
-
-### 書籍推薦
-- "Jenkins: The Definitive Guide" by John Ferguson Smart
-- "Learning Continuous Integration with Jenkins" by Nikhil Pathania
-- "Jenkins 2: Up and Running" by Brent Laster
-```
-
-### 附錄 F：認證考試對照
-
-#### F.1 Jenkins 認證考試對應
-
-```yaml
-jenkins_certification_mapping:
-  cloudbees_jenkins_engineer:
-    exam_topics:
-      - topic: "Jenkins Fundamentals"
-        chapters: [1, 2, 3]
-        weight: 20%
-        
-      - topic: "Pipeline Development"
-        chapters: [6, 7, 8, 9]
-        weight: 30%
-        
-      - topic: "Build and Test Automation"
-        chapters: [4, 5, 10, 11]
-        weight: 25%
-        
-      - topic: "Security and Administration"
-        chapters: [12, 14]
-        weight: 15%
-        
-      - topic: "Advanced Features"
-        chapters: [13, 15, 16, 17]
-        weight: 10%
-  
-  study_recommendations:
-    preparation_time: "8-12 weeks"
-    hands_on_practice: "60+ hours"
-    sample_projects: 5
-    mock_exams: 3
-    
-  practice_labs:
-    - name: "基礎 Pipeline 建立"
-      estimated_time: "4 hours"
-      difficulty: "beginner"
-      
-    - name: "多分支 Pipeline 配置"
-      estimated_time: "6 hours"
-      difficulty: "intermediate"
-      
-    - name: "企業級安全配置"
-      estimated_time: "8 hours"
-      difficulty: "advanced"
-```
-
-#### F.2 相關技術認證
-
-```yaml
-related_certifications:
-  devops_certifications:
-    - name: "AWS Certified DevOps Engineer"
-      relevance: "雲端部署和監控"
-      overlap_chapters: [15, 16, 17]
-      
-    - name: "Azure DevOps Engineer Expert"
-      relevance: "微軟生態系統整合"
-      overlap_chapters: [6, 8, 15]
-      
-    - name: "Google Cloud Professional DevOps Engineer"
-      relevance: "GCP 平台整合"
-      overlap_chapters: [15, 16, 17]
-  
-  container_certifications:
-    - name: "Certified Kubernetes Administrator (CKA)"
-      relevance: "容器編排和部署"
-      overlap_chapters: [15, 16]
-      
-    - name: "Docker Certified Associate (DCA)"
-      relevance: "容器化應用"
-      overlap_chapters: [15]
-  
-  security_certifications:
-    - name: "Certified Ethical Hacker (CEH)"
-      relevance: "DevSecOps 安全實踐"
-      overlap_chapters: [14, 17]
-      
-    - name: "CompTIA Security+"
-      relevance: "基礎安全概念"
-      overlap_chapters: [14]
-```
-
-### 附錄 G：版本更新歷史
-
-```markdown
-## 教學手冊版本歷史
-
-### Version 1.0.0 (2024-03-10)
-- 初始版本發布
-- 包含 19 個核心章節
-- 完整的 Pipeline 範例和配置
-- 三個企業級案例研究
-
-### 預期更新計畫
-
-#### Version 1.1.0 (預計 2024-06-01)
-- 新增 Jenkins X 整合章節
-- 更新至 Jenkins LTS 2.401.x
-- 新增 GitOps 實踐案例
-- 強化安全配置範例
-
-#### Version 1.2.0 (預計 2024-09-01)
-- 新增機器學習 Pipeline 範例
-- 整合 Tekton 比較分析
-- 新增邊緣運算部署案例
-- 更新認證考試對照
-
-#### Version 2.0.0 (預計 2025-01-01)
-- 全面更新至 Jenkins 3.x
-- 重構容器化部署章節
-- 新增雲原生架構設計
-- 整合新興 DevOps 工具
-```
-
----
-
-## 結語
-
-這個 Jenkins CI/CD 教學手冊旨在為 Java 開發人員提供從入門到精通的完整學習路徑。透過系統性的理論學習、豐富的實務範例、真實的企業案例，以及詳盡的參考資料，希望能幫助讀者建立紮實的 CI/CD 基礎，並在實際工作中發揮所學。
-
-### 學習建議
-
-1. **循序漸進**：按章節順序學習，確保基礎紮實
-2. **動手實作**：每個章節都要實際操作和練習
-3. **持續實踐**：將學到的知識應用到實際專案中
-4. **社群交流**：積極參與 Jenkins 社群討論和分享
-5. **持續更新**：關注 Jenkins 新版本和最佳實踐演進
-
-### 致謝
-
-感謝 Jenkins 社群的貢獻，以及所有為 DevOps 生態系統發展付出努力的開發者和企業。特別感謝提供真實案例和經驗分享的企業團隊。
-
-### 反馈和貢獻
-
-如果您在使用本教學手冊過程中發現任何問題，或有改進建議，歡迎：
-
-- 提交 Issue 到專案儲存庫
-- 發送電子郵件至：devops-training@company.com
-- 參與社群討論：#jenkins-tutorial
-
-### 授權信息
-
-本教學手冊採用 [MIT License](https://opensource.org/licenses/MIT) 授權，歡迎自由使用、修改和分享。
-
----
-
-*最後更新：2024年3月10日*  
-*版本：1.0.0*  
-*作者：DevOps 培訓團隊*
+## 附錄 B：範本索引
+
+本手冊中可直接改寫套用的範本（皆已依 [附錄 G：查證紀錄](#附錄-g查證紀錄) 的方法驗證）：
+
+| 類別 | 範本 | 位置 |
+| --- | --- | --- |
+| 安裝 | systemd drop-in（JVM、JCasC 路徑） | [3.3 Linux 套件安裝（systemd）](#33-linux-套件安裝systemd) |
+| 安裝 | Windows MSI 無人值守安裝 | [3.4 Windows 安裝（MSI）](#34-windows-安裝msi) |
+| 安裝 | Controller Dockerfile（預裝 plugin）、Compose（controller＋WebSocket agent） | [3.5 Docker／Podman 容器部署](#35-dockerpodman-容器部署) |
+| 安裝 | Helm values（基本、正式環境進階） | [3.6 Kubernetes（Helm）部署](#36-kuberneteshelm部署)、[15.5 在 Kubernetes 上執行 Jenkins controller（Helm 進階設定）](#155-在-kubernetes-上執行-jenkins-controllerhelm-進階設定) |
+| 安裝 | Nginx 反向代理（HTTPS＋WebSocket） | [3.8 反向代理與 TLS](#38-反向代理與-tls) |
+| 安裝 | 離線 plugin 下載 | [3.9 離線（封閉網路）安裝](#39-離線封閉網路安裝) |
+| Plugin | 基準 `plugins.txt` | [5.3 以 plugins.txt 與 Plugin Installation Manager Tool 管理](#53-以-pluginstxt-與-plugin-installation-manager-tool-管理) |
+| 憑證 | `withCredentials`、`sshagent`、Vault、Kubernetes Secret 映射 | [7.3 在 Pipeline 使用憑證](#73-在-pipeline-使用憑證)、[7.5 外部機密管理](#75-外部機密管理) |
+| 憑證 | JCasC 憑證宣告 | [7.6 以 JCasC 管理憑證](#76-以-jcasc-管理憑證) |
+| SCM | GitHub App、GitLab server 設定（JCasC） | [8.2 GitHub 整合（GitHub App 驗證）](#82-github-整合github-app-驗證)、[8.3 GitLab 整合](#83-gitlab-整合) |
+| SCM | Multibranch／Organization Folder（Job DSL） | [8.6 Multibranch Pipeline 與 Organization Folder](#86-multibranch-pipeline-與-organization-folder) |
+| 建置 | Maven（容器化＋Config File Provider、`withMaven`）、Gradle | [9.3 Pipeline 中的 Maven 建置](#93-pipeline-中的-maven-建置)、[9.4 Gradle](#94-gradle) |
+| Pipeline | Declarative 各區段範例、完整 Spring Boot Pipeline | 第 10 章、[10.12 完整範例：Spring Boot 服務 Pipeline](#1012-完整範例spring-boot-服務-pipeline) |
+| Pipeline | Scripted 動態平行、錯誤處理、`@NonCPS` | [11.1 Scripted Pipeline 語法](#111-scripted-pipeline-語法)、[11.2 CPS 限制與 @NonCPS](#112-cps-限制與-noncps) |
+| Pipeline | `lock`／`milestone`、`catchError`／`retry` | [11.5 資源鎖定與 milestone](#115-資源鎖定與-milestone)、[11.6 錯誤處理模式](#116-錯誤處理模式) |
+| Library | Shared Library 結構、`vars`、`src`、整條 Pipeline 範本、JenkinsPipelineUnit 測試 | 第 12 章 |
+| 品質 | JUnit、Coverage、Warnings NG、SonarQube | 第 13 章 |
+| Agent | SSH 固定 agent、Kubernetes cloud 與 Pod 範本（JCasC） | [14.2 固定 agent：SSH 與 Windows](#142-固定-agentssh-與-windows)、[14.4 Kubernetes plugin](#144-kubernetes-plugin) |
+| 映像 | BuildKit rootless Pod 範本與 Pipeline | [15.2 BuildKit rootless（Kubernetes agent）](#152-buildkit-rootlesskubernetes-agent) |
+| 部署 | 核准與職責分離、Helm 4、Kustomize、GitOps MR、Blue-Green、Argo Rollouts Canary、Ansible | 第 16 章 |
+| 安全 | OIDC、LDAP、Role-based、folder 權限、CSP 等安全基準（JCasC） | 第 17 章 |
+| 設定 | JCasC 基礎、Job DSL 維運 Job 與團隊批次建立、設定驗證 Pipeline | 第 18 章 |
+| 監控 | Prometheus plugin 設定、抓取設定、告警規則、OpenTelemetry、通知 | 第 19 章 |
+| 維運 | 加密備份腳本、升級指令 | [20.1 備份策略](#201-備份策略)、[20.3 升級程序](#203-升級程序) |
+| 供應鏈 | SBOM、Trivy／Gitleaks 掃描、Cosign 簽章 | 第 21 章 |
+| 故障排除 | 診斷用唯讀 Groovy 腳本、thread dump 收集 | [23.4 效能問題](#234-效能問題)、[23.6 診斷用唯讀腳本](#236-診斷用唯讀腳本) |
+
+## 附錄 C：Plugin 建議清單
+
+### C.1 基準 plugin（2026-10-02）
+
+| Plugin（ID） | 版本 | 用途 | 章節 |
+| --- | --- | --- | --- |
+| Configuration as Code（`configuration-as-code`） | 2131.vb_a_13ed96f755 | 系統設定程式碼化 | 18 |
+| Job DSL（`job-dsl`） | 3732.v9a_c49a_61a_313 | Job 程式碼化 | 18 |
+| Folders（`cloudbees-folder`） | 6.1106.v3a_d9a_6d2465e | Folder 與 folder 層級設定 | 4、7 |
+| Pipeline（`workflow-aggregator`） | 608.v67378e9d3db_1 | Pipeline 全套 | 10–11 |
+| Pipeline Graph View（`pipeline-graph-view`） | 1041.v107d70db_b_1a_f | Pipeline 視覺化 | 4 |
+| Pipeline: Groovy Libraries（`pipeline-groovy-lib`） | 806.v408277b_33d1d | Shared Library | 12 |
+| Pipeline Utility Steps（`pipeline-utility-steps`） | 3.810.va_7672d206740 | `readYaml`、`readJSON` 等 | A.3 |
+| Pipeline: Milestone Step（`pipeline-milestone-step`） | 152.v6e22b_8cfc66c | 部署順序控制 | 11 |
+| Lockable Resources（`lockable-resources`） | 1560.va_b_cd589f23eb_ | 資源鎖定 | 11 |
+| Timestamper（`timestamper`） | 1.30 | 主控台時間戳記 | 10 |
+| AnsiColor（`ansicolor`） | 542.v03d235fee02d | 主控台顏色 | 10 |
+| Build Timeout（`build-timeout`） | 1.41 | Freestyle 逾時 | 6 |
+| Workspace Cleanup（`ws-cleanup`） | 0.49 | `cleanWs` | 10 |
+| Git（`git`） | 5.10.1 | Git SCM | 8 |
+| GitHub Branch Source（`github-branch-source`） | 1983.vfa_27ed961853 | GitHub Multibranch、GitHub App | 8 |
+| GitLab Branch Source（`gitlab-branch-source`） | 744.vb_d0403d08ec7 | GitLab Multibranch | 8 |
+| Credentials Binding（`credentials-binding`） | 728.v902a_273b_8947 | `withCredentials` | 7 |
+| SSH Agent（`ssh-agent`） | 433.v9e73d67c3f74 | `sshagent` | 7 |
+| HashiCorp Vault（`hashicorp-vault-plugin`） | 384.vda_86ec66c537 | 外部機密 | 7 |
+| Kubernetes（`kubernetes`） | 4557.ve746270f672f | Kubernetes agent | 14 |
+| Docker Pipeline（`docker-workflow`） | 653.v2f2c08eff0ec | Docker agent | 14 |
+| JUnit（`junit`） | 1431.vc0d98912a_756 | 測試報告 | 13 |
+| Coverage（`coverage`） | 3.3394.v60e914558d29 | 覆蓋率 | 13 |
+| Warnings（`warnings-ng`） | 13.10294.v3c81839da_a_e7 | 靜態分析與掃描報告 | 13、21 |
+| SonarQube Scanner（`sonar`） | 2.19.0 | SonarQube 品質門檻 | 13 |
+| Pipeline Maven Integration（`pipeline-maven`） | 1760.v9a_a_e6dcb_0444 | `withMaven` | 9 |
+| Config File Provider（`config-file-provider`） | 1013.v73c323e52b_1f | `settings.xml` 管理 | 9 |
+| Matrix Authorization Strategy（`matrix-auth`） | 3.3 | 授權 | 17 |
+| Role-based Authorization Strategy（`role-strategy`） | 918.v91e5468d8db_2 | 授權（大型組織） | 17 |
+| OpenId Connect Authentication（`oic-auth`） | 4.718.ve731df6ca_88a_ | SSO | 17 |
+| LDAP（`ldap`） | 825.v2fca_37dd5b_cb_ | 目錄整合 | 17 |
+| Authorize Project（`authorize-project`） | 534.v2f208c45e11c | 建置執行身分 | 17 |
+| Audit Trail（`audit-trail`） | 456.v39d2fd1ed556 | 稽核記錄 | 17 |
+| Prometheus metrics（`prometheus`） | 860.v532442b_44e9a_ | 監控 | 19 |
+| OpenTelemetry（`opentelemetry`） | 3.1603.ve3fa_cc8a_b_f5e | Pipeline 追蹤 | 19 |
+| Email Extension（`email-ext`）、Mailer（`mailer`） | 2038.v7b_8817a_499d9、534.v1b_36f5864073 | 郵件通知 | 19 |
+| OWASP Markup Formatter（`antisamy-markup-formatter`） | 173.v680e3a_b_69ff3 | Safe HTML | 17 |
+| Versions Node Monitors（`versioncolumn`） | 400.v3c5c3004f31d | 檢查 agent 的 Java 版本 | 20 |
+| Support Core（`support-core`） | 1865.v45d40b_778b_cb_ | 支援資訊收集 | 23 |
+
+### C.2 依情境選用
+
+| 情境 | Plugin（ID，2026-10-02 版本） |
+| --- | --- |
+| Bitbucket | Bitbucket Branch Source（`cloudbees-bitbucket-branch-source` 937.3.10） |
+| SAML SSO | SAML（`saml` 4.623.v7875d61cd9f5） |
+| Active Directory | Active Directory（`active-directory` 2.971.v653d8b_6e5548） |
+| AWS | Amazon EC2（`ec2`）、AWS Secrets Manager Credentials Provider |
+| Azure | Azure VM Agents（`azure-vm-agents`）、Azure Key Vault（`azure-keyvault`） |
+| Kubernetes 憑證 | Kubernetes Credentials Provider（`kubernetes-credentials-provider`） |
+| Slack | Slack Notification（`slack` 795.v4b_9705b_e6d47） |
+| HTTP 呼叫 | HTTP Request（`http_request` 1.659.v1b_9d9e942a_e6） |
+| 動態參數 | Active Choices（`uno-choice` 2.8.10；腳本需經 Script Approval） |
+| 設定變更歷史 | Job Configuration History（`jobConfigHistory` 1380.v762185b_9a_793） |
+| 備份 | ThinBackup（`thinBackup` 2.1.5） |
+| Node.js | NodeJS（`nodejs` 1.6.6） |
+| 相依套件弱點 | OWASP Dependency-Check（`dependency-check-jenkins-plugin` 5.6.5） |
+| GitHub Checks | Checks API（`checks-api`）、GitHub Checks（`github-checks`） |
+| HTML 報告 | HTML Publisher（`htmlpublisher` 429；搭配 Resource Root URL） |
+
+### C.3 已棄用與不建議
+
+見 [5.4 已棄用 Plugin 與替代方案](#54-已棄用-plugin-與替代方案)。重點：Checkstyle／PMD／FindBugs → Warnings NG；JaCoCo／Cobertura／Code Coverage API → Coverage；Extended Choice Parameter、Folder-based Authorization、GitHub Pull Request Builder 有未修補漏洞；Office 365 Connector 已下架。
+
+## 附錄 D：學習資源
+
+以下連結皆於 2026-10-02 查證。
+
+### D.1 官方文件
+
+| 資源 | 說明 |
+| --- | --- |
+| [Jenkins User Handbook](https://www.jenkins.io/doc/book/) | 官方使用手冊（安裝、Pipeline、管理、安全、擴充） |
+| [Pipeline Syntax](https://www.jenkins.io/doc/book/pipeline/syntax/) | Declarative／Scripted 語法完整參考 |
+| [Pipeline Steps Reference](https://www.jenkins.io/doc/pipeline/steps/) | 所有 plugin 提供的 step 與參數 |
+| [Pipeline Best Practices](https://www.jenkins.io/doc/book/pipeline/pipeline-best-practices/) | 官方 Pipeline 最佳實務 |
+| [Scaling Pipelines](https://www.jenkins.io/doc/book/pipeline/scaling-pipeline/)、[CPS method mismatches](https://www.jenkins.io/doc/book/pipeline/cps-method-mismatches/) | Durability 設定與 CPS 限制 |
+| [Extending with Shared Libraries](https://www.jenkins.io/doc/book/pipeline/shared-libraries/) | Shared Library |
+| [Configuration as Code](https://www.jenkins.io/doc/book/managing/casc/) | JCasC |
+| [Securing Jenkins](https://www.jenkins.io/doc/book/security/securing-jenkins/)、[Controller isolation](https://www.jenkins.io/doc/book/security/controller-isolation/)、[Content Security Policy](https://www.jenkins.io/doc/book/security/csp/) | 安全 |
+| [Java Support Policy](https://www.jenkins.io/doc/book/platform-information/support-policy-java/) | Java 版本支援 |
+| [LTS Upgrade Guide](https://www.jenkins.io/doc/upgrade-guide/)、[LTS Changelog](https://www.jenkins.io/changelog-stable/) | 升級指南與變更紀錄 |
+| [Security Advisories](https://www.jenkins.io/security/advisories/) | 安全公告 |
+| [Plugins Index](https://plugins.jenkins.io/) | Plugin 搜尋、版本、安全警示、健康分數 |
+| [Tutorials](https://www.jenkins.io/doc/tutorials/) | 官方入門教學（Maven、Node.js、Python、Multibranch） |
+| [Kubernetes 安裝](https://www.jenkins.io/doc/book/installing/kubernetes/)、[Helm charts](https://github.com/jenkinsci/helm-charts) | Kubernetes 部署 |
+
+### D.2 線上課程
+
+| 課程 | 平台 | 說明 |
+| --- | --- | --- |
+| [Jenkins Essentials（LFS267）](https://training.linuxfoundation.org/training/jenkins-essentials-lfs267/) | Linux Foundation | 付費（US$299）、20–25 小時、含實作與數位徽章；涵蓋容器與雲端擴充、Multibranch、IaC 與 GitOps |
+| [Continuous Integration and Continuous Delivery (CI/CD)](https://www.coursera.org/learn/continuous-integration-and-continuous-delivery-ci-cd) | Coursera（IBM） | CI/CD 概念與 Jenkins、GitHub Actions、Tekton 實作 |
+| [Learn Jenkins by Building a CI/CD Pipeline](https://www.freecodecamp.org/news/learn-jenkins-by-building-a-ci-cd-pipeline/) | freeCodeCamp | 免費影音課程（2022），以 Docker 與 GitHub 建立 Pipeline |
+| [Jenkins, From Zero To Hero](https://www.udemy.com/course/jenkins-from-zero-to-hero/) | Udemy | 熱門入門課程（2025-04 更新）；Udemy 頁面無法以自動化工具驗證，請以瀏覽器確認 |
+
+> ⚠️ 第三方課程的 Jenkins 版本常落後。學習時請對照本手冊 [1.5 從 v1.0 基準到 2.580.1 的重大變化](#15-從-v10-基準到-25801-的重大變化) 的版本差異，特別是 Java 需求、Pipeline Graph View、Coverage／Warnings NG 等變化。
+
+### D.3 社群
+
+| 資源 | 說明 |
+| --- | --- |
+| [Jenkins Community（Discourse）](https://community.jenkins.io/) | 官方討論區，問題與公告 |
+| [r/jenkinsci](https://www.reddit.com/r/jenkinsci/) | 官方認可的 Reddit 社群（v1.0 誤植為 r/Jenkins） |
+| [Stack Overflow：jenkins 標籤](https://stackoverflow.com/questions/tagged/jenkins) | 問答 |
+| [Jenkins Mailing Lists](https://www.jenkins.io/mailing-lists/) | 含 `jenkinsci-advisories` 安全公告預告 |
+| [Participate](https://www.jenkins.io/participate/) | 參與貢獻、SIG、Office Hours |
+| [Jenkins Blog](https://www.jenkins.io/blog/) | 版本與功能公告 |
+| [Meetup：Jenkins 主題](https://www.meetup.com/topics/jenkins/) | 各地聚會 |
+
+### D.4 實戰練習
+
+| 資源 | 說明 |
+| --- | --- |
+| [jenkins-docs/simple-java-maven-app](https://github.com/jenkins-docs/simple-java-maven-app) | 官方教學使用的 Maven 範例專案（持續維護） |
+| [jenkins-docs/building-a-multibranch-pipeline-project](https://github.com/jenkins-docs/building-a-multibranch-pipeline-project) | 官方 Multibranch 教學專案 |
+| [jenkinsci/pipeline-examples](https://github.com/jenkinsci/pipeline-examples) | Pipeline 範例集；⚠️ 最後更新於 2023-08，部分範例需依新版語法調整 |
+| [jenkinsci/JenkinsPipelineUnit](https://github.com/jenkinsci/JenkinsPipelineUnit) | Shared Library 單元測試框架（v1.31） |
+| 本機練習環境 | 依 [3.5 Docker／Podman 容器部署](#35-dockerpodman-容器部署) 的 Compose 範例在本機啟動 controller＋agent |
+
+> 📌 v1.0 推薦的 Katacoda 已於 2022 年停止服務，該連結回傳 404，已移除。
+
+### D.5 書籍
+
+| 書名 | 作者／出版 | 說明 |
+| --- | --- | --- |
+| *Learning Continuous Integration with Jenkins*（第 3 版） | Nikhil Pathania／Packt，2024-01 | 涵蓋雲端、容器、IaC、GitOps 與 AI 輔助撰寫 Pipeline，三本中最新 |
+| *Jenkins 2: Up and Running* | Brent Laster／O'Reilly，2018 | Pipeline 概念說明完整，但版本較舊 |
+| *Jenkins: The Definitive Guide* | John Ferguson Smart／O'Reilly，2011 | ⚠️ Jenkins 1.x 時代，內容多已過時，僅供歷史參考 |
+
+### D.6 v1.0 學習資源連結查證結果
+
+| v1.0 項目 | 查證結果（2026-10-02） | v2.0 處理 |
+| --- | --- | --- |
+| Jenkins 官方文檔、Pipeline 語法參考、外掛程式索引 | 正常 | 保留並擴充（D.1） |
+| Jenkins X 文檔 | 網站存在，但 Jenkins X 是以 Tekton 為基礎的另一個專案，與 Jenkins 不相容 | 移除，於 1.1 說明差異 |
+| Udemy「jenkins-beginner-to-guru」 | 頁面拒絕自動化存取（403），搜尋查無此課程名稱 | 改列可查證的熱門課程並註明需人工確認 |
+| Coursera「continuous-integration-deployment」 | 404 | 改為 IBM「Continuous Integration and Continuous Delivery (CI/CD)」 |
+| A Cloud Guru「devops-engineer」 | 301 轉址到 Pluralsight 首頁（A Cloud Guru 已併入 Pluralsight），原課程不存在 | 移除 |
+| Jenkins 用戶社群（community.jenkins.io） | 正常 | 保留 |
+| Stack Overflow jenkins 標籤 | 存在（網站拒絕自動化工具抓取） | 保留 |
+| Reddit r/Jenkins | 官方社群為 r/jenkinsci | 更正 |
+| Meetup Jenkins 主題 | 正常 | 保留 |
+| jenkins-docs/simple-java-maven-app | 正常，持續維護 | 保留 |
+| jenkinsci/pipeline-examples | 存在，最後更新 2023-08 | 保留並加註 |
+| Katacoda Jenkins | 404（服務已於 2022 年關閉） | 移除 |
+| 書籍 3 本 | 皆存在；*Learning CI with Jenkins* 已有 2024 年第 3 版 | 更新版本資訊 |
+| 「Blue Ocean CLI」（`npm install -g blueocean-cli`） | npm registry 回傳 404，**此套件不存在** | 移除 |
+| 「JenkinsFile Runner」 | 專案存在，但最新版仍為 1.0-beta-32（2023-11） | 不列為推薦工具 |
+
+## 附錄 E：認證
+
+### E.1 Jenkins 相關認證現況
+
+| 認證 | 現況（2026-10-02） | 說明 |
+| --- | --- | --- |
+| CloudBees Certified Jenkins Engineer（CJE） | ⚠️ **無法確認**：社群回報 CloudBees 網站的報名連結失效，官方未公告停辦也未提供新的報名管道 | 有意報考者請直接洽詢 CloudBees；v1.0 列出的考試主題權重無官方依據，v2.0 已移除 |
+| Linux Foundation Jenkins Essentials（LFS267） | 課程提供數位徽章，非正式認證考試 | 適合作為內部教育訓練 |
+
+### E.2 相關技術認證與本手冊章節對應
+
+| 認證 | 發證單位 | 相關章節 |
+| --- | --- | --- |
+| Certified Kubernetes Administrator（CKA） | CNCF／Linux Foundation | 3.6、14.4、15、16.3 |
+| AWS Certified DevOps Engineer – Professional | AWS | 14.5、16、19、21 |
+| Microsoft Certified: DevOps Engineer Expert（AZ-400） | Microsoft | 7.5、8、13、16 |
+| Google Cloud Professional Cloud DevOps Engineer | Google Cloud | 16、19、22.3 |
+| Docker Certified Associate（DCA） | Mirantis（2019 年隨 Docker Enterprise 移轉） | 3.5、15 |
+| CompTIA Security+、ISC2 CSSLP 等資安認證 | CompTIA、ISC2 | 7、17、21 |
+
+> 💡 企業內部可依本手冊的閱讀指引（文件資訊後）設計內部認證：每個角色完成指定章節的實作（例如以 JCasC 建立 controller、撰寫通過品質門檻的 Pipeline、完成一次還原演練），比單純通過選擇題更能反映實務能力。
+
+## 附錄 F：版本紀錄
+
+### F.1 版本歷程與章節對照
+
+| 版本 | 日期 | 說明 |
+| --- | --- | --- |
+| 1.0 | 2024-03-10 | 初版：19 章＋附錄 A–G，以 Jenkins LTS 2.401.x 為基準，對象為新進 Java 開發者 |
+| 2.0 | 2026-10-02 | 重新編排為 24 章＋附錄 A–I；對齊 Jenkins LTS 2.580.1、Java 21／25；以企業標準技術白皮書等級改寫；所有程式碼範例以本機 Jenkins 2.580.1 驗證；修正 F.2 所列問題；精簡無法查證的虛構腳本（原 21,038 行） |
+
+**章節對照（v1.0 → v2.0）**：
+
+| v1.0 | v2.0 |
+| --- | --- |
+| 教學手冊說明 | 文件資訊、閱讀指引 |
+| 第 1 章 Jenkins 簡介與核心概念 | 1. 概觀與版本基準、2. 架構與核心概念 |
+| 第 2 章 環境安裝與基本設定 | 3. 安裝與初始設定、17. 安全強化 |
+| 第 3 章 Jenkins 介面導覽 | 4. 介面導覽與系統管理 |
+| 第 4 章 Plugin 管理與基礎設定 | 5. Plugin 管理、9.1 工具管理 |
+| 第 5 章 Freestyle Project 入門 | 6. Job 類型與 Freestyle |
+| 第 6 章 憑證與密碼管理 | 7. 憑證與機密管理 |
+| 第 7 章 Git 整合與版本控制 | 8. SCM 整合 |
+| 第 8 章 Maven 建置整合 | 9. 建置工具整合（Maven、Gradle 與多語言） |
+| 第 9 章 Pipeline 基礎與 Declarative Syntax | 10. Declarative Pipeline 完整語法 |
+| 第 10 章 Jenkinsfile 結構深度分析 | 10、11. Scripted Pipeline 與 CPS、12. Shared Libraries |
+| 第 11 章 測試報告與程式碼覆蓋率整合 | 13. 測試報告、覆蓋率與品質門檻 |
+| 第 12 章 靜態程式碼分析與品質檢查 | 13.3–13.5 |
+| （第 12 章後的「總結」） | 移除（內容併入各章「本章重點」） |
+| 第 13 章 Pipeline 故障排除與除錯技巧 | 11.6–11.7、23. 故障排除 |
+| 第 14 章 部署策略與環境管理 | 16. 部署策略與環境管理 |
+| 第 15 章 監控、通知與效能優化 | 19. 監控、日誌、效能與通知 |
+| 第 16 章 企業級 CI/CD 架構設計 | 2.7 參考架構、20.4 高可用、21.6 法規對應、22. 企業導入 |
+| 第 17 章 容器化與雲端整合 | 14. Agent 與雲端節點、15. 容器映像建置與 Kubernetes 上的 Jenkins |
+| 第 18 章 DevOps 文化與實務 | 22.2–22.4 |
+| 第 19 章 實務案例研究 | 22.5–22.7 |
+| 附錄 A 常用指令參考 | 附錄 A 指令與 API 速查 |
+| 附錄 B 配置範例 | 附錄 B 範本索引（範例改放在各章） |
+| 附錄 C 故障排除指南 | 23. 故障排除 |
+| 附錄 D 最佳實踐清單 | 24. 檢查清單 |
+| 附錄 E 工具和資源 | 附錄 C Plugin 建議清單、附錄 D 學習資源 |
+| 附錄 F 認證考試對照 | 附錄 E 認證 |
+| 附錄 G 版本更新歷史 | 附錄 F 版本紀錄 |
+| — | 新增：17 安全強化、18 JCasC 與 Job DSL、20 備份升級與高可用、21 供應鏈安全、附錄 G 查證紀錄、附錄 H 術語表、附錄 I 實作練習（取代 v1.0 各章的「練習作業」與「認證對應知識點」） |
+
+### F.2 v1.0 → v2.0 更正對照表
+
+| # | v1.0 位置 | v1.0 內容 | 問題 | v2.0 更正 |
+| --- | --- | --- | --- | --- |
+| 1 | 2.2 系統需求 | Java：JDK 11 或更高版本 | 2.479.1 起需要 Java 17，2.555.1 起只支援 Java 21／25（controller 與所有 agent） | 1.4、3.1 |
+| 2 | 2.4 方法一 | 下載 `war-stable/latest` | 版本不固定，無法重現與回退 | 指定 2.580.1 並比對 SHA-256（3.2） |
+| 3 | 2.4 方法一 | PowerShell 中使用 `C:\Users\%USERNAME%\...` | `%USERNAME%` 是 cmd.exe 語法，PowerShell 不會展開 | 改用 `$env:JENKINS_HOME`（3.2） |
+| 4 | 2.4 方法二 | PowerShell 區塊中以 `\` 續行的 `docker run` | PowerShell 無法執行 bash 續行 | 改為 Compose 與正確的 shell 標示（3.5） |
+| 5 | 2.4、2 章案例 | Compose 使用 `version: '3.8'` | Compose v2 已不使用 `version` 欄位 | 移除（3.5） |
+| 6 | 2.4、2 章案例、17 章 | 把 `/var/run/docker.sock` 掛進 controller | 能執行建置或 Script Console 的人即可取得主機 root | 禁止；改用 agent 與無 daemon 映像建置（3.5、15.1） |
+| 7 | 2 章案例 | `jenkins/inbound-agent:latest`，`JENKINS_SECRET` 明文寫在 Compose | 版本不固定；secret 外洩 | 固定映像版本、`JENKINS_SECRET=@檔案`、WebSocket（3.5） |
+| 8 | 2.4 方法三、2.4 JVM 設定 | 在 PowerShell 區塊中放 `jenkins.xml` 的 XML；未提及 MSI 預設 heap | XML 無法在 PowerShell 執行；MSI 預設 `-Xmx256m` 不足 | 分開 XML 區塊並說明預設值（3.4） |
+| 9 | 2.4 方法三 | 未說明服務帳號 | 預設 LocalSystem 權限過大 | 使用專用服務帳號（3.4） |
+| 10 | 2.3 | 「啟用 Prevent Cross Site Request Forgery exploits」 | CSRF 保護已預設啟用且無法在 UI 關閉；2.555.1 起 crumb 不再綁定 IP | 17.6 |
+| 11 | 2.5 | 代理設定在「Manage Plugins → Advanced」 | 新版名稱為 Plugins → Advanced settings | 4.2 |
+| 12 | 2.4 | Script Console 逐一改寫所有 Job 的 `buildDiscarder` | 對 Multibranch 子 Job 無效、無法追蹤 | Global Build Discarders 與 `buildDiscarder` 選項（19.6） |
+| 13 | 第 3 章 | 「左側選單 → Manage Jenkins」等舊版介面描述 | 2.516.1 起標頭重新設計 | 4.1 |
+| 14 | 4.3、4.4、4.6 | 必要 plugin 清單含 `checkstyle`、`jacoco`、`maven-plugin`、`blueocean` | Checkstyle 已下架；JaCoCo 長期未發行；Maven project 與 Blue Ocean 不建議新導入 | 基準清單與替代方案（5.3、5.4、附錄 C） |
+| 15 | 4.4 | `init.groovy.d` 腳本在啟動時從 update center 安裝 plugin | 每次啟動版本可能不同、無法審查 | `plugins.txt`＋Plugin Installation Manager Tool（5.3） |
+| 16 | 4.4 | `install-jenkins-plugins.sh` 以表單參數呼叫 `/pluginManager/installNecessaryPlugins` | 該端點需要 XML（`<install plugin="..."/>`），範例無法安裝 | 改用 PIMT（5.3） |
+| 17 | 4.7 | `check-plugin-updates.sh` 以 `jq` 解析 `update-center.json` 並讀取 `securityWarnings` | `update-center.json` 是 JSONP 格式，且無此欄位 | `PIMT --available-updates --view-security-warnings`（5.3、17.9） |
+| 18 | 4.6 `jenkins-plugins.yml` | plugin ID `blue-ocean` | 正確 ID 為 `blueocean` | 附錄 C 以實際 ID 列出 |
+| 19 | 第 1 章等 | 「Master」 | 2020 年起官方用語為 controller | 全面改用 controller／agent |
+| 20 | 多處 | 大量 `agent any`，且未將 built-in node executor 設為 0 | 建置可能在 controller 上執行 | 2.1、10.2、17.5 |
+| 21 | 5.4 | 定期建置與 SCM 輪詢為主要觸發方式 | 輪詢拖慢 SCM 與 Jenkins | Webhook 為主、每日掃描為輔（6.3、8.5） |
+| 22 | 8–11、19 章多個範例 | `tools { maven 'Maven-3.9'; jdk 'JDK-17' }`、`'Maven 3.8.6'`、`'OpenJDK 17'` 等不一致的工具名稱 | 4 個範例因工具名稱不存在而驗證失敗 | 統一為 `maven-3.9`、`jdk-21`，並建議容器化（9.1） |
+| 23 | 9.3、9.5、第 9 章案例、10.1、12.3、第 13 章案例、14.2、19.1 的 8 個 Jenkinsfile | `when { params.X }` 等裸布林運算式 | 共 22 處「Expected a when condition」，Pipeline 無法啟動 | `expression { params.X }`（10.6） |
+| 24 | 7.6 分支特定建置策略 | `environment` 中以跨多行的三元運算式計算 `BRANCH_TYPE`，寫在一般雙引號字串內 | 一般雙引號字串不能跨行，產生「end of line reached within a simple string」語法錯誤 | 以 `when { branch }` 判斷，需要計算時放在 `script {}`（8.7、10.3） |
+| 25 | 10.2 | `environment { APP_NAME = config.appName }` | 「Environment variable values must either be single quoted, double quoted, or function calls」 | 10.3 |
+| 26 | 7.7 GitHub Webhook | 以 Script Console 呼叫 `gitHubConfig.setOverrideHookUrl(...)` 設定 webhook | 以 Script Console 修改設定無法追蹤 | 以 JCasC／GitHub App 設定（8.2） |
+| 27 | 18.1 | `sh """..."""` 中的 `grep -o "[0-9]\+%"` | `\+` 在 Groovy 雙引號字串中是非法跳脫，產生「unexpected char: ''」 | 不需要 Groovy 內插的 shell 一律使用單引號三引號字串（10.3） |
+| 28 | 9.3、9.6、10.2 | 在 `script {}` 中呼叫 `input` 並讀取 `env.DEPLOYER` | `submitterParameter` 的值是 `input` 的回傳值，`env.DEPLOYER` 為空；等待期間占用 agent、未設逾時 | stage 層級 `input`＋`timeout`（10.9、16.2） |
+| 29 | 11.3 | `jacoco(execPattern: ..., minimumInstructionCoverage: ...)` | JaCoCo plugin 已由 Coverage plugin 取代 | `recordCoverage`（13.2） |
+| 30 | 12 章 | Checkstyle、PMD plugin 與自行解析 XML 的 Groovy | plugin 已下架；在 controller 上解析 XML 消耗資源 | `recordIssues`（13.3） |
+| 31 | 7.7 | Webhook Payload URL 使用 `http://` | 未加密傳輸，secret 與內容可被攔截 | HTTPS＋secret（8.5） |
+| 32 | 15 章 | Teams 通知 | Microsoft 365 Connectors 已停用、Office 365 Connector plugin 已下架 | Teams Workflows webhook（19.7） |
+| 33 | 16.2 | SOX、GDPR、ISO 27001「合規檢查」腳本 | 以字串比對模擬合規，無法作為合規依據 | 改為控制措施與稽核證據對應（21.6） |
+| 34 | 17.1 | `docker:24-dind` 搭配 `--privileged` 又同時掛載 `docker.sock` | 兩種做法互相矛盾，且都會給予主機層級權限 | BuildKit rootless（15.2） |
+| 35 | 17.1 | `gcr.io/kaniko-project/executor:latest` | Kaniko 原專案已於 2025-06 封存；`latest` 不可重現 | 15.1 說明現況與替代 |
+| 36 | 17.2 | Kubernetes Deployment 使用 `jenkins/jenkins:lts-jdk17` 並掛載 `docker.sock` | Java 17 映像已於 2.555.1 停止提供；以 Deployment 自建維護成本高 | 官方 Helm chart（3.6、15.5） |
+| 37 | 16、19 章 | 大量無法查證的架構與效益數字 | 讀者可能誤以為實際數據 | 案例改為明確標示的示意情境（22.5、22.6） |
+| 38 | 附錄 E.1 | 「Blue Ocean CLI：`npm install -g blueocean-cli`」 | npm 上不存在此套件 | 移除（D.6） |
+| 39 | 附錄 E.2 | Katacoda、A Cloud Guru、Coursera、Udemy、Jenkins X、r/Jenkins 連結 | 失效、轉址或不正確 | D.6 逐項更正 |
+| 40 | 附錄 F | CloudBees CJE 考試主題與權重 | 無官方依據；認證現況不明 | 附錄 E |
+| 41 | 附錄 G | 「Version 1.1.0（預計 2024-06-01）」等未實現的計畫 | 過期資訊 | 附錄 F |
+| 42 | 第 12 章後 | 插入「## 總結」並寫「完成前 12 章」 | 打斷章節結構 | 移除 |
+| 43 | 附錄 D、E、G | 內容包在 ```` ```markdown ```` 程式碼區塊中 | 標題不會成為真正的標題，也無法連結 | 改為一般 Markdown |
+| 44 | 第 15–19 章 | 小節標題樣式與前 14 章不同（「目標導向」「架構願景」等） | 結構不一致 | 全書統一為「章 → 節」編號 |
+| 45 | 目錄 | 只列章名與部分附錄小節；未使用 TOC 標記 | 323 個標題中大多數小節無法從目錄連結；「注意事項」等標題重複 14 次造成錨點重複 | H2＋H3 自動目錄、所有小節唯一編號（附錄 G） |
+| 46 | 全文 | 行尾空白、清單與標題前缺空行（MD009 15、MD032 30、MD022 19 處） | Markdown 格式問題 | 已修正（附錄 G） |
+
+## 附錄 G：查證紀錄
+
+查證日期：2026-10-02。方法：
+
+- **版本號與發行資訊**：Jenkins LTS changelog、`updates.jenkins.io` 的 update center JSON（以 `version=2.580.1` 取得，共 2,116 個 plugin 的版本、相依、棄用與安全警示）、Docker Hub tag API、GitHub Releases（`gh api`）
+- **官方文件**：以 `gh api` 讀取 `jenkins-infra/jenkins.io` 原始 AsciiDoc（Java 支援政策、LTS 升級指南 2.479.1–2.580.1、安裝、反向代理、systemd、安全公告）
+- **原始碼**：`jenkinsci/packaging`（MSI）、`jenkinsci/docker-agent`（inbound agent 啟動腳本）、`jenkinsci/helm-charts`（`values.yaml`、`_helpers.tpl`）、`jenkinsci/gitlab-branch-source-plugin`、`jenkinsci/coverage-plugin`、`jenkinsci/plugin-util-api-plugin`、`jenkinsci/warnings-ng-plugin`、`jenkinsci/analysis-model`、`helm/helm`、`moby/buildkit`、`sigstore/cosign`
+- **實機驗證**：在本機以 Java 21 啟動 Jenkins **2.580.1** WAR，安裝 146 個 plugin（含相依），以 JCasC 建立管理員、節點與工具設定後，對本手冊所有程式碼區塊執行：
+  - Declarative Jenkinsfile：`POST /pipeline-model-converter/validate`
+  - Scripted Pipeline、Shared Library、Groovy 腳本：在 Jenkins 的 Groovy 環境（含 Pipeline 預設匯入）編譯
+  - 未註冊的 step／symbol 檢查：比對 Jenkins 實際註冊的 724 個 step 名稱與 `@Symbol`
+  - JCasC：`POST /configuration-as-code/check`
+  - Job DSL：以 `DslScriptLoader` 實際執行並建立 Job
+  - Script Console 範例（唯讀）：實際執行
+  - CLI：`declarative-linter`、`help`（WebSocket 模式）
+  - Prometheus 指標名稱：實際抓取 `/prometheus/`；告警規則與抓取設定以 `promtool` 3.15.0 驗證
+  - JenkinsPipelineUnit 測試：以 Maven＋GMavenPlus 建立 Library 專案實際執行
+  - bash：`bash -n`；PowerShell：PowerShell 語法剖析器；YAML／JSON：解析
+- **網頁與連結**：WebFetch、HTTP 狀態檢查、網路搜尋；無法自動化存取的網站另行註明
+
+**驗證結果統計**：
+
+| 驗證類型 | 區塊數 | 結果 |
+| --- | --- | --- |
+| Declarative Jenkinsfile（`pipeline-model-converter/validate`） | 42 | 全部通過 |
+| Scripted Pipeline／Shared Library／Groovy（編譯） | 11 | 全部通過 |
+| JenkinsPipelineUnit 測試（Maven 實際執行） | 2 個區塊（`build.gradle` 對應設定與測試類別），2 個測試 | 全部通過 |
+| JCasC（`configuration-as-code/check`） | 20 | 全部通過 |
+| Job DSL（`DslScriptLoader` 實際執行） | 5 | 全部通過，共建立 folder、Multibranch、Organization Folder、Pipeline Job |
+| Script Console 唯讀腳本（實際執行） | 2 | 全部通過 |
+| Prometheus 告警規則與抓取設定（`promtool` 3.15.0） | 2 | 全部通過（6 條規則） |
+| YAML（含 Compose、Helm values、Kubernetes manifest） | 28 | 全部可解析 |
+| bash（`bash -n`） | 23 | 全部通過 |
+| PowerShell（語法剖析） | 4 | 全部通過 |
+| XML | 2 | 全部可解析 |
+| Mermaid 圖表 | 28 | 以 `mermaid` 11 官方 parser（jsdom）逐一解析全部通過；過程中修正 2 處含 `@` 的節點標籤（改以雙引號包住） |
+
+**格式與連結驗證**：
+
+| 檢查 | 結果 |
+| --- | --- |
+| repo `check-toc.ps1` | 標題 253 個、TOC 連結 242 個；找不到對應標題 0、未收錄的編號標題 0、重複錨點 0（v1.0：323 個標題，大多數小節未收錄於目錄，「注意事項」等錨點重複最多 14 次） |
+| repo `check-md.ps1` | 未標語言的程式碼區塊 0、其他格式問題 0（v1.0：MD032 30、MD022 19、MD009 15） |
+| repo `test-mermaid-syntax.ps1` | 未發現語法問題 |
+| Hugo 實際渲染（`hugo -d <暫存目錄>`） | 頁內連結 604 個（254 個不同目標）全部對應到標題 ID，只有佈景主題的 `#top` 未對應（預期） |
+| 檔案格式 | UTF-8（無 BOM）、CRLF，與原檔一致 |
+
+**查證項目與結論**：
+
+| # | 項目 | 結論 | 依據 |
+| --- | --- | --- | --- |
+| 1 | LTS 版本 | 2.580.1（2026-09-30）；前一線 2.568.3（2026-09-02）；Weekly 2.584（2026-09-28） | changelog-stable、changelog |
+| 2 | Java 需求 | 2.555.1 起 Java 21 或 25；適用 controller、agent、CLI；建置用 JDK 不受限 | `support-policy-java.adoc`、`2-555-1.adoc` |
+| 3 | LTS 週期 | 每 12 週選基準，`.1`／`.2`／`.3` 每 4 週一版，發行前 2 週 RC | `download/lts/index.adoc` |
+| 4 | 各 LTS 線重大變化 | 2.479.1（Java 17、Spring Security 6）、2.492.1（agentProtocols）、2.504.1（YUI、jCIFS 移除）、2.516.1（標頭、bcrypt 72 bytes、SameSite）、2.528.1（Trixie、Timestamper）、2.541.1（CSP、RPM 統一、新 GPG key）、2.555.1（Java 21、crumb 不含 IP）、2.568.1（Windows 2019 映像）、2.580.1（detached plugin 移出 war） | `content/_data/upgrades/*.adoc` |
+| 5 | 容器映像 tag | `2.580.1-lts-jdk21`、`-jdk25`、`-rhel-ubi9-jdk21`、`-windowsservercore-ltsc2022／2025` 等；inbound-agent `3391.va_37fa_a_305d6d-3-jdk21` | Docker Hub API |
+| 6 | Linux 套件 | Debian：`jenkins.io-2026.key`、`/etc/apt/keyrings/jenkins-keyring.asc`；RPM：`rpm-stable/jenkins.repo`；Java 套件 `openjdk-21-jre`／`java-21-openjdk` | `installing/linux.adoc` |
+| 7 | MSI 預設值 | `JENKINS_HOME`＝服務帳號 `%LocalAppData%\Jenkins\.jenkins`（LocalSystem 時 `%ProgramData%\Jenkins\.jenkins`）；`-Xmx256m`；無人值守屬性 `INSTALLDIR`、`PORT`、`JAVA_HOME`、`SERVICE_USERNAME`、`SERVICE_PASSWORD` | `packaging/msi/build/jenkins.wxs`、`installing/windows.adoc` |
+| 8 | Inbound agent 環境變數 | 支援 `JENKINS_URL`、`JENKINS_SECRET`、`JENKINS_AGENT_NAME`、`JENKINS_WEB_SOCKET`、`JENKINS_AGENT_WORKDIR` 等；無 `JENKINS_SECRET_FILE`，以 `JENKINS_SECRET=@檔案` 讀檔 | `docker-agent/jenkins-agent` |
+| 9 | Agent 啟動指令 | `java -jar agent.jar -url ... -secret ... -name "..." -webSocket -workDir "..."` | 本機 2.580.1 節點頁面 |
+| 10 | Helm chart | 5.9.64、appVersion 2.568.3；明確指定 `controller.image.tag` 時不附加 tagLabel；`replicas` 最大 1；`additionalExistingSecrets` 在 JCasC 以 `${secret-key}` 引用 | `helm-charts` 原始碼 |
+| 11 | Setup wizard 建議 plugin | 含 Pipeline Graph View、Dark Theme；不含 Stage View | `jenkins/core/.../platform-plugins.json` |
+| 12 | Manage Jenkins 分區 | System Configuration、Security、Status Information、Troubleshooting、Tools and Actions | 本機 2.580.1 |
+| 13 | Plugin 棄用與漏洞 | Checkstyle／PMD／FindBugs、Extended Choice Parameter 列於 deprecations；Extended Choice Parameter、Folder-based Authorization、GHPRB 有未修補警示；Office 365 Connector、`blueocean-cli` 不存在 | update center JSON、npm registry |
+| 14 | 基準 `plugins.txt` | 40 個 plugin 以 2.580.1 解析通過，無安全警示 | PIMT 2.15.0 `--no-download --view-security-warnings` |
+| 15 | GitLab Branch Source JCasC | `secretToken` 已 deprecated（check 端點拒絕）；改用 `webhookSecretCredentialsId` | 原始碼 `GitLabServer.java`＋本機驗證 |
+| 16 | GitHub App | 需要 PKCS#8 私鑰；權限 Commit statuses（RW）、Contents（R）、Metadata（R）、Pull requests（R）；JCasC `gitHubApp` | `github-branch-source` 文件 |
+| 17 | Shared Library JCasC | `globalLibraries` 與 `globalUntrustedLibraries` 皆有效 | 本機 check 與 schema |
+| 18 | JenkinsPipelineUnit | v1.31（2026-07）；需 Java 21、Groovy 2.4.21；範例測試 2 個通過 | GitHub Releases、本機 Maven 執行 |
+| 19 | Coverage／Warnings NG 門檻 | 失敗等級欄位為 `criticality`（`NOTE`／`UNSTABLE`／`ERROR`／`FAILURE`）；Coverage baseline 與 Warnings NG 門檻類型列舉 | `plugin-util-api`、`coverage-plugin`、`warnings-ng-plugin` 原始碼 |
+| 20 | Trivy 嚴重度對應 | Critical → ERROR、High → HIGH | `analysis-model` 的 `TrivyParser` |
+| 21 | SonarQube JCasC | `unclassified.sonarglobalconfiguration.installations` | `sonarqube-plugin` 測試資源 |
+| 22 | BuildKit rootless | `moby/buildkit:v0.33.1-rootless`；`BUILDKITD_FLAGS=--oci-worker-no-process-sandbox`、seccomp／AppArmor Unconfined | `moby/buildkit` 範例 |
+| 23 | Kaniko | 原專案 2025-06-03 封存；Chainguard 維護分支 | GitHub API |
+| 24 | Helm 4 | 4.3.0；`--atomic` deprecated → `--rollback-on-failure`；`--wait` 預設 watcher | `helm/helm` 原始碼 |
+| 25 | 安全 JCasC | `oic`（含 `pkce`、`escapeHatch`）、`ldap`、`globalMatrix`、`roleBased`、`queueItemAuthenticator`、`contentSecurityPolicy.enforce`、`resourceRoot`、`audit-trail` 皆通過 check | 本機 schema 與 check |
+| 26 | JCasC 棄用設定 | `agentProtocols` 回報 deprecated；`crumbIssuer.standard.excludeClientIPFromCrumb` 回報為無效屬性 | 本機 check |
+| 27 | WebSocket CLI | 未設定 Jenkins URL 時握手回 403（`X-CLI-Error: Jenkins URL is not configured`） | 本機實測 |
+| 28 | 2026 安全公告 | 1–9 月 9 次，5 次影響 core（02-18、03-18、06-10、08-05、09-02） | `content/security/advisory/2026-*.adoc` |
+| 29 | Prometheus 指標名稱 | 第 19 章所列指標皆存在於本機 `/prometheus/` | 本機抓取 |
+| 30 | 工具版本 | Maven 3.9.16／3.10.0（2026-10-01）、Maven 4 仍為 RC；Gradle 9.8.0；Jib 3.5.2；Trivy 0.75.0；Syft 1.54.0；Grype 0.119.0；Cosign 3.1.3；Gitleaks 8.30.1；Argo CD 3.5.3；Argo Rollouts 1.10.0；CycloneDX Maven 2.9.3 | GitHub Releases、Docker Hub |
+| 31 | v1.0 Declarative 範例 | 42 個中 15 個驗證失敗：11 個語法錯誤（`when` 22 處、`environment` 2 處、字串 1 處、跳脫字元 1 處等）＋4 個僅工具名稱不存在 | 本機驗證端點 |
+| 32 | 學習資源 | 見 [D.6 v1.0 學習資源連結查證結果](#d6-v10-學習資源連結查證結果) | WebFetch、HTTP 狀態、網路搜尋 |
+
+**驗證過程中發現並修正的錯誤**（撰寫 v2.0 草稿時）：
+
+| 項目 | 發現方式 | 修正 |
+| --- | --- | --- |
+| GitLab Branch Source 的 `secretToken` | JCasC check 回報 deprecated | 改為 `webhookSecretCredentialsId`（8.3） |
+| Job DSL 範例缺少父 folder | DslScriptLoader 回報「unknown parent path」 | 補上 `folder('platform-ops')`（18.4） |
+| Coverage plugin README 的 `unstable: true` | 原始碼比對 | 改用 `criticality` |
+| Compose 中虛構的 `JENKINS_SECRET_FILE` | 比對 `docker-agent` 啟動腳本 | 改為 `JENKINS_SECRET=@檔案`（3.5） |
+| 職責分離範例依賴未安裝 plugin 的 `BUILD_USER_ID` | step 與變數檢查 | 改用 `currentBuild.getBuildCauses()`（16.2） |
+| 2026 安全公告影響 core 的次數 | 讀取公告原始檔 | 由「2 次」更正為「5 次」（17.9） |
+
+### G.1 待確認事項
+
+| # | 項目 | 狀態與後續 |
+| --- | --- | --- |
+| 1 | 2.580.2／2.580.3 與下一條 LTS 基準 | 預估 2.580.2 約 2026-10-28；發行後檢視 changelog 與升級指南，更新 1.3–1.5、20.3 |
+| 2 | Helm chart 對應 2.580.1 的 appVersion | 目前 5.9.64 的 appVersion 為 2.568.3；新版 chart 發行後更新 3.6、15.5 |
+| 3 | Weekly 中的實驗性新版 Dashboard／Job UI | 2.58x weekly 已加入初步實作；進入 LTS 時更新第 4 章 |
+| 4 | CloudBees CJE 認證現況 | 官方報名管道不明；確認後更新附錄 E |
+| 5 | Cosign v3 關閉公開透明度記錄的參數 | 文件範例仍有 `--tlog-upload=false`，但選項清單已無此參數；以實際版本 `--help` 確認後更新 21.4 |
+| 6 | 臺灣法規條號 | 資通安全管理法 2025 年修正後的子法條號、金管會「金融資安行動方案」最新版次、銀行公會自律規範全文，需以全國法規資料庫與主管機關公告確認（21.6） |
+| 7 | Udemy 課程頁面 | 網站拒絕自動化存取，D.2 所列課程需以瀏覽器人工確認 |
+| 8 | MSI 實際安裝結果 | `JENKINS_HOME` 與預設 heap 取自 MSI 原始碼，尚未以實際 Windows 安裝確認 |
+| 9 | Maven 3.10.0 | 2026-10-01 剛發行，相容性需以實際專案驗證後再列為基準 |
+| 10 | Kaniko 分支的長期維護 | 追蹤 Chainguard 分支的發行狀況（15.1） |
+| 11 | JenkinsPipelineUnit 對 Groovy 4 的支援 | 官方 issue #521 追蹤中 |
+| 12 | 上游文件與實作不一致 | GitLab Branch Source README（`secretToken`）、Coverage README（`unstable: true`）、Cosign 文件範例；上游更新後移除 v2.0 中的對應說明 |
+
+## 附錄 H：術語表
+
+| 術語 | 說明 |
+| --- | --- |
+| Agent | 執行建置的節點，透過 remoting 與 controller 連線（舊稱 slave） |
+| Agent → Controller 安全 | 限制 agent 對 controller 的存取，2.326 起永遠啟用 |
+| Artifact | 建置產物；大型產物應存放在外部儲存庫 |
+| Authorize Project | 讓建置以觸發者或指定使用者身分執行的 plugin |
+| Branch Source | Multibranch 用來掃描 repository 分支、PR、tag 的設定 |
+| Built-in node | Controller 本身的節點（舊稱 master node），不應執行建置 |
+| CloudBees CI | 以 Jenkins LTS 為基礎的商業發行版 |
+| Cloud（Jenkins） | 動態建立 agent 的設定（Kubernetes、EC2 等） |
+| Content Security Policy（CSP） | 限制網頁可載入資源的瀏覽器安全機制；2.541.1 起 Jenkins core 內建 |
+| Controller | Jenkins 主伺服器，負責 UI、排程、設定與 Pipeline 解譯（舊稱 master） |
+| CPS（Continuation Passing Style） | Pipeline 解譯 Groovy 的方式，讓 Pipeline 可在重啟後恢復 |
+| Credentials | 憑證；Pipeline 以 ID 引用 |
+| Declarative Pipeline | 結構固定、可驗證的 Pipeline 語法（`pipeline {}`） |
+| Detached plugin | 從 core 拆分出來的 plugin；2.580.1 起不再打包於 war |
+| Digest | 容器映像內容的 SHA-256 雜湊，部署時應以 digest 指定 |
+| DORA 指標 | 衡量軟體交付效能的指標：部署頻率、前置時間、變更失敗率、恢復時間、重工率 |
+| Durability | Pipeline 狀態寫入磁碟的頻率等級（`MAX_SURVIVABILITY`、`PERFORMANCE_OPTIMIZED` 等） |
+| Executor | Agent 上的執行槽 |
+| Folder | 組織 Job 的容器，可設定權限、憑證與 Library |
+| GitHub App | GitHub 的應用程式身分，用於 API 與 checkout 驗證 |
+| GitOps | 以 Git 為部署狀態的唯一來源，由叢集內控制器自動同步 |
+| Golden Path（黃金路徑） | 平台團隊提供的標準、安全的預設做法 |
+| `input` | Pipeline 的人工核准步驟 |
+| JCasC（Jenkins Configuration as Code） | 以 YAML 管理 Jenkins 系統設定 |
+| `JENKINS_HOME` | Jenkins 的資料目錄 |
+| Job DSL | 以 Groovy DSL 描述與建立 Job 的 plugin |
+| Label | 標記 agent 能力的標籤，Pipeline 以 label 表達式選擇 agent |
+| LTS（Long-Term Support） | 每 12 週選定基準、每 4 週發行修補版的穩定發行線 |
+| Milestone | 確保較新的建置通過後，較舊的建置不會在其後部署的機制 |
+| Multibranch Pipeline | 依 repository 的分支與 PR 自動建立 Pipeline 的 Job 類型 |
+| `@NonCPS` | 標記不經 CPS 轉換的方法，只能做純運算 |
+| Organization Folder | 掃描整個 GitHub organization／GitLab group 自動建立 Multibranch |
+| PIMT（Plugin Installation Manager Tool） | 依 `plugins.txt` 解析與下載 plugin 的官方工具（容器中的 `jenkins-plugin-cli`） |
+| Pipeline Graph View | Pipeline 視覺化 plugin，取代 Stage View 的建議選擇 |
+| PPE（Poisoned Pipeline Execution） | 透過修改 Pipeline 定義在 CI 中執行惡意程式碼的攻擊 |
+| Provenance | 描述產物如何、由誰、從哪些來源建置的中繼資料（SLSA） |
+| Remoting | Controller 與 agent 之間的通訊程式庫（`agent.jar`） |
+| Replay | 修改本次建置的 Pipeline 內容後重新執行的功能 |
+| Resource Root URL | 以獨立網域提供建置產物與報告，避免 XSS 影響 Jenkins |
+| SBOM（Software Bill of Materials） | 軟體物料清單，列出產物包含的所有元件 |
+| Script Approval | 管理員核准沙箱外方法呼叫的機制 |
+| Script Console | 以 controller 權限執行任意 Groovy 的管理介面 |
+| Scripted Pipeline | 以 `node {}` 為起點、彈性較高的 Pipeline 語法 |
+| Shared Library | 集中管理、可在多個 Pipeline 共用的 Groovy 程式庫 |
+| SLSA | 軟體供應鏈完整性框架（Supply-chain Levels for Software Artifacts） |
+| Stash | 在同一次 Pipeline 不同 stage／agent 間暫存傳遞的小型檔案 |
+| Update center | 提供 plugin 與版本資訊的服務（`updates.jenkins.io`） |
+| WebSocket agent | 透過 HTTP(S) WebSocket 連線的 inbound agent，不需額外 TCP 連接埠 |
+| Weekly | 每週發行、包含最新功能的發行線 |
+| Workspace | 建置執行時在 agent 上的工作目錄 |
+
+## 附錄 I：實作練習
+
+每個練習都有可驗證的完成標準，適合作為新進人員訓練或內部認證（[附錄 E：認證](#附錄-e認證)）。練習環境可依 [3.5 Docker／Podman 容器部署](#35-dockerpodman-容器部署) 的 Compose 範例在本機建立。
+
+### I.1 基礎（第 1–6 章）
+
+| # | 練習 | 完成標準 |
+| --- | --- | --- |
+| 1 | 以 WAR 在本機啟動 Jenkins 2.580.1，完成 Setup Wizard | `java -version` 顯示 21；Manage Jenkins → About 顯示 2.580.1 |
+| 2 | 以 Compose 啟動 controller＋WebSocket agent | Agent 顯示上線；built-in node executor 為 0；未掛載 `docker.sock` |
+| 3 | 以 PIMT 從 `plugins.txt` 建立 controller 映像 | `--view-security-warnings` 無警示；容器啟動後 plugin 清單與 `plugins.txt` 一致 |
+| 4 | 在 Script Console 執行 4.5 的唯讀腳本，輸出 plugin 清單 | 輸出可直接作為 `plugins.txt` 使用 |
+| 5 | 建立一個 Freestyle 維運 Job，再改寫為 Declarative Pipeline | 兩者行為一致；排程使用 `H` 與 `TZ=Asia/Taipei` |
+
+### I.2 Pipeline 開發（第 7–13 章）
+
+| # | 練習 | 完成標準 |
+| --- | --- | --- |
+| 6 | 以 `jenkins-docs/simple-java-maven-app` 建立 Multibranch Pipeline | PR 與主分支各自建置；PR 建置顯示在 SCM 的 commit status |
+| 7 | 撰寫包含 `options`、`when`、`parallel`、`post` 的 Jenkinsfile | 通過 `declarative-linter`；`when` 使用 `beforeAgent true` |
+| 8 | 以 `withCredentials` 使用 Secret text，並故意用雙引號內插一次 | 觀察到「A secret was passed to "sh" using Groovy String interpolation」警告，改為單引號後警告消失 |
+| 9 | 加入 `junit`、`recordCoverage`、`recordIssues` 與品質門檻 | 故意加入一個失敗測試時建置變為 UNSTABLE，後續 stage 因 `skipStagesAfterUnstable()` 被略過 |
+| 10 | 撰寫 `matrix` 在 JDK 17／21 上測試 | 兩個組合平行執行並各自產生測試報告 |
+| 11 | 建立 Shared Library：`vars/mavenBuild.groovy`＋JenkinsPipelineUnit 測試 | Library CI 中測試通過；Jenkinsfile 以 `@Library('...@v1.0.0') _` 呼叫 |
+| 12 | 以 Replay 修改一次建置的 Jenkinsfile 驗證修正 | 修正確認後再提交到 Git |
+
+### I.3 平台與部署（第 14–16 章）
+
+| # | 練習 | 完成標準 |
+| --- | --- | --- |
+| 13 | 在 kind／k3d 叢集以 Helm 安裝 Jenkins，並以 JCasC 設定 Kubernetes cloud | Pipeline 以 `agent { kubernetes { ... } }` 執行，結束後 Pod 自動刪除 |
+| 14 | 以 BuildKit rootless 建置並推送映像到本機 registry | 不使用 `docker.sock`、不使用 privileged；取得映像 digest |
+| 15 | 以 Helm 部署到 SIT namespace，加入 stage 層級 `input` 與 `timeout` 部署到 UAT | 核准人寫入建置描述；逾時時建置為 ABORTED |
+| 16 | 以 GitOps 方式更新部署 repository 的映像 digest | Jenkins 不持有叢集憑證；Argo CD 同步成功 |
+
+### I.4 營運與治理（第 17–21 章）
+
+| # | 練習 | 完成標準 |
+| --- | --- | --- |
+| 17 | 以 JCasC 設定 OIDC（例如本機 Keycloak）與 Role-based 授權 | 開發者帳號只能操作自己團隊的 folder；破窗帳號可登入 |
+| 18 | 啟用 Authorize Project，驗證 `build job:` 受觸發者權限限制 | 無權限的使用者觸發時下游 Job 失敗 |
+| 19 | 以 Job DSL seed 建立 folder 與 Organization Folder | 刪除 DSL 中的項目後，seed 執行會依移除策略處理 |
+| 20 | 設定 Prometheus 抓取 `/prometheus/` 並建立 19.2 的告警規則 | `promtool check rules` 通過；停止 agent 後觸發告警 |
+| 21 | 執行 20.1 的備份腳本並在另一台主機還原 | 憑證可正常使用；記錄實際 RTO |
+| 22 | 在預備環境模擬一次 LTS 升級（例如 2.568.3 → 2.580.1） | 依 24.5 檢查清單完成，並寫出升級報告 |
+| 23 | 為映像產生 SBOM、執行 Trivy 掃描並以 Cosign 簽章 | `cosign verify` 成功；Warnings NG 顯示掃描結果 |
+
+### I.5 綜合專題
+
+以一個包含前端（Node.js）、後端（Spring Boot）、資料庫遷移（Flyway）的專案，完成以下整條流程，並以 [24.2 Pipeline 品質](#242-pipeline-品質)、[24.3 安全基準](#243-安全基準) 的檢查清單自我評分：
+
+1. Organization Folder 自動納管，PR 建置 10 分鐘內完成
+2. 品質門檻：新增程式碼覆蓋率 ≥ 80%、無新增高風險靜態分析問題、無 Critical 弱點
+3. 主分支產生映像、SBOM、簽章，並以 digest 部署 SIT
+4. Tag 經核准後以 Canary 部署到模擬的正式環境，失敗時自動中止
+5. 所有設定（JCasC、Job DSL、Shared Library、`plugins.txt`）都在 Git，能在 1 小時內重建平台
