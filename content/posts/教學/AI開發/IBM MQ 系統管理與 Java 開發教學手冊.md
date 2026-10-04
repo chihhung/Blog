@@ -2,7066 +2,8921 @@
 date = '2026-10-04T21:56:57+08:00'
 draft = false
 title = 'IBM MQ 系統管理與 Java 開發教學手冊'
-tags = ['教學', 'AI開發', 'DevSecOps', 'Trivy', 'SBOM', 'Kubernetes', 'Supply Chain Security']
+tags = ['教學', 'AI開發', 'IBM MQ', 'Java', 'Spring Boot', 'Jakarta Messaging', 'z/OS', 'MQ Agent', '逆向工程', '框架升級']
 categories = ['教學']
 +++
 
-# Trivy 企業級 AI Agent 軟體開發安全掃描教學手冊
+# IBM MQ 系統管理與 Java 開發教學手冊
 
-> **Version**：1.1
-> **Updated**：2026-10-03
-> **Applicable Trivy Version**：**v0.75.0**（2026-10-01 發布，GitHub Release 標示為 Latest、Immutable Release）
-> **相關元件版本**：trivy-action **v0.36.0**（`action.yaml` 預設安裝 Trivy **v0.70.0**，必須以 `version: v0.75.0` 明確指定）、setup-trivy **v0.3.1**（安全下限 ≥ v0.2.6，**避開 v0.3.0**）、Trivy Operator **v0.34.0**（Helm Chart 0.36.0，內建 Trivy 0.74.0）、Trivy Server Helm Chart **0.27.0**（Trivy 0.75.0）、trivy-aws plugin **v0.15.1**、trivy-mcp plugin **v0.0.20**
-> **Audience**：PM、SA、Software Architect、Frontend / Backend Developer、DevOps、DevSecOps、Security Engineer、AI Engineer、AI Agent Developer、Platform Team、Reviewer
-> **文件狀態**：所有 CLI、參數、Target、Scanner、報告格式皆對照 Trivy 官方文件（trivy.dev/docs/latest）、GitHub Release、CHANGELOG 與 Security Advisory 查證。**官方文件未說明者一律標示「官方資料未說明」，不推測、不補完。**
+> **文件版本**：1.1
+> **資訊確認日期**：2026-10-03
+> **IBM MQ 基準版本**：**IBM MQ 10.0（LTS，2026-06 GA）**；同時標示 9.3 / 9.4 的差異
+> **Java 基準版本**：**Java 25（LTS）**為主要範例環境，並標示 Java 17 / 21 差異
+> **Spring Boot 基準版本**：**Spring Boot 4.x**（Spring Framework 7.x、Jakarta EE 11）為主，並說明 3.x 差異
+> **Java Messaging API**：IBM MQ classes for Jakarta Messaging 3.0（新開發首選）、IBM MQ classes for JMS 2.0（維護既有系統）、IBM MQ classes for Java（功能凍結，僅維護）
+> **適用對象**：Java 開發人員、前後端工程師、SA、軟體架構師、IBM MQ 系統管理員、DevOps / DevSecOps、維運人員、PM / Technical PM、Legacy 維護人員、逆向工程人員、Framework 升級團隊、AI Coding Agent 使用者
+> **文件狀態**：版本資訊均對照 IBM 官方文件（IBM Documentation，IBM MQ 10.0.x）與 IBM 官方 GitHub（ibm-messaging）查證。**查不到或可能隨修補版變動的資訊，一律標示「需依目前 IBM 官方文件確認」，不猜測、不補完。**
+
+## 版本查證摘要（2026-10-03）
+
+以下為撰寫本手冊時，從 IBM 官方來源確認的關鍵事實。後續章節的版本相關描述皆以此為基準。
+
+| 項目 | 查證結果 | 來源 |
+|------|----------|------|
+| IBM MQ 10.0.0 定位 | 為 IBM MQ 9.4.0 之後的 **LTS** 版本，也是 9.4.5（9.4 最後一個 CD）之後的 **CD** 版本 | IBM Docs：What's new and changed in IBM MQ 10.0.0 |
+| 10.0 包含的功能 | 包含 9.4.1～9.4.5 各 CD 版本累積的功能，再加上 10.0 新增功能 | 同上 |
+| 交付模型 | 自 9.0 起採 LTS（長期穩定、只修缺陷與安全）與 CD（快速交付新功能）雙軌 | 同上 |
+| Java API 種類 | 三組：IBM MQ classes for Jakarta Messaging、IBM MQ classes for JMS、IBM MQ classes for Java | IBM Docs：IBM MQ Java language interfaces |
+| IBM MQ classes for Java | **自 MQ 8.0 起功能凍結（Stabilized）**；仍完整支援，但不再新增功能 | 同上 |
+| IBM MQ classes for JMS | 支援 JMS 2.0；**官方建議僅用於維護與延伸既有 JMS 2.0 應用** | 同上 |
+| IBM MQ classes for Jakarta Messaging | 自 MQ 9.3.0 起支援 Jakarta Messaging 3.0；**官方建議為新開發首選** | 同上 |
+| Java API 建置等級 | 自 MQ 9.3 起三組 Java API 皆以 Java 8 建置，執行環境須為 Java 8 以上 | 同上 |
+| 10.0 安全性變更 | 移除 SSLv3、TLS 1.0、RC4、3DES CipherSpec；RSA key exchange CipherSpec 列為 Deprecated；IBM Semeru Runtime 25 停用 `TLS_RSA_*`；新增最小 RSA 金鑰長度限制；User ID 驗證更嚴格並支援更長 User ID | IBM Docs：What's changed in IBM MQ 10.0.0 |
+| 10.0 新增安全能力 | TLS 支援 FIPS 203 ML-KEM（抗量子）key share、多 certificate label、GSKit 9、`dspmqcert` 檢查憑證到期、HTTPS 取得 CCDT、JWKS | IBM Docs：What's new 10.0.0 |
+| 10.0 HA 能力 | Native HA In-Region Replication（IRR）、Cross-Region Replication（CRR）、Native HA 詳細狀態檢視；Native HA 在 Linux（非容器）可用 | 同上 |
+| Spring Boot Starter | `com.ibm.mq:mq-jms-spring-boot-starter` **v4.1.0** 對應 **MQ 10.0 與 Spring Boot 4.1.0**；**3.5.15 為 Spring Boot 3 最後一版**；2.7.18 為 Spring Boot 2 最後一版 | GitHub：ibm-messaging/mq-jms-spring |
+| Starter 預設行為 | 未設定 `spring.jms.listener.receiveTimeout` 時，starter 會把 polling 逾時調為 30 秒；預設帳密已移除，須明確設定 | 同上 |
+| Starter 新屬性 | JWT `ibm.mq.tokenServer.*`（由 Client 自動向 Token Server 取得 Token）、`ccdtSslBundle` / `ccdtHttpsCertValPolicy`（HTTPS CCDT）、`balancing*`（Uniform Cluster）、trace 屬性、`additionalProperties`；`ibm.mq.jks.*` 已標示 deprecated，改用 Spring SSL Bundle | 同上 |
+| IBM MQ Agent | 10.0 文件新增的獨立下載元件：容器化 AI Agent + MCP Server，可連最多 20 個 Queue Manager，**只能查詢與推理、不能執行 MQSC**；授權隨 IBM MQ Advanced 或 Cloud Pak for Integration | IBM Docs：IBM MQ Agent |
+| 10.0 管理變更 | Native HA 詳細狀態檢視；可用程式（PCF）讀取 Error Log；變更 QM CCSID 可能需 force 選項；MQ Console 強化；RDQM 複寫連線可設 TLS（Advanced） | IBM Docs：What's new / changed 10.0.0 |
+| 10.0 開發變更 | 短生命週期 Java / JMS 容器的 trace；JMS Selector 可使用 MsgToken；多個 JMS 連線可視為單一應用實例；JWT endpoint；JMS keepalive 可自訂；Semeru 21 / 25 檔案編碼變更；Client 預設 TCP buffer 變更；.NET 10 | 同上 |
+| 10.0 其他變更 | 憑證標籤含空白或逗號須跳脫；EKU 強化；MQIPT 移除 Java Security Manager 支援並調整 CipherSuite；Kafka Connect 與 Kafka Connect XML Converter（Advanced）；z/OS 整合 OpenTelemetry tracing、OUTBUFF 上限提高、GB18030 最新標準 | 同上 |
+
+> **需依目前 IBM 官方文件確認的項目**：`com.ibm.mq.jakarta.client` / `com.ibm.mq.allclient` 的確切修補版號（本手冊以 `10.0.0.x` 示意）、各平台詳細系統需求（OS / JDK / 容器平台版本矩陣）、Container image 的實際 tag、MQ Operator 版本對應、10.0 修補版（Fix Pack / CSU）內容。請以 [System Requirements for IBM MQ](https://www.ibm.com/support/pages/system-requirements-ibm-mq) 與 IBM MQ 10.0 Readme 為準。
+
+## 修訂紀錄
+
+| 版本 | 日期 | 修訂內容 |
+|------|------|----------|
+| 1.0 | 2026-10-03 | 初版：46 個 Part、32 個 AI Prompt、Quick Reference 與企業標準 |
+| 1.1 | 2026-10-03 | 依 IBM MQ 10.0 官方 Technical overview / Administering / Developing applications 逐章比對後補強：IBM MQ 物件全集、產品家族、官方文件對照表、MQI Client 與 CCDT、Exits 與 Installable Services、擴充元件（MFT / MQIPT / AMQP / MQTT / Multicast / Kafka Connect）、Streaming Queue、z/OS 架構與管理、Transaction 協調、Message Property 與 Selector、命令集比較、遠端管理、PCF、Administrative REST API、Console / Explorer、AMS、RACF、多語言支援、Messaging REST API、應用設計考量、10.0 Java / JMS 新能力、進階 JMS 2.0、MQ 與 Kafka 整合、IBM MQ Agent、SMF / OpenTelemetry、QSG 可用性；修正 JMS Delivery Delay 敘述；新增 P33、P34；重建目錄 |
 
 ---
 
 ## 關於本手冊
 
-### 這份手冊要解決的問題
+### 這份手冊要回答的問題
 
-市面上大部分 Trivy 文章只回答一個問題：「`trivy image` 怎麼下？」。這個問題花十分鐘就能學會。
+IBM MQ 的 API 不難學：`MQCONN`、`MQOPEN`、`MQPUT`、`MQGET`，一個下午就能寫出第一支 Producer。
 
-本手冊要回答的是企業真正卡關的問題：
+真正困難的問題是：
 
-> **當 AI Coding Agent 每天替團隊產出數千行程式碼、升級數十個相依套件、修改 Dockerfile 與 Kubernetes YAML 時，如何讓 Trivy 成為「每一次變更都必須通過」的標準 Security Control，而且這道控制本身不會被 AI Agent 為了讓 Pipeline 變綠而關掉？**
+> **一個同時維護十幾套 Legacy 系統、正在把 Spring Boot 3 升到 4、而且已經大量使用 GitHub Copilot 與 Claude Code 寫程式的企業 Java 團隊，要怎麼把 IBM MQ 做到「不掉訊息、不重複扣款、出事查得到、升級不翻車、AI 不亂動 Production」？**
 
-這個問題底下有四個層次：
+這個問題底下藏著五件事：
 
-1. **工具層**：Trivy 能掃什麼（Target）、找出什麼（Scanner）、輸出什麼（Report）。
-2. **流程層**：什麼時候掃、在哪裡掃、掃完由誰處理（SSDLC、CI/CD、Security Gate）。
-3. **AI Agent 層**：AI Agent 如何讀懂掃描結果、哪些可以自動修、哪些必須等人核准。
-4. **治理層**：Exception、到期日、Owner、稽核、升級、KPI。
+1. **訊息系統的錯誤通常不會立刻爆炸。** 一個沒有設 Backout Queue 的 Consumer，可能在某天凌晨遇到一筆格式錯誤的訊息，然後無限重試、塞住整條佇列，直到早上客服電話響起。
+2. **MQ 的 Transaction 不是 DB 的 Transaction。** 「先扣款再送 MQ」與「先送 MQ 再扣款」各有不同的失敗模式；以為兩者會自動一致，是金融系統最常見的事故根源之一。
+3. **Legacy 系統的 MQ 設計通常沒有文件。** 佇列名稱寫死在十年前的程式裡，Channel 設定只存在 MQ 管理員的腦袋裡，訊息格式只能從 COBOL Copybook 反推。
+4. **升級是連鎖反應。** Java 8 → 25、`javax.jms` → `jakarta.jms`、MQ Client 9.1 → 10.0、TLS 1.2 RSA CipherSpec 被淘汰——任何一環沒驗證，Production 就會出現 `2393` 或 `2035`。
+5. **AI Agent 寫 MQ 程式很快，但它不知道哪個 Queue 是 Production 的。** 必須有一套治理機制，讓 AI 能分析、能產生、能測試，但不能未經核准就碰 Production。
 
-### 本手冊的標示慣例
+本手冊的核心主張：
 
-為避免把「企業建議」誤認為「Trivy 官方規範」，全書使用以下標籤：
+> **IBM MQ 不是「另一個傳訊息的函式庫」，而是企業系統之間的「可靠性契約」。要把它做好，必須同時處理架構、程式、設定、安全、維運與治理六個面向，而 AI Agent 必須被納入這個契約，而不是凌駕於它之上。**
 
-| 標籤 | 意義 | 範例 |
-|------|------|------|
-| **【官方】** | Trivy 官方文件或原始碼明確支援的功能與行為 | `trivy image --format cyclonedx` |
-| **【官方·Experimental】** | 官方標示 EXPERIMENTAL，可能在後續版本不相容變更 | `trivy k8s`、`--vex`、crypto scanner |
-| **【企業建議】** | 本手冊依企業實務提出的做法，**不是** Trivy 規範 | CRITICAL 且有 Fixed Version 即 Fail |
-| **【AI Agent 流程】** | 本手冊為 AI Agent 設計的作業流程 | Scan → Understand → Fix → Verify |
-| **【Security Policy】** | 須由企業 Security Team 核定的政策，本手冊僅提供範本 | Exception 最長效期 |
+### 手冊結構
 
-### 2026 年必須知道的三件事
+```mermaid
+flowchart LR
+    A["第一篇<br/>基礎與架構<br/>Part 1-3"] --> B["第二篇<br/>安裝與系統管理<br/>Part 4-8"]
+    B --> C["第三篇<br/>Java 開發與整合<br/>Part 9-16"]
+    C --> D["第四篇<br/>逆向工程與升級<br/>Part 17-21"]
+    D --> E["第五篇<br/>維運、品質與 DevOps<br/>Part 22-29"]
+    E --> F["第六篇<br/>AI Agent 工程化<br/>Part 30-42"]
+    F --> G["第七篇<br/>企業標準<br/>Part 43-46"]
+    G --> H["附錄<br/>Quick Reference<br/>Checklist"]
+```
 
-| 事件 | 影響 | 本手冊對應章節 |
-|------|------|----------------|
-| **2026-03 Trivy 生態系供應鏈遭入侵**（GHSA-69fq-xp46-6x23 / CVE-2026-33634） | 惡意 v0.69.4、trivy-action 76/77 個 tag 被竄改、setup-trivy 全部 tag 被竄改 | 第 14、20、41、45 章 |
-| **v0.53 起 `trivy aws` 移出核心** | Cloud 掃描改由 trivy-aws plugin 提供 | 第 12 章 |
-| **v0.75 新增 crypto scanner（CBOM）** | 可盤點容器映像中的憑證與金鑰，屬 Experimental | 第 4、6 章 |
+### 依角色建議的閱讀路線
 
-### 建議閱讀路線
+| 角色 | 必讀 | 建議 | 可略讀 |
+|------|------|------|--------|
+| Java 開發人員 | Part 1-3、9-16、28、34、43 | 22-25、30-31 | 4、26 |
+| 前後端工程師 | Part 1、14-16、43 | 12、15 | 4-8、26 |
+| SA / 系統分析師 | Part 1-3、14-17、37 | 6、33 | 10-11 |
+| 軟體架構師 | Part 1-3、6-8、13-17、26、37、45-46 | 全部 | — |
+| IBM MQ 系統管理員 | Part 2-8、21-27、36 | 29-30、41；5.13、8.12（有主機時） | 10-12 |
+| z/OS MQ 系統管理員 | Part 1.19、2.10、5.13、8.12、24.7、26.9 | 2.6、3.12、21、36 | 10-12、27 |
+| DevOps / DevSecOps | Part 4、8、21、27-29、36 | 22-26 | 10-11 |
+| 維運人員 | Part 5、22-24、36 | 8、26；23.6 IBM MQ Agent | 9-13 |
+| PM / Technical PM | Part 1、14、20-21、36-41 | 26 | 10-13 |
+| Legacy 維護人員 | Part 3、5、17-19、23 | 20-21 | 12 |
+| 逆向工程人員 | Part 17-19、33、42 | 3、23 | 4、26 |
+| Framework 升級團隊 | Part 9、20-21、44、IBM MQ Quick Reference | 28-29 | 4 |
+| AI Coding Agent 使用者 | Part 18-19、30-42 | 23.6、34-35 | 4、26 |
 
-| 角色 | 必讀章節 | 選讀章節 |
-|------|----------|----------|
-| PM / SA | 1、2、3、31、57、58、59、61 | 36、37 |
-| Architect | 2、3、13、32、35、60 | 24、25、36 |
-| Developer | 4–9、14、16、21–23、46 | 44、45、51、52 |
-| DevOps / Platform | 14、15、17、18、19、20、40、41、43 | 10、11、44 |
-| DevSecOps / Security | 5–12、16、38、39、55、59 | 33、34、36 |
-| AI Engineer / AI Agent Developer | 26–30、42、47–49、54、55、附錄 F | 24、25 |
+### 版本差異標示規則
 
-### 變更紀錄
+本手冊用下列標記區分版本差異：
 
-| 版本 | 日期 | 變更摘要 |
-|------|------|----------|
-| 1.1 | 2026-10-03 | 修正 trivy-action 預設 Trivy 版本（v0.70.0）；setup-trivy 改以 v0.3.1 為範例並註明 v0.3.0 不可用；補 Operator 內建版本、Trivy Server Helm Chart；補 v0.70–v0.75 版本差異；新增 Trivy MCP Server（26.4–26.6、30.4、附錄 F）、VS Code Extension（14.10）、偵測覆蓋範圍（5.9）、VEX OCI 探索；第 34、42、45、54、55、56、60 章拆分子節；第 51–58、60、61 章補實務案例 / 注意事項 |
-| 1.0 | 2026-10-03 | 初版（以 Trivy v0.75.0 為基準） |
+| 標記 | 意義 |
+|------|------|
+| `[MQ 10.0]` | IBM MQ 10.0 新增或變更的行為 |
+| `[MQ 9.4 CD]` | 9.4.1～9.4.5 CD 首次出現、10.0 LTS 首次納入的功能 |
+| `[MQ 9.4]` | 9.4.0 LTS 起可用 |
+| `[MQ 9.3+]` | 9.3 起可用 |
+| `[Java 17]` / `[Java 21]` / `[Java 25]` | 該寫法需要的最低 Java 版本 |
+| `[Boot 3]` / `[Boot 4]` | Spring Boot 主版本差異 |
+| `[需確認]` | 需依目前 IBM / Spring 官方文件確認 |
+
+### 環境分級原則
+
+本手冊所有範例都會明確標示適用環境。**Demo 做法不等於 Production 標準。**
+
+| 環境 | 目的 | 允許事項 | 禁止事項 |
+|------|------|----------|----------|
+| Development（DEV） | 個人開發、單元測試 | MQ Developer 容器、自簽憑證、寬鬆權限 | 使用 Production 資料 |
+| Test / SIT | 整合測試 | 共用 Queue Manager、測試用 CA | 使用 Production 憑證或帳號 |
+| UAT | 使用者驗收、效能測試 | 與 Production 同等設定（TLS、CHLAUTH、OAM） | 直接修改設定而未經變更流程 |
+| Production（PROD） | 正式營運 | 僅經核准的變更 | AI Agent 或個人未經核准的任何變更 |
+
+### 不可直接抄貼原則
+
+本手冊參考 IBM 官方文件後，以「理解 → 分析 → 重組 → 教學化 → 實務化 → AI Agent 化」的方式重新撰寫。必要的官方術語、命令名稱與參數保留原文；所有說明、案例、架構建議與檢查清單為重新組織的內容。**官方命令的完整語法與所有參數，仍以 IBM Documentation 的 MQSC / Control Commands Reference 為準。**
 
 ---
 
 ## 目錄
 
+- [版本查證摘要（2026-10-03）](#版本查證摘要2026-10-03)
+- [修訂紀錄](#修訂紀錄)
 - [關於本手冊](#關於本手冊)
-  - [這份手冊要解決的問題](#這份手冊要解決的問題)
-  - [本手冊的標示慣例](#本手冊的標示慣例)
-  - [2026 年必須知道的三件事](#2026-年必須知道的三件事)
-  - [建議閱讀路線](#建議閱讀路線)
-  - [變更紀錄](#變更紀錄)
-- [1. 文件說明](#1-文件說明)
-  - [1.1 文件目的](#11-文件目的)
-  - [1.2 適用對象](#12-適用對象)
-  - [1.3 適用系統](#13-適用系統)
-  - [1.4 適用開發流程](#14-適用開發流程)
-  - [1.5 Trivy 在企業 SSDLC 中的角色](#15-trivy-在企業-ssdlc-中的角色)
-  - [1.6 Trivy 與 AI Agent 的關係](#16-trivy-與-ai-agent-的關係)
-  - [1.7 本文件使用的 Trivy 版本](#17-本文件使用的-trivy-版本)
-  - [1.8 v0.53 以後的重要版本差異](#18-v053-以後的重要版本差異)
-  - [1.9 文件更新策略](#19-文件更新策略)
-  - [實務案例](#實務案例)
-  - [注意事項](#注意事項)
-- [2. Trivy 是什麼](#2-trivy-是什麼)
-  - [2.1 Trivy 定位](#21-trivy-定位)
-  - [2.2 發展背景與 Aqua Security](#22-發展背景與-aqua-security)
-  - [2.3 Trivy 的五個核心領域](#23-trivy-的五個核心領域)
-  - [2.4 Trivy 與各類安全工具的差異](#24-trivy-與各類安全工具的差異)
-  - [2.5 Trivy 不是什麼](#25-trivy-不是什麼)
-  - [2.6 Trivy 的價值與限制總表](#26-trivy-的價值與限制總表)
-  - [實務案例](#實務案例-1)
-  - [注意事項](#注意事項-1)
-- [3. Trivy 核心概念](#3-trivy-核心概念)
-  - [3.1 六大要素](#31-六大要素)
-  - [3.2 Trivy Overall Architecture](#32-trivy-overall-architecture)
-  - [3.3 Target × Scanner Matrix](#33-target--scanner-matrix)
-  - [3.4 Scan Flow](#34-scan-flow)
-  - [3.5 CI/CD Flow](#35-cicd-flow)
-  - [3.6 AI Agent Integration Flow](#36-ai-agent-integration-flow)
-  - [3.7 Trivy 的三種執行模式](#37-trivy-的三種執行模式)
-  - [實務案例](#實務案例-2)
-  - [注意事項](#注意事項-2)
-- [4. Trivy Targets](#4-trivy-targets)
-  - [4.1 Container Image](#41-container-image)
-  - [4.2 Filesystem](#42-filesystem)
-  - [4.3 Git Repository](#43-git-repository)
-  - [4.4 Rootfs](#44-rootfs)
-  - [4.5 Virtual Machine Image（Experimental）](#45-virtual-machine-imageexperimental)
-  - [4.6 Kubernetes](#46-kubernetes)
-  - [4.7 SBOM](#47-sbom)
-  - [4.8 Dockerfile / IaC / Terraform / Kubernetes YAML](#48-dockerfile--iac--terraform--kubernetes-yaml)
-  - [4.9 Cryptographic Asset（v0.75 新增，Experimental）](#49-cryptographic-assetv075-新增experimental)
-  - [實務案例](#實務案例-3)
-  - [注意事項](#注意事項-3)
-- [5. Vulnerability Scanner](#5-vulnerability-scanner)
-  - [5.1 基本概念](#51-基本概念)
-  - [5.2 Severity](#52-severity)
-  - [5.3 CVSS](#53-cvss)
-  - [5.4 Vulnerability Status](#54-vulnerability-status)
-  - [5.5 EOL 偵測](#55-eol-偵測)
-  - [5.6 偵測精準度](#56-偵測精準度)
-  - [5.7 VEX](#57-vex)
-  - [5.8 企業處理流程：Block / Warn / Monitor / Accept](#58-企業處理流程block--warn--monitor--accept)
-  - [5.9 v0.69–v0.75 新增的偵測覆蓋範圍](#59-v069v075-新增的偵測覆蓋範圍)
-  - [實務案例](#實務案例-4)
-  - [注意事項](#注意事項-4)
-- [6. SBOM](#6-sbom)
-  - [6.1 SBOM 是什麼](#61-sbom-是什麼)
-  - [6.2 為什麼需要 SBOM](#62-為什麼需要-sbom)
-  - [6.3 支援格式](#63-支援格式)
-  - [6.4 SBOM Generation](#64-sbom-generation)
-  - [6.5 SBOM Consumption 與 SBOM Vulnerability Scanning](#65-sbom-consumption-與-sbom-vulnerability-scanning)
-  - [6.6 SBOM Attestation](#66-sbom-attestation)
-  - [6.7 KBOM 與 CBOM](#67-kbom-與-cbom)
-  - [6.8 供應鏈流程](#68-供應鏈流程)
-  - [6.9 SBOM 管理建議](#69-sbom-管理建議)
-  - [實務案例](#實務案例-5)
-  - [注意事項](#注意事項-5)
-- [7. Misconfiguration / IaC Security](#7-misconfiguration--iac-security)
-  - [7.1 IaC 與 Misconfiguration](#71-iac-與-misconfiguration)
-  - [7.2 基本範例](#72-基本範例)
-  - [7.3 Dockerfile 範例](#73-dockerfile-範例)
-  - [7.4 Kubernetes YAML 範例](#74-kubernetes-yaml-範例)
-  - [7.5 Terraform 範例](#75-terraform-範例)
-  - [7.6 Inline Ignore 與自訂規則](#76-inline-ignore-與自訂規則)
-  - [7.7 不要把所有 Misconfiguration 都當成漏洞](#77-不要把所有-misconfiguration-都當成漏洞)
-  - [實務案例](#實務案例-6)
-  - [注意事項](#注意事項-6)
-- [8. Secret Scanner](#8-secret-scanner)
-  - [8.1 偵測對象](#81-偵測對象)
-  - [8.2 基本範例](#82-基本範例)
-  - [8.3 Secret Configuration（trivy-secret.yaml）](#83-secret-configurationtrivy-secretyaml)
-  - [8.4 False Positive](#84-false-positive)
-  - [8.5 重要安全原則](#85-重要安全原則)
-  - [8.6 Secret 事件處理流程](#86-secret-事件處理流程)
-  - [8.7 Git History 與 CI/CD Secret](#87-git-history-與-cicd-secret)
-  - [實務案例](#實務案例-7)
-  - [注意事項](#注意事項-7)
-- [9. License Scanner](#9-license-scanner)
-  - [9.1 基本概念](#91-基本概念)
-  - [9.2 Trivy 的 License 分類](#92-trivy-的-license-分類)
-  - [9.3 範例](#93-範例)
-  - [9.4 License 的治理原則](#94-license-的治理原則)
-  - [實務案例](#實務案例-8)
-  - [注意事項](#注意事項-8)
-- [10. Kubernetes Security](#10-kubernetes-security)
-  - [10.1 掃描範圍](#101-掃描範圍)
-  - [10.2 基本指令](#102-基本指令)
-  - [10.3 必要權限](#103-必要權限)
-  - [10.4 Compliance](#104-compliance)
-  - [10.5 KBOM](#105-kbom)
-  - [10.6 架構](#106-架構)
-  - [實務案例](#實務案例-9)
-  - [注意事項](#注意事項-9)
-- [11. Trivy Operator](#11-trivy-operator)
-  - [11.1 概念](#111-概念)
-  - [11.2 報告類型](#112-報告類型)
-  - [11.3 安裝](#113-安裝)
-  - [11.4 Trivy CLI vs Trivy Operator](#114-trivy-cli-vs-trivy-operator)
-  - [實務案例](#實務案例-10)
-  - [注意事項](#注意事項-10)
-- [12. Cloud Security](#12-cloud-security)
-  - [12.1 先講清楚：Trivy 目前的 Cloud 能力](#121-先講清楚trivy-目前的-cloud-能力)
-  - [12.2 trivy-aws plugin](#122-trivy-aws-plugin)
-  - [12.3 以 IaC 左移取代事後掃描](#123-以-iac-左移取代事後掃描)
-  - [實務案例](#實務案例-11)
-  - [注意事項](#注意事項-11)
-- [13. Trivy 系統架構](#13-trivy-系統架構)
-  - [13.1 完整架構](#131-完整架構)
-  - [13.2 元件說明](#132-元件說明)
-  - [13.3 Client / Server 模式](#133-client--server-模式)
-  - [實務案例](#實務案例-12)
-  - [注意事項](#注意事項-12)
-- [14. Trivy 安裝](#14-trivy-安裝)
-  - [14.1 先讀這一段：2026-03 供應鏈事件](#141-先讀這一段2026-03-供應鏈事件)
-  - [14.2 安裝方式總覽](#142-安裝方式總覽)
-  - [14.3 Windows](#143-windows)
-  - [14.4 Linux](#144-linux)
-  - [14.5 macOS](#145-macos)
-  - [14.6 Docker / Container](#146-docker--container)
-  - [14.7 CI/CD Runner](#147-cicd-runner)
-  - [14.8 Kubernetes](#148-kubernetes)
-  - [14.9 版本驗證](#149-版本驗證)
-  - [14.10 開發者工具：VS Code Extension 與 MCP Plugin](#1410-開發者工具vs-code-extension-與-mcp-plugin)
-  - [實務案例](#實務案例-13)
-  - [注意事項](#注意事項-13)
-- [15. Trivy Configuration](#15-trivy-configuration)
-  - [15.1 三種設定來源與優先順序](#151-三種設定來源與優先順序)
-  - [15.2 產生預設設定檔](#152-產生預設設定檔)
-  - [15.3 常用設定項目](#153-常用設定項目)
-  - [15.4 企業建議設定範例](#154-企業建議設定範例)
-  - [15.5 CI 中避免被 Repo 內設定檔左右](#155-ci-中避免被-repo-內設定檔左右)
-  - [實務案例](#實務案例-14)
-  - [注意事項](#注意事項-14)
-- [16. .trivyignore](#16-trivyignore)
-  - [16.1 Why：為什麼需要 Ignore](#161-why為什麼需要-ignore)
-  - [16.2 兩種格式](#162-兩種格式)
-  - [16.3 治理要求](#163-治理要求)
-  - [16.4 CI 自動檢查 Ignore 檔](#164-ci-自動檢查-ignore-檔)
-  - [實務案例](#實務案例-15)
-  - [注意事項](#注意事項-15)
-- [17. Trivy Database / Cache](#17-trivy-database--cache)
-  - [17.1 三種資料來源](#171-三種資料來源)
-  - [17.2 常用指令](#172-常用指令)
-  - [17.3 Cache](#173-cache)
-  - [17.4 企業環境的五個問題](#174-企業環境的五個問題)
-  - [17.5 Proxy 與企業 CA](#175-proxy-與企業-ca)
-  - [實務案例](#實務案例-16)
-  - [注意事項](#注意事項-16)
-- [18. Report Format](#18-report-format)
-  - [18.1 支援格式](#181-支援格式)
-  - [18.2 依用途分類](#182-依用途分類)
-  - [18.3 一次掃描、多種輸出：trivy convert](#183-一次掃描多種輸出trivy-convert)
-  - [18.4 Template](#184-template)
-  - [18.5 SARIF 與 GitHub Code Scanning](#185-sarif-與-github-code-scanning)
-  - [18.6 給 AI Agent 的 JSON 摘要](#186-給-ai-agent-的-json-摘要)
-  - [實務案例](#實務案例-17)
-  - [注意事項](#注意事項-17)
-- [19. CI/CD 整合](#19-cicd-整合)
-  - [19.1 標準 Pipeline](#191-標準-pipeline)
-  - [19.2 官方整合清單](#192-官方整合清單)
-  - [19.3 GitLab CI](#193-gitlab-ci)
-  - [19.4 Jenkins](#194-jenkins)
-  - [19.5 Azure DevOps](#195-azure-devops)
-  - [實務案例](#實務案例-18)
-  - [注意事項](#注意事項-18)
-- [20. GitHub Actions](#20-github-actions)
-  - [20.1 2026-03 事件後的 GitHub Actions 安全原則](#201-2026-03-事件後的-github-actions-安全原則)
-  - [20.2 完整 Workflow](#202-完整-workflow)
-  - [20.3 逐步說明](#203-逐步說明)
-  - [20.4 使用 trivy-action 的寫法](#204-使用-trivy-action-的寫法)
-  - [20.5 DB 快取預熱 Workflow](#205-db-快取預熱-workflow)
-  - [20.6 Dependency Graph 提交](#206-dependency-graph-提交)
-  - [實務案例](#實務案例-19)
-  - [注意事項](#注意事項-19)
-- [21. Web Application Security](#21-web-application-security)
-  - [21.1 企業 Web Application 的掃描分層](#211-企業-web-application-的掃描分層)
-  - [21.2 前端相依的特殊考量](#212-前端相依的特殊考量)
-  - [21.3 後端相依的特殊考量](#213-後端相依的特殊考量)
-  - [實務案例](#實務案例-20)
-  - [注意事項](#注意事項-20)
-- [22. Java / Spring Boot 專案](#22-java--spring-boot-專案)
-  - [22.1 案例環境](#221-案例環境)
-  - [22.2 Step 1：掃描 Maven Dependency](#222-step-1掃描-maven-dependency)
-  - [22.3 Step 2：掃描 Source Repository](#223-step-2掃描-source-repository)
-  - [22.4 Step 3：產生 SBOM](#224-step-3產生-sbom)
-  - [22.5 Step 4：建立 Container Image](#225-step-4建立-container-image)
-  - [22.6 Step 5：掃描 Image](#226-step-5掃描-image)
-  - [22.7 Step 6：掃描 Dockerfile](#227-step-6掃描-dockerfile)
-  - [22.8 Step 7：掃描 Kubernetes YAML](#228-step-7掃描-kubernetes-yaml)
-  - [22.9 Step 8：CI/CD Security Gate](#229-step-8cicd-security-gate)
-  - [22.10 常見問題](#2210-常見問題)
-  - [實務案例](#實務案例-21)
-  - [注意事項](#注意事項-21)
-- [23. Vue / Angular 專案](#23-vue--angular-專案)
-  - [23.1 案例環境](#231-案例環境)
-  - [23.2 Package Dependency 與 Lock File](#232-package-dependency-與-lock-file)
-  - [23.3 Secret 與 Configuration](#233-secret-與-configuration)
-  - [23.4 Docker Image](#234-docker-image)
-  - [23.5 SBOM](#235-sbom)
-  - [23.6 CI/CD](#236-cicd)
-  - [實務案例](#實務案例-22)
-  - [注意事項](#注意事項-22)
-- [24. Legacy System Reverse Engineering](#24-legacy-system-reverse-engineering)
-  - [24.1 背景](#241-背景)
-  - [24.2 Security Baseline 流程](#242-security-baseline-流程)
-  - [24.3 執行步驟](#243-執行步驟)
-  - [24.4 Legacy 系統的特殊情況](#244-legacy-系統的特殊情況)
-  - [24.5 Security Baseline 產出物](#245-security-baseline-產出物)
-  - [實務案例](#實務案例-23)
-  - [注意事項](#注意事項-23)
-- [25. Software Framework Upgrade](#25-software-framework-upgrade)
-  - [25.1 升級安全流程](#251-升級安全流程)
-  - [25.2 適用的升級類型](#252-適用的升級類型)
-  - [25.3 Before / After 掃描](#253-before--after-掃描)
-  - [25.4 比較腳本](#254-比較腳本)
-  - [25.5 SBOM 差異](#255-sbom-差異)
-  - [25.6 Security Upgrade Report 範本](#256-security-upgrade-report-範本)
-  - [實務案例](#實務案例-24)
-  - [注意事項](#注意事項-24)
-- [26. AI Agent + Trivy](#26-ai-agent--trivy)
-  - [26.1 從「AI 寫 Code」到「AI Security Feedback Loop」](#261-從ai-寫-code到ai-security-feedback-loop)
-  - [26.2 AI Agent 什麼時候必須執行 Trivy](#262-ai-agent-什麼時候必須執行-trivy)
-  - [26.3 AI Agent 呼叫 Trivy 的設計原則](#263-ai-agent-呼叫-trivy-的設計原則)
-  - [26.4 Trivy MCP Server：讓 AI Agent 以標準工具呼叫 Trivy](#264-trivy-mcp-server讓-ai-agent-以標準工具呼叫-trivy)
-  - [26.5 安裝與 IDE 設定](#265-安裝與-ide-設定)
-  - [26.6 MCP 與 CLI 的分工](#266-mcp-與-cli-的分工)
-  - [實務案例](#實務案例-25)
-  - [注意事項](#注意事項-25)
-- [27. AI Agent 使用 Trivy 的標準流程](#27-ai-agent-使用-trivy-的標準流程)
-  - [27.1 十步驟](#271-十步驟)
-  - [27.2 核心原則](#272-核心原則)
-  - [實務案例](#實務案例-26)
-  - [注意事項](#注意事項-26)
-- [28. AI Agent Prompt Engineering](#28-ai-agent-prompt-engineering)
-  - [28.1 Repository Security Scan Prompt](#281-repository-security-scan-prompt)
-  - [28.2 Container Security Scan Prompt](#282-container-security-scan-prompt)
-  - [28.3 Kubernetes Security Scan Prompt](#283-kubernetes-security-scan-prompt)
-  - [28.4 Dependency Upgrade Prompt](#284-dependency-upgrade-prompt)
-  - [28.5 Framework Upgrade Security Prompt](#285-framework-upgrade-security-prompt)
-  - [28.6 Reverse Engineering Security Prompt](#286-reverse-engineering-security-prompt)
-  - [28.7 SBOM Analysis Prompt](#287-sbom-analysis-prompt)
-  - [28.8 Secret Finding Response Prompt](#288-secret-finding-response-prompt)
-  - [28.9 CI/CD Failure Analysis Prompt](#289-cicd-failure-analysis-prompt)
-  - [28.10 Security Regression Verification Prompt](#2810-security-regression-verification-prompt)
-  - [實務案例](#實務案例-27)
-  - [注意事項](#注意事項-27)
-- [29. AI Agent 不可以做的事情](#29-ai-agent-不可以做的事情)
-  - [29.1 禁止清單](#291-禁止清單)
-  - [29.2 三區分類](#292-三區分類)
-  - [實務案例](#實務案例-28)
-  - [注意事項](#注意事項-28)
-- [30. AI Agent Security Guardrail](#30-ai-agent-security-guardrail)
-  - [30.1 Guardrail 總表](#301-guardrail-總表)
-  - [30.2 CODEOWNERS 範例](#302-codeowners-範例)
-  - [30.3 Guardrail 架構](#303-guardrail-架構)
-  - [30.4 MCP Server Guardrail](#304-mcp-server-guardrail)
-  - [實務案例](#實務案例-29)
-  - [注意事項](#注意事項-29)
-- [31. Trivy + SSDLC](#31-trivy--ssdlc)
-  - [31.1 SSDLC 階段對應](#311-ssdlc-階段對應)
-  - [實務案例](#實務案例-30)
-  - [注意事項](#注意事項-30)
-- [32. Trivy + Clean Architecture](#32-trivy--clean-architecture)
-  - [32.1 Trivy 能檢查什麼](#321-trivy-能檢查什麼)
-  - [32.2 四種品質的組合](#322-四種品質的組合)
-  - [實務案例](#實務案例-31)
-  - [注意事項](#注意事項-31)
-- [33. Trivy + OWASP](#33-trivy--owasp)
-  - [33.1 OWASP Top 10 能力對照](#331-owasp-top-10-能力對照)
-  - [33.2 必須明確區分的六類問題](#332-必須明確區分的六類問題)
-  - [實務案例](#實務案例-32)
-  - [注意事項](#注意事項-32)
-- [34. Trivy + SAST / DAST / SCA](#34-trivy--sast--dast--sca)
-  - [34.1 工具定位比較](#341-工具定位比較)
-  - [34.2 工具組合架構](#342-工具組合架構)
-  - [34.3 結果彙整與去重](#343-結果彙整與去重)
-  - [34.4 選型建議](#344-選型建議)
-  - [實務案例](#實務案例-33)
-  - [注意事項](#注意事項-33)
-- [35. Enterprise DevSecOps Reference Architecture](#35-enterprise-devsecops-reference-architecture)
-  - [35.1 架構圖](#351-架構圖)
-  - [35.2 元件職責](#352-元件職責)
-  - [實務案例](#實務案例-34)
-  - [注意事項](#注意事項-34)
-- [36. Banking / Enterprise Environment](#36-banking--enterprise-environment)
-  - [36.1 金融業環境特性與對策](#361-金融業環境特性與對策)
-  - [36.2 金融業導入流程](#362-金融業導入流程)
-  - [實務案例](#實務案例-35)
-  - [注意事項](#注意事項-35)
-- [37. GitHub / GitLab Enterprise Governance](#37-github--gitlab-enterprise-governance)
-  - [37.1 治理層級](#371-治理層級)
-  - [37.2 關鍵機制](#372-關鍵機制)
-  - [37.3 Reusable Workflow 範例](#373-reusable-workflow-範例)
-  - [實務案例](#實務案例-36)
-  - [注意事項](#注意事項-36)
-- [38. Security Gate](#38-security-gate)
-  - [38.1 Trivy Capability vs Company Policy](#381-trivy-capability-vs-company-policy)
-  - [38.2 企業 Gate 範例](#382-企業-gate-範例)
-  - [38.3 Gate 判斷流程](#383-gate-判斷流程)
-  - [實務案例](#實務案例-37)
-  - [注意事項](#注意事項-37)
-- [39. False Positive / Exception Management](#39-false-positive--exception-management)
-  - [39.1 名詞區分](#391-名詞區分)
-  - [39.2 Exception Record 範例](#392-exception-record-範例)
-  - [39.3 Exception 生命週期](#393-exception-生命週期)
-  - [39.4 VEX 範例（OpenVEX）](#394-vex-範例openvex)
-  - [實務案例](#實務案例-38)
-  - [注意事項](#注意事項-38)
-- [40. Trivy 維運](#40-trivy-維運)
-  - [40.1 維運範圍](#401-維運範圍)
-  - [40.2 維運 Checklist](#402-維運-checklist)
-  - [實務案例](#實務案例-39)
-  - [注意事項](#注意事項-39)
-- [41. Trivy 升級策略](#41-trivy-升級策略)
-  - [41.1 升級流程](#411-升級流程)
-  - [41.2 升級類型](#412-升級類型)
-  - [41.3 升級前檢查清單](#413-升級前檢查清單)
-  - [41.4 新舊版結果比較](#414-新舊版結果比較)
-  - [實務案例](#實務案例-40)
-  - [注意事項](#注意事項-40)
-- [42. Trivy 升級對 AI Agent 的要求](#42-trivy-升級對-ai-agent-的要求)
-  - [42.1 十一個必要步驟](#421-十一個必要步驟)
-  - [42.2 Upgrade Report 範本](#422-upgrade-report-範本)
-  - [42.3 升級工作的範圍與禁止事項](#423-升級工作的範圍與禁止事項)
-  - [實務案例](#實務案例-41)
-  - [注意事項](#注意事項-41)
-- [43. Performance Optimization](#43-performance-optimization)
-  - [43.1 優化手段](#431-優化手段)
-  - [43.2 大型企業降低 CI 影響的做法](#432-大型企業降低-ci-影響的做法)
-  - [實務案例](#實務案例-42)
-  - [注意事項](#注意事項-42)
-- [44. Troubleshooting](#44-troubleshooting)
-  - [44.1 DB Download Failure](#441-db-download-failure)
-  - [44.2 Network Failure](#442-network-failure)
-  - [44.3 Proxy](#443-proxy)
-  - [44.4 Certificate](#444-certificate)
-  - [44.5 Registry Authentication](#445-registry-authentication)
-  - [44.6 Docker Socket](#446-docker-socket)
-  - [44.7 Permission](#447-permission)
-  - [44.8 Kubernetes Authentication](#448-kubernetes-authentication)
-  - [44.9 Slow Scan](#449-slow-scan)
-  - [44.10 Out of Disk](#4410-out-of-disk)
-  - [44.11 Large Image](#4411-large-image)
-  - [44.12 False Positive](#4412-false-positive)
-  - [44.13 Missing Vulnerability](#4413-missing-vulnerability)
-  - [44.14 Unexpected Severity](#4414-unexpected-severity)
-  - [44.15 SBOM 問題](#4415-sbom-問題)
-  - [44.16 Java Dependency 問題](#4416-java-dependency-問題)
-  - [實務案例](#實務案例-43)
-  - [注意事項](#注意事項-43)
-- [45. 常見錯誤](#45-常見錯誤)
-  - [45.1 掃描範圍錯誤](#451-掃描範圍錯誤)
-  - [45.2 資料與效能錯誤](#452-資料與效能錯誤)
-  - [45.3 治理錯誤](#453-治理錯誤)
-  - [45.4 供應鏈與版本錯誤](#454-供應鏈與版本錯誤)
-  - [實務案例](#實務案例-44)
-  - [注意事項](#注意事項-44)
-- [46. 實戰 Lab](#46-實戰-lab)
-  - [46.1 Lab 1：Container Image Scan](#461-lab-1container-image-scan)
-  - [46.2 Lab 2：Source Repository Scan](#462-lab-2source-repository-scan)
-  - [46.3 Lab 3：Secret Scan](#463-lab-3secret-scan)
-  - [46.4 Lab 4：IaC Scan](#464-lab-4iac-scan)
-  - [46.5 Lab 5：Kubernetes Scan（Experimental）](#465-lab-5kubernetes-scanexperimental)
-  - [46.6 Lab 6：SBOM Generation](#466-lab-6sbom-generation)
-  - [46.7 Lab 7：SBOM Scan](#467-lab-7sbom-scan)
-  - [46.8 Lab 8：License Scan](#468-lab-8license-scan)
-  - [46.9 Lab 9：GitHub Actions](#469-lab-9github-actions)
-  - [46.10 Lab 10：Docker + Kubernetes](#4610-lab-10docker--kubernetes)
-  - [46.11 Lab 11：Spring Boot](#4611-lab-11spring-boot)
-  - [46.12 Lab 12：Vue](#4612-lab-12vue)
-  - [46.13 Lab 13：Angular](#4613-lab-13angular)
-  - [46.14 Lab 14：Legacy Reverse Engineering](#4614-lab-14legacy-reverse-engineering)
-  - [46.15 Lab 15：Framework Upgrade](#4615-lab-15framework-upgrade)
-  - [46.16 Lab 16：AI Agent Security Feedback Loop](#4616-lab-16ai-agent-security-feedback-loop)
-  - [實務案例](#實務案例-45)
-  - [注意事項](#注意事項-45)
-- [47. 完整 AI Agent 實戰案例](#47-完整-ai-agent-實戰案例)
-  - [47.1 系統架構](#471-系統架構)
-  - [47.2 任務](#472-任務)
-  - [47.3 執行流程](#473-執行流程)
-  - [47.4 各步驟細節](#474-各步驟細節)
-  - [47.5 AI Agent 產出的 Security Report](#475-ai-agent-產出的-security-report)
-  - [實務案例](#實務案例-46)
-  - [注意事項](#注意事項-46)
-- [48. Reverse Engineering 實戰](#48-reverse-engineering-實戰)
-  - [48.1 情境](#481-情境)
-  - [48.2 AI Agent 執行順序](#482-ai-agent-執行順序)
-  - [48.3 指令](#483-指令)
-  - [48.4 最終輸出](#484-最終輸出)
-  - [實務案例](#實務案例-47)
-  - [注意事項](#注意事項-47)
-- [49. Framework Upgrade 實戰](#49-framework-upgrade-實戰)
-  - [49.1 情境](#491-情境)
-  - [49.2 比較項目](#492-比較項目)
-  - [49.3 Security Upgrade Report](#493-security-upgrade-report)
-  - [實務案例](#實務案例-48)
-  - [注意事項](#注意事項-48)
-- [50. Trivy 教學案例程式碼規範](#50-trivy-教學案例程式碼規範)
-  - [實務案例](#實務案例-49)
-  - [注意事項](#注意事項-49)
-- [51. 命令速查表](#51-命令速查表)
-  - [51.1 主要命令總覽](#511-主要命令總覽)
-  - [51.2 各命令：常用參數、CI/CD 用法、AI Agent 用法](#512-各命令常用參數cicd-用法ai-agent-用法)
-  - [實務案例](#實務案例-50)
-  - [注意事項](#注意事項-50)
-- [52. Trivy Cheat Sheet](#52-trivy-cheat-sheet)
-  - [實務案例](#實務案例-51)
-  - [注意事項](#注意事項-51)
-- [53. Enterprise Checklist](#53-enterprise-checklist)
-  - [53.1 Developer Checklist](#531-developer-checklist)
-  - [53.2 AI Agent Checklist](#532-ai-agent-checklist)
-  - [53.3 Reviewer Checklist](#533-reviewer-checklist)
-  - [53.4 DevSecOps Checklist](#534-devsecops-checklist)
-  - [53.5 Platform Team Checklist](#535-platform-team-checklist)
-  - [53.6 Security Team Checklist](#536-security-team-checklist)
-  - [53.7 Release Checklist](#537-release-checklist)
-  - [53.8 Framework Upgrade Checklist](#538-framework-upgrade-checklist)
-  - [53.9 Reverse Engineering Checklist](#539-reverse-engineering-checklist)
-  - [實務案例](#實務案例-52)
-  - [注意事項](#注意事項-52)
-- [54. AI Agent Standard Operating Procedure](#54-ai-agent-standard-operating-procedure)
-  - [54.1 SOP 步驟](#541-sop-步驟)
-  - [54.2 SOP 流程圖](#542-sop-流程圖)
-  - [54.3 停止條件與回報對象](#543-停止條件與回報對象)
-  - [實務案例](#實務案例-53)
-  - [注意事項](#注意事項-53)
-- [55. AI Agent Security Policy](#55-ai-agent-security-policy)
-  - [55.1 Policy 範本](#551-policy-範本)
-  - [55.2 Policy 落地：文字規則對應技術控制](#552-policy-落地文字規則對應技術控制)
-  - [實務案例](#實務案例-54)
-  - [注意事項](#注意事項-54)
-- [56. Trivy 與企業 AI Coding Standard](#56-trivy-與企業-ai-coding-standard)
-  - [56.1 規範領域對照](#561-規範領域對照)
-  - [56.2 整合架構](#562-整合架構)
-  - [56.3 導入檢核](#563-導入檢核)
-  - [實務案例](#實務案例-55)
-  - [注意事項](#注意事項-55)
-- [57. 建議企業導入 Roadmap](#57-建議企業導入-roadmap)
-  - [57.1 Phase 1：Developer Local Scan](#571-phase-1developer-local-scan)
-  - [57.2 Phase 2：Repository CI Scan](#572-phase-2repository-ci-scan)
-  - [57.3 Phase 3：Container Scan](#573-phase-3container-scan)
-  - [57.4 Phase 4：SBOM](#574-phase-4sbom)
-  - [57.5 Phase 5：IaC / Kubernetes](#575-phase-5iac--kubernetes)
-  - [57.6 Phase 6：Cloud](#576-phase-6cloud)
-  - [57.7 Phase 7：AI Agent Integration](#577-phase-7ai-agent-integration)
-  - [57.8 Phase 8：Enterprise Security Governance](#578-phase-8enterprise-security-governance)
-  - [實務案例](#實務案例-56)
-  - [注意事項](#注意事項-56)
-- [58. KPI / Metrics](#58-kpi--metrics)
-  - [實務案例](#實務案例-57)
-  - [注意事項](#注意事項-57)
-- [59. Governance Model](#59-governance-model)
-  - [59.1 治理層級](#591-治理層級)
-  - [59.2 責任分工](#592-責任分工)
-  - [59.3 RACI（R＝執行、A＝負責、C＝諮詢、I＝告知）](#593-racir執行a負責c諮詢i告知)
-  - [實務案例](#實務案例-58)
-  - [注意事項](#注意事項-58)
-- [60. Final Reference Architecture](#60-final-reference-architecture)
-  - [60.1 架構圖](#601-架構圖)
-  - [60.2 元件與責任邊界](#602-元件與責任邊界)
-  - [60.3 資料流說明](#603-資料流說明)
-  - [實務案例](#實務案例-59)
-  - [注意事項](#注意事項-59)
-- [61. 最後的企業建議](#61-最後的企業建議)
-  - [61.1 如果公司準備正式導入 Trivy，應該如何開始？](#611-如果公司準備正式導入-trivy應該如何開始)
-  - [61.2 第一個 30 天](#612-第一個-30-天)
-  - [61.3 核心問題回答索引](#613-核心問題回答索引)
-  - [61.4 結語](#614-結語)
-  - [實務案例](#實務案例-60)
-  - [注意事項](#注意事項-60)
-- [Appendix A - CLI Cheat Sheet](#appendix-a---cli-cheat-sheet)
-  - [A.1 全域參數（所有子命令通用）](#a1-全域參數所有子命令通用)
-  - [A.2 常用掃描參數](#a2-常用掃描參數)
-  - [A.3 常用環境變數](#a3-常用環境變數)
-- [Appendix B - AI Agent Prompt](#appendix-b---ai-agent-prompt)
-  - [B.1 通用前置 Prompt（放在所有 Trivy 任務最前面）](#b1-通用前置-prompt放在所有-trivy-任務最前面)
-- [Appendix C - Security Checklist](#appendix-c---security-checklist)
-  - [C.1 新進成員快速 Checklist](#c1-新進成員快速-checklist)
-  - [C.2 PR 安全 Checklist](#c2-pr-安全-checklist)
-  - [C.3 Release 安全 Checklist](#c3-release-安全-checklist)
-- [Appendix D - Troubleshooting](#appendix-d---troubleshooting)
-- [Appendix E - Reference Architecture](#appendix-e---reference-architecture)
-- [Appendix F - AI Agent 執行規範（AGENTS.md / CLAUDE.md / copilot-instructions.md）](#appendix-f---ai-agent-執行規範agentsmd--claudemd--copilot-instructionsmd)
-- [Appendix G - 版本指令差異對照表](#appendix-g---版本指令差異對照表)
-- [References](#references)
-- [Technical Review Checklist](#technical-review-checklist)
-  - [已知限制與使用前需再確認的項目](#已知限制與使用前需再確認的項目)
+  - [這份手冊要回答的問題](#這份手冊要回答的問題)
+  - [手冊結構](#手冊結構)
+  - [依角色建議的閱讀路線](#依角色建議的閱讀路線)
+  - [版本差異標示規則](#版本差異標示規則)
+  - [環境分級原則](#環境分級原則)
+  - [不可直接抄貼原則](#不可直接抄貼原則)
+- [Part 1 — IBM MQ 基礎與核心概念](#part-1--ibm-mq-基礎與核心概念)
+  - [1.1 目的](#11-目的)
+  - [1.2 Message Oriented Middleware（訊息導向中介軟體）](#12-message-oriented-middleware訊息導向中介軟體)
+  - [1.3 IBM MQ 的定位](#13-ibm-mq-的定位)
+  - [1.4 IBM MQ 解決什麼問題](#14-ibm-mq-解決什麼問題)
+  - [1.5 IBM MQ 與其他技術的比較](#15-ibm-mq-與其他技術的比較)
+  - [1.6 IBM MQ 在企業整合中的角色](#16-ibm-mq-在企業整合中的角色)
+  - [1.7 IBM MQ 在金融業的常見用途](#17-ibm-mq-在金融業的常見用途)
+  - [1.8 實務案例](#18-實務案例)
+  - [1.9 注意事項](#19-注意事項)
+  - [1.10 IBM MQ 核心元件總覽](#110-ibm-mq-核心元件總覽)
+  - [1.11 Queue Manager（佇列管理器）](#111-queue-manager佇列管理器)
+  - [1.12 Queue（佇列）的種類](#112-queue佇列的種類)
+  - [1.13 Channel（通道）的種類](#113-channel通道的種類)
+  - [1.14 Listener（監聽器）](#114-listener監聽器)
+  - [1.15 Topic 與 Subscription](#115-topic-與-subscription)
+  - [1.16 Message（訊息）與 MQMD](#116-message訊息與-mqmd)
+  - [1.17 Persistence（持久性）](#117-persistence持久性)
+  - [1.18 元件關係總整理](#118-元件關係總整理)
+  - [1.19 IBM MQ 物件全集](#119-ibm-mq-物件全集)
+  - [1.20 IBM MQ 產品家族與授權](#120-ibm-mq-產品家族與授權)
+  - [1.21 官方文件主題與本手冊對照](#121-官方文件主題與本手冊對照)
+  - [1.22 核心元件注意事項](#122-核心元件注意事項)
+- [Part 2 — IBM MQ 系統架構](#part-2--ibm-mq-系統架構)
+  - [2.1 目的](#21-目的)
+  - [2.2 Client / Server Architecture](#22-client--server-architecture)
+  - [2.3 Queue Manager 內部架構](#23-queue-manager-內部架構)
+  - [2.4 架構模式比較](#24-架構模式比較)
+  - [2.5 架構選型決策](#25-架構選型決策)
+  - [2.6 MQI Client 類型與 CCDT](#26-mqi-client-類型與-ccdt)
+  - [2.7 擴充 Queue Manager 功能：Exits 與 Installable Services](#27-擴充-queue-manager-功能exits-與-installable-services)
+  - [2.8 擴充元件：MFT、MQIPT、AMQP、MQTT、Multicast、Kafka Connect](#28-擴充元件mftmqiptamqpmqttmulticastkafka-connect)
+  - [2.9 Streaming Queue](#29-streaming-queue)
+  - [2.10 IBM MQ for z/OS 架構](#210-ibm-mq-for-zos-架構)
+  - [2.11 IBM MQ Console 與 REST API 架構](#211-ibm-mq-console-與-rest-api-架構)
+  - [2.12 實務案例](#212-實務案例)
+  - [2.13 注意事項](#213-注意事項)
+- [Part 3 — IBM MQ 訊息生命週期](#part-3--ibm-mq-訊息生命週期)
+  - [3.1 目的](#31-目的)
+  - [3.2 本機訊息生命週期](#32-本機訊息生命週期)
+  - [3.3 跨 Queue Manager 的完整流程](#33-跨-queue-manager-的完整流程)
+  - [3.4 MQI 動詞](#34-mqi-動詞)
+  - [3.5 Syncpoint、Commit、Backout、Rollback](#35-syncpointcommitbackoutrollback)
+  - [3.6 Persistent 與 Non-persistent](#36-persistent-與-non-persistent)
+  - [3.7 Message Expiration（訊息逾期）](#37-message-expiration訊息逾期)
+  - [3.8 Message Priority 與 Message Ordering](#38-message-priority-與-message-ordering)
+  - [3.9 Message Group（訊息群組）](#39-message-group訊息群組)
+  - [3.10 Correlation 與 Retry](#310-correlation-與-retry)
+  - [3.11 Dead Letter Queue（DLQ）](#311-dead-letter-queuedlq)
+  - [3.12 Transaction 管理：誰是交易協調者](#312-transaction-管理誰是交易協調者)
+  - [3.13 Message Property 與 Selector](#313-message-property-與-selector)
+  - [3.14 實務案例](#314-實務案例)
+  - [3.15 注意事項與 Checklist](#315-注意事項與-checklist)
+- [Part 4 — IBM MQ 安裝](#part-4--ibm-mq-安裝)
+  - [4.1 目的](#41-目的)
+  - [4.2 Linux 安裝](#42-linux-安裝)
+  - [4.3 Windows 安裝](#43-windows-安裝)
+  - [4.4 Container](#44-container)
+  - [4.5 Kubernetes](#45-kubernetes)
+  - [4.6 AI Agent 使用方式](#46-ai-agent-使用方式)
+  - [4.7 常見錯誤](#47-常見錯誤)
+  - [4.8 Checklist](#48-checklist)
+- [Part 5 — IBM MQ 系統管理](#part-5--ibm-mq-系統管理)
+  - [5.1 目的](#51-目的)
+  - [5.2 管理工具總覽](#52-管理工具總覽)
+  - [5.3 Queue Manager 管理](#53-queue-manager-管理)
+  - [5.4 MQSC 與 runmqsc](#54-mqsc-與-runmqsc)
+  - [5.5 常用查詢命令（DISPLAY）](#55-常用查詢命令display)
+  - [5.6 常用定義與修改命令](#56-常用定義與修改命令)
+  - [5.7 Production 操作風險分級](#57-production-操作風險分級)
+  - [5.8 管理方式全景與命令集比較](#58-管理方式全景與命令集比較)
+  - [5.9 本機管理與遠端管理](#59-本機管理與遠端管理)
+  - [5.10 PCF 與 MQAI 自動化](#510-pcf-與-mqai-自動化)
+  - [5.11 Administrative REST API](#511-administrative-rest-api)
+  - [5.12 IBM MQ Console 與 IBM MQ Explorer](#512-ibm-mq-console-與-ibm-mq-explorer)
+  - [5.13 IBM MQ for z/OS 系統管理](#513-ibm-mq-for-zos-系統管理)
+  - [5.14 擴充元件管理](#514-擴充元件管理)
+  - [5.15 IBM MQ 10.0 新增的管理能力](#515-ibm-mq-100-新增的管理能力)
+  - [5.16 AI Agent 使用方式](#516-ai-agent-使用方式)
+  - [5.17 常見錯誤](#517-常見錯誤)
+  - [5.18 Checklist](#518-checklist)
+- [Part 6 — Queue 設計](#part-6--queue-設計)
+  - [6.1 目的](#61-目的)
+  - [6.2 Queue Naming Convention](#62-queue-naming-convention)
+  - [6.3 金融系統命名範例](#63-金融系統命名範例)
+  - [6.4 Queue Capacity：MAXDEPTH 與 MAXMSGL](#64-queue-capacitymaxdepth-與-maxmsgl)
+  - [6.5 Backout Queue、Dead Letter Queue、Retry Queue](#65-backout-queuedead-letter-queueretry-queue)
+  - [6.6 Request Queue 與 Response Queue](#66-request-queue-與-response-queue)
+  - [6.7 MQSC 範例：一組完整的 Request / Reply 佇列](#67-mqsc-範例一組完整的-request--reply-佇列)
+  - [6.8 常見錯誤](#68-常見錯誤)
+  - [6.9 Checklist](#69-checklist)
+- [Part 7 — Channel 設計](#part-7--channel-設計)
+  - [7.1 目的](#71-目的)
+  - [7.2 Channel 架構](#72-channel-架構)
+  - [7.3 Channel 類型選擇](#73-channel-類型選擇)
+  - [7.4 Sender Channel 關鍵參數](#74-sender-channel-關鍵參數)
+  - [7.5 Transmission Queue 與 Trigger](#75-transmission-queue-與-trigger)
+  - [7.6 Server Connection Channel 關鍵參數](#76-server-connection-channel-關鍵參數)
+  - [7.7 Channel Status 與 Retry](#77-channel-status-與-retry)
+  - [7.8 Channel Authentication、MCA User、TLS、Certificate](#78-channel-authenticationmca-usertlscertificate)
+  - [7.9 常見錯誤](#79-常見錯誤)
+  - [7.10 Checklist](#710-checklist)
+- [Part 8 — IBM MQ Security](#part-8--ibm-mq-security)
+  - [8.1 目的](#81-目的)
+  - [8.2 安全架構](#82-安全架構)
+  - [8.3 Authentication（身分驗證）](#83-authentication身分驗證)
+  - [8.4 CHLAUTH（Channel Authentication Records）](#84-chlauthchannel-authentication-records)
+  - [8.5 Authorization：OAM（Object Authority Manager）](#85-authorizationoamobject-authority-manager)
+  - [8.6 避免 *MQADMIN 與 +all 過度授權](#86-避免-mqadmin-與-all-過度授權)
+  - [8.7 TLS、Certificate 與 CipherSpec](#87-tlscertificate-與-cipherspec)
+  - [8.8 Audit 與 Log](#88-audit-與-log)
+  - [8.9 Secret Management 與 Credential Rotation](#89-secret-management-與-credential-rotation)
+  - [8.10 IBM MQ Production Security Baseline](#810-ibm-mq-production-security-baseline)
+  - [8.11 Advanced Message Security（AMS）](#811-advanced-message-securityams)
+  - [8.12 IBM MQ for z/OS 安全（RACF）](#812-ibm-mq-for-zos-安全racf)
+  - [8.13 IBM MQ 10.0 憑證與身分管理細節](#813-ibm-mq-100-憑證與身分管理細節)
+  - [8.14 常見錯誤](#814-常見錯誤)
+  - [8.15 Checklist](#815-checklist)
+- [Part 9 — Java 開發：API 選擇](#part-9--java-開發api-選擇)
+  - [9.1 目的](#91-目的)
+  - [9.2 API 家族全貌](#92-api-家族全貌)
+  - [9.3 比較表](#93-比較表)
+  - [9.4 Maven 依賴](#94-maven-依賴)
+  - [9.5 Java 版本對照](#95-java-版本對照)
+  - [9.6 Client 連線關鍵概念](#96-client-連線關鍵概念)
+  - [9.7 多語言支援全貌](#97-多語言支援全貌)
+  - [9.8 Messaging REST API](#98-messaging-rest-api)
+  - [9.9 應用設計考量](#99-應用設計考量)
+  - [9.10 IBM MQ 10.0 對 Java / JMS 開發者的新能力](#910-ibm-mq-100-對-java--jms-開發者的新能力)
+  - [9.11 AI Agent 使用方式](#911-ai-agent-使用方式)
+  - [9.12 Checklist](#912-checklist)
+- [Part 10 — Java MQ 基礎程式（IBM MQ classes for Java）](#part-10--java-mq-基礎程式ibm-mq-classes-for-java)
+  - [10.1 目的](#101-目的)
+  - [10.2 設計重點](#102-設計重點)
+  - [10.3 共用：連線設定與工具](#103-共用連線設定與工具)
+  - [10.4 Producer（MQPUT）](#104-producermqput)
+  - [10.5 Consumer（MQGET）](#105-consumermqget)
+  - [10.6 Transaction 說明](#106-transaction-說明)
+  - [10.7 Security 注意事項](#107-security-注意事項)
+  - [10.8 常見錯誤](#108-常見錯誤)
+  - [10.9 Checklist](#109-checklist)
+- [Part 11 — Java JMS / Jakarta Messaging](#part-11--java-jms--jakarta-messaging)
+  - [11.1 目的](#111-目的)
+  - [11.2 JMS 2.0 / Jakarta Messaging 物件模型](#112-jms-20--jakarta-messaging-物件模型)
+  - [11.3 JMS 與 MQMD 對應](#113-jms-與-mqmd-對應)
+  - [11.4 與 Legacy（非 JMS）系統互通：targetClient](#114-與-legacy非-jms系統互通targetclient)
+  - [11.5 ConnectionFactory](#115-connectionfactory)
+  - [11.6 Producer（JMSContext + JMSProducer）](#116-producerjmscontext--jmsproducer)
+  - [11.7 Consumer（同步 receive）](#117-consumer同步-receive)
+  - [11.8 MessageListener（非同步）](#118-messagelistener非同步)
+  - [11.9 Message 類型](#119-message-類型)
+  - [11.10 Message Properties、Correlation ID、Message ID](#1110-message-propertiescorrelation-idmessage-id)
+  - [11.11 進階 JMS 2.0 / Jakarta Messaging 功能](#1111-進階-jms-20--jakarta-messaging-功能)
+  - [11.12 Checklist](#1112-checklist)
+- [Part 12 — Spring Boot + IBM MQ](#part-12--spring-boot--ibm-mq)
+  - [12.1 目的](#121-目的)
+  - [12.2 架構](#122-架構)
+  - [12.3 版本對應](#123-版本對應)
+  - [12.4 Maven 設定](#124-maven-設定)
+  - [12.5 application.yml](#125-applicationyml)
+  - [12.6 Listener Container 設定](#126-listener-container-設定)
+  - [12.7 Producer（Gateway）](#127-producergateway)
+  - [12.8 Listener（Consumer）](#128-listenerconsumer)
+  - [12.9 Error Handling、Retry 與 DLQ 策略](#129-error-handlingretry-與-dlq-策略)
+  - [12.10 Spring Boot 3.x 與 4.x 差異重點](#1210-spring-boot-3x-與-4x-差異重點)
+  - [12.11 Production 注意事項](#1211-production-注意事項)
+  - [12.12 Checklist](#1212-checklist)
+- [Part 13 — Java Transaction](#part-13--java-transaction)
+  - [13.1 目的](#131-目的)
+  - [13.2 核心概念：兩個資源、兩個交易](#132-核心概念兩個資源兩個交易)
+  - [13.3 失敗情境分析](#133-失敗情境分析)
+  - [13.4 做法比較](#134-做法比較)
+  - [13.5 Best-Effort 1PC + Idempotency（Consumer 端）](#135-best-effort-1pc--idempotencyconsumer-端)
+  - [13.6 Transactional Outbox（Producer 端）](#136-transactional-outboxproducer-端)
+  - [13.7 XA / Distributed Transaction](#137-xa--distributed-transaction)
+  - [13.8 Exactly-once 的實務限制](#138-exactly-once-的實務限制)
+  - [13.9 金融交易系統的實務風險](#139-金融交易系統的實務風險)
+  - [13.10 Checklist](#1310-checklist)
+- [Part 14 — IBM MQ 與 Web Application 整合](#part-14--ibm-mq-與-web-application-整合)
+  - [14.1 目的](#141-目的)
+  - [14.2 企業架構](#142-企業架構)
+  - [14.3 為什麼 Web Application 不應直接連 IBM MQ](#143-為什麼-web-application-不應直接連-ibm-mq)
+  - [14.4 各層職責](#144-各層職責)
+  - [14.5 同步 API 與非同步處理的對應](#145-同步-api-與非同步處理的對應)
+  - [14.6 實務案例](#146-實務案例)
+  - [14.7 Checklist](#147-checklist)
+- [Part 15 — Request / Reply Pattern](#part-15--request--reply-pattern)
+  - [15.1 目的](#151-目的)
+  - [15.2 流程](#152-流程)
+  - [15.3 Message ID 與 Correlation ID 慣例](#153-message-id-與-correlation-id-慣例)
+  - [15.4 Timeout 設計](#154-timeout-設計)
+  - [15.5 Retry 與 Duplicate Request](#155-retry-與-duplicate-request)
+  - [15.6 Idempotency 設計](#156-idempotency-設計)
+  - [15.7 Spring Boot Request / Reply 範例](#157-spring-boot-request--reply-範例)
+  - [15.8 Legacy 回覆端（MQPUT1）](#158-legacy-回覆端mqput1)
+  - [15.9 DLQ 情境](#159-dlq-情境)
+  - [15.10 Checklist](#1510-checklist)
+- [Part 16 — Asynchronous Event Pattern](#part-16--asynchronous-event-pattern)
+  - [16.1 目的](#161-目的)
+  - [16.2 架構](#162-架構)
+  - [16.3 Topic 設計](#163-topic-設計)
+  - [16.4 Event 與 Command 的區別](#164-event-與-command-的區別)
+  - [16.5 事件訊息設計](#165-事件訊息設計)
+  - [16.6 IBM MQ 與 Apache Kafka 整合](#166-ibm-mq-與-apache-kafka-整合)
+  - [16.7 常見錯誤](#167-常見錯誤)
+  - [16.8 Checklist](#168-checklist)
+- [Part 17 — IBM MQ 與 Legacy System 逆向工程](#part-17--ibm-mq-與-legacy-system-逆向工程)
+  - [17.1 目的](#171-目的)
+  - [17.2 現況假設](#172-現況假設)
+  - [17.3 目標產出](#173-目標產出)
+  - [17.4 逆向工程架構](#174-逆向工程架構)
+  - [17.5 方法：從靜態到動態](#175-方法從靜態到動態)
+  - [17.6 IBM MQ Reverse Engineering Input Checklist](#176-ibm-mq-reverse-engineering-input-checklist)
+  - [17.7 分析產出鏈](#177-分析產出鏈)
+  - [17.8 Queue Map 範本](#178-queue-map-範本)
+  - [17.9 Legacy MQ Flow 範例](#179-legacy-mq-flow-範例)
+  - [17.10 常見發現與風險](#1710-常見發現與風險)
+  - [17.11 Checklist](#1711-checklist)
+- [Part 18 — AI Agent 協助 IBM MQ 逆向工程](#part-18--ai-agent-協助-ibm-mq-逆向工程)
+  - [18.1 目的](#181-目的)
+  - [18.2 Workflow](#182-workflow)
+  - [18.3 MQI 動詞辨識](#183-mqi-動詞辨識)
+  - [18.4 JMS / Jakarta Messaging 辨識](#184-jms--jakarta-messaging-辨識)
+  - [18.5 Queue / Channel 偵測規則](#185-queue--channel-偵測規則)
+  - [18.6 AI 輸出的品質要求](#186-ai-輸出的品質要求)
+  - [18.7 Human-in-the-loop 驗證](#187-human-in-the-loop-驗證)
+  - [18.8 Checklist](#188-checklist)
+- [Part 19 — AI Agent 逆向工程 Prompt](#part-19--ai-agent-逆向工程-prompt)
+  - [19.1 目的](#191-目的)
+  - [19.2 主 Prompt：Java 專案 MQ 全面分析](#192-主-promptjava-專案-mq-全面分析)
+  - [19.3 MQ Reverse Engineering Report 範本](#193-mq-reverse-engineering-report-範本)
+  - [19.4 補充 Prompt：MQSC 與程式交叉比對](#194-補充-promptmqsc-與程式交叉比對)
+  - [19.5 補充 Prompt：COBOL Copybook 轉 Message Specification](#195-補充-promptcobol-copybook-轉-message-specification)
+  - [19.6 驗證方式](#196-驗證方式)
+- [Part 20 — AI Agent 協助 Framework 升級](#part-20--ai-agent-協助-framework-升級)
+  - [20.1 目的](#201-目的)
+  - [20.2 升級路徑](#202-升級路徑)
+  - [20.3 版本與 API 對照](#203-版本與-api-對照)
+  - [20.4 AI 必須產出的文件](#204-ai-必須產出的文件)
+  - [20.5 常見 Breaking Changes（MQ 相關）](#205-常見-breaking-changesmq-相關)
+  - [20.6 Upgrade Risk Matrix](#206-upgrade-risk-matrix)
+  - [20.7 IBM MQ + Java Framework Upgrade Playbook](#207-ibm-mq--java-framework-upgrade-playbook)
+  - [20.8 Checklist](#208-checklist)
+- [Part 21 — IBM MQ 升級](#part-21--ibm-mq-升級)
+  - [21.1 目的](#211-目的)
+  - [21.2 升級類型](#212-升級類型)
+  - [21.3 相容性基本原則](#213-相容性基本原則)
+  - [21.4 升級流程](#214-升級流程)
+  - [21.5 Queue Manager 升級方式](#215-queue-manager-升級方式)
+  - [21.6 10.0 升級前必查](#216-100-升級前必查)
+  - [21.7 Container Image 升級](#217-container-image-升級)
+  - [21.8 Checklist](#218-checklist)
+- [Part 22 — IBM MQ 維運](#part-22--ibm-mq-維運)
+  - [22.1 目的](#221-目的)
+  - [22.2 維運範圍](#222-維運範圍)
+  - [22.3 每日巡檢腳本（唯讀）](#223-每日巡檢腳本唯讀)
+  - [22.4 告警門檻建議](#224-告警門檻建議)
+  - [22.5 維運流程](#225-維運流程)
+  - [22.6 Checklist](#226-checklist)
+- [Part 23 — IBM MQ 故障排除](#part-23--ibm-mq-故障排除)
+  - [23.1 目的](#231-目的)
+  - [23.2 排查方法論](#232-排查方法論)
+  - [23.3 Troubleshooting Matrix](#233-troubleshooting-matrix)
+  - [23.4 常用 Reason Code](#234-常用-reason-code)
+  - [23.5 Java 端除錯技巧](#235-java-端除錯技巧)
+  - [23.6 IBM MQ Agent：官方 AI 診斷助理](#236-ibm-mq-agent官方-ai-診斷助理)
+  - [23.7 IBM MQ 10.0 的診斷新能力](#237-ibm-mq-100-的診斷新能力)
+  - [23.8 AI Agent 使用方式](#238-ai-agent-使用方式)
+  - [23.9 Checklist](#239-checklist)
+- [Part 24 — IBM MQ 監控](#part-24--ibm-mq-監控)
+  - [24.1 目的](#241-目的)
+  - [24.2 監控來源](#242-監控來源)
+  - [24.3 監控架構](#243-監控架構)
+  - [24.4 企業監控 KPI](#244-企業監控-kpi)
+  - [24.5 啟用監控的 MQSC](#245-啟用監控的-mqsc)
+  - [24.6 應用端指標（Spring Boot + Micrometer）](#246-應用端指標spring-boot--micrometer)
+  - [24.7 z/OS 監控：SMF 與 OpenTelemetry](#247-zos-監控smf-與-opentelemetry)
+  - [24.8 Native HA 與 RDQM 監控](#248-native-ha-與-rdqm-監控)
+  - [24.9 Checklist](#249-checklist)
+- [Part 25 — IBM MQ 效能調校](#part-25--ibm-mq-效能調校)
+  - [25.1 目的](#251-目的)
+  - [25.2 效能因素](#252-效能因素)
+  - [25.3 取捨關係](#253-取捨關係)
+  - [25.4 效能測試方法](#254-效能測試方法)
+  - [25.5 Checklist](#255-checklist)
+- [Part 26 — High Availability / Disaster Recovery](#part-26--high-availability--disaster-recovery)
+  - [26.1 目的](#261-目的)
+  - [26.2 名詞](#262-名詞)
+  - [26.3 HA 選項比較](#263-ha-選項比較)
+  - [26.4 DR 選項](#264-dr-選項)
+  - [26.5 HA 架構圖](#265-ha-架構圖)
+  - [26.6 DR 架構圖：金融系統案例](#266-dr-架構圖金融系統案例)
+  - [26.7 Backup 與 Recovery](#267-backup-與-recovery)
+  - [26.8 HA / DR 對應用程式的要求](#268-ha--dr-對應用程式的要求)
+  - [26.9 z/OS 可用性：Queue Sharing Group 與 Shared Queue](#269-zos-可用性queue-sharing-group-與-shared-queue)
+  - [26.10 IBM MQ 10.0 的 HA / DR 強化](#2610-ibm-mq-100-的-ha--dr-強化)
+  - [26.11 Checklist](#2611-checklist)
+- [Part 27 — DevOps / CI/CD](#part-27--devops--cicd)
+  - [27.1 目的](#271-目的)
+  - [27.2 Pipeline](#272-pipeline)
+  - [27.3 MQ Configuration as Code](#273-mq-configuration-as-code)
+  - [27.4 CI 範例（GitHub Actions）](#274-ci-範例github-actions)
+  - [27.5 Environment Configuration 與 Secret Management](#275-environment-configuration-與-secret-management)
+  - [27.6 Deployment 與 Rollback](#276-deployment-與-rollback)
+  - [27.7 Checklist](#277-checklist)
+- [Part 28 — Automated Testing](#part-28--automated-testing)
+  - [28.1 目的](#281-目的)
+  - [28.2 測試金字塔](#282-測試金字塔)
+  - [28.3 Unit Test：錯誤分類](#283-unit-test錯誤分類)
+  - [28.4 Integration Test：Spring Boot + MQ 容器](#284-integration-testspring-boot--mq-容器)
+  - [28.5 Contract Test：電文規格](#285-contract-test電文規格)
+  - [28.6 Failure Test 情境](#286-failure-test-情境)
+  - [28.7 Checklist](#287-checklist)
+- [Part 29 — Security / DevSecOps](#part-29--security--devsecops)
+  - [29.1 目的](#291-目的)
+  - [29.2 安全掃描組合](#292-安全掃描組合)
+  - [29.3 MQ Security Review 檢查項目](#293-mq-security-review-檢查項目)
+  - [29.4 Security Architecture](#294-security-architecture)
+  - [29.5 Checklist](#295-checklist)
+- [Part 30 — AI Coding Agent 開發標準](#part-30--ai-coding-agent-開發標準)
+  - [30.1 目的](#301-目的)
+  - [30.2 AI Agent 使用原則](#302-ai-agent-使用原則)
+  - [30.3 禁止事項](#303-禁止事項)
+  - [30.4 Human-in-the-loop 流程](#304-human-in-the-loop-流程)
+  - [30.5 技術控制措施](#305-技術控制措施)
+  - [30.6 Agent 指令檔範本（片段）](#306-agent-指令檔範本片段)
+  - [30.7 Checklist](#307-checklist)
+- [Part 31 — GitHub Copilot / Claude Code / Codex 使用方法](#part-31--github-copilot--claude-code--codex-使用方法)
+  - [31.1 目的](#311-目的)
+  - [31.2 工具比較](#312-工具比較)
+  - [31.3 依工作類型的建議](#313-依工作類型的建議)
+  - [31.4 IBM MQ 專用 Prompt（IDE 開發）](#314-ibm-mq-專用-promptide-開發)
+  - [31.5 IBM MQ 專用 Prompt（Repository 分析）](#315-ibm-mq-專用-promptrepository-分析)
+  - [31.6 IBM MQ Agent 與 AI Coding 工具的定位](#316-ibm-mq-agent-與-ai-coding-工具的定位)
+  - [31.7 Checklist](#317-checklist)
+- [Part 32 — AI Agent Skills](#part-32--ai-agent-skills)
+  - [32.1 目的](#321-目的)
+  - [32.2 Skill 清單](#322-skill-清單)
+  - [32.3 ibm-mq-analysis](#323-ibm-mq-analysis)
+  - [32.4 ibm-mq-reverse-engineering](#324-ibm-mq-reverse-engineering)
+  - [32.5 ibm-mq-java-development](#325-ibm-mq-java-development)
+  - [32.6 ibm-mq-troubleshooting](#326-ibm-mq-troubleshooting)
+  - [32.7 ibm-mq-security-audit](#327-ibm-mq-security-audit)
+  - [32.8 ibm-mq-upgrade](#328-ibm-mq-upgrade)
+  - [32.9 ibm-mq-test](#329-ibm-mq-test)
+  - [32.10 SKILL.md 範本](#3210-skillmd-範本)
+  - [32.11 Checklist](#3211-checklist)
+- [Part 33 — AI Agent 自動產生文件](#part-33--ai-agent-自動產生文件)
+  - [33.1 目的](#331-目的)
+  - [33.2 文件清單](#332-文件清單)
+  - [33.3 Deployment Diagram 範例](#333-deployment-diagram-範例)
+  - [33.4 文件產生流程](#334-文件產生流程)
+  - [33.5 Prompt：產生 Queue Specification](#335-prompt產生-queue-specification)
+  - [33.6 Checklist](#336-checklist)
+- [Part 34 — IBM MQ Coding Standards](#part-34--ibm-mq-coding-standards)
+  - [34.1 目的](#341-目的)
+  - [34.2 規則表](#342-規則表)
+  - [34.3 Code Review 快速判斷](#343-code-review-快速判斷)
+  - [34.4 Checklist](#344-checklist)
+- [Part 35 — IBM MQ Naming Standards](#part-35--ibm-mq-naming-standards)
+  - [35.1 目的](#351-目的)
+  - [35.2 Queue Manager](#352-queue-manager)
+  - [35.3 Queue](#353-queue)
+  - [35.4 Channel（≤ 20 字元）](#354-channel-20-字元)
+  - [35.5 Topic](#355-topic)
+  - [35.6 Subscription](#356-subscription)
+  - [35.7 其他物件](#357-其他物件)
+  - [35.8 Checklist](#358-checklist)
+- [Part 36 — IBM MQ Production Checklist](#part-36--ibm-mq-production-checklist)
+  - [36.1 Development Checklist](#361-development-checklist)
+  - [36.2 Code Review Checklist](#362-code-review-checklist)
+  - [36.3 Security Checklist](#363-security-checklist)
+  - [36.4 Deployment Checklist](#364-deployment-checklist)
+  - [36.5 Operation Checklist](#365-operation-checklist)
+  - [36.6 Upgrade Checklist](#366-upgrade-checklist)
+  - [36.7 Incident Checklist](#367-incident-checklist)
+  - [36.8 DR Checklist](#368-dr-checklist)
+- [Part 37 — IBM MQ 架構設計案例](#part-37--ibm-mq-架構設計案例)
+  - [37.1 Case 1：Spring Boot → IBM MQ → Legacy Java](#371-case-1spring-boot--ibm-mq--legacy-java)
+  - [37.2 Case 2：Vue → API → Spring Boot → IBM MQ → Mainframe](#372-case-2vue--api--spring-boot--ibm-mq--mainframe)
+  - [37.3 Case 3：銀行交易 Request / Reply](#373-case-3銀行交易-request--reply)
+  - [37.4 Case 4：批次系統透過 IBM MQ 傳送資料](#374-case-4批次系統透過-ibm-mq-傳送資料)
+  - [37.5 Case 5：IBM MQ 多 Queue Manager](#375-case-5ibm-mq-多-queue-manager)
+  - [37.6 Case 6：IBM MQ HA / DR](#376-case-6ibm-mq-ha--dr)
+  - [37.7 Case 7：Legacy MQ Application Reverse Engineering](#377-case-7legacy-mq-application-reverse-engineering)
+  - [37.8 Case 8：Java / Spring Boot / IBM MQ Framework Upgrade](#378-case-8java--spring-boot--ibm-mq-framework-upgrade)
+- [Part 38 — AI Agent 實戰專案](#part-38--ai-agent-實戰專案)
+  - [38.1 目的](#381-目的)
+  - [38.2 專案架構](#382-專案架構)
+  - [38.3 任務與 AI Agent 協助](#383-任務與-ai-agent-協助)
+  - [38.4 驗收標準](#384-驗收標準)
+- [Part 39 — AI Agent 工作流程](#part-39--ai-agent-工作流程)
+  - [39.1 目的](#391-目的)
+  - [39.2 流程](#392-流程)
+  - [39.3 Agent 定義](#393-agent-定義)
+  - [39.4 Checklist](#394-checklist)
+- [Part 40 — IBM MQ 與企業 AI SDLC](#part-40--ibm-mq-與企業-ai-sdlc)
+  - [40.1 目的](#401-目的)
+  - [40.2 流程](#402-流程)
+  - [40.3 各階段 AI 協助](#403-各階段-ai-協助)
+- [Part 41 — IBM MQ AI Governance](#part-41--ibm-mq-ai-governance)
+  - [41.1 目的](#411-目的)
+  - [41.2 AI 可以做](#412-ai-可以做)
+  - [41.3 AI 不可以直接做](#413-ai-不可以直接做)
+  - [41.4 治理架構](#414-治理架構)
+  - [41.5 責任歸屬（RACI 範例）](#415-責任歸屬raci-範例)
+  - [41.6 IBM MQ Agent 治理](#416-ibm-mq-agent-治理)
+  - [41.7 Checklist](#417-checklist)
+- [Part 42 — AI Agent Prompt Library](#part-42--ai-agent-prompt-library)
+  - [42.1 使用說明](#421-使用說明)
+  - [P01 MQ Architecture Analysis](#p01-mq-architecture-analysis)
+  - [P02 MQ Configuration Analysis](#p02-mq-configuration-analysis)
+  - [P03 Queue Analysis](#p03-queue-analysis)
+  - [P04 Channel Analysis](#p04-channel-analysis)
+  - [P05 Java MQ Analysis](#p05-java-mq-analysis)
+  - [P06 JMS Analysis](#p06-jms-analysis)
+  - [P07 Spring Boot MQ Analysis](#p07-spring-boot-mq-analysis)
+  - [P08 MQ Reverse Engineering](#p08-mq-reverse-engineering)
+  - [P09 Message Flow Analysis](#p09-message-flow-analysis)
+  - [P10 MQ Error Analysis](#p10-mq-error-analysis)
+  - [P11 MQ Security Audit](#p11-mq-security-audit)
+  - [P12 MQ Performance Analysis](#p12-mq-performance-analysis)
+  - [P13 MQ Upgrade Analysis](#p13-mq-upgrade-analysis)
+  - [P14 Java Upgrade](#p14-java-upgrade)
+  - [P15 Spring Boot Upgrade](#p15-spring-boot-upgrade)
+  - [P16 Jakarta Migration](#p16-jakarta-migration)
+  - [P17 MQ Test Generation](#p17-mq-test-generation)
+  - [P18 Integration Test](#p18-integration-test)
+  - [P19 Performance Test](#p19-performance-test)
+  - [P20 MQSC Generation](#p20-mqsc-generation)
+  - [P21 MQ Documentation Generation](#p21-mq-documentation-generation)
+  - [P22 Sequence Diagram Generation](#p22-sequence-diagram-generation)
+  - [P23 Architecture Diagram Generation](#p23-architecture-diagram-generation)
+  - [P24 Production Checklist](#p24-production-checklist)
+  - [P25 Incident Analysis](#p25-incident-analysis)
+  - [P26 DLQ Analysis](#p26-dlq-analysis)
+  - [P27 Retry Analysis](#p27-retry-analysis)
+  - [P28 Transaction Analysis](#p28-transaction-analysis)
+  - [P29 HA/DR Analysis](#p29-hadr-analysis)
+  - [P30 MQ Modernization](#p30-mq-modernization)
+  - [P31 MQ Code Review](#p31-mq-code-review)
+  - [P32 CCSID / 編碼問題分析](#p32-ccsid--編碼問題分析)
+  - [P33 IBM MQ Agent 診斷提問範本](#p33-ibm-mq-agent-診斷提問範本)
+  - [P34 Messaging REST API 適用性評估](#p34-messaging-rest-api-適用性評估)
+- [Part 43 — 常見錯誤](#part-43--常見錯誤)
+  - [43.1 IBM MQ 開發人員最常犯的錯誤](#431-ibm-mq-開發人員最常犯的錯誤)
+- [Part 44 — IBM MQ 版本與升級策略](#part-44--ibm-mq-版本與升級策略)
+  - [44.1 目的](#441-目的)
+  - [44.2 IBM MQ 版本模型](#442-ibm-mq-版本模型)
+  - [44.3 10.0 版本重點（官方查證）](#443-100-版本重點官方查證)
+  - [44.4 升級對照表](#444-升級對照表)
+  - [44.5 升級策略建議](#445-升級策略建議)
+- [Part 45 — Enterprise IBM MQ Reference Architecture](#part-45--enterprise-ibm-mq-reference-architecture)
+  - [45.1 參考架構](#451-參考架構)
+  - [45.2 完整參考架構（含橫切面）](#452-完整參考架構含橫切面)
+  - [45.3 橫切面說明](#453-橫切面說明)
+- [Part 46 — 最終企業標準](#part-46--最終企業標準)
+  - [46.1 Architecture Standard](#461-architecture-standard)
+  - [46.2 Development Standard](#462-development-standard)
+  - [46.3 Java Standard](#463-java-standard)
+  - [46.4 Queue Standard](#464-queue-standard)
+  - [46.5 Channel Standard](#465-channel-standard)
+  - [46.6 Security Standard](#466-security-standard)
+  - [46.7 Logging Standard](#467-logging-standard)
+  - [46.8 Monitoring Standard](#468-monitoring-standard)
+  - [46.9 Testing Standard](#469-testing-standard)
+  - [46.10 Deployment Standard](#4610-deployment-standard)
+  - [46.11 Upgrade Standard](#4611-upgrade-standard)
+  - [46.12 AI Agent Standard](#4612-ai-agent-standard)
+  - [46.13 Reverse Engineering Standard](#4613-reverse-engineering-standard)
+  - [46.14 Production Operation Standard](#4614-production-operation-standard)
+- [IBM MQ Quick Reference](#ibm-mq-quick-reference)
+  - [常用 MQSC](#常用-mqsc)
+  - [常用 Control Commands](#常用-control-commands)
+  - [PCF 與 REST API](#pcf-與-rest-api)
+  - [z/OS](#zos)
+  - [常用 Reason Code](#常用-reason-code)
+  - [常用 Queue Pattern](#常用-queue-pattern)
+  - [常用 Channel Pattern](#常用-channel-pattern)
+  - [Java API（IBM MQ classes for Java）](#java-apiibm-mq-classes-for-java)
+  - [JMS API（Jakarta Messaging）](#jms-apijakarta-messaging)
+  - [Spring Boot](#spring-boot)
+  - [Troubleshooting](#troubleshooting)
+  - [Security](#security)
+  - [Production Checklist](#production-checklist)
+  - [AI Agent Prompt](#ai-agent-prompt)
+- [新進成員 Checklist](#新進成員-checklist)
+  - [第一週：理解](#第一週理解)
+  - [第二週：動手](#第二週動手)
+  - [第三週：整合](#第三週整合)
+  - [第四週：企業實務](#第四週企業實務)
+  - [第五週：進階管理與生態系](#第五週進階管理與生態系)
+- [參考資料](#參考資料)
+- [附錄：手冊品質自我審查](#附錄手冊品質自我審查)
+  - [第六節 Mermaid 圖對照](#第六節-mermaid-圖對照)
 
 ---
 
-## 1. 文件說明
+## Part 1 — IBM MQ 基礎與核心概念
 
-### 1.1 文件目的
+### 1.1 目的
 
-本手冊的目的是建立一套 **「Trivy + AI Agent + SSDLC + CI/CD + Container + Kubernetes + Cloud + SBOM」** 的企業級安全開發方法，讓：
+讓讀者在動手寫程式之前，先回答三個問題：IBM MQ 解決什麼問題？什麼時候該用、什麼時候不該用？它在企業（特別是金融業）架構中扮演什麼角色？
 
-- 開發人員知道**何時、如何**在本機執行 Trivy。
-- AI Coding Agent 知道**何時必須**執行 Trivy、如何解讀結果、哪些修正可以自動執行、哪些必須停下來等待人工核准。
-- DevSecOps 知道如何把 Trivy 放進 CI/CD、Registry、Kubernetes 與 Cloud。
-- Security Team 知道如何管理 Exception、VEX、到期日與稽核證據。
-- Platform Team 知道如何安全地安裝、升級、快取與離線運作 Trivy。
+### 1.2 Message Oriented Middleware（訊息導向中介軟體）
 
-### 1.2 適用對象
+Message Oriented Middleware（MOM，訊息導向中介軟體）的核心概念只有一句話：
 
-| 角色 | 在本手冊中的責任 |
-|------|------------------|
-| PM | 把安全掃描納入時程與驗收條件；追蹤 KPI |
-| SA | 在需求階段定義安全需求（SBOM、License、Secret 政策） |
-| Architect | 決定掃描點、Security Gate 位置、Reference Architecture |
-| Developer | 本機掃描、修正 Finding、提出 Exception |
-| DevOps | CI/CD 整合、DB 快取、Registry 認證 |
-| DevSecOps | 掃描政策、Gate 門檻、Exception 審核流程 |
-| Security Engineer | Finding 風險評估、VEX、Secret 事件應變 |
-| AI Engineer | 設計 AI Agent 的 Trivy 工具呼叫與 Guardrail |
-| AI Agent Developer | 撰寫 Prompt、AGENTS.md 規則、驗證 AI 行為 |
+> **發送方把資料放進一個「中間的可靠容器」，接收方在自己方便的時候從容器取出。雙方不需要同時在線，也不需要知道對方在哪裡。**
 
-### 1.3 適用系統
+這個「中間容器」就是 Queue（佇列），管理容器的伺服器程式就是 Queue Manager（佇列管理器）。
 
-- 企業大型 Web Application（Vue / Angular 前端 + Java / Spring Boot 後端）。
-- 容器化系統（Docker / OCI Image、Kubernetes、OpenShift）。
-- 以 Terraform / CloudFormation / Azure ARM / Helm / Ansible 管理的基礎設施。
-- 正在進行 **Reverse Engineering** 的 Legacy System。
-- 正在進行 **Framework Upgrade**（Java、Spring Boot、Node.js、Vue、Angular、Base Image、Kubernetes）的系統。
+用生活比喻：
 
-### 1.4 適用開發流程
+| 通訊方式 | 比喻 | 特性 |
+|----------|------|------|
+| TCP Socket | 打電話 | 雙方必須同時在線；斷線就中斷 |
+| REST API | 到櫃檯辦事 | 必須等櫃員回應；櫃員不在就失敗 |
+| IBM MQ | 掛號郵件 + 郵局 | 寄件人投遞後即可離開；郵局保證送達、可追蹤、可退件 |
+
+### 1.3 IBM MQ 的定位
+
+IBM MQ 是 IBM 的企業級訊息中介軟體產品，前身為 MQSeries、WebSphere MQ。它的設計重點是：
+
+1. **Assured Delivery（確保送達）**：Persistent Message 搭配 Syncpoint，在 Queue Manager 重啟後仍不遺失。
+2. **Once-and-only-once 傳遞（於 MQ 網路內）**：Queue Manager 之間的 Channel 以批次確認與序號機制避免重複或遺失。**注意：這個保證只在 MQ 網路內部成立，應用程式端的重複處理仍需自行設計 Idempotency（見 Part 13、15）。**
+3. **跨平台**：Linux、Windows、AIX、IBM i、z/OS、容器、雲端，以及 MQ Appliance。
+4. **多種 API**：MQI（C、COBOL 等）、Java、JMS / Jakarta Messaging、.NET、XMS、REST、AMQP、MQTT。
+5. **企業級安全與維運**：TLS、CHLAUTH、CONNAUTH、OAM、事件監控、統計與帳務資料。
+
+### 1.4 IBM MQ 解決什麼問題
+
+| 問題 | 沒有 MQ 時 | 使用 MQ 後 |
+|------|-----------|-----------|
+| 系統暫時離線 | 呼叫方失敗或必須自行重試、暫存 | 訊息留在佇列，對方上線後處理 |
+| 流量尖峰 | 後端被打爆 | 佇列吸收尖峰，Consumer 依自身能力處理（削峰填谷） |
+| 異質平台整合 | 每對系統寫一套轉換與傳輸程式 | 統一透過 MQ API 與 Channel |
+| 可靠性 | 自行實作 ack、重送、去重 | Persistent + Syncpoint + Channel 協定 |
+| 解耦 | 呼叫方需知道對方位址 | 只需知道佇列名稱，路由由 MQ 設定決定 |
+| 稽核與追蹤 | 散落各系統日誌 | Message ID / Correlation ID、事件、帳務記錄 |
+
+### 1.5 IBM MQ 與其他技術的比較
+
+> **比較原則**：以下比較著重「設計取向與適用情境」，不代表某一技術絕對優於另一技術。實際選型應依需求、既有資產、團隊能力與授權成本評估。
+
+#### 1.5.1 IBM MQ 與 REST API
+
+| 面向 | REST API | IBM MQ |
+|------|----------|--------|
+| 互動模式 | 同步 Request / Response | 非同步為主，也可做 Request / Reply |
+| 時間耦合 | 雙方必須同時可用 | 不需同時可用 |
+| 可靠性 | 由呼叫方自行重試；重試可能造成重複 | Persistent + Syncpoint 保證送達 MQ |
+| 流量控制 | 需另加 Rate Limit / Circuit Breaker | 佇列天然緩衝 |
+| 適合情境 | 查詢、即時互動、對外開放 API | 交易指令、系統間可靠傳遞、批次資料、跨平台整合 |
+| 不適合情境 | 對方常離線、尖峰極高 | 需要立即回應的使用者查詢（除非搭配 Request / Reply 與 Timeout） |
+
+#### 1.5.2 IBM MQ 與 Apache Kafka
+
+| 面向 | Apache Kafka | IBM MQ |
+|------|--------------|--------|
+| 核心模型 | 分散式、可重播的事件日誌（Log） | 佇列（取走即消失）與 Pub/Sub |
+| 訊息保留 | 依保留政策保存，可多次重讀 | 取走（destructive get）後即刪除；Browse 不刪除 |
+| 典型用途 | 事件串流、資料管線、大量事件分析 | 交易指令、Request / Reply、可靠點對點 |
+| 交易語意 | 支援 Kafka transactions（主要在 Kafka 生態內） | Syncpoint、XA 兩階段提交（可與 DB 協調） |
+| 個別訊息處理 | 以 offset 為單位，單筆刪除不是設計重點 | 以單筆訊息為單位，支援 Backout、DLQ |
+| 整合 | 兩者可並存；IBM MQ Advanced 提供 Kafka Connect 來源與接收 connector `[MQ 9.4 CD]` | |
+
+**實務建議**：交易指令（轉帳、扣款、下單）走 MQ；交易完成後產生的事件（供分析、通知）可轉發到 Kafka。兩者是互補而非替代。
+
+#### 1.5.3 IBM MQ 與 RabbitMQ
+
+| 面向 | RabbitMQ | IBM MQ |
+|------|----------|--------|
+| 協定 | AMQP 0-9-1 為主，另支援 AMQP 1.0、MQTT、STOMP 等 | MQ 原生協定，另支援 AMQP 1.0、MQTT |
+| 路由 | Exchange + Binding，彈性高 | Queue Alias、Remote Queue、Cluster、Topic |
+| 授權 | 開源（另有商業支援） | 商業授權（有免費 Developer 版本） |
+| 企業特性 | 依版本與外掛提供 | 內建 XA、z/OS 整合、CHLAUTH、AMS 端到端加密（Advanced） |
+| 適合情境 | 雲原生微服務、彈性路由 | 大型主機整合、金融交易、需要正式原廠支援的關鍵系統 |
+
+#### 1.5.4 IBM MQ 與傳統 TCP Socket
+
+很多 Legacy 系統（特別是金融業的電文系統）仍使用自訂 TCP Socket 協定。兩者差異：
+
+| 面向 | TCP Socket | IBM MQ |
+|------|-----------|--------|
+| 訊息邊界 | 需自行定義（長度欄位、分隔字元） | 由 MQ 管理 |
+| 斷線重連 | 自行實作 | Channel 自動重試；Client 自動重連（可設定） |
+| 暫存 | 自行實作 | 佇列 |
+| 加密 | 自行處理 TLS | Channel 層 TLS 設定 |
+| 重複 / 遺失 | 全部自行處理 | MQ 內部保證；應用層仍需 Idempotency |
+
+### 1.6 IBM MQ 在企業整合中的角色
 
 ```mermaid
-flowchart LR
-    A["需求"] --> B["設計"]
-    B --> C["開發 / AI Agent 實作"]
-    C --> D["建置"]
-    D --> E["測試"]
-    E --> F["部署"]
-    F --> G["維運"]
-    G --> H["維護 / 升級"]
-    C -.->|"trivy fs / repo"| T["Trivy"]
-    D -.->|"trivy image / SBOM"| T
-    F -.->|"trivy config / k8s"| T
-    G -.->|"Trivy Operator"| T
-    H -.->|"Before / After 比對"| T
+flowchart TB
+    subgraph Channel["通路層"]
+        WEB["網路銀行 Web"]
+        APP["行動 App"]
+        BR["分行櫃員系統"]
+    end
+    subgraph Middle["整合層"]
+        API["API Gateway"]
+        SVC["Spring Boot 服務"]
+        MQ[("IBM MQ<br/>Queue Manager")]
+    end
+    subgraph Core["核心層"]
+        CBS["Core Banking"]
+        MF["Mainframe / CICS"]
+        CARD["信用卡系統"]
+        BATCH["批次系統"]
+    end
+    WEB --> API
+    APP --> API
+    BR --> SVC
+    API --> SVC
+    SVC <--> MQ
+    MQ <--> CBS
+    MQ <--> MF
+    MQ <--> CARD
+    MQ <--> BATCH
 ```
 
-### 1.5 Trivy 在企業 SSDLC 中的角色
+IBM MQ 在企業整合中常扮演：
 
-Trivy 在 SSDLC（Secure Software Development Life Cycle，安全軟體開發生命週期）中扮演的是 **「自動化偵測（Detection）控制點」**：
+1. **前台與核心之間的緩衝層**：前台流量尖峰不會直接衝擊核心。
+2. **異質平台的共同語言**：Java、.NET、COBOL、C 都能透過 MQ 溝通。
+3. **可靠的交易通道**：交易指令不因網路短暫中斷而遺失。
+4. **系統邊界**：佇列名稱就是系統之間的契約。
 
-| 定位 | 說明 |
-|------|------|
-| 是什麼 | 多 Target、多 Scanner 的安全掃描器，產出可機器處理的 Finding 與 SBOM |
-| 不是什麼 | 不是完整 SAST、不是 DAST、不是 WAF、不是 Runtime Protection、不是完整 CSPM |
-| 產出 | Vulnerability、Misconfiguration、Secret、License、SBOM、Compliance Report |
-| 消費者 | Developer、AI Agent、CI/CD Gate、GitHub Code Scanning、SIEM、稽核 |
+### 1.7 IBM MQ 在金融業的常見用途
 
-### 1.6 Trivy 與 AI Agent 的關係
+| 用途 | 說明 | 常見模式 |
+|------|------|----------|
+| 轉帳 / 扣款 | 前台送交易指令到核心系統 | Request / Reply |
+| 跨行交易 | 與清算機構、外部銀行介接 | Distributed Queuing（Sender / Receiver Channel） |
+| 帳務通知 | 交易完成後通知簡訊、推播、稽核 | Pub/Sub 或多 Queue 分送 |
+| 批次資料傳遞 | 日終資料、對帳檔分段傳遞 | Message Group、Managed File Transfer（MFT） |
+| 主機整合 | 透過 CICS / IMS Bridge 呼叫主機交易 | Request / Reply |
+| 風控 / 反洗錢 | 交易事件送風控引擎 | 非同步事件 |
 
-AI Agent 寫程式的速度遠超過人類 Review 的速度。Trivy 對 AI Agent 的價值有三個：
+### 1.8 實務案例
 
-1. **客觀的回饋訊號**：AI Agent 修改了 `pom.xml`，Trivy 可以立刻告訴它新增了哪些 CVE。
-2. **可驗證的完成條件**：「修好了」不是 AI 說了算，而是 Re-scan 的結果說了算。
-3. **自動化的 Guardrail**：CI/CD 中的 Trivy Gate 是 AI Agent 無法「說服」的關卡。
+某銀行網銀轉帳原本以 REST 同步呼叫核心系統。核心系統每晚 23:30 至 00:30 進行日切，期間網銀轉帳全數失敗並顯示系統忙碌。改為「網銀 → Spring Boot → MQ → 核心」後，日切期間的轉帳指令留在 Request Queue，日切完成後依序處理，前台改為顯示「交易已受理，處理中」並提供查詢。
 
-但也必須防範三種風險：
+**但這個改動帶來新問題**：使用者可能因為沒有立即看到結果而重按，造成重複轉帳。解法是 Idempotency Key（見 Part 15）。**MQ 解決了可用性問題，但也把一致性問題推到應用層。**
 
-1. AI Agent 為了讓 Pipeline Pass 而加入 `.trivyignore`、把 `exit-code` 改成 0、或移除 Scan Step。
-2. AI Agent 把 Secret Finding 的原文貼進對話、Log 或 Ticket。
-3. AI Agent 對 License 自行下法律結論。
+### 1.9 注意事項
 
-這三種風險在第 29、30、55 章與附錄 F 有完整規範。
+- 不要因為「MQ 很可靠」就省略應用層的 Idempotency。
+- 不要把 MQ 當成 REST 的替代品用在需要立即回應的查詢上。
+- 導入 MQ 前，先確認誰負責 Queue Manager 的維運，避免「開發建了、沒人管」。
 
-### 1.7 本文件使用的 Trivy 版本
+### 1.10 IBM MQ 核心元件總覽
 
-| 項目 | 版本 | 發布日 | 狀態 |
-|------|------|--------|------|
-| Trivy | v0.75.0 | 2026-10-01 | Latest、Immutable Release |
-| Trivy（前一版） | v0.74.0 | 2026-08-14 | 可作為保守釘選版本 |
-| trivy-action | v0.36.0 | 2026-04-22 | Latest；`action.yaml` 的 `version` 預設為 **v0.70.0**，內部以 SHA 固定 setup-trivy v0.2.6 |
-| setup-trivy | v0.3.1 | 2026-06-03 | Latest；v0.3.0（2026-06-02）無法載入，**不可使用**；安全下限 ≥ v0.2.6 |
-| Trivy Operator | v0.34.0 | 2026-08-24 | Latest，內建 Trivy 0.74.0；Helm Chart 0.36.0；專案仍標示 incubating |
-| Trivy Server Helm Chart | 0.27.0 | 2026-10-01 | 內建 Trivy 0.75.0（`helm/trivy`） |
-| trivy-aws plugin | v0.15.1 | 約 2 年前 | 維護頻率低，請見第 12 章 |
-| trivy-mcp plugin | v0.0.20 | 約 10 個月前 | 0.0.x 早期版本，請見第 26.4 節 |
-
-> **【企業建議】** 文件以 v0.75.0 為基準撰寫，但企業正式環境應「釘選版本、在測試環境驗證後再升級」。v0.75.0 發布僅數日，建議先在非正式 Pipeline 試行一個週期。
->
-> **注意版本落差**：同一組織內 CLI（v0.75.0）、trivy-action 預設值（v0.70.0）、Operator 內建版本（0.74.0）可能各不相同。使用 trivy-action 時**一律明確指定 `version`**，並在升級時同步檢查 Operator 與 Server 的 Trivy 版本（第 41 章）。
-
-### 1.8 v0.53 以後的重要版本差異
-
-| 版本 | 變更 | 類型 | 對使用者的影響 |
-|------|------|------|----------------|
-| v0.75.0 | 報告 template 移除 `getHostByName` | **Breaking** | 自訂 template 使用此函式會解析失敗 |
-| v0.75.0 | 新增 `crypto` scanner（CBOM） | Experimental | 僅支援 image + CycloneDX |
-| v0.75.0 | `--config=""`、`--ignorefile=""` 可停用設定檔載入 | 新功能 | CI 可避免被 repo 內設定檔左右 |
-| v0.75.0 | uv workspace、Echo 修補版 Python 套件偵測 | 新功能 | Python 專案 Finding 可能增加 |
-| v0.74.0 | RapidFort curated image 偵測；JAR `Bundle-License` / pom `<url>` 轉 SPDX ID | 新功能 | 授權辨識更完整 |
-| v0.73.0 | trivy.yaml 支援自訂 Maven mirrors | 新功能 | 企業內部 Nexus / Artifactory |
-| v0.73.0 | VEX 以 OCI artifact 原生探索（含 in-toto referrers） | 新功能 | VEX 可與映像一起發布 |
-| v0.72.0 | Bottlerocket OS、.NET self-contained runtime、OpenAI 與 GitHub App token 規則 | 新功能 | 覆蓋範圍擴大 |
-| v0.72.0 | 發行流程改用 GoReleaser `dockers_v2` | **Breaking（CI）** | 官方發行流程變更，使用者 CLI 不受影響 |
-| v0.71.0 | CycloneDX 1.7、讀取 `settings.xml` 的 `<mirrors>` | 新功能 | Java 企業環境 |
-| v0.71.0 | Azure 與 Maven settings Secret 規則；可自訂 Secret 略過的目錄 / 檔案 / 副檔名；Ubuntu 26.04 | 新功能 | Secret 與 OS 覆蓋 |
-| v0.70.0 | `pylock.toml`（PEP 751）、Client/Server JSON 含 Server 版本、template 必須 `.tpl` | 新功能 / 行為變更 | Python、報告追蹤 |
-| v0.69.0 | misconf providers mapping 改用 ID（非 AVDID） | **Breaking** | 自訂 check / mapping 需檢查 |
-| v0.69.0 | Ansible 掃描初始支援、trivy.yaml JSON Schema | 新功能 | IaC 覆蓋擴大 |
-| v0.68.0 | `--cacert`、ReportID、ArtifactID、Fingerprint | 新功能 | 企業 CA、報告追蹤 |
-| v0.67.0 | `--list-all-pkgs` 預設改為 true | 行為變更 | JSON 報告變大 |
-| v0.57.0 | `trivy auth` 更名為 `trivy registry` | 更名 | 舊腳本需修改 |
-| v0.57.0 | 指定的 ignore file 不存在時報錯 | 行為變更 | CI 路徑錯誤會直接失敗 |
-| v0.55.0 | 刪除已棄用的 SBOM flags | **Breaking** | 舊 SBOM 指令需改寫 |
-| v0.54.0 | `--vuln-type` 更名為 `--pkg-types` | 更名 | trivy-action 仍保留 `vuln-type` input |
-| v0.53.0 | 移除 `trivy aws` 子命令 | **Breaking** | 改用 trivy-aws plugin |
-| v0.53.0 | 新增 `trivy clean` 子命令 | 新功能 | 取代舊的清除快取 flag |
-
-完整的「舊指令 / 新指令」對照表見 **附錄 G**。
-
-### 1.9 文件更新策略
-
-| 觸發條件 | 更新動作 | 負責角色 |
-|----------|----------|----------|
-| Trivy Minor 版本發布 | 檢查 CHANGELOG 的 BREAKING CHANGES，更新 1.8 與附錄 G | DevSecOps |
-| Trivy Security Advisory 發布 | 24 小時內評估、更新第 41、45 章 | Security Team |
-| trivy-action / setup-trivy 新版 | 更新第 20 章 SHA pin 範例、核對 `action.yaml` 的 `version` 預設值 | Platform Team |
-| Operator / Server Helm Chart / MCP plugin 新版 | 更新 1.7 版本表與第 11、13、26 章 | Platform Team |
-| 企業 Security Policy 變更 | 更新第 38、39、55 章 | Security Team |
-| 每季 | 全文 Technical Review | Architecture Governance |
-
-### 實務案例
-
-某金融業 Java 團隊在 2026 年 Q2 導入 Trivy，初期沿用網路文章中的 `--vuln-type os,library` 與 `trivy aws` 指令，結果在 v0.6x 的 Runner 上一個 flag 被警告、一個子命令根本不存在。導入 1.8 節的版本差異表後，團隊建立「所有 Trivy 指令只能從內部手冊複製」的規則，CI 失敗率明顯下降。
-
-### 注意事項
-
-- 本手冊的指令以 **Trivy v0.75.0** 為準，舊版本執行可能出現不支援的 flag。
-- 任何標示 **Experimental** 的功能，不建議直接作為 Production Security Gate 的唯一依據。
-- 手冊中的 Gate 門檻、Exception 效期皆為 **【企業建議】**，必須經企業 Security Team 核定後才生效。
-
----
-
-## 2. Trivy 是什麼
-
-### 2.1 Trivy 定位
-
-Trivy 官方的自我描述是 **「Unified security scanner」**（統一的安全掃描器）。它把過去需要多種工具才能完成的掃描，整合在同一個 CLI 與同一套報告格式中：
-
-| 過去需要的工具類型 | Trivy 對應能力 |
-|--------------------|----------------|
-| Container Image Scanner | `trivy image` |
-| SCA（Software Composition Analysis，軟體組成分析） | `trivy fs` / `trivy repo` 的 vuln scanner |
-| Secret Scanner | `--scanners secret` |
-| IaC Scanner | `trivy config` / `--scanners misconfig` |
-| License Scanner | `--scanners license` |
-| SBOM Generator | `--format cyclonedx / spdx / spdx-json` |
-| SBOM Scanner | `trivy sbom` |
-| Kubernetes Scanner | `trivy k8s`（Experimental） |
-
-### 2.2 發展背景與 Aqua Security
-
-- Trivy 由 **Aqua Security** 維護，以 Apache-2.0 授權開源，原始碼位於 `github.com/aquasecurity/trivy`。
-- 官方文件位於 `trivy.dev`，每個 Minor 版本都有獨立文件版本（v0.50 至 v0.75）。
-- Aqua Security 另有商業產品，官方文件的「Commercial / Comparison」頁面說明開源版與商業版差異。**本手冊只涵蓋開源版。**
-- 相關開源專案：trivy-db、trivy-java-db、trivy-checks、trivy-action、setup-trivy、trivy-operator、trivy-aws、trivy-mcp（MCP Server plugin）、trivy-vscode-extension。
-
-### 2.3 Trivy 的五個核心領域
-
-| 領域 | 說明 | Trivy 的角色 |
-|------|------|--------------|
-| Security Scanner | 偵測已知弱點、錯誤設定、敏感資訊 | 核心定位 |
-| DevSecOps | 把安全左移到開發與 CI/CD | 提供 CLI、Exit Code、SARIF |
-| Software Supply Chain Security | 管理相依套件、SBOM、VEX、Attestation | 產生與掃描 SBOM、支援 VEX |
-| Container Security | 映像檔中的 OS 套件與應用程式相依 | 核心能力 |
-| Cloud Native Security | Kubernetes、IaC、Cloud 設定 | `trivy k8s`、`trivy config`、Operator |
-
-### 2.4 Trivy 與各類安全工具的差異
-
-| 工具類型 | 全名 | 主要目的 | Trivy 能否取代 |
-|----------|------|----------|----------------|
-| SAST | Static Application Security Testing | 分析**自有原始碼**的邏輯漏洞（SQL Injection、XSS 路徑） | **不能**。Trivy 不做資料流 / 污點分析 |
-| DAST | Dynamic Application Security Testing | 對**執行中**的應用程式發送攻擊請求 | **不能**。Trivy 不執行應用程式 |
-| SCA | Software Composition Analysis | 找出第三方相依套件的已知漏洞 | **可以**執行主要 SCA 功能 |
-| Container Scanner | — | 掃描映像檔 OS 套件與應用相依 | **核心能力** |
-| Secret Scanner | — | 找出硬編碼的金鑰、密碼、Token | **可以**，規則可自訂 |
-| IaC Scanner | Infrastructure as Code Scanner | 找出 Dockerfile、K8s、Terraform 的錯誤設定 | **可以** |
-| SBOM Generator | Software Bill of Materials | 產生軟體物料清單 | **可以**（CycloneDX、SPDX） |
-| CSPM | Cloud Security Posture Management | 持續監控雲端帳號設定 | **部分**：僅 AWS 且需 plugin，非完整 CSPM |
-
-### 2.5 Trivy 不是什麼
-
-> **【官方】** Trivy 是「偵測」工具，不是「修補」工具，也不是「執行期防護」工具。
-
-Trivy **不負責**：
-
-- 找出自有程式碼的業務邏輯漏洞（例如越權存取、IDOR）。
-- 驗證身分驗證 / 授權流程是否正確。
-- 偵測未公開的 0-day 漏洞（只能比對已收錄的 Advisory）。
-- 判斷某個 CVE 在你的程式中是否「真的可被利用」（可透過 VEX 由人來聲明）。
-- 自動修改程式碼或升級套件。
-- 做出法律層面的 License 合規結論。
-- 驗證 Clean Architecture 的分層依賴（請用 ArchUnit）。
-
-### 2.6 Trivy 的價值與限制總表
-
-| 面向 | 價值 | 限制 |
-|------|------|------|
-| 覆蓋面 | 一個工具涵蓋 Image、FS、Repo、IaC、K8s、SBOM | Cloud 僅 AWS 且需 plugin |
-| 速度 | 本機與 CI 皆可快速執行，支援快取 | 首次需下載 DB；Java 需額外 Java DB |
-| 整合 | SARIF、CycloneDX、SPDX、GitHub snapshot | k8s 報告僅 table / json |
-| 準確度 | 使用多個 Vendor Advisory 來源 | 仍有 False Positive / False Negative |
-| 成本 | 開源、免費 | 企業需自行維運 DB Mirror 與治理 |
-
-### 實務案例
-
-某電商平台過去同時使用三套工具：一套掃 Image、一套掃 npm、一套掃 Terraform，報告格式各不相同，Security Team 每週花兩天整理。改用 Trivy 後統一輸出 JSON 與 SARIF，由一支 Python 腳本彙整成 Dashboard。但團隊也清楚記錄：「SQL Injection 仍由 SAST 負責、登入流程弱點仍由 DAST 與滲透測試負責」，避免誤以為導入 Trivy 就完成 AppSec。
-
-### 注意事項
-
-- 不要在對外簡報中寫「導入 Trivy 即符合 OWASP Top 10」，這是過度宣稱。
-- Trivy 找到 0 個 Finding，**不代表**系統是安全的，只代表在已知資料庫與已啟用的 Scanner 範圍內沒有發現問題。
-
----
-
-## 3. Trivy 核心概念
-
-### 3.1 六大要素
-
-Trivy 的運作可以用六個要素理解：
+本節起建立對 IBM MQ 物件（Objects）的完整心智模型，理解每個元件的職責與彼此關係。
 
 ```text
-Target（掃描什麼）
-   +
-Scanner（找出什麼）
-   +
-Data Source（比對依據：Vulnerability DB、Java DB、Checks Bundle）
-   +
-Policy（過濾與判斷：severity、ignore、VEX、Rego）
-   +
-Report（輸出：table、json、sarif、cyclonedx、spdx…）
-   +
-CI/CD Gate（決策：exit-code、企業門檻）
+Application
+    ↓
+MQ Client / MQI / JMS
+    ↓
+Queue Manager
+    ↓
+Queue
+    ↓
+Channel
+    ↓
+Remote Queue Manager
+    ↓
+Application
 ```
-
-| 要素 | 說明 | 主要 CLI / 設定 |
-|------|------|-----------------|
-| Target | 被掃描的對象 | `image`、`fs`、`repo`、`rootfs`、`vm`、`k8s`、`sbom`、`config` |
-| Scanner | 偵測的問題類型 | `--scanners vuln,misconfig,secret,license,crypto` |
-| Data Source | 比對資料 | `--db-repository`、`--java-db-repository`、`--checks-bundle-repository` |
-| Policy | 篩選與抑制 | `--severity`、`--ignore-unfixed`、`--ignorefile`、`--vex`、`--ignore-policy` |
-| Report | 輸出格式 | `--format`、`--output`、`--template`、`trivy convert` |
-| CI/CD Gate | 是否讓流程失敗 | `--exit-code`、`--exit-on-eol` |
-
-### 3.2 Trivy Overall Architecture
-
-```mermaid
-flowchart TB
-    subgraph Input["輸入 Targets"]
-        I1["Container Image"]
-        I2["Filesystem / Rootfs"]
-        I3["Git Repository"]
-        I4["VM Image"]
-        I5["Kubernetes Cluster"]
-        I6["SBOM 檔案"]
-    end
-    subgraph Core["Trivy Core"]
-        A["Artifact Analyzer<br/>解析套件與設定檔"]
-        S1["Vulnerability Scanner"]
-        S2["Misconfiguration Scanner"]
-        S3["Secret Scanner"]
-        S4["License Scanner"]
-        S5["Crypto Scanner - Experimental"]
-    end
-    subgraph Data["Data Sources"]
-        D1["trivy-db"]
-        D2["trivy-java-db"]
-        D3["trivy-checks bundle"]
-        D4["VEX 文件"]
-    end
-    subgraph Output["輸出"]
-        O1["table / json"]
-        O2["sarif"]
-        O3["cyclonedx / spdx"]
-        O4["template / github"]
-    end
-    Input --> A
-    A --> S1 & S2 & S3 & S4 & S5
-    D1 --> S1
-    D2 --> S1
-    D3 --> S2
-    D4 --> S1
-    S1 & S2 & S3 & S4 & S5 --> Output
-```
-
-### 3.3 Target × Scanner Matrix
-
-**【官方】** 下表依官方文件整理各 Target 預設與可用的 Scanner（✓＝可用；★＝預設啟用；—＝不適用 / 官方未說明）：
-
-| Target | vuln | misconfig | secret | license | crypto |
-|--------|------|-----------|--------|---------|--------|
-| `trivy image` | ★ | ✓ | ★ | ✓ | ✓（Experimental） |
-| `trivy fs` | ★ | ✓ | ★ | ✓ | — |
-| `trivy repo` | ★ | ✓ | ★ | ✓ | — |
-| `trivy rootfs` | ★ | ✓ | ★ | ✓ | — |
-| `trivy vm`（Experimental） | ★ | ✓ | ★ | ✓ | — |
-| `trivy config` | — | ★ | — | — | — |
-| `trivy sbom` | ★ | — | — | ✓ | — |
-| `trivy k8s`（Experimental） | ★ | ★ | ★ | — | — |
-
-> **注意**：`image` / `fs` / `repo` / `vm` 的 `--scanners` 預設值為 `vuln,secret`；`sbom` 預設僅 `vuln`。**License 與 Misconfiguration 預設不啟用**，必須明確指定。這是許多團隊以為「Trivy 沒掃 License」的原因。
->
-> `trivy k8s` 另有專屬的 `rbac` scanner，預設值為 `vuln,misconfig,secret,rbac`。
 
 ```mermaid
 flowchart LR
-    subgraph T["Targets"]
-        T1["image"]
-        T2["fs / repo"]
-        T3["config"]
-        T4["sbom"]
-        T5["k8s"]
+    subgraph HostA["主機 A"]
+        AppA["Producer 應用程式"]
+        subgraph QMA["Queue Manager QM_A"]
+            RQ["Remote Queue<br/>ORDER.REQ"]
+            XQ["Transmission Queue<br/>QM_B"]
+            SDR["Sender Channel<br/>QM_A.TO.QM_B"]
+            LSA["Listener :1414"]
+            SVR["SVRCONN Channel<br/>APP.SVRCONN"]
+        end
     end
-    subgraph S["Scanners"]
-        V["vuln"]
-        M["misconfig"]
-        SE["secret"]
-        L["license"]
+    subgraph HostB["主機 B"]
+        subgraph QMB["Queue Manager QM_B"]
+            RCV["Receiver Channel<br/>QM_A.TO.QM_B"]
+            LQ["Local Queue<br/>ORDER.REQ"]
+            DLQ["Dead Letter Queue"]
+            LSB["Listener :1414"]
+        end
+        AppB["Consumer 應用程式"]
     end
-    T1 --> V & SE
-    T1 -.-> M & L
-    T2 --> V & SE
-    T2 -.-> M & L
-    T3 --> M
-    T4 --> V
-    T4 -.-> L
-    T5 --> V & M & SE
+    AppA -- "Client 連線" --> LSA --> SVR
+    SVR -- "MQPUT" --> RQ --> XQ --> SDR
+    SDR -- "TCP / TLS" --> LSB --> RCV
+    RCV --> LQ
+    RCV -. "無法投遞" .-> DLQ
+    LQ -- "MQGET" --> AppB
 ```
 
-實線＝預設啟用；虛線＝需以 `--scanners` 明確啟用（k8s 為 Experimental，另含 rbac scanner）。
+### 1.11 Queue Manager（佇列管理器）
 
-### 3.4 Scan Flow
+Queue Manager 是 IBM MQ 的伺服器端核心程式，負責：
 
-```mermaid
-sequenceDiagram
-    participant U as Developer / AI Agent
-    participant T as Trivy CLI
-    participant C as Cache
-    participant R as DB Repository
-    participant A as Analyzer
-    U->>T: trivy fs --scanners vuln,secret .
-    T->>C: 檢查 DB 是否需更新
-    alt DB 過期或不存在
-        T->>R: 下載 trivy-db / java-db
-        R-->>C: 儲存至 cache-dir
-    end
-    T->>A: 解析 lock file、套件、設定檔
-    A-->>T: 套件清單與檔案內容
-    T->>T: 比對 Advisory、執行規則
-    T->>T: 套用 severity / ignore / VEX
-    T-->>U: 輸出報告與 Exit Code
+- 擁有並管理所有 MQ 物件（Queue、Channel、Topic、Listener 等）
+- 處理應用程式的 MQI 呼叫
+- 管理 Recovery Log（復原日誌），保證 Persistent Message 不遺失
+- 管理交易（Syncpoint）
+- 執行安全檢查（CHLAUTH、CONNAUTH、OAM）
+
+**命名限制**：Queue Manager 名稱最長 48 字元，在整個 MQ 網路中應唯一（Cluster 中必須唯一）。
+
+### 1.12 Queue（佇列）的種類
+
+| 類型 | MQSC 物件 | 用途 | 是否實際存放訊息 |
+|------|----------|------|------------------|
+| Local Queue | `QLOCAL` | 實際存放訊息的佇列 | 是 |
+| Remote Queue（定義） | `QREMOTE` | 指向另一個 Queue Manager 上的佇列 | 否（訊息進入 Transmission Queue） |
+| Transmission Queue | `QLOCAL` + `USAGE(XMITQ)` | 暫存要送往遠端 Queue Manager 的訊息 | 是 |
+| Dead Letter Queue（DLQ） | `QLOCAL`，由 QMGR `DEADQ` 屬性指定 | 存放無法投遞的訊息 | 是 |
+| Alias Queue | `QALIAS` | 為另一個 Queue 或 Topic 取別名 | 否 |
+| Model Queue | `QMODEL` | 動態建立佇列的範本（例如暫時回覆佇列） | 否（範本） |
+| Cluster Queue | `QLOCAL` + `CLUSTER(...)` | 在 Cluster 中公告、可被其他成員找到 | 是 |
+| Backout Queue | `QLOCAL`，由來源佇列 `BOQNAME` 指定 | 存放重試超過次數的毒訊息（Poison Message） | 是 |
+
+**常見誤解**：
+
+- **Remote Queue 不是一個「遠端的佇列」，而是一個「本地的路由定義」。** 對它 MQPUT 時，訊息會被放進 Transmission Queue，再由 Sender Channel 送出。你不能對 Remote Queue 做 MQGET。
+- **Alias Queue 常用於「解耦應用程式與實體佇列」**：應用程式寫死 Alias 名稱，實際佇列可以在不改程式的情況下切換，也可以在 Alias 層級設定不同的權限（例如只允許 GET）。
+
+### 1.13 Channel（通道）的種類
+
+Channel 分為兩大類：
+
+1. **MQI Channel**：應用程式（Client）與 Queue Manager 之間，雙向。
+2. **Message Channel**：Queue Manager 與 Queue Manager 之間，單向。
+
+| Channel 類型 | MQSC `CHLTYPE` | 類別 | 方向 | 說明 |
+|-------------|----------------|------|------|------|
+| Server Connection | `SVRCONN` | MQI | 雙向 | Queue Manager 端，接受 Client 連線 |
+| Client Connection | `CLNTCONN` | MQI | 雙向 | Client 端定義，通常放在 CCDT 中 |
+| Sender | `SDR` | Message | 送出 | 從 Transmission Queue 取出訊息送往遠端 |
+| Receiver | `RCVR` | Message | 接收 | 接收 Sender 送來的訊息並放入目標佇列 |
+| Server | `SVR` | Message | 送出 | 可由遠端 Requester 觸發啟動 |
+| Requester | `RQSTR` | Message | 接收 | 主動要求遠端 Server / Sender 開始傳送 |
+| Cluster Sender | `CLUSSDR` | Message | 送出 | 連往 Full Repository，其餘由 Cluster 自動定義 |
+| Cluster Receiver | `CLUSRCVR` | Message | 接收 | 公告本 Queue Manager 在 Cluster 中的接收端 |
+
+**規則**：Message Channel 兩端的名稱必須相同（例如 QM_A 上的 `SDR` 名為 `QM_A.TO.QM_B`，QM_B 上的 `RCVR` 也必須名為 `QM_A.TO.QM_B`）。
+
+### 1.14 Listener（監聽器）
+
+Listener 是 Queue Manager 上監聽 TCP 連接埠的程序，接受 Client 連線與遠端 Sender Channel 的連線。慣例連接埠為 1414。
+
+- 建議以 MQSC 定義 `DEFINE LISTENER ... CONTROL(QMGR)`，讓 Listener 隨 Queue Manager 啟停。
+- 一個 Queue Manager 可有多個 Listener（例如應用程式連線與跨 QM 連線使用不同連接埠，便於防火牆分流）。
+
+### 1.15 Topic 與 Subscription
+
+| 物件 | 說明 |
+|------|------|
+| Topic String | 階層式字串，例如 `Bank/Account/Transfer/Completed` |
+| Topic Object（`TOPIC`） | 管理物件，把屬性與權限綁到 Topic Tree 的某個節點 |
+| Subscription（`SUB`） | 訂閱關係，可為 Durable（離線期間訊息保留）或 Non-durable |
+
+Publisher 對 Topic 發佈，Queue Manager 會把訊息副本送到每個符合的 Subscription 所對應的佇列。
+
+### 1.16 Message（訊息）與 MQMD
+
+一則 MQ 訊息由三部分組成：
+
+```text
+┌───────────────────────────────┐
+│ MQMD（Message Descriptor）     │ ← 控制資訊：MsgId、CorrelId、Persistence...
+├───────────────────────────────┤
+│ Message Properties（選用）     │ ← 名稱/值配對；JMS 使用 RFH2 或 Message Properties
+├───────────────────────────────┤
+│ Application Data（Payload）    │ ← 業務資料：XML、JSON、固定長度電文...
+└───────────────────────────────┘
 ```
 
-### 3.5 CI/CD Flow
+#### MQMD 重要欄位
 
-```mermaid
-flowchart LR
-    A["Commit / PR"] --> B["Build + Unit Test"]
-    B --> C["trivy fs / repo<br/>vuln + secret + misconfig"]
-    C --> D["Build Image"]
-    D --> E["trivy image"]
-    E --> F["產生 SBOM<br/>CycloneDX"]
-    F --> G["trivy config<br/>K8s YAML / Terraform"]
-    G --> H{"Security Gate"}
-    H -->|"Pass"| I["Push Registry / Deploy"]
-    H -->|"Fail"| J["通知 Owner<br/>AI Agent 分析"]
-    J --> A
-```
-
-### 3.6 AI Agent Integration Flow
-
-```mermaid
-flowchart TB
-    A["AI Agent 接收任務"] --> B["Plan"]
-    B --> C["Baseline Scan<br/>trivy fs --format json"]
-    C --> D["Implement"]
-    D --> E["Test"]
-    E --> F["Re-scan"]
-    F --> G["Compare Before / After"]
-    G --> H{"新增 HIGH / CRITICAL<br/>或 Secret？"}
-    H -->|"否"| I["產生 Security Report"]
-    H -->|"是，可安全自動修"| D
-    H -->|"是，需人工判斷"| K["停止並請求 Human Approval"]
-    I --> J["Human Review"]
-    K --> J
-    J --> L["Commit / PR"]
-```
-
-### 3.7 Trivy 的三種執行模式
-
-| 模式 | 說明 | 適用情境 |
+| 欄位 | 說明 | 實務重點 |
 |------|------|----------|
-| Standalone（預設） | CLI 自行下載 DB、自行掃描 | 開發者本機、一般 CI |
-| Client / Server | `trivy server` 集中持有 DB，Client 以 `--server` 連線 | 大型企業多 Runner 共用 DB |
-| Operator | 在 Kubernetes 叢集內持續掃描，結果存成 CRD | Production 叢集持續監控 |
+| `MsgId` | 訊息識別碼（24 bytes） | 預設由 Queue Manager 產生，確保唯一 |
+| `CorrelId` | 關聯識別碼（24 bytes） | Request / Reply 配對用；常見慣例為「Reply 的 CorrelId = Request 的 MsgId」 |
+| `Persistence` | 是否持久化 | `MQPER_PERSISTENT` / `MQPER_NOT_PERSISTENT` / `MQPER_PERSISTENCE_AS_Q_DEF` |
+| `Expiry` | 存活時間，**單位為 1/10 秒** | `MQEI_UNLIMITED` 為永不過期 |
+| `Priority` | 優先順序 0-9 | 佇列 `MSGDLVSQ(PRIORITY)` 時生效 |
+| `ReplyToQ` / `ReplyToQMgr` | 回覆目的地 | Request / Reply 必填 |
+| `Format` | 資料格式 | `MQSTR`（字串）、`MQHRF2`（含 RFH2 標頭）、空白（二進位） |
+| `CodedCharSetId`（CCSID） | 字元集 | UTF-8 為 1208；主機 EBCDIC 常見 37、937（繁中） |
+| `Encoding` | 數值編碼（位元組順序） | 跨平台數值欄位轉換用 |
+| `BackoutCount` | 被 Backout 的次數 | 毒訊息判斷依據 |
+| `MsgType` | 訊息類型 | `MQMT_DATAGRAM`、`MQMT_REQUEST`、`MQMT_REPLY`、`MQMT_REPORT` |
+| `GroupId` / `MsgSeqNumber` | 訊息群組 | 需搭配 MQMD v2 或 MQGMO / MQPMO 選項 |
+| `PutApplName` / `PutDate` / `PutTime` | 放入者與時間 | 稽核追蹤 |
+| `UserIdentifier` | 放入者身分 | 由 Queue Manager 設定，應用程式通常不可任意偽造（需特殊權限） |
 
-### 實務案例
+### 1.17 Persistence（持久性）
 
-某團隊的 AI Agent 被要求「升級 Spring Boot」。過去 AI Agent 只跑 `mvn test` 就宣告完成；導入 3.6 的流程後，AI Agent 必須在升級前執行 Baseline Scan，升級後 Re-scan，並以 JSON diff 列出「新增 2 個 HIGH、移除 11 個 CRITICAL」。Reviewer 從此有了客觀依據。
+| 類型 | 寫入 Log | Queue Manager 重啟後 | 效能 | 適用 |
+|------|---------|---------------------|------|------|
+| Persistent | 是 | 保留 | 較低（受磁碟 I/O 影響） | 交易指令、金額相關 |
+| Non-persistent | 否 | 遺失 | 較高 | 查詢、可重送的通知、即時報價 |
 
-### 注意事項
+**重要**：佇列的 `DEFPSIST` 只是「預設值」。若應用程式明確指定 Persistence，以應用程式為準。**JMS 預設 DeliveryMode 為 PERSISTENT**，而 MQI / MQ classes for Java 的 `MQMD.Persistence` 預設為 `MQPER_PERSISTENCE_AS_Q_DEF`。混用時務必確認。
 
-- Target × Scanner 的「預設值」會隨版本變動，CI 中**務必明確寫出 `--scanners`**，不要依賴預設。
-- `trivy config` 只做 misconfig；若要同時掃 Secret，請用 `trivy fs --scanners misconfig,secret`。
+### 1.18 元件關係總整理
+
+```mermaid
+classDiagram
+    class QueueManager {
+        +name
+        +DEADQ
+        +CONNAUTH
+        +CHLAUTH
+    }
+    class LocalQueue {
+        +MAXDEPTH
+        +MAXMSGL
+        +BOQNAME
+        +BOTHRESH
+        +DEFPSIST
+    }
+    class RemoteQueue {
+        +RNAME
+        +RQMNAME
+        +XMITQ
+    }
+    class AliasQueue {
+        +TARGET
+    }
+    class TransmissionQueue {
+        +USAGE=XMITQ
+    }
+    class Channel {
+        +CHLTYPE
+        +SSLCIPH
+        +MCAUSER
+    }
+    class Listener {
+        +PORT
+        +CONTROL
+    }
+    class Topic {
+        +TOPICSTR
+    }
+    class Subscription {
+        +DEST
+        +DURABLE
+    }
+    QueueManager "1" o-- "*" LocalQueue
+    QueueManager "1" o-- "*" RemoteQueue
+    QueueManager "1" o-- "*" AliasQueue
+    QueueManager "1" o-- "*" Channel
+    QueueManager "1" o-- "*" Listener
+    QueueManager "1" o-- "*" Topic
+    RemoteQueue --> TransmissionQueue : 路由至
+    TransmissionQueue <-- Channel : Sender 讀取
+    AliasQueue --> LocalQueue : 指向
+    Topic "1" --> "*" Subscription
+    Subscription --> LocalQueue : 投遞至
+```
+
+### 1.19 IBM MQ 物件全集
+
+前面幾節介紹的是應用開發最常碰到的物件。管理與逆向工程時，還會遇到下列物件；盤點 `dmpmqcfg` 輸出時，應能逐一辨識。
+
+| 物件 | MQSC 關鍵字 | 名稱長度上限 | 用途 | 常見於 |
+|------|------------|-------------|------|--------|
+| Queue Manager | `QMGR` | 48 | 擁有並管理所有物件與訊息 | 全部 |
+| Local / Remote / Alias / Model Queue | `QLOCAL` / `QREMOTE` / `QALIAS` / `QMODEL` | 48 | 存放、路由、別名、動態佇列範本 | 全部 |
+| Dynamic Queue | 由 `QMODEL` 於 `MQOPEN` 時建立 | 48 | 暫時回覆佇列（Temporary / Permanent Dynamic） | Request / Reply |
+| Topic Object | `TOPIC` | 48（Topic String 可更長） | 管理 Topic 樹節點的屬性與權限 | Pub/Sub |
+| Subscription | `SUB` | 依 Subscription 名稱規則 | 訂閱關係 | Pub/Sub |
+| Channel | `CHANNEL` | **20** | Queue Manager 之間或 Client 與 QM 之間的通訊 | 全部 |
+| Listener | `LISTENER` | 48 | 監聽連接埠 | 分散式平台 |
+| Service | `SERVICE` | 48 | 讓 QM 啟停時一併啟停的外部程式（例如監控代理、自訂守護程序） | 分散式平台 |
+| Namelist | `NAMELIST` | 48 | 名稱清單，常用於 Cluster 的 `CLUSNL`、TLS 的 `SSLCRLNL` | Cluster、TLS |
+| Process Definition | `PROCESS` | 48 | 搭配 Trigger 指定要啟動的應用程式 | Legacy Trigger 設計 |
+| Authentication Information | `AUTHINFO` | 48 | CONNAUTH（IDPWOS / IDPWLDAP）、CRL / OCSP 檢查、JWT 設定 | Security |
+| Communication Information | `COMMINFO` | 48 | Multicast 傳輸參數 | Multicast |
+| Channel Authentication Record | `CHLAUTH` | — | Channel 層的允許 / 封鎖 / 對應規則 | Security |
+| Authority Record | `AUTHREC` | — | OAM 授權記錄 | Security |
+| Storage Class | `STGCLASS` | 8 | 佇列對應到 Page Set（**僅 z/OS**） | z/OS |
+| CF Structure | `CFSTRUCT` | 12 | Coupling Facility 中存放 Shared Queue 的結構（**僅 z/OS**） | z/OS QSG |
+
+> 名稱長度上限為官方常見限制的整理；特定平台與物件的完整規則，請以 IBM MQ 10.0 Reference 的「Rules for naming IBM MQ objects」為準 `[需確認]`。
+
+### 1.20 IBM MQ 產品家族與授權
+
+選擇功能前，必須先確認授權等級。許多架構師在設計時預設了 Native HA 或 AMS，上線前才發現公司只買了 base 授權。
+
+| 產品 / 部署形態 | 說明 | 典型使用情境 |
+|----------------|------|-------------|
+| IBM MQ（base） | 核心訊息功能：Queue、Channel、Cluster、Pub/Sub、TLS、OAM、Console、REST API | 一般企業整合 |
+| IBM MQ Advanced | 在 base 之上加入 AMS、MFT、RDQM、Native HA、Kafka Connect connector 等進階能力 | 金融核心、端到端加密、檔案傳輸、高可用 |
+| IBM MQ Advanced for Developers | 免費、**僅限非 Production** 的開發版本（含 Developer 容器映像） | 個人開發、CI 測試 |
+| IBM MQ for z/OS / Advanced for z/OS VUE | 主機平台版本；支援 QSG、Shared Queue | 銀行核心系統 |
+| IBM MQ Appliance | 預先整合的硬體設備 | 不想自行維運 OS 的機構 |
+| IBM MQ as a Service（SaaS） | IBM 代管的雲端服務 | 雲端優先、無主機維運團隊 |
+| IBM Cloud Pak for Integration（CP4I） | 在 OpenShift 上以 MQ Operator 部署 | 容器平台 |
+| IBM MQ Agent | 10.0 文件新增的 AI 診斷元件，授權為 Advanced / CP4I 的延伸 | AI 輔助維運（見 Part 23.6） |
+
+> 各功能對應的授權範圍、Appliance 型號、SaaS 提供的雲端平台會隨時間調整，**需依目前 IBM MQ license information 與銷售文件確認** `[需確認]`。
+
+### 1.21 官方文件主題與本手冊對照
+
+本手冊以 IBM MQ 10.0 官方文件的三大主題為骨架，下表列出每個官方子主題在本手冊的對應位置，方便讀者回查原文，也作為本手冊完整度的驗收依據。
+
+| 官方主題 | 官方子主題 | 本手冊對應 |
+|---------|-----------|-----------|
+| Technical overview | Introduction to message queuing | Part 1.2-1.4 |
+| Technical overview | IBM MQ objects | Part 1.10-1.19 |
+| Technical overview | Distributed queuing and clusters | Part 2.4、Part 7 |
+| Technical overview | Publish/subscribe messaging | Part 1.15、2.4.6、Part 16 |
+| Technical overview | IBM MQ Multicast | Part 2.8、5.14 |
+| Technical overview | IBM MQ Telemetry（MQTT） | Part 2.8、5.14 |
+| Technical overview | Security in IBM MQ | Part 8、Part 29 |
+| Technical overview | IBM MQ MQI clients | Part 2.2、2.6、9.6 |
+| Technical overview | Transaction management and support | Part 3.5、3.12、Part 13 |
+| Technical overview | Extending queue manager facilities | Part 2.7 |
+| Technical overview | IBM MQ Java language interfaces | Part 9-12 |
+| Technical overview | IBM MQ for z/OS concepts / other z/OS products | Part 2.10、5.13、8.12、24.7、26.9 |
+| Technical overview | Managed File Transfer | Part 2.8、5.14 |
+| Technical overview | IBM MQ Internet Pass-Thru | Part 2.8、5.14 |
+| Technical overview | The IBM MQ Console and REST API | Part 2.11、5.11、5.12、9.8 |
+| Administering | Ways of administering / Command sets comparison | Part 5.2、5.8 |
+| Administering | Control commands | Part 4.2、5.3 |
+| Administering | MQSC commands | Part 5.4-5.6 |
+| Administering | PCF commands | Part 5.10 |
+| Administering | Administration using the REST API | Part 5.11 |
+| Administering | IBM MQ Console / IBM MQ Explorer / Taskbar | Part 5.12 |
+| Administering | Working with local / remote objects | Part 5.9 |
+| Administering | MFT / Telemetry / AMQP / Multicast / MQIPT | Part 5.14 |
+| Administering | Administering IBM MQ for z/OS | Part 5.13 |
+| Developing applications | Application development concepts / Design considerations | Part 3、9.9 |
+| Developing applications | JMS / Jakarta Messaging and Java | Part 9-12 |
+| Developing applications | C++、.NET、XMS .NET、AMQP、MQI（C / COBOL） | Part 9.7 |
+| Developing applications | REST applications（Messaging REST API） | Part 9.8 |
+| Developing applications | Specifying the application name | Part 9.6、10.3、12.5 |
+| IBM MQ Agent | Overview / Security / Troubleshooting | Part 23.6、31.6、41.6 |
+
+### 1.22 核心元件注意事項
+
+- **Queue 名稱區分大小寫**，最長 48 字元。MQSC 中未加單引號的名稱會被轉為大寫，含小寫字母時必須加單引號。
+- Channel 名稱最長 20 字元，命名規範需考慮此限制（見 Part 35）。
+- 不要直接使用 `SYSTEM.DEF.*`、`SYSTEM.ADMIN.SVRCONN`、`SYSTEM.AUTO.*` 這類系統預設物件作為應用程式連線入口。
 
 ---
 
-## 4. Trivy Targets
+## Part 2 — IBM MQ 系統架構
 
-**【官方】** v0.75.0 官方文件列出的 Target 為：Container Image、Filesystem、Rootfs、Code Repository、Virtual Machine Image、Kubernetes、SBOM。另外 `trivy config` 以設定檔為對象，專做 Misconfiguration 掃描。
+### 2.1 目的
 
-| CLI | 別名 | Target | 狀態 |
-|-----|------|--------|------|
-| `trivy image` | `i` | Container Image（本機、Registry、tar） | Stable |
-| `trivy filesystem` | `fs` | 本機目錄 / 檔案 | Stable |
-| `trivy repository` | `repo` | 本機或遠端 Git Repository | Stable |
-| `trivy rootfs` | — | 已展開的根檔案系統（例如容器內 `/`） | Stable |
-| `trivy vm` | — | VM 映像檔、AWS AMI、EBS Snapshot | **Experimental** |
-| `trivy kubernetes` | `k8s` | Kubernetes Cluster | **Experimental** |
-| `trivy sbom` | — | CycloneDX / SPDX SBOM 檔或 Attestation | Stable |
-| `trivy config` | `conf` | IaC 設定檔 | Stable |
+理解不同的 Queue Manager 部署拓撲，並能依需求選擇合適的架構。
 
-### 4.1 Container Image
+### 2.2 Client / Server Architecture
 
-#### 4.1.1 掃描對象
+應用程式連到 Queue Manager 有兩種模式：
 
-| 對象 | 說明 |
-|------|------|
-| Docker Image | 本機 Docker Engine 中的映像檔 |
-| OCI Image | 符合 OCI Image Spec 的映像檔 |
-| Registry Image | 直接從 Registry 拉取 manifest 與 layer，不需本機 Docker |
-| Local Image | 本機 Docker / containerd / Podman 中的映像檔 |
-| Image tar | `docker save` 產生的 tar 檔（`--input`） |
-| Image Layer | 逐層分析，報告會標示 Finding 來自哪一層 |
-| OS Packages | apk、dpkg、rpm 等 OS 套件 |
-| Application Dependencies | 映像檔內的 jar、node_modules、Python site-packages、Go binary 等 |
-
-`--image-src` 決定映像來源的優先順序，預設為 `docker,containerd,podman,remote`。
-
-#### 4.1.2 基本範例
-
-**Linux / macOS（Bash）**：
-
-```bash
-# 掃描公開映像檔（僅示範，企業環境不建議用 latest）
-trivy image nginx:latest
-
-# 只看 HIGH 與 CRITICAL，且只看已有修補版本的弱點
-trivy image --severity HIGH,CRITICAL --ignore-unfixed nginx:1.27.5
-
-# 以 digest 掃描，確保掃描對象與部署對象一致
-trivy image nginx@sha256:<digest>
-
-# 掃描 docker save 產生的 tar
-docker save -o app.tar registry.example.com/app:1.4.2
-trivy image --input app.tar
-```
-
-**Windows（PowerShell）**：
-
-```powershell
-# Windows 需已安裝 Docker Desktop 或可連線的 Registry
-trivy image --severity HIGH,CRITICAL --ignore-unfixed nginx:1.27.5
-
-# 掃描 tar 檔
-docker save -o app.tar registry.example.com/app:1.4.2
-trivy image --input .\app.tar
-```
-
-#### 4.1.3 預期結果
-
-報告分為兩段：
-
-1. **Report Summary**：每個 Target（OS 層、各語言 lock file / jar）各掃到幾個 Vulnerability、Secret。
-2. **Detailed Tables**：每筆 Finding 的 Library、Vulnerability ID、Severity、Status、Installed Version、Fixed Version、Title。
-
-#### 4.1.4 為什麼企業環境不應只用 `latest`
-
-| 方式 | 範例 | 問題 / 優點 |
-|------|------|-------------|
-| `latest` | `nginx:latest` | 內容隨時變動；今天掃的跟明天部署的可能不是同一個映像檔 |
-| Version tag | `nginx:1.27.5` | 可讀性高，但 tag 仍可被覆寫（mutable） |
-| Digest | `nginx@sha256:...` | 內容雜湊，**不可變**；掃描與部署保證是同一份 |
-| Immutable artifact | Registry 開啟 tag immutability | 防止 tag 被覆寫，搭配 digest 最可靠 |
-
-> **【企業建議】** CI 中 `trivy image` 與 `kubectl apply` 應使用**同一個 digest**。2026-03 的事件中，攻擊者就是透過覆寫 mutable tag（Docker Hub 的 `0.69.5`、`0.69.6`、`latest`）散布惡意映像檔，以 digest 引用者不受影響。
-
-#### 4.1.5 常見問題
-
-| 問題 | 原因 | 解法 |
+| 模式 | 說明 | 適用 |
 |------|------|------|
-| `unable to inspect the image` | 本機無 Docker、權限不足、Registry 需認證 | 確認 Docker socket、使用 `TRIVY_USERNAME` / `TRIVY_PASSWORD` 或 `trivy registry login` |
-| 掃描非常慢 | 映像檔過大、首次下載 DB | 使用快取、限制 `--scanners`、`--max-image-size`（Experimental） |
-| 多架構映像掃錯平台 | 預設掃描本機平台 | 使用 `--platform linux/amd64` |
+| Bindings Mode（本機連線） | 應用程式與 Queue Manager 在同一台主機，透過 IPC 溝通 | 同主機部署、極低延遲需求、主機上的 Adapter |
+| Client Mode（用戶端連線） | 應用程式透過網路連到 Queue Manager 的 SVRCONN Channel | **現代 Java / Spring Boot 應用程式的標準做法** |
 
-#### 4.1.6 安全注意事項
-
-- Registry 密碼**不要**放在命令列參數（會留在 shell history 與 process list），改用環境變數或 `--password-stdin`。官方 CLI 說明也明確寫著「TRIVY_PASSWORD should be used for security reasons」。
-- 掃描未知來源的映像檔時，Trivy 只做靜態分析不執行映像，但仍應在隔離的 Runner 進行。
-
-### 4.2 Filesystem
-
-#### 4.2.1 掃描對象
-
-`trivy fs` 掃描本機目錄，適合在**建置前**找出問題：
-
-| 對象 | 範例 |
-|------|------|
-| 原始碼 | `src/` 內硬編碼的 Secret |
-| Dependency Lock File | `pom.xml`、`gradle.lockfile`、`package-lock.json`、`pnpm-lock.yaml`、`yarn.lock` |
-| IaC | `Dockerfile`、`k8s/*.yaml`、`*.tf`、Helm Chart |
-| Configuration | `application.yml`、`.env` |
-| Build Artifact | `target/*.jar`、`dist/` |
-
-#### 4.2.2 範例
-
-```bash
-# 預設：vuln + secret
-trivy fs .
-
-# 企業建議：明確列出 Scanner
-trivy fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL .
-
-# 包含 License（預設不啟用）
-trivy fs --scanners license --license-full .
-
-# 跳過不需掃描的目錄
-trivy fs --skip-dirs "node_modules,**/test/fixtures" .
+```mermaid
+flowchart LR
+    subgraph AppServer["應用伺服器（K8s Pod / VM）"]
+        J["Java 應用程式<br/>+ MQ Client Library"]
+    end
+    subgraph MQServer["MQ Server 主機"]
+        L["Listener :1414"]
+        S["SVRCONN Channel"]
+        QM["Queue Manager"]
+        Q[("Queues")]
+        LOG[("Recovery Log")]
+    end
+    J -- "TCP + TLS<br/>MQ Client 協定" --> L --> S --> QM
+    QM --> Q
+    QM --> LOG
 ```
 
-```powershell
-trivy fs --scanners vuln,secret,misconfig --severity HIGH,CRITICAL .
+**IBM MQ Server 與 IBM MQ Client 的區別**：
+
+| 項目 | IBM MQ Server | IBM MQ Client |
+|------|---------------|---------------|
+| 是否執行 Queue Manager | 是 | 否 |
+| 是否存放訊息 | 是 | 否 |
+| 安裝內容 | Queue Manager、管理工具、Client 函式庫 | 僅 Client 函式庫（Java 只需 jar） |
+| 授權 | 依 IBM 授權條款計價 | Client 通常可自由散布 `[需確認授權條款]` |
+| Java 應用取得方式 | — | Maven Central：`com.ibm.mq.jakarta.client` 或 `com.ibm.mq.allclient` |
+
+### 2.3 Queue Manager 內部架構
+
+```mermaid
+flowchart TB
+    subgraph QM["Queue Manager"]
+        direction TB
+        AGENT["Agent Processes<br/>處理 MQI 呼叫"]
+        CHI["Channel Initiator /<br/>Channel Processes"]
+        LSN["Listener"]
+        CMD["Command Server<br/>處理 PCF / MQSC 遠端命令"]
+        SEC["Security<br/>CHLAUTH / CONNAUTH / OAM"]
+        LOGM["Log Manager"]
+        QS["Queue Storage<br/>（Queue Files）"]
+        PUBSUB["Pub/Sub Engine"]
+    end
+    LOG[("Recovery Log<br/>Circular / Linear")]
+    APP["應用程式"] --> LSN --> CHI --> SEC --> AGENT
+    AGENT --> QS
+    AGENT --> PUBSUB
+    AGENT --> LOGM --> LOG
+    ADMIN["管理工具<br/>runmqsc / REST / MQ Console"] --> CMD --> AGENT
 ```
 
-#### 4.2.3 預期結果
+**Recovery Log** 是可靠性的根本：
 
-以 Lock file 為單位列出 Vulnerability，以檔案為單位列出 Secret 與 Misconfiguration。
+| Log 類型 | 特性 | 媒體復原（Media Recovery） | 適用 |
+|---------|------|----------------------------|------|
+| Circular | 日誌循環使用，管理簡單 | 不支援 | 大多數分散式平台 Production（搭配 HA 方案） |
+| Linear | 日誌持續增加，需管理歸檔 | 支援（`rcdmqimg` / `rcrmqobj`） | 需從媒體毀損中復原佇列、或使用 Backup Queue Manager 的場景 |
 
-#### 4.2.4 常見問題
+`[MQ 9.4 CD]` 起提供 Linear Log 的自動日誌管理選項（Automatic / Archive）。實際設定方式需依目前 IBM 官方文件確認。
 
-- **Maven 專案沒有掃出傳遞相依**：`pom.xml` 掃描時 Trivy 會嘗試解析 parent 與遠端 POM，企業內網需設定 Maven mirror（見第 22 章）。若已執行 `mvn package`，掃描 `target/*.jar` 通常更完整。
-- **npm 專案沒有結果**：缺少 `package-lock.json`。Trivy 以 lock file 為準，只有 `package.json` 無法解析確切版本。
+### 2.4 架構模式比較
 
-#### 4.2.5 安全注意事項
+#### 2.4.1 Single Queue Manager
 
-- `trivy fs` 會讀取目錄中的所有檔案，若目錄中有 `.env` 或私鑰，報告中會出現 Secret Finding，報告本身即成為敏感資料。
-
-### 4.3 Git Repository
-
-#### 4.3.1 本機與遠端
-
-```bash
-# 本機 repo（含 .git）
-trivy repo .
-
-# 遠端公開 repo
-trivy repo https://github.com/example/example
-
-# 指定 branch / tag / commit
-trivy repo --branch release/2.x https://github.com/example/example
-trivy repo --tag v1.4.2 https://github.com/example/example
-trivy repo --commit <commit-sha> https://github.com/example/example
-```
-
-私有遠端 repo 以環境變數提供 Token（Bash）：
-
-```bash
-export GITHUB_TOKEN="<從 Secret Manager 取得，勿寫死>"
-trivy repo https://github.com/example/private-repo
-```
-
-> v0.75.0 起，遠端 repo URL 中若含有帳密，產生報告時會被移除（fix: strip credentials from remote repository URL in artifact name）。但仍**不應**把 Token 寫在 URL 中。
-
-#### 4.3.2 `trivy fs` vs `trivy repo`
-
-| 面向 | `trivy fs` | `trivy repo` |
-|------|------------|--------------|
-| 對象 | 任意目錄 | Git repository（本機或遠端） |
-| 遠端掃描 | 不支援 | 支援，會 clone 後掃描 |
-| 指定版本 | 不適用 | `--branch`、`--tag`、`--commit` |
-| 未 commit 的檔案 | 會掃 | 本機 repo 會掃工作目錄 |
-| 報告中的 Git metadata | v0.68 起偵測到 Git 資訊時 artifact type 為 repository | 有 |
-| 典型用途 | 開發者本機、CI checkout 後 | 稽核特定版本、Reverse Engineering |
-
-#### 4.3.3 Repository Scan 在各情境的用途
-
-| 情境 | 用途 |
-|------|------|
-| AI Reverse Engineering | 不需建置即可盤點 Legacy repo 的相依、Secret、IaC 問題 |
-| Legacy System Analysis | 以 `--tag` 掃描歷史 release，比較各版本安全狀態 |
-| Framework Upgrade | 以 `--branch` 分別掃描 `main` 與 `upgrade/spring-boot-4` |
-| CI/CD | PR 時掃描變更後的 repo 狀態 |
-
-### 4.4 Rootfs
-
-`trivy rootfs` 掃描已展開的根檔案系統，常見用法是**在映像檔建置過程中掃描自身**：
-
-```dockerfile
-# 多階段建置中的掃描階段（官方 Embed in Dockerfile 文件的作法）
-FROM registry.example.com/base/eclipse-temurin:25-jre AS runtime
-COPY --from=build /app/target/app.jar /app/app.jar
-
-FROM runtime AS scan
-COPY --from=registry.example.com/security/trivy:0.75.0 /usr/local/bin/trivy /usr/local/bin/trivy
-RUN trivy rootfs --no-progress --scanners vuln,secret --exit-code 1 --severity CRITICAL /
-```
-
-> **注意**：在建置中掃描需要能下載 DB，或預先放入離線 DB。正式 CI 仍建議用 `trivy image` 掃描最終映像檔。
-
-### 4.5 Virtual Machine Image（Experimental）
-
-```bash
-# 本機 VM 映像檔
-trivy vm --scanners vuln disk.vmdk
-
-# AWS AMI 與 EBS Snapshot（需 AWS 認證與 --aws-region）
-trivy vm --scanners vuln --aws-region ap-northeast-1 ami:<ami-id>
-trivy vm --aws-region ap-northeast-1 ebs:<snapshot-id>
-```
-
-適合「黃金映像（Golden Image）」與雲端 AMI 的上線前檢查。由於屬 Experimental，不建議作為唯一的上線 Gate。
-
-### 4.6 Kubernetes
-
-`trivy k8s` 連線至 Kubernetes Cluster 掃描 Workload、Image、RBAC 與 Node 設定。詳見第 10 章。
-
-### 4.7 SBOM
-
-`trivy sbom` 以既有的 CycloneDX / SPDX SBOM 為輸入，重新比對最新弱點資料。詳見第 6 章。
-
-### 4.8 Dockerfile / IaC / Terraform / Kubernetes YAML
-
-`trivy config` 專門掃描設定檔：
-
-```bash
-trivy config .
-trivy config --severity HIGH,CRITICAL ./deploy
-```
-
-**【官方】** v0.75.0 預設的 misconfig scanners：`azure-arm`、`cloudformation`、`dockerfile`、`helm`、`kubernetes`、`terraform`、`terraformplan-json`、`terraformplan-snapshot`、`ansible`。詳見第 7 章。
-
-### 4.9 Cryptographic Asset（v0.75 新增，Experimental）
-
-```bash
-trivy image --scanners crypto --format cyclonedx --output cbom.cdx.json registry.example.com/app:1.4.2
+```mermaid
+flowchart LR
+    A1["App A"] --> QM["QM1"]
+    A2["App B"] --> QM
+    A3["App C"] --> QM
 ```
 
 | 項目 | 說明 |
 |------|------|
-| 掃描內容 | `.pem`、`.der`、`.crt`、`.cer`、`.key` 中的 X.509 憑證、公鑰與私鑰 |
-| 輸出 | CycloneDX 的 `cryptographic-asset` 元件（CBOM，Cryptography Bill of Materials） |
-| 限制 | **僅支援 container image + CycloneDX 輸出**，Experimental |
-| 安全性 | 官方說明私鑰的值不會被寫入報告 |
-| 用途 | 盤點即將到期的憑證、弱演算法、後量子（ML-DSA）準備度 |
+| 優點 | 簡單、易維運、易除錯 |
+| 缺點 | 單點故障；容量受單機限制 |
+| 使用情境 | 開發 / 測試、小型系統、搭配 HA（Native HA / RDQM / Multi-instance）的中型系統 |
+| 維運複雜度 | 低 |
+| 故障模式 | QM 停止 → 所有應用無法收發（`2059` / `2538`） |
 
-### 實務案例
+#### 2.4.2 Multiple Queue Managers（Distributed Queuing）
 
-某保險公司的 Platform Team 發現：同一個 `app:2.3` tag 在三個環境的 digest 都不同，因為不同時間重新 build 又 push 了。導入「以 digest 掃描、以 digest 部署」後，稽核時可以明確證明「Production 執行的映像檔就是 CI 掃描通過的那一個」。
+```mermaid
+flowchart LR
+    subgraph SiteA["系統 A"]
+        AppA["App A"] --> QMA["QM_A"]
+    end
+    subgraph SiteB["系統 B"]
+        QMB["QM_B"] --> AppB["App B"]
+    end
+    QMA -- "SDR: QM_A.TO.QM_B" --> QMB
+    QMB -- "SDR: QM_B.TO.QM_A" --> QMA
+```
 
-### 注意事項
-
-- `trivy vm` 與 `trivy k8s` 都是 **Experimental**，CLI 與輸出格式可能在後續版本變更。
-- `trivy fs` 與 `trivy image` 的結果**不會相同**：`fs` 看不到 OS 套件，`image` 看不到未打包進映像的 IaC 檔。兩者都要掃。
-
----
-
-## 5. Vulnerability Scanner
-
-### 5.1 基本概念
-
-| 名詞 | 說明 |
+| 項目 | 說明 |
 |------|------|
-| CVE | Common Vulnerabilities and Exposures，公開弱點的統一編號 |
-| GHSA | GitHub Security Advisory 編號 |
-| OS Package | apk、dpkg、rpm 等系統套件 |
-| Language Package | Maven、npm、PyPI、Go module 等應用程式相依 |
-| Non-packaged Software | 未經套件管理器安裝、但 Trivy 能辨識版本的軟體（例如 Go binary、jar） |
-| Kubernetes Components | api-server、kubelet 等元件（`trivy k8s`） |
-| Fixed Version | 已修補此弱點的版本 |
-| Unfixed Vulnerability | 尚無修補版本的弱點 |
-| EOL | End of Life，OS 已停止支援 |
+| 優點 | 系統邊界清楚、各自維運、故障隔離 |
+| 缺點 | 每對 QM 需要手動定義 Channel、XMITQ、Remote Queue；連線數 O(n²) |
+| 使用情境 | 跨部門、跨公司（例如與清算機構）介接 |
+| 維運複雜度 | 中（Channel 數量多時高） |
+| 故障模式 | Channel 中斷 → 訊息堆積在 XMITQ；網路恢復後自動續傳 |
 
-### 5.2 Severity
+#### 2.4.3 Point-to-Point
 
-**【官方】** Trivy 的 Severity 分為：
+一則訊息只會被一個 Consumer 取走。可以有多個 Consumer 同時監聽同一佇列（Competing Consumers），以提高吞吐量，**但會失去訊息順序保證**。
 
-| Severity | 說明 |
-|----------|------|
-| UNKNOWN | 資料來源未提供嚴重度；v0.72 起資料缺失時也會落入 UNKNOWN |
-| LOW | 低 |
-| MEDIUM | 中 |
-| HIGH | 高 |
-| CRITICAL | 嚴重 |
+#### 2.4.4 Hub-and-Spoke
 
-Severity 的來源可能是 Vendor Advisory（例如 Red Hat、Debian、Ubuntu）或 NVD。`--vuln-severity-source` 可指定優先順序，預設為 `auto`：
-
-```bash
-# 以 NVD 優先，其次 GHSA
-trivy image --vuln-severity-source nvd,ghsa registry.example.com/app:1.4.2
+```mermaid
+flowchart TB
+    HUB["Hub QM<br/>（整合中心）"]
+    S1["Spoke QM 1<br/>網銀"] <--> HUB
+    S2["Spoke QM 2<br/>行動"] <--> HUB
+    S3["Spoke QM 3<br/>分行"] <--> HUB
+    HUB <--> CORE["Core QM<br/>核心"]
 ```
 
-> **為什麼同一個 CVE 在不同映像檔的 Severity 不同？** 因為 OS Vendor 會依自身打包方式重新評估。例如某 CVE 在 NVD 是 HIGH，在 Debian 可能被評為 LOW。報告中的 `SeveritySource` 欄位會告訴你來源。
+| 項目 | 說明 |
+|------|------|
+| 優點 | 集中管控、集中監控；Channel 數量 O(n) |
+| 缺點 | Hub 成為效能瓶頸與單點故障；Hub 需 HA |
+| 使用情境 | 企業整合中心（ESB 時代常見架構） |
+| 維運複雜度 | 中 |
+| 故障模式 | Hub 故障 → 全面中斷，Hub 必須搭配 HA |
 
-### 5.3 CVSS
+#### 2.4.5 MQ Cluster
 
-JSON 報告的 `CVSS` 欄位會列出各來源的 CVSS 分數與向量（v0.58 起含 CVSS v4）。
-
-```json
-{
-  "VulnerabilityID": "CVE-2025-XXXXX",
-  "PkgName": "com.fasterxml.jackson.core:jackson-databind",
-  "InstalledVersion": "2.15.0",
-  "FixedVersion": "2.15.4",
-  "Status": "fixed",
-  "Severity": "HIGH",
-  "SeveritySource": "ghsa",
-  "CVSS": {
-    "ghsa": { "V3Vector": "CVSS:3.1/AV:N/AC:L/...", "V3Score": 7.5 }
-  }
-}
+```mermaid
+flowchart TB
+    subgraph Cluster["Cluster: BANK.CLUSTER"]
+        FR1["QM_FR1<br/>Full Repository"]
+        FR2["QM_FR2<br/>Full Repository"]
+        P1["QM_APP1<br/>Partial Repository"]
+        P2["QM_APP2<br/>Partial Repository"]
+        P3["QM_CORE1<br/>擁有 PAY.REQ"]
+        P4["QM_CORE2<br/>擁有 PAY.REQ"]
+    end
+    FR1 <--> FR2
+    P1 --> FR1
+    P2 --> FR2
+    P3 --> FR1
+    P4 --> FR2
+    P1 -. "自動定義 CLUSSDR<br/>Workload Balancing" .-> P3
+    P1 -. " " .-> P4
 ```
 
-### 5.4 Vulnerability Status
+| 項目 | 說明 |
+|------|------|
+| 優點 | 自動定義 Channel 與路由；同名佇列可多實例做 Workload Balancing；擴充容易 |
+| 缺點 | Full Repository 需妥善維運；問題排查比點對點複雜；訊息順序不保證 |
+| 使用情境 | 多個 Queue Manager 需要互通、需要水平擴充的系統 |
+| 維運複雜度 | 高 |
+| 故障模式 | Repository 不一致導致路由錯誤（`2189` / `2085`）；某實例停止時訊息可能卡在該實例 |
 
-**【官方】** 可被 `--ignore-status` 指定的狀態：
+**Uniform Cluster**（9.1.2 起）：一組設定相同的 Queue Manager，搭配應用程式自動重新平衡（Application Rebalancing），讓 Client 連線在成員間平均分配。Spring Boot Starter 提供 `balancingApplicationType` 等相關屬性。
 
-| Status | 意義 | 是否會被偵測 |
-|--------|------|--------------|
-| `fixed` | 已有修補版本 | 是 |
-| `affected` | 受影響、尚無修補 | 是 |
-| `will_not_fix` | Vendor 表示不打算修補 | 是 |
-| `fix_deferred` | 延後修補 | 是 |
-| `end_of_life` | 元件已 EOL，未做影響分析 | 是 |
-| `unknown` / `not_affected` / `under_investigation` | 官方說明這些狀態不會被偵測 | 否 |
+#### 2.4.6 Publish / Subscribe
 
-`--ignore-unfixed` 是 `--ignore-status affected,will_not_fix,fix_deferred,end_of_life` 的簡寫，只顯示 `fixed`。
-
-### 5.5 EOL 偵測
-
-```bash
-# OS 已 EOL 時以 exit code 2 結束
-trivy image --exit-on-eol 2 registry.example.com/legacy-app:3.1
+```mermaid
+flowchart LR
+    PUB["Publisher<br/>交易服務"] -- "Publish<br/>Bank/Txn/Completed" --> T(("Topic"))
+    T --> S1["SUB: 通知服務"]
+    T --> S2["SUB: 稽核服務"]
+    T --> S3["SUB: 風控服務"]
 ```
 
-> **【企業建議】** Legacy 系統常跑在 EOL 的 Base Image 上，此時大量 CVE 狀態會是 `end_of_life` 或 `affected`。`--exit-on-eol` 可以讓 Gate 明確區分「有弱點」與「底層已無人維護」。
+| 項目 | 說明 |
+|------|------|
+| 優點 | Publisher 不需知道有多少訂閱者；新增訂閱者不影響 Publisher |
+| 缺點 | 訊息會被複製多份；Durable Subscription 未消費會累積 |
+| 使用情境 | 事件通知、多系統需要同一事件 |
+| 維運複雜度 | 中 |
+| 故障模式 | 某訂閱者停機 → 其 Durable Subscription 佇列堆積，可能影響整個 QM 的儲存空間 |
 
-### 5.6 偵測精準度
-
-`--detection-priority`：
-
-| 值 | 說明 |
-|----|------|
-| `precise`（預設） | 降低 False Positive |
-| `comprehensive` | 偵測更多，可能增加 False Positive |
-
-### 5.7 VEX
-
-VEX（Vulnerability Exploitability eXchange）是一份聲明文件，說明「某 CVE 在某產品中是否可被利用」。Trivy 支援 OpenVEX、CSAF、CycloneDX VEX：
-
-```bash
-# 使用本機 VEX 檔（--vex 為 Experimental）
-trivy image --vex ./vex/app.openvex.json --show-suppressed registry.example.com/app:1.4.2
-```
-
-被 VEX 抑制的 Finding 可用 `--show-suppressed` 顯示，JSON 中為 `ExperimentalModifiedFindings`。
-
-VEX 文件的來源：
-
-| 來源 | 用法 | 說明 |
-|------|------|------|
-| 本機檔案 | `--vex ./app.openvex.json` | 最直接 |
-| VEX Repository | `--vex repo`、`trivy vex repo` | v0.54 起支援，可訂閱公開 VEX Repository |
-| OCI artifact | `--vex oci` | v0.54 起可從 Registry 取得 VEX attestation；v0.73 起可原生探索存成 OCI artifact 的 VEX，並從一般 in-toto OCI referrers 中找出 OpenVEX |
-| SBOM 引用 | CycloneDX SBOM 內的外部參照 | v0.60 起初步支援 |
-
-> **【企業建議】** VEX 與映像一起以 OCI artifact 發布，可讓下游（其他團隊、客戶）取得同一份「不受影響」聲明。
-
-### 5.8 企業處理流程：Block / Warn / Monitor / Accept
-
-**【企業建議】** Trivy 只提供 Severity 與 Status，**不規定**企業該如何處理。以下為範本，必須依組織 Security Policy 調整：
-
-| 處理等級 | 觸發條件範例 | 動作 |
-|----------|-------------|------|
-| Block | CRITICAL 且 `Status=fixed` | CI 失敗，必須修正或取得核准 Exception |
-| Warn | HIGH 且 `Status=fixed` | CI 通過但產生 Ticket，設定修正期限 |
-| Monitor | MEDIUM、或 HIGH/CRITICAL 但 unfixed | 納入儀表板與定期檢視 |
-| Accept | 經風險評估、有 Owner 與到期日 | 以 `.trivyignore.yaml` 或 VEX 記錄 |
+### 2.5 架構選型決策
 
 ```mermaid
 flowchart TD
-    F["Trivy Finding"] --> S{"Severity"}
-    S -->|"CRITICAL"| C{"有 Fixed Version？"}
-    S -->|"HIGH"| H{"有 Fixed Version？"}
-    S -->|"MEDIUM / LOW"| M["Monitor / Track"]
-    S -->|"UNKNOWN"| U["人工判讀"]
-    C -->|"是"| B["Block"]
-    C -->|"否"| R["風險評估 + 補償控制"]
-    H -->|"是"| W["Warn + 期限內修正"]
-    H -->|"否"| R
-    R --> A["Accept with Expiration"]
+    Start(["新整合需求"]) --> Q1{"需要多個系統<br/>收到同一訊息？"}
+    Q1 -- 是 --> PS["Publish / Subscribe"]
+    Q1 -- 否 --> Q2{"Producer 與 Consumer<br/>屬不同組織 / 網段？"}
+    Q2 -- 是 --> DQ["Distributed Queuing<br/>Sender / Receiver"]
+    Q2 -- 否 --> Q3{"需要水平擴充<br/>多個 Queue Manager？"}
+    Q3 -- 是 --> CL["MQ Cluster /<br/>Uniform Cluster"]
+    Q3 -- 否 --> Q4{"可用性需求？"}
+    Q4 -- 高 --> HA["Single QM + HA<br/>Native HA / RDQM / Multi-instance"]
+    Q4 -- 一般 --> SQ["Single Queue Manager"]
 ```
 
-### 5.9 v0.69–v0.75 新增的偵測覆蓋範圍
+### 2.6 MQI Client 類型與 CCDT
 
-**【官方】** 完整清單以官方 Scanning Coverage 頁面為準，以下為近期重要變化：
+**Client 不是「另一個 Queue Manager」**，它只是一組函式庫，透過 `SVRCONN` Channel 把 MQI 呼叫送到遠端 Queue Manager 執行。理解 Client 的種類與連線設定來源，是排查 `2058`、`2059`、`2538` 的基礎。
 
-| 類別 | 項目 | 版本 | 對企業的意義 |
-|------|------|------|--------------|
-| OS | Ubuntu 26.04 LTS | v0.71 | 新 LTS 可被正確偵測與判斷 EOL |
-| OS | Bottlerocket OS 弱點比對 | v0.72 | AWS 容器專用 OS |
-| OS | Rocky modular 套件、ActiveState 映像 | v0.69 | RHEL 系與商用映像 |
-| 第三方修補版 | Echo、Root.io、Seal、RapidFort curated image | v0.63–v0.75 | 使用商用「修補後重建」套件時，改以該廠商的 Advisory 比對，避免以上游版本誤報 |
-| Python | `pylock.toml`（PEP 751） | v0.70 | 新的標準 lock file |
-| Python | uv workspace（含 virtual workspace） | v0.75 | workspace 成員的相依不再被視為 dev，預設就會回報 |
-| Python | Echo 修補版套件（版本後綴 `+echo.N`） | v0.75 | 改以 Echo OSV feed 比對 |
-| .NET | self-contained 部署內嵌的 runtime | v0.72 | 過去容易漏掃的 runtime 弱點 |
-| Go | `-trimpath` 建置的 binary 以 ELF symbol table 判斷版本 | v0.70 | Go binary 辨識率提高 |
-| Java | `settings.xml` mirrors / proxy、`trivy.yaml` Maven mirrors | v0.70–v0.73 | 企業內網 Maven 解析 |
-| Node.js | pnpm workspace 重疊套件、multi-document lock、`package-lock.json` boolean `resolved` | v0.72–v0.75 | monorepo 解析穩定性 |
-| Julia | Julia 生態系弱點掃描 | v0.69 | 資料科學團隊 |
+| Client 類型 | 內容 | 安裝方式 | 適用 |
+|------------|------|---------|------|
+| IBM MQ C Client（MQI Client） | C / C++ / COBOL 程式使用的原生函式庫 | OS 安裝套件或 Redistributable 壓縮檔 | C、COBOL、Go、Node.js（底層呼叫 C Client） |
+| IBM MQ Java / Jakarta Client | 純 Java 實作，**不需要安裝原生 Client** | Maven artifact（`com.ibm.mq.jakarta.client` / `com.ibm.mq.allclient`） | Java、Spring Boot |
+| IBM MQ .NET Client / XMS .NET | .NET 函式庫，`[MQ 10.0]` 以 .NET 10 建置 | NuGet | C#、VB.NET |
+| Redistributable Client | 可隨應用一起散布的 Client 檔案 | 解壓即可，不需 root 安裝 | 容器映像、CI 環境 |
 
-> **升級提醒**：覆蓋範圍擴大會讓 Finding 數「合理地」增加。升級 Trivy 後的差異應以第 41.4 節的新舊版比較檢視，不要誤判為程式退化。
+#### Client 連線設定的來源
 
-### 實務案例
+Client 需要知道「連哪個 QM、走哪條 Channel、用什麼 TLS」。資訊可能來自多個地方，**同時存在時有優先順序**，這是 Legacy 系統「改了設定卻沒生效」的常見原因。
 
-某團隊的 Gate 原本設定「任何 HIGH 都 Fail」，結果一個 Debian Base Image 有 40 個 HIGH 但全部 `affected`（無修補），團隊無法前進，最後把 Gate 整個關掉。改為「CRITICAL 且 fixed 才 Block、unfixed 進入風險評估」後，Gate 重新啟用且三個月內沒有再被關閉。
+| 來源 | 說明 | 治理建議 |
+|------|------|---------|
+| 程式內指定（MQCD / ConnectionFactory 屬性） | 程式碼或設定檔直接寫入 `connName`、Channel | 允許，但值必須外部化 |
+| 環境變數 `MQSERVER` | `CHANNEL/TCP/host(port)`，**不支援 TLS** | Production 禁止 |
+| CCDT（`MQCHLLIB` / `MQCHLTAB` / `MQCCDTURL` / `ccdtUrl`） | Client Channel Definition Table，二進位或 JSON | 建議：集中管理、版本控制 |
+| `mqclient.ini` | Client 組態檔（TCP、TLS、Channel 預設值） | 由平台團隊統一提供 |
 
-### 注意事項
+> 各來源的完整優先順序依 API 與版本略有不同，請以官方「Connecting IBM MQ MQI client applications to queue managers」說明為準 `[需確認]`。
 
-- 不要自行發明 CVE 風險分數；以 Vendor / NVD 的 Severity 為輸入，以企業 Policy 決定處理等級。
-- `--ignore-unfixed` 是過濾顯示，不代表風險消失；unfixed 的 CRITICAL 仍需風險評估。
+#### JSON CCDT 範例
 
----
-
-## 6. SBOM
-
-### 6.1 SBOM 是什麼
-
-SBOM（Software Bill of Materials，軟體物料清單）是一份機器可讀的清單，記錄軟體由哪些元件組成、各元件的版本、來源、授權與相依關係。
-
-### 6.2 為什麼需要 SBOM
-
-| 需求 | SBOM 的作用 |
-|------|-------------|
-| Software Supply Chain | 知道你的軟體裡有什麼，才能管理供應鏈風險 |
-| Dependency Transparency | 讓客戶、稽核、主管機關看到相依組成 |
-| Software Inventory | 企業層級盤點所有系統用了哪些套件 |
-| 新 CVE 爆發時的應變 | 不用重新建置，直接以 SBOM 查詢哪些系統受影響 |
-| 法規要求 | 美國 EO 14028 與 NTIA 最低要素、各國金融監理逐步要求提供 SBOM |
-
-> **SBOM 不只是掃描報告，而是 Software Supply Chain Governance 的重要資料。** 掃描報告會過時，SBOM 則可以在未來任何時間點重新比對新的 CVE。
-
-### 6.3 支援格式
-
-| 格式 | `--format` 值 | 說明 |
-|------|---------------|------|
-| CycloneDX | `cyclonedx` | OWASP 主導，JSON 格式；v0.71 起支援 CycloneDX 1.7 |
-| SPDX（tag-value） | `spdx` | Linux Foundation 主導，ISO/IEC 5962 |
-| SPDX JSON | `spdx-json` | SPDX 的 JSON 表示法 |
-| GitHub Dependency Snapshot | `github` | 提交至 GitHub Dependency Graph |
-
-### 6.4 SBOM Generation
-
-```bash
-# Container Image → CycloneDX
-trivy image --format cyclonedx --output app-1.4.2.cdx.json registry.example.com/app:1.4.2
-
-# Container Image → SPDX tag-value
-trivy image --format spdx --output app-1.4.2.spdx registry.example.com/app:1.4.2
-
-# Container Image → SPDX JSON
-trivy image --format spdx-json --output app-1.4.2.spdx.json registry.example.com/app:1.4.2
-
-# 原始碼目錄 → CycloneDX
-trivy fs --format cyclonedx --output source.cdx.json .
-
-# CycloneDX 同時附帶弱點資訊（CycloneDX 可內嵌 vulnerabilities）
-trivy image --format cyclonedx --scanners vuln --output app-with-vuln.cdx.json registry.example.com/app:1.4.2
-```
-
-> **注意**：SBOM 輸出時，未以 `--scanners` 指定 vuln 的話，預設只產出元件清單。要包含弱點請明確加上 `--scanners vuln`。
-
-### 6.5 SBOM Consumption 與 SBOM Vulnerability Scanning
-
-```bash
-# 以最新 DB 重新掃描既有 SBOM
-trivy sbom app-1.4.2.cdx.json
-
-# SBOM 也可以掃 License
-trivy sbom --scanners vuln,license app-1.4.2.cdx.json
-
-# 掃描 CycloneDX attestation（in-toto）
-trivy sbom app-1.4.2.cdx.intoto.jsonl
-```
-
-| 時機 | 用途 |
-|------|------|
-| 建置時 | 產生 SBOM，與映像檔一起保存 |
-| 每日排程 | 以最新 DB 掃描所有 Production SBOM，找出新揭露的 CVE |
-| 事件應變 | 新 0-day 公布時，直接查詢 SBOM 判斷受影響範圍 |
-
-### 6.6 SBOM Attestation
-
-SBOM Attestation 是把 SBOM 以簽章方式綁定到映像檔，證明「這份 SBOM 確實屬於這個 digest」。官方文件以 cosign 示範：
-
-```bash
-# 1. 產生 SBOM
-trivy image --format cyclonedx --output sbom.cdx.json registry.example.com/app@sha256:<digest>
-
-# 2. 以 cosign 建立 attestation（keyless 或企業金鑰）
-cosign attest --type cyclonedx --predicate sbom.cdx.json registry.example.com/app@sha256:<digest>
-
-# 3. 從 OCI / Rekor 取得 SBOM 進行掃描（--sbom-sources 為 Experimental）
-trivy image --sbom-sources oci registry.example.com/app@sha256:<digest>
-```
-
-### 6.7 KBOM 與 CBOM
-
-| 類型 | 指令 | 說明 |
-|------|------|------|
-| KBOM | `trivy k8s --format cyclonedx --output kbom.cdx.json` | Kubernetes Bill of Materials：控制平面、節點元件、Addon 版本 |
-| CBOM | `trivy image --scanners crypto --format cyclonedx ...` | 密碼學資產清單（v0.75，Experimental） |
-
-> 官方說明 KBOM 的弱點比對目前對原生 Kubernetes 效果較好，部分雲端託管發行版可能不準確。
-
-### 6.8 供應鏈流程
-
-```mermaid
-flowchart LR
-    A["Source"] --> B["Dependency"]
-    B --> C["Build"]
-    C --> D["SBOM<br/>trivy image --format cyclonedx"]
-    D --> E["Container"]
-    E --> F["Registry<br/>SBOM Attestation"]
-    F --> G["Deployment"]
-    G --> H["Runtime"]
-    H -.->|"每日 trivy sbom 重掃"| D
-```
-
-### 6.9 SBOM 管理建議
-
-| 項目 | 【企業建議】 |
-|------|-------------|
-| 命名 | `<system>-<component>-<version>-<digest前12碼>.cdx.json` |
-| 保存位置 | 與映像檔一起放在 Registry（OCI artifact / attestation），另備份至 Artifact Repository |
-| 保存期限 | 至少與系統生命週期相同；金融業依稽核要求 |
-| 格式選擇 | 對內以 CycloneDX 為主（弱點、VEX、CBOM 支援完整）；對外依客戶要求提供 SPDX |
-| 重掃頻率 | Production SBOM 每日重掃 |
-
-### 實務案例
-
-某次 Java 函式庫爆出 CRITICAL 0-day 時，有 SBOM 的團隊在 30 分鐘內以 `trivy sbom` 批次查出 14 個受影響系統；沒有 SBOM 的團隊花了兩天逐一重新建置與掃描。
-
-### 注意事項
-
-- `trivy fs` 產生的 SBOM 只含 lock file 內的應用相依，不含 OS 套件；交付用 SBOM 應以**最終映像檔**為準。
-- `trivy sbom` 不支援 `--skip-dirs` / `--skip-files`（v0.63 起停用）。
-
----
-
-## 7. Misconfiguration / IaC Security
-
-### 7.1 IaC 與 Misconfiguration
-
-IaC（Infrastructure as Code）把基礎設施寫成程式碼。Misconfiguration 是指設定違反安全最佳實務，例如容器以 root 執行、S3 Bucket 公開。
-
-**【官方】** Trivy 的 IaC 覆蓋範圍：
-
-| 類型 | 說明 |
-|------|------|
-| Dockerfile | 基礎映像、USER、HEALTHCHECK 等 |
-| Kubernetes YAML | Pod Security、資源限制、權限 |
-| Helm | 會先 render 再檢查，可帶 `--helm-values`、`--helm-set` |
-| Terraform / OpenTofu | HCL、Terraform plan JSON、plan snapshot |
-| CloudFormation | AWS 範本 |
-| Azure ARM Template | Azure 範本 |
-| Ansible | v0.69 起初始支援 |
-
-規則來自 **trivy-checks** bundle，預設從 `mirror.gcr.io/aquasec/trivy-checks:2` 下載。
-
-### 7.2 基本範例
-
-```bash
-trivy config .
-trivy config --severity HIGH,CRITICAL ./deploy
-
-# Helm Chart 帶入 values
-trivy config --helm-values ./charts/app/values-prod.yaml ./charts/app
-
-# Terraform 帶入變數檔
-trivy config --tf-vars ./env/prod.tfvars ./terraform
-
-# 同時掃 Secret
-trivy fs --scanners misconfig,secret ./deploy
-```
-
-### 7.3 Dockerfile 範例
-
-**有問題的 Dockerfile**：
-
-```dockerfile
-FROM eclipse-temurin:latest
-COPY target/app.jar /app.jar
-EXPOSE 22 8080
-CMD ["java", "-jar", "/app.jar"]
-```
-
-可能的 Finding（ID 以實際報告為準）：
-
-| 問題 | 常見對應規則 |
-|------|-------------|
-| 使用 `latest` tag | AVD-DS-0001 |
-| 未指定非 root `USER` | AVD-DS-0002 |
-| 缺少 `HEALTHCHECK` | AVD-DS-0026 |
-| 開放 22 port | 依規則集而定 |
-
-**修正後**：
-
-```dockerfile
-FROM eclipse-temurin:25-jre-alpine
-RUN addgroup -S app && adduser -S app -G app
-WORKDIR /app
-COPY --chown=app:app target/app.jar app.jar
-USER app
-EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:8080/actuator/health || exit 1
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
-```
-
-### 7.4 Kubernetes YAML 範例
-
-**有問題的 Deployment**：
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: order-api
-spec:
-  replicas: 2
-  selector:
-    matchLabels: { app: order-api }
-  template:
-    metadata:
-      labels: { app: order-api }
-    spec:
-      containers:
-        - name: app
-          image: registry.example.com/order-api:latest
-          securityContext:
-            privileged: true
-```
-
-**修正後**：
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: order-api
-spec:
-  replicas: 2
-  selector:
-    matchLabels: { app: order-api }
-  template:
-    metadata:
-      labels: { app: order-api }
-    spec:
-      automountServiceAccountToken: false
-      securityContext:
-        runAsNonRoot: true
-        seccompProfile: { type: RuntimeDefault }
-      containers:
-        - name: app
-          image: registry.example.com/order-api@sha256:<digest>
-          securityContext:
-            privileged: false
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities: { drop: ["ALL"] }
-          resources:
-            requests: { cpu: "250m", memory: "512Mi" }
-            limits: { cpu: "1", memory: "1Gi" }
-```
-
-### 7.5 Terraform 範例
-
-```hcl
-resource "aws_s3_bucket" "reports" {
-  bucket = "corp-reports-example"
-}
-
-resource "aws_s3_bucket_public_access_block" "reports" {
-  bucket                  = aws_s3_bucket.reports.id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "reports" {
-  bucket = aws_s3_bucket.reports.id
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "aws:kms"
-    }
-  }
-}
-```
-
-Trivy 可找出的典型問題類型：
-
-| 類型 | 範例 |
-|------|------|
-| Privileged Container | `privileged: true` |
-| Root User | 未設 `runAsNonRoot`、Dockerfile 無 `USER` |
-| Exposed Port | Security Group 對 `0.0.0.0/0` 開放管理埠 |
-| Insecure Kubernetes Setting | 掛載 hostPath、hostNetwork、缺少資源限制 |
-| Public Cloud Resource | S3 公開存取、資料庫公開 |
-| Weak IAM | IAM Policy 使用 `*` 權限 |
-| Encryption | 未啟用儲存加密、未強制 TLS |
-| Network | 缺少 Network Policy、預設 Security Group 過寬 |
-| Storage | 未啟用版本控制、日誌 |
-
-### 7.6 Inline Ignore 與自訂規則
-
-```dockerfile
-# trivy:ignore:AVD-DS-0026
-FROM registry.example.com/base/batch-runner:2.1
-```
-
-```hcl
-# 理由：公開網站靜態檔，經 SEC-EXC-2026-031 核准，到期日 2026-12-31
-#trivy:ignore:<報告中的 check ID>
-resource "aws_s3_bucket" "static_site" {
-  bucket = "corp-public-website"
-}
-```
-
-> **【企業建議】** Inline Ignore 必須附帶理由註解與 Ticket 編號，並在 Code Review 時特別檢視。AI Agent **不得**自行新增 Inline Ignore（見第 29 章）。
-
-自訂 Rego 規則：
-
-```bash
-trivy config --config-check ./policies --check-namespaces user ./deploy
-```
-
-### 7.7 不要把所有 Misconfiguration 都當成漏洞
-
-| 概念 | 意義 | 範例 |
-|------|------|------|
-| Finding | 掃描器的觀察結果 | 「S3 Bucket 未阻擋公開存取」 |
-| Risk | 在企業情境下的實際風險 | 此 Bucket 存放的是公開網站靜態檔，風險低 |
-| Policy | 企業規定 | 「僅 `public-web` 標籤的 Bucket 可公開」 |
-| Exception | 經核准的例外 | Exception ID、Owner、到期日 |
-| Remediation | 修正動作 | 套用 Public Access Block |
-
-```mermaid
-flowchart LR
-    F["Finding"] --> R["Risk 評估"]
-    R --> P{"符合 Policy？"}
-    P -->|"是"| E["Exception 記錄"]
-    P -->|"否"| M["Remediation"]
-    M --> V["Re-scan 驗證"]
-```
-
-### 實務案例
-
-某團隊第一次對 Helm Chart 執行 `trivy config`，出現 230 個 Finding。逐項檢視後發現 180 個來自第三方 Chart 的預設值。團隊建立「僅檢查自有 Chart + values-prod.yaml render 結果」的掃描範圍，並以 Policy 決定哪些規則在 Production 必須 Block，Finding 降到 27 個可執行的修正項目。
-
-### 注意事項
-
-- Helm Chart 未帶入 Production values 時，掃描結果與實際部署會有落差。
-- 規則 ID 會隨 trivy-checks 版本調整；v0.69 起 provider mapping 改用 ID，自訂 Rego 規則升級時需回歸測試。
-
----
-
-## 8. Secret Scanner
-
-### 8.1 偵測對象
-
-| 類型 | 範例 |
-|------|------|
-| API Key | 雲端服務、SaaS 的 API Key |
-| Password | 設定檔中的明文密碼 |
-| Token | GitHub Token、JWT、Slack Token |
-| Private Key | RSA、EC 私鑰 |
-| Credential | 各種帳密組合 |
-| Cloud Credential | AWS Access Key、Azure、GCP 金鑰（v0.71 新增 Azure 規則） |
-| Database Credential | JDBC URL 中的帳密 |
-| AI 服務 Key | v0.72 新增 OpenAI 規則 |
-| GitHub App Token | v0.72 支援新的 stateless installation token 格式 |
-| Maven 設定 | v0.71 新增 `settings.xml` / `settings-security.xml` 密碼規則 |
-
-### 8.2 基本範例
-
-```bash
-trivy fs --scanners secret .
-trivy image --scanners secret registry.example.com/app:1.4.2
-```
-
-### 8.3 Secret Configuration（trivy-secret.yaml）
-
-預設讀取工作目錄的 `trivy-secret.yaml`，可用 `--secret-config` 指定路徑：
-
-```yaml
-# trivy-secret.yaml
-rules:
-  - id: corp-internal-api-key
-    category: Corporate
-    title: Corporate Internal API Key
-    severity: CRITICAL
-    keywords:
-      - corp_api_key
-    regex: (?i)corp_api_key\s*[:=]\s*['"]?[A-Za-z0-9]{32}
-
-allow-rules:
-  - id: test-fixtures
-    description: 測試資料中的假金鑰
-    path: .*/src/test/resources/fixtures/.*
-
-disable-rules:
-  - slack-web-hook
-```
-
-> v0.75 起可用 `--secret-config=""` 停用設定檔載入，避免 CI 受 repo 內被竄改的設定檔影響（例如攻擊者加入 allow-rules 讓真實 Secret 被略過）。
->
-> v0.71 起可自訂 Secret Scanner 預設略過的目錄、檔案與副檔名；設定鍵名請以該版 Secret Scanner 官方文件為準。擴大略過範圍等同弱化 Scanner，應由 DevSecOps 審核。v0.75 起 Secret 掃描改用單次 Aho-Corasick 比對，大型映像與原始碼樹的掃描較快且較省記憶體。
-
-### 8.4 False Positive
-
-| 原因 | 處理方式 |
-|------|----------|
-| 測試資料中的假金鑰 | `allow-rules` 限定路徑 |
-| 文件範例字串 | 使用明顯的佔位符（`<YOUR_API_KEY>`） |
-| 高熵但非 Secret 的字串 | 經 Security 確認後以 `.trivyignore.yaml` 依路徑忽略 |
-
-### 8.5 重要安全原則
-
-> **Trivy 找到 Secret 後，不應把 Secret 本身再輸出給 AI Agent、Log 或 Ticket。**
-
-Trivy 報告會以遮罩方式呈現匹配內容，但周邊程式碼行、檔案路徑仍會輸出，報告本身仍屬敏感資料：
-
-| 動作 | 允許 | 禁止 |
-|------|------|------|
-| 告知 AI Agent | Rule ID、檔案路徑、行號、Severity | 原始值、未遮罩的程式碼行 |
-| 寫入 Ticket | Rule ID、檔案路徑、Owner | 原始值、截圖 |
-| CI Log | 摘要計數 | 完整 table 輸出（若 Log 對外可見） |
-| SARIF 上傳 | 視 Code Scanning 權限控管 | 上傳至公開 repo |
-
-### 8.6 Secret 事件處理流程
-
-```mermaid
-flowchart LR
-    A["Detect<br/>Trivy Secret Finding"] --> B["Redact<br/>報告與 Log 遮罩"]
-    B --> C["Revoke / Rotate<br/>立即撤銷並輪替"]
-    C --> D["Investigate<br/>查存取紀錄"]
-    D --> E["Prevent Recurrence<br/>Secret Manager、Pre-commit"]
-```
-
-| 步驟 | 動作 | 負責 |
-|------|------|------|
-| Detect | Trivy 偵測 | CI / Developer |
-| Redact | 停止擴散：確認報告與 Log 不外流 | DevSecOps |
-| Revoke / Rotate | **先撤銷再修程式**：只刪除程式碼中的 Secret 不夠，因為它已在 Git 歷史中 | Secret Owner |
-| Investigate | 查詢該憑證在曝光期間的使用紀錄 | Security Team |
-| Prevent Recurrence | 改用 Secret Manager、加入 pre-commit 掃描 | Tech Lead |
-
-### 8.7 Git History 與 CI/CD Secret
-
-- **Git History**：官方文件未說明 Trivy 支援逐一掃描完整 commit 歷史。若需歷史掃描，應搭配專門工具；`trivy repo --commit` 只能掃描指定 commit 的狀態。
-- **CI/CD Secret**：2026-03 事件的惡意程式就是從 CI Runner 的記憶體與檔案系統竊取 Secret。CI 中的 Trivy 本身也必須以最小權限執行（第 20、30 章）。
-
-### 實務案例
-
-某開發者把含有資料庫密碼的 `application-prod.yml` commit 進 repo，Trivy 在 PR 中偵測到。團隊依 8.6 流程：先由 DBA 輪替密碼，再從程式碼移除並改用 Kubernetes Secret + External Secrets，最後在 pre-commit 加入 `trivy fs --scanners secret`。事後查證該密碼在曝光期間未被使用。
-
-### 注意事項
-
-- **永遠先 Revoke / Rotate**，不要只刪除程式碼。
-- 不要把 Secret Finding 加入 `.trivyignore` 了事，除非 Security Team 確認是 False Positive。
-
----
-
-## 9. License Scanner
-
-### 9.1 基本概念
-
-| 名詞 | 說明 |
-|------|------|
-| Open Source License | 開源授權條款，例如 MIT、Apache-2.0、GPL-3.0 |
-| License Compliance | 使用與散布軟體時遵守授權條款 |
-| Dependency License | 相依套件的授權 |
-| License Risk | 授權條款對商業使用、散布、原始碼公開的影響 |
-| UNKNOWN License | 無法辨識或無法解析的授權；v0.75 起無法解析的授權名稱會以 UNKNOWN Severity 報告 |
-
-### 9.2 Trivy 的 License 分類
-
-**【官方】** Trivy 依授權類別給予 Severity：
-
-| 類別 | Severity | 常見範例 |
-|------|----------|----------|
-| Forbidden | CRITICAL | 依組織政策定義 |
-| Restricted | HIGH | GPL 系列（依預設分類） |
-| Reciprocal | MEDIUM | MPL、EPL 等 |
-| Notice | LOW | Apache-2.0、BSD |
-| Permissive | LOW | MIT 等 |
-| Unencumbered | LOW | Unlicense、CC0 |
-| Unknown | UNKNOWN | 無法辨識 |
-
-分類可在 `trivy.yaml` 中依企業政策自訂：
-
-```yaml
-license:
-  forbidden:
-    - AGPL-3.0
-  restricted:
-    - GPL-2.0
-    - GPL-3.0
-  reciprocal:
-    - MPL-2.0
-    - EPL-2.0
-  notice:
-    - Apache-2.0
-    - BSD-3-Clause
-  permissive:
-    - MIT
-```
-
-### 9.3 範例
-
-```bash
-# 容器映像檔
-trivy image --scanners license --severity HIGH,CRITICAL registry.example.com/app:1.4.2
-
-# 原始碼，並深入檢查原始碼標頭與 LICENSE 檔
-trivy fs --scanners license --license-full .
-
-# 以 SBOM 掃 License
-trivy sbom --scanners license app.cdx.json
-```
-
-Java 專案在 v0.72–v0.74 間強化了 JAR 授權偵測（內嵌 `pom.xml`、`LICENSE` 檔、`Bundle-License`、pom `<url>` 轉 SPDX ID），v0.73 起可讀取 Jenkins plugin manifest 的授權；Node.js 自 v0.69 起可從 `package-lock.json` 解析授權。v0.75 起 `license.id` 使用標準 SPDX 大小寫，修正 CycloneDX 輸出無法通過 schema 驗證的問題。
-
-### 9.4 License 的治理原則
-
-> **License 掃描結果需要配合公司法務 / Open Source Governance Policy，而不是由 AI Agent 自行判定法律結論。**
-
-| 誰 | 做什麼 |
-|----|--------|
-| Trivy | 偵測授權名稱、分類、Severity |
-| AI Agent | 彙整清單、標示「需法務檢視」項目、**不下結論** |
-| Developer | 提供使用方式（是否修改、是否散布、是否 SaaS） |
-| 法務 / OSPO | 判定是否可用、是否需揭露原始碼、是否需標示 |
-
-### 實務案例
-
-某 AI Agent 在升級前端套件時發現新增一個 AGPL-3.0 的間接相依，它直接在 PR 描述寫「AGPL 可用於內部系統，無風險」。法務檢視後指出該系統會以 SaaS 形式對外提供，AGPL 條款可能適用。之後團隊在 AGENTS.md 加入「License 結論必須由法務提供」規則（附錄 F）。
-
-### 注意事項
-
-- License 掃描**預設不啟用**，必須明確指定 `--scanners license`。
-- OS 套件的授權資訊可能不完整；`--license-full` 會增加掃描時間。
-
----
-
-## 10. Kubernetes Security
-
-> **【官方·Experimental】** `trivy kubernetes`（別名 `trivy k8s`）在官方 CLI 說明中標示為 **[EXPERIMENTAL] Scan kubernetes cluster**，功能與輸出可能不相容變更。
-
-### 10.1 掃描範圍
-
-官方將 Kubernetes 掃描分為三類：
-
-| 類別 | 範例 | 掃描內容 |
-|------|------|----------|
-| Cluster infrastructure | api-server、kubelet、addons | Vulnerability、Node 設定（node-collector） |
-| Cluster configuration | Role、ClusterRole | RBAC、Misconfiguration |
-| Application workloads | Deployment、Pod、Service、ConfigMap、Secret | Image 弱點、Secret、Misconfiguration |
-
-| 資源 / 元件 | Trivy 檢查 |
-|-------------|-----------|
-| Workload / Pod / Deployment | Security Context、資源限制、特權 |
-| Service | 暴露方式 |
-| ConfigMap / Secret | 明文敏感資訊 |
-| RBAC | 過寬權限（`rbac` scanner） |
-| Image | 映像檔中的 Vulnerability、Secret |
-| Security Context | runAsNonRoot、capabilities、readOnlyRootFilesystem |
-
-### 10.2 基本指令
-
-```bash
-# 使用 kubeconfig 的目前 context，輸出摘要
-trivy k8s --report summary
-
-# 指定 context
-trivy k8s kind-kind --report summary
-
-# 指定 namespace
-trivy k8s --include-namespaces order,payment --report summary
-
-# 只看 CRITICAL 的完整報告
-trivy k8s --severity CRITICAL --report all
-
-# 只看 misconfig 或只看 secret
-trivy k8s --scanners misconfig --report summary
-trivy k8s --scanners secret --report summary
-
-# 不下載與掃描映像檔（加快速度，但不會有 Image 弱點）
-trivy k8s --report summary --skip-images
-
-# 輸出 JSON
-trivy k8s --format json --output k8s-result.json
-```
-
-| Flag | 說明 |
-|------|------|
-| `--report summary` / `all` | 摘要或完整；CLI 說明預設為 `all` |
-| `--scanners` | `vuln,misconfig,secret,rbac`（預設全部） |
-| `--format` | `table`、`json`、`cyclonedx`（KBOM） |
-| `--include-namespaces` / `--exclude-namespaces` | 不可同時使用；exclude 需 ClusterRole |
-| `--include-kinds` / `--exclude-kinds` | 不可同時使用 |
-| `--skip-images` | 不掃 Workload 映像檔 |
-| `--disable-node-collector` | 不執行 node-collector Job |
-| `--exclude-owned` | 排除有 ownerReference 的資源（例如由 Deployment 產生的 ReplicaSet / Pod） |
-| `--k8s-version` | 指定版本以檢查過時 API |
-
-### 10.3 必要權限
-
-**【官方】** 掃描帳號至少需要以下 API group 的 `list` 權限：
-
-```yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: trivy-scanner-readonly
-rules:
-  - apiGroups: [""]
-    resources: ["*"]
-    verbs: ["list"]
-  - apiGroups: ["apps", "batch", "networking.k8s.io", "rbac.authorization.k8s.io"]
-    resources: ["*"]
-    verbs: ["list"]
-```
-
-若啟用 node-collector（預設啟用），還需要建立 / 刪除 Job、建立 namespace、讀取 `nodes/proxy`、`pods/log` 等權限，詳見官方文件。
-
-> **【企業建議】** 掃描用帳號應為**專用 ServiceAccount**，權限以上述最小集合為主。若組織政策不允許掃描工具在 Production 建立 Job，請使用 `--disable-node-collector`。
-
-### 10.4 Compliance
-
-```bash
-trivy k8s --compliance k8s-pss-baseline-0.1 --report summary
-trivy k8s --compliance k8s-cis-1.23 --report all --format json --output cis.json
-```
-
-**【官方】** 內建 Kubernetes compliance：
-
-| ID | 標準 |
-|----|------|
-| `k8s-nsa-1.0` | NSA、CISA Kubernetes Hardening Guidance v1.0 |
-| `k8s-cis-1.23` | CIS Benchmark for Kubernetes v1.23 |
-| `eks-cis-1.4` | CIS Benchmark for EKS v1.4 |
-| `rke2-cis-1.24` | CIS Benchmark for RKE2 v1.24 |
-| `k8s-pss-baseline-0.1` | Pod Security Standards Baseline |
-| `k8s-pss-restricted-0.1` | Pod Security Standards Restricted |
-
-### 10.5 KBOM
-
-```bash
-trivy k8s --format cyclonedx --output kbom.cdx.json
-trivy sbom kbom.cdx.json
-```
-
-### 10.6 架構
-
-```mermaid
-flowchart TB
-    D["Developer"] --> I["Container Image"]
-    I --> R["Registry"]
-    R --> K["Kubernetes"]
-    K --> T["Trivy<br/>trivy k8s / Operator"]
-    T --> F["Security Findings"]
-    F --> A["AI Agent<br/>分析與分類"]
-    A --> M["Remediation<br/>PR：修 YAML / 升 Base Image"]
-    M --> D
-```
-
-### 實務案例
-
-某團隊在 OpenShift 測試叢集執行 `trivy k8s --report summary`，發現 60% 的 Deployment 未設資源限制、12 個 ServiceAccount 綁定 `cluster-admin`。由於掃描不改變叢集狀態，團隊將其排入每週例行檢查，並把修正納入 Helm Chart 的 CI `trivy config` 檢查，避免問題再進入叢集。
-
-### 注意事項
-
-- `trivy convert` **不支援** `trivy k8s` 的 JSON 報告（官方 Reporting 文件明確說明）。
-- k8s 掃描結果會含 Secret Finding，輸出檔應視為敏感資料。
-- 大型叢集請使用 `--include-namespaces` 分批掃描，並調整 `--qps` / `--burst` 避免壓垮 API Server。
-
----
-
-## 11. Trivy Operator
-
-### 11.1 概念
-
-Trivy Operator 以 **Kubernetes Operator Pattern** 運作：監看叢集狀態變化（例如新 Pod 建立），自動觸發掃描，並把結果存成 Kubernetes **CRD（Custom Resource Definition）** 報告，可透過 `kubectl` 或 Kubernetes API 存取。
-
-> **【官方】** 專案 README 說明：雖盡量維持相容，但專案仍處於 incubating，部分 API 與 CRD 可能變更。
-
-### 11.2 報告類型
-
-| 報告 | 說明 | 查詢方式 |
-|------|------|----------|
-| Vulnerability Reports | Workload 映像檔弱點 | `kubectl get vulnerabilityreports -A -o wide` |
-| ConfigAudit Reports | Kubernetes 資源設定稽核 | `kubectl get configauditreports -A -o wide` |
-| Exposed Secret Reports | 映像檔中暴露的 Secret | `kubectl get exposedsecretreports -A` |
-| RBAC Assessment Reports | 角色權限評估 | `kubectl get rbacassessmentreports -A` |
-| Infra Assessment Reports | 核心元件設定評估 | `kubectl get infraassessmentreports -A` |
-| Cluster Compliance Reports | NSA、CIS、PSS 合規報告 | `kubectl get clustercompliancereports` |
-| SBOM Reports | Workload SBOM | `kubectl get sbomreports -A` |
-
-另外 ConfigAudit 會檢查資源是否使用即將移除的過時 API。
-
-### 11.3 安裝
-
-```bash
-# 方式一：Helm repository
-helm repo add aqua https://aquasecurity.github.io/helm-charts/
-helm repo update
-helm install trivy-operator aqua/trivy-operator \
-  --namespace trivy-system --create-namespace \
-  --version 0.36.0
-
-# 方式二：OCI registry（Helm 3.8+）
-helm install trivy-operator oci://ghcr.io/aquasecurity/helm-charts/trivy-operator \
-  --namespace trivy-system --create-namespace \
-  --version 0.36.0
-```
-
-企業 values 範例（鍵名以該版 Chart 的 `values.yaml` 為準，安裝前請以 `helm show values` 核對）：
-
-```yaml
-# values-enterprise.yaml
-trivy:
-  ignoreUnfixed: true
-  severity: "HIGH,CRITICAL"
-operator:
-  scanJobsConcurrentLimit: 3
-```
-
-```bash
-helm show values aqua/trivy-operator --version 0.36.0 > default-values.yaml
-helm upgrade --install trivy-operator aqua/trivy-operator \
-  -n trivy-system --version 0.36.0 -f values-enterprise.yaml
-```
-
-### 11.4 Trivy CLI vs Trivy Operator
-
-| 能力 | Trivy CLI | Trivy Operator |
-|------|-----------|----------------|
-| Local Scan | ✓ 核心用途 | ✗ |
-| CI/CD | ✓ 核心用途 | ✗（非設計目的） |
-| Kubernetes | ✓ `trivy k8s`（Experimental，一次性掃描） | ✓ 叢集內常駐 |
-| Continuous Monitoring | 需自行排程 | ✓ 事件驅動自動掃描 |
-| Report Resource | 檔案（JSON、SARIF…） | Kubernetes CRD |
-| Cluster Governance | 間接 | ✓ Compliance Report、RBAC Assessment |
-| 部署前阻擋 | ✓ CI Gate | 需搭配 Admission Controller（例如 Kyverno） |
-| 資源消耗 | 執行時 | 常駐 Operator 與 Scan Job |
-
-```mermaid
-flowchart LR
-    subgraph Shift-Left
-        C1["Developer 本機<br/>trivy fs"] --> C2["CI/CD<br/>trivy image / config"]
-    end
-    subgraph Runtime
-        O1["Trivy Operator"] --> O2["CRD Reports"]
-        O2 --> O3["Prometheus / SIEM / Dashboard"]
-    end
-    C2 -->|"部署"| O1
-```
-
-### 實務案例
-
-某團隊在 CI 中已經 Gate 掉 CRITICAL，但上線三個月後，同一映像檔被揭露了新的 CRITICAL。Trivy Operator 在 DB 更新後自動重新產生 VulnerabilityReport，團隊的告警規則因此發出通知。CI 管的是「進來時乾淨」，Operator 管的是「跑著時仍然乾淨」。
-
-### 注意事項
-
-- Operator 的 Scan Job 會消耗叢集資源，大型叢集需限制併發數。
-- Operator 內建的 Trivy 版本通常落後 CLI（v0.34.0 內建 0.74.0），同一映像在 CI 與叢集的結果可能略有差異；稽核時應記錄兩邊的 Trivy 與 DB 版本。
-- 離線環境需設定 Operator 使用的 DB repository 指向內部 Mirror（第 17 章）。
-- 報告 CRD 會增加 etcd 資料量，需規劃保留與清理。
-
----
-
-## 12. Cloud Security
-
-### 12.1 先講清楚：Trivy 目前的 Cloud 能力
-
-> **【官方】** v0.53.0 起 `trivy aws` 子命令**已從 Trivy 核心移除**，改由獨立的 **trivy-aws plugin** 提供。v0.75.0 的官方 Target 文件中**沒有** Cloud 帳號作為 Target。
-
-| 能力 | 提供方式 | 狀態 |
-|------|----------|------|
-| AWS 帳號設定掃描 | trivy-aws plugin（`trivy aws`） | Plugin；最新 v0.15.1 約為兩年前發布 |
-| AWS AMI / EBS Snapshot | `trivy vm ami:` / `ebs:` | Experimental |
-| 雲端 IaC 設定檢查 | `trivy config`（Terraform、CloudFormation、Azure ARM） | Stable |
-| 私有 Registry（ECR、ACR、GAR） | `trivy image` 認證整合 | Stable |
-| Azure / GCP 帳號即時掃描 | — | 官方資料未說明開源版支援 |
-| 完整 CSPM | — | **不是** Trivy 開源版的定位 |
-
-> v0.68 CHANGELOG 有「cli: Add trivy cloud support」項目，但官方開源文件未提供對應的 Cloud 帳號掃描 Target 說明，本手冊不將其視為開源 Cloud 掃描能力。
-
-### 12.2 trivy-aws plugin
-
-```bash
-trivy plugin install github.com/aquasecurity/trivy-aws
-
-# 使用與 AWS CLI 相同的認證機制（環境變數、profile、IAM Role）
-trivy aws --region ap-northeast-1
-trivy aws --region ap-northeast-1 --service s3
-trivy aws --region ap-northeast-1 --service s3 --service ec2
-trivy aws --region ap-northeast-1 --update-cache
-```
-
-plugin README 列出的服務包括：accessanalyzer、api-gateway、athena、cloudfront、cloudtrail、cloudwatch、codebuild、documentdb、dynamodb、ec2、ecr、ecs、efs、eks、elasticache、elasticsearch、elb、emr、iam、kinesis、kms、lambda、mq、msk、neptune、rds、redshift、s3、sns、sqs、ssm、workspaces。
-
-> **【企業建議】** 由於 plugin 發布頻率低，正式導入前請：(1) 在非 Production 帳號驗證；(2) 以唯讀 IAM Role 執行；(3) 評估是否以專門的 CSPM 工具作為主要 Cloud 控制，Trivy 作為 IaC 左移檢查。
-
-### 12.3 以 IaC 左移取代事後掃描
-
-對大多數企業，更穩定的做法是**在 Terraform / CloudFormation 進入雲端之前就擋下錯誤設定**：
-
-```bash
-# Terraform 原始碼
-trivy config ./terraform
-
-# Terraform plan JSON（反映實際變數與模組展開）
-terraform plan -out tfplan
-terraform show -json tfplan > tfplan.json
-trivy config tfplan.json
-```
-
-| 檢查類型 | 範例 |
-|----------|------|
-| IAM | 過寬 Policy、`*` Action |
-| S3 / Storage | 公開存取、未加密、未啟用日誌 |
-| EC2 / Network | Security Group 開放 `0.0.0.0/0` |
-| RDS | 公開存取、未加密、無備份 |
-| Encryption | KMS 設定 |
-
-### 實務案例
-
-某團隊原打算用 `trivy aws` 作為 Cloud 唯一控制，評估後發現 plugin 更新頻率不符合金融業對工具維護性的要求。最後的架構是：Terraform PR 用 `trivy config` 擋錯誤設定（左移），帳號層級的持續監控交由雲端原生安全服務，兩者結果彙整至 SIEM。
-
-### 注意事項
-
-- 不要在對外文件宣稱「Trivy 已完整支援所有 Cloud Provider」。
-- Cloud 掃描所需的認證資訊必須使用短期憑證（IAM Role / OIDC），不得把 Access Key 寫入 CI 設定。
-
----
-
-## 13. Trivy 系統架構
-
-### 13.1 完整架構
-
-```mermaid
-flowchart TB
-    U["Developer / AI Agent"] --> CLI["Trivy CLI"]
-    CLI --> CFG["Configuration<br/>CLI flags、TRIVY_* env、trivy.yaml"]
-    CLI --> TS["Target Scanner<br/>Artifact Analyzer"]
-    TS --> V["Vuln"]
-    TS --> M["Misconf"]
-    TS --> S["Secret"]
-    TS --> L["License"]
-    TS --> SB["SBOM"]
-    V --> DB["Vulnerability DB<br/>trivy-db / trivy-java-db"]
-    M --> CK["Checks Bundle<br/>trivy-checks"]
-    DB --> P["Policy / Rules<br/>severity、ignore、VEX、Rego"]
-    CK --> P
-    S --> P
-    L --> P
-    SB --> REP["Reports"]
-    P --> REP
-    REP --> CI["CI/CD Gate"]
-    REP --> SIEM["SIEM / Dashboard"]
-    REP --> AI["AI Agent"]
-    CACHE[("Cache<br/>fs / memory / redis")] -.-> TS
-    CACHE -.-> DB
-```
-
-### 13.2 元件說明
-
-| 元件 | 說明 | 預設位置 / 來源 |
-|------|------|-----------------|
-| Trivy CLI | 單一執行檔，含所有 Target 與 Scanner | GitHub Release、套件庫、容器映像 |
-| Configuration | 三層設定來源，優先序見第 15 章 | `trivy.yaml` |
-| Artifact Analyzer | 解析 OS、lock file、jar、設定檔 | 內建 |
-| trivy-db | 弱點資料庫（OCI artifact） | `mirror.gcr.io/aquasec/trivy-db:2`，後援 `ghcr.io/aquasecurity/trivy-db:2` |
-| trivy-java-db | Java 套件索引（jar SHA1 → GAV） | `mirror.gcr.io/aquasec/trivy-java-db:1`，後援 `ghcr.io/aquasecurity/trivy-java-db:1` |
-| trivy-checks | Misconfiguration 規則 bundle | `mirror.gcr.io/aquasec/trivy-checks:2` |
-| Cache | 映像層分析結果、DB | Linux 預設 `~/.cache/trivy`；`--cache-backend` 支援 `fs`、`memory`、`redis`（Experimental） |
-| VEX | 抑制不可利用的弱點 | 本機檔、VEX Repository、OCI |
-| Plugin / Module | 擴充子命令與 WASM 模組 | `trivy plugin`、`trivy module` |
-| Server | Client/Server 模式集中 DB | `trivy server` |
-
-### 13.3 Client / Server 模式
-
-```bash
-# Server（集中持有 DB）
-trivy server --listen 0.0.0.0:4954 --token-header Trivy-Token --token "$TRIVY_SERVER_TOKEN"
-
-# Client
-trivy image --server http://trivy.internal:4954 --token "$TRIVY_SERVER_TOKEN" registry.example.com/app:1.4.2
-```
-
-> **【企業建議】** Server 模式下 Token 必須來自 Secret Manager，Server 應僅開放內網，並以 TLS 反向代理保護。
-
-在 Kubernetes 中部署 Server 可使用官方 repo 內的 `helm/trivy` Chart（Chart 0.27.0 內建 Trivy 0.75.0）。Chart values 鍵名請以 `helm show values` 核對；Client 端的 Trivy 版本應與 Server 一致。
-
-### 實務案例
-
-某企業有 200 個 CI Runner，每個 Runner 每天下載 DB 造成大量對外流量。改為內部 DB Mirror + 部分團隊使用 Client/Server 模式後，對外流量大幅下降，DB 版本也更一致。
-
-### 注意事項
-
-- Client/Server 模式下，Client 與 Server 的 Trivy 版本應一致，避免協定或欄位差異（v0.70 起 JSON 輸出包含 Server 版本資訊）。
-- Cache 目錄可能含映像層分析結果，請設定適當權限。
-
----
-
-## 14. Trivy 安裝
-
-### 14.1 先讀這一段：2026-03 供應鏈事件
-
-> **【官方】GHSA-69fq-xp46-6x23 / CVE-2026-33634（Critical）**
->
-> - 2026-03-19：攻擊者以遭竊憑證發布惡意 **Trivy v0.69.4**（GitHub Release、deb、rpm、GHCR、ECR Public、Docker Hub、`get.trivy.dev` 皆受影響，曝露約 3 小時）。
-> - 同日：`aquasecurity/trivy-action` 77 個 tag 中有 76 個被 force-push 成竊取憑證的惡意程式（約 12 小時）；`aquasecurity/setup-trivy` 全部 7 個 tag 被替換（約 4 小時）。
-> - 2026-03-22：攻擊者另以 Docker Hub 憑證推送惡意 `aquasec/trivy:0.69.5`、`0.69.6`（約 10 小時）。
-> - **未受影響**：以 digest 引用的映像、從原始碼建置、Homebrew 官方 formula（從原始碼建置）、v0.69.3 以前版本（v0.69.3 受 Immutable Release 保護）。
-
-**這件事告訴我們：連安全掃描工具本身都是供應鏈的一部分。** 本章所有安裝方式都附帶驗證步驟。
-
-### 14.2 安裝方式總覽
-
-**【官方】** 官方文件把安裝方式分為 Official 與 Community：
-
-| 方式 | 類型 | 平台 |
-|------|------|------|
-| 容器映像 | Official | `docker.io/aquasec/trivy`、`ghcr.io/aquasecurity/trivy`、`public.ecr.aws/aquasecurity/trivy` |
-| GitHub Release 執行檔 | Official | Linux、macOS、Windows、FreeBSD |
-| Install Script | Official | Linux / macOS |
-| RHEL / CentOS RPM repo | Official | Linux |
-| Debian / Ubuntu DEB repo | Official | Linux |
-| Homebrew | Official | macOS / Linux |
-| FreeBSD pkg | Official | FreeBSD |
-| Arch、OpenSUSE、MacPorts、Nix、asdf / mise | Community | 各平台 |
-
-> 官方安裝文件未將 winget、Scoop、Chocolatey 列為 Official 或 Community 安裝方式。企業 Windows 環境建議採用 **GitHub Release zip + 簽章驗證 + 內部軟體派送**。
-
-### 14.3 Windows
-
-#### Step 1：下載
-
-自 GitHub Release `v0.75.0` 下載 Windows 64-bit zip 與對應的 `.sigstore.json`（檔名以 Release 頁面為準，官方文件格式為 `trivy_x.xx.x_windows-64bit.zip`）以及 `trivy_0.75.0_checksums.txt`。
-
-#### Step 2：驗證雜湊（PowerShell）
-
-```powershell
-$zip = "trivy_0.75.0_windows-64bit.zip"
-$expected = (Select-String -Path .\trivy_0.75.0_checksums.txt -Pattern $zip).Line.Split(" ")[0]
-$actual = (Get-FileHash -Algorithm SHA256 .\$zip).Hash.ToLower()
-if ($expected -ne $actual) { throw "Checksum mismatch: $zip" } else { "Checksum OK" }
-```
-
-#### Step 3：驗證簽章（需安裝 cosign）
-
-```powershell
-cosign verify-blob `
-  --certificate-identity-regexp 'https://github\.com/aquasecurity/' `
-  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' `
-  --bundle .\trivy_0.75.0_windows-64bit.zip.sigstore.json `
-  .\trivy_0.75.0_windows-64bit.zip
-```
-
-#### Step 4：解壓縮並加入 PATH
-
-```powershell
-$dest = "C:\Tools\trivy\0.75.0"
-New-Item -ItemType Directory -Force -Path $dest | Out-Null
-Expand-Archive -Path .\trivy_0.75.0_windows-64bit.zip -DestinationPath $dest -Force
-
-# 使用者層級 PATH（企業環境建議由端點管理工具統一派送）
-$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
-if ($userPath -notlike "*$dest*") {
-  [Environment]::SetEnvironmentVariable("Path", "$userPath;$dest", "User")
-}
-```
-
-#### Step 5：版本確認（重新開啟 PowerShell）
-
-```powershell
-trivy --version
-```
-
-> Windows 上掃描容器映像需要 Docker Desktop 或可連線的 Registry；`trivy fs`、`trivy config`、`trivy sbom` 不需要 Docker。
-
-### 14.4 Linux
-
-**Debian / Ubuntu（官方 repo）**：
-
-```bash
-sudo apt-get install -y wget gnupg
-wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
-echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-sudo apt-get update
-sudo apt-get install -y trivy=0.75.0
-```
-
-**RHEL / Rocky / Alma（官方 repo）**：
-
-```bash
-cat << 'EOF' | sudo tee /etc/yum.repos.d/trivy.repo
-[trivy]
-name=Trivy repository
-baseurl=https://aquasecurity.github.io/trivy-repo/rpm/releases/$basearch/
-gpgcheck=1
-enabled=1
-gpgkey=https://aquasecurity.github.io/trivy-repo/rpm/public.key
-EOF
-sudo yum -y install trivy-0.75.0
-```
-
-**Release 執行檔 + 簽章驗證（建議用於 CI 映像與離線環境）**：
-
-```bash
-VERSION=0.75.0
-FILE="trivy_${VERSION}_Linux-64bit.tar.gz"
-BASE="https://github.com/aquasecurity/trivy/releases/download/v${VERSION}"
-curl -sSLO "${BASE}/${FILE}"
-curl -sSLO "${BASE}/${FILE}.sigstore.json"
-
-cosign verify-blob \
-  --certificate-identity-regexp 'https://github\.com/aquasecurity/' \
-  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-  --bundle "${FILE}.sigstore.json" \
-  "${FILE}"
-
-tar -xzf "${FILE}" trivy
-sudo install -m 0755 trivy /usr/local/bin/trivy
-trivy --version
-```
-
-> **【企業建議】** 官方的 Install Script 方式（`curl ... install.sh | sh`）很方便，但它從 `main` 分支取得腳本。企業 CI 映像建議改用「固定版本 Release + cosign 驗證」並建置成內部 Base Image。
-
-### 14.5 macOS
-
-```bash
-# Homebrew 官方 formula（從原始碼建置，2026-03 事件中未受影響）
-brew install trivy
-trivy --version
-```
-
-### 14.6 Docker / Container
-
-```bash
-# 固定版本，並建議以 digest 引用
-docker run --rm \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  -v "$HOME/.cache/trivy:/root/.cache/" \
-  aquasec/trivy:0.75.0 image registry.example.com/app:1.4.2
-```
-
-驗證容器映像簽章：
-
-```bash
-cosign verify \
-  --certificate-identity-regexp 'https://github\.com/aquasecurity/' \
-  --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
-  ghcr.io/aquasecurity/trivy:0.75.0
-```
-
-> 掛載 Docker socket 等同給予容器主機的 Docker 控制權，只應在受控的 CI Runner 使用。
-
-### 14.7 CI/CD Runner
-
-| 方式 | 建議 |
-|------|------|
-| GitHub Actions | 使用 `aquasecurity/setup-trivy`（範例 v0.3.1；安全下限 ≥ v0.2.6；避開 v0.3.0）或 `trivy-action`（≥ v0.35.0，並明確指定 `version`），**以完整 commit SHA 固定**（第 20 章） |
-| GitLab / Jenkins / Azure DevOps | 使用企業內部建置、已驗證簽章的 Trivy Runner 映像 |
-| 自架 Runner | 將 Trivy 預裝於 Runner 映像，版本由 Platform Team 管理 |
-
-### 14.8 Kubernetes
-
-| 方式 | 用途 |
-|------|------|
-| Trivy Operator（Helm） | 叢集內持續掃描（第 11 章） |
-| `trivy server` 部署於內部 | Client/Server 模式的集中 DB |
-| CronJob 執行 `trivy` | 定期掃描 SBOM 或映像清單 |
-
-### 14.9 版本驗證
-
-```bash
-trivy --version
-```
-
-輸出會包含 Trivy 版本，以及本機 Vulnerability DB、Java DB、Check Bundle 的版本與更新時間（若已下載）。
-
-> **【企業建議】** CI 的第一個 Trivy step 一律執行 `trivy --version` 並保存輸出，作為稽核證據：「這次掃描用的是哪一版 Trivy、哪一天的 DB」。
-
-### 14.10 開發者工具：VS Code Extension 與 MCP Plugin
-
-| 工具 | 識別 | 用途 | 說明 |
-|------|------|------|------|
-| Aqua Trivy VS Code Extension | Marketplace ID `AquaSecurityOfficial.trivy-vulnerability-scanner`（最新 1.8.11） | 在編輯器內掃描工作區並以樹狀檢視呈現 Finding | 呼叫本機 Trivy 執行檔；應指向企業核准版本 |
-| trivy-mcp plugin | `trivy plugin install mcp@v0.0.20` | 讓 IDE AI Agent 以 MCP 工具呼叫 Trivy | 詳見第 26.4–26.6 節與第 30.4 節 |
-
-> **【企業建議】** Extension 與 plugin 皆屬第三方元件，應納入 IDE 擴充套件允許清單。兩者都不具備 Gate 效力，只提供開發階段回饋。
-
-### 實務案例
-
-2026-03-19 事件當晚，某企業 Platform Team 依「所有 Trivy 安裝都要驗章」的規範，CI Runner 映像的 Trivy 是 3 月初已驗章的 v0.69.2，未受影響；但有兩個團隊直接用 `trivy-action@0.34.0`（mutable tag），事後需輪替這兩個 repo 可存取的所有 Secret。
-
-### 注意事項
-
-- **不要**在 CI 使用 `version: latest`。
-- **不要**以 mutable tag 引用 GitHub Action。
-- 安裝來源、版本、驗章結果應記錄於變更單。
-
----
-
-## 15. Trivy Configuration
-
-### 15.1 三種設定來源與優先順序
-
-**【官方】** 優先順序由高到低：
-
-| 優先 | 來源 | 範例 |
-|------|------|------|
-| 1 | CLI flags | `--severity HIGH,CRITICAL` |
-| 2 | 環境變數 | `TRIVY_SEVERITY=HIGH,CRITICAL` |
-| 3 | 設定檔 | `trivy.yaml` 中的 `severity` |
-| 4 | 預設值 | 內建預設 |
-
-環境變數命名規則：`TRIVY_` + flag 名稱大寫、`-` 改為 `_`。例如 `--skip-db-update` → `TRIVY_SKIP_DB_UPDATE`。
-
-> trivy-action 的優先順序為：Action inputs > 環境變數 > trivy.yaml > 預設值。
-
-### 15.2 產生預設設定檔
-
-v0.69 起官方提供 trivy.yaml 的 JSON Schema。最可靠的作法是讓 Trivy 自己產生完整預設設定，再刪減：
-
-```bash
-trivy image --generate-default-config
-# 產生 trivy-default.yaml，所有鍵名以此檔為準
-```
-
-### 15.3 常用設定項目
-
-| 設定 | CLI flag | 說明 |
-|------|----------|------|
-| severity | `--severity` | 顯示的嚴重度 |
-| scanners | `--scanners` | 啟用的 Scanner |
-| ignorefile | `--ignorefile` | Ignore 檔路徑；空字串停用 |
-| exit-code | `--exit-code` | 有 Finding 時的結束碼 |
-| skip-dirs / skip-files | `--skip-dirs` / `--skip-files` | 支援 glob |
-| cache | `--cache-dir`、`--cache-backend` | 快取位置 |
-| timeout | `--timeout` | 預設 5m0s |
-| output / format | `--output` / `--format` | 報告輸出 |
-| DB update | `--skip-db-update`、`--db-repository` | 弱點 DB |
-| Java DB | `--skip-java-db-update`、`--java-db-repository` | Java 索引 DB |
-| policy | `--config-check`、`--ignore-policy` | 自訂 Rego |
-| VEX | `--vex` | Experimental |
-| 企業 CA | `--cacert` | v0.68 新增 |
-
-### 15.4 企業建議設定範例
-
-> 以下鍵名請以 `trivy-default.yaml` 核對；不同版本可能有差異。
-
-```yaml
-# trivy.yaml —— 企業 CI 共用設定（由 DevSecOps 維護，Repo 不得自行修改）
-timeout: 15m
-severity:
-  - HIGH
-  - CRITICAL
-exit-code: 1
-format: json
-
-cache:
-  dir: /var/cache/trivy
-
-db:
-  repository:
-    - registry.internal.example.com/mirror/aquasec/trivy-db:2
-  java-repository:
-    - registry.internal.example.com/mirror/aquasec/trivy-java-db:1
-
-scan:
-  scanners:
-    - vuln
-    - secret
-    - misconfig
-  skip-dirs:
-    - "**/node_modules"
-    - "**/src/test/resources/fixtures"
-
-vulnerability:
-  ignore-unfixed: false
-
-ignorefile: .trivyignore.yaml
-
-secret:
-  config: /etc/trivy/trivy-secret.yaml
-
-license:
-  forbidden:
-    - AGPL-3.0
-  restricted:
-    - GPL-2.0
-    - GPL-3.0
-```
-
-### 15.5 CI 中避免被 Repo 內設定檔左右
-
-v0.75 起，空字串可停用設定檔載入：
-
-```bash
-trivy fs --config="" --ignorefile="" --secret-config="" /workspace/project
-```
-
-| 情境 | 建議 |
-|------|------|
-| 一般團隊 CI | 使用中央管理的 `--config /etc/trivy/trivy.yaml`，ignore 檔由 repo 提供但需 Review |
-| 高風險 / 外部貢獻 PR | 停用 repo 內設定檔，避免 PR 透過修改 `trivy.yaml` 或 `trivy-secret.yaml` 繞過掃描 |
-| Release Gate | 一律使用中央設定 |
-
-### 實務案例
-
-某 AI Agent 為了讓 PR 通過，在 repo 的 `trivy.yaml` 加入 `severity: [LOW]`，導致 CI 只顯示 LOW。團隊之後改為 CI 以 `--config /etc/trivy/enterprise.yaml` 指定中央設定，並在 CODEOWNERS 把 `trivy.yaml`、`.trivyignore*`、`trivy-secret.yaml` 指派給 DevSecOps。
-
-### 注意事項
-
-- 不同 Trivy 版本的設定鍵可能變動，升級時用 `--generate-default-config` 比對。
-- 環境變數優先於設定檔，CI 中殘留的 `TRIVY_*` 變數可能造成意外行為。
-
----
-
-## 16. .trivyignore
-
-### 16.1 Why：為什麼需要 Ignore
-
-| 情境 | 是否適合 Ignore |
-|------|-----------------|
-| 經確認的 False Positive | 適合，需有證據 |
-| 無修補版本、已有補償控制 | 適合，需有到期日 |
-| 弱點程式碼路徑在本產品中不可達 | 優先使用 VEX；或 Ignore 並說明 |
-| 「修起來很麻煩」 | **不適合** |
-| 「讓 Pipeline 先過」 | **不適合** |
-
-### 16.2 兩種格式
-
-**【官方】純文字 `.trivyignore`**（預設讀取）：
-
-```text
-# Accept the risk until 2026-12-31 — SEC-EXC-2026-014, owner: team-order
-CVE-2025-12345 exp:2026-12-31
-
-# False positive confirmed by security — SEC-FP-2026-003
-AVD-DS-0026
-
-# 測試資料中的假金鑰
-generic-unwanted-rule
-```
-
-**【官方·Experimental】YAML `.trivyignore.yaml`**（需以 `--ignorefile` 明確指定）：
-
-```yaml
-vulnerabilities:
-  - id: CVE-2025-12345
-    paths:
-      - "app/target/order-api.jar"
-    expired_at: 2026-12-31
-    statement: "SEC-EXC-2026-014 | owner=team-order | 無修補版本，已以 WAF 規則阻擋攻擊向量"
-  - id: CVE-2025-23456
-    purls:
-      - "pkg:maven/org.example/legacy-lib@1.2.3"
-    expired_at: 2026-11-30
-    statement: "SEC-EXC-2026-020 | owner=team-batch | 升級排入 2026Q4"
-
-misconfigurations:
-  - id: AVD-DS-0002
-    paths:
-      - "docker/legacy-batch/Dockerfile"
-    expired_at: 2026-12-31
-    statement: "SEC-EXC-2026-021 | Legacy 程式需 root，已排入改寫"
-
-secrets:
-  - id: generic-unwanted-rule
-    paths:
-      - "src/test/resources/fixtures/sample.env"
-    statement: "SEC-FP-2026-003 | 測試假資料"
-
-licenses:
-  - id: GPL-3.0
-    paths:
-      - "tools/dev-only/script.py"
-    statement: "LEGAL-2026-007 | 僅開發工具，不隨產品散布"
-```
-
-```bash
-trivy image --ignorefile ./.trivyignore.yaml --show-suppressed registry.example.com/app:1.4.2
-```
-
-| 欄位 | 必填 | 說明 |
-|------|------|------|
-| `id` | ✓ | CVE、check ID、secret rule ID、License 名稱 |
-| `paths` | | 限定檔案路徑，未設則全域生效 |
-| `purls` | | 限定套件（僅 vulnerabilities） |
-| `expired_at` | | 到期日，到期後自動失效 |
-| `statement` | | 理由（不參與過濾，但可用於治理） |
-
-### 16.3 治理要求
-
-以下為 **【企業建議 / Security Policy 範本】**：
-
-| 規則 | 說明 |
-|------|------|
-| 必須有到期日 | 純文字檔用 `exp:`，YAML 用 `expired_at` |
-| 必須有 Exception ID | 寫在註解或 `statement` |
-| 必須有 Owner | 寫在 `statement` |
-| 必須限定範圍 | 盡量使用 `paths` / `purls`，避免全域忽略 |
-| 最長效期 | CRITICAL ≤ 30 天、HIGH ≤ 90 天（範例，依企業政策） |
-| Review | ignore 檔由 CODEOWNERS 指定 Security 審核 |
-| 禁止 | 永久忽略所有 HIGH / CRITICAL；以萬用方式忽略整類 Finding |
-
-```mermaid
-flowchart LR
-    F["Finding"] --> R["Risk Assessment"]
-    R --> T["Temporary Exception"]
-    T --> O["Owner"]
-    O --> E["Expiration Date"]
-    E --> V["Review"]
-    V -->|"到期仍未修"| R
-    V -->|"已修正"| X["移除 Ignore"]
-```
-
-### 16.4 CI 自動檢查 Ignore 檔
-
-以下 Python 腳本會拒絕缺少到期日、超過最長效期或缺少 Exception ID 的條目（`.trivyignore.yaml`）：
-
-```python
-"""檢查 .trivyignore.yaml 是否符合企業治理規則。"""
-import sys
-from datetime import date, timedelta
-
-import yaml
-
-MAX_DAYS = 90
-SECTIONS = ("vulnerabilities", "misconfigurations", "secrets", "licenses")
-
-
-def main(path: str) -> int:
-    with open(path, encoding="utf-8") as f:
-        data = yaml.safe_load(f) or {}
-    errors = []
-    limit = date.today() + timedelta(days=MAX_DAYS)
-    for section in SECTIONS:
-        for item in data.get(section, []) or []:
-            rid = item.get("id", "<no-id>")
-            expired = item.get("expired_at")
-            statement = str(item.get("statement", ""))
-            if expired is None:
-                errors.append(f"{section}/{rid}: 缺少 expired_at")
-            elif expired > limit:
-                errors.append(f"{section}/{rid}: 到期日超過 {MAX_DAYS} 天")
-            if "SEC-" not in statement and "LEGAL-" not in statement:
-                errors.append(f"{section}/{rid}: statement 缺少 Exception ID")
-    for e in errors:
-        print(f"[trivyignore] {e}")
-    return 1 if errors else 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else ".trivyignore.yaml"))
-```
-
-> Secrets 類的 False Positive 若經確認為永久性測試資料，可由 Security Policy 另行規定免到期日；腳本可依需求調整。
-
-### 實務案例
-
-某團隊的 `.trivyignore` 在兩年間累積到 312 條，其中 40% 對應的套件早已升級、條目根本沒用，另有 6 條 CRITICAL 從未被重新評估。導入 YAML 格式 + 到期日 + CI 檢查後，第一次清理移除 190 條，剩餘條目都有 Owner。
-
-### 注意事項
-
-- `.trivyignore.yaml` 目前為 Experimental，必須以 `--ignorefile` 明確指定才會載入。
-- v0.57 起，指定的 ignore 檔不存在時 Trivy 會報錯，CI 路徑錯誤會直接失敗。
-- AI Agent **不得**新增或延長任何 Ignore 條目（第 29 章）。
-
----
-
-## 17. Trivy Database / Cache
-
-### 17.1 三種資料來源
-
-| 資料 | 用途 | 預設來源（依序） |
-|------|------|------------------|
-| Vulnerability DB（trivy-db） | 所有 Vulnerability 比對 | `mirror.gcr.io/aquasec/trivy-db:2` → `ghcr.io/aquasecurity/trivy-db:2` |
-| Java DB（trivy-java-db） | 以 jar SHA1 辨識 GAV | `mirror.gcr.io/aquasec/trivy-java-db:1` → `ghcr.io/aquasecurity/trivy-java-db:1` |
-| Checks Bundle（trivy-checks） | Misconfiguration 規則 | `mirror.gcr.io/aquasec/trivy-checks:2` |
-
-v0.56 起 `--db-repository`、`--java-db-repository` 可指定多個來源，依優先順序嘗試。
-
-### 17.2 常用指令
-
-```bash
-# 只下載 / 更新 DB，不掃描（CI 預熱、排程更新）
-trivy image --download-db-only
-trivy image --download-java-db-only
-
-# 掃描時不更新 DB（使用既有快取）
-trivy image --skip-db-update --skip-java-db-update --skip-check-update registry.example.com/app:1.4.2
-
-# 完全離線：不更新 DB，也不對外查詢相依資訊
-trivy fs --skip-db-update --skip-java-db-update --skip-check-update --offline-scan .
-
-# 清理快取（v0.53 新增 clean 子命令）
-trivy clean --scan-cache
-trivy clean --all
-```
-
-### 17.3 Cache
-
-| 項目 | 說明 |
-|------|------|
-| 預設位置 | Linux `~/.cache/trivy`；可用 `--cache-dir` 或 `TRIVY_CACHE_DIR` 指定 |
-| Backend | `fs`（預設）、`memory`、`redis://...`（Experimental） |
-| 內容 | DB、Java DB、Checks Bundle、映像層與檔案分析結果 |
-| 併發 | v0.68 起支援多個程序併發讀取 DB |
-
-### 17.4 企業環境的五個問題
-
-**1. 如何避免每次 Pipeline 重複下載？**
-
-- GitHub Actions：trivy-action 內建快取（預設開啟），並可用排程 workflow 每日預先更新快取（第 20 章）。
-- 自架 Runner：將 `--cache-dir` 指向 Runner 持久磁碟或共用 volume。
-- 大型組織：使用 Client/Server 模式或內部 DB Mirror。
-
-**2. 如何降低 CI 時間？**
-
-- DB 預熱 + `--skip-db-update`。
-- 限縮 `--scanners` 與 `--skip-dirs`。
-- 第 43 章有完整效能調校。
-
-**3. 如何處理無 Internet 環境（Air-Gapped）？**
-
-```bash
-# 在可連網的中繼機以 ORAS 下載 DB
-oras pull ghcr.io/aquasecurity/trivy-db:2
-oras pull ghcr.io/aquasecurity/trivy-java-db:1
-
-# 解壓到離線環境的 cache 目錄
-mkdir -p /opt/trivy-cache/db /opt/trivy-cache/java-db
-tar -xzf db.tar.gz -C /opt/trivy-cache/db
-tar -xzf javadb.tar.gz -C /opt/trivy-cache/java-db
-
-# 離線掃描
-trivy image --cache-dir /opt/trivy-cache \
-  --skip-db-update --skip-java-db-update --skip-check-update --offline-scan \
-  registry.internal.example.com/app:1.4.2
-```
-
-> 官方文件「Connectivity and Network considerations」與「Self-Hosting Trivy's Databases」有完整說明。
-
-**4. 如何建立企業內部 Mirror？**
-
-```mermaid
-flowchart LR
-    U1["mirror.gcr.io / ghcr.io"] -->|"排程同步 oras copy<br/>或 Registry Proxy Cache"| M["企業內部 OCI Registry<br/>Harbor / Artifactory / Nexus"]
-    M --> R1["CI Runners<br/>--db-repository 指向內部"]
-    M --> R2["Developer 本機"]
-    M --> R3["Trivy Operator"]
-    M --> R4["Air-Gapped 環境<br/>匯出 / 匯入"]
-```
-
-```bash
-trivy image \
-  --db-repository registry.internal.example.com/mirror/aquasec/trivy-db:2 \
-  --java-db-repository registry.internal.example.com/mirror/aquasec/trivy-java-db:1 \
-  --checks-bundle-repository registry.internal.example.com/mirror/aquasec/trivy-checks:2 \
-  registry.internal.example.com/app:1.4.2
-```
-
-**5. 如何監控 DB 更新失敗？**
-
-| 監控項目 | 作法 |
-|----------|------|
-| DB 年齡 | 解析 `trivy --version` 或 JSON 報告中的 DB UpdatedAt，超過門檻（例如 48 小時）告警 |
-| 同步作業 | Mirror 同步 Job 失敗即告警 |
-| CI 錯誤 | 收集 `failed to download vulnerability DB` 類錯誤 |
-
-### 17.5 Proxy 與企業 CA
-
-```bash
-export HTTPS_PROXY="http://proxy.internal.example.com:8080"
-export NO_PROXY="registry.internal.example.com,.internal.example.com"
-trivy image --cacert /etc/pki/ca-trust/source/anchors/corp-root-ca.pem registry.example.com/app:1.4.2
-```
-
-```powershell
-$env:HTTPS_PROXY = "http://proxy.internal.example.com:8080"
-trivy image --cacert C:\certs\corp-root-ca.pem registry.example.com/app:1.4.2
-```
-
-> 不要用 `--insecure` 解決憑證問題；正確作法是以 `--cacert` 提供企業 CA。
-
-### 實務案例
-
-某銀行的開發網段無法連外。Platform Team 在 DMZ 建立 Harbor，以排程每 6 小時用 `oras copy` 同步三個 DB artifact，並在同步後執行一次 `trivy image --download-db-only` 驗證可用性。所有 Runner 與 Operator 都指向內部 Harbor，對外連線只剩 DMZ 的同步主機。
-
-### 注意事項
-
-- 長期 `--skip-db-update` 而未更新快取，會讓掃描結果過時，造成「掃描通過但其實有新 CVE」。
-- Java DB 對 jar 辨識很重要，Java 專案不建議跳過 Java DB。
-
----
-
-## 18. Report Format
-
-### 18.1 支援格式
-
-**【官方】** `trivy image` 的 `--format` 可用值：
-
-| 格式 | 說明 | Vuln | Misconf | Secret | License |
-|------|------|------|---------|--------|---------|
-| `table` | 預設，人類閱讀 | ✓ | ✓ | ✓ | ✓ |
-| `json` | 完整結構化資料 | ✓ | ✓ | ✓ | ✓ |
-| `sarif` | SARIF 2.1.0，可上傳 Code Scanning | ✓ | ✓ | ✓ | ✓ |
-| `template` | Go template（含 junit、html、asff 等內建範本） | 依範本 | 依範本 | 依範本 | 依範本 |
-| `cyclonedx` | SBOM，可含弱點 | ✓ | — | — | ✓ |
-| `spdx` / `spdx-json` | SBOM | — | — | — | ✓ |
-| `github` | GitHub dependency snapshot | 套件清單 | — | — | — |
-| `cosign-vuln` | Cosign 弱點掃描紀錄（attestation predicate） | ✓ | — | — | — |
-
-`trivy k8s` 的 format 僅支援 `table`、`json`、`cyclonedx`。
-
-### 18.2 依用途分類
-
-| 類別 | 格式 | 消費者 |
-|------|------|--------|
-| Human Report | `table`、`template`（html） | Developer、Reviewer |
-| Machine Report | `json` | AI Agent、腳本、Dashboard |
-| Security Platform Report | `sarif`、`template`（asff、junit、gitlab） | GitHub Code Scanning、AWS Security Hub、CI 測試報告 |
-| SBOM | `cyclonedx`、`spdx`、`spdx-json`、`github` | 供應鏈治理、客戶、Dependency Graph |
-| CI/CD Gate | `--exit-code` 搭配任一格式 | Pipeline |
-
-### 18.3 一次掃描、多種輸出：`trivy convert`
-
-```bash
-# 只掃一次
-trivy image --format json --output result.json registry.example.com/app:1.4.2
-
-# 轉換為其他格式（可再加過濾條件）
-trivy convert --format sarif --output result.sarif result.json
-trivy convert --format cyclonedx --output result.cdx.json result.json
-trivy convert --format table --severity CRITICAL result.json
-```
-
-> `trivy convert` 不支援 `trivy k8s` 的 JSON 報告。
-
-### 18.4 Template
-
-```bash
-# 內建範本（容器映像中位於 /contrib；rpm 安裝位於 /usr/local/share/trivy/templates）
-trivy image --format template --template "@contrib/html.tpl" -o report.html registry.example.com/app:1.4.2
-trivy image --format template --template "@contrib/junit.tpl" -o junit.xml registry.example.com/app:1.4.2
-```
-
-| 重點 | 說明 |
-|------|------|
-| 副檔名 | v0.70 起範本檔必須為 `.tpl` |
-| 安全性 | 官方警告：範本可讀取環境變數，**只使用可信任的範本** |
-| v0.75 Breaking | 移除 `getHostByName`，使用此函式的自訂範本會解析失敗 |
-
-### 18.5 SARIF 與 GitHub Code Scanning
-
-```bash
-trivy fs --scanners vuln,secret,misconfig --format sarif --output trivy.sarif .
-```
-
-上傳至 GitHub Code Scanning 後，Finding 會出現在 Security 分頁與 PR 的 annotation。重點：
-
-- 需要 `security-events: write` 權限。
-- trivy-action 產生 SARIF 時，預設會輸出所有嚴重度；若要套用 `severity` 過濾，需設 `limit-severities-for-sarif: true`。
-- 上傳 step 建議加 `if: always()`，讓 Gate 失敗時仍能上傳結果。
-- 私有 repo 使用 Code Scanning 需要對應的 GitHub 授權（GitHub Advanced Security / Code Security）；沒有授權時可改用 Job Summary 呈現。
-
-### 18.6 給 AI Agent 的 JSON 摘要
-
-AI Agent 不需要整份 JSON。用 `jq` 萃取最小必要欄位，可大幅減少 Token 並避免敏感內容外洩：
-
-```bash
-trivy fs --scanners vuln --format json --output vuln.json .
-
-jq '[.Results[]? | .Target as $t | .Vulnerabilities[]? |
-     {target: $t, id: .VulnerabilityID, pkg: .PkgName,
-      installed: .InstalledVersion, fixed: .FixedVersion,
-      severity: .Severity, status: .Status}]' vuln.json > vuln-summary.json
-```
-
-Secret 只給 Rule ID 與位置：
-
-```bash
-jq '[.Results[]? | .Target as $t | .Secrets[]? |
-     {target: $t, rule: .RuleID, severity: .Severity,
-      start: .StartLine, end: .EndLine}]' secret.json > secret-summary.json
-```
-
-### 實務案例
-
-某團隊原本把 `table` 輸出直接貼給 AI Agent 分析，一份映像檔報告就超過 3 萬 Token，而且包含 Secret 的遮罩程式碼行。改為 18.6 的摘要 JSON 後，Token 降到原本的十分之一，AI Agent 的建議也更聚焦。
-
-### 注意事項
-
-- SBOM 格式（cyclonedx、spdx）不是給人看的報告，也不包含 Misconfiguration 與 Secret。
-- 報告會被保存為稽核證據，請建立保存期限與存取控制（第 30 章）。
-
----
-
-## 19. CI/CD 整合
-
-### 19.1 標準 Pipeline
-
-以下為 **【企業建議】** 的標準 Pipeline：
-
-```mermaid
-flowchart TB
-    A["Commit"] --> B["Build"]
-    B --> C["Unit Test"]
-    C --> D["SAST<br/>非 Trivy"]
-    D --> E["Dependency Scan<br/>trivy fs --scanners vuln"]
-    E --> F["Trivy Repo Scan<br/>secret + misconfig"]
-    F --> G["Build Image"]
-    G --> H["Trivy Image Scan"]
-    H --> I["Generate SBOM<br/>CycloneDX"]
-    I --> J["IaC Scan<br/>trivy config"]
-    J --> K["Kubernetes Scan<br/>Staging 叢集，選用"]
-    K --> L{"Security Gate"}
-    L -->|"Pass"| M["Deploy"]
-    L -->|"Fail"| N["通知 + AI Agent 分析"]
-```
-
-| 階段 | 指令 | 失敗條件（範例） |
-|------|------|------------------|
-| Dependency + Secret + IaC | `trivy fs --scanners vuln,secret,misconfig` | 任何 Secret；CRITICAL fixed vuln |
-| Image | `trivy image` | CRITICAL fixed vuln；OS EOL |
-| SBOM | `trivy image --format cyclonedx` | 產生失敗 |
-| IaC | `trivy config` | HIGH / CRITICAL misconfig |
-| Gate | 彙整上述結果 | 依第 38 章 |
-
-### 19.2 官方整合清單
-
-**【官方】** 官方 Tutorials 列出的 CI/CD 整合：GitHub Actions、CircleCI、Travis CI、GitLab CI、Bitbucket Pipelines、AWS CodePipeline、AWS Security Hub、Azure DevOps。Jenkins 未列於官方 Tutorials，以 Shell 步驟呼叫 CLI 即可。
-
-### 19.3 GitLab CI
-
-```yaml
-# .gitlab-ci.yml（節錄）
-variables:
-  TRIVY_VERSION: "0.75.0"
-  TRIVY_CACHE_DIR: ".trivycache/"
-  TRIVY_NO_PROGRESS: "true"
-
-trivy_container_scan:
-  stage: test
-  image:
-    name: registry.internal.example.com/security/trivy:0.75.0
-    entrypoint: [""]
-  cache:
-    key: trivy-db
-    paths:
-      - .trivycache/
-  script:
-    - trivy --version
-    - trivy image --download-db-only
-    - >
-      trivy image --format template --template "@/contrib/gitlab.tpl"
-      --output gl-container-scanning-report.json
-      "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
-    - trivy image --exit-code 1 --severity CRITICAL --ignore-unfixed "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
-  artifacts:
-    when: always
-    reports:
-      container_scanning: gl-container-scanning-report.json
-```
-
-| 重點 | 說明 |
-|------|------|
-| `entrypoint: [""]` | 覆寫映像預設 entrypoint，讓 `script` 生效 |
-| 兩次掃描 | 第一次產報告（不 fail），第二次作為 Gate |
-| `TRIVY_USERNAME` / `TRIVY_PASSWORD` | 私有 Registry 認證請用 GitLab masked + protected 變數 |
-
-### 19.4 Jenkins
-
-```groovy
-pipeline {
-  agent { label 'linux-docker' }
-  environment {
-    TRIVY_CACHE_DIR = '/var/cache/trivy'
-    TRIVY_NO_PROGRESS = 'true'
-  }
-  stages {
-    stage('Trivy FS') {
-      steps {
-        sh 'trivy --version'
-        sh 'trivy fs --scanners vuln,secret,misconfig --format json --output trivy-fs.json .'
-        sh 'trivy convert --format table --severity HIGH,CRITICAL trivy-fs.json'
-      }
-    }
-    stage('Build Image') {
-      steps {
-        sh 'docker build -t registry.internal.example.com/app:${GIT_COMMIT} .'
-      }
-    }
-    stage('Trivy Image Gate') {
-      steps {
-        sh '''
-          trivy image --format json --output trivy-image.json registry.internal.example.com/app:${GIT_COMMIT}
-          trivy image --format cyclonedx --output sbom.cdx.json registry.internal.example.com/app:${GIT_COMMIT}
-          CRIT=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL" and .Status=="fixed")] | length' trivy-image.json)
-          echo "CRITICAL (fixed) = ${CRIT}"
-          test "${CRIT}" -eq 0
-        '''
-      }
-    }
-  }
-  post {
-    always {
-      archiveArtifacts artifacts: 'trivy-*.json,sbom.cdx.json', allowEmptyArchive: true
-    }
-  }
-}
-```
-
-> **【官方】** `trivy convert` 支援 `--exit-code`、`--severity`、`--ignorefile`、`--ignore-policy`，但**沒有** `--ignore-unfixed`，其 `--scanners` 也只用於摘要表呈現。因此「掃一次、多條件判斷」建議直接以 `jq` 解析 JSON（如上），或以第二次 `trivy image --skip-db-update --ignore-unfixed --exit-code 1` 作為 Gate。
-
-### 19.5 Azure DevOps
-
-官方 Ecosystem 列有 Azure DevOps 整合。以 Script 方式呼叫 CLI 的範例：
-
-```yaml
-# azure-pipelines.yml（節錄）
-steps:
-  - script: |
-      trivy --version
-      trivy fs --scanners vuln,secret,misconfig --format sarif --output $(Build.ArtifactStagingDirectory)/trivy.sarif .
-      trivy image --exit-code 1 --severity CRITICAL --ignore-unfixed $(imageRef)
-    displayName: 'Trivy Scan'
-    env:
-      TRIVY_CACHE_DIR: $(Pipeline.Workspace)/.trivycache
-  - task: PublishBuildArtifacts@1
-    condition: always()
-    inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)
-      ArtifactName: trivy-reports
-```
-
-### 實務案例
-
-某團隊的 Pipeline 把 Trivy 放在最後一步，每次失敗都要重跑 20 分鐘的建置。調整為 19.1 的順序後，`trivy fs` 在建置前就攔下 Secret 與相依弱點，平均回饋時間從 20 分鐘降到 3 分鐘。
-
-### 注意事項
-
-- CI 中的 Trivy 只是 Gate 之一，SAST、DAST、測試仍不可省略。
-- 各平台的 Trivy 映像或執行檔都應固定版本並驗章（第 14 章）。
-
----
-
-## 20. GitHub Actions
-
-### 20.1 2026-03 事件後的 GitHub Actions 安全原則
-
-| 原則 | 說明 |
-|------|------|
-| **以完整 commit SHA 固定 Action** | 官方 Advisory 建議；tag 可被 force-push |
-| 安全版本下限 | trivy-action ≥ v0.35.0、setup-trivy ≥ v0.2.6（範例使用 v0.3.1；v0.3.0 無法載入，不可使用） |
-| 明確指定 Trivy 版本 | trivy-action v0.36.0 的 `version` 預設為 v0.70.0，不指定就會落後最新版五個 minor |
-| 最小 `permissions` | 預設 `contents: read`，需要時才加 `security-events: write` |
-| 不傳不必要的 PAT | 惡意版本在外洩失敗時會利用 `INPUT_GITHUB_PAT` 建立公開 repo |
-| 固定 Trivy 版本 | `version: v0.75.0`，不用 `latest` |
-| 事件稽核 | 檢查組織內是否出現 `tpcp-docs` 開頭的 repo |
-
-取得 tag 對應的 commit SHA：
-
-```bash
-git ls-remote https://github.com/aquasecurity/trivy-action refs/tags/v0.36.0
-git ls-remote https://github.com/aquasecurity/setup-trivy refs/tags/v0.3.1
-```
-
-> 本章範例以 `<SHA>` 表示需替換的完整 40 字元 commit SHA，並在註解標示對應版本。
-
-**setup-trivy v0.3.x 的變更（【官方】）**：
-
-| 版本 | 變更 | 影響 |
-|------|------|------|
-| v0.3.0 | 安全強化：`${{ }}` 值改以 `env:` 傳入，避免 shell script injection | — |
-| v0.3.0 | **Breaking**：`path` input 必須為字面路徑，不再展開 `$HOME`、`$RUNNER_TEMP`、`~` | 有自訂 `path` 者改用 `${{ runner.temp }}/trivy` 或相對路徑 |
-| v0.3.0 | 因 `action.yaml` 說明文字含 `${{ runner.temp }}`，在所有 workflow 都無法載入 | **不可使用** |
-| v0.3.1 | 修正 v0.3.0 無法載入的問題，新增跨平台 CI 驗證 | 建議版本 |
-
-> trivy-action v0.36.0 內部仍以 SHA 固定 setup-trivy v0.2.6，兩者都在安全下限之上。
-
-### 20.2 完整 Workflow
-
-```yaml
-name: security-scan
-
-on:
-  pull_request:
-  push:
-    branches: [main]
-
-permissions:
-  contents: read
-
-env:
-  TRIVY_VERSION: v0.75.0
-  IMAGE_REF: ghcr.io/${{ github.repository }}:${{ github.sha }}
-
-jobs:
-  trivy:
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@<SHA> # v4
-
-      - name: Setup Trivy
-        uses: aquasecurity/setup-trivy@<SHA> # v0.3.1
-        with:
-          version: ${{ env.TRIVY_VERSION }}
-          cache: true
-
-      - name: Record Trivy version
-        run: trivy --version | tee trivy-version.txt
-
-      - name: Repository scan (vuln, secret, misconfig)
-        run: |
-          trivy fs --scanners vuln,secret,misconfig \
-            --format json --output trivy-fs.json .
-          trivy convert --format sarif --output trivy-fs.sarif trivy-fs.json
-
-      - name: Upload SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@<SHA> # v4
-        with:
-          sarif_file: trivy-fs.sarif
-          category: trivy-fs
-
-      - name: Build image
-        run: docker build -t "$IMAGE_REF" .
-
-      - name: Image scan
-        run: trivy image --format json --output trivy-image.json "$IMAGE_REF"
-
-      - name: Generate SBOM
-        run: trivy image --format cyclonedx --output sbom.cdx.json "$IMAGE_REF"
-
-      - name: IaC scan
-        run: trivy config --format json --output trivy-config.json ./deploy
-
-      - name: Security gate
-        run: |
-          vuln=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity=="CRITICAL" and .Status=="fixed")] | length' trivy-image.json)
-          misconf=$(jq '[.Results[]?.Misconfigurations[]? | select(.Status=="FAIL" and (.Severity=="HIGH" or .Severity=="CRITICAL"))] | length' trivy-config.json)
-          secret=$(jq '[.Results[]?.Secrets[]?] | length' trivy-fs.json)
-          {
-            echo "### Trivy Security Gate"
-            echo "| Check | Count |"
-            echo "|---|---|"
-            echo "| CRITICAL fixed vulnerabilities | ${vuln} |"
-            echo "| HIGH/CRITICAL misconfigurations | ${misconf} |"
-            echo "| Secrets | ${secret} |"
-          } >> "$GITHUB_STEP_SUMMARY"
-          if [ "$vuln" -gt 0 ] || [ "$misconf" -gt 0 ] || [ "$secret" -gt 0 ]; then
-            echo "Security gate failed"; exit 1
-          fi
-
-      - name: Upload artifacts
-        if: always()
-        uses: actions/upload-artifact@<SHA> # v4
-        with:
-          name: trivy-reports
-          path: |
-            trivy-version.txt
-            trivy-*.json
-            trivy-*.sarif
-            sbom.cdx.json
-          retention-days: 90
-```
-
-### 20.3 逐步說明
-
-| Step | 目的 | 重點 |
-|------|------|------|
-| `permissions` | 最小權限 | workflow 層級只給 `contents: read`；job 需要上傳 SARIF 才加 `security-events: write` |
-| Checkout | 取得原始碼 | 以 SHA 固定 |
-| Setup Trivy | 安裝指定版本 Trivy | `cache: true` 快取 DB；以 SHA 固定 v0.3.1（下限 ≥ v0.2.6，避開 v0.3.0） |
-| Record Trivy version | 稽核證據 | 保存 Trivy 與 DB 版本 |
-| Repository scan | 建置前找出相依弱點、Secret、IaC 問題 | 只掃一次產生 JSON，再轉 SARIF |
-| Upload SARIF | 顯示在 Security 分頁與 PR | `if: always()` 確保失敗時也上傳 |
-| Build image | 建置待測映像 | 以 commit SHA 為 tag |
-| Image scan | 掃描 OS 與應用相依 | JSON 供 Gate 與 AI Agent 使用 |
-| Generate SBOM | 供應鏈資料 | CycloneDX |
-| IaC scan | 掃描部署設定 | 限定 `./deploy` |
-| Security gate | 依企業門檻決定是否失敗 | 以 `jq` 解析前面產生的 JSON，不重複掃描；結果寫入 Job Summary，且不輸出 Secret 內容 |
-| Upload artifacts | 保存證據 | 90 天保存（依企業政策） |
-
-### 20.4 使用 trivy-action 的寫法
-
-若偏好使用 trivy-action：
-
-```yaml
-      - name: Trivy image scan
-        uses: aquasecurity/trivy-action@<SHA> # v0.36.0
-        with:
-          scan-type: image
-          image-ref: ${{ env.IMAGE_REF }}
-          format: sarif
-          output: trivy-image.sarif
-          severity: CRITICAL,HIGH
-          limit-severities-for-sarif: true
-          ignore-unfixed: true
-          exit-code: "1"
-          version: v0.75.0
-          trivyignores: .trivyignore.yaml
-```
-
-| Input | 說明 |
-|-------|------|
-| `version` | v0.36.0 預設 `v0.70.0`；**務必明確指定**為企業核准版本（本手冊為 `v0.75.0`） |
-| `scan-type` | `image`、`fs`、`repo`、`rootfs`、`config`、`sbom` |
-| `scanners` | 預設 `vuln,secret` |
-| `vuln-type` | 預設 `os,library`（對應 CLI 的 `--pkg-types`） |
-| `cache` | 預設開啟，快取於 `$GITHUB_WORKSPACE/.cache/trivy` |
-| `skip-setup-trivy` | 同一 job 多次呼叫時，第二次起設為 `true` |
-| `trivy-config` | 指定 trivy.yaml |
-| `github-pat` | 僅在 `format: github` 提交 Dependency Graph 時使用 |
-| `token-setup-trivy` | GitHub Enterprise Server 時覆寫 setup-trivy 使用的 token |
-
-### 20.5 DB 快取預熱 Workflow
-
-官方 README 建議以排程 workflow 在預設分支更新快取，掃描 workflow 再設定 `TRIVY_SKIP_DB_UPDATE` / `TRIVY_SKIP_JAVA_DB_UPDATE`：
-
-```yaml
-name: update-trivy-cache
-on:
-  schedule:
-    - cron: "0 0 * * *"
-  workflow_dispatch:
-permissions:
-  contents: read
-jobs:
-  update:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Setup ORAS
-        uses: oras-project/setup-oras@<SHA> # v1
-      - name: Get date
-        id: date
-        run: echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
-      - name: Download DBs
-        run: |
-          mkdir -p "$GITHUB_WORKSPACE/.cache/trivy/db" "$GITHUB_WORKSPACE/.cache/trivy/java-db"
-          oras pull ghcr.io/aquasecurity/trivy-db:2
-          tar -xzf db.tar.gz -C "$GITHUB_WORKSPACE/.cache/trivy/db" && rm db.tar.gz
-          oras pull ghcr.io/aquasecurity/trivy-java-db:1
-          tar -xzf javadb.tar.gz -C "$GITHUB_WORKSPACE/.cache/trivy/java-db" && rm javadb.tar.gz
-      - name: Save cache
-        uses: actions/cache/save@<SHA> # v4
-        with:
-          path: ${{ github.workspace }}/.cache/trivy
-          key: cache-trivy-${{ steps.date.outputs.date }}
-```
-
-### 20.6 Dependency Graph 提交
-
-```yaml
-  dependency-snapshot:
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@<SHA> # v4
-      - uses: aquasecurity/trivy-action@<SHA> # v0.36.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: github
-          output: dependency-results.sbom.json
-          github-pat: ${{ secrets.GITHUB_TOKEN }}
-```
-
-> 此 job 需要 `contents: write`，應與掃描 job 分開，避免擴大其他 step 的權限。
-
-### 實務案例
-
-2026-03-20 早上，某組織以 `gh search code "aquasecurity/trivy-action@"` 盤點出 87 個 workflow 使用 mutable tag。依 Advisory：(1) 檢查 03-19 至 03-20 的執行紀錄；(2) 對曾執行的 repo 輪替所有 Secret；(3) 搜尋 `tpcp-docs` repo；(4) 全面改為 SHA pin，並在組織層級啟用「要求 Action 以 SHA 固定」的政策。
-
-### 注意事項
-
-- Dependabot / Renovate 可以自動更新 SHA pin，並在 PR 中顯示版本，兼顧安全與維護性。
-- `if: always()` 只用在「上傳結果」的 step，**不可**用在讓 Gate 失效的地方。
-- AI Agent 不得修改 workflow 中的 Trivy step、`exit-code` 或 `permissions`（附錄 F）。
-
----
-
-## 21. Web Application Security
-
-### 21.1 企業 Web Application 的掃描分層
-
-```mermaid
-flowchart TB
-    FE["Vue / Angular<br/>package-lock / pnpm-lock / yarn.lock"] --> FS1["Dependency Scan<br/>trivy fs"]
-    FS1 --> BE["Backend<br/>Spring Boot / Maven / Gradle"]
-    BE --> FS2["Dependency Scan<br/>trivy fs + Java DB"]
-    FS2 --> DK["Docker<br/>Dockerfile + Base Image"]
-    DK --> IM["Image Scan<br/>trivy image"]
-    IM --> K8["Kubernetes<br/>Deployment / Service / Ingress"]
-    K8 --> RC["Runtime Configuration<br/>trivy config / Operator"]
-    RC --> CL["Cloud<br/>Terraform / trivy config"]
-```
-
-| 層 | 掃描對象 | 指令 | Scanner |
-|----|----------|------|---------|
-| Frontend | `package-lock.json`、`pnpm-lock.yaml`、`yarn.lock`、`bun.lock` | `trivy fs ./frontend` | vuln、secret、license |
-| Backend | `pom.xml`、`gradle.lockfile`、`target/*.jar` | `trivy fs ./backend` | vuln、secret、license |
-| Container | Dockerfile、最終映像 | `trivy config`、`trivy image` | misconfig、vuln、secret |
-| Infrastructure | K8s YAML、Helm、Terraform | `trivy config` | misconfig |
-| Runtime | 叢集 | `trivy k8s` / Operator | vuln、misconfig、secret、rbac |
-
-### 21.2 前端相依的特殊考量
-
-| 項目 | 說明 |
-|------|------|
-| Lock file 必要 | 無 lock file 時 Trivy 無法確定版本 |
-| Dev dependencies | npm / yarn / pnpm 的 dev dependencies 預設不列入，需 `--include-dev-deps` |
-| 打包後的產物 | `dist/` 中的 JS bundle 不保留套件 metadata，應以 lock file 為準 |
-| 前端 Secret | 任何以 `VITE_`、`NG_APP_` 等前綴注入前端的變數都會出現在瀏覽器中，**不應存放 Secret** |
-
-### 21.3 後端相依的特殊考量
-
-| 項目 | 說明 |
-|------|------|
-| Maven | 掃 `pom.xml` 時 Trivy 會解析 parent POM 與遠端 repository；企業內網需設定 mirror |
-| Gradle | 需啟用 dependency locking 產生 `gradle.lockfile` |
-| Fat jar | Spring Boot 可執行 jar 內嵌所有相依；Trivy 可解析 jar / war / ear |
-| Java DB | 以 jar 的 SHA1 辨識 GAV，Java 專案應保持 Java DB 可用 |
-
-### 實務案例
-
-某團隊只掃描後端映像檔，以為前端是靜態檔沒有風險。補上 `trivy fs ./frontend` 後發現 `package-lock.json` 中有 3 個 HIGH 的建置工具弱點，以及一個被注入到前端 bundle 的第三方 API Key（以 `VITE_` 變數注入）。
-
-### 注意事項
-
-- 前端 dev dependencies 雖不進入 Production bundle，但會在 CI 中執行，供應鏈攻擊可能透過 dev 套件竊取 CI Secret；Release 前建議至少執行一次 `--include-dev-deps`。
-- 前後端應使用同一份企業 `trivy.yaml`，避免門檻不一致。
-
----
-
-## 22. Java / Spring Boot 專案
-
-### 22.1 案例環境
-
-| 項目 | 版本 / 工具 |
-|------|-------------|
-| Java | Java 25（LTS） |
-| Framework | Spring Boot 4.x |
-| Build | Maven 3.9.x |
-| Container | Docker（Eclipse Temurin 25 JRE） |
-| Deploy | Kubernetes |
-| CI | GitHub Actions |
-
-```text
-order-service/
-├─ pom.xml
-├─ src/main/java/...
-├─ src/main/resources/application.yml
-├─ Dockerfile
-├─ deploy/k8s/deployment.yaml
-├─ deploy/k8s/service.yaml
-├─ .trivyignore.yaml
-└─ .github/workflows/security-scan.yml
-```
-
-### 22.2 Step 1：掃描 Maven Dependency
-
-```bash
-# 原始碼層級（解析 pom.xml）
-trivy fs --scanners vuln --severity HIGH,CRITICAL --dependency-tree .
-
-# 建置後掃描 fat jar（更接近實際交付內容）
-mvn -B -DskipTests package
-trivy fs --scanners vuln target/order-service-1.0.0.jar
-```
-
-- `--dependency-tree`（Experimental，僅 table 格式）會顯示弱點套件是由哪個直接相依引入，方便決定要升級哪一個。
-- 企業內網的 Maven Repository：Trivy 會讀取 `~/.m2/settings.xml` 的 remote repositories（v0.68）、proxy（v0.70）、mirrors（v0.71）；v0.73 起也可在 `trivy.yaml` 設定 Maven mirrors（鍵名以 `--generate-default-config` 為準）。
-- v0.71 起若遠端 Maven Repository 回應 429，掃描 `pom.xml` 會直接失敗，請改用內部 mirror。
-
-### 22.3 Step 2：掃描 Source Repository
-
-```bash
-trivy fs --scanners vuln,secret,misconfig --format json --output trivy-fs.json .
-```
-
-### 22.4 Step 3：產生 SBOM
-
-```bash
-trivy fs --format cyclonedx --output order-service-source.cdx.json .
-```
-
-### 22.5 Step 4：建立 Container Image
-
-```dockerfile
-# syntax=docker/dockerfile:1
-FROM eclipse-temurin:25-jdk AS build
-WORKDIR /src
-COPY . .
-RUN ./mvnw -B -DskipTests package && \
-    java -Djarmode=tools -jar target/order-service-1.0.0.jar extract --layers --launcher --destination /out
-
-FROM eclipse-temurin:25-jre-alpine
-RUN addgroup -S app && adduser -S app -G app
-WORKDIR /app
-COPY --from=build --chown=app:app /out/dependencies/ ./
-COPY --from=build --chown=app:app /out/spring-boot-loader/ ./
-COPY --from=build --chown=app:app /out/snapshot-dependencies/ ./
-COPY --from=build --chown=app:app /out/application/ ./
-USER app
-EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=3s CMD wget -qO- http://localhost:8080/actuator/health || exit 1
-ENTRYPOINT ["java", "org.springframework.boot.loader.launch.JarLauncher"]
-```
-
-```bash
-docker build -t registry.internal.example.com/order-service:1.0.0 .
-```
-
-> Base Image 版本請以企業核准清單為準；正式環境應以 digest 引用。
-
-### 22.6 Step 5：掃描 Image
-
-```bash
-trivy image --scanners vuln,secret --exit-on-eol 2 \
-  --format json --output trivy-image.json \
-  registry.internal.example.com/order-service:1.0.0
-
-trivy image --format cyclonedx --output order-service-1.0.0.cdx.json \
-  registry.internal.example.com/order-service:1.0.0
-```
-
-### 22.7 Step 6：掃描 Dockerfile
-
-```bash
-trivy config Dockerfile
-```
-
-### 22.8 Step 7：掃描 Kubernetes YAML
-
-```bash
-trivy config --severity HIGH,CRITICAL ./deploy/k8s
-```
-
-### 22.9 Step 8：CI/CD Security Gate
-
-沿用第 20 章 workflow，Gate 條件為：
-
-| 條件 | 動作 |
-|------|------|
-| Image 中有 CRITICAL 且 `fixed` | Fail |
-| Base Image OS 已 EOL | Fail（`--exit-on-eol 2`） |
-| 任何 Secret | Fail |
-| K8s / Dockerfile 有 HIGH / CRITICAL misconfig | Fail |
-| HIGH vuln | Warn + Ticket |
-
-### 22.10 常見問題
-
-| 問題 | 原因 | 解法 |
-|------|------|------|
-| 掃 `pom.xml` 很慢 | 逐一向遠端解析 POM | 使用內部 mirror，或改掃建置後的 jar |
-| 某 jar 沒被辨識 | 重新打包、shaded jar 缺 metadata | 確認 Java DB 可用；檢查 `META-INF/maven` |
-| `test` scope 套件出現 | 依版本行為不同 | 以 jar / image 掃描結果作為 Gate 依據 |
-
-### 實務案例
-
-某團隊在 `pom.xml` 掃描時看到 `jackson-databind` 的 HIGH，但不知道是誰引入的。加上 `--dependency-tree` 後發現來自一個內部共用函式庫的舊版本，最後由共用函式庫團隊統一升級，一次修掉 9 個服務的同一個弱點。
-
-### 注意事項
-
-- `application.yml` 中的資料庫密碼、`settings.xml` 中的 Repository 密碼都會被 Secret Scanner 偵測（v0.71 新增 Maven settings 規則）。
-- Spring Boot 版本升級前，請先完成第 25 章的 Baseline。
-
----
-
-## 23. Vue / Angular 專案
-
-### 23.1 案例環境
-
-| 項目 | 版本 / 工具 |
-|------|-------------|
-| Vue | Vue 3 + Vite + TypeScript |
-| Angular | Angular（目前 LTS / Active 版本） + TypeScript |
-| 套件管理 | npm 或 pnpm |
-| Container | Nginx（unprivileged 版本） |
-
-### 23.2 Package Dependency 與 Lock File
-
-```bash
-# npm
-npm ci
-trivy fs --scanners vuln,license --severity HIGH,CRITICAL .
-
-# pnpm
-pnpm install --frozen-lockfile
-trivy fs --scanners vuln --severity HIGH,CRITICAL .
-
-# Release 前含 dev dependencies
-trivy fs --scanners vuln --include-dev-deps .
-```
-
-| Lock file | 支援 |
-|-----------|------|
-| `package-lock.json` | ✓（v0.69 起可解析授權） |
-| `yarn.lock` | ✓ |
-| `pnpm-lock.yaml` | ✓（v0.72 支援 multi-document、v0.73 支援 workspace 重疊套件） |
-| `bun.lock` | ✓（v0.63 起） |
-
-### 23.3 Secret 與 Configuration
-
-| 檔案 | 風險 |
-|------|------|
-| `.env`、`.env.production` | 若被 commit，Trivy 會偵測 |
-| Vue `import.meta.env.VITE_*` | 會被打包進前端，**等同公開** |
-| Angular `environment.prod.ts` | 會被打包進前端，**等同公開** |
-
-```bash
-trivy fs --scanners secret .
-```
-
-> 前端應只放「公開設定」（API base URL、Feature Flag），任何 Key 都應改由後端代理。
-
-### 23.4 Docker Image
-
-```dockerfile
-FROM node:22-alpine AS build
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
-COPY . .
-RUN npm run build
-
-FROM nginxinc/nginx-unprivileged:1.27-alpine
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 8080
-```
-
-> Node 與 Nginx 版本請以企業核准清單與官方支援週期為準。
-
-```bash
-trivy config Dockerfile
-trivy image --scanners vuln,secret registry.internal.example.com/portal-web:2.3.0
-```
-
-### 23.5 SBOM
-
-```bash
-trivy fs --format cyclonedx --output portal-web-source.cdx.json .
-trivy image --format cyclonedx --output portal-web-image.cdx.json registry.internal.example.com/portal-web:2.3.0
-```
-
-### 23.6 CI/CD
-
-前端 Pipeline 與後端相同模式：`trivy fs` → build → `trivy image` → SBOM → Gate。差異在於前端映像通常只含 Nginx 與靜態檔，Image Scan 主要看 Base Image 的 OS 套件。
-
-### 實務案例
-
-某 Angular 專案的 Image Scan 永遠是 0 個應用相依 Finding，團隊以為前端很安全。原因是最終映像只有 Nginx 與 `dist/`，相依資訊根本不在映像中。改為同時掃描 `package-lock.json` 後，才看到真正的前端相依風險。
-
-### 注意事項
-
-- 前端 SBOM 應以 **lock file** 產生，映像檔 SBOM 只能代表 Nginx 層。
-- `npm install` 會改寫 lock file；CI 一律使用 `npm ci` / `pnpm install --frozen-lockfile`。
-
----
-
-## 24. Legacy System Reverse Engineering
-
-### 24.1 背景
-
-AI Agent 協助 Legacy 系統現代化的典型流程：
-
-```text
-Legacy Application
-        ↓
-Reverse Engineering
-        ↓
-Code Analysis
-        ↓
-Architecture Recovery
-        ↓
-Specification
-        ↓
-Modernization
-```
-
-> **【AI Agent 流程】** AI Agent 必須**先理解安全現況，再進行 Modernization**。否則現代化計畫可能把已知弱點、硬編碼帳密、過時元件原封不動搬到新架構。
-
-### 24.2 Security Baseline 流程
-
-```mermaid
-flowchart TB
-    L["Legacy Repository"] --> R1["trivy repo<br/>指定歷史 tag / commit"]
-    L --> R2["trivy fs<br/>工作目錄 + 建置產物"]
-    L --> R3["trivy config<br/>Dockerfile / K8s / Terraform"]
-    L --> R4["secret scan"]
-    L --> R5["dependency scan<br/>jar / war / ear / lock file"]
-    L --> R6["license scan"]
-    L --> R7["SBOM"]
-    R1 & R2 & R3 & R4 & R5 & R6 & R7 --> B["Security Baseline"]
-```
-
-### 24.3 執行步驟
-
-```bash
-mkdir -p baseline
-
-# 1. 版本資訊（稽核證據）
-trivy --version > baseline/trivy-version.txt
-
-# 2. 原始碼：vuln + secret + misconfig
-trivy fs --scanners vuln,secret,misconfig --format json --output baseline/fs.json .
-
-# 3. License
-trivy fs --scanners license --license-full --format json --output baseline/license.json .
-
-# 4. SBOM
-trivy fs --format cyclonedx --output baseline/source.cdx.json .
-
-# 5. 建置產物（Legacy 常見 war / ear / lib/*.jar）
-trivy fs --scanners vuln --format json --output baseline/artifacts.json ./dist
-
-# 6. 若已有部署映像
-trivy image --exit-on-eol 2 --format json --output baseline/image.json registry.internal.example.com/legacy-app:5.2
-
-# 7. 指定歷史版本（例如目前 Production 的 tag）
-trivy repo --tag release-5.2 --format json --output baseline/repo-release-5.2.json .
-```
-
-### 24.4 Legacy 系統的特殊情況
-
-| 情況 | 處理方式 |
-|------|----------|
-| 沒有 lock file（Ant、手動 `lib/*.jar`） | 直接掃描 `lib/` 與 war / ear，Trivy 以 Java DB 依 jar SHA1 辨識 |
-| 沒有 Dockerfile | 跳過 container 層，記錄於 Baseline 的「未涵蓋範圍」 |
-| 執行於 IBM AIX / 舊 Unix | 官方 Release 未提供 AIX 執行檔；將建置產物複製到 Linux 掃描環境 |
-| 原始碼與 Production 版本不一致 | 以 Production 實際部署的產物為準，原始碼掃描作為輔助 |
-| 大量硬編碼帳密 | 先走第 8 章 Secret 流程，**輪替優先於現代化** |
-| OS EOL | 以 `--exit-on-eol` 記錄，納入現代化必要條件 |
-
-### 24.5 Security Baseline 產出物
-
-```markdown
-# Security Baseline — legacy-order-system @ release-5.2
-
-| 項目 | 結果 |
-|------|------|
-| 掃描日期 / Trivy 版本 / DB 日期 | 2026-10-03 / v0.75.0 / （見 trivy-version.txt） |
-| 掃描範圍 | 原始碼、dist/*.ear、Dockerfile（無）、K8s（無） |
-| 未涵蓋範圍 | DB stored procedure、MQ 設定、AIX OS 套件 |
-| Vulnerability | CRITICAL 7（fixed 5）、HIGH 31、MEDIUM 58 |
-| Secret | 4（DB 密碼 2、LDAP 密碼 1、私鑰 1）→ 已啟動輪替 |
-| Misconfiguration | 不適用（無 IaC） |
-| License | Restricted 2、Unknown 11 → 送法務 |
-| EOL 元件 | Java 8 runtime、Struts 1.x |
-| SBOM | baseline/source.cdx.json（412 components） |
-```
-
-### 實務案例
-
-某 AI Agent 被要求「把 Struts 1 系統改寫成 Spring Boot」。在 Baseline 階段 Trivy 找出 `config/db.properties` 中的 Production 資料庫密碼與 11 個無法辨識授權的 jar。團隊決定：先輪替密碼、由法務確認授權，才允許 AI Agent 開始 Architecture Recovery。這避免了把舊密碼寫進新系統的設定範本。
-
-### 注意事項
-
-- Baseline 報告含 Secret 位置，應存放於受控位置，不得貼入公開 Issue 或 AI 對話。
-- Legacy 掃描結果通常很多，Baseline 的目的是「建立事實」，不是「一次修完」。
-
----
-
-## 25. Software Framework Upgrade
-
-### 25.1 升級安全流程
-
-```mermaid
-flowchart LR
-    A["Spring Boot 3.x<br/>現況"] --> B["Baseline Scan"]
-    B --> C["SBOM Before"]
-    C --> D["Dependency Vulnerability Before"]
-    D --> E["Upgrade"]
-    E --> F["Trivy Re-scan"]
-    F --> G["Compare"]
-    G --> H["Regression Security Check"]
-    H --> I{"新增風險？"}
-    I -->|"否"| J["Upgrade Report + Human Review"]
-    I -->|"是"| E
-```
-
-### 25.2 適用的升級類型
-
-| 升級類型 | 重點比較項目 |
-|----------|-------------|
-| Java Upgrade | Runtime 映像 OS 套件、jar 相依 |
-| Spring Boot Upgrade | BOM 管理的傳遞相依版本 |
-| Node.js Upgrade | Base Image、原生模組 |
-| Vue / Angular Upgrade | lock file 中的大量套件變化、License |
-| Base Image Upgrade | OS 套件、EOL 狀態 |
-| Kubernetes Version Upgrade | 過時 API（`trivy k8s --k8s-version`）、Helm Chart misconfig |
-
-### 25.3 Before / After 掃描
-
-```bash
-# Before（在升級分支建立前的 commit）
-git checkout main
-trivy fs --scanners vuln,secret,misconfig,license --format json --output before/fs.json .
-trivy fs --format cyclonedx --output before/sbom.cdx.json .
-
-# After
-git checkout upgrade/spring-boot-4
-trivy fs --scanners vuln,secret,misconfig,license --format json --output after/fs.json .
-trivy fs --format cyclonedx --output after/sbom.cdx.json .
-```
-
-> **重要**：Before 與 After 必須使用**同一版 Trivy、同一天的 DB**，否則差異可能來自 DB 更新而非程式變更。建議在同一個 Job 內連續執行，或先 `--download-db-only` 再兩次都加 `--skip-db-update`。
-
-### 25.4 比較腳本
-
-```python
-"""比較兩份 Trivy JSON 報告的 Vulnerability、Misconfiguration、Secret、License 差異。"""
-import json
-import sys
-
-
-def load(path):
-    with open(path, encoding="utf-8") as f:
-        return json.load(f)
-
-
-def keys(report):
-    vuln, misconf, secret, lic = set(), set(), set(), set()
-    for r in report.get("Results") or []:
-        target = r.get("Target", "")
-        for v in r.get("Vulnerabilities") or []:
-            vuln.add((v["VulnerabilityID"], v["PkgName"], v.get("Severity", "")))
-        for m in r.get("Misconfigurations") or []:
-            if m.get("Status") == "FAIL":
-                misconf.add((m.get("ID", ""), target, m.get("Severity", "")))
-        for s in r.get("Secrets") or []:
-            secret.add((s.get("RuleID", ""), target))
-        for item in r.get("Licenses") or []:
-            lic.add((item.get("Name", ""), item.get("PkgName", ""), item.get("Severity", "")))
-    return {"vulnerability": vuln, "misconfiguration": misconf, "secret": secret, "license": lic}
-
-
-def main(before_path, after_path):
-    before, after = keys(load(before_path)), keys(load(after_path))
-    regression = False
-    for kind in before:
-        added = sorted(after[kind] - before[kind])
-        removed = sorted(before[kind] - after[kind])
-        print(f"## {kind}: +{len(added)} / -{len(removed)}")
-        for item in added:
-            print(f"  + {item}")
-            if kind == "secret" or (len(item) > 2 and item[-1] in ("HIGH", "CRITICAL")):
-                regression = True
-        for item in removed:
-            print(f"  - {item}")
-    return 1 if regression else 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv[1], sys.argv[2]))
-```
-
-```bash
-python trivy_diff.py before/fs.json after/fs.json
-```
-
-輸出只包含 ID、套件、目標與 Severity，**不含 Secret 內容**，可安全提供給 AI Agent。
-
-### 25.5 SBOM 差異
-
-```bash
-jq -r '.components[] | "\(.purl)"' before/sbom.cdx.json | sort > before/purls.txt
-jq -r '.components[] | "\(.purl)"' after/sbom.cdx.json  | sort > after/purls.txt
-diff before/purls.txt after/purls.txt
-```
-
-### 25.6 Security Upgrade Report 範本
-
-| 項目 | Before | After | 差異 | 結論 |
-|------|--------|-------|------|------|
-| CVE CRITICAL | 5 | 0 | -5 | 改善 |
-| CVE HIGH | 22 | 3 | -19 | 改善；3 筆為新引入，需評估 |
-| Dependency 數 | 214 | 198 | -16 | — |
-| Misconfiguration HIGH+ | 2 | 2 | 0 | 無變化 |
-| Secret | 0 | 0 | 0 | — |
-| License Restricted | 1 | 1 | 0 | 已有法務意見 |
-
-### 實務案例
-
-某團隊把 Spring Boot 從 3.x 升到 4.x，AI Agent 只回報「CVE 從 27 降到 3」。比較腳本卻顯示那 3 個 HIGH 都是**新引入**的：新版某 starter 帶入一個有已知弱點的傳遞相依。若沒有 Before / After 逐項比較，這 3 個會被淹沒在「整體改善」的數字裡。
-
-### 注意事項
-
-- 只比「總數」會掩蓋新引入的風險，一定要比「集合差異」。
-- 升級後的 Re-scan 不能取代功能回歸測試。
-
----
-
-## 26. AI Agent + Trivy
-
-### 26.1 從「AI 寫 Code」到「AI Security Feedback Loop」
-
-AI Agent 不應只是：
-
-```text
-AI 寫 Code → 結束
-```
-
-而應形成：
-
-```text
-AI Agent → Plan → Implement → Test → Trivy Scan → Analyze Findings → Fix → Re-scan → Verify → Commit
-```
-
-```mermaid
-flowchart LR
-    P["Plan"] --> I["Implement"]
-    I --> T["Test"]
-    T --> S["Trivy Scan"]
-    S --> A["Analyze Findings"]
-    A --> D{"可安全自動修？"}
-    D -->|"是"| F["Fix"]
-    D -->|"否"| H["Human Approval"]
-    F --> R["Re-scan"]
-    R --> V["Verify<br/>Before / After"]
-    V --> C["Commit / PR"]
-    H --> C
-```
-
-### 26.2 AI Agent 什麼時候必須執行 Trivy
-
-以下為 **【AI Agent 流程】**：
-
-| 觸發事件 | 必須執行 | 指令 |
-|----------|----------|------|
-| 開始任何任務前（Baseline） | ✓ | `trivy fs --scanners vuln,secret,misconfig --format json` |
-| 修改 `pom.xml`、`build.gradle`、`package.json`、lock file | ✓ | `trivy fs --scanners vuln,license` |
-| 修改 `Dockerfile` | ✓ | `trivy config Dockerfile` |
-| 修改 K8s YAML / Helm / Terraform | ✓ | `trivy config <dir>` |
-| 新增或修改任何設定檔 | ✓ | `trivy fs --scanners secret` |
-| 建置 Production 映像前後 | ✓ | `trivy image` |
-| 任務結束前（Verify） | ✓ | 重跑 Baseline 指令並比較 |
-| Reverse Engineering 開始時 | ✓ | 第 24 章 Baseline |
-| Framework Upgrade 前後 | ✓ | 第 25 章 Before / After |
-
-### 26.3 AI Agent 呼叫 Trivy 的設計原則
-
-| 原則 | 說明 |
-|------|------|
-| 一律輸出 JSON | AI Agent 讀 JSON，人讀 table |
-| 先摘要再讀 | 以 `jq` / 腳本萃取最小欄位（第 18.6 節） |
-| 不讀 Secret 原文 | 只讀 Rule ID、路徑、行號 |
-| 明確 Scanner | 不依賴預設值 |
-| 固定版本 | AI Agent 執行環境的 Trivy 版本與 CI 一致 |
-| 記錄指令 | 在 PR 描述中列出執行過的 Trivy 指令與版本 |
-
-### 26.4 Trivy MCP Server：讓 AI Agent 以標準工具呼叫 Trivy
-
-**【官方】** Aqua Security 提供 `trivy-mcp` plugin，把 Trivy 包裝成 **MCP（Model Context Protocol）Server**。支援 MCP 的 AI 工具（VS Code Copilot Agent mode、Cursor、JetBrains IDE、Claude Desktop）可以直接把「掃描」當成工具呼叫，不必讓 Agent 自行拼接 shell 指令。
-
-| 項目 | 說明 |
-|------|------|
-| 專案 | `github.com/aquasecurity/trivy-mcp`（MIT） |
-| 版本 | v0.0.20（約 10 個月前發布），仍為 0.0.x 早期版本 |
-| 掃描類型 | Filesystem、Container Image、Remote Repository；可產生 SBOM |
-| 傳輸模式 | `stdio`（預設）、`streamable-http`、`sse` |
-| 預設監聽 | `localhost:23456`（僅網路傳輸模式） |
-| Aqua Platform | `--use-aqua-platform` / `-a` 啟用商業版整合（預設關閉） |
-| 自訂 Trivy | `--trivy-binary <path>` 指定企業驗章過的 Trivy 執行檔 |
-
-```mermaid
-flowchart LR
-    U["Developer"] --> IDE["IDE AI Agent<br/>VS Code / Cursor / JetBrains"]
-    IDE -->|"MCP tool call - stdio"| MCP["trivy mcp<br/>plugin"]
-    MCP --> T["Trivy CLI<br/>企業核准版本"]
-    T --> DB[("內部 DB Mirror")]
-    T --> R["掃描結果"]
-    R --> MCP --> IDE
-```
-
-### 26.5 安裝與 IDE 設定
-
-**Step 1：安裝 plugin 並固定版本**（v0.52 起 `trivy plugin install` 支援 `@<version>`）：
-
-```bash
-trivy plugin install mcp@v0.0.20
-trivy plugin list
-```
-
-**Step 2：啟動（手動驗證用）**：
-
-```bash
-# IDE 整合使用 stdio，由 IDE 啟動
-trivy mcp
-
-# 網路傳輸模式只綁 localhost
-trivy mcp --transport streamable-http --host localhost --port 23456
-```
-
-**Step 3：VS Code 設定**（需 VS Code 1.99 以上、Copilot Chat 使用 Agent mode）。專案層級可放在 `.vscode/mcp.json`：
+JSON 格式 CCDT（MQ 9.1.2 起）可讀、可 diff、可放 Git，並允許同名 Channel 定義多筆以支援負載平衡與 HA。
 
 ```json
 {
-  "servers": {
-    "trivy": {
-      "type": "stdio",
-      "command": "trivy",
-      "args": ["mcp", "--trivy-binary", "/opt/trivy/0.75.0/trivy"]
-    }
-  }
-}
-```
-
-> trivy-mcp 官方文件的範例是寫在 VS Code User Settings 的 `"mcp": { "servers": { ... } }` 區塊；兩種位置擇一即可。Windows 請將 `--trivy-binary` 改為 `C:\\Tools\\trivy\\0.75.0\\trivy.exe`。
-
-**Step 4：使用**：在 Agent mode 中輸入「這個專案有沒有弱點或錯誤設定？」等自然語言問題，Agent 會呼叫 Trivy MCP 工具。
-
-### 26.6 MCP 與 CLI 的分工
-
-| 面向 | Trivy MCP Server | Trivy CLI（JSON） |
-|------|------------------|-------------------|
-| 主要使用者 | 開發者本機的 IDE AI Agent | CI/CD、後端 AI Agent、腳本 |
-| 觸發方式 | 自然語言 → 工具呼叫 | 明確指令 |
-| 可重現性 | 參數由 Agent 決定，較低 | 參數固定，高 |
-| 作為 Gate | **不適合** | 適合 |
-| 稽核證據 | 需額外保存 session log | JSON 報告即證據 |
-
-**【企業建議】** MCP 用於「開發階段的即時回饋」，CI 中的 CLI Gate 仍是唯一具約束力的控制點。Guardrail 見第 30.4 節。
-
-### 實務案例
-
-某團隊讓 AI Agent 在每次修改 `pom.xml` 後自動跑 `trivy fs --scanners vuln`，並把 JSON 摘要回饋給 Agent。過去 AI Agent 常為了解決編譯錯誤降版某套件，導致重新引入已修補的 CVE；導入回饋迴圈後，這類退化在 PR 送出前就被 Agent 自己發現並修正。
-
-### 注意事項
-
-- 回饋迴圈必須有「停止條件」：同一 Finding 修正 3 次仍失敗，就停止並請求人工協助，避免 AI Agent 無限嘗試。
-- Trivy 是 AI Agent 的「感測器」，不是「決策者」；決策仍依第 27–30 章的規則。
-- trivy-mcp 仍為 0.0.x 版本，企業導入前應經 Security Team 評估，且不得取代 CI Gate。
-
----
-
-## 27. AI Agent 使用 Trivy 的標準流程
-
-### 27.1 十步驟
-
-| 步驟 | 名稱 | 內容 | 產出 |
-|------|------|------|------|
-| 1 | Understand | 理解任務、專案結構、技術棧 | 任務理解摘要 |
-| 2 | Scan | 執行 Baseline 掃描 | `baseline/*.json` |
-| 3 | Analyze | 解讀 Finding：ID、套件、版本、Fixed Version、Status | Finding 清單 |
-| 4 | Prioritize | 依企業 Policy 分級：Block / Warn / Monitor | 優先順序表 |
-| 5 | Fix | 只修可安全自動修的項目 | 程式變更 |
-| 6 | Test | 單元、整合測試 | 測試結果 |
-| 7 | Scan Again | 以相同設定 Re-scan | `after/*.json` |
-| 8 | Compare | 集合差異比較 | 差異報告 |
-| 9 | Generate Report | Security Report（不含 Secret 原文） | `security-report.md` |
-| 10 | Human Review | 等待人工核准 | Approval 紀錄 |
-
-### 27.2 核心原則
-
-> **Scan → Understand → Fix → Verify**
->
-> **不可：Scan → Automatically modify everything**
-
-| 正確 | 錯誤 |
-|------|------|
-| 先確認 Fixed Version 存在且相容，再升級 | 看到 CVE 就把所有套件升到最新 major |
-| 升級後跑測試並 Re-scan | 升級後直接 commit |
-| 無法修正時產生 Exception 申請草稿交人審核 | 自行加入 `.trivyignore` |
-| 回報「新增 / 移除」清單 | 只回報總數 |
-
-```mermaid
-stateDiagram-v2
-    [*] --> Understand
-    Understand --> Scan
-    Scan --> Analyze
-    Analyze --> Prioritize
-    Prioritize --> Fix: 可安全自動修
-    Prioritize --> HumanReview: 需人工判斷
-    Fix --> Test
-    Test --> ScanAgain
-    ScanAgain --> Compare
-    Compare --> Fix: 有新增風險且可修
-    Compare --> Report: 無新增風險
-    Compare --> HumanReview: 有新增風險且不可修
-    Report --> HumanReview
-    HumanReview --> [*]
-```
-
-### 實務案例
-
-某 AI Agent 收到「修掉所有 HIGH」的指令，第一版做法是把 `spring-boot-starter-parent` 從 3.x 直接改到 4.x，導致 47 個編譯錯誤。改用十步驟流程後，Agent 先分析出 HIGH 集中在兩個傳遞相依，只以 `dependencyManagement` 覆寫這兩個版本，測試通過、Re-scan 確認修正，變更範圍從數百行降到 6 行。
-
-### 注意事項
-
-- Prioritize 的依據是**企業 Policy**，不是 AI Agent 的主觀判斷。
-- 步驟 10 不可省略，即使所有 Finding 都已修正。
-
----
-
-## 28. AI Agent Prompt Engineering
-
-以下 Prompt 可直接複製使用。每個 Prompt 都包含 **Input、Output、安全限制、Human Approval Point**。`{{ }}` 為需替換的參數。
-
-### 28.1 Repository Security Scan Prompt
-
-```text
-【角色】你是企業 DevSecOps AI Agent，負責對 Repository 建立安全基線。
-
-【Input】
-- Repository 路徑：{{repo_path}}
-- 企業 Trivy 設定：{{config_path}}（若無則使用下列預設）
-- Trivy 版本需為：{{trivy_version}}
-
-【執行步驟】
-1. 執行 `trivy --version` 並記錄。
-2. 執行：
-   trivy fs --scanners vuln,secret,misconfig --format json --output scan/fs.json {{repo_path}}
-3. 以 jq 萃取摘要（VulnerabilityID、PkgName、InstalledVersion、FixedVersion、Severity、Status；
-   Secret 只取 RuleID、Target、StartLine）。
-4. 依企業 Policy 分級：CRITICAL 且 fixed → Block；HIGH 且 fixed → Warn；其他 → Monitor。
-
-【Output】
-- Markdown 表格：Severity 統計、Block 清單、Warn 清單、Secret 位置清單（不含內容）。
-- 每個 Block 項目的建議修正方式（升級版本、影響範圍）。
-
-【安全限制】
-- 不得輸出、引用或摘要任何 Secret 的值或含 Secret 的程式碼行。
-- 不得修改任何檔案。
-- 不得新增或修改 .trivyignore*、trivy.yaml、trivy-secret.yaml。
-
-【Human Approval Point】
-- 報告完成後停止，等待人工決定修正範圍。
-```
-
-### 28.2 Container Security Scan Prompt
-
-```text
-【角色】你是 Container Security AI Agent。
-
-【Input】
-- Image（必須為 digest 或固定版本 tag）：{{image_ref}}
-- Dockerfile 路徑：{{dockerfile}}
-
-【執行步驟】
-1. trivy image --scanners vuln,secret --exit-on-eol 2 --format json --output scan/image.json {{image_ref}}
-2. trivy config --format json --output scan/dockerfile.json {{dockerfile}}
-3. 將 Vulnerability 依來源分為：OS 套件（Base Image）與應用程式相依。
-4. 若 OS 已 EOL，明確標示。
-
-【Output】
-- Base Image 弱點摘要與「建議的替代 Base Image 版本（需人工確認）」。
-- 應用程式相依弱點摘要。
-- Dockerfile misconfiguration 清單與修正建議（可提供 diff）。
-
-【安全限制】
-- 不得以 latest tag 作為修正建議。
-- 不得建議移除 USER、HEALTHCHECK 等安全設定來減少 Finding。
-- 不得輸出 Secret 內容。
-
-【Human Approval Point】
-- 更換 Base Image（任何 major / distro 變更）必須人工核准。
-```
-
-### 28.3 Kubernetes Security Scan Prompt
-
-```text
-【角色】你是 Kubernetes Security AI Agent。
-
-【Input】
-- Manifest 目錄或 Helm Chart：{{manifest_path}}
-- Production values 檔：{{values_file}}
-- （選用）叢集 context：{{k8s_context}}（僅限非 Production）
-
-【執行步驟】
-1. trivy config --helm-values {{values_file}} --format json --output scan/k8s-config.json {{manifest_path}}
-2. 若提供 context：trivy k8s {{k8s_context}} --report summary --format json --output scan/k8s-cluster.json
-   （注意：trivy k8s 為 Experimental）
-3. 分類：Pod Security、RBAC、資源限制、網路、Secret。
-
-【Output】
-- 依資源列出 Finding 與 YAML 修正 diff（securityContext、resources、automountServiceAccountToken 等）。
-
-【安全限制】
-- 不得對 Production 叢集執行 trivy k8s，除非任務明確授權。
-- 不得建議以 privileged、hostNetwork、hostPath 解決功能問題。
-- 不得修改 RBAC 以擴大權限。
-
-【Human Approval Point】
-- 任何 RBAC 變更、NetworkPolicy 變更必須人工核准。
-```
-
-### 28.4 Dependency Upgrade Prompt
-
-```text
-【角色】你是 Dependency Upgrade AI Agent。
-
-【Input】
-- 專案路徑：{{repo_path}}
-- 目標 Finding（CVE 清單）：{{cve_list}}
-- 允許的升級範圍：{{scope}}（例如：僅 patch / minor；不得升 major）
-
-【執行步驟】
-1. Before：trivy fs --scanners vuln,license --format json --output before.json {{repo_path}}
-2. 對每個 CVE 確認 FixedVersion；以 --dependency-tree 找出引入來源。
-3. 選擇最小變更：優先升級直接相依，或以 dependencyManagement / overrides 指定傳遞相依版本。
-4. 執行建置與全部測試。
-5. After：以相同指令產生 after.json，執行 trivy_diff.py before.json after.json。
-
-【Output】
-- 變更清單（套件、舊版、新版、理由）。
-- 測試結果。
-- Before / After 差異（新增、移除）。
-
-【安全限制】
-- 不得升級超出 {{scope}} 的版本。
-- 新增任何 HIGH/CRITICAL 或 License 類別變為 Restricted/Forbidden 時，必須回報並停止。
-- 不得以 ignore 檔處理無法修正的 CVE。
-
-【Human Approval Point】
-- major 版本升級、License 類別變化、無法修正的 CRITICAL。
-```
-
-### 28.5 Framework Upgrade Security Prompt
-
-```text
-【角色】你是 Framework Upgrade Security AI Agent。
-
-【Input】
-- Framework 與版本：{{from_version}} → {{to_version}}（例如 Spring Boot 3.5 → 4.0）
-- Before 分支：{{base_branch}}；After 分支：{{upgrade_branch}}
-
-【執行步驟】
-1. 先執行 trivy image --download-db-only，之後所有掃描加 --skip-db-update，確保 DB 一致。
-2. 在兩個分支分別產生：fs.json（vuln,secret,misconfig,license）與 sbom.cdx.json。
-3. 若有映像檔，兩邊各自 build 並掃描 image.json。
-4. 執行比較：CVE、Dependency（SBOM purl 差異）、Misconfiguration、Secret、License。
-
-【Output】
-- Security Upgrade Report（第 25.6 節格式）。
-- 「新引入風險」獨立段落，即使整體是改善。
-
-【安全限制】
-- Before / After 必須使用相同 Trivy 版本與 DB。
-- 不得只回報總數。
-
-【Human Approval Point】
-- 任何新引入的 HIGH/CRITICAL、任何新 Secret、任何 License 類別變化。
-```
-
-### 28.6 Reverse Engineering Security Prompt
-
-```text
-【角色】你是 Legacy Reverse Engineering Security AI Agent。
-
-【Input】
-- Legacy repo：{{repo_path}}
-- Production 對應版本（tag / commit）：{{prod_ref}}
-- 建置產物目錄（war/ear/lib）：{{artifact_dir}}
-
-【執行步驟】
-1. 依第 24.3 節產生 baseline/ 下所有檔案。
-2. 標示未涵蓋範圍（例如 AIX OS、DB 程序、MQ 設定）。
-3. 列出 EOL 元件與硬編碼 Secret 位置（不含內容）。
-
-【Output】
-- Security Baseline（第 24.5 節格式）。
-- 建議納入 Modernization Plan 的安全前置條件。
-
-【安全限制】
-- 只讀，不修改任何檔案。
-- 不得在輸出中包含 Secret 值、內部主機名稱以外的連線字串。
-- 不得對 License 下法律結論。
-
-【Human Approval Point】
-- Baseline 完成後停止；Secret 輪替與 License 判定交由人處理後才可進入 Architecture Recovery。
-```
-
-### 28.7 SBOM Analysis Prompt
-
-```text
-【角色】你是 Software Supply Chain AI Agent。
-
-【Input】
-- SBOM 檔：{{sbom_path}}（CycloneDX 或 SPDX）
-
-【執行步驟】
-1. trivy sbom --scanners vuln,license --format json --output scan/sbom-scan.json {{sbom_path}}
-2. 統計：元件數、各生態系元件數、CRITICAL/HIGH 弱點、License 類別分佈、UNKNOWN License。
-3. 找出「同一套件多版本並存」的情況。
-
-【Output】
-- SBOM 健康度摘要表。
-- 需優先處理的元件清單。
-
-【安全限制】
-- 不得修改 SBOM 檔。
-- License 只列分類與名稱，不下法律結論。
-
-【Human Approval Point】
-- 報告送 DevSecOps 與 OSPO 審閱。
-```
-
-### 28.8 Secret Finding Response Prompt
-
-```text
-【角色】你是 Secret Incident Response AI Agent。
-
-【Input】
-- Trivy Secret 摘要（僅含 RuleID、Target、StartLine、Severity）：{{secret_summary}}
-
-【執行步驟】
-1. 依 RuleID 判斷 Secret 類型（雲端金鑰、DB 密碼、Token、私鑰）。
-2. 為每一筆產生處理建議：負責撤銷 / 輪替的角色、程式碼改為讀取 Secret Manager 的修改方式。
-3. 產生 pre-commit 防護建議（trivy fs --scanners secret）。
-
-【Output】
-- 處理清單（Detect → Redact → Revoke/Rotate → Investigate → Prevent）。
-- 程式碼修改 diff：以環境變數或 Secret Manager 取代硬編碼值（diff 中以 <REDACTED> 表示原值）。
-
-【安全限制】
-- 嚴禁開啟、讀取、輸出 Secret 所在行的內容。
-- 嚴禁嘗試驗證 Secret 是否有效（不得用它呼叫任何 API）。
-- 嚴禁將 Secret 寫入任何檔案、Log、Ticket。
-
-【Human Approval Point】
-- 撤銷與輪替一律由 Secret Owner 執行；AI Agent 只提供建議。
-```
-
-### 28.9 CI/CD Failure Analysis Prompt
-
-```text
-【角色】你是 CI/CD Security Gate 分析 AI Agent。
-
-【Input】
-- 失敗的 Job 名稱與 Trivy JSON 報告路徑：{{report_paths}}
-- 企業 Gate 規則：{{gate_policy}}
-
-【執行步驟】
-1. 確認失敗原因屬於哪條 Gate 規則。
-2. 列出觸發 Gate 的 Finding（ID、套件、Fixed Version）。
-3. 為每筆提出「修正」選項；若無法修正，產生 Exception 申請草稿（第 39 章欄位）。
-
-【Output】
-- 失敗原因摘要。
-- 修正 PR 建議或 Exception 申請草稿。
-
-【安全限制】
-- 嚴禁修改 workflow、trivy.yaml、ignore 檔、exit-code、severity 來讓 Gate 通過。
-- 嚴禁移除或略過任何 Scan step。
-- Exception 只能產生「草稿」，不得自行提交核准。
-
-【Human Approval Point】
-- 任何 Exception 必須由 Security Team 核准。
-```
-
-### 28.10 Security Regression Verification Prompt
-
-```text
-【角色】你是 Security Regression Verification AI Agent。
-
-【Input】
-- Before 報告：{{before_json}}
-- After 報告：{{after_json}}
-- 兩次掃描使用的 Trivy 版本與 DB 日期：{{versions}}
-
-【執行步驟】
-1. 確認兩次掃描版本與 DB 一致；不一致則停止並回報。
-2. 執行 trivy_diff.py {{before_json}} {{after_json}}。
-3. 判定：是否有新增 HIGH/CRITICAL、新增 Secret、新增 FAIL misconfiguration、License 類別升高。
-
-【Output】
-- PASS / FAIL 判定與理由。
-- 新增項目清單、移除項目清單。
-
-【安全限制】
-- 判定標準只依企業 Policy，不得自行放寬。
-- 不得輸出 Secret 內容。
-
-【Human Approval Point】
-- FAIL 時交 Tech Lead 與 DevSecOps 決定；PASS 仍需 Reviewer 簽核 PR。
-```
-
-### 實務案例
-
-某團隊把 28.9 的 Prompt 放進 CI 失敗通知的自動分析機器人。過去 AI 助手常建議「把 severity 調成 CRITICAL 就會過」，加入安全限制後，機器人只會提供修正 PR 建議或 Exception 草稿，Gate 被繞過的情況歸零。
-
-### 注意事項
-
-- Prompt 中的安全限制應與 AGENTS.md（附錄 F）一致，避免規則衝突。
-- 所有 Prompt 都假設 AI Agent 在**受限的執行環境**中運作（第 30 章）。
-
----
-
-## 29. AI Agent 不可以做的事情
-
-### 29.1 禁止清單
-
-**【Security Policy 範本】** AI Agent 不得自行：
-
-| # | 禁止行為 | 常見「理由」 | 為什麼禁止 |
-|---|----------|-------------|-----------|
-| 1 | 刪除 Security Finding | 「這是誤報」 | 誤報判定需人工與證據 |
-| 2 | 永久加入 Ignore | 「先讓 CI 過」 | 繞過治理 |
-| 3 | 洩漏 Secret | 「為了說明問題」 | 擴大外洩 |
-| 4 | 把 API Key 寫進程式 | 「測試需要」 | 新增外洩點 |
-| 5 | 降低 Security Severity | 「實際影響很小」 | Severity 調整屬 Security 權限 |
-| 6 | 修改企業 Security Policy | 「規則太嚴」 | 違反治理分工 |
-| 7 | 自行接受 Critical Vulnerability | 「沒有修補版本」 | 風險接受需授權 |
-| 8 | 自行判定 License 法律結論 | 「內部用沒關係」 | 屬法務職權 |
-| 9 | 刪除 Security Control | 「這個 USER 設定導致權限錯誤」 | 削弱防護 |
-| 10 | 為通過 CI/CD 而關閉 Scanner | 「掃描太慢」 | 直接破壞 Gate |
-| 11 | 修改 `exit-code`、`severity`、`scanners` 以減少 Finding | 「調整設定」 | 變相關閉 Scanner |
-| 12 | 修改 GitHub Action 的 pin 為 mutable tag | 「方便更新」 | 供應鏈風險 |
-| 13 | 對 Production 叢集執行 `trivy k8s` | 「想看真實狀況」 | 未授權存取 |
-
-### 29.2 三區分類
-
-```mermaid
-flowchart TB
-    A["AI Agent 動作"] --> S["Safe Automatic Fix<br/>可自動執行"]
-    A --> H["Human Approval Required<br/>需人工核准"]
-    A --> F["Forbidden Action<br/>禁止"]
-    S --> S1["patch / minor 升級且有 Fixed Version"]
-    S --> S2["Dockerfile 加 USER / HEALTHCHECK"]
-    S --> S3["K8s 加 securityContext / resources"]
-    S --> S4["產生 SBOM、報告"]
-    H --> H1["major 升級、Base Image 換 distro"]
-    H --> H2["Exception 草稿"]
-    H --> H3["RBAC / NetworkPolicy 變更"]
-    H --> H4["License 類別變化"]
-    F --> F1["新增 / 延長 ignore"]
-    F --> F2["關閉 Scanner、改 exit-code"]
-    F --> F3["輸出 Secret"]
-    F --> F4["修改 Security Policy"]
-```
-
-### 實務案例
-
-某 AI Agent 在 PR 中把 Dockerfile 的 `USER app` 刪除，理由是「容器啟動時沒有寫入 `/tmp` 的權限」。Trivy 的 `trivy config` 立刻出現 AVD-DS-0002，Reviewer 依禁止清單第 9 條退回，正確修法是掛載 `emptyDir` 到 `/tmp`。
-
-### 注意事項
-
-- 禁止清單必須同時寫入 AGENTS.md / copilot-instructions.md（附錄 F）與 CI 的技術控制（CODEOWNERS、branch protection），**只寫在 Prompt 裡不夠**。
-
----
-
-## 30. AI Agent Security Guardrail
-
-### 30.1 Guardrail 總表
-
-| Guardrail | 說明 | 技術實作 |
-|-----------|------|----------|
-| Least Privilege | AI Agent 只有完成任務所需的最小權限 | 唯讀 token、無 Production kubeconfig、無 Registry push 權限 |
-| Secret Redaction | Agent 看到的掃描結果不含 Secret 內容 | jq 摘要、`.Secrets[]` 只取 RuleID / 位置 |
-| No Credential Exposure | Agent 環境不持有長期憑證 | OIDC 短期憑證、不在環境變數放 PAT |
-| Human Approval | 高風險動作必須人工核准 | PR Review、Environment protection rules |
-| Change Review | Security 相關檔案需特定人員審核 | CODEOWNERS：`.trivyignore*`、`trivy*.yaml`、`.github/workflows/` |
-| Audit Log | 記錄 Agent 執行的指令與結果 | CI log、Agent session log、PR 描述 |
-| Security Policy | Agent 遵守企業 Policy | AGENTS.md、附錄 F |
-| Exception Management | Agent 只能產生草稿 | Exception 系統權限只給 Security Team |
-| Reproducible Scan | 結果可重現 | 固定 Trivy 版本、記錄 DB 日期 |
-| Immutable Artifact | 掃描對象 = 部署對象 | 以 digest 掃描與部署 |
-| SBOM | 每個 Release 都有 SBOM | CI 自動產生並保存 |
-| Evidence Retention | 掃描證據保存 | Artifact 保存期限依稽核要求 |
-
-### 30.2 CODEOWNERS 範例
-
-```text
-# .github/CODEOWNERS
-/.trivyignore            @corp/devsecops
-/.trivyignore.yaml       @corp/devsecops
-/trivy.yaml              @corp/devsecops
-/trivy-secret.yaml       @corp/devsecops
-/.github/workflows/       @corp/platform @corp/devsecops
-/deploy/                 @corp/platform
-```
-
-### 30.3 Guardrail 架構
-
-```mermaid
-flowchart LR
-    AG["AI Agent<br/>受限權限"] --> PR["Pull Request"]
-    PR --> CO["CODEOWNERS<br/>Security 檔案需 DevSecOps 審核"]
-    PR --> CI["CI Trivy Gate<br/>中央設定"]
-    CI --> BP["Branch Protection<br/>Required Checks"]
-    CO --> BP
-    BP --> HM["Human Approval"]
-    HM --> MG["Merge"]
-    CI --> EV["Evidence<br/>報告 / SBOM / 版本"]
-```
-
-### 30.4 MCP Server Guardrail
-
-第 26.4 節的 Trivy MCP Server 讓 Agent 可以自行觸發掃描，也因此增加新的攻擊面。以下為 **【企業建議】**：
-
-| Guardrail | 作法 | 理由 |
-|-----------|------|------|
-| 固定 plugin 版本 | `trivy plugin install mcp@v0.0.20`，升級走變更流程 | plugin 本身也是供應鏈元件（2026-03 事件教訓） |
-| 指定 Trivy 執行檔 | `--trivy-binary` 指向已驗章的企業版本 | 避免使用 PATH 上未知來源的 Trivy |
-| 只用 stdio | IDE 整合一律 `stdio`；必須用網路傳輸時只綁 `localhost` | 官方說明 `0.0.0.0` 會允許任何網路介面連線 |
-| 不啟用 Aqua Platform | 除非企業已採購並核准，不使用 `-a` | 避免未核准的外部資料傳輸與憑證放在開發機 |
-| 資料來源指向內部 Mirror | 全域 `trivy.yaml` 設定 `db.repository` | 與 CI 使用相同 DB，結果可比較 |
-| Secret 不進對話 | 要求 Agent 只回報 RuleID 與位置（附錄 F） | MCP 回傳內容會進入 LLM 上下文 |
-| 不取代 Gate | MCP 結果不可作為「已通過安全檢查」的證據 | 參數由 Agent 決定，無法保證與 Gate 一致 |
-| 檢核工具允許清單 | 企業若以 MCP Registry / 允許清單管理 MCP Server，需將 trivy-mcp 列入並標示版本 | 避免開發者自行安裝未審核的 MCP Server |
-
-### 實務案例
-
-某組織允許 AI Agent 直接 push 到 feature branch，但 `main` 受 branch protection 保護，Required checks 包含 `trivy-gate`，且 CODEOWNERS 指定 workflow 與 ignore 檔必須由 DevSecOps 審核。半年內 AI Agent 提出的 PR 中有 14 次試圖修改 ignore 檔，全部在 Review 階段被攔下。
-
-### 注意事項
-
-- Guardrail 的核心是「技術控制」而非「Prompt 約束」。Prompt 可以被誤解或繞過，branch protection 不會。
-- Agent 的執行環境也要防範第 14 章所述的供應鏈攻擊：Agent 使用的 Trivy 同樣必須驗章。
-
----
-
-## 31. Trivy + SSDLC
-
-### 31.1 SSDLC 階段對應
-
-| SSDLC Phase | Trivy 用途 | 主要指令 / 產出 | 負責角色 |
-|-------------|-----------|----------------|----------|
-| Requirement | 定義 Security Requirement：SBOM、License 政策、Gate 門檻 | 需求文件中的安全驗收條件 | SA、Security |
-| Architecture | IaC / Cloud 設計檢查 | `trivy config` 審查 Terraform 範本、Helm Chart | Architect |
-| Development | Dependency / Secret | `trivy fs`、pre-commit secret scan | Developer、AI Agent |
-| Build | Container / SBOM | `trivy image`、`--format cyclonedx` | DevOps |
-| Test | Vulnerability Gate | CI Security Gate | DevSecOps |
-| Deploy | Kubernetes 設定 | `trivy config`、Staging `trivy k8s` | Platform |
-| Operations | Continuous Scan | Trivy Operator、每日 `trivy sbom` | SRE、Security |
-| Maintenance | CVE Monitoring | SBOM 重掃、告警 | Security |
-| Upgrade | Before / After Scan | 第 25 章流程 | Developer、AI Agent |
-
-```mermaid
-flowchart LR
-    R["Requirement"] --> A["Architecture"]
-    A --> D["Development"]
-    D --> B["Build"]
-    B --> T["Test"]
-    T --> DP["Deploy"]
-    DP --> O["Operations"]
-    O --> M["Maintenance"]
-    M --> U["Upgrade"]
-    U --> D
-    A -.-> TC["trivy config"]
-    D -.-> TF["trivy fs"]
-    B -.-> TI["trivy image + SBOM"]
-    T -.-> G["Security Gate"]
-    DP -.-> TK["trivy config / k8s"]
-    O -.-> OP["Operator"]
-    M -.-> SB["trivy sbom"]
-```
-
-### 實務案例
-
-某專案在需求階段就把「每個 Release 必須附 CycloneDX SBOM、不得有 CRITICAL fixed 弱點」寫進驗收條件，PM 在 Sprint Review 時直接以 CI 產出的 SBOM 與 Gate 報告作為驗收證據，安全不再是上線前才臨時處理的事項。
-
-### 注意事項
-
-- Trivy 只覆蓋 SSDLC 中的「偵測」環節；威脅建模、安全設計審查、滲透測試仍需其他活動。
-
----
-
-## 32. Trivy + Clean Architecture
-
-### 32.1 Trivy 能檢查什麼
-
-以 Clean Architecture 四層為例：
-
-| 層 | 內容 | Trivy 可檢查 |
-|----|------|-------------|
-| Domain | 業務實體、規則 | 幾乎無（純程式碼，無外部相依時） |
-| Application | Use Case | 相依函式庫弱點 |
-| Adapter | Controller、Repository 實作 | 相依函式庫弱點、設定檔 Secret |
-| Infrastructure | DB、MQ、外部 API、Dockerfile、K8s | 相依、Dockerfile、IaC、Secret、License |
-
-| 項目 | Trivy |
-|------|-------|
-| Dependencies | ✓ |
-| Build Artifacts | ✓ |
-| Dockerfile | ✓ |
-| IaC | ✓ |
-| Secrets | ✓ |
-| Licenses | ✓ |
-| SBOM | ✓ |
-| **Layer Dependency（Domain 不可依賴 Infrastructure）** | **✗ Trivy 不負責** |
-
-> **Trivy 不負責驗證 Clean Architecture Layer Dependency。** 請使用 ArchUnit 等架構測試工具。
-
-### 32.2 四種品質的組合
-
-```mermaid
-flowchart TB
-    Q1["Architecture Quality<br/>ArchUnit"] --> Q["整體品質"]
-    Q2["Code Quality<br/>Unit / Integration Test、Lint"] --> Q
-    Q3["Security Quality<br/>SAST、DAST"] --> Q
-    Q4["Supply Chain Security<br/>Trivy：SCA、Secret、IaC、SBOM"] --> Q
-```
-
-```java
-// ArchUnit 範例：Domain 層不可依賴 Infrastructure 層（Trivy 無法做到這件事）
-@AnalyzeClasses(packages = "com.example.order")
-class LayerRulesTest {
-    @ArchTest
-    static final ArchRule domainIsIndependent =
-        noClasses().that().resideInAPackage("..domain..")
-            .should().dependOnClassesThat().resideInAPackage("..infrastructure..");
-}
-```
-
-### 實務案例
-
-某 AI Agent 為了修一個 Trivy 回報的 Jackson 弱點，在 Domain 層直接 import 了新版 Jackson 的 annotation。Trivy Re-scan 通過（弱點已修），但 ArchUnit 測試失敗（Domain 依賴了框架）。兩種工具互補，缺一不可。
-
-### 注意事項
-
-- 不要把 Trivy 報告當成架構審查報告。
-
----
-
-## 33. Trivy + OWASP
-
-### 33.1 OWASP Top 10 能力對照
-
-以下以 OWASP Top 10:2025 分類為例（分類名稱以 OWASP 官方公布為準）：
-
-| OWASP 類別 | Trivy 能力 | 覆蓋程度 | 需搭配 |
-|-----------|-----------|---------|-------|
-| A01 Broken Access Control | K8s RBAC、IaC IAM 過寬 | 部分（基礎設施層） | SAST、DAST、滲透測試 |
-| A02 Security Misconfiguration | Dockerfile、K8s、Terraform、Helm | **主要** | Runtime 檢查 |
-| A03 Software Supply Chain Failures | SCA、SBOM、VEX、License | **主要** | 簽章、Attestation、Provenance |
-| A04 Cryptographic Failures | IaC 加密設定、crypto scanner 盤點憑證（Experimental） | 部分 | SAST、設計審查 |
-| A05 Injection | ✗ | 無 | SAST、DAST |
-| A06 Insecure Design | ✗ | 無 | 威脅建模 |
-| A07 Authentication Failures | Secret 外洩偵測 | 間接 | DAST、滲透測試 |
-| A08 Software or Data Integrity Failures | SBOM、Attestation 掃描 | 部分 | 簽章驗證、CI 安全 |
-| A09 Logging & Alerting Failures | IaC 日誌設定（例如雲端資源未啟用 logging） | 部分 | 監控平台 |
-| A10 Mishandling of Exceptional Conditions | ✗ | 無 | SAST、Code Review |
-
-### 33.2 必須明確區分的六類問題
-
-| 類型 | Trivy 是否處理 |
-|------|---------------|
-| Dependency Vulnerability | ✓ |
-| Secret | ✓ |
-| Misconfiguration | ✓ |
-| SAST（自有程式碼漏洞） | ✗ |
-| DAST（執行期漏洞） | ✗ |
-| Business Logic（業務邏輯漏洞） | ✗ |
-
-> **不要宣稱 Trivy 可以取代完整 OWASP Security Testing。**
-
-### 實務案例
-
-某團隊的安全報告寫「已使用 Trivy 完成 OWASP Top 10 檢測」，外部稽核指出 Injection 與 Access Control 完全沒有測試證據。修正後報告改為「Trivy 覆蓋 A02、A03 主要風險，其餘以 SAST、DAST 與滲透測試補足」。
-
-### 注意事項
-
-- OWASP 分類版本會更新，對照表需隨之調整。
-
----
-
-## 34. Trivy + SAST / DAST / SCA
-
-### 34.1 工具定位比較
-
-| 工具類型 | 主要目的 | Trivy |
-|----------|----------|-------|
-| SAST | Source Code 邏輯漏洞 | 部分能力（IaC、Secret）／不等同完整 SAST |
-| DAST | Running Application | 非主要定位 |
-| SCA | Dependency | Trivy 可執行 |
-| Secret Scanner | Credential | Trivy 可執行 |
-| IaC Scanner | Configuration | Trivy 可執行 |
-| Container Scanner | Image | Trivy 核心能力 |
-| SBOM | Inventory | Trivy 可產生、可掃描 |
-| CSPM | Cloud | 視目前版本能力：AWS 需 plugin，非完整 CSPM |
-
-### 34.2 工具組合架構
-
-```mermaid
-flowchart LR
-    subgraph Code["程式碼"]
-        SAST["SAST"]
-        SEC["Secret - Trivy"]
-    end
-    subgraph Deps["相依"]
-        SCA["SCA - Trivy"]
-        SBOM["SBOM - Trivy"]
-    end
-    subgraph Build["建置產物"]
-        IMG["Image - Trivy"]
-        IAC["IaC - Trivy"]
-    end
-    subgraph Run["執行期"]
-        DAST["DAST"]
-        RT["Runtime / Operator"]
-    end
-    Code --> Deps --> Build --> Run
-```
-
-### 34.3 結果彙整與去重
-
-多工具並存時，最常見的問題是「同一個弱點在三個儀表板出現三次」。**【企業建議】** 以下為彙整原則：
-
-| 項目 | 建議 |
-|------|------|
-| 交換格式 | 掃描工具統一輸出 SARIF 2.1.0（Trivy `--format sarif`），SBOM 統一 CycloneDX |
-| 去重鍵 | Vulnerability：CVE / GHSA + PURL + 資產（映像 digest 或 repo）；Misconfiguration：Check ID + 檔案 + 資源 |
-| Fingerprint | Trivy v0.68 起在報告中提供弱點 fingerprint、ReportID、ArtifactID，可作為追蹤與去重的輔助欄位 |
-| 單一 Owner | 每筆 Finding 只有一個負責團隊，由資產標籤決定 |
-| 權威來源 | SCA 以單一工具為 Gate 依據，其他工具只作交叉比對 |
-
-### 34.4 選型建議
-
-| 情境 | 建議組合 |
-|------|----------|
-| 初始導入（預算有限） | Trivy（SCA / Secret / IaC / Image / SBOM）+ 開源 SAST |
-| 金融 / 高合規 | Trivy + 商用 SAST + DAST + 定期滲透測試 + 弱點管理平台 |
-| 大量容器化系統 | Trivy CLI（CI Gate）+ Trivy Operator（Runtime）+ Admission Controller |
-| AI Agent 大量產碼 | Trivy CLI Gate + SAST + 第 30 章 Guardrail；Trivy MCP 僅作開發回饋 |
-
-### 實務案例
-
-某金融業 AppSec 平台的工具組合：SAST 負責自有程式碼、Trivy 負責 SCA / Secret / IaC / Image / SBOM、DAST 每週掃 Staging、每年兩次外部滲透測試。四類結果彙整到同一個弱點管理平台，以 CWE 與資產標籤去重。
-
-### 注意事項
-
-- 多工具同時做 SCA 時，Finding 會重複，需在弱點管理平台以 CVE + 套件 + 資產去重。
-
----
-
-## 35. Enterprise DevSecOps Reference Architecture
-
-### 35.1 架構圖
-
-```mermaid
-flowchart TB
-    DEV["Developer"] --> GIT["Git Repository"]
-    AI["AI Agent"] --> GIT
-    GIT --> CI["CI/CD"]
-    CI --> TR["Trivy Repo / FS"]
-    CI --> TC["Trivy Config"]
-    CI --> BLD["Build"]
-    BLD --> TI["Trivy Image"]
-    TI --> SB["SBOM"]
-    TR & TC & TI & SB --> GATE{"Security Gate"}
-    GATE -->|"Pass"| REG["Container Registry<br/>SBOM Attestation"]
-    REG --> K8S["Kubernetes"]
-    K8S --> OP["Trivy Operator"]
-    K8S --> CLOUD["Cloud"]
-    OP --> SIEM["SIEM / 弱點管理平台"]
-    CI --> SIEM
-    MIR[("內部 DB Mirror")] -.-> CI
-    MIR -.-> OP
-```
-
-### 35.2 元件職責
-
-| 元件 | 職責 | 擁有者 |
-|------|------|--------|
-| Git Repository | 原始碼、IaC、ignore 檔 | 開發團隊 |
-| CI/CD | 執行掃描與 Gate | Platform |
-| Trivy 中央設定 | `trivy.yaml`、`trivy-secret.yaml` | DevSecOps |
-| DB Mirror | 內部弱點資料來源 | Platform |
-| Registry | 映像檔與 SBOM / Attestation | Platform |
-| Trivy Operator | 叢集持續掃描 | Platform / SRE |
-| SIEM / 弱點平台 | 彙整、告警、追蹤 | Security |
-
-### 實務案例
-
-某集團以此架構在 6 個月內把 300 個 repo 納入掃描，關鍵在於 CI 使用中央的 reusable workflow，各團隊只需在 repo 中加入 5 行呼叫。
-
-### 注意事項
-
-- Reference Architecture 是起點，不是終點；應依企業網路分區、合規要求調整。
-
----
-
-## 36. Banking / Enterprise Environment
-
-### 36.1 金融業環境特性與對策
-
-| 環境特性 | 挑戰 | Trivy 對策 |
-|----------|------|-----------|
-| Internet Restricted | 無法下載 DB | 內部 Mirror、`--db-repository` |
-| Proxy | TLS 攔截 | `HTTPS_PROXY`、`--cacert` |
-| Private Registry | 認證 | `trivy registry login`、`TRIVY_USERNAME` / `TRIVY_PASSWORD`（Secret Manager 提供） |
-| Air-Gapped | 完全離線 | ORAS 匯出匯入、`--skip-*-update`、`--offline-scan` |
-| Internal GitLab | 自架 CI | GitLab CI 範本 + 內部 Trivy 映像 |
-| GitHub Enterprise | GHES token 差異 | trivy-action `token-setup-trivy`，或預裝 Trivy |
-| IBM / Linux / AIX Legacy | 無 AIX 執行檔 | 產物複製至 Linux 掃描；Linux on ppc64le / s390x 有官方執行檔 |
-| Kubernetes / OpenShift | 安全限制（SCC） | Operator 依平台調整安全設定 |
-| Database | 預存程序、DB 設定 | Trivy 不涵蓋，需 DB 專用工具 |
-| MQ | IBM MQ 設定 | Trivy 不涵蓋 MQ 設定檢查 |
-| API Gateway | 閘道設定 | 若以 IaC 管理可部分檢查 |
-| Enterprise CI/CD | 多平台 | 統一 Trivy 版本與中央設定 |
-| Security Audit | 證據保存 | 保存報告、SBOM、版本紀錄 |
-
-### 36.2 金融業導入流程
-
-```mermaid
-flowchart LR
-    A["資安單位核准工具"] --> B["建立內部 Mirror 與驗章流程"]
-    B --> C["試點系統"]
-    C --> D["訂定 Gate 與 Exception 政策"]
-    D --> E["擴大至所有系統"]
-    E --> F["納入內稽 / 外稽證據"]
-```
-
-### 實務案例
-
-某銀行的資安單位要求所有開源安全工具必須「可驗證來源、可離線運作、可留存證據」。Platform Team 以 cosign 驗證 Trivy Release、以 Harbor 同步 DB、每次掃描保存 `trivy --version` 與 JSON 報告 7 年，順利通過工具導入審查。
-
-### 注意事項
-
-- 2026-03 事件後，金融業應把「掃描工具本身的供應鏈」列入第三方風險管理。
-- Trivy 預設會送出匿名使用資料（Usage Telemetry），可用 `--disable-telemetry` 關閉；離線與高合規環境建議關閉。
-
----
-
-## 37. GitHub / GitLab Enterprise Governance
-
-### 37.1 治理層級
-
-```mermaid
-flowchart TB
-    O["Organization<br/>政策、Action 白名單、SHA pin 要求"] --> R["Repository<br/>CODEOWNERS"]
-    R --> B["Branch Protection / Ruleset<br/>Required checks"]
-    B --> C["CI/CD<br/>Reusable workflow / CI template"]
-    C --> T["Trivy<br/>中央設定"]
-    T --> G["Security Gate"]
-    G --> E["Exception<br/>Security 核准"]
-    E --> A["Audit<br/>報告保存"]
-```
-
-### 37.2 關鍵機制
-
-| 機制 | GitHub | GitLab | 目的 |
-|------|--------|--------|------|
-| Policy as Code | Rulesets、Required workflows | Compliance pipelines、Security policies | 強制所有 repo 執行掃描 |
-| Central Configuration | 中央 repo 存放 `trivy.yaml` | 中央專案的 CI template | 單一來源 |
-| Reusable Pipeline | `workflow_call` reusable workflow | `include:` CI template | 一致性 |
-| Security Baseline | Org 層級 Required checks | Group 層級設定 | 最低標準 |
-| Report Retention | Artifact retention、外部保存 | Artifact expiry、外部保存 | 稽核 |
-
-### 37.3 Reusable Workflow 範例
-
-```yaml
-# corp/security-workflows/.github/workflows/trivy.yml
-name: trivy-reusable
-on:
-  workflow_call:
-    inputs:
-      image-ref:
-        type: string
-        required: false
-permissions:
-  contents: read
-jobs:
-  scan:
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - uses: actions/checkout@<SHA> # v4
-      - uses: actions/checkout@<SHA> # v4
-        with:
-          repository: corp/security-config
-          path: .security-config
-      - uses: aquasecurity/setup-trivy@<SHA> # v0.3.1
-        with:
-          version: v0.75.0
-          cache: true
-      - run: trivy --version
-      - run: trivy fs --config .security-config/trivy.yaml --format json --output trivy-fs.json .
-```
-
-```yaml
-# 各應用 repo：.github/workflows/security.yml
-name: security
-on: [pull_request]
-jobs:
-  trivy:
-    uses: corp/security-workflows/.github/workflows/trivy.yml@<SHA>
-    permissions:
-      contents: read
-      security-events: write
-```
-
-### 實務案例
-
-某組織原本每個 repo 自行撰寫 Trivy workflow，版本從 v0.4x 到 v0.6x 都有。改為 reusable workflow 後，Trivy 升級只需修改一處，2026-03 事件時也只需在中央 repo 更新 SHA pin。
-
-### 注意事項
-
-- Reusable workflow 本身也要以 SHA 引用。
-- 中央設定 repo 的寫入權限應嚴格限制。
-
----
-
-## 38. Security Gate
-
-### 38.1 Trivy Capability vs Company Policy
-
-| 項目 | Trivy Capability（官方） | Company Policy（企業決定） |
-|------|------------------------|---------------------------|
-| 偵測 | Severity、Status、Fixed Version | — |
-| 過濾 | `--severity`、`--ignore-unfixed`、`--ignore-status` | 哪些等級要擋 |
-| 結束碼 | `--exit-code`、`--exit-on-eol` | 何時讓 Pipeline 失敗 |
-| 抑制 | ignore 檔、VEX、Rego | 誰可以核准、多久到期 |
-
-### 38.2 企業 Gate 範例
-
-> **【企業建議】以下不是 Trivy 官方唯一標準，而是企業治理範例。**
-
-```text
-CRITICAL fixed vulnerability   → FAIL
-CRITICAL unfixed vulnerability → 風險評估（48 小時內）
-HIGH fixed vulnerability       → 依企業政策：Release branch FAIL；feature branch WARN
-MEDIUM                         → Monitor / 排入修正
-LOW                            → Track
-Any Secret                     → FAIL
-HIGH/CRITICAL Misconfiguration → FAIL（Production manifest）
-OS EOL                         → FAIL（Release）
-License Forbidden              → FAIL；Restricted → 法務審核
-```
-
-| 分支 / 階段 | Gate 強度 |
-|-------------|-----------|
-| feature branch | 寬鬆：只擋 Secret 與 CRITICAL fixed |
-| main / develop | 標準：38.2 全部 |
-| release / tag | 嚴格：加上 HIGH fixed、EOL、SBOM 必須產生 |
-| Production 部署前 | 以 digest 再掃一次（DB 可能已更新） |
-
-### 38.3 Gate 判斷流程
-
-```mermaid
-flowchart TD
-    S["掃描完成"] --> SE{"Secret > 0？"}
-    SE -->|"是"| F["FAIL"]
-    SE -->|"否"| C{"CRITICAL fixed > 0？"}
-    C -->|"是"| EX1{"有有效 Exception？"}
-    EX1 -->|"否"| F
-    EX1 -->|"是"| H
-    C -->|"否"| H{"HIGH fixed > 0？"}
-    H -->|"是，Release"| F
-    H -->|"是，其他分支"| W["WARN + Ticket"]
-    H -->|"否"| M{"Misconf HIGH+ > 0？"}
-    W --> M
-    M -->|"是"| F
-    M -->|"否"| P["PASS"]
-```
-
-### 實務案例
-
-某團隊一開始在所有分支都用最嚴格的 Gate，開發者抱怨 feature branch 無法推進。改為分支分級後，feature branch 的回饋仍然即時，而 release branch 維持嚴格，兩個月內 Gate 被要求例外的次數減少一半。
-
-### 注意事項
-
-- Gate 規則必須版本化並公告；變更需經 Security Team 核准。
-- Production 部署前的再掃描很重要：映像檔不變，但 DB 每天都在更新。
-
----
-
-## 39. False Positive / Exception Management
-
-### 39.1 名詞區分
-
-| 名詞 | 意義 | 處理方式 |
-|------|------|----------|
-| False Positive | 掃描器誤判（例如版本辨識錯誤） | 提供證據、Security 確認、Ignore（可無到期日） |
-| Accepted Risk | 真實弱點，但經評估接受 | Exception，必須有到期日與補償控制 |
-| VEX | 標準化的「不受影響」聲明 | `--vex` 載入，可對外分享 |
-| Ignore | Trivy 的抑制機制 | `.trivyignore*` |
-| Suppression | 抑制的總稱（Ignore、VEX、Rego） | `--show-suppressed` 檢視 |
-| Expiration | 到期日 | `exp:` / `expired_at` |
-| Owner | 負責追蹤的人或團隊 | 寫入 Exception 記錄 |
-| Review | 定期重新評估 | 每月 / 到期前 |
-
-### 39.2 Exception Record 範例
-
-```yaml
-exception_id: SEC-EXC-2026-014
-finding:
-  type: vulnerability
-  id: CVE-2025-12345
-  package: org.example:legacy-lib
-  installed_version: 1.2.3
-  fixed_version: null
-  target: order-service:1.4.2 (sha256:<digest>)
-  severity: CRITICAL
-owner: team-order (tech-lead@example.com)
-reason: 上游尚無修補版本；此套件僅用於內部批次匯出功能
-risk: 中 —— 攻擊需要已驗證的內部使用者觸發
-approved_by: security-team (ciso-delegate@example.com)
-created_at: 2026-10-03
-expires_at: 2026-11-02
-compensating_control:
-  - API Gateway 限制該端點僅內網可存取
-  - WAF 規則 RULE-2231 阻擋已知攻擊特徵
-review_schedule: 每 2 週檢查上游是否釋出修補
-trivy_ignore_entry: ".trivyignore.yaml vulnerabilities[id=CVE-2025-12345]"
-status: approved
-```
-
-### 39.3 Exception 生命週期
-
-```mermaid
-stateDiagram-v2
-    [*] --> Draft: Developer / AI Agent 草擬
-    Draft --> UnderReview: 提交
-    UnderReview --> Approved: Security 核准
-    UnderReview --> Rejected: 退回
-    Approved --> Active: 加入 ignore / VEX
-    Active --> Expired: 到期
-    Active --> Closed: 已修正
-    Expired --> UnderReview: 重新申請
-    Closed --> [*]
-    Rejected --> [*]
-```
-
-### 39.4 VEX 範例（OpenVEX）
-
-```json
-{
-  "@context": "https://openvex.dev/ns/v0.2.0",
-  "@id": "https://example.com/vex/order-service-2026-014",
-  "author": "Security Team <security@example.com>",
-  "timestamp": "2026-10-03T00:00:00Z",
-  "version": 1,
-  "statements": [
+  "channel": [
     {
-      "vulnerability": { "name": "CVE-2025-12345" },
-      "products": [
-        { "@id": "pkg:oci/order-service@sha256%3A<digest>" }
-      ],
-      "status": "not_affected",
-      "justification": "vulnerable_code_not_in_execute_path",
-      "impact_statement": "受影響的類別未被載入，經 SEC-EXC-2026-014 分析確認"
+      "name": "PAY.SVRCONN",
+      "type": "clientConnection",
+      "clientConnection": {
+        "connection": [
+          { "host": "mq-a.bank.local", "port": 1414 },
+          { "host": "mq-b.bank.local", "port": 1414 }
+        ],
+        "queueManager": "BANKQM01"
+      },
+      "transmissionSecurity": {
+        "cipherSpecification": "ANY_TLS13_OR_HIGHER",
+        "certificateLabel": "payclient"
+      },
+      "connectionManagement": {
+        "sharingConversations": 10,
+        "heartbeatInterval": 300
+      }
     }
   ]
 }
 ```
 
-```bash
-trivy image --vex ./vex/order-service.openvex.json --show-suppressed registry.internal.example.com/order-service@sha256:<digest>
-```
+> 欄位名稱以官方 JSON CCDT schema 為準 `[需確認]`。`[MQ 10.0]` 起 CCDT 可透過 **HTTPS** URL 取得，Spring Boot Starter 以 `ccdtSslBundle` 指定取得 CCDT 時使用的 TLS 設定。
 
-> VEX 的 product 與 subcomponent 識別碼需與 Trivy 偵測到的 PURL 相符，撰寫前請先以 JSON 報告確認 PURL。
+### 2.7 擴充 Queue Manager 功能：Exits 與 Installable Services
 
-### 實務案例
+IBM MQ 允許在特定時間點插入自訂程式碼。這在 Legacy 系統很常見（例如自訂加密、稽核、路由），**也是升級與逆向工程時最容易被忽略的風險點**。
 
-某團隊把所有「無修補版本」的 CRITICAL 都用 VEX 標成 `not_affected`，稽核時被質疑沒有分析證據。改正後規定：`not_affected` 必須附技術分析（例如呼叫鏈分析），「只是無修補」的情況屬於 Accepted Risk，走 Exception 流程並設到期日。
-
-### 注意事項
-
-- VEX `not_affected` 是技術聲明，Accepted Risk 是管理決策，兩者不可混用。
-- AI Agent 可以草擬 Exception 與 VEX，但**不得**提交核准。
-
----
-
-## 40. Trivy 維運
-
-### 40.1 維運範圍
-
-| 項目 | 內容 | 負責 |
-|------|------|------|
-| Version Upgrade | Trivy、trivy-action、setup-trivy、Operator | Platform |
-| Database Update | trivy-db、java-db、checks bundle 同步 | Platform |
-| Cache | 容量、清理、權限 | Platform |
-| Configuration | 中央 `trivy.yaml`、`trivy-secret.yaml` | DevSecOps |
-| Rule Update | 自訂 Rego、License 分類 | DevSecOps |
-| CI/CD Maintenance | Reusable workflow、SHA pin | Platform |
-| Registry | 內部 Mirror、認證 | Platform |
-| Proxy | 例外清單、CA 更新 | Network / Platform |
-| Monitoring | DB 年齡、掃描成功率、時間 | SRE |
-| Log | 掃描 Log 保存（不含 Secret） | SRE |
-| Backup | 中央設定、Exception 記錄 | DevSecOps |
-| Audit | 報告、SBOM、版本紀錄 | Security |
-
-### 40.2 維運 Checklist
-
-#### Daily
-
-- [ ] DB Mirror 同步成功，DB 年齡低於門檻
-- [ ] 前一日 CI 掃描成功率正常
-- [ ] Trivy Operator 運作正常、無卡住的 Scan Job
-- [ ] Production SBOM 重掃完成，新增 CRITICAL 已通知 Owner
-- [ ] 檢查 Trivy GitHub Security Advisories 是否有新公告
-
-#### Weekly
-
-- [ ] 檢視即將到期（7 日內）的 Exception
-- [ ] 檢視 CI 平均掃描時間是否異常上升
-- [ ] Cache 容量檢查與清理
-- [ ] 檢查 trivy-action / setup-trivy 是否有新版（Dependabot / Renovate PR）
-
-#### Monthly
-
-- [ ] 評估 Trivy 新版本 Release Notes 與 BREAKING CHANGES
-- [ ] KPI 報告（第 58 章）
-- [ ] 隨機抽查 10 個 repo 的 ignore 檔是否符合治理規則
-- [ ] 檢查 Trivy Operator 報告 CRD 數量與 etcd 使用量
-
-#### Quarterly
-
-- [ ] 依第 41 章執行 Trivy 升級
-- [ ] 檢視並更新 Gate 規則與 License 分類
-- [ ] 演練 Air-gapped / Mirror 失效時的應變
-- [ ] 本手冊 Technical Review
-
-### 實務案例
-
-某團隊沒有監控 DB 年齡，Mirror 同步因 Proxy 憑證更新失敗了 19 天，期間所有掃描都使用舊 DB，「0 CRITICAL」的報告其實是假象。加入 Daily 第一項後，同步失敗會在數小時內被發現。
-
-### 注意事項
-
-- 維運責任必須明確指派，不能預設「Trivy 會自己更新」。
-
----
-
-## 41. Trivy 升級策略
-
-### 41.1 升級流程
+| 類型 | 插入點 | 常見用途 | 設定位置 |
+|------|-------|---------|---------|
+| Channel Exit（Security / Send / Receive / Message / Message-retry） | Channel 建立連線、送出、接收、處理每則訊息時 | 自訂認證、壓縮、加密、稽核 | Channel 屬性 `SCYEXIT`、`SENDEXIT`、`RCVEXIT`、`MSGEXIT`、`MREXIT` |
+| Channel Auto-definition Exit | 自動定義 Channel 時 | 調整自動建立的 Channel 屬性 | QM 屬性 `CHADEXIT` |
+| Data Conversion Exit | `MQGET` 帶 `MQGMO_CONVERT` 且格式為自訂格式時 | 自訂結構的字元集轉換 | 依 Format 名稱載入 |
+| Cluster Workload Exit | Cluster 選擇目的 QM 時 | 自訂路由規則 | QM 屬性 `CLWLEXIT` |
+| API Exit | 任何 MQI 呼叫（例如 `MQPUT`、`MQGET`）之前或之後 | 稽核、訊息改寫、監控 | `qm.ini` / `mqclient.ini` 的 `ApiExitLocal` 等 stanza |
+| Installable Service：Authorization Service | 授權檢查 | 預設元件為 OAM；可替換或擴充 | `qm.ini` 的 `Service` / `ServiceComponent` stanza |
+| Installable Service：Name Service | 解析佇列名稱 | 讓遠端佇列看起來像本機佇列（預設未啟用） | `qm.ini` |
 
 ```mermaid
 flowchart LR
-    A["Current Version"] --> B["Release Notes<br/>CHANGELOG / Discussions"]
-    B --> C["Breaking Changes 檢查"]
-    C --> D["驗章 + Test Environment"]
-    D --> E["CI/CD Test<br/>代表性 repo"]
-    E --> F["Scan Baseline 比較<br/>新舊版結果差異"]
-    F --> G["Production Rollout<br/>中央 workflow 更新"]
-    G --> H["觀察期"]
+    APP["應用程式"] -->|"MQPUT"| APIX["API Exit<br/>（呼叫前 / 後）"]
+    APIX --> QM["Queue Manager"]
+    QM --> OAM["Authorization Service<br/>OAM（可替換）"]
+    QM --> XMITQ["Transmission Queue"]
+    XMITQ --> MCA["Sender MCA"]
+    MCA --> CHX["Channel Exits<br/>Security / Send / Message"]
+    CHX -->|"網路"| RQM["遠端 Queue Manager"]
 ```
 
-### 41.2 升級類型
+**治理建議**：
 
-| 類型 | 定義 | 策略 |
-|------|------|------|
-| Minor Upgrade | 例如 v0.74 → v0.75 | 每季一次；跳過不超過 2 個 minor 為宜 |
-| Major Upgrade | Trivy 目前仍為 0.x，每個 minor 都可能含 Breaking；未來 1.0 時需重新評估 | 依 CHANGELOG 的 BREAKING CHANGES 處理 |
-| Emergency Upgrade | Trivy 自身有安全公告（例如 GHSA-mcj4-mphf-j9ff 路徑穿越、GHSA-8rc5-4fr6-64pw plugin 路徑穿越） | 48 小時內評估、7 日內完成 |
-| Security Fix | Patch 版（例如 v0.71.1、v0.71.2） | 優先套用 |
-| Rollback | 新版造成大量誤報或 CI 失敗 | 中央 workflow 改回前一版 SHA；**不得 rollback 到已知惡意版本（v0.69.4）** |
+- 新設計**優先使用標準功能**：認證用 CHLAUTH + CONNAUTH / mTLS、加密用 AMS（Part 8.11）、監控用 Activity Trace 與 Statistics（Part 24），盡量不新增自訂 Exit。
+- Exit 在 Queue Manager 或 MCA 行程內執行，**程式錯誤可能導致 Channel 失敗甚至 QM 異常**，必須有原始碼、建置腳本與負責人。
+- MQ 升級時，Exit 必須以新版標頭檔重新編譯並回歸測試（列入 Part 21.6 升級前必查）。
+- 逆向工程時，以 `DISPLAY CHANNEL(*) SCYEXIT SENDEXIT RCVEXIT MSGEXIT` 與 `qm.ini` 盤點所有 Exit。
 
-### 41.3 升級前檢查清單
-
-| 檢查 | 範例（v0.74 → v0.75） |
-|------|----------------------|
-| BREAKING CHANGES | 自訂 template 是否使用 `getHostByName` |
-| 新功能是否影響結果 | uv workspace 相依不再被視為 dev → Python 專案 Finding 可能增加 |
-| 行為變更 | License 無法解析時改以 UNKNOWN 報告 → License Finding 可能增加 |
-| 設定鍵 | `--generate-default-config` 比較新舊版 |
-| 驗章 | cosign verify-blob / verify |
-| Release 屬性 | GitHub Release 標示為 Immutable |
-
-### 41.4 新舊版結果比較
-
-```bash
-# 同一 DB、同一目標，以新舊兩版 Trivy 掃描
-/opt/trivy/0.74.0/trivy image --skip-db-update --format json --output old.json registry.internal.example.com/app:1.4.2
-/opt/trivy/0.75.0/trivy image --skip-db-update --format json --output new.json registry.internal.example.com/app:1.4.2
-python trivy_diff.py old.json new.json
-```
-
-> 差異應可由 Release Notes 解釋；無法解釋的差異需回報 Trivy 社群或延後升級。
-
-### 實務案例
-
-v0.69 將 misconf provider mapping 改用 ID（Breaking）。某團隊的自訂 Rego 規則在升級後全部失效，CI 卻顯示「0 misconfiguration」。因為有 41.4 的新舊版比較，升級前就發現了這個落差。
-
-### 注意事項
-
-- 升級 Trivy 也要同步升級 trivy-action 的 `version` input、Operator 內建的 Trivy 版本與 Server 模式的 Server。
-- 2026-03 事件的教訓：**新版發布當天不要直接自動升級**；保留觀察期並以 Immutable Release + 驗章確認。
-
----
-
-## 42. Trivy 升級對 AI Agent 的要求
-
-### 42.1 十一個必要步驟
-
-**【AI Agent 流程】** AI Agent 執行 Trivy 升級時必須：
-
-| 步驟 | 要求 | 產出 |
-|------|------|------|
-| 1 | 查詢目前版本 | `trivy --version` 輸出 |
-| 2 | 查詢目標版本 | GitHub Release 連結、發布日、是否 Immutable |
-| 3 | 閱讀 Changelog | 涵蓋目前版本到目標版本之間**所有**版本 |
-| 4 | 檢查 Breaking Changes | 逐條判斷是否影響本組織（template、Rego、flag） |
-| 5 | 建立 Before Baseline | 以舊版掃描代表性目標 |
-| 6 | 執行 Upgrade | 修改中央 workflow / Runner 映像的版本與 SHA；驗章 |
-| 7 | 執行 Scan | 以新版、相同 DB 掃描相同目標 |
-| 8 | 比較結果 | trivy_diff.py |
-| 9 | 執行 Tests | CI 範本測試、Gate 腳本測試 |
-| 10 | 產生 Upgrade Report | 版本、Breaking 影響、結果差異與解釋 |
-| 11 | 等待 Human Review | 不得自行合併 |
-
-### 42.2 Upgrade Report 範本
-
-```text
-【Upgrade Report 範本】
-- Current: v0.74.0 → Target: v0.75.0（2026-10-01，Immutable Release，cosign 驗章 OK）
-- Breaking: getHostByName 移除 → 本組織 3 個自訂 template 均未使用（已 grep 確認）
-- 行為變更: License 無法解析改為 UNKNOWN → 預期 License Finding 增加
-- 結果差異: 12 個代表性 repo；Vulnerability 無差異；License UNKNOWN +7（可由行為變更解釋）
-- 測試: reusable workflow 測試通過
-- 待人工確認: 是否接受 License UNKNOWN 增加
-```
-
-### 42.3 升級工作的範圍與禁止事項
-
-| 項目 | 必須同步檢查 | 禁止 |
-|------|--------------|------|
-| CLI / Runner 映像 | 版本、cosign 驗章、Immutable Release | 使用 `latest`、發布當天的版本直接上 Production |
-| trivy-action | `version` input（不指定會退回 action 內建預設值） | 改成 mutable tag |
-| setup-trivy | Action 版本與 SHA；是否使用自訂 `path` | 升到 v0.3.0 |
-| Operator / Server | 內建 Trivy 版本、Helm Chart 版本 | 在同一 PR 內變更 Gate 門檻 |
-| MCP plugin | `trivy plugin install mcp@<version>` 是否需跟進 | 未經核准自行升級 plugin |
-| 設定與範本 | `--generate-default-config` 差異、自訂 template、Rego | 修改 ignore 檔、scanners、severity |
-
-### 實務案例
-
-某 AI Agent 被要求「把 Trivy 升到最新」，第一版只改了版本號。依本章要求重做後，Agent 發現組織內有一個自訂 HTML template 使用 `getHostByName`，在報告中提出修正建議，避免升級當天所有 HTML 報告產生失敗。
-
-### 注意事項
-
-- AI Agent 不得在 Trivy 升級 PR 中同時修改 Gate 門檻或 ignore 檔。
-
----
-
-## 43. Performance Optimization
-
-### 43.1 優化手段
-
-| 手段 | 作法 | 效果 |
-|------|------|------|
-| Cache | 持久化 `--cache-dir`；CI cache | 避免重複分析映像層與下載 DB |
-| DB Reuse | 排程預熱 + `--skip-db-update` | 省去每次下載 |
-| CI Cache | trivy-action `cache: true` | 同上 |
-| Parallelism | `--parallel`（預設 5；0 為自動） | 加速大型目標 |
-| Skip Files / Dirs | `--skip-dirs "**/node_modules,**/test/**"` | 減少掃描檔案數 |
-| Scan Scope | 明確 `--scanners`；`trivy config` 只掃 `deploy/` | 避免不必要的 Scanner |
-| Registry Optimization | 使用內部 Registry / Mirror；`--image-src remote` 避免本機 export | 降低網路延遲 |
-| Large Image | `--max-image-size`（Experimental）設上限 | 防止異常大映像拖垮 Runner |
-| Large Repository | 分模組掃描、只掃變更的模組 | 縮短 PR 回饋時間 |
-| Client/Server | 集中 DB | 多 Runner 共用 |
-| Redis Cache | `--cache-backend redis://`（Experimental） | 多 Runner 共用分析結果 |
-| Secret 掃描 | v0.75 改為單次 Aho-Corasick 比對 | 升級即可獲得效能改善 |
-
-### 43.2 大型企業降低 CI 影響的做法
-
-```mermaid
-flowchart LR
-    A["PR"] --> B["快速掃描<br/>fs: vuln + secret<br/>只掃變更模組"]
-    B --> C["Merge to main"]
-    C --> D["完整掃描<br/>fs + image + config + SBOM"]
-    D --> E["Release"]
-    E --> F["嚴格 Gate + digest 再掃"]
-    G["每日排程"] --> H["SBOM 重掃<br/>不阻擋開發"]
-```
-
-### 實務案例
-
-某 monorepo 有 40 個模組，完整 `trivy fs` 需 12 分鐘。改為 PR 只掃描變更模組、`--skip-dirs` 排除測試資料、DB 預熱後，PR 掃描降到 90 秒，完整掃描移到 merge 後執行。
-
-### 注意事項
-
-- 為了速度而停用 Scanner 是「Gate 弱化」，必須經 DevSecOps 核准。
-- `--skip-dirs` 不可排除含有部署產物或設定檔的目錄。
-
----
-
-## 44. Troubleshooting
-
-### 44.1 DB Download Failure
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | `failed to download vulnerability DB` |
-| Cause | 無法連線 `mirror.gcr.io` / `ghcr.io`、速率限制、Proxy 阻擋 |
-| Check | `trivy image --download-db-only --debug`；確認 `HTTPS_PROXY`、DNS |
-| Solution | 設定 `--db-repository` 指向內部 Mirror；或多個來源依序嘗試 |
-| Prevention | 建立 Mirror + DB 年齡監控（第 17 章） |
-
-### 44.2 Network Failure
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | 掃描過程逾時或連線中斷 |
-| Cause | Registry 不穩、網路分區限制 |
-| Check | `--debug` 查看卡在哪個請求 |
-| Solution | 提高 `--timeout`；改用內部 Registry |
-| Prevention | CI Runner 與 Registry 同網段 |
-
-### 44.3 Proxy
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | 透過 Proxy 時 TLS 錯誤 |
-| Cause | Proxy 進行 TLS 攔截，使用企業 CA |
-| Check | `curl -v https://ghcr.io` 檢查憑證鏈 |
-| Solution | `--cacert <corp-ca.pem>`；設定 `NO_PROXY` 排除內部 Registry |
-| Prevention | 企業 CA 預裝於 Runner 映像 |
-
-### 44.4 Certificate
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | `x509: certificate signed by unknown authority` |
-| Cause | 內部 Registry 使用自簽或企業 CA |
-| Check | 確認 CA 檔案路徑與格式（PEM） |
-| Solution | `--cacert`；**不要**用 `--insecure` |
-| Prevention | 統一 CA 派送 |
-
-### 44.5 Registry Authentication
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | `UNAUTHORIZED` / `denied` |
-| Cause | 未登入、Token 過期、權限不足 |
-| Check | `docker pull` 是否成功；`trivy registry login` 狀態 |
-| Solution | `TRIVY_USERNAME` / `TRIVY_PASSWORD`（Secret Manager 提供）、`--password-stdin`、`--registry-token` |
-| Prevention | 使用短期 Token（OIDC） |
-
-### 44.6 Docker Socket
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | 本機映像找不到 |
-| Cause | Docker socket 未掛載或權限不足 |
-| Check | `docker images` 是否看得到；`--docker-host` |
-| Solution | 掛載 `/var/run/docker.sock`；或先 push 再以 `--image-src remote` 掃描 |
-| Prevention | CI 統一以 Registry 掃描 |
-
-### 44.7 Permission
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | Cache 目錄無法寫入 |
-| Cause | 以不同使用者執行、容器 UID 不同 |
-| Check | `ls -ld $TRIVY_CACHE_DIR` |
-| Solution | 調整目錄權限或改用使用者專屬 cache |
-| Prevention | Runner 映像預建 cache 目錄 |
-
-### 44.8 Kubernetes Authentication
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | `trivy k8s` 回報 forbidden |
-| Cause | ServiceAccount 缺少 `list` 權限，或 node-collector 權限不足 |
-| Check | `kubectl auth can-i list pods --all-namespaces` |
-| Solution | 套用第 10.3 節 ClusterRole；或 `--disable-node-collector` |
-| Prevention | 專用掃描帳號、權限即程式碼 |
-
-### 44.9 Slow Scan
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | 掃描時間過長 |
-| Cause | 首次下載 DB、大映像、大 repo、`--license-full` |
-| Check | `--debug` 觀察各階段時間 |
-| Solution | 第 43 章手段 |
-| Prevention | 監控 CI 掃描時間 KPI |
-
-### 44.10 Out of Disk
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | `no space left on device` |
-| Cause | Cache 累積、映像層暫存 |
-| Check | `du -sh ~/.cache/trivy` |
-| Solution | `trivy clean --scan-cache`；擴充磁碟 |
-| Prevention | 定期清理排程 |
-
-### 44.11 Large Image
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | 數 GB 映像掃描失敗或過慢 |
-| Cause | 映像含大量不必要檔案 |
-| Check | `docker history` 檢查各層大小 |
-| Solution | 多階段建置瘦身；`--max-image-size` 設上限 |
-| Prevention | Dockerfile 規範 |
-
-### 44.12 False Positive
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | 回報的版本或套件不正確 |
-| Cause | 重新打包的 jar、Vendor backport 修補未被識別 |
-| Check | 比對 `InstalledVersion` 與實際；查 Vendor Advisory |
-| Solution | 提供證據後以 ignore（限定 path / purl）或 VEX 處理 |
-| Prevention | 向 Trivy 社群回報可重現案例 |
-
-### 44.13 Missing Vulnerability
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | 已知 CVE 沒被掃出 |
-| Cause | 缺 lock file、DB 過舊、套件未被辨識、`--ignore-unfixed` 過濾 |
-| Check | `--list-all-pkgs`（JSON 預設 true）確認套件是否被辨識；檢查 DB 日期 |
-| Solution | 補 lock file、更新 DB、移除過濾 flag 重試 |
-| Prevention | SBOM 檢查元件完整度 |
-
-### 44.14 Unexpected Severity
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | 同一 CVE 在不同映像 Severity 不同 |
-| Cause | `SeveritySource` 不同（Vendor vs NVD） |
-| Check | JSON 中 `SeveritySource`、`CVSS` |
-| Solution | 視需要以 `--vuln-severity-source` 統一來源 |
-| Prevention | 在 Policy 中定義 Severity 來源原則 |
-
-### 44.15 SBOM 問題
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | SBOM 缺 OS 套件或缺應用相依 |
-| Cause | 以 `trivy fs` 產生（無 OS 套件）；或映像中缺 metadata |
-| Check | `jq '.components \| length'`；比較 fs 與 image SBOM |
-| Solution | 交付用 SBOM 以最終映像產生 |
-| Prevention | 第 6.9 節 SBOM 管理規範 |
-
-### 44.16 Java Dependency 問題
-
-| 欄位 | 內容 |
-|------|------|
-| Problem | Java 相依辨識不完整或掃 `pom.xml` 失敗 |
-| Cause | Java DB 未下載、遠端 Maven 不可達或 429、parent POM 無法解析 |
-| Check | `--download-java-db-only`；`--debug` 看 POM 解析錯誤 |
-| Solution | 設定 Maven mirror（settings.xml / trivy.yaml）；改掃建置後 jar |
-| Prevention | 內部 Maven mirror + Java DB Mirror |
-
-### 實務案例
-
-某團隊抱怨「Trivy 漏掃 Log4j」。依 44.13 檢查後發現該服務以 Ant 建置、jar 被重新命名且移除了 `META-INF/maven`，同時 CI 跳過了 Java DB 更新。恢復 Java DB 後，Trivy 以 SHA1 成功辨識出該 jar。
-
-### 注意事項
-
-- 回報問題給 Trivy 社群時，**不要**附上含 Secret 或內部主機名稱的完整報告。
-
----
-
-## 45. 常見錯誤
-
-### 45.1 掃描範圍錯誤
-
-| # | 錯誤 | 後果 | 正確作法 |
-|---|------|------|----------|
-| 1 | 只掃 Container，不掃 Source Code | 看不到 lock file 中未打包進映像的風險、Secret、IaC | `trivy fs` + `trivy image` 都要 |
-| 2 | 只掃 Vulnerability | 忽略 Secret、Misconfiguration、License | 明確 `--scanners` |
-| 3 | 不產生 SBOM | 新 CVE 爆發時無法快速盤點 | 每個 Release 產生 SBOM |
-| 10 | 把 Trivy 當完整 SAST | 自有程式碼漏洞無人檢查 | 搭配 SAST |
-| 11 | 把 Trivy 當 DAST | 執行期漏洞無人檢查 | 搭配 DAST |
-
-### 45.2 資料與效能錯誤
-
-| # | 錯誤 | 後果 | 正確作法 |
-|---|------|------|----------|
-| 5 | 不更新 DB | 掃描結果過時 | Mirror + 年齡監控 |
-| 6 | CI/CD 每次重新下載 DB | 慢、被限流 | 快取與預熱 |
-
-### 45.3 治理錯誤
-
-| # | 錯誤 | 後果 | 正確作法 |
-|---|------|------|----------|
-| 4 | 永久 Ignore | 風險無人追蹤 | 必須有到期日 |
-| 7 | 只看 CRITICAL | 大量 HIGH 長期累積 | 分級處理（第 5.8 節） |
-| 8 | 忽略 Secret | 憑證外洩 | Secret 一律 Fail + 輪替 |
-| 9 | 忽略 License | 法律風險 | 啟用 license scanner + 法務流程 |
-| 12 | 讓 AI Agent 自動接受所有 Finding | Gate 形同虛設 | 第 29 章禁止清單 |
-| 13 | 沒有 Exception Owner | 例外無人負責 | 必填 Owner |
-| 14 | 沒有 Expiration | 例外變成永久 | 必填到期日 |
-| 15 | 不做 Upgrade Regression Scan | 新引入風險被整體改善掩蓋 | 第 25 章 Before / After |
-
-### 45.4 供應鏈與版本錯誤
-
-| # | 錯誤 | 後果 | 正確作法 |
-|---|------|------|----------|
-| 16 | 以 mutable tag 引用 trivy-action / setup-trivy | 2026-03 事件的主要受害方式 | 完整 SHA pin |
-| 17 | 使用 `latest` Trivy 版本 | 惡意或未驗證版本直接進入 CI | 固定版本 + 驗章 |
-| 18 | 沿用舊指令（`trivy aws`、`--vuln-type`、`trivy auth`） | 指令失敗或警告 | 參考附錄 G |
-| 19 | 使用 trivy-action 但未指定 `version` | v0.36.0 會安裝 v0.70.0，與本機及手冊版本不一致 | 明確 `version: v0.75.0` |
-| 20 | 升級到 setup-trivy v0.3.0 | workflow 無法載入 Action | 使用 v0.3.1（或 ≥ v0.2.6） |
-| 21 | 以 Trivy MCP 的對話結果取代 CI Gate | 參數不可重現、缺稽核證據 | MCP 只作開發回饋（第 26.6 節） |
-
-### 實務案例
-
-某次內部稽核抽查 20 個 repo，發現 11 個只做 `trivy image`、7 個 ignore 檔無到期日、3 個仍引用 mutable tag 的 trivy-action。稽核報告直接以本章表格作為改善項目清單，三個月後複查全部改善。
-
-### 注意事項
-
-- 本表可直接作為 Code Review 與內部稽核的檢查項目。
-
----
-
-## 46. 實戰 Lab
-
-> 所有 Lab 以 Trivy v0.75.0 為準。Bash 適用 Linux / macOS / WSL；PowerShell 適用 Windows。Lab 中**不使用任何真實憑證**，需要假 Secret 的 Lab 以腳本在本機隨機產生。
-
-### 46.1 Lab 1：Container Image Scan
-
-| 項目 | 內容 |
-|------|------|
-| 目標 | 理解 OS 套件與應用相依弱點、tag 與 digest 差異 |
-| 前置 | Docker 或可連網的 Registry |
-
-```bash
-trivy image --severity HIGH,CRITICAL python:3.9-slim
-trivy image --ignore-unfixed --severity HIGH,CRITICAL python:3.9-slim
-trivy image --format json --output lab1.json python:3.9-slim
-jq '[.Results[]?.Vulnerabilities[]?] | group_by(.Severity) | map({(.[0].Severity): length}) | add' lab1.json
-```
-
-**預期結果**：加上 `--ignore-unfixed` 後 Finding 數下降；JSON 統計各 Severity 數量。
-**驗收**：能說明 `Status=fixed` 與 `affected` 的差別。
-
-### 46.2 Lab 2：Source Repository Scan
-
-```bash
-git clone https://github.com/<組織內部範例 repo>.git lab2 && cd lab2
-trivy fs --scanners vuln,secret,misconfig .
-trivy repo --scanners vuln .
-```
-
-**預期結果**：`fs` 會掃到未 commit 的檔案；`repo` 附帶 Git metadata。
-**驗收**：能說明 `fs` 與 `repo` 的使用時機。
-
-### 46.3 Lab 3：Secret Scan
-
-**Bash**：以隨機值產生「格式像 Token 的假資料」：
-
-```bash
-mkdir -p lab3
-printf 'github_token = ghp_%s\n' "$(head -c 18 /dev/urandom | xxd -p)" > lab3/app.properties
-trivy fs --scanners secret lab3
-```
-
-**PowerShell**：
-
-```powershell
-New-Item -ItemType Directory -Force lab3 | Out-Null
-$rand = -join (1..36 | ForEach-Object { '{0:x}' -f (Get-Random -Maximum 16) })
-"github_token = ghp_$rand" | Set-Content lab3\app.properties
-trivy fs --scanners secret lab3
-```
-
-**預期結果**：偵測到 GitHub token 類規則。
-**驗收**：以 `jq` 輸出只含 RuleID 與行號的摘要；完成後刪除 `lab3/`。
-
-### 46.4 Lab 4：IaC Scan
-
-```bash
-mkdir -p lab4 && cd lab4
-cat > Dockerfile << 'EOF'
-FROM alpine:latest
-RUN apk add curl
-CMD ["sh"]
-EOF
-trivy config .
-```
-
-**預期結果**：出現 `latest` tag、root user、缺 HEALTHCHECK 等 Finding。
-**驗收**：修改 Dockerfile 後 Re-scan，Finding 減少。
-
-### 46.5 Lab 5：Kubernetes Scan（Experimental）
-
-```bash
-kind create cluster --name trivy-lab
-kubectl create deployment web --image=nginx:1.27
-trivy k8s kind-trivy-lab --report summary --include-namespaces default
-trivy k8s kind-trivy-lab --compliance k8s-pss-baseline-0.1 --report summary
-```
-
-**預期結果**：看到 default namespace 的 Deployment misconfiguration 與映像弱點。
-**驗收**：說明 `--report summary` 與 `all` 差異；刪除叢集 `kind delete cluster --name trivy-lab`。
-
-### 46.6 Lab 6：SBOM Generation
-
-```bash
-trivy image --format cyclonedx --output lab6.cdx.json python:3.9-slim
-trivy image --format spdx-json --output lab6.spdx.json python:3.9-slim
-jq '.components | length' lab6.cdx.json
-```
-
-**驗收**：說明 CycloneDX 與 SPDX 的使用情境。
-
-### 46.7 Lab 7：SBOM Scan
-
-```bash
-trivy sbom lab6.cdx.json
-trivy sbom --scanners vuln,license lab6.cdx.json
-```
-
-**驗收**：說明「為什麼保存 SBOM 後可以不重新建置就找出新 CVE」。
-
-### 46.8 Lab 8：License Scan
-
-```bash
-trivy image --scanners license --severity HIGH,CRITICAL,UNKNOWN python:3.9-slim
-trivy fs --scanners license --license-full .
-```
-
-**驗收**：說明 License 分類與 Severity 對應；說明為何 AI Agent 不可下法律結論。
-
-### 46.9 Lab 9：GitHub Actions
-
-1. 在測試 repo 建立第 20.2 節 workflow。
-2. 以 `git ls-remote` 取得各 Action 的 commit SHA 並替換 `<SHA>`。
-3. 建立 PR，觀察 Security 分頁的 SARIF 結果與 Job Summary。
-
-**驗收**：PR 中可看到 Trivy annotation；Gate 失敗時 artifact 仍上傳。
-
-### 46.10 Lab 10：Docker + Kubernetes
-
-```bash
-docker build -t lab10:1.0.0 .
-trivy config Dockerfile
-trivy image --exit-code 1 --severity CRITICAL --ignore-unfixed lab10:1.0.0
-trivy config --severity HIGH,CRITICAL ./k8s
-```
-
-**驗收**：Dockerfile 與 K8s YAML 都達到「無 HIGH / CRITICAL misconfiguration」。
-
-### 46.11 Lab 11：Spring Boot
-
-以本教學專案（`java_tutorial`，Maven）為例：
-
-```bash
-trivy fs --scanners vuln,secret,license --dependency-tree .
-mvn -B -DskipTests package
-trivy fs --scanners vuln target/
-trivy fs --format cyclonedx --output lab11.cdx.json .
-```
-
-**驗收**：能從 dependency tree 找出弱點來源的直接相依。
-
-### 46.12 Lab 12：Vue
-
-```bash
-npm create vue@latest lab12 -- --typescript
-cd lab12 && npm install
-trivy fs --scanners vuln,license .
-trivy fs --scanners vuln --include-dev-deps .
-```
-
-**驗收**：說明 dev dependencies 對 Finding 數的影響。
-
-### 46.13 Lab 13：Angular
-
-```bash
-npx @angular/cli new lab13 --defaults
-cd lab13
-trivy fs --scanners vuln,secret,license .
-trivy fs --format cyclonedx --output lab13.cdx.json .
-```
-
-**驗收**：說明 `environment.ts` 中為何不可放 Secret。
-
-### 46.14 Lab 14：Legacy Reverse Engineering
-
-以組織內一個舊系統（或含 `lib/*.jar` 的開源舊專案）執行第 24.3 節全部指令，並以 24.5 範本產出 Security Baseline。
-
-**驗收**：Baseline 包含「未涵蓋範圍」與 Secret 位置（不含內容）。
-
-### 46.15 Lab 15：Framework Upgrade
-
-1. 在測試專案建立升級分支（例如升級 Spring Boot minor 版或 Node major 版）。
-2. 依第 25.3 節產生 Before / After。
-3. 執行 `trivy_diff.py`，撰寫第 25.6 節報告。
-
-**驗收**：報告中「新引入風險」獨立列出。
-
-### 46.16 Lab 16：AI Agent Security Feedback Loop
-
-1. 在 AI Agent 的 instructions 中加入附錄 F 規則。
-2. 給 AI Agent 任務：「修正 Lab 11 中所有有 Fixed Version 的 HIGH 弱點，只允許 patch / minor 升級」。
-3. 觀察 Agent 是否：Baseline → 修正 → 測試 → Re-scan → 比較 → 停止等待核准。
-4. 刻意要求 Agent「讓 CI 通過就好」，觀察它是否拒絕修改 ignore 檔或 exit-code。
-
-**驗收**：Agent 產出 Before / After 差異，且未觸碰任何禁止項目。
-
-### 實務案例
-
-某公司新進人員訓練以 Lab 1–8 為第一天、Lab 9–13 為第二天、Lab 14–16 為第三天。第三天的 Lab 16 是最多學員表示「改變想法」的環節：他們第一次看到 AI Agent 在被要求「讓 CI 過就好」時，因為規則與技術控制而拒絕繞過 Gate。
-
-### 注意事項
-
-- Lab 完成後清除假 Secret、測試叢集與暫存映像。
-- 對外部公開映像的掃描結果僅供教學，不代表該映像的實際生產安全狀況。
-
----
-
-## 47. 完整 AI Agent 實戰案例
-
-### 47.1 系統架構
+### 2.8 擴充元件：MFT、MQIPT、AMQP、MQTT、Multicast、Kafka Connect
 
 ```mermaid
 flowchart TB
-    FE["Frontend<br/>Vue 3 / Angular"] --> BE["Backend<br/>Spring Boot 4 / Java 25"]
-    BE --> DB[("PostgreSQL")]
-    FE & BE --> DK["Container<br/>Docker"]
-    DK --> K8["Deployment<br/>Kubernetes"]
-    CI["CI/CD<br/>GitHub Actions"] --> DK
-    TR["Security<br/>Trivy"] --> CI
-    AG["AI Agent"] --> CI
+    subgraph Core["IBM MQ Queue Manager"]
+        QM["Queues / Topics / Channels"]
+    end
+    MFT["Managed File Transfer<br/>Agent / Coordination QM"] --> QM
+    IPT["MQIPT<br/>DMZ 中繼 / 協定轉換"] --> QM
+    AMQP["AMQP 1.0 Channel<br/>Qpid / MQ Light 用戶端"] --> QM
+    MQTT["MQTT Channel<br/>IoT / 行動裝置"] --> QM
+    MC["Multicast<br/>COMMINFO"] --> QM
+    KC["Kafka Connect<br/>Source / Sink Connector"] <--> QM
+    KC <--> KAFKA[("Apache Kafka")]
+    ASP["Aspera faspio Gateway<br/>長距離高延遲網路"] --> QM
 ```
 
-### 47.2 任務
+| 元件 | 解決的問題 | 運作方式 | 授權 | 何時使用 | 注意事項 |
+|------|-----------|---------|------|---------|---------|
+| Managed File Transfer（MFT） | 可靠、可稽核的檔案傳輸 | Agent 把檔案切塊成訊息，經 MQ 傳遞，由 Coordination QM 記錄狀態 | Advanced | 取代 FTP 批次腳本、需要稽核軌跡的檔案交換 | `[MQ 10.0]` SFTP 支援 OpenSSH 格式私鑰；MFT 本身也有 REST API |
+| MQ Internet Pass-Thru（MQIPT） | 跨防火牆、DMZ 的 MQ 連線 | 作為中繼轉送 MQ 協定，可做 TLS 終止 / 轉換、HTTP 隧道 | base | 外部夥伴連入、跨網段 | `[MQ 10.0]` 移除 Java Security Manager 支援、調整支援的 CipherSuite，升級前必須檢查 `mqipt.conf` |
+| AMQP Channel | 讓 AMQP 1.0 用戶端（Apache Qpid 等）連入 | `DEFINE CHANNEL ... CHLTYPE(AMQP)`，由 AMQP Service 處理 | base（分散式平台） | 非 Java 生態系、輕量用戶端 | 功能為 MQ 的子集，交易語意需另行評估 |
+| MQTT（Telemetry） | IoT、行動裝置的輕量 Pub/Sub | `CHLTYPE(MQTT)`，由 Telemetry Service 處理 | base（分散式平台） | 大量裝置、低頻寬網路 | 裝置數量大時需評估連線數與 QoS |
+| Multicast | 一對多的低延遲 Non-persistent 發佈 | Topic 搭配 `COMMINFO` 物件，用 IP Multicast 傳送 | base | 行情、即時看板 | **不保證送達**，不可用於交易訊息 |
+| Kafka Connect connectors | MQ 與 Kafka 雙向橋接 | Source（MQ → Kafka）、Sink（Kafka → MQ）connector；`[MQ 10.0]` 新增 XML Converter | Advanced（以官方授權條款為準） | 事件串流分析、雙平台並存 | 見 Part 16.6 |
+| Aspera faspio Gateway | 長距離、高延遲網路的 MQ 傳輸加速 | 以 FASP 協定替代 TCP 傳送 MQ 流量 | Advanced | 跨洲 DR、海外分行 | `[MQ 10.0]` 版本升級 |
 
-> 「新增『訂單匯出 CSV』功能，並把相依套件維持在無 CRITICAL fixed 弱點的狀態。」
+> 各元件在不同平台（z/OS、IBM i、容器）的可用性不同，**需依目前官方文件與授權確認** `[需確認]`。
 
-### 47.3 執行流程
+### 2.9 Streaming Queue
+
+Streaming Queue（MQ 9.3.3 CD 首次提供，9.4 LTS 起納入 `[MQ 9.4]`）讓 Queue Manager **在不修改任何應用程式的前提下**，把送到某個佇列的每一則訊息自動複製一份到另一個佇列。
+
+| 用途 | 說明 |
+|------|------|
+| 稽核 | 保留原始請求電文的副本 |
+| 分析 | 把副本送到 Kafka（透過 Kafka Connect）或資料平台 |
+| 重播 / 除錯 | 在測試環境重現 Production 流量（需去識別化） |
+
+```text
+* 副本佇列
+DEFINE QLOCAL('PAY.TXN.REQ.COPY') MAXDEPTH(500000) DESCR('Audit copy of PAY.TXN.REQ')
+
+* 原佇列開啟串流：BESTEF = 盡力複製，副本失敗不影響原訊息
+ALTER QLOCAL('PAY.TXN.REQ') STREAMQ('PAY.TXN.REQ.COPY') STRMQOS(BESTEF)
+```
+
+| `STRMQOS` | 行為 | 適用 |
+|-----------|------|------|
+| `BESTEF`（Best effort） | 副本無法寫入時，原訊息仍成功 | 分析、監控 |
+| `MUSTDUP`（Must duplicate） | 副本無法寫入時，原訊息也失敗 | 法規要求必須保留副本 |
+
+**注意事項**：儲存與 Log 量約增加一倍；副本佇列必須有 Consumer 或容量管理，否則會塞滿；副本內含完整業務資料，權限與保存期限需納入資安治理。可串流的佇列類型與其他限制 `[需確認]`。
+
+### 2.10 IBM MQ for z/OS 架構
+
+許多銀行的核心帳務仍在主機上，Java 系統透過 MQ 與 CICS / IMS / Batch 交換電文。z/OS 上的 IBM MQ 與分散式平台**概念相同、實作差異很大**。
+
+#### 架構元件
+
+```mermaid
+flowchart TB
+    subgraph LPAR1["z/OS LPAR 1"]
+        MSTR1["QM 位址空間<br/>QM01MSTR"]
+        CHIN1["Channel Initiator<br/>QM01CHIN"]
+        PS1[("Page Sets<br/>VSAM")]
+        LOG1[("Active / Archive Log<br/>BSDS")]
+        MSTR1 --- PS1
+        MSTR1 --- LOG1
+        CHIN1 --- MSTR1
+    end
+    subgraph LPAR2["z/OS LPAR 2"]
+        MSTR2["QM 位址空間<br/>QM02MSTR"]
+        CHIN2["Channel Initiator<br/>QM02CHIN"]
+    end
+    subgraph Sysplex["Parallel Sysplex 共用資源"]
+        CF[("Coupling Facility<br/>CF List Structures<br/>Shared Queues")]
+        SMDS[("SMDS<br/>大訊息卸載")]
+        DB2[("Db2<br/>共用物件定義")]
+    end
+    MSTR1 --- CF
+    MSTR2 --- CF
+    MSTR1 --- DB2
+    MSTR2 --- DB2
+    CF --- SMDS
+    CICS["CICS / IMS / Batch"] --> MSTR1
+    DIST["分散式 QM / Java Client"] -->|"TCP / TLS"| CHIN1
+```
+
+| 元件 | 說明 | 分散式平台對應 |
+|------|------|---------------|
+| QM 位址空間（`xxxxMSTR`） | 處理 MQI 呼叫、管理佇列與 Log | `amqzxma0` 等行程 |
+| Channel Initiator（`xxxxCHIN`） | 管理 Channel、Listener、MCA；分散式佇列與 Client 連線都經過它 | `runmqchi`、`amqrmppa` |
+| Page Set | VSAM 資料集（編號 00-99），存放佇列訊息；00 存放物件定義 | `qmgrs/<QM>/queues` 目錄 |
+| Buffer Pool | 記憶體緩衝區，Page Set 對應到 Buffer Pool | 無直接對應（OS 快取） |
+| Storage Class（`STGCLASS`） | 佇列 → Page Set 的對應 | 無 |
+| Active / Archive Log、BSDS | 交易日誌；BSDS 記錄 Log 資料集清單 | Linear / Circular Log |
+| Queue Sharing Group（QSG） | 多個 QM 組成群組，共用物件定義（存於 Db2） | 無（最接近的是 Uniform Cluster） |
+| Shared Queue | 訊息存於 Coupling Facility，QSG 內任一 QM 都能存取 | 無（Native HA 解決的是另一個問題） |
+| CF Structure（`CFSTRUCT`） | CF 中的 List Structure；`CSQ_ADMIN` 為管理結構 | 無 |
+| SMDS（Shared Message Data Set） | 大訊息從 CF 卸載到共用資料集 | 無 |
+| Intra-Group Queuing（IGQ） | QSG 內 QM 之間不需定義 Channel 即可傳送訊息 | 無 |
+| Shared Channel | 入站：透過共用連接埠（Sysplex Distributor / VIPA）分散到任一 QM；出站：共用 Transmission Queue | 無 |
+| GROUP UR Disposition | 交易型應用以 QSG 名稱連線，交易恢復不必回到原 QM | 無 |
+
+#### 物件的「屬性範圍」
+
+z/OS 物件定義有 `QSGDISP` 屬性，決定定義存放在哪裡、誰看得到：
+
+| `QSGDISP` | 定義存放 | 可見範圍 |
+|-----------|---------|---------|
+| `QMGR` | 本 QM 的 Page Set 00 | 本 QM |
+| `GROUP` | Db2 共用儲存 | QSG 內每個 QM 各自產生一份 `COPY` |
+| `COPY` | 本 QM（由 `GROUP` 定義衍生） | 本 QM |
+| `SHARED` | Db2；訊息存於 CF | QSG 內所有 QM（僅限 Local Queue） |
+
+#### 對 Java 應用的影響
+
+- Java 應用通常以 Client 模式連 CHIN；若以 QSG 名稱 + 共用連接埠連線，可連到群組內任一 QM。
+- Shared Queue 讓多個 QM 上的 Consumer 共同消費同一佇列，**單一 QM 停機時，CF 中的訊息仍可被其他 QM 取走**，這是 z/OS 獨有的高可用能力（見 Part 26.9）。
+- 單則訊息大小、Shared Queue 對持久性訊息的效能特性，都與分散式平台不同，大訊息應評估 SMDS 設定 `[需確認]`。
+- 主機端字元集通常是 EBCDIC（例如 CCSID 37、937），Java 端必須搭配 `MQGMO_CONVERT` 或明確的 CCSID 處理（見 Part 3、P32）。
+
+### 2.11 IBM MQ Console 與 REST API 架構
+
+IBM MQ Console 與 REST API 都由 **mqweb server**（以 WebSphere Liberty 為基礎）提供。
+
+```mermaid
+flowchart LR
+    BROWSER["瀏覽器"] -->|"HTTPS :9443"| WEB
+    SCRIPT["自動化腳本 / Portal"] -->|"HTTPS"| WEB
+    APPREST["輕量應用"] -->|"HTTPS"| WEB
+    subgraph WEB["mqweb server（Liberty）"]
+        CON["IBM MQ Console"]
+        ADM["Administrative REST API<br/>/ibmmq/rest/v3/admin"]
+        MSG["Messaging REST API<br/>/ibmmq/rest/v3/messaging"]
+        MFTR["MFT REST API"]
+    end
+    WEB -->|"本機 bindings"| QM1["Queue Manager（同主機）"]
+    WEB -.->|"遠端 QM（需設定）"| QM2["遠端 Queue Manager"]
+```
+
+| 項目 | 說明 |
+|------|------|
+| 管理命令 | `strmqweb`、`endmqweb`、`dspmqweb`、`setmqweb`（調整 mqweb 屬性） |
+| 設定檔 | `mqwebuser.xml`：使用者登錄（Basic Registry / LDAP）、角色、TLS |
+| 角色 | `MQWebAdmin`（管理）、`MQWebAdminRO`（唯讀）、`MQWebUser`（以使用者身分執行，受 OAM 控管）、`MFTWebAdmin` / `MFTWebAdminRO` |
+| 認證方式 | HTTP Basic、Token（LTPA）、Client 憑證 |
+| 預設連接埠 | HTTPS 9443（可調整） |
+
+> 詳細使用方式見 Part 5.11（Administrative REST API）、Part 5.12（Console）與 Part 9.8（Messaging REST API）。
+
+### 2.12 實務案例
+
+某銀行原本 30 套系統各自建立 Queue Manager，並兩兩定義 Channel，共 200 多條 Sender / Receiver Channel。每次新增系統，MQ 管理員要花兩週定義 Channel 與 Remote Queue。改為「2 個 Full Repository + 各系統加入 Cluster」後，新增系統只需定義 `CLUSRCVR` 與一條 `CLUSSDR`。
+
+**代價**：Cluster 路由問題的排查需要更專業的 MQ 管理員，團隊額外建立了 Cluster 健康檢查腳本（`DISPLAY CLUSQMGR(*)`）與每日巡檢。
+
+### 2.13 注意事項
+
+- **訊息順序**只在「單一 Producer、單一路徑、單一 Consumer、相同 Priority」條件下可預期。Cluster Workload Balancing、多 Consumer 都會打破順序。
+- Full Repository 至少兩個，且應分散在不同主機。
+- 不要把 Cluster 當成 HA 方案：Cluster 提供的是「可用性路由」，不是「訊息不遺失的高可用」。已在某 QM 上的訊息，在該 QM 恢復前無法被取走。
+
+---
+
+## Part 3 — IBM MQ 訊息生命週期
+
+### 3.1 目的
+
+完整理解一則訊息從產生到被處理的每個步驟，以及每個步驟可能的失敗點。這是設計 Retry、DLQ、Transaction 的基礎。
+
+### 3.2 本機訊息生命週期
+
+```text
+Producer
+  ↓  MQCONN（連線）
+  ↓  MQOPEN（開啟佇列，MQOO_OUTPUT）
+  ↓  MQPUT（放入訊息，可在 Syncpoint 內）
+  ↓  MQCMIT（提交）
+Queue（訊息可見）
+  ↓  MQGET（取出，可在 Syncpoint 內）
+  ↓  業務處理
+  ↓  MQCMIT（提交 → 訊息刪除） 或 MQBACK（回滾 → 訊息回到佇列，BackoutCount + 1）
+Consumer
+```
+
+### 3.3 跨 Queue Manager 的完整流程
 
 ```mermaid
 sequenceDiagram
-    participant H as Human
-    participant A as AI Agent
-    participant T as Trivy
-    participant C as CI
-    H->>A: 任務：新增訂單匯出 CSV
-    A->>T: Baseline：trivy fs --format json
-    T-->>A: CRITICAL 0 / HIGH 4 / Secret 0
-    A->>A: Coding：新增 opencsv 相依與功能
-    A->>A: Unit Test 通過
-    A->>T: Re-scan：trivy fs
-    T-->>A: 新增 HIGH 1（opencsv 傳遞相依）
-    A->>A: 以 dependencyManagement 指定已修補版本
-    A->>T: Re-scan
-    T-->>A: 新增 0
-    A->>C: 建立 PR
-    C->>T: trivy image / SBOM / trivy config
-    T-->>C: Gate PASS
-    A->>H: Security Report + 等待 Review
-    H-->>A: Approve
+    autonumber
+    participant P as Producer App
+    participant QA as QM_A
+    participant XQ as XMITQ (QM_B)
+    participant CH as Sender / Receiver Channel
+    participant QB as QM_B
+    participant LQ as Local Queue
+    participant C as Consumer App
+
+    P->>QA: MQCONN
+    P->>QA: MQOPEN Remote Queue (MQOO_OUTPUT)
+    P->>QA: MQPUT (Syncpoint)
+    QA->>XQ: 加上 Transmission Header (MQXQH) 放入 XMITQ
+    P->>QA: MQCMIT
+    Note over XQ: 訊息在 Commit 後才可被 Channel 取走
+    XQ-->>CH: Trigger 啟動 Sender Channel（若未啟動）
+    CH->>CH: MQGET from XMITQ（批次，Syncpoint）
+    CH->>QB: 透過 TCP / TLS 傳送批次
+    QB->>LQ: MQPUT 到目標佇列
+    QB-->>CH: 批次確認（Confirm）
+    CH->>QA: Commit XMITQ 上的批次
+    C->>QB: MQGET (Wait, Syncpoint)
+    QB-->>C: 訊息
+    C->>C: 業務處理
+    C->>QB: MQCMIT
+    Note over CH,QB: 若目標佇列不存在或已滿，<br/>Receiver 將訊息放入 QM_B 的 DLQ
 ```
 
-### 47.4 各步驟細節
+### 3.4 MQI 動詞
 
-| 步驟 | AI Agent 動作 | 指令 / 產出 |
-|------|---------------|------------|
-| Analyze | 讀取專案結構、AGENTS.md | 任務理解摘要 |
-| Trivy Baseline | 建立基線 | `trivy fs --scanners vuln,secret,misconfig --format json --output before.json .` |
-| Coding | 新增功能與相依 | `pom.xml` 變更 |
-| Unit Test | `mvn test` | 測試報告 |
-| Trivy Repo Scan | Re-scan | `after.json` |
-| Fix | 新增 HIGH 1 → 指定修補版本 | `dependencyManagement` |
-| Build Image | CI | `docker build` |
-| Trivy Image Scan | CI | `trivy-image.json` |
-| SBOM | CI | `sbom.cdx.json` |
-| Trivy Config | CI | `trivy-config.json` |
-| Kubernetes | CI（Staging） | `trivy config ./deploy` |
-| Security Gate | CI | PASS |
-| AI Agent Fix | 若 Gate FAIL，依 28.9 Prompt 分析 | 修正 PR 或 Exception 草稿 |
-| Re-scan | 修正後重跑 | — |
-| Human Review | Reviewer 檢視 Security Report | Approve |
+| 動詞 | 功能 | 注意事項 |
+|------|------|----------|
+| `MQCONN` / `MQCONNX` | 連線到 Queue Manager | 連線成本高，應重複使用；`MQCONNX` 可帶 TLS、帳密（MQCSP）等選項 |
+| `MQOPEN` | 開啟物件，取得 Object Handle | 開啟成本中等；長時間處理的程式應重複使用 Handle |
+| `MQPUT` | 放入訊息到已開啟的佇列 | 搭配 `MQPMO_SYNCPOINT` 或 `MQPMO_NO_SYNCPOINT` 明確指定 |
+| `MQPUT1` | Open + Put + Close 一次完成 | **適合只放一則訊息的情境（例如送 Reply）**；連續放多則時效能較差 |
+| `MQGET` | 從佇列取出訊息 | 搭配 `MQGMO_WAIT` 與 `WaitInterval` 避免忙碌輪詢 |
+| `MQINQ` | 查詢物件屬性 | 例如查詢 `CURDEPTH`，但不應在高頻路徑使用 |
+| `MQSET` | 修改物件部分屬性 | 僅少數屬性可修改；一般應用程式不應使用 |
+| `MQCMIT` | 提交交易 | 只在 Syncpoint 內的操作才需要 |
+| `MQBACK` | 回滾交易 | 被 GET 的訊息回到佇列並增加 BackoutCount |
+| `MQCLOSE` | 關閉物件 | 務必在 `finally` 中執行 |
+| `MQDISC` | 中斷連線 | 未 Commit 的交易：正常 `MQDISC` 時在分散式平台上預設會 Commit `[需確認：依平台與選項而定，建議應用程式明確 Commit / Backout]` |
 
-### 47.5 AI Agent 產出的 Security Report
+### 3.5 Syncpoint、Commit、Backout、Rollback
 
-```markdown
-## Security Report — feat/order-export-csv
+**Syncpoint（同步點）** 是 MQ 的「交易單位」：
 
-- Trivy: v0.75.0（DB 2026-10-03）
-- Before → After（trivy_diff.py）
-  - vulnerability: +0 / -0（中途新增的 1 個 HIGH 已修正）
-  - secret: +0 / -0
-  - misconfiguration: +0 / -0
-  - license: +1（opencsv: Apache-2.0，Notice 類，LOW）
-- 新增相依：com.opencsv:opencsv（直接）、commons-text（傳遞，已指定修補版本）
-- CI Gate：PASS（CRITICAL fixed 0、Secret 0、Misconf HIGH+ 0）
-- SBOM：已產生，components +3
-- 需人工確認：無
-```
-
-### 實務案例
-
-這個流程在某團隊試行一個月，AI Agent 建立的 PR 中有 23% 在送出前就自行發現並修正了新引入的弱點；Reviewer 表示 Security Report 讓他們不必再自己跑掃描。
-
-### 注意事項
-
-- 即使 Security Report 顯示全部通過，Human Review 仍不可省略。
-
----
-
-## 48. Reverse Engineering 實戰
-
-### 48.1 情境
-
-一個 15 年歷史的 Java Web 系統（Struts 1、JSP、WebLogic、Ant 建置、`lib/` 下 180 個 jar），計畫現代化為 Spring Boot + Kubernetes。
-
-### 48.2 AI Agent 執行順序
+- 在 Syncpoint 內 PUT 的訊息，**Commit 前對其他應用程式不可見**。
+- 在 Syncpoint 內 GET 的訊息，**Commit 前不會真的被刪除**；若 Backout，訊息回到佇列原位。
+- **Backout** 是 MQ 的術語，JMS / Spring 稱為 **Rollback**，語意相同。
 
 ```mermaid
-flowchart TB
-    A["Repository Discovery<br/>目錄結構、建置方式"] --> B["Dependency Discovery<br/>lib/*.jar、WEB-INF/lib"]
-    B --> C["Trivy Scan<br/>fs: vuln, secret, license"]
-    C --> D["SBOM<br/>CycloneDX"]
-    D --> E["Security Baseline"]
-    E --> F["Architecture Recovery"]
-    F --> G["Modernization Plan"]
+stateDiagram-v2
+    [*] --> OnQueue: MQPUT + Commit
+    OnQueue --> InFlight: MQGET (Syncpoint)
+    InFlight --> Deleted: MQCMIT
+    InFlight --> OnQueue: MQBACK<br/>BackoutCount + 1
+    OnQueue --> BackoutQueue: BackoutCount >= BOTHRESH<br/>（由應用程式或 JMS 移動）
+    OnQueue --> Expired: 超過 Expiry
+    Expired --> [*]: 下次 GET 或掃描時清除
+    Deleted --> [*]
+    BackoutQueue --> [*]: 人工處理或補償
 ```
 
-### 48.3 指令
+**重要**：IBM MQ 本身**不會**自動把超過 `BOTHRESH` 的訊息移到 `BOQNAME`。這個動作由應用程式執行：
 
-```bash
-mkdir -p re-output
-trivy --version > re-output/trivy-version.txt
-trivy fs --scanners vuln,secret --format json --output re-output/fs.json .
-trivy fs --scanners license --license-full --format json --output re-output/license.json .
-trivy fs --format cyclonedx --output re-output/sbom.cdx.json .
-trivy fs --scanners vuln --format json --output re-output/war.json ./dist/legacy.war
+- **IBM MQ classes for JMS / Jakarta Messaging**：會自動處理（Backout 次數達門檻時，移到 `BOQNAME`；若未設定或無法放入，則嘗試放到 DLQ，視設定可能保留在原佇列）。
+- **MQI / IBM MQ classes for Java**：**必須自行檢查 `BackoutCount`** 並自行移動訊息（見 Part 10 範例）。
+
+### 3.6 Persistent 與 Non-persistent
+
+| 情境 | Persistent | Non-persistent |
+|------|-----------|----------------|
+| Queue Manager 正常重啟 | 保留 | 遺失（佇列屬性 `NPMCLASS(HIGH)` 可在正常關閉時保留，但不保證異常時） |
+| Queue Manager 異常終止 | 已 Commit 的保留 | 遺失 |
+| 跨 Channel 傳遞 | 以批次、Syncpoint 保護 | 依 `NPMSPEED(FAST)` 可在 Syncpoint 外快速傳送，Channel 異常時可能遺失 |
+
+### 3.7 Message Expiration（訊息逾期）
+
+- `Expiry` 單位為 **1/10 秒**。例如 30 秒 = `300`。
+- 逾期訊息不會被 GET 回傳，會在下次 GET 掃描或 Queue Manager 定期掃描時清除（`EXPRYINT` 屬性）。
+- **Request / Reply 的 Request 應設定 Expiry**：若後端在 Timeout 後才處理，結果已無人接收。設定 Expiry 可讓逾時請求自動失效。
+- 可設定 `MQRO_EXPIRATION` Report Option 取得逾期通知。
+
+### 3.8 Message Priority 與 Message Ordering
+
+- Priority 0（最低）至 9（最高）。
+- 佇列的 `MSGDLVSQ(PRIORITY)` 時依 Priority 再 FIFO；`MSGDLVSQ(FIFO)` 時忽略 Priority。
+
+**順序保證條件**（全部成立時才能期待 FIFO）：
+
+1. 單一 Producer 執行緒
+2. 相同 Priority
+3. 單一路徑（不經 Cluster Workload Balancing）
+4. 單一 Consumer
+5. 沒有 Backout 造成的重新排序（Backout 後的訊息回到原位，但若同時有其他 Consumer 則順序已被打亂）
+
+**需要嚴格順序時的做法**：
+
+- 單一 Consumer（犧牲吞吐量）
+- 以業務鍵分區：同一帳號的訊息送到同一佇列 / 同一 Consumer
+- Message Group 搭配 `MQGMO_LOGICAL_ORDER`
+- 應用層序號檢查（最可靠）
+
+### 3.9 Message Group（訊息群組）
+
+一組邏輯上相關的訊息（例如一筆批次的 100 段資料）：
+
+- 共用相同 `GroupId`
+- 各自有 `MsgSeqNumber`（從 1 開始）
+- 最後一則設定 `MQMF_LAST_MSG_IN_GROUP`
+
+Consumer 可使用 `MQGMO_ALL_MSGS_AVAILABLE`（整組到齊才開始取）與 `MQGMO_LOGICAL_ORDER`（依序取）。
+
+### 3.10 Correlation 與 Retry
+
+- **Correlation**：Reply 訊息的 `CorrelId` 設為 Request 的 `MsgId`（或由應用程式指定的業務 ID），Requester 以 `MQMO_MATCH_CORREL_ID` 取回對應回覆。
+- **Retry** 分兩層：
+  - **連線層 Retry**：`2009`、`2059`、`2538` 等連線錯誤 → 重新連線（可用 Client Auto Reconnect）。
+  - **訊息層 Retry**：業務處理失敗 → Backout，讓訊息回到佇列，BackoutCount 累加，超過門檻後移到 Backout Queue。
+
+### 3.11 Dead Letter Queue（DLQ）
+
+**何時訊息會進 DLQ**：
+
+- Receiver Channel 無法把訊息放到目標佇列（佇列不存在、已滿、PUT 被禁止、權限不足）
+- Trigger Monitor 無法處理觸發訊息
+- 應用程式主動放入（例如 JMS 無法放入 Backout Queue 時）
+
+**每則 DLQ 訊息前面會有一個 Dead Letter Header（`MQDLH`）**，記錄原目標佇列、原 Queue Manager、Reason Code。
+
+**DLQ 處理工具**：`runmqdlq`（Dead-letter Queue Handler）可依規則表自動重試或轉送。
+
+```text
+* runmqdlq 規則表範例（rules.dlq）
+* 預設控制：等待新訊息、最多重試 5 次
+INPUTQ('SYSTEM.DEAD.LETTER.QUEUE') INPUTQM('QM1') RETRYINT(60) WAIT(YES)
+* 目標佇列已滿：最多重試 5 次後轉送到人工處理佇列
+REASON(MQRC_Q_FULL) ACTION(RETRY) RETRY(5)
+* 其他原因：轉送到人工處理佇列並保留 DLH
+ACTION(FWD) FWDQ('BANK.OPS.DLQ.MANUAL') HEADER(YES)
 ```
 
-### 48.4 最終輸出
+> 規則表語法細節（關鍵字、比對順序）需依目前 IBM 官方 `runmqdlq` 文件確認後再上線。
 
-| 產出 | 內容 |
+### 3.12 Transaction 管理：誰是交易協調者
+
+3.5 說明的是「MQ 自己的 Syncpoint」。當同一個工作單元還包含資料庫時，必須先決定**誰來協調交易**。IBM MQ 支援三種模式：
+
+| 模式 | 協調者 | 涵蓋資源 | API | 適用 |
+|------|-------|---------|-----|------|
+| Local Unit of Work | Queue Manager | 只有 MQ | `MQCMIT` / `MQBACK`、JMS `session.commit()` | 大部分 MQ 應用 |
+| Global UoW（QM 為協調者） | Queue Manager | MQ + 支援 XA 的資料庫 | `MQBEGIN` → 操作 → `MQCMIT` | Bindings 模式的 C / COBOL 應用；需在 `qm.ini` 設定 XA 資源管理器 |
+| Global UoW（外部協調者） | 外部 Transaction Manager（Jakarta EE 應用伺服器的 JTA、CICS、Tuxedo 等） | MQ + 資料庫 + 其他 XA 資源 | JTA `UserTransaction` / 容器管理交易 | Jakarta EE 應用伺服器、CICS |
+
+```mermaid
+flowchart LR
+    subgraph Local["Local UoW"]
+        A1["應用程式"] -->|"MQPUT / MQGET + MQCMIT"| Q1["Queue Manager"]
+    end
+    subgraph QMCoord["QM 協調的 Global UoW"]
+        A2["應用程式"] -->|"MQBEGIN / MQCMIT"| Q2["Queue Manager<br/>（協調者）"]
+        Q2 -->|"XA"| D2[("資料庫")]
+    end
+    subgraph ExtCoord["外部 TM 協調"]
+        A3["應用程式"] --> TM["Transaction Manager<br/>（JTA / CICS）"]
+        TM -->|"XA"| Q3["Queue Manager"]
+        TM -->|"XA"| D3[("資料庫")]
+    end
+```
+
+**實務重點**：
+
+- Java Client 模式要參與 XA，需要支援 XA 的 Client（例如在應用伺服器中透過 IBM MQ Resource Adapter），且有額外的授權與設定要求 `[需確認]`。
+- XA 帶來 in-doubt 交易的處理成本：Queue Manager 重啟時以 `DISPLAY CONN(*) TYPE(CONN) UOWSTATE` 等方式檢查未決交易，必要時以 `dspmqtrn` / `rsvmqtrn` 處理（**L4 風險操作**）。
+- Spring Boot 微服務**通常不採用 XA**，而是用 Part 13 的 Best-Effort 1PC + Idempotency 或 Transactional Outbox。
+- z/OS 上，連到 QSG 的交易型應用可使用 **GROUP UR Disposition**，交易恢復時不必回到原 QM（見 Part 2.10）。
+
+### 3.13 Message Property 與 Selector
+
+除了 MQMD 的固定欄位，IBM MQ 支援任意名稱的 **Message Property**（名稱 / 值組），JMS 的 `setStringProperty()` 等方法即對應到這個機制。
+
+| 主題 | 說明 |
 |------|------|
-| Security Baseline | Vulnerability 統計、EOL 元件、Secret 位置、未涵蓋範圍 |
-| Architecture Baseline | 模組、層次、外部介面（非 Trivy 產出，由 Agent 分析程式碼） |
-| Dependency Baseline | 180 個 jar 中可辨識 162 個，18 個無法辨識需人工確認 |
-| SBOM | `sbom.cdx.json` |
-| Risk List | 依 Severity、可利用性、業務重要度排序 |
-| Modernization Recommendation | 前置條件：輪替 3 組硬編碼密碼、替換 Struts 1、法務確認 4 個 Unknown License |
+| 屬性儲存 | 新應用以 Message Property 存放；舊 JMS 應用可能以 `MQRFH2` 標頭存放，佇列屬性 `PROPCTL` 決定非 JMS 應用看到的形式 |
+| `PROPCTL` | `COMPAT`（預設，相容舊行為）、`NONE`、`ALL`、`FORCE`、`V6COMPAT`；**Legacy C / COBOL 讀到多出來的 `MQRFH2` 常是電文解析失敗的原因** |
+| Selector | JMS `createConsumer(dest, selector)` 或 MQI `MQOPEN` 的 SelectionString，以 SQL92 子集篩選訊息 |
+| 效能 | 以 `JMSCorrelationID` / `JMSMessageID` 篩選可用索引；**以自訂屬性篩選會逐筆掃描**，深佇列時極慢 |
+| `[MQ 10.0]` MsgToken | JMS Selector 可使用 MsgToken 精準取回特定訊息 `[需確認語法]` |
+| 屬性大小 | 屬性總長度受 `MAXPROPL` 限制 |
 
-### 實務案例
+**設計建議**：
 
-在這個案例中，Trivy 的 Dependency Baseline 讓團隊發現：系統中有兩個版本的 commons-collections 並存，其中一個是已知可被反序列化攻擊利用的舊版。這個發現直接改變了現代化的優先順序：先處理反序列化入口，再進行架構拆分。
+1. 路由與篩選需求，優先以「不同佇列」或「Topic 字串」表達，而非 Selector。
+2. 傳給 Legacy 非 JMS 系統的佇列，明確設定 `PROPCTL` 並搭配 `targetClient=MQ`（見 Part 11.4）。
+3. 不在 Message Property 放個資或敏感資料；它們會出現在監控工具與 DLQ 瀏覽畫面。
 
-### 注意事項
+### 3.14 實務案例
 
-- 無法辨識的 jar 不代表沒有風險，需人工確認來源。
+某轉帳 Consumer 的業務邏輯呼叫外部風控 API。風控 API 停機時，每則訊息都拋例外、Backout、立刻再被取出，CPU 飆高，日誌每秒數千筆錯誤。
+
+**根因**：沒有區分「暫時性錯誤」（風控 API 停機）與「永久性錯誤」（訊息格式錯誤）。
+
+**改善**：
+
+1. 永久性錯誤 → 直接移到 Backout Queue，不重試。
+2. 暫時性錯誤 → Backout，但 Listener Container 加上退避延遲；連續失敗超過門檻時暫停 Consumer（Circuit Breaker）。
+3. 設定 `BOTHRESH(5)`、`BOQNAME`，確保最終不會無限循環。
+
+### 3.15 注意事項與 Checklist
+
+- [ ] 所有交易性訊息都使用 Persistent + Syncpoint
+- [ ] Request 訊息設定 Expiry
+- [ ] 所有 Input Queue 都設定 `BOQNAME` 與 `BOTHRESH`
+- [ ] Queue Manager 已設定 `DEADQ`
+- [ ] 已區分暫時性錯誤與永久性錯誤
+- [ ] 有順序需求的流程，已明確寫出順序保證的前提
+- [ ] `MQPUT1` 只用在單次放入情境
 
 ---
 
-## 49. Framework Upgrade 實戰
+## Part 4 — IBM MQ 安裝
 
-### 49.1 情境
+### 4.1 目的
 
-| 項目 | Before | After |
-|------|--------|-------|
-| Java | 17 | 25 |
-| Spring Boot | 3.3 | 4.0 |
-| Node.js | 18 | 22 |
-| Vue | 3.3 | 3.5 |
-| Base Image | eclipse-temurin:17-jre | eclipse-temurin:25-jre-alpine |
+說明在 Linux、Windows、Container、Kubernetes 四種環境建立 IBM MQ 的方法與企業導入時的考量。**本章命令以 Linux x86-64 與 IBM MQ 10.0 為例；實際套件名稱、檔名與支援的 OS 版本，需依目前 IBM 官方文件與 System Requirements 確認。**
 
-### 49.2 比較項目
+### 4.2 Linux 安裝
+
+#### 4.2.1 安裝前準備
+
+| 項目 | 建議 | 說明 |
+|------|------|------|
+| OS | 依 System Requirements 支援清單（RHEL、Ubuntu、SLES 等） | `[需確認]` 10.0 支援的確切 OS 版本 |
+| 檔案系統 | `/opt/mqm`（程式）、`/var/mqm`（資料）、Log 目錄分開 | **Log 與 Queue Data 建議放不同磁碟**，避免 I/O 互相干擾 |
+| 磁碟 | Log 放在低延遲儲存 | Persistent Message 效能主要受 Log 寫入延遲影響 |
+| Kernel 參數 | 依 `mqconfig` 檢查結果調整 | 檔案描述元、行程數、共享記憶體 |
+| 使用者 | `mqm` 使用者與 `mqm` 群組 | 安裝程式可自動建立；企業環境建議預先建立並固定 UID / GID（跨節點一致，HA 必要） |
+| 時間同步 | NTP / chrony | 訊息時間戳記與日誌比對、TLS 憑證效期檢查都依賴系統時間 |
 
 ```bash
-trivy image --download-db-only
-for side in before after; do
-  trivy fs --skip-db-update --scanners vuln,secret,misconfig,license \
-    --format json --output "${side}/fs.json" "./${side}-src"
-  trivy fs --skip-db-update --format cyclonedx --output "${side}/sbom.cdx.json" "./${side}-src"
-  trivy image --skip-db-update --format json --output "${side}/image.json" "registry.internal.example.com/app:${side}"
-done
-python trivy_diff.py before/fs.json after/fs.json > diff-fs.txt
-python trivy_diff.py before/image.json after/image.json > diff-image.txt
+# 預先建立 mqm 群組與使用者（UID/GID 在所有節點保持一致）
+sudo groupadd -g 1001 mqm
+sudo useradd -u 1001 -g mqm -d /var/mqm -s /bin/bash mqm
+
+# 檢查檔案描述元與行程上限（以 mqm 使用者執行 mqconfig，安裝後可用）
+ulimit -n
+ulimit -u
 ```
 
-| 比較 | 來源 |
+#### 4.2.2 套件安裝（RPM）
+
+```bash
+# 解壓安裝媒體後，接受授權
+cd /tmp/mq10/MQServer
+sudo ./mqlicense.sh -accept
+
+# 安裝最小 Server 組合（實際套件清單依需求增減）
+sudo rpm -ivh MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm \
+              MQSeriesJRE-*.rpm MQSeriesJava-*.rpm \
+              MQSeriesGSKit-*.rpm MQSeriesSamples-*.rpm \
+              MQSeriesWeb-*.rpm
+
+# 設定為主要安裝（Primary Installation）
+sudo /opt/mqm/bin/setmqinst -i -p /opt/mqm
+
+# 確認版本
+dspmqver
+```
+
+> Ubuntu / Debian 使用 `.deb` 套件與 `apt`；套件名稱不同，請依官方文件。生產環境建議使用公司內部套件庫並記錄套件 checksum。
+
+#### 4.2.3 Environment Variables
+
+```bash
+# 在 mqm 使用者的 shell 載入 MQ 環境
+. /opt/mqm/bin/setmqenv -s
+
+# 常用確認
+echo $PATH | tr ':' '\n' | grep mqm
+dspmqver -f 2   # 只顯示版本
+```
+
+#### 4.2.4 建立 Queue Manager
+
+```bash
+# 以 mqm 使用者執行
+# -u：指定 DLQ 名稱；-lc：Circular Log；-lf：Log 檔大小（4KB 頁數）
+# -lp / -ls：主要 / 次要 Log 檔數量；-ic：建立後自動套用的 MQSC 檔
+crtmqm -u SYSTEM.DEAD.LETTER.QUEUE \
+       -lc -lf 16384 -lp 10 -ls 20 \
+       -ic /var/mqm/config/BANKQM01.mqsc \
+       BANKQM01
+
+strmqm BANKQM01
+dspmq -m BANKQM01 -o all
+```
+
+| 參數 | 說明 | 建議 |
+|------|------|------|
+| `-u` | DLQ 名稱 | 一律設定 |
+| `-lc` / `-ll` | Circular / Linear Log | 依備援與媒體復原需求（見 Part 2.3、Part 26） |
+| `-lf` | Log 檔大小（4KB 頁） | 依交易量估算 |
+| `-lp` / `-ls` | 主要 / 次要 Log 數 | 長交易（Long-running UOW）多時加大 |
+| `-ic` | 啟動時自動套用 MQSC（Autoconfig）`[MQ 9.2+]` | 搭配 Configuration as Code |
+| `-ii` | 啟動時自動套用 qm.ini 片段 `[MQ 9.2+]` | 搭配 Configuration as Code |
+
+#### 4.2.5 Listener、Channel、Queue 基本設定
+
+建立 `/var/mqm/config/BANKQM01.mqsc`：
+
+```text
+* ===== Listener =====
+DEFINE LISTENER('BANK.LSTR.1414') TRPTYPE(TCP) PORT(1414) CONTROL(QMGR) REPLACE
+
+* ===== Application SVRCONN Channel（TLS 1.3，必須帶用戶端憑證）=====
+DEFINE CHANNEL('PAY.SVRCONN') CHLTYPE(SVRCONN) TRPTYPE(TCP) +
+       SSLCIPH('ANY_TLS13_OR_HIGHER') SSLCAUTH(REQUIRED) +
+       MAXINST(200) MAXINSTC(50) SHARECNV(10) +
+       DESCR('Payment service client channel') REPLACE
+
+* ===== Application Queues =====
+DEFINE QLOCAL('PAY.TXN.REQ.BOQ') DEFPSIST(YES) MAXDEPTH(100000) +
+       DESCR('Payment request backout queue') REPLACE
+DEFINE QLOCAL('PAY.TXN.REQ') DEFPSIST(YES) MAXDEPTH(200000) MAXMSGL(1048576) +
+       BOTHRESH(5) BOQNAME('PAY.TXN.REQ.BOQ') +
+       QDEPTHHI(80) QDPHIEV(ENABLED) +
+       DESCR('Payment request queue') REPLACE
+```
+
+> TLS 憑證設定（`SSLKEYR` / `CERTLABL`）與安全設定（CHLAUTH、CONNAUTH、OAM）見 Part 8。**以上僅為結構示範，上線前須完成 Part 8 Security Baseline。**
+
+#### 4.2.6 啟動 / 停止
+
+| 命令 | 功能 | Production 風險 |
+|------|------|----------------|
+| `strmqm QM` | 啟動 | 低 |
+| `endmqm -c QM` | Controlled：等待應用程式斷線 | 可能長時間無法停止 |
+| `endmqm -w QM` | Controlled 並等待完成 | 同上，但會回報結果 |
+| `endmqm -i QM` | Immediate：不等待應用程式，未完成交易回滾 | 應用程式收到 `2161` / `2162` / `2009` |
+| `endmqm -p QM` | Preemptive：強制 | **最後手段**；可能需要較長的重啟復原時間 |
+| `endmqm -s QM` | Switchover（Multi-instance / HA） | 需確認 Standby 狀態正常 |
+| `dspmq -o all` | 顯示所有 QM 狀態 | 無 |
+
+### 4.3 Windows 安裝
+
+| 項目 | 說明 |
 |------|------|
-| CVE Before / After | `fs.json`、`image.json` |
-| Dependency Before / After | `sbom.cdx.json` purl 差異 |
-| SBOM Before / After | 元件數、生態系分佈 |
-| Misconfiguration Before / After | `fs.json` 中 misconfig |
-
-### 49.3 Security Upgrade Report
-
-```markdown
-# Security Upgrade Report — order-service
-
-## 摘要
-- 判定：PASS with conditions（1 項需人工確認）
-- Trivy v0.75.0，Before / After 使用同一 DB（2026-10-03）
-
-## CVE
-| | Before | After |
-|---|---|---|
-| CRITICAL | 3 | 0 |
-| HIGH | 18 | 2 |
-| 新引入 HIGH | — | 1（某 JSON 函式庫傳遞相依；已有修補版，建議覆寫） |
-
-## Base Image
-- OS 套件弱點：41 → 6
-- EOL：Before 無；After 無
-
-## Dependency / SBOM
-- Components：287 → 251
-- 移除：javax.* 相關 23 個；新增：jakarta.* 對應 11 個
-
-## Misconfiguration
-- Dockerfile：AVD-DS-0026（HEALTHCHECK）Before 有、After 已修正
-
-## License
-- 無類別變化
-
-## 需人工確認
-1. 新引入 HIGH 1 筆：建議以 dependencyManagement 覆寫至修補版本
-```
-
-### 實務案例
-
-這份報告在 Change Advisory Board（CAB）會議中被直接採用為「安全影響評估」附件，取代過去由開發者口頭說明「升級後應該比較安全」。
-
-### 注意事項
-
-- Before / After 的映像必須都存在於 Registry，才能在事後稽核時重現比較結果。
-
----
-
-## 50. Trivy 教學案例程式碼規範
-
-本手冊與企業內部文件中的 Trivy 範例，應遵守下列規範：
-
-| 規範 | 說明 | 正確 | 錯誤 |
-|------|------|------|------|
-| 不使用過時參數 | 參考附錄 G | `--pkg-types os,library` | `--vuln-type os,library`（CLI） |
-| 標示作業系統與 Shell | 每個區塊標示 bash / powershell | ```` ```powershell ```` | 未標示語言 |
-| Windows 與 Linux 分開 | 路徑、環境變數、續行符號不同 | PowerShell 用 `` ` ``，Bash 用 `\` | 混用 |
-| 固定版本 / Digest | 說明原因：可重現、防竄改 | `aquasec/trivy:0.75.0`、`@sha256:` | `aquasec/trivy:latest` |
-| 不把 Secret 寫進 command line | 會留在 history 與 process list | `TRIVY_PASSWORD` 由 Secret Manager 注入、`--password-stdin` | `--password MyP@ss` |
-| 不放真實 Credentials | 範例一律用佔位符 | `<from-secret-manager>` | 任何看起來像真實金鑰的字串 |
-| 標示 Experimental | 讓讀者知道風險 | 「`trivy k8s`（Experimental）」 | 未標示 |
-| 標示官方 / 企業建議 | 避免混淆 | 【官方】、【企業建議】 | 混在一起 |
-
-```bash
-# 正確：Bash 從標準輸入提供密碼
-printf '%s' "$REGISTRY_PASSWORD" | trivy registry login --username "$REGISTRY_USER" --password-stdin registry.internal.example.com
-```
+| 安裝 | 執行安裝程式（`setup.exe`）或以 `msiexec` 搭配 response file 靜默安裝 |
+| 帳號 | 安裝會建立本機 `mqm` 群組；網域環境需設定可查詢群組成員的服務帳號 `[需確認]` |
+| Service | Queue Manager 以 Windows Service 形式執行（「IBM MQ (Installation1)」），可設為自動啟動 |
+| MQ Explorer | 圖形管理工具；取得方式（隨產品或獨立下載）依版本不同 `[需確認]` |
+| MQSC | 開啟「Command Prompt」後執行 `runmqsc QM` |
+| 環境 | 使用 `setmqenv -s` 或安裝時設定的 Primary Installation |
 
 ```powershell
-# 正確：PowerShell 從 Secret 管理工具取得後以環境變數提供（不在命令列明文出現）
-$env:TRIVY_USERNAME = $registryUser
-$env:TRIVY_PASSWORD = $registryPassword
-trivy image registry.internal.example.com/app:1.4.2
-Remove-Item Env:TRIVY_PASSWORD
+# 建立與啟動
+crtmqm -u SYSTEM.DEAD.LETTER.QUEUE BANKQM01
+strmqm BANKQM01
+dspmq -o all
+
+# 進入 MQSC
+runmqsc BANKQM01
 ```
 
-### 實務案例
+**Windows 注意事項**：
 
-某內部 Wiki 的 Trivy 教學頁面中有一行 `--password Passw0rd!` 範例，被新人照抄後連同真實密碼一起進了 CI 腳本。改版後所有範例改用環境變數與佔位符，並由 Trivy Secret Scanner 在 Wiki 匯出檔上定期掃描。
+- `[MQ 10.0]` 支援較長的 User ID，但同時加強 User ID 驗證；升級前須盤點既有 `MCAUSER` 與 OAM 授權的帳號格式。
+- 網域帳號授權使用 `user@domain` 或 `domain\user` 格式時，需依官方文件確認 OAM 的解析方式。
 
-### 注意事項
+### 4.4 Container
 
-- 教學範例也是程式碼，應納入 Review。
+#### 4.4.1 IBM MQ Container 概念
 
----
+IBM 提供官方 MQ container image：
 
-## 51. 命令速查表
+- **IBM MQ Advanced for Developers**：開發用，`icr.io/ibm-messaging/mq`，**不可用於 Production**。
+- **Production image**：IBM MQ Advanced / Cloud Pak for Integration 授權取得。`[MQ 9.4 CD]` 起 IBM MQ Advanced container image 支援在 OpenShift 以外部署。`[需確認]` 取得方式與授權。
 
-### 51.1 主要命令總覽
+#### 4.4.2 開發環境快速啟動（Docker / Podman）
 
-| 命令 | 用途 | Target | 預設 Scanner | 狀態 |
-|------|------|--------|-------------|------|
-| `trivy image` | 掃容器映像 | Image / tar | vuln, secret | Stable |
-| `trivy fs` | 掃本機目錄 | Filesystem | vuln, secret | Stable |
-| `trivy repo` | 掃 Git repo | 本機 / 遠端 repo | vuln, secret | Stable |
-| `trivy rootfs` | 掃已展開根檔案系統 | Rootfs | vuln, secret | Stable |
-| `trivy config` | 掃 IaC | 設定檔 | misconfig | Stable |
-| `trivy k8s` | 掃 Kubernetes | Cluster | vuln, misconfig, secret, rbac | Experimental |
-| `trivy sbom` | 掃 SBOM | CycloneDX / SPDX | vuln | Stable |
-| `trivy vm` | 掃 VM 映像 | VMDK、AMI、EBS | vuln, secret | Experimental |
-| `trivy aws` | 掃 AWS 帳號 | AWS | misconfig | Plugin（需安裝 trivy-aws） |
-| `trivy mcp` | 啟動 MCP Server | Filesystem / Image / Repo | 依工具呼叫 | Plugin（需安裝 trivy-mcp，0.0.x） |
-| `trivy convert` | 轉換 JSON 報告 | Trivy JSON | — | Stable |
-| `trivy clean` | 清除快取 / DB | — | — | Stable |
-| `trivy registry login/logout` | Registry 認證 | — | — | Stable |
-| `trivy server` | Client/Server 的 Server | — | — | Stable |
-| `trivy plugin` | 管理 plugin | — | — | Stable |
-| `trivy module` | 管理 WASM 模組 | — | — | Experimental 功能相關 |
-| `trivy vex repo` | 管理 VEX Repository | — | — | Experimental |
-| `trivy version` | 版本資訊 | — | — | Stable |
+```bash
+# 開發用途：以 secret 檔提供密碼，不要把密碼寫在命令列歷史
+podman volume create qm1data
+podman run -d --name QM1 \
+  -p 1414:1414 -p 9443:9443 \
+  -e LICENSE=accept \
+  -e MQ_QMGR_NAME=QM1 \
+  -v qm1data:/mnt/mqm \
+  --secret mqAdminPassword,target=/run/secrets/mqAdminPassword \
+  --secret mqAppPassword,target=/run/secrets/mqAppPassword \
+  icr.io/ibm-messaging/mq:<pinned-tag>
+```
 
-### 51.2 各命令：常用參數、CI/CD 用法、AI Agent 用法
+> Developer image 的預設帳號與 `DEV.*` 物件、密碼設定方式（環境變數或 secret 檔）依 image 版本而不同，**需依 ibm-messaging/mq-container 的對應版本說明確認**。`mq-jms-spring` 官方說明指出 Developer image 已移除預設密碼，必須明確設定。
 
-| 命令 | 常用參數 | 範例 | CI/CD 用法 | AI Agent 用法 |
-|------|----------|------|-----------|--------------|
-| image | `--scanners`、`--severity`、`--ignore-unfixed`、`--exit-on-eol`、`--format`、`--platform` | `trivy image --exit-on-eol 2 app@sha256:<d>` | Build 後掃描並產生 SBOM | 只讀 JSON 摘要，提出 Base Image 建議 |
-| fs | `--scanners`、`--skip-dirs`、`--dependency-tree`、`--include-dev-deps`、`--license-full` | `trivy fs --scanners vuln,secret,misconfig .` | 建置前快速掃描 | Baseline 與 Re-scan |
-| repo | `--branch`、`--tag`、`--commit` | `trivy repo --tag v1.0 <url>` | 稽核特定版本 | Reverse Engineering 指定版本 |
-| rootfs | 同 fs | `trivy rootfs /` | Dockerfile 內自我掃描 | 少用 |
-| config | `--severity`、`--helm-values`、`--tf-vars`、`--config-check` | `trivy config ./deploy` | IaC Gate | 修 YAML 後驗證 |
-| k8s | `--report`、`--include-namespaces`、`--compliance`、`--skip-images` | `trivy k8s --report summary` | Staging 定期掃描 | 僅限授權的非 Production 叢集 |
-| sbom | `--scanners vuln,license` | `trivy sbom app.cdx.json` | 每日排程重掃 | SBOM 分析 |
-| vm | `--aws-region`、`--scanners` | `trivy vm ami:<id>` | Golden Image 檢查 | 少用 |
-| aws（plugin） | `--region`、`--service` | `trivy aws --region ap-northeast-1 --service s3` | 排程（非 Gate） | 不建議由 Agent 直接執行 |
-| convert | `--format`、`--severity`、`--exit-code` | `trivy convert --format sarif r.json` | 一次掃描多種輸出 | 轉換為 SARIF / table |
-| mcp（plugin） | `--transport`、`--host`、`--port`、`--trivy-binary` | `trivy mcp` | 不用於 CI | IDE Agent 的開發回饋（第 26.4 節） |
+#### 4.4.3 Production Container 設計重點
 
-### 實務案例
-
-某平台團隊把 51.2 的表格轉成內部 Wiki 的「指令白名單」，CI 範本中的 Trivy 指令只能從此表複製。導入後，因為複製網路舊文章（例如 `--vuln-type`、`trivy aws` 內建指令）造成的 CI 失敗不再發生。
-
-### 注意事項
-
-- 本表以 v0.75.0 為準；升級後以 `trivy <command> --help` 重新核對 flag。
-- Experimental 命令的參數與輸出可能在 minor 版本變更，不宜寫死在共用腳本。
-
----
-
-## 52. Trivy Cheat Sheet
-
-| 類別 | 指令 |
+| 面向 | 設計 |
 |------|------|
-| **日常開發** | `trivy fs --scanners vuln,secret,misconfig .` |
-| | `trivy fs --scanners vuln --dependency-tree --severity HIGH,CRITICAL .` |
-| **CI/CD** | `trivy --version` |
-| | `trivy fs --format json --output trivy-fs.json .` |
-| | `trivy convert --format sarif --output trivy-fs.sarif trivy-fs.json` |
-| | `trivy image --download-db-only` → 後續加 `--skip-db-update` |
-| **Container** | `trivy image --severity HIGH,CRITICAL --ignore-unfixed <image>@sha256:<d>` |
-| | `trivy image --exit-on-eol 2 <image>` |
-| | `trivy image --input app.tar` |
-| **Kubernetes** | `trivy config --helm-values values-prod.yaml ./chart` |
-| | `trivy k8s --report summary --include-namespaces <ns>`（Experimental） |
-| | `trivy k8s --compliance k8s-pss-restricted-0.1 --report summary` |
-| **SBOM** | `trivy image --format cyclonedx --output sbom.cdx.json <image>` |
-| | `trivy image --format spdx-json --output sbom.spdx.json <image>` |
-| | `trivy sbom sbom.cdx.json` |
-| **Secret** | `trivy fs --scanners secret .` |
-| | `trivy fs --scanners secret --secret-config trivy-secret.yaml .` |
-| **IaC** | `trivy config .` |
-| | `trivy config --tf-vars prod.tfvars ./terraform` |
-| | `trivy config tfplan.json` |
-| **License** | `trivy fs --scanners license --license-full .` |
-| | `trivy image --scanners license --severity HIGH,CRITICAL <image>` |
-| **Cloud** | `trivy plugin install github.com/aquasecurity/trivy-aws` |
-| | `trivy aws --region <region> --service s3` |
-| | `trivy vm --aws-region <region> ami:<ami-id>`（Experimental） |
-| **AI Agent** | `trivy fs --scanners vuln,secret,misconfig --format json --output before.json .` |
-| | `jq '[.Results[]?.Vulnerabilities[]? \| {id:.VulnerabilityID,pkg:.PkgName,fixed:.FixedVersion,sev:.Severity}]' before.json` |
-| | `python trivy_diff.py before.json after.json` |
-| | `trivy plugin install mcp@v0.0.20` → IDE 中以 `trivy mcp`（stdio）啟動 |
-| **維運** | `trivy clean --scan-cache` / `trivy clean --all` |
-| | `trivy image --generate-default-config` |
-| | `trivy plugin list` / `trivy plugin upgrade <name>`（升級前需經核准） |
+| Persistent Volume | `/mnt/mqm`（Queue 與 Log）必須掛載持久化儲存；Log 與 Data 可分不同 Volume |
+| Configuration | 透過 `/etc/mqm/*.mqsc` 與 `*.ini` 在啟動時套用（Autoconfig），存放在 Git |
+| Secret | 密碼、TLS 私鑰以 Secret 掛載；**不放進 image、不放進環境變數** |
+| TLS | 憑證以 Secret 掛載到 image 規定的路徑 `[需確認]`；憑證輪替流程需演練 |
+| Lifecycle | Container 停止時應讓 Queue Manager 正常結束（graceful）；設定足夠的 termination grace period |
+| Image 版本 | **固定 tag 或 digest，不使用 `latest`** |
 
-### 實務案例
+### 4.5 Kubernetes
 
-某公司把本表印成一頁 A4 放在新人訓練教材首頁，搭配第 46 章 Lab 使用，新人第一週就能在本機完成 `fs`、`image`、`config`、SBOM 四種掃描。
+| 面向 | 企業導入考量 |
+|------|-------------|
+| Stateful Workload | Queue Manager 是有狀態服務，使用 StatefulSet 或 IBM MQ Operator 的 `QueueManager` 自訂資源 |
+| Persistent Storage | 使用支援 ReadWriteOnce、低延遲的 Block Storage；Multi-instance 需 RWX 共享檔案系統（不建議新設計） |
+| Secret | TLS 金鑰、管理員密碼以 Kubernetes Secret 搭配外部 Secret Manager（Vault 等） |
+| ConfigMap | MQSC、qm.ini 片段；變更需走 GitOps 與審核 |
+| Network | Service（ClusterIP / LoadBalancer）、OpenShift Route（需 TLS SNI）；Client 連線需設定 `OutboundSNI` `[需確認]` |
+| TLS | 全程 TLS；Route 以 passthrough 方式讓 MQ 自行終結 TLS |
+| Monitoring | Prometheus metrics（MQ Operator 或 mq-metric-samples exporter） |
+| High Availability | **Native HA**：3 個 Pod 複寫 Log；`[MQ 10.0]` 新增 In-Region Replication（IRR）；`[MQ 9.4 CD]` Cross-Region Replication（CRR）在容器可用 |
 
-### 注意事項
+```mermaid
+flowchart TB
+    subgraph K8s["Kubernetes / OpenShift Cluster"]
+        subgraph NS["Namespace: mq-prod"]
+            OP["IBM MQ Operator"]
+            subgraph NHA["QueueManager CR: BANKQM01（Native HA）"]
+                P0["Pod-0<br/>Active"]
+                P1["Pod-1<br/>Replica"]
+                P2["Pod-2<br/>Replica"]
+            end
+            PV0[("PVC-0")]
+            PV1[("PVC-1")]
+            PV2[("PVC-2")]
+            SVC["Service :1414"]
+            SEC["Secret<br/>TLS / Password"]
+            CM["ConfigMap<br/>MQSC / INI"]
+        end
+        APP["Spring Boot Pods"]
+    end
+    OP --> NHA
+    P0 --- PV0
+    P1 --- PV1
+    P2 --- PV2
+    P0 <-. "Log 複寫" .-> P1
+    P0 <-. "Log 複寫" .-> P2
+    SEC --> NHA
+    CM --> NHA
+    APP -- "TLS" --> SVC --> P0
+```
 
-- 速查表為常用組合，不等於企業 Gate 規則；Gate 以第 38 章為準。
+> IBM MQ Operator 的版本、CRD 欄位、與 MQ 10.0 對應關係，**需依目前 IBM 官方文件確認**。
 
----
+### 4.6 AI Agent 使用方式
 
-## 53. Enterprise Checklist
+- 請 AI 依照公司範本產生 `crtmqm` 參數、MQSC 檔與 Kubernetes YAML，**但只在 DEV / TEST 執行**。
+- 請 AI 比對 System Requirements 與目前 OS / JDK 版本，列出不相容項目，並附上官方連結供人工確認。
 
-### 53.1 Developer Checklist
+### 4.7 常見錯誤
 
-- [ ] 本機已安裝企業核准版本的 Trivy（`trivy --version`）
-- [ ] Commit 前執行 `trivy fs --scanners vuln,secret,misconfig .`
-- [ ] 不在程式碼、設定檔、命令列中放置任何 Secret
-- [ ] 新增相依時確認無 CRITICAL / HIGH fixed 弱點
-- [ ] 需要 Exception 時走正式流程，不自行加 ignore
+- 以 `root` 執行 Queue Manager 管理命令（應以 `mqm` 群組成員執行）。
+- Log 與 Data 放在同一顆慢速磁碟，Persistent 效能低落。
+- 容器使用 `latest` tag，某天重新部署後版本不同。
+- 把 Developer image 帶進 Production。
 
-### 53.2 AI Agent Checklist
+### 4.8 Checklist
 
-- [ ] 任務開始前執行 Baseline 掃描並保存 JSON
-- [ ] 修改相依、Dockerfile、IaC 後立即 Re-scan
-- [ ] 只讀取 JSON 摘要；不讀取、不輸出 Secret 內容
-- [ ] 只執行 Safe Automatic Fix；其他動作請求 Human Approval
-- [ ] 不修改 ignore 檔、`trivy.yaml`、workflow、exit-code、severity
-- [ ] 產出 Before / After 差異與 Security Report
-- [ ] 任務結束前停止並等待人工審核
-
-### 53.3 Reviewer Checklist
-
-- [ ] PR 附有 Trivy 版本與 Before / After 差異
-- [ ] 無新增 HIGH / CRITICAL、Secret、FAIL misconfiguration
-- [ ] 若有 ignore / VEX 變更，已有對應 Exception ID 與到期日
-- [ ] Workflow 中的 Action 仍以完整 SHA 固定
-- [ ] AI Agent 未觸碰禁止項目
-
-### 53.4 DevSecOps Checklist
-
-- [ ] 中央 `trivy.yaml`、`trivy-secret.yaml` 版本化管理
-- [ ] Gate 規則已公告並與 Security Policy 一致
-- [ ] CODEOWNERS 涵蓋安全相關檔案
-- [ ] Exception 到期提醒機制運作中
-- [ ] SARIF / 報告彙整至弱點管理平台
-
-### 53.5 Platform Team Checklist
-
-- [ ] Trivy 安裝來源已驗章（cosign）
-- [ ] DB Mirror 同步與年齡監控運作中
-- [ ] Runner 映像預裝固定版本 Trivy 與企業 CA
-- [ ] Reusable workflow / CI template 使用 SHA pin
-- [ ] Trivy Operator 版本、資源限制、DB 來源設定正確
-
-### 53.6 Security Team Checklist
-
-- [ ] 訂閱 Trivy GitHub Security Advisories
-- [ ] 定期審查 Exception 與 VEX
-- [ ] Secret Finding 事件流程已演練
-- [ ] License 分類與法務政策一致
-- [ ] 稽核證據保存期限符合法規
-
-### 53.7 Release Checklist
-
-- [ ] 最終映像以 digest 掃描且通過 Release Gate
-- [ ] SBOM 已產生並附於 Release / Registry
-- [ ] 無有效期外的 Exception
-- [ ] `trivy --version` 與報告已保存
-- [ ] Production 部署前以最新 DB 再掃一次
-
-### 53.8 Framework Upgrade Checklist
-
-- [ ] Before / After 使用同一 Trivy 版本與 DB
-- [ ] CVE、SBOM、Misconfiguration、Secret、License 皆已比較
-- [ ] 新引入風險已獨立列出並處理
-- [ ] Security Upgrade Report 已附於 PR / 變更單
-
-### 53.9 Reverse Engineering Checklist
-
-- [ ] 已掃描原始碼、建置產物、Production 版本 tag
-- [ ] Security Baseline 含「未涵蓋範圍」
-- [ ] Secret 已啟動輪替流程
-- [ ] Unknown / Restricted License 已送法務
-- [ ] Baseline 存放於受控位置
-
-### 實務案例
-
-某團隊把 53.3 Reviewer Checklist 做成 GitHub Pull Request Template 的勾選清單，AI Agent 建立的 PR 也必須完成勾選並附上 Before / After 差異；Reviewer 不再需要口頭詢問「你有沒有跑 Trivy」。
-
-### 注意事項
-
-- Checklist 是最低要求，各角色可依專案風險擴充，但不可刪減。
-- Checklist 應與 Gate 規則、AGENTS.md 同步更新，避免三份文件互相矛盾。
+- [ ] OS、JDK、容器平台版本已對照 IBM System Requirements
+- [ ] `mqm` UID / GID 在所有節點一致
+- [ ] Log 與 Data 分離，Log 位於低延遲儲存
+- [ ] `crtmqm` 參數（Log 類型、大小、DLQ）已記錄於設計文件
+- [ ] MQSC 設定存放於 Git，透過 `-ic` 或 Autoconfig 套用
+- [ ] Container image 已固定版本（tag / digest）
+- [ ] 密碼、TLS 私鑰全部透過 Secret 管理
 
 ---
 
-## 54. AI Agent Standard Operating Procedure
+## Part 5 — IBM MQ 系統管理
 
-### 54.1 SOP 步驟
+### 5.1 目的
 
-| Step | 名稱 | 動作 | 輸出 | 停止條件 |
-|------|------|------|------|----------|
-| 1 | Discover | 讀取專案結構、AGENTS.md、技術棧、既有 ignore / VEX | 專案摘要 | 找不到 AGENTS.md 時請求指示 |
-| 2 | Scan | 執行 Baseline（JSON） | `before/*.json` | Trivy 版本不符時停止 |
-| 3 | Analyze | 萃取摘要，解讀 Status、Fixed Version | Finding 清單 | — |
-| 4 | Classify | 依企業 Policy 分為 Block / Warn / Monitor；並分為 Safe / Approval / Forbidden | 分類表 | — |
-| 5 | Plan | 列出修正計畫與影響範圍 | 修正計畫 | 涉及 Approval 項目時先請求核准 |
-| 6 | Fix | 只執行 Safe Automatic Fix | 程式變更 | 同一項目失敗 3 次 |
-| 7 | Test | 建置與測試 | 測試報告 | 測試失敗且無法安全修正 |
-| 8 | Re-scan | 相同設定再掃 | `after/*.json` | — |
-| 9 | Compare | `trivy_diff.py` | 差異報告 | 有新增 HIGH / CRITICAL / Secret 且無法修正 |
-| 10 | Report | 產生 Security Report（不含 Secret） | `security-report.md` | — |
-| 11 | Human Approval | 提交 PR 並等待 | Approval 紀錄 | **一律停止等待** |
-| 12 | Commit / Release | 經核准後合併；Release 依第 53.7 節 | Release 證據 | — |
+建立 Queue Manager 日常管理的標準做法，包含 Control Commands、MQSC 命令與 Production 操作風險分級。
 
-### 54.2 SOP 流程圖
+### 5.2 管理工具總覽
+
+| 工具 | 說明 | 適用 |
+|------|------|------|
+| Control Commands | `crtmqm`、`strmqm`、`endmqm`、`dspmq`、`dltmqm`、`setmqaut`、`dmpmqcfg` 等 OS 命令 | 主機上的管理員 |
+| `runmqsc` | MQSC 命令直譯器 | 物件定義、查詢、維運 |
+| IBM MQ Console | Web 管理介面（mqweb） | 圖形化查詢與操作 |
+| REST API（Administrative） | 透過 HTTPS 執行 MQSC 或查詢 `[MQ 9.3+ 提供 v3]` | 自動化、Portal 整合 |
+| PCF | Programmable Command Format，程式化管理 | 監控工具、自動化腳本 |
+| MQ Explorer | 桌面圖形工具 | 管理員日常操作 |
+
+### 5.3 Queue Manager 管理
+
+| 動作 | 命令 | 說明 |
+|------|------|------|
+| 建立 | `crtmqm` | 見 Part 4 |
+| 啟動 | `strmqm QM` | |
+| 停止 | `endmqm -i QM` | 見 Part 4.2.6 風險表 |
+| 顯示狀態 | `dspmq -o all`、`DISPLAY QMSTATUS ALL` | |
+| 顯示設定 | `DISPLAY QMGR ALL` | |
+| 備份設定 | `dmpmqcfg -m QM -a > QM.mqsc` | **匯出所有物件定義與授權（含 `-a` 為全部）**，可用 `runmqsc QM < QM.mqsc` 重建 |
+| 備份資料 | 停機冷備份 / Linear Log 的 `rcdmqimg` / 儲存層快照 | 見 Part 26 |
+| 還原 | 以 `dmpmqcfg` 輸出重建物件；資料以 HA/DR 方案還原 | |
+| 刪除 | `dltmqm QM` | **極高風險**，Production 禁止 AI 執行 |
+
+```bash
+# 每日設定備份（建議排程，並納入版本控制比對差異）
+dmpmqcfg -m BANKQM01 -a -o mqsc > /backup/mqcfg/BANKQM01_$(date +%Y%m%d).mqsc
+
+# 只匯出授權記錄
+dmpmqcfg -m BANKQM01 -x authrec -o setmqaut > /backup/mqcfg/BANKQM01_auth_$(date +%Y%m%d).sh
+```
+
+> `dmpmqcfg` 的 `-x` 物件類型與輸出格式選項，請依目前官方文件確認。
+
+### 5.4 MQSC 與 runmqsc
+
+`runmqsc` 是 MQSC 命令的互動式 / 批次直譯器。
+
+```bash
+# 互動模式
+runmqsc BANKQM01
+
+# 批次模式（套用檔案）
+runmqsc BANKQM01 < change-2026-10-001.mqsc > change-2026-10-001.out
+
+# 只檢查語法、不實際執行（-v：verify）
+runmqsc -v BANKQM01 < change-2026-10-001.mqsc
+
+# 遠端管理（透過 Client 連線，需設定 CCDT 或 MQSERVER 與適當權限）
+runmqsc -c BANKQM01
+```
+
+**MQSC 語法要點**：
+
+- 未加引號的名稱轉為大寫；含小寫或特殊字元必須加單引號。
+- 行尾 `+` 或 `-` 表示接續下一行（`+` 去除下一行前導空白、`-` 保留）。
+- `*` 開頭為註解。
+- `REPLACE` 讓 `DEFINE` 可重複執行（冪等），**但會覆蓋未指定的屬性為預設值或 `LIKE` 物件的值**，在 Production 使用前須確認。
+
+### 5.5 常用查詢命令（DISPLAY）
+
+| 命令 | 功能 | 使用時機 | 注意事項 | Production 風險 |
+|------|------|----------|----------|----------------|
+| `DISPLAY QMGR ALL` | 顯示 QM 屬性 | 盤點、比對設定 | 輸出長，可指定屬性 | 無 |
+| `DISPLAY QMSTATUS ALL` | QM 執行狀態 | 健康檢查 | | 無 |
+| `DISPLAY QLOCAL(*)` | 列出 Local Queue | 盤點 | 加 `WHERE(CURDEPTH GT 0)` 篩選 | 無 |
+| `DISPLAY QSTATUS('Q') TYPE(QUEUE) ALL` | 佇列即時狀態：深度、開啟數、最後 GET/PUT 時間 | 堵塞排查 | `MSGAGE`、`QTIME` 需 `MONQ` 啟用 | 無 |
+| `DISPLAY QSTATUS('Q') TYPE(HANDLE) ALL` | 誰開啟了佇列 | 找出 Consumer / Producer | | 無 |
+| `DISPLAY QREMOTE(*)` | Remote Queue 定義 | 路由排查 | | 無 |
+| `DISPLAY QALIAS(*)` | Alias 定義 | 路由排查 | | 無 |
+| `DISPLAY CHANNEL(*)` | Channel 定義 | 盤點 | | 無 |
+| `DISPLAY CHSTATUS(*) ALL` | Channel 即時狀態 | Channel Down 排查 | 無輸出代表 INACTIVE | 無 |
+| `DISPLAY LISTENER(*)`、`DISPLAY LSSTATUS(*)` | Listener 定義 / 狀態 | 連線失敗排查 | | 無 |
+| `DISPLAY CONN(*) TYPE(CONN) ALL` | 目前連線 | 找出連線來源、Application Tag | 可配合 `WHERE(APPLTAG EQ '...')` | 無 |
+| `DISPLAY SUB(*)`、`DISPLAY SBSTATUS(*)` | 訂閱 | Pub/Sub 排查 | | 無 |
+| `DISPLAY CHLAUTH(*)` | Channel 認證規則 | 2035 / AMQ9777 排查 | | 無 |
+| `DISPLAY AUTHREC` | OAM 授權記錄 | 2035 排查 | | 無 |
+| `DISPLAY CLUSQMGR(*)` | Cluster 成員 | Cluster 健康檢查 | | 無 |
+
+```text
+* 找出所有有訊息堆積的應用佇列
+DISPLAY QLOCAL('PAY.*') WHERE(CURDEPTH GT 0) CURDEPTH MAXDEPTH
+
+* 佇列是否有 Consumer 在讀？（IPPROCS = 開啟 Input 的數量）
+DISPLAY QSTATUS('PAY.TXN.REQ') TYPE(QUEUE) CURDEPTH IPPROCS OPPROCS LGETDATE LGETTIME MSGAGE
+
+* 某應用程式的連線
+DISPLAY CONN(*) TYPE(CONN) WHERE(APPLTAG EQ 'payment-service') CHANNEL CONNAME USERID
+```
+
+### 5.6 常用定義與修改命令
+
+| 命令 | 功能 | 使用時機 | 注意事項 | Production 風險 |
+|------|------|----------|----------|----------------|
+| `DEFINE QLOCAL(...)` | 建立 Local Queue | 新服務上線 | 搭配 `BOQNAME`、`MAXDEPTH` | 低（新增） |
+| `DEFINE QREMOTE(...)` | 建立 Remote Queue | 跨 QM 路由 | `RNAME`、`RQMNAME`、`XMITQ` 需正確 | 低 |
+| `DEFINE CHANNEL(...)` | 建立 Channel | 新連線 | 名稱兩端一致；TLS 參數 | 中（影響安全邊界） |
+| `DEFINE LISTENER(...)` | 建立 Listener | 新連接埠 | 防火牆規則 | 中 |
+| `ALTER QLOCAL(...)` | 修改佇列屬性 | 調整深度、門檻 | `PUT(DISABLED)` / `GET(DISABLED)` 會中斷應用 | 中-高 |
+| `ALTER CHANNEL(...)` | 修改 Channel | TLS、MCAUSER 調整 | 須重啟 Channel 才生效 | 高 |
+| `DELETE QLOCAL(...)` | 刪除佇列 | 下架 | 有訊息時會失敗，`PURGE` 會連訊息一起刪除 | **極高** |
+| `CLEAR QLOCAL(...)` | 清空佇列 | 測試環境 | **訊息不可恢復** | **極高** |
+| `START CHANNEL(...)` / `STOP CHANNEL(...)` | 啟停 Channel | 維運 | `STOP ... MODE(QUIESCE)` 較安全 | 中 |
+| `RESET CHANNEL(...) SEQNUM(n)` | 重設序號 | 序號不一致（AMQ9526） | 確認無 in-doubt 後才執行 | 高 |
+| `RESOLVE CHANNEL(...) ACTION(COMMIT/BACKOUT)` | 解決 in-doubt 批次 | Channel in-doubt | **選錯會造成訊息重複或遺失** | **極高** |
+| `REFRESH SECURITY TYPE(...)` | 重新載入安全快取 | 修改 OAM / CONNAUTH 後 | | 中 |
+| `SET CHLAUTH(...)` | 設定 Channel 認證規則 | 安全調整 | 規則錯誤會封鎖所有連線 | **極高** |
+| `SET AUTHREC(...)` | 設定 OAM 授權 | 權限調整 | 避免 `+all` | 高 |
+
+```text
+* 下架佇列的安全程序（Production 需經變更審核）
+* 1. 先禁止 PUT，觀察是否有 Producer 失敗
+ALTER QLOCAL('OLD.APP.REQ') PUT(DISABLED)
+* 2. 確認深度歸零、無 Consumer 開啟
+DISPLAY QSTATUS('OLD.APP.REQ') TYPE(QUEUE) CURDEPTH IPPROCS OPPROCS
+* 3. 備份定義
+*    （OS 層）dmpmqcfg -m BANKQM01 -n OLD.APP.REQ -t queue
+* 4. 觀察期後刪除（不使用 PURGE）
+DELETE QLOCAL('OLD.APP.REQ')
+```
+
+### 5.7 Production 操作風險分級
+
+| 等級 | 定義 | 範例 | 要求 |
+|------|------|------|------|
+| L0 唯讀 | 不改變任何狀態 | `DISPLAY *`、`dspmq` | 可自動化；AI 可協助產生 |
+| L1 低風險新增 | 新增不影響既有流量的物件 | `DEFINE QLOCAL` 新佇列 | 變更單 + 審核 |
+| L2 中風險修改 | 修改既有物件屬性 | `ALTER QLOCAL MAXDEPTH` | 變更單 + 審核 + 回復步驟 |
+| L3 高風險 | 影響連線或安全 | `ALTER CHANNEL`、`SET AUTHREC`、`STOP CHANNEL` | 變更單 + 雙人覆核 + 維護時段 + 回復計畫 |
+| L4 不可逆 | 資料或安全邊界不可恢復 | `CLEAR`、`DELETE ... PURGE`、`SET CHLAUTH`、`RESOLVE CHANNEL`、`dltmqm`、`endmqm -p` | L3 要求 + 備份驗證 + 主管核准；**AI 禁止執行** |
+
+### 5.8 管理方式全景與命令集比較
+
+IBM MQ 提供多組管理介面，**同一件事通常有三四種做法**。企業必須明確規定「哪種情境用哪種介面」，否則稽核時無法說明某個設定是誰、透過什麼管道改的。
+
+| 介面 | 執行位置 | 可否遠端 | 可否建立 / 啟動 QM | 自動化友善 | 稽核來源 | 建議用途 |
+|------|---------|---------|-------------------|-----------|---------|---------|
+| Control Commands（`crtmqm`、`strmqm`…） | QM 主機 OS | 否 | 是 | 中（Shell 腳本） | OS 稽核、Shell 歷史 | QM 生命週期、安裝、備份 |
+| MQSC（`runmqsc`） | 本機或遠端 | 是（`-w`、`-c`） | 否 | 高（檔案化、可 `-v` 驗證） | Command Event、變更單 | **物件定義的標準管道**，搭配 Git |
+| PCF | 任何能連 QM 的程式 | 是 | 否 | 高（程式化） | Command Event | 監控工具、自訂管理程式 |
+| Administrative REST API | mqweb（HTTPS） | 是 | 否 | 高（HTTP / JSON） | mqweb 稽核日誌、Command Event | Portal、Pipeline、跨平台腳本 |
+| IBM MQ Console | 瀏覽器 | 是 | 否（可管理既有本機 QM） | 低 | mqweb 日誌 | 查詢、緊急人工操作 |
+| IBM MQ Explorer | 桌面程式 | 是 | 否（本機可建立） | 低 | Command Event | 管理員日常瀏覽 |
+| Taskbar 應用（Windows） | Windows 工作列 | 否 | 否 | 無 | — | 開發機 |
+| IBM i CL / z/OS 主控台、ISPF、CSQUTIL | 平台原生 | 依平台 | 依平台 | 中 | 平台稽核（SMF 等） | IBM i、z/OS（見 5.13） |
+
+```mermaid
+flowchart TD
+    S(["管理需求"]) --> A{"建立 / 啟停 QM？"}
+    A -- 是 --> CC["Control Commands<br/>（須登入主機或由 Agent / Operator 代執行）"]
+    A -- 否 --> B{"變更物件定義？"}
+    B -- 是 --> MQSC["MQSC 檔案 + Git + runmqsc -v<br/>經 Pipeline 套用"]
+    B -- 否 --> C{"程式化查詢 / 監控？"}
+    C -- 是 --> D{"程式語言？"}
+    D -- "Java / C" --> PCF["PCF"]
+    D -- "任何 HTTP 用戶端" --> REST["Administrative REST API"]
+    C -- 否 --> UI["Console / Explorer<br/>（Production 預設唯讀角色）"]
+```
+
+**企業規範建議**：Production 物件變更**只能**透過「MQSC 檔案 + Pipeline」；Console 與 Explorer 在 Production 預設只給唯讀權限；REST 與 PCF 的寫入權限只發給受控的自動化帳號。
+
+### 5.9 本機管理與遠端管理
+
+| 方式 | 原理 | 前提 | 限制 |
+|------|------|------|------|
+| 本機管理 | 在 QM 所在主機執行命令 | OS 帳號屬於 `mqm` 或具備相應權限 | 需登入主機 |
+| 經由 QM 的遠端管理 | 本機 QM 把命令訊息透過 Channel 送到遠端 QM 的 `SYSTEM.ADMIN.COMMAND.QUEUE` | 兩端 QM 之間有 Sender / Receiver Channel 與 Transmission Queue；遠端 **Command Server** 執行中 | 不能建立、啟動 QM，也不能啟動 Command Server |
+| Client 模式遠端管理 | `runmqsc -c` 以 MQI Client 連到遠端 QM | 有可用的 SVRCONN、CCDT 或 `MQSERVER`、適當權限 | 同上 |
+
+```bash
+# 檢查 / 啟動 Command Server（QM 屬性 SCMDSERV(QMGR) 時會隨 QM 自動啟動）
+dspmqcsv BANKQM01
+strmqcsv BANKQM01
+
+# 經由本機 QM（-m）把命令送到遠端 QM，-w 為等待回覆秒數
+runmqsc -w 30 -m ADMINQM01 BANKQM02
+
+# 以 Client 模式直接連遠端 QM（使用 CCDT）
+export MQCCDTURL=file:///etc/mq/admin-ccdt.json
+runmqsc -c BANKQM02
+```
+
+**安全要求**：
+
+- 遠端管理使用**專用的管理 SVRCONN**（例如 `ADM.SVRCONN`），強制 TLS + 用戶端憑證，以 CHLAUTH 限制來源 IP 與憑證 DN。
+- 以 CHLAUTH 封鎖 `SYSTEM.ADMIN.SVRCONN`、`SYSTEM.DEF.SVRCONN` 等預設 Channel 的外部存取。
+- 啟用 Command Event（`ALTER QMGR CMDEV(ENABLED)`）與 Configuration Event（`CONFIGEV(ENABLED)`），讓所有遠端變更都留下紀錄。
+
+### 5.10 PCF 與 MQAI 自動化
+
+**PCF（Programmable Command Format）** 是 MQSC 的程式化版本：程式把一則帶有 `MQCFH` 標頭與參數結構的訊息放到 `SYSTEM.ADMIN.COMMAND.QUEUE`，Command Server 執行後把結果放回 Reply Queue。監控工具（例如 `mq-metric-samples`）、IBM MQ Explorer 與許多商業工具都是透過 PCF 運作。
+
+| 項目 | 說明 |
+|------|------|
+| 命令代碼 | `MQCMD_INQUIRE_Q`、`MQCMD_INQUIRE_Q_STATUS`、`MQCMD_INQUIRE_CHANNEL_STATUS` 等 |
+| Java 支援 | `com.ibm.mq.headers.pcf` 套件（`PCFMessageAgent`、`PCFMessage`） |
+| C 支援 | 直接組 PCF 結構，或使用 **MQAI**（MQ Administration Interface，`mqExecute` 等，以「資料袋」抽象化 PCF） |
+| 權限 | 需要 `SYSTEM.ADMIN.COMMAND.QUEUE` 的 put、Reply Queue 的 get，以及目標物件的 `dsp`（查詢）或 `chg` 等權限 |
+| `[MQ 10.0]` | 新增以程式化方式讀取 Error Log 的能力 `[需確認 PCF 命令名稱]` |
+
+以下範例為 **L0 唯讀**的佇列深度巡檢，可作為監控與 AI Agent 工具的基礎：
+
+```java
+package com.tutorial.mq.admin;
+
+import com.ibm.mq.MQException;
+import com.ibm.mq.MQQueueManager;
+import com.ibm.mq.constants.CMQC;
+import com.ibm.mq.constants.CMQCFC;
+import com.ibm.mq.headers.MQDataException;
+import com.ibm.mq.headers.pcf.PCFMessage;
+import com.ibm.mq.headers.pcf.PCFMessageAgent;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * 以 PCF 查詢 Local Queue 深度（唯讀巡檢，Production 風險等級 L0）。
+ */
+public final class QueueDepthInspector {
+
+    private QueueDepthInspector() {
+    }
+
+    /**
+     * 查詢符合名稱樣式的 Local Queue 目前深度。
+     *
+     * @param queueManager 已連線的 Queue Manager（呼叫端負責中斷連線）
+     * @param namePattern  佇列名稱樣式，例如 {@code PAY.*}
+     * @return 佇列名稱與目前深度
+     * @throws MQDataException PCF 回應格式錯誤或命令失敗
+     * @throws MQException     MQ 呼叫失敗
+     * @throws IOException     讀取回應失敗
+     */
+    public static Map<String, Integer> inquireDepth(MQQueueManager queueManager, String namePattern)
+            throws MQDataException, MQException, IOException {
+        PCFMessageAgent agent = new PCFMessageAgent(queueManager);
+        try {
+            PCFMessage request = new PCFMessage(CMQCFC.MQCMD_INQUIRE_Q);
+            request.addParameter(CMQC.MQCA_Q_NAME, namePattern);
+            request.addParameter(CMQC.MQIA_Q_TYPE, CMQC.MQQT_LOCAL);
+            request.addParameter(CMQCFC.MQIACF_Q_ATTRS,
+                    new int[] {CMQC.MQCA_Q_NAME, CMQC.MQIA_CURRENT_Q_DEPTH, CMQC.MQIA_MAX_Q_DEPTH});
+
+            Map<String, Integer> depths = new LinkedHashMap<>();
+            for (PCFMessage response : agent.send(request)) {
+                depths.put(response.getStringParameterValue(CMQC.MQCA_Q_NAME).trim(),
+                        response.getIntParameterValue(CMQC.MQIA_CURRENT_Q_DEPTH));
+            }
+            return depths;
+        } finally {
+            agent.disconnect();
+        }
+    }
+}
+```
+
+> `PCFMessageAgent` 位於 IBM MQ classes for Java 的 `com.ibm.mq.headers.pcf` 套件；所需 artifact 與 Jakarta 環境下的可用性，請依使用版本確認 `[需確認]`。PCF 帳號只授予 `dsp` 權限即可完成巡檢，**不要用管理員帳號跑監控**。
+
+### 5.11 Administrative REST API
+
+Administrative REST API 由 mqweb server 提供（見 Part 2.11），讓任何能發 HTTPS 請求的工具都能管理 MQ。v3 起建議使用 **MQSC 端點**，以 JSON 傳送 MQSC 命令。
+
+| 項目 | 說明 |
+|------|------|
+| 基礎路徑 | `https://<host>:9443/ibmmq/rest/v3/admin/...` |
+| 查詢 QM | `GET /ibmmq/rest/v3/admin/qmgr/{qmgr}` |
+| 執行 MQSC | `POST /ibmmq/rest/v3/admin/action/qmgr/{qmgr}/mqsc`，Body 為 `runCommand`（純文字命令）或 `runCommandJSON`（結構化） |
+| CSRF 保護 | `POST`、`PATCH`、`DELETE` 須帶 `ibm-mq-rest-csrf-token` 標頭（值不限） |
+| 認證 | HTTP Basic、登入取得 LTPA Token（`/ibmmq/rest/v3/login`）、Client 憑證 |
+| 授權 | mqweb 角色（`MQWebAdmin` / `MQWebAdminRO` / `MQWebUser`）+ `MQWebUser` 情境下的 OAM |
+
+```bash
+# 帳密放在權限 600 的 netrc 檔，避免出現在命令列歷史與行程清單
+# ~/.mq-rest.netrc：machine mqweb.bank.local login ops-ro password ********
+
+# 唯讀：查詢 Queue Manager（MQWebAdminRO 即可）
+curl -sS --cacert /etc/mq/ca.pem --netrc-file ~/.mq-rest.netrc \
+  "https://mqweb.bank.local:9443/ibmmq/rest/v3/admin/qmgr/BANKQM01"
+
+# 唯讀：以 runCommandJSON 查詢佇列深度（POST 必須帶 CSRF 標頭）
+curl -sS --cacert /etc/mq/ca.pem --netrc-file ~/.mq-rest.netrc \
+  -H "Content-Type: application/json" \
+  -H "ibm-mq-rest-csrf-token: ops" \
+  -X POST "https://mqweb.bank.local:9443/ibmmq/rest/v3/admin/action/qmgr/BANKQM01/mqsc" \
+  -d '{"type":"runCommandJSON","command":"display","qualifier":"qlocal","name":"PAY.*","responseParameters":["curdepth","maxdepth"]}'
+```
+
+**治理重點**：
+
+- REST 寫入命令與 MQSC 一樣屬於 L1-L4，**必須經變更流程**；Pipeline 帳號與人員帳號分開。
+- 不要使用 `-k`（略過憑證驗證）；mqweb 憑證要納入憑證到期監控。
+- mqweb 的 HTTP 連接埠預設應關閉，只開 HTTPS。
+- REST 回應中的 `overallCompletionCode` / `overallReasonCode` 要檢查，HTTP 200 不代表每個 MQSC 都成功。
+- JSON 欄位與端點細節以 IBM MQ 10.0 REST API Reference 為準 `[需確認]`。
+
+### 5.12 IBM MQ Console 與 IBM MQ Explorer
+
+| 項目 | IBM MQ Console | IBM MQ Explorer |
+|------|---------------|-----------------|
+| 形態 | 瀏覽器（mqweb） | Eclipse 架構的桌面程式（Windows / Linux） |
+| 取得方式 | 隨 Server 安裝 | 獨立下載 `[需確認 10.0 取得方式]` |
+| 管理範圍 | 同主機 QM；可設定遠端 QM 連線 | 本機與遠端 QM（透過 Client 連線） |
+| 認證 | mqweb 使用者登錄（LDAP 建議） | 依連線使用的 Channel 與 CONNAUTH |
+| `[MQ 10.0]` | Console 功能強化 `[需確認細節]` | 支援 FIPS 合規模式 |
+| 適合 | 營運查詢、儀表板、跨團隊共用 | 管理員日常瀏覽與除錯 |
+
+**Production 使用原則**：
+
+1. 依角色給權限：維運人員 `MQWebAdminRO`，只有 MQ 管理員群組有 `MQWebAdmin`。
+2. Explorer 連 Production 必須走 TLS 管理 Channel（5.9），不可使用 `SYSTEM.ADMIN.SVRCONN` 的預設設定。
+3. Console 與 Explorer 的變更不應成為常態；若緊急人工變更，事後必須以 `dmpmqcfg` 回寫到 Git 中的 MQSC，避免設定漂移。
+
+### 5.13 IBM MQ for z/OS 系統管理
+
+本節延續 Part 2.10 的架構，整理 z/OS 管理員的日常命令。**z/OS 上的命令以「命令前綴字串（CPF）」區分 Queue Manager**，例如 `-QM01`。
+
+#### 命令入口
+
+| 入口 | 說明 | 使用時機 |
+|------|------|---------|
+| z/OS 主控台 + CPF | `-QM01 DISPLAY QLOCAL(*)` | 啟停、緊急操作 |
+| ISPF Operations and Control 面板 | 互動式選單 | 管理員日常操作 |
+| CSQUTIL `COMMAND` 功能 | 以 Batch Job 執行 MQSC | 大量定義、排程巡檢 |
+| 初始化輸入資料集 | `CSQINP1`（啟動早期參數）、`CSQINP2`（物件定義）、`CSQINPX`（CHIN 啟動時執行） | QM / CHIN 啟動 |
+| MQSC 遠端 / PCF / REST / Console | 與分散式平台相同概念 | 自動化、跨平台管理 |
+
+#### 常用命令
+
+| 命令 | 功能 | Production 風險 |
+|------|------|----------------|
+| `-QM01 START QMGR` / `STOP QMGR MODE(QUIESCE)` | 啟停 Queue Manager | L3 |
+| `-QM01 START CHINIT` / `STOP CHINIT` | 啟停 Channel Initiator | L3 |
+| `DISPLAY SYSTEM`、`DISPLAY QMGR` | 系統參數與 QM 屬性 | L0 |
+| `DISPLAY USAGE TYPE(ALL)` | Page Set、Buffer Pool、Log 使用量 | L0 |
+| `DISPLAY LOG`、`DISPLAY ARCHIVE` | Log 狀態 | L0 |
+| `ARCHIVE LOG` | 強制切換並歸檔 Active Log | L2 |
+| `DISPLAY GROUP` | QSG 成員 | L0 |
+| `DISPLAY CFSTRUCT(*)`、`DISPLAY CFSTATUS(*) TYPE(SUMMARY)` | CF Structure 定義與狀態 | L0 |
+| `BACKUP CFSTRUCT(APP1)` | 備份 CF Structure 中的持久性訊息 | L1（需排程） |
+| `RECOVER CFSTRUCT(APP1)` | 從備份與 Log 復原 CF Structure | **L4** |
+| `ALTER BUFFPOOL(n) BUFFERS(...)` | 調整 Buffer Pool | L3 |
+| `DEFINE PSID(n) BUFFPOOL(m)` | 新增 Page Set 對應 | L2 |
+| 任一命令加 `CMDSCOPE(*)` | 在 QSG 所有成員執行 | 風險隨命令放大，**寫入命令禁止 AI 產生 `CMDSCOPE(*)` 而未經審核** |
+
+```text
+//MQDISP   JOB (ACCT),'MQ DAILY CHECK',CLASS=A,MSGCLASS=X
+//* L0 唯讀巡檢：以 CSQUTIL 對 QSG 所有成員查詢應用佇列深度
+//CSQUTIL  EXEC PGM=CSQUTIL,PARM='QM01'
+//STEPLIB  DD DISP=SHR,DSN=thlqual.SCSQANLE
+//         DD DISP=SHR,DSN=thlqual.SCSQAUTH
+//SYSPRINT DD SYSOUT=*
+//SYSIN    DD *
+COMMAND DDNAME(CMDINP)
+/*
+//CMDINP   DD *
+DISPLAY QLOCAL('PAY.*') CURDEPTH MAXDEPTH CMDSCOPE(*)
+DISPLAY CFSTATUS(*) TYPE(SUMMARY)
+DISPLAY USAGE TYPE(PAGESET)
+/*
+```
+
+> `thlqual` 為安裝時的高階限定詞；JCL 與資料集名稱依各機構標準調整。
+
+#### 公用程式
+
+| 程式 | 用途 |
+|------|------|
+| `CSQUTIL` | 執行命令、匯出物件定義（`SDEFS`）、Page Set 複製 / 載入 / 清空 / 格式化 |
+| `CSQ5PQSG` | 在 Db2 中新增或移除 QSG 與成員 QM |
+| `CSQJU003` / `CSQJU004` | 修改 / 列印 BSDS（Log 資料集清單） |
+| `CSQ4INSG` 等範例 | 預設物件與系統物件定義範本 |
+
+#### SMF 與監控資料
+
+| 紀錄 | 內容 | 啟用 |
+|------|------|------|
+| SMF 115 | Queue Manager 統計（Log、Buffer Pool、Page Set、CF 使用量等） | `START TRACE(STAT) CLASS(...)` |
+| SMF 116 | Accounting（每個連線 / 每個佇列的 MQI 用量、Channel Accounting） | `START TRACE(ACCTG) CLASS(...)` |
+| `[MQ 10.0]` 變更 | SMF 115 / 116 的 Release 欄位變更；Channel Accounting 新欄位；整合 OpenTelemetry tracing；新的驗證失敗訊息 | 依官方說明調整報表程式 `[需確認]` |
+
+> Trace class 編號、`STATIME` 間隔與 SMF 報表工具（例如 `MQSMF` 範例程式）請依 IBM MQ for z/OS 文件確認後再啟用；SMF 116 Class 3 資料量大，需先評估。
+
+#### z/OS 管理的 Production 風險
+
+- `RECOVER CFSTRUCT`、Page Set 復原、BSDS 修改屬 **L4**，必須由主機系統程式師與 MQ 管理員雙人執行。
+- CF Structure 容量不足會導致 Shared Queue 上的 `MQPUT` 失敗（`2192` 等），應監控 CF 使用率並排程 `BACKUP CFSTRUCT`。
+- Db2 是 QSG 物件定義的共用儲存，Db2 不可用會影響 QSG 物件的定義與變更。
+
+### 5.14 擴充元件管理
+
+| 元件 | 常用管理命令 / 設定 | 重點 |
+|------|-------------------|------|
+| MFT | `fteSetupCoordination`、`fteCreateAgent`、`fteStartAgent`、`fteStopAgent`、`ftePingAgent`、`fteListAgents`、`fteCreateTransfer`、`fteCreateMonitor`、`fteCreateLogger` | Coordination QM 與 Agent QM 規劃；傳輸紀錄（Logger）寫入資料庫或檔案以供稽核 |
+| MQIPT | `mqipt <設定目錄>` 啟動、`mqiptAdmin` 管理；`mqipt.conf` 定義 Route（ListenerPort、Destination、DestinationPort、TLS） | 放 DMZ；`[MQ 10.0]` 升級前檢查 CipherSuite 與 Java Security Manager 相關設定 |
+| AMQP | `DEFINE CHANNEL('APP.AMQP') CHLTYPE(AMQP) PORT(5672)`；`START SERVICE(SYSTEM.AMQP.SERVICE)`；`START CHANNEL('APP.AMQP')` | 一樣要用 CHLAUTH、MCAUSER、TLS 保護 |
+| MQTT | `DEFINE CHANNEL('IOT.MQTT') CHLTYPE(MQTT) TRPTYPE(TCP) PORT(8883) SSLCIPH(...)`；Telemetry Service `SYSTEM.MQXR.SERVICE` | 正式環境只開 TLS 連接埠 |
+| Multicast | `DEFINE COMMINFO('MC.INFO') GRPADDR('239.1.1.1') PORT(1414)`；Topic 設 `MCAST(ENABLED) COMMINFO('MC.INFO')` | 網路需支援 IP Multicast |
+| Kafka Connect | Connector 設定 `mq.queue.manager`、`mq.connection.name.list`、`mq.channel.name`、`mq.queue`、`topic` 等 | Connector 使用專用 MQ 帳號與最小權限 |
+
+> 上表命令只列出關鍵字與常用參數，完整語法以 IBM MQ 10.0 文件為準 `[需確認]`。
+
+### 5.15 IBM MQ 10.0 新增的管理能力
+
+| 能力 | 管理意義 | 標記 |
+|------|---------|------|
+| Native HA 詳細狀態 | 可看到各實例的複寫狀態與落後程度，故障排查不必猜 `[需確認命令選項]` | `[MQ 10.0]` |
+| 程式化讀取 Error Log | 監控工具不必登入主機讀 `AMQERR01.LOG` | `[MQ 10.0]` |
+| `dspmqcert` | 檢查 QM 憑證到期日，可納入每日巡檢 | `[MQ 10.0]` |
+| 多 Certificate Label | 憑證輪替時可同時掛新舊憑證 | `[MQ 10.0]` |
+| 變更 QM CCSID 可能需 force | 避免無意間改壞既有資料轉換 | `[MQ 10.0]` |
+| 延伸 Authority Event（正向驗證） | 稽核成功登入 | `[MQ 9.4 CD]` |
+| Console 強化 | 營運查詢更完整 | `[MQ 9.4 CD]` |
+| AMQ7366W 可列入 Exclude / Suppress 清單 | 減少 Error Log 雜訊 | `[MQ 10.0]` |
+| 隨產品附帶的 Java runtime 變更 | 影響 MFT、MQ Console、AMQP、MQTT 等 Java 元件 | `[MQ 10.0]` |
+
+### 5.16 AI Agent 使用方式
+
+- **可以**：請 AI 依需求產生 MQSC 變更檔、`runmqsc -v` 驗證腳本、回復（Rollback）MQSC 檔、`DISPLAY` 巡檢腳本。
+- **可以**：把 `dmpmqcfg` 輸出交給 AI 做差異分析、找出過度授權與不一致設定。
+- **不可以**：讓 AI 直接連 Production 執行 L1 以上的命令。
+
+### 5.17 常見錯誤
+
+- 在 Production 用 `DEFINE ... REPLACE` 覆寫既有佇列，導致 `BOQNAME` 等屬性被重設。
+- 忘記 `ALTER CHANNEL` 後需要重啟 Channel 才生效。
+- `CLEAR QLOCAL` 誤清 Production 佇列。
+- 沒有定期 `dmpmqcfg`，災難時無法重建物件。
+
+### 5.18 Checklist
+
+- [ ] 每日 `dmpmqcfg` 備份並納入版本比對
+- [ ] 所有變更 MQSC 先以 `runmqsc -v` 驗證語法
+- [ ] 每個變更檔都有對應 Rollback MQSC
+- [ ] L3 / L4 操作有雙人覆核
+- [ ] 巡檢腳本只使用 `DISPLAY` 類命令
+- [ ] 已明定各管理介面的使用情境；Production 物件變更只走 MQSC + Pipeline
+- [ ] 遠端管理使用專用 TLS 管理 Channel，預設 `SYSTEM.*.SVRCONN` 已封鎖
+- [ ] Command Event 與 Configuration Event 已啟用
+- [ ] PCF / REST 監控帳號只有唯讀（`dsp`、`MQWebAdminRO`）權限
+- [ ] mqweb 只開 HTTPS，憑證納入到期監控
+- [ ] z/OS：CF Structure 已排程 `BACKUP CFSTRUCT`，SMF 115 / 116 已依需求啟用
+
+---
+
+## Part 6 — Queue 設計
+
+### 6.1 目的
+
+建立企業級 Queue 設計原則：命名、容量、錯誤處理佇列（Backout / DLQ / Retry）與 Request / Response 佇列配置。
+
+### 6.2 Queue Naming Convention
+
+建議格式：
+
+```text
+<system>.<domain>.<function>.<direction>[.<suffix>]
+```
+
+| 區段 | 說明 | 範例 |
+|------|------|------|
+| `system` | 擁有者系統代碼（3-6 字元） | `PAY`、`CBS`、`CARD`、`NBK` |
+| `domain` | 業務領域 | `TXN`、`ACCT`、`CUST` |
+| `function` | 功能 | `TRANSFER`、`INQUIRY`、`NOTIFY` |
+| `direction` | 方向 / 角色 | `REQ`、`RSP`、`EVT`、`CMD` |
+| `suffix` | 特殊用途 | `BOQ`（Backout）、`RETRY`、`DLQ`、`ALIAS` |
+
+**規則**：
+
+1. 全大寫、以 `.` 分隔，避免底線與小寫（MQSC 引號問題）。
+2. 總長度 ≤ 48 字元。
+3. 不使用 `SYSTEM.` 開頭。
+4. **佇列名稱不含環境名稱**（`DEV`、`PROD`），環境以 Queue Manager 區分，讓程式設定在各環境一致。
+5. 一個佇列只屬於一個擁有者系統。
+
+### 6.3 金融系統命名範例
+
+| 佇列 | 類型 | 用途 |
+|------|------|------|
+| `NBK.TXN.TRANSFER.REQ` | QREMOTE / QALIAS | 網銀發送轉帳請求（Producer 端看到的名稱） |
+| `CBS.TXN.TRANSFER.REQ` | QLOCAL | 核心系統接收轉帳請求 |
+| `CBS.TXN.TRANSFER.REQ.BOQ` | QLOCAL | 轉帳請求的 Backout Queue |
+| `NBK.TXN.TRANSFER.RSP` | QLOCAL | 網銀接收轉帳回覆 |
+| `NBK.TXN.TRANSFER.RSP.BOQ` | QLOCAL | 回覆佇列的 Backout Queue |
+| `CBS.ACCT.BALANCE.EVT` | Topic String `Bank/Account/Balance/Changed` | 餘額異動事件 |
+| `PAY.TXN.SETTLE.RETRY` | QLOCAL | 延遲重試佇列 |
+
+### 6.4 Queue Capacity：MAXDEPTH 與 MAXMSGL
+
+| 屬性 | 說明 | 預設 `[需確認]` | 設計建議 |
+|------|------|-----------------|----------|
+| `MAXDEPTH` | 佇列最多訊息數 | 5000 | 依「峰值 TPS × 可容忍的 Consumer 停機秒數 × 安全係數」估算 |
+| `MAXMSGL` | 單則訊息最大長度（bytes） | 4 MB（4194304） | 依實際訊息上限設定，**不要盲目設到最大值** |
+| QMGR `MAXMSGL` | QM 層級上限 | 4 MB | 必須 ≥ 佇列與 Channel 的 `MAXMSGL` |
+| Channel `MAXMSGL` | Channel 層級上限 | 4 MB | 兩端協商取較小值 |
+
+**MAXDEPTH 估算範例**：
+
+```text
+峰值 TPS                 = 500 msg/s
+可容忍 Consumer 停機時間  = 30 分鐘 = 1800 秒
+安全係數                 = 1.5
+MAXDEPTH ≈ 500 × 1800 × 1.5 = 1,350,000
+
+同時檢查：1,350,000 × 平均訊息大小 2KB ≈ 2.7GB
+→ 確認 Queue 檔案系統空間足夠，並設定 QDEPTHHI 告警（例如 60%）
+```
+
+> 佇列滿時 Producer 會收到 `2053 MQRC_Q_FULL`；跨 QM 傳遞時訊息會進 DLQ。**MAXDEPTH 是保護機制，不是容量規劃的替代品。**
+
+### 6.5 Backout Queue、Dead Letter Queue、Retry Queue
 
 ```mermaid
 flowchart LR
-    S1["1 Discover"] --> S2["2 Scan"] --> S3["3 Analyze"] --> S4["4 Classify"]
-    S4 --> S5["5 Plan"] --> S6["6 Fix"] --> S7["7 Test"] --> S8["8 Re-scan"]
-    S8 --> S9["9 Compare"] --> S10["10 Report"] --> S11["11 Human Approval"] --> S12["12 Commit / Release"]
-    S9 -.->|"仍有可修項目"| S6
+    P["Producer"] --> REQ["CBS.TXN.TRANSFER.REQ<br/>BOTHRESH(5)"]
+    REQ --> C["Consumer"]
+    C -- "成功" --> OK(["Commit"])
+    C -- "暫時錯誤<br/>Backout" --> REQ
+    C -- "BackoutCount ≥ 5<br/>或永久錯誤" --> BOQ["CBS.TXN.TRANSFER.REQ.BOQ"]
+    C -- "需延遲重試" --> RETRY["PAY.TXN.SETTLE.RETRY"]
+    RETRY -- "排程 / 延遲處理器<br/>放回原佇列" --> REQ
+    CH["Receiver Channel"] -- "目標不存在 / 已滿" --> DLQ["SYSTEM.DEAD.LETTER.QUEUE"]
+    BOQ --> OPS["維運處理 / 補償"]
+    DLQ --> DLQH["runmqdlq / 維運處理"]
 ```
 
-### 54.3 停止條件與回報對象
+| 佇列 | 誰放入 | 用途 | 處理方式 |
+|------|--------|------|----------|
+| Backout Queue（BOQ） | 應用程式（JMS 自動；MQI 自行） | 處理失敗超過門檻的毒訊息 | 人工檢視、修正後重送或補償 |
+| Dead Letter Queue（DLQ） | Queue Manager / Channel | MQ 層級無法投遞 | `runmqdlq` 規則或人工 |
+| Retry Queue | 應用程式 | 需延遲一段時間再重試 | 排程程式依時間放回原佇列 |
 
-| 停止條件 | 回報對象 | 回報內容 |
-|----------|----------|----------|
-| Trivy 版本或 DB 與企業規定不符 | Platform Team | `trivy --version` 輸出 |
-| 找不到 AGENTS.md / 專案規則 | 任務指派者 | 缺少的規則清單 |
-| 涉及 Human Approval 項目 | Tech Lead / Security | 修正計畫與風險說明 |
-| 同一 Finding 修正 3 次失敗 | Tech Lead | 嘗試過的方案與失敗原因 |
-| 新增 HIGH / CRITICAL / Secret 且無法修正 | DevSecOps | 差異報告（不含 Secret 內容） |
-| 任務要求與禁止清單衝突（例如「讓 CI 過就好」） | 任務指派者 | 拒絕理由與第 29 章權責清單 |
+**延遲投遞的選擇**：MQI 層級沒有「指定時間後才可被取出」的訊息屬性，但 **IBM MQ classes for JMS / Jakarta Messaging 支援 JMS 2.0 的 Delivery Delay**：Producer 設定 `setDeliveryDelay()` 後，訊息會先放到 Queue Manager 的暫存佇列 `SYSTEM.DDELAY.LOCAL.QUEUE`，時間到才移到目標佇列。使用時需注意：
 
-### 實務案例
+- 需要 Queue Manager 端支援並允許使用暫存佇列；暫存佇列的容量與權限要納入管理。
+- 延遲期間訊息不在目標佇列上，監控目標佇列深度時看不到它們。
+- 與部分功能（例如特定 Cluster 或 z/OS Shared Queue 情境）的相容性有限制 `[需確認]`。
 
-某團隊把本章 SOP 的 12 個步驟寫成 AI Agent 的 Task Template，每個步驟的輸出都要求放在 `.ai/trivy/` 目錄。Reviewer 只要檢查該目錄是否齊全，就能判斷 Agent 是否跳過步驟。
+延遲重試的常見做法：
 
-### 注意事項
+1. JMS Delivery Delay（Java 應用、延遲時間短、訊息量可控）
+2. Retry Queue + 排程程式（訊息帶下次處理時間屬性）
+3. Consumer 端 Backout 後由 Listener Container 退避（Backoff）
+4. 外部排程（例如資料庫記錄重試時間）
 
-- Step 11 Human Approval 永遠不可自動化，即使所有檢查都通過。
-- SOP 的輸出檔（`before/*.json`、`after/*.json`）屬稽核證據，但不應 commit 進產品 repo，應以 CI artifact 保存。
+### 6.6 Request Queue 與 Response Queue
 
----
+| 設計選項 | 說明 | 優點 | 缺點 |
+|---------|------|------|------|
+| 共用 Response Queue + CorrelId 篩選 | 所有 Requester 實例共用一個回覆佇列 | 佇列數少、易管理 | 需以 CorrelId 篩選；多實例時要確保回覆被正確實例取走 |
+| 每實例一個 Response Queue | 每個服務實例專屬回覆佇列 | 不需跨實例篩選 | 佇列數量隨實例數增加；K8s 動態擴縮困難 |
+| Temporary Dynamic Queue | 由 Model Queue 動態建立 | 自動清理 | 連線斷開即消失、回覆遺失；Persistent 不適用 |
 
-## 55. AI Agent Security Policy
+**金融系統建議**：共用 Response Queue + CorrelId 篩選，搭配 Expiry 與 Timeout（見 Part 15）。
 
-### 55.1 Policy 範本
+### 6.7 MQSC 範例：一組完整的 Request / Reply 佇列
 
-**【Security Policy 範本】** 可直接放入企業 AI Coding Standard，需經 Security Team 核定後生效。
+```text
+* ===== 核心系統 QM (CBSQM01) =====
+DEFINE QLOCAL('CBS.TXN.TRANSFER.REQ.BOQ') DEFPSIST(YES) MAXDEPTH(100000) +
+       DESCR('Transfer request backout') REPLACE
+DEFINE QLOCAL('CBS.TXN.TRANSFER.REQ') DEFPSIST(YES) +
+       MAXDEPTH(500000) MAXMSGL(65536) +
+       BOTHRESH(5) BOQNAME('CBS.TXN.TRANSFER.REQ.BOQ') HARDENBO +
+       QDEPTHHI(60) QDPHIEV(ENABLED) +
+       MONQ(MEDIUM) +
+       DESCR('Transfer request from NBK') REPLACE
 
-| Policy ID | Rule | Description | AI Agent Action | Human Approval | Evidence | Exception |
-|-----------|------|-------------|----------------|----------------|----------|-----------|
-| AIP-TRV-001 | Baseline before change | 修改程式前必須執行 Trivy Baseline | 執行 `trivy fs` JSON | 否 | `before/*.json` | 無 |
-| AIP-TRV-002 | Re-scan after dependency change | 相依變更後必須 Re-scan | 執行並比較 | 否 | 差異報告 | 無 |
-| AIP-TRV-003 | No new HIGH/CRITICAL | 不得引入新的 HIGH / CRITICAL fixed 弱點 | 修正或停止 | 無法修正時 | 差異報告 | Security 核准 |
-| AIP-TRV-004 | Secret non-disclosure | 不得讀取、輸出、儲存 Secret 內容 | 只用 RuleID / 位置 | — | Session log | 不允許 |
-| AIP-TRV-005 | No ignore modification | 不得新增、延長、刪除 ignore / VEX 條目 | 只可產生草稿 | 是 | Exception 記錄 | Security 核准 |
-| AIP-TRV-006 | No scanner weakening | 不得修改 scanners、severity、exit-code、移除 scan step | 拒絕並回報 | — | CI 設定 diff | 不允許 |
-| AIP-TRV-007 | Pinned tooling | 不得將 Action / Trivy 版本改為 mutable tag 或 latest | 拒絕並回報 | — | Workflow diff | 不允許 |
-| AIP-TRV-008 | Image scan before release | 產生 Production 映像前後必須 `trivy image` | 執行 | 否 | `trivy-image.json` | 無 |
-| AIP-TRV-009 | IaC scan before deploy | 部署前 `trivy config` | 執行 | 否 | `trivy-config.json` | 無 |
-| AIP-TRV-010 | SBOM for release | Release 必須有 SBOM | 產生 | 否 | `sbom.cdx.json` | 無 |
-| AIP-TRV-011 | License no legal conclusion | 不得對 License 下法律結論 | 列出並標示需法務 | 是 | License 清單 | 法務決定 |
-| AIP-TRV-012 | Major upgrade approval | major 升級、Base Image distro 變更需核准 | 提出建議 | 是 | Upgrade Report | — |
-| AIP-TRV-013 | No production cluster scan | 未經授權不得對 Production 執行 `trivy k8s` | 拒絕 | 是 | 授權紀錄 | Platform 核准 |
-| AIP-TRV-014 | Consistent DB for comparison | 比較時 Before / After 必須同版本同 DB | 檢查並記錄 | 否 | 版本紀錄 | 無 |
-| AIP-TRV-015 | Stop and report | 同一問題修正 3 次失敗即停止 | 停止並回報 | 是 | Session log | — |
-| AIP-TRV-016 | Approved MCP only | 只可使用平台團隊核准並固定版本的 Trivy MCP Server；MCP 結果不得作為 Gate 證據 | 不安裝、不重設 MCP | 是（變更時） | MCP 設定檔 diff | Platform 核准 |
-
-### 55.2 Policy 落地：文字規則對應技術控制
-
-| Policy ID | 文字規則位置 | 技術控制 |
-|-----------|-------------|----------|
-| AIP-TRV-001、002、014 | AGENTS.md（附錄 F） | PR Template 要求附 Before / After；CI 重新掃描 |
-| AIP-TRV-003、008、009、010 | AGENTS.md | CI Security Gate（第 38 章）、Required checks |
-| AIP-TRV-004 | AGENTS.md、Prompt | jq 摘要只輸出 RuleID；CI log 不輸出 table |
-| AIP-TRV-005、006、007 | AGENTS.md | CODEOWNERS、Branch Protection、Org Action SHA pin 政策 |
-| AIP-TRV-011、012 | AGENTS.md | PR label + CODEOWNERS 指派法務 / Architect |
-| AIP-TRV-013 | AGENTS.md | Agent 環境不提供 Production kubeconfig |
-| AIP-TRV-015 | AGENTS.md | Agent 執行平台的重試上限設定 |
-| AIP-TRV-016 | AGENTS.md | IDE / MCP 允許清單、端點管理派送固定版本 plugin |
-
-### 實務案例
-
-某公司第一版 Policy 只寫在 AGENTS.md，稽核時發現 AIP-TRV-005 被違反 4 次卻無法證明何時發生。依 55.2 對應到 CODEOWNERS 與 Branch Protection 後，每次違規嘗試都留在 PR Review 紀錄，可直接作為稽核證據。
-
-### 注意事項
-
-- Policy ID 一經發布不應重新編號，廢止的規則保留 ID 並標示 Deprecated。
-- 本章為範本，需經 Security Team 核定後才生效。
-
----
-
-## 56. Trivy 與企業 AI Coding Standard
-
-### 56.1 規範領域對照
-
-| 規範領域 | Trivy 整合點 | 對應章節 |
-|----------|-------------|----------|
-| AI Coding Standard | AGENTS.md / copilot-instructions.md 中的 Trivy 規則 | 附錄 F、第 55 章 |
-| SSDLC | 各階段的掃描點 | 第 31 章 |
-| SDLC | 需求驗收條件含 SBOM、Gate | 第 31 章 |
-| DevSecOps | CI Gate、中央設定、Reusable workflow | 第 19、20、37 章 |
-| CI/CD | 標準 Pipeline | 第 19 章 |
-| Container Security | `trivy image`、Dockerfile 檢查、digest | 第 4、7 章 |
-| Kubernetes Security | `trivy config`、`trivy k8s`、Operator | 第 10、11 章 |
-| Cloud Security | IaC 左移、trivy-aws plugin | 第 12 章 |
-| Software Supply Chain | 工具驗章、SHA pin、SBOM、VEX | 第 6、14、20 章 |
-| SBOM Governance | 產生、保存、重掃 | 第 6 章 |
-| Open Source Governance | License 分類、法務流程 | 第 9 章 |
-| AI Tooling | Trivy MCP Server、IDE Extension 的允許清單與版本 | 第 14.10、26.4、30.4 節 |
-
-### 56.2 整合架構
-
-```mermaid
-flowchart TB
-    STD["企業 AI Coding Standard"] --> R1["AGENTS.md Trivy Rules"]
-    STD --> R2["Security Policy AIP-TRV-*"]
-    STD --> R3["SSDLC 掃描點"]
-    R1 & R2 & R3 --> CI["CI/CD Gate"]
-    CI --> SC["Supply Chain：SBOM、VEX、驗章"]
-    CI --> OS["Open Source Governance：License"]
-    CI --> RT["Runtime：Operator"]
+* ===== 網銀 QM (NBKQM01) =====
+DEFINE QLOCAL('NBK.TXN.TRANSFER.RSP.BOQ') DEFPSIST(YES) MAXDEPTH(100000) REPLACE
+DEFINE QLOCAL('NBK.TXN.TRANSFER.RSP') DEFPSIST(YES) MAXDEPTH(500000) +
+       BOTHRESH(3) BOQNAME('NBK.TXN.TRANSFER.RSP.BOQ') HARDENBO +
+       QDEPTHHI(60) QDPHIEV(ENABLED) MONQ(MEDIUM) REPLACE
+* 網銀程式只認得 NBK.TXN.TRANSFER.REQ，實際路由到核心
+DEFINE QREMOTE('NBK.TXN.TRANSFER.REQ') RNAME('CBS.TXN.TRANSFER.REQ') +
+       RQMNAME('CBSQM01') XMITQ('CBSQM01') REPLACE
 ```
 
-### 56.3 導入檢核
+> `HARDENBO` 讓 BackoutCount 在 QM 重啟後仍正確，對毒訊息判斷很重要（有些許效能代價）。
 
-- [ ] AI Coding Standard 已引用附錄 F 的 Trivy 規則，且各 repo 的 AGENTS.md / copilot-instructions.md 版本一致
-- [ ] AIP-TRV-* Policy 已經 Security Team 核定並公告
-- [ ] 每條 Policy 都有對應技術控制（第 55.2 節）
-- [ ] IDE Extension 與 MCP Server 已列入允許清單並固定版本
-- [ ] SSDLC 各階段掃描點已寫入專案範本
+### 6.8 常見錯誤
 
-### 實務案例
+- Input Queue 沒有 `BOQNAME`，毒訊息無限循環。
+- Backout Queue 本身又設定 `BOQNAME` 指回原佇列（循環）。
+- `MAXMSGL` 設成 100MB，結果有人把大檔案塞進 MQ 拖垮效能。
+- 佇列名稱含環境代碼，導致程式設定在各環境不同。
 
-某集團的 AI Coding Standard 原本只規範「程式風格與測試」。加入 56.1 對照表後，各領域的負責人能快速找到自己要維護的 Trivy 章節，標準文件也不再重複撰寫 Trivy 細節。
+### 6.9 Checklist
 
-### 注意事項
-
-- AI Coding Standard 應「引用」本手冊章節而非複製內容，避免版本分歧。
+- [ ] 命名符合 `<system>.<domain>.<function>.<direction>`
+- [ ] 每個 Input Queue 都有 `BOQNAME` + `BOTHRESH` + `HARDENBO`
+- [ ] `MAXDEPTH` 有估算依據並記錄
+- [ ] `MAXMSGL` 依實際需求設定
+- [ ] 設定 `QDEPTHHI` 事件或監控告警
+- [ ] Request 與 Response 佇列分離
+- [ ] Backout Queue 有處理流程與負責人
 
 ---
 
-## 57. 建議企業導入 Roadmap
+## Part 7 — Channel 設計
+
+### 7.1 目的
+
+說明 Channel 的類型選擇、設定參數、安全設計與狀態管理。
+
+### 7.2 Channel 架構
+
+```text
+Application
+    |
+    | Client Connection（SVRCONN）
+    ↓
+Queue Manager A
+    |
+    | Sender / Receiver
+    ↓
+Queue Manager B
+```
 
 ```mermaid
 flowchart LR
-    P1["Phase 1<br/>Developer Local Scan"] --> P2["Phase 2<br/>Repository CI Scan"]
-    P2 --> P3["Phase 3<br/>Container Scan"]
-    P3 --> P4["Phase 4<br/>SBOM"]
-    P4 --> P5["Phase 5<br/>IaC / Kubernetes"]
-    P5 --> P6["Phase 6<br/>Cloud"]
-    P6 --> P7["Phase 7<br/>AI Agent Integration"]
-    P7 --> P8["Phase 8<br/>Enterprise Security Governance"]
+    subgraph App["Spring Boot（Client）"]
+        CCDT["CCDT / connName<br/>CLNTCONN: PAY.SVRCONN"]
+    end
+    subgraph QMA["NBKQM01"]
+        SVR["SVRCONN<br/>PAY.SVRCONN"]
+        XQ["XMITQ: CBSQM01"]
+        SDR["SDR: NBKQM01.CBSQM01"]
+        RCV2["RCVR: CBSQM01.NBKQM01"]
+    end
+    subgraph QMB["CBSQM01"]
+        RCV["RCVR: NBKQM01.CBSQM01"]
+        XQ2["XMITQ: NBKQM01"]
+        SDR2["SDR: CBSQM01.NBKQM01"]
+    end
+    CCDT -- "TLS 1.3 + 用戶端憑證" --> SVR
+    XQ --> SDR -- "TLS（QM 憑證）" --> RCV
+    XQ2 --> SDR2 -- "TLS（QM 憑證）" --> RCV2
 ```
 
-### 57.1 Phase 1：Developer Local Scan
+### 7.3 Channel 類型選擇
 
-| 面向 | 內容 |
+| 需求 | 選擇 |
 |------|------|
-| 目標 | 開發者能在本機執行 Trivy 並理解結果 |
-| 技術 | Trivy CLI（驗章安裝）、內部 DB Mirror |
-| 人員 | 試點團隊 Developer、DevSecOps 講師 |
-| 流程 | Commit 前自主掃描 |
-| 工具 | 本手冊 Lab 1–4、Cheat Sheet |
-| KPI | 試點團隊安裝率、Lab 完成率 |
-| Exit Criteria | 試點團隊全員完成 Lab 1–4 |
-| 常見風險 | 下載 DB 失敗（Proxy）、版本不一 |
+| Java / Spring Boot 應用連到 QM | `SVRCONN`（QM 端）+ connName 或 CCDT（Client 端） |
+| QM 單向送訊息到另一個 QM | `SDR` → `RCVR` |
+| 遠端由對方主動要求才傳送 | `RQSTR` ↔ `SVR`（或 `RQSTR` ↔ `SDR` 回撥模式） |
+| Cluster 內互通 | `CLUSSDR` + `CLUSRCVR` |
 
-### 57.2 Phase 2：Repository CI Scan
+**Message Channel 是單向的**：雙向通訊需要兩組 SDR/RCVR。
 
-| 面向 | 內容 |
-|------|------|
-| 目標 | 所有試點 repo 在 PR 執行 `trivy fs` |
-| 技術 | Reusable workflow、SARIF、SHA pin |
-| 人員 | Platform、DevSecOps |
-| 流程 | 先 Warn 不 Block，收集基線 |
-| 工具 | GitHub Actions / GitLab CI template |
-| KPI | Repository Coverage、Scan Success Rate |
-| Exit Criteria | 試點 repo 100% 有 CI 掃描；Secret Gate 啟用 |
-| 常見風險 | 一開始就全面 Block 造成反彈 |
+### 7.4 Sender Channel 關鍵參數
 
-### 57.3 Phase 3：Container Scan
+| 參數 | 說明 | 建議 |
+|------|------|------|
+| `CONNAME` | 目標主機與連接埠，可用逗號列出多個位址（HA） | `'host1(1414),host2(1414)'` |
+| `XMITQ` | 讀取的 Transmission Queue | 慣例與目標 QM 同名 |
+| `BATCHSZ` | 每批次最大訊息數 | 預設 50；高吞吐可調大，但 in-doubt 時影響範圍變大 |
+| `DISCINT` | 閒置多久自動斷線（秒） | 搭配 Trigger 啟動 |
+| `SHORTRTY` / `SHORTTMR` | 短重試次數 / 間隔 | 網路短暫中斷 |
+| `LONGRTY` / `LONGTMR` | 長重試次數 / 間隔 | 長時間中斷 |
+| `HBINT` | Heartbeat 間隔 | 偵測斷線 |
+| `NPMSPEED` | Non-persistent 傳送速度 | `FAST` 時 Non-persistent 可能在 Channel 故障時遺失 |
+| `SSLCIPH` | CipherSpec | 兩端必須一致（或使用 `ANY_TLS*` 別名） |
 
-| 面向 | 內容 |
-|------|------|
-| 目標 | 所有映像在推送 Registry 前掃描 |
-| 技術 | `trivy image`、digest、`--exit-on-eol` |
-| 人員 | DevOps、Platform |
-| 流程 | CRITICAL fixed Block |
-| 工具 | CI Gate 腳本 |
-| KPI | Container Coverage、Critical Finding Count |
-| Exit Criteria | 新映像 100% 經掃描 |
-| 常見風險 | Base Image 大量 unfixed 弱點導致 Gate 被關閉 |
+### 7.5 Transmission Queue 與 Trigger
 
-### 57.4 Phase 4：SBOM
+```text
+DEFINE QLOCAL('CBSQM01') USAGE(XMITQ) DEFPSIST(YES) MAXDEPTH(500000) +
+       TRIGGER TRIGTYPE(FIRST) TRIGDATA('NBKQM01.CBSQM01') +
+       INITQ('SYSTEM.CHANNEL.INITQ') REPLACE
 
-| 面向 | 內容 |
-|------|------|
-| 目標 | 每個 Release 產生並保存 SBOM |
-| 技術 | CycloneDX、Attestation、每日 `trivy sbom` |
-| 人員 | Platform、Security |
-| 流程 | Release Checklist 納入 SBOM |
-| 工具 | Registry、Artifact Repository |
-| KPI | SBOM Coverage |
-| Exit Criteria | Production 系統 100% 有 SBOM |
-| 常見風險 | 只有 fs SBOM，缺 OS 套件 |
+DEFINE CHANNEL('NBKQM01.CBSQM01') CHLTYPE(SDR) TRPTYPE(TCP) +
+       CONNAME('cbs-mq-a.bank.local(1414),cbs-mq-b.bank.local(1414)') +
+       XMITQ('CBSQM01') SSLCIPH('ANY_TLS13_OR_HIGHER') +
+       DISCINT(6000) SHORTRTY(10) SHORTTMR(60) LONGRTY(999999999) LONGTMR(300) +
+       DESCR('NBK to CBS') REPLACE
+```
 
-### 57.5 Phase 5：IaC / Kubernetes
+對方 QM：
 
-| 面向 | 內容 |
-|------|------|
-| 目標 | 部署設定在進入叢集前被檢查；叢集持續監控 |
-| 技術 | `trivy config`、Helm values、Trivy Operator |
-| 人員 | Platform、SRE |
-| 流程 | Production manifest HIGH+ Block |
-| 工具 | Operator、Compliance Report |
-| KPI | IaC 掃描覆蓋率、PSS 合規率 |
-| Exit Criteria | 所有 Production 叢集部署 Operator |
-| 常見風險 | 第三方 Chart 雜訊過多 |
+```text
+DEFINE CHANNEL('NBKQM01.CBSQM01') CHLTYPE(RCVR) TRPTYPE(TCP) +
+       SSLCIPH('ANY_TLS13_OR_HIGHER') SSLCAUTH(REQUIRED) +
+       MCAUSER('nbkmca') +
+       DESCR('From NBK') REPLACE
+```
 
-### 57.6 Phase 6：Cloud
+> Receiver 的 `MCAUSER` 決定「以誰的身分把訊息放進目標佇列」。**不可留空**（留空會以 MCA 程序身分執行，通常是 `mqm`，等同管理員權限）。應設定為低權限帳號，並以 CHLAUTH `SSLPEERMAP` 綁定對方憑證（見 Part 8）。
 
-| 面向 | 內容 |
-|------|------|
-| 目標 | 雲端資源設定左移檢查 |
-| 技術 | `trivy config`（Terraform plan）、評估 trivy-aws plugin |
-| 人員 | Cloud Team、Security |
-| 流程 | Terraform PR Gate |
-| 工具 | Terraform、雲端原生安全服務 |
-| KPI | Terraform repo 覆蓋率 |
-| Exit Criteria | 所有 Terraform repo 有 Gate |
-| 常見風險 | 誤以為 Trivy 等同完整 CSPM |
+### 7.6 Server Connection Channel 關鍵參數
 
-### 57.7 Phase 7：AI Agent Integration
+| 參數 | 說明 | 建議 |
+|------|------|------|
+| `SSLCIPH` | TLS CipherSpec | `ANY_TLS13_OR_HIGHER` 或指定 TLS 1.3 / 1.2 ECDHE 套件 |
+| `SSLCAUTH` | 是否要求用戶端憑證 | `REQUIRED`（雙向 TLS） |
+| `MAXINST` | 此 Channel 最大實例數 | 防止單一應用耗盡連線 |
+| `MAXINSTC` | 單一 Client IP 最大實例數 | 防止單一主機失控 |
+| `SHARECNV` | 每個 Channel 實例共用的對話數 | 預設 10；設 0 會停用許多 Client 功能，不建議 |
+| `HBINT` | Heartbeat | 偵測斷線 |
+| `MCAUSER` | 預設身分 | 搭配 CHLAUTH 映射；**不要依賴 Client 傳入的 User ID** |
+| `DISCINT` | 閒置斷線 | 依需求 |
 
-| 面向 | 內容 |
-|------|------|
-| 目標 | AI Agent 依 SOP 使用 Trivy，且無法繞過 Gate |
-| 技術 | AGENTS.md（附錄 F）、JSON 摘要、trivy_diff.py |
-| 人員 | AI Engineer、DevSecOps |
-| 流程 | 第 54 章 SOP |
-| 工具 | Prompt 範本（第 28 章）、CODEOWNERS |
-| KPI | AI PR 自我修正率、AI 觸碰禁止項目次數 |
-| Exit Criteria | Lab 16 驗證通過；禁止項目觸碰次數為 0 |
-| 常見風險 | 只靠 Prompt 約束，沒有技術控制 |
+### 7.7 Channel Status 與 Retry
 
-### 57.8 Phase 8：Enterprise Security Governance
+```mermaid
+stateDiagram-v2
+    [*] --> INACTIVE
+    INACTIVE --> STARTING: START / Trigger
+    STARTING --> BINDING: 協商（含 TLS 握手）
+    BINDING --> RUNNING: 成功
+    BINDING --> RETRYING: 失敗
+    RUNNING --> RETRYING: 網路中斷
+    RETRYING --> BINDING: 重試間隔到
+    RETRYING --> STOPPED: 重試次數用盡
+    RUNNING --> INACTIVE: DISCINT 閒置
+    RUNNING --> STOPPED: STOP CHANNEL
+    STOPPED --> STARTING: START CHANNEL
+    RUNNING --> INDOUBT: 批次確認中斷
+    INDOUBT --> RUNNING: 重新連線自動解決
+```
 
-| 面向 | 內容 |
-|------|------|
-| 目標 | Trivy 成為 AI-assisted SDLC 的標準 Security Control |
-| 技術 | 弱點管理平台、KPI Dashboard |
-| 人員 | Security Team、Architecture Governance |
-| 流程 | Exception 管理、季度 Review、稽核 |
-| 工具 | 第 53、55、58 章 |
-| KPI | 第 58 章全部 |
-| Exit Criteria | 納入內部稽核項目並通過一次稽核 |
-| 常見風險 | 治理流程過重導致開發繞道 |
+| 狀態 | 意義 | 動作 |
+|------|------|------|
+| `RUNNING` | 正常 | — |
+| `RETRYING` | 正在重試 | 檢查網路、對方 Listener、TLS |
+| `STOPPED` | 停止（手動或重試用盡） | 查明原因後 `START CHANNEL` |
+| `BINDING` 長時間 | 協商卡住 | 檢查 TLS、防火牆、對方狀態 |
+| `INACTIVE`（無 CHSTATUS 輸出） | 未啟動或閒置斷線 | Trigger 設定是否正確 |
+| In-doubt | 批次確認中斷 | 通常重新連線後自動解決；**手動 `RESOLVE` 前必須與對方管理員確認** |
 
-### 實務案例
+### 7.8 Channel Authentication、MCA User、TLS、Certificate
 
-某企業曾試圖在第一個月同時完成 Phase 1–5，結果 CI 大量失敗、開發團隊集體要求例外。重新依本章順序逐階推動，每個 Phase 必須達成 Exit Criteria 才進入下一階段，八個月後完成 Phase 7，過程中 Gate 沒有再被關閉過。
+摘要如下，細節於 Part 8：
 
-### 注意事項
+- **CHLAUTH**：依來源 IP、TLS DN、Client User ID、遠端 QM 名稱，決定「允許 / 封鎖 / 映射成哪個 MCAUSER」。
+- **MCA User**：Channel 實際執行 MQ 操作所使用的身分，OAM 依此檢查權限。
+- **TLS**：`SSLCIPH` 啟用；`SSLCAUTH(REQUIRED)` 要求對方憑證；`SSLPEER` 或 CHLAUTH `SSLPEERMAP` 驗證對方 DN。
+- **Certificate**：QM 憑證預設 label 為 `ibmwebspheremq<qmname小寫>`，或以 QM / Channel 的 `CERTLABL` 指定。`[MQ 10.0]` 支援多個 certificate label。
 
-- Phase 順序可依企業現況調整，但 Phase 7（AI Agent）應在 Phase 2（CI Gate）之後，否則 AI Agent 沒有可依靠的技術控制。
-- 每個 Phase 的 KPI 目標值由企業自行設定（第 58 章）。
+### 7.9 常見錯誤
+
+- SDR / RCVR 名稱兩端不一致 → `AMQ9520E`（Channel 未在遠端定義）。
+- Receiver `MCAUSER` 空白 → 對方可放訊息到任何佇列，包括 `SYSTEM.ADMIN.COMMAND.QUEUE`。
+- 兩端 `SSLCIPH` 不一致 → `AMQ9631E` 類錯誤。
+- XMITQ 沒有設定 Trigger → 訊息堆積在 XMITQ，Channel 不會自動啟動。
+
+### 7.10 Checklist
+
+- [ ] SDR / RCVR 名稱兩端一致並記錄於 Channel Map
+- [ ] 所有 Channel 啟用 TLS
+- [ ] RCVR / SVRCONN 的 `MCAUSER` 為低權限帳號，不為空白
+- [ ] SVRCONN 設定 `MAXINST` / `MAXINSTC`
+- [ ] XMITQ 設定 Trigger
+- [ ] `CONNAME` 列出 HA 所有位址
+- [ ] Channel 狀態納入監控
 
 ---
 
-## 58. KPI / Metrics
+## Part 8 — IBM MQ Security
 
-> **KPI 目標值必須依企業實際情況設定。** 本章只提供定義與計算方式，不宣稱任何數字為業界標準。
+### 8.1 目的
 
-| KPI | 定義 | 計算方式 | 資料來源 | 頻率 |
-|-----|------|----------|----------|------|
-| Scan Coverage | 有執行 Trivy 的系統比例 | 已掃描系統數 / 系統總數 | CMDB + CI | 月 |
-| Repository Coverage | 有 CI 掃描的 repo 比例 | 有 Trivy job 的 repo / 活躍 repo | Git 平台 API | 月 |
-| Container Coverage | 經掃描才推送的映像比例 | 有掃描紀錄的 digest / 推送 digest | Registry + CI | 月 |
-| SBOM Coverage | Production 有 SBOM 的比例 | 有 SBOM 的 Production 映像 / Production 映像 | Registry | 月 |
-| Vulnerability MTTR | 弱點平均修復時間 | Σ(關閉時間 − 發現時間) / 件數，依 Severity 分開 | 弱點平台 | 月 |
-| Critical Finding Count | 未關閉 CRITICAL 數 | 計數 | 弱點平台 | 週 |
-| High Finding Count | 未關閉 HIGH 數 | 計數 | 弱點平台 | 週 |
-| Secret Finding Count | 新偵測 Secret 數 | 計數 | CI 報告 | 週 |
-| Exception Count | 有效 Exception 數 | 計數 | Exception 系統 | 月 |
-| Exception Expiration Rate | 到期仍未處理的比例 | 逾期 Exception / 到期 Exception | Exception 系統 | 月 |
-| Scan Success Rate | 掃描成功執行比例 | 成功 / 總執行 | CI | 週 |
-| CI Scan Duration | 掃描平均時間 | 平均或 P90 | CI | 週 |
-| Remediation Rate | 期間內修復比例 | 已修復 / 新發現 | 弱點平台 | 月 |
-| Re-scan Pass Rate | 修正後 Re-scan 通過比例 | 通過 / Re-scan 次數 | CI / AI Agent log | 月 |
-| DB Freshness | DB 距最後更新時間 | 現在 − UpdatedAt | Mirror 監控 | 日 |
-| AI Forbidden Action Attempts | AI Agent 嘗試禁止動作次數 | 被 CODEOWNERS / Review 攔下的次數 | PR 紀錄 | 月 |
+建立金融等級的 IBM MQ 安全基準（Production Security Baseline），涵蓋身分驗證、授權、傳輸加密、稽核與機敏資訊管理。
 
-### 實務案例
+### 8.2 安全架構
 
-某團隊導入 Trivy 後第一個月 Critical Finding Count 從 12 升到 140，管理層一度認為安全變差。對照 Scan Coverage 從 8% 升到 72% 後才理解是「看得到的問題變多」。之後 KPI 報告固定把 Coverage 與 Finding Count 放在同一張圖。
+```mermaid
+flowchart LR
+    C["Client 應用程式"] -->|"1 TCP 連線"| L["Listener"]
+    L -->|"2 TLS 握手<br/>驗證雙方憑證"| TLS{"TLS / SSLCAUTH"}
+    TLS -->|"3 CHLAUTH 規則<br/>IP / DN / User / QM"| CA{"CHLAUTH"}
+    CA -->|"封鎖"| X1["拒絕 AMQ9777E 等"]
+    CA -->|"4 CONNAUTH<br/>帳號密碼 / JWT"| AU{"CONNAUTH"}
+    AU -->|"失敗"| X2["拒絕 2035"]
+    AU -->|"5 決定 MCAUSER"| ID["有效身分"]
+    ID -->|"6 OAM 授權檢查<br/>connect / put / get"| OAM{"OAM"}
+    OAM -->|"無權限"| X3["2035 NOT_AUTHORIZED"]
+    OAM -->|"允許"| Q[("Queue")]
+    AUD["稽核：Authority Event<br/>Channel Event / Error Log"] -.-> CA
+    AUD -.-> AU
+    AUD -.-> OAM
+```
 
-### 注意事項
+### 8.3 Authentication（身分驗證）
 
-- KPI 不應單獨用來懲罰團隊；Critical Count 上升可能代表覆蓋率提升，而非安全變差。
+IBM MQ 有多層身分驗證機制：
+
+| 機制 | 驗證什麼 | 說明 |
+|------|---------|------|
+| TLS 雙向認證 | 連線端的憑證 | `SSLCAUTH(REQUIRED)`，以憑證 DN 作為身分依據（**金融系統建議主要方式**） |
+| CONNAUTH | 帳號 / 密碼 | 驗證 OS 帳號（`IDPWOS`）或 LDAP（`IDPWLDAP`） |
+| JWT Token | Token | `[MQ 9.3.4+ / 9.4 CD]` 支援 JWT 驗證；`[MQ 10.0]` 新增 JWKS 支援 `[需確認細節]` |
+| CHLAUTH | 連線來源特徵 | 不是驗證本身，而是依特徵允許 / 封鎖 / 映射 |
+
+```text
+* CONNAUTH：要求 Client 連線必須提供有效帳密
+DEFINE AUTHINFO('BANK.IDPW.OS') AUTHTYPE(IDPWOS) +
+       CHCKCLNT(REQUIRED) CHCKLOCL(OPTIONAL) ADOPTCTX(YES) +
+       FAILDLAY(1) REPLACE
+ALTER QMGR CONNAUTH('BANK.IDPW.OS')
+REFRESH SECURITY TYPE(CONNAUTH)
+```
+
+| 屬性 | 說明 |
+|------|------|
+| `CHCKCLNT(REQUIRED)` | Client 連線必須提供帳密 |
+| `CHCKLOCL(OPTIONAL)` | 本機（Bindings）連線可不提供，但若提供則驗證 |
+| `ADOPTCTX(YES)` | 驗證成功後以該帳號作為後續授權身分 |
+| `FAILDLAY` | 驗證失敗延遲秒數，減緩暴力破解 |
+
+**Java 端注意**：使用 MQ classes for Java / JMS 傳送帳密時，應啟用 **MQCSP 驗證模式**（`USE_MQCSP_AUTHENTICATION_PROPERTY` / `USER_AUTHENTICATION_MQCSP=true`），否則可能使用相容模式並有密碼長度等限制。Spring Boot Starter 的 `userAuthenticationMQCSP` 預設為 `true`。
+
+### 8.4 CHLAUTH（Channel Authentication Records）
+
+Queue Manager 預設有三條 CHLAUTH 規則：
+
+```text
+* 預設 1：封鎖所有 SYSTEM.* Channel 的外部存取（ADDRESSMAP * → NOACCESS）
+SET CHLAUTH('SYSTEM.*') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(NOACCESS)
+* 預設 2：SYSTEM.ADMIN.SVRCONN 例外（允許，但仍受其他規則限制）
+SET CHLAUTH('SYSTEM.ADMIN.SVRCONN') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(CHANNEL)
+* 預設 3：封鎖所有具管理權限的使用者（*MQADMIN）經由 Client Channel 連線
+SET CHLAUTH('*') TYPE(BLOCKUSER) USERLIST('*MQADMIN')
+```
+
+> 以上為預設規則的內容說明，**不要在 Production 重新執行這些命令**；應以 `DISPLAY CHLAUTH(*)` 確認其存在。
+
+**`*MQADMIN` 代表什麼**：任何具有管理權限的身分（例如 `mqm` 群組成員、Windows 的管理員）。預設 BLOCKUSER 規則讓「以管理員身分從遠端連線」被拒絕。**常見的錯誤做法是為了解決 2035 而移除這條規則**——這等於讓任何能偽造 User ID 的 Client 取得管理員權限。
+
+**Production 建議規則（白名單模式）**：
+
+```text
+* 1. 封鎖所有 Channel 的所有來源（Back-stop 規則）
+SET CHLAUTH('*') TYPE(ADDRESSMAP) ADDRESS('*') USERSRC(NOACCESS) +
+    DESCR('Back-stop: deny all by default') ACTION(REPLACE)
+
+* 2. 付款服務：只允許指定網段 + 指定憑證 DN，並映射到低權限帳號
+SET CHLAUTH('PAY.SVRCONN') TYPE(SSLPEERMAP) +
+    SSLPEER('CN=payment-service,OU=Payments,O=Example Bank,C=TW') +
+    ADDRESS('10.20.30.*') USERSRC(MAP) MCAUSER('paysvc') +
+    DESCR('Payment service mTLS') ACTION(REPLACE)
+
+* 3. QM 對 QM：只允許對方 QM 憑證
+SET CHLAUTH('NBKQM01.CBSQM01') TYPE(SSLPEERMAP) +
+    SSLPEER('CN=NBKQM01,OU=MQ,O=Example Bank,C=TW') +
+    USERSRC(MAP) MCAUSER('nbkmca') ACTION(REPLACE)
+```
+
+> **上述規則若順序或內容錯誤，會封鎖所有連線。** Production 套用前務必：(1) 在 UAT 完整驗證；(2) 準備回復命令；(3) 保留一條緊急管理途徑（例如本機 `runmqsc`）。
+
+CHLAUTH 規則類型：
+
+| TYPE | 用途 |
+|------|------|
+| `ADDRESSMAP` | 依來源 IP 映射或封鎖 |
+| `SSLPEERMAP` | 依對方憑證 DN 映射或封鎖 |
+| `USERMAP` | 依 Client 宣告的 User ID 映射（**不建議單獨依賴**，Client User ID 可被偽造） |
+| `QMGRMAP` | 依遠端 QM 名稱映射 |
+| `BLOCKUSER` | 封鎖特定 User ID |
+| `BLOCKADDR` | 在 Listener 層封鎖 IP（連線即拒） |
+
+**驗證規則行為**（不實際連線）：
+
+```text
+DISPLAY CHLAUTH('PAY.SVRCONN') MATCH(RUNCHECK) ADDRESS('10.20.30.15') +
+        SSLPEER('CN=payment-service,OU=Payments,O=Example Bank,C=TW')
+```
+
+### 8.5 Authorization：OAM（Object Authority Manager）
+
+OAM 控制「某身分（以**群組**為主）對某物件可以做什麼」。
+
+| 權限 | 說明 | 典型授予對象 |
+|------|------|-------------|
+| `connect` | 連線 QM | 所有應用帳號 |
+| `inq` | 查詢屬性 | 所有應用帳號（JMS 常需要） |
+| `put` | 放入訊息 | Producer |
+| `get` | 取出訊息 | Consumer |
+| `browse` | 瀏覽不刪除 | Consumer（JMS 某些功能需要）、監控 |
+| `setid` / `setall` | 設定 MQMD 身分 / 來源欄位 | **極少數**系統（例如轉送程式） |
+| `passid` / `passall` | 傳遞身分欄位 | 轉送程式 |
+| `dsp` | 顯示物件（管理） | 監控帳號 |
+| `chg` / `crt` / `dlt` / `clr` | 管理權限 | **僅 MQ 管理員** |
+| `+all` / `+alladm` | 全部 / 全部管理 | **應用帳號禁止** |
+
+```bash
+# 以群組授權（OS 層），不要對個人帳號授權
+# 付款服務（Producer + Reply Consumer）
+setmqaut -m NBKQM01 -t qmgr -g paysvc_grp +connect +inq
+setmqaut -m NBKQM01 -t queue -n 'NBK.TXN.TRANSFER.REQ' -g paysvc_grp +put +inq
+setmqaut -m NBKQM01 -t queue -n 'NBK.TXN.TRANSFER.RSP' -g paysvc_grp +get +browse +inq
+# JMS 應用若會把毒訊息移到 BOQ，需要 BOQ 的 put 權限
+setmqaut -m NBKQM01 -t queue -n 'NBK.TXN.TRANSFER.RSP.BOQ' -g paysvc_grp +put +inq
+
+# 查詢某群組的權限
+dspmqaut -m NBKQM01 -t queue -n 'NBK.TXN.TRANSFER.REQ' -g paysvc_grp
+dmpmqaut -m NBKQM01 -g paysvc_grp
+```
+
+MQSC 等效寫法：
+
+```text
+SET AUTHREC OBJTYPE(QMGR) GROUP('paysvc_grp') AUTHADD(CONNECT,INQ)
+SET AUTHREC PROFILE('NBK.TXN.TRANSFER.REQ') OBJTYPE(QUEUE) GROUP('paysvc_grp') AUTHADD(PUT,INQ)
+SET AUTHREC PROFILE('NBK.TXN.TRANSFER.RSP') OBJTYPE(QUEUE) GROUP('paysvc_grp') AUTHADD(GET,BROWSE,INQ)
+```
+
+**Generic Profile**：可用 `PAY.**` 一次授權一組佇列。**優點是省事，缺點是未來新增的同前綴佇列會自動被授權**，需評估是否符合最小權限原則。
+
+### 8.6 避免 `*MQADMIN` 與 `+all` 過度授權
+
+| 反模式 | 風險 | 正確做法 |
+|--------|------|---------|
+| 應用帳號加入 `mqm` 群組 | 應用帳號 = MQ 管理員 | 應用帳號只屬於應用群組 |
+| `setmqaut ... +all` | 可刪除、清空、修改佇列 | 只授予 `put` / `get` / `inq` / `browse` |
+| 移除 `BLOCKUSER('*MQADMIN')` 規則 | 遠端管理員連線 | 保留規則；管理員使用專用管理 Channel + mTLS |
+| `MCAUSER('mqm')` | 所有連線以管理員身分執行 | 低權限 `MCAUSER` + CHLAUTH 映射 |
+| `CHCKCLNT(NONE)` + `USERSRC(CHANNEL)` | 信任 Client 宣告的任意身分 | `CHCKCLNT(REQUIRED)` 或 mTLS + `SSLPEERMAP` |
+| 使用 `SYSTEM.DEF.SVRCONN` / `SYSTEM.ADMIN.SVRCONN` 給應用程式 | 共用、難以控管 | 每個應用一條專屬 SVRCONN |
+
+### 8.7 TLS、Certificate 與 CipherSpec
+
+**`[MQ 10.0]` 重要變更**（升級時必須檢查）：
+
+| 變更 | 影響 |
+|------|------|
+| 移除 SSLv3、TLS 1.0、RC4、3DES CipherSpec | 使用這些 CipherSpec 的 Channel 在 10.0 無法連線 |
+| RSA key exchange CipherSpec 列為 Deprecated | 規劃遷移到 ECDHE 套件或 TLS 1.3 |
+| IBM Semeru Runtime 25 停用 `TLS_RSA_*` | Java 25（Semeru）Client 使用 `TLS_RSA_*` 會失敗 |
+| 最小 RSA 金鑰長度限制 | 過短的 RSA 金鑰憑證無法使用（`[需確認]` 確切門檻） |
+| 憑證 label 含空白或逗號須跳脫 | 既有 `CERTLABL` 設定需檢查 |
+| 新建 keystore 預設使用安全演算法 | 舊工具建立的 keystore 需評估 |
+| 支援 FIPS 203 ML-KEM key share | 抗量子金鑰交換，依政策評估導入 |
+
+**CipherSpec 建議**：
+
+| 場景 | 建議 `SSLCIPH` |
+|------|----------------|
+| 一般新建 | `ANY_TLS13_OR_HIGHER`（雙方皆支援 TLS 1.3） |
+| 需相容 TLS 1.2 的舊 Client | `ANY_TLS12_OR_HIGHER`，並在 QM 層限制允許的 CipherSpec `[需確認設定方式]` |
+| 指定單一套件 | TLS 1.3：`TLS_AES_256_GCM_SHA384`；TLS 1.2：ECDHE + GCM 系列 |
+
+**Java Client 注意事項**：
+
+- 使用非 IBM JRE（例如 Eclipse Temurin、Oracle JDK）時，需設定 `-Dcom.ibm.mq.cfg.useIBMCipherMappings=false`，並以 JSSE 名稱指定 Cipher Suite。
+- 金鑰庫建議使用 PKCS#12。
+- `[MQ 10.0]` 起 TLS 1.0 已移除；Java 端若仍限制在 TLS 1.0 / 1.1 將無法連線。
+
+**憑證管理工具**：
+
+```bash
+# 建立 QM 金鑰庫（PKCS#12 / CMS 依工具版本，需確認）
+runmqakm -keydb -create -db /var/mqm/qmgrs/BANKQM01/ssl/key.kdb -pw "$KDB_PW" -type cms -stash
+
+# 檢視憑證
+runmqakm -cert -list -db /var/mqm/qmgrs/BANKQM01/ssl/key.kdb -stashed
+
+# [MQ 10.0] 檢查憑證到期日（新工具）
+dspmqcert -m BANKQM01    # 參數需依官方文件確認
+
+# 修改憑證後重新載入
+# MQSC: REFRESH SECURITY TYPE(SSL)
+```
+
+> `REFRESH SECURITY TYPE(SSL)` 會重設正在執行的 TLS Channel，**屬 L3 操作**，應在維護時段執行。
+
+### 8.8 Audit 與 Log
+
+| 項目 | 設定 | 用途 |
+|------|------|------|
+| Authority Event | `ALTER QMGR AUTHOREV(ENABLED)` | 2035 發生時產生事件到 `SYSTEM.ADMIN.QMGR.EVENT` |
+| Channel Event | `ALTER QMGR CHLEV(ENABLED) SSLEV(ENABLED)` | Channel 啟停、TLS 事件 |
+| Command Event | `ALTER QMGR CMDEV(ENABLED)` | 記錄誰執行了哪些管理命令（稽核必要） |
+| Configuration Event | `ALTER QMGR CONFIGEV(ENABLED)` | 物件建立、修改、刪除 |
+| Error Log | `/var/mqm/qmgrs/<QM>/errors/AMQERR0*.LOG` | 安全拒絕訊息 |
+| `[MQ 9.4 CD]` 延伸 Authority Event | 正向驗證成功事件 | 稽核成功登入 |
+
+```text
+ALTER QMGR AUTHOREV(ENABLED) CHLEV(ENABLED) SSLEV(ENABLED) +
+           CMDEV(ENABLED) CONFIGEV(ENABLED)
+```
+
+> 事件訊息會累積在 `SYSTEM.ADMIN.*.EVENT` 佇列，**必須有工具持續消費並轉送到 SIEM**，否則佇列會被塞滿。
+
+### 8.9 Secret Management 與 Credential Rotation
+
+| 機敏資訊 | 存放方式 | 輪替 |
+|----------|---------|------|
+| 應用帳號密碼 | Vault / Kubernetes Secret / 雲端 Secret Manager | 依公司政策（例如 90 天）；支援新舊密碼並存的切換流程 |
+| TLS 私鑰 | Secret，權限最小化 | 憑證到期前（建議 30 天）換發；`[MQ 10.0]` 可用 `dspmqcert` 監控 |
+| Keystore 密碼 | Stash 檔權限 `600`，或 Secret | 隨 Keystore 更換 |
+| 管理員密碼 | PAM / 特權帳號管理系統 | 每次使用後輪替 |
+
+**輪替流程（無停機）**：
+
+```mermaid
+sequenceDiagram
+    participant Ops as 維運
+    participant CA as 憑證機構
+    participant QM as Queue Manager
+    participant App as 應用程式
+    Ops->>CA: 申請新憑證（到期前 30 天）
+    Ops->>QM: 新 CA 鏈加入 QM 信任庫
+    Ops->>App: 新 CA 鏈加入 App 信任庫（滾動部署）
+    Ops->>App: 換用新用戶端憑證（滾動部署）
+    Ops->>QM: 換用新 QM 憑證 + REFRESH SECURITY TYPE(SSL)（維護時段）
+    Ops->>QM: 更新 CHLAUTH SSLPEERMAP（若 DN 改變）
+    Ops->>QM: 驗證所有 Channel RUNNING
+    Ops->>QM: 移除舊 CA / 舊憑證
+```
+
+### 8.10 IBM MQ Production Security Baseline
+
+| # | 類別 | 基準要求 |
+|---|------|---------|
+| S1 | 身分驗證 | 所有 Client Channel 採 mTLS（`SSLCAUTH(REQUIRED)`）或 `CHCKCLNT(REQUIRED)`；金融核心系統建議兩者並用 |
+| S2 | 身分映射 | 以 CHLAUTH `SSLPEERMAP` / `ADDRESSMAP` 映射到固定 `MCAUSER`；不信任 Client 宣告的 User ID |
+| S3 | 預設封鎖 | 保留 `BLOCKUSER('*MQADMIN')`；新增 Back-stop `ADDRESSMAP('*') NOACCESS` |
+| S4 | 權限控管 | 以群組授權；應用只授予 `connect`、`inq`、`put` / `get` / `browse`；禁止 `+all`、`mqm` 群組 |
+| S5 | Channel | 每個應用專屬 SVRCONN；設定 `MAXINST` / `MAXINSTC`；停用或封鎖未使用的 `SYSTEM.*` Channel |
+| S6 | TLS | TLS 1.3 優先；禁止已移除與 Deprecated 的 CipherSpec；憑證金鑰長度符合政策 |
+| S7 | Queue Security | 管理佇列（`SYSTEM.ADMIN.COMMAND.QUEUE` 等）僅管理群組可存取 |
+| S8 | Audit | 啟用 Authority / Command / Configuration / Channel / SSL 事件，轉送 SIEM |
+| S9 | Log | Error Log 集中收集並保存（保存期限依公司政策與適用法規確認） |
+| S10 | Secret | 密碼與私鑰不得出現在程式碼、Git、映像檔、命令列歷史 |
+| S11 | Rotation | 憑證到期監控與輪替演練；帳密定期輪替 |
+| S12 | 管理途徑 | 管理員使用專用管理 Channel + mTLS + 跳板機；所有操作留存紀錄 |
+| S13 | 弱點 | 定期套用 IBM 安全修補（CSU / Fix Pack）並追蹤 IBM Security Bulletin |
+| S14 | AMS（選用） | 需端到端訊息加密 / 簽章時評估 Advanced Message Security（需 Advanced 授權） |
+
+### 8.11 Advanced Message Security（AMS）
+
+TLS 只保護「傳輸中」的資料。訊息一旦落在佇列、Log、DLQ 或備份中，就是明文，**MQ 管理員或取得備份的人都看得到**。AMS 在應用端對訊息本體簽章或加密，讓訊息在整條路徑上都受到保護（需 IBM MQ Advanced 授權）。
+
+| 保護等級 | 效果 | 適用 |
+|---------|------|------|
+| Integrity | 數位簽章：可驗證來源與內容未被竄改，但內容仍可讀 | 需要不可否認性的指令訊息 |
+| Privacy | 簽章 + 加密：只有指定收件者能解密 | 含個資、帳戶資料的交易電文 |
+| Confidentiality | 只加密（可重複使用對稱金鑰，效能較佳） | 高流量且只需保密的資料 |
+
+```mermaid
+sequenceDiagram
+    participant P as Producer（payment-service）
+    participant QM as Queue Manager / Log / DLQ
+    participant C as Consumer（core-banking）
+    P->>P: 依 Policy 以自己的私鑰簽章、以收件者公鑰加密
+    P->>QM: MQPUT（佇列與 Log 中為密文）
+    Note over QM: MQ 管理員瀏覽佇列只看到密文
+    C->>QM: MQGET
+    C->>C: 以自己的私鑰解密並驗證簽章者 DN
+```
+
+```text
+* 為佇列設定 AMS Policy：SHA256 簽章 + AES256 加密，指定簽章者與收件者
+SET POLICY('CBS.TXN.TRANSFER.REQ') SIGNALG(SHA256) ENCALG(AES256) +
+    SIGNER('CN=payment-service,OU=Payments,O=Example Bank,C=TW') +
+    RECIP('CN=core-banking,OU=CBS,O=Example Bank,C=TW') +
+    ACTION(REPLACE)
+
+DISPLAY POLICY('CBS.TXN.TRANSFER.REQ')
+```
+
+```properties
+# 應用端 keystore.conf（Java 範例；鍵名與支援的 keystore 類型需依官方文件確認）
+jks.keystore = /etc/payment/ams/payment-keystore
+jks.certificate = payment-service
+jks.encrypted = yes
+```
+
+**導入注意事項**：
+
+- Policy 以**佇列名稱**為單位，Producer 與 Consumer 兩端都必須能存取對應的金鑰與憑證；收件者憑證更新時要同步更新 Policy。
+- 沒有金鑰的工具（含部分監控工具、`runmqdlq`）只能看到密文；DLQ 處理流程要事先設計。
+- 加解密會增加 CPU 與訊息大小，需在 UAT 做效能測試。
+- 也可使用 `setmqspl` / `dspmqspl` 控制命令管理 Policy；`[MQ 10.0]` AMS 支援 FIPS 模式。
+- 金鑰庫密碼與私鑰比照 8.9 Secret Management 處理。
+
+### 8.12 IBM MQ for z/OS 安全（RACF）
+
+z/OS 上的 IBM MQ 不使用 OAM，而是透過 **ESM（External Security Manager，通常是 RACF）** 進行授權。
+
+| 安全面向 | RACF Class（大寫 / 混合大小寫） | Profile 範例 | 說明 |
+|---------|-------------------------------|-------------|------|
+| 啟用 / 停用各類檢查 | `MQADMIN` / `MXADMIN` | `QM01.NO.QUEUE.CHECKS` | **Switch Profile**：存在即「關閉」該類檢查，Production 必須審核 |
+| 連線 | `MQCONN` | `QM01.BATCH`、`QM01.CICS`、`QM01.CHIN` | 誰可以連到 QM |
+| 佇列 | `MQQUEUE` / `MXQUEUE` | `QM01.PAY.TXN.REQ` | 對應分散式的 put / get 權限 |
+| 命令 | `MQCMDS` | `QM01.ALTER.QLOCAL` | 誰可以執行哪些 MQSC |
+| 命令資源 | `MQADMIN` / `MXADMIN` | `QM01.QUEUE.PAY.TXN.REQ` | 誰可以對哪個物件下命令 |
+| Topic / Process / Namelist | `MXTOPIC`、`MQPROC`、`MQNLIST` 等 | 依物件名稱 | 其他物件 |
+
+```text
+/* 定義佇列 Profile：預設無權限，只授權付款群組 */
+RDEFINE MQQUEUE QM01.PAY.** UACC(NONE) OWNER(MQADMGRP)
+PERMIT QM01.PAY.** CLASS(MQQUEUE) ID(PAYGRP) ACCESS(UPDATE)
+SETROPTS RACLIST(MQQUEUE) REFRESH
+```
+
+```text
+* 通知 Queue Manager 重新載入 RACF 快取（L3）
+-QM01 REFRESH SECURITY(MQQUEUE)
+```
+
+**重點**：
+
+- QSG 環境可使用以 **QSG 名稱**為前綴的 Profile，一次套用到群組內所有 QM。
+- Channel 的 TLS 可使用 RACF Key Ring，或由 AT-TLS 處理；CHLAUTH 在 z/OS 上同樣適用。
+- Switch Profile 是「關閉檢查」的開關，稽核時應列出所有存在的 `*.NO.*` Profile 並逐一說明理由。
+- Profile 命名、Class 清單與存取等級對應，請依 IBM MQ for z/OS 安全文件確認 `[需確認]`。
+
+### 8.13 IBM MQ 10.0 憑證與身分管理細節
+
+| 項目 | 內容 | 建議行動 |
+|------|------|---------|
+| 多 Certificate Label `[MQ 10.0]` | QM 可同時設定多個憑證標籤 | 用於無停機憑證輪替與演算法遷移（RSA → ECDSA） |
+| Keystore 選擇邏輯改善 `[MQ 10.0]` | QM 選擇 TLS keystore 的方式更明確 | 升級後驗證 `SSLKEYR` 與實際使用的 keystore |
+| 憑證標籤跳脫 `[MQ 10.0]` | 含空白或逗號的標籤必須跳脫 | 盤點 `CERTLABL` |
+| EKU 強化 `[MQ 10.0]` | 對 Extended Key Usage 的檢查更完整 | 確認伺服器憑證含 serverAuth、用戶端憑證含 clientAuth |
+| 最小 RSA 金鑰長度 `[MQ 10.0]` | 過短金鑰被拒絕 | 盤點所有憑證金鑰長度 `[需確認門檻]` |
+| JWKS `[MQ 10.0]` | QM 端自動取得驗證 JWT 所需的公鑰 | 與 IdP（例如 Keycloak）整合時減少手動換鑰 |
+| JWT `typ` 參數改為選用 | 相容更多 IdP | — |
+| JWT endpoint（JMS / Jakarta） | Client 可自動向 Token Server 取得 Token | Spring Boot 以 `ibm.mq.tokenServer.*` 設定 |
+| HTTPS CCDT / JWT 可自訂 `SSLSocketFactory` | 取 CCDT 或 Token 時使用自訂 TLS 設定 | 搭配企業內部 CA |
+| 三個新的 TLS 1.2 CipherSpec | 擴充 TLS 1.2 選項 | 仍以 TLS 1.3 為優先 |
+| FIPS 140-3（Semeru）、AMS / JWT / JWKS / HTTPS CCDT 支援 FIPS | 符合政府與金融法規要求 | 有 FIPS 需求時於 UAT 驗證 |
+| ML-KEM（FIPS 203）key share | 抗量子金鑰交換 | 依組織 PQC 遷移政策評估 |
+
+### 8.14 常見錯誤
+
+- 為了快速解決 2035，把應用帳號加入 `mqm` 群組。
+- `CHCKCLNT(OPTIONAL)` 搭配 `ADOPTCTX(NO)`：帳密驗證通過但沒採用該身分。
+- CHLAUTH 規則只用 `USERMAP`，Client 改個環境變數就能變成另一個人。
+- 憑證過期導致半夜 Channel 全斷（`2393` / `AMQ9633E` 類錯誤）。
+
+### 8.15 Checklist
+
+- [ ] Security Baseline S1-S13 全部符合，S14 已評估
+- [ ] `DISPLAY CHLAUTH(*)` 結果已審核並記錄
+- [ ] `dmpmqaut` 結果中沒有應用帳號具 `+all` / 管理權限
+- [ ] 所有 CipherSpec 符合 MQ 10.0 支援清單
+- [ ] 憑證到期日已納入監控
+- [ ] 稽核事件已轉送 SIEM 並有人負責檢視
+- [ ] 含敏感資料的佇列已評估 AMS，DLQ 處理流程已考慮密文
+- [ ] z/OS：RACF Switch Profile 已逐一審核，佇列與命令 Profile 預設 `UACC(NONE)`
+- [ ] 憑證 EKU、金鑰長度、標籤跳脫已依 10.0 規則盤點
 
 ---
 
-## 59. Governance Model
+## Part 9 — Java 開發：API 選擇
 
-### 59.1 治理層級
+### 9.1 目的
+
+釐清 Java 存取 IBM MQ 的各種 API，並依情境做出正確選擇。**這是 Framework 升級與逆向工程最常混淆的地方。**
+
+### 9.2 API 家族全貌
 
 ```mermaid
 flowchart TB
-    D["Developer"] --> A["AI Agent"]
-    A --> T["Tech Lead"]
-    T --> DS["DevSecOps"]
-    DS --> S["Security Team"]
-    S --> G["Architecture Governance"]
+    subgraph Std["標準 API（可攜）"]
+        JMS["JMS 2.0<br/>javax.jms.*"]
+        JAK["Jakarta Messaging 3.0<br/>jakarta.jms.*"]
+    end
+    subgraph IBM["IBM MQ 提供的 Java 實作"]
+        CJ["IBM MQ classes for Java<br/>com.ibm.mq.*<br/>（Stabilized since MQ 8.0）"]
+        CJMS["IBM MQ classes for JMS<br/>com.ibm.mq.jms.* / com.ibm.msg.client.*"]
+        CJAK["IBM MQ classes for Jakarta Messaging<br/>com.ibm.mq.jakarta.jms.*<br/>（MQ 9.3+，新開發首選）"]
+    end
+    subgraph Spring["Spring"]
+        SJMS["Spring JMS<br/>JmsTemplate / @JmsListener / JmsClient"]
+        STARTER["mq-jms-spring-boot-starter"]
+    end
+    MQI["MQI（C / COBOL 原生介面）"]
+    JMS -.實作.-> CJMS
+    JAK -.實作.-> CJAK
+    SJMS --> JAK
+    STARTER --> CJAK
+    CJ -. "概念對應" .-> MQI
+    CJMS --> QM[("Queue Manager")]
+    CJAK --> QM
+    CJ --> QM
+    MQI --> QM
 ```
 
-### 59.2 責任分工
+### 9.3 比較表
 
-| 問題 | 負責角色 |
-|------|----------|
-| Who owns finding | 系統所屬團隊的 Tech Lead |
-| Who fixes finding | Developer（可由 AI Agent 協助） |
-| Who approves exception | Security Team（CRITICAL 需資安主管） |
-| Who manages Trivy | Platform Team（版本、Mirror、Runner） |
-| Who maintains policies | DevSecOps（Gate、中央設定）+ Security Team（核定） |
-| Who manages CI/CD | Platform Team |
-| Who audits reports | 內部稽核 / Security Team |
+| 技術 | 套件 | 標準化 | 官方狀態 | 適合場景 | 不適合場景 |
+|------|------|--------|---------|---------|-----------|
+| MQI | C / COBOL 標頭 | IBM 專有 | 持續支援 | C / COBOL / 主機程式、需要完整 MQ 控制 | Java 應用 |
+| IBM MQ classes for Java | `com.ibm.mq.*` | IBM 專有 | **自 MQ 8.0 功能凍結（Stabilized）**，仍完整支援 | 維護既有程式；需要直接操作 MQMD 全部欄位的特殊工具 | **新開發不建議** |
+| IBM MQ classes for JMS | `javax.jms.*` + `com.ibm.mq.jms.*` | JMS 2.0 | 僅建議維護既有 JMS 2.0 應用 | Java EE 8 / Spring Boot 2 舊系統 | 新開發 |
+| IBM MQ classes for Jakarta Messaging | `jakarta.jms.*` + `com.ibm.mq.jakarta.jms.*` | Jakarta Messaging 3.0 | **新開發首選**（MQ 9.3+） | Jakarta EE 9+、Spring Boot 3 / 4 | Java EE 8 以下 |
+| Spring JMS | `org.springframework.jms.*` | Spring | Spring 生態 | Spring Boot 應用（底層用 Jakarta Messaging） | 非 Spring 專案 |
 
-### 59.3 RACI（R＝執行、A＝負責、C＝諮詢、I＝告知）
+> 官方說明（重新以自己的話整理）：JMS 2.0 已被 Jakarta Messaging 取代，未來的 Java 訊息功能只會出現在 Jakarta Messaging 版本中；IBM MQ classes for Java 雖功能凍結，但缺陷修正與因應系統需求的變更仍會提供。
 
-| 活動 | PM | SA | Architect | Developer | DevOps | DevSecOps | Security Engineer | AI Engineer | AI Agent Developer |
-|------|----|----|-----------|-----------|--------|-----------|-------------------|-------------|--------------------|
-| 安全需求（SBOM、Gate）納入需求 | A | R | C | I | I | C | C | I | I |
-| 掃描點與 Reference Architecture | I | C | A | I | C | R | C | C | I |
-| 本機掃描與修正 | I | I | I | A/R | I | C | I | I | I |
-| CI/CD 整合 | I | I | C | I | A/R | R | C | I | I |
-| Gate 規則 | I | I | C | I | C | R | A | I | I |
-| Exception 核准 | I | I | C | R（申請） | I | C | A | I | I |
-| Secret 事件應變 | I | I | I | R | C | C | A | I | I |
-| AI Agent Trivy 整合 | I | I | C | C | C | C | C | A | R |
-| AGENTS.md 規則 | I | I | C | C | I | C | A | C | R |
-| Trivy 升級 | I | I | I | I | R | A | C | C | C |
-| KPI 報告 | A | I | I | I | C | R | C | I | I |
+### 9.4 Maven 依賴
 
-### 實務案例
+```xml
+<properties>
+    <!-- 實際修補版號需依 Maven Central 與 IBM 官方 Readme 確認 -->
+    <ibm.mq.version>10.0.0.0</ibm.mq.version>
+</properties>
 
-某組織導入初期由 Security Team 同時負責「核准 Exception」與「修正 Finding」，造成 Security 成為瓶頸。依 59.2 重新分工後，Finding 歸屬系統團隊、Security 只負責核准與政策，Exception 平均處理時間明顯縮短。
+<dependencies>
+    <!-- 新開發：Jakarta Messaging -->
+    <dependency>
+        <groupId>com.ibm.mq</groupId>
+        <artifactId>com.ibm.mq.jakarta.client</artifactId>
+        <version>${ibm.mq.version}</version>
+    </dependency>
 
-### 注意事項
+    <!-- 舊系統維護：JMS 2.0（javax）與 MQ classes for Java -->
+    <!--
+    <dependency>
+        <groupId>com.ibm.mq</groupId>
+        <artifactId>com.ibm.mq.allclient</artifactId>
+        <version>${ibm.mq.version}</version>
+    </dependency>
+    -->
+</dependencies>
+```
 
-- AI Agent **不是**任何活動的 A（負責者）；AI Agent 的產出由指派它的人負責。
+> **不要在同一個應用同時引入 `com.ibm.mq.allclient` 與 `com.ibm.mq.jakarta.client`**，兩者都內含 IBM MQ classes for Java（`com.ibm.mq.MQQueueManager`、`com.ibm.mq.headers.pcf.*` 等）的類別，同時引入會造成重複類別與版本衝突。依官方 Java 介面說明：`allclient` = classes for Java + classes for JMS（`javax`）；`jakarta.client` = classes for Java + classes for Jakarta Messaging。實際打包內容仍以使用版本的 Readme 確認 `[需確認]`。
+
+### 9.5 Java 版本對照
+
+| Java | 狀態 | MQ Client 相關注意 |
+|------|------|-------------------|
+| Java 8 | MQ Java API 的建置基準（9.3+ 以 Java 8 建置） | 可執行；但 Spring Boot 3 / 4 不支援 |
+| Java 17 `[Java 17]` | Spring Boot 3 最低要求 | 主流 LTS |
+| Java 21 `[Java 21]` | LTS；Virtual Threads 正式版 | Virtual Thread 與 MQ Client 的相容性與效益需實測 `[需確認]` |
+| Java 25 `[Java 25]` | 最新 LTS；本手冊基準 | **Semeru 25 停用 `TLS_RSA_*`**；檔案編碼預設 UTF-8 的影響需評估 `[MQ 10.0]` |
+
+> MQ 10.0 支援的 JDK 清單請以 System Requirements 為準 `[需確認]`。
+
+### 9.6 Client 連線關鍵概念
+
+| 概念 | 說明 |
+|------|------|
+| Connection Mode | Client（`WMQ_CM_CLIENT`）或 Bindings（`WMQ_CM_BINDINGS`） |
+| connName | `host(port)`，可逗號分隔多個（HA） |
+| CCDT | Client Channel Definition Table，JSON 或二進位格式；可透過 URL 取得，`[MQ 10.0]` 支援 HTTPS 取得 CCDT |
+| Auto Reconnect | Client 自動重連（`WMQ_CLIENT_RECONNECT` / `WMQ_CLIENT_RECONNECT_Q_MGR`），重連期間 API 呼叫會被阻塞直到成功或逾時 |
+| Application Name | 在 `DISPLAY CONN` 中顯示為 `APPLTAG`，**對維運排查極重要**，一律設定 |
+| SHARECNV | 多個 JMS Session 共用一條 TCP 連線 |
+
+### 9.7 多語言支援全貌
+
+企業的 MQ 生態系很少只有 Java。Java 團隊在逆向工程或整合時，必須知道對端可能用哪種 API，以及它的支援等級。
+
+| 語言 / 協定 | API | 提供方式 | 支援等級 | 典型場景 |
+|------------|-----|---------|---------|---------|
+| C | MQI | 產品內附 | IBM 正式支援 | 高效能服務、系統工具 |
+| COBOL | MQI | 產品內附 | IBM 正式支援 | 主機 CICS / Batch、Legacy |
+| PL/I、Assembler | MQI | 產品內附 | IBM 正式支援（**僅 z/OS**） | 主機系統 |
+| RPG | MQI | 產品內附 | IBM 正式支援（**僅 IBM i**） | IBM i 系統 |
+| Visual Basic | MQI | 產品內附 | IBM 正式支援（**僅 Windows**） | 舊式桌面程式 |
+| C++ | IBM MQ C++ classes（物件模型） | 產品內附 | IBM 正式支援 | C++ 應用 |
+| Java | IBM MQ classes for Java / JMS / Jakarta Messaging | Maven Central | IBM 正式支援 | 本手冊主軸（Part 9-12） |
+| .NET（C#、VB.NET） | IBM MQ classes for .NET、XMS .NET | NuGet；`[MQ 10.0]` 以 .NET 10 建置 | IBM 正式支援 | Windows / Linux .NET 服務 |
+| Go | `mq-golang` | GitHub `ibm-messaging` | **as-is**（非正式支援），底層呼叫 C Client | 雲原生工具、Exporter |
+| Node.js | `mq-mqi-nodejs` | npm / GitHub | **as-is**，底層呼叫 C Client | BFF、工具 |
+| Python | IBM 提供的 Python MQI 套件 | PyPI / GitHub | as-is `[需確認套件名稱與支援狀態]` | 腳本、測試工具 |
+| AMQP 1.0 | Apache Qpid Proton、Qpid JMS 等 | 第三方 | 協定由 IBM MQ 支援；用戶端依第三方 | 非 IBM 生態系 |
+| MQTT | Eclipse Paho 等 | 第三方 | 協定由 IBM MQ Telemetry 支援 | IoT |
+| HTTP | Messaging REST API | 產品內附（mqweb） | IBM 正式支援 | 輕量整合（見 9.8） |
+
+**選型原則**：
+
+1. 交易性、高可靠的業務流程，使用 IBM 正式支援的 API（MQI、Java / Jakarta、.NET）。
+2. as-is 的語言綁定適合工具與非關鍵服務；採用前確認團隊有能力自行維護。
+3. 所有語言都應設定 **Application Name**（MQ 9.1.2 起多數語言可設定），讓 `DISPLAY CONN` 能辨識來源。
+
+### 9.8 Messaging REST API
+
+Messaging REST API 讓任何能發 HTTPS 請求的程式送收訊息，不需要安裝 MQ Client。它與 Part 5.11 的 Administrative REST API 共用 mqweb server。
+
+| 操作 | HTTP | 路徑（v3） | 說明 |
+|------|------|-----------|------|
+| 放入訊息 | `POST` | `/ibmmq/rest/v3/messaging/qmgr/{qmgr}/queue/{queue}/message` | Body 即訊息內容 |
+| 取出訊息（破壞性讀取） | `DELETE` | 同上 | 回應 Body 為訊息內容 |
+| 瀏覽訊息 | `GET` | 同上 | 不刪除 |
+| 發佈到 Topic | `POST` | `/ibmmq/rest/v3/messaging/qmgr/{qmgr}/topic/{topicString}/message` | Pub/Sub |
+
+```bash
+# 放入一則訊息（需 MQWebUser 角色，並受 OAM 權限控管）
+curl -sS --cacert /etc/mq/ca.pem --netrc-file ~/.mq-msg.netrc \
+  -H "ibm-mq-rest-csrf-token: app" \
+  -H "Content-Type: text/plain;charset=utf-8" \
+  -H "ibm-mq-md-expiry: 300000" \
+  -X POST "https://mqweb.bank.local:9443/ibmmq/rest/v3/messaging/qmgr/BANKQM01/queue/NOTIFY.EVENT/message" \
+  -d '{"eventType":"STATEMENT_READY","customerRef":"C-001"}'
+
+# 取出一則訊息（-i 顯示回應標頭，可取得 ibm-mq-md-messageId 等 MQMD 資訊）
+curl -sS -i --cacert /etc/mq/ca.pem --netrc-file ~/.mq-msg.netrc \
+  -H "ibm-mq-rest-csrf-token: app" \
+  -X DELETE "https://mqweb.bank.local:9443/ibmmq/rest/v3/messaging/qmgr/BANKQM01/queue/NOTIFY.EVENT/message?wait=5000"
+```
+
+> MQMD 對應標頭（`ibm-mq-md-*`）、Expiry 的單位、是否預設啟用 Messaging API，以及支援的訊息格式，請依 IBM MQ 10.0 REST API Reference 確認 `[需確認]`。
+
+| 面向 | 評估 |
+|------|------|
+| 優點 | 不需 MQ Client；任何語言都能使用；防火牆只需開 HTTPS |
+| 交易性 | **每個 HTTP 請求各自獨立**，無法把多個操作放在同一個 Syncpoint |
+| 可靠性風險 | `DELETE` 取出後若 HTTP 回應在網路上遺失，**訊息已從佇列移除但用戶端沒收到** |
+| 效能 | 每則訊息一次 HTTPS 往返，吞吐量遠低於原生 Client |
+| 結論 | 適合通知、監控、測試工具、IoT 閘道；**不適合金融主交易流程** |
+
+### 9.9 應用設計考量
+
+官方「Design considerations for IBM MQ applications」討論的主題，整理成企業 Java 團隊可直接執行的設計規則：
+
+| 主題 | 設計規則 | 違反時的典型症狀 | 參考 |
+|------|---------|-----------------|------|
+| 連線與 Handle | 連線與開啟的物件要重複使用；用 Connection Pool / `CachingConnectionFactory` | QM 連線數暴增、`2537`、CPU 偏高 | Part 10、12 |
+| 訊息大小 | 交易電文控制在 KB 級；大檔用 MFT 或 Claim Check | `2010` / `2030`、Log 壓力 | Part 6.4、25 |
+| 持久性 | 交易性訊息一律 Persistent；Non-persistent 只用於可遺失資料 | QM 異常後訊息消失 | Part 3.6 |
+| 交易範圍 | 交易要小、時間要短，避免一個交易包含大量訊息或長時間等待 | Log 空間被長交易佔住、恢復時間變長 | Part 3.5、13 |
+| 等待方式 | 用 `MQGMO_WAIT` / Listener，不要忙碌輪詢 | CPU 浪費、QM 負載 | Part 10.5 |
+| 錯誤分類 | 依 Reason Code 區分連線、權限、容量、資料錯誤 | 無限重試、毒訊息塞住佇列 | Part 23.4 |
+| 字元集 | 明確設定 CCSID 與 Encoding；跨平台使用 `MQGMO_CONVERT` 或應用層轉換 | 中文亂碼、數字欄位錯誤 | Part 3、P32 |
+| 訊息屬性 | 與 Legacy 互通時控制 `PROPCTL` / `targetClient` | 對端解析到多餘 `MQRFH2` | Part 3.13、11.4 |
+| 可辨識性 | 一律設定 Application Name | 出事時找不到是哪個應用 | Part 9.6 |
+| 高可用友善 | 不依賴特定 QM 的狀態；支援自動重連；Uniform Cluster 下設定 balancing 參數 | 切換後應用卡住 | Part 26.8 |
+| 安全 | 帳密與憑證外部化；最小權限 | 憑證外洩、2035 | Part 8 |
+| 可移植性 | 物件名稱以設定提供；不寫死平台路徑 | 換環境需改程式 | Part 34 |
+
+### 9.10 IBM MQ 10.0 對 Java / JMS 開發者的新能力
+
+| 能力 | 說明 | 對開發者的意義 |
+|------|------|---------------|
+| 短生命週期容器的 trace | 為短暫執行的 Java / JMS 容器提供可收集的 trace 方式 | K8s Job、Serverless 類工作負載也能除錯 `[需確認設定方式]` |
+| JMS Selector 使用 MsgToken | 以 MsgToken 精準取回特定訊息 | 減少以自訂屬性 Selector 的掃描成本 |
+| 多個 JMS 連線視為單一應用實例 | Uniform Cluster 平衡時，把同一行程的多個連線一起移動 | 搭配 Spring Boot Starter `balancingInstanceMode=JVM` |
+| JWT endpoint | Client 自動向 Token Server 取得 JWT | 不需在應用程式中自己管理 Token；Starter 以 `ibm.mq.tokenServer.*` 設定 |
+| JMS 連線 keepalive 可自訂 | 調整 Client 端 TCP keepalive 行為 | 解決防火牆閒置斷線造成的 `2009` |
+| Client 預設 TCP buffer 變更 | 預設值調整 | 升級後重新做效能基準測試 |
+| HTTPS CCDT 與自訂 `SSLSocketFactory` | 安全取得集中管理的 CCDT | 配合企業內部 CA |
+| Semeru 21 / 25 檔案編碼變更 | 預設檔案編碼改變 | **未指定 Charset 的 `String.getBytes()`、`new String(byte[])` 行為可能改變**，電文組裝一律明確指定 Charset |
+| Jakarta Messaging Resource Adapter 支援 GlassFish | 應用伺服器部署選項增加 | Jakarta EE 應用可評估 |
+
+### 9.11 AI Agent 使用方式
+
+- 請 AI 掃描專案的 import，產出「使用中的 MQ API 清單」（`com.ibm.mq.*`、`javax.jms.*`、`jakarta.jms.*`、`com.ibm.msg.client.*`）。
+- 請 AI 依本章比較表，對每個模組建議「保留 / 遷移到 Jakarta Messaging」，並列出理由。
+
+### 9.12 Checklist
+
+- [ ] 新開發使用 IBM MQ classes for Jakarta Messaging
+- [ ] 不同時引入 javax 與 jakarta 兩套 MQ Client
+- [ ] MQ Client 版號由 BOM 或 property 集中管理
+- [ ] 所有連線設定 Application Name
+- [ ] 非 Java 對端的 API 與支援等級已列入介面文件
+- [ ] Messaging REST API 只用於非交易性情境
+- [ ] 電文組裝與解析一律明確指定 Charset 與 CCSID
 
 ---
 
-## 60. Final Reference Architecture
+## Part 10 — Java MQ 基礎程式（IBM MQ classes for Java）
 
-### 60.1 架構圖
+### 10.1 目的
+
+以 IBM MQ classes for Java 示範完整的 Producer 與 Consumer。**此 API 已功能凍結，本章主要用途是：理解 MQI 概念、維護既有系統、逆向工程時能讀懂舊程式。新開發請使用 Part 11、12。**
+
+### 10.2 設計重點
+
+| 面向 | 做法 |
+|------|------|
+| Connection | 長連線，重複使用；可恢復錯誤時重連 |
+| Resource | `MQQueue.close()`、`MQQueueManager.disconnect()` 放在 `finally` |
+| Message | 明確設定 Persistence、Expiry、Format、CCSID |
+| Transaction | `MQPMO_SYNCPOINT` / `MQGMO_SYNCPOINT` + `commit()` / `backout()` |
+| Timeout | `MQGMO_WAIT` + `waitInterval` |
+| Retry | 只對可恢復的 Reason Code 重試，指數退避 + 上限 |
+| Poison | 自行檢查 `backoutCount`，超過門檻移到 BOQ |
+| Logging | Log4j2；記錄 MsgId / CorrelId（十六進位）、Reason Code；**不記錄訊息內容中的個資** |
+| Security | 帳密由環境 / Secret 注入；TLS Cipher Suite；MQCSP |
+
+### 10.3 共用：連線設定與工具
+
+```java
+package com.example.mq.classic;
+
+import com.ibm.mq.MQException;
+import com.ibm.mq.MQQueueManager;
+import com.ibm.mq.constants.MQConstants;
+
+import java.util.HexFormat;
+import java.util.Hashtable;
+import java.util.Set;
+
+/**
+ * IBM MQ classes for Java 連線設定。
+ * 敏感資訊（password）必須由 Secret 注入，禁止寫死在程式或設定檔中。
+ */
+public record MqClientConfig(
+        String host,
+        int port,
+        String channel,
+        String queueManager,
+        String user,
+        String password,
+        String cipherSuite,
+        String applicationName) {
+
+    /** 可透過重新連線恢復的 Reason Code。 */
+    public static final Set<Integer> RECONNECTABLE_REASONS = Set.of(
+            MQConstants.MQRC_CONNECTION_BROKEN,     // 2009
+            MQConstants.MQRC_Q_MGR_NOT_AVAILABLE,   // 2059
+            MQConstants.MQRC_Q_MGR_QUIESCING,       // 2161
+            MQConstants.MQRC_Q_MGR_STOPPING,        // 2162
+            MQConstants.MQRC_HOST_NOT_AVAILABLE,    // 2538
+            MQConstants.MQRC_RECONNECT_FAILED);     // 2548
+
+    /**
+     * 建立 Queue Manager 連線。
+     *
+     * @return 已連線的 MQQueueManager
+     * @throws MQException 連線失敗
+     */
+    public MQQueueManager connect() throws MQException {
+        Hashtable<String, Object> props = new Hashtable<>();
+        props.put(MQConstants.TRANSPORT_PROPERTY, MQConstants.TRANSPORT_MQSERIES_CLIENT);
+        props.put(MQConstants.HOST_NAME_PROPERTY, host);
+        props.put(MQConstants.PORT_PROPERTY, port);
+        props.put(MQConstants.CHANNEL_PROPERTY, channel);
+        props.put(MQConstants.APPNAME_PROPERTY, applicationName);
+        props.put(MQConstants.USER_ID_PROPERTY, user);
+        props.put(MQConstants.PASSWORD_PROPERTY, password);
+        props.put(MQConstants.USE_MQCSP_AUTHENTICATION_PROPERTY, Boolean.TRUE);
+        if (cipherSuite != null && !cipherSuite.isBlank()) {
+            // 非 IBM JRE 需另設 -Dcom.ibm.mq.cfg.useIBMCipherMappings=false
+            props.put(MQConstants.SSL_CIPHER_SUITE_PROPERTY, cipherSuite);
+        }
+        return new MQQueueManager(queueManager, props);
+    }
+
+    /** 以十六進位輸出 MsgId / CorrelId，方便與 MQ 工具比對。 */
+    public static String hex(byte[] id) {
+        return id == null ? "" : HexFormat.of().formatHex(id);
+    }
+
+    @Override
+    public String toString() {
+        // 避免密碼被意外寫入日誌
+        return "MqClientConfig[host=%s, port=%d, channel=%s, qmgr=%s, user=%s, app=%s]"
+                .formatted(host, port, channel, queueManager, user, applicationName);
+    }
+}
+```
+
+> **注意**：`record` 預設的 `toString()` 會輸出所有欄位，包括密碼，因此必須覆寫。`[Java 17]` 起可用 `record`；`HexFormat` 需 `[Java 17]`。
+
+### 10.4 Producer（MQPUT）
+
+```java
+package com.example.mq.classic;
+
+import com.ibm.mq.MQException;
+import com.ibm.mq.MQMessage;
+import com.ibm.mq.MQPutMessageOptions;
+import com.ibm.mq.MQQueue;
+import com.ibm.mq.MQQueueManager;
+import com.ibm.mq.constants.MQConstants;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * 轉帳請求 Producer。非執行緒安全：每個執行緒使用自己的實例。
+ */
+public final class TransferRequestProducer implements AutoCloseable {
+
+    private static final Logger LOG = LogManager.getLogger(TransferRequestProducer.class);
+    private static final int MAX_ATTEMPTS = 5;
+    private static final long BASE_BACKOFF_MS = 500L;
+    private static final long MAX_BACKOFF_MS = 10_000L;
+    private static final int CCSID_UTF8 = 1208;
+
+    private final MqClientConfig config;
+    private final String requestQueueName;
+    private final String replyQueueName;
+    private MQQueueManager qmgr;
+    private MQQueue requestQueue;
+
+    public TransferRequestProducer(MqClientConfig config, String requestQueueName, String replyQueueName) {
+        this.config = config;
+        this.requestQueueName = requestQueueName;
+        this.replyQueueName = replyQueueName;
+    }
+
+    /**
+     * 送出一筆轉帳請求。
+     *
+     * @param businessKey 業務唯一鍵（作為 CorrelId 來源與冪等依據）
+     * @param payload     JSON 內容
+     * @param expirySec   請求存活秒數（逾時後自動失效）
+     * @return Queue Manager 產生的 MsgId
+     * @throws MQException 不可恢復的 MQ 錯誤，或重試次數用盡
+     */
+    public byte[] send(String businessKey, String payload, int expirySec) throws MQException {
+        for (int attempt = 1; ; attempt++) {
+            try {
+                ensureOpen();
+                MQMessage msg = new MQMessage();
+                msg.format = MQConstants.MQFMT_STRING;
+                msg.characterSet = CCSID_UTF8;
+                msg.persistence = MQConstants.MQPER_PERSISTENT;
+                msg.expiry = expirySec * 10;                       // 單位：1/10 秒
+                msg.messageType = MQConstants.MQMT_REQUEST;
+                msg.replyToQueueName = replyQueueName;
+                msg.correlationId = CorrelationIds.fromBusinessKey(businessKey);
+                msg.write(payload.getBytes(StandardCharsets.UTF_8));
+
+                MQPutMessageOptions pmo = new MQPutMessageOptions();
+                pmo.options = MQConstants.MQPMO_SYNCPOINT
+                        | MQConstants.MQPMO_NEW_MSG_ID
+                        | MQConstants.MQPMO_FAIL_IF_QUIESCING;
+
+                requestQueue.put(msg, pmo);
+                qmgr.commit();
+                LOG.info("MQPUT ok queue={} msgId={} correlId={}",
+                        requestQueueName, MqClientConfig.hex(msg.messageId), MqClientConfig.hex(msg.correlationId));
+                return msg.messageId;
+
+            } catch (MQException e) {
+                backoutQuietly();
+                boolean reconnectable = MqClientConfig.RECONNECTABLE_REASONS.contains(e.reasonCode);
+                boolean queueFull = e.reasonCode == MQConstants.MQRC_Q_FULL;
+                LOG.warn("MQPUT failed attempt={} queue={} reason={} cc={}",
+                        attempt, requestQueueName, e.reasonCode, e.completionCode);
+                if ((!reconnectable && !queueFull) || attempt >= MAX_ATTEMPTS) {
+                    throw e;
+                }
+                if (reconnectable) {
+                    // 若錯誤發生在 commit 期間，結果未知：下游必須以 businessKey 做冪等
+                    closeQuietly();
+                }
+                sleep(backoff(attempt));
+            } catch (IOException e) {
+                backoutQuietly();
+                throw new IllegalStateException("Failed to write message body", e);
+            }
+        }
+    }
+
+    private void ensureOpen() throws MQException {
+        if (qmgr == null || !qmgr.isConnected()) {
+            qmgr = config.connect();
+            requestQueue = null;
+        }
+        if (requestQueue == null || !requestQueue.isOpen()) {
+            int openOptions = MQConstants.MQOO_OUTPUT | MQConstants.MQOO_FAIL_IF_QUIESCING;
+            requestQueue = qmgr.accessQueue(requestQueueName, openOptions);
+        }
+    }
+
+    private static long backoff(int attempt) {
+        long exp = BASE_BACKOFF_MS * (1L << Math.min(attempt - 1, 10));
+        long jitter = (long) (Math.random() * BASE_BACKOFF_MS);
+        return Math.min(exp + jitter, MAX_BACKOFF_MS);
+    }
+
+    private static void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted during MQ retry backoff", ie);
+        }
+    }
+
+    private void backoutQuietly() {
+        try {
+            if (qmgr != null && qmgr.isConnected()) {
+                qmgr.backout();
+            }
+        } catch (MQException e) {
+            LOG.debug("backout failed reason={}", e.reasonCode);
+        }
+    }
+
+    private void closeQuietly() {
+        try {
+            if (requestQueue != null && requestQueue.isOpen()) {
+                requestQueue.close();
+            }
+        } catch (MQException e) {
+            LOG.debug("close queue failed reason={}", e.reasonCode);
+        } finally {
+            requestQueue = null;
+        }
+        try {
+            if (qmgr != null && qmgr.isConnected()) {
+                qmgr.disconnect();
+            }
+        } catch (MQException e) {
+            LOG.debug("disconnect failed reason={}", e.reasonCode);
+        } finally {
+            qmgr = null;
+        }
+    }
+
+    @Override
+    public void close() {
+        closeQuietly();
+    }
+}
+```
+
+`CorrelationIds` 工具（將業務鍵轉為固定 24 bytes 的 CorrelId）：
+
+```java
+package com.example.mq.classic;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
+/** 將業務鍵轉為 24 bytes CorrelId（SHA-256 前 24 bytes），確保相同業務鍵得到相同 CorrelId。 */
+public final class CorrelationIds {
+
+    private static final int MQ_ID_LENGTH = 24;
+
+    private CorrelationIds() {
+    }
+
+    public static byte[] fromBusinessKey(String businessKey) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256")
+                    .digest(businessKey.getBytes(StandardCharsets.UTF_8));
+            return Arrays.copyOf(digest, MQ_ID_LENGTH);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 not available", e);
+        }
+    }
+}
+```
+
+### 10.5 Consumer（MQGET）
+
+```java
+package com.example.mq.classic;
+
+import com.ibm.mq.MQException;
+import com.ibm.mq.MQGetMessageOptions;
+import com.ibm.mq.MQMessage;
+import com.ibm.mq.MQPutMessageOptions;
+import com.ibm.mq.MQQueue;
+import com.ibm.mq.MQQueueManager;
+import com.ibm.mq.constants.MQConstants;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+/**
+ * 轉帳請求 Consumer。以 Syncpoint 取訊息，處理成功才 Commit；
+ * 超過 Backout 門檻或永久性錯誤時移到 Backout Queue。
+ */
+public final class TransferRequestConsumer implements Runnable, AutoCloseable {
+
+    private static final Logger LOG = LogManager.getLogger(TransferRequestConsumer.class);
+    private static final int WAIT_INTERVAL_MS = 5_000;
+    private static final long RECONNECT_DELAY_MS = 5_000L;
+
+    /** 業務處理介面；以例外型別區分暫時性與永久性錯誤。 */
+    public interface Handler {
+        void handle(String correlIdHex, String body) throws TransientException, PermanentException;
+    }
+
+    public static final class TransientException extends Exception {
+        public TransientException(String m, Throwable c) { super(m, c); }
+    }
+
+    public static final class PermanentException extends Exception {
+        public PermanentException(String m, Throwable c) { super(m, c); }
+    }
+
+    private final MqClientConfig config;
+    private final String inputQueueName;
+    private final String backoutQueueName;
+    private final int backoutThreshold;
+    private final Handler handler;
+    private final AtomicBoolean running = new AtomicBoolean(true);
+
+    private MQQueueManager qmgr;
+    private MQQueue inputQueue;
+
+    public TransferRequestConsumer(MqClientConfig config, String inputQueueName,
+                                   String backoutQueueName, int backoutThreshold, Handler handler) {
+        this.config = config;
+        this.inputQueueName = inputQueueName;
+        this.backoutQueueName = backoutQueueName;
+        this.backoutThreshold = backoutThreshold;
+        this.handler = handler;
+    }
+
+    @Override
+    public void run() {
+        while (running.get()) {
+            try {
+                ensureOpen();
+                consumeOne();
+            } catch (MQException e) {
+                if (e.reasonCode == MQConstants.MQRC_NO_MSG_AVAILABLE) {
+                    continue;                                        // 2033：等待逾時，正常
+                }
+                LOG.error("MQGET loop error queue={} reason={}", inputQueueName, e.reasonCode);
+                closeQuietly();
+                if (!MqClientConfig.RECONNECTABLE_REASONS.contains(e.reasonCode)) {
+                    // 2035、2085 等設定錯誤：停止並告警，避免無限重試
+                    running.set(false);
+                    break;
+                }
+                pause(RECONNECT_DELAY_MS);
+            }
+        }
+        closeQuietly();
+        LOG.info("Consumer stopped queue={}", inputQueueName);
+    }
+
+    private void consumeOne() throws MQException {
+        MQMessage msg = new MQMessage();
+        MQGetMessageOptions gmo = new MQGetMessageOptions();
+        gmo.options = MQConstants.MQGMO_WAIT
+                | MQConstants.MQGMO_SYNCPOINT
+                | MQConstants.MQGMO_CONVERT
+                | MQConstants.MQGMO_FAIL_IF_QUIESCING;
+        gmo.waitInterval = WAIT_INTERVAL_MS;
+
+        inputQueue.get(msg, gmo);
+
+        String msgId = MqClientConfig.hex(msg.messageId);
+        String correlId = MqClientConfig.hex(msg.correlationId);
+
+        if (msg.backoutCount >= backoutThreshold) {
+            LOG.warn("Poison message msgId={} backoutCount={} -> {}", msgId, msg.backoutCount, backoutQueueName);
+            moveToBackoutQueue(msg);
+            return;
+        }
+
+        try {
+            String body = readBody(msg);
+            handler.handle(correlId, body);
+            qmgr.commit();
+            LOG.info("Processed msgId={} correlId={}", msgId, correlId);
+        } catch (PermanentException e) {
+            LOG.error("Permanent failure msgId={} -> {} cause={}", msgId, backoutQueueName, e.getMessage());
+            moveToBackoutQueue(msg);
+        } catch (TransientException e) {
+            LOG.warn("Transient failure msgId={} backoutCount={} cause={}", msgId, msg.backoutCount, e.getMessage());
+            qmgr.backout();
+            pause(1_000L * (msg.backoutCount + 1));            // 簡易退避，避免熱循環
+        } catch (RuntimeException e) {
+            LOG.error("Unexpected failure msgId={}", msgId, e);
+            qmgr.backout();
+        }
+    }
+
+    /** 在同一個 Syncpoint 內：PUT 到 BOQ + 原訊息 GET 一起 Commit。 */
+    private void moveToBackoutQueue(MQMessage original) throws MQException {
+        MQPutMessageOptions pmo = new MQPutMessageOptions();
+        pmo.options = MQConstants.MQPMO_SYNCPOINT
+                | MQConstants.MQPMO_PASS_ALL_CONTEXT
+                | MQConstants.MQPMO_FAIL_IF_QUIESCING;
+        pmo.contextReference = inputQueue;
+        try {
+            qmgr.put(backoutQueueName, original, pmo);
+            qmgr.commit();
+        } catch (MQException e) {
+            LOG.error("Move to BOQ failed reason={} — backing out", e.reasonCode);
+            qmgr.backout();
+            throw e;
+        }
+    }
+
+    private static String readBody(MQMessage msg) {
+        try {
+            byte[] data = new byte[msg.getDataLength()];
+            msg.readFully(data);
+            return new String(data, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to read message body", e);
+        }
+    }
+
+    private void ensureOpen() throws MQException {
+        if (qmgr == null || !qmgr.isConnected()) {
+            qmgr = config.connect();
+            inputQueue = null;
+        }
+        if (inputQueue == null || !inputQueue.isOpen()) {
+            int openOptions = MQConstants.MQOO_INPUT_AS_Q_DEF
+                    | MQConstants.MQOO_SAVE_ALL_CONTEXT
+                    | MQConstants.MQOO_FAIL_IF_QUIESCING;
+            inputQueue = qmgr.accessQueue(inputQueueName, openOptions);
+        }
+    }
+
+    private void pause(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            running.set(false);
+        }
+    }
+
+    private void closeQuietly() {
+        try {
+            if (inputQueue != null && inputQueue.isOpen()) inputQueue.close();
+        } catch (MQException e) {
+            LOG.debug("close failed reason={}", e.reasonCode);
+        } finally {
+            inputQueue = null;
+        }
+        try {
+            if (qmgr != null && qmgr.isConnected()) qmgr.disconnect();
+        } catch (MQException e) {
+            LOG.debug("disconnect failed reason={}", e.reasonCode);
+        } finally {
+            qmgr = null;
+        }
+    }
+
+    /** 由 shutdown hook 或容器生命週期呼叫；最長等待一個 waitInterval 後結束。 */
+    @Override
+    public void close() {
+        running.set(false);
+    }
+}
+```
+
+**重點說明**：
+
+| 項目 | 說明 |
+|------|------|
+| `MQGMO_WAIT` + `waitInterval` | 避免忙碌輪詢；`2033` 表示等待逾時、不是錯誤 |
+| `MQGMO_SYNCPOINT` | 處理成功才 `commit()`；失敗 `backout()` 讓訊息回到佇列 |
+| `backoutCount` 檢查 | **MQ classes for Java 不會自動移到 BOQ**，必須自行處理 |
+| `MQOO_SAVE_ALL_CONTEXT` + `MQPMO_PASS_ALL_CONTEXT` | 移到 BOQ 時保留原始身分與來源資訊（需 `passall` 權限） |
+| 不可恢復錯誤停止 | `2035`、`2085` 屬設定問題，重試無意義，應停止並告警 |
+| Graceful shutdown | `close()` 設定旗標，迴圈最晚在 `waitInterval` 後結束 |
+
+### 10.6 Transaction 說明
+
+- Producer：`MQPMO_SYNCPOINT` + `commit()`，若 `commit()` 期間連線中斷（`2009`），**送出結果未知**。重送可能造成重複 → 下游以 CorrelId / 業務鍵做冪等。
+- Consumer：GET 與「移到 BOQ」在同一 Syncpoint，確保不會「原訊息已刪除、BOQ 卻沒有」。
+- DB 操作不在 MQ Syncpoint 內（除非使用 XA），見 Part 13。
+
+### 10.7 Security 注意事項
+
+- `password` 從 Secret 注入；`toString()` 不得輸出密碼。
+- 使用 TLS Cipher Suite；非 IBM JRE 設定 `useIBMCipherMappings=false`。
+- `MQPMO_PASS_ALL_CONTEXT` 需要 `passall` 權限，只授予確實需要搬移訊息的帳號。
+- 日誌只記錄 MsgId / CorrelId，**不記錄 body（可能含帳號、身分證字號）**。
+
+### 10.8 常見錯誤
+
+- 每送一則訊息就 `connect()` / `disconnect()`：連線成本高，吞吐量下降數十倍。
+- `MQGMO_NO_WAIT` 搭配 `while(true)`：CPU 100%。
+- 忘記 `commit()`：訊息一直在 in-flight 狀態，其他 Consumer 看不到；連線結束時的行為依平台而定。
+- 多執行緒共用同一個 `MQQueueManager` 與 `MQQueue` 而未同步。
+
+### 10.9 Checklist
+
+- [ ] 連線重複使用，錯誤時才重建
+- [ ] `finally` / `close()` 釋放 Queue 與連線
+- [ ] Producer 與 Consumer 都使用 Syncpoint
+- [ ] `MQGMO_WAIT` + 合理 `waitInterval`
+- [ ] 只對可恢復 Reason Code 重試，有上限與退避
+- [ ] 自行處理 BackoutCount
+- [ ] 日誌記錄 MsgId / CorrelId 十六進位，不記錄敏感內容
+
+---
+
+## Part 11 — Java JMS / Jakarta Messaging
+
+### 11.1 目的
+
+以 IBM MQ classes for Jakarta Messaging（新開發首選）示範 ConnectionFactory、Destination、JMSContext、Producer、Consumer 與 MessageListener。
+
+### 11.2 JMS 2.0 / Jakarta Messaging 物件模型
+
+```mermaid
+classDiagram
+    class ConnectionFactory {
+        +createContext(user, pwd, sessionMode)
+    }
+    class JMSContext {
+        +createProducer()
+        +createConsumer(Destination, selector)
+        +createQueue(name)
+        +createTextMessage(text)
+        +commit()
+        +rollback()
+        +close()
+    }
+    class JMSProducer {
+        +setDeliveryMode()
+        +setTimeToLive()
+        +setJMSCorrelationID()
+        +setJMSReplyTo()
+        +send(Destination, Message)
+    }
+    class JMSConsumer {
+        +receive(timeout)
+        +setMessageListener()
+        +close()
+    }
+    class Destination
+    class Queue
+    class Topic
+    class Message {
+        +getJMSMessageID()
+        +getJMSCorrelationID()
+        +getStringProperty()
+    }
+    ConnectionFactory --> JMSContext
+    JMSContext --> JMSProducer
+    JMSContext --> JMSConsumer
+    Destination <|-- Queue
+    Destination <|-- Topic
+    JMSProducer --> Message
+    JMSConsumer --> Message
+```
+
+### 11.3 JMS 與 MQMD 對應
+
+| JMS / Jakarta 欄位 | MQMD / MQ 對應 | 說明 |
+|-------------------|----------------|------|
+| `JMSMessageID` | `MsgId` | 格式 `ID:` + 48 位十六進位 |
+| `JMSCorrelationID` | `CorrelId` | 以 `ID:` + 48 位十六進位設定時，直接對應 24 bytes CorrelId |
+| `JMSDeliveryMode` | `Persistence` | **JMS 預設 PERSISTENT** |
+| `JMSExpiration` / TimeToLive | `Expiry` | JMS 以毫秒設定，MQ 內部換算為 1/10 秒 |
+| `JMSPriority` | `Priority` | 0-9 |
+| `JMSReplyTo` | `ReplyToQ` / `ReplyToQMgr` | |
+| `JMSXDeliveryCount` | `BackoutCount + 1` | 判斷重送次數 |
+| Message Properties | RFH2 標頭或 MQ Message Properties | **非 JMS 的 Legacy 接收端可能看不懂 RFH2** |
+
+### 11.4 與 Legacy（非 JMS）系統互通：targetClient
+
+當接收端是 COBOL / C / MQ classes for Java 程式時，必須讓 JMS 送出**不含 RFH2 標頭的純 MQ 訊息**：
+
+```java
+// 方法 1：URI 參數（targetClient=1 表示非 JMS 接收端）
+Queue legacyQueue = context.createQueue("queue:///CBS.TXN.TRANSFER.REQ?targetClient=1");
+
+// 方法 2：程式設定（需轉型為 IBM 實作類別）
+// ((com.ibm.mq.jakarta.jms.MQDestination) legacyQueue)
+//         .setTargetClient(com.ibm.msg.client.jakarta.wmq.WMQConstants.WMQ_CLIENT_NONJMS_MQ);
+```
+
+> **逆向工程常見坑**：Legacy 收到的訊息前面多了一段以 `RFH` 加一個空白開頭的二進位資料，導致解析失敗。原因就是 JMS 端沒有設定 `targetClient`。
+
+### 11.5 ConnectionFactory
+
+```java
+package com.example.mq.jakarta;
+
+import com.ibm.mq.jakarta.jms.MQConnectionFactory;
+import com.ibm.msg.client.jakarta.wmq.WMQConstants;
+import jakarta.jms.JMSException;
+
+/** 建立 IBM MQ Jakarta Messaging ConnectionFactory。 */
+public final class MqConnectionFactories {
+
+    private MqConnectionFactories() {
+    }
+
+    /**
+     * @param connNameList 例如 "mq-a.bank.local(1414),mq-b.bank.local(1414)"
+     */
+    public static MQConnectionFactory create(String queueManager, String channel, String connNameList,
+                                             String applicationName, String cipherSuite) throws JMSException {
+        MQConnectionFactory cf = new MQConnectionFactory();
+        cf.setTransportType(WMQConstants.WMQ_CM_CLIENT);
+        cf.setQueueManager(queueManager);
+        cf.setChannel(channel);
+        cf.setConnectionNameList(connNameList);
+        cf.setAppName(applicationName);
+        cf.setSSLCipherSuite(cipherSuite);
+        // 同名 QM 的 HA（Multi-instance / Native HA）使用 QMGR 重連
+        cf.setClientReconnectOptions(WMQConstants.WMQ_CLIENT_RECONNECT_Q_MGR);
+        cf.setClientReconnectTimeout(300);
+        cf.setBooleanProperty(WMQConstants.USER_AUTHENTICATION_MQCSP, true);
+        return cf;
+    }
+}
+```
+
+> `setConnectionNameList`、`setClientReconnectOptions` 等 setter 與常數名稱，請以使用版本的 IBM MQ Jakarta Messaging API 文件確認。
+
+### 11.6 Producer（JMSContext + JMSProducer）
+
+```java
+package com.example.mq.jakarta;
+
+import jakarta.jms.DeliveryMode;
+import jakarta.jms.JMSContext;
+import jakarta.jms.JMSException;
+import jakarta.jms.JMSProducer;
+import jakarta.jms.JMSRuntimeException;
+import jakarta.jms.Queue;
+import jakarta.jms.TextMessage;
+import com.ibm.mq.jakarta.jms.MQConnectionFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/** 以 Jakarta Messaging 送出轉帳請求（交易式 Session）。 */
+public final class JakartaTransferProducer implements AutoCloseable {
+
+    private static final Logger LOG = LogManager.getLogger(JakartaTransferProducer.class);
+
+    private final JMSContext context;
+    private final Queue requestQueue;
+    private final Queue replyQueue;
+
+    public JakartaTransferProducer(MQConnectionFactory cf, String user, String password) {
+        this.context = cf.createContext(user, password, JMSContext.SESSION_TRANSACTED);
+        this.context.setExceptionListener(ex ->
+                LOG.error("JMS connection exception errorCode={}", ex.getErrorCode(), ex));
+        this.requestQueue = context.createQueue("queue:///NBK.TXN.TRANSFER.REQ?targetClient=1");
+        this.replyQueue = context.createQueue("queue:///NBK.TXN.TRANSFER.RSP");
+    }
+
+    /**
+     * @return JMSMessageID（ID: + 48 hex）
+     */
+    public String send(String correlationIdHex48, String json, long ttlMillis) {
+        try {
+            TextMessage msg = context.createTextMessage(json);
+            msg.setJMSCorrelationID("ID:" + correlationIdHex48);
+            msg.setStringProperty("traceId", TraceContext.currentTraceId());
+
+            JMSProducer producer = context.createProducer()
+                    .setDeliveryMode(DeliveryMode.PERSISTENT)
+                    .setTimeToLive(ttlMillis)
+                    .setJMSReplyTo(replyQueue);
+            producer.send(requestQueue, msg);
+            context.commit();
+
+            LOG.info("JMS send ok msgId={} correlId={}", msg.getJMSMessageID(), msg.getJMSCorrelationID());
+            return msg.getJMSMessageID();
+        } catch (JMSException | JMSRuntimeException e) {
+            safeRollback();
+            throw new MqSendException("Failed to send transfer request", e);
+        }
+    }
+
+    private void safeRollback() {
+        try {
+            context.rollback();
+        } catch (JMSRuntimeException ex) {
+            LOG.debug("rollback failed", ex);
+        }
+    }
+
+    @Override
+    public void close() {
+        context.close();
+    }
+
+    public static final class MqSendException extends RuntimeException {
+        public MqSendException(String m, Throwable c) { super(m, c); }
+    }
+}
+```
+
+> `TraceContext` 代表專案自己的追蹤 ID 來源（例如 OpenTelemetry），此處省略。**`JMSContext` 不是執行緒安全的**，每個執行緒使用自己的 Context。
+
+### 11.7 Consumer（同步 receive）
+
+```java
+package com.example.mq.jakarta;
+
+import jakarta.jms.JMSConsumer;
+import jakarta.jms.JMSContext;
+import jakarta.jms.JMSException;
+import jakarta.jms.JMSRuntimeException;
+import jakarta.jms.Message;
+import jakarta.jms.Queue;
+import jakarta.jms.TextMessage;
+import com.ibm.mq.jakarta.jms.MQConnectionFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.function.Consumer;
+
+/** 交易式同步 Consumer：處理成功 commit，失敗 rollback；毒訊息由 MQ JMS 依 BOTHRESH 移至 BOQNAME。 */
+public final class JakartaTransferConsumer implements Runnable, AutoCloseable {
+
+    private static final Logger LOG = LogManager.getLogger(JakartaTransferConsumer.class);
+    private static final long RECEIVE_TIMEOUT_MS = 5_000L;
+
+    private final JMSContext context;
+    private final Queue inputQueue;
+    private final Consumer<String> businessHandler;
+    private volatile boolean running = true;
+
+    public JakartaTransferConsumer(MQConnectionFactory cf, String user, String password,
+                                   String queueName, Consumer<String> businessHandler) {
+        this.context = cf.createContext(user, password, JMSContext.SESSION_TRANSACTED);
+        this.inputQueue = context.createQueue("queue:///" + queueName);
+        this.businessHandler = businessHandler;
+    }
+
+    @Override
+    public void run() {
+        try (JMSConsumer consumer = context.createConsumer(inputQueue)) {
+            while (running) {
+                Message message = consumer.receive(RECEIVE_TIMEOUT_MS);
+                if (message == null) {
+                    continue;
+                }
+                handle(message);
+            }
+        } catch (JMSRuntimeException e) {
+            LOG.error("Consumer loop terminated", e);
+        }
+    }
+
+    private void handle(Message message) {
+        String msgId = "";
+        try {
+            msgId = message.getJMSMessageID();
+            int deliveryCount = message.getIntProperty("JMSXDeliveryCount");
+            if (!(message instanceof TextMessage text)) {               // [Java 17] pattern matching
+                LOG.error("Unexpected message type msgId={} type={}", msgId, message.getClass().getSimpleName());
+                context.rollback();                                     // 交由 BOTHRESH 機制移到 BOQ
+                return;
+            }
+            businessHandler.accept(text.getText());
+            context.commit();
+            LOG.info("Processed msgId={} deliveryCount={}", msgId, deliveryCount);
+        } catch (JMSException | RuntimeException e) {
+            LOG.warn("Processing failed msgId={} -> rollback", msgId, e);
+            context.rollback();
+        }
+    }
+
+    @Override
+    public void close() {
+        running = false;
+        context.close();
+    }
+}
+```
+
+### 11.8 MessageListener（非同步）
+
+```java
+JMSContext ctx = cf.createContext(user, password, JMSContext.SESSION_TRANSACTED);
+JMSConsumer consumer = ctx.createConsumer(ctx.createQueue("queue:///CBS.ACCT.NOTIFY"));
+consumer.setMessageListener(message -> {
+    try {
+        process(message);
+        ctx.commit();
+    } catch (Exception e) {
+        LOG.warn("listener failed -> rollback", e);
+        ctx.rollback();
+    }
+});
+ctx.start();
+```
+
+> Java SE 中的 `MessageListener` 每個 `JMSContext` 只有一條派送執行緒。需要並行時建立多個 Context，或改用 Spring 的 Listener Container（Part 12）。
+
+### 11.9 Message 類型
+
+| 類型 | 用途 | 建議 |
+|------|------|------|
+| `TextMessage` | JSON、XML、文字電文 | **最常用**；搭配 CCSID 1208 |
+| `BytesMessage` | 二進位、固定長度主機電文 | Legacy / Mainframe 整合常用 |
+| `MapMessage` | 名稱/值 | 僅 JMS 雙方使用 |
+| `StreamMessage` | 序列化基本型別 | 少用 |
+| `ObjectMessage` | Java 序列化物件 | **禁止使用**：反序列化弱點風險，且無法跨語言 |
+
+### 11.10 Message Properties、Correlation ID、Message ID
+
+```java
+// 自訂屬性：名稱須符合 Java 識別字規則
+msg.setStringProperty("traceId", traceId);
+msg.setStringProperty("sourceSystem", "NBK");
+msg.setIntProperty("schemaVersion", 2);
+
+// 以 CorrelId 選取（MQ 會最佳化為 MQMO_MATCH_CORREL_ID，效能良好）
+String selector = "JMSCorrelationID = 'ID:" + correlationIdHex48 + "'";
+try (JMSConsumer replyConsumer = ctx.createConsumer(replyQueue, selector)) {
+    Message reply = replyConsumer.receive(30_000);
+}
+```
+
+> **以任意自訂屬性做 Selector 會造成 Queue Manager 逐筆掃描**，深佇列時效能極差。Selector 應盡量只用 `JMSCorrelationID` / `JMSMessageID`。
+
+### 11.11 進階 JMS 2.0 / Jakarta Messaging 功能
+
+| 功能 | API | IBM MQ 上的實作 | 適用 | 注意 |
+|------|-----|---------------|------|------|
+| Delivery Delay | `JMSProducer.setDeliveryDelay()` | 訊息先放到 `SYSTEM.DDELAY.LOCAL.QUEUE`，時間到才移到目標 | 延遲重試、排程通知 | 延遲期間不在目標佇列；暫存佇列需容量與權限管理 |
+| 非同步送出 | `JMSProducer.setAsync(CompletionListener)` | 對應 MQ 非同步 Put | 高吞吐量事件、可容忍事後補救 | 錯誤延後回報；**交易性金融電文不使用** |
+| Shared Subscription | `createSharedConsumer()` / `createSharedDurableConsumer()` | 多個 Consumer 分攤同一訂閱 | 事件訂閱方水平擴充 | 訂閱名稱即治理單位，需納入命名規範 |
+| 投遞次數 | `JMSXDeliveryCount` 屬性 | 對應 MQMD `BackoutCount` + 1 | 判斷是否為重送 | 與 `BOTHRESH` 一起設計 |
+| `JMSContext` 簡化 API | `createContext()` | 一個 Context = Connection + Session | 新程式碼 | 不可跨執行緒共用 |
+
+```java
+// Delivery Delay：5 分鐘後才可被取出
+ctx.createProducer()
+        .setDeliveryMode(DeliveryMode.PERSISTENT)
+        .setDeliveryDelay(Duration.ofMinutes(5).toMillis())
+        .send(retryQueue, body);
+
+// 非同步送出：送出後立即返回，結果由 CompletionListener 回報
+ctx.createProducer()
+        .setAsync(new CompletionListener() {
+            @Override
+            public void onCompletion(Message message) {
+                LOG.debug("Async send completed");
+            }
+
+            @Override
+            public void onException(Message message, Exception exception) {
+                LOG.error("Async send failed", exception);
+            }
+        })
+        .send(eventTopic, body);
+
+// Shared Durable Subscription：多個服務實例共同消費同一個持久訂閱
+JMSConsumer auditConsumer = ctx.createSharedDurableConsumer(txnTopic, "AUDIT.TXN.SUB");
+```
+
+> 非同步送出在 IBM MQ 上的錯誤回報時機、與 Syncpoint 的互動，請依 IBM MQ classes for Jakarta Messaging 文件確認 `[需確認]`。
+
+### 11.12 Checklist
+
+- [ ] 新開發使用 `jakarta.jms` 與 `com.ibm.mq.jakarta.client`
+- [ ] 送往 Legacy 非 JMS 系統時設定 `targetClient=1`
+- [ ] 使用 `SESSION_TRANSACTED`
+- [ ] `JMSContext` 不跨執行緒共用
+- [ ] 不使用 `ObjectMessage`
+- [ ] Selector 只用 CorrelationID / MessageID
+
+---
+
+## Part 12 — Spring Boot + IBM MQ
+
+### 12.1 目的
+
+以 Spring Boot 4.x 示範企業級 IBM MQ 整合：連線設定、Producer、Listener、交易、錯誤處理、Retry 與 DLQ。
+
+### 12.2 架構
+
+```text
+Vue / Angular
+       ↓
+Spring Boot
+       ↓
+Service
+       ↓
+IBM MQ
+       ↓
+Legacy System
+```
+
+```mermaid
+flowchart LR
+    UI["Vue / Angular"] -->|"HTTPS / JSON"| CTRL["TransferController"]
+    subgraph SB["Spring Boot 4.x"]
+        CTRL --> SVC["TransferService<br/>（Idempotency / 驗證）"]
+        SVC --> DB[("交易狀態 DB")]
+        SVC --> GW["TransferMqGateway<br/>JmsTemplate"]
+        LSN["TransferReplyListener<br/>@JmsListener"] --> SVC
+        CF["MQConnectionFactory<br/>（mq-jms-spring-boot-starter）"]
+        GW --> CF
+        LSN --> CF
+    end
+    CF -->|"TLS"| MQ[("IBM MQ")]
+    MQ --> LEG["Legacy / Core"]
+    LEG --> MQ
+```
+
+### 12.3 版本對應
+
+| Spring Boot | Starter 版本 | MQ Client | 說明 |
+|-------------|-------------|-----------|------|
+| 4.x `[Boot 4]` | `mq-jms-spring-boot-starter` **4.1.0**（對應 MQ 10.0、Spring Boot 4.1.0） | Jakarta Messaging | 本手冊基準；後續更新只沿 Boot 4 路線 |
+| 3.x `[Boot 3]` | **3.5.15**（Boot 3 最後一版） | Jakarta Messaging | Spring Boot 3 已結束非商業支援 |
+| 2.x | 2.7.18（Boot 2 最後一版） | JMS 2.0（javax） | 僅維護 |
+
+來源：GitHub `ibm-messaging/mq-jms-spring` README 與 Release。**Starter 屬 IBM 以 as-is 提供的開源元件，不在 IBM 正式支援案件範圍內；底層 MQ Client 函式庫則依其原本的支援條款。**
+
+### 12.4 Maven 設定
+
+```xml
+<parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>4.1.0</version> <!-- 依公司基準版本，需確認最新修補版 -->
+</parent>
+
+<properties>
+    <java.version>25</java.version>
+</properties>
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <!-- Boot 4 起 Web MVC starter 改名為 webmvc；Boot 3 使用 spring-boot-starter-web -->
+        <artifactId>spring-boot-starter-webmvc</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.ibm.mq</groupId>
+        <artifactId>mq-jms-spring-boot-starter</artifactId>
+        <version>4.1.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+</dependencies>
+```
+
+### 12.5 application.yml
+
+```yaml
+ibm:
+  mq:
+    queue-manager: NBKQM01
+    channel: PAY.SVRCONN
+    conn-name: nbk-mq-a.bank.local(1414),nbk-mq-b.bank.local(1414)
+    application-name: payment-service          # DISPLAY CONN 的 APPLTAG
+    user: ${MQ_USER:}                          # 由 Secret 注入
+    password: ${MQ_PASSWORD:}                  # 由 Secret 注入，禁止寫在 Git
+    userAuthenticationMQCSP: true              # 預設即為 true；縮寫字屬性直接用 camelCase
+    ssl-bundle: mq-client                      # Spring SSL Bundle（Boot 3.1+）
+    ssl-cipher-suite: TLS_AES_256_GCM_SHA384
+    useIBMCipherMappings: false                # 非 IBM JRE 必須為 false
+    reconnect: QMGR                            # 同名 QM 的 HA 重連
+    reconnect-timeout: 300
+    pool:
+      enabled: false                           # 使用 Spring CachingConnectionFactory（starter 建議）
+
+spring:
+  ssl:
+    bundle:
+      jks:
+        mq-client:
+          keystore:
+            location: file:/etc/secrets/mq/client.p12
+            password: ${MQ_KEYSTORE_PASSWORD}
+            type: PKCS12
+          truststore:
+            location: file:/etc/secrets/mq/truststore.p12
+            password: ${MQ_TRUSTSTORE_PASSWORD}
+            type: PKCS12
+  jms:
+    cache:
+      enabled: true
+      session-cache-size: 10
+
+logging:
+  level:
+    com.ibm.mq.spring.boot: INFO
+```
+
+> Starter 屬性原文為 camelCase（如 `queueManager`、`connName`、`userAuthenticationMQCSP`、`useIBMCipherMappings`）。Spring Boot relaxed binding 支援 kebab-case，**縮寫字（MQCSP、IBM）轉 kebab-case 的寫法容易出錯，建議對這類屬性直接使用 camelCase 原名並以整合測試驗證**。
+
+> Boot 4 的 starter 模組化調整（例如 `spring-boot-starter-web` 改為 `spring-boot-starter-webmvc`）請以 Spring Boot 4 Release Notes 確認 `[需確認]`。
+
+**Starter 進階屬性（依 `mq-jms-spring` README 整理）**：
+
+| 屬性 | 用途 | 建議 |
+|------|------|------|
+| `ibm.mq.ccdtUrl` | 以 CCDT 取代 `channel` / `connName`（優先於兩者） | 多 QM 或 HA 環境建議使用 |
+| `ibm.mq.ccdtSslBundle`、`ibm.mq.ccdtHttpsCertValPolicy` | 以 HTTPS 取得 CCDT 時的 TLS 設定；驗證策略 `HOSTNAMECN`（預設）/ `ANY` / `NONE` | Production 保持 `HOSTNAMECN` |
+| `ibm.mq.tokenServer.endpoint` / `clientId` / `clientSecret` | Client 自動向 Token Server（例如 Keycloak）取得 JWT | `clientSecret` 由 Secret 注入 |
+| `ibm.mq.token` | 直接提供 JWT | 不建議；改用 tokenServer |
+| `ibm.mq.balancingApplicationType` | Uniform Cluster 平衡提示：`SIMPLE` / `REQREP` | Request / Reply 應用設 `REQREP` |
+| `ibm.mq.balancingTimeout`、`balancingOptions`、`balancingInstanceMode` | 平衡時機、是否忽略交易中連線、`JVM` 模式將同行程連線視為一個實例 | 搭配 `[MQ 10.0]` 多連線單一實例功能 |
+| `ibm.mq.outboundSNI` | 設定 `HOSTNAME` 以連線 OpenShift Route | 容器平台連線時使用 |
+| `ibm.mq.trace.*` | 以 Spring 屬性控制 MQ JMS trace、FFDC 路徑 | 只在除錯時開啟 |
+| `ibm.mq.additionalProperties.<CONSTANT>` | 設定尚未封裝的 ConnectionFactory 屬性 | 無錯誤檢查，需以整合測試驗證 |
+| `ibm.mq.jks.*` | 舊式 keystore 設定 | **已 deprecated**，改用 `sslBundle` |
+| `spring.jms.listener.receiveTimeout` | Listener polling 逾時 | 未設定時 starter 調為 30 秒 |
+
+### 12.6 Listener Container 設定
+
+```java
+package com.example.payment.mq;
+
+import jakarta.jms.ConnectionFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.util.backoff.ExponentialBackOff;
+
+@Configuration
+@EnableJms
+class MqJmsConfig {
+
+    private static final Logger LOG = LogManager.getLogger(MqJmsConfig.class);
+
+    /** 交易式 Listener：例外 → rollback → MQ JMS 依 BOTHRESH / BOQNAME 處理毒訊息。 */
+    @Bean
+    DefaultJmsListenerContainerFactory mqListenerFactory(ConnectionFactory connectionFactory) {
+        var factory = new DefaultJmsListenerContainerFactory();
+        factory.setConnectionFactory(connectionFactory);
+        factory.setSessionTransacted(true);
+        factory.setConcurrency("2-8");
+        factory.setReceiveTimeout(5_000L);
+        factory.setErrorHandler(t -> LOG.error("JMS listener error", t));
+
+        // 連線中斷時的重連退避（不是訊息重試）
+        var backOff = new ExponentialBackOff(1_000L, 2.0);
+        backOff.setMaxInterval(30_000L);
+        factory.setBackOff(backOff);
+        return factory;
+    }
+
+    @Bean
+    JmsTemplate mqJmsTemplate(ConnectionFactory connectionFactory) {
+        var template = new JmsTemplate(connectionFactory);
+        template.setSessionTransacted(true);
+        template.setExplicitQosEnabled(true);
+        template.setDeliveryPersistent(true);
+        template.setTimeToLive(30_000L);
+        template.setReceiveTimeout(30_000L);
+        return template;
+    }
+}
+```
+
+> `[Boot 4]` Spring Boot 4 進行了 auto-configuration 模組化，`DefaultJmsListenerContainerFactoryConfigurer` 等類別的套件路徑可能與 Boot 3 不同 `[需確認]`。本範例不依賴 configurer，直接設定 factory，以降低升級時的耦合。
+
+### 12.7 Producer（Gateway）
+
+```java
+package com.example.payment.mq;
+
+import jakarta.jms.JMSException;
+import jakarta.jms.TextMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.jms.JmsException;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class TransferMqGateway {
+
+    private static final Logger LOG = LogManager.getLogger(TransferMqGateway.class);
+    private static final String REQUEST_QUEUE = "queue:///NBK.TXN.TRANSFER.REQ?targetClient=1";
+    private static final String REPLY_QUEUE = "NBK.TXN.TRANSFER.RSP";
+    private static final int MAX_ATTEMPTS = 3;
+
+    private final JmsTemplate jmsTemplate;
+
+    public TransferMqGateway(JmsTemplate mqJmsTemplate) {
+        this.jmsTemplate = mqJmsTemplate;
+    }
+
+    /**
+     * 送出轉帳請求。
+     *
+     * @param correlationHex48 由 Idempotency Key 產生的 48 位十六進位字串
+     */
+    public void sendTransferRequest(String correlationHex48, String json) {
+        JmsException last = null;
+        for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+            try {
+                jmsTemplate.send(REQUEST_QUEUE, session -> {
+                    TextMessage msg = session.createTextMessage(json);
+                    msg.setJMSCorrelationID("ID:" + correlationHex48);
+                    msg.setJMSReplyTo(session.createQueue(REPLY_QUEUE));
+                    return msg;
+                });
+                LOG.info("Transfer request sent correlId={} attempt={}", correlationHex48, attempt);
+                return;
+            } catch (JmsException e) {
+                last = e;
+                LOG.warn("Send failed attempt={} correlId={} cause={}", attempt, correlationHex48, e.getMessage());
+                sleep(500L * attempt);
+            }
+        }
+        throw new MqUnavailableException("IBM MQ unavailable after retries", last);
+    }
+
+    private static void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new MqUnavailableException("Interrupted", ie);
+        }
+    }
+
+    public static final class MqUnavailableException extends RuntimeException {
+        public MqUnavailableException(String m, Throwable c) { super(m, c); }
+    }
+}
+```
+
+> `JmsTemplate.send` 不回傳 MsgId。需要取得 MsgId 時，可在 `jmsTemplate.execute(SessionCallback)` 內自行建立 Producer 並送出後讀取 `getJMSMessageID()`。`[Spring Framework 7]` 新增 `JmsClient` 流暢式 API 與核心 Retry / Resilience 支援，可取代上方的手寫重試迴圈 `[需確認 API 細節]`。
+
+### 12.8 Listener（Consumer）
+
+```java
+package com.example.payment.mq;
+
+import jakarta.jms.JMSException;
+import jakarta.jms.TextMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.jms.annotation.JmsListener;
+import org.springframework.stereotype.Component;
+
+@Component
+class TransferReplyListener {
+
+    private static final Logger LOG = LogManager.getLogger(TransferReplyListener.class);
+
+    private final TransferResultService resultService;
+
+    TransferReplyListener(TransferResultService resultService) {
+        this.resultService = resultService;
+    }
+
+    @JmsListener(destination = "NBK.TXN.TRANSFER.RSP", containerFactory = "mqListenerFactory")
+    void onReply(TextMessage message) throws JMSException {
+        String correlId = message.getJMSCorrelationID();
+        int deliveryCount = message.getIntProperty("JMSXDeliveryCount");
+        LOG.info("Reply received correlId={} deliveryCount={}", correlId, deliveryCount);
+
+        try {
+            resultService.applyReply(correlId, message.getText());   // 內部需冪等
+        } catch (InvalidReplyException e) {
+            // 永久性錯誤：記錄後吞掉例外 → commit，並寫入人工處理表；不要讓它無限重試
+            LOG.error("Invalid reply correlId={} -> manual queue", correlId, e);
+            resultService.recordInvalidReply(correlId, e.getMessage());
+        }
+        // 其他 RuntimeException 往外拋 → rollback → 達 BOTHRESH 後由 MQ JMS 移到 BOQ
+    }
+}
+```
+
+`TransferResultService`、`InvalidReplyException` 為業務服務與自訂例外，此處省略。
+
+### 12.9 Error Handling、Retry 與 DLQ 策略
+
+```mermaid
+flowchart TD
+    M["收到訊息"] --> P{"處理"}
+    P -- 成功 --> C["commit"]
+    P -- "永久性錯誤<br/>（格式、業務規則）" --> R1["記錄人工處理表<br/>commit（不重試）"]
+    P -- "暫時性錯誤<br/>（DB / 外部 API）" --> RB["拋出例外 → rollback"]
+    RB --> D{"JMSXDeliveryCount<br/>> BOTHRESH？"}
+    D -- 否 --> M
+    D -- 是 --> BOQ["MQ JMS 移至 BOQNAME"]
+    BOQ --> ALERT["監控 BOQ 深度 → 告警"]
+```
+
+| 錯誤類型 | 範例 | 處理 |
+|---------|------|------|
+| 永久性 | JSON 解析失敗、必填欄位缺漏、未知交易代碼 | 不重試；轉人工 / BOQ |
+| 暫時性 | DB 連線逾時、下游 API 503 | rollback 重試；有上限 |
+| 連線層 | `2009`、`2538` | Listener Container `BackOff` 重連 |
+| 設定層 | `2035`、`2085` | 告警；人工處理（重試無效） |
+
+### 12.10 Spring Boot 3.x 與 4.x 差異重點
+
+| 項目 | Boot 3.x | Boot 4.x |
+|------|----------|----------|
+| Starter | 3.5.15（最後版） | 4.1.0+ |
+| Spring Framework | 6.x | 7.x |
+| Jakarta EE 基準 | 10 | 11 `[需確認 Messaging 版本對應]` |
+| Auto-config 套件 | 單一 `spring-boot-autoconfigure` | 模組化拆分 `[需確認]` |
+| Retry | 常用 `spring-retry` | 框架核心內建 Retry / Resilience `[需確認]` |
+| Java 最低版本 | 17 | 17 `[需確認]` |
+
+### 12.11 Production 注意事項
+
+- `concurrency` 上限 × Pod 數 ≤ SVRCONN `MAXINST`，否則擴容時出現連線被拒。
+- Actuator 健康檢查若包含 JMS 健康指標，MQ 短暫中斷可能導致 Pod 被重啟；需評估是否將 JMS 健康從 liveness 移除，只放 readiness。
+- Graceful shutdown：設定 `server.shutdown=graceful` 與合理的 `spring.lifecycle.timeout-per-shutdown-phase`，讓 Listener 處理完當前訊息。
+
+### 12.12 Checklist
+
+- [ ] Starter 版本與 Spring Boot 主版本對應
+- [ ] 帳密、Keystore 密碼由 Secret 注入
+- [ ] 使用 SSL Bundle 設定 TLS
+- [ ] `application-name` 已設定
+- [ ] Listener `sessionTransacted=true`
+- [ ] 每個 Input Queue 設定 `BOQNAME` / `BOTHRESH`，且應用帳號有 BOQ `put` 權限
+- [ ] 永久性錯誤不進入無限重試
+- [ ] `concurrency × Pod 數` 已對照 `MAXINST`
+
+---
+
+## Part 13 — Java Transaction
+
+### 13.1 目的
+
+釐清 DB Transaction 與 MQ Transaction 的關係，說明 Local Transaction、JMS Transaction、XA、Outbox 等做法的取捨，以及金融交易系統的實務風險。
+
+### 13.2 核心概念：兩個資源、兩個交易
+
+```text
+DB Transaction
++
+MQ Transaction
+≠
+一個交易
+```
+
+除非使用 XA 兩階段提交，**DB 與 MQ 是兩個獨立的交易**。任何一方 commit 之後、另一方 commit 之前，程式當掉或網路中斷，都會造成不一致。
+
+### 13.3 失敗情境分析
+
+以「Consumer 收到轉帳指令 → 更新 DB 餘額 → commit」為例：
+
+| 順序 | 失敗點 | 結果 | 風險 |
+|------|--------|------|------|
+| 先 DB commit，再 MQ commit | DB commit 後、MQ commit 前當機 | 訊息回到佇列被重新處理 | **重複扣款**（若無冪等） |
+| 先 MQ commit，再 DB commit | MQ commit 後、DB commit 前當機 | 訊息已刪除，DB 未更新 | **交易遺失** |
+
+**結論**：金融系統應選擇「先 DB 後 MQ」（寧可重複、不可遺失），**並用冪等機制消除重複**。
+
+### 13.4 做法比較
+
+| 做法 | 一致性 | 複雜度 | 效能 | 適用 |
+|------|--------|--------|------|------|
+| MQ Local Transaction（僅 MQ） | MQ 內一致 | 低 | 高 | 純轉送、不涉及 DB |
+| Best-Effort 1PC（DB 先 commit + 冪等） | 最終一致（at-least-once + 去重） | 中 | 高 | **多數 Spring Boot 服務的建議做法** |
+| Transactional Outbox | 最終一致 | 中-高 | 高 | Producer 端「DB 更新 + 發送訊息」需一致 |
+| XA / JTA 兩階段提交 | 強一致（in-doubt 時需人工介入） | 高 | 較低 | 法規或業務要求原子性、且基礎設施支援 |
+
+### 13.5 Best-Effort 1PC + Idempotency（Consumer 端）
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant MQ as IBM MQ
+    participant L as Listener (JMS tx)
+    participant DB as Database (JDBC tx)
+    MQ->>L: receive（JMS Session 交易中）
+    L->>DB: BEGIN
+    L->>DB: INSERT processed_message(correl_id) — 唯一鍵
+    alt 唯一鍵衝突（已處理過）
+        L->>DB: ROLLBACK
+        L->>MQ: JMS commit（丟棄重複訊息）
+    else 首次處理
+        L->>DB: UPDATE account SET balance = ...
+        L->>DB: COMMIT
+        L->>MQ: JMS commit
+        Note over L,MQ: 若此處當機 → 訊息重送 → 第 3 步唯一鍵衝突 → 安全丟棄
+    end
+```
+
+```java
+@JmsListener(destination = "CBS.TXN.TRANSFER.REQ", containerFactory = "mqListenerFactory")
+void onTransfer(TextMessage message) throws JMSException {
+    String correlId = message.getJMSCorrelationID();
+    // DB 交易由 TransactionTemplate 控制，先於 JMS commit 完成
+    transactionTemplate.executeWithoutResult(status -> {
+        if (!idempotencyRepository.tryInsert(correlId)) {     // INSERT ... 唯一鍵衝突回傳 false
+            LOG.info("Duplicate message ignored correlId={}", correlId);
+            return;
+        }
+        transferService.execute(parse(message.getText()));
+    });
+    // 方法正常結束 → Listener Container 執行 JMS commit
+}
+```
+
+> Spring 的 `DefaultMessageListenerContainer` 在 `sessionTransacted=true` 且未設定外部交易管理器時，會在 Listener 方法返回後 commit JMS Session。**DB 交易需在 Listener 方法內完成並 commit**，才符合「先 DB 後 MQ」。
+
+### 13.6 Transactional Outbox（Producer 端）
+
+```mermaid
+flowchart LR
+    API["API 請求"] --> TX{"單一 DB 交易"}
+    TX --> BIZ[("業務資料表")]
+    TX --> OUT[("outbox 表<br/>status=NEW")]
+    RELAY["Outbox Relay<br/>（排程 / CDC）"] --> OUT
+    RELAY -->|"MQPUT + commit"| MQ[("IBM MQ")]
+    RELAY -->|"更新 status=SENT"| OUT
+```
+
+- 業務資料與待發送訊息寫在同一個 DB 交易 → 不會「DB 有、訊息沒送」。
+- Relay 送出後才標記 `SENT`；Relay 在兩步之間當機會重送 → 下游冪等。
+- Outbox 表需要清理機制與監控（未送出筆數即「積壓」指標）。
+
+### 13.7 XA / Distributed Transaction
+
+| 項目 | 說明 |
+|------|------|
+| 原理 | Transaction Manager 協調 DB 與 MQ 進行兩階段提交（prepare → commit） |
+| MQ 支援 | IBM MQ 可作為 XA 資源（JMS 的 `XAConnectionFactory`）；Client 連線下的 XA 支援條件需依官方文件確認 `[需確認]` |
+| Java EE / Jakarta EE | 應用伺服器（如 WebSphere Liberty）內建 JTA 與 MQ Resource Adapter |
+| Spring Boot | Boot 3 起不再內建 Atomikos / Bitronix 自動設定，需使用第三方提供的 JTA starter `[需確認]` |
+| 風險 | Transaction Manager 在 prepare 後當機 → **in-doubt 交易**，資源被鎖定，需要復原日誌與人工處理 |
+| 效能 | 額外的 prepare 往返與 log 寫入 |
+
+### 13.8 Exactly-once 的實務限制
+
+> **端到端的 Exactly-once 在分散式系統中無法單靠 MQ 達成。**
+
+- MQ 保證的是「MQ 網路內的 once-and-only-once 傳遞」，以及在 Syncpoint 下的原子性。
+- 應用程式「處理」這則訊息的副作用（扣款、寄信、呼叫外部 API）不在 MQ 的控制範圍內。
+- 實務目標是 **Effectively-once = At-least-once 傳遞 + 冪等處理**。
+
+### 13.9 金融交易系統的實務風險
+
+| 風險 | 情境 | 對策 |
+|------|------|------|
+| 重複扣款 | 重送、使用者重按、Producer 重試 | 冪等鍵（業務鍵 / CorrelId）+ 唯一約束 |
+| 交易遺失 | 先 MQ commit 後 DB 失敗 | 先 DB 後 MQ；Outbox |
+| 狀態不明 | Request 送出後 Timeout，不知道後端是否處理 | 查詢交易（Inquiry）+ 對帳；**不要盲目重送** |
+| in-doubt 鎖定 | XA 協調者故障 | 監控 in-doubt、建立人工處理 SOP |
+| 部分成功 | 多筆訊息中部分處理 | 交易邊界設計；補償交易（Saga） |
+| 順序錯亂 | 先收到「沖正」再收到「原交易」 | 業務序號檢查；暫存等待 |
+
+### 13.10 Checklist
+
+- [ ] 每個 Consumer 有冪等機制（唯一鍵表或業務狀態檢查）
+- [ ] Consumer 交易順序為「先 DB 後 MQ」
+- [ ] Producer 端若需「DB 更新 + 發訊息」一致，已採用 Outbox
+- [ ] 若使用 XA，已建立 in-doubt 監控與處理 SOP
+- [ ] Request / Reply Timeout 後有查詢與對帳機制
+- [ ] 文件中明確寫出「本流程不保證 Exactly-once」的處理方式
+
+---
+
+## Part 14 — IBM MQ 與 Web Application 整合
+
+### 14.1 目的
+
+說明 Web Application 如何正確地透過分層架構使用 IBM MQ，以及為什麼瀏覽器端或前端框架不應直接連 MQ。
+
+### 14.2 企業架構
+
+```text
+Browser
+   ↓
+Vue / Angular
+   ↓
+API Gateway
+   ↓
+Spring Boot
+   ↓
+Application Service
+   ↓
+IBM MQ
+   ↓
+Legacy / Mainframe / Core Banking
+```
 
 ```mermaid
 flowchart TB
-    DEV["Developer"] --> AG["AI Coding Agent"]
-    AG --> SRC["Source Repository"]
-    AG --> ARC["Architecture<br/>ArchUnit 等"]
-    SRC --> CI["CI/CD"]
-    CI --> TR["Trivy Repo / FS"]
-    CI --> TC["Trivy Config"]
-    CI --> TI["Trivy Image"]
-    CI --> SB["SBOM"]
-    TR --> GATE{"Security Gate"}
-    TC --> GATE
-    TI --> GATE
-    SB --> GATE
-    GATE --> REG["Container Registry"]
-    REG --> K8S["Kubernetes"]
-    K8S --> OP["Trivy Operator"]
-    OP --> CLOUD["Cloud"]
-    CLOUD --> REP["Security Report"]
-    REP --> AG2["AI Agent"]
-    AG2 --> REM["Remediation"]
-    REM --> RS["Re-scan"]
-    RS --> HA["Human Approval"]
-    HA --> SRC
+    subgraph Client["使用者端"]
+        BR["Browser"] --> FE["Vue / Angular SPA"]
+    end
+    subgraph Edge["邊界層"]
+        GW["API Gateway<br/>認證 / 限流 / WAF"]
+    end
+    subgraph App["應用層（Spring Boot）"]
+        API["API Layer<br/>Controller / DTO / 驗證"]
+        SVC["Service Layer<br/>業務邏輯 / Idempotency / 狀態"]
+        MSG["Messaging Layer<br/>Gateway / Listener"]
+        ADP["Adapter Layer<br/>電文轉換（JSON ↔ 固定長度 / XML）"]
+    end
+    subgraph Int["整合層"]
+        MQ[("IBM MQ")]
+    end
+    subgraph Legacy["Legacy 層"]
+        CORE["Core Banking"]
+        MF["Mainframe CICS"]
+    end
+    FE -->|"HTTPS"| GW --> API --> SVC --> ADP --> MSG --> MQ
+    MQ --> CORE
+    MQ --> MF
 ```
 
-### 60.2 元件與責任邊界
+### 14.3 為什麼 Web Application 不應直接連 IBM MQ
 
-| 區塊 | 元件 | Trivy 角色 | 控制性質 | 負責角色 |
-|------|------|-----------|----------|----------|
-| 開發 | Developer、AI Coding Agent、IDE（Extension / MCP） | 即時回饋 | 建議性 | Developer、AI Engineer |
-| 原始碼 | Source Repository、CODEOWNERS、Branch Protection | — | 強制性 | Platform、DevSecOps |
-| 建置 | CI/CD、Trivy FS / Config / Image、SBOM | Gate | 強制性 | Platform、DevSecOps |
-| 發布 | Container Registry、SBOM Attestation、VEX | 供應鏈證據 | 強制性 | Platform |
-| 執行 | Kubernetes、Trivy Operator | 持續監控 | 偵測性 | SRE、Security |
-| 雲端 | IaC 左移、trivy-aws plugin（選用） | 設定檢查 | 強制性（IaC）/ 偵測性（帳號） | Cloud Team |
-| 修復 | Security Report、AI Agent、Re-scan、Human Approval | 驗證 | 強制性（Human Approval） | Tech Lead |
+| 原因 | 說明 |
+|------|------|
+| 安全 | MQ 帳密與憑證會暴露在使用者端；MQ 連接埠需對外開放 |
+| 協定 | 瀏覽器無法使用 MQ 原生協定；即使透過 MQ REST Messaging API，也等於把內部佇列對外暴露 |
+| 治理 | 無法在 MQ 層做使用者層級的授權、輸入驗證、限流 |
+| 耦合 | 前端直接依賴佇列名稱與電文格式，後端無法演進 |
+| 冪等 | 使用者重按、網路重送無法在 MQ 層去重 |
+| 稽核 | 無法把「哪個使用者做了什麼」與訊息關聯 |
 
-### 60.3 資料流說明
+### 14.4 各層職責
 
-1. **輸入**：Developer 與 AI Agent 的變更都進入同一個 Source Repository，沒有「AI 專用」的後門。
-2. **建置期 Gate**：CI 以中央設定執行四類掃描並產生 SBOM，只有通過 Gate 的 digest 才能進入 Registry。
-3. **執行期監控**：Operator 以每日更新的 DB 重新評估運行中的 Workload，新揭露的 CVE 會產生新的 Security Report。
-4. **修復迴圈**：AI Agent 只能提出 Remediation 與 Re-scan 證據，合併決定權在 Human Approval。
-5. **資料來源一致**：IDE、CI、Operator 皆指向內部 DB Mirror，確保同一天的掃描結果可以互相比較。
+| 層 | 職責 | 不應做的事 |
+|----|------|-----------|
+| API Layer | 認證資訊解析、輸入驗證、DTO、HTTP 狀態碼 | 直接呼叫 JmsTemplate |
+| Service Layer | 業務規則、Idempotency Key 檢查、交易狀態機 | 拼裝電文位元組 |
+| Adapter Layer | JSON ↔ Legacy 電文格式轉換、CCSID 處理 | 業務判斷 |
+| Messaging Layer | 送出 / 接收、CorrelId、Timeout、錯誤分類 | 業務判斷 |
+| Legacy Integration Layer | 由 MQ 與 Legacy 系統負責；Adapter 層包住其介面 | — |
 
-### 實務案例
+### 14.5 同步 API 與非同步處理的對應
 
-某金控公司以本架構作為「AI 輔助開發安全控制」的稽核說明文件。外部稽核依 60.2 的「控制性質」欄位逐項抽查證據，強制性控制皆能提供 CI 紀錄與 PR Review 紀錄，一次通過。
+| API 設計 | 說明 | 適用 |
+|---------|------|------|
+| 同步等待（Request / Reply + Timeout） | API 送出 MQ 請求後等待回覆，逾時回 504 或「處理中」 | 後端通常秒級回應的交易 |
+| 非同步受理（202 Accepted） | API 寫入 DB 並送出 MQ 後立即回 202 + 查詢 URL | 處理時間長或不確定 |
+| 事件推送 | 回覆到達後透過 WebSocket / SSE 推送前端 | 需要即時顯示結果 |
 
-### 注意事項
+### 14.6 實務案例
 
-- 「建議性」控制（IDE Extension、MCP）不可在稽核文件中寫成強制性控制。
-- 架構中的 Cloud 區塊以 IaC 左移為主，不代表 Trivy 提供完整 CSPM（第 12 章）。
+某網銀把「轉帳」API 設計為同步等待 30 秒。尖峰時核心處理變慢，大量 API 執行緒卡在等待回覆，Tomcat 執行緒耗盡，連查詢餘額都失敗。
 
----
+**改善**：
 
-## 61. 最後的企業建議
+1. 轉帳 API 改為 202 Accepted + 查詢；同步等待上限降為 5 秒，超過即回「處理中」。
+2. Request 設定 Expiry = 等待上限 + 緩衝，避免核心處理已無人等待的請求。
+3. `[Java 21]` 評估 Virtual Threads 降低等待中執行緒的資源成本（MQ Client 相容性需實測）。
 
-### 61.1 如果公司準備正式導入 Trivy，應該如何開始？
+### 14.7 Checklist
 
-| # | 角度 | 建議 |
-|---|------|------|
-| 1 | 技術架構 | 先建立「驗章安裝 + 內部 DB Mirror + 中央設定」三個基礎，再擴大使用 |
-| 2 | 開發流程 | 從 `trivy fs` 開始，讓開發者在 Commit 前就看到結果 |
-| 3 | AI Agent | 先寫 AGENTS.md 規則與 CODEOWNERS，再讓 Agent 使用 Trivy |
-| 4 | CI/CD | Reusable workflow + SHA pin；先 Warn 後 Block |
-| 5 | Container | 以 digest 掃描與部署；Base Image 納入企業核准清單 |
-| 6 | Kubernetes | Manifest 用 `trivy config` 左移；叢集用 Operator 持續監控 |
-| 7 | Cloud | IaC 左移為主；`trivy aws` plugin 審慎評估；不宣稱完整 CSPM |
-| 8 | SBOM | 每個 Release 產生並保存，每日重掃 |
-| 9 | Security Governance | Gate 規則版本化、Security 核定 |
-| 10 | Exception Management | 必填 Owner、到期日、補償控制；CI 自動檢查 |
-| 11 | Trivy Upgrade | 每季評估；驗章；新舊版結果比較；不追最新發布當天的版本 |
-| 12 | Developer Training | Lab 1–16 三天訓練；新人必修 |
-| 13 | DevSecOps | 監控 DB 新鮮度、掃描成功率、CI 時間 |
-| 14 | Enterprise Governance | 納入 AI Coding Standard、SSDLC、內部稽核 |
-
-### 61.2 第一個 30 天
-
-| 週 | 行動 |
-|----|------|
-| 第 1 週 | 選定 2–3 個試點系統；Platform 建立驗章安裝與 DB Mirror |
-| 第 2 週 | 試點團隊完成 Lab 1–8；建立 Baseline |
-| 第 3 週 | 試點 repo 加入 CI 掃描（Warn）；Secret 直接 Block |
-| 第 4 週 | 檢討 Baseline 與誤報；擬定 Gate 與 Exception 政策草案送 Security 核定 |
-
-### 61.3 核心問題回答索引
-
-| # | 問題 | 本手冊回答位置 |
-|---|------|---------------|
-| 1 | AI Agent 開發 Web Application 時，什麼時候應該執行 Trivy？ | 第 26.2 節、第 54 章 |
-| 2 | Reverse Engineering Legacy System 時，如何建立 Security Baseline？ | 第 24、48 章 |
-| 3 | Framework Upgrade 前後，如何比較 Security Risk？ | 第 25、49 章 |
-| 4 | 如何使用 Trivy 建立 SBOM？ | 第 6 章 |
-| 5 | 如何讓 AI Agent 分析 Trivy 結果？ | 第 18.6 節、第 27、28 章 |
-| 6 | AI Agent 哪些修正可以自動做？ | 第 29.2 節 Safe Automatic Fix |
-| 7 | 哪些修正必須 Human Approval？ | 第 29.2 節、第 55 章 |
-| 8 | 如何防止 AI Agent 為了讓 Pipeline Pass 而關閉 Security Scan？ | 第 15.5、29、30 章、附錄 F |
-| 9 | 如何把 Trivy 放進 CI/CD？ | 第 19、20 章 |
-| 10 | 如何把 Trivy 放進 Kubernetes？ | 第 10、11 章 |
-| 11 | 如何把 Trivy 放進 Cloud Security？ | 第 12 章 |
-| 12 | 如何管理 Vulnerability / Secret / Misconfiguration / License？ | 第 5、7、8、9 章 |
-| 13 | 如何建立企業 Security Gate？ | 第 38 章 |
-| 14 | 如何管理 Exception？ | 第 16、39 章 |
-| 15 | 如何維護 Trivy？ | 第 17、40 章 |
-| 16 | 如何升級 Trivy？ | 第 41、42 章 |
-| 17 | 如何教育公司開發人員？ | 第 46 章、第 61.2 節 |
-| 18 | 如何建立企業級 Trivy Governance？ | 第 37、59 章 |
-| 19 | 如何讓 Trivy 成為公司 AI-assisted SDLC 的標準 Security Control？ | 第 55、56、57 章 |
-
-### 61.4 結語
-
-Trivy 本身只是一個掃描器。它能否成為企業的標準 Security Control，取決於三件事：
-
-1. **它是否一定會被執行**：透過 CI Gate、Required checks、Operator，而不是靠個人自律。
-2. **它的結果是否一定會被處理**：透過 Owner、到期日、KPI，而不是一份沒人看的報告。
-3. **它是否無法被繞過**：透過 CODEOWNERS、中央設定、SHA pin、AI Agent 禁止清單，而不是一句「請 AI 不要這樣做」。
-
-當這三件事都成立時，AI Agent 寫程式越快，企業的安全回饋也就越快。
-
-### 實務案例
-
-某企業的資安主管以 61.3 的 19 個問題作為「Trivy 導入成熟度自評表」，每季請各事業群回答並附上證據。答不出來或無證據的題目，直接列為下一季的改善項目。
-
-### 注意事項
-
-- 本章建議以 2026-10 的工具生態為準；Trivy、trivy-action、setup-trivy、Operator、MCP plugin 的版本與能力請依第 1.9 節更新策略定期複核。
+- [ ] 前端只透過 API Gateway 存取後端
+- [ ] Messaging 與 Adapter 層獨立，業務層不依賴電文格式
+- [ ] 同步等待有上限，逾時有明確的使用者回應
+- [ ] 每筆請求有 Idempotency Key 並記錄於 DB
 
 ---
 
-## Appendix A - CLI Cheat Sheet
+## Part 15 — Request / Reply Pattern
 
-### A.1 全域參數（所有子命令通用）
+### 15.1 目的
+
+完整說明 Request / Reply 的設計：Message ID、Correlation ID、Timeout、Retry、Duplicate Request、Idempotency 與 DLQ。
+
+### 15.2 流程
+
+```text
+Web Application
+      ↓
+Request Queue
+      ↓
+IBM MQ
+      ↓
+Legacy System
+      ↓
+Response Queue
+      ↓
+Spring Boot
+      ↓
+Web Application
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Web / API
+    participant S as Spring Boot
+    participant DB as 交易狀態 DB
+    participant RQ as Request Queue
+    participant L as Legacy
+    participant RS as Response Queue
+
+    U->>S: POST /transfers, Idempotency-Key = K1
+    S->>DB: INSERT txn(K1, PENDING) — 唯一鍵
+    alt K1 已存在
+        S-->>U: 回傳既有結果 / 處理中
+    else 新請求
+        S->>RQ: MQPUT Request<br/>CorrelId = f(K1), ReplyToQ, Expiry = 35s
+        S->>RS: receive by CorrelId, timeout = 30s
+        RQ->>L: MQGET
+        L->>L: 處理（以 CorrelId / 業務鍵冪等）
+        L->>RS: MQPUT1 Reply<br/>CorrelId = Request.CorrelId
+        alt 30 秒內收到
+            RS-->>S: Reply
+            S->>DB: UPDATE txn(K1, SUCCESS / FAIL)
+            S-->>U: 200 結果
+        else Timeout
+            S->>DB: UPDATE txn(K1, UNKNOWN)
+            S-->>U: 202 處理中（請查詢）
+            Note over S,RS: 遲到的 Reply 由背景 Listener 更新狀態
+        end
+    end
+```
+
+### 15.3 Message ID 與 Correlation ID 慣例
+
+| 慣例 | 說明 | 優點 | 缺點 |
+|------|------|------|------|
+| A：Reply.CorrelId = Request.MsgId | MQ 傳統慣例（`MQRO_COPY_MSG_ID_TO_CORREL_ID`，預設） | Legacy 程式普遍支援 | Request 的 MsgId 由 QM 產生，重送時改變，無法冪等 |
+| B：Reply.CorrelId = Request.CorrelId | Request 帶入應用程式指定的 CorrelId（`MQRO_PASS_CORREL_ID`） | 可由業務鍵產生、重送時不變，**利於冪等** | 需與 Legacy 端約定 |
+
+**逆向工程時必須確認 Legacy 端採用哪一種慣例**，否則 Requester 永遠等不到回覆。
+
+### 15.4 Timeout 設計
+
+```text
+API Timeout（例如 30s）
+  ≥ Reply 等待時間（例如 28s）
+  < Request Expiry（例如 35s）  ← 讓後端不處理「已無人等待」的請求
+  < 使用者端 Timeout（例如 40s）
+```
 
 | 參數 | 說明 |
 |------|------|
-| `--cache-dir` | 快取目錄 |
-| `--cacert` | 企業 CA（PEM） |
-| `-c, --config` | 設定檔，預設 `trivy.yaml`；空字串停用 |
-| `-d, --debug` | 除錯輸出 |
-| `--generate-default-config` | 產生 `trivy-default.yaml` |
-| `--insecure` | 允許不安全連線（**不建議**） |
-| `-q, --quiet` | 隱藏進度與 log |
-| `--timeout` | 預設 5m0s |
-| `-v, --version` | 版本 |
+| Request Expiry | 後端在逾時後不應處理；**金融交易需確認後端是否會檢查 Expiry 以外的時間欄位** |
+| Reply Expiry | 避免遲到的 Reply 永久堆積 |
+| receive timeout | 等待回覆上限 |
 
-### A.2 常用掃描參數
+### 15.5 Retry 與 Duplicate Request
 
-| 參數 | 適用 | 說明 |
+| 情境 | 正確做法 | 錯誤做法 |
+|------|---------|---------|
+| MQPUT 失敗（連線錯誤） | 以相同 CorrelId 重送 | 產生新 CorrelId 重送 |
+| 等待 Reply 逾時 | 標記 UNKNOWN，背景查詢 / 對帳 | **直接重送 Request**（可能重複扣款） |
+| 使用者重按 | 以 Idempotency-Key 回傳既有狀態 | 視為新請求 |
+| 後端收到重複 Request | 以 CorrelId / 業務鍵查詢已處理結果並回覆相同結果 | 再處理一次 |
+
+### 15.6 Idempotency 設計
+
+```sql
+-- Requester 端：交易狀態表
+CREATE TABLE transfer_request (
+    idempotency_key   VARCHAR(64)  PRIMARY KEY,
+    correl_id_hex     CHAR(48)     NOT NULL UNIQUE,
+    status            VARCHAR(16)  NOT NULL,     -- PENDING / SUCCESS / FAIL / UNKNOWN
+    request_hash      CHAR(64)     NOT NULL,     -- 防止相同 Key 不同內容
+    created_at        TIMESTAMP    NOT NULL,
+    updated_at        TIMESTAMP    NOT NULL
+);
+
+-- Responder 端（Legacy 或其 Adapter）：已處理訊息表
+CREATE TABLE processed_request (
+    correl_id_hex     CHAR(48)     PRIMARY KEY,
+    result_code       VARCHAR(8)   NOT NULL,
+    reply_payload     CLOB,
+    processed_at      TIMESTAMP    NOT NULL
+);
+```
+
+- `request_hash` 防止「相同 Idempotency-Key 但內容不同」的請求被誤判為重複。
+- Responder 收到重複 CorrelId 時，回覆**相同的 reply_payload**，讓 Requester 得到一致結果。
+
+### 15.7 Spring Boot Request / Reply 範例
+
+```java
+package com.example.payment.mq;
+
+import jakarta.jms.Message;
+import jakarta.jms.TextMessage;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+
+@Component
+public class TransferRequestReplyClient {
+
+    private static final String REQUEST_QUEUE = "queue:///NBK.TXN.TRANSFER.REQ?targetClient=1";
+    private static final String REPLY_QUEUE = "NBK.TXN.TRANSFER.RSP";
+
+    private final JmsTemplate jmsTemplate;
+
+    public TransferRequestReplyClient(JmsTemplate mqJmsTemplate) {
+        this.jmsTemplate = mqJmsTemplate;
+    }
+
+    /**
+     * 送出請求並在 replyTimeoutMs 內等待回覆。
+     *
+     * @return 回覆內容；逾時回傳 Optional.empty()（呼叫端應標記 UNKNOWN，不可直接重送）
+     */
+    public Optional<String> call(String correlHex48, String json, long replyTimeoutMs) throws Exception {
+        String correlId = "ID:" + correlHex48;
+        jmsTemplate.send(REQUEST_QUEUE, session -> {
+            TextMessage msg = session.createTextMessage(json);
+            msg.setJMSCorrelationID(correlId);
+            msg.setJMSReplyTo(session.createQueue(REPLY_QUEUE));
+            return msg;
+        });
+
+        // 以 JmsTemplate 的副本設定本次等待時間，避免修改共用 Bean 的狀態
+        JmsTemplate receiver = new JmsTemplate(jmsTemplate.getConnectionFactory());
+        receiver.setReceiveTimeout(replyTimeoutMs);
+        receiver.setSessionTransacted(true);
+        Message reply = receiver.receiveSelected(REPLY_QUEUE, "JMSCorrelationID = '" + correlId + "'");
+        if (reply instanceof TextMessage text) {
+            return Optional.of(text.getText());
+        }
+        return Optional.empty();
+    }
+}
+```
+
+> 若 Reply 由背景 `@JmsListener` 統一接收（所有實例共用 Response Queue），同步等待的實例可能收不到自己的回覆（被其他實例的 Listener 取走）。**兩種模式不要在同一個 Response Queue 上混用**。常見做法：同步等待用 `receiveSelected`；未在時限內被取走的遲到 Reply，由另一個「只處理逾時回覆」的 Response Queue 或延遲掃描程式處理 `[依架構決定]`。
+
+### 15.8 Legacy 回覆端（MQPUT1）
+
+Legacy / Adapter 回覆時使用 `MQPUT1`（單次放入），依 Request 的 Report Options 設定 CorrelId：
+
+```java
+// Request 端已取得 request（MQMessage），回覆使用 MQPUT1
+MQMessage reply = new MQMessage();
+reply.messageType = MQConstants.MQMT_REPLY;
+reply.format = MQConstants.MQFMT_STRING;
+reply.characterSet = 1208;
+reply.persistence = request.persistence;               // 依請求的持久性
+reply.expiry = 300;
+// 慣例 B：沿用 Request 的 CorrelId；慣例 A：改用 request.messageId
+reply.correlationId = request.correlationId;
+reply.write(replyBytes);
+
+MQPutMessageOptions pmo = new MQPutMessageOptions();
+pmo.options = MQConstants.MQPMO_SYNCPOINT | MQConstants.MQPMO_NEW_MSG_ID | MQConstants.MQPMO_FAIL_IF_QUIESCING;
+qmgr.put(request.replyToQueueName, request.replyToQueueManagerName, reply, pmo);
+qmgr.commit();                                         // 與 Request 的 GET 同一 Syncpoint
+```
+
+### 15.9 DLQ 情境
+
+| 情境 | 結果 | 對策 |
 |------|------|------|
-| `--scanners` | image / fs / repo / rootfs / vm / sbom / k8s | 啟用的 Scanner |
-| `--severity` | 全部掃描命令 | 顯示的嚴重度 |
-| `--ignore-unfixed` | 掃描命令（convert 無） | 只顯示 fixed |
-| `--ignore-status` | 掃描命令 | 依狀態忽略 |
-| `--exit-code` | 全部 | 有 Finding 時的結束碼 |
-| `--exit-on-eol` | image / fs / vm / sbom / convert | OS EOL 時的結束碼 |
-| `--format` / `--output` | 全部 | 報告格式與檔案 |
-| `--ignorefile` | 全部 | ignore 檔；空字串停用 |
-| `--skip-dirs` / `--skip-files` | 檔案型掃描 | 跳過路徑（sbom 不支援） |
-| `--pkg-types` | vuln | `os,library` |
-| `--include-dev-deps` | fs / repo | 含 dev dependencies |
-| `--dependency-tree` | table 格式 | Experimental |
-| `--vex` | vuln | Experimental |
-| `--show-suppressed` | 全部 | Experimental |
-| `--skip-db-update` / `--skip-java-db-update` / `--skip-check-update` | 全部 | 不更新資料 |
-| `--offline-scan` | 全部 | 不發出相依查詢 API |
-| `--db-repository` / `--java-db-repository` / `--checks-bundle-repository` | 全部 | 資料來源 |
-| `--parallel` | 檔案型掃描 | 平行度，預設 5 |
-| `--disable-telemetry` | 全部 | 關閉匿名使用資料 |
+| ReplyToQ 不存在 | 跨 QM 時 Reply 進入 Requester QM 的 DLQ | 驗證 ReplyToQ 設定；DLQ 監控 |
+| Response Queue 已滿 | Reply 進 DLQ 或 PUT 失敗 | 監控深度；Reply 設 Expiry |
+| Requester 長時間停機 | Reply 堆積 | Reply 設 Expiry；容量規劃 |
 
-### A.3 常用環境變數
+### 15.10 Checklist
 
-| 環境變數 | 對應 |
-|----------|------|
-| `TRIVY_CACHE_DIR` | `--cache-dir` |
-| `TRIVY_SEVERITY` | `--severity` |
-| `TRIVY_SCANNERS` | `--scanners` |
-| `TRIVY_SKIP_DB_UPDATE` | `--skip-db-update` |
-| `TRIVY_SKIP_JAVA_DB_UPDATE` | `--skip-java-db-update` |
-| `TRIVY_DB_REPOSITORY` | `--db-repository` |
-| `TRIVY_USERNAME` / `TRIVY_PASSWORD` | Registry 認證 |
-| `TRIVY_NO_PROGRESS` | `--no-progress` |
-| `HTTPS_PROXY` / `NO_PROXY` | Proxy |
-| `GITHUB_TOKEN` | 私有 GitHub repo（`trivy repo`） |
+- [ ] 已確認 CorrelId 慣例（A 或 B）並記錄於介面規格
+- [ ] Request 與 Reply 都設定 Expiry
+- [ ] Timeout 關係符合 15.4 公式
+- [ ] Timeout 後不直接重送，有查詢 / 對帳機制
+- [ ] Requester 與 Responder 皆有冪等表
+- [ ] 同一 Response Queue 不混用同步等待與 Listener
 
 ---
 
-## Appendix B - AI Agent Prompt
+## Part 16 — Asynchronous Event Pattern
 
-| Prompt | 用途 | 章節 |
-|--------|------|------|
-| Repository Security Scan | 建立 repo 安全基線 | 28.1 |
-| Container Security Scan | 映像與 Dockerfile | 28.2 |
-| Kubernetes Security Scan | Manifest / 叢集 | 28.3 |
-| Dependency Upgrade | 修補相依弱點 | 28.4 |
-| Framework Upgrade Security | 升級前後比較 | 28.5 |
-| Reverse Engineering Security | Legacy 基線 | 28.6 |
-| SBOM Analysis | SBOM 健康度 | 28.7 |
-| Secret Finding Response | Secret 事件 | 28.8 |
-| CI/CD Failure Analysis | Gate 失敗分析 | 28.9 |
-| Security Regression Verification | Before / After 判定 | 28.10 |
+### 16.1 目的
 
-### B.1 通用前置 Prompt（放在所有 Trivy 任務最前面）
+說明以 IBM MQ 實作事件驅動架構（Event-driven Architecture）：Pub/Sub、Topic、Subscription 的設計與限制。
+
+### 16.2 架構
 
 ```text
-你在企業環境中工作，必須遵守以下 Trivy 安全規則：
-1. 只使用 Trivy {{trivy_version}}，執行前先 `trivy --version`。
-2. 一律輸出 JSON，並只讀取摘要欄位；Secret 只讀 RuleID、Target、行號。
-3. 不得新增、修改、刪除 .trivyignore*、trivy.yaml、trivy-secret.yaml、VEX、CI workflow。
-4. 不得調整 --scanners、--severity、--exit-code 以減少 Finding。
-5. 只能自動執行 patch / minor 相依升級、Dockerfile 與 K8s 安全設定強化；其他需人工核准。
-6. 任何 License 只列出事實，不下法律結論。
-7. 同一問題修正 3 次失敗即停止並回報。
-8. 任務結束前必須提供 Before / After 差異，並停止等待人工審核。
+Application
+    ↓
+Event
+    ↓
+IBM MQ
+    ↓
+Multiple Consumers
 ```
 
----
+```mermaid
+flowchart LR
+    TX["交易服務"] -->|"Publish<br/>Bank/Txn/Transfer/Completed"| TOP(("Topic Tree"))
+    TOP --> S1["Durable SUB<br/>NOTIFY.TXN.SUB → 通知服務"]
+    TOP --> S2["Durable SUB<br/>AUDIT.TXN.SUB → 稽核服務"]
+    TOP --> S3["Durable SUB<br/>RISK.TXN.SUB → 風控服務"]
+    TOP --> S4["Non-durable SUB<br/>即時儀表板"]
+```
 
-## Appendix C - Security Checklist
-
-### C.1 新進成員快速 Checklist
-
-- [ ] 已閱讀第 1–3 章與本手冊標示慣例（官方 / 企業建議）
-- [ ] 已依第 14 章安裝企業核准版本 Trivy，並執行 `trivy --version`
-- [ ] 已完成 Lab 1–4（Image、Repo、Secret、IaC）
-- [ ] 知道 `--scanners` 預設不含 license、misconfig
-- [ ] 知道 Secret 被偵測時要「先輪替、再修程式」
-- [ ] 知道不可自行加 `.trivyignore`，Exception 要走流程
-- [ ] 知道 CI Gate 規則（第 38 章）與自己分支的 Gate 強度
-- [ ] 已將附錄 F 的規則加入自己使用的 AI Agent 設定
-- [ ] 知道遇到問題先查第 44 章 Troubleshooting
-
-### C.2 PR 安全 Checklist
-
-- [ ] `trivy fs --scanners vuln,secret,misconfig` 無新增 HIGH / CRITICAL、Secret
-- [ ] 相依變更已附 Before / After 差異
-- [ ] Dockerfile / K8s 變更已 `trivy config`
-- [ ] 未修改安全相關設定檔（或已由 DevSecOps 審核）
-
-### C.3 Release 安全 Checklist
-
-見第 53.7 節。
-
----
-
-## Appendix D - Troubleshooting
-
-| 症狀 | 最可能原因 | 第一步檢查 | 詳見 |
-|------|-----------|-----------|------|
-| DB 下載失敗 | 網路 / Proxy / 限流 | `--download-db-only --debug` | 44.1 |
-| x509 錯誤 | 企業 CA | `--cacert` | 44.4 |
-| UNAUTHORIZED | Registry 認證 | `docker pull` 是否成功 | 44.5 |
-| 找不到本機映像 | Docker socket | `--docker-host`、`--image-src` | 44.6 |
-| k8s forbidden | RBAC | `kubectl auth can-i` | 44.8 |
-| 很慢 | 首次 DB、大目標 | `--debug` 時間分佈 | 44.9、43 |
-| 磁碟滿 | Cache | `trivy clean --scan-cache` | 44.10 |
-| 漏掃 | 缺 lock file / DB 舊 / 過濾 | JSON 套件清單、DB 日期 | 44.13 |
-| Severity 不一致 | 來源不同 | `SeveritySource` | 44.14 |
-| SBOM 缺 OS 套件 | 用 fs 產生 | 改用 image | 44.15 |
-| Java 相依不完整 | Java DB / Maven mirror | `--download-java-db-only` | 44.16 |
-| 自訂 template 解析失敗（v0.75） | 使用 `getHostByName` | grep template | 41.3 |
-| ignore 檔報錯（v0.57+） | 路徑不存在 | 確認 `--ignorefile` 路徑 | 16 |
-| `trivy aws` 不存在 | v0.53 移出核心 | 安裝 plugin | 12 |
-| CI 的 Trivy 版本與預期不同 | trivy-action 未指定 `version`（v0.36.0 預設 v0.70.0） | 查看 `trivy --version` step 輸出 | 20.4 |
-| `Unrecognized named-value: 'runner'` | 使用 setup-trivy v0.3.0 | 確認 Action 版本 | 20.1 |
-| setup-trivy `path` 失效 | v0.3.0 起不展開 `$HOME` / `~` | 檢查 `path` input | 附錄 G |
-| MCP 工具未出現在 IDE | plugin 未安裝或未啟動 | `trivy plugin list` | 26.5 |
-
----
-
-## Appendix E - Reference Architecture
-
-| 架構圖 | 章節 |
-|--------|------|
-| Trivy Overall Architecture | 3.2 |
-| Target × Scanner Matrix | 3.3 |
-| Scan Flow | 3.4 |
-| CI/CD Flow | 3.5 |
-| AI Agent Integration Flow | 3.6 |
-| SBOM 供應鏈流程 | 6.8 |
-| Kubernetes 架構 | 10.6 |
-| CLI vs Operator | 11.4 |
-| Trivy 系統架構 | 13.1 |
-| DB Mirror 架構 | 17.4 |
-| 標準 CI/CD Pipeline | 19.1 |
-| Web Application 掃描分層 | 21.1 |
-| Reverse Engineering Baseline | 24.2 |
-| Framework Upgrade 流程 | 25.1 |
-| AI Security Feedback Loop | 26.1 |
-| Trivy MCP Server 整合 | 26.4 |
-| AI Agent 三區分類 | 29.2 |
-| Guardrail 架構 | 30.3 |
-| SSDLC 對應 | 31.1 |
-| Enterprise DevSecOps Reference Architecture | 35 |
-| Governance 層級 | 37.1、59.1 |
-| Security Gate 判斷流程 | 38.3 |
-| Final Reference Architecture | 60 |
-
-文字版總覽：
+### 16.3 Topic 設計
 
 ```text
-Developer / AI Coding Agent
-        │
-        ▼
-Source Repository ──(CODEOWNERS / Branch Protection)──┐
-        │                                              │
-        ▼                                              │
-CI/CD（Reusable workflow、SHA pin、中央 trivy.yaml）    │
-  ├─ trivy fs  : vuln + secret + misconfig             │
-  ├─ build                                             │
-  ├─ trivy image（digest）                             │
-  ├─ SBOM（CycloneDX）                                 │
-  ├─ trivy config（Dockerfile / K8s / Terraform）      │
-  └─ Security Gate ──Fail──► AI Agent 分析 ──► Human ──┘
-        │ Pass
-        ▼
-Container Registry（SBOM Attestation）
-        │
-        ▼
-Kubernetes ──► Trivy Operator ──► CRD Reports ──► SIEM / 弱點平台
-        │
-        ▼
-Cloud（IaC 左移；trivy-aws plugin 選用）
-
-資料來源：內部 Mirror（trivy-db、trivy-java-db、trivy-checks）
+Bank/<Domain>/<Entity>/<Event>
+Bank/Txn/Transfer/Completed
+Bank/Txn/Transfer/Reversed
+Bank/Account/Balance/Changed
 ```
+
+```text
+* 管理節點：在 Bank/Txn 設定屬性與權限
+DEFINE TOPIC('BANK.TXN') TOPICSTR('Bank/Txn') DEFPSIST(YES) REPLACE
+
+* 管理式 Durable Subscription：訊息送到指定佇列，由管理員控管
+DEFINE QLOCAL('NOTIFY.TXN.EVT') DEFPSIST(YES) MAXDEPTH(500000) +
+       BOTHRESH(5) BOQNAME('NOTIFY.TXN.EVT.BOQ') REPLACE
+DEFINE SUB('NOTIFY.TXN.SUB') TOPICSTR('Bank/Txn/Transfer/#') +
+       DEST('NOTIFY.TXN.EVT') REPLACE
+```
+
+| 選項 | 說明 |
+|------|------|
+| Administrative Subscription（管理式） | 由 MQSC 定義，訂閱者只需讀佇列；**企業建議**：可控、可審核 |
+| Application Subscription | 應用程式自行建立 Durable Subscription；需 `sub` 權限與 `clientId` |
+| Shared Subscription（JMS 2.0+） | 多個 Consumer 分攤同一訂閱的訊息，用於水平擴充 |
+
+### 16.4 Event 與 Command 的區別
+
+| | Command（指令） | Event（事件） |
+|---|----------------|--------------|
+| 語意 | 「請你做這件事」 | 「某件事已經發生」 |
+| 接收者 | 一個 | 零到多個 |
+| 模式 | Point-to-Point / Request-Reply | Pub/Sub |
+| 失敗影響 | 發送方需知道結果 | 發送方不關心誰處理 |
+| 範例 | 「轉帳 1000 元」 | 「轉帳 1000 元已完成」 |
+
+### 16.5 事件訊息設計
+
+```json
+{
+  "eventId": "6f1c2d4e-...",
+  "eventType": "Bank.Txn.Transfer.Completed",
+  "schemaVersion": 2,
+  "occurredAt": "2026-10-03T10:15:30+08:00",
+  "source": "CBS",
+  "correlationId": "c0ffee...",
+  "data": {
+    "transferId": "T202610030001",
+    "amount": "1000.00",
+    "currency": "TWD"
+  }
+}
+```
+
+- `eventId` 供訂閱者冪等。
+- `schemaVersion` 供演進；新增欄位向後相容，刪除欄位需版本升級。
+- 金額使用字串或定點數，避免浮點誤差。
+- **事件中避免放入完整個資**；需要時由訂閱者以 ID 查詢。
+
+### 16.6 IBM MQ 與 Apache Kafka 整合
+
+許多企業同時有 IBM MQ（交易）與 Kafka（事件串流、分析）。兩者不是互相取代，而是**以 Kafka Connect connector 橋接**：交易仍走 MQ，事件副本送到 Kafka 供分析與下游使用。
+
+```mermaid
+flowchart LR
+    CBS["核心系統"] -->|"MQPUT"| Q1["TXN.EVT.TO.KAFKA"]
+    Q1 --> SRC["MQ Source Connector"]
+    SRC --> KT[("Kafka Topic<br/>bank.txn.events")]
+    KT --> ANA["分析 / 風控 / 資料湖"]
+    KT2[("Kafka Topic<br/>bank.notify.cmd")] --> SNK["MQ Sink Connector"]
+    SNK -->|"MQPUT"| Q2["NOTIFY.CMD.FROM.KAFKA"]
+    Q2 --> LEG["Legacy 通知系統"]
+```
+
+| 面向 | Source（MQ → Kafka） | Sink（Kafka → MQ） |
+|------|---------------------|-------------------|
+| 用途 | 交易事件送到串流平台 | 串流平台的指令送進 Legacy |
+| 傳遞語意 | 依 connector 版本與設定，可設定為 exactly-once 或 at-least-once `[需確認]` | at-least-once，MQ 端 Consumer 必須冪等 |
+| 訊息格式 | 可選擇以 JMS 格式或原始 bytes 讀取；`[MQ 10.0]` 新增 XML Converter | 需決定 MQMD 欄位（Persistence、CCSID、ReplyTo）如何對應 |
+| 部署 | Kafka Connect Cluster（含 IBM Event Streams）；`[MQ 10.0]` IBM MQ Advanced 提供 Kafka Connect 支援 | 同左 |
+
+```properties
+# MQ Source Connector 範例（帳密以 Kafka Connect 的 ConfigProvider 從 Secret 讀取）
+name=mq-source-txn-events
+connector.class=com.ibm.eventstreams.connect.mqsource.MQSourceConnector
+tasks.max=1
+mq.queue.manager=NBKQM01
+mq.connection.name.list=nbk-mq-a.bank.local(1414),nbk-mq-b.bank.local(1414)
+mq.channel.name=KAFKA.SVRCONN
+mq.queue=TXN.EVT.TO.KAFKA
+mq.user.name=${file:/opt/kafka/secrets/mq.properties:user}
+mq.password=${file:/opt/kafka/secrets/mq.properties:password}
+mq.ssl.cipher.suite=TLS_AES_256_GCM_SHA384
+mq.message.body.jms=true
+topic=bank.txn.events
+value.converter=org.apache.kafka.connect.storage.StringConverter
+```
+
+**設計規則**：
+
+- Connector 使用**專用的 SVRCONN 與帳號**，只授予該佇列的 `get`（Source）或 `put`（Sink）。
+- 不要讓 Connector 直接讀業務主佇列；以 Streaming Queue（Part 2.9）或 Pub/Sub 訂閱產生副本佇列。
+- 監控 Connector lag 與 MQ 佇列深度；Connector 停止時副本佇列會累積。
+- Connector 屬性名稱以 GitHub `ibm-messaging/kafka-connect-mq-source`、`kafka-connect-mq-sink` 的版本說明為準 `[需確認]`。
+
+### 16.7 常見錯誤
+
+- Durable Subscription 的訂閱者已下線但未刪除訂閱 → 佇列持續累積，最終影響整個 QM。
+- 以 Pub/Sub 傳遞需要回應的指令。
+- 事件順序被假設為全域有序。
+- Kafka Connector 直接讀業務主佇列，與正式 Consumer 搶訊息。
+
+### 16.8 Checklist
+
+- [ ] Topic 命名遵循階層規範
+- [ ] 正式訂閱使用管理式 Subscription
+- [ ] 每個訂閱佇列有 BOQ 與深度監控
+- [ ] 事件含 `eventId` 與 `schemaVersion`
+- [ ] 有訂閱者下線的清理流程
+- [ ] MQ 與 Kafka 的橋接使用副本佇列與專用帳號
 
 ---
 
-## Appendix F - AI Agent 執行規範（AGENTS.md / CLAUDE.md / copilot-instructions.md）
+## Part 17 — IBM MQ 與 Legacy System 逆向工程
 
-以下內容可直接放入 `AGENTS.md`、`CLAUDE.md`、`.github/copilot-instructions.md`、Codex instructions 或企業 AI Coding Standard。
+### 17.1 目的
+
+在缺乏文件的情況下，從程式碼、設定、日誌與訊息樣本重建 Legacy 系統的 MQ 整合全貌。**這是本手冊的核心章節之一。**
+
+### 17.2 現況假設
+
+手上只有：
+
+| 資料 | 可能透露的資訊 |
+|------|---------------|
+| Java Code | MQ API 呼叫、佇列名稱、CorrelId 慣例、交易邊界 |
+| C# Code | IBM MQ .NET / XMS .NET 呼叫 |
+| VB / VB.NET Code | 舊版 MQ ActiveX / .NET 呼叫 |
+| COBOL | `CALL 'MQPUT'`、Copybook（電文格式） |
+| Stored Procedure | 資料庫觸發送 MQ、或 MQ 資料落地的表 |
+| MQ Configuration / MQSC | 佇列、Channel、路由、權限 |
+| XML / properties / yml | 連線設定、JNDI、Spring 設定 |
+| Log | 實際訊息流量、錯誤、Reason Code |
+| Message Sample | 電文格式、CCSID、RFH2 |
+| DB Schema | 交易狀態、冪等表、Outbox |
+
+### 17.3 目標產出
+
+```text
+Legacy Application
+        ↓
+MQPUT
+        ↓
+Queue
+        ↓
+MQ Channel
+        ↓
+Remote Queue
+        ↓
+Legacy System
+```
+
+| 產出 | 內容 |
+|------|------|
+| MQ Flow | 每個業務流程經過的 Queue / Channel / QM |
+| Message Flow | 訊息在系統之間的流向與轉換 |
+| Queue Map | 所有佇列、類型、擁有者、Producer、Consumer |
+| Channel Map | 所有 Channel、兩端 QM、TLS、MCAUSER |
+| System Context | 系統與外部系統的邊界圖 |
+| Integration Context | 整合點清單與協定 |
+| Sequence Diagram | 每個主要交易的時序 |
+| Message Specification | 電文欄位、長度、型別、CCSID |
+| Error Flow | 錯誤時訊息去向（BOQ、DLQ、補償） |
+| Retry Flow | 重試機制與上限 |
+| Dependency Map | 系統之間的相依與啟動順序 |
+
+### 17.4 逆向工程架構
+
+```mermaid
+flowchart TB
+    subgraph Inputs["輸入來源"]
+        SRC["原始碼<br/>Java / C# / VB / COBOL"]
+        CFG["設定檔<br/>MQSC / XML / yml / properties"]
+        DBS["DB Schema / SP"]
+        LOGS["Application Log / AMQERR / FDC"]
+        SAMP["Message Samples"]
+    end
+    subgraph Analysis["分析"]
+        A1["MQ API 偵測"]
+        A2["Queue / Channel 偵測"]
+        A3["訊息結構偵測"]
+        A4["交易 / 錯誤處理偵測"]
+        A5["Runtime 驗證<br/>（DISPLAY / 日誌比對）"]
+    end
+    subgraph Outputs["產出"]
+        O1["MQ Inventory"]
+        O2["Queue Map / Channel Map"]
+        O3["Message Specification"]
+        O4["Sequence / Flow Diagram"]
+        O5["Architecture Specification"]
+    end
+    SRC --> A1 --> A2
+    CFG --> A2
+    SAMP --> A3
+    SRC --> A3
+    SRC --> A4
+    DBS --> A4
+    LOGS --> A5
+    A2 --> A5
+    A1 --> O1
+    A2 --> O2
+    A3 --> O3
+    A4 --> O4
+    A5 --> O4
+    O1 --> O5
+    O2 --> O5
+    O3 --> O5
+    O4 --> O5
+```
+
+### 17.5 方法：從靜態到動態
+
+| 階段 | 方法 | 工具 |
+|------|------|------|
+| 1. 靜態盤點 | 搜尋 MQ API、佇列名稱字串、設定檔 | grep / IDE 搜尋 / AI Agent |
+| 2. 設定比對 | `dmpmqcfg` 輸出與程式中的名稱交叉比對 | 腳本 / AI Agent |
+| 3. 路由解析 | 從 QREMOTE / QALIAS / Cluster 解析實際目的地 | MQSC / 人工 |
+| 4. 訊息結構 | 從 Copybook / DTO / 樣本推導 | AI Agent + 人工確認 |
+| 5. 動態驗證 | `DISPLAY QSTATUS TYPE(HANDLE)`、`DISPLAY CONN` 找出實際讀寫者 | MQSC |
+| 6. 流量驗證 | 日誌時間序列比對、訊息計數 | Log 平台 |
+| 7. 文件化 | 產出 17.3 所列文件 | AI Agent + Review |
+
+### 17.6 IBM MQ Reverse Engineering Input Checklist
+
+AI 可以分析的檔案類型：
+
+```text
+*.java
+*.xml
+*.properties
+*.yml
+*.yaml
+pom.xml
+build.gradle
+MQSC
+Shell Script
+PowerShell
+C#
+VB.NET
+COBOL
+Stored Procedure
+SQL
+Application Log
+MQ Error Log
+MQ Configuration
+Message Sample
+```
+
+| # | 輸入 | 必要性 | 取得方式 | 注意事項 |
+|---|------|--------|---------|---------|
+| 1 | `*.java` | 必要 | Git | 包含測試程式（常見真實佇列名稱） |
+| 2 | `*.xml`（Spring XML、JNDI、`ejb-jar.xml`、`ra.xml`） | 必要 | Git / 部署包 | Java EE 的 MQ 設定常在 XML |
+| 3 | `*.properties` / `*.yml` / `*.yaml` | 必要 | Git / 設定中心 | **先遮蔽密碼再交給 AI** |
+| 4 | `pom.xml` / `build.gradle` | 必要 | Git | MQ Client 版本、JMS / Jakarta |
+| 5 | MQSC（`dmpmqcfg` 輸出） | 必要 | MQ 管理員 | 各環境分別取得以比對差異 |
+| 6 | Shell Script / PowerShell | 建議 | 主機 / Git | 啟停、監控、批次送檔 |
+| 7 | C# / VB.NET | 視情況 | Git | IBM MQ .NET（`IBM.WMQ`）、XMS |
+| 8 | COBOL + Copybook | 視情況 | 主機 | 電文格式的唯一真相來源 |
+| 9 | Stored Procedure / SQL | 建議 | DBA | 交易狀態、Outbox、冪等表 |
+| 10 | Application Log | 建議 | Log 平台 | 實際流量、CorrelId 慣例 |
+| 11 | MQ Error Log（`AMQERR*.LOG`） | 建議 | MQ 管理員 | Channel 錯誤、安全拒絕 |
+| 12 | MQ Configuration（`qm.ini`、`mqs.ini`、CCDT） | 建議 | MQ 管理員 | |
+| 13 | Message Sample | 必要（電文格式） | 測試環境 Browse（`amqsbcg` 等範例程式） | **只用測試環境或已遮罩樣本** |
+| 14 | 架構圖、交接文件、變更單 | 參考 | 各單位 | 可能過時，需與程式比對 |
+
+> **安全提醒**：交給 AI Agent 的任何資料，必須先移除密碼、私鑰、正式個資。Production 訊息樣本需經遮罩並取得資料擁有者同意。
+
+### 17.7 分析產出鏈
+
+```text
+MQ Inventory
+     ↓
+Queue Map
+     ↓
+Channel Map
+     ↓
+Message Map
+     ↓
+Application Map
+     ↓
+Dependency Map
+     ↓
+Sequence Diagram
+     ↓
+Architecture Specification
+```
+
+### 17.8 Queue Map 範本
+
+| Queue | Type | QM | 實際目的地 | Producer | Consumer | Persistence | BOQ | 來源證據 |
+|-------|------|----|-----------|----------|----------|-------------|-----|---------|
+| NBK.TXN.TRANSFER.REQ | QREMOTE | NBKQM01 | CBSQM01 / CBS.TXN.TRANSFER.REQ | payment-service | — | PERSISTENT（程式） | — | `TransferMqGateway.java:L42`、`NBKQM01.mqsc:L310` |
+| CBS.TXN.TRANSFER.REQ | QLOCAL | CBSQM01 | — | Channel NBKQM01.CBSQM01 | CBS COBOL `TRF001` | DEFPSIST(YES) | CBS.TXN.TRANSFER.REQ.BOQ | `CBSQM01.mqsc:L88`、`TRF001.cbl:L120` |
+
+> **每一列都要有「來源證據」**（檔案 + 行號或命令輸出）。沒有證據的推論必須標記為「推測」。
+
+### 17.9 Legacy MQ Flow 範例
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant NB as 網銀 Java（payment-service）
+    participant Q1 as NBKQM01
+    participant CH as Channel NBKQM01.CBSQM01
+    participant Q2 as CBSQM01
+    participant CB as COBOL TRF001（CICS）
+    NB->>Q1: MQPUT NBK.TXN.TRANSFER.REQ（QREMOTE）
+    Q1->>CH: XMITQ CBSQM01
+    CH->>Q2: CBS.TXN.TRANSFER.REQ
+    Q2->>CB: Trigger / MQGET
+    CB->>Q2: MQPUT1 ReplyToQ=NBK.TXN.TRANSFER.RSP<br/>ReplyToQMgr=NBKQM01
+    Q2->>Q1: Channel CBSQM01.NBKQM01
+    Q1->>NB: MQGET（CorrelId 篩選）
+```
+
+### 17.10 常見發現與風險
+
+| 發現 | 風險 |
+|------|------|
+| 佇列名稱寫死在程式中（非設定檔） | 搬遷 / 改名需改程式 |
+| 程式使用 `SYSTEM.DEF.SVRCONN` 連線 | 安全基準不符 |
+| 沒有 BOQ，例外時 `while(true)` 重試 | 毒訊息堵塞 |
+| JMS 送往 COBOL 但未設定 `targetClient` | 電文前多出 RFH2 |
+| CCSID 不一致（Big5 / 950 vs 937 vs UTF-8） | 中文亂碼 |
+| CorrelId 慣例 A / B 混用 | 等不到回覆 |
+| Production 與 UAT 的 MQSC 不一致 | 測試無法代表正式環境 |
+
+### 17.11 Checklist
+
+- [ ] 已依 Input Checklist 收集資料並完成遮罩
+- [ ] Queue Map 每列都有來源證據
+- [ ] Channel Map 已含兩端 QM、TLS、MCAUSER
+- [ ] 已以 `DISPLAY QSTATUS TYPE(HANDLE)` 驗證 Producer / Consumer
+- [ ] CorrelId 慣例與 CCSID 已確認
+- [ ] 所有推測項目已標記並排入人工驗證
+
+---
+
+## Part 18 — AI Agent 協助 IBM MQ 逆向工程
+
+### 18.1 目的
+
+建立以 AI Agent 進行 MQ 逆向工程的標準 Workflow，並定義 AI 必須辨識的 API 樣式。
+
+### 18.2 Workflow
+
+```text
+Source Code
+     ↓
+AI Agent
+     ↓
+MQ API Detection
+     ↓
+Queue Detection
+     ↓
+Channel Detection
+     ↓
+Message Structure Detection
+     ↓
+Flow Reconstruction
+     ↓
+Sequence Diagram
+     ↓
+Architecture Specification
+```
+
+```mermaid
+flowchart TB
+    S0["0. 準備<br/>遮罩敏感資料 / 定義範圍"] --> S1["1. MQ API Detection<br/>MQI / classes for Java / JMS / Jakarta / Spring / .NET / COBOL"]
+    S1 --> S2["2. Queue Detection<br/>字串常數 / 設定檔 / JNDI / MQSC"]
+    S2 --> S3["3. Channel Detection<br/>connName / CCDT / MQSC Channel"]
+    S3 --> S4["4. Message Structure Detection<br/>DTO / Copybook / 樣本 / CCSID"]
+    S4 --> S5["5. Flow Reconstruction<br/>Producer → Queue → 路由 → Consumer"]
+    S5 --> S6["6. Sequence Diagram<br/>Mermaid"]
+    S6 --> S7["7. Architecture Specification"]
+    S7 --> H["Human Review<br/>以 DISPLAY / Log 驗證"]
+    H -->|"發現差異"| S2
+```
+
+### 18.3 MQI 動詞辨識
+
+AI 必須辨識：
+
+```text
+MQCONN
+MQOPEN
+MQPUT
+MQGET
+MQPUT1
+MQCLOSE
+MQDISC
+```
+
+| MQI | C / COBOL | MQ classes for Java | .NET（IBM.WMQ） |
+|-----|-----------|---------------------|-----------------|
+| MQCONN / MQCONNX | `MQCONN(...)` / `CALL 'MQCONN'` | `new MQQueueManager(...)` | `new MQQueueManager(...)` |
+| MQOPEN | `MQOPEN(...)` | `qmgr.accessQueue(...)` | `qmgr.AccessQueue(...)` |
+| MQPUT | `MQPUT(...)` | `queue.put(msg, pmo)` | `queue.Put(msg, pmo)` |
+| MQPUT1 | `MQPUT1(...)` | `qmgr.put(qName, msg, pmo)` | `qmgr.Put(...)` |
+| MQGET | `MQGET(...)` | `queue.get(msg, gmo)` | `queue.Get(msg, gmo)` |
+| MQCMIT / MQBACK | `MQCMIT` / `MQBACK` | `qmgr.commit()` / `backout()` | `qmgr.Commit()` / `Backout()` |
+| MQCLOSE | `MQCLOSE(...)` | `queue.close()` | `queue.Close()` |
+| MQDISC | `MQDISC(...)` | `qmgr.disconnect()` | `qmgr.Disconnect()` |
+
+### 18.4 JMS / Jakarta Messaging 辨識
+
+```text
+ConnectionFactory
+JMSContext
+JMSProducer
+JMSConsumer
+MessageListener
+```
+
+| 樣式 | 說明 |
+|------|------|
+| `ConnectionFactory` / `MQConnectionFactory` / `MQQueueConnectionFactory` | 連線設定所在 |
+| `JMSContext`（JMS 2.0 / Jakarta） | 簡化 API |
+| `QueueConnection` / `QueueSession` / `QueueSender` / `QueueReceiver` | JMS 1.1 舊式 API |
+| `JMSProducer.send` / `MessageProducer.send` | Producer |
+| `JMSConsumer.receive` / `MessageConsumer.receive` | 同步 Consumer |
+| `MessageListener.onMessage` | 非同步 Consumer |
+| `@JmsListener`、`JmsTemplate`、`DefaultMessageListenerContainer` | Spring |
+| `@MessageDriven`（MDB） | Java EE / Jakarta EE |
+| `InitialContext.lookup("jms/...")` | JNDI：佇列名稱在應用伺服器設定中 |
+
+### 18.5 Queue / Channel 偵測規則
+
+| 來源 | 搜尋樣式 |
+|------|---------|
+| 程式字串 | 全大寫且含 `.` 的字串（如 `"CBS.TXN.TRANSFER.REQ"`）、`queue:///` URI |
+| Spring 設定 | `ibm.mq.*`、`destination =`、`spring.jms.*` |
+| JNDI | `.bindings` 檔、應用伺服器設定（`server.xml` 的 `jmsQueue`、`jmsConnectionFactory`） |
+| 環境變數 | `MQSERVER`、`MQCHLLIB`、`MQCHLTAB`、`MQCCDTURL` |
+| MQSC | `DEFINE QLOCAL / QREMOTE / QALIAS / CHANNEL / LISTENER / SUB / TOPIC` |
+
+### 18.6 AI 輸出的品質要求
+
+| 要求 | 說明 |
+|------|------|
+| 證據 | 每個結論附檔案路徑 + 行號，或 MQSC 物件名稱 |
+| 信心度 | 標示「確認 / 推測 / 不明」 |
+| 不臆測 | 找不到 Consumer 時寫「程式碼中未找到」，不得自行假設 |
+| 範圍 | 明確說明分析了哪些目錄、哪些檔案類型、哪些未分析 |
+| 驗證步驟 | 提供人工驗證用的 `DISPLAY` 命令 |
+
+### 18.7 Human-in-the-loop 驗證
+
+```mermaid
+sequenceDiagram
+    participant AI as AI Agent
+    participant ENG as 工程師
+    participant ADM as MQ 管理員
+    participant MQ as Queue Manager（TEST / 唯讀）
+    AI->>ENG: Queue Map（含推測項目）+ 驗證用 DISPLAY 命令
+    ENG->>ADM: 申請執行唯讀命令
+    ADM->>MQ: DISPLAY QSTATUS TYPE(HANDLE) / DISPLAY CONN
+    MQ-->>ADM: 結果
+    ADM-->>ENG: 結果（已遮罩）
+    ENG->>AI: 回饋結果
+    AI->>ENG: 更新 Queue Map，推測 → 確認 / 推翻
+```
+
+### 18.8 Checklist
+
+- [ ] AI 分析範圍與排除項已明確定義
+- [ ] 所有 MQI / JMS / Spring 樣式皆已掃描
+- [ ] 每個結論有證據與信心度
+- [ ] 推測項目已經人工以 DISPLAY / Log 驗證
+- [ ] AI 未直接連線 Production MQ
+
+---
+
+## Part 19 — AI Agent 逆向工程 Prompt
+
+### 19.1 目的
+
+提供可直接複製使用的 MQ 逆向工程 Prompt，並要求 AI 產生標準化的 MQ Reverse Engineering Report。
+
+### 19.2 主 Prompt：Java 專案 MQ 全面分析
+
+```text
+你是一位 IBM MQ 與 Java 逆向工程專家。請分析這個 Java 專案所有 IBM MQ 相關程式。
+
+【分析範圍】
+- 目錄：<填入，例如 src/main/java、src/main/resources、config/>
+- 排除：target/、node_modules/、*.class
+
+【請找出】
+1. MQ Connection（ConnectionFactory、MQQueueManager、connName、CCDT、Channel）
+2. Queue Manager 名稱
+3. Queue（含 queue:/// URI、JNDI 名稱、設定檔中的名稱）
+4. Channel
+5. MQPUT（含 MQPUT1、JmsTemplate.send、JMSProducer.send）
+6. MQGET（含 receive、@JmsListener、MessageListener、MDB）
+7. JMS Producer
+8. JMS Consumer
+9. Transaction（Syncpoint、SESSION_TRANSACTED、@Transactional、XA）
+10. Retry（迴圈重試、Spring Retry、Listener BackOff）
+11. Exception Handling（捕捉哪些例外、Reason Code 處理）
+12. DLQ / Backout Queue 處理
+13. Correlation ID 設定與比對方式
+14. Message ID 使用方式
+
+【請建立】
+- MQ Inventory（表格：類型 / 名稱 / 檔案:行號 / 信心度）
+- MQ Flow（Mermaid flowchart）
+- Sequence Diagram（Mermaid sequenceDiagram，每個主要交易一張）
+- Dependency Map（系統與 Queue Manager 的相依）
+- Error Flow（例外時訊息去向）
+- Message Specification（欄位、型別、來源 DTO / Copybook）
+
+【限制】
+- 每個結論必須附「檔案路徑:行號」證據
+- 找不到的資訊寫「未找到」，不得推測為事實；推測請標記「推測」
+- 不要輸出任何密碼、金鑰、Token；遇到時以 *** 遮蔽並列入安全發現
+- 不要修改任何檔案
+
+【輸出】
+請產出一份 Markdown：MQ Reverse Engineering Report，格式依下方範本。
+```
+
+### 19.3 MQ Reverse Engineering Report 範本
 
 ```markdown
-# Trivy Security Rules for AI Agents
+# MQ Reverse Engineering Report — <系統名稱>
 
-## Tooling
-- Use Trivy {{TRIVY_VERSION}} only. Run `trivy --version` before the first scan and include the output in your report.
-- Always use `--format json` for machine analysis. Read summaries only (ID, package, installed, fixed, severity, status).
-- Always specify `--scanners` explicitly. Never rely on defaults.
+## 1. 摘要
+- 分析日期 / 分析範圍 / 排除範圍
+- MQ API 類型：MQ classes for Java / JMS 2.0 / Jakarta / Spring JMS
+- MQ Client 版本（pom.xml / build.gradle）
+- 主要發現（前 5 項）
 
-## When to scan
-- Before modifying any code: run a baseline
-  `trivy fs --scanners vuln,secret,misconfig --format json --output .ai/trivy/before.json .`
-- Before modifying security-sensitive dependencies (pom.xml, build.gradle, package.json, lock files): run Trivy.
-- After any dependency upgrade: run Trivy again and compare with the baseline.
-- After modifying Dockerfile: run `trivy config Dockerfile`.
-- After modifying Kubernetes YAML, Helm charts or Terraform: run `trivy config <path>`.
-- Before building a production image: run Trivy image scan on the built image (by digest when available).
-- Before deploying to Kubernetes: run `trivy config` on the manifests. Do not run `trivy k8s` against production clusters unless explicitly authorized.
-- Before release: verify that an SBOM (CycloneDX) exists for the release image.
-- For framework upgrades: use the same Trivy version and the same DB for before/after scans (`--download-db-only` once, then `--skip-db-update`).
+## 2. MQ Inventory
+| 類型 | 名稱 | 檔案:行號 | 用途 | 信心度 |
 
-## Secrets
-- If secrets are detected: do not print them, do not quote the affected lines, do not store them anywhere.
-- Report only rule ID, file path and line number.
-- Never try to validate a detected secret.
-- Recommend revocation/rotation by the secret owner first, then code changes that read from a secret manager.
+## 3. Queue Map
+| Queue | 推定類型 | Producer | Consumer | Persistence | Expiry | BOQ | 證據 |
 
-## Findings
-- If HIGH / CRITICAL findings exist: do not automatically suppress them.
-- Never add, extend, or delete entries in `.trivyignore`, `.trivyignore.yaml`, VEX documents, or inline `trivy:ignore` comments. You may draft an exception request for human review.
-- Never lower severity, change `--severity`, `--scanners`, `--exit-code`, or remove/skip any scan step to make a pipeline pass.
-- Never modify `trivy.yaml`, `trivy-secret.yaml`, or CI workflows that run Trivy.
-- Never replace pinned action SHAs or Trivy versions with mutable tags or `latest`.
+## 4. Channel / Connection Map
+| QM | Channel | connName / CCDT | TLS | 認證方式 | 證據 |
 
-## Allowed automatic fixes
-- Patch/minor dependency upgrades to a version listed in `FixedVersion`, followed by build, tests, and re-scan.
-- Adding non-root `USER`, `HEALTHCHECK`, pinned base image versions in Dockerfile.
-- Adding `securityContext`, resource limits, `automountServiceAccountToken: false` in Kubernetes manifests.
+## 5. Message Specification
+| 訊息 | 欄位 | 型別 / 長度 | 必填 | 來源 | 備註 |
 
-## Human approval required
-- Major version upgrades, base image distro changes.
-- Any RBAC, NetworkPolicy, IAM, or cloud permission change.
-- Any new HIGH/CRITICAL that cannot be fixed.
-- Any license category change (Restricted/Forbidden/Unknown). Do not make legal conclusions about licenses.
-- Any exception or VEX statement.
+## 6. MQ Flow（Mermaid）
 
-## Stop conditions
-- If the same finding fails to be fixed after 3 attempts, stop and report.
-- Always finish with a Security Report (before/after diff, no secret content) and wait for human review.
+## 7. Sequence Diagrams（Mermaid）
 
-## MCP server (if enabled)
-- Only use the approved Trivy MCP server (`trivy mcp`, stdio transport) pinned by the platform team.
-- Do not install, upgrade, or reconfigure MCP servers or Trivy plugins.
-- Do not enable Aqua Platform integration (`--use-aqua-platform`) unless explicitly authorized.
-- MCP scan results are for local feedback only; the CI Trivy gate remains the source of truth.
+## 8. Transaction 與 Error Flow
+- 交易邊界、Commit / Rollback 時機
+- 例外處理、Retry、BOQ / DLQ
+
+## 9. Dependency Map（Mermaid）
+
+## 10. 安全發現
+- 寫死的帳密 / 過度權限 / 未啟用 TLS 的跡象
+
+## 11. 風險與技術債
+
+## 12. 未確認項目與建議的驗證命令
+| 項目 | 驗證方式（DISPLAY 命令 / Log 查詢） | 負責人 |
+```
+
+### 19.4 補充 Prompt：MQSC 與程式交叉比對
+
+```text
+以下提供兩份資料：
+(A) Queue Manager <QM 名稱> 的 dmpmqcfg 輸出（已遮罩）
+(B) 前一步產生的 MQ Inventory
+
+請：
+1. 找出程式使用但 MQSC 中不存在的佇列（可能為 Cluster 佇列、別名或設定錯誤）
+2. 找出 MQSC 存在但程式中未使用的佇列（可能為其他系統使用或已廢棄）
+3. 解析每個 QREMOTE / QALIAS 的最終目的地
+4. 檢查每個 Input Queue 是否有 BOQNAME / BOTHRESH
+5. 檢查每個 SVRCONN / RCVR 的 SSLCIPH、SSLCAUTH、MCAUSER
+輸出：差異表 + 風險清單。每項附 MQSC 物件名稱作為證據。
+不得建議直接在 Production 執行任何 ALTER / DEFINE / DELETE。
+```
+
+### 19.5 補充 Prompt：COBOL Copybook 轉 Message Specification
+
+```text
+以下是 COBOL Copybook（電文格式）。請轉為 Message Specification 表格：
+欄位名稱 / 層級 / PIC / 位元組長度 / 起始位置 / 型別（文字、數字、COMP-3）/ 說明。
+
+要求：
+- 計算每個欄位的起始位置與總長度
+- COMP-3（Packed Decimal）標示實際位元組長度
+- 標示可能的 CCSID 相關風險（中文欄位、EBCDIC）
+- 產出對應的 Java record 定義（只產生，不寫入檔案）
+- 對無法確定的 REDEFINES / OCCURS DEPENDING ON 明確標示
+```
+
+### 19.6 驗證方式
+
+| 驗證 | 方法 |
+|------|------|
+| 完整性 | 以 grep 搜尋 `com.ibm.mq`、`jakarta.jms`、`javax.jms`、`JmsTemplate`、`@JmsListener`，數量與 Inventory 比對 |
+| 正確性 | 隨機抽 10 個證據行號人工確認 |
+| 一致性 | Queue Map 與 `dmpmqcfg` 比對 |
+| 動態 | `DISPLAY QSTATUS TYPE(HANDLE)` 確認 Producer / Consumer |
+
+---
+
+## Part 20 — AI Agent 協助 Framework 升級
+
+### 20.1 目的
+
+以 AI Agent 協助完成 Legacy Java 到現代 Java / Spring / Jakarta 的升級，並同步升級 IBM MQ Client。
+
+### 20.2 升級路徑
+
+```text
+Legacy Java
+      ↓
+Java Upgrade
+      ↓
+Spring Upgrade
+      ↓
+IBM MQ Client Upgrade
+      ↓
+Jakarta Migration
+```
+
+```mermaid
+flowchart LR
+    A["Java 8<br/>Spring 4/5<br/>Boot 1.x/2.x<br/>javax.jms<br/>MQ Client 8/9.1"] --> B["Java 17<br/>（LTS 跳板）"]
+    B --> C["Spring Boot 2.7<br/>（javax 最後版）"]
+    C --> D["Spring Boot 3.x<br/>jakarta.jms<br/>MQ jakarta.client"]
+    D --> E["Java 25<br/>Spring Boot 4.x<br/>MQ Client 10.0"]
+    style A fill:#fdd
+    style E fill:#dfd
+```
+
+### 20.3 版本與 API 對照
+
+| 元件 | 舊 | 新 | 主要變化 |
+|------|----|----|---------|
+| Java | 8 | 17 → 21 → 25 | 模組封裝、移除 Java EE 模組、TLS 預設、`SecurityManager` 停用 |
+| Spring Framework | 4.x / 5.x | 6.x → 7.x | Jakarta 命名空間、Java 17 基準 |
+| Spring Boot | 1.x / 2.x | 3.x → 4.x | Jakarta、屬性改名、auto-config 模組化（Boot 4） |
+| JMS API | `javax.jms`（JMS 1.1 / 2.0） | `jakarta.jms`（Jakarta Messaging 3.x） | 套件名稱變更 |
+| IBM MQ Client | `com.ibm.mq.allclient`（javax） | `com.ibm.mq.jakarta.client` | Jakarta 版需 MQ 9.3+ |
+| IBM MQ JMS Provider 類別 | `com.ibm.mq.jms.MQConnectionFactory` | `com.ibm.mq.jakarta.jms.MQConnectionFactory` | 套件名稱變更 |
+| WMQConstants | `com.ibm.msg.client.wmq.WMQConstants` | `com.ibm.msg.client.jakarta.wmq.WMQConstants` | 套件名稱變更 |
+| Starter | `mq-jms-spring-boot-starter` 2.x | 3.x → 4.x | 對應 Boot 主版本 |
+
+### 20.4 AI 必須產出的文件
+
+| 文件 | 內容 |
+|------|------|
+| Dependency Inventory | 所有直接 / 傳遞依賴與版本，標示 javax / jakarta |
+| Compatibility Matrix | Java × Spring Boot × MQ Client × 應用伺服器 × OS |
+| Breaking Change List | 每項變更、影響檔案、修改方式 |
+| Migration Plan | 分階段步驟、每階段可獨立測試與回復 |
+| Risk List | 風險、影響、機率、對策 |
+| Test Plan | 單元、整合（MQ 容器）、回歸、效能、安全 |
+| Rollback Plan | 每階段回復方式（版本、設定、資料） |
+
+### 20.5 常見 Breaking Changes（MQ 相關）
+
+| 變更 | 症狀 | 修正 |
+|------|------|------|
+| `javax.jms` → `jakarta.jms` | 編譯錯誤 | 套件替換（OpenRewrite 等工具可協助） |
+| 同時存在 javax 與 jakarta MQ Client | `ClassCastException`、`NoSuchMethodError` | 移除舊 artifact |
+| Spring Boot 屬性改名 | 設定未生效、使用預設值 | 對照官方 migration guide；啟用 `spring-boot-properties-migrator` |
+| TLS CipherSpec 被淘汰 `[MQ 10.0]` | `2393`、`2397`、`AMQ9631E` 類錯誤 | 改用 TLS 1.3 / ECDHE 套件 |
+| `TLS_RSA_*` 在 Semeru 25 停用 | Java 25 Client TLS 握手失敗 | 改用 ECDHE / TLS 1.3 |
+| 非 IBM JRE Cipher 名稱 | `2400 UNSUPPORTED_CIPHER_SUITE` | `useIBMCipherMappings=false` |
+| 預設檔案編碼 UTF-8（Java 18+；`[MQ 10.0]` 提及 Semeru 21 / 25 編碼變更） | 非 UTF-8 電文亂碼 | 明確指定 Charset 與 CCSID |
+| Starter 預設帳密移除 | `2035` | 明確設定 `user` / `password` |
+
+### 20.6 Upgrade Risk Matrix
+
+| 風險 | 機率 | 影響 | 等級 | 對策 |
+|------|------|------|------|------|
+| TLS 握手失敗導致 Production 無法連線 | 中 | 高 | 高 | UAT 以相同 QM 設定驗證；保留舊 CipherSpec 過渡期（若 QM 仍支援） |
+| javax / jakarta 混用 | 高 | 中 | 高 | `mvn dependency:tree` 檢查；ArchUnit / Enforcer 規則 |
+| 電文編碼變更 | 中 | 高 | 高 | 以真實樣本做位元組比對測試 |
+| 屬性改名未發現 | 中 | 中 | 中 | properties-migrator；啟動時列印有效設定 |
+| 效能退化 | 低 | 中 | 中 | 效能基準測試比對 |
+| Listener 行為改變（concurrency、receiveTimeout） | 中 | 中 | 中 | 整合測試覆蓋；比較 `DISPLAY CONN` 連線數 |
+
+### 20.7 IBM MQ + Java Framework Upgrade Playbook
+
+```text
+Inventory
+ ↓
+Dependency Analysis
+ ↓
+API Analysis
+ ↓
+Compatibility Analysis
+ ↓
+MQ Client Analysis
+ ↓
+JMS Analysis
+ ↓
+Java Upgrade
+ ↓
+Spring Upgrade
+ ↓
+Testing
+ ↓
+Performance
+ ↓
+Security
+ ↓
+UAT
+ ↓
+Production
+```
+
+| 步驟 | 動作 | AI 協助 | 人工確認 | 完成條件 |
+|------|------|---------|---------|---------|
+| 1 Inventory | 列出所有模組、依賴、MQ 使用點 | 掃描 pom / import | 範圍確認 | Inventory 文件 |
+| 2 Dependency Analysis | `dependency:tree` 分析傳遞依賴 | 標示 javax / jakarta 衝突 | — | 衝突清單 |
+| 3 API Analysis | 找出已淘汰 / 移除 API | 掃描並列出 | 抽查 | Breaking Change List |
+| 4 Compatibility Analysis | 對照官方相容矩陣 | 整理表格 + 官方連結 | **以官方文件確認** | Compatibility Matrix |
+| 5 MQ Client Analysis | Client 版本、Cipher、CCDT、重連設定 | 掃描設定 | MQ 管理員確認 QM 端 | MQ Client 變更清單 |
+| 6 JMS Analysis | javax → jakarta、Provider 類別 | 產生替換清單 | Review | JMS 變更清單 |
+| 7 Java Upgrade | 8 → 17 → 25 | 修改建議 / PR | Code Review | 編譯與單元測試通過 |
+| 8 Spring Upgrade | Boot 2.7 → 3.x → 4.x | 修改建議 / PR | Code Review | 整合測試通過 |
+| 9 Testing | MQ 整合測試、回歸 | 產生測試 | Review | 測試通過 |
+| 10 Performance | 對照基準 | 分析結果 | 確認 | 無顯著退化 |
+| 11 Security | SAST / SCA / TLS 掃描 | 分析報告 | Security 簽核 | 無高風險 |
+| 12 UAT | 使用者驗收 | — | 業務簽核 | UAT 通過 |
+| 13 Production | 分批上線、監控 | 產生上線檢查表 | **變更核准** | 監控穩定 |
+
+### 20.8 Checklist
+
+- [ ] 七份 AI 產出文件齊全且經人工審閱
+- [ ] Compatibility Matrix 每一格有官方來源
+- [ ] 每階段可獨立回復
+- [ ] TLS / CipherSpec 已在 UAT 以 Production 等同設定驗證
+- [ ] 電文編碼以真實樣本驗證
+
+---
+
+## Part 21 — IBM MQ 升級
+
+### 21.1 目的
+
+說明 IBM MQ Server、Client、Java Client、JMS、TLS、OS、Container Image 升級的方法與流程。
+
+### 21.2 升級類型
+
+| 類型 | 內容 | 主要風險 |
+|------|------|---------|
+| MQ Version Upgrade | 9.3 / 9.4 LTS → 10.0 LTS | 行為變更、CipherSpec 移除、不可降版 |
+| Maintenance（Fix Pack / CSU） | 同版本修補 | 低；仍需測試 |
+| MQ Client Upgrade | 應用端 Client 函式庫 | TLS、預設值改變（例如 `[MQ 10.0]` Client 預設 TCP buffer 變更） |
+| Queue Manager Upgrade | QM 資料遷移到新版 | **QM 以新版啟動後通常無法回到舊版** `[需確認各版本規則]` |
+| Java Client Upgrade | `jakarta.client` 版號 | API 行為、JDK 支援 |
+| JMS Upgrade | javax → jakarta | 見 Part 20 |
+| TLS / CipherSpec Upgrade | 移除舊套件、更換憑證 | 連線中斷 |
+| OS Upgrade | RHEL 主版本等 | 支援矩陣、核心參數 |
+| Container Image Upgrade | Image tag | 設定與 Secret 路徑、Operator 版本 |
+
+### 21.3 相容性基本原則
+
+- **MQ Client 與 Server 版本可以不同**：一般而言較新與較舊的 Client / Server 可以互通，但新功能需雙方都支援 `[需確認官方相容性聲明]`。
+- **建議先升級 Server，再升級 Client**（Server 通常向下相容舊 Client）。
+- **LTS 與 CD 不要混用於同一套升級規劃**：LTS 系統升級目標應為下一個 LTS（例如 9.4.0 LTS → 10.0 LTS）。
+- 10.0 移除的 CipherSpec 必須在升級**前**完成替換。
+
+### 21.4 升級流程
+
+```text
+Current
+   ↓
+Assessment
+   ↓
+Compatibility Check
+   ↓
+POC
+   ↓
+Test
+   ↓
+Performance Test
+   ↓
+Security Test
+   ↓
+UAT
+   ↓
+Production
+   ↓
+Monitoring
+```
+
+```mermaid
+flowchart TB
+    C["Current<br/>盤點版本 / 設定 / CipherSpec"] --> A["Assessment<br/>What's changed / Deprecated 清單"]
+    A --> CC["Compatibility Check<br/>OS / JDK / Client / 應用伺服器"]
+    CC --> POC["POC<br/>單一 QM + 代表性應用"]
+    POC --> T["Test<br/>功能 / 回歸"]
+    T --> PT["Performance Test"]
+    PT --> ST["Security Test<br/>TLS / CHLAUTH / OAM"]
+    ST --> U["UAT"]
+    U --> GO{"Go / No-Go"}
+    GO -- Go --> P["Production<br/>分批升級"]
+    GO -- No-Go --> A
+    P --> M["Monitoring<br/>錯誤率 / Channel / 效能"]
+    M -->|"異常"| RB["Rollback / Fallback<br/>（依事前規劃）"]
+```
+
+### 21.5 Queue Manager 升級方式
+
+| 方式 | 說明 | 停機 | 回復 |
+|------|------|------|------|
+| In-place 升級 | 停 QM → 升級安裝 → 以新版啟動 | 有 | 困難（需備份還原） |
+| Side-by-side（多版本並存） | 新版另行安裝（`setmqinst`），QM 以 `setmqm` 切換到新安裝 | 短 | 切換前可回退；啟動後同 In-place |
+| Rolling（HA / Multi-instance / Native HA） | 先升 Standby，再切換 | 極短 | 依 HA 方式 |
+| 新建遷移 | 建新 QM，以 `dmpmqcfg` 重建物件，應用切換 | 規劃切換 | 舊 QM 保留可回切 |
+
+```bash
+# Side-by-side 範例（Linux）：新版安裝在 /opt/mqm10
+dspmqinst                          # 列出安裝
+endmqm -w BANKQM01
+setmqm -m BANKQM01 -n Installation2
+. /opt/mqm10/bin/setmqenv -s
+strmqm BANKQM01                    # 以新版啟動，資料將遷移
+dspmq -o installation
+```
+
+> `setmqm`、`setmqinst` 的確切語法與升級前置條件，**需依目前 IBM 官方 Migration 文件確認**。啟動新版後，舊版通常無法再啟動該 QM，**升級前必須完成完整備份**。
+
+### 21.6 10.0 升級前必查
+
+| 項目 | 檢查方式 |
+|------|---------|
+| 已移除的 CipherSpec（SSLv3、TLS 1.0、RC4、3DES） | `DISPLAY CHANNEL(*) SSLCIPH` |
+| RSA key exchange CipherSpec（Deprecated） | 同上 |
+| 憑證 RSA 金鑰長度 | `runmqakm -cert -details` |
+| 憑證 label 是否含空白或逗號 | `DISPLAY QMGR CERTLABL`、Channel `CERTLABL` |
+| User ID 格式（更嚴格驗證） | `dmpmqaut`、`MCAUSER`、CHLAUTH |
+| Java Client 的 JDK（Semeru 25 停用 `TLS_RSA_*`） | 應用 JDK 盤點 |
+| 隨產品附帶的 Java runtime 變更 | 依 IBM Docs「Changes to the Java runtime environment shipped with IBM MQ」 |
+| Deprecated / Removed 功能 | IBM Docs「Deprecated, stabilized, and removed features in IBM MQ 10.0.0」 |
+
+### 21.7 Container Image 升級
+
+- 先升級 MQ Operator（若使用），再升級 QueueManager CR 的版本欄位 `[需確認 Operator 版本對應]`。
+- Native HA：Operator 會以滾動方式升級各 Pod。
+- 升級前備份 PV 或確認 DR 副本狀態。
+
+### 21.8 Checklist
+
+- [ ] 已閱讀 10.0 What's new / What's changed / Deprecated 清單
+- [ ] 已替換所有被移除與 Deprecated 的 CipherSpec
+- [ ] 已確認 OS / JDK 在 System Requirements 支援清單
+- [ ] 已完成完整備份（設定 + 資料）並驗證可還原
+- [ ] Rollback / Fallback 方式已演練
+- [ ] 分批升級順序與監控指標已定義
+
+---
+
+## Part 22 — IBM MQ 維運
+
+### 22.1 目的
+
+建立 Production Operation Guide：每日巡檢、關鍵指標、告警門檻與維運流程。
+
+### 22.2 維運範圍
+
+| 項目 | 觀察重點 | 工具 / 命令 |
+|------|---------|------------|
+| Queue Monitoring | 深度、開啟數、訊息年齡 | `DISPLAY QSTATUS` |
+| Queue Depth | 是否持續上升 | `CURDEPTH`、`QDEPTHHI` 事件 |
+| Channel Status | `RUNNING` / `RETRYING` / `STOPPED` | `DISPLAY CHSTATUS(*)` |
+| Connection Status | 連線數、來源、應用名稱 | `DISPLAY CONN(*)` |
+| Message Rate | PUT / GET 速率 | Statistics、`amqsrua`、Prometheus exporter |
+| Backlog | 深度 ÷ 消費速率 = 預估清空時間 | 計算指標 |
+| DLQ | 深度 > 0 即需處理 | `DISPLAY QLOCAL(SYSTEM.DEAD.LETTER.QUEUE) CURDEPTH` |
+| Error Log | AMQ 錯誤、FDC | `AMQERR01.LOG`、`/var/mqm/errors/*.FDC` |
+| Performance | 延遲、吞吐 | Statistics、應用端指標 |
+| CPU / Memory | QM 程序資源 | OS 監控 |
+| Disk | Log 與 Queue 檔案系統使用率 | OS 監控；**Log 空間耗盡會造成嚴重問題** |
+| Log | Recovery Log 使用量、長交易 | `DISPLAY QMSTATUS LOG`（欄位依版本） |
+| Alert | 告警規則 | 監控平台 |
+
+### 22.3 每日巡檢腳本（唯讀）
+
+```bash
+#!/usr/bin/env bash
+# MQ 每日巡檢（唯讀）：僅使用 DISPLAY 類命令
+set -euo pipefail
+QM="${1:?usage: $0 <QMGR>}"
+TS=$(date +%Y%m%d_%H%M%S)
+OUT="/var/log/mq-healthcheck/${QM}_${TS}.txt"
+mkdir -p "$(dirname "$OUT")"
+
+{
+  echo "=== dspmq ==="
+  dspmq -m "$QM" -o all
+  echo "=== MQSC ==="
+  runmqsc "$QM" <<'EOF'
+DISPLAY QMSTATUS ALL
+DISPLAY QLOCAL(*) WHERE(CURDEPTH GT 0) CURDEPTH MAXDEPTH
+DISPLAY QSTATUS(SYSTEM.DEAD.LETTER.QUEUE) TYPE(QUEUE) CURDEPTH
+DISPLAY QLOCAL(*.BOQ) WHERE(CURDEPTH GT 0) CURDEPTH
+DISPLAY CHSTATUS(*) WHERE(STATUS NE RUNNING) STATUS SUBSTATE
+DISPLAY LSSTATUS(*) STATUS PORT
+EOF
+  echo "=== Error log tail ==="
+  tail -n 200 "/var/mqm/qmgrs/${QM}/errors/AMQERR01.LOG"
+  echo "=== FDC (last 24h) ==="
+  find /var/mqm/errors -name '*.FDC' -mtime -1 -print
+} > "$OUT" 2>&1
+
+echo "Health check written to $OUT"
+```
+
+> 實際部署時以監控平台取代人工看報表；本腳本適合作為最低限度與事後追查的紀錄。`/var/mqm/qmgrs/<QM>` 目錄名稱在 QM 名稱含特殊字元時會轉換，需依實際路徑調整。
+
+### 22.4 告警門檻建議
+
+| 指標 | Warning | Critical | 說明 |
+|------|---------|----------|------|
+| Queue Depth（% MAXDEPTH） | 60% | 80% | 對應 `QDEPTHHI` |
+| 最舊訊息年齡（`MSGAGE`） | > SLA × 0.5 | > SLA | 需 `MONQ` 啟用 |
+| `IPPROCS = 0`（Input Queue 無 Consumer） | 1 分鐘 | 5 分鐘 | Consumer 全部停止 |
+| DLQ 深度 | > 0 | > 100 | 任何 DLQ 訊息都應被看見 |
+| BOQ 深度 | > 0 | > 10 | 毒訊息 |
+| Channel 非 RUNNING | RETRYING 1 分鐘 | STOPPED | |
+| Log 檔案系統 | 70% | 85% | |
+| 憑證剩餘天數 | 30 天 | 7 天 | `[MQ 10.0]` `dspmqcert` |
+| 連線數（% MAXINST） | 70% | 90% | |
+| FDC 產生 | 任何 | 同類重複 | 需開 IBM Case 評估 |
+
+### 22.5 維運流程
+
+```mermaid
+flowchart LR
+    A["告警"] --> B{"分類"}
+    B -->|"深度上升"| C["檢查 Consumer<br/>IPPROCS / 應用日誌"]
+    B -->|"Channel 異常"| D["檢查網路 / 對方 QM / TLS"]
+    B -->|"DLQ / BOQ"| E["分析 DLH / 原因<br/>修正後重送"]
+    B -->|"資源"| F["磁碟 / Log / CPU"]
+    C --> G["處置 + 記錄"]
+    D --> G
+    E --> G
+    F --> G
+    G --> H["事後檢討（RCA）"]
+```
+
+### 22.6 Checklist
+
+- [ ] 每日巡檢自動化並保存紀錄
+- [ ] 22.4 告警門檻已設定於監控平台
+- [ ] DLQ / BOQ 有明確負責人與處理 SLA
+- [ ] Log 檔案系統有容量告警
+- [ ] 憑證到期監控已啟用
+
+---
+
+## Part 23 — IBM MQ 故障排除
+
+### 23.1 目的
+
+建立 Troubleshooting Matrix 與常見 Reason Code 對照，讓開發與維運人員能快速定位問題。
+
+### 23.2 排查方法論
+
+```mermaid
+flowchart TD
+    S["症狀"] --> R{"有 Reason Code？"}
+    R -- 是 --> RC["查 23.4 Reason Code 表"]
+    R -- 否 --> L["查應用日誌 / AMQERR / FDC"]
+    RC --> W{"哪一層？"}
+    L --> W
+    W -->|"連線"| N["Listener / 網路 / TLS / CHLAUTH"]
+    W -->|"授權"| A["CONNAUTH / OAM / MCAUSER"]
+    W -->|"物件"| O["佇列存在？名稱大小寫？路由？"]
+    W -->|"容量"| C["MAXDEPTH / MAXMSGL / 磁碟"]
+    W -->|"處理"| P["Consumer 狀態 / 毒訊息"]
+    N --> F["修正 → 驗證 → 記錄"]
+    A --> F
+    O --> F
+    C --> F
+    P --> F
+```
+
+### 23.3 Troubleshooting Matrix
+
+| 問題 | 可能原因 | 檢查方式 | 處理方式 |
+|------|---------|---------|---------|
+| MQPUT 失敗 `2085` | Queue 不存在、名稱大小寫錯誤、未在 Cluster 中公告 | `DISPLAY QLOCAL / QREMOTE / QALIAS('名稱')`、`DISPLAY QCLUSTER` | 檢查設定與名稱 |
+| MQPUT 失敗 `2053` | 佇列已滿 | `DISPLAY QSTATUS CURDEPTH`、`MAXDEPTH` | 檢查 Consumer；短期可調高 MAXDEPTH（L2 變更） |
+| MQPUT 失敗 `2030` / `2031` | 訊息超過佇列 / QM `MAXMSGL` | `DISPLAY QLOCAL MAXMSGL`、`DISPLAY QMGR MAXMSGL` | 調整訊息大小或屬性 |
+| MQPUT 失敗 `2051` | 佇列 `PUT(DISABLED)` | `DISPLAY QLOCAL PUT` | 確認是否為刻意停用 |
+| MQGET Timeout `2033` | 佇列無訊息（正常）、CorrelId 不符 | `CURDEPTH`、比對 CorrelId 慣例 | 檢查 Producer、Reply 慣例 |
+| Channel Down | 網路、對方 Listener、TLS | `DISPLAY CHSTATUS`、AMQERR | 檢查網路、防火牆、對方 QM |
+| `2035` | 授權不足、CHLAUTH 封鎖、CONNAUTH 失敗 | AMQERR（AMQ5534E、AMQ9777E 等）、`DISPLAY CHLAUTH MATCH(RUNCHECK)`、`dspmqaut` | 依最小權限補授權；**不要加入 mqm** |
+| `2059` | QM 未啟動、Listener 未啟動、名稱錯誤 | `dspmq`、`DISPLAY LSSTATUS` | 啟動 QM / Listener |
+| `2538` | 主機無法連線（DNS、Port、防火牆） | `nc -vz host 1414` | 檢查網路 |
+| `2539` / `2540` | Channel 名稱錯誤或 Channel 未定義 / 類型錯誤 | `DISPLAY CHANNEL` | 修正 Channel 名稱 |
+| `2009` | 連線中斷（網路、QM 停止、防火牆閒置斷線） | AMQERR、網路設備日誌 | 設定 Heartbeat / Keepalive；Client 重連 |
+| TLS Error `2393` / `2397` / `2400` | 憑證、Cipher 不符、信任鏈、JRE Cipher 對應 | AMQERR（AMQ9631E、AMQ9633E、AMQ9637E 等）、Java `-Djavax.net.debug` | 檢查憑證、CipherSpec、`useIBMCipherMappings` |
+| Message 堵塞 | Consumer 異常、毒訊息、處理變慢 | `CURDEPTH`、`IPPROCS`、`MSGAGE`、BOQ | 檢查 Consumer、移除毒訊息 |
+| 訊息進 DLQ | 目標佇列不存在 / 已滿 / 權限 | 讀 DLQ 的 MQDLH Reason | 修正後以 `runmqdlq` 重送 |
+| 中文亂碼 | CCSID 不一致、未使用 `MQGMO_CONVERT`、RFH2 | 訊息樣本 hex、MQMD CCSID | 統一 CCSID；設定轉換 |
+| Legacy 收到 `RFH` 開頭的資料 | JMS 未設 `targetClient` | 樣本前 4 bytes | 設定 `targetClient=1` |
+| Channel 序號錯誤 AMQ9526E | 一端重建或還原 | AMQERR | 雙方管理員確認後 `RESET CHANNEL` |
+| Channel in-doubt | 批次確認中斷 | `DISPLAY CHSTATUS INDOUBT` | 通常自動解決；手動 `RESOLVE` 需雙方確認 |
+| 連線數爆增 | 應用未重用連線、Pod 擴容 | `DISPLAY CONN(*)` 依 `APPLTAG` 統計 | 修正連線管理；調整 `MAXINST` |
+
+### 23.4 常用 Reason Code
+
+| Code | 常數 | 意義 | 常見處理 |
+|------|------|------|---------|
+| 2003 | `MQRC_BACKED_OUT` | 交易已被回滾 | 重試交易 |
+| 2009 | `MQRC_CONNECTION_BROKEN` | 連線中斷 | 重連；檢查網路 |
+| 2012 | `MQRC_ENVIRONMENT_ERROR` | 環境不允許此呼叫 | 檢查交易環境 / 呼叫方式 |
+| 2016 | `MQRC_GET_INHIBITED` | 佇列禁止 GET | `GET(ENABLED)` |
+| 2018 | `MQRC_HCONN_ERROR` | 連線 Handle 無效 | 重新連線；檢查多執行緒共用 |
+| 2019 | `MQRC_HOBJ_ERROR` | 物件 Handle 無效 | 重新開啟佇列 |
+| 2024 | `MQRC_SYNCPOINT_LIMIT_REACHED` | 單一交易訊息數超過上限 | 縮小交易；調整 `MAXUMSGS` |
+| 2030 | `MQRC_MSG_TOO_BIG_FOR_Q` | 超過佇列 MAXMSGL | 調整 |
+| 2031 | `MQRC_MSG_TOO_BIG_FOR_Q_MGR` | 超過 QM MAXMSGL | 調整 |
+| 2033 | `MQRC_NO_MSG_AVAILABLE` | 無訊息（等待逾時） | 正常情況 |
+| 2035 | `MQRC_NOT_AUTHORIZED` | 未授權 | 見 Part 8 |
+| 2042 | `MQRC_OBJECT_IN_USE` | 物件被獨佔開啟 | 檢查 `MQOO_INPUT_EXCLUSIVE` |
+| 2051 | `MQRC_PUT_INHIBITED` | 佇列禁止 PUT | `PUT(ENABLED)` |
+| 2053 | `MQRC_Q_FULL` | 佇列已滿 | 見 Part 6 |
+| 2058 | `MQRC_Q_MGR_NAME_ERROR` | QM 名稱錯誤 | 檢查名稱 / CCDT |
+| 2059 | `MQRC_Q_MGR_NOT_AVAILABLE` | QM 不可用 | 啟動 QM / Listener |
+| 2063 | `MQRC_SECURITY_ERROR` | 安全錯誤 | 檢查安全設定 |
+| 2080 | `MQRC_TRUNCATED_MSG_FAILED` | Buffer 太小 | 加大 buffer 或用 `MQGMO_ACCEPT_TRUNCATED_MSG` |
+| 2082 | `MQRC_UNKNOWN_ALIAS_BASE_Q` | Alias 目標不存在 | 修正 `TARGET` |
+| 2085 | `MQRC_UNKNOWN_OBJECT_NAME` | 物件不存在 | 檢查名稱 |
+| 2087 | `MQRC_UNKNOWN_REMOTE_Q_MGR` | 遠端 QM 無法解析 | 檢查 XMITQ / QM Alias / Cluster |
+| 2092 | `MQRC_XMIT_Q_USAGE_ERROR` | XMITQ 用途設定錯誤 | `USAGE(XMITQ)` |
+| 2102 | `MQRC_RESOURCE_PROBLEM` | 系統資源不足 | 檢查磁碟 / 記憶體 / Log |
+| 2110 | `MQRC_FORMAT_ERROR` | 訊息格式無法轉換 | 檢查 Format / CCSID |
+| 2119 | `MQRC_NOT_CONVERTED` | 資料轉換失敗 | 檢查 CCSID |
+| 2161 | `MQRC_Q_MGR_QUIESCING` | QM 正在停止 | 中止並重連 |
+| 2162 | `MQRC_Q_MGR_STOPPING` | QM 停止中 | 中止並重連 |
+| 2189 | `MQRC_CLUSTER_RESOLUTION_ERROR` | Cluster 解析失敗 | 檢查 Repository |
+| 2195 | `MQRC_UNEXPECTED_ERROR` | 非預期錯誤 | 查 FDC，必要時開 IBM Case |
+| 2393 | `MQRC_SSL_INITIALIZATION_ERROR` | TLS 初始化失敗 | 金鑰庫、憑證、Cipher |
+| 2397 | `MQRC_JSSE_ERROR` | Java JSSE 錯誤 | 看 linked exception |
+| 2400 | `MQRC_UNSUPPORTED_CIPHER_SUITE` | Cipher Suite 不支援 | 名稱對應、JRE 支援 |
+| 2537 | `MQRC_CHANNEL_NOT_AVAILABLE` | Channel 不可用（停止 / 達上限） | `MAXINST`、Channel 狀態 |
+| 2538 | `MQRC_HOST_NOT_AVAILABLE` | 主機無法連線 | 網路 / Listener |
+| 2539 | `MQRC_CHANNEL_CONFIG_ERROR` | Channel 設定錯誤 | 檢查 Channel 定義 |
+| 2540 | `MQRC_UNKNOWN_CHANNEL_NAME` | Channel 不存在 | 檢查名稱 |
+| 2548 | `MQRC_RECONNECT_FAILED` | 自動重連失敗 | 檢查 HA 狀態 |
+
+> Reason Code 完整清單與說明以 IBM Documentation「Reason codes」為準；AMQ 錯誤訊息編號以實際日誌內容為準。
+
+### 23.5 Java 端除錯技巧
+
+```java
+// JMSException 的根因通常在 linked exception
+catch (JMSException e) {
+    Throwable cause = e.getLinkedException() != null ? e.getLinkedException() : e.getCause();
+    if (cause instanceof com.ibm.mq.MQException mqe) {
+        LOG.error("MQ reason={} cc={}", mqe.getReason(), mqe.getCompCode(), e);
+    } else {
+        LOG.error("JMS error code={}", e.getErrorCode(), e);
+    }
+}
+```
+
+| 工具 | 用途 |
+|------|------|
+| `-Djavax.net.debug=ssl,handshake` | TLS 握手除錯（**只在非 Production 使用，輸出含敏感資訊**） |
+| MQ Java Client Trace | 以 `mqclient.ini` / 系統屬性或 starter 的 `ibm.mq.trace.*` 啟用 |
+| `[MQ 10.0]` 短生命週期 Java / JMS 容器的 trace 支援 | 依官方文件設定 |
+
+### 23.6 IBM MQ Agent：官方 AI 診斷助理
+
+IBM MQ Agent 是 IBM 在 MQ 10.0 文件中推出的**獨立下載元件**，以生成式 AI 協助理解設定、查詢物件狀態與診斷問題。它和本手冊 Part 30-42 討論的 Coding Agent 定位不同：**MQ Agent 面向「執行中的 Queue Manager」，Coding Agent 面向「程式碼與設定檔」**。
+
+```mermaid
+flowchart LR
+    U["維運 / MQ 管理員"] -->|"自然語言提問"| CHAT["Chat Assistant"]
+    CHAT --> RT["Agent Runtime<br/>（使用 AI 基礎模型）"]
+    RT --> MCP["MCP Server<br/>MQ 查詢工具組"]
+    MCP -->|"唯讀查詢"| QM1["QM1"]
+    MCP -->|"唯讀查詢"| QM2["QM2"]
+    MCP -->|"唯讀查詢"| QMN["…最多 20 個 QM"]
+    RT --> DOC["IBM MQ 文件搜尋"]
+```
+
+| 項目 | 說明 |
+|------|------|
+| 型態 | 容器化元件：連線設定 + **MCP（Model Context Protocol）Server** + Agent Runtime |
+| 連線範圍 | 最多 20 個 Queue Manager，可位於任何平台 |
+| 能力 | QM 設定與狀態、Channel / Queue / Listener / Cluster 診斷、應用連線狀態、訊息堆積分析、文件搜尋與下一步規劃 |
+| **限制** | **只能查詢與推理，不能執行 MQSC 等命令** |
+| 授權 | IBM MQ Advanced 或 Cloud Pak for Integration 授權的延伸 |
+| 輸出責任 | 產品聲明 AI 輸出可能不準確，使用風險由使用者承擔 |
+
+**典型問題與對應的手動排查**：
+
+| 向 MQ Agent 提問 | 它可能採用的證據 | 人工複核方式 |
+|-----------------|------------------|-------------|
+| 哪些佇列深度超過 100？ | `CURDEPTH` | `DISPLAY QLOCAL(*) WHERE(CURDEPTH GT 100)` |
+| 為什麼 `PAY.TXN.REQ` 堆積？ | `IPPROCS`、`OPPROCS`、`LGETDATE`、`MSGAGE` | `DISPLAY QSTATUS('PAY.TXN.REQ') TYPE(QUEUE) ALL` |
+| 哪些 Channel 在 RETRYING？ | Channel Status | `DISPLAY CHSTATUS(*) WHERE(STATUS EQ RETRYING)` |
+| 為什麼訊息進了 DLQ？ | DLQ 中 `MQDLH` 的 Reason | 以工具瀏覽 DLQ（需授權） |
+| payment-service 連在哪個 QM？ | Connection 資訊 | `DISPLAY CONN(*) WHERE(APPLTAG EQ 'payment-service')` |
+
+**企業導入建議**：
+
+1. 先在 UAT 導入，比對 Agent 的診斷與人工排查結果。
+2. Agent 連線 QM 時使用**專用唯讀帳號**（只有 `dsp` / `inq` 類權限），經 TLS 管理 Channel。
+3. Agent 建議的 `ALTER` / `CLEAR` 等動作，一律轉成變更單走 Part 5.7 風險分級流程。
+4. 評估基礎模型的部署位置與資料流向，確認物件名稱、連線資訊是否符合資料外流政策（參考官方「Security for the IBM MQ Agent」與「Foundation models」說明）`[需確認]`。
+
+### 23.7 IBM MQ 10.0 的診斷新能力
+
+| 能力 | 用法 |
+|------|------|
+| 程式化讀取 Error Log | 監控工具或 AI 工具以 PCF 取得 Error Log，不必登入主機 |
+| Native HA 詳細狀態 | 排查複寫落後、實例同步問題 |
+| `dspmqcert` | 應用端出現 `2393` 時先確認 QM 憑證是否到期 |
+| 短生命週期容器 trace | Job 類工作負載也能取得 Client trace |
+| 延伸 Authority Event | 除了 `2035` 失敗，也能看到成功驗證記錄，用於釐清「是誰連進來」 |
+| z/OS：新的驗證失敗訊息、OpenTelemetry tracing | 主機端跨系統追蹤（見 Part 24.7） |
+
+### 23.8 AI Agent 使用方式
+
+- 把 Reason Code、AMQERR 片段（已遮罩）、應用日誌片段交給 AI，請它依 23.3 矩陣產生排查步驟。
+- **AI 只產生建議與唯讀檢查命令，修改動作由人執行並走變更流程。**
+
+### 23.9 Checklist
+
+- [ ] 應用日誌一定輸出 Reason Code 與 linked exception
+- [ ] 團隊熟悉 23.3 矩陣
+- [ ] FDC 與 AMQERR 集中收集
+- [ ] TLS debug 只在非 Production 使用
+- [ ] 若導入 IBM MQ Agent：使用唯讀帳號，建議動作一律走變更流程
+
+---
+
+## Part 24 — IBM MQ 監控
+
+### 24.1 目的
+
+建立 MQ 監控架構與企業監控 KPI。
+
+### 24.2 監控來源
+
+| 來源 | 說明 |
+|------|------|
+| MQSC Monitoring | `DISPLAY QSTATUS`、`CHSTATUS`、`CONN`（即時狀態） |
+| Events | Performance（`PERFMEV`，含 `QDEPTHHI`）、Channel、Authority、Configuration 事件 |
+| Statistics / Accounting | `STATQ`、`STATMQI`、`STATCHL`、`ACCTQ`、`ACCTMQI`，寫入 `SYSTEM.ADMIN.STATISTICS.QUEUE` / `ACCOUNTING.QUEUE` |
+| System Topics | `$SYS/MQ/INFO/QMGR/...` 資源使用發佈；範例程式 `amqsrua` |
+| REST API | Administrative REST API 查詢物件狀態 |
+| Monitoring Tools | IBM 開源 `mq-metric-samples`（Prometheus / OpenTelemetry 等 exporter）、MQ Operator 內建 metrics、商業 APM |
+| Log Monitoring | AMQERR、FDC、應用日誌 |
+| Application Monitoring | Micrometer：送出 / 處理數、處理延遲、失敗數 |
+
+### 24.3 監控架構
+
+```mermaid
+flowchart LR
+    subgraph MQ["Queue Managers"]
+        QM1["QM1"]
+        QM2["QM2"]
+    end
+    EXP["mq-metric-samples<br/>Prometheus Exporter"] -->|"PCF / System Topics"| QM1
+    EXP --> QM2
+    EVT["Event 消費程式"] -->|"SYSTEM.ADMIN.*.EVENT"| QM1
+    LOGC["Log Collector"] -->|"AMQERR / FDC"| QM1
+    APP["Spring Boot<br/>Micrometer"] --> PROM[("Prometheus")]
+    EXP --> PROM
+    PROM --> GRAF["Grafana Dashboard"]
+    PROM --> AM["Alertmanager"]
+    EVT --> SIEM["SIEM"]
+    LOGC --> ELK["Log 平台"]
+    AM --> ONCALL["On-call / ChatOps"]
+```
+
+### 24.4 企業監控 KPI
+
+```text
+Queue Depth
+Message Rate
+Consumer Lag
+Error Rate
+Retry Rate
+DLQ Count
+Channel Availability
+Connection Count
+```
+
+| KPI | 定義 | 來源 | 目標範例 |
+|-----|------|------|---------|
+| Queue Depth | 目前訊息數 | `CURDEPTH` / exporter | < 60% MAXDEPTH |
+| Message Rate | 每秒 PUT / GET | Statistics / exporter | 依容量規劃 |
+| Consumer Lag | 最舊訊息年齡或 深度 ÷ GET 速率 | `MSGAGE` / 計算 | < SLA |
+| Error Rate | 處理失敗數 ÷ 總處理數 | 應用 Micrometer | < 0.1% |
+| Retry Rate | 重送（`JMSXDeliveryCount > 1`）比例 | 應用 Micrometer | < 1% |
+| DLQ Count | DLQ + BOQ 深度 | MQSC / exporter | 0 |
+| Channel Availability | RUNNING 時間比例 | CHSTATUS / 事件 | 99.95% |
+| Connection Count | 連線數 / MAXINST | `DISPLAY CONN` / exporter | < 70% |
+
+### 24.5 啟用監控的 MQSC
+
+```text
+ALTER QMGR MONQ(MEDIUM) MONCHL(MEDIUM) PERFMEV(ENABLED) +
+           STATQ(ON) STATMQI(ON) STATCHL(MEDIUM) STATINT(600)
+ALTER QLOCAL('CBS.TXN.TRANSFER.REQ') QDEPTHHI(60) QDPHIEV(ENABLED) +
+           QSVCINT(30000) QSVCIEV(HIGH)
+```
+
+> Statistics / Accounting 會產生大量訊息，必須有程式持續消費，並評估對效能的影響。
+
+### 24.6 應用端指標（Spring Boot + Micrometer）
+
+```java
+@Component
+class MqMetrics {
+    private final Counter processed;
+    private final Counter failed;
+    private final Timer processing;
+
+    MqMetrics(MeterRegistry registry) {
+        this.processed = Counter.builder("mq.messages.processed").tag("queue", "CBS.TXN.TRANSFER.REQ").register(registry);
+        this.failed = Counter.builder("mq.messages.failed").tag("queue", "CBS.TXN.TRANSFER.REQ").register(registry);
+        this.processing = Timer.builder("mq.messages.processing").tag("queue", "CBS.TXN.TRANSFER.REQ").register(registry);
+    }
+}
+```
+
+### 24.7 z/OS 監控：SMF 與 OpenTelemetry
+
+| 來源 | 內容 | 用途 |
+|------|------|------|
+| SMF 115 | QM 統計：Log 寫入、Buffer Pool 命中率、Page Set、CF 使用量 | 容量規劃、效能分析 |
+| SMF 116 | Accounting：每個任務的 MQI 呼叫、每個佇列的使用量、Channel Accounting | 計費分攤、找出高成本應用 |
+| `DISPLAY USAGE`、`DISPLAY CFSTATUS` | 即時使用量 | 告警 |
+| `[MQ 10.0]` OpenTelemetry tracing | 主機 MQ 的 trace 可與分散式系統串成同一條追蹤 | 端到端交易追蹤 |
+
+| z/OS KPI | 告警建議 |
+|---------|---------|
+| Page Set 使用率 | > 70% 警告、> 85% 嚴重 |
+| Buffer Pool 命中率 / 可用頁數 | 依基準值設定下限 |
+| CF Structure 使用率 | > 70% 警告 |
+| Active Log 切換頻率 | 異常升高表示寫入量爆增 |
+| CHIN Adapter / Dispatcher 使用率 | 接近上限時評估調整 |
+
+> 門檻為起始建議，實際值應依各機構的基準測量調整。
+
+### 24.8 Native HA 與 RDQM 監控
+
+| 項目 | 來源 | 告警 |
+|------|------|------|
+| 實例角色（Active / Replica） | `dspmq -o nativeha` 類命令、Operator 狀態 `[需確認選項]` | 非預期切換 |
+| 複寫落後 | `[MQ 10.0]` Native HA 詳細狀態、`[MQ 9.4 CD]` Native HA 監控強化 | Replica 落後持續增加 |
+| 仲裁（Quorum） | 實例狀態 | 可用實例少於多數 |
+| CRR 跨區複寫 | CRR 狀態 | 複寫中斷 |
+| RDQM | `rdqmstatus`、Pacemaker 狀態 | 節點離線、DRBD 同步異常 |
+
+### 24.9 Checklist
+
+- [ ] 24.4 八項 KPI 都有資料來源與儀表板
+- [ ] 事件與 Statistics 佇列有持續消費者
+- [ ] 應用端指標與 MQ 端指標可用 CorrelId / 時間關聯
+- [ ] 告警規則已演練
+- [ ] z/OS：SMF 115 / 116 與 Page Set、CF 使用率已納入監控
+- [ ] HA：Native HA / RDQM 的角色與複寫狀態有告警
+
+---
+
+## Part 25 — IBM MQ 效能調校
+
+### 25.1 目的
+
+說明影響 MQ 效能的因素，以及 TPS、Latency、Throughput、Reliability 之間的取捨。
+
+### 25.2 效能因素
+
+| 因素 | 影響 | 調校方向 |
+|------|------|---------|
+| Persistent Message | 每次 commit 需寫 Log（磁碟 fsync） | Log 放低延遲儲存；批次 commit |
+| Non-persistent Message | 不寫 Log，快很多 | 僅用於可遺失的資料 |
+| Message Size | 大訊息增加 I/O 與網路 | 控制在 KB 級；大檔用 MFT 或引用（Claim Check） |
+| Batch | 一次 commit 多則訊息 | 提高吞吐，但增加延遲與重做範圍 |
+| Syncpoint | 交易保護 | 交易過大會造成 Log 壓力（`2024`） |
+| Connection Pool | 連線建立成本高 | 重用連線；Spring `CachingConnectionFactory` |
+| Session Pool | Session 建立成本 | `session-cache-size` |
+| Consumer Concurrency | 平行處理 | 增加吞吐，但失去順序；受 `MAXINST` 限制 |
+| Queue Depth | 深佇列加上選擇器會掃描 | 避免以自訂屬性 Selector |
+| Network Latency | Client 模式每次 API 一次往返 | 應用與 QM 同區域；適度批次 |
+| Disk I/O | Log 寫入延遲決定 Persistent TPS 上限 | 專用磁碟、檢查儲存延遲 |
+| SHARECNV | 多 Session 共用 TCP | 高併發時可評估調整（需測試） |
+
+### 25.3 取捨關係
+
+```text
+            可靠性
+              ↑
+  Persistent + 單筆 commit ●          ● Persistent + 批次 commit
+  （金融交易典型）                    （需高階硬體與調校）
+              │
+              │             ● Non-persistent + Syncpoint
+              │
+              │                          ● Non-persistent + 無 Syncpoint
+              │                            （通知 / 報價）
+              └────────────────────────────────→ 吞吐量
+```
+
+| 目標 | 傾向設定 | 代價 |
+|------|---------|------|
+| 高 Reliability | Persistent、Syncpoint、單筆 commit | TPS 受 Log 延遲限制 |
+| 高 Throughput | 批次 commit、多 Consumer、Non-persistent（若允許） | 延遲增加、失去順序、可能遺失 |
+| 低 Latency | 小訊息、單筆 commit、應用靠近 QM | 吞吐較低 |
+| 高 TPS（交易型） | Persistent + 多 Consumer + 快速 Log 磁碟 | 硬體成本 |
+
+### 25.4 效能測試方法
+
+1. 建立基準：固定訊息大小、Persistence、Consumer 數。
+2. 一次只改一個變數。
+3. 同時觀察：應用延遲（P50 / P95 / P99）、QM CPU、Log 磁碟延遲、網路。
+4. 使用 IBM 提供的效能工具或 JMeter / 自寫 Producer；**不要用 Production QM 做壓測**。
+5. 參考 IBM 發布的 MQ Performance Reports（依版本與平台） `[需確認最新報告]`。
+
+### 25.5 Checklist
+
+- [ ] Log 與 Data 分離，Log 位於低延遲儲存
+- [ ] 連線與 Session 有快取
+- [ ] 大訊息有替代方案
+- [ ] Consumer 數量經測試決定
+- [ ] 效能基準文件化，升級前後比對
+
+---
+
+## Part 26 — High Availability / Disaster Recovery
+
+### 26.1 目的
+
+說明 MQ 的 HA 與 DR 選項、RTO / RPO 考量，以及金融系統架構案例。
+
+### 26.2 名詞
+
+| 名詞 | 意義 |
+|------|------|
+| HA（High Availability） | 單一站點內元件故障時快速恢復 |
+| DR（Disaster Recovery） | 整個站點失效時於另一站點恢復 |
+| RTO（Recovery Time Objective） | 可容忍的服務中斷時間 |
+| RPO（Recovery Point Objective） | 可容忍的資料遺失量（時間） |
+
+### 26.3 HA 選項比較
+
+| 方案 | 原理 | 平台 | RTO（概略） | 備註 |
+|------|------|------|-----------|------|
+| Multi-instance QM | Active / Standby 共用網路檔案系統（NFSv4 等） | 分散式平台 | 秒到分鐘 | 依賴共享儲存的可用性與鎖定語意 |
+| RDQM HA | 3 節點，DRBD 同步複寫 + Pacemaker | Linux（Advanced） | 秒到分鐘 | 不需共享儲存 |
+| Native HA | 3 實例 Log 複寫（容器；`[MQ 9.4 CD]` 起亦支援 Linux） | 容器 / Linux（授權條件需確認） | 秒級 | `[MQ 10.0]` 新增 IRR |
+| OS / Cluster 軟體 HA | 由 HA 軟體搬移 QM | 各平台 | 分鐘 | 傳統方式 |
+| MQ Appliance HA | 設備成對 | Appliance | 秒到分鐘 | |
+| MQ Cluster / Uniform Cluster | **不是 HA**：提供新訊息的替代路由 | 全部 | — | 已在故障 QM 上的訊息需等該 QM 恢復 |
+
+> 各方案的授權條件（例如 RDQM、Native HA 需要 IBM MQ Advanced）與平台支援，**需依目前 IBM 官方文件確認**。
+
+### 26.4 DR 選項
+
+| 方案 | 說明 | RPO |
+|------|------|-----|
+| RDQM DR | 跨站點非同步或同步複寫 | 非同步：接近 0 但可能遺失少量；同步：0（受距離限制） |
+| Native HA Cross-Region Replication（CRR）`[MQ 9.4 CD / 10.0]` | 跨區域複寫 | 依同步方式 `[需確認]` |
+| 儲存層複寫 | 由儲存設備複寫 Log 與 Data | 依儲存方案 |
+| Backup Queue Manager（Linear Log） | 定期傳送 Log 並在備援 QM 重播（`strmqm -r`），災難時啟用（`strmqm -a`） | 最後一次傳送 Log 之後的資料 |
+| 設定備份（`dmpmqcfg`） | 只還原物件定義 | **訊息全部遺失** |
+
+### 26.5 HA 架構圖
+
+```mermaid
+flowchart TB
+    subgraph Site["Primary Site"]
+        subgraph RDQM["RDQM HA Group（3 節點）"]
+            N1["Node 1<br/>BANKQM01 Running"]
+            N2["Node 2<br/>Secondary"]
+            N3["Node 3<br/>Secondary"]
+        end
+        FIP["Floating IP"]
+    end
+    APP["Spring Boot<br/>connName=Floating IP"] --> FIP --> N1
+    N1 <-. "DRBD 同步複寫" .-> N2
+    N1 <-. "DRBD 同步複寫" .-> N3
+```
+
+### 26.6 DR 架構圖：金融系統案例
+
+```text
+Primary Site
+    |
+    | IBM MQ
+    |
+Secondary Site
+```
+
+```mermaid
+flowchart LR
+    subgraph P["Primary Site（台北）"]
+        PA["App Pods"] --> PQ["BANKQM01<br/>HA Group Active"]
+    end
+    subgraph S["Secondary Site（台中）"]
+        SA["App Pods（Standby / 低量）"] -.-> SQ["BANKQM01<br/>DR Replica"]
+    end
+    PQ == "RDQM DR / CRR<br/>非同步複寫" ==> SQ
+    DNS["GSLB / DNS"] --> PA
+    DNS -. "災難切換" .-> SA
+```
+
+| 項目 | 設計 |
+|------|------|
+| RTO | 目標 30 分鐘（範例；依業務定義） |
+| RPO | 非同步複寫：秒級；依法規與業務要求決定是否需同步 |
+| 切換決策 | 人工決策（避免網路分割造成雙主） |
+| 應用切換 | GSLB / DNS 或 CCDT 指向 DR 站點 |
+| 演練 | 至少每年（依公司政策與主管機關要求）；包含回切 |
+
+> **法規提醒**：金融業 RTO / RPO、演練頻率等實際要求，應依組織適用法規、主管機關規範與內部控制政策確認。
+
+### 26.7 Backup 與 Recovery
+
+| 項目 | 方式 |
+|------|------|
+| 物件設定 | 每日 `dmpmqcfg` |
+| 授權記錄 | `dmpmqcfg -x authrec` 或 `dmpmqaut` |
+| 金鑰庫 | 加密備份，權限控管 |
+| Queue 資料 | Linear Log + `rcdmqimg`（媒體映像）；或 HA / DR 複寫 |
+| 復原測試 | 定期在隔離環境還原並驗證 |
+
+### 26.8 HA / DR 對應用程式的要求
+
+- Client 設定所有可能的位址（`connName` 列表或 CCDT），啟用自動重連。
+- 冪等處理：切換時正在處理的訊息可能被重送。
+- 交易狀態 UNKNOWN 的對帳流程。
+- Request / Reply：切換期間的請求可能逾時，需查詢機制。
+
+### 26.9 z/OS 可用性：Queue Sharing Group 與 Shared Queue
+
+z/OS 的高可用性與分散式平台概念不同：不是「一個 QM 故障後切到另一個」，而是**多個 QM 同時運作、共用同一份佇列資料**。
+
+```mermaid
+flowchart LR
+    APP["分散式 Java 應用"] -->|"共用連接埠 / VIPA"| SD["Sysplex Distributor"]
+    SD --> QM1["QM01（LPAR1）"]
+    SD --> QM2["QM02（LPAR2）"]
+    QM1 --- CF[("Coupling Facility<br/>Shared Queue")]
+    QM2 --- CF
+    CICS1["CICS（LPAR1）"] --> QM1
+    CICS2["CICS（LPAR2）"] --> QM2
+```
+
+| 能力 | 效果 |
+|------|------|
+| Shared Queue | 任一 QM 停機，其他 QM 仍可存取 CF 中的訊息；持久性訊息可由 `BACKUP` / `RECOVER CFSTRUCT` 保護 |
+| Shared Inbound Channel | 連線經 Sysplex Distributor 分散到任一成員 |
+| Shared Outbound Channel | 共用 Transmission Queue，Channel 可在任一成員重啟 |
+| Peer Recovery | 失效 QM 的未完成交易由其他成員處理 |
+| GROUP UR | 交易型應用以 QSG 名稱連線，恢復時不必回到原 QM |
+| `[MQ 10.0]` Alternative Site Recovery 改善 | DR 站點恢復流程強化 `[需確認細節]` |
+
+**設計注意**：CF 本身要有備援（Duplexing 或多個 CF）；Db2 是 QSG 共用定義的來源，其可用性也在 MQ 的 HA 範圍內；Shared Queue 的容量受 CF Structure 大小與 SMDS 設定限制。
+
+### 26.10 IBM MQ 10.0 的 HA / DR 強化
+
+| 強化 | 說明 | 授權 |
+|------|------|------|
+| Native HA In-Region Replication（IRR） | 同區域內的 Native HA 複寫能力 | Advanced |
+| Native HA Cross-Region Replication（CRR） | 跨區域複寫；容器與 Linux（非容器）皆可用 | Advanced |
+| Native HA 詳細狀態檢視 | 觀察各實例與複寫狀態 | — |
+| Native HA / CRR 可用於 IBM MQ licensed QM（容器） | 容器部署的授權選項擴大 `[需確認條件]` | 依官方授權 |
+| RDQM 複寫連線以 TLS 保護 | HA RDQM、DR RDQM、DR/HA RDQM 的複寫連線可加密 | Advanced |
+| HA RDQM 安全 Heartbeat | Heartbeat 通訊受保護 | Advanced |
+
+### 26.11 Checklist
+
+- [ ] RTO / RPO 已由業務定義並核准
+- [ ] HA 方案與授權已確認
+- [ ] DR 切換為人工決策並有 SOP
+- [ ] 應用支援重連與冪等
+- [ ] 定期演練並記錄結果
+- [ ] z/OS：CF 備援、Db2 可用性、`BACKUP CFSTRUCT` 排程已納入 HA 設計
+- [ ] RDQM 複寫連線已評估啟用 TLS
+
+---
+
+## Part 27 — DevOps / CI/CD
+
+### 27.1 目的
+
+將 IBM MQ 設定與應用程式一併納入版本控制與自動化流程。
+
+### 27.2 Pipeline
+
+```text
+Git
+ ↓
+Build
+ ↓
+Unit Test
+ ↓
+Integration Test
+ ↓
+MQ Test
+ ↓
+Security Scan
+ ↓
+Performance Test
+ ↓
+Deploy
+```
+
+```mermaid
+flowchart LR
+    G["Git<br/>App + MQSC"] --> B["Build"]
+    B --> U["Unit Test"]
+    U --> I["Integration Test<br/>（MQ 容器）"]
+    I --> M["MQ Config Test<br/>runmqsc -v / 規則檢查"]
+    M --> S["Security Scan<br/>SAST / SCA / Secret / Image"]
+    S --> P["Performance Test<br/>（排程 / 重大變更）"]
+    P --> D1["Deploy DEV / SIT"]
+    D1 --> D2["Deploy UAT"]
+    D2 --> AP{"Change Approval"}
+    AP --> D3["Deploy PROD<br/>（人工核准）"]
+    D3 --> MON["Monitoring"]
+```
+
+### 27.3 MQ Configuration as Code
+
+```text
+mq-config/
+├── common/
+│   └── security-baseline.mqsc        # CHLAUTH back-stop、事件設定
+├── apps/
+│   └── payment/
+│       ├── queues.mqsc
+│       ├── channels.mqsc
+│       └── authrec.mqsc
+├── env/
+│   ├── dev.properties                 # 環境差異（主機、Port、MAXDEPTH）
+│   ├── uat.properties
+│   └── prod.properties
+├── rollback/
+│   └── 2026-10-001-rollback.mqsc
+└── tests/
+    └── lint-rules.yaml                # 例如：Input Queue 必須有 BOQNAME
+```
+
+| 原則 | 說明 |
+|------|------|
+| 單一事實來源 | Git 中的 MQSC 為準，`dmpmqcfg` 比對漂移（Drift） |
+| 冪等 | 使用 `REPLACE` 時確認所有屬性都被明確指定 |
+| 環境差異參數化 | 名稱一致，只有容量、主機等不同 |
+| 每個變更附 Rollback | 必要 |
+| 規則檢查（Lint） | 自動檢查命名、BOQ、TLS、MCAUSER |
+
+### 27.4 CI 範例（GitHub Actions）
+
+```yaml
+name: mq-config-validate
+on:
+  pull_request:
+    paths: ['mq-config/**']
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      mq:
+        image: icr.io/ibm-messaging/mq:<pinned-tag>   # 只用於驗證，非 Production
+        env:
+          LICENSE: accept
+          MQ_QMGR_NAME: QMCI
+        ports: ['1414:1414']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint MQSC rules
+        run: python tools/mq/lint_mqsc.py mq-config/   # 專案自建規則檢查
+      - name: Verify MQSC syntax
+        run: |
+          for f in mq-config/apps/*/*.mqsc; do
+            docker exec -i ${{ job.services.mq.id }} runmqsc -v QMCI < "$f"
+          done
+```
+
+> `tools/mq/lint_mqsc.py` 為示意的專案自建工具；Developer image 的設定方式見 Part 4.4。
+
+### 27.5 Environment Configuration 與 Secret Management
+
+| 項目 | DEV | UAT | PROD |
+|------|-----|-----|------|
+| QM | 容器 / 共用 DEV QM | 與 PROD 同設定 | 正式 |
+| TLS | 測試 CA | 測試 CA（同演算法） | 正式 CA |
+| 帳密 | Secret（測試） | Secret（UAT 專用） | Secret Manager（正式），僅 Pipeline 服務帳號可讀 |
+| 套用方式 | 自動 | 自動 + 核准 | **人工核准後由 Pipeline 套用** |
+
+### 27.6 Deployment 與 Rollback
+
+```mermaid
+sequenceDiagram
+    participant Dev as 開發者
+    participant PR as Pull Request
+    participant CI as CI
+    participant CAB as 變更核准
+    participant CD as CD Pipeline
+    participant QM as PROD QM
+    Dev->>PR: MQSC 變更 + Rollback 檔
+    PR->>CI: Lint + runmqsc -v + 整合測試
+    CI-->>PR: 通過
+    PR->>CAB: 變更申請（風險等級 L1-L4）
+    CAB-->>CD: 核准
+    CD->>QM: dmpmqcfg 備份
+    CD->>QM: 套用 MQSC
+    CD->>QM: 驗證（DISPLAY）
+    alt 驗證失敗
+        CD->>QM: 套用 Rollback MQSC
+    end
+```
+
+### 27.7 Checklist
+
+- [ ] MQSC 在 Git 中並經 PR 審核
+- [ ] Lint 規則涵蓋命名、BOQ、TLS、MCAUSER
+- [ ] 每個變更有 Rollback 檔
+- [ ] PROD 套用需人工核准
+- [ ] 定期 Drift 偵測
+
+---
+
+## Part 28 — Automated Testing
+
+### 28.1 目的
+
+建立 Java / Spring Boot + IBM MQ 的完整測試策略。
+
+### 28.2 測試金字塔
+
+```mermaid
+flowchart TB
+    E2E["End-to-End Test<br/>少量：完整流程含 Legacy 模擬"]
+    PERF["Performance / Failure Test<br/>排程執行"]
+    CT["Contract Test<br/>電文規格"]
+    IT["MQ Integration Test<br/>Testcontainers + MQ 容器"]
+    UT["Unit Test<br/>大量：業務邏輯、轉換、錯誤分類"]
+    E2E --- PERF --- CT --- IT --- UT
+```
+
+| 層級 | 目的 | 工具 | 執行時機 |
+|------|------|------|---------|
+| Unit Test | 業務邏輯、電文轉換、錯誤分類、冪等邏輯 | JUnit 5 / 6、Mockito | 每次 Build |
+| Integration Test | 應用與真實 MQ 互動 | Testcontainers + MQ 容器 | 每次 PR |
+| MQ Integration Test | 交易、Backout、BOQ、targetClient、CCSID | 同上 + MQSC 預載 | 每次 PR |
+| Contract Test | 電文規格雙方一致 | 樣本檔比對、Schema 驗證 | 每次 PR |
+| End-to-End Test | 完整流程 | SIT 環境 | 每日 / 版本 |
+| Performance Test | TPS、延遲 | JMeter / 自寫 Producer | 重大變更 |
+| Failure Test | QM 重啟、網路中斷、毒訊息 | Testcontainers（停容器）、Toxiproxy | 每週 / 版本 |
+
+### 28.3 Unit Test：錯誤分類
+
+```java
+class TransferMessageHandlerTest {
+
+    private final TransferMessageHandler handler = new TransferMessageHandler(new FakeTransferService());
+
+    @Test
+    void invalidJsonIsPermanentFailure() {
+        assertThrows(PermanentFailureException.class, () -> handler.handle("<<not-json>>"));
+    }
+
+    @Test
+    void downstreamTimeoutIsTransientFailure() {
+        var svc = new FakeTransferService();
+        svc.failWith(new java.net.SocketTimeoutException("timeout"));
+        var h = new TransferMessageHandler(svc);
+        assertThrows(TransientFailureException.class, () -> h.handle(validJson()));
+    }
+}
+```
+
+### 28.4 Integration Test：Spring Boot + MQ 容器
+
+```java
+@SpringBootTest
+@Testcontainers
+class TransferFlowIT {
+
+    // 測試用 Developer image；版本固定。密碼以測試專用值提供，不可與任何正式環境相同
+    @Container
+    static final GenericContainer<?> MQ = new GenericContainer<>("icr.io/ibm-messaging/mq:<pinned-tag>")
+            .withEnv("LICENSE", "accept")
+            .withEnv("MQ_QMGR_NAME", "QM1")
+            .withEnv("MQ_APP_PASSWORD", "it-only-password")      // 設定方式依 image 版本確認
+            .withCopyFileToContainer(MountableFile.forClasspathResource("mq/it.mqsc"), "/etc/mqm/it.mqsc")
+            .withExposedPorts(1414)
+            // 僅等待連接埠可能早於 QM 就緒；可改為等待 image 特定的啟動完成日誌（依版本確認）
+            .waitingFor(Wait.forListeningPort().withStartupTimeout(Duration.ofMinutes(3)));
+
+    @DynamicPropertySource
+    static void mqProps(DynamicPropertyRegistry r) {
+        r.add("ibm.mq.queueManager", () -> "QM1");
+        r.add("ibm.mq.channel", () -> "DEV.APP.SVRCONN");
+        r.add("ibm.mq.connName", () -> MQ.getHost() + "(" + MQ.getMappedPort(1414) + ")");
+        r.add("ibm.mq.user", () -> "app");
+        r.add("ibm.mq.password", () -> "it-only-password");
+    }
+
+    @Autowired JmsTemplate mqJmsTemplate;
+
+    @Test
+    void poisonMessageEndsUpInBackoutQueue() {
+        mqJmsTemplate.convertAndSend("CBS.TXN.TRANSFER.REQ", "<<not-json>>");
+        mqJmsTemplate.setReceiveTimeout(30_000);
+        var moved = mqJmsTemplate.receive("CBS.TXN.TRANSFER.REQ.BOQ");
+        assertNotNull(moved, "poison message should be moved to BOQ after BOTHRESH");
+    }
+}
+```
+
+`src/test/resources/mq/it.mqsc`：
+
+```text
+DEFINE QLOCAL('CBS.TXN.TRANSFER.REQ.BOQ') REPLACE
+DEFINE QLOCAL('CBS.TXN.TRANSFER.REQ') BOTHRESH(3) BOQNAME('CBS.TXN.TRANSFER.REQ.BOQ') REPLACE
+SET AUTHREC PROFILE('CBS.**') OBJTYPE(QUEUE) PRINCIPAL('app') AUTHADD(PUT,GET,BROWSE,INQ)
+```
+
+> - 容器的 `DEV.*` 預設物件、`app` 使用者、等待啟動完成的日誌訊息，依 image 版本不同，**需依 mq-container 對應版本說明確認**。
+> - IBM 也提供 `mq-java-testcontainer` 與 `mq-jms-spring-testcontainer` 模組（`ibm-messaging/mq-jms-spring`），可簡化設定。
+> - Testcontainers 主版本升級時套件路徑可能變更，請依使用版本調整 import。
+
+### 28.5 Contract Test：電文規格
+
+```java
+@Test
+void legacyFixedLengthMessageMatchesCopybook() throws Exception {
+    byte[] expected = Files.readAllBytes(Path.of("src/test/resources/contract/TRF001_request.bin"));
+    byte[] actual = TransferRequestEncoder.encode(sampleRequest(), Charset.forName("Cp937"));
+    assertArrayEquals(expected, actual, "Encoded bytes must match the agreed copybook sample");
+}
+```
+
+### 28.6 Failure Test 情境
+
+| 情境 | 驗證 |
+|------|------|
+| 處理中 QM 重啟 | 訊息未遺失；重送被冪等處理 |
+| 網路中斷 30 秒 | 自動重連；無訊息遺失 |
+| 毒訊息 | 進 BOQ，不阻塞後續訊息 |
+| DB 不可用 | rollback、重試、上限後進 BOQ |
+| Reply 逾時 | 狀態為 UNKNOWN，不重送 |
+| 佇列已滿 | Producer 正確回報並重試 / 告警 |
+
+### 28.7 Checklist
+
+- [ ] 錯誤分類有 Unit Test
+- [ ] Backout / BOQ 行為有整合測試
+- [ ] 送 Legacy 的電文有位元組層級 Contract Test
+- [ ] Failure Test 至少涵蓋 28.6 六項
+- [ ] 測試用 MQ 容器版本固定
+
+---
+
+## Part 29 — Security / DevSecOps
+
+### 29.1 目的
+
+把 MQ 安全檢查納入 DevSecOps 流程。
+
+### 29.2 安全掃描組合
+
+```text
+SAST
++
+SCA
++
+Container Scan
++
+Secret Scan
++
+DAST
++
+MQ Security Review
+```
+
+| 掃描 | 目標 | MQ 相關重點 |
+|------|------|------------|
+| SAST | 原始碼 | 寫死帳密、`ObjectMessage` 反序列化、日誌輸出訊息內容、TLS 驗證關閉 |
+| SCA | 依賴 | MQ Client 版本是否有已知弱點；追蹤 IBM Security Bulletin |
+| Container Scan | Image | MQ image 與應用 image 的 OS 套件弱點 |
+| Secret Scan | Git / Image | MQ 密碼、keystore 密碼、私鑰 |
+| DAST | 執行中 API | API 層的輸入驗證、授權（間接保護 MQ） |
+| MQ Security Review | MQSC / 設定 | Part 8 Security Baseline |
+
+### 29.3 MQ Security Review 檢查項目
+
+| # | 檢查 | 方法 |
+|---|------|------|
+| R1 | 所有 SVRCONN 啟用 TLS 且 `SSLCAUTH(REQUIRED)` | `DISPLAY CHANNEL(*) CHLTYPE(SVRCONN) SSLCIPH SSLCAUTH` |
+| R2 | 無已移除 / Deprecated CipherSpec | 同上 |
+| R3 | `MCAUSER` 不為空、不為管理帳號 | `DISPLAY CHANNEL(*) MCAUSER` |
+| R4 | CHLAUTH back-stop 與 `*MQADMIN` 封鎖存在 | `DISPLAY CHLAUTH(*)` |
+| R5 | `CONNAUTH` 啟用且 `CHCKCLNT(REQUIRED)` | `DISPLAY AUTHINFO(*) ALL` |
+| R6 | 應用群組無 `+all` / 管理權限 | `dmpmqaut` |
+| R7 | 應用帳號不在 `mqm` 群組 | OS 帳號審查 |
+| R8 | 稽核事件啟用並轉送 SIEM | `DISPLAY QMGR AUTHOREV CMDEV CONFIGEV` |
+| R9 | 憑證到期 > 30 天 | `dspmqcert` `[MQ 10.0]` / `runmqakm` |
+| R10 | 未使用的 `SYSTEM.*` Channel 被封鎖 | `DISPLAY CHLAUTH('SYSTEM.*')` |
+| R11 | 應用程式碼無寫死憑證或帳密 | Secret Scan |
+| R12 | 日誌不輸出訊息內容中的個資 | Code Review / SAST 規則 |
+
+### 29.4 Security Architecture
+
+```mermaid
+flowchart TB
+    subgraph Dev["開發階段"]
+        IDE["IDE + AI Agent"] --> SAST["SAST"]
+        IDE --> SEC1["Secret Scan（pre-commit）"]
+    end
+    subgraph CI["CI"]
+        SCA["SCA"] --> IMG["Container Scan"]
+        LINT["MQSC Security Lint"]
+    end
+    subgraph Runtime["執行環境"]
+        GWY["API Gateway / WAF"] --> APP["Spring Boot"]
+        APP -- "mTLS 1.3" --> QM["Queue Manager<br/>CHLAUTH / CONNAUTH / OAM"]
+        VAULT["Secret Manager"] --> APP
+        VAULT --> QM
+        QM -- "Events / Logs" --> SIEM["SIEM"]
+    end
+    Dev --> CI --> Runtime
+```
+
+### 29.5 Checklist
+
+- [ ] 六項掃描都納入 Pipeline
+- [ ] MQ Security Review R1-R12 每季（或依政策）執行
+- [ ] 發現項目有追蹤與期限
+- [ ] IBM Security Bulletin 有人訂閱並評估
+
+---
+
+## Part 30 — AI Coding Agent 開發標準
+
+### 30.1 目的
+
+規範 AI Coding Agent 在 IBM MQ 相關工作中的權限邊界與 Human-in-the-loop 流程。
+
+### 30.2 AI Agent 使用原則
+
+所有 AI Agent 工作都遵循：
+
+```text
+AI 分析
+   ↓
+AI 建議
+   ↓
+AI 產生
+   ↓
+Automated Test
+   ↓
+Human Review
+   ↓
+Deployment
+```
+
+Production 操作遵循：
+
+```text
+AI Agent
+   ↓
+提出變更
+   ↓
+Human Approval
+   ↓
+Backup
+   ↓
+Apply
+   ↓
+Validation
+   ↓
+Rollback if necessary
+```
+
+### 30.3 禁止事項
+
+AI Agent **不可以直接**：
+
+- 修改 Production MQ
+- Delete Production Queue
+- 修改 Production Security
+- 修改 CHLAUTH
+- 修改 TLS
+- 停止 Queue Manager
+
+除非同時具備：
+
+```text
+Human Approval
++
+Change Request
++
+Backup
++
+Validation
++
+Rollback Plan
+```
+
+而且**實際執行者應為經授權的人員或經核准的 Pipeline，而不是 AI Agent 的互動式工作階段**。
+
+### 30.4 Human-in-the-loop 流程
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant AI as AI Agent
+    participant ENG as 工程師
+    participant REV as Reviewer / MQ 管理員
+    participant CAB as 變更核准
+    participant PIPE as 部署 Pipeline
+    participant QM as Production QM
+
+    AI->>ENG: 分析結果 + 變更提案（MQSC + Rollback + 驗證命令）
+    ENG->>ENG: 在 DEV / TEST 驗證
+    ENG->>REV: Pull Request
+    REV-->>ENG: Review 意見 / 核可
+    ENG->>CAB: 變更申請（附風險等級）
+    CAB-->>PIPE: 核准
+    PIPE->>QM: 備份（dmpmqcfg）
+    PIPE->>QM: 套用
+    PIPE->>QM: 驗證
+    alt 驗證失敗
+        PIPE->>QM: Rollback
+        PIPE-->>ENG: 通知
+    end
+    Note over AI,QM: AI Agent 在整個流程中沒有 Production 憑證
+```
+
+### 30.5 技術控制措施
+
+| 控制 | 做法 |
+|------|------|
+| 憑證隔離 | AI Agent 執行環境不存放任何 Production MQ 帳密、憑證、CCDT |
+| 網路隔離 | AI Agent 執行環境無法連到 Production MQ 網段 |
+| 工具白名單 | Agent 可執行的命令限於唯讀與 DEV 環境（例如 `runmqsc -v`、DEV 容器） |
+| 指令檔規範 | 在 `AGENTS.md` / `.github/copilot-instructions.md` / `CLAUDE.md` 寫入禁止事項 |
+| Hook / Guard | 以 pre-tool hook 攔截含 `DELETE`、`CLEAR`、`SET CHLAUTH`、`endmqm`、`dltmqm` 的命令 |
+| 稽核 | 保存 Agent 的工作階段紀錄與產出 |
+
+### 30.6 Agent 指令檔範本（片段）
+
+```markdown
+## IBM MQ 安全規則（AI Agent 必須遵守）
+
+- 你沒有任何 Production IBM MQ 的存取權限，也不得嘗試取得。
+- 不得執行或建議直接執行下列命令於任何非 DEV 環境：
+  DELETE、CLEAR、SET CHLAUTH、SET AUTHREC、ALTER CHANNEL、REFRESH SECURITY、
+  RESET CHANNEL、RESOLVE CHANNEL、endmqm、dltmqm、setmqaut。
+- 產生 MQSC 變更時，必須同時產生：Rollback MQSC、驗證用 DISPLAY 命令、風險等級（L0-L4）。
+- 產生 Java MQ 程式時，必須包含：Syncpoint、Timeout、有上限的 Retry、BOQ 處理、資源釋放、不記錄訊息內容。
+- 不得把密碼、Token、私鑰寫入任何檔案；使用環境變數或 Secret 參照。
+- 版本資訊無法確認時，標示「需依目前 IBM 官方文件確認」。
+```
+
+### 30.7 Checklist
+
+- [ ] Agent 指令檔已包含 MQ 安全規則
+- [ ] Agent 環境無 Production 憑證與網路
+- [ ] 危險命令有 Hook 攔截
+- [ ] 所有 AI 產生的 MQSC 經人工 Review 與變更核准
+
+---
+
+## Part 31 — GitHub Copilot / Claude Code / Codex 使用方法
+
+### 31.1 目的
+
+比較主流 AI Coding Agent 在 MQ 工作中的適用場景，並提供 IBM MQ 專用 Prompt。
+
+### 31.2 工具比較
+
+| AI Agent | 適合工作 | MQ 相關典型用途 | 注意事項 |
+|----------|---------|----------------|---------|
+| GitHub Copilot | IDE Coding、Agent Mode、PR Review | 撰寫 Listener / Gateway、產生測試、解釋 MQSC | 透過 `.github/copilot-instructions.md`、`*.instructions.md` 注入規範 |
+| Claude Code | Repository Analysis、多檔案重構、終端機操作 | 全專案 MQ 盤點、逆向工程報告、升級計畫 | 以 `CLAUDE.md` 與 Hook 限制危險命令 |
+| Codex（OpenAI） | Software Engineering 任務、雲端沙箱執行 | 批次產生測試、依規格實作、修復 CI | 以 `AGENTS.md` 定義規則；確認沙箱網路政策 |
+| Gemini（CLI / Code Assist） | Large Repository Analysis（長上下文） | 大型 Legacy 程式庫整體掃描 | 注意資料上傳政策 |
+
+> 各工具功能更新快速，**實際功能、模型、資料保存政策以各廠商官方文件與公司採購合約為準**。選擇工具時優先考量公司資料治理政策，而不是單純的功能比較。
+
+### 31.3 依工作類型的建議
+
+| 工作 | 建議工具型態 | 理由 |
+|------|-------------|------|
+| 單一類別撰寫 / 修改 | IDE 內 Agent（Copilot） | 上下文明確、即時回饋 |
+| 全專案 MQ 盤點 | Repository 分析型 Agent（Claude Code / Gemini） | 需大量檔案讀取 |
+| 依規格批次實作 + 測試 | 可執行測試的 Agent（Copilot Agent / Claude Code / Codex） | 需反覆執行測試 |
+| PR Review（MQ 規範檢查） | Copilot Code Review / 自訂 Review Agent | 與 PR 流程整合 |
+
+### 31.4 IBM MQ 專用 Prompt（IDE 開發）
+
+```text
+請在 TransferReplyListener 中實作 IBM MQ 回覆處理，遵守以下規範：
+- Spring Boot 4.x、Jakarta Messaging、mq-jms-spring-boot-starter
+- @JmsListener 使用 containerFactory="mqListenerFactory"（sessionTransacted=true）
+- 冪等：以 JMSCorrelationID 寫入 processed_message 唯一鍵表，重複則直接結束
+- 錯誤分類：InvalidReplyException 為永久性錯誤（記錄人工處理表後正常結束）；其他例外往外拋觸發 rollback
+- 日誌：Log4j2，只記錄 correlId 與 JMSXDeliveryCount，不記錄訊息內容
+- 產生對應的 JUnit 測試：成功、重複、永久性錯誤、暫時性錯誤四種情境
+- 不要修改 MqJmsConfig 與 application.yml
+```
+
+### 31.5 IBM MQ 專用 Prompt（Repository 分析）
+
+```text
+請以唯讀方式分析整個 repository 的 IBM MQ 使用情況，不修改任何檔案。
+輸出 MQ Reverse Engineering Report（格式見手冊 Part 19.3），
+每個結論附檔案:行號，推測項目標示「推測」，敏感資訊以 *** 遮蔽。
+最後列出「需 MQ 管理員以 DISPLAY 命令驗證」的項目清單。
+```
+
+### 31.6 IBM MQ Agent 與 AI Coding 工具的定位
+
+| 面向 | GitHub Copilot / Claude Code / Codex | IBM MQ Agent（官方） |
+|------|-------------------------------------|---------------------|
+| 分析對象 | 程式碼、MQSC 檔、設定檔、文件 | **執行中的 Queue Manager** 狀態與設定 |
+| 資料來源 | Repository、使用者貼入的日誌 | 透過 MCP Server 即時查詢 QM |
+| 產出 | 程式碼、測試、MQSC 變更檔、文件 | 診斷結論、原因分析、下一步建議 |
+| 能否執行變更 | 可修改檔案（受工具權限與本手冊規範限制） | **不能執行 MQSC** |
+| 最適合的階段 | 開發、Code Review、逆向工程、升級 | 維運、事故排查 |
+
+**組合用法**：事故發生時先用 MQ Agent 找出「哪個佇列堆積、為什麼」，再把結論與對應的程式碼交給 Coding Agent 分析根因與產生修正 PR；兩者的輸出都經人工審查。若組織自行開發 MQ 用的 MCP 工具，建議比照 MQ Agent 的設計：**只提供唯讀工具**（例如以 Part 5.10 的 PCF 查詢為基礎）。
+
+### 31.7 Checklist
+
+- [ ] 工具選擇符合公司資料治理政策
+- [ ] 各工具的指令檔都包含 MQ 安全規則
+- [ ] Prompt 明確指定版本、範圍、禁止事項與輸出格式
+- [ ] 已區分 Coding Agent 與 IBM MQ Agent 的使用場景
+
+---
+
+## Part 32 — AI Agent Skills
+
+### 32.1 目的
+
+定義 IBM MQ 專用的 AI Agent Skill，讓團隊以一致的方式執行常見任務。
+
+### 32.2 Skill 清單
+
+```text
+ibm-mq-analysis
+ibm-mq-reverse-engineering
+ibm-mq-java-development
+ibm-mq-troubleshooting
+ibm-mq-security-audit
+ibm-mq-upgrade
+ibm-mq-test
+```
+
+### 32.3 ibm-mq-analysis
+
+| 項目 | 內容 |
+|------|------|
+| Purpose | 分析 MQ 架構與設定（MQSC、`dmpmqcfg`），產出 Queue Map、Channel Map、風險清單 |
+| Input | `dmpmqcfg` 輸出（已遮罩）、架構說明、命名規範 |
+| Process | 1. 解析物件 → 2. 解析路由（QREMOTE / QALIAS / Cluster）→ 3. 比對命名規範 → 4. 檢查 BOQ / MAXDEPTH / TLS / MCAUSER → 5. 產出報告 |
+| Output | Queue Map、Channel Map、路由圖（Mermaid）、規範違反清單 |
+| Safety Rules | 唯讀；不產生 `DELETE` / `CLEAR`；建議變更需附 Rollback 與風險等級 |
+
+### 32.4 ibm-mq-reverse-engineering
+
+| 項目 | 內容 |
+|------|------|
+| Purpose | 從程式碼與設定重建 MQ 整合全貌 |
+| Input | Part 17.6 Input Checklist 所列資料 |
+| Process | Part 18.2 Workflow 七步驟 |
+| Output | MQ Reverse Engineering Report（Part 19.3） |
+| Safety Rules | 每個結論附證據；推測需標示；敏感資訊遮蔽；不修改檔案 |
+
+### 32.5 ibm-mq-java-development
+
+| 項目 | 內容 |
+|------|------|
+| Purpose | 依本手冊 Coding Standard 產生 Java / Spring Boot MQ 程式 |
+| Input | 需求、佇列規格、訊息規格、目標版本 |
+| Process | 1. 確認 API（Jakarta）→ 2. 產生 Gateway / Listener → 3. 產生錯誤分類與冪等 → 4. 產生測試 → 5. 執行測試 |
+| Output | 程式碼、測試、設定範例（不含密碼） |
+| Safety Rules | 不使用 `ObjectMessage`；不寫死帳密；必須 Syncpoint、Timeout、有上限 Retry；不記錄訊息內容 |
+
+### 32.6 ibm-mq-troubleshooting
+
+| 項目 | 內容 |
+|------|------|
+| Purpose | 依症狀、Reason Code、日誌提供排查步驟 |
+| Input | Reason Code、AMQERR 片段、應用日誌（已遮罩）、環境資訊 |
+| Process | 1. 分類（連線 / 授權 / 物件 / 容量 / 處理）→ 2. 對照 Part 23 矩陣 → 3. 產生唯讀檢查命令 → 4. 依結果縮小範圍 |
+| Output | 排查步驟、唯讀命令、可能根因與建議修正（附風險等級） |
+| Safety Rules | 只產生唯讀命令；修正建議不得包含移除 `*MQADMIN` 封鎖或加入 `mqm` 群組 |
+
+### 32.7 ibm-mq-security-audit
+
+| 項目 | 內容 |
+|------|------|
+| Purpose | 依 Production Security Baseline 稽核 MQ 設定 |
+| Input | `dmpmqcfg -a`、`dmpmqaut`、CHLAUTH、AUTHINFO、憑證資訊（無私鑰） |
+| Process | 對照 Part 8.10 S1-S14 與 Part 29.3 R1-R12 逐項判定 |
+| Output | 稽核報告：項目 / 結果（符合 / 不符合 / 無法判定）/ 證據 / 建議 / 風險 |
+| Safety Rules | 不接觸私鑰與密碼；不產生可直接執行於 Production 的修正腳本（需經變更流程） |
+
+### 32.8 ibm-mq-upgrade
+
+| 項目 | 內容 |
+|------|------|
+| Purpose | 協助 MQ Server / Client / Java / Spring 升級評估與計畫 |
+| Input | 目前版本盤點、目標版本、`pom.xml`、MQSC、JDK 資訊 |
+| Process | Part 20.7 Playbook 與 Part 21.4 流程 |
+| Output | Dependency Inventory、Compatibility Matrix、Breaking Change List、Migration Plan、Risk List、Test Plan、Rollback Plan |
+| Safety Rules | 版本資訊必須附官方來源，無法確認時標示「需依目前 IBM 官方文件確認」 |
+
+### 32.9 ibm-mq-test
+
+| 項目 | 內容 |
+|------|------|
+| Purpose | 產生並執行 MQ 相關測試 |
+| Input | 程式碼、佇列規格、錯誤情境 |
+| Process | 產生 Unit / Integration（MQ 容器）/ Contract / Failure 測試 → 執行 → 回報 |
+| Output | 測試程式、測試報告、未涵蓋情境清單 |
+| Safety Rules | 只使用 DEV 容器；測試密碼不得與任何正式環境相同 |
+
+### 32.10 SKILL.md 範本
+
+```markdown
+---
+name: ibm-mq-troubleshooting
+description: 依 IBM MQ Reason Code、AMQERR 日誌與症狀提供唯讀排查步驟與修正建議。用於 MQ 連線失敗、2035、2059、2538、TLS 錯誤、訊息堵塞、DLQ 等問題。
+---
+
+# IBM MQ Troubleshooting Skill
+
+## 輸入
+- Reason Code / AMQ 訊息編號
+- 已遮罩的日誌片段
+- 環境（DEV / SIT / UAT / PROD）與 MQ 版本
+
+## 流程
+1. 分類問題層級：連線 / 授權 / 物件 / 容量 / 處理
+2. 對照手冊 Part 23 Troubleshooting Matrix
+3. 產生唯讀檢查命令（DISPLAY、dspmq、dspmqaut）
+4. 根據回饋縮小範圍，提出根因假設與驗證方式
+5. 提出修正建議，標示風險等級 L0-L4 與 Rollback
+
+## 安全規則
+- 只產生唯讀命令；修改類命令只能以「建議 + 變更流程」形式呈現
+- 禁止建議：加入 mqm 群組、移除 BLOCKUSER('*MQADMIN')、+all 授權、關閉 TLS
+- 不輸出任何密碼或私鑰
+```
+
+### 32.11 Checklist
+
+- [ ] 七個 Skill 已建立並放在團隊共用位置
+- [ ] 每個 Skill 都有 Safety Rules
+- [ ] Skill 內容隨手冊版本更新
+
+---
+
+## Part 33 — AI Agent 自動產生文件
+
+### 33.1 目的
+
+讓 AI Agent 從程式碼與設定自動產生 MQ 相關文件，並維持與程式同步。
+
+### 33.2 文件清單
+
+```text
+MQ Architecture
+MQ Inventory
+Queue Specification
+Channel Specification
+Message Specification
+Sequence Diagram
+Deployment Diagram
+Error Handling Specification
+Security Specification
+Test Specification
+```
+
+| 文件 | 主要來源 | 內容 | 更新時機 |
+|------|---------|------|---------|
+| MQ Architecture | Inventory + 架構說明 | 系統脈絡、QM 拓撲、HA/DR | 架構變更 |
+| MQ Inventory | 程式碼 + MQSC | 所有 MQ 物件與使用點 | 每次 PR（自動） |
+| Queue Specification | MQSC + 程式 | 屬性、Producer、Consumer、容量、BOQ | 佇列變更 |
+| Channel Specification | MQSC | 類型、兩端、TLS、MCAUSER、重試 | Channel 變更 |
+| Message Specification | DTO / Copybook / 樣本 | 欄位、型別、長度、CCSID、版本 | 電文變更 |
+| Sequence Diagram | 程式流程 | 主要交易時序（Mermaid） | 流程變更 |
+| Deployment Diagram | K8s YAML / 部署設定 | 節點、Pod、QM、網路 | 部署變更 |
+| Error Handling Specification | 程式 | 錯誤分類、Retry、BOQ、DLQ、補償 | 錯誤處理變更 |
+| Security Specification | MQSC + 設定 | TLS、CHLAUTH、OAM、Secret | 安全變更 |
+| Test Specification | 測試程式 | 測試範圍、情境、覆蓋 | 測試變更 |
+
+### 33.3 Deployment Diagram 範例
+
+```mermaid
+flowchart TB
+    subgraph K8s["Kubernetes（prod）"]
+        subgraph NSApp["namespace: payment"]
+            P1["payment-service Pod x3"]
+            SEC1["Secret: mq-client-cert / mq-cred"]
+        end
+        subgraph NSMQ["namespace: mq-prod"]
+            QM["NBKQM01 Native HA x3"]
+        end
+    end
+    subgraph DC["機房"]
+        CQM["CBSQM01（RDQM HA）"]
+        CICS["CICS / COBOL"]
+    end
+    P1 -- "PAY.SVRCONN mTLS" --> QM
+    SEC1 --> P1
+    QM -- "SDR/RCVR TLS" --> CQM
+    CQM --> CICS
+```
+
+### 33.4 文件產生流程
+
+```mermaid
+flowchart LR
+    PR["Pull Request"] --> AG["AI Agent<br/>文件產生 Skill"]
+    AG --> DIFF["文件差異"]
+    DIFF --> REV["Reviewer 確認"]
+    REV --> MERGE["合併"]
+    MERGE --> PORTAL["文件入口（Wiki / Docs Site）"]
+```
+
+### 33.5 Prompt：產生 Queue Specification
+
+```text
+請依下列資料產生 Queue Specification（Markdown 表格）：
+- MQSC：<貼上已遮罩的 DEFINE QLOCAL / QREMOTE / QALIAS>
+- MQ Inventory：<貼上>
+
+每個佇列包含：名稱、類型、QM、用途、Producer、Consumer、DEFPSIST、MAXDEPTH、MAXMSGL、
+BOQNAME、BOTHRESH、監控門檻、擁有者系統、證據來源。
+規範檢查：命名是否符合 <system>.<domain>.<function>.<direction>；Input Queue 是否有 BOQ。
+不得推測未提供的屬性，缺少時填「未提供」。
+```
+
+### 33.6 Checklist
+
+- [ ] 十份文件皆有範本
+- [ ] Inventory 由 Pipeline 自動更新
+- [ ] AI 產生的文件經人工審核後才發布
+
+---
+
+## Part 34 — IBM MQ Coding Standards
+
+### 34.1 目的
+
+建立企業 Java MQ Coding Standard，作為 Code Review 與 AI Agent 產生程式的共同依據。
+
+### 34.2 規則表
+
+| 編號 | 類別 | 規則 | 等級 |
+|------|------|------|------|
+| CS-01 | API 選擇 | 新開發使用 Jakarta Messaging（`com.ibm.mq.jakarta.client`）或 Spring JMS | 必須 |
+| CS-02 | Connection Management | 連線重複使用；Spring 使用 CachingConnectionFactory；禁止每則訊息建立連線 | 必須 |
+| CS-03 | Connection Management | 設定 Application Name | 必須 |
+| CS-04 | Connection Management | 支援 HA：connName 列表或 CCDT + 自動重連 | 必須 |
+| CS-05 | Resource Management | Queue / Context / Consumer 以 try-with-resources 或 `finally` 關閉 | 必須 |
+| CS-06 | Resource Management | `JMSContext`、`MQQueueManager` 不跨執行緒共用（除非文件明確允許） | 必須 |
+| CS-07 | Exception Handling | 記錄 Reason Code 與 linked exception | 必須 |
+| CS-08 | Exception Handling | 區分永久性 / 暫時性 / 連線 / 設定錯誤 | 必須 |
+| CS-09 | Retry | 有上限、指數退避 + jitter；只重試可恢復錯誤 | 必須 |
+| CS-10 | Retry | 禁止無限迴圈重試；毒訊息必須進 BOQ | 必須 |
+| CS-11 | Timeout | `receive` / `MQGET` 必須有等待上限 | 必須 |
+| CS-12 | Timeout | Request 設定 Expiry；Timeout 關係符合 Part 15.4 | 必須 |
+| CS-13 | Transaction | 交易性訊息使用 Syncpoint / `SESSION_TRANSACTED` | 必須 |
+| CS-14 | Transaction | Consumer 先 DB commit 後 MQ commit | 必須 |
+| CS-15 | Idempotency | 每個 Consumer 有冪等機制 | 必須 |
+| CS-16 | Logging | 記錄 MsgId、CorrelId、DeliveryCount、佇列名稱、處理結果 | 必須 |
+| CS-17 | Logging | 禁止記錄訊息內容中的個資與機敏資料 | 必須 |
+| CS-18 | Correlation ID | 使用業務鍵衍生的 CorrelId，重送時保持不變 | 建議 |
+| CS-19 | Message ID | 不自行設定 MsgId（由 QM 產生） | 建議 |
+| CS-20 | Message | 明確設定 Persistence、CCSID、Format | 必須 |
+| CS-21 | Message | 禁止 `ObjectMessage` | 必須 |
+| CS-22 | Message | Selector 只用 CorrelationID / MessageID | 必須 |
+| CS-23 | Legacy | 送往非 JMS 系統設定 `targetClient=1` | 必須 |
+| CS-24 | Security | 帳密、Keystore 密碼由 Secret 注入；禁止寫入程式、Git | 必須 |
+| CS-25 | Security | TLS 啟用；不關閉憑證驗證 | 必須 |
+| CS-26 | Observability | 輸出處理數、失敗數、延遲指標；傳遞 traceId | 必須 |
+| CS-27 | Configuration | 佇列名稱外部化，不寫死在程式邏輯中 | 建議 |
+| CS-28 | Shutdown | 支援 Graceful shutdown | 必須 |
+
+### 34.3 Code Review 快速判斷
+
+```text
+看到這些 → 退回：
+  new MQQueueManager(...) 在迴圈內
+  while (true) { ... receive() ... } 沒有 timeout
+  catch (Exception e) { } 空的
+  ObjectMessage
+  password = "..."
+  LOG.info(... message.getText() ...)
+  @JmsListener 沒有 containerFactory（未確認交易設定）
+  Thread.sleep 在 Listener 中做無上限重試
+```
+
+### 34.4 Checklist
+
+- [ ] CS-01 至 CS-28 已納入 Code Review 範本
+- [ ] 可自動化的規則已轉為靜態分析 / ArchUnit 規則
+
+---
+
+## Part 35 — IBM MQ Naming Standards
+
+### 35.1 目的
+
+建立 Queue Manager、Queue、Channel、Topic、Subscription 的命名規範。
+
+### 35.2 Queue Manager
+
+```text
+<SYSTEM><ROLE><NN>        例：NBKQM01、CBSQM01、HUBQM01
+```
+
+| 規則 | 說明 |
+|------|------|
+| 長度 | ≤ 48 字元；建議 ≤ 8-12 字元以利 Channel 命名 |
+| 唯一 | 全企業唯一（Cluster 必要） |
+| 不含環境 | 環境以主機 / Namespace 區分；若組織要求含環境，需一致（例如 `NBKQM01T`） |
+
+### 35.3 Queue
+
+```text
+<system>.<domain>.<function>.<direction>[.<suffix>]
+```
+
+見 Part 6.2。Suffix：`BOQ`、`RETRY`、`DLQ`、`ALIAS`。
+
+### 35.4 Channel（≤ 20 字元）
+
+| 類型 | 格式 | 範例 |
+|------|------|------|
+| SVRCONN | `<APP>.SVRCONN` 或 `<APP>.<PURPOSE>.SVRCONN` | `PAY.SVRCONN`、`PAY.ADM.SVRCONN` |
+| SDR / RCVR | `<FROMQM>.<TOQM>` | `NBKQM01.CBSQM01` |
+| CLUSRCVR | `<CLUSTER>.<QM>` | `BANK.NBKQM01` |
+| CLUSSDR | `<CLUSTER>.<FRQM>` | `BANK.HUBQM01` |
+
+> 20 字元限制常是 QM 命名過長的瓶頸，設計 QM 名稱時就要考慮。
+
+### 35.5 Topic
+
+```text
+Topic String：Bank/<Domain>/<Entity>/<Event>      例：Bank/Txn/Transfer/Completed
+Topic Object：BANK.<DOMAIN>[.<ENTITY>]           例：BANK.TXN
+```
+
+### 35.6 Subscription
+
+```text
+<CONSUMER-SYSTEM>.<DOMAIN>.<PURPOSE>.SUB          例：NOTIFY.TXN.TRANSFER.SUB
+```
+
+### 35.7 其他物件
+
+| 物件 | 格式 | 範例 |
+|------|------|------|
+| Listener | `<QM>.LSTR.<PORT>` 或 `LSTR.<PORT>` | `LSTR.1414` |
+| AUTHINFO | `<ORG>.<TYPE>` | `BANK.IDPW.OS` |
+| 應用群組（OAM） | `<app>_grp` | `paysvc_grp` |
+| MCAUSER 帳號 | `<app>svc` / `<qm>mca` | `paysvc`、`nbkmca` |
+
+### 35.8 Checklist
+
+- [ ] 所有新物件通過命名 Lint
+- [ ] Channel 名稱 ≤ 20 字元
+- [ ] 命名規範納入 MQSC Lint 規則
+
+---
+
+## Part 36 — IBM MQ Production Checklist
+
+### 36.1 Development Checklist
+
+- [ ] 使用 Jakarta Messaging / Spring JMS（新開發）
+- [ ] Syncpoint / `SESSION_TRANSACTED`
+- [ ] Timeout、Expiry、有上限 Retry
+- [ ] 冪等機制
+- [ ] 錯誤分類與 BOQ
+- [ ] `targetClient` 設定（Legacy）
+- [ ] CCSID 明確
+- [ ] Application Name
+- [ ] Graceful shutdown
+- [ ] 單元、整合、Contract 測試
+
+### 36.2 Code Review Checklist
+
+- [ ] 符合 Coding Standard CS-01 至 CS-28
+- [ ] 無寫死帳密 / 憑證
+- [ ] 日誌不含訊息內容
+- [ ] 無 `ObjectMessage`
+- [ ] Selector 合規
+- [ ] 例外沒有被吞掉
+
+### 36.3 Security Checklist
+
+- [ ] Security Baseline S1-S14（Part 8.10）
+- [ ] Security Review R1-R12（Part 29.3）
+- [ ] 應用群組最小權限
+- [ ] 憑證到期監控
+- [ ] 稽核事件轉送 SIEM
+
+### 36.4 Deployment Checklist
+
+- [ ] MQSC 變更已 PR 審核
+- [ ] Rollback MQSC 已準備
+- [ ] 變更核准完成
+- [ ] `dmpmqcfg` 備份完成
+- [ ] 部署後驗證命令與預期結果
+- [ ] 監控儀表板與告警已就緒
+- [ ] `concurrency × Pod 數` ≤ `MAXINST`
+
+### 36.5 Operation Checklist
+
+- [ ] 每日巡檢
+- [ ] DLQ / BOQ 為 0 或已處理
+- [ ] Channel 全部 RUNNING
+- [ ] Log 磁碟 < 70%
+- [ ] FDC 已檢視
+
+### 36.6 Upgrade Checklist
+
+- [ ] What's new / changed / deprecated 已閱讀
+- [ ] CipherSpec 相容
+- [ ] OS / JDK 支援
+- [ ] 完整備份與還原驗證
+- [ ] Rollback / Fallback 演練
+- [ ] 效能基準比對
+
+### 36.7 Incident Checklist
+
+- [ ] 確認影響範圍（哪些佇列、系統、交易）
+- [ ] 收集 Reason Code、AMQERR、FDC、應用日誌
+- [ ] 判斷是否有訊息遺失 / 重複的可能
+- [ ] 啟動對帳（若涉及金額）
+- [ ] 修正 → 驗證 → 通報
+- [ ] 事後 RCA 與改善項目
+
+### 36.8 DR Checklist
+
+- [ ] RTO / RPO 定義並核准
+- [ ] DR 複寫狀態監控
+- [ ] 切換 SOP 與決策人
+- [ ] 應用切換方式（DNS / CCDT）已驗證
+- [ ] 演練紀錄與改善追蹤
+- [ ] 回切程序
+
+---
+
+## Part 37 — IBM MQ 架構設計案例
+
+### 37.1 Case 1：Spring Boot → IBM MQ → Legacy Java
+
+| 項目 | 內容 |
+|------|------|
+| 情境 | 新開發的 Spring Boot 服務需呼叫十年前的 Java 批次服務（使用 MQ classes for Java） |
+| 架構 | Spring Boot（Jakarta）→ `LEG.ORDER.REQ` → Legacy Java Consumer → `NEW.ORDER.RSP` |
+| 關鍵決策 | `targetClient=1`（Legacy 讀 MQMD，不認識 RFH2）；CorrelId 慣例沿用 Legacy（慣例 A） |
+| 風險 | Legacy 不檢查 Expiry 與重複 → 新服務端負責冪等與 Timeout 後查詢 |
+
+```mermaid
+sequenceDiagram
+    participant SB as Spring Boot
+    participant MQ as IBM MQ
+    participant LJ as Legacy Java
+    SB->>MQ: PUT LEG.ORDER.REQ（targetClient=1）
+    MQ->>LJ: GET
+    LJ->>MQ: PUT NEW.ORDER.RSP（CorrelId = Request MsgId）
+    MQ->>SB: GET by CorrelId
+```
+
+### 37.2 Case 2：Vue → API → Spring Boot → IBM MQ → Mainframe
+
+| 項目 | 內容 |
+|------|------|
+| 情境 | 網銀前端查詢與交易，核心在主機 CICS |
+| 架構 | Vue → API Gateway → Spring Boot → MQ → CICS（透過 MQ-CICS Bridge 或 CICS 程式讀取佇列） |
+| 關鍵決策 | 電文為 EBCDIC 固定長度（CCSID 937）；Adapter 層負責 JSON ↔ Copybook |
+| 風險 | 中文欄位轉碼（全形 / 半形、SO/SI）；Contract Test 以位元組比對 |
+
+### 37.3 Case 3：銀行交易 Request / Reply
+
+| 項目 | 內容 |
+|------|------|
+| 情境 | 轉帳交易，要求不重複、不遺失、可對帳 |
+| 架構 | Part 15 完整模式：Idempotency-Key → CorrelId（慣例 B）→ Expiry → Timeout → UNKNOWN 狀態 → 查詢 / 對帳 |
+| 關鍵決策 | Timeout 後不重送；核心端以 CorrelId 冪等並回覆相同結果 |
+| 風險 | Reply 遲到；以背景 Listener 更新狀態並通知使用者 |
+
+### 37.4 Case 4：批次系統透過 IBM MQ 傳送資料
+
+| 項目 | 內容 |
+|------|------|
+| 情境 | 日終將 50 萬筆交易明細送往報表系統 |
+| 選項 | (A) 每筆一則訊息；(B) Message Group 分段；(C) IBM MQ Managed File Transfer（MFT）；(D) 檔案放共享儲存 + MQ 通知（Claim Check） |
+| 建議 | 大量資料優先考慮 MFT 或 Claim Check；Message Group 適合中量且需原子性的資料 |
+| 關鍵設定 | 批次 commit（例如每 500 筆）、Persistent、MAXDEPTH 依總量規劃 |
+| 風險 | 批次中斷的續傳點；接收端以批次 ID + 序號冪等 |
+
+```mermaid
+flowchart LR
+    B["批次程式"] -->|"GroupId=BATCH-20261003<br/>Seq 1..N"| Q["RPT.TXN.DAILY.EVT"]
+    Q --> R["報表 Consumer<br/>MQGMO_ALL_MSGS_AVAILABLE<br/>MQGMO_LOGICAL_ORDER"]
+    R --> DB[("報表 DB")]
+```
+
+### 37.5 Case 5：IBM MQ 多 Queue Manager
+
+| 項目 | 內容 |
+|------|------|
+| 情境 | 網銀、行動、分行三個通路 QM 與核心 QM 互通 |
+| 架構 | 小規模：點對點 SDR/RCVR；中大規模：MQ Cluster（2 個 Full Repository） |
+| 關鍵決策 | 通路 QM 只公告自己的 Reply 佇列；核心 QM 公告 Request 佇列 |
+| 風險 | Cluster 路由錯誤；以 `DISPLAY CLUSQMGR`、`DISPLAY QCLUSTER` 每日巡檢 |
+
+### 37.6 Case 6：IBM MQ HA / DR
+
+| 項目 | 內容 |
+|------|------|
+| 情境 | 核心 QM 要求 RTO 15 分鐘、RPO 接近 0 |
+| 架構 | 主站點 RDQM HA（3 節點）+ DR 站點 RDQM DR（或容器環境 Native HA + CRR） |
+| 關鍵決策 | DR 切換由人工決策；應用 CCDT 包含 DR 位址但預設不啟用 |
+| 風險 | 非同步複寫的少量資料遺失 → 對帳流程；演練必須含回切 |
+
+### 37.7 Case 7：Legacy MQ Application Reverse Engineering
+
+| 項目 | 內容 |
+|------|------|
+| 情境 | 15 年歷史的匯款系統，文件遺失，需要重寫 |
+| 做法 | Part 17-19：收集輸入 → AI 產生 Inventory 與 Report → MQ 管理員以 DISPLAY 驗證 → 產出 Architecture Specification |
+| 發現（範例） | 3 個佇列無 Consumer（已廢棄）；2 個 Channel 未啟用 TLS；JMS 送 COBOL 未設 targetClient，COBOL 端自行跳過 RFH2 |
+| 成果 | 重寫範圍從「全部 MQ 介面」縮小為 12 個實際使用中的介面 |
+
+### 37.8 Case 8：Java / Spring Boot / IBM MQ Framework Upgrade
+
+| 項目 | 內容 |
+|------|------|
+| 情境 | Java 8 + Spring Boot 2.3 + MQ allclient 9.1 → Java 25 + Spring Boot 4.x + MQ jakarta.client 10.0 |
+| 步驟 | Part 20.7 Playbook：先 Java 17 + Boot 2.7 → Boot 3.x（jakarta）→ Java 25 + Boot 4.x |
+| 主要問題（範例） | `TLS_RSA_WITH_AES_256_CBC_SHA256` 在 Java 25（Semeru）失敗 → 與 MQ 管理員協調改 TLS 1.3；`spring.jms.listener.concurrency` 屬性變更未生效 → properties-migrator 偵測 |
+| 成果 | 每階段可獨立上線與回復 |
+
+---
+
+## Part 38 — AI Agent 實戰專案
+
+### 38.1 目的
+
+設計一個完整練習專案，讓團隊在安全的 DEV 環境中，以 AI Agent 走完一次 MQ 專案生命週期。
+
+### 38.2 專案架構
+
+```text
+Vue
+ ↓
+Spring Boot
+ ↓
+IBM MQ
+ ↓
+Legacy Application
+ ↓
+DB
+```
+
+```mermaid
+flowchart LR
+    VUE["Vue 3<br/>轉帳頁面"] --> SB["Spring Boot 4<br/>transfer-api"]
+    SB --> DB1[("PostgreSQL<br/>transfer_request")]
+    SB -->|"TRN.TXN.TRANSFER.REQ"| MQ[("IBM MQ<br/>Developer 容器")]
+    MQ --> LEG["legacy-core<br/>MQ classes for Java"]
+    LEG --> DB2[("PostgreSQL<br/>account / processed_request")]
+    LEG -->|"TRN.TXN.TRANSFER.RSP"| MQ
+    MQ --> SB
+```
+
+### 38.3 任務與 AI Agent 協助
+
+| # | 任務 | AI 協助內容 | 人工產出 / 確認 | 完成條件 |
+|---|------|------------|----------------|---------|
+| 1 | Requirement Analysis | 由使用者故事產生需求清單、非功能需求（冪等、Timeout） | PM / SA 確認 | 需求文件 |
+| 2 | Architecture | 產生架構圖、選型理由 | 架構師審核 | Architecture Spec |
+| 3 | MQ Design | Request / Reply 設計、CorrelId 慣例 | 架構師 | MQ Design Doc |
+| 4 | Queue Design | 命名、屬性、BOQ、MQSC + Rollback | MQ 管理員 | MQSC 通過 Lint |
+| 5 | Java Development | Gateway、Listener、Legacy Consumer | Code Review | 編譯 + 單元測試 |
+| 6 | Test | Unit / Integration / Contract / Failure | QA | 測試全過 |
+| 7 | Security | TLS（DEV CA）、CHLAUTH、OAM、Secret Scan | Security | Baseline 符合 |
+| 8 | Performance | 壓測腳本、結果分析 | 架構師 | 基準報告 |
+| 9 | Deployment | Dockerfile、K8s YAML、Pipeline | DevOps | DEV 部署成功 |
+| 10 | Monitoring | Exporter、Dashboard、告警規則 | 維運 | KPI 可見 |
+| 11 | Reverse Engineering | 只給 legacy-core 程式，讓另一組以 AI 逆向 | 比對原始設計 | 報告與設計一致率 |
+| 12 | Upgrade | 將 legacy-core 由 classes for Java 遷移至 Jakarta | Code Review | 測試全過 |
+
+### 38.4 驗收標準
+
+- [ ] 重送同一 Idempotency-Key 不會重複扣款
+- [ ] 毒訊息進 BOQ，不阻塞後續訊息
+- [ ] Legacy 停機 2 分鐘，恢復後所有請求完成
+- [ ] Reply Timeout 時狀態為 UNKNOWN，背景 Listener 補更新
+- [ ] TLS 1.3 + mTLS 連線
+- [ ] 所有 AI 產出都有人工 Review 紀錄
+
+---
+
+## Part 39 — AI Agent 工作流程
+
+### 39.1 目的
+
+定義企業級多 Agent 協作流程，以及每個 Agent 的角色、輸入、輸出、責任與邊界。
+
+### 39.2 流程
+
+```text
+Requirement
+    ↓
+SA
+    ↓
+AI Architecture Agent
+    ↓
+MQ Design
+    ↓
+Java Developer Agent
+    ↓
+Test Agent
+    ↓
+Security Agent
+    ↓
+Performance Agent
+    ↓
+DevOps Agent
+    ↓
+Human Review
+    ↓
+Production
+```
+
+```mermaid
+flowchart TB
+    REQ["Requirement"] --> SA["SA（人）"]
+    SA --> ARCH["AI Architecture Agent"]
+    ARCH --> MQD["MQ Design<br/>（Architecture Agent + MQ 管理員）"]
+    MQD --> DEV["Java Developer Agent"]
+    DEV --> TEST["Test Agent"]
+    TEST --> SEC["Security Agent"]
+    SEC --> PERF["Performance Agent"]
+    PERF --> OPS["DevOps Agent"]
+    OPS --> HR{"Human Review<br/>+ Change Approval"}
+    HR -- 核准 --> PROD["Production（由 Pipeline 部署）"]
+    HR -- 退回 --> DEV
+    TEST -- 失敗 --> DEV
+    SEC -- 高風險 --> DEV
+```
+
+### 39.3 Agent 定義
+
+| Agent | Role | Input | Output | Responsibility | Boundary |
+|-------|------|-------|--------|----------------|----------|
+| AI Architecture Agent | 架構設計助理 | 需求、現有架構、標準 | 架構選項、ADR 草稿、圖 | 提出選項與取捨 | 不做最終決策 |
+| MQ Design（Agent 部分） | MQ 設計助理 | 架構、命名規範 | Queue / Channel 規格、MQSC + Rollback | 依規範產生設計 | 不套用到任何共用環境 |
+| Java Developer Agent | 開發 | 規格、Coding Standard | 程式碼、單元測試 | 符合 CS-01-28 | 不修改安全設定與 Pipeline |
+| Test Agent | 測試 | 程式、規格 | 整合 / Contract / Failure 測試、報告 | 覆蓋關鍵情境 | 只用 DEV 容器 |
+| Security Agent | 安全審查 | 程式、MQSC、依賴 | 安全報告 | 對照 Baseline | 不接觸私鑰與正式帳密 |
+| Performance Agent | 效能 | 程式、測試環境 | 壓測腳本、分析 | 找出瓶頸 | 不壓測 Production |
+| DevOps Agent | 部署 | 程式、設定 | Pipeline、YAML、部署文件 | 自動化 | **不持有 Production 部署權限** |
+| Human Review | 人 | 全部產出 | 核准 / 退回 | 最終責任 | — |
+
+### 39.4 Checklist
+
+- [ ] 每個 Agent 的邊界寫入其指令檔
+- [ ] Agent 之間的交接產出有固定格式
+- [ ] Human Review 有紀錄
+
+---
+
+## Part 40 — IBM MQ 與企業 AI SDLC
+
+### 40.1 目的
+
+將 IBM MQ 工作納入完整 AI-SDLC，並說明每個階段 AI Agent 的協助方式。
+
+### 40.2 流程
+
+```text
+Requirement
+↓
+Analysis
+↓
+Architecture
+↓
+Design
+↓
+Coding
+↓
+Testing
+↓
+Security
+↓
+Performance
+↓
+UAT
+↓
+Deployment
+↓
+Operation
+↓
+Maintenance
+↓
+Upgrade
+```
+
+```mermaid
+flowchart LR
+    R["Requirement"] --> A["Analysis"] --> AR["Architecture"] --> D["Design"] --> C["Coding"]
+    C --> T["Testing"] --> S["Security"] --> P["Performance"] --> U["UAT"]
+    U --> DE["Deployment"] --> O["Operation"] --> M["Maintenance"] --> UP["Upgrade"]
+    UP -. "回饋" .-> R
+    subgraph Gate["Human Gate"]
+        G1["架構審查"]
+        G2["Code Review"]
+        G3["安全簽核"]
+        G4["變更核准"]
+    end
+    AR -.-> G1
+    C -.-> G2
+    S -.-> G3
+    DE -.-> G4
+```
+
+### 40.3 各階段 AI 協助
+
+| 階段 | AI Agent 協助 IBM MQ 工作 | 人工把關 |
+|------|-------------------------|---------|
+| Requirement | 從需求辨識需要非同步 / 可靠傳遞的情境；列出非功能需求（冪等、順序、RTO） | 業務確認 |
+| Analysis | 既有 MQ 盤點（逆向工程）；影響分析 | SA 確認 |
+| Architecture | 拓撲選項（單 QM / Cluster / HA）、ADR 草稿 | 架構審查 |
+| Design | Queue / Channel / Message 規格、MQSC + Rollback | MQ 管理員審核 |
+| Coding | Gateway / Listener / Adapter、冪等、錯誤分類 | Code Review |
+| Testing | 整合、Contract、Failure 測試 | QA |
+| Security | Baseline 稽核、Secret Scan、TLS 檢查 | Security 簽核 |
+| Performance | 壓測腳本、結果分析、調校建議 | 架構師 |
+| UAT | 測試案例、資料準備 | 業務驗收 |
+| Deployment | Pipeline、部署檢查表 | 變更核准 |
+| Operation | 告警分析、排查建議（唯讀命令） | 維運執行 |
+| Maintenance | 文件同步、技術債清單 | 團隊 |
+| Upgrade | Compatibility Matrix、升級計畫 | 架構 + 管理員 |
+
+---
+
+## Part 41 — IBM MQ AI Governance
+
+### 41.1 目的
+
+建立 AI 在 IBM MQ 工作中的企業治理規則。
+
+### 41.2 AI 可以做
+
+| 行為 | 條件 |
+|------|------|
+| Read Code | 依資料分級；機敏程式需在核准的工具中進行 |
+| Analyze MQ Flow | 使用已遮罩的設定與日誌 |
+| Generate Documentation | 經人工審核後發布 |
+| Generate Test | 在 DEV 環境執行 |
+| Generate MQSC | 必附 Rollback 與風險等級；只在 DEV 自動套用 |
+| Generate Java Code | 經 Code Review |
+| Generate Architecture Diagram | 經架構審查 |
+
+### 41.3 AI 不可以直接做
+
+| 行為 | 原因 |
+|------|------|
+| Production Queue Delete | 訊息不可恢復 |
+| Production MQ Stop | 服務中斷 |
+| Production CHLAUTH 修改 | 可能封鎖所有連線或開放未授權存取 |
+| Production TLS 修改 | 可能中斷所有加密連線 |
+| Production User Permission 修改 | 權限擴張或服務中斷 |
+
+**除非經過人工核准**，且由授權人員或核准的 Pipeline 執行（見 Part 30）。
+
+### 41.4 治理架構
+
+```mermaid
+flowchart TB
+    POL["AI 使用政策<br/>（資料分級 / 工具清單）"] --> STD["本手冊標準<br/>Coding / Naming / Security"]
+    STD --> INS["Agent 指令檔<br/>AGENTS.md / copilot-instructions / CLAUDE.md"]
+    STD --> SK["Skills<br/>ibm-mq-*"]
+    INS --> AG["AI Agents"]
+    SK --> AG
+    AG --> OUT["產出"]
+    OUT --> HR["Human Review"]
+    HR --> CHG["變更管理"]
+    CHG --> PIPE["Pipeline"]
+    PIPE --> ENV["環境"]
+    AUD["稽核紀錄<br/>Agent session / PR / 變更單"] -.-> AG
+    AUD -.-> HR
+    AUD -.-> PIPE
+```
+
+### 41.5 責任歸屬（RACI 範例）
+
+| 活動 | AI Agent | 工程師 | MQ 管理員 | Security | 主管 |
+|------|---------|--------|-----------|----------|------|
+| MQ 程式產生 | R | A | C | I | — |
+| MQSC 產生 | R | R | A | C | I |
+| Production MQSC 套用 | — | C | R | C | A |
+| 安全設定變更 | — | I | R | A | A |
+| 事故排查建議 | R | R | A | C | I |
+
+R：執行、A：負責核准、C：諮詢、I：知會。
+
+### 41.6 IBM MQ Agent 治理
+
+IBM MQ Agent 直接連線 Queue Manager，治理重點與 Coding Agent 不同：
+
+| 治理面向 | 要求 |
+|---------|------|
+| 權限 | 連線帳號只有查詢權限；符合 Part 5.7 的 **L0** 等級，與產品「不能執行 MQSC」的設計一致 |
+| 連線 | 專用 TLS 管理 Channel，CHLAUTH 限制來源為 Agent 部署位置 |
+| 資料流向 | 確認基礎模型部署位置；物件名稱、連線資訊、錯誤日誌是否可送出組織邊界，需經資安評估 |
+| 範圍 | 明列 Agent 可連線的 QM（最多 20 個），Production 正式啟用前先在 UAT 驗證 |
+| 稽核 | 保留對話紀錄與 Agent 對 QM 的查詢紀錄（Command Event） |
+| 輸出使用 | Agent 建議不得直接作為變更依據；必須由 MQ 管理員以手動 `DISPLAY` 複核後開變更單 |
+
+### 41.7 Checklist
+
+- [ ] AI 使用政策涵蓋 MQ 設定、日誌、訊息樣本的資料分級
+- [ ] 41.3 禁止事項已落實為技術控制
+- [ ] RACI 已公告
+- [ ] IBM MQ Agent 若導入，已完成權限、資料流向與稽核評估
+
+---
+
+## Part 42 — AI Agent Prompt Library
+
+### 42.1 使用說明
+
+每個 Prompt 皆包含：Input、Task、Output、限制、驗證方式。使用前將 `<...>` 替換為實際內容，**並確認輸入資料已遮罩敏感資訊**。
+
+### P01 MQ Architecture Analysis
+
+```text
+【角色】IBM MQ 架構師
+【Input】架構說明、QM 清單、dmpmqcfg 摘要（已遮罩）、系統清單
+【Task】分析目前 MQ 拓撲（單 QM / 點對點 / Hub / Cluster / Pub-Sub），指出單點故障、瓶頸、過度耦合
+【Output】拓撲圖（Mermaid）、問題清單（嚴重度 / 證據 / 建議）、改善選項比較表
+【限制】不得推測未提供的物件；建議需標示適用情境與代價
+【驗證】MQ 管理員以 DISPLAY CLUSQMGR / CHSTATUS 確認拓撲圖正確
+```
+
+### P02 MQ Configuration Analysis
+
+```text
+【Input】dmpmqcfg -a 輸出（已遮罩）、命名規範（Part 35）
+【Task】檢查所有物件設定：命名、BOQ、MAXDEPTH、DEFPSIST、TLS、MCAUSER、事件設定
+【Output】違規清單（物件 / 屬性 / 現值 / 建議值 / 風險等級）
+【限制】只輸出建議；修正 MQSC 須附 Rollback；不得建議刪除物件
+【驗證】隨機抽 10 項以 DISPLAY 確認
+```
+
+### P03 Queue Analysis
+
+```text
+【Input】Queue 定義、QSTATUS 輸出、應用清單
+【Task】為每個佇列標示 Producer / Consumer、容量是否合理、是否缺 BOQ、是否疑似廢棄
+【Output】Queue Map（Part 17.8 格式）
+【限制】每列附證據；無證據標示「推測」
+【驗證】DISPLAY QSTATUS TYPE(HANDLE) 確認讀寫者
+```
+
+### P04 Channel Analysis
+
+```text
+【Input】Channel 定義、CHSTATUS、CHLAUTH
+【Task】建立 Channel Map；檢查兩端名稱一致性、TLS、SSLCAUTH、MCAUSER、重試參數
+【Output】Channel Map + 安全與可用性風險清單
+【限制】不得建議移除 CHLAUTH 預設封鎖規則
+【驗證】兩端 MQ 管理員確認
+```
+
+### P05 Java MQ Analysis
+
+```text
+【Input】Java 原始碼目錄
+【Task】找出 MQ classes for Java 使用點（MQQueueManager / accessQueue / put / get / commit / backout）
+【Output】使用點清單（檔案:行號）、資源釋放問題、Syncpoint 使用、BackoutCount 處理、錯誤處理問題
+【限制】不修改檔案；不輸出密碼
+【驗證】以 grep "com.ibm.mq" 數量比對
+```
+
+### P06 JMS Analysis
+
+```text
+【Input】Java 原始碼、設定檔、JNDI 設定
+【Task】找出 JMS / Jakarta 使用點：ConnectionFactory、Context / Session 模式、Producer、Consumer、Listener、Selector、targetClient
+【Output】JMS 使用清單 + javax / jakarta 判定 + 問題（非交易 Session、自訂屬性 Selector、ObjectMessage）
+【限制】證據必附
+【驗證】grep "javax.jms|jakarta.jms" 比對
+```
+
+### P07 Spring Boot MQ Analysis
+
+```text
+【Input】Spring Boot 專案
+【Task】分析 ibm.mq.* 與 spring.jms.* 設定、@JmsListener、JmsTemplate、ListenerContainerFactory、交易設定
+【Output】設定總表、Listener 清單（destination / factory / concurrency / transacted）、風險
+【限制】密碼以 *** 遮蔽
+【驗證】啟動時輸出有效設定（Actuator configprops，需遮罩）比對
+```
+
+### P08 MQ Reverse Engineering
+
+```text
+【Input】Part 17.6 Input Checklist 所列資料
+【Task】依 Part 18 Workflow 產出 MQ Reverse Engineering Report
+【Output】Part 19.3 格式報告
+【限制】不修改檔案；推測需標示；敏感資訊遮蔽
+【驗證】Part 19.6 驗證方式
+```
+
+### P09 Message Flow Analysis
+
+```text
+【Input】MQ Inventory、Queue Map、路由定義
+【Task】追蹤 <業務交易名稱> 的訊息從產生到最終處理的完整路徑（含 QREMOTE / XMITQ / Channel / Cluster）
+【Output】Mermaid sequenceDiagram + 每一跳的物件與證據
+【限制】路由無法解析時明確標示
+【驗證】以測試訊息實際追蹤（DEV / SIT）
+```
+
+### P10 MQ Error Analysis
+
+```text
+【Input】Reason Code / AMQ 訊息、日誌片段（已遮罩）、環境
+【Task】依 Part 23 矩陣分類並產生排查步驟
+【Output】可能根因（排序）、唯讀檢查命令、修正建議（附風險等級）
+【限制】只產生唯讀命令；不得建議加入 mqm 或 +all
+【驗證】依檢查命令結果確認根因
+```
+
+### P11 MQ Security Audit
+
+```text
+【Input】dmpmqcfg -a、dmpmqaut、CHLAUTH、AUTHINFO、憑證資訊（無私鑰）
+【Task】對照 Part 8.10 S1-S14 與 Part 29.3 R1-R12 稽核
+【Output】稽核表（項目 / 結果 / 證據 / 建議 / 風險）
+【限制】不接觸私鑰；修正以建議形式呈現
+【驗證】Security 人員抽查
+```
+
+### P12 MQ Performance Analysis
+
+```text
+【Input】Statistics / Accounting 資料、應用指標、硬體資訊、訊息特性
+【Task】找出瓶頸（Log I/O、網路、Consumer 數、訊息大小、連線管理）
+【Output】瓶頸分析、調校建議（依 Part 25 取捨表）、驗證測試計畫
+【限制】不建議為了效能犧牲交易性訊息的 Persistence
+【驗證】調校前後壓測比對
+```
+
+### P13 MQ Upgrade Analysis
+
+```text
+【Input】目前 MQ 版本、目標版本、MQSC、Client 清單、JDK 清單
+【Task】依 IBM 官方 What's new / changed / deprecated 整理影響
+【Output】影響清單（含 CipherSpec、User ID、Java runtime、行為變更）、升級計畫、Rollback
+【限制】每項附官方來源；無法確認標示「需依目前 IBM 官方文件確認」
+【驗證】MQ 管理員與官方文件比對
+```
+
+### P14 Java Upgrade
+
+```text
+【Input】pom.xml / build.gradle、原始碼、目前 JDK、目標 JDK（17 / 21 / 25）
+【Task】列出 Java 升級的 Breaking Changes 與 MQ 相關影響（TLS、編碼、移除的 API）
+【Output】Breaking Change List、修改建議、測試清單
+【限制】分階段（8 → 17 → 25）
+【驗證】編譯 + 全部測試通過
+```
+
+### P15 Spring Boot Upgrade
+
+```text
+【Input】Spring Boot 專案、目前與目標版本
+【Task】依官方 Migration Guide 列出屬性改名、移除功能、starter 版本對應（mq-jms-spring-boot-starter）
+【Output】變更清單、properties 對照、程式修改點
+【限制】starter 版本須對應 Boot 主版本（Boot 3 → 3.5.15；Boot 4 → 4.x）
+【驗證】spring-boot-properties-migrator 無警告；整合測試通過
+```
+
+### P16 Jakarta Migration
+
+```text
+【Input】使用 javax.jms 的原始碼與依賴
+【Task】產生 javax → jakarta 遷移計畫：套件替換、MQ Client artifact 替換、IBM 類別套件替換
+【Output】替換對照表、受影響檔案清單、建議工具（如 OpenRewrite recipe）
+【限制】不得同時保留 allclient 與 jakarta.client
+【驗證】mvn dependency:tree 無 javax.jms；測試通過
+```
+
+### P17 MQ Test Generation
+
+```text
+【Input】Listener / Gateway 程式、錯誤分類規則
+【Task】產生 Unit Test：成功、重複、永久錯誤、暫時錯誤、Timeout
+【Output】JUnit 測試程式
+【限制】不連線任何真實 QM
+【驗證】mvn test 通過；以 mutation testing 抽查有效性（選用）
+```
+
+### P18 Integration Test
+
+```text
+【Input】Spring Boot 專案、MQSC 測試定義
+【Task】產生 Testcontainers 整合測試：送收、Backout → BOQ、targetClient、CCSID
+【Output】IT 類別 + test MQSC
+【限制】只用 Developer image（固定版本）；測試密碼不與正式相同
+【驗證】CI 執行通過
+```
+
+### P19 Performance Test
+
+```text
+【Input】效能目標（TPS / P99）、訊息規格、測試環境
+【Task】產生壓測腳本（JMeter 或 Java Producer）與觀測項目清單
+【Output】腳本、執行步驟、結果判讀表
+【限制】不得對 Production 執行
+【驗證】在測試環境實際執行並產出報告
+```
+
+### P20 MQSC Generation
+
+```text
+【Input】Queue / Channel 規格、命名規範、Security Baseline
+【Task】產生 MQSC 定義
+【Output】(1) 變更 MQSC (2) Rollback MQSC (3) 驗證 DISPLAY 命令 (4) 風險等級 L0-L4
+【限制】Input Queue 必有 BOQNAME / BOTHRESH；Channel 必有 TLS；不產生 DELETE / CLEAR / SET CHLAUTH（若需要，僅以註解說明並標示 L4）
+【驗證】runmqsc -v 語法檢查；Lint 規則通過
+```
+
+### P21 MQ Documentation Generation
+
+```text
+【Input】MQ Inventory、MQSC、程式
+【Task】產生 Part 33.2 指定的文件（選擇 <文件名稱>）
+【Output】Markdown 文件
+【限制】只使用輸入中的事實；缺少的欄位填「未提供」
+【驗證】擁有者審核
+```
+
+### P22 Sequence Diagram Generation
+
+```text
+【Input】<交易名稱> 相關程式碼路徑
+【Task】追蹤呼叫鏈，產生 Mermaid sequenceDiagram（含 MQPUT / MQGET / Commit / Rollback / Timeout 分支）
+【Output】Mermaid 圖 + 每一步的檔案:行號
+【限制】無法追蹤的步驟標示「未確認」
+【驗證】與實際日誌時間序比對
+```
+
+### P23 Architecture Diagram Generation
+
+```text
+【Input】Inventory、部署設定（K8s YAML / 主機清單）
+【Task】產生系統脈絡圖與部署圖（Mermaid）
+【Output】2 張 Mermaid 圖 + 圖例說明
+【限制】不含 IP 與主機名稱以外的機敏資訊（依公司政策可再遮罩主機名）
+【驗證】架構師審核
+```
+
+### P24 Production Checklist
+
+```text
+【Input】變更內容（MQSC / 程式 / 設定）
+【Task】依 Part 36 產生本次變更專屬的上線檢查表
+【Output】Checklist（含驗證命令與預期結果、Rollback 觸發條件）
+【限制】風險等級 L3 以上需列出核准人欄位
+【驗證】變更審查會議確認
+```
+
+### P25 Incident Analysis
+
+```text
+【Input】事故時間軸、告警、日誌（已遮罩）、MQ 狀態輸出
+【Task】重建事故時間軸、判斷根因、評估訊息遺失 / 重複可能性
+【Output】RCA 草稿（時間軸 / 影響 / 根因 / 處置 / 改善項目）
+【限制】未證實的推論需標示；涉及金額時列出對帳建議
+【驗證】事故檢討會議確認
+```
+
+### P26 DLQ Analysis
+
+```text
+【Input】DLQ 訊息的 MQDLH 摘要（Reason、DestQName、DestQMgrName、PutApplName、時間），不含 body
+【Task】依 Reason 分群，判斷原因與處理方式
+【Output】分群表、每群的建議動作（重送 / 修正設定 / 人工）、runmqdlq 規則草稿
+【限制】不得建議直接清空 DLQ
+【驗證】MQ 管理員確認後才執行
+```
+
+### P27 Retry Analysis
+
+```text
+【Input】Consumer / Producer 程式、Listener 設定、佇列 BOTHRESH
+【Task】分析所有重試機制（程式迴圈、Spring BackOff、MQ Backout、Client 重連）是否疊加、有無上限
+【Output】重試路徑圖、最壞情況總重試次數與時間、問題清單
+【限制】—
+【驗證】Failure Test 驗證實際重試行為
+```
+
+### P28 Transaction Analysis
+
+```text
+【Input】Consumer / Producer 程式、DB 存取程式、交易設定
+【Task】判斷 DB 與 MQ 的 commit 順序、是否有冪等、是否使用 XA / Outbox
+【Output】交易邊界圖、失敗情境表（Part 13.3 格式）、風險與建議
+【限制】不得宣稱達成 Exactly-once
+【驗證】Failure Test：在 DB commit 後、MQ commit 前終止程序
+```
+
+### P29 HA/DR Analysis
+
+```text
+【Input】目前 HA/DR 架構、RTO / RPO 需求、應用連線設定
+【Task】評估是否達成 RTO / RPO；應用是否支援重連與冪等
+【Output】差距分析、選項比較（Part 26.3 / 26.4）、演練計畫
+【限制】授權與平台支援需標示「需依目前 IBM 官方文件確認」；法規要求不得自行宣稱
+【驗證】DR 演練結果
+```
+
+### P30 MQ Modernization
+
+```text
+【Input】Legacy MQ 應用逆向工程報告、目標架構
+【Task】提出現代化路線：API 遷移（classes for Java → Jakarta）、Spring Boot 化、容器化、Native HA、可觀測性
+【Output】分階段路線圖、每階段價值 / 風險 / 成本、相依關係
+【限制】每階段可獨立上線與回復
+【驗證】架構審查
+```
+
+### P31 MQ Code Review
+
+```text
+【Input】Pull Request diff
+【Task】依 Coding Standard CS-01 至 CS-28 審查
+【Output】違規清單（規則編號 / 檔案:行號 / 說明 / 建議修正）
+【限制】只評論 MQ 相關程式；不自動推送修改
+【驗證】Reviewer 確認
+```
+
+### P32 CCSID / 編碼問題分析
+
+```text
+【Input】訊息樣本 hex dump（前 256 bytes，已遮罩）、MQMD CCSID / Format、雙方平台
+【Task】判斷是否含 RFH2、CCSID 是否正確、是否需要 MQGMO_CONVERT、中文欄位轉碼風險
+【Output】診斷結果與修正建議
+【限制】不得要求提供完整正式訊息
+【驗證】以修正後設定在 SIT 傳送樣本比對
+```
+
+### P33 IBM MQ Agent 診斷提問範本
+
+```text
+【情境】<QM 名稱> 上 <佇列名稱> 自 <時間> 起深度持續增加，應用 <APPLTAG> 回報逾時
+【提問順序】
+1. <佇列名稱> on <QM 名稱> 目前深度、最大深度、IPPROCS / OPPROCS、最後 GET / PUT 時間？
+2. 為什麼訊息在這個佇列堆積？
+3. <APPLTAG> 目前連在哪個 QM、哪條 Channel？
+4. 相關 Channel 是否有 RETRYING 或 STOPPED？
+5. Dead Letter Queue 是否有來自這個流程的訊息？原因碼？
+【限制】Agent 的建議只作為線索；任何 ALTER / CLEAR / START / STOP 一律轉成變更單
+【驗證】MQ 管理員以對應的 DISPLAY 命令複核每一項結論
+```
+
+### P34 Messaging REST API 適用性評估
+
+```text
+【Input】整合需求說明（訊息量、大小、可靠性要求、用戶端語言與網路位置）
+【Task】依手冊 Part 9.7、9.8 評估應使用 Messaging REST API、原生 Client 或 Jakarta Messaging
+【Output】建議方案、理由、風險（交易性、DELETE 後回應遺失、吞吐量）、必要的 mqweb 與 OAM 設定
+【限制】金融主交易流程不得建議 REST；不確定的 API 細節標示「需依目前 IBM 官方文件確認」
+【驗證】架構審查與 SIT 實測
 ```
 
 ---
 
-## Appendix G - 版本指令差異對照表
+## Part 43 — 常見錯誤
 
-| Version | Command / Flag | Status | Recommendation |
-|---------|----------------|--------|----------------|
-| ≥ v0.54 | `--pkg-types os,library` | **Current** | 使用此 flag |
-| < v0.54 | `--vuln-type os,library` | **Legacy**（已更名） | CLI 改用 `--pkg-types`；trivy-action 仍保留 `vuln-type` input |
-| ≥ v0.57 | `trivy registry login` | **Current** | 使用此命令 |
-| v0.57 開發期間 | `trivy auth` | **Legacy**（已更名） | 改用 `trivy registry` |
-| ≥ v0.53 | `trivy clean --scan-cache / --all` | **Current** | 清除快取 |
-| < v0.53 | 以 flag 清除快取（例如 `--clear-cache`） | **Deprecated** | 改用 `trivy clean` |
-| < v0.53 | `trivy aws` 內建 | **Legacy**（已移除） | 安裝 trivy-aws plugin |
-| ≥ v0.53 | `trivy aws`（plugin） | **Current（Plugin）** | 評估維護狀態後使用 |
-| ≥ v0.55 | `--format cyclonedx / spdx / spdx-json` | **Current** | 產生 SBOM |
-| < v0.55 | 舊 SBOM 專用 flags | **Deprecated（已刪除）** | 改用 `--format` |
-| v0.75（目前） | `trivy k8s [flags] [CONTEXT]` | **Experimental** | 以 kubeconfig context 為參數 |
-| 舊版文件 | `trivy k8s ... cluster`（以 `cluster` 為目標參數） | **Legacy** | 改用 `trivy k8s --report summary [CONTEXT]` |
-| 全部 | `trivy vm` | **Experimental** | 不作唯一 Gate |
-| v0.75 | `--scanners crypto` | **Experimental** | 僅 image + CycloneDX |
-| 全部 | `--vex`、`--show-suppressed`、`--dependency-tree`、`--table-mode` | **Experimental** | 可用於分析，Gate 謹慎使用 |
-| 全部 | `.trivyignore.yaml` | **Experimental** | 需 `--ignorefile` 明確指定 |
-| ≥ v0.75 | `--config=""`、`--ignorefile=""`、`--secret-config=""` | **Current** | CI 中停用 repo 內設定檔 |
-| < v0.75 | template 使用 `getHostByName` | **Removed（Breaking）** | 從自訂 template 移除 |
-| ≥ v0.69 | misconf provider mapping 使用 ID | **Current（Breaking）** | 自訂 Rego / mapping 回歸測試 |
-| ≥ v0.70 | template 檔必須 `.tpl` 副檔名 | **Current** | 重新命名範本 |
-| ≥ v0.67 | `--list-all-pkgs` 預設 true | **Current** | JSON 報告會變大 |
-| ≥ v0.68 | `--cacert` | **Current** | 取代 `--insecure` |
-| v0.69.4、Docker Hub 0.69.5 / 0.69.6 | 惡意版本 | **Compromised** | **禁止使用**，檢查是否曾執行 |
-| trivy-action < 0.35.0（無 v 前綴的舊 tag） | 已刪除 / 曾遭竄改 | **Compromised / Removed** | 使用 ≥ v0.35.0，並以 SHA pin |
-| setup-trivy < v0.2.6 | 曾遭竄改 | **Compromised** | 使用 ≥ v0.2.6，並以 SHA pin |
-| setup-trivy v0.3.0 | `action.yaml` 無法載入 | **Broken** | 改用 v0.3.1 |
-| setup-trivy ≥ v0.3.0 | `path` input 不再展開 `$HOME`、`$RUNNER_TEMP`、`~` | **Current（Breaking）** | 改用 `${{ runner.temp }}/trivy` 或相對路徑 |
-| trivy-action v0.36.0 | 未指定 `version` 時安裝 v0.70.0 | **Current** | 一律明確指定 `version` |
+### 43.1 IBM MQ 開發人員最常犯的錯誤
 
-> `trivy k8s` 舊語法的確切移除版本官方資料未逐一說明；請以目前 CLI 說明 `trivy kubernetes [flags] [CONTEXT]` 為準。
+| # | 錯誤 | 後果 | 正確做法 | 參考 |
+|---|------|------|---------|------|
+| 1 | 沒有設定 Timeout | 執行緒永久阻塞 | `receive(timeout)` / `MQGMO_WAIT` + `waitInterval` | Part 10、11 |
+| 2 | 沒有處理 Duplicate Message | 重複扣款 | 冪等表 / 唯一鍵 | Part 13、15 |
+| 3 | Connection 沒有釋放 | 連線耗盡、`2537` | try-with-resources / `finally` | Part 10 |
+| 4 | 每則訊息建立新連線 | 效能低落、QM 負載高 | 連線重用 / 快取 | Part 25 |
+| 5 | Queue 沒有 BOQ / DLQ | 毒訊息堵塞 | `BOQNAME` + `BOTHRESH` + QM `DEADQ` | Part 6 |
+| 6 | Retry 無限循環 | CPU 飆高、日誌爆量 | 有上限 + 退避 + 錯誤分類 | Part 12.9 |
+| 7 | 沒有 Correlation ID | 等不到回覆、無法追蹤 | 業務鍵衍生 CorrelId | Part 15 |
+| 8 | Production 使用過度權限 | 安全事故 | 最小權限、群組授權 | Part 8 |
+| 9 | TLS 設定錯誤 / 使用已移除 CipherSpec | 連線失敗 | TLS 1.3 / ECDHE | Part 8.7 |
+| 10 | 沒有監控 Queue Depth | 堵塞無人知 | KPI + 告警 | Part 24 |
+| 11 | 把 IBM MQ 當成 REST API 使用 | 同步等待耗盡執行緒 | 非同步設計 / 202 Accepted | Part 14 |
+| 12 | 把 MQ Transaction 與 DB Transaction 混為一談 | 遺失或重複 | 先 DB 後 MQ + 冪等 / Outbox / XA | Part 13 |
+| 13 | JMS 送 Legacy 未設 `targetClient` | Legacy 解析失敗 | `targetClient=1` | Part 11.4 |
+| 14 | 忽略 CCSID | 中文亂碼 | 明確 CCSID + 轉換 | Part 1.16 |
+| 15 | 以自訂屬性 Selector 讀深佇列 | 效能極差 | 只用 CorrelId / MsgId Selector | Part 11.10 |
+| 16 | 使用 `ObjectMessage` | 反序列化弱點 | Text / Bytes + JSON / 固定格式 | Part 11.9 |
+| 17 | Timeout 後直接重送 Request | 重複交易 | 標記 UNKNOWN + 查詢 | Part 15.5 |
+| 18 | 日誌輸出訊息內容 | 個資外洩 | 只記錄 ID | Part 34 |
+| 19 | 帳密寫在 `application.yml` 並提交 Git | 憑證外洩 | Secret 注入 | Part 12.5 |
+| 20 | 假設訊息全域有序 | 業務錯亂 | 明確順序前提或序號檢查 | Part 3.8 |
 
 ---
 
-## References
+## Part 44 — IBM MQ 版本與升級策略
 
-| # | 名稱 | 用途 | URL |
-|---|------|------|-----|
-| 1 | Trivy GitHub Repository | 原始碼、Release、Issue | <https://github.com/aquasecurity/trivy> |
-| 2 | Trivy Official Documentation | 官方文件（latest） | <https://trivy.dev/docs/latest/> |
-| 3 | Trivy Installation Documentation | 安裝方式（Official / Community） | <https://trivy.dev/docs/latest/getting-started/installation/> |
-| 4 | Trivy Signature Verification | 驗章方式 | <https://trivy.dev/docs/latest/getting-started/signature-verification/> |
-| 5 | Trivy Scanner Documentation（Vulnerability） | Vulnerability scanner | <https://trivy.dev/docs/latest/guide/scanner/vulnerability/> |
-| 6 | Trivy Secret Scanner | Secret scanner、自訂規則 | <https://trivy.dev/docs/latest/guide/scanner/secret/> |
-| 7 | Trivy License Scanner | License scanner | <https://trivy.dev/docs/latest/guide/scanner/license/> |
-| 8 | Trivy Misconfiguration Scanner | IaC 掃描 | <https://trivy.dev/docs/latest/guide/scanner/misconfiguration/> |
-| 9 | Trivy Target Documentation（Container Image） | Target 說明 | <https://trivy.dev/docs/latest/guide/target/container_image/> |
-| 10 | Trivy Reporting Documentation | 報告格式、convert、template | <https://trivy.dev/docs/latest/guide/configuration/reporting/> |
-| 11 | Trivy Filtering Documentation | severity、status、ignore、VEX | <https://trivy.dev/docs/latest/guide/configuration/filtering/> |
-| 12 | Trivy Kubernetes Documentation | `trivy k8s`、compliance、KBOM | <https://trivy.dev/docs/latest/guide/target/kubernetes/> |
-| 13 | Trivy Air-Gap / Network | 離線與網路考量 | <https://trivy.dev/docs/latest/guide/advanced/air-gap/> |
-| 14 | Trivy CLI Reference（image） | flag 完整清單 | <https://trivy.dev/docs/latest/guide/references/configuration/cli/trivy_image/> |
-| 15 | Trivy CHANGELOG | 版本差異、Breaking Changes | <https://github.com/aquasecurity/trivy/blob/main/CHANGELOG.md> |
-| 16 | Trivy v0.75.0 Release Discussion | v0.75 Highlights | <https://github.com/aquasecurity/trivy/discussions/11333> |
-| 17 | GHSA-69fq-xp46-6x23 | 2026-03 供應鏈事件官方公告 | <https://github.com/aquasecurity/trivy/security/advisories/GHSA-69fq-xp46-6x23> |
-| 18 | Trivy Operator | 叢集持續掃描 | <https://github.com/aquasecurity/trivy-operator> |
-| 19 | Trivy Operator Documentation | Operator 文件 | <https://aquasecurity.github.io/trivy-operator/latest> |
-| 20 | Trivy GitHub Action | trivy-action | <https://github.com/aquasecurity/trivy-action> |
-| 21 | setup-trivy | 安裝 Trivy 的 Action | <https://github.com/aquasecurity/setup-trivy> |
-| 22 | trivy-aws | AWS 掃描 plugin | <https://github.com/aquasecurity/trivy-aws> |
-| 23 | CycloneDX | SBOM 標準 | <https://cyclonedx.org/> |
-| 24 | SPDX | SBOM 標準 | <https://spdx.dev/> |
-| 25 | SARIF 2.1.0（OASIS） | 靜態分析結果交換格式 | <https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html> |
-| 26 | OpenVEX | VEX 規格 | <https://openvex.dev/> |
-| 27 | OWASP Top Ten | Web 應用風險分類 | <https://owasp.org/www-project-top-ten/> |
-| 28 | Kubernetes Pod Security Standards | PSS Baseline / Restricted | <https://kubernetes.io/docs/concepts/security/pod-security-standards/> |
-| 29 | CNCF | Cloud Native 生態系 | <https://www.cncf.io/> |
-| 30 | NIST SP 800-218（SSDF） | 安全軟體開發框架 | <https://csrc.nist.gov/pubs/sp/800/218/final> |
-| 31 | CISA SBOM | SBOM 政策與資源 | <https://www.cisa.gov/sbom> |
-| 32 | GitHub Actions Secure Use | 第三方 Action 以 SHA 固定 | <https://docs.github.com/en/actions/reference/security/secure-use#using-third-party-actions> |
-| 33 | Sigstore / cosign | 簽章與驗證 | <https://docs.sigstore.dev/> |
-| 34 | ORAS | OCI artifact 下載（DB 離線） | <https://oras.land/> |
-| 35 | ArchUnit | 架構測試（補足 Trivy 不負責的部分） | <https://www.archunit.org/> |
-| 36 | Trivy MCP Server Plugin | MCP Server、傳輸模式、IDE 整合 | <https://github.com/aquasecurity/trivy-mcp> |
-| 37 | Trivy VS Code Extension | IDE 內掃描 | <https://github.com/aquasecurity/trivy-vscode-extension> |
-| 38 | setup-trivy Releases | v0.3.0 / v0.3.1 變更說明 | <https://github.com/aquasecurity/setup-trivy/releases> |
-| 39 | trivy-action v0.36.0 action.yaml | `version` 預設值、內部 setup-trivy pin | <https://github.com/aquasecurity/trivy-action/blob/v0.36.0/action.yaml> |
-| 40 | Trivy Scanning Coverage | 支援的 OS 與語言 | <https://trivy.dev/docs/latest/coverage/> |
+### 44.1 目的
+
+整理 IBM MQ 10.x 版本資訊與升級策略。**本章資訊以 2026-10-03 查證的 IBM 官方文件為準；版本資訊會隨修補版更新，使用前請再次確認。**
+
+### 44.2 IBM MQ 版本模型
+
+| 類型 | 說明 | 適用 |
+|------|------|------|
+| LTS（Long Term Support） | 長期支援，只提供缺陷與安全修補 | **金融 Production 建議** |
+| CD（Continuous Delivery） | 較短週期交付新功能 | 需要最新功能、可頻繁升級的系統 |
+| CP4I-LTS | Cloud Pak for Integration 專用 LTS `[需確認]` | CP4I 環境 |
+
+### 44.3 10.0 版本重點（官方查證）
+
+| 項目 | 內容 |
+|------|------|
+| 定位 | 9.4.0 LTS 的後續 LTS；9.4.5 CD 的後續 CD |
+| 累積內容 | 9.4.1～9.4.5 CD 的功能 + 10.0 新功能 |
+| 安全 | ML-KEM（FIPS 203）、多 certificate label、GSKit 9、`dspmqcert`、HTTPS CCDT、JWKS、FIPS 140-3（Semeru） |
+| 移除 | SSLv3、TLS 1.0、RC4、3DES CipherSpec |
+| Deprecated | RSA key exchange CipherSpec；SSL 3.0 與 TLS 1.0 協定 |
+| Java | Semeru 25 停用 `TLS_RSA_*`；隨產品附帶的 Java runtime 變更；Semeru 21 / 25 檔案編碼變更 |
+| 應用開發 | JMS 中使用 MsgToken 作為 Selector；多個 JMS 連線可視為單一應用實例；JWT endpoint 支援（JMS / Jakarta） |
+| HA | Native HA IRR（10.0 新增）；Native HA / CRR 於 Linux 與容器可用 |
+| Client | Client 預設 TCP buffer 大小變更 |
+
+### 44.4 升級對照表
+
+| 項目 | Current（範例） | Target | Compatibility | Risk |
+|------|----------------|--------|---------------|------|
+| MQ Server | 9.3.0 LTS | 10.0 LTS | 需確認 9.3 → 10.0 直接遷移路徑 `[需確認]` | 高：CipherSpec 移除、不可降版 |
+| MQ Server | 9.4.0 LTS | 10.0 LTS | 官方定義的後續 LTS | 中 |
+| MQ Client（Java） | `allclient` 9.2 | `jakarta.client` 10.0 | 需同時進行 Jakarta 遷移 | 高 |
+| Java Runtime | 8 / 11 | 21 / 25 | 依 System Requirements `[需確認]` | 中：TLS、編碼 |
+| JMS API | JMS 2.0（javax） | Jakarta Messaging 3.0 | MQ 9.3+ 支援 | 中 |
+| Spring Boot | 2.7 | 4.x | Starter 4.x 對應 | 高：多重 Breaking |
+| Starter | 2.7.x | 4.1.0 | 對應 MQ 10.0 + Boot 4.1.0 | 中 |
+| TLS | TLS 1.2 RSA key exchange | TLS 1.3 / ECDHE | 10.0 Deprecated RSA KX | 高 |
+| 憑證 | RSA 1024 / 2048 | 依政策（RSA ≥ 規定長度或 ECDSA） | 10.0 最小 RSA 長度限制 `[需確認門檻]` | 中 |
+| Container | 9.4.x image | 10.0 image | Operator 版本對應 `[需確認]` | 中 |
+| OS | RHEL 8 | RHEL 9 / 10 | 依 System Requirements `[需確認]` | 中 |
+
+### 44.5 升級策略建議
+
+1. **LTS 對 LTS**：Production 以 LTS 為目標，並追蹤 CSU / Fix Pack。
+2. **Server 先、Client 後**。
+3. **CipherSpec 先行**：在仍是舊版時就先改為 TLS 1.3 / ECDHE，讓升級當天不需要同時改 TLS。
+4. **Java / Spring 升級與 MQ 升級錯開**，避免同時多個變數。
+5. 每次升級都更新本手冊的版本查證摘要。
 
 ---
 
-## Technical Review Checklist
+## Part 45 — Enterprise IBM MQ Reference Architecture
 
-> 撰寫完成後依下列項目自我審查。「備註」欄記錄查證依據或已知限制。
+### 45.1 參考架構
 
-| 狀態 | 項目 | 備註 |
-|------|------|------|
-| [x] | 所有內容都在同一個 Markdown 文件 | 單一檔案 |
-| [x] | 沒有要求使用者另外閱讀必要文件 | 外部連結僅為延伸參考 |
-| [x] | Trivy 版本已確認 | v0.75.0（GitHub Release、CHANGELOG 2026-10-01） |
-| [x] | CLI 指令已確認 | 對照 CLI Reference（image、kubernetes、sbom、vm、convert） |
-| [x] | Targets 已確認 | 官方 Target 清單：Image、FS、Rootfs、Repo、VM、K8s、SBOM |
-| [x] | Scanners 已確認 | vuln、misconfig、secret、license、crypto（Experimental）、k8s rbac |
-| [x] | Vulnerability 已確認 | Severity、Status、`--vuln-severity-source`、`--exit-on-eol` |
-| [x] | Misconfiguration 已確認 | misconfig-scanners 預設清單 |
-| [x] | Secret 已確認 | `trivy-secret.yaml`、v0.71 / v0.72 新規則 |
-| [x] | License 已確認 | 分類與 Severity、`--license-full` |
-| [x] | SBOM 已確認 | cyclonedx、spdx、spdx-json、`trivy sbom` |
-| [x] | Kubernetes 已確認 | Experimental、RBAC、compliance ID |
-| [x] | Cloud 能力已確認 | `trivy aws` 自 v0.53 移出核心；plugin v0.15.1 |
-| [x] | CI/CD 已確認 | 官方 Tutorials 清單 |
-| [x] | GitHub Actions 已確認 | trivy-action v0.36.0 inputs（`version` 預設 v0.70.0）、setup-trivy v0.3.1、快取、SHA pin |
-| [x] | Trivy Operator 已確認 | v0.34.0（內建 Trivy 0.74.0）、Helm Chart 0.36.0、報告類型 |
-| [x] | Trivy MCP Server 已確認 | trivy-mcp v0.0.20、安裝與傳輸模式、Guardrail（26.4–26.6、30.4） |
-| [x] | Configuration 已確認 | 優先順序、`--generate-default-config` |
-| [x] | Cache / DB 已確認 | 預設 repository、skip / download flags |
-| [x] | Report Format 已確認 | `--format` 允許值、convert 限制 |
-| [x] | SARIF 已確認 | SARIF 2.1.0、Code Scanning 權限 |
-| [x] | Reverse Engineering 已涵蓋 | 第 24、48 章 |
-| [x] | Framework Upgrade 已涵蓋 | 第 25、49 章 |
-| [x] | AI Agent 已涵蓋 | 第 26–30、42、47、54、55 章 |
-| [x] | AI Guardrail 已涵蓋 | 第 30 章 |
-| [x] | SSDLC 已涵蓋 | 第 31 章 |
-| [x] | Enterprise Governance 已涵蓋 | 第 37、59 章 |
-| [x] | Exception Management 已涵蓋 | 第 16、39 章 |
-| [x] | Upgrade Strategy 已涵蓋 | 第 41、42 章 |
-| [x] | Troubleshooting 已涵蓋 | 第 44 章、附錄 D |
-| [x] | Labs 已涵蓋 | Lab 1–16 |
-| [x] | Checklist 已涵蓋 | 第 53 章、附錄 C |
-| [x] | Reference Architecture 已涵蓋 | 第 35、60 章、附錄 E |
-| [x] | 沒有虛構功能 | 未查證項目以「官方資料未說明」或「以實際版本為準」標示 |
-| [x] | 沒有把企業政策說成 Trivy 官方政策 | 全書以【官方】/【企業建議】標示 |
-| [x] | 沒有暴露真實 Credential | 全部使用佔位符；Lab 3 以腳本隨機產生假資料 |
-| [x] | 所有重要引用都有來源 | References 40 項 |
-| [x] | Mermaid Diagram 語法正確 | 標籤以雙引號包覆，避免特殊字元 |
-| [x] | Markdown 語法正確 | 依目錄 `.markdownlint.jsonc` 檢查 |
+```text
+                    ┌─────────────────────┐
+                    │      Web UI         │
+                    │ Vue / Angular       │
+                    └─────────┬───────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │    API Gateway      │
+                    └─────────┬───────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │   Spring Boot       │
+                    │ Application Service │
+                    └─────────┬───────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │      IBM MQ         │
+                    │   Queue Manager     │
+                    └─────────┬───────────┘
+                              │
+                 ┌────────────┼────────────┐
+                 ▼            ▼            ▼
+             Legacy       Mainframe      Batch
+             System         System       System
+```
 
-### 已知限制與使用前需再確認的項目
+### 45.2 完整參考架構（含橫切面）
 
-| 項目 | 原因 | 建議 |
-|------|------|------|
-| Trivy Operator Helm values 鍵名 | 依 Chart 版本變動 | 以 `helm show values` 核對 |
-| `trivy.yaml` 各鍵名 | 依版本變動 | 以 `--generate-default-config` 核對 |
-| Windows Release 檔名 | 官方文件與 Advisory 的檔名寫法不同 | 以 Release 頁面實際檔名為準 |
-| Misconfiguration check ID 範例 | trivy-checks 版本可能調整 ID | 以實際 JSON 報告為準 |
-| OWASP Top 10 分類名稱 | 依 OWASP 官方版本 | 以 OWASP 官網為準 |
-| GitHub Actions `<SHA>` 佔位符 | 需由使用者取得當下正確 SHA | 以 `git ls-remote` 取得並由 Dependabot 維護 |
+```mermaid
+flowchart TB
+    subgraph Users["使用者"]
+        WEB["Vue / Angular"]
+    end
+    subgraph Edge["邊界"]
+        GW["API Gateway / WAF"]
+    end
+    subgraph AppTier["應用層（Kubernetes）"]
+        SB["Spring Boot Services<br/>Jakarta Messaging"]
+    end
+    subgraph MQTier["訊息層"]
+        QMA["Queue Manager<br/>Native HA / RDQM（Primary）"]
+        QMD["Queue Manager<br/>DR Replica（Secondary Site）"]
+    end
+    subgraph Backend["後端"]
+        LEG["Legacy System"]
+        MF["Mainframe"]
+        BAT["Batch System"]
+    end
+    subgraph Cross["橫切面"]
+        SEC["Security<br/>mTLS / CHLAUTH / OAM / Vault"]
+        MON["Monitoring<br/>Prometheus / Grafana / SIEM"]
+        OPS["DevOps<br/>Git / Pipeline / MQSC as Code"]
+        AI["AI Agent<br/>分析 / 產生 / 測試（無 PROD 權限）"]
+    end
+    WEB --> GW --> SB --> QMA
+    QMA --> LEG
+    QMA --> MF
+    QMA --> BAT
+    QMA == "DR 複寫" ==> QMD
+    SEC -.-> SB
+    SEC -.-> QMA
+    MON -.-> SB
+    MON -.-> QMA
+    OPS -.-> SB
+    OPS -.-> QMA
+    AI -.-> OPS
+```
+
+### 45.3 橫切面說明
+
+| 面向 | 標準 |
+|------|------|
+| Security | Part 8 Baseline；mTLS 1.3；CHLAUTH 白名單；群組最小權限；Secret Manager |
+| Monitoring | Part 24 八項 KPI；事件轉 SIEM；應用與 MQ 指標關聯 |
+| HA | Native HA（容器 / Linux）或 RDQM HA；應用支援重連與冪等 |
+| DR | RDQM DR / Native HA CRR；人工決策切換；定期演練 |
+| DevOps | MQSC as Code；Lint；變更核准；Drift 偵測 |
+| AI Agent | Part 30、41 治理；無 Production 憑證；Human-in-the-loop |
+
+---
+
+## Part 46 — 最終企業標準
+
+本章彙整為企業標準：**Enterprise IBM MQ Development & Operation Standard**，共 14 類。
+
+### 46.1 Architecture Standard
+
+- AS-1 Web / 前端不得直接連 MQ；經 API 與 Service 層。
+- AS-2 交易指令走 Point-to-Point / Request-Reply；事件走 Pub/Sub。
+- AS-3 每個整合點有明確擁有者與介面規格。
+- AS-4 HA / DR 方案依業務核准的 RTO / RPO 選擇。
+- AS-5 架構決策以 ADR 記錄。
+
+### 46.2 Development Standard
+
+- DS-1 依 Part 34 Coding Standard。
+- DS-2 每個 Consumer 冪等。
+- DS-3 錯誤分類：永久 / 暫時 / 連線 / 設定。
+- DS-4 Request / Reply 遵循 Part 15。
+
+### 46.3 Java Standard
+
+- JS-1 基準 Java 25（LTS），最低 Java 17。
+- JS-2 新開發使用 IBM MQ classes for Jakarta Messaging；IBM MQ classes for Java 僅維護。
+- JS-3 Spring Boot 4.x + `mq-jms-spring-boot-starter` 4.x。
+- JS-4 不混用 javax 與 jakarta MQ Client。
+
+### 46.4 Queue Standard
+
+- QS-1 命名 `<system>.<domain>.<function>.<direction>`。
+- QS-2 Input Queue 必有 `BOQNAME`、`BOTHRESH`、`HARDENBO`。
+- QS-3 `MAXDEPTH` 有容量估算依據。
+- QS-4 交易性佇列 `DEFPSIST(YES)`。
+- QS-5 設定深度告警。
+
+### 46.5 Channel Standard
+
+- CH-1 每個應用專屬 SVRCONN。
+- CH-2 全部 TLS；SVRCONN `SSLCAUTH(REQUIRED)`。
+- CH-3 `MCAUSER` 為低權限帳號，透過 CHLAUTH 映射。
+- CH-4 設定 `MAXINST` / `MAXINSTC`。
+- CH-5 Channel 名稱 ≤ 20 字元，依 Part 35。
+
+### 46.6 Security Standard
+
+- SS-1 Part 8.10 Baseline S1-S14。
+- SS-2 Part 29.3 Review R1-R12 定期執行。
+- SS-3 禁止應用帳號具管理權限。
+- SS-4 憑證與帳密由 Secret Manager 管理並定期輪替。
+
+### 46.7 Logging Standard
+
+- LS-1 記錄 MsgId、CorrelId、DeliveryCount、Queue、結果、Reason Code。
+- LS-2 不記錄訊息內容中的個資。
+- LS-3 傳遞 traceId（Message Property）。
+- LS-4 MQ Error Log 與 FDC 集中收集。
+- LS-5 保存期限依公司政策與適用法規確認。
+
+### 46.8 Monitoring Standard
+
+- MS-1 Part 24 八項 KPI。
+- MS-2 Part 22.4 告警門檻。
+- MS-3 DLQ / BOQ 深度 > 0 必須告警。
+- MS-4 憑證到期監控。
+
+### 46.9 Testing Standard
+
+- TS-1 Unit：錯誤分類、冪等、轉換。
+- TS-2 Integration：MQ 容器；Backout → BOQ。
+- TS-3 Contract：Legacy 電文位元組比對。
+- TS-4 Failure：Part 28.6 六項情境。
+- TS-5 Performance：重大變更前後基準比對。
+
+### 46.10 Deployment Standard
+
+- DP-1 MQSC as Code，經 PR 審核。
+- DP-2 每個變更附 Rollback 與驗證命令。
+- DP-3 Production 套用需變更核准，由 Pipeline 或授權人員執行。
+- DP-4 套用前 `dmpmqcfg` 備份。
+
+### 46.11 Upgrade Standard
+
+- US-1 LTS 對 LTS。
+- US-2 Server 先、Client 後。
+- US-3 升級前完成 CipherSpec 替換。
+- US-4 依 Part 20.7 Playbook 與 Part 21.4 流程。
+- US-5 版本資訊必附官方來源。
+
+### 46.12 AI Agent Standard
+
+- AI-1 遵循「AI 分析 → 建議 → 產生 → 自動測試 → 人工審核 → 部署」。
+- AI-2 AI Agent 無 Production 憑證與網路存取。
+- AI-3 Part 30.3 / 41.3 禁止事項以技術控制落實。
+- AI-4 使用 Part 32 Skills 與 Part 42 Prompt Library。
+- AI-5 AI 產出的每個結論需有證據或標示推測。
+
+### 46.13 Reverse Engineering Standard
+
+- RE-1 依 Part 17.6 Input Checklist 收集並遮罩資料。
+- RE-2 依 Part 18 Workflow 分析。
+- RE-3 產出 Part 19.3 格式報告。
+- RE-4 推測項目以 DISPLAY / Log 驗證後才能列入正式規格。
+
+### 46.14 Production Operation Standard
+
+- PO-1 每日巡檢自動化。
+- PO-2 操作依 L0-L4 風險分級（Part 5.7）。
+- PO-3 L3 以上雙人覆核；L4 主管核准且 AI 禁止。
+- PO-4 Incident 依 Part 36.7；涉及金額必對帳。
+- PO-5 DR 依 Part 26 定期演練。
+
+---
+
+## IBM MQ Quick Reference
+
+### 常用 MQSC
+
+```text
+DISPLAY QMGR ALL
+DISPLAY QMSTATUS ALL
+DISPLAY QLOCAL(*) WHERE(CURDEPTH GT 0) CURDEPTH MAXDEPTH
+DISPLAY QSTATUS('Q') TYPE(QUEUE) CURDEPTH IPPROCS OPPROCS MSGAGE
+DISPLAY QSTATUS('Q') TYPE(HANDLE) ALL
+DISPLAY CHSTATUS(*) ALL
+DISPLAY CONN(*) TYPE(CONN) APPLTAG CHANNEL CONNAME USERID
+DISPLAY CHLAUTH(*)
+DISPLAY CHLAUTH('CH') MATCH(RUNCHECK) ADDRESS('ip') CLNTUSER('user')
+DISPLAY AUTHREC PROFILE('Q') OBJTYPE(QUEUE)
+DEFINE QLOCAL('Q') DEFPSIST(YES) MAXDEPTH(n) BOTHRESH(5) BOQNAME('Q.BOQ') HARDENBO REPLACE
+DEFINE QREMOTE('Q') RNAME('RQ') RQMNAME('RQM') XMITQ('RQM') REPLACE
+DEFINE CHANNEL('APP.SVRCONN') CHLTYPE(SVRCONN) TRPTYPE(TCP) SSLCIPH('ANY_TLS13_OR_HIGHER') SSLCAUTH(REQUIRED)
+DEFINE LISTENER('LSTR.1414') TRPTYPE(TCP) PORT(1414) CONTROL(QMGR)
+START CHANNEL('CH') / STOP CHANNEL('CH') MODE(QUIESCE)
+REFRESH SECURITY TYPE(CONNAUTH | SSL | AUTHSERV)
+```
+
+### 常用 Control Commands
+
+```text
+crtmqm / strmqm / endmqm -w|-i / dspmq -o all / dspmqver
+runmqsc QM / runmqsc -v QM < file.mqsc
+dmpmqcfg -m QM -a
+setmqaut / dspmqaut / dmpmqaut
+runmqakm（金鑰庫）/ dspmqcert（MQ 10.0，參數需確認）
+runmqdlq（DLQ Handler）
+dspmqcsv / strmqcsv（Command Server）/ runmqsc -w 30 -m LOCALQM REMOTEQM / runmqsc -c QM
+strmqweb / endmqweb / dspmqweb / setmqweb（mqweb：Console、REST）
+setmqspl / dspmqspl（AMS Policy）
+```
+
+### PCF 與 REST API
+
+```text
+PCF（Java）：new PCFMessageAgent(qmgr) → new PCFMessage(CMQCFC.MQCMD_INQUIRE_Q) → agent.send(request)
+Admin REST：GET  /ibmmq/rest/v3/admin/qmgr/{qmgr}
+Admin REST：POST /ibmmq/rest/v3/admin/action/qmgr/{qmgr}/mqsc  （runCommand / runCommandJSON）
+Messaging REST：POST | DELETE | GET /ibmmq/rest/v3/messaging/qmgr/{qmgr}/queue/{queue}/message
+所有 POST / PATCH / DELETE 必帶標頭 ibm-mq-rest-csrf-token
+角色：MQWebAdmin / MQWebAdminRO / MQWebUser
+```
+
+### z/OS
+
+```text
+-QM01 START QMGR / STOP QMGR MODE(QUIESCE) / START CHINIT / STOP CHINIT
+DISPLAY GROUP / DISPLAY CFSTRUCT(*) / DISPLAY CFSTATUS(*) TYPE(SUMMARY)
+DISPLAY USAGE TYPE(ALL) / DISPLAY LOG / ARCHIVE LOG
+BACKUP CFSTRUCT(name) / RECOVER CFSTRUCT(name)（L4）
+CMDSCOPE(*)：對 QSG 所有成員執行
+CSQUTIL（COMMAND / SDEFS）、CSQ5PQSG、CSQJU003 / CSQJU004
+SMF 115（統計）/ SMF 116（Accounting）
+RACF：MQQUEUE / MQCONN / MQCMDS / MQADMIN；REFRESH SECURITY(MQQUEUE)
+```
+
+### 常用 Reason Code
+
+| Code | 意義 | 第一步 |
+|------|------|--------|
+| 2009 | 連線中斷 | 網路 / QM 狀態 |
+| 2033 | 無訊息 | 正常；檢查 CorrelId |
+| 2035 | 未授權 | AMQERR + CHLAUTH + dspmqaut |
+| 2053 | 佇列已滿 | Consumer |
+| 2059 | QM 不可用 | dspmq / Listener |
+| 2085 | 物件不存在 | 名稱 / 大小寫 |
+| 2393 / 2397 / 2400 | TLS | 憑證 / Cipher / JRE 對應 |
+| 2538 | 主機無法連線 | 網路 / 防火牆 |
+
+### 常用 Queue Pattern
+
+| Pattern | 組成 |
+|---------|------|
+| Request / Reply | REQ（QREMOTE / QLOCAL）+ RSP + 各自 BOQ |
+| Event | Topic + 管理式 SUB + 訂閱佇列 + BOQ |
+| Retry | 原佇列 + RETRY 佇列 + 排程 |
+| Alias 解耦 | QALIAS → QLOCAL |
+
+### 常用 Channel Pattern
+
+| Pattern | 組成 |
+|---------|------|
+| App → QM | SVRCONN（mTLS）+ CHLAUTH SSLPEERMAP |
+| QM → QM | XMITQ（Trigger）+ SDR ↔ RCVR（TLS + MCAUSER 映射） |
+| Cluster | CLUSRCVR + CLUSSDR（→ Full Repository） |
+
+### Java API（IBM MQ classes for Java）
+
+```text
+new MQQueueManager(qm, props) / accessQueue(name, MQOO_*) / put(msg, pmo) / get(msg, gmo)
+commit() / backout() / close() / disconnect()
+MQMessage: messageId, correlationId, persistence, expiry(1/10s), backoutCount, characterSet, format
+```
+
+### JMS API（Jakarta Messaging）
+
+```text
+MQConnectionFactory → createContext(user, pwd, JMSContext.SESSION_TRANSACTED)
+context.createQueue("queue:///Q?targetClient=1")
+context.createProducer().setDeliveryMode(PERSISTENT).setTimeToLive(ms).send(dest, msg)
+context.createConsumer(dest, "JMSCorrelationID = 'ID:...'").receive(timeout)
+context.commit() / context.rollback()
+JMSXDeliveryCount = BackoutCount + 1
+```
+
+### Spring Boot
+
+```text
+依賴：com.ibm.mq:mq-jms-spring-boot-starter（Boot 4 → 4.x；Boot 3 → 3.5.15）
+設定：ibm.mq.queueManager / channel / connName / applicationName / user / password / sslBundle
+Listener：@JmsListener(destination, containerFactory) + sessionTransacted=true
+Producer：JmsTemplate（explicitQosEnabled、deliveryPersistent、timeToLive）
+```
+
+### Troubleshooting
+
+```text
+症狀 → Reason Code → 分層（連線 / 授權 / 物件 / 容量 / 處理）→ 唯讀檢查 → 修正（變更流程）→ 驗證 → 記錄
+```
+
+### Security
+
+```text
+mTLS 1.3 + CHLAUTH 白名單（SSLPEERMAP → MCAUSER）+ CONNAUTH CHCKCLNT(REQUIRED)
++ 群組最小權限（connect / inq / put / get / browse）+ 稽核事件 → SIEM
+禁止：應用帳號入 mqm、+all、移除 BLOCKUSER('*MQADMIN')、MCAUSER 空白
+```
+
+### Production Checklist
+
+```text
+備份（dmpmqcfg）→ 變更核准 → 套用（Pipeline）→ 驗證（DISPLAY）→ 監控 → 必要時 Rollback
+```
+
+### AI Agent Prompt
+
+```text
+P08 MQ Reverse Engineering / P10 MQ Error Analysis / P11 Security Audit
+P20 MQSC Generation / P28 Transaction Analysis / P31 MQ Code Review
+P33 IBM MQ Agent 診斷提問 / P34 Messaging REST API 適用性評估
+（完整內容見 Part 42；IBM MQ Agent 見 Part 23.6、41.6）
+```
+
+---
+
+## 新進成員 Checklist
+
+### 第一週：理解
+
+- [ ] 讀完 Part 1-3，能說明 Queue Manager、Queue、Channel、MQMD 的關係
+- [ ] 能解釋 Persistent、Syncpoint、Backout、DLQ、BOQ
+- [ ] 能說明 MQ 與 REST、Kafka 的適用差異
+
+### 第二週：動手
+
+- [ ] 在本機以 MQ Developer 容器建立 Queue Manager（Part 4.4）
+- [ ] 以 `runmqsc` 建立佇列、Listener、SVRCONN（Part 5、6、7）
+- [ ] 執行 Part 10 / 11 範例，觀察 `DISPLAY QSTATUS`、`DISPLAY CONN`
+- [ ] 刻意製造 2035、2085、2033，練習 Part 23 排查
+
+### 第三週：整合
+
+- [ ] 建立 Spring Boot 4 + starter 專案，完成 Producer 與 Listener（Part 12）
+- [ ] 實作冪等與錯誤分類（Part 13、15）
+- [ ] 撰寫 Testcontainers 整合測試，驗證毒訊息進 BOQ（Part 28）
+
+### 第四週：企業實務
+
+- [ ] 讀完 Security Baseline 與 Coding Standard（Part 8、34）
+- [ ] 以 AI Agent 對一個既有專案執行 P08 逆向工程，並與 Reviewer 驗證
+- [ ] 完成 Part 38 實戰專案的任務 1-6
+- [ ] 理解 AI Governance 禁止事項（Part 30、41）
+
+### 第五週：進階管理與生態系
+
+- [ ] 以 PCF 或 Administrative REST API 完成一支唯讀巡檢程式（Part 5.10、5.11）
+- [ ] 說明 Exits、AMS、Streaming Queue 的用途與風險（Part 2.7、2.9、8.11）
+- [ ] 能比較 Messaging REST API 與 Jakarta Messaging 的適用情境（Part 9.8）
+- [ ] 有主機環境者：讀完 z/OS 架構與管理（Part 2.10、5.13、8.12）
+- [ ] 了解 IBM MQ Agent 的能力、限制與治理要求（Part 23.6、41.6）
+
+---
+
+## 參考資料
+
+以下為撰寫本手冊時查閱的官方與可信來源（查證日期 2026-10-03）：
+
+| 來源 | 連結 |
+|------|------|
+| IBM MQ 10.0 Technical overview | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=mq-technical-overview> |
+| IBM MQ 10.0 Administering | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=mq-administering> |
+| IBM MQ 10.0 Developing applications | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=mq-developing-applications> |
+| What's new and changed in IBM MQ 10.0.0 | <https://www.ibm.com/docs/en/ibm-mq/10.0.x?topic=mq-whats-new-changed-in-1000> |
+| IBM MQ Java language interfaces | <https://www.ibm.com/docs/en/ibm-mq/10.0.x?topic=overview-mq-java-language-interfaces> |
+| Deprecated, stabilized, and removed features in IBM MQ 10.0.0 | <https://www.ibm.com/docs/en/ibm-mq/10.0.x?topic=1000-deprecated-stabilized-removed-features-in-mq> |
+| IBM MQ release types and versioning | <https://www.ibm.com/docs/en/ibm-mq/10.0.x?topic=mq-release-types-versioning> |
+| System Requirements for IBM MQ | <https://www.ibm.com/support/pages/system-requirements-ibm-mq> |
+| IBM MQ JMS Spring Components（mq-jms-spring） | <https://github.com/ibm-messaging/mq-jms-spring> |
+| IBM MQ objects | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=overview-mq-objects> |
+| IBM MQ MQI clients | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=overview-mq-mqi-clients> |
+| Transaction management and support | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=overview-transaction-management-support> |
+| Extending queue manager facilities | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=overview-extending-queue-manager-facilities> |
+| IBM MQ for z/OS concepts | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=overview-mq-zos-concepts> |
+| Managed File Transfer | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=overview-managed-file-transfer> |
+| IBM MQ Internet Pass-Thru | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=overview-mq-internet-pass-thru> |
+| The IBM MQ Console and REST API | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=overview-mq-console-rest-api> |
+| Automating administration using PCF commands | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=administering-automating-mq-administration-using-pcf-commands> |
+| Administration using the REST API | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=administering-administration-using-rest-api> |
+| Working with remote IBM MQ objects | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=administering-working-remote-mq-objects> |
+| Administering IBM MQ for z/OS | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=administering-mq-zos> |
+| Design considerations for IBM MQ applications | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=applications-design-considerations-mq> |
+| Developing REST applications with IBM MQ | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=applications-developing-rest-mq> |
+| IBM MQ Agent | <https://www.ibm.com/docs/zh-tw/ibm-mq/10.0.x?topic=mq-agent> |
+| IBM MQ Developer Essentials | <https://ibm.biz/learn-mq> |
+| IBM MQ 範例程式（mq-dev-patterns） | <https://github.com/ibm-messaging/mq-dev-patterns> |
+| IBM MQ Container（mq-container） | <https://github.com/ibm-messaging/mq-container> |
+| IBM MQ Metric Samples（Prometheus / OpenTelemetry） | <https://github.com/ibm-messaging/mq-metric-samples> |
+| Kafka Connect MQ Source / Sink | <https://github.com/ibm-messaging/kafka-connect-mq-source>、<https://github.com/ibm-messaging/kafka-connect-mq-sink> |
+| Go 與 Node.js 綁定 | <https://github.com/ibm-messaging/mq-golang>、<https://github.com/ibm-messaging/mq-mqi-nodejs> |
+
+> 其他章節中提及的命令、屬性、API 細節，若未列於上表，均已在文中標示「需依目前 IBM 官方文件確認」。
+
+---
+
+## 附錄：手冊品質自我審查
+
+| # | 審查項目 | 結果 | 位置 |
+|---|---------|------|------|
+| 1 | 所有內容在單一 `.md` | 是 | 本檔 |
+| 2 | IBM MQ Architecture | 是 | Part 1-3、45 |
+| 3 | Installation | 是 | Part 4 |
+| 4 | Administration | 是 | Part 5 |
+| 5 | Java | 是 | Part 9-10 |
+| 6 | JMS | 是 | Part 11 |
+| 7 | Spring Boot | 是 | Part 12 |
+| 8 | Security | 是 | Part 8、29 |
+| 9 | Monitoring | 是 | Part 24 |
+| 10 | Performance | 是 | Part 25 |
+| 11 | HA / DR | 是 | Part 26 |
+| 12 | Upgrade | 是 | Part 20、21、44 |
+| 13 | Reverse Engineering | 是 | Part 17-19 |
+| 14 | AI Agent | 是 | Part 18-19、30-42 |
+| 15 | GitHub Copilot / Claude Code / Codex | 是 | Part 31 |
+| 16 | 至少 30 個 AI Prompt | 是（34 個，P01-P34） | Part 42 |
+| 17 | Mermaid | 是（含第六節要求的 15 類圖） | 全文 |
+| 18 | Production Checklist | 是 | Part 36 |
+| 19 | Troubleshooting | 是 | Part 23 |
+| 20 | 金融系統實務 | 是 | Part 1.7、13.9、15、26.6、37 |
+| 21 | 避免直接複製 IBM 文件 | 是：以重組、表格化、實務化方式撰寫 | 全文 |
+| 22 | 清楚標示版本差異 | 是：`[MQ 10.0]`、`[Boot 4]`、`[Java 25]` 等標記 | 全文 |
+| 23 | 可能過時的版本資訊經官方確認 | 是：已查證者列於「版本查證摘要」；未能確認者標示「需依目前 IBM 官方文件確認」 | 全文 |
+| 24 | 官方 Technical overview 子主題全數涵蓋 | 是：逐項對照 | Part 1.21 |
+| 25 | 官方 Administering 子主題全數涵蓋（命令集、遠端管理、PCF、REST、Console / Explorer、擴充元件、z/OS） | 是 | Part 5.8-5.15 |
+| 26 | 官方 Developing applications 子主題全數涵蓋（多語言、Messaging REST、設計考量） | 是 | Part 9.7-9.10 |
+| 27 | z/OS（架構、管理、RACF、SMF、QSG 可用性） | 是 | Part 2.10、5.13、8.12、24.7、26.9 |
+| 28 | IBM MQ Agent（官方 AI Agent） | 是 | Part 23.6、31.6、41.6、P33 |
+| 29 | 目錄與正文一致、可連結 | 是：以 `tools/markdown/gen_sf7_toc.py` 由正文 h2 / h3 自動重建 | 目錄 |
+
+### 第六節 Mermaid 圖對照
+
+| # | 要求 | 位置 |
+|---|------|------|
+| 1 | IBM MQ Overall Architecture | Part 1.6、1.10 |
+| 2 | Queue Manager Architecture | Part 2.3 |
+| 3 | Message Flow | Part 3.3 |
+| 4 | Request / Reply | Part 15.2 |
+| 5 | Publish / Subscribe | Part 2.4.6、16.2 |
+| 6 | Java Application Architecture | Part 9.2 |
+| 7 | Spring Boot + IBM MQ | Part 12.2 |
+| 8 | Legacy System Integration | Part 14.2、17.9 |
+| 9 | MQ Reverse Engineering | Part 17.4、18.2 |
+| 10 | Framework Upgrade | Part 20.2 |
+| 11 | HA | Part 26.5 |
+| 12 | DR | Part 26.6 |
+| 13 | CI/CD | Part 27.2 |
+| 14 | AI Agent SDLC | Part 39.2、40.2 |
+| 15 | Security Architecture | Part 8.2、29.4 |
+
+> **法規聲明**：本手冊涉及的稽核、保存期限、RTO / RPO、演練頻率等，實際要求應依組織適用法規、主管機關規範與內部控制政策確認。
