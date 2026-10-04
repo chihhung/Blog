@@ -1,7 +1,7 @@
 +++
-date = '2026-10-04T21:55:43+08:00'
+date = '2026-10-04T21:56:57+08:00'
 draft = false
-title = 'Trivy 教學手冊'
+title = 'IBM MQ 系統管理與 Java 開發教學手冊'
 tags = ['教學', 'AI開發', 'DevSecOps', 'Trivy', 'SBOM', 'Kubernetes', 'Supply Chain Security']
 categories = ['教學']
 +++
