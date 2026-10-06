@@ -8,10 +8,33 @@ categories = ['教學']
 
 # SDD（系統設計文件｜System Design Document）範本
 
-> **版本**：1.0  
-> **參照標準**：ISO/IEC/IEEE 42010:2022、ISO/IEC 25010:2023、ISO/IEC/IEEE 15288:2023  
-> **適用對象**：系統架構師、資深開發工程師、技術主管  
+> **範本版本**：v2.0（2026-10-06）｜對應《軟體開發標準程序教學手冊》v2.0 第 4.1–4.8 節
+>
+> **參照標準**：ISO/IEC/IEEE 42010:2022、ISO/IEC 25010:2023、ISO/IEC/IEEE 15288:2023
+>
+> **適用對象**：系統架構師、資深開發工程師、技術主管
+>
 > **文件性質**：系統技術架構與設計決策文件
+
+---
+
+## 📑 章節目錄
+
+1. [文件資訊](#1-文件資訊)
+2. [系統概述](#2-系統概述)
+3. [系統架構](#3-系統架構)
+4. [模組劃分（Module Decomposition）](#4-模組劃分module-decomposition)
+5. [資料庫綱要設計（Database Schema）](#5-資料庫綱要設計database-schema)
+6. [API 介面規格（API Specification）](#6-api-介面規格api-specification)
+7. [資安規範（Security Design）](#7-資安規範security-design)
+8. [非功能性設計](#8-非功能性設計)
+9. [整合設計（Integration Design）](#9-整合設計integration-design)
+10. [錯誤處理與容錯設計](#10-錯誤處理與容錯設計)
+11. [可觀測性設計（Observability）](#11-可觀測性設計observability)
+12. [設計決策記錄（ADR）](#12-設計決策記錄adr)
+13. [審查與驗證](#13-審查與驗證)
+
+- [範例：電商系統 SDD 摘要](#範例電商系統-sdd-摘要)
 
 ---
 
@@ -27,7 +50,7 @@ SDD 用於制定技術解決方案，規劃「**系統要如何實作**」。內
 
 ### 與其他文件的關係
 
-```
+```text
 PRD（做什麼） → SDD（如何設計） → TSD（如何實作）
      ↑                ↑                ↑
    產品經理          架構師           開發工程師
@@ -89,9 +112,10 @@ PRD（做什麼） → SDD（如何設計） → TSD（如何實作）
 
 > 簡述本系統的業務背景、核心問題，以及本設計文件欲達成的技術目標。
 
-**系統名稱**：[系統名稱]  
-**系統簡述**：[一段話描述系統用途]  
+**系統名稱**：[系統名稱]\
+**系統簡述**：[一段話描述系統用途]\
 **設計目標**：
+
 1. [技術目標 1，例：支援每秒 1,000 筆交易處理]
 2. [技術目標 2，例：系統可用率 ≥ 99.99%]
 3. [技術目標 3，例：水平擴展能力，支援 10 倍流量成長]
@@ -100,7 +124,7 @@ PRD（做什麼） → SDD（如何設計） → TSD（如何實作）
 
 | 約束類型 | 描述 | 影響範圍 |
 |---------|------|---------|
-| 技術約束 | 例：須使用企業標準技術棧（Java 21 + Spring Boot 3.x） | 開發框架選型 |
+| 技術約束 | 例：須使用企業標準技術棧（Java 21／25 + Spring Boot 4.x） | 開發框架選型 |
 | 合規約束 | 例：須符合 PCI DSS 及個資法要求 | 資料處理與儲存 |
 | 基礎設施約束 | 例：部署於企業私有雲 Kubernetes 環境 | 部署架構 |
 | 整合約束 | 例：須整合現有 SAP ERP 系統 | 介面設計 |
@@ -140,7 +164,7 @@ PRD（做什麼） → SDD（如何設計） → TSD（如何實作）
 
 > 繪製系統整體架構圖，展示各元件之間的關係。
 
-```
+```text
 [提供架構圖，建議使用 Mermaid、C4 Model 或 draw.io]
 
 範例（C4 Context Diagram）：
@@ -210,7 +234,7 @@ PRD（做什麼） → SDD（如何設計） → TSD（如何實作）
 
 ### 4.2 模組依賴關係
 
-```
+```text
 [使用依賴關係圖呈現各模組之間的依賴]
 
 M-002（訂單） ──依賴──► M-001（使用者）
@@ -223,11 +247,13 @@ M-004（報表） ──讀取──► M-001, M-002
 #### M-001：使用者管理模組
 
 **職責**：
+
 - 使用者註冊與身分驗證
 - 角色與權限管理（RBAC）
 - 個人資料維護
 
 **對外介面**：
+
 | API | 方法 | 描述 |
 |-----|------|------|
 | /api/v1/users | POST | 建立使用者 |
@@ -236,7 +262,8 @@ M-004（報表） ──讀取──► M-001, M-002
 | /api/v1/auth/token/refresh | POST | Token 續期 |
 
 **內部類別結構**：
-```
+
+```text
 user-service/
 ├── controller/
 │   ├── UserController
@@ -271,7 +298,7 @@ user-service/
 
 ### 5.2 實體關聯圖（ER Diagram）
 
-```
+```text
 [使用 ER 圖工具或 Mermaid 繪製]
 
 範例：
@@ -301,7 +328,7 @@ user-service/
 | user_id | BIGSERIAL | NOT NULL | AUTO | 主鍵 |
 | username | VARCHAR(50) | NOT NULL | — | 使用者帳號 |
 | email | VARCHAR(254) | NOT NULL | — | 電子郵件（唯一） |
-| password_hash | VARCHAR(256) | NOT NULL | — | 密碼雜湊值（bcrypt） |
+| password_hash | VARCHAR(256) | NOT NULL | — | 密碼雜湊值（Argon2id，含演算法前綴，例 `{argon2}$argon2id$...`） |
 | display_name | VARCHAR(100) | NULL | — | 顯示名稱 |
 | status | VARCHAR(20) | NOT NULL | 'ACTIVE' | 帳號狀態 |
 | last_login_at | TIMESTAMPTZ | NULL | — | 最後登入時間 |
@@ -311,6 +338,7 @@ user-service/
 | updated_by | VARCHAR(50) | NULL | — | 更新者 |
 
 **索引設計**：
+
 | 索引名稱 | 索引欄位 | 類型 | 用途 |
 |---------|---------|------|------|
 | PK_USERS | user_id | PRIMARY KEY | 主鍵查詢 |
@@ -358,6 +386,7 @@ user-service/
 **描述**：建立新使用者
 
 **Request**：
+
 ```json
 {
   "username": "john_doe",
@@ -368,6 +397,7 @@ user-service/
 ```
 
 **Response（201 Created）**：
+
 ```json
 {
   "success": true,
@@ -387,6 +417,7 @@ user-service/
 ```
 
 **Error Response（409 Conflict）**：
+
 ```json
 {
   "success": false,
@@ -423,7 +454,7 @@ user-service/
 | 安全層級 | 防護措施 | 參照標準 |
 |---------|---------|---------|
 | 網路層 | WAF、DDoS 防護、網路區段隔離 | NIST SP 800-41 |
-| 傳輸層 | TLS 1.3、憑證管理 | NIST SP 800-52 |
+| 傳輸層 | TLS 1.2 以上（優先 TLS 1.3）、憑證管理 | NIST SP 800-52、OWASP ASVS 5.0 V12 |
 | 應用層 | 輸入驗證、CSRF/XSS 防護、API 限流 | OWASP ASVS v4.0.3 |
 | 資料層 | 加密儲存、存取控制、資料遮罩 | NIST SP 800-111 |
 | 認證層 | MFA、Token 管理、Session 控制 | NIST SP 800-63B |
@@ -441,7 +472,7 @@ user-service/
 
 | 資料類型 | 分類 | 處理方式 |
 |---------|------|---------|
-| 密碼 | 極機密 | bcrypt 雜湊（cost factor ≥ 12） |
+| 密碼 | 極機密 | Argon2id 雜湊（m ≥ 19 MiB、t ≥ 2、p = 1，依 OWASP Password Storage Cheat Sheet；既有 bcrypt 可沿用並逐步升級） |
 | 個資（身分證、電話） | 機密 | AES-256-GCM 加密儲存 |
 | API Key / Secret | 極機密 | 保險箱服務（Vault） |
 | 一般業務資料 | 內部 | 存取控制、稽核日誌 |
@@ -499,7 +530,7 @@ user-service/
 
 ### 9.2 整合序列圖
 
-```
+```text
 [使用 Mermaid Sequence Diagram 呈現關鍵整合流程]
 
 範例：使用者登入流程
@@ -591,31 +622,62 @@ API GW → Client: 登入成功 + Token
 
 ---
 
+## 13. 審查與驗證
+
+> 本節供審查者使用，也用來檢查 AI 依本範本產出的文件是否正確；對應《軟體開發標準程序教學手冊》v2.0 各章的「審查與驗證」。
+
+### 自動檢查
+
+| 檢查項目 | 方法 |
+|---------|------|
+| JSON 範例合法 | `python -m json.tool` 解析每個 JSON 區塊 |
+| API 規格可 lint | OpenAPI 檔以 `npx @stoplight/spectral-cli lint` 檢查 |
+| Migration 可執行 | 以 Testcontainers 啟動空資料庫執行 `flyway migrate` |
+
+### 人工審查問題
+
+1. 密碼儲存是否採 Argon2id（或有升級計畫的 bcrypt）？
+2. 錯誤處理是否採 RFC 9457 Problem Details？
+3. 資料庫 Schema 變更是否考慮新舊版本並存（Expand／Contract）？
+4. 可觀測性設計是否定義 SLI／SLO 與 traceId 傳遞方式？
+
+### AI 常見錯誤
+
+- 沿用 Spring Boot 3.x、bcrypt、TLS 1.3 only 等舊版或過於絕對的設定。
+- API 設計與 SDD 中的資料模型不一致。
+- 設計決策沒有記錄 ADR。
+
+---
+
 ## 範例：電商系統 SDD 摘要
 
 ### 架構選型
+
 - **架構風格**：微服務架構
 - **通訊方式**：同步 REST + 非同步 Kafka
 - **服務網格**：Istio
 
 ### 核心服務
+
 | 服務 | 技術棧 | 資料庫 |
 |------|--------|--------|
-| 使用者服務 | Spring Boot 3.4 | PostgreSQL |
-| 訂單服務 | Spring Boot 3.4 | PostgreSQL + Redis |
-| 商品服務 | Spring Boot 3.4 | PostgreSQL + Elasticsearch |
-| 支付服務 | Spring Boot 3.4 | PostgreSQL |
-| 通知服務 | Spring Boot 3.4 | Redis |
+| 使用者服務 | Spring Boot 4.1 | PostgreSQL |
+| 訂單服務 | Spring Boot 4.1 | PostgreSQL + Redis |
+| 商品服務 | Spring Boot 4.1 | PostgreSQL + Elasticsearch |
+| 支付服務 | Spring Boot 4.1 | PostgreSQL |
+| 通知服務 | Spring Boot 4.1 | Redis |
 
 ### 資安設計重點
+
 - API Gateway 統一認證（JWT + OAuth 2.0）
 - 敏感資料 AES-256-GCM 加密
 - 全面稽核日誌，保留 3 年
 
 ---
 
-> 📌 **填寫提醒**  
-> 1. SDD 應由架構師主導撰寫，與開發團隊、DBA、資安團隊協同審查  
-> 2. 架構圖建議使用 C4 Model 分層呈現（Context → Container → Component）  
-> 3. 每個設計決策需記錄 ADR（Architecture Decision Record）  
+> 📌 **填寫提醒**
+>
+> 1. SDD 應由架構師主導撰寫，與開發團隊、DBA、資安團隊協同審查
+> 2. 架構圖建議使用 C4 Model 分層呈現（Context → Container → Component）
+> 3. 每個設計決策需記錄 ADR（Architecture Decision Record）
 > 4. 完成後需安排正式的設計審查（Design Review）會議

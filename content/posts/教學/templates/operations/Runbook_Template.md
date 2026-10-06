@@ -8,9 +8,13 @@ tags: ["部署運維", "範本", "軟體工程", "DevOps"]
 
 # 運維手冊範本（Runbook）
 
-> **參照標準**：ITIL 4 Service Operation / ISO/IEC 20000-1:2018 第 8.5 節「Service delivery」  
-> **文件用途**：提供系統日常維運、告警處理、故障排除的標準化操作程序  
+> **參照標準**：ITIL 4 Service Operation / ISO/IEC 20000-1:2018 第 8.5 節「Service delivery」
+>
+> **文件用途**：提供系統日常維運、告警處理、故障排除的標準化操作程序
+>
 > **適用階段**：營運維護階段（Operations & Maintenance）
+>
+> **範本版本**：v2.0（2026-10-06）｜對應《軟體開發標準程序教學手冊》v2.0 第 10.2、10.3 節
 
 ---
 
@@ -26,6 +30,7 @@ tags: ["部署運維", "範本", "軟體工程", "DevOps"]
 8. [維護窗口與排程作業](#8-維護窗口與排程作業)
 9. [備份與還原](#9-備份與還原)
 10. [附錄](#10-附錄)
+11. [審查與驗證](#11-審查與驗證)
 
 ---
 
@@ -72,7 +77,7 @@ tags: ["部署運維", "範本", "軟體工程", "DevOps"]
 
 #### 2.1 系統架構
 
-```
+```text
 {架構圖 — 包含所有元件與連接關係}
 ```
 
@@ -106,8 +111,8 @@ tags: ["部署運維", "範本", "軟體工程", "DevOps"]
 
 | 元件名稱 | 技術堆疊 | 部署位置 | 端點 | 用途 |
 |---------|---------|---------|------|------|
-| hrms-api | .NET 8 Web API | AKS hrms-prod ns | https://hrms-api.internal:443 | 後端 API |
-| hrms-web | React 18 + Nginx | AKS hrms-prod ns | https://hrms.company.com | 前端 SPA |
+| hrms-api | .NET 8 Web API | AKS hrms-prod ns | `https://hrms-api.internal:443` | 後端 API |
+| hrms-web | React 18 + Nginx | AKS hrms-prod ns | `https://hrms.company.com` | 前端 SPA |
 | hrms-worker | .NET 8 Worker Service | AKS hrms-prod ns | N/A（內部處理） | 背景排程任務 |
 | PostgreSQL | v16 | Azure DB for PostgreSQL | hrms-db.postgres.database.azure.com:5432 | 主資料庫 |
 | Redis | v7 | Azure Cache for Redis | hrms-cache.redis.cache.windows.net:6380 | Session + Cache |
@@ -144,6 +149,7 @@ tags: ["部署運維", "範本", "軟體工程", "DevOps"]
 **預期結果**：{描述}
 
 **注意事項**：
+
 - {注意 1}
 - {注意 2}
 
@@ -352,7 +358,7 @@ kubectl logs {pod-name} -n hrms-prod --previous
 
 ### 📝 範本
 
-```
+```text
 {問題症狀}
 ├── 檢查 A？
 │   ├── 是 → {處理方式 1}
@@ -371,7 +377,7 @@ kubectl logs {pod-name} -n hrms-prod --previous
 
 #### 使用者反映「無法登入」
 
-```
+```text
 使用者無法登入
 ├── 其他使用者也無法登入？
 │   ├── 是（全面性問題）
@@ -392,7 +398,7 @@ kubectl logs {pod-name} -n hrms-prod --previous
 
 #### 系統回應緩慢
 
-```
+```text
 系統回應緩慢
 ├── 全部功能都慢，還是特定功能？
 │   ├── 全部都慢
@@ -657,7 +663,34 @@ kubectl logs {pod-name} -n hrms-prod --previous
 
 ---
 
+## 11. 審查與驗證
+
+> 本節供審查者使用，也用來檢查 AI 依本範本產出的文件是否正確；對應《軟體開發標準程序教學手冊》v2.0 各章的「審查與驗證」。
+
+### 自動檢查
+
+| 檢查項目 | 方法 |
+|---------|------|
+| 指令語法 | `bash -n`；ShellCheck |
+| 每個告警都有 Runbook | 比對告警規則的 `runbook_url` 與本文件章節 |
+
+### 人工審查問題
+
+1. 值班人員在凌晨 3 點只看本文件，能完成處理嗎？
+2. 每個處理步驟是否有「如何確認成功」？
+3. 升級條件與聯絡人是否最新？
+4. 危險指令（刪除、重啟資料庫）是否有確認與核准步驟？
+
+### AI 常見錯誤
+
+- 指令中寫死正式環境的主機名稱或密碼。
+- 步驟依賴撰寫者的個人知識（「依經驗判斷」）。
+- 沒有寫出升級（Escalation）時機。
+
+---
+
 > 📌 **範本使用注意事項**
+>
 > 1. 本範本依據 ITIL 4 Service Operation 與 ISO/IEC 20000-1:2018 編製
 > 2. Runbook 為活文件，每次系統變更需同步更新
 > 3. 建議納入 Git 版本控制，追蹤變更歷程

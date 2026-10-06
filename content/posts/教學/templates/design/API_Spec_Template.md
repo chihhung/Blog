@@ -8,9 +8,13 @@ tags: ["設計開發", "範本", "API", "軟體工程", "OpenAPI"]
 
 # API 規格文件範本（API Specification Document）
 
-> **參照標準**：OpenAPI Specification 3.1（OAS 3.1）/ Linux Foundation 標準  
-> **文件用途**：定義 RESTful API 的端點、請求/回應格式、認證機制與錯誤處理規範  
+> **參照標準**：OpenAPI Specification 3.1（OAS 3.1）/ Linux Foundation 標準
+>
+> **文件用途**：定義 RESTful API 的端點、請求/回應格式、認證機制與錯誤處理規範
+>
 > **適用階段**：系統設計階段（Detail Design Phase）
+>
+> **範本版本**：v2.0（2026-10-06）｜對應《軟體開發標準程序教學手冊》v2.0 第 4.3 節
 
 ---
 
@@ -26,6 +30,7 @@ tags: ["設計開發", "範本", "API", "軟體工程", "OpenAPI"]
 8. [版本策略](#8-版本策略)
 9. [OpenAPI 規格檔](#9-openapi-規格檔)
 10. [附錄](#10-附錄)
+11. [審查與驗證](#11-審查與驗證)
 
 ---
 
@@ -176,7 +181,7 @@ Content-Type: application/json
 
 ```json
 {
-  "data": [...],
+  "data": [ { "id": "{資源 ID}" } ],
   "pagination": {
     "page": 1,
     "pageSize": 20,
@@ -269,19 +274,19 @@ Accept: application/json
 |-------------|------|-----------|
 | 200 OK | 成功 | {回應結構} |
 | 201 Created | 建立成功 | {回應結構} |
-| 400 Bad Request | 參數錯誤 | Error Object |
-| 401 Unauthorized | 未認證 | Error Object |
-| 403 Forbidden | 無權限 | Error Object |
-| 404 Not Found | 資源不存在 | Error Object |
+| 400 Bad Request | 參數錯誤 | Problem Details（`application/problem+json`） |
+| 401 Unauthorized | 未認證 | Problem Details（`application/problem+json`） |
+| 403 Forbidden | 無權限 | Problem Details（`application/problem+json`） |
+| 404 Not Found | 資源不存在 | Problem Details（`application/problem+json`） |
 
 **回應 Body 範例：**
 
 ```json
 {
-  "data": { ... },
+  "data": { "id": "{資源 ID}" },
   "meta": {
-    "requestId": "uuid",
-    "timestamp": "ISO-8601"
+    "requestId": "{uuid}",
+    "timestamp": "{ISO-8601 含時區}"
   }
 }
 ```
@@ -323,8 +328,11 @@ Accept: application/json
 
 **回應：**
 
-```json
-// 201 Created
+```http
+HTTP/1.1 201 Created
+Content-Type: application/json
+Location: /api/v1/leaves/LV-20260601-001
+
 {
   "data": {
     "id": "LV-20260601-001",
@@ -412,39 +420,39 @@ Accept: application/json
 
 ### 📝 範本
 
-#### 7.1 錯誤回應格式
+#### 7.1 錯誤回應格式（RFC 9457 Problem Details）
+
+錯誤回應的 `Content-Type` 為 `application/problem+json`。`type`、`title`、`status`、`detail`、`instance` 為 RFC 9457 標準欄位；`code`、`traceId`、`errors` 為企業擴充欄位。
 
 ```json
 {
+  "type": "https://{domain}/problems/{problem-type}",
+  "title": "{錯誤類型的簡短說明，同一 type 固定不變}",
+  "status": 400,
+  "detail": "{此次錯誤的具體說明}",
+  "instance": "{發生錯誤的請求路徑}",
+  "code": "{ERROR_CODE}",
+  "traceId": "{W3C Trace Context 的 trace-id，32 位十六進位}",
   "errors": [
-    {
-      "code": "{ERROR_CODE}",
-      "message": "{人類可讀的錯誤訊息}",
-      "field": "{引發錯誤的欄位（選填）}",
-      "detail": "{詳細說明（選填）}"
-    }
-  ],
-  "meta": {
-    "requestId": "{uuid}",
-    "timestamp": "{ISO-8601}"
-  }
+    { "pointer": "#/{欄位路徑}", "detail": "{欄位錯誤說明}" }
+  ]
 }
 ```
 
 #### 7.2 錯誤代碼清單
 
-| HTTP Status | Error Code | 說明 | 處理建議 |
-|-------------|-----------|------|---------|
-| 400 | `VALIDATION_ERROR` | 請求參數驗證失敗 | 修正請求參數後重試 |
-| 400 | `INVALID_DATE_RANGE` | 日期範圍無效 | 確認 endDate ≥ startDate |
-| 401 | `TOKEN_EXPIRED` | Token 已過期 | 使用 Refresh Token 取得新 Token |
-| 401 | `INVALID_TOKEN` | Token 無效 | 重新登入取得 Token |
-| 403 | `INSUFFICIENT_SCOPE` | 權限不足 | 確認帳號具有對應 Scope |
-| 404 | `RESOURCE_NOT_FOUND` | 資源不存在 | 確認 ID 是否正確 |
-| 409 | `CONFLICT` | 資源衝突 | 取得最新版本後重試 |
-| 422 | `BUSINESS_RULE_VIOLATION` | 違反業務規則 | 參考 detail 欄位說明 |
-| 429 | `RATE_LIMIT_EXCEEDED` | 超過請求頻率限制 | 等待後重試，參考 Retry-After header |
-| 500 | `INTERNAL_ERROR` | 伺服器內部錯誤 | 聯繫技術支援 |
+| HTTP Status | Error Code | Problem type（URI 結尾） | 說明 | 處理建議 |
+|-------------|-----------|------------------------|------|---------|
+| 400 | `VALIDATION_ERROR` | `validation-error` | 請求參數驗證失敗 | 依 `errors[].pointer` 修正後重試 |
+| 400 | `INVALID_DATE_RANGE` | `invalid-date-range` | 日期範圍無效 | 確認 endDate ≥ startDate |
+| 401 | `TOKEN_EXPIRED` | `token-expired` | Token 已過期 | 使用 Refresh Token 取得新 Token |
+| 401 | `INVALID_TOKEN` | `invalid-token` | Token 無效 | 重新登入取得 Token |
+| 403 | `INSUFFICIENT_SCOPE` | `insufficient-scope` | 權限不足 | 確認帳號具有對應 Scope |
+| 404 | `RESOURCE_NOT_FOUND` | `resource-not-found` | 資源不存在（或無權查看） | 確認 ID 是否正確 |
+| 409 | `CONFLICT` | `conflict` | 資源狀態衝突 | 取得最新版本後重試 |
+| 422 | `BUSINESS_RULE_VIOLATION` | `business-rule-violation` | 格式正確但違反業務規則（Unprocessable Content） | 參考 `detail` 說明 |
+| 429 | `RATE_LIMIT_EXCEEDED` | `rate-limit-exceeded` | 超過請求頻率限制 | 依 `Retry-After` 標頭等待後重試 |
+| 500 | `INTERNAL_ERROR` | `internal-error` | 伺服器內部錯誤 | 提供 `traceId` 聯繫技術支援 |
 
 #### 7.3 Rate Limiting
 
@@ -452,32 +460,37 @@ Accept: application/json
 |------|------|
 | 限制方式 | {Per User / Per API Key / Per IP} |
 | 限制量 | {N} requests / {時間單位} |
-| 回應 Header | `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` |
+| 超限回應 | `429 Too Many Requests` + `Retry-After` 標頭（RFC 9110） |
+| 額度標頭 | {`X-RateLimit-Limit`、`X-RateLimit-Remaining`、`X-RateLimit-Reset`（業界慣例，非標準）} |
 
 ### 📖 使用說明
 
-- 錯誤格式遵循 RFC 7807 Problem Details 精神，結構統一
-- Error Code 使用大寫蛇形命名（UPPER_SNAKE_CASE）
-- 400 系列為客戶端錯誤，500 系列為伺服器錯誤
-- 錯誤訊息不應洩漏系統內部資訊（如 Stack Trace、DB 結構）
+- 錯誤格式**必須**遵循 RFC 9457 Problem Details（RFC 9457 已取代 RFC 7807），對應《軟體開發標準程序教學手冊》4.3
+- 同一種錯誤固定使用同一個 `type` URI 與 `title`；`detail` 才描述個案
+- Error Code 使用大寫蛇形命名（UPPER_SNAKE_CASE），作為企業擴充欄位
+- `422` 的名稱依 RFC 9110 為 **Unprocessable Content**（舊名 Unprocessable Entity）
+- 錯誤訊息不得洩漏系統內部資訊（如 Stack Trace、SQL、主機名稱）
+- 標準化的 `RateLimit` 標頭目前仍為 IETF 草案；使用 `X-RateLimit-*` 時需在本文件註明語意
 
 ### 💡 範例
 
-```json
-// 422 Unprocessable Entity
+`POST /api/v1/leaves` 申請特休 3 天、但剩餘額度僅 2 天時的回應：
+
+```http
+HTTP/1.1 422 Unprocessable Content
+Content-Type: application/problem+json
+
 {
+  "type": "https://api.company.com/problems/business-rule-violation",
+  "title": "違反業務規則",
+  "status": 422,
+  "detail": "申請 3 天特休假，但剩餘假額僅 2 天",
+  "instance": "/api/v1/leaves",
+  "code": "BUSINESS_RULE_VIOLATION",
+  "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
   "errors": [
-    {
-      "code": "BUSINESS_RULE_VIOLATION",
-      "message": "特休假額不足",
-      "field": "leaveType",
-      "detail": "申請 3 天特休假，但剩餘假額僅 2 天"
-    }
-  ],
-  "meta": {
-    "requestId": "550e8400-e29b-41d4-a716-446655440000",
-    "timestamp": "2026-05-18T10:30:00+08:00"
-  }
+    { "pointer": "#/leaveType", "detail": "特休假剩餘額度 2 天，不足申請天數 3 天" }
+  ]
 }
 ```
 
@@ -494,24 +507,27 @@ Accept: application/json
 | 版本格式 | {URL Path / Header / Query Parameter} |
 | 版本命名 | v{major}（如 v1, v2） |
 | 向後相容 | {相容性保證描述} |
-| 棄用通知 | {提前 N 個月通知} |
+| 棄用通知 | {提前 N 個月通知；回應加上 `Deprecation`（RFC 9745）與 `Sunset`（RFC 8594）標頭} |
 | 並行支援 | {同時支援 N 個版本} |
 
 #### 8.2 Breaking Change 定義
 
 以下變更視為 Breaking Change（需升版）：
+
 - {Breaking Change 類型 1}
 - {Breaking Change 類型 2}
 
 以下變更為 Non-Breaking（不需升版）：
+
 - {Non-Breaking Change 類型 1}
 - {Non-Breaking Change 類型 2}
 
 ### 📖 使用說明
 
 - URL Path 版本管理（如 `/api/v1/`）最直觀，業界最常見
-- Breaking Change：移除欄位、更改欄位型別、更改必填性、更改行為
-- Non-Breaking Change：新增選填欄位、新增端點、新增回應欄位
+- Breaking Change：移除或改名欄位、更改欄位型別、新增必填請求欄位、更改行為語意
+- Non-Breaking Change：新增選填欄位、新增端點、新增回應欄位（消費端必須忽略未知欄位）
+- 棄用中的 API 以標頭預告，讓消費端能用程式偵測，而不是只靠公告信
 
 ### 💡 範例
 
@@ -522,7 +538,7 @@ Accept: application/json
 | 版本格式 | URL Path（`/api/v1/...`） |
 | 版本命名 | v1, v2（Major 版本） |
 | 向後相容 | 同一 Major 版本內保證向後相容 |
-| 棄用通知 | 新版本發布後，舊版本至少維護 12 個月 |
+| 棄用通知 | v2 發布當天起，v1 回應加上 `Deprecation: @1798732800`（2027-01-01）與 `Sunset: Fri, 31 Dec 2027 23:59:59 GMT`；舊版本至少維護 12 個月 |
 | 並行支援 | 最多同時維護 2 個 Major 版本 |
 
 ---
@@ -531,7 +547,7 @@ Accept: application/json
 
 ### 📝 範本
 
-以下為本 API 的 OpenAPI 3.1 規格定義：
+以下為本 API 的 OpenAPI 3.1 規格定義（OpenAPI 3.2.0 已於 2025-09 發布，工具鏈支援後可升級）：
 
 ```yaml
 openapi: 3.1.0
@@ -544,18 +560,23 @@ info:
     email: "{聯絡信箱}"
 
 servers:
-  - url: https://{domain}/api/v1
+  - url: https://{domain}
     description: "Production"
-  - url: https://dev-{domain}/api/v1
+  - url: https://dev-{domain}
     description: "Development"
 
 security:
   - bearerAuth: []
 
+tags:
+  - name: "{Tag}"
+    description: "{Tag 說明}"
+
 paths:
-  /{resource}:
+  /api/v1/{resource}:
     get:
       summary: "{描述}"
+      description: "{詳細說明}"
       operationId: "{operationId}"
       tags:
         - "{Tag}"
@@ -565,6 +586,7 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
         - name: pageSize
           in: query
           schema:
@@ -578,8 +600,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/{ResponseSchema}'
+        '400':
+          $ref: '#/components/responses/Problem'
     post:
       summary: "{描述}"
+      description: "{詳細說明}"
       operationId: "{operationId}"
       tags:
         - "{Tag}"
@@ -593,11 +618,9 @@ paths:
         '201':
           description: "Created"
         '400':
-          description: "Bad Request"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/Problem'
+        '422':
+          $ref: '#/components/responses/Problem'
 
 components:
   securitySchemes:
@@ -606,49 +629,56 @@ components:
       scheme: bearer
       bearerFormat: JWT
 
+  responses:
+    Problem:
+      description: "錯誤（RFC 9457 Problem Details）"
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
   schemas:
-    ErrorResponse:
+    Problem:
       type: object
+      required: [type, title, status]
       properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        code:
+          type: string
+        traceId:
+          type: string
         errors:
           type: array
           items:
-            $ref: '#/components/schemas/Error'
-        meta:
-          $ref: '#/components/schemas/Meta'
-
-    Error:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
-        field:
-          type: string
-        detail:
-          type: string
-      required: [code, message]
-
-    Meta:
-      type: object
-      properties:
-        requestId:
-          type: string
-          format: uuid
-        timestamp:
-          type: string
-          format: date-time
+            type: object
+            properties:
+              pointer:
+                type: string
+              detail:
+                type: string
 ```
 
 ### 📖 使用說明
 
 - OpenAPI 3.1 規格檔可直接用於自動生成 API 文件（如 Swagger UI、Redoc）
-- 建議將 yaml 檔案納入版本控制，與程式碼同步更新
-- 可搭配 CI/CD Pipeline 自動驗證 API 實作是否符合規格（Contract Testing）
-- `$ref` 用於引用可重複使用的 Schema，避免重複定義
+- 規格檔納入版本控制，與程式碼同一個 PR 更新（Docs-as-Code）
+- CI 以 Spectral 檢查規格（`npx @stoplight/spectral-cli lint openapi.yaml --fail-severity=warn`），並以契約測試驗證實作與規格一致
+- `$ref` 用於引用可重複使用的 Schema 與 Response，避免重複定義；**所有被引用的元件都必須定義**，否則 lint 會失敗
+- 範本中的 `{...}` 佔位符必須全部替換後才能通過 lint
 
 ### 💡 範例
+
+以下範例可直接通過 `spectral:oas` 規則集（`--fail-severity=warn`）檢查：
 
 ```yaml
 openapi: 3.1.0
@@ -661,20 +691,26 @@ info:
     email: "hrms-dev@company.com"
 
 servers:
-  - url: https://api.company.com/hrms/v1
+  - url: https://api.company.com/hrms
     description: "Production"
-  - url: https://dev-api.company.com/hrms/v1
+  - url: https://dev-api.company.com/hrms
     description: "Development"
 
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Leaves
+    description: "請假管理"
+
 paths:
-  /leaves:
+  /api/v1/leaves:
     post:
       summary: "提交請假申請"
+      description: "員工提交請假申請；假別額度不足時回傳 422。"
       operationId: "createLeave"
       tags:
-        - "Leaves"
-      security:
-        - bearerAuth: [leave:manage]
+        - Leaves
       requestBody:
         required: true
         content:
@@ -684,16 +720,129 @@ paths:
       responses:
         '201':
           description: "請假申請建立成功"
+          headers:
+            Location:
+              description: "新建立的請假紀錄 URL"
+              schema:
+                type: string
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/LeaveResponse'
+        '400':
+          $ref: '#/components/responses/Problem'
         '422':
-          description: "業務規則驗證失敗"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/Problem'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    Problem:
+      description: "錯誤（RFC 9457 Problem Details）"
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+
+  schemas:
+    LeaveRequest:
+      type: object
+      required: [leaveType, startDate, endDate, reason]
+      properties:
+        leaveType:
+          $ref: '#/components/schemas/LeaveType'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+        delegateId:
+          type: string
+          pattern: '^E\d{8}$'
+    LeaveType:
+      type: string
+      enum: [annual, sick, personal, official]
+    LeaveStatus:
+      type: string
+      enum: [pending, approved, rejected, cancelled]
+    Leave:
+      type: object
+      required: [id, employeeId, leaveType, startDate, endDate, days, status, createdAt]
+      properties:
+        id:
+          type: string
+        employeeId:
+          type: string
+        leaveType:
+          $ref: '#/components/schemas/LeaveType'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        days:
+          type: number
+        status:
+          $ref: '#/components/schemas/LeaveStatus'
+        createdAt:
+          type: string
+          format: date-time
+    Meta:
+      type: object
+      properties:
+        requestId:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+    LeaveResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Leave'
+        meta:
+          $ref: '#/components/schemas/Meta'
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        code:
+          type: string
+        traceId:
+          type: string
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              pointer:
+                type: string
+              detail:
+                type: string
 ```
 
 ---
@@ -726,7 +875,7 @@ paths:
 
 ### 📖 使用說明
 
-- 環境 URL 需與 DevOps 團隊確認，確保 DNS 與 SSL 憑證就緒
+- 環境 URL 需與 DevOps 團隊確認，確保 DNS 與 TLS 憑證就緒
 - 變更紀錄標記 Breaking / Non-Breaking 協助使用者評估升級影響
 - Postman Collection 可匯出分享給前端或第三方開發者
 
@@ -742,7 +891,35 @@ paths:
 
 ---
 
+## 11. 審查與驗證
+
+> 本節供審查者使用，也用來檢查 AI 依本範本產出的文件是否正確；對應《軟體開發標準程序教學手冊》v2.0 各章的「審查與驗證」。
+
+### 自動檢查
+
+| 檢查項目 | 方法 |
+|---------|------|
+| OpenAPI lint | `npx @stoplight/spectral-cli lint openapi.yaml --fail-severity=warn`（v2.0 範例已通過，含路徑版本號企業規則） |
+| JSON 範例合法 | 每個 `json` 區塊可被 JSON 解析器解析；含 HTTP 標頭的範例改用 `http` 區塊 |
+| 錯誤格式 | 整合測試斷言 `Content-Type: application/problem+json` 與 `type`、`title`、`status` |
+
+### 人工審查問題
+
+1. 端點、資料模型與 OpenAPI 檔三處的欄位與列舉值一致嗎？
+2. 清單 API 是否有分頁上限？非冪等 POST 是否需要冪等鍵？
+3. 不相容變更是否升主版號，並以 `Deprecation`／`Sunset` 標頭預告？
+4. 401／403／404 的語意是否正確（無權查看的資源可回 404）？
+
+### AI 常見錯誤
+
+- 錯誤回應仍用自訂格式，或把 422 寫成 Unprocessable Entity。
+- OpenAPI 範例引用未定義的 schema（v1.x 範本即有此問題，lint 會失敗）。
+- JSON 範例中夾帶 `//` 註解，導致不是合法 JSON。
+
+---
+
 > 📌 **範本使用注意事項**
+>
 > 1. 本範本依據 OpenAPI Specification 3.1 標準編製
 > 2. 建議同時維護本文件（人類可讀）與 OpenAPI yaml 檔案（機器可讀）
 > 3. API 設計建議遵循：REST 最佳實踐、一致命名、最小暴露原則

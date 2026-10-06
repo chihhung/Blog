@@ -8,9 +8,13 @@ tags: ["部署運維", "範本", "軟體工程", "版本管理"]
 
 # 版本發行說明範本（Release Notes）
 
-> **參照標準**：Keep a Changelog 1.1.0 / SemVer 2.0.0 / ISO/IEC/IEEE 12207:2017（Release Management）  
-> **文件用途**：正式記錄每個版本的變更內容，供開發、維運、使用者了解版本差異  
+> **參照標準**：Keep a Changelog 1.1.0 / SemVer 2.0.0 / ISO/IEC/IEEE 12207:2026（Release Management）
+>
+> **文件用途**：正式記錄每個版本的變更內容，供開發、維運、使用者了解版本差異
+>
 > **適用階段**：部署上線階段（Deployment Phase）— Release Management
+>
+> **範本版本**：v2.0（2026-10-06）｜對應《軟體開發標準程序教學手冊》v2.0 第 7.2、8.1 節
 
 ---
 
@@ -27,6 +31,7 @@ tags: ["部署運維", "範本", "軟體工程", "版本管理"]
 9. [已知問題（Known Issues）](#9-已知問題known-issues)
 10. [升級指南](#10-升級指南)
 11. [相容性說明](#11-相容性說明)
+12. [審查與驗證](#12-審查與驗證)
 
 ---
 
@@ -397,12 +402,40 @@ CREATE INDEX idx_notification_employee ON notification_logs(employee_id, sent_at
 | .NET Runtime | .NET 8.0.4+ |
 | PostgreSQL | 15.x / 16.x |
 | Redis | 7.0+ |
-| Kubernetes | 1.27+ |
+| Kubernetes | 1.35+（上游只支援最近三個次版本，2026-10 為 1.35–1.37） |
+
+---
+
+## 12. 審查與驗證
+
+> 本節供審查者使用，也用來檢查 AI 依本範本產出的文件是否正確；對應《軟體開發標準程序教學手冊》v2.0 各章的「審查與驗證」。
+
+### 自動檢查
+
+| 檢查項目 | 方法 |
+|---------|------|
+| 版號符合 SemVer | 正規表示式 `^v?\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$`；不相容變更必須升主版號 |
+| 內容與 CHANGELOG 一致 | 由 Conventional Commits 自動產生的 CHANGELOG 比對 |
+| Migration SQL | 以目標資料庫執行 |
+
+### 人工審查問題
+
+1. 不相容變更是否明確標示，並提供遷移步驟？
+2. Migration 是否可回滾？若不可，回滾計畫如何處理？
+3. 相容性表中的平台版本是否仍在支援期內？
+4. 已知問題是否列出暫時解法？
+
+### AI 常見錯誤
+
+- 把不相容變更列在一般功能中。
+- 相容性表列出已結束支援的版本。
+- 引用 ISO/IEC/IEEE 12207:2017（已由 2026 年版取代）。
 
 ---
 
 > 📌 **範本使用注意事項**
-> 1. 本範本依據 Keep a Changelog 1.1.0 與 SemVer 2.0.0 精神擴展，結合 ISO/IEC/IEEE 12207:2017 Release Management
+>
+> 1. 本範本依據 Keep a Changelog 1.1.0 與 SemVer 2.0.0 精神擴展，結合 ISO/IEC/IEEE 12207:2026 Release Management
 > 2. 每次正式版本發佈（含 Hotfix）必須產出 Release Notes
 > 3. 搭配「CHANGELOG 範本」使用 — CHANGELOG 是累計歷史，Release Notes 是單次詳細說明
 > 4. 搭配「部署指引範本」使用 — 升級指南與部署步驟互補

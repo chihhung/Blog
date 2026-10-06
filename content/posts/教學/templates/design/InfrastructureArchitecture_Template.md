@@ -8,9 +8,13 @@ tags: ["範本", "設計開發", "架構設計", "基礎設施", "SSDLC"]
 
 # 基礎設施架構設計文件範本（Infrastructure Architecture Document Template）
 
-> **適用標準**：ISO/IEC/IEEE 42010:2022（架構描述）、TOGAF ADM、C4 Model、ISO/IEC 27001:2022（資安）  
-> **適用階段**：系統設計階段（Design Phase）  
+> **適用標準**：ISO/IEC/IEEE 42010:2022（架構描述）、TOGAF ADM、C4 Model、ISO/IEC 27001:2022（資安）
+>
+> **適用階段**：系統設計階段（Design Phase）
+>
 > **負責角色**：系統架構師（SA）、基礎設施工程師（Infra Engineer）、雲端架構師
+>
+> **範本版本**：v2.0（2026-10-06）｜對應《軟體開發標準程序教學手冊》v2.0 第 4.2、4.5、8.2 節
 
 ---
 
@@ -29,6 +33,7 @@ tags: ["範本", "設計開發", "架構設計", "基礎設施", "SSDLC"]
 11. [容量規劃與擴展策略](#11-容量規劃與擴展策略)
 12. [環境規劃](#12-環境規劃)
 13. [附錄](#13-附錄)
+14. [審查與驗證](#14-審查與驗證)
 
 ---
 
@@ -76,7 +81,7 @@ tags: ["範本", "設計開發", "架構設計", "基礎設施", "SSDLC"]
 | 效能（Performance） | [回應時間目標] | P95 < [N]ms, TPS ≥ [N] |
 | 延展性（Scalability） | [擴展能力] | 支援 [N] 並發用戶 |
 | 安全性（Security） | [合規要求] | 符合 [法規/標準] |
-| 可維護性（Maintainability） | [維護便利性] | MTTR < [N] min |
+| 可維護性（Maintainability） | [維護便利性] | 失敗部署復原時間（DORA）< [N] min |
 | 成本效益（Cost） | [預算限制] | 月費 < [N] USD |
 
 #### 2.2 設計約束
@@ -98,7 +103,7 @@ tags: ["範本", "設計開發", "架構設計", "基礎設施", "SSDLC"]
 
 **ADR 格式：**
 
-```
+```markdown
 ## ADR-[NNN]: [決策標題]
 
 ### 狀態：[Proposed / Accepted / Deprecated / Superseded]
@@ -367,7 +372,7 @@ graph TB
 
 | 憑證類型 | 管理方式 | 輪換頻率 | 工具 |
 |---------|---------|---------|------|
-| SSL/TLS 憑證 | [自動更新 / 手動] | [N 天] | [Let's Encrypt / ACM] |
+| TLS 憑證 | [自動更新 / 手動] | [N 天] | [Let's Encrypt / ACM] |
 | DB 密碼 | Secret Manager | [N 天] | [Vault / Key Vault] |
 | API Key | Secret Manager | [N 天] | [Vault / Key Vault] |
 | SSH Key | Key Management | [N 天] | [工具名稱] |
@@ -491,7 +496,7 @@ graph LR
 |---------|-----|-----|-----|---------|-----------|
 | App Replicas | 1 | 2 | 2 | [N] | [N] |
 | DB Size | [N]GB | [N]GB | [N]GB | [N]GB | [N]GB |
-| SSL | Self-signed | Self-signed | Internal CA | Public CA | Public CA |
+| TLS 憑證 | Self-signed | Self-signed | Internal CA | Public CA | Public CA |
 | Monitoring | Basic | Basic | Standard | Full | Full |
 | Backup | None | Daily | Daily | Full | Full |
 
@@ -514,6 +519,33 @@ graph LR
 | 軟體/服務 | 授權類型 | 到期日 | 負責人 |
 |-----------|---------|--------|--------|
 | [Software] | [License type] | [YYYY-MM-DD] | [Name] |
+
+---
+
+### 14. 審查與驗證
+
+> 本節供審查者使用，也用來檢查 AI 依本範本產出的文件是否正確；對應《軟體開發標準程序教學手冊》v2.0 各章的「審查與驗證」。
+
+#### 自動檢查
+
+| 檢查項目 | 方法 |
+|---------|------|
+| IaC 掃描 | Checkov／Trivy config 掃描 Terraform、K8s manifest |
+| K8s manifest 結構 | `kubeconform -strict` |
+| TLS 設定 | `testssl.sh` 掃描對外端點 |
+
+#### 人工審查問題
+
+1. 高可用設計是否消除單點故障？切換是否演練過？
+2. RPO／RTO 是否來自營運衝擊分析（BIA）並與備份設計一致？
+3. 網路分區與防火牆規則是否遵循最小權限？
+4. 維運指標是否改用 DORA 的「失敗部署復原時間」等明確定義？
+
+#### AI 常見錯誤
+
+- 把 WAF 規則集寫成「OWASP Top 10 規則集」（正確名稱為 OWASP Core Rule Set）。
+- 傳輸加密寫死 TLS 1.3，造成舊用戶端無法連線而未評估。
+- 資源規格沒有容量計算依據。
 
 ---
 
@@ -576,7 +608,7 @@ graph LR
 | 效能 | API 回應快速 | P95 < 200ms, P99 < 500ms |
 | 延展性 | 支援業務成長 | 最多 5,000 並發用戶 |
 | 安全性 | 個資保護 | 符合個資法、ISO 27001 |
-| 可維護性 | 快速修復 | MTTR < 30 min |
+| 可維護性 | 快速修復 | 失敗部署復原時間 < 30 min |
 | 成本 | 合理預算 | 月費 < USD 5,000 |
 
 ---
@@ -664,6 +696,7 @@ graph TB
 | Blob Storage | ZRS (Zone Redundant) | ✅ | 即時 | 0 |
 
 **DR 策略：**
+
 - 類型：Warm Standby（Southeast Asia region）
 - RTO：4 小時
 - RPO：1 小時（PostgreSQL Geo-Replication lag）
@@ -675,13 +708,13 @@ graph TB
 
 | 安全層 | 措施 | 工具 |
 |--------|------|------|
-| 邊界防護 | WAF（OWASP Top 10 規則集） | Azure WAF v2 |
+| 邊界防護 | WAF（OWASP Core Rule Set） | Azure WAF v2 |
 | DDoS 防護 | Network-level DDoS | Azure DDoS Protection |
 | 網路分段 | Private subnet + NSG | Azure VNET + NSG |
 | 身分驗證 | OAuth 2.0 + OIDC | Azure AD / Keycloak |
 | 授權 | RBAC（HR Admin / Manager / Employee） | 應用層實作 |
 | 資料加密(靜態) | TDE + 應用層 PII 加密 | PostgreSQL TDE + AES-256 |
-| 資料加密(傳輸) | TLS 1.3 | 全程強制 |
+| 資料加密(傳輸) | TLS 1.2 以上（優先 TLS 1.3） | 全程強制 |
 | 密鑰管理 | 集中管理、自動輪換 | Azure Key Vault |
 | 稽核日誌 | 全操作記錄 | Azure Monitor + Log Analytics |
 
@@ -695,14 +728,15 @@ graph TB
 | DB CPU High | CPU > 80% for 10min | Warning | Teams | 30 min |
 | Pod CrashLoopBackOff | Restart count > 3 in 5min | Critical | PagerDuty | 15 min |
 | Disk Usage High | Disk > 85% | Warning | Email + Teams | 4 hr |
-| SSL Cert Expiry | < 14 days to expiry | Warning | Email | 7 days |
+| TLS Cert Expiry | < 14 days to expiry | Warning | Email | 7 days |
 | Response Time Degraded | P95 > 500ms for 10min | Warning | Teams | 1 hr |
 
 ---
 
-> 📌 **審閱重點**  
-> - 架構圖是否反映實際部署拓撲，而非僅概念圖？  
-> - 每個元件是否都有明確的 HA 與 DR 策略？  
-> - 網路分段是否遵循最小權限原則（Zero Trust）？  
-> - 成本估算是否含擴展後的預算？  
+> 📌 **審閱重點**
+>
+> - 架構圖是否反映實際部署拓撲，而非僅概念圖？
+> - 每個元件是否都有明確的 HA 與 DR 策略？
+> - 網路分段是否遵循最小權限原則（Zero Trust）？
+> - 成本估算是否含擴展後的預算？
 > - 所有敏感組態（密碼、金鑰）是否都使用 Secret Manager？

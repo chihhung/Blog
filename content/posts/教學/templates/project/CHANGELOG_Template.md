@@ -8,9 +8,13 @@ tags: ["專案管理", "範本", "軟體工程", "版本管理"]
 
 # 變更日誌範本（CHANGELOG Template）
 
-> **參照標準**：[Keep a Changelog 1.1.0](https://keepachangelog.com/) / [Semantic Versioning 2.0.0](https://semver.org/)  
-> **文件用途**：記錄專案每個版本的顯著變更，讓使用者與開發者了解版本間的差異  
+> **參照標準**：[Keep a Changelog 1.1.0](https://keepachangelog.com/) / [Semantic Versioning 2.0.0](https://semver.org/)
+>
+> **文件用途**：記錄專案每個版本的顯著變更，讓使用者與開發者了解版本間的差異
+>
 > **適用階段**：專案全生命週期（每次發版皆需更新）
+>
+> **範本版本**：v2.0（2026-10-06）｜對應《軟體開發標準程序教學手冊》v2.0 第 7.1、7.2 節
 
 ---
 
@@ -24,6 +28,7 @@ tags: ["專案管理", "範本", "軟體工程", "版本管理"]
 6. [CHANGELOG 完整範本](#6-changelog-完整範本)
 7. [自動化產生](#7-自動化產生)
 8. [附錄](#8-附錄)
+9. [審查與驗證](#9-審查與驗證)
 
 ---
 
@@ -153,7 +158,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Semantic Versioning（語意化版本）
 
-```
+```text
 MAJOR.MINOR.PATCH
 ```
 
@@ -226,6 +231,7 @@ MAJOR.MINOR.PATCH
 ### 💡 範例
 
 **好的寫法：**
+
 ```markdown
 ### Fixed
 - 修復跨月請假（如 1/30 ~ 2/2）天數計算為負數的問題 ([#234](https://...))
@@ -233,6 +239,7 @@ MAJOR.MINOR.PATCH
 ```
 
 **不好的寫法：**
+
 ```markdown
 ### Fixed
 - fix bug
@@ -377,13 +384,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### 7.2 CI/CD 整合範例
 
 ```yaml
-# GitHub Action 範例
-- name: Generate Changelog
-  uses: conventional-changelog/conventional-changelog-action@v3
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-    output-file: "CHANGELOG.md"
+# .github/workflows/release.yml：合併到 main 後依 Conventional Commits 產生 CHANGELOG、升版並打 tag
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # 需要推送 CHANGELOG 的 commit 與 tag
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0  # 需要完整歷史才能計算版號
+
+      - name: Generate Changelog
+        uses: TriPSs/conventional-changelog-action@469f0e5e35831fbd1962706f29f65daf0a5723f2 # v6.5.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          output-file: "CHANGELOG.md"
+          preset: "conventionalcommits"
 ```
+
+> ⚠️ v1.x 範本引用的 `conventional-changelog/conventional-changelog-action@v3` **並不存在**（GitHub 回傳 404），正確的 Action 為 `TriPSs/conventional-changelog-action`。第三方 Action 一律以 commit SHA 固定版本（見《軟體開發標準程序教學手冊》8.1），並以 `actionlint` 檢查 workflow。
 
 ### 📖 使用說明
 
@@ -444,13 +473,15 @@ conventional-changelog -p angular -i CHANGELOG.md -s -r 0
 **CHANGELOG vs Git Log 的差異：**
 
 Git Log（技術導向）：
-```
+
+```text
 a1b2c3d refactor: extract PayrollEngine from PayrollService
 d4e5f6g fix: null reference in LeaveCalculationService.cs line 42
 g7h8i9j chore: update NuGet packages
 ```
 
 CHANGELOG（使用者導向）：
+
 ```markdown
 ### Fixed
 - 修復跨月請假天數計算錯誤，導致部分員工假額異常扣除
@@ -458,7 +489,34 @@ CHANGELOG（使用者導向）：
 
 ---
 
+## 9. 審查與驗證
+
+> 本節供審查者使用，也用來檢查 AI 依本範本產出的文件是否正確；對應《軟體開發標準程序教學手冊》v2.0 各章的「審查與驗證」。
+
+### 自動檢查
+
+| 檢查項目 | 方法 |
+|---------|------|
+| Workflow 語法 | `actionlint`（v2.0 範例已通過） |
+| Action 存在且固定 SHA | `gh api repos/{owner}/{repo}` 確認存在；`uses:` 後為 40 位 SHA |
+
+### 人工審查問題
+
+1. 每個版本都有日期與分類（Added／Changed／Fixed…）嗎？
+2. 不相容變更是否標示並說明遷移方式？
+3. 內容是給使用者看的，而不是 commit 訊息的流水帳？
+4. 版號是否符合 SemVer？
+
+### AI 常見錯誤
+
+- 引用不存在的 GitHub Action（v1.x 範本的 `conventional-changelog/conventional-changelog-action` 即不存在）。
+- 以 `@v3` 等可變 tag 引用第三方 Action。
+- 把內部重構寫成使用者可見的變更。
+
+---
+
 > 📌 **範本使用注意事項**
+>
 > 1. 本範本依據 Keep a Changelog 1.1.0 與 Semantic Versioning 2.0.0 標準編製
 > 2. CHANGELOG.md 需於專案建立時即創建，不要等到發版才補
 > 3. 建議搭配 Conventional Commits 規範，支援半自動化產生

@@ -8,9 +8,13 @@ tags: ["專案管理", "範本", "軟體工程", "DevOps"]
 
 # README 範本（README Template）
 
-> **參照標準**：GitHub Community Standards / Open Source Guides / Make a README  
-> **文件用途**：提供專案的入口文件，讓開發者快速了解、安裝、使用與貢獻專案  
+> **參照標準**：GitHub Community Standards / Open Source Guides / Make a README
+>
+> **文件用途**：提供專案的入口文件，讓開發者快速了解、安裝、使用與貢獻專案
+>
 > **適用階段**：專案全生命週期（建立即應存在，持續維護）
+>
+> **範本版本**：v2.0（2026-10-06）｜對應《軟體開發標準程序教學手冊》v2.0 第 11.1 節
 
 ---
 
@@ -27,6 +31,7 @@ tags: ["專案管理", "範本", "軟體工程", "DevOps"]
 9. [貢獻指南](#9-貢獻指南)
 10. [授權條款](#10-授權條款)
 11. [附錄](#11-附錄)
+12. [審查與驗證](#12-審查與驗證)
 
 ---
 
@@ -164,7 +169,7 @@ cd {project-name}
 ### 前置需求
 
 - .NET 8 SDK
-- Node.js 20 LTS
+- Node.js 22 LTS 以上（Node.js 20 已於 2026-04 結束支援）
 - Docker Desktop
 - PostgreSQL 16（或使用 Docker Compose）
 
@@ -618,7 +623,34 @@ A: 執行 `scripts/seed-data.sh`，會建立預設測試帳號與資料。
 
 ---
 
+## 12. 審查與驗證
+
+> 本節供審查者使用，也用來檢查 AI 依本範本產出的文件是否正確；對應《軟體開發標準程序教學手冊》v2.0 各章的「審查與驗證」。
+
+### 自動檢查
+
+| 檢查項目 | 方法 |
+|---------|------|
+| 快速開始可執行 | 在乾淨容器中依 README 步驟執行，最後健康檢查回 `UP` |
+| 文件格式與連結 | `npx markdownlint-cli2 README.md`；`lychee --offline README.md` |
+
+### 人工審查問題
+
+1. 新進同仁只看 README 能在半天內把系統跑起來嗎？
+2. 系統需求的版本是否仍在支援期內？
+3. 是否連結到 SECURITY.md、ADR、CHANGELOG？
+4. 設定說明是否標示哪些是機密（不得寫在檔案中）？
+
+### AI 常見錯誤
+
+- 列出不存在的指令或 Maven Profile。
+- 系統需求列出已結束支援的版本（例如 Node.js 20）。
+- 範例設定檔中寫死密碼。
+
+---
+
 > 📌 **範本使用注意事項**
+>
 > 1. 本範本依據 GitHub Community Standards 與業界最佳實踐編製
 > 2. README 需隨專案演進持續更新（尤其安裝步驟與環境需求）
 > 3. 避免在 README 中放入機敏資訊（密碼、API Key、內部 IP）

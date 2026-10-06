@@ -8,9 +8,13 @@ tags: ["範本", "設計開發", "資料庫", "ER Model", "SSDLC"]
 
 # 資料庫設計文件範本（Database Design Document Template）
 
-> **適用標準**：ISO/IEC 11179（Metadata Registries）、DAMA DMBOK 2.0、ISO/IEC/IEEE 42010:2022  
-> **適用階段**：系統設計階段（Design Phase）  
+> **適用標準**：ISO/IEC 11179（Metadata Registries）、DAMA DMBOK 2.0、ISO/IEC/IEEE 42010:2022
+>
+> **適用階段**：系統設計階段（Design Phase）
+>
 > **負責角色**：系統架構師（SA）、資料庫管理師（DBA）
+>
+> **範本版本**：v2.0（2026-10-06）｜對應《軟體開發標準程序教學手冊》v2.0 第 4.4 節
 
 ---
 
@@ -27,6 +31,7 @@ tags: ["範本", "設計開發", "資料庫", "ER Model", "SSDLC"]
 9. [效能設計考量](#9-效能設計考量)
 10. [資料遷移與版本控制](#10-資料遷移與版本控制)
 11. [附錄](#11-附錄)
+12. [審查與驗證](#12-審查與驗證)
 
 ---
 
@@ -85,7 +90,7 @@ tags: ["範本", "設計開發", "資料庫", "ER Model", "SSDLC"]
 
 #### 2.3 Schema 架構
 
-```
+```text
 [Database]
 ├── schema: core        -- 核心業務資料表
 ├── schema: auth        -- 認證授權相關
@@ -148,7 +153,7 @@ erDiagram
 
 #### 4.2 資料表規格（逐表詳述）
 
-##### Table: [schema].[table_name]
+#### Table: [schema].[table_name]
 
 | 說明 | [中文功能描述] |
 |------|------|
@@ -267,7 +272,7 @@ erDiagram
 |------|---------|------|------|
 | 靜態加密（At Rest） | 整個 DB / Tablespace | TDE（Transparent Data Encryption） | |
 | 欄位加密 | PII / 機密欄位 | AES-256 + 應用層加解密 | 影響查詢 |
-| 傳輸加密（In Transit） | Client ↔ DB | TLS 1.3 | 強制啟用 |
+| 傳輸加密（In Transit） | Client ↔ DB | TLS 1.2 以上（優先 TLS 1.3；PostgreSQL 用戶端設定 `sslmode=verify-full`） | 強制啟用 |
 | 備份加密 | Backup files | AES-256 | |
 
 #### 8.3 存取控制
@@ -375,6 +380,33 @@ ON DELETE RESTRICT ON UPDATE CASCADE;
 #### 11.2 資料字典匯出格式
 
 > 建議使用工具自動產出，並納入版本控制。
+
+---
+
+### 12. 審查與驗證
+
+> 本節供審查者使用，也用來檢查 AI 依本範本產出的文件是否正確；對應《軟體開發標準程序教學手冊》v2.0 各章的「審查與驗證」。
+
+#### 自動檢查
+
+| 檢查項目 | 方法 |
+|---------|------|
+| DDL 可執行 | 以 PostgreSQL 執行 Schema 腳本（v2.0 範例已在 PostgreSQL 18 實測） |
+| Migration 檔名 | 符合 `V{版本}__{說明}.sql`，已套用的腳本不得修改（`flyway validate`） |
+| SQL 規則 | SQLFluff 依《程式寫作指引》規則檢查 |
+
+#### 人工審查問題
+
+1. 每個欄位都有資料分級，敏感欄位有加密或遮罩設計嗎？
+2. 索引是否對應實際查詢？外鍵是否建立索引？
+3. 大表變更是否採 Expand／Contract？
+4. 時間欄位是否使用含時區型別？
+
+#### AI 常見錯誤
+
+- 產生破壞性變更（直接 RENAME／DROP COLUMN）而未考慮新舊版本並存。
+- 傳輸加密寫死 TLS 1.3 only，或用戶端只設 `sslmode=require`（不驗證憑證）。
+- 命名風格與既有 Schema 混用。
 
 ---
 
@@ -493,7 +525,7 @@ erDiagram
 
 ### 範例：資料表規格
 
-##### Table: core.employee
+#### Table: core.employee
 
 | 說明 | HRMS 員工主檔 |
 |------|------|
@@ -638,9 +670,10 @@ CREATE INDEX ix_leave_request_approver ON core.leave_request(approver_id, status
 
 ---
 
-> 📌 **審閱重點**  
-> - ER Diagram 是否完整反映 FRD 中的所有業務實體？  
-> - 命名規範是否全專案一致？  
-> - PII 欄位是否都有標示加密與遮罩策略？  
-> - 索引是否覆蓋主要查詢場景（配合 EXPLAIN ANALYZE 驗證）？  
+> 📌 **審閱重點**
+>
+> - ER Diagram 是否完整反映 FRD 中的所有業務實體？
+> - 命名規範是否全專案一致？
+> - PII 欄位是否都有標示加密與遮罩策略？
+> - 索引是否覆蓋主要查詢場景（配合 EXPLAIN ANALYZE 驗證）？
 > - 分區與歸檔策略是否符合資料保留法規要求？

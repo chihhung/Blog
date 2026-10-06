@@ -8,10 +8,31 @@ categories = ['教學']
 
 # TSD（技術規格文件｜Technical Specification Document）範本
 
-> **版本**：1.0  
-> **參照標準**：ISO/IEC/IEEE 15288:2023、ISO/IEC 25010:2023、IEEE 1016-2009  
-> **適用對象**：資深開發工程師、技術主管、QA 工程師  
+> **範本版本**：v2.0（2026-10-06）｜對應《軟體開發標準程序教學手冊》v2.0 第 5.1–5.6、6.1 節
+>
+> **參照標準**：ISO/IEC/IEEE 15288:2023、ISO/IEC 25010:2023、IEEE 1016-2009
+>
+> **適用對象**：資深開發工程師、技術主管、QA 工程師
+>
 > **文件性質**：工程師實作指南與底層技術規格文件
+
+---
+
+## 📑 章節目錄
+
+1. [文件資訊](#1-文件資訊)
+2. [技術概述](#2-技術概述)
+3. [類別與函式設計（Class & Function Design）](#3-類別與函式設計class--function-design)
+4. [演算法邏輯（Algorithm Design）](#4-演算法邏輯algorithm-design)
+5. [資料結構（Data Structures）](#5-資料結構data-structures)
+6. [錯誤處理機制（Error Handling）](#6-錯誤處理機制error-handling)
+7. [自動化測試規劃（Test Plan）](#7-自動化測試規劃test-plan)
+8. [組態與環境設定](#8-組態與環境設定)
+9. [建置與部署](#9-建置與部署)
+10. [程式碼品質標準](#10-程式碼品質標準)
+11. [審查與驗證](#11-審查與驗證)
+
+- [範例：訂單服務 TSD 摘要](#範例訂單服務-tsd-摘要)
 
 ---
 
@@ -27,7 +48,7 @@ TSD 是工程師的實作指南，詳細說明「**底層技術與程式碼邏�
 
 ### 與其他文件的關係
 
-```
+```text
 PRD（做什麼） → SDD（如何設計） → TSD（如何實作）
      ↑                ↑                ↑
    產品經理          架構師           開發工程師
@@ -82,13 +103,15 @@ PRD（做什麼） → SDD（如何設計） → TSD（如何實作）
 
 > 簡述本 TSD 涵蓋的模組或功能範圍，以及與其他模組的邊界。
 
-**模組名稱**：[模組名稱]  
+**模組名稱**：[模組名稱]\
 **功能範圍**：
+
 - [功能 1 描述]
 - [功能 2 描述]
 - [功能 3 描述]
 
 **不包含**：
+
 - [明確排除的功能]
 
 ### 2.2 技術環境
@@ -96,10 +119,10 @@ PRD（做什麼） → SDD（如何設計） → TSD（如何實作）
 | 項目 | 規格 |
 |------|------|
 | 程式語言 | Java 21 / TypeScript 5.x / Python 3.12 |
-| 框架 | Spring Boot 3.4.x / NestJS / FastAPI |
+| 框架 | Spring Boot 4.1.x / NestJS / FastAPI |
 | 執行環境 | JVM 21 (GraalVM) / Node.js 22 LTS |
 | 建置工具 | Gradle 8.x / npm / Poetry |
-| 測試框架 | JUnit 5 + Mockito / Jest / pytest |
+| 測試框架 | JUnit Jupiter（JUnit 5／6）+ Mockito + Testcontainers / Jest / pytest |
 | 程式碼品質 | SonarQube / ESLint / Ruff |
 
 ### 2.3 相依套件
@@ -118,7 +141,7 @@ PRD（做什麼） → SDD（如何設計） → TSD（如何實作）
 
 ### 3.1 類別圖（Class Diagram）
 
-```
+```text
 [使用 UML 類別圖或 Mermaid 呈現]
 
 範例：
@@ -161,6 +184,7 @@ PRD（做什麼） → SDD（如何設計） → TSD（如何實作）
 | **執行緒安全** | 無狀態設計，Spring Singleton 安全 |
 
 **建構子**：
+
 ```java
 /**
  * @param userRepository 使用者資料存取物件
@@ -197,13 +221,13 @@ public UserServiceImpl(
 
 **處理流程**：
 
-```
+```text
 1. 驗證請求參數（Bean Validation）
 2. 檢查 Email 是否已存在
    └─ 已存在 → 拋出 DuplicateEmailException
 3. 檢查 Username 是否已存在
    └─ 已存在 → 拋出 DuplicateUsernameException
-4. 密碼雜湊處理（bcrypt, cost=12）
+4. 密碼雜湊處理（Argon2id，m=19 MiB、t=2、p=1）
 5. 建立 User Entity 並設定預設值
    ├─ status = "PENDING_VERIFICATION"
    ├─ createdAt = now()
@@ -221,22 +245,22 @@ public UserDTO create(CreateUserRequest request) {
     // Step 1: 參數驗證（由框架 @Valid 處理）
 
     // Step 2-3: 唯一性檢查
-    if (userRepository.existsByEmail(request.getEmail())) {
-        throw new DuplicateEmailException(request.getEmail());
+    if (userRepository.existsByEmail(request.email())) {
+        throw new DuplicateEmailException(request.email());
     }
-    if (userRepository.existsByUsername(request.getUsername())) {
-        throw new DuplicateUsernameException(request.getUsername());
+    if (userRepository.existsByUsername(request.username())) {
+        throw new DuplicateUsernameException(request.username());
     }
 
     // Step 4: 密碼雜湊
-    String encodedPassword = passwordEncoder.encode(request.getPassword());
+    String encodedPassword = passwordEncoder.encode(request.password());
 
     // Step 5: 建立實體
     User user = User.builder()
-        .username(request.getUsername())
-        .email(request.getEmail())
+        .username(request.username())
+        .email(request.email())
         .passwordHash(encodedPassword)
-        .displayName(request.getDisplayName())
+        .displayName(request.displayName())
         .status(UserStatus.PENDING_VERIFICATION)
         .createdAt(Instant.now())
         .createdBy(SecurityUtils.getCurrentUser())
@@ -281,10 +305,11 @@ public UserDTO create(CreateUserRequest request) {
 
 **目的**：驗證使用者密碼符合企業安全政策
 
-**輸入**：`password: String`  
+**輸入**：`password: String`\
 **輸出**：`PasswordStrength { valid: boolean, score: int, issues: List<String> }`
 
 **規則**：
+
 | 規則 | 描述 | 分數 |
 |------|------|------|
 | 長度 ≥ 8 | 最低長度要求 | 必要 |
@@ -298,7 +323,7 @@ public UserDTO create(CreateUserRequest request) {
 
 **虛擬碼**：
 
-```
+```text
 function validatePasswordStrength(password, userContext):
     issues = []
     score = 0
@@ -337,6 +362,7 @@ function validatePasswordStrength(password, userContext):
 ```java
 @Entity
 @Table(name = "users")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor  // Lombok：提供 builder()、getter／setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -362,6 +388,7 @@ public class User {
     private Instant lastLoginAt;
 
     @Column(name = "failed_login_count", nullable = false)
+    @Builder.Default
     private int failedLoginCount = 0;
 
     @Column(name = "locked_until")
@@ -407,7 +434,7 @@ public record CreateUserRequest(
     @NotBlank @Email @Size(max = 254)
     String email,
 
-    @NotBlank @Size(min = 8, max = 128)
+    @NotBlank @Size(min = 12, max = 128)  // ASVS 5.0：至少 8（建議 15）、允許 ≥ 64 字元；不設組成規則
     String password,
 
     @Size(max = 100)
@@ -444,7 +471,7 @@ public record UserDTO(
 
 ### 6.1 例外階層設計
 
-```
+```text
 RuntimeException
 └── BaseBusinessException (abstract)
     ├── ResourceNotFoundException
@@ -465,50 +492,66 @@ RuntimeException
 
 ### 6.2 全域例外處理器
 
+錯誤回應採 RFC 9457 Problem Details（Spring Framework 6 起內建 `ProblemDetail`），對應《軟體開發標準程序教學手冊》4.3：
+
 ```java
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final String PROBLEM_BASE = "https://api.example.com/problems/";
+
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiResponse> handleNotFound(ResourceNotFoundException ex) {
-        // HTTP 404, 錯誤碼依例外類型
+    public ProblemDetail handleNotFound(ResourceNotFoundException ex) {
+        return problem(HttpStatus.NOT_FOUND, "resource-not-found", "找不到資源", ex.getMessage(), ex.getCode());
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<ApiResponse> handleDuplicate(DuplicateResourceException ex) {
-        // HTTP 409, 錯誤碼依例外類型
+    public ProblemDetail handleDuplicate(DuplicateResourceException ex) {
+        return problem(HttpStatus.CONFLICT, "duplicate-resource", "資源已存在", ex.getMessage(), ex.getCode());
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse> handleValidation(ConstraintViolationException ex) {
-        // HTTP 400, 錯誤碼 E3001, 逐欄位列出驗證錯誤
+    // @Valid 驗證 Request Body 失敗時拋出 MethodArgumentNotValidException（ConstraintViolationException 用於方法參數驗證）
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
+        ProblemDetail pd = problem(HttpStatus.BAD_REQUEST, "validation-error", "輸入資料驗證失敗",
+                "共有 " + ex.getBindingResult().getErrorCount() + " 個欄位驗證失敗", "E3001");
+        pd.setProperty("errors", ex.getBindingResult().getFieldErrors().stream()
+                .map(e -> Map.of("pointer", "#/" + e.getField(), "detail", String.valueOf(e.getDefaultMessage())))
+                .toList());
+        return pd;
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse> handleUnexpected(Exception ex) {
-        // HTTP 500, 錯誤碼 E9001, 記錄完整堆疊
-        // 不向客戶端暴露內部細節
+    public ProblemDetail handleUnexpected(Exception ex) {
+        log.error("Unexpected error", ex); // 完整堆疊只寫日誌
+        return problem(HttpStatus.INTERNAL_SERVER_ERROR, "internal-error", "系統錯誤", "系統發生錯誤，請稍後再試", "E9001");
+    }
+
+    private ProblemDetail problem(HttpStatus status, String type, String title, String detail, String code) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(status, detail);
+        pd.setType(URI.create(PROBLEM_BASE + type));
+        pd.setTitle(title);
+        pd.setProperty("code", code);
+        pd.setProperty("traceId", MDC.get("traceId"));
+        return pd;
     }
 }
 ```
 
 ### 6.3 錯誤回應格式
 
+`Content-Type: application/problem+json`；`type`、`title`、`status`、`detail`、`instance` 為 RFC 9457 標準欄位，`code`、`traceId`、`errors` 為企業擴充欄位：
+
 ```json
 {
-  "success": false,
+  "type": "https://api.example.com/problems/duplicate-resource",
+  "title": "資源已存在",
+  "status": 409,
+  "detail": "此 Email 已被使用",
+  "instance": "/api/v1/users",
   "code": "E2001",
-  "message": "使用者可理解的錯誤訊息",
-  "errors": [
-    {
-      "field": "email",
-      "code": "DUPLICATE",
-      "message": "此 Email 已被使用"
-    }
-  ],
-  "timestamp": "2026-05-19T10:30:00Z",
-  "traceId": "abc123-def456",
-  "path": "/api/v1/users"
+  "traceId": "4bf92f3577b34da6a3ce929d0e0e4736"
 }
 ```
 
@@ -527,7 +570,7 @@ public class GlobalExceptionHandler {
 
 ### 7.1 測試策略
 
-```
+```text
                     ┌──────────┐
                    │  E2E Test │     ← 少量，關鍵流程
                   │  (Cypress)  │
@@ -536,7 +579,7 @@ public class GlobalExceptionHandler {
                │  (TestContainers) │
               ├────────────────────┤
              │     Unit Test        │ ← 大量，業務邏輯
-            │   (JUnit 5 + Mockito)  │
+            │   (JUnit + Mockito)      │
            └──────────────────────────┘
                   測試金字塔
 ```
@@ -586,7 +629,7 @@ class UserServiceImplTest {
     void test_create_success() {
         // Given
         var request = new CreateUserRequest(
-            "john_doe", "john@example.com", "P@ssw0rd123", "John"
+            "john_doe", "john@example.com", "correct-horse-battery", "John"
         );
         when(userRepository.existsByEmail(anyString())).thenReturn(false);
         when(userRepository.existsByUsername(anyString())).thenReturn(false);
@@ -612,7 +655,7 @@ class UserServiceImplTest {
     void test_create_duplicateEmail() {
         // Given
         var request = new CreateUserRequest(
-            "john_doe", "existing@example.com", "P@ssw0rd123", "John"
+            "john_doe", "existing@example.com", "correct-horse-battery", "John"
         );
         when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
 
@@ -661,7 +704,7 @@ class UserServiceImplTest {
 | 資料庫密碼 | Kubernetes Secret / Vault | 僅維運團隊 |
 | JWT 簽名金鑰 | Vault | 僅應用服務 |
 | 第三方 API Key | Vault | 僅應用服務 |
-| SSL 憑證 | Cert Manager | 自動管理 |
+| TLS 憑證 | cert-manager | 自動管理 |
 
 ---
 
@@ -741,9 +784,37 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ---
 
+## 11. 審查與驗證
+
+> 本節供審查者使用，也用來檢查 AI 依本範本產出的文件是否正確；對應《軟體開發標準程序教學手冊》v2.0 各章的「審查與驗證」。
+
+### 自動檢查
+
+| 檢查項目 | 方法 |
+|---------|------|
+| Java 範例可編譯 | 以 Spring Boot 4.1 專案編譯（v2.0 範本已實測：16 個原始檔編譯成功、2 個單元測試通過） |
+| 已棄用 API | `javac -Xlint:deprecation`；SonarQube |
+| 分層規則 | ArchUnit 測試（手冊 5.2） |
+
+### 人工審查問題
+
+1. record 與一般類別的存取方法是否一致（record 用 `email()`，不是 `getEmail()`）？
+2. 例外處理是否回傳 RFC 9457 `ProblemDetail`、500 錯誤是否不洩漏內部資訊？
+3. 交易內是否有不可回滾的副作用？
+4. 單元測試的斷言是否依據需求，而非抄寫實作輸出？
+
+### AI 常見錯誤
+
+- 把 record 當成 JavaBean 呼叫 `getXxx()`（v1.x 範本即有此錯誤，無法編譯）。
+- 例外處理器方法本體為空或回傳自訂格式。
+- 片段隱含 Lombok 卻沒標註，讀者照抄無法編譯。
+
+---
+
 ## 範例：訂單服務 TSD 摘要
 
 ### 核心方法
+
 | 方法 | 輸入 | 輸出 | 複雜度 |
 |------|------|------|--------|
 | createOrder | CreateOrderRequest | OrderDTO | O(n)，n = 商品數 |
@@ -751,6 +822,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 | calculateTotal | List<OrderItem> | BigDecimal | O(n) |
 
 ### 測試案例數
+
 | 測試類型 | 案例數 | 覆蓋率 |
 |---------|--------|--------|
 | 單元測試 | 45 | 87% |
@@ -759,9 +831,10 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ---
 
-> 📌 **填寫提醒**  
-> 1. TSD 應由開發工程師撰寫，技術主管與架構師審查  
-> 2. 虛擬碼應可直接轉換為實際程式碼  
-> 3. 每個公開方法需有對應的單元測試案例  
-> 4. 完成後需安排 Code Review 確認設計與實作一致  
+> 📌 **填寫提醒**
+>
+> 1. TSD 應由開發工程師撰寫，技術主管與架構師審查
+> 2. 虛擬碼應可直接轉換為實際程式碼
+> 3. 每個公開方法需有對應的單元測試案例
+> 4. 完成後需安排 Code Review 確認設計與實作一致
 > 5. 隨程式碼演進同步更新本文件

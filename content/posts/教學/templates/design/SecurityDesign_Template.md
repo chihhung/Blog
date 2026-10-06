@@ -8,9 +8,13 @@ tags: ["範本", "設計開發", "資安", "OWASP", "SSDLC"]
 
 # 安全設計文件範本（Security Design Document Template）
 
-> **適用標準**：OWASP SAMM 2.0、ISO/IEC 27034（應用安全）、NIST SP 800-53、ISO/IEC 27001:2022  
-> **適用階段**：系統設計階段（Design Phase）  
+> **適用標準**：OWASP SAMM v2.1、OWASP ASVS 5.0.0、NIST SP 800-218 SSDF、ISO/IEC 27034（應用安全）、NIST SP 800-53、ISO/IEC 27001:2022
+>
+> **適用階段**：系統設計階段（Design Phase）
+>
 > **負責角色**：資安架構師、系統架構師（SA）、AppSec 工程師
+>
+> **範本版本**：v2.0（2026-10-06）｜對應《軟體開發標準程序教學手冊》v2.0 第 5.4、9.1–9.5 節
 
 ---
 
@@ -27,6 +31,7 @@ tags: ["範本", "設計開發", "資安", "OWASP", "SSDLC"]
 9. [日誌與稽核設計](#9-日誌與稽核設計)
 10. [安全組態基線](#10-安全組態基線)
 11. [安全測試策略](#11-安全測試策略)
+12. [審查與驗證](#12-審查與驗證)
 
 ---
 
@@ -74,7 +79,7 @@ tags: ["範本", "設計開發", "資安", "OWASP", "SSDLC"]
 |-----------|---------|---------|
 | [個資法 / GDPR] | [條款] | [§5 資料保護] |
 | [ISO 27001] | [A.8 / A.9] | [§3, §4] |
-| [OWASP Top 10] | [全部] | [§6, §8] |
+| [OWASP Top 10:2025] | [全部] | [§6, §8] |
 | [PCI DSS] | [條款，如適用] | [§5] |
 
 ---
@@ -95,7 +100,7 @@ tags: ["範本", "設計開發", "資安", "OWASP", "SSDLC"]
 
 | 項目 | 設計 |
 |------|------|
-| Hash 演算法 | [bcrypt / Argon2id / PBKDF2] |
+| Hash 演算法 | [Argon2id（優先）/ scrypt / bcrypt（既有系統）/ PBKDF2（需 FIPS 時）] |
 | Cost Factor | [rounds / iterations] |
 | Salt | [Per-user random salt] |
 
@@ -170,7 +175,7 @@ sequenceDiagram
 
 | 場景 | 方法 | 演算法 | 金鑰管理 |
 |------|------|--------|---------|
-| 傳輸中（In Transit） | TLS | [TLS 1.3 / 1.2] | [憑證管理方式] |
+| 傳輸中（In Transit） | TLS | [TLS 1.2 以上，優先 TLS 1.3] | [憑證管理方式] |
 | 靜態儲存（At Rest） | [TDE / Application-level] | [AES-256-GCM] | [KMS / Vault] |
 | 欄位加密 | Application-level | [AES-256-GCM] | [KMS / Vault] |
 | 備份加密 | File-level | [AES-256] | [KMS] |
@@ -264,7 +269,7 @@ sequenceDiagram
 
 #### 8.3 Content Security Policy
 
-```
+```http
 Content-Security-Policy: 
   default-src 'self';
   script-src 'self' [trusted CDN];
@@ -336,6 +341,33 @@ Content-Security-Policy:
 
 ---
 
+### 12. 審查與驗證
+
+> 本節供審查者使用，也用來檢查 AI 依本範本產出的文件是否正確；對應《軟體開發標準程序教學手冊》v2.0 各章的「審查與驗證」。
+
+#### 自動檢查
+
+| 檢查項目 | 方法 |
+|---------|------|
+| SAST／SCA／Secrets | Semgrep、Dependency-Check／Trivy、gitleaks（手冊 8.1、9.2） |
+| 安全標頭 | ZAP baseline 掃描；`curl -I` 檢查 CSP、HSTS |
+| JSON 設定合法 | JSON 區塊可被解析 |
+
+#### 人工審查問題
+
+1. 密碼雜湊是否以 Argon2id 為優先，參數符合 OWASP 建議？
+2. 授權設計是否包含物件層級授權（防 IDOR／BOLA）？
+3. 例外時是否預設拒絕（OWASP Top 10:2025 A10）？
+4. 供應鏈安全（SBOM、Action 固定 SHA、Provenance）是否納入？
+
+#### AI 常見錯誤
+
+- 引用 OWASP Top 10:2021、SAMM 2.0、ASVS 4.0.3 等舊版。
+- 把 bcrypt 當成唯一選項，或使用 MD5／SHA-256 儲存密碼。
+- 只設計認證，忽略授權與日誌告警。
+
+---
+
 ## 📖 使用說明
 
 ### 各章節填寫指引
@@ -404,9 +436,10 @@ Content-Security-Policy:
 
 ---
 
-> 📌 **審閱重點**  
-> - 威脅模型中的每個威脅是否都有對應安全控制？  
-> - 認證授權設計是否遵循 Zero Trust 原則？  
-> - 所有 PII 欄位是否都有明確的保護措施？  
-> - 安全測試是否已整合至 CI/CD Pipeline？  
+> 📌 **審閱重點**
+>
+> - 威脅模型中的每個威脅是否都有對應安全控制？
+> - 認證授權設計是否遵循 Zero Trust 原則？
+> - 所有 PII 欄位是否都有明確的保護措施？
+> - 安全測試是否已整合至 CI/CD Pipeline？
 > - HTTP Security Headers 是否完整設定？

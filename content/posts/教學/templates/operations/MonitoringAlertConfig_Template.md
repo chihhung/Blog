@@ -8,9 +8,13 @@ tags: ["範本", "部署運維", "監控", "告警", "SRE", "Prometheus", "Grafa
 
 # 監控與告警設定文件範本（Monitoring & Alert Configuration Template）
 
-> **適用標準**：Google SRE Workbook、ISO/IEC 20000-1:2018（Service Monitoring）  
-> **適用階段**：維運階段（Operations Phase）  
+> **適用標準**：Google SRE Workbook、ISO/IEC 20000-1:2018（Service Monitoring）
+>
+> **適用階段**：維運階段（Operations Phase）
+>
 > **負責角色**：SRE、DevOps Engineer、Tech Lead
+>
+> **範本版本**：v2.0（2026-10-06）｜對應《軟體開發標準程序教學手冊》v2.0 第 10.2 節
 
 ---
 
@@ -26,6 +30,7 @@ tags: ["範本", "部署運維", "監控", "告警", "SRE", "Prometheus", "Grafa
 8. [日誌監控策略](#8-日誌監控策略)
 9. [維護與檢討機制](#9-維護與檢討機制)
 10. [附錄](#10-附錄)
+11. [審查與驗證](#11-審查與驗證)
 
 ---
 
@@ -84,7 +89,7 @@ tags: ["範本", "部署運維", "監控", "告警", "SRE", "Prometheus", "Grafa
 
 | 服務 | SLO 指標 | 目標值 | Error Budget (月) | 量測視窗 |
 |------|---------|--------|-------------------|---------|
-| [API Service] | Availability | ≥ 99.9% | 43.8 min | 30 days rolling |
+| [API Service] | Availability | ≥ 99.9% | 43.2 min（30 天 × 0.1%） | 30 days rolling |
 | [API Service] | P95 Latency | < [N]ms | — | 30 days rolling |
 | [Web Frontend] | Availability | ≥ 99.5% | 3.6 hr | 30 days rolling |
 | [Batch Job] | Success Rate | ≥ 99.0% | — | Per execution |
@@ -95,23 +100,26 @@ tags: ["範本", "部署運維", "監控", "告警", "SRE", "Prometheus", "Grafa
 
 #### 4.1 基礎設施指標
 
-| 指標名稱 | 類型 | 描述 | 標籤 | 閾值 |
-|---------|------|------|------|------|
-| node_cpu_usage_percent | Gauge | CPU 使用率 | host, instance | warn: 80%, crit: 95% |
-| node_memory_usage_percent | Gauge | 記憶體使用率 | host, instance | warn: 85%, crit: 95% |
-| node_disk_usage_percent | Gauge | 磁碟使用率 | host, mountpoint | warn: 80%, crit: 90% |
-| node_network_errors_total | Counter | 網路錯誤數 | host, interface | crit: > [N]/min |
+以下為 Prometheus node_exporter 的實際指標名稱；使用率需以 PromQL 計算，不是直接輸出的指標：
+
+| 指標名稱 | 類型 | 描述 | 使用率計算（PromQL） | 閾值 |
+|---------|------|------|-------------------|------|
+| node_cpu_seconds_total | Counter | 各 CPU 模式累計秒數 | `1 - avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))` | warn: 80%, crit: 95% |
+| node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes | Gauge | 可用／總記憶體 | `1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes` | warn: 85%, crit: 95% |
+| node_filesystem_avail_bytes / node_filesystem_size_bytes | Gauge | 可用／總磁碟空間 | `1 - node_filesystem_avail_bytes / node_filesystem_size_bytes` | warn: 80%, crit: 90% |
+| node_network_receive_errs_total | Counter | 網路接收錯誤數 | `rate(node_network_receive_errs_total[5m])` | crit: > [N]/s |
 
 #### 4.2 應用程式指標
 
+指標名稱**必須**依實際的 instrumentation 填寫，並在 Prometheus 查詢介面確認查得到資料。下表為 Spring Boot（Micrometer）的預設名稱；OpenTelemetry 語意慣例為 `http_server_request_duration_seconds_*`，其他框架請以實際輸出為準：
+
 | 指標名稱 | 類型 | 描述 | 標籤 | 閾值 |
 |---------|------|------|------|------|
-| http_requests_total | Counter | HTTP 請求總數 | method, path, status | — |
-| http_request_duration_seconds | Histogram | 請求處理時間 | method, path | P95 < [N]s |
-| http_requests_errors_total | Counter | HTTP 錯誤數 | method, path, status | rate > [N]/min |
-| active_connections | Gauge | 活躍連線數 | service | warn: [N], crit: [N] |
-| db_connection_pool_active | Gauge | DB 連線池使用數 | pool_name | warn: 80%, crit: 95% |
-| queue_depth | Gauge | 訊息佇列深度 | queue_name | warn: [N], crit: [N] |
+| http_server_requests_seconds_count | Counter | HTTP 請求總數 | method, uri, status, outcome | — |
+| http_server_requests_seconds_bucket | Histogram | 請求處理時間（需啟用 `management.metrics.distribution.percentiles-histogram.http.server.requests=true`） | method, uri, status, le | P95 < [N]s |
+| hikaricp_connections_active / hikaricp_connections_max | Gauge | DB 連線池使用數／上限 | pool | warn: 80%, crit: 95% |
+| jvm_memory_used_bytes | Gauge | JVM 記憶體使用量 | area, id | warn: 85% of max |
+| [queue]_depth | Gauge | 訊息佇列深度（依 MQ exporter 名稱） | queue_name | warn: [N], crit: [N] |
 
 #### 4.3 業務指標
 
@@ -144,21 +152,24 @@ tags: ["範本", "部署運維", "監控", "告警", "SRE", "Prometheus", "Grafa
 | ALT-005 | DiskAlmostFull | P2 | disk_usage > 85% | 5m | 磁碟空間不足 |
 | ALT-006 | DBConnectionPoolHigh | P2 | pool_usage > 80% | 5m | DB 連線池接近上限 |
 | ALT-007 | CertExpiringSoon | P3 | cert_expiry < 30d | — | 憑證即將到期 |
-| ALT-008 | ErrorBudgetBurnRate | P2 | burn_rate > 1.0 | 1h | Error Budget 消耗過快 |
+| ALT-008 | ErrorBudgetFastBurn | P1 | 1h 與 5m 燃燒率皆 > 14.4 | 2m | 2 天內將耗盡 30 天錯誤預算 |
+| ALT-009 | ErrorBudgetSlowBurn | P3 | 6h 與 30m 燃燒率皆 > 6 | 15m | 5 天內將耗盡 30 天錯誤預算 |
 
-#### 5.3 告警規則範例（Prometheus AlertManager）
+#### 5.3 告警規則範例（Prometheus Alerting Rules）
+
+告警規則由 Prometheus 評估，觸發後送到 Alertmanager 進行分組、抑制與通知；每個規則檔上線前必須以 `promtool check rules` 檢查語法，並以 `promtool test rules` 驗證觸發邏輯。
 
 ```yaml
 groups:
-  - name: [service_name].rules
+  - name: "[service_name].rules"
     rules:
-      - alert: [AlertName]
-        expr: [PromQL expression]
-        for: [duration]
+      - alert: "[AlertName]"
+        expr: "[PromQL expression]"
+        for: "[duration，例 5m]"
         labels:
-          severity: [critical/warning/info]
-          team: [team_name]
-          service: [service_name]
+          severity: "[critical/warning/info]"
+          team: "[team_name]"
+          service: "[service_name]"
         annotations:
           summary: "[簡短摘要]"
           description: "[詳細描述，可含 {{ $labels }} 和 {{ $value }}]"
@@ -185,7 +196,7 @@ groups:
 | Panel | 視覺化類型 | 指標 | 說明 |
 |-------|----------|------|------|
 | Service Status | Stat (up/down) | up{service="..."} | 紅綠燈 |
-| Request Rate | Time Series | rate(http_requests_total[5m]) | QPS |
+| Request Rate | Time Series | sum(rate(http_server_requests_seconds_count[5m])) | QPS |
 | Error Rate | Time Series | error_rate | 錯誤率趨勢 |
 | P95 Latency | Time Series | histogram_quantile(0.95, ...) | 延遲趨勢 |
 | Active Users | Stat | active_sessions | 當前活躍用戶 |
@@ -259,7 +270,7 @@ groups:
 
 ### 10. 附錄
 
-#### 10.1 AlertManager 設定檔位置
+#### 10.1 Prometheus／Alertmanager 設定檔位置
 
 | 檔案 | 位置 | 說明 |
 |------|------|------|
@@ -274,6 +285,33 @@ groups:
 | Runbook | [link] |
 | SOP | [link] |
 | Incident Response Plan | [link] |
+
+---
+
+### 11. 審查與驗證
+
+> 本節供審查者使用，也用來檢查 AI 依本範本產出的文件是否正確；對應《軟體開發標準程序教學手冊》v2.0 各章的「審查與驗證」。
+
+#### 自動檢查
+
+| 檢查項目 | 方法 |
+|---------|------|
+| 告警規則語法 | `promtool check rules`（v2.0 範例已通過，7 條規則） |
+| 告警邏輯 | `promtool test rules` 以假資料驗證觸發與不觸發（v2.0 範例已實測） |
+| 指標存在 | 在 Prometheus 查詢運算式（不含門檻），確認有回傳序列 |
+
+#### 人工審查問題
+
+1. 指標名稱是否與實際 instrumentation 相符？
+2. SLO 錯誤預算是否以正確的時間視窗計算？
+3. 每個告警是否有 Runbook 與處理動作？
+4. 是否採多視窗燃燒率告警，而非單一門檻？
+
+#### AI 常見錯誤
+
+- 使用不存在的指標名稱（例如把 `http_requests_total` 套到 Spring Boot），告警永遠不觸發。
+- 錯誤預算算錯（99.9%／30 天應為 43.2 分鐘）。
+- YAML 佔位符未加引號，導致設定檔無法解析。
 
 ---
 
@@ -305,32 +343,71 @@ groups:
 
 | 服務 | SLI | SLO | Error Budget/月 |
 |------|-----|-----|----------------|
-| HRMS API | Availability | ≥ 99.9% | 43.8 min |
+| HRMS API | Availability | ≥ 99.9% | 43.2 min（30 天滾動視窗） |
 | HRMS API | P95 Latency | < 200ms | — |
-| 薪資批次作業 | Success Rate | ≥ 99.99% | 0.44 min (每月一次不容失敗) |
-| 出缺勤打卡 | Availability | ≥ 99.95% (上班時段) | 21.9 min |
+| 薪資批次作業 | Success Rate | 100%（每月執行 1 次，不容失敗） | 不適用：以執行次數計，失敗一次即為 P1 事件 |
+| 出缺勤打卡 | Availability | ≥ 99.95%（工作日 07:00–21:00） | 約 9.2 min（22 個工作日 × 14 小時 × 0.05%） |
 
 ### 範例：告警規則
 
+以下規則已以 `promtool check rules`（Prometheus 3.15.0）驗證語法，並以 `promtool test rules` 驗證：錯誤率 2% 時觸發 `HRMSErrorBudgetFastBurn`、0.5% 時不觸發。
+
 ```yaml
 groups:
-  - name: hrms.rules
+  - name: hrms-slo.rules
     rules:
-      - alert: HRMSHighErrorRate
+      - record: job:http_server_requests:error_ratio_rate5m
         expr: |
-          sum(rate(http_requests_total{service="hrms-api", status=~"5.."}[5m]))
+          sum by (job) (rate(http_server_requests_seconds_count{job="hrms-api",status=~"5.."}[5m]))
           /
-          sum(rate(http_requests_total{service="hrms-api"}[5m])) > 0.01
-        for: 5m
+          sum by (job) (rate(http_server_requests_seconds_count{job="hrms-api"}[5m]))
+      - record: job:http_server_requests:error_ratio_rate1h
+        expr: |
+          sum by (job) (rate(http_server_requests_seconds_count{job="hrms-api",status=~"5.."}[1h]))
+          /
+          sum by (job) (rate(http_server_requests_seconds_count{job="hrms-api"}[1h]))
+      - record: job:http_server_requests:error_ratio_rate30m
+        expr: |
+          sum by (job) (rate(http_server_requests_seconds_count{job="hrms-api",status=~"5.."}[30m]))
+          /
+          sum by (job) (rate(http_server_requests_seconds_count{job="hrms-api"}[30m]))
+      - record: job:http_server_requests:error_ratio_rate6h
+        expr: |
+          sum by (job) (rate(http_server_requests_seconds_count{job="hrms-api",status=~"5.."}[6h]))
+          /
+          sum by (job) (rate(http_server_requests_seconds_count{job="hrms-api"}[6h]))
+
+      # SLO 99.9%（錯誤預算 0.1%）：多視窗、多燃燒率告警
+      - alert: HRMSErrorBudgetFastBurn
+        expr: |
+          job:http_server_requests:error_ratio_rate1h > (14.4 * 0.001)
+          and
+          job:http_server_requests:error_ratio_rate5m > (14.4 * 0.001)
+        for: 2m
         labels:
           severity: critical
           team: hrms
-          service: hrms-api
         annotations:
-          summary: "HRMS API 錯誤率超過 1%"
-          description: "目前錯誤率為 {{ $value | humanizePercentage }}，超過 SLO 閾值"
-          runbook_url: "https://wiki/runbook/hrms-high-error-rate"
+          summary: "HRMS API 錯誤預算快速消耗"
+          description: "最近 1 小時錯誤率 {{ $value | humanizePercentage }}，若持續將在 2 天內耗盡 30 天錯誤預算"
+          runbook_url: "https://wiki/runbook/hrms-error-budget"
 
+      - alert: HRMSErrorBudgetSlowBurn
+        expr: |
+          job:http_server_requests:error_ratio_rate6h > (6 * 0.001)
+          and
+          job:http_server_requests:error_ratio_rate30m > (6 * 0.001)
+        for: 15m
+        labels:
+          severity: warning
+          team: hrms
+        annotations:
+          summary: "HRMS API 錯誤預算持續消耗"
+          description: "最近 6 小時錯誤率 {{ $value | humanizePercentage }}"
+          runbook_url: "https://wiki/runbook/hrms-error-budget"
+
+  - name: hrms-batch.rules
+    rules:
       - alert: HRMSPayrollJobFailed
         expr: hrms_payroll_job_status == 0
         for: 1m
@@ -344,11 +421,14 @@ groups:
           runbook_url: "https://wiki/runbook/hrms-payroll-failure"
 ```
 
+> ⚠️ v1.x 範本使用 `http_requests_total`，但 Spring Boot（Micrometer）實際輸出的是 `http_server_requests_seconds_count`。照抄錯誤的指標名稱，告警規則語法雖然正確，卻**永遠不會觸發**。
+
 ---
 
-> 📌 **審閱重點**  
-> - 每個告警是否都有明確的 actionable response？  
-> - SLO 是否與業務需求對齊（非隨意設定）？  
-> - 告警是否會產生過多噪音（特別是 P3/P4）？  
-> - 升級機制是否涵蓋非工作時間？  
+> 📌 **審閱重點**
+>
+> - 每個告警是否都有明確的 actionable response？
+> - SLO 是否與業務需求對齊（非隨意設定）？
+> - 告警是否會產生過多噪音（特別是 P3/P4）？
+> - 升級機制是否涵蓋非工作時間？
 > - Dashboard 是否能在 30 秒內讓值班人員判斷系統狀態？
