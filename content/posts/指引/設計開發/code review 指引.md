@@ -3683,7 +3683,7 @@ spring:
     username: order_app
     password: Sup3rS3cret!
 payment:
-  api-key: sk_live_51H8xQ2eZvKYlo2C0aBcDeFgHiJkLmNoP
+  api-key: sk_live_<真實金鑰-範例已遮蔽>
 ```
 
 ```yaml
