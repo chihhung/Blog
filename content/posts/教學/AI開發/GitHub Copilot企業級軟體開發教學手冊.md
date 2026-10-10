@@ -19,10 +19,10 @@ categories = ['教學']
 
 | 項目 | 內容 |
 | --- | --- |
-| **文件版本** | **1.2** |
+| **文件版本** | **1.3** |
 | **初版日期** | 2026-09-10 |
-| **最後改版日期** | **2026-09-25**（v1.2：補入 2026-09-10 至 09-24 官方變更，新增 Version Note 11、第 5.7.4、5.8、6.13、7.12.5、8.14、9.9、16.5、27.7、27.8、30.7、31.5、31.6、32.7、44.5 節與附錄 H；目錄擴充至四級子節）<br/>2026-09-10（v1.1：補入 2026 年 8–9 月官方變更，新增第 5.6–5.7、6.10–6.12、7.12、9.8、30.6、32.6 節與附錄 G） |
-| **最後查證日期** | **2026-09-25**（v1.2：以原始 Markdown 逐頁重新比對 `docs.github.com/en/copilot` 與 `docs.github.com/en/code-security`，並逐則覆核 2026-09-08 至 2026-09-24 的 GitHub Changelog `copilot` 標籤，結果彙整於附錄 H）<br/>2026-09-10（v1.1：對照 `docs.github.com/en/copilot` 的 Get started / Concepts / How-tos / Reference / Tutorials 五大區塊，以及 `code.visualstudio.com`、GitHub Changelog 逐頁覆核；**v1.1 另針對 2026-08-01 至 2026-09-09 的 GitHub Changelog `copilot` 標籤逐則覆核**，結果彙整於附錄 G） |
+| **最後改版日期** | **2026-10-10**（v1.3：補入 2026-09-25 至 10-07 官方變更，新增 Version Note 12、第 5.6.4、5.8.5、6.4.7、8.15、13.13、30.8、44.5.3 等節與附錄 I；更正 managed settings 佈署路徑、沙箱鍵名、權限樣式等 22 項；詳見附錄 I） |
+| **最後查證日期** | **2026-10-10**（v1.3：下載 `docs.github.com/en/copilot` 全部 543 頁原始 Markdown 逐章比對，並逐則覆核 2026-09-25 至 2026-10-07 的 GitHub Changelog；新增的檢查腳本皆以正反例實際執行，見附錄 I.1） |
 | **官方文件站** | `https://docs.github.com/en/copilot` |
 | **目標產品** | GitHub Copilot（Free / Student / Pro / Pro+ / Max / Business / Enterprise） |
 | **涵蓋介面** | IDE（VS Code、Visual Studio、JetBrains、Eclipse、Xcode）、GitHub Copilot CLI、github.com、GitHub Mobile、GitHub Copilot app、Copilot cloud agent、Copilot SDK、**Slack、Microsoft Teams**、**第三方 coding agents（Anthropic Claude／OpenAI Codex）、Agent apps** |
@@ -31,7 +31,7 @@ categories = ['教學']
 | **範例技術棧** | Vue 3.x + TypeScript + Tailwind CSS + PrimeVue + Pinia／Angular + PrimeNG + NgRx（前端）；Java 25 + Spring Boot 4.x + Maven（後端）；PostgreSQL / Oracle / DB2 / SQL Server；JUnit 5 + ArchUnit + GitHub Actions |
 | **適用對象** | 資深軟體工程師、Full Stack Developer、Software Architect、AI Architect、Enterprise Architect、SA、PM、QA、DevOps / DevSecOps、Security、Tech Lead、Engineering Manager |
 | **文件定位** | **實戰與維運導向**的企業標準技術白皮書；**不是** Git 入門教材，**不是** AI 概論，**不是** 官方文件翻譯 |
-| **篇幅** | 8 部、51 章 + **8 個附錄（A–H）** |
+| **篇幅** | 8 部、51 章 + **9 個附錄（A–I）** |
 
 ---
 
@@ -67,9 +67,9 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
 
 ---
 
-### 十一個必須先知道的事實與版本差異
+### 十二個必須先知道的事實與版本差異
 
-在讀任何舊教學、舊部落格文章、或任何 AI 產生的 Copilot 教學之前，先記住這十一件事。它們每一項都足以讓整篇教學寫錯，而其中 Version Note 9、10 與 11 是 2026 年下半年新增、且**會在管理員未採取任何動作的情況下自動生效**的變更。
+在讀任何舊教學、舊部落格文章、或任何 AI 產生的 Copilot 教學之前，先記住這十二件事。它們每一項都足以讓整篇教學寫錯，而其中 Version Note 9、10 與 11 是 2026 年下半年新增、且**會在管理員未採取任何動作的情況下自動生效**的變更；Version Note 12 則推翻了「managed settings 只能用 MDM 下發」的舊認知。
 
 > ⚠️ **Version Note 1：「Copilot coding agent」已更名為「Copilot cloud agent」**
 >
@@ -118,7 +118,7 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
 
 > ⚠️ **Version Note 7：企業管控檔案是 `managed-settings.json`，不是 IDE 的 `settings.json`**
 >
-> 企業層級的強制設定使用 **Enterprise Managed Settings**，檔名 `managed-settings.json`，透過 MDM（行動裝置管理）或組態管理工具佈署到終端機。
+> 企業層級的強制設定使用 **Enterprise Managed Settings**，邏輯上是一份 `managed-settings.json`，可用 **server-managed（`.github-private` repository）、MDM 或檔案**三種方式下發（見 Version Note 12）。
 > 它與開發者自己的 `~/.copilot/settings.json`、repository 的 `.github/copilot/settings.json` **是不同的檔案、不同的優先權層級**。設定優先權由低到高為：內建預設 → MDM 管控設定 → 使用者設定 → Repository 設定 → 本機設定 → 環境變數 → 命令列參數；但其中 `permissions.disableBypassPermissionsMode` 設為 `"disable"` 時**永遠優先**，而 MDM 的 `sandbox` 設定建立的是**使用者無法放寬的最低基線**。詳見第 [6 章](#6-enterprise-governance)。
 
 > 🚨 **Version Note 8：不要把 Claude Code / Cursor / Codex CLI 的設定方式套到 Copilot**
@@ -152,6 +152,8 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
 > 對於受 GDPR、個資法或內部資料保留政策約束的企業，這是**必須在上線日前完成評估與內部公告**的變更。詳見第 [6.12 節](#612-統一-copilot-體驗與資料保留期限變更official)。
 >
 > 📌 **v1.2 狀態更新（2026-09-25）**：官方仍維持「不早於 2026-09-28」的措辭，截至查證日尚未公告確切上線日。
+>
+> 📌 **v1.3 狀態更新（2026-10-10）**：官方「Using Copilot Chat on GitHub」頁**仍寫訊息保留 28 天**，Changelog 也未見上線公告；但同一頁已描述 Chat 可在 cloud agent session 進行中持續對話並取用其 context，顯示整合正在推進。**請把它當成「隨時可能上線」的變更**，評估工作不要延後。
 
 > 🚨 **Version Note 11：2026-10-22 起，「未設定」的 GA 功能將依企業全域預設自動開啟**
 >
@@ -168,6 +170,20 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
 >
 > 🚨 **對本手冊讀者最直接的衝擊**：本手冊一再強調「`MCP servers in Copilot` 預設停用」是企業 MCP 治理的第一道閘門。**10-22 之後，若該政策仍是 Unconfigured，它會依全域預設被開啟。**
 > 唯一不受未來預設變更影響的狀態，是**明確設定**。詳見第 [6.13 節](#613-新功能預設啟用政策default-policy-for-new-featuresofficial--建議)。
+
+> 🚨 **Version Note 12：`managed-settings.json` 不再只是「用 MDM 推到每台電腦的檔案」**
+>
+> 🆕 **v1.3 新增**
+>
+> 官方現行文件把 enterprise managed settings 定義為**同一組設定鍵、三種佈署方式**，而且**預設推薦的是 server-managed**：
+>
+> | 佈署方式 | 設定放在哪裡 | 適用對象 |
+> | --- | --- | --- |
+> | **Server-managed**（預設） | 企業指定的 `.github-private` repository 中的 `copilot/managed-settings.json` | 從本企業取得授權的使用者；**唯一涵蓋 Copilot cloud agent**、唯一支援企業團隊覆寫 |
+> | **MDM** | Windows Registry `HKLM\SOFTWARE\Policies\GitHubCopilot`（`REG_SZ`）、macOS 偏好設定網域 `com.github.copilot` | 該裝置上的所有帳號（不論授權來源）；僅本機用戶端 |
+> | **File-based** | macOS `/Library/Application Support/GitHubCopilot/`、Windows `%ProgramFiles%\GitHubCopilot\`、Linux `/etc/github-copilot/` | 同上；適合容器、Codespaces 等無 MDM 環境 |
+>
+> 本手冊 v1.2 以前列出的 `%APPDATA%\GitHub Copilot\…`、`~/.config/GitHub Copilot/…` 等**使用者目錄路徑是錯的**——檔案型設定放在**系統層、需管理員權限**的位置，CLI 在 macOS／Linux 甚至會**拒絕非 root 擁有或可被他人寫入的檔案**。詳見第 [6.4 節](#64-enterprise-managed-settingsmanaged-settingsjsonofficial)。
 
 ---
 
@@ -201,7 +217,7 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
 
 ## 目錄
 
-> 全書共 **8 部、51 章**、**403 個小節**、**124 個編號子節**，另有 **附錄 A–H**（45 個小節）。\
+> 全書共 **8 部、51 章**、**406 個小節**、**134 個編號子節**，另有 **附錄 A–I**（50 個小節）。\
 > 以下為完整的章、小節與編號子節目錄，每一項都可直接點擊跳至本文對應位置。\
 > 為維持可讀性，目錄省略各標題末端的來源等級標記（【Official】/【建議】/【Preview】/【Community】）——標記本身仍完整保留在本文的標題上。
 
@@ -252,6 +268,7 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
     - [5.6.1 Copilot 是多供應商模型平台](#561-copilot-是多供應商模型平台official)
     - [5.6.2 三個彼此獨立的限制維度](#562-三個彼此獨立的限制維度official)
     - [5.6.3 Global Model Policy](#563-global-model-policyofficial)
+    - [5.6.4 Repository 層模型白名單：`.github/allowed_models.txt`（Copilot CLI）](#564-repository-層模型白名單githuballowed_modelstxtcopilot-cliofficial--建議)
   - [5.7 2026 年計費與預算制度變更](#57-2026-年計費與預算制度變更official)
     - [5.7.1 席次改為預先付費](#571-席次改為預先付費official)
     - [5.7.2 使用者預算可設定到期日](#572-使用者預算可設定到期日official)
@@ -262,6 +279,7 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
     - [5.8.2 Base 與 LTS 模型](#582-base-與-lts-模型official)
     - [5.8.3 Utility models](#583-utility-modelsofficial)
     - [5.8.4 BYOK（自帶模型金鑰）](#584-byok自帶模型金鑰official--preview)
+    - [5.8.5 HydraFusion：多模型協作的模型選項](#585-hydrafusion多模型協作的模型選項preview)
   - [5.9 本章實務案例](#59-本章實務案例建議)
   - [5.10 注意事項](#510-注意事項)
 - **[6. Enterprise Governance](#6-enterprise-governance)**
@@ -275,6 +293,7 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
     - [6.4.4 設定優先權](#644-設定優先權official)
     - [6.4.5 團隊層覆寫](#645-團隊層覆寫official)
     - [6.4.6 Agent 操作權限的企業強制管控](#646-agent-操作權限的企業強制管控official)
+    - [6.4.7 AI 產出設定檔的審查與自動檢查](#647-ai-產出設定檔的審查與自動檢查建議)
   - [6.5 Content Exclusion（內容排除）](#65-content-exclusion內容排除official)
     - [6.5.1 它做什麼、不做什麼](#651-它做什麼不做什麼)
     - [6.5.2 Repository 層語法](#652-repository-層語法official)
@@ -350,8 +369,12 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
     - [8.14.2 Subagent 的深度與並行上限](#8142-subagent-的深度與並行上限official)
     - [8.14.3 CLI 專屬的 Custom Agent 欄位與 Sidekick Agents](#8143-cli-專屬的-custom-agent-欄位與-sidekick-agentsofficial)
     - [8.14.4 權限輔助模式與 allow-all 的企業限制](#8144-權限輔助模式與-allow-all-的企業限制official)
-  - [8.15 本章實務案例](#815-本章實務案例建議)
-  - [8.16 注意事項](#816-注意事項)
+  - [8.15 Dynamic Workflows、Computer Use 與成本上限（2026-10）](#815-dynamic-workflowscomputer-use-與成本上限2026-10official--preview)
+    - [8.15.1 Dynamic Workflows（Public Preview）](#8151-dynamic-workflowspublic-previewofficial)
+    - [8.15.2 Computer Use（Public Preview）](#8152-computer-usepublic-previewofficial)
+    - [8.15.3 AI Credits 上限：`--max-ai-credits` 與 `/limits`](#8153-ai-credits-上限--max-ai-credits-與-limitsofficial)
+  - [8.16 本章實務案例](#816-本章實務案例建議)
+  - [8.17 注意事項](#817-注意事項)
 - **[9. Copilot IDE Agent Mode](#9-copilot-ide-agent-mode)**
   - [9.1 Agent Mode 是什麼](#91-agent-mode-是什麼official)
   - [9.2 Chat / Edit / Agent 三種模式的差異](#92-chat--edit--agent-三種模式的差異official--建議)
@@ -426,8 +449,9 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
   - [13.10 企業 Hook 範例：危險指令阻擋](#1310-企業-hook-範例危險指令阻擋建議)
   - [13.11 企業 Hook 範例：稽核記錄](#1311-企業-hook-範例稽核記錄建議)
   - [13.12 停用 Hook](#1312-停用-hookofficial)
-  - [13.13 本章實務案例](#1313-本章實務案例建議)
-  - [13.14 注意事項](#1314-注意事項)
+  - [13.13 沙箱中的 Hook 與設定檔的容錯行為](#1313-沙箱中的-hook-與設定檔的容錯行為official)
+  - [13.14 本章實務案例](#1314-本章實務案例建議)
+  - [13.15 注意事項](#1315-注意事項)
 - **[14. MCP](#14-mcp)**
   - [14.1 MCP 是什麼](#141-mcp-是什麼official)
   - [14.2 MCP 架構圖](#142-mcp-架構圖official--建議)
@@ -577,6 +601,7 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
     - [27.8.2 Security Campaigns：批次清償安全債](#2782-security-campaigns批次清償安全債official)
     - [27.8.3 代理產出的平台層安全驗證](#2783-代理產出的平台層安全驗證official)
     - [27.8.4 企業安全修復的分工模型](#2784-企業安全修復的分工模型建議)
+    - [27.8.5 AI 偵測密鑰與 `/security-review`（2026-10）](#2785-ai-偵測密鑰與-security-review2026-10official--preview)
   - [27.9 本章實務案例](#279-本章實務案例建議)
   - [27.10 注意事項](#2710-注意事項)
 - **[28. AI Agent 安全治理](#28-ai-agent-安全治理)**
@@ -611,8 +636,11 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
     - [30.7.2 設定入口與效力等級的決定順序（2026-09-23）](#3072-設定入口與效力等級的決定順序2026-09-23official)
     - [30.7.3 企業必須知道的六個治理事實](#3073-企業必須知道的六個治理事實official--建議)
     - [30.7.4 企業設定建議](#3074-企業設定建議建議)
-  - [30.8 本章實務案例](#308-本章實務案例建議)
-  - [30.9 注意事項](#309-注意事項)
+  - [30.8 以 API 請求 Copilot code review 與授權來源控管（2026-10）](#308-以-api-請求-copilot-code-review-與授權來源控管2026-10official--建議)
+    - [30.8.1 API 請求](#3081-api-請求official)
+    - [30.8.2 外部授權的審查請求限制](#3082-外部授權的審查請求限制official)
+  - [30.9 本章實務案例](#309-本章實務案例建議)
+  - [30.10 注意事項](#3010-注意事項)
 - **[31. CI/CD](#31-cicd)**
   - [31.1 AI 時代 CI/CD 的新職責](#311-ai-時代-cicd-的新職責建議)
   - [31.2 完整 CI Pipeline](#312-完整-ci-pipeline建議)
@@ -749,6 +777,7 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
   - [44.5 2026 年 9 月新增的量測能力與儀表板重設計](#445-2026-年-9-月新增的量測能力與儀表板重設計official--建議)
     - [44.5.1 新增的官方指標](#4451-新增的官方指標official)
     - [44.5.2 重新設計後的治理儀表板](#4452-重新設計後的治理儀表板建議)
+    - [44.5.3 2026 年 9 月底至 10 月的量測更新](#4453-2026-年-9-月底至-10-月的量測更新official--建議)
   - [44.6 本章實務案例](#446-本章實務案例建議)
   - [44.7 注意事項](#447-注意事項)
 
@@ -862,6 +891,12 @@ GitHub Copilot 在 2025–2026 年間的產品架構變動幅度極大：功能�
   - [H.3 更正對照表（v1.1 → v1.2）](#h3-更正對照表v11--v12)
   - [H.4 v1.2 新增章節](#h4-v12-新增章節)
   - [H.5 待追蹤項目](#h5-待追蹤項目)
+- **[附錄 I：v1.3 查證紀錄](#附錄-iv13-查證紀錄)**
+  - [I.1 查證基準](#i1-查證基準)
+  - [I.2 已查閱的主要官方頁面](#i2-已查閱的主要官方頁面)
+  - [I.3 更正對照表（v1.2 → v1.3）](#i3-更正對照表v12--v13)
+  - [I.4 v1.3 新增章節](#i4-v13-新增章節)
+  - [I.5 待追蹤項目](#i5-待追蹤項目)
 - **[文件結束](#文件結束)**
 
 ---
@@ -1070,7 +1105,7 @@ flowchart TD
 | **Hooks** | ✅ 14 種生命週期事件 | ✅ | ✅ | 有限 | 有限 |
 | **MCP** | ✅ 全介面支援 | ✅ | ✅ | ✅ | ✅ |
 | **Plugin 打包散布** | ✅ `plugin.json` + Marketplace | ✅ Plugin | 部分 | 部分 | 部分 |
-| **企業強制設定檔** | ✅ `managed-settings.json`（MDM 佈署） | 有企業版設定 | 有 | 有企業方案 | 有 |
+| **企業強制設定檔** | ✅ `managed-settings.json`（server-managed／MDM／檔案三種佈署） | 有企業版設定 | 有 | 有企業方案 | 有 |
 | **內容排除（Content Exclusion）** | ✅ Repo / Org 層級 | 需自建 | 需自建 | 需自建 | 有 |
 | **Audit Log** | ✅ 含 agent 專屬事件 | 依方案 | 依方案 | 依方案 | 依方案 |
 | **模型選擇** | 多家模型可選 + BYOK | 以 Anthropic 為主 | 以 OpenAI 為主 | 多家可選 | 以 Google 為主 |
@@ -1171,6 +1206,10 @@ flowchart TD
 | Extensions 日落 | GitHub Copilot Extensions（GitHub App） | **已於 2025-11-10 終止** | 自建整合必須汰換 |
 | Plugin 機制 | （無） | **Copilot Plugins / Agent Plugins 1.0，2026-08-12 GA** | 新的能力散布標準 |
 | 計費模型 | Premium requests | **GitHub AI Credits**（舊制標示為 legacy） | 成本模型、預算控管需重算 |
+| Custom Agent 欄位（v1.3 補充） | `infer: false` | **`disable-model-invocation: true`**／`user-invocable`（`infer` 已退役） | 舊 agent 定義需改寫；兩者同時存在時以 `disable-model-invocation` 為準 |
+| Managed settings 鍵（v1.3 補充） | `permissions.model` | **頂層 `model`**（舊寫法仍可讀取） | 新設定一律寫頂層；舊檔案納入下次覆核 |
+| CLI 指令（v1.3 補充） | `copilot plugins`、`/allow-all`、`/yolo` | **`copilot plugin`**、**`/permissions`**（舊名為別名） | 內部 SOP 與教育訓練改用正式名稱 |
+| CLI 設定目錄（v1.3 補充） | `--config-dir` 選項 | **`COPILOT_HOME`** 環境變數（選項已標示 deprecated） | 佈署腳本改用環境變數 |
 
 ---
 
@@ -1195,6 +1234,7 @@ flowchart TD
 ### 2.6 注意事項
 
 - ⚠️ 判斷文件是否過時的三個關鍵字：`.chatmode.md`、`Copilot Extensions`、`premium requests`。看到任一個，該文件的治理建議都不能直接採用。
+- ⚠️ v1.3 補充兩個「半過時」訊號：把 `managed-settings.json` 寫成放在使用者目錄（`%APPDATA%`、`~/.config`），或在 custom agent 用 `infer:`——作者很可能沒有讀過 2026-09 以後的官方文件。
 - ⚠️ 官方文件的舊 URL 路徑（例如 `coding-agent`）有時仍可存取，**不代表該名稱仍是現行說法**。
 - ✅ 在企業內部 Wiki 為 Copilot 相關頁面加上「最後查證日期」欄位，超過 90 天自動標記為待覆核。
 
@@ -1212,7 +1252,7 @@ flowchart TD
         ENT["Enterprise<br/>企業帳戶"]
         POL["Policies<br/>功能 / 模型 / Agent / MCP"]
         AIC["AI Controls<br/>Agent Management"]
-        MS["Enterprise Managed Settings<br/>managed-settings.json (MDM)"]
+        MS["Enterprise Managed Settings<br/>managed-settings.json<br/>(server / MDM / 檔案)"]
         CE["Content Exclusion<br/>Repo / Org"]
         AUD["Audit Log<br/>+ Agent 事件"]
         OTEL["OpenTelemetry<br/>Agent 監控"]
@@ -1441,7 +1481,7 @@ flowchart LR
 | Custom Agents 發布 | ✅（AI Controls / REST API） | ✅（`.github` / `.github-private`） | ✅（`.github/agents/`） | ✅（`~/.copilot/agents/`） |
 | Custom Instructions | ❌ | ✅（github.com） | ✅ | ✅ |
 | Content Exclusion | ❌（由 Org / Repo 設定） | ✅ | ✅ | ❌ |
-| Managed Settings（`managed-settings.json`） | ✅（MDM 佈署） | 團隊層可覆寫（`overridable`） | ❌ | 受其約束 |
+| Managed Settings（`managed-settings.json`） | ✅（server-managed／MDM／檔案） | 團隊層可覆寫（`overridable`） | ❌ | 受其約束 |
 | Plugin 標準與 Marketplace 限制 | ✅ | 部分 | ✅（`.github/copilot/settings.json`） | ✅ |
 | Audit Log（含 agent 事件） | ✅ | ✅ | ❌ | ❌ |
 | Usage Metrics / 影響力儀表板 | ✅ | ✅ | ❌ | 個人用量 |
@@ -1535,7 +1575,7 @@ flowchart TD
 ### 5.1 方案總覽【Official】
 
 > ⚠️ **價格與額度以官方公告為準**
-> 本節引述查證當日（2026-09-25）官方 `Plans for GitHub Copilot` 頁面的方案結構。**價格、AI Credits 額度與功能分配會隨時間調整**，任何預算編列與商務決策，請以 GitHub 官方目前公告為準，不要引用本手冊的數字。
+> 本節引述查證當日（2026-10-10，v1.3 覆核，數字與 2026-09-25 相同）官方 `Plans for GitHub Copilot` 頁面的方案結構。**價格、AI Credits 額度與功能分配會隨時間調整**，任何預算編列與商務決策，請以 GitHub 官方目前公告為準，不要引用本手冊的數字。
 
 | 方案 | 對象 | 定位 | 查證當日價格 | 查證當日 AI Credits |
 | --- | --- | --- | --- | --- |
@@ -1688,16 +1728,18 @@ Copilot 並非單一模型產品，而是一個**多供應商模型聚合平台*
 
 | 供應商 | 模型家族（查證日在列者） |
 | --- | --- |
-| OpenAI | GPT-5 mini ‡、GPT-5.3-Codex（Base／LTS）、GPT-5.4 ‡／5.4 mini ‡／5.4 nano、GPT-5.5 ‡、GPT-5.6（Luna／Sol／Terra）、GPT-6 Astra、**GPT-6 Sol／GPT-6 Luna**（2026-09-22） |
-| Anthropic | Claude Haiku 4.5、Claude Sonnet 4.6（僅個人年約訂閱者保留）／5、Claude Opus 4.7 †／4.8／5、**Claude Opus 5.5**（2026-09-22）、Claude Fable 5／5.1 |
-| Google | Gemini 3.5 Flash †、3.6 Flash †、3.7 Flash ‡、3.8 Flash |
-| Microsoft | MAI-Code-1.1-Flash（MAI-Code-1-Flash 已於 2026-09-10 退役） |
-| xAI | Grok 4.5 ‡、Grok 4.6、**Grok 4.7**（2026-09-21） |
-| Moonshot AI | Kimi K2.7 Code †、Kimi K3（開放權重模型，預設停用） |
+| OpenAI | GPT-5 mini ‡、GPT-5.3-Codex（Base／LTS）、GPT-5.4 ‡／5.4 mini ‡／5.4 nano、GPT-5.5 ‡、GPT-5.6（Luna／Sol／Terra）、GPT-6 Astra、GPT-6 Sol／GPT-6 Luna、**GPT-6.1 Sol**（2026-09-29） |
+| Anthropic | Claude Haiku 4.5、**Claude Haiku 5.5**（2026-10-07）、Claude Sonnet 4.6（僅個人年約訂閱者保留）／5、**Claude Sonnet 5.5**（2026-09-28）、Claude Opus 4.8（含 fast mode 預覽）／5／5.5、Claude Fable 5／5.1 |
+| Google | Gemini 3.7 Flash ‡、3.8 Flash |
+| Microsoft | MAI-Code-1.1-Flash |
+| xAI | Grok 4.5 ‡、Grok 4.6、Grok 4.7 |
+| Moonshot AI | Kimi K3（開放權重模型，預設停用） |
 
-† 預定 **2026-10-02** 退役；‡ 預定 **2026-10-19** 退役（替代模型見第 [6.10.1 節](#6101-模型退役是常態不是意外official)）。
+‡ 預定 **2026-10-19** 退役（替代模型見第 [6.10.1 節](#6101-模型退役是常態不是意外official)）。
 
 > ⚠️ **v1.2 更正**：移除已於 2026-09-10 退役的 MAI-Code-1-Flash；新增 2026-09-21／22 上架的 Grok 4.7、GPT-6 Sol／Luna、Claude Opus 5.5；標示 10 月兩批退役。
+>
+> ⚠️ **v1.3 更正**：Claude Opus 4.7、Gemini 3.5／3.6 Flash、Kimi K2.7 Code 已於 **2026-10-02 退役**並自表中移除；新增 GPT-6.1 Sol（Pro+ 以上）、Claude Sonnet 5.5、Claude Haiku 5.5（皆 Pro 以上）。新模型依 Global Model Policy **預設開放**（Version Note 9）。
 
 > 📌 **本表僅為查證日快照。**
 > 模型清單的變動頻率是**以週為單位**——2026 年 8 至 9 月間就發生了多次新增與 4 波退役（含已預告者）。
@@ -1715,6 +1757,15 @@ Copilot 並非單一模型產品，而是一個**多供應商模型聚合平台*
 
 > 🎯 **這三個維度是 AND 關係。**
 > 使用者回報「文件說有這個模型，但我下拉選單裡沒有」時，請依 **Plan → Surface → Policy** 的順序排查，九成以上的案例落在 Policy 這一層。
+
+> 📌 **v1.3 補充：第四個維度——用戶端版本**【Official】
+> 官方 Supported models 頁新增「Minimum IDE versions for recent models」表，例如 Claude Opus 5 需 VS Code `v1.128.0`、Visual Studio `17.14.22`；多數新模型在 JetBrains／Xcode／Eclipse 欄仍標 **TBD**。官方特別註明「**未列最低版本，不代表舊版都支援**」。排查順序因此應為 **Plan → Surface → 用戶端版本 → Policy**。
+
+**✅ 驗證方式（給管理員）**：
+
+1. 在 Copilot CLI 執行 `/model`，記下清單；再以 `copilot --model=<模型 ID> -p "ping" -s` 對清單外的模型試呼叫，應得到「不可用」類錯誤，而不是靜默改用其他模型。
+2. 在 VS Code 開啟模型選擇器，與企業模型政策頁逐一比對；不一致者先查 IDE 擴充版本。
+3. 每次 Global Model Policy 或模型退役變更後，各介面各抽一位使用者重做 1–2，結果附在變更單上。
 
 #### 5.6.3 Global Model Policy【Official】
 
@@ -1745,11 +1796,116 @@ Copilot 並非單一模型產品，而是一個**多供應商模型聚合平台*
 > 官方明列下列模型**不在預設政策範圍內，無論設定為何都預設停用**，必須由管理員明確開啟：
 >
 > - Pre-GA 模型
-> - 開放權重模型（DeepSeek、Kimi K2.7 Code、Kimi K3）
+> - 開放權重模型（DeepSeek、Kimi K3；Kimi K2.7 Code 已於 2026-10-02 退役）
 > - 不在 GitHub 資料保留協議涵蓋範圍內的模型（Claude Fable 5、Claude Fable 5.1）
 > - 已限制為資料落地或 FedRAMP 模型的企業中，不符合該限制的模型
 >
 > 尚未明確設定的模型，在設定頁會標示為 **Delegate to Default Policy**。同樣的「預設開放」邏輯自 2026-10-22 起延伸到**功能**，見第 [6.13 節](#613-新功能預設啟用政策default-policy-for-new-featuresofficial--建議)。
+
+#### 5.6.4 Repository 層模型白名單：`.github/allowed_models.txt`（Copilot CLI）【Official + 建議】
+
+> 🆕 **v1.3 新增**
+
+企業與組織的模型政策回答「**這個人**能用哪些模型」；Copilot CLI 另外支援以 repository 為單位回答「**這個專案**能用哪些模型」。官方規則【Official】：
+
+| 規則 | 說明 |
+| --- | --- |
+| 位置 | 從目前工作目錄所屬 repository 的根目錄讀取 `.github/allowed_models.txt`（不在 repository 時讀工作目錄） |
+| 格式 | 每行一個**對模型 ID 的 glob**；`#` 為註解；沒有此檔案等於 `*`（全部允許） |
+| `fallback: MODEL-ID` | **必須恰好一行**；目前或請求的模型不被允許時改用它；必須是**精確 ID**，且本身要符合某一行 glob |
+| 不支援 | 否定樣式（`!pattern`） |
+| 生效時機 | CLI 啟動與每次 `/cd` 時重新評估；檔案不合法時**直接報錯、拒絕執行** |
+| 管不到的 | **BYOK 自訂模型**（永遠可選、`fallback` 也不套用） |
+
+```text
+# .github/allowed_models.txt —— 支付系統 repository：只允許經法遵評估的模型
+fallback: gpt-5.3-codex
+gpt-5.3-codex
+gpt-6-*
+claude-sonnet-*
+```
+
+**適用情境【建議】**：受監管專案（例如支付、病歷）必須限定供應商，但同一位工程師在其他專案不需受限——用組織模型政策做不到「依專案」，這個檔案可以。它**只約束 Copilot CLI**，IDE 與 cloud agent 仍以模型政策為準，因此**不能取代**企業模型政策，只能作為受監管 repository 的第二層防護。
+
+**✅ 驗證方式**：以下腳本（Python 3 標準函式庫，離線執行）同時檢查本檔與第 [8.9 節](#89-settingsjson-常用設定official) 的 repository 設定檔，建議放進 CI。v1.3 已用正例（合法檔案 → 「通過」、離開碼 0）與反例（`fallback:` 用萬用字元、否定樣式、repository 層出現 `allowedUrls`／`sandbox` → 4 個 ERROR、離開碼 1）實測：
+
+```python
+#!/usr/bin/env python3
+"""檢查 repository 的 .github/copilot/settings.json 與 .github/allowed_models.txt。
+
+用法：python check_repo_copilot_config.py <repository 根目錄>
+離開碼：0 = 通過；1 = 有錯誤
+"""
+import fnmatch
+import json
+import pathlib
+import sys
+
+# 官方 CLI 設定參考：repository 層只支援下列鍵，其他鍵會被「靜默忽略」
+REPO_KEYS = {
+    "companyAnnouncements", "contextTier", "deniedUrls", "disableAllHooks",
+    "disabledMcpServers", "disabledSkills", "effortLevel", "enabledPlugins",
+    "extraKnownMarketplaces", "hooks", "includeCoAuthoredBy", "mergeStrategy",
+    "model", "respectGitignore",
+}
+
+
+def strip_jsonc(text):
+    """移除 // 整行註解（settings.json 支援 JSONC）。"""
+    return "\n".join(l for l in text.splitlines() if not l.lstrip().startswith("//"))
+
+
+def check_settings(root, errors):
+    path = root / ".github" / "copilot" / "settings.json"
+    if not path.exists():
+        return
+    data = json.loads(strip_jsonc(path.read_text(encoding="utf-8")))
+    for key in data:
+        if key not in REPO_KEYS:
+            errors.append(f"{path}: 鍵 {key!r} 在 repository 層不受支援，會被靜默忽略")
+
+
+def check_allowed_models(root, errors):
+    path = root / ".github" / "allowed_models.txt"
+    if not path.exists():
+        return
+    patterns, fallbacks = [], []
+    for n, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("fallback:"):
+            fallbacks.append((n, line.split(":", 1)[1].strip()))
+        elif line.startswith("!"):
+            errors.append(f"{path}:{n}: 不支援否定樣式 {line!r}")
+        else:
+            patterns.append(line)
+    if len(fallbacks) != 1:
+        errors.append(f"{path}: 'fallback:' 必須恰好出現一次（目前 {len(fallbacks)} 次）")
+        return
+    n, model = fallbacks[0]
+    if any(c in model for c in "*?["):
+        errors.append(f"{path}:{n}: fallback 必須是精確的模型 ID，不可用萬用字元")
+    elif not any(fnmatch.fnmatchcase(model, p) for p in patterns):
+        errors.append(f"{path}:{n}: fallback 模型 {model!r} 必須符合清單中的某個樣式")
+
+
+def main(root):
+    root = pathlib.Path(root)
+    errors = []
+    check_settings(root, errors)
+    check_allowed_models(root, errors)
+    for e in errors:
+        print("ERROR", e)
+    print("通過" if not errors else f"共 {len(errors)} 個錯誤")
+    return 1 if errors else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1] if len(sys.argv) > 1 else "."))
+```
+
+> 🔍 **審查 AI 產出的 `allowed_models.txt` 時，至少確認三件事**：`fallback:` 只有一行且是精確 ID；`fallback` 模型本身被某一行 glob 允許；清單中沒有已退役或預告退役的模型（對照第 [6.10.1 節](#6101-模型退役是常態不是意外official)）。
 
 ---
 
@@ -1805,6 +1961,8 @@ Copilot 並非單一模型產品，而是一個**多供應商模型聚合平台*
 
 由於 Balanced 會消耗**較多 AI Credits**、並可能多用一些 GitHub Actions 分鐘數，**未採取動作的組織會在 9 月底之後看到 review 相關成本上升**。詳見第 [30.5 節](#305-效力等級與成本official--建議)。
 
+> ✅ **v1.3 狀態更新：已生效**【Official】：2026-10-02 Changelog 確認此變更**已於 2026-09-28 生效**，適用**新的與既有的** repository 與組織；曾**明確選擇 Lite** 者保留原設定。官方概念頁的「GitHub 內建預設」也已改為 **Balanced**。若貴司在 9/28 前未動作，請以第 [30.5 節](#305-效力等級與成本official--建議) 的方式確認目前的實際等級與成本。
+
 > 📌 **v1.2 補充（2026-09-23）**：企業管理員現在可以為**整個企業**設定預設效力等級（Lite、Balanced 或 GitHub default）。但依官方的決定順序，**PR 請求者的個人設定優先於 repository 與 organization 設定**——企業無法單靠預設值把成本鎖在 Lite，必須搭配預算控管。詳見第 [30.7.2 節](#3072-設定入口與效力等級的決定順序2026-09-23official)。
 
 #### 5.7.4 預算提高申請（Budget increase requests）【Official】
@@ -1848,8 +2006,8 @@ Copilot 並非單一模型產品，而是一個**多供應商模型聚合平台*
 
 | 版本 | 介面 |
 | --- | --- |
-| **Auto with task optimization**（GA） | github.com 的 Copilot Chat、VS Code、Copilot CLI、GitHub Copilot app、Copilot cloud agent |
-| **Auto optimized for reliability and availability**（GA） | JetBrains IDE、Eclipse、Xcode、Visual Studio（以可用性為主，不做任務複雜度分級） |
+| **Auto with task optimization**（GA） | github.com 的 Copilot Chat、VS Code、**JetBrains IDE**（v1.3 更正）、Copilot CLI、GitHub Copilot app、Copilot cloud agent |
+| **Auto optimized for reliability and availability**（GA） | Eclipse、Xcode、Visual Studio（以可用性為主，不做任務複雜度分級） |
 
 **三種分級（2026-09-14 起陸續推出，僅 VS Code、Copilot CLI、GitHub Copilot app）**【Official】：
 
@@ -1860,6 +2018,17 @@ Copilot 並非單一模型產品，而是一個**多供應商模型聚合平台*
 | **Intelligence** | 品質 | 複雜任務 |
 
 > 📌 **分級不是「換一組模型」**。三個分級可用的模型相同，只改變路由的偏好；即使選 Intelligence，簡單的 prompt 仍可能被送到小模型。
+
+**管理員預設分級：`autoTier`**【Official，v1.3 補充】：企業可在 managed settings 以 `autoTier` 設定新對話的預設分級（`efficiency`、`balance`、`intelligence`，或 `unmanaged` 表示不管控）。它**只在 `model` 為 `"auto"` 時有意義**，本身不選模型；需 Copilot CLI `1.0.87-0`、VS Code `1.140.0` 以上（GitHub Copilot app 與 cloud agent 不支援）。寫成字串會**鎖定**分級；要讓團隊、repository 或使用者可調整，請用 `overridable`：
+
+```json
+{
+  "model": "auto",
+  "autoTier": { "overridable": "balance" }
+}
+```
+
+> ⚠️ 舊的 `"fast"` 分級已不可選，CLI 會改用 `balance` 並發出警告。用第 [6.4.7 節](#647-ai-產出設定檔的審查與自動檢查建議) 的腳本可檢查這類錯誤。
 
 **Evaluation models（評估模型）**【Official】：個人方案在 Auto 下**可能被分派到評估模型**——這些模型可能以代號出現、未經正式發布，官方明言它們「在安全相關類別的提示上可能表現較差」。個人可在 **AI controls → Evaluation models in Copilot auto model selection** 停用。
 
@@ -1925,7 +2094,37 @@ Utility models 負責**背景功能**，例如產生 commit 訊息、產生 chat
 > Local BYOK 的資料**直接送往使用者自行設定的模型供應商**，適用的是**該供應商與使用者個人之間的條款**，而不是企業與 GitHub 之間的資料處理合約。
 >
 > - ✅ 企業預設應**停用 IDE 的 Local BYOK**；確有需求者改走 **Enterprise BYOK**，由企業集中管理金鑰與供應商合約。
-> - 【⚠️ 文件不一致】官方僅明載政策可停用「**IDE** 中的 Local BYOK」，**未說明 Copilot CLI 與 GitHub Copilot app 的 Local BYOK 是否受同一政策約束**。企業必須在目標用戶端實測；在確認前，以網路出口管制（只放行核准的模型供應商端點）作為補償控制。
+> - 【⚠️ 文件不一致】官方僅明載政策可停用「**IDE** 中的 Local BYOK」，**未說明 Copilot CLI 與 GitHub Copilot app 的 Local BYOK 是否受同一政策約束**（v1.3 覆核仍未說明）。企業必須在目標用戶端實測；在確認前，以網路出口管制（只放行核准的模型供應商端點）作為補償控制。
+
+**v1.3 補充：CLI 的本機模型探索與離線模式**【Official】
+
+| 項目 | 內容 |
+| --- | --- |
+| 本機模型探索（2026-10-07） | CLI `1.0.94-0` 起，`/model` 可列出**正在執行的 Ollama** 中的模型，選擇「Add and use for this session」或「Add without switching」；不會替你安裝 runtime 或下載模型 |
+| 模型條件 | 必須支援 **tool calling** 與 **streaming** |
+| 離線模式 | 選了本機模型**不等於離線**；必須另設 `COPILOT_OFFLINE=true`。即使在離線模式，若同時設定了遠端 provider，prompt 與程式碼 context 仍可能送出 |
+| 設定檔 | BYOK provider 與模型登錄於 `~/.copilot/providers.json`（可用 `COPILOT_PROVIDERS_CONFIG` 改位置），宣告後優先於舊的 `COPILOT_PROVIDER_*` 環境變數 |
+| 與 repository 白名單的關係 | 第 5.6.4 節的 `allowed_models.txt` **無法過濾 BYOK 模型** |
+
+> 🚨 **企業意涵【建議】**：本機模型讓資料「不出這台電腦」，但也讓它**不出現在任何 GitHub 稽核記錄**。企業若不允許，除網路出口管制外，應以 managed settings 的 `forceLoginOrgs`（僅 CLI，第 6.4.1 節）拒絕 BYOK／API 金鑰登入；若允許，請要求在 `providers.json` 中**只登錄核准的端點**，並把該檔納入端點組態稽核。
+
+---
+
+#### 5.8.5 HydraFusion：多模型協作的模型選項【Preview】
+
+> 🆕 **v1.3 新增**（2026-09-30 Changelog，Research Preview）
+
+HydraFusion 出現在模型選擇器中，但它不是一個模型，而是**把模型選擇與工作流程選擇一起最佳化**的協調器【Official】：
+
+| 工作流程 | 做法 |
+| --- | --- |
+| **Single** | 一個模型直接完成 |
+| **Cascade** | 先由較有效率的模型起草，品質閘門決定接受或升級給較強的模型 |
+| **Critique** | 一個模型起草，**另一個模型家族**的審查者批評，原模型修訂一次 |
+
+**可用性**【Official】：Copilot Pro、Pro+、Business、Enterprise；Business／Enterprise **需管理員先開啟預覽功能**。VS Code `1.140` 以上（選擇器中選 HydraFusion，或開啟 `chat.copilot.hydraFusion.enabled`），GitHub Copilot app 於設定中開啟。官方未說明計費與組織層政策細節。
+
+> ⚠️ **企業建議【建議】**：Research Preview 不放進生產流程。它與 Auto 一樣讓「這次用了哪些模型」變成事後才知道的資訊，而且一次請求可能**跨兩個模型家族**——若法遵要求限定供應商，評估前應確認每個參與模型都在核准清單中。
 
 ---
 
@@ -1968,7 +2167,7 @@ Utility models 負責**背景功能**，例如產生 commit 訊息、產生 chat
 - 🚨 **Global model policy GA 後，「沒設定模型政策」等於「全部開放」**——必須主動維護白名單。
 - 🚨 **2026-10-01 起既有客戶的席次改為預先付費**：未付款的席次，使用者完全無法使用。
 - ⚠️ 席次回收不產生按比例退款，「浮動席次池」不要再以省錢為主要 KPI。
-- ⚠️ **2026-09-28 起 code review 預設效力等級改為 Balanced**，未動作者成本會自動上升。
+- ⚠️ **code review 預設效力等級已於 2026-09-28 改為 Balanced**（v1.3 確認已生效），未明確選 Lite 者成本已上升。
 - ✅ 使用者預算一律強制填寫到期日，這是成本治理最省力的槓桿。
 - ✅ 指派一位負責人每月覆核模型政策清單，並留下工單紀錄。
 - 🚨 **Claude Fable 系列與開放權重模型（Kimi）一律預設停用**，開啟前必須完成資料保留條款的法遵評估。
@@ -1976,6 +2175,8 @@ Utility models 負責**背景功能**，例如產生 commit 訊息、產生 chat
 - ⚠️ Utility models 無法停用且不計費，但仍會處理程式碼與對話內容，**DPIA 必須列入**。
 - ✅ 需要可重現性的 CI 優先指定 **LTS 模型**，並追蹤其一年承諾到期日。
 - ✅ 核准預算提高申請時，一併設定到期日。
+- ✅ 受監管 repository 加上 `.github/allowed_models.txt`，並以 CI 檢查其格式（5.6.4）。
+- ⚠️ 選用本機模型（Ollama）不等於離線，`COPILOT_OFFLINE=true` 要另外設定。
 
 ---
 
@@ -2117,34 +2318,75 @@ flowchart LR
 
 **檔名**：`managed-settings.json`【Official】
 
-**佈署方式**：透過 **MDM（行動裝置管理）解決方案或企業組態管理工具**下發到開發者終端【Official】。
+**佈署方式**【Official，v1.3 全面改寫】：同一組設定鍵，可用三種方式下發，也可以混用。
 
-> 【⚠️ 文件不一致】
-> 官方參考頁在描述檔案路徑時，同時給出了各平台路徑，卻又註明「文件未指定確切路徑；佈署通常透過 MDM 或企業組態管理工具進行」。
-> 本手冊列出的路徑僅供參考，**企業實作前必須在目標平台實測驗證**：
->
-> | 平台 | 參考路徑 |
-> | --- | --- |
-> | Windows | `%APPDATA%\GitHub Copilot\managed-settings.json` |
-> | macOS | `~/Library/Application Support/GitHub Copilot/managed-settings.json` |
-> | Linux | `~/.config/GitHub Copilot/managed-settings.json` |
->
-> ✅ **驗證方法**：在測試機放入一個明顯可觀察的設定（例如 `permissions.deny` 封鎖某個指令），實際執行 Copilot CLI 確認是否生效。**不要只靠文件。**
+| 佈署方式 | 設定位置 | 涵蓋用戶端 | 套用對象 | 生效時間 |
+| --- | --- | --- | --- | --- |
+| **Server-managed**（官方預設建議） | 企業指定的 `.github-private` repository：`copilot/managed-settings.json`；團隊覆寫用 `copilot/team-mappings.json` 與 `copilot/teams/*.json` | **全部**，含 Copilot cloud agent | 從本企業（或其組織）取得 Copilot 授權的使用者 | 約 1 小時內；重啟用戶端或重新登入可立即更新 |
+| **MDM** | Windows：`HKEY_LOCAL_MACHINE\SOFTWARE\Policies\GitHubCopilot` 下的 `REG_SZ` 值；macOS：`com.github.copilot` 偏好設定網域的強制受管偏好（Linux 不支援） | 僅本機用戶端 | **該裝置**，不論使用者的授權來源 | 用戶端每小時檢查；VS Code 可執行 `Developer: Sync Account Policy` 立即同步 |
+| **File-based** | macOS `/Library/Application Support/GitHubCopilot/managed-settings.json`；Windows `%ProgramFiles%\GitHubCopilot\managed-settings.json`；Linux `/etc/github-copilot/managed-settings.json` | 僅本機用戶端 | 該裝置 | 重啟用戶端後載入 |
+
+> ⚠️ **v1.3 更正**：v1.2 以前列出的 `%APPDATA%\GitHub Copilot\…`、`~/Library/Application Support/GitHub Copilot/…`、`~/.config/GitHub Copilot/…` 是**使用者目錄**，與官方路徑不符；官方的檔案型位置都在**系統層**，並且目錄名稱是 `GitHubCopilot`（無空白）或 `github-copilot`。v1.2 的【⚠️ 文件不一致】已由官方「Choosing how to deploy enterprise-managed settings to users」頁明確說明，予以結案。
+
+**MDM 的值怎麼寫**【Official】：MDM 不佈署 JSON 檔，而是**逐鍵**寫入字串值。巢狀鍵用點號（如 `sandbox.enabled`）；布林、陣列、物件一律存成**JSON 文字**：
+
+| 鍵 | MDM 字串值 |
+| --- | --- |
+| `permissions.disableBypassPermissionsMode` | `disable` |
+| `sandbox.enabled` | `true` |
+| `enabledPlugins` | `{"java-backend-standard@enterprise-plugins":true}` |
+
+**檔案型設定的權限要求**【Official】：Copilot CLI 在 macOS／Linux 會**拒絕**符號連結、非 `root` 擁有、或群組／其他人可寫的檔案。佈署腳本範例【建議】：
+
+```bash
+# Linux：以 root 佈署檔案型 managed settings
+sudo install -d -o root -g root -m 0755 /etc/github-copilot
+sudo install -o root -g root -m 0644 managed-settings.json /etc/github-copilot/managed-settings.json
+# 驗證：擁有者必須是 root、不可為 group/other 可寫、不可為符號連結
+stat -c '%U %a %F' /etc/github-copilot/managed-settings.json   # 預期輸出：root 644 regular file
+```
+
+**選擇建議【建議】**：
+
+| 需求 | 建議方式 |
+| --- | --- |
+| 一般企業、需要審查流程與變更歷史 | **Server-managed**（PR 審查 + CODEOWNERS 保護 `copilot/` 目錄） |
+| 「不論誰登入這台電腦都必須生效」的資安底線（如 `disableBypassPermissionsMode`、`sandbox`） | **MDM**（帳號切換無法繞過） |
+| 容器、Codespaces、無 MDM 的 Linux 建置機 | **File-based** |
+
+> 🚨 **Server-managed 的兩個盲點【Official】**：(1) 只套用在**從本企業取得授權**的使用者——同一台電腦用個人帳號登入就不受管；(2) Copilot CLI 若取不到 server 設定且沒有快取，該 session **沒有 server-managed 政策**。必須在離線或換帳號時仍成立的限制，請放在 MDM 或檔案型設定；也可加上 `forceRemoteSettingsRefresh: true`（見 6.4.1）要求啟動時一定要取得最新政策。
+
+> ✅ **驗證方法**：在測試機佈署一條明顯可觀察的規則（例如 `permissions.deny` 封鎖 `Shell(git push *)`），實際在 CLI 執行 `git push` 應被拒絕；再於 CLI 執行 `/settings`（Problems 分頁會列出無法辨識的鍵）與 `/sandbox policy`（列出路徑與網路限制的**來源**）。Server-managed 另見第 6.4.6 節之後的「設定驗證器」。
 
 #### 6.4.1 完整設定鍵一覽【Official】
 
-| 頂層鍵 | 型別 | 用途 |
-| --- | --- | --- |
-| `model` | string | 設定新對話的預設模型；可設 `"auto"` 使用自動模型選擇 |
-| `permissions` | object | 控制 bypass 模式與 deny / ask / allow 規則 |
-| `enabledPlugins` | object | 依 plugin key 啟用／停用特定 plugin |
-| `extraKnownMarketplaces` | object | 新增使用者可存取的 plugin marketplace |
-| `strictKnownMarketplaces` | array | **限制 plugin 只能從明列的 marketplace 安裝** |
-| `telemetry` | object | 設定 OpenTelemetry 資料匯出 |
-| `remoteControl` | object | 限制遠端控制 session 的能力 |
-| `allowedMcpServers` | array | **允許的 MCP Server 白名單** |
-| `deniedMcpServers` | array | **禁止的 MCP Server 黑名單** |
-| `sandbox` | object | CLI 本機 sandbox 限制 |
+| 頂層鍵 | 型別 | 用途 | CLI | VS Code | Copilot app | Cloud agent | JetBrains |
+| --- | --- | --- | :---: | :---: | :---: | :---: | :---: |
+| `model` | string | 新對話的預設模型；`"auto"` 為自動選擇（舊寫法 `permissions.model` 仍可讀） | ✅ | ✅ | ✅ | ✅ | ❌ |
+| `autoTier` | string | `model` 為 `"auto"` 時的預設分級（v1.3 新增，見 5.8.1） | ✅ | ✅ | ❌ | ❌ | ❌ |
+| `permissions.disableBypassPermissionsMode` | string | 停用 bypass／YOLO 模式 | ✅ | ✅ | ✅ | ❌ | ✅ |
+| `permissions.deny`／`ask`／`allow` | array | 封鎖／強制詢問／免詢問放行 | ✅ | ✅（需 Agent Host） | ✅ | ❌ | ❌ |
+| `features.computerUse` | boolean | `false` 時使用者無法啟用 computer use（v1.3 新增，見 8.15） | ✅ | ❌ | ✅ | ❌ | ❌ |
+| `enabledPlugins` | object | 依 plugin key 強制啟用／停用 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `extraKnownMarketplaces` | object | 新增 plugin marketplace（可設 `autoUpdate`） | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `strictKnownMarketplaces` | array | **只能從明列的 marketplace 安裝**；`[]` 為全面封鎖 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `telemetry` | object | OpenTelemetry 匯出 | ✅ | ✅ | ❌ | ❌ | ✅ |
+| `remoteControl` | object | 限制本機 session 被遠端操控 | ✅ | ✅ | ✅ | ❌ | ❌ |
+| `allowedMcpServers` | array | **MCP Server 白名單** | ✅ | ✅ | ✅ | ❌ | ✅ |
+| `deniedMcpServers` | array | **MCP Server 黑名單** | ✅ | ✅ | ✅ | ❌ | ✅ |
+| `sandbox` | object | 本機沙箱的最低限制 | ✅ | ✅（Agent Host，1.138.0+） | ✅ | ❌ | ❌ |
+| `forceRemoteSettingsRefresh` | boolean | 啟動時**必須**下載最新 server 政策（v1.3 新增） | ✅ | ✅ | — | — | — |
+
+**僅 Copilot CLI 的 MDM／檔案型設定支援**【Official】：
+
+| 鍵 | 用途 |
+| --- | --- |
+| `forceLoginOrgs` | 只允許屬於列出組織的帳號登入；個人帳號、其他企業帳號與 **BYOK／API 金鑰驗證會被拒絕** |
+| `shellShortcut` | 強制開啟或關閉 `$` 互動 shell 捷徑 |
+| `permissions.limitTo` | **封閉式網域邊界**：只允許清單內的 `Domain(...)`；使用者規則、已儲存核可與 allow-all 都無法放寬（`deny` 仍優先） |
+| `policyHelper` | 登錄提供最低優先層 managed settings 的程式；**官方註明執行功能尚未推出** |
+
+> 📌 **v1.3 更正**：v1.2 的鍵表沒有標示各用戶端支援度。官方參考頁現已提供矩陣（如上），其中 **`permissions.deny/ask/allow` 與 `sandbox` 在 JetBrains 欄為「不支援」、cloud agent 只支援 `model` 與 plugin 三鍵**——規劃治理時必須以此矩陣為準，不能假設「設了就全部生效」。
 
 #### 6.4.2 Permissions 選擇器語法【Official】
 
@@ -2161,10 +2403,14 @@ flowchart LR
 
 | 選擇器 | 說明 |
 | --- | --- |
-| `Shell(cmd)` / `PowerShell(cmd)` | Shell 指令，支援以 `*` 做前綴比對 |
-| `Read(path)` | 檔案讀取路徑，支援 glob |
-| `Edit(path)` / `Write(path)` | 檔案寫入路徑 |
-| `Domain(host)` | 網路來源，支援萬用字元如 `*.example.com` |
+| `Shell(...)`（別名 `Bash(...)`）／`PowerShell(...)` | Shell 指令。**只有 `<指令> *`（星號前有空白）是前綴比對**，例如 `Shell(git push *)`；其他寫法比對**精確字串**。`PowerShell(...)` 不分大小寫 |
+| `Read(...)` | 檔案讀取路徑，支援 glob；根目錄寫法：`//` 檔案系統根、`/` workspace 根、`~/` 家目錄、`./` 目前工作目錄 |
+| `Edit(...)`（別名 `Write(...)`） | 檔案寫入路徑，比對方式同 `Read`；**也涵蓋 shell 重新導向（`>`、`>>`）與 `sed -i` 等直接寫檔的指令**（CLI） |
+| `Domain(...)` | 網路來源；裸主機預設 HTTPS，不分大小寫；`*.example.com` 同時涵蓋 `example.com` 與子網域 |
+
+> ⚠️ **v1.3 更正**：v1.2 寫「`Shell(cmd)` 支援以 `*` 做前綴比對」過於籠統，導致 6.4.3 範例出現 `Shell(mvn test*)` 這種**不會如預期生效**的規則。官方只定義「`指令` + 空白 + `*`」為前綴；`Shell(curl * | sh)` 這類**中間萬用字元**官方未定義語意，不能當作封鎖「下載後執行」的唯一手段——請改用第 13.10 節的 `preToolUse` hook 檢查完整指令列。
+
+**合併語意**【Official】：`deny` 與 `ask` 是**所有 managed 來源的聯集**；`allow` 是**交集**（每個宣告 `allow` 的來源都必須允許）。只要任何 managed 來源宣告了任一條規則（或任何來源宣告了 `allow`），**未比對到的操作一律改為需要核可**。managed 的 `ask` 規則**無法被 bypass 模式、自動核可、hook 或先前的核可滿足**——每次都會再問。
 
 **優先權**：`deny` > `ask` > `allow`【Official】
 
@@ -2172,17 +2418,27 @@ flowchart LR
 
 以下是一份**可直接作為企業起點**的 `managed-settings.json`。請依自家環境調整後再佈署。
 
+> ⚠️ **v1.3 更正**（以第 6.4.7 節的檢查腳本對 v1.2 範例實測：2 個錯誤、10 個警告）：
+> 1. `sandbox.gitAuth`／`ghAuth` 不是官方鍵，正確為 `sandbox.auth.git`／`auth.gh`——錯誤鍵會被忽略，**Git／GitHub 憑證其實仍被注入沙箱**；
+> 2. `Shell(mvn test*)` 等 7 條 allow 規則的 `*` 前缺空白，改為 `Shell(mvn test)` 加 `Shell(mvn test *)`；
+> 3. `Shell(curl * | sh)`、`Shell(wget * | sh)` 的中間萬用字元無官方定義，已移除並改由 hook 處理（13.10）；
+> 4. `allowedMcpServers` 已有 `serverUrl` 項目時，**remote server 只用 `serverUrl` 比對**，原本的 `serverName: enterprise-jira` 對 remote server 失效，改為 `serverUrl`；
+> 5. 新增 `features.computerUse: false` 與可覆寫的 `autoTier`。
+
 ```json
 {
   "model": "auto",
+  "autoTier": { "overridable": "balance" },
+
+  "features": {
+    "computerUse": false
+  },
 
   "permissions": {
     "disableBypassPermissionsMode": "disable",
 
     "deny": [
       "Shell(rm -rf *)",
-      "Shell(curl * | sh)",
-      "Shell(wget * | sh)",
       "Shell(chmod 777 *)",
       "Shell(git push --force *)",
       "Shell(kubectl delete *)",
@@ -2212,13 +2468,14 @@ flowchart LR
     ],
 
     "allow": [
-      "Shell(mvn test*)",
-      "Shell(mvn -q compile*)",
-      "Shell(npm test*)",
-      "Shell(npm run lint*)",
-      "Shell(git status*)",
-      "Shell(git diff*)",
-      "Shell(git log*)",
+      "Shell(mvn test)",
+      "Shell(mvn test *)",
+      "Shell(mvn -q compile *)",
+      "Shell(npm test)",
+      "Shell(npm run lint *)",
+      "Shell(git status)",
+      "Shell(git diff *)",
+      "Shell(git log *)",
       "Read(**/src/**)",
       "Read(**/docs/**)",
       "Domain(repo.maven.apache.org)",
@@ -2228,8 +2485,8 @@ flowchart LR
 
   "allowedMcpServers": [
     { "serverUrl": "https://api.githubcopilot.com/*" },
-    { "serverName": "enterprise-jira" },
-    { "serverName": "enterprise-confluence" },
+    { "serverUrl": "https://mcp-jira.corp.example.com/*" },
+    { "serverUrl": "https://mcp-confluence.corp.example.com/*" },
     { "serverCommand": ["npx", "@playwright/mcp@latest"] }
   ],
 
@@ -2270,7 +2527,7 @@ flowchart LR
     "protocol": "http/protobuf",
     "captureContent": false,
     "lockCaptureContent": true,
-    "serviceName": "copilot-cli",
+    "serviceName": "copilot",
     "resourceAttributes": {
       "deployment.environment": "production"
     }
@@ -2282,8 +2539,10 @@ flowchart LR
     "allowBypass": false,
     "sandboxMcpServers": true,
     "sandboxLspServers": true,
-    "gitAuth": false,
-    "ghAuth": false,
+    "auth": {
+      "git": false,
+      "gh": false
+    },
     "allowDevToolAccess": false,
     "userPolicy": {
       "filesystem": {
@@ -2325,6 +2584,10 @@ Copilot CLI 的設定套用順序（後者覆蓋前者）：
 
 > 🎯 **這兩個例外就是企業治理的著力點**
 > 其他設定都可能被使用者用更高優先權覆蓋掉。**真正要強制的東西，只能放在這兩個例外裡，或放在 CI/CD 這種使用者管不到的地方。**
+
+**多種佈署方式並存時**【Official，v1.3 補充】：優先順序為 **MDM → server-managed → 檔案型 → 使用者設定**，以「鍵」為單位決定（MDM 有設的鍵用 MDM，沒設的才由 server 補上）。例外是 `sandbox` 與 `permissions.deny/ask/allow`：跨佈署方式時**一律往最嚴格方向合併**。
+
+> 📌 **與上表的關係**：上表是 Copilot CLI「**一般設定**」的層疊順序；managed 來源中**大多數鍵會鎖定整列**（本機修改在下次載入時被覆蓋），`enabledPlugins` 與 `extraKnownMarketplaces` 則是**逐項**鎖定。不確定時，以 `/settings` 與 `/sandbox policy` 顯示的「來源」為準。
 
 #### 6.4.5 團隊層覆寫【Official】
 
@@ -2373,6 +2636,165 @@ Copilot CLI 的設定套用順序（後者覆蓋前者）：
 □ 6. 檢查稽核記錄是否留下被封鎖的紀錄
 ```
 
+#### 6.4.7 AI 產出設定檔的審查與自動檢查【建議】
+
+> 🆕 **v1.3 新增**
+
+`managed-settings.json` 是**最常交給 AI 起草**、也最難用肉眼審查的檔案：鍵名拼錯不會報錯（只會被忽略），規則寫法差一個空白就從「前綴比對」變成「精確比對」。本節提供兩道防線。
+
+**第一道：官方設定驗證器（server-managed）**【Official，2026-09-25】
+
+企業 **AI controls → Agents** 分頁的「**Copilot settings validation**」區塊，會自動檢查 `.github-private` repository 中的 `copilot/managed-settings.json`、`copilot/team-mappings.json` 及其引用的 `copilot/teams/*.json`，指出**錯誤的檔案與 JSON 路徑**（格式錯誤、不支援的設定、無效的團隊對應）。沒有問題時該區塊**不會顯示**；驗證暫時無法執行時，**既有設定繼續生效**。修正流程：改檔 → commit 到預設分支 → 重新整理 Agents 頁。
+
+**第二道：送出 PR 前的離線檢查腳本**
+
+官方驗證器只在 commit 之後執行，也不檢查 MDM 與檔案型設定。以下腳本可放進 `.github-private` 的 PR CI，或在佈署 MDM／檔案前執行。它檢查：未知鍵、`gitAuth` 這類錯誤鍵名、`autoTier` 合法值與前提、Shell 規則的萬用字元寫法、`allowedMcpServers` 的比對陷阱、`learningMode` 的佈署限制。
+
+```python
+#!/usr/bin/env python3
+"""檢查 managed-settings.json 的常見錯誤（離線、只用標準函式庫）。
+
+用法：python check_managed_settings.py managed-settings.json
+離開碼：0 = 無錯誤（可能有警告）；1 = 有錯誤；2 = 檔案無法解析
+"""
+import json
+import re
+import sys
+
+KNOWN_TOP = {
+    "model", "autoTier", "permissions", "features", "enabledPlugins",
+    "extraKnownMarketplaces", "strictKnownMarketplaces", "telemetry",
+    "remoteControl", "allowedMcpServers", "deniedMcpServers", "sandbox",
+    "forceRemoteSettingsRefresh",
+    # 以下僅 Copilot CLI 的 MDM／檔案型設定支援
+    "forceLoginOrgs", "shellShortcut", "policyHelper",
+}
+KNOWN_SANDBOX = {
+    "enabled", "failIfUnavailable", "allowBypass", "addCurrentWorkingDirectory",
+    "sandboxMcpServers", "sandboxLspServers", "auth", "allowDevToolAccess",
+    "learningMode", "userPolicy", "overridable",
+}
+SELECTOR = re.compile(r"^(Shell|Bash|PowerShell|Read|Edit|Write|Domain)\((.+)\)$")
+AUTO_TIERS = {"efficiency", "balance", "intelligence", "unmanaged"}
+
+errors, warnings = [], []
+
+
+def unwrap(value):
+    """取出 {"overridable": X} 包裝內的值。"""
+    if isinstance(value, dict) and set(value) == {"overridable"}:
+        return value["overridable"]
+    return value
+
+
+def check_rules(name, rules):
+    if not isinstance(rules, list):
+        errors.append(f"permissions.{name} 必須是陣列")
+        return
+    for rule in rules:
+        m = SELECTOR.match(rule) if isinstance(rule, str) else None
+        if not m:
+            errors.append(f"permissions.{name}: 無法辨識的選擇器 {rule!r}")
+            continue
+        kind, arg = m.groups()
+        if kind in ("Shell", "Bash", "PowerShell"):
+            if arg.endswith("*") and not arg.endswith(" *"):
+                warnings.append(
+                    f"permissions.{name}: {rule!r} 的 * 前沒有空白；官方只定義 "
+                    f"'<command> *' 為前綴比對，其他寫法會被當成精確字串")
+            if "*" in arg[:-1]:
+                warnings.append(
+                    f"permissions.{name}: {rule!r} 在中間使用 *；官方未定義此語意，"
+                    f"請改用 hook 或實測確認")
+
+
+def main(path):
+    try:
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"ERROR 無法解析 {path}: {exc}")
+        return 2
+
+    for key in data:
+        if key not in KNOWN_TOP:
+            errors.append(f"未知的頂層鍵 {key!r}（會被忽略或造成驗證錯誤）")
+
+    perms = data.get("permissions", {})
+    if "model" in perms:
+        warnings.append("permissions.model 是舊寫法，請改用頂層 model")
+    mode = unwrap(perms.get("disableBypassPermissionsMode", "disable"))
+    if mode not in ("disable", "allow-auto-only", "unmanaged"):
+        errors.append(f"disableBypassPermissionsMode 值 {mode!r} 不合法")
+    elif mode == "allow-auto-only":
+        warnings.append("allow-auto-only 只記載於 CLI 設定參考，其他用戶端請實測")
+    for name in ("deny", "ask", "allow", "limitTo"):
+        if name in perms:
+            check_rules(name, unwrap(perms[name]))
+
+    tier = unwrap(data.get("autoTier", "unmanaged"))
+    if tier not in AUTO_TIERS:
+        errors.append(f"autoTier 值 {tier!r} 不合法（'fast' 已不可選）")
+    if "autoTier" in data and unwrap(data.get("model")) != "auto":
+        warnings.append("設定了 autoTier，但 model 不是 'auto'，autoTier 不會生效")
+
+    sandbox = unwrap(data.get("sandbox", {}))
+    for key in sandbox:
+        if key not in KNOWN_SANDBOX:
+            hint = "，應改為 auth.git / auth.gh" if key in ("gitAuth", "ghAuth") else ""
+            errors.append(f"sandbox 未知的鍵 {key!r}{hint}")
+    if sandbox.get("failIfUnavailable") and not sandbox.get("enabled"):
+        warnings.append("failIfUnavailable 本身不會啟用沙箱，需同時設 enabled: true")
+    if sandbox.get("learningMode") == "allow":
+        errors.append("sandbox.learningMode='allow' 在 managed-settings.json 會被忽略（只能經 Windows MDM）")
+
+    allowed = unwrap(data.get("allowedMcpServers", []))
+    kinds = {k for entry in allowed for k in entry}
+    if "serverUrl" in kinds and "serverName" in kinds:
+        warnings.append(
+            "allowedMcpServers 同時有 serverUrl 與 serverName：remote server 只會用 "
+            "serverUrl 比對，serverName 項目對 remote server 不再生效")
+    for entry in allowed:
+        if len(entry) != 1:
+            errors.append(f"allowedMcpServers 每個項目只能有一個比對屬性：{entry}")
+
+    for msg in errors:
+        print("ERROR", msg)
+    for msg in warnings:
+        print("WARN ", msg)
+    print(f"結果：{len(errors)} 個錯誤、{len(warnings)} 個警告")
+    return 1 if errors else 0
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print(__doc__)
+        sys.exit(2)
+    sys.exit(main(sys.argv[1]))
+```
+
+**實測紀錄（v1.3）**：
+
+| 輸入 | 結果 | 離開碼 |
+| --- | --- | :---: |
+| v1.2 的 6.4.3 基線範例 | 2 個 ERROR（`gitAuth`、`ghAuth`）＋ 10 個 WARN（7 條缺空白的前綴規則、2 條中間萬用字元、`serverName` 失效） | 1 |
+| v1.3 的 6.4.3 基線範例 | 0 錯誤、0 警告 | 0 |
+| 刻意寫錯的反例（未知鍵、`autoTier: "fast"`、`disableBypassPermissionsMode: "off"`、`learningMode: "allow"`、單一項目兩個比對屬性） | 5 個 ERROR ＋ 4 個 WARN | 1 |
+| 不合法的 JSON | 1 個 ERROR | 2 |
+
+> 📌 **與 CLI 實際行為的差異**：CLI 遇到無法辨識的 `disableBypassPermissionsMode` 值時會**記錄問題並以 `"disable"` 執行（fail-closed）**，不會拒絕整份設定；腳本仍把它列為 ERROR，是為了在送出前就修正，而不是依賴 fail-closed。
+
+**🔍 人工審查清單（腳本無法判斷的部分）**：
+
+```text
+□ 1. 每條 deny 規則都對應一個具體威脅（寫在 PR 描述），而不是「看起來危險」
+□ 2. allow 清單沒有把 deny 想擋的東西重新放行（allow 不會覆蓋 deny，但會讓 ask 失去作用）
+□ 3. allowedMcpServers 的每個 serverUrl 都用「長得很像但不該通過」的網址實測過（6.11.3）
+□ 4. sandbox.userPolicy 的路徑在 Windows／macOS／Linux 都有意義（路徑必須是絕對路徑）
+□ 5. 依 6.4.1 的支援矩陣，確認每個鍵在貴司實際使用的用戶端都有效
+□ 6. 變更對象若含 MDM，確認 MDM 字串值的 JSON 文字與檔案版內容一致
+```
+
 ---
 
 ### 6.5 Content Exclusion（內容排除）【Official】
@@ -2405,15 +2827,24 @@ Copilot CLI 的設定套用順序（後者覆蓋前者）：
 > ⚠️ **Version Note（2026-09-02）：Copilot app 與 CLI 的 Content Exclusion 已 GA**
 >
 > 官方於 **2026-09-02** 宣布 **content exclusion 在 GitHub Copilot app 與 GitHub Copilot CLI 正式 GA**，敏感程式碼會在這兩個介面的 **agentic 工作流程**中被排除於 context 之外。
->
-> 這修補了本手冊先前版本反覆提醒的一個缺口：**在此之前，內容排除幾乎只在行內建議與 Chat 的部分情境生效**，agent 類流程形同不設防。
->
-> **但請注意兩件事**：
->
-> 1. 這項 GA **涵蓋的是 Copilot app 與 Copilot CLI**。**IDE 內 Copilot Chat 的 Edit / Agent 模式**是否已全面涵蓋，官方文件的限制清單**尚未同步更新**——本手冊標示為【⚠️ 文件不一致】，**企業必須在自家 IDE 版本上實測驗證**，不要僅憑本節或官方任一頁面下結論。
-> 2. 上述「不能當作唯一防線」的結論**依然成立**。內容排除是**平台側的 context 過濾**，不是檔案系統層的存取控制；只要 Agent 能執行 shell 指令，它就可能用 `cat` 讀到檔案。真正的隔離仍必須靠 `permissions.deny` 與 `sandbox.userPolicy.filesystem.deniedPaths`。
->
-> ✅ **實測方法**：在測試 repo 放一個被排除的檔案（內含可辨識的唯一字串），分別在 IDE Agent 模式、Copilot CLI、Copilot app 中要求 Copilot「總結這個 repo 的所有設定值」，檢查該字串是否出現在回應中。**同時也要測試「請執行 `cat <該檔案>`」**——兩種路徑的結果通常不同。
+
+**各介面支援矩陣**【Official，v1.3 依官方概念頁更新；適用 Copilot Business／Enterprise】：
+
+| 介面 | 行內建議 | Chat 與 agent |
+| --- | :---: | --- |
+| Visual Studio | ✅ | ✅ |
+| VS Code | ✅ | Chat ✅；**Edit ❌；Agent ❌** |
+| JetBrains IDE | ✅ | ✅ |
+| Vim／Neovim | ✅ | 不適用 |
+| Xcode | ✅ | ❌ |
+| Eclipse | ✅ | ❌ |
+| GitHub 網站、GitHub Mobile | 不適用 | ✅（**Public Preview**） |
+| GitHub Copilot app、Copilot CLI | 不適用 | ✅ |
+| Copilot code review（GitHub 網站） | — | ✅ |
+
+> ⚠️ **v1.3 更正**：v1.2 把「IDE 的 Edit／Agent 模式是否涵蓋」標為【⚠️ 文件不一致】。官方概念頁現已明確寫出：**VS Code 與其他編輯器的 Copilot Chat Edit／Agent 模式目前不支援內容排除**，而 Visual Studio 與 JetBrains 的 chat／agent 欄為支援。此項結案；但「**內容排除不是檔案系統層的存取控制**」的結論不變——只要 agent 能執行 shell，就可能用 `cat` 讀到檔案，真正的隔離仍要靠 `permissions.deny` 與 `sandbox.userPolicy.filesystem.deniedPaths`。
+
+✅ **實測方法**：在測試 repo 放一個被排除的檔案（內含可辨識的唯一字串），分別在 VS Code Agent 模式、JetBrains、Copilot CLI、Copilot app 中要求 Copilot「總結這個 repo 的所有設定值」，檢查該字串是否出現在回應中。**同時也要測試「請執行 `cat <該檔案>`」**——兩種路徑的結果通常不同；後者被擋下的前提是 6.4 的 `Read(...)` deny 規則或沙箱 `deniedPaths` 已生效。
 
 #### 6.5.2 Repository 層語法【Official】
 
@@ -2567,6 +2998,8 @@ ssh://[user@]host.xz[:port]/path/to/repo.git/
 
 **Cloud agent 的防火牆**【Official】：cloud agent 執行環境**預設受防火牆限制**，並預設啟用**建議允許清單**（作業系統與語言套件庫、容器 registry、憑證授權機構等）。若你的 hook 是 HTTP 型且指向內部服務，**該主機必須在允許清單內，否則 hook 會失敗**。
 
+> 【⚠️ 文件不一致】（v1.3）：官方 **Hooks reference** 的「Cloud agent execution environment」表仍寫「預設只能連到 GitHub 與 Copilot 主機」，與防火牆設定頁的「建議允許清單預設啟用」不一致。HTTP hook 指向內部服務時，請以防火牆設定頁為準設定允許規則，並實際觸發一次 hook 確認。
+
 > ⚠️ **v1.2 更正**：v1.1 寫「預設僅允許 GitHub／Copilot 主機」並不精確。防火牆的完整預設值、組織層「Internet access」設定，以及**不涵蓋 MCP server 與 setup steps 程序**的限制，詳見第 [31.5.3 節](#3153-防火牆預設行為與限制official)。
 
 ---
@@ -2603,7 +3036,7 @@ ssh://[user@]host.xz[:port]/path/to/repo.git/
 | 步驟 | 做法 | 使用的機制 |
 | --- | --- | --- |
 | **1. 統一入口** | 只允許透過企業 Organization 使用 Copilot，禁止個人帳號在公司程式碼上使用 | Policy、席次管理 |
-| **2. 統一終端設定** | 用 MDM 下發 `managed-settings.json`，鎖定關鍵項目 | Managed Settings |
+| **2. 統一終端設定** | 以 server-managed（`.github-private`）下發 `managed-settings.json`，資安底線另以 MDM 鎖定 | Managed Settings |
 | **3. 統一擴充來源** | MCP 只能來自企業 registry；Plugin 只能來自企業 marketplace | `strictKnownMarketplaces`、`allowedMcpServers`、MCP Registry |
 | **4. 統一專案規範** | 用 repository template 內建 `.github/` 標準結構 | Repository Template（第 [47 章](#47-建議企業-repository-結構)） |
 | **5. 統一驗證** | 所有 PR 必過同一組 CI Quality Gate | GitHub Actions、Rulesets |
@@ -2631,10 +3064,29 @@ ssh://[user@]host.xz[:port]/path/to/repo.git/
 | 2026-09-03 | 公告「Upcoming deprecation of selected GitHub Copilot models」 |
 | **2026-09-10** | MAI-Code-1-Flash 退役（替代：MAI-Code-1.1-Flash） |
 | 2026-09-18 | 公告「Upcoming deprecation of selected GitHub Copilot models in mid-October」 |
-| **2026-10-02** | **預告退役**：Gemini 3.5 Flash、Gemini 3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7（替代：Gemini 3.8 Flash、Kimi K3、Claude Opus 5） |
-| **2026-10-19** | **預告退役**：Gemini 3.7 Flash → Gemini 3.8 Flash；GPT-5.5、GPT-5.4 → GPT-5.6 Sol；GPT-5.4 mini、GPT-5 mini → GPT-5.6 Luna；Grok 4.5 → Grok 4.6 |
+| **2026-10-02** | **已退役**：Gemini 3.5 Flash、Gemini 3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7（替代：Gemini 3.8 Flash、Kimi K3、**Claude Opus 5.5**——v1.3 依 10/02 Changelog 更正，9/03 預告時寫的是 Opus 5） |
+| **2026-10-19** | **預告退役（v1.3 查證日尚未生效）**：Gemini 3.7 Flash → Gemini 3.8 Flash；GPT-5.5、GPT-5.4 → GPT-5.6 Sol；GPT-5.4 mini、GPT-5 mini → GPT-5.6 Luna；Grok 4.5 → Grok 4.6 |
 
 > 📌 **v1.2 補充**：10/19 這一批包含 **GPT-5 mini、GPT-5.4 mini 等常被當作「低成本預設」的模型**，也包含第三方 OpenAI Codex agent 的可選模型 GPT-5.4。官方公告指出，已啟用預設政策的 Business／Enterprise **會自動啟用替代模型**（除非管理員曾停用）。另請注意：查證日官方「Model retirement history」表**尚未列入** 10/19 這一批，僅見於 Changelog——這再次印證 6.10.3 要求「同時監控 Changelog」的必要。
+
+> 📌 **v1.3 狀態**：官方退役歷史表已列入 10/02 這一批，但**仍未列入 10/19 這一批**；第三方 agent 的可選模型清單也仍包含 GPT-5.4（見第 32.7.1 節）。退役應變請以 Changelog 為準。
+
+**✅ 退役盤點的可執行檢查【建議】**（在 repository 根目錄執行；把 `RETIRED` 換成最新的退役與預告退役清單）：
+
+```bash
+RETIRED='claude-opus-4[.-]7|gemini-3[.-][567]-flash|kimi-k2[.-]7|gpt-5[.-]4(-mini)?([^-.0-9a-z]|$)|gpt-5[.-]5([^.0-9]|$)|gpt-5-mini|grok-4[.-]5([^.0-9]|$)'
+# 只掃描存在的目錄；以「有沒有輸出」判斷，避免目錄不存在時 grep 回傳 2 造成誤判
+hits=$(grep -rniE "$RETIRED" $(ls -d .github .copilot 2>/dev/null) 2>/dev/null)
+if [ -n "$hits" ]; then
+  printf '%s\n' "$hits"
+  echo '❌ 發現退役或即將退役的模型 ID，請更新'
+  exit 1
+fi
+echo '✅ 未發現退役模型'
+```
+
+> 📌 這段指令同時涵蓋 custom agent 的 `model:`、`allowed_models.txt`、workflow 中的 `--model=`。v1.3 實測五種情境：含 `model: claude-opus-4.7` 的 agent 檔 → ❌（離開碼 1）；改為 `claude-opus-5.5` → ✅（0）；只含**未退役**的 `gpt-5.4-nano`、`gpt-5.6-sol`、`grok-4.6` → ✅（0，不誤判）；workflow 中有 `--model=gpt-5.4`、`gpt-5-mini`、`gemini-3.7-flash` → 三行皆被列出、❌（1）；沒有 `.github/` 目錄 → ✅（0）。
+> ⚠️ 第一版草稿用 `grep ... && ... || ...` 串接，在 `.copilot/` 不存在時 grep 回傳 2，**有命中也會印出 ✅**——這正是「AI 產出的腳本看起來對、其實錯」的典型，審查 shell 腳本時務必用「目錄不存在」與「有命中」兩種情境實跑。
 
 > 🎯 **結論：模型的平均壽命是「月」，不是「年」。**
 > 任何把模型名稱寫死的資產——Custom Agent 的 `model` 欄位、CI 腳本、`managed-settings.json` 的 `model` 鍵、內部規範文件——都是**會定期腐化的技術債**。
@@ -2770,6 +3222,8 @@ ssh://[user@]host.xz[:port]/path/to/repo.git/
 | **退出（opt out）的代價** | **失去 github.com 與 GitHub Mobile 上的 Copilot 存取權** |
 
 > 📌 **v1.2 狀態更新（2026-09-25）**：官方仍維持「不早於 2026-09-28」的措辭，截至查證日尚未公告確切上線日（列入附錄 [H.5](#h5-待追蹤項目) 待追蹤）。
+>
+> 📌 **v1.3 狀態更新（2026-10-10）**：已過 9/28，但官方 Chat 文件仍寫「訊息保留 28 天、最多 100 則對話」，Changelog 亦無上線公告；同時 Chat 已可在 cloud agent session 執行中持續對話並取用其 context。**判讀：整合功能已逐步出現，保留期限變更尚未生效。** 仍列入附錄 [I.5](#i5-待追蹤項目) 每週追蹤。
 
 #### 6.12.2 為什麼這對企業是重大變更【建議】
 
@@ -2851,9 +3305,11 @@ Copilot Business／Enterprise 現在有**兩個彼此獨立**的預設可用性�
 - GHE.com 上的限制型模型政策：**Restrict Copilot to data residency models**、**Restrict Copilot to FedRAMP models**
 - Copilot CLI 與 VS Code 的 **Store local sessions in the Cloud**
 
-**模型預設政策的排除項目**（對照用）：Pre-GA 模型、**開放權重模型（DeepSeek、Kimi K2.7 Code、Kimi K3）**、**不在 GitHub 資料保留協議涵蓋範圍內的模型（Claude Fable 5、Claude Fable 5.1）**，以及已限制為資料落地／FedRAMP 模型之企業中不符規範的模型——這些模型**無論預設政策為何都預設停用**，未經明確開啟就不會出現在模型選單。
+**模型預設政策的排除項目**（對照用）：Pre-GA 模型、**開放權重模型（DeepSeek、Kimi K3）**、**不在 GitHub 資料保留協議涵蓋範圍內的模型（Claude Fable 5、Claude Fable 5.1）**，以及已限制為資料落地／FedRAMP 模型之企業中不符規範的模型——這些模型**無論預設政策為何都預設停用**，未經明確開啟就不會出現在模型選單。
 
 > 📌 官方在政策設定頁會顯示一個**橫幅，列出目前仍為 Unconfigured 的合格政策數量**，讓管理員在 10-22 前評估影響範圍。
+
+> ⏳ **v1.3 狀態（2026-10-10）**：距生效日 12 天，官方文件與 Changelog 未有變更或延期公告。**新增的預覽功能**（computer use、dynamic workflows、HydraFusion）不受此政策影響；但它們轉 GA 的當天就會落入此政策範圍，因此請把第 8.15 節的評估提前完成。
 
 #### 6.13.3 本手冊既有建議會受到什麼影響【建議】
 
@@ -2921,11 +3377,13 @@ Copilot Business／Enterprise 現在有**兩個彼此獨立**的預設可用性�
 - ⚠️ Cloud agent 防火牆**不涵蓋 MCP server 與 setup steps 程序**，不能視為完整的出口管制。
 - 🚨 **Content Exclusion 在 Agent 模式不生效** ——這是最容易致命的誤解。
 - 🚨 **組織層 MCP 政策不涵蓋 Copilot CLI** ——必須用 `managed-settings.json` 補位。
-- ⚠️ `managed-settings.json` 的實際路徑務必在目標平台**實測驗證**，不要只依文件。
+- ⚠️ `managed-settings.json` 有 server-managed、MDM、檔案三種佈署方式；**檔案型放在系統層路徑**（非 `%APPDATA%`），macOS／Linux 必須由 root 擁有且不可被他人寫入（v1.3 更正）。
+- ✅ AI 起草的 managed settings 一律先過 6.4.7 的檢查腳本，再看官方設定驗證器。
 - ⚠️ 政策衝突規則：同企業內多授權通常取最寬鬆，跨企業取最嚴格——多 Org 環境務必實測。
 - ✅ 真正要強制的只有兩個著力點：`disableBypassPermissionsMode: "disable"` 與 MDM `sandbox` 基線，其餘都可能被覆寫。
+- ⚠️ `Shell(...)` 規則只有「指令 + 空白 + `*`」是前綴比對；`Shell(mvn test*)` 這種寫法不會如預期放行或封鎖。
 - ✅ 每一條治理規則都要能回答「不遵守時系統會不會擋」。
-- 🚨 **2026-09-28 起 Chat 資料保留延長為帳號生命週期**，法遵團隊必須在生效日前完成評估。
+- 🚨 **Chat 資料保留將延長為帳號生命週期**（官方措辭「不早於 2026-09-28」，v1.3 查證日尚未生效），法遵團隊必須在生效前完成評估。
 - 🚨 **模型退役最危險的不是報錯，是靜默回退**——必須靠 Agent 行為回歸測試主動偵測。
 - ⚠️ 白名單（`allowedMcpServers`）取**交集**、黑名單（`deniedMcpServers`）取**聯集**，兩者都朝更嚴格收斂。
 - ⚠️ 省略 `allowedMcpServers` 等於「允許黑名單以外的全部」，**不是**嚴格模式。
@@ -3290,7 +3748,7 @@ GITHUB_TOKEN
 | **2026-08-11** | Copilot **memory** 與 **Ollama** 支援登陸 JetBrains | Memory 需納入治理，見第 [16 章](#16-github-copilot-memory)；Ollama 代表**可接本地模型**，需納入資安評估 |
 | **2026-08-18** | **Enterprise managed settings 支援 JetBrains IDE** | 過去 `managed-settings.json` 主要涵蓋 CLI 與 VS Code，JetBrains 形同治理化外之地——**此缺口已補上** |
 | **2026-08-24** | **Copilot harness 在 JetBrains GA** | 功能交付速度與程式碼品質提升；也代表 JetBrains 與其他介面的**能力落差正在收斂** |
-| **2026-09-08** | **Enterprise-managed sandbox 支援 Copilot for JetBrains** | 沙箱基線可延伸至 JetBrains，不再只有 CLI |
+| **2026-09-08** | **Enterprise-managed sandbox 支援 Copilot for JetBrains**（Public Preview） | 沙箱基線可延伸至 JetBrains，不再只有 CLI——但見 7.12.3 的 v1.3 註記 |
 
 #### 7.12.2 什麼是 Copilot harness【Official + 建議】
 
@@ -3312,6 +3770,8 @@ Harness GA 之後，JetBrains 改用與其他介面**共用的執行核心**，�
 > ⚠️ **【⚠️ 文件不一致】**
 > 官方 customization cheat sheet 的 JetBrains 欄位**更新速度落後於 Changelog**。查證日當天，cheat sheet 仍將多項機制標為 Preview 或不支援，但 Changelog 已宣告 managed settings 與 sandbox 支援 JetBrains。
 > **本手冊無法確認兩者的落差是文件延遲，還是涵蓋範圍確實不同。企業必須實測。**
+>
+> 📌 **v1.3 部分結案**：官方 managed settings 參考頁現已有 **JetBrains 欄**（第 [6.4.1 節](#641-完整設定鍵一覽official)）：`disableBypassPermissionsMode`、plugin 三鍵、`telemetry`、`allowedMcpServers`／`deniedMcpServers` 為**支援**；`permissions.deny/ask/allow`、`model`、`autoTier`、`remoteControl`、`features.computerUse` 與 **`sandbox` 為不支援**。其中 `sandbox` 與 2026-09-08 Changelog（JetBrains enterprise-managed sandbox，Public Preview）**仍互相矛盾**，續列附錄 I.5 追蹤；驗收清單第 3 項維持必測。
 
 **✅ JetBrains 佈署驗收清單【建議】**（請逐項實測，不要依賴文件）：
 
@@ -3434,50 +3894,61 @@ Copilot CLI 讓你**直接在終端機使用 Copilot**，用於問答、寫程�
 | **專項任務** | Code review、除錯、改善文件、建立 GitHub Actions workflow |
 | **客製化** | Custom Instructions、MCP、Custom Agents、Hooks、Skills、Memory、Plugins、LSP |
 | **自動化** | 程式化模式、排程提示（schedule prompts）、GitHub Actions 整合 |
-| **進階** | Fleet 模式（平行任務）、遠端操控、Session 資料（chronicle）、Tool search、Rubber duck agent、本機 Sandbox、雲端 Sandbox |
+| **進階** | Fleet 模式（平行任務）、遠端操控、Session 資料（chronicle）、Tool search、Rubber duck agent、本機 Sandbox（**2026-10-07 GA**）、雲端 Sandbox（Preview）、**Dynamic workflows、Computer use（2026-10-01，Preview）**、本機模型探索（Ollama） |
 
 ---
 
 ### 8.3 CLI 指令總覽【Official】
 
-| 指令 | 用途 |
-| --- | --- |
-| `copilot` | 啟動互動式介面 |
-| `copilot app` | 在目前目錄開啟 GitHub Copilot app |
-| `copilot completion SHELL` | 啟用 tab 補全（bash、zsh、fish） |
-| `copilot help [TOPIC]` | 顯示說明 |
-| `copilot init` | 初始化 custom instructions |
-| `copilot login [OPTION]` | OAuth 認證 |
-| `copilot mcp` | 管理 MCP server 設定 |
-| `copilot plugin` | 管理 plugin 與 marketplace |
-| `copilot plugins list` | 檢視 plugin、MCP server、skills |
-| `copilot skill` | 管理 agent skills |
-| `copilot update` | 下載最新版本 |
-| `copilot version` | 顯示版本資訊 |
+| 指令 | 用途 | 企業關注點【建議】 |
+| --- | --- | --- |
+| `copilot` | 啟動互動式介面 | — |
+| `copilot app` | 在目前目錄開啟 GitHub Copilot app | — |
+| `copilot completion SHELL` | 輸出 tab 補全腳本（bash、zsh、fish） | — |
+| `copilot config [KEY] [VALUE]` | 在互動 session 外讀寫設定（支援點號巢狀鍵、`--json` 列出） | **佈署腳本與稽核腳本的首選**，取代手改 JSON |
+| `copilot help [TOPIC]` | 說明；主題含 `billing`、`config`、`commands`、`environment`、`logging`、`monitoring`、`permissions`、`providers`、`sandbox` | 教育訓練教材直接引用 |
+| `copilot init` | 初始化 custom instructions | — |
+| `copilot instruction` | **非互動列出**目前目錄偵測到的指令來源 | 第 10 章「指令是否生效」的驗證工具 |
+| `copilot login [OPTION]` | OAuth 認證（`--host`、`--web-flow`、`--device-code`、`--with-token`） | GHE.com 需 `--host` |
+| `copilot lsp` | 非互動列出已設定的 language server | — |
+| `copilot mcp` | 管理 MCP server 設定 | — |
+| `copilot plugin` | 管理 plugin 與 marketplace（`copilot plugins` 為**舊別名**） | — |
+| `copilot sandbox ca` | 管理沙箱 proxy 憑證授權（`status`／`create`／`trust`／`rotate`／`remove`） | 受管裝置可**無 TTY 佈署**；須以實際使用者身分執行，**不要用 root／SYSTEM** |
+| `copilot skill` | 管理 agent skills | — |
+| `copilot update` | 下載最新版本 | 企業可用 `COPILOT_AUTO_UPDATE=false` 改由集中派送 |
+| `copilot version` | 顯示版本並檢查更新 | 第 41 章版本盤點 |
+| `copilot workflow run NAME` | 直接執行 dynamic workflow（不開互動 session），見第 8.15 節 | **不會顯示權限提示**，權限須事先授予 |
+
+> ⚠️ **v1.3 更正**：v1.2 的 `copilot plugins list` 是舊別名寫法；新增 `config`、`instruction`、`lsp`、`sandbox ca`、`workflow run` 五個指令。
 
 ---
 
 ### 8.4 互動式 Slash Commands【Official】
 
-| 指令 | 用途 |
-| --- | --- |
-| `/add-dir PATH` | 允許存取指定目錄的檔案 |
-| `/agent` | 瀏覽可用的 agent |
-| `/app` | 在 GitHub Copilot app 開啟 |
-| `/ask QUESTION` | 提出不進入對話歷史的旁支問題 |
-| `/autopilot [OBJECTIVE]` | 啟動 autopilot 模式 |
-| `/clear` | 開始新對話 |
-| `/context` | 顯示 token 用量 |
-| `/cwd [PATH]` | 顯示／變更工作目錄 |
-| `/delegate [PROMPT]` | 建立由 AI 產生的 PR |
-| `/diff` | 檢視目錄變更 |
-| `/exit` | 關閉 session |
-| `/help` | 顯示指令說明 |
-| `/settings sidebar` | 調整側邊欄設定 |
+官方參考頁列出 90 餘個 slash command。下表只挑**與企業治理、成本與品質直接相關**者（v1.3 依 2026-10-10 參考頁重整）：
 
-> 📌 **註記**
-> 官方參考頁另有提及 `/fleet`、`/pr`、`/lsp`、`/model`、`/settings`、`/skill` 等指令（散見於各功能頁面）。
-> **完整且權威的清單請在 CLI 內執行 `/help` 取得**——這是唯一保證與你安裝版本一致的來源。本手冊不宣稱列出全部指令。
+| 類別 | 指令 | 用途 |
+| --- | --- | --- |
+| **權限** | `/permissions [default\|assisted\|allow-all\|show]` | 切換權限模式（**正式指令**；`/allow-all`、`/yolo` 為別名）；`/permissions reset` 清除本 session 的核可 |
+| **沙箱** | `/sandbox [config\|status\|policy\|enable\|disable]` | `policy` 顯示路徑授權、網路與**每條限制的來源**——驗證 managed settings 是否生效的首選 |
+| **成本** | `/limits`、`/limits set max-ai-credits N` | 設定**每個回應**的 AI Credits 軟上限（每則使用者訊息重置）；啟動參數 `--max-ai-credits` |
+| **成本** | `/usage` | 本 session 每模型 token 與 AI Credits 消耗 |
+| **審查** | `/review [PROMPT]` | 以 code review agent 分析變更 |
+| **審查** | `/security-review [PROMPT]` | 對**本機尚未提交的變更**做聚焦安全審查（官方註明**不是**完整 repository 稽核） |
+| **審查** | `/rubber-duck [PROMPT]` | 以互補模型取得第二意見 |
+| **環境** | `/env` | 顯示已載入的 instructions、MCP、skills、agents、hooks、plugins、LSP、extensions |
+| **環境** | `/instructions` | 檢視與切換 custom instruction 檔 |
+| **模型** | `/model [--session\|--global\|--repo\|--local] [MODEL\|auto TIER]` | 選模型或 Auto 分級；`--repo` 會寫入 repository 設定 |
+| **擴充** | `/mcp ...`、`/plugin ...`、`/skills ...`、`/subagents` | 管理 MCP、plugin、skills 與 subagent 模型 |
+| **工作流** | `/plan`、`/autopilot [OBJECTIVE]`（別名 `/goal`）、`/fleet`、`/delegate`、`/pr` | 規劃、自主執行、平行、委派 cloud agent、PR 操作 |
+| **工作流** | `/workflows` | 監看 dynamic workflow 的執行、階段與 AI Credits（需 token-based billing） |
+| **排程** | `/every INTERVAL PROMPT`、`/after DELAY PROMPT` | session 內的排程提示（**僅實驗模式**） |
+| **回溯** | `/undo`（別名 `/rewind`） | 回到先前的使用者回合；可選「僅對話」或「對話＋檔案」 |
+| **分享** | `/share`、`/export` | 分享或匯出 session——**可能含原始碼**，納入資料分類規範 |
+| **遠端** | `/remote [on\|off]` | 遠端操控（受 `remoteControl` 管控） |
+| **除錯** | `/diagnose`、`/collect-debug-logs` | 分析 session 日誌；`gist` 目標會上傳到**秘密 gist**，企業應規定只用 `file` |
+
+> 📌 **權威清單**：在 CLI 內執行 `/help`，或閱讀官方「GitHub Copilot CLI command reference」。**v1.3 更正**：v1.2 列出的 `/settings sidebar` 已不在參考頁中；側邊欄設定改由 `/settings` 對話框處理。
 
 ---
 
@@ -3532,17 +4003,23 @@ Copilot CLI 讓你**直接在終端機使用 Copilot**，用於問答、寫程�
 
 **企業使用建議【建議】**：
 
+**工具權限樣式**【Official，v1.3 補充】：`--allow-tool`／`--deny-tool` 使用 `Kind(argument)` 格式，`Kind` 為 `shell`、`write`、`read`、`url`、`memory` 或 MCP server 名稱；省略括號表示該類全部。**`shell(git:*)` 的 `:*` 代表「指令詞幹＋空白」**——會比對 `git push`、`git pull`，但**不會**比對 `gitea`。`shell(git push)` 則比對 `git push` 開頭的指令。`deny` 永遠優先，即使使用 `--allow-all`。
+
 ```bash
 # ✅ 建議：明確列舉允許的工具（CI 場景）
 copilot -p "修正 checkstyle 違規並確保 mvn test 通過" \
-  --allow-tool "shell(mvn *)" \
+  --allow-tool "shell(mvn:*)" \
   --allow-tool "write" \
-  --deny-tool "shell(git push *)" \
-  --deny-tool "shell(rm *)"
+  --deny-tool "shell(git push)" \
+  --deny-tool "shell(rm:*)"
 
 # ❌ 禁止：在企業環境使用
 copilot --allow-all-tools
 ```
+
+> ⚠️ **v1.3 更正**：v1.2 範例寫 `shell(mvn *)`、`shell(git push *)`、`shell(rm *)`。官方文件定義的詞幹萬用寫法是 **`:*`**；空白加星號的寫法屬於 managed settings 的 `Shell(...)` 選擇器（第 6.4.2 節），兩套語法不同，**不要混用**。
+
+**✅ 驗證方式**：在測試 repo 以同一組旗標執行 `copilot -p "執行 git push --dry-run" --allow-tool "shell(git:*)" --deny-tool "shell(git push)"`，輸出應顯示 `git push` 被拒絕；再把 `--deny-tool` 改成 `shell(gitea)` 重跑，應可執行——兩次結果不同，才證明規則按預期比對。
 
 > 🚨 **`--allow-all-tools` 應列入企業禁止清單**
 > 唯一可接受的例外是：**在完全隔離的一次性容器中**，且該容器沒有任何生產憑證、沒有掛載企業網路磁碟、執行後即銷毀。
@@ -3552,9 +4029,21 @@ copilot --allow-all-tools
 
 ### 8.7 本機 Sandbox【Official】
 
-CLI 支援**本機沙箱（local sandboxing）**，限制檔案系統與網路存取。官方有專頁「Using local sandboxing」「Configuring local sandbox settings」「Understanding filesystem policies for local sandboxing」。
+> ✅ **Version Note（2026-10-07）：本機沙箱 GA**——適用 Copilot CLI、GitHub Copilot app，以及 VS Code 使用 **Agent Host** 的 session；Windows、macOS、Linux 皆支援，**不另收費**。底層由 **Microsoft eXecution Container（MXC）** 把同一份沙箱政策轉成各作業系統的原生隔離機制。
 
-**企業層強制**（透過 `managed-settings.json`）【Official】：
+**它是什麼、不是什麼**【Official】：
+
+| 面向 | 內容 |
+| --- | --- |
+| 預設 | **關閉**。未啟用時，Copilot 執行的 shell 指令擁有與你帳號相同的權限 |
+| 隔離強度 | 屬於**輕量級**（行程與檔案系統限制），**不是**虛擬機器或容器 |
+| 涵蓋 | shell 指令、檔案搜尋，以及（預設）本機 MCP 與 LSP server；**遠端 MCP 永遠不在沙箱內** |
+| CLI 內建檔案工具 | 在 CLI 行程內執行，OS 沙箱看不到，改由工具**自行檢查政策（best-effort）** |
+| 平台需求 | macOS：Seatbelt，建議 macOS 15 以上；Linux：bubblewrap 0.5.0 以上（允許外連時另需 `slirp4netns`、util-linux 2.35+、`iptables`、`/dev/net/tun`）；Windows：需支援沙箱的較新 Windows 11 版本 |
+| 主機不支援時 | 使用者層「啟用」會在該 session 被關閉並提示；**MDM／檔案型管控可強制失敗**，server-managed 需加上 `failIfUnavailable: true` 才會強制 |
+| Proxy 與主機規則 | macOS／Linux 由沙箱強制所有外連走本機 proxy；**Windows 依賴程式自行遵守 proxy 設定**，防直連能力較弱 |
+
+**企業層強制**（透過 managed settings）【Official】：
 
 ```json
 {
@@ -3565,8 +4054,10 @@ CLI 支援**本機沙箱（local sandboxing）**，限制檔案系統與網路�
     "addCurrentWorkingDirectory": false,
     "sandboxMcpServers": true,
     "sandboxLspServers": true,
-    "gitAuth": false,
-    "ghAuth": false,
+    "auth": {
+      "git": false,
+      "gh": false
+    },
     "allowDevToolAccess": false,
     "userPolicy": {
       "filesystem": {
@@ -3586,20 +4077,38 @@ CLI 支援**本機沙箱（local sandboxing）**，限制檔案系統與網路�
 }
 ```
 
+> ⚠️ **v1.3 更正**：v1.2 範例中的 `gitAuth`／`ghAuth` 不是官方鍵，會被忽略（等於仍把憑證注入沙箱）；正確為 `auth.git`／`auth.gh`。
+
 **關鍵欄位說明**【Official + 建議】：
 
 | 欄位 | 建議值 | 理由 |
 | --- | --- | --- |
-| `enabled` | `true` | 企業基線 |
-| `failIfUnavailable` | `true` | **沙箱不可用時直接失敗，而不是靜默退回無沙箱執行** |
-| `allowBypass` | `false` | 不允許使用者繞過 |
-| `sandboxMcpServers` | `true` | MCP server 也要被沙箱限制（**這是常被忽略的攻擊面**） |
-| `gitAuth` / `ghAuth` | `false` | 不把 Git／GitHub 憑證帶進沙箱 |
-| `network.allowOutbound` | `false` | 預設禁止對外連線，需要時逐項開放 |
+| `enabled` | `true` | 企業基線；使用者無法以設定或 `--no-sandbox` 關閉 |
+| `failIfUnavailable` | `true` | **無法建立沙箱時封鎖模型與工具執行**，而不是靜默退回無沙箱；本身不會啟用沙箱，須搭配 `enabled` |
+| `allowBypass` | `false` | 禁止個別指令在沙箱外執行，也禁止使用者以 `/sandbox disable` 或繞過提示關閉本 session 的沙箱 |
+| `sandboxMcpServers` | `true` | 本機 MCP server 也要被沙箱限制（**常被忽略的攻擊面**） |
+| `auth.git` / `auth.gh` | `false` | 不把 Git／GitHub CLI 憑證注入沙箱（需要時沙箱內只拿到佔位符，由本機 proxy 只對核准的 HTTPS 目的地補上真實憑證） |
+| `allowDevToolAccess` | `false` | 不自動開放開發工具設定、快取與 registry（可能含套件庫憑證）；需要時逐一授權路徑 |
+| `network.allowOutbound` | `false` | 預設禁止對外連線，需要時以 `allowedHosts` 逐項開放 |
+| `learningMode`（僅 Windows） | 不設 | `"allow"` 只會記錄而不阻擋，**只能經 Windows MDM 設定**，`managed-settings.json` 中的值會被忽略 |
 
 > 🎯 **`failIfUnavailable: true` 是最重要的一個開關**
 > 若設為 `false`，在沙箱不可用的環境（例如某些容器）中，CLI 會**在沒有沙箱保護的情況下繼續執行**——而使用者完全不會察覺。
-> 官方也註明：MDM 的 sandbox 設定建立的是**使用者無法放寬的最低基線**。
+> 官方也註明：managed 的 sandbox 設定建立的是**使用者無法放寬的最低基線**。
+
+**✅ 驗證方式（每次變更沙箱政策後執行）**：
+
+```text
+□ 1. /sandbox status            → 應顯示 enabled，且標示來自 managed policy
+□ 2. /sandbox policy            → 逐條核對 readwrite／readonly／denied 路徑與網路設定的「來源」
+□ 3. /sandbox policy npm install → 預覽某指令會取得的存取（不會真的執行）
+□ 4. 請 Copilot 執行 cat /etc/hosts       → 應被拒絕（deniedPaths 含 /etc）
+□ 5. 請 Copilot 執行 curl https://example.com → 應被拒絕（allowOutbound=false）
+□ 6. 嘗試 copilot --no-sandbox            → 應出現「policy override」警告且仍在沙箱內
+□ 7. 在不支援的主機（例如舊版 Windows）啟動 → 應封鎖執行，而不是無沙箱執行
+```
+
+> 🔍 **審查 AI 產出的沙箱政策**：路徑必須是絕對路徑；`readwritePaths` 與 `readonlyPaths` 是以**完全相同的字串**比對（不是父子目錄涵蓋）；Linux 上被拒絕的符號連結只保護其目標，不保證連結本身不被替換——**請直接拒絕真正的敏感目錄**。
 
 ---
 
@@ -3659,6 +4168,18 @@ CLI 支援**本機沙箱（local sandboxing）**，限制檔案系統與網路�
 > 📌 官方註明：完整 schema 包含 **70 個以上的設定鍵**，涵蓋行為、UI、權限、網路與整合。
 > **請以 CLI 內的 `/settings` 指令檢視你安裝版本的完整清單**，該指令另有 **Problems 分頁**會顯示無法辨識的頂層鍵——這是驗證企業設定檔正確性的好工具。
 
+**Repository 層只接受 14 個鍵**【Official，v1.3 補充】：`.github/copilot/settings.json` 中**不在下表的鍵會被靜默忽略**（包含 user 層合法的鍵）：
+
+| 鍵 | 合併行為 |
+| --- | --- |
+| `companyAnnouncements`、`contextTier`、`effortLevel`、`includeCoAuthoredBy`、`mergeStrategy`、`model` | repository 取代 user |
+| `deniedUrls`、`disabledMcpServers`、`disabledSkills` | **聯集**——repository 只能新增、不能移除 |
+| `disableAllHooks` | repository 優先 |
+| `enabledPlugins`、`extraKnownMarketplaces`、`hooks` | 合併，同鍵時 repository 優先 |
+| `respectGitignore` | **只能收緊**——repository 可開啟、不能關閉 |
+
+`model`、`effortLevel`、`contextTier` 只在**工作目錄被信任**時生效；`enabledPlugins` 與 `extraKnownMarketplaces` **也會被 Copilot cloud agent 讀取**。CLI 另會讀取 `.claude/settings.json` 中的跨工具子集（`companyAnnouncements`、`disableAllHooks`、`enabledPlugins`、`extraKnownMarketplaces`、`hooks`）。
+
 **企業建議的 repository 層設定**（`.github/copilot/settings.json`）【建議】：
 
 ```jsonc
@@ -3666,10 +4187,10 @@ CLI 支援**本機沙箱（local sandboxing）**，限制檔案系統與網路�
   // 專案預設模型：日常任務用中階模型控制成本
   "model": "auto",
 
-  // 專案通用的免詢問網域（內部 Maven / npm registry）
-  "allowedUrls": [
-    "https://nexus.corp.example.com",
-    "https://confluence.corp.example.com"
+  // 專案禁止存取的網域（聯集：只能新增，開發者無法在 user 層移除）
+  "deniedUrls": [
+    "https://pastebin.com",
+    "https://transfer.sh"
   ],
 
   // 停用本專案不需要的 skill，減少 context 負擔
@@ -3683,6 +4204,8 @@ CLI 支援**本機沙箱（local sandboxing）**，限制檔案系統與網路�
   }
 }
 ```
+
+> ⚠️ **v1.3 更正**：v1.2 範例在 repository 層使用 `allowedUrls`——該鍵**不在 repository 支援清單中，會被靜默忽略**，所以「專案通用的免詢問網域」從來沒有生效過。允許清單只能放在 user 層或以 managed settings 的 `permissions.allow` 的 `Domain(...)` 下發；repository 層能做的是 `deniedUrls`（只能收緊）。這類錯誤**不會有任何錯誤訊息**，請用第 [5.6.4 節](#564-repository-層模型白名單githuballowed_modelstxtcopilot-cliofficial--建議) 的腳本在 CI 檢查。
 
 > ⚠️ `.github/copilot/settings.local.json` 用於**個人本機覆寫**，優先權更高。
 > **這個檔案必須加入 `.gitignore`**，否則個人設定會汙染整個團隊。
@@ -3767,11 +4290,12 @@ jobs:
           產出：新增的測試檔案清單，以及覆蓋率變化摘要
           PROMPT
           )" \
-            --allow-tool "shell(mvn *)" \
+            --allow-tool "shell(mvn:*)" \
             --allow-tool "write" \
-            --deny-tool "shell(git push *)" \
-            --deny-tool "shell(rm *)" \
-            --deny-tool "shell(curl *)"
+            --deny-tool "shell(git push)" \
+            --deny-tool "shell(rm:*)" \
+            --deny-tool "shell(curl:*)" \
+            --max-ai-credits 30
 
       - name: Verify no production code changed
         run: |
@@ -3876,7 +4400,7 @@ Copilot CLI 內建下列代理，主代理會依任務自動委派，也可以�
 | `task` | 執行測試、建置、lint 等指令；成功回傳摘要、失敗回傳完整輸出 | ❌（只執行指令） | CI 前的本機驗證 |
 | `general-purpose` | 在獨立 context window 中處理複雜多步驟任務 | ✅ | 一般開發 |
 
-> 📌 `code-review` 與 `security-review` **不會把整份審查再轉交給另一個審查代理**（避免遞迴委派）；但 `code-review` 仍會把安全相關部分交給 `security-review` 專家處理。
+> 📌 `code-review` 與 `security-review` **不會把整份審查再轉交給另一個審查代理**（避免遞迴委派）；但 `code-review` 仍會把安全相關部分交給 `security-review` 專家處理。另外，**只有根代理能寫入或投票 Copilot Memory**，subagent 只能讀取（v1.3 補充）。
 
 > 【⚠️ 文件不一致】官方參考頁的「預設模型」欄在查證日仍列出 `claude-sonnet-4.6`，但 Claude Sonnet 4.6 已於 2026-09-01 對多數方案退役（僅個人年約訂閱者保留）。**實際使用的模型請以 CLI 畫面顯示為準**，不要把參考頁的預設模型寫進企業規範。
 
@@ -3896,6 +4420,8 @@ Copilot CLI 內建下列代理，主代理會依任務自動委派，也可以�
 | Enterprise | 32 |
 
 採用 usage-based billing 的使用者可用 `subagents.maxConcurrency` 與 `subagents.maxDepth` 覆寫（超出範圍會被截斷至上限）。
+
+> 【⚠️ 文件不一致】（v1.3）：同一份 CLI 參考頁的環境變數表寫 `COPILOT_SUBAGENT_MAX_CONCURRENT` 預設 `32`（範圍 1–256）、`COPILOT_SUBAGENT_MAX_DEPTH` 預設 `4`（範圍 1–128），與上表（深度預設 6、上限 256；並行上限 32）不一致。企業基線請**以設定檔明確指定數值**，不要依賴預設，並以 `/subagents` 畫面確認實際值。
 
 > ⚠️ **成本警告【建議】**：並行 subagent 等於**並行計費**。Enterprise 預設可同時跑 32 個 subagent，一個模糊的指令可能在幾分鐘內消耗可觀的 AI Credits。建議在 `~/.copilot/settings.json` 的團隊基線中把 `subagents.maxConcurrency` 調降到 4–8，並搭配第 [5.7 節](#57-2026-年計費與預算制度變更official) 的預算控管。
 
@@ -3950,7 +4476,82 @@ CLI 的 custom agent 除了第 [11.2 節](#112-frontmatter-欄位完整參考off
 
 ---
 
-### 8.15 本章實務案例【建議】
+### 8.15 Dynamic Workflows、Computer Use 與成本上限（2026-10）【Official + Preview】
+
+> 🆕 **v1.3 新增**
+
+2026 年 10 月第一週，CLI 與 GitHub Copilot app 同時出現兩個會改變「agent 能做什麼」的預覽功能。兩者都**預設關閉或需明確叫用**，但轉 GA 後會受第 [6.13 節](#613-新功能預設啟用政策default-policy-for-new-featuresofficial--建議) 的預設政策影響，企業應**現在**就完成評估。
+
+#### 8.15.1 Dynamic Workflows（Public Preview）【Official】
+
+| 面向 | 內容 |
+| --- | --- |
+| 是什麼 | 以**程式碼**定義的任務流程：哪些步驟是確定性的（指令、工具、API）、何時交給 agent、如何使用其結果；可依序、平行或混合執行，可暫停於檢查點、可要求使用者輸入 |
+| 放在哪裡 | 定義在 **Copilot extension** 中；預設只屬於目前 session，可複製到個人 extensions 目錄或 repository 的 extensions 目錄共享，或打包成 plugin 散布 |
+| 怎麼執行 | 自然語言「Run the X dynamic workflow…」、extension 的 slash command／工具、SDK，或 **`copilot workflow run NAME --args @inputs.json --result-file out.json`** |
+| 監看 | `/workflows`（CLI）或 app 的 **Workflows** 按鈕：階段、進度、subagent、**AI Credits 用量**；可取消、暫停、續跑 |
+| 可用性 | Copilot app、CLI、SDK；所有方案，**但仍留在 premium request 舊制的 Pro／Pro+ 年約用戶除外** |
+| 權限 | subagent **繼承啟動它的 session 的權限**；未授權的動作會在互動 session 中跳出提示。**`copilot workflow run` 不顯示任何提示**——權限必須事先以 `--allow-tool` 等授予 |
+
+**四種上限**【Official】：同時活躍 agent 數、總 agent 數、執行時間（暫停不計）、**AI Credits 近似上限**（官方說明是「近似」：已在執行的工作可能讓總額超過上限）。優先序為「提示中指定 → workflow 程式碼 → 個人設定」，個人預設值的設定鍵：
+
+```text
+/settings workflows.defaultLimits.maxConcurrentSubagents 4
+/settings workflows.defaultLimits.maxTotalSubagents 20
+/settings workflows.defaultLimits.timeoutSeconds 3600
+/settings workflows.defaultLimits.maxAiCredits 50
+```
+
+> 【⚠️ 文件不一致】2026-10-01 Changelog 寫 CLI 需 `--experimental` 或 `/experimental on` 才能使用；官方概念頁未提及此限制。請以安裝版本實測為準。
+
+**與 autopilot、fleet 的差異**【Official】：autopilot 讓 Copilot**自己決定下一步**；`/fleet` 讓 Copilot**自己決定怎麼拆給 subagent**；dynamic workflow 則是**作者用程式碼定義步驟、條件與交接**。企業最在意的「可重現、可審查」只有後者做得到。
+
+**企業建議【建議】**：
+
+| 項目 | 建議 |
+| --- | --- |
+| 適用 | 可重複的多階段流程：發版前檢查、跨目錄樣式掃描、事故調查（收集日誌 → 平行分析 → 合併時間軸） |
+| 共享 | repository 中的 workflow extension 視同程式碼：**PR 審查＋CODEOWNERS**；它可以「在權限提示之外直接執行自己的程式碼」 |
+| 成本 | 先以 2–3 個檔案的小範圍試跑，看實際 AI Credits，再為正式執行設 `maxAiCredits` |
+| CI | `copilot workflow run` 不跳提示，**只在一次性隔離 runner 上使用**，並明確列出 `--allow-tool` |
+
+#### 8.15.2 Computer Use（Public Preview）【Official】
+
+Copilot 可**操作桌面應用程式**：讀取無障礙樹或截圖、點擊、輸入、捲動、拖曳、跨應用程式移動資料。適用 CLI 與 Copilot app（**僅 macOS 與 Windows**），用於沒有 API、CLI 或 MCP 的舊系統與 GUI-only 軟體。
+
+| 面向 | 內容 |
+| --- | --- |
+| 預設 | **停用**；CLI 以 `/computer on`／`/computer show`／`/computer off` 控制，app 於 Settings → Computer Use |
+| 核可 | 依該介面的工具權限設定；首次操作某應用程式時可選「本 session」「永久允許」或拒絕。**永久允許的決定存在本機，CLI 與 app 共用** |
+| 中斷 | CLI 按兩次 `Esc`；app 按 **Stop** 或 `Esc` |
+| macOS 權限 | 需授予 **Accessibility** 與 **Screen Recording** |
+| 企業管控 | managed settings **`features.computerUse: false`**——本機設定無法覆寫（第 6.4.1 節） |
+
+> 🚨 **官方警告與企業立場【建議】**：官方明言畫面內容可能包含他人的個資、模糊的指令或意外的畫面內容可能導致**影響裝置、資料或已連線帳號（含金融與企業系統）**的動作。本手冊建議：
+>
+> 1. 企業預設以 `features.computerUse: false` 停用；
+> 2. 確有需求（例如舊系統資料搬移）時，在**專用 VM 或 VDI** 中、以**無生產權限的帳號**開放，並禁止對任何含個資或可轉帳的應用程式選擇「永久允許」；
+> 3. 每次使用都保留 session 紀錄，納入第 [28 章](#28-ai-agent-安全治理) 的 agent 行為監控。
+
+#### 8.15.3 AI Credits 上限：`--max-ai-credits` 與 `/limits`【Official】
+
+CLI 可為**每個回應**設定 AI Credits 軟上限：啟動參數 `--max-ai-credits=N`，或 session 內 `/limits set max-ai-credits N`；每則使用者訊息重新計算。autopilot 也可在目標上加上上限（例如 `/goal 重構 auth 模組 --max-ai-credits 30`）。`/usage` 顯示每模型 token 與 AI Credits。
+
+> ✅ **企業建議**：CI 中的 `copilot -p` 一律加上 `--max-ai-credits`；它是**軟上限**，不能取代第 [5.7 節](#57-2026-年計費與預算制度變更official) 的預算控管，但能在單一失控回應時及早停止。
+
+**✅ 本節的驗收清單**：
+
+```text
+□ 1. managed settings 已明確設定 features.computerUse（true 或 false，不要留空）
+□ 2. 以一般使用者執行 /computer on → 應顯示被政策停用
+□ 3. 共享的 dynamic workflow extension 已納入 CODEOWNERS
+□ 4. 以 2 個檔案試跑一個 workflow，/workflows 中記錄 AI Credits，並據此設定 maxAiCredits
+□ 5. CI 中的 copilot workflow run／copilot -p 均有 --max-ai-credits 與明確的 --allow-tool
+```
+
+---
+
+### 8.16 本章實務案例【建議】
 
 **情境**：某團隊要把 40 個 Spring Boot module 的日誌框架從 Log4j 1.x 統一遷移到 SLF4J + Logback。
 
@@ -3985,9 +4586,10 @@ for module in $(cat modules.txt); do
               - 只改 $module 目錄下的檔案
               - 保持既有的 log level 與訊息內容不變
               - 完成後執行 mvn -pl $module test 必須通過" \
-    --allow-tool "shell(mvn *)" \
+    --allow-tool "shell(mvn:*)" \
     --allow-tool "write" \
-    --deny-tool "shell(git *)"
+    --deny-tool "shell(git:*)" \
+    --max-ai-credits 20
   # 每個 module 一個 commit，一個 PR
 done
 
@@ -4004,12 +4606,16 @@ done
 
 ---
 
-### 8.16 注意事項
+### 8.17 注意事項
 
 - 🚨 以 **MDM** 下發 `permissions.disableBypassPermissionsMode`；只靠伺服器端 managed settings 時，切換帳號即可解除限制。
 - ⚠️ `include-custom-instructions` 預設為 `false`：custom agent 以 subagent 身分執行時**不會**讀取 repository 指令。
 - ⚠️ Plan-then-autopilot 會跳過計畫核准，僅限隔離環境使用。
 - 🚨 `--allow-all-tools` 應列入企業禁止清單。
+- ⚠️ CLI 工具樣式的詞幹萬用字元是 `shell(git:*)`；managed settings 的前綴是 `Shell(git *)`——兩套語法不同（v1.3）。
+- ⚠️ Repository 層 `.github/copilot/settings.json` 只接受 14 個鍵，其他鍵（如 `allowedUrls`）會被**靜默忽略**。
+- ✅ 本機沙箱已 GA：以 managed settings 強制 `enabled` + `failIfUnavailable`，並用 `/sandbox policy` 驗證來源。
+- ⚠️ Computer use 與 dynamic workflows 為預覽：先以 `features.computerUse: false` 停用，再依 8.15 評估。
 - 🚨 `~/.copilot/mcp-secrets/` 與 `session-state/` 含敏感資料，需納入端點資料分類與備份策略。
 - 🚨 遠端操控（remote control）必須以 `managed-settings.json` 限制。
 - ⚠️ `sandbox.failIfUnavailable` 未設為 `true` 時，沙箱可能靜默失效。
@@ -4339,6 +4945,8 @@ Autopilot 會：
 | 終端機沙箱 | 啟用 | 唯一在 Allow all 下仍有效的邊界 |
 
 **與企業強制權限的關係**：第 [6.4.6 節](#646-agent-操作權限的企業強制管控official) 的 Agent 操作權限企業管控（2026-09-09）在 VS Code 需搭配 **Agent Host**。企業若要讓 `permissions.deny／ask` 在 VS Code 真正生效，**必須確認開發者的 session 跑在 Agent Host 上**，而不是舊的 extension host 路徑。
+
+> 📌 **v1.3 補充**：VS Code Agent Host session 的本機沙箱已於 **2026-10-07 GA**（與 CLI、Copilot app 同一套 MXC 技術）；VS Code `1.140.0` 起，managed `sandbox.enabled: true` 會**鎖住 session 的沙箱開關**。9 月的 VS Code 版本也把 Dev Container 執行擴展到 SSH、Tunnel 與 WSL 主機，並在 Agents 視窗加入 HydraFusion（Research Preview，第 [5.8.5 節](#585-hydrafusion多模型協作的模型選項preview)）、排程任務與 Agent Merge（Preview）。
 
 > 📌 **Dev Container 隔離**：VS Code 自 2026 年 9 月起陸續支援讓代理在**本機 Dev Container** 內執行（需要 Docker 與有效的 Dev Container 設定，逐步推出中）。對需要 Allow all 或 Autopilot 的任務，**Dev Container 是比「在主機上開 Allow all」安全得多的選擇**：檔案系統與網路的爆炸半徑被限縮在容器內。
 
@@ -4743,6 +5351,18 @@ description: 依 Controller 產生 OpenAPI 規格與繁體中文 API 文件
    - 敏感欄位（密碼、身分證）在範例中一律用遮罩
 ````
 
+> ✅ **v1.3 補充：如何驗證「指令真的被讀到了」**【Official + 建議】
+>
+> 指令檔寫錯位置、`applyTo` 寫錯 glob，**都不會有任何錯誤訊息**。三個實際可用的檢查點：
+>
+> | 介面 | 檢查方式 |
+> | --- | --- |
+> | Copilot CLI | 在 repository 根目錄執行 **`copilot instruction`**（非互動列出偵測到的指令來源）；互動中執行 `/env` 或 `/instructions` |
+> | VS Code | Chat 回應的「References」會列出套用的指令檔 |
+> | Code review | 官方說明 review 讀取的是 **head branch** 的指令；在 PR overview 留言中確認效力等級與審查重點是否反映新指令 |
+>
+> **金絲雀測試【建議】**：在指令檔加入一條無害且可觀察的規則（例如「回應的最後一行寫 `[instructions-ok]`」），問一個簡單問題確認後即移除。這是確認「AI 依指引產出」的前提——**指引沒被讀到，再好的指引也等於沒有**。
+
 ---
 
 ### 10.8 本章實務案例【建議】
@@ -4893,7 +5513,7 @@ Custom Agent（自訂代理）讓你定義一個**具有特定身分、特定指
 >
 > MCP 工具可用 `server-name/tool-name` 或 `server-name/*` 指定。本手冊範例中的 `write`、`shell` 為相容別名，分別對應 `edit` 與 `execute`；**新撰寫的企業標準 agent 建議改用主要別名**，並在 CI 中檢查 `tools` 欄位只含核准的別名——拼錯的工具名稱會被靜默忽略，agent 會在缺少該能力的情況下執行。
 >
-> Agent 本文（prompt）上限為 **30,000 字元**。Copilot CLI 另有 `models`、`modelPolicy`、`reasoningEffort`、`include-custom-instructions`、`sidekick` 等**僅 CLI 使用**的欄位，見第 [8.14.3 節](#8143-cli-專屬的-custom-agent-欄位與-sidekick-agentsofficial)。
+> Agent 本文（prompt）上限為 **30,000 字元**。CLI 的 agent 載入順序為 `~/.copilot/agents/` → 自工作目錄向上至 Git 根目錄的 `.github/agents/` → 同範圍的 `.claude/agents/` → `--add-dir` 加入的目錄 → plugin → 組織／企業遠端 agent；**同 ID 時先載入者勝出，`name` 欄位不參與去重**（v1.3 補充）。Copilot CLI 另有 `models`、`modelPolicy`、`reasoningEffort`、`include-custom-instructions`、`sidekick` 等**僅 CLI 使用**的欄位，見第 [8.14.3 節](#8143-cli-專屬的-custom-agent-欄位與-sidekick-agentsofficial)。
 
 **最小範例**【Official】：
 
@@ -5551,7 +6171,7 @@ Agent Skills 是「**指令、腳本與資源的資料夾**，Copilot 會在相�
 | `user-invocable` | 否 | 是否允許使用者以 `/SKILL-NAME` 叫用，預設 `true`（CLI 參考頁） |
 | `disable-model-invocation` | 否 | 禁止代理自動叫用此 skill，預設 `false`（CLI 參考頁） |
 
-> 📌 **v1.2 補充**：CLI 參考頁另規定 `name` 只能包含英數字與連字號、**最多 64 字元**；`description` **最多 1,024 字元**。表中最後三個欄位出自 CLI 參考頁，其他介面的支援程度請實測。
+> 📌 **v1.2 補充／v1.3 更正**：CLI 參考頁規定 `name` 必須以英數字開頭，可包含**英數字、連字號、底線、點、冒號與空白**（v1.2 寫「只能英數字與連字號」已過時；冒號用於命名空間，例如 `my-plugin:search`），**最多 64 字元**；`description` **最多 1,024 字元**。兩個 plugin 提供同名 skill 時會並存，以 `/plugin-name/skill` 區分。為了跨介面與跨工具相容，企業標準仍建議**只用小寫英數字與連字號**。表中最後三個欄位出自 CLI 參考頁，其他介面的支援程度請實測。
 
 **目錄命名規則**【Official】：子目錄名稱必須「小寫且以連字號取代空格」。
 
@@ -5960,6 +6580,8 @@ Hook（掛鉤）讓你在 agent 生命週期的特定事件**攔截、檢查、�
 > 官方明載：**Policy hooks 無法被 `disableAllHooks` 停用**，且使用者層的停用旗標「影響所有來源，但 policy hooks 除外」。
 > **這代表 policy.d 是企業唯一能保證不被開發者關掉的 hook 位置。** 企業強制檢查應該放在這裡，而不是 repository。
 
+> ⚠️ **兩個長得很像的 Windows Registry 路徑（v1.3 補充）**：policy hooks 讀取 `HKLM\Software\Policies\GitHub\Copilot`（每個子機碼的 `Policy` 字串值是一份 JSON）；**managed settings 的 MDM** 讀取的是 `HKLM\SOFTWARE\Policies\GitHubCopilot`（逐鍵字串值，第 6.4 節）。兩者用途與格式都不同，GPO／Intune 範本**不要寫錯位置**。
+
 **支援情況**【Official】：CLI ✅、cloud agent ✅、github.com ✅、**VS Code 🅿️（預覽）、Visual Studio ❌、JetBrains ❌、Eclipse ❌、Xcode ❌**
 
 ---
@@ -6030,6 +6652,8 @@ Hook（掛鉤）讓你在 agent 生命週期的特定事件**攔截、檢查、�
 - `exec` + `args` 直接執行可執行檔，不經 shell 解譯（**僅 CLI**）
 - `command` 作為 bash/powershell 都不存在時的 fallback
 - 🚨 **Cloud agent 只認得 `bash`（Linux）與 `command` 欄位**
+- `timeoutSec` **預設 30 秒**；`timeout` 是它的別名（兩者並存時以 `timeoutSec` 為準）（v1.3 補充）
+- `type` 省略時預設為 `"command"`
 
 #### 13.4.2 HTTP Hook
 
@@ -6045,7 +6669,7 @@ Hook（掛鉤）讓你在 agent 生命週期的特定事件**攔截、檢查、�
 
 **限制**【Official】：
 
-- URL 必須是 `https://`（localhost 需設 `COPILOT_HOOK_ALLOW_LOCALHOST=1`）
+- URL 必須是 `https://`（localhost 需設 `COPILOT_HOOK_ALLOW_LOCALHOST=1`）；**用於 `preToolUse` 與 `permissionRequest` 時一律必須是 `https://`**，因為回應可以授予工具權限（v1.3 補充）
 - 🚨 **Cloud agent 受防火牆限制，只有允許清單內的主機可連線**
 
 #### 13.4.3 Prompt Hook
@@ -6057,7 +6681,7 @@ Hook（掛鉤）讓你在 agent 生命週期的特定事件**攔截、檢查、�
 }
 ```
 
-**限制**【Official】：只在**新的互動式 session** 觸發；resume 或非互動模式不觸發；**cloud agent 通常不觸發 prompt hook**。
+**限制**【Official】：**只能用在 `sessionStart` 事件**；只在**新的互動式 session** 觸發；resume 或非互動模式（`-p`）不觸發；**cloud agent 通常不觸發 prompt hook**。
 
 ---
 
@@ -6098,10 +6722,12 @@ Regex 樣式會被編譯為 `^(?:PATTERN)$`，比對對象依事件而定：
 
 | 事件 | 比對對象 |
 | --- | --- |
-| `preToolUse` / `postToolUse` | `toolName` |
+| `preToolUse` / `postToolUse` / `permissionRequest` | `toolName` |
 | `notification` | `notification_type` |
 | `preCompact` | `trigger`（`"manual"` 或 `"auto"`） |
 | `subagentStart` | `agentName` |
+
+**無效的 regex 會讓該 hook 項目被略過**（不會報錯中止）——撰寫後務必實際觸發一次確認（v1.3 補充）。可比對的 CLI 工具名稱：`ask_user`、`bash`、`create`、`edit`、`glob`、`grep`、`powershell`（cloud agent 中不存在）、`task`、`view`、`web_fetch`。
 
 **Claude 格式 matcher（PascalCase）**【Official】：可使用 Claude 工具名稱等價物：`Bash`、`Read`、`Write`、`Edit`、`Grep`、`Glob`、`WebFetch`、`WebSearch`、`AskUserQuestion`、`TodoWrite`、`Agent`。
 
@@ -6473,7 +7099,42 @@ PY
 
 ---
 
-### 13.13 本章實務案例【建議】
+### 13.13 沙箱中的 Hook 與設定檔的容錯行為【Official】
+
+> 🆕 **v1.3 新增**
+
+第 8.7 節的本機沙箱 GA 之後，hook 的執行位置與權限有兩個必須知道的規則（**僅 Copilot CLI**）：
+
+| 來源 | 沙箱啟用時在哪裡執行 | 可存取範圍 |
+| --- | --- | --- |
+| Repository、user、plugin 的 command hook | **沙箱內**，與 agent 的 shell 指令相同 | 沙箱授權的路徑；另可讀取 hook 自己所在的目錄；plugin hook 可寫入 `$COPILOT_PLUGIN_DATA` |
+| **Policy hooks** | **永遠在主機上、沙箱外** | 完整權限——官方明言 policy hook **不應執行 workspace 中的腳本** |
+
+- hook 的 `cwd` 與 `env` **不會擴大**存取範圍：把 `cwd` 指到授權範圍外、或在 `env` 設 `PATH`／`TMPDIR`，都不會給 hook 更多權限。需要時請把路徑加入 `sandbox.userPolicy`。
+- hook 在沙箱中失敗時，每個 hook 每個 session 只警告一次——**很容易被忽略**。
+
+**設定檔的容錯行為**【Official】：
+
+| 情況 | 結果 |
+| --- | --- |
+| `.github/hooks/*.json` 中**單一** hook 項目格式錯誤 | 只丟棄該項目並記錄，同檔其他 hook 照常載入 |
+| 結構錯誤（JSON 不合法、`version` 錯誤、事件清單不是陣列） | **整個檔案被拒絕** |
+| `settings.json` 中的 inline `hooks` | **嚴格**：任一項目錯誤，整個 `hooks` 欄位被拒絕 |
+
+> 🚨 **企業意涵【建議】**：policy hook 在沙箱外以完整權限執行，所以它**只能呼叫由 IT 佈署、使用者無法改寫的腳本**（例如 `/opt/corp/copilot-hooks/` 下 root 擁有的檔案），絕不可指向 repository 內的路徑——否則任何人改一個 PR 就能在所有開發者的主機上以沙箱外權限執行程式。
+
+**✅ 驗證方式**：
+
+```text
+□ 1. 在 .github/hooks/ 放一個刻意寫錯 matcher regex 的 hook → 觸發對應工具，確認該 hook 沒有執行（且其他 hook 仍正常）
+□ 2. 在同一檔案放一個合法 hook 與一個缺少 bash/command 的項目 → 合法者應照常執行
+□ 3. 啟用沙箱後，讓 repository hook 嘗試寫入 /etc → 應失敗並出現一次性警告
+□ 4. 檢查所有 policy.d／Registry 中的 policy hook，確認指向的腳本路徑不在任何 repository 內
+```
+
+---
+
+### 13.14 本章實務案例【建議】
 
 **情境**：某企業設計了完整的 hook 防護體系，三個月後資安演練時發現全部失效。
 
@@ -6503,7 +7164,7 @@ PY
 
 ---
 
-### 13.14 注意事項
+### 13.15 注意事項
 
 - 🚨 **`preToolUse` 逾時 = 放行**。安全檢查不能只靠 hook。
 - 🚨 **HTTP hook 是 fail-open**，絕不可用於安全阻擋。
@@ -6639,7 +7300,7 @@ GitHub 官方的 MCP Server 可以：
 >
 > 這代表：**如果你只做了第 1–2 層（組織層政策），你的 CLI 使用者可能不受管轄。**（⚠️ v1.2 更正：第 3 層企業 allowlist 會在 CLI 執行，見第 [6.6 節](#66-mcp-治理official)。）
 >
-> **企業必須做第 4 層（`managed-settings.json` + MDM 下發）。** 這不是「加分項」，是**必要項**。
+> **企業必須做第 4 層（`managed-settings.json`，以 MDM 或檔案型佈署才能做到「以裝置為單位」）。** 這不是「加分項」，是**必要項**。
 
 #### 14.5.2 Matcher 語法【Official】
 
@@ -6659,6 +7320,19 @@ GitHub 官方的 MCP Server 可以：
 ```
 
 支援的比對屬性：`serverUrl`、`serverCommand`、`serverName`。
+
+**比對規則（v1.3 補充）**【Official】：
+
+| 規則 | 內容 |
+| --- | --- |
+| 每個項目 | **只能有一個**比對屬性 |
+| `serverUrl` | 只適用**遠端（HTTP／SSE）** server；支援 `*`；scheme 與 host 不分大小寫，**路徑分大小寫**；比對前會先展開 `${VAR}` |
+| `serverCommand` | 只適用 **stdio** server；指令與每個參數**依序精確比對**，不支援萬用字元 |
+| `serverName` | 比對使用者自取的名稱；allowlist 中只能含 `[A-Za-z0-9_-]`。**遠端 server 只要清單中有任何 `serverUrl` 項目，就只用 `serverUrl` 比對；stdio server 只要有任何 `serverCommand` 項目，就只用 `serverCommand` 比對**——`serverName` 只在沒有對應類型項目時才算數 |
+| 未設定 `allowedMcpServers` | 允許全部非預設 server；**空陣列 `[]` = 全部封鎖** |
+| 第一方 server | 內建 GitHub MCP server 等**永遠豁免**於兩份清單 |
+
+> 🚨 **上方範例的 `{ "serverName": "my-server" }` 在實務上常常無效**：清單已含 `serverUrl` 與 `serverCommand` 項目，所以名為 `my-server` 的遠端或 stdio server **都不會因名稱而被允許**。又因為名稱由使用者自取，官方也建議**需要確認身分時一律用 `serverUrl` 或 `serverCommand`**。第 6.4.7 節的檢查腳本會對這種組合發出警告。
 
 ---
 
@@ -7008,7 +7682,7 @@ java-backend-standard/
 ```text
 【立即】
 1. 以 managed-settings.json 設定 strictKnownMarketplaces，只允許企業 marketplace
-2. 盤點所有已安裝的 plugin（copilot plugins list）
+2. 盤點所有已安裝的 plugin（`copilot plugin list`）
 3. 移除所有非企業來源的 plugin
 4. 撤銷該 plugin 使用的 PAT
 
@@ -7037,7 +7711,7 @@ java-backend-standard/
 - ⚠️ 外部來源的 plugin 應關閉 `autoUpdate`。
 - ⚠️ `plugin.json` 的完整 schema 請查閱官方 CLI plugin reference。
 - ✅ 建立企業自有 marketplace，把需要的能力重新實作為企業標準。
-- ✅ 定期盤點已安裝 plugin（`copilot plugins list`）。
+- ✅ 定期盤點已安裝 plugin（`copilot plugin list`；`copilot plugins` 為舊別名）。
 
 ---
 
@@ -7056,7 +7730,13 @@ Copilot Memory 讓 Copilot **保留關於程式碼庫與使用者偏好的知識
 
 **儲存時附帶引用**【Official】：repository facts 附帶連結到佐證程式碼的引用；user preferences 附帶引用，**包含使用者的直接引述**。
 
-**支援介面**【Official】：Copilot cloud agent、Copilot code review、Copilot CLI。
+**支援介面**【Official】：Copilot cloud agent、Copilot code review、Copilot CLI，以及 **agentic autofix**（2026-09-25 起，v1.3 補充）。
+
+> 📌 **v1.3 補充**【Official】：
+> - **Agentic autofix 會寫入 memory**：修正安全警示時，會把修正模式存成 memory，之後供 code review 與 cloud agent 參考（兩者皆為 Public Preview）。
+> - 事實也可能來自**未合併就關閉的 PR**；官方以驗證步驟確保只有目前程式碼仍能佐證的資訊才會影響行為。
+> - 在 Copilot CLI 中，**只有根代理能寫入或投票 memory**，subagent 只能讀取。
+> - 擁有多個授權來源的使用者，必須在帳號設定中選擇預設計費實體，才會產生 user-level preferences。
 
 **知識可跨功能套用**【Official】：例如 cloud agent 學到的資料庫連線模式，可用於 code review 分析。
 
@@ -10067,7 +10747,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     SB2["Spring Boot 2.x<br/>javax.*<br/>Java 8+"] -->|"🚨 最大斷點"| SB3["Spring Boot 3.x<br/>jakarta.*<br/>Java 17+"]
-    SB3 --> SB4["Spring Boot 4.x<br/>Java 17+"]
+    SB3 -->|"先升到 3.5.x"| SB4["Spring Boot 4.x<br/>Jakarta EE 11<br/>Java 17+（建議 21／25）"]
 ```
 
 **2.x → 3.x 的關鍵斷點**：
@@ -10081,6 +10761,42 @@ flowchart LR
 | Hibernate 5 → 6 | JPA 行為 | 部分 HQL 語法、命名策略、序列產生策略改變 |
 | Actuator 端點變更 | 監控 | 確認端點路徑 |
 | `@ConstructorBinding` 行為改變 | 設定綁定 | 檢視 `@ConfigurationProperties` |
+
+**3.x → 4.x 的關鍵斷點**（v1.3 新增，依官方「Spring Boot 4.0 Migration Guide」）：
+
+| 斷點 | 影響範圍 | 處理方式 |
+| --- | --- | --- |
+| 基線：Java 17+、**Jakarta EE 11（Servlet 6.1）**、Spring Framework 7、Kotlin 2.2+ | 建置與容器 | 先升到 **最新 3.5.x** 並清掉所有 deprecated 警告，再跨主版本 |
+| 🚨 **模組化 starter**：例如 `spring-boot-starter-web` → `spring-boot-starter-webmvc`；每個 starter 都有對應的 `-test` starter | 全部 `pom.xml` | 可暫用 `spring-boot-starter-classic` 過渡，修好 import 後移除 |
+| 🚨 **Jackson 3 為預設**：`com.fasterxml.jackson` → `tools.jackson`（註解套件 `com.fasterxml.jackson.annotation` 沿用）；`Jackson2ObjectMapperBuilderCustomizer` → `JsonMapperBuilderCustomizer`、`@JsonComponent` → `@JacksonComponent` | 序列化程式碼與設定 | 逐一替換；`spring.jackson.*` 部分屬性移到 `spring.jackson.json.read/write` |
+| 移除：**Undertow**（不相容 Servlet 6.1）、Pulsar Reactive、可執行 jar 啟動腳本、Spring Session Hazelcast／MongoDB、Spock 整合 | 執行環境 | 改用 Tomcat 或 Jetty；評估替代方案 |
+| 測試：`@MockBean`／`@SpyBean` 移除 → `@MockitoBean`／`@MockitoSpyBean`；`@SpringBootTest` 不再自動提供 MockMvc、WebClient、TestRestTemplate | 測試程式 | 改用新註解，並明確加上 `@AutoConfigureMockMvc` 等 |
+| 設定屬性搬家（例如 `spring.data.mongodb.*` → `spring.mongodb.*`） | `application*.yml` | 暫時加入 `spring-boot-properties-migrator` 取得提示，完成後移除 |
+
+**✅ 審查 AI 產出的 4.x 遷移：殘留檢查**【建議】——agent 宣稱「已完成遷移」時，先跑這段腳本再看 Diff（在專案根目錄執行，排除 `target/`、`build/`）：
+
+```bash
+#!/usr/bin/env bash
+# 檢查 Spring Boot 3.x → 4.x 遷移後的殘留（在專案根目錄執行；有殘留時離開碼 1）
+fail=0
+check() {  # $1 說明  $2 正規表示式  $3 檔案樣式
+  hits=$(grep -rnE --include="$3" "$2" . 2>/dev/null | grep -v '/target/' | grep -v '/build/')
+  if [ -n "$hits" ]; then
+    echo "❌ $1"; printf '%s\n' "$hits" | head -20; fail=1
+  else
+    echo "✅ $1"
+  fi
+}
+check "Jackson 2 databind/core 套件（應改為 tools.jackson）"      'import com\.fasterxml\.jackson\.(databind|core)' '*.java'
+check "已移除的 @MockBean／@SpyBean（應改為 @MockitoBean）"                '@(MockBean|SpyBean)\b'                          '*.java'
+check "已更名的 spring-boot-starter-web（應改為 webmvc）"            '<artifactId>spring-boot-starter-web</artifactId>' 'pom.xml'
+check "已移除的 Undertow starter"                           'spring-boot-starter-undertow'                    'pom.xml'
+check "javax.servlet／javax.persistence 匯入"           'import javax\.(servlet|persistence)\.'            '*.java'
+check "過渡用的 classic starter"         'spring-boot-starter-classic'                      'pom.xml'
+exit $fail
+```
+
+> 📌 **v1.3 實測**：以刻意保留 Jackson 2 `databind`、`@MockBean`、`spring-boot-starter-web`、Undertow、`javax.servlet` 的樣本專案執行 → 5 項 ❌、離開碼 1；以完成遷移的樣本（含合法的 `com.fasterxml.jackson.annotation.JsonProperty`、`target/` 下的舊產生檔）執行 → 全部 ✅、離開碼 0。腳本只抓「確定錯」的殘留，**通過它不代表遷移正確**——行為差異仍要靠測試與第 23.4 節的 SOP 把關。
 
 ---
 
@@ -11861,6 +12577,27 @@ flowchart LR
 | **驗證用完整套件** | CI 必須用企業實際使用的完整查詢套件重掃，彌補 agentic autofix 的驗證盲點 |
 | **平台驗證不取代 CI** | 27.8.3 的平台掃描是「多一道網」，企業的 SAST／SCA 閘門仍須保留 |
 
+#### 27.8.5 AI 偵測密鑰與 `/security-review`（2026-10）【Official + Preview】
+
+> 🆕 **v1.3 新增**
+
+2026-10-07，GitHub 推出**專為密鑰偵測微調的模型**，會**閱讀周邊程式碼**判斷可能的憑證——包括**沒有固定格式的密碼**（傳統 pattern 比對最容易漏掉的類型）【Official】：
+
+| 項目 | 狀態與計費 |
+| --- | --- |
+| AI 偵測的 secret 警示 | 既有「AI-detected Password」客戶**自動升級**到新模型；GHSP／GHAS 客戶**不另收費**；GHES 3.23 將提供 |
+| AI push protection | **Private Preview**；啟用後消耗 **GitHub AI Credits** |
+| Copilot CLI／Copilot app 的 security review 檢查 | 選用、消耗 AI Credits；個人方案亦可使用 |
+| 成本控管 | 可用政策停用；在「Budgets and alerts」為 **Secret Protection AI Credits** SKU 設定預算與「達上限即停止」 |
+
+Copilot CLI 的 **`/security-review [PROMPT]`** 會對**本機尚未提交的變更**做聚焦安全審查，回報依優先序排列的漏洞與修正建議；官方明言**它不是完整的 repository 安全稽核**。
+
+> ✅ **企業建議【建議】**：
+>
+> 1. 把 `/security-review` 寫進第 [37.1 節](#371-每日標準流程daily-sop建議) 的「提交前」步驟，但**不要**把它當成 SAST 的替代——它看的是本機 diff，不是整個 repository。
+> 2. AI push protection 會**在推送時**消耗 AI Credits，試辦前先設定 SKU 層預算，避免大量推送造成意外帳單。
+> 3. 「無格式密碼」偵測會產生新的警示類型，請事先在 secret scanning 的分流流程中指定處理窗口，避免警示堆積。
+
 ---
 
 ### 27.9 本章實務案例【建議】
@@ -12432,6 +13169,7 @@ Copilot code review 對 Pull Request 提供回饋，「找出問題並建議可�
 | --- | --- |
 | **自動** | 個人（Pro／Pro+／Max，或持有 Business／Enterprise 授權者；**不適用 EMU**）可設定自己的 PR 自動 review；Repository owner 可為整個 repo 啟用；Organization owner 可全組織或選擇性啟用；Enterprise 可透過企業層 ruleset 啟用 |
 | **手動** | 在 PR 中將 Copilot 指派為 reviewer |
+| **API**（v1.3 新增） | 以 REST 或 GraphQL API 請求，見第 [30.8 節](#308-以-api-請求-copilot-code-review-與授權來源控管2026-10official--建議) |
 
 **自動觸發時機**【Official】：開啟 PR、草稿轉為開啟、推送新 commit、review 草稿 PR。
 
@@ -12439,7 +13177,7 @@ Copilot code review 對 Pull Request 提供回饋，「找出問題並建議可�
 
 - 收集完整專案脈絡以提高準確度
 - 可將建議交給 Copilot cloud agent（public preview）產生修正 PR
-- **效力等級**：Lite（內建預設）與 Balanced；個人設定選單已出現 **Max**（標示 Coming soon，尚未開放）
+- **效力等級**：Lite 與 **Balanced（2026-09-28 起為內建預設，v1.3 更正）**；個人設定選單已出現 **Max**（標示 Coming soon，尚未開放）
 - 核准評估（是否可合併，public preview）
 
 **支援平台**【Official】：GitHub.com、GitHub CLI、GitHub Mobile、VS Code、Visual Studio、Xcode、JetBrains IDE、Azure DevOps（public preview）。
@@ -12643,6 +13381,8 @@ applyTo: "**"
 > 由於 Balanced 消耗較多 AI Credits，**未採取行動的組織會在 9 月底後看到 review 相關成本上升**。這是一項**不作為即生效**的變更，請納入成本監控。
 >
 > 📌 **v1.2 狀態更新**：查證日官方概念頁寫「GitHub 內建預設為 Lite，**部分擁有者的內建預設為 Balanced**」，顯示切換可能分批進行。最穩妥的做法仍是**明確設定**企業或組織的預設效力等級。
+>
+> ✅ **v1.3 狀態更新：已全面生效**——2026-10-02 Changelog 確認變更於 **9/28 生效**，適用**新的與既有的** repository 與組織；**明確選擇 Lite 者保留**。官方概念頁的內建預設已改為 **Balanced**。H.5 的「Balanced 實際套用範圍」一項結案。
 
 > ⚠️ **價格以官方公告為準**，本手冊僅引述查證當日的官方資訊。
 
@@ -12663,7 +13403,9 @@ applyTo: "**"
 **自動審查的啟用方式**【Official】：透過 **branch ruleset** 中的「Automatically request Copilot code review」規則啟用，同樣支援 repository、organization、enterprise 多個層級。可選項目包含**是否審查 draft PR**、以及**是否對每次新推送都重新審查**（而非只在首次提交時）。
 
 > ✅ **企業建議**：在 enterprise 或 organization 層設定「安全預設值」，把**例外**留給 repository 覆寫。
-> 若成本敏感，建議明確把 enterprise 預設設為 **Lite**，再對核心 repository 個別調高為 Balanced——這比讓 9/28 的自動轉換全面生效更可控。
+> 若成本敏感，建議明確把 enterprise 預設設為 **Lite**，再對核心 repository 個別調高為 Balanced。v1.3 註：9/28 的轉換已生效，**現在才設定 Lite 仍然有效**（不會被覆寫），但 9/28 之後已發生的 Balanced 成本無法回溯。
+
+**✅ 驗證目前實際使用的等級**：開啟最近幾個 PR 的 Copilot overview 留言——官方會在留言中**顯示每次審查所用的效力等級**。抽查 5 個不同 repository、不同作者的 PR，若結果與企業設定不符，依第 30.7.2 節的決定順序逐層排查（最常見的原因是作者個人設定）。
 
 ---
 
@@ -12787,7 +13529,7 @@ applyTo: "**"
 | 3 | **請求者**的個人設定（新 PR 的請求者是作者；把草稿標為 ready 的人是請求者） |
 | 4 | Repository 的設定 |
 | 5 | Organization 的設定（個人 repository 則為擁有者的個人設定） |
-| 6 | GitHub 內建預設：**Lite**；官方註明「部分擁有者的內建預設為 Balanced」 |
+| 6 | GitHub 內建預設：**Balanced**（v1.3 更正：v1.2 查證日為 Lite，9/28 起改為 Balanced） |
 
 > ⚠️ **v1.2 更正**：v1.1 第 30.5 節寫「層級越靠近使用者，優先權越高（repository 可覆寫 organization）」。依官方決定順序，更精確的說法是：**請求者的個人設定優先於 repository 設定**。
 > **成本意涵**：即使 repository 設為 Lite，只要 PR 作者個人設定為 Balanced，該 PR 就會以 Balanced 審查。**企業無法只靠 repository 或 organization 設定把成本鎖在 Lite**，必須搭配預算控管（第 [5.7 節](#57-2026-年計費與預算制度變更official)）與用量監控。
@@ -12833,6 +13575,8 @@ Code review 使用專門調校的模型組合，**不支援切換模型**；官�
 | 其他 bot 建立或請求 | **組織** |
 | 無授權成員或 Copilot Free 使用者 | **組織／企業**，以額外付費用量計算，不計入任何個人預算 |
 
+**付費成員的計費來源可以改**（v1.3 補充）【Official】：對持有付費授權的組織成員，預設扣**成員自己的額度**；企業或組織擁有者可改為**由組織付費**（需開啟 AI credits paid usage，預算為選填）。這個選擇同時適用手動與自動審查，**只改變計費、不授予使用權**。被封鎖的條件也隨之不同：計費給使用者時，使用者預算用盡即封鎖；計費給組織時，依組織預算、成本中心預算或企業支出上限。
+
 使用者達到個人預算，或企業／成本中心的支出上限用盡時，**code review 會與其他消耗 AI Credits 的功能一起被封鎖**。
 
 官方估算每次 review 的消耗：**Lite 約 0.05–1 USD、Balanced 約 0.25–5 USD**（不含 Actions 分鐘數；隨 PR 大小與 repository custom instructions 增加）。
@@ -12854,7 +13598,50 @@ Code review 使用專門調校的模型組合，**不支援切換模型**；官�
 
 ---
 
-### 30.8 本章實務案例【建議】
+### 30.8 以 API 請求 Copilot code review 與授權來源控管（2026-10）【Official + 建議】
+
+> 🆕 **v1.3 新增**
+
+#### 30.8.1 API 請求【Official】
+
+2026-10-02 起，可透過 **REST 與 GraphQL API** 請求 Copilot code review，並（依 Changelog）**為每次請求指定效力等級**，適用 Pro、Pro+、Max、Business、Enterprise。官方操作頁給出的 REST 做法是：在「Request reviewers for a pull request」端點把 **`copilot-pull-request-reviewer[bot]`** 加入 `reviewers`。
+
+```bash
+# 以 GitHub CLI 呼叫 REST API，請 Copilot 審查 PR #123
+gh api --method POST \
+  -H "Accept: application/vnd.github+json" \
+  repos/OWNER/REPO/pulls/123/requested_reviewers \
+  -f "reviewers[]=copilot-pull-request-reviewer[bot]"
+```
+
+> 【⚠️ 文件不一致】Changelog 說 API 可「為每次請求設定效力等級」，但 v1.3 查證日的 REST 參考頁（`POST /repos/{owner}/{repo}/pulls/{pull_number}/requested_reviewers`）只列出 `reviewers` 與 `team_reviewers` 兩個 body 參數，**沒有效力等級欄位**。在官方補上參數說明前，請以 30.7.2 的決定順序（請求者個人設定 → repository → organization）控制等級，並以 PR overview 留言確認實際等級。
+
+> 📌 **v1.3 實測**：以 `gh api --verbose` 對一個不存在的 repository 送出同樣請求，確認送出的 body 為 `{"reviewers":["copilot-pull-request-reviewer[bot]"]}`、回應 404（端點正確、無副作用）。端點**不要以 `/` 開頭**——Windows 的 Git Bash 會把 `/repos/...` 改寫成 `C:/Program Files/Git/repos/...` 而失敗。
+
+**✅ 驗證方式**：
+
+```text
+□ 1. 呼叫後回應碼應為 201；GET 同一端點的 requested_reviewers，應出現 Copilot
+□ 2. 數分鐘內 PR 出現 Copilot overview 留言，且標示本次效力等級
+□ 3. 以「無 Copilot 授權」的服務帳號 token 呼叫：若已啟用 30.8.2 的限制，應不會開始審查
+□ 4. 在用量報表確認此次消耗歸屬於「請求者」（即 token 的擁有者），而不是 PR 作者
+```
+
+> 🚨 **治理意涵【建議】**：API 請求的計費歸屬是**發出請求的身分**（30.7.3 ⑤）。若在內部工具或 CI 中用共用帳號呼叫，**所有審查成本會集中到該帳號**，且「是誰要求審查」的稽核資訊會遺失。建議每個自動化流程使用**獨立的 GitHub App 或機器帳號**，並為其設定專屬預算。
+
+#### 30.8.2 外部授權的審查請求限制【Official】
+
+「外部 Copilot 授權」指**不是由擁有該 repository 的組織或企業**所提供的授權，例如個人方案或其他組織的授權。**預設允許**外部授權者請求 Copilot 審查。組織擁有者與 repository 管理員可啟用「**Only allow Copilot code review to be triggered by authorized users**」：
+
+- 未授權者看不到 Copilot reviewer 選項，**其 API 請求不會啟動審查**；
+- 個人 repository 只有擁有者或直接協作者能請求；
+- 個人設定的自動審查對未授權者不執行，但 **repository 或組織 ruleset 設定的自動審查仍會執行**。
+
+> ✅ **企業建議【建議】**：受監管組織應**啟用此限制**——否則外包人員可用自己的個人授權，讓**未經企業評估的計費與資料處理路徑**審查企業程式碼。
+
+---
+
+### 30.9 本章實務案例【建議】
 
 **情境**：某團隊統計 Copilot code review 的 6 個月成效。
 
@@ -12905,7 +13692,7 @@ Code review 使用專門調校的模型組合，**不支援切換模型**；官�
 
 ---
 
-### 30.9 注意事項
+### 30.10 注意事項
 
 - 🚨 Copilot review 讀取的是 **head branch** 的指令與 skills——審查規則檔必須受 CODEOWNERS 保護。
 - ⚠️ Code review **可能使用模型政策未啟用的模型**；模型白名單不涵蓋 code review。
@@ -12918,7 +13705,9 @@ Code review 使用專門調校的模型組合，**不支援切換模型**；官�
 - ✅ 監控「意見採納率」，低於 50% 代表 instructions 需要調整。
 - ✅ 分層 Review：每層只做上一層做不到的事。
 - 🚨 **Copilot 的核准會計入 required-approvals**——絕不可讓它成為唯一核准來源。
-- 🚨 **2026-09-28 起預設效力等級改為 Balanced**，不作為即生效，且會提高成本。
+- 🚨 **預設效力等級已於 2026-09-28 改為 Balanced**（v1.3 確認已生效）；明確選 Lite 者保留，未設定者成本已上升。
+- ⚠️ API 請求審查的成本歸屬於**請求者身分**；自動化流程請用獨立帳號與預算（30.8）。
+- ✅ 受監管組織啟用「Only allow Copilot code review to be triggered by authorized users」。
 - ⚠️ Copilot 核准 PR 為 public preview，預設關閉；啟用前務必完成 30.6.4 的設定清單。
 - ✅ 用路徑 glob（上限 15 條）把 Copilot 可核准的範圍限縮在低風險路徑。
 - ✅ 稽核報表必須能區分「人類核准」與「Copilot 核准」。
@@ -13592,6 +14381,7 @@ max-ai-credits: 300
 > - **需要稽核、會重複執行、影響多人**的自動化 → 一律用 **Agentic Workflows**（可版控、可審查、權限宣告明確）。
 > - **Copilot Automations** 在試辦期先於組織層**限縮到指定 repository**；它「不在 Git、只有建立者看得到」的特性，與企業「設定即程式碼」的治理原則衝突。
 > - 兩者都是**無人發起的 AI 行為**，必須納入第 [28 章](#28-ai-agent-安全治理) 的 Agent 行為監控。
+> - v1.3 補充：Copilot CLI 的 **`copilot workflow run`**（dynamic workflows，第 [8.15 節](#815-dynamic-workflowscomputer-use-與成本上限2026-10official--preview)）是第四種選項——流程定義在 extension 程式碼中、可版控，但**執行時不顯示權限提示**，放進 CI 時必須明確列出 `--allow-tool` 並加上 `--max-ai-credits`。
 
 ---
 
@@ -13839,6 +14629,18 @@ copilot -p "使用 test-agent 為 XXX 補測試。
 
 **共同特性**：兩者都支援**協作式、非同步的 agent 驅動開發工作**，直接發生在團隊溝通平台內。
 
+**2026-09-25 更新（仍為 Public Preview）**【Official，v1.3 補充】：
+
+| 面向 | 更新內容 |
+| --- | --- |
+| 更多 context | Slack：支援的檔案、附件與訊息連結；Teams：內嵌圖片、轉寄訊息、頻道與討論串歷史 |
+| 重複 issue 檢查 | 建立 issue 前先檢查是否已有重複，並保留回到原始討論的連結 |
+| 模型切換 | 可**逐則訊息**切換模型並在對話中延續；Slack 可設定預設擁有者與 repository |
+| 可靠度 | 長時間任務的狀態更新、中斷請求處理、重新連線行為改善 |
+| 前置條件 | 兩者都需啟用 **cloud agent 政策**；**Teams 另需啟用 cloud sandboxes**；安裝或升級對應平台的 GitHub app；用量計入既有 Copilot 額度並受 cloud agent 預算約束 |
+
+> 🚨 **新的資料流【建議】**：「檔案、附件、轉寄訊息、頻道歷史」都會成為 agent 的 context——**聊天平台中的機密附件會被送進 AI 處理**。啟用前請把「頻道中不得張貼的資料類型」寫進第 [36 章](#36-企業禁止事項) 的使用規範，並限制可安裝 GitHub app 的頻道。
+
 #### 32.6.2 這改變了什麼【建議】
 
 | 面向 | 改變前 | 改變後 |
@@ -13931,10 +14733,10 @@ copilot -p "使用 test-agent 為 XXX 補測試。
 
 | Agent | 可選模型 |
 | --- | --- |
-| Anthropic Claude（使用 Claude Agent SDK） | Auto、Claude Opus 4.7、Claude Sonnet 4.6 |
+| Anthropic Claude（使用 Claude Agent SDK） | Auto、Claude Sonnet 4.6、Claude Sonnet 5、Claude Opus 4.8、Claude Opus 4.8（fast mode，預覽）、Claude Opus 5、Claude Fable 5.1（v1.3 更新） |
 | OpenAI Codex（使用 Codex SDK） | Auto、GPT-5.3-Codex、GPT-5.4、GPT-5.4 nano |
 
-> 【⚠️ 文件不一致】上表模型中，**Claude Opus 4.7 預定 2026-10-02 退役**、**GPT-5.4 預定 2026-10-19 退役**，而 Claude Sonnet 4.6 已於 2026-09-01 對多數方案退役——但第三方 agent 的官方頁面在查證日仍列出這些模型。**企業若要把第三方 agent 納入標準流程，請先在 10 月退役後重新確認可選模型**，並優先使用 **Auto**。
+> 【⚠️ 文件不一致】（v1.3 更新）Claude 代理的清單已移除 Opus 4.7、新增 Sonnet 5／Opus 4.8／Opus 5／Fable 5.1；但仍列出**已對多數方案退役的 Claude Sonnet 4.6**，Codex 代理仍列出**預定 2026-10-19 退役的 GPT-5.4**。另請注意：**Claude Fable 5.1 不在 GitHub 資料保留協議涵蓋範圍內**（第 5.6.3 節），第三方代理選用它之前同樣需要法遵評估；而 Codex 代理的模型可用性**不受 Copilot 模型政策管控**。**企業若要把第三方 agent 納入標準流程，請先在 10 月退役後重新確認可選模型**，並優先使用 **Auto**。
 
 > 🚨 **兩個容易被忽略的治理邊界**【Official】
 >
@@ -13977,10 +14779,12 @@ GitHub Copilot app 是以 Copilot CLI 為基礎、**為代理驅動開發打造�
 | **政策** | Business／Enterprise 的 **GitHub Copilot app 政策預設啟用**，且**與 Copilot CLI 政策分開**——停用 CLI 不會停用 app |
 | **Content exclusion** | 遵守企業、組織與 repository 層的內容排除設定（2026-09-02 GA） |
 | **公開程式碼** | 🚨 即使政策設為 Block，app 仍可能產生相符的程式碼（見第 [27.7.2 節](#2772-必須知道的例外github-copilot-appofficial)） |
-| **本機 sandbox（2026-09-23，Public Preview）** | 限制檔案系統（額外讀寫、唯讀、拒絕清單）、網路（對外與區網）、憑證（Git HTTPS 憑證、GitHub CLI 憑證）；**預設關閉**，需在專案設定開啟「Sandbox new sessions」；**作業系統無法強制政策時會直接失敗，不會以無沙箱方式執行**；企業 managed settings 可以更嚴格；只適用本機 repository 與 worktree session |
+| **本機 sandbox（2026-09-23 預覽，2026-10-07 GA）** | 限制檔案系統（額外讀寫、唯讀、拒絕清單）、網路（對外與區網）、憑證（Git HTTPS 憑證、GitHub CLI 憑證）；**預設關閉**，需在專案設定開啟「Sandbox new sessions」；**作業系統無法強制政策時會直接失敗，不會以無沙箱方式執行**；企業 managed settings 可以更嚴格；只適用本機 repository 與 worktree session |
 | **OpenTelemetry（2026-09-22）** | 可透過企業 `managed-settings.json` 的 `telemetry` 屬性集中設定；**預設不擷取 prompt 與回應內容** |
 
-> 【⚠️ 文件不一致】`managed-settings.json` 參考頁在查證日仍寫 `telemetry`「支援 Copilot CLI 與 VS Code」，未列入 Copilot app；但 2026-09-22 的 Changelog 已宣布 app 支援。**以 Changelog 為準並實測**。
+> 【⚠️ 文件不一致】`managed-settings.json` 參考頁在查證日仍寫 `telemetry`「支援 Copilot CLI 與 VS Code」，未列入 Copilot app；但 2026-09-22 的 Changelog 已宣布 app 支援。**以 Changelog 為準並實測**。（v1.3 覆核：參考頁的支援矩陣 Copilot app 欄仍為「不支援」，續追。）
+
+> 📌 **v1.3 補充**【Official】：app 新增 **Computer use**（macOS／Windows，Public Preview，第 [8.15.2 節](#8152-computer-usepublic-previewofficial)）、**Dynamic workflows** 與 **Workflows** 監看按鈕（第 8.15.1 節），以及 Awesome Copilot marketplace 提供的 Azure canvases（Customize → Plugins）。app 的沙箱設定與 CLI **各自獨立**：在一邊啟用不會改變另一邊；app 顯示的是使用者的專案設定，**不會顯示完整的 managed 政策與逐項鎖定**——驗證時請以實際被拒絕的操作為準。
 
 #### 32.7.4 多代理環境的企業治理矩陣【建議】
 
@@ -14455,7 +15259,7 @@ flowchart TD
 | --- | --- | --- |
 | **L0：無治理** | 發了 License，沒有任何設定 | 🚨 極高：資料外洩、影子 MCP、品質失控 |
 | **L1：基本管控** | 有 Policy、有 Content Exclusion | ⚠️ 高：CLI 不受管、Agent 無標準 |
-| **L2：終端管控** | + `managed-settings.json`（MDM 下發） | ⚠️ 中：Agent 與 Skill 無審查 |
+| **L2：終端管控** | + `managed-settings.json`（server-managed＋MDM） | ⚠️ 中：Agent 與 Skill 無審查 |
 | **L3：資源治理** | + Agent/Skill/MCP/Plugin 審查與白名單 | 📌 低：但仍需驗證有效性 |
 | **L4：可觀測** | + Audit、OpenTelemetry、監控告警 | 📌 低 |
 | **L5：持續改善** | + 定期演練、KPI 追蹤、模型升級回歸測試 | ✅ 可控 |
@@ -14469,7 +15273,7 @@ flowchart TD
 □ 已依 Copilot allowlist reference 放行網域
 
 【L2 檢查】
-□ managed-settings.json 已透過 MDM 下發
+□ managed-settings.json 已下發（server-managed，資安底線另以 MDM／檔案型），並通過 6.4.7 檢查
 □ 已實測驗證設定確實生效（不只是佈署了）
 □ permissions.disableBypassPermissionsMode 設為 "disable"
 □ sandbox.enabled + failIfUnavailable 已設定
@@ -15184,13 +15988,20 @@ npm config get https-proxy
 | Token 用量異常 | `/context` 檢視；檢查 instructions 是否過長 |
 | Session 遺失 | 檢查 `~/.copilot/session-state/` |
 | 遠端操控無法使用 | 檢查 `managed-settings.json` 的 `remoteControl.mode` |
-| 想換設定目錄 | 設定 `COPILOT_HOME` 環境變數 |
+| 想換設定目錄 | 設定 `COPILOT_HOME` 環境變數（`--config-dir` 已 deprecated） |
+| Repository 的 `.github/copilot/settings.json` 某個設定沒生效 | 🚨 repository 層**只接受 14 個鍵**，其他鍵會被**靜默忽略**（第 8.9 節）；以第 5.6.4 節腳本檢查 |
+| 檔案型 managed settings 沒生效（macOS／Linux） | 檔案必須由 **root 擁有、不可被 group／other 寫入、不可是符號連結**；路徑為 `/etc/github-copilot/` 或 `/Library/Application Support/GitHubCopilot/`（第 6.4 節） |
+| Server-managed 設定沒生效 | 使用者是否從本企業取得授權？多授權者是否在「Usage billed to」選了本企業？等待約 1 小時或重新登入；檢查 AI controls → Agents 的「Copilot settings validation」 |
+| 模型被換成別的 | 檢查 repository 的 `.github/allowed_models.txt`：不允許的模型會改用 `fallback:` |
+| 選了本機 Ollama 模型卻仍有網路流量 | 選本機模型不等於離線，需設 `COPILOT_OFFLINE=true`（第 5.8.4 節） |
 
 **診斷指令組合**：
 
 ```bash
 copilot version                    # 版本
-copilot plugins list               # 已安裝的 plugin / MCP / skills
+copilot plugin list                # 已安裝的 plugin（舊別名：copilot plugins）
+copilot instruction                # 偵測到的指令來源
+copilot config --json              # 目前生效的設定（v1.3 新增）
 copilot mcp                        # MCP 設定
 ls -la ~/.copilot/                 # 設定目錄
 cat ~/.copilot/settings.json       # 使用者設定
@@ -15198,6 +16009,8 @@ tail -n 100 ~/.copilot/logs/*.log  # 最近日誌
 
 # 互動模式內
 /settings      # 檢視設定（含 Problems 分頁）
+/env           # 已載入的 instructions／MCP／skills／agents／hooks／plugins
+/sandbox policy  # 沙箱限制與其來源
 /context       # token 用量
 /agent         # 可用 agent
 /mcp           # MCP 狀態
@@ -15218,6 +16031,11 @@ tail -n 100 ~/.copilot/logs/*.log  # 最近日誌
 | HTTP hook 沒作用 | HTTP hook 是 **fail-open**；cloud agent 受防火牆限制 |
 | `ask` 在 cloud agent 變成拒絕 | **這是預期行為**：cloud agent 把 `ask` 視同 `deny` |
 | 企業 hook 被開發者停用 | 把關鍵 hook 移到 **policy 層**（`/etc/github-copilot/policy.d/`） |
+| `--allow-tool "shell(mvn *)"` 沒有放行 | CLI 的詞幹寫法是 `shell(mvn:*)`；空白加星號是 managed settings 的語法（第 8.6 節） |
+| managed `Shell(npm test*)` 沒有比對到 | managed settings 只有「指令 + 空白 + `*`」是前綴比對（第 6.4.2 節） |
+| 允許清單裡的 MCP server（以 `serverName` 列出）仍被擋 | 清單中已有 `serverUrl`／`serverCommand` 項目時，對應類型的 server 不再用名稱比對（第 14.5.2 節） |
+| Hook 在沙箱中失敗 | repository／user／plugin hook 在沙箱內執行；`cwd`、`env` 不會擴大權限，需把路徑加入 `sandbox.userPolicy`（第 13.13 節） |
+| Hook 的 matcher 寫了卻從不觸發 | 無效的 regex 會讓該項目被**靜默略過**；以 `^(?:PATTERN)$` 在本機先測 |
 
 ---
 
@@ -15714,9 +16532,9 @@ for case_file in "$CASES_DIR"/*/task-*.md; do
   git worktree add -q "$work" HEAD
 
   output=$(cd "$work" && copilot -p "$(cat "$case_file")" \
-             --allow-tool "shell(mvn *)" \
+             --allow-tool "shell(mvn:*)" \
              --allow-tool "write" \
-             --deny-tool "shell(git push *)" 2>&1 || true)
+             --deny-tool "shell(git push)" 2>&1 || true)
 
   # 檢查是否符合預期行為
   # （實務上會用更精確的斷言，例如檢查產出檔案、是否拒絕、是否詢問）
@@ -16181,6 +16999,96 @@ flowchart LR
 > 🎯 **本節最重要的一句話**：
 > 過去企業只能回答「**有多少人在用 Copilot**」；現在可以回答「**我們建立的 AI 資產有沒有被用、被用在哪裡、花了多少錢**」。
 > 這讓第 [12 章](#12-agent-skills) 與第 [11 章](#11-custom-agents) 的 Agent／Skill 投資**第一次可以被衡量 ROI**——而不能被衡量的投資，終究會在預算檢討時被砍掉。
+
+#### 44.5.3 2026 年 9 月底至 10 月的量測更新【Official + 建議】
+
+> 🆕 **v1.3 新增**
+
+**① PR 審查階段時間（2026-09-25）**【Official】
+
+repository 層報表新增 **`pull_request_review_times`** 陣列，把**已合併 PR** 的審查時間拆成三段，各有中位數與 P90（分鐘）：
+
+| 欄位 | 階段 |
+| --- | --- |
+| `median_/p90_minutes_ready_to_first_review` | 標為 ready 到第一次合格審查 |
+| `median_/p90_minutes_first_to_final_review` | 第一次到最後一次合格審查（只有一次審查時為 `0`） |
+| `median_/p90_minutes_final_review_to_merge` | 最後一次審查到合併 |
+
+**計入規則**：由人開啟、到達 ready、且**至少一位其他人**審查過的 PR；**只計人類審查**——Copilot code review、其他 bot 與作者本人的審查都不計時。排除：bot（含 cloud agent）建立的 PR、沒有合格人類審查、ready 時間未知、時間戳順序異常；**2026-09-21 以前就 ready 的 PR 不納入**，資料不回補。`[]` 代表**當天無資料**，不是 0 分鐘。
+
+**② 代理活動歸屬需要新版 IDE（2026-10-06）**【Official】
+
+代理 session 改由 Copilot SDK 執行後，無法辨識來源 IDE，導致代理活動**被漏算或誤記為 CLI**。修正需要的版本：
+
+| IDE | 修正版本 | 時程 |
+| --- | --- | --- |
+| VS Code | **1.139.0** 以上 | 已推出 |
+| Visual Studio | 18.12 | 預計 2026-10 |
+| JetBrains | 下一版外掛 | 預計 2026-10 下旬 |
+| Eclipse、Xcode | 下一版外掛 | 預計 2026-11 |
+
+影響代理活動次數與代理程式碼行數（`loc_added_sum`、`loc_deleted_sum`），涵蓋企業、組織與使用者層、1 天與 28 天報表。**計費不受影響，但缺漏的資料無法回補。** 官方建議：集中管理 IDE 版本、以使用者報表的 `last_known_ide_version`／`last_known_plugin_version` 監控、確認遙測未被停用且防火牆放行 Copilot 端點。
+
+> 🚨 **對 KPI 的直接衝擊【建議】**：2026-10 之前與之後的「代理採用率」**不可直接比較**——上升可能只是歸屬被修正。季報中請加註資料修正日期，並以 VS Code ≥ 1.139 的使用者子集作為趨勢基準。
+
+**③ 用腳本把審查階段變成可行動的指標【建議】**
+
+以下腳本讀取 repository 層 1 天報表（JSON 陣列或 NDJSON），計算涵蓋率與三個階段的「每日中位數依 PR 數加權平均」，指出主要瓶頸。它刻意**不把 `[]` 當成 0**，並同時印出涵蓋率，避免把「被排除的 PR」誤當成「審查很快」。
+
+```python
+#!/usr/bin/env python3
+"""從 Copilot usage metrics 的 repository 層 1 天報表（JSON 陣列或 NDJSON）
+彙總 pull_request_review_times，找出審查瓶頸。
+
+用法：python pr_review_stages.py report.json
+"""
+import json
+import sys
+
+STAGES = [
+    ("ready_to_first_review", "等待第一次審查"),
+    ("first_to_final_review", "審查來回"),
+    ("final_review_to_merge", "核准後等待合併"),
+]
+
+
+def load(path):
+    text = open(path, encoding="utf-8").read().strip()
+    if text.startswith("["):
+        return json.loads(text)
+    return [json.loads(line) for line in text.splitlines() if line.strip()]
+
+
+def main(path):
+    days = load(path)
+    covered = total = 0
+    weighted = {key: 0.0 for key, _ in STAGES}
+    for day in days:
+        total += (day.get("pull_requests") or {}).get("total_merged", 0)
+        for entry in day.get("pull_request_review_times") or []:   # [] 代表「無資料」，不是 0 分鐘
+            n = entry["total_merged"]
+            covered += n
+            for key, _ in STAGES:
+                weighted[key] += entry[f"median_minutes_{key}"] * n
+    if covered == 0:
+        print("期間內沒有符合條件的 PR（不是 0 分鐘）")
+        return 1
+    print(f"涵蓋率：{covered}/{total} 個已合併 PR（其餘為 bot／無人工審查／9/21 前就緒等排除項）")
+    for key, label in STAGES:
+        print(f"{label:<10} 每日中位數（依 PR 數加權平均）約 {weighted[key] / covered / 60:6.1f} 小時")
+    worst = max(STAGES, key=lambda s: weighted[s[0]])
+    print(f"主要瓶頸：{worst[1]}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1]))
+```
+
+**v1.3 實測**：以三天樣本（9 個已合併、其中 6 個合格；2 個已合併但 `[]`；5 個已合併、其中 4 個合格）執行，輸出「涵蓋率 10/16」、等待第一次審查約 3.8 小時、審查來回約 0.6 小時、核准後等待合併約 4.3 小時、主要瓶頸「核准後等待合併」——與手算 (300×6+120×4)/10＝228 分鐘一致；只含 `[]` 的報表則輸出「沒有符合條件的 PR」、離開碼 1。
+
+> ⚠️ **解讀原則**：中位數的加權平均**不是**整體中位數，只適合看趨勢與比較階段；要精確分位數請改用 P90 欄位或原始 PR 資料。若「核准後等待合併」最長，問題通常在 CI 或合併佇列，而不是審查者——這正是 AI 加速開發後最常出現的新瓶頸。
+
 
 ---
 
@@ -17126,7 +18034,7 @@ labels: setup
                  3. 檢查是否有 tools: [\"*\"] 的 agent，若有則列出（不要自行修改）
                  4. 檢查 copilot-instructions.md 是否超過 120 行，若是則列出建議拆分方案
                  產出報告，只修改 .gitignore 與 CODEOWNERS，其餘只回報不修改" \
-       --allow-tool "write" --deny-tool "shell(git push *)"
+       --allow-tool "write" --deny-tool "shell(git push)"
      # 人工審查後開 PR
    done
 
@@ -18738,9 +19646,13 @@ copilot help [TOPIC]             說明
 copilot init                     初始化 custom instructions
 copilot login [OPTION]           OAuth 認證
 copilot mcp                      管理 MCP server 設定
-copilot plugin                   管理 plugin 與 marketplace
-copilot plugins list             檢視 plugin / MCP / skills
+copilot config [KEY] [VALUE]     讀寫設定（v1.3 新增）
+copilot instruction              列出偵測到的指令來源（v1.3 新增）
+copilot lsp                      列出 language server（v1.3 新增）
+copilot plugin                   管理 plugin 與 marketplace（plugins 為舊別名）
+copilot sandbox ca SUBCOMMAND    沙箱 proxy 憑證（status/create/trust/rotate/remove）
 copilot skill                    管理 agent skills
+copilot workflow run NAME        執行 dynamic workflow（不顯示權限提示）
 copilot update                   更新到最新版本
 copilot version                  顯示版本
 ```
@@ -18758,8 +19670,10 @@ copilot version                  顯示版本
 
 ```text
 --allow-all-tools           🚨 允許所有工具（企業禁止）
---allow-tool "PATTERN"      允許特定工具
---deny-tool "PATTERN"       禁止特定工具（優先權高於 allow）
+--allow-tool "PATTERN"      允許特定工具，例："shell(git:*)"、"write"、"MyMCP(create_issue)"
+--deny-tool "PATTERN"       禁止特定工具（優先權高於 allow），例："shell(git push)"
+--max-ai-credits N          每個回應的 AI Credits 軟上限（v1.3 新增）
+--sandbox / --no-sandbox    本 session 開／關沙箱（managed 強制時 --no-sandbox 無效）
 ```
 
 ---
@@ -18780,10 +19694,17 @@ copilot version                  顯示版本
 /exit                關閉 session
 /help                指令說明（🔑 完整清單以此為準）
 /settings            設定（含 Problems 分頁）
-/settings sidebar    側邊欄設定
+/env                 已載入的 instructions／MCP／skills／agents／hooks
+/permissions MODE    default / assisted / allow-all / show（/allow-all、/yolo 為別名）
+/sandbox policy      沙箱限制與其來源
+/limits              每個回應的 AI Credits 上限
+/usage               本 session 的 token 與 AI Credits
+/security-review     本機變更的安全審查
+/workflows           dynamic workflow 執行狀態
+/undo                回溯（對話或對話＋檔案）
 ```
 
-> 📌 官方參考頁另有提及 `/fleet`、`/pr`、`/lsp`、`/model`、`/mcp`、`/skill` 等。
+> 📌 完整的企業相關指令分類見第 [8.4 節](#84-互動式-slash-commandsofficial)。v1.3 移除已不在參考頁的 `/settings sidebar`。
 > **完整且權威的清單請執行 `/help` 取得**——那是唯一與你安裝版本一致的來源。
 
 ---
@@ -18817,6 +19738,17 @@ GH_TOKEN                     GitHub CLI token
 GITHUB_TOKEN                 標準 GitHub token
 COPILOT_HOME                 設定目錄（預設 ~/.copilot）
 COPILOT_HOOK_ALLOW_LOCALHOST 允許 HTTP hook 指向 localhost（設為 1）
+COPILOT_GH_HOST              只給 Copilot CLI 用的 GitHub 主機（覆寫 GH_HOST）
+COPILOT_MODEL                預設模型
+COPILOT_AUTO_UPDATE          設為 false 停用自動更新（企業集中派送時）
+COPILOT_SKILLS_DIRS          額外的 skills 目錄（逗號分隔）
+COPILOT_CUSTOM_INSTRUCTIONS_DIRS 額外的指令目錄（逗號分隔）
+COPILOT_PROVIDERS_CONFIG     BYOK providers.json 位置
+COPILOT_OFFLINE              設為 true 才是離線模式（選本機模型不等於離線）
+COPILOT_PLAN_THEN_AUTOPILOT  🚨 計畫完成後不經核准直接 autopilot（企業管控）
+COPILOT_ALLOW_ALL            🚨 等同 --allow-all（企業禁止）
+GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS     -p 模式載入 repository hooks
+GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP  -p 模式載入 workspace MCP（預設停用）
 ```
 
 ---
@@ -18825,7 +19757,10 @@ COPILOT_HOOK_ALLOW_LOCALHOST 允許 HTTP hook 指向 localhost（設為 1）
 
 | 檔案 | 位置 | 用途 |
 | --- | --- | --- |
-| `managed-settings.json` | Windows `%APPDATA%\GitHub Copilot\`<br/>macOS `~/Library/Application Support/GitHub Copilot/`<br/>Linux `~/.config/GitHub Copilot/`<br/>（**⚠️ 官方文件對確切路徑描述不一致，需實測驗證**） | 企業 MDM 管控設定 |
+| `managed-settings.json` | Server-managed：`.github-private` repo 的 `copilot/managed-settings.json`<br/>檔案型：Windows `%ProgramFiles%\GitHubCopilot\`<br/>macOS `/Library/Application Support/GitHubCopilot/`<br/>Linux `/etc/github-copilot/`<br/>MDM：Registry `HKLM\SOFTWARE\Policies\GitHubCopilot`、macOS `com.github.copilot`（v1.3 更正） | 企業管控設定 |
+| `team-mappings.json`、`teams/*.json` | `.github-private` repo 的 `copilot/` | 企業團隊覆寫（僅 server-managed） |
+| `allowed_models.txt` | `.github/` | Repository 層模型白名單（僅 CLI） |
+| `providers.json` | `~/.copilot/` | BYOK provider／模型登錄 |
 | `settings.json` | `~/.copilot/` | 使用者設定（支援 JSONC） |
 | `settings.json` | `.github/copilot/` | Repository 設定 |
 | `settings.local.json` | `.github/copilot/` | 本機覆寫（⚠️ 需加入 .gitignore） |
@@ -18859,6 +19794,11 @@ COPILOT_HOOK_ALLOW_LOCALHOST 允許 HTTP hook 指向 localhost（設為 1）
 【兩個例外（MDM 永遠優先）】
 - permissions.disableBypassPermissionsMode = "disable" 永遠生效
 - MDM 的 sandbox 設定是最低基線，使用者只能收緊不能放寬
+
+【多種 managed 佈署並存（v1.3 新增）】
+MDM → server-managed → 檔案型 → 使用者設定（以「鍵」為單位決定）
+例外：sandbox 與 permissions.deny/ask/allow 一律往最嚴格方向合併
+deny、ask 取聯集；allow、limitTo 取交集
 
 【Permissions 內部優先權】
 deny > ask > allow
@@ -18899,8 +19839,12 @@ deny > ask > allow
 ### D.8 `managed-settings.json` 鍵速查【Official】
 
 ```text
-model                       預設模型（可設 "auto"）
+model                       預設模型（可設 "auto"；舊寫法 permissions.model）
+autoTier                    Auto 預設分級 efficiency/balance/intelligence/unmanaged（v1.3）
+features.computerUse        false = 禁止啟用 computer use（v1.3）
+forceRemoteSettingsRefresh  啟動時必須取得最新 server 政策（v1.3）
 permissions                 disableBypassPermissionsMode / deny / ask / allow
+                            （CLI 另有 limitTo：封閉式網域邊界）
 enabledPlugins              啟用／停用 plugin
 extraKnownMarketplaces      新增 marketplace（source: github/git/directory）
 strictKnownMarketplaces     限制安裝來源（source: github/git/url/npm/file/
@@ -18909,16 +19853,18 @@ telemetry                   OpenTelemetry 設定
 remoteControl               遠端操控（disabled/requireSSO/enabled）
 allowedMcpServers           MCP 白名單（serverUrl/serverCommand/serverName）
 deniedMcpServers            MCP 黑名單
-sandbox                     本機 sandbox 設定
+sandbox                     本機 sandbox（enabled/failIfUnavailable/allowBypass/
+                            auth.git/auth.gh/allowDevToolAccess/userPolicy...）
+【僅 CLI 的 MDM／檔案型】forceLoginOrgs、shellShortcut、policyHelper（尚未執行）
 ```
 
 **Permissions 選擇器**：
 
 ```text
-Shell(cmd) / PowerShell(cmd)     Shell 指令（支援 * 前綴比對）
-Read(path)                       檔案讀取（支援 glob）
-Edit(path) / Write(path)         檔案寫入
-Domain(host)                     網路來源（支援 *.example.com）
+Shell(cmd) / Bash(cmd) / PowerShell(cmd)   Shell 指令；只有「指令 + 空白 + *」是前綴比對
+Read(path)                       檔案讀取（glob；// 根、/ workspace、~/ 家目錄、./ 目前目錄）
+Edit(path) / Write(path)         檔案寫入（含 shell 重新導向與 sed -i）
+Domain(host)                     網路來源（*.example.com 含根網域）
 ```
 
 ---
@@ -19226,7 +20172,7 @@ flowchart TD
 ### F.1 版本查證記錄表
 
 > 本手冊所引述的官方事實，均於下表日期查證。
-> v1.2 已重新覆核的列更新為 **2026-09-25**；其餘列維持 v1.1 的查證日。第 81–111 列為 v1.2 新增。
+> v1.2 已重新覆核的列更新為 **2026-09-25**；其餘列維持 v1.1 的查證日。第 81–111 列為 v1.2 新增；**第 63 列與第 112–131 列為 v1.3（2026-10-10）更新或新增**，v1.3 的完整更正見附錄 I.3。
 > **官方文件持續更新，使用前請自行覆核。**
 
 | # | 查證項目 | 查證值 | 查證日期 | 來源 |
@@ -19293,7 +20239,7 @@ flowchart TD
 | 60 | 模型清單 | 多供應商（OpenAI / Anthropic / Google / Microsoft / xAI / Moonshot AI）；⚠️ **清單變動極快，查證日快照見第 5.6.1 小節與附錄 G，切勿寫死進企業規範** | 2026-09-25 | `/reference/ai-models/supported-models` |
 | 61 | Global model policy | **2026-08-26 GA**；未經管理員明確設定的模型，在 GA 時**預設開放** | 2026-09-10 | Changelog 2026-07-29「Default model enablement for Copilot Business and Enterprise」、2026-08-26「Global model policy generally available」 |
 | 62 | 模型退役（2026-09-01） | Claude Opus 4.5／4.6、Claude Sonnet 4.5／4.6、Gemini 3.1 Pro、Raptor mini（Sonnet 4.6 對個人年約訂閱者保留） | 2026-09-10 | Changelog 2026-07-31、2026-08-31 |
-| 63 | 模型退役（2026-10-02 預告） | Gemini 3.5 Flash、Gemini 3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7 | 2026-09-25 | Changelog 2026-09-03 |
+| 63 | 模型退役（2026-10-02，**已生效**） | Gemini 3.5 Flash、Gemini 3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7（替代 Opus 5.5） | 2026-10-10 | Changelog 2026-10-02、Model retirement history |
 | 64 | 席次計費變更 | Business／Enterprise 席次改為**預先付費**；新註冊者 2026-09-01、既有客戶 2026-10-01 生效；席次回收**不退款** | 2026-09-10 | Changelog 2026-08-28 |
 | 65 | 統一 Copilot 體驗 | **不早於 2026-09-28**；github.com Chat + GitHub Mobile Chat + cloud agent 合併；**Chat 資料保留由 28 天延長為帳號生命週期**；預設啟用；退出即失去 github.com 與 Mobile 的 Copilot 存取權 | 2026-09-10 | Changelog 2026-08-28 |
 | 66 | 使用者預算到期日 | 2026-09-01 起，user budgets 可設定到期日 | 2026-09-10 | Changelog 2026-09-01 |
@@ -19342,6 +20288,26 @@ flowchart TD
 | 109 | 用量指標新增 | VS Code Agents（09-11）、CLI 客製化（09-17）、功能黏著度（09-17） | 2026-09-25 | Changelog |
 | 110 | 預算提高申請 | 2026-09-16 GA；不適用 EMU | 2026-09-25 | Changelog 2026-09-16 |
 | 111 | JetBrains 1.18 | AI 輔助核可（preview）、共用 skills／instructions（GA）、MCP 工具控制（GA）；停止支援 2025.1 | 2026-09-25 | Changelog 2026-09-22 |
+| 112 | Managed settings 佈署方式 | server-managed（`.github-private`，預設）／MDM（`HKLM\SOFTWARE\Policies\GitHubCopilot`、`com.github.copilot`）／檔案（`%ProgramFiles%\GitHubCopilot`、`/Library/Application Support/GitHubCopilot`、`/etc/github-copilot`） | 2026-10-10 | `/how-tos/administer-copilot/manage-for-enterprise/use-managed-settings/deploy-managed-settings` |
+| 113 | Managed settings 新鍵 | `autoTier`、`features.computerUse`、`forceRemoteSettingsRefresh`；CLI：`forceLoginOrgs`、`shellShortcut`、`policyHelper`、`permissions.limitTo` | 2026-10-10 | `/reference/enterprise-administrators/enterprise-managed-settings`、CLI config dir reference |
+| 114 | 沙箱憑證鍵 | `sandbox.auth.git`／`auth.gh`（非 `gitAuth`／`ghAuth`） | 2026-10-10 | 同上 |
+| 115 | Shell 選擇器前綴 | 只有 `<command> *` 為前綴比對；CLI 旗標為 `shell(cmd:*)` | 2026-10-10 | managed settings 參考、CLI command reference |
+| 116 | Repository 設定鍵 | `.github/copilot/settings.json` 僅 14 鍵，其他靜默忽略 | 2026-10-10 | CLI config dir reference |
+| 117 | `.github/allowed_models.txt` | CLI repository 層模型白名單；`fallback:` 恰一行；不管 BYOK | 2026-10-10 | 同上 |
+| 118 | 設定驗證器 | AI controls → Agents「Copilot settings validation」（2026-09-25） | 2026-10-10 | Changelog 2026-09-25、get-started 頁 |
+| 119 | 本機沙箱 GA | CLI、Copilot app、VS Code Agent Host；三平台；MXC（2026-10-07） | 2026-10-10 | Changelog 2026-10-07、About cloud and local sandboxes |
+| 120 | Computer use | Public preview；CLI／app；macOS、Windows；預設停用；`features.computerUse` | 2026-10-10 | `/concepts/agents/computer-use` |
+| 121 | Dynamic workflows | Public preview；app／CLI／SDK；`copilot workflow run`；四種上限 | 2026-10-10 | `/concepts/agents/dynamic-workflows` |
+| 122 | HydraFusion | Research preview；Single／Cascade／Critique；VS Code 1.140+ | 2026-10-10 | Changelog 2026-09-30 |
+| 123 | 新模型 | Claude Sonnet 5.5（09-28）、GPT-6.1 Sol（09-29，Pro+ 以上）、Claude Haiku 5.5（10-07） | 2026-10-10 | Supported models、Changelog |
+| 124 | Auto with task optimization | JetBrains 已 GA；`autoTier` 需 CLI 1.0.87-0／VS Code 1.140.0 | 2026-10-10 | Auto model selection、managed settings 參考 |
+| 125 | Code review 預設等級 | 2026-09-28 起 Balanced 已生效（明確 Lite 保留）；內建預設 Balanced | 2026-10-10 | Changelog 2026-10-02、code review 概念頁 |
+| 126 | Code review API | REST／GraphQL（GA，2026-10-02）；REST 以 `copilot-pull-request-reviewer[bot]` 為 reviewer | 2026-10-10 | Changelog、Using code review 頁、REST review requests |
+| 127 | 內容排除支援矩陣 | VS Code Edit／Agent ❌；JetBrains、Visual Studio chat／agent ✅；網站與 Mobile 預覽 | 2026-10-10 | Content exclusion 概念頁 |
+| 128 | PR 審查階段指標 | `pull_request_review_times`（repository 層，只計人類審查，9/21 前 ready 者排除） | 2026-10-10 | Usage metrics 參考、Changelog 2026-09-25 |
+| 129 | 代理指標歸屬 | 需 VS Code 1.139.0+、VS 18.12、新版 JetBrains／Eclipse／Xcode 外掛；不回補 | 2026-10-10 | Changelog 2026-10-06 |
+| 130 | AI 密鑰偵測模型 | 2026-10-07；無格式密碼；AI push protection 為 private preview、耗 AI Credits | 2026-10-10 | Changelog 2026-10-07 |
+| 131 | CLI 本機模型探索 | CLI 1.0.94-0；Ollama；離線需 `COPILOT_OFFLINE=true` | 2026-10-10 | Changelog 2026-10-07 |
 
 ---
 
@@ -19374,7 +20340,7 @@ flowchart TD
 ☑ Copilot CLI（`copilot`）與 GitHub CLI 的 `gh copilot` extension 已區分
 
 【版本標示】
-☑ 十一個關鍵版本差異已在文件開頭以 Version Note 標示
+☑ 十二個關鍵版本差異已在文件開頭以 Version Note 標示
 ☑ 每個功能均標示來源等級（【Official】/【建議】/【Preview】/【Community】）
 ☑ 價格與方案已註明「以官方公告為準」
 ☑ v1.2 新增小節均標示「🆕 v1.2 新增」；更正處均標示「⚠️ v1.2 更正」
@@ -19453,11 +20419,12 @@ flowchart TD
 | **2026-08-26** | Global model policy GA：未經明確設定的模型**預設開放** | 新模型自動對全體使用者開放，可能違反供應商／地區限制與成本控制 | 建立**主動白名單**，對每個模型做出明確決定；指派負責人每月覆核 | [5.6](#56-模型存取權與-global-model-policyofficial)、[6.10](#610-模型治理與模型退役管理official--建議) |
 | **2026-09-01** | Copilot code review 可核准 PR（preview，預設關閉） | 若被誤啟用，AI 產生的 PR 可能被 AI 核准後合併，擊穿四眼原則 | 確認 Enterprise 層設定；若啟用，完成 30.6.4 全部條件 | [30.6](#306-copilot-核准-pull-request-的治理preview) |
 | **2026-09-01**（新客）<br/>**2026-10-01**（既有客戶） | Business／Enterprise 席次改為**預先付費** | 未付款席次的同仁**完全無法使用** Copilot | 調整 onboarding 流程：付款先於席次指派；重編年度預算 | [5.7.1](#571-席次改為預先付費official) |
-| **2026-09-28** | Code review 預設效力等級 **Lite → Balanced** | AI Credits 與 Actions 用量上升，帳單增加 | 想維持 Lite 者**必須在生效日前明確選定**（2026-09-23 起企業層可統一設定） | [5.7.3](#573-copilot-code-review-預設效力等級變更official)、[30.5](#305-效力等級與成本official--建議) |
-| **不早於 2026-09-28** | 統一 Copilot 體驗；**Chat 資料保留 28 天 → 帳號生命週期** | 可能牴觸內部資料保留政策與 DPIA；退出的代價是失去 github.com／Mobile 的 Copilot | 完成 6.12.3 的 8 項法遵必辦清單 | [6.12](#612-統一-copilot-體驗與資料保留期限變更official) |
-| **2026-10-02** | 模型退役：Gemini 3.5／3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7 | 寫死該模型的 Agent／CI **靜默回退**，品質劣化且無錯誤日誌 | 執行 6.10.3 的【退役應變】流程 | [6.10](#610-模型治理與模型退役管理official--建議) |
-| 🆕 **2026-10-19** | 模型退役：Gemini 3.7 Flash、GPT-5.5、GPT-5.4、GPT-5.4 mini、GPT-5 mini、Grok 4.5 | 同上；GPT-5 mini、GPT-5.4 mini 常被當作低成本預設，影響面廣 | 執行 6.10.3【退役應變】；確認替代模型（GPT-5.6 Sol／Luna、Gemini 3.8 Flash、Grok 4.6）已明確啟用 | [6.10](#610-模型治理與模型退役管理official--建議) |
-| 🆕 **2026-10-22** | **Default policy for new features 生效**：Unconfigured 的 GA 功能（含 code review、MCP servers in Copilot）依全域預設開啟 | 未經審查的功能自動對全員開放；MCP 治理第一道閘門失效 | 完成 6.13.5 的盤點 SOP；高風險政策逐項明確設定 | [6.13](#613-新功能預設啟用政策default-policy-for-new-featuresofficial--建議) |
+| **2026-09-28** ✅ 已生效 | Code review 預設效力等級 **Lite → Balanced** | AI Credits 與 Actions 用量上升，帳單增加 | 想維持 Lite 者**現在明確選定**仍有效（2026-09-23 起企業層可統一設定）；以 PR overview 留言確認實際等級 | [5.7.3](#573-copilot-code-review-預設效力等級變更official)、[30.5](#305-效力等級與成本official--建議) |
+| **不早於 2026-09-28** ⏳ v1.3 查證日未生效 | 統一 Copilot 體驗；**Chat 資料保留 28 天 → 帳號生命週期** | 可能牴觸內部資料保留政策與 DPIA；退出的代價是失去 github.com／Mobile 的 Copilot | 完成 6.12.3 的 8 項法遵必辦清單 | [6.12](#612-統一-copilot-體驗與資料保留期限變更official) |
+| **2026-10-02** ✅ 已生效 | 模型退役：Gemini 3.5／3.6 Flash、Kimi K2.7 Code、Claude Opus 4.7 | 寫死該模型的 Agent／CI **靜默回退**，品質劣化且無錯誤日誌 | 以 6.10.1 的檢查腳本確認已無殘留；替代模型為 Gemini 3.8 Flash、Kimi K3、**Claude Opus 5.5** | [6.10](#610-模型治理與模型退役管理official--建議) |
+| 🆕 **2026-10-19** ⏳ | 模型退役：Gemini 3.7 Flash、GPT-5.5、GPT-5.4、GPT-5.4 mini、GPT-5 mini、Grok 4.5 | 同上；GPT-5 mini、GPT-5.4 mini 常被當作低成本預設，影響面廣 | 執行 6.10.3【退役應變】；確認替代模型（GPT-5.6 Sol／Luna、Gemini 3.8 Flash、Grok 4.6）已明確啟用 | [6.10](#610-模型治理與模型退役管理official--建議) |
+| 🆕 **2026-10-22** ⏳ | **Default policy for new features 生效**：Unconfigured 的 GA 功能（含 code review、MCP servers in Copilot）依全域預設開啟 | 未經審查的功能自動對全員開放；MCP 治理第一道閘門失效 | 完成 6.13.5 的盤點 SOP；高風險政策逐項明確設定 | [6.13](#613-新功能預設啟用政策default-policy-for-new-featuresofficial--建議) |
+| 🆕 **2026-10 至 11 月**（v1.3） | 代理活動指標需新版 IDE 才能正確歸屬（VS Code 1.139.0+；VS 18.12、JetBrains、Eclipse、Xcode 陸續） | 代理採用率被低估或誤記為 CLI，且**無法回補** | 集中升級 IDE；以 `last_known_ide_version` 監控 | [44.5.3](#4453-2026-年-9-月底至-10-月的量測更新official--建議) |
 
 ---
 
@@ -19525,20 +20492,20 @@ flowchart TD
 
 | 供應商 | 查證日在列的模型 |
 | --- | --- |
-| **OpenAI** | GPT-5 mini ‡、GPT-5.3-Codex（Base／LTS）、GPT-5.4 ‡、GPT-5.4 mini ‡、GPT-5.4 nano、GPT-5.5 ‡、GPT-5.6 Luna、GPT-5.6 Sol、GPT-5.6 Terra、GPT-6 Astra、GPT-6 Luna、GPT-6 Sol |
-| **Anthropic** | Claude Haiku 4.5、Claude Sonnet 4.6（僅個人年約訂閱者保留）、Claude Sonnet 5、Claude Opus 4.7 †、Claude Opus 4.8、Claude Opus 4.8 (fast mode, Preview)、Claude Opus 5、Claude Opus 5.5、Claude Fable 5、Claude Fable 5.1 |
-| **Google** | Gemini 3.5 Flash †、Gemini 3.6 Flash †、Gemini 3.7 Flash ‡、Gemini 3.8 Flash |
+| **OpenAI** | GPT-5 mini ‡、GPT-5.3-Codex（Base／LTS）、GPT-5.4 ‡、GPT-5.4 mini ‡、GPT-5.4 nano、GPT-5.5 ‡、GPT-5.6 Luna、GPT-5.6 Sol、GPT-5.6 Terra、GPT-6 Astra、GPT-6 Luna、GPT-6 Sol、**GPT-6.1 Sol** |
+| **Anthropic** | Claude Haiku 4.5、**Claude Haiku 5.5**、Claude Sonnet 4.6（僅個人年約訂閱者保留）、Claude Sonnet 5、**Claude Sonnet 5.5**、Claude Opus 4.8、Claude Opus 4.8 (fast mode, Preview)、Claude Opus 5、Claude Opus 5.5、Claude Fable 5、Claude Fable 5.1 |
+| **Google** | Gemini 3.7 Flash ‡、Gemini 3.8 Flash |
 | **Microsoft** | MAI-Code-1.1-Flash |
 | **xAI** | Grok 4.5 ‡、Grok 4.6、Grok 4.7 |
-| **Moonshot AI** | Kimi K2.7 Code †、Kimi K3 |
+| **Moonshot AI** | Kimi K3 |
 
-† 預定 2026-10-02 退役；‡ 預定 2026-10-19 退役。表格查證日：**2026-09-25**（v1.2 更新）。另有四個 **utility models**（GPT-4o mini、GPT-4o、GPT-4.1、GPT-5.4 nano）不出現在模型選單，見第 [5.8.3 節](#583-utility-modelsofficial)。
+‡ 預定 2026-10-19 退役。表格查證日：**2026-10-10**（v1.3 更新；10/02 退役的 Claude Opus 4.7、Gemini 3.5／3.6 Flash、Kimi K2.7 Code 已移除）。另有四個 **utility models**（GPT-4o mini、GPT-4o、GPT-4.1、GPT-5.4 nano）不出現在模型選單，見第 [5.8.3 節](#583-utility-modelsofficial)。
 
 **三個必須知道的模型事實**【Official】：
 
-1. **可用性同時受 Plan、Surface、Policy 三個維度限制**，三者是 AND 關係。使用者「看不到某個模型」的排查順序應為 Policy → Plan → Surface。
+1. **可用性同時受 Plan、Surface、Policy 三個維度限制**，三者是 AND 關係；v1.3 起再加上**用戶端最低版本**（第 5.6.2 節）。使用者「看不到某個模型」時，先查 Policy（最常見），再依 Plan → Surface → 用戶端版本排查。
 2. **不同模型的介面覆蓋範圍不同。** 部分模型僅在 Copilot Chat 與 CLI 可用，未涵蓋 cloud agent 或 code completion。
-3. **部分模型有專屬的資料處理條款。** 例如官方文件對 Claude Fable 系列註明 Anthropic 預設會保留資料以運作安全分類器。**這類條款必須納入法遵評估**，不能只看模型能力。
+3. **部分模型有專屬的資料處理條款。** 例如官方文件對 Claude Fable 系列註明 Anthropic 預設會保留資料（含 prompt 與輸出）以運作安全分類器；客戶可依**限時豁免**申請以零資料保留（ZDR）使用，**期限至 2026 年底**，屆時 Anthropic 改以 Enterprise Frontier Safeguards（EFS）處理（v1.3 補充）。**這類條款必須納入法遵評估，並把 2026-12-31 列入第 41 章的維運行事曆**，不能只看模型能力。
 
 > ⚠️ **v1.2 更正【⚠️ 文件不一致】**
 > v1.1 查證時，官方 Supported models 參考頁未列出退役模型；**現已新增「Model retirement history」表**，列出已退役與預定退役的模型及建議替代模型。
@@ -19665,6 +20632,8 @@ flowchart TD
 
 ### H.5 待追蹤項目
 
+> 📌 v1.3（2026-10-10）已逐項覆核下表，結案與續追狀態見附錄 [I.5](#i5-待追蹤項目)。
+
 | 項目 | 追蹤原因 | 建議覆核時間 |
 | --- | --- | --- |
 | 統一 Copilot 體驗的實際上線日 | 官方僅公告「不早於 2026-09-28」 | 2026-09-28 後每週 |
@@ -19680,19 +20649,150 @@ flowchart TD
 
 ---
 
+## 附錄 I：v1.3 查證紀錄
+
+> 🆕 **v1.3 新增**
+>
+> 本附錄記錄 v1.2（2026-09-25）→ v1.3（2026-10-10）的查證範圍、更正項目、新增章節與實測紀錄，供下一次改版直接接續。
+
+---
+
+### I.1 查證基準
+
+| 項目 | 基準 |
+| --- | --- |
+| 查證日期 | **2026-10-10** |
+| GitHub 官方文件 | 以 `docs.github.com/api/pagelist` 取得 `/en/copilot` 下全部頁面清單，**下載 543 頁原始 Markdown** 逐章比對；矩陣表的 SVG 圖示轉回「Supported／Included」文字後再比對 |
+| 其他官方來源 | REST API「review requests」頁；Spring Boot 4.0 Migration Guide（第 23.3 節） |
+| GitHub Changelog | `copilot` 標籤 **2026-09-25 ~ 2026-10-07** 共 19 則逐則閱讀 |
+| 交叉比對 | 同系列《GitHub Copilot 生態圈教學手冊》v8.0（2026-10-10）的更正紀錄僅作為查證線索，本手冊內容皆回到官方原文重新確認並重寫 |
+| 實測環境 | Windows 11 + Git Bash、Python 3.12（標準函式庫、`python -X utf8 -I`）、GitHub CLI |
+
+**實測紀錄**（新增或修改的可執行範例，全部以正例與反例實際執行）：
+
+| 範例 | 位置 | 正例 | 反例 |
+| --- | --- | --- | --- |
+| `check_managed_settings.py` | 6.4.7 | v1.3 基線 → 0 錯誤、離開碼 0 | v1.2 基線 → 2 ERROR＋10 WARN；刻意錯誤檔 → 5 ERROR＋4 WARN；壞 JSON → 離開碼 2 |
+| `check_repo_copilot_config.py` | 5.6.4 | 合法 settings.json（含 `//` 註解）＋ allowed_models.txt → 通過 | `allowedUrls`、`sandbox` 鍵、萬用字元 fallback、否定樣式 → 4 ERROR |
+| 退役模型掃描（bash） | 6.10.1 | 只有 `gpt-5.4-nano`、`gpt-5.6-sol`、`grok-4.6` → ✅（不誤判）；無 `.github/` → ✅ | `claude-opus-4.7`、`--model=gpt-5.4`、`gpt-5-mini`、`gemini-3.7-flash` → ❌ 並列出位置 |
+| Spring Boot 4 殘留檢查（bash） | 23.3 | 完成遷移樣本（含 `com.fasterxml.jackson.annotation`、`target/` 舊檔）→ 全 ✅ | 保留 Jackson 2、`@MockBean`、`starter-web`、Undertow、`javax.servlet` → 5 項 ❌ |
+| `pr_review_stages.py` | 44.5.3 | 三天樣本 → 涵蓋率 10/16、瓶頸「核准後等待合併」，與手算一致 | 只有 `[]` 的報表 → 「沒有符合條件的 PR」、離開碼 1 |
+| `gh api` 請求 Copilot 審查 | 30.8.1 | 對不存在的 repo 送出 → body 為 `{"reviewers":["copilot-pull-request-reviewer[bot]"]}`、404 | 以 `/repos/...` 開頭在 Git Bash 執行 → 路徑被改寫而失敗（已在本文提醒） |
+
+> 📌 實測過程中發現兩個「AI 草稿看起來對、其實錯」的案例，均已修正並寫入本文：退役掃描的 `grep … && … || …` 串接在目錄不存在時會誤報 ✅；退役樣式 `gpt-5[.-]4` 會誤判未退役的 `gpt-5.4-nano`。
+
+---
+
+### I.2 已查閱的主要官方頁面
+
+- **企業治理**：Enterprise managed settings（含用戶端支援矩陣）、Getting started with enterprise-managed settings、Choosing how to deploy enterprise-managed settings、Overriding settings for teams、Using managed settings without organizations、Supported surfaces for policies、Default availability、Content exclusion
+- **Copilot CLI**：CLI command reference（指令、slash commands、選項、工具權限樣式、環境變數、內建代理、subagent 限制、skills、custom agents、enterprise MCP allowlist）、CLI configuration directory（settings.json、repository 設定鍵、`allowed_models.txt`、MDM 設定）、About Copilot CLI（MCP 政策限制）
+- **沙箱**：About cloud and local sandboxes、Understanding filesystem policies for local sandboxing
+- **模型**：Supported AI models（方案矩陣、最低 IDE 版本、退役歷史、預設啟用排除）、About auto model selection、BYOK
+- **代理與功能**：Computer use、Dynamic workflows、Copilot Memory、Third-party coding agents（Anthropic Claude、OpenAI Codex）、Hooks reference、Custom agents configuration
+- **Code review**：About Copilot code review（效力等級、計費、外部授權）、Configuring code review、Using code review（REST 請求）
+- **量測**：Copilot usage metrics reference（`pull_request_review_times`、`last_known_ide_version`）
+- **Changelog（2026-09-25 ~ 10-07）**：Enterprise managed settings in-product validator、Usage metrics API adds PR review stages、Agentic autofix now uses Copilot Memory、Weekly releases（9/21、9/28）、Slack 與 Teams 更新、Claude Sonnet 5.5、GPT-6.1 Sol、HydraFusion、Dynamic workflows、Computer use、VS Code September releases、Selected models deprecated（10/02）、Code review API support and new default effort level、Update your IDE to restore agent activity in metrics、Discover local models in CLI、Local sandboxing GA、Purpose-built model for leaked secret detection、Claude Haiku 5.5
+
+---
+
+### I.3 更正對照表（v1.2 → v1.3）
+
+| 章節 | v1.2 內容 | v1.3 更正 |
+| --- | --- | --- |
+| Version Note 7、6.4、D.5 | `managed-settings.json` 透過 MDM 佈署；路徑為 `%APPDATA%\GitHub Copilot\`、`~/.config/GitHub Copilot/` 等使用者目錄，並標【⚠️ 文件不一致】 | 官方定義**三種佈署方式**（server-managed 為預設、MDM、檔案）；檔案型路徑為系統層 `%ProgramFiles%\GitHubCopilot\`、`/Library/Application Support/GitHubCopilot/`、`/etc/github-copilot/`；macOS／Linux 須 root 擁有且不可被他人寫入 |
+| 6.4.1 | 鍵表無用戶端支援度 | 補官方支援矩陣：`permissions.deny/ask/allow` 與 `sandbox` 在 JetBrains **不支援**；cloud agent 只支援 `model` 與 plugin 三鍵 |
+| 6.4.2、D.8 | `Shell(cmd)` 支援以 `*` 做前綴比對 | 只有「指令＋空白＋`*`」是前綴；其他寫法為精確字串；`Edit` 涵蓋 shell 重新導向 |
+| 6.4.3 | 基線範例含 `gitAuth`／`ghAuth`、`Shell(mvn test*)` 等 7 條無效前綴規則、`Shell(curl * \| sh)`、與 `serverUrl` 並存的 `serverName` | 改為 `auth.git`／`auth.gh`、`Shell(mvn test *)`；移除中間萬用字元規則（改由 hook）；remote MCP 改用 `serverUrl` |
+| 8.7 | 沙箱範例使用 `gitAuth`／`ghAuth` | 改為 `auth.git`／`auth.gh`；補 GA 狀態、MXC、平台需求、驗證清單 |
+| 8.6、8.11、8.16、42.3、47.6 | CLI 範例 `--allow-tool "shell(mvn *)"`、`--deny-tool "shell(git push *)"` | CLI 的詞幹寫法為 `shell(mvn:*)`；`shell(git push)` 即可比對其後參數 |
+| 8.9 | repository 層範例使用 `allowedUrls` | repository 層只支援 14 個鍵，`allowedUrls` 會被**靜默忽略**；範例改用 `deniedUrls` 並補鍵表 |
+| 8.3、D.1、15、40.5 | `copilot plugins list` | `copilot plugin list`（`plugins` 為舊別名）；補 `config`、`instruction`、`lsp`、`sandbox ca`、`workflow run` |
+| 8.4、D.2 | 列出 `/settings sidebar` | 參考頁已無此指令；依企業用途重整 slash command 表 |
+| 5.6.1、G.5 | 模型表含 Opus 4.7、Gemini 3.5／3.6 Flash、Kimi K2.7 Code（標示預定退役） | 已於 10/02 退役並移除；新增 GPT-6.1 Sol、Claude Sonnet 5.5、Claude Haiku 5.5 |
+| 6.10.1、G.1 | 10/02 退役替代模型為 Claude Opus 5 | 依 10/02 Changelog 更正為 **Claude Opus 5.5**；狀態改為「已生效」 |
+| 5.6.3、6.13 | 開放權重模型排除清單含 Kimi K2.7 Code | Kimi K2.7 Code 已退役，清單改為 DeepSeek、Kimi K3 |
+| 5.8.1 | Auto with task optimization 不含 JetBrains | JetBrains 已 GA；補 `autoTier` 管理員預設分級 |
+| 5.7.3、30.1、30.5、30.7.2 | Balanced「將」成為預設；內建預設為 Lite；部分擁有者為 Balanced | **9/28 已生效**（新舊 repository 與組織皆適用，明確 Lite 保留）；內建預設為 **Balanced** |
+| 6.5 | IDE Edit／Agent 模式是否涵蓋內容排除標【⚠️ 文件不一致】 | 官方矩陣明確：VS Code Edit／Agent ❌；JetBrains、Visual Studio chat／agent ✅；網站與 Mobile 為預覽——結案 |
+| 7.12.3 | JetBrains managed settings 涵蓋範圍不明 | 依官方矩陣部分結案；`sandbox` 標示不支援，與 9/08 Changelog 矛盾，續追 |
+| 12.2 | skill `name` 只能英數字與連字號 | 允許英數字、連字號、底線、點、冒號與空白（冒號為命名空間） |
+| 13.6 | matcher 表未列 `permissionRequest` | 補列；補無效 regex 會被略過、工具名稱清單 |
+| 14.5.2 | 範例 `serverName` 與 `serverUrl`／`serverCommand` 並列，未說明比對規則 | 補官方比對規則：有對應類型項目時 `serverName` 不再生效 |
+| 32.7.1 | Claude 代理模型為 Auto、Opus 4.7、Sonnet 4.6 | 更新為 Sonnet 4.6、Sonnet 5、Opus 4.8（含 fast mode）、Opus 5、Fable 5.1 |
+| 32.7.3 | Copilot app 本機沙箱為 Public Preview | 2026-10-07 GA |
+| Version Notes | 十一個 | 新增 **Version Note 12**（managed settings 的三種佈署方式） |
+
+---
+
+### I.4 v1.3 新增章節
+
+| 章節 | 標題 |
+| --- | --- |
+| Version Note 12 | `managed-settings.json` 不再只是「用 MDM 推到每台電腦的檔案」 |
+| 5.6.4 | Repository 層模型白名單：`.github/allowed_models.txt`（Copilot CLI） |
+| 5.8.5 | HydraFusion：多模型協作的模型選項 |
+| 6.4.7 | AI 產出設定檔的審查與自動檢查 |
+| 8.15 | Dynamic Workflows、Computer Use 與成本上限（2026-10） |
+| 13.13 | 沙箱中的 Hook 與設定檔的容錯行為 |
+| 27.8.5 | AI 偵測密鑰與 `/security-review`（2026-10） |
+| 30.8 | 以 API 請求 Copilot code review 與授權來源控管（2026-10） |
+| 44.5.3 | 2026 年 9 月底至 10 月的量測更新 |
+| 附錄 I | v1.3 查證紀錄（本附錄） |
+
+另於既有章節擴充（不新增標題）：5.6.2 用戶端最低版本與驗證步驟、5.8.4 本機模型探索與離線模式、6.4 佈署方式與 MDM 字串值、6.10.1 退役掃描腳本、10.7 指令生效驗證、23.3 Spring Boot 3.x→4.x 斷點與殘留檢查、32.6 Slack／Teams 9/25 更新、40.5／40.6 新症狀、附錄 D 速查、附錄 F.1 第 112–131 列、附錄 G.1 新增指標歸屬列。
+
+> 📌 新增小節皆插入於各章「本章實務案例」之前，原「本章實務案例」與「注意事項」的編號依序順延（8.15→8.16→8.17、13.13→13.14→13.15、30.8→30.9→30.10）；全書目錄已依 Hugo 實際錨點重建。
+
+---
+
+### I.5 待追蹤項目
+
+**I.5.1 附錄 H.5 各項的處理結果**
+
+| H.5 項目 | v1.3 結果 |
+| --- | --- |
+| 統一 Copilot 體驗的實際上線日 | ⏳ **續追**：Chat 文件仍寫 28 天；整合功能已部分出現（6.12） |
+| Code review 預設 Balanced 的實際套用範圍 | ✅ **結案**：9/28 起新舊 repository 與組織皆適用，明確 Lite 保留 |
+| 2026-10-22 新功能預設政策生效後的實際行為 | ⏳ **續追**：生效日未到 |
+| 10/19 退役模型未列入官方退役歷史表 | ⏳ **續追**：查證日仍未列入 |
+| 第三方 agent 的可選模型 | ⏳ **續追**：Claude 已更新，仍含 Sonnet 4.6；Codex 仍含 GPT-5.4 |
+| 企業層 code review 預設效力等級在決定順序中的位置 | ⏳ **續追**：概念頁仍未列入企業層 |
+| `telemetry` 在 Copilot app 的支援 | ⏳ **續追**：參考頁矩陣仍為「不支援」 |
+| Local BYOK 在 CLI 與 Copilot app 的政策控制 | ⏳ **續追**：仍只明載 IDE；CLI 可用 `forceLoginOrgs` 拒絕 BYOK 登入作為替代 |
+| Code review「Max」效力等級 | ⏳ **續追**：仍標 Coming soon |
+| Agent apps、第三方 agent、Automations、Agentic Workflows 的 GA 時程 | ⏳ **續追**：均仍為 Public Preview |
+
+**I.5.2 v1.3 新增的待追蹤項目**
+
+| 項目 | 追蹤原因 | 建議覆核時間 |
+| --- | --- | --- |
+| 10/19 模型退役與 10/22 新功能預設政策 | 生效後確認實際行為與 Unconfigured 計數 | 2026-10-20、10-23 |
+| Code review API 的效力等級參數 | Changelog 宣布可指定，REST 參考頁未列參數 | 下次改版 |
+| JetBrains 的 managed `sandbox` | 參考頁矩陣「不支援」與 9/08 Changelog 矛盾 | 下次改版 |
+| Subagent 預設深度與並行上限 | CLI 參考頁設定表（6／32）與環境變數表（4／32）不一致 | 下次改版 |
+| Hooks reference 的 cloud agent 網路描述 | 寫「只能連 GitHub／Copilot 主機」，與防火牆頁的建議允許清單不一致 | 下次改版 |
+| Dynamic workflows 在 CLI 是否需 `--experimental` | Changelog 與概念頁說法不同 | 每月 |
+| Computer use、Dynamic workflows、HydraFusion 的 GA 時程 | 均為預覽；GA 當天即受 6.13 預設政策影響 | 每月 |
+| 代理指標所需的 VS 18.12 與 JetBrains／Eclipse／Xcode 新外掛 | 官方預計 2026-10–11 推出 | 2026-11 |
+| Claude Fable 系列 ZDR 限時豁免 | 至 2026 年底，之後改用 EFS | 2026-12 |
+| `policyHelper` 執行功能 | 官方註明「尚未推出」 | 每季 |
+
+---
+
 ## 文件結束
 
 > **《GitHub Copilot 企業級軟體開發教學手冊》**
 >
-> 文件版本：1.2\
+> 文件版本：1.3\
 > 初版日期：2026-09-10\
-> 最後改版：2026-09-25\
-> 最後查證：2026-09-25（含 GitHub Changelog 2026-08-01 ~ 2026-09-24 逐則覆核；v1.2 查證紀錄見附錄 H）\
-> 篇幅：8 部、51 章 + 附錄 A–H\
+> 最後改版：2026-10-10\
+> 最後查證：2026-10-10（含 GitHub Changelog 2026-08-01 ~ 2026-10-07 逐則覆核；v1.3 查證紀錄見附錄 I）\
+> 篇幅：8 部、51 章 + 附錄 A–I\
 > 維護者：企業架構團隊\
 > 回饋管道：請於內部 repository 開 Issue
 >
 > 本手冊為企業內部教育訓練教材。\
-> 所有【Official】內容以附錄 F.1 各列查證日（最新為 2026-09-25）之官方文件為準；\
+> 所有【Official】內容以附錄 F.1 各列查證日（最新為 2026-10-10）之官方文件為準；\
 > 所有【建議】內容為企業實務設計，非官方規範。\
 > **使用前請覆核官方文件目前狀態。**
