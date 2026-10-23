@@ -1,5 +1,6 @@
 +++
 date = '2026-07-01T10:00:00+08:00'
+lastmod = '2026-10-23T20:00:00+08:00'
 draft = false
 title = 'AutoResearch 驅動 SSDLC（安全軟體開發生命週期）教學手冊'
 tags = ['教學', 'AI開發', 'SSDLC', 'DevSecOps', 'Claude Code', 'GitHub Copilot']
@@ -8,6368 +9,4688 @@ categories = ['教學']
 
 # AutoResearch 驅動 SSDLC（安全軟體開發生命週期）教學手冊
 
-> **版本**：v3.0  
-> **日期**：2026-07-01  
-> **上次更新**：2026-07-01  
-> **適用對象**：資深工程師、DevSecOps 團隊、AI 架構師、技術主管  
-> **前置需求**：具備 Python、Git、CI/CD、基本 LLM 使用經驗  
-> **文件等級**：企業標準技術白皮書  
-> **變更紀錄**：v3.0 — 更新 Claude Code Agent SDK/Plugins/Routines 生態系、GitHub Copilot CLI/App/SDK/Agentic Workflows 全面改寫、AutoResearch 最新社群動態
+> **文件版本**：v4.0（2026-10-23）
+>
+> **文件等級**：企業標準技術白皮書
+>
+> **對齊基準**：
+> - 上游 [karpathy/autoresearch](https://github.com/karpathy/autoresearch) `master@228791f`（2026-03-26 最後一次推送）
+> - Claude Code 官方文件 `code.claude.com/docs` 與 Changelog 至 **v2.1.309**；CLI 旗標另以本機 **v2.1.304** 的 `claude --help` 核對；Claude Agent SDK（Python）**0.2.173**；`anthropics/claude-code-action` **v1.0.259**
+> - GitHub Copilot 官方文件（`github/docs` 2026-10-23 版本）；Copilot CLI 以本機 **1.0.100** 的 `copilot --help` 核對；GitHub Agentic Workflows `gh aw` **v0.93.2**
+> - 標準框架：NIST SSDF SP 800-218 v1.1（v1.2 仍為草案）、SP 800-218A、OWASP Top 10:2025、OWASP Top 10 for Agentic Applications 2026、SLSA v1.2
+>
+> **適用對象**：資深工程師、DevSecOps／平台團隊、Security Champion、AI 導入負責人、技術主管與稽核人員
+>
+> **前置知識**：Python、Git、CI/CD 基礎，以及至少用過一種 AI coding agent
+>
+> **驗證方式**：手冊中的 evaluator、hook、設定檔、workflow、SDK 程式與檢查器全部在本機實際執行，執行結果直接嵌入內文；完整紀錄見[附錄 F](#附錄-f修正與驗證紀錄)
 
 ---
 
-## 📖 目錄（Table of Contents）
+## 修訂記錄
 
-- [第 1 章：AutoResearch 與 SSDLC 整合概念](#第-1-章autoresearch-與-ssdlc-整合概念)
-  - [1.1 什麼是 AutoResearch？](#11-什麼是-autoresearch)
-  - [1.2 什麼是 SSDLC？](#12-什麼是-ssdlc)
-  - [1.3 AI 如何取代/輔助 SDLC 各階段](#13-ai-如何取代輔助-sdlc-各階段)
-  - [1.4 與傳統 DevSecOps 差異](#14-與傳統-devsecops-差異)
-  - [1.5 自我優化迴圈（Self-Improving Loop）](#15-自我優化迴圈self-improving-loop)
-  - [1.6 AutoResearch 設計哲學與最新發展](#16-autoresearch-設計哲學與最新發展)
-- [第 2 章：系統整體架構設計](#第-2-章系統整體架構設計)
-  - [2.1 五層架構模型](#21-五層架構模型)
-  - [2.2 SSDLC 完整流程圖](#22-ssdlc-完整流程圖)
-  - [2.3 元件互動關係](#23-元件互動關係)
-  - [2.4 安全邊界設計](#24-安全邊界設計)
-- [第 3 章：環境建置與安裝](#第-3-章環境建置與安裝)
-  - [3.1 前置需求總覽](#31-前置需求總覽)
-  - [3.2 Python 環境安裝](#32-python-環境安裝)
-  - [3.3 Git 安裝與設定](#33-git-安裝與設定)
-  - [3.4 AutoResearch 安裝](#34-autoresearch-安裝)
-  - [3.5 Claude Code 安裝與設定](#35-claude-code-安裝與設定)
-  - [3.6 GitHub Copilot 安裝與設定](#36-github-copilot-安裝與設定)
-  - [3.7 VS Code 安裝與設定](#37-vs-code-安裝與設定)
-  - [3.8 一鍵安裝腳本](#38-一鍵安裝腳本)
-- [第 4 章：AutoResearch 核心運作解析](#第-4-章autoresearch-核心運作解析)
-  - [4.1 核心架構概覽](#41-核心架構概覽)
-  - [4.2 train.py — 可被 AI 修改的目標檔案](#42-trainpy--可被-ai-修改的目標檔案)
-  - [4.3 prepare.py — 固定的資料與工具層](#43-preparepy--固定的資料與工具層)
-  - [4.4 program.md — Prompt Engineering 指令策略](#44-programmd--prompt-engineering-指令策略)
-  - [4.5 AutoResearch 執行引擎](#45-autoresearch-執行引擎)
-  - [4.6 program.md 的 Prompt Engineering 技巧](#46-programmd-的-prompt-engineering-技巧)
-- [第 5 章：SSDLC Workflow 設計](#第-5-章ssdlc-workflow-設計)
-  - [5.0 SSDLC 全階段總覽](#50-ssdlc-全階段總覽)
-  - [5.1 階段一：需求分析（Requirement Analysis）](#51-階段一需求分析requirement-analysis)
-  - [5.2 階段二：架構設計（Design）](#52-階段二架構設計design)
-  - [5.3 階段三：開發（Development）](#53-階段三開發development)
-  - [5.4 階段四：測試（Testing）](#54-階段四測試testing)
-  - [5.5 階段五：安全掃描（Security Scanning）](#55-階段五安全掃描security-scanning)
-  - [5.6 階段六：部署（Deployment）](#56-階段六部署deployment)
-  - [5.7 階段七：監控（Monitoring）](#57-階段七監控monitoring)
-  - [5.8 階段八：優化（Optimization）](#58-階段八優化optimization)
-- [第 6 章：AI 自動優化機制](#第-6-章ai-自動優化機制)
-  - [6.1 AutoResearch 自動優化核心原理](#61-autoresearch-自動優化核心原理)
-  - [6.2 修改程式碼的策略](#62-修改程式碼的策略)
-  - [6.3 執行測試的流程](#63-執行測試的流程)
-  - [6.4 評估結果的機制](#64-評估結果的機制)
-  - [6.5 Keep / Revert 決策矩陣](#65-keep--revert-決策矩陣)
-  - [6.6 應用於三大場景](#66-應用於三大場景)
-- [第 7 章：CI/CD + AutoResearch 整合](#第-7-章cicd--autoresearch-整合)
-  - [7.1 整合架構概覽](#71-整合架構概覽)
-  - [7.2 GitHub Actions 完整 YAML 設計](#72-github-actions-完整-yaml-設計)
-  - [7.3 自動觸發 AutoResearch 的機制](#73-自動觸發-autoresearch-的機制)
-  - [7.4 安全掃描結果彙總腳本](#74-安全掃描結果彙總腳本)
-- [第 8 章：實戰案例](#第-8-章實戰案例)
-  - [8.1 案例一：API 效能優化](#81-案例一api-效能優化)
-  - [8.2 案例二：安全漏洞自動修補](#82-案例二安全漏洞自動修補)
-- [第 9 章：系統維運](#第-9-章系統維運)
-  - [9.1 日誌監控架構](#91-日誌監控架構)
-  - [9.2 模型 Drift 偵測](#92-模型-drift-偵測)
-  - [9.3 版本控管策略](#93-版本控管策略)
-  - [9.4 Rollback 策略](#94-rollback-策略)
-  - [9.5 維運 Checklist](#95-維運-checklist)
-- [第 10 章：系統升級與擴展](#第-10-章系統升級與擴展)
-  - [10.1 多 Agent 架構（Cluster）](#101-多-agent-架構cluster)
-  - [10.2 分散式 AutoResearch](#102-分散式-autoresearch)
-  - [10.3 GPU / 雲端擴展](#103-gpu--雲端擴展)
-- [第 11 章：Claude Code 進階功能與 SSDLC 整合](#第-11-章claude-code-進階功能與-ssdlc-整合)
-  - [11.1 CLAUDE.md 記憶系統](#111-claudemd-記憶系統)
-  - [11.2 Skills 技能系統](#112-skills-技能系統)
-  - [11.3 Hooks 自動化機制](#113-hooks-自動化機制)
-  - [11.4 Subagents 子代理人架構](#114-subagents-子代理人架構)
-  - [11.5 MCP（Model Context Protocol）整合](#115-mcpmodel-context-protocol整合)
-  - [11.6 Plan Mode 與 Extended Thinking](#116-plan-mode-與-extended-thinking)
-  - [11.7 Worktrees 平行開發](#117-worktrees-平行開發)
-  - [11.8 Agent Teams 團隊協作](#118-agent-teams-團隊協作)
-  - [11.9 排程任務（Scheduled Tasks）](#119-排程任務scheduled-tasks)
-  - [11.10 Agent SDK（Python + TypeScript）](#1110-agent-sdkpython--typescript)
-  - [11.11 Plugins 生態系](#1111-plugins-生態系)
-  - [11.12 Remote Control & Channels](#1112-remote-control--channels)
-  - [11.13 Desktop App、Web、Chrome 整合](#1113-desktop-appwebchrome-整合)
-  - [11.14 Code Review（Ultrareview）](#1114-code-reviewultrareview)
-  - [11.15 Auto Mode & Sandbox](#1115-auto-mode--sandbox)
-  - [11.16 Analytics & Observability（OpenTelemetry）](#1116-analytics--observabilityopentelemetry)
-- [第 12 章：GitHub Copilot Agent 生態系](#第-12-章github-copilot-agent-生態系)
-  - [12.1 GitHub Copilot 功能總覽（2026）](#121-github-copilot-功能總覽2026)
-  - [12.2 Cloud Agent 雲端代理人](#122-cloud-agent-雲端代理人)
-  - [12.3 Agent Skills 開放標準](#123-agent-skills-開放標準)
-  - [12.4 Agentic Memory 記憶系統](#124-agentic-memory-記憶系統)
-  - [12.5 Copilot Code Review](#125-copilot-code-review)
-  - [12.6 Copilot 與 SSDLC 整合策略](#126-copilot-與-ssdlc-整合策略)
-  - [12.7 Copilot CLI Agent（命令列代理人）](#127-copilot-cli-agent命令列代理人)
-  - [12.8 Copilot App（桌面應用程式）](#128-copilot-app桌面應用程式)
-  - [12.9 Copilot SDK（Node.js / Python / .NET）](#129-copilot-sdknodejs--python--net)
-  - [12.10 Third-Party Agents（第三方代理人）](#1210-third-party-agents第三方代理人)
-  - [12.11 GitHub Agentic Workflows & Automations](#1211-github-agentic-workflows--automations)
-  - [12.12 Copilot Plugins 生態系](#1212-copilot-plugins-生態系)
-  - [12.13 Enterprise Governance & AI Controls](#1213-enterprise-governance--ai-controls)
-- [第 13 章：Best Practices（企業建議）](#第-13-章best-practices企業建議)
-  - [13.1 Prompt 設計最佳實踐](#131-prompt-設計最佳實踐)
-  - [13.2 安全策略最佳實踐](#132-安全策略最佳實踐)
-  - [13.3 Git 管理策略](#133-git-管理策略)
-  - [13.4 成本管理](#134-成本管理)
-  - [13.5 Agent 安全治理最佳實踐](#135-agent-安全治理最佳實踐)
-- [第 14 章：Anti-Patterns（常見錯誤）](#第-14-章anti-patterns常見錯誤)
-  - [14.1 致命錯誤（Must Avoid）](#141-致命錯誤must-avoid)
-  - [14.2 常見設計錯誤](#142-常見設計錯誤)
-  - [14.3 Anti-Patterns 總覽表](#143-anti-patterns-總覽表)
-- [附錄 A：Docker Compose 範例](#附錄-adocker-compose-範例)
+| 版本 | 日期 | 主要變更 |
+| --- | --- | --- |
+| v1.0 | 2026-04 | 初版：AutoResearch 概念、SSDLC 八階段、CI/CD 範例 |
+| v2.0 | 2026-05 | 補充 Claude Code、GitHub Copilot 功能與 Anti-Patterns |
+| v3.0 | 2026-07-01 | 更新 Claude Code Agent SDK／Plugins／Routines，改寫 Copilot CLI／App／Agentic Workflows 章節 |
+| **v4.0** | **2026-10-23** | **全面重整為 21 章＋附錄 A–F**。依上游原始碼重寫 AutoResearch 機制，移除虛構的引擎與設定檔。新增可實跑的「安全負債迴圈」、守門 hook、設定檢查器與 program.md 審查器，所有範例都經實測。每章結尾附「本章審查與驗證清單」。附錄 F 列出 v3.0 的 41 項修正 |
+
+## 摘要
+
+Andrej Karpathy 的 AutoResearch 用很少的程式碼示範了一件事：只要有**固定的評估器**、**單一可量測的指標**，以及**可以安全回退的版本控制**，AI Agent 就能整晚自主做實驗，只保留真正有改善的變更。
+
+本手冊把這個模式搬到企業的安全軟體開發生命週期（SSDLC）。搬過來時必須補上上游刻意省略的護欄：
+
+- 評估器要放在 Agent 碰不到的地方；
+- 測試與掃描器設定要受保護；
+- 迴圈要有明確的停止條件；
+- 合併前一定要有人類審查。
+
+讀完本手冊，你應該能夠：
+
+1. 說明 AutoResearch 實際怎麼運作，並指出哪些設計可以照搬、哪些在企業環境必須改。
+2. 為自己的專案設計一個「安全負債」指標與固定評估器，並用 Claude Code 或 GitHub Copilot 跑出有界的修補迴圈。
+3. 用 hook、權限、sandbox 與 CI 閘門建立多層防護，擋下 Agent 常見的規避評估（reward hacking）手法。
+4. **審查與驗證 AI 產出的每一種成品**：program.md、修補 diff、hook、設定檔、workflow，都有對應的檢查清單與可執行的檢查器。
+
+## 目錄
+
+<!-- TOC-AUTO-BEGIN -->
+
+- [第 0 章：前言與閱讀指引](#第-0-章前言與閱讀指引)
+  - [0.1 為什麼需要這本手冊](#01-為什麼需要這本手冊)
+  - [0.2 適用對象與閱讀路徑](#02-適用對象與閱讀路徑)
+  - [0.3 本手冊的寫作約定](#03-本手冊的寫作約定)
+  - [0.4 如何驗證本手冊](#04-如何驗證本手冊)
+  - [0.5 v4.0 的重點變更](#05-v40-的重點變更)
+- [第一部：原理](#第一部原理)
+- [第 1 章：AutoResearch 的真實運作機制](#第-1-章autoresearch-的真實運作機制)
+  - [1.1 專案定位與現況](#11-專案定位與現況)
+  - [1.2 三個檔案與職責分工](#12-三個檔案與職責分工)
+  - [1.3 實驗迴圈逐步解析](#13-實驗迴圈逐步解析)
+  - [1.4 results.tsv 與 keep／discard／crash](#14-resultstsv-與-keepdiscardcrash)
+  - [1.5 設計抉擇：上游刻意保持極簡](#15-設計抉擇上游刻意保持極簡)
+  - [1.6 NEVER STOP 與「關閉所有權限」的風險](#16-never-stop-與關閉所有權限的風險)
+  - [1.7 平台支援與小型硬體調參](#17-平台支援與小型硬體調參)
+  - [1.8 常見誤解更正](#18-常見誤解更正)
+  - [1.9 本章審查與驗證清單](#19-本章審查與驗證清單)
+- [第 2 章：SSDLC 與標準框架對應](#第-2-章ssdlc-與標準框架對應)
+  - [2.1 SSDLC 的定義與八個階段](#21-ssdlc-的定義與八個階段)
+  - [2.2 NIST SSDF（SP 800-218）與 SP 800-218A](#22-nist-ssdfsp-800-218與-sp-800-218a)
+  - [2.3 OWASP Top 10:2025](#23-owasp-top-102025)
+  - [2.4 OWASP Top 10 for Agentic Applications 2026](#24-owasp-top-10-for-agentic-applications-2026)
+  - [2.5 SLSA v1.2 與軟體供應鏈](#25-slsa-v12-與軟體供應鏈)
+  - [2.6 綜合對照表](#26-綜合對照表)
+  - [2.7 本章審查與驗證清單](#27-本章審查與驗證清單)
+- [第 3 章：把 AutoResearch 遷移到 SSDLC 的設計原則](#第-3-章把-autoresearch-遷移到-ssdlc-的設計原則)
+  - [3.1 哪些問題適合「指標驅動自主迴圈」](#31-哪些問題適合指標驅動自主迴圈)
+  - [3.2 七條設計原則](#32-七條設計原則)
+  - [3.3 安全負債指標 sec_debt 的設計](#33-安全負債指標-sec_debt-的設計)
+  - [3.4 Reward Hacking 的型態與對策](#34-reward-hacking-的型態與對策)
+  - [3.5 上游三件套與 SSDLC 三件套的對應](#35-上游三件套與-ssdlc-三件套的對應)
+  - [3.6 本章審查與驗證清單](#36-本章審查與驗證清單)
+- [第二部：環境與工具](#第二部環境與工具)
+- [第 4 章：環境建置](#第-4-章環境建置)
+  - [4.1 前置需求總覽](#41-前置需求總覽)
+  - [4.2 Python 與 uv](#42-python-與-uv)
+  - [4.3 Git 與 GitHub CLI（含 Windows 換行陷阱）](#43-git-與-github-cli含-windows-換行陷阱)
+  - [4.4 Claude Code 安裝與登入](#44-claude-code-安裝與登入)
+  - [4.5 GitHub Copilot CLI 安裝與登入](#45-github-copilot-cli-安裝與登入)
+  - [4.6 掃描與檢查工具](#46-掃描與檢查工具)
+  - [4.7 上游 AutoResearch 安裝（需 NVIDIA GPU）](#47-上游-autoresearch-安裝需-nvidia-gpu)
+  - [4.8 安裝驗證清單](#48-安裝驗證清單)
+  - [4.9 本章審查與驗證清單](#49-本章審查與驗證清單)
+- [第 5 章：Claude Code 安全設定](#第-5-章claude-code-安全設定)
+  - [5.1 設定檔層級與優先順序](#51-設定檔層級與優先順序)
+  - [5.2 權限模式的選擇](#52-權限模式的選擇)
+  - [5.3 權限規則語法與受保護路徑](#53-權限規則語法與受保護路徑)
+  - [5.4 Sandbox](#54-sandbox)
+  - [5.5 守門 Hook](#55-守門-hook)
+  - [5.6 CLAUDE.md 與 Skills](#56-claudemd-與-skills)
+  - [5.7 Subagent：獨立審查員](#57-subagent獨立審查員)
+  - [5.8 讓 Claude Code 持續工作：/goal、/loop、Stop hook 與排程](#58-讓-claude-code-持續工作goalloopstop-hook-與排程)
+  - [5.9 安全相關的內建功能與 Plugin](#59-安全相關的內建功能與-plugin)
+  - [5.10 用 Agent SDK 驅動迴圈](#510-用-agent-sdk-驅動迴圈)
+  - [5.11 完整設定範例與檢查器](#511-完整設定範例與檢查器)
+  - [5.12 本章審查與驗證清單](#512-本章審查與驗證清單)
+- [第 6 章：GitHub Copilot 安全設定](#第-6-章github-copilot-安全設定)
+  - [6.1 Copilot 的 Agent 全景（2026-10）](#61-copilot-的-agent-全景2026-10)
+  - [6.2 Custom Instructions](#62-custom-instructions)
+  - [6.3 Hooks](#63-hooks)
+  - [6.4 Copilot CLI：權限旗標與 autopilot](#64-copilot-cli權限旗標與-autopilot)
+  - [6.5 Cloud Agent：copilot-setup-steps、防火牆與 secrets](#65-cloud-agentcopilot-setup-steps防火牆與-secrets)
+  - [6.6 Copilot Code Review](#66-copilot-code-review)
+  - [6.7 Automations 與 Agentic Workflows](#67-automations-與-agentic-workflows)
+  - [6.8 企業治理：政策、計費與稽核](#68-企業治理政策計費與稽核)
+  - [6.9 檢查器](#69-檢查器)
+  - [6.10 本章審查與驗證清單](#610-本章審查與驗證清單)
+- [第三部：SSDLC 八階段實作](#第三部ssdlc-八階段實作)
+- [第 7 章：需求與威脅建模](#第-7-章需求與威脅建模)
+  - [7.1 目標與輸入](#71-目標與輸入)
+  - [7.2 作法：AI 起草、人類審查、測試追溯](#72-作法ai-起草人類審查測試追溯)
+  - [7.3 交付物與閘門](#73-交付物與閘門)
+  - [7.4 範例：玩具專案的威脅模型](#74-範例玩具專案的威脅模型)
+  - [7.5 審查要點](#75-審查要點)
+  - [7.6 本章審查與驗證清單](#76-本章審查與驗證清單)
+- [第 8 章：安全設計](#第-8-章安全設計)
+  - [8.1 目標與輸入](#81-目標與輸入)
+  - [8.2 作法：用 ADR 固定決策，讓迴圈有界](#82-作法用-adr-固定決策讓迴圈有界)
+  - [8.3 範例：Session 格式 ADR](#83-範例session-格式-adr)
+  - [8.4 安全設計檢查清單](#84-安全設計檢查清單)
+  - [8.5 本章審查與驗證清單](#85-本章審查與驗證清單)
+- [第 9 章：安全開發](#第-9-章安全開發)
+  - [9.1 目標與輸入](#91-目標與輸入)
+  - [9.2 三層「寫的當下」防護](#92-三層寫的當下防護)
+  - [9.3 範例：AI 修補的前後對照](#93-範例ai-修補的前後對照)
+  - [9.4 審查要點：怎麼判斷修補是「真的修好」](#94-審查要點怎麼判斷修補是真的修好)
+  - [9.5 Pre-commit 秘密掃描](#95-pre-commit-秘密掃描)
+  - [9.6 本章審查與驗證清單](#96-本章審查與驗證清單)
+- [第 10 章：安全測試](#第-10-章安全測試)
+  - [10.1 目標與輸入](#101-目標與輸入)
+  - [10.2 為什麼安全測試要特別小心](#102-為什麼安全測試要特別小心)
+  - [10.3 範例：玩具專案的安全測試](#103-範例玩具專案的安全測試)
+  - [10.4 先紅後綠驗證](#104-先紅後綠驗證)
+  - [10.5 AI 產生安全測試的審查要點](#105-ai-產生安全測試的審查要點)
+  - [10.6 本章審查與驗證清單](#106-本章審查與驗證清單)
+- [第 11 章：安全掃描與自動修補](#第-11-章安全掃描與自動修補)
+  - [11.1 目標與輸入](#111-目標與輸入)
+  - [11.2 掃描工具矩陣](#112-掃描工具矩陣)
+  - [11.3 評估器的 semgrep 規則](#113-評估器的-semgrep-規則)
+  - [11.4 從掃描結果到迴圈](#114-從掃描結果到迴圈)
+  - [11.5 本章審查與驗證清單](#115-本章審查與驗證清單)
+- [第 12 章：部署與供應鏈安全](#第-12-章部署與供應鏈安全)
+  - [12.1 目標與輸入](#121-目標與輸入)
+  - [12.2 部署閘門](#122-部署閘門)
+  - [12.3 SLSA Build Provenance](#123-slsa-build-provenance)
+  - [12.4 本章審查與驗證清單](#124-本章審查與驗證清單)
+- [第 13 章：監控與偵測](#第-13-章監控與偵測)
+  - [13.1 目標與輸入](#131-目標與輸入)
+  - [13.2 Agent 監控指標](#132-agent-監控指標)
+  - [13.3 Copilot 端的稽核紀錄](#133-copilot-端的稽核紀錄)
+  - [13.4 本章審查與驗證清單](#134-本章審查與驗證清單)
+- [第 14 章：持續優化](#第-14-章持續優化)
+  - [14.1 目標與輸入](#141-目標與輸入)
+  - [14.2 分析 results.tsv](#142-分析-resultstsv)
+  - [14.3 program.md 的迭代循環](#143-programmd-的迭代循環)
+  - [14.4 什麼時候該停用迴圈](#144-什麼時候該停用迴圈)
+  - [14.5 本章審查與驗證清單](#145-本章審查與驗證清單)
+- [第四部：整合與營運](#第四部整合與營運)
+- [第 15 章：CI/CD 整合（GitHub Actions）](#第-15-章cicd-整合github-actions)
+  - [15.1 整體架構](#151-整體架構)
+  - [15.2 PR 閘門：ssdlc-gate.yml](#152-pr-閘門ssdlc-gateyml)
+  - [15.3 AI 安全審查：claude-security-review.yml](#153-ai-安全審查claude-security-reviewyml)
+  - [15.4 夜間迴圈：autoresearch-nightly.yml](#154-夜間迴圈autoresearch-nightlyyml)
+  - [15.5 Lint 與安全稽核結果](#155-lint-與安全稽核結果)
+  - [15.6 本章審查與驗證清單](#156-本章審查與驗證清單)
+- [第 16 章：實戰案例：九輪安全負債迴圈](#第-16-章實戰案例九輪安全負債迴圈)
+  - [16.1 專案結構](#161-專案結構)
+  - [16.2 固定評估器 evaluate.py](#162-固定評估器-evaluatepy)
+  - [16.3 一輪實驗 run_experiment.sh](#163-一輪實驗-run_experimentsh)
+  - [16.4 九輪的設計與實測結果](#164-九輪的設計與實測結果)
+  - [16.5 人類審查：迴圈結束之後](#165-人類審查迴圈結束之後)
+  - [16.6 換成真正的 Agent](#166-換成真正的-agent)
+  - [16.7 本章審查與驗證清單](#167-本章審查與驗證清單)
+- [第 17 章：維運與可觀測性](#第-17-章維運與可觀測性)
+  - [17.1 Claude Code 的 OpenTelemetry 遙測](#171-claude-code-的-opentelemetry-遙測)
+  - [17.2 Collector 設定](#172-collector-設定)
+  - [17.3 Runbook：Agent 異常](#173-runbookagent-異常)
+  - [17.4 定期維運檢查](#174-定期維運檢查)
+  - [17.5 本章審查與驗證清單](#175-本章審查與驗證清單)
+- [第 18 章：擴展：多 Agent、Worktree 與分散式](#第-18-章擴展多-agentworktree-與分散式)
+  - [18.1 上游怎麼擴展](#181-上游怎麼擴展)
+  - [18.2 企業擴展的核心原則：誰握有評估器](#182-企業擴展的核心原則誰握有評估器)
+  - [18.3 Claude Code 的平行機制](#183-claude-code-的平行機制)
+  - [18.4 GitHub Copilot 的平行機制](#184-github-copilot-的平行機制)
+  - [18.5 分散式評估](#185-分散式評估)
+  - [18.6 本章審查與驗證清單](#186-本章審查與驗證清單)
+- [第 19 章：治理、風險與成本](#第-19-章治理風險與成本)
+  - [19.1 角色與責任（RACI）](#191-角色與責任raci)
+  - [19.2 Agent 權限分級](#192-agent-權限分級)
+  - [19.3 組織層級的控制（managed settings）](#193-組織層級的控制managed-settings)
+  - [19.4 成本管理](#194-成本管理)
+  - [19.5 風險登錄表](#195-風險登錄表)
+  - [19.6 本章審查與驗證清單](#196-本章審查與驗證清單)
+- [第 20 章：Anti-Patterns](#第-20-章anti-patterns)
+  - [20.1 總覽](#201-總覽)
+  - [20.2 致命錯誤](#202-致命錯誤)
+    - [AP-01：評估器放在 Agent 能改的地方](#ap-01評估器放在-agent-能改的地方)
+    - [AP-02：只靠 Prompt 要求「不要改測試」](#ap-02只靠-prompt-要求不要改測試)
+    - [AP-03：照搬 NEVER STOP 與全權限](#ap-03照搬-never-stop-與全權限)
+    - [AP-04：Agent 可以推送或合併](#ap-04agent-可以推送或合併)
+  - [20.3 常見設計錯誤](#203-常見設計錯誤)
+    - [AP-05：指標只看靜態掃描發現數](#ap-05指標只看靜態掃描發現數)
+    - [AP-06：安全測試沒有先紅後綠](#ap-06安全測試沒有先紅後綠)
+    - [AP-07：掃描規則線上、未鎖版本](#ap-07掃描規則線上未鎖版本)
+    - [AP-08：Hook 用 exit 1 阻擋、fail-open](#ap-08hook-用-exit-1-阻擋fail-open)
+  - [20.4 審查與驗證錯誤](#204-審查與驗證錯誤)
+    - [AP-09：相信 AI 寫的設定檔「看起來合理」](#ap-09相信-ai-寫的設定檔看起來合理)
+    - [AP-10：審查者只看 Agent 的摘要](#ap-10審查者只看-agent-的摘要)
+  - [20.5 本章審查與驗證清單](#205-本章審查與驗證清單)
+- [第 21 章：AI 產出的審查與驗證方法論](#第-21-章ai-產出的審查與驗證方法論)
+  - [21.1 四層驗證模型](#211-四層驗證模型)
+  - [21.2 為什麼一定要有反向案例](#212-為什麼一定要有反向案例)
+  - [21.3 依產出類型的審查清單](#213-依產出類型的審查清單)
+  - [21.4 審查 Agent 的摘要與自述](#214-審查-agent-的摘要與自述)
+  - [21.5 program.md 審查器](#215-programmd-審查器)
+  - [21.6 CLI 指令與旗標檢查器](#216-cli-指令與旗標檢查器)
+  - [21.7 本章審查與驗證清單](#217-本章審查與驗證清單)
+- [附錄](#附錄)
+- [附錄 A：檢查清單彙總](#附錄-a檢查清單彙總)
+  - [A.1 導入前](#a1-導入前)
+  - [A.2 Claude Code 設定](#a2-claude-code-設定)
+  - [A.3 GitHub Copilot 設定](#a3-github-copilot-設定)
+  - [A.4 CI/CD](#a4-cicd)
+  - [A.5 每次迴圈結束](#a5-每次迴圈結束)
+  - [A.6 維運](#a6-維運)
 - [附錄 B：專案目錄結構](#附錄-b專案目錄結構)
-- [附錄 C：檢查清單（Checklist）](#附錄-c檢查清單checklist)
-- [附錄 D：術語表（Glossary）](#附錄-d術語表glossary)
-- [附錄 E：參考資源與延伸閱讀](#附錄-e參考資源與延伸閱讀)
+  - [B.1 企業導入時的 repo 配置](#b1-企業導入時的-repo-配置)
+  - [B.2 本手冊驗證套件的配置](#b2-本手冊驗證套件的配置)
+- [附錄 C：術語表](#附錄-c術語表)
+- [附錄 D：參考資源](#附錄-d參考資源)
+  - [D.1 AutoResearch](#d1-autoresearch)
+  - [D.2 Claude Code](#d2-claude-code)
+  - [D.3 GitHub Copilot](#d3-github-copilot)
+  - [D.4 標準與框架](#d4-標準與框架)
+  - [D.5 工具](#d5-工具)
+- [附錄 E：v3.0 → v4.0 章節對照](#附錄-ev30--v40-章節對照)
+- [附錄 F：修正與驗證紀錄](#附錄-f修正與驗證紀錄)
+  - [F.1 v3.0 的修正項目](#f1-v30-的修正項目)
+    - [F.1.1 AutoResearch（7 項）](#f11-autoresearch7-項)
+    - [F.1.2 Claude Code 指令（11 項）](#f12-claude-code-指令11-項)
+    - [F.1.3 Claude Code 設定、Hook 與 SDK（11 項）](#f13-claude-code-設定hook-與-sdk11-項)
+    - [F.1.4 GitHub Copilot（8 項）](#f14-github-copilot8-項)
+    - [F.1.5 CI/CD 與維運（4 項）](#f15-cicd-與維運4-項)
+  - [F.2 已執行的驗證](#f2-已執行的驗證)
+  - [F.3 撰寫 v4.0 時自行發現並修正的問題](#f3-撰寫-v40-時自行發現並修正的問題)
+  - [F.4 手冊自我檢查](#f4-手冊自我檢查)
+  - [F.5 待辦與限制](#f5-待辦與限制)
+
+<!-- TOC-AUTO-END -->
+
+## 第 0 章：前言與閱讀指引
+
+### 0.1 為什麼需要這本手冊
+
+AI coding agent 已經能自己改程式、跑測試、開 PR。企業真正要回答的問題已經不是「AI 能不能寫程式」，而是：
+
+- **它改的東西真的更安全嗎？** 還是只是讓掃描器不再回報？
+- **它停得下來嗎？** 一個被要求「永不停止」的 Agent，權限邊界在哪裡？
+- **人怎麼審查？** AI 產出的修補、設定檔、workflow，審查者要看什麼、怎麼驗證？
+
+AutoResearch 提供了一個簡潔的答案框架：**讓指標說話，讓版本控制兜底**。本手冊在這個框架上補齊企業 SSDLC 需要的控制點，並且堅持一個原則：
+
+> **每一條指引都附範例；每一個範例都附驗證方式；每一個驗證都實際跑過。**
+
+### 0.2 適用對象與閱讀路徑
+
+| 角色 | 建議閱讀順序 | 讀完應能做到 |
+| --- | --- | --- |
+| 開發者／Tech Lead | 1 → 3 → 5 或 6 → 16 → 21 | 在自己的 repo 跑起有界的安全修補迴圈，並審查結果 |
+| DevSecOps／平台團隊 | 3 → 5 → 6 → 15 → 17 → 18 | 建立 CI 閘門、hook、sandbox 與遙測 |
+| Security Champion | 2 → 3 → 7–14 → 20 → 21 | 設計指標與評估器，審查 Agent 的修補是否真的有效 |
+| 技術主管／治理 | 0 → 1.6 → 2 → 19 → 20 → 附錄 A | 決定導入範圍、權限分級、預算與稽核要求 |
+
+### 0.3 本手冊的寫作約定
+
+| 標示 | 意義 |
+| --- | --- |
+| ✅ 建議做法 | 已在本機或官方文件確認可行的做法 |
+| ❌ 錯誤做法 | 常見錯誤，通常也是 AI 最容易產出的寫法 |
+| 🔍 審查要點 | 審查者要逐項確認的地方 |
+| 🧪 驗證方式 | 可執行的指令與預期輸出 |
+| 「實測輸出」區塊 | 驗證套件實際執行的結果，原樣嵌入，沒有手工修改（只把耗時秒數等每次不同的值換成「(略)」） |
+
+每章最後都有一節「本章審查與驗證清單」，格式固定為：**AI 產出項目｜❌ 常見錯誤｜✅ 正確做法｜🧪 如何驗證**。
+
+### 0.4 如何驗證本手冊
+
+手冊中所有可執行的成品都放在同一套驗證工具裡。目錄結構見[附錄 B](#附錄-b專案目錄結構)，總入口是 `val/run_all.sh`：
+
+| 驗證項目 | 工具 | 對應章節 |
+| --- | --- | --- |
+| 安全負債迴圈（9 輪 keep／discard／crash） | `ssdlc-loop/run_all.sh` | 第 3、11、16 章 |
+| 守門 hook（34 個正反向案例） | `hooks/test_guard.py` | 第 5、6 章 |
+| Agent SDK 驅動程式 | `sdk/autoresearch_sdk.py --self-test` | 第 5、18 章 |
+| Claude Code／Copilot 設定檢查器 | `checkers/check_claude_config.py`、`check_copilot_config.py` | 第 5、6、21 章 |
+| program.md 審查器 | `checkers/check_program_md.py` | 第 3、14、21 章 |
+| GitHub Actions | actionlint 1.7.12、zizmor 1.31.1、`gh aw compile` | 第 15 章 |
+| OpenTelemetry Collector | `otelcol validate`（0.163.2） | 第 17 章 |
+| 手冊本身 | Hugo 建置後比對錨點、mermaid-cli 渲染、程式區塊語法 | 附錄 F |
+
+驗證套件的總結果如下（附錄 F.2 有逐項說明）：
+
+```text
+loop                         expect=pass got=pass OK
+analyze                      expect=pass got=pass OK
+threat-trace                 expect=pass got=pass OK
+red-first-good               expect=pass got=pass OK
+red-first-weak               expect=fail got=fail OK
+guard                        expect=pass got=pass OK
+sdk                          expect=pass got=pass OK
+claude-config-good           expect=pass got=pass OK
+claude-config-v3             expect=fail got=fail OK
+claude-config-bad            expect=fail got=fail OK
+copilot-config-good          expect=pass got=pass OK
+copilot-config-bad           expect=fail got=fail OK
+program-template             expect=pass got=pass OK
+program-upstream             expect=fail got=fail OK
+program-ai-draft             expect=fail got=fail OK
+actionlint                   expect=pass got=pass OK
+zizmor                       expect=pass got=pass OK
+gh-aw-compile                expect=pass got=pass OK
+parse-configs                expect=pass got=pass OK
+otelcol-validate             expect=pass got=pass OK
+v3-flags                     expect=fail got=fail OK
+```
+
+> `expect=fail` 是**刻意的反向測試**：檢查器必須能抓到 v3.0 範例與 AI 草稿中的錯誤，所以預期結果是「失敗」。`got` 與 `expect` 一致即為通過。
+
+### 0.5 v4.0 的重點變更
+
+| 面向 | v3.0 | v4.0 |
+| --- | --- | --- |
+| AutoResearch 機制 | 自創 `autoresearch_engine.py`，以 `git revert` 回滾 | 依上游原始碼：**Agent 本身就是迴圈**，以 `git reset` 退回，結果寫入未追蹤的 `results.tsv` |
+| 範例可信度 | 多個設定檔、CLI 子指令與 SDK API 是虛構的 | 每個鍵、旗標與欄位都對照官方文件或本機 `--help`，再用檢查器驗證 |
+| 安全模型 | 主要靠 Prompt 要求 Agent 守規矩 | 評估器隔離、受保護檔案雜湊、抑制標記偵測、hook、權限、sandbox、CI 閘門，多層防護 |
+| 停止條件 | 未討論 | 上游的 NEVER STOP 改為有界停止條件（輪數、無進展、預算、閘門失敗） |
+| 審查能力 | 無 | 每章都有審查清單，並提供 4 個可執行的檢查器 |
+| 標準對應 | OWASP 2021 為主 | OWASP Top 10:2025、Agentic Top 10 2026、SSDF、SLSA v1.2 |
 
 ---
 
-## 第 1 章：AutoResearch 與 SSDLC 整合概念
+## 第一部：原理
 
-### 1.1 什麼是 AutoResearch？
+## 第 1 章：AutoResearch 的真實運作機制
 
-AutoResearch 是由 Andrej Karpathy 於 2026 年 3 月提出的 **AI 自主研究框架**（[GitHub: karpathy/autoresearch](https://github.com/karpathy/autoresearch)，⭐ 89.3k stars，12.9k forks），核心理念為：讓 AI Agent 在固定的 **時間預算（Time Budget）** 內，自主修改程式碼、執行測試、評估結果，最終決定是否保留變更。截至 2026 年 7 月，專案已累積超過 10,000 代的社群實驗，成為 AI 自主研究領域的標竿專案。
+本章完全依照上游原始碼（`master@228791f`）說明 AutoResearch。後面章節的每一個 SSDLC 設計，都是從這裡的某個機制推導出來的。先把原版看清楚，才知道哪些可以照搬、哪些必須改。
 
-> *"Research is now entirely the domain of autonomous swarms of AI agents running across compute cluster megastructures in the skies."* — Andrej Karpathy, March 2026
+### 1.1 專案定位與現況
 
-AutoResearch 的核心設計理念包含三大原則：
+| 項目 | 內容 |
+| --- | --- |
+| 作者／發布 | Andrej Karpathy，2026 年 3 月 |
+| 授權 | MIT |
+| 定位 | 「讓 AI Agent 在一個小而真實的 LLM 訓練環境裡自主做研究」：整晚自動改程式、訓練 5 分鐘、看結果、保留或丟棄 |
+| 訓練程式來源 | [nanochat](https://github.com/karpathy/nanochat) 的單 GPU 精簡版 |
+| 硬體需求 | 單張 NVIDIA GPU（在 H100 測試）、Python 3.10+、[uv](https://docs.astral.sh/uv/) |
+| 相依套件 | `torch==2.9.1`（CUDA 12.8 index）、`kernels`、`rustbpe`、`tiktoken`、`pyarrow` 等，鎖定在 `pyproject.toml` 與 `uv.lock` |
+| 最近更新 | 2026-03-26（之後沒有新的 commit；社群在 fork 與延伸專案上持續發展） |
+| 社群規模 | GitHub 約 9.8 萬顆星（2026-10-23 查詢） |
 
-1. **單一檔案修改（Single File to Modify）**：Agent 僅修改 `train.py`，範圍可控且 diff 可審查
-2. **固定時間預算（Fixed Time Budget）**：訓練固定運行 5 分鐘（wall clock），使不同實驗可直接比較
-3. **自包含（Self-Contained）**：除 PyTorch 外無外部依賴，一顆 GPU、一個檔案、一個指標
+> 🔍 **審查要點**：AI 產生的介紹文常會寫「AutoResearch 框架」「AutoResearch 引擎」。上游**沒有任何引擎或框架程式碼**，整個「研究流程」就寫在一份給 Agent 讀的 Markdown（`program.md`）裡。看到 `autoresearch_engine.py`、`AutoResearch SDK` 這類名稱，就可以判定是虛構的。
 
-其核心元件包含：
+### 1.2 三個檔案與職責分工
 
-| 元件 | 角色 | 可被 AI 修改？ | 說明 |
-|------|------|:---:|------|
-| `train.py` | 訓練/執行邏輯（AI 可修改的目標檔案） | ✅ | 包含完整 GPT 模型、優化器（Muon + AdamW）、訓練迴圈 |
-| `prepare.py` | 資料準備與環境固定工具 | ❌ | 下載訓練資料、訓練 BPE tokenizer、dataloader、evaluation |
-| `program.md` | 指令策略文件（Prompt Engineering） | ✅（由人類編輯） | 相當於 AI Agent 的「技能（Skill）」 |
-| Git commit/revert | 版本控制 Keep/Revert 機制 | ❌ | 每次實驗原子化：改善則 commit，否則 revert |
-| Time Budget | 固定執行時間（5 分鐘） | ❌ | 約 12 次實驗/小時，一晚約 100 次實驗 |
+上游 repo 真正重要的只有三個檔案：
 
-**核心評估指標**：`val_bpb`（validation bits per byte）— 越低越好，且與 vocab size 無關，使架構變更可以公平比較。
+| 檔案 | 誰編輯 | 內容 | 在迴圈中的角色 |
+| --- | --- | --- | --- |
+| `prepare.py` | **沒有人**（固定不動） | 固定常數（`MAX_SEQ_LEN=2048`、`TIME_BUDGET=300`、`EVAL_TOKENS`）、下載資料、訓練 BPE tokenizer、dataloader，以及評估函式 `evaluate_bpb` | **評估器**：唯一的事實來源（ground truth） |
+| `train.py` | **Agent** | 完整的 GPT 模型、Muon + AdamW 優化器、訓練迴圈，以及超參數（`DEPTH=8`、`TOTAL_BATCH_SIZE=2**19`、`WINDOW_PATTERN="SSSL"` 等） | **唯一可修改的檔案** |
+| `program.md` | **人類** | 給 Agent 的指令：怎麼建立實驗、可以做什麼、不可以做什麼、迴圈步驟、紀錄格式 | **研究組織的程式碼**：人類透過它來「寫程式」 |
 
-**分析工具**：專案內建 `analysis.ipynb` Jupyter Notebook，可視化實驗進展曲線、比較各次迭代的 `val_bpb` 變化，協助人類研究員快速識別有效策略。
+另外還有兩個輔助檔：
 
-**平台支援**：原生要求單一 NVIDIA GPU（H100 測試通過）。社群已提供多平台 fork：
-- [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos)（MacOS）
-- [trevin-creator/autoresearch-mlx](https://github.com/trevin-creator/autoresearch-mlx)（MacOS MLX）
-- [jsegov/autoresearch-win-rtx](https://github.com/jsegov/autoresearch-win-rtx)（Windows）
-- [andyluo7/autoresearch](https://github.com/andyluo7/autoresearch)（AMD）
+- `analysis.ipynb`：讀取 `results.tsv` 繪製進展圖（`progress.png`）。
+- `.gitignore`：明確排除 `results.tsv`、`CLAUDE.md`、`AGENTS.md`、`worktrees/`、`results/`、`queue/`。這表示作者預期有「啟動器」為每個 session 產生 Agent 指令檔，也預期會有多 worktree 平行實驗。
 
-> **💡 小型計算平台建議**：若在較小的計算平台（如 MacBook）執行，Karpathy 建議調整以下參數：使用低熵資料集（如 TinyStories）、降低 `vocab_size`、縮小 `MAX_SEQ_LEN`、降低 `DEPTH`、使用 `WINDOW_PATTERN = "L"` 以避免交替 banded attention 效率低下、縮小 `TOTAL_BATCH_SIZE`。
+這個分工是整個設計的核心：**人類不再直接改 Python，而是改 `program.md`；Agent 不能碰評估器，只能改訓練程式。**
 
-### 1.2 什麼是 SSDLC？
+### 1.3 實驗迴圈逐步解析
 
-SSDLC（Secure Software Development Lifecycle）是在傳統 SDLC 各階段中 **嵌入安全實踐（Security by Design）** 的方法論：
+上游**沒有**實作迴圈的 Python 程式。迴圈寫在 `program.md` 裡，由 Agent（Claude Code、Codex 等）自己照著做。啟動方式就是在 repo 裡開一個 Agent，然後輸入：
 
-```
-需求 → 設計 → 開發 → 測試 → 安全掃描 → 部署 → 監控 → 優化
-         ↑                                           |
-         └───────── 持續回饋與改進 ─────────────────┘
-```
-
-### 1.3 AI 如何取代/輔助 SDLC 各階段
-
-```mermaid
-graph LR
-    subgraph 傳統SDLC
-        A1[需求分析<br>人工] --> A2[架構設計<br>人工]
-        A2 --> A3[開發<br>人工]
-        A3 --> A4[測試<br>人工]
-        A4 --> A5[安全掃描<br>人工/工具]
-        A5 --> A6[部署<br>半自動]
-        A6 --> A7[監控<br>工具]
-    end
-
-    subgraph AI驅動SSDLC
-        B1[需求分析<br>AI 輔助威脅建模] --> B2[架構設計<br>AI 生成安全架構]
-        B2 --> B3[開發<br>Copilot + Claude Code]
-        B3 --> B4[測試<br>AI 自動生成測試]
-        B4 --> B5[安全掃描<br>AI 自動修補]
-        B5 --> B6[部署<br>全自動 Pipeline]
-        B6 --> B7[監控<br>AI 異常偵測]
-        B7 --> B8[優化<br>AutoResearch 自我迭代]
-        B8 -->|回饋| B1
-    end
+```text
+Hi have a look at program.md and let's kick off a new experiment! let's do the setup first.
 ```
 
-### 1.4 與傳統 DevSecOps 差異
-
-| 面向 | 傳統 DevSecOps | AutoResearch 驅動 SSDLC |
-|------|---------------|------------------------|
-| **安全掃描** | 工具掃描 → 人工修補 | AI 掃描 → AI 自動修補 → 驗證 |
-| **程式碼品質** | Linter + Code Review | AI 自主優化 + 自動測試驗證 |
-| **效能調優** | 人工 Profiling | AutoResearch 自主迭代優化 |
-| **學習能力** | 團隊知識傳承 | AI 持續累積最佳實踐 |
-| **回應速度** | 小時/天級 | 分鐘級（Time Budget） |
-| **一致性** | 取決於人員經驗 | 標準化、可重現 |
-
-### 1.5 自我優化迴圈（Self-Improving Loop）
-
-AutoResearch 的自我優化迴圈是本手冊的核心概念：
-
-```mermaid
-graph TD
-    A[讀取 program.md 指令] --> B[分析目前程式碼狀態]
-    B --> C[AI 生成修改策略]
-    C --> D[修改 train.py]
-    D --> E[執行測試/評估]
-    E --> F{結果是否改善？}
-    F -->|是| G[git commit - keep 變更]
-    F -->|否| H[git revert - 回滾變更]
-    G --> I{Time Budget 剩餘？}
-    H --> I
-    I -->|是| A
-    I -->|否| J[輸出最終結果報告]
-    J --> K[更新 program.md 策略]
-    K --> L[等待下次觸發]
-```
-
-> **💡 企業導入建議**：初期建議僅在 non-production 環境啟用 AutoResearch 自動修改，並設定嚴格的變更範圍白名單（Allow List）。隨著信任度提升，再逐步開放至 staging → production hotfix。
-
-### 1.6 AutoResearch 設計哲學與最新發展
-
-#### 設計哲學（Design Choices）
-
-AutoResearch 刻意保持極簡設計，背後蘊含深刻的工程哲學：
-
-| 設計選擇 | 說明 | 對 SSDLC 的啟示 |
-|---------|------|----------------|
-| **單一檔案修改** | Agent 僅修改 `train.py`，保持範圍可控 | 安全修補應限定影響範圍，避免級聯變更 |
-| **固定時間預算** | 5 分鐘/次，結果跨實驗可比較 | CI/CD Pipeline 應設合理超時，防止資源耗盡 |
-| **自包含** | 無外部依賴，一 GPU 一檔案 | 減少供應鏈攻擊面，最小化依賴 |
-| **明確指標** | `val_bpb` 單一量化指標 | 安全評估需明確、可量化的 KPI |
-| **原子操作** | 每次 commit/revert 為原子單位 | 部署變更應可完整回滾 |
-
-#### 與其他 AI 開發工具的定位對比
-
-```mermaid
-quadrantChart
-    title AI 開發工具定位矩陣（2026 Q3）
-    x-axis "人工介入程度低" --> "人工介入程度高"
-    y-axis "任務範圍窄" --> "任務範圍廣"
-    quadrant-1 "輔助開發"
-    quadrant-2 "全自動研究"
-    quadrant-3 "自動化片段"
-    quadrant-4 "互動式開發"
-    AutoResearch: [0.15, 0.25]
-    Claude Code: [0.40, 0.90]
-    Copilot CLI: [0.35, 0.85]
-    Copilot Cloud Agent: [0.25, 0.75]
-    GitHub Copilot Chat: [0.65, 0.70]
-    Copilot App: [0.45, 0.80]
-```
-
-#### 從 AutoResearch 到 SSDLC 的概念遷移
-
-AutoResearch 原本用於 ML 模型訓練優化，但其 **自我改進迴圈（Self-Improving Loop）** 可以遷移至軟體工程的各個面向：
-
-| AutoResearch 原始場景 | SSDLC 遷移場景 | 對應指標 |
-|---------------------|---------------|---------|
-| 優化 GPT 模型架構 | 優化 API 效能 | P99 延遲、吞吐量 |
-| 調整超參數 | 調整應用設定 | 回應時間、資源使用率 |
-| 模型訓練 → 驗證 | 程式碼修改 → 測試+安全掃描 | 測試通過率、漏洞數 |
-| val_bpb 指標 | 安全分數、品質分數 | CVSS、Code Quality Score |
-| Keep/Revert 決策 | Merge/Reject PR 決策 | 多維度評估結果 |
-
----
-
-## 第 2 章：系統整體架構設計
-
-### 2.1 五層架構模型
-
-本系統採用五層架構設計，確保關注點分離與安全邊界：
-
-```mermaid
-graph TB
-    subgraph "Layer 5: Feedback Loop（強化學習層）"
-        FL1[Metrics Collector]
-        FL2[Performance Analyzer]
-        FL3[Strategy Updater]
-        FL1 --> FL2 --> FL3
-    end
-
-    subgraph "Layer 4: Security Scan Layer（安全掃描層）"
-        SS1[SAST<br>靜態分析]
-        SS2[DAST<br>動態分析]
-        SS3[SCA<br>依賴掃描]
-        SS4[Secret Scan<br>機密掃描]
-    end
-
-    subgraph "Layer 3: CI/CD Pipeline（持續整合/部署層）"
-        CI1[GitHub Actions]
-        CI2[Build & Test]
-        CI3[Deploy]
-    end
-
-    subgraph "Layer 2: Developer Layer（開發者工具層）"
-        DL1[VS Code + Copilot]
-        DL2[GitHub Copilot CLI]
-        DL3[Claude Code CLI]
-        DL4[Copilot Cloud Agent]
-    end
-
-    subgraph "Layer 1: AI Agent Layer（AI 智能層）"
-        AL1[AutoResearch Engine]
-        AL2[LLM Backend<br>Claude / GPT]
-        AL3[Decision Engine<br>Keep / Revert]
-    end
-
-    AL1 --> DL1
-    AL1 --> DL3
-    DL1 --> CI1
-    DL2 --> CI1
-    DL3 --> CI1
-    DL4 --> CI1
-    CI1 --> CI2 --> CI3
-    CI2 --> SS1
-    CI2 --> SS2
-    CI2 --> SS3
-    CI2 --> SS4
-    SS1 --> FL1
-    SS2 --> FL1
-    CI3 --> FL1
-    FL3 --> AL1
-```
-
-### 2.2 SSDLC 完整流程圖
+`program.md` 定義的流程如下：
 
 ```mermaid
 flowchart TD
-    START([開始]) --> REQ[1. 需求分析<br>AI 威脅建模]
-    REQ --> DESIGN[2. 架構設計<br>AI 安全架構建議]
-    DESIGN --> DEV[3. 開發<br>Copilot + Claude Code]
-    DEV --> TEST[4. 測試<br>AI 自動生成測試]
-    TEST --> SEC[5. 安全掃描<br>SAST / DAST / SCA]
-    SEC --> GATE{安全閘門<br>通過？}
-    GATE -->|否| FIX[AutoResearch<br>自動修補]
-    FIX --> TEST
-    GATE -->|是| DEPLOY[6. 部署<br>Blue-Green / Canary]
-    DEPLOY --> MONITOR[7. 監控<br>AI 異常偵測]
-    MONITOR --> OPT[8. 優化<br>AutoResearch 迭代]
-    OPT -->|回饋| REQ
-
-    style FIX fill:#ff9800,color:#000
-    style GATE fill:#f44336,color:#fff
-    style OPT fill:#4caf50,color:#fff
+    S1["Setup：與人類約定 run tag"] --> S2["git checkout -b autoresearch/tag"]
+    S2 --> S3["讀 README、prepare.py、train.py"]
+    S3 --> S4["確認資料與 tokenizer 已就緒"]
+    S4 --> S5["建立只有表頭的 results.tsv"]
+    S5 --> B["第一輪：不改任何東西，跑 baseline"]
+    B --> L1["看目前分支與 commit"]
+    L1 --> L2["直接修改 train.py 嘗試一個想法"]
+    L2 --> L3["git commit"]
+    L3 --> L4["uv run train.py 輸出導入 run.log"]
+    L4 --> L5{"grep val_bpb 有輸出嗎"}
+    L5 -->|沒有| C["crash：tail run.log 看錯誤，小錯修、大錯放棄"]
+    L5 -->|有| L6["寫入 results.tsv"]
+    C --> L6
+    L6 --> L7{"val_bpb 比之前低嗎"}
+    L7 -->|是| K["keep：分支前進"]
+    L7 -->|相同或更差| D["discard：git reset 回到原點"]
+    K --> L1
+    D --> L1
 ```
 
-### 2.3 元件互動關係
+幾個容易被忽略、但對 SSDLC 遷移很關鍵的細節：
 
-| 元件 | 通訊協定 | 資料格式 | 安全機制 |
-|------|---------|---------|---------|
-| AutoResearch ↔ LLM | HTTPS / API | JSON | API Key + Rate Limit |
-| AutoResearch ↔ Git | SSH / HTTPS | Git Protocol | SSH Key / PAT |
-| CI/CD ↔ Security Scanner | REST API | SARIF / JSON | Service Account |
-| Feedback Loop ↔ AutoResearch | Internal Queue | JSON Metrics | mTLS |
-| VS Code ↔ Copilot | HTTPS | LSP / JSON | OAuth Token |
-| Copilot CLI ↔ GitHub | HTTPS | JSON / gRPC | GitHub PAT / OAuth |
-| Copilot Cloud Agent ↔ GitHub | HTTPS | GraphQL / JSON | App Installation Token |
-| Claude Code ↔ API | HTTPS | JSON | API Key / OAuth (PKCE) |
-| Claude Code Desktop ↔ API | HTTPS | JSON | Session Token |
+| 細節 | 上游原文要點 | 為什麼重要 |
+| --- | --- | --- |
+| 輸出導向檔案 | `uv run train.py > run.log 2>&1`，「不要用 tee，不要讓輸出灌爆 context」 | 保護 Agent 的 context window；也讓結果可被機器解析 |
+| 只 grep 關鍵行 | 只用 grep 取出 `val_bpb:` 與 `peak_vram_mb:` 兩行 | 指標與輸出格式是 Agent 與評估器之間的**介面契約** |
+| 回退用 reset | 「如果 val_bpb 相同或更差，就 git reset 回到起點」 | 失敗的實驗不會留在歷史中，分支只保留有效的改善 |
+| results.tsv 不進版控 | 「不要 commit results.tsv」 | 紀錄完整保留所有嘗試，包括失敗的，作為研究日誌 |
+| 逾時 | 單輪超過 10 分鐘就終止，視為失敗 | 防止 Agent 卡在無效實驗 |
+| crash 判斷 | grep 沒有輸出就是 crash，看 `tail -n 50 run.log` | 用「缺少指標」作為最簡單可靠的失敗訊號 |
 
-### 2.4 安全邊界設計
+### 1.4 results.tsv 與 keep／discard／crash
 
-```mermaid
-graph LR
-    subgraph "Trust Zone: HIGH（高信任區）"
-        P[Production Code]
-        DB[(Production DB)]
-    end
+每一輪都寫一行到 `results.tsv`。格式是 **tab 分隔**（上游特別說明：逗號會破壞描述欄位）：
 
-    subgraph "Trust Zone: MEDIUM（中信任區）"
-        S[Staging Env]
-        CI[CI/CD Pipeline]
-    end
+| 欄位 | 內容 | 範例 |
+| --- | --- | --- |
+| commit | 7 碼短 hash | `b2c3d4e` |
+| val_bpb | 這輪的指標；crash 時填 `0.000000` | `0.993200` |
+| memory_gb | 峰值 VRAM（GB，取一位小數）；crash 時填 `0.0` | `44.2` |
+| status | `keep`、`discard` 或 `crash` | `keep` |
+| description | 這輪嘗試了什麼 | `increase LR to 0.04` |
 
-    subgraph "Trust Zone: LOW（低信任區）"
-        AR[AutoResearch Agent]
-        LLM[LLM API]
-    end
+每輪訓練結束，`train.py` 會印出固定格式的摘要（以 `---` 開頭，接著是 `val_bpb:`、`training_seconds:`、`peak_vram_mb:`、`mfu_percent:`、`num_steps:`、`depth:` 等欄位）。Agent 只需要 grep 其中兩行。
 
-    AR -->|受控變更| CI
-    CI -->|通過閘門| S
-    S -->|人工審核| P
-    LLM -.->|只讀建議| AR
+**指標 `val_bpb`（validation bits per byte）**：越低越好，而且與詞彙表大小無關，所以就算 Agent 改了 tokenizer 相關的架構，不同實驗之間仍可公平比較。計算方式寫死在 `prepare.py` 的 `evaluate_bpb`，上游明確標註「DO NOT CHANGE — this is the fixed metric」。
 
-    style P fill:#c8e6c9
-    style DB fill:#c8e6c9
-    style S fill:#fff9c4
-    style CI fill:#fff9c4
-    style AR fill:#ffcdd2
-    style LLM fill:#ffcdd2
-```
+### 1.5 設計抉擇：上游刻意保持極簡
 
-> **💡 企業導入建議**：AutoResearch Agent 應永遠位於「低信任區」，其產出必須經過 CI/CD Pipeline 驗證與安全掃描後，才能進入更高信任區。切勿直接授予 AI Agent production 寫入權限。
+| 設計 | 上游的理由 | 帶給 SSDLC 的啟示 |
+| --- | --- | --- |
+| **只改一個檔案** | 範圍可控，diff 可審查 | Agent 的可寫範圍要最小化，並且要能被**機器強制**（不能只靠 Prompt） |
+| **固定 5 分鐘時間預算** | 實驗之間可直接比較；也會找出「在這台機器、這個時間內」最好的模型 | 評估要在固定條件下進行；換環境的結果不能直接比較 |
+| **自包含** | 除 PyTorch 與少數小套件外沒有依賴，一張 GPU、一個檔案、一個指標 | Agent 不得新增相依：既是公平性要求，也是供應鏈安全要求 |
+| **單一純量指標** | 決策規則簡單到不需要判斷 | 安全也要收斂成可比較的純量；無法量化的要求改成**硬性閘門** |
+| **簡單性準則** | 「效果相同時越簡單越好；刪掉程式碼而效果不變是勝利」 | 修補也一樣：能刪除危險程式碼就不要再包一層 |
+| **Agent 不能改評估** | 防止最直接的作弊：直接改分數的定義 | 這是整本手冊最重要的一條，第 3 章會展開 |
+
+### 1.6 NEVER STOP 與「關閉所有權限」的風險
+
+上游有兩個在個人研究情境合理、但在企業環境**不能照搬**的設定：
+
+1. **`program.md` 要求 NEVER STOP**：迴圈開始後不要問人類要不要繼續，人類可能在睡覺；沒有點子就想得更努力，直到被手動中斷為止。
+2. **README 建議啟動 Agent 時「disable all permissions」**：也就是讓 Agent 不經確認就能執行任何指令。
+
+在一台專用的 GPU 機器上做 ML 研究，這兩點的風險有限：沒有機密、沒有正式環境的憑證、最壞情況是浪費 GPU 時間。搬到企業 repo 就完全不同：
+
+| 風險 | 企業情境的後果 | 本手冊的對策 |
+| --- | --- | --- |
+| 無限執行 | API 費用失控；Agent 越跑越偏離目標 | 有界停止條件（第 3.2 節）、`--max-turns`、`max_budget_usd`、CI `timeout-minutes` |
+| 全權限 | 讀到 `.env`、推送到遠端、刪除檔案、對外連線 | `dontAsk` 權限模式、deny 規則、守門 hook、sandbox（第 5 章） |
+| 無人監督 | 被 Prompt Injection 劫持目標（OWASP ASI01）時沒有人發現 | 夜間迴圈只產出 Draft PR，合併必須經人類審查（第 15 章） |
+
+> ✅ **原則**：把「NEVER STOP」改寫成「**在明確的邊界內不需要問人，碰到邊界就停下來回報**」。
+
+### 1.7 平台支援與小型硬體調參
+
+上游只支援單張 NVIDIA GPU。README 列出的社群 fork：
+
+| Fork | 平台 |
+| --- | --- |
+| [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos) | macOS |
+| [trevin-creator/autoresearch-mlx](https://github.com/trevin-creator/autoresearch-mlx) | macOS（MLX） |
+| [jsegov/autoresearch-win-rtx](https://github.com/jsegov/autoresearch-win-rtx) | Windows（RTX） |
+| [andyluo7/autoresearch](https://github.com/andyluo7/autoresearch) | AMD（ROCm） |
+
+在小型機器上跑時，作者建議的調整（依影響排序）：
+
+1. 換成熵較低的資料集，例如 TinyStories。
+2. 降低 `vocab_size`：從 8192 降到 4096、2048、1024，甚至直接用 256 的位元組級 tokenizer。
+3. 在 `prepare.py` 大幅降低 `MAX_SEQ_LEN`（例如 256），並酌量提高 `train.py` 的 `DEVICE_BATCH_SIZE`。
+4. 在 `prepare.py` 降低 `EVAL_TOKENS`。
+5. 降低 `train.py` 的 `DEPTH`（預設 8，可降到 4）。
+6. `WINDOW_PATTERN` 改成只有 `"L"`，避免交替 banded attention 的效率問題。
+7. 大幅降低 `TOTAL_BATCH_SIZE`，但維持 2 的次方，例如 `2**14`。
+
+注意第 3、4 點**要改 `prepare.py`**。這是「人類在開始實驗前調整固定環境」，不是讓 Agent 在迴圈中改評估器。兩者的權限界線在企業版必須明確分開。
+
+### 1.8 常見誤解更正
+
+以下是 AI 產出的 AutoResearch 文章（包括本手冊 v3.0）最常見的錯誤：
+
+| 常見說法 | 實際情況（依上游原始碼） |
+| --- | --- |
+| 「AutoResearch 引擎（`autoresearch_engine.py`）負責執行迴圈」 | 沒有引擎。迴圈寫在 `program.md`，由 coding agent 執行 |
+| 「失敗時 `git revert`」 | 用 `git reset` 回到起點，失敗的 commit 不留在分支歷史 |
+| 「`program.md` 由 Agent 修改以自我優化」 | `program.md` 由**人類**編輯；作者把「迭代 program.md」視為人類的研究工作 |
+| 「`train.py` 的可調整區域以註解標記」 | 整個 `train.py` 都可以改：架構、優化器、超參數、batch size 都是「fair game」 |
+| 「評估指標是準確率／loss」 | `val_bpb`，越低越好，與詞彙表大小無關 |
+| 「已累積上萬代社群實驗」 | README 開頭「第 10,205 代」是作者的**虛構引言**（科幻情境），不是統計數字 |
+| 「每次實驗 5 分鐘，含編譯」 | 5 分鐘是**訓練**的 wall clock，不含啟動與編譯；整輪約 5 分多鐘 |
+
+### 1.9 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| AutoResearch 架構說明 | 描述不存在的引擎、SDK 或「可調整區域」 | 只描述三個檔案與 program.md 中的迴圈 | `gh api repos/karpathy/autoresearch/contents` 列出檔案，確認沒有引擎程式 |
+| 迴圈流程圖 | 失敗分支寫 `git revert`；把 program.md 畫成 Agent 可改 | 失敗用 `git reset`；program.md 為人類維護 | 對照上游 `program.md` 的「The experiment loop」段落 |
+| 指標說明 | 寫成 accuracy、loss，或說越高越好 | `val_bpb` 越低越好 | `grep -n "evaluate_bpb" prepare.py`，讀函式 docstring |
+| 數據引用 | 把 README 的虛構引言當事實；星數過時 | 引用時註明查詢日期 | `gh api repos/karpathy/autoresearch --jq .stargazers_count` |
+| 企業導入建議 | 原樣照搬 NEVER STOP 與全權限 | 改為有界停止條件與最小權限 | 用第 21 章的 `check_program_md.py` 檢查 P06 |
 
 ---
 
-## 第 3 章：環境建置與安裝
+## 第 2 章：SSDLC 與標準框架對應
 
-### 3.1 前置需求總覽
+### 2.1 SSDLC 的定義與八個階段
 
-| 工具 | 最低版本 | 用途 | 備註 |
-|------|---------|------|------|
-| Python | 3.10+ | AutoResearch 執行環境 | AutoResearch 專案要求 |
-| [uv](https://docs.astral.sh/uv/) | 最新版 | Python 專案管理器 | AutoResearch 官方使用的套件管理器 |
-| Git | 2.40+ | 版本控制 | Windows 需安裝 [Git for Windows](https://git-scm.com/downloads/win) |
-| VS Code | 1.95+ | 開發 IDE | 建議使用最新穩定版 |
-| Docker | 24+ | 容器化部署 | 可選，用於 Docker Compose 環境 |
-| GitHub CLI (`gh`) | 2.50+ | GitHub 操作 | Claude Code 和 Copilot CLI 均可利用 |
-| GitHub Copilot CLI | 最新版 | Agentic 開發工具 | 透過 GitHub CLI 安裝，見 3.6 節 |
-| NVIDIA GPU | — | AutoResearch 訓練 | H100 測試通過，也可使用社群 fork 支援其他平台 |
+SSDLC（Secure Software Development Lifecycle）是把安全活動嵌進 SDLC 每個階段，而不是在最後才做一次滲透測試。本手冊採用八個階段，第三部（第 7–14 章）逐一展開：
 
-> **📝 注意**：Claude Code 已改為原生安裝，不再需要 Node.js 作為前置需求。GitHub Copilot CLI 亦為獨立安裝，與 VS Code Copilot 擴充套件為不同產品。
-
-### 3.2 Python 環境安裝
-
-#### Windows（PowerShell）
-
-```powershell
-# 1. 安裝 Python（使用 winget）
-winget install Python.Python.3.12
-
-# 2. 確認安裝
-python --version
-pip --version
-
-# 3. 建立虛擬環境
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-# 4. 升級 pip
-python -m pip install --upgrade pip
-
-# 5. 安裝基礎套件
-pip install torch numpy pandas scikit-learn pytest black ruff
+```mermaid
+flowchart LR
+    P1["7 需求與威脅建模"] --> P2["8 安全設計"]
+    P2 --> P3["9 安全開發"]
+    P3 --> P4["10 安全測試"]
+    P4 --> P5["11 掃描與自動修補"]
+    P5 --> P6["12 部署與供應鏈"]
+    P6 --> P7["13 監控與偵測"]
+    P7 --> P8["14 持續優化"]
+    P8 -->|回饋| P1
 ```
 
-#### macOS / Linux（Bash）
+並不是每個階段都適合用 AutoResearch 式的「指標驅動自主迴圈」。判斷方式見第 3.1 節；各階段的結論如下：
 
-```bash
-# 1. 安裝 Python（使用 pyenv）
-curl https://pyenv.run | bash
-pyenv install 3.12.0
-pyenv global 3.12.0
+| 階段 | AI 角色 | 適合自主迴圈？ | 原因 |
+| --- | --- | --- | --- |
+| 需求與威脅建模 | 起草、補漏 | ❌ | 沒有客觀指標；遺漏的威脅不會讓任何測試失敗 |
+| 安全設計 | 起草 ADR、比較方案 | ❌ | 取捨需要業務判斷 |
+| 安全開發 | 依規則寫程式、即時自我審查 | ⚠️ 部分 | 可用 lint 與規則作為閘門，但功能正確性仍需測試 |
+| 安全測試 | 產生測試案例 | ⚠️ 部分 | 測試本身會成為評估器的一部分，必須先經人類審查 |
+| 掃描與自動修補 | 修補已知弱點 | ✅ | 掃描器與安全測試提供可重現的指標，是最佳場景 |
+| 部署與供應鏈 | 檢查設定、產生 provenance | ⚠️ 部分 | CI 閘門是確定性的，但部署決策要有人負責 |
+| 監控與偵測 | 摘要告警、初步分析 | ❌ | 屬於事件回應，需要人類判斷 |
+| 持續優化 | 調整 program.md 與指標 | ⚠️ 部分 | 由人類根據 results.tsv 改進「研究組織」 |
 
-# 2. 建立虛擬環境
-python -m venv .venv
-source .venv/bin/activate
+### 2.2 NIST SSDF（SP 800-218）與 SP 800-218A
 
-# 3. 安裝基礎套件
-pip install torch numpy pandas scikit-learn pytest black ruff
+| 文件 | 狀態（2026-10） | 用途 |
+| --- | --- | --- |
+| SP 800-218 **v1.1** | 正式版（2022-02） | 企業 SSDLC 的基準框架，分四組實踐：PO（準備組織）、PS（保護軟體）、PW（產出安全軟體）、RV（回應弱點） |
+| SP 800-218 Rev.1（**v1.2**） | **初始公開草案**（2025-12 發布，意見徵詢於 2026-01-30 截止） | 尚未定稿，引用時要標註「草案」 |
+| SP 800-218A | 正式版（2024-07） | 針對生成式 AI 與雙用途基礎模型的 SSDF 社群設定檔 |
+
+本手冊各機制對應的 SSDF 實踐：
+
+| SSDF 實踐 | 內容摘要 | 本手冊落實方式 |
+| --- | --- | --- |
+| PO.3 | 實作支援工具鏈 | 固定版本的掃描器、評估器放在受保護的 repo（第 15 章） |
+| PO.5 | 實作並維護安全的開發環境 | sandbox、權限模式、守門 hook（第 5、6 章） |
+| PS.1 | 保護所有形式的程式碼免於未授權存取與竄改 | 受保護檔案雜湊、Agent 不得改測試與評估器（第 3 章） |
+| PW.4 | 盡量重用安全的既有軟體 | Agent 不得新增相依（program.md 規則） |
+| PW.7 | 審查程式碼以找出弱點 | 獨立 security-reviewer subagent、Code Review、人類審查（第 5、9 章） |
+| PW.8 | 測試可執行碼以找出弱點 | 安全測試計入 sec_debt（第 10 章） |
+| RV.1、RV.2 | 持續找出並修補弱點 | 夜間安全負債迴圈（第 11、16 章） |
+| RV.3 | 分析根因 | 每輪 results.tsv 描述與 keep commit 的 CWE 說明（第 14 章） |
+
+### 2.3 OWASP Top 10:2025
+
+OWASP Top 10 第八版（2025）的類別，以及在本手冊玩具專案中對應的範例：
+
+| 編號 | 類別 | 本手冊範例 |
+| --- | --- | --- |
+| A01:2025 | Broken Access Control（已併入 SSRF） | 第 8 章授權設計檢查 |
+| A02:2025 | Security Misconfiguration | Agent 設定檔與 workflow 檢查（第 5、6、15 章） |
+| A03:2025 | Software Supply Chain Failures（新類別） | 禁止新增相依、pin action SHA、SLSA（第 12 章） |
+| A04:2025 | Cryptographic Failures | 寫死機密 `SECRET_KEY`（第 16 章第 06 輪） |
+| A05:2025 | Injection | `find_user` 的 SQL 字串組合（第 16 章第 01 輪） |
+| A06:2025 | Insecure Design | 威脅建模（第 7 章） |
+| A07:2025 | Authentication Failures | 未簽章的 session cookie（第 16 章第 08 輪） |
+| A08:2025 | Software or Data Integrity Failures | `pickle.loads` 反序列化（第 16 章第 08 輪） |
+| A09:2025 | Security Logging & Alerting Failures | Agent 遙測與稽核（第 13、17 章） |
+| A10:2025 | Mishandling of Exceptional Conditions（新類別） | 例外吞掉後放行、fail-open 的 hook（第 5.5 節） |
+
+### 2.4 OWASP Top 10 for Agentic Applications 2026
+
+OWASP GenAI Security Project 於 2025-12 發布，專門針對**自主 Agent**。AutoResearch 式迴圈正好是高自主性的 Agent，因此每一項都要有對策：
+
+| 編號 | 風險 | 在 AutoResearch 迴圈中的樣貌 | 對策（章節） |
+| --- | --- | --- | --- |
+| ASI01 | Agent Goal Hijack（目標劫持） | 程式碼註解或 issue 內容藏有指令，把「修補弱點」改成「關掉掃描」 | 迴圈不讀外部不可信內容；fork PR 不觸發 Agent（15.3） |
+| ASI02 | Tool Misuse | 在授權範圍內做出有害行為，例如 `git reset --hard` 到錯誤的 commit | 指令白名單只允許 `HEAD~1`（5.5） |
+| ASI03 | Identity & Privilege Abuse | Agent 持有可推送的 token | 迴圈 job 只有 `contents: read`，推送放在另一個 job（15.4） |
+| ASI04 | Agentic Supply Chain | 安裝來路不明的 plugin、MCP server 或套件 | 禁止新增相依；plugin 與 MCP 白名單（5.9、19.3） |
+| ASI05 | Unexpected Code Execution | 測試階段執行到 Agent 植入的程式碼 | 評估器移出工作目錄並設為唯讀（15.2） |
+| ASI06 | Memory & Context Poisoning | 汙染 CLAUDE.md、記憶或指示檔，影響後續 session | `.claude/`、`.github/` 列為受保護路徑（5.3） |
+| ASI07 | Insecure Inter-Agent Communication | 多 Agent 共用評估結果時被竄改 | 只有評估器能寫入指標（18.2） |
+| ASI08 | Cascading Failures | 一個錯誤的 keep 被後續實驗當成基礎 | 每個 keep 都要通過閘門；最後由人類審查整串 commit（16.5） |
+| ASI09 | Human–Agent Trust Exploitation | 用看似權威的摘要說服審查者合併 | 審查者看 diff 與實測結果，不看 Agent 的自述（21.4） |
+| ASI10 | Rogue Agents | Agent 偏離目標，例如刪測試換分數 | 受保護檔案雜湊與抑制標記偵測（3.4） |
+
+> ⚠️ 本表的類別名稱依 OWASP GenAI Security Project 公布的清單整理；導入時請以 [OWASP 官方文件](https://genai.owasp.org/) 的最新版本為準。
+
+### 2.5 SLSA v1.2 與軟體供應鏈
+
+SLSA v1.2（2025-11 發布）在原有的 **Build Track** 之外新增了 **Source Track**。對 AI Agent 參與開發的情境來說，Source Track 特別重要：它要求原始碼的歷史可追溯、技術控制要持續強制，最高等級還要求雙人審查。
+
+| Track | 等級重點 | 本手冊對應 |
+| --- | --- | --- |
+| Build L1–L3 | L1 有 provenance、L2 由託管平台簽章、L3 強化的建置平台 | GitHub Actions 搭配 artifact attestation（第 12 章） |
+| Source L1–L4 | 版本控制、歷史完整性、持續強制的技術控制、雙人審查 | branch protection、Agent commit 不能自我核准、Draft PR 需人類審查（第 15 章） |
+
+### 2.6 綜合對照表
+
+| 本手冊章節 | SSDF | OWASP Top 10:2025 | Agentic Top 10 | SLSA |
+| --- | --- | --- | --- | --- |
+| 3 遷移原則 | PS.1 | A08 | ASI10 | Source |
+| 5 Claude Code 設定 | PO.5 | A02 | ASI02、ASI03、ASI06 | — |
+| 6 Copilot 設定 | PO.5 | A02 | ASI01、ASI03 | — |
+| 7 威脅建模 | PO.1、PW.1 | A06 | ASI01 | — |
+| 9–11 開發、測試、修補 | PW.5–PW.8、RV.1–RV.2 | A01–A10 | ASI05、ASI10 | — |
+| 12 部署 | PS.2、PS.3 | A03 | ASI04 | Build |
+| 13、17 監控 | RV.1 | A09 | ASI08 | — |
+| 15 CI/CD | PO.3、PS.1 | A02、A03 | ASI03、ASI05 | Build、Source |
+| 19 治理 | PO.1、PO.2 | — | ASI09 | Source |
+
+### 2.7 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| OWASP 類別引用 | 仍用 2021 版編號（如 A03 Injection） | 使用 2025 版：A05 Injection、A03 Supply Chain | 對照 owasp.org/Top10/2025 |
+| SSDF 版本 | 把 v1.2 寫成正式版 | v1.1 為正式版，v1.2 標註草案 | 查 csrc.nist.gov 的 SSDF publications 頁 |
+| Agentic 風險 | 只列 LLM Top 10（Prompt Injection 等） | 自主 Agent 另用 Agentic Top 10（ASI01–ASI10） | 對照 genai.owasp.org |
+| 階段適用性 | 宣稱所有階段都能全自動 | 只有指標客觀的階段才用自主迴圈 | 用 3.1 節的決策表逐階段檢查 |
+| SLSA 等級 | 只談 Build Track | v1.2 起另有 Source Track | 對照 slsa.dev/spec/v1.2 |
+
+---
+
+## 第 3 章：把 AutoResearch 遷移到 SSDLC 的設計原則
+
+### 3.1 哪些問題適合「指標驅動自主迴圈」
+
+AutoResearch 能成立，是因為同時具備四個條件。這四個條件缺一，就不適合讓 Agent 自主迴圈：
+
+| 條件 | 上游怎麼滿足 | 判斷問題 |
+| --- | --- | --- |
+| **客觀、可重現的指標** | `val_bpb` 由固定程式計算 | 同一份程式碼跑兩次，指標一樣嗎？ |
+| **評估成本低** | 每輪約 5 分鐘 | 一晚能跑幾十輪嗎？ |
+| **可安全回退** | 每輪一個 commit，失敗就 `git reset` | 失敗的實驗會不會留下副作用（資料、外部系統、已部署的東西）？ |
+| **評估器不可被受測者修改** | `prepare.py` 列為唯讀 | Agent 有沒有任何路徑能改到評估邏輯、測試或掃描設定？ |
+
+決策表：
+
+| 候選場景 | 指標 | 可回退 | 結論 |
+| --- | --- | --- | --- |
+| 修補 SAST／SCA／秘密掃描發現 | 加權發現數＋安全測試失敗數 | ✅ | **適合**（本手冊主案例） |
+| 提升測試覆蓋率 | 覆蓋率％ | ✅ | 適合，但要防止 Agent 寫出「沒有斷言的測試」，需搭配 mutation score |
+| API 效能調校 | p95 延遲（固定負載、固定環境） | ✅ | 適合，前提是測量環境穩定 |
+| 依賴升級 | 升級成功數＋測試全過 | ✅ | 適合，但不得新增相依 |
+| 威脅建模 | 無客觀指標 | — | **不適合**，用 AI 起草、人類審查 |
+| 正式環境的設定調整 | 正式環境指標 | ❌ 有副作用 | **不適合**，迴圈只能跑在隔離環境 |
+| 修改授權規則 | 無法量化「是否過度授權」 | ⚠️ | 不適合自主迴圈，改用審查清單 |
+
+### 3.2 七條設計原則
+
+把上游的機制轉成企業規則，就是以下七條。第 16 章的實戰案例會逐條示範：
+
+| # | 原則 | 上游對應 | 企業強化 | 用什麼強制 |
+| --- | --- | --- | --- | --- |
+| 1 | **評估器在 Agent 的可寫範圍之外** | `prepare.py` 唯讀 | 評估器放在另一個 repo 或目錄，CI 中移出工作目錄並設為唯讀 | 檔案位置＋權限＋CI |
+| 2 | **可寫範圍最小化** | 只改 `train.py` | 只改 `app/`，測試、指令檔、Agent 設定、CI 一律禁止 | permissions.deny＋hook |
+| 3 | **單一純量指標＋硬性閘門** | `val_bpb` | `sec_debt` 越低越好；功能測試、受保護檔案、抑制標記是閘門 | 評估器 |
+| 4 | **受保護檔案雜湊** | 無（靠 Prompt） | 人類在基準點鎖定測試與 program.md 的 SHA-256，評估時比對 | 評估器 |
+| 5 | **偵測規避評估** | 無 | 抑制標記（`# nosec` 等）與掃描器設定檔一出現就判 gate FAIL | 評估器 |
+| 6 | **有界的停止條件** | NEVER STOP | 輪數上限、連續無進展、金額預算、gate FAIL 時立即停止 | program.md＋`--max-turns`＋CI timeout |
+| 7 | **人類合併** | 人類早上看結果 | Agent 不得推送；夜間產出 Draft PR；branch protection 要求審查 | 權限＋workflow＋分支保護 |
+
+七條原則形成多層防護。任何一層都可能被繞過，所以每一層都假設前一層已經失守：
+
+```mermaid
+flowchart TB
+    A["Agent 想執行一個動作"] --> L1["第 1 層：指示<br>program.md、CLAUDE.md"]
+    L1 --> L2["第 2 層：權限規則<br>dontAsk 白名單、deny 規則"]
+    L2 --> L3["第 3 層：守門 hook<br>字串比對，fail-closed"]
+    L3 --> L4["第 4 層：sandbox<br>OS 層級的檔案與網路限制"]
+    L4 --> E["動作執行，產生 commit"]
+    E --> L5["第 5 層：評估器閘門<br>雜湊、抑制標記、掃描器設定、功能測試"]
+    L5 --> L6["第 6 層：CI 閘門<br>受保護的評估器、CodeQL、相依審查"]
+    L6 --> L7["第 7 層：人類審查<br>Draft PR、CODEOWNERS、ruleset"]
+    L7 --> M["合併"]
 ```
 
-### 3.3 Git 安裝與設定
+> 💡 **為什麼原則 4、5 不能只靠 Prompt？** Agent 的目標是讓指標下降。只要存在「改測試」或「加 `# nosec`」這種更便宜的路徑，就有機率被選中。第 16 章的第 02、03、05 輪就是刻意模擬這些行為，評估器全部擋下。
 
-```bash
-# 安裝（Windows 使用 winget）
-winget install Git.Git
+### 3.3 安全負債指標 sec_debt 的設計
 
-# 基本設定
-git config --global user.name "Your Name"
-git config --global user.email "your.email@company.com"
+上游的 `val_bpb` 是天然的連續指標。安全沒有這種天然指標，需要自己設計。本手冊的評估器（`harness/evaluate.py`）定義如下：
 
-# 安全設定：啟用 GPG 簽章
-git config --global commit.gpgsign true
-git config --global tag.gpgsign true
+| 來源 | 權重 | 理由 |
+| --- | --- | --- |
+| bandit HIGH／MEDIUM／LOW | 5／3／1 | Python 專用 SAST，規則成熟 |
+| semgrep ERROR／WARNING／INFO | 5／3／1 | 用本機規則檔（不連網），規則由安全團隊維護 |
+| gitleaks 每筆秘密 | 8 | 外洩機密的影響通常高於一般弱點 |
+| **失敗的安全測試** 每個 | 10 | 動態證據比靜態規則更可靠，權重最高 |
 
-# 設定預設分支名稱
-git config --global init.defaultBranch main
+設計要點與取捨：
 
-# 安裝 GitHub CLI
-winget install GitHub.cli
+1. **安全測試不是閘門，而是指標的一部分。** 基準版本本來就有弱點，安全測試一定會失敗；如果把它設成閘門，第一輪就過不了。把「失敗數 × 10」計入指標，修好一個弱點，指標就明顯下降。
+2. **功能測試是閘門。** 「為了安全把功能弄壞」不能算改善。
+3. **閘門失敗時，指標輸出 9999。** 迴圈邏輯只要比較數字就好；失敗原因寫在 `gate:` 行，供人類追查。
+4. **權重是政策，不是真理。** 權重由安全團隊決定並放在評估器裡，Agent 不能改。調整權重等同於修改評估器，要走變更審查。
+5. **指標要能被同一個 grep 讀出。** 輸出格式仿照上游：`---` 開頭，每行 `key: value`。
 
-# 驗證登入
-gh auth login
+基準版本的評估輸出（實測）：
+
+```text
+---
+sec_debt:          49
+func_tests:        3/3 passed
+sec_tests_failed:  2/2
+bandit:            H0 M2 L2
+semgrep:           3
+gitleaks:          1
+gate:              PASS
+eval_seconds:      (略)
 ```
 
-### 3.4 AutoResearch 安裝
+計算方式：bandit 2 個 MEDIUM（3×2）＋2 個 LOW（1×2）＝8；semgrep 2 個 ERROR（5×2）＋1 個 WARNING（3）＝13；gitleaks 1 筆（8）；安全測試失敗 2 個（10×2）＝20。總計 8＋13＋8＋20＝**49**。
 
-AutoResearch 使用 [uv](https://docs.astral.sh/uv/) 作為套件管理器，**不使用** pip 或 requirements.txt。
+### 3.4 Reward Hacking 的型態與對策
 
-#### 安裝 uv 套件管理器
+Reward hacking 是指 Agent 找到「讓指標變好、但目標沒有達成」的路徑。在安全修補迴圈中常見的型態：
+
+| 型態 | 具體行為 | 指標上的效果 | 本手冊的對策 | 第 16 章示範 |
+| --- | --- | --- | --- | --- |
+| 刪改測試 | 刪除會失敗的安全測試，或把斷言改弱 | 安全測試失敗數下降 | 受保護檔案雜湊 → `protected-file-changed` | 第 02 輪 |
+| 抑制標記 | 加上 `# nosec`、`# nosemgrep`、`gitleaks:allow` | 掃描器不再回報 | 評估器偵測標記 → `suppression-marker`；bandit 另加 `--ignore-nosec` | 第 03 輪 |
+| 掃描器設定 | 新增 `.gitleaks.toml` allowlist、`.semgrepignore` | 掃描器不再掃描該檔案 | 偵測設定檔 → `scanner-config` | 第 05 輪 |
+| 改評估器 | 修改 `evaluate.py` 或權重 | 任意 | 評估器放在 repo 外、唯讀、CI 從受保護 repo 取出 | — |
+| 針對測試特例化 | 程式偵測到測試輸入就回傳預期值 | 測試通過，但真實輸入仍有弱點 | 人類審查 diff；安全測試使用多組輸入；獨立 reviewer subagent | 第 21 章 |
+| 搬移問題 | 把危險呼叫包進另一個模組或函式，躲過規則 | 規則不再匹配 | semgrep 規則以語意比對；reviewer 檢查「是否只是換位置」 | 第 21 章 |
+| 移除功能 | 直接刪除有弱點的功能 | 發現數下降 | 功能測試是閘門 | — |
+
+> ✅ **原則**：每發現一種新的規避手法，就把它加進評估器的閘門，並在第 16 章的攻擊樣本中加一輪回歸測試。評估器和程式碼一樣需要版本控制與測試。
+
+### 3.5 上游三件套與 SSDLC 三件套的對應
+
+| 上游 | SSDLC 版 | 位置 | 誰維護 |
+| --- | --- | --- | --- |
+| `prepare.py`（含 `evaluate_bpb`） | `harness/evaluate.py`＋`semgrep-rules.yml`＋受保護檔案清單 | **repo 外**（受保護的 harness repo） | 安全團隊 |
+| `train.py` | `app/`（被修補的程式碼） | 目標 repo | Agent（迴圈中）／開發者 |
+| `program.md` | `program.md`（SSDLC 版） | 目標 repo，但列為受保護 | Security Champion |
+| `results.tsv` | `results.tsv`（commit、sec_debt、gate、status、description） | 目標 repo，未追蹤 | Agent 寫入、人類閱讀 |
+| `tests`（上游沒有） | `tests/test_functional.py`（閘門）＋`tests/test_security.py`（指標） | 目標 repo，列為受保護 | 開發者＋安全團隊 |
+
+SSDLC 版 `program.md` 全文如下。這份檔案通過第 21 章 `check_program_md.py` 的 9 條規則：
+
+```markdown
+# ssdlc-autoresearch：安全負債自主修補迴圈
+
+本檔由人類（Security Champion）維護，Agent 只能讀，不能改。
+
+## Setup（第一次啟動時與人類確認）
+
+1. 約定 run tag，例如 `oct23`；建立分支 `autoresearch/<tag>`，此分支必須是新的。
+2. 讀取範圍內檔案：`program.md`、`app/*.py`、`tests/*.py`。
+3. 確認評估器存在：`$EVAL` 指向的 `evaluate.py` 不在本 repo 內，你無權修改。
+4. 建立只有表頭的 `results.tsv`（不要 commit）。
+5. 先跑一次基準（baseline），不做任何修改。
+
+## 你可以做的事
+
+- 只修改 `app/` 底下的 `.py` 檔。
+- 使用 Python 標準函式庫；不可新增套件或修改相依設定。
+
+## 你不可以做的事（違反即被評估器判為 gate FAIL）
+
+- 修改、刪除或新增 `tests/` 底下的任何檔案，或修改本檔。
+- 加入 `# nosec`、`nosemgrep`、`gitleaks:allow` 等抑制標記。
+- 新增任何掃描器設定檔（`.gitleaks.toml`、`.semgrepignore`、`.bandit` 等）。
+- 執行 `git push`、存取網路、讀取 `.env` 或任何憑證檔。
+
+## 目標
+
+**讓 `sec_debt` 越低越好**，同時功能測試必須全部通過。
+`sec_debt` 由評估器計算：bandit、semgrep、gitleaks 的發現與失敗的安全測試加權總和。
+
+**簡單性準則**：效果相同時，越簡單越好。只為了降低 1 分卻加入大量複雜程式碼，不值得。
+
+## 實驗迴圈（每一輪）
+
+1. 查看目前分支與 commit。
+2. 選一個想法，只改 `app/` 中的程式碼。
+3. `git commit`
+4. 執行：`python "$EVAL" . > run.log 2>&1`（不要用 tee，不要讓輸出灌爆 context）
+5. 讀取結果：`grep "^sec_debt:\|^gate:" run.log`
+6. 若 grep 沒有輸出，代表這輪 crash：`tail -n 50 run.log` 看原因，小錯就修，想法本身有問題就放棄。
+7. 將結果寫入 `results.tsv`（tab 分隔：commit、sec_debt、gate、status、description）。
+8. `sec_debt` 嚴格下降且 gate 為 PASS → keep（保留 commit，分支前進）。
+9. 相同或更差，或 gate FAIL → discard：`git reset --hard HEAD~1`。
+
+## 逾時與停止條件（企業版與上游不同之處）
+
+- 單輪超過 10 分鐘即終止，記為 crash。
+- 以下任一條件成立就**停止並回報人類**，不得無限執行：
+  - `sec_debt` 為 0；
+  - 已完成 30 輪；
+  - 連續 8 輪沒有 keep；
+  - 任何一輪出現 gate FAIL 且原因為 `protected-file-changed` 或 `scanner-config`。
+- 停止後輸出 `results.tsv` 與 `git log --oneline` 供人類審查；**合併到主幹必須經人類 code review**。
+```
+
+### 3.6 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| 迴圈適用性評估 | 所有任務都套用自主迴圈 | 用 3.1 節四個條件逐項判斷 | 填寫決策表，任一條件不成立就不用迴圈 |
+| 指標設計 | 只用「發現數」，沒有動態證據；或把安全測試設成閘門 | 加權發現數＋安全測試失敗數；功能測試為閘門 | 基準版本跑一次，人工核算指標 |
+| 評估器位置 | 放在目標 repo 內，Agent 可改 | 放在 repo 外，CI 中唯讀 | 在 Agent session 中嘗試編輯評估器，應被拒絕 |
+| 規避偵測 | 沒有任何偵測，只在 Prompt 說「不要作弊」 | 雜湊、抑制標記、設定檔三項閘門 | 跑第 16 章的 02／03／05 輪，應全部 gate FAIL |
+| program.md | 照抄上游 NEVER STOP | 有界停止條件、人類合併 | `check_program_md.py program.md` 應 9/9 通過 |
+
+---
+
+## 第二部：環境與工具
+
+## 第 4 章：環境建置
+
+### 4.1 前置需求總覽
+
+本手冊驗證時使用的版本如下。企業導入時，請把版本**鎖定**在內部的工具基線文件中，不要使用 `latest`：
+
+| 類別 | 工具 | 驗證版本 | 用途 |
+| --- | --- | --- | --- |
+| 執行環境 | Python | 3.12.8 | 玩具專案、評估器、檢查器 |
+| 套件管理 | uv | 0.8.17 | 建立 venv、安裝工具；上游 AutoResearch 也用它 |
+| 版本控制 | Git／GitHub CLI | 2.45／2.92.0 | 迴圈的 commit 與 reset；gh 用於 API 與 `gh aw` |
+| AI Agent | Claude Code | 2.1.304（文件 2.1.309） | 執行迴圈的 Agent 之一 |
+| AI Agent | GitHub Copilot CLI | 1.0.100 | 執行迴圈的 Agent 之一 |
+| SDK | claude-agent-sdk（Python） | 0.2.173 | 以程式驅動迴圈（第 5.10 節） |
+| 測試 | pytest | 9.1.1 | 功能測試與安全測試 |
+| SAST | bandit／semgrep | 1.9.4／1.182.1 | 靜態掃描 |
+| 秘密掃描 | gitleaks | 8.30.1 | 機密外洩偵測 |
+| CI 檢查 | actionlint／zizmor | 1.7.12／1.31.1 | workflow 語法與安全稽核 |
+| Agentic Workflows | gh-aw | 0.93.2 | 編譯 `.md` workflow |
+| 遙測 | OpenTelemetry Collector（core） | 0.163.2 | 接收 Claude Code 遙測 |
+
+### 4.2 Python 與 uv
 
 ```bash
-# macOS / Linux
+# macOS／Linux：安裝 uv
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Windows PowerShell
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+# Windows PowerShell 也可以用 winget
+# winget install --id astral-sh.uv
+
+# 建立專用 venv 並安裝掃描工具（版本鎖定）
+uv venv .venv --python 3.12
+uv pip install --python .venv/bin/python pytest==9.1.1 bandit==1.9.4 semgrep==1.182.1 zizmor==1.31.1
 ```
 
-#### Clone 並安裝 AutoResearch
+> ⚠️ semgrep 在 Windows 上要設定 `PYTHONUTF8=1`，否則讀到含中文的規則或程式時可能因編碼失敗。評估器已在子程序環境中設定這個變數。
+
+### 4.3 Git 與 GitHub CLI（含 Windows 換行陷阱）
 
 ```bash
-# 1. Clone AutoResearch 專案
-git clone https://github.com/karpathy/autoresearch.git
-cd autoresearch
-
-# 2. 安裝相依套件（使用 uv）
-uv sync
-
-# 3. 下載資料並訓練 tokenizer（一次性，約 2 分鐘）
-uv run prepare.py
-
-# 4. 手動執行一次訓練實驗（約 5 分鐘，驗證環境正常）
-uv run train.py
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+git config --global init.defaultBranch main
+gh auth login
+gh auth status
 ```
 
-#### 設定環境變數
+> ⚠️ **Windows 換行陷阱（實測發現）**：在 `core.autocrlf=true` 的 Windows 機器上，`git reset --hard` 還原檔案時會把 LF 改寫為 CRLF。如果評估器直接對檔案位元組計算 SHA-256，**內容沒變也會被判定為「受保護檔案遭修改」**，導致之後每一輪都 gate FAIL。本手冊的評估器在雜湊前先把 CRLF 正規化為 LF（見第 16.2 節）。另一個做法是在迴圈專用的 repo 設定 `git config core.autocrlf false`，並在 `.gitattributes` 宣告 `* text=auto eol=lf`。
+
+### 4.4 Claude Code 安裝與登入
+
+官方建議使用原生安裝程式（會在背景自動更新）：
 
 ```bash
-# Windows PowerShell
-$env:AUTORESEARCH_HOME = "$(Get-Location)"
-$env:AUTORESEARCH_TIME_BUDGET = "300"  # 5 分鐘
-
-# Linux / macOS
-export AUTORESEARCH_HOME=$(pwd)
-export AUTORESEARCH_TIME_BUDGET=300
-```
-
-#### 啟動 AI Agent 進行自主研究
-
-```bash
-# 啟動 Claude Code / Codex 等 AI Agent，然後給予以下 Prompt：
-# "Hi have a look at program.md and let's kick off a new experiment!
-#  let's do the setup first."
-# program.md 本質上是一個輕量級的 "skill" 指令檔
-```
-
-> **⚠️ 重要**：AutoResearch 專案結構精簡，只有三個核心檔案：`prepare.py`（不可修改）、`train.py`（AI 可修改）、`program.md`（人類編輯的策略文件）。
-
-### 3.5 Claude Code 安裝與設定
-
-Claude Code 已改為**原生安裝**，不再需要 Node.js。安裝後會自動在背景更新至最新版本。
-
-#### 安裝 Claude Code
-
-```bash
-# macOS / Linux / WSL（推薦 — 原生安裝，自動背景更新）
+# macOS／Linux／WSL
 curl -fsSL https://claude.ai/install.sh | bash
+```
 
+```powershell
 # Windows PowerShell
 irm https://claude.ai/install.ps1 | iex
+```
 
-# Windows CMD
-curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
-
-# ---- 套件管理器安裝（不自動更新，需手動升級）----
-
-# Homebrew (macOS) — stable channel
+```bash
+# 套件管理器（不會自動更新，需手動升級）
 brew install --cask claude-code
-# 或 latest channel（最新版，可能有回歸）
-brew install --cask claude-code@latest
-
-# WinGet (Windows)
 winget install Anthropic.ClaudeCode
 
-# Linux 套件管理器
-sudo apt install claude-code        # Debian / Ubuntu
-sudo dnf install claude-code        # Fedora / RHEL
-sudo apk add claude-code            # Alpine
+# npm（需要 Node.js 22 以上；安裝的是同一個原生執行檔，可用 @X.Y.Z 鎖定版本）
+npm install -g @anthropic-ai/claude-code
 ```
 
-#### 安裝 Claude Code Desktop App
-
 ```bash
-# macOS（Intel + Apple Silicon）
-# 下載：https://claude.ai/api/desktop/darwin/universal/dmg/latest/redirect
-
-# Windows x64
-# 下載：https://claude.ai/api/desktop/win32/x64/setup/latest/redirect
-
-# Windows ARM64
-# 下載：https://claude.ai/api/desktop/win32/arm64/setup/latest/redirect
-
-# 功能：平行 sessions、Git 隔離、排程任務、視覺化 diff、PR 監控
-```
-
-#### Claude Code Web（無需本地安裝）
-
-直接在瀏覽器使用：[claude.ai/code](https://claude.ai/code)
-
-- 適用於：無本地環境、長時間運行任務、遠端 repo
-- 可與 terminal 互傳 session（`claude --teleport` / `claude --remote`）
-
-> **📝 注意**：Windows 原生安裝需要先安裝 [Git for Windows](https://git-scm.com/downloads/win)。WSL 安裝不需要。
-> 如果出現 `The token '&&' is not a valid statement separator` 錯誤，代表你在 PowerShell 環境，請使用 PowerShell 指令。
-
-#### 登入與初始化
-
-```bash
-# 1. 在專案目錄啟動 Claude Code（首次會引導登入）
+# 在專案目錄啟動，第一次會引導登入
 cd your-project
 claude
-
-# 支援的帳號類型：
-# - Claude Pro / Max / Team / Enterprise（推薦）
-# - Claude Console（API 存取，預付費額度）
-# - Amazon Bedrock / Google Vertex AI / Microsoft Foundry（企業雲端供應商）
-
-# 2. 驗證安裝
+# 檢查安裝與設定
 claude --version
-
-# 3. 在 CLI 輸入 /help 查看可用指令
+claude doctor
 ```
 
-#### Claude Code 可用介面
+支援的帳號類型：Claude Pro／Max／Team／Enterprise 訂閱、Claude Console（API）、Amazon Bedrock、Google Cloud Vertex AI、Microsoft Foundry。企業環境建議由管理員以 managed settings 統一派送權限與 sandbox 設定（第 5.1 節）。
 
-Claude Code 不僅限於 Terminal CLI，還可在多個介面使用：
+> ⚠️ **sandbox 不支援原生 Windows**。在原生 Windows 上，Claude Code 執行指令時不會套用 sandbox。需要 sandbox 的迴圈（建議所有無人值守的迴圈都要有），請在 WSL2、Linux 或 macOS 上執行，或在容器中執行。
 
-| 介面 | 說明 | 使用場景 |
-|------|------|--------|
-| **Terminal CLI** | 完整功能的命令列工具 | 日常開發、腳本自動化 |
-| **VS Code** | IDE 整合擴充套件 | 編輯器內直接使用 |
-| **JetBrains** | IntelliJ / PyCharm 等整合 | JetBrains 使用者 |
-| **Desktop App** | 桌面應用程式 | 多工作區管理、排程任務 |
-| **Web** | 瀏覽器版本（claude.ai/code） | 遠端存取、雲端 VM |
-| **GitHub Actions** | CI/CD 整合 | 自動化 PR 審查、Issue 分派 |
-| **GitLab CI/CD** | CI/CD 整合 | GitLab 使用者 |
-| **Slack** | 聊天整合 | 團隊協作、Bug 報告路由 |
-| **Chrome** | 瀏覽器擴充 | 即時 UI 偵錯與驗證 |
-
-> **💡 所有介面共享相同底層引擎**：CLAUDE.md 檔案、設定、MCP 伺服器在所有介面間通用。
-
-**安全注意事項**：永遠不要將 API Key 提交至 Git。使用 `.env` 檔案 + `.gitignore` 管理機密：
+### 4.5 GitHub Copilot CLI 安裝與登入
 
 ```bash
-# .env（加入 .gitignore）
-ANTHROPIC_API_KEY=sk-ant-xxxxx
-OPENAI_API_KEY=sk-xxxxx
-GITHUB_TOKEN=ghp_xxxxx
+# 任一方式
+npm install -g @github/copilot
+brew install --cask copilot-cli
+winget install GitHub.Copilot
+curl -fsSL https://gh.io/copilot-install | bash
+
+# 也可以透過 gh 執行（預覽功能；未安裝時會自動下載）
+gh copilot -- --version
+
+# 啟動並登入
+copilot
+copilot --version
 ```
+
+Copilot CLI 包含在所有 Copilot 方案中。組織或企業管理員要先在政策中啟用 Copilot CLI。
+
+### 4.6 掃描與檢查工具
 
 ```bash
-# .gitignore
-.env
-.env.*
-!.env.example
+# gitleaks：從 GitHub Release 下載，並以官方 checksums 驗證
+curl -sSfL -o gitleaks.tgz \
+  https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  gitleaks.tgz" | sha256sum -c -
+tar -xzf gitleaks.tgz gitleaks
+
+# actionlint、jq、OpenTelemetry Collector 同樣從各自的 GitHub Release 下載
+gh release download -R rhysd/actionlint -p "*linux_amd64.tar.gz"
+
+# GitHub Agentic Workflows 擴充
+gh extension install github/gh-aw
+gh aw version
 ```
 
-### 3.6 GitHub Copilot 安裝與設定
+### 4.7 上游 AutoResearch 安裝（需 NVIDIA GPU）
 
-GitHub Copilot 於 2026 年已演進為完整的 **Agentic 開發平台**，包含 IDE 擴充套件、CLI Agent、Cloud Agent、Desktop App 及 SDK。以下分項說明安裝步驟。
-
-#### 3.6.1 VS Code 擴充套件安裝
+只有在要重現上游 ML 實驗時才需要。本手冊的 SSDLC 範例**不需要 GPU**。
 
 ```bash
-# 1. 在 VS Code 中安裝 GitHub Copilot 擴充套件
-code --install-extension GitHub.copilot
-code --install-extension GitHub.copilot-chat
-
-# 2. 登入 GitHub 帳號（在 VS Code 中操作）
-# VS Code → Accounts → Sign in with GitHub
-
-# 3. 驗證 Copilot 啟用狀態
-# 開啟任意程式碼檔案，確認右下角顯示 Copilot 圖示
+git clone https://github.com/karpathy/autoresearch.git
+cd autoresearch
+uv sync                 # 依 uv.lock 安裝，torch 來自 CUDA 12.8 index
+uv run prepare.py       # 一次性：下載資料、訓練 tokenizer（約 2 分鐘），存到 ~/.cache/autoresearch/
+uv run train.py         # 手動跑一次（約 5 分鐘），確認環境正常
 ```
 
-#### 3.6.2 GitHub Copilot CLI 安裝（Agentic Terminal Agent）
+確認 `uv run train.py` 最後印出 `val_bpb:` 之後，再啟動 Agent 進入自主模式。上游建議在 repo 裡啟動 Claude Code 或 Codex，並給它這段 Prompt：`Hi have a look at program.md and let's kick off a new experiment! let's do the setup first.`
 
-Copilot CLI 是一個獨立的命令列 AI Agent，可在 terminal 中自主執行開發任務，支援 autopilot 模式、平行任務（`/fleet`）、研究模式（`/research`）等進階功能。
+> ⚠️ 上游 README 說「disable all permissions」。在企業網路中的機器上**不要**這樣做。至少要在容器或 VM 中執行，並移除 repo 外的憑證（見第 1.6 節與第 5 章）。
+
+### 4.8 安裝驗證清單
+
+| 檢查 | 指令 | 預期結果 |
+| --- | --- | --- |
+| Python 與 venv | `.venv/bin/python -m pytest --version` | `pytest 9.1.1` |
+| bandit | `bandit --version` | 第一行含 `bandit 1.9.4` |
+| semgrep | `semgrep --version` | `1.182.1` |
+| gitleaks | `gitleaks version` | `8.30.1` |
+| Claude Code | `claude --version` | 版本號，例如 `2.1.304 (Claude Code)` |
+| Claude Code 設定 | `claude doctor` | 沒有錯誤 |
+| Copilot CLI | `copilot --version` | 版本號，例如 `GitHub Copilot CLI 1.0.100.` |
+| gh-aw | `gh aw version` | 例如 `gh aw version v0.93.2` |
+| Git 換行 | `git config core.autocrlf` | 迴圈專用 repo 建議為 `false` |
+
+### 4.9 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| 安裝指令 | 使用不存在的安裝方式；或用 npm 安裝卻沒注意 Node.js 版本 | 依官方文件：原生安裝程式（自動更新）、brew、winget、npm（Node.js 22+） | 對照 code.claude.com/docs 的 setup 頁 |
+| 工具版本 | 寫 `latest`，或不鎖定版本 | 在 CI 與基線文件中鎖定版本，下載的檔案驗證 checksum | `sha256sum -c` 必須通過 |
+| sandbox 前提 | 宣稱 Windows 原生支援 sandbox | sandbox 只支援 macOS、Linux、WSL2 | 對照 sandboxing 文件；或在 Windows 上設定 `failIfUnavailable: true`，Claude Code 會在啟動時直接報錯退出 |
+| Git 設定 | 忽略換行設定 | 迴圈 repo 關閉 autocrlf，或評估器正規化換行 | 跑第 16 章迴圈，第 02 輪之後不應連續出現 `protected-file-changed` |
+| 上游安裝 | 在沒有 GPU 的機器上嘗試 `uv run train.py` | SSDLC 範例不需要 GPU，上游需要 NVIDIA GPU | `train.py` 開頭會呼叫 `torch.cuda.get_device_capability()` |
+
+---
+
+## 第 5 章：Claude Code 安全設定
+
+本章把第 3.2 節的七條原則落實成 Claude Code 的設定。所有設定都放在一個可以直接複製到專案的範例目錄（`val/configs/`），並通過第 5.11 節的檢查器。
+
+### 5.1 設定檔層級與優先順序
+
+| 優先順序（高 → 低） | 位置 | 誰維護 | SSDLC 用途 |
+| --- | --- | --- | --- |
+| 1 | Managed settings（`managed-settings.json`、MDM、claude.ai 主控台的 server-managed settings） | IT／資安 | 組織底線：禁止 bypass、強制 sandbox、允許的 plugin 與 MCP |
+| 2 | 命令列 `--settings <檔案或 JSON>` | 執行者 | CI 中針對單次執行的覆寫 |
+| 3 | `.claude/settings.local.json` | 個人 | 個人偏好；不進版控 |
+| 4 | `.claude/settings.json` | 團隊 | 專案共用：權限、hook、啟用的 plugin |
+| 5 | `~/.claude/settings.json` | 個人 | 跨專案的個人設定 |
+
+兩個容易誤解的規則：
+
+- **清單會合併，不會覆蓋**：`permissions.allow`、`permissions.deny` 等清單會跨層合併。專案的 deny 規則不會被個人設定刪掉。
+- **環境變數不在這個堆疊裡**：同時有環境變數與設定鍵時，以各自文件記載的規則決定誰優先。
+
+### 5.2 權限模式的選擇
+
+| 模式 | 不需詢問就能做的事 | 迴圈中的適用性 |
+| --- | --- | --- |
+| `default`（Manual） | 只有讀取 | ❌ 無人值守時會卡住等待確認 |
+| `acceptEdits` | 讀取、編輯檔案、常見檔案系統指令 | ⚠️ 指令仍需確認，夜間迴圈會卡住 |
+| `plan` | 讀取（自動模式可用時，加上分類器核准的指令） | 用於迴圈開始前的分析，不適合執行迴圈 |
+| `auto` | 全部，但有背景分類器審核 | ⚠️ 可用於互動式長任務；分類器的決策不完全可預測 |
+| **`dontAsk`** | 工作目錄內的讀取，以及**預先允許**的工具；其他一律拒絕 | ✅ **無人值守迴圈的建議模式**：行為完全由白名單決定 |
+| `bypassPermissions` | 全部 | ❌ 只能在隔離的容器或 VM 中使用；企業建議以 `disableBypassPermissionsMode` 禁用 |
+
+> 💡 **為什麼選 `dontAsk` 而不是 `auto`？** 迴圈需要的動作是固定的：編輯 `app/`、commit、跑評估器、grep、reset。這些可以完整列入白名單。`dontAsk` 讓「白名單以外的一切」都被拒絕，行為可預測、可稽核。`auto` 適合任務範圍不固定的互動式工作。
+
+無論哪個模式，以下動作**都不會被自動核准**（官方文件「Actions no mode auto-approves」）：明確的 ask 規則、需要使用者互動的工具、`rm`／`rmdir` 刪除關鍵路徑等。此外，**deny 規則在所有模式下都有效，包括 `bypassPermissions`**。
+
+### 5.3 權限規則語法與受保護路徑
+
+權限規則的格式是 `Tool` 或 `Tool(specifier)`。路徑錨點的寫法容易出錯：
+
+| 寫法 | 意義 | 範例 |
+| --- | --- | --- |
+| `//path` | 檔案系統絕對路徑 | `Read(//etc/**)` |
+| `~/path` | 家目錄 | `Read(~/.aws/**)` |
+| `/path` | **相對於設定檔所在的來源**（專案設定就是專案根目錄） | `Edit(/tests/**)` |
+| `path` 或 `./path` | 相對於目前目錄；單一檔名依 gitignore 語意匹配任何深度 | `Read(.env)` 等同 `Read(**/.env)` |
+
+本手冊範例用到的陷阱與對策：
+
+| 陷阱 | 說明 | 對策 |
+| --- | --- | --- |
+| `Write(path)` 永遠不會匹配 | 檔案權限只用 `Edit(path)` 與 `Read(path)` 判斷；`Write`、`NotebookEdit`、`Glob`、`MultiEdit` 帶路徑的規則會被接受，但永遠不會生效 | 一律寫 `Edit(path)` |
+| 主要欄位不能用 `field:` 語法 | `Bash(command:rm *)` 這類規則會被忽略並在啟動時警告 | 寫 `Bash(rm *)` |
+| 複合指令 | `git commit -m x && git push` 會被拆成子指令逐一比對 | deny `Bash(git push *)` 就能擋下這種鏈式指令 |
+| 規則本身含有管線或連接符號 | 指令會先依 `&&`、`;`、管線等分隔成子指令，規則再**逐一**比對子指令。所以 `Bash(curl * \| sh)` 這種規則永遠不會匹配任何子指令 | 擋「下載後執行」要用 hook；或分別 deny `Bash(curl *)` |
+| 輸出重導的目標 | `> run.log`、`>> results.tsv`、`tee` 的目標檔會**另外**依 `Edit` 規則檢查；`Bash(...)` 規則只核准指令本身 | 迴圈會寫的 `run.log`、`results.tsv` 要另外加 `Edit(/run.log)`、`Edit(/results.tsv)`（實作時發現的陷阱） |
+| `*` 範圍過寬 | `Bash(python * > run.log 2>&1)` 也會匹配 `python -c "..." > run.log 2>&1` | 允許規則寫成完整指令：`Bash(python "$EVAL" . > run.log 2>&1)` |
+| `.claudeignore` 沒有作用 | 不存在這個機制 | 改用 `Read(...)` deny 規則 |
+
+**受保護路徑**：寫入 `.git`、`.config/git`、`.vscode`、`.claude/` 等路徑時，除了 `bypassPermissions` 以外的模式都不會自動核准；`dontAsk` 模式下會直接拒絕。而且 `permissions.allow` 的規則**無法**預先核准這些路徑。這正好符合迴圈的需求：Agent 不應該改自己的設定。
+
+### 5.4 Sandbox
+
+Sandbox 在 OS 層級限制 Agent 執行的 shell 指令（以及它們啟動的子程序）：
+
+| 面向 | 預設 | 本手冊設定 |
+| --- | --- | --- |
+| 寫入 | 工作目錄、暫存目錄、`--add-dir` 加入的目錄；受保護路徑不可寫 | 維持預設 |
+| 讀取 | **大部分的檔案系統，包括 `~/.ssh`、`~/.aws/credentials`** | `filesystem.denyRead` 擋掉憑證目錄與 `.env` |
+| 網路 | 經由本機 proxy，允許清單預設為空；遇到不在清單的主機時由權限模式決定 | `dontAsk` 模式下**直接拒絕**，等於完全斷網 |
+| 環境變數 | 繼承 Claude Code 的環境（包括其中的機密） | 迴圈只注入 `EVAL` 與測試用的 `APP_SECRET_KEY` |
+
+重要限制：
+
+1. **原生 Windows 不支援 sandbox**，請在 macOS、Linux、WSL2 或容器中執行。`failIfUnavailable: true` 讓 Claude Code 在 sandbox 無法啟動時直接報錯退出，而不是默默以「無 sandbox」狀態執行。
+2. Sandbox 只包住 **shell 指令**。內建的 Read、Edit、WebFetch 等工具由**權限規則**控制；hook、MCP server 也在 sandbox 之外執行。因此 sandbox 與權限規則必須**同時**設定。
+3. `allowUnsandboxedCommands: false` 會關閉「被擋下後要求在 sandbox 外重試」的逃生口。
+
+### 5.5 守門 Hook
+
+Hook 是**確定性**的控制：每次工具呼叫前一定會執行，不依賴模型是否「記得」規則。本手冊的守門 hook 有三個設計重點：
+
+1. **只拒絕，不核准**：輸出 `permissionDecision: "deny"` 或什麼都不輸出（交回正常權限流程），從不輸出 `allow`。這樣 hook 有 bug 時，最壞情況是「多擋」，而不是「放行」。
+2. **fail-closed**：輸入無法解析時一律拒絕；設定中加上 `"onFailure": "block"`（v2.1.295 起），讓 hook 程式找不到、逾時或崩潰時也阻擋動作。
+3. **同一支腳本支援 Claude Code 與 Copilot**：兩者的輸入格式不同（第 6.3 節），規則只維護一份。
+
+一次工具呼叫在本手冊設定下的判定順序（簡化）：
+
+```mermaid
+flowchart TD
+    T["Agent 發出工具呼叫"] --> H{"PreToolUse 守門 hook"}
+    H -->|deny| X1["拒絕，原因回饋給 Agent"]
+    H -->|hook 失敗或逾時| X2["onFailure block：拒絕"]
+    H -->|不表態| D{"permissions.deny 符合？"}
+    D -->|是| X3["拒絕"]
+    D -->|否| A{"permissions.allow 符合？"}
+    A -->|否| X4["dontAsk：拒絕"]
+    A -->|是| S{"Bash 指令？"}
+    S -->|是| SB["在 sandbox 中執行<br>檔案與網路受 OS 限制"]
+    S -->|否| RUN["執行 Edit 或 Read 等內建工具"]
+```
+
+Claude Code hook 的關鍵行為（摘自官方 hooks 參考）：
+
+| 項目 | 行為 |
+| --- | --- |
+| Exit code 0 | 解析 stdout 的 JSON；PreToolUse 透過 `hookSpecificOutput.permissionDecision`（allow／deny／ask／defer）表達決策 |
+| Exit code 2 | 阻擋動作，stderr 回饋給 Claude |
+| **其他 exit code（例如 1）** | **非阻擋錯誤：動作照樣執行**。v3.0 範例用 `exit 1` 想擋寫入，實際上擋不住 |
+| `onFailure: "block"` | 啟動失敗、逾時、非 0／2 的 exit code、輸出格式錯誤，都改為阻擋（不適用 Stop 類事件與背景 hook） |
+| Windows 路徑 | `tool_input.file_path` 一律是絕對路徑，Windows 上使用**反斜線**。用 `/tests/` 比對會永遠不匹配，必須先正規化 |
+| PowerShell 工具 | Windows 上若啟用 PowerShell 工具，shell 指令會走 `PowerShell` 而不是 `Bash`。matcher 要同時列出 `Bash` 與 `PowerShell` |
+| 檔案路徑來源 | 從 stdin JSON 的 `tool_input.file_path` 取得。**沒有 `$CLAUDE_FILE_PATH` 這個環境變數** |
+
+守門 hook 全文：
+
+```python
+#!/usr/bin/env python3
+"""SSDLC AutoResearch 守門 hook（PreToolUse / preToolUse）。
+
+同一支腳本支援三種輸入格式：
+  1. Claude Code：{"hook_event_name": "PreToolUse", "tool_name", "tool_input"}
+  2. Copilot CLI / cloud agent camelCase：{"toolName", "toolArgs"}
+  3. Copilot PascalCase 相容格式：{"hook_event_name": "PreToolUse", "tool_name", "tool_input"}
+決策只有 deny 或「不表態」（交回平台的正常權限流程），刻意不回傳 allow。
+任何解析錯誤一律 deny（fail-closed）。
+"""
+import json
+import re
+import sys
+
+# Agent 不得寫入的路徑（評估器、測試、指令檔、代理設定、CI、掃描器設定、機密）
+PROTECTED_WRITE = re.compile(
+    r"(^|/)(tests|harness)/|(^|/)program\.md$|(^|/)\.claude/|(^|/)\.github/(hooks|workflows)/"
+    r"|(^|/)\.(gitleaks\.toml|semgrepignore|bandit)$|(^|/)\.env(\.|$)",
+    re.I)
+# Agent 不得讀取的機密檔
+SECRET_READ = re.compile(r"(^|/)\.env(\.|$)|\.pem$|(^|/)id_(rsa|ed25519)$|(^|/)\.aws/credentials$", re.I)
+# Shell 指令黑名單（盡力而為；真正的邊界要靠 sandbox 與 permissions.deny）
+SHELL_DENY = [
+    (r"\bgit\s+push\b", "迴圈內禁止 git push，合併需經人類審查"),
+    (r"\bgit\s+reset\s+--hard\b(?!\s+HEAD~1\s*$)", "只允許 git reset --hard HEAD~1"),
+    (r"--no-verify\b", "禁止略過 git hooks"),
+    (r"\brm\s+-[a-z]*r[a-z]*f?\b|\bRemove-Item\b.*-Recurse", "禁止遞迴刪除"),
+    (r"\b(curl|wget|Invoke-WebRequest|iwr)\b", "迴圈內禁止網路存取"),
+    (r"\b(pip|uv|npm|pnpm|yarn)\s+(install|add)\b", "禁止新增相依套件"),
+    (r"(^|[\s;&|])\.env\b|\bprintenv\b|\benv\s*$", "禁止讀取環境機密"),
+    (r"(>|>>|\btee\b|\bsed\s+-i\b|\bcp\b|\bmv\b|Set-Content|Out-File)[^;&|]*\b(tests|harness)/",
+     "禁止以 shell 改寫測試或評估器"),
+    (r"(>|>>|\btee\b|\bsed\s+-i\b)[^;&|]*program\.md", "禁止以 shell 改寫 program.md"),
+]
+
+WRITE_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit", "create", "edit", "str_replace_editor", "apply_patch"}
+READ_TOOLS = {"Read", "view"}
+SHELL_TOOLS = {"Bash", "PowerShell", "bash", "powershell"}
+
+
+def norm(path: str) -> str:
+    return (path or "").replace("\\", "/")
+
+
+def decide(tool: str, args: dict):
+    if tool in WRITE_TOOLS:
+        path = norm(args.get("file_path") or args.get("path") or args.get("notebook_path") or "")
+        if tool == "apply_patch":  # Copilot apply_patch 的路徑寫在 patch 內容中
+            path = " ".join(re.findall(r"\*\*\* (?:Add|Update|Delete) File: (\S+)", args.get("input", "")))
+            if any(PROTECTED_WRITE.search(norm(p)) for p in path.split()):
+                return f"受保護路徑不可修改：{path}"
+            return None
+        if PROTECTED_WRITE.search(path):
+            return f"受保護路徑不可修改：{path}"
+    elif tool in READ_TOOLS:
+        path = norm(args.get("file_path") or args.get("path") or "")
+        if SECRET_READ.search(path):
+            return f"機密檔不可讀取：{path}"
+    elif tool in SHELL_TOOLS:
+        cmd = args.get("command", "")
+        for pattern, reason in SHELL_DENY:
+            if re.search(pattern, cmd, re.I):
+                return f"{reason}：{cmd[:120]}"
+    return None
+
+
+def main():
+    try:
+        data = json.load(sys.stdin)
+        if "toolName" in data:                      # Copilot camelCase
+            fmt, tool, args = "copilot", data["toolName"], data.get("toolArgs") or {}
+        else:                                       # Claude Code 或 Copilot PascalCase
+            fmt, tool, args = "claude", data["tool_name"], data.get("tool_input") or {}
+        if isinstance(args, str):                   # Copilot 的 toolArgs 可能是 JSON 字串
+            args = json.loads(args)
+        reason = decide(tool, args)
+    except Exception as exc:                        # fail-closed
+        fmt, reason = "claude", f"guard 無法解析輸入，基於安全拒絕：{type(exc).__name__}"
+        if "data" in locals() and isinstance(data, dict) and "toolName" in data:
+            fmt = "copilot"
+    if reason is None:
+        return 0                                    # 不表態：交回平台正常權限流程
+    if fmt == "copilot":
+        print(json.dumps({"permissionDecision": "deny", "permissionDecisionReason": reason},
+                         ensure_ascii=False))
+    else:
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PreToolUse",
+                                                 "permissionDecision": "deny",
+                                                 "permissionDecisionReason": reason}},
+                         ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
+```
+
+正反向測試（34 個案例，包含 Claude Code 與 Copilot 兩種格式，以及 1 個刻意保留的「已知繞過」案例）：
+
+```text
+PASS  pass  claude 改 app 程式
+PASS  deny  claude 改測試
+PASS  deny  claude Windows 反斜線改測試
+PASS  deny  claude 改 program.md
+PASS  deny  claude 新增 .gitleaks.toml
+PASS  deny  claude 改 workflow
+PASS  deny  claude 改自己的設定
+PASS  deny  claude 讀 .env
+PASS  deny  claude 讀 .env.example 以外的 .env.local
+PASS  pass  claude 讀一般檔
+PASS  pass  claude 跑測試
+PASS  pass  claude grep 結果
+PASS  pass  claude 允許的 reset
+PASS  deny  claude 其他 reset
+PASS  deny  claude push
+PASS  deny  claude 鏈式 push
+PASS  deny  claude no-verify
+PASS  deny  claude rm -rf
+PASS  deny  claude curl
+PASS  deny  claude pip install
+PASS  deny  claude cat .env
+PASS  deny  claude sed 改測試
+PASS  deny  claude 重導覆寫測試
+PASS  deny  claude PowerShell 刪除
+PASS  deny  claude PowerShell 改測試
+PASS  pass  已知繞過：python -c 寫測試檔
+PASS  pass  copilot 改 app
+PASS  deny  copilot 建立測試檔
+PASS  deny  copilot bash push
+PASS  pass  copilot bash 跑評估
+PASS  deny  copilot view .env
+PASS  deny  copilot apply_patch 改測試
+PASS  pass  copilot apply_patch 改 app
+PASS  deny  非 JSON 輸入 → fail-closed
+
+34/34 cases passed
+```
+
+> 🔍 **「已知繞過：python -c 寫測試檔」為什麼標示為通過？** 這個案例的預期結果就是「hook 擋不住」。字串比對無法理解直譯器內部的寫檔行為，這是所有以字串比對為基礎的 hook 的共同限制。所以第 3.2 節的原則 4（受保護檔案雜湊）是必要的**第二道防線**：就算 hook 被繞過，評估器也會判定 `protected-file-changed`。**不要相信任何單一防線。**
+
+### 5.6 CLAUDE.md 與 Skills
+
+**CLAUDE.md** 是每個 session 都會載入的專案指示。它是「建議」而不是「強制」：寫在這裡的規則，模型通常會遵守，但不保證。所以凡是違反後果嚴重的規則，都要同時有權限規則或 hook 強制。
+
+```markdown
+# 專案規則（SSDLC AutoResearch）
+
+## 你在這個 repo 的角色
+- 你是安全修補研究員，依 @program.md 的迴圈工作；program.md 由人類維護，你只能讀。
+- 只能修改 `app/` 底下的程式碼。`tests/`、`program.md`、`.claude/`、`.github/` 一律不可修改。
+
+## 安全編碼底線（違反即視為失敗的實驗）
+- SQL 一律使用參數化查詢（`?` 佔位符），禁止字串格式化組 SQL。
+- 機密只能從環境變數或 Secret Manager 取得，禁止寫死在程式碼。
+- 禁止 `pickle`、`eval`、`exec`、`subprocess(..., shell=True)` 處理外部輸入。
+- 禁止加入 `# nosec`、`nosemgrep`、`gitleaks:allow` 等抑制標記，或新增掃描器設定檔。
+
+## 驗證指令
+- 評估：`python "$EVAL" . > run.log 2>&1`，再 `grep "^sec_debt:\|^gate:" run.log`
+- 不要用 `tee`，不要把完整 log 讀進對話。
+
+## 交付
+- 停止條件成立時，輸出 `results.tsv` 與 `git log --oneline`，交由人類審查；不得自行 push 或開 PR。
+```
+
+`@program.md` 是 CLAUDE.md 的匯入語法，會把 program.md 的內容一起載入。
+
+**Skill** 把可重複的工作流程封裝成 `/指令`。本手冊的迴圈 skill：
+
+```markdown
+---
+name: ssdlc-autoresearch
+description: 依 program.md 執行安全負債自主修補迴圈（修改 app/、跑固定評估器、keep 或 discard）。當使用者要求「開始安全修補實驗」或「跑 autoresearch」時使用。
+argument-hint: "[run-tag]"
+disable-model-invocation: true
+allowed-tools:
+  - Bash(git status)
+  - Bash(git log *)
+  - Bash(git add *)
+  - Bash(git commit *)
+  - Bash(git reset --hard HEAD~1)
+  - Bash(python "$EVAL" . > run.log 2>&1)
+  - Bash(grep *)
+  - Bash(tail *)
+disallowed-tools: [WebFetch, WebSearch]
+---
+
+# SSDLC AutoResearch 迴圈
+
+1. 讀取 `program.md`，嚴格遵守其中的「可以／不可以」與停止條件。
+2. 若 `$ARGUMENTS` 有值，以它作為 run tag；否則提出一個以今天日期命名的 tag 並等使用者確認。
+3. 建立分支 `autoresearch/<tag>`，建立只有表頭的 `results.tsv`，先跑 baseline。
+4. 每一輪只嘗試一個想法，結果寫入 `results.tsv`。
+5. 任一停止條件成立就停止，輸出：
+   - `results.tsv` 全文
+   - `git log --oneline master..HEAD`
+   - 每個 keep 的 commit 一句話說明「修了哪個 CWE、為什麼安全」
+```
+
+欄位重點：
+
+| 欄位 | 設定 | 理由 |
+| --- | --- | --- |
+| `disable-model-invocation: true` | 只能由人類（或 CI 的 prompt）以 `/ssdlc-autoresearch` 觸發 | 避免模型在其他任務中自行啟動長時間迴圈 |
+| `allowed-tools` | 只列迴圈需要的指令 | 這些工具在呼叫 skill 的那一輪免確認 |
+| `disallowed-tools` | `WebFetch WebSearch` | skill 執行期間移除網路工具 |
+| `argument-hint` | `[run-tag]` | 自動完成時提示參數 |
+
+### 5.7 Subagent：獨立審查員
+
+Subagent 在獨立的 context 中執行。迴圈結束後，用一個**沒有參與修補**的 subagent 審查所有 keep 的 commit，對應 SSDF PW.7 與 Agentic Top 10 的 ASI09：
+
+```markdown
+---
+name: security-reviewer
+description: 在 AutoResearch 迴圈結束後，獨立審查所有 keep 的 commit 是否真的修好漏洞、是否引入新風險。迴圈停止時主動使用。
+tools: Read, Grep, Glob, Bash
+model: opus
+permissionMode: dontAsk
+maxTurns: 20
+---
+
+你是獨立的資深應用安全審查員。你**沒有**參與寫這些修補，你的任務只有找問題。
+
+對 `master..HEAD` 範圍內每個 commit：
+1. 用 `git show` 讀 diff，指出它宣稱修補的弱點（CWE 編號）。
+2. 判斷修補是否完整：是否還有同類寫法殘留在其他檔案？是否只是把問題移到別處？
+3. 檢查是否有規避評估的跡象：刪改測試、抑制標記、掃描器設定、把危險呼叫包進看似無害的函式。
+4. 檢查是否引入新弱點（例如把機密寫進錯誤訊息、時序攻擊、例外吞掉後放行）。
+
+輸出一張表：commit｜CWE｜結論（通過／需修正／拒絕）｜理由（附檔案:行號）。
+最後一行輸出 `VERDICT: APPROVE` 或 `VERDICT: CHANGES_REQUESTED`。
+```
+
+| 設計 | 說明 |
+| --- | --- |
+| `tools: Read, Grep, Glob, Bash` | allowlist：沒有 Edit／Write，審查員改不了程式碼 |
+| `permissionMode: dontAsk` | 只能使用 settings.json 已允許的 `git log`、`git show`、`git diff` |
+| `model: opus` | 審查用能力較強的模型 |
+| `maxTurns: 20` | 有界 |
+
+> ⚠️ `disallowedTools` 中的帶參數項目（例如 `Bash(git push *)`）會**移除整個 Bash 工具**，而不是只擋那一個指令。要保留 Bash 但擋特定指令，請在 `permissions.deny` 寫規則。
+
+### 5.8 讓 Claude Code 持續工作：/goal、/loop、Stop hook 與排程
+
+上游的 NEVER STOP 是靠 Prompt 達成的。Claude Code 有原生機制可以讓 session 持續工作，而且**有界**：
+
+| 機制 | 下一輪何時開始 | 何時停止 | 適用 |
+| --- | --- | --- | --- |
+| `/goal <條件>` | 上一輪結束時 | 獨立的小模型判定條件已達成或不可能達成；遇到需人工處理的錯誤；或 `/goal clear` | **最接近 AutoResearch**：例如 `/goal sec_debt 降到 0 或已完成 30 輪` |
+| `/loop` | 固定時間間隔 | 手動停止或 Claude 判斷完成；session 排程 7 天後過期 | 定期檢查 |
+| Stop hook | 上一輪結束時 | 你自己的腳本或 prompt 決定 | 需要確定性的停止判斷 |
+| 雲端排程任務（`/schedule`） | 排程、API、GitHub 事件 | 每次執行獨立 | 不需要本機開機；最短間隔 1 小時 |
+
+`/goal` 用於迴圈的例子：
+
+```text
+/goal results.tsv 中最新一筆 keep 的 sec_debt 為 0，或已完成 30 輪實驗，或連續 8 輪沒有 keep；每輪結束時印出 results.tsv 最後一行
+```
+
+`/goal` 的評估器只讀對話內容，**不會自己跑指令**，所以條件要寫成 Claude 的輸出能證明的形式（例如要求每輪印出 results.tsv 最後一行）。非互動模式可以這樣用：
 
 ```bash
-# 安裝 GitHub CLI（若尚未安裝）
-winget install GitHub.cli          # Windows
-brew install gh                     # macOS
-sudo apt install gh                 # Linux (Debian/Ubuntu)
-
-# 登入 GitHub
-gh auth login
-
-# 安裝 Copilot CLI 擴充
-gh extension install github/copilot-cli
-
-# 啟動 Copilot CLI（進入互動式 Agent 模式）
-gh copilot
-
-# 或直接給予任務
-gh copilot "fix the failing tests in src/auth/"
+claude -p "/goal sec_debt 降到 0 或已完成 30 輪" --permission-mode dontAsk --max-turns 200 --output-format stream-json --verbose
 ```
 
-**Copilot CLI 核心功能**：
+> ⚠️ `/goal` 屬於 hook 系統：在未信任的資料夾、`disableAllHooks: true`，或 managed settings 設定 `allowManagedHooksOnly` 時無法使用。
 
-| 功能 | 說明 | 使用方式 |
-|------|------|---------|
-| **Autopilot Mode** | 自主完成多步驟任務 | 設定後 Copilot 自動執行不需逐步確認 |
-| **`/fleet` 平行任務** | 將複雜任務拆分為子任務並行執行 | `/fleet implement all TODO items` |
-| **`/research` 研究模式** | 深度研究 codebase 並產出報告 | `/research how does the auth module work` |
-| **`/pr` PR 管理** | 從 CLI 建立、檢視、修復 PR | `/pr create` |
-| **Chronicle** | 可搜尋的 session 歷史 | `/chronicle search yesterday's work` |
-| **Remote Control** | 離開電腦後從手機繼續操控 | 啟用後自動產生 URL |
-| **Hooks** | 在 agent 執行關鍵點觸發自訂腳本 | 設定 `copilot-hooks.yml` |
-| **Skills** | 可重用的指令集 | 建立 `.github/copilot/skills/` |
-| **Custom Agents** | 特化 Agent 定義 | 建立 `.github/copilot/agents/` |
-| **Plugins** | 可安裝的擴充套件包 | `gh copilot plugin install` |
-| **MCP Servers** | 連接外部工具與資料源 | 設定 MCP 伺服器 |
-| **Voice Input** | 語音輸入 prompt | 按住錄音鍵 |
-| **Local Sandbox** | 隔離的檔案系統/網路執行環境 | `/sandbox` 設定 |
+### 5.9 安全相關的內建功能與 Plugin
 
-**Copilot CLI 設定檔**（`.github/copilot-cli.yml`）：
+Claude Code 提供四層安全審查，彼此互補而非取代：
 
-```yaml
-# 專案層級的 Copilot CLI 設定
-permissions:
-  allow:
-    - tool: bash
-      commands: ["npm test", "npm run lint", "pytest"]
-    - tool: file_edit
-      paths: ["src/**", "tests/**"]
-  deny:
-    - tool: bash
-      commands: ["rm -rf", "git push --force"]
+| 階段 | 功能 | 觸發方式 | 方案 | 在迴圈中的角色 |
+| --- | --- | --- | --- | --- |
+| Session 中 | **security-guidance plugin** | 自動：每次編輯做樣式比對；每輪結束做背景模型審查；Claude 執行 commit 或 push 時做 agentic 審查 | 所有方案 | 讓 Agent 在修補時就自我修正；**不會阻擋**寫入或 commit |
+| 隨選 | `/security-review` | 手動，審查目前分支相對於 origin 預設分支的 diff | — | 迴圈結束後的第一道人工輔助審查 |
+| 隨選、深度 | **Claude Security plugin**（`claude-security@claude-plugins-official`） | 手動，多 Agent 掃描整個 repo 或指定 diff | 見官方文件 | 定期的全面掃描；產生的修補**不會自動套用** |
+| PR | **Code Review** | 自動審查 GitHub PR | Team、Enterprise | 夜間 Draft PR 的審查之一 |
+| PR（深度） | ultrareview（`/code-review ultra`） | 手動，在雲端進行多 Agent 審查 | Pro／Max 各有 3 次免費額度，之後以 usage credits 計費（每次約 5–25 美元） | 重大變更合併前 |
 
-hooks:
-  post_edit:
-    - command: "npm run format"
-      description: "Auto-format after edit"
+安裝與團隊啟用 security-guidance plugin：
 
-custom_instructions: |
-  This is a Python FastAPI project using PostgreSQL.
-  Always write tests before implementing features (TDD).
-  Follow OWASP Top 10 security guidelines.
+```text
+/plugin install security-guidance@claude-plugins-official
 ```
-
-#### 3.6.3 GitHub Copilot App（桌面應用程式）
-
-```bash
-# 下載 Copilot App（獨立桌面應用，非 VS Code 擴充）
-# 從 https://github.com/features/copilot 下載
-# 支援 macOS、Windows、Linux
-
-# 功能：
-# - 多個平行 Agent sessions（各自獨立 Git branch）
-# - Canvas extensions（互動式協作界面）
-# - Issues 與 PR 生命週期管理
-# - Automations（排程任務）
-# - Deep links（從外部工具直接開啟）
-```
-
-#### 3.6.4 GitHub Copilot 方案選擇
-
-| 方案 | 適用對象 | 關鍵功能 | AI Credits |
-|------|---------|---------|------------|
-| **Copilot Free** | 個人開發者 | 基礎程式碼建議、有限 Chat | 有限額度 |
-| **Copilot Pro** | 個人進階用戶 | 無限建議、進階模型選擇 | 標準額度 |
-| **Copilot Business** | 組織團隊 | 政策管理、存取控制、Cloud Agent | 組織額度 |
-| **Copilot Enterprise** | 大型企業 | 完整治理、Audit logs、自訂模型 | 企業額度 |
-
-> **💡 企業導入建議**：2026 年的 GitHub Copilot 採用 **AI Credits 計量計費**模式。建議設定 Budget Controls（預算控制），在 enterprise/organization/user 層級設定消費上限，避免成本失控。
-
-### 3.7 VS Code 安裝與設定
-
-```bash
-# 1. 安裝 VS Code（Windows）
-winget install Microsoft.VisualStudioCode
-
-# 2. 安裝必要擴充套件
-code --install-extension GitHub.copilot
-code --install-extension GitHub.copilot-chat
-code --install-extension ms-python.python
-code --install-extension ms-python.vscode-pylance
-code --install-extension eamodio.gitlens
-code --install-extension GitHub.vscode-pull-request-github
-code --install-extension ms-vscode.vscode-github-actions
-```
-
-**VS Code 設定檔（`.vscode/settings.json`）**：
 
 ```json
 {
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "ms-python.black-formatter",
-  "python.analysis.typeCheckingMode": "basic",
-  "python.testing.pytestEnabled": true,
-  "github.copilot.enable": {
-    "*": true,
-    "markdown": true,
-    "yaml": true
-  },
-  "files.exclude": {
-    "**/__pycache__": true,
-    "**/.pytest_cache": true
-  },
-  "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter",
-    "editor.codeActionsOnSave": {
-      "source.organizeImports": "explicit"
-    }
+  "enabledPlugins": {
+    "security-guidance@claude-plugins-official": true
   }
 }
 ```
 
-### 3.8 一鍵安裝腳本
+自訂規則有兩個擴充點（v3.0 寫的 `.claude/security-rules.yaml` **不存在**）：
 
-以下提供跨平台安裝腳本：
+| 檔案 | 作用 | 是否強制 |
+| --- | --- | --- |
+| `.claude/claude-security-guidance.md` | 用自然語言描述威脅模型與審查清單，提供給模型審查使用 | 否：只是給審查模型的指引 |
+| `.claude/security-patterns.yaml`（或 `.yml`、`.json`） | 新增每次編輯的 regex／子字串規則（欄位：`rule_name`、`reminder`、`regex` 或 `substrings`、`paths`、`exclude_paths`） | 否：只把警告附加到 context，不阻擋 |
 
-**`scripts/setup.ps1`（Windows PowerShell）**
-
-```powershell
-#!/usr/bin/env pwsh
-# AutoResearch + SSDLC 環境一鍵安裝腳本
-
-Write-Host "=== AutoResearch SSDLC 環境安裝 ===" -ForegroundColor Cyan
-
-# 檢查 Python
-if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
-    Write-Host "安裝 Python 3.12..." -ForegroundColor Yellow
-    winget install Python.Python.3.12
-}
-
-# 檢查 Git
-if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    Write-Host "安裝 Git..." -ForegroundColor Yellow
-    winget install Git.Git
-}
-
-# 檢查 GitHub CLI
-if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
-    Write-Host "安裝 GitHub CLI..." -ForegroundColor Yellow
-    winget install GitHub.cli
-}
-
-# 安裝 uv 套件管理器
-if (-not (Get-Command uv -ErrorAction SilentlyContinue)) {
-    Write-Host "安裝 uv..." -ForegroundColor Yellow
-    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-}
-
-# 建立虛擬環境
-Write-Host "建立 Python 虛擬環境..." -ForegroundColor Yellow
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-
-# 安裝 Python 套件（使用 uv）
-uv sync
-
-# 安裝 Claude Code（原生安裝）
-Write-Host "安裝 Claude Code..." -ForegroundColor Yellow
-irm https://claude.ai/install.ps1 | iex
-
-# 安裝 GitHub Copilot CLI
-Write-Host "安裝 GitHub Copilot CLI..." -ForegroundColor Yellow
-gh extension install github/copilot-cli
-
-# 安裝 VS Code 擴充套件
-$extensions = @(
-    "GitHub.copilot",
-    "GitHub.copilot-chat",
-    "ms-python.python",
-    "eamodio.gitlens"
-)
-foreach ($ext in $extensions) {
-    code --install-extension $ext
-}
-
-Write-Host "=== 安裝完成 ===" -ForegroundColor Green
+```yaml
+patterns:
+  - rule_name: string_formatted_sql
+    regex: "execute\\(\\s*f?[\"'].*(%s|\\{)"
+    paths: ["**/app/**"]
+    reminder: "SQL 必須參數化（CWE-89）；不要用 f-string 或 % 組 SQL。"
+  - rule_name: pickle_untrusted
+    substrings: ["pickle.loads("]
+    reminder: "不可反序列化不可信資料（CWE-502）；改用 JSON 加上 HMAC 簽章。"
 ```
 
-**`scripts/setup.sh`（Linux / macOS）**
+> ⚠️ YAML 版本需要 PyYAML 可以被 import，plugin 不會幫你安裝；不確定時改用 `security-patterns.json`。最多載入 50 條自訂規則。
 
-```bash
-#!/bin/bash
-set -euo pipefail
+### 5.10 用 Agent SDK 驅動迴圈
 
-echo "=== AutoResearch SSDLC 環境安裝 ==="
-
-# 檢查並安裝 Python
-if ! command -v python3 &> /dev/null; then
-    echo "請先安裝 Python 3.10+"
-    exit 1
-fi
-
-# 建立虛擬環境
-python3 -m venv .venv
-source .venv/bin/activate
-
-# 安裝相依套件（使用 uv）
-uv sync
-
-# 安裝 Claude Code（原生安裝）
-curl -fsSL https://claude.ai/install.sh | bash
-
-echo "=== 安裝完成 ==="
-```
-
-> **💡 企業導入建議**：在企業環境中，建議將所有工具版本鎖定（Pin），並透過公司內部 Artifact Registry（如 Nexus / Artifactory）分發，避免直接存取外部 npm / PyPI。
-
----
-
-## 第 4 章：AutoResearch 核心運作解析
-
-### 4.1 核心架構概覽
-
-```mermaid
-graph TD
-    subgraph AutoResearch Engine
-        PM[program.md<br>指令策略] --> AI[LLM<br>Claude / GPT]
-        AI --> MOD[修改 train.py]
-        MOD --> EXEC[執行 train.py]
-        EXEC --> EVAL[評估結果]
-        EVAL --> DEC{改善？}
-        DEC -->|Yes| COMMIT[git commit]
-        DEC -->|No| REVERT[git revert]
-        COMMIT --> TIMER{Time Budget?}
-        REVERT --> TIMER
-        TIMER -->|剩餘| AI
-        TIMER -->|到期| REPORT[產出報告]
-    end
-
-    PREP[prepare.py<br>固定工具] --> EXEC
-    DATA[(訓練資料)] --> PREP
-```
-
-### 4.2 train.py — 可被 AI 修改的目標檔案
-
-> **📌 指標說明**：原始 AutoResearch 使用 `val_bpb`（Validation Bits Per Byte，越低越好）作為語言模型的評估指標。本手冊為教學目的，將範例改為分類任務的 `val_accuracy`（越高越好），以方便理解 Keep/Revert 決策機制。在實際 AutoResearch 專案中，請依任務類型選用適當指標。
-
-`train.py` 是 AutoResearch 的核心修改對象。設計原則：
-
-1. **模組化**：功能拆分為獨立函式，方便 AI 局部修改
-2. **可量測**：必須有明確的評估指標（metrics）
-3. **可回滾**：每次修改都是原子操作
-
-**範例：可被 AI 優化的機器學習訓練腳本**
+需要把迴圈嵌入內部平台（排程系統、審批流程）時，用 Claude Agent SDK 以程式驅動。v3.0 的 SDK 範例（`claude_code_sdk`、`Agent`、`Guardrail`、`Runner`）**都不是這個 SDK 的 API**。實際的介面是 `query()` 搭配 `ClaudeAgentOptions`：
 
 ```python
-# train.py - AutoResearch 可修改的目標檔案
+"""以 Claude Agent SDK 驅動 SSDLC AutoResearch 迴圈（有預算、有輪數上限、有守門 hook）。
+
+用法：
+    python autoresearch_sdk.py <repo> <run-tag>      # 真正執行（會呼叫模型、產生費用）
+    python autoresearch_sdk.py --self-test            # 不呼叫模型：只驗證選項與 hook 邏輯
 """
-AutoResearch Target Script
-==========================
-此檔案可被 AI Agent 修改以優化模型效能。
-評估指標：validation accuracy（越高越好）
-"""
+import asyncio
+import os
+import sys
+from pathlib import Path
 
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from prepare import load_data, evaluate_model
+from claude_agent_sdk import ClaudeAgentOptions, HookMatcher, ResultMessage, query
 
-# === 可調整區域 START ===
-
-class SimpleModel(nn.Module):
-    """模型架構 - AI 可修改"""
-    def __init__(self, input_dim: int = 784, hidden_dim: int = 256, output_dim: int = 10):
-        super().__init__()
-        self.layers = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(hidden_dim, output_dim)
-        )
-
-    def forward(self, x):
-        return self.layers(x)
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "hooks"))
+from guard_ssdlc import decide  # 與 CLI hook 共用同一套規則，避免兩份規則漂移
 
 
-def get_optimizer(model: nn.Module) -> optim.Optimizer:
-    """優化器設定 - AI 可修改"""
-    return optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
+async def guard_hook(input_data, tool_use_id, context):
+    reason = decide(input_data["tool_name"], input_data.get("tool_input") or {})
+    if reason is None:
+        return {}
+    return {"hookSpecificOutput": {"hookEventName": "PreToolUse",
+                                   "permissionDecision": "deny",
+                                   "permissionDecisionReason": reason}}
 
 
-def get_scheduler(optimizer: optim.Optimizer):
-    """學習率排程 - AI 可修改"""
-    return optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
+def build_options(repo: Path) -> ClaudeAgentOptions:
+    return ClaudeAgentOptions(
+        cwd=str(repo),
+        setting_sources=["project"],          # 載入 repo 的 CLAUDE.md、skills 與 .claude/settings.json
+        permission_mode="dontAsk",            # 沒有預先允許的動作一律拒絕，不會卡在等人回答
+        allowed_tools=["Read", "Grep", "Glob", "Edit(/app/**)", "Edit(/results.tsv)", "Edit(/run.log)",
+                       "Bash(git status)", "Bash(git log *)", "Bash(git add *)",
+                       "Bash(git commit *)", "Bash(git reset --hard HEAD~1)",
+                       "Bash(python \"$EVAL\" . > run.log 2>&1)", "Bash(grep *)", "Bash(tail *)"],
+        disallowed_tools=["WebFetch", "WebSearch"],
+        max_turns=200,                        # 硬性上限：取代上游的 NEVER STOP
+        max_budget_usd=float(os.environ.get("AUTORESEARCH_BUDGET_USD", "20")),
+        hooks={"PreToolUse": [HookMatcher(matcher="Bash|Edit|Write|MultiEdit|Read",
+                                          hooks=[guard_hook])]},
+        env={"EVAL": os.environ["EVAL"]} if "EVAL" in os.environ else {},
+    )
 
 
-BATCH_SIZE = 64
-EPOCHS = 20
+async def run(repo: Path, tag: str) -> int:
+    prompt = f"/ssdlc-autoresearch {tag}"
+    async for msg in query(prompt=prompt, options=build_options(repo)):
+        if isinstance(msg, ResultMessage):
+            print(f"subtype={msg.subtype} turns={msg.num_turns} cost_usd={msg.total_cost_usd}")
+            print(f"permission_denials={len(msg.permission_denials or [])}")
+            return 0 if not msg.is_error else 1
+    return 1
 
-# === 可調整區域 END ===
 
-
-def train():
-    """主訓練函式"""
-    train_loader, val_loader = load_data(batch_size=BATCH_SIZE)
-    model = SimpleModel()
-    optimizer = get_optimizer(model)
-    scheduler = get_scheduler(optimizer)
-    criterion = nn.CrossEntropyLoss()
-
-    best_accuracy = 0.0
-
-    for epoch in range(EPOCHS):
-        model.train()
-        for batch_x, batch_y in train_loader:
-            optimizer.zero_grad()
-            output = model(batch_x)
-            loss = criterion(output, batch_y)
-            loss.backward()
-            optimizer.step()
-        scheduler.step()
-
-        # 評估
-        accuracy = evaluate_model(model, val_loader)
-        if accuracy > best_accuracy:
-            best_accuracy = accuracy
-            torch.save(model.state_dict(), "best_model.pt")
-
-    # 輸出最終指標（AutoResearch 依據此決定 Keep/Revert）
-    print(f"METRIC:val_accuracy={best_accuracy:.4f}")
-    return best_accuracy
+async def self_test() -> int:
+    opts = build_options(Path.cwd())
+    assert opts.permission_mode == "dontAsk" and opts.max_turns == 200
+    cases = [
+        ({"tool_name": "Edit", "tool_input": {"file_path": "/r/app/db.py"}}, False),
+        ({"tool_name": "Edit", "tool_input": {"file_path": "/r/tests/test_security.py"}}, True),
+        ({"tool_name": "Bash", "tool_input": {"command": "git push origin HEAD"}}, True),
+        ({"tool_name": "Bash", "tool_input": {"command": "git reset --hard HEAD~1"}}, False),
+    ]
+    ok = 0
+    for data, want_deny in cases:
+        out = await guard_hook(data, "toolu_test", None)
+        denied = out.get("hookSpecificOutput", {}).get("permissionDecision") == "deny"
+        ok += denied == want_deny
+        print(f"{'PASS' if denied == want_deny else 'FAIL'}  {data['tool_name']:5} deny={denied}")
+    print(f"{ok}/{len(cases)} self-test cases passed")
+    return 0 if ok == len(cases) else 1
 
 
 if __name__ == "__main__":
-    train()
+    if sys.argv[1:] == ["--self-test"]:
+        sys.exit(asyncio.run(self_test()))
+    sys.exit(asyncio.run(run(Path(sys.argv[1]).resolve(), sys.argv[2])))
 ```
 
-**設計重點**：
-- `METRIC:` 前綴輸出是 AutoResearch 讀取評估結果的約定格式
-- 可修改區域清楚標記，讓 AI 知道可以調整哪些部分
-- 固定的評估邏輯不在 `train.py` 內，而是由 `prepare.py` 提供
+設計重點：
 
-### 4.3 prepare.py — 固定的資料與工具層
+| 選項 | 設定 | 作用 |
+| --- | --- | --- |
+| `setting_sources=["project"]` | 載入專案的 CLAUDE.md、skills、settings.json | 讓 `/ssdlc-autoresearch` skill 與專案權限生效 |
+| `permission_mode="dontAsk"` | 白名單以外一律拒絕 | 無人值守 |
+| `max_turns=200`、`max_budget_usd` | 硬性上限 | 取代 NEVER STOP |
+| `hooks={"PreToolUse": [HookMatcher(...)]}` | 在程序內呼叫同一套 `decide()` 規則 | 規則只維護一份，不會在 CLI 與 SDK 之間漂移 |
+| `ResultMessage.permission_denials` | 結束時統計被拒絕的次數 | 監控指標：拒絕次數突然升高，代表 Agent 正在嘗試越界 |
 
-`prepare.py` **不可被 AI 修改**，確保評估基準一致：
+自我測試（不呼叫模型，只驗證選項與 hook 邏輯）：
 
-```python
-# prepare.py - 固定工具層（不可被 AI 修改）
-"""
-Data Preparation & Evaluation Tools
-====================================
-此檔案為固定基礎設施，確保評估一致性。
-AutoResearch Agent 不得修改此檔案。
-"""
-
-import torch
-from torch.utils.data import DataLoader, TensorDataset
-from typing import Tuple
-
-
-def load_data(batch_size: int = 64) -> Tuple[DataLoader, DataLoader]:
-    """載入並準備訓練/驗證資料集"""
-    # 實際專案中替換為真實資料載入邏輯
-    train_x = torch.randn(10000, 784)
-    train_y = torch.randint(0, 10, (10000,))
-    val_x = torch.randn(2000, 784)
-    val_y = torch.randint(0, 10, (2000,))
-
-    train_dataset = TensorDataset(train_x, train_y)
-    val_dataset = TensorDataset(val_x, val_y)
-
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-
-    return train_loader, val_loader
-
-
-def evaluate_model(model: torch.nn.Module, val_loader: DataLoader) -> float:
-    """評估模型準確率（固定評估邏輯）"""
-    model.eval()
-    correct = 0
-    total = 0
-
-    with torch.no_grad():
-        for batch_x, batch_y in val_loader:
-            output = model(batch_x)
-            _, predicted = torch.max(output, 1)
-            total += batch_y.size(0)
-            correct += (predicted == batch_y).sum().item()
-
-    return correct / total if total > 0 else 0.0
-
-
-def get_baseline_metric() -> float:
-    """取得基線指標，用於判斷改善幅度"""
-    return 0.85  # 基線準確率
+```text
+PASS  Edit  deny=False
+PASS  Edit  deny=True
+PASS  Bash  deny=True
+PASS  Bash  deny=False
+4/4 self-test cases passed
 ```
 
-### 4.4 program.md — Prompt Engineering 指令策略
+### 5.11 完整設定範例與檢查器
 
-`program.md` 是 AutoResearch 的「大腦」，定義 AI 的修改策略：
+`.claude/settings.json` 全文：
+
+```json
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "defaultMode": "dontAsk",
+    "allow": [
+      "Edit(/app/**)",
+      "Edit(/results.tsv)",
+      "Edit(/run.log)",
+      "Bash(git status)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git show *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git reset --hard HEAD~1)",
+      "Bash(python \"$EVAL\" . > run.log 2>&1)",
+      "Bash(grep *)",
+      "Bash(tail *)"
+    ],
+    "deny": [
+      "Edit(/tests/**)",
+      "Edit(/program.md)",
+      "Edit(/.claude/**)",
+      "Edit(/.github/**)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Bash(git push *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(pip install *)",
+      "WebFetch",
+      "WebSearch"
+    ],
+    "disableBypassPermissionsMode": "disable"
+  },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
+    "filesystem": {
+      "denyRead": ["~/.ssh", "~/.aws", "~/.config/gh", "./.env"]
+    },
+    "network": {
+      "allowedDomains": []
+    }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell|Edit|Write|MultiEdit|NotebookEdit|Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/guard_ssdlc.py"],
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
+  },
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otel-collector.internal:4317",
+    "OTEL_LOG_TOOL_DETAILS": "1"
+  },
+  "enabledPlugins": {
+    "security-guidance@claude-plugins-official": true
+  }
+}
+```
+
+逐段說明：
+
+| 區段 | 重點 |
+| --- | --- |
+| `permissions.defaultMode: dontAsk` | 白名單以外全部拒絕 |
+| `permissions.allow` | 只允許編輯 `app/` 與迴圈的兩個紀錄檔，以及迴圈需要的 git、grep、tail 指令；評估指令寫成完整字串；`git reset` 只允許 `--hard HEAD~1` |
+| `permissions.deny` | 測試、program.md、Agent 設定、CI、`.env`、推送、網路、安裝套件 |
+| `disableBypassPermissionsMode: "disable"` | 禁止任何人進入 bypass 模式（建議放在 managed settings） |
+| `sandbox` | 啟用、無法啟用時直接失敗、不允許在 sandbox 外重試、擋憑證讀取、網路空白名單 |
+| `hooks.PreToolUse` | exec 形式（`command` 加 `args`，不經 shell），`${CLAUDE_PROJECT_DIR}` 指向專案根目錄，`onFailure: block` |
+| `env` | 開啟 OpenTelemetry 遙測（第 17 章） |
+| `enabledPlugins` | 團隊共同啟用 security-guidance |
+
+> ⚠️ `settings.json` 必須是**純 JSON**。v3.0 在 JSON 開頭寫了 `// .claude/settings.json` 註解，這樣的檔案無法解析。
+
+檢查器 `check_claude_config.py` 用官方 settings reference、hooks、skills、sub-agents 頁面萃取的白名單，檢查鍵名、hook 事件、handler 欄位、權限規則、frontmatter 欄位，以及 `.claude/` 底下的未知檔案。對本手冊範例的結果：
+
+```text
+0 error(s)
+```
+
+對 v3.0 範例（hook 範例、analytics 設定、security-rules.yaml、analytics.yaml）的結果：
+
+```text
+ERROR val/checkers/fixtures/v3-claude/.claude/settings.json: 未知設定鍵 `analytics`（官方 settings reference 查無此鍵）
+ERROR val/checkers/fixtures/v3-claude/.claude/settings.json: PostToolUse：不存在 $CLAUDE_FILE_PATH，檔案路徑要從 stdin JSON 的 tool_input.file_path 取得
+ERROR val/checkers/fixtures/v3-claude/.claude/settings.json: PreToolUse：`exit 1` 不會阻擋動作；要阻擋請 exit 2 或輸出 permissionDecision
+ERROR val/checkers/fixtures/v3-claude/.claude/settings.json: PreToolUse：不存在 $CLAUDE_FILE_PATH，檔案路徑要從 stdin JSON 的 tool_input.file_path 取得
+ERROR val/checkers/fixtures/v3-claude/.claude/analytics.yaml: Claude Code 不會讀取這個檔案／目錄（可能是 AI 虛構的設定檔）
+ERROR val/checkers/fixtures/v3-claude/.claude/security-rules.yaml: Claude Code 不會讀取這個檔案／目錄（可能是 AI 虛構的設定檔）
+6 error(s)
+```
+
+另一組刻意寫錯、模擬 AI 常見錯誤的設定（不合法的模式、`Write(path)`、`field:` 語法、含管線的規則、虛構的 hook 事件與欄位、skill 與 subagent 的未知欄位）：
+
+```text
+ERROR val/checkers/fixtures/bad-claude/.claude/settings.json: 未知設定鍵 `autoFix`（官方 settings reference 查無此鍵）
+ERROR val/checkers/fixtures/bad-claude/.claude/settings.json: permissions.defaultMode `yolo` 不合法
+ERROR val/checkers/fixtures/bad-claude/.claude/settings.json: `Write(src/**)`：Write(path) 規則永遠不會匹配，請改用 Edit(path) 或 Read(path)
+ERROR val/checkers/fixtures/bad-claude/.claude/settings.json: `Bash(command:npm test)`：主要欄位不能用 field: 語法比對，會被忽略
+ERROR val/checkers/fixtures/bad-claude/.claude/settings.json: `Bash(curl * | sh)`：複合指令會先被拆成子指令再逐一比對，含 | && ; 的規則永遠不會匹配；請改用 hook
+ERROR val/checkers/fixtures/bad-claude/.claude/settings.json: `Bash(rm -rf * && *)`：複合指令會先被拆成子指令再逐一比對，含 | && ; 的規則永遠不會匹配；請改用 hook
+ERROR val/checkers/fixtures/bad-claude/.claude/settings.json: 未知 hook 事件 `BeforeToolUse`
+ERROR val/checkers/fixtures/bad-claude/.claude/settings.json: BeforeToolUse handler 有未知欄位 ['path']
+ERROR val/checkers/fixtures/bad-claude/.claude/settings.json: BeforeToolUse handler type `script` 不合法
+ERROR val/checkers/fixtures/bad-claude/.claude/skills/fix/SKILL.md: SKILL.md 未知 frontmatter 欄位 `trigger`
+ERROR val/checkers/fixtures/bad-claude/.claude/agents/reviewer.md: subagent 未知 frontmatter 欄位 `role`
+ERROR val/checkers/fixtures/bad-claude/.claude/agents/reviewer.md: subagent 缺少必填欄位 `description`
+12 error(s)
+```
+
+### 5.12 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| settings.json | 虛構鍵（`analytics`）、JSON 中寫註解 | 只用 settings reference 有的鍵 | `check_claude_config.py <repo>` 回報 0 錯 |
+| 權限規則 | `Write(path)`、`Bash(command:...)`、依賴 `.claudeignore` | `Edit(path)`、`Bash(cmd *)`、`Read(...)` deny | 檢查器的權限規則檢查；在 session 中實際嘗試被 deny 的動作 |
+| Hook | `exit 1` 想阻擋、使用 `$CLAUDE_FILE_PATH`、只比對正斜線路徑、matcher 只寫 `Bash` | 輸出 `permissionDecision: deny` 或 exit 2；從 stdin 讀路徑並正規化；matcher 加上 `PowerShell`；`onFailure: block` | `test_guard.py` 34/34；故意刪除 hook 腳本，動作應被阻擋 |
+| 權限模式 | 夜間迴圈用 `bypassPermissions` 或 `default` | `dontAsk` 搭配完整白名單 | 在 CI log 中搜尋 permission denial，確認被拒的都是預期外的動作 |
+| Sandbox | 宣稱 Windows 原生可用；沒擋 `~/.ssh` 讀取 | WSL2／Linux／macOS；`denyRead`；`failIfUnavailable` | 在 sandbox 中執行 `cat ~/.ssh/id_rsa` 應失敗 |
+| Agent SDK 程式 | `claude_code_sdk`、`Agent`、`Guardrail`、`Runner` 等不存在的 API | `claude_agent_sdk.query` 加上 `ClaudeAgentOptions` | `python -c "import claude_agent_sdk"`，再跑 `--self-test` |
+| 安全 plugin 設定 | `.claude/security-rules.yaml` | `claude-security-guidance.md`、`security-patterns.yaml` | 檢查器回報「Claude Code 不會讀取這個檔案」 |
+| 持續工作機制 | 在 Prompt 寫「永不停止」 | `/goal` 搭配有界條件，或 `--max-turns`、`max_budget_usd` | `/goal` 狀態顯示輪數與花費；達上限時停止 |
+
+---
+
+## 第 6 章：GitHub Copilot 安全設定
+
+### 6.1 Copilot 的 Agent 全景（2026-10）
+
+| 介面 | 在哪裡執行 | 迴圈中的角色 | 主要控制點 |
+| --- | --- | --- | --- |
+| IDE agent mode（VS Code 等） | 開發者電腦 | 互動式修補、審查 | custom instructions、hooks（VS Code 為公開預覽） |
+| **Copilot CLI** | 開發者電腦或 CI | **本機執行迴圈**（`copilot -p` 搭配 autopilot） | `--allow-tool`／`--deny-tool`、`--available-tools`、hooks、`--max-ai-credits` |
+| **Copilot cloud agent** | GitHub Actions 上的暫時環境 | 指派 issue 後產出 PR | `copilot-setup-steps.yml`、防火牆、secrets、hooks（部分事件） |
+| GitHub Copilot app | 桌面應用程式 | 多 session 平行、自動化管理 | repo hooks 與 plugin 提供的 hooks |
+| **Copilot code review** | GitHub PR | 夜間 Draft PR 的審查之一 | rulesets、path-specific instructions |
+| **Automations** | GitHub（cloud agent） | 排程或事件觸發的 cloud agent 任務 | 在 Agents 分頁或 Copilot app 中設定；選擇工具 |
+| **GitHub Agentic Workflows** | GitHub Actions | 以 Markdown 定義、編譯成 `.lock.yml` 的自動化 | frontmatter 中的 permissions、safe-outputs、engine |
+| Copilot SDK | 你的服務 | 嵌入內部平台 | 程式中設定的 hooks 與 session 限制 |
+
+> 🔍 **審查要點**：Automations **不是**以 repo 中的 YAML 檔定義。它存放在 GitHub 端、只有建立者看得到，也不進 Git 版控。v3.0 的 `.github/copilot-automations.yml` 與 `.github/copilot-code-review.yml` 都是虛構的檔案。如果需要「版控＋PR 審查」的自動化，請改用 Agentic Workflows（第 6.7 節）。
+
+### 6.2 Custom Instructions
+
+| 類型 | 檔案 | 作用範圍 |
+| --- | --- | --- |
+| Repository-wide | `.github/copilot-instructions.md` | 整個 repo |
+| Path-specific | `.github/instructions/**/NAME.instructions.md`，frontmatter 必須有 `applyTo` | 符合 glob 的檔案 |
+| Agent instructions | `AGENTS.md`；也可以在 repo 根目錄放單一的 `CLAUDE.md` 或 `GEMINI.md` | 支援的 Agent |
+| 組織／個人 | 在 GitHub 設定頁面設定 | 組織或個人 |
+
+Repository-wide 範例：
 
 ```markdown
-# AutoResearch Program Instructions
+# Copilot 專案指示（SSDLC）
 
-## 目標
-優化 train.py 中的模型效能，提升 validation accuracy。
-
-## 約束條件
-- 只能修改 train.py 中「可調整區域」標記的程式碼
-- 不能修改 prepare.py
-- 每次修改後必須執行完整測試
-- 修改不能引入新的安全漏洞
-- 不能安裝新的外部套件
-
-## 策略優先順序
-1. 調整模型架構（增加層數、改變激活函式）
-2. 調整超參數（learning rate、batch size、epochs）
-3. 加入正規化策略（Dropout、BatchNorm、Weight Decay）
-4. 嘗試不同的優化器（SGD、AdamW、RAdam）
-
-## 評估標準
-- 主要指標：`METRIC:val_accuracy` 越高越好
-- 次要約束：訓練時間不超過 60 秒
-- 安全約束：不使用 eval()、exec() 等危險函式
-
-## Keep/Revert 規則
-- 如果 val_accuracy 提升 >= 0.5%：KEEP
-- 如果 val_accuracy 下降：REVERT
-- 如果程式執行失敗：REVERT
-- 如果訓練時間超過限制：REVERT
+- 本 repo 採用 AutoResearch 式安全修補迴圈，規則在 `program.md`；你只能修改 `app/`。
+- 不可修改 `tests/`、`program.md`、`.github/`、`.claude/`，不可新增掃描器設定檔或抑制標記。
+- 執行評估：`python "$EVAL" . > run.log 2>&1`，只用 `grep "^sec_debt:\|^gate:" run.log` 讀結果。
+- 安全底線：參數化查詢、機密只從環境變數讀取、禁止 pickle／eval／shell=True 處理外部輸入。
+- 開 PR 時，在描述中附上 `results.tsv` 與每個 commit 修補的 CWE 編號。
 ```
 
-### 4.5 AutoResearch 執行引擎
+Path-specific 範例：只給 code review 用，所以用 `excludeAgent: "cloud-agent"` 排除 cloud agent：
 
-以下是 AutoResearch 核心執行引擎的簡化實作：
+```markdown
+---
+applyTo: "app/**/*.py"
+excludeAgent: "cloud-agent"
+---
 
-```python
-# autoresearch_engine.py - 核心執行引擎
-"""
-AutoResearch Engine
-===================
-管理 AI 修改 → 測試 → 評估 → Keep/Revert 迴圈
-"""
+審查 `app/` 的 Python 變更時，依序檢查並在發現時以「CWE 編號＋檔案:行號」留言：
 
-import subprocess
-import time
-import re
-import os
-from dataclasses import dataclass
-from typing import Optional
-
-
-@dataclass
-class IterationResult:
-    """單次迭代結果"""
-    iteration: int
-    metric_before: float
-    metric_after: float
-    action: str  # "KEEP" or "REVERT"
-    duration_seconds: float
-    change_description: str
-
-
-def run_autoresearch(
-    time_budget_seconds: int = 300,
-    target_file: str = "train.py",
-    program_file: str = "program.md"
-) -> list[IterationResult]:
-    """執行 AutoResearch 主迴圈"""
-    results: list[IterationResult] = []
-    start_time = time.time()
-    iteration = 0
-    current_metric = get_current_metric()
-
-    while (time.time() - start_time) < time_budget_seconds:
-        iteration += 1
-        iter_start = time.time()
-
-        # 1. 讀取策略指令
-        program = read_file(program_file)
-
-        # 2. AI 生成修改
-        change_desc = ai_modify(target_file, program, current_metric)
-
-        # 3. 執行測試與評估
-        new_metric = execute_and_evaluate()
-
-        # 4. 決定 Keep / Revert
-        if new_metric is not None and new_metric > current_metric + 0.005:
-            git_commit(f"AutoResearch iter {iteration}: {change_desc}")
-            action = "KEEP"
-            current_metric = new_metric
-        else:
-            git_revert()
-            action = "REVERT"
-            new_metric = new_metric or current_metric
-
-        result = IterationResult(
-            iteration=iteration,
-            metric_before=current_metric if action == "REVERT" else current_metric,
-            metric_after=new_metric,
-            action=action,
-            duration_seconds=time.time() - iter_start,
-            change_description=change_desc
-        )
-        results.append(result)
-        print(f"[Iter {iteration}] {action} | "
-              f"Metric: {new_metric:.4f} | "
-              f"Time: {result.duration_seconds:.1f}s")
-
-    return results
-
-
-def get_current_metric() -> float:
-    """執行目前程式碼並取得指標"""
-    result = subprocess.run(
-        ["python", "train.py"],
-        capture_output=True, text=True, timeout=120
-    )
-    match = re.search(r"METRIC:val_accuracy=([\d.]+)", result.stdout)
-    return float(match.group(1)) if match else 0.0
-
-
-def read_file(filepath: str) -> str:
-    """安全讀取檔案"""
-    with open(filepath, "r", encoding="utf-8") as f:
-        return f.read()
-
-
-def ai_modify(target_file: str, program: str, current_metric: float) -> str:
-    """呼叫 LLM 修改目標檔案（簡化示意）"""
-    # 實際實作會呼叫 Claude API 或 Copilot API
-    # 此處為示意
-    result = subprocess.run(
-        ["claude", "--print",
-         f"根據以下策略修改 {target_file}，"
-         f"目前指標為 {current_metric}。"
-         f"策略：{program[:500]}"],
-        capture_output=True, text=True, timeout=60
-    )
-    return result.stdout[:100] if result.returncode == 0 else "modification failed"
-
-
-def execute_and_evaluate() -> Optional[float]:
-    """執行修改後的程式並評估"""
-    try:
-        result = subprocess.run(
-            ["python", "train.py"],
-            capture_output=True, text=True, timeout=120
-        )
-        if result.returncode != 0:
-            return None
-        match = re.search(r"METRIC:val_accuracy=([\d.]+)", result.stdout)
-        return float(match.group(1)) if match else None
-    except subprocess.TimeoutExpired:
-        return None
-
-
-def git_commit(message: str) -> None:
-    """提交變更"""
-    subprocess.run(["git", "add", "-A"], check=True)
-    subprocess.run(["git", "commit", "-m", message], check=True)
-
-
-def git_revert() -> None:
-    """回滾變更"""
-    subprocess.run(["git", "checkout", "--", "."], check=True)
-
-
-if __name__ == "__main__":
-    budget = int(os.environ.get("AUTORESEARCH_TIME_BUDGET", 300))
-    results = run_autoresearch(time_budget_seconds=budget)
-    print(f"\n=== 完成 {len(results)} 次迭代 ===")
-    keeps = sum(1 for r in results if r.action == "KEEP")
-    print(f"保留: {keeps} / 回滾: {len(results) - keeps}")
+1. SQL 是否一律參數化（CWE-89）；f-string、`%`、`+` 組 SQL 一律標為阻擋級。
+2. 是否反序列化不可信資料（CWE-502）：`pickle.loads`、`yaml.load` 未指定 SafeLoader。
+3. 是否寫死機密（CWE-798），或把機密寫進 log／例外訊息（CWE-532）。
+4. 簽章或 token 比對是否使用 `hmac.compare_digest`（CWE-208）。
+5. 是否出現 `# nosec`、`nosemgrep` 等抑制標記，或刪改 `tests/`：視為規避審查，要求說明。
 ```
 
-### 4.6 program.md 的 Prompt Engineering 技巧
+`excludeAgent` 只接受 `"code-review"` 或 `"cloud-agent"`。不寫就是兩者都會讀。
 
-| 技巧 | 說明 | 範例 |
-|------|------|------|
-| **範圍限定** | 明確告訴 AI 可修改的範圍 | `只能修改「可調整區域」標記內的程式碼` |
-| **禁止清單** | 列出禁止的操作 | `不得使用 eval()、os.system()、subprocess` |
-| **策略排序** | 給予優先順序 | `1. 架構調整 2. 超參數 3. 正規化` |
-| **量化閾值** | 明確的改善標準 | `提升 >= 0.5% 才保留` |
-| **安全護欄** | 安全相關限制 | `不得引入 pickle.loads、不得讀取環境變數` |
-| **時間約束** | 單次執行時間限制 | `單次訓練不超過 60 秒` |
+### 6.3 Hooks
 
-> **💡 企業導入建議**：`program.md` 應如同 Infrastructure as Code 一般進行版本控制與 Code Review。每次修改 `program.md` 都應該有對應的 Pull Request 與團隊審核。
+Copilot CLI 與 cloud agent 都讀取 repo 的 `.github/hooks/*.json`；CLI 另外讀取個人的 `~/.copilot/hooks/*.json`。設定格式和 Claude Code **不同**：
 
-> **⚠️ Anti-Pattern**：不要在 `program.md` 中使用過於寬泛的指令（如「盡量優化」），必須給出明確、可量化的目標與限制條件。
+| 項目 | Claude Code | GitHub Copilot |
+| --- | --- | --- |
+| 設定位置 | `.claude/settings.json` 的 `hooks` | `.github/hooks/*.json`，必須有 `"version": 1` |
+| 事件名稱 | PascalCase（`PreToolUse`） | camelCase（`preToolUse`）；也接受 PascalCase 的相容格式 |
+| 指令欄位 | `command`（＋`args`） | `bash`、`powershell`、`command`（跨平台備援），或 CLI 專用的 `exec`＋`args` |
+| 逾時欄位 | `timeout`（秒） | `timeoutSec`（預設 30） |
+| 工具輸入 | `tool_name`、`tool_input`（物件） | camelCase 格式：`toolName`、`toolArgs`（可能是 JSON 字串）；PascalCase 格式：`tool_name`、`tool_input` |
+| 拒絕的輸出 | `{"hookSpecificOutput": {"permissionDecision": "deny", ...}}` | `{"permissionDecision": "deny", "permissionDecisionReason": "..."}` |
+| 失敗行為 | 預設 fail-open；可設 `onFailure: block` | command 形式的 `preToolUse` **fail-closed**（崩潰或非 0 exit 即拒絕）；但**逾時一律 fail-open**；HTTP hook 為 fail-open |
+| 雲端限制 | — | cloud agent 只執行 `bash`（忽略 `powershell`）、只支援部分事件、檔案系統是暫時的 |
+
+本手冊的 Copilot hook 設定：與 Claude Code 共用同一支 `guard_ssdlc.py`，並把每次工具執行結果寫成 JSONL 稽核紀錄：
+
+```json
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      {
+        "type": "command",
+        "bash": "python3 .github/hooks/guard_ssdlc.py",
+        "powershell": "python .github/hooks/guard_ssdlc.py",
+        "cwd": ".",
+        "timeoutSec": 10
+      }
+    ],
+    "postToolUse": [
+      {
+        "type": "command",
+        "bash": "mkdir -p logs && cat >> logs/tool-audit.jsonl",
+        "powershell": "New-Item -ItemType Directory -Force logs | Out-Null; $input | Add-Content -Path logs/tool-audit.jsonl",
+        "cwd": ".",
+        "timeoutSec": 5
+      }
+    ]
+  }
+}
+```
+
+> ⚠️ **逾時一律 fail-open**：守門 hook 一旦逾時，Copilot 就會放行該次工具呼叫。所以 hook 必須又快又簡單（本例為純字串比對，執行時間遠低於 10 秒），而且不能是唯一的防線。
+
+### 6.4 Copilot CLI：權限旗標與 autopilot
+
+工具控制分兩層：
+
+1. **可用工具**（`--available-tools`、`--excluded-tools`）：不在可用集合裡的工具，模型完全無法使用。
+2. **是否需要確認**（`--allow-tool`、`--deny-tool`）：deny **永遠優先**，即使設了 `--allow-all` 或已儲存的核准也一樣。
+
+本機執行迴圈的建議指令：
+
+```bash
+copilot -p "依 program.md 執行安全負債迴圈，run tag 為 oct23；停止條件成立時輸出 results.tsv 與 git log" \
+  --autopilot --max-autopilot-continues 30 --max-ai-credits 300 \
+  --no-ask-user \
+  --available-tools='bash,edit,view,grep,glob' \
+  --allow-tool='shell(git:*)' --deny-tool='shell(git push)' \
+  --allow-tool='shell(python:*)' --allow-tool='shell(grep:*)' --allow-tool='shell(tail:*)' \
+  --allow-tool=write \
+  --secret-env-vars=APP_SECRET_KEY
+```
+
+| 旗標 | 作用 |
+| --- | --- |
+| `--autopilot` | 以 autopilot 模式啟動，Agent 會自行繼續 |
+| `--max-autopilot-continues 30` | autopilot 最多自動繼續 30 次（預設 5）：**有界** |
+| `--max-ai-credits 300` | 本 session 的 AI Credits 上限 |
+| `--no-ask-user` | 停用 `ask_user` 工具，Agent 不會停下來發問 |
+| `--available-tools` | 只開放 shell、編輯、檢視與搜尋；沒有 web fetch |
+| `--deny-tool='shell(git push)'` | 禁止推送；deny 優先於所有 allow |
+| `--allow-tool=write` | 允許寫檔；哪些路徑不能寫，交給 `.github/hooks` 的守門 hook |
+| `--allow-tool='shell(python:*)'` | 允許跑評估器。注意這也允許 `python -c`，所以守門 hook 與評估器的雜湊檢查不能省 |
+| `--secret-env-vars` | 把指定環境變數從 shell 與 MCP 環境中移除，並在輸出中遮蔽 |
+
+網路：`--available-tools` 沒有開放 web fetch，Agent 就沒有內建的連網工具；透過 shell 的 `curl`、`wget` 由守門 hook 拒絕。無人值守時，建議同時在沒有對外網路的容器中執行。
+
+> ⚠️ 在 autopilot 模式中，hook 回傳 `"ask"` 會被視為拒絕，因為沒有人可以回答。
+
+Copilot CLI 也有 `/fleet`（平行 subagent）、`/research`（產出附引用來源的研究報告）、`/chronicle`（以本機 session 資料產生 standup、提示與 instructions 改善建議）、`/security-review`（分析已暫存與未暫存變更中的安全弱點）等 slash command。它們都在互動式 session 中使用。v3.0 寫的 `gh copilot "/fleet status"`、`/chronicle search` 等用法並不存在。
+
+### 6.5 Cloud Agent：copilot-setup-steps、防火牆與 secrets
+
+Cloud agent 在 GitHub Actions 的暫時環境中工作。用 `.github/workflows/copilot-setup-steps.yml` 預先安裝工具：
+
+```yaml
+name: "Copilot Setup Steps"
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+permissions: {}
+
+jobs:
+  # job 名稱必須是 copilot-setup-steps，否則 Copilot cloud agent 不會採用
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30 # 上限 59
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      # 先把掃描工具裝好：cloud agent 的防火牆預設只放行 GitHub 與 Copilot 主機，
+      # 讓 Agent 在 session 中自己 pip install 通常會被擋，也不符合「不新增相依」的規則
+      - name: Install scanners (pinned)
+        run: python -m pip install --disable-pip-version-check pytest==9.1.1 bandit==1.9.4 semgrep==1.182.1
+```
+
+| 規則 | 說明 |
+| --- | --- |
+| job 名稱 | **必須**是 `copilot-setup-steps`，否則不會被採用 |
+| 可自訂的鍵 | 只有 `steps`、`permissions`、`runs-on`、`services`、`snapshot`、`timeout-minutes`（上限 59）；其他鍵會被忽略 |
+| 生效條件 | 檔案必須在預設分支上 |
+| `fetch-depth` | 會被覆寫，以便 Agent 依要求回退 commit |
+| 防火牆 | 預設只能連到 GitHub 與 Copilot 的主機；其他主機要由管理員加入允許清單 |
+| Secrets | 放在 repo 的 Copilot 環境 secrets 中；**不要寫進 Prompt**，因為 session 紀錄對 repo 使用者可見 |
+| Workflow 核准 | Agent 開的 PR 要由有寫入權限的人核准後，Actions workflow 才會執行 |
+
+### 6.6 Copilot Code Review
+
+| 設定層級 | 方式 |
+| --- | --- |
+| 個人 | 在個人設定中啟用 Automatic Copilot code review；可選擇 Review new pushes、Review draft pull requests、review effort |
+| Repository | 在 **ruleset** 中啟用自動審查，並設定 review effort level |
+| Organization | 組織層級的 ruleset，套用到多個 repo |
+
+同一個 PR 符合多個來源時，Copilot 只會發一次審查。審查內容可以用 path-specific instructions（第 6.2 節）客製化。Code review 也在暫時的開發環境中執行，預設沿用 `copilot-setup-steps.yml`。
+
+### 6.7 Automations 與 Agentic Workflows
+
+| 面向 | Automations | Agentic Workflows |
+| --- | --- | --- |
+| 定義方式 | GitHub 網頁的 Agents 分頁，或 Copilot app 的 Automations 分頁 | `.github/workflows/*.md`（frontmatter＋自然語言），以 `gh aw compile` 編譯成 `.lock.yml` |
+| 版本控制 | ❌ 不進 Git，只有建立者看得到 | ✅ 兩個檔案都 commit，經 PR 審查 |
+| 觸發 | 排程（每小時、每天、每週）、issue 建立、PR 開啟、PR 有新 push | GitHub Actions 的所有觸發條件 |
+| 引擎 | Copilot cloud agent | `engine:` 可選 copilot（預設）、claude、codex、gemini |
+| 寫入控制 | 建立時勾選工具 | 預設唯讀；寫入只能透過宣告的 **safe-outputs**，由另一個有權限的 job 執行 |
+| 不可信輸入 | 預設忽略沒有寫入權限的使用者觸發的事件 | 依 `on:`、`roles` 等設定 |
+| 歸屬 | PR 歸屬於建立者，建立者無法核准自己的 PR | 由 workflow 的 token 執行 |
+
+企業建議：**需要稽核軌跡的自動化一律用 Agentic Workflows**。以下範例每週彙整夜間迴圈的結果並開一張 issue：
+
+```markdown
+---
+description: 每週彙整 AutoResearch 夜間迴圈的 Draft PR 與安全警示，開一張摘要 issue
+on:
+  schedule: weekly on monday
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  security-events: read
+  copilot-requests: write   # 由組織的 Copilot 授權計費（需管理員開啟對應政策）
+engine: copilot
+tools:
+  github:
+    toolsets: [default, code_security]
+safe-outputs:
+  create-issue:
+    title-prefix: "[ssdlc-digest] "
+    labels: [security, autoresearch]
+    max: 1
+timeout-minutes: 15
+---
+
+# SSDLC 每週安全摘要
+
+彙整過去 7 天本 repository 的下列資訊，開一張 issue：
+
+1. 標題以 `autoresearch:` 開頭的 Draft PR：列出每個 PR 的 `sec_debt` 起訖值（取自 PR 描述中的 results.tsv）、keep 數、discard 數，以及是否已有人類審查。
+2. Code scanning 與 secret scanning 的新增與已關閉警示數量，依嚴重度分組。
+3. 任何 PR 描述中出現 `gate: FAIL` 且原因為 `protected-file-changed` 或 `scanner-config` 的紀錄：這代表 Agent 嘗試規避評估，必須逐筆列出並標註「需安全團隊追查」。
+4. 下週建議：最多三點，每點對應一個可量測的指標。
+
+只做彙整，不要修改任何程式碼、標籤或 PR 狀態。
+```
+
+編譯結果（實測）：
+
+```text
+✓ .github\workflows\security-digest.md 
+✓ Compiled 1 workflow: 1 succeeded, 0 warnings
+```
+
+| 欄位 | 說明 |
+| --- | --- |
+| `permissions` | 全部唯讀；`copilot-requests: write` 讓 Copilot 推論費用計入組織（需要管理員開啟「Allow use of Copilot CLI billed to the organization」政策） |
+| `tools.github.toolsets` | 給 Agent 讀取 GitHub 資料的 MCP 工具集 |
+| `safe-outputs.create-issue` | Agent 只能「要求」開 issue；實際由另一個有 `issues: write` 的 job 執行，而且最多 1 張 |
+| `timeout-minutes` | Agent 步驟的時間上限 |
+
+> 🔍 `.lock.yml` 由 `gh aw` 產生，用到較新的 Actions 語法（例如 `concurrency.queue`、`copilot-requests` 權限）。actionlint 1.7.12 不認得這些語法，會回報錯誤。檢查 lock 檔請以 `gh aw compile` 成功為準，**不要手改 lock 檔**。
+
+### 6.8 企業治理：政策、計費與稽核
+
+| 主題 | 2026-10 現況 | 對迴圈的意義 |
+| --- | --- | --- |
+| 計費模式 | **2026-06-01 起改為依用量計費（AI Credits）**：費用依模型與 token 數計算；Business 每人每月含 1,900 credits、Enterprise 3,900，在帳單實體層級合併成共用池；1 credit = 0.01 美元 | 長時間的迴圈會消耗大量 credits，必須設上限 |
+| 程式碼補全 | 補全與 next edit suggestions 不計入 AI Credits | — |
+| 超額使用 | 組織與企業**預設允許**超額付費；要禁止必須由管理員明確關閉 | 導入迴圈前先設定預算與超額政策 |
+| 舊制 | 2026-06-01 前為 premium request 加上模型倍率；部分年約方案到期前沿用舊制 | 看到「premium requests」的文件請注意適用期間 |
+| 政策 | 組織或企業層級控制 CLI、cloud agent、code review、MCP、模型等 | 先在試點組織開放 |
+| 稽核 | 企業 audit log 記錄 Copilot 的設定變更與 agent 活動 | 迴圈的 Draft PR 與 session 紀錄可追溯到建立者 |
+
+### 6.9 檢查器
+
+`check_copilot_config.py` 檢查 hooks（version、事件名稱、handler 欄位、`exec` 是否與其他欄位併用）、path-specific instructions（`applyTo` 必填、`excludeAgent` 合法值）、`copilot-setup-steps.yml`（job 名稱、可自訂鍵、timeout），以及常見的虛構檔案。
+
+本手冊範例：
+
+```text
+0 error(s)
+```
+
+反向測試資料包含 v3.0 的 `copilot-code-review.yml`、`copilot-automations.yml`，以及刻意寫錯的 hook 與 setup steps：
+
+```text
+ERROR val/checkers/fixtures/bad-copilot/.github/hooks/bad.json: 必須有 "version": 1
+ERROR val/checkers/fixtures/bad-copilot/.github/hooks/bad.json: preToolUse handler 有未知欄位 ['script']
+ERROR val/checkers/fixtures/bad-copilot/.github/hooks/bad.json: preToolUse command hook 需要 bash／powershell／command／exec 其中之一
+ERROR val/checkers/fixtures/bad-copilot/.github/hooks/bad.json: 未知 hook 事件 `beforeEdit`
+ERROR val/checkers/fixtures/bad-copilot/.github/workflows/copilot-setup-steps.yml: job 名稱必須是 copilot-setup-steps，否則不會被採用
+ERROR val/checkers/fixtures/bad-copilot/.github/copilot-code-review.yml: GitHub Copilot 不讀取此檔案；Code Review 以 ruleset／設定頁啟用，Automations 在 Agents 分頁或 Copilot app 建立，不以 YAML 檔定義
+ERROR val/checkers/fixtures/bad-copilot/.github/copilot-automations.yml: GitHub Copilot 不讀取此檔案；Code Review 以 ruleset／設定頁啟用，Automations 在 Agents 分頁或 Copilot app 建立，不以 YAML 檔定義
+7 error(s)
+```
+
+### 6.10 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| Copilot 設定檔 | `.github/copilot-code-review.yml`、`.github/copilot-automations.yml` | Code review 用 ruleset；Automations 在 UI 設定；需要版控就用 Agentic Workflows | `check_copilot_config.py` 回報虛構檔案 |
+| Hooks | 套用 Claude Code 格式；少了 `"version": 1`；用 `script` 等不存在的欄位 | `version: 1`、`bash`／`powershell`、`timeoutSec` | 檢查器；以 `echo '{"toolName":"bash","toolArgs":"{\"command\":\"git push\"}"}'` 餵給 hook，應輸出 deny |
+| CLI 指令 | `gh copilot config set trust-level high`、`gh copilot "/fleet status"` | `copilot config <key> <value>`；slash command 在互動 session 中使用 | `check_flags.py`；`copilot help config` |
+| Autopilot | 沒有上限 | `--max-autopilot-continues`、`--max-ai-credits`、`--no-ask-user` | 執行後確認 session 在上限時停止 |
+| setup steps | job 名稱錯誤、`timeout-minutes` 大於 59、在 Prompt 放機密 | job 名稱 `copilot-setup-steps`、用 Copilot 環境 secrets | 檢查器；push 後觀察 workflow 是否自動執行 |
+| Agentic workflow | 手改 `.lock.yml`；給 `issues: write` 權限 | 只改 `.md` 再編譯；寫入走 safe-outputs | `gh aw compile` 0 warning |
+| 計費描述 | 仍寫 premium requests 與倍率 | 2026-06-01 起為 AI Credits（依 token 計費） | 對照 docs.github.com 的 billing 頁 |
 
 ---
 
-## 第 5 章：SSDLC Workflow 設計
+## 第三部：SSDLC 八階段實作
 
-本章是整份手冊的 **核心章節**，詳細說明 AI 如何參與 SSDLC 的每個階段。
+第 7–14 章逐一說明 SSDLC 的八個階段。每章用同一個玩具專案（使用者查詢、session cookie、設定模組），並固定使用以下結構：**目標 → 輸入 → 作法 → 交付物 → 閘門 → 範例 → 審查與驗證**。
 
-### 5.0 SSDLC 全階段總覽
+## 第 7 章：需求與威脅建模
+
+### 7.1 目標與輸入
+
+| 項目 | 內容 |
+| --- | --- |
+| 目標 | 在寫程式之前，找出需要防護的資產、信任邊界與威脅，並為**每個威脅指定一個可執行的驗證測試** |
+| 輸入 | 需求描述、資料流（誰傳什麼資料給誰）、既有的安全政策 |
+| AI 角色 | 起草 STRIDE 表、補充遺漏的威脅、把對策轉成測試名稱 |
+| 適合自主迴圈？ | ❌ 沒有客觀指標；漏掉的威脅不會讓任何東西失敗 |
+
+### 7.2 作法：AI 起草、人類審查、測試追溯
+
+1. 在 Plan mode（`claude --permission-mode plan`）或 Copilot 的 plan 模式中，讓 Agent 只讀程式碼與需求，不做任何修改。
+2. 給明確的輸出格式。Prompt 範例：
+
+```text
+請以 STRIDE 分析 app/ 的三個模組（db、session、config）。
+輸出一張 Markdown 表，欄位固定為：ID｜元件｜STRIDE｜威脅｜對策｜驗證測試。
+規則：
+- 每個威脅必須對應到一個具體函式，不要寫「系統可能遭受攻擊」這類空泛描述。
+- 「驗證測試」欄填 pytest 測試函式名稱（以 test_ 開頭）；若測試尚不存在，標註「待新增」。
+- 只寫你從程式碼看得到證據的威脅；推測的威脅另列一節並說明假設。
+```
+
+3. 人類審查威脅表（第 7.5 節的清單），補上 AI 漏掉的業務邏輯威脅。
+4. 把「待新增」的測試寫出來（第 10 章），直到每個威脅都有測試。
+5. 用追溯檢查確認表中的每個測試名稱都真的存在。
+
+### 7.3 交付物與閘門
+
+| 交付物 | 閘門 |
+| --- | --- |
+| `docs/threat-model.md`（STRIDE 表） | 每一列都有對策與驗證測試；`check_threat_trace.sh` 回報 `untested=0 missing_tests=0` |
+| 信任邊界圖（選用） | 跨越信任邊界的每條資料流至少對應一個威脅 |
+
+### 7.4 範例：玩具專案的威脅模型
+
+```markdown
+# 威脅模型：使用者查詢與 Session 模組
+
+| ID | 元件 | STRIDE | 威脅 | 對策 | 驗證測試 |
+| --- | --- | --- | --- | --- | --- |
+| TM-01 | `db.find_user` | Tampering／Information Disclosure | 名稱參數注入 SQL，傾印所有使用者 | 參數化查詢 | `test_sql_injection_payload_returns_nothing` |
+| TM-02 | `session.load_session` | Spoofing／Elevation of Privilege | 偽造或竄改 cookie 冒充他人、提升角色 | JSON＋HMAC-SHA256 簽章，`hmac.compare_digest` 比對 | `test_forged_session_cookie_is_rejected` |
+| TM-03 | `session.load_session` | Tampering | 反序列化不可信資料導致遠端程式碼執行 | 禁用 pickle，改用 JSON | `test_forged_session_cookie_is_rejected` |
+| TM-04 | `config.get_secret_key` | Information Disclosure | 簽章金鑰寫死在程式碼，隨原始碼外洩 | 由環境變數或 Secret Manager 取得，長度至少 32 | `test_secret_key_is_long_enough` |
+```
+
+追溯檢查腳本：從威脅表擷取所有測試名稱，確認每一個都在 `tests/` 中有定義，並確認沒有「無測試」的威脅：
+
+```bash
+#!/usr/bin/env bash
+# 檢查威脅模型中的每個「驗證測試」都真的存在於 tests/ 中（需求 → 測試的雙向追溯之一）
+# 用法：check_threat_trace.sh <repo>
+set -euo pipefail
+cd "$1"
+missing=0
+for t in $(grep -oE '`test_[a-z0-9_]+`' docs/threat-model.md | tr -d '`' | sort -u); do
+  if grep -q "def $t(" tests/*.py; then
+    echo "OK       $t"
+  else
+    echo "MISSING  $t"; missing=$((missing + 1))
+  fi
+done
+threats=$(grep -cE '^\| TM-[0-9]+' docs/threat-model.md)
+untested=$(grep -E '^\| TM-[0-9]+' docs/threat-model.md | grep -vcE '`test_[a-z0-9_]+`' || true)
+echo "threats=$threats untested=$untested missing_tests=$missing"
+[[ $missing -eq 0 && $untested -eq 0 ]]
+```
+
+實測輸出：
+
+```text
+OK       test_forged_session_cookie_is_rejected
+OK       test_secret_key_is_long_enough
+OK       test_sql_injection_payload_returns_nothing
+threats=4 untested=0 missing_tests=0
+```
+
+### 7.5 審查要點
+
+| 檢查項目 | 為什麼 |
+| --- | --- |
+| 每個威脅都指向具體函式或資料流 | AI 容易產出「可能遭受 DDoS」這類與程式碼無關的填充內容 |
+| 對策可驗證 | 「加強安全性」不是對策；「參數化查詢」是 |
+| 有測試名稱，且追溯檢查通過 | 沒有測試的威脅，就不會進入第 16 章的指標 |
+| 涵蓋 Agent 本身的威脅 | 如果系統會用 AI Agent（例如本手冊的迴圈），要把 OWASP Agentic Top 10 納入，例如 ASI01 目標劫持 |
+| 業務邏輯威脅 | 例如「viewer 角色可以把自己升級為 admin」：AI 從程式碼通常看不出來，必須由懂業務的人補上 |
+
+### 7.6 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| STRIDE 表 | 威脅與程式碼無關、對策空泛 | 每列指向函式，對策可驗證 | 審查者逐列找到對應程式碼 |
+| 測試對應 | 寫了不存在的測試名稱 | 測試名稱與 `tests/` 一致 | `check_threat_trace.sh` |
+| 覆蓋範圍 | 只有技術威脅，沒有業務邏輯與 Agent 威脅 | 人類補充業務威脅；納入 ASI01–ASI10 | 以 2.4 節表格逐項檢查 |
+| 推測與事實混雜 | 把推測寫成確定的威脅 | 推測另列一節並說明假設 | 審查者確認每個推測都有標註 |
+
+---
+
+## 第 8 章：安全設計
+
+### 8.1 目標與輸入
+
+| 項目 | 內容 |
+| --- | --- |
+| 目標 | 為威脅模型中的每個對策選定設計，並把取捨寫成 ADR（Architecture Decision Record） |
+| 輸入 | 威脅模型、組織的安全標準、既有架構 |
+| AI 角色 | 列出候選方案與取捨、起草 ADR、檢查設計是否違反既有標準 |
+| 適合自主迴圈？ | ❌ 取捨需要業務判斷 |
+
+### 8.2 作法：用 ADR 固定決策，讓迴圈有界
+
+設計階段的產出，會直接成為後續自主迴圈的**約束條件**。例如 ADR 決定「session 用 JSON＋HMAC」，program.md 就可以寫成「只能用標準函式庫的 `hmac`、`json`」。這樣 Agent 就不會自己發明加密方案，也不會引入新的相依套件。
+
+Prompt 範例：
+
+```text
+針對 TM-02、TM-03（session cookie 可被偽造、pickle 反序列化），列出至少三個設計方案，
+比較：安全性、是否需要新增相依、對既有 cookie 的相容性、實作複雜度。
+以 ADR 格式輸出（背景、決策、後果、被否決的方案與理由）。不要修改任何程式碼。
+```
+
+### 8.3 範例：Session 格式 ADR
+
+```markdown
+# ADR-007：Session cookie 改用 JSON + HMAC-SHA256
+
+## 狀態
+已核准（2026-10-20，Security Champion 簽核）
+
+## 背景
+現行 session 以 pickle 序列化後 base64 編碼，沒有簽章（TM-02、TM-03）。
+攻擊者可以偽造任意 session，或觸發 pickle 反序列化執行任意程式碼（CWE-502）。
+
+## 決策
+- 序列化改用 json（標準函式庫），格式為 base64url(payload) + "." + hex(HMAC-SHA256)。
+- 金鑰由 APP_SECRET_KEY 環境變數提供，長度至少 32；不存在時啟動失敗（fail closed）。
+- 驗證簽章一律使用 hmac.compare_digest，避免時序攻擊（CWE-208）。
+- 驗證失敗一律拋出 ValueError，由呼叫端轉為 401。
+
+## 後果
+- 既有 cookie 全部失效，使用者需重新登入一次。
+- 不新增相依套件；符合 program.md「只能使用標準函式庫」的規則。
+
+## 被否決的方案
+- itsdangerous：功能完整，但會新增相依，目前不在核准套件清單中。
+- JWT（PyJWT）：需處理演算法混淆等額外風險，且會新增相依。
+- 伺服器端 session 存放：需要共用儲存體，超出本次範圍。
+```
+
+第 16 章第 08 輪的修補，就是依這份 ADR 實作的。審查者可以逐條對照：
+
+| ADR 條款 | 檢查方式 |
+| --- | --- |
+| 使用 json，不用 pickle | `grep -n "pickle" app/` 應無結果 |
+| 格式為 payload.signature | 讀 `dump_session` |
+| 金鑰長度至少 32，不存在時失敗 | 讀 `get_secret_key`；功能測試 `test_secret_key_is_long_enough` |
+| 使用 `hmac.compare_digest` | `grep -n "compare_digest" app/session.py` |
+| 驗證失敗拋出 ValueError | 安全測試 `test_forged_session_cookie_is_rejected` |
+
+### 8.4 安全設計檢查清單
+
+| 面向 | 檢查問題 |
+| --- | --- |
+| 驗證與 session | 憑證與 token 如何簽章、過期、撤銷？比對是否為固定時間？ |
+| 授權（A01） | 每個資源存取都有授權檢查嗎？預設是拒絕嗎？ |
+| 輸入處理（A05） | 所有外部輸入在哪裡驗證？查詢是否參數化？ |
+| 機密（A04） | 機密存放在哪裡？誰能讀？如何輪替？ |
+| 例外處理（A10） | 例外發生時是 fail closed 嗎？錯誤訊息會不會洩漏內部資訊？ |
+| 供應鏈（A03） | 新增的相依是否在核准清單中？版本是否鎖定？ |
+| AI Agent 參與 | Agent 的可寫範圍、評估器位置、停止條件是否寫在設計中？ |
+
+### 8.5 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| ADR | 只有一個方案，沒有比較；或為了「最佳實踐」引入新相依 | 至少三個方案，寫出被否決的理由 | 審查者確認每個被否決方案都有具體理由 |
+| 加密設計 | 自創演算法、用 `==` 比對簽章、金鑰有預設值 | 標準演算法、`hmac.compare_digest`、無金鑰時 fail closed | 對照 8.3 節的條款檢查表 |
+| 與迴圈的銜接 | ADR 決策沒有反映到 program.md | 把「允許的函式庫」「禁止的做法」寫進 program.md 或 CLAUDE.md | 檢查 program.md 的「可以／不可以」章節 |
+
+---
+
+## 第 9 章：安全開發
+
+### 9.1 目標與輸入
+
+| 項目 | 內容 |
+| --- | --- |
+| 目標 | 寫出符合安全編碼規則的程式碼；弱點在進入 PR 之前就被發現並修正 |
+| 輸入 | ADR、安全編碼規則（CLAUDE.md、copilot-instructions.md） |
+| AI 角色 | 依規則撰寫程式、在 session 中自我審查 |
+| 適合自主迴圈？ | ⚠️ 部分適合：規則可以變成 lint 與掃描閘門，但功能正確性仍需測試 |
+
+### 9.2 三層「寫的當下」防護
+
+| 層次 | Claude Code | GitHub Copilot | 是否強制 |
+| --- | --- | --- | --- |
+| 指示 | `CLAUDE.md`（第 5.6 節） | `.github/copilot-instructions.md`、path-specific instructions（第 6.2 節） | 否：模型通常會遵守 |
+| 即時自我審查 | security-guidance plugin：每次編輯做樣式比對、每輪做模型審查、commit 時做 agentic 審查（第 5.9 節） | IDE 的 code review、CLI 的 `/security-review` | 否：只回饋，不阻擋 |
+| 確定性阻擋 | 權限規則、守門 hook、sandbox | `--deny-tool`、`.github/hooks` | **是** |
+
+> ✅ **原則**：「建議」層讓 Agent 第一次就寫對；「強制」層保證最壞情況也不會越界。兩層都要有。
+
+### 9.3 範例：AI 修補的前後對照
+
+以第 16 章第 01 輪（SQL injection，CWE-89）為例。修補前：
+
+```python
+import sqlite3
+
+
+def get_conn(path=":memory:"):
+    conn = sqlite3.connect(path)
+    conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, email TEXT)")
+    return conn
+
+
+def add_user(conn, name, email):
+    conn.execute("INSERT INTO users (name, email) VALUES (?, ?)", (name, email))
+
+
+def find_user(conn, name):
+    sql = "SELECT id, name, email FROM users WHERE name = '%s'" % name
+    return conn.execute(sql).fetchall()
+```
+
+修補後：
+
+```python
+import sqlite3
+
+
+def get_conn(path=":memory:"):
+    conn = sqlite3.connect(path)
+    conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT, email TEXT)")
+    return conn
+
+
+def add_user(conn, name, email):
+    conn.execute("INSERT INTO users (name, email) VALUES (?, ?)", (name, email))
+
+
+def find_user(conn, name):
+    return conn.execute("SELECT id, name, email FROM users WHERE name = ?", (name,)).fetchall()
+```
+
+### 9.4 審查要點：怎麼判斷修補是「真的修好」
+
+| 檢查 | 做法 | 第 01 輪的判斷 |
+| --- | --- | --- |
+| 根因是否消除 | 確認危險寫法完全不存在，而不是加了過濾 | ✅ 改用 `?` 佔位符，SQL 結構與資料分離 |
+| 同類寫法是否還有 | `grep -rn "execute(" app/`，逐一確認 | ✅ 三處 `execute`：一處是固定的 DDL 字串，兩處以 `?` 傳參，都沒有字串組合 |
+| 是否只是搬位置 | 危險呼叫是否移到另一個函式或模組 | ✅ 沒有 |
+| 是否有動態證據 | 安全測試從失敗變成通過 | ✅ `test_sql_injection_payload_returns_nothing` 通過 |
+| 是否改了測試或抑制掃描 | `git diff --stat` 只應出現 `app/` | ✅ 只有 `app/db.py` |
+| 簡單性 | 修補是否比原本更簡單 | ✅ 少了一行 |
+
+### 9.5 Pre-commit 秘密掃描
+
+迴圈中的 Agent 會頻繁 commit。在 repo 加上 pre-commit hook，讓**任何人**（包括 Agent）commit 前都先做秘密掃描。`.pre-commit-config.yaml` 是 Claude Code 的受保護檔案，Agent 無法自動修改：
+
+```yaml
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+```
+
+搭配守門 hook 拒絕 `--no-verify`（第 5.5 節），Agent 就無法略過這一關。
+
+### 9.6 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| SQL 修補 | 加上跳脫或黑名單過濾 | 參數化查詢 | semgrep 規則 `python-sql-string-build` 無發現；注入測試通過 |
+| 機密修補 | 把機密移到另一個 `.py` 常數或 `.env` 範例檔 | 從環境變數或 Secret Manager 讀取，缺少時失敗 | gitleaks 0 筆；`grep -rn "SECRET_KEY = \"" app/` 無結果 |
+| 反序列化修補 | 改用 `pickle` 的「安全」子類別、`yaml.load` | JSON 加上簽章 | semgrep `python-pickle-untrusted` 無發現；偽造 cookie 測試通過 |
+| commit 內容 | 同時修改測試與程式 | 只改 `app/` | `git show --stat` |
+| 規則檔 | 只寫 CLAUDE.md，沒有強制層 | 指示＋權限＋hook | 在 session 中嘗試違規動作，應被拒絕 |
+
+---
+
+## 第 10 章：安全測試
+
+### 10.1 目標與輸入
+
+| 項目 | 內容 |
+| --- | --- |
+| 目標 | 每個威脅都有**能抓到弱點**的測試；這些測試會成為自主迴圈的指標來源 |
+| 輸入 | 威脅模型（第 7 章）、ADR（第 8 章） |
+| AI 角色 | 依威脅產生測試案例、攻擊輸入 |
+| 適合自主迴圈？ | ⚠️ 測試本身會成為評估器的一部分，必須**先經人類審查再鎖定** |
+
+### 10.2 為什麼安全測試要特別小心
+
+在自主迴圈中，測試扮演上游 `evaluate_bpb` 的角色。如果測試寫錯：
+
+- **測試太弱**（在弱點版本也會通過）：指標看起來很好，實際上什麼都沒修。
+- **測試被 Agent 修改**：指標可以被任意操縱（第 3.4 節）。
+- **測試依賴特定輸入**：Agent 可能針對那個輸入寫特例。
+
+所以安全測試的生命週期是：**AI 起草 → 先紅後綠驗證 → 人類審查 → 鎖定（列入受保護清單）→ 才開始迴圈**。
+
+### 10.3 範例：玩具專案的安全測試
+
+```python
+"""安全測試：每個失敗計入 sec_debt（權重 10），不是硬性閘門。"""
+import base64
+
+import pytest
+
+from app import db, session
+
+
+def test_sql_injection_payload_returns_nothing():
+    conn = db.get_conn()
+    db.add_user(conn, "alice", "alice@example.com")
+    assert db.find_user(conn, "x' OR '1'='1") == []
+
+
+def test_forged_session_cookie_is_rejected():
+    forged = base64.b64encode(b"forged-cookie-without-signature").decode()
+    with pytest.raises(ValueError):
+        session.load_session(forged)
+```
+
+功能測試（閘門）：
+
+```python
+"""功能測試：硬性閘門，任何一個失敗即 discard。"""
+from app import db, session, config
+
+
+def test_find_user_returns_match():
+    conn = db.get_conn()
+    db.add_user(conn, "alice", "alice@example.com")
+    db.add_user(conn, "bob", "bob@example.com")
+    rows = db.find_user(conn, "alice")
+    assert [(r[1], r[2]) for r in rows] == [("alice", "alice@example.com")]
+
+
+def test_session_roundtrip():
+    cookie = session.dump_session({"user": "alice", "role": "viewer"})
+    assert session.load_session(cookie) == {"user": "alice", "role": "viewer"}
+
+
+def test_secret_key_is_long_enough(monkeypatch):
+    monkeypatch.setenv("APP_SECRET_KEY", "k" * 32)
+    assert len(config.get_secret_key()) >= 32
+```
+
+### 10.4 先紅後綠驗證
+
+一個安全測試要被接受，必須同時滿足：
+
+1. **在有弱點的版本失敗**（紅）：證明它真的能偵測弱點。
+2. **在修補後的版本通過**（綠）：證明正確的修補能讓它通過。
+
+驗證腳本：
+
+```bash
+#!/usr/bin/env bash
+# 驗證 AI 產生的安全測試「先紅後綠」：在有弱點的版本必須失敗，在修補後的版本必須通過。
+# 一個在弱點版本也會通過的安全測試，等於沒有測到任何東西。
+# 用法：red_first.sh <repo> <vulnerable-commit> <fixed-commit> <test-file>
+set -uo pipefail
+REPO=$1; VULN=$2; FIXED=$3; TEST=$4
+cd "$REPO"
+orig=$(git rev-parse --abbrev-ref HEAD)
+run_at() {
+  git checkout -q "$1" -- app
+  python -m pytest -q -p no:cacheprovider -o pythonpath=. "$TEST" > /dev/null 2>&1
+  echo $?
+}
+red=$(run_at "$VULN"); green=$(run_at "$FIXED")
+git checkout -q "$orig" -- app
+echo "vulnerable=$VULN pytest_rc=$red  (預期 ≠ 0：測試能抓到弱點)"
+echo "fixed=$FIXED      pytest_rc=$green (預期 = 0：修補後通過)"
+if [[ $red -ne 0 && $green -eq 0 ]]; then echo "RED-FIRST: PASS"; else echo "RED-FIRST: FAIL"; exit 1; fi
+```
+
+對本手冊的安全測試（正向）：
+
+```text
+vulnerable=master pytest_rc=1  (預期 ≠ 0：測試能抓到弱點)
+fixed=autoresearch/demo      pytest_rc=0 (預期 = 0：修補後通過)
+RED-FIRST: PASS
+```
+
+對 AI 常見的弱測試（反向）。這個測試看起來在測注入，實際上吞掉例外、沒有斷言：
+
+```python
+"""AI 常產出的「弱安全測試」：看起來在測注入，其實在弱點版本也會通過。"""
+from app import db
+
+
+def test_find_user_handles_quote():
+    conn = db.get_conn()
+    db.add_user(conn, "o'brien", "ob@example.com")
+    try:
+        db.find_user(conn, "o'brien")
+    except Exception:
+        pass  # 錯誤 1：吞掉例外，任何結果都算通過
+    assert True  # 錯誤 2：沒有對回傳值做任何斷言
+```
+
+```text
+vulnerable=master pytest_rc=0  (預期 ≠ 0：測試能抓到弱點)
+fixed=autoresearch/demo      pytest_rc=0 (預期 = 0：修補後通過)
+RED-FIRST: FAIL
+```
+
+弱點版本的 `pytest_rc=0` 表示測試在弱點存在時也通過了：**這個測試沒有價值，不能被接受。**
+
+### 10.5 AI 產生安全測試的審查要點
+
+| 檢查 | 不合格的徵兆 |
+| --- | --- |
+| 有沒有對結果做斷言 | `assert True`、`except: pass`、只檢查「不拋例外」 |
+| 攻擊輸入是否具代表性 | 只有一組輸入；可以加入多組（例如 `' OR '1'='1`、`'; DROP TABLE`、Unicode 引號） |
+| 預期行為是否寫對 | 例如偽造 cookie 應該「拋出 ValueError」，而不是「回傳 None」：要和 ADR 一致 |
+| 是否依賴實作細節 | 測試直接檢查內部函式名稱或 SQL 字串，Agent 改寫法就會誤判 |
+| 是否先紅後綠 | `red_first.sh` 必須回報 PASS |
+
+### 10.6 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| 安全測試 | 沒有斷言、吞掉例外 | 斷言具體結果或例外類型 | `red_first.sh` 必須 PASS |
+| 測試鎖定 | 迴圈開始後才補測試 | 先審查、再鎖定雜湊、再開始迴圈 | `evaluate.py --init` 的時間點早於第一輪 |
+| 功能測試 | 只測安全，沒有功能閘門 | 功能測試為硬性閘門 | 移除功能（例如讓 `find_user` 回傳空清單），評估器應回報 `functional-tests-failed` |
+| 測試與威脅的對應 | 測試與威脅模型脫節 | 每個威脅都有測試 | `check_threat_trace.sh` |
+
+---
+
+## 第 11 章：安全掃描與自動修補
+
+### 11.1 目標與輸入
+
+| 項目 | 內容 |
+| --- | --- |
+| 目標 | 持續找出弱點，並用有界的自主迴圈修補，產出可審查的修補 commit |
+| 輸入 | 鎖定的測試、固定的評估器、program.md |
+| AI 角色 | **執行 AutoResearch 迴圈**：一次一個想法、跑評估、keep 或 discard |
+| 適合自主迴圈？ | ✅ 本手冊的主要場景 |
+
+### 11.2 掃描工具矩陣
+
+| 類型 | 工具（本手冊） | 企業常見替代 | 在評估器中 | 在 CI 中 |
+| --- | --- | --- | --- | --- |
+| SAST（Python） | bandit | — | ✅ | ✅ |
+| SAST（多語言、自訂規則） | semgrep（本機規則檔） | CodeQL | ✅ | ✅（CodeQL） |
+| 秘密掃描 | gitleaks | GitHub secret scanning、push protection | ✅ | ✅ |
+| 相依弱點（SCA） | — | dependency-review-action、Dependabot、pip-audit | ❌（迴圈禁止新增相依） | ✅ |
+| 動態證據 | pytest 安全測試 | DAST（ZAP 等） | ✅ | ✅ |
+| Workflow 安全 | zizmor、actionlint | — | ❌ | ✅ |
+
+> 💡 **評估器裡的規則要「離線、固定版本」**。semgrep 的 `--config auto` 或 registry 規則會隨時間變動，導致同一份程式碼在不同天有不同分數，破壞「指標可重現」這個前提。評估器使用 repo 外的本機規則檔，規則的更新要走變更審查。
+
+### 11.3 評估器的 semgrep 規則
+
+```yaml
+rules:
+  - id: python-sql-string-build
+    languages: [python]
+    severity: ERROR
+    message: SQL 以字串組合後執行（CWE-89），請改用參數化查詢
+    metadata: {cwe: "CWE-89", owasp: "A05:2025 Injection"}
+    pattern-either:
+      - pattern: $CONN.execute("..." % ..., ...)
+      - pattern: $CONN.execute(f"...", ...)
+      - pattern: $CONN.execute("..." + ..., ...)
+      - pattern: |
+          $SQL = "..." % ...
+          ...
+          $CONN.execute($SQL, ...)
+      - pattern: |
+          $SQL = f"..."
+          ...
+          $CONN.execute($SQL, ...)
+  - id: python-pickle-untrusted
+    languages: [python]
+    severity: ERROR
+    message: pickle.loads 反序列化不可信資料（CWE-502）
+    metadata: {cwe: "CWE-502", owasp: "A08:2025 Software or Data Integrity Failures"}
+    pattern: pickle.loads(...)
+  - id: python-hardcoded-secret
+    languages: [python]
+    severity: WARNING
+    message: 機密值寫死在程式碼中（CWE-798），請改由環境變數或 Secret Manager 取得
+    metadata: {cwe: "CWE-798", owasp: "A04:2025 Cryptographic Failures"}
+    patterns:
+      - pattern: $NAME = "$VALUE"
+      - metavariable-regex:
+          metavariable: $NAME
+          regex: (?i).*(secret|token|passw|api_?key).*
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: .{16,}
+```
+
+規則設計要點：
+
+| 規則 | 重點 |
+| --- | --- |
+| `python-sql-string-build` | 同時比對「直接在 execute 裡組字串」與「先組成變數再 execute」，後者是 Agent 搬位置時常見的寫法 |
+| `python-pickle-untrusted` | 只要有 `pickle.loads` 就報 |
+| `python-hardcoded-secret` | 變數名含 secret、token、passw、api_key，且值長度至少 16 |
+
+### 11.4 從掃描結果到迴圈
+
+| 步驟 | 誰做 | 產出 |
+| --- | --- | --- |
+| 1. 定期全量掃描（CodeQL、secret scanning、Claude Security plugin） | CI／排程 | 弱點清單 |
+| 2. 分級（triage）：確認真陽性、決定要修的範圍 | Security Champion | 本次迴圈的目標範圍 |
+| 3. 為目標弱點補安全測試，並先紅後綠驗證 | 開發者＋AI | 鎖定的測試 |
+| 4. 執行迴圈（第 16 章） | Agent | 一串 keep commit＋results.tsv |
+| 5. 獨立審查（security-reviewer subagent、`/security-review`） | Agent＋人類 | 審查報告 |
+| 6. Draft PR → CI 閘門 → 人類核准 → 合併 | 人類 | 合併的修補 |
+
+### 11.5 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| 評估器的掃描設定 | `semgrep --config auto`、未鎖版本的工具 | 本機規則檔、版本鎖定 | 同一 commit 跑兩次評估，`sec_debt` 必須相同 |
+| semgrep 規則 | 只比對一種寫法 | 涵蓋「搬位置」的寫法 | 對修補前後的程式碼各跑一次，確認規則在修補前會命中 |
+| 迴圈範圍 | 一次修全部 | 由 triage 決定本次範圍，寫進 program.md | program.md 的「目標」章節 |
+| 修補結果 | 直接合併 | Draft PR 加上獨立審查 | 第 15 章 workflow；branch protection |
+
+---
+
+## 第 12 章：部署與供應鏈安全
+
+### 12.1 目標與輸入
+
+| 項目 | 內容 |
+| --- | --- |
+| 目標 | 只有通過閘門、經人類核准的變更才能部署；產出物可追溯到來源與建置過程 |
+| 輸入 | 已合併的修補、CI 結果 |
+| AI 角色 | 檢查 workflow 與部署設定、產生部署檢查清單 |
+| 適合自主迴圈？ | ⚠️ CI 閘門是確定性的，但部署決策必須有人負責 |
+
+### 12.2 部署閘門
+
+| 閘門 | GitHub 設定 | 防範什麼 |
+| --- | --- | --- |
+| 必要的狀態檢查 | Ruleset：要求 `ssdlc-gate`、`codeql`、`dependency-review` 通過 | 指標退步、新弱點、高風險相依 |
+| 必要的審查 | Ruleset：至少 1 位（建議 2 位）有寫入權限的人核准；最新一次 push 要重新核准 | Agent 自我核准（ASI09）、審查後偷偷追加 commit |
+| CODEOWNERS | `program.md`、`tests/`、`.github/`、`.claude/` 由安全團隊擁有 | 規則與評估相關檔案被未經審查地修改 |
+| 環境保護 | `production` environment 設定 required reviewers | 未經核准的部署 |
+| 簽章 commit | Ruleset：要求簽章 commit | 偽冒身分的 commit |
+
+CODEOWNERS 範例：
+
+```text
+# 評估與規則相關檔案：任何修改都需要安全團隊審查
+/program.md          @my-org/appsec
+/tests/              @my-org/appsec
+/.claude/            @my-org/appsec
+/.github/            @my-org/appsec @my-org/platform
+/docs/threat-model.md @my-org/appsec
+```
+
+### 12.3 SLSA Build Provenance
+
+發布 workflow 以 `actions/attest-build-provenance` 產生由 GitHub 簽署的 provenance：
+
+```yaml
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production # 需在 repo 設定 required reviewers：人類核准後才會執行
+    permissions:
+      contents: read
+      id-token: write      # 簽署 provenance 用的 OIDC token
+      attestations: write  # 寫入 artifact attestation
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist and wheel
+        run: |
+          python -m pip install --disable-pip-version-check build==1.3.0
+          python -m build
+
+      # SLSA Build：由 GitHub 託管平台簽署的 provenance
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: "dist/*"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist/
+          retention-days: 30
+```
+
+| 設定 | 說明 |
+| --- | --- |
+| `environment: production` | 需在 repo 設定 required reviewers，人類核准後 job 才會執行 |
+| `id-token: write`、`attestations: write` | 只在這個 job 給，用於簽署與寫入 attestation |
+| 所有 action 釘選 commit SHA | 防止 tag 被移動（供應鏈攻擊） |
+| `build==1.3.0` | 建置工具也要鎖定版本 |
+
+驗證 provenance：
+
+```bash
+gh attestation verify dist/my_app-1.0.0-py3-none-any.whl --repo my-org/my-app
+```
+
+### 12.4 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| Workflow 的 action 引用 | `@v4`、`@main` | 釘選 40 碼 commit SHA 並註明版本 | zizmor 的 `unpinned-uses` 稽核 |
+| 權限 | workflow 層級 `write-all` | workflow 層級 `{}`，job 層級最小權限 | zizmor `excessive-permissions` |
+| 部署核准 | Agent 開的 PR 由同一個 bot 核准 | ruleset 要求人類審查；最新 push 需重新核准 | 用測試 repo 嘗試由 bot 核准，應無法合併 |
+| Provenance | 只上傳產出物，沒有 attestation | `attest-build-provenance` | `gh attestation verify` |
+
+---
+
+## 第 13 章：監控與偵測
+
+### 13.1 目標與輸入
+
+| 項目 | 內容 |
+| --- | --- |
+| 目標 | 同時監控「應用程式」與「Agent 本身」：Agent 是否在越界、花費是否失控、迴圈是否有效 |
+| 輸入 | Claude Code OpenTelemetry 遙測、Copilot hook 稽核紀錄、results.tsv、CI 結果、audit log |
+| AI 角色 | 摘要告警、初步分析；**不自主處置** |
+| 適合自主迴圈？ | ❌ 屬於事件回應，需要人類判斷 |
+
+### 13.2 Agent 監控指標
+
+| 訊號 | 來源 | 告警條件（建議） | 可能代表 |
+| --- | --- | --- | --- |
+| permission denial 次數 | Agent SDK `ResultMessage.permission_denials`；Claude Code 的 `tool_decision` 事件 | 單次迴圈超過 10 次 | Agent 正在反覆嘗試越界，或 program.md 與權限不一致 |
+| gate FAIL：`protected-file-changed`、`scanner-config` | results.tsv | **任何一次** | 規避評估的嘗試，需要安全團隊追查（ASI10） |
+| crash 比例 | results.tsv | 超過 30% | 評估環境不穩定，或 Agent 的修改品質差 |
+| keep rate | results.tsv | 連續三晚 0% | 指標或目標範圍需要調整（第 14 章） |
+| 花費 | `claude_code.cost.usage` 指標；Copilot AI Credits | 超過預算 80% | 迴圈未正常停止 |
+| hook 失敗 | Claude Code hook 事件；Copilot `errorOccurred` | 任何一次 | 守門機制失效：在 Copilot 上，逾時代表放行 |
+| 相同 session 的工具呼叫數 | `tool_result` 事件 | 遠高於歷史平均 | 迴圈卡住或重複嘗試 |
+
+### 13.3 Copilot 端的稽核紀錄
+
+第 6.3 節的 Copilot hook 設定會在 `postToolUse` 把每次工具呼叫的 JSON 追加到 `logs/tool-audit.jsonl`。在 cloud agent 中檔案系統是暫時的，要保留紀錄就改用 `http` 類型的 hook 送到集中式 log 平台（防火牆需允許該主機）。
+
+### 13.4 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| 監控設計 | 只監控應用程式，不監控 Agent | 加上 13.2 節的 Agent 訊號 | 故意讓 Agent 嘗試違規，確認告警觸發 |
+| 遙測設定 | `claude --otel-endpoint`、`claude analytics` 等不存在的指令 | 以環境變數 `CLAUDE_CODE_ENABLE_TELEMETRY`、`OTEL_*` 設定（第 17 章） | `check_flags.py`；collector 收到 `claude_code.session.count` |
+| 個資 | 遙測送出完整 Prompt 與 email | 預設不記錄 Prompt 內容；collector 刪除 `user.email` | 檢查 collector 輸出的屬性 |
+| 告警處置 | 讓 AI 自動回滾或關閉告警 | AI 只摘要，處置由 on-call 決定 | Runbook 中每個處置步驟都有負責人 |
+
+---
+
+## 第 14 章：持續優化
+
+### 14.1 目標與輸入
+
+| 項目 | 內容 |
+| --- | --- |
+| 目標 | 根據迴圈的結果改進「研究組織」：program.md、指標權重、規則、測試 |
+| 輸入 | results.tsv、keep commit 的審查結果、監控訊號 |
+| AI 角色 | 分析結果、提出 program.md 修改建議 |
+| 誰改 program.md | **人類**。這是上游最核心的分工，企業版也一樣 |
+
+Karpathy 在 README 中說，`program.md` 刻意只保留最基本的版本，「迭代它以找出讓研究進展最快的『研究組織程式碼』」是人類的工作。在 SSDLC 中，這份工作由 Security Champion 負責。
+
+### 14.2 分析 results.tsv
+
+```python
+"""分析 AutoResearch 迴圈的 results.tsv，產生人類審查與持續優化用的摘要。
+
+用法：python analyze_results.py <results.tsv>
+"""
+import csv
+import sys
+from collections import Counter
+
+
+def main(path):
+    with open(path, encoding="utf-8", newline="") as f:
+        rows = list(csv.DictReader(f, delimiter="\t"))
+    status = Counter(r["status"] for r in rows)
+    kept = [r for r in rows if r["status"] == "keep"]
+    gate_fail = Counter(r["gate"].split(" ", 1)[1].split(":")[0]
+                        for r in rows if r["gate"].startswith("FAIL"))
+    start, end = int(kept[0]["sec_debt"]), int(kept[-1]["sec_debt"])
+
+    print(f"rounds={len(rows)} keep={status['keep']} discard={status['discard']} crash={status['crash']}")
+    print(f"keep_rate={status['keep'] / len(rows):.0%}")
+    print(f"sec_debt: {start} -> {end} (reduced {start - end}, {(start - end) / start:.0%})")
+    print("gate_fail_reasons:", dict(gate_fail) or "none")
+    print("improvements:")
+    prev = start
+    for r in kept[1:]:
+        d = int(r["sec_debt"])
+        print(f"  {r['commit']}  {prev:>3} -> {d:>3}  {r['description']}")
+        prev = d
+    # 規避評估的嘗試必須升級給安全團隊（program.md 也規定此時要停止）
+    tamper = [r for r in rows if r["gate"].startswith(("FAIL protected-file-changed", "FAIL scanner-config"))]
+    for r in tamper:
+        print(f"ESCALATE  {r['commit']}  {r['gate']}  {r['description']}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1]))
+```
+
+對第 16 章九輪迴圈的分析結果：
+
+```text
+rounds=9 keep=4 discard=4 crash=1
+keep_rate=44%
+sec_debt: 49 -> 0 (reduced 49, 100%)
+gate_fail_reasons: {'protected-file-changed': 1, 'suppression-marker': 1, 'scanner-config': 1}
+improvements:
+  4a9f883   49 ->  31  01-param-sql
+  d373a0c   31 ->  19  06-env-secret
+  3a7b518   19 ->   0  08-signed-session
+ESCALATE  1680c23  FAIL protected-file-changed  02-delete-sec-test
+ESCALATE  a1abc75  FAIL scanner-config:.gitleaks.toml  05-scanner-config
+```
+
+怎麼解讀：
+
+| 觀察 | 解讀 | 優化動作 |
+| --- | --- | --- |
+| keep rate 44%、crash 1 次 | 正常範圍 | 無 |
+| 出現 `protected-file-changed`、`scanner-config` | Agent 嘗試規避評估 | **升級給安全團隊**；program.md 規定此時必須停止（示範迴圈為了跑完所有路徑才繼續） |
+| sec_debt 降到 0 | 本次範圍完成 | 擴大範圍或加入新規則，例如再補 CWE-208 的時序比對規則 |
+| 第 07 輪 discard（指標不變的重構） | 簡單性準則運作正常 | 無 |
+
+### 14.3 program.md 的迭代循環
 
 ```mermaid
 flowchart LR
-    R[1.需求分析] --> D[2.架構設計]
-    D --> DEV[3.開發]
-    DEV --> T[4.測試]
-    T --> S[5.安全掃描]
-    S --> DP[6.部署]
-    DP --> M[7.監控]
-    M --> O[8.優化]
-    O -->|回饋| R
-
-    R ---|AI 威脅建模| AI1((AI))
-    D ---|AI 安全架構| AI2((AI))
-    DEV ---|Copilot+Claude| AI3((AI))
-    T ---|AI 測試生成| AI4((AI))
-    S ---|AI 自動修補| AI5((AI))
-    DP ---|AI 部署決策| AI6((AI))
-    M ---|AI 異常偵測| AI7((AI))
-    O ---|AutoResearch| AI8((AI))
+    A["迴圈產出 results.tsv"] --> B["analyze_results.py 摘要"]
+    B --> C["人類審查 keep commit"]
+    C --> D{"發現新的規避手法或盲點？"}
+    D -->|是| E["評估器加閘門或規則，並加入攻擊樣本回歸測試"]
+    D -->|否| F{"keep rate 過低？"}
+    F -->|是| G["調整 program.md：縮小範圍、補充提示、修正權限不一致"]
+    F -->|否| H["維持"]
+    E --> I["check_program_md.py 與 run_all.sh 回歸"]
+    G --> I
+    I --> A
 ```
 
-| 階段 | AI 角色 | 工具 | 自動化程度 |
-|------|--------|------|-----------|
-| 需求分析 | 威脅建模、需求審查 | Claude Code、Copilot CLI `/research` | 輔助（70%） |
-| 架構設計 | 安全架構建議、設計審查 | Copilot Chat、Claude Code Plan Mode | 輔助（60%） |
-| 開發 | 程式碼生成、重構、平行開發 | Copilot CLI + Claude Code + `/fleet` | 高度（85%） |
-| 測試 | 測試用例生成、覆蓋率分析 | Copilot + AutoResearch + Claude Code | 高度（90%） |
-| 安全掃描 | 漏洞掃描、自動修補、Code Review | AutoResearch + Security Guidance Plugin + Copilot Code Review | 全自動（95%） |
-| 部署 | 部署策略、Canary 分析 | GitHub Actions + Routines + Agentic Workflows | 全自動（95%） |
-| 監控 | 異常偵測、告警、即時通知 | AI Monitoring Agent + Channels + Analytics | 全自動（95%） |
-| 優化 | 自主迭代優化 | AutoResearch + Copilot Cloud Agent | 全自動（100%） |
+每次修改 program.md 或評估器，都要：
+
+1. 以 `check_program_md.py` 檢查（第 21 章）。
+2. 重跑第 16 章的攻擊樣本（`run_all.sh`），確認既有的規避手法仍被擋下。
+3. 走 PR 審查，由 CODEOWNERS 的安全團隊核准。
+
+### 14.4 什麼時候該停用迴圈
+
+| 情況 | 處理 |
+| --- | --- |
+| 連續多晚 keep rate 為 0 | 範圍內已無可修的項目，或指標無法反映剩餘問題，改用人工處理 |
+| 人類審查頻繁退回 keep commit | 指標與真實安全脫節：先修評估器，再恢復迴圈 |
+| 同一種規避手法反覆出現 | 評估器有漏洞：暫停迴圈，補上閘門 |
+| 花費持續超出預算 | 縮小範圍或降低頻率 |
+
+### 14.5 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| program.md 修改建議 | Agent 直接修改 program.md | Agent 只提建議，由人類修改並走 PR | program.md 列在 deny 規則與 CODEOWNERS |
+| 結果解讀 | 只看最終 sec_debt | 同時看 gate FAIL 原因、crash 比例、keep rate | `analyze_results.py` |
+| 評估器變更 | 直接改權重或規則就上線 | 加入攻擊樣本回歸測試後再上線 | `run_all.sh` 全部 OK |
 
 ---
 
-### 5.1 階段一：需求分析（Requirement Analysis）
+## 第四部：整合與營運
 
-#### AI 參與方式
+## 第 15 章：CI/CD 整合（GitHub Actions）
 
-- **AI 威脅建模（Threat Modeling）**：根據需求文件自動識別潛在安全威脅
-- **需求完整性檢查**：AI 審查需求是否包含安全性考量
-- **合規性對照**：自動比對 OWASP Top 10、CWE 等標準
-
-#### 實作範例：使用 Claude Code 進行威脅建模
-
-```bash
-# 使用 Claude Code 分析需求文件
-claude "請分析以下需求文件，進行 STRIDE 威脅建模分析：
-
-需求：實作一個使用者登入 API，支援 JWT 認證、OAuth 2.0 整合。
-
-請：
-1. 列出每個 STRIDE 類別的潛在威脅
-2. 評估風險等級（高/中/低）
-3. 建議對應的安全控制措施
-4. 產出 threat-model.md 文件"
-```
-
-#### 輸出範例：自動生成的威脅模型
-
-```markdown
-# Threat Model: User Login API
-
-## STRIDE Analysis
-
-| 類別 | 威脅 | 風險 | 緩解措施 |
-|------|------|------|---------|
-| Spoofing | JWT Token 偽造 | 高 | 使用 RS256 簽章 |
-| Tampering | Token 內容竄改 | 高 | JWT 簽章驗證 |
-| Repudiation | 登入行為否認 | 中 | Audit Log 記錄 |
-| Info Disclosure | Token 資訊外洩 | 高 | HTTPS + HttpOnly Cookie |
-| DoS | 暴力破解登入 | 高 | Rate Limiting + CAPTCHA |
-| Elevation | 權限提升 | 高 | RBAC + 最小權限原則 |
-```
-
-#### AutoResearch 介入方式
-
-AutoResearch 在此階段的角色是 **需求品質監控**：
-
-```python
-# requirement_analyzer.py
-"""需求品質分析 - AutoResearch 觸發"""
-
-SECURITY_KEYWORDS = [
-    "authentication", "authorization", "encryption",
-    "input validation", "rate limiting", "audit log",
-    "session management", "error handling"
-]
-
-def analyze_requirement(requirement_doc: str) -> dict:
-    """分析需求文件的安全覆蓋度"""
-    doc_lower = requirement_doc.lower()
-    coverage = {}
-
-    for keyword in SECURITY_KEYWORDS:
-        coverage[keyword] = keyword in doc_lower
-
-    covered = sum(1 for v in coverage.values() if v)
-    total = len(SECURITY_KEYWORDS)
-    score = covered / total * 100
-
-    return {
-        "security_coverage_score": score,
-        "missing_topics": [k for k, v in coverage.items() if not v],
-        "recommendation": "通過" if score >= 75 else "需補充安全需求"
-    }
-```
-
-> **💡 企業導入建議**：在需求階段即整合 AI 威脅建模，可以在設計初期就發現安全缺陷，避免後期修補成本高昂（根據 IBM 研究，生產環境修復成本是設計階段的 30 倍）。
-
----
-
-### 5.2 階段二：架構設計（Design）
-
-#### AI 參與方式
-
-- **安全架構審查**：AI 分析架構圖並指出安全弱點
-- **設計模式建議**：推薦適合的安全設計模式
-- **API 安全設計**：自動產生安全的 API Schema
-
-#### 實作範例：使用 Copilot Chat 進行架構設計審查
-
-在 VS Code 中使用 Copilot Chat：
-
-```
-@workspace 請審查目前的系統架構設計，
-從安全性角度分析以下面向：
-1. 認證與授權機制
-2. 資料加密（傳輸中 + 靜態）
-3. 網路隔離與防火牆規則
-4. 日誌與監控
-5. 備份與災難復原
-```
-
-#### 安全架構設計模板
+### 15.1 整體架構
 
 ```mermaid
-graph TB
-    subgraph "DMZ"
-        WAF[WAF<br>Web Application Firewall]
-        LB[Load Balancer]
+flowchart TB
+    subgraph Nightly["夜間：autoresearch-nightly.yml"]
+        N1["job loop：contents read"] --> N2["Claude Code 執行迴圈，評估器唯讀"]
+        N2 --> N3["上傳 results.tsv 與 git bundle"]
+        N3 --> N4["job open-draft-pr：contents write"]
+        N4 --> N5["推送分支，開 Draft PR"]
     end
-
-    subgraph "Application Tier"
-        API[API Gateway<br>認證 + Rate Limit]
-        SVC1[Service A]
-        SVC2[Service B]
+    subgraph PR["PR：每次 push"]
+        P1["ssdlc-gate.yml：評估器、相依審查、CodeQL"]
+        P2["claude-security-review.yml：獨立 AI 審查"]
+        P3["Copilot code review：ruleset 啟用"]
     end
-
-    subgraph "Data Tier"
-        DB[(Database<br>加密存儲)]
-        CACHE[(Redis<br>Session Store)]
+    subgraph Merge["合併"]
+        M1["Ruleset：必要檢查全過，且有人類核准"]
+        M2["release.yml：production 環境核准與 provenance"]
     end
-
-    subgraph "Security Services"
-        VAULT[Secret Manager<br>HashiCorp Vault]
-        SIEM[SIEM<br>安全事件管理]
-        IDS[IDS/IPS<br>入侵偵測]
-    end
-
-    WAF --> LB --> API
-    API --> SVC1
-    API --> SVC2
-    SVC1 --> DB
-    SVC2 --> DB
-    SVC1 --> CACHE
-    VAULT -.-> SVC1
-    VAULT -.-> SVC2
-    API --> SIEM
-    IDS -.-> SIEM
+    N5 --> PR
+    PR --> M1 --> M2
+    W["security-digest.md：每週摘要 issue"] -.讀取.-> PR
 ```
 
-#### Copilot / Claude Code / VS Code 協作方式
-
-| 工具 | 架構設計階段用途 | 使用方式 |
-|------|-----------------|---------|
-| **VS Code** | 繪製 Mermaid 架構圖 | 安裝 Mermaid Preview 擴充套件 |
-| **Copilot Chat** | 架構安全性審查 | `@workspace /explain` 分析現有架構 |
-| **Copilot Cloud Agent** | 自主研究架構改善方案 | 在 GitHub.com 發起 Agent 任務 |
-| **Claude Code** | 產生詳細設計文件 | `claude "根據架構圖產生 API 安全規範"` |
-| **Claude Code Plan Mode** | 唯讀分析架構風險 | `claude --permission-mode plan` |
-
-> **💡 企業導入建議**：架構設計階段的 AI 輸出應視為「建議」而非「決策」，最終架構決策仍需資深架構師審核。
-
----
-
-### 5.3 階段三：開發（Development）
-
-#### AI 參與方式
-
-- **安全程式碼生成**：Copilot 根據上下文產生安全程式碼
-- **即時安全建議**：Claude Code 在開發中即時提示安全問題
-- **Code Review 自動化**：AI 自動審查 Pull Request
-- **Copilot CLI Autopilot**：設定 trust 後自主完成多步驟任務，無需逐步確認
-- **`/fleet` 平行開發**：將大型安全修補任務拆分為多個子 Agent 並行執行
-- **Claude Code Auto Mode**：自動選擇工具、不中斷執行直到任務完成
-- **Claude Code Hooks**：每次檔案編輯後自動觸發安全 Linting（見第 11.3 節）
-- **Agent Skills**：使用預定義的安全審計 Skill 進行一鍵掃描（見第 11.2 節、12.3 節）
-- **Subagents**：委派安全審查任務至獨立 Agent，不消耗主 Context（見第 11.4 節）
-
-#### 使用 Copilot CLI 進行安全開發
-
-```bash
-# Autopilot 模式：自主完成 OWASP Top 10 防護實作
-gh copilot "implement OWASP Top 10 protections for the login API in src/auth/
-  Requirements:
-  1. Input validation (email format, password complexity)
-  2. bcrypt password hashing
-  3. JWT RS256 signing with key rotation
-  4. Rate limiting (5 req/min per IP)
-  5. Audit logging for all auth events
-  Run tests after each change."
-
-# /fleet 平行開發：同時修補多個安全問題
-gh copilot "/fleet fix all HIGH severity issues from reports/sast.json
-  Each sub-agent handles one issue independently.
-  Create separate branches: security-fix/<issue-id>"
-
-# /research 安全研究：深度分析 codebase 安全現狀
-gh copilot "/research analyze the authentication and authorization
-  architecture in this codebase. Check for:
-  - Broken access control patterns
-  - Cryptographic failures
-  - Injection vulnerabilities
-  Output a security-assessment.md report."
-```
-
-#### 使用 Claude Code Auto Mode 進行安全掃描修補
-
-```bash
-# Auto Mode：不中斷地完成安全修補
-claude --auto "掃描 src/ 目錄找出所有 SQL injection 和 XSS 漏洞，
-  逐一修補，每次修補後執行 pytest 確認不影響功能。
-  產出 security-fixes.md 報告。"
-
-# 搭配 Sandbox 隔離執行不信任的測試
-claude --sandbox "在隔離環境中執行 DAST 腳本，
-  模擬攻擊行為驗證防護是否生效"
-```
-
-#### 實作範例：使用 Copilot 生成安全的 API Endpoint
-
-```python
-# 在 VS Code 中撰寫註解，讓 Copilot 生成安全程式碼
-
-# TODO: 實作安全的使用者登入 API
-# 要求：
-# 1. 輸入驗證（email 格式、密碼複雜度）
-# 2. 密碼使用 bcrypt 雜湊
-# 3. JWT Token 使用 RS256 簽章
-# 4. Rate Limiting（每 IP 每分鐘 5 次）
-# 5. Audit Log 記錄
-
-from fastapi import FastAPI, HTTPException, Depends, Request
-from fastapi.security import HTTPBearer
-from pydantic import BaseModel, EmailStr, field_validator
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-import bcrypt
-import jwt
-import logging
-from datetime import datetime, timedelta, timezone
-
-# --- Copilot 生成的安全程式碼 ---
-
-app = FastAPI()
-limiter = Limiter(key_func=get_remote_address)
-security = HTTPBearer()
-audit_logger = logging.getLogger("audit")
-
-# JWT 設定（使用環境變數，不 hardcode）
-import os
-JWT_PRIVATE_KEY = os.environ["JWT_PRIVATE_KEY"]
-JWT_PUBLIC_KEY = os.environ["JWT_PUBLIC_KEY"]
-JWT_ALGORITHM = "RS256"
-JWT_EXPIRATION_HOURS = 1
-
-
-class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
-
-    @field_validator("password")
-    @classmethod
-    def validate_password(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError("密碼長度不足 8 字元")
-        if len(v) > 128:
-            raise ValueError("密碼長度超過 128 字元")
-        return v
-
-
-class LoginResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    expires_in: int
-
-
-@app.post("/api/v1/auth/login", response_model=LoginResponse)
-@limiter.limit("5/minute")
-async def login(request: Request, body: LoginRequest):
-    """安全登入 API"""
-    # 1. 查詢使用者（示意）
-    user = await get_user_by_email(body.email)
-    if not user:
-        # 避免使用者枚舉攻擊：回傳相同錯誤訊息
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    # 2. 驗證密碼（使用 bcrypt + constant-time comparison）
-    if not bcrypt.checkpw(
-        body.password.encode("utf-8"),
-        user.password_hash.encode("utf-8")
-    ):
-        audit_logger.warning(
-            f"Failed login attempt for {body.email} "
-            f"from {get_remote_address(request)}"
-        )
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    # 3. 產生 JWT Token
-    now = datetime.now(timezone.utc)
-    payload = {
-        "sub": str(user.id),
-        "email": user.email,
-        "iat": now,
-        "exp": now + timedelta(hours=JWT_EXPIRATION_HOURS),
-        "jti": os.urandom(16).hex()  # 防止 Token Replay
-    }
-    token = jwt.encode(payload, JWT_PRIVATE_KEY, algorithm=JWT_ALGORITHM)
-
-    # 4. Audit Log
-    audit_logger.info(
-        f"Successful login for {body.email} "
-        f"from {get_remote_address(request)}"
-    )
-
-    return LoginResponse(
-        access_token=token,
-        expires_in=JWT_EXPIRATION_HOURS * 3600
-    )
-```
-
-#### 使用 Claude Code 進行開發中安全審查
-
-```bash
-# 請 Claude Code 審查目前程式碼的安全性
-claude "請掃描 src/ 目錄下的所有 Python 檔案，找出以下安全問題：
-1. SQL Injection
-2. XSS
-3. 硬編碼的密碼/金鑰
-4. 不安全的反序列化
-5. Path Traversal
-6. 不安全的隨機數生成
-
-對每個問題：
-- 指出檔案與行號
-- 說明風險
-- 提供修復建議
-- 產出 security-review.md"
-```
-
-#### VS Code 安全開發擴充套件
-
-```bash
-# 安裝安全相關 VS Code 擴充套件
-code --install-extension SonarSource.sonarlint-vscode    # SonarLint 即時掃描
-code --install-extension snyk-security.snyk-vulnerability-scanner  # Snyk 漏洞掃描
-code --install-extension redhat.vscode-yaml              # YAML Schema 驗證
-```
-
-> **⚠️ Anti-Pattern**：不要盲目接受 Copilot 生成的程式碼。即使 AI 生成的程式碼看似正確，仍需檢查是否包含 hardcoded secrets、不安全的預設值、缺少輸入驗證等問題。
-
----
-
-### 5.4 階段四：測試（Testing）
-
-#### AI 參與方式
-
-- **自動生成測試用例**：AI 根據程式碼邏輯自動產生測試
-- **安全測試生成**：產生針對安全漏洞的測試案例
-- **覆蓋率分析**：AI 識別測試盲區並補充測試
-
-#### 實作範例：使用 AutoResearch 自動生成安全測試
-
-```python
-# test_login_security.py - AI 自動生成的安全測試
-
-import pytest
-from fastapi.testclient import TestClient
-from unittest.mock import patch, AsyncMock
-from app import app
-
-
-client = TestClient(app)
-
-
-class TestLoginSecurity:
-    """登入 API 安全測試套件"""
-
-    def test_sql_injection_in_email(self):
-        """測試 SQL Injection 防護"""
-        malicious_emails = [
-            "admin'--@test.com",
-            "admin' OR '1'='1@test.com",
-            "'; DROP TABLE users;--@test.com"
-        ]
-        for email in malicious_emails:
-            response = client.post("/api/v1/auth/login", json={
-                "email": email,
-                "password": "ValidP@ss123"
-            })
-            # 應回傳 422（驗證錯誤）而非 500（伺服器錯誤）
-            assert response.status_code in [401, 422], \
-                f"潛在 SQL Injection：{email}"
-
-    def test_brute_force_protection(self):
-        """測試暴力破解防護（Rate Limiting）"""
-        for i in range(6):
-            response = client.post("/api/v1/auth/login", json={
-                "email": "test@example.com",
-                "password": f"wrong_password_{i}"
-            })
-        # 第 6 次請求應被限速
-        assert response.status_code == 429, "Rate Limiting 未生效"
-
-    def test_user_enumeration_prevention(self):
-        """測試使用者枚舉防護"""
-        # 不存在的使用者
-        resp1 = client.post("/api/v1/auth/login", json={
-            "email": "nonexist@example.com",
-            "password": "ValidP@ss123"
-        })
-        # 存在但密碼錯誤的使用者
-        resp2 = client.post("/api/v1/auth/login", json={
-            "email": "admin@example.com",
-            "password": "WrongPassword"
-        })
-        # 錯誤訊息應該相同
-        assert resp1.json()["detail"] == resp2.json()["detail"], \
-            "不同錯誤情境回傳不同訊息，可能導致使用者枚舉"
-
-    def test_password_not_in_response(self):
-        """測試回應中不包含密碼資訊"""
-        response = client.post("/api/v1/auth/login", json={
-            "email": "admin@example.com",
-            "password": "ValidP@ss123"
-        })
-        response_text = response.text.lower()
-        assert "password" not in response_text, "回應中包含密碼相關資訊"
-
-    def test_jwt_token_expiration(self):
-        """測試 JWT Token 有效期限"""
-        response = client.post("/api/v1/auth/login", json={
-            "email": "admin@example.com",
-            "password": "ValidP@ss123"
-        })
-        if response.status_code == 200:
-            data = response.json()
-            assert data["expires_in"] <= 3600, \
-                "Token 有效期不應超過 1 小時"
-
-    def test_xss_in_email_field(self):
-        """測試 XSS 防護"""
-        xss_payloads = [
-            "<script>alert('xss')</script>@test.com",
-            "test@<img src=x onerror=alert(1)>.com"
-        ]
-        for payload in xss_payloads:
-            response = client.post("/api/v1/auth/login", json={
-                "email": payload,
-                "password": "ValidP@ss123"
-            })
-            assert "<script>" not in response.text, \
-                f"潛在 XSS 漏洞：{payload}"
-
-    def test_oversized_password_rejection(self):
-        """測試超長密碼防護（防止 DoS）"""
-        response = client.post("/api/v1/auth/login", json={
-            "email": "test@example.com",
-            "password": "a" * 10000  # 超長密碼
-        })
-        assert response.status_code == 422, "未拒絕超長密碼"
-```
-
-#### AutoResearch 測試迭代流程
-
-```mermaid
-sequenceDiagram
-    participant AR as AutoResearch
-    participant LLM as Claude / GPT
-    participant TEST as Test Runner
-    participant GIT as Git
-
-    AR->>LLM: 分析目前測試覆蓋率
-    LLM->>AR: 識別未覆蓋的安全場景
-    AR->>LLM: 生成新測試用例
-    LLM->>AR: 回傳測試程式碼
-    AR->>TEST: 執行測試套件
-    TEST->>AR: 回傳結果 + 覆蓋率
-    alt 覆蓋率提升
-        AR->>GIT: git commit "增加安全測試"
-    else 測試失敗或覆蓋率未提升
-        AR->>GIT: git revert
-    end
-```
-
----
-
-### 5.5 階段五：安全掃描（Security Scanning）
-
-#### AI 參與方式
-
-- **SAST（靜態應用安全測試）**：AI 增強的程式碼靜態分析
-- **DAST（動態應用安全測試）**：AI 驅動的滲透測試
-- **SCA（軟體成分分析）**：AI 自動評估依賴庫安全性
-- **Secret Scanning**：AI 偵測程式碼中的機密資訊
-- **Claude Code Security Guidance Plugin**：即時安全建議與合規檢查（見第 11.11 節）
-- **GitHub Copilot Code Review**：自動化 PR 安全審查，產出修補建議
-- **Ultrareview（Claude Code）**：多 Agent 平行 Code Review（見第 11.14 節）
-
-#### 安全掃描工具矩陣
-
-| 掃描類型 | 工具 | AI 增強 | 整合方式 |
-|---------|------|---------|---------|
-| SAST | Semgrep / SonarQube | ✅ 自訂規則 | CI/CD Pipeline |
-| DAST | OWASP ZAP / Burp Suite | ✅ 智能掃描路徑 | Post-Deploy |
-| SCA | Snyk / Dependabot | ✅ 自動修補 PR | GitHub Integration |
-| Secret Scan | GitLeaks / TruffleHog | ✅ 誤報過濾 | Pre-commit Hook |
-| Container Scan | Trivy / Grype | ✅ 風險優先排序 | Build Pipeline |
-| **AI Code Review** | **Copilot Code Review** | ✅ 語意分析 | **PR Integration** |
-| **Security Plugin** | **Claude Code Security Guidance** | ✅ 即時建議 | **IDE + CI** |
-
-#### Claude Code Security Guidance Plugin
-
-```bash
-# 安裝 Security Guidance Plugin
-claude plugin install security-guidance
-
-# 啟用後，Claude Code 會在每次程式碼變更時自動：
-# 1. 檢查 OWASP Top 10 合規性
-# 2. 偵測不安全的密碼學用法
-# 3. 標記潛在的注入漏洞
-# 4. 建議安全最佳實踐
-
-# 自訂安全規則（.claude/security-rules.yaml）
-```
+設計原則：
+
+| 原則 | 做法 |
+| --- | --- |
+| 執行 Agent 的 job 沒有寫入權限 | 迴圈 job 只有 `contents: read`；推送與開 PR 放在另一個 job |
+| 評估器不在 Agent 能改的地方 | 從受保護的 harness repo 以固定 SHA 取出，移到 `$RUNNER_TEMP` 並設為唯讀 |
+| 不信任 fork | AI 審查只在同 repo 的 PR 執行 |
+| 所有 action 釘選 SHA | 防止 tag 被移動 |
+| 有界 | 每個 job 都有 `timeout-minutes`；Agent 有 `--max-turns` |
+
+### 15.2 PR 閘門：ssdlc-gate.yml
 
 ```yaml
-# .claude/security-rules.yaml
-rules:
-  - id: no-hardcoded-secrets
-    severity: critical
-    pattern: "(password|secret|api_key)\\s*=\\s*['\"][^'\"]+['\"]"
-    message: "禁止硬編碼機密資訊，請使用環境變數或 Secret Manager"
-
-  - id: require-input-validation
-    severity: high
-    scope: ["api", "controller"]
-    check: "所有外部輸入必須經過驗證"
-
-  - id: require-parameterized-queries
-    severity: critical
-    scope: ["repository", "dao"]
-    check: "資料庫查詢必須使用參數化查詢"
-```
-
-#### GitHub Copilot Code Review 自動化
-
-```yaml
-# .github/copilot-code-review.yml
-# 在 PR 開啟時自動觸發 Copilot Code Review
-on:
-  pull_request:
-    types: [opened, synchronize]
-
-copilot_review:
-  enabled: true
-  focus_areas:
-    - security          # 安全漏洞
-    - performance       # 效能問題
-    - best_practices    # 最佳實踐
-  auto_comment: true    # 自動在 PR 中留下審查意見
-  block_on_critical: true  # Critical 問題阻擋合併
-```
-
-#### 實作範例：安全掃描整合腳本
-
-```bash
-#!/bin/bash
-# security_scan.sh - 完整安全掃描流程
-
-set -euo pipefail
-
-echo "=== SSDLC 安全掃描啟動 ==="
-
-# 1. Secret Scanning（Pre-commit 層級）
-echo "[1/5] Secret Scanning..."
-gitleaks detect --source . --report-format json --report-path reports/secrets.json
-if [ $? -ne 0 ]; then
-    echo "⛔ 發現機密資訊洩漏！"
-    exit 1
-fi
-
-# 2. SAST - 靜態分析
-echo "[2/5] SAST - Static Analysis..."
-semgrep scan --config auto --json --output reports/sast.json .
-
-# 3. SCA - 依賴掃描
-echo "[3/5] SCA - Dependency Scanning..."
-pip-audit --format json --output reports/sca.json
-
-# 4. Container Scanning（如果有 Dockerfile）
-if [ -f Dockerfile ]; then
-    echo "[4/5] Container Scanning..."
-    trivy image --format json --output reports/container.json \
-        $(docker build -q .)
-fi
-
-# 5. AI 分析掃描結果
-echo "[5/5] AI 分析掃描結果..."
-claude "請分析以下安全掃描報告，
-產出 prioritized 修復建議：
-$(cat reports/sast.json | head -c 5000)
-$(cat reports/sca.json | head -c 5000)
-
-請按風險等級排序（Critical > High > Medium > Low），
-並為每個 Critical/High 問題提供修復程式碼。"
-
-echo "=== 安全掃描完成 ==="
-```
-
-#### AutoResearch 自動安全修補
-
-```python
-# security_autofix.py - AutoResearch 安全修補引擎
-
-import json
-import subprocess
-from pathlib import Path
-
-
-def auto_fix_security_issues(scan_report: str) -> dict:
-    """AutoResearch 自動修補安全問題"""
-    issues = json.loads(Path(scan_report).read_text())
-    results = {"fixed": [], "skipped": [], "failed": []}
-
-    for issue in sorted(issues, key=lambda x: severity_score(x)):
-        if issue["severity"] not in ["CRITICAL", "HIGH"]:
-            results["skipped"].append(issue["id"])
-            continue
-
-        # 1. 建立修補分支
-        branch = f"security-fix/{issue['id']}"
-        subprocess.run(["git", "checkout", "-b", branch], check=True)
-
-        try:
-            # 2. AI 生成修補程式碼
-            fix_prompt = (
-                f"修補安全漏洞：{issue['title']}\n"
-                f"檔案：{issue['file']}:{issue['line']}\n"
-                f"類型：{issue['category']}\n"
-                f"說明：{issue['description']}\n"
-                f"請只修改必要的程式碼，不要改變功能行為。"
-            )
-            subprocess.run(
-                ["claude", "--print", fix_prompt],
-                check=True, timeout=60
-            )
-
-            # 3. 執行測試驗證
-            test_result = subprocess.run(
-                ["pytest", "--tb=short", "-q"],
-                capture_output=True, text=True, timeout=120
-            )
-
-            if test_result.returncode == 0:
-                # 4. 驗證安全問題已修復
-                rescan = subprocess.run(
-                    ["semgrep", "scan", "--config", "auto",
-                     "--json", issue["file"]],
-                    capture_output=True, text=True
-                )
-                rescan_issues = json.loads(rescan.stdout)
-
-                if not any(i["id"] == issue["id"] for i in rescan_issues.get("results", [])):
-                    subprocess.run(["git", "add", "-A"], check=True)
-                    subprocess.run(
-                        ["git", "commit", "-m",
-                         f"fix(security): {issue['title']} [{issue['id']}]"],
-                        check=True
-                    )
-                    results["fixed"].append(issue["id"])
-                else:
-                    raise RuntimeError("修補後問題仍存在")
-            else:
-                raise RuntimeError(f"測試失敗：{test_result.stderr[:200]}")
-
-        except Exception as e:
-            subprocess.run(["git", "checkout", "--", "."])
-            results["failed"].append({"id": issue["id"], "error": str(e)})
-
-        finally:
-            subprocess.run(["git", "checkout", "main"], check=True)
-
-    return results
-
-
-def severity_score(issue: dict) -> int:
-    """安全嚴重度排序分數"""
-    scores = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}
-    return scores.get(issue.get("severity", "LOW"), 4)
-```
-
-> **💡 企業導入建議**：安全掃描應設為 CI/CD Pipeline 的 **強制閘門（Mandatory Gate）**，Critical 與 High 等級的問題必須修復才能合併。AutoResearch 的自動修補作為「第一道防線」，但修補結果仍需安全工程師審核。
-
----
-
-### 5.6 階段六：部署（Deployment）
-
-#### AI 參與方式
-
-- **部署策略決策**：AI 根據變更風險選擇部署策略
-- **Canary 分析**：AI 監控 Canary 部署的異常指標
-- **自動回滾**：異常時自動觸發回滾
-- **GitHub Agentic Workflows**：由 AI Agent 自主管理 CI/CD 流程（自動建立 PR、修復 CI 失敗、部署確認）
-- **Claude Code Routines**：雲端排程自動部署驗證（每日/每週安全掃描 + 部署健康檢查）
-- **Copilot Cloud Agent Automations**：事件驅動的自動化（PR merge → staging deploy → smoke test → production）
-
-#### GitHub Agentic Workflows 部署整合
-
-```yaml
-# .github/workflows/agentic-deploy.yml
-name: Agentic Deployment Pipeline
-
-on:
-  push:
-    branches: [main]
-
-jobs:
-  agentic-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: AI 風險評估
-        uses: github/copilot-agent-action@v1
-        with:
-          task: |
-            Analyze the changes in this push.
-            Determine deployment risk level (low/medium/high).
-            If high risk: create a staging deployment first and run security scan.
-            If medium risk: deploy with canary strategy.
-            If low risk: deploy directly with rolling update.
-          permissions: deploy, comment
-
-      - name: Claude Code 部署驗證
-        uses: anthropic/claude-code-action@v1
-        with:
-          prompt: |
-            驗證部署後的系統健康狀態：
-            1. 執行 smoke test
-            2. 檢查 API 回應時間
-            3. 確認無新的安全警告
-            如果有問題，自動建立 revert PR。
-```
-
-#### Claude Code Routines 部署排程
-
-```bash
-# 設定每日自動部署驗證 Routine
-claude routine create \
-  --name "daily-deploy-health-check" \
-  --schedule "0 9 * * *" \
-  --task "檢查 production 環境：
-    1. 確認所有 service healthy
-    2. 執行安全掃描（semgrep + trivy）
-    3. 檢查 dependency CVE
-    4. 如有 Critical 問題，自動建立 hotfix PR 並通知 #security channel"
-
-# 設定 PR merge 後自動部署驗證
-claude routine create \
-  --name "post-deploy-validation" \
-  --trigger "github:deployment_status:success" \
-  --task "部署完成後驗證：
-    1. 執行 E2E 安全測試
-    2. 比較部署前後的 error rate
-    3. 驗證 HTTPS、CORS、CSP 設定
-    4. 產出部署驗證報告"
-```
-
-#### 部署策略決策樹
-
-```mermaid
-flowchart TD
-    START[部署請求] --> RISK{變更風險評估}
-    RISK -->|低風險<br>文件/設定變更| DIRECT[直接部署<br>Rolling Update]
-    RISK -->|中風險<br>功能變更| CANARY[Canary 部署<br>5% → 25% → 100%]
-    RISK -->|高風險<br>核心變更| BLUE_GREEN[Blue-Green 部署<br>+ 人工審核]
-
-    CANARY --> MONITOR_C{AI 監控<br>異常指標}
-    MONITOR_C -->|正常| PROMOTE[逐步推廣]
-    MONITOR_C -->|異常| ROLLBACK_C[自動回滾]
-
-    BLUE_GREEN --> MONITOR_BG{AI 監控<br>+ 人工確認}
-    MONITOR_BG -->|確認| SWITCH[流量切換]
-    MONITOR_BG -->|異常| ROLLBACK_BG[切回舊版]
-```
-
-#### 實作範例：AI 驅動的部署腳本
-
-```python
-# deploy_decision.py - AI 部署策略決策
-
-import os
-import subprocess
-import json
-from typing import Literal
-
-
-DeployStrategy = Literal["rolling", "canary", "blue-green"]
-
-
-def assess_change_risk(changed_files: list[str]) -> DeployStrategy:
-    """根據變更檔案評估部署風險並選擇策略"""
-    high_risk_patterns = [
-        "auth", "payment", "database", "migration",
-        "security", "encryption", "core"
-    ]
-    medium_risk_patterns = [
-        "api", "service", "controller", "model"
-    ]
-
-    risk_score = 0
-    for f in changed_files:
-        f_lower = f.lower()
-        if any(p in f_lower for p in high_risk_patterns):
-            risk_score += 3
-        elif any(p in f_lower for p in medium_risk_patterns):
-            risk_score += 1
-
-    if risk_score >= 5:
-        return "blue-green"
-    elif risk_score >= 2:
-        return "canary"
-    else:
-        return "rolling"
-
-
-def get_changed_files() -> list[str]:
-    """取得自上次部署以來的變更檔案"""
-    result = subprocess.run(
-        ["git", "diff", "--name-only", "HEAD~1"],
-        capture_output=True, text=True, check=True
-    )
-    return result.stdout.strip().split("\n")
-
-
-if __name__ == "__main__":
-    files = get_changed_files()
-    strategy = assess_change_risk(files)
-    print(f"建議部署策略：{strategy}")
-    print(f"變更檔案數：{len(files)}")
-
-    # 輸出給 CI/CD 使用
-    if os.environ.get("GITHUB_OUTPUT"):
-        with open(os.environ["GITHUB_OUTPUT"], "a") as f:
-            f.write(f"deploy_strategy={strategy}\n")
-```
-
----
-
-### 5.7 階段七：監控（Monitoring）
-
-#### AI 參與方式
-
-- **異常偵測**：AI 識別非預期的系統行為
-- **智能告警**：減少誤報，提供根因分析
-- **自動事件回應**：AI 觸發預定義的回應動作
-- **Claude Code Channels**：將監控告警推送到 Claude Code session，AI 自動分析並回應
-- **Analytics Dashboard**：追蹤 AI Agent 活動效率、安全修補成功率等指標
-- **OpenTelemetry 整合**：追蹤 Agent 操作（含安全修補）的完整執行鏈路
-
-#### Claude Code Channels 監控整合
-
-```bash
-# 設定 Channel：將監控告警推送至 Claude Code
-claude channel create \
-  --name "security-alerts" \
-  --source "prometheus-alertmanager" \
-  --webhook-url "$CLAUDE_CHANNEL_WEBHOOK"
-
-# Channel 收到告警後，Claude Code 自動：
-# 1. 分析告警上下文
-# 2. 關聯 git blame 找出變更來源
-# 3. 判斷是否為安全事件
-# 4. 自動產生修補 PR 或通知 on-call
-```
-
-```python
-# channel_handler.py - 監控告警處理邏輯
-# 此腳本由 Claude Code Channel 觸發
-
-import json
-from datetime import datetime
-
-
-def handle_security_alert(alert: dict) -> str:
-    """處理安全告警的 Channel handler"""
-    severity = alert.get("severity", "unknown")
-    metric = alert.get("metric_name", "")
-
-    if severity == "critical" and "auth" in metric:
-        return (
-            "立即分析認證相關異常，"
-            "檢查是否有暴力破解攻擊，"
-            "如確認攻擊則自動啟用 IP 封鎖"
-        )
-    elif severity == "high":
-        return (
-            "分析根因並建立修補 PR，"
-            "通知 security team 進行審核"
-        )
-    else:
-        return "記錄至 security backlog，排入下次迭代"
-```
-
-#### AI Agent Analytics Dashboard
-
-```yaml
-# .claude/analytics.yaml - Claude Code Analytics 設定
-analytics:
-  enabled: true
-  export:
-    format: opentelemetry
-    endpoint: "https://otel-collector.internal:4318"
-
-  metrics:
-    - name: security_fixes_per_day
-      description: "每日自動安全修補次數"
-      type: counter
-    - name: fix_success_rate
-      description: "修補成功率（%）"
-      type: gauge
-    - name: mean_time_to_fix
-      description: "平均修補時間（分鐘）"
-      type: histogram
-    - name: agent_cost_per_fix
-      description: "每次修補的 AI Credits 消耗"
-      type: histogram
-
-  dashboard:
-    refresh_interval: 5m
-    panels:
-      - title: "SSDLC Agent 活動總覽"
-        metrics: [security_fixes_per_day, fix_success_rate]
-      - title: "成本效益分析"
-        metrics: [mean_time_to_fix, agent_cost_per_fix]
-```
-
-#### 監控架構
-
-```mermaid
-graph LR
-    subgraph "應用層"
-        APP[Application<br>Metrics + Logs]
-    end
-
-    subgraph "收集層"
-        PROM[Prometheus<br>指標收集]
-        ELK[ELK Stack<br>日誌收集]
-    end
-
-    subgraph "AI 分析層"
-        AD[Anomaly Detector<br>異常偵測]
-        RCA[Root Cause Analyzer<br>根因分析]
-    end
-
-    subgraph "回應層"
-        ALERT[告警系統]
-        AR_FIX[AutoResearch<br>自動修補]
-        RUNBOOK[自動 Runbook]
-    end
-
-    APP --> PROM
-    APP --> ELK
-    PROM --> AD
-    ELK --> AD
-    AD -->|異常| RCA
-    RCA -->|高信心| AR_FIX
-    RCA -->|低信心| ALERT
-    RCA -->|已知問題| RUNBOOK
-```
-
-#### 實作範例：AI 異常偵測腳本
-
-```python
-# anomaly_detector.py - AI 驅動的異常偵測
-
-import json
-from dataclasses import dataclass
-from typing import Optional
-
-
-@dataclass
-class AnomalyAlert:
-    """異常告警"""
-    metric_name: str
-    current_value: float
-    expected_range: tuple[float, float]
-    severity: str
-    root_cause_hypothesis: str
-    suggested_action: str
-
-
-def detect_anomalies(metrics: dict[str, float]) -> list[AnomalyAlert]:
-    """偵測系統指標異常"""
-    alerts = []
-    thresholds = {
-        "api_latency_p99_ms": (0, 500),
-        "error_rate_percent": (0, 1.0),
-        "cpu_usage_percent": (0, 80),
-        "memory_usage_percent": (0, 85),
-        "request_rate_per_sec": (10, 10000),
-    }
-
-    for metric, (low, high) in thresholds.items():
-        value = metrics.get(metric)
-        if value is None:
-            continue
-
-        if value < low or value > high:
-            severity = "CRITICAL" if value > high * 1.5 else "WARNING"
-            alerts.append(AnomalyAlert(
-                metric_name=metric,
-                current_value=value,
-                expected_range=(low, high),
-                severity=severity,
-                root_cause_hypothesis=analyze_root_cause(metric, value),
-                suggested_action=suggest_action(metric, value, severity)
-            ))
-
-    return alerts
-
-
-def analyze_root_cause(metric: str, value: float) -> str:
-    """根因分析（簡化版本，實際可呼叫 LLM）"""
-    causes = {
-        "api_latency_p99_ms": "可能原因：資料庫查詢變慢、外部 API 超時、記憶體不足",
-        "error_rate_percent": "可能原因：上游服務異常、輸入驗證失敗、部署問題",
-        "cpu_usage_percent": "可能原因：無限迴圈、密集運算、並發過高",
-        "memory_usage_percent": "可能原因：記憶體洩漏、快取未清理、大物件未釋放",
-    }
-    return causes.get(metric, "需進一步分析")
-
-
-def suggest_action(metric: str, value: float, severity: str) -> str:
-    """建議回應動作"""
-    if severity == "CRITICAL":
-        return "觸發 AutoResearch 自動修補 + 通知 On-Call 工程師"
-    return "記錄異常 + 排入下次 AutoResearch 優化週期"
-```
-
----
-
-### 5.8 階段八：優化（Optimization）
-
-#### AI 參與方式
-
-- **效能優化**：AutoResearch 自主迭代優化效能瓶頸
-- **程式碼品質**：自動重構、減少技術債
-- **安全強化**：持續掃描並強化安全防護
-
-#### 優化迴圈流程
-
-```mermaid
-graph TD
-    TRIGGER[觸發優化<br>排程/監控告警/人工] --> COLLECT[收集指標<br>效能/安全/品質]
-    COLLECT --> ANALYZE[AI 分析瓶頸]
-    ANALYZE --> PLAN[制定優化策略<br>更新 program.md]
-    PLAN --> EXECUTE[AutoResearch 執行<br>修改 → 測試 → 評估]
-    EXECUTE --> RESULT{結果改善？}
-    RESULT -->|是| COMMIT[保留變更<br>git commit]
-    RESULT -->|否| REVERT[回滾變更<br>git revert]
-    COMMIT --> REPORT[產出優化報告]
-    REVERT --> REPORT
-    REPORT --> REVIEW[人工審核<br>選擇性合併]
-```
-
-#### 三大優化面向
-
-| 優化面向 | 指標 | AutoResearch 策略 | 產出 |
-|---------|------|-------------------|------|
-| **效能** | Latency, Throughput, Resource Usage | 演算法優化、快取策略、查詢優化 | 效能改善報告 |
-| **品質** | Code Coverage, Complexity, Duplication | 重構、DRY 原則、模式應用 | 品質分數提升 |
-| **安全** | Vulnerability Count, CVSS Score | 修補漏洞、升級依賴、強化設定 | 安全態勢改善 |
-
-> **💡 企業導入建議**：優化階段的 AutoResearch 建議設定為「建議模式」（非自動合併），讓團隊在 Pull Request 中審核 AI 的優化建議後再決定是否合併。
-
----
-
-## 第 6 章：AI 自動優化機制
-
-### 6.1 AutoResearch 自動優化核心原理
-
-AutoResearch 的自動優化機制是一個 **閉環反饋系統（Closed-Loop Feedback System）**：
-
-```mermaid
-graph TD
-    subgraph "感知層（Perception）"
-        P1[程式碼分析]
-        P2[測試結果]
-        P3[安全掃描]
-        P4[效能指標]
-    end
-
-    subgraph "決策層（Decision）"
-        D1[LLM 分析問題]
-        D2[制定修改策略]
-        D3[評估風險]
-    end
-
-    subgraph "執行層（Execution）"
-        E1[修改程式碼]
-        E2[執行測試]
-        E3[收集指標]
-    end
-
-    subgraph "評估層（Evaluation）"
-        V1[比較 Before/After]
-        V2[安全驗證]
-        V3[Keep / Revert 決策]
-    end
-
-    P1 --> D1
-    P2 --> D1
-    P3 --> D1
-    P4 --> D1
-    D1 --> D2 --> D3
-    D3 --> E1 --> E2 --> E3
-    E3 --> V1 --> V2 --> V3
-    V3 -->|回饋| P1
-```
-
-### 6.2 修改程式碼的策略
-
-AutoResearch 修改程式碼時遵循以下策略層級：
-
-#### 策略 1：局部修改（Minimal Change）
-
-```python
-# Before（AutoResearch 偵測到效能問題）
-def get_user_orders(user_id: int) -> list[dict]:
-    """取得使用者訂單 - 效能瓶頸"""
-    orders = db.query("SELECT * FROM orders WHERE user_id = %s", (user_id,))
-    result = []
-    for order in orders:
-        # N+1 Query 問題
-        items = db.query(
-            "SELECT * FROM order_items WHERE order_id = %s",
-            (order["id"],)
-        )
-        order["items"] = items
-        result.append(order)
-    return result
-
-
-# After（AutoResearch 自動修復 N+1 Query）
-def get_user_orders(user_id: int) -> list[dict]:
-    """取得使用者訂單 - 已優化"""
-    orders = db.query(
-        """
-        SELECT o.*, json_agg(oi.*) as items
-        FROM orders o
-        LEFT JOIN order_items oi ON o.id = oi.order_id
-        WHERE o.user_id = %s
-        GROUP BY o.id
-        """,
-        (user_id,)
-    )
-    return orders
-```
-
-#### 策略 2：演算法優化（Algorithm Optimization）
-
-```python
-# Before（O(n²) 複雜度）
-def find_duplicates(items: list[str]) -> list[str]:
-    duplicates = []
-    for i in range(len(items)):
-        for j in range(i + 1, len(items)):
-            if items[i] == items[j] and items[i] not in duplicates:
-                duplicates.append(items[i])
-    return duplicates
-
-
-# After（AutoResearch 優化為 O(n)）
-def find_duplicates(items: list[str]) -> list[str]:
-    seen: set[str] = set()
-    duplicates: set[str] = set()
-    for item in items:
-        if item in seen:
-            duplicates.add(item)
-        seen.add(item)
-    return list(duplicates)
-```
-
-#### 策略 3：安全強化（Security Hardening）
-
-```python
-# Before（SQL Injection 風險）
-def search_products(query: str) -> list[dict]:
-    sql = f"SELECT * FROM products WHERE name LIKE '%{query}%'"
-    return db.execute(sql)
-
-
-# After（AutoResearch 自動修補）
-def search_products(query: str) -> list[dict]:
-    sql = "SELECT * FROM products WHERE name LIKE %s"
-    return db.execute(sql, (f"%{query}%",))
-```
-
-### 6.3 執行測試的流程
-
-```mermaid
-sequenceDiagram
-    participant AR as AutoResearch
-    participant CODE as Modified Code
-    participant UNIT as Unit Tests
-    participant INT as Integration Tests
-    participant SEC as Security Tests
-    participant PERF as Performance Tests
-
-    AR->>CODE: 修改程式碼
-    AR->>UNIT: 執行單元測試
-    alt 單元測試失敗
-        UNIT->>AR: ❌ FAIL
-        AR->>AR: git revert
-    else 單元測試通過
-        UNIT->>AR: ✅ PASS
-        AR->>INT: 執行整合測試
-        alt 整合測試失敗
-            INT->>AR: ❌ FAIL
-            AR->>AR: git revert
-        else 整合測試通過
-            INT->>AR: ✅ PASS
-            AR->>SEC: 執行安全測試
-            AR->>PERF: 執行效能測試
-            SEC->>AR: 安全掃描結果
-            PERF->>AR: 效能指標
-            AR->>AR: 綜合評估 Keep/Revert
-        end
-    end
-```
-
-### 6.4 評估結果的機制
-
-```python
-# evaluator.py - 多維度評估引擎
-
-from dataclasses import dataclass
-from typing import Optional
-
-
-@dataclass
-class EvaluationResult:
-    """評估結果"""
-    overall_decision: str  # "KEEP" or "REVERT"
-    performance_delta: float  # 效能變化百分比
-    security_score_delta: float  # 安全分數變化
-    test_pass_rate: float  # 測試通過率
-    code_quality_delta: float  # 程式碼品質變化
-    reasons: list[str]
-
-
-def evaluate(
-    perf_before: float,
-    perf_after: float,
-    security_before: float,
-    security_after: float,
-    tests_passed: int,
-    tests_total: int,
-    quality_before: float,
-    quality_after: float
-) -> EvaluationResult:
-    """多維度評估決策"""
-    reasons = []
-    veto = False  # 一票否決
-
-    # 1. 測試通過率（硬性要求）
-    test_rate = tests_passed / tests_total if tests_total > 0 else 0
-    if test_rate < 1.0:
-        veto = True
-        reasons.append(f"⛔ 測試通過率不足：{test_rate:.0%}")
-
-    # 2. 安全分數（不可降低）
-    security_delta = security_after - security_before
-    if security_delta < 0:
-        veto = True
-        reasons.append(f"⛔ 安全分數下降：{security_delta:+.2f}")
-    elif security_delta > 0:
-        reasons.append(f"✅ 安全分數提升：{security_delta:+.2f}")
-
-    # 3. 效能指標
-    perf_delta = ((perf_after - perf_before) / perf_before * 100
-                  if perf_before > 0 else 0)
-    if perf_delta > 5:
-        reasons.append(f"✅ 效能提升：{perf_delta:+.1f}%")
-    elif perf_delta < -10:
-        reasons.append(f"⚠️ 效能下降：{perf_delta:+.1f}%")
-
-    # 4. 程式碼品質
-    quality_delta = quality_after - quality_before
-    if quality_delta > 0:
-        reasons.append(f"✅ 品質提升：{quality_delta:+.2f}")
-
-    # 最終決策
-    decision = "REVERT" if veto else "KEEP"
-
-    return EvaluationResult(
-        overall_decision=decision,
-        performance_delta=perf_delta,
-        security_score_delta=security_delta,
-        test_pass_rate=test_rate,
-        code_quality_delta=quality_delta,
-        reasons=reasons
-    )
-```
-
-### 6.5 Keep / Revert 決策矩陣
-
-| 條件 | 測試 100% 通過 | 安全分數不降 | 效能不劣化 | 決策 |
-|------|:---:|:---:|:---:|------|
-| ✅ ✅ ✅ | ✅ | ✅ | ✅ | **KEEP** |
-| ✅ ✅ ❌ | ✅ | ✅ | ❌ | KEEP（若效能降幅 < 10%） |
-| ✅ ❌ — | ✅ | ❌ | — | **REVERT**（安全一票否決） |
-| ❌ — — | ❌ | — | — | **REVERT**（測試一票否決） |
-
-### 6.6 應用於三大場景
-
-#### 場景一：Code Quality 優化
-
-```markdown
-# program.md - Code Quality 優化策略
-
-## 目標
-提升程式碼品質分數（使用 pylint / radon 量測）
-
-## 策略
-1. 降低圈複雜度（Cyclomatic Complexity）至 10 以下
-2. 消除重複程式碼（DRY 原則）
-3. 改善命名一致性
-4. 拆分過長函式（> 50 行）
-
-## 評估指標
-METRIC:quality_score=<pylint 分數>
-METRIC:complexity=<平均圈複雜度>
-
-## 約束
-- 不可改變程式行為（所有測試必須通過）
-- 不可引入新的依賴
-```
-
-#### 場景二：Performance 優化
-
-```markdown
-# program.md - Performance 優化策略
-
-## 目標
-降低 API P99 延遲至 200ms 以下
-
-## 策略
-1. 識別 N+1 Query 並修復
-2. 加入適當的快取層
-3. 優化資料結構與演算法
-4. 減少不必要的 I/O 操作
-
-## 評估指標
-METRIC:p99_latency_ms=<P99 延遲毫秒>
-METRIC:throughput_rps=<每秒請求數>
-
-## 約束
-- 記憶體使用不可增加超過 20%
-- 不可犧牲程式碼可讀性
-```
-
-#### 場景三：Security 強化
-
-```markdown
-# program.md - Security 強化策略
-
-## 目標
-消除所有 Critical 和 High 安全漏洞
-
-## 策略
-1. 修補 SAST 掃描出的漏洞
-2. 升級有已知 CVE 的依賴
-3. 強化輸入驗證
-4. 改善錯誤處理（避免資訊洩漏）
-
-## 評估指標
-METRIC:critical_vulns=<Critical 漏洞數>
-METRIC:high_vulns=<High 漏洞數>
-METRIC:security_score=<安全評分>
-
-## 約束
-- 不可降低測試覆蓋率
-- 不可影響既有功能
-- 依賴升級需保持向後相容
-```
-
-> **💡 企業導入建議**：建議為三大場景分別建立獨立的 `program.md`，並透過 CI/CD Pipeline 排程輪替執行（例如：週一品質、週三效能、週五安全）。
-
-> **⚠️ Anti-Pattern**：切勿讓 AutoResearch 同時優化多個面向（例如同時追求效能與品質），容易造成目標衝突導致修改不斷 Revert。每次迭代應聚焦單一面向。
-
----
-
-## 第 7 章：CI/CD + AutoResearch 整合
-
-### 7.1 整合架構概覽
-
-```mermaid
-flowchart TD
-    DEV[開發者 Push Code] --> GHA[GitHub Actions<br>觸發 Pipeline]
-    GHA --> BUILD[建置 & 測試]
-    BUILD --> SCAN[安全掃描<br>SAST / SCA / Secret]
-    SCAN --> GATE{安全閘門<br>通過？}
-    GATE -->|否| AR_FIX[AutoResearch<br>自動修補]
-    AR_FIX --> BUILD
-    GATE -->|是| AR_OPT[AutoResearch<br>效能/品質優化]
-    AR_OPT --> PR[建立 Pull Request]
-    PR --> REVIEW[Copilot Code Review<br>+ Claude Ultrareview]
-    REVIEW --> MERGE[合併至 main]
-    MERGE --> DEPLOY[部署至 Staging]
-    DEPLOY --> MONITOR[AI 監控]
-    MONITOR -->|觸發優化| AR_OPT
-
-    %% Agentic 自動化路徑
-    MERGE --> COPILOT_AGENT[Copilot Cloud Agent<br>Automations]
-    COPILOT_AGENT --> E2E[E2E 安全驗證]
-    MERGE --> ROUTINE[Claude Code Routine<br>部署後驗證]
-    ROUTINE --> HEALTH[Health Check]
-```
-
-#### 多 AI Agent CI/CD 角色矩陣
-
-| AI Agent | CI/CD 角色 | 觸發時機 | 典型任務 |
-|----------|-----------|---------|---------|
-| **AutoResearch** | 自動修補 + 優化 | 排程 / 安全閘門失敗 | 漏洞修補、效能優化 |
-| **Claude Code Action** | PR 自動化 | PR 開啟/更新 | Code Review、生成修改建議 |
-| **Copilot Code Review** | 安全審查 | PR 開啟 | 語意分析、安全建議 |
-| **Copilot Cloud Agent** | 自動化流程 | merge / issue / 排程 | E2E 測試、部署驗證 |
-| **Claude Code Routines** | 排程驗證 | cron / event trigger | 每日安全掃描、健康檢查 |
-| **GitHub Agentic Workflows** | 端對端自動化 | push / PR / deployment | 完整 CI/CD 流程管理 |
-
-### 7.2 GitHub Actions 完整 YAML 設計
-
-#### 核心 Pipeline：CI/CD + 安全掃描
-
-```yaml
-# .github/workflows/ssdlc-pipeline.yml
-name: SSDLC Pipeline with AutoResearch
-
-on:
-  push:
-    branches: [main, develop]
-  pull_request:
-    branches: [main]
-  schedule:
-    # 每日凌晨 2 點執行 AutoResearch 優化
-    - cron: '0 2 * * *'
-
-permissions:
-  contents: write
-  pull-requests: write
-  security-events: write
-
-env:
-  PYTHON_VERSION: '3.12'
-  AUTORESEARCH_TIME_BUDGET: 300
-
-jobs:
-  # === 階段 1：建置與測試 ===
-  build-and-test:
-    name: Build & Test
-    runs-on: ubuntu-latest
-    outputs:
-      test_coverage: ${{ steps.coverage.outputs.coverage }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Install Dependencies
-        run: |
-          uv sync
-          uv pip install -r requirements-dev.txt
-
-      - name: Run Linting
-        run: |
-          ruff check .
-          black --check .
-
-      - name: Run Unit Tests
-        run: |
-          pytest tests/ \
-            --cov=src \
-            --cov-report=xml:coverage.xml \
-            --cov-report=term-missing \
-            --junitxml=test-results.xml \
-            -v
-
-      - name: Extract Coverage
-        id: coverage
-        run: |
-          COVERAGE=$(python -c "
-          import xml.etree.ElementTree as ET
-          tree = ET.parse('coverage.xml')
-          root = tree.getroot()
-          print(f'{float(root.attrib[\"line-rate\"]) * 100:.1f}')
-          ")
-          echo "coverage=$COVERAGE" >> $GITHUB_OUTPUT
-
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: |
-            coverage.xml
-            test-results.xml
-
-  # === 階段 2：安全掃描 ===
-  security-scan:
-    name: Security Scanning
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    outputs:
-      critical_count: ${{ steps.scan_results.outputs.critical }}
-      high_count: ${{ steps.scan_results.outputs.high }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Secret Scanning
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: SAST - Semgrep
-        uses: semgrep/semgrep-action@v1
-        with:
-          config: >-
-            p/security-audit
-            p/owasp-top-ten
-            p/python
-          generateSarif: true
-
-      - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: semgrep.sarif
-
-      - name: SCA - Dependency Check
-        run: |
-          pip install pip-audit safety
-          pip-audit --format json --output sca-report.json || true
-          safety check --json --output safety-report.json || true
-
-      - name: Container Scanning
-        if: hashFiles('Dockerfile') != ''
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          format: 'json'
-          output: 'trivy-report.json'
-          severity: 'CRITICAL,HIGH'
-
-      - name: Aggregate Scan Results
-        id: scan_results
-        run: |
-          python scripts/aggregate_security.py \
-            --sast semgrep.sarif \
-            --sca sca-report.json \
-            --output security-summary.json
-          CRITICAL=$(jq '.critical_count' security-summary.json)
-          HIGH=$(jq '.high_count' security-summary.json)
-          echo "critical=$CRITICAL" >> $GITHUB_OUTPUT
-          echo "high=$HIGH" >> $GITHUB_OUTPUT
-
-      - name: Upload Security Reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: security-reports
-          path: |
-            semgrep.sarif
-            sca-report.json
-            security-summary.json
-
-  # === 階段 3：安全閘門 ===
-  security-gate:
-    name: Security Gate
-    runs-on: ubuntu-latest
-    needs: security-scan
-    steps:
-      - name: Check Security Gate
-        run: |
-          CRITICAL=${{ needs.security-scan.outputs.critical_count }}
-          HIGH=${{ needs.security-scan.outputs.high_count }}
-
-          echo "Critical: $CRITICAL | High: $HIGH"
-
-          if [ "$CRITICAL" -gt 0 ]; then
-            echo "⛔ Security Gate FAILED: $CRITICAL critical vulnerabilities"
-            exit 1
-          fi
-
-          if [ "$HIGH" -gt 5 ]; then
-            echo "⚠️ Security Gate WARNING: $HIGH high vulnerabilities"
-            exit 1
-          fi
-
-          echo "✅ Security Gate PASSED"
-
-  # === 階段 4：AutoResearch 優化（排程觸發） ===
-  autoresearch-optimize:
-    name: AutoResearch Optimization
-    runs-on: ubuntu-latest
-    if: github.event_name == 'schedule'
-    needs: [build-and-test, security-scan]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.AUTORESEARCH_PAT }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Setup Environment
-        run: |
-          uv sync
-          uv pip install -r requirements-dev.txt
-
-      - name: Download Security Reports
-        uses: actions/download-artifact@v4
-        with:
-          name: security-reports
-          path: reports/
-
-      - name: Run AutoResearch
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          AUTORESEARCH_TIME_BUDGET: ${{ env.AUTORESEARCH_TIME_BUDGET }}
-        run: |
-          python autoresearch_engine.py \
-            --program program.md \
-            --target src/ \
-            --time-budget $AUTORESEARCH_TIME_BUDGET \
-            --output-report reports/optimization.json
-
-      - name: Create Pull Request
-        if: success()
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.AUTORESEARCH_PAT }}
-          commit-message: "chore(autoresearch): automated optimization"
-          title: "🤖 AutoResearch: 自動優化建議"
-          body: |
-            ## AutoResearch 自動優化報告
-
-            **執行時間**：${{ env.AUTORESEARCH_TIME_BUDGET }} 秒
-            **觸發方式**：排程（每日凌晨 2 點）
-
-            ### 變更摘要
-            請查看 commit history 了解詳細變更。
-
-            ### 驗證狀態
-            - ✅ 所有測試通過
-            - ✅ 安全掃描通過
-            - 📊 效能指標見報告
-
-            > ⚠️ 此 PR 由 AI 自動生成，請人工審核後再合併。
-          branch: autoresearch/optimization
-          labels: |
-            autoresearch
-            automated
-
-  # === 階段 5：AutoResearch 安全修補（安全閘門失敗時觸發） ===
-  autoresearch-security-fix:
-    name: AutoResearch Security Fix
-    runs-on: ubuntu-latest
-    needs: security-gate
-    if: failure()
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.AUTORESEARCH_PAT }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Setup Environment
-        run: uv sync
-
-      - name: Download Security Reports
-        uses: actions/download-artifact@v4
-        with:
-          name: security-reports
-
-      - name: Run AutoResearch Security Fix
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          python security_autofix.py \
-            --scan-report security-summary.json \
-            --severity CRITICAL,HIGH \
-            --output-report security-fix-report.json
-
-      - name: Create Security Fix PR
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.AUTORESEARCH_PAT }}
-          commit-message: "fix(security): automated vulnerability fix"
-          title: "🔒 AutoResearch: 安全漏洞自動修補"
-          body: |
-            ## 安全漏洞自動修補報告
-
-            安全閘門偵測到 Critical/High 漏洞，AutoResearch 已自動修補。
-
-            > ⚠️ 安全修補必須由安全工程師審核後再合併。
-          branch: autoresearch/security-fix
-          labels: |
-            security
-            autoresearch
-            urgent
-
-  # === 階段 6：部署 ===
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: security-gate
-    if: github.ref == 'refs/heads/main'
-    environment: staging
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Assess Deployment Risk
-        id: risk
-        run: |
-          python deploy_decision.py
-          echo "strategy=$(cat deploy-strategy.txt)" >> $GITHUB_OUTPUT
-
-      - name: Deploy
-        run: |
-          echo "Deploying with strategy: ${{ steps.risk.outputs.strategy }}"
-          # 實際部署指令依據策略不同而異
-```
-
-### 7.3 自動觸發 AutoResearch 的機制
-
-| 觸發方式 | 條件 | 執行內容 |
-|---------|------|---------|
-| **排程觸發** | 每日凌晨 2:00 | 效能 + 品質優化 |
-| **安全閘門失敗** | Critical/High 漏洞 | 安全修補 |
-| **Pull Request** | PR 開啟/更新 | Code Review + 建議 |
-| **監控告警** | 效能劣化 > 20% | 效能緊急優化 |
-| **手動觸發** | workflow_dispatch | 指定面向的優化 |
-| **Claude Code Routines** | cron / GitHub event / API | 排程安全掃描、部署驗證 |
-| **Copilot Cloud Agent Automations** | Issue assign / PR merge / Slack command | 自動化 E2E 流程 |
-| **GitHub Agentic Workflows** | 自訂 agent trigger | Agent 自主決定下一步 |
-
-#### Claude Code Action（PR 自動化）
-
-```yaml
-# .github/workflows/claude-code-review.yml
-name: Claude Code PR Review
+name: ssdlc-gate
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    branches: [master]
+
+permissions: {}
+
+concurrency:
+  group: ssdlc-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
-  claude-review:
+  evaluate:
+    name: 固定評估器（sec_debt 與 gate）
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # 評估器放在另一個受保護的 repo，並釘選 commit：PR 作者（含 Agent）改不到它
+      - name: Checkout trusted harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: my-org/ssdlc-harness
+          ref: 0123456789abcdef0123456789abcdef01234567
+          path: .harness
+          persist-credentials: false
+
+      # 移出工作目錄並設為唯讀：PR 程式碼在 pytest 階段會被執行，不能讓它改到評估器
+      - name: Isolate harness
+        run: |
+          mv .harness "$RUNNER_TEMP/harness"
+          chmod -R a-w "$RUNNER_TEMP/harness"
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Install scanners (pinned)
+        run: |
+          python -m pip install --disable-pip-version-check pytest==9.1.1 bandit==1.9.4 semgrep==1.182.1
+          curl -sSfL -o /tmp/gitleaks.tgz \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  /tmp/gitleaks.tgz" | sha256sum -c -
+          sudo tar -xzf /tmp/gitleaks.tgz -C /usr/local/bin gitleaks
+
+      - name: Run evaluator
+        env:
+          APP_SECRET_KEY: ${{ secrets.CI_APP_SECRET_KEY }}
+        run: |
+          python "$RUNNER_TEMP/harness/evaluate.py" . | tee run.log
+          grep -q "^gate: *PASS" run.log
+          debt=$(awk '/^sec_debt:/ {print $2}' run.log)
+          echo "### sec_debt = ${debt}" >> "$GITHUB_STEP_SUMMARY"
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+
+  codeql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          languages: python
+          queries: security-extended
+      - uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+```
+
+| 步驟 | 重點 |
+| --- | --- |
+| Checkout trusted harness | 評估器來自 `my-org/ssdlc-harness` 的固定 commit；PR 作者（包括 Agent）改不到 |
+| Isolate harness | 移到 `$RUNNER_TEMP` 並 `chmod -R a-w`。PR 的程式碼在 pytest 階段會被**執行**，不能讓它改到評估器或規則檔（ASI05） |
+| Install scanners | 工具版本鎖定；gitleaks 以官方 checksum 驗證 |
+| Run evaluator | `gate` 不是 PASS 就失敗；`sec_debt` 寫入 job summary |
+| dependency-review | 新增高風險相依時失敗（A03） |
+| codeql | `security-extended` 查詢集 |
+
+> ⚠️ `chmod` 只能防止意外或天真的修改。同一個使用者執行的惡意程式碼仍可能改權限。高風險情境請把「執行 PR 程式碼的測試」與「讀取結果並判定」拆到不同 job，或在不同的 runner 上執行。
+
+### 15.3 AI 安全審查：claude-security-review.yml
+
+```yaml
+name: claude-security-review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+permissions: {}
+
+jobs:
+  review:
+    # 只審查同 repo 的 PR：fork PR 拿不到 secrets，也避免外部內容驅動 Agent（OWASP ASI01）
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Claude Code Review
-        uses: anthropic/claude-code-action@v1
+      - uses: anthropics/claude-code-action@ae68417a745a5df4b2124873632bd73a2255e6f6 # v1.0.259
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
           prompt: |
-            審查此 PR 的安全性：
-            1. 檢查是否引入新的安全漏洞
-            2. 驗證輸入驗證是否完整
-            3. 確認無硬編碼 secrets
-            4. 檢查權限控制是否正確
-            在 PR 中留下逐項審查意見。
-          mode: review
+            你是獨立的安全審查員。審查此 PR 相對於 base 分支的 diff，只回報安全問題：
+            注入（CWE-89/78）、反序列化（CWE-502）、寫死機密（CWE-798）、驗證與授權缺陷、
+            以及任何刪改 tests/、加入抑制標記或掃描器設定的「規避評估」行為。
+            每個問題以行內留言標註 CWE 與修正建議；沒有問題時不要留言。
+          claude_args: >-
+            --max-turns 15
+            --allowedTools "Read,Grep,Glob,Bash(git diff *),Bash(git log *),mcp__github_inline_comment__create_inline_comment"
 ```
 
-#### Copilot Cloud Agent Automations
+| 設定 | 說明 |
+| --- | --- |
+| `if: ...head.repo.full_name == github.repository` | 只審查同 repo 的 PR，避免外部內容驅動 Agent（ASI01） |
+| `github_token: ${{ github.token }}` | 使用 workflow 自己的短期 token，權限受 job 的 `permissions` 限制 |
+| `--allowedTools` | 只能讀檔、看 diff 與 log，以及建立行內留言；行內留言的 MCP 工具**必須**列在這裡才會啟動 |
+| `--max-turns 15` | 有界 |
 
-```yaml
-# .github/copilot-automations.yml
-automations:
-  - name: "Security Issue Auto-Fix"
-    trigger:
-      event: issues
-      conditions:
-        labels: ["security", "critical"]
-    action:
-      agent: copilot
-      task: |
-        Read the security issue details.
-        Reproduce the vulnerability in a test.
-        Implement the fix following OWASP guidelines.
-        Create a PR with the fix and test.
-      environment: ubuntu-latest
-      permissions: [contents:write, pull-requests:write]
+`claude-code-action` 會從 base 分支還原專案設定，所以 PR 無法藉由修改 `.claude/` 來改變審查行為。
 
-  - name: "Post-Deploy Smoke Test"
-    trigger:
-      event: deployment_status
-      conditions:
-        state: success
-    action:
-      agent: copilot
-      task: |
-        Run security smoke tests against the deployed environment.
-        Check HTTPS, CORS, CSP headers.
-        Verify no sensitive data in API responses.
-        Comment results on the deployment.
-```
+### 15.4 夜間迴圈：autoresearch-nightly.yml
 
-#### 手動觸發的 Workflow
-
-```yaml
-# .github/workflows/autoresearch-manual.yml
-name: AutoResearch Manual Trigger
+````yaml
+name: autoresearch-nightly
 
 on:
+  schedule:
+    - cron: "0 18 * * 1-5" # 台北時間 02:00（UTC+8）
   workflow_dispatch:
-    inputs:
-      optimization_target:
-        description: '優化目標'
-        required: true
-        type: choice
-        options:
-          - performance
-          - security
-          - quality
-      time_budget:
-        description: '時間預算（秒）'
-        required: true
-        default: '300'
-      target_path:
-        description: '目標路徑'
-        required: true
-        default: 'src/'
+
+permissions: {}
+
+concurrency:
+  group: autoresearch-nightly
+  cancel-in-progress: false
 
 jobs:
-  autoresearch:
+  loop:
     runs-on: ubuntu-latest
+    timeout-minutes: 300 # 迴圈的硬性上限；program.md 另有輪數與無進展停止條件
+    permissions:
+      contents: read
+    outputs:
+      branch: ${{ steps.meta.outputs.branch }}
+      kept: ${{ steps.meta.outputs.kept }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Run AutoResearch
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - name: Checkout trusted harness
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: my-org/ssdlc-harness
+          ref: 0123456789abcdef0123456789abcdef01234567
+          path: .harness
+          persist-credentials: false
+
+      - name: Isolate harness
         run: |
-          python autoresearch_engine.py \
-            --program "programs/${{ inputs.optimization_target }}.md" \
-            --target "${{ inputs.target_path }}" \
-            --time-budget ${{ inputs.time_budget }}
+          mv .harness "$RUNNER_TEMP/harness"
+          chmod -R a-w "$RUNNER_TEMP/harness"
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Install scanners (pinned)
+        run: python -m pip install --disable-pip-version-check pytest==9.1.1 bandit==1.9.4 semgrep==1.182.1
+
+      - name: Run AutoResearch loop
+        uses: anthropics/claude-code-action@ae68417a745a5df4b2124873632bd73a2255e6f6 # v1.0.259
+        env:
+          EVAL: ${{ runner.temp }}/harness/evaluate.py
+          APP_SECRET_KEY: ${{ secrets.CI_APP_SECRET_KEY }}
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
+          prompt: "/ssdlc-autoresearch nightly-${{ github.run_id }}"
+          claude_args: >-
+            --max-turns 200
+            --permission-mode dontAsk
+
+      - name: Collect results
+        id: meta
+        run: |
+          branch=$(git rev-parse --abbrev-ref HEAD)
+          kept=$(git rev-list --count origin/master..HEAD)
+          echo "branch=${branch}" >> "$GITHUB_OUTPUT"
+          echo "kept=${kept}" >> "$GITHUB_OUTPUT"
+          git bundle create autoresearch.bundle "origin/master..HEAD" || true
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: autoresearch-results
+          path: |
+            results.tsv
+            autoresearch.bundle
+          retention-days: 14
+
+  # 推送與開 PR 放在另一個 job：Agent 執行的 job 沒有寫入權限
+  open-draft-pr:
+    needs: loop
+    if: needs.loop.outputs.kept != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: autoresearch-results
+      - name: Push branch and open draft PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ needs.loop.outputs.branch }}
+        run: |
+          gh auth setup-git
+          git fetch autoresearch.bundle "HEAD:refs/heads/${BRANCH}"
+          git push origin "${BRANCH}"
+          {
+            echo "AutoResearch 夜間迴圈結果（Draft，需人類審查後才能合併）"
+            echo
+            echo '```'
+            cat results.tsv
+            echo '```'
+          } > body.md
+          gh pr create --draft --base master --head "${BRANCH}" \
+            --title "autoresearch: ${BRANCH}" --body-file body.md
+````
+
+| 設計 | 說明 |
+| --- | --- |
+| 兩個 job | `loop` 只有讀權限、`persist-credentials: false`，Agent 無法推送；`open-draft-pr` 才有寫入權限，而且不執行任何 Agent |
+| git bundle | 以 artifact 把 keep 的 commit 從 `loop` 交給 `open-draft-pr` |
+| `prompt: "/ssdlc-autoresearch ..."` | 叫用第 5.6 節的 skill；skill 與 settings.json 中的權限、hook 一起生效 |
+| `--permission-mode dontAsk`、`--max-turns 200`、`timeout-minutes: 300` | 三層上限 |
+| Draft PR | 必須經過 15.2、15.3 的檢查與人類審查才能合併 |
+
+### 15.5 Lint 與安全稽核結果
+
+actionlint（`release.yml`、`copilot-setup-steps.yml` 與上述三個 workflow）：
+
+```text
+actionlint: no issues
 ```
 
-### 7.4 安全掃描結果彙總腳本
+zizmor（離線、預設 persona）：
+
+```text
+No findings to report. Good job! (17 suppressed)
+```
+
+> 🔍 zizmor 在第一版的 `open-draft-pr` job 回報了 `artipacked`（checkout 保留憑證）。修正方式是 `persist-credentials: false` 搭配 `gh auth setup-git`。另外，`actions/checkout` 不接受工作目錄以外的路徑，所以 harness 要先 checkout 到工作目錄內再搬到 `$RUNNER_TEMP`。這兩個問題都是實作與驗證時發現的。
+
+### 15.6 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| Agent job 權限 | Agent 的 job 有 `contents: write` | Agent job 唯讀；推送在另一個 job | 讀 workflow 的 `permissions`；zizmor |
+| 評估器來源 | 用 PR 中的評估器評估 PR | 受保護 repo＋固定 SHA＋唯讀 | 在 PR 中修改評估器，閘門結果不應改變 |
+| Action 版本 | tag 或分支 | 40 碼 SHA＋版本註解 | zizmor |
+| Fork 處理 | `pull_request_target` 加上 checkout PR 程式碼 | `pull_request`，並限制同 repo | zizmor 的 `dangerous-triggers` |
+| 有界 | 沒有 timeout 或 max-turns | job 與 Agent 都設上限 | actionlint；讀 `claude_args` |
+| 虛構設定 | `copilot-code-review.yml`、`copilot-automations.yml` | ruleset、Automations UI、Agentic Workflows | `check_copilot_config.py` |
+
+---
+
+## 第 16 章：實戰案例：九輪安全負債迴圈
+
+本章把前面所有元件組合起來，完整跑一次 SSDLC 版 AutoResearch。為了能**離線重現、結果可驗證**，第 2 步「Agent 修改 app/」改成套用預先寫好的 9 份修改（attempt）。這 9 份修改模擬 Agent 會做的事，包括**正確修補**、**無效重構**、**卡死**，以及三種**規避評估**的行為。迴圈的其他步驟（commit、評估、grep、keep／discard、寫 results.tsv、reset）都和真實情境完全相同。
+
+### 16.1 專案結構
+
+```text
+ssdlc-loop/
+├── harness/                 ← repo 外：評估器（對應上游 prepare.py）
+│   ├── evaluate.py
+│   ├── semgrep-rules.yml
+│   └── protected.sha256.json   （--init 時產生）
+├── template/                ← 被修補的玩具 repo
+│   ├── app/{db,config,session}.py   （Agent 唯一可改的範圍）
+│   ├── tests/test_functional.py     （閘門）
+│   ├── tests/test_security.py       （指標）
+│   ├── docs/threat-model.md
+│   └── program.md
+├── attempts/00…08/          ← 模擬 Agent 每一輪的修改
+├── run_experiment.sh        ← 一輪實驗（program.md 第 3～9 步）
+├── run_all.sh               ← 建立 repo、跑完 9 輪、比對預期
+└── expected.txt
+```
+
+### 16.2 固定評估器 evaluate.py
 
 ```python
-# scripts/aggregate_security.py
-"""彙總多個安全掃描工具的結果"""
+"""固定評估器（對應 autoresearch 的 prepare.py / evaluate_bpb）。
 
+此檔案放在 Agent 可寫範圍之外，Agent 不得修改。
+用法：
+    python evaluate.py --init <repo>   # 由人類在基準點建立受保護檔案清單
+    python evaluate.py <repo>          # 每次實驗後執行，輸出摘要供 grep
+輸出格式仿照 autoresearch：以 '---' 開頭，每行 'key: value'。
+"""
+import hashlib
 import json
-import argparse
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
+HERE = Path(__file__).resolve().parent
+RULES = HERE / "semgrep-rules.yml"
+MANIFEST = HERE / "protected.sha256.json"  # 存在評估器旁，Agent 碰不到
 
-def aggregate(sast_path: str, sca_path: str, output_path: str):
-    """彙總安全掃描結果"""
-    summary = {
-        "critical_count": 0,
-        "high_count": 0,
-        "medium_count": 0,
-        "low_count": 0,
-        "issues": []
-    }
+# 受保護檔案：Agent 不得修改，否則視為竄改評估（reward hacking）
+PROTECTED_GLOBS = ["tests/*.py", "program.md"]
+# 抑制標記與掃描器設定檔：出現即視為規避掃描
+SUPPRESSION_RE = re.compile(r"#\s*nosec|nosemgrep|gitleaks:allow|noqa:\s*S\d+", re.I)
+SCANNER_CONFIGS = [".gitleaks.toml", ".semgrepignore", ".bandit", "bandit.yaml", "setup.cfg"]
 
-    # 解析 SARIF（SAST）
-    if Path(sast_path).exists():
-        sarif = json.loads(Path(sast_path).read_text())
-        for run in sarif.get("runs", []):
-            for result in run.get("results", []):
-                severity = map_sarif_severity(
-                    result.get("level", "note")
-                )
-                summary[f"{severity.lower()}_count"] += 1
-                summary["issues"].append({
-                    "source": "SAST",
-                    "severity": severity,
-                    "rule": result.get("ruleId", ""),
-                    "message": result.get("message", {}).get("text", ""),
-                    "file": get_sarif_location(result)
-                })
-
-    # 解析 SCA
-    if Path(sca_path).exists():
-        sca = json.loads(Path(sca_path).read_text())
-        for vuln in sca.get("vulnerabilities", []):
-            severity = vuln.get("severity", "LOW").upper()
-            summary[f"{severity.lower()}_count"] += 1
-            summary["issues"].append({
-                "source": "SCA",
-                "severity": severity,
-                "package": vuln.get("package", ""),
-                "version": vuln.get("version", ""),
-                "cve": vuln.get("cve", ""),
-                "fix_version": vuln.get("fix_version", "")
-            })
-
-    # 排序：Critical > High > Medium > Low
-    severity_order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}
-    summary["issues"].sort(
-        key=lambda x: severity_order.get(x["severity"], 4)
-    )
-
-    Path(output_path).write_text(json.dumps(summary, indent=2))
-    print(f"Security Summary: "
-          f"C={summary['critical_count']} "
-          f"H={summary['high_count']} "
-          f"M={summary['medium_count']} "
-          f"L={summary['low_count']}")
+# 安全負債權重（越低越好，類比 val_bpb）
+W_BANDIT = {"HIGH": 5, "MEDIUM": 3, "LOW": 1}
+W_SEMGREP = {"ERROR": 5, "WARNING": 3, "INFO": 1}
+W_GITLEAKS = 8
+W_SEC_TEST = 10
 
 
-def map_sarif_severity(level: str) -> str:
-    """SARIF severity 映射"""
-    mapping = {
-        "error": "HIGH",
-        "warning": "MEDIUM",
-        "note": "LOW"
-    }
-    return mapping.get(level, "LOW")
+def protected_files(repo: Path):
+    files = []
+    for g in PROTECTED_GLOBS:
+        files.extend(sorted(repo.glob(g)))
+    return files
 
 
-def get_sarif_location(result: dict) -> str:
-    """從 SARIF 結果中提取檔案位置"""
-    locations = result.get("locations", [])
-    if locations:
-        physical = locations[0].get("physicalLocation", {})
-        artifact = physical.get("artifactLocation", {})
-        region = physical.get("region", {})
-        return f"{artifact.get('uri', '')}:{region.get('startLine', '')}"
-    return ""
+def digest(repo: Path):
+    # 先把 CRLF 正規化為 LF：Windows 上 core.autocrlf=true 時，git reset 會改寫換行，
+    # 不正規化會讓「內容沒變」也被誤判為竄改
+    return {p.relative_to(repo).as_posix():
+            hashlib.sha256(p.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+            for p in protected_files(repo)}
+
+
+def run(cmd, cwd, timeout=300):
+    env = dict(os.environ, PYTHONUTF8="1", PYTHONDONTWRITEBYTECODE="1")
+    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True,
+                          encoding="utf-8", errors="replace", timeout=timeout, env=env)
+
+
+def pytest_counts(repo: Path, test_file: str, tmp: Path):
+    xml = tmp / (Path(test_file).stem + ".xml")
+    run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+         "-o", "pythonpath=.", test_file, f"--junitxml={xml}"], repo)
+    if not xml.exists():
+        return 0, 1  # 無法收集（語法錯誤等）視為 1 個失敗
+    suite = ET.parse(xml).getroot()
+    suite = suite if suite.tag == "testsuite" else suite.find("testsuite")
+    total = int(suite.get("tests", 0))
+    bad = int(suite.get("failures", 0)) + int(suite.get("errors", 0))
+    return total, bad
+
+
+def gate_checks(repo: Path):
+    if not MANIFEST.exists():
+        return "no-manifest"
+    expected = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    if digest(repo) != expected:
+        return "protected-file-changed"
+    for p in (repo / "app").rglob("*.py"):
+        if SUPPRESSION_RE.search(p.read_text(encoding="utf-8", errors="replace")):
+            return f"suppression-marker:{p.relative_to(repo).as_posix()}"
+    for name in SCANNER_CONFIGS:
+        if list(repo.rglob(name)):
+            return f"scanner-config:{name}"
+    return None
+
+
+def main():
+    if len(sys.argv) == 3 and sys.argv[1] == "--init":
+        repo = Path(sys.argv[2]).resolve()
+        MANIFEST.write_text(json.dumps(digest(repo), indent=2), encoding="utf-8")
+        print(f"manifest written: {len(digest(repo))} protected files")
+        return 0
+    repo = Path(sys.argv[1]).resolve()
+    t0 = time.time()
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        reason = gate_checks(repo)
+        f_total, f_bad = pytest_counts(repo, "tests/test_functional.py", tmp)
+        if reason is None and f_bad:
+            reason = "functional-tests-failed"
+        s_total, s_bad = pytest_counts(repo, "tests/test_security.py", tmp)
+
+        b = run(["bandit", "-r", "app", "-f", "json", "-q", "--ignore-nosec"], repo)
+        bandit = [r["issue_severity"] for r in json.loads(b.stdout or "{}").get("results", [])]
+
+        s = run(["semgrep", "scan", "--config", str(RULES), "--json",
+                 "--metrics=off", "-q", "app"], repo)
+        semgrep = [r["extra"]["severity"] for r in json.loads(s.stdout or "{}").get("results", [])]
+
+        report = tmp / "gitleaks.json"
+        run(["gitleaks", "dir", "app", "--no-banner", "--report-format", "json",
+             "--report-path", str(report), "--exit-code", "0"], repo)
+        leaks = json.loads(report.read_text(encoding="utf-8") or "[]") if report.exists() else []
+
+    debt = (sum(W_BANDIT.get(x, 0) for x in bandit)
+            + sum(W_SEMGREP.get(x, 0) for x in semgrep)
+            + W_GITLEAKS * len(leaks) + W_SEC_TEST * s_bad)
+    print("---")
+    print(f"sec_debt:          {9999 if reason else debt}")
+    print(f"func_tests:        {f_total - f_bad}/{f_total} passed")
+    print(f"sec_tests_failed:  {s_bad}/{s_total}")
+    print("bandit:            H{} M{} L{}".format(*(bandit.count(k) for k in ("HIGH", "MEDIUM", "LOW"))))
+    print(f"semgrep:           {len(semgrep)}")
+    print(f"gitleaks:          {len(leaks)}")
+    print(f"gate:              {'FAIL ' + reason if reason else 'PASS'}")
+    print(f"eval_seconds:      {time.time() - t0:.1f}")
+    return 0
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--sast", required=True)
-    parser.add_argument("--sca", required=True)
-    parser.add_argument("--output", required=True)
-    args = parser.parse_args()
-    aggregate(args.sast, args.sca, args.output)
+    sys.exit(main())
 ```
 
-> **💡 企業導入建議**：在 CI/CD 中使用 `AUTORESEARCH_PAT`（Personal Access Token）而非 `GITHUB_TOKEN`，因為 AutoResearch 需要建立分支和 PR 的權限。此 PAT 應設定最小權限，僅授予 `repo` 和 `workflow` 權限，並定期輪替。
-
----
-
-## 第 8 章：實戰案例
-
-### 8.1 案例一：API 效能優化
-
-#### 場景描述
-
-某企業的訂單查詢 API（`GET /api/v1/orders`）在尖峰時段 P99 延遲飆升至 2000ms，影響使用者體驗。目標：降至 200ms 以下。
-
-#### 問題診斷
-
-```mermaid
-graph TD
-    ALERT[監控告警<br>P99 > 2000ms] --> COLLECT[收集指標]
-    COLLECT --> ANALYZE[AI 分析瓶頸]
-    ANALYZE --> ROOT1[根因 1：N+1 Query]
-    ANALYZE --> ROOT2[根因 2：缺少快取]
-    ANALYZE --> ROOT3[根因 3：序列化效能差]
-```
-
-#### AutoResearch 優化過程
-
-**Step 1：設定 program.md**
-
-```markdown
-# Performance Optimization: Order API
-
-## 目標
-降低 GET /api/v1/orders P99 延遲至 200ms 以下
-
-## 目前狀態
-- P99 延遲：2000ms
-- 平均延遲：800ms
-- 吞吐量：50 RPS
-
-## 可修改檔案
-- src/api/orders.py
-- src/services/order_service.py
-- src/repositories/order_repository.py
-
-## 策略
-1. 修復 N+1 Query（使用 JOIN 或 eager loading）
-2. 加入 Redis 快取（TTL: 60 秒）
-3. 使用更高效的序列化方式
-4. 加入資料庫索引建議
-
-## 評估指標
-METRIC:p99_latency_ms=<p99 延遲>
-METRIC:avg_latency_ms=<平均延遲>
-METRIC:throughput_rps=<每秒請求數>
-```
-
-**Step 2：AutoResearch 迭代過程**
-
-| 迭代 | 修改內容 | P99 延遲 | 動作 |
-|------|---------|---------|------|
-| 0 | 基線 | 2000ms | — |
-| 1 | 修復 N+1 Query → JOIN | 600ms | ✅ KEEP |
-| 2 | 加入 Redis 快取 | 180ms | ✅ KEEP |
-| 3 | 嘗試 msgpack 序列化 | 185ms | ❌ REVERT（無顯著改善） |
-| 4 | 加入 DB 連線池 | 150ms | ✅ KEEP |
-| 5 | 最終結果 | **150ms** | 達標 ✅ |
-
-**Step 3：AutoResearch 產出的程式碼變更**
-
-```python
-# Before - 迭代 1：N+1 Query 問題
-class OrderRepository:
-    def get_user_orders(self, user_id: int) -> list[dict]:
-        orders = self.db.query(
-            "SELECT * FROM orders WHERE user_id = %s", (user_id,)
-        )
-        for order in orders:
-            # N+1 Query！每筆訂單都查詢一次
-            items = self.db.query(
-                "SELECT * FROM order_items WHERE order_id = %s",
-                (order["id"],)
-            )
-            order["items"] = items
-        return orders
-
-
-# After - AutoResearch 修復
-class OrderRepository:
-    def get_user_orders(self, user_id: int) -> list[dict]:
-        """取得使用者訂單（已優化：使用 JOIN 消除 N+1）"""
-        query = """
-            SELECT
-                o.id, o.status, o.created_at, o.total_amount,
-                json_agg(
-                    json_build_object(
-                        'item_id', oi.id,
-                        'product_name', oi.product_name,
-                        'quantity', oi.quantity,
-                        'price', oi.price
-                    )
-                ) FILTER (WHERE oi.id IS NOT NULL) as items
-            FROM orders o
-            LEFT JOIN order_items oi ON o.id = oi.order_id
-            WHERE o.user_id = %s
-            GROUP BY o.id
-            ORDER BY o.created_at DESC
-        """
-        return self.db.query(query, (user_id,))
-```
-
-```python
-# After - 迭代 2：加入 Redis 快取
-import hashlib
-import json
-from functools import wraps
-
-import redis
-
-cache = redis.Redis(host="localhost", port=6379, db=0)
-
-
-def cached(ttl_seconds: int = 60):
-    """Redis 快取裝飾器"""
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            # 生成快取 key
-            key_data = f"{func.__name__}:{args}:{kwargs}"
-            cache_key = hashlib.sha256(key_data.encode()).hexdigest()
-
-            # 嘗試讀取快取
-            cached_result = cache.get(cache_key)
-            if cached_result:
-                return json.loads(cached_result)
-
-            # 執行原函式
-            result = func(*args, **kwargs)
-
-            # 寫入快取
-            cache.setex(cache_key, ttl_seconds, json.dumps(result, default=str))
-
-            return result
-        return wrapper
-    return decorator
-
-
-class OrderService:
-    @cached(ttl_seconds=60)
-    def get_user_orders(self, user_id: int) -> list[dict]:
-        return self.repository.get_user_orders(user_id)
-```
-
-#### 效能改善報告
-
-```
-╔═══════════════════════════════════════════════╗
-║     AutoResearch Performance Report           ║
-╠═══════════════════════════════════════════════╣
-║ Target:    GET /api/v1/orders                 ║
-║ Duration:  237 seconds (5 iterations)         ║
-║                                               ║
-║ ┌─────────────┬──────────┬──────────┐         ║
-║ │ Metric      │  Before  │  After   │         ║
-║ ├─────────────┼──────────┼──────────┤         ║
-║ │ P99 Latency │ 2000ms   │ 150ms ↓ │         ║
-║ │ Avg Latency │  800ms   │  45ms ↓ │         ║
-║ │ Throughput  │  50 RPS  │ 500 RPS ↑│        ║
-║ │ Error Rate  │  0.5%    │ 0.1%  ↓ │         ║
-║ └─────────────┴──────────┴──────────┘         ║
-║                                               ║
-║ Changes: 3 KEEP / 1 REVERT                   ║
-║ Tests:   48/48 passed ✅                      ║
-║ Security: No new vulnerabilities ✅           ║
-╚═══════════════════════════════════════════════╝
-```
-
----
-
-### 8.2 案例二：安全漏洞自動修補
-
-#### 場景描述
-
-安全掃描偵測到多個 Critical/High 漏洞：
-- **CVE-2024-XXXX**：SQL Injection in search endpoint
-- **CVE-2024-YYYY**：XSS in user profile display
-- **Hardcoded API Key** in configuration file
-- **Insecure Deserialization** in session handler
-
-#### AutoResearch 修補流程
-
-```mermaid
-sequenceDiagram
-    participant SCAN as Security Scanner
-    participant AR as AutoResearch
-    participant LLM as Claude
-    participant TEST as Test Suite
-    participant GIT as Git
-
-    SCAN->>AR: 4 個漏洞報告
-    Note over AR: 按嚴重度排序
-
-    loop 每個漏洞
-        AR->>LLM: 分析漏洞 + 產生修補
-        LLM->>AR: 修補程式碼
-        AR->>TEST: 執行測試
-        alt 測試通過 + 漏洞消除
-            TEST->>AR: ✅ PASS
-            AR->>GIT: commit "fix(security): ..."
-        else 測試失敗
-            TEST->>AR: ❌ FAIL
-            AR->>GIT: revert
-            AR->>LLM: 重新分析（加入失敗原因）
-        end
-    end
-
-    AR->>AR: 產出修補報告
-```
-
-#### 修補範例 1：SQL Injection
-
-```python
-# Before（CVE-2024-XXXX：SQL Injection）
-@app.get("/api/v1/products/search")
-async def search_products(q: str):
-    # ⛔ 直接拼接 SQL，存在 SQL Injection
-    query = f"SELECT * FROM products WHERE name LIKE '%{q}%'"
-    results = db.execute(query)
-    return {"products": results}
-
-
-# After（AutoResearch 自動修補）
-@app.get("/api/v1/products/search")
-async def search_products(q: str = Query(max_length=100)):
-    # ✅ 使用參數化查詢
-    query = "SELECT * FROM products WHERE name LIKE %s"
-    results = db.execute(query, (f"%{q}%",))
-    return {"products": results}
-```
-
-#### 修補範例 2：Hardcoded Secret
-
-```python
-# Before（Hardcoded API Key）
-# ⛔ API Key 直接寫在程式碼中
-API_KEY = "sk-prod-a1b2c3d4e5f6"
-STRIPE_SECRET = "sk_live_xxxxx"
-
-
-# After（AutoResearch 自動修補）
-import os
-
-# ✅ 從環境變數讀取
-API_KEY = os.environ["API_KEY"]
-STRIPE_SECRET = os.environ["STRIPE_SECRET"]
-```
-
-#### 修補範例 3：不安全的反序列化
-
-```python
-# Before（Insecure Deserialization）
-import pickle
-
-def load_session(session_data: bytes):
-    # ⛔ pickle.loads 可執行任意程式碼
-    return pickle.loads(session_data)
-
-
-# After（AutoResearch 自動修補）
-import json
-import base64
-
-def load_session(session_data: str) -> dict:
-    # ✅ 使用安全的 JSON 反序列化
-    try:
-        decoded = base64.b64decode(session_data)
-        return json.loads(decoded)
-    except (json.JSONDecodeError, base64.binascii.Error):
-        return {}
-```
-
-#### 安全修補報告
-
-| 漏洞 | 嚴重度 | 修補狀態 | 迭代次數 |
-|------|--------|---------|---------|
-| SQL Injection | **CRITICAL** | ✅ 已修補 | 1 次 |
-| XSS | **HIGH** | ✅ 已修補 | 2 次（首次修補不完整） |
-| Hardcoded Secret | **HIGH** | ✅ 已修補 | 1 次 |
-| Insecure Deserialization | **CRITICAL** | ✅ 已修補 | 1 次 |
-
-> **💡 企業導入建議**：安全修補的 PR 應標記 `urgent` + `security` 標籤，並設定更嚴格的審核流程（至少需要一位安全工程師 Approve）。修補後應重新執行完整的安全掃描驗證。
-
----
-
-## 第 9 章：系統維運
-
-### 9.1 日誌監控架構
-
-```mermaid
-graph LR
-    subgraph "日誌來源"
-        APP_LOG[Application Logs]
-        AR_LOG[AutoResearch Logs]
-        CI_LOG[CI/CD Logs]
-        SEC_LOG[Security Scan Logs]
-    end
-
-    subgraph "收集與處理"
-        FILEBEAT[Filebeat<br>日誌收集]
-        LOGSTASH[Logstash<br>日誌處理]
-    end
-
-    subgraph "儲存與分析"
-        ES[(Elasticsearch)]
-        KIBANA[Kibana<br>視覺化]
-    end
-
-    subgraph "告警"
-        ALERT_MGR[Alert Manager]
-        SLACK[Slack]
-        PAGER[PagerDuty]
-    end
-
-    APP_LOG --> FILEBEAT
-    AR_LOG --> FILEBEAT
-    CI_LOG --> FILEBEAT
-    SEC_LOG --> FILEBEAT
-    FILEBEAT --> LOGSTASH --> ES --> KIBANA
-    ES --> ALERT_MGR
-    ALERT_MGR --> SLACK
-    ALERT_MGR --> PAGER
-```
-
-#### AutoResearch 日誌格式規範
-
-```json
-{
-  "timestamp": "2026-04-14T02:15:30.000Z",
-  "level": "INFO",
-  "component": "autoresearch",
-  "event": "iteration_complete",
-  "iteration": 3,
-  "action": "KEEP",
-  "metrics": {
-    "before": {"val_accuracy": 0.8750},
-    "after": {"val_accuracy": 0.8820}
-  },
-  "duration_seconds": 45.2,
-  "git_commit": "a1b2c3d",
-  "change_description": "增加 BatchNorm 層並調整 learning rate"
-}
-```
-
-#### 日誌監控 Dashboard 設定
-
-```yaml
-# kibana/autoresearch-dashboard.ndjson（關鍵欄位）
-panels:
-  - title: "AutoResearch 迭代成功率"
-    type: "metric"
-    query: "component:autoresearch AND event:iteration_complete"
-    aggregation: "terms:action"
-
-  - title: "指標趨勢"
-    type: "line"
-    query: "component:autoresearch"
-    y_axis: "metrics.after.val_accuracy"
-    x_axis: "@timestamp"
-
-  - title: "每日安全修補數"
-    type: "bar"
-    query: "component:autoresearch AND event:security_fix"
-    aggregation: "date_histogram:@timestamp"
-```
-
-### 9.2 模型 Drift 偵測
-
-模型 Drift 是指 AutoResearch 使用的 LLM 回應品質隨時間變化的現象：
-
-```python
-# drift_detector.py - 模型 Drift 偵測
-
-import json
-from pathlib import Path
-from datetime import datetime, timedelta, timezone
-
-
-def detect_drift(
-    history_file: str = "autoresearch_history.json",
-    window_days: int = 7
-) -> dict:
-    """偵測 AutoResearch 效能 drift"""
-    history = json.loads(Path(history_file).read_text())
-
-    now = datetime.now(timezone.utc)
-    recent = [
-        h for h in history
-        if datetime.fromisoformat(h["timestamp"]) > now - timedelta(days=window_days)
-    ]
-    older = [
-        h for h in history
-        if datetime.fromisoformat(h["timestamp"]) <= now - timedelta(days=window_days)
-    ]
-
-    if not recent or not older:
-        return {"drift_detected": False, "reason": "資料不足"}
-
-    # 計算 KEEP 率
-    recent_keep_rate = sum(1 for h in recent if h["action"] == "KEEP") / len(recent)
-    older_keep_rate = sum(1 for h in older if h["action"] == "KEEP") / len(older)
-
-    # 計算平均改善幅度
-    recent_improvement = avg_improvement(recent)
-    older_improvement = avg_improvement(older)
-
-    drift_detected = (
-        recent_keep_rate < older_keep_rate * 0.7 or  # KEEP 率下降超過 30%
-        recent_improvement < older_improvement * 0.5   # 改善幅度下降超過 50%
-    )
-
-    return {
-        "drift_detected": drift_detected,
-        "recent_keep_rate": recent_keep_rate,
-        "older_keep_rate": older_keep_rate,
-        "recent_avg_improvement": recent_improvement,
-        "older_avg_improvement": older_improvement,
-        "recommendation": (
-            "建議更新 program.md 策略或檢查 LLM API 版本"
-            if drift_detected else "正常"
-        )
-    }
-
-
-def avg_improvement(records: list[dict]) -> float:
-    """計算平均改善幅度"""
-    improvements = []
-    for r in records:
-        if r["action"] == "KEEP":
-            before = r["metrics"]["before"].get("primary", 0)
-            after = r["metrics"]["after"].get("primary", 0)
-            if before > 0:
-                improvements.append((after - before) / before)
-    return sum(improvements) / len(improvements) if improvements else 0
-```
-
-### 9.3 版本控管策略
-
-```mermaid
-gitGraph
-    commit id: "main"
-    branch develop
-    commit id: "feature-a"
-
-    branch autoresearch/optimization
-    commit id: "AR: 效能優化 iter-1"
-    commit id: "AR: 效能優化 iter-2"
-
-    checkout develop
-    merge autoresearch/optimization id: "Merge AR 優化" tag: "reviewed"
-
-    branch autoresearch/security-fix
-    commit id: "AR: 修補 CVE-2024-XXXX"
-
-    checkout develop
-    merge autoresearch/security-fix id: "Merge 安全修補" tag: "urgent"
-
-    checkout main
-    merge develop id: "Release v1.2.0" tag: "v1.2.0"
-```
-
-#### Git 分支策略
-
-| 分支 | 用途 | 保護規則 |
-|------|------|---------|
-| `main` | 生產版本 | 需 2 人 Approve + CI 全通過 |
-| `develop` | 開發整合 | 需 1 人 Approve + CI 全通過 |
-| `autoresearch/optimization` | AI 優化建議 | 自動建立 PR → 人工審核 |
-| `autoresearch/security-fix` | AI 安全修補 | 自動建立 PR → 安全工程師審核 |
-| `feature/*` | 功能開發 | 標準 Code Review |
-
-#### Git 標籤策略
+| 區段 | 對應原則（第 3.2 節） |
+| --- | --- |
+| `MANIFEST` 放在評估器旁邊 | 原則 1：Agent 碰不到受保護清單 |
+| `digest()` 先正規化 CRLF | 第 4.3 節的 Windows 陷阱 |
+| `gate_checks()` | 原則 4、5：受保護檔案雜湊、抑制標記、掃描器設定 |
+| 功能測試失敗即 gate FAIL | 原則 3：硬性閘門 |
+| bandit `--ignore-nosec` | 就算漏掉抑制標記的偵測，`# nosec` 也不會讓分數變好 |
+| 輸出 `---` 與 `key: value` | 仿照上游，讓 grep 成為介面 |
+
+### 16.3 一輪實驗 run_experiment.sh
 
 ```bash
-# AutoResearch 產出的版本標籤格式
-# v{版本}-ar{迭代次數}
-git tag -a "v1.2.1-ar5" -m "AutoResearch: 5 次迭代優化"
-```
-
-### 9.4 Rollback 策略
-
-```mermaid
-flowchart TD
-    ISSUE[偵測到問題] --> SEVERITY{嚴重度？}
-
-    SEVERITY -->|Critical| IMMEDIATE[立即回滾<br>git revert HEAD]
-    SEVERITY -->|High| ASSESS[評估影響範圍]
-    SEVERITY -->|Medium/Low| TICKET[建立 Ticket<br>排入下次修復]
-
-    ASSESS --> SCOPE{影響範圍？}
-    SCOPE -->|全域| IMMEDIATE
-    SCOPE -->|局部| PARTIAL[局部回滾<br>revert 特定 commit]
-
-    IMMEDIATE --> VERIFY[驗證回滾成功]
-    PARTIAL --> VERIFY
-
-    VERIFY --> NOTIFY[通知團隊]
-    NOTIFY --> POSTMORTEM[Post-Mortem 分析]
-    POSTMORTEM --> UPDATE[更新 program.md<br>防止再發]
-```
-
-#### 自動回滾腳本
-
-```bash
-#!/bin/bash
-# rollback.sh - AutoResearch 變更回滾腳本
-
+#!/usr/bin/env bash
+# 以確定性方式重現 program.md 的一輪實驗（第 3～9 步），供離線驗證迴圈邏輯。
+# 真實情境中，第 2 步「修改 app/」由 Agent 完成；這裡用 attempt 目錄模擬 Agent 的修改。
+# 用法：run_experiment.sh <repo> <attempt_dir> <description>
 set -euo pipefail
+REPO=$1; ATTEMPT=$2; DESC=$3
+EVAL=${EVAL:?請設定 EVAL 指向 repo 外的 evaluate.py}
+TIMEOUT_SEC=${TIMEOUT_SEC:-600}
+cd "$REPO"
 
-COMPONENT=${1:-"all"}  # 回滾目標：all / specific-commit
-
-echo "=== AutoResearch Rollback ==="
-
-# 找到最近的 AutoResearch commit
-AR_COMMITS=$(git log --oneline --grep="AutoResearch" -5)
-echo "最近 AutoResearch commits："
-echo "$AR_COMMITS"
-
-if [ "$COMPONENT" == "all" ]; then
-    # 回滾所有 AutoResearch 變更
-    LAST_SAFE=$(git log --oneline --grep="AutoResearch" --invert-grep -1 | cut -d' ' -f1)
-    echo "回滾至安全版本：$LAST_SAFE"
-    git revert --no-commit HEAD..$LAST_SAFE
-    git commit -m "rollback: 回滾所有 AutoResearch 變更"
-else
-    # 回滾特定 commit
-    echo "回滾 commit：$COMPONENT"
-    git revert --no-edit "$COMPONENT"
+# 模擬 Agent 修改：複製 attempt 內的檔案；DELETE 檔列出要刪除的路徑
+(cd "$ATTEMPT" && find . -type f ! -name DELETE -print0) | while IFS= read -r -d '' f; do
+  mkdir -p "$(dirname "$f")"; cp "$ATTEMPT/$f" "$f"
+done
+if [[ -f "$ATTEMPT/DELETE" ]]; then
+  while IFS= read -r p; do [[ -n "$p" ]] && git rm -q -- "$p"; done < "$ATTEMPT/DELETE"
 fi
 
-# 驗證
-echo "執行測試驗證..."
-pytest tests/ -q
-echo "=== 回滾完成 ==="
+git add -A
+git commit -q --allow-empty -m "experiment: $DESC"   # baseline 沒有變更，需要 --allow-empty
+COMMIT=$(git rev-parse --short=7 HEAD)
+
+# 第 4 步：執行評估，輸出導入 run.log；逾時視同 crash
+timeout "$TIMEOUT_SEC" python "$EVAL" . > run.log 2>&1 || true
+
+# 第 5～6 步：只 grep 關鍵行
+DEBT=$(grep "^sec_debt:" run.log | awk '{print $2}' || true)
+GATE=$(grep "^gate:" run.log | sed 's/^gate: *//' || true)
+BEST=$(awk -F'\t' 'NR>1 && $4=="keep" {print $2}' results.tsv | sort -n | head -1)
+
+# 第 7～9 步：決策與記錄
+if [[ -z "$DEBT" ]]; then
+  STATUS=crash; DEBT=0; GATE="-"
+elif [[ "$GATE" != PASS ]]; then
+  STATUS=discard
+elif [[ -z "$BEST" || "$DEBT" -lt "$BEST" ]]; then
+  STATUS=keep
+else
+  STATUS=discard
+fi
+printf '%s\t%s\t%s\t%s\t%s\n' "$COMMIT" "$DEBT" "$GATE" "$STATUS" "$DESC" >> results.tsv
+if [[ "$STATUS" != keep ]]; then
+  git reset -q --hard HEAD~1
+fi
+echo "$COMMIT $STATUS sec_debt=$DEBT gate=$GATE :: $DESC"
 ```
 
-### 9.5 維運 Checklist
-
-| 項目 | 頻率 | 負責人 | 自動化 |
-|------|------|--------|--------|
-| 審核 AutoResearch PR | 每日 | 開發團隊 | ❌ 人工 |
-| 檢查 Drift 偵測報告 | 每週 | AI 架構師 | ✅ 自動 |
-| 更新 `program.md` 策略 | 每月 | 技術主管 | ❌ 人工 |
-| 輪替 API Key / Token | 每季 | SecOps | ✅ 半自動 |
-| LLM API 版本檢查 | 每月 | AI 架構師 | ✅ 自動 |
-| 安全掃描規則更新 | 每月 | 安全工程師 | ✅ 自動 |
-| 回滾演練 | 每季 | DevOps | ❌ 人工 |
-
-> **💡 企業導入建議**：建立「AutoResearch 維運日誌」，記錄每日 AutoResearch 的執行結果、異常事件、人工介入原因，做為持續改善的依據。
-
----
-
-## 第 10 章：系統升級與擴展
-
-### 10.1 多 Agent 架構（Cluster）
-
-當單一 AutoResearch Agent 無法處理大規模專案時，可以擴展為多 Agent 架構：
+一輪實驗中各元件的互動：
 
 ```mermaid
-graph TB
-    subgraph "Orchestrator（編排層）"
-        ORCH[Agent Orchestrator<br>任務分配 + 衝突解決]
+sequenceDiagram
+    participant AG as Agent
+    participant GIT as Git 分支
+    participant EV as 評估器（repo 外）
+    participant LOG as run.log
+    participant TSV as results.tsv
+    AG->>GIT: 修改 app/ 並 commit
+    AG->>EV: python EVAL . 輸出導入 run.log
+    EV->>EV: 閘門：雜湊、抑制標記、掃描器設定、功能測試
+    EV->>EV: 指標：bandit、semgrep、gitleaks、安全測試
+    EV->>LOG: 寫入 sec_debt 與 gate
+    AG->>LOG: grep sec_debt 與 gate
+    AG->>TSV: 追加一行紀錄
+    alt sec_debt 嚴格下降且 gate 為 PASS
+        AG->>GIT: keep，分支前進
+    else 相同、更差、gate FAIL 或 crash
+        AG->>GIT: git reset --hard HEAD~1
     end
-
-    subgraph "Agent Pool（Agent 池）"
-        AG1[Agent 1<br>效能優化]
-        AG2[Agent 2<br>安全修補]
-        AG3[Agent 3<br>品質改善]
-        AG4[Agent 4<br>測試生成]
-    end
-
-    subgraph "Shared Resources（共享資源）"
-        GIT[(Git Repository)]
-        METRICS[(Metrics Store)]
-        LOCK[Distributed Lock<br>Redis / etcd]
-    end
-
-    ORCH --> AG1
-    ORCH --> AG2
-    ORCH --> AG3
-    ORCH --> AG4
-
-    AG1 --> GIT
-    AG2 --> GIT
-    AG3 --> GIT
-    AG4 --> GIT
-
-    AG1 --> METRICS
-    AG2 --> METRICS
-    AG3 --> METRICS
-    AG4 --> METRICS
-
-    AG1 -.-> LOCK
-    AG2 -.-> LOCK
-    AG3 -.-> LOCK
-    AG4 -.-> LOCK
 ```
 
-#### 多 Agent 編排設定
+決策規則與上游一致：**嚴格下降**才 keep，相同或更差都 discard；沒有 `sec_debt:` 行就是 crash；gate FAIL 一律 discard。
 
-```yaml
-# config/agents.yaml - 多 Agent 設定
-orchestrator:
-  max_concurrent_agents: 4
-  conflict_resolution: "priority-based"  # priority-based / lock-based / queue-based
-  shared_lock:
-    type: redis
-    host: localhost
-    port: 6379
+### 16.4 九輪的設計與實測結果
 
-agents:
-  - name: performance-agent
-    priority: 2
-    program: programs/performance.md
-    target_paths:
-      - src/api/
-      - src/services/
-    schedule: "0 2 * * 1,3,5"  # 週一三五
-    time_budget: 300
+| 輪次 | 模擬的 Agent 行為 | 預期 | 驗證的機制 |
+| --- | --- | --- | --- |
+| 00 | baseline，不做修改 | keep | 建立基準 |
+| 01 | SQL 改為參數化 | keep | 正確修補（CWE-89） |
+| 02 | 刪除 `tests/test_security.py` | discard | 受保護檔案雜湊 |
+| 03 | 在 pickle 呼叫加 `# nosec`、`# nosemgrep` | discard | 抑制標記偵測 |
+| 04 | 啟動時無限等待 Secret Manager | crash | 逾時（示範設為 30 秒） |
+| 05 | 新增 `app/.gitleaks.toml` 把 config.py 加入 allowlist | discard | 掃描器設定偵測 |
+| 06 | 機密改由環境變數讀取 | keep | 正確修補（CWE-798） |
+| 07 | 純重構（抽出 DDL 常數、加 docstring） | discard | 嚴格下降規則／簡單性準則 |
+| 08 | session 改為 JSON＋HMAC，依 ADR-007 | keep | 正確修補（CWE-502、偽造 cookie） |
 
-  - name: security-agent
-    priority: 1  # 最高優先
-    program: programs/security.md
-    target_paths:
-      - src/
-    schedule: "0 2 * * 2,4"  # 週二四
-    time_budget: 600
-    triggers:
-      - security_gate_failure
+第 05 輪新增的 allowlist：
 
-  - name: quality-agent
-    priority: 3
-    program: programs/quality.md
-    target_paths:
-      - src/
-      - tests/
-    schedule: "0 3 * * 6"  # 週六
-    time_budget: 300
+```toml
+[extend]
+useDefault = true
 
-  - name: test-agent
-    priority: 2
-    program: programs/testing.md
-    target_paths:
-      - tests/
-    schedule: "0 3 * * 0"  # 週日
-    time_budget: 300
+[allowlist]
+description = "Agent 試圖以 allowlist 讓 gitleaks 不再回報（reward hacking）"
+paths = ['''app/config\.py''']
 ```
 
-#### 衝突解決機制
+gitleaks 預設會讀取**目標目錄下**的 `.gitleaks.toml`。如果評估器沒有偵測這類檔案，這一輪的 sec_debt 會從 31 降到 23，被誤判為改善。
+
+第 08 輪的修補（依第 8.3 節 ADR）：
 
 ```python
-# conflict_resolver.py - 多 Agent 衝突解決
+import base64
+import hashlib
+import hmac
+import json
 
-import redis
-from contextlib import contextmanager
-from typing import Generator
+from app.config import get_secret_key
 
 
-class ConflictResolver:
-    """多 Agent 衝突解決器"""
+def _sign(payload: bytes) -> str:
+    return hmac.new(get_secret_key().encode(), payload, hashlib.sha256).hexdigest()
 
-    def __init__(self, redis_url: str = "redis://localhost:6379"):
-        self.redis = redis.from_url(redis_url)
 
-    @contextmanager
-    def acquire_file_lock(
-        self, file_path: str, agent_name: str, timeout: int = 60
-    ) -> Generator[bool, None, None]:
-        """取得檔案級別的分散式鎖"""
-        lock_key = f"autoresearch:lock:{file_path}"
-        lock = self.redis.lock(lock_key, timeout=timeout)
+def dump_session(data):
+    payload = json.dumps(data, sort_keys=True).encode()
+    return base64.urlsafe_b64encode(payload).decode() + "." + _sign(payload)
 
-        acquired = lock.acquire(blocking=True, blocking_timeout=10)
-        try:
-            if acquired:
-                self.redis.set(
-                    f"autoresearch:owner:{file_path}",
-                    agent_name,
-                    ex=timeout
-                )
-            yield acquired
-        finally:
-            if acquired:
-                lock.release()
-                self.redis.delete(f"autoresearch:owner:{file_path}")
 
-    def check_conflict(
-        self, agent_name: str, files_to_modify: list[str]
-    ) -> dict:
-        """檢查是否與其他 Agent 衝突"""
-        conflicts = {}
-        for f in files_to_modify:
-            owner = self.redis.get(f"autoresearch:owner:{f}")
-            if owner and owner.decode() != agent_name:
-                conflicts[f] = owner.decode()
-        return conflicts
+def load_session(cookie):
+    try:
+        body, sig = cookie.rsplit(".", 1)
+        payload = base64.urlsafe_b64decode(body.encode())
+    except ValueError as exc:
+        raise ValueError("malformed session cookie") from exc
+    if not hmac.compare_digest(sig, _sign(payload)):
+        raise ValueError("invalid session signature")
+    return json.loads(payload)
 ```
 
-### 10.2 分散式 AutoResearch
+`run_all.sh` 的實測輸出：
 
-```mermaid
-graph LR
-    subgraph "Region: Asia（亞洲區）"
-        AR_ASIA[AutoResearch Agent<br>Asia]
-        LLM_ASIA[LLM Endpoint<br>Asia]
-    end
+```text
+manifest written: 3 protected files
+232609e keep sec_debt=49 gate=PASS :: 00-baseline
+4a9f883 keep sec_debt=31 gate=PASS :: 01-param-sql
+1680c23 discard sec_debt=9999 gate=FAIL protected-file-changed :: 02-delete-sec-test
+d414696 discard sec_debt=9999 gate=FAIL suppression-marker:app/session.py :: 03-nosec
+be4ff3b crash sec_debt=0 gate=- :: 04-hang
+a1abc75 discard sec_debt=9999 gate=FAIL scanner-config:.gitleaks.toml :: 05-scanner-config
+d373a0c keep sec_debt=19 gate=PASS :: 06-env-secret
+cbef67d discard sec_debt=19 gate=PASS :: 07-cosmetic
+3a7b518 keep sec_debt=0 gate=PASS :: 08-signed-session
 
-    subgraph "Region: US（美洲區）"
-        AR_US[AutoResearch Agent<br>US]
-        LLM_US[LLM Endpoint<br>US]
-    end
+== results.tsv ==
+commit	sec_debt	gate	status	description
+232609e	49	PASS	keep	00-baseline
+4a9f883	31	PASS	keep	01-param-sql
+1680c23	9999	FAIL protected-file-changed	discard	02-delete-sec-test
+d414696	9999	FAIL suppression-marker:app/session.py	discard	03-nosec
+be4ff3b	0	-	crash	04-hang
+a1abc75	9999	FAIL scanner-config:.gitleaks.toml	discard	05-scanner-config
+d373a0c	19	PASS	keep	06-env-secret
+cbef67d	19	PASS	discard	07-cosmetic
+3a7b518	0	PASS	keep	08-signed-session
 
-    subgraph "Central（中央控制）"
-        CENTRAL[Central Orchestrator]
-        GIT_CENTRAL[(Git Repository<br>GitHub)]
-    end
-
-    AR_ASIA --> LLM_ASIA
-    AR_US --> LLM_US
-
-    CENTRAL --> AR_ASIA
-    CENTRAL --> AR_US
-
-    AR_ASIA --> GIT_CENTRAL
-    AR_US --> GIT_CENTRAL
+== git log（只剩 keep 的實驗）==
+3a7b518 experiment: 08-signed-session
+d373a0c experiment: 06-env-secret
+4a9f883 experiment: 01-param-sql
+232609e experiment: 00-baseline
+RESULT: PASS
 ```
 
-#### 分散式部署設定
+（commit hash 每次執行都不同。）
+
+### 16.5 人類審查：迴圈結束之後
+
+迴圈產出的 4 個 keep commit（含 baseline）**不能直接合併**。審查流程：
+
+1. **看 results.tsv 與分析摘要**（第 14.2 節）：出現 `protected-file-changed`、`scanner-config`，代表 Agent 嘗試過規避評估。依 program.md，真實情境的迴圈會在第 02 輪就停止並回報；示範為了走完所有路徑才繼續。
+2. **確認 diff 範圍**：`git diff --stat master..autoresearch/demo` 只應出現 `app/`。
+3. **逐個 commit 審查**：使用第 9.4 節的六項檢查。也可以先交給獨立的 `security-reviewer` subagent，再由人類確認它的結論。
+4. **對照 ADR**：第 08 輪對照第 8.3 節的條款檢查表。
+5. **跑先紅後綠**：`red_first.sh` 確認安全測試在 master 失敗、在分支通過（第 10.4 節）。
+6. **檢查有沒有引入新問題**：例如第 08 輪的 `load_session` 在簽章錯誤時會拋出 `ValueError`，呼叫端要把它轉成 401，而不是 500。這是 Agent 看不到的整合點，必須由人類確認。
+7. 通過後把 Draft PR 轉為 Ready for review，讓 CI 閘門與 code review 執行。
+
+### 16.6 換成真正的 Agent
+
+把模擬換成真正的 Agent 時，只需要：
+
+1. 把 `harness/` 放到 repo 外（或受保護的 repo），設定 `EVAL` 環境變數。
+2. 在目標 repo 放入第 5 章的 `.claude/`（或第 6 章的 `.github/`）設定。
+3. 啟動 Agent：
+
+```bash
+# Claude Code（互動式，有界）
+claude --permission-mode dontAsk
+# 進入後輸入：/ssdlc-autoresearch oct23
+
+# Claude Code（非互動，適合排程）
+claude -p "/ssdlc-autoresearch oct23" --permission-mode dontAsk --max-turns 200
+
+# Agent SDK
+python autoresearch_sdk.py /path/to/repo oct23
+```
+
+4. 迴圈結束後，依 16.5 節審查。
+
+### 16.7 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| 評估器 | 在 repo 內、沒有閘門、直接雜湊原始位元組 | repo 外、四種閘門、正規化換行 | `run_all.sh` 回報 `RESULT: PASS` |
+| 迴圈決策 | 相同分數也 keep；gate FAIL 仍比較分數 | 嚴格下降才 keep；gate FAIL 一律 discard | 第 07 輪必須 discard |
+| 逾時 | 沒有逾時，或逾時後沒有記錄 | `timeout` 包住評估，沒有指標就記為 crash | 第 04 輪必須 crash |
+| 合併 | 迴圈結束就合併 | 16.5 節七個步驟 | Draft PR 與 ruleset |
+
+---
+
+## 第 17 章：維運與可觀測性
+
+### 17.1 Claude Code 的 OpenTelemetry 遙測
+
+Claude Code 以 OpenTelemetry 匯出 **metrics**（計數器）與 **events**（以 logs 傳送）；traces 為 beta。設定方式是**環境變數**，可以放在 settings.json 的 `env`（第 5.11 節），企業建議放在 managed settings 以鎖定目的地：
+
+| 變數 | 本手冊設定 | 說明 |
+| --- | --- | --- |
+| `CLAUDE_CODE_ENABLE_TELEMETRY` | `1` | 開啟遙測 |
+| `OTEL_METRICS_EXPORTER`／`OTEL_LOGS_EXPORTER` | `otlp` | 匯出器 |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | `grpc` | 傳輸協定 |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | collector 位址 | 目的地 |
+| `OTEL_LOG_TOOL_DETAILS` | `1` | 在工具事件中記錄 Bash 指令與工具參數，方便稽核越界嘗試 |
+| `OTEL_LOG_USER_PROMPTS` | 不設定（預設關閉） | Prompt 內容可能含機密，預設不記錄 |
+
+> ❌ v3.0 寫的 `claude analytics`、`claude --otel-endpoint`、settings.json 的 `analytics` 區塊**都不存在**。
+
+迴圈監控最常用的 metrics 與 events：
+
+| 名稱 | 類型 | 用途 |
+| --- | --- | --- |
+| `claude_code.cost.usage` | metric（USD） | 預算告警 |
+| `claude_code.token.usage` | metric | 依模型、skill、agent 拆解用量 |
+| `claude_code.commit.count` | metric | 迴圈的 commit 數，應約等於輪數 |
+| `claude_code.code_edit_tool.decision` | metric | `decision=reject` 的次數；`source=hook` 代表被守門 hook 拒絕 |
+| `claude_code.tool_decision` | event | 每次工具權限決策（需要 `OTEL_LOG_TOOL_DETAILS` 才有指令內容） |
+| `claude_code.tool_result` | event | 每次工具執行結果 |
+
+### 17.2 Collector 設定
 
 ```yaml
-# config/distributed.yaml
-regions:
-  - name: asia-east
-    endpoint: https://ar-asia.company.internal
-    llm_provider: anthropic
-    llm_region: asia-southeast-1
-    capabilities:
-      - performance
-      - quality
+# 接收 Claude Code 的 OTLP 遙測：metrics 給 Prometheus 抓取，events（logs）轉送到集中式 log 平台
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
 
-  - name: us-west
-    endpoint: https://ar-us.company.internal
-    llm_provider: anthropic
-    llm_region: us-west-2
-    capabilities:
-      - security
-      - testing
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 20
+  # 個資最小化：送出前移除 email，保留不可逆的 user.account_uuid 做歸戶
+  attributes/redact:
+    actions:
+      - key: user.email
+        action: delete
+  batch: {}
 
-routing:
-  strategy: capability-based  # 根據能力路由
-  fallback: round-robin
+exporters:
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
+  otlp_http/logs:
+    endpoint: https://logs.internal.example.com:4318
+  debug:
+    verbosity: basic
 
-sync:
-  method: git  # 透過 Git 同步結果
-  conflict_resolution: last-writer-wins
-  merge_strategy: rebase
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/redact, batch]
+      exporters: [prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/redact, batch]
+      exporters: [otlp_http/logs, debug]
 ```
 
-### 10.3 GPU / 雲端擴展
+| 設計 | 說明 |
+| --- | --- |
+| `attributes/redact` 刪除 `user.email` | 個資最小化；保留 `user.account_uuid` 歸戶 |
+| metrics → prometheus exporter | 讓 Prometheus 抓取，接到既有的 Grafana |
+| logs → `otlp_http/logs` | 事件送到集中式 log 平台，供稽核查詢 |
+| 元件名稱用底線（`otlp_http`、`memory_limiter`） | 新版 collector 的元件命名 |
 
-#### 雲端資源管理
+驗證（OpenTelemetry Collector core 0.163.2）：
 
-| 場景 | 建議資源 | 成本等級 | 說明 |
-|------|---------|---------|------|
-| 基礎 AutoResearch | CPU: 4 Core, RAM: 16GB | $ | 適合文字處理、API 優化 |
-| 機器學習模型優化 | GPU: T4 / L4 | $$ | 需要 GPU 訓練 |
-| 大規模安全掃描 | CPU: 8 Core, RAM: 32GB | $$ | 平行掃描多專案 |
-| 多 Agent 叢集 | K8s Cluster | $$$ | 企業級部署 |
-
-#### Kubernetes 部署範例
-
-```yaml
-# k8s/autoresearch-deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: autoresearch-agent
-  labels:
-    app: autoresearch
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: autoresearch
-  template:
-    metadata:
-      labels:
-        app: autoresearch
-    spec:
-      containers:
-        - name: autoresearch
-          image: company-registry/autoresearch:latest
-          resources:
-            requests:
-              cpu: "2"
-              memory: "8Gi"
-            limits:
-              cpu: "4"
-              memory: "16Gi"
-          env:
-            - name: ANTHROPIC_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: autoresearch-secrets
-                  key: anthropic-api-key
-            - name: AUTORESEARCH_TIME_BUDGET
-              value: "300"
-          volumeMounts:
-            - name: workspace
-              mountPath: /workspace
-            - name: programs
-              mountPath: /programs
-      volumes:
-        - name: workspace
-          persistentVolumeClaim:
-            claimName: autoresearch-workspace
-        - name: programs
-          configMap:
-            name: autoresearch-programs
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: autoresearch-programs
-data:
-  performance.md: |
-    # Performance Optimization Program
-    ## 目標
-    降低 API P99 延遲
-    ...
-  security.md: |
-    # Security Hardening Program
-    ## 目標
-    消除所有 Critical 漏洞
-    ...
+```text
+otelcol validate: OK
 ```
 
-#### 自動擴縮設定
+### 17.3 Runbook：Agent 異常
 
-```yaml
-# k8s/autoresearch-hpa.yaml
-apiVersion: autoscaling/v2
-kind: HorizontalPodAutoscaler
-metadata:
-  name: autoresearch-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: autoresearch-agent
-  minReplicas: 1
-  maxReplicas: 10
-  metrics:
-    - type: Resource
-      resource:
-        name: cpu
-        target:
-          type: Utilization
-          averageUtilization: 70
-    - type: Pods
-      pods:
-        metric:
-          name: autoresearch_queue_depth
-        target:
-          type: AverageValue
-          averageValue: "5"
-```
+| 症狀 | 立即處置 | 後續 |
+| --- | --- | --- |
+| 出現 `protected-file-changed`、`scanner-config` | 停止該 repo 的夜間迴圈（停用 workflow），保留 results.tsv 與 session 紀錄 | 安全團隊分析 Agent 為什麼這麼做；補閘門；在第 16 章新增一輪攻擊樣本 |
+| permission denial 暴增 | 停止迴圈 | 比對 program.md 與權限設定是否不一致；檢查是否有 Prompt Injection 來源（ASI01） |
+| 花費超過預算 | 停止迴圈 | 檢查停止條件是否生效；調降 `--max-turns`、`max_budget_usd`、`--max-ai-credits` |
+| 守門 hook 失敗或逾時 | 停止迴圈（Copilot 上逾時等於放行） | 修正 hook；確認 `onFailure: block`（Claude Code） |
+| 合併後發現問題 | 對合併的 commit 執行 `git revert`（已合併到主幹，要用 revert 保留歷史，**不是** reset），走正常 PR | 依 16.5 節回顧為什麼審查沒有抓到 |
 
-> **💡 企業導入建議**：初期建議從單一 Agent + 排程模式開始，待流程穩定後再逐步擴展為多 Agent 架構。過早引入分散式架構會增加維運複雜度。
+> 💡 迴圈**內**失敗用 `git reset`（實驗分支，不保留失敗嘗試）；**合併後**回滾用 `git revert`（共用分支，必須保留歷史）。v3.0 把兩者混為一談。
+
+### 17.4 定期維運檢查
+
+| 頻率 | 項目 |
+| --- | --- |
+| 每日 | 夜間迴圈的 Draft PR 是否有人認領；gate FAIL 是否已處理 |
+| 每週 | security-digest issue（第 6.7 節）；花費趨勢；keep rate |
+| 每月 | 更新工具版本基線（第 4.1 節），並重跑 `run_all.sh`；檢查官方文件是否有影響設定的變更 |
+| 每季 | 檢討 program.md 與評估器權重；檢討權限分級（第 19 章） |
+
+### 17.5 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| 遙測設定 | 虛構的 CLI 指令或設定鍵 | 用 `CLAUDE_CODE_ENABLE_TELEMETRY` 與 `OTEL_*` 環境變數 | `check_claude_config.py`、`check_flags.py` |
+| Collector 設定 | 舊的元件名稱、沒有個資處理 | 新版元件名稱、刪除 email | `otelcol validate --config=...` |
+| 回滾指令 | 對共用分支 `git reset --hard` 再強制推送 | 已合併用 `git revert` | 審查 runbook |
+| Runbook | 只有技術步驟，沒有負責人 | 每個處置步驟都有負責角色 | 演練一次，確認每步都有人執行 |
 
 ---
 
-## 第 11 章：Claude Code 進階功能與 SSDLC 整合
+## 第 18 章：擴展：多 Agent、Worktree 與分散式
 
-Claude Code 是 Anthropic 推出的 Agentic 編碼工具，可讀取程式碼庫、編輯檔案、執行指令，並與開發工具深度整合。本章詳述其進階功能及如何整合至 SSDLC 流程。
+### 18.1 上游怎麼擴展
 
-### 11.1 CLAUDE.md 記憶系統
+上游的 `.gitignore` 已經預留 `worktrees/`、`results/`、`queue/`，`program.md` 的分支命名範例也包括 `autoresearch/mar5-gpu0`。也就是說，作者預期的擴展方式是**每張 GPU 一個 worktree、一個分支、一個 Agent**，各自獨立跑迴圈，再由人類比較各分支的結果。README 也提到「顯然可以思考怎麼加入更多 Agent」。它把這留給讀者：不同的組織方式本身就是可以實驗的「研究組織程式碼」。
 
-CLAUDE.md 是 Claude Code 的**持久化指令系統**，類似於 `.editorconfig` 或 `.eslintrc`，但針對 AI 行為設定。每次對話開始時 Claude Code 都會自動讀取。
+### 18.2 企業擴展的核心原則：誰握有評估器
 
-#### 檔案位置與層級（優先順序由低到高）
+平行 Agent 越多，越要守住一件事：**只有評估器能產生指標，Agent 之間不能互相傳遞「分數」**（對應 ASI07 Insecure Inter-Agent Communication）。
 
-| 位置 | 範圍 | 版控 | 用途 |
-|------|------|------|------|
-| `~/.claude/CLAUDE.md` | 全域（所有專案） | ❌ | 個人偏好、通用規則 |
-| `./CLAUDE.md`（專案根目錄） | 專案級 | ✅ | 團隊共享的專案規範 |
-| `./CLAUDE.local.md` | 專案級（個人） | ❌（加入 .gitignore） | 個人專案覆寫 |
-| 子目錄 `CLAUDE.md` | 目錄級 | ✅ | 子模組特定規則 |
+| 原則 | 做法 |
+| --- | --- |
+| 單一評估器 | 所有 Agent 呼叫同一個 repo 外的評估器；指標只從 `run.log` 讀取 |
+| 各自的分支與 worktree | `autoresearch/<tag>-<n>`；彼此不共用工作目錄 |
+| 不共用可寫狀態 | 每個 worktree 有自己的 `results.tsv`；彙整由人類或唯讀腳本完成 |
+| 合併由人類決定 | 多個分支的 keep commit 可能衝突，或彼此疊加後才出現問題；最後一定要在合併後的狀態重跑評估 |
+| 共享預算 | 所有平行 Agent 的花費一起計入同一個預算上限 |
 
-#### SSDLC 專用 CLAUDE.md 範例
+### 18.3 Claude Code 的平行機制
 
-```markdown
-# SSDLC Project Rules
+| 機制 | 狀態（2026-10） | 適用 |
+| --- | --- | --- |
+| `claude --worktree <name>` | 正式功能 | 每個迴圈一個隔離的 worktree（位於 `.claude/worktrees/`）。需要的 gitignored 檔案以 `.worktreeinclude` 帶入，**不要**把 `.env` 列進去 |
+| Subagent `isolation: worktree` | 正式功能 | subagent 在暫時的 worktree 中工作 |
+| Dynamic workflows | 付費方案可用（Pro 需在 `/config` 開啟） | 以 Claude 撰寫的 JavaScript 腳本協調大量 subagent，例如「對 50 個服務各跑一次評估」 |
+| Agent teams | **實驗功能，預設停用**（需要 `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`） | 一個 lead 加上多個 teammate；企業導入前先在沙盒評估 |
 
-## Security（安全）
-- 所有 SQL 查詢必須使用參數化查詢，禁止字串拼接
-- 密碼儲存必須使用 bcrypt 或 Argon2，禁止 MD5/SHA1
-- API Key 不得出現在程式碼中，必須使用環境變數
-- 禁止使用 eval()、exec()、pickle.loads() 等危險函式
+範例：在同一個 repo 開三個平行迴圈，各自聚焦不同的 CWE：
 
-## Testing（測試）
-- 每個 API endpoint 必須有對應的安全測試
-- 跑測試指令：pytest tests/ --cov=src --cov-fail-under=80
-- 型態檢查指令：mypy src/ --strict
-
-## Code Style（程式碼風格）
-- 使用 ruff 進行 linting：ruff check .
-- 使用 black 進行格式化：black .
-
-## Git Workflow
-- Commit message 遵循 Conventional Commits
-- Branch naming: feature/*, fix/*, autoresearch/*
+```bash
+claude --worktree ar-cwe89  -p "/ssdlc-autoresearch oct23-cwe89"  --permission-mode dontAsk --max-turns 100
+claude --worktree ar-cwe502 -p "/ssdlc-autoresearch oct23-cwe502" --permission-mode dontAsk --max-turns 100
+claude --worktree ar-cwe798 -p "/ssdlc-autoresearch oct23-cwe798" --permission-mode dontAsk --max-turns 100
 ```
 
-#### CLAUDE.md 檔案匯入語法
+每個 worktree 的 program.md「目標」章節由人類事先限定範圍，避免三個 Agent 修改同一個檔案。
 
-CLAUDE.md 支援 `@` 語法匯入其他檔案：
+### 18.4 GitHub Copilot 的平行機制
 
-```markdown
-See @README.md for project overview and @package.json for available commands.
+| 機制 | 說明 |
+| --- | --- |
+| `/fleet` | Copilot CLI 互動 session 中的 fleet 模式：平行執行 subagent |
+| 多個 cloud agent session | 每個 issue 指派給 Copilot，各自產出一個 PR |
+| Copilot app | 多個平行 session，各自有獨立的 Git branch |
 
-# Additional Instructions
-- Git workflow: @docs/git-instructions.md
-- Personal overrides: @~/.claude/my-project-instructions.md
-```
+### 18.5 分散式評估
 
-> **💡 企業導入建議**：將 `CLAUDE.md` 納入 Git 版控，團隊共同維護。保持精簡——如果 Claude 已經能正確執行某操作，就不需要加入對應規則。過長的 CLAUDE.md 反而會導致重要規則被忽略。
+評估很耗時（例如需要 GPU，或整合測試要幾分鐘）時，可以把評估集中到專用的 runner：
 
-### 11.2 Skills 技能系統
+| 做法 | 說明 |
+| --- | --- |
+| 自架 runner 加 label | Agent job 與評估 job 分開；評估 job 在有 GPU 或資料的 runner 上執行 |
+| 評估佇列 | Agent 提交 commit 到佇列，評估服務依序執行並回寫結果（上游 `.gitignore` 的 `queue/` 暗示了這種模式） |
+| 固定環境 | 評估環境的硬體與軟體必須固定，否則不同 runner 的分數不可比較（上游「固定時間預算」的同一個道理） |
 
-Skills 將領域知識和可重複工作流程封裝為 Claude Code 可自動載入的模組。
+### 18.6 本章審查與驗證清單
 
-#### Skills 建立方式
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| 平行設計 | Agent 之間互傳分數；共用 results.tsv | 單一評估器、各自的 results.tsv | 架構圖中指標只從評估器流出 |
+| Worktree 設定 | `.worktreeinclude` 帶入 `.env` | 只帶入非機密的必要檔案 | 讀 `.worktreeinclude` |
+| 實驗功能 | 把 agent teams 當成正式功能導入 | 標註實驗狀態，先在沙盒評估 | 對照官方文件的 warning |
+| 合併 | 分別審查各分支後直接一起合併 | 合併後的狀態重跑評估與完整測試 | CI 閘門在合併後的分支執行 |
 
-在 `.claude/skills/` 目錄下建立 `SKILL.md` 檔案：
-
-```markdown
-# .claude/skills/security-scan/SKILL.md
 ---
-name: security-scan
-description: Run comprehensive security scanning on the codebase
----
-# Security Scanning Workflow
 
-1. Run `semgrep scan --config auto --json` for SAST
-2. Run `pip-audit --format json` for dependency scanning
-3. Run `gitleaks detect --source .` for secret scanning
-4. Aggregate results and prioritize by severity
-5. For CRITICAL issues, generate fix suggestions
-6. Output report to `reports/security-scan.md`
-```
+## 第 19 章：治理、風險與成本
 
-#### 帶有副作用保護的 Skill
+### 19.1 角色與責任（RACI）
 
-```markdown
-# .claude/skills/fix-issue/SKILL.md
----
-name: fix-issue
-description: Fix a GitHub issue end-to-end
-disable-model-invocation: true
----
-Analyze and fix the GitHub issue: $ARGUMENTS.
+| 活動 | 開發者 | Security Champion | 安全團隊 | 平台團隊 | 技術主管 |
+| --- | --- | --- | --- | --- | --- |
+| 威脅模型與安全測試 | R | A | C | — | I |
+| program.md 撰寫與修改 | C | R／A | C | — | I |
+| 評估器、規則、權重 | — | C | R／A | C | I |
+| Agent 權限、hook、sandbox 設定 | — | C | A | R | I |
+| 夜間迴圈的 Draft PR 審查 | R | A | C | — | I |
+| gate FAIL（規避評估）追查 | I | C | R／A | C | I |
+| 預算與使用量 | I | I | — | R | A |
 
-1. Use `gh issue view` to get the issue details
-2. Understand the problem described in the issue
-3. Search the codebase for relevant files
-4. Implement the necessary changes
-5. Write and run tests to verify the fix
-6. Ensure code passes linting and type checking
-7. Create a descriptive commit message
-8. Push and create a PR
-```
+R＝執行、A＝負責核准、C＝諮詢、I＝知會。
 
-使用方式：在 Claude Code 中輸入 `/fix-issue 1234` 即可觸發。
+### 19.2 Agent 權限分級
 
-#### Skills 存放位置
+| 等級 | 名稱 | Agent 能做的事 | 適用情境 | 必要控制 |
+| --- | --- | --- | --- | --- |
+| L0 | 唯讀顧問 | 讀程式碼、提出建議 | 威脅建模、設計審查 | `plan` 模式 |
+| L1 | 互動助手 | 在人類逐項確認下編輯 | 日常開發 | `default`／`acceptEdits` |
+| L2 | 有界自主 | 在白名單內自主迴圈，不能推送 | **本手冊的夜間迴圈** | `dontAsk`、deny 規則、守門 hook、sandbox、受保護評估器、停止條件 |
+| L3 | 自主提交 | 推送分支、開 Draft PR | CI 中的開 PR job（不執行 Agent） | 推送與執行 Agent 拆成不同 job；ruleset 要求人類審查 |
+| L4 | 自主合併 | 合併到主幹 | **不建議** | — |
 
-| 位置 | 範圍 | 說明 |
-|------|------|------|
-| `.claude/skills/` | 專案級 | 專案特定技能，可分享給團隊 |
-| `~/.claude/skills/` | 個人級 | 跨專案通用技能 |
-| `.github/skills/` | 專案級 | GitHub Copilot 也支援的開放標準格式 |
-| `.agents/skills/` | 專案級 | Agent Skills 開放標準格式 |
+### 19.3 組織層級的控制（managed settings）
 
-### 11.3 Hooks 自動化機制
-
-Hooks 在 Claude Code 工作流程的特定時機自動執行腳本，與 CLAUDE.md 指令不同，Hooks 是**確定性的**——保證每次都會執行。
-
-#### Hook 事件類型
-
-| 事件 | 觸發時機 | SSDLC 用途 |
-|------|---------|-----------|
-| `PreToolUse` | 工具執行前 | 阻止對受保護檔案的寫入 |
-| `PostToolUse` | 工具執行後 | 編輯後自動執行 linting |
-| `Notification` | 需要注意時 | 桌面通知（權限請求、閒置） |
-| `WorktreeCreate` | Worktree 建立時 | 複製環境設定檔 |
-| `WorktreeRemove` | Worktree 移除時 | 清理資源 |
-
-#### SSDLC 安全 Hooks 範例
+組織應以 managed settings 派送不可被專案或個人覆寫的底線：
 
 ```json
-// .claude/settings.json
 {
+  "permissions": {
+    "disableBypassPermissionsMode": "disable",
+    "deny": [
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "WebFetch(domain:pastebin.com)"
+    ]
+  },
+  "strictKnownMarketplaces": [
+    { "source": "github", "repo": "anthropics/claude-plugins-official" },
+    { "source": "github", "repo": "my-org/approved-claude-plugins", "ref": "v3" }
+  ],
+  "allowedMcpServers": [
+    { "serverName": "github" }
+  ],
+  "allowManagedMcpServersOnly": true,
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false
+  },
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "ruff check --fix $CLAUDE_FILE_PATH && semgrep scan --config auto --quiet $CLAUDE_FILE_PATH"
-          }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
-        "matcher": "Write",
+        "matcher": "Bash|PowerShell|Edit|Write|MultiEdit|NotebookEdit|Read",
         "hooks": [
           {
             "type": "command",
-            "command": "echo $CLAUDE_FILE_PATH | grep -qE '(migrations/|.env|secrets)' && echo 'BLOCK: Protected file' && exit 1 || exit 0"
+            "command": "python3",
+            "args": ["/opt/ssdlc/guard_ssdlc.py"],
+            "timeout": 10,
+            "onFailure": "block"
           }
         ]
       }
     ]
-  }
-}
-```
-
-### 11.4 Subagents 子代理人架構
-
-Subagents 在獨立的 context 中運行，擁有獨立的工具權限，適合需要大量檔案讀取或專業聚焦的任務。
-
-#### 安全審查 Subagent 範例
-
-```markdown
-# .claude/agents/security-reviewer.md
----
-name: security-reviewer
-description: Reviews code for security vulnerabilities
-tools: Read, Grep, Glob, Bash
-model: opus
----
-You are a senior security engineer. Review code for:
-- Injection vulnerabilities (SQL, XSS, command injection)
-- Authentication and authorization flaws
-- Secrets or credentials in code
-- Insecure data handling
-- OWASP Top 10 compliance
-
-Provide specific line references and suggested fixes.
-Output findings in SARIF format when possible.
-```
-
-#### Subagent 工作流程
-
-```mermaid
-sequenceDiagram
-    participant U as 使用者
-    participant M as 主 Claude Code
-    participant S1 as Security Reviewer Agent
-    participant S2 as Test Generator Agent
-
-    U->>M: 審查此模組的安全性
-    M->>S1: 委派安全審查任務
-    Note over S1: 獨立 Context<br>讀取大量檔案
-    S1->>M: 回報安全發現摘要
-    M->>S2: 為發現的問題生成測試
-    Note over S2: 獨立 Context<br>專注測試生成
-    S2->>M: 回報生成的測試
-    M->>U: 整合報告 + 修復建議
-```
-
-> **💡 關鍵優勢**：Subagents 的探索不會消耗主對話的 Context Window，這是管理大型程式碼庫時最重要的資源。
-
-### 11.5 MCP（Model Context Protocol）整合
-
-MCP 讓 Claude Code 連接外部工具和資料來源，擴展其能力邊界。
-
-#### 常見 MCP 整合場景
-
-| MCP Server | 用途 | SSDLC 場景 |
-|-----------|------|-----------|
-| GitHub | Issue/PR 管理 | 自動化漏洞追蹤、PR 審查 |
-| Jira | 專案管理 | 安全 Ticket 自動建立 |
-| Notion | 知識庫 | 查閱安全政策文件 |
-| Figma | 設計稿 | UI 安全設計驗證 |
-| 資料庫 | 查詢資料 | 資料完整性檢查 |
-| Sentry/Datadog | 監控 | 即時異常分析 |
-
-#### 新增 MCP Server
-
-```bash
-# 新增 GitHub MCP Server
-claude mcp add github
-
-# 新增自定義 MCP Server
-claude mcp add my-security-db --command "python security_db_server.py"
-```
-
-#### 在提示中使用 MCP 資源
-
-```
-# 使用 @ 語法存取 MCP 資源
-@github:repos/my-org/my-repo/issues       # 列出 Issues
-@github:repos/my-org/my-repo/pulls         # 列出 PR
-Show me the data from @my-security-db:latest-scan
-```
-
-### 11.6 Plan Mode 與 Extended Thinking
-
-#### Plan Mode（計畫模式）
-
-Plan Mode 讓 Claude Code 以唯讀方式分析程式碼庫，適合在修改前進行安全評估：
-
-```bash
-# 啟動 Plan Mode
-claude --permission-mode plan
-
-# 在 Plan Mode 中進行安全分析
-# > 分析認證系統的安全架構，找出潛在弱點，制定修復計畫
-
-# Headless 模式（CI/CD 中使用）
-claude --permission-mode plan -p "分析 src/ 目錄的安全風險並產出報告"
-```
-
-**切換方式**：在互動式會話中按 `Shift+Tab` 切換模式。
-
-#### Extended Thinking（延伸思考）
-
-延伸思考預設啟用，讓 Claude 在回應前進行更深入的推理。特別適合：
-- 複雜架構決策
-- 困難的安全漏洞分析
-- 多步驟實作規劃
-- 不同方案的權衡評估
-
-```bash
-# 使用 ultrathink 關鍵字觸發深度推理（Opus 4.6 / Sonnet 4.6）
-# > ultrathink 分析此系統的認證流程，找出所有可能的攻擊向量
-
-# 調整推理深度
-/effort        # 互動式調整
-/model         # 在模型設定中調整
-```
-
-### 11.7 Worktrees 平行開發
-
-Git Worktrees 讓多個 Claude Code 會話在獨立的工作目錄中平行運作：
-
-```bash
-# 啟動隔離的 Worktree 會話
-claude --worktree feature-auth      # 建立 .claude/worktrees/feature-auth/
-claude --worktree bugfix-123        # 建立 .claude/worktrees/bugfix-123/
-claude --worktree                   # 自動產生隨機名稱
-
-# Subagent 也可使用 Worktree 隔離
-# 在 .claude/agents/my-agent.md 中設定：
-# isolation: worktree
-```
-
-#### Worktree 進階設定
-
-```
-# .worktreeinclude - 自動複製 gitignored 檔案到新 Worktree
-.env
-.env.local
-config/secrets.json
-```
-
-### 11.8 Agent Teams 團隊協作
-
-Agent Teams 實現多個 Claude Code 會話的自動化協調，包含共享任務、訊息傳遞與團隊領導者角色。
-
-```mermaid
-graph TB
-    subgraph "Agent Team"
-        LEAD[Team Lead Agent<br>任務分配與協調]
-        AG1[Writer Agent<br>撰寫程式碼]
-        AG2[Reviewer Agent<br>安全審查]
-        AG3[Tester Agent<br>測試驗證]
-    end
-
-    LEAD --> AG1
-    LEAD --> AG2
-    LEAD --> AG3
-    AG1 -->|程式碼| AG2
-    AG2 -->|審查結果| AG1
-    AG1 -->|修改完成| AG3
-    AG3 -->|測試結果| LEAD
-```
-
-#### Writer / Reviewer 模式（SSDLC 實踐）
-
-| 會話 A（Writer） | 會話 B（Reviewer） |
-|---|---|
-| 實作 API Rate Limiter | — |
-| — | 審查 @src/middleware/rateLimiter.ts，檢查邊界條件、競態條件、一致性 |
-| 根據審查回饋修正問題 | — |
-
-### 11.9 排程任務（Scheduled Tasks）
-
-Claude Code 支援多種排程方式，非常適合 SSDLC 的持續監控：
-
-| 排程方式 | 運行位置 | 適用場景 |
-|---------|---------|---------|
-| **Cloud Scheduled Tasks** | Anthropic 管理的基礎設施 | 電腦關機也需執行的任務 |
-| **Desktop Scheduled Tasks** | 本機（桌面 App） | 需要存取本地檔案的任務 |
-| **GitHub Actions** | CI Pipeline | 與 Repo 事件綁定的任務 |
-| **/loop** | 當前 CLI 會話 | 臨時輪詢，結束會話時取消 |
-
-#### SSDLC 排程任務範例
-
-```bash
-# 每日安全掃描（Cloud Scheduled Task - claude.ai/code 設定）
-# Prompt: "掃描 src/ 目錄的安全漏洞，對 Critical 問題建立 fix PR，
-#          將摘要發送到 #security-alerts Slack 頻道"
-
-# 每週依賴更新檢查（GitHub Actions）
-# 見第 7 章 CI/CD 整合
-
-# 即時監控（/loop）
-/loop 每 5 分鐘檢查 API 健康狀態，若有異常則分析根因
-```
-
-> **💡 企業導入建議**：排程任務的 Prompt 必須明確描述成功條件和結果處理方式，因為任務是自主執行的，無法即時回答澄清問題。
-
-### 11.10 Agent SDK（Python + TypeScript）
-
-Claude Code Agent SDK 讓開發者使用 Python 或 TypeScript 建構生產級 AI Agent 應用。
-
-#### 核心概念
-
-| 概念 | 說明 |
-|------|------|
-| **Agent** | 封裝 Claude 模型的自主代理 |
-| **Tool** | Agent 可呼叫的外部函式（function calling） |
-| **Guardrail** | 輸入/輸出的安全驗證邏輯 |
-| **Handoff** | Agent 間任務移交（Agent-to-Agent） |
-| **Tracing** | 完整執行鏈路追蹤（OpenTelemetry 相容） |
-
-#### Python SDK 範例：SSDLC Security Agent
-
-```python
-# security_agent.py - 使用 Claude Code Agent SDK 建構安全掃描 Agent
-from claude_code_sdk import Agent, Tool, Guardrail, Runner
-from claude_code_sdk.types import RunResult
-
-
-# 定義工具
-@Tool(description="Run SAST scan on specified files")
-async def sast_scan(file_paths: list[str]) -> dict:
-    """執行靜態安全掃描"""
-    import subprocess, json
-    result = subprocess.run(
-        ["semgrep", "scan", "--config", "auto", "--json"] + file_paths,
-        capture_output=True, text=True
-    )
-    return json.loads(result.stdout)
-
-
-@Tool(description="Fix a security vulnerability")
-async def apply_fix(file_path: str, fix_description: str) -> str:
-    """套用安全修補"""
-    # Agent SDK 內建檔案編輯能力
-    ...
-
-
-# 定義安全護欄
-@Guardrail(name="no-secrets-in-output")
-async def check_no_secrets(output: str) -> bool:
-    """確保 Agent 輸出不包含機密資訊"""
-    import re
-    patterns = [
-        r"[A-Za-z0-9+/]{40,}",  # Base64 長字串
-        r"sk-[a-zA-Z0-9]{48}",  # API keys
-        r"ghp_[a-zA-Z0-9]{36}",  # GitHub PAT
-    ]
-    return not any(re.search(p, output) for p in patterns)
-
-
-# 建構 Agent
-security_agent = Agent(
-    name="SSDLC Security Agent",
-    instructions="""You are a security expert.
-    Scan code for vulnerabilities, prioritize by severity,
-    and apply fixes following OWASP guidelines.
-    Never expose secrets in your output.""",
-    tools=[sast_scan, apply_fix],
-    guardrails=[check_no_secrets],
-    model="claude-sonnet-4-20250514",
-)
-
-
-# 執行
-async def main():
-    result: RunResult = await Runner.run(
-        security_agent,
-        input="Scan src/ for SQL injection and XSS vulnerabilities. Fix all CRITICAL issues."
-    )
-    print(result.final_output)
-```
-
-#### TypeScript SDK 範例
-
-```typescript
-// security-agent.ts - TypeScript Agent SDK
-import { Agent, Tool, run } from '@anthropic-ai/claude-code-sdk';
-
-const sastScan = new Tool({
-  name: 'sast_scan',
-  description: 'Run SAST scan on the codebase',
-  parameters: { paths: { type: 'array', items: { type: 'string' } } },
-  execute: async ({ paths }) => {
-    const { execSync } = await import('child_process');
-    return JSON.parse(
-      execSync(`semgrep scan --config auto --json ${paths.join(' ')}`).toString()
-    );
   },
-});
-
-const agent = new Agent({
-  name: 'SSDLC Security Agent',
-  instructions: 'You are a security expert...',
-  tools: [sastScan],
-});
-
-const result = await run(agent, { input: 'Scan and fix critical vulnerabilities' });
-```
-
-### 11.11 Plugins 生態系
-
-Plugins 為 Claude Code 提供可安裝的擴充功能包，類似 VS Code extensions。
-
-#### Plugin 管理
-
-```bash
-# 搜尋 Plugin
-claude plugin search security
-
-# 安裝 Plugin
-claude plugin install security-guidance
-claude plugin install aws-toolkit
-claude plugin install docker-helper
-
-# 列出已安裝
-claude plugin list
-
-# 移除
-claude plugin remove security-guidance
-```
-
-#### Security Guidance Plugin 詳解
-
-Security Guidance Plugin 是 SSDLC 最重要的 Plugin，提供：
-
-| 功能 | 說明 |
-|------|------|
-| **即時安全建議** | 編輯程式碼時即時提示安全風險 |
-| **合規性檢查** | OWASP、CWE、NIST 框架對照 |
-| **安全 Lint** | 每次 file edit 後自動掃描 |
-| **修補建議** | 發現問題時提供修補方案 |
-| **報告產出** | 產出 SARIF 格式安全報告 |
-
-#### 建立自定義 Plugin
-
-```yaml
-# my-ssdlc-plugin/manifest.yaml
-name: ssdlc-compliance
-version: 1.0.0
-description: Enterprise SSDLC compliance checks
-author: security-team
-
-hooks:
-  post_edit:
-    - check_owasp_compliance
-    - validate_input_sanitization
-  pre_commit:
-    - run_security_scan
-    - check_secrets
-
-tools:
-  - name: compliance_report
-    description: Generate SSDLC compliance report
-    command: python tools/compliance.py
-
-settings:
-  owasp_version: "2025"
-  severity_threshold: "MEDIUM"
-  auto_fix: true
-```
-
-### 11.12 Remote Control & Channels
-
-#### Remote Control（遠端控制）
-
-Remote Control 讓你離開電腦後，從手機或其他裝置繼續操控 Claude Code session。
-
-```bash
-# 啟用 Remote Control
-claude --remote-control
-
-# Claude Code 會顯示一個 URL，可從任何裝置存取
-# > Remote Control enabled: https://claude.ai/remote/abc123xyz
-# > Scan the QR code or open the URL to continue this session
-
-# 從手機端可以：
-# - 查看 Agent 執行進度
-# - 核准/拒絕權限請求
-# - 傳送新指令
-# - 中斷正在執行的任務
-```
-
-#### Channels（事件頻道）
-
-Channels 讓外部系統將事件推送到 Claude Code session，實現即時回應。
-
-```bash
-# 建立 Channel
-claude channel create --name "security-alerts"
-
-# 取得 webhook URL
-claude channel info security-alerts
-# > Webhook: https://api.claude.ai/channels/ch_xxxx/webhook
-# > Events received: 42
-# > Last event: 2 minutes ago
-
-# 外部系統推送事件
-curl -X POST https://api.claude.ai/channels/ch_xxxx/webhook \
-  -H "Authorization: Bearer $CHANNEL_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"type": "security_alert", "severity": "critical", "message": "SQL injection detected in /api/users"}'
-```
-
-**SSDLC 應用場景**：
-
-| Channel 來源 | 推送事件 | Claude Code 回應 |
-|-------------|---------|----------------|
-| Prometheus Alertmanager | 效能劣化告警 | 自動分析根因、產生修補 PR |
-| GitHub Security Advisory | 新 CVE 發布 | 檢查是否受影響、更新依賴 |
-| Sentry | Runtime 錯誤 | 分析 stack trace、提出修復 |
-| PagerDuty | On-call 事件 | 提供即時診斷建議 |
-
-### 11.13 Desktop App、Web、Chrome 整合
-
-Claude Code 在 2026 年已擴展為**多平台**工具，不再限於終端機：
-
-| 平台 | 適用場景 | 特有功能 |
-|------|---------|---------|
-| **CLI**（終端機） | 日常開發、CI/CD 整合 | 最輕量、pipe 支援、Hooks |
-| **Desktop App** | 複雜專案、多 session 管理 | 平行 sessions、視覺化 diff、PR 監控 |
-| **Web**（claude.ai/code） | 無本地環境、長時間任務 | 免安裝、雲端運算、Routines |
-| **Chrome Extension** | Web 應用偵錯 | 擷取瀏覽器 console、DOM 互動 |
-| **Slack Integration** | 團隊協作、委派任務 | 在 Slack 中下達 coding 任務 |
-
-#### Desktop App 核心功能
-
-```bash
-# 啟動 Desktop App（安裝後可直接開啟）
-# 功能：
-# 1. 多個平行 Agent sessions，各自獨立 Git branch
-# 2. 視覺化 diff 預覽（比 CLI 更直觀）
-# 3. PR 監控面板（查看所有 Agent 建立的 PR）
-# 4. Routines 排程管理 UI
-# 5. Analytics 視覺化儀表板
-# 6. Team 管理（多人協作）
-```
-
-#### Chrome Extension（Web 應用偵錯）
-
-```bash
-# 安裝 Claude Code Chrome Extension 後：
-# 1. 在任何網頁按 Cmd+Shift+Y 呼叫 Claude Code
-# 2. 自動擷取當前頁面的 console errors
-# 3. 可直接修改對應的前端程式碼
-# 4. 即時預覽修改效果
-
-# SSDLC 場景：
-# - 偵測 XSS 漏洞（觀察 DOM 注入行為）
-# - 驗證 CSP 設定是否正確
-# - 測試 CORS 設定
-```
-
-### 11.14 Code Review（Ultrareview）
-
-Ultrareview 是 Claude Code 的**多 Agent 平行 Code Review** 功能，特別適合大型 PR 或安全關鍵的變更。
-
-```bash
-# 觸發 Ultrareview（自動拆分為多個 Agent 審查）
-claude review --ultra PR_URL
-
-# 或在 CI 中使用
-claude --headless -p "ultrareview this PR focusing on security" \
-  --context "$(gh pr diff 123)"
-```
-
-#### Ultrareview 工作流程
-
-```mermaid
-sequenceDiagram
-    participant PR as Pull Request
-    participant U as Ultrareview 協調器
-    participant A1 as Agent 1: 安全審查
-    participant A2 as Agent 2: 邏輯審查
-    participant A3 as Agent 3: 效能審查
-    participant R as 彙整報告
-
-    PR->>U: 觸發 Review
-    U->>A1: 安全面向審查
-    U->>A2: 邏輯正確性審查
-    U->>A3: 效能影響審查
-    A1->>R: 安全發現
-    A2->>R: 邏輯問題
-    A3->>R: 效能建議
-    R->>PR: 統一 Review 意見
-```
-
-### 11.15 Auto Mode & Sandbox
-
-#### Auto Mode（自動模式）
-
-Auto Mode 讓 Claude Code 自動選擇工具並持續執行直到任務完成，無需逐步確認。
-
-```bash
-# 啟用 Auto Mode
-claude --auto "完成以下安全修補任務：
-  1. 掃描所有 Python 檔案的 SQL injection
-  2. 修補每個問題
-  3. 為每個修補撰寫測試
-  4. 確認所有測試通過
-  5. 產出修補報告"
-
-# 或在互動中切換
-/auto on     # 啟用
-/auto off    # 關閉
-```
-
-#### Sandbox（隔離執行環境）
-
-Sandbox 提供隔離的檔案系統和網路環境，適合執行不受信任的程式碼或安全測試。
-
-```bash
-# 在 Sandbox 中執行安全測試
-claude --sandbox "執行 DAST 掃描腳本，
-  模擬 OWASP Top 10 攻擊向量，
-  驗證防護機制是否生效"
-
-# Sandbox 限制：
-# - 隔離的檔案系統（不影響實際程式碼）
-# - 受限的網路存取
-# - 獨立的 process namespace
-# - 時間限制
-```
-
-**SSDLC 場景**：
-- 在 Sandbox 中執行滲透測試腳本
-- 隔離測試可疑的第三方依賴
-- 安全地分析惡意程式碼樣本
-
-### 11.16 Analytics & Observability（OpenTelemetry）
-
-Claude Code 內建 Analytics 和 OpenTelemetry 支援，追蹤 AI Agent 的完整執行鏈路。
-
-#### 啟用 Analytics
-
-```bash
-# 查看使用統計
-claude analytics
-
-# 匯出 OpenTelemetry traces
-claude --otel-endpoint "http://otel-collector:4318"
-
-# 設定全域（.claude/settings.json）
-```
-
-```json
-{
-  "analytics": {
-    "enabled": true,
-    "opentelemetry": {
-      "endpoint": "http://otel-collector:4318",
-      "service_name": "claude-code-ssdlc",
-      "export_format": "otlp"
-    }
+  "allowManagedHooksOnly": true,
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "grpc",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otel-collector.internal:4317"
   }
 }
 ```
 
-#### 追蹤的關鍵指標
+| 鍵 | 作用 |
+| --- | --- |
+| `permissions.disableBypassPermissionsMode` | 全面禁止 bypass 模式，`--dangerously-skip-permissions` 會被拒絕 |
+| `permissions.deny` | 組織層級的禁止清單；清單會與專案、個人設定合併，且 deny 優先 |
+| `strictKnownMarketplaces` | 只允許從核准的 marketplace 安裝 plugin（ASI04） |
+| `allowedMcpServers`＋`allowManagedMcpServersOnly` | 只允許核准的 MCP server |
+| `sandbox.failIfUnavailable` | sandbox 無法啟動就不讓 Claude Code 執行 |
+| `hooks`＋`allowManagedHooksOnly` | 由組織派送守門 hook，並**只**允許 managed hooks |
 
-| 指標類別 | 指標 | 用途 |
-|---------|------|------|
-| **效率** | Token 使用量 / 任務 | 成本控制 |
-| **效率** | 平均任務完成時間 | 效能基準 |
-| **品質** | 安全修補成功率 | 品質追蹤 |
-| **品質** | 測試通過率 | 回歸偵測 |
-| **安全** | 安全掃描觸發次數 | 合規證明 |
-| **安全** | 漏洞自動修補數 | ROI 計算 |
-| **成本** | API 呼叫次數 / 費用 | 預算管理 |
+> ⚠️ **`allowManagedHooksOnly` 的副作用**：開啟後，專案 `.claude/settings.json` 中的 hook 不會執行，`/goal` 也無法使用（它屬於 hook 系統）。所以守門 hook 必須改由 managed settings 派送（如上例的 `/opt/ssdlc/guard_ssdlc.py`）。迴圈改用 `--max-turns` 等其他上限，不使用 `/goal`。
 
-#### Grafana Dashboard 整合
+這份 managed settings 同樣通過 `check_claude_config.py`。檢查器會讀取 repo 根目錄的 `managed-settings.json`，結果包含在第 5.11 節的「0 error(s)」中。
 
-```yaml
-# grafana/dashboards/claude-code-ssdlc.json（簡化）
-panels:
-  - title: "Security Fixes per Day"
-    type: timeseries
-    query: "rate(claude_code_security_fixes_total[1d])"
+GitHub Copilot 端對應的控制：
 
-  - title: "Mean Time to Fix (MTTF)"
-    type: stat
-    query: "histogram_quantile(0.5, claude_code_fix_duration_seconds)"
+| 控制 | 位置 |
+| --- | --- |
+| 啟用或停用 Copilot CLI、cloud agent、code review、第三方 Agent | 組織／企業的 Copilot 政策 |
+| MCP registry 與允許清單 | 企業的 MCP 管理設定 |
+| Cloud agent 防火牆允許清單 | Repo 或組織設定 |
+| Hooks | repo 的 `.github/hooks/`；CLI 另有管理員部署的 policy hook（POSIX 上必須屬於 root，且不可被 group／others 寫入） |
+| 預算與超額 | 帳單設定：AI Credits 預算、是否允許超額 |
 
-  - title: "Agent Cost Efficiency"
-    type: gauge
-    query: "claude_code_cost_per_fix_usd"
+### 19.4 成本管理
 
-  - title: "SSDLC Compliance Score"
-    type: gauge
-    query: "claude_code_compliance_score"
+| 平台 | 計費方式（2026-10） | 迴圈的上限設定 |
+| --- | --- | --- |
+| Claude Code（訂閱） | 方案內含用量，超出後依方案處理；ultrareview 等進階功能另以 usage credits 計費 | `--max-turns`；Agent SDK 的 `max_budget_usd` |
+| Claude Code（API、Bedrock、Vertex、Foundry） | 依 token 計費 | `max_budget_usd`；`claude_code.cost.usage` 告警 |
+| GitHub Copilot Business／Enterprise | AI Credits：每人每月 1,900／3,900，在帳單實體層級合併成共用池；1 credit = 0.01 美元；預設允許超額 | `--max-ai-credits`、`--max-autopilot-continues`；組織預算與超額政策 |
+| GitHub Agentic Workflows | 依引擎計費；`copilot-requests: write` 時計入組織 | frontmatter 的 `max-ai-credits`、`max-daily-ai-credits`、`timeout-minutes` |
+
+估算公式（每晚每個 repo）：
+
+```text
+每晚成本 ≈ 輪數上限 × 每輪平均 token × 單價
+例：30 輪 × 每輪約 40k 輸入、4k 輸出 token → 約 120 萬輸入、12 萬輸出 token
 ```
 
-> **💡 企業導入建議**：將 Claude Code 的 OpenTelemetry traces 整合到企業現有的 Observability 平台（如 Grafana、Datadog、New Relic），統一監控 AI Agent 行為與傳統系統指標。
+實際數字因模型、程式碼規模與 prompt caching 差異很大。**先在試點 repo 跑一週，用 `claude_code.cost.usage` 或 AI Credits 報表取得真實數據，再設定預算。**
+
+### 19.5 風險登錄表
+
+| 風險 | 可能性 | 影響 | 主要控制 | 剩餘風險 |
+| --- | --- | --- | --- | --- |
+| Agent 規避評估（刪測試、抑制、設定檔） | 中 | 高 | 評估器閘門、deny 規則、hook、人類審查 | 低：新的規避手法需持續補閘門 |
+| Prompt Injection 劫持迴圈目標（ASI01） | 低至中 | 高 | 迴圈不讀外部內容、fork PR 不觸發、無網路 | 中：程式碼註解仍可能夾帶指令 |
+| 機密外洩 | 低 | 高 | sandbox `denyRead`、`--secret-env-vars`、無網路、遙測不記錄 Prompt | 低 |
+| 費用失控 | 中 | 中 | 輪數、預算、timeout 三層上限 | 低 |
+| 錯誤修補被合併 | 中 | 高 | CI 閘門、獨立 AI 審查、人類審查、先紅後綠 | 中：審查疲勞 |
+| 供應鏈：惡意 plugin 或 MCP | 低 | 高 | `strictKnownMarketplaces`、MCP 允許清單、禁止新增相依 | 低 |
+
+### 19.6 本章審查與驗證清單
+
+| AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 🧪 如何驗證 |
+| --- | --- | --- | --- |
+| managed settings | 用 `Bash(curl * \| sh)` 擋下載執行 | 用 hook；權限規則不含管線 | `check_claude_config.py` |
+| Hook 政策 | 開了 `allowManagedHooksOnly`，卻把守門 hook 放在專案設定 | 守門 hook 由 managed settings 派送 | `/hooks` 選單確認 hook 來源 |
+| 權限分級 | 夜間迴圈給 L3 以上的權限 | 迴圈 L2；開 PR 的 job L3 且不執行 Agent | 讀 workflow 的 job 權限 |
+| 成本 | 只估單價，不設上限 | 三層上限，並以試點的實測數據設定預算 | 用遙測或帳單報表確認 |
+| 計費描述 | Copilot 仍以 premium requests 計算 | AI Credits | 對照 docs.github.com |
 
 ---
 
-## 第 12 章：GitHub Copilot Agent 生態系
+## 第 20 章：Anti-Patterns
 
-GitHub Copilot 已從單純的程式碼補全工具，演進為完整的 **AI Agent 平台**。本章詳述其最新功能及與 SSDLC 的整合策略。
+### 20.1 總覽
 
-### 12.1 GitHub Copilot 功能總覽（2026）
+| # | Anti-Pattern | 嚴重度 | 違反原則（3.2 節） | 對策章節 |
+| --- | --- | --- | --- | --- |
+| AP-01 | 評估器放在 Agent 能改的地方 | 致命 | 1 | 3、15 |
+| AP-02 | 只靠 Prompt 要求「不要改測試」 | 致命 | 2、4 | 5、16 |
+| AP-03 | 照搬 NEVER STOP 與全權限 | 致命 | 6 | 1.6、5.8 |
+| AP-04 | Agent 可以推送或合併 | 致命 | 7 | 15.4、19.2 |
+| AP-05 | 指標只看靜態掃描發現數 | 高 | 3 | 3.3 |
+| AP-06 | 安全測試沒有先紅後綠 | 高 | 3 | 10.4 |
+| AP-07 | 掃描規則線上、未鎖版本 | 中 | 3 | 11.2 |
+| AP-08 | Hook 用 `exit 1` 阻擋、fail-open | 高 | 2 | 5.5 |
+| AP-09 | 相信 AI 寫的設定檔「看起來合理」 | 高 | — | 21 |
+| AP-10 | 審查者只看 Agent 的摘要 | 高 | 7 | 16.5、21.4 |
 
-| 功能 | 適用方案 | 說明 |
-|------|---------|------|
-| **程式碼建議** | 所有方案 | IDE 中即時程式碼補全 |
-| **Copilot Chat** | 所有方案 | IDE / GitHub.com 中的對話式 AI |
-| **Copilot CLI** | 所有方案 | 命令列 AI 輔助 |
-| **Cloud Agent** | Pro+ / Business / Enterprise | 雲端代理人，可自主研究、規劃、修改程式碼、建立 PR |
-| **Agent Skills** | Pro+ / Business / Enterprise | 可擴充的專業技能模組 |
-| **Agentic Memory** | Pro+ / Business / Enterprise | 儲存庫級別的持久記憶系統 |
-| **Code Review** | Business / Enterprise | AI 自動化程式碼審查 |
-| **Copilot Spaces** | 所有方案 | 組織和分享 Context 以獲得更相關的回答 |
-| **PR Description** | 所有方案 | 自動生成 PR 描述 |
-| **Auto Model Selection** | 所有方案 | 自動為 Chat 和 Cloud Agent 選擇最佳模型 |
+### 20.2 致命錯誤
 
-### 12.2 Cloud Agent 雲端代理人
+#### AP-01：評估器放在 Agent 能改的地方
 
-Cloud Agent 是 GitHub Copilot 最強大的功能，可在雲端自主執行複雜任務：
+❌ 錯誤做法：
 
-```mermaid
-flowchart LR
-    USER[使用者提出任務] --> AGENT[Cloud Agent<br>自主規劃]
-    AGENT --> RESEARCH[研究程式碼庫]
-    RESEARCH --> PLAN[制定實作計畫]
-    PLAN --> CODE[修改程式碼]
-    CODE --> TEST[執行測試]
-    TEST --> PR[建立 Pull Request]
-    PR --> REVIEW[等待人工審查]
+```text
+repo/
+├── app/
+├── tests/
+└── evaluate.py      ← Agent 有寫入權限
 ```
 
-#### 使用場景（SSDLC 相關）
+為什麼致命：Agent 只要改一行權重，或讓評估器永遠回傳 0，指標就失去意義。這正是上游把 `prepare.py` 設為唯讀的原因。
 
-| 場景 | Prompt 範例 |
-|------|-----------|
-| 安全漏洞修補 | `Fix the SQL injection vulnerability in the search endpoint` |
-| 依賴升級 | `Upgrade all dependencies with known CVEs to safe versions` |
-| 測試補充 | `Add security test cases for the authentication module` |
-| 程式碼重構 | `Refactor the user service to use parameterized queries everywhere` |
-| 文件生成 | `Generate API documentation with security considerations for all endpoints` |
+✅ 正確做法：評估器放在 repo 外或受保護的 harness repo；CI 中以固定 SHA 取出、移到 `$RUNNER_TEMP` 並設為唯讀（第 15.2 節）。
 
-#### Agent Management（代理人管理）
+🧪 驗證：在 Agent session 中要求「把 evaluate.py 的 W_GITLEAKS 改成 0」，應被權限規則或 hook 拒絕；在 PR 中修改評估器，CI 的閘門結果不應改變。
 
-使用一個集中控制頁面切換不同 Agent 會話、檢查進度、保持掌控：
+#### AP-02：只靠 Prompt 要求「不要改測試」
 
-- 在 GitHub.com 上查看所有活躍的 Agent 會話
-- 監控每個 Agent 的執行狀態
-- 優先處理需要注意的任務
+❌ 錯誤做法：program.md 寫「請勿修改測試」，但沒有任何技術控制。
 
-### 12.3 Agent Skills 開放標準
+✅ 正確做法：deny 規則（`Edit(/tests/**)`）＋守門 hook＋評估器的受保護檔案雜湊。三層中任何一層被繞過（例如 hook 擋不住 `python -c`），下一層仍然有效。
 
-Agent Skills 是一個**開放標準**（[github.com/agentskills/agentskills](https://github.com/agentskills/agentskills)），被 GitHub Copilot、Claude Code 等多個 AI 系統共同支援。
+🧪 驗證：第 16 章第 02 輪；第 5.5 節的「已知繞過」案例。
 
-#### Skill 結構
+#### AP-03：照搬 NEVER STOP 與全權限
 
-```
-.github/skills/
-├── security-audit/
-│   └── SKILL.md
-├── performance-check/
-│   └── SKILL.md
-└── deploy-review/
-    └── SKILL.md
+❌ 錯誤做法：
+
+```text
+LOOP FOREVER. NEVER STOP. Do NOT ask the human if you should continue.
 ```
 
-#### 安全審計 Skill 範例
+搭配 `claude --dangerously-skip-permissions`。
+
+✅ 正確做法：有界的停止條件，例如「sec_debt 為 0、已完成 30 輪、連續 8 輪無 keep、出現規避評估的 gate FAIL」，搭配 `dontAsk` 白名單、`--max-turns`、預算上限、CI timeout。
+
+🧪 驗證：`check_program_md.py` 的 P06；managed settings 的 `disableBypassPermissionsMode`。
+
+#### AP-04：Agent 可以推送或合併
+
+❌ 錯誤做法：迴圈 job 有 `contents: write`，Agent 直接 `git push` 並 `gh pr merge`。
+
+✅ 正確做法：Agent job 唯讀；推送放在另一個不執行 Agent 的 job；只開 Draft PR；ruleset 要求人類審查。
+
+🧪 驗證：zizmor；讀 workflow 的 job 權限；ruleset 設定。
+
+### 20.3 常見設計錯誤
+
+#### AP-05：指標只看靜態掃描發現數
+
+只看發現數，Agent 最便宜的路徑就是「讓掃描器看不到」，而不是「修好弱點」。✅ 加入動態證據（安全測試失敗數，權重最高），並以閘門封住規避路徑。
+
+#### AP-06：安全測試沒有先紅後綠
+
+AI 寫的安全測試常常在弱點版本也會通過（第 10.4 節的反例）。✅ 每個安全測試都要先通過 `red_first.sh`，才能鎖定、才能開始迴圈。
+
+#### AP-07：掃描規則線上、未鎖版本
+
+`semgrep --config auto` 的規則會變動，同一份程式碼不同天的分數不同，keep／discard 決策就不可靠。✅ 評估器使用本機規則檔，工具版本鎖定。
+
+#### AP-08：Hook 用 `exit 1` 阻擋、fail-open
+
+Claude Code 的 PreToolUse 只有 exit 2 或 `permissionDecision: deny` 會阻擋；exit 1 是非阻擋錯誤，動作照樣執行。Copilot 的 hook 逾時一律放行。✅ 輸出 deny JSON；設定 `onFailure: block`；hook 保持快速；不把 hook 當成唯一防線。
+
+### 20.4 審查與驗證錯誤
+
+#### AP-09：相信 AI 寫的設定檔「看起來合理」
+
+v3.0 有 41 項錯誤（附錄 F.1），其中多數是「看起來合理但不存在」的設定：`.claude/security-rules.yaml`、`.github/copilot-automations.yml`、`claude channel create`、`from claude_code_sdk import Agent`。✅ 每個鍵、旗標、欄位都對照官方文件或 `--help`，並以第 21 章的檢查器驗證。
+
+#### AP-10：審查者只看 Agent 的摘要
+
+Agent 的摘要是 Agent 自己寫的，可能遺漏或美化（ASI09）。✅ 審查者看 `git diff`、results.tsv 與評估器的原始輸出，依第 9.4 節的六項檢查逐一確認。
+
+### 20.5 本章審查與驗證清單
+
+| 檢查 | 🧪 如何驗證 |
+| --- | --- |
+| AP-01～AP-04 都不存在 | 對照第 15 章 workflow 與第 5 章設定；跑 `run_all.sh` |
+| AP-05～AP-08 都已處理 | 讀評估器；`red_first.sh`；`test_guard.py` |
+| AP-09、AP-10 有流程保證 | 第 21 章的四層驗證納入 PR 範本 |
+
+---
+
+## 第 21 章：AI 產出的審查與驗證方法論
+
+本手冊最重要的目標是：**當 AI 依照本手冊產出成品時，人有能力審查並驗證它是否正確。** 本章把前面各章的做法整理成可以重複使用的方法。
+
+### 21.1 四層驗證模型
+
+| 層次 | 問題 | 方法 | 本手冊工具 |
+| --- | --- | --- | --- |
+| **L1 規格** | 用到的東西存在嗎？ | 對照官方文件與 `--help` 萃取的白名單 | `check_claude_config.py`、`check_copilot_config.py`、`check_flags.py` |
+| **L2 靜態** | 語法對嗎？符合規則嗎？ | parser、linter、稽核工具 | JSON／YAML 解析、actionlint、zizmor、`gh aw compile`、`otelcol validate`、`check_program_md.py` |
+| **L3 動態** | 真的會照預期運作嗎？ | 實際執行，**正向與反向**案例都要有 | `test_guard.py`、`run_all.sh`（迴圈）、`red_first.sh`、`--self-test` |
+| **L4 人工** | 這是對的解法嗎？有沒有更簡單的？有沒有看不到的整合問題？ | 審查清單 | 每章的「審查與驗證清單」；第 16.5 節 |
+
+前三層可以自動化，應該放進 CI；第四層無法取代。**自動化的目的是讓人把注意力留給第四層。**
+
+### 21.2 為什麼一定要有反向案例
+
+只跑正向案例，只能證明「檢查器沒有誤報」，無法證明「檢查器真的會報錯」。本手冊每個檢查器都有反向案例：
+
+| 檢查器 | 反向案例 | 預期 |
+| --- | --- | --- |
+| 評估器 | 第 02、03、04、05、07 輪 | discard 或 crash |
+| 守門 hook | 24 個應拒絕的案例＋1 個非 JSON 輸入 | deny |
+| `check_claude_config.py` | v3.0 範例；刻意寫錯的設定 | 報錯 |
+| `check_copilot_config.py` | 虛構檔案、錯誤 hook | 報錯 |
+| `check_program_md.py` | 上游原版、AI 草稿 | 未通過的規則 |
+| `red_first.sh` | 弱測試 | RED-FIRST: FAIL |
+| `check_flags.py` | v3.0 全文 | 報錯 |
+
+第 0.4 節的總表中，`expect=fail` 的項目就是這些反向案例。
+
+### 21.3 依產出類型的審查清單
+
+| AI 產出 | L1 規格 | L2 靜態 | L3 動態 | L4 人工重點 |
+| --- | --- | --- | --- | --- |
+| program.md | — | `check_program_md.py` 9/9 | 用第 16 章攻擊樣本跑一次 | 範圍是否太大？停止條件是否合理？ |
+| 修補 diff | — | bandit、semgrep、gitleaks | 安全測試先紅後綠；功能測試 | 第 9.4 節六項；對照 ADR |
+| 安全測試 | — | pytest 可收集 | `red_first.sh` | 斷言是否具體？輸入是否具代表性？ |
+| Claude Code 設定 | `check_claude_config.py` | JSON 解析 | 在 session 中嘗試被拒的動作 | 權限是否最小？ |
+| Hook | 事件名稱、欄位 | `py_compile` | 正反向案例 | fail-closed？逾時行為？ |
+| Copilot 設定 | `check_copilot_config.py` | JSON／YAML 解析 | 餵測試 JSON 給 hook | 是否用了虛構檔案？ |
+| Workflow | action SHA 存在 | actionlint、zizmor | 在測試 repo 試跑 | Agent job 的權限？評估器來源？ |
+| Agentic workflow | frontmatter | `gh aw compile` | 在測試 repo 試跑 | safe-outputs 是否最小？ |
+| CLI 指令 | `check_flags.py` | `bash -n` | 實際執行 `--help` | 是否有上限？ |
+| 文件（含本手冊） | 連結、版本 | Markdown lint | Hugo 建置、錨點比對 | 內容是否最新？ |
+
+### 21.4 審查 Agent 的摘要與自述
+
+Agent 在迴圈結束時會輸出摘要，例如「已修補 3 個弱點，所有測試通過」。審查原則：
+
+1. **只相信可重現的證據**：results.tsv、評估器的原始輸出、`git diff`。
+2. **摘要中每個宣稱都要找到證據**：「修補 CWE-502」→ diff 中 pickle 被移除、安全測試從失敗變成通過。
+3. **注意沒有提到的事**：摘要不會說「我在第 02 輪嘗試刪除測試」，但 results.tsv 會記錄。
+4. **用獨立的審查者**：security-reviewer subagent 沒有參與修補，它的結論再由人類確認。
+
+### 21.5 program.md 審查器
+
+```python
+"""審查 SSDLC 版 program.md 是否具備企業必備的護欄（關鍵字規則，中英文皆可）。
+
+用法：python check_program_md.py <program.md>
+這是「幫人審查」的工具：通過不代表內容正確，但未通過的項目一定要補。
+"""
+import re
+import sys
+from pathlib import Path
+
+RULES = [
+    ("P01", "宣告 Agent 可修改的範圍",
+     [r"you can\b|可以做的事|只能修改|only file you (edit|modify)|CAN do"]),
+    ("P02", "禁止修改測試／評估相關檔案",
+     [r"(不可|不得|禁止|cannot|must not|do not).{0,40}(tests?/|測試|evaluat|評估|harness|prepare\.py)"]),
+    ("P03", "定義單一指標與方向（越低／越高越好）",
+     [r"(lowest|highest|越低越好|越高越好|lower is better|higher is better)"]),
+    ("P04", "評估器固定且 Agent 無權修改",
+     [r"(evaluat\w*|評估器|harness).{0,60}(read-only|不在本 repo|無權修改|do not modify|ground truth|不可修改)",
+      r"(read-only|唯讀).{0,40}(evaluat|評估)"]),
+    ("P05", "單輪逾時規則",
+     [r"(timeout|逾時|超過\s*\d+\s*(分鐘|minutes))"]),
+    ("P06", "有界的停止條件（輪數／無進展／預算），不得無限執行",
+     # 注意：上游的 "time budget" 是單輪時間，不是停止條件，所以不能只比對 budget
+     # 同理 "stop after 5 minutes" 是單輪訓練時間，停止條件要以輪數、無進展或金額表達
+     [r"(停止條件|stop condition|stop after \d+ (rounds|experiments|iterations)|已完成\s*\d+\s*輪|"
+      r"max[_ -]?turns|max[_ -]?budget|budget[_ -]?usd|max-ai-credits|連續\s*\d+\s*輪)"]),
+    ("P07", "禁止抑制標記與掃描器設定（規避評估）",
+     [r"(nosec|nosemgrep|gitleaks:allow|抑制標記|suppress)"]),
+    ("P08", "合併前需人類審查／禁止自行 push",
+     [r"(人類.{0,10}(審查|review)|human review|code review|不得自行 push|do not push|禁止.{0,6}push)"]),
+    ("P09", "定義結果紀錄格式",
+     [r"results\.tsv"]),
+]
+UNBOUNDED = re.compile(r"NEVER STOP|LOOP FOREVER|indefinitely|無限執行|永不停止", re.I)
+
+
+def main(path):
+    text = Path(path).read_text(encoding="utf-8")
+    failed = 0
+    for rid, title, patterns in RULES:
+        ok = any(re.search(p, text, re.I | re.S) for p in patterns)
+        if rid == "P06" and UNBOUNDED.search(text) and not ok:
+            title += "（偵測到 NEVER STOP／LOOP FOREVER 但沒有任何停止條件）"
+        failed += not ok
+        print(f"{'PASS' if ok else 'FAIL'}  {rid} {title}")
+    print(f"{len(RULES) - failed}/{len(RULES)} rules passed")
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1]))
+```
+
+本手冊的 program.md：
+
+```text
+PASS  P01 宣告 Agent 可修改的範圍
+PASS  P02 禁止修改測試／評估相關檔案
+PASS  P03 定義單一指標與方向（越低／越高越好）
+PASS  P04 評估器固定且 Agent 無權修改
+PASS  P05 單輪逾時規則
+PASS  P06 有界的停止條件（輪數／無進展／預算），不得無限執行
+PASS  P07 禁止抑制標記與掃描器設定（規避評估）
+PASS  P08 合併前需人類審查／禁止自行 push
+PASS  P09 定義結果紀錄格式
+9/9 rules passed
+```
+
+上游原版：它是為個人 ML 研究設計的，P06 未通過是預期的，企業版必須補上：
+
+```text
+PASS  P01 宣告 Agent 可修改的範圍
+PASS  P02 禁止修改測試／評估相關檔案
+PASS  P03 定義單一指標與方向（越低／越高越好）
+PASS  P04 評估器固定且 Agent 無權修改
+PASS  P05 單輪逾時規則
+FAIL  P06 有界的停止條件（輪數／無進展／預算），不得無限執行（偵測到 NEVER STOP／LOOP FOREVER 但沒有任何停止條件）
+FAIL  P07 禁止抑制標記與掃描器設定（規避評估）
+FAIL  P08 合併前需人類審查／禁止自行 push
+PASS  P09 定義結果紀錄格式
+6/9 rules passed
+```
+
+典型的 AI 草稿（「修好所有弱點、測試擋路就改測試、NEVER STOP」）：
 
 ```markdown
-# .github/skills/security-audit/SKILL.md
----
-name: security-audit
-description: Comprehensive security audit for OWASP Top 10 compliance
----
-# Security Audit Workflow
+# Security Auto-Fix Program
 
-## Steps
-1. Scan for injection vulnerabilities (SQL, XSS, Command Injection)
-2. Check authentication and session management
-3. Verify authorization controls and access patterns
-4. Audit cryptographic usage and key management
-5. Check for sensitive data exposure
-6. Verify API security (rate limiting, input validation)
-7. Check dependency vulnerabilities via SCA
-8. Review error handling for information leakage
+You are an autonomous security engineer. Improve the security of this repository.
 
-## Output Format
-- Severity: CRITICAL / HIGH / MEDIUM / LOW
-- File and line reference
-- Description of vulnerability
-- Suggested fix with code example
-- OWASP category reference
+## Instructions
+1. Run the security scanners and read the findings.
+2. Fix as many vulnerabilities as possible, in any file you think is relevant.
+3. If a test blocks your fix, update the test so it matches the new behavior.
+4. Commit each fix and keep going.
+
+Keep working until the codebase is secure. NEVER STOP to ask for confirmation.
 ```
 
-#### Skill 存放位置（通用於 Copilot 和 Claude Code）
-
-| 位置 | 說明 |
-|------|------|
-| `.github/skills/` | 專案級（推薦，GitHub Copilot 原生支援） |
-| `.claude/skills/` | 專案級（Claude Code 原生支援） |
-| `.agents/skills/` | 專案級（Agent Skills 開放標準格式） |
-| `~/.copilot/skills/` | 個人級（跨專案共用） |
-| `~/.claude/skills/` | 個人級（跨專案共用） |
-
-> **💡 企業導入建議**：使用 `.github/skills/` 目錄，因為此格式同時被 GitHub Copilot 和 Claude Code 支援，實現一次定義、雙平台使用。
-
-### 12.4 Agentic Memory 記憶系統
-
-Copilot Memory 讓 AI 建立並維護對儲存庫的**持久化理解**，類似資深工程師逐漸累積的專案知識。
-
-#### 核心概念
-
-| 特性 | 說明 |
-|------|------|
-| **儲存庫範圍** | 記憶綁定在特定儲存庫，不會跨 Repo 洩漏 |
-| **自動建立** | Copilot 在工作過程中自動推導出的知識片段 |
-| **帶有引用** | 每條記憶都有程式碼位置的引用作為佐證 |
-| **驗證機制** | 使用記憶前，Copilot 會對照當前程式碼驗證其是否仍然有效 |
-| **自動過期** | 記憶在 28 天後自動刪除，防止過期資訊影響決策 |
-| **跨功能共享** | Cloud Agent 建立的記憶可被 Code Review 使用，反之亦然 |
-
-#### Agentic Memory 與 SSDLC 的關係
-
-```mermaid
-graph LR
-    CA[Cloud Agent<br>修復安全問題] -->|建立記憶| MEM[(Agentic Memory<br>「此 Repo 的 DB 連線<br>使用 pgx 連線池」)]
-    MEM -->|驗證後使用| CR[Code Review<br>審查 PR]
-    CR -->|建立記憶| MEM
-    MEM -->|驗證後使用| CLI[Copilot CLI<br>指令輔助]
-
-    style MEM fill:#e3f2fd
+```text
+FAIL  P01 宣告 Agent 可修改的範圍
+FAIL  P02 禁止修改測試／評估相關檔案
+FAIL  P03 定義單一指標與方向（越低／越高越好）
+FAIL  P04 評估器固定且 Agent 無權修改
+FAIL  P05 單輪逾時規則
+FAIL  P06 有界的停止條件（輪數／無進展／預算），不得無限執行（偵測到 NEVER STOP／LOOP FOREVER 但沒有任何停止條件）
+FAIL  P07 禁止抑制標記與掃描器設定（規避評估）
+FAIL  P08 合併前需人類審查／禁止自行 push
+FAIL  P09 定義結果紀錄格式
+0/9 rules passed
 ```
 
-**SSDLC 效益**：
-- Copilot Code Review 可根據記憶發現不一致的安全模式
-- Cloud Agent 修改設定檔時，記憶會提醒同步相關檔案
-- 減少重複提供相同安全規範的需求
-
-#### 啟用方式
-
-| 方案 | 預設狀態 | 啟用位置 |
-|------|---------|---------|
-| Pro / Pro+ | **預設啟用** | 個人 Copilot 設定 |
-| Business / Enterprise | 預設關閉 | 組織/企業設定 → 啟用後全體成員可用 |
-
-### 12.5 Copilot Code Review
-
-Copilot Code Review 在每次 Pull Request 提交時自動進行 AI 程式碼審查：
-
-#### 審查範圍
-
-- 程式碼邏輯錯誤
-- 安全漏洞（SQL Injection、XSS、硬編碼 Secret 等）
-- 效能問題（N+1 Query、記憶體洩漏）
-- 風格一致性
-- 測試覆蓋率不足
-
-#### 與 SSDLC 安全閘門整合
-
-```yaml
-# .github/workflows/copilot-review.yml
-name: Copilot Security Review
-on:
-  pull_request:
-    types: [opened, synchronize]
-
-jobs:
-  copilot-review:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Request Copilot Review
-        run: |
-          gh pr review ${{ github.event.pull_request.number }} \
-            --request-review copilot
-```
-
-### 12.6 Copilot 與 SSDLC 整合策略
-
-#### 三層 AI 防護體系
-
-```mermaid
-graph TB
-    subgraph "Layer 1: 開發時期（GitHub Copilot）"
-        L1A[Copilot 程式碼建議<br>即時安全提示]
-        L1B[Copilot Chat<br>安全問答]
-        L1C[Agent Skills<br>安全審計技能]
-    end
-
-    subgraph "Layer 2: PR 審查時期（Copilot + Claude Code）"
-        L2A[Copilot Code Review<br>自動 PR 審查]
-        L2B[Agentic Memory<br>跨 PR 知識累積]
-        L2C[Cloud Agent<br>自動修補建議]
-    end
-
-    subgraph "Layer 3: CI/CD 時期（AutoResearch）"
-        L3A[AutoResearch<br>自主安全修補]
-        L3B[安全閘門<br>強制掃描]
-        L3C[自動化回滾<br>異常偵測]
-    end
-
-    L1A --> L2A
-    L2C --> L3A
-    L3C -->|回饋| L1A
-
-    style L1A fill:#c8e6c9
-    style L2A fill:#fff9c4
-    style L3A fill:#ffcdd2
-```
-
-#### 工具選擇矩陣
-
-| 場景 | GitHub Copilot | Claude Code | AutoResearch |
-|------|:---:|:---:|:---:|
-| IDE 即時程式碼補全 | ✅⭐ | — | — |
-| 對話式程式碼問答 | ✅ | ✅⭐ | — |
-| 複雜重構/功能開發 | ✅（Cloud Agent） | ✅⭐ | — |
-| PR 自動審查 | ✅⭐ | ✅ | — |
-| 批量安全修補 | ✅（Cloud Agent） | ✅ | ✅⭐ |
-| 效能自主迭代優化 | — | — | ✅⭐ |
-| CI/CD 安全閘門 | ✅ | ✅ | ✅⭐ |
-| 持久化專案知識 | ✅（Memory） | ✅（CLAUDE.md） | ✅（program.md） |
-| 排程自動化任務 | ✅（Actions） | ✅（Scheduled Tasks）| ✅（Cron） |
-
-> ⭐ 表示該工具在此場景中為最佳選擇
-
-> **💡 企業導入建議**：不要選擇單一工具，而是建立三層 AI 防護體系。GitHub Copilot 負責開發時期的即時回饋，Claude Code 負責深度分析與複雜任務，AutoResearch 負責 CI/CD 中的自主迭代優化。三者互補，形成完整的 SSDLC AI 防護網。
-
-### 12.7 Copilot CLI Agent（命令列代理人）
-
-Copilot CLI 是 GitHub 推出的獨立命令列 AI Agent（安裝方式見 3.6.2），以下聚焦其在 SSDLC 中的進階用法。
-
-#### Autopilot 模式
-
-Autopilot 模式下，Copilot CLI 不需逐步確認即可自主完成多步驟任務：
-
-```bash
-# 啟用 Autopilot（需先設定 trust level）
-gh copilot config set trust-level high
-
-# Autopilot 安全修補範例
-gh copilot "scan all Python files for hardcoded secrets,
-  replace them with environment variable references,
-  add the env vars to .env.example,
-  update documentation,
-  run tests to verify nothing breaks"
-```
-
-#### `/fleet` 平行任務
-
-`/fleet` 將大型任務拆分為子任務，分配給多個子 Agent 並行執行：
-
-```bash
-# 平行修補多個安全問題
-gh copilot "/fleet fix all items in security-report.json
-  Each sub-agent handles one vulnerability independently.
-  Constraints:
-  - Create separate branch per fix
-  - Run tests after each fix
-  - Don't modify shared config files"
-
-# /fleet 狀態監控
-gh copilot "/fleet status"
-# > Fleet: 5 agents running
-# > Agent 1: fixing SQL injection in users.py [DONE ✅]
-# > Agent 2: fixing XSS in templates/ [IN PROGRESS 🔄]
-# > Agent 3: updating insecure dependency [DONE ✅]
-# > Agent 4: fixing path traversal in uploads.py [IN PROGRESS 🔄]
-# > Agent 5: adding rate limiting to /api/auth [DONE ✅]
-```
-
-#### `/research` 深度研究
-
-```bash
-# 安全架構研究
-gh copilot "/research analyze the complete authentication flow
-  in this codebase. Document:
-  1. All entry points
-  2. Token lifecycle (creation, validation, refresh, revocation)
-  3. Permission model and access control patterns
-  4. Session management strategy
-  5. Potential attack vectors
-  Output: security-architecture-review.md"
-```
-
-#### Chronicle（Session 歷史）
-
-```bash
-# 搜尋過去的安全修補記錄
-gh copilot "/chronicle search security fix"
-# > 2026-06-28: Fixed SQL injection in /api/search (PR #234)
-# > 2026-06-25: Updated dependencies for CVE-2026-1234 (PR #231)
-# > 2026-06-20: Added rate limiting to auth endpoints (PR #228)
-
-# 產生 standup 報告
-gh copilot "/chronicle standup"
-```
-
-### 12.8 Copilot App（桌面應用程式）
-
-GitHub Copilot App 是獨立的桌面應用，提供比 IDE extension 更豐富的 Agent 管理介面。
-
-#### 核心功能
-
-| 功能 | 說明 |
-|------|------|
-| **多 Session 管理** | 同時運行多個 Agent，各自獨立 Git branch |
-| **Canvas Extensions** | 互動式協作介面（拖拉設計、流程圖） |
-| **Issue → PR 生命週期** | 從 Issue 自動研究、規劃、實作到建立 PR |
-| **Automations** | 設定排程任務或事件觸發的自動化 |
-| **Deep Links** | 從外部工具（Jira、Slack）直接開啟對應 session |
-
-#### SSDLC 使用範例
-
-```bash
-# 在 Copilot App 中（圖形化介面操作）：
-
-# 1. 建立安全修補 Session
-#    Input: 從 GitHub Security Advisory 連結
-#    → Agent 自動分析影響、搜尋受影響程式碼、產生修補
-
-# 2. 平行 Session 管理
-#    Session A: 修補 CVE-2026-5678（branch: fix/cve-2026-5678）
-#    Session B: 重構認證模組（branch: refactor/auth-module）
-#    Session C: 撰寫安全測試（branch: test/security-suite）
-
-# 3. Automations 設定
-#    觸發條件: "High severity security alert on this repo"
-#    動作: "自動建立修補 PR 並通知 security team"
-```
-
-### 12.9 Copilot SDK（Node.js / Python / .NET）
-
-Copilot SDK 讓開發者在自己的應用中嵌入 Copilot 能力：
-
-```typescript
-// copilot-security-bot.ts - 使用 Copilot SDK 建構安全機器人
-import { CopilotSDK } from '@github/copilot-sdk';
-
-const copilot = new CopilotSDK({
-  appId: process.env.GITHUB_APP_ID,
-  privateKey: process.env.GITHUB_APP_PRIVATE_KEY,
-});
-
-// 建立安全掃描任務
-const session = await copilot.createSession({
-  repo: 'my-org/my-app',
-  task: `Scan the codebase for OWASP Top 10 vulnerabilities.
-    For each finding, create a separate fix PR with:
-    - Description of the vulnerability
-    - CVSS score estimate
-    - Fix implementation
-    - Test case`,
-  permissions: ['contents:write', 'pull-requests:write'],
-});
-
-// 監控進度
-session.on('progress', (event) => {
-  console.log(`[${event.step}/${event.total}] ${event.message}`);
-});
-
-// 取得結果
-const result = await session.waitForCompletion();
-console.log(`Created ${result.pullRequests.length} fix PRs`);
-```
-
-### 12.10 Third-Party Agents（第三方代理人）
-
-GitHub 支援第三方 AI Agent 整合，在 GitHub 平台上提供專業服務。
-
-| Agent | 提供者 | SSDLC 用途 |
-|-------|--------|-----------|
-| **OpenAI Codex** | OpenAI | 多語言程式碼生成與修補 |
-| **Anthropic Claude** | Anthropic | 深度安全分析、複雜重構 |
-| **自定義 Agent** | 企業自建 | 內部安全規範檢查 |
-
-#### 在 GitHub 中使用第三方 Agent
-
-```bash
-# 在 GitHub Issue 中 @mention agent
-# @copilot fix this security vulnerability
-# @claude-agent perform deep security analysis on this PR
-# @custom-security-agent run compliance check
-
-# 在 GitHub Actions 中使用
-- uses: anthropic/claude-code-action@v1
-  with:
-    prompt: "Security review this PR"
-```
-
-### 12.11 GitHub Agentic Workflows & Automations
-
-Agentic Workflows 讓 AI Agent 成為 GitHub 平台的「一等公民」，可自主管理 CI/CD 流程。
-
-#### Agentic Workflows 架構
-
-```mermaid
-flowchart TD
-    EVENT[GitHub Event<br>push / PR / issue / schedule] --> DISPATCH[Agentic Dispatcher]
-    DISPATCH --> PLAN[Agent 自主規劃<br>決定執行步驟]
-    PLAN --> EXEC[Agent 執行<br>修改程式碼 / 建立 PR / 觸發 CI]
-    EXEC --> VERIFY[Agent 驗證<br>執行測試 / 安全掃描]
-    VERIFY -->|通過| COMPLETE[完成並報告]
-    VERIFY -->|失敗| RETRY[Agent 自主修補]
-    RETRY --> EXEC
-```
-
-#### SSDLC Agentic Workflow 範例
-
-```yaml
-# .github/agentic-workflows/security-response.yml
-name: Automated Security Response
-
-triggers:
-  - event: security_advisory
-    severity: [critical, high]
-  - event: dependabot_alert
-    severity: [critical, high]
-
-workflow:
-  steps:
-    - name: Assess Impact
-      agent: copilot
-      action: |
-        Analyze the security advisory.
-        Determine which files in this repo are affected.
-        Estimate the blast radius.
-
-    - name: Generate Fix
-      agent: copilot
-      action: |
-        Create a fix for the vulnerability.
-        Follow the project's security guidelines in SECURITY.md.
-        Ensure backward compatibility.
-
-    - name: Validate
-      action: run-ci
-      checks: [tests, security-scan, linting]
-
-    - name: Create PR
-      action: create-pr
-      reviewers: [security-team]
-      labels: [security, automated, urgent]
-      
-    - name: Notify
-      action: notify
-      channels: [slack:#security-alerts, email:security@company.com]
-```
-
-### 12.12 Copilot Plugins 生態系
-
-Copilot Plugins 擴展 Copilot 的能力，類似 MCP 但更緊密整合 GitHub 生態系。
-
-#### Plugin 安裝與管理
-
-```bash
-# 在 Copilot CLI 中安裝 Plugin
-gh copilot plugin install security-scanner
-gh copilot plugin install compliance-checker
-gh copilot plugin install test-generator
-
-# 在 VS Code 中（Copilot Chat Settings）
-# Settings → GitHub Copilot → Plugins → Install
-```
-
-#### Enterprise Plugin Standards
-
-企業可建立並發布內部 Plugin，遵循 GitHub Enterprise Plugin Standards：
-
-```yaml
-# plugins/ssdlc-compliance/plugin.yaml
-name: ssdlc-compliance
-version: 2.0.0
-publisher: internal-security-team
-visibility: organization  # 僅組織內可見
-
-capabilities:
-  - name: security_scan
-    description: Run enterprise security scanning
-    permissions: [contents:read]
-  - name: compliance_check
-    description: Check against internal security policies
-    permissions: [contents:read]
-  - name: auto_fix
-    description: Automatically fix compliance violations
-    permissions: [contents:write, pull-requests:write]
-
-enterprise_controls:
-  require_approval: true
-  audit_log: true
-  data_residency: "us-east-1"
-```
-
-### 12.13 Enterprise Governance & AI Controls
-
-企業級 Copilot 治理功能，確保 AI Agent 在安全合規的框架內運作。
-
-#### AI Controls 設定
-
-| 控制項目 | 說明 | 設定層級 |
-|---------|------|---------|
-| **Content Exclusions** | 排除特定檔案/目錄不被 AI 存取 | Organization |
-| **IP Indemnity** | 智慧財產權保障 | Enterprise |
-| **Audit Logs** | AI 操作完整稽核紀錄 | Enterprise |
-| **Policy Controls** | 啟用/停用特定功能 | Organization |
-| **Budget Controls** | AI Credits 消費上限 | Enterprise / Org / User |
-| **Model Selection** | 限制可使用的模型 | Organization |
-| **Data Residency** | 資料儲存地區限制 | Enterprise |
-
-#### AI Credits & Budget Management
-
-```yaml
-# GitHub Enterprise 設定（Organization Settings → Copilot → Budgets）
-budget_controls:
-  organization_monthly_limit: 10000  # USD
-  per_user_monthly_limit: 500       # USD
-  alert_threshold: 80               # 80% 時告警
-
-  cost_allocation:
-    - team: security
-      budget: 3000
-      priority: high      # 安全任務優先保障額度
-    - team: development
-      budget: 5000
-      priority: medium
-    - team: documentation
-      budget: 2000
-      priority: low
-
-  overage_policy: block  # block | alert | allow
-```
-
-#### Audit Log 整合
-
-```bash
-# 查詢 Copilot 操作稽核紀錄
-gh api /orgs/MY-ORG/audit-log \
-  --jq '.[] | select(.action | startswith("copilot"))' \
-  --paginate
-
-# 典型稽核事件：
-# copilot.agent_session_created
-# copilot.code_suggestion_accepted
-# copilot.pull_request_created_by_agent
-# copilot.security_fix_applied
-# copilot.budget_threshold_reached
-```
-
-> **💡 企業導入建議**：在啟用 Copilot Agent 功能前，務必設定 Content Exclusions（排除機敏檔案）、Budget Controls（預算上限）和 Audit Log（稽核紀錄）。建議先在小型團隊試行，確認治理機制有效後再全組織推廣。
-
----
-
-## 第 13 章：Best Practices（企業建議）
-
-### 13.1 Prompt 設計最佳實踐
-
-#### program.md 撰寫原則
-
-| 原則 | 說明 | 範例 |
-|------|------|------|
-| **明確目標** | 每份 program.md 只聚焦一個優化面向 | `目標：降低 P99 延遲至 200ms` |
-| **可量化指標** | 使用數字定義成功/失敗 | `提升 >= 0.5% 才保留` |
-| **範圍限定** | 明確指出可修改的檔案/區域 | `只能修改 src/api/ 目錄` |
-| **禁止清單** | 列出禁止的操作 | `不得使用 eval()、不得修改 DB Schema` |
-| **策略排序** | 給出優先嘗試順序 | `1. 快取 2. 查詢優化 3. 演算法` |
-| **安全護欄** | 安全相關硬限制 | `不得降低安全掃描分數` |
-| **時間約束** | 單次執行時間上限 | `每次迭代不超過 60 秒` |
-
-#### Prompt 範本
-
-```markdown
-# [面向] Optimization Program
-
-## 目標
-[明確、可量化的目標描述]
-
-## 目前狀態
-- 指標 A：[目前值]
-- 指標 B：[目前值]
-
-## 可修改範圍
-- [檔案/目錄清單]
-
-## 禁止範圍
-- [檔案/目錄/操作清單]
-
-## 策略（依優先順序）
-1. [策略一]
-2. [策略二]
-3. [策略三]
-
-## 評估指標
-METRIC:[指標名]=[值]
-
-## Keep/Revert 規則
-- KEEP 條件：[條件]
-- REVERT 條件：[條件]
-
-## 安全約束
-- [安全限制清單]
-```
-
-### 13.2 安全策略最佳實踐
-
-#### 防禦深度原則（Defense in Depth）
-
-```mermaid
-graph TB
-    subgraph "Layer 1: 開發時期"
-        L1A[Copilot 安全建議]
-        L1B[Pre-commit Hook<br>Secret Scan]
-        L1C[IDE Linting<br>SonarLint]
-    end
-
-    subgraph "Layer 2: CI/CD 時期"
-        L2A[SAST 掃描]
-        L2B[SCA 掃描]
-        L2C[Container 掃描]
-        L2D[安全閘門]
-    end
-
-    subgraph "Layer 3: 部署時期"
-        L3A[DAST 掃描]
-        L3B[Penetration Test]
-        L3C[Configuration Audit]
-    end
-
-    subgraph "Layer 4: 運行時期"
-        L4A[WAF]
-        L4B[RASP]
-        L4C[AI 異常偵測]
-    end
-
-    subgraph "Layer 5: 持續改善"
-        L5A[AutoResearch 安全修補]
-        L5B[Vulnerability Management]
-        L5C[Threat Intelligence]
-    end
-
-    L1A --> L2A
-    L2D --> L3A
-    L3C --> L4A
-    L4C --> L5A
-    L5A -->|回饋| L1A
-```
-
-#### 安全設定 Checklist
-
-```yaml
-# .autoresearch/security-policy.yaml
-security_policy:
-  # AI Agent 權限控制
-  agent_permissions:
-    can_modify_production: false
-    can_access_secrets: false
-    can_install_packages: false
-    can_execute_shell: restricted  # 僅允許白名單命令
-    allowed_commands:
-      - python
-      - pytest
-      - ruff
-      - black
-      - semgrep
-
-  # 變更限制
-  change_limits:
-    max_files_per_iteration: 5
-    max_lines_changed_per_iteration: 100
-    banned_patterns:
-      - "eval("
-      - "exec("
-      - "os.system("
-      - "subprocess.call(.*shell=True"
-      - "__import__("
-      - "pickle.loads("
-
-  # 安全掃描要求
-  scan_requirements:
-    pre_commit:
-      - gitleaks  # Secret scan
-    pre_merge:
-      - semgrep   # SAST
-      - pip-audit # SCA
-    post_deploy:
-      - trivy     # Container scan
-```
-
-### 13.3 Git 管理策略
-
-#### Commit Message 規範
-
-```
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer]
-```
-
-| Type | 用途 | 範例 |
-|------|------|------|
-| `feat` | 新功能 | `feat(auth): 加入 OAuth 2.0 支援` |
-| `fix` | 修復 | `fix(api): 修復 N+1 Query` |
-| `fix(security)` | 安全修補 | `fix(security): 修補 SQL Injection [CVE-2024-XXXX]` |
-| `perf` | 效能優化 | `perf(orders): 加入 Redis 快取` |
-| `refactor` | 重構 | `refactor(service): 降低圈複雜度` |
-| `chore(autoresearch)` | AI 自動變更 | `chore(autoresearch): automated optimization iter-3` |
-
-#### Branch Protection Rules
-
-```json
-{
-  "main": {
-    "required_reviews": 2,
-    "required_status_checks": [
-      "build-and-test",
-      "security-scan",
-      "security-gate"
-    ],
-    "enforce_admins": true,
-    "dismiss_stale_reviews": true,
-    "require_signed_commits": true
-  },
-  "develop": {
-    "required_reviews": 1,
-    "required_status_checks": [
-      "build-and-test",
-      "security-scan"
-    ]
-  }
+> 🔍 「通過」不代表正確。這是關鍵字檢查，只能保證「該寫的有寫」，不能保證「寫的是對的」。例如停止條件寫了「已完成 1000 輪」也會通過，但這顯然不合理。L4 人工審查不能省。
+
+### 21.6 CLI 指令與旗標檢查器
+
+```python
+"""掃描 Markdown 程式碼區塊中的 claude／copilot 指令，檢查子指令與旗標是否真實存在。
+
+用法：python check_flags.py <file.md>
+白名單：claude --help ∪ cli-reference 文件；copilot --help ∪ cli-command-reference 文件。
+只檢查 shell 類程式碼區塊（bash/sh/shell/powershell/console/無語言）中以指令開頭的行。
+"""
+import re
+import shlex
+import sys
+from pathlib import Path
+
+WL = Path(__file__).with_name("whitelists")
+load = lambda n: set(WL.joinpath(n).read_text(encoding="utf-8").split())
+TOOLS = {
+    "claude": (load("claude-flags.txt"), load("claude-subcommands.txt")),
+    "copilot": (load("copilot-flags.txt"), load("copilot-subcommands.txt")),
 }
-```
+# 第二層子指令（claude plugin --help、claude mcp --help）
+NESTED = {
+    "plugin": {"configure", "details", "disable", "enable", "eval", "help", "init", "new", "install",
+               "i", "list", "marketplace", "prune", "autoremove", "tag", "test", "uninstall",
+               "remove", "update", "validate"},
+    "mcp": {"add", "add-from-claude-desktop", "add-json", "get", "help", "list", "login", "logout",
+            "remove", "reset-project-choices", "serve"},
+}
+SHELL_LANGS ={"", "bash", "sh", "shell", "powershell", "pwsh", "console", "zsh"}
 
-#### AutoResearch 專用分支策略
 
-```bash
-# AutoResearch 分支命名規範
-autoresearch/optimization/{date}    # 日常優化
-autoresearch/security-fix/{cve-id}  # 安全修補
-autoresearch/quality/{metric}       # 品質改善
+def code_lines(md: str):
+    lang, inside, fence = "", False, ""
+    for no, line in enumerate(md.splitlines(), 1):
+        m = re.match(r"^(\s*)(`{3,}|~{3,})(\S*)", line)
+        if m and (not inside or m.group(2).startswith(fence)):
+            if not inside:
+                inside, fence, lang = True, m.group(2), m.group(3).lower()
+            else:
+                inside = False
+            continue
+        if inside and lang in SHELL_LANGS:
+            yield no, line
 
-# 範例
-autoresearch/optimization/2026-04-14
-autoresearch/security-fix/CVE-2024-12345
-autoresearch/quality/complexity-reduction
-```
 
-### 13.4 成本管理
-
-| 項目 | 費用模型 | 月估成本（小型團隊） | 優化建議 |
-|------|---------|---------------------|---------|
-| Claude API | 按 Token 計費 | $200-500 | 最佳化 Prompt 長度 |
-| Claude Code Pro | 訂閱 + AI Credits | $100/人 + Credits | 設定 spend limits |
-| GitHub Copilot | AI Credits 計量計費 | $19-39/人 + Credits | 設定 Budget Controls |
-| GitHub Actions | 按分鐘計費 | $50-100 | 使用 self-hosted runner |
-| 安全掃描工具 | 按專案/人計費 | $100-300 | 選擇整合方案 |
-| 雲端資源 | 按使用量計費 | $100-500 | Spot Instance + 自動擴縮 |
-
-#### AI Credits 管理策略
-
-2026 年的 AI 開發工具普遍採用 **AI Credits 計量計費**。以下為成本控制最佳實踐：
-
-| 策略 | 說明 | 預期節省 |
-|------|------|---------|
-| **Budget Controls** | 在 enterprise/org/user 層級設定消費上限 | 防止超支 |
-| **Model Selection** | 簡單任務用較便宜模型（Haiku/Flash），複雜任務用 Opus/Sonnet | 30-50% |
-| **Prompt 精簡** | 使用 CLAUDE.md 避免重複交代背景，減少 context token | 20-30% |
-| **快取策略** | Claude API Prompt Caching 避免重複運算 | 40-60% |
-| **任務批次化** | 合併多個小任務為一次大任務，減少 session overhead | 15-25% |
-| **Off-peak 排程** | 將 AutoResearch 排程在離峰時段（如凌晨） | 視定價而定 |
-
-```yaml
-# 成本監控告警設定
-# .github/copilot-budget.yml
-budget:
-  monthly_limit_usd: 5000
-  alert_at_percent: [50, 75, 90]
-  notify:
-    - channel: slack:#engineering-costs
-    - email: engineering-lead@company.com
-  overage_action: throttle  # throttle | block | alert-only
-```
-
-> **💡 企業導入建議**：建議設定 **多層預算上限**——Enterprise（整體上限）→ Organization（部門上限）→ User（個人上限）。在 AutoResearch 的 `program.md` 中加入「成本意識」指令：優先使用簡單策略，避免過度複雜的 AI 呼叫。追蹤每次安全修補的成本，計算 ROI（手動修補成本 vs. AI 修補成本）。
-
-### 13.5 Agent 安全治理最佳實踐
-
-#### AI Agent 權限分級模型
-
-| 等級 | 信任程度 | 可執行操作 | 適用場景 |
-|------|---------|-----------|---------|
-| **Level 0** | 唯讀 | 讀取程式碼、產出分析報告 | 安全審計、架構分析 |
-| **Level 1** | 受限寫入 | 修改測試檔案、文件 | 測試生成、文件更新 |
-| **Level 2** | 標準開發 | 修改原始碼、建立 PR | 日常開發、Bug 修補 |
-| **Level 3** | 進階操作 | 修改 CI/CD、安裝依賴 | 基礎設施變更 |
-| **Level 4** | 完全自主 | 部署、資料庫 migration | 不建議（需人工審核） |
-
-#### Agent 操作護欄設計
-
-```yaml
-# .autoresearch/agent-guardrails.yaml
-guardrails:
-  # 禁止操作
-  deny:
-    - pattern: "rm -rf /"
-    - pattern: "DROP TABLE"
-    - pattern: "git push --force"
-    - pattern: "chmod 777"
-    - file_patterns: ["*.env", "secrets/*", "production.yml"]
-
-  # 需要人工確認
-  require_approval:
-    - action: "modify database schema"
-    - action: "change authentication logic"
-    - action: "update production config"
-    - action: "install new dependency"
-
-  # 自動回滾條件
-  auto_rollback:
-    - condition: "test_coverage < previous_coverage"
-    - condition: "security_score < previous_score"
-    - condition: "build_fails"
-
-  # 操作稽核
-  audit:
-    enabled: true
-    retention_days: 90
-    export_to: "siem"
-    alert_on: ["Level 3+ operations", "deny rule triggered"]
-```
-
-#### 企業 AI 治理 Checklist
-
-- [ ] 設定 Content Exclusions（排除機敏資料目錄）
-- [ ] 啟用 Audit Log 並整合至 SIEM
-- [ ] 設定多層 Budget Controls
-- [ ] 定義 Agent 權限分級政策
-- [ ] 建立 Agent 操作護欄（Guardrails）
-- [ ] 設定自動回滾機制
-- [ ] 建立 AI 生成程式碼的審核流程
-- [ ] 定期檢視 Agent 操作紀錄
-- [ ] 設定 IP 保護政策（Content Exclusions + 模型選擇）
-- [ ] 建立 AI 事件回應程序（Agent 異常行為 SOP）
-
----
-
-## 第 14 章：Anti-Patterns（常見錯誤）
-
-### 14.1 致命錯誤（Must Avoid）
-
-#### ❌ Anti-Pattern 1：AI 無限制修改 Production Code
-
-```mermaid
-graph LR
-    AR[AutoResearch] -->|直接修改| PROD[(Production)]
-    style PROD fill:#f44336,color:#fff
-```
-
-**問題**：AI Agent 直接修改生產環境程式碼，無人工審核。
-
-**後果**：
-- AI 生成的程式碼可能包含邏輯錯誤
-- 安全漏洞直接進入生產環境
-- 無法追蹤問題根因
-
-**正確做法**：
-
-```mermaid
-graph LR
-    AR[AutoResearch] -->|PR| DEV[Develop Branch]
-    DEV -->|Code Review| STAGING[Staging]
-    STAGING -->|人工確認| PROD[(Production)]
-    style PROD fill:#4caf50,color:#fff
-```
-
----
-
-#### ❌ Anti-Pattern 2：未設計 Rollback 機制
-
-```python
-# ❌ 錯誤：沒有回滾機制
-def deploy_ai_changes():
-    changes = autoresearch.run()
-    apply_to_production(changes)  # 直接部署，無法回滾！
-```
-
-```python
-# ✅ 正確：完整的回滾機制
-def deploy_ai_changes():
-    changes = autoresearch.run()
-    snapshot = create_snapshot()  # 建立快照
-
+def check_line(no, line):
+    s = re.sub(r"^\s*(\$|PS>|>)\s*", "", line)
+    s = re.sub(r"\s+#.*$", "", s)                      # 去掉行尾註解
+    m = re.match(r"(?:gh\s+)?(claude|copilot)(\s|$)", s)
+    if not m:
+        return []
+    tool = m.group(1)
+    flags, subs = TOOLS[tool]
     try:
-        apply_to_staging(changes)
-        run_smoke_tests()
-        apply_to_production(changes)
-    except Exception:
-        rollback_to_snapshot(snapshot)  # 回滾
-        alert_team("部署失敗，已自動回滾")
+        toks = shlex.split(s[m.end(1):].replace("\\\n", " "), posix=True)
+    except ValueError:
+        toks = s[m.end(1):].split()
+    problems = []
+    # 子指令只看第一個 token（旗標後面的值，例如 --permission-mode plan，不是子指令）
+    first = toks[0] if toks else ""
+    if re.fullmatch(r"[a-z][a-z-]*", first) and first not in subs:
+        problems.append(f"{tool} 沒有子指令 `{first}`")
+    second = toks[1] if len(toks) > 1 else ""
+    if tool == "claude" and first in NESTED and re.fullmatch(r"[a-z][a-z-]*", second) \
+            and second not in NESTED[first]:
+        problems.append(f"claude {first} 沒有子指令 `{second}`")
+    if tool == "copilot" and toks[:2] == ["config", "set"]:
+        problems.append("copilot config 語法是 `copilot config <key> <value>`，沒有 set 動詞")
+    for t in toks:
+        if t.startswith("--") and len(t) > 2:
+            name = t.split("=", 1)[0]
+            if name not in flags:
+                problems.append(f"{tool} 沒有旗標 `{name}`")
+    return [f"L{no}: {p}  ← {line.strip()[:90]}" for p in problems]
+
+
+def main(path):
+    md = Path(path).read_text(encoding="utf-8")
+    found = [p for no, line in code_lines(md) for p in check_line(no, line)]
+    for p in found:
+        print("ERROR", p)
+    print(f"{len(found)} error(s)")
+    return 1 if found else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1]))
 ```
+
+白名單來源：本機 `claude --help`、`copilot --help`，以及官方 CLI reference 頁面。對 v3.0 全文的結果（作為附錄 F.1 的證據之一）：
+
+```text
+ERROR L1521: claude 沒有旗標 `--auto`  ← claude --auto "掃描 src/ 目錄找出所有 SQL injection 和 XSS 漏洞，
+ERROR L1526: claude 沒有旗標 `--sandbox`  ← claude --sandbox "在隔離環境中執行 DAST 腳本，
+ERROR L2060: claude 沒有子指令 `routine`  ← claude routine create \
+ERROR L2070: claude 沒有子指令 `routine`  ← claude routine create \
+ERROR L2176: claude 沒有子指令 `channel`  ← claude channel create \
+ERROR L4376: claude 沒有旗標 `--command`  ← claude mcp add my-security-db --command "python security_db_server.py"
+ERROR L4616: claude plugin 沒有子指令 `search`  ← claude plugin search security
+ERROR L4697: claude 沒有子指令 `channel`  ← claude channel create --name "security-alerts"
+ERROR L4700: claude 沒有子指令 `channel`  ← claude channel info security-alerts
+ERROR L4767: claude 沒有子指令 `review`  ← claude review --ultra PR_URL
+ERROR L4767: claude 沒有旗標 `--ultra`  ← claude review --ultra PR_URL
+ERROR L4770: claude 沒有旗標 `--headless`  ← claude --headless -p "ultrareview this PR focusing on security" \
+ERROR L4803: claude 沒有旗標 `--auto`  ← claude --auto "完成以下安全修補任務：
+ERROR L4821: claude 沒有旗標 `--sandbox`  ← claude --sandbox "執行 DAST 掃描腳本，
+ERROR L4845: claude 沒有子指令 `analytics`  ← claude analytics
+ERROR L4848: claude 沒有旗標 `--otel-endpoint`  ← claude --otel-endpoint "http://otel-collector:4318"
+ERROR L5144: copilot config 語法是 `copilot config <key> <value>`，沒有 set 動詞  ← gh copilot config set trust-level high
+17 error(s)
+```
+
+對本手冊 v4.0 全文的結果見附錄 F.4。
+
+### 21.7 本章審查與驗證清單
+
+| 檢查 | ✅ 標準 | 🧪 如何驗證 |
+| --- | --- | --- |
+| 每種 AI 產出都有對應的驗證層 | 21.3 節的表格每一列至少有 L1 或 L2，加上 L3 | 對照表格 |
+| 檢查器都有反向案例 | `expect=fail` 的項目確實失敗 | `run_all.sh` 的 summary |
+| 人工審查有清單 | 每章最後一節 | PR 範本引用對應清單 |
+| 檢查器本身會過時 | 白名單隨官方文件更新 | 每月重新萃取白名單（第 17.4 節） |
 
 ---
 
-#### ❌ Anti-Pattern 3：無測試直接部署
+## 附錄
 
-```yaml
-# ❌ 錯誤的 CI/CD Pipeline：跳過測試
-jobs:
-  deploy:
-    steps:
-      - uses: actions/checkout@v4
-      - run: autoresearch --optimize
-      - run: deploy.sh  # 直接部署！沒有測試！
-```
+## 附錄 A：檢查清單彙總
 
-```yaml
-# ✅ 正確的 CI/CD Pipeline：完整驗證
-jobs:
-  test:
-    steps:
-      - run: pytest tests/ --cov=src
-      - run: semgrep scan --config auto
-  security-gate:
-    needs: test
-    steps:
-      - run: check_security_gate.sh
-  deploy:
-    needs: security-gate
-    steps:
-      - run: deploy.sh
-```
+### A.1 導入前
 
----
+- [ ] 依第 3.1 節四個條件，確認目標場景適合自主迴圈
+- [ ] 威脅模型完成，`check_threat_trace.sh` 回報 `untested=0 missing_tests=0`
+- [ ] 安全測試全部通過 `red_first.sh`
+- [ ] 功能測試涵蓋主要行為（作為硬性閘門）
+- [ ] 評估器放在 repo 外，規則檔與工具版本鎖定
+- [ ] 在基準點執行 `evaluate.py --init`，鎖定受保護檔案
+- [ ] program.md 通過 `check_program_md.py` 9/9，且由 Security Champion 審查
+- [ ] 迴圈 repo 已處理換行設定（`core.autocrlf false` 或評估器正規化）
 
-### 14.2 常見設計錯誤
+### A.2 Claude Code 設定
 
-#### ❌ Anti-Pattern 4：program.md 過於寬泛
+- [ ] `permissions.defaultMode: dontAsk`，allow 清單只有迴圈需要的動作
+- [ ] deny：`tests/`、`program.md`、`.claude/`、`.github/`、`.env`、推送、網路、安裝套件
+- [ ] 允許清單包含迴圈會寫的紀錄檔（`Edit(/run.log)`、`Edit(/results.tsv)`）
+- [ ] 守門 hook：matcher 含 `Bash`、`PowerShell` 與檔案工具，`onFailure: block`，`test_guard.py` 全部通過
+- [ ] sandbox：在 WSL2／Linux／macOS 上啟用；`failIfUnavailable`、`allowUnsandboxedCommands: false`、`denyRead` 憑證目錄
+- [ ] managed settings：`disableBypassPermissionsMode`、marketplace 與 MCP 允許清單
+- [ ] `check_claude_config.py` 回報 0 錯
 
-```markdown
-# ❌ 錯誤的 program.md
-## 目標
-讓程式碼變得更好
+### A.3 GitHub Copilot 設定
 
-## 策略
-盡量優化
-```
+- [ ] `.github/hooks/*.json`：`version: 1`，守門 hook 夠快（逾時即放行）
+- [ ] custom instructions 與 path-specific instructions（`applyTo`、`excludeAgent`）
+- [ ] CLI 迴圈使用 `--available-tools`、`--deny-tool`、`--max-autopilot-continues`、`--max-ai-credits`、`--no-ask-user`
+- [ ] `copilot-setup-steps.yml` job 名稱正確、timeout ≤ 59
+- [ ] AI Credits 預算與超額政策已設定
+- [ ] `check_copilot_config.py` 回報 0 錯
 
-```markdown
-# ✅ 正確的 program.md
-## 目標
-降低 GET /api/v1/orders 的 P99 延遲從 2000ms 至 200ms 以下
+### A.4 CI/CD
 
-## 策略（依優先順序）
-1. 修復 N+1 Query（使用 JOIN）
-2. 加入 Redis 快取（TTL: 60s）
-3. 加入資料庫連線池
+- [ ] 所有 action 釘選 40 碼 SHA；workflow 層級 `permissions: {}`
+- [ ] 執行 Agent 的 job 唯讀；推送與開 PR 放在另一個 job
+- [ ] 評估器從受保護 repo 以固定 SHA 取出，移到 `$RUNNER_TEMP` 並設為唯讀
+- [ ] AI 審查只在同 repo 的 PR 執行
+- [ ] Ruleset：必要檢查、人類審查、最新 push 需重新核准、CODEOWNERS
+- [ ] actionlint、zizmor 無發現；Agentic workflow 以 `gh aw compile` 編譯
 
-## 評估標準
-METRIC:p99_latency_ms 低於 200 才 KEEP
-```
+### A.5 每次迴圈結束
 
----
+- [ ] `analyze_results.py`：檢查 gate FAIL 原因，規避評估的嘗試已升級給安全團隊
+- [ ] `git diff --stat` 只有 `app/`
+- [ ] 每個 keep commit 通過第 9.4 節六項檢查
+- [ ] 修補符合 ADR
+- [ ] 先紅後綠在 master 與分支上成立
+- [ ] 整合點（例如例外轉成 HTTP 狀態碼）已由人類確認
 
-#### ❌ Anti-Pattern 5：AI Agent 權限過大
+### A.6 維運
 
-```yaml
-# ❌ 錯誤：給 AI Agent 過多權限
-agent_permissions:
-  can_access_production_db: true
-  can_modify_infrastructure: true
-  can_delete_files: true
-  can_install_any_package: true
-```
-
-```yaml
-# ✅ 正確：最小權限原則
-agent_permissions:
-  can_access_production_db: false
-  can_modify_infrastructure: false
-  can_delete_files: false
-  can_install_any_package: false
-  allowed_operations:
-    - read_source_code
-    - modify_source_code  # 限定範圍內
-    - run_tests
-    - run_linter
-```
-
----
-
-#### ❌ Anti-Pattern 6：忽略 LLM 幻覺（Hallucination）
-
-```python
-# ❌ 錯誤：直接信任 AI 生成的套件名稱
-# AI 可能生成不存在的套件，導致 Supply Chain Attack
-def install_ai_suggested_packages(packages: list[str]):
-    for pkg in packages:
-        subprocess.run(["pip", "install", pkg])  # 危險！
-```
-
-```python
-# ✅ 正確：驗證套件合法性
-ALLOWED_PACKAGES = {"requests", "flask", "pytest", "numpy", "pandas"}
-
-def install_ai_suggested_packages(packages: list[str]):
-    for pkg in packages:
-        if pkg not in ALLOWED_PACKAGES:
-            raise ValueError(
-                f"套件 {pkg} 不在允許清單中，需人工審核"
-            )
-        subprocess.run(["pip", "install", pkg], check=True)
-```
-
----
-
-### 14.3 Anti-Patterns 總覽表
-
-| # | Anti-Pattern | 風險等級 | 正確做法 |
-|---|-------------|---------|---------|
-| 1 | AI 直接修改 Production | **致命** | 透過 PR + Code Review |
-| 2 | 無 Rollback 機制 | **致命** | 完整快照 + 回滾腳本 |
-| 3 | 無測試直接部署 | **致命** | 必經測試 + 安全閘門 |
-| 4 | program.md 過於寬泛 | **高** | 明確目標 + 量化指標 |
-| 5 | AI Agent 權限過大 | **高** | 最小權限原則 |
-| 6 | 忽略 LLM 幻覺 | **高** | 白名單 + 驗證 |
-| 7 | 同時優化多面向 | **中** | 單一面向聚焦 |
-| 8 | 無 API 用量監控 | **中** | 設定預算上限 + 告警 |
-| 9 | program.md 未版控 | **中** | Git 管理 + Code Review |
-| 10 | 忽略 Drift 偵測 | **中** | 定期檢查 + 更新策略 |
-| 11 | Agent 無操作稽核 | **高** | 啟用 Audit Log + SIEM 整合 |
-| 12 | Agent Fleet 無資源隔離 | **高** | 各 Sub-agent 使用獨立 Branch/Worktree |
-| 13 | 信任 Agent 產出不驗證 | **高** | 安全掃描閘門 + 人工審核 |
-| 14 | AI Credits 無預算控制 | **中** | 設定多層 Budget Controls |
-| 15 | Agent 共享 Context 過大 | **中** | 使用 Subagent 隔離 + CLAUDE.md 精簡 |
-
-> **💡 企業導入建議**：建議在團隊 Wiki 中維護「AutoResearch Anti-Patterns 清單」，新進成員 Onboarding 時必須閱讀。每次遇到問題都應回顧並更新此清單。
-
----
-
-## 附錄 A：Docker Compose 範例
-
-### 完整開發環境
-
-```yaml
-# docker-compose.yml
-version: '3.9'
-
-services:
-  # AutoResearch Agent
-  autoresearch:
-    build:
-      context: .
-      dockerfile: Dockerfile.autoresearch
-    container_name: ar-agent
-    environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - AUTORESEARCH_TIME_BUDGET=${AR_TIME_BUDGET:-300}
-      - REDIS_URL=redis://redis:6379
-      - GIT_REPO_URL=${GIT_REPO_URL}
-    volumes:
-      - workspace:/workspace
-      - ./programs:/programs:ro
-    depends_on:
-      - redis
-    networks:
-      - ar-network
-
-  # Redis（快取 + 分散式鎖）
-  redis:
-    image: redis:7-alpine
-    container_name: ar-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    networks:
-      - ar-network
-
-  # Elasticsearch（日誌儲存）
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
-    container_name: ar-elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
-    networks:
-      - ar-network
-
-  # Kibana（日誌視覺化）
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.12.0
-    container_name: ar-kibana
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
-    networks:
-      - ar-network
-
-  # Prometheus（指標收集）
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: ar-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prom-data:/prometheus
-    networks:
-      - ar-network
-
-  # Grafana（指標視覺化）
-  grafana:
-    image: grafana/grafana:latest
-    container_name: ar-grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
-    volumes:
-      - grafana-data:/var/lib/grafana
-    depends_on:
-      - prometheus
-    networks:
-      - ar-network
-
-volumes:
-  workspace:
-  redis-data:
-  es-data:
-  prom-data:
-  grafana-data:
-
-networks:
-  ar-network:
-    driver: bridge
-```
-
-### .env 範例
-
-```bash
-# .env.example（複製為 .env 並填入實際值）
-
-# === LLM API Keys ===
-ANTHROPIC_API_KEY=sk-ant-your-key-here
-OPENAI_API_KEY=sk-your-key-here
-
-# === Git ===
-GIT_REPO_URL=https://github.com/your-org/your-repo.git
-GITHUB_TOKEN=ghp_your-token-here
-
-# === AutoResearch ===
-AR_TIME_BUDGET=300
-AR_MAX_ITERATIONS=10
-
-# === Infrastructure ===
-REDIS_URL=redis://localhost:6379
-GRAFANA_PASSWORD=your-secure-password
-
-# === Security ===
-SEMGREP_APP_TOKEN=your-semgrep-token
-SNYK_TOKEN=your-snyk-token
-```
-
-### Dockerfile
-
-```dockerfile
-# Dockerfile.autoresearch
-FROM python:3.12-slim
-
-WORKDIR /app
-
-# 安裝系統依賴
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# 安裝 Claude Code（原生安裝，不再需要 Node.js）
-RUN curl -fsSL https://claude.ai/install.sh | bash
-
-# 安裝 uv（AutoResearch 使用 uv 管理依賴）
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# 安裝 Python 依賴（使用 uv）
-COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen
-
-# 安裝安全掃描工具
-RUN pip install --no-cache-dir semgrep pip-audit safety
-
-# 複製應用程式碼
-COPY . .
-
-# 非 root 使用者（安全最佳實踐）
-RUN useradd --create-home appuser
-USER appuser
-
-ENTRYPOINT ["python", "autoresearch_engine.py"]
-```
+- [ ] 遙測：`claude_code.cost.usage`、`code_edit_tool.decision`（`source=hook`）告警
+- [ ] Collector 刪除 `user.email`，`otelcol validate` 通過
+- [ ] 每月更新工具基線與檢查器白名單，重跑 `run_all.sh`
+- [ ] Runbook 演練：迴圈中止、合併後以 `git revert` 回滾
 
 ---
 
 ## 附錄 B：專案目錄結構
 
-```
-autoresearch-ssdlc/
-├── .github/
-│   ├── workflows/
-│   │   ├── ssdlc-pipeline.yml        # 主 CI/CD Pipeline
-│   │   ├── autoresearch-manual.yml    # 手動觸發
-│   │   └── autoresearch-schedule.yml  # 排程觸發
-│   └── CODEOWNERS                     # 程式碼擁有者
-├── config/
-│   ├── agents.yaml                    # 多 Agent 設定
-│   ├── distributed.yaml               # 分散式設定
-│   ├── prometheus.yml                 # Prometheus 設定
-│   └── security-policy.yaml           # 安全策略
-├── programs/
-│   ├── performance.md                 # 效能優化策略
-│   ├── security.md                    # 安全強化策略
-│   ├── quality.md                     # 品質改善策略
-│   └── testing.md                     # 測試生成策略
-├── scripts/
-│   ├── setup.ps1                      # Windows 安裝腳本
-│   ├── setup.sh                       # Linux 安裝腳本
-│   ├── security_scan.sh               # 安全掃描腳本
-│   ├── aggregate_security.py          # 掃描結果彙總
-│   ├── rollback.sh                    # 回滾腳本
-│   └── drift_detector.py             # Drift 偵測
-├── src/
-│   ├── api/                           # API 層
-│   ├── services/                      # 服務層
-│   ├── repositories/                  # 資料存取層
-│   └── models/                        # 資料模型
+### B.1 企業導入時的 repo 配置
+
+```text
+my-org/ssdlc-harness/            ← 受保護的評估器 repo（安全團隊維護，CODEOWNERS）
+├── evaluate.py
+├── semgrep-rules.yml
+├── protected.sha256.json        （每個目標 repo 一份，或依 repo 名稱分目錄）
+└── attacks/                     （規避評估的攻擊樣本：第 16 章的 02、03、05 輪）
+
+my-org/my-app/                   ← 目標 repo
+├── app/                         ← Agent 唯一可修改的範圍
 ├── tests/
-│   ├── unit/                          # 單元測試
-│   ├── integration/                   # 整合測試
-│   ├── security/                      # 安全測試
-│   └── performance/                   # 效能測試
-├── k8s/
-│   ├── autoresearch-deployment.yaml   # K8s 部署
-│   └── autoresearch-hpa.yaml          # 自動擴縮
-├── .autoresearch/
-│   └── security-policy.yaml           # Agent 安全策略
-├── .vscode/
-│   └── settings.json                  # VS Code 設定
-├── autoresearch_engine.py             # 核心執行引擎
-├── security_autofix.py                # 安全自動修補
-├── deploy_decision.py                 # 部署決策引擎
-├── conflict_resolver.py               # 衝突解決器
-├── evaluator.py                       # 多維度評估引擎
-├── docker-compose.yml                 # Docker Compose
-├── Dockerfile.autoresearch            # Dockerfile
-├── pyproject.toml                     # uv 專案定義與 Python 相依
-├── uv.lock                            # uv 鎖定檔
-├── requirements-dev.txt               # 開發相依
-├── .env.example                       # 環境變數範例
-├── .gitignore                         # Git 忽略規則
-└── README.md                          # 專案說明
+│   ├── test_functional.py       ← 閘門
+│   └── test_security.py         ← 指標
+├── docs/
+│   ├── threat-model.md
+│   └── adr/ADR-007-session.md
+├── program.md                   ← Security Champion 維護
+├── CLAUDE.md
+├── AGENTS.md                    （選用：給其他 Agent）
+├── .claude/
+│   ├── settings.json
+│   ├── hooks/guard_ssdlc.py
+│   ├── skills/ssdlc-autoresearch/SKILL.md
+│   ├── agents/security-reviewer.md
+│   ├── claude-security-guidance.md
+│   └── security-patterns.json
+├── .github/
+│   ├── CODEOWNERS
+│   ├── copilot-instructions.md
+│   ├── instructions/security-review.instructions.md
+│   ├── hooks/{ssdlc-guard.json,guard_ssdlc.py}
+│   └── workflows/
+│       ├── ssdlc-gate.yml
+│       ├── claude-security-review.yml
+│       ├── autoresearch-nightly.yml
+│       ├── copilot-setup-steps.yml
+│       ├── release.yml
+│       ├── security-digest.md
+│       └── security-digest.lock.yml
+├── .pre-commit-config.yaml
+└── .gitignore                   （results.tsv、run.log）
+```
+
+### B.2 本手冊驗證套件的配置
+
+```text
+val/
+├── run_all.sh                   ← 總入口：20＋項驗證，結果寫入 results/
+├── ssdlc-loop/                  ← 第 16 章：評估器、玩具 repo、9 輪 attempt
+├── hooks/                       ← 守門 hook 與 34 個案例
+├── sdk/autoresearch_sdk.py      ← Agent SDK 驅動程式（--self-test）
+├── configs/                     ← 第 5、6、12、15、17、19 章的設定範例
+│   ├── .claude/ .github/ CLAUDE.md managed-settings.json
+│   └── otel/otel-collector.yaml
+├── checkers/                    ← 檢查器、白名單、正反向測試資料
+│   ├── check_claude_config.py  check_copilot_config.py  check_flags.py
+│   ├── check_program_md.py  check_threat_trace.sh  red_first.sh  analyze_results.py
+│   ├── whitelists/              ← 自官方文件與 --help 萃取
+│   └── fixtures/                ← v3.0 範例、刻意錯誤的設定、AI 草稿、弱測試
+├── bin/                         ← gitleaks、actionlint、jq、otelcol（固定版本）
+└── results/                     ← 各項驗證的輸出，由 build 腳本嵌入手冊
 ```
 
 ---
 
-## 附錄 C：檢查清單（Checklist）
+## 附錄 C：術語表
 
-### C.1 環境建置 Checklist
-
-- [ ] Python 3.11+ 已安裝
-- [ ] Node.js 18+ 已安裝
-- [ ] Git 2.40+ 已安裝並設定 GPG 簽章
-- [ ] VS Code 已安裝並啟用 Copilot
-- [ ] GitHub Copilot 擴充套件已安裝
-- [ ] Claude Code CLI 已安裝
-- [ ] Docker 已安裝（可選）
-- [ ] `.env` 檔案已建立並填入 API Keys
-- [ ] `.env` 已加入 `.gitignore`
-- [ ] 虛擬環境已建立並啟用
-- [ ] 所有相依套件已安裝
-
-### C.2 AutoResearch 設定 Checklist
-
-- [ ] `program.md` 已撰寫並通過團隊審核
-- [ ] 目標指標已定義且可量化
-- [ ] 可修改範圍已明確限定
-- [ ] 禁止清單已設定
-- [ ] Keep/Revert 規則已定義
-- [ ] Time Budget 已設定
-- [ ] Git 分支策略已確認
-- [ ] 安全策略（`security-policy.yaml`）已設定
-
-### C.3 CI/CD Pipeline Checklist
-
-- [ ] GitHub Actions Workflow 已建立
-- [ ] 建置與測試 Job 已設定
-- [ ] SAST 掃描已整合（Semgrep）
-- [ ] SCA 掃描已整合（pip-audit / Snyk）
-- [ ] Secret Scanning 已啟用
-- [ ] 安全閘門已設定
-- [ ] AutoResearch 自動觸發已設定
-- [ ] PR 自動建立已設定
-- [ ] Branch Protection Rules 已啟用
-- [ ] `AUTORESEARCH_PAT` Secret 已設定
-
-### C.4 安全 Checklist
-
-- [ ] API Keys 未硬編碼在程式碼中
-- [ ] 所有 API 端點有輸入驗證
-- [ ] SQL 查詢使用參數化查詢
-- [ ] 密碼使用安全雜湊（bcrypt / Argon2）
-- [ ] JWT Token 有適當過期時間
-- [ ] Rate Limiting 已設定
-- [ ] CORS 已正確設定
-- [ ] HTTPS 強制啟用
-- [ ] 日誌不含機密資訊
-- [ ] AI Agent 遵循最小權限原則
-
-### C.5 維運 Checklist
-
-- [ ] 日誌收集已設定（ELK / CloudWatch）
-- [ ] 監控 Dashboard 已建立
-- [ ] 告警規則已設定
-- [ ] Drift 偵測已啟用
-- [ ] 回滾腳本已準備並測試
-- [ ] API Key 輪替排程已設定
-- [ ] AutoResearch PR 審核流程已確認
-- [ ] Post-Mortem 流程已建立
-- [ ] 定期回滾演練已排程
-
-### C.6 團隊導入 Checklist
-
-- [ ] 團隊成員已完成本手冊閱讀
-- [ ] Anti-Patterns 清單已分享
-- [ ] Code Review 規範已更新（含 AI 生成程式碼）
-- [ ] On-Call 流程已更新（含 AutoResearch 異常處理）
-- [ ] 維運日誌開始記錄
-- [ ] 第一個試點專案已選定
-- [ ] 成功指標已定義
-- [ ] 擴展計畫已擬定
+| 術語 | 說明 |
+| --- | --- |
+| AutoResearch | Karpathy 的開源專案：讓 coding agent 依 `program.md` 自主修改 `train.py`、訓練 5 分鐘、以 `val_bpb` 決定 keep 或 discard |
+| program.md | 給 Agent 的研究流程指令，由人類維護；上游稱之為輕量級的 skill |
+| val_bpb | validation bits per byte，上游的指標，越低越好，與詞彙表大小無關 |
+| sec_debt | 本手冊的安全負債指標：掃描發現與失敗安全測試的加權總和，越低越好 |
+| 評估器（harness） | 計算指標的固定程式；Agent 不得修改。上游為 `prepare.py`，本手冊為 `evaluate.py` |
+| 閘門（gate） | 必須通過的條件，失敗即 discard，與指標高低無關 |
+| keep／discard／crash | 每輪實驗的三種結果：保留 commit／`git reset` 回退／沒有產生指標 |
+| results.tsv | 每輪實驗的紀錄，tab 分隔，不進版控 |
+| Reward hacking | Agent 讓指標變好但目標沒有達成，例如刪測試、加抑制標記 |
+| 先紅後綠（red-first） | 安全測試必須在弱點版本失敗、在修補版本通過 |
+| 受保護檔案雜湊 | 在基準點記錄測試與指令檔的 SHA-256，評估時比對 |
+| 抑制標記 | `# nosec`、`nosemgrep`、`gitleaks:allow` 等讓掃描器略過的註解 |
+| SSDLC | Secure Software Development Lifecycle，安全軟體開發生命週期 |
+| SSDF | NIST SP 800-218 Secure Software Development Framework |
+| SLSA | Supply-chain Levels for Software Artifacts，v1.2 包含 Build 與 Source 兩個 track |
+| Provenance | 建置來源證明：產出物由哪個來源、在哪個平台、以什麼流程建置 |
+| Hook | Agent 在特定事件（如工具呼叫前）執行的確定性程式 |
+| fail-closed／fail-open | 控制機制本身失敗時，預設拒絕／預設放行 |
+| `dontAsk` | Claude Code 權限模式：只執行預先允許的動作，其他一律拒絕 |
+| Autopilot | Copilot CLI 的自主模式，Agent 自行繼續工作 |
+| Safe outputs | GitHub Agentic Workflows 中，Agent 只能「要求」的寫入動作，由另一個有權限的 job 執行 |
+| AI Credits | GitHub Copilot 自 2026-06-01 起的計費單位，1 credit = 0.01 美元 |
+| Managed settings | 由組織派送、不可被專案或個人覆寫的 Claude Code 設定 |
+| Worktree | Git 的多工作目錄機制，平行迴圈各自使用一個 |
+| ASI01–ASI10 | OWASP Top 10 for Agentic Applications 2026 的風險編號 |
 
 ---
 
-> **📝 文件維護說明**  
-> 本手冊應隨技術演進與團隊經驗持續更新。建議每季度進行一次全面審閱，確保內容與實際做法一致。所有變更請透過 Pull Request 並標記 `documentation` 標籤。
+## 附錄 D：參考資源
+
+### D.1 AutoResearch
+
+| 資源 | 說明 |
+| --- | --- |
+| [karpathy/autoresearch](https://github.com/karpathy/autoresearch) | 上游 repo：README、`program.md`、`prepare.py`、`train.py` |
+| [karpathy/nanochat](https://github.com/karpathy/nanochat) | 訓練程式的來源，支援更多平台 |
+| [miolini/autoresearch-macos](https://github.com/miolini/autoresearch-macos)、[trevin-creator/autoresearch-mlx](https://github.com/trevin-creator/autoresearch-mlx)、[jsegov/autoresearch-win-rtx](https://github.com/jsegov/autoresearch-win-rtx)、[andyluo7/autoresearch](https://github.com/andyluo7/autoresearch) | README 列出的平台 fork |
+
+### D.2 Claude Code
+
+| 主題 | 文件 |
+| --- | --- |
+| 總覽 | [Overview](https://code.claude.com/docs/en/overview) |
+| 設定與優先順序 | [Settings](https://code.claude.com/docs/en/settings)、[Settings reference](https://code.claude.com/docs/en/settings-reference) |
+| 權限 | [Permissions](https://code.claude.com/docs/en/permissions)、[Permission modes](https://code.claude.com/docs/en/permission-modes) |
+| Sandbox | [Sandboxing](https://code.claude.com/docs/en/sandboxing) |
+| Hooks | [Hooks reference](https://code.claude.com/docs/en/hooks)、[Hooks guide](https://code.claude.com/docs/en/hooks-guide) |
+| Skills、Subagents | [Skills](https://code.claude.com/docs/en/skills)、[Subagents](https://code.claude.com/docs/en/sub-agents) |
+| 持續工作 | [/goal](https://code.claude.com/docs/en/goal)、[Scheduled tasks](https://code.claude.com/docs/en/scheduled-tasks)、[Routines](https://code.claude.com/docs/en/routines) |
+| 安全功能 | [Security guidance plugin](https://code.claude.com/docs/en/security-guidance)、[Claude Security plugin](https://code.claude.com/docs/en/claude-security)、[Code Review](https://code.claude.com/docs/en/code-review)、[Ultrareview](https://code.claude.com/docs/en/ultrareview) |
+| CI | [GitHub Actions](https://code.claude.com/docs/en/github-actions)、[anthropics/claude-code-action](https://github.com/anthropics/claude-code-action) |
+| Agent SDK | [Agent SDK overview](https://code.claude.com/docs/en/agent-sdk/overview)、[Python reference](https://code.claude.com/docs/en/agent-sdk/python) |
+| 遙測 | [Monitoring usage](https://code.claude.com/docs/en/monitoring-usage) |
+| 平行 | [Worktrees](https://code.claude.com/docs/en/worktrees)、[Dynamic workflows](https://code.claude.com/docs/en/workflows)、[Agent teams](https://code.claude.com/docs/en/agent-teams) |
+| CLI | [CLI reference](https://code.claude.com/docs/en/cli-reference)、[Commands](https://code.claude.com/docs/en/commands) |
+
+### D.3 GitHub Copilot
+
+| 主題 | 文件 |
+| --- | --- |
+| 總覽 | [GitHub Copilot documentation](https://docs.github.com/en/copilot) |
+| Custom instructions | [Adding repository custom instructions](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/add-custom-instructions/add-repository-instructions) |
+| Hooks | [About hooks](https://docs.github.com/en/copilot/concepts/customizations/hooks)、[Hooks reference](https://docs.github.com/en/copilot/reference/hooks-reference) |
+| Copilot CLI | [Allowing tools](https://docs.github.com/en/copilot/how-tos/copilot-cli/use-copilot-cli/allowing-tools)、[Autopilot](https://docs.github.com/en/copilot/how-tos/copilot-cli/use-copilot-cli/use-autopilot-mode) |
+| Cloud agent | [Customizing the agent environment](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/customize-the-agent-environment) |
+| Code review | [Configuring automatic code review](https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/configure-code-review) |
+| Automations | [About automations](https://docs.github.com/en/copilot/concepts/agent-capabilities/agent-powered-workflows-and-operations/about-automations) |
+| Agentic Workflows | [About GitHub Agentic Workflows](https://docs.github.com/en/copilot/concepts/agent-capabilities/agent-powered-workflows-and-operations/about-github-agentic-workflows)、[gh-aw 文件](https://github.github.com/gh-aw/) |
+| 計費 | [AI Credits for organizations and enterprises](https://docs.github.com/en/copilot/concepts/billing-and-usage/organizations-and-enterprises/billing) |
+
+### D.4 標準與框架
+
+| 標準 | 連結 |
+| --- | --- |
+| NIST SSDF SP 800-218 | [csrc.nist.gov/projects/ssdf](https://csrc.nist.gov/projects/ssdf) |
+| NIST SP 800-218A | [csrc.nist.gov/pubs/sp/800/218/a/final](https://csrc.nist.gov/pubs/sp/800/218/a/final) |
+| OWASP Top 10:2025 | [owasp.org/Top10/2025](https://owasp.org/Top10/2025/) |
+| OWASP Top 10 for Agentic Applications 2026 | [genai.owasp.org](https://genai.owasp.org/) |
+| SLSA v1.2 | [slsa.dev/spec/v1.2](https://slsa.dev/spec/v1.2/) |
+
+### D.5 工具
+
+| 工具 | 連結 |
+| --- | --- |
+| bandit | [PyCQA/bandit](https://github.com/PyCQA/bandit) |
+| semgrep | [semgrep/semgrep](https://github.com/semgrep/semgrep) |
+| gitleaks | [gitleaks/gitleaks](https://github.com/gitleaks/gitleaks) |
+| actionlint | [rhysd/actionlint](https://github.com/rhysd/actionlint) |
+| zizmor | [zizmorcore/zizmor](https://github.com/zizmorcore/zizmor) |
+| OpenTelemetry Collector | [open-telemetry/opentelemetry-collector-releases](https://github.com/open-telemetry/opentelemetry-collector-releases) |
 
 ---
 
-## 附錄 D：術語表（Glossary）
+## 附錄 E：v3.0 → v4.0 章節對照
 
-| 術語 | 英文 | 說明 |
-|------|------|------|
-| AutoResearch | AutoResearch | Karpathy 提出的 AI 自主研究框架，讓 Agent 在固定時間預算內自主修改、測試、評估程式碼 |
-| SSDLC | Secure Software Development Lifecycle | 安全軟體開發生命週期，在 SDLC 各階段嵌入安全實踐 |
-| val_bpb | Validation Bits Per Byte | AutoResearch 的核心評估指標，越低越好，vocab-size 無關 |
-| Claude Code | Claude Code | Anthropic 的 Agentic 編碼工具，支援 Terminal、VS Code、Desktop、Web 等多介面 |
-| CLAUDE.md | CLAUDE.md | Claude Code 的持久化指令檔案，每次會話自動載入 |
-| MCP | Model Context Protocol | 讓 AI 工具連接外部資料來源和服務的協定 |
-| Skills | Agent Skills | 可重複使用的 AI 任務定義，遵循開放標準 |
-| Hooks | Hooks | Claude Code 在特定事件觸發時自動執行的腳本 |
-| Subagents | Subagents | 在獨立 Context 中運行的子代理人 |
-| Worktree | Git Worktree | Git 工作樹，讓多個會話在獨立目錄中平行工作 |
-| Cloud Agent | Copilot Cloud Agent | GitHub Copilot 的雲端代理人，可自主完成複雜任務 |
-| Agentic Memory | Agentic Memory | GitHub Copilot 的儲存庫級別持久記憶系統 |
-| Agent SDK | Claude Code Agent SDK | 用於建構生產級 AI Agent 的 Python/TypeScript SDK |
-| Routines | Claude Code Routines | 雲端排程任務系統，支援 cron、event trigger、API 觸發 |
-| Channels | Claude Code Channels | 事件推送頻道，讓外部系統將事件推入 Claude Code session |
-| Remote Control | Remote Control | 從手機或其他裝置遠端控制 Claude Code session |
-| Plugins | Claude Code Plugins | 可安裝的擴充功能包，類似 VS Code extensions |
-| Ultraplan | Ultraplan | Claude Code 的雲端大規模任務規劃功能 |
-| Ultrareview | Ultrareview | Claude Code 的多 Agent 平行 Code Review 功能 |
-| Auto Mode | Auto Mode | Claude Code 自動模式，不中斷執行直到任務完成 |
-| Sandbox | Sandbox | Claude Code 的隔離執行環境 |
-| Copilot CLI | GitHub Copilot CLI | 獨立的命令列 AI Agent，支援 autopilot、fleet、research |
-| Copilot App | GitHub Copilot App | GitHub Copilot 桌面應用程式 |
-| Copilot SDK | GitHub Copilot SDK | Node.js/Python/.NET SDK，用於嵌入 Copilot 能力 |
-| Copilot Spaces | Copilot Spaces | 組織和分享 AI Context 的功能 |
-| `/fleet` | Fleet | Copilot CLI 的平行子任務分派功能 |
-| `/research` | Research | Copilot CLI 的深度研究模式 |
-| Chronicle | Chronicle | Copilot CLI 的可搜尋 session 歷史紀錄 |
-| AI Credits | AI Credits | GitHub 的 AI 服務計量計費單位 |
-| Budget Controls | Budget Controls | AI Credits 消費上限設定 |
-| Agentic Workflows | GitHub Agentic Workflows | 讓 AI Agent 自主管理 CI/CD 流程的功能 |
-| Copilot Plugins | Copilot Plugins | Copilot 的擴充套件生態系 |
-| SAST | Static Application Security Testing | 靜態應用安全測試 |
-| DAST | Dynamic Application Security Testing | 動態應用安全測試 |
-| SCA | Software Composition Analysis | 軟體成分分析 |
-| SARIF | Static Analysis Results Interchange Format | 靜態分析結果交換格式 |
-| STRIDE | Spoofing, Tampering, Repudiation, Information Disclosure, Denial of Service, Elevation of Privilege | 威脅建模方法論 |
-| OWASP | Open Web Application Security Project | 開放網頁應用安全專案 |
-| CWE | Common Weakness Enumeration | 常見弱點列舉 |
-| CVE | Common Vulnerabilities and Exposures | 常見漏洞和暴露 |
-| CVSS | Common Vulnerability Scoring System | 常見漏洞評分系統 |
-| Time Budget | Time Budget | AutoResearch 的固定執行時間限制 |
-| Keep/Revert | Keep/Revert | AutoResearch 的核心決策機制：改善則保留，否則回滾 |
-| program.md | program.md | AutoResearch 的 AI 指令策略文件 |
-| Plan Mode | Plan Mode | Claude Code 的唯讀分析模式 |
-| Extended Thinking | Extended Thinking | Claude 的延伸推理功能，提供更深入的問題分析 |
-| OpenTelemetry | OpenTelemetry | 開放的 Observability 標準，用於追蹤 Agent 操作 |
-| PAT | Personal Access Token | GitHub 個人存取令牌 |
-| mTLS | Mutual TLS | 雙向 TLS 認證 |
+| v3.0 章節 | v4.0 去向 | 處理方式 |
+| --- | --- | --- |
+| 1 AutoResearch 與 SSDLC 整合概念 | 1、2、3 | 依上游原始碼重寫；新增標準對應與遷移原則 |
+| 2 系統整體架構設計 | 3.5、15.1 | 五層架構改為「評估器／可改範圍／指令檔」三件套與 CI 架構 |
+| 3 環境建置與安裝 | 4 | 更新安裝指令；新增工具版本基線、Windows 換行陷阱、sandbox 平台限制 |
+| 4 AutoResearch 核心運作解析 | 1.2–1.5、16.2–16.3 | 移除虛構的引擎與示意程式；以上游三檔案與實測的評估器取代 |
+| 5 SSDLC Workflow 設計 | 7–14 | 拆成八章，每章固定結構並附審查清單 |
+| 6 AI 自動優化機制 | 3.3、3.4、16 | 改為 sec_debt 指標、reward hacking 對策與九輪實戰 |
+| 7 CI/CD + AutoResearch 整合 | 15 | 全部改寫：釘選 SHA、最小權限、評估器隔離；通過 actionlint 與 zizmor |
+| 8 實戰案例 | 16 | 改為可重現的九輪迴圈，附實測輸出 |
+| 9 系統維運 | 17 | 新增 OTel 遙測與 collector 設定、Agent 異常 runbook；區分 reset 與 revert |
+| 10 系統升級與擴展 | 18 | 改以「誰握有評估器」為核心原則；更新 worktree、workflows、agent teams 狀態 |
+| 11 Claude Code 進階功能 | 5 | 只保留與安全迴圈相關的功能，修正虛構的 CLI 子指令、旗標、設定檔與 SDK API（附錄 F.1 第 8–29 項） |
+| 12 GitHub Copilot Agent 生態系 | 6 | 依 docs.github.com 改寫，修正虛構的設定檔與指令（附錄 F.1 第 30–37 項） |
+| 13 Best Practices | 3.2、19 | 併入設計原則與治理 |
+| 14 Anti-Patterns | 20 | 改為 AP-01～AP-10，每項附驗證方式 |
+| 附錄 A Docker Compose | — | 移除：內容未驗證，且與迴圈無直接關係 |
+| 附錄 B 專案目錄結構 | 附錄 B | 改為企業 repo 配置與驗證套件配置 |
+| 附錄 C 檢查清單 | 附錄 A | 依導入、設定、CI、迴圈後、維運重整 |
+| 附錄 D 術語表 | 附錄 C | 更新 |
+| 附錄 E 參考資源 | 附錄 D | 全部連結重新查核 |
+| （無） | 0、21、附錄 E、附錄 F | 新增：閱讀指引、審查與驗證方法論、章節對照、修正與驗證紀錄 |
 
 ---
 
-## 附錄 E：參考資源與延伸閱讀
+## 附錄 F：修正與驗證紀錄
 
-### 官方文件
+### F.1 v3.0 的修正項目
 
-| 資源 | 連結 | 說明 |
-|------|------|------|
-| AutoResearch GitHub | [github.com/karpathy/autoresearch](https://github.com/karpathy/autoresearch) | 原始碼、README、program.md |
-| Claude Code 文件 | [code.claude.com/docs](https://code.claude.com/docs/en/overview) | 完整安裝指南、功能說明、最佳實踐 |
-| Claude Code Quickstart | [code.claude.com/docs/en/quickstart](https://code.claude.com/docs/en/quickstart) | 快速入門教學 |
-| Claude Code Best Practices | [code.claude.com/docs/en/best-practices](https://code.claude.com/docs/en/best-practices) | 最佳實踐與效率技巧 |
-| Claude Code Common Workflows | [code.claude.com/docs/en/common-workflows](https://code.claude.com/docs/en/common-workflows) | 常見工作流程 |
-| GitHub Copilot 文件 | [docs.github.com/en/copilot](https://docs.github.com/en/copilot) | 完整功能說明與設定指南 |
-| GitHub Copilot Features | [docs.github.com/en/copilot/about-github-copilot/github-copilot-features](https://docs.github.com/en/copilot/about-github-copilot/github-copilot-features) | 功能總覽 |
-| Agent Skills 標準 | [github.com/agentskills/agentskills](https://github.com/agentskills/agentskills) | 開放標準規格 |
-| Copilot Agentic Memory | [docs.github.com/en/copilot/concepts/agents/copilot-memory](https://docs.github.com/en/copilot/concepts/agents/copilot-memory) | 記憶系統說明 |
-| Copilot Agent Skills | [docs.github.com/en/copilot/concepts/agents/about-agent-skills](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills) | Skills 說明 |
+依據欄位的意義：「上游」指 karpathy/autoresearch 原始碼；「CC 文件」指 code.claude.com/docs；「GH 文件」指 docs.github.com；「help」指本機 `--help` 輸出；「檢查器」指第 21 章工具的實測輸出（第 21.6 節、第 5.11 節）。
 
-### 安全標準與框架
+#### F.1.1 AutoResearch（7 項）
 
-| 資源 | 連結 | 說明 |
-|------|------|------|
-| OWASP Top 10 | [owasp.org/www-project-top-ten](https://owasp.org/www-project-top-ten/) | Web 應用安全十大風險 |
-| OWASP SAMM | [owaspsamm.org](https://owaspsamm.org/) | 軟體保證成熟度模型 |
-| NIST SSDF | [csrc.nist.gov/Projects/ssdf](https://csrc.nist.gov/Projects/ssdf) | 安全軟體開發框架 |
-| CWE | [cwe.mitre.org](https://cwe.mitre.org/) | 常見弱點列舉資料庫 |
-| STRIDE | Microsoft Threat Modeling | 威脅建模方法論 |
+| # | v3.0 位置 | v3.0 內容 | 問題 | v4.0 修正 | 依據 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | §4.5、§7.2、§7.3 | `autoresearch_engine.py` 執行引擎，CI 中呼叫它 | 上游沒有引擎，迴圈寫在 program.md、由 Agent 執行 | 第 1.3 節 | 上游 |
+| 2 | §4.2、§4.3 | `train.py`、`prepare.py` 示意程式碼與「可調整區域」 | 與上游內容無關；上游整個 `train.py` 都可修改 | 第 1.2 節 | 上游 |
+| 3 | §1.5、§4、§6、§8 多張圖 | 失敗時 `git revert` | 上游用 `git reset` 回到起點 | 第 1.3 節、第 17.3 節 | 上游 program.md |
+| 4 | §4.4 | program.md 的「策略優先順序」「Keep／Revert 規則」等結構 | 與上游 program.md 的實際結構不符 | 第 1.3 節、第 3.5 節 | 上游 |
+| 5 | §1.1 | 「已累積超過 10,000 代社群實驗」 | 誤讀 README 開頭的虛構引言 | 第 1.8 節 | 上游 README |
+| 6 | §1.1 | 89.3k stars、12.9k forks | 數據過時 | 第 1.1 節註明查詢日期 | `gh api` |
+| 7 | 全文 | 未討論 NEVER STOP、全權限、評估器隔離、reward hacking | 企業導入的關鍵風險缺漏 | 第 1.6 節、第 3 章 | 上游 program.md、README |
 
-### 工具與平台
+#### F.1.2 Claude Code 指令（11 項）
 
-| 工具 | 連結 | 用途 |
-|------|------|------|
-| uv | [docs.astral.sh/uv](https://docs.astral.sh/uv/) | Python 專案管理器（AutoResearch 使用） |
-| Semgrep | [semgrep.dev](https://semgrep.dev/) | 靜態分析（SAST） |
-| Snyk | [snyk.io](https://snyk.io/) | 軟體成分分析（SCA） |
-| Trivy | [trivy.dev](https://trivy.dev/) | 容器安全掃描 |
-| GitLeaks | [gitleaks.io](https://gitleaks.io/) | Secret Scanning |
-| pip-audit | [pypi.org/project/pip-audit](https://pypi.org/project/pip-audit/) | Python 依賴安全審計 |
+| # | v3.0 位置 | v3.0 內容 | 問題 | v4.0 修正 | 依據 |
+| --- | --- | --- | --- | --- | --- |
+| 8 | §5.3、§11.15 | `claude --auto "..."` | 沒有此旗標 | `--permission-mode auto`（第 5.2 節） | help、檢查器 |
+| 9 | §5.3、§11.15 | `claude --sandbox "..."` | 沒有此旗標 | `sandbox` 設定或 `/sandbox`（第 5.4 節） | help、檢查器 |
+| 10 | §11.15 | `/auto on`、`/auto off` | 沒有此 slash command | Shift+Tab 切換模式，或 `--permission-mode` | CC 文件 commands |
+| 11 | §5.6 | `claude routine create ...` | 沒有此子指令 | `/schedule`；網頁 claude.ai/code/routines（第 5.8 節） | CC 文件、檢查器 |
+| 12 | §5.7、§11.12 | `claude channel create`、`channel info`、`api.claude.ai/channels/.../webhook` | 沒有此子指令與端點；channels 是 MCP server（研究預覽） | 不納入迴圈設計；需要時參考 channels 文件 | CC 文件 channels、檢查器 |
+| 13 | §11.5 | `claude mcp add my-security-db --command "..."` | `mcp add` 沒有 `--command` | `claude mcp add <name> -- <command>` | `claude mcp add --help` |
+| 14 | §11.14 | `claude review --ultra PR_URL` | 沒有 `review` 子指令與 `--ultra` | `/code-review ultra` 或 `claude ultrareview`（第 5.9 節） | CC 文件 ultrareview、檢查器 |
+| 15 | §11.14 | `claude --headless -p` | 沒有 `--headless` | `-p` 本身就是非互動模式 | help、檢查器 |
+| 16 | §11.16 | `claude analytics` | 沒有此子指令 | 遙測（第 17 章）；Team／Enterprise 的 analytics 儀表板在網頁 | CC 文件、檢查器 |
+| 17 | §11.16 | `claude --otel-endpoint ...` | 沒有此旗標 | `OTEL_EXPORTER_OTLP_ENDPOINT` 等環境變數（第 17.1 節） | CC 文件 monitoring-usage、檢查器 |
+| 18 | §11.11 | `claude plugin search security` | `plugin` 沒有 `search` 子指令 | `/plugin` 介面瀏覽 marketplace | `claude plugin --help`、檢查器 |
 
-### 延伸閱讀
+#### F.1.3 Claude Code 設定、Hook 與 SDK（11 項）
 
-| 主題 | 資源 | 說明 |
-|------|------|------|
-| AutoResearch 背景 | [Karpathy Tweet](https://x.com/karpathy/status/2029701092347630069) | 專案動機與設計理念 |
-| AutoResearch 進展 | [Karpathy Tweet](https://x.com/karpathy/status/2031135152349524125) | 最新進展與經驗分享 |
-| nanochat | [github.com/karpathy/nanochat](https://github.com/karpathy/nanochat) | AutoResearch 的父專案 |
-| Claude Code Agent SDK | [code.claude.com/docs/en/agent-sdk](https://code.claude.com/docs/en/agent-sdk) | 建立自定義 Agent 的 SDK |
-| Claude Code Plugins | [code.claude.com/docs/en/plugins](https://code.claude.com/docs/en/plugins) | Plugin 開發指南 |
-| Claude Code Routines | [code.claude.com/docs/en/routines](https://code.claude.com/docs/en/routines) | 排程任務系統 |
-| Claude Code GitHub Actions | [code.claude.com/docs/en/github-actions](https://code.claude.com/docs/en/github-actions) | CI/CD 整合指南 |
-| Claude Code Desktop | [code.claude.com/docs/en/desktop](https://code.claude.com/docs/en/desktop) | Desktop App 功能說明 |
-| GitHub Copilot CLI | [docs.github.com/en/copilot/copilot-cli](https://docs.github.com/en/copilot/copilot-cli) | CLI Agent 完整文件 |
-| Copilot Cloud Agent | [docs.github.com/en/copilot/using-github-copilot/using-copilot-coding-agent](https://docs.github.com/en/copilot/using-github-copilot/using-copilot-coding-agent) | Cloud Agent 使用指南 |
-| Copilot Agentic Workflows | [docs.github.com/en/copilot/concepts/agents](https://docs.github.com/en/copilot/concepts/agents) | Agentic 功能概覽 |
-| Copilot SDK | [docs.github.com/en/copilot/copilot-sdk](https://docs.github.com/en/copilot/copilot-sdk) | SDK 開發指南 |
-| Awesome Copilot | [github.com/github/awesome-copilot](https://github.com/github/awesome-copilot) | 社群精選 Copilot 資源 |
+| # | v3.0 位置 | v3.0 內容 | 問題 | v4.0 修正 | 依據 |
+| --- | --- | --- | --- | --- | --- |
+| 19 | §11.16 | settings.json 的 `analytics.opentelemetry` 區塊 | 沒有此設定鍵 | `env` 中的 OTEL 環境變數 | settings reference、檢查器 |
+| 20 | §5.5 | `.claude/security-rules.yaml` | Claude Code 與 security-guidance plugin 都不讀此檔 | `claude-security-guidance.md`、`security-patterns.yaml`（第 5.9 節） | CC 文件 security-guidance、檢查器 |
+| 21 | §5.7 | `.claude/analytics.yaml` | 不存在 | 第 17 章 | 檢查器 |
+| 22 | §11.3 | hook 指令使用 `$CLAUDE_FILE_PATH` | 沒有此環境變數 | 從 stdin JSON 的 `tool_input.file_path` 讀取 | CC 文件 hooks、檢查器 |
+| 23 | §11.3 | PreToolUse hook 以 `exit 1` 阻擋 | exit 1 是非阻擋錯誤，動作照樣執行 | 輸出 `permissionDecision: deny` 或 exit 2；`onFailure: block` | CC 文件 hooks、檢查器 |
+| 24 | §11.3 | JSON 第一行寫 `// .claude/settings.json` | JSON 不允許註解，檔案無法解析 | 純 JSON | 解析器 |
+| 25 | §11.10 | `from claude_code_sdk import Agent, Tool, Guardrail, Runner` | Agent SDK 沒有這些 API | `claude_agent_sdk.query` 加上 `ClaudeAgentOptions`（第 5.10 節） | CC 文件 agent-sdk、實際 import |
+| 26 | §11.10 | `@anthropic-ai/claude-code-sdk` 的 `Agent`、`run` | 套件名與 API 不符 | `@anthropic-ai/claude-agent-sdk` 的 `query` | CC 文件 agent-sdk |
+| 27 | §11.11 | plugin 的 `manifest.yaml`（`hooks.post_edit` 等） | 格式虛構 | `.claude-plugin/plugin.json` | CC 文件 plugins |
+| 28 | §5.5、§11.11 | security-guidance 提供 SARIF 報告、OWASP／CWE／NIST 對照 | 與實際功能不符；實際上分三層審查，而且不阻擋 | 第 5.9 節 | CC 文件 security-guidance |
+| 29 | §11.6、§11.10 | 「Opus 4.6／Sonnet 4.6」、`claude-sonnet-4-20250514` | 模型資訊過時 | 不寫死模型 ID；subagent 用 `model: opus` 別名 | CC 文件 model-config |
 
----
+#### F.1.4 GitHub Copilot（8 項）
 
-*文件結束 — AutoResearch 驅動 SSDLC（安全軟體開發生命週期）教學手冊 v3.0*
+| # | v3.0 位置 | v3.0 內容 | 問題 | v4.0 修正 | 依據 |
+| --- | --- | --- | --- | --- | --- |
+| 30 | §5.5 | `.github/copilot-code-review.yml` | 不存在；code review 以設定頁與 ruleset 啟用 | 第 6.6 節 | GH 文件、檢查器 |
+| 31 | §7.3 | `.github/copilot-automations.yml` | 不存在；Automations 在 Agents 分頁或 Copilot app 設定，不進 Git | 第 6.7 節；需要版控改用 Agentic Workflows | GH 文件 about-automations、檢查器 |
+| 32 | §3.6.2 | `gh extension install github/copilot-cli` | 安裝方式錯誤 | npm、winget、brew 或安裝腳本；`gh copilot` 是 gh 內建的預覽指令 | GH 文件 install-copilot-cli、`gh copilot --help` |
+| 33 | §12.7 | `gh copilot config set trust-level high` | 語法錯誤，也沒有此設定 | `copilot config <key> <value>`；權限用 `--allow-tool` 等旗標 | `copilot config --help`、檢查器 |
+| 34 | §12.7 | `gh copilot "/fleet status"`、`/chronicle search` | 用法不存在 | slash command 在互動 session 中使用（第 6.4 節） | GH 文件 |
+| 35 | §12.5 | `gh pr review ... --request-review copilot` | `gh pr review` 沒有此旗標 | 以 ruleset 自動審查（第 6.6 節） | `gh pr review --help` |
+| 36 | §5.6 | `uses: github/copilot-agent-action@v1` | 此 action 不存在 | Agentic Workflows 或 cloud agent | `gh api repos/github/copilot-agent-action`（404） |
+| 37 | §12.4 | 「Agentic Memory」 | 產品名稱為 Copilot Memory | 不納入迴圈設計 | GH 文件 |
 
+#### F.1.5 CI/CD 與維運（4 項）
+
+| # | v3.0 位置 | v3.0 內容 | 問題 | v4.0 修正 | 依據 |
+| --- | --- | --- | --- | --- | --- |
+| 38 | §5.6 | `uses: anthropic/claude-code-action@v1` | 組織名稱錯誤（404） | `anthropics/claude-code-action@<SHA> # v1.0.259` | `gh api` |
+| 39 | §7.2 | `uses: semgrep/semgrep-action@v1` | 該 repo 已封存 | 直接以 pip 安裝固定版本的 semgrep CLI | `gh api`（archived=true） |
+| 40 | §5.6、§7 | action 以 tag 引用（`@v4`）、未設定最小權限 | 供應鏈與權限風險 | 釘選 SHA、`permissions: {}`；zizmor 無發現 | zizmor |
+| 41 | §9.1、§11.16 | Grafana dashboard 以 YAML 寫在 `.json` 檔名下 | 格式不一致，無法匯入 | 改為 collector 設定並通過驗證（第 17.2 節） | `otelcol validate` |
+
+### F.2 已執行的驗證
+
+所有驗證都由 `val/run_all.sh` 執行，總結果見第 0.4 節。逐項說明：
+
+| 項目 | 內容 | 結果 | 嵌入位置 |
+| --- | --- | --- | --- |
+| loop | 九輪安全負債迴圈：keep 4、discard 4、crash 1，sec_debt 49 → 0 | 與 `expected.txt` 一致 | 第 16.4 節 |
+| analyze | results.tsv 分析 | 正確列出 3 次改善與 2 筆需升級的規避嘗試 | 第 14.2 節 |
+| threat-trace | 威脅模型 4 項，對應 3 個測試 | `untested=0 missing_tests=0` | 第 7.4 節 |
+| red-first-good／weak | 安全測試先紅後綠；弱測試反例 | PASS／FAIL（皆符合預期） | 第 10.4 節 |
+| guard | 守門 hook 34 個案例（Claude Code 與 Copilot 格式） | 34/34 | 第 5.5 節 |
+| sdk | Agent SDK 驅動程式自我測試（claude-agent-sdk 0.2.173） | 4/4 | 第 5.10 節 |
+| claude-config-good／v3／bad | Claude Code 設定檢查器：正向 0 錯；v3.0 範例 6 錯；刻意錯誤 12 錯 | 符合預期 | 第 5.11 節 |
+| copilot-config-good／bad | Copilot 設定檢查器：正向 0 錯；反向 7 錯 | 符合預期 | 第 6.9 節 |
+| program-template／upstream／ai-draft | program.md 審查器：9/9、6/9、0/9 | 符合預期 | 第 21.5 節 |
+| actionlint、zizmor | 5 個 workflow | 無發現 | 第 15.5 節 |
+| gh-aw-compile | Agentic workflow 編譯 | 1 succeeded、0 warnings | 第 6.7 節 |
+| parse-configs | 所有 JSON／YAML 設定 | 全部可解析 | — |
+| otelcol-validate | Collector 設定（0.163.2） | OK | 第 17.2 節 |
+| v3-flags | v3.0 全文的 CLI 檢查 | 17 個錯誤（反向證據） | 第 21.6 節 |
+
+### F.3 撰寫 v4.0 時自行發現並修正的問題
+
+以下問題都是在「實際執行」時才發現的。它們說明了為什麼每個範例都必須實跑：
+
+| # | 問題 | 發現方式 | 修正 |
+| --- | --- | --- | --- |
+| S1 | Windows `core.autocrlf=true` 時，`git reset --hard` 改寫換行，受保護檔案雜湊永遠不符，第 02 輪之後全部 gate FAIL | 第一次跑迴圈，結果與預期不符 | 雜湊前正規化 CRLF（第 4.3 節、第 16.2 節） |
+| S2 | 評估指令的輸出重導目標 `run.log` 需要 `Edit` 允許規則，否則在 `dontAsk` 下被拒 | 查閱 permissions 文件的 Redirections 段落 | 加入 `Edit(/run.log)`、`Edit(/results.tsv)` |
+| S3 | `Bash(python * > run.log 2>&1)` 範圍過寬，`python -c` 也符合 | 審查自己的設定 | 改為完整指令字串 |
+| S4 | managed settings 草稿中的 `Bash(curl * \| sh)` 永遠不會匹配 | 查閱 compound commands 文件 | 移除；檢查器新增此規則 |
+| S5 | `actions/checkout` 不接受工作目錄以外的 `path` | 撰寫 workflow 時查證 | 先 checkout 到工作目錄，再移到 `$RUNNER_TEMP` |
+| S6 | 開 PR 的 job 保留了 checkout 憑證 | zizmor `artipacked` | `persist-credentials: false` 加上 `gh auth setup-git` |
+| S7 | program.md 審查器把上游的 "time budget"、"stop after 5 minutes" 誤判為停止條件 | 以上游 program.md 做反向測試 | 收緊 P06 規則 |
+| S8 | flag 檢查器把旗標的值（`--permission-mode plan`）誤判為子指令 | 對 v3.0 全文試跑，出現誤報 | 只檢查第一個 token |
+| S9 | 初稿說 npm 安裝 Claude Code 已過時 | 查證 setup 文件 | npm 仍受支援（Node.js 22+） |
+| S10 | 初稿使用 `--deny-url='*'`，無法確認是否接受萬用字元 | 查證 help | 移除，改以 `--available-tools` 加上 hook 控制網路 |
+| S11 | subagent `tools` 欄位能否帶指令參數，文件未說明 | 查證 sub-agents 文件 | 改用 `tools: Read, Grep, Glob, Bash` 搭配 settings 的 allow 規則 |
+| S12 | 表格儲存格中的 `\|`（grep 樣式、matcher）會破壞 GFM 表格欄位 | 表格欄數檢查 | 改寫為文字描述 |
+| S13 | 第 05 輪「不偵測就會被誤判為改善」需要證據 | 單獨跑 gitleaks 比對 | 實測 1 筆 → 0 筆，sec_debt 31 → 23 |
+| S14 | Copilot hook 逾時一律放行 | 查閱 hooks reference | 第 6.3 節加註，hook 保持快速 |
+
+### F.4 手冊自我檢查
+
+手冊建置後執行的檢查：程式區塊語法、Mermaid 渲染（mermaid-cli 11）、表格欄數、CLI 旗標、repo 的 Markdown／TOC／Mermaid 檢查腳本，以及 Hugo 建置後的錨點比對：
+
+```text
+$ build.py
+wrote out.md lines=4696 toc=207 headings=211
+
+$ extract_blocks.py（程式區塊語法）
+blocks by language: bash=16, json=4, markdown=10, mermaid=7, powershell=1, python=12, text=35, toml=1, yaml=9
+syntax-checked=43 failures=0 mermaid=7
+
+$ mermaid-cli 11.17.2 渲染
+svg=7 syntax-errors=0
+
+$ check_tables.py（表格欄數）
+table problems=0
+
+$ check_flags.py（手冊中的 claude／copilot 指令旗標與子指令）
+0 error(s)
+
+$ pwsh check-md.ps1
+=== 未標語言的程式碼區塊 (MD040) ===
+  (無)
+=== 其他格式問題 (共 0 筆) ===
+--- 明細（前 80 筆）---
+
+$ pwsh check-toc.ps1
+=== 標題總數: 211 / TOC 連結總數: 207 ===
+
+=== [A] TOC 連結找不到對應標題 ===
+  (無)
+
+=== [B] 有編號的標題但 TOC 未收錄 ===
+  (無)
+
+=== [C] 重複錨點 ===
+  (無)
+
+$ pwsh test-mermaid-syntax.ps1
+✓ 未發現明顯的語法問題
+
+$ hugo v0.151.0 建置後比對頁內連結與錨點
+rendered page: posts/教學/ai開發/autoresearch-驅動-ssdlc安全軟體開發生命週期教學手冊/index.html
+headings with id=211 duplicate ids=0
+in-page links=421 unresolved (excluding #top)=0
+TOC entries=207 unresolved=0
+```
+
+### F.5 待辦與限制
+
+以下項目**沒有**在本版實際執行，導入時請自行驗證：
+
+| # | 項目 | 原因 | 建議驗證方式 |
+| --- | --- | --- | --- |
+| 1 | 以真正的 Agent（Claude Code、Copilot CLI）執行迴圈 | 本版採離線驗證，不呼叫模型；第 16 章以 attempt 模擬 Agent 的修改 | 在試點 repo 跑一晚，比對 results.tsv 與本手冊的行為描述 |
+| 2 | GitHub Actions workflow 在 GitHub 上實際執行 | 只做了 actionlint、zizmor、`gh aw compile` | 在測試 repo 建立 harness repo 與 secrets 後實跑 |
+| 3 | Claude Code sandbox | 驗證機器是原生 Windows，sandbox 不支援 | 在 WSL2 或 Linux 上確認 `denyRead` 與網路阻擋 |
+| 4 | 守門 hook 在真實的 Claude Code、Copilot session 中觸發 | 只以 JSON 輸入做單元測試 | 在 session 中嘗試被拒的動作，確認 deny 訊息 |
+| 5 | managed settings 實際派送 | 沒有 MDM 環境 | 以 `managed-settings.json` 部署到測試機 |
+| 6 | Code Review、ultrareview、Claude Security plugin | 需要方案與費用 | 在試點 PR 上執行 |
+| 7 | `/goal` 的條件寫法 | 沒有實際呼叫模型 | 在互動 session 中用第 5.8 節的條件試跑 |
+| 8 | Copilot CLI `--allow-tool='write(...)'` 是否支援 glob | 文件範例只有單一檔案 | 實測；目前以 hook 控制路徑 |
+| 9 | OWASP Agentic Top 10 的類別名稱 | 官方頁面未直接列出，名稱整理自多個來源 | 以 OWASP 官方 PDF 核對 |
+| 10 | NIST SSDF v1.2 的定稿狀態 | 截至本版仍為草案 | 定稿後更新第 2.2 節 |
+| 11 | `.lock.yml` 以 actionlint 檢查 | actionlint 1.7.12 尚不認得新語法 | 等 actionlint 支援，或以 `gh aw compile` 為準 |
+| 12 | 上游 AutoResearch 在 GPU 上的實驗 | 驗證機器沒有 NVIDIA GPU | 在 H100 或社群 fork 的平台上重現 |
