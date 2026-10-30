@@ -5,13 +5,7 @@ title = 'Archify教學手冊'
 tags = ['教學', 'AI開發']
 categories = ['教學']
 +++
-+++
-date = '2026-08-28T00:00:00+08:00'
-draft = false
-title = 'archify 教學手冊'
-tags = ['教學', 'AI開發']
-categories = ['教學']
-+++
+
 
 <!-- markdownlint-disable MD013 MD024 MD025 MD033 MD036 MD041 -->
 <!--

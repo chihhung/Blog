@@ -12,15 +12,15 @@ categories = ['教學']
 | 項目 | 說明 |
 | --- | --- |
 | **手冊名稱** | Spring Boot 4.x 教學手冊 |
-| **版本** | v1.1 |
-| **基準版本** | Spring Boot **4.1.0**（現行 GA）／向下相容說明涵蓋 4.0.x（維護版 4.0.7） |
-| **技術堆疊** | Java 25（LTS）、Spring Framework 7.0.8、Spring Security 7.1、Spring Data 2026.0、Jakarta EE 11 世代規格、Maven 4／Gradle 9 |
+| **版本** | v1.2 |
+| **基準版本** | Spring Boot **4.1.2**（現行 GA）／向下相容說明涵蓋 4.0.x（維護版 4.0.9）／前瞻章節涵蓋 **4.2.0-RC1** |
+| **技術堆疊** | Java 25（LTS）、Spring Framework 7.0.10、Spring Security 7.1.2、Spring Data 2026.0.2、Jakarta EE 11 世代規格、Maven 4／Gradle 9 |
 | **目標對象** | 資深 Java 工程師、架構師、Tech Lead、SA／SD、Legacy 現代化團隊 |
 | **前置知識** | Java 基礎語法、物件導向、Maven 或 Gradle 基本操作、HTTP 與 SQL 概念 |
 | **文件定位** | 內部教育訓練教材＋開發規範參考＋升版與導入指引 |
 | **狀態** | 正式版 |
 | **事實查證來源** | Spring Boot 官方 GitHub Release Notes／spring.io 專案頁／官方參考文件 |
-| **最後更新** | 2026-07-31 |
+| **最後更新** | 2026-10-30 |
 
 ---
 
@@ -104,10 +104,11 @@ flowchart TD
 
 ### 版本基準聲明
 
-> [!IMPORTANT]
+> **📌 重要**
+>
 > 本手冊撰寫時的官方事實基準如下，若與你手上的舊資料衝突，**以本節為準**：
 >
-> - **現行 GA 版本為 Spring Boot 4.1.0**；4.0.x 為 4.x 系列首版（維護版 4.0.7）；3.5.x 為 3.x 收尾線（維護版 3.5.16）；**4.2 為 preview**，尚未 GA。
+> - **現行 GA 版本為 Spring Boot 4.1.2**（2026-10-22）；4.0.x 為 4.x 系列首版（維護版 4.0.9）；3.5.x 為 3.x 收尾線（最終 OSS 版 3.5.16，**OSS 支援已於 2026-06-30 結束**）；**4.2 目前為 4.2.0-RC1**，預計 2026 年 11 月 GA，本手冊以 §1.4.8 與 §19.8.1 做前瞻說明。
 > - **Spring Boot 4.0 的 Java baseline 是 Java 17**，但官方與本手冊都**建議使用 Java 25 LTS**。手冊範例採用 Java 25 語法（record pattern、virtual thread、sealed interface 等）。若要**自行建置 Spring Boot 原始碼**或使用 **AOT Cache**，則 **Java 25 為必要條件**。
 > - Spring Boot 4.x 對應的 Jakarta 規格為 **Servlet 6.1 / Persistence 3.2 / Validation 3.1 / Annotation 3.0**，屬於 **Jakarta EE 11 世代**，坊間流傳的「Jakarta EE 12」並非官方對應版本。
 > - **Maven 4 已可用**，但 Spring Boot 官方支援基準仍含 Maven 3.6.3+；Gradle 支援 **Gradle 9**（Gradle 8.14+ 仍相容）。
@@ -115,26 +116,62 @@ flowchart TD
 > - 發版節奏：**每 6 個月一個 major 或 minor 版本（5 月與 11 月）**，目標為當月第 3 個週一之後的週四；patch 版依需要隨時發佈。
 > - 第三方相依的升級規則：**同一條 patch 線只會升 patch**，第三方的 minor／major 升級只會發生在 Spring Boot 的 minor／major 版本。因此「Spring Boot 仍在支援期」不代表「你用的第三方套件仍在支援期」，資安治理需分開盤點。
 
-> [!NOTE]
-> **本次改版（v1.1）的重點**
+**各版本線支援期限（查證日 2026-10-30，來源：spring.io 專案頁 Support 區塊）**
+
+| 版本線 | 最新版本 | OSS 支援結束 | 商業支援結束 | 企業建議 |
+| --- | --- | --- | --- | --- |
+| 4.2.x | 4.2.0-RC1（預覽） | 2027-12-31 | 2028-12-31 | 僅供 PoC／相容性預演，**不可上生產** |
+| **4.1.x** | **4.1.2** | **2027-07-31** | 2028-07-31 | ✅ **新專案與升級目標** |
+| 4.0.x | 4.0.9 | 2026-12-31 | 2027-12-31 | ⚠️ 年底前升到 4.1.x |
+| 3.5.x | 3.5.16 | **2026-06-30（已結束）** | 2032-06-30 | 🚫 無商業支援者應立即規劃升級 |
+
+> 💡 **如何自行驗證本節事實**（版本資訊會隨時間變動，請以官方資料為準）：
+>
+> ```bash
+> # 1. 查 GitHub 最新發佈（需安裝 gh CLI）
+> gh release list -R spring-projects/spring-boot -L 10
+>
+> # 2. 查各版本線的 OSS／商業支援截止日（官方 API，與 spring.io 專案頁同源）
+> curl -s https://api.spring.io/projects/spring-boot/generations
+>
+> # 3. 查自己專案實際解析到的 Spring Boot 與 Framework 版本
+> mvn help:evaluate -Dexpression=project.parent.version -q -DforceStdout
+> mvn dependency:tree -Dincludes=org.springframework:spring-core
+> ```
+
+> **💡 本次改版（v1.2，2026-10-30）的重點**
+>
+> 1. **版本基準更新**：GA 由 4.1.0 → **4.1.2**（Framework 7.0.10、Security 7.1.2、Data 2026.0.2、Hibernate 7.4.13、Jackson 3.1.7、Tomcat 11.0.27、Micrometer 1.17.2、Kafka 4.2.2），4.0 維護版 → 4.0.9；補上各版本線的**官方支援期限表**與自我查證指令。
+> 2. **新增 §1.4.8 Spring Boot 4.2 前瞻**（RestTemplate／TestRestTemplate 淘汰、AMQP 1.0、`spring-boot-rabbitmq` 更名、OTLP 共用設定、jarmode SBOM 等）與 **§19.8.1 4.1 → 4.2 預備升級**。
+> 3. **格式修正**：GitHub 專屬的 `> [!NOTE]` 類語法改為 Hugo 可正確呈現的標準引用區塊。
+> 4. **目錄重建**：改用 `tools/markdown/generate_toc.py`，依 Hugo（Goldmark `github` 錨點規則）實際產生的 id 重建，並以 Hugo 輸出頁面逐一比對連結。
+>
+> **v1.1 改版重點（保留供追溯）**
 >
 > 1. **事實校正**：Hibernate ORM 於 4.1 已進到 **7.4.x**（非 7.1）、Spring Boot 3.5 線的 Micrometer 為 **1.15.x**（非 1.14）、Jackson **3.1.4**、Tomcat **11.0.21**、Kafka client **4.2.1**、Testcontainers **2.0.5**。
 > 2. **補齊 4.1 全部「New and Noteworthy」項目**（Spring gRPC、SSRF 防護、OpenTelemetry 強化、Jackson 讀寫調校、RabbitMQ Streams SSL、`spring.jpa.bootstrap` 等）。
 > 3. **新增 §1.4.7 Spring Framework 7 核心變更**（JSpecify、`BeanRegistrar`、核心 `@Retryable`／`@ConcurrencyLimit`）。
 > 4. **依官方遷移指南重寫模組化章節**：第五篇 Starter 清單全面校正並補上 `-test` 系列與 **Classic Starter**；第十九篇新增 §19.5.6／§19.5.7／§19.7.6／§19.7.7，涵蓋 starter 更名、被移除的功能、測試基礎建設變更與 Actuator／Web 行為變更。
 > 5. **新增 §15.5.1 AOT Cache（Java 25）**，並在 §18.5 釐清「核心韌性註解 vs. Resilience4j」的選型界線。
-> 6. **目錄與內文完全對齊**（620 個標題全部收錄），並修正 `tools/markdown/generate_toc.py` 會誤過濾含「目錄」二字章節的缺陷。
+> 6. **目錄與內文對齊**（620 個標題全部收錄）。
 
 ---
 
 <!-- TOC-AUTO-BEGIN -->
 ## 目錄（Table of Contents）
 
-- [第一篇 Spring Boot 4.x Overview](#第一篇-spring-boot-4-x-overview)
+- [前言](#前言)
+  - [為什麼需要這本手冊](#為什麼需要這本手冊)
+  - [本手冊的定位](#本手冊的定位)
+  - [使用方式](#使用方式)
+  - [符號約定](#符號約定)
+  - [每篇的固定結構](#每篇的固定結構)
+  - [版本基準聲明](#版本基準聲明)
+- [第一篇 Spring Boot 4.x Overview](#第一篇-spring-boot-4x-overview)
   - [1.1 學習重點](#11-學習重點)
   - [1.2 Spring Boot 是什麼](#12-spring-boot-是什麼)
   - [1.3 發展歷史與版本演進](#13-發展歷史與版本演進)
-  - [1.4 Spring Boot 4.x 新特色](#14-spring-boot-4-x-新特色)
+  - [1.4 Spring Boot 4.x 新特色](#14-spring-boot-4x-新特色)
     - [1.4.1 Web 與 API](#141-web-與-api)
     - [1.4.2 資料與訊息](#142-資料與訊息)
     - [1.4.3 可觀測性](#143-可觀測性)
@@ -142,7 +179,8 @@ flowchart TD
     - [1.4.5 測試](#145-測試)
     - [1.4.6 已淘汰與已移除（必查表）](#146-已淘汰與已移除必查表)
     - [1.4.7 Spring Framework 7 帶來的核心變更](#147-spring-framework-7-帶來的核心變更)
-  - [1.5 與 Spring Boot 3.x 的差異總覽](#15-與-spring-boot-3-x-的差異總覽)
+    - [1.4.8 Spring Boot 4.2 前瞻（RC 階段）](#148-spring-boot-42-前瞻rc-階段)
+  - [1.5 與 Spring Boot 3.x 的差異總覽](#15-與-spring-boot-3x-的差異總覽)
   - [1.6 適用情境](#16-適用情境)
   - [1.7 不適用情境](#17-不適用情境)
   - [1.8 生態系統全景](#18-生態系統全景)
@@ -156,8 +194,8 @@ flowchart TD
   - [1.16 安全性建議（🔒 概覽）](#116-安全性建議-概覽)
   - [1.17 AI 如何協助](#117-ai-如何協助)
   - [1.18 Lab 與 Checklist](#118-lab-與-checklist)
-    - [Lab 1-1：建立第一個 Spring Boot 4.1 應用](#lab-1-1-建立第一個-spring-boot-4-1-應用)
-    - [Lab 1-2：版本差異盤點](#lab-1-2-版本差異盤點)
+    - [Lab 1-1：建立第一個 Spring Boot 4.1 應用](#lab-1-1建立第一個-spring-boot-41-應用)
+    - [Lab 1-2：版本差異盤點](#lab-1-2版本差異盤點)
     - [第一篇 Checklist](#第一篇-checklist)
 - [第二篇 Architecture 核心架構](#第二篇-architecture-核心架構)
   - [2.1 學習重點](#21-學習重點)
@@ -165,7 +203,7 @@ flowchart TD
   - [2.3 應用啟動流程](#23-應用啟動流程)
   - [2.4 Auto Configuration 原理](#24-auto-configuration-原理)
     - [2.4.1 觸發機制](#241-觸發機制)
-    - [2.4.2 `@Conditional` 家族](#242-conditional-家族)
+    - [2.4.2 @Conditional 家族](#242-conditional-家族)
     - [2.4.3 執行順序控制](#243-執行順序控制)
   - [2.5 Starter 機制](#25-starter-機制)
   - [2.6 IoC 與依賴注入](#26-ioc-與依賴注入)
@@ -180,9 +218,9 @@ flowchart TD
   - [2.13 安全性建議](#213-安全性建議)
   - [2.14 AI 如何協助](#214-ai-如何協助)
   - [2.15 Lab 與 Checklist](#215-lab-與-checklist)
-    - [Lab 2-1：解讀 Condition Evaluation Report](#lab-2-1-解讀-condition-evaluation-report)
-    - [Lab 2-2：屬性優先序驗證](#lab-2-2-屬性優先序驗證)
-    - [Lab 2-3：覆寫官方 Bean](#lab-2-3-覆寫官方-bean)
+    - [Lab 2-1：解讀 Condition Evaluation Report](#lab-2-1解讀-condition-evaluation-report)
+    - [Lab 2-2：屬性優先序驗證](#lab-2-2屬性優先序驗證)
+    - [Lab 2-3：覆寫官方 Bean](#lab-2-3覆寫官方-bean)
     - [第二篇 Checklist](#第二篇-checklist)
 - [第三篇 建立專案](#第三篇-建立專案)
   - [3.1 學習重點](#31-學習重點)
@@ -190,8 +228,8 @@ flowchart TD
   - [3.3 使用 Spring Initializr 網站](#33-使用-spring-initializr-網站)
   - [3.4 使用 CLI 建立](#34-使用-cli-建立)
   - [3.5 完整的 Maven 設定](#35-完整的-maven-設定)
-    - [3.5.1 方式一：繼承 `spring-boot-starter-parent`（推薦）](#351-方式一-繼承-spring-boot-starter-parent推薦)
-    - [3.5.2 方式二：匯入 BOM（已有企業 Parent POM 時）](#352-方式二-匯入-bom已有企業-parent-pom-時)
+    - [3.5.1 方式一：繼承 spring-boot-starter-parent（推薦）](#351-方式一繼承-spring-boot-starter-parent推薦)
+    - [3.5.2 方式二：匯入 BOM（已有企業 Parent POM 時）](#352-方式二匯入-bom已有企業-parent-pom-時)
   - [3.6 完整的 Gradle 設定](#36-完整的-gradle-設定)
   - [3.7 IDE 設定](#37-ide-設定)
     - [3.7.1 VS Code](#371-vs-code)
@@ -203,16 +241,16 @@ flowchart TD
   - [3.12 安全性建議](#312-安全性建議)
   - [3.13 AI 如何協助](#313-ai-如何協助)
   - [3.14 Lab 與 Checklist](#314-lab-與-checklist)
-    - [Lab 3-1：三種方式建立同一個專案](#lab-3-1-三種方式建立同一個專案)
-    - [Lab 3-2：從 Parent 模式改為 BOM 模式](#lab-3-2-從-parent-模式改為-bom-模式)
-    - [Lab 3-3：建立團隊樣板](#lab-3-3-建立團隊樣板)
+    - [Lab 3-1：三種方式建立同一個專案](#lab-3-1三種方式建立同一個專案)
+    - [Lab 3-2：從 Parent 模式改為 BOM 模式](#lab-3-2從-parent-模式改為-bom-模式)
+    - [Lab 3-3：建立團隊樣板](#lab-3-3建立團隊樣板)
     - [第三篇 Checklist](#第三篇-checklist)
 - [第四篇 Project Structure 專案結構](#第四篇-project-structure-專案結構)
   - [4.1 學習重點](#41-學習重點)
   - [4.2 標準目錄配置](#42-標準目錄配置)
-  - [4.3 結構一：分層式（Layered）](#43-結構一-分層式layered)
-  - [4.4 結構二：功能導向（Package by Feature）](#44-結構二-功能導向package-by-feature)
-  - [4.5 結構三：Clean Architecture / 六邊形架構](#45-結構三-clean-architecture-六邊形架構)
+  - [4.3 結構一：分層式（Layered）](#43-結構一分層式layered)
+  - [4.4 結構二：功能導向（Package by Feature）](#44-結構二功能導向package-by-feature)
+  - [4.5 結構三：Clean Architecture / 六邊形架構](#45-結構三clean-architecture--六邊形架構)
   - [4.6 三種結構選擇指南](#46-三種結構選擇指南)
   - [4.7 多模組專案](#47-多模組專案)
   - [4.8 適用與不適用情境](#48-適用與不適用情境)
@@ -222,25 +260,25 @@ flowchart TD
   - [4.12 安全性建議](#412-安全性建議)
   - [4.13 AI 如何協助](#413-ai-如何協助)
   - [4.14 Lab 與 Checklist](#414-lab-與-checklist)
-    - [Lab 4-1：分層式改為功能導向](#lab-4-1-分層式改為功能導向)
-    - [Lab 4-2：實作六邊形架構](#lab-4-2-實作六邊形架構)
-    - [Lab 4-3：ArchUnit 守門](#lab-4-3-archunit-守門)
+    - [Lab 4-1：分層式改為功能導向](#lab-4-1分層式改為功能導向)
+    - [Lab 4-2：實作六邊形架構](#lab-4-2實作六邊形架構)
+    - [Lab 4-3：ArchUnit 守門](#lab-4-3archunit-守門)
     - [第四篇 Checklist](#第四篇-checklist)
 - [第五篇 Dependency Management 依賴管理](#第五篇-dependency-management-依賴管理)
   - [5.1 學習重點](#51-學習重點)
   - [5.2 版本管理的三層結構](#52-版本管理的三層結構)
-  - [5.3 官方 Starter 完整清單（4.1）](#53-官方-starter-完整清單4-1)
+  - [5.3 官方 Starter 完整清單（4.1）](#53-官方-starter-完整清單41)
     - [5.3.1 Web 與 API](#531-web-與-api)
     - [5.3.2 資料存取](#532-資料存取)
     - [5.3.3 訊息與整合](#533-訊息與整合)
     - [5.3.4 安全與可觀測性](#534-安全與可觀測性)
     - [5.3.5 核心與其他](#535-核心與其他)
-    - [5.3.6 測試（🔄 4.x 最容易踩雷的區塊）](#536-測試-4-x-最容易踩雷的區塊)
+    - [5.3.6 測試（🔄 4.x 最容易踩雷的區塊）](#536-測試-4x-最容易踩雷的區塊)
   - [5.4 覆寫第三方版本的正確做法](#54-覆寫第三方版本的正確做法)
     - [5.4.1 Maven](#541-maven)
     - [5.4.2 Gradle](#542-gradle)
-  - [5.5 4.x 模組重新切分（🔄 升級必看）](#55-4-x-模組重新切分-升級必看)
-    - [5.5.1 Classic Starter：升級過渡期的安全網](#551-classic-starter-升級過渡期的安全網)
+  - [5.5 4.x 模組重新切分（🔄 升級必看）](#55-4x-模組重新切分-升級必看)
+    - [5.5.1 Classic Starter：升級過渡期的安全網](#551-classic-starter升級過渡期的安全網)
   - [5.6 相依範圍（scope）正確用法](#56-相依範圍scope正確用法)
   - [5.7 撰寫企業 Parent POM](#57-撰寫企業-parent-pom)
   - [5.8 排除傳遞性相依](#58-排除傳遞性相依)
@@ -251,26 +289,26 @@ flowchart TD
   - [5.13 安全性建議](#513-安全性建議)
   - [5.14 AI 如何協助](#514-ai-如何協助)
   - [5.15 Lab 與 Checklist](#515-lab-與-checklist)
-    - [Lab 5-1：版本覆寫實驗](#lab-5-1-版本覆寫實驗)
-    - [Lab 5-2：Enforcer 規則](#lab-5-2-enforcer-規則)
-    - [Lab 5-3：CVE 掃描與 SBOM](#lab-5-3-cve-掃描與-sbom)
+    - [Lab 5-1：版本覆寫實驗](#lab-5-1版本覆寫實驗)
+    - [Lab 5-2：Enforcer 規則](#lab-5-2enforcer-規則)
+    - [Lab 5-3：CVE 掃描與 SBOM](#lab-5-3cve-掃描與-sbom)
     - [第五篇 Checklist](#第五篇-checklist)
 - [第六篇 Auto Configuration 自動組態](#第六篇-auto-configuration-自動組態)
   - [6.1 學習重點](#61-學習重點)
-  - [6.2 `@SpringBootApplication` 拆解](#62-springbootapplication-拆解)
-  - [6.3 `@ConfigurationProperties` 型別安全綁定](#63-configurationproperties-型別安全綁定)
+  - [6.2 @SpringBootApplication 拆解](#62-springbootapplication-拆解)
+  - [6.3 @ConfigurationProperties 型別安全綁定](#63-configurationproperties-型別安全綁定)
     - [6.3.1 建構子綁定（推薦）](#631-建構子綁定推薦)
-    - [6.3.2 `@Value` vs `@ConfigurationProperties`](#632-value-vs-configurationproperties)
+    - [6.3.2 @Value vs @ConfigurationProperties](#632-value-vs-configurationproperties)
   - [6.4 撰寫內部 Starter（完整範例）](#64-撰寫內部-starter完整範例)
     - [6.4.1 模組結構](#641-模組結構)
-    - [6.4.2 `pom.xml`](#642-pom-xml)
+    - [6.4.2 pom.xml](#642-pomxml)
     - [6.4.3 設定屬性](#643-設定屬性)
     - [6.4.4 核心服務與切面](#644-核心服務與切面)
     - [6.4.5 Auto Configuration 類別](#645-auto-configuration-類別)
-    - [6.4.6 註冊檔（⚠️ 4.x 必須用這個格式）](#646-註冊檔-4-x-必須用這個格式)
+    - [6.4.6 註冊檔（⚠️ 4.x 必須用這個格式）](#646-註冊檔-4x-必須用這個格式)
     - [6.4.7 設定 metadata（IDE 自動完成）](#647-設定-metadataide-自動完成)
     - [6.4.8 使用方式](#648-使用方式)
-  - [6.5 `@ConfigurationPropertiesSource`（🆕 4.0）](#65-configurationpropertiessource-4-0)
+  - [6.5 @ConfigurationPropertiesSource（🆕 4.0）](#65-configurationpropertiessource-40)
   - [6.6 適用與不適用情境](#66-適用與不適用情境)
   - [6.7 常見錯誤與 Anti-pattern](#67-常見錯誤與-anti-pattern)
   - [6.8 最佳實務](#68-最佳實務)
@@ -278,9 +316,9 @@ flowchart TD
   - [6.10 安全性建議](#610-安全性建議)
   - [6.11 AI 如何協助](#611-ai-如何協助)
   - [6.12 Lab 與 Checklist](#612-lab-與-checklist)
-    - [Lab 6-1：完整內部 Starter](#lab-6-1-完整內部-starter)
-    - [Lab 6-2：驗證 `@ConditionalOnMissingBean`](#lab-6-2-驗證-conditionalonmissingbean)
-    - [Lab 6-3：設定驗證](#lab-6-3-設定驗證)
+    - [Lab 6-1：完整內部 Starter](#lab-6-1完整內部-starter)
+    - [Lab 6-2：驗證 @ConditionalOnMissingBean](#lab-6-2驗證-conditionalonmissingbean)
+    - [Lab 6-3：設定驗證](#lab-6-3設定驗證)
     - [第六篇 Checklist](#第六篇-checklist)
 - [第七篇 Configuration 組態管理](#第七篇-configuration-組態管理)
   - [7.1 學習重點](#71-學習重點)
@@ -302,9 +340,9 @@ flowchart TD
   - [7.12 安全性建議](#712-安全性建議)
   - [7.13 AI 如何協助](#713-ai-如何協助)
   - [7.14 Lab 與 Checklist](#714-lab-與-checklist)
-    - [Lab 7-1：四環境設定](#lab-7-1-四環境設定)
-    - [Lab 7-2：configtree 機敏設定](#lab-7-2-configtree-機敏設定)
-    - [Lab 7-3：設定驗證與快速失敗](#lab-7-3-設定驗證與快速失敗)
+    - [Lab 7-1：四環境設定](#lab-7-1四環境設定)
+    - [Lab 7-2：configtree 機敏設定](#lab-7-2configtree-機敏設定)
+    - [Lab 7-3：設定驗證與快速失敗](#lab-7-3設定驗證與快速失敗)
     - [第七篇 Checklist](#第七篇-checklist)
 - [第八篇 Logging 日誌](#第八篇-logging-日誌)
   - [8.1 學習重點](#81-學習重點)
@@ -312,7 +350,7 @@ flowchart TD
   - [8.3 基本設定](#83-基本設定)
   - [8.4 結構化 JSON 日誌（生產環境必備）](#84-結構化-json-日誌生產環境必備)
   - [8.5 MDC 與請求追蹤](#85-mdc-與請求追蹤)
-  - [8.6 完整的 `logback-spring.xml`](#86-完整的-logback-spring-xml)
+  - [8.6 完整的 logback-spring.xml](#86-完整的-logback-springxml)
   - [8.7 改用 Log4j2](#87-改用-log4j2)
   - [8.8 日誌等級使用準則](#88-日誌等級使用準則)
   - [8.9 適用與不適用情境](#89-適用與不適用情境)
@@ -322,18 +360,18 @@ flowchart TD
   - [8.13 安全性建議](#813-安全性建議)
   - [8.14 AI 如何協助](#814-ai-如何協助)
   - [8.15 Lab 與 Checklist](#815-lab-與-checklist)
-    - [Lab 8-1：結構化日誌](#lab-8-1-結構化日誌)
-    - [Lab 8-2：MDC 請求追蹤](#lab-8-2-mdc-請求追蹤)
-    - [Lab 8-3：`@Async` 的 MDC 傳遞](#lab-8-3-async-的-mdc-傳遞)
-    - [Lab 8-4：日誌注入防護](#lab-8-4-日誌注入防護)
+    - [Lab 8-1：結構化日誌](#lab-8-1結構化日誌)
+    - [Lab 8-2：MDC 請求追蹤](#lab-8-2mdc-請求追蹤)
+    - [Lab 8-3：@Async 的 MDC 傳遞](#lab-8-3async-的-mdc-傳遞)
+    - [Lab 8-4：日誌注入防護](#lab-8-4日誌注入防護)
     - [第八篇 Checklist](#第八篇-checklist)
 - [第九篇 REST API](#第九篇-rest-api)
   - [9.1 學習重點](#91-學習重點)
   - [9.2 REST API 分層架構](#92-rest-api-分層架構)
   - [9.3 完整的 Controller 實作](#93-完整的-controller-實作)
-  - [9.4 統一錯誤處理（ProblemDetail / RFC 9457）](#94-統一錯誤處理problemdetail-rfc-9457)
-  - [9.5 API Versioning（🆕 4.0）](#95-api-versioning-4-0)
-  - [9.6 HTTP Service Clients（🆕 4.0）](#96-http-service-clients-4-0)
+  - [9.4 統一錯誤處理（ProblemDetail / RFC 9457）](#94-統一錯誤處理problemdetail--rfc-9457)
+  - [9.5 API Versioning（🆕 4.0）](#95-api-versioning-40)
+  - [9.6 HTTP Service Clients（🆕 4.0）](#96-http-service-clients-40)
   - [9.7 Jackson 3 遷移重點（🔄）](#97-jackson-3-遷移重點)
   - [9.8 OpenAPI 文件](#98-openapi-文件)
   - [9.9 適用與不適用情境](#99-適用與不適用情境)
@@ -343,40 +381,40 @@ flowchart TD
   - [9.13 安全性建議](#913-安全性建議)
   - [9.14 AI 如何協助](#914-ai-如何協助)
   - [9.15 Lab 與 Checklist](#915-lab-與-checklist)
-    - [Lab 9-1：完整 CRUD API](#lab-9-1-完整-crud-api)
-    - [Lab 9-2：API Versioning](#lab-9-2-api-versioning)
-    - [Lab 9-3：HTTP Service Client](#lab-9-3-http-service-client)
-    - [Lab 9-4：SSRF 防護](#lab-9-4-ssrf-防護)
+    - [Lab 9-1：完整 CRUD API](#lab-9-1完整-crud-api)
+    - [Lab 9-2：API Versioning](#lab-9-2api-versioning)
+    - [Lab 9-3：HTTP Service Client](#lab-9-3http-service-client)
+    - [Lab 9-4：SSRF 防護](#lab-9-4ssrf-防護)
     - [第九篇 Checklist](#第九篇-checklist)
 - [第十篇 Data Access 資料存取](#第十篇-data-access-資料存取)
   - [10.1 學習重點](#101-學習重點)
   - [10.2 存取技術選型](#102-存取技術選型)
-  - [10.3 Entity 設計（Hibernate ORM 7.4）](#103-entity-設計hibernate-orm-7-4)
+  - [10.3 Entity 設計（Hibernate ORM 7.4）](#103-entity-設計hibernate-orm-74)
   - [10.4 Repository 與查詢](#104-repository-與查詢)
-  - [10.5 `JdbcClient`（複雜查詢首選）](#105-jdbcclient複雜查詢首選)
+  - [10.5 JdbcClient（複雜查詢首選）](#105-jdbcclient複雜查詢首選)
   - [10.6 交易管理](#106-交易管理)
     - [10.6.1 傳播行為速查](#1061-傳播行為速查)
   - [10.7 Flyway Schema 版本管理](#107-flyway-schema-版本管理)
   - [10.8 適用與不適用情境](#108-適用與不適用情境)
   - [10.9 常見錯誤與 Anti-pattern](#109-常見錯誤與-anti-pattern)
-    - [N+1 實例對照](#n-1-實例對照)
+    - [N+1 實例對照](#n1-實例對照)
   - [10.10 最佳實務](#1010-最佳實務)
   - [10.11 效能調校](#1011-效能調校)
   - [10.12 安全性建議](#1012-安全性建議)
   - [10.13 AI 如何協助](#1013-ai-如何協助)
   - [10.14 Lab 與 Checklist](#1014-lab-與-checklist)
-    - [Lab 10-1：Testcontainers + Flyway](#lab-10-1-testcontainers-flyway)
-    - [Lab 10-2：N+1 偵測與修復](#lab-10-2-n-1-偵測與修復)
-    - [Lab 10-3：樂觀鎖併發](#lab-10-3-樂觀鎖併發)
-    - [Lab 10-4：交易邊界](#lab-10-4-交易邊界)
+    - [Lab 10-1：Testcontainers + Flyway](#lab-10-1testcontainers--flyway)
+    - [Lab 10-2：N+1 偵測與修復](#lab-10-2n1-偵測與修復)
+    - [Lab 10-3：樂觀鎖併發](#lab-10-3樂觀鎖併發)
+    - [Lab 10-4：交易邊界](#lab-10-4交易邊界)
     - [第十篇 Checklist](#第十篇-checklist)
 - [第十一篇 Security 安全性](#第十一篇-security-安全性)
   - [11.1 學習重點](#111-學習重點)
   - [11.2 Spring Security 架構](#112-spring-security-架構)
-  - [11.3 基礎設定（Spring Security 7.x Lambda DSL）](#113-基礎設定spring-security-7-x-lambda-dsl)
+  - [11.3 基礎設定（Spring Security 7.x Lambda DSL）](#113-基礎設定spring-security-7x-lambda-dsl)
   - [11.4 JWT Resource Server](#114-jwt-resource-server)
   - [11.5 方法層級授權](#115-方法層級授權)
-  - [11.6 OAuth2 / OIDC 登入](#116-oauth2-oidc-登入)
+  - [11.6 OAuth2 / OIDC 登入](#116-oauth2--oidc-登入)
   - [11.7 OWASP Top 10 對照防護](#117-owasp-top-10-對照防護)
   - [11.8 適用與不適用情境](#118-適用與不適用情境)
   - [11.9 常見錯誤與 Anti-pattern](#119-常見錯誤與-anti-pattern)
@@ -385,18 +423,18 @@ flowchart TD
   - [11.12 安全性建議（進階）](#1112-安全性建議進階)
   - [11.13 AI 如何協助](#1113-ai-如何協助)
   - [11.14 Lab 與 Checklist](#1114-lab-與-checklist)
-    - [Lab 11-1：JWT Resource Server](#lab-11-1-jwt-resource-server)
-    - [Lab 11-2：IDOR 防護](#lab-11-2-idor-防護)
-    - [Lab 11-3：安全標頭驗證](#lab-11-3-安全標頭驗證)
-    - [Lab 11-4：登入速率限制](#lab-11-4-登入速率限制)
+    - [Lab 11-1：JWT Resource Server](#lab-11-1jwt-resource-server)
+    - [Lab 11-2：IDOR 防護](#lab-11-2idor-防護)
+    - [Lab 11-3：安全標頭驗證](#lab-11-3安全標頭驗證)
+    - [Lab 11-4：登入速率限制](#lab-11-4登入速率限制)
     - [第十一篇 Checklist](#第十一篇-checklist)
 - [第十二篇 Testing 測試](#第十二篇-testing-測試)
   - [12.1 學習重點](#121-學習重點)
   - [12.2 測試金字塔與 Spring Boot 對應](#122-測試金字塔與-spring-boot-對應)
   - [12.3 單元測試（70%）](#123-單元測試70)
-  - [12.4 Web 切片測試（`@WebMvcTest` + `@MockitoBean`）](#124-web-切片測試-webmvctest-mockitobean)
-  - [12.5 `RestTestClient`（🆕 4.0）](#125-resttestclient-4-0)
-  - [12.6 資料層測試（Testcontainers 2.0）](#126-資料層測試testcontainers-2-0)
+  - [12.4 Web 切片測試（@WebMvcTest + @MockitoBean）](#124-web-切片測試webmvctest--mockitobean)
+  - [12.5 RestTestClient（🆕 4.0）](#125-resttestclient-40)
+  - [12.6 資料層測試（Testcontainers 2.0）](#126-資料層測試testcontainers-20)
   - [12.7 整合測試](#127-整合測試)
   - [12.8 其他切片測試](#128-其他切片測試)
   - [12.9 適用與不適用情境](#129-適用與不適用情境)
@@ -406,11 +444,11 @@ flowchart TD
   - [12.13 安全性建議](#1213-安全性建議)
   - [12.14 AI 如何協助](#1214-ai-如何協助)
   - [12.15 Lab 與 Checklist](#1215-lab-與-checklist)
-    - [Lab 12-1：測試金字塔實作](#lab-12-1-測試金字塔實作)
-    - [Lab 12-2：`RestTestClient`](#lab-12-2-resttestclient)
-    - [Lab 12-3：Testcontainers 開發模式](#lab-12-3-testcontainers-開發模式)
-    - [Lab 12-4：安全設定測試](#lab-12-4-安全設定測試)
-    - [Lab 12-5：測試效能優化](#lab-12-5-測試效能優化)
+    - [Lab 12-1：測試金字塔實作](#lab-12-1測試金字塔實作)
+    - [Lab 12-2：RestTestClient](#lab-12-2resttestclient)
+    - [Lab 12-3：Testcontainers 開發模式](#lab-12-3testcontainers-開發模式)
+    - [Lab 12-4：安全設定測試](#lab-12-4安全設定測試)
+    - [Lab 12-5：測試效能優化](#lab-12-5測試效能優化)
     - [第十二篇 Checklist](#第十二篇-checklist)
 - [第十三篇 Actuator 與可觀測性](#第十三篇-actuator-與可觀測性)
   - [13.1 學習重點](#131-學習重點)
@@ -420,7 +458,7 @@ flowchart TD
   - [13.4 自訂健康指標](#134-自訂健康指標)
   - [13.5 業務指標（Micrometer）](#135-業務指標micrometer)
   - [13.6 分散式追蹤](#136-分散式追蹤)
-    - [13.6.1 使用 OpenTelemetry Starter（🆕 4.0）](#1361-使用-opentelemetry-starter-4-0)
+    - [13.6.1 使用 OpenTelemetry Starter（🆕 4.0）](#1361-使用-opentelemetry-starter-40)
     - [13.6.2 自訂 Span 與 Observation](#1362-自訂-span-與-observation)
     - [13.6.3 日誌與追蹤關聯](#1363-日誌與追蹤關聯)
   - [13.7 Prometheus 與告警](#137-prometheus-與告警)
@@ -432,17 +470,17 @@ flowchart TD
   - [13.12 安全性建議](#1312-安全性建議)
   - [13.13 AI 如何協助](#1313-ai-如何協助)
   - [13.14 Lab 與 Checklist](#1314-lab-與-checklist)
-    - [Lab 13-1：Actuator 安全設定](#lab-13-1-actuator-安全設定)
-    - [Lab 13-2：自訂業務指標](#lab-13-2-自訂業務指標)
-    - [Lab 13-3：分散式追蹤](#lab-13-3-分散式追蹤)
-    - [Lab 13-4：K8s 探針](#lab-13-4-k8s-探針)
-    - [Lab 13-5：告警規則](#lab-13-5-告警規則)
+    - [Lab 13-1：Actuator 安全設定](#lab-13-1actuator-安全設定)
+    - [Lab 13-2：自訂業務指標](#lab-13-2自訂業務指標)
+    - [Lab 13-3：分散式追蹤](#lab-13-3分散式追蹤)
+    - [Lab 13-4：K8s 探針](#lab-13-4k8s-探針)
+    - [Lab 13-5：告警規則](#lab-13-5告警規則)
     - [第十三篇 Checklist](#第十三篇-checklist)
 - [第十四篇 Spring AI](#第十四篇-spring-ai)
   - [14.1 學習重點](#141-學習重點)
   - [14.2 Spring AI 定位](#142-spring-ai-定位)
   - [14.3 快速開始](#143-快速開始)
-  - [14.4 `ChatClient` 基礎用法](#144-chatclient-基礎用法)
+  - [14.4 ChatClient 基礎用法](#144-chatclient-基礎用法)
   - [14.5 Structured Output（回應轉 POJO）](#145-structured-output回應轉-pojo)
   - [14.6 RAG（檢索增強生成）](#146-rag檢索增強生成)
     - [14.6.1 文件索引](#1461-文件索引)
@@ -456,12 +494,12 @@ flowchart TD
   - [14.12 安全性建議](#1412-安全性建議)
   - [14.13 AI 如何協助（用 AI 開發 AI 功能）](#1413-ai-如何協助用-ai-開發-ai-功能)
   - [14.14 Lab 與 Checklist](#1414-lab-與-checklist)
-    - [Lab 14-1：第一個 `ChatClient`](#lab-14-1-第一個-chatclient)
-    - [Lab 14-2：Structured Output](#lab-14-2-structured-output)
-    - [Lab 14-3：RAG 知識庫](#lab-14-3-rag-知識庫)
-    - [Lab 14-4：Tool Calling](#lab-14-4-tool-calling)
-    - [Lab 14-5：Prompt Injection 防禦](#lab-14-5-prompt-injection-防禦)
-    - [Lab 14-6：成本與韌性](#lab-14-6-成本與韌性)
+    - [Lab 14-1：第一個 ChatClient](#lab-14-1第一個-chatclient)
+    - [Lab 14-2：Structured Output](#lab-14-2structured-output)
+    - [Lab 14-3：RAG 知識庫](#lab-14-3rag-知識庫)
+    - [Lab 14-4：Tool Calling](#lab-14-4tool-calling)
+    - [Lab 14-5：Prompt Injection 防禦](#lab-14-5prompt-injection-防禦)
+    - [Lab 14-6：成本與韌性](#lab-14-6成本與韌性)
     - [第十四篇 Checklist](#第十四篇-checklist)
 - [第十五篇 Native 原生映像](#第十五篇-native-原生映像)
   - [15.1 學習重點](#151-學習重點)
@@ -470,11 +508,11 @@ flowchart TD
     - [15.3.1 Maven 設定](#1531-maven-設定)
     - [15.3.2 Gradle 設定](#1532-gradle-設定)
   - [15.4 反射與資源提示](#154-反射與資源提示)
-    - [15.4.1 用 `RuntimeHintsRegistrar`](#1541-用-runtimehintsregistrar)
-    - [15.4.2 用 `@RegisterReflectionForBinding`](#1542-用-registerreflectionforbinding)
+    - [15.4.1 用 RuntimeHintsRegistrar](#1541-用-runtimehintsregistrar)
+    - [15.4.2 用 @RegisterReflectionForBinding](#1542-用-registerreflectionforbinding)
     - [15.4.3 用 Tracing Agent 自動產生提示](#1543-用-tracing-agent-自動產生提示)
-  - [15.5 中間方案：AOT + CDS（不做 Native 也能加速）](#155-中間方案-aot-cds不做-native-也能加速)
-    - [15.5.1 AOT Cache（Java 25 起，CDS 的下一代）](#1551-aot-cachejava-25-起-cds-的下一代)
+  - [15.5 中間方案：AOT + CDS（不做 Native 也能加速）](#155-中間方案aot--cds不做-native-也能加速)
+    - [15.5.1 AOT Cache（Java 25 起，CDS 的下一代）](#1551-aot-cachejava-25-起cds-的下一代)
   - [15.6 適用與不適用情境](#156-適用與不適用情境)
   - [15.7 常見錯誤與 Anti-pattern](#157-常見錯誤與-anti-pattern)
   - [15.8 最佳實務](#158-最佳實務)
@@ -482,16 +520,16 @@ flowchart TD
   - [15.10 安全性建議](#1510-安全性建議)
   - [15.11 AI 如何協助](#1511-ai-如何協助)
   - [15.12 Lab 與 Checklist](#1512-lab-與-checklist)
-    - [Lab 15-1：建置第一個 Native 映像](#lab-15-1-建置第一個-native-映像)
-    - [Lab 15-2：CDS 中間方案](#lab-15-2-cds-中間方案)
-    - [Lab 15-3：反射提示](#lab-15-3-反射提示)
-    - [Lab 15-4：Native 測試](#lab-15-4-native-測試)
+    - [Lab 15-1：建置第一個 Native 映像](#lab-15-1建置第一個-native-映像)
+    - [Lab 15-2：CDS 中間方案](#lab-15-2cds-中間方案)
+    - [Lab 15-3：反射提示](#lab-15-3反射提示)
+    - [Lab 15-4：Native 測試](#lab-15-4native-測試)
     - [第十五篇 Checklist](#第十五篇-checklist)
 - [第十六篇 Docker 容器化](#第十六篇-docker-容器化)
   - [16.1 學習重點](#161-學習重點)
   - [16.2 為什麼需要分層](#162-為什麼需要分層)
   - [16.3 多階段 Dockerfile（標準做法）](#163-多階段-dockerfile標準做法)
-  - [16.4 自訂分層（🆕 4.1 增強）](#164-自訂分層-4-1-增強)
+  - [16.4 自訂分層（🆕 4.1 增強）](#164-自訂分層-41-增強)
   - [16.5 Buildpacks（零 Dockerfile）](#165-buildpacks零-dockerfile)
   - [16.6 Docker Compose 開發環境](#166-docker-compose-開發環境)
   - [16.7 適用與不適用情境](#167-適用與不適用情境)
@@ -501,11 +539,11 @@ flowchart TD
   - [16.11 安全性建議](#1611-安全性建議)
   - [16.12 AI 如何協助](#1612-ai-如何協助)
   - [16.13 Lab 與 Checklist](#1613-lab-與-checklist)
-    - [Lab 16-1：多階段建置](#lab-16-1-多階段建置)
-    - [Lab 16-2：`layertools` → `tools` 遷移](#lab-16-2-layertools-tools-遷移)
-    - [Lab 16-3：Buildpacks 與 CDS](#lab-16-3-buildpacks-與-cds)
-    - [Lab 16-4：Docker Compose 開發環境](#lab-16-4-docker-compose-開發環境)
-    - [Lab 16-5：映像安全掃描](#lab-16-5-映像安全掃描)
+    - [Lab 16-1：多階段建置](#lab-16-1多階段建置)
+    - [Lab 16-2：layertools → tools 遷移](#lab-16-2layertools--tools-遷移)
+    - [Lab 16-3：Buildpacks 與 CDS](#lab-16-3buildpacks-與-cds)
+    - [Lab 16-4：Docker Compose 開發環境](#lab-16-4docker-compose-開發環境)
+    - [Lab 16-5：映像安全掃描](#lab-16-5映像安全掃描)
     - [第十六篇 Checklist](#第十六篇-checklist)
 - [第十七篇 Kubernetes](#第十七篇-kubernetes)
   - [17.1 學習重點](#171-學習重點)
@@ -514,7 +552,7 @@ flowchart TD
   - [17.4 應用端設定](#174-應用端設定)
     - [17.4.1 關閉時序（最容易出錯的地方）](#1741-關閉時序最容易出錯的地方)
   - [17.5 ConfigMap 與 Secret](#175-configmap-與-secret)
-  - [17.6 Service、Ingress、HPA、PDB](#176-service-ingress-hpa-pdb)
+  - [17.6 Service、Ingress、HPA、PDB](#176-serviceingresshpapdb)
   - [17.7 適用與不適用情境](#177-適用與不適用情境)
   - [17.8 常見錯誤與 Anti-pattern](#178-常見錯誤與-anti-pattern)
   - [17.9 最佳實務](#179-最佳實務)
@@ -522,21 +560,21 @@ flowchart TD
   - [17.11 安全性建議](#1711-安全性建議)
   - [17.12 AI 如何協助](#1712-ai-如何協助)
   - [17.13 Lab 與 Checklist](#1713-lab-與-checklist)
-    - [Lab 17-1：部署到本機 K8s](#lab-17-1-部署到本機-k8s)
-    - [Lab 17-2：零停機部署](#lab-17-2-零停機部署)
-    - [Lab 17-3：探針行為驗證](#lab-17-3-探針行為驗證)
-    - [Lab 17-4：HPA 自動擴縮](#lab-17-4-hpa-自動擴縮)
-    - [Lab 17-5：安全強化](#lab-17-5-安全強化)
+    - [Lab 17-1：部署到本機 K8s](#lab-17-1部署到本機-k8s)
+    - [Lab 17-2：零停機部署](#lab-17-2零停機部署)
+    - [Lab 17-3：探針行為驗證](#lab-17-3探針行為驗證)
+    - [Lab 17-4：HPA 自動擴縮](#lab-17-4hpa-自動擴縮)
+    - [Lab 17-5：安全強化](#lab-17-5安全強化)
     - [第十七篇 Checklist](#第十七篇-checklist)
 - [第十八篇 微服務](#第十八篇-微服務)
   - [18.1 學習重點](#181-學習重點)
   - [18.2 該不該拆？](#182-該不該拆)
-  - [18.3 Spring Modulith：單體中的模組化](#183-spring-modulith-單體中的模組化)
+  - [18.3 Spring Modulith：單體中的模組化](#183-spring-modulith單體中的模組化)
   - [18.4 服務間通訊](#184-服務間通訊)
-    - [18.4.1 HTTP Service Client（4.0 自動組態）](#1841-http-service-client4-0-自動組態)
-    - [18.4.2 gRPC（🆕 4.1）](#1842-grpc-4-1)
+    - [18.4.1 HTTP Service Client（4.0 自動組態）](#1841-http-service-client40-自動組態)
+    - [18.4.2 gRPC（🆕 4.1）](#1842-grpc-41)
   - [18.5 韌性（Resilience4j）](#185-韌性resilience4j)
-  - [18.6 分散式交易：Outbox 模式](#186-分散式交易-outbox-模式)
+  - [18.6 分散式交易：Outbox 模式](#186-分散式交易outbox-模式)
     - [18.6.1 Saga 補償](#1861-saga-補償)
   - [18.7 API Gateway](#187-api-gateway)
   - [18.8 適用與不適用情境](#188-適用與不適用情境)
@@ -546,12 +584,12 @@ flowchart TD
   - [18.12 安全性建議](#1812-安全性建議)
   - [18.13 AI 如何協助](#1813-ai-如何協助)
   - [18.14 Lab 與 Checklist](#1814-lab-與-checklist)
-    - [Lab 18-1：Spring Modulith 模組化](#lab-18-1-spring-modulith-模組化)
-    - [Lab 18-2：斷路器實戰](#lab-18-2-斷路器實戰)
-    - [Lab 18-3：Outbox 模式](#lab-18-3-outbox-模式)
-    - [Lab 18-4：gRPC 服務](#lab-18-4-grpc-服務)
-    - [Lab 18-5：分散式追蹤](#lab-18-5-分散式追蹤)
-    - [Lab 18-6：混沌測試](#lab-18-6-混沌測試)
+    - [Lab 18-1：Spring Modulith 模組化](#lab-18-1spring-modulith-模組化)
+    - [Lab 18-2：斷路器實戰](#lab-18-2斷路器實戰)
+    - [Lab 18-3：Outbox 模式](#lab-18-3outbox-模式)
+    - [Lab 18-4：gRPC 服務](#lab-18-4grpc-服務)
+    - [Lab 18-5：分散式追蹤](#lab-18-5分散式追蹤)
+    - [Lab 18-6：混沌測試](#lab-18-6混沌測試)
     - [第十八篇 Checklist](#第十八篇-checklist)
 - [第十九篇 Migration 升級遷移](#第十九篇-migration-升級遷移)
   - [19.1 學習重點](#191-學習重點)
@@ -559,7 +597,7 @@ flowchart TD
   - [19.3 升級前置檢查](#193-升級前置檢查)
     - [19.3.1 環境需求](#1931-環境需求)
     - [19.3.2 升級前必做清單](#1932-升級前必做清單)
-  - [19.4 步驟一：3.5.x → 4.0](#194-步驟一-3-5-x-4-0)
+  - [19.4 步驟一：3.5.x → 4.0](#194-步驟一35x--40)
     - [19.4.1 Maven 前後對照](#1941-maven-前後對照)
     - [19.4.2 Gradle 前後對照](#1942-gradle-前後對照)
   - [19.5 破壞性變更全表](#195-破壞性變更全表)
@@ -568,19 +606,20 @@ flowchart TD
     - [19.5.3 自動組態註冊檔](#1953-自動組態註冊檔)
     - [19.5.4 自動組態類別不可繼承](#1954-自動組態類別不可繼承)
     - [19.5.5 SSL 健康狀態變更](#1955-ssl-健康狀態變更)
-    - [19.5.6 模組化與 Starter 重整（4.0 最大的結構變更）](#1956-模組化與-starter-重整4-0-最大的結構變更)
-    - [19.5.7 4.0 移除的功能（需要改架構，不只是改名）](#1957-4-0-移除的功能需要改架構-不只是改名)
-  - [19.6 Jackson 2 → Jackson 3](#196-jackson-2-jackson-3)
+    - [19.5.6 模組化與 Starter 重整（4.0 最大的結構變更）](#1956-模組化與-starter-重整40-最大的結構變更)
+    - [19.5.7 4.0 移除的功能（需要改架構，不只是改名）](#1957-40-移除的功能需要改架構不只是改名)
+  - [19.6 Jackson 2 → Jackson 3](#196-jackson-2--jackson-3)
   - [19.7 其他主要相依變更](#197-其他主要相依變更)
-    - [19.7.1 Spring Security 6 → 7（Lambda DSL 強制）](#1971-spring-security-6-7lambda-dsl-強制)
-    - [19.7.2 Testcontainers 1.x → 2.0](#1972-testcontainers-1-x-2-0)
-    - [19.7.3 Hibernate 6 → 7](#1973-hibernate-6-7)
-    - [19.7.4 Tomcat 10 → 11](#1974-tomcat-10-11)
-    - [19.7.5 容器化：`layertools` → `tools`](#1975-容器化-layertools-tools)
-    - [19.7.6 測試基礎建設：`@SpringBootTest` 不再「附贈」測試工具](#1976-測試基礎建設-springboottest-不再-附贈-測試工具)
+    - [19.7.1 Spring Security 6 → 7（Lambda DSL 強制）](#1971-spring-security-6--7lambda-dsl-強制)
+    - [19.7.2 Testcontainers 1.x → 2.0](#1972-testcontainers-1x--20)
+    - [19.7.3 Hibernate 6 → 7](#1973-hibernate-6--7)
+    - [19.7.4 Tomcat 10 → 11](#1974-tomcat-10--11)
+    - [19.7.5 容器化：layertools → tools](#1975-容器化layertools--tools)
+    - [19.7.6 測試基礎建設：@SpringBootTest 不再「附贈」測試工具](#1976-測試基礎建設springboottest-不再附贈測試工具)
     - [19.7.7 Actuator 與 Web 行為變更（不改程式也會受影響）](#1977-actuator-與-web-行為變更不改程式也會受影響)
-  - [19.8 步驟二：4.0 → 4.1](#198-步驟二-4-0-4-1)
-  - [19.9 2.x → 3.0：`javax` → `jakarta`（最大關卡）](#199-2-x-3-0-javax-jakarta最大關卡)
+  - [19.8 步驟二：4.0 → 4.1](#198-步驟二40--41)
+    - [19.8.1 預備：4.1 → 4.2（依 4.2.0-RC1 整理）](#1981-預備41--42依-420-rc1-整理)
+  - [19.9 2.x → 3.0：javax → jakarta（最大關卡）](#199-2x--30javax--jakarta最大關卡)
   - [19.10 OpenRewrite 自動化](#1910-openrewrite-自動化)
   - [19.11 升級後驗證](#1911-升級後驗證)
     - [19.11.1 必查的啟動日誌](#19111-必查的啟動日誌)
@@ -592,12 +631,12 @@ flowchart TD
   - [19.15 效能與安全的附加收益](#1915-效能與安全的附加收益)
   - [19.16 AI 如何協助](#1916-ai-如何協助)
   - [19.17 Lab 與 Checklist](#1917-lab-與-checklist)
-    - [Lab 19-1：3.5 → 4.0 升級](#lab-19-1-3-5-4-0-升級)
-    - [Lab 19-2：Jackson 3 遷移](#lab-19-2-jackson-3-遷移)
-    - [Lab 19-3：OpenRewrite 自動化](#lab-19-3-openrewrite-自動化)
-    - [Lab 19-4：`spring.factories` 陷阱](#lab-19-4-spring-factories-陷阱)
-    - [Lab 19-5：容器化遷移](#lab-19-5-容器化遷移)
-    - [Lab 19-6：回退演練](#lab-19-6-回退演練)
+    - [Lab 19-1：3.5 → 4.0 升級](#lab-19-135--40-升級)
+    - [Lab 19-2：Jackson 3 遷移](#lab-19-2jackson-3-遷移)
+    - [Lab 19-3：OpenRewrite 自動化](#lab-19-3openrewrite-自動化)
+    - [Lab 19-4：spring.factories 陷阱](#lab-19-4springfactories-陷阱)
+    - [Lab 19-5：容器化遷移](#lab-19-5容器化遷移)
+    - [Lab 19-6：回退演練](#lab-19-6回退演練)
     - [第十九篇 Checklist](#第十九篇-checklist)
 - [第二十篇 Best Practices 最佳實務](#第二十篇-best-practices-最佳實務)
   - [20.1 學習重點](#201-學習重點)
@@ -606,13 +645,13 @@ flowchart TD
     - [20.3.1 一律使用建構子注入](#2031-一律使用建構子注入)
     - [20.3.2 Bean 與方法盡量不要 public](#2032-bean-與方法盡量不要-public)
     - [20.3.3 用 record 表達不可變資料](#2033-用-record-表達不可變資料)
-    - [20.3.4 金額一律用 `BigDecimal`](#2034-金額一律用-bigdecimal)
+    - [20.3.4 金額一律用 BigDecimal](#2034-金額一律用-bigdecimal)
     - [20.3.5 例外處理](#2035-例外處理)
     - [20.3.6 日誌](#2036-日誌)
   - [20.4 組態層](#204-組態層)
   - [20.5 資料層](#205-資料層)
     - [20.5.1 交易邊界](#2051-交易邊界)
-    - [20.5.2 N+1 查詢](#2052-n-1-查詢)
+    - [20.5.2 N+1 查詢](#2052-n1-查詢)
     - [20.5.3 連線池](#2053-連線池)
   - [20.6 介面層](#206-介面層)
   - [20.7 運維層](#207-運維層)
@@ -622,16 +661,16 @@ flowchart TD
   - [20.11 安全性要點（🔒）](#2011-安全性要點)
   - [20.12 AI 如何協助](#2012-ai-如何協助)
   - [20.13 Lab 與 Checklist](#2013-lab-與-checklist)
-    - [Lab 20-1：反模式獵人](#lab-20-1-反模式獵人)
-    - [Lab 20-2：ArchUnit 架構守門](#lab-20-2-archunit-架構守門)
-    - [Lab 20-3：`open-in-view` 實測](#lab-20-3-open-in-view-實測)
-    - [Lab 20-4：N+1 診斷與修復](#lab-20-4-n-1-診斷與修復)
-    - [Lab 20-5：交易邊界重構](#lab-20-5-交易邊界重構)
-    - [Lab 20-6：品質門禁](#lab-20-6-品質門禁)
+    - [Lab 20-1：反模式獵人](#lab-20-1反模式獵人)
+    - [Lab 20-2：ArchUnit 架構守門](#lab-20-2archunit-架構守門)
+    - [Lab 20-3：open-in-view 實測](#lab-20-3open-in-view-實測)
+    - [Lab 20-4：N+1 診斷與修復](#lab-20-4n1-診斷與修復)
+    - [Lab 20-5：交易邊界重構](#lab-20-5交易邊界重構)
+    - [Lab 20-6：品質門禁](#lab-20-6品質門禁)
     - [第二十篇 Checklist](#第二十篇-checklist)
 - [第二十一篇 AI Assisted Development](#第二十一篇-ai-assisted-development)
   - [21.1 學習重點](#211-學習重點)
-  - [21.2 定位：AI 是加速器，不是決策者](#212-定位-ai-是加速器-不是決策者)
+  - [21.2 定位：AI 是加速器，不是決策者](#212-定位ai-是加速器不是決策者)
   - [21.3 專案級 Context 設定](#213-專案級-context-設定)
   - [21.4 有效的 Prompt 結構](#214-有效的-prompt-結構)
   - [21.5 各場景 Prompt 範本](#215-各場景-prompt-範本)
@@ -645,32 +684,32 @@ flowchart TD
   - [21.9 團隊導入建議](#219-團隊導入建議)
   - [21.10 安全性建議（🔒）](#2110-安全性建議)
   - [21.11 Lab 與 Checklist](#2111-lab-與-checklist)
-    - [Lab 21-1：建立專案 AI 指引](#lab-21-1-建立專案-ai-指引)
-    - [Lab 21-2：幻覺獵人](#lab-21-2-幻覺獵人)
-    - [Lab 21-3：Prompt 迭代](#lab-21-3-prompt-迭代)
-    - [Lab 21-4：AI 輔助升級](#lab-21-4-ai-輔助升級)
-    - [Lab 21-5：測試補齊](#lab-21-5-測試補齊)
-    - [Lab 21-6：安全審查對照](#lab-21-6-安全審查對照)
+    - [Lab 21-1：建立專案 AI 指引](#lab-21-1建立專案-ai-指引)
+    - [Lab 21-2：幻覺獵人](#lab-21-2幻覺獵人)
+    - [Lab 21-3：Prompt 迭代](#lab-21-3prompt-迭代)
+    - [Lab 21-4：AI 輔助升級](#lab-21-4ai-輔助升級)
+    - [Lab 21-5：測試補齊](#lab-21-5測試補齊)
+    - [Lab 21-6：安全審查對照](#lab-21-6安全審查對照)
     - [第二十一篇 Checklist](#第二十一篇-checklist)
 - [第二十二篇 Enterprise Case Study 企業實戰案例](#第二十二篇-enterprise-case-study-企業實戰案例)
   - [22.1 學習重點](#221-學習重點)
   - [22.2 案例背景](#222-案例背景)
   - [22.3 整體架構](#223-整體架構)
-  - [22.4 遷移策略：絞殺者模式](#224-遷移策略-絞殺者模式)
+  - [22.4 遷移策略：絞殺者模式](#224-遷移策略絞殺者模式)
   - [22.5 關鍵決策與取捨](#225-關鍵決策與取捨)
-  - [22.6 核心實作：訂單流程](#226-核心實作-訂單流程)
+  - [22.6 核心實作：訂單流程](#226-核心實作訂單流程)
   - [22.7 生產組態](#227-生產組態)
   - [22.8 遇到的問題與解法](#228-遇到的問題與解法)
   - [22.9 成果](#229-成果)
-  - [22.10 回顧：做對與做錯的](#2210-回顧-做對與做錯的)
+  - [22.10 回顧：做對與做錯的](#2210-回顧做對與做錯的)
   - [22.11 AI 如何協助](#2211-ai-如何協助)
   - [22.12 Lab 與 Checklist](#2212-lab-與-checklist)
-    - [Lab 22-1：架構決策記錄](#lab-22-1-架構決策記錄)
-    - [Lab 22-2：實作冪等下單](#lab-22-2-實作冪等下單)
-    - [Lab 22-3：Outbox 端到端](#lab-22-3-outbox-端到端)
-    - [Lab 22-4：故障演練](#lab-22-4-故障演練)
-    - [Lab 22-5：效能基準與調校](#lab-22-5-效能基準與調校)
-    - [Lab 22-6：完整遷移演練](#lab-22-6-完整遷移演練)
+    - [Lab 22-1：架構決策記錄](#lab-22-1架構決策記錄)
+    - [Lab 22-2：實作冪等下單](#lab-22-2實作冪等下單)
+    - [Lab 22-3：Outbox 端到端](#lab-22-3outbox-端到端)
+    - [Lab 22-4：故障演練](#lab-22-4故障演練)
+    - [Lab 22-5：效能基準與調校](#lab-22-5效能基準與調校)
+    - [Lab 22-6：完整遷移演練](#lab-22-6完整遷移演練)
     - [第二十二篇 Checklist](#第二十二篇-checklist)
 - [第二十三篇 FAQ](#第二十三篇-faq)
   - [23.1 版本與相容性](#231-版本與相容性)
@@ -688,54 +727,53 @@ flowchart TD
   - [23.13 Spring AI](#2313-spring-ai)
   - [23.14 升級](#2314-升級)
 - [第二十四篇 面試題庫](#第二十四篇-面試題庫)
-  - [24.1 🟢 初級（Q1 ~ Q60）](#241-初級q1-q60)
+  - [24.1 🟢 初級（Q1 ~ Q60）](#241--初級q1--q60)
     - [核心概念](#核心概念)
     - [組態](#組態)
     - [REST](#rest)
     - [資料存取](#資料存取)
     - [測試與其他](#測試與其他)
-  - [24.2 🔵 中級（Q61 ~ Q130）](#242-中級q61-q130)
+  - [24.2 🔵 中級（Q61 ~ Q130）](#242--中級q61--q130)
     - [自動組態與容器](#自動組態與容器)
     - [組態與環境](#組態與環境)
     - [資料存取進階](#資料存取進階)
     - [安全與 API](#安全與-api)
     - [測試與可觀測性](#測試與可觀測性)
-  - [24.3 🟠 資深（Q131 ~ Q185）](#243-資深q131-q185)
+  - [24.3 🟠 資深（Q131 ~ Q185）](#243--資深q131--q185)
     - [效能與併發](#效能與併發)
     - [分散式與架構](#分散式與架構)
     - [升級與工程實務](#升級與工程實務)
-  - [24.4 🔴 架構師（Q186 ~ Q215）](#244-架構師q186-q215)
+  - [24.4 🔴 架構師（Q186 ~ Q215）](#244--架構師q186--q215)
   - [24.5 深度解析（10 題完整答案）](#245-深度解析10-題完整答案)
     - [D1. 請說明 Spring Boot 自動組態的完整運作流程](#d1-請說明-spring-boot-自動組態的完整運作流程)
-    - [D2. `@Transactional` 什麼情況下會失效？請完整說明](#d2-transactional-什麼情況下會失效-請完整說明)
+    - [D2. @Transactional 什麼情況下會失效？請完整說明](#d2-transactional-什麼情況下會失效請完整說明)
     - [D3. 請比較虛擬執行緒與反應式程式設計](#d3-請比較虛擬執行緒與反應式程式設計)
-    - [D4. 如何診斷並解決一個「P99 延遲突然惡化」的問題](#d4-如何診斷並解決一個-p99-延遲突然惡化-的問題)
+    - [D4. 如何診斷並解決一個「P99 延遲突然惡化」的問題](#d4-如何診斷並解決一個p99-延遲突然惡化的問題)
     - [D5. 請設計一個訂單服務的分散式一致性方案](#d5-請設計一個訂單服務的分散式一致性方案)
-    - [D6. Spring Boot 4.x 升級中，你認為最容易被忽略的風險是什麼？](#d6-spring-boot-4-x-升級中-你認為最容易被忽略的風險是什麼)
-    - [D7. 為什麼 `open-in-view` 預設是 `true`，但所有人都說要關掉？](#d7-為什麼-open-in-view-預設是-true-但所有人都說要關掉)
+    - [D6. Spring Boot 4.x 升級中，你認為最容易被忽略的風險是什麼？](#d6-spring-boot-4x-升級中你認為最容易被忽略的風險是什麼)
+    - [D7. 為什麼 open-in-view 預設是 true，但所有人都說要關掉？](#d7-為什麼-open-in-view-預設是-true但所有人都說要關掉)
     - [D8. 如何設計一個能承受下游故障的服務？](#d8-如何設計一個能承受下游故障的服務)
     - [D9. 你會如何為一個 25 人團隊的單體應用規劃現代化？](#d9-你會如何為一個-25-人團隊的單體應用規劃現代化)
-    - [D10. 你如何看待 AI 輔助開發？在團隊中該如何規範？](#d10-你如何看待-ai-輔助開發-在團隊中該如何規範)
+    - [D10. 你如何看待 AI 輔助開發？在團隊中該如何規範？](#d10-你如何看待-ai-輔助開發在團隊中該如何規範)
   - [24.6 情境題與白板題](#246-情境題與白板題)
   - [24.7 建議反問面試官的問題](#247-建議反問面試官的問題)
 - [第二十五篇 Lab 實作練習](#第二十五篇-lab-實作練習)
   - [25.1 使用方式](#251-使用方式)
   - [25.2 章節 Lab 索引](#252-章節-lab-索引)
   - [25.3 綜合 Lab（Capstone）](#253-綜合-labcapstone)
-    - [🔵 Lab C-1：完整 REST 服務（涵蓋第 1 ~ 13 篇）](#lab-c-1-完整-rest-服務涵蓋第-1-13-篇)
-    - [🔵 Lab C-2：AI 客服助理（涵蓋第 14 篇 + 前置知識）](#lab-c-2-ai-客服助理涵蓋第-14-篇-前置知識)
-    - [🟠 Lab C-3：容器化與 K8s 部署（涵蓋第 15 ~ 17 篇）](#lab-c-3-容器化與-k8s-部署涵蓋第-15-17-篇)
-    - [🟠 Lab C-4：微服務拆分（涵蓋第 18 篇）](#lab-c-4-微服務拆分涵蓋第-18-篇)
-    - [🟠 Lab C-5：版本升級實戰（涵蓋第 19 篇）](#lab-c-5-版本升級實戰涵蓋第-19-篇)
-    - [🟠 Lab C-6：完整系統整合（涵蓋全書）](#lab-c-6-完整系統整合涵蓋全書)
+    - [🔵 Lab C-1：完整 REST 服務（涵蓋第 1 ~ 13 篇）](#-lab-c-1完整-rest-服務涵蓋第-1--13-篇)
+    - [🔵 Lab C-2：AI 客服助理（涵蓋第 14 篇 + 前置知識）](#-lab-c-2ai-客服助理涵蓋第-14-篇--前置知識)
+    - [🟠 Lab C-3：容器化與 K8s 部署（涵蓋第 15 ~ 17 篇）](#-lab-c-3容器化與-k8s-部署涵蓋第-15--17-篇)
+    - [🟠 Lab C-4：微服務拆分（涵蓋第 18 篇）](#-lab-c-4微服務拆分涵蓋第-18-篇)
+    - [🟠 Lab C-5：版本升級實戰（涵蓋第 19 篇）](#-lab-c-5版本升級實戰涵蓋第-19-篇)
+    - [🟠 Lab C-6：完整系統整合（涵蓋全書）](#-lab-c-6完整系統整合涵蓋全書)
   - [25.4 學習路徑建議](#254-學習路徑建議)
 - [第二十六篇 Appendix 附錄](#第二十六篇-appendix-附錄)
   - [26.1 版本對照速查](#261-版本對照速查)
-    - [Spring Boot 4.0 生態](#spring-boot-4-0-生態)
-    - [Spring Boot 4.1 生態](#spring-boot-4-1-生態)
+    - [Spring 生態（Spring Boot 管理的版本）](#spring-生態spring-boot-管理的版本)
     - [第三方相依基準](#第三方相依基準)
     - [Jakarta EE 規範](#jakarta-ee-規範)
-  - [26.2 4.x 破壞性變更速查](#262-4-x-破壞性變更速查)
+  - [26.2 4.x 破壞性變更速查](#262-4x-破壞性變更速查)
   - [26.3 常用屬性速查](#263-常用屬性速查)
   - [26.4 常用註解速查](#264-常用註解速查)
   - [26.5 常用指令速查](#265-常用指令速查)
@@ -753,10 +791,13 @@ flowchart TD
 
 <!-- TOC-AUTO-END -->
 
-> [!NOTE]
-> 目錄由 `tools/markdown/generate_toc.py` 維護。新增章節後執行
-> `python tools/markdown/generate_toc.py ".github/教學/framework/Spring boot 4.x 教學手冊.md" --write`
-> 即可展開至三級小節。
+> **💡 說明**
+>
+> 目錄由 `tools/markdown/generate_toc.py` 依 Hugo（goldmark `github` 錨點規則）自動產生，收錄 H2～H4。新增或改名章節後，於 Blog repo 根目錄執行：
+>
+> `python tools/markdown/generate_toc.py "content/posts/教學/framework/Spring boot 4.x 教學手冊.md" --write`
+>
+> 再以 `hugo -d %TEMP%\hugo-check` 建置並執行 `--verify-html` 比對實際錨點（見工具說明）。
 
 ---
 
@@ -846,6 +887,7 @@ timeline
     2025 : 3.5 : 3.x 收尾版本 / 4.x 升級的建議跳板
     2025 : 4.0 : Spring Framework 7 / Jackson 3 / 模組重整 / HTTP Service Client / API Versioning
     2026 : 4.1 : Spring gRPC / SSRF 防護 / OpenTelemetry 強化 / Jackson 細緻調校
+    2026 : 4.2 (RC) : RestTemplate 淘汰 / AMQP 1.0 / OTLP 共用設定 / 啟動與 uber jar 效能
 ```
 
 | 世代 | 最大的一件事 | 升級痛點等級 |
@@ -854,12 +896,13 @@ timeline
 | 2.x → 3.x | **`javax.*` → `jakarta.*`**，所有第三方套件必須同步換版 | 極高 |
 | 3.x → 4.x | **Jackson 2 → 3**、模組拆分、auto-configuration API 收斂、Security 7 | 高 |
 | 4.0 → 4.1 | 4.0 標記 deprecated 的全部**移除**、Derby 淘汰、layertools 移除 | 中 |
+| 4.1 → 4.2（預覽） | 「4.2 預定移除」的 API 全數移除、`RestTemplate`／`TestRestTemplate` 淘汰、`spring-boot-amqp` 更名 | 中 |
 
 > ⚠️ **給還在 2.x 的團隊**：不要嘗試從 2.7 直接跳 4.1。正確路徑是 `2.7 → 3.0 → 3.5 → 4.0 → 4.1`，每一段都跑完整回歸測試。詳見第十九篇。
 
 ### 1.4 Spring Boot 4.x 新特色
 
-以下把 4.0 與 4.1 的重點分類整理，🆕 表示新增、🚫 表示移除或淘汰。
+以下把 4.0 與 4.1 的重點分類整理，🆕 表示新增、🚫 表示移除或淘汰；4.2 的前瞻內容集中在 §1.4.8。
 
 #### 1.4.1 Web 與 API
 
@@ -938,7 +981,8 @@ timeline
 
 #### 1.4.6 已淘汰與已移除（必查表）
 
-> [!WARNING]
+> **⚠️ 警告**
+>
 > 這張表是升版時最容易翻車的地方，請在升版前逐項比對。
 
 | 項目 | 狀態 | 替代方案 |
@@ -1045,15 +1089,131 @@ public class InventoryService {
 
 > ⚠️ **與 Resilience4j 的分工**：核心註解適合「單純重試 / 併發上限」。若需要**熔斷器、限流、艙壁隔離的完整指標與狀態機**，仍應使用 Resilience4j（詳見第十八篇 18.5）。不要在同一個方法上同時疊兩套機制。
 
+#### 1.4.8 Spring Boot 4.2 前瞻（RC 階段）
+
+> ⚠️ **定位聲明**：本節依據 **4.2.0-M1／M2／RC1** 的官方 release notes 與原始碼整理（查證日 2026-10-30）。4.2 預計 2026 年 11 月 GA，RC 之後仍可能微調。**請用於「相容性預演」與「提早清理技術債」，不要用在生產環境。**
+
+**一、版本基準（4.2.0-RC1）**
+
+| 元件 | 4.1.2（GA） | 4.2.0-RC1 |
+| --- | --- | --- |
+| Spring Framework | 7.0.10 | **7.1.0-RC1** |
+| Spring Security | 7.1.2 | **7.2.0-RC1** |
+| Spring Data | 2026.0.2 | **2026.1.0-RC1** |
+| Micrometer／Tracing | 1.17.2／1.7.2 | **1.18.0-RC1／1.8.0-RC1** |
+| Reactor | 2025.0.8 | **2026.0.0-RC1** |
+| Apache Kafka client | 4.2.2 | **4.4.0** |
+| Spring Batch | 6.0.6 | **6.1.0-RC1** |
+| Hibernate ORM／Jackson／Tomcat | 7.4.13／3.1.7／11.0.27 | 相同 |
+
+**二、對既有程式影響最大的五件事**
+
+| # | 變更 | 影響 | 現在（4.1）就能做的準備 |
+| --- | --- | --- | --- |
+| 1 | 🚫 **`RestTemplate` 支援標記淘汰**（Framework 7.1 將 `RestTemplate` 標為 for removal，Boot 的 `RestTemplateBuilder` 等支援同步淘汰） | 大量 deprecation 警告，未來 major 版會移除 | 新程式一律用 `RestClient` 或 HTTP Service Client（§9.6） |
+| 2 | 🚫 **`TestRestTemplate` 淘汰**，由 `RestTestClient` 取代 | 整合測試出現警告 | 新測試一律用 `RestTestClient`（§12.5） |
+| 3 | 🔄 **`spring-boot-starter-amqp` 語意改變**：改為「通用 AMQP 1.0」；原 RabbitMQ（AMQP 0.9.1）支援改名為 **`spring-boot-starter-rabbitmq`** | ⚠️ 若沿用舊 starter，**RabbitMQ 自動組態可能不再生效** | 盤點所有使用 `spring-boot-starter-amqp` 的服務，升 4.2 時改用 `spring-boot-starter-rabbitmq` |
+| 4 | 🚫 **「預定於 4.2 移除」的 API 全數移除** | 編譯失敗 | 在 4.1 開啟 `-Xlint:removal` 並清乾淨 |
+| 5 | 🔄 `server.tomcat.use-relative-redirects` → **`server.tomcat.servlet.use-relative-redirects`**，且預設值改與 Tomcat 一致 | 重新導向的 `Location` 標頭可能由絕對改相對 | 用 `spring-boot-properties-migrator` 檢查，並測試含 redirect 的流程 |
+
+**三、值得關注的新能力**
+
+| 類別 | 新能力 | 設定／用法 |
+| --- | --- | --- |
+| 訊息 | 🆕 AMQP 1.0 用戶端（通用與 RabbitMQ 專用） | `spring-boot-starter-amqp`（通用）／`spring-boot-starter-amqp-rabbitmq`（RabbitMQ over AMQP 1.0） |
+| 可觀測性 | 🆕 OTLP 共用設定：endpoint、compression、headers 一處設定，logs／metrics／traces 共用，個別訊號仍可覆寫 | `management.opentelemetry.otlp.*` |
+| 可觀測性 | 🆕 一鍵切換為 OpenTelemetry 語意慣例（僅限穩定版慣例） | `management.observations.conventions=open-telemetry` |
+| 可觀測性 | 🆕 自訂 MDC 中 trace／span id 的鍵名 | `management.tracing.mdc.trace-id-key`／`span-id-key` |
+| 可觀測性 | 🔄 `DefaultMeterObservationHandler` 的 active `LongTaskTimer` 改為 opt-in | 依賴該指標的儀表板需確認 |
+| 測試 | 🔄 測試預設**停用 Micrometer global registry** | 需要時用 `@AutoConfigureMetrics(useGlobalRegistry = true)` |
+| 建置 | 🆕 `jarmode tools` 新增 `sbom` 指令，不啟動應用即可取出 SBOM | `java -Djarmode=tools -jar app.jar sbom` |
+| 建置 | 🆕 Buildpacks 支援 image-based build cache；預設 builder 改為 `ubuntu-resolute-builder` | 見第十六篇 16.5 |
+| 組態 | 🆕 Properties Migrator 可讓應用**啟動失敗**（CI 守門） | `spring.tools.properties-migrator.fail-on=none｜error｜warning` |
+| 快取 | 🆕 Caffeine 非同步快取模式（支援 `CompletableFuture`／reactive 回傳的 `@Cacheable`） | `spring.cache.caffeine.async=true` |
+| 效能 | ⚡ uber jar 直接在巢狀 jar 中查找類別與資源、auto-configuration 排序加速 | 不需設定，升版即得 |
+| 其他 | `RetryPolicySettings` 支援 timeout、Kafka `listener.await-async-results-on-stop`、LDAP SSL bundle、Java 27 支援 | 依需要導入 |
+
+**四、範例：在 4.1 就先完成「4.2 就緒」改寫**
+
+```java
+// ❌ 4.2 起淘汰：RestTemplate
+@Service
+class LegacyQuoteClient {
+    private final RestTemplate restTemplate;
+    LegacyQuoteClient(RestTemplateBuilder builder) {
+        this.restTemplate = builder.rootUri("https://quote.internal").build();
+    }
+    Quote get(String id) {
+        return restTemplate.getForObject("/quotes/{id}", Quote.class, id);
+    }
+}
+
+// ✅ 4.1 即可使用、4.2 推薦：RestClient（同步、流暢式 API）
+@Service
+class QuoteClient {
+    private final RestClient restClient;
+    QuoteClient(RestClient.Builder builder) {   // 由 Boot 自動組態注入，已套用觀測與逾時設定
+        this.restClient = builder.baseUrl("https://quote.internal").build();
+    }
+    Quote get(String id) {
+        return restClient.get().uri("/quotes/{id}", id)
+                .retrieve()
+                .body(Quote.class);
+    }
+}
+```
+
+```yaml
+# 4.2：OTLP 共用設定（個別訊號未設定時沿用共用值）
+management:
+  opentelemetry:
+    otlp:
+      endpoint: http://otel-collector:4318
+      compression: gzip
+      headers:
+        x-tenant: order-team
+  observations:
+    conventions: open-telemetry   # 改用 OpenTelemetry 穩定語意慣例
+  tracing:
+    mdc:
+      trace-id-key: trace_id      # 與既有 ELK／Loki 欄位命名對齊
+      span-id-key: span_id
+spring:
+  tools:
+    properties-migrator:
+      fail-on: warning            # CI 環境：發現需遷移的屬性就讓啟動失敗
+```
+
+**五、如何驗證（Review 檢核方式）**
+
+```bash
+# 1. 找出 4.2 會受影響的程式碼（RestTemplate／TestRestTemplate／舊 AMQP starter）
+git grep -nE "RestTemplate|TestRestTemplate" -- "*.java" "*.kt"
+git grep -n "spring-boot-starter-amqp" -- "pom.xml" "*.gradle*"
+
+# 2. 在獨立分支試升 4.2.0-RC1（4.x 的里程碑／RC 版已發佈到 Maven Central）
+git checkout -b try/spring-boot-4.2
+#    將 pom.xml 的 <parent> 版本改為 4.2.0-RC1（Gradle 改 plugins 區塊的版本）後執行：
+mvn -q -U clean verify
+
+# 3. 以 -Xlint 編譯，確認沒有 removal 警告
+mvn -q compile -Dmaven.compiler.showDeprecation=true
+
+# 4. 用 jarmode 取出 SBOM（4.2）
+java -Djarmode=tools -jar target/app.jar sbom --destination target/sbom.json
+```
+
+驗收標準：① `git grep` 結果皆已有替代計畫；② 編譯無 `removal` 警告；③ 全部測試在 RC1 上通過；④ 以 Actuator `/actuator/conditions` 確認 RabbitMQ 自動組態仍為 *positive match*。
+
 ### 1.5 與 Spring Boot 3.x 的差異總覽
 
 這是升版評估時最需要的一張表：
 
 | 面向 | Spring Boot 3.5 | **Spring Boot 4.1** | 影響 |
 | --- | --- | --- | --- |
-| Spring Framework | 6.2.x | **7.0.8** | 高 |
-| Spring Security | 6.5.x | **7.1.0** | 高（DSL 有變動） |
-| Spring Data | 2025.0.x | **2026.0.0** | 中 |
+| Spring Framework | 6.2.x | **7.0.x（4.1.2 為 7.0.10）** | 高 |
+| Spring Security | 6.5.x | **7.1.x（4.1.2 為 7.1.2）** | 高（DSL 有變動） |
+| Spring Data | 2025.0.x | **2026.0.x** | 中 |
 | JSON | Jackson 2.x | **Jackson 3.1.x** | **極高** |
 | ORM | Hibernate 6.6.x | **Hibernate ORM 7.4.x** | 高 |
 | Bean Validation | Hibernate Validator 8.x | **Hibernate Validator 9.1** | 中 |
@@ -1086,7 +1246,8 @@ Spring Boot 4.x 在以下場景是**首選**：
 
 ### 1.7 不適用情境
 
-> [!CAUTION]
+> **🚫 注意**
+>
 > 選錯技術的成本遠高於寫錯程式。以下情境請**認真考慮其他方案**。
 
 | 情境 | 問題 | 建議替代 |
@@ -1139,7 +1300,8 @@ flowchart TB
 
 ### 1.9 與 Jakarta EE 規格的關係
 
-> [!IMPORTANT]
+> **📌 重要**
+>
 > Spring Boot **不是** Jakarta EE 應用伺服器，它只**採用 Jakarta EE 的部分規格 API**。
 
 | Jakarta 規格 | Spring Boot 4.x 採用版本 | 在 Spring Boot 中的角色 |
@@ -1259,6 +1421,16 @@ flowchart LR
 4. **建立內部 Parent POM**：統一團隊的 Spring Boot 版本、外掛設定、程式碼檢查規則（詳見第五篇）。
 5. **從第一天就開啟 Actuator 健康檢查**，不要等上線前才補（詳見第十三篇）。
 6. **相依版本升級納入 CI**：用 Dependabot 或 Renovate 每週檢查，避免一次累積數十個版本落差。
+7. **依官方支援期排定升級行事曆**：每年 5 月／11 月新版發佈後一個季度內完成 minor 升級評估；以 §「版本基準聲明」的支援期限表為依據，**任何生產系統都不應跑在 OSS 支援已結束的版本線**（例如 3.5.x 已於 2026-06-30 結束）。
+
+**驗證方式**：
+
+```bash
+# 列出專案使用的 Spring Boot 版本，與支援期限表比對
+mvn help:evaluate -Dexpression=project.parent.version -q -DforceStdout
+# 列出可升級的 patch 版本（不跨 minor）
+mvn versions:display-parent-updates -DallowMinorUpdates=false
+```
 
 ### 1.15 效能調校（⚡ 概覽）
 
@@ -1324,7 +1496,9 @@ java -XX:MaxRAMPercentage=75.0 -XX:+UseZGC -jar app.jar
 #### 第一篇 Checklist
 
 - [ ] 我能說明 Spring Boot 與 Spring Framework 的分工
-- [ ] 我知道現行 GA 版本是 4.1.x，baseline 是 Java 17、建議 Java 25
+- [ ] 我知道現行 GA 版本是 4.1.x（本手冊基準 4.1.2），baseline 是 Java 17、建議 Java 25
+- [ ] 我能查出自己團隊使用的版本線何時結束 OSS 支援
+- [ ] 我知道 4.2 將淘汰 `RestTemplate`／`TestRestTemplate`，且 `spring-boot-starter-amqp` 語意會改變
 - [ ] 我知道 4.x 對應的是 Jakarta EE 11 世代規格，不是 EE 12
 - [ ] 我能列出至少 5 個 4.x 新特性
 - [ ] 我知道 4.0 的 deprecated 項目在 4.1 已全數移除
@@ -1863,7 +2037,7 @@ flowchart TD
 **PowerShell（Windows）**：
 
 ```powershell
-Invoke-WebRequest -Uri "https://start.spring.io/starter.zip?type=maven-project&language=java&bootVersion=4.1.0&groupId=com.tutorial&artifactId=order-service&name=order-service&packageName=com.tutorial.order&javaVersion=25&dependencies=web,actuator,validation" -OutFile order-service.zip
+Invoke-WebRequest -Uri "https://start.spring.io/starter.zip?type=maven-project&language=java&bootVersion=4.1.2&groupId=com.tutorial&artifactId=order-service&name=order-service&packageName=com.tutorial.order&javaVersion=25&dependencies=web,actuator,validation" -OutFile order-service.zip
 
 Expand-Archive -Path order-service.zip -DestinationPath order-service
 Set-Location order-service
@@ -1876,7 +2050,7 @@ Set-Location order-service
 sdk install springboot
 
 # 建立專案
-spring init --build=maven --java-version=25 --boot-version=4.1.0 \
+spring init --build=maven --java-version=25 --boot-version=4.1.2 \
     --dependencies=web,actuator,validation \
     --group-id=com.tutorial --artifact-id=order-service \
     --package-name=com.tutorial.order order-service
@@ -1896,7 +2070,7 @@ spring init --build=maven --java-version=25 --boot-version=4.1.0 \
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0</version>
+        <version>4.1.2</version>
         <relativePath/>
     </parent>
 
@@ -1974,7 +2148,7 @@ spring init --build=maven --java-version=25 --boot-version=4.1.0 \
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-dependencies</artifactId>
-            <version>4.1.0</version>
+            <version>4.1.2</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -1995,7 +2169,7 @@ spring init --build=maven --java-version=25 --boot-version=4.1.0 \
 <plugin>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-maven-plugin</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.2</version>
     <executions>
         <execution>
             <goals>
@@ -2012,7 +2186,7 @@ spring init --build=maven --java-version=25 --boot-version=4.1.0 \
 // build.gradle.kts — Gradle 9
 plugins {
     java
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -2188,7 +2362,7 @@ org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g
 
 | 任務 | Prompt 骨架 |
 | --- | --- |
-| 產生 pom.xml | 「產生一份 Spring Boot 4.1.0 + Java 25 的 `pom.xml`，包含 web、validation、actuator、data-jpa、postgresql、testcontainers。使用 `spring-boot-starter-parent`，並加上 OWASP dependency-check 外掛。」 |
+| 產生 pom.xml | 「產生一份 Spring Boot 4.1.2 + Java 25 的 `pom.xml`，包含 web、validation、actuator、data-jpa、postgresql、testcontainers。使用 `spring-boot-starter-parent`，並加上 OWASP dependency-check 外掛。」 |
 | Maven 轉 Gradle | 「把這份 `pom.xml` 轉成 Gradle Kotlin DSL，目標 Gradle 9、Java 25 toolchain。」 |
 | 建置錯誤排查 | 「這是 `mvn clean package` 的錯誤輸出，請找出根因並給出修正後的 pom 片段。」 |
 
@@ -2814,7 +2988,8 @@ flowchart TB
 
 ### 5.3 官方 Starter 完整清單（4.1）
 
-> [!IMPORTANT]
+> **📌 重要**
+>
 > 4.0 起的 Starter 命名完全規則化：**模組 `spring-boot-<technology>`、Starter `spring-boot-starter-<technology>`、測試 Starter `spring-boot-starter-<technology>-test`**，根套件則是 `org.springframework.boot.<technology>`。只要知道技術名稱，就能推出 artifact 與套件名稱。
 
 #### 5.3.1 Web 與 API
@@ -2905,6 +3080,10 @@ flowchart TB
 | `spring-boot-testcontainers` | Testcontainers 2.0.x 整合、`@ServiceConnection` |
 
 > 💡 **所有 `-test` starter 都會遞移帶入 `spring-boot-starter-test`**，因此不必再單獨宣告它；正確做法是「列出這個模組實際要測的技術」。
+
+> ⚠️ **4.2 前瞻（RC1）— 訊息 starter 重新命名**：4.2 將 `spring-boot-starter-amqp` 改為「通用 AMQP 1.0」用途，既有 RabbitMQ（AMQP 0.9.1）功能改由 **`spring-boot-starter-rabbitmq`**（對應模組 `spring-boot-rabbitmq`）提供，另新增 `spring-boot-starter-amqp-rabbitmq`（RabbitMQ over AMQP 1.0）。升 4.2 時請一併調整，詳見 §19.8.1。
+>
+> 驗證方式：`mvn dependency:tree -Dincludes=org.springframework.boot` 列出所有 Boot 模組，確認沒有意外帶入或遺漏的 starter。
 
 ### 5.4 覆寫第三方版本的正確做法
 
@@ -3026,7 +3205,7 @@ Spring Boot 4.0 把過去的大顆 artifact 拆得更細，讓非 Spring Data �
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0</version>
+        <version>4.1.2</version>
         <relativePath/>
     </parent>
 
@@ -3209,7 +3388,7 @@ mvn -pl order-api -am clean package
 | --- | --- |
 | 相依衝突分析 | 「這是 `mvn dependency:tree` 輸出，有兩個版本的 `X`。請說明誰引入了哪個版本，以及正確的解法（覆寫版本或排除）。」 |
 | CVE 修補建議 | 「dependency-check 報告顯示 `Y` 有 CVE-2026-XXXX。在 Spring Boot 4.1 的 BOM 下，最小侵入的修補方式是什麼？」 |
-| 產生企業 Parent POM | 「產生一份企業 Parent POM，繼承 Spring Boot 4.1.0，含 enforcer 規則（Java 25+、禁用 log4j 1.x 與 derby、版本收斂）、OWASP check、CycloneDX SBOM。」 |
+| 產生企業 Parent POM | 「產生一份企業 Parent POM，繼承 Spring Boot 4.1.2，含 enforcer 規則（Java 25+、禁用 log4j 1.x 與 derby、版本收斂）、OWASP check、CycloneDX SBOM。」 |
 
 ### 5.15 Lab 與 Checklist
 
@@ -3422,7 +3601,7 @@ audit-spring-boot-starter/
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0</version>
+        <version>4.1.2</version>
         <relativePath/>
     </parent>
 
@@ -5241,6 +5420,10 @@ public class PaymentService {
 | 反應式支援 | ❌ | ✅ | ✅（回傳 `Mono`／`Flux` 即可） |
 | 建議 | 🚫 舊專案維護 | 反應式場景 | ✅ **4.x 新專案首選** |
 
+> ⚠️ **4.2 前瞻**：Spring Framework 7.1 將 `RestTemplate` 標示為 *for removal*，Spring Boot 4.2 同步淘汰 `RestTemplateBuilder` 等支援。**現有 `RestTemplate` 程式請列入改寫計畫**：簡單呼叫改 `RestClient`，對外部服務的整合改為 HTTP Service Client 介面。
+>
+> 驗證方式：`git grep -n "RestTemplate" -- "*.java"` 的結果應逐步歸零；在 CI 加入 ArchUnit 規則 `noClasses().should().dependOnClassesThat().haveSimpleName("RestTemplate")` 防止新程式再引入。
+
 ### 9.7 Jackson 3 遷移重點（🔄）
 
 Spring Boot 4.0 預設使用 **Jackson 3.0**，Jackson 2 仍可用但已標記 deprecated。
@@ -6413,6 +6596,10 @@ public class JwtConfig {
 }
 ```
 
+> 🔄 **4.1.2 修正值得注意**：① 只設定 `jwk-set-uri`、但 `issuer-uri` 為空字串時，4.1.0／4.1.1 會錯誤拒絕 JWT；② 單獨設定 `authorities-claim-delimiter` 時會被忽略。若你在 4.1.0／4.1.1 為此寫了繞道程式，升到 **4.1.2** 後請移除並回歸測試。
+>
+> 驗證方式：用 `curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/v1/orders` 分別測試有效 token（200）、過期 token（401）、權限不足 token（403）。
+
 ### 11.5 方法層級授權
 
 ```java
@@ -7052,6 +7239,8 @@ class OrderControllerRestTestClientTest {
 ```
 
 > 🆕 **4.1 加分項**：新增 `@AutoConfigureWebServer`，可在切片測試中依需求啟動 Web 伺服器。
+
+> ⚠️ **4.2 前瞻**：`TestRestTemplate` 在 4.2 標記淘汰，官方建議改用 `RestTestClient`；同時測試預設**停用 Micrometer global registry**，需要時用 `@AutoConfigureMetrics(useGlobalRegistry = true)`。改寫範例見 §19.8.1。
 
 ### 12.6 資料層測試（Testcontainers 2.0）
 
@@ -7828,6 +8017,14 @@ logging:
 
 > 🆕 **4.1 Exemplar 支援**：OTLP 指標匯出支援 exemplar，可在 Grafana 的指標圖上直接點擊跳到對應 trace。
 
+> 🆕 **4.2 前瞻（RC1）**：
+>
+> - `management.opentelemetry.otlp.endpoint`／`compression`／`headers` 可一次設定給 logs、metrics、traces 共用，個別訊號（例如 `management.opentelemetry.tracing.export.otlp.endpoint`）仍可覆寫。
+> - `management.tracing.mdc.trace-id-key`／`span-id-key` 可把 MDC 鍵名改為 `trace_id`／`span_id`，與既有日誌平台欄位對齊（預設仍是 `traceId`／`spanId`，上方 `correlation` 樣式需同步修改）。
+> - `management.observations.conventions=open-telemetry` 可改用 OpenTelemetry 的穩定語意慣例；⚠️ 指標名稱會改變，**既有儀表板與告警規則必須同步調整**。
+>
+> 驗證方式：啟動後呼叫一次 API，到 Collector／Tempo 以 trace id 查詢，確認 span 名稱、屬性與日誌中的 trace id 一致。
+
 ### 13.7 Prometheus 與告警
 
 ```yaml
@@ -8108,7 +8305,7 @@ flowchart TB
 
 ```xml
 <properties>
-    <spring-ai.version>2.0.0</spring-ai.version>
+    <spring-ai.version>2.0.2</spring-ai.version>  <!-- 2026-10 現行 GA；2.1 尚在 RC --> 
 </properties>
 
 <dependencyManagement>
@@ -8828,7 +9025,7 @@ flowchart LR
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.2</version>
 </parent>
 
 <properties>
@@ -8879,7 +9076,7 @@ mvn -Pnative spring-boot:build-image
 ```kotlin
 plugins {
     java
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.graalvm.buildtools.native") version "0.11.0"
 }
@@ -9038,7 +9235,8 @@ java -XX:AOTCache=app.aot -Dspring.aot.enabled=true -jar target/order-service.ja
 | **AOT Cache** | **25** | 約 40～60% | 低 | 極低 |
 | **GraalVM Native** | GraalVM 25+ | 約 90%+ | 高 | 中～高（反射／動態代理需提示） |
 
-> [!IMPORTANT]
+> **📌 重要**
+>
 > **AOT Cache 需要 Java 25**。Spring Boot 4.x 的最低基準仍是 Java 17，但要享受這項優化就必須升到 Java 25 LTS。這是「基準版本」與「建議版本」分歧的典型例子。
 
 > ⚠️ **訓練回合的代表性決定效果**。若訓練時只打了健康檢查端點，實際流量走到的類別不會進 cache，加速效果會大打折扣。建議在 CI 用**一組涵蓋主要 API 的煙霧測試**作為訓練負載。
@@ -9404,6 +9602,10 @@ mvn spring-boot:build-image
 | CDS／AOT | 需自行設定 | ✅ 環境變數即可 |
 | 建置速度 | 快 | 略慢 |
 | 適合 | 有明確客製需求的團隊 | 想快速標準化的團隊 |
+
+> ⚠️ **4.2 前瞻（RC1）**：預設 builder 由 `paketobuildpacks/builder-noble-java-tiny` 改為 `paketobuildpacks/ubuntu-resolute-builder`，run image 預設為 `paketobuildpacks/ubuntu-resolute-run-tiny`（精簡系統函式庫、**不含 shell**），並支援以映像為基礎的建置快取（image-based build cache）。**基底 OS 變更會影響 CVE 掃描結果與原生函式庫相容性**，升級時請重新掃描映像；若需維持舊行為，可在 `spring-boot-maven-plugin` 的 `<image><builder>` 明確指定 builder。
+>
+> 驗證方式：`docker inspect <image> --format '{{ index .Config.Labels "io.buildpacks.builder.metadata" }}'` 查看實際使用的 builder；`trivy image <image>` 比對升級前後的弱點數量。
 
 ### 16.6 Docker Compose 開發環境
 
@@ -10603,7 +10805,8 @@ spring:
 
 ### 18.5 韌性（Resilience4j）
 
-> [!IMPORTANT]
+> **📌 重要**
+>
 > **先問一句：你真的需要 Resilience4j 嗎？** Spring Framework 7 已把 `@Retryable`、`@ConcurrencyLimit` 納入核心（`org.springframework.resilience`），單純的重試與併發上限不必再引入外部套件。**只有需要熔斷器、限流、完整狀態機與指標時，才引入 Resilience4j。**
 
 | 需求 | 建議方案 |
@@ -11171,11 +11374,13 @@ flowchart LR
     V35["Spring Boot 3.5<br/>Java 17/21"]
     V40["Spring Boot 4.0<br/>Java 17+ (建議 21/25)<br/>Jackson 3"]
     V41["Spring Boot 4.1<br/>移除所有 4.0 廢棄項"]
+    V42["Spring Boot 4.2 (RC)<br/>RestTemplate 淘汰<br/>AMQP starter 更名"]
 
     V2 -->|"① 最大關卡<br/>javax → jakarta"| V30
     V30 -->|"② 相對平順"| V35
     V35 -->|"③ 本篇重點"| V40
     V40 -->|"④ 清理廢棄"| V41
+    V41 -.->|"⑤ 預演 (GA 後執行)"| V42
 
     style V2 fill:#5a1e1e,color:#fff
     style V30 fill:#4a3a10,color:#fff
@@ -11190,7 +11395,8 @@ flowchart LR
 | 3.0 ~ 3.2 | → 3.5 → 4.0 → 4.1 | 🟡 中 |
 | 3.3 ~ 3.4 | → 3.5 → 4.0 → 4.1 | 🟢 低 |
 | 3.5.x | → 4.0 → 4.1 | 🟡 中（本篇重點） |
-| 4.0.x | → 4.1 | 🟢 低（但廢棄項全移除） |
+| 4.0.x | → 4.1 | 🟢 低（但廢棄項全移除）；⚠️ 4.0 OSS 支援至 2026-12-31 |
+| 4.1.x | → 4.2（GA 後） | 🟢 低～🟡 中（見 §19.8.1） |
 
 ### 19.3 升級前置檢查
 
@@ -11268,7 +11474,7 @@ git checkout -b upgrade/spring-boot-4.1
 <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.1.0</version>
+    <version>4.1.2</version>
 </parent>
 
 <properties>
@@ -11309,7 +11515,7 @@ java {
 // ✅ 升級後 (需要 Gradle 8.14+ 或 Gradle 9)
 plugins {
     java
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -11376,7 +11582,8 @@ java {
 runtimeOnly("org.springframework.boot:spring-boot-properties-migrator")
 ```
 
-> [!CAUTION]
+> **🚫 注意**
+>
 > `spring-boot-properties-migrator` 只是**遷移期的鷹架**。屬性修正完成後務必移除，否則會讓正式環境多出不必要的啟動負擔與誤導性的相容行為。
 
 ```bash
@@ -11476,7 +11683,8 @@ Spring Boot 4.0 把過去幾個大顆 jar 拆成「小而聚焦」的模組，�
 | `spring-boot-starter-oauth2-resource-server` | **`spring-boot-starter-security-oauth2-resource-server`** |
 | `spring-boot-starter-oauth2-authorization-server` | **`spring-boot-starter-security-oauth2-authorization-server`** |
 
-> [!WARNING]
+> **⚠️ 警告**
+>
 > **過去「只靠第三方相依就能運作」的功能，現在需要自己的 starter。** 最常見的兩個是 **Flyway** 與 **Liquibase**：只放 `org.flywaydb:flyway-core` 不會再自動組態，必須改用 `spring-boot-starter-flyway`／`spring-boot-starter-liquibase`。
 
 **測試相依也要一併重整：**
@@ -11674,7 +11882,8 @@ spring:
 </dependency>
 ```
 
-> [!IMPORTANT]
+> **📌 重要**
+>
 > Jackson 3 的 **groupId 與套件名稱**由 `com.fasterxml.jackson` 改為 `tools.jackson`，唯一例外是 `jackson-annotations`（仍是 `com.fasterxml.jackson.core` / `com.fasterxml.jackson.annotation`）。這代表**第三方函式庫若還相依 Jackson 2，兩套可以在同一個 classpath 並存**，這是有意的設計，不是相依衝突。
 
 **4.1 新增的 Jackson 屬性（格式無關）**
@@ -11954,6 +12163,71 @@ ServerHttpMessageConvertersCustomizer serverConverters() {
     </configuration>
 </plugin>
 ```
+
+#### 19.8.1 預備：4.1 → 4.2（依 4.2.0-RC1 整理）
+
+> ⚠️ 4.2 預計 2026 年 11 月 GA。以下是「**在 4.1 階段就能先做**」的準備工作，GA 後再依正式 release notes 複核一次。
+
+| # | 變更 | 偵測方式 | 處理 |
+| --- | --- | --- | --- |
+| 1 | 「預定於 4.2 移除」（`forRemoval`）的 API 全數移除 | 編譯時加 `-Xlint:removal` | 依 Javadoc `@deprecated` 指示改用替代 API |
+| 2 | `RestTemplate` 支援淘汰（Framework 7.1 標為 for removal） | `git grep -n "RestTemplate"` | 改寫為 `RestClient` 或 `@HttpExchange` 介面（§9.6） |
+| 3 | `TestRestTemplate` 淘汰 | `git grep -n "TestRestTemplate"` | 改用 `RestTestClient`（§12.5） |
+| 4 | **`spring-boot-starter-amqp` 改為通用 AMQP 1.0**；RabbitMQ（AMQP 0.9.1）改用 `spring-boot-starter-rabbitmq` | `mvn dependency:tree -Dincludes=org.springframework.boot:spring-boot-starter-amqp` | 改 starter，並以 `/actuator/conditions` 確認 `RabbitAutoConfiguration` 生效 |
+| 5 | `server.tomcat.use-relative-redirects` → `server.tomcat.servlet.use-relative-redirects`，預設值與 Tomcat 對齊 | properties-migrator 報告 | 改屬性名；回歸測試所有 302／303 流程 |
+| 6 | 測試預設停用 Micrometer global registry | 測試中 `Metrics.globalRegistry` 斷言失敗 | `@AutoConfigureMetrics(useGlobalRegistry = true)` |
+| 7 | `DefaultMeterObservationHandler` 的 active `LongTaskTimer` 改為 opt-in | 儀表板中 `*.active` 指標消失 | 若有依賴，依 4.2 文件明確開啟 |
+| 8 | Buildpacks 預設 builder 改為 `ubuntu-resolute-builder` | 映像基底 OS 變更 | 掃描新映像的 CVE，必要時明確指定 builder |
+
+**範例：`TestRestTemplate` → `RestTestClient`**
+
+```java
+// ❌ 4.2 起淘汰
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class OrderApiLegacyIT {
+    @Autowired TestRestTemplate rest;
+
+    @Test
+    void getOrder() {
+        ResponseEntity<OrderResponse> res = rest.getForEntity("/api/v1/orders/1", OrderResponse.class);
+        assertThat(res.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+}
+
+// ✅ 4.0 起可用、4.2 推薦
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureRestTestClient
+class OrderApiIT {
+    @Autowired RestTestClient client;
+
+    @Test
+    void getOrder() {
+        client.get().uri("/api/v1/orders/{id}", 1)
+              .exchange()
+              .expectStatus().isOk()
+              .expectBody(OrderResponse.class)
+              .value(order -> assertThat(order.id()).isEqualTo(1L));
+    }
+}
+```
+
+**範例：AMQP starter 調整（RabbitMQ 使用者）**
+
+```xml
+<!-- ❌ 4.2 起此 starter 代表「通用 AMQP 1.0」，不再是 RabbitMQ 0.9.1 支援 -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-amqp</artifactId>
+</dependency>
+
+<!-- ✅ 4.2：RabbitMQ（AMQP 0.9.1，既有 RabbitTemplate／@RabbitListener 程式不變） -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-rabbitmq</artifactId>
+</dependency>
+```
+
+**驗收標準**：① 4.1 上編譯無 `removal` 警告；② `RestTemplate`／`TestRestTemplate` 皆已改寫或列入待辦；③ 在 4.2.0-RC1 分支 `mvn clean verify` 全綠；④ `/actuator/conditions` 中訊息相關自動組態結果與 4.1 一致。
 
 ### 19.9 2.x → 3.0：`javax` → `jakarta`（最大關卡）
 
@@ -13604,7 +13878,7 @@ logging:
 
 ## 第二十三篇 FAQ
 
-> 本篇收錄 136 題實務常見問題，依主題分組。每題答案力求「直接可用」，需要延伸時請回到對應篇章。
+> 本篇收錄 138 題實務常見問題，依主題分組。每題答案力求「直接可用」，需要延伸時請回到對應篇章。
 
 ### 23.1 版本與相容性
 
@@ -13612,10 +13886,10 @@ logging:
 A：**Java 17**。但強烈建議使用 Java 21 或 25 LTS，才能用到虛擬執行緒、分代 ZGC 等關鍵能力。
 
 **Q2. Spring Boot 4.0 與 4.1 差在哪？**
-A：4.1 是次版本更新，主要新增 gRPC 支援、Jackson 細部屬性、OpenTelemetry 增強、`InetAddressFilter`，並且**移除所有在 4.0 標記為 deprecated 的項目**。
+A：4.1 是次版本更新，主要新增 gRPC 支援、Jackson 細部屬性、OpenTelemetry 增強、`InetAddressFilter`，並且**移除所有在 4.0 標記為 deprecated 的項目**。另外支援期也不同：4.0.x 的 OSS 支援到 2026-12-31，4.1.x 到 2027-07-31。
 
 **Q3. Spring Boot 4.x 對應哪個 Spring Framework？**
-A：4.0 對應 Spring Framework 7.0，4.1 對應 7.0.8。
+A：4.0 與 4.1 都對應 Spring Framework **7.0.x**（4.0.9 與 4.1.2 皆為 7.0.10）；4.2 將對應 **7.1.x**。確認方式：`mvn dependency:tree -Dincludes=org.springframework:spring-core`。
 
 **Q4. Spring Boot 4.x 是 Jakarta EE 幾？**
 A：**Jakarta EE 11 世代**（Servlet 6.1、Persistence 3.2、Validation 3.1、Annotation 3.0）。
@@ -13624,7 +13898,7 @@ A：**Jakarta EE 11 世代**（Servlet 6.1、Persistence 3.2、Validation 3.1、
 A：可以，17 是基準線。但 jOOQ 3.21 等部分第三方相依需要 Java 21+，會限制你的選擇。
 
 **Q6. 支援政策是多久？**
-A：主版本至少 3 年、次版本至少 12 個月。每年 5 月與 11 月各發一個次版本。
+A：主版本至少 3 年、次版本至少 12 個月。每年 5 月與 11 月各發一個次版本。各版本線的確切截止日請查 `https://api.spring.io/projects/spring-boot/generations`，或見前言「版本基準聲明」的支援期限表。
 
 **Q7. Gradle 版本要求？**
 A：**8.14 以上**，Gradle 9 完整支援。
@@ -13636,13 +13910,13 @@ A：3.6.3 以上，Maven 4 也支援。
 A：Tomcat 11.0（Servlet 6.1）。
 
 **Q10. Hibernate 版本？**
-A：Hibernate ORM 7.1、Hibernate Validator 9.0（4.1 為 9.1）。
+A：4.0.x 為 Hibernate ORM 7.2.x＋Hibernate Validator 9.0.x；4.1.x 為 **Hibernate ORM 7.4.x＋Hibernate Validator 9.1.x**（4.1.2 為 7.4.13.Final／9.1.5.Final）。
 
 **Q11. 我還在 Spring Boot 2.7，該怎麼辦？**
 A：走 2.7 → 3.0 → 3.5 → 4.0 → 4.1，**絕不要一次跳**。最大關卡是 `javax` → `jakarta`。
 
 **Q12. 3.x 還會有安全更新嗎？**
-A：3.x 進入維護期後只有商業支援。若你的專案有合規要求，這是升級的最強理由。
+A：**3.5.x 的 OSS 支援已於 2026-06-30 結束**，之後只有商業支援（至 2032-06-30）才會持續收到修補。若你的專案有合規要求且沒有商業支援合約，這是升級的最強理由。
 
 ### 23.2 專案建立與結構
 
@@ -14041,6 +14315,12 @@ A：❌ 絕不。升級 PR 只做升級，出問題時才能乾淨回退。
 
 **Q136. 升級後該怎麼上線？**
 A：測試環境觀察 24 ~ 48 小時 → 正式環境金絲雀 5% → 25% → 100%，每階段觀察錯誤率與延遲。
+
+**Q137. 現在要不要直接上 Spring Boot 4.2？**
+A：4.2 目前是 RC（預計 2026 年 11 月 GA）。生產系統請用 **4.1.x**；可以開一個分支用 4.2.0-RC1 跑完整測試做相容性預演，提早發現 `RestTemplate`／`TestRestTemplate` 淘汰與 `spring-boot-starter-amqp` 語意改變的影響（§1.4.8、§19.8.1）。
+
+**Q138. 升級後怎麼確認沒有遺漏改名的屬性？**
+A：暫時加入 `spring-boot-properties-migrator`（runtime scope），啟動後看日誌中的遷移報告；4.2 起可設定 `spring.tools.properties-migrator.fail-on=warning` 讓 CI 直接失敗。確認完畢後務必移除此相依。
 
 ---
 
@@ -14799,73 +15079,84 @@ flowchart LR
 
 ### 26.1 版本對照速查
 
-#### Spring Boot 4.0 生態
+> 💡 下表數值直接取自各 tag 的 `platform/spring-boot-dependencies/build.gradle` 與 `gradle.properties`（查證日 2026-10-30）。**請以自己專案實際解析結果為準**，查詢方式見本節末。
 
-| 元件 | 版本 |
-| --- | --- |
-| Spring Framework | 7.0 |
-| Spring Security | 7.0 |
-| Spring Data | 2025.1 |
-| Spring Batch | 6.0 |
-| Spring Integration | 7.0 |
-| Spring Kafka | 4.0 |
-| Spring AMQP | 4.0 |
-| Spring GraphQL | 2.0 |
-| Spring HATEOAS | 3.0 |
-| Spring Session | 4.0 |
-| Spring REST Docs | 4.0 |
-| Spring WS | 5.0 |
+#### Spring 生態（Spring Boot 管理的版本）
 
-#### Spring Boot 4.1 生態
+| 元件 | 4.0.9 | **4.1.2（基準）** | 4.2.0-RC1（預覽） |
+| --- | --- | --- | --- |
+| Spring Framework | 7.0.10 | **7.0.10** | 7.1.0-RC1 |
+| Spring Security | 7.0.8 | **7.1.2** | 7.2.0-RC1 |
+| Spring Data（BOM） | 2025.1.8 | **2026.0.2** | 2026.1.0-RC1 |
+| Spring Batch | 6.0.6 | **6.0.6** | 6.1.0-RC1 |
+| Spring Integration | 7.0.7 | **7.1.2** | 7.2.0-RC1 |
+| Spring Kafka | 4.0.8 | **4.1.2** | 4.2.0-RC1 |
+| Spring AMQP | 4.0.6 | **4.1.2** | 4.2.0-RC1 |
+| Spring GraphQL | 2.0.6 | **2.0.6** | 2.1.0-RC1 |
+| Spring HATEOAS | 3.0.6 | **3.1.3** | 3.2.0-RC1 |
+| Spring LDAP | 4.0.6 | **4.1.2** | 4.2.0-RC1 |
+| Spring Session | 4.0.5 | **4.1.1** | 4.2.0-RC1 |
+| Spring gRPC | — | **1.1.2** | 1.1.2 |
+| Spring Pulsar | 2.0.8 | **2.0.8** | 2.0.8 |
+| Spring REST Docs | 4.0.2 | **4.0.2** | — |
+| Spring WS | 5.0.3 | **5.0.3** | 5.1.0-RC1 |
+| Micrometer／Tracing | 1.16.8／1.6.8 | **1.17.2／1.7.2** | 1.18.0-RC1／1.8.0-RC1 |
+| Reactor（BOM） | 2025.0.8 | **2025.0.8** | 2026.0.0-RC1 |
 
-| 元件 | 版本 |
-| --- | --- |
-| Spring Framework | 7.0.8 |
-| Spring Security | 7.1.0 |
-| Spring Data | 2026.0.0 |
-| Spring Batch | 6.x |
-| Micrometer / Tracing | 1.17.0 / 1.7.0 |
-| Reactor | 2025.0.6 |
-| Spring gRPC | 1.1.0 |
-| Spring Integration | 7.1.0 |
-| Spring Kafka | 4.1.0 |
-| Spring AMQP | 4.1.0 |
-| Spring GraphQL | 2.0.4 |
-| Spring HATEOAS | 3.1.0 |
-| Spring LDAP | 4.1.0 |
-| Spring Session | 4.1.0 |
-| Spring AI | 2.0.0 |
+**不由 Spring Boot BOM 管理、但常一起使用的專案**（需自行匯入對應 BOM）：
+
+| 專案 | 現行 GA | 預覽 | 備註 |
+| --- | --- | --- | --- |
+| Spring AI | **2.0.2** | 2.1.0-RC1 | 2.x 對應 Spring Boot 4.x（第十四篇） |
+| Spring Modulith | **2.1.2** | 2.2.0-RC1 | 第十八篇 18.3 |
+| Spring Cloud | **2025.1.4** | 2026.0.0-RC1 | 發佈列車需與 Boot minor 版對應，務必查官方相容表 |
 
 #### 第三方相依基準
 
-| 相依 | 4.0 | 4.1 |
-| --- | --- | --- |
-| Jackson | 3.0 | **3.1.4** |
-| Hibernate ORM | 7.2.x | **7.4.1.Final** |
-| Hibernate Validator | 9.0 | **9.1** |
-| Tomcat | 11.0 | **11.0.21** |
-| Jetty | 12.1 | **12.1.10** |
-| Netty | 4.2.x | **4.2.15.Final** |
-| HikariCP | 7.0 | 7.0 |
-| Testcontainers | 2.0 | **2.0.5** |
-| Micrometer | 1.16 | **1.17.0** |
-| OpenTelemetry | 1.54 | **1.62.0** |
-| Kotlin | 2.2.20 | **2.3.21** |
-| Groovy | 5.0 | **5.0.6** |
-| Flyway | 11.11 | **12.4.0** |
-| Liquibase | 5.0 | **5.0.3** |
-| Kafka Client | 4.1 | **4.2.1** |
-| jOOQ | 3.20 | **3.21.5（需 Java 21+）** |
-| Native Build Tools | 0.11 | 0.11 |
-| Mockito | 5.20 | **5.23.0** |
-| SnakeYAML | 2.5 | **2.6** |
-| Logback | 1.5.x | **1.5.34** |
-| Log4j2 | 2.25.x | **2.25.4** |
-| H2 | 2.4 | 2.4 |
-| MongoDB Driver | 5.x | **5.8.0** |
-| MySQL Connector／PostgreSQL | — | **9.7.0／42.7.11** |
-| Lettuce / Jedis | — | **7.5.2 / 7.4.1** |
-| Selenium | — | **4.43.0** |
+| 相依 | 4.0.9 | **4.1.2（基準）** | 4.2.0-RC1 |
+| --- | --- | --- | --- |
+| Jackson 3／Jackson 2（相容） | 3.1.7／2.21.7 | **3.1.7／2.21.7** | 3.1.7／2.21.7 |
+| Hibernate ORM | 7.2.25.Final | **7.4.13.Final** | 7.4.13.Final |
+| Hibernate Validator | 9.0.2.Final | **9.1.5.Final** | 9.1.5.Final |
+| Tomcat | 11.0.27 | **11.0.27** | 11.0.27 |
+| Jetty | 12.1.14 | **12.1.14** | 12.1.14 |
+| Netty | 4.2.19.Final | **4.2.19.Final** | 4.2.19.Final |
+| HikariCP | 7.0.2 | **7.0.2** | 7.1.0 |
+| Testcontainers | 2.0.5 | **2.0.5** | 2.0.5 |
+| OpenTelemetry | 1.55.0 | **1.62.0** | 1.67.0 |
+| JUnit Jupiter | 6.0.3 | **6.0.3** | 6.1.3 |
+| Mockito | 5.20.0 | **5.23.0** | 5.24.0 |
+| Kotlin | 2.2.21 | **2.3.21** | 2.4.21 |
+| Groovy | 5.0.8 | **5.0.8** | 5.1.3 |
+| Flyway | 11.14.1 | **12.4.0** | 12.11.0 |
+| Liquibase | 5.0.4 | **5.0.4** | 5.0.4 |
+| Kafka Client | 4.1.2 | **4.2.2** | 4.4.0 |
+| jOOQ | 3.19.39 | **3.21.9（需 Java 21+）** | 3.21.9 |
+| GraalVM Native Build Tools | 0.11.5 | **1.1.14** | 1.1.14 |
+| SnakeYAML | 2.5 | **2.6** | 2.7 |
+| Logback | 1.5.38 | **1.5.38** | 1.6.5 |
+| Log4j2 | 2.25.5 | **2.25.5** | 2.26.1 |
+| H2 | 2.4.240 | **2.4.240** | 2.5.252 |
+| MongoDB Driver | 5.6.5 | **5.8.1** | 5.13.0 |
+| MySQL Connector／PostgreSQL JDBC | 9.7.0／42.7.14 | **9.7.0／42.7.14** | 26.7.0／42.7.14 |
+| Lettuce／Jedis | 6.8.2／7.0.0 | **7.5.2／7.4.1** | 7.8.0／8.0.2 |
+| Selenium | 4.37.0 | **4.43.0** | 4.51.0 |
+
+**自行查證專案實際版本：**
+
+```bash
+# Maven：列出 BOM 管理的某個屬性值（以 Hibernate 為例）
+mvn help:evaluate -Dexpression=hibernate.version -q -DforceStdout
+
+# Maven：確認實際解析到的版本（可能被其他 BOM 覆寫）
+mvn dependency:tree -Dincludes=org.hibernate.orm
+
+# Gradle
+./gradlew dependencyInsight --dependency hibernate-core --configuration runtimeClasspath
+
+# 執行中的應用（需開啟 sbom 端點）
+curl -s http://localhost:8080/actuator/sbom/application | jq '.components[] | select(.name=="hibernate-core") | .version'
+```
 
 #### Jakarta EE 規範
 
@@ -15109,17 +15400,20 @@ mvn rewrite:run
 
 ### 26.7 官方資源
 
-| 資源 | 網址 |
-| --- | --- |
-| Spring Boot 官方文件 | `https://docs.spring.io/spring-boot/` |
-| Spring Boot 專案頁 | `https://spring.io/projects/spring-boot` |
-| Spring Initializr | `https://start.spring.io/` |
-| Spring Framework 文件 | `https://docs.spring.io/spring-framework/reference/` |
-| Spring Security 文件 | `https://docs.spring.io/spring-security/reference/` |
-| Spring Data 文件 | `https://docs.spring.io/spring-data/jpa/reference/` |
-| Spring AI 專案頁 | `https://spring.io/projects/spring-ai` |
-| Spring Boot GitHub | `https://github.com/spring-projects/spring-boot` |
-| 支援版本政策 | `https://spring.io/projects/spring-boot#support` |
+| 資源 | 網址 | 用途 |
+| --- | --- | --- |
+| Spring Boot 專案頁 | <https://spring.io/projects/spring-boot> | 版本列表、**Support 支援期限**、快速入門 |
+| Spring Boot 官方參考文件 | <https://docs.spring.io/spring-boot/> | 各版本 Reference、How-to、屬性清單 |
+| Spring Boot GitHub | <https://github.com/spring-projects/spring-boot> | 原始碼、Issue、Release |
+| GitHub Releases（release notes） | <https://github.com/spring-projects/spring-boot/releases> | 每個 patch／milestone 的新功能、修正、相依升級清單 |
+| Spring Boot Wiki | <https://github.com/spring-projects/spring-boot/wiki> | Release Notes、Migration Guide、Supported Versions |
+| 支援期限 API | <https://api.spring.io/projects/spring-boot/generations> | 以 JSON 取得各版本線 OSS／商業支援截止日（可自動化稽核） |
+| Spring Initializr | <https://start.spring.io/> | 產生專案骨架 |
+| Spring Framework 文件 | <https://docs.spring.io/spring-framework/reference/> | Core、Web、Data Access、Testing |
+| Spring Security 文件 | <https://docs.spring.io/spring-security/reference/> | 安全設定與遷移指南 |
+| Spring Data JPA 文件 | <https://docs.spring.io/spring-data/jpa/reference/> | Repository、查詢、稽核 |
+| Spring AI 專案頁 | <https://spring.io/projects/spring-ai> | LLM、向量庫、MCP 整合 |
+| OpenRewrite Spring 配方 | <https://github.com/openrewrite/rewrite-spring> | 自動化升級配方（`UpgradeSpringBoot_4_x`）原始碼與說明 |
 
 > 💡 **文件版本要對**。閱讀 `docs.spring.io` 時務必確認網址中的版本號，很多疑難雜症的根源是看了不同版本的文件。
 
