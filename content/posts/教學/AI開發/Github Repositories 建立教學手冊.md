@@ -1,6 +1,6 @@
 +++
 date = '2026-07-03T00:00:00+08:00'
-lastmod = '2026-09-25T00:00:00+08:00'
+lastmod = '2026-11-03T00:00:00+08:00'
 draft = false
 title = 'Github Repositories 建立教學手冊'
 tags = ['教學', 'AI開發','指引']
@@ -9,12 +9,12 @@ categories = ['教學']
 
 # Github Repositories 建立與維運教學手冊 — 企業級實戰指南
 
-> **版本**：v3.0（2026-09-25）\
+> **版本**：v4.0（2026-11-03）\
 > **適用對象**：技術主管 / 架構師 / 資深工程師 / 平台與 DevOps 團隊 / 資安人員 / 專案經理\
 > **定位**：企業標準技術白皮書\
-> **參考標準**：GitHub Docs — Repositories（2026-09 版）/ GitHub Changelog / GitHub Enterprise Cloud 治理實務 / DevSecOps / SSDLC / SLSA\
-> **最後審閱日期**：2026-09-25\
-> **本版重點**：依官方 Repositories 文件樹逐章查證，更正 38 項內容、新增 22 個小節與附錄 B、C，並全面升級範例中的 Action 版本；完整清單見 [附錄 C.2](#c2-v30-更正清單) 與 [附錄 C.3](#c3-v30-新增章節)，歷次版本見 [附錄 C.5](#c5-版本歷程)
+> **參考標準**：GitHub Docs — Repositories（2026-11 版）/ GitHub Changelog / GitHub Enterprise Cloud 治理實務 / DevSecOps / SSDLC / SLSA / OpenSSF Scorecard / OWASP Top 10 CI/CD Security Risks\
+> **最後審閱日期**：2026-11-03\
+> **本版重點**：依官方文件與 2026-09-25～11-03 的 GitHub Changelog 逐章查證，更正 21 項內容、新增 7 個主題小節；**每章新增「審查與驗證清單」**，讓讀者能逐項審查 AI 依本手冊產出的設定；所有 Workflow、設定檔、腳本與圖表範例均經工具實際驗證。完整清單見 [附錄 C.2](#c2-v40-更正清單)、[附錄 C.3](#c3-v40-新增章節) 與 [附錄 C.5](#c5-範例驗證紀錄)，歷次版本見 [附錄 C.7](#c7-版本歷程)
 
 ---
 
@@ -30,6 +30,9 @@ categories = ['教學']
 | **技術主管 / PM** | 第 1.8、2、3、11、14、15 章 | 成熟度模型、Organization、Issue 管理、治理、企業實踐 |
 | **資安人員** | 第 3.6、7.11、8.8、8.9、9、12.7、14、15 章 | 憑證治理、規則、供應鏈、DevSecOps、合規 |
 | **稽核 / 法遵** | 第 14.8、15.4、附錄 A.5、附錄 C | 活動洞察、合規自動化、稽核清單、查證紀錄 |
+| **AI 產出審查者** | 每章最後一節「審查與驗證清單」、附錄 C.5 | 判斷 AI 產生的 Ruleset、Workflow、設定檔是否正確且安全 |
+
+**如何使用「審查與驗證清單」**：本手冊的每一條指引都附有範例；當團隊請 AI（Copilot、Claude Code 等）依本手冊產出設定時，審查者應依該章最後一節的清單逐項執行「如何驗證」欄的指令或 UI 檢查，比對「預期結果」，並特別留意「常見 AI 產出錯誤」欄列出的典型錯誤。清單中的指令均為唯讀查詢（`gh api` 的 GET、`git` 的檢查指令或本機工具），可以安全地在正式組織上執行。
 
 **標記說明**：
 
@@ -37,14 +40,18 @@ categories = ['教學']
 |------|------|
 | `⚠️ 需 GitHub Enterprise` | 該功能僅在 GitHub Enterprise Cloud / Server 可用（本版已依各功能官方說明標示更精確的方案範圍） |
 | `> 📌 本章摘要` | 每章開頭的重點摘要 |
-| `> 🆕 v3.0 新增` | 本版新增的小節 |
-| `> ⚠️ v3.0 更正` | 本版更正的內容，更正清單彙整於 [附錄 C.2](#c2-v30-更正清單) |
+| `> 🆕 v4.0 新增` | 本版新增的小節或段落 |
+| `> ⚠️ v4.0 更正` | 本版更正的內容，更正清單彙整於 [附錄 C.2](#c2-v40-更正清單) |
+| `> 🆕 v3.0 新增`／`> ⚠️ v3.0 更正` | 前一版的新增與更正，清單保留於 [附錄 C.6](#c6-v30-查證紀錄摘要) |
+| `N.x 審查與驗證清單` | 每章最後一節，列出審查 AI 產出時的檢查項目、驗證方式、預期結果與常見錯誤 |
 
-> **時效聲明**：GitHub 平台每週更新。本手冊中的價格、方案範圍與功能狀態（公開預覽／GA）以 2026-09-25 查證結果為準，實際採購與導入前請以 [附錄 B](#附錄-b官方參考資源對照表) 所列官方文件再次確認。
+> **時效聲明**：GitHub 平台每週更新。本手冊中的價格、方案範圍與功能狀態（公開預覽／GA）以 2026-11-03 查證結果為準，實際採購與導入前請以 [附錄 B](#附錄-b官方參考資源對照表) 所列官方文件再次確認。
 
 ---
 
 ## 目錄
+
+<!-- TOC-AUTO-BEGIN -->
 
 - [第 1 章 GitHub Repositories 概述](#第-1-章-github-repositories-概述)
   - [1.1 GitHub Repositories 是什麼](#11-github-repositories-是什麼)
@@ -55,6 +62,7 @@ categories = ['教學']
   - [1.6 Repository 限制與配額](#16-repository-限制與配額)
   - [1.7 GitHub 方案與功能比較](#17-github-方案與功能比較)
   - [1.8 Repository 最佳實務總綱](#18-repository-最佳實務總綱)
+  - [1.9 審查與驗證清單](#19-審查與驗證清單)
 - [第 2 章 企業 Repository 管理架構](#第-2-章-企業-repository-管理架構)
   - [2.1 Enterprise Repository Strategy](#21-enterprise-repository-strategy)
   - [2.2 Monorepo vs Polyrepo](#22-monorepo-vs-polyrepo)
@@ -63,6 +71,7 @@ categories = ['教學']
   - [2.5 Environment Strategy](#25-environment-strategy)
   - [2.6 Custom Properties 與 Repository 分類治理](#26-custom-properties-與-repository-分類治理)
   - [2.7 大型 Repository 效能策略](#27-大型-repository-效能策略)
+  - [2.8 審查與驗證清單](#28-審查與驗證清單)
 - [第 3 章 公司 GitHub Organization 規劃](#第-3-章-公司-github-organization-規劃)
   - [3.1 Organization 建立](#31-organization-建立)
   - [3.2 Team 建立與管理](#32-team-建立與管理)
@@ -71,6 +80,7 @@ categories = ['教學']
   - [3.5 Repository Lifecycle](#35-repository-lifecycle)
   - [3.6 存取機制選擇](#36-存取機制選擇)
   - [3.7 Forking Policy 與企業身分模式](#37-forking-policy-與企業身分模式)
+  - [3.8 審查與驗證清單](#38-審查與驗證清單)
 - [第 4 章 如何建立 Repository](#第-4-章-如何建立-repository)
   - [4.1 建立 Repository 完整流程](#41-建立-repository-完整流程)
   - [4.2 README 設計](#42-readme-設計)
@@ -84,12 +94,14 @@ categories = ['教學']
   - [4.10 Repository 從 Template 建立](#410-repository-從-template-建立)
   - [4.11 社群健康檔案與 `.github` 預設檔](#411-社群健康檔案與-github-預設檔)
   - [4.12 Repository 設定基準總表](#412-repository-設定基準總表)
+  - [4.13 審查與驗證清單](#413-審查與驗證清單)
 - [第 5 章 Repository 標準結構設計](#第-5-章-repository-標準結構設計)
   - [5.1 Backend Repository（Clean Architecture）](#51-backend-repositoryclean-architecture)
   - [5.2 Frontend Repository](#52-frontend-repository)
   - [5.3 Monorepo 結構](#53-monorepo-結構)
   - [5.4 Microservices Repository](#54-microservices-repository)
   - [5.5 Documentation Repository](#55-documentation-repository)
+  - [5.6 審查與驗證清單](#56-審查與驗證清單)
 - [第 6 章 Source Code 上架與管理](#第-6-章-source-code-上架與管理)
   - [6.1 Git 基本流程](#61-git-基本流程)
   - [6.2 Commit Message 規範](#62-commit-message-規範)
@@ -99,6 +111,7 @@ categories = ['教學']
   - [6.6 三種策略比較與選擇](#66-三種策略比較與選擇)
   - [6.7 Git Large File Storage（LFS）](#67-git-large-file-storagelfs)
   - [6.8 檔案管理與瀏覽實務](#68-檔案管理與瀏覽實務)
+  - [6.9 審查與驗證清單](#69-審查與驗證清單)
 - [第 7 章 Branch Strategy](#第-7-章-branch-strategy)
   - [7.1 分支命名規範](#71-分支命名規範)
   - [7.2 Branch Protection Rules](#72-branch-protection-rules)
@@ -111,6 +124,8 @@ categories = ['教學']
   - [7.9 Auto-merge、Update Branch 與自動刪除分支](#79-auto-mergeupdate-branch-與自動刪除分支)
   - [7.10 Branch Protection 轉換至 Rulesets 實務](#710-branch-protection-轉換至-rulesets-實務)
   - [7.11 2026 年 Pull Request 與規則治理新功能](#711-2026-年-pull-request-與規則治理新功能)
+  - [7.12 Stacked Pull Requests 實務](#712-stacked-pull-requests-實務)
+  - [7.13 審查與驗證清單](#713-審查與驗證清單)
 - [第 8 章 GitHub Actions 自動化 Workflow](#第-8-章-github-actions-自動化-workflow)
   - [8.1 GitHub Actions 架構概述](#81-github-actions-架構概述)
   - [8.2 CI Workflow — Java Spring Boot](#82-ci-workflow--java-spring-boot)
@@ -121,6 +136,9 @@ categories = ['教學']
   - [8.7 Reusable Workflows 與 Composite Actions](#87-reusable-workflows-與-composite-actions)
   - [8.8 Actions 安全性強化與 2026 路線圖](#88-actions-安全性強化與-2026-路線圖)
   - [8.9 Runner 策略與 Repository 層 Actions 設定](#89-runner-策略與-repository-層-actions-設定)
+  - [8.10 Workflow 依賴 Lockfile 與 Require lockfile 政策](#810-workflow-依賴-lockfile-與-require-lockfile-政策)
+  - [8.11 pull_request_target 預設封鎖與遷移](#811-pull_request_target-預設封鎖與遷移)
+  - [8.12 審查與驗證清單](#812-審查與驗證清單)
 - [第 9 章 DevSecOps 與 SSDLC](#第-9-章-devsecops-與-ssdlc)
   - [9.1 SSDLC 流程總覽](#91-ssdlc-流程總覽)
   - [9.2 SAST — 靜態應用程式安全測試](#92-sast--靜態應用程式安全測試)
@@ -133,6 +151,8 @@ categories = ['教學']
   - [9.9 開源授權合規檢查](#99-開源授權合規檢查)
   - [9.10 Dependency Graph 與 Dependency Review](#910-dependency-graph-與-dependency-review)
   - [9.11 Security Campaigns、Autofix 與 Delegated Bypass](#911-security-campaignsautofix-與-delegated-bypass)
+  - [9.12 2026 Q4 安全功能更新](#912-2026-q4-安全功能更新)
+  - [9.13 審查與驗證清單](#913-審查與驗證清單)
 - [第 10 章 文件管理策略](#第-10-章-文件管理策略)
   - [10.1 README Strategy](#101-readme-strategy)
   - [10.2 Architecture Decision Record（ADR）](#102-architecture-decision-recordadr)
@@ -140,6 +160,7 @@ categories = ['教學']
   - [10.4 Wiki vs Docs Repository](#104-wiki-vs-docs-repository)
   - [10.5 文件自動化生成](#105-文件自動化生成)
   - [10.6 GitHub Pages 靜態網站發佈](#106-github-pages-靜態網站發佈)
+  - [10.7 審查與驗證清單](#107-審查與驗證清單)
 - [第 11 章 Issue / Project 管理](#第-11-章-issue--project-管理)
   - [11.1 GitHub Issues 設計](#111-github-issues-設計)
   - [11.2 GitHub Projects（V2）](#112-github-projectsv2)
@@ -147,6 +168,7 @@ categories = ['教學']
   - [11.4 Milestone 與 Sprint Planning](#114-milestone-與-sprint-planning)
   - [11.5 Agile Workflow 整合](#115-agile-workflow-整合)
   - [11.6 Issue Types、Sub-issues、Issue Dependencies 與 Issue Fields](#116-issue-typessub-issuesissue-dependencies-與-issue-fields)
+  - [11.7 審查與驗證清單](#117-審查與驗證清單)
 - [第 12 章 Release Management](#第-12-章-release-management)
   - [12.1 Semantic Versioning](#121-semantic-versioning)
   - [12.2 Conventional Commits](#122-conventional-commits)
@@ -155,6 +177,7 @@ categories = ['教學']
   - [12.5 Release Workflow 自動化](#125-release-workflow-自動化)
   - [12.6 自動產生 Release Notes](#126-自動產生-release-notes)
   - [12.7 Immutable Releases 與供應鏈完整性](#127-immutable-releases-與供應鏈完整性)
+  - [12.8 審查與驗證清單](#128-審查與驗證清單)
 - [第 13 章 AI 時代 Repository 管理](#第-13-章-ai-時代-repository-管理)
   - [13.1 GitHub Copilot 整合](#131-github-copilot-整合)
   - [13.2 Claude Code 整合](#132-claude-code-整合)
@@ -166,6 +189,7 @@ categories = ['教學']
   - [13.8 GitHub Copilot Code Review](#138-github-copilot-code-review)
   - [13.9 Copilot 平台最新動態與方案](#139-copilot-平台最新動態與方案)
   - [13.10 Repository 的 AI Agent 設定檔總覽](#1310-repository-的-ai-agent-設定檔總覽)
+  - [13.11 審查與驗證清單](#1311-審查與驗證清單)
 - [第 14 章 Repository 維運與治理](#第-14-章-repository-維運與治理)
   - [14.1 Repository Cleanup](#141-repository-cleanup)
   - [14.2 Branch Cleanup 自動化](#142-branch-cleanup-自動化)
@@ -176,11 +200,13 @@ categories = ['教學']
   - [14.7 Repository 生命週期操作](#147-repository-生命週期操作)
   - [14.8 活動與洞察](#148-活動與洞察)
   - [14.9 封存、引用與長期保存](#149-封存引用與長期保存)
+  - [14.10 審查與驗證清單](#1410-審查與驗證清單)
 - [第 15 章 大型企業最佳實踐](#第-15-章-大型企業最佳實踐)
   - [15.1 金融業 Repository 治理](#151-金融業-repository-治理)
   - [15.2 Repository 分層治理](#152-repository-分層治理)
   - [15.3 權限隔離設計](#153-權限隔離設計)
   - [15.4 Compliance 與稽核](#154-compliance-與稽核)
+  - [15.5 審查與驗證清單](#155-審查與驗證清單)
 - [第 16 章 完整企業範例](#第-16-章-完整企業範例)
   - [16.1 Organization 架構設計](#161-organization-架構設計)
   - [16.2 Repository 命名與分類](#162-repository-命名與分類)
@@ -188,16 +214,19 @@ categories = ['教學']
   - [16.4 DevSecOps 整合架構](#164-devsecops-整合架構)
   - [16.5 AI Workflow 整合](#165-ai-workflow-整合)
   - [16.6 SSDLC 完整流程](#166-ssdlc-完整流程)
+  - [16.7 審查與驗證清單](#167-審查與驗證清單)
 - [第 17 章 常見問題與最佳實踐](#第-17-章-常見問題與最佳實踐)
   - [17.1 常見錯誤與 Anti-pattern](#171-常見錯誤與-anti-pattern)
   - [17.2 Security Risk 防範](#172-security-risk-防範)
   - [17.3 Repository 治理 Best Practices](#173-repository-治理-best-practices)
   - [17.4 最終 Governance Checklist](#174-最終-governance-checklist)
+  - [17.5 審查與驗證清單](#175-審查與驗證清單)
 - [第 18 章 GitHub Codespaces 與 Packages](#第-18-章-github-codespaces-與-packages)
   - [18.1 GitHub Codespaces 雲端開發環境](#181-github-codespaces-雲端開發環境)
   - [18.2 Codespaces 企業配置](#182-codespaces-企業配置)
   - [18.3 GitHub Packages 套件管理](#183-github-packages-套件管理)
   - [18.4 GitHub Discussions 社群協作](#184-github-discussions-社群協作)
+  - [18.5 審查與驗證清單](#185-審查與驗證清單)
 - [附錄 A：快速檢查清單](#附錄-a快速檢查清單)
   - [A.1 Repository 建立快速清單](#a1-repository-建立快速清單)
   - [A.2 Pull Request 審查清單](#a2-pull-request-審查清單)
@@ -208,12 +237,16 @@ categories = ['教學']
   - [B.1 GitHub Docs — Repositories](#b1-github-docs--repositories)
   - [B.2 組織治理、安全與自動化](#b2-組織治理安全與自動化)
   - [B.3 GitHub Changelog 與官方部落格](#b3-github-changelog-與官方部落格)
-- [附錄 C：v3.0 查證紀錄與版本歷程](#附錄-cv30-查證紀錄與版本歷程)
+- [附錄 C：查證紀錄與版本歷程](#附錄-c查證紀錄與版本歷程)
   - [C.1 查證基準](#c1-查證基準)
-  - [C.2 v3.0 更正清單](#c2-v30-更正清單)
-  - [C.3 v3.0 新增章節](#c3-v30-新增章節)
+  - [C.2 v4.0 更正清單](#c2-v40-更正清單)
+  - [C.3 v4.0 新增章節](#c3-v40-新增章節)
   - [C.4 待追蹤事項](#c4-待追蹤事項)
-  - [C.5 版本歷程](#c5-版本歷程)
+  - [C.5 範例驗證紀錄](#c5-範例驗證紀錄)
+  - [C.6 v3.0 查證紀錄摘要](#c6-v30-查證紀錄摘要)
+  - [C.7 版本歷程](#c7-版本歷程)
+
+<!-- TOC-AUTO-END -->
 
 ---
 
@@ -255,6 +288,8 @@ GitHub Repository（簡稱 Repo）是 GitHub 平台上的版本控制儲存庫�
 | **Internal** | 所屬 **Enterprise** 內所有成員（跨組織） | 共用工具、規範文件、InnerSource | ⚠️ 需 GitHub Enterprise Cloud（組織須隸屬 Enterprise 帳號） |
 
 > ⚠️ **v3.0 更正**：Internal 的可見範圍是整個 Enterprise，而非單一組織；若企業下有多個組織，其他組織的成員同樣可以讀取。Enterprise Managed Users（EMU）企業的受管帳號則不能建立公開內容（見 [3.7](#37-forking-policy-與企業身分模式)）。
+>
+> ⚠️ **v4.0 更正**：官方文件已於 2026-09-29 改寫 Fork 規則——Internal Repo 能否被 Fork、可以 Fork 到哪裡，由 Repository、Organization 與 Enterprise 三層政策共同決定；即使政策全部放寬，Internal Repo 也**只能** Fork 到個人帳號或**同一個 Enterprise** 內的組織，永遠不能 Fork 到其他 Enterprise。Private Repo 在最寬鬆的政策下則可以 Fork 到其他 Enterprise 的組織，因此 Private Repo 的 Fork 政策反而需要更嚴格地管控（見 [3.7](#37-forking-policy-與企業身分模式)）。
 >
 > **企業建議**：預設使用 Private，跨組織共用的規範與函式庫使用 Internal，嚴禁將機密程式碼設為 Public；並以組織政策限制成員自行變更 Repo 可見性。
 
@@ -439,6 +474,25 @@ GitHub 官方文件〈Best practices for repositories〉將 Repository 的基本
 | **L4** | 持續稽核 | 規則即程式碼（Policy as Code）、治理指標可量測、例外自動到期 | 持續優化與 AI 治理整合 |
 
 > **企業建議**：多數企業現況落在 L2。從 L2 往 L3 前進最有效的兩個動作是：(1) 定義 3～5 個**必填** Custom Properties（例如 `owner-team`、`data-classification`、`service-tier`）；(2) 使用 GitHub 內建的「Convert to ruleset」工具把既有 Branch Protection 轉為 Rulesets，再逐步提升到組織層級。
+
+
+### 1.9 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 依本章產出的「Repository 規劃建議」或「方案選型說明」時，逐項確認下列內容。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| 可見性符合資料分級 | `gh api repos/acme-bank/svc-order-api --jq .visibility` | 機密程式碼為 `private`；跨組織共用者為 `internal` | 建議 Internal 卻未說明「整個 Enterprise 可讀」 |
+| 功能的方案範圍 | 對照 [1.7](#17-github-方案與功能比較) 與官方文件頁首的「Who can use this feature」 | 每項功能都標示 Free／Team／Enterprise Cloud | 把 Merge Queue、組織級 Ruleset 說成 Team 可用 |
+| 數字有出處 | 檢查配額、價格是否附官方連結與查證日期 | 有連結且日期在 6 個月內 | 引用過時的 LFS 配額或 Runner 價格 |
+| 功能狀態 | 對照 [附錄 C.4](#c4-待追蹤事項) 與 GitHub Changelog | 公開預覽功能有標示 | 把公開預覽功能當成 GA 寫進標準 |
+| 已退役產品 | 搜尋 Copilot Workspace、Copilot Extensions（GitHub App 型）、GitHub Models | 不應出現在建議中 | 沿用 2025 年以前的文章內容 |
+
+**快速檢查組織內可見性分布**（唯讀）：
+
+```bash
+gh api --paginate "orgs/acme-bank/repos?per_page=100" --jq '.[].visibility' | sort | uniq -c
+```
 
 ---
 
@@ -678,6 +732,22 @@ EOF
 
 這個 Ruleset 不列舉任何 Repository 名稱：只要 Repo 被標記為 `tier-0`，就自動受保護；新建的核心服務也會在設定屬性的當下納入規則，不必再手動維護清單。
 
+**外部 Custom Properties（External custom properties，2026-09-29 公開預覽）**：屬性值也可以由企業既有的系統紀錄來源（CMDB、內部開發者入口網站等）透過 External custom properties API 寫入並持續同步。這類屬性在 GitHub UI 中為**唯讀**，一般使用者無法修改，避免兩邊資料互相覆寫；而且和一般 Custom Properties 一樣可用於 Ruleset 目標選取、Repository 篩選與檢視。適合已有 CMDB 作為「服務等級」「資料分級」唯一來源的企業：由 CMDB 決定 `service-tier`，GitHub 端只負責依屬性套用規則。
+
+```text
+CMDB（系統紀錄來源）
+  └─ service: svc-order-api   criticality: tier-0   lifecycle: production
+        │  External custom properties API（持續同步）
+        ▼
+GitHub Repository acme-bank/svc-order-api
+  └─ Custom properties（UI 唯讀）：service-tier=tier-0、lifecycle=production
+        │
+        ▼
+組織級 Ruleset：target = props.service-tier:tier-0 → 自動套用 Tier-0 規則
+```
+
+> 🆕 **v4.0 新增**：外部屬性目前為公開預覽；導入前先確認 CMDB 與 GitHub 的屬性名稱、允許值完全一致，並保留「GitHub 端手動維護」的備援流程。
+
 **Custom Properties 作為 OIDC Claims**：Organization 或 Enterprise 管理員可選擇把特定屬性放入 GitHub Actions 的 OIDC Token（以 `repo_property_` 為前綴），讓雲端 IAM 依「屬性」而非「Repo 名稱」授權。例如 AWS IAM Role 的信任條件可寫成「僅允許 `repo_property_data_classification` 為 `restricted` 的 Repo 取得正式環境角色」，Repo 改名或新增時不需修改雲端設定（詳見 [8.8](#88-actions-安全性強化與-2026-路線圖)）。
 
 > **企業建議**：
@@ -752,6 +822,30 @@ git sparse-checkout set services/order
 > - 當 Repo 大小超過 1 GB 或單次 clone 超過 5 分鐘時，先檢查是否有應移至 Git LFS 的二進位檔（[6.7](#67-git-large-file-storagelfs)），再考慮 partial clone / Scalar
 > - CI 預設採用 `fetch-depth: 1`，只有確實需要歷史的 Job 才改為 `0`，可同時降低 [1.6](#16-repository-限制與配額) 所述的「每秒 15 次讀取」限流風險
 > - Sparse checkout 的目錄邊界應與 CODEOWNERS（[4.5](#45-codeowners-設定)）一致，讓「誰負責哪個目錄」與「誰簽出哪個目錄」相互對應
+
+
+### 2.8 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的 Repository 分層、命名、Environment 與 Custom Properties 設定時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| 命名符合規範 | 以 [2.3](#23-repository-命名規範) 的正規表示式檢查 Repo 名稱（見下方腳本） | 全部符合前綴與小寫連字號格式 | 混用底線、大寫或自創前綴 |
+| Custom Properties 已填寫 | `gh api repos/acme-bank/svc-order-api/properties/values` | 必填屬性皆有值，且不全是預設值 | 只建立屬性定義，未設定「必填」 |
+| 屬性值不可由 Repo 管理員修改 | Organization → Settings → Custom properties，檢查治理屬性的「Allow repository actors to set this property」 | 治理屬性（如 `service-tier`）為關閉 | 為了方便而全部開啟 |
+| Environment 保護規則 | `gh api repos/acme-bank/svc-order-api/environments` | `production` 有必要審查者與部署分支限制 | 以不存在的 `environments:` YAML 設定 |
+| 私有 Repo 的 Environment 功能範圍 | 對照 [2.5](#25-environment-strategy) | 必要審查者與等待計時器在私有 Repo 需 Enterprise | 在 Team 方案的私有 Repo 設計必要審查者 |
+| 大型 Repo 策略 | 檢查 CI 的 checkout 參數與 [2.7](#27-大型-repository-效能策略) 是否一致 | 一般建置使用淺層 clone | 所有 Job 都 `fetch-depth: 0` |
+
+**命名檢查腳本**（唯讀；前綴請依組織規範調整）：
+
+```bash
+#!/bin/bash
+ORG="acme-bank"
+PATTERN='^(svc|lib|web|app|infra|docs|tool|wf)-[a-z0-9]+(-[a-z0-9]+)*$'
+gh api --paginate "orgs/$ORG/repos?per_page=100" --jq '.[].name' |
+  grep -vE "$PATTERN" | grep -vxF '.github' || echo "所有 Repo 名稱皆符合規範"
+```
 
 ---
 
@@ -984,6 +1078,11 @@ graph TD
 | 2026-09-16 | 自動化 Classic PAT 與 SSH 金鑰的 SSO 授權 | 減少人工授權作業 |
 | 2026-09-21 | Enterprise 可匯出憑證清冊（SSH 金鑰、存取權杖等） | 提供季度盤點的完整資料來源 |
 | 2026-09-22 | SSH 安全強化：移除部分演算法並要求較長的 RSA 金鑰 | 需檢查舊部署主機的金鑰長度 |
+| 2026-10-02 | GitHub App Installation Token 全面改為無狀態（stateless）格式 | 不要以 Token 字串長度或前綴驗證格式；Token 一律視為不透明字串 |
+| 2026-10-13 | GitHub App 最小權限與管理改善，協助遷離 Classic PAT | 盤點仍申請 `administration`、`workflows` 等敏感權限的 App |
+| 2026-10-21 | GitHub CLI 可選用會過期、自動更新的 OAuth Token（公開預覽） | 共用工作站與跳板機優先啟用 |
+| 2026-10-23 | **GitHub App 可安裝在 Enterprise 層級**（GA） | 跨組織自動化不必再以「服務帳號 + Classic PAT」實作 |
+| 2026-10-29 | Meta API（`GET /meta`）的 `hooks` 欄位加入 Webhook 傳送來源 IP | 以 IP 白名單接收 Webhook 的內部服務應改為自動同步此清單 |
 | 2026-09-24 | 高影響操作需再次驗證身分（Proof of presence，Enterprise Cloud） | 降低 Session 遭竊後的破壞範圍 |
 
 > **企業建議**：
@@ -1004,6 +1103,8 @@ graph TD
 | **Organization** | Settings → Member privileges → Repository forking | 預設**不允許**私有 Repo 被 Fork |
 | **Repository** | Settings → General → Features → Allow forking | 僅在組織層允許後才可個別開啟；用於需要外包廠商以 Fork 提交 PR 的專案 |
 
+> ⚠️ **v4.0 更正**：依 2026-09-29 更新的官方文件，Fork 的可行範圍為——**Internal Repo** 只能 Fork 到個人帳號或**同一 Enterprise** 內的組織，永遠不能跨 Enterprise；**Private Repo** 在三層政策都放寬時，可以 Fork 到個人帳號或任何有建立權限的組織（**包含其他 Enterprise 的組織**）。因此上表 Enterprise 層的「限制私有／內部 Repo 只能 Fork 到企業內的組織」是必要設定，而非選配。
+
 需要注意的是：刪除私有 Repository 時，其所有 Fork 會一併刪除；刪除公開 Repository 則不會影響既有 Fork。另外，Push Rulesets（[7.6](#76-repository-rulesets-深入指南)）會延伸套用到整個 Fork 網路，Fork 中只有「在根 Repo 具備 Bypass 權限」的人才能繞過。
 
 **企業身分模式選擇**：
@@ -1020,6 +1121,30 @@ EMU 對 Repository 功能有幾項直接影響：受管帳號的個人命名空�
 >
 > - 金融、醫療等受監管產業優先評估 EMU；若另有開源維護需求，可另開一個非 EMU 的組織專門負責公開專案
 > - 外包廠商以「外部協作者（Outside Collaborator）」或 EMU 受管帳號加入，搭配到期日與季度盤點，而不是開放 Fork
+
+
+### 3.8 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的組織設定、Team 權限、組織級 Ruleset 與憑證選擇時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| 組織基準設定 | 見下方指令 | 預設權限 `read` 或 `none`；成員不能建立公開 Repo；已要求 2FA | 預設權限給 `write` |
+| Team 權限透過 Team 授予 | `gh api "repos/acme-bank/svc-order-api/collaborators?affiliation=direct"` | 除外部協作者外沒有直接授權的個人 | 直接把個人加為協作者 |
+| Ruleset JSON 的規則類型 | 對照 [Available rules for rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) | 使用 `pull_request`、`required_status_checks`、`deletion`、`non_fast_forward` 等正式名稱 | 自創 `required_pull_request`、`require_signed_commits` |
+| 組織級 Ruleset 的方案 | 確認組織隸屬 Enterprise Cloud | Team 方案只設計 Repo 層 Ruleset | 在 Team 方案建議組織級 Ruleset |
+| Bypass 清單最小化 | `gh api orgs/acme-bank/rulesets/RULESET_ID --jq .bypass_actors` | 只有平台團隊與必要的 GitHub App | 把 Organization admin 角色整個加入 Bypass |
+| 自動化憑證 | 檢查 Workflow 與腳本使用的 Token 來源 | 跨 Repo 用 GitHub App、雲端用 OIDC | 建議以個人 Classic PAT 執行組織自動化 |
+| Fork 政策 | Enterprise／Organization 設定頁 | Private／Internal 只能 Fork 到企業內 | 忽略 Private Repo 可 Fork 到其他 Enterprise 的風險 |
+
+```bash
+# 組織基準設定（唯讀，需組織 Owner 權限才能看到全部欄位）
+gh api orgs/acme-bank --jq '{default_repository_permission,
+  members_can_create_public_repositories, two_factor_requirement_enabled}'
+
+# 列出組織級 Ruleset 與其強制狀態
+gh api orgs/acme-bank/rulesets --jq '.[] | {id, name, target, enforcement}'
+```
 
 ---
 
@@ -1344,7 +1469,6 @@ name: Bug Report
 description: 回報程式錯誤
 title: "[Bug]: "
 labels: ["bug", "triage"]
-assignees: []
 body:
   - type: markdown
     attributes:
@@ -1616,6 +1740,7 @@ gh api repos/acme-bank/tmpl-spring-boot \
 | `SUPPORT.md` | 建立 Issue 時顯示連結 | 導引使用者至正確的支援管道（Discussions、Service Desk） |
 | `FUNDING.yml` | Sponsor 按鈕 | 開源專案贊助連結；企業內部專案通常不需要 |
 | `CITATION.cff` | 側欄「Cite this repository」 | 研究型或需被引用的專案提供標準引用格式 |
+| `ACCESSIBILITY.md` | Repo 首頁特別標示（2026-10-01 起） | 說明產品的無障礙支援範圍與回報管道；對外提供 UI 的專案建議提供 |
 | `.github/ISSUE_TEMPLATE/`、`pull_request_template.md` | 建立 Issue / PR 時套用 | 見 [4.7](#47-issue-template-與-pr-template) |
 
 檔案可放在 Repo 根目錄、`.github/` 或 `docs/` 目錄。
@@ -1718,6 +1843,27 @@ EOF
 > **補充**：「Anonymous Git read access」只存在於 GitHub Enterprise Server（且需站台管理員啟用私有模式），GitHub.com 與 Enterprise Cloud 沒有此設定；若 Repo 使用 Git LFS，匿名讀取也無法下載 LFS 物件。
 >
 > **企業建議**：以 Terraform（[4.1](#41-建立-repository-完整流程) 方法三）或平台團隊的建立腳本統一管理本表設定，並以 [A.5](#a5-repository-設定稽核清單) 每季比對實際值，避免設定逐漸漂移。
+
+
+### 4.13 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的 README、`.gitignore`、CODEOWNERS、範本與初始化腳本時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| CODEOWNERS 語法與擁有者 | `gh api repos/acme-bank/svc-order-api/codeowners/errors` | `{"errors":[]}` | 引用不存在的 Team，或 Team 對 Repo 沒有寫入權限 |
+| CODEOWNERS 規則順序 | 人工檢查：越具體的規則放越後面 | 預設規則 `*` 在最前面 | 把 `*` 放在最後，覆蓋所有具體規則 |
+| `.gitignore` 涵蓋機密檔 | `git check-ignore -v .env application-local.yml id_rsa` | 三個檔案都被忽略並顯示對應規則 | 只忽略建置產物，漏掉 `.env`、金鑰 |
+| Issue Form 語法 | VS Code YAML 擴充套件（SchemaStore 的 `github-issue-forms`）或建立測試 Issue | 無 schema 錯誤 | `assignees: []` 空陣列、`type` 拼錯 |
+| 社群健康檔案 | 公開 Repo：`gh api repos/acme-bank/sdk-java/community/profile --jq .health_percentage`；私有 Repo 則確認檔案存在 | 公開 Repo 100；私有 Repo 至少有 README、CODEOWNERS、SECURITY.md | 把 SECURITY.md 放在不被辨識的路徑 |
+| 初始化腳本冪等性 | 對同一個測試 Repo 執行兩次 | 第二次不報錯、不重複建立 | 重複建立 Ruleset 或 Label |
+| 設定基準 | 見下方指令，比對 [4.12](#412-repository-設定基準總表) | 合併方式、自動刪除分支等與基準一致 | 漏設「Automatically delete head branches」 |
+
+```bash
+# 比對 Repository 設定基準（唯讀）
+gh api repos/acme-bank/svc-order-api --jq '{allow_merge_commit, allow_squash_merge,
+  allow_rebase_merge, delete_branch_on_merge, allow_auto_merge, has_wiki}'
+```
 
 ---
 
@@ -1980,6 +2126,24 @@ docs-architecture/
 ```
 
 > **實務建議**：使用 MkDocs + Material Theme 或 Docusaurus 將文件 Repo 自動發佈為內部網站，搭配 GitHub Actions 實現「Push to main → 自動部署文件網站」。
+
+
+### 5.6 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產生的專案骨架或目錄結構時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| 分層依賴方向（Backend） | 以 ArchUnit 或 `grep -rn "import .*\.infrastructure\." src/main/java/*/domain` 檢查 | Domain 層不引用 Infrastructure 層 | Domain 直接使用 JPA Repository |
+| 必要檔案存在 | `ls README.md CODEOWNERS .github/workflows .gitignore` 等 | 與 [5.1](#51-backend-repositoryclean-architecture)～[5.5](#55-documentation-repository) 範本一致 | 只產生程式碼目錄，缺少治理檔案 |
+| 未提交建置產物 | `git ls-files` 搭配下方指令 | 無 `target/`、`dist/`、`node_modules/` | `.gitignore` 產生在提交之後，產物已進版控 |
+| Monorepo 邊界 | 檢查 CODEOWNERS 是否依目錄劃分擁有者 | 每個套件目錄都有對應擁有者 | 整個 Monorepo 只有一個擁有者 |
+| 測試目錄對應 | 比對 `src/main` 與 `src/test` 的套件結構 | 每個模組都有對應測試目錄 | 測試全部放在單一目錄 |
+
+```bash
+# 確認建置產物與相依套件沒有被提交（唯讀）
+git ls-files | grep -E '(^|/)(target|dist|build|node_modules)/' || echo "未發現建置產物"
+```
 
 ---
 
@@ -2345,6 +2509,31 @@ a1b2c3d4e5f60718293a4b5c6d7e8f9012345678
 > - 稽核證據、事故報告中的程式碼引用一律使用永久連結
 > - 圖片等二進位檔若經常變動，依 [6.7](#67-git-large-file-storagelfs) 改用 LFS；SVG 屬於文字格式，保留在 Git 中即可正常 diff 與預覽
 
+
+### 6.9 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的 Git 操作指引、Commit 訊息、LFS 與 `.gitattributes` 設定時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| Commit 訊息格式 | 以下方指令檢查最近 50 筆 | 皆符合 Conventional Commits | 類型大寫、缺少冒號後的空白 |
+| `.gitattributes` 生效 | `git check-attr -a -- src/main/resources/logo.png gradlew` | 圖片為 `binary`／LFS，`gradlew` 為 `eol=lf` | 規則順序錯誤導致被後面的規則覆蓋 |
+| LFS 追蹤正確 | `git lfs ls-files` 與 `git lfs track` | 只有大型二進位檔走 LFS | 把原始碼或小型設定檔放進 LFS |
+| 歷史中無大型檔案 | 下方 `git rev-list` 指令 | 無超過 50 MB 的 blob | 先提交大檔再改用 LFS，歷史仍含大檔 |
+| 分支策略一致 | 比對 Repo 的分支清單與 [6.6](#66-三種策略比較與選擇) 選定的策略 | 採 GitHub Flow 時不應有長期 `develop` | 同時套用 Git Flow 與 Trunk Based |
+| 危險指令 | 檢查指引中是否有 `git push --force` | 一律改為 `--force-with-lease` | 直接建議 `--force` 或 `push --mirror` |
+
+```bash
+# 檢查最近 50 筆 Commit 是否符合 Conventional Commits（唯讀）
+git log -50 --format=%s | grep -vE '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9-]+\))?!?: .+' \
+  || echo "全部符合"
+
+# 找出歷史中超過 50 MB 的檔案（唯讀）
+git rev-list --objects --all |
+  git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' |
+  awk '$1 == "blob" && $3 > 52428800 {print $3, $4}'
+```
+
 ---
 
 ## 第 7 章 Branch Strategy
@@ -2681,7 +2870,7 @@ Push Rulesets 可在整個 Repository（含 Fork 網路）層級限制推送行�
 }
 ```
 
-> **2026 年更新：一鍵遷移工具**：GitHub 已於 2026-08-11 在 Repository Settings 中提供**一鍵遷移工具**，可直接將既有 Branch Protection Rules 自動轉換為對應的 Ruleset，無需手動逐項重新設定。對於仍大量使用 Classic Branch Protection 的既有 Repository，這大幅降低了遷移門檻，企業可將「遷移至 Rulesets」列為近期治理待辦事項，而非長期規劃項目。
+> **2026 年更新：轉換工具**：GitHub 已於 2026-08-11 在 Repository Settings 中提供逐條轉換的引導流程，並於 2026-10-20 新增 Repository 層**批次匯入**（Import branch protection rules），可直接將既有 Branch Protection Rules 轉換為對應的 Ruleset，無需手動逐項重新設定（操作步驟見 [7.10](#710-branch-protection-轉換至-rulesets-實務)）。對於仍大量使用 Classic Branch Protection 的既有 Repository，這大幅降低了遷移門檻，企業可將「遷移至 Rulesets」列為近期治理待辦事項，而非長期規劃項目。
 >
 > **企業建議**：
 >
@@ -2823,6 +3012,11 @@ git remote prune origin   # 選用：清除舊分支的追蹤參考
 | **Always suggest updating PR branches** | PR 落後基底分支時，一律提供「Update branch」按鈕 | 需具 Write 權限 | 開啟；啟用 Merge Queue 的分支則由佇列自動處理 |
 | **Automatically delete head branches** | PR 合併後自動刪除來源分支 | 受 Ruleset 或分支保護禁止刪除的分支不會被刪 | 開啟；取代大部分 [14.2](#142-branch-cleanup-自動化) 的清理腳本 |
 
+> ⚠️ **v4.0 更正**（依 2026-10-14、10-23 更新的官方文件）：
+>
+> - **Fork 來的 PR**：自動刪除分支依據的是**來源 Fork（head repository）**的「Automatically delete head branches」設定，而不是被合併的上游 Repo；而且合併者必須對該 Fork 有寫入權限。兩者任一不成立，Fork 中的分支就不會被自動刪除。
+> - **需要 Merge Queue 的分支**：Repository 的「Allow auto-merge」設定**不適用**。即使該設定關閉，在 Merge Queue 分支上按下「Merge when ready」仍會為 PR 啟用自動合併。
+
 **Auto-merge 與 Merge Queue 的差別**：Auto-merge 在「這個 PR」滿足條件時合併；Merge Queue（[7.7](#77-merge-queue-管理)）則把多個 PR 依序與最新基底分支組合後重新驗證。高頻合併的主幹分支用 Merge Queue，一般分支用 Auto-merge 即可。
 
 **以 CLI 啟用 Auto-merge**：
@@ -2881,6 +3075,15 @@ GitHub 自 2026-08-11 起在 Repository Settings → Branches 提供「Convert t
 
 新 Ruleset 建立後立即為 **Active**。若保留原規則，兩者會同時生效，變更必須同時滿足兩者；當 Ruleset 已完全涵蓋原規則時，Branches 頁面會顯示「This rule is fully covered by rulesets and can be safely deleted」並提供刪除按鈕。
 
+> 🆕 **v4.0 新增：Repository 層批次轉換（2026-10-20）**：除了逐條轉換，現在也可以在 **Settings → Rules → Rulesets** 頁面上方點選 **Import branch protection rules**，一次匯入多條符合條件的規則：
+>
+> 1. 在「Review import」對話框檢視 GitHub 建議產生的 Ruleset。標示 **Already covered by an existing ruleset** 的保護不會重複建立；一條 Branch Protection 可能拆成多個 Ruleset，需閱讀行為變更警告。
+> 2. 在 **Enforcement status** 選擇新 Ruleset 的狀態：**Active**（立即強制）、**Evaluate**（只記錄不阻擋，**需 Enterprise Cloud**）或 **Disabled**。
+> 3. 勾選要建立的 Ruleset，點選 **Create rulesets**。
+> 4. 在後續對話框選擇 **Keep rule**（保留原規則，兩者並行時變更須同時滿足）或 **Delete branch protection rule**。
+>
+> 企業建議：先以 **Evaluate** 匯入並保留原規則，觀察 Rule insights 一至兩週確認「無誤擋、無漏擋」後，再將 Ruleset 改為 Active 並刪除原規則。Evaluate 與 Disabled 狀態的 Ruleset **不提供任何保護**，在刪除原規則前務必確認已切換為 Active。
+
 **唯一無法一對一轉換的設定**：Branch Protection 中獨立存在的「Require conversation resolution before merging」，在 Rulesets 中屬於 `pull_request` 規則的一個參數（`required_review_thread_resolution`），只有啟用 PR 規則時才會生效。轉換後務必確認此項。
 
 **建議的企業遷移計畫**：
@@ -2914,7 +3117,7 @@ done
 
 > 🆕 **v3.0 新增**
 
-2026 年 GitHub 在 Rulesets 與 Pull Request 管理上推出多項能力，讓過去只能靠外部工具或 Workflow 實作的關卡，直接成為平台內建的規則。下表依 GitHub Changelog 整理（查證日期 2026-09-25；「已推出」表示 Changelog 已公告上線，但未特別標示 GA 或預覽狀態）：
+2026 年 GitHub 在 Rulesets 與 Pull Request 管理上推出多項能力，讓過去只能靠外部工具或 Workflow 實作的關卡，直接成為平台內建的規則。下表依 GitHub Changelog 整理（查證日期 2026-09-25，v4.0 於 2026-11-03 更新；「已推出」表示 Changelog 已公告上線，但未特別標示 GA 或預覽狀態）：
 
 **Rulesets 新規則與管理能力**：
 
@@ -2923,12 +3126,14 @@ done
 | 2026-04-16 | Rule insights 儀表板與統一篩選列 | 已推出 | 查看規則評估結果與 Bypass 紀錄 |
 | 2026-05-07 | Repo 層 Ruleset 可指定**個別使用者**為 Bypass Actor；Repo 管理員可在符合條件時重新命名受組織 Ruleset 保護的分支 | 已推出 | 服務帳號不必再建專屬 Team |
 | 2026-06-30 | **程式碼覆蓋率合併保護**：覆蓋率低於門檻時阻擋 PR 合併（搭配 GitHub Code Quality） | 已推出 | 將覆蓋率門檻從 CI 腳本移入平台規則；2026-09-18 起可用 REST API 管理 |
-| 2026-06-30 | 開源授權合規檢查（以 Ruleset 為基礎） | 公開預覽 | 見 [9.9](#99-開源授權合規檢查) |
+| 2026-06-30 → 10-16 | 開源授權合規檢查（以 Ruleset 為基礎） | ✅ GA（2026-10-16，僅 Enterprise Cloud） | 規則名稱「Require license compliance results before merging」，見 [9.9](#99-開源授權合規檢查) |
 | 2026-07-07 | 限制誰可以撤銷（dismiss）PR 審查 | 已推出 | 防止有寫入權者撤銷他人的「Request changes」 |
-| 2026-08-11 | Branch Protection 一鍵轉換為 Ruleset | 已推出 | 見 [7.10](#710-branch-protection-轉換至-rulesets-實務) |
+| 2026-08-11 → 10-20 | Branch Protection 轉換為 Ruleset（逐條 → Repo 層批次匯入） | 已推出 | 見 [7.10](#710-branch-protection-轉換至-rulesets-實務) |
 | 2026-08-12 → 08-25 | 組織層 Rule insights（公開預覽 → GA） | GA | 跨 Repo 檢視規則成效 |
 | 2026-08-25 | Push Rules 支援**路徑例外** | 已推出 | 例如禁止 `*.jar`，但允許 `gradle/wrapper/gradle-wrapper.jar` |
 | 2026-09-09 | **阻擋含有外洩 Secret 的 PR 合併** | 已推出 | 補上 Push Protection 被繞過後的最後一道關卡 |
+| 2026-10-12 | Ruleset Workflow 不能使用 CodeQL Action（`upload-sarif` 除外） | 文件明訂 | 跨 Repo 強制 CodeQL 應改用 Default Setup 或「Require code scanning results」規則 |
+| 2026-10-13 | Merge Queue 的 build concurrency 可設為 `0` | 文件明訂 | 設為 0 時佇列不再派送 `merge_group` 事件，可作為緊急凍結合併的手段 |
 
 **Pull Request 管理新能力**：
 
@@ -2937,9 +3142,13 @@ done
 | 2026-06-17 | 限制無寫入權限使用者可同時開啟的 PR 數量（2026-08-06 起可在組織層設定） | 已推出 | 防止外部垃圾 PR 或 AI 大量產生的低品質 PR 淹沒審查佇列 |
 | 2026-06-29 | 限制僅協作者可建立 Issue | 已推出 | 內部 Repo 或需要集中受理的專案 |
 | 2026-07-09 | 新版 Pull Requests 儀表板（github.com/pulls） | GA | 個人跨 Repo 追蹤待審 PR |
-| 2026-07-16 | Repo 管理員可封存（archive）PR | 已推出 | 將不當或過期 PR 自公開檢視中移除但保留紀錄 |
-| 2026-07-30 | **Stacked Pull Requests**（堆疊式 PR） | 公開預覽 | 將大型變更拆成有序、可分別審查的 PR 系列 |
+| 2026-07-16 → 10-08 | 封存（archive）PR；10-08 起 **Triage 以上**角色即可封存與解除封存 | 已推出 | 將不當或過期 PR 自公開檢視中移除但保留紀錄 |
+| 2026-07-30 → 10-06 | **Stacked Pull Requests**（堆疊式 PR） | ✅ GA（2026-10-06） | 將大型變更拆成有序、可分別審查的 PR 系列，見 [7.12](#712-stacked-pull-requests-實務) |
 | 2026-09-21 | Repository 的 Pull Requests 頁面改版 | GA | 更多篩選與精簡檢視 |
+| 2026-10-01 | 非同步合併 API（async merge API） | GA | 以 API 合併單一或堆疊 PR、加入 Merge Queue |
+| 2026-10-08 | PR 數量上限可將 **Draft PR** 一併計入 | 已推出 | 避免以 Draft 規避上限 |
+| 2026-10-28 | PR 數量上限新增**豁免規則**：帳號年齡（天數）或在該 Repo 已合併的 PR 數 | 已推出 | 讓長期貢獻者不受上限影響；Repo 層設定優先於組織層 |
+| 2026-10-28 | **Agent Merge**：在 PR 合併區選擇「Watch and fix」，由 Copilot 在雲端修正失敗的 Workflow 與合併衝突 | 已推出（需付費 Copilot） | 修正後仍須通過所有規則才會合併，詳見 [13.9](#139-copilot-平台最新動態與方案) |
 
 **Ruleset 範例：合併前阻擋外洩 Secret 並限制撤銷審查**（示意；實際參數名稱請以 REST API 文件為準）：
 
@@ -2960,7 +3169,87 @@ Repository → Settings → Rules → Rulesets → New branch ruleset
 >
 > - 每季檢視 Rule insights 中的 Bypass 紀錄，若同一規則被頻繁繞過，代表規則設計或流程需要調整，而不是放任例外成為常態
 > - 開放外部貢獻或啟用 AI Agent 的 Repo，應設定「無寫入權限使用者的開啟 PR 數量上限」，避免審查資源被耗盡
-> - Stacked PRs 仍為公開預覽，適合先在內部平台團隊試用，再評估是否納入標準流程
+> - Stacked PRs 已於 2026-10-06 GA，大型功能與 AI Agent 產生的大量變更可依 [7.12](#712-stacked-pull-requests-實務) 拆成堆疊 PR
+> - 對外開源 Repo 的 PR 數量上限搭配豁免規則（例如「已合併 3 個以上 PR」），兼顧防濫用與既有貢獻者體驗
+
+
+### 7.12 Stacked Pull Requests 實務
+
+> 🆕 **v4.0 新增**
+
+**為什麼需要堆疊式 PR**：大型變更（例如「新增資料表 → API → 前端」）若放在同一個 PR，審查者面對上千行 diff 容易草率核准；拆成多個獨立 PR 又必須等前一個合併才能開始下一個。Stacked Pull Requests（2026-10-06 GA）讓同一 Repo 內的多個 PR 形成依賴鏈：最底層的 PR 以主幹（通常是 `main`）為基底，上層每個 PR 以下一層的分支為基底，每層只顯示自己的 diff，可以分別審查、由下而上合併。
+
+```text
+   ┌── feat/order-ui      → PR #3（base: feat/order-api）  ← 頂層
+  ┌── feat/order-api      → PR #2（base: feat/order-schema）
+ ┌── feat/order-schema    → PR #1（base: main）           ← 底層
+main（主幹）
+```
+
+**拆分原則**：被依賴的程式碼必須位於同一層或更下層。資料結構、共用型別、資料庫 Migration 放在底層；依賴它們的 API 與 UI 放在上層。每層應是一個可以獨立審查的關注點。
+
+**以 `gh stack` 建立堆疊**（需 GitHub CLI 2.90.0 以上、Git 2.20 以上）：
+
+```bash
+# 安裝擴充套件（AI Agent 可另外安裝 gh-stack skill：gh skill install github/gh-stack）
+gh extension install github/gh-stack
+
+# 1. 建立堆疊與第一層分支（預設以 Repo 的預設分支為主幹）
+gh stack init
+
+# 2. 在第一層完成資料表與 Migration 後提交
+git add db/migration/V12__create_order.sql
+git commit -m "feat(order): add order table"
+
+# 3. 新增上一層分支繼續開發 API
+gh stack add feat/order-api
+git add src/main/java/com/acme/order/api/
+git commit -m "feat(order): add order API"
+
+# 4. 推送所有分支並建立互相連結的 PR（每層自動設定正確的 base）
+gh stack push
+gh stack submit
+
+# 5. 隨時檢視整個堆疊的狀態
+gh stack view
+```
+
+**規則與合併行為**：
+
+| 項目 | 行為 | 治理意涵 |
+|------|------|---------|
+| 合併要求 | 由**最底層 PR 的基底分支**（通常是 `main`）決定 | 中間層 PR 雖然不直接以 `main` 為基底，CODEOWNERS 審查等規則仍會套用 |
+| CI | 以主幹為目標的 PR 觸發的 CI，會對堆疊中**每一個** PR 執行 | 不會發生「只有底層跑 CI」的漏洞 |
+| 合併順序 | 必須由下而上；合併頂層 PR 會連同下方所有 PR 一起合併 | 可只合併到中間層，上方 PR 會自動改以主幹為基底 |
+| 合併方式 | 支援 Merge commit、Squash、Rebase，並可進入 Merge Queue | 結果與逐一合併相同 |
+| Rebase | 可在 PR 頁面觸發伺服器端連鎖 Rebase，或以 `gh stack` 在本機執行 | 底層合併後其餘分支自動 Rebase |
+| API | 以 API 合併堆疊時需使用**非同步合併 API** | 自動化腳本需改用新端點 |
+| 限制 | 不支援跨 Fork 的堆疊；GitHub Desktop 尚未支援 | 外部貢獻者仍使用一般 PR |
+
+> **企業建議**：
+>
+> - 單一 PR 超過約 400 行或跨越兩個以上關注點時，建議改用堆疊 PR；AI Agent 一次產生大量程式碼時尤其適用（一個任務一層）
+> - 不要為了「快速合併」而只審查頂層 PR：每一層都要有各自的核准，合併頂層等於合併整個堆疊
+> - 平台團隊應先在內部 Repo 試行，確認既有 Workflow 的觸發條件（`pull_request` 的 `branches` 篩選）不會讓中間層 PR 漏跑 CI
+
+### 7.13 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的 Ruleset、Branch Protection、Merge Queue 與 PR 流程設定時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| 分支實際生效的規則 | `gh api repos/acme-bank/svc-order-api/rules/branches/main` | 包含 `pull_request`、`required_status_checks`、`non_fast_forward`、`deletion` | 只建立 Ruleset，`enforcement` 仍為 `disabled` 或 `evaluate` |
+| 必要審查人數與 Code Owner | 檢查 `pull_request` 規則的 `required_approving_review_count`、`require_code_owner_review` | Tier-0 至少 2 人並要求 Code Owner | 只設定 1 人且允許自我核准 |
+| 必要狀態檢查名稱 | 比對 Ruleset 中的 context 與 Workflow 的 Job 名稱 | 名稱完全一致 | 寫成 Workflow 名稱而非 Job 名稱，PR 永遠卡在「Expected」 |
+| Merge Queue 觸發 | `grep -l "merge_group" .github/workflows/*.yml` | 必要檢查的 Workflow 都監聽 `merge_group` | 只監聽 `pull_request`，佇列卡住 |
+| Bypass 紀錄 | Settings → Rules → Insights（Rule insights） | Bypass 都有合理原因 | Bypass 名單過寬 |
+| 轉換後的保護 | Branches 頁面與 Rulesets 頁面 | 刪除 Branch Protection 前，對應 Ruleset 為 Active | 以 Evaluate 狀態匯入後就刪除原規則 |
+| 堆疊 PR 的審查 | 檢查堆疊中每個 PR 的核准紀錄 | 每一層都有核准 | 只審查頂層就合併整個堆疊 |
+
+```bash
+# 列出 Repo 中所有 Ruleset 的強制狀態，找出未生效者（唯讀）
+gh api repos/acme-bank/svc-order-api/rulesets --jq '.[] | select(.enforcement != "active") | {name, enforcement}'
+```
 
 ---
 
@@ -3415,7 +3704,7 @@ jobs:
           fetch-depth: 0
 
       - name: TruffleHog Secret Scan
-        uses: trufflesecurity/trufflehog@4dd8831c5f12599465d4d45c3c447b4018a34c85  # v3.97.9
+        uses: trufflesecurity/trufflehog@ea68ca03c865c5f324e86e849ced20ed3cf9dbbb  # v3.99.8
         with:
           extra_args: --only-verified
 ```
@@ -3584,15 +3873,17 @@ Organization / Enterprise 管理員現可透過 Actions Policy 設定**封鎖第
 
 **2026 Actions 安全路線圖**（GitHub Blog，2026-03-26 發布）與目前進度：
 
-| 路線圖項目 | 內容 | 截至 2026-09-25 進度 |
+| 路線圖項目 | 內容 | 截至 2026-11-03 進度 |
 |-----------|------|--------------------|
-| **Workflow 依賴鎖定** | 在 Workflow 中新增 `dependencies:` 區段，以 Commit SHA 鎖定所有直接與間接 Action，搭配 `gh actions pin` 指令與 Dependabot 維護 | 意見徵詢／預覽階段，尚未 GA |
+| **Workflow 依賴鎖定** | 以 `.github/workflows/actions.lock` 鎖定所有直接與間接 Action 的 Commit，由 `gh actions-lock` 擴充套件產生，Dependabot 同步維護 | ✅ **2026-10-28 GA**（10-14 公開預覽；見 [8.10](#810-workflow-依賴-lockfile-與-require-lockfile-政策)） |
 | **政策式執行防護** | 集中控管「誰」與「哪些事件」可觸發 Workflow，含 Evaluate 模式 | ✅ **2026-09-17 GA**（見 [8.9](#89-runner-策略與-repository-層-actions-設定)） |
 | **Scoped Secrets** | 將 Secret 綁定到特定分支、環境或 Workflow | 尚未 GA |
 | **原生 Egress Firewall** | GitHub-hosted Runner 的第 7 層出站流量管控（監控／強制模式） | 尚未 GA |
 | **Actions Data Stream** | 近即時執行遙測資料串流至 S3 或 Azure | 尚未 GA |
 
-同期已上線的相關防護：可疑的惡意 Workflow 在公開 Repo 會被暫停等待核准（2026-07-28）、`pull_request_target` 搭配 `actions/checkout` 的預設行為更安全（2026-06-18）、低信任事件的快取改為唯讀（2026-06-26）。
+同期已上線的相關防護：可疑的惡意 Workflow 在公開 Repo 會被暫停等待核准（2026-07-28）、`pull_request_target` 搭配 `actions/checkout` 的預設行為更安全（2026-06-18）、低信任事件的快取改為唯讀（2026-06-26）、公開 Repo 的 `pull_request_target` 預設政策（2026-12-02 強制，見 [8.11](#811-pull_request_target-預設封鎖與遷移)）。
+
+> ⚠️ **v4.0 更正**：v3.0 依路線圖文章描述的「`dependencies:` 區段＋`gh actions pin` 指令」並非最終設計。GA 版本是獨立的 lockfile 檔案 `.github/workflows/actions.lock`，以 `gh actions-lock` 擴充套件產生，Workflow 檔案本身不需任何新語法。
 
 > ⚠️ **v3.0 更正**：v2.2 記載「路線圖將新 Repo 的 `GITHUB_TOKEN` 預設改為唯讀、首次貢獻者預設需核准」，官方路線圖並無此兩項。實際情況是：2023 年 2 月以後建立的組織與企業，`GITHUB_TOKEN` 預設即為唯讀；公開 Repo 的 Fork PR 本來就有「需核准首次貢獻者」等選項。兩者都應在 Organization 層級明確設定，而非仰賴預設值。
 
@@ -3625,9 +3916,11 @@ Organization / Enterprise 管理員現可透過 Actions Policy 設定**封鎖第
 |------|------|------|
 | 2026-01-01 | GitHub-hosted Runner 價格調降最高 39%（例如 Linux 2-core 由 $0.008 降至 $0.006／分鐘） | 重新評估 Self-hosted 的成本效益 |
 | 2025-12 公告 → 暫緩 | 原訂 2026-03-01 起對私有 Repo 所有 Workflow（含 Self-hosted）收取每分鐘 $0.002 平台費，因社群反彈於 48 小時內宣布暫緩 | 目前 Self-hosted 仍不計費，但應持續追蹤 |
-| 2026-06-12 | Self-hosted Runner 最低版本強制檢查恢復執行 | Runner 需定期更新，否則無法接收工作 |
+| 2026-06-12 → 09-29 | Self-hosted Runner 最低版本強制檢查：Enterprise Cloud 自 **2026-09-29** 全面強制（資料落地版自 07-31），低於 **2.329.0** 的 Runner 無法註冊；低於執行門檻的既有 Runner 也會停止接收工作 | Runner 需定期更新，建議以 ARC 或映像自動更新 |
 | 2026-09-23 | **Node 20 自 GitHub Actions 移除**，JavaScript Action 一律以 Node 24 執行 | 使用舊版 Action（如 `actions/checkout@v4`）的 Workflow 應升級至最新主版本 |
-| 2026-10-01 | Actions 保留政策擴及 checks、workflow runs 與 statuses | 稽核需要的執行紀錄應另行匯出 |
+| 2026-10-01 | ✅ 已生效：Actions 保留政策擴及 checks、workflow runs 與 statuses | 超過保留期限的檢查結果與執行紀錄會被刪除；稽核需要的紀錄應另行匯出 |
+| 2026-10-28 | GitHub-hosted Runner 可跨多個雲端排程（multi-cloud compute） | 若內部防火牆以 IP 白名單放行 Runner，應改用 Larger runners 的固定 IP 或 Azure 私有網路 |
+| 2026-11-02 | **macOS 14 Runner 映像退役** | `runs-on: macos-14` 的 Job 將無法執行，改用 `macos-15` 或更新版本 |
 
 GitHub Copilot code review 與 Copilot cloud agent 也在 GitHub Actions 上執行：私有 Repo 會消耗 Actions 分鐘數，組織若停用 GitHub-hosted Runner，Code Review 的進階（agentic）能力將無法使用，需改設定 Larger runners 或 ARC。
 
@@ -3647,15 +3940,306 @@ GitHub Copilot code review 與 Copilot cloud agent 也在 GitHub Actions 上執�
 - **Actor rules**：誰可以觸發 Workflow（例如 `deploy.yml` 只允許 `release-managers` 觸發）
 - **Event rules**：哪些事件可以觸發 Workflow（例如禁止 `pull_request_target`）
 
-規則可指定到個別 Workflow 檔案、提供 Evaluate（僅記錄不阻擋）模式與 REST API。GitHub 並對**公開 Repo** 推出預設規則：尚未設定事件政策的公開 Repo，`pull_request_target` 觸發將被停用；目前為 Evaluate 模式，**2026-11-02 起正式強制**。仍依賴此事件的公開 Repo 必須在期限前明確設定允許政策。
+- **Require lockfile**（2026-10-28 GA）：被指定的 Workflow 必須已納入 Repo 的 lockfile 才能執行（見 [8.10](#810-workflow-依賴-lockfile-與-require-lockfile-政策)）
+
+規則可指定到個別 Workflow 檔案、提供 Evaluate（僅記錄不阻擋，僅 Enterprise Cloud）模式與 REST API（`/rest/actions/policies`），設定位置為 **Settings → Actions → Policies**，評估結果在同一側欄的 **Policy insights** 檢視。適用範圍為所有公開 Repo，以及 Team 或 Enterprise 方案的私有 Repo。GitHub 並對**公開 Repo** 推出預設規則：尚未設定事件政策的公開 Repo，`pull_request_target` 觸發將被封鎖；目前為 Evaluate 模式，**2026-12-02 起正式強制**（詳見 [8.11](#811-pull_request_target-預設封鎖與遷移)）。
+
+> ⚠️ **v4.0 更正**：v3.0 記載的強制日期 2026-11-02 已由 GitHub 於 2026-11-02 公告延後為 **2026-12-02**；強制前另有兩次短暫試行封鎖（brownout）：**2026-11-09 與 11-16 的 16:00～18:00 UTC**（台灣時間 00:00～02:00 隔日）。
 
 **同 Repo Action 的 `$/` 語法**（2026-07-30 起提供，需 Runner 2.336.0 以上）：`uses:` 以 `$/` 開頭時，會解析為「目前正在執行的同一個 Repo、同一個 Commit」，不需 checkout 即可引用同 Repo 內的 Composite Action 或 Reusable Workflow，且自動符合 SHA 釘選政策。
 
 > **企業建議**：
 >
 > - 將「最低 Runner 版本」與「Action 主版本」納入每月維運檢查，Node 20 移除這類平台變動會直接讓舊 Workflow 失效
-> - 公開 Repo 請在 2026-11-02 前檢查所有 `pull_request_target` Workflow，並以 Evaluate 模式確認影響範圍
+> - 公開 Repo 請在 2026-11-09 第一次 brownout 前，以 Policy insights 檢查所有 `pull_request_target` Workflow，並在 2026-12-02 正式強制前完成遷移或明確允許
 > - Larger runners 沒有免費額度，應設定 Runner Group 與並行上限，避免成本失控
+
+
+### 8.10 Workflow 依賴 Lockfile 與 Require lockfile 政策
+
+> 🆕 **v4.0 新增**
+
+**要解決的問題**：Workflow 以 `uses: owner/action@v3` 引用 Action 時，執行當下才把 Tag 解析成 Commit；Tag 可以被移動，2026-03 的 Trivy 事件就是攻擊者把 Tag 改指向惡意 Commit（見 [9.6](#96-container-security)）。過去的對策是在每一行 `uses:` 寫上 40 字元的 Commit SHA，但這會讓 Workflow 難以閱讀，也無法鎖定「Action 內部再引用的其他 Action」（遞移依賴）。
+
+**Workflow 依賴 Lockfile**（2026-10-28 GA；Free、Team、Enterprise Cloud 與資料落地版可用，GitHub Enterprise Server 不支援）把每個 Action 參照解析後的 Commit 記錄在 `.github/workflows/actions.lock`，執行時以鎖定的 Commit 為準：
+
+| 面向 | 在 Workflow 中寫 SHA | Lockfile |
+|------|---------------------|---------|
+| 可讀性 | 低（需靠註解標示版本） | 高（Workflow 保留 `@v7.0.1` 這類 Tag） |
+| 遞移依賴 | 無法鎖定 | 一併鎖定 |
+| 來源身分 | 不記錄 | 記錄 `owner_id`／`repo_id`，Repo 被刪除後同名重建也會被識破 |
+| Dependabot | 更新 SHA 與註解 | 同一個 PR 同步更新 Workflow 與 lockfile |
+| 「SHA 釘選」政策 | 符合 | 已納入 lockfile 的 Workflow 視同符合 |
+| 不涵蓋 | — | Job 層呼叫的 Reusable Workflow（`jobs.<id>.uses`，需由被呼叫端 Repo 自己的 lockfile 涵蓋，或以 SHA 引用）、Runner 映像、容器映像、輸入參數與 Secret |
+
+**導入步驟**：
+
+```bash
+# 1. 安裝擴充套件（需已登入的 gh；AI Agent 可安裝對應 skill：gh skill install github/gh-actions-lock）
+gh extension install github/gh-actions-lock
+
+# 2. 在 Repo 根目錄產生 lockfile（掃描 .github/workflows/ 下所有 Workflow）
+gh actions-lock
+
+#    或逐一納管單一 Workflow
+gh actions-lock .github/workflows/ci.yml
+
+# 3. 若 Workflow 使用同 Repo 的本地 Action（uses: ./...），改寫為以 Commit 固定的 $/ 參照
+gh actions-lock --migrate-local-actions
+
+# 4. 檢視差異後提交（工具也會把 @v7 這類參照改寫為解析到的完整版本，例如 @v7.0.1）
+git diff
+git add .github/workflows/
+git commit -m "ci: add workflow dependency lockfile"
+```
+
+**Lockfile 內容範例**（格式依官方文件；檔案由工具產生，**禁止手動編輯**）：
+
+```yaml
+# This file is machine-generated by `gh actions-lock`.
+# Do not edit by hand; run `gh actions-lock` to update.
+# Docs: https://gh.io/actions-lockfile
+version: 'v0.0.3'
+workflows:
+    '.github/workflows/ci.yml':
+        - 'actions/checkout@v7.0.1'
+        - 'actions/setup-java@v6.1.0'
+dependencies:
+    'actions/checkout@v7.0.1':
+        ref: 'v7.0.1'
+        commit: '3d3c42e5aac5ba805825da76410c181273ba90b1'
+        owner_id: 44036562
+        repo_id: 197814629
+    'actions/setup-java@v6.1.0':
+        ref: 'v6.1.0'
+        commit: 'b843ebf9b913146b38da2eaa7aeddf76074ae1ad'
+        owner_id: 44036562
+        repo_id: 196057608
+```
+
+**常用模式**：
+
+| 指令 | 是否寫入 | 用途 |
+|------|---------|------|
+| `gh actions-lock` | 是 | 首次納管或修正 lockfile |
+| `gh actions-lock --relock` | 是 | 浮動參照（`main`、`v4`）上游已前進，經檢視後更新鎖定的 Commit |
+| `gh actions-lock --verify` | 否 | CI 檢查：lockfile 是否與 Workflow 一致、鎖定的 Commit 是否仍可在上游驗證 |
+| `gh actions-lock --verify-local` | 否 | 離線檢查每個 `uses:` 都有對應項目（只檢查涵蓋率，不驗證來源） |
+| `gh actions-lock --accept-moved` | 是 | 上游歷史被改寫（force-push）後人工確認接受；**禁止在自動化中使用** |
+
+**在 PR 中驗證 lockfile**（依 `github/gh-actions-lock` 提供的範本調整；本 Workflow 本身也要再執行一次 `gh actions-lock` 納入 lockfile）：
+
+```yaml
+# .github/workflows/verify-lockfile.yml
+name: verify-lockfile
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - '**/action.yml'
+      - '**/action.yaml'
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - run: gh extension install github/gh-actions-lock --pin v0.4.1
+      - run: gh actions-lock --verify
+```
+
+**以政策強制**：在 Enterprise／Organization／Repository 的 **Settings → Actions → Policies** 建立政策並啟用 **Require lockfile**。未納入 lockfile 的目標 Workflow（即使沒有任何 `uses:`）會被封鎖。與既有的「Require actions to be pinned to a full-length commit SHA」政策兩者獨立檢查，同時啟用時：
+
+| Workflow 狀態 | SHA 釘選政策 | Require lockfile |
+|--------------|-------------|-----------------|
+| 已納入 lockfile（Workflow 中寫 Tag） | ✅ 通過 | ✅ 通過 |
+| 未納入 lockfile，`uses:` 皆為完整 SHA | ✅ 通過 | ❌ 封鎖 |
+| 未納入 lockfile，`uses:` 為 Tag 或分支 | ❌ 封鎖 | ❌ 封鎖 |
+
+**建議的導入順序**：
+
+1. 先為組織共用的 Reusable Workflow Repo 建立 lockfile（呼叫端 lockfile 不涵蓋它們，未納管會被 Require lockfile 封鎖）
+2. 確認 Dependabot 已管理 `github-actions` 生態系（見 [9.3](#93-dependency-scan--dependabot)），之後 Action 版本更新會連同 lockfile 一起更新
+3. 加入上述 `verify-lockfile.yml` 並設為必要狀態檢查
+4. 在 `CODEOWNERS` 加入 `/.github/workflows/actions.lock @acme-bank/platform-security`，並在 Ruleset 要求 Code Owner 審查
+5. 政策先以 **Evaluate** 模式套用到已納管的 Repo 與 Workflow，以 Policy insights 確認後再切換為 **Active**
+
+> **企業建議**：
+>
+> - **審查 lockfile 的 diff 才是真正的安全控制**：`commit` 改變代表 Workflow 將執行不同的程式碼，應比照依賴升級審查；`owner_id` 或 `repo_id` 改變代表同名 Repo 已不是原來那一個，必須先調查再合併
+> - 若組織以「允許的 Action 清單」限制 Action，納管後清單是以鎖定的 Commit 比對：寫成 `actions/checkout@v7` 這類 Tag 的項目將不再相符，需改為萬用字元（如 `actions/checkout@*`）或完整 SHA
+> - Lockfile 只保證「跑的是審查過的那一版」，不代表該版本安全；新增第三方 Action 前仍須依 [17.2](#172-security-risk-防範) 評估
+
+### 8.11 pull_request_target 預設封鎖與遷移
+
+> 🆕 **v4.0 新增**
+
+**為什麼要封鎖**：`pull_request_target` 以**基底 Repo 預設分支**上的 Workflow 執行，並取得可寫入的 `GITHUB_TOKEN` 與 Secret。它本身是安全的，風險來自 Workflow 作者「把 Fork 的程式碼 checkout 下來並執行」——攻擊者只要在 Fork 的 `Makefile`、建置腳本或 `package.json` 中放入惡意指令，就能以基底 Repo 的權限執行，這類攻擊稱為 **pwn request**。
+
+```yaml
+# ❌ 不安全：以 pull_request_target 取得 Secret，卻執行 Fork 的程式碼（僅為反例，請勿使用）
+on:
+  pull_request_target:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - run: make test   # 執行的是 PR 中的 Makefile
+```
+
+**預設政策時程**（適用 Free、Team、Enterprise Cloud 的**公開** Repo；私有、內部 Repo 與 GitHub Enterprise Server 不受影響）：
+
+| 日期 | 狀態 |
+|------|------|
+| 至 2026-12-01 | Evaluate 模式：Workflow 照常執行，可在 Policy insights 看到「將被封鎖」的執行紀錄 |
+| 2026-11-09、11-16 16:00～18:00 UTC | Brownout：暫時強制封鎖，被擋的執行會失敗並附錯誤註記 |
+| 2026-12-02 起 | 正式強制：沒有適用事件政策的公開 Repo，`pull_request_target` 觸發一律封鎖 |
+
+**遷移決策**：
+
+| 情境 | 建議做法 |
+|------|---------|
+| 只需要建置與測試 PR 程式碼，不需要 Secret | 改用 `pull_request`（Fork PR 自動取得唯讀 Token、不含 Secret） |
+| 需要對 PR 加 Label、留言等寫入操作，但**不執行** PR 程式碼 | 保留 `pull_request_target`，在 Actions 事件政策中**明確允許**，並以 Workflow 檔案路徑限定只有該 Workflow 可用 |
+| 需要 Secret 才能完成測試（例如私有 Registry） | 拆成兩段：`pull_request` 執行不受信任的建置並上傳結果，`workflow_run` 只讀取結果做後續處理（把下載的 Artifact 視為不受信任的資料，不執行它） |
+| 不需要此事件 | 保留預設政策即可 |
+
+```yaml
+# ✅ 安全：pull_request_target 只對 PR 加 Label，不 checkout、不執行 PR 程式碼
+name: pr-labeler
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Label by changed files
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          if gh pr diff "$PR" --repo "$REPO" --name-only | grep -q '^docs/'; then
+            gh pr edit "$PR" --repo "$REPO" --add-label documentation
+          fi
+```
+
+**強化清單**（確定需要 `pull_request_target` 時）：
+
+- `permissions:` 只給必要權限，不使用組織層的高權限 Secret
+- 不以 `ref:` 或 `repository:` checkout PR 的 head、merge commit 或 Fork；也不以 `git fetch`、`gh pr checkout` 取得後執行
+- 該事件的快取為唯讀，不要以 `cache-mode` 改為可寫入，以免快取投毒
+- Self-hosted Runner 必須隔離且為一次性（ephemeral），不可存取內網
+- 啟用 CodeQL 的 GitHub Actions 分析，自動偵測 pwn request 與指令注入
+- `actions/checkout` 的 `allow-unsafe-pr-checkout: true` 只能在確認 checkout 下來的程式碼「只當資料檢視、絕不執行」時使用；這個參數名稱刻意醒目，Code Review 時應優先檢查
+
+> **企業建議**：即使是私有／內部 Repo 不受預設政策影響，也建議在 Organization 層建立事件政策封鎖 `pull_request_target`，只對經資安審查的 Workflow 以檔案路徑例外允許，讓「需要此事件」成為一種需申請的例外。
+
+### 8.12 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的 GitHub Actions Workflow 時使用。Workflow 是供應鏈攻擊最常見的入口，審查時請先跑工具，再做人工檢查。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| 語法與運算式 | `actionlint`（[rhysd/actionlint](https://github.com/rhysd/actionlint)） | 無錯誤 | 引用不存在的 `steps.<id>.outputs`、錯誤的事件名稱 |
+| 最小權限 | 下方 `wf-review.sh` | 每個檔案都有 `permissions:`，需寫入的 Job 才個別提升 | 省略 `permissions:` 或使用 `write-all` |
+| Action 版本 | `gh api repos/actions/checkout/releases/latest --jq .tag_name` 對照 | 使用目前主版本（2026-11：checkout v7、setup-java v6、setup-node v7） | 沿用訓練資料中的 `@v3`／`@v4`（Node 20 已移除） |
+| 第三方 Action 釘選 | `wf-review.sh` 或 `gh actions-lock --verify` | 完整 SHA 或已納入 lockfile | `@master`、`@main` |
+| `pull_request_target` | `wf-review.sh` 與 [8.11](#811-pull_request_target-預設封鎖與遷移) 決策表 | 不 checkout PR 程式碼 | 為了取得 Secret 而 checkout `head.sha` |
+| 指令注入 | `wf-review.sh` | Issue 標題、PR 內文等以 `env:` 傳入後再於 shell 引用 | 直接寫 `run: echo "${{ github.event.issue.title }}"` |
+| 部署使用 OIDC 與 Environment | 檢查 `permissions: id-token: write` 與 `environment:` | 正式環境部署 Job 綁定 `production` Environment | 以長效雲端金鑰 Secret 部署 |
+| Runner 標籤 | `grep -n "runs-on" .github/workflows/*.yml` | 未使用已退役映像（如 `macos-14`） | 使用 `ubuntu-20.04`、`macos-14` |
+
+**Workflow 安全檢查腳本**（唯讀；本機或 CI 皆可執行）：
+
+```bash
+#!/usr/bin/env bash
+# wf-review.sh — 以唯讀方式檢查 Workflow 的常見安全問題（審查 AI 產出時使用）
+# 用法：./wf-review.sh [workflow 目錄，預設 .github/workflows]
+set -euo pipefail
+
+dir="${1:-.github/workflows}"
+lock="$dir/actions.lock"
+issues=0
+
+warn() {
+  echo "⚠️  $1: $2"
+  issues=$((issues + 1))
+}
+
+for wf in "$dir"/*.yml "$dir"/*.yaml; do
+  [ -f "$wf" ] || continue
+  name=$(basename "$wf")
+
+  # 1. 必須在檔案層宣告 permissions（最小權限起手）
+  grep -qE '^permissions:' "$wf" || warn "$name" "缺少檔案層 permissions:"
+
+  # 2. 不可使用 write-all
+  grep -qE 'permissions:[[:space:]]*write-all' "$wf" && warn "$name" "使用 permissions: write-all"
+
+  # 3. 第三方 Action 需以完整 SHA 釘選，或已納入 actions.lock
+  while read -r ref; do
+    case "$ref" in
+      ./*|\$/*|docker://*) continue ;;
+    esac
+    sha="${ref##*@}"
+    if [[ ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+      if [ ! -f "$lock" ] || ! grep -qF "'$ref'" "$lock"; then
+        warn "$name" "未釘選且未納入 lockfile：$ref"
+      fi
+    fi
+  done < <(grep -oE 'uses:[[:space:]]*[^[:space:]#]+' "$wf" | sed -E 's/uses:[[:space:]]*//' | grep -v '/\.github/workflows/' || true)
+
+  # 4. pull_request_target 不可 checkout PR 的程式碼
+  if grep -qE '^[[:space:]]*pull_request_target:' "$wf"; then
+    grep -qE 'github\.event\.pull_request\.head\.(sha|ref)|refs/pull/' "$wf" &&
+      warn "$name" "pull_request_target 搭配 checkout PR head（pwn request 風險）"
+  fi
+
+  # 5. 不可把使用者可控的內容直接嵌入 run:（指令注入）；以 env:/with: 的 KEY: ${{ }} 形式傳入則可
+  untrusted='\$\{\{[[:space:]]*github\.event\.(issue|pull_request|comment|review|head_commit)\.(title|body|message|head\.ref)'
+  keyform='^[[:space:]]*[A-Za-z_][A-Za-z0-9_-]*:[[:space:]]*\$\{\{'
+  grep -E "$untrusted" "$wf" | grep -qvE "$keyform" &&
+    warn "$name" "run: 中直接使用 github.event 的使用者輸入，應改經由 env: 傳入"
+done
+
+echo "檢查完成，共 $issues 項需確認"
+[ "$issues" -eq 0 ]
+```
+
+**預期輸出**（以 8.11 的不安全反例搭配一個使用 `write-all` 的 Workflow 實測）：
+
+```text
+⚠️  all.yml: 使用 permissions: write-all
+⚠️  all.yml: 未釘選且未納入 lockfile：some/action@main
+⚠️  prt.yml: 缺少檔案層 permissions:
+⚠️  prt.yml: 未釘選且未納入 lockfile：actions/checkout@v7
+⚠️  prt.yml: pull_request_target 搭配 checkout PR head（pwn request 風險）
+⚠️  prt.yml: run: 中直接使用 github.event 的使用者輸入，應改經由 env: 傳入
+檢查完成，共 6 項需確認
+```
+
+此腳本只涵蓋最常見的五類問題，是審查的起點而非全部；需要更完整的靜態分析時，可再搭配 OpenSSF Scorecard 的 `Dangerous-Workflow`、`Token-Permissions`、`Pinned-Dependencies` 檢查，或 CodeQL 的 GitHub Actions 查詢。
 
 ---
 
@@ -3778,8 +4362,7 @@ updates:
     labels:
       - "dependencies"
       - "security"
-    reviewers:
-      - "acme-bank/tech-leads"
+    # 審查者改由 CODEOWNERS 指定（見 4.5），dependabot.yml 已不支援 reviewers
     commit-message:
       prefix: "deps"
       include: "scope"
@@ -3834,6 +4417,16 @@ registries:
 ```
 
 明確設定的 Registry 認證仍具有優先權，自動的 GitHub Packages 認證僅作為後備。
+
+> ⚠️ **v4.0 更正**：v3.0 範例在 `dependabot.yml` 使用 `reviewers` 指定審查者。此選項在 github.com 已停用（官方文件僅保留給 GitHub Enterprise Server，且標示即將移除），以 SchemaStore 的 `dependabot-2.0` schema 驗證也會失敗。請改在 `CODEOWNERS` 為依賴檔案指定負責人，例如 `/pom.xml @acme-bank/tech-leads @acme-bank/security-team`；Dependabot 開出的 PR 會自動請 Code Owner 審查。
+>
+> 🆕 **v4.0 新增（2026-10 Dependabot 更新）**：
+>
+> - **可達性分析（2026-10-28）**：依程式碼是否實際呼叫到依賴中有漏洞的部分，為 Dependabot 告警排定優先順序，優先處理「可達」的告警
+> - **Repo 層自訂 Runner（2026-09-29）**：Repo 管理員可為 Dependabot 版本與安全更新指定 Runner 類型、Label 與 Runner Group，適合必須在內網解析私有 Registry 的情境
+> - **組織層匿名 Registry（2026-10-12）**：Dependabot 不需憑證即可存取的組織層私有 Registry 可設定為匿名認證
+> - **REST API 回傳依賴版本（2026-10-20）**：告警 API 回應包含有漏洞的依賴版本，稽核報表不需再另外查詢
+> - **支援 npm 12、pnpm 11／12、Bun 1.4（2026-10-20）**
 
 > ⚠️ **v3.0 更正**：v2.2 範例在 `dependabot.yml` 以 `${{ secrets.GITHUB_TOKEN }}` 設定 Registry，此寫法無效（`dependabot.yml` 只能引用 Dependabot Secrets）；另「已關閉 Dependabot 告警的雲端資料保留政策」正確生效日為 **2026-09-25**（v2.2 誤植為 08-25）。
 >
@@ -4112,37 +4705,60 @@ GitHub 官方已公開說明，儘管審核流程已導入 AI 輔助分類與初
 
 ### 9.9 開源授權合規檢查
 
-企業大量採用開源依賴的同時，也承擔了授權條款不相容或不合規的法律風險（例如 Copyleft 授權要求衍生作品需一併開源）。GitHub 於 **2026-06-30 開放公開預覽** 的 **Open Source License Compliance（開源授權合規檢查）** 功能，讓組織可直接在依賴管線中攔截不合規授權的套件，而非等到法務事後稽核才發現問題。
+企業大量採用開源依賴的同時，也承擔了授權條款不相容或不合規的法律風險（例如 Copyleft 授權要求衍生作品需一併開源）。**Open Source License Compliance（開源授權合規檢查）** 於 2026-06-30 公開預覽、**2026-10-16 GA**，讓企業在 PR 合併前攔截授權不符政策的依賴，而不是等到法務事後稽核才發現。
 
-**核心能力**：
+> ⚠️ **v4.0 更正**：v3.0 以 Organization 設定頁與虛構的 `license_policy` YAML（`block_pr`／`warn_only`）說明此功能，與 GA 版本不符。實際設計為：**政策在 Enterprise 層定義**（只有「允許的授權」清單，加上套件或授權例外），**強制則透過 Branch Ruleset** 的「Require license compliance results before merging」規則，並以 Ruleset 的 Evaluate／Active 狀態決定只註記或阻擋。
 
-- 於 Organization 層級定義**授權白名單 / 黑名單**（如允許 MIT、Apache-2.0，禁止 AGPL-3.0、GPL-3.0 等 Copyleft 授權）
-- 與既有 Dependency Graph / Dependabot 管線（詳見 [9.3 Dependency Scan](#93-dependency-scan--dependabot)）整合，掃描結果可標記出違反授權政策的依賴
-- 可設定為**阻擋（Block）**不合規依賴的 PR 合併，或僅產生**告警（Warn）**供人工審查
+**適用範圍**：僅 **GitHub Enterprise Cloud**（含資料落地版）；被強制的 Repo 必須啟用 GitHub Code Security 授權，並開啟 Dependency Graph。
 
-**設定範例**（`Settings → Code security → License policy`）：
+**運作方式**：
 
-```yaml
-# 授權合規政策示意（實際透過 GitHub UI / API 設定）
-license_policy:
-  allowed:
-    - MIT
-    - Apache-2.0
-    - BSD-3-Clause
-    - ISC
-  denied:
-    - AGPL-3.0
-    - GPL-3.0
-    - SSPL-1.0
-  unknown_license_action: "warn"   # 授權無法辨識時的處理方式
-  enforcement: "block_pr"          # block_pr | warn_only
+1. PR 變更了套件 Manifest 時，GitHub 比較基底與 PR 兩端的依賴快照（Dependency snapshots，含 Dependency Graph 偵測到的遞移依賴）
+2. 新增或變更的依賴授權若不在企業政策的允許清單中，於 PR 上產生註記
+3. **Active** 狀態的 Ruleset 會阻擋該 PR 合併；**Evaluate** 狀態只註記不阻擋
+4. 開發者若仍需要該依賴，可提出例外申請，由具 **Enterprise Open-Source License Manager** 角色的人員核准
+
+**設定步驟**：
+
+| 步驟 | 位置 | 動作 |
+|------|------|------|
+| 1. 建立授權政策 | Enterprise → Policies → License compliance → Default policy | **Add licenses** → 從清單選擇，或以 **Manual input** 逐行輸入 SPDX 識別碼（可匯入既有工具的政策） |
+| 2. 指派審核角色 | Enterprise → People → Enterprise roles → Role assignments | 將 **Enterprise Open-Source License Manager** 指派給法務或 OSPO 團隊 |
+| 3.（選用）分階段導入 | Organization → Settings → Custom properties | 建立單選屬性 `open_source_license_compliance`，值為 `inactive`／`evaluate`／`active`，預設 `inactive` |
+| 4. 以 Ruleset 強制 | Enterprise 或 Organization 的 Rulesets | 建立兩個 Branch Ruleset：一個 **Evaluate**（目標為屬性值 `evaluate`）、一個 **Active**（目標為屬性值 `active`），皆啟用 **Require license compliance results before merging** |
+
+**允許清單範例**（Manual input 欄位，每行一個 SPDX 識別碼）：
+
+```text
+MIT
+Apache-2.0
+BSD-2-Clause
+BSD-3-Clause
+ISC
+MPL-2.0
 ```
+
+允許清單以外的授權（例如 `AGPL-3.0-only`、`GPL-3.0-only`、`SSPL-1.0`，以及無法辨識的授權）在 PR 中都會被註記；政策只定義「允許什麼」，不需要另外維護禁止清單。
+
+**組織級 Ruleset 範例**（UI 設定示意，以 Custom Property 選取 Active 階段的 Repo）：
+
+```text
+Organization → Settings → Rules → Rulesets → New branch ruleset
+  Name: license-compliance-active
+  Enforcement status: Active
+  Target repositories: props.open_source_license_compliance = active
+  Target branches: ~DEFAULT_BRANCH
+  Rules:
+    ✅ Require license compliance results before merging
+```
+
+**常見卡關原因**：依賴快照必須在 PR 的 head Commit 上也存在。若某個偵測器（例如自行上傳快照的 Workflow）只在預設分支提交快照，檢查會一直等待；使用 Automatic dependency submission 時兩端都會自動提交，不需額外設定。
 
 > **企業建議**：
 >
-> - 將授權合規檢查與 [4.6 SECURITY.md 與 CONTRIBUTING.md](#46-securitymd-與-contributingmd)、CODEOWNERS 的治理模式搭配——授權政策變更應視為需要法務 / 架構團隊 Review 的治理性設定
-> - 金融、醫療等高合規要求產業，建議優先以 `block_pr` 模式強制執行，避免不合規依賴進入正式環境後才移除，增加下游影響範圍
-> - 此功能目前為公開預覽階段，正式導入前建議先以 `warn_only` 模式試營運一個週期，確認政策設定不會誤傷既有合規依賴
+> - 授權政策屬於法務決策：允許清單的內容由法務或 OSPO 決定，平台團隊只負責設定，變更紀錄應保留核准依據
+> - 依「`inactive` → `evaluate`（至少一個發佈週期）→ `active`」分階段導入，先在 Evaluate 階段清點既有違規依賴，避免一次阻擋大量 PR
+> - Dependency Review（[9.10](#910-dependency-graph-與-dependency-review)）的 `allow-licenses` 若同時使用，應由同一份清單產生，避免兩處規則不一致；Enterprise Cloud 客戶建議以本功能為主
 
 ### 9.10 Dependency Graph 與 Dependency Review
 
@@ -4209,7 +4825,7 @@ gh api repos/acme-bank/svc-order-api/dependency-graph/sbom --jq '.sbom' > sbom.s
 | 模式 | 運作方式 | 授權與計費 | 狀態 |
 |------|---------|-----------|------|
 | **Copilot Autofix** | 針對 Code Scanning 告警產生單一修正建議，由開發者審閱後套用 | 公開 Repo 免費；私有／內部 Repo 需 GitHub Code Security；**不需** Copilot 授權、不消耗 AI Credits | GA；使用 CodeQL 的 Repo 預設啟用 |
-| **Agentic Autofix** | 將告警指派給 Copilot，由 Copilot cloud agent 探索程式碼、產生修正、重跑 CodeQL 驗證，最後開出 PR | 需 Copilot cloud agent 與 Copilot Autofix 皆可用；以 cloud agent Session 計費並消耗 AI Credits | 公開預覽（2026-07-10） |
+| **Agentic Autofix** | 將告警指派給 Copilot，由 Copilot cloud agent 探索程式碼、產生修正、重跑 CodeQL 驗證，最後開出 PR | 需 Copilot cloud agent 與 Copilot Autofix 皆可用；以 cloud agent Session 計費並消耗 AI Credits | ✅ GA（2026-10-15；07-10 公開預覽）；09-25 起可使用 Copilot Memory 作為修正脈絡 |
 
 Agentic Autofix 以 CodeQL 預設查詢套件重新驗證修正結果，因此無法確認自訂查詢或 `security-extended` 套件告警是否已被修正，第三方工具告警的修正品質也不保證，PR 仍須依一般流程審查。
 
@@ -4235,12 +4851,69 @@ Delegated Bypass 可用於 Team 或 Enterprise Cloud 且已啟用 GitHub Secret 
 | 2026-09-15 | Enterprise 可強制 GitHub Advanced Security 設定，下層管理員無法覆寫 |
 | 2026-09-16 | Code Scanning 的 AI Scan 不再需要先啟用 CodeQL Default Setup |
 | 2026-09-25 | 已關閉的 Dependabot 告警開始適用雲端資料保留政策 |
+| 2026-10-15 | Agentic Autofix GA；AI Scan for pull requests GA |
+| 2026-11-02 | Code Security 與 Secret 風險評估報告標示發現項目位於受保護或未受保護的 Repo |
 
 > **企業建議**：
 >
 > - 以「每季一個 Security Campaign」的節奏處理告警存量，優先處理可被外部觸及的服務（依 [2.6](#26-custom-properties-與-repository-分類治理) 的 `service-tier` 篩選）
 > - 所有 Tier-0／Tier-1 Repo 啟用 Delegated Bypass，讓 Push Protection 的每一次繞過都有核准紀錄
 > - Agentic Autofix 產生的 PR 與人工 PR 走相同的 Ruleset 與審查流程，不因為是 AI 產生就放寬
+
+
+### 9.12 2026 Q4 安全功能更新
+
+> 🆕 **v4.0 新增**
+
+2026-09-25 至 11-03 間，GitHub 在程式碼掃描、Secret 防護與漏洞通報上推出多項更新。下表依 GitHub Changelog 整理，並標示企業導入時應調整的設定：
+
+| 日期 | 功能 | 狀態 | 企業應對 |
+|------|------|------|---------|
+| 2026-10-01 | **Private Vulnerability Reporting 結構化表單**：通報者需填寫評估所需資訊，包含可重現的 PoC | 已推出 | 將 SECURITY.md（[4.6](#46-securitymd-與-contributingmd)）的通報說明改為引導使用此表單 |
+| 2026-10-01 | PVR **通報數量上限**：限制單一帳號可提交的新通報數，以因應大量低品質的自動化通報 | 已推出 | 不需設定；若遭大量通報可回報 GitHub |
+| 2026-10-02 | Repository Security Advisory 的**機密留言**（僅具寫入權者可見）與留言 REST API（公開預覽） | 已推出 | 內部討論修補細節改用機密留言，避免外部通報者看到未公開資訊 |
+| 2026-10-07 | 以專用模型偵測外洩 Secret（context-aware） | 已推出 | 預期偵測率提升，Security Overview 告警數可能增加 |
+| 2026-10-13 | Secret Scanning 新增 Salesforce 等類型；**Anthropic 金鑰預設由 Push Protection 阻擋** | 已推出 | 使用 AI API 的團隊應改以 Secret 管理工具注入金鑰 |
+| 2026-10-15 | **AI Scan for pull requests GA**：涵蓋 CodeQL 不支援的語言 | GA | 與 CodeQL 並用；以 Security Overview 的 AI Scan 指標追蹤 |
+| 2026-10-20 | **GitHub package firewall**：防範利用套件安裝流程的惡意軟體 | 公開預覽 | 先在非正式環境評估，與既有的內部 Registry 代理比較 |
+| 2026-10-28 | **AI Scan for repositories**：掃描整個 Repo 而非只有 PR 變更 | 公開預覽 | 適合用於既有程式碼的一次性盤點 |
+| 2026-10-28 | **AI 應用程式的 Code Scanning**：偵測間接 Prompt Injection 等 AI Agent 弱點 | 公開預覽 | 有 LLM 整合的服務優先試用（呼應 [13.5](#135-ai-governance-規範)） |
+| 2026-10-28 | **Push Protection 延伸至無固定格式的 Secret**（以分類模型判斷） | 已推出 | 先觀察誤擋率，再擴大到所有 Repo；搭配 Delegated Bypass |
+| 2026-10-28 | **Public monitoring for enterprises GA**：企業的 Secret 在 GitHub 任何公開位置外洩時發出告警（10-23 新增分類、有效性檢查、API 與 Webhook） | GA | 指定負責處理外洩告警的值班團隊，納入事件應變流程 |
+
+**以 API 抽查 Push Protection 狀態**（`security_and_analysis` 欄位只對具管理權限的呼叫者回傳）：
+
+```bash
+# 列出組織中尚未啟用 Push Protection 的 Repo（唯讀查詢）
+gh api --paginate "orgs/acme-bank/repos?per_page=100" \
+  --jq '.[] | select(.archived == false)
+        | select(.security_and_analysis.secret_scanning_push_protection.status != "enabled")
+        | .full_name'
+```
+
+> **企業建議**：Q4 新功能多為公開預覽，建議由資安團隊挑選 1～2 個非核心 Repo 試行一個月，記錄誤報率與開發者回饋後，再決定是否透過 Security Configuration 擴大到全組織。
+
+### 9.13 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的安全掃描設定、`dependabot.yml`、Secret Scanning 與授權政策時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| 安全功能已啟用 | 下方 `security_and_analysis` 指令 | Secret Scanning、Push Protection、Dependabot security updates 為 `enabled` | 只產生 Workflow，未啟用 Repo 設定 |
+| `dependabot.yml` 語法 | VS Code YAML 擴充套件（SchemaStore `dependabot-2.0`） | 無 schema 錯誤 | 使用已停用的 `reviewers`；`dependabot.yml` 引用 Actions Secret |
+| CodeQL 設定 | Security → Code scanning → Tool status | 所有語言皆有成功的分析 | 編譯語言使用 `build-mode: none` 卻缺少依賴，結果不完整 |
+| Ruleset 中的 CodeQL | 檢查是否以 Ruleset Workflow 執行 CodeQL | 改用 Default Setup 或「Require code scanning results」規則 | 在 Ruleset Workflow 中呼叫 `codeql-action/init`（會被拒絕） |
+| Private Vulnerability Reporting | `gh api repos/acme-bank/sdk-java/private-vulnerability-reporting` | `{"enabled": true}` | 以 Secret Scanning API 啟用 |
+| 授權合規 | Enterprise → Policies → License compliance；Ruleset 中的規則 | 允許清單由法務核准；Ruleset 先 Evaluate 再 Active | 以 Organization 設定或虛構的 YAML 設定授權政策 |
+| 容器掃描 Action | 檢查 `aquasecurity/trivy-action` 等第三方 Action | 以完整 SHA 釘選 | 使用 `@master` |
+
+```bash
+# 檢查 Repo 安全功能狀態（唯讀，需 Repo 管理權限）
+gh api repos/acme-bank/svc-order-api --jq '.security_and_analysis'
+
+# 列出開啟中的 Critical／High Dependabot 告警數量
+gh api "repos/acme-bank/svc-order-api/dependabot/alerts?state=open&severity=critical,high&per_page=100" --jq 'length'
+```
 
 ---
 
@@ -4430,7 +5103,7 @@ jobs:
 
       - name: Check breaking changes
         if: github.event_name == 'pull_request'
-        uses: oasdiff/oasdiff-action/breaking@v0.1.17
+        uses: oasdiff/oasdiff-action/breaking@v0.1.21
         with:
           base: /tmp/openapi-base.yaml
           revision: docs/api/openapi.yaml
@@ -4590,6 +5263,27 @@ jobs:
 | **CI 整合** | GitHub Pages 不提供原生的 PR 預覽環境；需要預覽時，將 PR 建置成品上傳為 Artifact，或部署到獨立的預覽站台 |
 
 > **企業建議**：使用 GitHub Pages 搭配 MkDocs Material 或 Docusaurus 建立內部技術文件網站。透過 GitHub Actions 實現「Push to main → 自動建置 → 自動部署」的完全自動化流程。
+
+
+### 10.7 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的 README、ADR、OpenAPI 規格與文件發佈 Workflow 時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| OpenAPI 規格有效 | `npx @redocly/cli lint docs/api/openapi.yaml` | 無 error | 範例值與 schema 型別不符 |
+| 破壞性變更檢查 | PR 中 `oasdiff` 步驟的結果 | 破壞性變更會使 PR 失敗 | `fail-on` 未設定，只產生報告 |
+| ADR 格式 | 檢查狀態、背景、決策、後果四段 | 狀態為 Proposed／Accepted／Superseded 之一 | 缺少「後果」或不記錄被取代的 ADR |
+| Pages 發佈方式 | `gh api repos/acme-bank/docs-platform/pages --jq .build_type` | `workflow` | 使用已不建議的分支發佈並缺少 `upload-pages-artifact` |
+| 內部連結 | 以 lychee 等連結檢查工具掃描 `docs/` | 無失效連結 | 連到不存在的章節錨點 |
+| 文件與程式碼同 PR | 檢查 PR 是否同時修改程式碼與 `docs/` | API 變更的 PR 一併更新規格 | 只改程式碼 |
+
+```bash
+# 列出近 30 天變更了 API 程式碼、卻沒有更新 OpenAPI 規格的已合併 PR（唯讀）
+gh pr list --repo acme-bank/svc-order-api --state merged --search "merged:>=$(date -d '-30 days' +%F)" \
+  --json number,files --jq '.[] | select(any(.files[].path; startswith("src/main/java"))
+    and (any(.files[].path; startswith("docs/api/")) | not)) | .number'
+```
 
 ---
 
@@ -4857,6 +5551,31 @@ gh issue view 210 --json blockedBy,blocking
 > - 在 Organization 層統一定義 Issue Types 與 Issue Fields，Repo 層只保留元件類 Label，避免各 Repo 自行發明分類
 > - Epic → Story → Task 的階層以 Sub-issues 表達，Projects 中以「Parent issue」欄位分組即可呈現進度
 > - 需要與 Jira 並行的組織，先界定「誰是需求的唯一來源」，再決定 Sub-issues 用在開發細項或完整需求階層
+
+**2026-09～10 Issue 與協作更新**：
+
+| 日期 | 功能 | 狀態 | 企業應用 |
+|------|------|------|---------|
+| 2026-09-25 | 個人私有的 Issue 儲存檢視（Private saved views）與「Relates to」關聯 | ✅ GA | 「Relates to」用於非阻擋的關聯，阻擋關係仍用 Issue Dependencies |
+| 2026-10-08 | Issue 與 PR 時間軸可被螢幕閱讀器以清單方式瀏覽 | 已推出 | 無障礙需求的團隊不需額外設定 |
+| 2026-10-28 | **Issue artifacts**：將 Agent 產出物與其他脈絡直接附加在 Issue 上 | 公開預覽 | AI Agent 的分析結果與 Issue 一起保存，方便審查追溯 |
+| 2026-10-28 | Issues 的 **Moderate** 角色（官方標示將於數週內提供） | 宣布 GA，陸續開放 | 讓社群管理者處理 Issue 與留言，不必給予 Triage 以上權限 |
+
+> 🆕 **v4.0 新增**：上表為 2026-11-03 查證結果；Moderate 角色開放後，應更新 [3.3](#33-權限設計與-rbac) 的角色對照表與 [14.4](#144-access-review-與-audit) 的季度權限盤點範圍。
+
+
+### 11.7 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的 Issue 範本、Label 體系、Projects 欄位與 Issue Types 設計時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| Issue Form 語法 | SchemaStore `github-issue-forms` 或在測試 Repo 開一張 Issue | 表單正常顯示 | 欄位 `id` 重複、`type` 拼錯 |
+| Label 與規範一致 | `gh label list --repo acme-bank/svc-order-api --limit 200` | 與 [11.3](#113-label-系統設計) 一致，無重複語意 | 同時存在 `bug` 與 `type: bug` |
+| Issue Types 在組織層定義 | `gh api orgs/acme-bank/issue-types --jq '.[].name'` | 包含 Bug、Feature、Task 等組織定義 | 在每個 Repo 以 Label 模擬 Issue Type |
+| Projects Iteration 欄位 | Projects 設定頁 | Iteration 欄位以 UI 建立 | 用 `gh project field-create` 建立 ITERATION（CLI 不支援） |
+| Sub-issues 階層 | 開啟一張 Epic 檢查子項目 | 階層不超過 3 層 | 用 Task list 文字模擬子項目 |
+| 權限角色 | 檢查社群管理者的角色 | 使用最小角色（Triage，或開放後的 Moderate） | 為了管理 Issue 而給予 Write |
 
 ---
 
@@ -5177,6 +5896,25 @@ gh release verify-asset v2.2.0 ./svc-order-api-2.2.0.jar
 >
 > - 對外發佈的函式庫與 CLI 工具在組織層啟用 Immutable Releases；[12.5](#125-release-workflow-自動化) 的自動化流程需改為「草稿 → 上傳 → 發佈」三步驟，發佈後若發現問題只能發佈新版本
 > - 內部部署流程改以「Release Attestation 驗證通過」作為部署前置條件
+
+
+### 12.8 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的版本號規則、Release Workflow 與 Release Notes 設定時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| Tag 符合 SemVer | `git tag --list 'v*'` 搭配下方指令 | 全部為 `vMAJOR.MINOR.PATCH`（可含預發佈後綴） | 使用日期或 `release-1` 這類 Tag |
+| Release Workflow 權限 | 檢查 Job 層 `permissions:` | 發佈 Release 需 `contents: write`；發佈套件需 `packages: write`；簽章需 `id-token: write`、`attestations: write` | 缺少權限導致發佈失敗，或在檔案層給予全部寫入權 |
+| Immutable Releases | `gh api repos/acme-bank/svc-order-api/releases/latest --jq .immutable` | `true` | 發佈後才上傳資產（Immutable 會拒絕） |
+| 成品出處 | `gh attestation verify app.jar --repo acme-bank/svc-order-api` | 驗證成功並顯示簽署的 Workflow | 只產生 SBOM，未產生 Attestation |
+| Release Notes 分類 | `.github/release.yml` 以 SchemaStore `github-release-config` 檢查 | 分類 Label 與 [11.3](#113-label-系統設計) 一致 | 分類使用不存在的 Label |
+| 版本遞增依據 | 比對 Conventional Commits 類型與版本變化 | 有 `feat!` 或 `BREAKING CHANGE` 時才升 MAJOR | 每次都升 MINOR |
+
+```bash
+# 找出不符合 SemVer 的 Tag（唯讀）
+git tag --list | grep -vE '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$' || echo "全部符合 SemVer"
+```
 
 ---
 
@@ -5548,9 +6286,13 @@ Repository → Settings → Secrets and variables → Agents（MCP 所需的憑�
 
 | 項目 | 狀態 | 說明 |
 |------|------|------|
-| **GitHub Agentic Workflows** | 公開預覽 | 讓開發者將需要推理判斷的重複性任務（非單純腳本化流程）封裝為可重複執行的 Agentic Workflow |
+| **GitHub Agentic Workflows** | ✅ GA（2026-10-28；Free、Team、Enterprise） | 以自然語言 Markdown 撰寫、由 `gh aw` 編譯為 Actions YAML；預設唯讀權限、在沙箱與 Agent Workflow Firewall 後執行，輸出需通過 safe outputs 驗證；`gh aw forecast` 可預估 AI Credits 用量 |
 | **GitHub Copilot App**（桌面應用程式） | ✅ GA（2026-06-17；07-07 起所有方案可用） | 以代理為中心的桌面開發環境，支援 macOS、Windows、Linux |
-| **Copilot Automations** | 已推出 | 依排程或事件自動啟動 cloud agent |
+| **Copilot Automations** | 已推出；2026-10-28 起可建立團隊共用的 Automations，並新增工具、觸發條件與成本控制 | 依排程或事件自動啟動 cloud agent；可在 VS Code 的 Agents 視窗管理 |
+| **Agent Merge** | 已推出（2026-10-28，需付費 Copilot） | 在 PR 合併區選擇「Watch and fix」，Copilot 在雲端修正失敗的 Workflow 與合併衝突；搭配 Auto-merge 時仍須滿足所有合併條件 |
+| **Copilot code review：Max 等級與核准** | 已推出（2026-10-28） | 新增 Max 審查深度，並可由 Copilot 在 PR 就緒時給予核准；10-02 起可用 REST／GraphQL 請求審查 |
+| **Repository plugin 預設值與企業 plugin 管控** | ✅ GA（2026-10-28） | 受信任的 Repo 可為貢獻者預設安裝 plugin；Enterprise Cloud 可透過 managed settings 指定必裝或封鎖的 plugin，優先於 Repo 與個人設定 |
+| **GitHub Enterprise 含 Copilot** | 2026-10-28 公告 | 與業務團隊合作的 Enterprise 客戶，每位授權使用者皆可使用 Copilot；採購前向業務窗口確認合約條款 |
 | **Copilot Session 遠端監控/操作** | ✅ GA | 可在 github.com 或 GitHub Mobile 遠端檢視、操作進行中的 Agent Session，不需守在 IDE 前 |
 | **GitHub Copilot Pro+** | ✅ GA | 個人層級訂閱方案，可存取 Anthropic、Google、OpenAI 等多家供應商的前沿模型，與組織層級 Business/Enterprise 方案（13.1）為不同購買單位 |
 | **GitHub Copilot Max** | ✅ GA | 2026 年新增的個人最高階方案，提供比 Pro+ 更高的用量額度，定位為重度個人使用者 |
@@ -5572,6 +6314,7 @@ Repository → Settings → Secrets and variables → Agents（MCP 所需的憑�
 >
 > **企業建議**：
 >
+> - **Copilot code review 可以核准 PR 之後**，Ruleset 的「Required approvals」應確認是否計入 Copilot 的核准；Tier-0／Tier-1 Repo 建議維持「至少 1 位人類 Code Owner 核准」，並以 [7.3](#73-pull-request-review-流程) 的審查流程把 AI 核准定位為輔助
 > - Copilot Pro+ / Max 屬**個人訂閱**，可能繞過組織於 Business/Enterprise 方案設定的 Content Exclusion 政策與稽核機制，形成治理死角。應於 [13.5 AI Governance 規範](#135-ai-governance-規範) 中明確規範是否允許員工以個人訂閱存取公司程式碼，並將此列為資安教育訓練的重點項目
 > - 財務／採購單位應重新檢視 AI 相關預算編列方式，改以 AI Credits 用量趨勢而非舊制固定配額估算，並評估是否需要如 [9.1](#91-ssdlc-流程總覽) GHAS 硬性預算上限的類似機制來控管 AI 用量支出
 
@@ -5638,6 +6381,21 @@ jobs:
 > - 在 CODEOWNERS 中把上表所有檔案指派給平台或架構團隊（例如 `/.github/copilot-instructions.md @acme-bank/architecture-team`），避免指引被悄悄放寬
 > - 同時使用多種 AI 工具的團隊，把共通規範寫在 `AGENTS.md`，各工具專屬檔案只放差異，降低多份指引互相矛盾的風險
 > - `copilot-setup-steps.yml` 只授予 `contents: read`，需要存取內部套件時使用 OIDC 或 GitHub App Token，不在指引檔中放任何憑證
+
+
+### 13.11 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI Agent 設定檔、Copilot 政策與 AI 產出的 PR 時使用。AI 產生的設定同樣需要審查，而且要特別確認它沒有擴大自己的權限。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| Agent 設定檔位置 | `ls .github/copilot-instructions.md AGENTS.md CLAUDE.md .github/instructions` | 檔案位於 [13.10](#1310-repository-的-ai-agent-設定檔總覽) 所列的官方路徑 | 放在工具不會讀取的路徑 |
+| 設定檔不含機密 | `git grep -nE "(api[_-]?key\|password\|token)\s*[:=]" -- .github AGENTS.md CLAUDE.md` | 無結果 | 把連線字串寫進指示檔 |
+| cloud agent 環境 Workflow | `.github/workflows/copilot-setup-steps.yml` | Job 名稱為 `copilot-setup-steps`，權限最小 | 在設定步驟中給予 `contents: write` |
+| MCP 伺服器 | 檢查 MCP 設定中的指令與套件來源 | 僅使用組織核准的伺服器，版本固定 | 引用已封存的套件或以 `npx` 執行未固定版本的套件 |
+| AI 產出的 PR | 套用與人工 PR 相同的 Ruleset | 至少一位人類 Code Owner 核准 | 以 Copilot 的核准取代人類審查 |
+| 內容排除 | Organization → Copilot → Content exclusion | 機密路徑已排除 | 只在 Repo 層排除，個人訂閱仍可存取 |
+| 用量控管 | Copilot 用量儀表板與預算設定 | 已設定預算與告警 | 以舊制 Premium Request 估算成本 |
 
 ---
 
@@ -5977,6 +6735,7 @@ Repository 的 **Insights** 分頁提供多種活動資料，是治理檢核與�
 | **Contributors** | 具讀取權限者 | 預設分支的提交者與提交量趨勢 | 辨識「只有一個人懂」的 Bus factor 風險 |
 | **Traffic** | 具 **Push** 權限者 | 過去 14 天的完整 clone 數（不含 fetch）、造訪者、來源網站、熱門內容（UTC+0） | 公開文件或 SDK 的使用追蹤；私有 Repo 的異常 clone 偵測 |
 | **Activity view** | 具讀取權限者 | 所有 push、合併、**force push**、分支建立與刪除，並對應到 Commit 與驗證過的使用者 | 事故調查：誰在何時強制推送或刪除分支 |
+| **Push attribution**（2026-10-12 有限公開預覽） | 具讀取權限者 | Commit 額外記錄「推送者」，與 author、committer 一起顯示於 UI 與 API | Author 可以偽造，推送者則是經驗證的帳號；稽核以推送者為準 |
 | **Dependency graph** | 具讀取權限者 | 依賴與被依賴關係、SBOM 匯出 | 見 [9.10](#910-dependency-graph-與-dependency-review) |
 | **Network / Forks** | 具讀取權限者 | 分支與 Fork 網路 | 檢查是否有非預期的 Fork |
 | **Deployments** | 具讀取權限者 | 各 Environment 的部署紀錄與狀態 | 對應變更管理單號與部署證據 |
@@ -6011,6 +6770,7 @@ gh api repos/$REPO/stats/contributors --jq '.[] | {author: .author.login, total}
 >
 > - 將 Activity view 中的 force push 紀錄與 Rule insights 的 Bypass 紀錄列入 [14.6 Governance Checklist](#146-governance-checklist) 的季度檢核項目
 > - Traffic 資料只保留 14 天，需要長期趨勢時以排程 Workflow 每日呼叫 API 並寫入內部資料倉儲
+> - ⚠️ **v4.0 補充**：Repository 的「推送 Email 通知」（Settings → Email notifications）已於 **2026-10-15 退役**。仍依賴此通知做變更監控的團隊，應改用 Webhook（`push` 事件）、Activity view 或稽核日誌串流
 
 ### 14.9 封存、引用與長期保存
 
@@ -6049,6 +6809,32 @@ Migration archive **不包含** Git LFS 物件、Discussions 與 Packages，因�
 | **LICENSE** | 有明確開源授權的 Repo 才能讓第三方合法封存 |
 
 > **企業建議**：研究單位或需要學術引用的開源專案，組合使用「Release + Zenodo DOI + CITATION.cff」；一般企業私有 Repo 則以 mirror clone 為主、migration archive 為輔，並定期演練還原。
+
+
+### 14.10 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的維運腳本（分支清理、權限盤點、備份）時使用。維運腳本常有破壞性，先以唯讀模式確認範圍再執行。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| 腳本有試跑模式 | 檢查是否有 `DRY_RUN` 或只列出不刪除的選項 | 預設只列出 | 直接刪除分支或 Repo |
+| API 分頁 | 檢查 `gh api` 是否使用 `--paginate` | 處理全部資料 | 只取前 30 或 100 筆 |
+| GET 與 POST | 檢查以 `-f` 傳參數的指令 | 查詢類指令加上 `-X GET` | `gh api orgs/x/audit-log -f phrase=...` 變成 POST |
+| Squash 合併的分支 | 以 PR 狀態而非 `compareCommits` 判斷是否已合併 | 不遺漏 Squash 合併的分支 | 只用 `ahead_by == 0` 判斷 |
+| 歷史改寫 | 使用 `git filter-repo` 並聯絡 GitHub Support 清除快取 | 有公告與重新 clone 計畫 | 建議 BFG 或未提及快取 |
+| 權限盤點 | 下方指令 | 外部協作者都有到期日與負責人 | 只盤點組織成員 |
+| 備份還原演練 | 實際還原到測試組織 | 還原後 Issue、Wiki、LFS 檔案完整 | 只備份 Git 內容，遺漏 LFS 與 Issue |
+
+```bash
+# 列出外部協作者（唯讀）
+gh api --paginate "orgs/acme-bank/outside_collaborators?per_page=100" --jq '.[].login'
+
+# 查詢近 7 天的 Ruleset 變更與規則繞過稽核事件（注意 -X GET，否則 -f 會讓請求變成 POST）
+for action in repository_ruleset.update repository_ruleset.destroy protected_branch.policy_override; do
+  gh api -X GET orgs/acme-bank/audit-log -f phrase="action:$action created:>=$(date -d '-7 days' +%F)" \
+    --jq '.[] | {action, actor, repo, created_at: (."@timestamp" / 1000 | todate)}'
+done
+```
 
 ---
 
@@ -6237,6 +7023,25 @@ jobs:
 > **實務建議**：LICENSE、SECURITY.md、CODEOWNERS 的存在檢查也可改以組織級 Ruleset 的「Require workflows to pass before merging」集中強制，讓所有 Repo 共用同一份合規 Workflow。
 >
 > **實務建議**：金融業的「職責分離」原則在 GitHub 上的體現是：**寫程式碼的人不能 Approve 自己的 PR**、**Approve PR 的人不能觸發部署**、**部署的人不能修改 Pipeline**。透過 CODEOWNERS + Branch Protection + Environment Protection 三層機制實現。
+
+
+### 15.5 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的企業治理設計（分層治理、權限隔離、合規自動化）時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| 以屬性而非名單選取目標 | 檢查組織級 Ruleset 的 `conditions` | 使用 `repository_property` | 以 Repo 名稱清單選取，新 Repo 不受保護 |
+| 職責分離 | 比對部署 Environment 審查者與程式碼作者 | 正式環境部署者不可核准自己的變更（開啟 Prevent self-review） | 開發者同時是 Environment 審查者 |
+| 合規證據可追溯 | 從一筆正式部署回推 PR、審查、CI、Attestation | 每個環節都有紀錄且可在保留期限內取得 | 證據只存在 Actions 執行紀錄，超過保留期即遺失 |
+| 規則實際評估結果 | 下方 rule-suites 指令 | 違規嘗試都被阻擋或有核准的 Bypass | 規則存在但從未被評估（目標條件寫錯） |
+| 方案前提 | 確認每項設計所需方案 | 組織級 Ruleset、Evaluate 模式、授權合規皆需 Enterprise Cloud | 在 Team 方案設計 Enterprise 功能 |
+
+```bash
+# 查詢某 Repo 近期的規則評估結果（唯讀）
+gh api "repos/acme-bank/svc-order-api/rulesets/rule-suites?time_period=week" \
+  --jq '.[] | {ref, actor_name, result, evaluation_result}'
+```
 
 ---
 
@@ -6488,6 +7293,24 @@ graph LR
 
 > **實務建議**：完整 SSDLC 不需要一次到位。建議分三階段推進：(1) 先建立 CI 安全基線（CodeQL + Dependabot + Secret Scan），(2) 加入容器安全與 SBOM，(3) 完善 DAST + 合規自動化。
 
+
+### 16.7 審查與驗證清單
+
+> 🆕 **v4.0 新增**：以艾可銀行範例為藍本建立自己的企業設定時，依下列順序做端到端驗收；每一步都對應前面章節的清單。
+
+| 步驟 | 驗收動作 | 對應清單 | 通過條件 |
+|------|---------|---------|---------|
+| 1. 組織與 Team | 以新進人員帳號登入，確認可見 Repo 與權限 | [3.8](#38-審查與驗證清單) | 只看得到被授權的 Repo |
+| 2. 建立 Repo | 以初始化腳本建立測試 Repo | [4.13](#413-審查與驗證清單) | 設定與基準一致、Custom Properties 已填 |
+| 3. 分支保護 | 嘗試直接推送 `main` | [7.13](#713-審查與驗證清單) | 推送被拒絕 |
+| 4. CI／CD | 開一個故意讓測試失敗的 PR | [8.12](#812-審查與驗證清單) | 無法合併 |
+| 5. DevSecOps | 在測試分支提交一個符合組織自訂 Secret Pattern（[9.4](#94-secret-scanning)）的測試字串 | [9.13](#913-審查與驗證清單) | 被 Push Protection 阻擋 |
+| 6. Release | 發佈一個測試版本並驗證 Attestation | [12.8](#128-審查與驗證清單) | `gh attestation verify` 成功 |
+| 7. AI 流程 | 指派一個簡單 Issue 給 Copilot cloud agent | [13.11](#1311-審查與驗證清單) | 產出的 PR 需人工核准才能合併 |
+| 8. 稽核 | 從稽核日誌找出步驟 3、5 的事件 | [14.10](#1410-審查與驗證清單) | 兩個事件都有紀錄 |
+
+驗收應在獨立的測試組織或測試 Repo 進行，完成後刪除測試資源；任何一步未通過，都要先修正設定，而不是放寬驗收條件。
+
 ---
 
 ## 第 17 章 常見問題與最佳實踐
@@ -6582,6 +7405,20 @@ jobs:
 - [ ] Team 權限已正確分配
 - [ ] Issue Template 已建立
 - [ ] PR Template 已建立
+
+
+### 17.5 審查與驗證清單
+
+> 🆕 **v4.0 新增**：本章的 Anti-pattern 與十大風險可直接轉成可自動化的檢查。下列指令可在任何 Repo 的根目錄執行，作為審查 AI 產出變更的最後一關。
+
+| Anti-pattern／風險 | 檢查指令 | 通過條件 |
+|-------------------|---------|---------|
+| 未釘選的 Action | `grep -nE "uses: [^ ]+@(main\|master)" .github/workflows/*.yml` | 無結果 |
+| 過大的 Token 權限 | `grep -n "write-all" .github/workflows/*.yml` | 無結果 |
+| 提交機密 | `git log -p -5` 搭配 Secret Scanning 告警頁 | 無開啟中的告警 |
+| 缺少 CODEOWNERS | `test -f .github/CODEOWNERS -o -f CODEOWNERS -o -f docs/CODEOWNERS && echo OK` | 輸出 `OK` |
+| 缺少 SECURITY.md | `test -f SECURITY.md -o -f .github/SECURITY.md && echo OK` | 輸出 `OK`（或由組織 `.github` Repo 提供） |
+| 永不清理的分支 | `git ls-remote --heads origin` 與 Repo 設定 `delete_branch_on_merge` | 已開啟自動刪除，無大量過期分支 |
 
 ---
 
@@ -6903,6 +7740,21 @@ gh discussion create \
 > - 啟用 Announcements 類別作為團隊正式公告管道
 > - 善用「轉換為 Issue」功能，將討論中產生的行動項目轉為可追蹤的工作
 
+
+### 18.5 審查與驗證清單
+
+> 🆕 **v4.0 新增**：審查 AI 產出的 `devcontainer.json`、Codespaces 政策與 Packages 發佈設定時使用。
+
+| 檢查項目 | 如何驗證 | 預期結果 | 常見 AI 產出錯誤 |
+|---------|---------|---------|----------------|
+| devcontainer 可建置 | `npx @devcontainers/cli build --workspace-folder .` | 建置成功 | 指定不存在的 Feature 或映像 Tag |
+| 映像版本固定 | 檢查 `image` 欄位 | 使用明確版本或 digest | 使用 `latest` |
+| 機器規格與成本 | Organization → Codespaces → Policies | 已限制可用機型與閒置逾時 | 預設允許最高規格機型 |
+| Prebuild | Repo 的 Codespaces 設定頁 | 以 Prebuild configuration 設定 | 以一般 Workflow 觸發 Prebuild |
+| 套件發佈權限 | 檢查發佈 Workflow 的 `permissions:` | 只有發佈 Job 具 `packages: write` | 在檔案層給予 `packages: write` |
+| 套件存取範圍 | `gh api "orgs/acme-bank/packages?package_type=container" --jq '.[] \| {name, visibility}'` | 內部套件不是 `public` | 發佈後未檢查可見性 |
+| 套件可被 Dependabot 讀取 | Package settings → Manage Actions access | 需要更新的 Repo 有 Read 權限 | 以 PAT 設定 Registry |
+
 ---
 
 ## 附錄 A：快速檢查清單
@@ -6995,7 +7847,9 @@ gh discussion create \
 - [ ] `GITHUB_TOKEN` 預設權限為唯讀
 - [ ] 組織或 Repo 已啟用「Actions 必須以完整 Commit SHA 釘選」
 - [ ] 所有 Action 已升級至支援 Node 24 的版本
-- [ ] 公開 Repo 已檢查 `pull_request_target` 使用情況（2026-11-02 預設停用）
+- [ ] 公開 Repo 已以 Policy insights 檢查 `pull_request_target` 使用情況（2026-12-02 預設封鎖）
+- [ ] 已建立 `.github/workflows/actions.lock` 並以 `gh actions-lock --verify` 作為必要檢查
+- [ ] `dependabot.yml` 未使用已停用的 `reviewers`，審查者改由 CODEOWNERS 指定
 - [ ] 對外發佈的 Repo 已啟用 Immutable Releases
 
 **安全功能**：
@@ -7014,7 +7868,7 @@ gh discussion create \
 
 ## 附錄 B：官方參考資源對照表
 
-> 🆕 **v3.0 新增**：本手冊各章節主要依據的 GitHub 官方文件，查證日期 2026-09-25。
+> 🆕 **v3.0 新增**：本手冊各章節主要依據的 GitHub 官方文件，查證日期 2026-11-03（v4.0 更新）。
 
 ### B.1 GitHub Docs — Repositories
 
@@ -7029,7 +7883,10 @@ gh discussion create \
 | 社群健康檔案 | [Creating a default community health file](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file) | 4.11 |
 | 分支與預設分支 | [Renaming a branch](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-branches-in-your-repository/renaming-a-branch) | 7.8 |
 | 合併設定 | [Configuring pull request merges](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges) | 7.5、7.7、7.9 |
-| Rulesets | [About rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets)、[Available rules for rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)、[Converting branch protections to rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/converting-branch-protections-to-rulesets) | 7.6、7.10、7.11 |
+| Rulesets | [About rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets)、[Available rules for rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)、[Converting branch protections to rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/converting-branch-protections-to-rulesets)、[Troubleshooting rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/troubleshooting-rules) | 7.6、7.10、7.11 |
+| 自動刪除分支、Auto-merge | [Managing the automatic deletion of branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-the-automatic-deletion-of-branches)、[Managing auto-merge for pull requests in your repository](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-auto-merge-for-pull-requests-in-your-repository) | 7.9 |
+| Push policy | [Managing the push policy for your repository](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/managing-the-push-policy-for-your-repository) | 7.6、14.1 |
+| Fork 規則 | [About repositories](https://docs.github.com/en/repositories/creating-and-managing-repositories/about-repositories) | 1.3、3.7 |
 | 檔案 | [Customizing how changed files appear on GitHub](https://docs.github.com/en/repositories/working-with-files/managing-files/customizing-how-changed-files-appear-on-github)、[Getting permanent links to files](https://docs.github.com/en/repositories/working-with-files/using-files/getting-permanent-links-to-files) | 6.8 |
 | 大型檔案 | [About Git Large File Storage](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-git-large-file-storage) | 6.7 |
 | Release | [About releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)、[Automatically generated release notes](https://docs.github.com/en/repositories/releasing-projects-on-github/automatically-generated-release-notes) | 12.4、12.6 |
@@ -7056,6 +7913,11 @@ gh discussion create \
 | Issue 結構化 | [Adding sub-issues](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/adding-sub-issues)、[Managing issue types](https://docs.github.com/en/issues/tracking-your-work-with-issues/configuring-issues/managing-issue-types-in-an-organization)、[Creating issue dependencies](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-issue-dependencies) | 11.6 |
 | Copilot cloud agent | [About GitHub Copilot cloud agent](https://docs.github.com/en/copilot/concepts/agents/cloud-agent/about-cloud-agent)、[Configure the development environment](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent/customize-the-agent-environment) | 13.6、13.10 |
 | Copilot code review | [About GitHub Copilot code review](https://docs.github.com/en/copilot/concepts/agents/code-review) | 13.8 |
+| Workflow lockfile | [Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)、[Locking action dependencies](https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies)、[Enforcing lockfiles](https://docs.github.com/en/actions/how-tos/administer/enforce-workflow-lockfiles) | 8.10 |
+| Workflow 執行防護 | [Governing execution of GitHub Actions workflows](https://docs.github.com/en/actions/how-tos/administer/control-workflow-execution)、[Securely using pull_request_target](https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target) | 8.9、8.11 |
+| Stacked PRs | [About stacked pull requests](https://docs.github.com/en/pull-requests/get-started/about-stacked-prs)、[Quickstart for stacked pull requests](https://docs.github.com/en/pull-requests/get-started/stacked-prs-quickstart) | 7.12 |
+| 開源授權合規 | [About open source license compliance](https://docs.github.com/en/code-security/concepts/supply-chain-security/open-source-license-compliance)、[Configuring open source license policies](https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/manage-your-dependency-security/configure-license-policies) | 9.9 |
+| Dependabot 選項 | [Dependabot options reference](https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference) | 9.3 |
 
 ### B.3 GitHub Changelog 與官方部落格
 
@@ -7074,24 +7936,104 @@ gh discussion create \
 | [Automatic Dependabot access to GitHub-hosted registries](https://github.blog/changelog/2026-09-08-automatic-dependabot-access-to-github-hosted-registries/) | 2026-09-08 | 9.3 |
 | [Block pull requests with exposed secrets from merging](https://github.blog/changelog/2026-09-09-block-pull-requests-with-exposed-secrets-from-merging/) | 2026-09-09 | 7.11 |
 | [Workflow execution protections in GitHub Actions generally available](https://github.blog/changelog/2026-09-17-workflow-execution-protections-in-github-actions-generally-available/) | 2026-09-17 | 8.9 |
+| [Self-hosted runner version enforcement date has moved](https://github.blog/changelog/2026-09-28-self-hosted-runner-version-enforcement-date-has-moved) | 2026-09-28 | 8.9 |
+| [Bring business context with external custom properties](https://github.blog/changelog/2026-09-29-bring-business-context-with-external-custom-properties) | 2026-09-29 | 2.6 |
+| [Stacked pull requests generally available](https://github.blog/changelog/2026-10-06-stacked-pull-requests-generally-available) | 2026-10-06 | 7.12 |
+| [GitHub Actions workflow lockfiles are generally available](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available) | 2026-10-28 | 8.10 |
+| [Pull request limits: Exempt contributors by age or history](https://github.blog/changelog/2026-10-28-pull-request-limits-exempt-contributors-by-age-or-history) | 2026-10-28 | 7.11 |
+| [Agent Merge watches and fixes pull requests in the cloud](https://github.blog/changelog/2026-10-28-agent-merge-watches-and-fixes-pull-requests-in-the-cloud) | 2026-10-28 | 7.11、13.9 |
+| [GitHub Agentic Workflows generally available](https://github.blog/changelog/2026-10-28-github-agentic-workflows-generally-available) | 2026-10-28 | 13.9 |
+| [pull_request_target blocked by default December 2](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2) | 2026-11-02 | 8.11 |
 | [GitHub Changelog（持續追蹤）](https://github.blog/changelog/) | — | 全書 |
 
 ---
 
-## 附錄 C：v3.0 查證紀錄與版本歷程
+## 附錄 C：查證紀錄與版本歷程
 
-> 🆕 **v3.0 新增**
+> 🆕 **v3.0 新增**，v4.0 改版：C.1～C.5 為 v4.0 查證紀錄，C.6 保留 v3.0 紀錄。
 
 ### C.1 查證基準
 
 | 項目 | 基準 |
 |------|------|
-| 查證日期 | 2026-09-25 |
-| 主要來源 | docs.github.com（以原始 Markdown 逐頁比對）、github/docs 原始碼中的方案適用範圍（gated-features）片段 |
-| 補充來源 | GitHub Changelog（2026-06 ～ 2026-09 逐頁檢閱）、GitHub Blog、各 Action 的 GitHub Releases |
-| 方法 | 逐章比對官方文件目錄（Repositories 文件樹共 13 個分類），確認內容正確性、時效性與涵蓋完整度 |
+| 查證日期 | 2026-11-03 |
+| 主要來源 | docs.github.com 原始 Markdown（github/docs Repo）：`content/repositories` 於 2026-09-24 之後的 14 次提交逐一檢視差異；Actions lockfile、Workflow 執行防護、`pull_request_target`、Stacked PRs、開源授權合規、Dependabot 選項等頁面全文比對 |
+| 補充來源 | GitHub Changelog 2026-09-25～11-03（10 月 8 頁、11 月 1 頁逐頁檢閱）、各 Action 的 GitHub Releases、SchemaStore 的設定檔 schema |
+| 外部建議 | OpenSSF Scorecard（Pinned-Dependencies、Token-Permissions、Dangerous-Workflow 檢查）、SLSA v1.0、OWASP Top 10 CI/CD Security Risks（CICD-SEC-3 依賴鏈濫用、CICD-SEC-4 Poisoned Pipeline Execution）——吸收其觀念後融入 8.10、8.11 與各章審查清單 |
+| 方法 | 逐章比對 → 標記錯誤與過時處 → 補充新功能 → 為每章撰寫審查與驗證清單 → 以工具驗證全部範例（C.5）→ 以 Hugo 輸出比對所有目錄連結 |
 
-### C.2 v3.0 更正清單
+### C.2 v4.0 更正清單
+
+| 章節 | v3.0 內容 | v4.0 更正 |
+|------|----------|----------|
+| 1.3、3.7 | Fork 範圍僅提及「限制在企業內」 | 依 2026-09-29 官方文件：Internal 只能 Fork 到同一 Enterprise；Private 在最寬鬆政策下可 Fork 到其他 Enterprise |
+| 4.7 | Issue Form 範例含 `assignees: []` | 移除空陣列（SchemaStore schema 要求至少 1 項；不指派時應省略此欄位） |
+| 7.6、7.10 | 「一鍵遷移工具」僅描述逐條轉換 | 補充 2026-10-20 Repo 層批次匯入（Import branch protection rules）與 Evaluate 狀態 |
+| 7.9 | 未說明 Fork PR 的自動刪除與 Merge Queue 分支的 Auto-merge 行為 | Fork PR 依來源 Fork 的設定且合併者需有 Fork 寫入權；Merge Queue 分支不受「Allow auto-merge」影響 |
+| 7.11 | 開源授權合規「公開預覽」 | 2026-10-16 GA，僅 Enterprise Cloud |
+| 7.11 | Stacked PRs「公開預覽」 | 2026-10-06 GA，新增 7.12 |
+| 7.11 | PR 封存「Repo 管理員」 | 2026-10-08 起 Triage 以上即可 |
+| 8.8 | Workflow 依賴鎖定以 `dependencies:` 區段與 `gh actions pin` 實作，尚未 GA | GA 版為 `.github/workflows/actions.lock` 與 `gh actions-lock`，2026-10-28 GA |
+| 8.9 | `pull_request_target` 預設封鎖 2026-11-02 生效 | 延後至 **2026-12-02**，11-09 與 11-16 各有兩小時 brownout |
+| 8.9 | Self-hosted Runner 最低版本「恢復執行」 | Enterprise Cloud 自 2026-09-29 全面強制，低於 2.329.0 無法註冊 |
+| 8.9 | Actions 保留政策擴及 checks 等「2026-10-01」 | 標示為已生效 |
+| 8.9 | 未列 macOS 14 映像退役 | 2026-11-02 退役 |
+| 9.3 | `dependabot.yml` 使用 `reviewers` | github.com 已停用此選項，改以 CODEOWNERS 指定 |
+| 8.5 | `trufflesecurity/trufflehog` 釘選 v3.97.9 | 更新為 v3.99.8 的 Commit SHA（已以 API 確認 Tag 對應的 Commit） |
+| 9.9 | 以 Organization 設定與虛構 `license_policy` YAML（`block_pr`／`warn_only`）說明授權合規 | 整節改寫：Enterprise 層允許清單 + Ruleset「Require license compliance results before merging」+ Evaluate／Active；僅 Enterprise Cloud |
+| 9.11 | Agentic Autofix「公開預覽」 | 2026-10-15 GA |
+| 10.3 | `oasdiff/oasdiff-action/breaking@v0.1.17` | 更新為 v0.1.21 |
+| 13.9 | GitHub Agentic Workflows「公開預覽」 | 2026-10-28 GA |
+| 14.8 | 未提及推送 Email 通知退役 | 2026-10-15 退役，改用 Webhook 或 Activity view |
+| A.5 | `pull_request_target`「2026-11-02 預設停用」 | 改為 2026-12-02 預設封鎖，並新增 lockfile 與 Dependabot 檢查項目 |
+
+### C.3 v4.0 新增章節
+
+7.12 Stacked Pull Requests 實務、8.10 Workflow 依賴 Lockfile 與 Require lockfile 政策、8.11 pull_request_target 預設封鎖與遷移、9.12 2026 Q4 安全功能更新；2.6 外部 Custom Properties、3.6 憑證治理新能力（GitHub App Enterprise 安裝等）、4.11 `ACCESSIBILITY.md`、9.3 Dependabot 10 月更新、11.6 Issue 與協作更新、13.9 Copilot 平台 10 月更新、14.8 Push attribution 等段落；**第 1～18 章各新增一節「審查與驗證清單」**（1.9、2.8、3.8、4.13、5.6、6.9、7.13、8.12、9.13、10.7、11.7、12.8、13.11、14.10、15.5、16.7、17.5、18.5）；附錄 C.5 範例驗證紀錄。
+
+### C.4 待追蹤事項
+
+| 項目 | 追蹤原因 | 預計檢查時點 |
+|------|---------|------------|
+| `pull_request_target` 預設政策正式強制 | 2026-12-02 生效；確認是否再延期、官方文件 `expires 2026-12-02` 區塊是否移除 | 2026-12 |
+| Scoped Secrets、原生 Egress Firewall、Actions Data Stream | 2026 路線圖項目，截至 11-03 尚未 GA | 每季 |
+| Self-hosted Runner 平台費 | 官方仍只宣布「暫緩」；Actions 計費文件目前無此收費項目 | 每季 |
+| Push policy（單次推送分支數上限） | 官方文件仍標示為公開預覽 | GA 時更新 |
+| CodeQL Action v3 | v4 為目前主版本（最新 bundle 2.27.4），v3 Tag 仍存在 | 每季 |
+| 外部 Custom Properties、AI Scan for repositories、package firewall、Issue artifacts | 公開預覽 | GA 時更新 |
+| Issues Moderate 角色 | 已宣布 GA 但官方標示將於數週內提供 | 2026-12 |
+| Push attribution | 有限公開預覽 | GA 時更新 |
+
+**v3.0 待追蹤事項結案紀錄**：
+
+| v3.0 項目 | 結果 |
+|----------|------|
+| 公開 Repo `pull_request_target` 預設停用 | 延後至 2026-12-02，延續追蹤 |
+| Workflow 依賴鎖定 | ✅ 2026-10-28 GA（設計與路線圖不同，已更正 8.8 並新增 8.10） |
+| Stacked PRs、Agentic Autofix、開源授權合規 | ✅ 皆已 GA（10-06、10-15、10-16），已更新 7.11、7.12、9.9、9.11 |
+| Actions 保留政策擴及 checks／runs／statuses | ✅ 2026-10-01 生效，已更新 8.9 |
+| Scoped Secrets 等路線圖、Self-hosted 平台費、Push policy、CodeQL Action v3 | 狀態未變，延續追蹤 |
+
+### C.5 範例驗證紀錄
+
+本版以工具實際驗證手冊中的範例（抽取所有程式碼區塊後逐一檢查），結果如下：
+
+| 範例類型 | 工具 | 數量 | 結果 |
+|---------|------|------|------|
+| GitHub Actions Workflow | actionlint 1.7.12 | 26 | 全數通過（含新增的 `verify-lockfile.yml`、`pr-labeler`、pwn request 反例） |
+| `dependabot.yml`、Issue Forms、`config.yml`、`release.yml` | SchemaStore schema + jsonschema 4.26 | 5 | v3.0 有 2 項不符（`reviewers`、`assignees: []`），修正後全數通過 |
+| 其他 YAML 片段（CodeQL config、CITATION.cff 等） | PyYAML 解析 | 17 | 可解析（9.3 的縮排片段為刻意的部分節錄） |
+| JSON（Ruleset、REST API 請求本文） | Python `json` | 8 | 4 個完整 JSON 通過；4 個含 `...` 或註解者為示意片段 |
+| bash 腳本 | `bash -n` | 55 | 全數通過語法檢查；8.12 的 `wf-review.sh` 另以正例（SHA 釘選、已納入 lockfile）與反例（pwn request、`write-all`、指令注入）實際執行，結果與文中預期輸出相同 |
+| Mermaid 圖表 | mermaid-cli 11.17.0（與網站載入的 Mermaid 11 相同主版本） | 21 | 全數成功渲染 |
+| Action 版本與 SHA | `gh api repos/<owner>/<action>/releases/latest`、`commits/<tag>` | 33 個 Action | 所有主版本為 2026-11-03 最新；釘選的 SHA 皆與標示的 Tag 相符 |
+| Lockfile 範例 | `gh api` 查證 Commit SHA、`owner_id`、`repo_id` | 2 個項目 | 數值正確；`gh actions-lock` 本身未在查證環境執行，格式依官方文件 |
+
+**讀者自行重現的方法**：把 Workflow 範例存成 `.github/workflows/*.yml` 後執行 `actionlint`；設定檔可在 VS Code 安裝 YAML 擴充套件，自動套用 SchemaStore schema 即時檢查。
+
+### C.6 v3.0 查證紀錄摘要
+
+v3.0（2026-09-25）依 docs.github.com Repositories 文件樹（13 個分類）與 2026-06～09 Changelog 查證，更正 38 項、新增 22 個小節。更正清單如下：
 
 | 章節 | v2.2 內容 | v3.0 更正 |
 |------|----------|----------|
@@ -7134,24 +8076,9 @@ gh discussion create \
 | 18.2 | 以一般 Workflow 觸發 Prebuild | Prebuild 需在 Repo 的 Codespaces 設定中建立 Prebuild configuration |
 | 18.2 | Codespaces 組織策略「需 GitHub Enterprise」 | Team 與 Enterprise 組織皆可付費並管理 Codespaces |
 
-### C.3 v3.0 新增章節
+**v3.0 新增章節**：1.8 Repository 最佳實務總綱、2.6 Custom Properties 與 Repository 分類治理、2.7 大型 Repository 效能策略、3.6 存取機制選擇、3.7 Forking Policy 與企業身分模式、4.11 社群健康檔案與 `.github` 預設檔、4.12 Repository 設定基準總表、6.8 檔案管理與瀏覽實務、7.8 Default Branch 管理與重新命名、7.9 Auto-merge、Update Branch 與自動刪除分支、7.10 Branch Protection 轉換至 Rulesets 實務、7.11 2026 年 Pull Request 與規則治理新功能、8.9 Runner 策略與 Repository 層 Actions 設定、9.10 Dependency Graph 與 Dependency Review、9.11 Security Campaigns、Autofix 與 Delegated Bypass、11.6 Issue Types、Sub-issues、Issue Dependencies 與 Issue Fields、12.6 自動產生 Release Notes、12.7 Immutable Releases 與供應鏈完整性、13.10 Repository 的 AI Agent 設定檔總覽、14.7 Repository 生命週期操作、14.8 活動與洞察、14.9 封存、引用與長期保存、A.5 Repository 設定稽核清單、附錄 B、附錄 C；並為每章新增「本章摘要」。
 
-1.8 Repository 最佳實務總綱、2.6 Custom Properties 與 Repository 分類治理、2.7 大型 Repository 效能策略、3.6 存取機制選擇、3.7 Forking Policy 與企業身分模式、4.11 社群健康檔案與 `.github` 預設檔、4.12 Repository 設定基準總表、6.8 檔案管理與瀏覽實務、7.8 Default Branch 管理與重新命名、7.9 Auto-merge、Update Branch 與自動刪除分支、7.10 Branch Protection 轉換至 Rulesets 實務、7.11 2026 年 Pull Request 與規則治理新功能、8.9 Runner 策略與 Repository 層 Actions 設定、9.10 Dependency Graph 與 Dependency Review、9.11 Security Campaigns、Autofix 與 Delegated Bypass、11.6 Issue Types、Sub-issues、Issue Dependencies 與 Issue Fields、12.6 自動產生 Release Notes、12.7 Immutable Releases 與供應鏈完整性、13.10 Repository 的 AI Agent 設定檔總覽、14.7 Repository 生命週期操作、14.8 活動與洞察、14.9 封存、引用與長期保存、A.5 Repository 設定稽核清單、附錄 B、附錄 C；並為每章新增「本章摘要」。
-
-### C.4 待追蹤事項
-
-| 項目 | 追蹤原因 | 預計檢查時點 |
-|------|---------|------------|
-| 公開 Repo `pull_request_target` 預設停用 | 2026-11-02 正式強制 | 2026-11 |
-| Workflow 依賴鎖定（`dependencies:` 區段與 `gh actions pin`） | 路線圖項目，尚未 GA | 每季 |
-| Scoped Secrets、原生 Egress Firewall、Actions Data Stream | 路線圖項目，尚未 GA | 每季 |
-| Self-hosted Runner 平台費 | 官方僅宣布「暫緩」，未宣布取消 | 每季 |
-| Stacked Pull Requests、Agentic Autofix、開源授權合規檢查 | 目前為公開預覽 | GA 時更新 |
-| Push policy（單次推送分支數上限） | 官方文件標示為公開預覽 | GA 時更新 |
-| Actions 保留政策擴及 checks／runs／statuses | 2026-10-01 生效 | 2026-10 |
-| CodeQL Action v3 | v4 為目前主版本，v3 仍有發佈但應規劃淘汰 | 每季 |
-
-### C.5 版本歷程
+### C.7 版本歷程
 
 | 版本 | 日期 | 主要內容 |
 |------|------|---------|
@@ -7159,13 +8086,14 @@ gh discussion create \
 | v2.0 | 2026-07 | 新增 Repository 限制與配額、Rulesets 深入指南、Merge Queue、Git LFS、Codespaces、Packages、Private Vulnerability Reporting |
 | v2.1 | 2026-07 | 校正 Git LFS 配額；更新 GHAS 拆分方案；新增 8.8、9.9、13.8、13.9；附錄 A 改為 Task List |
 | v2.2 | 2026-08-17 | 修正巢狀 code fence；補充 Custom Repository Roles 的 Actions 權限、GHAS 費率與預算上限、Rulesets 一鍵遷移、官方 MCP Server、Copilot AI Credits |
-| **v3.0** | **2026-09-25** | 依 GitHub Repositories 官方文件樹逐章查證；更正 38 項內容；新增 22 個小節與附錄 B、C；全面升級 Action 版本；每章新增本章摘要；修正 Markdown 格式 |
+| v3.0 | 2026-09-25 | 依 GitHub Repositories 官方文件樹逐章查證；更正 38 項內容；新增 22 個小節與附錄 B、C；全面升級 Action 版本；每章新增本章摘要；修正 Markdown 格式 |
+| **v4.0** | **2026-11-03** | 依官方文件與 2026-09-25～11-03 Changelog 查證；更正 21 項；新增 7.12、8.10、8.11、9.12 與多個段落；每章新增「審查與驗證清單」；以 actionlint、SchemaStore schema、`bash -n`、mermaid-cli 驗證全部範例；目錄以 Hugo 輸出逐一比對 |
 
 ---
 
-> **結語**：本手冊涵蓋了 GitHub Repository 從建立到維運的完整生命週期。GitHub 平台持續演進，2026 年僅 Rulesets、Actions 安全與 AI Agent 相關的變更就超過數十項，建議平台團隊每季依 [附錄 C.4](#c4-待追蹤事項) 檢查待追蹤事項，並每半年全面審閱本手冊。Repository 管理的核心精神是：**自動化 > 人工**、**預防 > 修復**、**一致性 > 靈活性**、**Metadata 驅動 > 人工記憶**。
+> **結語**：本手冊涵蓋了 GitHub Repository 從建立到維運的完整生命週期。GitHub 平台持續演進，2026 年僅 Rulesets、Actions 安全與 AI Agent 相關的變更就超過數十項，建議平台團隊每季依 [附錄 C.4](#c4-待追蹤事項) 檢查待追蹤事項，並每半年全面審閱本手冊。AI 可以加速設定的產出，但每一份 Ruleset、Workflow 與設定檔仍應由人依各章「審查與驗證清單」確認後才套用。Repository 管理的核心精神是：**自動化 > 人工**、**預防 > 修復**、**一致性 > 靈活性**、**Metadata 驅動 > 人工記憶**。
 
 ---
 
-*Document End — v3.0 · 18 Chapters · Appendix A–C*
+*Document End — v4.0 · 18 Chapters · Appendix A–C*
 
