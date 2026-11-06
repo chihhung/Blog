@@ -10,15 +10,36 @@ categories = ['教學']
 
 | 項目 | 內容 |
 | --- | --- |
-| **文件版本** | 2.0 |
-| **最後更新** | 2026 年 9 月 29 日 |
-| **適用版本** | Podman 6.1.x（主要基準）；兼述 Podman 5.8.x 維護線與 RHEL 9／10 隨附的 5.x 版本 |
-| **周邊元件** | Buildah 1.45、Skopeo 1.24、Netavark／Aardvark-dns 2.x、crun 1.30、Podman Desktop 1.29、podman-compose 1.6 |
+| **文件版本** | 3.0 |
+| **最後更新** | 2026 年 11 月 6 日 |
+| **適用版本** | Podman 6.1.4（主要基準）；6.2.0-rc1 預覽（標示 🔭）；兼述 Podman 5.8.9 維護線與 RHEL 9.8／10.2 隨附的 5.8.2 |
+| **周邊元件** | Buildah 1.45.2（隨 Podman 6.1.4；獨立版 1.46.0）、Skopeo 1.24.1、Netavark／Aardvark-dns 2.1.0、crun 1.30.1、Podman Desktop 1.30.5、podman-compose 1.6.0 |
 | **適用對象** | 後端與前端工程師、系統架構師、SRE／平台工程、DevOps、資安與稽核人員 |
 | **文件定位** | 企業標準技術白皮書／內部標準教材 |
 | **使用情境** | 大型企業、金融業（銀行、證券、保險）內部開發環境與 Linux 主機上的容器化服務 |
 | **文件維護** | 內部技術團隊 |
 | **Created by** | Eric Cheng |
+
+> 🆕 **v3.0 改版說明（2026-11-06）**：本版以 2026-10-12 發布的 **Podman 6.1.4／5.8.9** 為基準逐章查證，並預覽 2026-10-26 發布的 **6.2.0-rc1**。重點如下：
+>
+> - **安全修補基準**：新增 6.1.1～6.1.4 的 CVE 對照與「最低可接受版本」檢查腳本（[10.9](#109-安全修補版本基準)）。
+> - **checkpoint 映像檔**：6.1.3／5.8.8 起，`podman run` 不能再直接執行 checkpoint 映像檔（[13.6](#136-checkpointrestorecriu)）。
+> - **6.2 預覽**：新功能有 `kube play --validate`／`--multiple-pods`／`--label`、Quadlet `SetMountsDependency=`／`Umask=`、`auto-update --filter`、`push --platform`。
+> - **RHEL 對照表**：補上 RHEL 9.7／10.1 → 5.6.0、9.8／10.2 → 5.8.2。
+> - **Windows MSI**：補上 MSI 靜默安裝的參數。
+> - **Podman Desktop**：更新到 1.30.5。
+> - **審查與驗證清單**：每章結尾新增「✅ 本章審查與驗證清單」，讓讀者能自行 review 與驗證。
+>
+> 完整更正請見 [D.4](#d4-v20--v30-更正表)，查證來源請見 [E.2](#e2-v30-查證紀錄)。
+>
+> **標示說明**：
+>
+> | 標示 | 意思 |
+> | --- | --- |
+> | 🆕 | 新增內容 |
+> | ⚠️ | 更正或注意事項 |
+> | 🔭 | 尚未發布正式版（RC）的功能，正式環境不要依賴 |
+> | ✅ | 可以照著執行的驗證步驟 |
 
 > ⚠️ **v2.0 重大改版說明**：本版以 2026 年 6 月發布的 Podman 6.0 與 2026 年 8 月的 6.1 為基準全面改寫。Podman 6 移除了 CNI、iptables、slirp4netns、cgroups v1、BoltDB，也不再支援 Intel Mac 與 Windows 10。v1.0 以 Podman 4.x 時代為基準，部分安裝方式、網路說明、映像檔範例與 EX180 考照內容已不適用，也缺少以 systemd（Quadlet）長期執行服務的做法。專案也已移入 CNCF 組織 [podman-container-tools](https://github.com/podman-container-tools)。完整更正清單請見[附錄 D：版本紀錄](#附錄-d版本紀錄)，查證來源請見[附錄 E：查證紀錄](#附錄-e查證紀錄)。
 
@@ -40,9 +61,11 @@ categories = ['教學']
     - [1.3.2 主要的行為差異](#132-主要的行為差異)
   - [1.4 版本演進](#14-版本演進)
     - [1.4.1 近期版本時間軸](#141-近期版本時間軸)
-    - [1.4.2 Podman 6 對企業的影響](#142-podman-6-對企業的影響)
+    - [1.4.2 6.1.x／5.8.x 修補版重點](#142-61x58x-修補版重點)
+    - [1.4.3 Podman 6 對企業的影響](#143-podman-6-對企業的影響)
   - [1.5 生態系工具](#15-生態系工具)
   - [1.6 💡 本章實務建議](#16--本章實務建議)
+  - [1.7 ✅ 本章審查與驗證清單](#17--本章審查與驗證清單)
 - [2. 安裝與環境設定](#2-安裝與環境設定)
   - [2.1 平台支援矩陣](#21-平台支援矩陣)
   - [2.2 Linux 安裝](#22-linux-安裝)
@@ -53,17 +76,20 @@ categories = ['教學']
     - [2.2.5 Rootless 前置條件](#225-rootless-前置條件)
   - [2.3 Windows 安裝](#23-windows-安裝)
     - [2.3.1 安裝方式](#231-安裝方式)
-    - [2.3.2 建立與啟動虛擬機](#232-建立與啟動虛擬機)
-    - [2.3.3 WSL2 與 Hyper-V 的選擇](#233-wsl2-與-hyper-v-的選擇)
+    - [2.3.2 🆕 大量佈署：MSI 靜默安裝](#232--大量佈署msi-靜默安裝)
+    - [2.3.3 建立與啟動虛擬機](#233-建立與啟動虛擬機)
+    - [2.3.4 WSL2 與 Hyper-V 的選擇](#234-wsl2-與-hyper-v-的選擇)
   - [2.4 macOS 安裝](#24-macos-安裝)
   - [2.5 podman machine 生命週期管理](#25-podman-machine-生命週期管理)
   - [2.6 Podman Desktop](#26-podman-desktop)
+    - [2.6.1 🆕 企業管理設定（managed configuration）](#261--企業管理設定managed-configuration)
   - [2.7 設定檔體系](#27-設定檔體系)
     - [2.7.1 主要設定檔](#271-主要設定檔)
     - [2.7.2 Podman 6 的設定檔解析規則](#272-podman-6-的設定檔解析規則)
     - [2.7.3 企業標準 containers.conf 範例](#273-企業標準-containersconf-範例)
   - [2.8 企業網路環境：Proxy、自簽 CA 與內部 Mirror](#28-企業網路環境proxy自簽-ca-與內部-mirror)
   - [2.9 💡 本章實務建議](#29--本章實務建議)
+  - [2.10 ✅ 本章審查與驗證清單](#210--本章審查與驗證清單)
 - [3. 核心概念與基本操作](#3-核心概念與基本操作)
   - [3.1 三個核心物件](#31-三個核心物件)
     - [3.1.1 映像檔（Image）](#311-映像檔image)
@@ -78,6 +104,7 @@ categories = ['教學']
     - [3.5.3 健康檢查](#353-健康檢查)
   - [3.6 📝 基礎實務練習](#36--基礎實務練習)
   - [3.7 💡 本章實務建議](#37--本章實務建議)
+  - [3.8 ✅ 本章審查與驗證清單](#38--本章審查與驗證清單)
 - [4. 映像檔建置（Containerfile 與 Buildah）](#4-映像檔建置containerfile-與-buildah)
   - [4.1 Containerfile 基礎](#41-containerfile-基礎)
   - [4.2 建置指令](#42-建置指令)
@@ -89,6 +116,7 @@ categories = ['教學']
   - [4.8 多架構映像檔](#48-多架構映像檔)
   - [4.9 直接使用 Buildah](#49-直接使用-buildah)
   - [4.10 💡 本章實務建議](#410--本章實務建議)
+  - [4.11 ✅ 本章審查與驗證清單](#411--本章審查與驗證清單)
 - [5. 儲存與 Volume](#5-儲存與-volume)
   - [5.1 掛載類型總覽](#51-掛載類型總覽)
   - [5.2 Volume 操作](#52-volume-操作)
@@ -98,6 +126,7 @@ categories = ['教學']
   - [5.6 Storage driver 與容量管理](#56-storage-driver-與容量管理)
   - [5.7 備份與還原](#57-備份與還原)
   - [5.8 💡 本章實務建議](#58--本章實務建議)
+  - [5.9 ✅ 本章審查與驗證清單](#59--本章審查與驗證清單)
 - [6. 網路](#6-網路)
   - [6.1 網路架構](#61-網路架構)
   - [6.2 網路模式](#62-網路模式)
@@ -108,14 +137,17 @@ categories = ['教學']
   - [6.7 網路除錯](#67-網路除錯)
   - [6.8 從 CNI 遷移到 Netavark](#68-從-cni-遷移到-netavark)
   - [6.9 💡 本章實務建議](#69--本章實務建議)
+  - [6.10 ✅ 本章審查與驗證清單](#610--本章審查與驗證清單)
 - [7. Pod 與 Kubernetes 整合](#7-pod-與-kubernetes-整合)
   - [7.1 Pod 的運作方式](#71-pod-的運作方式)
   - [7.2 從容器／Pod 產生 Kubernetes YAML](#72-從容器pod-產生-kubernetes-yaml)
   - [7.3 在本機執行 Kubernetes YAML](#73-在本機執行-kubernetes-yaml)
     - [7.3.1 支援範圍](#731-支援範圍)
+    - [7.3.2 🔭 6.2 預覽：kube play 的驗證與多副本](#732--62-預覽kube-play-的驗證與多副本)
   - [7.4 部署到 Kubernetes](#74-部署到-kubernetes)
   - [7.5 從本機到平台的開發流程](#75-從本機到平台的開發流程)
   - [7.6 💡 本章實務建議](#76--本章實務建議)
+  - [7.7 ✅ 本章審查與驗證清單](#77--本章審查與驗證清單)
 - [8. Quadlet 與 systemd 生產部署](#8-quadlet-與-systemd-生產部署)
   - [8.1 Quadlet 是什麼](#81-quadlet-是什麼)
   - [8.2 單元檔類型](#82-單元檔類型)
@@ -123,12 +155,15 @@ categories = ['教學']
   - [8.4 第一個 Quadlet：Nginx](#84-第一個-quadletnginx)
   - [8.5 多元件應用：Pod＋網路＋Volume＋Secret](#85-多元件應用pod網路volumesecret)
   - [8.6 其他單元檔範例](#86-其他單元檔範例)
+    - [8.6.1 🔭 6.2 預覽：新的 Quadlet key](#861--62-預覽新的-quadlet-key)
   - [8.7 podman quadlet 管理指令](#87-podman-quadlet-管理指令)
   - [8.8 自動更新（auto-update）](#88-自動更新auto-update)
+    - [8.8.1 🔭 6.2 預覽：auto-update 篩選與遠端執行](#881--62-預覽auto-update-篩選與遠端執行)
   - [8.9 Drop-in 與範本](#89-drop-in-與範本)
   - [8.10 除錯](#810-除錯)
   - [8.11 從 podman generate systemd 遷移](#811-從-podman-generate-systemd-遷移)
   - [8.12 💡 本章實務建議](#812--本章實務建議)
+  - [8.13 ✅ 本章審查與驗證清單](#813--本章審查與驗證清單)
 - [9. Compose 與 Docker 相容](#9-compose-與-docker-相容)
   - [9.1 三種執行 Compose 的方式](#91-三種執行-compose-的方式)
   - [9.2 Compose 檔範例：前端＋API＋資料庫＋快取](#92-compose-檔範例前端api資料庫快取)
@@ -137,6 +172,7 @@ categories = ['教學']
   - [9.5 Testcontainers 設定](#95-testcontainers-設定)
   - [9.6 遠端連線](#96-遠端連線)
   - [9.7 💡 本章實務建議](#97--本章實務建議)
+  - [9.8 ✅ 本章審查與驗證清單](#98--本章審查與驗證清單)
 - [10. 安全性強化](#10-安全性強化)
   - [10.1 縱深防禦模型](#101-縱深防禦模型)
   - [10.2 Rootless 與 User Namespace](#102-rootless-與-user-namespace)
@@ -146,7 +182,11 @@ categories = ['教學']
   - [10.6 映像檔簽章與驗證](#106-映像檔簽章與驗證)
   - [10.7 SBOM 與漏洞掃描](#107-sbom-與漏洞掃描)
   - [10.8 安全基準對照](#108-安全基準對照)
-  - [10.9 💡 本章實務建議](#109--本章實務建議)
+  - [10.9 安全修補版本基準](#109-安全修補版本基準)
+    - [10.9.1 近期影響 Podman 的 CVE](#1091-近期影響-podman-的-cve)
+    - [10.9.2 公司基準與檢查腳本](#1092-公司基準與檢查腳本)
+  - [10.10 💡 本章實務建議](#1010--本章實務建議)
+  - [10.11 ✅ 本章審查與驗證清單](#1011--本章審查與驗證清單)
 - [11. 企業 Registry 與供應鏈](#11-企業-registry-與供應鏈)
   - [11.1 企業 Registry 架構](#111-企業-registry-架構)
   - [11.2 registries.conf](#112-registriesconf)
@@ -157,6 +197,7 @@ categories = ['教學']
   - [11.7 OCI Artifact](#117-oci-artifact)
   - [11.8 映像檔標記策略](#118-映像檔標記策略)
   - [11.9 💡 本章實務建議](#119--本章實務建議)
+  - [11.10 ✅ 本章審查與驗證清單](#1110--本章審查與驗證清單)
 - [12. CI/CD 整合](#12-cicd-整合)
   - [12.1 標準流水線](#121-標準流水線)
   - [12.2 GitHub Actions](#122-github-actions)
@@ -165,6 +206,7 @@ categories = ['教學']
   - [12.5 Tekton／OpenShift Pipelines](#125-tektonopenshift-pipelines)
   - [12.6 CI 環境的注意事項](#126-ci-環境的注意事項)
   - [12.7 💡 本章實務建議](#127--本章實務建議)
+  - [12.8 ✅ 本章審查與驗證清單](#128--本章審查與驗證清單)
 - [13. 監控、日誌與維運](#13-監控日誌與維運)
   - [13.1 日誌](#131-日誌)
     - [13.1.1 Log driver](#1311-log-driver)
@@ -177,6 +219,7 @@ categories = ['教學']
   - [13.6 Checkpoint／Restore（CRIU）](#136-checkpointrestorecriu)
   - [13.7 容量規劃](#137-容量規劃)
   - [13.8 💡 本章實務建議](#138--本章實務建議)
+  - [13.9 ✅ 本章審查與驗證清單](#139--本章審查與驗證清單)
 - [14. 疑難排解](#14-疑難排解)
   - [14.1 診斷流程](#141-診斷流程)
   - [14.2 安裝與環境](#142-安裝與環境)
@@ -186,6 +229,7 @@ categories = ['教學']
   - [14.6 效能與儲存](#146-效能與儲存)
   - [14.7 Quadlet 與 systemd](#147-quadlet-與-systemd)
   - [14.8 💡 本章實務建議](#148--本章實務建議)
+  - [14.9 ✅ 本章審查與驗證清單](#149--本章審查與驗證清單)
 - [15. 從 Docker 遷移與升級到 Podman 6](#15-從-docker-遷移與升級到-podman-6)
   - [15.1 從 Docker 遷移](#151-從-docker-遷移)
     - [15.1.1 遷移評估清單](#1511-遷移評估清單)
@@ -195,7 +239,9 @@ categories = ['教學']
     - [15.2.1 升級前稽核](#1521-升級前稽核)
     - [15.2.2 升級步驟](#1522-升級步驟)
     - [15.2.3 5.8 維護線策略](#1523-58-維護線策略)
+    - [15.2.4 🔭 6.1 → 6.2 升級前檢查](#1524--61--62-升級前檢查)
   - [15.3 💡 本章實務建議](#153--本章實務建議)
+  - [15.4 ✅ 本章審查與驗證清單](#154--本章審查與驗證清單)
 - [16. 實務練習與認證準備](#16-實務練習與認證準備)
   - [16.1 📝 專案實務練習](#161--專案實務練習)
   - [16.2 📝 進階實務練習](#162--進階實務練習)
@@ -205,6 +251,7 @@ categories = ['教學']
   - [16.6 考試策略](#166-考試策略)
   - [16.7 考前檢查清單](#167-考前檢查清單)
   - [16.8 💡 本章實務建議](#168--本章實務建議)
+  - [16.9 ✅ 本章審查與驗證清單](#169--本章審查與驗證清單)
 - [附錄 A：指令速查](#附錄-a指令速查)
   - [A.1 映像檔](#a1-映像檔)
   - [A.2 容器](#a2-容器)
@@ -226,8 +273,11 @@ categories = ['教學']
   - [D.1 版本歷程](#d1-版本歷程)
   - [D.2 v1.0 → v2.0 更正表](#d2-v10--v20-更正表)
   - [D.3 v2.0 新增章節](#d3-v20-新增章節)
+  - [D.4 v2.0 → v3.0 更正表](#d4-v20--v30-更正表)
+  - [D.5 v3.0 新增章節](#d5-v30-新增章節)
 - [附錄 E：查證紀錄](#附錄-e查證紀錄)
   - [E.1 待確認事項](#e1-待確認事項)
+  - [E.2 v3.0 查證紀錄](#e2-v30-查證紀錄)
 - [附錄 F：參考資料](#附錄-f參考資料)
   - [F.1 官方文件](#f1-官方文件)
   - [F.2 Red Hat 資源](#f2-red-hat-資源)
@@ -252,6 +302,7 @@ categories = ['教學']
 | 3 | 要不要一律採 rootless？ | 預設 rootless。只有在需要綁定低埠號、特殊裝置或 macvlan 時才評估 rootful，並寫進例外清單 | [第 10 章](#10-安全性強化) |
 | 4 | 要升級到 Podman 6 嗎？ | 新主機直接用 6.x；既有主機先稽核 CNI、iptables、slirp4netns、cgroups v1、BoltDB 五項依賴，再依序升級 | [第 15 章](#15-從-docker-遷移與升級到-podman-6) |
 | 5 | 本機開發跟 Kubernetes／OpenShift 怎麼銜接？ | 在本機用 Pod 與 `podman kube generate/play` 驗證 YAML，正式環境交給 K8s／OpenShift | [第 7 章](#7-pod-與-kubernetes-整合) |
+| 6 | 主機上的 Podman 至少要更新到哪一版？ | 6.x 至少 **6.1.3**，5.x 至少 **5.8.8**（修正 CVE-2026-94603 與 CVE-2025-11395）；RHEL 以 Red Hat 回補後的套件版本為準 | [10.9](#109-安全修補版本基準) |
 
 **企業導入路線圖**
 
@@ -262,6 +313,12 @@ flowchart LR
     P3 --> P4["階段四<br/>主機服務<br/>Quadlet＋auto-update"]
     P4 --> P5["階段五<br/>平台銜接<br/>kube YAML → K8s／OpenShift"]
 ```
+
+**v3.0 的主要變化**
+
+- 🆕 每章結尾新增「✅ 本章審查與驗證清單」：每個項目都附上檢查指令與預期結果，讓審查者不必依賴作者的說明。
+- 🆕 新增 [10.9 安全修補版本基準](#109-安全修補版本基準)，以及 6.2 預覽內容：[7.3.2](#732--62-預覽kube-play-的驗證與多副本)、[8.6.1](#861--62-預覽新的-quadlet-key)、[8.8.1](#881--62-預覽auto-update-篩選與遠端執行)。
+- ⚠️ 更正 checkpoint 映像檔的用法（6.1.3 起 `podman run` 不再接受 checkpoint 映像檔）、RHEL 版本對照、周邊工具版本，以及 Windows 大量佈署方式。
 
 **v2.0 的主要變化**
 
@@ -357,11 +414,13 @@ graph LR
 
 [Open Container Initiative](https://opencontainers.org/) 定義了三份規格，Podman 全部遵循：
 
-| 規格 | 內容 | Podman 對應 |
-| --- | --- | --- |
-| **Runtime Specification** | 容器的設定（`config.json`）與生命週期 | crun／runc |
-| **Image Specification** | 映像檔 manifest、config、layer 的格式 | containers/image、Buildah |
-| **Distribution Specification** | registry 的 HTTP API | push／pull、`podman artifact` |
+| 規格 | 目前版本 | 內容 | Podman 對應 |
+| --- | --- | --- | --- |
+| **Runtime Specification** | v1.3.0（2025-11） | 容器的設定（`config.json`）與生命週期 | crun／runc |
+| **Image Specification** | v1.1.1（2025-03） | 映像檔 manifest、config、layer 的格式；v1.1 起有 `artifactType` 與 `subject`（referrers） | containers/image、Buildah |
+| **Distribution Specification** | v1.1.1（2025-01） | registry 的 HTTP API；v1.1 起有 Referrers API | push／pull、`podman artifact`、sigstore 附件 |
+
+> 🆕 **v3.0 新增**：image-spec 與 distribution-spec v1.1 的 `subject`／Referrers API，讓簽章、SBOM 可以「掛在」映像檔上，不必另外取 tag。Podman 的 `podman manifest add --artifact --subject` 用的就是這個機制。要確認公司的 registry 是否支援 Referrers API，可以呼叫 `GET /v2/<repo>/referrers/<digest>`：回傳 200 和一份 OCI image index 表示支援；回傳 404 表示不支援，這時 client 會改用 tag 命名的備援方式（`sha256-<digest>`）。
 
 OCI 映像檔也可以用來承載非容器內容，例如 AI 模型、設定檔、SBOM。這類內容在 Podman 裡稱為 **OCI artifact**，由 `podman artifact` 系列指令管理（5.4 起提供預覽版，5.6 起穩定），詳見[第 11 章](#11-企業-registry-與供應鏈)。
 
@@ -423,13 +482,25 @@ alias docker=podman
 | 5.3–5.5 | 2024-11～2025-05 | `podman update` 可修改 healthcheck；`podman artifact` 預覽；`podman machine cp` |
 | 5.6 | 2025-08 | 新增 `podman quadlet install/list/print/rm`；`podman artifact` 標為穩定 |
 | 5.7 | 2025-11 | 遠端 API 支援 TLS／mTLS；Quadlet `.artifact`；`podman kube play` 可一次處理多個檔案 |
-| 5.8 | 2026-02 | BoltDB 自動遷移至 SQLite；5.x 最後一個次版本，目前持續發布修補版（5.8.7：2026-09-16） |
+| 5.8 | 2026-02 | BoltDB 自動遷移至 SQLite；5.x 最後一個次版本，目前持續發布修補版（最新 5.8.9：2026-10-12） |
 | **6.0** | **2026-06-24** | 移除 CNI、iptables、slirp4netns、cgroups v1、BoltDB、Intel Mac、Windows 10；預設啟用 network isolation；Quadlet 安裝結構改版；`podman machine` 可跨 provider 操作 |
-| **6.1** | **2026-08-12** | `podman volume rename`、`podman machine restart`、Quadlet `ImageVolume=`；目前最新修補版為 6.1.2（2026-09-16） |
+| **6.1** | **2026-08-12** | `podman volume rename`、`podman machine restart`、Quadlet `ImageVolume=`；**最新修補版 6.1.4（2026-10-12）** |
+| 🔭 6.2 | 2026-10-26（rc1） | `kube play --validate`／`--multiple-pods`／`--label`；Quadlet `SetMountsDependency=`、`Umask=`；`push --platform`；`auto-update --filter` 與遠端支援；`kube play` 的 seccomp 註解標為棄用（7.0 移除） |
+
+#### 1.4.2 6.1.x／5.8.x 修補版重點
+
+> 🆕 **v3.0 新增**：修補版也可能有 **breaking change**，升級前請先看這張表。
+
+| 修補版（發布日） | 類型 | 內容 | 對企業的影響 |
+| --- | --- | --- | --- |
+| 6.1.1（2026-09-02） | 安全 | CVE-2026-17106：惡意 tar 透過連結寫出解壓目錄；修正 WSL 上 IPv4／IPv6 埠號轉送 | 使用 `podman machine`（WSL）的開發者要升級 |
+| 6.1.2／5.8.7（2026-09-16） | 安全 | **CVE-2025-11395**：`podman load` 匯入特製的 layer tar，或 `podman volume import` 匯入特製的 symlink，可以覆寫主機檔案 | 會匯入外部 tar 的離線環境與備份還原流程**必須**升級 |
+| 6.1.3／5.8.8（2026-09-29） | 安全＋**breaking** | **CVE-2026-94603**：`podman run` 執行 checkpoint 映像檔時會停用所有沙箱。修正方式是**移除** `podman run` 對 checkpoint 映像檔的支援 | 改用 `podman container restore`，見 [13.6](#136-checkpointrestorecriu) |
+| 6.1.4／5.8.9（2026-10-12） | 修正 | gvproxy 0.9.0（CVE-2026-107935）；修正 WSL 3 下無法運作；Buildah 1.45.2 | `podman machine` 使用者要升級 |
 
 > 📌 年月依 GitHub Releases 與官方部落格整理；精確的查證紀錄見[附錄 E](#附錄-e查證紀錄)。
 
-#### 1.4.2 Podman 6 對企業的影響
+#### 1.4.3 Podman 6 對企業的影響
 
 | 移除／變更項目 | 受影響的對象 | 替代方案 |
 | --- | --- | --- |
@@ -446,10 +517,10 @@ alias docker=podman
 
 ### 1.5 生態系工具
 
-| 工具 | 用途 | 目前版本（2026-09） |
+| 工具 | 用途 | 目前版本（2026-11） |
 | --- | --- | --- |
-| [Podman Desktop](https://podman-desktop.io/) | GUI；管理容器、Pod、映像檔、Kubernetes context、擴充功能 | 1.29.3（穩定版） |
-| [Buildah](https://github.com/podman-container-tools/buildah) | 細部控制映像檔建置，適合 CI | 1.45.1 |
+| [Podman Desktop](https://podman-desktop.io/) | GUI；管理容器、Pod、映像檔、Kubernetes context、擴充功能 | 1.30.5（穩定版，內建 Podman 6.1.4／5.8.9） |
+| [Buildah](https://github.com/podman-container-tools/buildah) | 細部控制映像檔建置，適合 CI | 1.46.0（Podman 6.1.4 內建的是 1.45.2） |
 | [Skopeo](https://github.com/podman-container-tools/skopeo) | 在 registry 之間檢視、複製、同步映像檔，也可處理簽章 | 1.24.1 |
 | [podman-compose](https://github.com/containers/podman-compose) | 以 Python 實作的 Compose 規格 | 1.6.0 |
 | [prometheus-podman-exporter](https://github.com/containers/prometheus-podman-exporter) | 匯出 Prometheus 指標 | 2.0.0 |
@@ -462,6 +533,17 @@ alias docker=podman
 3. **一律寫完整映像檔名稱**：可以避開短名稱解析的歧義，也能防範 typosquatting。
 4. **引用官方文件時使用新網址**：GitHub 倉庫已移到 `podman-container-tools`，舊的 `containers/podman` 網址目前會重新導向，但文件與腳本裡應該更新。
 
+### 1.7 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 沒有常駐 daemon | `ps -ef \| grep -c '[p]odman system service'` | `0`（除非刻意啟用 socket） |
+| 2 | 版本在公司基準以上 | `podman --version` | 6.1.3 以上或 5.8.8 以上（見 [10.9](#109-安全修補版本基準)） |
+| 3 | 主要元件符合 Podman 6 的要求 | `podman info --format '{{.Host.OCIRuntime.Name}} {{.Host.NetworkBackend}} {{.Host.DatabaseBackend}}'` | `crun netavark sqlite` |
+| 4 | 文件與腳本已改用新的倉庫網址 | `grep -rn 'github.com/containers/podman' docs/ scripts/` | 沒有結果 |
+
 ---
 
 ## 2. 安裝與環境設定
@@ -470,7 +552,7 @@ alias docker=podman
 
 | 平台 | 執行方式 | Podman 6.x | 備註 |
 | --- | --- | --- | --- |
-| RHEL 9／10 | 原生 | 由 Red Hat 的 Container Tools AppStream 決定（目前隨附 5.x） | 滾動更新，每年最多四次 |
+| RHEL 9／10 | 原生 | 尚未提供；9.8／10.2 隨附 **5.8.2**（見 [2.2.1](#221-rhel-910)） | 由 Container Tools AppStream 滾動更新，每年最多四次 |
 | Fedora | 原生 | Fedora 45 起隨附 6.x | 新功能最早在這裡出現 |
 | Ubuntu | 原生 | 官方套件庫尚未提供 6.x（26.04 LTS 隨附 5.7.0，24.04 LTS 隨附 4.9.3） | 版本落後，見 [2.2.3](#223-ubuntudebian) |
 | Debian | 原生 | experimental 已有 6.1.1；13（trixie）隨附 5.4.2 | 同上 |
@@ -497,6 +579,25 @@ podman info --format '{{.Host.CgroupsVersion}} {{.Host.NetworkBackend}} {{.Store
 ```
 
 RHEL 9 與 10 的 Container Tools 以單一的滾動 Application Stream 提供，每年最多更新四次。每個 RHEL 次版本發布後的前三個月版本固定，之後在 EUS 期間只回補安全修正。所以同樣是「RHEL 10」，不同次版本的 Podman 版本也不同，**部署前要用 `podman version` 確認**。
+
+> 🆕 **v3.0 新增：RHEL 次版本與 Podman 版本對照**
+
+| RHEL 次版本 | 隨附 Podman | Buildah／Skopeo | 備註 |
+| --- | --- | --- | --- |
+| 9.5 | 5.2.2 | — | |
+| 9.6／10.0 | 5.4.0 | — | |
+| 9.7／10.1 | 5.6.0 | Buildah 1.41.0、Skopeo 1.20.0 | 有 `podman quadlet` 管理指令 |
+| 9.8／10.2（2026-05） | **5.8.2** | — | Quadlet `.container` 支援 AppArmor；`podman update --ulimit`；Sequoia-PGP 簽章後端 |
+
+> ⚠️ 上表依 Red Hat 的 Jira 與 Release Notes 整理，並以社群維護的對照表交叉核對（見 [E.2](#e2-v30-查證紀錄)）。RHEL 會把上游的安全修正**回補**到同一個版本號，所以 RHEL 上的 `5.8.2` 不等於上游的 5.8.2。要判斷有沒有修補某個 CVE，請查 RHSA 公告或 `rpm -q --changelog podman`，不要只看版本號。
+
+✅ **驗證方式**：
+
+```bash
+cat /etc/redhat-release                       # 例：Red Hat Enterprise Linux release 10.2
+rpm -q podman buildah skopeo                  # 例：podman-5.8.2-x.el10_2
+rpm -q --changelog podman | grep -m3 CVE-     # 確認 Red Hat 已回補的 CVE
+```
 
 #### 2.2.2 Fedora
 
@@ -567,9 +668,40 @@ sudo loginctl enable-linger alice
    winget install RedHat.Podman-Desktop
    ```
 
-3. 安裝程式可以選擇 VM provider（WSL2 或 Hyper-V）。大量佈署時可以用 MSI 靜默安裝，並透過 Intune、SCCM 等工具派送；可用的安裝參數請見官方 [Podman for Windows 指南](https://github.com/podman-container-tools/podman/blob/main/docs/tutorials/podman-for-windows.md)。
+3. 安裝程式可以選擇 VM provider（WSL2 或 Hyper-V），也可以選擇安裝範圍：**使用者範圍**（預設，不需要管理員權限，裝在 `%LOCALAPPDATA%\Programs\Podman`）或**電腦範圍**（需要管理員權限，裝在 `%PROGRAMFILES%\Podman`）。安裝程式**不會**自動安裝 WSL，要先執行 `wsl --install`。
 
-#### 2.3.2 建立與啟動虛擬機
+#### 2.3.2 🆕 大量佈署：MSI 靜默安裝
+
+> 🆕 **v3.0 新增**（E.1 #8 已結案）：參數名稱取自上游 `contrib/win-installer` 的 WiX 定義與安裝測試腳本（v6.1.4）。
+
+| MSI 屬性 | 值 | 作用 |
+| --- | --- | --- |
+| `MACHINE_PROVIDER` | `wsl`（預設）或 `hyperv` | 寫入 `99-podman-machine-provider.conf`，決定新建 VM 預設使用的 provider |
+| `ALLUSERS=1` | — | 電腦範圍安裝（需要管理員） |
+| `MSIINSTALLPERUSER=1` | — | 使用者範圍安裝 |
+| `SKIP_CONFIG_FILE_CREATION` | `0`（預設）或 `1` | 設為 `1` 時不產生 provider 設定檔，改由公司自己派送 `containers.conf` |
+
+```powershell
+# 電腦範圍、指定 Hyper-V，並保留安裝紀錄（以系統管理員身分執行）
+msiexec /package podman-installer-windows-amd64.msi /quiet /l*v C:\Temp\podman-msi.log `
+  ALLUSERS=1 MACHINE_PROVIDER=hyperv
+
+# 移除
+msiexec /uninstall podman-installer-windows-amd64.msi /quiet
+```
+
+✅ **驗證方式**：
+
+```powershell
+podman --version                                                   # 預期：podman version 6.1.4
+Get-Content "$env:ProgramData\containers\containers.conf.d\99-podman-machine-provider.conf"
+# 預期內容含有：provider = "hyperv"
+Select-String -Path C:\Temp\podman-msi.log -Pattern 'Installation success|completed successfully'
+```
+
+> ⚠️ 安裝新版 MSI 前，必須先移除舊架構（5.7.0 以前的 `setup.exe` bundle 安裝程式）安裝的 Podman。移除後容器、映像檔與 VM 都會保留。詳細說明見官方 [Podman for Windows 指南](https://github.com/podman-container-tools/podman/blob/main/docs/tutorials/podman-for-windows.md)。
+
+#### 2.3.3 建立與啟動虛擬機
 
 ```powershell
 # 建立預設 VM（podman-machine-default）並立即啟動
@@ -583,7 +715,7 @@ podman info
 podman run --rm quay.io/podman/hello
 ```
 
-#### 2.3.3 WSL2 與 Hyper-V 的選擇
+#### 2.3.4 WSL2 與 Hyper-V 的選擇
 
 | 項目 | WSL2（預設） | Hyper-V |
 | --- | --- | --- |
@@ -635,13 +767,55 @@ podman machine reset                    # 刪除所有 VM 與相關設定
 
 ### 2.6 Podman Desktop
 
-[Podman Desktop](https://podman-desktop.io/) 是跨平台的 GUI，目前穩定版為 1.29.3（2026-09），1.30 已發布預覽版。主要功能：
+[Podman Desktop](https://podman-desktop.io/) 是跨平台的 GUI，目前穩定版為 **1.30.5**（2026-10-13），內建 Podman 6.1.4（Windows 11、Apple Silicon）與 5.8.9（舊平台）。主要功能：
 
-- 以圖形介面管理容器、Pod、映像檔、Volume，並檢視日誌、進入終端機。
-- 建立與管理 `podman machine`，並提供 Docker 相容 socket 的設定精靈。
+- 以圖形介面管理容器、Pod、映像檔、Volume，並檢視日誌、進入終端機。1.30 起可以一次選取多個容器並停止。
+- 建立與管理 `podman machine`，並提供 Docker 相容 socket 的設定精靈。1.30 起，每個 Docker context 都會顯示成獨立的容器連線。
 - 整合 Kind、Minikube、OpenShift Local、Developer Sandbox，可以一鍵把 Pod 部署到 Kubernetes。
 - 可安裝擴充功能（例如 AI Lab、bootc、Red Hat 帳號登入）。
-- 企業可以用設定檔預先鎖定 registry、proxy 等選項。
+- 偵測到 CI 環境時會自動關閉遙測（1.30）。
+- Red Hat 另提供 **Red Hat build of Podman Desktop**，RHEL 9／10 可以從 Extensions 套件庫安裝。
+
+#### 2.6.1 🆕 企業管理設定（managed configuration）
+
+> 🆕 **v3.0 新增**：v2.0 只寫了「企業可以用設定檔鎖定選項」，沒有說明怎麼做。
+
+Podman Desktop 會讀取三個檔案：
+
+| 檔案 | 誰可以修改 | 作用 |
+| --- | --- | --- |
+| `settings.json` | 使用者 | 使用者在 UI 中設定的值 |
+| `default-settings.json` | 管理員 | 預設值；啟動時只複製**使用者還沒設定**的項目 |
+| `locked.json` | 管理員 | 列出要鎖定的 key；鎖定的 key 一律使用 `default-settings.json` 的值，UI 會顯示鎖頭 |
+
+| 平台 | 管理員檔案目錄 |
+| --- | --- |
+| Windows | `%PROGRAMDATA%\Podman Desktop\` |
+| macOS | `/Library/Application Support/io.podman_desktop.PodmanDesktop/` |
+| Linux | `/usr/share/podman-desktop/` |
+
+範例：強制使用公司 proxy，並關閉遙測。
+
+```json
+{
+  "proxy.http": "http://proxy.corp.example:8080",
+  "telemetry.enabled": false
+}
+```
+
+上面是 `default-settings.json`；下面是 `locked.json`：
+
+```json
+{
+  "locked": ["proxy.http", "telemetry.enabled"]
+}
+```
+
+✅ **驗證方式**：
+
+1. 把兩個檔案派送到上表的目錄，然後重新啟動 Podman Desktop。
+2. 到「Settings → Proxy」，確認欄位有鎖頭，而且無法修改。
+3. 在使用者的 `settings.json` 手動改成其他值，重新啟動後，UI 仍然顯示公司的值。代表鎖定生效。
 
 ### 2.7 設定檔體系
 
@@ -726,6 +900,19 @@ podman machine set --import-native-ca     # 既有 VM
 3. **設定集中在 drop-in 檔**：公司標準放在 `/etc/containers/*.conf.d/`，用組態管理工具（Ansible 等）發佈。
 4. **rootless 服務帳號一定要 `enable-linger`**，否則使用者登出後服務會被停止。
 5. **開發者桌面統一使用 Podman Desktop 加上 `--import-native-ca`**，可以減少 proxy 與 SSL 攔截造成的拉取失敗。
+
+### 2.10 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | cgroups v2 | `podman info --format '{{.Host.CgroupsVersion}}'` | `v2` |
+| 2 | rootless 使用者有 subordinate ID | `grep "^$USER:" /etc/subuid /etc/subgid` | 兩個檔案各有一行，範圍至少 65536 |
+| 3 | 需要常駐的 rootless 帳號已啟用 linger | `loginctl show-user "$USER" --property=Linger` | `Linger=yes` |
+| 4 | 公司派送的設定檔有被讀取（6.x） | `podman --log-level=debug info 2>&1 \| grep 'Read config file'` | 列出公司派送的 drop-in，例如 `10-corp.conf` |
+| 5 | Windows 的 provider 符合公司政策 | `podman machine info --format '{{.Host.DefaultMachine}} {{.Host.VMType}}'` | 例如 `podman-machine-default hyperv` |
+| 6 | Podman Desktop 的鎖定設定生效 | 在 UI 開啟 Settings → Proxy | 欄位顯示鎖頭，無法修改 |
 
 ---
 
@@ -937,6 +1124,17 @@ podman inspect api --format '{{.State.Health.Status}}'
 2. **對外埠號預設綁定 `127.0.0.1`**：只有需要對外服務時才綁定 `0.0.0.0`，避免開發機意外暴露服務。
 3. **善用 `--replace` 與 `podman update`**：腳本可以保持冪等，也能減少停機時間。
 4. **每個服務都要有 healthcheck**：這是 auto-update 回滾與 systemd 監控的基礎。
+
+### 3.8 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 映像檔一律使用完整名稱 | `grep -rnE 'podman (run\|pull) [a-z0-9]+(:\|$\| )' scripts/` | 沒有結果（沒有短名稱） |
+| 2 | 容器有設定資源上限 | `podman inspect -f '{{.HostConfig.Memory}} {{.HostConfig.PidsLimit}}' <容器>` | 兩個值都大於 0 |
+| 3 | 正式容器有 healthcheck | `podman inspect -f '{{.Config.Healthcheck}}' <容器>` | 不是 `<nil>` |
+| 4 | 沒有殘留的停止容器 | `podman ps -a --filter status=exited -q \| wc -l` | 符合團隊的上限（例如 0） |
 
 ---
 
@@ -1166,6 +1364,18 @@ buildah rm "$ctr"
 4. **加上 OCI 標準標籤**（source、revision、version、created），方便追溯與產生 SBOM。
 5. **需要 HEALTHCHECK 時記得 `--format docker`**，或統一改在 Quadlet 裡定義。
 
+### 4.11 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 執行階段不是 root | `podman image inspect -f '{{.Config.User}}' <映像檔>` | 數字 UID（例如 `1001`），不是空值或 `root` |
+| 2 | 沒有把機密留在任何一層 | `podman history --no-trunc <映像檔> \| grep -iE 'token\|password\|secret'` | 沒有結果 |
+| 3 | 建置環境沒有混進映像檔 | `podman image inspect -f '{{.Size}}' <映像檔>` | 與基準相比沒有暴增（例如 Java 映像檔小於 400 MB） |
+| 4 | 多架構映像檔包含所有平台 | `skopeo inspect --raw docker://<映像檔> \| grep -o '"architecture":"[a-z0-9]*"'` | 列出 `amd64` 與 `arm64` |
+| 5 | `.containerignore` 排除了敏感檔案 | `grep -E '^\.git$\|^\.env' .containerignore` | 兩項都有 |
+
 ---
 
 ## 5. 儲存與 Volume
@@ -1325,6 +1535,17 @@ podman import api-rootfs.tar localhost/api-snapshot:debug
 3. **升級到 Podman 6 前，先檢查所有 `volume prune` 與 `volume ls --filter` 腳本**。
 4. **資料庫備份用原生工具**（pg_dump、mysqldump、redis `BGSAVE`），`volume export` 只當作輔助。
 5. **graphroot 要監控容量**，並排程執行 `podman system prune`（見[第 13 章](#13-監控日誌與維運)）。
+
+### 5.9 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 資料放在 named volume，不在容器層 | `podman inspect -f '{{range .Mounts}}{{.Type}}:{{.Destination}} {{end}}' <容器>` | 資料目錄的類型是 `volume` |
+| 2 | SELinux 主機上的 bind mount 有標籤 | `ls -Z <主機目錄>` | 類型是 `container_file_t` |
+| 3 | 備份檔可以還原 | `podman volume create restore-test && podman volume import restore-test backup.tar && podman run --rm -v restore-test:/d:Z registry.access.redhat.com/ubi10/ubi-minimal ls /d` | 列出預期的檔案 |
+| 4 | 儲存空間在警戒值以下 | `podman system df` | 可回收（RECLAIMABLE）比例符合維運標準 |
 
 ---
 
@@ -1497,7 +1718,7 @@ podman info --format '{{.Host.NetworkBackend}}'
 
 # 2. 若仍是 cni：記錄既有網路的設定
 podman network ls
-podman network inspect <name> > <name>.json
+podman network inspect backend > backend-network.json   # 每個網路各存一份
 
 # 3. 刪除所有容器與網路後，切換後端（會清除 CNI 設定）
 podman system reset          # ⚠️ 會刪除所有容器、映像檔、volume，請先備份
@@ -1515,6 +1736,18 @@ podman system reset          # ⚠️ 會刪除所有容器、映像檔、volume
 3. **子網路規劃要與公司 IP 規劃對齊**，用 `default_subnet_pools` 避開 VPN 與內網網段。
 4. **升級到 Podman 6 前確認 `NetworkBackend` 是 netavark**，並確認主機使用 nftables。
 5. **需要來源 IP 時優先用反向代理的標頭**，`rootless_port_forwarder="pasta"` 在 6.x 仍屬實驗性質。
+
+### 6.10 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 網路後端是 netavark | `podman info --format '{{.Host.NetworkBackend}}'` | `netavark` |
+| 2 | 自訂網路的 DNS 可以解析服務名稱 | `podman run --rm --network app registry.access.redhat.com/ubi10/ubi-minimal getent hosts db` | 回傳 db 容器的 IP |
+| 3 | 內部網路真的不能連外 | `podman run --rm --network internal-net registry.access.redhat.com/ubi10/ubi-minimal curl -m 5 -sI https://example.com` | 連線失敗（逾時或無法解析） |
+| 4 | 子網路沒有和公司內網衝突 | `podman network inspect -f '{{range .Subnets}}{{.Subnet}} {{end}}' app` | 不在公司的保留網段內 |
+| 5 | 埠號只綁定在需要的介面 | `ss -ltnp \| grep <埠號>` | 對內服務只綁 `127.0.0.1` |
 
 ---
 
@@ -1653,6 +1886,53 @@ Podman 特有的行為可以用 annotation 控制，例如：
 | `io.podman.annotations.pids-limit/<容器名稱>` | PID 數量上限 |
 | `io.podman.annotations.infra.name` | infra 容器名稱 |
 
+#### 7.3.2 🔭 6.2 預覽：kube play 的驗證與多副本
+
+> 🔭 **6.2.0-rc1（2026-10-26）**：以下選項只有 6.2 起才有。在 6.1.x 上執行會出現 `unknown flag` 錯誤；正式發布前，不要寫進正式環境的腳本。
+
+| 選項 | 作用 | 企業用途 |
+| --- | --- | --- |
+| `--validate=ignore\|warn\|strict` | 處理無法辨識的 YAML 欄位與不支援的物件。預設 `ignore`（靜默略過） | CI 用 `strict`，避免「YAML 寫了但 Podman 沒套用」 |
+| `--multiple-pods` | Deployment 的 `replicas` 大於 1 時，真的建立多個 Pod（預設只建立 1 個） | 本機模擬多副本 |
+| `--label key=value`（`-l`） | 為建立的 Pod、PVC、Secret 加上 label | 依 label 清理或稽核 |
+| `--build` 支援子目錄 | 可以從 context 目錄底下的子目錄建置映像檔 | monorepo |
+
+⚠️ **棄用通知**：6.2 起，`kube play` 改用 YAML 中的 `securityContext.seccompProfile` 設定 seccomp。舊的 Kubernetes **annotation 寫法**（`seccomp.security.alpha.kubernetes.io/pod`、`container.seccomp.security.alpha.kubernetes.io/<容器名稱>`）**已標為棄用，Podman 7.0 會移除**。請現在就改成標準欄位，K8s 叢集也看得懂：
+
+```yaml
+# ✅ 建議：標準欄位，Podman 與 Kubernetes 都適用
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hardened
+spec:
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: app
+      image: registry.access.redhat.com/ubi10/ubi-minimal:latest
+      command: ["sleep", "infinity"]
+```
+
+```bash
+# 🔭 6.2：CI 嚴格驗證。注意 strict 遇到錯誤時，已建立的物件不會回滾，要自己清理
+podman kube play --validate=strict --label ci-run=1234 shop.yaml \
+  || { podman kube down shop.yaml; exit 1; }
+
+# 🔭 6.2：Deployment replicas: 3 時，建立 3 個 Pod
+podman kube play --multiple-pods deploy.yaml
+```
+
+✅ **驗證方式**：
+
+```bash
+podman kube play --help | grep -E -- '--validate|--multiple-pods|--label'   # 6.2 才會列出
+# 故意在 YAML 中加入一個打錯的欄位（例如 spec.containers[0].imag:）
+podman kube play --validate=warn typo.yaml 2>&1 | grep -i warn            # 預期：stderr 有 warning
+podman pod ps --filter label=ci-run=1234                                  # 預期：列出這次建立的 Pod
+```
+
 ### 7.4 部署到 Kubernetes
 
 ```bash
@@ -1685,6 +1965,17 @@ flowchart LR
 2. **Kubernetes YAML 是單一事實來源**：同一份 YAML 同時用於本機（`kube play`）、單機主機（Quadlet `.kube`）與叢集。
 3. **不要依賴 Podman 不支援的欄位**：Service、Ingress 等叢集資源在本機會被忽略，需要在叢集上另外驗證。
 4. **rootless 的 Pod 加上 `io.podman.annotations.userns: keep-id`**，可以減少 hostPath 的權限問題。
+
+### 7.7 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | YAML 可以在本機重現 | `podman kube play --replace shop.yaml && podman pod ps` | Pod 狀態為 Running |
+| 2 | 產生的 YAML 沒有寫死主機路徑 | `grep -n 'hostPath' shop.yaml` | 只有核准的路徑 |
+| 3 | YAML 通過叢集的 schema 驗證 | `kubectl apply --dry-run=server -f shop.yaml` | 沒有錯誤 |
+| 4 | seccomp 使用標準欄位 | `grep -n 'seccomp.security.alpha.kubernetes.io' *.yaml` | 沒有結果（改用 `securityContext.seccompProfile`） |
 
 ---
 
@@ -1916,6 +2207,43 @@ AutoUpdate=registry
 WantedBy=multi-user.target
 ```
 
+#### 8.6.1 🔭 6.2 預覽：新的 Quadlet key
+
+> 🔭 **6.2.0-rc1**：Quadlet generator 遇到不認識的 key 會直接報錯，**整個 unit 不會產生**。所以在 6.1.x 主機上用到這些 key，服務會消失。請等主機升到 6.2 以後再使用。
+
+| Key | 區段 | 適用檔案 | 作用 |
+| --- | --- | --- | --- |
+| `SetMountsDependency=Requires\|Wants\|None` | `[Quadlet]` | 所有 Quadlet 檔 | 控制 bind mount 來源路徑產生的 systemd 相依：`Requires`（預設，產生 `RequiresMountsFor=`，掛載點失效時服務會被停止）、`Wants`（需要 systemd 256 以上，產生 `WantsMountsFor=`）、`None`（不產生） |
+| `Umask=` | `[Container]` | `.container` | 設定容器的預設 umask（對應 `podman run --umask`） |
+
+典型用途：容器掛載 NFS／CIFS 的 automount 共用目錄。用預設的 `Requires` 時，共用目錄短暫斷線就會把服務一起停掉：
+
+```ini
+# /etc/containers/systemd/report.container（🔭 需要 Podman 6.2 與 systemd 256 以上）
+[Quadlet]
+SetMountsDependency=Wants
+
+[Container]
+Image=registry.corp.example/batch/report:3.1
+Volume=/mnt/nfs/reports:/data:Z
+Umask=0027
+
+[Install]
+WantedBy=multi-user.target
+```
+
+> ⚠️ 截至 6.2.0-rc1，`Umask=` 已經出現在 Release Notes 與 Quadlet 原始碼（`KeyUmask` 對應 `--umask`），但 `podman-container.unit(5)` man page 還沒有收錄。正式發布前，請先用下面的 dry-run 確認。
+
+✅ **驗證方式**：
+
+```bash
+systemctl --version | head -1                                   # Wants 需要 systemd 256 以上
+/usr/lib/systemd/system-generators/podman-system-generator --dryrun 2>&1 \
+  | grep -E 'WantsMountsFor|RequiresMountsFor|--umask'
+# 預期：WantsMountsFor=/mnt/nfs/reports，以及 ExecStart 中有 --umask 0027
+# 6.1.x 上預期：出現 unsupported key 錯誤，表示這台主機還不能用
+```
+
 ### 8.7 `podman quadlet` 管理指令
 
 5.6 起提供 `podman quadlet` 指令，用來安裝與管理**目前使用者**的 Quadlet：
@@ -1987,6 +2315,27 @@ sudo systemctl edit podman-auto-update.timer
 - 正式環境的 tag 建議採「次版本浮動」（例如 `2.3`），由 CI 推送修補版，auto-update 自動套用。
 - 金融業的正式環境通常要求變更管理。可以在正式環境**停用 timer**，只在變更時段手動執行 `podman auto-update`；測試環境再開啟自動更新。
 
+#### 8.8.1 🔭 6.2 預覽：auto-update 篩選與遠端執行
+
+> 🔭 **6.2.0-rc1** 新功能：
+>
+> - `podman auto-update --filter`：只更新符合條件的容器，條件可以是 `label=` 或 `ancestor=`。
+> - 遠端客戶端（`podman --remote`）也可以執行 `auto-update`，API 為 `POST /libpod/autoupdate`。
+
+這兩項讓「變更時段只更新核准的服務」做得到，不必再一次更新整台主機：
+
+```bash
+# 🔭 6.2：先看 web 服務有沒有更新，不執行
+sudo podman auto-update --dry-run --filter label=app=web
+
+# 🔭 6.2：只更新使用特定映像檔的容器
+sudo podman auto-update --filter ancestor=registry.corp.example/shop/api:2.3
+```
+
+⚠️ 篩選的是「容器」，但重新啟動的是整個 systemd unit。同一個 Pod 或有相依關係的其他容器也可能一起重啟，而且可能用到更新後的共用映像檔。條件沒有符合任何容器時，指令會成功結束，不會更新任何東西。所以請一律先執行 `--dry-run`。
+
+✅ **驗證方式**：`--dry-run` 的輸出中，`UPDATED` 欄位為 `pending` 的容器，應該只有符合篩選條件的那幾個；執行後用 `podman ps --format '{{.Names}} {{.Image}} {{.Status}}'` 比對映像檔與啟動時間。
+
 ### 8.9 Drop-in 與範本
 
 ```ini
@@ -2011,6 +2360,14 @@ DefaultInstance=default
 ```bash
 # 啟動多個實例
 sudo systemctl start worker@orders.service worker@payments.service
+```
+
+> 🔭 **6.2 預覽**：可以只建立實例專屬的 drop-in 目錄（例如 `worker@orders.container.d/`），Quadlet 就會從 `worker@.container` 產生這個實例，不必再建立 `worker@orders.container` 檔案或 symlink。空目錄也可以，這時實例會繼承範本的 `[Install]`，所以開機時也會啟動。6.1.x 仍然需要實例檔或 symlink。
+
+```ini
+# 🔭 6.2：/etc/containers/systemd/worker@payments.container.d/10-mem.conf（只有這個實例加大記憶體）
+[Container]
+Memory=4g
 ```
 
 ### 8.10 除錯
@@ -2058,6 +2415,19 @@ QUADLET_UNIT_DIRS=./test /usr/lib/systemd/system-generators/podman-system-genera
 3. **機密透過 `Secret=` 引用**，不要把密碼寫在 `Environment=`。
 4. **環境差異放在 drop-in**（`*.container.d/*.conf`），主檔在各環境保持一致。
 5. **Quadlet 需要 cgroups v2**，RHEL 8 主機要先升級。
+
+### 8.13 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | Quadlet 檔案沒有語法或 key 錯誤 | `/usr/lib/systemd/system-generators/podman-system-generator --dryrun 2>&1 \| grep -i error` | 沒有結果 |
+| 2 | 服務由 systemd 管理並正常執行 | `systemctl status shop-api.service` | `active (running)` |
+| 3 | 就緒通知有效 | `systemctl show shop-api.service -p Type` | `Type=notify` |
+| 4 | auto-update 的設定正確 | `podman auto-update --dry-run` | 列出預期的容器，`POLICY` 為 `registry` |
+| 5 | 重開機後服務自動啟動 | 重新開機後執行 `systemctl is-active shop-api.service` | `active` |
+| 6 | 沒有殘留 `podman generate systemd` 產生的 unit | `grep -l 'generate systemd' /etc/systemd/system/*.service ~/.config/systemd/user/*.service 2>/dev/null` | 沒有結果 |
 
 ---
 
@@ -2242,6 +2612,17 @@ podman system connection add prod-02 tcp://prod-02.corp.example:8888 \
 3. **需要 Docker API 的工具透過 `podman.socket` 連線**，不要安裝 Docker daemon 與 Podman 並存，避免混淆。
 4. **Compose 檔裡的密碼一律用 `secrets`**，不要直接寫在 `environment`。
 
+### 9.8 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | Docker 相容 socket 可以使用 | `curl -s --unix-socket "$XDG_RUNTIME_DIR/podman/podman.sock" http://d/_ping` | `OK` |
+| 2 | Compose 檔可以正確解析 | `podman compose config > /dev/null; echo $?` | `0` |
+| 3 | 實際使用的 Compose provider | `podman compose version 2>&1 \| head -2` | 第一行的 `Executing external compose provider` 指向公司指定的 provider |
+| 4 | Testcontainers 可以啟動容器 | 執行一個使用 Testcontainers 的測試 | 測試通過，結束後沒有殘留容器 |
+
 ---
 
 ## 10. 安全性強化
@@ -2415,11 +2796,11 @@ podman image trust show
 podman build --sbom syft-cyclonedx \
   --sbom-output=api.cdx.json -t registry.corp.example/app/api:1.4.2 .
 
-# Trivy（0.74）：掃描本機的 Podman 映像檔
+# Trivy（0.76）：掃描本機的 Podman 映像檔
 trivy image --image-src podman --severity HIGH,CRITICAL --exit-code 1 \
   registry.corp.example/app/api:1.4.2
 
-# Grype（0.119）
+# Grype（0.121）
 grype podman:registry.corp.example/app/api:1.4.2 --fail-on high
 ```
 
@@ -2441,13 +2822,104 @@ grype podman:registry.corp.example/app/api:1.4.2 --fail-on high
 | 稽核軌跡 | `podman events` 寫入 journald，轉送到 SIEM | ISO 27001:2022 A.8.15 |
 | 弱點管理 | SBOM 加上持續掃描 | 金融業資安規範的弱點管理要求 |
 
-### 10.9 💡 本章實務建議
+### 10.9 安全修補版本基準
+
+> 🆕 **v3.0 新增**：v2.0 只寫了「使用最新版」，沒有定義「最低可接受版本」，稽核時無法判定合格與否。
+
+#### 10.9.1 近期影響 Podman 的 CVE
+
+| CVE | 影響 | 修正版本 | 暫時的緩解措施 |
+| --- | --- | --- | --- |
+| CVE-2026-17106 | 惡意 tar 透過連結寫到解壓目錄之外 | 6.1.1 | 不要匯入來源不明的 tar |
+| **CVE-2025-11395** | `podman load` 匯入特製的 layer tar，或 `podman volume import` 匯入特製的 symlink，可以**覆寫主機檔案** | 6.1.2／5.8.7 | 只匯入來自內部 registry、而且驗證過簽章的檔案 |
+| **CVE-2026-94603** | `podman run` 執行 checkpoint 映像檔（帶有 `io.podman.annotations.checkpoint.runtime.name` annotation 的映像檔）時，會**停用所有沙箱**，連使用者指定的安全設定也會失效 | 6.1.3／5.8.8（修正方式是**移除**這個功能） | 在 `policy.json` 拒絕不明來源；只用 `podman container restore` 還原 |
+| CVE-2026-107935 | gvproxy（`podman machine` 的網路元件） | 6.1.4／5.8.9 | 開發者桌面升級 Podman 或 Podman Desktop 1.30.5 |
+
+#### 10.9.2 公司基準與檢查腳本
+
+| 版本線 | 最低可接受版本 | 理由 |
+| --- | --- | --- |
+| 6.x | **6.1.3** | 涵蓋上表前三項 CVE（主機端） |
+| 5.x | **5.8.8** | 同上，供還不能升級到 6.x 的主機（Windows 10、Intel Mac、RHEL 隨附版本）使用 |
+| 開發者桌面 | 6.1.4／5.8.9 | 另外涵蓋 gvproxy 的 CVE |
+| RHEL | 依 RHSA 判定 | Red Hat 會回補修正，版本號不會跟著上游變 |
+
+```bash
+#!/usr/bin/env bash
+# podman-patch-check.sh：檢查這台主機的 Podman 是否達到公司的最低修補版本
+# 用法：./podman-patch-check.sh            （讀取本機 podman version）
+#       ./podman-patch-check.sh 6.1.2      （直接檢查指定的版本字串，供 CI 測試）
+# 結束碼：0 = 合格；1 = 低於基準；2 = 無法判斷
+set -euo pipefail
+
+MIN_6="6.1.3"   # CVE-2026-94603（checkpoint 映像檔沙箱繞過）、CVE-2025-11395
+MIN_5="5.8.8"
+
+# podman --version 不需要連到服務端（podman machine 沒啟動也能用）；輸出如 "podman version 6.1.4"
+ver="${1:-$(podman --version 2>/dev/null | awk '{print $3}' || true)}"
+ver="${ver%%-*}"                       # 去掉 -rc1、-dev 等後綴
+if [[ ! "$ver" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "UNKNOWN：無法取得 Podman 版本（'$ver'）"; exit 2
+fi
+
+case "${ver%%.*}" in
+  6) min="$MIN_6" ;;
+  5) min="$MIN_5" ;;
+  *) echo "FAIL：$ver 已不在維護範圍，請升級到 6.x"; exit 1 ;;
+esac
+
+# sort -V 排序後，最小的若不是 min，代表 ver < min
+lowest="$(printf '%s\n%s\n' "$ver" "$min" | sort -V | head -1)"
+if [[ "$lowest" == "$min" ]]; then
+  echo "PASS：$ver ≥ $min"
+else
+  echo "FAIL：$ver < $min，請升級（RHEL 請改查 rpm -q --changelog podman 是否含修補）"
+  exit 1
+fi
+```
+
+✅ **驗證方式**（腳本本身的測試，可以放進 CI）：
+
+```bash
+bash -n podman-patch-check.sh                       # 語法檢查
+./podman-patch-check.sh 6.1.4;     echo $?          # 預期：PASS，0
+./podman-patch-check.sh 6.1.2;     echo $?          # 預期：FAIL，1
+./podman-patch-check.sh 6.2.0-rc1; echo $?          # 預期：PASS，0（後綴會被去掉）
+./podman-patch-check.sh 5.8.7;     echo $?          # 預期：FAIL，1
+./podman-patch-check.sh 4.9.4;     echo $?          # 預期：FAIL，1（不在維護範圍）
+./podman-patch-check.sh garbage;   echo $?          # 預期：UNKNOWN，2
+```
+
+> 📌 作者在 Windows 11（Git Bash）上，以上述 11 個版本字串與本機 Podman 5.8.3 實際執行過這支腳本，結果與預期相符：本機的 5.8.3 被判定為 FAIL。
+
+**RHEL 主機**不要只看版本號，要確認 Red Hat 已經回補修正：
+
+```bash
+rpm -q --changelog podman | grep -E 'CVE-2025-11395|CVE-2026-94603' \
+  || echo "尚未看到回補紀錄，請查 RHSA 公告"
+```
+
+### 10.10 💡 本章實務建議
 
 1. **rootless 是預設值**：rootful 必須申請例外，並搭配 `--userns=auto`。
 2. **執行期的安全基準**：`--cap-drop=ALL`、`no-new-privileges`、`--read-only`、資源限制，寫進 Quadlet 範本強制套用。
 3. **SELinux 永遠是 enforcing**，權限問題用 `:Z` 或 udica 解決。
 4. **`policy.json` 採預設拒絕**，只信任公司 registry 的簽章與原廠簽章。
 5. **機密透過 shell driver 串接公司的機密管理平台**，不要把機密留在主機的檔案裡。
+6. 🆕 **把 `podman-patch-check.sh` 納入主機合規掃描**（例如 Ansible 或 Satellite 排程）。低於基準的主機列入修補工單，修補版的 breaking change 請對照 [1.4.2](#142-61x58x-修補版重點)。
+
+### 10.11 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 以 rootless 執行 | `podman info --format '{{.Host.Security.Rootless}}'` | `true` |
+| 2 | 只有必要的 capabilities | `podman inspect -f '{{.EffectiveCaps}}' <容器>` | 只有核准清單上的項目 |
+| 3 | 禁止取得新權限 | `podman inspect -f '{{.HostConfig.SecurityOpt}}' <容器>` | 包含 `no-new-privileges` |
+| 4 | SELinux 為 enforcing | `getenforce` | `Enforcing` |
+| 5 | 拉取時會驗證簽章 | `podman pull <未簽章的映像檔>` | 失敗，訊息含 `signature` |
+| 6 | 版本達到修補基準 | `./podman-patch-check.sh` | `PASS`，結束碼 0 |
 
 ---
 
@@ -2676,6 +3148,18 @@ podman artifact rm registry.corp.example/config/shop:2026.09
 3. **憑證不要長期存放在主機上**：CI 使用短期 token；主機使用唯讀帳號，並透過 credential helper 管理。
 4. **離線環境用 `skopeo sync` 搭配清單檔**，清單納入 Git 管理，每次同步都要留下紀錄。
 5. **設定檔與模型改用 OCI artifact 發佈**，與映像檔共用同一套治理機制。
+
+### 11.10 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 短名稱策略為 enforcing | `grep -r 'short-name-mode' /etc/containers/registries.conf*` | `short-name-mode = "enforcing"` |
+| 2 | docker.io 走公司 mirror | `podman pull docker.io/library/alpine:3 --log-level=debug 2>&1 \| grep -m1 'Trying to access'` | 主機名稱是公司的 mirror |
+| 3 | 封鎖的來源真的被擋 | `podman pull <被封鎖的 registry>/x:1` | 失敗，訊息含 `blocked` |
+| 4 | 複製時保留 digest | 比較 `skopeo inspect --format '{{.Digest}}'` 在來源與目的的結果 | 兩個 digest 相同 |
+| 5 | 登入憑證不在版本庫中 | `git ls-files \| grep -E 'auth\.json$'` | 沒有結果 |
 
 ---
 
@@ -2908,6 +3392,17 @@ pipeline {
 3. **Action 與掃描器要固定版本**（例如 `trivy:0.74.0`），並用 Dependabot 或 Renovate 定期更新。
 4. **部署與建置分離**：CI 只負責產出經過簽章的映像檔，部署交給 GitOps 或 Ansible 更新 Quadlet。
 
+### 12.8 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | CI 以 rootless 建置 | 在 CI job 執行 `podman info --format '{{.Host.Security.Rootless}}'` | `true` |
+| 2 | 每個映像檔都有 SBOM 與簽章 | `cosign verify --key cosign.pub <映像檔>` | 驗證成功 |
+| 3 | 掃描關卡真的會擋 | 故意使用含已知 CVE 的舊版基底映像檔重跑流水線 | 流水線在掃描階段失敗 |
+| 4 | 映像檔的 tag 對應 commit | `podman image inspect -f '{{index .Labels "org.opencontainers.image.revision"}}' <映像檔>` | 等於該次建置的 Git commit SHA |
+
 ---
 
 ## 13. 監控、日誌與維運
@@ -3097,8 +3592,34 @@ sudo podman container checkpoint --leave-running --export /backup/api-live.tar.g
 # 在另一台主機還原
 sudo podman container restore --import /backup/api.tar.gz
 
-# 也可以存成 OCI 映像檔，推送到 registry
+# 也可以存成 checkpoint 映像檔，推送到 registry
 sudo podman container checkpoint --create-image registry.corp.example/ckpt/api:20260929 api
+
+# 從 checkpoint 映像檔還原：一律用 restore
+sudo podman container restore --name api-restored registry.corp.example/ckpt/api:20260929
+```
+
+> ⚠️ **v3.0 更正（CVE-2026-94603）**：v2.0 沒有提醒 checkpoint 映像檔的安全風險。**6.1.3／5.8.8 起，`podman run` 不再接受 checkpoint 映像檔**。舊版用 `podman run` 執行 checkpoint 映像檔時，會忽略使用者指定的安全設定，並停用所有沙箱。只能用 `podman container restore` 還原。checkpoint 映像檔裡有記憶體內容，可能包含密碼、token 等機密，所以要放在**存取受控的獨立 repository**，並設定保存期限。
+
+```bash
+# ❌ 6.1.3 起會失敗；舊版會在沒有沙箱的情況下執行
+sudo podman run registry.corp.example/ckpt/api:20260929
+
+# ✅ 正確做法
+sudo podman container restore registry.corp.example/ckpt/api:20260929
+```
+
+✅ **驗證方式**：
+
+```bash
+# 1. 確認映像檔是 checkpoint 映像檔（有這個 annotation）
+sudo podman image inspect registry.corp.example/ckpt/api:20260929 \
+  --format '{{index .Annotations "io.podman.annotations.checkpoint.runtime.name"}}'
+# 預期：crun（或 runc）
+
+# 2. 在 6.1.3 以上的主機用 podman run 執行它，預期會失敗；成功執行代表主機版本過舊
+# 3. 還原後確認是「接續執行」而不是重新啟動：近期日誌中不應出現應用程式的啟動訊息
+sudo podman logs --since 2m api-restored | grep -c 'Started ' # Spring Boot 的啟動訊息；預期 0
 ```
 
 限制：需要 root；有外部 TCP 連線時要加 `--tcp-established`；還原的主機需要相同的 CPU 功能與相容的核心版本。
@@ -3120,6 +3641,18 @@ sudo podman container checkpoint --create-image registry.corp.example/ckpt/api:2
 3. **每台主機部署 prometheus-podman-exporter**，並套用統一的告警規則。
 4. **清理工作用 systemd timer 排程**，並在升級到 Podman 6 前確認 `volume prune` 的行為差異。
 5. **不正常關機之後先執行 `podman system check`**，再啟動服務。
+
+### 13.9 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 日誌寫入 journald | `podman inspect -f '{{.HostConfig.LogConfig.Type}}' <容器>` | `journald` |
+| 2 | 可以依容器查日誌 | `journalctl CONTAINER_NAME=<容器> -n 5` | 有輸出 |
+| 3 | 監控指標有被收集 | `curl -s localhost:9882/metrics \| grep -m1 podman_container_info` | 有輸出 |
+| 4 | 定期清理排程有啟用 | `systemctl --user list-timers \| grep podman-prune` | 列出下一次執行時間 |
+| 5 | checkpoint 只用 restore 還原 | `grep -rn 'podman run .*ckpt' scripts/` | 沒有結果 |
 
 ---
 
@@ -3144,11 +3677,11 @@ flowchart TD
 
 ```bash
 podman version && podman info                    # 版本與執行環境
-podman --log-level=debug run ...                 # 顯示詳細的執行過程
+podman --log-level=debug run --rm docker.io/library/alpine:3 true   # 顯示詳細的執行過程
 podman ps -a --format "{{.Names}} {{.Status}} {{.ExitCode}}"
-podman inspect <容器> --format '{{.State.Error}} {{.State.OOMKilled}}'
-podman logs --tail 100 <容器>
-podman events --since 30m --filter container=<容器>
+podman inspect api --format '{{.State.Error}} {{.State.OOMKilled}}'   # api 換成實際的容器名稱
+podman logs --tail 100 api
+podman events --since 30m --filter container=api
 journalctl --user -xe                            # rootless 的 systemd 紀錄
 ```
 
@@ -3264,6 +3797,17 @@ podman system check --repair
 2. **建立團隊的疑難排解知識庫**，以「症狀 → 原因 → 處置」格式記錄，並附上 `podman version` 與作業系統版本。
 3. **不要用 `--privileged` 或 `label=disable` 來「解決」權限問題**，要找出真正的原因。
 4. **正式環境的問題先保存現場**（`podman inspect`、logs、events，必要時做 checkpoint），再重新啟動。
+
+### 14.9 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 問題能以最少的資訊重現 | 依 [14.1](#141-診斷流程) 收集 `podman info`、`podman inspect`、日誌 | 交給另一位同仁可以重現 |
+| 2 | 儲存層一致 | `podman system check` | 沒有錯誤 |
+| 3 | 事件中沒有反覆的異常 | `podman events --since 1h --filter event=died --format '{{.Name}}' \| sort \| uniq -c` | 沒有容器反覆結束 |
+| 4 | 修復後有回歸測試 | 執行該服務的健康檢查與冒煙測試 | 全部通過 |
 
 ---
 
@@ -3388,7 +3932,30 @@ podman quadlet list
 | Intel Mac、Windows 10 開發機 | 維持 5.8.x，並排入設備汰換計畫 |
 | 跨版本混用 | CI 與正式環境以正式環境的主版本為準，避免行為差異 |
 
-> 📌 上游會持續發布 5.8 的修補版（目前為 5.8.7，2026-09-16），但停止維護的時間還沒有公布，請持續追蹤官方公告（見[附錄 E.1](#e1-待確認事項)）。
+> 📌 上游會持續發布 5.8 的修補版（目前為 5.8.9，2026-10-12，與 6.1.4 同日發布），但停止維護的時間還沒有公布。第三方網站 endoflife.date 把 5.8 的安全支援結束日標為 2026-09-26，但這是它依規則推算的日期，與上游之後仍發布 5.8.8、5.8.9 的事實不符，**不要拿來當作依據**。請以官方公告為準（見[附錄 E.1](#e1-待確認事項)）。
+>
+> ⚠️ 5.x 主機一樣要達到 [10.9](#109-安全修補版本基準) 的最低修補版本 **5.8.8**。
+
+#### 15.2.4 🔭 6.1 → 6.2 升級前檢查
+
+6.2 正式發布後，升級前請先處理以下項目（依 6.2.0-rc1 的 Release Notes 整理）：
+
+| 項目 | 6.2 的變更 | 要做的事 |
+| --- | --- | --- |
+| `kube play` 的 seccomp annotation | 標為棄用，7.0 移除 | 改用 `securityContext.seccompProfile`（見 [7.3.2](#732--62-預覽kube-play-的驗證與多副本)） |
+| `--cpu-rt-period`／`--cpu-rt-runtime` | 從文件中隱藏；移除 cgroups v1 後本來就沒有作用，7.0 會移除 | 從腳本中刪除 |
+| `--image-volume=bind` | 會印出棄用警告；預設值為 `anonymous` | 改用 `anonymous` 或 `tmpfs` |
+| `podman inspect` 的 `Aliases` | 只列出使用者加的 DNS 別名；新增 `DNSNames` 欄位 | 解析 `Aliases` 的監控或 CMDB 腳本改讀 `DNSNames` |
+| healthcheck 的 systemd unit 名稱 | 改為 `libpod-healthcheck-<容器ID>-<亂數>.service` | 依 unit 名稱過濾的告警規則要更新 |
+| `podman exec` 的訊號 | 按 Ctrl-C 會一併結束容器內的程序 | 確認維運腳本沒有依賴舊行為 |
+| journald 事件 | 事件內容不再帶時間戳記（journald 本身已記錄） | 解析事件文字的 SIEM 規則要調整 |
+
+✅ **驗證方式**：在升級前，對腳本與設定庫執行以下搜尋，有命中的就要處理：
+
+```bash
+grep -rnE 'seccomp\.security\.alpha\.kubernetes\.io|cpu-rt-(period|runtime)|image-volume[= ]bind|\.Aliases' \
+  /etc/containers /opt/ops-scripts ~/.config/containers 2>/dev/null
+```
 
 ### 15.3 💡 本章實務建議
 
@@ -3396,6 +3963,18 @@ podman quadlet list
 2. **正式服務遷移時順便改成 Quadlet**，一次解決開機自動啟動、auto-update、日誌整合三個問題。
 3. **在每台主機執行 Podman 6 預檢腳本**，把結果彙整成資產清單。
 4. **升級前一定要備份 volume 與設定檔**，特別是仍在使用 BoltDB 的舊主機。
+
+### 15.4 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 升級前檢查全部通過 | `./podman6-precheck.sh` | 每一項都符合 [15.2.1](#1521-升級前稽核) 表格的通過條件 |
+| 2 | 升級後資料庫已遷移 | `podman info --format '{{.Host.DatabaseBackend}}'` | `sqlite` |
+| 3 | 舊映像檔與 volume 都還在 | 比較升級前後的 `podman images -q \| wc -l` 與 `podman volume ls -q \| wc -l` | 數量相同 |
+| 4 | 服務恢復運作 | `podman quadlet list` 與各服務的冒煙測試 | 全部 active，測試通過 |
+| 5 | 沒有使用 6.2 起棄用的選項 | 執行 [15.2.4](#1524--61--62-升級前檢查) 的 grep | 沒有結果 |
 
 ---
 
@@ -3586,6 +4165,16 @@ man podman-container.unit    # Quadlet 的 [Container] 設定（6.0 起依類型
 1. **認證以 EX188 為目標**；系統管理職務再加考 RHCSA，平台團隊再往 CKA／CKAD 延伸。
 2. **練習環境與考試一致**：使用 RHEL 10 或對應版本的 Podman 5 練習。本手冊以 Podman 6 為基準，兩者的差異請參考[第 15 章](#15-從-docker-遷移與升級到-podman-6)。
 3. **團隊內部每季舉辦一次實作演練**，以本章的專案練習作為新人訓練的結業驗收。
+
+### 16.9 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證指令」，並把實際輸出與「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。`<容器>`、`<映像檔>` 等請換成實際名稱。
+
+| # | 檢查項目 | 驗證指令 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 每個練習都有可驗證的成果 | 依各題的「驗證」步驟執行 | 結果與題目要求一致 |
+| 2 | 練習環境與考試環境一致 | `podman --version` | 與 EX188 公布的基準版本相同（Podman 5） |
+| 3 | 不依賴網路查資料也能完成 | 關閉瀏覽器，只用 `man` 與 `--help` 完成一道模擬題 | 在時間內完成 |
 
 ---
 
@@ -3848,6 +4437,8 @@ secrets:
 - [ ] 已部署 prometheus-podman-exporter 與告警規則
 - [ ] volume 已納入備份排程，並完成還原演練
 - [ ] auto-update 策略（自動或變更時段手動）已經核准
+- [ ] 🆕 `podman-patch-check.sh` 結果為 PASS（6.x ≥ 6.1.3、5.x ≥ 5.8.8；RHEL 依 RHSA 判定）
+- [ ] 🆕 沒有任何腳本以 `podman run` 執行 checkpoint 映像檔
 
 ### C.3 故障排查
 
@@ -3880,6 +4471,7 @@ secrets:
 - [ ] `volume prune`、`volume ls --filter` 相關腳本已經調整
 - [ ] 已備份 volume、Quadlet 與設定檔
 - [ ] 已在測試環境完成回歸測試
+- [ ] 🆕 準備升級到 6.2 時，[15.2.4](#1524--61--62-升級前檢查) 的搜尋指令沒有任何結果
 
 ---
 
@@ -3891,6 +4483,7 @@ secrets:
 | --- | --- | --- |
 | 1.0 | 2025-10-31 | 初版：基礎入門、專案實務、進階操作、EX180 考照準備、附錄 |
 | 2.0 | 2026-09-29 | 以 Podman 6.1 為基準全面改寫；新增 Quadlet、Kubernetes 整合、供應鏈、監控維運、遷移升級等章節；修正過時與錯誤的內容；目錄改為自動產生 |
+| 3.0 | 2026-11-06 | 以 6.1.4／5.8.9 為基準逐章查證並預覽 6.2.0-rc1；新增安全修補基準、checkpoint 映像檔更正、RHEL 對照、MSI 大量佈署、Podman Desktop 管理設定，以及 16 份章末審查與驗證清單（見 [D.4](#d4-v20--v30-更正表)） |
 
 ### D.2 v1.0 → v2.0 更正表
 
@@ -3936,11 +4529,44 @@ secrets:
 | [第 15 章](#15-從-docker-遷移與升級到-podman-6) | Docker 遷移與 Podman 6 升級預檢 |
 | [附錄 E](#附錄-e查證紀錄) | 查證紀錄與待確認事項 |
 
+
+### D.4 v2.0 → v3.0 更正表
+
+| # | v2.0 內容 | 問題 | v3.0 修正 | 章節 |
+| --- | --- | --- | --- | --- |
+| 1 | 基準版本 6.1.2／5.8.7 | 上游已發布 6.1.3、6.1.4、5.8.8、5.8.9，其中有安全修正與 breaking change | 基準改為 6.1.4／5.8.9，新增修補版重點表 | [1.4.2](#142-61x58x-修補版重點) |
+| 2 | checkpoint 映像檔可以「推送到 registry」，但沒有安全提醒，也沒有說明怎麼還原 | CVE-2026-94603：6.1.3／5.8.8 起 `podman run` 不再接受 checkpoint 映像檔 | 改用 `podman container restore`，並加上存放與保存期限的要求 | [13.6](#136-checkpointrestorecriu) |
+| 3 | 沒有定義最低修補版本 | 稽核時無法判定合格與否 | 新增 6.1.3／5.8.8 基準與檢查腳本 | [10.9](#109-安全修補版本基準) |
+| 4 | RHEL「目前隨附 5.x」 | 太籠統，無法用來規劃 | 補上 RHEL 9.5～10.2 與 Podman 版本對照，並說明回補修正的判斷方式 | [2.2.1](#221-rhel-910) |
+| 5 | Windows「MSI 靜默安裝的參數請見官方指南」 | 官方指南沒有列出參數 | 從安裝程式原始碼整理 `MACHINE_PROVIDER`、`ALLUSERS`、`MSIINSTALLPERUSER`、`SKIP_CONFIG_FILE_CREATION` | [2.3.2](#232--大量佈署msi-靜默安裝) |
+| 6 | Podman Desktop 1.29.3，「1.30 為預覽版」 | 1.30.5 已於 2026-10-13 成為穩定版 | 更新版本與新功能；補上 managed configuration 的做法 | [2.6](#26-podman-desktop) |
+| 7 | 「企業可以用設定檔鎖定選項」 | 沒有說明檔名與路徑 | 新增 `default-settings.json`／`locked.json` 範例與驗證方式 | [2.6.1](#261--企業管理設定managed-configuration) |
+| 8 | `kube play --validate`、`--multiple-pods`「尚未發布」 | 已進入 6.2.0-rc1 | 新增 6.2 預覽小節與 seccomp annotation 棄用通知 | [7.3.2](#732--62-預覽kube-play-的驗證與多副本) |
+| 9 | Trivy 0.74、Grype 0.119 | 已有新版 | 更新為 Trivy 0.76、Grype 0.121 | [10.7](#107-sbom-與漏洞掃描) |
+| 10 | Buildah 1.45.1 | Podman 6.1.4 內建 1.45.2；獨立版為 1.46.0 | 分別列出 | [1.5](#15-生態系工具) |
+| 11 | OCI 規範只列名稱 | 沒有版本，也沒有說明 Referrers API | 補上 runtime-spec v1.3.0、image-spec／distribution-spec v1.1.1，以及 Referrers API 的確認方式 | [1.2.3](#123-oci-規範) |
+| 12 | Windows 舊安裝程式與 MSI 的差異沒有說明 | 改用新版 MSI 前必須先移除舊版（5.7.0 以前的 bundle 安裝程式） | 新增注意事項 | [2.3.2](#232--大量佈署msi-靜默安裝) |
+| 13 | 各章只有「實務建議」 | 讀者無法自行驗證內容是否正確 | 每章新增「✅ 本章審查與驗證清單」 | 各章結尾 |
+
+### D.5 v3.0 新增章節
+
+| 章節 | 內容 |
+| --- | --- |
+| [1.4.2 6.1.x／5.8.x 修補版重點](#142-61x58x-修補版重點) | 修補版的 CVE 與 breaking change |
+| [2.3.2 大量佈署：MSI 靜默安裝](#232--大量佈署msi-靜默安裝) | MSI 屬性、指令與驗證方式 |
+| [2.6.1 企業管理設定](#261--企業管理設定managed-configuration) | Podman Desktop 的鎖定設定 |
+| [7.3.2 6.2 預覽：kube play](#732--62-預覽kube-play-的驗證與多副本) | `--validate`、`--multiple-pods`、`--label`、seccomp 欄位 |
+| [8.6.1 6.2 預覽：新的 Quadlet key](#861--62-預覽新的-quadlet-key) | `SetMountsDependency=`、`Umask=` |
+| [8.8.1 6.2 預覽：auto-update](#881--62-預覽auto-update-篩選與遠端執行) | `--filter`、遠端執行 |
+| [10.9 安全修補版本基準](#109-安全修補版本基準) | CVE 對照、最低版本、檢查腳本 |
+| [15.2.4 6.1 → 6.2 升級前檢查](#1524--61--62-升級前檢查) | 6.2 的行為變更與搜尋指令 |
+| 各章「✅ 本章審查與驗證清單」 | 共 16 份，每項都有驗證指令與預期結果 |
+
 ---
 
 ## 附錄 E：查證紀錄
 
-以下事實於 **2026-09-29** 依官方來源查證。來源欄的 man page 以 [podman-container-tools/podman](https://github.com/podman-container-tools/podman) main 分支的 `docs/source/markdown/` 為準。
+以下為 **v2.0（2026-09-29）** 的查證紀錄，依官方來源查證；v3.0 的查證紀錄見 [E.2](#e2-v30-查證紀錄)。來源欄的 man page 以 [podman-container-tools/podman](https://github.com/podman-container-tools/podman) main 分支的 `docs/source/markdown/` 為準。
 
 | # | 事實 | 來源 |
 | --- | --- | --- |
@@ -3975,16 +4601,52 @@ secrets:
 
 ### E.1 待確認事項
 
-| # | 項目 | 原因 | 建議追蹤方式 |
+> 🆕 **v3.0 更新（2026-11-06）**：已結案的項目保留在表中，並在「狀態」欄寫出結論與章節。
+
+| # | 項目 | 狀態 | 結論或追蹤方式 |
 | --- | --- | --- | --- |
-| 1 | RHEL 10.x／9.x 各次版本實際隨附的 Podman 版本 | 官方政策頁沒有列出對照表 | 在各版本主機執行 `podman version`，或查閱 RHEL Release Notes |
-| 2 | RHEL 何時提供 Podman 6 | 尚未公布 | 追蹤 RHEL 10.2 之後的 Release Notes |
-| 3 | 5.8.x 的停止維護時間 | 尚未公布 | 追蹤 GitHub Releases 與 Podman 部落格 |
-| 4 | `rootless_port_forwarder="pasta"`（Pesto）何時成為預設 | 6.x 仍為實驗性質 | 追蹤 RELEASE_NOTES.md |
-| 5 | Podman Desktop 1.30 何時發布穩定版 | 2026-09 時仍標示為 prerelease | 追蹤 Podman Desktop Releases |
-| 6 | `podman kube play --validate`、`--multiple-pods` | 只出現在 main 分支的文件，尚未發布 | 等下一個次版本（6.2）的 Release Notes |
-| 7 | 未來的映像檔 ID 格式（非 SHA256 digest） | 6.0 預告會改變，格式尚未決定 | 依賴映像檔 ID 格式的腳本要追蹤 |
-| 8 | Windows MSI 靜默安裝的參數名稱 | 官方指南需要依 MSI 版本確認 | 參考 Podman for Windows 指南並實測 |
+| 1 | RHEL 10.x／9.x 各次版本實際隨附的 Podman 版本 | ✅ 已結案 | 9.7／10.1 為 5.6.0，9.8／10.2 為 5.8.2，見 [2.2.1](#221-rhel-910)。之後的新次版本，請在主機上執行 `rpm -q podman` 確認 |
+| 2 | RHEL 何時提供 Podman 6 | ⏳ 待確認 | RHEL 10.2（2026-05）仍為 5.8.2。追蹤 RHEL 10.3／9.9 的 Release Notes |
+| 3 | 5.8.x 的停止維護時間 | ⏳ 待確認 | 上游在 2026-10-12 仍發布 5.8.9。endoflife.date 推算的 2026-09-26 與事實不符，不採用 |
+| 4 | `rootless_port_forwarder="pasta"`（Pesto）何時成為預設 | ⏳ 待確認 | 6.2.0-rc1 的 Release Notes 沒有提到改為預設 |
+| 5 | Podman Desktop 1.30 何時發布穩定版 | ✅ 已結案 | 1.30.5 於 2026-10-13 發布（1.30.0～1.30.4 為 prerelease），見 [2.6](#26-podman-desktop) |
+| 6 | `podman kube play --validate`、`--multiple-pods` | 🔭 部分結案 | 已進入 6.2.0-rc1（見 [7.3.2](#732--62-預覽kube-play-的驗證與多副本)）。等 6.2.0 正式發布後，移除 🔭 標示 |
+| 7 | 未來的映像檔 ID 格式（非 SHA256 digest） | ⏳ 待確認 | 6.2.0-rc1 仍未改變 |
+| 8 | Windows MSI 靜默安裝的參數名稱 | ✅ 已結案 | 見 [2.3.2](#232--大量佈署msi-靜默安裝)；參數來源為 `contrib/win-installer`（v6.1.4） |
+| 9 | 🆕 Quadlet `Umask=` 的 man page | ⏳ 待確認 | Release Notes 與原始碼已有，但 6.2.0-rc1 的 `podman-container.unit(5)` 尚未收錄 |
+| 10 | 🆕 6.2.0 正式版的發布日與最終內容 | ⏳ 待確認 | RC 階段的功能可能還會調整。正式發布後，請重新比對 [7.3.2](#732--62-預覽kube-play-的驗證與多副本)、[8.6.1](#861--62-預覽新的-quadlet-key)、[8.8.1](#881--62-預覽auto-update-篩選與遠端執行)、[15.2.4](#1524--61--62-升級前檢查) |
+| 11 | 🆕 RHEL 套件是否已回補 CVE-2026-94603 | ⏳ 待確認 | 查詢對應的 RHSA 公告，或執行 `rpm -q --changelog podman` |
+
+### E.2 v3.0 查證紀錄
+
+以下事實於 **2026-11-06** 查證。版本號一律以下載的原始檔 grep 確認，不採用網頁摘要。
+
+| # | 事實 | 來源 |
+| --- | --- | --- |
+| 1 | 6.1.3（2026-09-29）、6.1.4（2026-10-12）、5.8.8（2026-09-29）、5.8.9（2026-10-12）、6.2.0-rc1（2026-10-26，prerelease） | GitHub Releases API（`gh api repos/podman-container-tools/podman/releases`） |
+| 2 | 6.1.3／5.8.8 修正 CVE-2026-94603，並移除 `podman run` 對 checkpoint 映像檔的支援（Breaking Changes） | RELEASE_NOTES.md（v6.2.0-rc1 tag）的 6.1.3 段落；v5.8.8 release body |
+| 3 | 6.1.2／5.8.7 修正 CVE-2025-11395（`podman load`、`podman volume import`）；6.1.1 修正 CVE-2026-17106 | RELEASE_NOTES.md 6.1.1、6.1.2 段落 |
+| 4 | 6.1.4／5.8.9：gvproxy 0.9.0（CVE-2026-107935）、修正 WSL 3；6.1.4 內建 Buildah 1.45.2，5.8.9 內建 Buildah 1.43.5 | RELEASE_NOTES.md 6.1.4 段落；v5.8.9 release body |
+| 5 | 6.2 新增 `kube play --validate`／`--label`／`--multiple-pods`、`push --platform`、`auto-update --filter`、Quadlet `Umask`／`SetMountsDependency`；seccomp annotation 棄用（7.0 移除） | RELEASE_NOTES.md 6.2.0 段落 |
+| 6 | `--validate` 的值為 `ignore`（預設）／`warn`／`strict`；strict 失敗時不回滾已建立的物件 | podman-kube-play.1.md.in（v6.2.0-rc1） |
+| 7 | `SetMountsDependency=` 位於 `[Quadlet]` 區段，值為 `Requires`（預設）／`Wants`（需要 systemd 256）／`None` | podman-systemd.unit.5.md（v6.2.0-rc1） |
+| 8 | `Umask` 對應 `--umask`，在 6.1.4 的 Quadlet 原始碼中不存在；Quadlet 遇到不支援的 key 會回報 `unsupported key` 錯誤 | pkg/systemd/quadlet/quadlet.go（v6.2.0-rc1 與 v6.1.4） |
+| 9 | `auto-update --filter` 支援 `label=`、`ancestor=`；`--dry-run` 的 `UPDATED` 欄位以 `pending` 表示有新版 | podman-auto-update.1.md.in（v6.2.0-rc1） |
+| 10 | 6.2 可以用實例專屬的 drop-in 目錄建立範本實例 | podman-systemd.unit.5.md（v6.2.0-rc1）的 Template files 一節 |
+| 11 | MSI 屬性：`MACHINE_PROVIDER`（預設 `wsl`）、`ALLUSERS=1`、`MSIINSTALLPERUSER=1`、`SKIP_CONFIG_FILE_CREATION`；新版 MSI 從 5.7.0 起提供 | contrib/win-installer/wix/podman-main.wxs、test.ps1（v6.1.4）；RELEASE_NOTES.md 5.7.0 |
+| 12 | Windows 安裝範圍：使用者範圍為預設（`%LOCALAPPDATA%\Programs\Podman`）；安裝程式不會自動安裝 WSL | docs/tutorials/podman-for-windows.md（v6.1.4） |
+| 13 | RHEL 9.7／10.1 為 Podman 5.6.0（Buildah 1.41.0、Skopeo 1.20.0）；9.8／10.2 為 5.8.2 | Red Hat Jira（RHEL 10.1 Container Tools epic）、RHEL 10.2 Release Notes 搜尋摘要；以 tangentsoft.com「Stable Versions」對照表交叉核對 |
+| 14 | Podman Desktop 1.30.5 於 2026-10-13 發布（非 prerelease）；內建 Podman 6.1.4／5.8.9 | GitHub Releases API；extensions/podman/.../podman.json；官方部落格 2026-10-14 |
+| 15 | Podman Desktop managed configuration 的檔名、路徑與優先順序 | website/docs/configuration/managed-configuration.mdx |
+| 16 | `kube play` 的 seccomp annotation 為 `seccomp.security.alpha.kubernetes.io/pod` 與 `container.seccomp.security.alpha.kubernetes.io/<容器名稱>`，原始碼標記 Podman 7 移除 | pkg/specgen/generate/kube/seccomp.go（v6.2.0-rc1） |
+| 17 | 新版 configfile 解析器的 debug 訊息為 `Read config file "<路徑>"` | container-libs：storage/pkg/configfile/parse.go |
+| 18 | Buildah 1.46.0、Skopeo 1.24.1、crun 1.30.1、Netavark／Aardvark-dns 2.1.0、podman-compose 1.6.0、prometheus-podman-exporter 2.0.0 | 各專案 GitHub Releases API |
+| 19 | Trivy 0.76.2、Grype 0.121.2、Syft 1.57.0、cosign 3.1.4 | 各專案 GitHub Releases API |
+| 20 | OCI runtime-spec v1.3.0（2025-11）、image-spec v1.1.1（2025-03）、distribution-spec v1.1.1（2025-01） | opencontainers 各規格的 GitHub Releases |
+| 21 | redhat-actions buildah-build v3.1.0、push-to-registry v3.0.0、podman-login v2.0；actions/checkout v7.0.1，與 v2.0 相同 | 各專案 GitHub Releases API |
+| 22 | EX188 仍以 RHEL 10、Podman v5、OCP 4.22 為基準 | redhat.com EX188 頁面（韓文版）；日文版仍是舊的 RHEL 9 基準 |
+| 23 | `podman container restore` 可以接受映像檔，並支援 `--name`；`podman machine info --format '{{.Host.VMType}}'` 可以使用 | 本機 Podman 5.8.3 CLI 的 `--help` 與實際執行 |
+| 24 | `podman-patch-check.sh` 對 11 個測試版本字串與本機 5.8.3 的判定結果都符合預期 | 作者在 Git Bash 上實際執行（見 [10.9.2](#1092-公司基準與檢查腳本)） |
 
 ---
 
@@ -4002,6 +4664,9 @@ secrets:
 - [Buildah](https://buildah.io/)、[Skopeo](https://github.com/podman-container-tools/skopeo)
 - [Podman Desktop](https://podman-desktop.io/)
 - [podman-compose](https://github.com/containers/podman-compose)
+- [Podman for Windows 指南](https://github.com/podman-container-tools/podman/blob/main/docs/tutorials/podman-for-windows.md)、[Windows 安裝程式原始碼（MSI 屬性）](https://github.com/podman-container-tools/podman/tree/main/contrib/win-installer)
+- [Podman Desktop：managed configuration](https://podman-desktop.io/docs/configuration/managed-configuration)、[Podman Desktop 1.30 發布說明](https://podman-desktop.io/blog/podman-desktop-release-1.30)
+- [Podman 安全公告（GitHub Security Advisories）](https://github.com/podman-container-tools/podman/security/advisories)
 
 ### F.2 Red Hat 資源
 
@@ -4010,12 +4675,14 @@ secrets:
 - [Red Hat Blog：Rootless containers using Podman](https://www.redhat.com/en/blog/rootless-containers-podman)
 - [RHEL 10：Building, running, and managing containers](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/building_running_and_managing_containers/index)
 - [Container Tools AppStream 支援政策](https://access.redhat.com/support/policy/updates/containertools)
+- [RHEL 10.2 Release Notes](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html-single/10.2_release_notes/index)、[RHEL 10.2 與 9.8 開發者重點](https://developers.redhat.com/articles/2026/05/20/rhel-10-2-and-9-8-top-features-developers)
+- [Red Hat 安全公告（RHSA）查詢](https://access.redhat.com/security/security-updates/)
 - [EX188 考試頁面](https://www.redhat.com/en/services/training/ex188-red-hat-certified-specialist-containers-exam)
 - [Red Hat Universal Base Images（UBI）](https://catalog.redhat.com/software/base-images)
 
 ### F.3 標準與規範
 
-- [Open Container Initiative（OCI）](https://opencontainers.org/)
+- [Open Container Initiative（OCI）](https://opencontainers.org/)：[image-spec](https://github.com/opencontainers/image-spec)、[runtime-spec](https://github.com/opencontainers/runtime-spec)、[distribution-spec](https://github.com/opencontainers/distribution-spec)
 - [CNCF：Podman Container Tools](https://www.cncf.io/projects/podman-container-tools/)
 - [NIST SP 800-190：Application Container Security Guide](https://csrc.nist.gov/pubs/sp/800/190/final)
 - [CIS Docker Benchmark](https://www.cisecurity.org/benchmark/docker)
@@ -4030,12 +4697,13 @@ secrets:
 - [udica（SELinux 政策產生器）](https://github.com/containers/udica)
 - [Ansible containers.podman collection](https://github.com/containers/ansible-podman-collections)
 - [passt／pasta](https://passt.top/)
+- [Podman Solutions：Stable Versions（RHEL 與 Podman 版本對照，社群維護）](https://tangentsoft.com/podman/wiki?name=Stable+Versions)
 
 ---
 
 ## 📚 總結
 
-本手冊以 Podman 6.1 為基準，涵蓋從開發者桌面到正式主機的完整生命週期：
+本手冊以 Podman 6.1.4 為基準（並預覽 6.2），涵蓋從開發者桌面到正式主機的完整生命週期：
 
 1. **基礎**（第 1～3 章）：架構、安裝、核心操作。
 2. **建置與資源**（第 4～6 章）：Containerfile、儲存、網路。
@@ -4043,4 +4711,4 @@ secrets:
 4. **治理**（第 10～13 章）：安全、供應鏈、CI/CD、監控維運。
 5. **維運與成長**（第 14～16 章）：疑難排解、遷移升級、EX188 認證準備。
 
-企業導入的核心原則可以歸納為四點：**rootless 為預設、Quadlet 管理服務、簽章驗證供應鏈、Kubernetes YAML 銜接平台**。建議依[執行摘要](#執行摘要)的路線圖分階段導入，並以[附錄 C](#附錄-c檢查清單) 的檢查清單驗收。
+企業導入的核心原則可以歸納為五點：**rootless 為預設、Quadlet 管理服務、簽章驗證供應鏈、Kubernetes YAML 銜接平台、主機維持在安全修補基準以上**。建議依[執行摘要](#執行摘要)的路線圖分階段導入。每章完成後，用該章的「✅ 本章審查與驗證清單」自我檢核；整體驗收則使用[附錄 C](#附錄-c檢查清單)。

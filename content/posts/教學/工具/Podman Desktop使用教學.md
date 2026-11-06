@@ -10,18 +10,28 @@ categories = ['教學']
 
 | 項目 | 內容 |
 | --- | --- |
-| **文件版本** | 2.0 |
-| **最後更新** | 2026 年 9 月 29 日 |
-| **適用版本** | Podman Desktop 1.29.x（主要基準，穩定版 1.29.3）；兼述 1.30 預覽版 |
-| **內建引擎** | Podman 6.0.2（Windows、Apple Silicon Mac）、Podman 5.8.5（Intel Mac）；1.30 預覽版升為 6.1.2／5.8.7 |
-| **企業版** | Red Hat build of Podman Desktop 1.2（2026 年 2 月 GA） |
+| **文件版本** | 3.0 |
+| **最後更新** | 2026 年 11 月 6 日 |
+| **適用版本** | Podman Desktop 1.30.x（主要基準，穩定版 1.30.5，2026-10-13）；🔭 標示 1.31 開發版（main 分支 `1.31.0-next`）已出現在官方文件、尚未正式發布的內容 |
+| **內建引擎** | Podman 6.1.4（Windows x64／ARM64、Apple Silicon Mac）、Podman 5.8.9（Intel Mac） |
+| **擴充功能** | Kubernetes Extension Pack 0.6.0、Podman AI Lab 1.9.3、Podman Quadlet 0.13.0 |
+| **企業版** | Red Hat build of Podman Desktop（2026-02 GA）；商業支援版 **Red Hat Desktop**（2026-05-12 GA） |
+| **圖例** | 🆕 本版新增　⚠️ 更正或注意事項　🔭 預覽（1.31 開發版文件已出現、尚未正式發布）　✅ 審查與驗證清單 |
 | **適用對象** | 後端與前端工程師、系統架構師、平台工程、DevOps、桌面管理（IT）與資安人員 |
 | **文件定位** | 企業標準技術白皮書／內部標準教材 |
 | **使用情境** | 大型企業、金融業（銀行、證券、保險）的開發者桌面容器環境 |
 | **文件維護** | 內部技術團隊 |
 | **Created by** | Eric Cheng |
 
-> ⚠️ **v2.0 重大改版說明**：v1.0 以 Podman 4.x 時代為基準，許多畫面描述已經和實際介面不符，安裝流程也還停留在 Windows 10 與手動 `dism` 指令。另外，v1.0 的檔案結構有損壞：總結之後接著斷掉的程式碼片段、重複的第 3～5 章精簡版，以及放錯位置的 2.5.3～2.5.5 節。本版以 Podman Desktop 1.29 與 Podman 6 為基準全面改寫，新增企業集中管理（Managed configuration）、受限環境安裝、擴充功能生態、Kubernetes 整合、Podman AI Lab、疑難排解等章節。Podman 引擎本身的 CLI、Quadlet、網路與供應鏈細節，請搭配本站《Podman 使用教學手冊》v2.0 閱讀。完整更正清單請見[附錄 D：版本紀錄](#附錄-d版本紀錄)，查證來源請見[附錄 E：查證紀錄](#附錄-e查證紀錄)。
+> 🆕 **v3.0 改版說明**：v3.0 把基準從 1.29.3 更新到 **1.30.5**（內建 Podman 6.1.4／5.8.9），並逐章對照官方文件在 1.29.3 → 1.30.5 之間的變動，以及 1.31 開發版文件。重點如下：
+>
+> - **新內容**：1.30 的新功能、Kubernetes Extension Pack 0.6.0、自訂擴充功能目錄（🔭）、Docker CLI 別名（🔭）、Podman Desktop 本身的 CVE 基準、Red Hat Desktop。
+> - **每章審查清單**：每章都新增「✅ 本章審查與驗證清單」，審查者可以逐項執行驗證指令，並和預期結果比對。
+> - **重要更正**：Podman Desktop 建立 machine 時，「Machine with root privileges」**預設是開啟的**（rootful）；v2.0 誤寫成 rootless。只有 CLI `podman machine init` 預設是 rootless。
+>
+> 完整更正清單見[附錄 D.4](#d4-v20--v30-更正表)，查證來源見[附錄 E.2](#e2-v30-查證紀錄)。
+
+**v2.0 改版說明（歷史紀錄）**：v1.0 以 Podman 4.x 時代為基準，許多畫面描述已經和實際介面不符，安裝流程也還停留在 Windows 10 與手動 `dism` 指令。另外，v1.0 的檔案結構有損壞：總結之後接著斷掉的程式碼片段、重複的第 3～5 章精簡版，以及放錯位置的 2.5.3～2.5.5 節。本版以 Podman Desktop 1.29 與 Podman 6 為基準全面改寫，新增企業集中管理（Managed configuration）、受限環境安裝、擴充功能生態、Kubernetes 整合、Podman AI Lab、疑難排解等章節。Podman 引擎本身的 CLI、Quadlet、網路與供應鏈細節，請搭配本站《Podman 使用教學手冊》v2.0 閱讀。完整更正清單請見[附錄 D：版本紀錄](#附錄-d版本紀錄)，查證來源請見[附錄 E：查證紀錄](#附錄-e查證紀錄)。
 
 <!-- TOC-AUTO-BEGIN -->
 
@@ -38,6 +48,7 @@ categories = ['教學']
   - [1.5 社群版與 Red Hat build of Podman Desktop](#15-社群版與-red-hat-build-of-podman-desktop)
   - [1.6 專案治理與社群](#16-專案治理與社群)
   - [1.7 💡 本章實務建議](#17--本章實務建議)
+  - [1.8 ✅ 本章審查與驗證清單](#18--本章審查與驗證清單)
 - [2. 安裝與初始設定](#2-安裝與初始設定)
   - [2.1 系統需求與平台支援](#21-系統需求與平台支援)
   - [2.2 Windows 安裝](#22-windows-安裝)
@@ -51,6 +62,7 @@ categories = ['教學']
   - [2.7 受限環境與離線安裝](#27-受限環境與離線安裝)
   - [2.8 更新與解除安裝](#28-更新與解除安裝)
   - [2.9 💡 本章實務建議](#29--本章實務建議)
+  - [2.10 ✅ 本章審查與驗證清單](#210--本章審查與驗證清單)
 - [3. 介面導覽](#3-介面導覽)
   - [3.1 版面配置](#31-版面配置)
   - [3.2 導覽列與各資源頁](#32-導覽列與各資源頁)
@@ -59,6 +71,7 @@ categories = ['教學']
   - [3.5 外觀與協助工具](#35-外觀與協助工具)
   - [3.6 📝 實務練習：第一個容器](#36--實務練習第一個容器)
   - [3.7 💡 本章實務建議](#37--本章實務建議)
+  - [3.8 ✅ 本章審查與驗證清單](#38--本章審查與驗證清單)
 - [4. Podman machine 管理](#4-podman-machine-管理)
   - [4.1 為什麼需要 Podman machine](#41-為什麼需要-podman-machine)
   - [4.2 Provider 選擇](#42-provider-選擇)
@@ -71,6 +84,7 @@ categories = ['教學']
   - [4.6 GPU 存取](#46-gpu-存取)
   - [4.7 多個 machine、遠端 Podman 與 WSL 互通](#47-多個-machine遠端-podman-與-wsl-互通)
   - [4.8 💡 本章實務建議](#48--本章實務建議)
+  - [4.9 ✅ 本章審查與驗證清單](#49--本章審查與驗證清單)
 - [5. 容器、Pod 與映像檔操作](#5-容器pod-與映像檔操作)
   - [5.1 容器](#51-容器)
     - [5.1.1 建立與啟動](#511-建立與啟動)
@@ -89,6 +103,7 @@ categories = ['教學']
   - [5.7 Secret](#57-secret)
   - [5.8 實務案例：Java 微服務本機開發環境](#58-實務案例java-微服務本機開發環境)
   - [5.9 💡 本章實務建議](#59--本章實務建議)
+  - [5.10 ✅ 本章審查與驗證清單](#510--本章審查與驗證清單)
 - [6. Compose 與 Docker 相容](#6-compose-與-docker-相容)
   - [6.1 設定 Compose](#61-設定-compose)
   - [6.2 執行 Compose 應用](#62-執行-compose-應用)
@@ -96,11 +111,13 @@ categories = ['教學']
     - [6.3.1 Settings > Docker Compatibility](#631-settings--docker-compatibility)
     - [6.3.2 使用 DOCKER_HOST](#632-使用-docker_host)
     - [6.3.3 同時顯示 Docker 引擎](#633-同時顯示-docker-引擎)
+    - [6.3.4 🔭 讓 docker 指令執行 Podman（Docker CLI 別名）](#634--讓-docker-指令執行-podmandocker-cli-別名)
   - [6.4 從 Docker Desktop 遷移](#64-從-docker-desktop-遷移)
     - [6.4.1 遷移評估清單](#641-遷移評估清單)
     - [6.4.2 遷移步驟](#642-遷移步驟)
     - [6.4.3 Docker 使用者要知道的差異](#643-docker-使用者要知道的差異)
   - [6.5 💡 本章實務建議](#65--本章實務建議)
+  - [6.6 ✅ 本章審查與驗證清單](#66--本章審查與驗證清單)
 - [7. Kubernetes 與 OpenShift 整合](#7-kubernetes-與-openshift-整合)
   - [7.1 本機叢集選項](#71-本機叢集選項)
   - [7.2 建立 Kind 叢集](#72-建立-kind-叢集)
@@ -113,17 +130,20 @@ categories = ['教學']
     - [7.6.3 Port forwarding](#763-port-forwarding)
   - [7.7 Podman 與 Kubernetes YAML 的往返](#77-podman-與-kubernetes-yaml-的往返)
   - [7.8 💡 本章實務建議](#78--本章實務建議)
+  - [7.9 ✅ 本章審查與驗證清單](#79--本章審查與驗證清單)
 - [8. 擴充功能生態](#8-擴充功能生態)
   - [8.1 內建擴充功能](#81-內建擴充功能)
   - [8.2 擴充功能目錄](#82-擴充功能目錄)
   - [8.3 安裝與管理](#83-安裝與管理)
   - [8.4 企業管控](#84-企業管控)
+    - [8.4.1 🔭 自訂擴充功能目錄（企業核准清單）](#841--自訂擴充功能目錄企業核准清單)
   - [8.5 重點擴充功能](#85-重點擴充功能)
     - [8.5.1 Podman Quadlet](#851-podman-quadlet)
     - [8.5.2 Bootable Containers（bootc）](#852-bootable-containersbootc)
     - [8.5.3 Grype 與 Image Layers Explorer](#853-grype-與-image-layers-explorer)
   - [8.6 開發擴充功能入門](#86-開發擴充功能入門)
   - [8.7 💡 本章實務建議](#87--本章實務建議)
+  - [8.8 ✅ 本章審查與驗證清單](#88--本章審查與驗證清單)
 - [9. Podman AI Lab](#9-podman-ai-lab)
   - [9.1 功能概觀](#91-功能概觀)
   - [9.2 資源需求](#92-資源需求)
@@ -131,6 +151,7 @@ categories = ['教學']
   - [9.4 應用程式整合範例](#94-應用程式整合範例)
   - [9.5 企業使用注意事項](#95-企業使用注意事項)
   - [9.6 💡 本章實務建議](#96--本章實務建議)
+  - [9.7 ✅ 本章審查與驗證清單](#97--本章審查與驗證清單)
 - [10. 企業導入與集中管理](#10-企業導入與集中管理)
   - [10.1 Managed configuration 原理](#101-managed-configuration-原理)
   - [10.2 檔案位置](#102-檔案位置)
@@ -145,6 +166,7 @@ categories = ['教學']
   - [10.7 settings.json 重點鍵值](#107-settingsjson-重點鍵值)
   - [10.8 疑難排解](#108-疑難排解)
   - [10.9 💡 本章實務建議](#109--本章實務建議)
+  - [10.10 ✅ 本章審查與驗證清單](#1010--本章審查與驗證清單)
 - [11. 安全性與合規](#11-安全性與合規)
   - [11.1 威脅模型與控制對照](#111-威脅模型與控制對照)
   - [11.2 執行期安全](#112-執行期安全)
@@ -152,6 +174,7 @@ categories = ['教學']
   - [11.4 更新與弱點管理](#114-更新與弱點管理)
   - [11.5 稽核與合規檢查點](#115-稽核與合規檢查點)
   - [11.6 💡 本章實務建議](#116--本章實務建議)
+  - [11.7 ✅ 本章審查與驗證清單](#117--本章審查與驗證清單)
 - [12. 開發工作流程與 IDE 整合](#12-開發工作流程與-ide-整合)
   - [12.1 內循環（Inner Loop）開發流程](#121-內循環inner-loop開發流程)
   - [12.2 VS Code](#122-vs-code)
@@ -162,6 +185,7 @@ categories = ['教學']
   - [12.6 Windows 開發環境自動化腳本](#126-windows-開發環境自動化腳本)
   - [12.7 與 CI 對齊](#127-與-ci-對齊)
   - [12.8 💡 本章實務建議](#128--本章實務建議)
+  - [12.9 ✅ 本章審查與驗證清單](#129--本章審查與驗證清單)
 - [13. 疑難排解](#13-疑難排解)
   - [13.1 診斷流程](#131-診斷流程)
   - [13.2 Podman Desktop 日誌與 Troubleshooting 頁](#132-podman-desktop-日誌與-troubleshooting-頁)
@@ -171,6 +195,7 @@ categories = ['教學']
   - [13.6 引擎、網路與效能問題](#136-引擎網路與效能問題)
   - [13.7 回報問題](#137-回報問題)
   - [13.8 💡 本章實務建議](#138--本章實務建議)
+  - [13.9 ✅ 本章審查與驗證清單](#139--本章審查與驗證清單)
 - [14. 實務練習與認證準備](#14-實務練習與認證準備)
   - [14.1 分階段學習計畫](#141-分階段學習計畫)
   - [14.2 📝 基礎實務練習](#142--基礎實務練習)
@@ -179,6 +204,7 @@ categories = ['教學']
   - [14.5 EX188 考試目標與本手冊對照](#145-ex188-考試目標與本手冊對照)
   - [14.6 學習資源](#146-學習資源)
   - [14.7 💡 本章實務建議](#147--本章實務建議)
+  - [14.8 ✅ 本章審查與驗證清單](#148--本章審查與驗證清單)
 - [附錄 A：GUI ↔ CLI 對照](#附錄-agui--cli-對照)
 - [附錄 B：設定檔範本](#附錄-b設定檔範本)
   - [B.1 個人 settings.json 建議值](#b1-個人-settingsjson-建議值)
@@ -199,8 +225,12 @@ categories = ['教學']
   - [D.1 版本歷程](#d1-版本歷程)
   - [D.2 v1.0 → v2.0 更正表](#d2-v10--v20-更正表)
   - [D.3 v2.0 新增章節](#d3-v20-新增章節)
+  - [D.4 v2.0 → v3.0 更正表](#d4-v20--v30-更正表)
+  - [D.5 v3.0 新增章節](#d5-v30-新增章節)
 - [附錄 E：查證紀錄](#附錄-e查證紀錄)
   - [E.1 待確認事項](#e1-待確認事項)
+  - [E.2 v3.0 查證紀錄](#e2-v30-查證紀錄)
+  - [E.3 v3.0 範例驗證結果](#e3-v30-範例驗證結果)
 - [附錄 F：參考資料](#附錄-f參考資料)
   - [F.1 官方文件](#f1-官方文件)
   - [F.2 社群與原始碼](#f2-社群與原始碼)
@@ -237,7 +267,15 @@ flowchart LR
     P4 --> P5["階段五<br/>平台銜接<br/>Kind／OpenShift 內循環"]
 ```
 
-**v2.0 的主要變化**
+**v3.0 的主要變化**
+
+- 🆕 基準更新為 Podman Desktop 1.30.5＋Podman 6.1.4／5.8.9；新增 1.30 功能（批次停止、preflight 警告等級、Docker context 連線、CI 自動停用遙測）與 Kubernetes Extension Pack 0.6.0（Apply YAML 頁、Deployment scaling、RBAC 等 26 種資源檢視）。
+- 🆕 每章新增「✅ 本章審查與驗證清單」，每個檢查項目都附驗證指令（或畫面路徑）和預期結果。
+- 🆕 新增 Podman Desktop 本身的安全修補基準（CVE-2026-34045、CVE-2026-24835），以及 1.30.5 的 webview 安全修正。
+- 🔭 收錄 1.31 開發版文件：自訂擴充功能目錄（`extensions.registryUrl`）、Docker CLI 別名，以及 `tasks.toast` 預設值改變。
+- ⚠️ 更正：Podman Desktop 建立 machine 時預設為 **rootful**；Kubernetes 的 Apply YAML 改由 Kubernetes Dashboard 的專屬頁面提供。
+
+**v2.0 的主要變化（歷史紀錄）**
 
 - 🆕 新增 Podman machine 管理、Kubernetes 與 OpenShift 整合、擴充功能生態、Podman AI Lab、企業導入與集中管理、安全性與合規、疑難排解等章節。
 - ⚠️ 更正安裝流程（WSL 改用 `wsl --install --no-distribution`、Windows Podman 安裝檔改為 MSI、macOS 以 `.dmg` 為主）、介面描述（依 1.29 實際畫面改寫）、Docker 相容做法（改用 Settings > Docker Compatibility 與 `DOCKER_HOST`）。
@@ -318,16 +356,32 @@ Podman Desktop 大約**每月發布一個次要版本**，先出 prerelease，�
 | 1.27.1／1.27.2 | 2026-04／05 | 高對比主題與強調色；導覽歷史下拉；擴充功能 `package.json` JSON Schema |
 | 1.28.2／1.28.3 | 2026-06／07 | Dashboard 系統總覽（CPU、記憶體、磁碟）；容器埠號可點擊；重新整理後回到原頁面；Podman 5.8.3 |
 | 1.29.0～1.29.3 | 2026-07-27～09-01 | **支援 Podman 6**；Secrets 頁；自動加上 `--import-native-ca`；Podman 5 → 6 升級引導；可以關閉應用程式自動更新 |
-| 1.30.0／1.30.1 | 2026-09（prerelease） | 內建引擎升為 Podman 6.1.2／5.8.7；以內部重構（Svelte 5 移轉）為主 |
+| 1.30.0～1.30.4 | 2026-09-21～10-05（prerelease） | 1.30 系列的預覽版；1.30.1 修正 Flatpak 發布、1.30.4 修正擴充功能 README 載入 |
+| **1.30.5** | **2026-10-13** | 🆕 **目前穩定版**。容器**批次停止**；preflight 檢查新增**警告**等級（Windows BIOS 虛擬化檢查不再擋住安裝）；Windows 自動啟動 machine 不再閃出命令提示字元視窗；每個 Docker context 註冊成獨立的 container connection；偵測到 CI 環境時自動停用遙測；infra 容器加上標示；啟動更新對話框的關閉按鈕改成「Later」下拉選單；webview file server 強制目錄邊界（安全修正） |
+| 🔭 1.31（開發中） | 未發布 | main 分支為 `1.31.0-next`；官方文件已新增自訂擴充功能目錄、Docker CLI 別名、CLI 工具安裝失敗的排錯方式；`tasks.toast` 預設值改為 `true` |
+
+> 📌 **版本節奏觀察**：1.30 的 prerelease 期間長達三週（1.30.0～1.30.4），之後才在 1.30.5 轉成穩定版。企業的試點時程請以「穩定版發布日」起算，不要以 prerelease 日期起算。
 
 **內建 Podman 引擎對照**（取自原始碼 `extensions/podman/packages/extension/src/podman.json`）：
 
 | Podman Desktop | Windows x64／ARM64 | macOS Apple Silicon | macOS Intel |
 | --- | --- | --- | --- |
 | 1.29.3 | Podman 6.0.2（MSI） | Podman 6.0.2 | Podman 5.8.5 |
-| 1.30.1（預覽） | Podman 6.1.2 | Podman 6.1.2 | Podman 5.8.7 |
+| **1.30.5** | **Podman 6.1.4**（MSI） | **Podman 6.1.4** | **Podman 5.8.9** |
+| 🔭 main（1.31.0-next） | Podman 6.1.4 | Podman 6.1.4 | Podman 5.8.9 |
 
-> 💡 **企業建議**：以「次要版本」為單位制定基準（例如全公司統一 1.29.x），修補版可以自動更新；次要版本升級先在試點群組跑兩週。Linux 發行版與 RHEL 隨附的 Podman 版本不一定和 Desktop 內建的一致，請以 `podman version` 為準。
+> ⚠️ **安全基準**：《Podman 使用教學手冊》v3.0 把引擎的最低安全版本訂為 **6.1.3／5.8.8**。1.29.3 內建的 6.0.2／5.8.5 低於這個基準；仍停留在 1.29.x 的設備，請升級 Podman Desktop，或由 IT 另外派送新版 Podman。
+
+**自行驗證內建版本**：任何人都可以用 GitHub API 讀取指定 tag 的 `podman.json`，和本表比對：
+
+```bash
+gh api -H "Accept: application/vnd.github.raw" \
+  "repos/podman-desktop/podman-desktop/contents/extensions/podman/packages/extension/src/podman.json?ref=v1.30.5" \
+  | grep -E '"version"'
+# 預期輸出包含 "version": "5.8.9" 與 "version": "6.1.4"
+```
+
+> 💡 **企業建議**：以「次要版本」為單位制定基準（例如全公司統一 1.30.x），修補版可以自動更新；次要版本升級先在試點群組跑兩週。Linux 發行版與 RHEL 隨附的 Podman 版本不一定和 Desktop 內建的一致，請以 `podman version` 為準。
 
 ### 1.4 與 Docker Desktop 的比較
 
@@ -355,18 +409,21 @@ Podman Desktop 大約**每月發布一個次要版本**，先出 prerelease，�
 | --- | --- | --- |
 | 取得方式 | 官網、WinGet、Flathub 等免費下載 | Red Hat Developer 下載；另有付費支援方案 |
 | 支援 | 社群（GitHub、Discord） | SLA、弱點修補、可以直接聯繫產品工程師 |
-| 版本 | 每月發布 | 獨立版號（2026-02-17 GA，目前文件版本為 1.2） |
+| 版本 | 每月發布 | 獨立版號（2026-02-17 GA，2026-09 查證時文件版本為 1.2） |
 | 文件 | podman-desktop.io/docs | docs.redhat.com（含 air-gapped 安裝、標準政策設定、Red Hat 內容存取） |
 | 適合對象 | 一般開發團隊、試點 | 受法規或內控要求「軟體必須有廠商支援」的單位，例如金融業 |
 
 > 📌 Red Hat build 的底層仍是同一套開源程式碼，Managed configuration、擴充功能機制與本手冊介紹的操作方式相同。
+>
+> 🆕 **v3.0 新增：Red Hat Desktop**：Red Hat 在 2026-05-12 的 Red Hat Summit 宣布 **Red Hat Desktop** 正式發布（GA）。它是 Red Hat build of Podman Desktop 的**商業支援版**，另外提供隔離的 AI agent sandbox，讓開發者在本機測試自主 agent 時不會危及主機作業系統。訂閱與價格條件請向 Red Hat 業務確認，本手冊不加以推測。下載頁目前提供 Windows、macOS 與兩者的 air-gapped 版本，Linux 則提供安裝指引。
 
 ### 1.6 專案治理與社群
 
 - **治理**：Podman Desktop 於 2024 年 11 月成為 **CNCF Sandbox 專案**，採中立的開放治理。Podman 引擎也在 2025 年成為 CNCF Sandbox 專案，原始碼於 2026 年 8 月移到 GitHub 組織 `podman-container-tools`。
-- **規模**：官網公布下載量已突破 500 萬次，GitHub 約 8,000 顆星。
+- **規模**：官方部落格〈5 million lessons learned〉（2026-08）公布下載量已突破 500 萬次；GitHub 約 8,100 顆星、590 個 fork（2026-11-06 查詢）。
+- **採用者**：官方 `ADOPTERS.md` 列出已在正式環境使用的組織。例如 Amadeus 把 2,000 名以上開發者的容器引擎遷移到 Podman Desktop。企業評估時可以參考這份名單，也可以在導入後把自己的組織加入名單。
 - **社群管道**：
-  - Discord 與 GitHub Discussions：日常問答。
+  - Discord（`discord.com/invite/x5GzFF6QH4`）與 GitHub Discussions：日常問答。
   - 社群會議：**每月第 4 個星期四，美東時間 9:00–10:00**（台灣時間當晚 21:00–22:00 或 22:00–23:00，依夏令時間而定）；議程公布在 GitHub，錄影放在 YouTube 播放清單。
   - 社群媒體：Bluesky、X、LinkedIn、Mastodon（@podmandesktop）。
 - **參與方式**：程式碼、文件、錯誤回報、功能建議、教學與簡報分享都歡迎；GitHub Projects 上可以看到目前的 sprint。
@@ -378,6 +435,19 @@ Podman Desktop 大約**每月發布一個次要版本**，先出 prerelease，�
 3. **授權盤點**：Docker Desktop 的付費門檻是「員工 250 人以上或營收 1,000 萬美元以上」，金融業幾乎都在範圍內，可以把授權費用列入替換效益評估。
 4. **受監理單位評估 Red Hat build**：有「開源軟體須有廠商支援」內控規定時，優先評估 Red Hat build。
 5. **指定窗口追蹤社群會議與發布說明**：每月的版本變化不小（例如 1.29 的 Podman 6 升級），要有專人評估影響。
+
+### 1.8 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證方式」，把實際結果和「預期結果」比對。全部相符才算通過；不相符的項目請記錄在變更單或審查紀錄中。需要 `gh` 的項目，要先執行 `gh auth login`。
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 安裝的版本符合公司基準 | **Help > About**，或 `winget list --id RedHat.Podman-Desktop` | 1.30.5 以上 |
+| 2 | 內建引擎版本和 1.3 的對照表一致 | `podman version --format '{{.Client.Version}} {{.Server.Version}}'` | Windows／Apple Silicon 為 `6.1.4 6.1.4`；Intel Mac 為 `5.8.9 5.8.9` |
+| 3 | 對照表本身正確 | 執行 1.3 的 `gh api … podman.json?ref=v1.30.5` 指令 | 輸出包含 `"version": "5.8.9"` 與 `"version": "6.1.4"` |
+| 4 | 目前的最新穩定版 | `gh api repos/podman-desktop/podman-desktop/releases/latest --jq .tag_name` | 審查當天的最新版；如果比 1.30.5 新，就要啟動改版評估 |
+| 5 | 平台組合在官方主推範圍內 | 對照 1.2.2 的平台表 | Windows 11＋WSL 2，或 Apple Silicon＋libkrun；其他組合已登記為例外 |
+| 6 | Docker Desktop 授權盤點有依據 | 人資的員工數或年營收資料 | 已判斷是否達到「員工 250 人或營收 1,000 萬美元」的付費門檻 |
 
 ---
 
@@ -394,6 +464,10 @@ Podman Desktop 大約**每月發布一個次要版本**，先出 prerelease，�
 | 其他 | WSL 2（`wsl --update`）或 Hyper-V | — | Podman 穩定版（由發行版套件庫提供） |
 
 > ⚠️ **v2.0 更正**：v1.0 寫「Windows 10 Build 19041 以上、8 GB RAM、50 GB 磁碟」。官方文件目前列的是「Windows 10 Build 19043 以上或 Windows 11、machine 需要 6 GB RAM」；但 Podman 6.0 起已經不再支援 Windows 10，而 Podman Desktop 1.29 在 Windows 上內建的正是 Podman 6。**企業基準請以 Windows 11 為準**，Windows 10 設備要列入汰換或維持在 Podman 5.8.x（見[附錄 E.1](#e1-待確認事項)）。
+>
+> 🆕 **v3.0 新增：原始碼查證**：1.30.5 的 Windows preflight 檢查（`extensions/podman/packages/extension/src/checks/windows/win-version-check.ts`）仍以 `MIN_BUILD = 19043` 為下限。也就是說，Podman Desktop **不會擋下** Windows 10 21H1 以上的設備，但安裝的仍是 Podman 6.1.4。官方安裝文件的「Windows 10 Build 19043 or later」描述到 1.30.5 也沒有改。因此「Windows 10 能不能用」要以 Podman 引擎的支援政策為準，而不是看 Desktop 有沒有通過檢查。
+>
+> 1.30 起 preflight 檢查新增**警告**等級（⚠️ 圖示）。新增的 BIOS 虛擬化韌體檢查，在 BIOS 沒有啟用硬體虛擬化、也偵測不到 hypervisor 時，只會顯示警告、不再擋住安裝。**看到警告不代表環境沒問題**：machine 仍可能建立失敗，請用下方的 PowerShell 指令確認 `HyperVRequirementVirtualizationFirmwareEnabled`。
 
 **檢查 Windows 環境（PowerShell）**
 
@@ -561,6 +635,14 @@ Podman Desktop 1.29 偵測到引擎要從 5.x 升到 6.x 時，會啟動自動�
 | 6 | 還原資料 | 匯入 Volume、重新拉取映像檔 |
 
 > ⚠️ **注意**：官方建議 5 → 6 時**從頭重建環境**。沿用 5.x 的設定可能導致 Podman 6 無法拉取映像檔。
+>
+> 🆕 **v3.0 新增：6.0 → 6.1 的升級**：從 1.29.3（Podman 6.0.2）升到 1.30.5（Podman 6.1.4）屬於**次要版本升級**，不會觸發上表的 5 → 6 重建流程。建議的順序如下：
+>
+> 1. 先升級 Podman Desktop。
+> 2. 到 **Settings > Resources** 的 Podman 卡片更新引擎；如果 IT 用 `providers.allowUpdate` 封鎖了自行更新，就由派送工具安裝 MSI 或 `.pkg`。
+> 3. 執行 `podman version`，確認用戶端與伺服器端都是 6.1.4。
+>
+> 6.0.x 低於 6.1.3 的安全基準（見 [1.3](#13-版本節奏與版本對照)），建議列為必要更新。
 
 ### 2.7 受限環境與離線安裝
 
@@ -597,6 +679,16 @@ Podman Desktop 1.29 偵測到引擎要從 5.x 升到 6.x 時，會啟動自動�
 
 要一併移除 Podman 與所有 machine 時，先執行 `podman machine reset -f`，再依平台移除 Podman（macOS `.pkg` 安裝的 Podman 位於 `/opt/podman`）。
 
+> 🆕 **v3.0 新增：完整的移除順序**（依 1.30 官方〈Uninstallation〉文件整理）。解除安裝 Podman Desktop **不會**自動刪除 Kubernetes 叢集、Podman 或其他資源，請依下列順序處理：
+>
+> 1. **（選用）刪除叢集**：Kind 用 `kind delete clusters --all`；Minikube 用 `minikube delete` 並刪除 `~/.minikube`。擴充功能下載的 CLI 與外掛放在 `~/.local/share/containers/podman-desktop/extensions-storage/`，需要時一併刪除。
+> 2. **移除 Podman**：先 `podman machine reset -f`，再移除 Podman 本體。
+>    - Windows：從「設定 > 應用程式」移除，再刪除 `~/.local/share/containers/podman`、`~/.config/containers/`、`~/AppData/Roaming/containers`。
+>    - macOS（`.pkg` 安裝）：依序執行 `sudo /opt/podman/bin/podman-mac-helper uninstall`、`sudo rm /etc/paths.d/podman-pkg`、`sudo rm -rfv /opt/podman`。
+> 3. **移除 Podman Desktop**：依上表的方式移除。
+>
+> 如果在 Podman Desktop **執行中**移除了 Podman，Dashboard 可能還會顯示舊的 Podman 版本。這是因為 Desktop 會快取偵測結果，重新啟動 Podman Desktop 即可（🔭 1.31 文件新增的說明）。
+
 ### 2.9 💡 本章實務建議
 
 1. **標準化安裝來源**：Windows 用 WinGet 或 IT 派送的 MSI／EXE，macOS 用 `.dmg`，Linux 用 Flathub 或 RHEL 套件庫；不要混用 Homebrew 與官方安裝檔。
@@ -604,6 +696,20 @@ Podman Desktop 1.29 偵測到引擎要從 5.x 升到 6.x 時，會啟動自動�
 3. **離線環境一律使用 airgap 安裝檔**，並把 Compose、kubectl 等 CLI 納入內部軟體庫。
 4. **升級到 Podman 6 前先備份資料**，並安排在非上線期間進行；Hyper-V 使用者先 `podman machine reset`。
 5. **關閉自動更新、改由 IT 控管版本**，可以避免開發者各自升級造成環境不一致。
+
+### 2.10 ✅ 本章審查與驗證清單
+
+> 審查者請逐項執行「驗證方式」，把實際結果和「預期結果」比對。Windows 指令在 PowerShell 執行。
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | Windows 組建符合基準 | `(Get-ComputerInfo).OsBuildNumber` | 22000 以上（Windows 11）；19043～19045 是 Windows 10，要列入例外 |
+| 2 | 韌體虛擬化已啟用 | `Get-ComputerInfo \| Select-Object HyperVRequirementVirtualizationFirmwareEnabled` | `True`；如果是 `False`，即使 Onboarding 只顯示 ⚠️ 警告，也要先到 BIOS 啟用 |
+| 3 | WSL 2 可以使用 | `wsl --status` | 預設版本為 2，沒有錯誤訊息 |
+| 4 | 安裝來源單一 | macOS：`brew list --cask 2>/dev/null \| grep -c podman` | `0`（使用官方 `.dmg` 時，不應該有 Homebrew 版本） |
+| 5 | Onboarding 完成 | `podman machine list` 與 `podman run --rm quay.io/podman/hello` | machine 為 `Currently running`；hello 映像檔印出 Podman 圖示與成功訊息 |
+| 6 | 應用程式更新由 IT 控管 | 開啟 **Settings > Preferences** 搜尋 `update` | `preferences.update.appUpdate` 顯示鎖頭且為關閉（採集中派送時） |
+| 7 | 解除安裝後沒有殘留 | Windows：`Test-Path "$env:USERPROFILE\.local\share\containers\podman-desktop"` | 完整移除後為 `False` |
 
 ---
 
@@ -656,7 +762,9 @@ flowchart LR
 - **全域搜尋列**：從標題列快速找到容器、映像檔、Pod、Volume 或文件頁面（1.23 起強化）。
 - **上一頁／下一頁**：工具列按鈕、指令面板或快速鍵（Windows／Linux 為 `Alt + ←／→`，macOS 為 `Cmd + ←／→` 或 `Cmd + [／]`）；長按按鈕顯示歷史清單（1.27）。
 - **欄位自訂**：清單欄位與 Dashboard 區塊可以自訂顯示與排序（1.23），表格展開狀態會在切換頁面後保留（1.29）。
-- **批次操作**：多選容器後可以一次啟動或刪除，預設會跳出確認（`userConfirmation.bulk`）。
+- **批次操作**：多選容器後可以一次啟動、**停止**（🆕 1.30）或刪除，預設會跳出確認（`userConfirmation.bulk`）。
+- **Infra 容器標示**（🆕 1.30）：Pod 的 infra 容器（`<pod-id>-infra`，負責持有 Pod 的網路命名空間）會加上標示，避免誤以為是自己的應用程式容器而刪除。
+- **更新提示**（🆕 1.30）：啟動時的更新對話框，把關閉按鈕整理成一個「Later」下拉選單，可以選擇稍後提醒或略過這個版本。企業若已用 `preferences.update.appUpdate=false` 關閉更新，就不會看到這個對話框。
 - **容器埠號連結**：容器詳細頁中對應的埠號可以直接點擊，用瀏覽器開啟（1.28）。
 
 ### 3.4 狀態列、Task Manager 與 Troubleshooting
@@ -666,7 +774,7 @@ flowchart LR
 | 引擎狀態 | 顯示 Podman（與 Docker）是否連線；可以固定常用項目（`statusBar.pinnedItems`） |
 | Kubernetes context | 點擊可以切換目前的 context |
 | Task Manager | 顯示拉取映像檔、建立 machine、安裝擴充功能（含下載進度，1.28）等背景工作 |
-| Troubleshooting | Logs、Gather logs（打包成 zip）、Ping 引擎、Reconnect Providers、Stores、Cleanup／Purge data |
+| Troubleshooting | Logs、Gather logs（打包成 zip）、Repair & connections（Ping 引擎、Reconnect Providers）、Stores、Cleanup／Purge data |
 
 1.26 起 **Settings** 也新增 Troubleshooting 入口；1.28 起 Troubleshooting 日誌帶有時間戳記，方便和引擎日誌對照。
 
@@ -684,7 +792,16 @@ flowchart LR
 3. 在容器的 **Summary** 分頁點擊 `8080` 埠號連結，確認出現 nginx 歡迎頁。
 4. 切換到 **Logs** 分頁觀察存取紀錄，再到 **Terminal** 分頁執行 `nginx -v`。
 5. 用 **Inspect** 分頁檢視完整設定（`Ctrl+F`／`⌘+F` 可以搜尋），再用 **Kube** 分頁檢視 Podman 產生的 Kubernetes YAML。
-6. 停止並刪除容器。
+6. 停止並刪除容器。也可以再多跑一個容器，勾選兩個容器後用 1.30 的**批次停止**一次停止。
+
+**自我驗收**：練習完成後執行下列指令，第一行應該印出 `nginx/1.x.x`，最後一行應該沒有任何輸出（容器已刪除）。
+
+```bash
+podman run -d --name my-web -p 8080:80 docker.io/library/nginx:alpine
+curl -sI http://localhost:8080 | grep -i '^server'   # 預期：Server: nginx/1.x.x
+podman rm -f my-web
+podman ps -a --filter name=my-web --format '{{.Names}}'   # 預期：沒有輸出
+```
 
 對應的 CLI：
 
@@ -703,6 +820,17 @@ podman rm -f my-web
 2. **熟悉 Troubleshooting 的 Gather logs**：提報問題時一律附上 zip，能大幅縮短支援時間。
 3. **善用指令面板與搜尋列**，許多進階功能（例如同步憑證）只能從指令面板執行。
 4. **每個 GUI 操作都對照一次 CLI**，方便日後寫成腳本或放進 CI。
+
+### 3.8 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 新人能自行找到引擎狀態 | 請新人在 Dashboard 指出 Podman 的狀態 | 能說出「Podman is running」及所屬 machine |
+| 2 | 指令面板可以使用 | 按 `F1`，輸入 `podman` | 列出 Podman 相關指令 |
+| 3 | 批次停止（1.30） | 啟動兩個容器，勾選後按 **Stop** | 兩個容器都變成 Exited；`podman ps -q \| wc -l` 減少 2 |
+| 4 | Gather logs 可以產生 | 狀態列 **Troubleshooting** → **Gather logs** → 存檔 | 產生 `.zip`，解壓後含日誌檔 |
+| 5 | 3.6 練習的結果 | 執行 3.6 的「自我驗收」指令 | `Server: nginx/1.x.x`；刪除後查詢沒有輸出 |
+| 6 | GUI 與 CLI 的結果一致 | 在 GUI 建立容器後執行 `podman ps --format '{{.Names}} {{.Ports}}'` | 名稱與埠號對應和 GUI 設定相同 |
 
 ---
 
@@ -746,16 +874,29 @@ flowchart LR
 
 **GUI**：**Settings > Resources** → Podman 卡片 → **Create new**，可以設定：
 
-| 欄位 | 說明 | 建議值（一般 Java／Node 開發） |
-| --- | --- | --- |
-| Name | machine 名稱 | `podman-machine-default` |
-| CPU(s) | vCPU 數量 | 4 |
-| Memory | 記憶體 | 8 GB（跑 Kind 或 AI Lab 時 12～16 GB） |
-| Disk size | 磁碟大小 | 100 GB |
-| Image Path／Image URL | 自訂開機映像檔（本機檔案、URL 或 registry 參照） | 通常留空；企業可以指向內部 registry 的映像檔 |
-| Machine with root privileges | 預設使用 rootful 連線 | Windows 上使用 Kind 時**必須**開啟 |
-| User mode networking（Windows） | 經由使用者行程轉送流量 | 使用 VPN 時開啟 |
-| Provider Type | 選擇 provider | Windows 只有系統管理員看得到；macOS Apple Silicon 預設 GPU enabled（LibKrun） |
+| 欄位 | 說明 | 1.30.5 預設值 | 建議值（一般 Java／Node 開發） |
+| --- | --- | --- | --- |
+| Name | machine 名稱 | `podman-machine-default` | 沿用預設 |
+| CPU(s) | vCPU 數量 | 主機核心數的一半 | 4 |
+| Memory | 記憶體 | 約 4 GB（4,000,000,000 bytes） | 8 GB（跑 Kind 或 AI Lab 時 12～16 GB） |
+| Disk size | 磁碟大小 | 100 GB | 100 GB |
+| Image Path／Image URL | 自訂開機映像檔（本機檔案、URL 或 registry 參照） | 空白 | 通常留空；企業可以指向內部 registry 的映像檔 |
+| Machine with root privileges | 建立後預設使用 rootful 連線 | **開啟** | 一般開發建議**關閉**（rootless）；Windows 上使用 Kind、MINC 時要開啟 |
+| User mode networking（Windows） | 經由使用者行程轉送流量 | 關閉 | 使用 VPN 時開啟 |
+| Import host trusted CA certificates | 每次開機匯入主機信任的 CA（Podman 6） | **開啟** | 保持開啟 |
+| Start the machine now | 建立後立即啟動 | 開啟 | 保持開啟 |
+| Provider Type | 選擇 provider | Windows `wsl`；macOS `GPU enabled (LibKrun)` | Windows 只有系統管理員看得到；macOS Apple Silicon 沿用 LibKrun |
+
+> ⚠️ **v3.0 更正**：v2.0 在 4.4、11.2 寫「Podman machine 預設為 rootless 連線」，這只對 CLI `podman machine init` 成立。從 GUI 建立 machine 時，`podman.factory.machine.rootful` 的預設值是 `true`（1.20 起就是如此，1.30.5 仍相同），所以**從 Podman Desktop 建立的 machine 預設是 rootful**。要求最小權限的企業，可以在建立時取消勾選，或在建立後執行 `podman machine set --rootful=false`（見 [4.4](#44-rootless-與-rootful-切換)）。
+>
+> **自行驗證**：把建立對話框的預設值和原始碼比對。
+>
+> ```bash
+> gh api -H "Accept: application/vnd.github.raw" \
+>   "repos/podman-desktop/podman-desktop/contents/extensions/podman/packages/extension/package.json?ref=v1.30.5" \
+>   | grep -A3 '"podman.factory.machine.rootful"'
+> # 預期輸出含 "default": true
+> ```
 
 **CLI 對照**
 
@@ -786,7 +927,14 @@ podman machine inspect podman-machine-default
 
 ### 4.4 Rootless 與 Rootful 切換
 
-Podman machine 預設為 **rootless** 連線。1.22 起，macOS 與 Windows 可以直接在 Podman Desktop 切換 rootless／rootful；1.23 起 **Settings > Resources** 會標示每台 machine 目前的模式。
+用 CLI `podman machine init` 建立的 machine 預設為 **rootless** 連線；用 Podman Desktop 建立對話框建立的 machine，因為「Machine with root privileges」預設勾選，所以預設為 **rootful**（見 [4.3](#43-建立與設定-machine) 的 v3.0 更正）。1.22 起，macOS 與 Windows 可以直接在 Podman Desktop 切換 rootless／rootful；1.23 起 **Settings > Resources** 會標示每台 machine 目前的模式。
+
+**確認目前的模式**：
+
+```bash
+podman machine inspect --format '{{.Rootful}}'   # true＝rootful、false＝rootless
+podman info --format '{{.Host.Security.Rootless}}'   # 目前連線是否為 rootless
+```
 
 | 情境 | 模式 |
 | --- | --- |
@@ -860,6 +1008,8 @@ exit
 podman run --rm --device nvidia.com/gpu=all nvidia/cuda:12.4.1-base-ubi9 nvidia-smi
 ```
 
+> 🔭 **macOS GPU 的 Mesa 來源**：1.31 開發版文件把 Apple Silicon GPU 範例改為 `FROM fedora:44`，並改用 COPR 套件庫 `slp/mesa-libkrun-vulkan`（舊名 `slp/mesa-krunkit`），也不再需要 `dnf versionlock`。沿用舊範例的團隊，請在 1.31 發布後依官方〈GPU container access〉更新 Containerfile。
+>
 > 📌 更新 CUDA 驅動或變更 MIG 設定後，如果容器內出現 `Failed to initialize NVML`，請在 machine 內重新執行 `nvidia-ctk cdi generate`，必要時重啟 machine。
 
 ### 4.7 多個 machine、遠端 Podman 與 WSL 互通
@@ -885,10 +1035,22 @@ podman ps
 ### 4.8 💡 本章實務建議
 
 1. **制定 machine 標準規格**：例如 4 vCPU、8 GB、100 GB，並寫進新人上手文件；AI Lab 或 Kind 使用者另訂較高規格。
-2. **rootless 是預設**：只有 Kind、MINC 或特殊需求才開 rootful，並另建一台專用 machine。
+2. **以 rootless 為標準**：GUI 建立 machine 時預設是 rootful，請在標準作業程序中寫明「取消勾選 Machine with root privileges」。只有 Kind、MINC 或特殊需求才開 rootful，並另建一台專用 machine。
 3. **SSL 攔截環境一定要處理 CA**：Podman 6 用 `--import-native-ca`；自動化腳本也要加上。
 4. **VPN 使用者預設開啟 User mode networking**，可以減少大部分「machine 連不到內網」的問題。
 5. **GPU 工作負載在 Windows 上一律使用 WSL 2**，並把 NVIDIA Container Toolkit 的安裝寫成腳本。
+
+### 4.9 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | machine 規格符合標準 | `podman machine inspect --format '{{.Resources.CPUs}} {{.Resources.Memory}} {{.Resources.DiskSize}}'` | 例如 `4 8192 100`（記憶體的單位是 MiB，磁碟的單位是 GiB） |
+| 2 | 一般 machine 為 rootless | `podman machine inspect --format '{{.Rootful}}'` | `false`；Kind／MINC 專用的 machine 為 `true` 並已登記 |
+| 3 | 預設連線指向正確的 machine | `podman system connection ls` | 標示 `Default=true` 的連線符合預期（rootful machine 為 `-root` 連線） |
+| 4 | 公司 CA 已匯入 | `podman machine ssh "trust list --filter=ca-anchors" \| grep -i corp` | 列出公司根憑證名稱 |
+| 5 | 可以經由 proxy 拉取映像檔 | `podman pull quay.io/podman/hello` | 成功；不出現 `x509` 或 timeout |
+| 6 | GPU（如果適用） | Windows＋NVIDIA：執行 4.6 的 `nvidia-smi` 容器 | 印出 GPU 型號與驅動版本 |
+| 7 | 建立對話框的預設值和本文一致 | 執行 4.3 的 `gh api … package.json?ref=v1.30.5` 指令 | `"default": true` |
 
 ---
 
@@ -1119,6 +1281,19 @@ podman run -d --name db --network backend-net docker.io/library/postgres:17
 podman network connect app-net db
 ```
 
+> 🆕 **v3.0 新增：Podman 6 的網路隔離**：Podman 6 搭配 Netavark 2.0 之後，bridge 網路預設為 `isolate=strict`：**不同網路上的容器預設不能互相連線**。上例的 `db` 同時接上 `backend-net` 與 `app-net`，所以兩邊的容器都能連到它；但只接 `app-net` 的容器，連不到只接 `backend-net` 的容器。從 Docker 遷移時，原本「跨網路互通」的設定要改成：讓服務同時接上兩個網路，或改用 Pod（Pod 內以 `localhost` 互連）。要從容器連回主機時，可以用 `host.containers.internal`（也相容 Docker 的 `host.docker.internal`）。
+>
+> **驗證隔離行為**：DNS 名稱本來就只在同一個網路內有效，所以這裡改用 **IP 位址**測試，才能證明擋下連線的是隔離規則。預期第一個 `wget` 失敗，第二個成功。
+>
+> ```bash
+> podman network create net-a && podman network create net-b
+> podman run -d --name web-b --network net-b docker.io/library/nginx:alpine
+> IP_B=$(podman inspect -f '{{(index .NetworkSettings.Networks "net-b").IPAddress}}' web-b)
+> podman run --rm --network net-a docker.io/library/alpine:3 wget -T 3 -qO- "http://${IP_B}" || echo "隔離生效：net-a 連不到 net-b"
+> podman run --rm --network net-b docker.io/library/alpine:3 wget -T 3 -qO- "http://${IP_B}" | head -n 4
+> podman rm -f web-b && podman network rm net-a net-b
+> ```
+>
 > ⚠️ **注意**：預設網路 `podman` 使用 `10.88.0.0/16`。如果和公司 VPN 或內網衝突，請調整 `containers.conf` 的 `default_subnet`，或為專案建立自訂網段的網路。
 
 ### 5.7 Secret
@@ -1180,6 +1355,19 @@ podman kube generate payments-dev -f payments-dev.yaml
 3. **密碼走 Secret**：1.29 的 Secrets 頁讓非 CLI 使用者也能正確使用 secret。
 4. **Windows 上的大量小檔案放在 named volume**，只有原始碼用 bind mount。
 5. **網段規劃要和網路團隊確認**，避免容器網路與 VPN、內網衝突。
+6. **從 Docker 遷移時檢查跨網路連線**：Podman 6 預設隔離不同網路，需要互通的服務要接上同一個網路，或放進同一個 Pod。
+
+### 5.10 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 映像檔使用完整名稱 | `podman images --format '{{.Repository}}' \| grep -vc '/'` | `0`（每個映像檔都有 registry 前綴） |
+| 2 | 多階段建置以非 root 執行 | `podman inspect --format '{{.Config.User}}' localhost/payments-api:dev`（以 5.3.2 建置的映像檔為例） | 非空白，也不是 `root`／`0` |
+| 3 | Secret 沒有出現在 inspect | `podman inspect pg --format '{{.Config.Env}}' \| grep -c devpass` | `0` |
+| 4 | Pod 的成員正確 | `podman pod inspect payments-dev --format '{{range .Containers}}{{.Name}} {{end}}'` | 包含 infra、`pg`、`redis`、`api` |
+| 5 | 網路隔離行為 | 執行 5.6 的隔離驗證指令 | 第一個 `wget` 失敗並印出「隔離生效」，第二個印出 nginx 頁面 |
+| 6 | 網段不和公司內網衝突 | `podman network inspect podman --format '{{range .Subnets}}{{.Subnet}}{{end}}'` | 不在網路團隊公布的內網網段內 |
+| 7 | Volume 備份可以還原 | `podman volume export payments-pgdata -o pg.tar` 後，`podman volume import pg-restore pg.tar` | 還原後的 Volume 可以讓 PostgreSQL 正常啟動 |
 
 ---
 
@@ -1313,6 +1501,42 @@ docker ps    # 實際查詢的是 Podman
 
 如果主機上還有 Docker Desktop 在執行，Podman Desktop 內建的 Docker 擴充功能會自動註冊它的 socket，讓你在同一個畫面看到兩個引擎的容器。遷移期間可以用來對照；正式切換後建議停用 Docker 擴充功能，避免誤用。
 
+> 🆕 **v3.0 新增：Docker context 變成獨立連線（1.30）**：1.30 起，Podman Desktop 會為**每一個** Docker context 註冊一個獨立的 container connection，不論是本機 daemon、遠端主機，還是多個 Docker Desktop context，都會個別出現在 Dashboard 上，不必手動切換。要注意的是，1.23 起 Podman Desktop 會為 Podman machine 自動建立 Docker context，所以同一個 Podman 引擎可能會**同時以 Podman 連線與 Docker context 連線各出現一次**。請用 3.2 節提到的「依環境篩選」功能區分，也可以執行 `docker context ls` 對照。
+
+#### 6.3.4 🔭 讓 `docker` 指令執行 Podman（Docker CLI 別名）
+
+移除 Docker Desktop 之後，`docker` 指令也跟著消失，既有的腳本、shell 歷史和網路上的範例都會失效。1.31 開發版文件新增〈Aliasing the Docker CLI〉，整理了五種做法：
+
+| 做法 | 腳本可以用 | 新終端機仍有效 | 平台 |
+| --- | --- | --- | --- |
+| Shell alias | 否 | 要寫進 shell profile | Linux、macOS |
+| PowerShell alias | 只限同一個工作階段 | 要寫進 `$PROFILE` | Windows |
+| `podman-docker` 套件 | 是 | 是 | Linux |
+| 符號連結 | 是 | 是 | Linux、macOS |
+| Wrapper 腳本（`docker.bat`） | 是 | 是 | Linux、macOS、Windows |
+
+**Windows（給整台電腦使用，需要系統管理員）**：
+
+```powershell
+New-Item -ItemType Directory -Force -Path 'C:\Program Files\docker\bin'
+Set-Content -Path 'C:\Program Files\docker\bin\docker.bat' -Encoding ascii -Value @(
+  '@echo off',
+  'echo Emulate Docker CLI using podman. 1>&2',
+  'podman %*'
+)
+# 接著把 C:\Program Files\docker\bin 加入系統 PATH，關閉所有終端機後重新開啟
+```
+
+**macOS／Linux（符號連結）**：
+
+```bash
+sudo ln -s "$(command -v podman)" /usr/local/bin/docker
+```
+
+**驗證**：執行 `docker --help`，輸出應該包含 Podman 的說明文字 `Manage pods, containers and images`；Windows 的 wrapper 會先在 stderr 印出 `Emulate Docker CLI using podman.`。
+
+> ⚠️ **注意**：別名只改變 `docker` **指令**執行哪個程式，不影響直接連 Docker **socket** 的工具（Testcontainers、Maven 外掛、IDE）；那些工具仍要靠 6.3.1 的 Docker Compatibility 或 6.3.2 的 `DOCKER_HOST`。另外，`docker.bat` 不是執行檔，用 Node.js `execFile()` 這類不經過 shell 的方式呼叫會失敗；在批次檔裡要寫成 `call docker ...`，否則執行完不會回到原本的腳本。
+
 ### 6.4 從 Docker Desktop 遷移
 
 #### 6.4.1 遷移評估清單
@@ -1368,8 +1592,20 @@ podman import mycontainer.tar mycontainer:imported
 1. **統一 Compose 實作**：建議使用 Podman Desktop 安裝的 Docker Compose v2，並在 `containers.conf` 固定 `compose_providers`。
 2. **Windows 開發者一律設定使用者層級的 `DOCKER_HOST`**，減少 IDE 與建置工具的相容性問題。
 3. **分批遷移**：先遷移只用 CLI 與 Compose 的團隊，再處理依賴 Docker 擴充功能或 Docker-in-Docker 的團隊。
-4. **遷移完成後停用 Docker 擴充功能並移除 Docker Desktop**，確實收回授權。
+4. **遷移完成後停用 Docker 擴充功能並移除 Docker Desktop**，確實收回授權。移除前，先用 6.3.4 的 wrapper 或符號連結保留 `docker` 指令，避免既有腳本失效。
 5. **Compose 只用於本機**：正式環境轉成 Kubernetes YAML 或 Quadlet。
+
+### 6.6 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | Compose 走的是 Podman | `podman compose version` | 顯示 Docker Compose v2 的版本，並標示 Podman 為外部 provider |
+| 2 | Docker API 指向 Podman | `docker info --format '{{.ServerVersion}}'` | Podman 的版本（例如 `6.1.4`），不是 Docker Engine 的版本 |
+| 3 | `DOCKER_HOST` 已設定（Windows） | `[Environment]::GetEnvironmentVariable('DOCKER_HOST','User')` | `npipe:////./pipe/podman-machine-default` |
+| 4 | 🔭 `docker` 指令執行 Podman | `docker --help \| Select-String 'Manage pods'`（PowerShell）或 `docker --help \| grep 'Manage pods'` | 有一行符合 |
+| 5 | Compose 應用可以啟動 | `podman compose up -d` 後執行 `podman compose ps` | 所有服務為 `running`／`healthy` |
+| 6 | 沒有重複的連線（1.30） | Dashboard 的連線清單與 `docker context ls` | 能說明每個連線的來源；正式切換後已停用 Docker 擴充功能 |
+| 7 | 遷移後的資料完整 | `podman images` 與 `podman volume ls` | 6.4.2 匯入的映像檔與 Volume 都在 |
 
 ---
 
@@ -1420,6 +1656,7 @@ kubectl cluster-info --context kind-dev
 **把本機映像檔推到 Kind**：Images 頁 → 映像檔選單 → **Push image to Kind cluster**。Kind 無法列出已載入的映像檔，請用 `imagePullPolicy: Never` 的 Pod 驗證：
 
 ```yaml
+# verify-payments-api.yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -1492,6 +1729,30 @@ kubeconfig 預設為 `~/.kube/config`，可以在 **Settings > Preferences > Kub
 #### 7.6.1 Apply YAML
 
 **Kubernetes** 頁的 **Apply YAML** 可以選擇本機 YAML 檔套用到目前的 context；1.22 起也可以直接貼上 YAML 內容，不必先存成檔案。**Kubernetes** 頁可以瀏覽 Nodes、Deployments、Services、Ingresses／Routes、ConfigMaps／Secrets、PVC、Jobs、CronJobs 等資源，檢視 Summary 與 YAML，並直接在介面上編輯後套用。
+
+> 🆕 **v3.0 新增：Kubernetes Extension Pack 0.6.0（2026-10）**：Kubernetes 功能可以由核心內建版本提供，也可以安裝目錄中的 **Kubernetes Extension Pack**，它包含 Kubernetes Dashboard 0.6.0、Kubernetes Contexts 0.3.0 與 Kreate 0.4.0。**安裝 Kubernetes Dashboard 或 Kubernetes Contexts 之後，核心中對應的功能就會停用**，改由擴充功能提供。已經安裝的使用者，在 `extensions.autoUpdate` 開啟時（預設值）會自動更新。0.6.0 的重點如下：
+
+| 功能 | 說明 | 操作位置 |
+| --- | --- | --- |
+| Apply YAML 專屬頁 | 選擇 `.yaml`／`.yml` 檔，或在內建編輯器撰寫 YAML，選定 context 後套用；完成後顯示套用的資源數量與種類 | 各資源清單頁的 **Apply YAML** 按鈕 |
+| 更新既有資源的方式 | 內建 API 以 strategic merge patch 更新；**CRD 自訂資源在 Apply YAML 頁不會被更新**，要改到資源詳細頁的 YAML 分頁修改（CRD 以 server-side apply 處理） | 詳細頁 → YAML |
+| Deployment scaling | 在清單或詳細頁直接修改 replica 數，確認後才會套用；透過 `deployments/scale` 子資源，所以只有 scale 權限的 RBAC 也可以操作 | Deployments 清單／詳細頁 |
+| 容器日誌 | 可以查看已終止容器與重啟前（Previous logs）的日誌；取消勾選 **Stream logs** 可以停止跟隨 | Pod 詳細頁 → Logs |
+| 欄位自訂 | 每個資源表格都可以選擇顯示哪些欄位與排序；Nodes 清單新增 Internal IP | 各資源表格 |
+| 可收合導覽 | 分為 Compute、Config、Network、Storage 與新的 **Access Control**（RBAC）區段 | 左側導覽 |
+| 新資源檢視 | DaemonSets、StatefulSets、ReplicaSets、PV、StorageClasses、ServiceAccounts、Roles／RoleBindings、ClusterRoles／ClusterRoleBindings、Endpoints、EndpointSlices、NetworkPolicies、IngressClasses、HTTPRoutes、Gateways、GatewayClasses、ResourceQuotas、LimitRanges、PDB、PriorityClasses、RuntimeClasses、Leases、HPA、Mutating／ValidatingWebhookConfigurations | 各區段 |
+| 延遲載入 | 瀏覽到某類資源時才開始 watch，降低大型叢集的負擔 | — |
+| 刪除 context 確認 | Kubernetes Contexts 刪除 context 前一定會要求確認 | Kubernetes Contexts |
+| Kreate | 可以建立 Namespace、Job、CronJob，也可以依 Discovery API 選任何資源種類（含 Operator 的 CRD）；YAML 範本附上依叢集 OpenAPI 產生的欄位說明 | Kreate |
+
+> ⚠️ **企業注意**：Apply YAML、scaling 都是**直接寫入叢集**的操作。開發者的 kubeconfig 若可以連到共用的測試叢集，請由叢集端的 RBAC 控管權限，不要依賴桌面工具的確認對話框。
+
+**驗證 Apply YAML 的結果**（以 Kind 為例）：
+
+```bash
+kubectl --context kind-dev apply --dry-run=server -f verify-payments-api.yaml   # 先在伺服器端試跑
+kubectl --context kind-dev get pod verify-payments-api -o jsonpath='{.status.phase}'   # 用 Podman Desktop 套用後，預期為 Running
+```
 
 #### 7.6.2 Deploy to Kubernetes
 
@@ -1611,6 +1872,19 @@ spec:
 3. **統一 kubeconfig 管理**：公司叢集的 context 由平台團隊提供，並用 namespace 區隔。
 4. **Deploy to Kubernetes 只用於開發驗證**；正式部署一律走 CI／CD 與 GitOps。
 5. **映像檔從開發階段就以非 root 執行**，避免到了 OpenShift 才發現被 SCC 擋下。
+6. **把 Kubernetes Extension Pack 列入標準配備**：0.6.0 補齊了 RBAC、Gateway API、HPA 等資源檢視，平台團隊排查權限問題時很實用；版本隨擴充功能目錄更新，不受 Podman Desktop 版本限制。
+
+### 7.9 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | Kind 叢集可以使用 | `kind get clusters` 與 `kubectl cluster-info --context kind-dev` | 列出 `dev`；顯示 control plane 位址 |
+| 2 | 本機映像檔已推送到 Kind | 套用 7.2 的 `verify-payments-api.yaml` 後，執行 `kubectl get pod verify-payments-api -o jsonpath='{.status.phase}'` | `Running`（沒有 `ErrImageNeverPull`） |
+| 3 | YAML 可以在伺服器端試跑 | `kubectl apply --dry-run=server -f payments-dev.yaml` | 每個資源都顯示 `created (server dry run)` 或 `configured (server dry run)` |
+| 4 | Kubernetes Extension Pack 版本 | **Extensions > Installed** | Kubernetes Dashboard 0.6.0、Contexts 0.3.0、Kreate 0.4.0 以上 |
+| 5 | CRD 不經 Apply YAML 頁更新 | 用 Apply YAML 頁修改既有 CRD 資源後，執行 `kubectl get <資源> -o yaml` | 值沒有改變（符合 0.6.0 的限制）；要改請用詳細頁的 YAML 分頁 |
+| 6 | 目前 context 正確 | `kubectl config current-context` | 和狀態列顯示的 context 相同 |
+| 7 | Developer Sandbox 沒有放內部映像檔 | 在 Sandbox 執行 `oc get pods -o jsonpath='{..image}'` | 只有公開映像檔 |
 
 ---
 
@@ -1632,35 +1906,43 @@ spec:
 
 ### 8.2 擴充功能目錄
 
-下表為 2026-09-29 查詢 `registry.podman-desktop.io` 目錄的結果（共 23 個）：
+下表為 2026-11-06 查詢 `registry.podman-desktop.io/api/extensions.json` 的結果（共 23 個；「最後更新」取目錄中第一個非 preview 版本的 `lastUpdated`）。和 v2.0（2026-09-29）相比，有 8 個擴充功能更新了版本，以 🆕 標示：
 
-| 擴充功能 | 發行者 | 版本 | 分類 | 用途 |
+| 擴充功能 | 發行者 | 版本（最後更新） | 分類 | 用途 |
 | --- | --- | --- | --- | --- |
-| Podman AI Lab | Red Hat | 1.9.3 | AI | 本機執行 LLM、Playground、Inference Server、Recipes（見[第 9 章](#9-podman-ai-lab)） |
-| Bootable Containers | Red Hat | 1.14.1 | Containers | 把容器映像檔轉成可開機的磁碟映像檔（bootc） |
-| Red Hat OpenShift Local | Red Hat | 2.4.0 | Kubernetes | 管理本機 OpenShift／MicroShift 叢集 |
-| Developer Sandbox | Red Hat | 0.1.0 | Kubernetes | 申請並連線到免費的雲端 OpenShift |
-| Red Hat Authentication | Red Hat | 1.2.1 | Authentication | 登入 Red Hat Developers（SSO），可以免費使用 RHEL 映像檔與 RPM |
-| RHEL VMs | Red Hat | 0.13.0 | RHEL、VMs | 快速建立 RHEL 虛擬機 |
-| RHEL Lightspeed | Red Hat | 0.2.0 | AI | RHEL 的 AI 助理 |
-| Red Hat OpenShift Checker | Red Hat | 0.1.5 | Containers | 分析 Containerfile 中在 OpenShift 上可能出問題的指令 |
-| Red Hat Extension Pack | Red Hat | 1.0.1 | Extension Packs | 一次安裝 Red Hat 系列擴充功能 |
-| Hummingbird | Red Hat | 0.1.1 | Containers | 整合 Project Hummingbird（精簡、非 root 的基底映像檔） |
-| Podman Quadlet | Podman Desktop | 0.12.1 | Containers | 在 Podman Desktop 中整合 Quadlet（systemd 單元） |
-| Image Layers Explorer | Podman Desktop | 0.3.0 | Containers | 逐層分析映像檔內容 |
-| Grype | Podman Desktop | 0.1.0 | Vulnerability Scanner | 整合 Grype（弱點掃描）與 Syft（SBOM） |
-| PostgreSQL | Podman Desktop | 0.5.0 | Database | 管理本機開發用的 PostgreSQL 服務 |
-| Kubernetes Dashboard | Podman Desktop | 0.5.0 | Kubernetes | 監控 Kubernetes 叢集資源 |
-| Kubernetes Contexts | Podman Desktop | 0.2.0 | Kubernetes | 進階 context 管理 |
-| Kubernetes Extension Pack | Podman Desktop | 0.1.0 | Extension Packs | Kubernetes 相關擴充功能組合 |
-| Kreate | Podman Desktop | 0.3.0 | Kubernetes | 提供建立 Kubernetes 資源的範本與說明 |
-| GitHub Account Authentication | Podman Desktop | 0.2.0 | Authentication | GitHub 帳號登入 |
-| Apple container extension | Podman Desktop | 0.1.0 | Containers | 在 macOS 上列出與管理 Apple container |
-| minikube | Podman Desktop | 0.4.0 | Kubernetes | 建立 Minikube 叢集 |
-| MINC | minc-org | 0.4.0 | Kubernetes | MicroShift in a Container |
-| Headlamp | Headlamp | 0.24.0 | Kubernetes | 可擴充的 Kubernetes Web UI |
+| Podman AI Lab | Red Hat | 1.9.3（2026-02） | AI | 本機執行 LLM、Playground、Inference Server、Recipes（見[第 9 章](#9-podman-ai-lab)） |
+| Bootable Containers | Red Hat | 1.14.1（2026-08） | Containers | 把容器映像檔轉成可開機的磁碟映像檔（bootc） |
+| Red Hat OpenShift Local | Red Hat | 🆕 2.5.0（2026-10） | Kubernetes | 管理本機 OpenShift／MicroShift 叢集 |
+| Developer Sandbox | Red Hat | 0.1.0（2026-08） | Kubernetes | 申請並連線到免費的雲端 OpenShift |
+| Red Hat Authentication | Red Hat | 1.2.1（2026-08） | Authentication | 登入 Red Hat Developers（SSO），可以免費使用 RHEL 映像檔與 RPM |
+| RHEL VMs | Red Hat | 0.13.0（2026-07） | RHEL、VMs | 快速建立 RHEL 虛擬機 |
+| RHEL Lightspeed | Red Hat | 0.2.0（2025-05） | AI | RHEL 的 AI 助理 |
+| Red Hat OpenShift Checker | Red Hat | 0.1.5（2024-05） | Containers | 分析 Containerfile 中在 OpenShift 上可能出問題的指令 |
+| Red Hat Extension Pack | Red Hat | 1.0.1（2024-05） | Extension Packs | 一次安裝 Red Hat 系列擴充功能 |
+| Hummingbird | Red Hat | 🆕 0.2.0（2026-07） | Containers | 整合 Project Hummingbird（精簡、非 root 的基底映像檔） |
+| Podman Quadlet | Podman Desktop | 🆕 0.13.0（2026-10） | Containers | 在 Podman Desktop 中整合 Quadlet（systemd 單元） |
+| Image Layers Explorer | Podman Desktop | 0.3.0（2026-01） | Containers | 逐層分析映像檔內容 |
+| Grype | Podman Desktop | 🆕 0.3.0（2026-10） | Containers、Vulnerability Scanner | 整合 Grype（弱點掃描）與 Syft（SBOM） |
+| PostgreSQL | Podman Desktop | 0.5.0（2026-01） | Database | 管理本機開發用的 PostgreSQL 服務 |
+| Kubernetes Dashboard | Podman Desktop | 🆕 0.6.0（2026-09） | Kubernetes | 監控與操作 Kubernetes 叢集資源（見 [7.6.1](#761-apply-yaml)） |
+| Kubernetes Contexts | Podman Desktop | 🆕 0.3.0（2026-09） | Kubernetes | 進階 context 管理 |
+| Kubernetes Extension Pack | Podman Desktop | 0.1.0（2026-03） | Extension Packs | Kubernetes 相關擴充功能組合 |
+| Kreate | Podman Desktop | 🆕 0.4.0（2026-09） | Kubernetes | 提供建立 Kubernetes 資源的範本與說明 |
+| GitHub Account Authentication | Podman Desktop | 0.2.0（2026-02） | Authentication | GitHub 帳號登入 |
+| Apple container extension | Podman Desktop | 🆕 0.2.0（2026-10） | Containers | 在 macOS 上列出與管理 Apple container |
+| minikube | Podman Desktop | 0.4.0（2024-11） | Kubernetes | 建立 Minikube 叢集 |
+| MINC | minc-org | 0.4.0（2025-05） | Kubernetes | MicroShift in a Container |
+| Headlamp | Headlamp | 0.24.0（2024-06） | Kubernetes、Docker Desktop | 可擴充的 Kubernetes Web UI |
 
-> 📌 目錄內容會持續變動，版本號請以 **Extensions > Catalog** 當下顯示為準。部分擴充功能（例如 minikube、Headlamp、OpenShift Checker）更新頻率較低，導入前要評估維護狀況。
+> 📌 目錄內容會持續變動，版本號請以 **Extensions > Catalog** 當下顯示為準。部分擴充功能超過 12 個月沒有更新：minikube（2024-11）、Headlamp（2024-06）、OpenShift Checker（2024-05）、Red Hat Extension Pack（2024-05）、MINC（2025-05）、RHEL Lightspeed（2025-05）。導入前要評估維護狀況（見[附錄 E.1](#e1-待確認事項)）。
+>
+> **自行驗證目錄**（PowerShell）：
+>
+> ```powershell
+> $j = Invoke-RestMethod https://registry.podman-desktop.io/api/extensions.json
+> $j.extensions.Count   # 2026-11-06 為 23
+> $j.extensions | ForEach-Object { $v = $_.versions | Where-Object { -not $_.preview } | Select-Object -First 1; '{0}.{1} {2} {3}' -f $_.publisher.publisherName, $_.extensionName, $v.version, $v.lastUpdated }
+> ```
 
 ### 8.3 安裝與管理
 
@@ -1669,7 +1951,7 @@ spec:
 | 從目錄安裝 | **Extensions > Catalog** → 選擇擴充功能 → **Install**；1.28 起 Task Manager 會顯示下載進度 |
 | 從 Dashboard 推薦 | Dashboard 的推薦橫幅或 Explore Features 區塊 |
 | 自訂擴充功能 | **Extensions** → **Install custom...** → 輸入 OCI 映像檔參照（例如 `quay.io/<組織>/<擴充功能>:<版本>`） |
-| 本機開發模式 | 1.20 起正式版也可以開啟 Development Mode，在 **Local Extensions** 分頁載入本機資料夾，即時測試 |
+| 本機開發模式 | 1.20 起正式版也可以開啟 Development Mode，在 **Local extensions** 分頁載入本機資料夾，即時測試 |
 
 **更新**：預設會自動檢查並安裝擴充功能更新（`extensions.autoCheckUpdates`、`extensions.autoUpdate`）。
 
@@ -1681,14 +1963,158 @@ spec:
 | --- | --- | --- |
 | `extensions.catalog.enabled` | `true` | 設為 `false` 時隱藏擴充功能目錄 |
 | `extensions.customExtensions.enabled` | `true` | 設為 `false` 時隱藏 **Install custom...** 按鈕 |
-| `extensions.localExtensions.enabled` | `true` | 是否顯示 Local Extensions 分頁 |
+| `extensions.localExtensions.enabled` | `true` | 是否顯示 Local extensions 分頁 |
 | `extensions.autoUpdate` | `true` | 是否自動安裝更新 |
 | `extensions.ignoreRecommendations` | `false` | 關閉擴充功能推薦 |
-| `extensions.registryUrl`（內部設定） | `https://registry.podman-desktop.io/api/extensions.json` | 目錄來源 URL |
+| `extensions.registryUrl` | `https://registry.podman-desktop.io/api/extensions.json` | 目錄來源 URL；🔭 1.31 開發版文件正式說明可以指向自訂目錄（見 [8.4.1](#841--自訂擴充功能目錄企業核准清單)） |
+| `extensions.autoCheckUpdates` | `true` | 啟動時與每 12 小時檢查擴充功能更新 |
 
 搭配 Managed configuration 鎖定這些設定（見[10.4](#104-常見管理用例)），就能做到「只允許 IT 核准的擴充功能」。
 
-> 💡 **企業白名單做法**：隱藏目錄與自訂安裝後，由 IT 以 OCI 映像檔形式把核准的擴充功能鏡像到內部 registry，再用派送腳本安裝；或評估把 `extensions.registryUrl` 指向內部維護的目錄檔（屬於內部設定，要先在試點環境驗證，見[附錄 E.1](#e1-待確認事項)）。
+> 💡 **企業白名單做法**有兩種：
+>
+> 1. 隱藏目錄與自訂安裝，由 IT 以 OCI 映像檔形式把核准的擴充功能鏡像到內部 registry，再用派送腳本安裝。
+> 2. 把 `extensions.registryUrl` 指向公司內部維護的目錄檔（8.4.1）。開發者仍然可以在 Catalog 自助安裝，但只看得到核准過的擴充功能。
+
+#### 8.4.1 🔭 自訂擴充功能目錄（企業核准清單）
+
+> 🆕 **v3.0 新增**：v2.0 把 `extensions.registryUrl` 列為「內部設定，是否支援覆寫待確認」（E.1 #3）。1.31 開發版文件新增〈Hosting a custom extension catalog〉，正式說明這個用法，因此本節改寫為可以操作的步驟。設定鍵在 1.30.5 就已經存在；正式支援的範圍以 1.31 發布說明為準。
+
+**運作方式**：設定自訂目錄後，Podman Desktop 會**完全改用**這個 URL，不會再合併官方目錄。如果還想保留官方擴充功能，就要把官方 `extensions.json` 的項目複製到自己的目錄檔。
+
+**目錄檔格式**（最小範例）：
+
+```json
+{
+  "extensions": [
+    {
+      "publisher": { "publisherName": "corp", "displayName": "Corp Platform Team" },
+      "extensionName": "registry-helper",
+      "displayName": "Corp Registry Helper",
+      "shortDescription": "一鍵登入公司內部 registry",
+      "categories": ["Developer Tools"],
+      "keywords": ["registry", "corp"],
+      "versions": [
+        {
+          "version": "1.0.1",
+          "podmanDesktopVersion": ">=1.30.0",
+          "preview": false,
+          "lastUpdated": "2026-11-01T00:00:00Z",
+          "ociUri": "registry.corp.example/pd-ext/registry-helper:1.0.1",
+          "files": [
+            { "assetType": "icon", "data": "https://pd-catalog.corp.example/assets/registry-helper/icon.png" },
+            { "assetType": "README", "data": "https://pd-catalog.corp.example/assets/registry-helper/README.md" },
+            { "assetType": "LICENSE", "data": "https://pd-catalog.corp.example/assets/registry-helper/LICENSE" }
+          ]
+        },
+        {
+          "version": "1.0.0",
+          "podmanDesktopVersion": ">=1.29.0",
+          "preview": false,
+          "lastUpdated": "2026-10-01T00:00:00Z",
+          "ociUri": "registry.corp.example/pd-ext/registry-helper:1.0.0",
+          "files": [
+            { "assetType": "icon", "data": "https://pd-catalog.corp.example/assets/registry-helper/icon.png" },
+            { "assetType": "README", "data": "https://pd-catalog.corp.example/assets/registry-helper/README.md" },
+            { "assetType": "LICENSE", "data": "https://pd-catalog.corp.example/assets/registry-helper/LICENSE" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+**必須遵守的規則**（也是審查目錄檔時的檢查點）：
+
+| 規則 | 違反時的結果 |
+| --- | --- |
+| `versions` 依新到舊排列，**最新的穩定版放第一個** | Podman Desktop 以第一個「非 preview 且相容」的版本當成目前版本；順序錯了就不會提示更新 |
+| 舊版本保留在陣列中 | 舊版 Podman Desktop 的使用者才能退回相容的舊版本（依 `podmanDesktopVersion` 篩選） |
+| `files[].data` 使用**絕對** HTTP／HTTPS URL | 不會依目錄檔 URL 解析相對路徑，圖示與 README 會無法顯示 |
+| `assetType` 只能是 `icon`、`README`、`LICENSE` | 其他值會被忽略 |
+| `preview: true` 的版本 | 保留在資料中，但不會顯示、不能從目錄安裝，也不會用於自動更新 |
+| 只指向**可信任**的目錄來源 | 目錄項目會讓 Podman Desktop 下載並執行容器映像檔，等同軟體派送管道 |
+
+**部署步驟**：
+
+1. 把目錄檔與圖示等資產放在內部的靜態網站（例如 `https://pd-catalog.corp.example/extensions.json`），並納入 Git 版本控管。
+2. 用 Managed configuration 派送並鎖定這個設定（見第 10 章）：
+
+   ```json
+   { "extensions.registryUrl": "https://pd-catalog.corp.example/extensions.json" }
+   ```
+
+3. 重啟 Podman Desktop，到 **Extensions > Catalog** 確認只看得到核准的擴充功能。目錄檔在執行期間更新時，按 **Refresh the catalog** 即可重新載入。
+4. 要恢復官方目錄時，刪除這個設定，或改回 `https://registry.podman-desktop.io/api/extensions.json`。
+
+**本機試跑**：在目錄檔所在的資料夾執行 `python -m http.server 8080`，把 `extensions.registryUrl` 設成 `http://localhost:8080/extensions.json`。注意這裡是 `http`，不是 `https`。
+
+**自動驗證目錄檔**：派送前在 CI 跑下列檢查腳本（Python 3.9 以上，不需要其他套件），只要違反上表任何一條規則，就會以非零結束碼結束：
+
+```python
+#!/usr/bin/env python3
+"""check_pd_catalog.py：檢查 Podman Desktop 自訂擴充功能目錄檔。"""
+import json
+import re
+import sys
+
+SEMVER = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$")
+ASSETS = {"icon", "README", "LICENSE"}
+REQ_EXT = ["publisher", "extensionName", "displayName", "shortDescription", "categories", "keywords", "versions"]
+REQ_VER = ["version", "ociUri", "preview", "lastUpdated", "files"]
+
+
+def key(v):
+    core = v.split("-", 1)[0]
+    return tuple(int(x) for x in core.split("."))
+
+
+def check(doc):
+    errs = []
+    exts = doc.get("extensions")
+    if not isinstance(exts, list):
+        return ["頂層必須有 extensions 陣列"]
+    seen = set()
+    for i, e in enumerate(exts):
+        where = f"extensions[{i}]"
+        errs += [f"{where} 缺少 {k}" for k in REQ_EXT if k not in e]
+        ext_id = f"{e.get('publisher', {}).get('publisherName')}.{e.get('extensionName')}"
+        if ext_id in seen:
+            errs.append(f"{where} 重複的擴充功能 ID {ext_id}")
+        seen.add(ext_id)
+        stable = []
+        for j, v in enumerate(e.get("versions", [])):
+            w = f"{ext_id} versions[{j}]"
+            errs += [f"{w} 缺少 {k}" for k in REQ_VER if k not in v]
+            # 官方目錄的 preview 項目版本號可以是 "preview"（指向 :latest 或 :nightly），只檢查穩定版
+            if v.get("preview") is False and not SEMVER.match(str(v.get("version", ""))):
+                errs.append(f"{w} 穩定版的 version 必須是 semver")
+            for f in v.get("files", []):
+                if f.get("assetType") not in ASSETS:
+                    errs.append(f"{w} assetType 不合法：{f.get('assetType')}")
+                if not str(f.get("data", "")).startswith(("http://", "https://")):
+                    errs.append(f"{w} 資產必須是絕對 URL：{f.get('data')}")
+            if v.get("preview") is False and SEMVER.match(str(v.get("version", ""))):
+                stable.append(key(v["version"]))
+        if stable != sorted(stable, reverse=True):
+            errs.append(f"{ext_id} 穩定版沒有依新到舊排列")
+    return errs
+
+
+if __name__ == "__main__":
+    with open(sys.argv[1], encoding="utf-8") as fh:
+        problems = check(json.load(fh))
+    for p in problems:
+        print("FAIL", p)
+    print("OK" if not problems else f"{len(problems)} 個問題")
+    sys.exit(1 if problems else 0)
+```
+
+```bash
+python3 check_pd_catalog.py extensions.json
+# 預期：本節的範例目錄檔與官方 registry.podman-desktop.io 的目錄檔都輸出 OK；把 1.0.0 與 1.0.1 的順序對調，輸出「corp.registry-helper 穩定版沒有依新到舊排列」並以結束碼 1 結束
+```
 
 ### 8.5 重點擴充功能
 
@@ -1747,6 +2173,64 @@ podman push registry.corp.example/pd-ext/registry-helper:1.0.0
 - 含原生執行檔時，要為各平台建置映像檔並用 manifest 合併。
 - 要公開上架時，向 `podman-desktop-catalog` 倉庫送 PR；1.27 起提供擴充功能 `package.json` 的 JSON Schema。
 
+**🆕 v3.0 新增：1.30 的 API 與 1.30 文件新增的開發指南**
+
+| API／功能 | 用途 | 版本 |
+| --- | --- | --- |
+| `navigation.register()` 的 `searchEntry` 選項 | 讓擴充功能的頁面可以從指令面板搜尋到 | 1.30 |
+| 設定屬性的 `displayName` | 設定頁顯示易讀的名稱，不再直接顯示原始鍵名 | 1.30 |
+| 設定預設值的 `env:`／`file:` 前綴 | 從環境變數或檔案讀取動態預設值 | 1.30 |
+| 網路右鍵選單貢獻點 | 擴充功能可以在網路清單加上自訂動作 | 1.30 |
+| `cli.createCliTool()` | 把擴充功能需要的 CLI 註冊到 **Settings > CLI Tools**，可以提供安裝與更新程序 | 文件於 1.30 新增 |
+| `window.withProgress()` | 在 Task Manager 顯示長時間作業的進度 | 文件於 1.30 新增 |
+| `window.createStatusBarItem()` | 在狀態列加上項目 | 文件於 1.30 新增 |
+| `tray.registerMenuItem()` | 在系統匣選單加上項目或子選單 | 文件於 1.30 新增 |
+| Webview 訊息傳遞 | 擴充功能後端與 webview 前端之間互傳訊息 | 文件於 1.30 新增 |
+
+**範例：公司內部擴充功能的進度回報與 CLI 註冊**（TypeScript，依官方開發指南改寫）
+
+```typescript
+import * as extensionApi from '@podman-desktop/api';
+
+export async function activate(context: extensionApi.ExtensionContext): Promise<void> {
+  // 1. 在 Settings > CLI Tools 註冊公司的 CLI，讓使用者看到版本與路徑
+  const cliTool = extensionApi.cli.createCliTool({
+    name: 'corpctl',
+    displayName: 'Corp CLI',
+    markdownDescription: '公司內部平台 CLI',
+    images: { icon: './icon.png' },
+    version: '2.3.0',
+    path: '/usr/local/bin/corpctl',
+  });
+  context.subscriptions.push(cliTool);
+
+  // 2. 註冊指令，執行時在 Task Manager 顯示進度
+  const cmd = extensionApi.commands.registerCommand('corp.loginRegistry', async () => {
+    await extensionApi.window.withProgress(
+      { location: extensionApi.ProgressLocation.TASK_WIDGET, title: '登入公司 registry' },
+      async progress => {
+        progress.report({ increment: 0, message: '取得權杖…' });
+        // ...呼叫公司 SSO 取得權杖...
+        progress.report({ increment: 100, message: '完成' });
+      },
+    );
+  });
+  context.subscriptions.push(cmd);
+
+  // 3. 狀態列捷徑
+  const item = extensionApi.window.createStatusBarItem();
+  item.text = 'Corp Registry';
+  item.command = 'corp.loginRegistry';
+  item.show();
+  context.subscriptions.push(item);
+}
+```
+
+**驗證方式**：
+
+1. 載入擴充功能後，到 **Settings > CLI Tools**，確認出現 `Corp CLI 2.3.0`。
+2. 點擊狀態列的 **Corp Registry**，確認 Task Manager 出現「登入公司 registry」並跑到 100%。Task Manager 的顯示要先在 **Settings > Preferences** 開啟 Tasks 區段。
+
 ### 8.7 💡 本章實務建議
 
 1. **建立擴充功能核准清單**：優先核准 Red Hat 與 Podman Desktop 官方維護、近半年內有更新的擴充功能。
@@ -1754,12 +2238,34 @@ podman push registry.corp.example/pd-ext/registry-helper:1.0.0
 3. **Grype 與 Image Layers Explorer 列為開發者標準配備**，把資安檢查往左移。
 4. **內部工具可以做成擴充功能**：例如一鍵登入內部 registry、套用公司 machine 規格。
 5. **擴充功能也要納入弱點與版本管理**，跟 Podman Desktop 本體一起評估升級。
+6. **1.31 發布後評估自訂目錄**：用 `extensions.registryUrl`＋Managed configuration 鎖定，讓「核准清單」直接成為開發者看到的目錄；目錄檔走 PR 審查，並在 CI 跑 `check_pd_catalog.py`。
+
+### 8.8 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 只安裝核准的擴充功能 | **Extensions > Installed** 的清單和核准清單比對 | 沒有清單以外的項目 |
+| 2 | 自訂安裝已關閉 | **Extensions** 頁 | 沒有 **Install custom...** 按鈕（`extensions.customExtensions.enabled=false`） |
+| 3 | 目錄版本和本文一致 | 執行 8.2 的 PowerShell 查詢 | 23 個擴充功能；版本差異列入下次改版 |
+| 4 | 🔭 自訂目錄檔合格 | `python3 check_pd_catalog.py extensions.json` | `OK`，結束碼 0 |
+| 5 | 🔭 自訂目錄生效 | 部署 8.4.1 的設定後，開啟 **Extensions > Catalog** | 只看得到目錄檔中的擴充功能 |
+| 6 | 內部擴充功能的 API 版本 | `podman inspect --format '{{index .Labels "io.podman-desktop.api.version"}}' registry.corp.example/pd-ext/registry-helper:1.0.0` | 例如 `>= 1.29.0`，不高於公司基準版本 |
+| 7 | 8.6 範例可以編譯 | 在擴充功能專案執行 `npx tsc --noEmit` | 沒有型別錯誤 |
 
 ---
 
 ## 9. Podman AI Lab
 
 > 🆕 **v2.0 新增**：Podman AI Lab 是 Red Hat 維護的擴充功能（目前 1.9.3），讓開發者在本機以容器方式執行開源 LLM，不必把資料送到外部服務。
+>
+> 📌 **v3.0 查證**：到 2026-11-06 為止，AI Lab 最新的正式版仍是 **1.9.3**（2026-02-03 發布，原始碼在 `containers/podman-desktop-extension-ai-lab`）。倉庫仍有持續提交，但 1.9.3 之後沒有新的 release。本章內容依 1.9.3 撰寫；需要 AI agent 沙箱的團隊，可以一併評估 Red Hat Desktop 的 agent sandbox 功能（見 [1.5](#15-社群版與-red-hat-build-of-podman-desktop)）。
+
+**檢查已安裝的 AI Lab 版本**：到 **Extensions > Installed** 查看 Podman AI Lab 卡片上的版本號，或執行下列指令和最新 release 比對：
+
+```bash
+gh api repos/containers/podman-desktop-extension-ai-lab/releases/latest --jq '.tag_name + " " + .published_at'
+# 2026-11-06 的輸出：v1.9.3 2026-02-03T00:40:39Z
+```
 
 ### 9.1 功能概觀
 
@@ -1848,6 +2354,16 @@ spring:
 3. **程式一律透過 OpenAI 相容 API 呼叫**，保留日後切換推論平台的彈性。
 4. **給 AI 開發者較高的 machine 規格**（12～16 GB 記憶體），並優先配發有 GPU 的設備。
 5. **受限網路環境預先準備模型檔**，放在內部檔案伺服器供匯入。
+
+### 9.7 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | AI Lab 版本 | **Extensions > Installed**，並和 9 章開頭的 `gh api` 指令輸出比對 | 和最新 release 相同（2026-11-06 為 1.9.3） |
+| 2 | machine 資源足夠 | `podman machine inspect --format '{{.Resources.CPUs}} {{.Resources.Memory}}'` | CPU ≥ 4、記憶體 ≥ 12288 |
+| 3 | 模型服務只監聽本機 | Windows：`Get-NetTCPConnection -LocalPort 35000 -State Listen`；macOS／Linux：`lsof -nP -iTCP:35000 -sTCP:LISTEN` | 位址為 `127.0.0.1`／`::1` 或由 machine 轉送，不是對外網卡 |
+| 4 | API 可以呼叫 | 執行 9.4 的 `curl` | 回傳 JSON，含 `choices[0].message.content` |
+| 5 | 模型授權已核准 | 對照法遵核准的模型清單 | 已下載的模型都在清單上 |
 
 ---
 
@@ -2021,7 +2537,7 @@ $locked = @'
 
 #### 10.4.3 控制引擎更新
 
-`providers.allowUpdate`（隱藏設定，專供管理使用）決定哪些擴充功能可以在 **Resources** 頁提供引擎更新按鈕：
+`providers.allowUpdate` 決定哪些擴充功能可以在 **Resources** 頁提供引擎更新按鈕。v2.0 把它當成隱藏設定；🆕 1.30 起，這個設定已經正式列在官方〈Settings reference〉，〈Managed configuration use cases〉也新增了「Controlling provider engine updates」用例。
 
 ```json
 { "providers.allowUpdate": [] }
@@ -2030,6 +2546,14 @@ $locked = @'
 - `["*"]`：預設，全部允許。
 - `[]`：全部封鎖，引擎版本由 IT 統一升級。
 - `["podman-desktop.podman"]`：只允許 Podman 擴充功能。
+
+要讓這個設定強制生效，`locked.json` 也要列入：
+
+```json
+{ "locked": ["providers.allowUpdate"] }
+```
+
+**驗證**：重啟 Podman Desktop 後，到 **Settings > Resources** 確認 Podman 卡片**沒有**更新按鈕，並在 **Troubleshooting > Logs** 搜尋 `[Managed-by]`，應該看到這個鍵被管理的紀錄。
 
 #### 10.4.4 管控擴充功能與應用程式更新
 
@@ -2056,7 +2580,8 @@ $locked = @'
 ### 10.6 遙測與隱私
 
 - `telemetry.enabled`（預設 `true`）會把匿名使用資料傳給 Red Hat。首次啟動會詢問使用者。
-- **CI 環境自動停用**：偵測到 `CI`、`CONTINUOUS_INTEGRATION`、`BUILD_NUMBER`、`GITHUB_ACTIONS`、`GITLAB_CI`、`JENKINS_URL`、`TF_BUILD` 等環境變數（值不為空、`false` 或 `0`）時，這次執行不會送出遙測，並記錄 `CI environment detected: telemetry is disabled for this run.`；設定檔本身不會被修改。
+- **CI 環境自動停用**：偵測到 `CI`、`CONTINUOUS_INTEGRATION`、`BUILD_NUMBER`、`GITHUB_ACTIONS`、`GITLAB_CI`、`JENKINS_URL`、`TF_BUILD` 等環境變數（值不為空、`false` 或 `0`）時，這次執行不會送出遙測，並記錄 `CI environment detected: telemetry is disabled for this run.`；設定檔本身不會被修改。🆕 1.30 起，官方〈Settings reference〉列出完整的偵測清單，另外還包括 `RUN_ID`、`APPVEYOR`、`BITBUCKET_BUILD_NUMBER`、`BUILDKITE`、`CIRCLECI`、`CODEBUILD_BUILD_ID`、`DRONE`、`HUDSON_URL`、`SEMAPHORE`、`TEAMCITY_VERSION`、`TRAVIS`。
+- ⚠️ **注意**：CI 偵測只停用**這一次執行**的遙測，歡迎畫面仍然會詢問遙測設定。如果開發者的電腦剛好設定了 `BUILD_NUMBER` 這類變數，就會被誤判成 CI 環境；所以這個機制**不能**取代 Managed configuration 的鎖定。
 - 金融業建議直接以 Managed configuration 鎖定 `telemetry.enabled=false`，並寫進資訊資產清冊。
 
 ### 10.7 settings.json 重點鍵值
@@ -2079,6 +2604,8 @@ $locked = @'
 | `preferences.login.start` | `true` | 開機自動啟動 | 預設值 |
 | `preferences.appearance` | `"system"` | 主題 | 使用者自訂 |
 | `userConfirmation.bulk` | `true` | 批次操作前確認 | 預設值 |
+| `extensions.registryUrl` | 官方目錄 URL | 擴充功能目錄來源（🔭 見 8.4.1） | 使用內部目錄時鎖定 |
+| `tasks.toast` | `false`（🔭 1.31 開發版改為 `true`） | 建立工作時跳出通知 | 預設值；升級到 1.31 後確認使用者是否覺得通知太多 |
 | `preferences.navigationBarLayout` | `"icon + title"` | **1.29 起棄用**，改用 `preferences.navigationBarWidth` | 不再使用 |
 
 完整清單見官方〈Settings Reference〉；範本見[附錄 B.2](#b2-managed-configuration-範本)。
@@ -2100,6 +2627,18 @@ $locked = @'
 4. **每次升級 Podman Desktop 都檢查 Settings Reference 的變動**，例如 1.29 棄用 `preferences.navigationBarLayout`。
 5. **需要廠商支援時搭配 Red Hat build**，它的文件另有標準政策設定與離線環境的完整指引。
 
+### 10.10 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 管理檔位置正確 | Windows：`Test-Path "$env:PROGRAMDATA\Podman Desktop\locked.json"`；Linux：`ls -l /usr/share/podman-desktop/` | `True`；Linux 的檔案擁有者為 root、權限 `-rw-r--r--` |
+| 2 | 管理檔內容合格 | `python3 check_pd_managed.py default-settings.json locked.json`（附錄 B.2） | `OK`，結束碼 0 |
+| 3 | 鎖定生效 | 開啟 **Settings > Proxy** | 欄位顯示鎖頭，無法修改 |
+| 4 | 日誌有管理紀錄 | **Troubleshooting > Logs** 搜尋 `Managed-by` | 列出被管理的鍵 |
+| 5 | 遙測已關閉 | 在使用者 `settings.json` 搜尋 `telemetry.enabled`，並開啟 **Settings > Preferences** | UI 顯示關閉並有鎖頭（CI 偵測不能取代這一項） |
+| 6 | 引擎更新受控 | **Settings > Resources** 的 Podman 卡片 | 沒有更新按鈕（`providers.allowUpdate=[]`） |
+| 7 | 派送檔有版本控管 | `git log --oneline -- default-settings.json locked.json` | 每次變更都有 PR 與審查紀錄 |
+
 ---
 
 ## 11. 安全性與合規
@@ -2119,7 +2658,7 @@ $locked = @'
 
 ### 11.2 執行期安全
 
-**預設採用 rootless**：Podman machine 預設為 rootless 連線。即使容器被攻破，攻擊者在 machine 內也只有一般使用者權限。
+**採用 rootless**：rootless 連線下，即使容器被攻破，攻擊者在 machine 內也只有一般使用者權限。⚠️ **v3.0 更正**：v2.0 寫「Podman machine 預設為 rootless」，但從 Podman Desktop 建立的 machine 預設是 **rootful**（見 [4.3](#43-建立與設定-machine)）。請在標準作業程序中要求取消勾選 **Machine with root privileges**，並用 `podman machine inspect --format '{{.Rootful}}'` 抽查，預期結果為 `false`。
 
 **容器執行的最低要求**（GUI 的 **Security** 分頁或 CLI）：
 
@@ -2162,10 +2701,37 @@ node_modules/
 
 ### 11.4 更新與弱點管理
 
-Podman Desktop 幾乎每個版本都修補相依套件的 CVE（1.27、1.28 的發布說明都特別提到）。建議的版本管理流程：
+Podman Desktop 幾乎每個版本都修補相依套件的 CVE（1.27、1.28 的發布說明都特別提到）。
+
+**🆕 v3.0 新增：Podman Desktop 本身的安全公告**（來源：GitHub Security Advisories，`podman-desktop/podman-desktop`）
+
+| 公告 | CVE | 嚴重度 | 影響版本 | 修補版本 | 摘要 |
+| --- | --- | --- | --- | --- | --- |
+| GHSA-2q88-39rh-gxvv | CVE-2026-34045 | High（CVSS 8.2） | ≤ 1.26.1 | **1.26.2** | WebView HTTP server（埠號 44000 起）沒有驗證、連線數限制與逾時，同網路的攻擊者可以造成阻斷服務並取得資訊 |
+| GHSA-v3fx-qg34-6g9m | CVE-2026-24835 | Low | ≤ 1.24.2 | **1.25.1** | 擴充功能驗證機制的 `isAccessAllowed()` 永遠回傳 `true`，任何擴充功能都能取得登入工作階段；1.26 起另外加上使用者授權提示（見 [8.3](#83-安裝與管理)） |
+| （無公告） | — | — | ≤ 1.30.4 | **1.30.5** | 發布說明：「enforce directory boundary in webview file server」，webview 檔案伺服器強制目錄邊界 |
+
+> 📌 **原始碼查證**：1.30.5 的 webview server 以 `listen(serverPort, '127.0.0.1', ...)` 只綁定本機介面（`packages/main/src/plugin/webview/webview-registry.ts`），埠號從 44000 起找第一個可用的埠。
+
+**桌面最低安全版本**：Podman Desktop **≥ 1.30.5**（內建 Podman 6.1.4／5.8.9，符合《Podman 使用教學手冊》v3.0 的引擎基準 6.1.3／5.8.8）。
+
+**檢查單台電腦是否符合基準**（Windows PowerShell，可以放進 Intune 偵測腳本）：
+
+```powershell
+$min = [version]'1.30.5'
+$pd = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*', 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue |
+  Where-Object { $_.DisplayName -like 'Podman Desktop*' } | Select-Object -First 1
+if (-not $pd) { Write-Output 'NOT-INSTALLED'; exit 0 }
+$ver = [version]($pd.DisplayVersion -replace '[^0-9.].*$', '')
+if ($ver -ge $min) { Write-Output "COMPLIANT $ver"; exit 0 } else { Write-Output "OUTDATED $ver"; exit 1 }
+```
+
+預期結果：已升級的電腦輸出 `COMPLIANT 1.30.5`（結束碼 0）；1.29.3 的電腦輸出 `OUTDATED 1.29.3`（結束碼 1），派送平台據此判定要不要更新。
+
+建議的版本管理流程：
 
 1. **訂閱發布資訊**：GitHub Releases、官方部落格、Red Hat build 的發布說明。
-2. **分級處理**：修補版（例如 1.29.2 → 1.29.3）在一週內派送；次要版本（1.29 → 1.30）先在試點群組驗證兩週。
+2. **分級處理**：修補版（例如 1.30.4 → 1.30.5）在一週內派送；含安全修正（High 以上，或發布說明提到安全）的修補版縮短到 72 小時內；次要版本（1.30 → 1.31）先在試點群組驗證兩週。
 3. **引擎與桌面分開管理**：用 `providers.allowUpdate` 與 `preferences.update.appUpdate` 關閉使用者自行升級，由 IT 統一派送。
 4. **擴充功能**：`extensions.autoUpdate` 可以保持開啟，但只允許核准清單內的擴充功能。
 5. **紀錄**：把各設備的 Podman Desktop 版本、Podman 版本、machine 版本納入資產管理系統。
@@ -2189,6 +2755,18 @@ Podman Desktop 幾乎每個版本都修補相依套件的 CVE（1.27、1.28 的�
 3. **推送前自我掃描**：Grype 擴充功能＋`.containerignore`。
 4. **Podman Desktop 也是需要修補的軟體**，納入弱點管理流程。
 5. **把本章的檢查點做成年度稽核清單**（見[附錄 C.4](#c4-安全與合規)）。
+
+### 11.7 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 桌面版本符合安全基準 | 執行 11.4 的合規偵測腳本 | `COMPLIANT 1.30.5` 以上，結束碼 0 |
+| 2 | 沒有新的安全公告 | `gh api repos/podman-desktop/podman-desktop/security-advisories --jq '.[].ghsa_id'` | 只有本文已列出的兩筆；有新公告時立即評估 |
+| 3 | machine 為 rootless | `podman machine inspect --format '{{.Rootful}}'` | `false`（例外已登記） |
+| 4 | 容器套用最低安全設定 | `podman inspect api --format '{{.HostConfig.CapDrop}} {{.HostConfig.ReadonlyRootfs}}'` | 含 `ALL`；`true` |
+| 5 | 服務只綁定本機 | `podman port api` | `127.0.0.1:8080` |
+| 6 | webview server 不對外 | Windows：`Get-NetTCPConnection -State Listen \| Where-Object LocalPort -ge 44000 \| Where-Object LocalPort -le 44010` | 只有 `127.0.0.1` |
+| 7 | 推送前的掃描 | 用 Grype 擴充功能掃描要推送的映像檔 | 沒有未處理的 Critical 弱點 |
 
 ---
 
@@ -2471,6 +3049,16 @@ jobs:
 4. **除錯埠號只在開發映像檔或執行參數中開啟**，不要寫死在正式 Containerfile。
 5. **本機 Pod 產生的 YAML 要整理後才進版控**（改成 Deployment、移除 Secret）。
 
+### 12.9 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | IDE 擴充功能 ID 正確 | `code --list-extensions \| grep -E 'vscode-containers\|remote-containers'` | 列出 `ms-azuretools.vscode-containers` 與 `ms-vscode-remote.remote-containers` |
+| 2 | Dev Container 可以啟動 | VS Code：**Dev Containers: Reopen in Container** | 成功開啟；在終端機執行 `id -u` 得到非 0 |
+| 3 | Testcontainers 可以執行 | 在專案執行一個使用 Testcontainers 的測試（例如 `mvn -q test -Dtest=*IT`） | 測試通過；結束後 `podman ps -a --filter label=org.testcontainers` 沒有殘留 |
+| 4 | 本機與 CI 使用同一個映像檔 | 比對 `podman inspect --format '{{.Digest}}'` 和 CI 紀錄 | digest 相同 |
+| 5 | Windows 自動化腳本可以重跑 | 在已經設定好的電腦上再執行一次 12.6 的腳本 | 沒有錯誤；不會重複建立 machine |
+
 ---
 
 ## 13. 疑難排解
@@ -2500,9 +3088,9 @@ flowchart TD
 | --- | --- |
 | Logs | 檢視 Podman Desktop 日誌（1.28 起含時間戳記） |
 | Gather logs | 一鍵把所有日誌打包成 `.zip` |
-| Ping | 檢查引擎回應時間 |
-| Check containers | 檢查容器清單的回應時間 |
-| Reconnect Providers | 重新連線引擎 socket |
+| Repair & connections → Ping | 檢查引擎回應時間 |
+| Repair & connections → Check containers | 檢查容器清單的回應時間 |
+| Repair & connections → Reconnect Providers | 重新連線引擎 socket |
 | Stores | 檢視前端資料 store 的事件，例如容器沒有出現在清單時，看 containers store 的事件 |
 | Cleanup／Purge data | 刪除引擎中**所有**資源（高風險，操作前先備份） |
 
@@ -2513,6 +3101,8 @@ flowchart TD
 | `podman machine stop` 失敗，日誌出現 `Error stopping sysd: exit status 1` | machine 損壞 | `wsl --list` 找到 machine 名稱，`wsl --unregister podman-machine-default` 後重建 |
 | Podman Desktop 看不到 machine | 權限不同：Hyper-V machine 只有以系統管理員執行時看得到 | 用 `wsl --list`、`podman system connection list`、`podman machine ls` 確認；卡住時 `podman machine reset`；重啟 Podman Desktop；再不行就 `taskkill.exe /F /im wslservice.exe` 重啟 WSL |
 | 從命令列啟動 Podman Desktop 後，關閉終端機也把它關掉 | 終端機附加到 Electron 行程 | 啟動前設定 `ELECTRON_NO_ATTACH_CONSOLE=true` |
+| 🆕 啟動時短暫閃出命令提示字元視窗 | 1.29 以前自動啟動 machine 時會開出 console 視窗 | 升級到 1.30 以上（1.30 已修正） |
+| 🆕 Onboarding 顯示 ⚠️ 虛擬化警告但可以繼續 | 1.30 的 BIOS 虛擬化韌體檢查改成警告等級 | 執行 `Get-ComputerInfo \| Select-Object HyperVRequirementVirtualizationFirmwareEnabled`；結果為 `False` 時請到 BIOS 啟用 VT-x／AMD-V，否則 machine 很可能建立失敗 |
 | VPN 下出現 `Temporary failure in name resolution` | machine 網路沒有經過 VPN | 重建 machine 並啟用 User mode networking |
 | `Get-NetTCPConnection` 相關錯誤、埠號轉送失效 | WSL 版本過舊 | `wsl --update`，必要時重建 machine |
 | Windows 10 Enterprise LTSC 21H2 偵測不到 WSL2 machine | LTSC 上 `wsl --install --no-distribution` 無效 | 依官方文件先安裝一個 WSL 發行版完成設定，之後可以再移除 |
@@ -2545,7 +3135,9 @@ podman machine inspect podman-machine-default
 | Flatpak 版找不到 Podman | 確認主機已安裝 Podman，且使用者層級的 `podman.socket` 已啟用（`systemctl --user enable --now podman.socket`） |
 | Wayland 下主視窗無法顯示 | 1.22 起有對應的處理；仍有問題時以 X11 工作階段或 XWayland 執行 |
 | 需要測試特定版本的 Flatpak | 先移除 Flathub 版與 `~/.var/app/io.podman_desktop.PodmanDesktop`，再 `flatpak install --user <檔名>.flatpak`；測完再裝回 Flathub 版 |
+| 🆕 Flatpak bundle 的權限和 Flathub 版不同 | 從 GitHub Releases 安裝的 `.flatpak` 不會自動套用 Flathub manifest 的權限，舊的權限也可能被快取。用 `flatpak info --user --show-permissions io.podman_desktop.PodmanDesktop` 列出實際權限，和 Flathub manifest `io.podman_desktop.PodmanDesktop.yml` 的 `finish-args` 比對（官方〈Testing a Flatpak from a release〉，1.30 新增） |
 | rootless 容器無法啟動 | 檢查 `/etc/subuid`、`/etc/subgid`，詳見《Podman 使用教學手冊》第 14 章 |
+| 🔭 從 Settings > CLI Tools 安裝 `kubectl`、`kind`、`docker-compose` 失敗，只顯示 `Command execution failed with exit code 1` | macOS 與 Linux 會把工具複製到 `/usr/local/bin/`，如果該路徑有**失效的符號連結**（例如其他應用程式解除安裝後留下的），複製就會失敗。用 `find /usr/local/bin -type l ! -exec test -e {} \; -print` 列出失效連結，確認不是其他工具使用中的連結後，再用 `sudo rm` 刪除並重新安裝（1.31 開發版文件新增；macOS 同樣適用） |
 
 ### 13.6 引擎、網路與效能問題
 
@@ -2555,6 +3147,9 @@ podman machine inspect podman-machine-default
 | 拉取映像檔逾時 | proxy 設定 | 檢查 **Settings > Proxy** 與 `proxy.no` 是否包含內部 registry |
 | `address already in use` | 埠號衝突 | Windows：`Get-NetTCPConnection -LocalPort 8080`；macOS／Linux：`lsof -i :8080`；改用其他主機埠 |
 | 容器清單空白、映像檔不見 | 連到錯誤的 connection（rootless／rootful） | `podman system connection ls` 檢查預設連線，rootful machine 要切到 `-root` 連線 |
+| 🆕 同一組容器在 Dashboard 出現兩次 | 1.30 起 Docker context 也會註冊成連線，Podman machine 的 Docker context 指向同一個引擎 | 用環境篩選只看 Podman 連線；或以 `docker context ls` 確認 context 指向 |
+| 🆕 從 Docker 搬來的 Compose 服務彼此連不到 | Podman 6 預設隔離不同網路（`isolate=strict`） | 讓服務接上同一個網路，或改用 Pod（見 [5.6](#56-network)） |
+| 🆕 移除 Podman 後 Dashboard 仍顯示舊版本 | Podman Desktop 快取了偵測結果 | 重新啟動 Podman Desktop |
 | bind mount 很慢 | Windows 跨檔案系統 I/O | 大量檔案改放 named volume |
 | machine 記憶體不足、容器被 OOM 終止 | `podman stats`、Dashboard 系統總覽 | 停止 machine 後 `podman machine set --memory` 加大 |
 | 磁碟空間不足 | `podman system df` | `podman system prune`（加 `-a --volumes` 前先確認）；`podman machine set --disk-size` 加大 |
@@ -2582,6 +3177,16 @@ Podman Desktop 本身的設定損壞時，可以先備份再刪除 `~/.local/sha
 3. **先確認 connection**：很多「資源不見」的問題其實是連到 rootless／rootful 的另一個連線。
 4. **重設前先備份**：`podman machine reset -f` 會刪除所有資料。
 5. **定期清理**：每月執行一次 `podman system df` 與 `prune`，避免磁碟用盡。
+
+### 13.9 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 支援窗口會用診斷流程 | 給一個「容器清單空白」的案例，請支援人員排查 | 能依 13.1 的順序檢查到 connection（rootless／rootful） |
+| 2 | 回報內容完整 | 抽查一張內部支援單 | 附上 Gather logs zip、`podman version`、`podman machine inspect`，並已移除內部主機名稱 |
+| 3 | 失效連結檢查（macOS／Linux） | `find /usr/local/bin -type l ! -exec test -e {} \; -print` | 沒有輸出；有輸出時依 13.5 處理 |
+| 4 | Flatpak 權限和 manifest 一致 | `flatpak info --user --show-permissions io.podman_desktop.PodmanDesktop` | 和 Flathub manifest 的 `finish-args` 相同 |
+| 5 | 內部 FAQ 已更新 | 檢查 FAQ 是否包含 13.3～13.6 的 🆕 項目 | 有「Docker context 重複」「網路隔離」「虛擬化警告」 |
 
 ---
 
@@ -2686,6 +3291,15 @@ Podman Desktop 本身的設定損壞時，可以先備份再刪除 `~/.local/sha
 4. **每月的社群會議與發布說明列為平台團隊的固定追蹤事項**。
 5. **把練習成果（YAML、設定檔、上手指引）收進內部知識庫**，作為下一批新人的教材。
 
+### 14.8 ✅ 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 基礎練習完成 | 學員展示 14.2 的成果 | 每個練習都能用 GUI 與 CLI 各做一次 |
+| 2 | 能脫離 GUI | 只用 CLI 完成附錄 A 隨機抽出的 5 項工作 | 5 項都完成 |
+| 3 | 考試資訊仍有效 | 開啟 F.3 的 EX188 考試頁面 | 考試代號、時長與基準版本和 14.4 一致；不一致時更新本章 |
+| 4 | 練習成果收進知識庫 | 檢查內部知識庫 | 有 YAML、設定檔與上手指引 |
+
 ---
 
 ## 附錄 A：GUI ↔ CLI 對照
@@ -2777,6 +3391,41 @@ Podman Desktop 本身的設定損壞時，可以先備份再刪除 `~/.local/sha
 ```
 
 > 📌 `registries.defaults`、`dockerCompatibility.enabled` 以「預設值」派送、不鎖定，讓專案團隊仍可以自行新增 registry。
+>
+> 🔭 採用自訂擴充功能目錄（8.4.1）時，在 `default-settings.json` 加上 `"extensions.registryUrl": "https://pd-catalog.corp.example/extensions.json"`，並把 `extensions.registryUrl` 加進 `locked.json`。這時可以讓 `extensions.catalog.enabled` 保持 `true`，讓開發者從核准的目錄自助安裝。
+
+**🆕 v3.0 新增：派送前的自動檢查**。下列腳本檢查三件事：兩個檔案都是合法 JSON；`locked` 裡的每個鍵都有出現在 `default-settings.json`，否則會鎖住空值（10.8 的常見錯誤）；有沒有使用已棄用的鍵。
+
+```python
+#!/usr/bin/env python3
+"""check_pd_managed.py：檢查 Podman Desktop Managed configuration 檔。"""
+import json
+import sys
+
+DEPRECATED = {"preferences.navigationBarLayout": "1.29 起棄用，改用 preferences.navigationBarWidth"}
+
+defaults = json.load(open(sys.argv[1], encoding="utf-8"))
+locked = json.load(open(sys.argv[2], encoding="utf-8"))
+errors = []
+if not isinstance(locked.get("locked"), list):
+    errors.append("locked.json 必須有 locked 陣列")
+for k in locked.get("locked", []):
+    if k not in defaults:
+        errors.append(f"已鎖定但 default-settings.json 沒有提供值：{k}")
+for k, why in DEPRECATED.items():
+    if k in defaults:
+        errors.append(f"使用棄用的鍵 {k}（{why}）")
+for e in errors:
+    print("FAIL", e)
+print("OK" if not errors else f"{len(errors)} 個問題")
+sys.exit(1 if errors else 0)
+```
+
+```bash
+python3 check_pd_managed.py default-settings.json locked.json
+# 預期：本節範本輸出 OK；在 locked.json 多加 "extensions.registryUrl" 但 default-settings.json 沒有這個鍵時，
+# 輸出「已鎖定但 default-settings.json 沒有提供值：extensions.registryUrl」，並以結束碼 1 結束
+```
 
 ### B.3 devcontainer.json（Java＋Podman）
 
@@ -2841,8 +3490,8 @@ processors=8
 ### C.1 安裝驗證
 
 - [ ] 作業系統符合基準（Windows 11 或 Apple Silicon；例外設備已登記）
-- [ ] Podman Desktop 版本符合公司基準（例如 1.29.x）
-- [ ] `podman version` 用戶端與伺服器端版本一致
+- [ ] Podman Desktop 版本符合公司基準（1.30.5 以上，符合 [11.4](#114-更新與弱點管理) 的安全基準）
+- [ ] `podman version` 用戶端與伺服器端版本一致（Windows／Apple Silicon 為 6.1.4、Intel Mac 為 5.8.9）
 - [ ] machine 規格符合標準（CPU、記憶體、磁碟），狀態為 Running
 - [ ] `podman run --rm quay.io/podman/hello` 成功
 - [ ] Compose、kubectl CLI 已安裝（**Settings > CLI tools**）
@@ -2869,12 +3518,13 @@ processors=8
 
 ### C.4 安全與合規
 
-- [ ] machine 為 rootless（rootful 例外已登記）
+- [ ] machine 為 rootless（`podman machine inspect --format '{{.Rootful}}'` 為 `false`；GUI 建立時預設 rootful，要特別確認；rootful 例外已登記）
 - [ ] 容器使用 `--cap-drop=ALL`、`no-new-privileges`，避免 `--privileged`
 - [ ] 開發服務只綁定 `127.0.0.1`
 - [ ] 推送前已用 Grype 掃描，無未處理的 Critical 弱點
 - [ ] 遙測已依政策鎖定
-- [ ] 只安裝核准清單內的擴充功能
+- [ ] 只安裝核准清單內的擴充功能（🔭 使用自訂目錄時，`extensions.registryUrl` 已鎖定）
+- [ ] Podman Desktop 不低於 1.30.5（已修補 CVE-2026-34045、CVE-2026-24835 與 1.30.5 webview 修正）
 - [ ] Developer Sandbox、AI Lab 的使用符合公司規範
 
 ### C.5 效能與資源
@@ -2906,7 +3556,8 @@ processors=8
 - [ ] 每月檢視 Podman Desktop 發布說明與 Settings Reference 變更
 - [ ] 修補版一週內派送，次要版本完成試點後派送
 - [ ] Managed configuration 檔案有版本控管與派送紀錄
-- [ ] 擴充功能核准清單每季檢視一次
+- [ ] 擴充功能核准清單每季檢視一次（標示超過 12 個月沒有更新的擴充功能）
+- [ ] 每月查詢 GitHub Security Advisories（`gh api repos/podman-desktop/podman-desktop/security-advisories`）
 - [ ] 需要保留的 Volume 已定期備份（`podman volume export`）
 - [ ] 設備清冊中的 Podman Desktop／Podman 版本符合基準
 
@@ -2918,6 +3569,7 @@ processors=8
 | --- | --- | --- |
 | 1.0 | 2025-10-31 | 初版：基礎入門、專案實務、進階操作、認證準備、檢查清單 |
 | 2.0 | 2026-09-29 | 以 Podman Desktop 1.29／Podman 6 為基準全面改寫；新增 9 個章節；修正檔案結構損壞與重複段落；目錄改為自動產生 |
+| 3.0 | 2026-11-06 | 基準更新為 1.30.5／Podman 6.1.4／5.8.9；逐章對照 1.29.3 → 1.30.5 的官方文件差異與 1.31 開發版文件（🔭）；每章新增「✅ 本章審查與驗證清單」；新增自訂擴充功能目錄、Docker CLI 別名、安全公告基準、Kubernetes Extension Pack 0.6.0、Red Hat Desktop；更正 machine rootful 預設值（見 D.4） |
 
 ### D.2 v1.0 → v2.0 更正表
 
@@ -2958,9 +3610,39 @@ processors=8
 | [第 13 章](#13-疑難排解) | 分平台疑難排解 |
 | [附錄 A](#附錄-agui--cli-對照)、[附錄 B](#附錄-b設定檔範本) | GUI ↔ CLI 對照、設定檔範本 |
 
+### D.4 v2.0 → v3.0 更正表
+
+| # | v2.0 內容 | 問題 | v3.0 處理 | 章節 |
+| --- | --- | --- | --- | --- |
+| 1 | 基準為 1.29.3、內建 Podman 6.0.2／5.8.5；1.30 列為 prerelease | 1.30.5 已於 2026-10-13 轉為穩定版，內建 6.1.4／5.8.9；6.0.2／5.8.5 低於引擎安全基準 | 改以 1.30.5 為基準，並附 `podman.json` 驗證指令 | [1.3](#13-版本節奏與版本對照) |
+| 2 | 「Podman machine 預設為 rootless 連線」 | GUI 建立對話框的 `podman.factory.machine.rootful` 預設為 `true`（1.20 起） | 區分 CLI（rootless）與 GUI（rootful）的預設值，並附原始碼驗證指令 | [4.3](#43-建立與設定-machine)、[4.4](#44-rootless-與-rootful-切換)、[11.2](#112-執行期安全) |
+| 3 | 建立 machine 的欄位表沒有列預設值 | 讀者無法判斷不改設定時會得到什麼 | 補上 1.30.5 原始碼的預設值（CPU 為主機的一半、記憶體約 4 GB、匯入 CA 預設開啟） | [4.3](#43-建立與設定-machine) |
+| 4 | `providers.allowUpdate` 是「隱藏設定」 | 1.30 已正式列入 Settings reference 與 Managed configuration 用例 | 改寫說明，並補上 `locked.json` 與驗證方式 | [10.4.3](#1043-控制引擎更新) |
+| 5 | `extensions.registryUrl` 是「內部設定，待確認」 | 1.31 開發版文件已提供自訂目錄的正式做法 | 新增 8.4.1 操作步驟、規則表與 `check_pd_catalog.py` | [8.4.1](#841--自訂擴充功能目錄企業核准清單) |
+| 6 | Kubernetes 頁的 Apply YAML 只寫「選檔或貼上」 | Kubernetes Dashboard 0.6.0 改為專屬頁面，而且不會更新既有的 CRD 資源 | 新增 0.6.0 功能表與 CRD 限制 | [7.6.1](#761-apply-yaml) |
+| 7 | 擴充功能目錄版本（2026-09-29） | 有 8 個擴充功能已更新版本 | 重新查詢，加上最後更新日期，並列出超過 12 個月沒有更新的擴充功能 | [8.2](#82-擴充功能目錄) |
+| 8 | Troubleshooting 頁直接列出 Ping、Reconnect Providers | 官方 UI 名稱為「Repair & connections」分頁 | 依官方名稱改寫 | [3.4](#34-狀態列task-manager-與-troubleshooting)、[13.2](#132-podman-desktop-日誌與-troubleshooting-頁) |
+| 9 | 「Local Extensions」分頁 | 官方 UI 名稱為「Local extensions」 | 依官方名稱改寫 | [8.3](#83-安裝與管理)、[8.4](#84-企業管控) |
+| 10 | 安全章節只寫「幾乎每版都修補 CVE」 | 沒有可以稽核的版本基準 | 新增安全公告表、最低版本 1.30.5，以及實測過的 Intune 偵測腳本 | [11.4](#114-更新與弱點管理) |
+| 11 | Red Hat build 只寫到 1.2 | 2026-05-12 已發布商業支援版 Red Hat Desktop | 新增 Red Hat Desktop 說明 | [1.5](#15-社群版與-red-hat-build-of-podman-desktop) |
+| 12 | 網路章節沒有提到 Podman 6 的隔離 | 從 Docker 搬來的跨網路連線會失效 | 新增 `isolate=strict` 說明，以及用 IP 測試的驗證步驟 | [5.6](#56-network) |
+| 13 | 解除安裝只寫 `podman machine reset -f` | 官方文件已補上叢集、擴充功能儲存區與各平台設定檔的移除順序 | 新增完整移除順序 | [2.8](#28-更新與解除安裝) |
+
+### D.5 v3.0 新增章節
+
+| 章節 | 內容 |
+| --- | --- |
+| 各章 `✅ 本章審查與驗證清單` | 每章都有可以執行的檢查項目、驗證指令與預期結果 |
+| [6.3.4](#634--讓-docker-指令執行-podmandocker-cli-別名) | 🔭 Docker CLI 別名（wrapper、符號連結、PowerShell alias） |
+| [8.4.1](#841--自訂擴充功能目錄企業核准清單) | 🔭 自訂擴充功能目錄與檢查腳本 |
+| [8.6](#86-開發擴充功能入門) | 1.30 的擴充功能 API 與 TypeScript 範例 |
+| [11.4](#114-更新與弱點管理) | Podman Desktop 安全公告與合規偵測腳本 |
+| [附錄 B.2](#b2-managed-configuration-範本) | `check_pd_managed.py` 派送前檢查 |
+| [附錄 E.2](#e2-v30-查證紀錄) | v3.0 查證紀錄與驗證結果 |
+
 ## 附錄 E：查證紀錄
 
-查證日期：2026-09-29。
+以下為 v2.0 的查證紀錄（查證日期：2026-09-29）；v3.0 的查證紀錄見 [E.2](#e2-v30-查證紀錄)。
 
 | # | 查證事項 | 來源 |
 | --- | --- | --- |
@@ -2997,14 +3679,64 @@ processors=8
 
 ### E.1 待確認事項
 
-| # | 事項 | 現況 | 追蹤方式 |
+v3.0（2026-11-06）逐項複查 v2.0 的待確認事項，並新增本版發現的事項。✅＝已解決，⏳＝仍待確認，🆕＝v3.0 新增。
+
+| # | 事項 | 狀態 | v3.0 查證結果 | 下一步 |
+| --- | --- | --- | --- | --- |
+| 1 | 官方安裝文件寫「Windows 10 Build 19043 以上」，與 Podman 6 不支援 Windows 10 的說法不一致 | ⏳ | 1.30.5 文件沒有改；原始碼 `win-version-check.ts` 仍以 19043 為下限，所以 Desktop 不會擋下 Windows 10，但安裝的是 Podman 6.1.4 | 在 Windows 10 測試機實測；企業基準維持 Windows 11 |
+| 2 | Podman Desktop 1.30 何時發布穩定版 | ✅ | 1.30.5 於 2026-10-13 發布為穩定版 | 追蹤 1.31（main 為 `1.31.0-next`） |
+| 3 | `extensions.registryUrl` 能否作為企業內部擴充功能目錄 | ✅（🔭） | 1.31 開發版文件〈Hosting a custom extension catalog〉正式說明這個用法 | 1.31 發布後，在試點環境依 8.4.1 驗證，並移除 🔭 標示 |
+| 4 | Red Hat build 對應的社群版版本與支援週期 | ⏳ | docs.redhat.com 回傳 503，下載頁沒有列版本號；Red Hat Desktop 已於 2026-05-12 GA | 向 Red Hat 業務或客戶入口網站確認 |
+| 5 | Run Image 對話框各分頁名稱是否調整 | ⏳ | 1.30 文件沒有變動 | 每次升級次要版本時複核畫面 |
+| 6 | 長期未更新的擴充功能 | ⏳ | 2026-11-06 仍有 6 個超過 12 個月沒有更新（minikube、Headlamp、OpenShift Checker、Red Hat Extension Pack、MINC、RHEL Lightspeed） | 每季檢視；核准清單標示維護風險 |
+| 7 | 🆕 1.30.5 的「webview file server 目錄邊界」修正是否會有 GHSA／CVE | ⏳ | 2026-11-06 查詢時還沒有對應的安全公告 | 每月查詢 Security Advisories |
+| 8 | 🆕 1.31 的 `tasks.toast` 預設值改為 `true` 是否會隨 1.31 發布 | ⏳ | 只在 main 分支的 Settings reference 出現 | 1.31 發布後確認並更新 10.7 |
+| 9 | 🆕 Podman AI Lab 1.9.3 之後的新版本 | ⏳ | 1.9.3（2026-02-03）之後沒有新的 release，但倉庫仍有提交 | 追蹤 `containers/podman-desktop-extension-ai-lab` 的 Releases |
+| 10 | 🆕 Red Hat Desktop 的訂閱與價格條件 | ⏳ | 只有單一來源的二手報導提到「不另外收費」，未經官方證實 | 以 Red Hat 官方新聞稿或業務報價為準 |
+
+### E.2 v3.0 查證紀錄
+
+查證日期：2026-11-06。凡是可以用指令重現的項目，都在「驗證方式」欄附上指令，審查者可以自行重跑。
+
+| # | 查證事項 | 結果 | 來源與驗證方式 |
 | --- | --- | --- | --- |
-| 1 | 官方安裝文件仍寫「Windows 10 Build 19043 以上」，與 Podman 6 不支援 Windows 10 的說法不一致 | Windows 版 Desktop 1.29 內建 Podman 6；Windows 10 設備的實際行為待驗證 | 追蹤官方文件更新；在 Windows 10 測試機驗證 |
-| 2 | Podman Desktop 1.30 何時發布穩定版 | 2026-09 時仍為 prerelease | GitHub Releases、官方部落格 |
-| 3 | `extensions.registryUrl` 能否作為企業內部擴充功能目錄 | 屬於內部設定，官方未說明是否支援覆寫 | 試點環境驗證；追蹤 GitHub Discussions |
-| 4 | Red Hat build of Podman Desktop 1.2 對應的社群版版本與支援週期 | 公開頁面未載明 | Red Hat 文件與客戶入口網站 |
-| 5 | Run Image 對話框各分頁名稱（Basic、Advanced、Networking、Security）在後續版本是否調整 | 依 1.29 介面整理 | 每次升級次要版本時複核畫面 |
-| 6 | 部分擴充功能（minikube 0.4.0、Headlamp 0.24.0、OpenShift Checker 0.1.5）長期未更新 | 可能已不再維護 | 每季檢視擴充功能目錄 |
+| 1 | 最新穩定版與 prerelease | 1.30.5（2026-10-13）為穩定版；1.30.0～1.30.4 為 prerelease | `gh api "repos/podman-desktop/podman-desktop/releases?per_page=10" --jq '.[] \| [.tag_name,.published_at,.prerelease] \| @tsv'` |
+| 2 | 1.30.5 內建的 Podman 版本 | Windows x64／ARM64、Apple Silicon 為 6.1.4；Intel Mac 為 5.8.9；main 分支相同 | `podman.json@v1.30.5`（指令見 [1.3](#13-版本節奏與版本對照)） |
+| 3 | main 分支版本 | `1.31.0-next` | 根目錄 `package.json@main` |
+| 4 | 1.30 新功能 | 批次停止、preflight 警告等級、Windows 不再閃出 console 視窗、Docker context 註冊為連線、API 新增（`searchEntry`、`displayName`、`env:`／`file:`） | 官方部落格〈Podman Desktop 1.30 Release〉（2026-10-14） |
+| 5 | 1.30.1～1.30.5 的修正 | Flatpak 發布、擴充功能 README、主視窗消失後的 JS 例外、webview file server 目錄邊界 | 各 tag 的 GitHub Release body |
+| 6 | 官方文件在 1.29.3 → 1.30.5 之間的變動 | 121 個檔案（多數是 `.md` → `.mdx` 轉換）；實質變動包括 `providers.allowUpdate` 用例、CI 遙測清單、Flatpak 疑難排解，以及 5 篇擴充功能開發指南 | `git diff --stat -M v1.29.3 v1.30.5 -- website/docs` |
+| 7 | 1.31 開發版文件變動 | 自訂擴充功能目錄、Docker CLI 別名、CLI 工具安裝失敗、Podman 解除安裝後的快取、GPU Mesa 套件庫改名、`tasks.toast` 預設值改為 `true` | `git diff --stat -M v1.30.5 origin/main -- website/docs` |
+| 8 | GUI 建立 machine 的預設值 | `rootful`＝`true`、`import-native-ca`＝`true`、memory＝4,000,000,000、disk＝100,000,000,000、CPU＝主機的一半；1.20.0、1.29.3、main 都相同 | `extensions/podman/packages/extension/package.json`（各 tag） |
+| 9 | Windows preflight 的組建下限 | `MIN_BUILD = 19043` | `extensions/podman/packages/extension/src/checks/windows/win-version-check.ts@v1.30.5` |
+| 10 | Podman Desktop 安全公告 | GHSA-2q88-39rh-gxvv（CVE-2026-34045，High 8.2，≤1.26.1，修補於 1.26.2）；GHSA-v3fx-qg34-6g9m（CVE-2026-24835，Low，≤1.24.2，修補於 1.25.1） | `gh api repos/podman-desktop/podman-desktop/security-advisories` |
+| 11 | webview server 綁定位址 | `listen(serverPort, '127.0.0.1', …)`，埠號從 44000 起找 | `packages/main/src/plugin/webview/webview-registry.ts@v1.30.5` |
+| 12 | 擴充功能目錄 | 23 個；8 個有版本更新（見 8.2） | `registry.podman-desktop.io/api/extensions.json`（指令見 [8.2](#82-擴充功能目錄)） |
+| 13 | Kubernetes Extension Pack 0.6.0 | Dashboard 0.6.0、Contexts 0.3.0、Kreate 0.4.0；安裝後停用核心中對應的功能 | 官方部落格〈Kubernetes Extension Pack release〉（2026-10-20） |
+| 14 | Podman 6 網路隔離 | Netavark 2.0 bridge 網路預設 `isolate=strict`；支援 `host.containers.internal` 與 `host.docker.internal` | 官方部落格〈from Docker networks to pods, kube play, and going rootless〉（2026-09-10）；《Podman 使用教學手冊》v3.0 6.4 節 |
+| 15 | AI Lab 最新版本 | 1.9.3（2026-02-03） | `gh api repos/containers/podman-desktop-extension-ai-lab/releases/latest` |
+| 16 | Red Hat Desktop | 2026-05-12 於 Red Hat Summit 宣布 GA，是 Red Hat build 的商業支援版，含 AI agent sandbox | SiliconANGLE 2026-05-12 報導；Red Hat Developer 下載頁 |
+| 17 | 社群資訊 | 社群會議為每月第 4 個星期四；Discord、Bluesky、Mastodon、LinkedIn、X；ADOPTERS.md | `website/src/pages/community/index.tsx@main`；`ADOPTERS.md@main` |
+| 18 | GitHub 規模 | 8,139 顆星、589 個 fork、Apache-2.0 | `gh api repos/podman-desktop/podman-desktop` |
+| 19 | Intune 合規偵測腳本 | 在裝有 1.29.3 的 Windows 11 實測：輸出 `OUTDATED 1.29.3`（結束碼 1）；把門檻改成 1.29.0 時輸出 `COMPLIANT 1.29.3`（結束碼 0） | [11.4](#114-更新與弱點管理) 的腳本 |
+| 20 | 本文範例的自動檢查 | 見 E.3 | 本手冊附錄 E.3 |
+
+### E.3 v3.0 範例驗證結果
+
+v3.0 對本文所有範例都做過自動檢查。檢查工具都是以本文為輸入的腳本，審查者可以依同樣的方法重跑。
+
+| # | 檢查項目 | 方法 | 結果 |
+| --- | --- | --- | --- |
+| 1 | 程式碼區塊語法 | 抽出每個程式碼區塊（含 blockquote 內的）：bash 用 `bash -n`；PowerShell 用 `System.Management.Automation.Language.Parser`；JSON 用 `json.loads`；YAML 用 `yaml.safe_load_all`；Python 用 `compile()` | bash 43、PowerShell 13、JSON 14、YAML 7、Python 2，**0 個錯誤**。負向測試（5 種語言各放一個錯誤）全部被抓到 |
+| 2 | `check_pd_catalog.py` | 用本文範例、官方 `extensions.json`（23 個擴充功能）與 3 個故意寫錯的目錄檔測試 | 範例與官方目錄輸出 `OK`；版本順序錯誤、相對 URL 加上不合法的 assetType、缺少 `ociUri` 加上重複 ID，都以結束碼 1 回報。第一次測試時，官方目錄的 preview 項目版本號是 `"preview"`，造成誤報，已修正為只檢查穩定版 |
+| 3 | `check_pd_managed.py` | 用附錄 B.2 的範本與 2 個寫錯的檔案測試 | 範本輸出 `OK`；「鎖定但沒有給值」與「使用棄用的鍵」都以結束碼 1 回報 |
+| 4 | 8.6 的 TypeScript 範例 | `@podman-desktop/api@1.30.5`＋TypeScript 5，`strict` 模式執行 `tsc --noEmit` | 編譯通過；故意改錯的屬性名稱與列舉值，產生 TS2353、TS2339 兩個錯誤 |
+| 5 | 設定鍵名與預設值 | 抽出本文所有 `preferences.*`、`extensions.*`、`proxy.*` 等鍵名，和 1.30.5 的 Settings reference 表格比對 | 31 個鍵都存在；10.7 表格的預設值和官方一致；另外 3 個「不符」的是檔名與 `{extensionId}` 範本的實例 |
+| 6 | Intune 合規偵測腳本 | 在裝有 Podman Desktop 1.29.3 的 Windows 11 執行 | `OUTDATED 1.29.3`／結束碼 1；把門檻改成 1.29.0 時為 `COMPLIANT 1.29.3`／結束碼 0 |
+| 7 | 目錄與錨點 | 用 Hugo 0.151 建置網站，把輸出頁面每個 `href="#…"` 和 `<h*>` 的 `id` 比對 | 534 個頁內連結，只有 `#top`（主題的回到頂端連結）不在本文中；目錄 200 項，和 `check-toc.ps1` 的結果一致 |
+| 8 | Markdown 格式 | 執行 repo 的 `check-md.ps1`、`check-toc.ps1`、`test-mermaid-syntax.ps1` | 0 個問題；13 張 Mermaid 圖沒有語法問題 |
+
+> 📌 **限制**：這台驗證機器的 Podman machine 沒有啟動，所以需要執行中引擎的指令（例如 5.6 的網路隔離測試、各章審查清單中的 `podman machine inspect`）只做了語法檢查，沒有實際執行。實際結果請審查者在符合基準的設備上，依各章的「✅ 本章審查與驗證清單」確認，並把結果記錄在下次改版的 E.2。
 
 ## 附錄 F：參考資料
 
@@ -3026,6 +3758,9 @@ processors=8
 - [Extensions](https://podman-desktop.io/docs/extensions)
 - [Troubleshooting](https://podman-desktop.io/docs/troubleshooting)
 - [Tutorials](https://podman-desktop.io/tutorial)
+- [Hosting a custom extension catalog（🔭 1.31 開發版）](https://github.com/podman-desktop/podman-desktop/blob/main/website/docs/extensions/catalog/index.mdx)
+- [Aliasing the Docker CLI（🔭 1.31 開發版）](https://github.com/podman-desktop/podman-desktop/blob/main/website/docs/migrating-from-docker/aliasing-the-docker-cli.mdx)
+- [Uninstallation](https://podman-desktop.io/docs/uninstall)
 - [Blog（發布說明）](https://podman-desktop.io/blog)
 
 ### F.2 社群與原始碼
@@ -3033,6 +3768,9 @@ processors=8
 - [Community](https://podman-desktop.io/community)
 - [GitHub：podman-desktop/podman-desktop](https://github.com/podman-desktop/podman-desktop)
 - [GitHub Releases](https://github.com/podman-desktop/podman-desktop/releases)
+- [Security Advisories](https://github.com/podman-desktop/podman-desktop/security/advisories)
+- [ADOPTERS.md](https://github.com/podman-desktop/podman-desktop/blob/main/ADOPTERS.md)
+- [Kubernetes Dashboard 擴充功能](https://github.com/podman-desktop/extension-kubernetes-dashboard)
 - [擴充功能目錄 JSON](https://registry.podman-desktop.io/api/extensions.json)
 - [Podman AI Lab 擴充功能](https://github.com/containers/podman-desktop-extension-ai-lab)
 - [Flathub：io.podman_desktop.PodmanDesktop](https://flathub.org/apps/io.podman_desktop.PodmanDesktop)
@@ -3044,6 +3782,7 @@ processors=8
 - [Introducing Red Hat build of Podman Desktop](https://www.redhat.com/en/blog/introducing-red-hat-build-podman-desktop-enterprise-ready-local-container-development-environments)
 - [EX188 考試頁面](https://www.redhat.com/en/services/training/ex188-red-hat-certified-specialist-containers-exam)
 - [Developer Sandbox](https://developers.redhat.com/developer-sandbox)
+- [Red Hat Desktop GA 報導（SiliconANGLE，2026-05-12）](https://siliconangle.com/red-hat-targets-enterprise-deployment-new-version-ai-platform)
 
 ### F.4 生態系工具
 
@@ -3071,4 +3810,10 @@ Podman Desktop 已經從「Podman 的圖形介面」成長為完整的開發者�
 
 **建議導入順序**：試點（標準 machine 規格）→ 集中設定（Managed configuration）→ 全面派送 → 移除 Docker Desktop → Kubernetes 內循環。
 
-Podman Desktop 每月都會發布新版本，請依[附錄 C.8](#c8-日常維護與-it-管理)定期追蹤發布說明，並從[附錄 E.1](#e1-待確認事項)開始下一次改版。
+**v3.0 的三個行動重點**：
+
+1. 全面升級到 **1.30.5 以上**，這是安全基準。
+2. GUI 建立 machine 時**取消勾選 root privileges**。
+3. 1.31 發布後，評估用**自訂擴充功能目錄**落實核准清單。
+
+Podman Desktop 每月都會發布新版本，請依[附錄 C.8](#c8-日常維護與-it-管理)定期追蹤發布說明。審查本手冊或內部衍生文件時，請逐章執行「✅ 本章審查與驗證清單」，並從[附錄 E.1](#e1-待確認事項)中標示 ⏳ 的項目開始下一次改版。
