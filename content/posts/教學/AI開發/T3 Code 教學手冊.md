@@ -2,7 +2,7 @@
 date = '2026-11-07T13:30:27+08:00'
 draft = false
 title = 'T3 Code 教學手冊'
-tags = ['教學','AI開發','T3 Code','Claude Code','Codex','AI Agent','Remote Access','MCP','SSDLC','企業導入']
+tags = ['教學','AI開發']
 categories = ['教學']
 +++
 

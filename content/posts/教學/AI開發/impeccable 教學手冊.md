@@ -2,7 +2,7 @@
 date = '2026-11-07T16:21:13+08:00'
 draft = false
 title = 'Impeccable 教學手冊'
-tags = ['教學','AI開發','Impeccable','UI/UX','Design System','Claude Code','GitHub Copilot','Codex','CI/CD','企業導入']
+tags = ['教學','AI開發']
 categories = ['教學']
 +++
 
