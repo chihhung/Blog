@@ -1,5 +1,6 @@
 +++
 date = '2026-06-30T10:00:00+08:00'
+lastmod = '2026-11-08T18:00:00+08:00'
 draft = false
 title = 'OpenClaw生態系教學手冊'
 tags = ['教學', 'AI開發']
@@ -9,40 +10,59 @@ categories = ['教學']
 
 ## OpenClaw 生態系教學手冊
 
-> - **版本**: 2026.8.1（最新穩定版，官方別名 **OpenClaw 2.0**）／2026.8.1-beta.4（最新 Beta，誤植發布為 `2026.9.1-beta.1`）／2026.6.34（Extended-Stable 維護線）
-> - **最後更新**: 2026 年 9 月 1 日
-> - **適用對象**: 企業開發團隊、DevOps 工程師、AI 架構師
+> - **手冊版本**: 4.0.0（2026-11-08）
+> - **基準版本**: OpenClaw **2026.11.1**（npm `latest`，build `4ffdd20`，2026-11-05）／**2026.9.36**（npm `extended-stable`，LTS 九月線）／2026.11.5-beta.1（npm `beta`）
+> - **最後更新**: 2026 年 11 月 8 日
+> - **適用對象**: 企業開發團隊、DevOps 工程師、AI 架構師、資安與稽核人員
 > - **授權**: MIT License（治理單位：非營利的 **OpenClaw Foundation**）
 > - **官方資源**: [openclaw.ai](https://openclaw.ai/) · [docs.openclaw.ai](https://docs.openclaw.ai/) · [GitHub](https://github.com/openclaw/openclaw) · [ClawHub](https://clawhub.ai/) · [Discord](https://discord.gg/clawd) · [Trust](https://trust.openclaw.ai/) · [DeepWiki](https://deepwiki.com/openclaw/openclaw)
+> - **驗證方式**: 本手冊所有 `openclaw.json` 範例皆以 2026.11.1 的 `openclaw config validate --json` 實測通過；所有 CLI 範例皆比對 2026.11.1 的 630 個指令路徑；Java 範例以 Maven 實際編譯與測試；TypeScript 範例以 `tsc --strict` 型別檢查。詳見**附錄 F**。
 
 ---
 
 ## 文件總覽
 
-本手冊為 OpenClaw 生態系完整教學指引，涵蓋從核心概念、系統架構設計、安裝部署、開發實戰、企業導入實務、維運監控、升級策略、DevOps 整合、資安設計、實務案例，到多人協作治理與分散式執行等十二大主題。所有內容均依據 OpenClaw 官方文件、GitHub Release Notes（最後查證至 **v2026.8.1 / OpenClaw 2.0**，2026-08-31 發布）撰寫並重新消化整理，以繁體中文呈現；整合與案例類程式碼範例以 Java（Spring Boot）為主，Plugin SDK、Code Mode 與 Gateway Protocol Client 等官方以 TypeScript 定義契約之處則以 **Java / TypeScript 雙軌並陳**。
+本手冊是 OpenClaw 生態系的企業級教學指引，涵蓋核心概念、系統架構、安裝部署、開發實戰、企業治理、維運監控、升級策略、DevOps、資安設計、實戰案例、多人協作與分散式執行等十二大主題，並附導入檢查清單、疑難排解、名詞解釋、參考資源、升級遷移指南與**驗證紀錄**。內容依據 OpenClaw 官方文件（v2026.11.1 的 `docs/` 原始檔）、GitHub Release Notes 與 CHANGELOG、Security Advisories 重新消化整理，以繁體中文撰寫；整合範例以 Java 21／Spring Boot 4 為主，Plugin SDK 與 Gateway Protocol 等官方以 TypeScript 定義契約之處則以 TypeScript 示範。
 
-> **定位提醒**：OpenClaw 的原始定位是「**single-operator 個人 AI 助理閘道**」——由一位操作者（Operator）擁有並信任的自架系統。自 **v2026.8.1（OpenClaw 2.0）** 起，官方加入了多使用者 Gateway、對話分享角色與 Teams 協作能力，定位延伸為「**單一信任域內的多人協作**」。
->
-> 但請務必注意官方對此的明確聲明：**這些協作控制項不是租戶隔離，也不是安全邊界**（見 `docs/concepts/multi-user.md` 與 2.0 發布說明「Sharing and Incognito」段）。它們限制的是「同一套受信任的 OpenClaw 安裝內部」的協作行為，而非在互不信任的租戶之間建立隔離。因此本手冊第五章起討論的「企業導入」，指的仍是企業將 OpenClaw 作為自架基礎設施元件、搭配自身治理與維運框架落地的作法，而非 OpenClaw 官方內建的多租戶 SaaS 功能。這是企業讀者最容易誤判的一點，第十一章會完整展開。
->
-> **重要變更提示**：專案於 2025 年 11 月以 **Warelay** 之名首次發布，隨後歷經 **CLAWDIS**（2025-12-03）→ **Clawdbot**（2026-01-02）→ **Moltbot**（2026-01-27，因 Anthropic 商標異議而改名）→ **OpenClaw**（2026-01-30）數次更名。創辦人 **Peter Steinberger** 於 2026-02-14 宣布加入 OpenAI，同日成立非營利的 **OpenClaw Foundation** 接手專案治理；專案至今仍採 **MIT 授權**（`LICENSE` 標示 Copyright (c) 2026 OpenClaw Foundation）並由社群持續開發。版本號採用 `vYYYY.M.D` 日期格式，GitHub 星數已達 **388,429**、Fork 數 **81,541**（2026-09-01 查證）。
->
-> **v2026.8.1（OpenClaw 2.0）是專案史上最大的一次改版**，彙整超過 **16,000 個 Pull Request**，觸及安裝、訊息、記憶、技能、模型、自動化、瀏覽器、原生應用、插件與安全等所有面向。九項最重大的變更為：**全新 Control UI**（以對話為中心重建）、**多人協作與分享角色**、**Cloud Workers 與 Paired Devices 分散式執行**、**Session 與 Transcript 改用 SQLite 儲存**、**Secret Store 密鑰治理**、**Automations（Cron 更名，指令並存）**、**Skill Workshop 與自我學習**、**Built-in Memory 取代 QMD**、**Code Mode 介面重寫（破壞性）**。詳見 1.11 節的導讀對照表。
->
-> **三個必須留意的時程性期限**（逾期將影響升級）：
->
-> | 期限 | 事項 |
-> |------|------|
-> | **2026-09-01** | Plugin SDK 舊版 subpath 匯入正式關閉，須改用 `openclaw/plugin-sdk/*` 聚焦命名空間 |
-> | **2026-09-18** | 組態若仍含已退休的設定鍵，須在此日前執行 `openclaw doctor --fix` |
-> | **2026-10-12** | beta.5 session-store bridge 相容層失效 |
+### 本手冊的寫作原則：讓你能審查 AI 的產出
 
----
+AI 協助撰寫 OpenClaw 組態、技能與整合程式時，最常見的錯誤是**看起來合理、實際不存在**的設定鍵、指令與 API。本手冊 v4.0.0 改版時，以 2026.11.1 實測發現舊版內容中 **31 個 JSON5 組態區塊有 29 個無法通過驗證**、**51 處 CLI 用法不存在或旗標錯誤**（詳見附錄 F）。因此全書遵循三條規則：
 
-<!-- TOC-AUTO-BEGIN -->
+1. **每條指引都附可執行的範例**，並標明驗證方式（指令、預期輸出）。
+2. **常見錯誤以 ❌ 標示**，讓讀者能辨認 AI 的典型杜撰。
+3. **每章結尾附「本章審查與驗證清單」**，可直接用於審查 AI 產出的組態、技能與程式。
+
+| 你要審查的東西 | 最可靠的驗證方式 |
+| --- | --- |
+| `openclaw.json` 組態 | `openclaw config validate --json`（看 `valid` 與 `warnings`） |
+| CLI 指令 | `openclaw <指令> --help`；本手冊附錄 F 的 `check_cli.py` |
+| 技能（SKILL.md） | `openclaw skills check`、`openclaw skills info <name>` |
+| 插件／工具 | `npm run plugin:validate`、`openclaw plugins inspect <id> --json` |
+| 整合程式 | 契約測試（mock）＋ 對真實 Gateway 的冒煙測試（4.2、8.3） |
+
+> **定位提醒**：OpenClaw 的原始定位是「**single-operator 個人 AI 助理閘道**」——由一位操作者擁有並信任的自架系統。自 **v2026.8.1（OpenClaw 2.0）** 起加入多使用者 Gateway、對話分享角色與 Teams 協作，v2026.9.x 起再加入共用 Gateway 的個人技能庫與 Team Server 部署模式，定位延伸為「**單一信任域內的多人協作**」。
+>
+> 但官方明確聲明：**這些協作控制項不是租戶隔離，也不是安全邊界**。它們限制的是「同一套受信任的 OpenClaw 安裝內部」的協作行為，而非在互不信任的租戶之間建立隔離。本手冊討論的「企業導入」，是把 OpenClaw 作為自架基礎設施元件、搭配企業自身的治理與維運框架落地，而不是官方內建的多租戶 SaaS。第十一章會完整展開。
+>
+> **專案沿革**：2025 年 11 月以 **Warelay** 之名首次發布，歷經 **CLAWDIS**（2025-12-03）→ **Clawdbot**（2026-01-02）→ **Moltbot**（2026-01-27）→ **OpenClaw**（2026-01-30）。創辦人 **Peter Steinberger** 於 2026-02-14 宣布加入 OpenAI，同日成立非營利的 **OpenClaw Foundation** 接手治理；專案採 **MIT 授權**。版本號採日期格式 `vYYYY.M.D`；GitHub 星數 **394,161**、Fork **82,830**（2026-11-08 查證）。
+>
+> **2.0 之後的演進（v2026.8.2 → v2026.11.1）**：約 40 個版本，主軸是**可恢復**（更新預演與自動回滾、重啟後恢復回覆、異地備份與持續複寫）、**可協作**（個人技能庫、Team Server、唯讀分享）、**可分散**（Cloud Sessions 在本機與雲端間移動）。另有數項**破壞性變更**：Node 22／25 不再支援（9.3）、Tasks／TaskFlow 移除（9.7）、macOS／iOS／Safari 需 26.2（10.10）。詳見 **1.12** 與**附錄 E.5**。
+>
+> **時程性提醒**（2.0 公告的三個期限皆已過）：
+>
+> | 期限 | 事項 | 狀態（2026-11-08） |
+> | --- | --- | --- |
+> | 2026-09-01 | Plugin SDK 舊版 subpath 匯入關閉 | 已過；10.1 起第三方插件須移除已退休的相容層 |
+> | 2026-09-18 | 含退休設定鍵者執行 `openclaw doctor --fix` | 已過；舊組態升級時仍可由 Doctor 遷移 |
+> | 2026-10-12 | beta.5 session-store bridge 相容層失效 | 已過 |
+> | **持續** | **2026 年 6 月以前的安裝必須先升級到 2026.9.5** | 見附錄 E.5 |
 
 ## 目錄
 
+<!-- TOC-AUTO-BEGIN -->
+
+- [文件總覽](#文件總覽)
+  - [本手冊的寫作原則：讓你能審查 AI 的產出](#本手冊的寫作原則讓你能審查-ai-的產出)
 - [第一章：OpenClaw 核心概念](#第一章openclaw-核心概念)
   - [1.1 什麼是 OpenClaw](#11-什麼是-openclaw)
   - [1.2 核心理念與設計哲學](#12-核心理念與設計哲學)
@@ -59,6 +79,8 @@ categories = ['教學']
   - [1.9 與傳統 LLM 聊天機器人的比較](#19-與傳統-llm-聊天機器人的比較)
   - [1.10 OpenClaw 版本歷程](#110-openclaw-版本歷程)
   - [1.11 OpenClaw 2.0 重點導讀](#111-openclaw-20-重點導讀)
+  - [1.12 2.x 持續演進導讀（v2026.8.2 → v2026.11.1）](#112-2x-持續演進導讀v202682--v2026111)
+  - [1.13 本章審查與驗證清單](#113-本章審查與驗證清單)
 - [第二章：系統架構設計](#第二章系統架構設計)
   - [2.1 整體架構圖](#21-整體架構圖)
   - [2.2 Gateway 核心元件](#22-gateway-核心元件)
@@ -74,6 +96,8 @@ categories = ['教學']
   - [2.9 高可用架構設計](#29-高可用架構設計)
   - [2.10 企業部署拓撲](#210-企業部署拓撲)
   - [2.11 Session 儲存架構：SQLite 遷移](#211-session-儲存架構sqlite-遷移)
+  - [2.12 儲存引擎與 State 擁有權](#212-儲存引擎與-state-擁有權)
+  - [2.13 本章審查與驗證清單](#213-本章審查與驗證清單)
 - [第三章：安裝與環境建置](#第三章安裝與環境建置)
   - [3.1 系統需求](#31-系統需求)
   - [3.2 本地開發安裝](#32-本地開發安裝)
@@ -86,6 +110,8 @@ categories = ['教學']
   - [3.9 Hot Reload 與組態更新](#39-hot-reload-與組態更新)
   - [3.10 CLI 指令參考](#310-cli-指令參考)
   - [3.11 Secret Store 與密鑰治理（v2026.8.1 新增）](#311-secret-store-與密鑰治理v202681-新增)
+  - [3.12 發布通道與版本選擇](#312-發布通道與版本選擇)
+  - [3.13 本章審查與驗證清單](#313-本章審查與驗證清單)
 - [第四章：開發實戰教學](#第四章開發實戰教學)
   - [4.1 第一個 OpenClaw Agent](#41-第一個-openclaw-agent)
   - [4.2 Java 整合 OpenClaw API](#42-java-整合-openclaw-api)
@@ -97,7 +123,10 @@ categories = ['教學']
   - [4.8 多 Agent 協作開發](#48-多-agent-協作開發)
   - [4.9 錯誤處理與重試機制](#49-錯誤處理與重試機制)
   - [4.10 Java Spring Boot 整合範例](#410-java-spring-boot-整合範例)
-  - [4.11 Gateway Protocol Client 開發（v2026.8.1 新增）](#411-gateway-protocol-client-開發v202681-新增)
+  - [4.11 Gateway Protocol Client 開發](#411-gateway-protocol-client-開發)
+  - [4.12 Managed Worktrees 與 Agent 工作目錄](#412-managed-worktrees-與-agent-工作目錄)
+  - [4.13 共用 Gateway 上的個人技能庫](#413-共用-gateway-上的個人技能庫)
+  - [4.14 本章審查與驗證清單](#414-本章審查與驗證清單)
 - [第五章：企業最佳實務](#第五章企業最佳實務)
   - [5.1 技能模組化設計](#51-技能模組化設計)
   - [5.2 權限與存取控制](#52-權限與存取控制)
@@ -109,6 +138,7 @@ categories = ['教學']
   - [5.8 成本最佳化](#58-成本最佳化)
   - [5.9 合規與稽核](#59-合規與稽核)
   - [5.10 團隊協作規範](#510-團隊協作規範)
+  - [5.11 本章審查與驗證清單](#511-本章審查與驗證清單)
 - [第六章：系統維運與監控](#第六章系統維運與監控)
   - [6.1 健康檢查機制](#61-健康檢查機制)
   - [6.2 結構化日誌系統](#62-結構化日誌系統)
@@ -121,10 +151,11 @@ categories = ['教學']
   - [6.9 日誌聚合與分析](#69-日誌聚合與分析)
   - [6.10 Grafana 儀表板範例](#610-grafana-儀表板範例)
   - [6.11 Gateway 重啟復原（v2026.8.1 新增）](#611-gateway-重啟復原v202681-新增)
+  - [6.12 本章審查與驗證清單](#612-本章審查與驗證清單)
 - [第七章：系統升級策略](#第七章系統升級策略)
   - [7.1 版本命名規則](#71-版本命名規則)
   - [7.2 升級前評估](#72-升級前評估)
-  - [7.3 無停機升級（Rolling Upgrade）](#73-無停機升級rolling-upgrade)
+  - [7.3 升級的停機時間與「滾動升級」的真相](#73-升級的停機時間與滾動升級的真相)
   - [7.4 回滾策略](#74-回滾策略)
   - [7.5 組態遷移](#75-組態遷移)
   - [7.6 多環境升級協調](#76-多環境升級協調)
@@ -132,6 +163,8 @@ categories = ['教學']
   - [7.8 自動化升級管線](#78-自動化升級管線)
   - [7.9 升級監控儀表板](#79-升級監控儀表板)
   - [7.10 版本鎖定與固定](#710-版本鎖定與固定)
+  - [7.11 安全更新管線：預演、啟用、驗證與恢復](#711-安全更新管線預演啟用驗證與恢復)
+  - [7.12 本章審查與驗證清單](#712-本章審查與驗證清單)
 - [第八章：DevOps 整合](#第八章devops-整合)
   - [8.1 CI/CD 管線設計](#81-cicd-管線設計)
   - [8.2 GitHub Actions 完整管線](#82-github-actions-完整管線)
@@ -143,6 +176,8 @@ categories = ['教學']
   - [8.8 藍綠部署](#88-藍綠部署)
   - [8.9 Canary 部署](#89-canary-部署)
   - [8.10 監控即程式碼](#810-監控即程式碼)
+  - [8.11 發布物驗證（供應鏈）](#811-發布物驗證供應鏈)
+  - [8.12 本章審查與驗證清單](#812-本章審查與驗證清單)
 - [第九章：安全設計](#第九章安全設計)
   - [9.1 信任模型](#91-信任模型)
   - [9.2 API Key 管理](#92-api-key-管理)
@@ -155,6 +190,8 @@ categories = ['教學']
   - [9.9 容器沙箱安全](#99-容器沙箱安全)
   - [9.10 零信任架構](#910-零信任架構)
   - [9.11 插件與供應鏈安全（v2026.8.1 新增）](#911-插件與供應鏈安全v202681-新增)
+  - [9.12 2026 年 9 月安全公告潮與強化基準](#912-2026-年-9-月安全公告潮與強化基準)
+  - [9.13 本章審查與驗證清單](#913-本章審查與驗證清單)
 - [第十章：實戰案例](#第十章實戰案例)
   - [10.1 案例一：自動化報表 Agent](#101-案例一自動化報表-agent)
   - [10.2 案例二：智慧客服 Agent](#102-案例二智慧客服-agent)
@@ -166,6 +203,7 @@ categories = ['教學']
   - [10.8 案例八：資料分析管線 Agent](#108-案例八資料分析管線-agent)
   - [10.9 案例九：安全監控 Agent](#109-案例九安全監控-agent)
   - [10.10 案例十：完整企業部署案例](#1010-案例十完整企業部署案例)
+  - [10.11 本章審查與驗證清單](#1011-本章審查與驗證清單)
 - [第十一章：多人協作與 Teams 治理](#第十一章多人協作與-teams-治理)
   - [11.1 多使用者 Gateway 模型](#111-多使用者-gateway-模型)
   - [11.2 對話分享與角色](#112-對話分享與角色)
@@ -173,6 +211,8 @@ categories = ['教學']
   - [11.4 Incognito 模式](#114-incognito-模式)
   - [11.5 裝置與配對治理](#115-裝置與配對治理)
   - [11.6 企業落地建議與風險聲明](#116-企業落地建議與風險聲明)
+  - [11.7 Team Server 部署實作（Cloudflare Access + trusted-proxy）](#117-team-server-部署實作cloudflare-access--trusted-proxy)
+  - [11.8 本章審查與驗證清單](#118-本章審查與驗證清單)
 - [第十二章：分散式執行 —— Cloud Workers 與 Paired Devices](#第十二章分散式執行--cloud-workers-與-paired-devices)
   - [12.1 兩條路徑的差異](#121-兩條路徑的差異)
   - [12.2 Cloud Worker Profile 設定](#122-cloud-worker-profile-設定)
@@ -180,6 +220,8 @@ categories = ['教學']
   - [12.4 失聯與恢復行為](#124-失聯與恢復行為)
   - [12.5 Portable Worker Bundle 的邊界](#125-portable-worker-bundle-的邊界)
   - [12.6 派工與回收範例](#126-派工與回收範例)
+  - [12.7 Cloud Sessions：在本機、配對裝置與雲端之間移動（v2026.10.10）](#127-cloud-sessions在本機配對裝置與雲端之間移動v20261010)
+  - [12.8 本章審查與驗證清單](#128-本章審查與驗證清單)
 - [附錄 A：企業導入檢查清單](#附錄-a企業導入檢查清單)
   - [A.1 導入前準備](#a1-導入前準備)
   - [A.2 環境建置](#a2-環境建置)
@@ -200,11 +242,20 @@ categories = ['教學']
   - [D.4 相關學習資源](#d4-相關學習資源)
   - [D.5 平台與部署指南](#d5-平台與部署指南)
   - [D.6 OpenClaw 2.0 新增主題文件](#d6-openclaw-20-新增主題文件)
+  - [D.7 OpenClaw 2.x（v2026.8.2 → v2026.11.1）新增與改寫的官方文件](#d7-openclaw-2xv202682--v2026111新增與改寫的官方文件)
 - [附錄 E：OpenClaw 2.0 升級遷移指南](#附錄-eopenclaw-20-升級遷移指南)
   - [E.1 升級決策樹](#e1-升級決策樹)
   - [E.2 升級流程（依序執行）](#e2-升級流程依序執行)
   - [E.3 降版還原程序](#e3-降版還原程序)
   - [E.4 三個期限速查表](#e4-三個期限速查表)
+  - [E.5 從 2.0（2026.8.x）升級到 2026.11.1](#e5-從-2020268x升級到-2026111)
+- [附錄 F：v4.0.0 驗證紀錄](#附錄-fv400-驗證紀錄)
+  - [F.1 驗證環境](#f1-驗證環境)
+  - [F.2 驗證方法與工具](#f2-驗證方法與工具)
+  - [F.3 實跑結果（2026-11-08）](#f3-實跑結果2026-11-08)
+  - [F.4 主要修正清單（v3.0.0 → v4.0.0）](#f4-主要修正清單v300--v400)
+  - [F.5 待確認事項（Pending）](#f5-待確認事項pending)
+
 <!-- TOC-AUTO-END -->
 
 ---
@@ -490,102 +541,115 @@ Agent 的 Workspace 是一個標準目錄結構：
 
 ### 1.5 Skills 技能系統
 
-Skills（技能）是 OpenClaw 最核心的擴展機制，讓 Agent 能夠獲得特定領域的能力。
+Skills（技能）是 OpenClaw 最核心的擴展機制：一個技能就是一個資料夾，裡面放一份 `SKILL.md`（給模型看的操作說明）以及選用的腳本、參考資料與素材。技能**不會**自動帶來新權限——它只是「教 Agent 如何使用既有工具」的說明書。這一點是審查 AI 產出技能時最重要的心智模型：**技能能做什麼，取決於 Agent 被允許使用哪些工具，而不是 SKILL.md 寫了什麼。**
 
 #### 技能定義：SKILL.md
 
-每個 Skill 由一個 `SKILL.md` 檔案定義，採用 **AgentSkills** 規範格式：
+OpenClaw 遵循 [AgentSkills](https://agentskills.io) 規範。frontmatter **只有 `name` 與 `description` 是必填**；其餘為選填鍵，最常用的是 `metadata.openclaw`（載入閘門與環境需求）：
 
 ```markdown
 ---
 name: weather-reporter
-description: 提供即時天氣資訊查詢
-version: 1.0.0
-triggers:
-  - weather
-  - 天氣
-  - 氣象
-tools:
-  - get_weather
-  - get_forecast
-access:
-  channels:
-    - whatsapp
-    - telegram
-  users:
-    - "*"
+description: 查詢指定城市的即時天氣與三日預報，並以繁體中文摘要回覆
+metadata:
+  openclaw:
+    requires:
+      bins: ["curl"]
+      env: ["WEATHER_API_KEY"]
+    primaryEnv: WEATHER_API_KEY
 ---
 
-# Weather Reporter Skill
+# Weather Reporter
 
-你是一個專業的氣象報導 Agent。當使用者詢問天氣相關問題時，
-請使用提供的工具查詢即時天氣資訊，並以友善的方式回報。
+當使用者詢問天氣時：
 
-## 回應格式
-
-- 使用表情符號增加親和力
-- 提供溫度、濕度、風速等基本資訊
-- 如有異常天氣，主動提醒使用者注意
-
-## 工具使用規則
-
-1. 先使用 `get_weather` 取得目前天氣
-2. 若使用者詢問未來天氣，使用 `get_forecast`
-3. 若地點不明確，請先詢問使用者
+1. 若地點不明確，先反問城市名稱，不要猜測。
+2. 以 `exec` 工具執行 `curl -s "https://api.example-weather.com/v1/now?city=<城市>"`
+   （API Key 由環境變數 `WEATHER_API_KEY` 注入，**不要**把金鑰寫進回覆或指令列）。
+3. 回覆格式：溫度、體感、濕度、風速各一行；有警特報時放在第一行並加 ⚠️。
 ```
+
+| frontmatter 鍵 | 必填 | 用途 |
+| --- | --- | --- |
+| `name` | ✅ | 技能識別名稱（同名時依載入優先序取勝者） |
+| `description` | ✅ | 模型決定是否選用此技能的主要依據，應寫「何時用、做什麼」 |
+| `metadata.openclaw.requires.bins` / `anyBins` / `env` / `config` | 選填 | 載入閘門：缺少必要執行檔、環境變數或組態時不載入 |
+| `metadata.openclaw.os` | 選填 | 平台過濾，例如 `["darwin"]`、`["linux"]`、`["win32"]` |
+| `user-invocable` | 選填（預設 `true`） | 是否同時提供為使用者可呼叫的 slash command |
+| `disable-model-invocation` | 選填（預設 `false`） | `true` 時不放入模型的常規提示，只保留 slash command |
+| `command-dispatch: tool` + `command-tool` | 選填 | slash command 直接派送到指定工具，不經過模型 |
+
+> ❌ **常見 AI 產出錯誤**：在 frontmatter 加入 `triggers:`、`tools:`、`access.channels`、`access.users` 之類的鍵。這些**不是** OpenClaw 支援的欄位，會被忽略——結果是作者以為設了存取控制，實際上完全沒有。存取控制必須放在 `openclaw.json` 的 Agent allowlist 與工具政策（見下方與 5.2 節）。
 
 #### 技能載入優先序
 
-OpenClaw 從三個位置載入技能，優先序由高到低：
+同名技能出現在多個來源時，**優先序高者勝出**（v2026.11.1 官方定義）：
+
+| 優先序 | 來源 | 路徑 | 可見範圍 |
+| --- | --- | --- | --- |
+| 1（最高） | Workspace skills | `<workspace>/skills` | 僅該 Agent |
+| 2 | Project agent skills | `<workspace>/.agents/skills` | 僅該工作區的 Agent |
+| 3 | Personal agent skills | `~/.agents/skills`（僅預設 state 目錄時） | 使用預設 state 的 Agent |
+| 4 | Managed / local skills | `<state-dir>/skills` | 共用同一 state 的所有 Agent |
+| 5 | Workshop skills | `<state-dir>/agents/<agentId>/agent/workshop-skills` | 僅該 Agent（自我學習產出，見 4.3） |
+| 6 | Bundled / Custodian skills | 隨安裝套件提供 | 所有 Agent／僅 Custodian Agent |
+| 7（最低） | Extra directories 與插件技能 | `skills.load.extraDirs` + plugin skills | 使用該組態的所有 Agent |
 
 ```mermaid
-graph TB
-    subgraph "優先序 3（最高）"
-        WS[Workspace Skills<br>./skills/]
-    end
-    subgraph "優先序 2"
-        MG[Managed Skills<br>~/.openclaw/skills/]
-    end
-    subgraph "優先序 1（最低）"
-        BD[Bundled Skills<br>內建技能]
-    end
-    
-    WS -->|覆蓋| MG -->|覆蓋| BD
+graph LR
+    WS["1 Workspace<br/>skills/"] --> PJ["2 Project<br/>.agents/skills"] --> PS["3 Personal<br/>~/.agents/skills"] --> MG["4 Managed<br/>state-dir/skills"] --> WK["5 Workshop"] --> BD["6 Bundled"] --> EX["7 extraDirs / Plugin"]
 ```
 
-| 位置 | 路徑 | 優先序 | 說明 |
-|------|------|--------|------|
-| **Workspace** | `./skills/` | 最高 | 專案層級技能，針對特定工作場景 |
-| **Managed** | `~/.openclaw/skills/` | 中 | 使用者層級技能，跨專案共享 |
-| **Bundled** | 內建於 OpenClaw | 最低 | 預設技能，提供基本功能 |
+> **兩件事不要混淆**：「**位置**」決定同名時誰勝出（precedence），「**allowlist**」決定哪個 Agent 看得到（visibility）。若設定 `OPENCLAW_STATE_DIR` 指向非預設位置，`~/.agents/skills` 這類家目錄層級的來源會被排除。
 
-當多個位置存在同名技能時，高優先序位置的技能會覆蓋低優先序位置的同名技能。
+#### 技能啟用、金鑰注入與 Agent Allowlist
 
-#### 技能閘門（Skill Gating）
-
-OpenClaw 支援技能閘門機制，允許針對特定使用者或頻道啟用/停用技能：
+技能的組態全部集中在 `skills.*`（載入、安裝、個別技能開關與金鑰）與 `agents.*.skills`（每個 Agent 可見的技能清單）：
 
 ```json5
-// openclaw.json 中的技能閘門設定
+// openclaw.json（已以 openclaw 2026.11.1 `openclaw config validate --json` 驗證通過）
 {
-  "skills": {
-    "weather-reporter": {
-      "enabled": true,
-      "access": {
-        "channels": ["whatsapp", "telegram"],
-        "users": ["user1@example.com", "user2@example.com"]
-      }
+  skills: {
+    load: { extraDirs: ["~/company-skills"], watch: true },
+    install: { nodeManager: "npm", allowUploadedArchives: false },
+    entries: {
+      "weather-reporter": {
+        enabled: true,
+        // 以 SecretRef 參照環境變數，避免金鑰明文出現在組態檔
+        apiKey: { source: "env", provider: "default", id: "WEATHER_API_KEY" },
+      },
+      "legacy-report": { enabled: false },
     },
-    "admin-tools": {
-      "enabled": true,
-      "access": {
-        "channels": ["slack"],
-        "users": ["admin@company.com"]
-      }
-    }
-  }
+  },
+  agents: {
+    ownership: "explicit", // 多 Agent roster 必填：明確宣告各 Agent 的擁有關係
+    defaults: { skills: ["weather-reporter", "github"] }, // 所有 Agent 的共同基準
+    entries: {
+      assistant: {},                         // 省略 skills → 繼承 defaults
+      finance: { skills: ["finance-report"] }, // 非空清單 = 最終集合，不與 defaults 合併
+      kiosk: { skills: [] },                  // 空陣列 = 不暴露任何技能
+    },
+  },
 }
 ```
+
+Allowlist 規則（審查重點）：
+
+1. 省略 `agents.defaults.skills` → 預設不限制。
+2. 省略 `agents.entries.<id>.skills` → 繼承 defaults。
+3. `agents.entries.<id>.skills: []` → 該 Agent 看不到任何技能。
+4. **非空清單是「最終集合」**，不會與 defaults 合併——這是最常見的誤解。
+5. Allowlist **不是** Shell 授權邊界：若 Agent 可使用 `exec`，仍需以沙箱、exec allowlist 與最小權限憑證另行限制（見第九章）。
+
+#### 技能設定的驗證方式
+
+| 檢查項目 | 指令／方法 | 預期結果 |
+| --- | --- | --- |
+| 組態鍵是否存在 | `openclaw config validate --json` | `"valid": true`；若出現 `Unrecognized keys` 即為 AI 杜撰鍵 |
+| 技能是否實際載入 | `openclaw skills check` | 列出勝出來源；缺少 `requires.*` 時顯示未通過的閘門 |
+| 同名技能由誰勝出 | `openclaw skills info <name>` | 顯示實際來源路徑，應符合上表優先序 |
+| frontmatter 是否只用支援的鍵 | 人工檢視 `SKILL.md` | 不含 `triggers`／`tools`／`access` 等非規範鍵 |
+| 金鑰未寫死 | `grep -rnE "api[_-]?key\s*[:=]\s*['\"]\w" skills/` | 無輸出 |
 
 ### 1.6 Tools 工具系統
 
@@ -619,47 +683,66 @@ Tools（工具）是 Agent 與外部世界互動的介面，OpenClaw 內建多�
 
 #### 工具設定檔（Tool Profiles）
 
-OpenClaw v2026.4 引入**工具設定檔**機制，方便快速切換 Agent 的工具存取範圍：
+`tools.profile` 先決定一份**基準 allowlist**，再疊加 `tools.allow`／`tools.alsoAllow`／`tools.deny`。本機 onboarding 在沒有設定 profile 時會寫入 `full`；既有組態不會被自動遷移。
 
-| 設定檔 | 說明 | 適用情境 |
-|--------|------|----------|
-| `full` | 啟用所有可用工具 | 功能完整的通用 Agent |
-| `coding` | 程式碼相關工具子集 | 開發輔助 Agent |
-| `messaging` | 訊息傳遞相關工具 | 純通訊 Agent |
-| `minimal` | 最少工具集 | 安全受限環境 |
+| 設定檔 | 包含（v2026.11.1） | 適用情境 |
+| --- | --- | --- |
+| `minimal` | `session_status`、`gateway`（僅 `update.run`） | 高度受限的對外 Agent |
+| `coding` | `group:fs`、`group:runtime`、`group:web`、`group:sessions`、`group:memory`、`cron`、`gateway`（僅更新）、goal／progress／`ask_user`／`skill_workshop`／影像與媒體生成 | 開發輔助 Agent |
+| `messaging` | `group:messaging`、sessions 與 conversations 系列、`subagents`、`session_status`、`gateway`（僅更新）、`ask_user` | 純通訊／客服 Agent |
+| `full` | 不做核心過濾，並選入已啟用插件的選用工具 | 個人助理、受信任操作者 |
+
+> ⚠️ **`full` 只代表「選入工具」，不等於「完全存取」**。工具實際能做什麼仍受對話的 Execution permissions、owner 檢查、檔案系統、沙箱與 exec 政策約束。另外 `tts` 不屬於任何受限 profile，需要時請加入 `tools.alsoAllow`。
 
 #### 工具群組（Tool Groups）
 
-工具可按功能群組批次啟用或禁用：
-
 | 群組 | 包含工具 |
-|------|----------|
-| `group:runtime` | exec, process, code_execution |
-| `group:fs` | read, write, edit, apply_patch |
-| `group:sessions` | sessions_list, sessions_history, sessions_send, sessions_spawn |
-| `group:memory` | 記憶相關工具 |
-| `group:web` | web_search, x_search, web_fetch |
-| `group:ui` | canvas, nodes |
-| `group:automation` | cron, gateway |
-| `group:messaging` | message, Discord/Slack 動作 |
-| `group:media` | image, image_generate, music_generate, video_generate, tts |
-| `group:agents` | agents_list, subagents |
+| --- | --- |
+| `group:runtime` | `exec`（`bash` 為別名）、`process`、`code_execution` |
+| `group:fs` | `read`、`write`、`edit`、`apply_patch` |
+| `group:sessions` | `sessions*`、`conversations_*`、`subagents`、`session_status`、`suggest_task`、`dismiss_task` |
+| `group:memory` | `memory_search`、`memory_get` |
+| `group:web` | `web_search`、`x_search`、`web_fetch` |
+| `group:ui` | `browser`、`screen`、`theme`、`dashboard`、`terminal`、`portal`、`canvas`、`show_widget` |
+| `group:automation` | `heartbeat_respond`、`automations`（`cron` 別名）、`gateway`、`plugins`、`openclaw` |
+| `group:messaging` | `message` |
+| `group:nodes` | `nodes`、`computer` |
+| `group:agents` | `agents_list`、goal 系列、`progress_card`、`ask_user`、`skill_workshop` |
+| `group:media` | `view_image`、`image_generate`、`music_generate`、`video_generate`、`tts`、`pdf` |
+| `group:openclaw` | 上述所有內建工具，但**不含** `read`／`write`／`edit`／`apply_patch`／`exec`／`process`／`canvas` |
+| `group:plugins` | 已載入插件擁有的工具（含透過 `bundle-mcp` 暴露的 MCP 伺服器） |
 
-工具存取控制透過 `tools.allow` 和 `tools.deny` 清單精細管理，也可使用 `tools.byProvider` 限制特定 Provider 可使用的工具。
+工具存取控制透過 `tools.allow`／`tools.alsoAllow`／`tools.deny` 管理，也可用 `tools.byProvider` 與 `tools.toolsBySender` 依 Provider 或發送者細分。**群組 deny 會覆蓋個別工具的 allow**——例如 deny `group:media` 會一併擋掉明確 allow 的 `pdf`。
+
+```json5
+// 客服 Agent：以 messaging 為基準，額外允許語音，禁止所有 runtime 與檔案寫入
+{
+  tools: {
+    profile: "messaging",
+    alsoAllow: ["tts"],
+    deny: ["group:runtime", "write", "edit", "apply_patch"],
+    fs: { workspaceOnly: true },
+  },
+}
+```
 
 #### Browser 工具
 
 Browser 工具使用 **Chrome DevTools Protocol (CDP)** 提供完整的瀏覽器控制能力：
 
-```json5
-// Agent 使用 Browser 工具的範例
-{
-  "tool": "browser_navigate",
-  "parameters": {
-    "url": "https://example.com/report",
-    "waitFor": "networkIdle"
-  }
-}
+```text
+// 工具呼叫示意（由模型在對話中發出，非 openclaw.json 組態）
+browser → navigate { url: "https://example.com/report" }
+browser → snapshot  { }            // 取得可存取性樹，供下一步點擊定位
+browser → click     { ref: "e12" }
+```
+
+操作者也可以從 CLI 直接驅動同一個受管瀏覽器，方便重現 Agent 的行為：
+
+```bash
+openclaw browser start --headless
+openclaw browser navigate https://example.com/report
+openclaw browser screenshot
 ```
 
 功能包含：
@@ -681,30 +764,20 @@ Agent: [使用 Canvas 工具產生互動式投票 UI]
 
 #### Cron 與 Webhook 工具
 
-允許 Agent 設定排程任務或對外部事件做出回應：
+Agent 透過 `automations`（舊名 `cron`）工具建立排程；操作者則使用同名 CLI。兩者寫入的是同一份 Automations 儲存，**不是** `openclaw.json` 組態：
 
-```json5
-// 排程任務範例
-{
-  "tool": "cron_schedule",
-  "parameters": {
-    "expression": "0 9 * * 1-5",  // 週一至週五早上 9 點
-    "action": "send_daily_report",
-    "channel": "slack",
-    "target": "#team-reports"
-  }
-}
+```bash
+# 週一至週五 09:00（台北時間）產生日報並送到 Slack #team-reports
+openclaw automations add --name daily-report --cron "0 9 * * 1-5" --tz Asia/Taipei \
+  --message "彙整昨日工單與部署紀錄，產出日報" --channel slack --to "#team-reports"
 
-// Webhook 設定範例
-{
-  "tool": "webhook_register",
-  "parameters": {
-    "path": "/hooks/github",
-    "method": "POST",
-    "action": "process_github_event"
-  }
-}
+openclaw automations list
+openclaw automations runs <job-id>     # 檢視每次執行結果
 ```
+
+外部事件則以 Webhook 觸發；Gmail Pub/Sub 有專用的 `openclaw webhooks gmail setup`。一般 HTTP Webhook 的設定方式見 4.7 節。
+
+> ⚠️ **v2026.9.7 起 Tasks 與 TaskFlow 已移除**（含面板、指令與 API）。原本的工作請改用 subagent、ACP sessions、背景程序、Automations 歷史或 Lobster pipeline；TaskFlow Webhooks 沒有對等的 HTTP 替代方案。升級後須執行 `openclaw doctor --fix`。
 
 #### Dreaming / Memory Wiki 工具
 
@@ -894,8 +967,19 @@ interface Channel {
 ### 1.10 OpenClaw 版本歷程
 
 | 版本 | 日期 | 重大變更 |
-|------|------|----------|
-| **2026.8.1**<br>（**OpenClaw 2.0**） | 2026-08-31 | **最新穩定版，專案史上最大改版（彙整逾 16,000 個 PR）**。九大主軸：① 以對話為中心重建的 **Control UI**（Session Rail、`/btw` 側線對話、審批內嵌於對話）② **多人協作與分享角色**（read／suggest／draft／participate、Incognito）③ **Cloud Workers 與 Paired Devices 分散式執行** ④ **Session 與 Transcript 改用 SQLite 儲存**（含降版限制）⑤ **Secret Store**（Protected／Agent-readable 雙軌）⑥ **Automations**（`cron` 更名，兩套指令並存）⑦ **Skill Workshop 與自我學習**（off／propose／auto）⑧ **Built-in Memory 取代 QMD** ⑨ **Code Mode 介面重寫**。破壞性變更：OpenProse 插件移除、`codex/*` → `openai/*` 路由遷移、部分官方 Provider 外部化為獨立套件 |
+| --- | --- | --- |
+| **2026.11.1** | 2026-11-05 | **最新穩定版（本手冊基準）**。可靠性為主：Mac 設定存檔失敗不再覆寫密鑰、關閉 Tailscale 暴露時保留 Gateway 驗證；Telegram／Discord／webhook 對話在請求處理結束後仍可抵達 Agent；更新器崩潰／取消後可恢復；ClickClack 與 ClawHub 拒絕導向無關私有服務的重新導向；`doctor` 非互動檢查不再未經同意下載插件；日誌遮罩政策格式錯誤時仍保留內建密鑰保護 |
+| **2026.11.5-beta.1** | 2026-11-04 | 下一個穩定版的 Beta（不建議用於生產） |
+| **2026.10.10** | 2026-11-03 | 4,825 commits／3,028 PR／454 位貢獻者。**雲端與桌面 Session 成為一級工作流程**（Session 可在本機與雲端間移動、依 Repository 組織雲端環境與 environment recipes）；Windows 桌面 App 與 Tauri 可執行本機 Gateway；**Gemini 4 Argon 成為預設 Gemini 模型**；**macOS／iOS／Safari 需 26.2 以上**；Node 相容區間恢復為 `>=24.16.0 <25 \|\| >=26.1.0`（24.22.1／26.12.1 改為安全建議）；Codex 受管 CLI 升至 0.164.0；Git 備份涵蓋 PostgreSQL 匯出並遮罩憑證 |
+| **2026.10.6〜10.9** | 2026-10-22〜10-29 | 10.6 一度**強制要求 Node 24.22.1+／26.12.1+**（回應 2026 年 10 月 Node.js 憑證金鑰外洩的安全版本）；10.8 安全強化（exec allowlist 對 `test -v` 需審批、沙箱子程序不可執行主機 CLI backend、egress proxy 拒絕不受信任的 eMudhra 憑證鏈）；10.9 修補 fast-uri／nodemailer 等相依套件漏洞、`tools.fs.workspaceOnly` 套用至 Gateway 內建工具 |
+| **2026.10.1〜10.5** | 2026-10-10〜10-18 | Code Mode `store`／`load` 跨 cell 保存小型值；**匯入 coding-agent 逐字稿**為 OpenClaw Session；**異地備份**（外接磁碟、NAS、Cloudflare R2）；Automations 可在不執行模型下檢查條件並呼叫明確允許的 MCP；Cloud Worker 支援 GitHub Enterprise；10.5 新增 **X（Twitter）頻道**、語音通話報告與即時引導、**Gateway 內建 ClawHub 瀏覽**；10.1 第三方插件須移除已退休的相容層與整包 session-store helper（**破壞性**） |
+| **2026.9.33〜9.36** | 2026-10-15〜10-29 | **Extended-Stable（LTS）九月線**：九月底的 OpenClaw 加上關鍵安全、可靠性修補與新模型支援，**僅提供 Gateway**；目前 npm `extended-stable` 指向 **2026.9.36** |
+| **2026.9.4〜9.9** | 2026-09-11〜10-08 | 9.4 安裝／Web UI／更新流程大幅整理；**9.5 為「2026 年 6 月以前安裝」的必經升級站**；9.6 移除 Compaction checkpoint 還原控制（`sessions.compaction.*`），新增 `openclaw worktrees` 歸檔／還原；**9.7 移除 Tasks 與 TaskFlow**、Tool Search 改為 search／describe／call 三工具並移除 `tool_search_code`、Bun-only 安裝可自我更新 |
+| **2026.9.3** | 2026-09-08 | **破壞性：Node 需 24.16.0+（24.x）或 26.1.0+**，Node 22／25 不再支援（避免 SQLite 文字截斷）；Plugin SDK exec-policy／approval／SDK 別名／搜尋與目錄結果欄位多項破壞性調整；Skill Workshop 改為**每個 Agent 一份可寫入的技能集合**（退休 `skills.workshop.allowSymlinkTargetWrites`）；更新前於隔離候選狀態**預演（rehearse）** 核心與插件變更；可分享的唯讀對話連結；會議筆記庫；選用的 Team Reports |
+| **2026.9.1〜9.2** | 2026-09-03〜09-05 | 9.1：**一句話完成安裝的 quick-start**（偵測既有 Claude Code／Codex 登入與 API Key）、**共用 Gateway 上的個人技能庫**（`openclaw skills library`）、`openclaw update` 失敗自動回滾並交給內建 triage Agent、`agents.defaults.cwd`／`worktreeRoot`、`cron.skipMissedJobs`、SSRF `blockedHostnames`、`config set --dry-run` 等守門旗標、`openclaw memory reset`、聊天中渲染 Mermaid、Anthropic Fable 5.1；9.2：GPT-6 Astra、Gateway 重啟後回覆可恢復、更多設定免重啟生效 |
+| **2026.8.2** | 2026-09-01 | Home Agent 側邊 Dock（`Cmd/Ctrl+Shift+H`）、**Linux 桌面 App**（`.deb`／AppImage，簽章驗證更新）、背景 Session、`openclaw update cleanup --dry-run` 清理遷移原件、更安全的升級（保留較新組態、未完成遷移不宣告成功） |
+| **2026.8.33〜8.35**<br>**2026.7.35**／**2026.6.35** | 2026-09-10〜10-02 | 八月／七月／六月 Extended-Stable 維護線的後續修補 |
+| **2026.8.1**<br>（**OpenClaw 2.0**） | 2026-08-31 | **專案史上最大改版（彙整逾 16,000 個 PR）**。九大主軸：① 以對話為中心重建的 **Control UI**（Session Rail、`/btw` 側線對話、審批內嵌於對話）② **多人協作與分享角色**（read／suggest／draft／participate、Incognito）③ **Cloud Workers 與 Paired Devices 分散式執行** ④ **Session 與 Transcript 改用 SQLite 儲存**（含降版限制）⑤ **Secret Store**（Protected／Agent-readable 雙軌）⑥ **Automations**（`cron` 更名，兩套指令並存）⑦ **Skill Workshop 與自我學習**（off／propose／auto）⑧ **Built-in Memory 取代 QMD** ⑨ **Code Mode 介面重寫**。破壞性變更：OpenProse 插件移除、`codex/*` → `openai/*` 路由遷移、部分官方 Provider 外部化為獨立套件 |
 | **2026.8.1-beta.4** | 2026-08-28 | ⚠️ **誤植發布為 `2026.9.1-beta.1`**，官方已聲明其實際版本為 2026.8.1-beta.4，**不得視為新於 stable 2026.8.1**。內容為可靠性修補：Gateway 重啟復原保留已受理回合、組態寫入於 watcher 交接期間的可靠性、Codex runtime 升至 0.150.1、Linux 安裝改用 Node 24 LTS |
 | **2026.8.1-beta.3** | 2026-08-24 | 2.0 發布前的最後一輪 Beta 驗證 |
 | **2026.8.1-beta.2** | 2026-08-15 | Secret Egress Host Binding（跨 CLI/Gateway RPC/Control UI 綁定密鑰目的地主機）、GPT-5.6 Ultra 與 Sol/Terra/Luna 執行期切換、Channel Plugin Ingress Monitor 共用生命週期（IRC/Synology Chat/Google Chat）、`openclaw backup sqlite` 快照備份指令、macOS App Profile 隔離、外部插件安裝需明確 `--force` 確認未信任來源 |
@@ -926,7 +1010,7 @@ interface Channel {
 | **2025.12.x** | 2025-12 | Docker Compose 官方支援、Podman 安裝文件 |
 | **2025.11.x〜2026.1.x** | 2025-11 ~ 2026-01 | 專案首次公開發布（2025-11-24，時名 Warelay）並歷經名稱沿革期：Warelay → CLAWDIS → Clawdbot → Moltbot → **OpenClaw** 定名，同期完成 Skills 系統與 Voice Wake + Talk Mode 等早期核心功能（完整時間軸見 1.1「名稱沿革」） |
 
-> **注意**: OpenClaw 採用**日期版本號**格式 `vYYYY.M.D`（如 `v2026.7.1`）。預發布版本使用 `-beta.N` 後綴，穩定版偶有 `-1`、`-2` 等修補後綴（如 `v2026.7.1-2`），Extended-Stable 維護線則沿用當月固定的 `YYYY.M.33` 起始基準（如 `v2026.6.34`）持續回補安全性修補。stable / extended-stable / beta / dev 四條版本線並行發布，詳見第七章 7.1 版本命名規則。
+> **注意**: OpenClaw 採用**日期版本號**格式 `vYYYY.M.D`（如 `v2026.7.1`）。預發布版本使用 `-beta.N` 後綴，穩定版偶有 `-1`、`-2` 等修補後綴（如 `v2026.7.1-2`），Extended-Stable（官方定位為 LTS 的等價物）以 `YYYY.M.33` 起跳（如 `v2026.9.33`〜`v2026.9.36`），內容是「該月月底的 OpenClaw + 關鍵安全／可靠性修補與新模型支援」，且**僅提供 Gateway 套件**。stable／extended-stable／beta／dev 四條版本線並行發布，以 npm dist-tag 為準（2026-11-08 查證：`latest`=2026.11.1、`extended-stable`=2026.9.36、`beta`=2026.11.5-beta.1），詳見 3.12 與第七章 7.1。
 >
 > ⚠️ **不可單憑版本號大小判斷新舊**：2026-08-28 發布的套件被誤植為 `2026.9.1-beta.1`，但其實際內容為 `2026.8.1-beta.4`，**比 2026-08-31 的穩定版 `2026.8.1` 還舊**。官方已在發布說明中特別警示此事，並要求穩定版使用者直接安裝或升級至 `2026.8.1`。這是採用日期版本號的專案在人為誤植下會產生的典型陷阱，升級前請以官方發布說明為準，而非套件登錄的版本排序。
 
@@ -942,7 +1026,7 @@ v2026.8.1（OpenClaw 2.0）的變更幅度遠超一般改版，且橫跨本手�
 | Cloud Workers 與 Paired Devices 分散式執行 | **新增能力** | 第十二章 |
 | Secret Store（Protected／Agent-readable） | **新增能力** | 3.11、9.2 |
 | Automations（`cron` 更名，指令並存） | 更名 + 功能擴充 | 3.10、4.7、10.7 |
-| Skill Workshop 與自我學習（off／propose／auto） | **新增能力** | 4.3、9.7 |
+| Skill Workshop 與自我學習（2.0 為 off／propose／auto；**v2026.11.1 僅 off／auto**） | **新增能力** | 4.3、9.7 |
 | Built-in Memory 取代 QMD | **遷移**（需 `doctor --fix`） | 4.6、7.5 |
 | Code Mode 介面重寫 | **破壞性變更** | 4.4 |
 | Plugin SDK subpath 收斂 | **破壞性變更**（2026-09-01 生效） | 4.9 |
@@ -953,6 +1037,45 @@ v2026.8.1（OpenClaw 2.0）的變更幅度遠超一般改版，且橫跨本手�
 | 插件能力審查與供應鏈檢查 | 安全強化 | 9.11 |
 
 > **升級路徑建議**：若你目前執行的是 v2026.7.x，請先閱讀 **附錄 E：OpenClaw 2.0 升級遷移指南**，再依第七章的升級策略執行。2.0 包含四項需要 `openclaw doctor --fix` 介入的遷移，以及三個有明確截止日的相容性期限。
+
+### 1.12 2.x 持續演進導讀（v2026.8.2 → v2026.11.1）
+
+2.0 發布後的兩個多月內，官方又推出了約 40 個版本（穩定版、Beta 與 Extended-Stable）。這段期間的主軸可以歸納為三個字：**可恢復**（更新、重啟、備份都能安全回頭）、**可協作**（共用 Gateway 與團隊伺服器成形）、**可分散**（Session 可在本機、配對裝置與雲端之間移動）。下表把重要變更對應到本手冊章節：
+
+| 主題 | 起始版本 | 變更性質 | 本手冊章節 |
+| --- | --- | --- | --- |
+| 一句話完成安裝的 quick-start（偵測 Claude Code／Codex 登入與 API Key） | 9.1 | 體驗重構 | 3.2 |
+| Node 需求改為 `>=24.16.0 <25 \|\| >=26.1.0`，Node 22／25 不再支援 | 9.3 | **破壞性** | 3.1、附錄 E.5 |
+| macOS／iOS／Safari 需 26.2 以上 | 10.10 | **平台需求提升** | 3.1 |
+| 四條發布通道與 Extended-Stable（LTS）月線 | 持續 | 營運政策 | 3.12、7.1 |
+| `openclaw update` 預演、回滾、`repair`／`recover`／`cleanup` | 8.2〜10.8 | **新增能力** | 7.11 |
+| 共用 Gateway 個人技能庫（`openclaw skills library`）與 Skill Workshop 改為每 Agent 一份 | 9.1／9.3 | **新增能力**／破壞性 | 1.5、4.13 |
+| Agent 工作目錄與 Managed Worktrees（`agents.defaults.cwd`、`worktreeRoot`、`openclaw worktrees`） | 9.1／9.6 | **新增能力** | 4.12 |
+| Tasks／TaskFlow 移除、Tool Search 改為三工具、Compaction checkpoint 還原移除 | 9.6／9.7 | **破壞性** | 1.6、4.5、附錄 E.5 |
+| 異地備份（外接磁碟、NAS、R2）、排程備份、Litestream 持續複寫 | 10.1 | **新增能力** | 6.7 |
+| 實驗性 PostgreSQL 儲存引擎（目前僅 Workboard） | 10.x | 實驗功能 | 2.12 |
+| Cloud Sessions：Session 在本機與雲端間移動、environment recipes、GitHub Enterprise | 10.1／10.10 | **新增能力** | 12.7 |
+| Team Server：Cloudflare Access + trusted-proxy 驗證 + 角色 | 9.x〜11.1 | **企業部署模式** | 11.7 |
+| 2026-09-11 一次揭露 375 筆安全公告（150 high） | 9.3 修補完成 | **資安基準** | 9.12 |
+| 發布物驗證（npm integrity、release evidence、provenance） | 持續 | 供應鏈治理 | 8.11 |
+
+> **閱讀建議**：
+>
+> - **全新導入者**：依序讀 3.1 → 3.2 → 3.12 → 11.7，直接以 v2026.11.1（或 Extended-Stable 2026.9.36）為起點。
+> - **既有 2.0（2026.8.x）使用者**：先讀 **附錄 E.5**，確認 Node 版本、Tasks／TaskFlow 依賴與第三方插件相容性，再依 7.11 的流程升級。
+> - **2026 年 6 月以前的安裝**：官方要求**必須先升級到 2026.9.5 並執行 `openclaw doctor --fix`**，之後才能升到最新版。
+
+### 1.13 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 技能 frontmatter 只用規範鍵 | 檢視 `SKILL.md`；CI 以 `grep -E '^(triggers\|tools\|access):'` 擋下 | 只有 `name`、`description`、`metadata` 等規範鍵 |
+| 2 | 技能實際載入來源符合優先序 | `openclaw skills info <name>` | 勝出來源與 1.5 的 7 層優先序一致 |
+| 3 | Agent allowlist 理解正確 | `openclaw config get agents --json` | 非空清單為最終集合；`[]` 代表不暴露技能 |
+| 4 | 工具 profile 與 group 名稱存在 | `openclaw config validate --json` | `valid: true`，無 `Unrecognized` 或不合法的 enum |
+| 5 | 版本敘述有出處 | 比對 GitHub Release 與 `npm view openclaw dist-tags` | 版本號、日期、通道與官方一致 |
 
 ---
 
@@ -1330,41 +1453,54 @@ OpenClaw 透過 Model References 機制抽象化 LLM 提供者，讓 Agent 可�
 
 #### 模型參考設定
 
+模型參考（Model Reference）一律寫成 `provider/model-id` 字串，例如 `anthropic/claude-opus-5-5`、`openai/gpt-6-astra`。**預設模型與備援鏈放在 `agents.defaults.model`**，別名與每模型參數放在 `agents.defaults.models`，自訂或自架 Provider 才需要 `models.providers`：
+
 ```json5
-// openclaw.json 中的模型設定
+// openclaw.json（openclaw 2026.11.1 `config validate` 通過）
 {
-  "agent": {
-    "model": "anthropic/claude-opus-4-8"  // 預設模型
+  agents: {
+    defaults: {
+      model: {
+        primary: "anthropic/claude-opus-5-5",                     // 預設模型
+        fallbacks: ["openai/gpt-6-astra", "google/gemini-4-argon"], // 失效轉移順序
+      },
+      // 為常用模型取別名（/model Sonnet）
+      models: {
+        "anthropic/claude-sonnet-5-5": { alias: "Sonnet" },
+        "anthropic/claude-haiku-5-5": { alias: "Haiku" },
+      },
+      // 企業治理：只允許核准清單內的模型被選用
+      // 萬用字元只能是結尾的 "provider/*"；其餘須寫完整 ref 或別名
+      modelPolicy: { allow: ["anthropic/*", "openai/gpt-6-astra", "google/gemini-4-argon", "vllm/*"] },
+    },
   },
-  "models": {
-    "default": {
-      "provider": "openai",
-      "model": "gpt-5.6",
-      "temperature": 0.7,
-      "maxTokens": 4096
+  models: {
+    providers: {
+      // 自架 vLLM（OpenAI 相容端點）
+      vllm: {
+        baseUrl: "http://vllm.internal:8000/v1",
+        apiKey: { source: "env", provider: "default", id: "VLLM_API_KEY" },
+        api: "openai-completions",
+        models: [{ id: "qwen3.8-27b", name: "Qwen3.8 27B", contextWindow: 131072, maxTokens: 8192 }],
+      },
     },
-    "fast": {
-      "provider": "anthropic",
-      "model": "claude-haiku-4-5",
-      "temperature": 0.3,
-      "maxTokens": 2048
-    },
-    "reasoning": {
-      "provider": "anthropic",
-      "model": "claude-opus-4-8",
-      "temperature": 0.5,
-      "maxTokens": 8192
-    },
-    "local": {
-      "provider": "ollama",
-      "model": "glm-5.2",
-      "baseUrl": "http://localhost:11434"
-    }
-  }
+  },
 }
 ```
 
-> **最佳實務**: 官方建議使用最新世代最強模型以獲得最佳體驗與較低的 Prompt Injection 風險。詳見 [Onboarding 指南](https://docs.openclaw.ai/start/onboarding)。
+> ❌ **舊版手冊／AI 常見錯誤寫法**：`agent.model`、`models.default`、`models.fast`、`models.reasoning`。這些鍵在 2026.11.1 會被 `config validate` 判為 `Unrecognized key`。「快速模型」「推理模型」的需求應改用 `agents.defaults.utilityModel`、`decisionModel` 或別名 + `/model` 切換來表達。
+>
+> ❌ **`modelPolicy.allow` 的萬用字元陷阱**：`"openai/gpt-6-*"` 這種「前綴 + 星號」寫法**不合法**，`config validate` 會回報 `invalid model policy ref`。只接受三種形式：已設定的別名、完整的 `provider/model`、或結尾萬用字元 `provider/*`（`provider/namespace/*`）。
+>
+> **最佳實務**：官方維護一份人工審核、依序排列的 [Recommended models](https://docs.openclaw.ai/concepts/recommended-models) 清單（2026-11 版前五名：Claude Opus 5.5、GPT-6.1 Sol、Gemini 4 Argon、GPT-6 Astra、Claude Fable 5.1），模型選單會優先顯示該 Provider 的推薦模型。最新世代模型同時也有較低的 Prompt Injection 風險。
+
+**如何驗證**：
+
+```bash
+openclaw config validate --json        # 鍵與型別正確
+openclaw models status                 # 實際生效的 primary / fallbacks 與認證狀態
+openclaw models fallbacks list         # 備援鏈順序
+```
 
 #### 模型失效轉移（Model Failover）
 
@@ -1382,16 +1518,16 @@ OpenClaw 目前支援 **50+ LLM 提供者**，以下列出主要提供者（完�
 
 | 分類 | 提供者 | 模型範例 | 備註 |
 |------|--------|----------|------|
-| **旗艦** | **OpenAI** | GPT-5.6（含 Ultra）, GPT-5.5, GPT-5.2, o3/o4-mini | ChatGPT/Codex OAuth 訂閱支援，v2026.7.1 起擴大 GPT-5.6 相容路由 |
-| | **Anthropic** | Claude Opus 4, Opus 4.6, Opus 4.8, Sonnet 4, Haiku 4.5 | 預設推薦，長上下文 |
-| | **Google** | Gemini 2.5 Pro, Gemini 2.5 Flash | 多模態，Veo 影片生成 |
-| **雲端** | **Azure OpenAI** | GPT-4o (Azure) | 企業合規 |
+| **旗艦** | **OpenAI** | GPT-6.1 Sol、GPT-6 Astra、GPT-6 Luna、GPT-5.6（Sol／Terra／Luna） | API Key 或 ChatGPT／Codex 帳號；GPT-6 Astra 自 v2026.9.2 起支援 |
+| | **Anthropic** | Claude Opus 5.5、Sonnet 5.5、Haiku 5.5、Fable 5.1 | 官方推薦清單第一名（Opus 5.5）；Fable 5.1 自 v2026.9.1 起支援 |
+| | **Google** | Gemini 4 Argon、Gemini 3.8 Flash | v2026.10.10 起 Gemini 4 Argon 為預設 Gemini 模型；Veo 影片生成 |
+| **雲端** | **Azure OpenAI** | Azure 部署的 GPT 系列 | 企業合規、資料落地 |
 | | **Amazon Bedrock** | Claude, Titan | AWS 整合，Mantle 支援 |
 | | **NVIDIA** | NIM 微服務 | API Catalog 整合 |
 | | **Fireworks** | 各類模型 | 高速推論 |
 | | **Together AI** | 各類開源模型 | 推論即服務 |
 | | **Groq** | Llama, Mixtral | 硬體加速推論 |
-| **新興** | **DeepSeek** | V4 Flash, V4 Pro | V4 Flash 預設 Onboarding 模型 |
+| **新興** | **DeepSeek** | V4.1 Flash、V4 Flash、V4 Pro | 高性價比 |
 | | **DeepInfra** | 模型目錄 | 媒體生成、TTS、Embeddings |
 | | **Cerebras** | 高速推論 | 內建 Provider（v2026.4.26） |
 | | **MiniMax** | M2.5 | 工具解析優秀，OAuth 支援 |
@@ -1399,13 +1535,13 @@ OpenClaw 目前支援 **50+ LLM 提供者**，以下列出主要提供者（完�
 | | **xAI** | Grok | Grok 搜尋整合 |
 | **中國** | **Alibaba** | 通義千問 | Model Studio |
 | | **Qwen** | Qwen 系列 | 阿里雲模型 |
-| | **GLM (Zhipu)** | GLM-5.2, GLM 系列 | 智譜 AI，v2026.6.8 新增 |
+| | **GLM (Zhipu)** | GLM-5.3、GLM-5.3 Flash | 智譜 AI |
 | | **Moonshot** | Kimi | Kimi 搜尋整合 |
 | | **Volcengine** | 豆包 Doubao | 字節跳動火山引擎 |
 | | **Tencent** | 騰訊混元 | TokenHub 整合 |
 | | **Qianfan** | 百度文心 | 百度千帆 |
 | | **Xiaomi MiMo** | MiMo | 小米推論 |
-| **本地** | **Ollama** | Llama 3, Mistral, Phi | 本地執行，內建快取 |
+| **本地** | **Ollama** | Gemma 4、Qwen3.8、gpt-oss | 本地執行；v2026.9.1 起本地 Ollama 路由維持可選 |
 | | **LM Studio** | 各類模型 | 桌面 LLM |
 | | **vLLM** | 各類模型 | 高效推論引擎 |
 | | **SGLang** | 各類模型 | 結構化生成語言 |
@@ -1521,22 +1657,27 @@ graph LR
 
 #### ClawHub 指令
 
+日常的搜尋、安裝與驗證走 `openclaw skills`；**發布**則使用獨立的 `clawhub` CLI（需先 `clawhub login`）：
+
 ```bash
-# 搜尋技能
+# 搜尋與安裝（技能參照格式為 @owner/slug）
 openclaw skills search weather
+openclaw skills install @owner/weather-reporter
+openclaw skills update --all
 
-# 安裝技能
-openclaw skills install weather-reporter
+# 安裝前先驗證來源與完整性，並產生 Skill Card 供人工審查
+openclaw skills verify @owner/weather-reporter --card
 
-# 更新技能
-openclaw skills update weather-reporter
-
-# 發布自訂技能
-openclaw skills publish ./my-skill
-
-# 列出已安裝技能
+# 檢視實際載入結果（權威來源）
 openclaw skills list
+openclaw skills check
+
+# 發布自訂技能（ClawHub CLI，非 openclaw 子指令）
+clawhub login
+clawhub skill publish ./my-skill --version 1.0.0
 ```
+
+> **移除技能**：`openclaw skills` 沒有 `remove` 子指令。工作區或 managed 目錄的技能直接刪除資料夾即可；共用 Gateway 的個人技能庫請用 `openclaw skills library remove <id>`（見 4.13）。
 
 ### 2.8 Companion Apps 架構
 
@@ -1653,41 +1794,21 @@ openclaw/plugin-sdk
 > **v2026.8.1 進一步收斂**：契約整理**移除了 7 月與 8 月的已退休 SDK 路徑**，並以 `gateway_stop` **取代 `deactivate` 別名**。舊版 subpath 匯入的相容窗口已於 **2026-09-01 關閉**。新插件開發須使用**細分子路徑匯入（subpath imports）**，例如頻道插件改從 `openclaw/plugin-sdk/channel-core` 匯入 `defineChannelPluginEntry`，並以 manifest setup descriptor 取代硬編碼的啟用／設定邏輯：
 
 ```typescript
-// 最小頻道插件範例（現行寫法，子路徑匯入）
-import { defineChannelPluginEntry } from 'openclaw/plugin-sdk/channel-core';
+// 最小頻道插件進入點（v2026.11.1；以 tsc --strict 對 openclaw 2026.11.1 型別檢查通過）
+import { defineChannelPluginEntry } from "openclaw/plugin-sdk/channel-core";
+
+// 實際的頻道實作（連線、收訊、送訊）放在 ./src/channel.ts，以 createChatChannelPlugin 等 helper 建立
+declare const acmeChatPlugin: Parameters<typeof defineChannelPluginEntry>[0]["plugin"];
 
 export default defineChannelPluginEntry({
-  name: 'my-channel',
-  version: '1.0.0',
-
-  // 插件清單（manifest setup descriptor）
-  manifest: {
-    setup: {
-      type: 'api-key',
-      fields: ['apiKey', 'apiSecret']
-    }
-  },
-
-  // 頻道生命週期
-  async connect(config) {
-    // 建立頻道連線
-  },
-
-  async disconnect() {
-    // 關閉連線
-  },
-
-  // 訊息處理
-  async onMessage(message) {
-    // 轉換為 OpenClaw 標準訊息格式
-    return { text: message.content, sender: message.from };
-  },
-
-  async sendMessage(target, content) {
-    // 發送訊息到外部頻道
-  }
+  id: "acme-chat",
+  name: "Acme Chat",
+  description: "Acme Chat channel plugin",
+  plugin: acmeChatPlugin,
 });
 ```
+
+> ❌ 舊版範例在 `defineChannelPluginEntry` 中直接寫 `manifest`、`connect()`、`onMessage()`、`sendMessage()`；實際的 entry 只接受 `id`、`name`、`description`、`plugin`（與選用的 `registerCliMetadata`、`registerFull`），頻道行為由 `plugin` 物件提供。詳見官方 [Channel plugins](https://docs.openclaw.ai/plugins/sdk-channel-plugins)。
 
 > **相關文件**: [Plugin SDK Overview](https://docs.openclaw.ai/plugins/sdk-overview) · [Building Plugins](https://docs.openclaw.ai/plugins/building-plugins) · [Plugin Inventory](https://docs.openclaw.ai/plugins/plugin-inventory) · [Plugin SDK Migration](https://docs.openclaw.ai/plugins/sdk-migration)。既有插件開發者建議啟用 `@typescript-eslint/no-deprecated` 之類的型別感知 Lint 規則，及早攔截已標記 `@deprecated` 的舊版 SDK 介面呼叫。
 >
@@ -1695,171 +1816,129 @@ export default defineChannelPluginEntry({
 
 ### 2.9 高可用架構設計
 
-#### 單機高可用
+設計 OpenClaw 的高可用（HA）之前，必須先接受一個官方架構事實：**一個 state 目錄在任一時刻只能有一個 Gateway 擁有者**。Gateway 啟動時會依序取得三層鎖——①以共享 state 資料庫路徑為鍵的**行程擁有者鎖**、②給舊版辨識用的相容性投影、③HTTP／WebSocket 監聽埠的**獨占 bind**（預設 `ws://127.0.0.1:18789`）。第二個想接手同一份 state 的行程會等待（最長 5 分鐘）或失敗，**不存在「多個 Gateway 共用同一份 Session Store」的官方模式**。
+
+因此，OpenClaw 的 HA 不是「Active-Active 叢集」，而是以下四個層次的組合：
+
+| 層次 | 目標 | 官方機制 | 本手冊章節 |
+| --- | --- | --- | --- |
+| **行程韌性** | 當機或重開機後自動回來 | launchd／systemd／Windows 排程工作管理的 Gateway 服務；崩潰迴圈斷路器；重啟後恢復未完成回覆 | 3.2、6.11 |
+| **資料保護** | 主機毀損時資料不遺失 | `openclaw backup`（完整 archive、per-database SQLite snapshot、Git 備份）、排程異地備份、Litestream 持續複寫 | 6.7、6.12 |
+| **救援通道** | 主 Gateway 壞掉時仍能修 | 以獨立 `--profile` 與獨立埠執行 **Rescue Gateway**（獨立 bot token） | 本節 |
+| **運算擴展** | 長任務、重負載不拖垮 Gateway | **Cloud Workers** 與 **Paired Devices**：Gateway 保留逐字稿、工作區與憑證，執行移到其他機器 | 第十二章 |
+
+#### 單機高可用（建議的生產基線）
 
 ```mermaid
 graph TB
-    subgraph "系統服務管理"
-        SYSTEMD[systemd / launchd]
+    subgraph "Gateway 主機"
+        SVC["服務管理器<br/>systemd user service / launchd / schtasks"]
+        GW["OpenClaw Gateway<br/>(唯一 state 擁有者)"]
+        DB[("state/openclaw.sqlite<br/>+ 各 Agent 資料庫")]
+        SVC -->|自動重啟 / 斷路器| GW
+        GW --> DB
     end
-    
-    subgraph "OpenClaw Instance"
-        GW[Gateway Daemon]
-        WATCHDOG[Watchdog]
-    end
-    
-    subgraph "健康檢查"
-        HC[healthz endpoint]
-        RC[readyz endpoint]
-    end
-    
-    SYSTEMD -->|自動重啟| GW
-    GW --> WATCHDOG
-    WATCHDOG --> HC
-    WATCHDOG --> RC
-    WATCHDOG -->|異常偵測| SYSTEMD
+    DB -->|Litestream 持續複寫| OBJ[("物件儲存<br/>S3 / R2")]
+    GW -->|排程 archive<br/>openclaw backup enable| OFF[("異地備份<br/>NAS / R2")]
+    MON["監控<br/>/healthz、OTel、Prometheus"] -.-> GW
 ```
 
-#### 多節點高可用（企業自建擴展模式）
+#### Rescue Gateway（救援 Bot）
 
-> **重要說明**：OpenClaw 官方 Gateway 本身是**單一操作者、單一行程**的設計，並未內建跨節點叢集、共享 Session Store 或負載平衡機制。以下多節點拓撲是企業將 OpenClaw 視為基礎設施元件時，**自行透過標準 DevOps 工具（負載平衡器、外部資料庫）疊加建置**的高可用模式，而非 OpenClaw 原生支援的叢集功能。實作前務必評估 Session 親和性（同一使用者的多輪對話需路由到同一 Gateway 行程，或自行實作跨行程狀態同步），避免破壞對話上下文一致性。
+官方建議的冗餘方式是在同一台主機以**獨立 profile** 跑第二個 Gateway：它有自己的組態、state、工作區、服務名稱與 bot token，主 Gateway 故障時仍可透過它診斷或修改組態。
 
-```mermaid
-graph TB
-    subgraph "負載平衡"
-        LB[Load Balancer<br>Nginx / HAProxy]
-    end
-    
-    subgraph "Gateway 叢集"
-        GW1[Gateway Node 1]
-        GW2[Gateway Node 2]
-        GW3[Gateway Node 3]
-    end
-    
-    subgraph "共享狀態"
-        REDIS[Redis<br>Session Store]
-        PG[PostgreSQL<br>持久化儲存]
-    end
-    
-    subgraph "外部服務"
-        LLM[LLM Providers]
-        CHANNELS[通訊頻道]
-    end
-    
-    LB --> GW1 & GW2 & GW3
-    GW1 & GW2 & GW3 --> REDIS
-    GW1 & GW2 & GW3 --> PG
-    GW1 & GW2 & GW3 --> LLM
-    CHANNELS --> LB
+```bash
+# 主 Gateway 使用預設 profile（埠 18789）
+# 救援 Gateway：獨立 profile、獨立 Telegram bot、埠至少相差 120（衍生埠會用到 base+110）
+openclaw --profile rescue onboard
+openclaw --profile rescue gateway install --port 19789
+openclaw --profile rescue gateway status --deep
 ```
+
+#### 冷備援（Warm/Cold Standby）
+
+若業務要求主機層級的備援，正確做法是「**備援主機待命、資料持續複寫、故障時切換擁有權**」，而不是兩台同時對外：
+
+1. 主機以 Litestream 或排程 `openclaw backup create --to offsite` 持續輸出狀態。
+2. 備援主機預先安裝**相同版本**的 OpenClaw，但**不啟動** Gateway 服務。
+3. 故障切換時：確認主機已停止（避免兩個擁有者）→ 在備援主機還原至**全新** state 目錄 → `openclaw doctor` → 啟動服務 → 切換 DNS／Cloudflare Tunnel。
+
+> ❌ **錯誤的 HA 設計（常見於 AI 產出的架構圖）**：負載平衡器後面放多個 Gateway，共用 Redis Session Store 或共用 PostgreSQL。OpenClaw **沒有** Redis Session Store，PostgreSQL 引擎目前也只支援 Workboard（見 2.12）；多個行程搶同一份 state 會被 Gateway Lock 拒絕，或在繞過鎖時造成資料毀損。**看到這類圖，應直接退回。**
+>
+> ✅ **需要水平擴展時的正確方向**：依信任邊界、團隊或環境切分成**多個獨立 Gateway**（各自擁有 state），把重運算交給 Cloud Workers。
+
+#### 如何驗證 HA 設計
+
+| 檢查 | 指令／方法 | 預期 |
+| --- | --- | --- |
+| 單一擁有者 | 在同一 state 目錄再啟動一個 Gateway | 等待或明確拒絕，不會兩者同時服務 |
+| 服務自動重啟 | `kill -9 <gateway pid>` 後觀察 | 服務管理器在數秒內重啟，`openclaw gateway status --deep` 正常 |
+| 備份可還原 | `openclaw backup verify --from offsite --namespace gateway latest` | 驗證通過 |
+| 救援通道可用 | 停止主 Gateway 後，從救援 bot 執行 `openclaw status` | 救援 Gateway 正常回應 |
 
 ### 2.10 企業部署拓撲
 
-#### 小型團隊（1-10 人）
+拓撲的切分依據是**信任邊界**，而不是使用者人數。官方明確聲明：一個 Gateway 就是一個信任域，角色與 Session 擁有權用來支援協作，**不能**隔離彼此不信任的使用者；互不信任的團隊必須使用不同的 Gateway、OS 使用者或主機。
+
+#### 小型團隊（單一信任域，1–10 人）
 
 ```mermaid
 graph LR
-    subgraph "單機部署"
-        GW[OpenClaw Gateway]
-        DOCKER[Docker Container]
-    end
-    
-    SLACK[Slack] --> GW
-    TG[Telegram] --> GW
-    GW --> DOCKER
+    U[團隊成員] -->|HTTPS| CF["Cloudflare Access<br/>+ Tunnel"]
+    CF -->|loopback| GW["Team Gateway<br/>(trusted-proxy 驗證)"]
+    SLACK[Slack / Telegram] --> GW
+    GW --> SBX["Docker 沙箱<br/>(非 main session)"]
+    GW -.->|排程備份| OFF[("R2 / NAS")]
 ```
 
-**建議配置**:
-
 | 資源 | 規格 |
-|------|------|
-| CPU | 2 cores |
-| RAM | 4 GB |
-| 儲存 | 20 GB SSD |
-| 網路 | 10 Mbps |
+| --- | --- |
+| CPU | 2–4 cores |
+| RAM | 4–8 GB（大量 Agent 或本地模型另計） |
+| 儲存 | 20–50 GB SSD（逐字稿與附件會持續成長） |
+| 網路 | 只需對外連線；**不要對外開放 18789**，由 Tunnel 建立出站連線 |
 
-#### 中型團隊（10-100 人）
+#### 中型組織（多個信任域，10–100 人）
 
 ```mermaid
 graph TB
-    subgraph "DMZ"
-        LB[Nginx Reverse Proxy]
+    subgraph "身分與入口"
+        IDP[企業 IdP] --> ACC["Cloudflare Access / 反向代理<br/>(驗證後注入使用者標頭)"]
     end
-    
-    subgraph "Application Zone"
-        GW1[Gateway 1]
-        GW2[Gateway 2]
+    subgraph "協作 Gateway（研發部）"
+        GWA["team-rd.example.com<br/>Gateway A"]
     end
-    
-    subgraph "Data Zone"
-        REDIS[Redis Sentinel]
-        PG[PostgreSQL HA]
+    subgraph "協作 Gateway（業務部）"
+        GWB["team-sales.example.com<br/>Gateway B"]
     end
-    
-    subgraph "Monitoring"
-        OTEL[OpenTelemetry Collector]
-        GRF[Grafana]
-        PROM[Prometheus]
+    subgraph "發布 Gateway"
+        GWR["release.example.com<br/>Gateway R（獨立憑證與更新時程）"]
     end
-    
-    LB --> GW1 & GW2
-    GW1 & GW2 --> REDIS & PG
-    GW1 & GW2 --> OTEL
-    OTEL --> PROM --> GRF
+    subgraph "執行層"
+        CW["Cloud Workers<br/>(臨時機器)"]
+        PD["Paired Devices<br/>(開發者筆電)"]
+    end
+    subgraph "可觀測性"
+        OTEL[OTel Collector] --> PROM[Prometheus] --> GRF[Grafana]
+    end
+    ACC --> GWA & GWB & GWR
+    GWA & GWB --> CW
+    GWA --> PD
+    GWA & GWB & GWR --> OTEL
 ```
 
-**建議配置（每節點）**:
-
-| 資源 | 規格 |
-|------|------|
-| CPU | 4 cores |
-| RAM | 8 GB |
-| 儲存 | 50 GB SSD |
-| 網路 | 100 Mbps |
-| 節點數 | 2-3 |
+**每個 Gateway 的建議配置**：4 cores／8 GB RAM／50 GB SSD。Gateway 之間**不共享 state**，跨部門的唯讀分享可使用官方的「從另一個 Gateway 唯讀分享」功能（見 11.7）。
 
 #### 大型企業（100+ 人）
 
-```mermaid
-graph TB
-    subgraph "Edge Layer"
-        CDN[CDN / WAF]
-        LB[Global Load Balancer]
-    end
-    
-    subgraph "Region A"
-        GW_A1[Gateway A-1]
-        GW_A2[Gateway A-2]
-        GW_A3[Gateway A-3]
-        REDIS_A[Redis Cluster]
-        PG_A[PostgreSQL Primary]
-    end
-    
-    subgraph "Region B"
-        GW_B1[Gateway B-1]
-        GW_B2[Gateway B-2]
-        GW_B3[Gateway B-3]
-        REDIS_B[Redis Cluster]
-        PG_B[PostgreSQL Replica]
-    end
-    
-    subgraph "Central Monitoring"
-        OTEL[OTEL Collector]
-        GRF[Grafana]
-        ES[Elasticsearch]
-        ALERT[AlertManager]
-    end
-    
-    CDN --> LB
-    LB --> GW_A1 & GW_A2 & GW_A3
-    LB --> GW_B1 & GW_B2 & GW_B3
-    GW_A1 & GW_A2 & GW_A3 --> REDIS_A & PG_A
-    GW_B1 & GW_B2 & GW_B3 --> REDIS_B & PG_B
-    PG_A -->|複寫| PG_B
-    
-    GW_A1 & GW_B1 --> OTEL
-    OTEL --> GRF & ES & ALERT
-```
+規模再擴大時，仍沿用「**多個獨立 Gateway + 共用執行與觀測平台**」的模式：
+
+- **每個信任域一個 Gateway**（依事業單位、資料分級或法遵區域切分），各自擁有 state、備份與更新節奏。
+- **跨區域**：以「主機 + 冷備援」方式部署於各區（見 2.9），而不是跨區共用資料庫。
+- **共用平台服務**：IdP、反向代理／WAF、OTel Collector、集中日誌、物件儲存（備份）、Cloud Worker 機池。
+- **治理**：以 IaC 管理每個 Gateway 的組態（`openclaw config validate --json` 納入 CI），版本統一走 Extended-Stable 或經驗證的 stable（見 3.12、8.1）。
+
+> ⚠️ **規格數字只是起點**。Gateway 的資源用量主要來自同時執行的 Agent 回合數、逐字稿大小、瀏覽器與本地模型；請以 `openclaw gateway usage-cost`、OTel 指標與 `openclaw status` 的實測值調整（見 6.8 容量規劃）。
 
 ### 2.11 Session 儲存架構：SQLite 遷移
 
@@ -1925,311 +2004,311 @@ graph TB
 
 > **資料安全強化**：2.0 針對 SQLite 後端做了大量健全性修補，包含防止 WAL split-brain 清理損毀資料庫，以及將「已證實損毀」的判定隔離處理。即便如此，**SQLite 檔案本身並未加密**，其機密性仍取決於狀態目錄的檔案系統權限（與 Secret Store 相同的前提，見 3.11）。
 
+### 2.12 儲存引擎與 State 擁有權
+
+2.0 把 Session 與 Transcript 移到 SQLite（見 2.11）之後，OpenClaw 的持久化狀態可以整理成下表。企業在規劃備份、稽核與資料保存時，應以此表為準：
+
+| 儲存 | 位置（預設） | 引擎 | 備註 |
+| --- | --- | --- | --- |
+| 共享狀態（使用者、技能庫中繼資料、Automations 等） | `<state-dir>/state/openclaw.sqlite` | SQLite | Gateway Lock 以此路徑為擁有權鍵 |
+| 各 Agent 資料庫（Session、逐字稿、記憶索引） | `<state-dir>/agents/<agentId>/...` | SQLite | 每個 Agent 獨立 |
+| Workboard | 依引擎而定 | SQLite（預設）或 **PostgreSQL（實驗性）** | 目前**唯一**支援 PostgreSQL 的儲存 |
+| 技能庫不可變 bundle | `<state-dir>/skill-library/<id>/revisions/<hash>/` | 檔案 | 不要手動修改 |
+| Incognito 對話 | 記憶體 | — | 永不落地 |
+| 組態 | `~/.openclaw/openclaw.json`（可用 `OPENCLAW_CONFIG_PATH` 覆寫） | JSON5 檔 | 支援 includes |
+
+#### 實驗性 PostgreSQL 引擎
+
+```json5
+// openclaw.json：Workboard 改存 PostgreSQL（需 PostgreSQL 16+、UTF8 編碼）
+{
+  database: {
+    engine: "postgres",
+    postgres: {
+      // DSN 是憑證：只能用 env／file／exec SecretRef，不可用 store 型 SecretRef
+      connection: { source: "env", provider: "default", id: "OPENCLAW_DATABASE_DSN" },
+      schemaPrefix: "openclaw",
+    },
+  },
+}
+```
+
+```bash
+# 只改 engine 不會搬移既有資料：先停 Gateway，再以 port 指令搬移
+openclaw gateway stop
+openclaw database port --to postgres --dry-run   # 唯讀檢查前置條件
+openclaw database port --to postgres             # 實際搬移，原始資料保留於 <stateDir>/recovery/database-port/
+openclaw gateway start
+openclaw doctor                                  # 顯示每個儲存實際使用的引擎
+```
+
+> ⚠️ **企業評估重點**：
+>
+> 1. PostgreSQL 引擎目前標示為 **experimental**，且**只涵蓋 Workboard**；共享狀態、Agent／Session 儲存與安全日誌仍在 SQLite。**它不是多 Gateway 共用狀態的方案**。
+> 2. 支援的儲存在 PostgreSQL 連線失敗時**不會靜默退回 SQLite**——這是正確的失敗模式，但代表資料庫中斷會直接影響 Workboard。
+> 3. 備份必須同時涵蓋 PostgreSQL schema 與對應的 SQLite anchor（`openclaw backup` 會處理；自行用 `pg_dump` 時不要遺漏 anchor）。
+
+#### 儲存引擎的驗證方式
+
+```bash
+openclaw config validate --json   # database.* 鍵與 SecretRef 型別
+openclaw doctor                   # 每個儲存的實際引擎；PostgreSQL 會出現 experimental 警告
+openclaw database preflight       # 資料庫相容性與擁有權檢查
+```
+
+### 2.13 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 架構圖沒有多 Gateway 共用 state | 人工審查架構圖 | 無 Redis Session Store、無多實例共用 PostgreSQL |
+| 2 | 模型參考格式正確 | `openclaw config validate --json` | `agents.defaults.model.primary` 為 `provider/model`；`modelPolicy` 萬用字元只用 `provider/*` |
+| 3 | 備援鏈可用 | `openclaw models status`、`openclaw models fallbacks list` | primary 與 fallbacks 皆有可用認證 |
+| 4 | PostgreSQL 僅用於 Workboard 且標示實驗性 | `openclaw doctor` | 顯示各儲存的實際引擎與 experimental 警告 |
+| 5 | 救援通道存在 | `openclaw --profile rescue gateway status --deep` | 救援 Gateway 運作，埠至少相差 120 |
+
 ---
 
 ## 第三章：安裝與環境建置
 
 ### 3.1 系統需求
 
-#### 最低需求
+#### Node.js 支援政策（v2026.11.1）
+
+`package.json` 的 engines 精確表達式為 **`>=24.16.0 <25 || >=26.1.0`**：
+
+| Node 版本線 | 狀態 | 最低版本 | 說明 |
+| --- | --- | --- | --- |
+| **Node 26** | **建議** | `>=26.1.0`（強烈建議 **26.12.1+**） | Gateway 啟動較快、記憶體較省；macOS 安裝器預設提供 |
+| **Node 24** | 支援（LTS） | `>=24.16.0 <25`（強烈建議 **24.22.1+**） | CI 與 Linux 安裝器使用的版本線；Docker 映像內建 24.22.1 |
+| Node 25 | **不支援** | — | 被 `node:sqlite` TEXT 解碼器的版本下限排除 |
+| Node 22／23 | **不支援** | — | 自 v2026.9.3 起移除 |
+
+**為什麼有這些下限**（審查升級計畫時要能說明理由）：
+
+1. **SQLite WAL-reset 毀損問題**：實際載入的 SQLite 必須是 3.51.3+（或 3.50.7+／3.44.6+ 對應分支）。OpenClaw 會檢查**實際載入的函式庫**，因為部分 Node 建置連結到系統 SQLite。
+2. **`node:sqlite` TEXT 解碼器截斷**：Node 22.23.x、24.15.0、25.9.0、26.0.0 會在內嵌 NUL 字元處靜默截斷資料。
+3. **安全建議版本（24.22.1／26.12.1）**：會拒絕 2026 年 10 月 eMudhra 事件中外洩的憑證公鑰。v2026.10.6 一度把它列為硬性需求，10.10 起改為「強烈建議」；低於建議版本時 `openclaw update` 會顯示醒目警告但仍繼續。
+
+> **Bun**：可作為明確 opt-in 的執行環境，需 **Bun 1.4.4+**（WAL-reset-safe `node:sqlite`）。Node 仍是主要且建議的 runtime。
+
+#### 作業系統與平台
 
 | 項目 | 需求 |
-|------|------|
-| **作業系統** | macOS 13+、Linux（Ubuntu 22.04+、Debian 12+）、Windows 11+ (WSL2，強烈建議) |
-| **Node.js** | `>=22.22.3 <23`、`>=24.15.0 <25` 或 `>=25.9.0`（package.json engines 精確版本區間；建議採用 Node 24.15+ LTS） |
-| **記憶體** | 2 GB RAM |
-| **磁碟空間** | 500 MB（不含 LLM 模型） |
-| **網路** | 穩定的網際網路連線（用於 LLM API 呼叫） |
+| --- | --- |
+| **macOS** | Node 24+ 官方二進位支援 macOS 13.5+；**macOS 桌面 App、iOS App 與 Safari（Control UI）自 v2026.10.10 起需 26.2 以上** |
+| **Linux** | x86-64 或 64-bit ARM（**沒有 ARMv7 官方 Node 建置**）；RPM 系發行版的安裝器會為 OpenClaw 另外佈建使用者空間 runtime，避開不安全的系統 SQLite |
+| **Windows** | 建議使用原生 **Windows Hub** 桌面 App，或 PowerShell CLI 安裝器；也可採 WSL2 Gateway |
+| **FreeBSD** | 支援 CLI 安裝（自 v2026.9.5） |
 
-#### 建議需求（生產環境）
+#### 硬體建議
 
-| 項目 | 需求 |
-|------|------|
-| **作業系統** | Linux（Ubuntu 24.04 LTS） |
-| **Node.js** | Node 24（建議）或 22.19+ LTS |
-| **Docker** | 24.0+ |
-| **記憶體** | 8 GB RAM |
-| **磁碟空間** | 50 GB SSD |
-| **CPU** | 4 cores |
+| 項目 | 個人／PoC | 團隊生產環境（單一 Gateway） |
+| --- | --- | --- |
+| CPU | 2 cores | 4 cores |
+| 記憶體 | 2–4 GB | 8 GB（本地模型另計） |
+| 磁碟 | 5 GB | 50 GB SSD（逐字稿、附件、備份暫存會持續成長） |
+| 容器 | — | Docker 24+ 或 rootless Podman（沙箱需要） |
+
+#### 系統需求的驗證方式
+
+```bash
+node --version                 # 應為 v24.22.1+ 或 v26.12.1+
+openclaw --version             # OpenClaw 2026.11.1 (4ffdd20)
+openclaw doctor                # 會檢查實際載入的 SQLite 與 node:sqlite 行為
+```
 
 ### 3.2 本地開發安裝
 
-自 v2026.8.1 起，**官方安裝器是建議的首選路徑**；npm／pnpm 全域安裝則保留給需要自行掌控套件管理器的情境。
+官方提供三種起點，依使用者類型選擇：
+
+| 路徑 | 適用對象 | 特點 |
+| --- | --- | --- |
+| **桌面 App** | 非工程背景使用者、Windows 使用者 | Windows Hub（簽章安裝檔，含系統匣、聊天、node 模式）、macOS 選單列 App（`.dmg`）、Linux `.deb`／AppImage；首次設定即可佈建本機 Gateway 或連線遠端 Gateway |
+| **安裝器腳本（推薦）** | 一般 CLI 使用者 | 自動偵測 OS、必要時安裝 Node、安裝 OpenClaw 並啟動 onboarding |
+| **npm／pnpm／bun** | 自行管理 Node 的團隊、CI | 完全掌控套件管理器與版本釘選 |
 
 #### 路徑一：官方安裝器（推薦）
-
-安裝器會自動處理 Node.js 與相依套件，並在 2.0 中強化了幾項安裝後的可用性：
 
 ```bash
 # macOS / Linux / WSL2
 curl -fsSL https://openclaw.ai/install.sh | bash
 
-# Windows (PowerShell)
+# 不立即執行 onboarding
+curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
+```
+
+```powershell
+# Windows PowerShell
 iwr -useb https://openclaw.ai/install.ps1 | iex
 ```
 
-v2026.8.1 的安裝器改善重點：
-
-- **macOS**：從「下載」資料夾或磁碟映像開啟的 App 會主動詢問是否移入「應用程式」資料夾——只有位於該處，更新與登入時啟動才能正常運作。
-- **Linux 與其他 Unix**：安裝器會讓 `openclaw` 在**新開的終端機工作階段中直接可用**，不再要求你手動編輯 shell 啟動檔。
-- **安全預設**：會**在變更任何東西之前擋下**「將 OpenClaw 暴露於網路且未設認證」的安裝方式。
-- **重裝保護**：若準備階段被取消或失敗，既有的可用設定會被保留；安裝器也會給 OpenClaw 足夠的啟動時間，再回報是否可連線。
-
-> **Windows 使用者**: 若不使用原生 Windows 建置，仍強烈建議採用 WSL2 環境。
-
-#### 路徑二：npm / pnpm 全域安裝
-
-##### 步驟一：確認 Node.js 版本
+若希望 OpenClaw 與 Node 都放在使用者自己的前綴目錄（不依賴系統 Node），可改用 `install-cli.sh`：
 
 ```bash
-# 確認 Node.js 版本（需落在 22.22.3-22.x / 24.15.0-24.x / 25.9.0+ 區間，建議 Node 24 LTS）
+curl -fsSL https://openclaw.ai/install-cli.sh | bash
+```
+
+> **企業環境提醒**：`curl | bash` 會直接執行遠端腳本。受控環境應先下載腳本、比對雜湊並經內部審查，或改用下方的 npm 路徑搭配內部套件鏡像與版本釘選（見 8.11 發布物驗證）。
+
+#### 路徑二：npm／pnpm 全域安裝
+
+```bash
+# 1. 確認 Node 版本：>=24.16.0 <25 或 >=26.1.0（建議 24.22.1+／26.12.1+）
 node --version
-# v24.15.x
 
-# 如果版本不足，使用 nvm 升級
-nvm install 24
-nvm use 24
-```
+# 2. 安裝（npm 12 或 npm 11.16+ 需明確允許 OpenClaw 的安裝腳本）
+npm install -g openclaw@2026.11.1 --allow-scripts=openclaw
 
-##### 步驟二：全域安裝 OpenClaw
-
-```bash
-# 使用 npm 全域安裝（2.0 起需明確允許安裝腳本）
-npm install -g openclaw@latest --allow-scripts=openclaw
-
-# 或使用 pnpm
-pnpm add -g openclaw@latest
-
-# 驗證安裝
-openclaw --version
-# openclaw 2026.8.1
-```
-
-> **`--allow-scripts=openclaw` 的意義**：新版 npm 預設封鎖套件的安裝腳本。OpenClaw 需要安裝腳本完成執行檔佈署，故須以此旗標明確授權。這是「預設安全、明確授權」的設計，而非可省略的樣板參數。
->
-> ⚠️ **一條需要手動修復的升級路徑**：若你目前在 **OpenClaw 2026.7.1 且使用 pnpm 11**，請手動執行一次：
->
-> ```bash
-> pnpm add -g openclaw@latest
-> ```
->
-> 另請注意 **OpenClaw 不會替你升級 Node.js**，Node 版本需自行確認符合上述區間。
-
-#### 步驟三：使用 Onboard 精靈初始化
-
-```bash
-# 使用 OpenClaw Onboard 互動式引導設定（推薦方式）
+# 3. 初始化並安裝 Gateway 服務（launchd / systemd user service / Windows 排程工作）
 openclaw onboard --install-daemon
 
-# Onboard 會引導你完成以下設定：
-# 1. 設定 LLM 提供者與 API Key
-# 2. 選擇要啟用的通訊頻道
-# 3. 安裝 Gateway Daemon（launchd/systemd 用戶服務）
-# 4. 設定工作區與技能
+# 4. 驗證
+openclaw --version
+openclaw gateway status --deep
 ```
 
-> **提示**: `openclaw onboard` 是官方推薦的設定方式，適用於 macOS、Linux 和 Windows（WSL2）。支援 npm、pnpm 或 bun。
+| npm 版本 | `--allow-scripts=openclaw` 的行為 |
+| --- | --- |
+| npm 12 | **必須**：預設封鎖未核准的 lifecycle scripts，未加旗標會出現 `blocked because they are not covered by allowScripts` |
+| npm 11.16 | 接受此旗標；未加時只警告 `not yet covered by allowScripts`，腳本仍會執行 |
+| npm 11.15 以前 | **不可加**：沒有這個選項，指令須去掉旗標 |
 
-#### 步驟四：啟動 Gateway
+> ⚠️ npm 11.16 提示的 `npm approve-scripts openclaw` 對**全域安裝無效**（會出現 `ENOMATCH`），請改用上表的旗標。另外 **OpenClaw 不會替你升級 Node**。
+
+#### Quick-start 與 Custom setup（v2026.9.1 起）
+
+全新安裝（包含 `npx openclaw@latest`）會先進入 **quick-start**：偵測本機既有的 Claude Code 或 Codex 登入與 API Key，**即時驗證**後從前景 Gateway 開啟 Web Dashboard。需要逐項設定時選 **Custom setup**，可走完完整精靈（Provider 登入、頻道、Gateway、工作區、技能）。
 
 ```bash
-# 若已使用 onboard --install-daemon，Gateway 會自動以系統服務形式執行
-
-# 手動啟動 Gateway（除錯用）
-openclaw gateway --port 18789 --verbose
-
-# 打開 Control UI 儀表板
-openclaw dashboard
-# 預設開啟 http://127.0.0.1:18789
-
-# 查看運行狀態
-openclaw status
-
-# 檢視日誌
-openclaw logs
+openclaw onboard                 # 引導式設定（quick-start 或 Custom setup）
+openclaw setup --baseline        # 只建立基準組態、工作區與 session 目錄
+openclaw configure               # 之後再調整模型、Gateway、頻道、插件、技能
 ```
 
-#### 步驟五：驗證安裝
+#### 啟動與日常操作
 
 ```bash
-# 執行健康檢查與診斷
-openclaw doctor
-
-# doctor 會檢查：
-# ✅ Gateway 運行狀態
-# ✅ 頻道連線狀態
-# ✅ Skill 載入狀態
-# ✅ DM Policy 安全檢查
-# ✅ 組態相容性與遷移建議
+openclaw gateway status --deep         # 服務狀態（含額外服務掃描）
+openclaw gateway restart               # 透過服務管理器重啟
+openclaw gateway run --port 18789 --verbose   # 前景執行（除錯用）
+openclaw dashboard                     # 以目前 token 開啟 Control UI（預設 http://127.0.0.1:18789）
+openclaw status                        # 頻道健康與最近對象
+openclaw logs --follow                 # 透過 RPC 追蹤 Gateway 檔案日誌
 ```
+
+#### 驗證安裝
+
+```bash
+openclaw doctor          # 組態、本機探索與遷移建議（2.0 起聚焦「壞了什麼、下一步」）
+openclaw health          # 執行中 Gateway 的健康狀態
+openclaw security audit  # 常見的安全誤設定
+```
+
+> **安裝出問題時**：`openclaw triage` 會收集**經過消毒**的診斷資訊，並可交給本機偵測到的 coding agent（Claude Code、Codex CLI 或內建 Agent）協助修復。
 
 ### 3.3 Docker Compose 部署
 
-#### 基本 Docker Compose 設定
+官方映像同時發布到 **GHCR（主要來源，供釘選與 provenance 驗證）** 與 Docker Hub 鏡像：
 
-建立 `docker-compose.yml`：
+| 映像 | 說明 |
+| --- | --- |
+| `ghcr.io/openclaw/openclaw:<版本>` | 建議生產環境**釘選確切版本**，例如 `2026.11.1` |
+| `ghcr.io/openclaw/openclaw:extended-stable` | Extended-Stable（LTS）月線，僅 Gateway |
+| `-slim` 變體 | 較小映像；`-browser` 變體內建 Chromium（給 Gateway 控制的瀏覽器使用） |
+| `openclaw/openclaw:<版本>` | Docker Hub 鏡像；請勿使用非官方鏡像 |
 
-```yaml
-# docker-compose.yml
-# OpenClaw Docker Compose 部署設定
-version: "3.9"
+預設映像內建 `codex` 與 `diagnostics-otel` 插件。容器內以 `node` 使用者執行，**state 目錄為 `/home/node/.openclaw`**（不是 `/root/.openclaw`）。
 
-services:
-  openclaw:
-    image: openclaw/openclaw:latest
-    container_name: openclaw-gateway
-    restart: unless-stopped
-    ports:
-      - "18789:18789"        # WebSocket 控制平面
-    volumes:
-      - ./config:/root/.openclaw    # 組態掛載
-      - openclaw-data:/data         # 持久化資料
-      - openclaw-logs:/logs         # 日誌輸出
-    environment:
-      - NODE_ENV=production
-      - OPENCLAW_LOG_LEVEL=info
-      # API Keys（建議使用 Docker Secrets）
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-    healthcheck:
-      test: ["CMD", "openclaw", "health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    deploy:
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 4G
-        reservations:
-          cpus: "1.0"
-          memory: 2G
-
-volumes:
-  openclaw-data:
-  openclaw-logs:
-```
-
-#### 啟動 Docker 容器
+#### 建議做法：官方 setup 腳本
 
 ```bash
-# 建立設定目錄
-mkdir -p config
-
-# 複製組態檔
-cp openclaw.json config/
-
-# 啟動容器
-docker compose up -d
-
-# 查看日誌
-docker compose logs -f openclaw
-
-# 查看健康狀態
-docker compose ps
+git clone https://github.com/openclaw/openclaw.git && cd openclaw
+export OPENCLAW_IMAGE="ghcr.io/openclaw/openclaw:2026.11.1"
+./scripts/docker/setup.sh          # 同步 .env、修正權限、onboarding、啟動 Compose
 ```
 
-#### 進階 Docker Compose（含監控）
+#### 最小可用的 docker-compose.yml（依官方 Compose 精簡）
 
 ```yaml
-# docker-compose.production.yml
-version: "3.9"
-
+# docker-compose.yml — 以官方 compose 為基礎精簡，保留安全相關設定
 services:
-  openclaw:
-    image: openclaw/openclaw:2026.7.1
-    container_name: openclaw-gateway
+  openclaw-gateway:
+    image: ${OPENCLAW_IMAGE:-ghcr.io/openclaw/openclaw:2026.11.1}
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      HOME: /home/node
+      OPENCLAW_HOME: /home/node
+      # 固定容器內路徑，避免主機路徑經由 .env 滲入容器
+      OPENCLAW_STATE_DIR: /home/node/.openclaw
+      OPENCLAW_CONFIG_PATH: /home/node/.openclaw/openclaw.json
+      OPENCLAW_WORKSPACE_DIR: /home/node/.openclaw/workspace
+      OPENCLAW_GATEWAY_PORT: "18789"
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN:-}
+      # OTel 為 Gateway 主動外送（OTLP/HTTP），不需要對外開埠
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      TZ: ${OPENCLAW_TZ:-Asia/Taipei}
+    volumes:
+      - "${OPENCLAW_CONFIG_DIR:-./data/openclaw}:/home/node/.openclaw"
+      - "${OPENCLAW_WORKSPACE_DIR:-./data/openclaw/workspace}:/home/node/.openclaw/workspace"
+    cap_drop:
+      - NET_RAW
+      - NET_ADMIN
+    security_opt:
+      - no-new-privileges:true
+    init: true
     restart: unless-stopped
     ports:
-      - "18789:18789"
-    volumes:
-      - ./config:/root/.openclaw
-      - openclaw-data:/data
-      - openclaw-logs:/logs
-    environment:
-      - NODE_ENV=production
-      - OPENCLAW_LOG_LEVEL=info
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
-      - OTEL_SERVICE_NAME=openclaw-gateway
+      # 只綁本機；對外請透過反向代理或 Cloudflare Tunnel（見 11.7）
+      - "127.0.0.1:${OPENCLAW_GATEWAY_PORT:-18789}:18789"
+    command: ["node", "dist/index.js", "gateway", "--bind", "lan", "--port", "18789"]
     healthcheck:
-      test: ["CMD", "openclaw", "health"]
+      test: ["CMD", "node", "dist/docker-healthcheck.js"]
       interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      - openclaw-network
-    depends_on:
-      - redis
-      - otel-collector
-
-  redis:
-    image: redis:7-alpine
-    container_name: openclaw-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD}"
-    networks:
-      - openclaw-network
-
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
-    container_name: openclaw-otel
-    restart: unless-stopped
-    ports:
-      - "4318:4318"     # OTLP HTTP
-      - "8889:8889"     # Prometheus exporter
-    volumes:
-      - ./otel-config.yaml:/etc/otelcol/config.yaml
-    networks:
-      - openclaw-network
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: openclaw-prometheus
-    restart: unless-stopped
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    networks:
-      - openclaw-network
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: openclaw-grafana
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana-data:/var/lib/grafana
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
-    networks:
-      - openclaw-network
-
-volumes:
-  openclaw-data:
-  openclaw-logs:
-  redis-data:
-  prometheus-data:
-  grafana-data:
-
-networks:
-  openclaw-network:
-    driver: bridge
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 ```
+
+> **為何容器內要 `--bind lan`、主機端卻只綁 `127.0.0.1`？** 容器網路中 Gateway 必須監聽容器介面才能被 port mapping 轉發；真正的暴露面由主機端 `127.0.0.1:` 前綴控制。若直接寫 `"18789:18789"`，Gateway 會暴露在主機所有網卡上。
+
+#### 容器的啟動與日常操作
+
+```bash
+docker compose up -d
+docker compose ps                                  # healthcheck 應為 healthy
+docker compose logs -f openclaw-gateway
+docker compose exec openclaw-gateway node dist/index.js --version
+docker compose exec openclaw-gateway node dist/index.js doctor
+```
+
+#### 升級容器
+
+容器的升級方式是**換映像、重建容器並沿用同一組 state／config 掛載**；容器內的 `openclaw update` 會回報 skipped（偵測不到套件管理器擁有者）。官方容器 entrypoint 會在啟動前自動執行必要的 Doctor 修復；自訂 entrypoint 則須自行加入 `openclaw doctor --fix`。
+
+```bash
+openclaw backup create --verify                   # 在容器內或主機端先備份
+export OPENCLAW_IMAGE="ghcr.io/openclaw/openclaw:2026.11.1"
+docker compose pull && docker compose up -d
+```
+
+#### 監控元件
+
+OTel Collector、Prometheus、Grafana 應作為**獨立的平台服務**部署（見第六章）。注意兩點：
+
+- Prometheus 指標走 Gateway 既有的**已驗證路由**，不需要額外開埠。
+- **不需要 Redis**——OpenClaw 沒有 Redis Session Store（見 2.9）。舊版手冊與網路範例中的 `redis` 服務應移除。
 
 ### 3.4 從原始碼建置
 
 #### 前置需求
 
 ```bash
-# 安裝 pnpm（OpenClaw 使用 pnpm 作為套件管理器）
-npm install -g pnpm
+# 啟用 corepack，依 package.json 的 packageManager 欄位取得對應版本的 pnpm（2026.11.1 為 pnpm 12.15）
+corepack enable
 
 # 確認版本
 pnpm --version
@@ -2273,34 +2352,39 @@ pnpm gateway:watch
 
 ### 3.5 Podman 與 Nix 安裝
 
-#### Podman 安裝
+#### Podman（rootless，官方腳本）
+
+官方的 Podman 模型是：**容器只跑 Gateway，主機上的 `openclaw` CLI 是控制面**，state 留在主機 `~/.openclaw`。日常管理用 `openclaw --container <name> ...`，而不是 `podman exec`。
 
 ```bash
-# 使用 Podman（Docker 替代方案）
-podman run -d \
-  --name openclaw-gateway \
-  --restart unless-stopped \
-  -p 18789:18789 \
-  -v ./config:/root/.openclaw:Z \
-  -v openclaw-data:/data:Z \
-  -e OPENAI_API_KEY="${OPENAI_API_KEY}" \
-  openclaw/openclaw:latest
+# 前置：rootless Podman + catatonit（--init 需要）+ 主機已安裝 openclaw CLI
+./scripts/podman/setup.sh                 # 建置 openclaw:local，或以 OPENCLAW_IMAGE 指定已發布映像
+# Linux + systemd user service 可改用 Quadlet 自動啟動：
+# ./scripts/podman/setup.sh --quadlet
+
+./scripts/run-openclaw-podman.sh launch          # 以目前 uid/gid（--userns=keep-id）啟動
+./scripts/run-openclaw-podman.sh launch setup    # 在容器內執行 onboarding
+
+export OPENCLAW_CONTAINER=openclaw
+openclaw gateway status --deep                   # 指令自動在容器內執行
+openclaw doctor
 ```
 
-#### Nix 安裝
+> ❌ 舊版範例 `podman run -v ./config:/root/.openclaw ...` 的掛載路徑是錯的：官方映像以 `node` 使用者執行，state 在 `/home/node/.openclaw`；而且手動 `podman run` 會略過官方腳本處理的 uid 對映、權限修正與 Doctor 步驟。
+
+#### Nix（nix-openclaw Home Manager 模組）
+
+[nix-openclaw](https://github.com/openclaw/nix-openclaw) 是官方第一方的宣告式安裝方式（Home Manager 模組），提供釘選版本的 Gateway、macOS App 與工具、可存活重開機的 launchd 服務，以及 `home-manager switch --rollback` 即時回滾：
 
 ```bash
-# 使用 Nix Flake（OpenClaw 官方 Nix 套件）
-nix run github:openclaw/nix-openclaw
-
-# 或加入 Nix 環境
-nix develop github:openclaw/nix-openclaw
-
-# 安裝到 Nix profile
-nix profile install github:openclaw/nix-openclaw
+mkdir -p ~/code/openclaw-local
+git clone https://github.com/openclaw/nix-openclaw.git /tmp/nix-openclaw
+cp /tmp/nix-openclaw/templates/agent-first/flake.nix ~/code/openclaw-local/flake.nix
+# 填入 bot token、模型金鑰等 placeholder（可放在 ~/.secrets/）後套用
+home-manager switch
 ```
 
-> **參考**: 詳細 Nix 設定指南請見 [Nix 文件](https://docs.openclaw.ai/install/nix)。
+> **參考**：Nix 安裝的權威來源是 nix-openclaw repository，[Nix 文件](https://docs.openclaw.ai/install/nix)僅為概覽。以 Nix 管理時，更新也應由 Nix 處理（`openclaw update` 會辨識 Nix 管理的組態與憑證連結）。
 
 ### 3.6 初始設定與 JSON5 組態
 
@@ -2337,99 +2421,72 @@ graph LR
 #### 組態檔位置
 
 ```text
-~/.openclaw/openclaw.json
+~/.openclaw/openclaw.json            # 預設；可用 OPENCLAW_CONFIG_PATH 覆寫
+~/.openclaw-<profile>/openclaw.json  # 使用 --profile <name> 時
 ```
 
 #### 基本組態範例
 
-最簡設定只需指定模型：
+最簡設定只需指定預設模型（其餘全部使用安全預設值）：
 
 ```json5
 // ~/.openclaw/openclaw.json（最小組態）
 {
-  agent: {
-    model: "anthropic/claude-opus-4-8",
-  },
+  agents: { defaults: { model: { primary: "anthropic/claude-opus-5-5" } } },
 }
 ```
 
-完整組態範例：
+團隊常用的完整組態範例（每一個鍵都已用 v2026.11.1 `openclaw config validate --json` 驗證）：
 
 ```json5
-// ~/.openclaw/openclaw.json
-// OpenClaw 主組態檔（JSON5 格式）
+// ~/.openclaw/openclaw.json — 團隊 Gateway 基準組態
 {
-  // === Agent 設定 ===
-  agent: {
-    model: "anthropic/claude-opus-4-8",
-    name: "企業助理",
-  },
-
-  // === 頻道設定 ===
-  channels: {
-    whatsapp: {
-      allowFrom: ["+886912345678"],  // 白名單
-      groups: { "*": { requireMention: true } },
-    },
-    telegram: {
-      botToken: "${TELEGRAM_BOT_TOKEN}",
-    },
-    slack: {
-      botToken: "${SLACK_BOT_TOKEN}",
-      appToken: "${SLACK_APP_TOKEN}",
-    },
-    discord: {
-      token: "${DISCORD_BOT_TOKEN}",
-    },
-  },
-
-  // === 訊息設定 ===
-  messages: {
-    groupChat: {
-      mentionPatterns: ["@openclaw"],
-    },
-  },
-
-  // === Gateway 設定 ===
-  gateway: {
-    port: 18789,
-    bind: "loopback",  // 預設只監聽本地（啟用 Tailscale 時必須保持 loopback）
-    tailscale: {
-      mode: "off",  // off | serve | funnel
-      // serve: tailnet 內 HTTPS（使用 Tailscale identity headers）
-      // funnel: 公開 HTTPS（需設定 gateway.auth.mode: "password"）
-      resetOnExit: true,  // 關閉時復原 Serve/Funnel 設定
-    },
-    auth: {
-      mode: "tailscale",  // tailscale | password（Funnel 必須用 password）
-      // allowTailscale: false,  // 若要強制 Serve 也需密碼驗證
-    },
-  },
-
-  // === 安全設定 ===
+  // === Agent 預設 ===
   agents: {
     defaults: {
-      sandbox: {
-        mode: "non-main",  // 非主 Session 在 Docker 沙箱中執行
-      },
+      model: { primary: "anthropic/claude-opus-5-5", fallbacks: ["openai/gpt-6-astra"] },
+      userTimezone: "Asia/Taipei",
+      // 非主 Session 一律在 Docker 沙箱中執行
+      sandbox: { mode: "non-main" },
     },
   },
 
-  // === Browser 設定 ===
-  browser: {
-    enabled: true,
+  // === 頻道（Token 用 ${VAR} 從環境變數帶入，不寫死在檔案）===
+  channels: {
+    whatsapp: {
+      dmPolicy: "pairing",
+      allowFrom: ["+886912345678"],
+      groups: { "*": { requireMention: true } },
+    },
+    telegram: { botToken: "${TELEGRAM_BOT_TOKEN}", dmPolicy: "pairing" },
+    slack: { botToken: "${SLACK_BOT_TOKEN}", appToken: "${SLACK_APP_TOKEN}" },
+    discord: { token: "${DISCORD_BOT_TOKEN}" },
   },
 
-  // === 日誌設定 ===
+  // === Gateway ===
+  gateway: {
+    mode: "local",
+    port: 18789,
+    bind: "loopback",            // 只監聽本機；啟用 Tailscale Serve/Funnel 時必須保持 loopback
+    tailscale: { mode: "off" },  // off | serve | funnel
+    auth: { mode: "token", token: "${OPENCLAW_GATEWAY_TOKEN}" }, // none | token | password | trusted-proxy
+    reload: { mode: "hybrid" },  // 可熱套用者立即生效，其餘自動重啟
+  },
+
+  // === 工具與檔案系統 ===
+  tools: { profile: "coding", fs: { workspaceOnly: true } },
+
+  // === 日誌 ===
   logging: {
-    level: "info",      // trace | debug | info | warn | error
-    format: "jsonl",    // jsonl | text
-    file: "~/.openclaw/logs/openclaw.jsonl",
+    level: "info",               // silent | fatal | error | warn | info | debug | trace
+    consoleStyle: "json",        // pretty | json
   },
 }
 ```
 
-> **完整組態參考**: 所有可用的設定鍵值與範例請參閱 [官方組態文件](https://docs.openclaw.ai/gateway/configuration)。
+> ❌ **舊版範例（以及許多 AI 產出）中的錯誤鍵**：`agent.model`（應為 `agents.defaults.model.primary`）、`logging.format`（應為 `logging.consoleStyle`）、`gateway.tailscale.resetOnExit`（已不存在）、`gateway.auth.mode: "tailscale"`（合法值只有 `none`／`token`／`password`／`trusted-proxy`；Tailscale identity 改以 `gateway.auth.allowTailscale` 控制）。
+
+> **完整組態參考**：所有設定鍵與預設值請參閱 [官方組態參考](https://docs.openclaw.ai/gateway/configuration-reference)；也可直接查詢本機 schema：`openclaw config schema --json`。
 
 #### DM Pairing 安全機制
 
@@ -2439,6 +2496,8 @@ OpenClaw 連接的是真實的通訊平台，因此對來自陌生人的 DM 訊�
 |------|--------|------|
 | **pairing**（預設） | `dmPolicy="pairing"` | 未知發送者會收到配對碼，Bot 不處理訊息 |
 | **open** | `dmPolicy="open"` | 公開接受所有 DM（需明確啟用，並在 `allowFrom` 中加入 `"*"`） |
+| **allowlist** | `dmPolicy="allowlist"` | 只接受 `allowFrom` 清單內的發送者，不發配對碼 |
+| **disabled** | `dmPolicy="disabled"` | 完全不處理 DM |
 
 管理配對的指令：
 
@@ -2463,9 +2522,10 @@ OpenClaw 原生支援 Tailscale 以安全方式暴露 Gateway 儀表板與 WebSo
 
 > **注意事項**:
 > - 啟用 Serve/Funnel 時 `gateway.bind` 必須保持 `loopback`（OpenClaw 會強制檢查）
-> - Serve 可強制要求密碼驗證：設定 `gateway.auth.mode: "password"` 或 `gateway.auth.allowTailscale: false`
+> - Serve 預設可用 Tailscale identity 標頭（`tailscale-user-login`）免 token 登入；若同主機可能執行不受信任的程式，設定 `gateway.auth.allowTailscale: false` 改為強制 token／password
 > - Funnel 不設密碼會拒絕啟動
-> - `gateway.tailscale.resetOnExit` 可在 Gateway 關閉時復原 Serve/Funnel 設定
+> - 舊版的 `gateway.tailscale.resetOnExit` 已移除；`gateway.tailscale.preserveFunnel` 僅為**已棄用的遷移防護**，新部署不要使用
+> - v2026.11.1 修正：在 macOS 設定中關閉 Tailscale 暴露時，會保留 Gateway 驗證設定
 >
 > 詳見 [Tailscale 指南](https://docs.openclaw.ai/gateway/tailscale) · [Web surfaces](https://docs.openclaw.ai/web)
 
@@ -2498,292 +2558,302 @@ Gateway 可完美運行在小型 Linux 實體上，客戶端（macOS app、CLI�
 |----------|------|--------|
 | `OPENAI_API_KEY` | OpenAI API 金鑰 | - |
 | `ANTHROPIC_API_KEY` | Anthropic API 金鑰 | - |
-| `GOOGLE_AI_API_KEY` | Google AI API 金鑰 | - |
+| `GEMINI_API_KEY` | Google Gemini API 金鑰 | - |
 | `TELEGRAM_BOT_TOKEN` | Telegram Bot Token | - |
 | `SLACK_BOT_TOKEN` | Slack Bot Token | - |
 | `SLACK_APP_TOKEN` | Slack App Token | - |
 | `DISCORD_BOT_TOKEN` | Discord Bot Token | - |
 | `OPENCLAW_LOG_LEVEL` | 日誌級別 | `info` |
-| `OPENCLAW_PORT` | Gateway 監聽埠 | `18789` |
+| `OPENCLAW_GATEWAY_PORT` | Gateway 監聽埠 | `18789` |
 | `OPENCLAW_CONFIG_PATH` | 組態檔路徑 | `~/.openclaw/openclaw.json` |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | OpenTelemetry 端點 | - |
-| `NODE_ENV` | 執行環境 | `development` |
 
-#### 在組態中引用環境變數
+#### 在組態中引用環境變數與 SecretRef
+
+組態中任何字串值都可用 `${VAR_NAME}` 帶入環境變數（`$${VAR}` 可輸出字面的 `${VAR}`，也支援 `"${BASE}/v1"` 這種內嵌替換）。**需要保護的憑證則建議使用 SecretRef 物件**：它會被 `openclaw secrets audit` 追蹤，日誌與 Control UI 也會自動遮罩。
 
 ```json5
 {
-  "channels": {
-    "telegram": {
-      // 使用 ${ENV_VAR} 語法引用環境變數
-      "token": "${TELEGRAM_BOT_TOKEN}",
-    },
+  channels: {
+    telegram: { botToken: "${TELEGRAM_BOT_TOKEN}" },       // 字串替換
   },
-  "models": {
-    "default": {
-      "apiKey": "${OPENAI_API_KEY}",
+  models: {
+    providers: {
+      // SecretRef：來源可為 env／file／exec，或 OpenClaw Secret Store（見 3.11）
+      openai: { apiKey: { source: "env", provider: "default", id: "OPENAI_API_KEY" } },
     },
   },
 }
 ```
 
+OpenClaw 自身的常用環境變數（v2026.11.1）：
+
+| 環境變數 | 用途 |
+| --- | --- |
+| `OPENCLAW_STATE_DIR` | state 目錄（預設 `~/.openclaw`） |
+| `OPENCLAW_CONFIG_PATH` | 組態檔路徑（預設 `~/.openclaw/openclaw.json`） |
+| `OPENCLAW_HOME` | 家目錄基準（容器常設為 `/home/node`） |
+| `OPENCLAW_PROFILE` | 具名 profile（等同 `--profile`） |
+| `OPENCLAW_GATEWAY_PORT`／`OPENCLAW_GATEWAY_TOKEN`／`OPENCLAW_GATEWAY_PASSWORD` | Gateway 埠與驗證憑證 |
+| `OPENCLAW_NO_AUTO_UPDATE` | 停用自動更新（受控環境建議設定） |
+| `OPENCLAW_CONTAINER` | 讓主機 CLI 自動在指定容器內執行 |
+| `OPENCLAW_INCLUDE_ROOTS` | 允許 `$include` 讀取的額外根目錄（唯讀） |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` 等 `OTEL_*` | OpenTelemetry 匯出（見 6.3） |
+
 #### 密鑰管理最佳實務
 
+| 環境 | 建議做法 | 審查重點 |
+| --- | --- | --- |
+| 個人開發 | `~/.openclaw/.env` 或 shell 環境變數 | `.env` 不可提交至版控（`.gitignore`） |
+| 團隊 Gateway | **OpenClaw Secret Store**（Protected／Agent-readable，見 3.11） | 用 `openclaw secrets audit` 確認沒有明文金鑰 |
+| 企業 | 外部保管庫（1Password、HashiCorp Vault 等官方插件）透過 `exec`／`file` SecretRef 供應 | 憑證輪替流程、存取稽核 |
+| 容器 | Docker／Kubernetes Secret 掛載為檔案 → `file` SecretRef | 不要用 `environment:` 明文寫入 compose |
+
 ```bash
-# 方法 1: 使用 .env 檔案（開發環境）
-cat > .env << 'EOF'
-OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxx
-TELEGRAM_BOT_TOKEN=123456:ABCdef...
-EOF
-
-# 方法 2: 使用系統環境變數（生產環境）
-export OPENAI_API_KEY="sk-xxxxxxxxxxxxxxxx"
-
-# 方法 3: Docker Secrets（Docker 環境）
-echo "sk-xxxxxxxxxxxxxxxx" | docker secret create openai_key -
-
-# 方法 4: HashiCorp Vault（企業環境）
-vault kv put secret/openclaw openai_key=sk-xxxxxxxxxxxxxxxx
+openclaw secrets audit          # 找出組態中的明文憑證與未解析的 SecretRef
+openclaw secrets configure      # 互動式設定 SecretRef
+openclaw secrets reload         # 不重啟 Gateway 重新解析密鑰
 ```
 
 ### 3.8 多環境組態管理
 
-#### 環境分離策略
+OpenClaw **沒有**「`openclaw.<env>.json` 自動疊加」的機制。多環境的正確做法有兩種，可以並用：
+
+1. **每個環境一個獨立 Gateway**（獨立主機或獨立 `--profile`），各自擁有 state 與組態。
+2. **以 `$include` 拆分組態**：共用的部分放在共同檔案，環境差異以「後者覆蓋前者」的陣列 include 或同層鍵覆蓋表達。
 
 ```text
-~/.openclaw/
-├── openclaw.json              # 共用基礎設定
-├── openclaw.development.json  # 開發環境覆蓋
-├── openclaw.staging.json      # 預備環境覆蓋
-└── openclaw.production.json   # 生產環境覆蓋
+config/
+├── openclaw.json            # 各環境的進入點（每個環境的 Gateway 各自指向自己的那一份）
+├── base/
+│   ├── agents.json5         # 共用 Agent 預設
+│   └── tools.json5          # 共用工具政策
+└── env/
+    ├── dev.json5            # 開發環境差異
+    └── prod.json5           # 生產環境差異
 ```
+
+`$include` 規則：**單一檔案**取代所在物件；**檔案陣列**依序深度合併（後者勝出，最多 10 層）；**同層鍵**在 include 之後合併並覆蓋；相對路徑以「發出 include 的檔案」為基準。
 
 #### 開發環境組態
 
 ```json5
-// openclaw.development.json
+// dev Gateway 的 openclaw.json（NOVALIDATE：含 $include，需搭配實際檔案）
 {
-  "models": {
-    "default": {
-      "provider": "ollama",
-      "model": "llama3:8b",
-      "baseUrl": "http://localhost:11434",
-    },
-  },
-  "logging": {
-    "level": "debug",
-  },
-  "security": {
-    "allowedUsers": ["*"],
-  },
+  agents: { $include: ["./base/agents.json5", "./env/dev.json5"] },
+  logging: { level: "debug", consoleStyle: "pretty" },
+  gateway: { bind: "loopback", auth: { mode: "token", token: "${OPENCLAW_GATEWAY_TOKEN}" } },
 }
 ```
 
 #### 生產環境組態
 
 ```json5
-// openclaw.production.json
+// prod Gateway：直接 TLS 終結（若前方已有反向代理 / Cloudflare，改用 trusted-proxy，見 11.7）
 {
-  "models": {
-    "default": {
-      "provider": "openai",
-      "model": "gpt-5.6",
-      "apiKey": "${OPENAI_API_KEY}",
+  agents: {
+    defaults: {
+      model: { primary: "anthropic/claude-opus-5-5", fallbacks: ["openai/gpt-6-astra"] },
+      sandbox: { mode: "all" },
     },
   },
-  "logging": {
-    "level": "warn",
-  },
-  "security": {
-    "allowedUsers": ["admin@company.com", "team@company.com"],
-    "dmPairing": true,
-  },
-  "gateway": {
-    "port": 18789,
-    "host": "0.0.0.0",
-    "tls": {
-      "enabled": true,
-      "cert": "/etc/ssl/certs/openclaw.pem",
-      "key": "/etc/ssl/private/openclaw.key",
+  logging: { level: "warn", consoleStyle: "json" },
+  gateway: {
+    mode: "local",
+    bind: "lan",
+    port: 18789,
+    auth: { mode: "password", password: { source: "env", provider: "default", id: "OPENCLAW_GATEWAY_PASSWORD" } },
+    tls: {
+      enabled: true,
+      certPath: "/etc/openclaw/tls/fullchain.pem",
+      keyPath: "/etc/openclaw/tls/privkey.pem",
     },
   },
+  tools: { profile: "coding", fs: { workspaceOnly: true } },
+  update: { channel: "extended-stable", checkOnStart: true },
 }
 ```
+
+> ❌ 舊版範例的 `security.allowedUsers`、`security.dmPairing`、`gateway.host`、`gateway.tls.cert`／`key` 都不是合法鍵。存取控制請改用頻道的 `dmPolicy`／`allowFrom`（3.6）、`gateway.auth` 與 `gateway.roles`（11.7）；監聽介面用 `gateway.bind`；憑證路徑用 `gateway.tls.certPath`／`keyPath`。
 
 ### 3.9 Hot Reload 與組態更新
 
-OpenClaw 支援四種組態重載策略：
+組態重載只有兩種模式（`gateway.reload.mode`）：
 
-| 策略 | 說明 | 重啟影響 | 適用場景 |
-|------|------|----------|----------|
-| **hybrid** | 可熱載的設定立即套用，其他重啟 Agent | 部分 | 推薦（預設） |
-| **hot** | 所有設定立即套用 | 無 | 開發環境 |
-| **restart** | 任何設定變更都重啟 Agent | 完全 | 保守策略 |
-| **off** | 不自動偵測變更，需手動重啟 | 手動 | 批次更新 |
+| 模式 | 行為 | 適用場景 |
+| --- | --- | --- |
+| **`hybrid`**（建議） | 可安全熱套用的設定立即生效；需要重啟的設定自動觸發重啟 | 一般營運 |
+| **`off`** | 忽略即時編輯，需手動重啟 | 變更凍結期、批次維護 |
 
-#### 設定重載策略
+v2026.9.2 起，更多 Agent、模型、工具、頻道、瀏覽器、節點、存取與終端機設定可**由其執行中的擁有者直接套用**而不需重啟；仍需重啟的項目會在組態參考中標註。
 
 ```json5
 {
-  "gateway": {
-    "configReload": "hybrid",  // hybrid | hot | restart | off
-  },
+  gateway: { reload: { mode: "hybrid" } },
 }
 ```
 
-#### 手動觸發重載
+> ❌ 舊版的 `gateway.configReload`，以及 `hot`／`restart` 兩種模式已不存在。
+
+#### 安全地修改組態
 
 ```bash
-# 手動觸發組態重載
-openclaw reload
+# 1. 先驗證（不啟動 Gateway）
+openclaw config validate --json
 
-# 驗證新組態
-openclaw config validate
+# 2. 以「預期目前值」守門的方式修改：若目前值已被他人改動則拒絕寫入
+openclaw config set gateway.port 18790 --expect-current-json 18789 --dry-run
+openclaw config set gateway.port 18790 --expect-current-json 18789
 
-# 查看目前組態
-openclaw config show
+# 3. 讀取與比對
+openclaw config get gateway.port
+openclaw config file                  # 顯示實際使用的組態檔路徑
+
+# 4. 需要重啟的設定，透過服務擁有者重啟
+openclaw gateway restart
 ```
+
+> **錯誤組態的行為**：2.0 起組態錯誤會**直接停止並給出可行動的訊息**（檔案、行號、完整設定路徑、可用值），不會靜默改用預設值；啟動遷移只會在「整份遷移後組態都通過驗證」時才寫入，並保留 `.bak` 輪替備份。v2026.11.1 起，舊版 binary 遇到較新組態時也會說明如何恢復。
 
 ### 3.10 CLI 指令參考
 
-#### 核心指令
+> **本節的產生方式**：以 `openclaw 2026.11.1 (4ffdd20)` 遞迴執行每個指令的 `--help`（共 630 個指令路徑）建立白名單，表中每個範例都經過 `check_cli.py` 比對子指令與旗標（見附錄 F.2）。審查 AI 產出的指令時，最可靠的做法同樣是 **`openclaw <指令> --help`**。全域選項：`--profile <name>`、`--dev`、`--container <name>`、`--log-level <level>`、`--no-color`。
+
+#### 安裝、設定與服務
 
 | 指令 | 說明 | 範例 |
-|------|------|------|
-| `openclaw onboard` | 互動式引導安裝 | `openclaw onboard --install-daemon` |
-| `openclaw gateway` | 手動啟動 Gateway | `openclaw gateway --port 18789 --verbose` |
-| `openclaw dashboard` | 開啟 Control UI | `openclaw dashboard` |
-| `openclaw status` | 查看運行狀態 | `openclaw status` |
-| `openclaw doctor` | 診斷與組態遷移 | `openclaw doctor` / `openclaw doctor --deep` |
-| `openclaw logs` | 查看日誌 | `openclaw logs -f` |
-| `openclaw config` | 組態管理 | `openclaw config validate` |
-| `openclaw update` | 更新版本/頻道 | `openclaw update --channel stable\|beta\|dev` |
-| `openclaw message send` | 發送訊息 | `openclaw message send --to +123 --message "Hi"` |
-| `openclaw agent` | 與 Agent 互動 | `openclaw agent --message "Ship checklist" --thinking high` |
-| `openclaw attach`（v2026.7.1 新增） | 外部 harness 接續既有 Gateway Session | `openclaw attach --session <id>`（可接續/檢視 Codex 風格工作流程） |
-| `openclaw migrate` | 跨版本資料遷移 | `openclaw migrate --from claude\|hermes` |
-| `openclaw daemon` | 管理守護程序 | `openclaw daemon install\|uninstall\|status` |
-| `openclaw setup` | 初始化本地環境 | `openclaw setup`（開發模式首次執行） |
-| `openclaw reset` | 重設本地狀態 | `openclaw reset --config\|--workspace\|--all` |
-| `openclaw uninstall` | 完整移除 | `openclaw uninstall` |
+| --- | --- | --- |
+| `openclaw onboard` | 引導式設定（auth、模型、Gateway、工作區、頻道、技能） | `openclaw onboard --install-daemon` |
+| `openclaw setup` | 建立基準設定；尚未設定時進入 onboarding | `openclaw setup --baseline` |
+| `openclaw configure` | 互動式調整憑證、頻道、Gateway 與 Agent 預設 | `openclaw configure` |
+| `openclaw config` | 非互動組態操作（get／set／patch／unset／file／schema／validate） | `openclaw config validate --json` |
+| `openclaw gateway` | 執行、檢視與查詢 Gateway（run／start／stop／restart／status／install／probe／suspend／resume…） | `openclaw gateway status --deep` |
+| `openclaw daemon` | 管理 Gateway 服務（launchd／systemd／schtasks） | `openclaw daemon status` |
+| `openclaw dashboard` | 以目前 token 開啟 Control UI | `openclaw dashboard` |
+| `openclaw update` | 更新與切換通道（status／repair／recover／cleanup／wizard） | `openclaw update --channel extended-stable --dry-run` |
+| `openclaw reset` | 重設本機組態／狀態（保留 CLI） | `openclaw reset --scope config --dry-run` |
+| `openclaw uninstall` | 移除 Gateway 服務與本機資料 | `openclaw uninstall` |
+| `openclaw migrate` | 從其他 Agent 系統匯入狀態（Claude、Hermes 等） | `openclaw migrate --help` |
 
-#### 頻道與裝置管理指令
+#### 診斷與維運
 
 | 指令 | 說明 | 範例 |
-|------|------|------|
-| `openclaw channels` | 頻道狀態概覽 | `openclaw channels list` |
-| `openclaw channels login` | 登入頻道 | `openclaw channels login --channel whatsapp` |
-| `openclaw pairing` | 管理 DM 配對 | `openclaw pairing approve telegram ABC123` |
-| `openclaw devices` | 管理裝置節點 | `openclaw devices list` |
-| `openclaw nodes` | iOS/Android/macOS 節點管理 | `openclaw nodes list` |
-| `openclaw plugins` | 插件管理 | `openclaw plugins install "@tencent-weixin/openclaw-weixin"` |
-| `openclaw qr` | QR Code 顯示 | `openclaw qr` |
+| --- | --- | --- |
+| `openclaw doctor` | 組態與本機探索的健康檢查與快速修復 | `openclaw doctor --fix` |
+| `openclaw health` | 從執行中的 Gateway 取得健康狀態 | `openclaw health --json` |
+| `openclaw status` | 頻道健康與最近的 Session 對象 | `openclaw status` |
+| `openclaw logs` | 透過 RPC 追蹤 Gateway 檔案日誌 | `openclaw logs --follow` |
+| `openclaw triage` | 收集消毒後的診斷並交給本機 coding agent 修復 | `openclaw triage` |
+| `openclaw security` | 稽核本機組態與狀態的常見安全誤設定 | `openclaw security audit --deep` |
+| `openclaw audit` | 檢視活動紀錄與確切執行身分 | `openclaw audit --help` |
+| `openclaw backup` | 建立、驗證、還原備份與 SQLite 快照；排程異地備份 | `openclaw backup create --verify` |
+| `openclaw storage` | 列出、初始化與測試儲存位置（異地備份目的地） | `openclaw storage test offsite` |
+| `openclaw database` | 資料庫相容性、擁有權與 Workboard 引擎搬移 | `openclaw database preflight` |
+| `openclaw telemetry` | 檢視與管理匿名使用遙測 | `openclaw telemetry --help` |
+| `openclaw docs` | 搜尋線上官方文件 | `openclaw docs "cloud worker"` |
+| `openclaw completion` | 產生 shell 自動完成腳本 | `openclaw completion --help` |
 
-#### Skills 與 Agent 管理指令
-
-| 指令 | 說明 | 範例 |
-|------|------|------|
-| `openclaw skills list` | 列出已安裝技能 | `openclaw skills list` |
-| `openclaw skills install` | 安裝技能 | `openclaw skills install weather` |
-| `openclaw skills update` | 更新技能 | `openclaw skills update --all` |
-| `openclaw skills remove` | 移除技能 | `openclaw skills remove weather` |
-| `openclaw agents` | Agent 列表管理 | `openclaw agents list` |
-| `openclaw sessions` | Session 管理 | `openclaw sessions list` |
-
-#### 進階工具指令
+#### 頻道、裝置與使用者
 
 | 指令 | 說明 | 範例 |
-|------|------|------|
-| `openclaw browser` | 瀏覽器管理 | `openclaw browser start --headless` |
-| `openclaw cron` | 排程任務管理 | `openclaw cron list` |
-| `openclaw webhooks` | Webhook 管理 | `openclaw webhooks list` |
-| `openclaw hooks` | 事件鉤子管理 | `openclaw hooks list` |
-| `openclaw memory` | 記憶管理 | `openclaw memory search "keyword"` |
-| `openclaw wiki` | Wiki 記憶管理 | `openclaw wiki list` |
-| `openclaw backup` | 備份管理 | `openclaw backup create` |
-| `openclaw backup sqlite`（v2026.8.1 新增） | 全域/per-agent SQLite 快照備份 | `openclaw backup sqlite create\|list\|verify\|restore`（restore 僅允許還原至全新目標，避免誤覆蓋） |
-| `openclaw secrets` | 密鑰管理 | `openclaw secrets set OPENAI_API_KEY` |
-| `openclaw proxy` | 代理設定 | `openclaw proxy set http://proxy:8080` |
-| `openclaw models` | 模型管理與測試 | `openclaw models list` / `openclaw models test` |
-| `openclaw infer` | 直接推論呼叫 | `openclaw infer --model gpt-5.6 --prompt "Hi"` |
-| `openclaw sandbox` | 沙箱管理 | `openclaw sandbox list` |
-| `openclaw security` | 安全稽核 | `openclaw security audit` |
-| `openclaw health` | 健康檢查 | `openclaw health` |
-| `openclaw dns` | DNS 管理 | `openclaw dns check` |
-| `openclaw tui` | 終端機 UI | `openclaw tui`（互動式終端介面） |
-| `openclaw voicecall` | 語音通話管理 | `openclaw voicecall list` |
-| `openclaw mcp` | MCP 伺服器管理 | `openclaw mcp list` |
-| `openclaw tasks` | 背景任務管理 | `openclaw tasks list` |
-| `openclaw automations` | **自動化管理（`cron` 的新名稱，v2026.8.1）** | `openclaw automations list`（與 `openclaw cron` 為同一指令族） |
-| `openclaw connect` | **配對並連線另一台電腦作為執行主機** | `openclaw connect`（見第十二章） |
-| `openclaw worker` | **Cloud Worker 管理** | `openclaw worker list` |
-| `openclaw claws` | **實驗性：將 Agent 打包為可散布的 Claw** | `openclaw claws plan ./my-claw`（需 `OPENCLAW_EXPERIMENTAL_CLAWS=1`） |
-| `openclaw fleet` | 多 Gateway／多裝置機群檢視 | `openclaw fleet status` |
-| `openclaw triage` | 問題分流輔助 | `openclaw triage` |
-| `openclaw workboard` | 多 Agent 協調看板 | `openclaw workboard list` |
-| `openclaw transcripts` | 逐字稿管理與匯出 | `openclaw transcripts list` |
-| `openclaw directory` | 聯絡人／參與者目錄 | `openclaw directory list` |
-| `openclaw policy` | 工具與存取政策管理 | `openclaw policy show` |
-| `openclaw audit` | 稽核紀錄查詢 | `openclaw audit list` |
-| `openclaw resume` | 接續先前的工作階段 | `openclaw resume <session>` |
-| `openclaw system` | 系統資源與壓力概覽 | `openclaw system` |
-| `openclaw configure` | 非互動式組態設定 | `openclaw configure --set agent.model=...` |
-| `openclaw openshell` | OpenShell 整合 | `openclaw openshell` |
-| `openclaw docs` | 開啟／查詢官方文件 | `openclaw docs search "cloud worker"` |
-| `openclaw path` | 顯示狀態與組態路徑 | `openclaw path` |
-| `openclaw approvals` | 操作審批 | `openclaw approvals list` |
-| `openclaw acp` | Agent Communication Protocol | `openclaw acp send <agent> "message"` |
-| `openclaw completion` | Shell 自動完成 | `openclaw completion bash\|zsh\|fish` |
-| `openclaw skills search` | 搜尋技能 | `openclaw skills search "報表"` |
-| `openclaw skills publish` | 發布技能 | `openclaw skills publish ./my-skill` |
+| --- | --- | --- |
+| `openclaw channels` | 管理頻道與帳號（add／login／logout／status／logs／remove／dead-letters） | `openclaw channels status` |
+| `openclaw pairing` | 核准 DM 配對請求 | `openclaw pairing approve telegram ABC123` |
+| `openclaw message` | 傳送、讀取與管理訊息 | `openclaw message send --channel telegram --target 123456 --message "部署完成"` |
+| `openclaw directory` | 查詢聯絡人與群組 ID（self／peers／groups） | `openclaw directory peers --help` |
+| `openclaw devices` | 裝置配對與 auth token | `openclaw devices --help` |
+| `openclaw qr` | 產生行動裝置配對 QR Code 與設定碼 | `openclaw qr` |
+| `openclaw nodes` | 管理 Gateway 擁有的節點（配對、狀態、invoke、媒體） | `openclaw nodes --help` |
+| `openclaw node` | 執行與管理無頭 node host 服務 | `openclaw node --help` |
+| `openclaw connect` | 把這台機器作為 node 連到某個 Gateway | `openclaw connect --help` |
+| `openclaw users` | 管理持久使用者 profile 與 email 別名（list／link-email／merge） | `openclaw users list` |
 
-#### 診斷指令
+#### Agent、Session 與記憶
 
 | 指令 | 說明 | 範例 |
-|------|------|------|
-| `openclaw doctor` | 完整診斷與遷移建議 | `openclaw doctor` |
-| `openclaw doctor --fix` | **套用組態遷移與修復**（2.0 四項遷移的執行指令） | `openclaw doctor --fix` |
-| `openclaw doctor --json` | **唯讀的建議性檢查**（不變更任何東西） | `openclaw doctor --json` |
-| `openclaw doctor --lint --all` | 需要略過預設執行中的建議性檢查時使用 | `openclaw doctor --lint --all` |
-| `openclaw health` | **執行中系統**的健康檢查（含插件與服務狀態） | `openclaw health --deep` |
-| `openclaw plugins doctor` | **本地插件探索與組態**檢查（與 `health` 分工不同） | `openclaw plugins doctor` |
-| `openclaw config validate` | 驗證組態 | `openclaw config validate` |
-| `openclaw channels test` | 測試頻道連線 | `openclaw channels test whatsapp` |
-| `openclaw skills check` | **完整技能清單**（模型可見目錄可能被壓縮，此為權威來源） | `openclaw skills check` |
-| `openclaw update --dry-run` | **預覽升級路徑而不變更**組態、交接、清理或重啟狀態 | `openclaw update --dry-run` |
-| `openclaw memory forget` | 依 session／hook 來源／參與者預覽並清除衍生記憶 | `openclaw memory forget --session <id>` |
-| `openclaw gateway install --force` | 變更服務目標（狀態目錄／組態路徑／port）時必須明確指定 | `openclaw gateway install --force` |
+| --- | --- | --- |
+| `openclaw agent` | 經由 Gateway 執行一次 Agent 回合（`--local` 為內嵌模式） | `openclaw agent --help` |
+| `openclaw agents` | 管理隔離的 Agent（工作區、auth、路由） | `openclaw agents --help` |
+| `openclaw sessions` | Session 清單、匯入、匯出軌跡、壓縮、封存 | `openclaw sessions list --all-agents` |
+| `openclaw transcripts` | 檢視儲存的逐字稿（list／show／path） | `openclaw transcripts list` |
+| `openclaw resume` | 在 TUI 中接續最近的 Gateway Session | `openclaw resume` |
+| `openclaw tui` / `chat` / `terminal` | 終端機 UI（後兩者為 `tui --local` 別名） | `openclaw tui` |
+| `openclaw attach` | 讓 Claude Code 以受限 MCP 工具附掛到 Gateway Session | `openclaw attach --help` |
+| `openclaw memory` | 搜尋、檢視、重建索引、forget、reset | `openclaw memory search "季度報表"` |
+| `openclaw worktrees` | 建立、檢視、還原與清理 Managed Worktrees（見 4.12） | `openclaw worktrees list` |
 
-> **`doctor` 與 `health` 的分工（v2026.8.1 明確化）**：
->
-> - `openclaw doctor`：偏重**本機探索與組態**的靜態檢查。2.0 起它花較少篇幅列舉健康項目，改為聚焦「壞了什麼、下一步該做什麼」。可復原的互動式啟動失敗會提供一次經確認的 `doctor --fix` 嘗試；不可復原的組態則保持原狀，並給出檢查、編輯或移開的明確指示。
-> - `openclaw health`：回報**執行中系統**的插件與服務狀態。
-> - `openclaw plugins doctor`：專責本地插件的探索與組態檢查。
->
-> 三者不可互相取代。診斷時的建議順序為 `doctor` → `health` → `plugins doctor`。
+#### 模型、技能、插件與工具
+
+| 指令 | 說明 | 範例 |
+| --- | --- | --- |
+| `openclaw models` | 模型探索、掃描與設定（list／status／set／fallbacks／aliases／auth／accounts） | `openclaw models status` |
+| `openclaw infer` / `capability` | 透過穩定 CLI 介面執行 Provider 推論（model／image／audio／tts／video／embedding／web） | `openclaw infer model --help` |
+| `openclaw skills` | 技能 search／install／update／verify／list／info／check／library／workshop | `openclaw skills check` |
+| `openclaw plugins` | 插件 install／update／enable／disable／doctor／inspect／marketplace／validate | `openclaw plugins doctor` |
+| `openclaw mcp` | 管理 `mcp.servers` 組態與頻道 bridge | `openclaw mcp --help` |
+| `openclaw hooks` | 管理內部 Agent hooks | `openclaw hooks --help` |
+| `openclaw browser` | 管理 OpenClaw 專用瀏覽器（Chrome／Chromium） | `openclaw browser start --headless` |
+| `openclaw sandbox` | 管理沙箱容器（Docker 隔離） | `openclaw sandbox --help` |
+| `openclaw approvals` / `exec-approvals` | 審批政策與待處理請求（get／set／pending／resolve／allowlist／grants） | `openclaw approvals pending` |
+| `openclaw exec-policy` | 檢視或同步要求的 exec 政策與主機審批 | `openclaw exec-policy --help` |
+| `openclaw file-transfer` | 檢視檔案傳輸的常設核准 | `openclaw file-transfer --help` |
+| `openclaw secrets` | 密鑰執行期控制（audit／configure／apply／reload／store） | `openclaw secrets audit` |
+| `openclaw proxy` | OpenClaw 除錯代理與流量檢視 | `openclaw proxy --help` |
+| `openclaw promos` | 探索與領取 ClawHub 上的模型優惠 | `openclaw promos --help` |
+
+#### 自動化、整合與分散式執行
+
+| 指令 | 說明 | 範例 |
+| --- | --- | --- |
+| `openclaw automations` / `cron` | 管理 Automations（add／list／edit／run／runs／enable／disable／rm） | `openclaw automations list` |
+| `openclaw webhooks` | Webhook 整合（目前為 Gmail Pub/Sub：setup／run） | `openclaw webhooks gmail setup --help` |
+| `openclaw acp` | 以 Gateway 為後端的 ACP bridge | `openclaw acp --help` |
+| `openclaw worker` | 執行受限的 Cloud Worker runtime（見第十二章） | `openclaw worker --help` |
+| `openclaw dns` | 廣域探索的 DNS 輔助（Tailscale + CoreDNS） | `openclaw dns setup --help` |
+| `openclaw system` | 系統工具（events、heartbeat、presence） | `openclaw system --help` |
+| `openclaw googlemeet` / `teamsmeetings` / `zoommeetings` | 加入與管理線上會議 | `openclaw googlemeet --help` |
+
+#### 由官方插件提供的指令
+
+下列指令只在對應插件啟用後出現（不在核心 `--help` 清單中）：`openclaw matrix`、`openclaw voicecall`、`openclaw wiki`、`openclaw workboard`、`openclaw policy`、`openclaw path`、`openclaw claws`（實驗性）、`openclaw vault`、`openclaw onepassword`、`openclaw team-reports`、`openclaw codex` 等。
+
+> ❌ **舊版手冊中已不存在或從未存在的指令**（AI 產出時常見）：`openclaw start`／`restart`／`reload`（請用 `openclaw gateway start|restart`）、`openclaw config show`／`config migrate`（請用 `config get`／`config file`、`doctor --fix`）、`openclaw tasks`（9.7 起移除）、`openclaw fleet`、`openclaw skills publish`／`skills remove`（發布用 `clawhub skill publish`；技能庫移除用 `skills library remove`）、`openclaw channels test`、`openclaw models test`、`openclaw secrets set`、`openclaw proxy set`、`openclaw logs -f`（應為 `--follow`）、`openclaw message send --to`（應為 `--target`）、`openclaw health --deep`（`--deep` 屬於 `gateway status`／`security audit`）。
+
+#### 診斷分工：doctor、health、plugins doctor
+
+| 指令 | 檢查對象 | 何時用 |
+| --- | --- | --- |
+| `openclaw doctor` | **本機探索與組態**（含 SQLite／Node 能力、遷移建議）；`--fix` 套用修復，`--json` 唯讀輸出 | 升級後、組態變更後、啟動失敗時 |
+| `openclaw health` | **執行中 Gateway** 的健康狀態 | 服務已啟動但行為異常 |
+| `openclaw gateway status --deep` | 服務管理器、監聽埠、額外服務掃描 | 確認服務層面是否正常 |
+| `openclaw plugins doctor` | **本機插件**探索與組態 | 插件載入失敗 |
+
+> v2026.11.1 起，**非互動式 `doctor` 在沒有修復同意的情況下不會下載插件**——CI 中執行 `openclaw doctor --json` 是安全的唯讀檢查。
 
 #### 聊天指令（Chat Commands）
 
-在 WhatsApp / Telegram / Slack / WebChat 中可直接使用的指令：
+在 WhatsApp／Telegram／Slack／WebChat 等頻道中可直接使用（節錄常用者；完整清單見 `/commands` 或 [Slash commands](https://docs.openclaw.ai/tools/slash-commands)）：
 
 | 指令 | 說明 |
-|------|------|
-| `/status` | 查看 Session 狀態（模型 + Token 用量） |
-| `/new` 或 `/reset` | 重置 Session |
-| `/compact` | 壓縮 Session 上下文（摘要化） |
-| `/think <level>` | 設定思考層級：off / minimal / low / medium / high / xhigh |
-| `/verbose on\|off` | 開關詳細模式 |
-| `/usage off\|tokens\|full` | 設定每次回應的用量顯示 |
-| `/restart` | 重啟 Gateway（群組中僅擁有者可用） |
-| `/activation mention\|always` | 群組啟動模式（僅群組） |
-| `/elevated on\|off` | 切換提升權限 bash 存取（需授權） |
-| `/btw`（v2026.8.1） | **開啟獨立的多輪側線對話**，可問旁支問題而不打斷正在進行的工作、也不污染主線歷史 |
-| `/model`（v2026.8.1 強化） | 切換模型，可選擇**僅本對話**／單一 Agent／共用預設（後兩者需權限） |
-| `/loop`（v2026.8.1） | 將當前對話轉為週期性自動化或提醒，執行時檢查少量近期脈絡並回傳單一最終答案至同一聊天室 |
-| `/learn`（v2026.8.1） | 明確觸發自我學習，將本次工作轉為**待審提案**（不會直接改動線上技能） |
-| `$skill-name`（v2026.8.1） | 在訊息中直接指名技能，**單次最多 8 個**，含未開放給模型自動選用的技能 |
+| --- | --- |
+| `/status`、`/status plugins` | 執行狀態、Gateway 運行時間、插件健康與 Provider 用量 |
+| `/new [model]`、`/reset [soft]` | 封存並開新 Session／原地重置（`soft` 保留逐字稿） |
+| `/compact [instructions]` | 壓縮 Session 脈絡 |
+| `/stop` | 中止目前執行 |
+| `/think <level\|default>` | 設定思考層級（別名 `/t`） |
+| `/model <name> -s\|-a\|-g` | 切換模型：`-s` 僅本 Session；`-a` 更新 Agent 預設、`-g` 全域（需 owner／admin） |
+| `/steer <message>` | 對進行中的執行注入引導（別名 `/tell`） |
+| `/btw <question>` | 不改變 Session 脈絡的側問（別名 `/side`） |
+| `/goal ...` | 管理本 Session 的持久目標 |
+| `/learn [request]` | 透過 Skill Workshop 從本次對話草擬**一個待審技能** |
+| `/loop [interval] <prompt>` | （owner）在此對話週期性重複一個提示；`/loop status`、`/loop stop` |
+| `/approve <id> <decision>` | 回應 exec、插件或 OpenClaw 變更的審批 |
+| `/usage off\|tokens\|full\|cost` | 每則回覆的用量頁尾 |
+| `/elevated on\|off\|ask\|full` | 切換提升權限模式（需授權） |
+| `/restart`、`/update` | （owner）重啟／依設定通道更新 OpenClaw |
+| `/activation mention\|always` | 群組啟動模式 |
 
-> **`/loop` 的行為邊界**：它以**全新執行**開始，而非延續原本的逐字稿；在沒有對話脈絡下建立的工作會保持隔離。這點在設計自動化時很重要——不要假設它能看見完整的歷史對話。
+> ⚠️ `/reasoning`、`/verbose`、`/trace` 在群組中可能洩漏內部推理或插件診斷，**群組環境請保持關閉**。`/bash` 需要 `commands.bash: true`，生產環境不建議開啟。
 
 ---
 
@@ -2808,22 +2878,48 @@ Protected 值可透過三種方式在不落入明文的前提下抵達目的地�
 2. **Vault 或 1Password 參照**——組態中只存放參照，不存放值本身。
 3. **目的地綁定替換（destination-bound substitution）**——將值綁定至特定目的地後再替換，避免被導向他處。
 
+#### 實作：寫入 Secret Store、以 SecretRef 引用、綁定目的地
+
+兩類密鑰在儲存層的對應是 `kind`：**Protected = `kind: "secret"`**（寫入後即不可讀回，沒有 reveal RPC）、**Agent-readable = `kind: "env"`**（管理者可讀，會以明文加入 Gateway 託管的指令環境）。
+
+```bash
+# 1. Protected 密鑰：從檔案或 stdin 寫入，避免出現在 shell history；綁定唯一允許替換的 HTTPS 主機
+printf '%s' "$PAYMENT_TOKEN" | openclaw secrets store set PAYMENT_API_TOKEN --kind secret --value-file - --allow-host api.payment.example.com
+
+# 2. Agent-readable 值：只放可以承受被讀取的設定
+openclaw secrets store set REPORT_OUTPUT_DIR --kind env --value /var/openclaw/reports
+
+# 3. 檢視（secret 類只會列出名稱與中繼資料，不會顯示值）
+openclaw secrets store list
+
+# 4. 啟用預設關閉的 secret egress proxy，然後重啟
+openclaw config set secrets.egressProxy.enabled true --strict-json
+openclaw gateway restart
+```
+
 ```json5
-// 以參照方式引用密鑰，組態中不出現實際值
+// openclaw.json：組態中只存「參照」，不存值
 {
-  secrets: {
-    // Protected：僅供 Gateway 託管的 HTTPS 請求使用，不進入模型脈絡
-    protected: {
-      PAYMENT_API_TOKEN: { ref: "vault://kv/openclaw/payment#token" },
-      CRM_WEBHOOK_SECRET: { ref: "op://Engineering/CRM/webhook-secret" },
+  models: {
+    providers: {
+      // store：OpenClaw Secret Store；env／file／exec：外部來源（例如 1Password、Vault 插件的 exec 供應器）
+      openai: { apiKey: { source: "store", provider: "default", id: "OPENAI_API_KEY" } },
     },
-    // Agent-readable：Agent 與其指令可讀，僅放置可承受被讀取的值
-    agentReadable: {
-      REPORT_OUTPUT_DIR: "/var/openclaw/reports",
+  },
+  secrets: {
+    egressProxy: {
+      enabled: true,
+      allowedHosts: ["api.openai.com", "api.payment.example.com"],
     },
   },
 }
 ```
+
+啟用 egress proxy 後，Gateway 託管的子行程拿到的 `$PAYMENT_API_TOKEN` 只是一個 `oc-sent-v2...end` **哨兵值**；proxy 只會在請求目標**完全符合**綁定主機時，才把哨兵替換成真實值。送往其他主機的請求會被拒絕，並在錯誤訊息中提示需要執行的 `store set ... --allow-host ...` 指令。
+
+> ❌ **舊版範例錯誤**：`secrets.protected`、`secrets.agentReadable` 這兩個組態鍵並不存在；`vault://`、`op://` 也不是 OpenClaw 的 SecretRef 語法。Vault／1Password 是透過官方插件提供 `exec` 型 SecretRef，或以 `file` 型 SecretRef 讀取掛載檔案。
+>
+> ⚠️ **主機名稱比對規則**：小寫 ASCII／punycode **精確比對**，不支援萬用字元、後綴比對與連接埠。沒有綁定任何主機的 secret，egress proxy 一律不替換。
 
 #### 必須理解的限制（官方明確揭露）
 
@@ -2846,776 +2942,937 @@ Protected 值可透過三種方式在不落入明文的前提下抵達目的地�
 
 > **仍需明確選擇的遙測項目**：額外的功能統計、Android 已安裝應用程式明細、iOS 健康摘要都需要明確選擇啟用（健康資料另有**兩道預設關閉的關卡**）。更新檢查預設開啟（可停用）；**約略的 Activity 位置對可路由位址預設啟用**，且首次使用時可能下載本地城市資料庫——這兩項預設值在隱私敏感的環境中應主動檢視。
 
+### 3.12 發布通道與版本選擇
+
+OpenClaw 同時維護四條更新通道，**npm dist-tag 是唯一的真實來源**：
+
+| 通道 | npm dist-tag | 2026-11-08 指向 | 語意 | 企業建議用途 |
+| --- | --- | --- | --- | --- |
+| `stable` | `latest` | **2026.11.1** | 大多數使用者的建議通道；通常先在 beta 驗證後「不改版號」直接升為 latest | 一般團隊 Gateway |
+| `extended-stable` | `extended-stable` | **2026.9.36** | **LTS 等價物**：上個月月底的版本 + 關鍵安全／可靠性修補與新模型支援；**僅套件、僅前景安裝、永不自動套用**（只會在 `update.checkOnStart` 啟用時提示） | 受控生產環境、變更窗口嚴格的組織 |
+| `beta` | `beta`（若較舊則退回 `latest`） | 2026.11.5-beta.1 | 預覽下一個穩定版；舊 beta 永遠不會取代較新的 stable | 預備（staging）環境的相容性驗證 |
+| `dev` | Git `main` | 移動中 | 開發中的 head，可能包含未完成功能或破壞性變更 | **不可用於生產 Gateway** |
+
+```bash
+openclaw update status                            # 目前通道、版本與可用更新
+openclaw update --channel extended-stable --dry-run
+openclaw update --channel extended-stable         # 成功後寫入 update.channel
+openclaw update --tag 2026.11.1 --dry-run         # 釘選特定版本
+```
+
+```json5
+// 生產 Gateway：鎖定 LTS 通道、只提示不自動更新
+{
+  update: { channel: "extended-stable", checkOnStart: true },
+}
+```
+
+#### 選型決策
+
+```mermaid
+graph TD
+    A[新部署或年度規劃] --> B{是否有正式變更管理<br/>與固定維護窗口?}
+    B -->|是| C["extended-stable<br/>每月評估一次"]
+    B -->|否| D{是否需要最新功能<br/>例如 Cloud Sessions?}
+    D -->|是| E["stable（latest）<br/>先在 beta 預備環境驗證"]
+    D -->|否| C
+    C --> F[以 IaC 釘選確切版本<br/>例如 openclaw@2026.9.36]
+    E --> F
+```
+
+> ⚠️ **注意事項**：
+>
+> 1. `extended-stable` 通道**只支援套件安裝**；Git checkout 安裝切到此通道時，OpenClaw 會保持 checkout 不變並要求改用套件安裝。
+> 2. 對 `extended-stable` 的更新會先解析 npm selector、**驗證確切套件**後才安裝；驗證失敗會停止，不會退回 latest／beta／dev。
+> 3. 容器部署不使用通道切換，而是**換映像 tag**（`ghcr.io/openclaw/openclaw:extended-stable` 或確切版本）。
+> 4. 日期版本號**不能單憑大小判斷新舊**（例如 2026.9.36 是 LTS 線，**比** 2026.10.x 舊）；以 dist-tag 與發布說明為準。
+
+### 3.13 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | Node 版本符合 | `node --version` | `>=24.16.0 <25` 或 `>=26.1.0`，建議 24.22.1+／26.12.1+ |
+| 2 | 組態檔合法 | `openclaw config validate --json` | `valid: true` 且 `warnings: []` |
+| 3 | 所有 CLI 指令存在 | `openclaw <cmd> --help` 或附錄 F 的 `check_cli.py` | 沒有 `unknown command`／`unknown flag` |
+| 4 | Docker 部署路徑與暴露面 | 檢視 compose：state 掛載 `/home/node/.openclaw`、埠帶 `127.0.0.1:` 前綴、無 redis 服務 | 符合 3.3 |
+| 5 | 憑證未寫死 | `openclaw secrets audit` | 無明文憑證；SecretRef 皆可解析 |
+| 6 | 通道與版本釘選 | `openclaw update status --json` | 通道符合企業政策；映像以確切版本或 digest 釘選 |
+
 ---
 
 ## 第四章：開發實戰教學
 
 ### 4.1 第一個 OpenClaw Agent
 
-#### 建立 Agent 工作區
+本節用最短路徑做出一個「Java 教學助理」，並說明每一步該如何驗證。重點在建立正確的心智模型：**行為寫在工作區的 Markdown 檔，連線與政策寫在 `openclaw.json`，能力來自技能 + 工具政策**。
+
+#### 步驟 1：建立工作區
 
 ```bash
-# 建立專案目錄
-mkdir my-openclaw-agent
-cd my-openclaw-agent
-
-# 初始化 OpenClaw 工作區
-openclaw onboard --workspace
-
-# 目錄結構：
-# my-openclaw-agent/
-# ├── openclaw.json5      # 工作區組態（JSON5 格式）
-# ├── AGENTS.md            # Agent 行為定義
-# ├── SOUL.md              # Agent 人格設定
-# ├── TOOLS.md             # 可用工具清單
-# └── skills/              # 技能目錄
+# 預設工作區為 ~/.openclaw/workspace；此處指定專案目錄作為工作區
+mkdir -p ~/agents/java-tutor
+openclaw onboard --workspace ~/agents/java-tutor
 ```
 
-#### 定義 Agent 行為
+onboarding 會在工作區建立缺少的啟動檔（bootstrap files）：
+
+```text
+~/agents/java-tutor/
+├── AGENTS.md        # 操作規則與優先順序（每個 Session 開始時載入）；其中「## Tools」段落只是使用慣例，不控制工具權限
+├── SOUL.md          # 人格、語氣與邊界
+├── IDENTITY.md      # 名稱、風格、emoji（首次執行儀式中建立）
+├── USER.md          # （選用）使用者偏好，獨立 4,000 字元預算
+├── BOOTSTRAP.md     # 一次性的首次執行儀式，完成後可刪除
+├── MEMORY.md        # （選用）精選長期記憶
+├── memory/          # 每日記憶日誌 memory/YYYY-MM-DD.md
+└── skills/          # 工作區技能（最高優先序）
+```
+
+> ❌ **常見錯誤**：把系統提示寫成 `openclaw.json` 裡的 `agent.systemPrompt`。OpenClaw **沒有**這個鍵；Agent 的行為與人格是由 `AGENTS.md`、`SOUL.md` 等工作區檔案組成，可在 Control UI 的 **Settings → Agents → Files** 編輯（單檔上限 2 MiB）。
+
+#### 步驟 2：撰寫行為規則（AGENTS.md）
+
+```markdown
+# 操作規則
+
+- 你是 Java 程式設計教學助理，一律以繁體中文回覆。
+- 先解釋概念，再提供可編譯的完整範例（含 import 與 main 方法）。
+- 不確定 API 行為時，明說不確定並建議使用者以 `javac`／`java` 實測，不要杜撰。
+- 回覆保持簡潔，使用 Markdown。
+
+## Tools
+
+- 需要示範執行結果時，使用沙箱中的 code_execution，不要在主機執行。
+```
+
+#### 步驟 3：連線與模型（openclaw.json）
 
 ```json5
-// openclaw.json
+// ~/.openclaw/openclaw.json
 {
-  "agent": {
-    "name": "學習助理",
-    "defaultModel": "default",
-    "systemPrompt": `
-      你是一個專業的學習助理，專長在 Java 程式設計教學。
-      請以繁體中文回應，並在適當時提供程式碼範例。
-      回應保持簡潔、有條理，使用 Markdown 格式。
-    `,
-  },
-  "models": {
-    "default": {
-      "provider": "openai",
-      "model": "gpt-5.6",
+  agents: {
+    defaults: {
+      model: { primary: "anthropic/claude-sonnet-5-5" },
+      workspace: "~/agents/java-tutor",
+      sandbox: { mode: "non-main" },
     },
   },
-  "channels": {
-    "telegram": {
-      "enabled": true,
-      "token": "${TELEGRAM_BOT_TOKEN}",
-    },
+  channels: {
+    telegram: { botToken: "${TELEGRAM_BOT_TOKEN}", dmPolicy: "pairing" },
   },
+  tools: { profile: "coding", fs: { workspaceOnly: true } },
 }
 ```
 
-#### 建立第一個 Skill
+#### 步驟 4：建立第一個 Skill
 
-```bash
-# 建立技能目錄
-mkdir -p skills/java-tutor
-```
-
-建立 `skills/java-tutor/SKILL.md`：
+建立 `~/agents/java-tutor/skills/java-tutor/SKILL.md`：
 
 ```markdown
 ---
 name: java-tutor
-description: Java 程式設計教學技能
-version: 1.0.0
-triggers:
-  - java
-  - 程式
-  - 教學
-  - 範例
-tools:
-  - execute_code
-  - search_docs
+description: 當使用者詢問 Java 語法、標準函式庫或物件導向設計時，提供概念說明與可編譯的完整範例
 ---
 
 # Java 教學技能
 
-你是一個 Java 程式設計的專業教師。當使用者詢問 Java 相關問題時：
-
-## 教學方針
-
-1. 先解釋概念，再提供程式碼範例
-2. 使用 JavaDoc 格式的註解
-3. 遵循 Java 命名慣例（PascalCase 類別、camelCase 方法）
-4. 每個範例都附帶簡要的執行結果說明
-5. 適時提醒常見錯誤和最佳實務
-
-## 程式碼範例格式
-
-所有 Java 程式碼範例應包含：
-- 完整的 import 陳述式
-- JavaDoc 註解
-- main 方法（如需執行示範）
-- 預期輸出的註解
+1. 先用三到五句話解釋概念。
+2. 提供完整範例：import、JavaDoc 註解、main 方法、以註解標示預期輸出。
+3. 指出一個常見錯誤與修正方式。
+4. 範例需符合 Java 21 語法；使用 record、switch pattern 等新語法時要標註最低版本。
 ```
 
-#### 啟動並測試
+#### 步驟 5：啟動、配對並測試
 
 ```bash
-# 啟動 Agent
-openclaw start
+openclaw gateway restart                  # 讓服務載入新組態（或 openclaw gateway run 前景執行）
+openclaw skills check                     # 確認 java-tutor 已載入且來源為工作區
+openclaw pairing approve telegram <配對碼>  # 第一次 DM 會收到配對碼
 
-# 在 Telegram 上與 Bot 對話測試
-# 使用者: "請教我 Java 的 Stream API"
-# Agent: [使用 java-tutor 技能回應]
+# 不經過頻道，直接從 CLI 跑一個回合驗證行為
+openclaw agent --message "請用 Java Stream API 示範分組計數"
 ```
+
+#### 第一個 Agent 的驗證方式
+
+| 檢查 | 方法 | 預期 |
+| --- | --- | --- |
+| 組態合法 | `openclaw config validate --json` | `valid: true` |
+| 技能已載入 | `openclaw skills check` | `java-tutor` 出現且來源為 `<workspace>/skills` |
+| 行為符合規則 | 以 `openclaw agent --message` 測試 3 個問題 | 皆為繁體中文、含完整可編譯範例 |
+| 範例可編譯 | 將回覆中的程式碼存檔後執行 `javac Main.java && java Main` | 編譯成功，輸出與註解一致 |
+| DM 安全 | 用未配對帳號傳訊 | 收到配對碼，Agent 不處理訊息 |
 
 ### 4.2 Java 整合 OpenClaw API
 
-OpenClaw 提供 WebSocket API，可以透過 Java 應用程式直接與 Gateway 通訊。
+Java 後端整合 OpenClaw 有三條官方路徑，依需求選擇：
 
-#### Maven 依賴
+| 路徑 | 協定 | 適用情境 | 本手冊 |
+| --- | --- | --- | --- |
+| **OpenAI 相容 HTTP API** | `POST /v1/chat/completions`（另有 `/v1/responses`） | 後端服務呼叫 Agent、批次作業、內部系統整合（**Java 首選**） | 本節、4.10 |
+| **Gateway WebSocket Protocol** | `req`／`res`／`event` frame + `connect.challenge` 握手 + 裝置配對 | 自建 operator 介面、需要即時事件串流與審批 UI | 4.11 |
+| **Tools Invoke HTTP API** | `POST` 直接呼叫單一工具 | 不需要模型推理、只要執行某個工具 | 官方 [Tools invoke](https://docs.openclaw.ai/gateway/tools-invoke-http-api) |
+
+> ❌ **舊版範例的錯誤**：以 Java-WebSocket 送出 `{"type":"message.send", ...}` 與 `heartbeat.pong`。Gateway WebSocket 協定**沒有**這些訊息型別；它要求先完成 `connect.challenge` → `connect`（含角色、scope 與裝置證明）→ `hello-ok` 握手，之後才能以 `{"type":"req","method":"chat.send",...}` 呼叫方法。Java 沒有官方 WebSocket 參考用戶端，**後端整合請優先使用 HTTP API**。
+
+#### 步驟 1：在 Gateway 啟用 HTTP 端點
+
+```json5
+// openclaw.json（預設關閉）
+{
+  gateway: {
+    auth: { mode: "token", token: "${OPENCLAW_GATEWAY_TOKEN}" },
+    http: { endpoints: { chatCompletions: { enabled: true } } },
+  },
+}
+```
+
+> ⚠️ **安全邊界**：此端點的 token／password 等同 **operator 完整權限**，請求會以一般 Agent 執行，若 Agent 政策允許敏感工具，透過此端點也能使用。只能開放在 loopback、tailnet 或內部 ingress，**絕不可暴露到公網**；呼叫端只能是受信任的後端服務。
+
+`model` 欄位在 OpenClaw 代表**Agent 目標**而非供應商模型：
+
+| `model` 值 | 路由到 |
+| --- | --- |
+| `openclaw` 或 `openclaw/default` | 預設 Agent（後者是穩定別名，可安全寫死） |
+| `openclaw/<agentId>` | 指定 Agent |
+
+Session 行為：預設**每次請求都是新 Session**；若帶 OpenAI 的 `user` 欄位，Gateway 會據此衍生固定 session key，讓同一對話共用 Session。
+
+#### 步驟 2：Maven 專案（Spring Boot 4.1.2、Java 21、Jackson 3）
+
+`OpenClawClient` 本身只使用 JDK `java.net.http` 與 Jackson；Spring Boot 只在 4.10 的 REST 包裝時需要。
 
 ```xml
-<!-- pom.xml - WebSocket 客戶端依賴 -->
-<dependencies>
-    <!-- Java WebSocket 客戶端 -->
-    <dependency>
-        <groupId>org.java-websocket</groupId>
-        <artifactId>Java-WebSocket</artifactId>
-        <version>1.5.6</version>
-    </dependency>
-    
-    <!-- JSON 處理 -->
-    <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>2.17.0</version>
-    </dependency>
-    
-    <!-- HTTP 客戶端（用於健康檢查等 REST API） -->
-    <dependency>
-        <groupId>org.apache.httpcomponents.client5</groupId>
-        <artifactId>httpclient5</artifactId>
-        <version>5.3</version>
-    </dependency>
-    
-    <!-- 日誌 -->
-    <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>2.23.1</version>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-api</artifactId>
-        <version>2.23.1</version>
-    </dependency>
-</dependencies>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.2</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.tutorial</groupId>
+    <artifactId>openclaw-java-integration</artifactId>
+    <version>1.0.0</version>
+
+    <properties>
+        <java.version>21</java.version>
+    </properties>
+
+    <dependencies>
+        <!-- REST 控制器（4.10）；OpenClawClient 本身只依賴 JDK HttpClient 與 Jackson -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
 ```
 
-#### OpenClaw WebSocket 客戶端
+#### 步驟 3：OpenClawClient
 
 ```java
 package com.tutorial.openclaw;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
+import java.time.Duration;
+import java.util.Objects;
+
+/**
+ * OpenClaw Gateway 的 Java 用戶端（OpenAI 相容 HTTP API）。
+ *
+ * <p>呼叫 Gateway 的 {@code POST /v1/chat/completions}。此端點預設關閉，需在
+ * {@code openclaw.json} 設定 {@code gateway.http.endpoints.chatCompletions.enabled: true}。
+ * 請求會以一般 Agent 執行（與 {@code openclaw agent} 相同路徑），因此路由、權限與組態
+ * 都與 Gateway 一致。</p>
+ *
+ * <p><b>安全邊界</b>：持有 Gateway token／password 等同於 operator 權限，
+ * 本用戶端只應部署在可信任的後端服務中，且 Gateway 端點只開放於 loopback／內網。</p>
+ *
+ * <pre>{@code
+ * OpenClawClient client = OpenClawClient.builder(URI.create("http://127.0.0.1:18789"))
+ *         .token(System.getenv("OPENCLAW_GATEWAY_TOKEN"))
+ *         .agent("assistant")
+ *         .build();
+ * String reply = client.sendMessage("ticket-4711", "幫我摘要這張工單");
+ * }</pre>
+ */
+public final class OpenClawClient implements AutoCloseable {
+
+    private static final JsonMapper JSON = JsonMapper.builder().build();
+
+    private final URI gatewayUri;
+    private final String token;
+    private final String agentTarget;
+    private final Duration requestTimeout;
+    private final int maxAttempts;
+    private final Duration initialBackoff;
+    private final HttpClient http;
+
+    private OpenClawClient(Builder b) {
+        this.gatewayUri = Objects.requireNonNull(b.gatewayUri, "gatewayUri");
+        this.token = Objects.requireNonNull(b.token, "token（OPENCLAW_GATEWAY_TOKEN）不可為空");
+        this.agentTarget = b.agentId == null ? "openclaw/default" : "openclaw/" + b.agentId;
+        this.requestTimeout = b.requestTimeout;
+        this.maxAttempts = b.maxAttempts;
+        this.initialBackoff = b.initialBackoff;
+        // 必須固定 HTTP/1.1：JDK HttpClient 對 http:// 預設會送出 "Upgrade: h2c" 嘗試升級 HTTP/2，
+        // Gateway 會把 Upgrade 標頭當成 WebSocket 升級處理，回 400（GET）或 405（POST）。
+        this.http = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_1_1)
+                .connectTimeout(b.connectTimeout)
+                .build();
+    }
+
+    public static Builder builder(URI gatewayUri) {
+        return new Builder(gatewayUri);
+    }
+
+    /** 無狀態呼叫：每次請求都是新的 Session。 */
+    public String sendMessage(String content) {
+        return sendMessage(null, content);
+    }
+
+    /**
+     * 以穩定的對話識別碼呼叫 Agent。
+     *
+     * <p>OpenAI 的 {@code user} 欄位會被 Gateway 用來衍生固定的 session key，
+     * 同一個 {@code conversationId} 的多次呼叫會共用同一個 Agent Session。
+     * 請用「對話／工單」層級的識別碼，不要用帳號層級的識別碼。</p>
+     *
+     * @param conversationId 對話識別碼；{@code null} 表示無狀態
+     * @param content        使用者訊息
+     * @return Agent 的最終回覆文字
+     * @throws OpenClawException 認證失敗、請求被拒或重試後仍失敗
+     */
+    public String sendMessage(String conversationId, String content) {
+        if (content == null || content.isBlank()) {
+            throw new IllegalArgumentException("content 不可為空");
+        }
+        ObjectNode body = JSON.createObjectNode();
+        body.put("model", agentTarget);
+        ArrayNode messages = body.putArray("messages");
+        messages.addObject().put("role", "user").put("content", content);
+        if (conversationId != null) {
+            body.put("user", conversationId);
+        }
+
+        HttpRequest request = HttpRequest.newBuilder(gatewayUri.resolve("/v1/chat/completions"))
+                .timeout(requestTimeout)
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(JSON.writeValueAsString(body)))
+                .build();
+
+        HttpResponse<String> response = sendWithRetry(request);
+        JsonNode json = JSON.readTree(response.body());
+        JsonNode text = json.path("choices").path(0).path("message").path("content");
+        if (text.isMissingNode() || text.isNull()) {
+            throw new OpenClawException("回應中沒有 choices[0].message.content", response.statusCode());
+        }
+        return text.asString();
+    }
+
+    /**
+     * 呼叫 {@code GET /readyz}：Gateway 啟動完成、未在 drain、必要資料庫與頻道就緒。
+     *
+     * <p><b>必須檢查 JSON 本文的 {@code ready: true}，不能只看狀態碼</b>：Control UI 對未知路徑
+     * 一律回 200，若映像版本沒有這個路由，只看狀態碼的檢查會永遠通過（官方 Kubernetes probe
+     * 也是同樣做法）。</p>
+     */
+    public boolean isReady() {
+        HttpRequest request = HttpRequest.newBuilder(gatewayUri.resolve("/readyz"))
+                .timeout(Duration.ofSeconds(5))
+                .GET()
+                .build();
+        try {
+            HttpResponse<String> res = http.send(request, HttpResponse.BodyHandlers.ofString());
+            if (res.statusCode() >= 400) {
+                return false;
+            }
+            return JSON.readTree(res.body()).path("ready").asBoolean(false);
+        } catch (RuntimeException e) {
+            return false; // 非 JSON 本文（例如 Control UI 的 HTML）
+        } catch (IOException e) {
+            return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
+    }
+
+    public URI getGatewayUri() {
+        return gatewayUri;
+    }
+
+    private HttpResponse<String> sendWithRetry(HttpRequest request) {
+        Duration backoff = initialBackoff;
+        OpenClawException last = null;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+                int status = response.statusCode();
+                if (status == 200) {
+                    return response;
+                }
+                // 4xx（429 除外）是呼叫端問題，重試沒有意義：直接失敗
+                if (status != 429 && status < 500) {
+                    throw new OpenClawException(errorMessage(response), status);
+                }
+                last = new OpenClawException(errorMessage(response), status);
+                // 429 時尊重 Retry-After
+                backoff = response.headers().firstValue("Retry-After")
+                        .map(OpenClawClient::parseRetryAfter).orElse(backoff);
+            } catch (HttpTimeoutException e) {
+                last = new OpenClawException("請求逾時（" + requestTimeout + "）", -1, e);
+            } catch (IOException e) {
+                last = new OpenClawException("無法連線至 Gateway: " + e.getMessage(), -1, e);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new OpenClawException("呼叫被中斷", -1, e);
+            }
+            if (attempt < maxAttempts) {
+                sleep(backoff);
+                backoff = backoff.multipliedBy(2);
+            }
+        }
+        throw last;
+    }
+
+    private static String errorMessage(HttpResponse<String> response) {
+        try {
+            JsonNode err = JSON.readTree(response.body()).path("error");
+            String msg = err.path("message").asString("");
+            if (!msg.isEmpty()) {
+                return "Gateway 回應 " + response.statusCode() + ": " + msg;
+            }
+        } catch (RuntimeException ignored) {
+            // 非 JSON 錯誤本文
+        }
+        return "Gateway 回應 " + response.statusCode();
+    }
+
+    private static Duration parseRetryAfter(String value) {
+        try {
+            return Duration.ofSeconds(Math.min(Long.parseLong(value.trim()), 60));
+        } catch (NumberFormatException e) {
+            return Duration.ofSeconds(1);
+        }
+    }
+
+    private static void sleep(Duration d) {
+        try {
+            Thread.sleep(d.toMillis());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new OpenClawException("重試等待被中斷", -1, e);
+        }
+    }
+
+    @Override
+    public void close() {
+        http.close();
+    }
+
+    /** 建構器：所有逾時與重試參數都有保守的預設值。 */
+    public static final class Builder {
+        private final URI gatewayUri;
+        private String token;
+        private String agentId;
+        private Duration connectTimeout = Duration.ofSeconds(5);
+        private Duration requestTimeout = Duration.ofMinutes(2);
+        private int maxAttempts = 3;
+        private Duration initialBackoff = Duration.ofMillis(500);
+
+        private Builder(URI gatewayUri) {
+            this.gatewayUri = gatewayUri;
+        }
+
+        public Builder token(String token) { this.token = token; return this; }
+        public Builder agent(String agentId) { this.agentId = agentId; return this; }
+        public Builder connectTimeout(Duration d) { this.connectTimeout = d; return this; }
+        public Builder requestTimeout(Duration d) { this.requestTimeout = d; return this; }
+        public Builder maxAttempts(int n) { this.maxAttempts = Math.max(1, n); return this; }
+        public Builder initialBackoff(Duration d) { this.initialBackoff = d; return this; }
+
+        public OpenClawClient build() {
+            return new OpenClawClient(this);
+        }
+    }
+}
+```
+
+```java
+package com.tutorial.openclaw;
+
+/** 呼叫 OpenClaw Gateway 失敗；{@link #getStatus()} 為 HTTP 狀態碼，連線層錯誤為 -1。 */
+public class OpenClawException extends RuntimeException {
+
+    private final int status;
+
+    public OpenClawException(String message, int status) {
+        super(message);
+        this.status = status;
+    }
+
+    public OpenClawException(String message, int status, Throwable cause) {
+        super(message, cause);
+        this.status = status;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    /** 401／403：憑證錯誤或權限不足，不應重試。 */
+    public boolean isAuthError() {
+        return status == 401 || status == 403;
+    }
+}
+```
+
+設計重點（Review 時逐項確認）：
+
+1. **重試只針對可恢復錯誤**：5xx、429、逾時與連線錯誤會指數退避重試；401／403 等 4xx **立即失敗**，避免以錯誤憑證反覆嘗試觸發 Gateway 的 `auth.rateLimit`。
+2. **尊重 `Retry-After`**：Gateway 在認證失敗過多時回 `429` 並附 `Retry-After`。
+3. **逾時有上限**：連線 5 秒、請求預設 2 分鐘；Agent 回合可能很長，但不能無限等待。
+4. **固定 HTTP/1.1**：JDK `HttpClient` 對 `http://` 預設會帶 `Upgrade: h2c` 嘗試升級 HTTP/2，**Gateway 會把 `Upgrade` 標頭當成 WebSocket 升級**，GET 回 `400 Invalid Upgrade header`、POST 回 `405 Invalid HTTP method`。這個問題**只有對真實 Gateway 測試才會出現**（mock 伺服器會忽略該標頭），本範例是在實跑冒煙測試時發現並修正的；測試 `neverSendsHttp2UpgradeHeader` 用來防止退化。
+5. **401 有兩種來源**：Gateway token 錯誤（`{"error":{"message":"Unauthorized","type":"unauthorized"}}`），或 Agent 執行時上游 Provider 沒有可用憑證（例如 `No API key found for provider "anthropic"`）。兩者都不應重試，但告警與排查方向不同，應記錄 `error.message`。
+6. **對話識別碼用對話層級**：`user` 欄位決定 Session 共用範圍，用帳號 ID 會讓不同對話混在一起。
+7. **readiness 用 `/readyz`，而且要檢查 JSON 本文**：`/healthz` 只代表 HTTP 存活；`/readyz` 才代表啟動完成、未在 drain、必要資料庫與頻道就緒。**Control UI 對未知路徑一律回 200**，所以只看狀態碼的檢查在映像缺少該路由時會永遠通過——必須確認本文是 `{"ready": true}`（官方 Kubernetes probe 也這樣做，見 8.5）。
+
+#### 步驟 4：以模擬 Gateway 進行單元測試
+
+測試不需要真的 Gateway：用 JDK `HttpServer` 模擬 `/v1/chat/completions` 與 `/readyz`，依序回放預設回應並記錄收到的請求。
+
+```java
+package com.tutorial.openclaw;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+/** 以 JDK HttpServer 模擬 Gateway 的 /v1/chat/completions 與 /readyz。 */
+final class MockGateway implements AutoCloseable {
+
+    record Reply(int status, String body, Map<String, String> headers, long delayMs) {
+        static Reply ok(String text) {
+            return new Reply(200, """
+                    {"id":"chatcmpl-1","object":"chat.completion","model":"openclaw/assistant",
+                     "choices":[{"index":0,"message":{"role":"assistant","content":%s},"finish_reason":"stop"}]}
+                    """.formatted(quote(text)), Map.of(), 0);
+        }
+
+        static Reply error(int status, String message) {
+            return new Reply(status, "{\"error\":{\"message\":" + quote(message) + ",\"type\":\"error\"}}", Map.of(), 0);
+        }
+    }
+
+    record Received(String method, String path, String authorization, String upgrade, String body) {
+    }
+
+    private final HttpServer server;
+    private final Deque<Reply> replies = new ArrayDeque<>();
+    final List<Received> received = new CopyOnWriteArrayList<>();
+    volatile int readyStatus = 200;
+    volatile String readyBody = "{\"ready\":true}";
+
+    MockGateway() throws IOException {
+        server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/v1/chat/completions", this::chat);
+        server.createContext("/readyz", ex -> respond(ex, readyStatus, readyBody, Map.of()));
+        server.start();
+    }
+
+    URI uri() {
+        return URI.create("http://127.0.0.1:" + server.getAddress().getPort());
+    }
+
+    MockGateway enqueue(Reply... rs) {
+        synchronized (replies) {
+            replies.addAll(List.of(rs));
+        }
+        return this;
+    }
+
+    private void chat(HttpExchange ex) throws IOException {
+        String body = new String(ex.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+        received.add(new Received(ex.getRequestMethod(), ex.getRequestURI().getPath(),
+                ex.getRequestHeaders().getFirst("Authorization"),
+                ex.getRequestHeaders().getFirst("Upgrade"), body));
+        Reply r;
+        synchronized (replies) {
+            r = replies.isEmpty() ? Reply.error(500, "no reply queued") : replies.poll();
+        }
+        if (r.delayMs() > 0) {
+            try {
+                Thread.sleep(r.delayMs());
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        respond(ex, r.status(), r.body(), r.headers());
+    }
+
+    private static void respond(HttpExchange ex, int status, String body, Map<String, String> headers)
+            throws IOException {
+        byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+        ex.getResponseHeaders().add("Content-Type", "application/json");
+        headers.forEach((k, v) -> ex.getResponseHeaders().add(k, v));
+        try {
+            ex.sendResponseHeaders(status, bytes.length);
+            ex.getResponseBody().write(bytes);
+        } catch (IOException ignored) {
+            // 用戶端已逾時斷線
+        } finally {
+            ex.close();
+        }
+    }
+
+    private static String quote(String s) {
+        return "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+    }
+
+    @Override
+    public void close() {
+        server.stop(0);
+    }
+}
+```
+
+```java
+package com.tutorial.openclaw;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.time.Duration;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class OpenClawClientTest {
+
+    private MockGateway gw;
+    private OpenClawClient client;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        gw = new MockGateway();
+        client = OpenClawClient.builder(gw.uri())
+                .token("test-token")
+                .agent("assistant")
+                .requestTimeout(Duration.ofSeconds(2))
+                .initialBackoff(Duration.ofMillis(10))
+                .maxAttempts(3)
+                .build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        client.close();
+        gw.close();
+    }
+
+    @Test
+    void sendsAgentTargetUserAndBearerToken() {
+        gw.enqueue(MockGateway.Reply.ok("報表已產生"));
+
+        String reply = client.sendMessage("ticket-4711", "產生今日報表");
+
+        assertThat(reply).isEqualTo("報表已產生");
+        MockGateway.Received req = gw.received.getFirst();
+        assertThat(req.path()).isEqualTo("/v1/chat/completions");
+        assertThat(req.authorization()).isEqualTo("Bearer test-token");
+        JsonNode body = JsonMapper.builder().build().readTree(req.body());
+        assertThat(body.path("model").asString()).isEqualTo("openclaw/assistant");
+        assertThat(body.path("user").asString()).isEqualTo("ticket-4711");
+        assertThat(body.path("messages").path(0).path("content").asString()).isEqualTo("產生今日報表");
+    }
+
+    @Test
+    void neverSendsHttp2UpgradeHeader() {
+        // 真實 Gateway 收到 "Upgrade: h2c" 會回 400／405（2026.11.1 實測）
+        gw.enqueue(MockGateway.Reply.ok("ok"));
+        client.sendMessage("x");
+        assertThat(gw.received.getFirst().upgrade()).isNull();
+    }
+
+    @Test
+    void statelessCallOmitsUserField() {
+        gw.enqueue(MockGateway.Reply.ok("ok"));
+        client.sendMessage("hi");
+        JsonNode body = JsonMapper.builder().build().readTree(gw.received.getFirst().body());
+        assertThat(body.has("user")).isFalse();
+    }
+
+    @Test
+    void authErrorIsNotRetried() {
+        gw.enqueue(MockGateway.Reply.error(401, "unauthorized"), MockGateway.Reply.ok("should not be used"));
+
+        assertThatThrownBy(() -> client.sendMessage("x"))
+                .isInstanceOf(OpenClawException.class)
+                .satisfies(e -> assertThat(((OpenClawException) e).isAuthError()).isTrue())
+                .hasMessageContaining("unauthorized");
+        assertThat(gw.received).hasSize(1);
+    }
+
+    @Test
+    void serverErrorIsRetriedThenSucceeds() {
+        gw.enqueue(MockGateway.Reply.error(503, "draining"), MockGateway.Reply.ok("recovered"));
+
+        assertThat(client.sendMessage("x")).isEqualTo("recovered");
+        assertThat(gw.received).hasSize(2);
+    }
+
+    @Test
+    void rateLimitHonoursRetryAfterAndGivesUpAfterMaxAttempts() {
+        var limited = new MockGateway.Reply(429, "{\"error\":{\"message\":\"slow down\"}}", Map.of("Retry-After", "0"), 0);
+        gw.enqueue(limited, limited, limited);
+
+        assertThatThrownBy(() -> client.sendMessage("x"))
+                .isInstanceOf(OpenClawException.class)
+                .satisfies(e -> assertThat(((OpenClawException) e).getStatus()).isEqualTo(429));
+        assertThat(gw.received).hasSize(3);
+    }
+
+    @Test
+    void timeoutIsReportedAsOpenClawException() {
+        var slow = new MockGateway.Reply(200, "{}", Map.of(), 3_000);
+        gw.enqueue(slow, slow, slow);
+        OpenClawClient fast = OpenClawClient.builder(gw.uri()).token("t")
+                .requestTimeout(Duration.ofMillis(300)).maxAttempts(1).build();
+
+        assertThatThrownBy(() -> fast.sendMessage("x"))
+                .isInstanceOf(OpenClawException.class)
+                .hasMessageContaining("逾時");
+        fast.close();
+    }
+
+    @Test
+    void readinessFollowsReadyz() {
+        assertThat(client.isReady()).isTrue();
+        gw.readyStatus = 503;
+        assertThat(client.isReady()).isFalse();
+    }
+
+    @Test
+    void readinessRequiresJsonReadyTrueNotJustStatus200() {
+        // 模擬「映像沒有 /readyz 路由，Control UI 回 200 + HTML」的情況
+        gw.readyBody = "<!doctype html><title>OpenClaw</title>";
+        assertThat(client.isReady()).isFalse();
+        gw.readyBody = "{\"ready\":false}";
+        assertThat(client.isReady()).isFalse();
+    }
+
+    @Test
+    void rejectsBlankInputBeforeCallingGateway() {
+        assertThatThrownBy(() -> client.sendMessage("  ")).isInstanceOf(IllegalArgumentException.class);
+        assertThat(gw.received).isEmpty();
+    }
+}
+```
+
+```bash
+mvn -B test
+# [INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0 -- in com.tutorial.openclaw.OpenClawClientTest
+# [INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0 -- in com.tutorial.openclaw.spring.OpenClawControllerTest
+# [INFO] BUILD SUCCESS
+```
+
+> **驗證測試本身有效（突變測試）**：暫時把 `if (status != 429 && status < 500)` 改成 `if (false)`（也就是讓 401 也重試），`authErrorIsNotRetried` 會失敗——證明這組測試真的守住了「認證錯誤不重試」這條規則。審查 AI 產生的測試時，也應以同樣方式抽查。
+
+#### 步驟 5：對真實 Gateway 做冒煙測試
+
+mock 測試證明「邏輯正確」，但無法證明「與真實 Gateway 相容」——上面的 HTTP/1.1 問題就是例子。以環境變數控制、預設略過的冒煙測試：
+
+```java
+package com.tutorial.openclaw;
+
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.net.URI;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * OpenClaw WebSocket 客戶端。
- *
- * <p>提供與 OpenClaw Gateway WebSocket 控制平面的連線管理，
- * 支援發送訊息、接收串流回應、健康檢查等功能。</p>
- *
- * <h3>使用範例：</h3>
- * <pre>{@code
- * OpenClawClient client = new OpenClawClient("ws://localhost:18789");
- * client.connectBlocking();
- * String response = client.sendMessage("你好，請幫我寫一段 Java 程式");
- * System.out.println(response);
- * client.close();
- * }</pre>
- *
- * @author Tutorial Team
- * @version 1.0.0
- * @since 2026.3
+ * 對「真實」Gateway 的冒煙測試：只有在設定 OPENCLAW_GATEWAY_URL 與 OPENCLAW_GATEWAY_TOKEN 時才執行
+ * （CI 的預備環境 job 設定這兩個變數；開發機與單元測試 job 會自動略過）。
  */
-public class OpenClawClient extends WebSocketClient {
+@Tag("live")
+@EnabledIfEnvironmentVariable(named = "OPENCLAW_GATEWAY_URL", matches = "https?://.+")
+@EnabledIfEnvironmentVariable(named = "OPENCLAW_GATEWAY_TOKEN", matches = ".+")
+class LiveGatewaySmokeTest {
 
-    private static final Logger logger = LogManager.getLogger(OpenClawClient.class);
-
-    /** JSON 序列化/反序列化工具 */
-    private final ObjectMapper objectMapper;
-
-    /** 等待回應的 Future 映射表，以 requestId 為鍵 */
-    private final ConcurrentHashMap<String, CompletableFuture<String>> pendingRequests;
-
-    /** 串流回應緩衝區 */
-    private final ConcurrentHashMap<String, StringBuilder> streamBuffers;
-
-    /**
-     * 建立 OpenClaw WebSocket 客戶端。
-     *
-     * @param serverUri OpenClaw Gateway 的 WebSocket URI，
-     *                  例如 {@code ws://localhost:18789}
-     */
-    public OpenClawClient(String serverUri) {
-        super(URI.create(serverUri));
-        this.objectMapper = new ObjectMapper();
-        this.pendingRequests = new ConcurrentHashMap<>();
-        this.streamBuffers = new ConcurrentHashMap<>();
-        logger.info("OpenClaw 客戶端已建立，目標: {}", serverUri);
+    private OpenClawClient client() {
+        return OpenClawClient.builder(URI.create(System.getenv("OPENCLAW_GATEWAY_URL")))
+                .token(System.getenv("OPENCLAW_GATEWAY_TOKEN"))
+                .requestTimeout(Duration.ofMinutes(2))
+                .build();
     }
 
-    @Override
-    public void onOpen(ServerHandshake handshake) {
-        logger.info("已連線至 OpenClaw Gateway (HTTP {})", handshake.getHttpStatus());
-    }
-
-    @Override
-    public void onMessage(String message) {
-        try {
-            JsonNode json = objectMapper.readTree(message);
-            String type = json.path("type").asText();
-            String requestId = json.path("requestId").asText();
-
-            switch (type) {
-                case "response.stream" -> handleStreamChunk(requestId, json);
-                case "response.complete" -> handleResponseComplete(requestId, json);
-                case "response.error" -> handleError(requestId, json);
-                case "heartbeat" -> handleHeartbeat();
-                default -> logger.debug("收到未知訊息類型: {}", type);
-            }
-        } catch (Exception e) {
-            logger.error("處理訊息時發生錯誤: {}", message, e);
+    @Test
+    void gatewayIsReady() {
+        try (OpenClawClient c = client()) {
+            assertThat(c.isReady()).as("/readyz 應回 ready: true").isTrue();
         }
     }
 
-    @Override
-    public void onClose(int code, String reason, boolean remote) {
-        logger.info("WebSocket 連線已關閉 [code={}, reason={}, remote={}]",
-                code, reason, remote);
-        // 完成所有等待中的請求
-        pendingRequests.forEach((id, future) ->
-                future.completeExceptionally(
-                        new RuntimeException("連線已關閉: " + reason)));
-        pendingRequests.clear();
-    }
-
-    @Override
-    public void onError(Exception ex) {
-        logger.error("WebSocket 發生錯誤", ex);
-    }
-
-    /**
-     * 發送訊息至 OpenClaw Agent 並等待完整回應。
-     *
-     * @param content 使用者訊息內容
-     * @return Agent 的完整回應文字
-     * @throws Exception 若發送失敗或等待超時
-     */
-    public String sendMessage(String content) throws Exception {
-        return sendMessage(content, 60, TimeUnit.SECONDS);
-    }
-
-    /**
-     * 發送訊息至 OpenClaw Agent 並在指定時間內等待回應。
-     *
-     * @param content 使用者訊息內容
-     * @param timeout 等待超時時間
-     * @param unit    超時時間單位
-     * @return Agent 的完整回應文字
-     * @throws Exception 若發送失敗或等待超時
-     */
-    public String sendMessage(String content, long timeout, TimeUnit unit)
-            throws Exception {
-        String requestId = UUID.randomUUID().toString();
-        CompletableFuture<String> future = new CompletableFuture<>();
-        pendingRequests.put(requestId, future);
-        streamBuffers.put(requestId, new StringBuilder());
-
-        // 構建訊息
-        ObjectNode message = objectMapper.createObjectNode();
-        message.put("type", "message.send");
-        message.put("requestId", requestId);
-
-        ObjectNode contentNode = objectMapper.createObjectNode();
-        contentNode.put("type", "text");
-        contentNode.put("text", content);
-        message.set("content", contentNode);
-
-        // 發送
-        String payload = objectMapper.writeValueAsString(message);
-        send(payload);
-        logger.debug("已發送訊息 [requestId={}]: {}", requestId, content);
-
-        // 等待回應
-        return future.get(timeout, unit);
-    }
-
-    /**
-     * 發送訊息並透過回呼接收串流回應。
-     *
-     * @param content  使用者訊息內容
-     * @param callback 串流回呼，每收到一個 Token 片段就會被呼叫
-     * @return 請求 ID
-     * @throws Exception 若發送失敗
-     */
-    public String sendMessageStreaming(String content, StreamCallback callback)
-            throws Exception {
-        String requestId = UUID.randomUUID().toString();
-
-        // 儲存回呼（實際實作會更複雜）
-        CompletableFuture<String> future = new CompletableFuture<>();
-        pendingRequests.put(requestId, future);
-        streamBuffers.put(requestId, new StringBuilder());
-
-        ObjectNode message = objectMapper.createObjectNode();
-        message.put("type", "message.send");
-        message.put("requestId", requestId);
-        message.put("stream", true);
-
-        ObjectNode contentNode = objectMapper.createObjectNode();
-        contentNode.put("type", "text");
-        contentNode.put("text", content);
-        message.set("content", contentNode);
-
-        send(objectMapper.writeValueAsString(message));
-        logger.debug("已發送串流請求 [requestId={}]", requestId);
-
-        return requestId;
-    }
-
-    /**
-     * 處理串流回應片段。
-     */
-    private void handleStreamChunk(String requestId, JsonNode json) {
-        String chunk = json.path("content").path("text").asText();
-        StringBuilder buffer = streamBuffers.get(requestId);
-        if (buffer != null) {
-            buffer.append(chunk);
+    @Test
+    void agentAnswersADeterministicPrompt() {
+        try (OpenClawClient c = client()) {
+            String reply = c.sendMessage("smoke-" + System.currentTimeMillis(), "只回覆 OK 兩個字，不要加其他文字");
+            assertThat(reply).containsIgnoringCase("ok");
         }
-        logger.trace("串流片段 [{}]: {}", requestId, chunk);
-    }
-
-    /**
-     * 處理完整回應。
-     */
-    private void handleResponseComplete(String requestId, JsonNode json) {
-        StringBuilder buffer = streamBuffers.remove(requestId);
-        CompletableFuture<String> future = pendingRequests.remove(requestId);
-
-        if (future != null) {
-            String fullResponse = (buffer != null)
-                    ? buffer.toString()
-                    : json.path("content").path("text").asText();
-            future.complete(fullResponse);
-            logger.debug("回應完成 [{}]: {} 字元", requestId, fullResponse.length());
-        }
-    }
-
-    /**
-     * 處理錯誤回應。
-     */
-    private void handleError(String requestId, JsonNode json) {
-        String errorMessage = json.path("error").path("message").asText("Unknown error");
-        CompletableFuture<String> future = pendingRequests.remove(requestId);
-        streamBuffers.remove(requestId);
-
-        if (future != null) {
-            future.completeExceptionally(
-                    new RuntimeException("OpenClaw 錯誤: " + errorMessage));
-        }
-        logger.error("收到錯誤回應 [{}]: {}", requestId, errorMessage);
-    }
-
-    /**
-     * 處理心跳訊息。
-     */
-    private void handleHeartbeat() {
-        logger.trace("收到心跳");
-        // 回傳心跳回應
-        try {
-            ObjectNode pong = objectMapper.createObjectNode();
-            pong.put("type", "heartbeat.pong");
-            send(objectMapper.writeValueAsString(pong));
-        } catch (Exception e) {
-            logger.warn("心跳回應失敗", e);
-        }
-    }
-
-    /**
-     * 串流回呼介面。
-     */
-    @FunctionalInterface
-    public interface StreamCallback {
-        /**
-         * 當收到串流片段時呼叫。
-         *
-         * @param chunk 回應片段文字
-         */
-        void onChunk(String chunk);
     }
 }
 ```
 
-#### 使用範例
+```bash
+OPENCLAW_GATEWAY_URL=http://127.0.0.1:18789 OPENCLAW_GATEWAY_TOKEN=... mvn -B test -Dtest=LiveGatewaySmokeTest
+```
 
-```java
-package com.tutorial.openclaw;
+也可以直接用 curl 確認端點：
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-/**
- * OpenClaw 客戶端使用範例。
- *
- * <p>展示如何透過 Java 程式與 OpenClaw Gateway 互動，
- * 包含同步訊息發送和串流接收。</p>
- *
- * @author Tutorial Team
- * @version 1.0.0
- */
-public class OpenClawExample {
-
-    private static final Logger logger = LogManager.getLogger(OpenClawExample.class);
-
-    /** OpenClaw Gateway 預設位址 */
-    private static final String GATEWAY_URI = "ws://localhost:18789";
-
-    /**
-     * 主程式進入點。
-     *
-     * @param args 命令列參數
-     */
-    public static void main(String[] args) {
-        try {
-            // 建立客戶端並連線
-            OpenClawClient client = new OpenClawClient(GATEWAY_URI);
-            client.connectBlocking();
-            logger.info("已連線至 OpenClaw Gateway");
-
-            // 範例 1: 同步發送訊息
-            String response = client.sendMessage("請用 Java 示範 Observer 設計模式");
-            System.out.println("Agent 回應:\n" + response);
-
-            // 範例 2: 串流接收
-            client.sendMessageStreaming(
-                    "請解釋 Java 的 Garbage Collection 機制",
-                    chunk -> System.out.print(chunk)  // 即時輸出每個片段
-            );
-
-            // 等待串流完成
-            Thread.sleep(30_000);
-
-            // 關閉連線
-            client.close();
-            logger.info("連線已關閉");
-
-        } catch (Exception e) {
-            logger.error("執行失敗", e);
-        }
-    }
-}
+```bash
+curl -sS http://127.0.0.1:18789/v1/chat/completions \
+  -H "Authorization: Bearer $OPENCLAW_GATEWAY_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"openclaw/default","messages":[{"role":"user","content":"回覆 OK 兩個字"}]}'
 ```
 
 ### 4.3 自訂 Skill 開發
 
 #### Skill 完整結構
 
+技能資料夾遵循 AgentSkills 規範：`SKILL.md` 是唯一必要檔案，其他支援檔依用途放在慣例目錄，並在 `SKILL.md` 中以 `{baseDir}` 引用（OpenClaw 會替換成技能資料夾的實際路徑）：
+
 ```text
 skills/
 └── enterprise-reporter/
-    ├── SKILL.md              # 技能定義（必要）
-    ├── tools/
-    │   ├── generate_report.js   # 工具實作
-    │   └── fetch_data.js        # 工具實作
-    ├── templates/
-    │   ├── daily_report.md      # 報表模板
-    │   └── weekly_summary.md    # 摘要模板
-    └── README.md              # 技能說明文件
+    ├── SKILL.md                 # 技能說明（必要）
+    ├── scripts/
+    │   └── fetch_metrics.sh     # Agent 透過 exec 執行的輔助腳本
+    ├── references/
+    │   └── report-style.md      # 需要時才讀取的長篇參考資料（不佔用常駐提示）
+    └── assets/
+        ├── daily_report.md      # 報表模板
+        └── weekly_summary.md
 ```
+
+> **為什麼要分 references／assets**：`SKILL.md` 的內容會進入模型提示；把長篇規範放在 `references/`，讓模型在需要時才讀取，可以控制 token 成本（見 tools/skills 文件的 Token impact）。
 
 #### SKILL.md 完整範例
 
 ```markdown
 ---
 name: enterprise-reporter
-description: 企業報表自動生成技能
-version: 2.1.0
-author: DevOps Team
-triggers:
-  - 報表
-  - report
-  - 日報
-  - 週報
-  - 月報
-tools:
-  - generate_report
-  - fetch_data
-  - send_notification
-access:
-  channels:
-    - slack
-    - teams
-  users:
-    - "*@company.com"
-config:
-  reportOutputDir: "./reports"
-  maxDataPoints: 10000
-  defaultFormat: "markdown"
+description: 產生企業日報、週報、月報。當使用者要求「報表」「日報」「週報」「月報」或彙整營運指標時使用
+metadata:
+  openclaw:
+    requires:
+      bins: ["curl", "jq"]
+      env: ["METRICS_API_TOKEN"]
+    primaryEnv: METRICS_API_TOKEN
+    os: ["linux", "darwin"]
 ---
 
-# 企業報表生成技能
-
-你是一個專業的企業報表分析師。你的職責是根據使用者需求，
-自動收集資料、產生報表、並通知相關人員。
+# 企業報表技能
 
 ## 報表類型
 
-### 日報（Daily Report）
-- 觸發：使用者提及「日報」或每日排程
-- 內容：昨日關鍵指標、異常事件、待辦事項
-- 格式：Markdown 表格 + 摘要
+| 類型 | 資料範圍 | 模板 |
+| --- | --- | --- |
+| 日報 | 前一個工作日 00:00–24:00 | `{baseDir}/assets/daily_report.md` |
+| 週報 | 上週一到週日 | `{baseDir}/assets/weekly_summary.md` |
+| 月報 | 上個自然月 | 依週報模板，加上月度趨勢 |
 
-### 週報（Weekly Summary）
-- 觸發：使用者提及「週報」或每週排程
-- 內容：一週趨勢分析、達成率、風險項目
-- 格式：Markdown + 圖表描述
+## 步驟
 
-### 月報（Monthly Report）
-- 觸發：使用者提及「月報」
-- 內容：月度 KPI、同比/環比分析、下月計畫
-- 格式：完整報告格式
+1. 確認報表類型與期間；期間不明確時先反問，不要假設。
+2. 執行 `{baseDir}/scripts/fetch_metrics.sh <起日> <迄日>` 取得指標 JSON。
+3. 依對應模板填寫；數字一律取自腳本輸出，**不可推估或捏造**。
+4. 數據缺漏時，在報表開頭標示「資料不完整」並列出缺少的項目。
+5. 撰寫風格依 `{baseDir}/references/report-style.md`。
 
-## 工具使用規則
+## 禁止事項
 
-1. 先使用 `fetch_data` 取得所需資料
-2. 分析資料後使用 `generate_report` 產生報表
-3. 報表完成後使用 `send_notification` 通知相關人員
-4. 若資料不完整，主動告知使用者並建議補充方向
-
-## 回應風格
-
-- 使用繁體中文
-- 數據精確到小數點第二位
-- 關鍵指標使用粗體標示
-- 異常項目以 ⚠️ 標記
-- 正向趨勢以 📈 標記，負向以 📉 標記
+- 不在報表中顯示 API Token、內部主機名稱或個人聯絡資訊。
+- 不自行寄送報表；寄送須由使用者明確要求，並使用 message 工具。
 ```
 
-#### Java 工具實作（透過 HTTP Bridge）
-
-由於 OpenClaw 原生使用 TypeScript，Java 端可透過 HTTP Bridge 模式提供工具：
-
-```java
-package com.tutorial.openclaw.tools;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Map;
-
-/**
- * OpenClaw 工具 HTTP Bridge。
- *
- * <p>提供 HTTP 端點讓 OpenClaw Agent 可以呼叫 Java 實作的工具。
- * Agent 的工具定義中指向此 Bridge 服務的 URL。</p>
- *
- * <h3>架構說明：</h3>
- * <pre>
- * Agent → Tool Call → HTTP POST → Java Bridge → 執行業務邏輯 → 回傳結果
- * </pre>
- *
- * @author Tutorial Team
- * @version 1.0.0
- */
-public class ToolBridgeServer {
-
-    private static final Logger logger = LogManager.getLogger(ToolBridgeServer.class);
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    private static final int PORT = 8090;
-
-    /**
-     * 啟動工具 Bridge 伺服器。
-     *
-     * @param args 命令列參數
-     * @throws IOException 若伺服器啟動失敗
-     */
-    public static void main(String[] args) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
-
-        // 註冊工具端點
-        server.createContext("/tools/generate_report", ToolBridgeServer::handleGenerateReport);
-        server.createContext("/tools/fetch_data", ToolBridgeServer::handleFetchData);
-        server.createContext("/tools/health", ToolBridgeServer::handleHealth);
-
-        server.setExecutor(null);
-        server.start();
-        logger.info("工具 Bridge 伺服器已啟動於 port {}", PORT);
-    }
-
-    /**
-     * 處理報表生成請求。
-     */
-    private static void handleGenerateReport(HttpExchange exchange) throws IOException {
-        if (!"POST".equals(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "{\"error\": \"Method not allowed\"}");
-            return;
-        }
-
-        try {
-            // 解析請求
-            String body = new String(
-                    exchange.getRequestBody().readAllBytes(),
-                    StandardCharsets.UTF_8);
-            JsonNode request = MAPPER.readTree(body);
-
-            String reportType = request.path("type").asText("daily");
-            String dateStr = request.path("date")
-                    .asText(LocalDate.now().format(DateTimeFormatter.ISO_DATE));
-
-            logger.info("生成報表 [type={}, date={}]", reportType, dateStr);
-
-            // 生成報表（範例邏輯）
-            ObjectNode result = MAPPER.createObjectNode();
-            result.put("success", true);
-            result.put("reportType", reportType);
-            result.put("date", dateStr);
-            result.put("content", generateReportContent(reportType, dateStr));
-            result.put("generatedAt", java.time.Instant.now().toString());
-
-            sendResponse(exchange, 200, MAPPER.writeValueAsString(result));
-
-        } catch (Exception e) {
-            logger.error("報表生成失敗", e);
-            ObjectNode error = MAPPER.createObjectNode();
-            error.put("success", false);
-            error.put("error", e.getMessage());
-            sendResponse(exchange, 500, MAPPER.writeValueAsString(error));
-        }
-    }
-
-    /**
-     * 處理資料擷取請求。
-     */
-    private static void handleFetchData(HttpExchange exchange) throws IOException {
-        if (!"POST".equals(exchange.getRequestMethod())) {
-            sendResponse(exchange, 405, "{\"error\": \"Method not allowed\"}");
-            return;
-        }
-
-        try {
-            String body = new String(
-                    exchange.getRequestBody().readAllBytes(),
-                    StandardCharsets.UTF_8);
-            JsonNode request = MAPPER.readTree(body);
-
-            String source = request.path("source").asText();
-            String metric = request.path("metric").asText();
-
-            logger.info("擷取資料 [source={}, metric={}]", source, metric);
-
-            // 模擬資料擷取（實際實作會連接資料庫或 API）
-            ObjectNode result = MAPPER.createObjectNode();
-            result.put("success", true);
-            result.put("source", source);
-            result.put("metric", metric);
-
-            ArrayNode dataPoints = MAPPER.createArrayNode();
-            for (int i = 0; i < 7; i++) {
-                ObjectNode point = MAPPER.createObjectNode();
-                point.put("date", LocalDate.now().minusDays(6 - i)
-                        .format(DateTimeFormatter.ISO_DATE));
-                point.put("value", Math.random() * 100);
-                dataPoints.add(point);
-            }
-            result.set("data", dataPoints);
-
-            sendResponse(exchange, 200, MAPPER.writeValueAsString(result));
-
-        } catch (Exception e) {
-            logger.error("資料擷取失敗", e);
-            sendResponse(exchange, 500,
-                    "{\"success\": false, \"error\": \"" + e.getMessage() + "\"}");
-        }
-    }
-
-    /**
-     * 健康檢查端點。
-     */
-    private static void handleHealth(HttpExchange exchange) throws IOException {
-        ObjectNode health = MAPPER.createObjectNode();
-        health.put("status", "healthy");
-        health.put("service", "openclaw-tool-bridge");
-        health.put("port", PORT);
-        sendResponse(exchange, 200, MAPPER.writeValueAsString(health));
-    }
-
-    /**
-     * 生成報表內容。
-     */
-    private static String generateReportContent(String type, String date) {
-        return switch (type) {
-            case "daily" -> String.format("""
-                    # 日報 - %s
-                    
-                    ## 關鍵指標
-                    | 指標 | 數值 | 變化 |
-                    |------|------|------|
-                    | **API 請求數** | 12,345 | 📈 +5.2%% |
-                    | **平均回應時間** | 245ms | 📉 -12ms |
-                    | **錯誤率** | 0.03%% | ✅ 正常 |
-                    | **活躍使用者** | 892 | 📈 +3.1%% |
-                    
-                    ## 異常事件
-                    - ⚠️ 14:23 - API Gateway 短暫延遲（已自動恢復）
-                    
-                    ## 待辦事項
-                    - [ ] 更新 SSL 憑證（到期日：+30天）
-                    - [ ] 審查本週新 Skill 部署請求
-                    """, date);
-            case "weekly" -> String.format("""
-                    # 週報 - %s 之週
-                    
-                    ## 週趨勢摘要
-                    本週整體表現 **優於** 上週，API 可用率達 99.97%%。
-                    
-                    ## 週 KPI 達成率
-                    | KPI | 目標 | 實際 | 達成率 |
-                    |-----|------|------|--------|
-                    | 回應時間 | <300ms | 245ms | ✅ 118%% |
-                    | 可用率 | >99.9%% | 99.97%% | ✅ 100%% |
-                    | 使用者滿意度 | >4.5 | 4.7 | ✅ 104%% |
-                    """, date);
-            default -> "# 報表\n\n報表類型: " + type + "\n日期: " + date;
-        };
-    }
-
-    /**
-     * 發送 HTTP 回應。
-     */
-    private static void sendResponse(HttpExchange exchange, int statusCode, String body)
-            throws IOException {
-        byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-        exchange.sendResponseHeaders(statusCode, bytes.length);
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(bytes);
-        }
-    }
-}
+```bash
+#!/usr/bin/env bash
+# scripts/fetch_metrics.sh — 以唯讀 API 取得指標；Token 由環境變數注入
+set -euo pipefail
+from="${1:?usage: fetch_metrics.sh <from> <to>}"; to="${2:?usage: fetch_metrics.sh <from> <to>}"
+curl -fsS --max-time 20 \
+  -H "Authorization: Bearer ${METRICS_API_TOKEN}" \
+  "https://metrics.internal.example.com/api/v1/summary?from=${from}&to=${to}" | jq '{orders, revenue, incidents, sla}'
 ```
+
+> **金鑰怎麼給腳本**：在 `skills.entries.enterprise-reporter.apiKey` 設定 SecretRef（見 1.5）；若啟用 secret egress proxy（3.11），腳本拿到的是只對 `metrics.internal.example.com` 有效的哨兵值，外洩到其他主機也無法使用。
+
+#### 驗證技能（Review Checklist）
+
+| 檢查 | 指令／方法 | 預期 |
+| --- | --- | --- |
+| 載入閘門 | 未設定 `METRICS_API_TOKEN` 時執行 `openclaw skills check` | 顯示 `enterprise-reporter` 因缺少 env 未通過閘門 |
+| 來源與優先序 | `openclaw skills info enterprise-reporter` | 來源為工作區 `skills/` |
+| 腳本可獨立執行 | `bash scripts/fetch_metrics.sh 2026-11-01 2026-11-07` | 輸出 JSON，且不印出 Token |
+| 沒有杜撰欄位 | 檢視 frontmatter | 只有 `name`、`description`、`metadata` 等規範鍵 |
+| 防捏造規則 | 讓腳本回傳空資料再請 Agent 產報表 | 報表標示「資料不完整」而非自行補數字 |
 
 #### Skill 生命週期與 Skill Workshop（v2026.8.1）
 
@@ -3666,15 +3923,14 @@ Skill Workshop 將提案、檢查、決策與已套用歷史整合為單一工�
 
 ##### 自我學習（Self-learning）
 
-OpenClaw 可將實質性的工作與持續性的糾正，轉化為可重用的技能。學習模式有三種：
+OpenClaw 可將實質性的工作與持續性的糾正，轉化為可重用的技能。v2026.11.1 的背景學習模式（`skills.workshop.autonomous.mode`）只有兩種：
 
 | 模式 | 行為 |
-|------|------|
-| `off` | 停用自動修復 |
-| `propose` | 將變更排入審閱佇列 |
-| `auto` | 可建立或更新 **Workshop 擁有的**技能，支援針對性修補或同回合修復 |
+| --- | --- |
+| `off` | 停用背景學習；仍可用 `/learn` 主動起草**一個待審技能** |
+| `auto`（預設） | 大量工作後自動儲存或更新 **Workshop 擁有的**技能，並封存 30 天未使用的技能；**每項變更都有紀錄且可用 `/learn undo <id>` 復原** |
 
-> **預設值與升級行為**：全新與未設定的安裝**預設為 `auto`**；**升級則保留既有選擇**。企業若對自動修改有治理要求，應在部署基準中明確設定為 `propose` 或 `off`，不要依賴預設值。
+> ⚠️ **與 2.0 的差異**：2.0 時期的 `propose`（排入審閱佇列）模式**已不存在**，`config validate` 只接受 `off`／`auto`。有治理要求的企業應在部署基準中**明確設定 `off`**，以 `/learn` 起草後經人工審查再發布，並用 `openclaw skills workshop changes` 檢視變更紀錄。自 v2026.9.3 起，Workshop 技能改為**每個 Agent 一份可寫入的集合**（`<state-dir>/agents/<agentId>/agent/workshop-skills`），且退休了 `skills.workshop.allowSymlinkTargetWrites`。
 
 **所有權界線是這套機制最重要的保護**：
 
@@ -3684,214 +3940,249 @@ OpenClaw 可將實質性的工作與持續性的糾正，轉化為可重用的�
 
 ### 4.4 自訂 Tool 開發
 
-#### OpenClaw 工具定義格式
+#### 自訂工具的三條官方路徑
 
-在 Skill 中定義工具供 Agent 使用：
+OpenClaw **沒有**「在 `openclaw.json` 宣告一個 HTTP endpoint 就變成工具」的機制。要給 Agent 新工具，有三條官方路徑：
+
+| 路徑 | 適用情境 | 優點 | 注意 |
+| --- | --- | --- | --- |
+| **技能 + 腳本**（4.3） | 包裝既有 CLI 或 curl 呼叫 | 最簡單，不需寫程式 | 依賴 `exec` 工具與主機環境；需沙箱與 exec 政策約束 |
+| **MCP Server** | 既有系統已有或易於提供 MCP 介面（任何語言，包括 Java） | 語言中立、可跨 Agent 平台重用 | 透過 `bundle-mcp` 暴露；沙箱 Session 需另外放行 |
+| **Native Tool Plugin**（`defineToolPlugin`） | 需要型別化參數、結構化輸出、與 OpenClaw 深度整合 | 參數與輸出 schema 驗證、可被 Code Mode／Tool Search 使用 | TypeScript；需處理插件發布與供應鏈審查 |
+
+> ❌ **舊版範例的錯誤**：`"tools": [{ "name": ..., "endpoint": "http://localhost:8090/tools/generate_report", ... }]`。`tools` 是**工具政策物件**（profile／allow／deny…），不是工具定義陣列；`config validate` 會回報 `tools: Invalid input: expected object, received array`。
+
+#### 路徑一：接入 MCP Server（Java 團隊的首選）
 
 ```json5
-// skills/enterprise-reporter/tools/tool_definitions.json5
+// openclaw.json：以 streamable-http 連接內部 ERP 的唯讀 MCP Server
 {
-  "tools": [
-    {
-      "name": "generate_report",
-      "description": "生成企業報表。支援日報、週報、月報格式。",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": ["daily", "weekly", "monthly"],
-            "description": "報表類型",
-          },
-          "date": {
-            "type": "string",
-            "format": "date",
-            "description": "報表日期（YYYY-MM-DD 格式）",
-          },
-          "includeCharts": {
-            "type": "boolean",
-            "default": true,
-            "description": "是否包含圖表",
-          },
-        },
-        "required": ["type"],
-      },
-      "endpoint": "http://localhost:8090/tools/generate_report",
-    },
-    {
-      "name": "fetch_data",
-      "description": "從指定的資料來源擷取數據。",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "source": {
-            "type": "string",
-            "description": "資料來源名稱",
-          },
-          "metric": {
-            "type": "string",
-            "description": "指標名稱",
-          },
-          "dateRange": {
-            "type": "object",
-            "properties": {
-              "from": { "type": "string", "format": "date" },
-              "to": { "type": "string", "format": "date" },
-            },
-          },
-        },
-        "required": ["source", "metric"],
-      },
-      "endpoint": "http://localhost:8090/tools/fetch_data",
-    },
-    {
-      "name": "send_notification",
-      "description": "發送通知訊息至指定頻道或使用者。",
-      "parameters": {
-        "type": "object",
-        "properties": {
-          "channel": {
-            "type": "string",
-            "description": "目標頻道名稱",
-          },
-          "message": {
-            "type": "string",
-            "description": "通知訊息內容",
-          },
-          "priority": {
-            "type": "string",
-            "enum": ["low", "normal", "high", "urgent"],
-            "default": "normal",
-          },
-        },
-        "required": ["channel", "message"],
+  mcp: {
+    servers: {
+      "erp-readonly": {
+        url: "https://mcp.erp.internal.example.com/mcp",
+        transport: "streamable-http",
+        enabled: true,
+        connectionTimeoutMs: 5000,
+        requestTimeoutMs: 20000,
+        // 只暴露必要的工具；以白名單而非黑名單管理
+        toolFilter: { include: ["search_*", "get_*"] },
       },
     },
-  ],
+  },
 }
 ```
 
-#### Java 工具實作模式
+> ⚠️ **沙箱 Session 的額外閘門**：`agents.defaults.sandbox.mode` 為 `"all"` 或 `"non-main"` 時，MCP 工具還必須出現在 `tools.sandbox.tools` 的允許清單中（`bundle-mcp`、`group:plugins`，或精確的 `erp-readonly__*` 這類 server glob），否則沙箱內看不到這些工具。server glob 會使用「provider-safe」前綴：非 `[A-Za-z0-9_-]` 的字元會被轉成 `-`。
 
-```java
-package com.tutorial.openclaw.tools;
+```bash
+openclaw mcp --help            # 管理 mcp.servers 與頻道 bridge
+openclaw config validate --json
+```
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+#### 路徑二：Native Tool Plugin（`defineToolPlugin`）
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
+以下範例是一個**唯讀**的工單查詢工具，已在 OpenClaw 2026.11.1 實際走完 `plugins init → build → validate → test → install`：
+
+```bash
+openclaw plugins init ticket-lookup --name "Ticket Lookup"
+cd ticket-lookup
+npm install
+npm run plugin:build       # tsc + openclaw plugins build（產生 openclaw.plugin.json）
+npm run plugin:validate    # 輸出：Plugin ticket-lookup is valid.
+npm test                   # vitest
+```
+
+`src/index.ts`：
+
+```typescript
+import { Type } from "typebox";
+import { defineToolPlugin } from "openclaw/plugin-sdk/tool-plugin";
 
 /**
- * OpenClaw 工具註冊器。
- *
- * <p>管理所有可供 OpenClaw Agent 呼叫的 Java 工具實作。
- * 採用策略模式，讓每個工具的實作獨立且可測試。</p>
- *
- * @author Tutorial Team
- * @version 1.0.0
+ * 唯讀查詢內部工單系統。
+ * - API 位址與金鑰來自插件組態（plugins.entries.ticket-lookup.config），金鑰請用 SecretRef。
+ * - 只提供查詢，不提供修改：寫入動作應另做工具並設為 optional（需明確 allowlist）。
  */
-public class ToolRegistry {
-
-    private static final Logger logger = LogManager.getLogger(ToolRegistry.class);
-
-    /** 工具映射表 */
-    private final Map<String, Function<Map<String, Object>, Object>> tools;
-
-    /**
-     * 建立工具註冊器。
-     */
-    public ToolRegistry() {
-        this.tools = new ConcurrentHashMap<>();
-        registerDefaultTools();
-    }
-
-    /**
-     * 註冊工具。
-     *
-     * @param name    工具名稱
-     * @param handler 工具處理函式
-     */
-    public void register(String name, Function<Map<String, Object>, Object> handler) {
-        tools.put(name, handler);
-        logger.info("已註冊工具: {}", name);
-    }
-
-    /**
-     * 執行工具。
-     *
-     * @param name   工具名稱
-     * @param params 工具參數
-     * @return 工具執行結果
-     * @throws IllegalArgumentException 若工具不存在
-     */
-    public Object execute(String name, Map<String, Object> params) {
-        Function<Map<String, Object>, Object> handler = tools.get(name);
-        if (handler == null) {
-            throw new IllegalArgumentException("未知的工具: " + name);
+export default defineToolPlugin({
+  id: "ticket-lookup",
+  name: "Ticket Lookup",
+  description: "Read-only lookup of internal service-desk tickets.",
+  configSchema: Type.Object({
+    baseUrl: Type.String({ description: "Service desk API base URL." }),
+    apiToken: Type.Optional(Type.String({ description: "Bearer token for the service desk API." })),
+  }),
+  tools: (tool) => [
+    tool({
+      name: "ticket_lookup",
+      label: "Ticket Lookup",
+      description: "依工單編號（例如 OPS-4711）查詢狀態、負責人與最後更新時間。唯讀。",
+      workspaceAccess: false,
+      parameters: Type.Object({
+        ticketId: Type.String({ pattern: "^[A-Z]{2,5}-[0-9]{1,8}$", description: "工單編號，例如 OPS-4711" }),
+      }),
+      outputSchema: Type.Object(
+        {
+          ticketId: Type.String(),
+          status: Type.String(),
+          assignee: Type.String(),
+          updatedAt: Type.String(),
+        },
+        { additionalProperties: false },
+      ),
+      async execute({ ticketId }, config, context) {
+        context.signal?.throwIfAborted();
+        const res = await fetch(`${config.baseUrl}/api/tickets/${encodeURIComponent(ticketId)}`, {
+          headers: config.apiToken ? { Authorization: `Bearer ${config.apiToken}` } : {},
+          signal: context.signal ?? AbortSignal.timeout(10_000),
+        });
+        if (!res.ok) {
+          throw new Error(`service desk returned HTTP ${res.status} for ${ticketId}`);
         }
-        logger.info("執行工具: {} (params: {})", name, params);
-        return handler.apply(params);
+        const t = (await res.json()) as { status: string; assignee: string; updatedAt: string };
+        return { ticketId, status: t.status, assignee: t.assignee, updatedAt: t.updatedAt };
+      },
+    }),
+  ],
+});
+```
+
+`src/index.test.ts`：以假的 plugin api 呼叫 `register()`，取得真正註冊的工具並執行，驗證 URL、Bearer token 與錯誤處理：
+
+```typescript
+import { afterEach, describe, expect, it, vi } from "vitest";
+import entry from "./index.js";
+import { getToolPluginMetadata } from "openclaw/plugin-sdk/tool-plugin";
+
+type RegisteredTool = {
+  name: string;
+  execute: (id: string, params: unknown, signal?: AbortSignal) => Promise<{ details?: unknown }>;
+};
+
+/** 以假的 plugin api 執行 register()，取得實際註冊的工具。 */
+function loadTool(pluginConfig: Record<string, unknown>): RegisteredTool {
+  const registered: RegisteredTool[] = [];
+  const api = { pluginConfig, registerTool: (t: RegisteredTool) => registered.push(t) };
+  (entry as unknown as { register: (a: unknown) => void }).register(api);
+  expect(registered).toHaveLength(1);
+  return registered[0]!;
+}
+
+describe("ticket-lookup", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("declares exactly one read-only tool with a strict output schema", () => {
+    const meta = getToolPluginMetadata(entry);
+    expect(meta?.tools.map((t) => t.name)).toEqual(["ticket_lookup"]);
+    const tool = meta!.tools[0]!;
+    expect(tool.workspaceAccess).toBe(false);
+    expect(tool.outputSchema).toMatchObject({ additionalProperties: false });
+    expect(JSON.stringify(tool.parameters)).toContain("^[A-Z]{2,5}-[0-9]{1,8}$");
+  });
+
+  it("calls the service desk API with the bearer token and returns structured details", async () => {
+    const fetchMock = vi.fn(async (_url: string, _init?: RequestInit) =>
+      new Response(JSON.stringify({ status: "In Progress", assignee: "alice", updatedAt: "2026-11-08T09:00:00Z" }), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    const tool = loadTool({ baseUrl: "https://sd.example.com", apiToken: "t0k" });
+
+    const result = await tool.execute("call-1", { ticketId: "OPS-4711" });
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+    const [url, init] = fetchMock.mock.calls[0]!;
+    expect(url).toBe("https://sd.example.com/api/tickets/OPS-4711");
+    expect((init?.headers as Record<string, string>).Authorization).toBe("Bearer t0k");
+    expect(result.details).toEqual({ ticketId: "OPS-4711", status: "In Progress", assignee: "alice", updatedAt: "2026-11-08T09:00:00Z" });
+  });
+
+  it("surfaces upstream HTTP errors instead of inventing data", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("nope", { status: 404 })));
+    const tool = loadTool({ baseUrl: "https://sd.example.com" });
+    await expect(tool.execute("call-2", { ticketId: "OPS-1" })).rejects.toThrow("HTTP 404");
+  });
+});
+```
+
+```text
+ ✓ src/index.test.ts (3 tests)
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+```
+
+`openclaw plugins build` 產生的 manifest（`contracts.tools` 讓 OpenClaw 不必載入插件程式碼就能知道工具歸屬）：
+
+```json
+{
+  "id": "ticket-lookup",
+  "name": "Ticket Lookup",
+  "description": "Read-only lookup of internal service-desk tickets.",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "required": [
+      "baseUrl"
+    ],
+    "properties": {
+      "baseUrl": {
+        "type": "string",
+        "description": "Service desk API base URL."
+      },
+      "apiToken": {
+        "type": "string",
+        "description": "Bearer token for the service desk API."
+      }
     }
-
-    /**
-     * 註冊預設工具集。
-     */
-    private void registerDefaultTools() {
-        // 報表生成工具
-        register("generate_report", params -> {
-            String type = (String) params.getOrDefault("type", "daily");
-            String date = (String) params.getOrDefault("date",
-                    java.time.LocalDate.now().toString());
-            return Map.of(
-                    "success", true,
-                    "reportType", type,
-                    "date", date,
-                    "content", "報表內容...",
-                    "generatedAt", java.time.Instant.now().toString()
-            );
-        });
-
-        // 資料擷取工具
-        register("fetch_data", params -> {
-            String source = (String) params.get("source");
-            String metric = (String) params.get("metric");
-            return Map.of(
-                    "success", true,
-                    "source", source,
-                    "metric", metric,
-                    "data", java.util.List.of(
-                            Map.of("date", "2026-03-01", "value", 95.2),
-                            Map.of("date", "2026-03-02", "value", 97.1),
-                            Map.of("date", "2026-03-03", "value", 93.8)
-                    )
-            );
-        });
-
-        // 通知發送工具
-        register("send_notification", params -> {
-            String channel = (String) params.get("channel");
-            String message = (String) params.get("message");
-            logger.info("發送通知至 {}: {}", channel, message);
-            return Map.of(
-                    "success", true,
-                    "channel", channel,
-                    "sentAt", java.time.Instant.now().toString()
-            );
-        });
-    }
-
-    /**
-     * 取得已註冊的工具列表。
-     *
-     * @return 工具名稱集合
-     */
-    public java.util.Set<String> getRegisteredTools() {
-        return java.util.Collections.unmodifiableSet(tools.keySet());
-    }
+  },
+  "activation": {
+    "onStartup": true
+  },
+  "contracts": {
+    "tools": [
+      "ticket_lookup"
+    ]
+  }
 }
 ```
+
+#### 安裝與啟用（兩道供應鏈關卡）
+
+```bash
+# 本地或非 ClawHub 來源：必須在審查後明確 --force；宣告的能力需明確同意
+openclaw plugins install ./ticket-lookup --force --accept-capabilities
+openclaw plugins list
+openclaw plugins inspect ticket-lookup --json
+```
+
+實測時，未加 `--force` 會顯示「This source is outside ClawHub review and trust metadata」並取消安裝；未加 `--accept-capabilities` 則顯示「requires capability consent. The plugin was not installed」。**這兩道關卡是刻意的設計**，CI 腳本不應無條件加上這兩個旗標，而應在審查後才加入。
+
+```json5
+// openclaw.json：允許並設定插件；工具名稱加入 alsoAllow（受限 profile 時）
+{
+  plugins: {
+    allow: ["ticket-lookup"],
+    entries: {
+      "ticket-lookup": {
+        enabled: true,
+        config: { baseUrl: "https://servicedesk.internal.example.com", apiToken: "${TICKET_API_TOKEN}" },
+      },
+    },
+  },
+  tools: { alsoAllow: ["ticket_lookup"] },
+}
+```
+
+#### 審查 AI 產出的工具（Review Checklist）
+
+| 檢查 | 方法 | 預期 |
+| --- | --- | --- |
+| 工具定義能被 OpenClaw 接受 | `npm run plugin:validate` | `Plugin <id> is valid.` |
+| 參數有嚴格 schema | 檢視 `parameters` | 有 pattern／enum／長度限制，而非只有 `Type.String()` |
+| 輸出有結構化 schema | 檢視 `outputSchema` | `additionalProperties: false` |
+| 錯誤不被吞掉或捏造 | 測試上游 4xx／5xx | 拋出錯誤或回傳明確失敗，不回假資料 |
+| 唯讀與寫入分離 | 檢視工具清單 | 寫入類工具設 `optional: true`，需明確 allowlist |
+| 憑證來源 | 檢視 config 與程式碼 | 金鑰來自插件組態／SecretRef，未寫死 |
+| 安裝後狀態 | `openclaw plugins list`、`config validate --json` | `enabled`，且 `warnings: []` |
 
 #### ⚠️ Code Mode 破壞性變更（v2026.8.1）
 
@@ -3908,85 +4199,53 @@ Code Mode 現在將授權的工具視為**一般的非同步函式**，讓 Agent
 | exact-ID 呼叫 | 以確切工具 ID 進行呼叫的方式 |
 | raw call envelope | 原始呼叫封包格式 |
 
-##### 新舊寫法對照（TypeScript）
+##### Code Mode 的實際寫法（guest JavaScript）
 
-```typescript
-// ❌ 舊寫法（v2026.8.1 起已失效）
-const result = await tools.call({
-  id: 'web.fetch',
-  arguments: { url: 'https://example.com/report' },
-});
-const all = ALL_TOOLS.filter((t) => t.id.startsWith('web.'));
+Code Mode 讓模型撰寫一段 **guest JavaScript** 在受限執行器中執行（不是你的 Java／TypeScript 服務程式碼）。每個有效的非 MCP 工具都會以**工具本身的名稱**安裝成 async 全域函式；不在快速索引中的工具用 `catalog.search(...)` 找到後直接呼叫：
 
-// ✅ 新寫法：授權工具即一般 async function
-const result = await webFetch({ url: 'https://example.com/report' });
-
-// 並行執行彼此獨立的呼叫
-const [page, notes, session] = await Promise.all([
-  webFetch({ url: 'https://example.com/report' }),
-  memorySearch({ query: '季度營收' }),
-  sessionRead({ sessionId: currentSessionId }),
+```javascript
+// ❌ 舊寫法（v2026.8.1 起移除）：tools.call({ id: 'web.fetch', ... })、ALL_TOOLS
+// ✅ 新寫法：工具即 async function，彼此獨立的呼叫可並行
+const [page, notes] = await Promise.all([
+  web_fetch({ url: "https://example.com/report" }),
+  memory_search({ query: "季度營收" }),
 ]);
+
+// 快速索引沒列出的工具：以 catalog.search 取得可呼叫的函式
+const [shipmentTool] = await catalog.search("list shipments");
+const shipments = await shipmentTool({});
+
+// 跨 cell／跨回覆保存小型值（v2026.10.1 起）
+await store("unpaidCount", shipments.filter((s) => !s.paid).length);
+return { pageLength: page.length, notes, unpaid: await load("unpaidCount") };
 ```
 
-##### 等價的 Java 呼叫端寫法
+審查 Code Mode 程式時的三個重點：
 
-若你的整合層以 Java 撰寫，對應的模式是以 `CompletableFuture` 組合彼此獨立的工具呼叫：
+1. **輸出形狀未知（`-> ?`）時不要猜欄位**：先原樣回傳或 `await results.save(value)` 取得預覽，下一個 `exec` 再處理。
+2. **每個 `exec` 都是全新的 JavaScript context**：變數不會跨 cell 保留，需要保留的小型值用 `store`／`load`。
+3. **沒有檔案系統、模組或網路存取**：所有外部動作都必須經過授權的工具呼叫，因此工具政策（`tools.*`）仍是安全邊界。
 
-```java
-package com.tutorial.openclaw.codemode;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.Map;
-
-/**
- * Code Mode 工具組合的 Java 對應寫法。
- *
- * <p>對應 TypeScript 中「授權工具即一般 async function」的模型：
- * 每個工具呼叫回傳 CompletableFuture，彼此獨立者可並行組合。
- */
-public class CodeModeComposition {
-
-    private final OpenClawToolClient client;
-
-    public CodeModeComposition(OpenClawToolClient client) {
-        this.client = client;
-    }
-
-    /**
-     * 並行取得頁面內容、記憶搜尋結果與 Session 內容後合併。
-     *
-     * @param url       欲擷取的頁面
-     * @param query     記憶搜尋關鍵字
-     * @param sessionId 目標 Session
-     * @return 合併後的結果
-     */
-    public CompletableFuture<Map<String, Object>> gather(
-            String url, String query, String sessionId) {
-
-        CompletableFuture<Map<String, Object>> page =
-                client.invokeAsync("web_fetch", Map.of("url", url));
-        CompletableFuture<Map<String, Object>> notes =
-                client.invokeAsync("memory_search", Map.of("query", query));
-        CompletableFuture<Map<String, Object>> session =
-                client.invokeAsync("session_read", Map.of("sessionId", sessionId));
-
-        return CompletableFuture.allOf(page, notes, session)
-                .thenApply(ignored -> Map.of(
-                        "page", page.join(),
-                        "notes", notes.join(),
-                        "session", session.join()));
-    }
+```json5
+// 相關組態（openclaw.json）
+{
+  tools: {
+    codeMode: { enabled: true, timeoutMs: 120000, maxOutputBytes: 200000 },
+  },
 }
 ```
 
-> **能力邊界仍未放寬**：程式能組合的範圍，**仍然止於它被授權使用的工具，以及那些工具所宣告的結構化結果**。Code Mode 的介面變得更自然，但並不擴大權限——這點在做安全評估時很重要。
+#### Tool Search（v2026.9.7 改為三工具結構）
 
-#### Tool Search 的改善
+當可用工具很多時，OpenClaw embedded 與 Copilot runs 在 `tools.toolSearch` **未設定時會自動使用結構化 Tool Search**：模型收到一份依脈絡窗大小縮放的工具目錄，加上 `tool_search`、`tool_describe`、`dispatch_action` 三個控制工具，延後載入完整 schema 以節省 token。
 
-`Tool Search` 在 2.0 中能更好地把自然語言請求轉為可發現的能力，並支援**在單一結構化請求中搜尋多個能力群組**，同時新增了既有的 Session 封存與釘選動作。
+| 變更 | 說明 |
+| --- | --- |
+| 移除 `tool_search_code` | 舊的 JavaScript 工具已移除；需要 JavaScript 編排請改用 Code Mode |
+| 自動遷移 | 一般更新會遷移退休設定；手動升級後須先執行 `openclaw doctor --fix`，否則舊設定會阻止啟動 |
+| 停用方式 | `tools.toolSearch: false` 恢復直接提供 schema；已停用者升級後維持停用 |
 
-> **限制**：政策仍可隱藏工具，且**沒有有效答案的請求可以回傳空結果**。既有的單一查詢請求與回應格式維持可用，不需立即遷移。
+> **限制**：Tool Search 仍標示為 experimental；政策隱藏的工具不會出現在搜尋結果中，沒有合適工具時可能回傳空結果。
 
 ### 4.5 工作流程編排
 
@@ -4008,7 +4267,9 @@ flowchart TD
     DISTRIBUTE --> END[完成：通知使用者]
 ```
 
-#### Java 工作流程引擎
+> **先確認是否需要自建編排器**：OpenClaw 已內建多種編排方式——Agent 自行拆解工作並以 **subagents** 委派、**Lobster** 管線（取代已移除的 TaskFlow）、**Automations** 的條件檢查與排程，以及 **Code Mode** 在單一程式中組合工具呼叫（4.4）。只有在流程必須由企業既有系統掌控（例如需要 BPM 稽核軌跡、跨系統交易補償）時，才需要像下面這樣以 Java 自建外部編排器，並透過 4.2 的 HTTP API 逐步呼叫 Agent。
+
+#### Java 工作流程引擎（外部編排器）
 
 ```java
 package com.tutorial.openclaw.workflow;
@@ -4523,7 +4784,55 @@ graph LR
 - **腳本仍有限制**：時間、工具呼叫次數、節奏與狀態皆有上限，且可以完全停用。成功的腳本可保留少量狀態、通知目的地、喚醒主對話，或要求稍後再檢查一次。
 - **時區處理**：時區感知的排程會**略過本地時間中不存在的時刻**，在本地時間重複時**選擇第一個真實發生的時刻**，並在重啟後繼續遵守明確的位移設定。
 
-#### Webhook 處理器
+#### 原生 Webhook Ingress（`hooks.*`）
+
+多數「外部事件觸發 Agent」的需求，**不需要自建 HTTP 服務**：Gateway 本身就能在獨立子路徑接收 Webhook，並依 `hooks.mappings` 轉成 Agent 回合或喚醒動作。
+
+```json5
+// openclaw.json
+{
+  hooks: {
+    enabled: true,
+    path: "/hooks",                          // 不可為 "/"
+    token: "${OPENCLAW_HOOKS_TOKEN}",        // 專用 token，不可重用 Gateway 驗證密鑰
+    defaultSessionKey: "hook:ingress",
+    allowRequestSessionKey: false,
+    allowedSessionKeyPrefixes: ["hook:"],
+    mappings: [
+      {
+        // POST /hooks/github → 交給 devops Agent，於隔離 Session 執行，不主動對外發送
+        match: { path: "github" },
+        action: "agent",
+        agentId: "devops",
+        sessionMode: "isolated",
+        deliver: false,
+      },
+    ],
+  },
+}
+```
+
+```bash
+# 冒煙測試：先打內建的 /hooks/agent（Idempotency-Key 防止重送造成重複執行）
+curl --include http://127.0.0.1:18789/hooks/agent \
+  -H "Authorization: Bearer $OPENCLAW_HOOKS_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -H 'Idempotency-Key: webhook-smoke-001' \
+  --data '{"message":"摘要這個測試事件：匯入完成。","name":"Webhook smoke test","agentId":"devops","deliver":false}'
+# 預期 HTTP 200：{ "ok": true, "runId": "..." }（代表已受理，不代表已完成）
+```
+
+| 回應 | 排查方向 |
+| --- | --- |
+| `401` | 檢查 **hook token**（不是 Gateway token），以及反向代理是否轉送 `Authorization` 標頭 |
+| `404` | `hooks.enabled`、`hooks.path` 或 mapping 的 `match.path` |
+| `400` | JSON 格式、Agent 選擇、Session 政策或投遞目的地不合法 |
+
+> ⚠️ **安全規則**：Webhook 內容一律視為**不受信任的輸入**；驗證只接受標頭（`Authorization: Bearer` 或 `x-openclaw-token`），**查詢字串中的 token 會被拒絕**；保持 `allowUnsafeExternalContent` 關閉；開啟 `allowRequestSessionKey` 時必須同時以 `allowedSessionKeyPrefixes` 限制範圍；hook 驅動的 Agent 應使用嚴格工具政策（例如 messaging profile + 沙箱）。
+
+#### 自建 Webhook 中介層（需要驗簽或格式轉換時）
+
+當來源系統需要**驗證簽章**（例如 GitHub 的 `X-Hub-Signature-256`、Jira 的共用密鑰）、或需要先做格式轉換再交給 Agent 時，才需要下面這種自建處理器；處理完成後，再呼叫 Gateway 的 `/hooks/<name>` 或 4.2 的 HTTP API。
 
 ```java
 package com.tutorial.openclaw.webhook;
@@ -5211,15 +5520,13 @@ public class RetryPolicy<T> {
 // 使用重試策略調用 OpenClaw API
 RetryPolicy<String> retryPolicy = RetryPolicy.forOpenClawApi();
 
-String response = retryPolicy.execute(() -> {
-    OpenClawClient client = new OpenClawClient("ws://localhost:18789");
-    client.connectBlocking();
-    try {
-        return client.sendMessage("生成今日報表");
-    } finally {
-        client.close();
-    }
-});
+// 4.2 的 OpenClawClient 內建重試；外層已有 RetryPolicy 時把 maxAttempts 設為 1，避免重試次數相乘
+try (OpenClawClient client = OpenClawClient.builder(URI.create("http://127.0.0.1:18789"))
+        .token(System.getenv("OPENCLAW_GATEWAY_TOKEN"))
+        .maxAttempts(1)
+        .build()) {
+    String response = retryPolicy.execute(() -> client.sendMessage("report-2026-11-08", "生成今日報表"));
+}
 ```
 
 #### Plugin SDK 匯入路徑遷移對照（v2026.8.1）
@@ -5230,22 +5537,26 @@ String response = retryPolicy.execute(() -> {
 |-------------|---------|
 | `plugin-sdk-config-runtime-subpath` | `api.pluginConfig` 與對應的聚焦匯入 |
 | `plugin-sdk-channel-*-subpath` | `openclaw/plugin-sdk/channel-outbound` 及相關命名空間 |
-| `plugin-sdk-infra-runtime-subpath` | 聚焦匯入：`delivery`、`diagnostic`、`error`、`exec`、`fetch`、`ssrf` |
+| `plugin-sdk-infra-runtime-subpath` | 聚焦匯入：例如 SSRF 防護改由 `openclaw/plugin-sdk/ssrf-runtime`（`fetchWithSsrFGuard`）與 `openclaw/plugin-sdk/ssrf-policy` 提供；完整清單見官方 [SDK subpaths](https://docs.openclaw.ai/plugins/sdk-subpaths) |
 | `deactivate`（別名） | **`gateway_stop`** |
 
 ```typescript
-// ❌ 舊寫法（相容窗口已於 2026-09-01 關閉）
-import { registerChannel } from 'openclaw/plugin-sdk';
-import { fetchWithSsrfGuard } from 'openclaw/plugin-sdk/infra-runtime';
+// ❌ 舊寫法（已移除；tsc 對 2026.11.1 實測：Cannot find module 'openclaw/plugin-sdk'、'openclaw/plugin-sdk/infra-runtime'）
+import { registerChannel } from "openclaw/plugin-sdk";
+import { fetchWithSsrfGuard } from "openclaw/plugin-sdk/infra-runtime";
 
 export function deactivate() { /* ... */ }
-
-// ✅ 新寫法：聚焦命名空間
-import { registerOutboundChannel } from 'openclaw/plugin-sdk/channel-outbound';
-import { fetchWithSsrfGuard } from 'openclaw/plugin-sdk/ssrf';
-
-export function gateway_stop() { /* ... */ }
 ```
+
+```typescript
+// ✅ 現行寫法：從聚焦的子路徑匯入（以 tsc 對 openclaw 2026.11.1 驗證）
+import { fetchWithSsrFGuard, SsrFBlockedError } from "openclaw/plugin-sdk/ssrf-runtime";
+import { defineChannelPluginEntry } from "openclaw/plugin-sdk/channel-core";
+
+export { fetchWithSsrFGuard, SsrFBlockedError, defineChannelPluginEntry };
+```
+
+> ❌ **連舊版手冊的「新寫法」也有錯**：`openclaw/plugin-sdk/ssrf` 子路徑不存在、`registerOutboundChannel` 不是 `channel-outbound` 的匯出、函式名稱是 `fetchWithSsrFGuard`（F 大寫）。插件程式碼請一律以 `tsc --strict` 對**目標 OpenClaw 版本**的型別檢查。
 
 > **其他需同步遷移的項目**：
 >
@@ -5265,314 +5576,426 @@ export function gateway_stop() { /* ... */ }
 
 ### 4.10 Java Spring Boot 整合範例
 
-#### Spring Boot OpenClaw 整合
+本節把 4.2 的 `OpenClawClient` 包成 Spring Boot 4 服務，讓內部前端或其他微服務以一般 REST 呼叫 Agent，而**不需要**持有 Gateway token。這也是企業最常見的整合模式：**Gateway token 只存在於這個後端服務中**。
+
+```mermaid
+graph LR
+    FE[內部前端 / 微服務] -->|POST /api/openclaw/chat<br/>企業 SSO| SB[Spring Boot 服務]
+    SB -->|Bearer OPENCLAW_GATEWAY_TOKEN<br/>POST /v1/chat/completions| GW[OpenClaw Gateway<br/>loopback / 內網]
+    SB -->|GET /readyz| GW
+```
+
+#### 應用程式
 
 ```java
 package com.tutorial.openclaw.spring;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
+import com.tutorial.openclaw.OpenClawClient;
+import com.tutorial.openclaw.OpenClawException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.annotation.PreDestroy;
+import java.net.URI;
+import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Spring Boot 整合 OpenClaw 範例應用程式。
- *
- * <p>展示如何在 Spring Boot 應用中整合 OpenClaw Gateway，
- * 提供 REST API 端點轉發請求至 OpenClaw Agent。</p>
- *
- * @author Tutorial Team
- * @version 1.0.0
- */
+/** Spring Boot 4 整合 OpenClaw Gateway 的範例應用程式。 */
 @SpringBootApplication
 public class OpenClawSpringApp {
-
     public static void main(String[] args) {
         SpringApplication.run(OpenClawSpringApp.class, args);
     }
 }
 
 /**
- * OpenClaw 組態類別。
+ * 組態綁定（application.yml 的 openclaw.*）。token 一律從環境變數帶入，不寫在檔案中。
  */
+@ConfigurationProperties(prefix = "openclaw")
+record OpenClawProperties(URI gatewayUri, String token, String agent,
+                          Duration requestTimeout, int maxAttempts) {
+}
+
 @Configuration
+@EnableConfigurationProperties(OpenClawProperties.class)
 class OpenClawConfig {
 
-    @Value("${openclaw.gateway.uri:ws://localhost:18789}")
-    private String gatewayUri;
-
-    /**
-     * 建立 OpenClaw 客戶端 Bean。
-     */
-    @Bean
-    public OpenClawClientWrapper openClawClient() throws Exception {
-        OpenClawClientWrapper wrapper = new OpenClawClientWrapper(gatewayUri);
-        wrapper.connect();
-        return wrapper;
+    @Bean(destroyMethod = "close")
+    OpenClawClient openClawClient(OpenClawProperties p) {
+        return OpenClawClient.builder(p.gatewayUri())
+                .token(p.token())
+                .agent(p.agent())
+                .requestTimeout(p.requestTimeout() == null ? Duration.ofMinutes(2) : p.requestTimeout())
+                .maxAttempts(p.maxAttempts() <= 0 ? 3 : p.maxAttempts())
+                .build();
     }
 }
 
-/**
- * OpenClaw REST 控制器。
- *
- * <p>提供 HTTP REST 端點讓前端應用或其他微服務
- * 可以透過 HTTP 呼叫 OpenClaw Agent。</p>
- */
+/** 請求本文：以 Bean Validation 限制輸入，避免把任意大小的文字轉送給 Agent。 */
+record ChatRequest(@NotBlank @Size(max = 64) String conversationId,
+                   @NotBlank @Size(max = 8000) String message) {
+}
+
 @RestController
 @RequestMapping("/api/openclaw")
 class OpenClawController {
 
-    private static final Logger logger = LogManager.getLogger(
-            OpenClawController.class);
+    private static final Logger log = LoggerFactory.getLogger(OpenClawController.class);
+    private final OpenClawClient client;
 
-    private final OpenClawClientWrapper client;
-
-    OpenClawController(OpenClawClientWrapper client) {
+    OpenClawController(OpenClawClient client) {
         this.client = client;
     }
 
-    /**
-     * 發送訊息至 OpenClaw Agent。
-     *
-     * @param request 請求包含 message 欄位
-     * @return Agent 回應
-     */
     @PostMapping("/chat")
-    public ResponseEntity<Map<String, Object>> chat(
-            @RequestBody Map<String, String> request) {
-        String message = request.get("message");
-        if (message == null || message.isBlank()) {
-            return ResponseEntity.badRequest().body(
-                    Map.of("error", "message 欄位不能為空"));
-        }
-
-        logger.info("收到聊天請求: {}", message);
-
-        try {
-            String response = client.sendMessage(message);
-            return ResponseEntity.ok(Map.of(
-                    "response", response,
-                    "status", "success"
-            ));
-        } catch (Exception e) {
-            logger.error("OpenClaw 呼叫失敗", e);
-            return ResponseEntity.internalServerError().body(
-                    Map.of("error", e.getMessage(),
-                            "status", "error"));
-        }
+    Map<String, Object> chat(@Valid @RequestBody ChatRequest request) {
+        // 只記錄識別碼與長度，不記錄訊息內容（可能含個資）
+        log.info("chat conversation={} length={}", request.conversationId(), request.message().length());
+        String reply = client.sendMessage(request.conversationId(), request.message());
+        return Map.of("conversationId", request.conversationId(), "reply", reply);
     }
 
-    /**
-     * 健康檢查端點。
-     */
     @GetMapping("/health")
-    public ResponseEntity<Map<String, Object>> health() {
-        boolean connected = client.isConnected();
-        return ResponseEntity.ok(Map.of(
-                "service", "openclaw-spring-bridge",
-                "openclaw_connected", connected,
-                "status", connected ? "healthy" : "degraded"
-        ));
+    ResponseEntity<Map<String, Object>> health() {
+        boolean ready = client.isReady();
+        return ResponseEntity.status(ready ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of("gateway", client.getGatewayUri().toString(), "ready", ready));
     }
 
-    /**
-     * 取得 Agent 狀態。
-     */
-    @GetMapping("/status")
-    public ResponseEntity<Map<String, Object>> status() {
-        return ResponseEntity.ok(Map.of(
-                "gateway", client.getGatewayUri(),
-                "connected", client.isConnected(),
-                "activeRequests", client.getActiveRequestCount()
-        ));
-    }
-}
-
-/**
- * OpenClaw 客戶端包裝器（簡化版）。
- */
-class OpenClawClientWrapper {
-
-    private static final Logger logger = LogManager.getLogger(
-            OpenClawClientWrapper.class);
-
-    private final String gatewayUri;
-    private volatile boolean connected = false;
-
-    OpenClawClientWrapper(String gatewayUri) {
-        this.gatewayUri = gatewayUri;
-    }
-
-    void connect() {
-        // 實際實作會建立 WebSocket 連線
-        connected = true;
-        logger.info("已連線至 OpenClaw Gateway: {}", gatewayUri);
-    }
-
-    String sendMessage(String message) throws Exception {
-        if (!connected) {
-            throw new IllegalStateException("未連線至 OpenClaw Gateway");
-        }
-        // 實際實作會透過 WebSocket 發送
-        return "OpenClaw Agent 回應: 已收到您的訊息「" + message + "」";
-    }
-
-    boolean isConnected() {
-        return connected;
-    }
-
-    String getGatewayUri() {
-        return gatewayUri;
-    }
-
-    int getActiveRequestCount() {
-        return 0;
-    }
-
-    @PreDestroy
-    void close() {
-        connected = false;
-        logger.info("OpenClaw 連線已關閉");
+    /** 對外不洩漏內部錯誤細節；認證錯誤回 502（是本服務設定問題，不是呼叫者的錯）。 */
+    @ExceptionHandler(OpenClawException.class)
+    ResponseEntity<Map<String, Object>> onGatewayError(OpenClawException e) {
+        log.warn("OpenClaw call failed status={} message={}", e.getStatus(), e.getMessage());
+        HttpStatus status = e.getStatus() == 429 ? HttpStatus.TOO_MANY_REQUESTS : HttpStatus.BAD_GATEWAY;
+        return ResponseEntity.status(status).body(Map.of("error", "openclaw_unavailable"));
     }
 }
 ```
 
-#### Spring Boot 組態
+#### 組態
 
 ```yaml
-# application.yml
 server:
   port: 8080
 
 openclaw:
-  gateway:
-    uri: ws://localhost:18789
-  retry:
-    max-attempts: 3
-    initial-delay-ms: 1000
-    backoff-multiplier: 2.0
-  timeout:
-    connect-ms: 5000
-    read-ms: 60000
+  gateway-uri: http://127.0.0.1:18789
+  token: ${OPENCLAW_GATEWAY_TOKEN}
+  agent: assistant
+  request-timeout: 2m
+  max-attempts: 3
 
 logging:
   level:
-    com.tutorial.openclaw: DEBUG
+    com.tutorial.openclaw: INFO
 ```
 
----
-
-### 4.11 Gateway Protocol Client 開發（v2026.8.1 新增）
-
-2.0 為「建置 Gateway 用戶端或嵌入 OpenClaw」的開發者提供了正式的契約：**具型別的協定 schema、執行期驗證、認證、重連、readiness、timeout，以及 browser 與 Node 進入點指引**。
-
-> **發布狀態**：Gateway protocol 與參考用戶端已準備為**日曆版號的 npm 套件**，會在發布列車推送時變為可安裝。撰寫本文時應以官方 [Gateway protocol](https://docs.openclaw.ai/gateway/protocol) 文件確認當前可用版本。
-
-#### TypeScript 參考用戶端
-
-```typescript
-import { createGatewayClient } from '@openclaw/gateway-client';
-
-const client = createGatewayClient({
-  url: 'wss://gateway.internal.example.com:18789',
-  auth: { type: 'token', token: process.env.OPENCLAW_GATEWAY_TOKEN! },
-  // 執行期驗證：不符 schema 的訊息會被拒絕而非靜默接受
-  validate: 'strict',
-  // 重連與就緒等待
-  reconnect: { maxRetries: 10, backoffMs: 500 },
-  readinessTimeoutMs: 15_000,
-});
-
-await client.ready();
-
-const reply = await client.sendMessage({
-  sessionId: 'ops-daily-report',
-  text: '生成今日維運報表',
-  timeoutMs: 120_000,
-});
-
-console.log(reply.text);
-await client.close();
-```
-
-#### Java 對應實作
-
-Java 端沒有官方參考用戶端，需自行以 WebSocket 實作並對齊同一組契約要素。重點在於**明確處理 readiness 與 timeout**，而非僅建立連線即視為可用：
+#### 端到端測試
 
 ```java
-package com.tutorial.openclaw.gateway;
+package com.tutorial.openclaw.spring;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+
+import com.sun.net.httpserver.HttpServer;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
-import java.net.http.WebSocket;
-import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 
-/**
- * Gateway Protocol 用戶端的 Java 實作骨架。
- *
- * <p>對齊官方契約的四個要素：認證、執行期驗證、重連、readiness／timeout。
- * 與 TypeScript 參考用戶端的差異在於 Java 端需自行維護 schema 驗證，
- * 建議搭配 JSON Schema 驗證器對齊官方 protocol schema。
- */
-public class GatewayProtocolClient implements AutoCloseable {
+import static org.assertj.core.api.Assertions.assertThat;
 
-    private static final Duration READINESS_TIMEOUT = Duration.ofSeconds(15);
+/** 端到端：Spring REST → OpenClawClient → 模擬 Gateway。 */
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class OpenClawControllerTest {
 
-    private final URI endpoint;
-    private final String token;
-    private final CompletableFuture<Void> ready = new CompletableFuture<>();
-    private WebSocket socket;
+    static final HttpServer GATEWAY = startGateway();
 
-    public GatewayProtocolClient(URI endpoint, String token) {
-        this.endpoint = endpoint;
-        this.token = token;
-    }
+    @LocalServerPort
+    int port;
 
-    /**
-     * 建立連線並等待 Gateway 回報就緒。
-     *
-     * <p>注意：連線建立不等於可用。必須等待 readiness 訊號，
-     * 否則在 Gateway 啟動期間送出的請求可能被拒絕。
-     *
-     * @throws IllegalStateException 若在逾時前未收到就緒訊號
-     */
-    public void connectAndAwaitReady() throws Exception {
-        this.socket = HttpClient.newHttpClient()
-                .newWebSocketBuilder()
-                .header("Authorization", "Bearer " + token)
-                .connectTimeout(Duration.ofSeconds(10))
-                .buildAsync(endpoint, new ProtocolListener(ready))
-                .get(10, TimeUnit.SECONDS);
-
+    static HttpServer startGateway() {
         try {
-            ready.get(READINESS_TIMEOUT.toSeconds(), TimeUnit.SECONDS);
-        } catch (Exception e) {
-            throw new IllegalStateException("Gateway 未在逾時前回報就緒", e);
+            HttpServer s = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            s.createContext("/v1/chat/completions", ex -> {
+                byte[] b = """
+                        {"choices":[{"index":0,"message":{"role":"assistant","content":"摘要完成"}}]}
+                        """.getBytes(StandardCharsets.UTF_8);
+                ex.sendResponseHeaders(200, b.length);
+                ex.getResponseBody().write(b);
+                ex.close();
+            });
+            s.createContext("/readyz", ex -> {
+                ex.sendResponseHeaders(503, -1);
+                ex.close();
+            });
+            s.start();
+            return s;
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
     }
 
-    @Override
-    public void close() {
-        if (socket != null) {
-            socket.sendClose(WebSocket.NORMAL_CLOSURE, "client shutdown");
-        }
+    @DynamicPropertySource
+    static void props(DynamicPropertyRegistry r) {
+        r.add("openclaw.gateway-uri", () -> "http://127.0.0.1:" + GATEWAY.getAddress().getPort());
+        r.add("openclaw.token", () -> "it-token");
+    }
+
+    @AfterAll
+    static void stop() {
+        GATEWAY.stop(0);
+    }
+
+    private HttpResponse<String> post(String json) throws Exception {
+        return HttpClient.newHttpClient().send(HttpRequest.newBuilder(
+                        URI.create("http://127.0.0.1:" + port + "/api/openclaw/chat"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(json)).build(), HttpResponse.BodyHandlers.ofString());
+    }
+
+    @Test
+    void chatIsForwardedToGateway() throws Exception {
+        HttpResponse<String> res = post("{\"conversationId\":\"t-1\",\"message\":\"請摘要工單\"}");
+        assertThat(res.statusCode()).isEqualTo(200);
+        assertThat(res.body()).contains("摘要完成").contains("t-1");
+    }
+
+    @Test
+    void blankMessageIsRejectedWith400() throws Exception {
+        assertThat(post("{\"conversationId\":\"t-1\",\"message\":\"\"}").statusCode()).isEqualTo(400);
+    }
+
+    @Test
+    void healthReflectsGatewayReadiness() throws Exception {
+        HttpResponse<String> res = HttpClient.newHttpClient().send(HttpRequest.newBuilder(
+                URI.create("http://127.0.0.1:" + port + "/api/openclaw/health")).build(), HttpResponse.BodyHandlers.ofString());
+        assertThat(res.statusCode()).isEqualTo(503);
+        assertThat(res.body()).contains("\"ready\":false");
     }
 }
 ```
 
-> **為什麼 readiness 是必要的**：2.0 的 Gateway 在重啟後，**健康檢查、Agent 清單與核心控制項會先變為可用**，而選用的 catalog、插件與遷移工作則延後執行（見 6.11）。若用戶端在連線建立當下就送出需要 catalog 的請求，可能會遇到較長的等待或失敗。明確等待 readiness 訊號可避免這類競態。
+#### Review Checklist（審查 AI 產出的整合服務）
+
+| 檢查項目 | 為什麼 | 本範例的做法 |
+| --- | --- | --- |
+| Token 不出現在程式碼或 yml 明文 | operator 等級憑證 | `${OPENCLAW_GATEWAY_TOKEN}` 環境變數 |
+| 輸入長度與必填驗證 | 避免把任意大小的輸入轉給 Agent | `@NotBlank @Size` + `@Valid` |
+| 不記錄訊息內容 | 訊息可能含個資 | 只記錄 conversationId 與長度 |
+| 錯誤不外洩內部細節 | 避免暴露 Gateway 位址與錯誤訊息 | `@ExceptionHandler` 統一回 `openclaw_unavailable` |
+| 健康檢查反映 Gateway readiness | 讓負載平衡器正確摘除 | `/readyz` → 200／503 |
+| 對話層級的 Session | 避免不同使用者共用 Session | `conversationId` → OpenAI `user` 欄位 |
+| 本服務自身有存取控制 | Gateway 端點等同 operator 權限 | 部署時置於企業 SSO／API Gateway 之後（本範例未示範） |
+
+---
+
+### 4.11 Gateway Protocol Client 開發
+
+需要自建 operator 介面（即時串流、審批卡片、Session 清單訂閱）時，才需要直接使用 Gateway WebSocket 協定。官方提供兩個**跟隨發布列車版號**的 npm 套件：
+
+| 套件 | 內容 |
+| --- | --- |
+| `@openclaw/gateway-protocol` | schema、執行期驗證器、TypeScript 型別、client identity 與 capability 登錄表、結構化錯誤讀取器、協定版本常數；tarball 內含 `protocol.schema.json` |
+| `@openclaw/gateway-client` | 參考連線實作；套件根目錄為 Node 用戶端（內含 `ws` 傳輸），`@openclaw/gateway-client/browser` 為瀏覽器版 |
+
+```bash
+# 套件版本與 Gateway 版本、wire protocol 版本是三件事：務必精確釘選並一起測試
+npm install --save-exact @openclaw/gateway-client@2026.11.1 @openclaw/gateway-protocol@2026.11.1
+```
+
+#### 連線生命週期（必須理解的五步）
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant G as Gateway
+    C->>G: WebSocket 連線
+    G-->>C: event connect.challenge（含 nonce 與 ts）
+    C->>G: req connect（role、scopes、caps、bootstrap token／password、Ed25519 裝置證明）
+    alt 裝置尚未配對
+        G-->>C: res error PAIRING_REQUIRED（requestId）
+        G->>G: 管理者執行 openclaw devices approve（requestId）
+        C->>G: 重新連線並 connect
+    end
+    G-->>C: res hello-ok（protocol、policy、auth.deviceToken）
+    C->>G: req chat.send（sessionKey、message、idempotencyKey）
+    G-->>C: res（受理）
+    G-->>C: event chat／agent／tool（需宣告對應 caps）
+```
+
+1. **裝置身分**：用戶端持久保存一組 Ed25519 金鑰；不要手動編輯 `openclaw.json` 產生每個用戶端的 token。
+2. **Bootstrap 驗證**：首次連線以共用 Gateway token／password 證明身分，取得配對後改用 `hello-ok.auth.deviceToken`。
+3. **最小 scope**：互動聊天只需 `operator.read` + `operator.write`；顯示審批卡片再加 `operator.approvals`；`operator.admin` 只給管理工具。scope 升級會產生新的配對請求。
+4. **Capabilities 不是授權**：`caps` 只宣告用戶端能處理的事件；例如沒宣告 `tool-events` 就**收不到**工具串流，且握手不會報錯。
+5. **重連即重建投影**：每次重連都要重新 `sessions.subscribe`、重抓 `chat.history`，並接手 `inFlightRun`。
+
+#### TypeScript 範例（以 `tsc --strict` 對 2026.11.1 型別檢查通過）
+
+```typescript
+import { randomUUID } from "node:crypto";
+import { GatewayClient, GatewayClientRequestError } from "@openclaw/gateway-client";
+import { GATEWAY_CLIENT_CAPS, GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "@openclaw/gateway-protocol/client-info";
+
+const sessionKey = "agent:assistant:ops-daily-report";
+
+const client = new GatewayClient({
+  url: "wss://gateway.internal.example.com",
+  // 首次連線以共用 Gateway token 做 bootstrap 驗證；配對核准後改用 hello-ok 回傳的 device token
+  token: process.env.OPENCLAW_GATEWAY_TOKEN,
+  clientName: GATEWAY_CLIENT_IDS.GATEWAY_CLIENT,
+  clientDisplayName: "ops-report-bot",
+  mode: GATEWAY_CLIENT_MODES.BACKEND,
+  role: "operator",
+  // 只要求實際需要的 scope：讀歷史 + 送訊息
+  scopes: ["operator.read", "operator.write"],
+  caps: [GATEWAY_CLIENT_CAPS.TOOL_EVENTS],
+  requestTimeoutMs: 120_000,
+  onHelloOk: (hello) => {
+    console.log("connected, protocol", hello.protocol);
+  },
+  onEvent: (evt) => {
+    if (evt.event === "chat") console.log("chat event", evt.payload);
+  },
+  onConnectError: (err) => console.error("connect failed:", err.message),
+});
+
+client.start();
+
+try {
+  // chat.send：sessionKey、message 與 idempotencyKey 為必填；重送時沿用同一 idempotencyKey 可避免重複執行
+  const ack = await client.request("chat.send", {
+    sessionKey,
+    message: "生成今日維運報表",
+    idempotencyKey: randomUUID(),
+  });
+  console.log("accepted:", ack);
+} catch (err) {
+  if (err instanceof GatewayClientRequestError) {
+    console.error("gateway rejected request:", err.message);
+  } else {
+    throw err;
+  }
+} finally {
+  await client.stopAndWait({ timeoutMs: 5_000 });
+}
+```
+
+> ❌ **舊版範例的錯誤**：`import { createGatewayClient } from '@openclaw/gateway-client'` 搭配 `validate: 'strict'`、`client.ready()`、`client.sendMessage()`。實測 `tsc` 會回報 `has no exported member named 'createGatewayClient'. Did you mean 'GatewayClient'?`——這是典型的 AI 杜撰 API，**一定要用編譯器驗證**。
+
+#### Java 怎麼辦？
+
+Java **沒有**官方 WebSocket 參考用戶端；若自行實作，需完整處理 challenge 簽章、裝置配對、序號缺口（`onGap`）、重連後的狀態重建與 schema 驗證，成本很高。建議：
+
+- **一般後端整合**：使用 4.2 的 HTTP API。
+- **需要即時事件**：以 Node.js 執行官方 `@openclaw/gateway-client` 作為 sidecar，再以內部 API 或訊息佇列轉給 Java 服務。
+- **必須自行實作**：以 `protocol.schema.json` 產生 Java 型別並在 CI 中驗證 frame，並以官方 [Gateway protocol](https://docs.openclaw.ai/gateway/protocol) 的 wire-version 規則管理相容性。
+
+> **為什麼 readiness 很重要**：Gateway 重啟後，健康檢查、Agent 清單與核心控制項會先可用，catalog、插件與遷移工作則延後（見 6.11）。用戶端應在 `hello-ok` 之後才送出請求，並處理 `startup-unavailable`、`restart-unavailable` 這類結構化錯誤，而不是把「WebSocket 已連線」當成可用。
+
+### 4.12 Managed Worktrees 與 Agent 工作目錄
+
+讓 Agent 改程式碼時，最怕的是它直接在你的工作目錄上動手。v2026.9.x 起，OpenClaw 提供兩個互補的機制：
+
+| 機制 | 用途 | 設定 |
+| --- | --- | --- |
+| **Agent 工作目錄（cwd）** | 讓 Agent 回合在指定目錄執行（與存放 `AGENTS.md`、記憶的**工作區分開**） | `agents.defaults.cwd`、`agents.entries.<id>.cwd`（需非沙箱執行） |
+| **Managed Worktrees** | 每個任務一條獨立 Git 分支與 checkout，不在原始 repo 中留下暫存目錄；OpenClaw 會記錄並快照 | `worktreeRoot`、`worktreeMaxCount`、`openclaw worktrees` |
+
+```json5
+// openclaw.json
+{
+  // 新的 managed worktree 存放位置（Windows 建議放在 ReFS 磁碟以啟用 block cloning）
+  worktreeRoot: "/mnt/workspaces/openclaw-worktrees",
+  // 所有 Agent／repo 共用的上限（預設 4096）；超過時先淘汰已合併的分支，再淘汰最舊的閒置 worktree
+  worktreeMaxCount: 200,
+  agents: {
+    defaults: {
+      workspace: "~/.openclaw/workspace",   // 指令、人格與記憶
+      cwd: "~/src/payments-service",        // Agent 回合實際執行的目錄
+    },
+  },
+}
+```
+
+```bash
+openclaw worktrees create ~/src/payments-service --name fix-refund-rounding --base-ref main
+openclaw worktrees list
+openclaw worktrees remove <id> --if-lossless   # 只有在不會遺失資料時才移除
+openclaw worktrees restore <id>                # 從快照還原已移除的 worktree
+openclaw worktrees gc                          # 清理過期的快照與模板
+```
+
+在 Control UI 開新對話時選 **Worktree**，即可讓該任務在 managed worktree 中進行；對話中可檢視 diff、執行測試，並以 **Publish PR**（需先確認 GitHub 發布身分，見 11.7）發出 Pull Request。
+
+> ⚠️ **審查重點**：
+>
+> 1. **淘汰會發生**：`worktreeMaxCount` 調低時，會立即對既有 checkout 套用淘汰政策。OpenClaw 會先快照，但仍建議把 `worktrees restore` 的演練納入維運手冊。
+> 2. **cwd 與沙箱互斥**：與工作區不同的 `cwd` 需要**非沙箱**執行；生產環境若要求沙箱，請改用 managed worktree（沙箱 Session 會使用私有 Git checkout 投影）。
+> 3. **「裝置上的既有資料夾」不是 managed worktree**：在配對裝置上直接指定的資料夾，OpenClaw 不會 clone、快照或清理。
+
+### 4.13 共用 Gateway 上的個人技能庫
+
+在團隊共用的 Gateway 上，v2026.9.1 起每位**經驗證的使用者**可以維護自己的技能庫，不需要取得修改工作區技能或 Gateway 組態的權限。
+
+| 概念 | 說明 |
+| --- | --- |
+| **擁有權** | 新技能屬於建立者；**Share with team** 讓其他人可用但不可編輯；管理者可 **transfer to team** |
+| **不可變版本（revision）** | 每次儲存都發布一個完整版本（`SKILL.md` + 所有支援檔），雜湊涵蓋路徑、內容、大小與執行權限；舊版本保留供回滾 |
+| **Session 鎖定版本** | Session 會記住它選用的技能與版本；其他人加入不會改變選擇。新版本只套用到新 Session，舊 Session 需明確 refresh |
+| **限制** | 新 Session 最多選用 64 個技能；單一 bundle 最多 256 個檔案、單檔 1 MiB、總計 8 MiB |
+| **儲存位置** | 中繼資料在 `state/openclaw.sqlite`，bundle 在 `<state-dir>/skill-library/<id>/revisions/<hash>/`——**不要手動修改** |
+
+```bash
+openclaw skills library list
+openclaw skills library import ./release-notes-skill.zip   # 匯入 SKILL.md 或 ZIP bundle
+openclaw skills library share <skill-id>                   # 分享給團隊（唯讀）
+openclaw skills library rollback <skill-id> --help         # 回滾到保留的版本
+openclaw skills library remove <skill-id>                  # 不影響已選用該版本的既有 Session
+```
+
+> ⚠️ **信任邊界提醒**：共用 Gateway 仍是**單一信任域**。技能庫的擁有權只管理「誰能編輯與發現」，**不會**授予新工具、憑證或主機安裝權限，也不會把技能與 Gateway 操作者隔離。**不要把任何憑證寫進技能內容**。共用 token 無法識別個人，個人技能庫需要經驗證的 Gateway profile（例如 11.7 的 trusted-proxy 登入）。
+
+### 4.14 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | Java 整合使用 HTTP API 且固定 HTTP/1.1 | 檢視 `HttpClient.newBuilder()`；執行 `neverSendsHttp2UpgradeHeader` 測試 | `.version(HttpClient.Version.HTTP_1_1)`，測試通過 |
+| 2 | readiness 檢查 JSON 本文 | 執行 `readinessRequiresJsonReadyTrueNotJustStatus200` 測試 | `/readyz` 需 `ready: true` 才算就緒 |
+| 3 | 契約測試與冒煙測試皆通過 | `mvn -B test`；預備環境再跑 `LiveGatewaySmokeTest` | 全部通過（無環境變數時 live 測試 Skipped） |
+| 4 | TypeScript 用戶端 API 存在 | `npx tsc --noEmit --strict` | 0 錯誤；沒有 `createGatewayClient` 等杜撰 API |
+| 5 | 插件可被 OpenClaw 接受 | `npm run plugin:validate`、`openclaw plugins inspect <id> --json` | `Plugin <id> is valid.`；安裝後為 `enabled` |
+| 6 | Webhook 使用原生 ingress 與專用 token | `openclaw config get hooks --json` | `hooks.token` 與 Gateway token 不同；`path` 不是 `/` |
+| 7 | Code Mode 程式不猜欄位 | 人工審查 guest JavaScript | 未知輸出先 `results.save` 或原樣回傳 |
+
+---
 
 ## 第五章：企業最佳實務
 
@@ -5654,35 +6077,45 @@ graph TB
 - **排程與委派的工作會保留其發起時的政策**，不會因執行環境而放寬。
 - 來自另一台機器的不確定結果會**回報為 unknown，而非以猜測重試**——這對稽核完整性很重要，避免把「不知道」記錄成「成功」。
 
-#### DM 配對（DM Pairing）
+#### DM 配對與 Agent 路由
 
-OpenClaw 的 DM Pairing 是核心存取控制機制：
+OpenClaw **沒有**全域的 `security.allowedUsers`。存取控制分成兩層，分別設定：
+
+1. **誰能跟 Bot 說話**：每個頻道各自的 `dmPolicy`（`pairing`／`allowlist`／`open`／`disabled`）與 `allowFrom`，群組另有 `groupPolicy` 與群組設定。
+2. **訊息交給哪個 Agent**：頂層 `bindings[]` 依頻道、帳號、群組（guild／team）、對象或角色把訊息路由到指定 Agent。
 
 ```json5
 {
-  "security": {
-    // 啟用 DM 配對
-    "dmPairing": true,
-    
-    // 允許清單
-    "allowedUsers": [
-      "admin@company.com",
-      "*@dev-team.company.com",  // 萬用字元
-    ],
-    
-    // Agent 存取控制
-    "agentAccess": {
-      "admin-agent": {
-        "users": ["admin@company.com"],
-        "channels": ["slack"],
-      },
-      "general-agent": {
-        "users": ["*"],
-        "channels": ["*"],
-      },
+  channels: {
+    slack: {
+      botToken: "${SLACK_BOT_TOKEN}",
+      appToken: "${SLACK_APP_TOKEN}",
+      dmPolicy: "allowlist",
+      allowFrom: ["U01ADMIN", "U02OPS"],      // Slack 使用者 ID，而非 email
+    },
+    telegram: { botToken: "${TELEGRAM_BOT_TOKEN}", dmPolicy: "pairing" },
+  },
+  agents: {
+    ownership: "explicit",
+    entries: {
+      "admin-agent": { workspace: "~/.openclaw/workspace-admin" },
+      "general-agent": { workspace: "~/.openclaw/workspace-general" },
     },
   },
+  bindings: [
+    // Slack 的訊息交給 admin-agent；其他頻道交給 general-agent
+    { agentId: "admin-agent", match: { channel: "slack" } },
+    { agentId: "general-agent", match: { channel: "telegram" } },
+  ],
 }
+```
+
+> ❌ **舊版範例的錯誤**：`security.dmPairing`、`security.allowedUsers`（含 `*@dev-team.company.com` 萬用字元）、`security.agentAccess`。這些鍵都不存在。另外要注意：多數頻道的 `allowFrom` 使用**平台使用者 ID**（Slack `U...`、Telegram 數字 ID、WhatsApp 電話號碼），**不是 email**；以顯示名稱比對需明確開啟 `dangerouslyAllowNameMatching`，不建議使用。
+
+```bash
+openclaw directory peers --help    # 查詢平台使用者／群組 ID
+openclaw pairing approve telegram <code>
+openclaw config validate --json
 ```
 
 #### 權限層級設計
@@ -5718,29 +6151,47 @@ graph TB
 | **環境** | `{function}-{env}` | `monitor-prod`, `monitor-dev` |
 | **版本** | `{function}@{version}` | `monitor@1.2.0` |
 
-#### 治理規則
+#### 治理規則：對應到實際可設定的控制項
+
+「治理」在 OpenClaw 中不是一個獨立的組態區塊，而是由多個子系統的政策**組合**而成。下表把常見的治理需求對應到真實的設定：
+
+| 治理需求 | OpenClaw 控制項 | 驗證方式 |
+| --- | --- | --- |
+| 多 Agent 必須有明確擁有者 | `agents.ownership: "explicit"` | `config validate`：多 Agent roster 缺少時直接報錯 |
+| 只允許核准的模型 | `agents.defaults.modelPolicy.allow` | `/model` 選不到清單外模型 |
+| 每個 Agent 可見的技能 | `agents.defaults.skills`、`agents.entries.<id>.skills` | `openclaw skills check` |
+| 技能／插件安裝需經審查 | `security.installPolicy`（以外部指令審核 skill／plugin 安裝） | 安裝未經核准的來源會被拒絕 |
+| 只允許核准的插件 | `plugins.allow`／`plugins.deny` | `openclaw plugins list` |
+| 自我學習是否開啟 | `skills.workshop.autonomous.mode: "off" \| "auto"` | Workshop 變更紀錄（`openclaw skills workshop changes`） |
+| 工具最小權限 | `tools.profile` + `allow`／`deny` + `tools.fs.workspaceOnly` | `/tools` 指令列出實際可用工具 |
+| 成本掌握 | 用量統計與告警（無內建「每日 token 上限」） | `openclaw gateway usage-cost --days 7` |
 
 ```json5
+// 企業治理基準（openclaw 2026.11.1 config validate 通過）
 {
-  "governance": {
-    "agents": {
-      "maxAgentsPerWorkspace": 10,
-      "namingPattern": "^[a-z][a-z0-9-]{2,30}$",
-      "requiredMetadata": ["owner", "team", "purpose"],
+  agents: {
+    ownership: "explicit",
+    defaults: {
+      model: { primary: "anthropic/claude-opus-5-5" },
+      modelPolicy: { allow: ["anthropic/*", "openai/gpt-6-astra"] },
+      skills: ["github", "enterprise-reporter"],
     },
-    "skills": {
-      "maxSkillsPerAgent": 20,
-      "requireReview": true,
-      "allowedAuthor": ["*@company.com"],
-    },
-    "models": {
-      "allowedProviders": ["openai", "anthropic"],
-      "maxTokenBudgetDaily": 1000000,
-      "requireApproval": ["gpt-5.6"],
+    entries: {
+      assistant: {},
+      "finance-bot": { skills: ["finance-report"] },
     },
   },
+  skills: {
+    workshop: { autonomous: { mode: "off" } },   // 受管環境：關閉背景自我學習，改由人工 /learn 起草再審查
+  },
+  plugins: { allow: ["ticket-lookup", "diagnostics-otel"] },
+  tools: { profile: "coding", deny: ["group:nodes"], fs: { workspaceOnly: true } },
 }
 ```
+
+> ❌ **舊版範例的錯誤**：頂層 `governance` 區塊（`maxAgentsPerWorkspace`、`requireReview`、`maxTokenBudgetDaily` 等）並不存在；`config validate` 會回報 `Unrecognized key: "governance"`。像命名規則、必填中繼資料這類 OpenClaw 不支援的規範，應改在 **CI 中以自訂檢查**落實（例如對 `openclaw.json` 跑 lint，或以 `openclaw config get agents.entries --json` 取出後驗證）。
+>
+> ⚠️ **自我學習模式只有 `off` 與 `auto`**：2.0 時期的 `propose` 模式已不存在。`auto` 會在大量工作後自動儲存或更新 Workshop 技能，並封存 30 天未使用的技能；**每一項變更都有紀錄且可復原**（`/learn undo <id>`）。需要人工審查時，請設為 `off` 並以 `/learn` 主動起草待審技能。
 
 ### 5.4 安全強化策略
 
@@ -5784,38 +6235,44 @@ OpenClaw 的安全模型預設信任主 Session（操作者本人），但對群
 
 **沙箱預設工具黑名單**: `browser`、`canvas`、`nodes`、`cron`、`discord`、`gateway`
 
-#### Trusted Tool Policy Enforcement（v2026.6.10 新增）
+#### 工具政策與 exec 安全模式
 
-自 v2026.6.10 起，OpenClaw 引入 **Trusted Tool Policy** 機制，強制限制 Agent 可使用的工具範圍：
+「限制 Agent 能用哪些工具」與「限制 shell 指令能做什麼」是兩層不同的控制，生產環境兩者都要設：
 
 ```json5
 {
-  agents: {
-    defaults: {
-      trustedTools: {
-        // 僅允許白名單工具
-        mode: "allowlist",       // allowlist | denylist
-        allow: ["read", "write", "edit", "bash", "search"],
-        // 或使用黑名單模式
-        // mode: "denylist",
-        // deny: ["browser", "gateway"],
-      },
+  tools: {
+    profile: "coding",
+    deny: ["browser", "gateway", "group:nodes"],   // 群組 deny 會覆蓋個別 allow
+    fs: { workspaceOnly: true },
+    exec: {
+      host: "sandbox",        // auto | sandbox | gateway | node
+      security: "allowlist",  // deny | allowlist | full
+      ask: "on-miss",         // off | on-miss | always：不在 allowlist 時要求人工審批
     },
   },
+  approvals: { exec: { enabled: true } },
 }
 ```
 
-此機制可防止 Prompt Injection 攻擊導致 Agent 呼叫敏感工具，是生產環境的重要安全防線。
+| 設定 | 作用 | 常見誤用 |
+| --- | --- | --- |
+| `tools.profile` + `allow`／`deny` | 決定模型**看得到**哪些工具 | 以為 `full` 等於完全授權（其實只是選入工具） |
+| `tools.exec.security` | 決定 shell 指令的授權模式 | 生產環境設成 `full` |
+| `tools.exec.ask` | allowlist 未命中時是否詢問人 | 設成 `off` 又搭配 `allowlist`，導致未列入的指令一律失敗而改用其他工具繞過 |
+| `tools.fs.workspaceOnly` | 檔案工具限縮在工作區（v2026.10.9 起也套用到 Gateway 內建工具） | 未開啟，Agent 可讀寫家目錄 |
+
+> ❌ **舊版範例的錯誤**：`agents.defaults.trustedTools`（`mode: "allowlist"`）並不存在。「Trusted Tool Policy」是**插件層級**的能力（插件以 `api.registerTrustedToolPolicy(...)` 註冊，且需在 manifest 的 `contracts.trustedToolPolicies` 宣告），不是一個可直接寫在 `openclaw.json` 的白名單。
 
 #### Session Transcript SDK（v2026.6.10 新增）
 
-Plugin 開發者可透過 **Session Transcript SDK** 讀取、寫入與發布對話紀錄：
+插件可透過 Plugin SDK 的 runtime 介面存取 Session 逐字稿（v2026.11.1）：
 
-- `transcript.read(sessionId)` — 讀取指定 Session 的完整對話紀錄
-- `transcript.append(sessionId, entry)` — 追加紀錄條目
-- `transcript.publish(sessionId, format)` — 將紀錄匯出為 Markdown / JSON
+- `openclaw/plugin-sdk/agent-sessions`：載入既有的 SQLite 逐字稿（hydration），並以 `reloadPersistedTranscriptAsync(signal?)` 重新載入
+- **Awaited transcript mutations**：寫入逐字稿的操作需 `await` 完成持久化（舊的同步寫法已標示 deprecated，見官方 SDK migration「await session transcript persistence」）
+- `openclaw/plugin-sdk/session-transcript-runtime` 的 `publishSessionTranscriptUpdateByIdentity`：發布逐字稿更新通知
 
-適用場景：合規稽核、對話品質分析、訓練資料收集。需在 Plugin manifest 中宣告 `permissions: ["transcript:read", "transcript:write"]`。
+> ⚠️ 舊版手冊的 `transcript.read()`／`append()`／`publish()` 與 manifest `permissions: ["transcript:read"]` **不是**實際的 SDK 介面。逐字稿 API 屬於 `api.runtime` 的 agent／session 介面，詳見 [Plugin runtime — Agent and sessions](https://docs.openclaw.ai/plugins/sdk-runtime/agent)。Incognito Session 的逐字稿不會落地。
 
 #### Secret Egress Host Binding（v2026.8.1 新增）
 
@@ -5971,39 +6428,43 @@ graph LR
 | **CPU 使用率** | < 70% | Agent 數量、並行限制 |
 | **錯誤率** | < 0.1% | 重試策略、Circuit Breaker |
 
-#### 效能優先設定
+#### 效能相關設定（實際可用的鍵）
 
 ```json5
 {
-  "performance": {
-    // 使用快速模型處理簡單查詢
-    "routeSimpleQueries": "fast",
-    
-    // 串流回應（降低感知延遲）
-    "streaming": true,
-    
-    // 上下文限制
-    "context": {
-      "maxMessages": 20,
-      "maxTokens": 8000,
-      "compressionStrategy": "hybrid",
-    },
-    
-    // 工具呼叫並行
-    "tools": {
-      "parallelExecution": true,
-      "maxParallel": 3,
-      "timeout": 30000,
-    },
-    
-    // Session 清理
-    "sessions": {
-      "maxIdleMinutes": 30,
-      "maxLifetimeHours": 24,
-      "cleanupInterval": "5m",
+  agents: {
+    defaults: {
+      // 輕量工作（命名、摘要、分類）交給較快、較便宜的模型
+      utilityModel: "anthropic/claude-haiku-5-5",
+      maxConcurrent: 4,          // 同時執行的 Agent 回合上限
+      timeoutSeconds: 600,       // 單一回合逾時
+      // 依快取 TTL 修剪舊的工具結果，降低重送的 token
+      contextPruning: { mode: "cache-ttl" },
+      // safeguard（預設）保留最近脈絡；可指定較便宜的模型做壓縮
+      compaction: { mode: "safeguard", keepRecentTokens: 20000 },
     },
   },
+  session: {
+    reset: { mode: "idle", idleMinutes: 240 },     // 長時間閒置的 Session 自動重置，避免脈絡無限增長
+    maintenance: { mode: "enforce", pruneAfter: "30d", maxEntries: 5000, maxDiskBytes: "10gb" },
+  },
 }
+```
+
+| 需求 | 設定 | 說明 |
+| --- | --- | --- |
+| 降低簡單查詢成本 | `agents.defaults.utilityModel` | 背景與輔助工作改用較小模型 |
+| 控制併發 | `agents.defaults.maxConcurrent` | 依 CPU／記憶體與 Provider 速率限制調整 |
+| 控制脈絡成本 | `contextPruning`、`compaction`、`session.reset` | 預設 `session.reset.mode` 為 `none`，長期執行的 Agent 建議設定 |
+| 控制磁碟 | `session.maintenance` | 先用 `mode: "warn"` 觀察，確認後改 `enforce` |
+| 降低感知延遲 | 頻道串流設定（例如 `channels.<id>.streaming`） | 依頻道而定 |
+
+> ❌ **舊版範例的錯誤**：頂層 `performance` 區塊（`routeSimpleQueries`、`context.maxMessages`、`tools.parallelExecution` 等）並不存在。工具呼叫的並行是由模型與 runtime 決定（Code Mode 可在單一程式中以 `Promise.all` 並行，見 4.4），不是全域開關。
+
+```bash
+openclaw gateway usage-cost --days 7    # 用量與成本
+openclaw status                          # Gateway 與頻道狀態
+openclaw sessions list --all-agents --active 60
 ```
 
 ### 5.8 成本最佳化
@@ -6029,7 +6490,7 @@ flowchart TD
 
 #### 成本計算範例
 
-> **⚠️ 費率僅為相對量級示意**：以下數字為說明「混合路由可顯著降低成本」的**相對比例範例**，並非官方牌價。LLM 定價變動頻繁，實際費用請以各 Provider 官方定價頁面（OpenAI、Anthropic、Zhipu 等）與 OpenClaw `openclaw models test` 實測用量為準。
+> **⚠️ 費率僅為相對量級示意**：以下數字為說明「混合路由可顯著降低成本」的**相對比例範例**，並非官方牌價。LLM 定價變動頻繁，實際費用請以各 Provider 官方定價頁面（OpenAI、Anthropic、Zhipu 等）與 OpenClaw `openclaw gateway usage-cost --days 30`、`openclaw models status` 的實測用量為準。
 
 | 模型（示意） | 1K 次對話/月相對成本 | 策略 |
 |------|-----------------|------|
@@ -6049,36 +6510,51 @@ flowchart TD
 
 ### 5.9 合規與稽核
 
-#### 資料保留策略
+#### 資料保留與稽核（實際可用的鍵）
 
 ```json5
 {
-  "compliance": {
-    "dataRetention": {
-      "chatLogs": "90d",      // 對話日誌保留 90 天
-      "auditLogs": "365d",    // 稽核日誌保留 1 年
-      "metrics": "180d",      // 指標資料保留 180 天
-      "sessions": "30d",      // Session 資料保留 30 天
+  logging: {
+    level: "info",
+    consoleStyle: "json",
+    // 自訂遮罩規則會「取代」預設字串清單；內建的表單本文、結構化驗證與 AWS key 保護永遠生效
+    // JSON5 字串中的反斜線要寫成 \\（"\\b" 才是正規式的字邊界；"\b" 會變成 backspace 字元）
+    redactPatterns: ["\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b", "\\b09\\d{8}\\b"],
+    audit: {
+      enabled: true,             // 記錄 run、tool 與（若啟用）訊息生命週期事件；預設 true
+      executionIdentity: true,   // 保留確切執行身分，供 openclaw audit --explain 檢視
+      messages: "direct",        // off | direct | all：只記錄 metadata，不記錄內容
     },
-    "pii": {
-      "maskInLogs": true,     // 日誌中遮蔽個人資訊
-      "fields": ["email", "phone", "name", "id_number"],
-    },
-    "audit": {
-      "enabled": true,
-      "events": [
-        "agent.start",
-        "agent.stop",
-        "config.change",
-        "skill.install",
-        "skill.remove",
-        "access.denied",
-        "tool.execute",
-      ],
+  },
+  session: {
+    maintenance: {
+      mode: "enforce",
+      pruneAfter: "90d",              // 超過 90 天的對話封存（可還原）
+      resetArchiveRetention: "180d",  // 封存逐字稿依時間刪除（預設只依磁碟預算淘汰）
     },
   },
 }
 ```
+
+```bash
+# 稽核查詢：依 Agent、時間、種類與狀態篩選（最多 500 筆一頁，可用 cursor 續查）
+openclaw audit --agent finance-bot --kind tool_action --after 2026-11-01 --json
+openclaw audit --execution <execution-id> --explain
+```
+
+> ⚠️ **兩個必須寫進法遵文件的限制**：
+>
+> 1. `logging.redactPatterns` 只作用於**日誌與診斷**；**工具參數、工具結果與 Session 逐字稿不會被遮罩**。個資保護需在資料進入 Agent 之前處理，或限制可存取個資的工具。
+> 2. 封存（archive）不是刪除：封存的對話可還原，且備份中仍有副本。完整刪除需同時處理封存、備份與 4.6 的記憶清除。
+
+> ⚠️ **遮罩規則的兩個陷阱（實測）**：
+>
+> 1. `config validate` **不檢查正規式本身是否合法**。例如 `"(?i)\\bsecret\\b"` 能通過驗證，但 OpenClaw 執行於 Node.js，JavaScript 正規式不支援開頭的 `(?i)` 內嵌旗標（`node -e "new RegExp('(?i)x')"` 會拋出 `Invalid group`）。v2026.11.1 起無效規則會被回報且不影響其他規則，但它**不會生效**。
+> 2. JSON5 字串中的反斜線必須寫成 `\\`；寫成 `"\b"` 會得到 backspace 字元而非字邊界。
+>
+> 驗證方式：`node -e "for (const p of ['\\\\b09\\\\d{8}\\\\b']) console.log(new RegExp(p).test('0912345678'))"`，並在測試環境送一則含假 email 的訊息，確認日誌中已被遮罩。
+
+> ❌ **舊版範例的錯誤**：頂層 `compliance` 區塊（`dataRetention`、`pii.maskInLogs`、`audit.events`）並不存在；請使用上方的 `logging.*` 與 `session.maintenance.*`。
 
 #### Incognito 模式的合規邊界（v2026.8.1）
 
@@ -6123,6 +6599,19 @@ main           ─── 正式環境組態
 - [ ] 已新增對應的測試案例
 - [ ] README.md 已更新使用說明
 - [ ] CHANGELOG.md 已記錄變更
+
+### 5.11 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 沒有杜撰的治理區塊 | `openclaw config validate --json` | 無 `governance`、`performance`、`compliance`、`security.allowedUsers` 等鍵 |
+| 2 | DM 與路由政策 | 檢視 `channels.*.dmPolicy`、`allowFrom`、`bindings` | `allowFrom` 使用平台使用者 ID；路由規則可追溯 |
+| 3 | exec 與檔案政策 | 請 Agent 執行未列入 allowlist 的指令、讀取 `~/.ssh` | 前者觸發審批，後者被拒 |
+| 4 | 自我學習模式明確設定 | `openclaw config get skills.workshop.autonomous.mode` | 受管環境為 `off` |
+| 5 | 稽核可查 | `openclaw audit --kind tool_action --limit 20 --json` | 看得到工具呼叫事件與執行身分 |
+| 6 | 保存政策與法遵說法一致 | 比對 `session.maintenance`、`logging.redactPatterns` 與法遵文件 | 不宣稱逐字稿已遮罩；封存不等於刪除 |
 
 ---
 
@@ -6337,46 +6826,54 @@ OpenClaw 使用 **JSONL**（JSON Lines）格式輸出結構化日誌。
 
 ```json5
 {
-  "logging": {
-    "level": "info",
-    "format": "jsonl",          // jsonl | text
-    "file": "~/.openclaw/logs/openclaw.jsonl",
-    "console": true,            // 是否同時輸出到控制台
-    "rotation": {
-      "maxSize": "100MB",       // 單檔最大
-      "maxFiles": 10,           // 最多保留檔數
-      "compress": true,         // 壓縮舊日誌
-    },
+  logging: {
+    level: "info",                              // 檔案與主要輸出門檻：silent | fatal | error | warn | info | debug | trace
+    consoleLevel: "warn",                       // 主控台可另設較高門檻
+    consoleStyle: "json",                       // pretty | json（機器解析用 json）
+    file: "~/.openclaw/logs/openclaw.jsonl",
+    maxFileBytes: 104857600,                    // 單檔上限（100 MiB）
   },
 }
 ```
 
+> ❌ **舊版範例的錯誤**：`logging.format`、`logging.console`、`logging.rotation`（`maxSize`／`maxFiles`／`compress`）都不存在。長期保存與輪替請交給外部的日誌收集（OTel logs 匯出，或 logrotate／Fluent Bit 收集 JSONL 檔），見 6.3 與 6.9。
+
+```bash
+openclaw logs --follow --json      # 透過 Gateway RPC 追蹤日誌
+openclaw logs --limit 200 --plain
+```
+
 ### 6.3 OpenTelemetry 整合
 
-OpenClaw 原生支援 **OpenTelemetry** 遙測資料匯出，v2026.4.25 新增 **Prometheus 診斷端點** (`/metrics`) 可直接被 Prometheus 抓取，無需額外部署 OTEL Collector。v2026.6.9 新增 **OpenTelemetry Log Export** 支援，可將結構化日誌透過 OTLP 協定匯出至 Loki、Elasticsearch 或其他 OTEL-compatible 後端。
+OpenClaw 透過官方 `diagnostics-otel` 插件（官方 Docker 映像已內建）以 **OTLP/HTTP 主動外送** traces、metrics 與 logs；另有 `diagnostics-prometheus` 插件提供受驗證保護的 Prometheus 端點（見 6.4）。
 
 #### OTEL 組態
 
 ```json5
 {
-  "telemetry": {
-    "enabled": true,
-    "exporter": {
-      "type": "otlp",
-      "endpoint": "http://otel-collector:4318",  // OTLP/HTTP
-      "headers": {
-        "Authorization": "Bearer ${OTEL_TOKEN}",
-      },
-    },
-    "serviceName": "openclaw-gateway",
-    "serviceVersion": "2026.7.1",
-    "resource": {
-      "environment": "production",
-      "team": "platform",
+  diagnostics: {
+    enabled: true,
+    otel: {
+      enabled: true,
+      endpoint: "http://otel-collector:4318",
+      protocol: "http/protobuf",
+      serviceName: "openclaw-gateway",      // 未設定時退回 OTEL_SERVICE_NAME，再退回 "openclaw"
+      headers: { "x-collector-token": "${OTEL_COLLECTOR_TOKEN}" },
+      traces: true,
+      metrics: true,
+      logs: true,
+      logsExporter: "otlp",                 // otlp | stdout | both
+      sampleRate: 0.2,                      // root span 取樣率 0.0–1.0
+      flushIntervalMs: 60000,               // metrics 匯出間隔（最小 1000 ms）
+      captureContent: false,                // 不要把訊息內容送進遙測（個資）
     },
   },
 }
 ```
+
+> ❌ **舊版範例的錯誤**：`telemetry.exporter`、`telemetry.serviceName`、`telemetry.resource` 並不存在——`telemetry` 是**匿名使用遙測的同意設定**（`enabled`、`consentedAt`），與 OpenTelemetry 無關。OTel 一律設定在 `diagnostics.otel`。
+>
+> ⚠️ **`captureContent` 保持 `false`**：開啟後 span 會帶上訊息與工具內容，等同把對話資料複製到觀測平台。
 
 #### OpenTelemetry Collector 組態
 
@@ -6409,8 +6906,9 @@ exporters:
     tls:
       insecure: true
   
-  logging:
-    loglevel: info
+  # 舊版的 logging exporter 已自 Collector 移除，改用 debug exporter
+  debug:
+    verbosity: basic
 
 service:
   pipelines:
@@ -6425,42 +6923,56 @@ service:
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging]
+      exporters: [debug]
 ```
 
 ### 6.4 Metrics 指標監控
 
-#### 關鍵指標
+#### 關鍵指標（`diagnostics-prometheus` 匯出，節錄）
 
-| 指標名稱 | 類型 | 說明 |
-|----------|------|------|
-| `openclaw_messages_total` | Counter | 總訊息數 |
-| `openclaw_messages_by_channel` | Counter | 各頻道訊息數 |
-| `openclaw_response_duration_seconds` | Histogram | 回應時間分佈 |
-| `openclaw_llm_calls_total` | Counter | LLM 呼叫總數 |
-| `openclaw_llm_tokens_total` | Counter | Token 使用總量 |
-| `openclaw_llm_cost_usd` | Counter | LLM 成本（美元） |
-| `openclaw_skills_invocations_total` | Counter | 技能呼叫次數 |
-| `openclaw_tool_executions_total` | Counter | 工具執行次數 |
-| `openclaw_tool_execution_duration_seconds` | Histogram | 工具執行時間 |
-| `openclaw_active_sessions` | Gauge | 活躍 Session 數 |
-| `openclaw_channel_connections` | Gauge | 頻道連線數 |
-| `openclaw_errors_total` | Counter | 錯誤總數 |
+| 指標名稱 | 類型 | 用途 |
+| --- | --- | --- |
+| `openclaw_message_received_total`／`openclaw_message_processed_total` | Counter | 進線與處理完成的訊息數 |
+| `openclaw_message_processed_duration_seconds` | Histogram | 訊息處理時間 |
+| `openclaw_model_call_total`／`openclaw_model_call_duration_seconds` | Counter／Histogram | 模型呼叫次數與延遲 |
+| `openclaw_model_tokens_total`／`openclaw_model_cost_usd_total` | Counter | Token 用量與估算成本 |
+| `openclaw_model_failover_total` | Counter | 模型失效轉移次數（Provider 健康的先行指標） |
+| `openclaw_tool_execution_total`／`openclaw_tool_execution_duration_seconds` | Counter／Histogram | 工具執行次數與時間 |
+| `openclaw_tool_execution_blocked_total` | Counter | 被政策擋下的工具呼叫（資安訊號） |
+| `openclaw_sessions_active`／`openclaw_session_stuck_total` | Gauge／Counter | 活躍 Session 與卡住的 Session |
+| `openclaw_gateway_event_loop_delay_max_seconds` | Gauge | Gateway 事件迴圈延遲（回應變慢的根因之一） |
+| `openclaw_secret_egress_requests_total` | Counter | secret egress proxy 請求（含被拒絕者） |
+| `openclaw_webhook_received_total`／`openclaw_webhook_error_total` | Counter | Webhook ingress 健康度 |
+| `openclaw_gateway_build_info` | Gauge | 執行中的版本（升級稽核） |
 
-#### Prometheus 抓取組態
+完整清單見官方 [Prometheus metrics](https://docs.openclaw.ai/gateway/prometheus)。
+
+#### 啟用與 Prometheus 抓取組態
+
+```bash
+openclaw plugins install clawhub:@openclaw/diagnostics-prometheus
+openclaw plugins enable diagnostics-prometheus
+openclaw gateway restart
+
+# 端點需要 Gateway 驗證，且呼叫者需具備 operator.read
+curl -H "Authorization: Bearer $OPENCLAW_GATEWAY_TOKEN" http://127.0.0.1:18789/api/diagnostics/prometheus | head
+```
 
 ```yaml
 # prometheus.yml
-global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
-
 scrape_configs:
-  - job_name: "openclaw"
+  - job_name: openclaw
+    scrape_interval: 30s
+    metrics_path: /api/diagnostics/prometheus
+    authorization:
+      credentials_file: /etc/prometheus/openclaw-gateway-token
     static_configs:
-      - targets: ["otel-collector:8889"]
-    metrics_path: "/metrics"
+      - targets: ["openclaw-gateway:18789"]
 ```
+
+> ❌ **舊版範例的錯誤**：`metrics_path: "/metrics"`，以及 `openclaw_messages_by_channel`、`openclaw_llm_cost_usd`、`openclaw_active_sessions` 等指標名稱。OpenClaw 的 Prometheus 路由是 **`/api/diagnostics/prometheus`**，而且**需要驗證**；未帶 token 的 scrape 會失敗。
+>
+> **驗證要分兩層**：`promtool check config prometheus.yml` 只驗證**語法**——實測舊版 `metrics_path: "/metrics"` 的設定檔同樣會顯示 `SUCCESS`。路徑與驗證是否正確，必須再以上面的 `curl` 實際抓一次，並在 Prometheus 的 **Targets** 頁面確認狀態為 `UP`。
 
 ### 6.5 分散式追蹤
 
@@ -6557,110 +7069,110 @@ groups:
 
 ### 6.7 備份與災難復原
 
-#### 官方可攜式快照（v2026.8.1 建議路徑）
+Session 與 Transcript 改存 SQLite（見 2.11）之後，**直接複製目錄已不是可靠的備份方式**（可能拿到 WAL 尚未合併的不一致狀態）。v2026.11.1 的官方備份工具鏈依需求分成五條路徑：
 
-自 Session 與 Transcript 改用 SQLite 後端（見 2.11），**檔案層級的複製已不再是可靠的備份方式**。2.0 提供了「建立 → 驗證 → 還原」的完整工具鏈，讓備份在事故發生**之前**就具備可驗證性。
+| 需求 | 指令／工具 | RPO（可接受資料遺失） | 說明 |
+| --- | --- | --- | --- |
+| 一次性完整備份（state + 工作區） | `openclaw backup create` | 上次備份時間點 | 升級前必做 |
+| 單一資料庫、壓縮且驗證 | `openclaw backup sqlite create` | 上次快照 | 針對特定 Agent 資料庫 |
+| 版本化、依內容增量 | `openclaw backup git create` | 上次提交 | 可推送到私有 Git（推送時會遮罩憑證） |
+| 定期異地備份 | `openclaw backup enable --to <location>` | 排程間隔 | 外接磁碟、NAS、Cloudflare R2（v2026.10.1 起） |
+| 持續複寫（秒級） | Litestream（外部常駐程式） | 數秒 | 只複寫資料庫；組態、憑證檔與工作區仍需上面的檔案型路徑 |
+
+#### 建立、驗證、還原
 
 ```bash
-# 1) 建立完整備份
-openclaw backup create
-
-# 2) 驗證備份（升級前的必要步驟）
-openclaw backup verify <backup-id>
-
-# 3) 列出可用備份
+openclaw backup create --verify                    # 建立並立即驗證
 openclaw backup list
-
-# 4) 還原（僅能還原至全新目標）
-openclaw backup restore <backup-id> --target /path/to/new-state-dir
+openclaw backup verify <archive>
+openclaw backup restore <archive> --target /srv/openclaw-restore   # 只能還原到全新目錄
 ```
 
-新版完整備份的行為保證：
+> **還原的安全預設**：`restore` **拒絕覆寫既有目標**。災難復原程序必須規劃「乾淨的還原目的地」，而不是就地覆蓋；還原後再切換服務指向新目錄。
 
-- **保留設定的 Agent 狀態根目錄與安全的相對連結**。
-- **不會把進行中的封存工作誤判為停滯**。
-- 預設或自訂佈局都透過**同一套受保護的流程**還原。
+#### 異地備份與排程（v2026.10.1 起）
 
-> ⚠️ **備份不涵蓋的範圍**（必須另行處理）：
+```json5
+// openclaw.json：命名儲存位置（filesystem 為內建；R2 由 Cloudflare 插件提供）
+{
+  storage: {
+    locations: {
+      offsite: {
+        provider: "filesystem",
+        settings: { path: "/mnt/nas/openclaw-backups" },
+        // 上傳內容加密；passphrase 用 SecretRef，遺失 passphrase 等於遺失備份
+        encryption: { passphrase: { source: "env", provider: "default", id: "OPENCLAW_STORAGE_PASSPHRASE" } },
+      },
+    },
+  },
+}
+```
+
+```bash
+openclaw storage init offsite            # 明確初始化目的地（runtime 備份永遠不會自動初始化）
+openclaw storage test offsite
+openclaw backup create --to offsite --namespace gateway-prod --keep-daily 7 --keep-weekly 4 --keep-monthly 12
+openclaw backup enable --to offsite --namespace gateway-prod --every 24h --keep-daily 7 --keep-weekly 4 --keep-monthly 12
+openclaw backup verify --from offsite --namespace gateway-prod latest
+openclaw status                           # 顯示最近一次備份與異地結果；超過三個排程週期未成功會標示
+```
+
+> ⚠️ **兩個常被忽略的細節**：
 >
-> | 項目 | 說明 |
-> |------|------|
-> | 受管理的 `dev/` checkout | **需要另外備份** |
-> | 本地原始碼修改 | **需要另外備份** |
-> | 含絕對路徑 `plugin-skills/` 連結的舊封存 | **仍會被拒絕** |
->
-> **還原的安全預設**：`restore` **拒絕覆寫既有目標**。這是刻意的保護，代表災難復原程序必須規劃「乾淨的還原目的地」，而非就地覆蓋。
+> 1. **命名空間**：多台 Gateway 共用同一個目的地時，每台都要指定**不同的 `--namespace`**（預設為主機名稱）。
+> 2. **本地副本是明文**：加上 `--output` 保留的本地 `.tar.gz` 即使目的地有加密，**本身仍是明文**，兩邊都要保護。
+
+#### 持續複寫（Litestream）
+
+```yaml
+# litestream.yml — 複寫控制面資料庫與一個 Agent 資料庫到 S3 相容儲存
+dbs:
+  - path: /home/openclaw/.openclaw/state/openclaw.sqlite
+    replicas:
+      - url: s3://openclaw-backups/state
+  - path: /home/openclaw/.openclaw/agents/main/agent/openclaw-agent.sqlite
+    replicas:
+      - url: s3://openclaw-backups/agents/main
+```
+
+```bash
+litestream replicate -config /etc/litestream.yml        # 由 systemd 等服務管理器常駐
+litestream restore -o ./restored-openclaw.sqlite s3://openclaw-backups/state
+```
+
+Litestream 唯一的硬性需求是 **WAL 模式**：OpenClaw 在本機檔案系統上使用 WAL，但在 NFS／SMB 等網路儲存上會退回 rollback journal，請先以 `PRAGMA journal_mode;` 確認。
+
+#### 備份不涵蓋的範圍
+
+| 項目 | 處理方式 |
+| --- | --- |
+| 受管理的 `dev/` checkout、本地原始碼修改 | 另行以 Git 推送或檔案備份 |
+| Managed worktree 中未提交的變更 | OpenClaw 會快照，但仍建議定期推送分支（4.12） |
+| 外部系統（Provider 端資料、頻道平台的訊息） | 依各平台的保存政策 |
+| PostgreSQL 引擎的 Workboard | `openclaw backup` 會處理 schema 與 SQLite anchor；自行 `pg_dump` 時不可遺漏 anchor（2.12） |
 
 #### 重設與解除安裝的保護機制
 
-`openclaw reset` 與 `openclaw uninstall` 在 2.0 中**拒絕在下列條件成立前移除資料**：
+`openclaw reset` 與 `openclaw uninstall` **拒絕在下列條件成立前移除資料**：①Gateway 服務已被拆除；②OpenClaw 能確認**沒有其他行程擁有該狀態**。檢查失敗時狀態會原地保留；僅移除狀態的解除安裝**不會動到已設定的工作區**。先用 `openclaw reset --dry-run` 預覽影響範圍。
 
-1. Gateway 服務已被拆除；
-2. OpenClaw 能確認**沒有其他行程擁有該狀態**。
-
-若拆除或擁有權檢查失敗，**狀態會原地保留**。此外，僅移除狀態的解除安裝**不會動到已設定的工作區**。
-
-#### 傳統檔案層級備份（補充用途）
-
-以下腳本仍適用於組態與技能等純檔案資產的補充備份，但**不可作為 Session 與 Transcript 的唯一備份手段**：
-
-```bash
-#!/bin/bash
-# backup-openclaw.sh
-# OpenClaw 補充備份腳本（組態／技能等檔案資產）
-# 注意：Session 與 Transcript 請改用 openclaw backup create
-
-BACKUP_DIR="/backups/openclaw/$(date +%Y%m%d_%H%M%S)"
-OPENCLAW_DIR="$HOME/.openclaw"
-
-# 建立備份目錄
-mkdir -p "$BACKUP_DIR"
-
-# 備份組態
-cp "$OPENCLAW_DIR/openclaw.json" "$BACKUP_DIR/"
-
-# 備份技能
-cp -r "$OPENCLAW_DIR/skills/" "$BACKUP_DIR/skills/"
-
-# 備份資料
-cp -r "$OPENCLAW_DIR/data/" "$BACKUP_DIR/data/"
-
-# 壓縮
-tar -czf "${BACKUP_DIR}.tar.gz" -C "$(dirname $BACKUP_DIR)" \
-    "$(basename $BACKUP_DIR)"
-
-# 清理暫存
-rm -rf "$BACKUP_DIR"
-
-# 保留最近 30 天的備份
-find /backups/openclaw/ -name "*.tar.gz" -mtime +30 -delete
-
-echo "備份完成: ${BACKUP_DIR}.tar.gz"
-```
-
-#### 復原流程
+#### 復原流程與演練
 
 ```mermaid
 flowchart TD
     START[偵測到故障] --> ASSESS[評估損害範圍]
-    ASSESS --> STOP[停止 Gateway]
-    STOP --> RESTORE{選擇復原策略}
-    
-    RESTORE -->|組態損壞| CONFIG[復原 openclaw.json]
-    RESTORE -->|技能遺失| SKILLS[復原 skills/]
-    RESTORE -->|資料遺失| DATA[復原 data/]
-    RESTORE -->|完全損壞| FULL[完整復原]
-    
-    CONFIG --> VALIDATE[驗證組態]
-    SKILLS --> VALIDATE
-    DATA --> VALIDATE
-    FULL --> VALIDATE
-    
-    VALIDATE --> RESTART[重啟 Gateway]
-    RESTART --> VERIFY[驗證健康狀態]
-    VERIFY -->|通過| DONE[復原完成]
+    ASSESS --> STOP["停止 Gateway<br/>openclaw gateway stop"]
+    STOP --> RESTORE{選擇復原來源}
+    RESTORE -->|組態損壞| CONFIG["config 的 .bak 輪替備份<br/>或 Git 備份"]
+    RESTORE -->|資料庫毀損| SNAP["backup sqlite restore<br/>或 litestream restore"]
+    RESTORE -->|主機毀損| FULL["backup restore --target 全新目錄<br/>（備援主機）"]
+    CONFIG & SNAP & FULL --> VALIDATE["openclaw config validate --json<br/>openclaw doctor"]
+    VALIDATE --> RESTART["openclaw gateway start"]
+    RESTART --> VERIFY["/readyz 200、openclaw status、<br/>抽查 3 個 Session 歷史"]
+    VERIFY -->|通過| DONE[復原完成，記錄 RTO／RPO]
     VERIFY -->|失敗| ASSESS
 ```
+
+> **演練要求**：至少每季在備援環境做一次完整還原，記錄實際 RTO（恢復時間）與 RPO（資料遺失量）。**沒有演練過的備份，不能算是備份。**
 
 ### 6.8 容量規劃
 
@@ -6821,6 +7333,19 @@ sequenceDiagram
 
 > ⚠️ **exactly-once 不在保證範圍內**：舊版的執行中標記會**維持中斷狀態**，因為系統無法確認外部副作用是否已經發生。官方明確聲明「**外部系統中的 exactly-once 執行仍在排程器的復原邊界之外**」。若自動化會觸發不可重複的外部操作（付款、發信、建立資源），**冪等性必須由你的外部系統自行保證**。
 
+### 6.12 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 日誌與 OTel 鍵正確 | `openclaw config validate --json` | 使用 `logging.consoleStyle`、`diagnostics.otel.*` |
+| 2 | Prometheus 抓得到資料 | 帶 token 對 `/api/diagnostics/prometheus` 執行 `curl`；檢查 Prometheus Targets | 回傳 `openclaw_*` 指標；Target 為 UP |
+| 3 | prometheus.yml 語法與語意 | `promtool check config` 加上實際 `curl` | 語法 SUCCESS，且路徑為 `/api/diagnostics/prometheus` |
+| 4 | 備份可驗證 | `openclaw backup verify --from offsite --namespace <ns> latest` | 驗證通過 |
+| 5 | 還原演練 | 在備援環境 `openclaw backup restore <archive> --target <新目錄>` 並啟動 | 記錄 RTO／RPO；抽查 Session 歷史正確 |
+| 6 | probe 不被 catch-all 騙過 | 對 `/no-such-route` 執行 probe 腳本 | probe 回報失敗 |
+
 ---
 
 ## 第七章：系統升級策略
@@ -6852,7 +7377,7 @@ OpenClaw 實際提供**四個發布頻道**（Development Channels），較早�
 | 頻道 | 說明 | 適用場景 |
 |------|------|----------|
 | **stable** | 正式穩定版（預設），經 beta 週期驗證後發布 | 一般生產環境 |
-| **extended-stable**（v2026.6 新增） | 每月釋出一次的「類 LTS」維護線，**僅回補安全性與穩定性修補、不含新功能**。每月版本線固定以 `YYYY.M.33` 起始（例如 2026.6 線始於 `2026.6.33`，本文撰寫時已推進至 `2026.6.34`） | 對變更敏感、追求最大穩定性的正式環境 |
+| **extended-stable** | 每月一條的 **LTS 等價線**：版本號以 `YYYY.M.33` 起跳，內容是「該月月底的 OpenClaw + 關鍵安全、可靠性與效能修補，以及新模型支援」，**僅提供 Gateway 套件**、只能前景安裝、永不自動套用。2026-11-08 的 `extended-stable` 指向 **2026.9.36**（九月線） | 對變更敏感、追求最大穩定性的正式環境 |
 | **beta** | 公開測試版，每週多次發布 | Staging / 搶先預覽新功能 |
 | **dev** | main 分支開發版（含未完成功能與可能的破壞性變更） | 開發者測試、貢獻者 |
 
@@ -6879,14 +7404,13 @@ openclaw --version
 
 ```mermaid
 graph LR
-    DEV[開發版<br>dev channel] --> BETA[測試版<br>beta channel]
-    BETA --> STABLE[穩定版<br>stable channel]
-    STABLE -->|每月首個穩定版起| EXT[extended-stable<br>類 LTS 維護線]
-    EXT -->|僅安全/穩定性回補| EXT
-
-    STABLE -->|下一版發布| MAINT[進入維護期]
-    MAINT -->|+3個月| UNSUP[結束支援]
+    DEV[dev<br/>main 分支] --> BETA[beta<br/>預覽與驗證]
+    BETA -->|不改版號直接升格| STABLE[stable<br/>npm latest]
+    STABLE -->|每月月底快照| EXT["extended-stable<br/>YYYY.M.33+<br/>（僅 Gateway）"]
+    EXT -->|安全／可靠性回補<br/>與新模型支援| EXT
 ```
+
+> ⚠️ 官方**沒有公布**固定的支援終止期限（例如「下一版後 3 個月」）。企業應以 `extended-stable` dist-tag 實際指向的月線為準，並追蹤官方 [Extended-Stable 公告](https://openclaw.ai/blog/extended-stable-releases-and-maturity-scorecards) 與安全公告（9.12）。
 
 ### 7.2 升級前評估
 
@@ -6903,98 +7427,112 @@ graph LR
 #### 升級前檢查清單
 
 ```bash
-# 1. 檢查當前版本
+# 1. 目前版本、通道與可用更新
 openclaw --version
+openclaw update status --json
 
-# 2. 查看可用更新
-npm outdated -g openclaw
+# 2. 閱讀目標版本的發布說明（人讀）與 changelog（給 AI／工具讀的純文字）
+#    https://docs.openclaw.ai/releases/<版本>
+#    https://raw.githubusercontent.com/openclaw/openclaw/main/CHANGELOG/<版本>.md
 
-# 3. 閱讀變更日誌
-# https://github.com/openclaw/openclaw/releases
+# 3. 建立並驗證備份（不要用 cp -r 複製 ~/.openclaw）
+openclaw backup create --verify
 
-# 4. 備份組態
-cp -r ~/.openclaw ~/.openclaw.backup.$(date +%Y%m%d)
+# 4. 預覽升級路徑：不改變組態、交接、清理或重啟狀態
+openclaw update --tag 2026.11.1 --dry-run --json
 
-# 5. 在測試環境先行驗證
-# docker run --rm openclaw/openclaw:NEW_VERSION openclaw health
+# 5. 在測試環境以相同組態驗證（容器映像精確釘選版本）
+docker run --rm -v "$PWD/config:/home/node/.openclaw:ro" \
+  ghcr.io/openclaw/openclaw:2026.11.1 node dist/index.js config validate --json
 ```
 
-### 7.3 無停機升級（Rolling Upgrade）
+### 7.3 升級的停機時間與「滾動升級」的真相
 
-#### Docker Compose 滾動升級
+由於**一個 state 目錄同一時間只能有一個 Gateway 擁有者**（2.9），單一 Gateway **無法**做到傳統意義的零停機滾動升級。正確的期待與做法如下：
+
+| 你以為的 | 實際上 | 建議做法 |
+| --- | --- | --- |
+| 多個實例輪流升級 | 同一份 state 不能同時被兩個 Gateway 擁有 | 單一 Gateway：安排維護窗口；多個獨立 Gateway：**一個一個**升級 |
+| 升級時對話會中斷 | Gateway 會 drain 進行中的工作，重啟後恢復已受理的回覆 | 升級前用 `openclaw gateway suspend --wait` 主動暫停並等待排空 |
+| 失敗就要手動回滾 | `openclaw update` 會先在隔離的候選狀態**預演**，Doctor 失敗會**自動回滾** | 讓官方更新器處理；只在它回報無法自動恢復時才介入（7.4） |
+
+#### 單一 Gateway（npm／套件安裝）
 
 ```bash
-# 1. 拉取新映像
-docker compose pull openclaw
-
-# 2. 逐步更新（若有多個實例）
-docker compose up -d --no-deps --build openclaw
-
-# 3. 等待健康檢查通過
-until curl -sf http://localhost:18789/healthz; do
-    echo "等待服務就緒..."
-    sleep 2
-done
-
-# 4. 驗證版本
-docker compose exec openclaw openclaw --version
+openclaw backup create --verify
+openclaw gateway suspend --wait --json            # 暫停受理新工作並等待排空；記下回傳的 suspensionId
+openclaw update --tag 2026.11.1 --yes             # 預演 → 啟用 → Doctor 驗證；失敗會自動回滾
+openclaw gateway status --deep                    # 確認服務已回到運作狀態
+openclaw doctor                                   # 檢查遷移與殘留問題
 ```
 
-#### 分階段升級策略
+#### 容器部署
+
+```bash
+openclaw backup create --verify                   # 或以 docker compose exec 在容器內執行
+export OPENCLAW_IMAGE="ghcr.io/openclaw/openclaw:2026.11.1"
+docker compose pull openclaw-gateway
+docker compose up -d openclaw-gateway             # 官方 entrypoint 會在啟動前執行必要的 Doctor 修復
+until curl -sf http://127.0.0.1:18789/readyz; do sleep 2; done   # 用 readyz 而非 healthz 判斷可用
+docker compose exec openclaw-gateway node dist/index.js --version
+```
+
+#### 多個獨立 Gateway 的分階段升級
 
 ```mermaid
 flowchart TD
-    START[開始升級] --> BACKUP[備份組態與資料]
-    BACKUP --> TEST[在測試環境升級]
-    TEST --> VALIDATE{驗證通過？}
-    
-    VALIDATE -->|是| STAGE[升級 Staging 環境]
-    VALIDATE -->|否| FIX[修復問題]
-    FIX --> TEST
-    
-    STAGE --> SVAL{Staging 驗證？}
-    SVAL -->|是| CANARY[Canary 部署 10%]
-    SVAL -->|否| ROLLBACK_S[回滾 Staging]
-    
-    CANARY --> MONITOR[監控 30 分鐘]
-    MONITOR --> CVAL{指標正常？}
-    CVAL -->|是| PROD50[擴展到 50%]
-    CVAL -->|否| ROLLBACK_C[回滾 Canary]
-    
-    PROD50 --> PROD100[擴展到 100%]
-    PROD100 --> DONE[升級完成]
+    START[新版發布] --> BETA["預備環境 Gateway<br/>（beta 或目標版本）"]
+    BETA --> V1{"config validate、doctor、<br/>回歸對話測試通過?"}
+    V1 -->|否| HOLD[暫緩並回報]
+    V1 -->|是| PILOT["試點 Gateway<br/>（一個部門）"]
+    PILOT --> MON["觀察 24–72 小時<br/>錯誤率、model_failover、session_stuck"]
+    MON --> V2{指標正常?}
+    V2 -->|否| ROLLBACK["回滾該 Gateway（7.4）"]
+    V2 -->|是| REST["依序升級其餘 Gateway<br/>一次一個"]
+    REST --> DONE[完成並記錄]
 ```
+
+> 傳統的「Canary 10% 流量」在 OpenClaw 中**以 Gateway 為單位**實現：挑一個信任域（例如一個部門的 Gateway）先升級，而不是把同一批使用者的流量切分到兩個版本。
 
 ### 7.4 回滾策略
 
-#### 快速回滾步驟
+回滾分三個層級，由淺到深：
+
+| 層級 | 情境 | 做法 |
+| --- | --- | --- |
+| **1. 自動回滾** | 更新後 Doctor 驗證失敗 | `openclaw update` 會自動回滾並保留組態與密鑰參照；npm 回滾在 Windows 也會重試暫時性拒絕 |
+| **2. 修復未完成的更新** | 更新器崩潰、取消、主機重開機 | `openclaw update recover`、`openclaw update repair`；之後 `openclaw doctor --fix` |
+| **3. 降版** | 新版有無法接受的行為 | 受 SQLite schema 遷移限制，**必須從遷移前的備份還原到全新目錄**（見附錄 E.3） |
 
 ```bash
-# 選項 1: Docker - 回到上一版映像
-docker compose down
-# 修改 docker-compose.yml 中的版本號
-docker compose up -d
+# 層級 2：恢復被中斷的更新
+openclaw update status
+openclaw update recover --json
+openclaw update repair --yes
+openclaw doctor --fix
 
-# 選項 2: npm - 安裝指定版本
-npm install -g openclaw@2026.2.5
+# 層級 3：降版（npm 安裝）
+openclaw gateway stop
+npm install -g openclaw@2026.9.36 --allow-scripts=openclaw     # 例如退回 extended-stable
+openclaw backup restore <遷移前的備份> --target /srv/openclaw-state-rollback
+OPENCLAW_STATE_DIR=/srv/openclaw-state-rollback openclaw gateway install --force
+openclaw gateway start
 
-# 選項 3: 從備份復原
-cp -r ~/.openclaw.backup.20260305 ~/.openclaw
-openclaw restart
+# 容器：把 OPENCLAW_IMAGE 改回原版本，並掛載還原後的 state 目錄
 ```
+
+> ⚠️ **不要在新版改過的資料庫上直接跑舊版 binary**。v2026.11.1 起，舊版 binary 遇到較新的組態會說明恢復方式；但資料庫 schema 已前進時，唯一安全的路徑是「相容的備份 + 全新目錄」。v2026.8.2 的 `openclaw update cleanup` 會永久刪除遷移原件——**執行前先 `--dry-run`，並確認已有可還原的備份**。
 
 ### 7.5 組態遷移
 
 #### 自動遷移
 
-OpenClaw 支援組態自動遷移：
+❌ OpenClaw **沒有** `openclaw config migrate` 指令。組態遷移由 Doctor 統一處理：一般的 `openclaw update` 會自動執行；手動替換安裝（例如直接 `npm install -g`）或自訂容器 entrypoint 則必須自己執行：
 
 ```bash
-# 檢查組態相容性
-openclaw config validate
-
-# 自動遷移到新版格式
-openclaw config migrate
+openclaw config validate --json     # 先看哪些鍵已退休或不合法
+openclaw doctor --fix               # 套用遷移（只有整份遷移後組態都通過驗證才會寫入，並保留 .bak）
+openclaw config validate --json     # 再驗證一次
 ```
 
 #### v2026.8.1 的四項 Doctor 遷移
@@ -7029,21 +7567,28 @@ openclaw gateway install --force
 
 #### 手動遷移範例
 
+以本手冊舊版的模型設定為例（`config validate` 會判為 `Unrecognized key`）：
+
 ```json5
-// 舊版 (2026.2.x) → 新版 (2026.3.x) 組態變更
+// ❌ 舊寫法（NOVALIDATE：示範錯誤用法）
 {
-  // 舊版寫法
-  // "llm": { "default": { "provider": "openai", "model": "gpt-5.6" } }
-  
-  // 新版寫法（models 與 llm 分離）
-  "models": {
-    "default": {
-      "provider": "openai",
-      "model": "gpt-5.6",
+  agent: { model: "anthropic/claude-opus-4-8" },
+  models: { default: { provider: "openai", model: "gpt-5.6" } },
+}
+```
+
+```json5
+// ✅ v2026.11.1 寫法
+{
+  agents: {
+    defaults: {
+      model: { primary: "openai/gpt-6-astra", fallbacks: ["anthropic/claude-opus-5-5"] },
     },
   },
 }
 ```
+
+> **審查 AI 產生的遷移**：要求 AI 同時附上遷移前後的 `openclaw config validate --json` 輸出；遷移後必須是 `"valid": true` 且沒有非預期的 warnings。
 
 ### 7.6 多環境升級協調
 
@@ -7068,7 +7613,7 @@ curl -s https://api.github.com/repos/openclaw/openclaw/releases/latest | \
 | 變更類型 | 處理方式 |
 |----------|----------|
 | API 端點變更 | 更新客戶端 URI，設定臨時重定向 |
-| 組態格式變更 | 使用 `openclaw config migrate` |
+| 組態格式變更 | `openclaw config validate --json` 找出退休鍵 → `openclaw doctor --fix` |
 | 頻道驅動升級 | 更新對應的第三方 API Token |
 | 棄用功能移除 | 提前遷移到替代功能 |
 
@@ -7139,10 +7684,11 @@ jobs:
       - name: 在測試環境驗證
         if: steps.check.outputs.needs_upgrade == 'true'
         run: |
+          # 唯讀檢查：不需要啟動 Gateway；容器內 state 目錄為 /home/node/.openclaw
           docker run --rm \
-            -v $PWD/config:/home/openclaw/.openclaw:ro \
-            openclaw/openclaw:${{ steps.check.outputs.latest }} \
-            openclaw health
+            -v $PWD/config:/home/node/.openclaw:ro \
+            ghcr.io/openclaw/openclaw:${{ steps.check.outputs.latest }} \
+            node dist/index.js config validate --json
 
       - name: 建立升級 PR
         if: steps.check.outputs.needs_upgrade == 'true'
@@ -7155,7 +7701,8 @@ jobs:
             - 目標版本: `${{ steps.check.outputs.latest }}`
             
             ### 驗證結果
-            - [x] 測試環境健康檢查通過
+            - [x] 新版本 `config validate --json` 通過
+            - [ ] 預備環境 Gateway 回歸測試（人工確認後勾選）
           branch: "chore/upgrade-openclaw-${{ steps.check.outputs.latest }}"
 ```
 
@@ -7175,25 +7722,90 @@ jobs:
 
 #### 鎖定版本
 
-```json5
-// package.json（若作為 Node.js 專案管理）
+```json
 {
-  "dependencies": {
-    // 精確版本鎖定
-    "openclaw": "2026.7.1",
-  },
+  "devDependencies": {
+    "openclaw": "2026.11.1"
+  }
 }
 ```
+
+> `package.json` 是標準 JSON，不能加註解；請使用**精確版本**（不要 `^`、`~` 或 `latest`），並搭配 lockfile 與 `npm ci`。
 
 ```yaml
 # docker-compose.yml - 使用精確標籤
 services:
-  openclaw:
-    # ✅ 使用精確版本
-    image: openclaw/openclaw:2026.7.1
-    # ❌ 避免使用 latest
-    # image: openclaw/openclaw:latest
+  openclaw-gateway:
+    # ✅ 使用精確版本（或 extended-stable 月線的確切版本，例如 2026.9.36）
+    image: ghcr.io/openclaw/openclaw:2026.11.1
+    # ❌ 避免使用 latest：無法重現、也無法回滾到「上一個 latest」
 ```
+
+> **更嚴格的做法**：以映像 digest 釘選（`ghcr.io/openclaw/openclaw@sha256:...`），並在 CI 中驗證 provenance（見 8.11）。
+
+### 7.11 安全更新管線：預演、啟用、驗證與恢復
+
+v2026.8.2 到 v2026.11.1 之間，`openclaw update` 幾乎每個版本都在強化「更新失敗也能回到可用狀態」。理解它的內部階段，才能判斷什麼時候該讓它自己處理、什麼時候該介入。
+
+```mermaid
+flowchart LR
+    A["Admission<br/>檢查 Node／服務擁有者／<br/>組態是否有效"] --> B["Rehearsal<br/>在隔離候選狀態預演<br/>核心與插件變更（9.3）"]
+    B --> C["Activation<br/>替換套件、<br/>重新整理服務定義"]
+    C --> D["Post-update Doctor<br/>遷移與驗證"]
+    D -->|通過| E[重啟並驗證 readiness]
+    D -->|失敗| F["自動回滾<br/>保留組態與密鑰參照（9.1）"]
+    F --> G["Triage<br/>交給內建或本機 coding agent 診斷"]
+```
+
+| 階段 | 會擋下更新的常見原因 | 你該做的事 |
+| --- | --- | --- |
+| Admission | Node 低於 `>=24.16.0`（低於 24.22.1／26.12.1 只會警告）、組態無效（`invalid-config`）、Windows 排程工作需要提升權限（`windows-task-elevation-required`）、偵測到同一安裝的 Gateway 仍在執行（`gateway-stop-unverified`） | 依錯誤代碼處理後重跑；不要強行繞過 |
+| Rehearsal | 插件不相容、遷移無法在候選狀態完成 | 先升級或停用該插件 |
+| Post-update Doctor | 遺留設定鍵、資料庫遷移鎖 | 通常會自動回滾；回滾後看 `openclaw update status` |
+| 系統套件管理器擁有的安裝 | pacman、FreeBSD pkg 等 | OpenClaw 會**跳過**更新並提示改用該套件管理器 |
+| 容器 | 偵測不到套件擁有者 | 記為 skipped；請改為更換映像（3.3） |
+
+```bash
+openclaw update --dry-run --json      # 預覽（JSON 的 notes 欄位會保留診斷建議）
+openclaw update --yes                 # 非互動執行；失敗時收集診斷並印出交接指令
+openclaw update status                # 最近一次更新結果與歷史
+openclaw update recover               # 更新器崩潰或取消後恢復
+openclaw update repair                # 依目前通道修復安裝
+openclaw update cleanup --dry-run     # 預覽可清除的遷移原件（清除後無法再回滾到那些原件）
+```
+
+#### 特殊升級路徑
+
+| 起點 | 規則 |
+| --- | --- |
+| **2026 年 6 月以前的安裝** | **必須先升級到 2026.9.5**，在該版本執行 `openclaw doctor --fix` 並解決匯入問題，再升到最新版；使用同一個帳號、profile 與安裝路徑 |
+| **Bun-only 安裝** | 2026.9.6 以前的更新器第一次 Bun-only 升級需依官方 workaround；之後可自行更新 |
+| **使用私有 npm 鏡像的無頭節點** | Bun 的版本探索會直接連 public npm；若必須走鏡像，關閉 `nodeHost.autoUpdate.enabled` 並以既有流程更新 |
+| **手動替換安裝或自訂容器 entrypoint** | 啟動前必須執行 `openclaw doctor --fix`（官方 entrypoint 會自動處理） |
+
+#### 自動更新的治理
+
+```json5
+// 生產 Gateway：不自動更新，只在啟動時提示
+{
+  update: { channel: "extended-stable", checkOnStart: true, auto: { enabled: false } },
+}
+```
+
+> **CI 中的更新驗證**：在預備環境執行 `openclaw update --tag <目標> --dry-run --json`，把 JSON 結果存成 CI artifact；正式升級的變更單應附上這份輸出、`config validate --json` 與 `doctor --json` 的結果，作為審查依據。
+
+### 7.12 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 升級前有可驗證備份 | `openclaw backup create --verify` | 成功並記錄 archive 名稱 |
+| 2 | 升級路徑預覽 | `openclaw update --tag <ver> --dry-run --json` | 無阻擋性 admission 錯誤；JSON 存為 CI artifact |
+| 3 | 沒有使用不存在的指令 | 附錄 F 的 `check_cli.py` | ❌ 沒有 `config migrate`、`openclaw restart` 等不存在的指令 |
+| 4 | Kubernetes／容器升級方式 | 檢視 Deployment strategy 與映像 tag | `Recreate`、確切版本；不使用 `latest` |
+| 5 | 升級後驗證 | `openclaw --version`、`openclaw doctor`、`openclaw config validate --json`、`/readyz` | 版本正確、無錯誤、`ready: true` |
+| 6 | 回滾程序可執行 | 演練 `openclaw update recover` 與從備份還原到新目錄 | 能在維護窗口內恢復服務 |
 
 ---
 
@@ -7248,52 +7860,52 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: 安裝 OpenClaw
-        run: npm install -g openclaw@latest
-      
-      - name: 驗證組態
-        run: openclaw config validate --config openclaw/openclaw.json
-      
+      - name: 安裝 OpenClaw（精確版本，與正式環境一致）
+        run: npm install -g openclaw@2026.11.1 --allow-scripts=openclaw
+
+      - name: 驗證組態（validate 沒有 --config 旗標，以環境變數指定檔案）
+        env:
+          OPENCLAW_CONFIG_PATH: ${{ github.workspace }}/openclaw/openclaw.json
+          OPENCLAW_STATE_DIR: ${{ runner.temp }}/openclaw-state
+        run: |
+          openclaw config validate --json | tee config-validate.json
+          jq -e '.valid == true and ((.warnings // []) | length == 0)' config-validate.json
+
       - name: 驗證 Skill 格式
         run: |
           for skill_dir in skills/*/; do
             if [ -f "$skill_dir/SKILL.md" ]; then
               echo "驗證: $skill_dir"
-              # 檢查 SKILL.md 包含必要前置資料
               grep -q "^name:" "$skill_dir/SKILL.md" || \
                 (echo "❌ $skill_dir 缺少 name 欄位" && exit 1)
               grep -q "^description:" "$skill_dir/SKILL.md" || \
                 (echo "❌ $skill_dir 缺少 description 欄位" && exit 1)
+              # 擋下非規範的 frontmatter 鍵（常見的 AI 杜撰欄位）
+              if grep -qE "^(triggers|tools|access):" "$skill_dir/SKILL.md"; then
+                echo "❌ $skill_dir 含非規範 frontmatter 鍵" && exit 1
+              fi
             fi
           done
 
   test:
-    name: 技能測試
+    name: 整合與冒煙測試
     runs-on: ubuntu-latest
     needs: lint
-    services:
-      openclaw:
-        image: openclaw/openclaw:2026.7.1
-        ports:
-          - 18789:18789
-        options: >-
-          --health-cmd "curl -f http://localhost:18789/healthz"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v4
-      
-      - name: 等待服務就緒
+
+      - name: Java 契約測試（mock Gateway，見 4.2）
+        run: mvn -B test
+
+      - name: 對預備環境 Gateway 冒煙測試
+        if: ${{ vars.OPENCLAW_STAGING_URL != '' }}
+        env:
+          OPENCLAW_GATEWAY_URL: ${{ vars.OPENCLAW_STAGING_URL }}
+          OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_STAGING_TOKEN }}
         run: |
-          until curl -sf http://localhost:18789/healthz; do
-            sleep 2
-          done
-      
-      - name: 執行技能測試
-        run: |
-          # 模擬訊息測試
-          curl -sf http://localhost:18789/healthz
+          # readyz 必須檢查 JSON 本文，不能只看狀態碼
+          curl -sf "$OPENCLAW_GATEWAY_URL/readyz" | jq -e '.ready == true'
+          mvn -B test -Dtest=LiveGatewaySmokeTest
 
   build:
     name: 建構映像
@@ -7382,209 +7994,170 @@ graph TB
     INT1 & INT2 & INT3 --> UNIT1 & UNIT2 & UNIT3 & UNIT4
 ```
 
-#### Java 整合測試範例
+#### Java 測試的兩個層次
 
-```java
-package com.tutorial.openclaw;
+| 層次 | 目的 | 何時執行 | 本手冊範例 |
+| --- | --- | --- | --- |
+| **契約測試**（mock Gateway） | 驗證重試、逾時、錯誤分類、請求格式等**邏輯** | 每次提交（不需 Gateway） | 4.2 `OpenClawClientTest`（10 個案例） |
+| **冒煙測試**（真實 Gateway） | 驗證與**實際 Gateway 版本的相容性** | 預備環境部署後、升級前後 | 4.2 `LiveGatewaySmokeTest`（無環境變數時自動略過） |
 
-import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
+> **為什麼兩層都要**：本手冊的 Java 範例在 mock 測試全部通過後，第一次對真實 Gateway 執行冒煙測試就失敗了——JDK HttpClient 預設送出 `Upgrade: h2c`，Gateway 回 `405`。這類「協定層」問題 mock 永遠測不出來。反過來，真實 Gateway 也很難穩定重現 429、逾時、5xx，這些只能靠契約測試。
 
-/**
- * OpenClaw 客戶端整合測試。
- *
- * @author Tutorial Team
- */
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class OpenClawClientIntegrationTest {
-
-    private static final String GATEWAY_URI = "ws://localhost:18789";
-    private OpenClawClient client;
-
-    @BeforeEach
-    void setUp() throws Exception {
-        client = new OpenClawClient(GATEWAY_URI);
-        // 嘗試連線，若 Gateway 未啟動則跳過
-        try {
-            client.connectBlocking();
-        } catch (Exception e) {
-            Assumptions.assumeTrue(false,
-                    "OpenClaw Gateway 未啟動，跳過整合測試");
-        }
-    }
-
-    @AfterEach
-    void tearDown() {
-        if (client != null && client.isOpen()) {
-            client.close();
-        }
-    }
-
-    @Test
-    @Order(1)
-    @DisplayName("應能成功連線至 Gateway")
-    void shouldConnectToGateway() {
-        assertTrue(client.isOpen(), "應成功連線至 Gateway");
-    }
-
-    @Test
-    @Order(2)
-    @DisplayName("應能發送訊息並收到回應")
-    void shouldSendMessageAndReceiveResponse() throws Exception {
-        String response = client.sendMessage("你好");
-        assertNotNull(response, "回應不應為 null");
-        assertFalse(response.isEmpty(), "回應不應為空");
-    }
-
-    @Test
-    @Order(3)
-    @DisplayName("超時時應拋出例外")
-    void shouldThrowOnTimeout() {
-        assertThrows(Exception.class, () ->
-                client.sendMessage("這是一個超長的請求...", 1,
-                        java.util.concurrent.TimeUnit.MILLISECONDS));
-    }
-}
+```bash
+mvn -B test                                         # 契約測試；LiveGatewaySmokeTest 會顯示 Skipped
+OPENCLAW_GATEWAY_URL=https://gw-staging.internal OPENCLAW_GATEWAY_TOKEN=... \
+  mvn -B test -Dtest=LiveGatewaySmokeTest           # 冒煙測試
 ```
+
+#### Agent 行為的回歸測試
+
+Agent 的回覆不是確定性的，不適合用字串完全比對。建議的做法：
+
+1. **固定一組「黃金問題」**（20–50 題），每題定義可客觀檢查的條件（必須包含的關鍵字、不得出現的內容、必須呼叫或不得呼叫的工具）。
+2. 在預備環境透過 HTTP API 執行，結果以 `openclaw audit --kind tool_action --json` 交叉比對實際的工具呼叫。
+3. 升級前後各跑一次，比較通過率；**通過率下降即阻擋升級**。
 
 ### 8.4 容器化最佳實務
 
 #### 自訂 Dockerfile
 
 ```dockerfile
-# Dockerfile
-FROM openclaw/openclaw:2026.7.1
+# Dockerfile — 以官方映像為基礎，只加入組織的技能
+FROM ghcr.io/openclaw/openclaw:2026.11.1
 
-# 標籤
-LABEL maintainer="devops@company.com"
-LABEL version="1.0.0"
-LABEL description="企業自訂 OpenClaw 部署"
+LABEL org.opencontainers.image.source="https://git.company.internal/platform/openclaw-image"
+LABEL org.opencontainers.image.description="企業自訂 OpenClaw Gateway"
 
-# 複製自訂組態
-COPY openclaw.json /home/openclaw/.openclaw/openclaw.json
+# 官方映像以 node 使用者執行，state 目錄為 /home/node/.openclaw
+# 技能放在 managed skills 目錄（所有 Agent 共用）；組態請以掛載或 ConfigMap 提供，不要燒進映像
+COPY --chown=node:node skills/ /home/node/.openclaw/skills/
 
-# 複製自訂技能
-COPY skills/ /home/openclaw/.openclaw/skills/
+# 沿用官方的健康檢查與啟動方式（映像不保證有 curl）
+HEALTHCHECK --interval=30s --timeout=5s --retries=5 --start-period=20s \
+    CMD ["node", "dist/docker-healthcheck.js"]
 
-# 健康檢查
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
-    CMD curl -f http://localhost:18789/healthz || exit 1
-
-# 非 root 使用者
-USER 1000:1000
-
-# 啟動
-CMD ["openclaw", "start"]
+USER node
+CMD ["node", "dist/index.js", "gateway", "--bind", "lan", "--port", "18789"]
 ```
+
+| 原則 | 說明 |
+| --- | --- |
+| 精確釘選基底映像 | `2026.11.1` 或 digest；不要 `latest` |
+| 不把密鑰與組態燒進映像 | 組態用 ConfigMap／掛載；憑證用 Secret → SecretRef |
+| 以官方 healthcheck 為準 | `node dist/docker-healthcheck.js` 會檢查回應內容，而不只是 HTTP 狀態 |
+| 唯讀根檔案系統 | 僅 `/home/node/.openclaw` 與 `/tmp` 可寫（見 8.5） |
+
+> ❌ **舊版範例的錯誤**：`FROM openclaw/openclaw:2026.7.1`、路徑 `/home/openclaw/.openclaw`、`CMD ["openclaw", "start"]`（不存在的指令）、`curl` healthcheck（映像不一定有 curl，且只看狀態碼會被 Control UI 的 catch-all 200 騙過——2026.11.1 實測未知路徑回 `200 text/html`）。
 
 ### 8.5 Kubernetes 部署
 
-#### Deployment 定義
+官方以 **Kustomize** 提供起始 manifest（`scripts/k8s/`），並明確說明不提供 Helm chart：OpenClaw 是單一容器，真正需要客製的是 Agent 內容（Markdown、技能、組態），而不是基礎設施模板。官方也強調這是**起點而非可直接上線的部署**。
+
+```bash
+export ANTHROPIC_API_KEY="..."
+./scripts/k8s/deploy.sh                       # 建立 namespace、Secret（含自動產生的 Gateway token）並部署
+kubectl port-forward svc/openclaw 18789:18789 -n openclaw
+kubectl get secret openclaw-secrets -n openclaw -o jsonpath='{.data.OPENCLAW_GATEWAY_TOKEN}' | base64 -d
+```
+
+部署的資源：
+
+```text
+Namespace: openclaw
+├── Deployment/openclaw        # 單一 Pod：init container（首次植入組態）+ gateway
+├── Service/openclaw           # ClusterIP 18789
+├── PersistentVolumeClaim      # 10Gi，存放 Agent state 與組態
+├── ConfigMap/openclaw-config  # openclaw.json + AGENTS.md
+└── Secret/openclaw-secrets    # Gateway token + Provider API key
+```
+
+#### Gateway 容器的關鍵設定（依官方 manifest 精簡，映像版本已更新）
 
 ```yaml
-# k8s/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: openclaw
-  labels:
-    app: openclaw
-    team: platform
+  namespace: openclaw
 spec:
-  replicas: 1  # OpenClaw 為單節點架構
+  replicas: 1                  # 一份 state 只能有一個擁有者：不可水平擴展
+  strategy:
+    type: Recreate             # 不可用 RollingUpdate：新舊 Pod 會同時搶同一個 PVC 的 state
   selector:
-    matchLabels:
-      app: openclaw
+    matchLabels: { app: openclaw }
   template:
     metadata:
-      labels:
-        app: openclaw
+      labels: { app: openclaw }
     spec:
       containers:
-        - name: openclaw
-          image: openclaw/openclaw:2026.7.1
+        - name: gateway
+          image: ghcr.io/openclaw/openclaw:2026.11.1-slim
+          command: ["node", "/app/dist/index.js", "gateway", "run"]
           ports:
-            - containerPort: 18789
-              name: websocket
+            - { name: gateway, containerPort: 18789, protocol: TCP }
           env:
-            - name: OPENAI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: openclaw-secrets
-                  key: openai-api-key
+            - { name: HOME, value: /home/node }
+            - { name: OPENCLAW_CONFIG_DIR, value: /home/node/.openclaw }
+            - { name: XDG_CACHE_HOME, value: /home/node/.openclaw/.cache }
+            - name: OPENCLAW_GATEWAY_TOKEN
+              valueFrom: { secretKeyRef: { name: openclaw-secrets, key: OPENCLAW_GATEWAY_TOKEN } }
           resources:
-            requests:
-              cpu: "500m"
-              memory: "512Mi"
-            limits:
-              cpu: "2000m"
-              memory: "4Gi"
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 18789
-            initialDelaySeconds: 30
+            requests: { memory: 512Mi, cpu: 250m }
+            limits: { memory: 2Gi, cpu: "1" }
+          # probe 必須檢查 JSON 本文：Control UI 對未知路徑一律回 200
+          startupProbe:
+            exec:
+              command:
+                - node
+                - -e
+                - "require('http').get('http://127.0.0.1:18789/readyz', r => { let b = ''; r.on('data', d => b += d); r.on('end', () => { try { process.exit(r.statusCode < 400 && JSON.parse(b).ready === true ? 0 : 1); } catch { process.exit(1); } }); }).on('error', () => process.exit(1))"
             periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /readyz
-              port: 18789
-            initialDelaySeconds: 10
-            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            exec:
+              command:
+                - node
+                - -e
+                - "require('http').get('http://127.0.0.1:18789/healthz', r => { let b = ''; r.on('data', d => b += d); r.on('end', () => { try { process.exit(r.statusCode < 400 && JSON.parse(b).ok === true ? 0 : 1); } catch { process.exit(1); } }); }).on('error', () => process.exit(1))"
+            initialDelaySeconds: 60
+            periodSeconds: 30
           volumeMounts:
-            - name: config
-              mountPath: /home/openclaw/.openclaw
-              readOnly: true
-            - name: skills
-              mountPath: /home/openclaw/.openclaw/skills
-              readOnly: true
+            - { name: openclaw-home, mountPath: /home/node/.openclaw }
+            - { name: tmp-volume, mountPath: /tmp }
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
       volumes:
-        - name: config
-          configMap:
-            name: openclaw-config
-        - name: skills
-          persistentVolumeClaim:
-            claimName: openclaw-skills
+        - name: openclaw-home
+          persistentVolumeClaim: { claimName: openclaw-home-pvc }
+        - name: tmp-volume
+          emptyDir: {}
 ```
 
-#### Service 與 Ingress
+實測回應格式（OpenClaw 2026.11.1 本機 Gateway）：
 
-```yaml
-# k8s/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: openclaw
-spec:
-  selector:
-    app: openclaw
-  ports:
-    - port: 18789
-      targetPort: 18789
-      name: websocket
-  type: ClusterIP
----
-# k8s/ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: openclaw
-  annotations:
-    nginx.ingress.kubernetes.io/websocket-services: "openclaw"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-spec:
-  rules:
-    - host: openclaw.company.internal
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: openclaw
-                port:
-                  number: 18789
+```text
+GET /healthz        → 200 {"ok":true,"status":"live"}
+GET /readyz         → 200 {"ready":true,"coreReady":true,"failing":[],...}
+GET /startupz       → 200 {"ok":true,"status":"started","version":"2026.11.1",...}
+GET /no-such-route  → 200 <!doctype html>...（Control UI catch-all）
+```
+
+> ⚠️ **三個最常見的錯誤**：
+>
+> 1. **`replicas > 1` 或 `RollingUpdate`**：新舊 Pod 同時掛載同一份 state，第二個 Gateway 會被 Gateway Lock 擋下或卡住，最壞情況造成資料毀損。
+> 2. **只看 HTTP 狀態碼的 probe**：如上實測，未知路徑也回 200，probe 會永遠通過。
+> 3. **以為 ConfigMap 更新就會生效**：init container 只在 PVC 上**沒有** `openclaw.json` 時才植入；首次啟動後，PVC 上的副本才是真實來源。要套用新版 ConfigMap，需刪除 PVC 上的檔案再 `kubectl rollout restart`。
+>
+> `/startupz` 只看啟動完成、不受頻道健康影響，比 `/readyz` 更適合作為流量准入：一個頻道帳號壞掉不會讓整個 Gateway 被從 Service endpoints 移除。
+
+```bash
+kubectl apply --dry-run=client -k scripts/k8s/manifests      # 離線驗證 manifest
+kubectl -n openclaw exec deploy/openclaw -- node /app/dist/index.js gateway status --deep
 ```
 
 ### 8.6 Infrastructure as Code
@@ -7607,7 +8180,7 @@ resource "docker_network" "openclaw" {
 }
 
 resource "docker_image" "openclaw" {
-  name         = "openclaw/openclaw:2026.7.1"
+  name         = "ghcr.io/openclaw/openclaw:2026.11.1"
   keep_locally = true
 }
 
@@ -7625,17 +8198,16 @@ resource "docker_container" "openclaw" {
   }
 
   volumes {
-    host_path      = abspath("./config")
-    container_path = "/home/openclaw/.openclaw"
-    read_only      = true
+    host_path      = abspath("./openclaw-state")
+    container_path = "/home/node/.openclaw"   # 官方映像的 state 目錄；必須可寫（不可 read_only）
   }
 
   healthcheck {
-    test         = ["CMD", "curl", "-f", "http://localhost:18789/healthz"]
+    test         = ["CMD", "node", "dist/docker-healthcheck.js"]
     interval     = "30s"
     timeout      = "5s"
-    retries      = 3
-    start_period = "30s"
+    retries      = 5
+    start_period = "20s"
   }
 
   restart = "unless-stopped"
@@ -7644,52 +8216,73 @@ resource "docker_container" "openclaw" {
 
 ### 8.7 GitOps 工作流程
 
-#### Flux CD 組態
+#### Flux CD：以 Kustomize 部署（官方未提供 Helm chart）
 
 ```yaml
-# gitops/openclaw-release.yaml
-apiVersion: helm.toolkit.fluxcd.io/v2beta1
-kind: HelmRelease
+# gitops/openclaw-kustomization.yaml
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
 metadata:
   name: openclaw
-  namespace: ai-platform
+  namespace: flux-system
 spec:
-  interval: 5m
-  chart:
-    spec:
-      chart: openclaw
-      version: "2026.4.x"
-      sourceRef:
-        kind: HelmRepository
-        name: openclaw
-  values:
-    image:
-      tag: "2026.7.1"
-    resources:
-      limits:
-        cpu: "2000m"
-        memory: "4Gi"
-    config:
-      existingConfigMap: openclaw-config
+  interval: 10m
+  path: ./deploy/openclaw          # 內含官方 scripts/k8s/manifests 的副本與組織的 overlay
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: platform-config
+  targetNamespace: openclaw
+  images:
+    - name: ghcr.io/openclaw/openclaw
+      newTag: "2026.11.1-slim"      # 升級 = 透過 PR 修改這一行
 ```
+
+GitOps 的升級流程：**PR 修改映像 tag → CI 執行 `kubectl apply --dry-run` 與 `config validate` → 合併 → Flux 套用（Recreate）→ 冒煙測試**。
+
+> ⚠️ **組態的真實來源要想清楚**：GitOps 管理的 ConfigMap 只在首次啟動時植入（8.5）。若要求「Git 即真實來源」，需在 overlay 中改為每次啟動都以 ConfigMap 覆寫組態，並**停用透過 Control UI／`config set` 的線上修改**，否則兩邊會互相覆蓋。
+>
+> ❌ 舊版範例的 `HelmRelease`（`chart: openclaw`）引用了不存在的官方 chart。
 
 ### 8.8 藍綠部署
 
+藍綠部署在 OpenClaw 中**只能以「整個 Gateway + 它自己的 state」為單位**進行，不能讓藍綠兩個版本同時服務同一份 state：
+
 ```mermaid
 flowchart LR
-    LB[負載平衡器] --> |100%| BLUE[🔵 Blue<br>v2026.6.34]
-    LB -.-> |0%| GREEN[🟢 Green<br>v2026.7.1]
-    
+    subgraph "切換前"
+        DNS1["DNS／Tunnel"] --> BLUE["🔵 Blue Gateway<br/>v2026.9.36<br/>state-blue"]
+        GREEN["🟢 Green Gateway<br/>v2026.11.1<br/>state-green（由 Blue 備份還原）"]
+    end
     subgraph "切換後"
-        LB2[負載平衡器] -.-> |0%| BLUE2[🔵 Blue<br>v2026.6.34]
-        LB2 --> |100%| GREEN2[🟢 Green<br>v2026.7.1]
+        DNS2["DNS／Tunnel"] --> GREEN2["🟢 Green Gateway<br/>v2026.11.1"]
+        BLUE2["🔵 Blue（停止，保留供回滾）"]
     end
 ```
 
+1. Blue 執行 `openclaw gateway suspend --wait`，再 `openclaw backup create --verify`。
+2. 以該備份在 Green 主機還原到**全新**目錄，安裝新版並執行 `openclaw doctor`。
+3. Green 通過冒煙測試後切換 DNS／Cloudflare Tunnel，**同時停止 Blue**（避免兩邊都在接收頻道訊息）。
+4. 回滾：停止 Green，以 `openclaw gateway resume <suspensionId>` 恢復 Blue。**Green 期間產生的新對話不會回到 Blue**，這是必須事先告知使用者的取捨。
+
+> ⚠️ 頻道連線（Telegram bot、Slack app 等）同一時間只能由一個 Gateway 持有；切換時要確認舊 Gateway 已完全停止。
+
 ### 8.9 Canary 部署
 
+OpenClaw 沒有「同一批使用者 10% 流量導到新版」的機制；Canary 應以**信任域／部門**為單位：
+
+| 做法 | 說明 |
+| --- | --- |
+| **試點 Gateway** | 選一個影響範圍小的部門 Gateway 先升級（見 7.3 流程圖） |
+| **觀察指標** | `openclaw_model_failover_total`、`openclaw_session_stuck_total`、`openclaw_tool_execution_blocked_total`、錯誤率（6.4） |
+| **晉升條件** | 24–72 小時內指標無異常，黃金問題回歸通過率不下降（8.3） |
+
+> ❌ 舊版範例以 Istio `VirtualService` 對同一個 OpenClaw 服務做 90/10 權重切分；這會讓同一位使用者的連線在兩個版本、兩份 state 之間跳動，**對話脈絡會分裂**。
+
+#### 反例：以流量權重切分同一個 Gateway（不要這樣做）
+
 ```yaml
-# istio/openclaw-canary.yaml
+# ❌ 反例：istio/openclaw-canary.yaml（反例）
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
@@ -7757,6 +8350,48 @@ data:
       }
     }
 ```
+
+### 8.11 發布物驗證（供應鏈）
+
+每個 OpenClaw 正式版的 GitHub Release 都附有 **Release verification** 區塊：npm 套件頁、registry tarball、`integrity`（sha512）、release commit SHA、完整 release CI 報告與各 publish workflow 的執行連結。企業在把新版本放進內部鏡像或映像倉庫前，應把下列檢查自動化：
+
+| 檢查 | 方法 | 2026.11.1 實測結果 |
+| --- | --- | --- |
+| tarball 完整性 | `npm view openclaw@<版本> dist.integrity` 與 Release 頁的 `integrity` 比對 | 一致（`sha512-2pSbt/taBKM/...`） |
+| registry 簽章 | `npm audit signatures`（於已安裝的專案內） | `508 packages have verified registry signatures` |
+| 建置來源（provenance） | `npm view openclaw@<版本> dist.attestations` | 附 SLSA provenance v1；`151 packages have verified attestations` |
+| 原始碼對應 | Release 的 `release SHA` 與 Git tag 指向的 commit 比對 | `4ffdd20`（亦即 `openclaw --version` 顯示的 build） |
+| 容器映像 | 只用 `ghcr.io/openclaw/openclaw`（主要來源）或 `openclaw/openclaw`；以 digest 釘選 | GHCR 為 release 自動化與 provenance 檢查的主要來源 |
+
+```bash
+VER=2026.11.1
+# 1) integrity 與 Release 說明比對
+npm view openclaw@$VER dist.integrity
+gh release view v$VER -R openclaw/openclaw --json body --jq .body | grep -E '^- integrity:'
+
+# 2) 簽章與 provenance（在固定版本的隔離專案中）
+mkdir -p /tmp/oc-verify && cd /tmp/oc-verify && npm init -y >/dev/null
+npm install --save-exact openclaw@$VER --allow-scripts=openclaw
+npm audit signatures
+
+# 3) 版本與 build
+npx openclaw --version      # OpenClaw 2026.11.1 (4ffdd20)
+```
+
+> **Plugin 與 Skill 也是供應鏈**：同一份 Release 會發布官方插件（npm 與 ClawHub）。第三方插件則必須經過 4.4 所示的兩道關卡（`--force` 與 `--accept-capabilities`），並可透過 `security.installPolicy` 把審核交給外部指令（5.3、9.11）；ClawHub 技能用 `openclaw skills verify @owner/slug --card` 產生 Skill Card 供人工審查。
+
+### 8.12 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | CI 中的組態驗證 | 檢視 workflow | 以 `OPENCLAW_CONFIG_PATH` + `config validate --json` 並以 `jq` 斷言 `valid` |
+| 2 | Dockerfile 正確 | `docker build` 後以 `docker inspect` 檢查 | 基底為 `ghcr.io/openclaw/openclaw:<確切版本>`、`USER node`、官方 healthcheck |
+| 3 | Kubernetes manifest | `kubectl apply --dry-run=client -k ...` | `replicas: 1`、`Recreate`、JSON probe、唯讀 rootfs |
+| 4 | 沒有虛構的 Helm chart | 檢視 GitOps 設定 | 使用 Kustomize（官方未提供 chart） |
+| 5 | 發布物完整性 | 比對 `npm view openclaw@<ver> dist.integrity` 與 Release 頁；執行 `npm audit signatures` | integrity 一致；簽章與 attestation 驗證通過 |
+| 6 | 藍綠／Canary 以 Gateway 為單位 | 審查部署計畫 | 沒有對同一份 state 做流量權重切分 |
 
 ---
 
@@ -7853,17 +8488,26 @@ sequenceDiagram
   agents: {
     defaults: {
       sandbox: {
-        mode: "non-main",  // 非主 Session 在沙箱中執行
-        // 允許的工具白名單
-        allow: ["bash", "process", "read", "write", "edit",
-                "sessions_list", "sessions_history", "sessions_send"],
-        // 拒絕的工具黑名單
-        deny: ["browser", "canvas", "nodes", "cron", "discord", "gateway"],
+        mode: "non-main",        // off | non-main | all
+        scope: "session",        // session | agent | shared：沙箱容器的共用範圍
+        workspaceAccess: "ro",   // none | ro | rw：沙箱對工作區的存取
+        docker: { network: "none", readOnlyRoot: true, memory: "1g", pidsLimit: 256 },
+      },
+    },
+  },
+  tools: {
+    // 沙箱 Session 額外的工具閘門（在一般工具政策之上再過濾一次）
+    sandbox: {
+      tools: {
+        allow: ["exec", "process", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send"],
+        deny: ["browser", "canvas", "nodes", "cron", "gateway"],
       },
     },
   },
 }
 ```
+
+> ❌ **舊版範例的錯誤**：把 `allow`／`deny` 寫在 `agents.defaults.sandbox` 底下。沙箱的工具過濾在 **`tools.sandbox.tools.allow／deny`**；`agents.defaults.sandbox` 只管「怎麼建沙箱」（模式、範圍、工作區存取、Docker 參數）。
 
 - **主 Session（main）**: 一對一直接對話，工具在主機上執行，完整存取權限
 - **非主 Session（non-main）**: 群組/頻道對話，bash 在 Docker 容器中執行
@@ -7906,21 +8550,22 @@ sequenceDiagram
 #### 安全儲存策略
 
 ```json5
-// openclaw.json - 使用環境變數，不硬編碼
+// openclaw.json — 組態中只放參照，不放金鑰
 {
-  "models": {
-    "default": {
-      "provider": "openai",
-      "apiKey": "${OPENAI_API_KEY}",    // ✅ 環境變數
-      // "apiKey": "sk-xxx..."          // ❌ 絕對禁止
+  models: {
+    providers: {
+      openai: { apiKey: { source: "env", provider: "default", id: "OPENAI_API_KEY" } },   // ✅ SecretRef
+      // openai: { apiKey: "sk-xxx..." }                                                  // ❌ 絕對禁止
     },
   },
-  "channels": {
-    "telegram": {
-      "token": "${TELEGRAM_BOT_TOKEN}", // ✅ 環境變數
-    },
+  channels: {
+    telegram: { botToken: "${TELEGRAM_BOT_TOKEN}" },   // ✅ 環境變數替換
   },
 }
+```
+
+```bash
+openclaw secrets audit     # 掃描組態中的明文憑證與無法解析的參照
 ```
 
 #### 密鑰輪替策略
@@ -8037,21 +8682,25 @@ OpenClaw v2026.5 引入完整的沙箱架構，支援三種後端：
 | **OpenShell** | 輕量級 shell 隔離 | 低資源環境 |
 
 ```json5
-// 沙箱組態範例
+// 沙箱組態範例（backend 依已安裝的沙箱插件，常見為 docker、ssh、openshell）
 {
-  "agents": {
-    "defaults": {
-      "sandbox": {
-        "mode": "non-main",  // 非主 Session 自動沙箱化
-        "backend": "docker",  // docker | ssh | openshell
-        "allow": ["bash", "process", "read", "write", "edit",
-                  "sessions_list", "sessions_history",
-                  "sessions_send", "sessions_spawn"],
-        "deny": ["browser", "canvas", "nodes", "cron",
-                 "discord", "gateway"]
-      }
-    }
-  }
+  agents: {
+    defaults: {
+      sandbox: {
+        mode: "non-main",
+        backend: "docker",
+        workspaceAccess: "ro",
+      },
+    },
+  },
+  tools: {
+    sandbox: {
+      tools: {
+        allow: ["exec", "process", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "sessions_spawn"],
+        deny: ["browser", "canvas", "nodes", "cron", "gateway"],
+      },
+    },
+  },
 }
 ```
 
@@ -8065,6 +8714,15 @@ OpenClaw v2026.5 引入完整的沙箱架構，支援三種後端：
 #### 插件供應鏈安全（Plugin Provenance，v2026.8.1 新增）
 
 延續 9.6 節 OWASP LLM05（供應鏈攻擊）的防護，v2026.8.1 起 CLI 與聊天介面安裝**任意可執行檔的第三方插件**時，須明確加上 `--force` 旗標確認已知悉風險來源；來自 ClawHub、Bundled、官方目錄與既有追蹤更新的信任來源則維持原有免確認流程，避免影響日常維運效率。企業導入建議在插件治理規範中明訂：非官方目錄插件一律須經安全審查後才可加註 `--force` 安裝，並保留審查紀錄以利稽核（見 9.8 節）。
+
+**v2026.11.1 的兩道安裝關卡（實測）**：
+
+| 關卡 | 未通過時的訊息 | 放行方式 |
+| --- | --- | --- |
+| 來源信任 | `This source is outside ClawHub review and trust metadata ... Install cancelled; rerun with --force after reviewing the source.` | 審查後加 `--force` |
+| 能力同意 | `Plugin "<id>" requires capability consent. The plugin was not installed.` | 檢視宣告的能力後加 `--accept-capabilities` |
+
+進一步可設定 `security.installPolicy`，以外部審核指令（例如呼叫內部的軟體成分分析服務）決定 skill／plugin 是否允許安裝，讓審查紀錄自動化。
 
 #### DM 配對安全（DM Pairing）
 
@@ -8102,36 +8760,51 @@ iptables -A OUTPUT -p tcp --dport 443 -d api.anthropic.com -j ACCEPT
 #### TLS/SSL 設定
 
 ```json5
+// Gateway 直接終結 TLS（若前方已有反向代理／Cloudflare Tunnel，改由代理終結並保持 bind: "loopback"）
 {
-  "security": {
-    "tls": {
-      "enabled": true,
-      "cert": "/etc/ssl/certs/openclaw.crt",
-      "key": "/etc/ssl/private/openclaw.key",
-      "minVersion": "TLSv1.3",
+  gateway: {
+    bind: "lan",
+    tls: {
+      enabled: true,
+      certPath: "/etc/openclaw/tls/fullchain.pem",
+      keyPath: "/etc/openclaw/tls/privkey.pem",
+      caPath: "/etc/openclaw/tls/ca.pem",   // 選用：自訂 CA 鏈
     },
   },
 }
 ```
+
+> ❌ 舊版的 `security.tls`（含 `minVersion`）並不存在；TLS 設定在 `gateway.tls`。最低 TLS 版本、加密套件等更細的政策，請在反向代理層統一管理。
 
 ### 9.5 資料加密
 
 #### 靜態加密（Encryption at Rest）
 
+OpenClaw **本身不對 state 做靜態加密**。官方明確說明：Secret Store 的值以**未加密**方式存在共享狀態資料庫 `state/openclaw.sqlite`，僅靠 `0600` 檔案與 `0700` 目錄權限保護。因此靜態加密必須在 OpenClaw 之外完成：
+
+| 資產 | 建議做法 |
+| --- | --- |
+| state 目錄（SQLite、逐字稿、Secret Store） | 作業系統層級的**磁碟加密**（LUKS、BitLocker、FileVault）或雲端的加密磁碟／加密 PV |
+| 異地備份 | `storage.locations.<name>.encryption.passphrase`（SecretRef），見 6.7 |
+| 高價值憑證 | 放在外部保管庫（1Password、Vault 插件），OpenClaw 只持有參照 |
+| Litestream 複寫 | 物件儲存的伺服器端加密 + 嚴格的 bucket 存取政策 |
+
 ```json5
+// 備份目的地的內容加密（這是 OpenClaw 唯一內建的「靜態加密」設定）
 {
-  "security": {
-    "encryption": {
-      "atRest": {
-        "enabled": true,
-        "algorithm": "AES-256-GCM",
-        "keySource": "vault",  // vault | file | env
-        "vaultPath": "secret/openclaw/encryption-key",
+  storage: {
+    locations: {
+      offsite: {
+        provider: "filesystem",
+        settings: { path: "/mnt/nas/openclaw-backups" },
+        encryption: { passphrase: { source: "env", provider: "default", id: "OPENCLAW_STORAGE_PASSPHRASE" } },
       },
     },
   },
 }
 ```
+
+> ❌ 舊版範例的 `security.encryption.atRest`（`AES-256-GCM`、`keySource: "vault"`）並不存在。在資安審查文件中宣稱「OpenClaw 已啟用 AES-256 靜態加密」是**錯誤陳述**。
 
 #### 傳輸加密（Encryption in Transit）
 
@@ -8403,6 +9076,74 @@ graph LR
 
 較舊、未帶指紋的追蹤安裝，**需要一次強制更新才能建立該基準**。升級後應盤點既有技能，確認其指紋基準已建立。
 
+### 9.12 2026 年 9 月安全公告潮與強化基準
+
+**2026-09-11**，官方在 GitHub Security Advisories 一次揭露了 **375 筆**安全公告（high 150、medium 200、low 25），修補版本分布在 2026.7.1、2026.8.1、2026.8.2、2026.9.2 與 **2026.9.3**。公告標題反映出幾個反覆出現的弱點類型：
+
+| 類型 | 代表性公告（摘要） | 對企業的意義 |
+| --- | --- | --- |
+| **owner／scope 授權缺漏** | `chat.send could expose owner-only infrastructure tools`、`MCP configuration changes could omit owner authorization`、`Browser proxy could miss its admin scope` | 非 owner 透過頻道或 API 取得高權限工具；**共用 Gateway 必須升級** |
+| **exec allowlist 繞過** | `Escaped newlines could confuse exec allowlist parsing`、`Reusable exec approvals could authorize changed arguments`、`Exec wrapper allowlists could trust arbitrary inner commands` | `tools.exec.security: "allowlist"` 在舊版並不可靠 |
+| **SSRF／DNS pinning** | `Browser CDP connections could discard DNS pinning`、`Video asset downloads could reach private destinations` | Agent 可能被誘導存取內網服務 |
+| **路徑與檔案邊界** | `Unicode fallback could escape workspaceOnly roots`、`QQBot voice filenames could escape the staging directory` | `tools.fs.workspaceOnly` 在舊版有繞過方式 |
+| **憑證外洩** | `OpenAI-compatible transport could send provider credentials to the wrong endpoint`、`Config revision hashes could expose password verifiers` | 需輪替可能外洩的憑證 |
+
+之後的版本又持續強化：10.8（exec allowlist 對 `test -v` 需審批、沙箱子程序不可執行主機 CLI backend、egress proxy 拒絕不受信任的 eMudhra 憑證鏈）、10.9（修補相依套件漏洞、`tools.fs.workspaceOnly` 套用到 Gateway 內建工具、MCP CLI 檢視不再顯示即時憑證）、11.1（ClickClack 與 ClawHub 拒絕導向無關私有服務的重新導向、非互動 Doctor 不再未經同意下載插件、日誌遮罩政策錯誤時仍保留內建保護）。
+
+#### 企業強化基準（Hardening Baseline）
+
+| # | 控制項 | 設定／指令 | 驗證方式 |
+| --- | --- | --- | --- |
+| 1 | **版本下限** | 正式環境至少 **2026.9.3**；建議 stable **2026.11.1** 或 extended-stable **2026.9.36** | `openclaw --version`、`openclaw_gateway_build_info` |
+| 2 | Node 安全版本 | Node **24.22.1+** 或 **26.12.1+** | `node --version` |
+| 3 | 不對外暴露 Gateway | `gateway.bind: "loopback"` + Tunnel／反向代理 | 從外網 `curl` 應無法連線 |
+| 4 | 強驗證 | `gateway.auth.mode` 不可為 `none`；團隊用 `trusted-proxy`（11.7） | `openclaw security audit --deep` |
+| 5 | DM 預設不開放 | 各頻道 `dmPolicy: "pairing"` 或 `"allowlist"` | `openclaw doctor` |
+| 6 | 檔案邊界 | `tools.fs.workspaceOnly: true` | 請 Agent 讀取 `~/.ssh/config` 應被拒 |
+| 7 | exec 政策 | `tools.exec.security: "allowlist"`、`ask: "on-miss"`、`host: "sandbox"` | 未列入的指令觸發審批 |
+| 8 | 沙箱 | `agents.defaults.sandbox.mode: "non-main"`（或 `all`） | 群組對話中的 `exec` 在容器內執行 |
+| 9 | SSRF | `browser.ssrfPolicy.blockedHostnames`、`cron.webhookSsrfPolicy.blockedHostnames`；**不要**開 `dangerouslyAllowPrivateNetwork` | 請 Agent 開啟 `http://169.254.169.254/` 應被拒 |
+| 10 | 密鑰 | SecretRef + Secret Store；高價值憑證走外部保管庫；egress proxy 綁定主機 | `openclaw secrets audit` |
+| 11 | 插件與技能來源 | `plugins.allow` 白名單、`security.installPolicy` | `openclaw plugins list` |
+| 12 | 稽核 | `logging.audit.enabled: true`、`executionIdentity: true` | `openclaw audit --kind tool_action` |
+
+```json5
+// 強化基準的組態部分（openclaw 2026.11.1 config validate 通過）
+{
+  gateway: { bind: "loopback", auth: { mode: "token", token: "${OPENCLAW_GATEWAY_TOKEN}" } },
+  agents: { defaults: { sandbox: { mode: "non-main", workspaceAccess: "ro" } } },
+  tools: {
+    fs: { workspaceOnly: true },
+    exec: { host: "sandbox", security: "allowlist", ask: "on-miss" },
+  },
+  browser: { ssrfPolicy: { blockedHostnames: ["169.254.169.254", "metadata.google.internal"] } },
+  cron: { webhookSsrfPolicy: { blockedHostnames: ["169.254.169.254", "metadata.google.internal"] } },
+  logging: { audit: { enabled: true, executionIdentity: true } },
+}
+```
+
+```bash
+openclaw security audit --deep        # 稽核常見的危險設定
+openclaw secrets audit
+gh api "repos/openclaw/openclaw/security-advisories?per_page=100&sort=published&direction=desc" \
+  --jq '.[] | [.published_at[:10], .severity, .summary] | @tsv' | head -20     # 追蹤最新公告
+```
+
+> **流程建議**：把官方 Security Advisories 訂閱到資安團隊的工作流程；high 以上的公告在 **7 天內**評估並升級，且升級後重跑本表的驗證欄位。
+
+### 9.13 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 版本不低於修補基準 | `openclaw --version` | ≥ 2026.9.3；建議 2026.11.1 或 2026.9.36 |
+| 2 | 強化基準 12 項 | 逐項執行 9.12 表格的驗證欄位 | 全部符合；例外有書面風險接受 |
+| 3 | 沙箱工具過濾位置正確 | `openclaw config get tools.sandbox --json` | allow／deny 位於 `tools.sandbox.tools` |
+| 4 | TLS 與靜態加密的說法正確 | 審查資安文件 | TLS 在 `gateway.tls`；不宣稱 OpenClaw 內建 AES 靜態加密 |
+| 5 | 插件安裝關卡未被 CI 無條件繞過 | 檢視 CI 腳本 | `--force`／`--accept-capabilities` 只在審查後加入 |
+| 6 | 自動化稽核 | `openclaw security audit --deep` | 無高風險發現 |
+
 ---
 
 ## 第十章：實戰案例
@@ -8434,27 +9175,11 @@ graph LR
 ```markdown
 ---
 name: daily-reporter
-description: 每日自動報表生成技能
-version: 2.0.0
-author: DevOps Team
-triggers:
-  - 日報
-  - 報表
-  - daily report
-  - 週報
-  - weekly
-tools:
-  - fetch_metrics
-  - generate_report
-  - send_slack
-  - send_email
-cron: "0 9 * * *"
-access:
-  channels:
-    - slack
-    - teams
-  users:
-    - "*@company.com"
+description: 每日／每週營運報表。當使用者要求日報、週報、daily report，或由每日 09:00 的 Automation 觸發時使用
+metadata:
+  openclaw:
+    requires:
+      env: ["METRICS_API_TOKEN"]
 ---
 
 # 報表生成 Agent
@@ -8463,7 +9188,7 @@ access:
 
 ## 核心職責
 
-1. 每日 9:00 自動收集昨日數據
+1. 收集昨日數據（每日 09:00 的觸發由 Automation 負責，不是寫在 SKILL.md 的 `cron:` 鍵）
 2. 計算關鍵指標的趨勢
 3. 識別異常和風險
 4. 生成結構化報表
@@ -8482,6 +9207,22 @@ access:
 - 百分比: 小數點第二位
 - 金額: 千分位格式
 - 趨勢: 使用 📈📉 表示
+```
+
+排程與存取控制不寫在 SKILL.md（舊版的 `cron:`、`tools:`、`access:`、`triggers:` 皆非規範鍵），而是分別由 Automations 與 Agent allowlist／頻道政策負責：
+
+```bash
+# 每日 09:00（台北）觸發，結果送到 Slack #ops-daily
+openclaw automations add --name daily-report --cron "0 9 * * *" --tz Asia/Taipei   --agent reporter --message "使用 daily-reporter 技能產生昨日日報" --channel slack --to "#ops-daily"
+```
+
+```json5
+// 只有 reporter Agent 看得到 daily-reporter；Slack 只接受營運團隊的使用者
+{
+  agents: { ownership: "explicit", entries: { reporter: { skills: ["daily-reporter"] } } },
+  channels: { slack: { botToken: "${SLACK_BOT_TOKEN}", appToken: "${SLACK_APP_TOKEN}", dmPolicy: "allowlist", allowFrom: ["U01OPS", "U02OPS"] } },
+  bindings: [{ agentId: "reporter", match: { channel: "slack" } }],
+}
 ```
 
 ##### Java 報表服務（完整實作）
@@ -9026,19 +9767,32 @@ flowchart TD
 
 #### Skill 定義
 
-```json5
-// skills/task-automation/SKILL.md 前置資料
-{
-  "name": "task-automation",
-  "description": "個人任務管理與自動提醒",
-  "triggers": ["自動化", "排程", "提醒", "todo", "任務"],
-  "tools": ["create_task", "set_reminder", "send_notification"],
-  "config": {
-    "maxRemindersPerUser": 50,
-    "reminderChannels": ["telegram", "slack"],
-  },
-}
+`skills/task-automation/SKILL.md`（AgentSkills 格式；觸發條件寫在 `description`，排程交給內建 Automations）：
+
+```markdown
+---
+name: task-automation
+description: 個人任務管理與自動提醒。當使用者提到待辦、任務、提醒、排程或「幫我記得」時使用
+---
+
+# 任務自動化
+
+1. 從訊息中萃取：任務內容、期限（轉為使用者時區的確切時間）、提醒頻道。
+2. 時間不明確（例如「下週」）時，先提出一個具體時間請使用者確認。
+3. 一次性提醒使用 automations 工具建立 `--at` 排程；週期性提醒使用 `--cron` 並帶時區。
+4. 建立後回覆：任務、提醒時間（含時區）、automation ID，方便使用者取消。
+5. 每位使用者最多 50 個進行中的提醒；超過時列出最舊的 5 個請使用者整理。
 ```
+
+對應的操作者指令（用來驗證 Agent 建立的排程是否正確）：
+
+```bash
+openclaw automations list --json
+openclaw automations show <job-id>
+openclaw automations rm <job-id>
+```
+
+> 在對話中也可以直接用 `/loop 1h 檢查今天未完成的任務` 讓目前對話週期性執行（owner 限定）。
 
 #### Java 任務管理引擎
 
@@ -10228,22 +10982,35 @@ flowchart LR
 
 #### ETL 自動化 Skill 定義
 
-```json5
-{
-  "name": "data-pipeline",
-  "description": "企業資料分析管線自動化",
-  "triggers": ["分析", "數據", "ETL", "報表"],
-  "tools": ["extract_data", "transform_data", "load_data", "visualize"],
-  "workflow": {
-    "steps": [
-      {"tool": "extract_data", "source": "database"},
-      {"tool": "transform_data", "operations": ["clean", "aggregate"]},
-      {"tool": "load_data", "target": "warehouse"},
-      {"tool": "visualize", "format": "chart"},
-    ],
-  },
-}
+`skills/data-pipeline/SKILL.md`：工作流程的步驟寫成**給模型看的程序**，實際的擷取／轉換／載入由下方的 Java 管線或內部 API 執行（Agent 透過 4.4 的工具呼叫它們）：
+
+```markdown
+---
+name: data-pipeline
+description: 企業資料分析管線。當使用者要求分析數據、執行 ETL、產生資料報表或檢查資料品質時使用
+metadata:
+  openclaw:
+    requires:
+      bins: ["curl", "jq"]
+      env: ["ETL_API_TOKEN"]
+---
+
+# 資料分析管線
+
+## 步驟
+
+1. 確認資料來源、期間與輸出格式；任一項不明確就先反問。
+2. 呼叫 `etl_run` 工具（ETL 服務），參數：`source`、`from`、`to`、`operations=["clean","aggregate"]`。
+3. 檢查回傳的 `rowCount` 與 `rejectedRows`；`rejectedRows` 超過 1% 時，**停止並回報**，不要繼續產出報表。
+4. 以 `etl_chart` 產生圖表，並在回覆中附上資料期間、筆數與被剔除的筆數。
+
+## 禁止事項
+
+- 不直接連線資料庫；所有存取都經由 ETL 服務的唯讀帳號。
+- 不在回覆中貼出原始個資欄位（姓名、身分證字號、電話）。
 ```
+
+> ❌ 舊版範例以 JSON 定義 `triggers`、`tools`、`workflow.steps`。OpenClaw 的技能**沒有**這種宣告式工作流程格式；若需要確定性的多步驟流程，請改用 **Lobster** 管線、Automations，或由外部編排器（4.5）控制。
 
 #### Java ETL 管線框架
 
@@ -10769,6 +11536,18 @@ graph TB
 | Grafana | 1 核 | 1 GB | 5 GB | 1 |
 | **合計** | **16 核** | **29 GB** | **260 GB** | **12** |
 
+### 10.11 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 案例中的技能符合規範 | 檢視每個 `SKILL.md` | 無 `triggers`／`tools`／`cron`／`access` 鍵；觸發條件寫在 `description` |
+| 2 | 排程由 Automations 負責 | `openclaw automations list --json` | 案例需要的排程都存在且時區正確 |
+| 3 | 存取控制在組態而非技能 | `openclaw config get bindings --json` 與各頻道 `allowFrom` | 與案例描述一致 |
+| 4 | 案例的 Java 程式可編譯 | 把程式碼放入 4.2 的 Maven 專案執行 `mvn -B compile` | 補齊相依類別後編譯成功 |
+| 5 | 防捏造 | 以空資料或錯誤資料測試報表類案例 | Agent 明確回報資料不足，而非自行產生數字 |
+
 ---
 
 ## 第十一章：多人協作與 Teams 治理
@@ -10891,7 +11670,129 @@ graph TB
     L4 -.-> NOTE
 ```
 
-> **真正的隔離需求該怎麼做**：若企業確實需要租戶間隔離，正確做法是**為每個信任域部署獨立的 Gateway 實例**（見 [Multiple Gateways](https://docs.openclaw.ai/gateway/multiple-gateways) 與 [Multi-tenant Hosting](https://docs.openclaw.ai/gateway/multi-tenant-hosting)），而非依賴單一 Gateway 內的角色設定。
+> **真正的隔離需求該怎麼做**：若企業確實需要租戶間隔離，正確做法是**為每個信任域部署獨立的 Gateway 實例**（見 [Multiple Gateways](https://docs.openclaw.ai/gateway/multiple-gateways) 與 [Multi-tenant Hosting](https://docs.openclaw.ai/gateway/security/trust-model)），而非依賴單一 Gateway 內的角色設定。
+
+### 11.7 Team Server 部署實作（Cloudflare Access + trusted-proxy）
+
+官方以 `team.openclaw.ai` 作為 OpenClaw 自身的共用開發工作區，並把這套做法整理成 **Team Server** 部署指南。它把前面各章的元件串起來：常駐 Gateway、Cloudflare Tunnel 與 Access、個人登入、GitHub 身分、操作者角色，以及（選用的）另一個 Gateway 的唯讀分享。
+
+> ⚠️ **信任邊界（再次強調）**：一個 Gateway 就是一個信任邊界。角色與 Session 擁有權用來**支援協作**，**不能**隔離彼此敵對的使用者。不受信任的程式碼放在沙箱或遠端 worker；彼此不信任的團隊用不同的 Gateway、OS 使用者或主機。
+
+#### 架構
+
+```mermaid
+graph LR
+    U["團隊成員<br/>瀏覽器"] -->|HTTPS| ACC["Cloudflare Access<br/>（企業 IdP 登入）"]
+    ACC --> TUN["Cloudflare Tunnel<br/>（出站連線，不需開放入站埠）"]
+    TUN -->|"http://localhost:18789<br/>+ cf-access-authenticated-user-email"| GW["Gateway<br/>bind: loopback<br/>auth: trusted-proxy"]
+    GW --> ROLES["gateway.roles<br/>observer / member / administrator"]
+    GW -.->|唯讀分享| REL["release.example.com<br/>（獨立 Gateway）"]
+```
+
+#### 步驟 1：以單一服務帳號安裝
+
+```bash
+# 以「將來執行 Gateway 的那個帳號」完成安裝；之後所有組態、備份、更新都用同一帳號
+openclaw onboard --install-daemon
+openclaw gateway status --deep
+```
+
+只允許管理網段 SSH；Gateway 保持 loopback，**不要對外開放 TCP 18789**。
+
+#### 步驟 2：Tunnel 只把指定主機名稱導到 loopback Gateway
+
+```yaml
+# /etc/cloudflared/config.yml
+tunnel: <tunnel-id>
+credentials-file: /etc/cloudflared/<tunnel-id>.json
+ingress:
+  - hostname: team.example.com
+    service: http://localhost:18789
+  - service: http_status:404
+```
+
+先建立 Access application，初期只允許完成設定的管理者；**不要**為 Control UI 或其 WebSocket 建立公開的 bypass。
+
+#### 步驟 3：trusted-proxy 驗證與角色
+
+```json5
+// 合併到既有組態（保留你的 agents、models、channels）
+{
+  gateway: {
+    mode: "local",
+    bind: "loopback",
+    publicOrigin: "https://team.example.com",
+    trustedProxies: ["127.0.0.1", "::1"],
+    auth: {
+      mode: "trusted-proxy",
+      // 本機維護用的私有密碼（代表共用擁有者；不要發給團隊成員）
+      password: { source: "env", provider: "default", id: "OPENCLAW_GATEWAY_PASSWORD" },
+      identityScopes: { "admin@example.com": ["operator.admin"] },
+      trustedProxy: {
+        userHeader: "cf-access-authenticated-user-email",
+        requiredHeaders: ["cf-access-jwt-assertion"],
+        allowLoopback: true,
+        deviceAutoApprove: {
+          enabled: true,
+          scopes: ["operator.read", "operator.write", "operator.approvals", "operator.questions"],
+        },
+      },
+    },
+    roles: {
+      default: "observer",
+      definitions: {
+        observer: { sessions: { others: "view" }, agents: [], scopes: ["operator.read"] },
+        member: {
+          sessions: { others: "write" },
+          agents: ["assistant"],
+          scopes: ["operator.read", "operator.write", "operator.approvals", "operator.questions"],
+        },
+        administrator: { sessions: { others: "write" }, agents: "*", scopes: ["operator.admin"] },
+      },
+    },
+  },
+}
+```
+
+```bash
+openclaw config validate --json
+openclaw gateway restart
+openclaw gateway status --deep
+```
+
+| 設定 | 為什麼 |
+| --- | --- |
+| 移除 `gateway.auth.token`／`OPENCLAW_GATEWAY_TOKEN` | 官方說明共用 token 與 trusted-proxy 模式**不相容**，且共用 token 無法識別個人。⚠️ 實測 `config validate` **不會**擋下兩者並存（衝突發生在執行期），因此必須人工或以 CI 規則檢查 |
+| `publicOrigin` | 決定對外宣告的 URL 與預設的瀏覽器 origin 白名單；未設定時 Agent 無法產生 Session 連結 |
+| `requiredHeaders: ["cf-access-jwt-assertion"]` | OpenClaw 只檢查標頭**存在**與代理來源，**不驗證 Access JWT 簽章**——真正的外部驗證邊界是 Access + 私有 origin |
+| `allowLoopback: true` | 會同時信任 `cloudflared` 與**本機所有行程**；不要在這台主機上執行不受信任的工作負載 |
+| `roles.default: "observer"` | 新登入者預設只能檢視，由管理者明確提升 |
+
+#### 步驟 4：GitHub 身分與 PR 發布
+
+在 **Settings → Profile → GitHub connections** 連結「My GitHub」（個人）與「System GitHub」（共用）。對話中用 **Worktree** 開始 repository 任務（4.12），完成後以 **Publish PR** 發出 Pull Request——發布前務必確認選定的發布帳號。
+
+#### 驗證清單
+
+| 檢查 | 方法 | 預期 |
+| --- | --- | --- |
+| 18789 不對外 | 從外網連 `<server-ip>:18789` | 連線失敗 |
+| 未登入無法存取 | 無痕視窗開啟 `https://team.example.com` | 被 Access 擋下 |
+| 角色正確 | 以 observer 帳號登入嘗試傳訊 | 只能檢視他人 Session，無法寫入 |
+| 組態合法且無殘留 token | `openclaw config validate --json`；`openclaw config get gateway.auth.token` | `valid: true`；token **未設定**（validate 不會檢查此衝突） |
+| 稽核可追溯 | `openclaw audit --after <時間> --json` | 事件帶有登入者身分 |
+
+### 11.8 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | Gateway 不對外 | 從外網連線 18789 | 失敗；只能經由 Tunnel |
+| 2 | 驗證模式 | `openclaw config get gateway.auth --json` | `trusted-proxy`，且**未設定** `token`（validate 不會檢查此衝突） |
+| 3 | 角色最小權限 | 以 observer／member 帳號實際操作 | observer 只能檢視；`operator.admin` 只給少數管理者 |
+| 4 | 信任邊界說明 | 審查導入計畫 | 互不信任的團隊使用不同 Gateway |
+| 5 | 個人技能庫不含憑證 | 檢視技能內容 | 無 token、密碼或內部主機憑證 |
 
 ---
 
@@ -10938,9 +11839,12 @@ graph TB
 Control UI 的 New Session 頁面會探索已設定的 worker profile，將其陳列在 **Where** 之下，強制套用派工所需的 **managed-worktree 契約**，並把第一個回合交給啟用中的 worker。
 
 ```bash
-# 檢視已設定的 worker profile
-openclaw worker list
+# 檢視已設定的 worker profile（`openclaw worker` 是 worker 端的執行期，沒有 list 子指令）
+openclaw config get cloudWorkers.profiles --json
+openclaw config validate --json
 ```
+
+> 完整的 profile 設定範例與派工指令見 12.6。
 
 #### 支援的佈建後端
 
@@ -11007,94 +11911,100 @@ graph TB
 
 ### 12.6 派工與回收範例
 
-#### TypeScript
+派工（dispatch）與回收（reclaim）是 Gateway 的 RPC 方法。操作者可在 Control UI 的 **Place** 選單完成，也可以用 `openclaw gateway call` 以腳本執行（適合排程與 CI）：
 
-```typescript
-import { createGatewayClient } from '@openclaw/gateway-client';
+#### 步驟 1：設定 Cloud Worker Profile
 
-const client = createGatewayClient({
-  url: 'wss://gateway.internal.example.com:18789',
-  auth: { type: 'token', token: process.env.OPENCLAW_GATEWAY_TOKEN! },
-});
-await client.ready();
-
-// 在指定的 Cloud Worker profile 上建立 Session
-const session = await client.createSession({
-  agent: 'ops-agent',
-  where: { type: 'cloud-worker', profile: 'crabbox-hetzner-medium' },
-  // 派工需要 managed-worktree 契約
-  workspace: { type: 'managed-worktree', repository: 'git@github.com:example/infra.git' },
-  openingMessage: '執行本週的基礎設施合規掃描',
-});
-
-// 稍後將該 Session 收回主機
-await client.reclaimSession({ sessionId: session.id, to: 'gateway' });
-```
-
-#### Java
-
-```java
-package com.tutorial.openclaw.distributed;
-
-import java.util.Map;
-
-/**
- * Cloud Worker 派工與回收的 Java 呼叫端。
- *
- * <p>注意：Gateway 始終是對話、工作區、憑證與 placement 的擁有者，
- * 遠端機器僅提供執行算力。因此回收（reclaim）不需要搬移狀態，
- * 只是變更 placement。
- */
-public class CloudWorkerDispatcher {
-
-    private final OpenClawGatewayClient client;
-
-    public CloudWorkerDispatcher(OpenClawGatewayClient client) {
-        this.client = client;
-    }
-
-    /**
-     * 在指定的 Cloud Worker profile 上建立 Session。
-     *
-     * @param agent          代理名稱
-     * @param workerProfile  已設定的 worker profile 名稱
-     * @param repositoryUrl  managed-worktree 所需的儲存庫
-     * @param openingMessage 首個回合的訊息
-     * @return 新建立的 Session ID
-     */
-    public String dispatchToCloudWorker(
-            String agent, String workerProfile, String repositoryUrl, String openingMessage) {
-
-        Map<String, Object> request = Map.of(
-                "agent", agent,
-                "where", Map.of("type", "cloud-worker", "profile", workerProfile),
-                // 派工強制要求 managed-worktree 契約
-                "workspace", Map.of(
-                        "type", "managed-worktree",
-                        "repository", repositoryUrl),
-                "openingMessage", openingMessage);
-
-        Map<String, Object> session = client.invoke("sessions_create", request);
-        return (String) session.get("id");
-    }
-
-    /**
-     * 將 Session 收回主機執行。
-     *
-     * <p>由於持久狀態本就由 Gateway 擁有，此操作僅變更 placement，
-     * 不涉及狀態搬移。
-     *
-     * @param sessionId 目標 Session
-     */
-    public void reclaimToGateway(String sessionId) {
-        client.invoke("sessions_reclaim", Map.of(
-                "sessionId", sessionId,
-                "to", "gateway"));
-    }
+```json5
+// openclaw.json — Crabbox（內建插件）在 AWS 上按需佈建機器
+{
+  cloudWorkers: {
+    preparedPool: { maxTotal: 4 },
+    profiles: {
+      aws: {
+        provider: "crabbox",
+        suspendAfter: "45m",      // 閒置 45 分鐘：先調和工作區再釋放機器
+        readyWorkers: 1,          // 保留一台預熱機器
+        settings: {
+          provider: "aws",
+          class: "standard",
+          ttl: "4h",
+          idleTimeout: "45m",
+          // 佈建時需要的密鑰從 Secret Store 取得，不寫死
+          setupSecrets: { NPM_TOKEN: { source: "store", provider: "default", id: "NPM_TOKEN" } },
+        },
+      },
+    },
+  },
 }
 ```
 
-> **企業導入建議**：Cloud Worker 適合「可水平擴充、無互動式終端需求、需要隔離執行環境」的批次型工作（例如合規掃描、大量重構、CI 前置驗證）。**需要互動式終端或存取特定本機資源的工作，仍應留在 Gateway 主機或配對電腦上**。
+#### 步驟 2：建立 Repository Session、派工、回收
+
+```bash
+# 建立以 GitHub repository 為來源的 Session（ref 省略時使用遠端預設分支）
+openclaw gateway call sessions.create \
+  --params '{"key":"agent:main:big-refactor","repository":{"url":"https://github.com/example/project.git","ref":"main"}}'
+
+# 派工到 aws profile（需要 operator.admin；首次佈建可能需要數分鐘）
+openclaw gateway call sessions.dispatch --timeout 1500000 \
+  --params '{"key":"agent:main:big-refactor","profileId":"aws"}'
+
+# 派工到自己的配對裝置（需要 operator.write）
+openclaw gateway call sessions.dispatch --timeout 1500000 \
+  --params '{"key":"agent:main:device-work","deviceId":"<paired-device-id>"}'
+
+# 完成後回收：先調和工作區，確認 placement 變為 reclaimed 或 local
+openclaw gateway call sessions.reclaim --json --timeout 600000 \
+  --params '{"key":"agent:main:big-refactor","agentId":"main"}'
+```
+
+> ❌ **舊版範例的錯誤**：TypeScript 的 `createGatewayClient(...)`、`client.createSession()`、`client.reclaimSession()`，以及 Java 的 `client.invoke("sessions_create", ...)`。這些 API 都不存在（`tsc` 實測會回報 `has no exported member named 'createGatewayClient'`）。以程式呼叫時，請用 4.11 的 `GatewayClient.request("sessions.dispatch", {...})`，或直接包裝上面的 `openclaw gateway call`。
+>
+> ⚠️ **回收不是強制刪除**：離線裝置或尚未完成的 teardown **不算**確認釋放。請先讓裝置重新連線並完成清理；不要只為了降版就強制銷毀。
+
+### 12.7 Cloud Sessions：在本機、配對裝置與雲端之間移動（v2026.10.10）
+
+v2026.10.10 起，**Cloud Session 成為一級工作流程**：Session 可以從 Session 選單在本機與雲端之間移動；雲端環境依 Repository 組織，並可使用 environment recipes 與經驗證的 Node toolchain；Session 啟動時會顯示快照進度，不必等第一個快照上傳完成。
+
+| 執行位置 | 機器 | 適合 | 派工需要的 scope |
+| --- | --- | --- | --- |
+| Gateway（預設） | 執行 `openclaw gateway` 的主機 | 日常 Session | — |
+| Paired device | 自己的硬體，用 `openclaw connect` 一次配對 | 閒置的 Mac、建置機、既有伺服器 | `operator.write` |
+| Cloud worker | 透過 Crabbox 租用的拋棄式機器 | 突發運算量、長時間工作、與自有機器隔離 | `operator.admin` |
+
+**無論在哪裡執行，模型推論都經由 Gateway 代理——Provider 憑證永遠不會到達遠端機器**；完成的工作以「已接受的 repository checkpoint」形式保留在 Gateway。
+
+```bash
+# 把一台機器配對為 Session 主機（每個 CPU 核心一個 worker slot，可用 nodeHost.workerRuns.capacity 調整）
+openclaw connect <join-url> --service --session-host
+```
+
+| 設計重點 | 說明 |
+| --- | --- |
+| **Auto 負載平衡** | Place 選 **Auto**（或 dispatch 帶 `autoDevice: true`）會挑最不忙的配對主機；工作區準備前若主機失去資格，最多改試 3 台已排序的主機 |
+| **閒置休眠** | `suspendAfter` 在閒置後安全停止並釋放機器；`readyWorkers` 與 warm images 縮短冷啟動 |
+| **附件** | 派工後的附件經已驗證的傳輸通道複製到 worker 工作區（上限 25,000 個檔案／256 MiB，單檔媒體 6 MiB） |
+| **Desktop 與 computer use** | 開啟 Cloud Worker Desktop lab，並在 Crabbox profile 設 `settings.desktop: true`；同一台機器同時提供 Desktop 面板與 Agent 的 `computer` 工具 |
+| **GitHub Enterprise** | v2026.10.1 起，Cloud Worker 的 repository 探索與預備流程支援設定的 GitHub Enterprise 主機 |
+
+> ⚠️ **企業安全要點**：
+>
+> 1. 配對裝置上的 Agent 擁有**該作業系統帳號**的所有權限；placement 工作區只決定起始目錄與調和範圍，**不是 OS 層級隔離**。需要隔離時，在配對裝置上使用獨立的最小權限帳號，或啟用 Docker 相容的 Session 容器。
+> 2. Cloud worker 派工需要 `operator.admin`；請在 `gateway.roles` 中只授予少數管理者（見 11.7）。
+> 3. Worker 逐字稿會保留截圖；含敏感畫面的 Desktop 工作要納入資料保存政策（5.9）。
+
+### 12.8 本章審查與驗證清單
+
+審查 AI 依本章產出的組態、指令或程式時，逐項執行下表：
+
+| # | 檢查項目 | 驗證方法 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 派工使用真實 RPC | 檢視腳本 | 使用 `openclaw gateway call sessions.create`／`sessions.dispatch`／`sessions.reclaim` |
+| 2 | Cloud Worker profile 合法 | `openclaw config validate --json` | `cloudWorkers.profiles.*` 通過驗證 |
+| 3 | 回收已確認 | 檢視 `sessions.reclaim` 回應 | placement 為 `reclaimed` 或 `local` |
+| 4 | 憑證不到達遠端 | 檢視 worker 環境 | Provider 憑證不在遠端；setupSecrets 來自 Secret Store |
+| 5 | 配對裝置的 OS 權限 | 檢查配對主機使用的帳號 | 使用獨立的最小權限帳號或 Session 容器 |
 
 ---
 
@@ -11195,11 +12105,11 @@ openclaw doctor
 # 完整深度診斷（含網路延遲與模型回應測試）
 openclaw doctor --deep
 
-# 僅檢查組態語法
-openclaw doctor --config-only
+# 僅檢查組態（不啟動 Gateway）
+openclaw config validate --json
 
-# 檢查組態（舊指令，仍可使用）
-openclaw config validate
+# 唯讀的建議性檢查（CI 可用，不會下載插件或變更狀態）
+openclaw doctor --json
 
 # 查看已載入的技能
 openclaw skills list
@@ -11210,8 +12120,8 @@ openclaw channels status
 # 查看日誌（即時）
 tail -f ~/.openclaw/logs/openclaw.jsonl | jq .
 
-# 測試特定模型連線
-openclaw test model default
+# 檢查模型認證與 primary／fallbacks 狀態
+openclaw models status
 
 # 查看系統狀態摘要（在對話中使用 Chat Command）
 # /status
@@ -11342,11 +12252,11 @@ openclaw test model default
 | Tailscale 指南 | [https://docs.openclaw.ai/gateway/tailscale](https://docs.openclaw.ai/gateway/tailscale) |
 | 遠端存取 | [https://docs.openclaw.ai/gateway/remote](https://docs.openclaw.ai/gateway/remote) |
 | Web 控制面板 | [https://docs.openclaw.ai/web](https://docs.openclaw.ai/web) |
-| Webhook | [https://docs.openclaw.ai/plugins/webhooks](https://docs.openclaw.ai/plugins/webhooks) |
+| Webhook | [https://docs.openclaw.ai/automation/cron-jobs/webhooks](https://docs.openclaw.ai/automation/cron-jobs/webhooks) |
 | Standing Orders | [https://docs.openclaw.ai/automation/standing-orders](https://docs.openclaw.ai/automation/standing-orders) |
 | Hooks | [https://docs.openclaw.ai/automation/hooks](https://docs.openclaw.ai/automation/hooks) |
-| TaskFlow | [https://docs.openclaw.ai/automation/taskflow](https://docs.openclaw.ai/automation/taskflow) |
-| Background Tasks | [https://docs.openclaw.ai/automation/tasks](https://docs.openclaw.ai/automation/tasks) |
+| Lobster 管線（取代已移除的 TaskFlow） | [https://docs.openclaw.ai/tools/lobster](https://docs.openclaw.ai/tools/lobster) |
+| 背景執行與工作流程（Tasks 已於 9.7 移除） | [https://docs.openclaw.ai/automation](https://docs.openclaw.ai/automation) |
 | Gmail／IMAP 郵件監看 | [https://docs.openclaw.ai/automation/imap](https://docs.openclaw.ai/automation/imap) |
 | Gateway 協定 | [https://docs.openclaw.ai/gateway/protocol](https://docs.openclaw.ai/gateway/protocol) |
 | Gateway 探索與傳輸 | [https://docs.openclaw.ai/gateway/discovery](https://docs.openclaw.ai/gateway/discovery) |
@@ -11421,11 +12331,43 @@ openclaw test model default
 | 相依套件鎖定 | [https://docs.openclaw.ai/gateway/security/dependency-locking](https://docs.openclaw.ai/gateway/security/dependency-locking) | 9.11 |
 | 安全檔案操作 | [https://docs.openclaw.ai/gateway/security/secure-file-operations](https://docs.openclaw.ai/gateway/security/secure-file-operations) | 9.9 |
 | 多 Gateway 部署 | [https://docs.openclaw.ai/gateway/multiple-gateways](https://docs.openclaw.ai/gateway/multiple-gateways) | 11.6 |
-| 多租戶託管 | [https://docs.openclaw.ai/gateway/multi-tenant-hosting](https://docs.openclaw.ai/gateway/multi-tenant-hosting) | 11.6 |
+| 信任模型（多租戶需求請改用多個 Gateway） | [https://docs.openclaw.ai/gateway/security/trust-model](https://docs.openclaw.ai/gateway/security/trust-model) | 11.6 |
 | 資料庫結構 | [https://docs.openclaw.ai/reference/database-schemas](https://docs.openclaw.ai/reference/database-schemas) | 2.11 |
 | 備份 | [https://docs.openclaw.ai/install/backups](https://docs.openclaw.ai/install/backups) | 6.7 |
 | 更新 | [https://docs.openclaw.ai/install/updating](https://docs.openclaw.ai/install/updating) | 附錄 E |
 | Teams | [https://docs.openclaw.ai/start/teams](https://docs.openclaw.ai/start/teams) | 第十一章 |
+
+### D.7 OpenClaw 2.x（v2026.8.2 → v2026.11.1）新增與改寫的官方文件
+
+| 主題 | 連結 | 本手冊對應 |
+| --- | --- | --- |
+| v2026.11.1 發布說明 | [https://docs.openclaw.ai/releases](https://docs.openclaw.ai/releases) | 1.10、1.12 |
+| 發布通道 | [https://docs.openclaw.ai/install/development-channels](https://docs.openclaw.ai/install/development-channels) | 3.12、7.1 |
+| Node.js 相容性 | [https://docs.openclaw.ai/install/node-compatibility](https://docs.openclaw.ai/install/node-compatibility) | 3.1 |
+| Update CLI（修復與恢復） | [https://docs.openclaw.ai/cli/update](https://docs.openclaw.ai/cli/update) | 7.11 |
+| 儲存引擎（實驗性 PostgreSQL） | [https://docs.openclaw.ai/reference/database-engines](https://docs.openclaw.ai/reference/database-engines) | 2.12 |
+| Gateway Lock | [https://docs.openclaw.ai/gateway/gateway-lock](https://docs.openclaw.ai/gateway/gateway-lock) | 2.9 |
+| 儲存位置（異地備份） | [https://docs.openclaw.ai/concepts/storage-locations](https://docs.openclaw.ai/concepts/storage-locations) | 6.7 |
+| Managed Worktrees | [https://docs.openclaw.ai/concepts/managed-worktrees](https://docs.openclaw.ai/concepts/managed-worktrees) | 4.12 |
+| Skills（含個人技能庫） | [https://docs.openclaw.ai/tools/skills](https://docs.openclaw.ai/tools/skills) | 1.5、4.13 |
+| Tool plugins（`defineToolPlugin`） | [https://docs.openclaw.ai/plugins/tool-plugins](https://docs.openclaw.ai/plugins/tool-plugins) | 4.4 |
+| 工具政策（profiles／groups） | [https://docs.openclaw.ai/gateway/config-tools/tool-policy](https://docs.openclaw.ai/gateway/config-tools/tool-policy) | 1.6 |
+| Tool Search | [https://docs.openclaw.ai/tools/tool-search](https://docs.openclaw.ai/tools/tool-search) | 4.4 |
+| OpenAI 相容 HTTP API | [https://docs.openclaw.ai/gateway/openai-http-api](https://docs.openclaw.ai/gateway/openai-http-api) | 4.2、4.10 |
+| 建置 Gateway 用戶端 | [https://docs.openclaw.ai/gateway/clients](https://docs.openclaw.ai/gateway/clients) | 4.11 |
+| Webhook ingress（hooks） | [https://docs.openclaw.ai/automation/cron-jobs/webhooks](https://docs.openclaw.ai/automation/cron-jobs/webhooks) | 4.7 |
+| Prometheus 指標 | [https://docs.openclaw.ai/gateway/prometheus](https://docs.openclaw.ai/gateway/prometheus) | 6.4 |
+| OpenTelemetry 組態 | [https://docs.openclaw.ai/gateway/opentelemetry/configuration](https://docs.openclaw.ai/gateway/opentelemetry/configuration) | 6.3 |
+| Kubernetes（Kustomize） | [https://docs.openclaw.ai/install/kubernetes](https://docs.openclaw.ai/install/kubernetes) | 8.5 |
+| Docker 映像 | [https://docs.openclaw.ai/install/docker](https://docs.openclaw.ai/install/docker) | 3.3 |
+| Secret Store 與 egress proxy | [https://docs.openclaw.ai/gateway/secrets/secret-store-and-egress](https://docs.openclaw.ai/gateway/secrets/secret-store-and-egress) | 3.11 |
+| 強化基準 | [https://docs.openclaw.ai/gateway/security/hardened-baseline](https://docs.openclaw.ai/gateway/security/hardened-baseline) | 9.12 |
+| 信任模型 | [https://docs.openclaw.ai/gateway/security/trust-model](https://docs.openclaw.ai/gateway/security/trust-model) | 第十一章 |
+| Team Server 部署 | [https://docs.openclaw.ai/gateway/team-server](https://docs.openclaw.ai/gateway/team-server) | 11.7 |
+| Cloud Workers 組態 | [https://docs.openclaw.ai/gateway/config-cloud-workers](https://docs.openclaw.ai/gateway/config-cloud-workers) | 12.6 |
+| 推薦模型清單 | [https://docs.openclaw.ai/concepts/recommended-models](https://docs.openclaw.ai/concepts/recommended-models) | 2.6 |
+| CHANGELOG（純文字，供 AI／工具讀取） | [https://github.com/openclaw/openclaw/tree/main/CHANGELOG](https://github.com/openclaw/openclaw/tree/main/CHANGELOG) | 7.2 |
+| Security Advisories | [https://github.com/openclaw/openclaw/security/advisories](https://github.com/openclaw/openclaw/security/advisories) | 9.12 |
 
 ---
 
@@ -11461,7 +12403,7 @@ graph TB
 #### 步驟 1：升級前檢查清單
 
 - [ ] 記錄目前版本：`openclaw --version`
-- [ ] 確認 Node 版本落在 `>=22.22.3 <23`、`>=24.15.0 <25` 或 `>=25.9.0`
+- [ ] 確認 Node 版本：升到 2.0 當時為 `>=22.22.3 <23`、`>=24.15.0 <25` 或 `>=25.9.0`；**若要直接升到 2026.11.1，必須是 `>=24.16.0 <25` 或 `>=26.1.0`**（見 E.5）
 - [ ] 確認**沒有**已知有漏洞的 Node + SQLite 組合（2.0 會在狀態開啟前擋下）
 - [ ] 盤點使用中的插件，標記外部插件與其來源
 - [ ] 盤點 Code Mode 程式碼，搜尋 `tools.`、`ALL_TOOLS`
@@ -11518,7 +12460,7 @@ openclaw doctor --fix
 
 ```bash
 # 版本確認
-openclaw --version          # 應顯示 2026.8.1
+openclaw --version          # 應顯示目標版本（例如 2026.8.1；繼續升級見 E.5）
 
 # 分層診斷（順序有意義）
 openclaw doctor             # 組態與本機探索
@@ -11539,7 +12481,7 @@ openclaw channels list
 | 項目 | 預設行為 | 建議動作 |
 |------|---------|---------|
 | **Per-session 權限模式** | **非回溯性**——既有 Session 沿用舊全域姿態 | 為既有 Session 明確指定模式，或建立新 Session |
-| **自我學習模式** | 全新安裝為 `auto`；**升級保留既有選擇** | 有治理要求者明確設為 `propose` 或 `off` |
+| **自我學習模式** | 全新安裝為 `auto`；**升級保留既有選擇** | 有治理要求者明確設為 `off`（`propose` 已移除，見 4.3） |
 | **Session 重置** | 未設定重置政策者**跨日保持開啟** | 檢視長期執行 Agent 的脈絡成本 |
 | **記憶來源標記** | **僅適用新追蹤素材**，舊檔案維持既有分類 | 評估既有記憶是否需重新分類 |
 | **Activity 位置** | 對可路由位址**預設啟用** | 隱私敏感環境應檢視並停用 |
@@ -11557,8 +12499,9 @@ openclaw channels list
 4. 從備份還原。
 
 ```bash
-# 步驟 1（必須在降版前，以 2.0 CLI 執行）
-openclaw transcripts restore-legacy
+# 步驟 1（必須在降版前、停止所有寫入者後，以目前版本的 CLI 執行）
+# 依 manifest 把保留的舊版逐字稿產物還原到原始路徑；不會逆轉 SQLite schema 遷移
+openclaw doctor --session-sqlite restore --session-sqlite-all-agents
 
 # 步驟 3
 npm install -g openclaw@2026.7.1-2 --allow-scripts=openclaw
@@ -11578,20 +12521,358 @@ openclaw backup restore <backup-id> --target /path/to/fresh-state-dir
 
 ### E.4 三個期限速查表
 
-| 期限 | 事項 | 逾期後果 | 對應章節 |
-|------|------|---------|---------|
-| **2026-09-01** | Plugin SDK 舊 subpath 匯入關閉 | 插件無法載入 | 4.9 |
-| **2026-09-18** | 執行 `openclaw doctor --fix` | 組態可能無法通過驗證 | 7.5 |
-| **2026-10-12** | beta.5 session-store bridge 失效 | 依賴該 bridge 的用戶端中斷 | 4.9 |
+| 期限 | 事項 | 逾期後果 | 對應章節 | 狀態（2026-11-08） |
+| --- | --- | --- | --- | --- |
+| **2026-09-01** | Plugin SDK 舊 subpath 匯入關閉 | 插件無法載入 | 4.9 | 已過；10.1 再收斂第三方相容層 |
+| **2026-09-18** | 執行 `openclaw doctor --fix` | 組態可能無法通過驗證 | 7.5 | 已過 |
+| **2026-10-12** | beta.5 session-store bridge 失效 | 依賴該 bridge 的用戶端中斷 | 4.9 | 已過 |
+
+### E.5 從 2.0（2026.8.x）升級到 2026.11.1
+
+E.1–E.4 是「2.x 以前 → 2.0」的遷移；本節涵蓋 **2.0 之後** 到 2026.11.1 的變更。若起點早於 2026 年 6 月，必須先走 E.2 升到 2026.9.5，再回到本節。
+
+#### 破壞性與高影響變更矩陣
+
+| # | 版本 | 變更 | 影響對象 | 處理方式 | 章節 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 9.3 | **Node 22／25 與早期 24.x／26.x 不再支援**（需 `>=24.16.0 <25 \|\| >=26.1.0`） | 所有安裝 | **先升 Node 再升 OpenClaw**，以免 SQLite 文字截斷；建議 24.22.1+／26.12.1+ | 3.1 |
+| 2 | 9.3 | Plugin SDK：exec-policy、approval、SDK 別名、Find/Grep 與目錄結果欄位調整 | 插件開發者 | 依官方 runtime utility migration 修改 | 4.9 |
+| 3 | 9.3 | Skill Workshop 改為**每個 Agent 一份**，退休 `skills.workshop.allowSymlinkTargetWrites` | 使用 Workshop 者 | `openclaw doctor --fix` 遷移；檢視歸屬不明的技能 | 4.3 |
+| 4 | 9.5 | 2026 年 6 月前的安裝必須經過 9.5 | 舊安裝 | 先升 9.5 → `doctor --fix` → 再升最新 | 7.11 |
+| 5 | 9.6 | Compaction checkpoint 還原控制與 `sessions.compaction.*` RPC 移除 | 依賴 checkpoint 還原者 | 改用一般的 Fork／rewind；無對等替代 | — |
+| 6 | 9.7 | **Tasks 與 TaskFlow（面板、指令、API）移除**；TaskFlow Webhooks 無 HTTP 替代 | 使用 ❌ `openclaw tasks`、TaskFlow 者 | 改用 subagents、ACP、背景程序、Automations 歷史或 Lobster；`doctor --fix` | 1.6、4.5 |
+| 7 | 9.7 | Tool Search 改為 search／describe／call 三工具，**移除 `tool_search_code`** | Tool Search 使用者 | 手動升級後先 `doctor --fix` 再重啟 | 4.4 |
+| 8 | 10.1 | 第三方插件不得再匯入已退休的相容 facade 與整包 session-store helper | 插件開發者 | 改用聚焦的 channel／config／session API 與 row-level 操作 | 4.9 |
+| 9 | 10.10 | **macOS App、iOS App、Safari（Control UI）需 26.2+** | Apple 平台使用者 | 先升級作業系統 | 3.1 |
+| 10 | 10.10 | Gemini 4 Argon 成為預設 Gemini 模型；選單不再提供退休模型 | 使用 Gemini 者 | 檢查 `agents.defaults.model` 與 `fallbacks` | 2.6 |
+| 11 | 9.x〜11.1 | 自我學習模式只剩 `off`／`auto`（2.0 的 `propose` 已不存在） | 有治理要求者 | 明確設定 `skills.workshop.autonomous.mode: "off"` | 4.3、5.3 |
+
+#### 升級步驟（以 npm 安裝為例）
+
+```bash
+# 0. 前置：Node 版本
+node --version                                   # 必須 >=24.16.0 <25 或 >=26.1.0；建議 24.22.1+／26.12.1+
+
+# 1. 備份並預覽
+openclaw backup create --verify
+openclaw update --tag 2026.11.1 --dry-run --json
+
+# 2. 盤點會受影響的依賴
+openclaw config validate --json                  # 退休鍵會出現在 issues／warnings
+openclaw plugins list                            # 第三方插件是否宣告支援 2026.11.1
+grep -rn "tool_search_code\|TaskFlow\|openclaw tasks" ~/.openclaw/workspace* 2>/dev/null   # ❌ 搜尋已移除的用法
+
+# 3. 升級（失敗會自動回滾）
+openclaw gateway suspend --wait --json
+openclaw update --tag 2026.11.1 --yes
+
+# 4. 驗證
+openclaw --version                               # OpenClaw 2026.11.1 (4ffdd20)
+openclaw doctor
+openclaw config validate --json
+openclaw skills check
+curl -sf http://127.0.0.1:18789/readyz | jq -e '.ready == true'
+
+# 5. 確認穩定後才清理遷移原件（清理後無法再以那些原件回滾）
+openclaw update cleanup --dry-run
+```
+
+> ⚠️ **降版注意**：若需降版，`openclaw doctor --session-sqlite restore --session-sqlite-all-agents` 只能還原「保留的舊版逐字稿產物」，**不會逆轉 SQLite schema 遷移**，也不能取代升級前的備份；而且必須在 `openclaw update cleanup` 之前執行（E.3）。
+
+---
+
+## 附錄 F：v4.0.0 驗證紀錄
+
+本附錄記錄 v4.0.0（2026-11-08）改版時，如何驗證手冊內容與 OpenClaw 2026.11.1 一致，以及發現並修正了哪些錯誤。目的有二：讓讀者**信任但可查證**本手冊；也讓讀者把同一套方法用在**審查 AI 產生的 OpenClaw 內容**。
+
+### F.1 驗證環境
+
+| 項目 | 版本／來源 |
+| --- | --- |
+| OpenClaw CLI | `openclaw@2026.11.1`（`OpenClaw 2026.11.1 (4ffdd20)`），以 npm 安裝於隔離目錄，`OPENCLAW_HOME`／`OPENCLAW_STATE_DIR` 指向暫存路徑 |
+| 官方文件與原始碼 | `github.com/openclaw/openclaw` tag `v2026.11.1` 的 `docs/`（1,440 個檔案）、`CHANGELOG/`、`package.json`、`docker-compose.yml`、`scripts/k8s/manifests` |
+| 發布資訊 | GitHub Releases（2026-08-31 起 44 個 release）、npm dist-tags、GitHub Security Advisories |
+| 執行環境 | Windows 11、Node v24.16.0、npm 11.13、OpenJDK 21.0.4、Maven 3.9.9、TypeScript 5.9.3、Hugo 0.151.0 |
+| 其他工具 | Prometheus `promtool` 3.16.0、mermaid 11.12.0（jsdom 解析）、`yaml` 2.9.1 |
+
+### F.2 驗證方法與工具
+
+| 驗證對象 | 方法 | 負向測試（證明工具會抓錯） |
+| --- | --- | --- |
+| `openclaw.json` 範例 | 每個 `json5` 區塊寫入隔離的 `OPENCLAW_CONFIG_PATH`，執行 `openclaw config validate --json` | `{ gateway: { prot: 18789 } }` → `Unrecognized key: "prot"` |
+| CLI 用法 | 遞迴執行 630 個指令路徑的 `--help` 建立白名單，以 `check_cli.py` 比對子指令與旗標 | ❌ `openclaw fleet status`、`doctor --deep-scan`、`skills frobnicate` 皆被抓出 |
+| docs 連結 | `check_doclinks.py` 比對 v2026.11.1 的 `docs/` 樹與 `docs.json` redirects | `/gateway/no-such-page` → MISSING |
+| YAML | `yaml` 2.9.1 strict 解析 + compose／k8s 結構檢查；`promtool check config` | 舊版 compose 被標出 `:latest`、全介面開埠、redis 服務 |
+| Java | `mvn -B test`（Spring Boot 4.1.2）；其餘片段以 `JavacTask.parse()` 做語法解析 | 突變測試：拿掉「4xx 不重試」與「HTTP/1.1」後對應測試失敗 |
+| TypeScript | `tsc --strict` 對 `@openclaw/gateway-client@2026.11.1` 與 `openclaw@2026.11.1` 型別檢查 | 舊版 `createGatewayClient`、`openclaw/plugin-sdk/ssrf` 皆編譯失敗 |
+| 插件 | `openclaw plugins init → build → validate → npm test → plugins install` | 未加 `--force`／`--accept-capabilities` 時安裝被拒 |
+| Mermaid | mermaid 11 `parse()` | 不完整的 `A -->` 被抓出 |
+| HTTP 端點契約 | 啟動隔離的本機 Gateway（埠 18999），以 curl 與 Java 冒煙測試實打 | 錯誤 token → `401 unauthorized` |
+
+#### `check_cli.py`
+
+```python
+"""Check `openclaw ...` invocations in markdown against a dumped CLI help whitelist.
+
+Usage: python -I check_cli.py <cli_help.json> <md files...> [--quiet]
+Scans fenced bash/sh/powershell/text blocks and inline `code` spans.
+For each invocation it resolves the longest known subcommand path, then checks
+every --flag against that command's options plus global options.
+Lines containing 'CLI-NOCHECK' are skipped (e.g. deliberate ❌ examples).
+Exit code 1 when unknown commands or flags are found.
+"""
+import json
+import re
+import sys
+
+args = [a for a in sys.argv[1:] if not a.startswith("--")]
+quiet = "--quiet" in sys.argv
+helpdb = json.load(open(args[0], encoding="utf-8"))
+GLOBAL = set(helpdb[""]["options"]) | {"--help", "-h", "--version", "-V"}
+TOPS = set(helpdb[""]["subcommands"])
+# commands contributed by bundled/official plugins (documented in docs/, absent from core --help)
+PLUGIN_CMDS = {"qa", "matrix", "voicecall", "path", "wiki", "workboard", "policy", "claws", "onnx",
+               "vault", "onepassword", "reef", "team-reports", "codex", "ltm", "crabbox", "mcp-relay",
+               "slackhuddles", "honcho", "commitments"}
+
+INV = re.compile(r"(?<![\w./@-])(?<!-n )(?<!--namespace )(?<!view )openclaw((?:[ \t]+[^\s|;&`)#]+)*)")
+
+
+def resolve(tokens):
+    path = []
+    for t in tokens:
+        if t.startswith("-"):
+            break
+        cand = " ".join(path + [t])
+        if cand in helpdb:
+            path.append(t)
+        else:
+            break
+    return path
+
+
+def check_invocation(rest):
+    toks = rest.split()
+    # skip leading global options (and their values) such as --profile rescue
+    i = 0
+    while i < len(toks) and toks[i].startswith("-"):
+        if toks[i] in ("--profile", "--container", "--log-level") and i + 1 < len(toks):
+            i += 2
+        else:
+            i += 1
+    toks = toks[i:]
+    if not toks:
+        return None
+    first = toks[0]
+    if first == "openclaw":  # e.g. `docker compose exec openclaw openclaw --version` (container name)
+        return check_invocation(" ".join(toks[1:]))
+    if first in PLUGIN_CMDS:
+        return None
+    if not re.match(r"^[a-z][\w:-]*$", first):
+        return None  # e.g. openclaw.json, openclaw/plugin-sdk
+    if first not in TOPS:
+        return f"unknown command: openclaw {first}"
+    path = resolve(toks)
+    node = helpdb[" ".join(path)]
+    nxt = toks[len(path)] if len(toks) > len(path) else None
+    if nxt and not nxt.startswith("-") and node["subcommands"] and re.match(r"^[a-z][\w-]*$", nxt):
+        # node has subcommands but this word is not one of them; may be a positional arg
+        raw = node["raw"]
+        if "Arguments:" not in raw and "[command]" in raw and "<" not in raw.split("Usage:")[1].split("\n")[0].replace("[command]", ""):
+            return f"unknown subcommand: openclaw {' '.join(path)} {nxt}"
+    opts = set(node["options"]) | GLOBAL
+    bad = []
+    for t in toks[len(path):]:
+        if t.startswith("--"):
+            flag = t.split("=", 1)[0]
+            if flag not in opts and not (flag.startswith("--no-") and "--" + flag[5:] in opts):
+                bad.append(flag)
+        elif re.match(r"^-[A-Za-z]$", t) and t not in opts:
+            bad.append(t)
+    if bad:
+        return f"unknown flag(s) {bad} for: openclaw {' '.join(path)}"
+    return None
+
+
+def scan(md):
+    text = open(md, encoding="utf-8").read().replace("\r\n", "\n")
+    lines = text.split("\n")
+    findings, negatives, fence = [], 0, None
+    for no, line in enumerate(lines, 1):
+        m = re.match(r"^\s*```(\w*)", line)
+        if m:
+            fence = None if fence is not None else (m.group(1) or "plain")
+            continue
+        if "CLI-NOCHECK" in line:
+            continue
+        neg = "❌" in line  # lines marked with ❌ are deliberate counter-examples
+        segments = []
+        if fence in ("bash", "sh", "shell", "powershell", "console", "text", "plain"):
+            code = line.split(" #", 1)[0] if not line.lstrip().startswith("#") else ""
+            segments.append(code)
+        elif fence is None:
+            segments += re.findall(r"`([^`]*openclaw[^`]*)`", line)
+        for seg in segments:
+            for inv in INV.finditer(seg):
+                err = check_invocation(inv.group(1))
+                if err and neg:
+                    negatives += 1
+                elif err:
+                    findings.append((no, err, seg.strip()[:120]))
+    return findings, negatives
+
+
+total = negs = 0
+for md in args[1:]:
+    f, n = scan(md)
+    total += len(f); negs += n
+    if not quiet:
+        for no, err, seg in f:
+            print(f"{md}:{no}: {err}    | {seg}")
+print(f"cli findings: {total} (counter-examples correctly flagged: {negs})")
+sys.exit(1 if total else 0)
+```
+
+> **已知限制**：沒有子指令的指令（例如 `openclaw worker`）後面接的字會被視為位置參數，因此 `openclaw worker list` 不會被自動抓出（本次以人工審查修正）。由插件提供的指令（`matrix`、`voicecall`、`wiki` 等）列在 `PLUGIN_CMDS`，不做旗標檢查。
+
+#### `validate_json5.py`
+
+```python
+"""Validate every JSON5 config block with the real `openclaw config validate --json`.
+
+Usage: python -I validate_json5.py <openclaw.cmd> <blocks dir> <out.json> [file ...]
+Each block is written to an isolated OPENCLAW_CONFIG_PATH. Blocks that are
+fragments (top-level key not a config root) are reported as such.
+Environment placeholders like ${VAR} are given dummy values so SecretRef
+resolution does not fail validation.
+"""
+import json
+import os
+import pathlib
+import re
+import subprocess
+import sys
+import tempfile
+
+EXE, BLOCKS, OUT = sys.argv[1], pathlib.Path(sys.argv[2]), sys.argv[3]
+only = sys.argv[4:]
+
+
+def validate(src: pathlib.Path):
+    text = src.read_text(encoding="utf-8")
+    env = dict(os.environ)
+    for var in set(re.findall(r"\$\{([A-Z0-9_]+)\}", text)):
+        env.setdefault(var, "dummy-" + var.lower())
+    with tempfile.TemporaryDirectory() as d:
+        cfg = pathlib.Path(d) / "openclaw.json5"
+        cfg.write_text(text, encoding="utf-8")
+        env["OPENCLAW_CONFIG_PATH"] = str(cfg)
+        env["OPENCLAW_STATE_DIR"] = str(pathlib.Path(d) / "state")
+        p = subprocess.run([EXE, "config", "validate", "--json"], capture_output=True,
+                           text=True, encoding="utf-8", errors="replace", env=env, timeout=240)
+    out = p.stdout.strip()
+    try:
+        data = json.loads(out[out.index("{"):])
+    except ValueError:
+        data = {"unparsed": (out + p.stderr)[-2000:]}
+    return {"exit": p.returncode, "result": data}
+
+
+def main():
+    files = [BLOCKS / f for f in only] if only else sorted(BLOCKS.glob("*.json5"))
+    res = {}
+    for f in files:
+        r = validate(f)
+        res[f.name] = r
+        ok = r["result"].get("valid")
+        print(f.name, "VALID" if ok else "INVALID", r["exit"], flush=True)
+    json.dump(res, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### F.3 實跑結果（2026-11-08）
+
+| 檢查 | 結果 |
+| --- | --- |
+| JSON5 組態區塊 | **39／39 通過** `config validate`（另有 2 個標示 `NOVALIDATE` 的錯誤示範／`$include` 片段） |
+| CLI 用法 | **0 筆錯誤**；16 筆刻意的 ❌ 反例皆被正確標記 |
+| docs.openclaw.ai 連結 | **131 個全部存在**（0 個失效、0 個需轉址） |
+| YAML 區塊 | **17／17** 解析通過；`prometheus.yml` 通過 `promtool check config` |
+| Java | Maven：`OpenClawClientTest` 10、`OpenClawControllerTest` 3 通過，`LiveGatewaySmokeTest` 預設 Skipped；全書 **27 個 Java 區塊**語法解析 0 錯誤 |
+| Java 對真實 Gateway | `gatewayIsReady` 通過；對話回合因測試環境未設定模型金鑰而回 `401 No API key found for provider "anthropic"`（預期行為，證明請求已抵達 Agent） |
+| TypeScript | 4.11 Gateway client、2.8 頻道插件 entry、4.9 SDK 子路徑、4.4 tool plugin：`tsc --strict` 0 錯誤 |
+| 插件 | `Plugin ticket-lookup is valid.`；vitest 3／3 通過；安裝後 `enabled`、`config validate` 0 warnings |
+| Mermaid | **65／65** 解析通過 |
+| code fence | 276 組成對，無未閉合區塊 |
+| 本機 Gateway 端點 | `/healthz` → `{"ok":true,"status":"live"}`；`/readyz` → `{"ready":true,...}`；`/startupz` → 含 version；未知路徑 → **200 text/html**；`/v1/models` 列出 Agent 目標；未裝插件時 `/api/diagnostics/prometheus` → 404 |
+
+### F.4 主要修正清單（v3.0.0 → v4.0.0）
+
+| # | 章節 | 舊內容 | 修正後 | 依據 |
+| --- | --- | --- | --- | --- |
+| 1 | 全書 | 31 個 JSON5 區塊中 29 個無法通過驗證（`agent.model`、`models.default`、`governance`、`performance`、`compliance`、`security.*`、`telemetry.exporter`、`logging.format`…） | 全部改寫為 2026.11.1 schema 的真實鍵 | `config validate` 實測 |
+| 2 | 全書 | 51 處 CLI 錯誤（`openclaw start／restart／reload`、`config show／migrate`、`tasks`、`fleet`、`skills publish／remove`、`logs -f`、`message send --to`…） | 全部改為存在的指令 | `--help` 白名單 |
+| 3 | 1.5 | 技能載入 3 層；frontmatter 含 `triggers`／`tools`／`access` | 7 層優先序；AgentSkills 規範鍵；allowlist 規則 | `docs/tools/skills.md` |
+| 4 | 1.6 | 工具 profile／group 不完整；工具呼叫 JSON 被標成組態 | 官方 profile／group 表；正確的 Automations 指令 | `tool-policy.md` |
+| 5 | 1.10／1.12 | 停在 2026.8.1；extended-stable 寫為 6.34 | 補 8.2→11.1；extended-stable 為 9.36（LTS 月線） | Releases、dist-tags |
+| 6 | 2.6 | `modelPolicy` 未說明萬用字元規則 | 只接受 `provider/*`；`openai/gpt-6-*` 不合法 | `config validate` 實測 |
+| 7 | 2.9／2.10 | 多 Gateway + Redis／PostgreSQL 共用 state 的 HA 拓撲 | 單一擁有者模型、救援 Gateway、冷備援、以信任域切分 | `gateway-lock.md`、`multiple-gateways.md` |
+| 8 | 2.12（新） | — | 實驗性 PostgreSQL 引擎（僅 Workboard） | `database-engines.md` |
+| 9 | 3.1 | Node `>=22.22.3` 等 | `>=24.16.0 <25 \|\| >=26.1.0`；建議 24.22.1+／26.12.1+；Apple 26.2 | `node-compatibility.md` |
+| 10 | 3.3／3.5 | `/root/.openclaw`、Redis、`:latest`、全介面開埠 | 官方 compose 精簡版、`/home/node/.openclaw`、`127.0.0.1:` | 官方 `docker-compose.yml` |
+| 11 | 3.8／3.9 | `openclaw.<env>.json` 自動疊加；`hot`／`restart` 重載模式 | `$include`；`gateway.reload.mode` 只有 `off`／`hybrid` | schema、`common-tasks.md` |
+| 12 | 3.10 | 指令表含大量不存在的指令 | 依 630 個指令路徑重建 | `--help` 白名單 |
+| 13 | 3.11 | `secrets.protected`／`agentReadable` 鍵、`vault://` 參照 | Secret Store `kind: secret／env`、egress proxy 主機綁定 | `secret-store-and-egress.md` |
+| 14 | 3.12（新） | — | 四條發布通道與企業選型 | `development-channels.md` |
+| 15 | 4.2／4.10 | Java-WebSocket 送出杜撰的 `message.send` 協定 | OpenAI 相容 HTTP API；Spring Boot 4；契約＋冒煙測試 | `openai-http-api.md`、實測 |
+| 16 | 4.2 | — | **實測發現**：JDK HttpClient 的 `Upgrade: h2c` 讓 Gateway 回 400／405，必須固定 HTTP/1.1 | 本機 Gateway 實測 |
+| 17 | 4.4 | `tools: [{ endpoint }]` 工具定義 | MCP Server 與 `defineToolPlugin`（實際 build／validate／install） | `tool-plugins.md`、實測 |
+| 18 | 4.4 | Code Mode 範例使用 camelCase 名稱與不存在的 Java 等價類別 | 工具名稱即全域函式、`catalog.search`、`store／load` | `code-mode/guest-api.md` |
+| 19 | 4.7 | 只有自建 Java webhook 伺服器 | 原生 `hooks.*` ingress 與安全規則 | `cron-jobs/webhooks.md` |
+| 20 | 4.11 | `createGatewayClient`、`validate: 'strict'` | `GatewayClient` + `chat.send`（需 `idempotencyKey`）+ 配對流程 | 套件型別、`clients.md` |
+| 21 | 4.12／4.13（新） | — | Managed Worktrees、個人技能庫 | `managed-worktrees.md`、`skills.md` |
+| 22 | 4.3／5.3／E | 自我學習 `off／propose／auto` | 只有 `off`／`auto`（`propose` 已移除） | schema enum |
+| 23 | 5.4 | `agents.defaults.trustedTools` | `tools.*` + `tools.exec.security／ask／host`；Trusted Tool Policy 為插件能力 | schema、`building-plugins.md` |
+| 24 | 5.4 | `transcript.read()` 等 SDK 介面 | `plugin-sdk/agent-sessions` 等實際介面 | `sdk-runtime/agent.md` |
+| 25 | 6.3／6.4 | `telemetry.exporter`；Prometheus `/metrics`；虛構的指標名稱 | `diagnostics.otel`；`/api/diagnostics/prometheus`（需驗證）；真實指標 | `prometheus.md`、promtool |
+| 26 | 6.7 | 只有基本備份指令 | 五條備份路徑、異地備份、Litestream、還原演練 | `install/backups.md` |
+| 27 | 7.3／8.8／8.9 | 滾動升級、流量權重 Canary | 以 Gateway 為單位、suspend／drain、Recreate | Gateway lock |
+| 28 | 7.11（新） | — | 更新預演、admission 錯誤碼、自動回滾、9.5 必經站 | `cli/update.md`、CHANGELOG 9.7 |
+| 29 | 8.4／8.5 | `CMD ["openclaw","start"]`、curl probe、`replicas` 未限制 | 官方 manifest：`Recreate`、JSON probe、唯讀 rootfs | 官方 `deployment.yaml` |
+| 30 | 8.7 | 不存在的 Helm chart | Flux Kustomization | `install/kubernetes.md` |
+| 31 | 8.11（新） | — | npm integrity、簽章、provenance 實測 | `npm audit signatures` |
+| 32 | 9.x | 沙箱 `allow／deny` 位置錯誤、`security.tls`、`security.encryption` | `tools.sandbox.tools`、`gateway.tls`；澄清 OpenClaw 不做靜態加密 | schema、Secret Store 文件 |
+| 33 | 9.12（新） | — | 2026-09-11 的 375 筆公告與強化基準 | Security Advisories |
+| 34 | 11.7（新） | — | Team Server：Cloudflare Access + trusted-proxy + roles | `team-server.md`、validate |
+| 35 | 12.6／12.7 | 杜撰的 `createSession`／`reclaimSession`／`sessions_create` | `openclaw gateway call sessions.create／dispatch／reclaim`；Cloud Sessions | `cloud-workers/*.md` |
+| 36 | 附錄 D | 1 個失效連結、3 個轉址連結 | 修正並新增 D.7（27 個 2.x 文件） | `check_doclinks.py` |
+| 37 | 附錄 E | 只涵蓋到 2.0 | E.5：2.0 → 2026.11.1 破壞性變更矩陣與步驟 | CHANGELOG |
+| 38 | 全書 | 無逐章審查清單 | 每章新增「本章審查與驗證清單」 | — |
+
+### F.5 待確認事項（Pending）
+
+| # | 項目 | 原因 | 建議的確認方式 |
+| --- | --- | --- | --- |
+| 1 | 對話回合的端到端行為（工具呼叫、技能選用） | 驗證環境未使用真實模型金鑰 | 於預備環境設定金鑰後執行 `LiveGatewaySmokeTest` 與 8.3 的黃金問題 |
+| 2 | Docker 映像與 Kubernetes manifest 的實際部署 | 驗證機的 podman machine 未啟動、無 Kubernetes 叢集 | `docker compose up` 與 `kubectl apply --dry-run=client -k` 後實際部署 |
+| 3 | `openclaw/releases` 的 2026.11.1 evidence 檔 | GitHub API 查詢該目錄回 404（Release 說明中有連結） | 直接開啟 Release 說明中的 evidence 連結確認 |
+| 4 | 第十章各案例 Java 程式的完整編譯 | 案例程式互相引用、相依未定義，僅做語法解析 | 依 10.11 第 4 項放入 Maven 專案補齊相依後編譯 |
+| 5 | 11.1–11.6 的協作功能細節（分享角色、Presence、Incognito） | 本次以 2026.11.1 文件抽查，未逐項在 Control UI 操作驗證 | 在 Team Server 預備環境以多帳號操作確認 |
+| 6 | `security.installPolicy.exec` 的外部審核指令協定 | 未實作外部審核服務 | 依官方文件撰寫審核指令並以測試插件驗證 |
+| 7 | Cloud Worker（Crabbox／AWS）實際佈建 | 需要雲端帳號 | 在沙箱 AWS 帳號建立 profile 並執行 12.6 的派工與回收 |
 
 ---
 
 > **文件資訊**
 >
 > - **文件名稱**: OpenClaw 生態系教學手冊
-> - **版本**: 3.0.0
-> - **基於 OpenClaw 版本**: 2026.8.1（OpenClaw 2.0）
+> - **版本**: 4.0.0
+> - **基於 OpenClaw 版本**: 2026.11.1（stable）／2026.9.36（extended-stable）
 > - **建立日期**: 2026 年 3 月
-> - **最後更新**: 2026 年 9 月 1 日
+> - **最後更新**: 2026 年 11 月 8 日
 > - **維護團隊**: Tutorial Team
+> - **驗證紀錄**: 見附錄 F
 > - **授權**: 本文件僅供內部教學使用

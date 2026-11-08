@@ -4,21 +4,22 @@ draft = false
 title = 'Hermes Agent生態系教學手冊'
 tags = ['教學', 'AI開發','指引']
 categories = ['教學']
+lastmod = '2026-11-08T20:00:00+08:00'
 +++
 
 # Hermes Agent 生態系教學手冊（Enterprise Edition）
 
-> **版本**：v0.21.0（Git tag `v2026.8.31`，2026 年 8 月 31 日 — **The Pantheon Release**；本文涵蓋 The Judgment / The Quicksilver / The Herald / The Pantheon 四大版本 + 中間全部穩定化補丁）  
-> **適用對象**：資深工程師 / 架構師 / DevOps 團隊 / 技術採購與風險評估決策者  
-> **軟體授權**：MIT License（Hermes Agent 本體完全開源、免費、可自架；下述訂閱方案僅為選用的 Nous Portal 代管服務，非軟體授權費）  
-> **官方網站**：[hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)  
-> **GitHub**：[github.com/NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)  
-> **官方文件**：[hermes-agent.nousresearch.com/docs](https://hermes-agent.nousresearch.com/docs/)  
-> **Desktop 下載**：[hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)（macOS Apple Silicon / Windows 10-11 / Linux；**macOS Intel 已不支援**）  
-> **Skills Hub**：[agentskills.io](https://agentskills.io/) / [skills.sh](https://skills.sh/)  
-> **LLM 友善文件**：[llms.txt](https://hermes-agent.nousresearch.com/docs/llms.txt) / [llms-full.txt](https://hermes-agent.nousresearch.com/docs/llms-full.txt)  
-> **最後更新**：2026 年 9 月 1 日  
-> **資料來源聲明**：本文所有版本資訊、功能敘述均逐條核對 **GitHub Releases API**（版本號、日期、統計數字之權威來源）、**GitHub REST API**（倉庫即時數據）、官方文件站全站目錄（以 `llms.txt` 逐頁比對覆蓋率）與 NVD／GitHub Advisory 資料庫；價格類數字凡標示「二手來源」者，代表官方定價頁在查證當下回應 HTTP 429，未能以一手頁面直接核實，建議上線前至 [portal.nousresearch.com/manage-subscription](https://portal.nousresearch.com/manage-subscription) 覆核。
+> **版本**：基於 Hermes Agent **v0.23.0**（Git tag `v0.23.0`，2026 年 11 月 5 日 — **The Hearth Release**；涵蓋 v0.22.0 The Threshold 與 v0.21.1–v0.22.7 全部補丁）；文件版本 v9.0.0
+> **適用對象**：資深工程師 / 架構師 / DevOps 團隊 / 技術採購與風險評估決策者
+> **軟體授權**：MIT License（Hermes Agent 本體完全開源、免費、可自架；下述訂閱方案僅為選用的 Nous Portal 代管服務，非軟體授權費）
+> **官方網站**：[hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)
+> **GitHub**：[github.com/NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent)
+> **官方文件**：[hermes-agent.nousresearch.com/docs](https://hermes-agent.nousresearch.com/docs/)
+> **Desktop 下載**：[hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/)（macOS 13+ Apple Silicon 簽章 DMG／Windows 11 22H2+ MSIX 或 Microsoft Store；官方不提供 Linux 與 Intel macOS 桌面套件）
+> **Skills Hub**：[agentskills.io](https://agentskills.io/) / [skills.sh](https://skills.sh/)
+> **LLM 友善文件**：[llms.txt](https://hermes-agent.nousresearch.com/docs/llms.txt) / [llms-full.txt](https://hermes-agent.nousresearch.com/docs/llms-full.txt)
+> **最後更新**：2026 年 11 月 8 日
+> **資料來源聲明**：本文所有版本資訊、功能敘述均逐條核對 **GitHub Releases API**（v0.21.0 起 18 份 release notes）、**GitHub REST API**（倉庫即時數據）、**v0.23.0 tag 的原始碼與 `website/docs/`（435 頁）**、GitHub Advisory 資料庫；指令、設定鍵與環境變數另以**實際安裝的 v0.23.0** 驗證（真實 argparse 指令樹、`hermes config set` 使用的設定鍵驗證器、官方環境變數參考），方法與結果見[附錄 E](#附錄-e驗證紀錄v900)；價格類數字凡標示「二手來源」者，代表官方定價頁在查證當下回應 HTTP 429，未能以一手頁面直接核實，建議上線前至 [portal.nousresearch.com/manage-subscription](https://portal.nousresearch.com/manage-subscription) 覆核。
 
 ---
 
@@ -26,7 +27,7 @@ categories = ['教學']
 
 ## 📑 目錄
 
-> 目錄採三層結構：**章**（第一層）→ **節**（`x.y`，第二層）→ 第三層僅保留兩處「索引型」清單——**1.4.x 核心設計理念**（共 41 項功能總覽）與 **9.7.x 風險評估**，其餘小節請於各節內文瀏覽。
+> 目錄採三層結構：**章**（第一層）→ **節**（`x.y`，第二層）→ 第三層僅保留兩處「索引型」清單——**1.4.x 核心設計理念**（功能總覽）與 **9.7.x 風險評估**，其餘小節請於各節內文瀏覽。所有連結皆依 Hugo 實際產生的錨點建立，並以輸出頁面逐一比對。
 
 - [第一章：Hermes Agent 概述](#第一章hermes-agent-概述)
   - [1.1 技術背景與發展](#11-技術背景與發展)
@@ -45,9 +46,9 @@ categories = ['教學']
     - [1.4.10 Persistent Goals（v0.13.0+）](#1410-persistent-goalsv0130)
     - [1.4.11 Post-write Delta Lint（v0.13.0+）](#1411-post-write-delta-lintv0130)
     - [1.4.12 i18n 多語言支援（v0.13.0+）](#1412-i18n-多語言支援v0130)
-    - [1.4.13 hermes proxy — OpenAI 相容本地代理（v0.14.0+）](#1413-hermes-proxy--openai-相容本地代理v0140)
-    - [1.4.14 PyPI 套件安裝（v0.14.0 起，v0.20.0 已停用）](#1414-pypi-套件安裝v0140-起v0200-已停用)
-    - [1.4.15 /handoff 即時 Session 轉移（v0.14.0+）](#1415-handoff-即時-session-轉移v0140)
+    - [1.4.13 `hermes proxy` — OpenAI 相容本地代理（v0.14.0+）](#1413-hermes-proxy--openai-相容本地代理v0140)
+    - [1.4.14 PyPI 套件安裝（v0.14.0 起，**v0.20.0 已停用**）](#1414-pypi-套件安裝v0140-起v0200-已停用)
+    - [1.4.15 `/handoff` 即時 Session 轉移（v0.14.0+）](#1415-handoff-即時-session-轉移v0140)
     - [1.4.16 Promptware 防禦（v0.15.0+）](#1416-promptware-防禦v0150)
     - [1.4.17 Bitwarden Secrets Manager（v0.15.0+）](#1417-bitwarden-secrets-managerv0150)
     - [1.4.18 Skill Bundles（v0.15.0+）](#1418-skill-bundlesv0150)
@@ -57,8 +58,8 @@ categories = ['教學']
     - [1.4.22 Automation Blueprints（v0.17.0+）](#1422-automation-blueprintsv0170)
     - [1.4.23 Memory Atomic Batch Operations（v0.17.0+）](#1423-memory-atomic-batch-operationsv0170)
     - [1.4.24 Mixture-of-Agents（MoA）一級模型化（v0.18.0+）](#1424-mixture-of-agentsmoa一級模型化v0180)
-    - [1.4.25 自我學習強化：/learn 與 /journey（v0.18.0+）](#1425-自我學習強化learn-與-journeyv0180)
-    - [1.4.26 /goal 完成契約（Completion Contracts）（v0.18.0+）](#1426-goal-完成契約completion-contractsv0180)
+    - [1.4.25 自我學習強化：`/learn` 與 `/journey`（v0.18.0+）](#1425-自我學習強化learn-與-journeyv0180)
+    - [1.4.26 `/goal` 完成契約（Completion Contracts）（v0.18.0+）](#1426-goal-完成契約completion-contractsv0180)
     - [1.4.27 訂閱管理與密碼管理器整合（v0.19.0+）](#1427-訂閱管理與密碼管理器整合v0190)
     - [1.4.28 智慧審批預設化與配送保證（v0.19.0+）](#1428-智慧審批預設化與配送保證v0190)
     - [1.4.29 A2A（Agent-to-Agent）協定 v1.0（v0.20.0+）](#1429-a2aagent-to-agent協定-v10v0200)
@@ -67,19 +68,32 @@ categories = ['教學']
     - [1.4.32 Desktop 平台化：Artifacts 與 Plugin SDK（v0.20.0+）](#1432-desktop-平台化artifacts-與-plugin-sdkv0200)
     - [1.4.33 CLI 強化指令與中途導引（v0.20.0+）](#1433-cli-強化指令與中途導引v0200)
     - [1.4.34 Bot Mode — Profile 具名化與群組協作（v0.21.0+）](#1434-bot-mode--profile-具名化與群組協作v0210)
-    - [1.4.35 hermes peer — 跨 Gateway Agent 直訊（v0.21.0+）](#1435-hermes-peer--跨-gateway-agent-直訊v0210)
-    - [1.4.36 Cron 記憶化與 continuity 連續性（v0.21.0+）](#1436-cron-記憶化與-continuity-連續性v0210)
+    - [1.4.35 `hermes peer` — 跨 Gateway Agent 直訊（v0.21.0+）](#1435-hermes-peer--跨-gateway-agent-直訊v0210)
+    - [1.4.36 Cron 記憶化與 `continuity` 連續性（v0.21.0+）](#1436-cron-記憶化與-continuity-連續性v0210)
     - [1.4.37 Live Subagent Orchestration（v0.21.0+）](#1437-live-subagent-orchestrationv0210)
-    - [1.4.38 MCP Command Center 與 hermes:// Deep Link（v0.21.0+）](#1438-mcp-command-center-與-hermes-deep-linkv0210)
+    - [1.4.38 MCP Command Center 與 `hermes://` Deep Link（v0.21.0+）](#1438-mcp-command-center-與-hermes-deep-linkv0210)
     - [1.4.39 Agent 驅動的應用內瀏覽器（v0.21.0+）](#1439-agent-驅動的應用內瀏覽器v0210)
     - [1.4.40 CLI Power Wave（v0.21.0+）](#1440-cli-power-wavev0210)
-    - [1.4.41 model_overrides — 免等改版的模型參數覆寫（v0.21.0+）](#1441-model_overrides--免等改版的模型參數覆寫v0210)
+    - [1.4.41 `model_overrides` — 免等改版的模型參數覆寫（v0.21.0+）](#1441-model_overrides--免等改版的模型參數覆寫v0210)
+    - [1.4.42 穩定發行通道與統一套件管理器 PM（v0.21.7／v0.22.0+）](#1442-穩定發行通道與統一套件管理器-pmv0217v0220)
+    - [1.4.43 首次啟動引導、免費方案與 Connectors（v0.22.0+）](#1443-首次啟動引導免費方案與-connectorsv0220)
+    - [1.4.44 一鍵 Local Models（v0.22.0+）](#1444-一鍵-local-modelsv0220)
+    - [1.4.45 單一 Gateway 擁有所有對話（v0.22.0／v0.23.0）](#1445-單一-gateway-擁有所有對話v0220v0230)
+    - [1.4.46 Plugin Catalog 與自動更新（v0.22.0／v0.23.0）](#1446-plugin-catalog-與自動更新v0220v0230)
+    - [1.4.47 Webapp：瀏覽器中的 Desktop 工作區（v0.23.0）](#1447-webapp瀏覽器中的-desktop-工作區v0230)
+    - [1.4.48 對話回溯 `/rewind` 與終端機圖片（v0.23.0）](#1448-對話回溯-rewind-與終端機圖片v0230)
+    - [1.4.49 Group Chats 自主運作與 Bot Screen（v0.22.0／v0.23.0）](#1449-group-chats-自主運作與-bot-screenv0220v0230)
+    - [1.4.50 付費工具標價與花費上限（v0.23.0）](#1450-付費工具標價與花費上限v0230)
+    - [1.4.51 可插拔委派策略與子代理即時操控（v0.22.0／v0.23.0）](#1451-可插拔委派策略與子代理即時操控v0220v0230)
+    - [1.4.52 精簡技能集與 Cron 控制（v0.23.0）](#1452-精簡技能集與-cron-控制v0230)
+  - [1.5 本章審查與驗證清單](#15-本章審查與驗證清單)
 - [第二章：整體系統架構](#第二章整體系統架構)
   - [2.1 架構設計概述](#21-架構設計概述)
   - [2.2 分層架構圖](#22-分層架構圖)
   - [2.3 各層級說明](#23-各層級說明)
   - [2.4 多 Agent 協作架構](#24-多-agent-協作架構)
   - [2.5 高可用與擴展性設計](#25-高可用與擴展性設計)
+  - [2.6 本章審查與驗證清單](#26-本章審查與驗證清單)
 - [第三章：Hermes Agent 核心機制解析](#第三章hermes-agent-核心機制解析)
   - [3.1 Learning Loop（學習迴圈）](#31-learning-loop學習迴圈)
   - [3.2 Skill System（技能系統）](#32-skill-system技能系統)
@@ -91,22 +105,25 @@ categories = ['教學']
   - [3.8 Persistent Goals 與 Ralph Loop](#38-persistent-goals-與-ralph-loop)
   - [3.9 Post-write Delta Lint（自動語法檢查）](#39-post-write-delta-lint自動語法檢查)
   - [3.10 Checkpoints v2（狀態持久化）](#310-checkpoints-v2狀態持久化)
-  - [3.11 Recurring Loops（/loop）與 Session Heartbeats](#311-recurring-loopsloop與-session-heartbeats)
+  - [3.11 Recurring Loops（`/loop`）與 Session Heartbeats](#311-recurring-loopsloop與-session-heartbeats)
+  - [3.12 本章審查與驗證清單](#312-本章審查與驗證清單)
 - [第四章：安裝與環境建置](#第四章安裝與環境建置)
   - [4.1 系統需求](#41-系統需求)
   - [4.2 快速安裝（Linux / macOS / WSL2）](#42-快速安裝linux--macos--wsl2)
   - [4.3 Native Windows 安裝](#43-native-windows-安裝)
   - [4.4 Docker / Podman 部署](#44-docker--podman-部署)
-  - [4.5 Nix Flake 安裝](#45-nix-flake-安裝)
+  - [4.5 Nix 安裝（Tier 2）](#45-nix-安裝tier-2)
   - [4.6 設定 API Key](#46-設定-api-key)
   - [4.7 設定檔說明](#47-設定檔說明)
   - [4.8 Managed Scope（組織層級設定釘選）](#48-managed-scope組織層級設定釘選)
+  - [4.9 本章審查與驗證清單](#49-本章審查與驗證清單)
 - [第五章：快速開始（Quick Start）](#第五章快速開始quick-start)
   - [5.1 第一次對話](#51-第一次對話)
   - [5.2 建立 AI Coding Agent](#52-建立-ai-coding-agent)
   - [5.3 設定 Memory](#53-設定-memory)
   - [5.4 設定 Tools](#54-設定-tools)
   - [5.5 執行任務範例](#55-執行任務範例)
+  - [5.6 本章審查與驗證清單](#56-本章審查與驗證清單)
 - [第六章：進階開發（企業級）](#第六章進階開發企業級)
   - [6.1 自訂 Skill（技能封裝）](#61-自訂-skill技能封裝)
   - [6.2 多 Agent 協作設計](#62-多-agent-協作設計)
@@ -118,6 +135,7 @@ categories = ['教學']
   - [6.8 Context Files（專案上下文檔案）](#68-context-files專案上下文檔案)
   - [6.9 Plugin 系統（v0.12.0+ / v0.13.0 擴充）](#69-plugin-系統v0120--v0130-擴充)
   - [6.10 Batch Processing 與 Trajectory Format](#610-batch-processing-與-trajectory-format)
+  - [6.11 本章審查與驗證清單](#611-本章審查與驗證清單)
 - [第七章：Voice Mode（語音模式）](#第七章voice-mode語音模式)
   - [7.1 語音模式概述](#71-語音模式概述)
   - [7.2 支援的 STT / TTS 提供者](#72-支援的-stt--tts-提供者)
@@ -125,12 +143,14 @@ categories = ['教學']
   - [7.4 Telegram / Discord 語音互動](#74-telegram--discord-語音互動)
   - [7.5 Discord Voice Channel 即時語音](#75-discord-voice-channel-即時語音)
   - [7.6 企業語音整合建議](#76-企業語音整合建議)
+  - [7.7 本章審查與驗證清單](#77-本章審查與驗證清單)
 - [第八章：Web Application 整合](#第八章web-application-整合)
   - [8.1 整合架構設計](#81-整合架構設計)
   - [8.2 FastAPI 後端整合](#82-fastapi-後端整合)
   - [8.3 Spring Boot 後端整合](#83-spring-boot-後端整合)
   - [8.4 前端整合（Vue / React）](#84-前端整合vue--react)
   - [8.5 Agent-as-a-Service API 設計](#85-agent-as-a-service-api-設計)
+  - [8.6 本章審查與驗證清單](#86-本章審查與驗證清單)
 - [第九章：企業級最佳實踐](#第九章企業級最佳實踐)
   - [9.1 安全性設計](#91-安全性設計)
   - [9.2 成本控制](#92-成本控制)
@@ -146,21 +166,26 @@ categories = ['教學']
     - [9.7.5 生態系鎖定風險](#975-生態系鎖定風險)
     - [9.7.6 企業導入前風險檢查清單](#976-企業導入前風險檢查清單)
   - [9.8 Egress 憑證注入代理（iron-proxy）— 沙箱零信任外連](#98-egress-憑證注入代理iron-proxy-沙箱零信任外連)
+  - [9.9 v0.22／v0.23 新增的安全與治理議題](#99-v022v023-新增的安全與治理議題)
+  - [9.10 本章審查與驗證清單](#910-本章審查與驗證清單)
 - [第十章：部署與維運（DevOps）](#第十章部署與維運devops)
   - [10.1 Docker 部署](#101-docker-部署)
   - [10.2 Kubernetes 部署](#102-kubernetes-部署)
   - [10.3 CI/CD 流程](#103-cicd-流程)
-  - [10.4 滾動升級](#104-滾動升級)
+  - [10.4 升級與回退](#104-升級與回退)
   - [10.5 災難復原（DR）](#105-災難復原dr)
+  - [10.6 本章審查與驗證清單](#106-本章審查與驗證清單)
 - [第十一章：升級與版本管理](#第十一章升級與版本管理)
   - [11.1 升級策略](#111-升級策略)
   - [11.2 相容性管理](#112-相容性管理)
   - [11.3 Migration 設計](#113-migration-設計)
+  - [11.4 本章審查與驗證清單](#114-本章審查與驗證清單)
 - [第十二章：實戰案例](#第十二章實戰案例)
   - [12.1 AI Coding Agent](#121-ai-coding-agent)
   - [12.2 智慧客服 Agent](#122-智慧客服-agent)
   - [12.3 銀行流程自動化 Agent](#123-銀行流程自動化-agent)
   - [12.4 多媒體創作 Agent](#124-多媒體創作-agent)
+  - [12.5 本章審查與驗證清單](#125-本章審查與驗證清單)
 - [第十三章：常見問題（FAQ）](#第十三章常見問題faq)
   - [Q1：Agent 無法學習 / 不建立 Skill？](#q1agent-無法學習--不建立-skill)
   - [Q2：Memory 佔用過多空間？](#q2memory-佔用過多空間)
@@ -174,36 +199,50 @@ categories = ['教學']
   - [Q10：如何查看 Agent 的完整執行日誌？](#q10如何查看-agent-的完整執行日誌)
   - [Q11：如何在多個專案間切換？](#q11如何在多個專案間切換)
   - [Q12：Autonomous Curator 會刪除重要技能嗎？（v0.12.0）](#q12autonomous-curator-會刪除重要技能嗎v0120)
-  - [Q13：hermes -z 和普通模式有何不同？（v0.12.0）](#q13hermes--z-和普通模式有何不同v0120)
+  - [Q13：`hermes -z` 和普通模式有何不同？（v0.12.0）](#q13hermes--z-和普通模式有何不同v0120)
   - [Q14：如何使用 Background Sessions？（v0.12.0）](#q14如何使用-background-sessionsv0120)
   - [Q15：如何配置 Prompt Cache？（v0.12.0）](#q15如何配置-prompt-cachev0120)
   - [Q16：Multi-agent Kanban 如何設定？（v0.13.0）](#q16multi-agent-kanban-如何設定v0130)
   - [Q17：如何啟用 i18n（多語系）介面？（v0.13.0）](#q17如何啟用-i18n多語系介面v0130)
   - [Q18：video_analyze 工具怎麼用？（v0.13.0）](#q18video_analyze-工具怎麼用v0130)
-  - [Q19：原本用 brew／pip 安裝，現在升級失敗怎麼辦？（v0.20.0）](#q19原本用-brew-install-hermes-agent-或-pip-install-hermes-agent-安裝現在升級失敗怎麼辦v0200)
+  - [Q19：原本用 `brew install hermes-agent` 或 `pip install hermes-agent` 安裝，現在升級失敗怎麼辦？（v0.20.0）](#q19原本用-brew-install-hermes-agent-或-pip-install-hermes-agent-安裝現在升級失敗怎麼辦v0200)
   - [Q20：升級後危險指令不再每次都問我，是不是有安全問題？（v0.19.0）](#q20升級後危險指令不再每次都問我是不是有安全問題v0190)
-  - [Q21：什麼時候該用 A2A、Kanban 或 delegate_task？（v0.20.0）](#q21什麼時候該用-a2a什麼時候該用-kanban-或-delegate_taskv0200)
+  - [Q21：什麼時候該用 A2A，什麼時候該用 Kanban 或 delegate_task？（v0.20.0）](#q21什麼時候該用-a2a什麼時候該用-kanban-或-delegate_taskv0200)
   - [Q22：官方說「Hermes 完全免費」，為什麼還有月費方案？](#q22官方說hermes-完全免費為什麼還有月費方案)
-  - [Q23：升級 v0.21.0 後多出一堆「bot」，這是什麼？怎麼關掉？（v0.21.0）](#q23升級-v0210-後多出一堆bot這是什麼有風險嗎怎麼關掉v0210)
-  - [Q24：hermes egress（iron-proxy）和 hermes proxy 有什麼不同？](#q24hermes-egressiron-proxy和-hermes-proxy-有什麼不同)
-  - [Q25：/loop、/goal、Cron 該用哪個？](#q25loopgoalcron-三個看起來都是重複執行該用哪個)
+  - [Q23：升級 v0.21.0 後多出一堆「bot」，這是什麼？有風險嗎？怎麼關掉？（v0.21.0）](#q23升級-v0210-後多出一堆bot這是什麼有風險嗎怎麼關掉v0210)
+  - [Q24：`hermes egress`（iron-proxy）和 `hermes proxy` 有什麼不同？](#q24hermes-egressiron-proxy和-hermes-proxy-有什麼不同)
+  - [Q25：`/loop`、`/goal`、Cron 三個看起來都是「重複執行」，該用哪個？](#q25loopgoalcron-三個看起來都是重複執行該用哪個)
   - [Q26：v0.21.0 把委派併發預設值調高了，成本會失控嗎？](#q26v0210-把委派併發預設值調高了成本會失控嗎)
   - [Q27：Managed Scope 可以當作正式的權限控管邊界嗎？](#q27managed-scope-可以當作正式的權限控管邊界嗎)
   - [Q28：Tool Search 值得開嗎？什麼情況下反而變慢？](#q28tool-search-值得開嗎什麼情況下反而變慢)
+  - [Q29：升級到 v0.23.0 後，原本的瀏覽器自動化技能失效了？（v0.23.0）](#q29升級到-v0230-後原本的瀏覽器自動化技能失效了v0230)
+  - [Q30：Claude Desktop／IDE 把 Hermes 當成 MCP Server，升級後連不上？（v0.23.0）](#q30claude-desktopide-把-hermes-當成-mcp-server升級後連不上v0230)
+  - [Q31：為什麼 `hermes -p coder gateway start` 被拒絕（exit 78）？（v0.22.0）](#q31為什麼-hermes--p-coder-gateway-start-被拒絕exit-78v0220)
+  - [Q32：升級後可以退回 v0.21.x 嗎？（v0.23.0）](#q32升級後可以退回-v021x-嗎v0230)
+  - [Q33：舊對話在 Webapp 中是唯讀的？（v0.23.0）](#q33舊對話在-webapp-中是唯讀的v0230)
+  - [Q34：舊 Session 會不會被自動刪除？（v0.22.0／v0.23.0）](#q34舊-session-會不會被自動刪除v0220v0230)
+  - [Q35：外部記憶（Honcho／Mem0／Supermemory）升級後不見了？（v0.22.0）](#q35外部記憶honchomem0supermemory升級後不見了v0220)
+  - [Q36：Local Models 要怎麼在無 GPU 的伺服器上用？（v0.22.0）](#q36local-models-要怎麼在無-gpu-的伺服器上用v0220)
+  - [Q37：付費 MCP 工具在 Cron 中一直被拒絕？（v0.23.0）](#q37付費-mcp-工具在-cron-中一直被拒絕v0230)
+  - [本章審查與驗證清單](#本章審查與驗證清單)
 - [第十四章：Hermes Desktop App（v0.16.0+，v0.20.0 起成為完整平台）](#第十四章hermes-desktop-appv0160v0200-起成為完整平台)
   - [14.1 架構概覽](#141-架構概覽)
   - [14.2 安裝方式](#142-安裝方式)
   - [14.3 核心功能](#143-核心功能)
   - [14.4 解除安裝](#144-解除安裝)
   - [14.5 企業部署建議](#145-企業部署建議)
+  - [14.6 Webapp（v0.23.0）](#146-webappv0230)
+  - [14.7 多 Gateway 連線與 Bot Screen（v0.22.0／v0.23.0）](#147-多-gateway-連線與-bot-screenv0220v0230)
+  - [14.8 本章審查與驗證清單](#148-本章審查與驗證清單)
 - [第十五章：Bot Mode 與多 Agent 群組協作（v0.21.0）](#第十五章bot-mode-與多-agent-群組協作v0210)
   - [15.1 概念定位：bot 即 profile](#151-概念定位bot-即-profile)
   - [15.2 建立與設定 Bot](#152-建立與設定-bot)
   - [15.3 群組聊天機制](#153-群組聊天機制)
-  - [15.4 hermes peer — 跨 Gateway Agent 直訊](#154-hermes-peer--跨-gateway-agent-直訊)
+  - [15.4 `hermes peer` — 跨 Gateway Agent 直訊](#154-hermes-peer--跨-gateway-agent-直訊)
   - [15.5 五種多 Agent 機制選型對照](#155-五種多-agent-機制選型對照)
   - [15.6 企業治理與關閉方式](#156-企業治理與關閉方式)
   - [15.7 CLI 對應指令](#157-cli-對應指令)
+  - [15.8 本章審查與驗證清單](#158-本章審查與驗證清單)
 - [附錄 A：檢查清單（Checklist）](#附錄-a檢查清單checklist)
   - [A.1 安裝檢查清單](#a1-安裝檢查清單)
   - [A.2 API Key 設定檢查清單](#a2-api-key-設定檢查清單)
@@ -211,6 +250,7 @@ categories = ['教學']
   - [A.4 生產部署檢查清單](#a4-生產部署檢查清單)
   - [A.5 團隊導入檢查清單](#a5-團隊導入檢查清單)
   - [A.6 升級檢查清單](#a6-升級檢查清單)
+  - [A.7 v0.22／v0.23 新增檢查項目](#a7-v022v023-新增檢查項目)
 - [附錄 B：指令速查表](#附錄-b指令速查表)
   - [B.1 CLI 指令（依功能分類）](#b1-cli-指令依功能分類)
   - [B.2 對話中斜線指令](#b2-對話中斜線指令)
@@ -223,7 +263,13 @@ categories = ['教學']
   - [D.1 雲端推理 Provider](#d1-雲端推理-provider)
   - [D.2 自架／本地推理後端](#d2-自架本地推理後端)
   - [D.3 第三方 OpenAI 相容端點（經官方文件證實可用）](#d3-第三方-openai-相容端點經官方文件證實可用)
+- [附錄 E：驗證紀錄（v9.0.0）](#附錄-e驗證紀錄v900)
+  - [E.1 版本基準與權威來源](#e1-版本基準與權威來源)
+  - [E.2 原稿更正清單](#e2-原稿更正清單)
+  - [E.3 實測方法與結果](#e3-實測方法與結果)
+  - [E.4 待確認事項](#e4-待確認事項)
 - [參考資源](#參考資源)
+
 <!-- TOC-AUTO-END -->
 
 ---
@@ -246,13 +292,13 @@ Hermes Agent 是由 **Nous Research** 開發的開源自我改進 AI Agent。Nou
 | v0.6.0 | 2026.03.30 | Profiles 多實例隔離、MCP Server Mode、Docker 容器、Fallback Provider Chain、Feishu/WeCom 平台 |
 | v0.7.0 | 2026.04.03 | Pluggable Memory Provider、Credential Pool 輪替、Camofox 反偵測瀏覽器、Inline Diff Preview、Secret Exfiltration Blocking |
 | v0.8.0 | 2026.04.08 | 背景任務自動通知、Live Model Switching、Google AI Studio（Gemini）、Smart Inactivity Timeout、MCP OAuth 2.1 PKCE、209 PRs |
-| v0.9.0 | 2026.04.13 | **Web Dashboard**、Fast Mode（`/fast`）、iMessage（BlueBubbles）、WeChat/WeCom Callback、Termux/Android 支援、`hermes backup/import`、16 平台、487 commits |
+| v0.9.0 | 2026.04.13 | **Web Dashboard**、Fast Mode（`/fast`）、iMessage（BlueBubbles）、WeChat/WeCom Callback、Termux/Android 支援、`hermes backup`／`hermes import`、16 平台、487 commits |
 | v0.10.0 | 2026.04.16 | **Nous Tool Gateway**（付費訂閱用戶自動取得 Web Search/Image Gen/TTS/Browser 工具，零額外 API Key） |
 | v0.11.0 | 2026.04.23 | **Ink TUI 全面重寫**、Transport ABC 架構、Native AWS Bedrock、5 新推理路徑（NVIDIA NIM/Arcee AI/Step Plan/Gemini CLI OAuth/Vercel AI Gateway）、GPT-5.5 via Codex OAuth、QQBot（第 17 平台）、Plugin 大幅擴展、`/steer` 中途導引、Shell Hooks、Orchestrator 子代理、1,556 commits |
 | v0.12.0 | 2026.04.30 | **Autonomous Curator**（自動技能維護 Agent）、Self-improvement Loop 大幅升級（rubric-based）、5 新 Provider（LM Studio / GMI Cloud / Azure AI Foundry / MiniMax OAuth / Tencent Tokenhub）、Pluggable Gateway Platforms、Microsoft Teams（第 19 平台）、Tencent 元宝（第 18 平台）、Spotify 原生整合（7 工具 + PKCE OAuth）、Google Meet Plugin、ComfyUI v5 內建、Piper 本地 TTS、`hermes -z` 單次模式、Models Dashboard Tab、Remote Model Catalog、Cold-start 效能提升 ~57%、Langfuse 可觀測性 Plugin、1,096 commits |
 | v0.13.0 | 2026.05.07 | **Multi-agent Kanban**（持久多 Agent 協作看板：心跳 / 回收 / 殭屍偵測 / 重試預算 / 幻覺閘門）、**`/goal`**（跨回合持久目標 — Ralph Loop）、**`video_analyze`** 原生影片理解工具、**xAI Custom Voices** 語音克隆 TTS、**Google Chat**（第 20 平台）+ 通用平台 Plugin Hooks、**Sessions 自動恢復**（Gateway 重啟後對話復原）、**8 項 P0 安全修正**（Secret Redaction 預設開啟、Discord 角色白名單 Guild 隔離 CVSS 8.1、WhatsApp 預設拒絕陌生人、TOCTOU 修正）、**Checkpoints v2**（狀態持久化重寫 + 真正修剪 + 磁碟護欄）、**Post-write Delta Lint**（write_file + patch 後自動 lint：Python/JSON/YAML/TOML）、**`no_agent` Cron 模式**（純腳本看門狗）、**Platform Allowlists**（`allowed_channels/chats/rooms` 全平台）、**ProviderProfile ABC**（Provider 可插拔化）、**API Server `X-Hermes-Session-Key`**（記憶 Session 隔離）、**MCP SSE Transport + OAuth 轉發**、**Curator 新子指令**（`archive` / `prune` / `list-archived` / 同步 `run`）、**ACP `/steer` + `/queue`**（VS Code/Zed/JetBrains）、**Dashboard 升級**（Plugins 頁 / Profiles 頁 / 可排序分析表 / 反向代理 `X-Forwarded-Prefix` / `default-large` 18px 主題）、**SearXNG 原生搜尋後端** + 分離式 Web 工具（搜尋/擷取/瀏覽各自選擇後端）、**OpenRouter Response Caching**、**`[[as_document]]` Skill 媒體路由指令**、**`transform_llm_output` Plugin Hook**、**7 語言 i18n**（中/日/德/西/法/烏/土）、**Native Windows 早期測試版**（PowerShell 安裝腳本）、**6 新 Optional Skills**（Shopify / here.now / shop-app / Anthropic 金融服務 / kanban-video-orchestrator / searxng-search）、新模型（DeepSeek v4 Pro / Grok 4.3 / Owl Alpha / tencent hy3-preview / Arcee Trinity Large Thinking）、**100 新 CLI 啟動提示**、864 commits / 588 PR / 295 貢獻者 |
 | v0.14.0 | 2026.05.16 | **The Foundation Release**：**xAI Grok via SuperGrok OAuth**（grok-4.3 升至 1M context window）、**`hermes proxy`**（OpenAI 相容本地代理，一個訂閱所有工具可用：Codex/Aider/Cline/Continue）、**`x_search`** 第一級 X (Twitter) 搜尋工具、**Microsoft Teams 端到端整合**（Graph auth + webhook + pipeline + outbound）、**去臃腫化浪潮**（lazy install 大幅減少安裝體積）、**`pip install hermes-agent`**（PyPI 正式套件）、**跨 Session 1 小時 Claude Prompt Cache**、**180 倍 `browser_console` 效能提升**（持久 CDP 連線）、**冷啟動效能浪潮**（啟動快 ~19 秒）、**LINE + SimpleX Chat**（第 21、22 平台）、**`/handoff`** 即時 Session 轉移（跨模型/Profile 零掉落）、**`clarify` 原生按鈕 UI**（Telegram/Discord）、**Discord 頻道歷史回填**、**`vision_analyze` 原生像素傳遞**（Vision 模型直接看圖）、**Per-turn 檔案變更驗證 Footer**、**LSP 語義診斷**（write_file/patch 後真實語言伺服器分析）、**統一 `video_generate` 可插拔後端**、**`computer_use` cua-driver 後端**（非 Anthropic 模型也可驅動桌面）、**可點擊 OSC8 URL**、**Zed ACP Registry**（`uvx` 一鍵安裝）、**OpenRouter Pareto Code Router**（`min_coding_score`）、**NovitaAI 新 Provider**、**Codex app-server Runtime**、**`huggingface/skills` 預設信任 Tap**、**9 新 Optional Skills**（Hyperliquid/Yahoo Finance/api-testing/EVM/darwinian-evolver/osint/pinggy-tunnel/watchers/Notion）、**`/subgoal`** 目標追加、**Alibaba Cloud → Qwen Cloud 更名**、**Native Windows Beta**（PowerShell installer + MinGit）、**16 語系 i18n**、**Brave Search + DDGS 免費搜尋**、**Sudo brute-force 阻擋**、**Plugin `ctx.llm` + `tool_override`**、808 commits / 633 PR / 215 貢獻者 |
-| v0.15.0 | 2026.05.28 | **The Velocity Release**：**The Big Refactor** — `run_agent.py` 16,083 → 3,821 行（-76%），拆分為 14 個 `agent/*` 模組、**Kanban 成熟化浪潮**（104 PR：Swarm v1 拓撲、`hermes kanban swarm`、自動分解、per-task model override、排程任務、worktree-per-task、worker visibility endpoints、拖放刪除）、**冷啟動效能持續優化**（47% fewer per-turn function calls、`hermes --version` 快 63%、Termux 2.9s → 0.8s）、**`session_search` 重建**（無 LLM、免費、4,500 倍快速）、**Promptware 防禦**（Brainworm-class 攻擊阻擋：threat patterns + 記憶掃描 + tool-result delimiters）、**Bitwarden Secrets Manager**（一個 bootstrap token 取代所有 API Key）、**ntfy**（第 23 平台：自託管推播通知、零帳號）、**Skill Bundles**（`/<name>` 一次載入多個 Skills）、**TUI Session Orchestrator**（多活躍 Session 切換）、**Krea 2 Medium + Large 圖片生成**、**FAL 移至 Plugin 架構**、**Nous 核准 MCP 目錄**（互動式 picker + 一鍵安裝）、**OpenHands 協作技能**（delegate 至 OpenHands CLI）、**深度 xAI 整合**（Web Search plugin、`hermes proxy` xAI 上游、May 15 模型退役偵測 + `hermes migrate xai`、`auto_speech_tags` 自然 TTS、`base_url` 洩漏防護）、**s6-overlay Docker 容器監督**（systemd/launchd/Windows/s6 後端 + per-profile gateway 監督）、**Session Control API**（`/api/sessions/*` REST + SSE）、**mTLS MCP 支援**、**OpenAI API 作為獨立 Provider**、**Microsoft Entra ID auth for Azure Foundry**、**OpenRouter sticky routing**（`session_id`）、**移除 Vercel AI Gateway 與 Vercel Sandbox**、**3 新 Skills**（code-wiki / openhands / web-pentest）、**Plugin 新 Hooks**（`register_tts_provider` / `register_transcription_provider` / `register_auxiliary_task`）、**bundled `security-guidance` plugin**、**`hermes audit`** OSV.dev 供應鏈審計、**`hermes send`** 腳本輸出推送任何平台、1,302 commits / 747 PR / 321 貢獻者 |
+| v0.15.0 | 2026.05.28 | **The Velocity Release**：**The Big Refactor** — `run_agent.py` 16,083 → 3,821 行（-76%），拆分為 14 個 `agent/*` 模組、**Kanban 成熟化浪潮**（104 PR：Swarm v1 拓撲、`hermes kanban swarm`、自動分解、per-task model override、排程任務、worktree-per-task、worker visibility endpoints、拖放刪除）、**冷啟動效能持續優化**（47% fewer per-turn function calls、`hermes --version` 快 63%、Termux 2.9s → 0.8s）、**`session_search` 重建**（無 LLM、免費、4,500 倍快速）、**Promptware 防禦**（Brainworm-class 攻擊阻擋：threat patterns + 記憶掃描 + tool-result delimiters）、**Bitwarden Secrets Manager**（一個 bootstrap token 取代所有 API Key）、**ntfy**（第 23 平台：自託管推播通知、零帳號）、**Skill Bundles**（`/<name>` 一次載入多個 Skills）、**TUI Session Orchestrator**（多活躍 Session 切換）、**Krea 2 Medium + Large 圖片生成**、**FAL 移至 Plugin 架構**、**Nous 核准 MCP 目錄**（互動式 picker + 一鍵安裝）、**OpenHands 協作技能**（delegate 至 OpenHands CLI）、**深度 xAI 整合**（Web Search plugin、`hermes proxy` xAI 上游、May 15 模型退役偵測 + `hermes migrate xai`、`auto_speech_tags` 自然 TTS、`base_url` 洩漏防護）、**s6-overlay Docker 容器監督**（systemd/launchd/Windows/s6 後端 + per-profile gateway 監督）、**Session Control API**（`/api/sessions/*` REST + SSE）、**mTLS MCP 支援**、**OpenAI API 作為獨立 Provider**、**Microsoft Entra ID auth for Azure Foundry**、**OpenRouter sticky routing**（`session_id`）、**移除 Vercel AI Gateway 與 Vercel Sandbox**、**3 新 Skills**（code-wiki / openhands / web-pentest）、**Plugin 新 Hooks**（`register_tts_provider` / `register_transcription_provider` / `register_auxiliary_task`）、**bundled `security-guidance` plugin**、**`hermes audit`**（現為 `hermes security audit`）OSV.dev 供應鏈審計、**`hermes send`** 腳本輸出推送任何平台、1,302 commits / 747 PR / 321 貢獻者 |
 | v0.15.1 | 2026.05.29 | **Hotfix**：Dashboard 401 reload loop 修正（loopback 模式）、Docker `--insecure` 改為顯式 env opt-in、MCP bare command Docker 相容、Skills Hub 完整目錄（858 → 19,932 entries）、Kanban worker SIGTERM 修正、`/yolo` mid-session bypass、gateway probe stepdown safety、web URL redaction passthrough、21 PR / 9 貢獻者 |
 | v0.15.2 | 2026.05.29 | 追加修正（v0.15.1 同日發佈） |
 | v0.16.0 | 2026.06.05 | **The Surface Release**：**Hermes Desktop App**（原生 Electron 桌面應用：macOS/Linux/Windows、一鍵安裝、應用內自動更新、拖放檔案、剪貼簿圖片貼入、Cmd+K 命令面板、狀態列模型選擇器、多 Profile 併行 Session、遠端 Gateway 連線 via OAuth/密碼認證）、**Dashboard 全面管理面板**（Channels 設定、MCP 目錄管理、Credential 管理、Webhook、記憶設定、Gateway 控制、System 檢查更新 + Debug Share）、**Quick Setup via Nous Portal**（`hermes portal` 一鍵快速設定）、**Fuzzy Model Picker**（Desktop/Web/TUI/CLI 統一模糊搜尋、每小時目錄刷新）、**`/undo [N]`**（撤回最近 N 輪對話 + 訊息預填）、**NVIDIA/skills 信任 Tap**（與 OpenAI/Anthropic/HuggingFace 並列預設信任來源）、**精簡預設 Skill Set**（移除冗餘技能、重型 Skills 移至 optional、`environments:` 相關性閘門）、**簡體中文 Desktop 翻譯**（完整 GUI i18n）、**選擇預設介面**（`cli` 或 `tui`，`--cli` 覆寫）、**CVE-2026-48710 Starlette 修正**、**SSRF off-loop 強化**、874 commits / 542 PR / 170 貢獻者 |
@@ -269,21 +315,28 @@ Hermes Agent 是由 **Nous Research** 開發的開源自我改進 AI Agent。Nou
 | v0.20.4 | 2026.08.18 | 補丁（~74 PR）：Desktop glass／translucency 介面、側邊欄改為 `SESSIONS｜BOTS` 分頁、Bot Mode 群組聊天修正、**Skill 安裝前安全掃描**、Kanban 原生系統通知 |
 | v0.20.5 | 2026.08.21 | 補丁（~323 PR）：**Bot Mode 群組房間（Group Rooms）**、可摺疊摘要、**keyless web tier**（免金鑰網頁層）、CLI 打磨浪潮、**Cron 取得持久記憶與 per-job 推理強度控制** |
 | v0.20.6 | 2026.08.27 | 補丁（~525 PR）：**同意閘門式 Profile 瀏覽**（consent-gated profile browsing）、**遠端 MCP 目錄擴充至 50+ 伺服器**、工具結果 TTL 快取、**持久化事故確認台帳**（durable incident acknowledgments）、多項新模型 |
-| v0.21.0 | 2026.08.31 | **The Pantheon Release**（**目前最新版本**，自 v0.20.0 起累計 ~5,800 commits / 2,475 PR / 5,680 檔案 / 869,000 插入 / 135,000 刪除 / ~2,100 議題關閉 / 760+ 貢獻者，為本專案史上最大規模 Minor 發布）：**Bot Mode 內建化且預設開啟**（每個 Profile 成為具名 Agent，含依名稱決定的頭像、共享名冊、Discord 風格群組聊天，最多 6 bot 同室、3 輪序列回應）、**`hermes peer` 跨 Profile／跨 Gateway Agent 直訊**（對話持久且可稽核，落於各 Agent 的正規 Bot Chat）、**Cron 記憶化與連續性**（排程任務如同一般 Agent 載入持久記憶、`continuity=true` 跨執行帶入輸出、per-job 持久 notepad、monitor 模式無變更時以雜湊抑制跳過 LLM 呼叫）、**Live Subagent Orchestration**（`delegate_task` 支援執行中列出／中途導引／提前停止並保留部分結果，加上 JSON Schema 結構化輸出驗證與逐次委派成本追蹤；預設值提高至 250 iterations／10 並行子代理）、**MCP Command Center**（伺服器與目錄整併為單一 Desktop 頁面、拖放匯入、背景健康檢查、fleet 成本／用量疊層、`hermes://` deep link 一鍵安裝）、**CLI Power Wave**（`Ctrl+P` 模糊命令面板、`/model` 互動篩選、`/status` 顯示推理模式／待審批／context 用量、狀態列即時 cache-hit%／延遲／tokens-per-sec、全域緊急停止、Terminal Pets）、**Agent 驅動的應用內瀏覽器**（導航／點擊／讀取，可彈出至系統瀏覽器）、**6 個新 Provider**（Meta Model API〔Muse Spark〕／CommandCode〔GOAT・Pro・Max〕／Actual Computer／Tencent TokenPlan／Nebius Token Factory／Ramp Router）與 `model_overrides` 免改版覆寫、**安全強化波**（`AGENTS.md`／skills／memory 寫入一律需審批以阻擋提示注入改寫常規指令、終端錯誤與 `.env` 讀取與 checkpoints 與 ACP log 的秘密外洩清掃、Windows 破壞性指令納入審批、Blender MCP 目錄項目因上游遭入侵而下架、Plugin 安裝納入 Tier-1 安全掃描、macOS TCC 身分跨更新存續）；**已回退不出貨**：Model Council（`/council`）、DCP context engine、WS-only Gateway Server |
+| v0.21.0 | 2026.08.31 | **The Pantheon Release**（自 v0.20.0 起累計 ~5,800 commits / 2,475 PR / 5,680 檔案 / 869,000 插入 / 135,000 刪除 / ~2,100 議題關閉 / 760+ 貢獻者，為本專案史上最大規模 Minor 發布）：**Bot Mode 內建化且預設開啟**（每個 Profile 成為具名 Agent，含依名稱決定的頭像、共享名冊、Discord 風格群組聊天，最多 6 bot 同室、3 輪序列回應）、**`hermes peer` 跨 Profile／跨 Gateway Agent 直訊**（對話持久且可稽核，落於各 Agent 的正規 Bot Chat）、**Cron 記憶化與連續性**（排程任務如同一般 Agent 載入持久記憶、`continuity=true` 跨執行帶入輸出、per-job 持久 notepad、monitor 模式無變更時以雜湊抑制跳過 LLM 呼叫）、**Live Subagent Orchestration**（`delegate_task` 支援執行中列出／中途導引／提前停止並保留部分結果，加上 JSON Schema 結構化輸出驗證與逐次委派成本追蹤；預設值提高至 250 iterations／10 並行子代理）、**MCP Command Center**（伺服器與目錄整併為單一 Desktop 頁面、拖放匯入、背景健康檢查、fleet 成本／用量疊層、`hermes://` deep link 一鍵安裝）、**CLI Power Wave**（`Ctrl+P` 模糊命令面板、`/model` 互動篩選、`/status` 顯示推理模式／待審批／context 用量、狀態列即時 cache-hit%／延遲／tokens-per-sec、全域緊急停止、Terminal Pets）、**Agent 驅動的應用內瀏覽器**（導航／點擊／讀取，可彈出至系統瀏覽器）、**6 個新 Provider**（Meta Model API〔Muse Spark〕／CommandCode〔GOAT・Pro・Max〕／Actual Computer／Tencent TokenPlan／Nebius Token Factory／Ramp Router）與 `model_overrides` 免改版覆寫、**安全強化波**（`AGENTS.md`／skills／memory 寫入一律需審批以阻擋提示注入改寫常規指令、終端錯誤與 `.env` 讀取與 checkpoints 與 ACP log 的秘密外洩清掃、Windows 破壞性指令納入審批、Blender MCP 目錄項目因上游遭入侵而下架、Plugin 安裝納入 Tier-1 安全掃描、macOS TCC 身分跨更新存續）；**已回退不出貨**：Model Council（`/council`）、DCP context engine、WS-only Gateway Server |
+| v0.21.1–v0.21.5 | 2026.09.07–09.24 | 日期式 tag（`v2026.9.7`／`v2026.9.11`／`v2026.9.14`／`v2026.9.21`／`v2026.9.24`）的累積補丁，供 Docker 映像與 Hermes Cloud 依附；v0.21.2 為「state.db Patch Release」（消除第二寫入者、WAL 卡死、FTS 索引損壞不再中斷對話），v0.21.3 修正遠端 Dashboard Session 過期與 `state.db` 寫入 handle 外洩；完整分類說明延至 v0.22.0 |
+| v0.21.6 | 2026.10.08 | **首個由新「穩定發行管線」產出的版本**：tag 改為 SemVer（`vX.Y.Z`），每次發行只出 tag + GitHub Release + 經測試的 Docker 映像 |
+| v0.21.7 | 2026.10.12 | **原始碼安裝改追蹤已發布 Release**（不再逐 commit 追 `main`）、Desktop 新增「Update channel」切換、推理內容（thinking）在 `--resume` 後可重播 |
+| v0.22.0 | 2026.10.13 | **The Threshold Release**（自 v0.21.0 起約 24,200 commits／6,080 PR／2,520 貢獻者）：首次啟動對話式引導（Onboarding）+ Nous 免費方案、**Connectors**（經 Nous Tool Gateway 在 Linear／Notion 等託管應用內操作）、**一鍵 Local Models**（自動安裝 llama.cpp 並依硬體挑選模型）、**穩定發行通道**（`hermes update --set-channel`）、**簽章 Desktop 套件 + Microsoft Store + 統一套件管理器（PM）**、**Plugin Catalog（600 個人工審核外掛）**、Claude 5.5／GPT-6／Gemini 4 模型波、瀏覽器以密碼管理器登入網站、**Bot Screen**（接手 bot 的桌面處理登入／2FA／CAPTCHA）、**每台機器單一 Gateway／單一 Desktop 後端服務所有 Profile**、子代理即時檢視與導引、16 語系全面翻譯、程式碼瘦身 34%（約 1.06M → 698K 行）。⚠️ 破壞性：Python 3.14、Windows Desktop 僅 MSIX、記憶 Provider 改為 catalog 外掛、移除 `hermes sync` 與 tirith（見 [11.1.16](#11116-v0210--v0230-升級特別注意事項目前最新版本)） |
+| v0.22.1–v0.22.7 | 2026.10.14–11.03 | 穩定化補丁：Microsoft Store 修正、Nemotron 3.5 預設參數、Gateway 重開機後 PID 誤判修正（v0.22.2）、筆電上長時間 Local Model 回合不中斷、無依賴 Plugin 略過同意步驟（v0.22.4）；v0.22.3／.5／.6／.7 為累積 rollup（合計約 1,650 PR） |
+| v0.23.0 | 2026.11.05 | **The Hearth Release**（**本手冊基準版本**；自 v0.22.0 起約 10,080 commits／1,950 PR／666 貢獻者）：**Webapp**（由自己的 Gateway 在瀏覽器提供完整 Desktop 工作區，預設關閉）、**單一 Gateway 擁有所有對話**（CLI／TUI／Desktop／ACP／Bot／Cron 都改為用戶端）、終端機內直接顯示圖片、**`/rewind`** 回溯並分岔對話、Desktop 同時連線多台機器、**Group Chats 自主運作**（lead bot／自動路由、房間筆記、Cron 發文、防 bot 互相觸發迴圈）、**Plugin 自動更新** + Catalog 擴充至 1,050+（新增 Verified 層級）、**付費 MCP 工具標價與每對話花費上限**、可插拔委派（`advanced-delegation` 外掛 + `/delegation`）、內建技能 58 → 44 + **`hermes curator lock`**、停止執行中的 Cron。⚠️ 破壞性：舊 `browser_*` 工具全數移除（只剩 `browser_exec`）、`hermes mcp serve` → `hermes mcp-serve`、Desktop 需 macOS 13+／64 位元 Windows |
 
-**核心數據**（截至 2026.09.01，逐條核對 GitHub REST API 一手資料）：
+**核心數據**（截至 2026.11.08，逐條核對 GitHub REST API 一手資料；括號內為 2026.09.01 舊值，便於觀察趨勢）：
 
-- GitHub Stars：**239,282**
-- Forks：**48,843**
-- Open Issues：**38,350**（含 Issue 與 PR）
-- Watchers（訂閱者）：**933**
-- 最近推送（`pushed_at`）：**2026-09-01**（開發活躍度極高，主分支 `main`）
+- GitHub Stars：**261,617**（239,282）
+- Forks：**58,096**（48,843）
+- Open Issues：**53,675**（38,350；含 Issue 與 PR）
+- Watchers（訂閱者）：**995**（933）
+- 最近推送（`pushed_at`）：**2026-11-08**（開發活躍度極高，主分支 `main`；但一般安裝自 v0.21.7 起只追蹤已發布的 `vX.Y.Z` Release）
 - 主要語言：**Python** 為主，TypeScript 次之（Desktop／Dashboard），另有 JavaScript／Shell／PowerShell／Nix 等
 - 倉庫主題標籤：`ai`、`ai-agents`、`anthropic`、`chatgpt`、`claude`、`claude-code`、`codex`、`hermes`、`llm`、`nous-research`、`openai`
 - 授權：**MIT License**（可商用，Hermes Agent 軟體本體完全免費）
-- 專案建立日：2025-07-22；累計 Releases：**31 個**（GitHub Releases API 記錄自 v0.2.0 起算，v0.21.0 為最新）
+- 專案建立日：2025-07-22；累計 Releases：**47 個**（GitHub Releases API 記錄自 v0.2.0 起算，v0.23.0 為最新）
+- 程式規模：v0.22.0 官方宣稱「零行為變更」的全面簡化，原始碼由約 1.06M 行降至 698K 行（−34%），`gateway/run.py` 由 34,847 行降至 5,512 行
 
-> ⚠️ **貢獻者人數存在口徑差異，企業評估時建議留意**：Hermes 官方各版本 Release Notes 慣例宣稱「370～760+ 貢獻者」（v0.21.0 宣稱 760+），但透過 GitHub `/contributors` API 直接查證僅得數百個具名帳號——官方數字額外納入了 commit co-author 掛名與未直接合併之社群 PR 貢獻，兩者衡量口徑不同，非造假亦非錯誤，但代表專案核心可長期維運人力的真實規模，需另行評估。事實上 v0.21.0 官方自行揭露的核心團隊 PR 分布高度集中：`@teknium1` 一人即約 1,340 個 merged PR，其次 `@kshitijk4poor` 374 個、`@OutThisLife` 209 個，其餘核心成員多為兩位數——**Bus Factor 風險並未因總貢獻者數上升而改善**（詳見 9.7 節風險評估）。
+> ⚠️ **貢獻者人數存在口徑差異，企業評估時建議留意**：Hermes 官方各版本 Release Notes 慣例宣稱「370～760+ 貢獻者」（v0.21.0 宣稱 760+；v0.22.0 更宣稱自 v0.21.0 起約 2,520 人，v0.23.0 為 666 人），但透過 GitHub `/contributors` API 直接查證僅得數百個具名帳號——官方數字額外納入了 commit co-author 掛名與未直接合併之社群 PR 貢獻，兩者衡量口徑不同，非造假亦非錯誤，但代表專案核心可長期維運人力的真實規模，需另行評估。事實上 v0.21.0 官方自行揭露的核心團隊 PR 分布高度集中：`@teknium1` 一人即約 1,340 個 merged PR，其次 `@kshitijk4poor` 374 個、`@OutThisLife` 209 個，其餘核心成員多為兩位數——**Bus Factor 風險並未因總貢獻者數上升而改善**（詳見 9.7 節風險評估）。
 
 ### 1.2 與傳統 AI 的差異
 
@@ -307,21 +360,21 @@ graph LR
 
 | 特性 | 傳統 AI（ChatGPT） | Hermes Agent |
 | ------ | --------------------- | -------------- |
-| 記憶 | 僅單次對話 | 跨對話長期記憶（FTS5 + Vector DB）+ Session Key 隔離 |
+| 記憶 | 僅單次對話 | 跨對話長期記憶（內建 `MEMORY.md`／`USER.md` + SQLite FTS5 Session 搜尋；外部記憶 Provider 自 v0.22.0 起改由 Plugin Catalog 安裝，ByteRover／RetainDB 仍內建）+ Session Key 隔離 |
 | 學習 | 不會學習 | 內建 Learning Loop，自動封裝技能 + Autonomous Curator |
-| 工具使用 | 有限（Plugins/GPTs） | 70+ 內建工具 + MCP 擴展（SSE Transport + OAuth 轉發） |
-| 執行環境 | 雲端沙箱 | 本地 / Docker / SSH / Modal / Daytona / Singularity（6 種後端） |
-| 多平台 | Web UI 為主 | CLI + TUI + Desktop App + 30+ 通訊平台／連接器（Telegram/Discord/Slack/Matrix/WhatsApp（Baileys＋官方 Cloud API 雙軌）/Signal/Email/SMS/DingTalk/Feishu/WeCom/微信/iMessage（BlueBubbles＋Photon 雙軌）/Mattermost/Home Assistant/QQBot/元寶/Microsoft Teams/Google Chat/LINE/SimpleX Chat/ntfy/Raft/Buzz（Nostr）/A2A/Webhook/API Server 等，另有實驗性 Hermes Relay 連接器框架） |
+| 工具使用 | 有限（Plugins/GPTs） | 70+ 內建工具（約 19 個罕用工具改由 Tool Search 延遲載入）+ MCP 擴展（含工具標價與每對話花費上限）+ 1,050+ 人工審核 Catalog 外掛 |
+| 執行環境 | 雲端沙箱 | 6 種內建終端後端：`local`／`docker`／`ssh`／`modal`／`daytona`／`vercel_sandbox`；Singularity 自 v0.23.0 起移為外掛，另有 bubblewrap 沙箱外掛 |
+| 多平台 | Web UI 為主 | CLI + TUI + Desktop App + Webapp（v0.23.0，瀏覽器版 Desktop 工作區）+ 30+ 通訊平台／連接器（Telegram/Discord/Slack/Matrix/WhatsApp（Baileys＋官方 Cloud API 雙軌）/Signal/Email/SMS/DingTalk/Feishu/WeCom/微信/iMessage（BlueBubbles＋Photon 雙軌）/Mattermost/Home Assistant/QQBot/元寶/Microsoft Teams/Google Chat/LINE/SimpleX Chat/ntfy/Raft/Buzz（Nostr）/A2A/Webhook/API Server 等，另有實驗性 Hermes Relay 連接器框架） |
 | 語音 | 有限 | Voice Mode（STT + TTS）支援 CLI / Telegram / Discord / Discord VC + xAI 語音克隆 |
 | 模型綁定 | 固定 | 任意 OpenAI-compatible（200+ 模型）+ Provider 可插拔 ABC |
-| 多 Agent | 無原生支援 | Multi-agent Kanban 持久協作看板（心跳 / 回收 / 殭屍偵測） |
+| 多 Agent | 無原生支援 | 子代理委派（可即時檢視／導引）、Multi-agent Kanban 持久協作看板、Bot Mode Group Chats、`hermes peer`、A2A v1.0 |
 | 持久目標 | 僅單輪指令 | `/goal` 跨回合持久目標（Ralph Loop） |
 | 國際化 | 僅介面語言 | 16 語系 i18n（中/日/德/西/法/烏/土/韓/義/葡 等） |
 | 授權 | 閉源 | MIT（可商用） |
-| 成本 | 按月訂閱 | 自控（用多少付多少 Token） |
-| Windows 支援 | 原生 | Native Windows Beta（PowerShell installer + MinGit）+ WSL2 完整支援 |
+| 成本 | 按月訂閱 | 自控（用多少付多少 Token；或以一鍵 Local Models 完全離線、零 API 費用） |
+| Windows 支援 | 原生 | Native Windows 為 Tier 1 平台（`install.ps1`；Desktop 為簽章 MSIX，需 Windows 11 22H2+，另上架 Microsoft Store）+ WSL2 完整支援 |
 | Promptware 防禦 | 無 | Brainworm-class 攻擊阻擋（threat patterns + memory scan + tool-result delimiters） |
-| 秘密管理 | 手動設定 | Bitwarden Secrets Manager（一個 bootstrap token 取代所有 API Key） |
+| 秘密管理 | 手動設定 | 可插拔秘密來源：Bitwarden Secrets Manager／1Password（`hermes secrets`）+ 加密瀏覽器憑證庫（`hermes vault`，金鑰可存 OS keychain） |
 | Session 轉移 | 不支援 | `/handoff` 即時 Session 轉移（跨模型/Profile 零掉落） |
 
 ### 1.3 Agent vs Workflow vs RPA 比較
@@ -382,6 +435,7 @@ Agent 在完成複雜任務時，會自動分析過程、提取經驗，並封�
 #### 1.4.5 Voice Mode（語音模式）
 
 v0.3.0 起新增完整語音互動能力：
+
 - **CLI Voice Mode**：在終端中即時語音對話
 - **Telegram / Discord**：語音備忘錄自動轉文字
 - **Discord Voice Channel**：即時語音通話
@@ -394,6 +448,7 @@ v0.3.0 起新增完整語音互動能力：
 #### 1.4.6 Web Dashboard（v0.9.0+）
 
 v0.9.0 新增本地 Web Dashboard，可透過瀏覽器管理 Hermes Agent：
+
 - **設定管理**：圖形化設定 Provider、Model、Tools
 - **Session 瀏覽**：查看與搜尋所有對話歷史
 - **Skills 管理**：瀏覽、安裝、啟用/停用技能
@@ -427,6 +482,7 @@ v0.9.0 新增本地 Web Dashboard，可透過瀏覽器管理 Hermes Agent：
 #### 1.4.7 Transport 架構（v0.11.0+）
 
 v0.11.0 引入可插拔的 Transport 抽象層，將格式轉換與 HTTP 傳輸從 Agent Core 解耦：
+
 - **AnthropicTransport**：Anthropic Messages API
 - **ChatCompletionsTransport**：OpenAI-compatible 預設路徑
 - **ResponsesApiTransport**：OpenAI Responses API + Codex
@@ -435,19 +491,22 @@ v0.11.0 引入可插拔的 Transport 抽象層，將格式轉換與 HTTP 傳輸�
 #### 1.4.8 Autonomous Curator（v0.12.0+）
 
 v0.12.0 新增自動化技能維護 Agent，可自主管理技能庫：
+
 - **背景執行**：透過 Gateway 的 Cron Ticker 運行，預設每 7 天執行一次
 - **技能評分**：自動評估每個 Skill 的品質與使用頻率
 - **合併與清理**：合併重複技能、清理長期未使用的技能
 - **報告產出**：每次執行產生 `logs/curator/run.json` + `REPORT.md`
 - **安全防護**：bundled / hub skills 受防護不會被修改，pinned skills 也不會被 curator 變更
 - **狀態查詢**：`hermes curator status` 依使用頻率排名技能（most-used / least-used）
-- **統一設定**：透過 `auxiliary.curator` 配置，可從 Dashboard 管理
+- **統一設定**：透過頂層 `curator:` 區塊配置（`interval_hours`、`stale_after_days`、`archive_after_days`、`consolidate` 等；⚠️ 舊版文件寫的 `auxiliary.curator` 並非有效鍵），可從 Dashboard 管理
+- **鎖定技能**（v0.23.0）：`hermes curator lock <skill>` 讓 Agent 不能再透過任何工具改寫手工維護的技能，即使在 YOLO 模式下也一樣；`unlock` 解除
 - **新子指令**（v0.13.0）：`hermes curator archive`（歸檔）、`hermes curator prune`（修剪）、`hermes curator list-archived`（列出已歸檔）
 - **同步執行**（v0.13.0）：手動 `hermes curator run` 現為同步模式，即時回傳結果無需輪詢
 
 #### 1.4.9 Multi-agent Kanban（v0.13.0+）
 
 v0.13.0 引入持久化多 Agent 協作看板系統，v0.15.0 經歷 104 PR 成熟化浪潮，是企業級多 Agent 協作的核心架構：
+
 - **持久看板**：durable multi-profile collaboration board，支援多專案看板（一次安裝，多個 Kanban）
 - **Worker 生命週期管理**：心跳監測（heartbeat）、工作回收（reclaim）、殭屍偵測（zombie detection）、自動阻擋未完成退出的 Worker
 - **可靠性保障**：每任務 `max_retries` 覆寫、統一的失敗計數器（spawn/timeout/crash）
@@ -463,19 +522,21 @@ v0.13.0 引入持久化多 Agent 協作看板系統，v0.15.0 經歷 104 PR 成�
 - **Worker 任務所有權**：對破壞性工具呼叫強制驗證 Worker 任務所有權
 
 ```yaml
-# config.yaml — Kanban 設定範例
+# ~/.hermes/config.yaml — Kanban 調度設定（鍵名以 v0.23.0 DEFAULT_CONFIG 為準）
 kanban:
-  enabled: true
-  multi_project: true
-  max_retries: 3
-  heartbeat_interval: 30  # 秒
-  zombie_timeout: 300     # 秒
-  hallucination_gate: true
+  dispatch_in_gateway: true        # 由 Gateway 內建調度器派工
+  dispatch_interval_seconds: 60    # 調度週期（秒）
+  failure_limit: 2                 # 連續失敗幾次後停止自動重派
+  max_in_progress: 4               # 全看板同時進行中的任務上限（null = 不限）
+  auto_decompose: true             # 允許 Orchestrator 自動拆解大型任務
 ```
+
+> 💡 **審查要點**：重試次數是**每個任務**的屬性（`hermes kanban create --max-retries 3`），不是全域設定；舊版文件中的 `kanban.enabled`、`multi_project`、`heartbeat_interval`、`zombie_timeout`、`hallucination_gate` 都不是有效設定鍵（`hermes config set` 會提示「not a recognized config key」）。
 
 #### 1.4.10 Persistent Goals（v0.13.0+）
 
 v0.13.0 引入 `/goal` 指令，讓 Agent 鎖定目標並跨回合追蹤完成度（Ralph Loop）：
+
 - **跨回合持久**：目標不會因對話分頁或 Session 邊界而遺失
 - **目標 Turn Budget**：可設定目標允許的最大回合數
 - **Ralph Loop**：以 Agent-as-action-item 概念將學習迴圈提升為一級原語（first-class primitive）
@@ -491,6 +552,7 @@ v0.13.0 引入 `/goal` 指令，讓 Agent 鎖定目標並跨回合追蹤完成�
 #### 1.4.11 Post-write Delta Lint（v0.13.0+）
 
 v0.13.0 為 `write_file` 和 `patch` 工具新增自動語法檢查，v0.14.0 升級為完整 LSP 語義診斷：
+
 - **支援語言**：Python、JSON、YAML、TOML（v0.13.0 基礎），**v0.14.0 起支援任何安裝了 Language Server 的語言**（LSP 語義診斷）
 - **增量檢查**：僅檢查變更的部分（delta），效能影響極小
 - **即時回饋**：語法錯誤立即顯示在工具輸出中，Agent 可自動修正
@@ -498,6 +560,7 @@ v0.13.0 為 `write_file` 和 `patch` 工具新增自動語法檢查，v0.14.0 �
 #### 1.4.12 i18n 多語言支援（v0.13.0+）
 
 v0.13.0 起引入 i18n，v0.14.0 擴展至 **16 語系**：
+
 - **支援語言**：中文（zh）、日文（ja）、德文（de）、西班牙文（es）、法文（fr）、烏克蘭文（uk）、土耳其文（tr）、韓文（ko）、義大利文（it）、葡萄牙文（pt）等共 16 語系
 - **設定方式**：`display.language` 配置項
 - **文件站**：Docs 站新增中文簡體（zh-Hans）語言環境
@@ -505,13 +568,14 @@ v0.13.0 起引入 i18n，v0.14.0 擴展至 **16 語系**：
 #### 1.4.13 `hermes proxy` — OpenAI 相容本地代理（v0.14.0+）
 
 v0.14.0 新增 `hermes proxy` 子指令，讓 Hermes 充當 OpenAI-compatible 本地代理伺服器：
+
 - **一個訂閱，所有工具可用**：透過 OAuth Provider（xAI SuperGrok、Codex 等）的授權，讓第三方 Agent 工具（Aider、Cline、Continue、Cursor）直接使用 Hermes 的 API Key
 - **零成本跨工具整合**：無需為每個工具分別設定 API Key
 - **安全隔離**：Proxy 在本地執行，API Key 不離開本機
 
 ```bash
-# 啟動 hermes proxy
-hermes proxy --port 4141
+# 啟動 hermes proxy（v0.23.0 為子指令 start；`hermes proxy providers` 列出可用上游）
+hermes proxy start --port 4141
 
 # 其他工具指向本地 proxy
 export OPENAI_API_BASE=http://localhost:4141/v1
@@ -533,6 +597,7 @@ uv tool install hermes-agent
 #### 1.4.15 `/handoff` 即時 Session 轉移（v0.14.0+）
 
 v0.14.0 新增 `/handoff` 指令，支援在不同模型或 Profile 之間即時轉移對話，不丟失上下文：
+
 - **跨模型轉移**：從 Claude 切換到 GPT-5.5 時保留完整對話歷史
 - **跨 Profile 轉移**：將任務從個人 Profile 無縫交接至團隊 Profile
 - **零掉落保證**：Session 狀態完整遷移，不漏失任何資訊
@@ -547,6 +612,7 @@ v0.14.0 新增 `/handoff` 指令，支援在不同模型或 Profile 之間即時
 #### 1.4.16 Promptware 防禦（v0.15.0+）
 
 v0.15.0 引入針對 Brainworm-class 攻擊的 Promptware 防禦機制：
+
 - **Threat Patterns**：內建惡意 Prompt 模式偵測
 - **記憶掃描**：載入長期記憶時自動掃描是否被注入惡意內容
 - **Tool-result Delimiters**：工具結果使用加密分隔符，防止 Prompt Injection
@@ -556,24 +622,34 @@ v0.15.0 引入針對 Brainworm-class 攻擊的 Promptware 防禦機制：
 #### 1.4.17 Bitwarden Secrets Manager（v0.15.0+）
 
 v0.15.0 整合 Bitwarden Secrets Manager，大幅簡化多 API Key 管理：
+
 - **單一 Bootstrap Token**：一個 Bitwarden Machine Account token 取代所有散落的 API Key
 - **集中式管理**：所有 Provider 的 API Key 統一在 Bitwarden 管理
 - **自動同步**：啟動時自動從 Bitwarden 拉取最新密鑰
 
+```bash
+# 互動式設定（寫入 config.yaml 並驗證 token）
+hermes secrets bitwarden setup --project-id <專案UUID>
+hermes secrets bitwarden status
+```
+
 ```yaml
-# config.yaml — Bitwarden Secrets Manager 設定
+# ~/.hermes/config.yaml — Bitwarden Secrets Manager 設定
 secrets:
-  backend: bitwarden
   bitwarden:
-    machine_account_token: ${BWS_ACCESS_TOKEN}
+    enabled: true
+    access_token_env: BWS_ACCESS_TOKEN   # 存放 Machine Account token 的環境變數「名稱」，不是 token 本身
+    project_id: "00000000-0000-0000-0000-000000000000"
+    cache_ttl_seconds: 300
 ```
 
 #### 1.4.18 Skill Bundles（v0.15.0+）
 
 v0.15.0 引入 Skill Bundles，一個指令載入多個相關技能：
-- **語法**：`/<bundle-name>` 即可載入預定義的技能組合
-- **自訂 Bundle**：可在 `skills/bundles/` 定義自己的 Bundle
-- **預設 Bundles**：`/fullstack`、`/devops`、`/security` 等
+
+- **語法**：`/<bundle-name>` 即可一次載入 Bundle 內列出的所有技能，斜線指令後的文字會作為使用者指示附上
+- **建立方式**：`hermes bundles create backend-dev --skill github --skill test-driven-development -d "後端功能開發"`；以 `hermes bundles list`／`show` 檢視
+- **沒有預設 Bundle**：Bundle 一律由使用者或團隊自行建立（舊版文件列出的 `/fullstack`、`/devops`、`/security` 並不存在）
 
 #### 1.4.19 Hermes Desktop App（v0.16.0+）
 
@@ -581,7 +657,7 @@ v0.16.0（The Surface Release）推出原生 Electron 桌面應用，提供完�
 
 | 特性 | 說明 |
 | ------ | ------ |
-| 跨平台安裝 | macOS（DMG/Brew）、Linux（AppImage/deb）、Windows（NSIS installer） |
+| 跨平台安裝 | v0.23.0：macOS 13+ Apple Silicon（簽章 + 公證 DMG）、Windows 10/11 64 位元（簽章 MSIX，需 Windows 11 22H2+；或 Microsoft Store）；官方發行流程已停止產出 Linux 桌面套件（Linux 可在 CLI 安裝後執行 `hermes desktop` 自行建置）；NSIS／MSI 安裝程式自 v0.22.0 起停用 |
 | 應用內自動更新 | 偵測新版本後自動下載並安裝，無需手動介入 |
 | 拖放檔案 & 剪貼簿圖片 | 直接拖入檔案或 Cmd/Ctrl+V 貼入螢幕截圖 |
 | 命令面板 | `Cmd+K` / `Ctrl+K` 快速執行 slash commands、切換模型與 Profile |
@@ -621,13 +697,14 @@ delegate_task(
 
 自然語言排程模板，取代傳統 cron 語法：
 
-```yaml
-# 範例：每日早上 9 點檢查安全漏洞
-name: daily-security-scan
-schedule: "每天早上 9 點"
-task: "掃描所有專案的已知漏洞，彙整報告到 Slack #security 頻道"
-profile: security-ops
+```text
+# 在 CLI／TUI／任何訊息平台輸入（Hermes 會逐一詢問所需欄位，確認後才建立排程）
+/blueprint morning-brief
+# 進階：直接帶入欄位值
+/blueprint morning-brief time=08:00
 ```
+
+> 💡 Blueprint 不是使用者自寫的 YAML 檔，而是官方（或外掛）提供的**參數化範本**；建立後即為一般的 Cron 工作，以 `hermes cron list` 檢視、`hermes cron edit` 修改。外掛提供的 Blueprint 以 `外掛名:範本名` 命名，無法覆蓋內建範本。
 
 - **多入口統一**：Dashboard 表單 / CLI slash command / Messenger 對話 / Docs 目錄
 - **自然語言排程**：「每週一早上」、「每隔 4 小時」等描述自動轉換
@@ -640,16 +717,19 @@ profile: security-ops
 
 ```json
 {
+  "target": "user",
   "operations": [
-    {"action": "add", "key": "user_preference_theme", "value": "dark"},
-    {"action": "replace", "key": "project_status", "value": "phase-2"},
-    {"action": "remove", "key": "deprecated_config"}
+    {"action": "add", "content": "偏好深色主題與繁體中文回覆"},
+    {"action": "patch", "old_text": "phase-1", "content": "phase-2"},
+    {"action": "remove", "old_text": "舊的部署主機名稱"}
   ]
 }
 ```
 
-- **原子性**：全部操作成功或全部回滾，避免部分寫入導致不一致
-- **Character Budget 自動管理**：接近容量上限時自動壓縮或建議移除舊記憶
+> ⚠️ 動作只有 `add`／`patch`／`remove`，以 `content`／`old_text` 比對內容，沒有 `key`／`value`；`target` 必填（`memory` 或 `user`）。完整說明見 [3.3.3](#333-memory-atomic-batch-operationsv0170)。
+
+- **以最終結果檢查容量**：字元上限只檢查整批套用後的結果，因此可以在同一批次中先刪減再新增
+- **超限時回傳現有條目**：工具會回傳 `current_entries`，讓 Agent 以一個批次整理後重試
 - **效能提升**：減少多次往返呼叫，單次 tool call 即完成批次異動
 
 > **實務案例**：某金融團隊將 Hermes Agent 部署在內部 VPS，使用 Anthropic Claude 作為主模型處理程式碼審查，搭配免費的 MiMo v2 Pro（Nous Portal）進行摘要與壓縮，Token 成本降低 60%。
@@ -694,15 +774,20 @@ v0.19.0「The Quicksilver Release」新增終端機內完整訂閱與憑證管�
 - **可插拔 `SecretSource` 介面**：新增 **Bitwarden** 與 **1Password**（`op://` 參照）密鑰來源，可同時啟用多個金鑰庫並定義明確優先序與衝突警告；官方將此定位為整併 11 個相互競爭的社群 PR 而成的統一介面，為未來更多金鑰庫供應商保留擴充點
 
 ```yaml
-# config.yaml — 多密鑰來源設定範例
+# ~/.hermes/config.yaml — 多密鑰來源設定範例
 secrets:
-  sources:
-    - type: bitwarden
-      priority: 1
-    - type: 1password
-      priority: 2
-      vault: "op://Engineering/hermes"
+  sources: [onepassword, bitwarden]     # 可選：同類型來源的先後順序（先者優先）
+  onepassword:
+    enabled: true
+    service_account_token_env: OP_SERVICE_ACCOUNT_TOKEN
+    env:                                # 明確映射（mapped）來源永遠優先於整包注入的 bulk 來源
+      ANTHROPIC_API_KEY: "op://Engineering/Anthropic/credential"
+  bitwarden:
+    enabled: true
+    project_id: "00000000-0000-0000-0000-000000000000"
 ```
+
+> 💡 **優先序（官方規則）**：① `.env`／Shell 既有值預設勝出，除非該來源設 `override_existing: true`（Bitwarden 預設為 true）；② 有 `env:` 映射的來源勝過整包注入的來源；③ 同類型時依 `secrets.sources` 順序先者勝出，後到的宣告會在啟動時警告而非靜默覆蓋。
 
 #### 1.4.28 智慧審批預設化與配送保證（v0.19.0+）
 
@@ -768,7 +853,7 @@ v0.20.0 起，Hermes Desktop 從「圖形化用戶端」升級為「可擴充的
 ```
 
 - **中途導引（Mid-turn Redirect）**：Agent 執行中若方向偏離，使用者可直接輸入修正內容，進行中的工作會被保留、原始提示不遺失，Agent 據此course-correct
-- **`hermes import-agent`**：一鍵將既有 Claude Code 或 Codex CLI 設定遷移至 Hermes
+- **`hermes import-agent`**：一鍵將既有 Claude Code 或 Codex CLI 設定遷移至 Hermes（v0.23.0 起此指令由官方 `agent-importers` 外掛提供；核心另有 `hermes migrate <openclaw|claude-code|codex|cursor|grok-bot|openbot>`，缺外掛時會自動安裝）
 - **工具呼叫迭代上限提升**：單一任務可用的工具呼叫輪次上限由 90 提升至 500，移除長時間自主執行的人為限制
 
 #### 1.4.34 Bot Mode — Profile 具名化與群組協作（v0.21.0+）
@@ -791,9 +876,9 @@ hermes peer add research-box --url https://gw.internal:8080 --key "$API_SERVER_K
 # 送出一則訊息（可從檔案讀入）
 hermes peer dm research-box < findings.md
 
-# 交付長時間任務並輪詢狀態
-hermes peer run research-box
-hermes peer status
+# 交付長時間任務（回傳 run_id），之後以 run_id 輪詢狀態
+hermes peer run research-box "整理本週 CVE 影響評估" --json
+hermes peer status research-box <run_id>
 ```
 
 與 A2A v1.0（[1.4.29](#1429-a2aagent-to-agent協定-v10v0200)）的差異：`hermes peer` 是 **Hermes 對 Hermes** 的第一方通道，對話持久落在各 Agent 的正規 Bot Chat 中可回溯稽核；A2A 則是**跨廠商**的標準化協定。選型對照見 [15.5 節](#155-五種多-agent-機制選型對照)。
@@ -816,7 +901,7 @@ hermes peer status
 - 對進行中的子代理**中途導引**修正方向
 - **提前停止並保留部分結果**（而非整份丟棄）
 - `delegate_task` 支援 **JSON Schema 結構化輸出驗證**，與**逐次委派的成本追蹤**
-- ⚠️ **預設值提高**：迭代上限 250、並行子代理 10 個——效能提升的同時**成本上限也同步放大**，企業應主動設限（見 [11.1.15](#11115-v0210-升級特別注意事項目前最新-minor-版本)）
+- ⚠️ **預設值提高**：迭代上限 250、並行子代理 10 個——效能提升的同時**成本上限也同步放大**，企業應主動設限（見 [11.1.15](#11115-v0210-升級特別注意事項)）
 
 #### 1.4.38 MCP Command Center 與 `hermes://` Deep Link（v0.21.0+）
 
@@ -829,7 +914,7 @@ hermes peer status
 
 #### 1.4.39 Agent 驅動的應用內瀏覽器（v0.21.0+）
 
-Desktop 內建瀏覽器不再只是檢視器，而是 Agent 可直接操作的工具面——Agent 自行導航、點擊、讀取頁面內容；使用者可將頁面彈出至系統瀏覽器，並具備完整的連結右鍵選單。與既有的 `browser` 工具集（Playwright／CDP，見 [3.5.1](#351-內建-toolsets)）互補：前者供人機共視的互動式操作，後者供無頭自動化。
+Desktop 內建瀏覽器不再只是檢視器，而是 Agent 可直接操作的工具面——Agent 自行導航、點擊、讀取頁面內容；使用者可將頁面彈出至系統瀏覽器，並具備完整的連結右鍵選單。與 `browser` 工具集（v0.23.0 起只剩單一 `browser_exec` 工具，以 CDP 驅動 Chromium，見 [3.5.1](#351-內建-toolsets)）互補：前者供人機共視的互動式操作，後者供無頭自動化。
 
 #### 1.4.40 CLI Power Wave（v0.21.0+）
 
@@ -843,7 +928,7 @@ Desktop 內建瀏覽器不再只是檢視器，而是 Agent 可直接操作的�
 
 - **狀態列即時指標**：cache-hit %、延遲、tokens／sec，各欄位可獨立開關
 - **全域緊急停止**：一鍵中止所有進行中的工作
-- **`hermes approval-check`**：以 dry-run 方式測試審批規則會給出什麼判決，不必真的執行危險指令
+- **審批規則試算**：以 dry-run 方式測試審批規則會給出什麼判決，不必真的執行危險指令（v0.21.0 時名為 `hermes approval-check`，v0.23.0 為 `hermes approvals test "<指令>"`；`hermes approvals suggest` 可依歷史紀錄建議允許清單）
 - **Terminal Pets（Petdex）**：`/pet`／`/hatch` 陪伴型終端寵物（趣味功能，企業環境可停用）
 - **Ctrl+C 中斷修正**：移除 Kitty keyboard protocol，修正部分終端機無法中斷的問題
 
@@ -852,18 +937,201 @@ Desktop 內建瀏覽器不再只是檢視器，而是 Agent 可直接操作的�
 上游 Provider 調整了 context window 或定價，但 Hermes 尚未發版更新目錄時，不必再等待：
 
 ```yaml
-# ~/.hermes/config.yaml
+# ~/.hermes/config.yaml — 結構為 model_overrides.<provider>.<model id>
 model_overrides:
-  "openrouter/some-vendor/new-model":
-    context_window: 400000
-    input_price_per_1m: 1.25
-    output_price_per_1m: 5.00
-    supports_vision: true
+  openrouter:
+    some-vendor/new-model:
+      context_window: 400000      # 正整數
+      supports_vision: true
+      supports_tools: true
+      supports_reasoning: false
+      model_family: claude        # 可選
+    _default:                     # 可選：此 provider 下未列出模型的預設值
+      context_window: 128000
 ```
+
+> ⚠️ **更正**：`model_overrides` 只能覆寫**能力宣告**（三個 `supports_*` 布林值、`context_window`、`model_family`），**不能覆寫價格**；省略的欄位維持「未知」而非 `false`。查表優先序為：使用者 `model_overrides` → Provider 外掛宣告 → 官方目錄 → `_default`。
 
 同時 v0.21.0 起，**以 pip 安裝的第三方模型 Provider 可透過 Python entry points 被自動探索**，無須改動 Hermes 本體程式碼。
 
 > ⚠️ **變更管控提醒**：`model_overrides` 直接影響成本估算與 context 管理決策，屬於「繞過官方目錄」的機制，企業應將其納入設定檔的版本控管與審核流程（見 [9.7.6](#976-企業導入前風險檢查清單)）。
+
+#### 1.4.42 穩定發行通道與統一套件管理器 PM（v0.21.7／v0.22.0+）
+
+自 v0.21.6 起，官方以新的「穩定發行管線」產出 SemVer 版本：每個 `vX.Y.Z` 在發布前都要通過原始碼 CI、Docker、Nix、簽章 Desktop 建置，以及各作業系統的安裝與升級測試。對企業而言，最大的改變是**原始碼安裝預設只在已發布的 Release 之間移動**，不再逐 commit 追蹤 `main`。
+
+```bash
+hermes update --check                  # 只預覽，不做任何變更
+hermes update                          # 依目前通道（預設 stable）升級到最新 Release
+hermes update --set-channel main       # 改為追每一個 main commit（不建議用於正式環境）
+hermes update --set-channel stable     # 改回只追 Release
+hermes update --channel main           # 僅此次對 main 執行，不保存選擇
+```
+
+- **PM（Package Manager）**：安裝腳本只負責 clone 原始碼並取得經校驗的 `uv`，其餘依賴（釘選版的 Python 3.14、Node.js、npm、ripgrep、FFmpeg、Chromium、`cua-driver`）都交給 PM 依 `pm/lock.json` 安裝。PM 不會採用系統上任意版本的 Node.js。
+- **通道設定位置**：寫在 `config.yaml` 的 `update.installs` 下，每個安裝各自記錄。
+
+> ✅ **如何驗證**：執行 `hermes update --check`，輸出應顯示目前通道與最新 Release；執行 `hermes --version`，版本號應為 `vX.Y.Z` 格式。若顯示 `vunknown`，代表不是透過官方 git checkout 安裝（例如直接解壓 tarball），`hermes update` 將無法正常判斷版本。
+
+#### 1.4.43 首次啟動引導、免費方案與 Connectors（v0.22.0+）
+
+- **對話式 Onboarding**：在從未使用過 Hermes 的電腦上開啟 Desktop，會以簡短的設定對話取代設定畫面：一次一張卡片，詢問名字、主題色、版面、要連接的應用與外掛，最後推薦最多四個起手任務。這段引導使用免費試用模型執行。
+- **Connectors**：Agent 可以透過 Nous Tool Gateway 直接在 Linear、Notion、Gmail 等託管應用內操作。第一次使用時在瀏覽器登入一次，同一回合內即可使用該應用的工具；不需要先有 Nous 帳號，Hermes 會建立只限 Connectors 的免費身分。
+- **同一應用多個帳號**：可連接多個帳號（例如 Gmail `home` 與 `work`）。帳號名稱為 1–32 個小寫英數字或 `-`。**沒有預設帳號**：有兩個以上具名帳號時，每個工具呼叫都必須帶 `connector_alias`。Agent 永遠不會自行移除帳號。
+
+```bash
+hermes connectors list                 # 列出可用的 Connector 與已連接帳號
+hermes connectors connect linear       # 在瀏覽器完成授權
+hermes connectors accounts gmail       # 檢視某應用的所有帳號
+hermes connectors rename gmail old-name --to work
+```
+
+> ⚠️ **企業治理**：Connectors 讓 Agent 以**使用者本人的身分**在 SaaS 內讀寫資料，資料流會經過 Nous 的託管基礎設施。導入前應確認資料分級與委外處理規範，必要時以 `hermes tools` 關閉相關工具集（見 [9.7 節](#97-風險評估與治理考量企業導入前必讀)）。
+
+#### 1.4.44 一鍵 Local Models（v0.22.0+）
+
+Hermes 可以完全在本機執行開源模型：不需要帳號、不需要 API Key，模型下載後也不需要網路。它會自動安裝並維護 llama.cpp（依硬體選擇 CPU／CUDA／Metal／Vulkan／ROCm 引擎），依 GPU 與記憶體為目錄中的每個模型評分，再挑選能放得下的最高品質版本。
+
+```bash
+hermes model        # 選「Local models」：列出依本機規格標價的目錄（★ 為推薦），安裝引擎、下載模型並設為預設
+```
+
+```yaml
+# ~/.hermes/config.yaml — 無頭／CLI 環境的本機推理設定
+local_runtime:
+  enabled: true          # 隨 Hermes 啟動受管理的 llama-server
+  backend: auto          # auto | cuda | metal | vulkan | hip | cpu
+  detect_ports: [8081]   # 額外探測自行啟動的 llama-server（預設只探測 :8080）
+model:
+  provider: llamacpp
+```
+
+> ✅ **如何驗證**：執行 `hermes doctor`，並在對話中以 `/model` 確認目前模型列在「Local」群組；拔除網路後再送出一則訊息，應仍能正常回應。
+
+#### 1.4.45 單一 Gateway 擁有所有對話（v0.22.0／v0.23.0）
+
+- **v0.22.0**：每台機器只執行**一個**訊息 Gateway 與**一個** Desktop 後端，服務所有 Profile，不再一個 Profile 一個行程。各 Profile 仍保有自己的憑證、允許清單、Cron 與 Session；新建 Profile 不需重啟就能上線。`hermes update` 會在不衝突時自動把舊的 per-profile Gateway 併入。
+- **v0.23.0**：過去 CLI、TUI、Desktop、編輯器（ACP）、訊息 bot 與 Cron 可能各自對同一個對話執行一份 Agent，導致訊息重複寫入或遺失。現在每台機器的 Gateway **擁有所有 Session**，其他介面一律以用戶端身分連上：在任何地方開啟的對話都是同一個對話、同一個佇列。
+
+> ⚠️ **升級後不可回退**：新版 Gateway 一旦寫入 `state.db`，舊版本就無法再使用該資料庫。若要回退，只能還原升級前的快照或完整備份（詳見 [11.1.16](#11116-v0210--v0230-升級特別注意事項目前最新版本)）。
+
+#### 1.4.46 Plugin Catalog 與自動更新（v0.22.0／v0.23.0）
+
+Plugin Catalog 是**人工審核**的外掛目錄：v0.22.0 推出時有 600 項，v0.23.0 擴充至 1,050+ 項，並新增 **Verified** 層級，標示由該廠商自行開發的外掛（層級為 Official／Verified／Community）。
+
+- 每個項目都釘選**經審核的 commit SHA**；作者推送新程式碼**不會**改變 Catalog 安裝的內容。
+- 審核時會執行與安裝程式相同的安全掃描：判定為 `dangerous` 的項目不會收錄。
+- 被下架的外掛列在 `removed.yaml` 中：無法安裝；已安裝的停止更新、無法啟用，載入時也會被拒絕。
+- **安裝 ≠ 啟用**：安裝只是把檔案放到磁碟，仍需 `enable` 才會載入。
+
+```bash
+hermes plugins search memory               # 搜尋 Catalog
+hermes plugins install honcho              # 安裝前會顯示宣告的工具／hooks／所需環境變數
+hermes plugins enable honcho
+hermes plugins update                      # v0.23.0：一次更新全部；會破壞設定的更新會被擱置
+hermes plugins auto-update on              # 選擇性開啟自動更新（Catalog 與 git 外掛）
+```
+
+> ⚠️ Catalog 審核是**單一時間點**的人工審閱，不是安全稽核；Desktop 外掛（`desktop/plugin.js`）在 App 內**無沙箱**執行，權限等同 App 本身。企業應另建允許清單（見 6.9 節）。
+
+#### 1.4.47 Webapp：瀏覽器中的 Desktop 工作區（v0.23.0）
+
+Gateway 可以把完整的 Desktop 工作區（對話、Group Chats、外掛、設定、檔案樹、Git 檢視、終端機）提供給一般瀏覽器使用。**預設關閉**；它與 Web Dashboard 是兩回事。
+
+```bash
+hermes config set webapp.enabled true
+hermes gateway restart
+hermes webapp                 # 建置前端（必要時）、啟動 Gateway，並開啟一次性登入連結（60 秒內有效）
+hermes webapp --status        # 檢查 Gateway 是否正在提供 Webapp，以及無法提供的原因
+```
+
+> ⚠️ **資安等級**：登入 Webapp 的使用者**可以用執行 Hermes 的 OS 帳號執行任意指令**。若要從其他機器存取，必須把 `webapp.host` 設為非 loopback 位址並啟用 Dashboard 登入閘門（區網／VPN 用帳密，對外網路用 OAuth/OIDC）；官方建議優先使用 SSH tunnel、Tailscale 或其他 VPN。詳見 [14.6 節](#146-webappv0230)。
+
+#### 1.4.48 對話回溯 `/rewind` 與終端機圖片（v0.23.0）
+
+- **`/rewind`**（或在空白輸入框連按兩次 `Esc`）：選擇較早的一則提示後，按 `Enter` 編輯並重送（重送時會移除該提示之後的所有內容），按 `f` 則從該點分岔出新 Session。原 Session 保持不變。
+- **終端機圖片**：貼上的圖片或工具截圖會直接畫在對話中。kitty、Ghostty（CLI 與 TUI）以及 iTerm2、WezTerm、Konsole（CLI）顯示真實像素，其他終端機以色塊近似；VS Code 終端機在開啟圖片支援後可顯示完整解析度。
+- **TUI 可在回合進行中執行 `/new`**：舊回合會在背景繼續完成。
+
+#### 1.4.49 Group Chats 自主運作與 Bot Screen（v0.22.0／v0.23.0）
+
+- **Bot Screen**（v0.22.0）：在 Linux Gateway 上執行的 bot 可以擁有自己的桌面，並由 Hermes Desktop 即時串流畫面。遇到登入、2FA 或 CAPTCHA 時，使用者可以接手畫面完成該步驟，再交還控制權。
+- **Group Chats**（v0.23.0）：
+  - 房間可以指定 lead bot 或啟用自動路由，替沒有點名任何人的訊息決定由誰回答。
+  - Cron 工作可以把結果發到房間中；房間可保存「目的」與共享筆記。
+  - bot 之間**不會再無止境地互相觸發**。
+  - 每個 bot 會即時顯示自己正在做什麼，例如「scout · terminal · 7s」。
+
+詳見 [第十五章](#第十五章bot-mode-與多-agent-群組協作v0210)。
+
+#### 1.4.50 付費工具標價與花費上限（v0.23.0）
+
+付費的 MCP 工具（例如 3D、影像生成）可以宣告每次呼叫的成本。審批提示會顯示該次呼叫的價格與本對話的累計花費；即將超過上限時一定會先詢問，**即使在 YOLO 模式或 `trust: full` 的伺服器也一樣**。在無人可回答的情境（Cron、`hermes chat -q`）中，超限呼叫會直接被拒絕。
+
+```yaml
+# ~/.hermes/config.yaml
+mcp_servers:
+  renders:
+    command: "render-mcp"
+    trust: untrusted
+    tool_costs:
+      create_image: 20                                   # 每次約 20 點
+      animate: {credits: [5, 20], note: "per animation"}  # 區間計價
+    spend_limit: 100       # 每個對話的上限；0 或省略 = 不限
+    cost_unit: credits
+```
+
+> ✅ **如何驗證**：在對話中連續呼叫 `create_image` 六次，第六次（累計 120 > 100）時，審批提示應只提供「Allow Once／Deny」兩個選項。若 `tool_costs` 格式錯誤，該伺服器會在啟動時被略過並記錄錯誤，不會靜默忽略預算設定。
+
+#### 1.4.51 可插拔委派策略與子代理即時操控（v0.22.0／v0.23.0）
+
+- **即時檢視**（v0.22.0）：執行中的子代理會常駐顯示在輸入框上方（CLI 按 `F6`、TUI 按 `Ctrl+T`、Desktop 側欄），包含任務、經過時間與即時逐字稿，並提供 Steer 與 Stop。`/stop` 可以停止背景子代理，並取回其部分成果。
+- **委派策略**（v0.23.0）：`delegation.backend` 決定任務如何變成子代理。預設為 `default`；安裝官方 `advanced-delegation` 外掛後可改用 `model_map`（具名模型選單）或 `profile_routes`（每個子代理以某個 Profile 的身分執行），並以 `/delegation` 切換。
+
+```yaml
+# ~/.hermes/config.yaml（需先 hermes plugins install advanced-delegation）
+delegation:
+  backend: model_map
+  backends:
+    model_map:
+      options:
+        - name: fast
+          description: "簡單查詢、格式轉換"
+          provider: openrouter
+          model: anthropic/claude-haiku-5.5
+        - name: deep
+          description: "架構分析、跨檔重構"
+          provider: anthropic
+          model: claude-opus-5-5
+```
+
+> ⚠️ **憑證共享**：把某個 Profile 列入 `profile_routes`，代表本 Profile 的子代理可以使用該 Profile 的憑證、`SOUL.md` 與終端政策。若所選後端不存在或無法執行，`delegate_task` 會**明確回報錯誤**，不會靜默改走預設路徑。
+
+#### 1.4.52 精簡技能集與 Cron 控制（v0.23.0）
+
+- **內建技能 58 → 44**：Word、PowerPoint、Excel 合併為單一 `microsoft-office` 技能。舊副本會留在磁碟上，直到手動移除。
+- **`hermes curator lock <skill>`**：禁止 Agent 改寫該技能（即使在 YOLO 模式下）。
+- **停止執行中的 Cron**：`hermes cron cancel <job>` 只停止**目前這一次**執行，`remove` 才會刪除整個工作。可用 `--grace-minutes` 設定每個工作在 Hermes 關機期間錯過的排程該如何補跑（`0` 表示不補跑）。
+
+```bash
+hermes curator lock release-checklist
+hermes cron cancel nightly-triage
+hermes cron edit market-open --grace-minutes 0
+```
+
+### 1.5 本章審查與驗證清單
+
+本章是功能與版本總覽。審查 AI 依本章產出的「功能導入評估」或「版本差異說明」時，請逐項核對：
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 版本基準正確 | `gh api repos/NousResearch/hermes-agent/releases/latest --jq .tag_name` | 與文件宣稱的基準版本一致（本手冊為 `v0.23.0`） |
+| 2 | 實際安裝版本 | `hermes --version` | 顯示 `vX.Y.Z`；若為 `vunknown`，代表非官方 git checkout 安裝 |
+| 3 | 指令確實存在 | `hermes <指令> --help` | 不出現「is not a `hermes` command」；本章提到的 `hermes approval-check`、`hermes claw migrate` 等舊指令應改為 `hermes approvals test`、`hermes migrate openclaw` |
+| 4 | 設定鍵有效 | `hermes config set <key> <value>` 後看是否出現 unknown-key 提示；或使用本手冊附錄 E 的 `check_doc.py` | 無「not a recognized config key」提示 |
+| 5 | 外掛提供的功能已安裝 | `hermes plugins list` | `advanced-delegation`、`agent-importers`、記憶 Provider 等外掛已安裝**且已啟用** |
+| 6 | 破壞性變更已涵蓋 | 對照 [11.1.16](#11116-v0210--v0230-升級特別注意事項目前最新版本) 的清單 | 提及瀏覽器工具時使用 `browser_exec`；提及 MCP Server 模式時使用 `hermes mcp-serve` |
+| 7 | 數據附帶查證日期 | 檢查 Stars／貢獻者等數字旁是否有日期與來源 | 有日期與來源；官方宣稱的貢獻者人數與 API 實測口徑不同時，應加以註明 |
 
 ---
 
@@ -871,131 +1139,86 @@ model_overrides:
 
 ### 2.1 架構設計概述
 
-Hermes Agent 採用分層架構設計，從前端展示層到底層資料層，每一層都具備可替換和可擴展的特性。以下是企業級部署時的完整架構設計。
+Hermes Agent 採用分層架構：從使用者介面一路往下到資料層，每一層都可以替換或擴充。v0.22.0 與 v0.23.0 對架構做了兩項根本調整，企業部署設計必須以此為前提：
+
+1. **每台主機只有一個 Gateway**（v0.22.0）：單一 Gateway 行程同時服務該主機上的所有 Profile。各 Profile 的憑證、允許清單、Cron 與 Session 仍彼此隔離，但不再各自擁有一個 Gateway 行程。
+2. **Gateway 擁有所有對話**（v0.23.0）：CLI、TUI、Desktop、Webapp、編輯器（ACP）、訊息 bot、API Server 與 Cron 全部改為 Gateway 的**用戶端**。Agent 的執行、審批等待、工具呼叫與 Session 儲存都集中在 Gateway 內，同一個對話在任何介面看到的都是同一份歷史、同一個佇列。
 
 ### 2.2 分層架構圖
 
+以下為 v0.23.0 的邏輯架構。實線表示同步呼叫，虛線表示選用或外掛提供的元件。
+
 ```mermaid
 graph TB
-    subgraph "Presentation Layer（展示層）"
-        CLI[Terminal CLI<br/>TUI 界面（Ink 重寫）]
-        DESK[Hermes Desktop App<br/>Electron 原生桌面]
-        TG[Telegram Bot]
-        DC[Discord Bot]
-        SK[Slack Bot]
-        WA[WhatsApp / WhatsApp Business Cloud API]
-        SG[Signal]
-        MX[Matrix]
-        MT[Mattermost]
-        FS_P[Feishu / DingTalk / WeCom]
-        WX[WeChat]
-        IM[iMessage via Photon Spectrum]
-        QQ[QQBot]
-        YB[Yuanbao]
-        TM[Microsoft Teams]
-        GC[Google Chat]
-        LN[LINE]
-        SX[SimpleX Chat]
-        NT[ntfy]
-        RF[Raft Agent Network]
-        BZ[Buzz<br/>Nostr 協定]
-        A2AP[A2A Connector<br/>Agent-to-Agent v1.0]
-        EM[Email / SMS]
-        HA[Home Assistant]
-        WEB[Web API<br/>REST/SSE]
-        DASH[Web Dashboard<br/>React SPA 全面管理面板]
+    subgraph CLIENTS["用戶端層（全部連到同一個 Gateway）"]
+        CLI["CLI／TUI<br/>hermes、hermes --tui"]
+        DESK["Hermes Desktop<br/>Electron，可同時連多台主機"]
+        WEBAPP["Webapp<br/>瀏覽器版 Desktop 工作區（預設關閉）"]
+        ACPC["ACP 編輯器<br/>VS Code／JetBrains／Zed"]
+        MSG["訊息平台 Adapter<br/>Telegram／Slack／Teams／Discord 等 30+"]
+        API["API Server<br/>OpenAI 相容 REST／SSE"]
+        DASH["Web Dashboard<br/>管理介面"]
     end
 
-    subgraph "API Gateway Layer（閘道層）"
-        GW[Hermes Gateway<br/>消息路由 / 認證 / 限流 / Scale-to-zero]
-        ACP[ACP Adapter<br/>VS Code / JetBrains / Zed]
+    subgraph GWL["Gateway 層（每台主機一個，擁有所有 Session）"]
+        GW["Gateway<br/>認證／路由／審批等待／配送台帳"]
+        MUX["Profile 多工<br/>default、team-dev、team-ops…"]
+        CRON["Cron 排程器<br/>Blueprints、/loop"]
     end
 
-    subgraph "Agent Layer（代理層）"
-        CORE[Agent Core<br/>Planning / Execution / Loop]
-        SUB[Subagent Pool<br/>平行委派 + 背景派工]
-        SKILL[Skill Engine<br/>技能載入 / /learn 自動建立]
-        MOA[MoA Router<br/>Mixture-of-Agents 聚合]
-        PLUG[Plugin System<br/>Honcho / Hindsight / RetainDB / ByteRover 等]
+    subgraph AGL["Agent 層"]
+        CORE["Agent Loop<br/>Prompt 建構／Provider 解析／工具分派"]
+        SUB["子代理<br/>delegate_task，可即時導引"]
+        SKILL["技能引擎<br/>44 內建 + Curator"]
+        PLUG["Plugin 系統<br/>hooks／middleware／Provider／Desktop SDK"]
     end
 
-    subgraph "Memory Layer（記憶層）"
-        STM[Short-term Memory<br/>Context Window]
-        LTM[Long-term Memory<br/>MEMORY.md / USER.md]
-        FTS[FTS5 Session Search<br/>跨對話搜尋 + Trigram CJK]
-        VDB[(External Memory Providers<br/>9 種可插拔：mem0/Supermemory/<br/>Hindsight/OpenViking 等)]
-        UDB[(User Model<br/>Honcho Dialectic)]
+    subgraph TL["工具層"]
+        TERM["終端後端<br/>local／docker／ssh／modal／daytona／vercel_sandbox"]
+        BROW["browser_exec<br/>CDP 驅動 Chromium"]
+        FILES["檔案工具<br/>read_file／write_file／patch"]
+        MCP["MCP Servers<br/>trust／tool_costs／spend_limit"]
+        TGW["Nous Tool Gateway<br/>Connectors、雲端瀏覽器"]
+        LOCALRT["Local Runtime<br/>受管理的 llama.cpp"]
     end
 
-    subgraph "Tool Layer（工具層）"
-        TERM[Terminal Backends<br/>Local/Docker/SSH/Modal/Daytona/Singularity/Vercel]
-        BROW[Browser Engine<br/>Playwright / Camofox]
-        FILE[File Tools<br/>讀寫/搜尋/壓縮]
-        WEB_TOOL[Web Tools<br/>搜尋/擷取/Vision]
-        MCP_T[MCP Servers<br/>外部工具擴展]
-        CRON[Cron Scheduler<br/>排程自動化 + Blueprints]
-        HOOK[Outbound Webhooks<br/>HMAC 簽章事件推送]
+    subgraph DL["資料層（皆在 HERMES_HOME 之下）"]
+        STATE[("state.db<br/>SQLite WAL：Session、配送台帳")]
+        KB[("kanban.db<br/>每看板一個")]
+        FSD[("檔案<br/>skills／MEMORY.md／USER.md／SOUL.md／logs")]
     end
 
-    subgraph "Data Layer（資料層）"
-        SQLITE[(SQLite<br/>Sessions / Config)]
-        KANBAN[(kanban.db<br/>多 Agent 看板)]
-        FS_D[(File System<br/>Skills / Memories)]
-        EXT[(External APIs<br/>LLM Providers)]
-    end
+    EXT["LLM Provider<br/>Anthropic／OpenAI／OpenRouter／Nous Portal 等"]
+    MEMP["外部記憶 Provider<br/>Catalog 外掛：Honcho、Mem0 等"]
 
     CLI --> GW
-    TG --> GW
-    DC --> GW
-    SK --> GW
-    WA --> GW
-    SG --> GW
-    MX --> GW
-    MT --> GW
-    FS_P --> GW
-    WX --> GW
-    QQ --> GW
-    YB --> GW
-    TM --> GW
-    GC --> GW
-    LN --> GW
-    SX --> GW
-    NT --> GW
-    RF --> GW
-    BZ --> GW
-    A2AP --> GW
-    EM --> GW
-    HA --> GW
-    WEB --> GW
+    DESK --> GW
+    WEBAPP --> GW
+    ACPC --> GW
+    MSG --> GW
+    API --> GW
     DASH --> GW
-    ACP --> CORE
-
-    GW --> CORE
+    GW --> MUX
+    CRON --> GW
+    MUX --> CORE
     CORE --> SUB
     CORE --> SKILL
-    CORE --> MOA
     CORE --> PLUG
-
-    CORE --> STM
-    CORE --> LTM
-    CORE --> FTS
-    PLUG --> VDB
-    PLUG --> UDB
-
     CORE --> TERM
     CORE --> BROW
-    CORE --> FILE
-    CORE --> WEB_TOOL
-    CORE --> MCP_T
-    CORE --> CRON
-    CORE --> HOOK
-
-    STM --> SQLITE
-    SUB --> KANBAN
-    LTM --> FS_D
-    SKILL --> FS_D
+    CORE --> FILES
+    CORE --> MCP
+    CORE -.-> TGW
     CORE --> EXT
+    CORE -.-> LOCALRT
+    PLUG -.-> MEMP
+    GW --> STATE
+    SUB --> KB
+    SKILL --> FSD
+    CORE --> FSD
 ```
+
+> 💡 **讀圖重點**：v0.21.0 以前的架構圖常把 CLI 畫成「直接執行 Agent」，ACP 直接連到 Agent Core。v0.23.0 起這兩條路徑都改為經過 Gateway。審查 AI 產出的架構文件時，**若出現多個行程各自寫同一個 `state.db`，即為過時設計**。
 
 ### 2.3 各層級說明
 
@@ -1003,8 +1226,10 @@ graph TB
 
 | 組件 | 說明 | 連線方式 |
 | ------ | ------ | ---------- |
-| Terminal CLI / TUI | 完整 TUI（v0.11.0 Ink 重寫），支援多行編輯、斜線指令自動完成、串流工具輸出、OSC-52 剪貼簿、**LaTeX 渲染**（v0.12.0）、冷啟動提升 57% | 本地 stdin/stdout |
-| Web Dashboard | React SPA 本地管理介面，設定/Session/Skills/Gateway 管理、Plugin 擴展 Tab | HTTP（localhost） |
+| Terminal CLI / TUI | 完整 TUI（v0.11.0 Ink 重寫），支援多行編輯、斜線指令自動完成、串流工具輸出、OSC-52 剪貼簿、LaTeX 渲染、**v0.23.0 終端機內圖片顯示與 `/rewind`**；`hermes --native` 讓終端機自行處理捲動與搜尋 | 本機 Gateway 用戶端 |
+| Hermes Desktop | Electron 原生桌面；v0.23.0 起可同時保持多個 Gateway（本機、SSH、遠端）連線，切換即時 | Gateway 用戶端（本機或遠端） |
+| **Webapp**（v0.23.0） | 由 Gateway 直接在瀏覽器提供完整 Desktop 工作區，**預設關閉**；非 loopback 存取必須啟用登入閘門 | HTTP(S)，預設 `127.0.0.1:9120` |
+| Web Dashboard | React SPA 管理介面：設定、Session、Skills、Gateway 管理、Plugin 擴充 Tab | HTTP（localhost 或經登入閘門） |
 | Telegram Bot | 群組/私訊/Forum Topic、語音轉文字、Emoji 審批按鈕、Webhook Mode | Telegram Bot API |
 | Discord Bot | 原生 Slash Commands、頻道控制、Interactive Model Picker、Voice Channel | Discord Gateway |
 | Slack Bot | Thread 自動回覆、mrkdwn 格式、互動審批按鈕、Multi-Workspace OAuth | Slack Events API |
@@ -1016,7 +1241,7 @@ graph TB
 | DingTalk（釘釘） | 企業機器人整合 | DingTalk API |
 | WeCom（企業微信） | 企業應用整合、Callback Mode | WeCom API |
 | WeChat（微信） | Native WeChat via iLink Bot API、Streaming Cursor、Media Upload | WeChat API |
-| iMessage via Photon Spectrum | 無需 Mac relay，`hermes photon login` 裝置碼認證（v0.17.0 第 24 平台） | Photon Spectrum API |
+| iMessage via Photon Spectrum | 無需 Mac relay；以內建 Photon 平台外掛提供，`hermes photon setup --phone +886…` 設定、`hermes photon status` 檢查（v0.17.0 第 24 平台） | Photon Spectrum API |
 | QQBot | QQ 官方 API v2、QR 掃碼設定、Streaming Cursor、DM/Group 管控 | QQ Official API |
 | Email | 電子郵件收發整合 | SMTP/IMAP |
 | SMS | 簡訊通知交付 | Twilio / SMS API |
@@ -1039,71 +1264,77 @@ graph TB
 
 #### 2.3.2 API Gateway Layer（閘道層）
 
-Gateway 是 Hermes 的消息路由核心，負責：
-- **認證與授權**：DM Pairing、allowed_users 白名單
-- **限流與超時**：基於活動的智慧超時（非掛鐘計時）
-- **訊息去重**：防止重複投遞
-- **多平台路由**：統一介面分發到各平台
-- **審批機制**：危險指令需透過 `/approve` 或平台原生按鈕確認
-- **Platform Allowlists**（v0.13.0）：`allowed_channels` / `allowed_chats` / `allowed_rooms` 跨 Slack / Telegram / Mattermost / Matrix / DingTalk
-- **Session 自動恢復**（v0.13.0）：Gateway 重啟後自動恢復中斷的對話
-- **通用 Platform-Plugin Hooks**（v0.13.0）：`env_enablement_fn` + `cron_deliver_env_var`，IRC 與 Teams 已遷移至此機制
-- **s6-overlay Docker 容器監督**（v0.15.0）：systemd/launchd/Windows/s6 後端 + per-profile gateway 監督
-- **Session Control API**（v0.15.0）：`/api/sessions/*` REST + SSE 端點
-- **Scale-to-zero + Drain 協調**（v0.18.0）：代管 Gateway 閒置自動休眠，重啟／遷移前協調排空進行中對話
-- **Profile-based 路由**（v0.19.0）：單一共用 Bot Token 依 Guild／頻道／討論串路由至不同 Profile
-- **配送保證台帳**（v0.19.0）：回應產生與平台送達確認之間 Gateway 當機不再靜默遺失訊息，重啟後自動補送
-- **智慧審批預設化**（v0.19.0）：獨立 LLM 審查者取代逐次詢問，成為危險指令的預設判斷機制
+Gateway 是 Hermes 的訊息路由與 Session 擁有者，負責：
+
+- **Session 所有權**（v0.23.0）：每台主機一個 Gateway，擁有該主機上**所有** Session 的執行、審批等待與儲存；其他介面只是附加上來的檢視者。所有檢視者都關閉後，執行與待審批項目仍會在 Gateway 內繼續存在。
+- **Profile 多工**（v0.22.0，`gateway.multiplex_profiles: true`）：單一 Gateway 服務所有 Profile。以 HTTP 進來的平台（Webhook、API Server）透過 `/p/<profile>/` URL 前綴區分 Profile。具名 Profile 預設**不能**自行啟動 Gateway（`hermes -p coder gateway start` 會以 exit 78 拒絕）。
+- **認證與授權**：DM Pairing、`allowed_users` 白名單；`gateway.allow_all_users` 預設為 `false`。
+- **Platform Allowlists**（v0.13.0）：`allowed_channels`／`allowed_chats`／`allowed_rooms`，適用於 Slack、Telegram、Mattermost、Matrix、DingTalk。
+- **配送保證台帳**（v0.19.0，`gateway.delivery_ledger: true`）：Gateway 若在「產生回應」與「平台確認送達」之間當機，重啟後會自動補送。
+- **Bot 迴圈防護**（`gateway.bot_loop_guard`）：預設在 300 秒內超過 20 個事件或 4 次轉發即冷卻 600 秒，防止 bot 之間互相觸發。
+- **Scale-to-zero + Drain 協調**（v0.18.0）：代管 Gateway 閒置時自動休眠；重啟或遷移前會先排空進行中的對話。
+- **Profile-based 路由**（v0.19.0，`gateway.profile_routes`）：單一共用 Bot Token 可依 Guild／頻道／討論串路由到不同 Profile。
+- **智慧審批**（v0.19.0）：由獨立的 LLM 審查者判斷被標記的指令，成為危險指令的預設判斷機制。
+- **看門狗**：`gateway.loop_watchdog` 與 `startup_watchdog` 偵測事件迴圈卡住或啟動逾時；`restart_loop_guard` 與 `respawn_storm` 防止反覆崩潰重啟。
 
 #### 2.3.3 Agent Layer（代理層）
 
 | 組件 | 職責 |
 | ------ | ------ |
-| Agent Core | 核心循環：接收 → 規劃 → 工具呼叫 → 評估 → 回應 |
-| Subagent Pool | 隔離子代理，支援平行工作流與背景派工（Live 逐字稿） |
-| Skill Engine | 載入已有技能、複雜任務後自動建立新技能、`/learn` 手動萃取（v0.18.0） |
-| MoA Router | Mixture-of-Agents 聚合：多參考模型併行推理 + 聚合器即時串流合成（v0.18.0，一級模型化） |
-| Plugin System | 擴展記憶 / CLI / API Hook / Desktop SDK，如 Honcho、Hindsight、ByteRover、Kanban Desktop Plugin |
+| Agent Loop | 核心循環：組合 System Prompt → 解析 Provider（`chat_completions`／`codex_responses`／`anthropic_messages` 三種 API 模式）→ 工具分派 → 評估 → 回應 |
+| 子代理 | 隔離的子代理，支援平行與背景派工；v0.22.0 起可在 CLI（`F6`）／TUI（`Ctrl+T`）／Desktop 即時檢視、導引（Steer）與停止 |
+| 委派策略 | `delegation.backend`：`default`，或由 `advanced-delegation` 外掛提供的 `model_map`／`profile_routes`（v0.23.0） |
+| 技能引擎 | 載入技能、在複雜任務後自動建立新技能、以 `/learn` 手動萃取；由 Curator 定期維護（v0.23.0 新增 `lock`） |
+| MoA | Mixture-of-Agents：多個參考模型平行推理，聚合器即時串流合成（v0.18.0 起為一級模型） |
+| Plugin 系統 | 透過 hooks、middleware、Provider Profile、Desktop SDK slot 等公開介面擴充；Catalog 規則禁止外掛在執行期覆寫 Hermes 核心 |
 
 #### 2.3.4 Memory Layer（記憶層）
 
 | 類型 | 實作 | 用途 |
 | ------ | ------ | ------ |
-| Short-term | Context Window（2,200 字元 MEMORY.md／1,375 字元 USER.md 上限） | 當次對話上下文管理，支援 `/compress` 壓縮；「凍結快照」模式：本次對話寫入，下次對話才生效 |
-| Long-term（內建） | MEMORY.md / USER.md | 持久化知識、使用者偏好，免外部依賴 |
-| Session Search | FTS5（免 LLM，~20ms） | 跨對話搜尋，v0.15.0 重建後較舊版快 4,500 倍 |
-| 外部記憶 Provider（單選插件，9 種） | Honcho／Mem0／Supermemory／Hindsight／OpenViking／Holographic／RetainDB／ByteRover／Memori | 語義搜尋、知識圖譜、多容器記憶等進階場景，詳見 3.3 節 |
-| User Model | Honcho Dialectic | 辯證式使用者理解與信任分數 |
+| 內建持久記憶 | `MEMORY.md`（`memory.memory_char_limit`，預設 2,200 字元）／`USER.md`（`memory.user_char_limit`，預設 1,375 字元） | 持久化知識與使用者偏好，不依賴外部服務。採「凍結快照」：本次對話寫入的內容，下次對話才會載入 System Prompt |
+| Context Window | 模型的上下文視窗 | 當次對話；可用 `/compress` 手動壓縮，也有自動壓縮 |
+| Session Search | SQLite FTS5（無 LLM，約 20ms；`sessions.cjk_fts: true` 支援中日韓） | 跨對話搜尋；v0.15.0 重建後速度大幅提升 |
+| 外部記憶 Provider | **v0.22.0 起由 Plugin Catalog 安裝**：Honcho、Supermemory、Hindsight、Mem0、OpenViking、Holographic 等；ByteRover、RetainDB 仍為內建 | 語義搜尋、知識圖譜等進階場景；同時只能啟用一個（`memory.provider`），詳見 3.3 節 |
+| 寫入審批 | `memory.write_approval`（預設 `false`） | v0.21.0 起，`AGENTS.md`、技能與記憶的寫入一律需要審批；可另外對記憶寫入加開審批 |
 
 #### 2.3.5 Tool Layer（工具層）
 
-Hermes 內建 **70+ 工具，分屬約 28 個 Toolset**（v0.14.0 起 debloating 浪潮將部分重型後端改為 lazy install；工具依 `tools/registry.py` 自我註冊，涵蓋 Schema、分派、可用性與錯誤包裝），分為以下類別：
+Hermes 內建 **70+ 工具**，依 `tools/registry.py` 自我註冊。v0.22.0 起約 19 個罕用工具改由 **Tool Search** 延遲載入（Agent 需要時才搜尋並載入），每次呼叫送出的工具 Schema 因此大約減半。下表列出 v0.23.0 的**真實工具名稱**，可用 `hermes tools` 或官方 Tools Reference 核對：
 
-| 類別 | 工具 | 說明 |
+| 類別（Toolset） | 主要工具 | 說明 |
 | ------ | ------ | ------ |
-| Terminal | execute_command, execute_code | 7 種後端：Local, Docker, SSH, Modal, Daytona, Singularity, Vercel Sandbox（v0.15.0 移除，v0.20.0 現代化重新引入） |
-| Browser | browser_open, browser_navigate, browser_console | Playwright / Camofox 反偵測 / Browser Use 託管 / Firecrawl 雲端 / **Lightpanda**（v0.12.0）/ **180 倍 `browser_console` 效能提升**（v0.14.0 持久 CDP 連線） |
-| File | read_file, write_file, search_files | 檔案讀寫、搜尋、.zip 文件支援、**Per-turn 檔案變更驗證 Footer**（v0.14.0）、**LSP 語義診斷**（v0.14.0） |
-| Web | web_search, web_extract, **x_search** | 網頁搜尋與內容擷取、Vision 圖像分析、**SearXNG** 搜尋後端（v0.12.0）、**Brave Search + DDGS**（v0.14.0）、**`x_search` X (Twitter) 搜尋**（v0.14.0） |
-| MCP | 任意 MCP 伺服器 | OAuth 2.1 PKCE 認證，OSV 惡意軟體掃描、**Nous 核准 MCP 目錄**（v0.15.0）、**mTLS 支援**（v0.15.0） |
-| Cron | cron_add, cron_list, cron_remove | 自然語言排程，多平台投遞，Per-job `workdir`（v0.12.0） |
-| Delegation | delegate_task | 委派子代理執行平行任務 |
-| Voice | voice_transcribe, voice_synthesize | STT/TTS 語音轉文字與文字轉語音 |
-| Vision | vision_analyze | **原生像素傳遞**（v0.14.0：Vision 模型直接看圖，不經壓縮） |
-| Video | video_analyze, **video_generate** | 影片理解（v0.13.0）+ **統一 video_generate 可插拔後端**（v0.14.0） |
-| Desktop | **computer_use** | **cua-driver 後端**（v0.14.0：非 Anthropic 模型也可驅動桌面自動化） |
-| Session | **session_search** | **v0.15.0 重建**：無 LLM、免費、4,500 倍快速（~20ms vs ~90s） |
-| A2A | a2a_discover, a2a_call, a2a_list, a2a_history, a2a_orchestrate | 呼叫外部 A2A 相容 Agent，預設關閉的獨立 Toolset（v0.20.0） |
-| Webhook | 出站事件訂閱設定（非傳統 tool call） | HMAC 簽章、notify-only、不可回注上下文（v0.20.0） |
+| `terminal` | `terminal`、`process_manage`、`read_terminal`、`close_terminal` | 6 種內建後端：`local`／`docker`／`ssh`／`modal`／`daytona`／`vercel_sandbox`；Singularity 與 bubblewrap 沙箱為外掛 |
+| `code_execution` | `execute_code` | 在沙箱中執行 Python 腳本，可透過 RPC 一次呼叫多個工具 |
+| `file` | `read_file`、`write_file`、`patch`、`search_files` | 寫入後 Delta Lint 與 LSP 語義診斷；v0.23.0 開啟 LSP 時 `patch`／`write_file` 可在毫秒內回應 |
+| `browser` | `browser_exec`、`browser_cdp`、`browser_dialog`、`browser_vault` | **v0.23.0 只剩 `browser_exec`** 一個主要驅動工具（browser-harness／CDP）；舊的 `browser_navigate`／`browser_click` 等 10 個工具已移除，Camofox 改為外掛 |
+| `web` | `web_search`、`web_extract` | SearXNG、Brave、DDGS、Firecrawl 或 Nous Tool Gateway 等後端 |
+| `x_search` | `x_search` | X（Twitter）搜尋 |
+| `connections` | `manage_connections` | Connectors（v0.22.0）帳號管理 |
+| `cronjob` | `cronjob_manage` | 排程管理（舊名 `cronjob`，仍相容） |
+| `delegation` | `delegate_task` | 委派子代理；可指定 JSON Schema 驗證輸出 |
+| `todo` | `todo_list` | 任務清單（舊名 `todo`，仍相容） |
+| `memory`／`session_search`／`skills` | `memory`、`session_search`、`skill_manage`、`skill_view`、`skills_list` | 記憶、跨對話搜尋、技能管理 |
+| `vision`／`image_gen`／`video`／`video_gen` | `vision_analyze`、`image_generate`、`video_analyze`、`video_generate` | 多模態 |
+| `tts` | `text_to_speech` | 預設 Provider 為 `edge` |
+| `computer_use` | `computer_use` | 以 `cua-driver` 驅動桌面 |
+| `kanban` | `kanban_show`、`kanban_complete`、`kanban_block`… | 看板 Worker 用工具 |
+| `clarify` | `clarify` | 向使用者提問（Telegram／Discord 有原生按鈕） |
+| MCP | 動態註冊 | `mcp_servers.<name>`；可宣告 `trust`、`tool_costs`、`spend_limit` |
+
+> ⚠️ **審查重點**：AI 產生的技能、提示或 `toolsets` 清單若仍出現 `browser_navigate`、`execute_command`、`cron_add`、`voice_synthesize` 等名稱，在 v0.23.0 中**不存在或已移除**，必須改成上表的名稱。
 
 #### 2.3.6 Data Layer（資料層）
 
 | 儲存 | 技術 | 存放內容 |
 | ------ | ------ | ---------- |
-| SQLite | 內建 | Session 歷史、設定、Cron 排程、配送保證台帳 |
-| kanban.db | 獨立 SQLite（每看板一個） | Multi-agent Kanban 任務、Worker 心跳、稽核軌跡 |
-| File System | `~/.hermes/` | Skills、Memories、SOUL.md、Logs |
-| External APIs | HTTP/gRPC | LLM Provider（40+ 種，OpenAI / Anthropic / OpenRouter 等） |
+| `state.db` | SQLite，預設 WAL（`database.journal_mode: wal`）；**單一寫入者**由 Gateway 擔任 | Session 歷史、訊息、配送台帳、Gateway 執行期紀錄 |
+| `kanban/boards/<slug>/kanban.db` | 獨立 SQLite（每個看板一個） | 看板任務、Worker 心跳、稽核軌跡 |
+| `cron/` | 檔案 | 排程定義、執行紀錄、per-job notepad |
+| 檔案系統 | `HERMES_HOME`（預設 `~/.hermes/`；Windows 為 `%LOCALAPPDATA%\hermes`；Docker 為 `/opt/data`） | `config.yaml`、`.env`、Skills、`MEMORY.md`／`USER.md`、`SOUL.md`、logs、`profiles/<name>/` |
+| 外部 API | HTTPS | LLM Provider、Tool Gateway、MCP 遠端伺服器 |
+
+> ⚠️ **檔案系統要求**：WAL 依賴同一主機上的共享記憶體（`state.db-shm`）。若資料目錄位於 NFS、SMB 或 FUSE 等網路檔案系統，必須明確設定 `database.journal_mode: delete`。Docker Desktop／Podman on macOS 的 virtiofs 與 Windows 的 9p 掛載會被自動偵測；但**已存在的 WAL 資料庫不會被線上降級**，必須離線轉換（見 10.1 節）。
 
 ### 2.4 多 Agent 協作架構
 
@@ -1118,91 +1349,96 @@ sequenceDiagram
 
     User->>Main: 複雜任務請求
     Main->>Main: 規劃（Task Decomposition）
-    
+
     par 平行委派
         Main->>Sub1: 研究任務
         Sub1->>Tools: web_search / web_extract
         Sub1-->>Main: 研究結果
     and
         Main->>Sub2: 程式開發
-        Sub2->>Tools: write_file / execute_code
+        Sub2->>Tools: write_file / patch / terminal
         Sub2-->>Main: 程式碼
     end
-    
+
     Main->>Sub3: 測試驗證
-    Sub3->>Tools: execute_command（pytest）
+    Sub3->>Tools: terminal（pytest）
     Sub3-->>Main: 測試結果
-    
+
     Main->>Main: 整合、學習、技能封裝
     Main-->>User: 完成回報
 ```
 
 **關鍵特性**：
 
-- **隔離性**：每個 Subagent 有獨立的 Context Window，不污染主 Agent
-- **零上下文成本**：子代理執行結果以摘要形式回傳，不消耗主 Agent 的上下文
-- **Credential 共享**：子代理共享主 Agent 的 Credential Pool
-- **Workspace 路徑提示**：自動傳遞工作目錄給子代理
+- **隔離性**：每個子代理都有獨立的 Context Window，不會污染主 Agent。
+- **摘要回傳**：子代理的結果以摘要回傳（`delegation.max_summary_chars`，預設 24,000 字元），不會把整段過程塞進主 Agent 的上下文。
+- **並行與深度上限**：`delegation.max_concurrent_children` 預設 10，`max_spawn_depth` 預設 1（子代理不能再生子代理），`max_iterations` 預設 250。
+- **Credential 共享**：預設共享主 Agent 的 Credential Pool；使用 `profile_routes` 時改用目標 Profile 的憑證。
+- **可觀測**：每個委派都會寫入即時逐字稿 `<HERMES_HOME>/cache/delegation/live/<delegation_id>/task-<n>.log`，可用 `tail -f` 追蹤。
 
 ### 2.5 高可用與擴展性設計
 
+v0.23.0 的擴展單位是「**主機**」，而不是「行程」。每台主機有一個 Gateway，擁有該主機 `HERMES_HOME` 中的 `state.db`。因此正確的擴展方式是**依團隊或用途分片到多台主機**，而**不是**在共享資料庫前放負載平衡器、同時跑多個副本。
+
 ```mermaid
 graph TB
-    subgraph "高可用架構"
-        LB[Load Balancer<br/>Nginx / HAProxy]
-        
-        subgraph "Agent Cluster"
-            A1[Hermes Instance 1<br/>Profile: default]
-            A2[Hermes Instance 2<br/>Profile: team-dev]
-            A3[Hermes Instance 3<br/>Profile: team-ops]
-        end
-        
-        subgraph "Shared Storage"
-            NFS[(NFS / S3<br/>Skills + Memories)]
-            DB[(PostgreSQL<br/>Sessions)]
-            REDIS[(Redis<br/>Cache + Queue)]
-        end
-        
-        subgraph "Model Providers"
-            NP[Nous Portal<br/>免費模型]
-            OR[OpenRouter<br/>200+ 模型]
-            OA[OpenAI<br/>GPT-5.5]
-            AN[Anthropic<br/>Claude]
-            GG[Google AI Studio<br/>Gemini]
-            QW[Qwen / xAI<br/>Grok]
-            NV[NVIDIA NIM<br/>Nemotron]
-            BK[AWS Bedrock]
-            LOCAL[Ollama<br/>本地模型]
-        end
+    subgraph EDGE["入口層"]
+        RP["反向代理／零信任存取<br/>TLS + SSO（Dashboard／Webapp 登入閘門）"]
+        CHAT["訊息平台<br/>每個 Bot Token 只綁定一台主機"]
     end
 
-    LB --> A1
-    LB --> A2
-    LB --> A3
-    
-    A1 --> NFS
-    A2 --> NFS
-    A3 --> NFS
-    A1 --> DB
-    A2 --> DB
-    A3 --> DB
-    A1 --> REDIS
-    
-    A1 --> NP
-    A1 --> OR
-    A2 --> OA
-    A3 --> AN
-    A3 --> LOCAL
+    subgraph HOSTA["主機 A：研發團隊"]
+        GWA["Gateway A<br/>Profiles：team-dev、team-qa"]
+        DBA[("本機磁碟 state.db<br/>WAL")]
+        GWA --> DBA
+    end
+
+    subgraph HOSTB["主機 B：維運團隊"]
+        GWB["Gateway B<br/>Profiles：team-ops、oncall"]
+        DBB[("本機磁碟 state.db<br/>WAL")]
+        GWB --> DBB
+    end
+
+    subgraph SHARED["共用服務（無狀態或外部）"]
+        LLM["LLM Provider／內部 Model Gateway<br/>以 fallback_providers 實現 failover"]
+        BAK[("備份儲存<br/>hermes backup → S3／NAS")]
+        SECR["秘密管理<br/>Bitwarden／1Password"]
+    end
+
+    RP --> GWA
+    RP --> GWB
+    CHAT --> GWA
+    CHAT --> GWB
+    GWA --> LLM
+    GWB --> LLM
+    GWA -.-> BAK
+    GWB -.-> BAK
+    GWA -.-> SECR
+    GWB -.-> SECR
+    GWA <-.->|"hermes peer／A2A"| GWB
 ```
 
 **企業級設計要點**：
 
-1. **多 Profile 隔離**：使用 `hermes --profile team-dev` 啟動獨立實例，Memory 和 Skill 完全隔離
-2. **Model Failover**：Credential Pool 支援多個 Provider，主 Provider 失敗自動切換
-3. **Serverless 選項**：Daytona / Modal 後端，閒置時自動休眠，幾乎零成本
-4. **Gateway 集中化**：單一 Gateway 程序管理所有通訊平台連線
+1. **一台主機、一個 Gateway、一個狀態擁有者**：K8s 上請用 `replicas: 1` 搭配 `strategy: Recreate`（見 10.2 節），**不要**使用 RollingUpdate 或 HPA 讓兩個 Pod 同時開啟同一個 `state.db`。
+2. **以分片取代副本**：依團隊、資料分級或地域把 Profile 分配到不同主機。主機之間以 `hermes peer`（Hermes 對 Hermes）或 A2A（跨廠商）協作。
+3. **Model Failover**：可靠性應放在模型層：`fallback_providers` 加上 Credential Pool，主 Provider 失敗時自動切換（見 9.5 節）。
+4. **快速復原優於熱備援**：定期執行 `hermes backup` 並異地保存，搭配 `hermes import` 還原，以 RTO／RPO 目標設計備份頻率（見 10.5 節）。
+5. **Serverless 終端後端**：Daytona／Modal 後端閒置時自動休眠，適合突發性的重型運算。
 
-> **注意事項**：Hermes Agent 已正式支援 Windows（v0.16.0+）。企業部署可使用 Desktop App / Linux VM / WSL2 / Docker 容器。
+> ❌ **反例（請勿採用）**：以 Nginx 負載平衡分流到三個 Hermes 實例，並共享 NFS 上的 `state.db` 或 PostgreSQL。Hermes 沒有 PostgreSQL 儲存後端；多行程同時寫入網路檔案系統上的 SQLite 會造成鎖定錯誤，甚至資料毀損。
+
+### 2.6 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 每台主機只有一個 Gateway | `hermes gateway status`；`hermes -p <profile> gateway start` | 只有一個 Gateway 行程；具名 Profile 自行啟動會以 exit 78 被拒絕（除非刻意設定 `gateway.standalone: true`） |
+| 2 | Profile 多工已啟用 | `hermes config get gateway.multiplex_profiles` | `true` |
+| 3 | `state.db` 位於本機磁碟 | `hermes config path` 找出 `HERMES_HOME`，再以 `df -T <路徑>`（Linux）檢查檔案系統類型 | ext4／xfs／apfs／NTFS 等本機檔案系統；若為 nfs／cifs，`database.journal_mode` 必須為 `delete` |
+| 4 | 資料庫健康 | `hermes doctor` | 沒有 WAL／journal mode 相關錯誤 |
+| 5 | 工具名稱為現行名稱 | `hermes tools`；搜尋技能與提示中的 `browser_navigate`、`execute_command` 等舊名 | 只出現 2.3.5 表列的名稱 |
+| 6 | 架構文件沒有多副本共享狀態 | 人工審查 AI 產出的部署圖 | 沒有「LB → 多個 Hermes → 共享 DB」的設計；K8s 為 `replicas: 1` + `Recreate` |
+| 7 | 委派上限已評估 | `hermes config get delegation.max_concurrent_children` | 依成本政策調整（預設 10）；正式環境建議明確寫入設定，而不是依賴預設值 |
 
 ---
 
@@ -1210,7 +1446,7 @@ graph TB
 
 ### 3.1 Learning Loop（學習迴圈）
 
-Learning Loop 是 Hermes 最核心的差異化設計，使其成為唯一具備「自我改進」能力的開源 Agent。
+Learning Loop 是 Hermes 官方定位的核心差異化設計：Agent 會把完成任務的經驗封裝成可重用的技能，並在後續使用中持續修正。（「唯一具備自我改進能力」屬行銷說法，企業評估時應以實測為準。）
 
 ```mermaid
 graph TD
@@ -1272,67 +1508,83 @@ Agent 自動回顧：
 
 #### 3.2.1 技能結構
 
-每個 Skill 是一個目錄，包含一個 Markdown 指令檔：
+每個 Skill 是一個目錄，其中**必須**有一個 `SKILL.md`（大寫檔名，含 YAML frontmatter），並可附帶參考文件與輔助腳本。所有技能（內建、Hub 安裝、Agent 自建）都存放在同一個目錄 `~/.hermes/skills/`，以**分類子目錄**組織，而不是以來源區分：
 
 ```text
-~/.hermes/skills/
-├── bundled/                    # 官方內建技能
-│   ├── claude-code/
-│   │   └── skill.md
-│   ├── popular-web-designs/
-│   │   └── skill.md
-│   ├── gitnexus-explorer/
-│   │   └── skill.md
-│   ├── humanizer/              # v0.12.0: 去除 AI 文風
-│   │   └── skill.md
-│   └── spotify/                # v0.12.0: Spotify 整合技能
-│       └── skill.md
-├── user/                       # 使用者自建技能
-│   ├── spring-security-audit/
-│   │   └── skill.md
-│   └── bank-api-generator/
-│       └── skill.md
-└── community/                  # 社群下載技能
-    └── research-paper-writing/
-        └── skill.md
+~/.hermes/skills/                  # 唯一的技能來源目錄（每個 Profile 各自一份）
+├── software-development/          # 分類目錄
+│   ├── test-driven-development/   # 內建技能（安裝或 hermes update 時播種）
+│   │   └── SKILL.md
+│   └── spring-security-audit/     # Agent 自建或使用者撰寫
+│       ├── SKILL.md               # 主要指示（必要）
+│       ├── references/            # 補充文件
+│       ├── templates/             # 輸出範本
+│       └── scripts/               # 技能可呼叫的輔助腳本
+├── .hub/                          # Skills Hub 狀態
+│   ├── lock.json                  # 來源 URL、內容雜湊、掃描結果
+│   ├── quarantine/                # 安裝前隔離區
+│   └── audit.log
+└── .bundled_manifest              # 記錄已播種的內建技能
 ```
+
+> 💡 **審查重點**：從 URL 或 GitHub 安裝的技能，只會複製 `SKILL.md` 與它**明確引用**的 `references/`、`templates/`、`scripts/`、`assets/`、`examples/` 檔案；Hermes 會先在隔離區掃描整包內容，並把來源、雜湊、掃描器版本與結果記錄在 `.hub/lock.json`。稽核時可直接檢查這個檔案。
 
 #### 3.2.2 Skill 範例
 
 ```markdown
-# spring-security-audit
+---
+name: spring-security-audit
+description: 掃描 Spring Boot 專案的依賴 CVE、注入風險與認證設定，產出分級報告
+version: 1.0.0
+platforms: [linux, macos]
+metadata:
+  hermes:
+    tags: [security, java, spring]
+    category: software-development
+    requires_toolsets: [terminal, web]
+    config:
+      - key: spring_audit.severity_threshold
+        description: 報告的最低嚴重度
+        default: "medium"
+        prompt: "最低回報嚴重度（low/medium/high）"
+---
 
-## Description
-掃描 Spring Boot 專案的常見安全漏洞，包括依賴 CVE、程式碼注入風險、認證配置問題。
+# Spring Security Audit
 
-## Steps
-1. 讀取 pom.xml 或 build.gradle，列出所有依賴版本
-2. 使用 web_search 查詢各依賴的已知 CVE
-3. 掃描 src/ 目錄中的以下模式：
-   - SQL String Concatenation（SQL Injection 風險）
-   - @CrossOrigin 無限制（CORS 風險）
-   - 硬編碼密碼或 API Key
-4. 檢查 Spring Security 配置（SecurityFilterChain）
-5. 生成安全報告（表格格式 + 嚴重度 + 修復建議）
+## When to Use
+使用者要求檢查 Spring Boot／Spring Security 專案的安全性，或在 PR 合併前做安全審查時。
 
-## Config
-- scan_depth: 3  # 掃描目錄深度
-- severity_threshold: medium  # 最低報告嚴重度
+## Procedure
+1. 讀取 `pom.xml` 或 `build.gradle`，列出所有依賴與版本。
+2. 用 `web_search` 查詢各依賴的已知 CVE（優先 NVD、GitHub Advisory）。
+3. 用 `search_files` 掃描 `src/`：SQL 字串串接、`@CrossOrigin` 未限制來源、硬編碼的密碼或 API Key。
+4. 檢查 `SecurityFilterChain` 設定（CSRF、CORS、授權規則）。
+5. 依 `spring_audit.severity_threshold` 過濾後，輸出「發現／嚴重度／檔案:行號／修正建議」表格。
+
+## Pitfalls
+- 不要把測試目錄中的假憑證當成真實洩漏；先確認路徑是否在 `src/test/`。
+- CVE 版本範圍要逐一比對，不能只比對套件名稱。
+
+## Verification
+- 報告中每一項都附有檔案路徑與行號，可以人工點開核對。
+- 執行 `mvn -q dependency:tree` 的結果與報告列出的依賴版本一致。
 ```
+
+> ✅ **如何驗證技能格式**：`hermes skills inspect spring-security-audit` 可以顯示解析後的中繼資料；frontmatter 格式錯誤時，技能不會出現在 `hermes skills list` 中。技能宣告的 `config` 會存在 `config.yaml` 的 `skills.config` 下，`hermes config migrate` 會詢問尚未設定的值。
 
 #### 3.2.3 技能管理指令
 
 | 指令 | 說明 |
 | ------ | ------ |
 | `/skills` | 列出所有可用技能 |
-| `/<skill-name>` | 執行特定技能，支援堆疊（如 `/github-pr-workflow /test-driven-development`） |
+| `/<skill-name>` | 執行特定技能，支援堆疊（如 `/github /test-driven-development`，兩者皆為 v0.23.0 內建技能） |
 | `/learn <對象>`（v0.18.0） | 將目錄／URL／剛示範的操作萃取為可重用 Skill，依 `CONTRIBUTING.md` 標準撰寫 |
 | `hermes skills browse\|search\|install\|inspect\|list` | 瀏覽、搜尋、安裝、檢視、列出技能 |
 | `hermes skills check\|update\|uninstall` | 檢查更新、更新、解除安裝 |
-| `hermes skills opt-out\|opt-in` | 停用／啟用特定技能來源 |
+| `hermes skills opt-out\|opt-in` | 停止／恢復在此 Profile 播種內建技能（寫入 `.no-bundled-skills` 標記；`opt-out --remove` 只刪除未修改過的內建技能） |
 | `hermes skills tap add owner/repo` | 新增自訂 GitHub Tap 作為技能來源 |
 | `hermes bundles list\|show\|create\|delete` | 管理 Skill Bundle（一個 Slash Command 載入多個技能） |
-| `hermes curator status\|run\|pause\|resume\|pin\|unpin` | 技能庫維護（見 3.7 節） |
+| `hermes curator status\|run\|pause\|resume\|pin\|unpin\|lock\|unlock` | 技能庫維護（見 3.7 節；`lock` 為 v0.23.0 新增，禁止 Agent 改寫） |
 | 自動建立 | Agent 複雜任務完成後自動封裝 |
 
 技能採**漸進式揭露（Progressive Disclosure）**三層架構以節省 Token：Level 0 `skills_list()`（僅中繼資料，約 3k tokens）→ Level 1 `skill_view(name)`（完整內容）→ Level 2 `skill_view(name, path)`（特定參考檔案）。
@@ -1351,6 +1603,7 @@ Hermes 支援 [agentskills.io](https://agentskills.io/) 開放標準，技能可
 | 直接 SKILL.md URL | 單一技能檔案直接安裝 |
 
 **v0.17.0 Skills Hub Browser 重做**（v0.20.0 起支援 Connected Hubs 多來源並存）：
+
 - **Connected Hubs**：可連接多個 Hub 來源（官方 + 企業內部 + 第三方）
 - **Featured Section**：精選推薦技能展示區
 - **安全掃描**：安裝前自動掃描技能是否含資料外洩／提示注入／破壞性操作模式（`--force` 可覆寫非危險性發現）
@@ -1399,58 +1652,70 @@ graph LR
 
 #### 3.3.1 記憶提供者比較
 
-外部記憶為**單選式插件**（每個 Profile 僅能啟用一種），與內建 MEMORY.md／USER.md 並存互補。官方文件目前列出 **9 種**：
+外部記憶為**單選式外掛**（每個 Profile 只能啟用一種，設定於 `memory.provider`），與內建 `MEMORY.md`／`USER.md` 並存互補。**v0.22.0 起，多數 Provider 已移出 Hermes 核心，改由各維護者透過 Plugin Catalog 發布**；`hermes update` 會自動替已設定這些 Provider 的 Profile 安裝對應外掛，名稱、設定與資料目錄都不變。
 
-| Provider | 儲存位置 | 費用模式 | 特點 | 工具數 |
-| ---------- | ------ | ------ | ------ | ------ |
-| 內建 | 本地檔案 | 免費 | MEMORY.md + USER.md，零依賴，2,200／1,375 字元上限 | - |
-| Honcho | 雲端或自架 | 自架免費／雲端付費 | 辯證式使用者建模、跨 Session Context 注入、信任分數 | 5 |
-| Mem0 | 雲端／自架 Docker／內嵌 OSS | 自架免費、雲端付費 | 伺服器端 LLM 事實萃取、語義搜尋、去重 | 4 |
-| Supermemory | 雲端或自架 | 自架免費、雲端付費 | 多容器隔離、`search_mode` 混合搜尋、Session 結束自動彙整 | 4 |
-| Hindsight | 雲端或本地嵌入式 PostgreSQL | 本地免費、雲端付費 | 知識圖譜、實體解析、獨有 `hindsight_reflect` 跨記憶合成 | 3 |
-| OpenViking | 自架（位元組跳動 Volcengine） | 免費（AGPL-3.0） | 檔案系統式階層結構、分層檢索、自動萃取 6 大類別 | 6 |
-| Holographic | 本地 SQLite | 免費 | FTS5 全文檢索、信任評分、HRR 全像縮減表示組合式查詢 | fact_store（9 動作）+ feedback |
-| RetainDB | 雲端 | **$20／月** | 混合搜尋（Vector + BM25 + 重排序）、7 種記憶類型、差量壓縮 | 10 |
-| ByteRover | 本地預設／可選雲端同步 | 本地免費、雲端付費 | 階層知識樹、分層檢索、**SOC 2 Type II 認證** | 3 |
-| Memori | Memori Cloud | 付費 | 結構化長期記憶、背景擷取已完成輪次、工具感知上下文 | 5 |
+| Provider | 安裝方式（v0.23.0） | 儲存位置 | 費用模式 | 特點 | 工具數 |
+| ---------- | ------ | ------ | ------ | ------ | ------ |
+| 內建 | 無需安裝 | 本地檔案 | 免費 | `MEMORY.md` + `USER.md`，零依賴，2,200／1,375 字元上限 | - |
+| Honcho | `hermes plugins install honcho`（Plastic Labs 維護） | 雲端或自架 | 自架免費／雲端付費 | 辯證式使用者建模、Session 範圍上下文注入 | 5 |
+| Mem0 | `hermes plugins install mem0` | 雲端／自架 | 自架免費、雲端付費 | 伺服器端 LLM 事實萃取、去重 | 4 |
+| Supermemory | `hermes plugins install supermemory` | 雲端或自架 | 自架免費、雲端付費 | 多容器隔離、Session 圖譜匯入 | 4 |
+| Hindsight | `hermes plugins install hindsight` | 雲端或本地 | 本地免費、雲端付費 | 知識圖譜、`reflect` 跨記憶合成 | 3 |
+| OpenViking | `hermes plugins install openviking` + 自架伺服器 | 自架 | 免費（AGPL-3.0） | 檔案系統式階層、分層載入 | 6 |
+| Holographic | `hermes plugins install holographic` | 本地 SQLite | 免費 | HRR 代數、信任評分 | 2 |
+| RetainDB | 內建（相依 `requests`） | 雲端 | $20／月 | Vector + BM25 + 重排序、差量壓縮 | 10 |
+| ByteRover | 內建（需 `brv` CLI） | 本地預設／可選雲端 | 本地免費、雲端付費 | 壓縮前萃取、階層知識樹 | 3 |
+| Memori | 外部套件 `hermes-memori` | Memori Cloud | 免費／付費 | 工具感知記憶、結構化回想 | 5 |
+
+> ⚠️ **待確認事項**：官方 Memory Providers 文件一方面說 RetainDB 與 ByteRover「仍隨 Hermes 內建」，另一方面又說它們「於 2026-10-15 移出核心，獨立倉庫目前無人維護」。v0.23.0 原始碼的 `plugins/memory/` 中**仍包含**這兩者。企業若選用，應把「上游無人維護」列為風險（見附錄 E.4）。
 
 > **選型建議**：個人／小型團隊優先使用內建方案（零依賴、零成本）；需要跨 Session 使用者建模選 Honcho；企業多租戶場景優先 Supermemory 或 RetainDB；重視資料主權可完全自架的選 OpenViking（AGPL-3.0）或 Holographic（純本地 SQLite，無任何外部依賴）；已通過 SOC 2 稽核要求的環境可考慮 ByteRover。
 
 #### 3.3.2 記憶設定範例
 
-```yaml
-# ~/.hermes/config.yaml
-memory:
-  provider: supermemory  # 或 mem0, honcho, builtin
-  auto_save: true
-  nudge_interval: 5      # 每 5 輪對話提醒一次持久化
-  
-  supermemory:
-    containers:
-      - name: project-knowledge
-        description: "專案技術知識"
-      - name: user-preferences  
-        description: "使用者偏好與習慣"
-    search_mode: hybrid    # keyword + semantic
+```bash
+# 建議做法：用互動式精靈選擇並設定 Provider（會提示安裝 Catalog 外掛）
+hermes plugins install supermemory
+hermes memory setup
+hermes memory status        # 確認目前啟用的 Provider
 ```
+
+```yaml
+# ~/.hermes/config.yaml — 記憶相關設定（鍵名以 v0.23.0 DEFAULT_CONFIG 為準）
+memory:
+  memory_enabled: true        # false 會移除 memory 工具
+  user_profile_enabled: true
+  memory_char_limit: 2200
+  user_char_limit: 1375
+  nudge_interval: 10          # 每 10 輪提醒一次持久化
+  write_approval: true        # 企業建議：非互動介面的記憶寫入需人工核准
+  provider: supermemory       # 外部 Provider（需先安裝外掛）；空字串 = 僅用內建
+```
+
+> 💡 **Provider 專屬設定放在哪裡？** 外部 Provider 的金鑰與參數**不是**寫在 `memory.<provider>` 子鍵下：Honcho、Mem0、Hindsight、Supermemory 把設定存在 `$HERMES_HOME/` 中各自的設定檔，OpenViking 讀取各 Profile 的 `.env`。舊版文件中的 `memory.auto_save`、`memory.supermemory.containers` 都不是有效設定鍵；請以 `hermes memory setup` 產生設定。
 
 #### 3.3.3 Memory Atomic Batch Operations（v0.17.0+）
 
-v0.17.0 引入的 `memory` 工具原子批次操作，允許在單次 tool call 中完成多項記憶異動：
+v0.17.0 引入的 `memory` 工具批次操作，允許在單次工具呼叫中完成多項記憶異動。動作只有三種：`add`（新增）、`patch`（以 `old_text` 找到片段並以 `content` 取代）、`remove`（以 `old_text` 子字串比對刪除）；沒有 `read` 動作，因為記憶內容會在 Session 開始時自動注入 System Prompt。
 
-```python
-# Agent 內部 tool call 格式
-memory(operations=[
-    {"action": "add", "key": "new_learning", "value": "React 19 uses compiler..."},
-    {"action": "replace", "key": "project_phase", "value": "production"},
-    {"action": "remove", "key": "outdated_note_xyz"}
-])
+```json
+{
+  "target": "memory",
+  "operations": [
+    {"action": "add", "content": "專案使用 Java 25 + Spring Boot 4.1，測試用 JUnit 6"},
+    {"action": "patch", "old_text": "phase-1", "content": "phase-2（2026-11 上線）"},
+    {"action": "remove", "old_text": "已淘汰的 Redis 叢集位址"}
+  ]
+}
 ```
 
-**核心保證**：
-- **原子性**：所有操作要麼全部成功，要麼全部回滾
-- **Character Budget**：自動追蹤記憶總容量，接近上限時建議壓縮或移除
-- **衝突解決**：同一 key 的多次操作按陣列順序執行
+**核心規則**：
+
+- **`target` 必填**：`"memory"`（Agent 筆記）或 `"user"`（使用者側寫）。一個批次只能針對一個 target；若某個操作內的 target 與頂層不同，會在寫入前直接回錯。
+- **容量檢查看最終結果**：字元上限只檢查整批套用後的結果。新增內容會超限時，工具會回傳 `current_entries` 並要求 Agent 以**一個**批次先刪減再新增。
+- **寫入審批**：`memory.write_approval: true` 時，非互動介面的寫入會被暫存，需以 `/memory pending`、`/memory approve all` 核准。
+
+> ⚠️ **更正**：舊版文件使用的 `{"action": "add", "key": ..., "value": ...}` 格式**不存在**；記憶項目沒有 key，是以內容子字串比對。
 
 ### 3.4 Planning / Execution Flow
 
@@ -1493,46 +1758,57 @@ stateDiagram-v2
 Hermes 將工具組織為 **Toolsets**（工具集），可個別啟用或停用：
 
 ```bash
-hermes tools                    # 列出所有工具集與狀態
-hermes tools enable browser     # 啟用瀏覽器工具集
-hermes tools disable delegation # 停用委派工具集
+hermes tools                         # 互動式啟用／停用工具集
+hermes tools list                    # 列出所有工具集與狀態
+hermes tools enable browser          # 啟用瀏覽器工具集
+hermes tools disable delegation      # 停用委派工具集
+hermes tools list --platform telegram   # 檢視特定平台的工具集設定
 ```
 
-| Toolset | 包含工具 | 預設狀態 |
+下表為 v0.23.0 的核心 Toolset 與真實工具名稱（完整清單見官方 Toolsets Reference）：
+
+| Toolset | 包含工具 | 備註 |
 | --------- | --------- | ---------- |
-| `core` | execute_command, read_file, write_file, search_files, patch | 啟用 |
-| `browser` | browser_open, browser_navigate, browser_console, browser_screenshot | 停用 |
-| `web` | web_search, web_extract | 啟用 |
-| `delegation` | delegate_task | 啟用 |
-| `mcp` | 外部 MCP 伺服器工具 | 依設定 |
-| `cron` | cron_add, cron_list, cron_remove, cron_status | 啟用 |
-| `code` | execute_code | 啟用 |
-| `voice` | voice_transcribe, voice_synthesize | 停用 |
-| `spotify` | spotify_play, spotify_pause, spotify_search 等 | v0.12.0 停用 |
-| `kanban` | kanban_create, kanban_assign, kanban_status 等 | v0.13.0 啟用 |
-| `video` | **video_analyze**（原生影片理解，Gemini + 相容多模態模型） | v0.13.0 停用 |
-| `image` | image_generate（含 v0.17.0 image-to-image editing mode） | 停用 |
-| `automation` | blueprint_create, blueprint_list, blueprint_run（v0.17.0 Automation Blueprints） | v0.17.0 啟用 |
+| `terminal` | `terminal`、`process_manage`、`read_terminal`、`close_terminal` | `process` 已更名為 `process_manage`（舊名仍相容） |
+| `file` | `read_file`、`write_file`、`patch`、`search_files` | 寫入後自動 Lint／LSP 診斷 |
+| `code_execution` | `execute_code` | 以 Python 腳本批次呼叫工具 |
+| `web` | `web_search`、`web_extract` | |
+| `browser` | `browser_exec`、`browser_cdp`、`browser_dialog`、`browser_vault` | **v0.23.0 移除舊的 10 個 `browser_*` 工具** |
+| `delegation` | `delegate_task` | |
+| `cronjob` | `cronjob_manage` | 舊名 `cronjob` 仍相容 |
+| `todo` | `todo_list` | 舊名 `todo` 仍相容 |
+| `memory`／`session_search`／`skills` | `memory`、`session_search`、`skill_manage`、`skill_view`、`skills_list` | |
+| `connections` | `manage_connections` | Connectors 與本機 MCP 目錄 |
+| `kanban` | `kanban_show`、`kanban_complete`、`kanban_block`、`kanban_heartbeat` 等 | 供看板 Worker 使用 |
+| `vision`／`image_gen` | `vision_analyze`、`image_generate` | |
+| `video`／`video_gen` | `video_analyze`、`video_generate` | |
+| `tts` | `text_to_speech` | 語音輸入（STT）由語音模式處理，不是工具 |
+| `computer_use` | `computer_use` | |
+| `clarify` | `clarify` | |
+| 組合型 | `coding`、`debugging` 等 | 由多個 Toolset 組成的套組，例如 `coding` = file + terminal + web + skills + browser + … |
+
+> ⚠️ **更正**：舊版文件中的 `core`、`cron`、`code`、`voice`、`automation` 等 Toolset 名稱，以及 `execute_command`、`browser_navigate`、`cron_add`、`voice_synthesize`、`blueprint_create` 等工具名稱，在 v0.23.0 中都不存在。Automation Blueprints 是以 `/blueprint` 斜線指令操作，不是工具。
 
 #### 3.5.2 MCP（Model Context Protocol）擴展
 
 ```yaml
-# ~/.hermes/config.yaml
-mcp:
-  servers:
-    - name: github
-      command: npx
-      args: ["@modelcontextprotocol/server-github"]
-      env:
-        GITHUB_TOKEN: "${GITHUB_TOKEN}"
-    - name: postgres
-      command: npx
-      args: ["@modelcontextprotocol/server-postgres"]
-      env:
-        DATABASE_URL: "${DATABASE_URL}"
+# ~/.hermes/config.yaml — MCP 伺服器定義在頂層 mcp_servers（以伺服器名稱為鍵的 map）
+mcp_servers:
+  github:
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-github"]
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_TOKEN}"
+    trust: untrusted            # 具寫入能力的呼叫都要審批
+  postgres:
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-postgres", "postgresql://readonly@db:5432/app"]
 ```
 
+> ⚠️ **更正**：舊版文件使用的 `mcp: servers: [- name: …]` 清單格式**不是**有效設定（`mcp` 區塊只放全域選項）。伺服器一律寫在 `mcp_servers.<名稱>` 下；也可以用 `hermes mcp add` 或 `hermes mcp install <目錄名稱>` 產生。
+
 **安全特性**：
+
 - OAuth 2.1 PKCE 認證（v0.8.0 新增）
 - OSV 惡意軟體掃描（自動檢測 MCP 套件漏洞）
 - 工具過濾（可限制 MCP 伺服器暴露的工具）
@@ -1566,33 +1842,39 @@ mcp_servers:
 | SSH | SSH 連線 | 遠端伺服器 | 生效 |
 | Daytona | Daytona API | Serverless（閒置休眠） | **不生效**（沙箱本身即為安全邊界） |
 | Modal | Modal API | GPU 計算 / Serverless | **不生效** |
-| Singularity | Container | HPC 環境 | **不生效** |
+| Singularity | Container（**v0.23.0 起移為外掛**，曾使用者升級時自動安裝） | HPC 環境 | **不生效** |
 | Vercel Sandbox | Vercel API | Serverless | **不生效** |
 
 > **版本沿革**：v0.15.0 曾移除 Vercel Sandbox 後端（與 Vercel AI Gateway 一併下架），**v0.20.0 現代化重寫後重新引入**。企業若在 v0.15.0～v0.19.x 期間已遷移至 Docker／Daytona／Modal，可自行評估是否切回，非必要變更。
 >
 > ⚠️ **安全提醒**：雲端後端（Daytona／Modal／Vercel Sandbox／Singularity）**略過危險指令審批檢查**，官方文件明確說明其安全模型改為「沙箱本身即邊界」——選用這些後端前，務必確認沙箱之網路存取、憑證掛載範圍已依 9.1 節原則收斂。
 
-**瀏覽器後端**（v0.8.0 更新）：
+**瀏覽器來源**（v0.23.0）：工具一律是 `browser_exec`，「瀏覽器從哪裡來」則是另一個選擇：
 
-| 後端 | 說明 | 適用場景 |
+| 來源 | 說明 | 適用場景 |
 | ------ | ------ | ---------- |
-| Playwright | 本地 Chromium 瀏覽器 | 一般網頁操作 |
-| Camofox | 反偵測 Firefox 瀏覽器 | 需要反偵測的場景 |
-| Browser Use | 託管瀏覽器服務（取代 Browserbase） | 雲端瀏覽、免本地安裝 |
-| Firecrawl | 雲端網頁擷取服務 | 大規模網頁爬取 |
+| 本機 Chromium（預設） | Hermes 啟動自己封裝的 Chromium（Chrome for Testing），headless，每個 Session 一個 | 一般網頁操作，免 API Key |
+| 雲端瀏覽器 | Nous 訂閱、Browserbase、Browser Use、Firecrawl 或瀏覽器 Provider 外掛 | 免本機安裝、需要雲端 IP |
+| Lightpanda | 輕量 headless 引擎（`browser.engine: lightpanda`） | 小型機器上的文字型瀏覽 |
+| 自己的瀏覽器 | `/browser connect` 附加到執行中的 Chrome／Brave／Edge | 需要人機共視 |
+| 真實設定檔 | 日常瀏覽器設定檔的受管理副本（含登入狀態，需明確開啟） | 需要既有登入的工作 |
+| Camofox | 反偵測 Firefox，**v0.23.0 起為外掛**（曾使用者自動安裝） | 需要反偵測的場景 |
 
 ```yaml
-# ~/.hermes/config.yaml
+# ~/.hermes/config.yaml — Docker 終端後端（v0.23.0 為扁平鍵 terminal.docker_*）
 terminal:
   backend: docker
-  docker:
-    image: "python:3.11-slim"
-    docker_env:
-      PYTHONPATH: "/workspace"
-    volumes:
-      - "./project:/workspace"
+  docker_image: "python:3.13-slim"
+  docker_env:
+    PYTHONPATH: "/workspace"
+  docker_volumes:
+    - "./project:/workspace"
+  docker_network: "none"          # 企業建議：預設無網路，需要時再開
+browser:
+  allow_private_urls: false       # 禁止瀏覽內網位址（SSRF 防護）
 ```
+
+> ⚠️ **更正**：舊版文件的 `terminal.docker.image`／`terminal.docker.volumes` 巢狀格式不是有效設定鍵；正確為 `terminal.docker_image`、`terminal.docker_volumes`、`terminal.docker_env`。
 
 #### 3.5.4 Tool Search（延遲式工具 Schema 載入）
 
@@ -1609,14 +1891,15 @@ terminal:
 為維持可發現性，Hermes 仍會嵌入一份「技能風格」的精簡清單（僅工具名稱與一行描述），讓模型知道有哪些能力存在。
 
 ```yaml
-# ~/.hermes/config.yaml
-tool_search:
-  enabled: auto            # auto = 偵測到有可延遲載入的工具時自動啟用
-  threshold_pct: 5         # 清單預算佔 context 的百分比上限
-  search_default_limit: 5  # 每次查詢預設回傳結果數
-  max_search_limit: 25     # 每次查詢的硬上限
-  listing: auto            # 空間足夠時嵌入工具清單
-  listing_max_tokens: 4000 # 嵌入清單的 Token 上限
+# ~/.hermes/config.yaml — Tool Search 位於 tools.tool_search 之下
+tools:
+  tool_search:
+    enabled: auto            # auto = 偵測到有可延遲載入的工具時自動啟用
+    threshold_pct: 5         # 清單預算佔 context 的百分比上限
+    search_default_limit: 5  # 每次查詢預設回傳結果數
+    max_search_limit: 25     # 每次查詢的硬上限
+    listing: auto            # 空間足夠時嵌入工具清單
+    listing_max_tokens: 4000 # 嵌入清單的 Token 上限
 ```
 
 **企業考量與取捨**：
@@ -1631,59 +1914,66 @@ tool_search:
 
 Hermes 的 `/model` 指令支援即時切換模型與 Provider（v0.5.0 引入，v0.8.0 大幅強化）：
 
-```bash
-# CLI 切換
-/model anthropic:claude-sonnet-4-20250514
-/model openrouter:deepseek/deepseek-r1
-/model nous:hermes-3-405b
-/model google:gemini-2.5-pro
-/model qwen:qwen-max
-/model xai:grok-3
-/model xai:grok-composer-2.5-fast   # v0.17.0: Cursor Composer 模型, 200k context
-/model vertex:gemini-2.5-pro        # v0.18.0: Google Vertex AI，Service Account／ADC 自動換發 Token
-/model fireworks:llama-4-maverick   # v0.19.0: Fireworks AI，Provider 選擇器第二順位
+```text
+# 對話中切換（格式為 /model [provider:]model）
+/model anthropic:claude-sonnet-5-5
+/model openrouter:deepseek/deepseek-v4-pro
+/model nous:nvidia/nemotron-3-ultra:free   # Nous Portal 免費層
+/model vertex:gemini-4-argon
+/model xai:grok-4.5
+/model claude-opus-5-5 --reasoning high   # v0.22.0：選模型時一併指定推理強度
+/model custom:local:qwen                   # 具名自訂 Provider
+/model @preset/my-team                     # OpenRouter 帳號預設組合
 
-# 查看當前模型
-/model
-
-# 切換 Provider（v0.16.0+ Fuzzy Model Picker：所有介面統一模糊搜尋）
-hermes model   # 互動式選擇
-
-# Mixture-of-Agents（v0.18.0 起與一般模型並列於選擇器）
-hermes moa list          # 列出可用的 MoA 預設組合
-hermes moa configure      # 設定參考模型 + 聚合器
-/moa                      # 一次性套用預設 MoA 組合執行單一提示
+/model                                     # 開啟模型選擇器（可加星號、顯示訂閱剩餘額度）
+/reasoning xhigh                           # 單獨調整推理強度：none/minimal/low/medium/high/xhigh/max/ultra
+/moa                                       # 一次性套用預設 MoA 組合執行單一提示
 ```
 
-> **推理強度分級**（v0.19.0 新增 `max`／`ultra`）：`/model --effort low|medium|high|max|ultra` 可依任務複雜度調整推理深度，`max`／`ultra` 主要對應 GPT-5.6／Codex 頂層模型；MoA 亦支援每個參考模型槽位各自設定不同推理強度（例如顧問模型深度思考、聚合器保持快速）。
+```bash
+hermes model              # 互動式選擇 Provider 與模型（含 Local models）
+hermes moa list           # 列出可用的 MoA 預設組合
+hermes moa configure      # 設定參考模型 + 聚合器
+```
+
+> **推理強度**（v0.19.0 新增 `max`／`ultra`）：以 `/reasoning <level>` 調整，加上 `--global` 會寫回設定檔；`max`／`ultra` 主要對應頂層推理模型。MoA 的每個參考模型槽位可以各自設定不同推理強度。模型名稱會隨 Provider 目錄更新，**實際可用名稱請以 `/model` 選擇器或 `hermes model` 列出的為準**。
 
 #### 3.6.1 Credential Pool 與 Failover
 
 ```yaml
-# ~/.hermes/config.yaml
-providers:
-  primary: anthropic
-  fallback:
-    - openrouter
-    - nous
-  
-  anthropic:
-    api_key: "${ANTHROPIC_API_KEY}"
-    model: claude-sonnet-4-20250514
-  
-  openrouter:
-    api_key: "${OPENROUTER_API_KEY}"
-    model: anthropic/claude-sonnet-4-20250514
-  
-  nous:
-    # OAuth 自動管理
-    model: hermes-3-405b
+# ~/.hermes/config.yaml — 主模型 + 依序備援 + 輔助任務模型
+model:
+  provider: anthropic
+  default: claude-sonnet-5-5
 
-# 輔助模型（壓縮 / Vision / 摘要）
-auxiliary:
-  provider: nous
-  model: mimo-v2-pro  # 免費模型
+fallback_providers:              # 依序嘗試；每一項都必須同時有 provider 與 model
+  - provider: openrouter
+    model: anthropic/claude-sonnet-5.5
+  - provider: nous
+    model: nvidia/nemotron-3-ultra:free
+
+fallback:
+  min_switch_reset_seconds: 120  # 主 Provider 若在 120 秒內恢復就不切換（0 = 一律切換）
+
+auxiliary:                       # 輔助任務各自設定，沒有全域的 auxiliary.provider
+  compression:
+    provider: nous
+    model: nvidia/nemotron-3-ultra:free   # 免費層，適合摘要／壓縮
+  vision:
+    provider: openrouter
+    model: google/gemini-3-flash
 ```
+
+```bash
+hermes fallback add          # 互動式新增備援 Provider
+hermes fallback list
+hermes auth add openrouter --api-key "$OPENROUTER_API_KEY"   # 加入 Credential Pool
+hermes auth list
+```
+
+> ⚠️ **更正**：舊版文件的 `providers.primary`／`providers.fallback` 結構與頂層 `auxiliary.provider`／`auxiliary.model` 都不是有效設定。`providers:` 用來定義**自訂端點**（如 `providers.llamacpp.base_url`），備援要用 `fallback_providers`，輔助模型要用 `auxiliary.<任務>`（`compression`、`vision`、`title_generation`、`curator` 等 20 餘種）。
+>
+> **觸發條件**：429 限流與 500／502／503 錯誤會在重試用盡後切換；401／403 認證失敗則**立即**切換。若限流回應帶有重設時間，主 Provider 會被暫停到該時間為止；否則採 60 秒到 4 小時的指數退避。
 
 #### 3.6.2 Model Routing 策略
 
@@ -1711,12 +2001,13 @@ graph TD
 ```
 
 **關鍵特性**：
+
 - **Aggregator-aware Resolution**：透過 OpenRouter / Nous Portal 路由時，自動解析最佳模型
 - **Payment Fallback**：402 錯誤（餘額不足）自動切換下一個 Provider
 - **Jittered Retry Backoff**：避免多實例同時重試造成的 thundering herd
 - **Stale OAuth Recovery**：過期 OAuth Token 自動刷新（v0.8.0 修正）
 
-> **最佳實踐**：企業部署建議配置至少 2 個 Provider（Primary + Fallback），並使用免費的 Nous Portal mimo-v2-pro 作為輔助模型。這樣即使主 Provider 當機，Agent 仍可用 Fallback 持續運作。
+> **最佳實踐**：企業部署建議設定至少 2 個 Provider（`model` + `fallback_providers`），並為壓縮、摘要等輔助任務指定低成本模型（例如 Nous Portal 免費層的 `nvidia/nemotron-3-ultra:free`）。這樣即使主 Provider 當機，Agent 仍可用備援持續運作。⚠️ 免費層模型可能有資料使用條款差異，涉及機敏資料前請先確認。
 
 ---
 
@@ -1758,33 +2049,41 @@ graph TD
 #### 3.7.3 CLI 操作
 
 ```bash
-# 手動觸發 Curator
-hermes curator
-
-# 查看 Curator 狀態（依使用頻率排名）
-hermes curator status
-
-# 查看最近一次 Curator 報告
-cat logs/curator/REPORT.md
+hermes curator run --dry-run          # 預覽本次會做的變更，不寫入
+hermes curator run                    # 手動執行（同步）
+hermes curator status                 # 狀態與排程
+hermes curator usage --sort activity   # 依使用頻率列出技能（activity|recent|name）
+hermes curator lock release-checklist # v0.23.0：禁止 Agent 改寫此技能
+hermes curator rollback --list        # 列出可回復的備份
+ls ~/.hermes/logs/curator/            # 每次執行一個時間戳目錄，內含 run.json 與 REPORT.md
 ```
 
 #### 3.7.4 設定檔
 
 ```yaml
-# ~/.hermes/config.yaml
+# ~/.hermes/config.yaml — Curator 設定在頂層 curator（鍵名以 v0.23.0 DEFAULT_CONFIG 為準）
+curator:
+  enabled: true
+  interval_hours: 168        # 執行間隔（預設 7 天）
+  min_idle_hours: 2          # 使用者閒置多久後才執行
+  stale_after_days: 14       # 多久未使用視為不活躍
+  archive_after_days: 30     # 不活躍多久後歸檔
+  consolidate: false         # v0.17.0：LLM 合併／精煉改為選用
+  backup:
+    enabled: true            # 每次變更前備份，可 hermes curator rollback
+    keep: 2
 auxiliary:
-  curator:
-    enabled: true           # 啟用 / 停用
-    interval_days: 7        # 執行間隔（天）
-    min_quality_score: 0.3  # 品質閾值
-    max_skills: 500         # 技能庫上限
-    protect_pinned: true    # 保護 pinned skills
-    consolidate: false      # v0.17.0: LLM consolidation 改為 opt-in（預設 deterministic sweep 免費）
+  curator:                   # 若開啟 consolidate，可在此指定低成本模型
+    provider: openrouter
+    model: google/gemini-3-flash
 ```
+
+> ⚠️ **更正**：舊版文件的 `auxiliary.curator.enabled`／`interval_days`／`min_quality_score`／`max_skills`／`protect_pinned` 都不是有效設定。`auxiliary.curator` 只用來指定 Curator 使用的**模型**；行為設定在頂層 `curator:`。
 
 #### 3.7.5 v0.17.0 成本優化（Curator Cost Optimization）
 
 v0.17.0 大幅降低 Curator 運行成本：
+
 - **預設 Deterministic Sweep 免費**：不活躍技能的判定改為純演算法（基於使用頻率 + 最後呼叫時間），無需 LLM 呼叫
 - **LLM Consolidation 改為 Opt-in**：需要 AI 判斷的合併/精煉操作改為 `curator.consolidate: true` 才啟用
 - **影響**：絕大多數用戶的 Curator 運行零 Token 成本
@@ -1906,6 +2205,21 @@ loops:
 
 `/heartbeat every <interval> <prompt>`（簡寫 `/hb`）為**閒置時的週期性提示**：與 `/loop` 不同，它只在 Session 處於閒置狀態時觸發，適合「有空就順手檢查一下」類型的背景關注，而不會與使用者正在進行的工作競爭。
 
+### 3.12 本章審查與驗證清單
+
+審查 AI 依本章產出的技能、設定或架構說明時，請逐項核對：
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 技能檔案格式 | `hermes skills inspect <name>`；`hermes skills list` | 技能會出現在清單中；`SKILL.md` 有 `name`／`description` frontmatter |
+| 2 | 技能沒有危險內容 | `hermes skills audit`；檢查 `~/.hermes/skills/.hub/lock.json` 的 findings | 沒有 `dangerous` 判定；外部來源都有雜湊與來源 URL |
+| 3 | 記憶 Provider 已安裝且啟用 | `hermes plugins list`、`hermes memory status` | `memory.provider` 指名的外掛為 enabled；status 顯示同一個 Provider |
+| 4 | 工具與 Toolset 名稱為現行名稱 | `hermes tools list`；在技能與提示中搜尋 `browser_navigate`、`execute_command`、`cron_add` | 只出現 3.5.1 表列名稱 |
+| 5 | MCP 設定位置正確 | `hermes mcp list`；`hermes config get mcp_servers` | 伺服器位於 `mcp_servers.<名稱>`，不是 `mcp.servers` |
+| 6 | 備援設定可運作 | `hermes fallback list`；暫時把主 Provider 金鑰改為無效值，送出一則訊息 | 回覆來自 `fallback_providers` 的第一項；恢復金鑰後回到主 Provider |
+| 7 | Curator 不會改寫關鍵技能 | `hermes curator run --dry-run`；對關鍵技能執行 `hermes curator lock <name>` | dry-run 清單不含被鎖定的技能；`~/.hermes/logs/curator/<時間戳>/REPORT.md` 可供稽核 |
+| 8 | 所有 YAML 範例都是有效設定鍵 | 對每個鍵執行 `hermes config set <key> <value>`，或使用附錄 E 的 `check_doc.py` | 沒有「not a recognized config key」提示 |
+
 ---
 
 ## 第四章：安裝與環境建置
@@ -1914,109 +2228,128 @@ loops:
 
 | 需求項目 | 最低要求 | 建議配置 |
 | ---------- | ---------- | ---------- |
-| 作業系統 | Linux / macOS（Apple Silicon）/ WSL2 / Windows 10-11 / Android (Termux) | Ubuntu 22.04+ LTS / macOS 14+（Apple Silicon）/ Windows 11 |
-| Python | 3.11+（安裝程式透過 `uv` 自動處理，免手動安裝） | 3.11 |
-| Node.js | **26+（v0.20.0 起為硬性必要條件）** | 26 LTS |
-| 記憶體 | 2 GB | 4 GB+ |
-| 磁碟空間 | 500 MB | 2 GB+（含依賴與快取） |
-| 網路 | 可連接 LLM API | 穩定連線 |
-| Git | 2.30+（必要，安裝程式不會自動安裝） | 最新版 |
+| 作業系統 | Linux／WSL2（x86_64、aarch64）、macOS（Apple Silicon）、Windows 10／11（x86_64、aarch64）、Android（Termux aarch64，Tier 2） | Ubuntu LTS 最新版／macOS 14+（Apple Silicon）／Windows 11 22H2+ |
+| Python | **3.14**（由 PM 自動提供並釘選版本，免手動安裝；`pyproject.toml` 的 `>=3.11,<3.15` 範圍只是讓舊環境能執行升級程式，**不代表**支援以 3.11–3.13 執行） | 交給 PM 管理 |
+| Node.js | 由 PM 依 `pm/lock.json` 提供釘選版本，**不採用系統上的 Node.js** | 交給 PM 管理 |
+| Git、curl、tar、SHA-256 工具 | POSIX 安裝腳本必要；Windows 缺 Git 時會自動取得釘選版的 Git for Windows | 最新版 |
+| glibc Linux 額外套件 | `libatomic1`（apt／zypper）／`libatomic`（dnf／yum／apk）／`gcc-libs`（pacman）；安裝程式與 `hermes update` 會嘗試自動安裝 | — |
+| 記憶體 | 1 GB（不使用瀏覽器工具） | 2–4 GB（啟用瀏覽器工具至少 2 GB；Local Models 依模型而定） |
+| 磁碟空間 | 500 MB（資料目錄） | 2 GB+（隨 Session 與技能成長；Local Models 另計） |
+| 網路 | 可連接 LLM API（Local Models 下載後可完全離線） | 穩定連線 |
 | LLM Context Window | **最低 64,000 tokens**（低於此門檻的模型會在啟動時被拒絕） | 128K+ |
+| Desktop App | macOS 13+（Apple Silicon）、Windows 10／11 64 位元（MSIX 需 Windows 11 22H2+） | — |
 
-> ⚠️ **macOS 僅支援 Apple Silicon**：官方文件明確將 **macOS Intel/x86** 列為「不支援、且拒絕相關 PR」的組合，企業若仍有 Intel Mac 機隊，需改用 Docker 或雲端/Linux VM 部署。
+> ⚠️ **macOS 僅支援 Apple Silicon**：官方不建置、也不測試 Intel macOS 的 Desktop 套件，也拒絕相關 PR。Intel Mac 只能安裝 CLI 後執行 `hermes desktop` 自行建置，或改用 Docker、雲端或 Linux VM。
 >
-> 🪟 **Windows 支援**（v0.16.0+ 正式支援）：Hermes Agent 已完整支援 **Native Windows**（x86_64／aarch64），可透過 Desktop App（NSIS installer）或 PowerShell 安裝腳本直接安裝。少數功能在 Windows 上仍不可用，生產環境仍可選擇 [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install) 以獲得最佳相容性。
+> 🪟 **Windows**：為 Tier 1 平台。`install.ps1` **不需要系統管理員權限**，會安裝到 `%LOCALAPPDATA%\hermes\` 並加入使用者 PATH；Desktop 為簽章 MSIX（App Installer 或 Microsoft Store）。少數功能在原生 Windows 上仍不可用，需要完整 Linux 工具鏈時可選擇 WSL2。
 >
-> 📱 **Android 支援**（v0.12.0+，Tier 2 盡力支援）：Hermes 可在 Android 的 [Termux](https://termux.dev/) 環境中運行，安裝方式與 Linux 相同，手機端有部分功能不可用。
+> 📱 **Android**：只支援 aarch64 的 Termux，**透過官方簽章 APT 套件庫安裝**（`pkg install hermes-agent`），不是 `install.sh`。此套件預設不隨每次 Release 建置，可能落後最新版本。
 
 #### 4.1.1 平台支援層級（Platform Support Tiers）
 
-官方文件明確將支援平台分為三個層級，企業選型前應對照確認。**層級同時決定了官方認可的安裝管道**——不在對應管道之列者，即使技術上可行也不受支援：
+官方把支援平台分為三個層級。**層級同時決定了官方認可的安裝管道**：不在對應管道之列者，即使技術上可行也不受支援。
 
 | 層級 | 平台（OS／架構） | 官方安裝管道 | 說明 |
 | ------ | ------ | ------ | ------ |
-| **Tier 1（完整支援）**<br>官方承諾「絕不破壞安裝與更新」 | macOS（僅 Apple Silicon） | Hermes Desktop、`install.sh` | — |
-| | Windows 10／11（x86_64、aarch64） | Hermes Desktop、`install.ps1` | 見 4.3 節注意事項 |
-| | Linux／WSL2（x86_64、aarch64） | `install.sh` | 以 Ubuntu + WSL2 為測試基準 |
-| | Docker 容器（x86_64、aarch64） | `docker pull` | 容器**不支援 `hermes update`**，升級須重新拉取映像 |
-| **Tier 2（盡力支援）**<br>官方明示可能於改版時中斷 | Android／Termux（aarch64） | `install.sh` | 手機端部分功能不可用 |
-| | Nix（macOS／Linux／NixOS） | `install.sh` | 官方坦承因 Node.js 套件生態問題「時常故障（breaks often）」 |
-| **明確不支援**<br>相關 PR 將被拒絕 | AUR、**macOS Intel（x86）**、PyPI（`pip install`／`uv tool install`）、Homebrew | — | PyPI 與 Homebrew 已於 v0.20.0 正式終止，見 4.2.3 節 |
+| **Tier 1（完整支援）**<br>官方承諾盡力不破壞安裝與更新 | macOS（僅 Apple Silicon） | Hermes Desktop（簽章 + 公證）、`install.sh` | — |
+| | Windows 10／11（x86_64、aarch64） | `install.ps1`、MSIX Desktop（需 Windows 11 22H2+）、Microsoft Store | 見 4.3 節 |
+| | Linux／WSL2（x86_64、aarch64） | `install.sh` | 以最新 Ubuntu 與 WSL2 為測試基準；**官方發行流程已停用 Linux 桌面套件** |
+| | Docker 容器（x86_64、aarch64） | `docker pull nousresearch/hermes-agent` | 容器內**不支援 `hermes update`**，升級須重新拉取映像 |
+| **Tier 2（盡力支援）**<br>官方明示可能於改版時中斷 | Nix（macOS／Linux／NixOS） | Nix flake 與 NixOS module | 「不再是明確支援的安裝路徑」；由 Nix 自行負責執行環境與更新 |
+| | Android／Termux（aarch64） | 簽章 APT 套件庫 | 預發行套件；只有以 `--with termux` 發行的版本才會更新 |
+| **明確不支援**<br>相關 PR 將被拒絕 | AUR、Intel macOS 的 Desktop 套件、非 aarch64 的 Termux、PyPI（`pip install`／`uv tool install`）、Homebrew | — | PyPI 與 Homebrew 已於 v0.20.0 終止，見 4.2.3 節 |
 
 #### 4.1.2 安裝目錄結構
 
-| 安裝方式 | 程式碼路徑 | 執行檔路徑 | 資料路徑（`$HERMES_HOME`） |
+| 安裝方式 | 程式碼路徑 | CLI 進入點 | 預設資料路徑（`HERMES_HOME`） |
 | ------ | ------ | ------ | ------ |
-| 一般使用者（免 sudo） | `~/.hermes/hermes-agent/` | `~/.local/bin/hermes` | `~/.hermes/` |
-| Root／sudo 安裝 | `/usr/local/lib/hermes-agent/` | `/usr/local/bin/hermes` | `/root/.hermes/` |
+| POSIX 安裝腳本 | `~/.hermes/hermes-agent/` | `~/.local/bin/hermes` | `~/.hermes/` |
+| Windows 安裝腳本 | `%LOCALAPPDATA%\hermes\hermes-agent\` | `%LOCALAPPDATA%\hermes\bin\` | `%LOCALAPPDATA%\hermes\` |
+| Desktop 套件 | App 套件內 | 套件內啟動器；Windows 執行別名 | 平台預設資料目錄 |
+| Docker | `/opt/hermes/`（root 擁有、執行期唯讀） | 映像 entrypoint 與 `hermes` shim | 掛載的 `/opt/data/` |
+| Termux APT | `$PREFIX/lib/hermes-agent/` | `$PREFIX/bin/` 下的符號連結 | `~/.hermes/` |
 
-> 安裝程式會自動處理 Python 3.11（透過 `uv`）、Node.js 26、`ripgrep`、`ffmpeg` 等依賴；Git 需自行預先安裝。非互動式／服務帳號環境下瀏覽器依賴需另行執行 `sudo npx playwright install-deps chromium`，或於安裝時加上 `--skip-browser` 略過。
+- `HERMES_HOME` 決定使用者資料的位置。POSIX 腳本的 `--dir` 可獨立指定原始碼位置；Windows 則提供 `-HermesHome` 與 `-InstallDir`。
+- **以 root 執行 POSIX 腳本不會改用 FHS 路徑**（例如 `/usr/local`），而是使用 root 的家目錄，除非明確指定原始碼路徑。服務帳號安裝請參考官方「Non-Sudo / System Service User Installs」。
+- **不要刪除資料目錄來「修復」安裝**：程式與資料的生命週期是分開的。
 
 ### 4.2 快速安裝（Linux / macOS / WSL2）
 
 #### 4.2.1 一鍵安裝
 
 ```bash
-# 一鍵安裝（處理所有依賴：Python、Node.js、套件、hermes 指令）
+# 一鍵安裝：clone 原始碼、取得經校驗的 uv，再由 PM 安裝釘選版 Python／Node.js／ripgrep／FFmpeg／Chromium
 curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
 
 # 重新載入 Shell 環境
-source ~/.bashrc    # Bash 使用者
-source ~/.zshrc     # Zsh 使用者
+source ~/.bashrc    # Bash 使用者（Zsh 使用者改為 source ~/.zshrc）
 
 # 驗證安裝
 hermes --version
+hermes doctor
 ```
 
-#### 4.2.2 手動安裝（從原始碼）
+常用安裝選項（以 `bash -s --` 傳遞）：
 
 ```bash
-# 1. Clone 專案
+# 無人值守安裝（CI／映像建置）：略過需要互動的步驟
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --non-interactive
+
+# 不安裝瀏覽器與 computer-use 工具（伺服器環境常用）；之後可用 hermes pm install chromium 補裝
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --skip-browser --skip-computer-use
+
+# 追蹤 main 而非最新穩定版（不建議用於正式環境）
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --channel main
+```
+
+> 💡 **安裝紀錄**：在終端機上執行時，每個步驟只顯示一行狀態，git、uv 與建置的完整輸出寫入資料目錄下的 `logs/install.log`；失敗時會印出最後幾行與日誌路徑。在 CI 中（設有 `CI` 或 `GITHUB_ACTIONS`）、輸出被導向，或使用 `--verbose`／`HERMES_INSTALL_VERBOSE=1` 時，則改為完整串流輸出。
+
+#### 4.2.2 開發者安裝（從原始碼）
+
+官方**不支援**建置 wheel 或 sdist（執行 `pip install .` 會直接拋出 `RuntimeError: Building wheels or sdists for hermes-agent is not supported`），開發時必須使用 editable install：
+
+```bash
 git clone https://github.com/NousResearch/hermes-agent.git
 cd hermes-agent
-
-# 2. 安裝 uv（Python 套件管理器）
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# 3. 建立虛擬環境
-uv venv venv --python 3.11
-source venv/bin/activate
-
-# 4. 安裝所有依賴
-uv pip install -e ".[all]"
-
-# 5. 驗證
-python cli.py --version
+git checkout v0.23.0          # 正式評估請釘選 Release tag
+source ./activate             # 官方開發環境腳本（PowerShell：. .\activate.ps1）
+hermes --version              # 應顯示 v0.23.0
 ```
+
+> ⚠️ **實測紀錄（本手冊驗證環境）**：從 GitHub tarball（沒有 `.git`）以 `uv pip install -e` 安裝時，`hermes --version` 顯示 `vunknown`，因為版本號取自 git tag。此外，`uv pip install -r` 會因 `pillow` 版本衝突而失敗，因為上游依賴 `uv.lock` 中的 override，必須改用 `uv export --frozen` 搭配 `--no-deps` 安裝。詳見附錄 E.3。
 
 #### 4.2.3 已停用安裝管道（Homebrew／PyPI／pip）
 
-> ⚠️ **v0.20.0 起正式停用**：Homebrew（`brew install hermes-agent`）與 PyPI／pip wheel（`pip install hermes-agent`，原為 v0.14.0 新增）兩種安裝管道已於官方文件明確列為「**不支援，相關 PR 將被拒絕**」。企業若仍在維護內部套件庫參照舊安裝方式，須改用官方目前唯三支援的管道：
+> ⚠️ **v0.20.0 起正式停用**：Homebrew（`brew install hermes-agent`）與 PyPI／pip wheel（`pip install hermes-agent`，原為 v0.14.0 新增）兩種安裝管道，官方文件已明確列為「**不支援，相關 PR 將被拒絕**」。企業若仍在維護參照舊安裝方式的內部套件庫，須改用官方目前支援的管道：
 >
-> 1. **Shell Installer**（`curl ... | bash` / `irm ... | iex`，見 4.2.1／4.3.2）
-> 2. **Docker**（見 4.4 節，注意 Docker 容器**不支援 `hermes update`**，須改為重新拉取映像）
-> 3. **Nix Flake**（見 4.5 節，官方標示為 Tier 2「盡力支援」，非 NixOS 環境常見套件相容性問題）
+> 1. **安裝腳本**（`install.sh`／`install.ps1`，見 4.2.1、4.3.2）
+> 2. **Desktop 套件**（macOS DMG、Windows MSIX／Microsoft Store）
+> 3. **Docker**（見 4.4 節；容器內**不支援 `hermes update`**，須改為重新拉取映像）
+> 4. **Nix**（見 4.5 節；Tier 2 盡力支援）
+> 5. **Termux APT**（Android aarch64）
 >
-> 既有透過 Homebrew／pip 安裝的環境不會自動遷移，建議規劃一次性改用上述三種管道之一重新安裝。
+> 既有透過 Homebrew／pip 安裝的環境不會自動遷移，請規劃一次性改用上述管道重新安裝，再以 `hermes import` 還原備份。
 
 ### 4.3 Native Windows 安裝
 
-v0.16.0 起 Windows 已為正式支援平台，提供兩種安裝方式：Desktop App 與 PowerShell CLI。
+Windows 為 Tier 1 平台，提供 Desktop 套件與 PowerShell CLI 兩種方式。
 
-#### 4.3.1 Desktop App 安裝（推薦）
+#### 4.3.1 Desktop App 安裝
 
-1. 前往 [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/) 下載 Windows 安裝程式（NSIS installer）
-2. 執行安裝程式，依指引完成安裝
-3. 應用內自動更新，無需手動升級
+1. 前往 [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/) 下載 Windows 的 `.appinstaller`，以 Windows App Installer 開啟。它會安裝簽章的 MSIX bundle，並記錄更新來源；也可以改從 Microsoft Store 安裝（兩者的更新所有權不同）。
+2. 系統需求：Windows 11 22H2 或更新版本、64 位元（x64／ARM64）。**v0.22.0 起 NSIS／MSI 安裝程式已停用**。
+3. 更新方式：MSIX 透過 Desktop 的 Update 控制與 App Installer；Store 版由 Microsoft Store 更新。
 
 #### 4.3.2 PowerShell CLI 安裝
 
 ```powershell
-# 以系統管理員身份開啟 PowerShell
-# 一鍵安裝（處理所有依賴）
-irm https://hermes-agent.nousresearch.com/install.ps1 | iex
+# 一般使用者權限即可（不需要系統管理員）
+iex (irm https://hermes-agent.nousresearch.com/install.ps1)
 
-# 驗證安裝
+# 帶選項安裝（例如無人值守 + 追蹤 main）
+& ([scriptblock]::Create((irm https://hermes-agent.nousresearch.com/install.ps1))) -NonInteractive -Channel main
+
+# 驗證（請開啟新的終端機，讓使用者 PATH 生效）
 hermes --version
 ```
 
@@ -2024,291 +2357,284 @@ hermes --version
 
 | 項目 | 說明 |
 | ------ | ------ |
-| **狀態** | 正式支援（v0.16.0+ GA） |
-| **Desktop App** | Electron 原生應用，內建自動更新 |
-| **CLI** | 完整 CLI/TUI 功能，包含 MinGit |
-| **路徑轉換** | ACP Adapter 已支援 Windows cwd → WSL 路徑自動轉換 |
-| **WSL 互通** | 可保留 WSL interop PATH 在 systemd units 中 |
+| **安裝位置** | `%LOCALAPPDATA%\hermes\`（程式碼、資料、`bin\`），自動加入使用者 PATH |
+| **背景服務** | `hermes gateway install` 在 Windows 上使用「排程工作」，並以啟動資料夾作為備援，**不需要管理員權限** |
+| **Desktop** | 簽章 MSIX，需 Windows 11 22H2+；macOS 13+ 與 64 位元 Windows 為 Electron 44 的最低需求（v0.23.0） |
+| **路徑轉換** | ACP Adapter 支援 Windows cwd → WSL 路徑自動轉換 |
+| **WSL2** | 需要完整 Linux 工具鏈（例如 Docker 終端後端）時建議使用 |
 
-> **企業建議**：Windows 開發者可直接使用 Desktop App 獲得最佳體驗。對於需要完整 Linux 工具鏈的 CI/CD 環境，仍建議採用 WSL2。
+> **企業建議**：一般開發者使用 MSIX Desktop 即可；CI／CD 與需要 Linux 工具鏈的情境使用 WSL2 或 Docker。企業可透過 Intune 等工具散佈 MSIX 套件。
 
 ### 4.4 Docker / Podman 部署
+
+官方映像發布在 Docker Hub 的 **`nousresearch/hermes-agent`**（amd64 與 arm64）。所有使用者資料（設定、API Key、Session、技能、記憶）都存放在掛載到容器內 **`/opt/data`** 的單一目錄；映像本身是無狀態的。
+
+| 映像標籤 | 意義 |
+| --- | --- |
+| `latest`／`stable` | 通過穩定發行閘門的映像 |
+| `main` | 由 main 分支建置的開發版映像（不建議正式環境使用） |
+| `X.Y.Z` | 指定版本的穩定映像；需要完全固定時請使用 digest |
 
 #### 4.4.1 使用官方 Docker Image
 
 ```bash
-# 拉取映像
-docker pull ghcr.io/nousresearch/hermes-agent:latest
+# 1) 第一次：建立資料目錄並執行設定精靈（會把 API Key 寫入 ~/.hermes/.env）
+mkdir -p ~/.hermes
+docker run -it --rm \
+  -v ~/.hermes:/opt/data \
+  nousresearch/hermes-agent:0.23.0 setup
 
-# 啟動（互動模式）
-docker run -it \
-  --name hermes \
-  -v ~/.hermes:/root/.hermes \
-  -e ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}" \
-  ghcr.io/nousresearch/hermes-agent:latest
-
-# 啟動（Gateway 模式，背景執行）
+# 2) 以背景 Gateway 模式執行（容器內由 s6-overlay 監督，崩潰會自動重啟）
 docker run -d \
-  --name hermes-gateway \
+  --name hermes \
   --restart unless-stopped \
-  -v ~/.hermes:/root/.hermes \
-  -e ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}" \
-  -e TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN}" \
-  ghcr.io/nousresearch/hermes-agent:latest \
-  hermes gateway start
+  --memory=4g --cpus=2 \
+  -v ~/.hermes:/opt/data \
+  -p 127.0.0.1:8642:8642 \
+  nousresearch/hermes-agent:0.23.0 gateway run
+
+# 3) 互動式 CLI（附加到同一個容器）
+docker exec -it hermes hermes
 ```
 
-> ⚠️ **v0.13.0 安全變更**：官方 Docker Image 現**拒絕以 root 身份運行 Gateway**。請確保使用 `hermes` 使用者或指定 `--user` 參數。
+> ⚠️ **實務注意**：
 >
-> 💡 **Dashboard in Docker**（v0.13.0）：在 Docker 中啟動 Dashboard，只需加入 `-e HERMES_DASHBOARD=1` 環境變數，Dashboard 會以 Side-process 方式啟動。
+> - 埠號 `8642` 是 Gateway 的 OpenAI 相容 API Server 與健康檢查端點；若只使用聊天平台可以不對外開放。上例綁定在 `127.0.0.1`，避免直接暴露到外部網路。
+> - `docker exec` 會自動降權為 `hermes` 使用者；`/opt/hermes` 安裝樹在執行期為 root 擁有且唯讀，Agent 無法修改核心程式碼。
+> - 部分 VPS 的瀏覽器式主控台會把 `:`、`@` 等字元傳錯，請改用 SSH 貼上指令。
+> - **Dashboard in Docker**：加上 `-e HERMES_DASHBOARD=1` 並開放 `9119` 埠，Dashboard 會以附屬行程啟動。
 
-#### 4.4.2 自建 Docker Image
+#### 4.4.2 自建衍生映像（Derived Image）
+
+官方建議**以官方映像為基底**加裝工具，而不是從 `python:*-slim` 自行組裝。後者需要自行處理 PM、釘選版 Node.js、s6-overlay 與權限模型，容易與官方行為不一致。
 
 ```dockerfile
-# Dockerfile（專案根目錄已提供；自 v0.20.0 起 Node.js 26 為硬性必要條件）
-FROM python:3.11-slim
+# Dockerfile — 在官方映像上加裝企業內部工具
+FROM nousresearch/hermes-agent:0.23.0
 
-WORKDIR /app
-
-# 安裝系統依賴（Debian/Ubuntu 預設 apt 套件庫的 nodejs 版本通常過舊，
-# 需改用 NodeSource 官方腳本安裝 Node.js 26，否則 hermes 將無法啟動）
-RUN apt-get update && apt-get install -y curl git gnupg ripgrep ffmpeg \
-    && curl -fsSL https://deb.nodesource.com/setup_26.x | bash - \
-    && apt-get install -y nodejs \
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends jq postgresql-client \
     && rm -rf /var/lib/apt/lists/*
-
-# 複製應用程式
-COPY . .
-
-# 安裝 Python 依賴（此處為原始碼可編輯安裝，非透過已停用的 PyPI 發行版安裝）
-RUN pip install -e ".[all]"
-
-# 安裝 Playwright（瀏覽器工具）
-RUN playwright install chromium
-
-ENTRYPOINT ["hermes"]
+# 保留 root entrypoint；s6 會在執行期自動降權為 hermes 使用者
 ```
+
+```bash
+docker build -t corp/hermes:0.23.0-1 .
+docker run -d --name hermes --restart unless-stopped \
+  -v ~/.hermes:/opt/data -p 127.0.0.1:8642:8642 \
+  corp/hermes:0.23.0-1 gateway run
+```
+
+> 💡 每次上游發布新版時，都要重新建置衍生映像。單純安裝 npm 或 Python 工具時，可在容器內改用 `npx`／`uvx`，不必建置新映像。
 
 #### 4.4.3 Docker Compose（企業部署）
 
+v0.22.0 起官方建議**一個容器、多個 Profile**（由容器內的 s6 為每個 Profile 監督 Gateway 槽位），而不是一個 Profile 一個容器；這樣只有一份映像與快取，備份也只需處理一個目錄。
+
 ```yaml
 # docker-compose.yml
-version: '3.8'
-
 services:
-  hermes-agent:
-    build: .
-    container_name: hermes-agent
+  hermes:
+    image: nousresearch/hermes-agent:0.23.0
+    container_name: hermes
     restart: unless-stopped
-    volumes:
-      - hermes-data:/root/.hermes
-      - ./projects:/workspace
-    environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    command: gateway run
     ports:
-      - "8080:8080"  # API Server
-    networks:
-      - hermes-net
+      - "127.0.0.1:8642:8642"   # Gateway API Server
+      - "127.0.0.1:9119:9119"   # Dashboard（需 HERMES_DASHBOARD=1）
+    volumes:
+      - hermes-data:/opt/data   # 具名 volume：位於 Docker VM 的原生檔案系統，WAL 可正常運作
+    environment:
+      - HERMES_DASHBOARD=1
     deploy:
       resources:
         limits:
           memory: 4G
-          cpus: '2.0'
-
-  hermes-gateway:
-    build: .
-    container_name: hermes-gateway
-    restart: unless-stopped
-    command: hermes gateway start
-    volumes:
-      - hermes-data:/root/.hermes
-    environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
-      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
-    networks:
-      - hermes-net
+          cpus: "2.0"
 
 volumes:
   hermes-data:
-
-networks:
-  hermes-net:
-    driver: bridge
 ```
-
-### 4.5 Nix Flake 安裝
 
 ```bash
-# Nix Flake 安裝（v0.5.0+ 支援）
+docker compose up -d
+docker compose logs -f
+docker exec hermes hermes profile create team-ops   # 新增 Profile（s6 自動註冊其 Gateway 槽位）
+```
+
+> ⚠️ **`state.db` 檔案系統要求**：在 macOS（Docker Desktop／Podman／OrbStack 的 virtiofs）或 Windows Docker Desktop（9p／drvfs）上以 bind mount 掛載 `~/.hermes` 時，SQLite 的 WAL 模式無法跨 VM 邊界正確共享記憶體。新建的資料庫會自動改用 `DELETE` journal mode，但**既有的 WAL 資料庫不會被線上降級**，必須停止所有行程後離線轉換。正式環境請優先使用上例的**具名 volume**。
+
+### 4.5 Nix 安裝（Tier 2）
+
+> ⚠️ Nix 自 v0.22.0 起「**不再是明確支援的安裝路徑**」（盡力支援）：執行環境與更新由 Nix 負責，`hermes update` 不適用。
+
+```bash
+# 直接執行（不安裝）
+nix run github:NousResearch/hermes-agent -- setup
+nix run github:NousResearch/hermes-agent -- --tui
+
+# 安裝到使用者 profile（之後 hermes、hermes-agent、hermes-acp 皆在 PATH 上）
 nix profile install github:NousResearch/hermes-agent
 
-# 或在 NixOS 配置中
+# Desktop（Nix 建置）
+nix run github:NousResearch/hermes-agent#desktop
+```
+
+```nix
+# /etc/nixos/flake.nix — 在 NixOS 系統 flake 中加入套件
 {
-  inputs.hermes-agent.url = "github:NousResearch/hermes-agent";
-  
-  # 加入系統套件
-  environment.systemPackages = [ inputs.hermes-agent.packages.${system}.default ];
+  inputs.hermes-agent.url = "github:NousResearch/hermes-agent/v0.23.0";
+
+  outputs = { self, nixpkgs, hermes-agent, ... }: {
+    nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        ({ pkgs, ... }: {
+          environment.systemPackages = [ hermes-agent.packages.x86_64-linux.default ];
+        })
+      ];
+    };
+  };
 }
 ```
+
+官方另提供宣告式 NixOS module 與 container mode，細節請參考官方 Nix & NixOS Setup 文件。
 
 ### 4.6 設定 API Key
 
 #### 4.6.1 初始設定精靈
 
 ```bash
-# 執行完整設定精靈（推薦首次使用）
-hermes setup
-
-# 精靈將引導完成：
-# 1. 選擇 LLM Provider
-# 2. 輸入 API Key
-# 3. 選擇模型
-# 4. 設定工具
-# 5. 設定記憶系統
-# 6. （可選）設定訊息平台
+hermes setup              # 完整設定精靈（Provider → API Key → 模型 → 工具 → 記憶 → 訊息平台）
+hermes setup --portal     # 最快路徑：登入 Nous Portal、設為 Provider 並開啟 Tool Gateway
+hermes setup --quick      # 精簡流程
+hermes setup --non-interactive   # 無人值守（搭配預先準備好的 .env／config.yaml）
 ```
+
+v0.22.0 起，在新電腦首次開啟 Desktop 時會改為**對話式 Onboarding**，以免費試用模型引導完成設定。`hermes setup` 也會偵測 `~/.openclaw`、`~/.claude`、`~/.codex`、`~/.cursor` 等既有 Agent 設定，並詢問是否匯入。
 
 #### 4.6.2 環境變數設定
 
-建立 `.env` 檔案：
+`~/.hermes/.env`（Windows 為 `%LOCALAPPDATA%\hermes\.env`；Docker 為 `/opt/data/.env`）存放憑證。**不要**把金鑰寫進 `config.yaml`：
 
 ```bash
 # ~/.hermes/.env
-# === 主要 Provider（至少需要一個）===
-
-# Anthropic（推薦）
+# === LLM Provider（至少一個；也可完全使用 OAuth 或 Local Models）===
 ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxx
-
-# OpenAI
 OPENAI_API_KEY=sk-xxxxxxxxxxxxx
-
-# OpenRouter（200+ 模型）
 OPENROUTER_API_KEY=sk-or-xxxxxxxxxxxxx
-
-# Nous Portal（免費模型可用）
-# 使用 OAuth 登入：hermes auth login nous
-
-# Google AI Studio（Gemini）
-GOOGLE_AI_API_KEY=AIzaSyxxxxxxxxxxxx
-
-# Qwen（通義千問）— OAuth 登入
-# 使用 OAuth 登入：hermes auth login qwen
-
-# xAI（Grok）
+GEMINI_API_KEY=AIzaSyxxxxxxxxxxxx        # Google AI Studio（亦接受 GOOGLE_API_KEY）
 XAI_API_KEY=xai-xxxxxxxxxxxxx
 
 # === 訊息平台 ===
 TELEGRAM_BOT_TOKEN=1234567890:ABCDefghIJKLmnoPQRSTuvwxyz
+TELEGRAM_ALLOWED_USERS=123456789         # 逗號分隔；未設定時陌生人無法使用
 DISCORD_BOT_TOKEN=your-discord-bot-token
 SLACK_BOT_TOKEN=xoxb-your-slack-token
+SLACK_APP_TOKEN=xapp-your-socket-mode-token
 
-# === MCP 伺服器 ===
+# === API Server（Gateway 的 OpenAI 相容端點）===
+API_SERVER_KEY=change-me-to-a-long-random-string
+
+# === MCP 伺服器使用的憑證（由 mcp_servers.<name>.env 以 ${VAR} 引用）===
 GITHUB_TOKEN=ghp_xxxxxxxxxxxxx
-DATABASE_URL=postgresql://user:pass@localhost:5432/mydb
 ```
 
-#### 4.6.3 Nous Portal 登入（免費模型）
+> 🔐 **企業建議**：正式環境改用 Bitwarden／1Password 秘密來源（`hermes secrets bitwarden setup`），`.env` 只保留 bootstrap token。`.env` 檔案權限應為 `0600`。
+
+#### 4.6.3 Nous Portal 登入
 
 ```bash
-# OAuth 登入（瀏覽器會自動開啟）
-hermes auth login nous
-
-# 登入後可使用免費模型（如 MiMo v2 Pro）
-# 無需 API Key，適合預算有限的團隊
+hermes setup --portal                 # 一步完成：登入 + 設為 Provider + 開啟 Tool Gateway
+hermes portal                         # 等同 hermes auth add nous --type oauth（登入並選擇 Nous 模型）
+hermes auth add nous --type oauth --no-browser   # SSH／無瀏覽器環境：顯示裝置碼
+hermes portal status                  # 檢查訂閱與 Tool Gateway 狀態
 ```
+
+> 💡 Nous Portal 提供免費層模型（例如 `nvidia/nemotron-3-ultra:free`），適合評估與輔助任務；付費訂閱另含 Tool Gateway（網路搜尋、影像生成、TTS、雲端瀏覽器）。⚠️ 舊版文件中的 `hermes auth login nous` 指令**不存在**。
 
 ### 4.7 設定檔說明
 
 #### 4.7.1 主設定檔
 
-```yaml
-# ~/.hermes/config.yaml
+以下是可直接使用的企業基準設定。所有鍵都已用 v0.23.0 官方驗證器（`hermes config set` 使用的 `_validate_config_key`）逐一檢查：
 
-# === 模型設定 ===
+```yaml
+# ~/.hermes/config.yaml — v0.23.0 企業基準設定
+
+# === 模型 ===
 model:
   provider: anthropic
-  model: claude-sonnet-4-20250514
-  reasoning_effort: medium   # low / medium / high
+  default: claude-sonnet-5-5
+fallback_providers:
+  - provider: openrouter
+    model: anthropic/claude-sonnet-5.5
 
-# === 輔助模型（壓縮/Vision/摘要）===
+# === 輔助任務模型（壓縮／Vision 等，各自設定）===
 auxiliary:
-  provider: nous
-  model: mimo-v2-pro         # 免費
+  compression:
+    provider: openrouter
+    model: google/gemini-3-flash
 
-# === 記憶設定 ===
+# === 記憶 ===
 memory:
-  provider: builtin           # builtin / mem0 / supermemory / honcho
-  auto_save: true
-  nudge_interval: 5
+  memory_enabled: true
+  write_approval: true         # 非互動介面的記憶寫入需人工核准
+  nudge_interval: 10
 
-# === 安全設定 ===
+# === 審批與安全 ===
+approvals:
+  mode: smart                  # smart（預設）／manual／off（等同 --yolo，正式環境禁用）
+  cron_mode: deny              # 無人值守的 Cron 遇到危險指令一律拒絕
+  unattended_mode: deny        # Webhook／API Server 等無人可回答的介面
+command_allowlist:             # 永久允許的指令（精確文字、glob 或規則名稱）
+  - "git status"
+  - "git diff *"
+  - "mvn test"
 security:
-  command_approval: smart      # always / smart / never / yolo
-  allowed_commands:
-    - "git status"
-    - "git diff"
-    - "npm test"
-    - "mvn test"
-    - "python -m pytest"
+  redact_secrets: true
+  allow_private_urls: false    # 禁止 Agent 存取內網位址（SSRF 防護）
+  allow_lazy_installs: false   # 禁止執行期自動安裝外掛／依賴（企業管控）
 
 # === 終端後端 ===
 terminal:
-  backend: local               # local / docker / ssh / daytona / modal
-  
-# === 工具集 ===
-toolsets:
-  enabled:
-    - core
-    - web
-    - delegation
-    - cron
-    - code
-  disabled:
-    - browser
+  backend: docker              # local／docker／ssh／modal／daytona／vercel_sandbox
+  docker_image: "python:3.13-slim"
+  docker_network: "none"
 
-# === MCP ===
-mcp:
-  servers: []
+# === 工具集（依平台；hermes-cli 為 CLI 預設組合）===
+toolsets: [hermes-cli]
+agent:
+  disabled_toolsets: [computer_use]
 
-# === Gateway ===
-gateway:
-  platforms:
-    telegram:
-      enabled: true
-      allowed_users: ["your_telegram_id"]
-    discord:
-      enabled: false
-    slack:
-      enabled: false
+# === Session 保存（稽核需求請明確設定）===
+sessions:
+  auto_prune: false            # v0.23.0 預設即為 false；需要自動清理時設 true
+  retention_days: 365
 
 # === 日誌 ===
 logging:
-  level: INFO                  # DEBUG / INFO / WARNING / ERROR
-  file: ~/.hermes/logs/agent.log
+  level: INFO                  # DEBUG／INFO／WARNING／ERROR
+  max_size_mb: 5
+  backup_count: 3
 ```
+
+> ⚠️ **更正**：舊版文件範例中的 `model.model`、`auxiliary.provider`、`memory.auto_save`、`security.command_approval`、`security.allowed_commands`、`toolsets.enabled`、`mcp.servers`、`gateway.platforms.*`、`logging.file` 都**不是**有效設定鍵。訊息平台的憑證與允許清單主要寫在 `.env`（例如 `TELEGRAM_ALLOWED_USERS`），平台行為設定則放在頂層的 `telegram:`、`slack:` 等區塊。
 
 #### 4.7.2 設定檔驗證
 
-v0.8.0 起新增**結構驗證**功能，啟動時會自動檢查 YAML 格式：
-
 ```bash
-# 手動驗證設定
-hermes doctor
-
-# 診斷內容：
-# ✅ Config YAML syntax valid
-# ✅ Provider credentials found
-# ✅ Model accessible
-# ✅ Memory provider configured
-# ✅ No WAL corruption detected
-# ⚠️ Browser toolset disabled (optional)
+hermes config check        # 檢查設定版本是否需要遷移、列出必要／選用的環境變數
+hermes config migrate      # 執行設定遷移（升級後建議執行）
+hermes config get approvals.mode
+hermes config set approvals.mode manual   # 未知鍵會提示「not a recognized config key」並給出建議
+hermes doctor              # 全面診斷：Provider 憑證、state.db、外掛、Gateway
 ```
 
-> **實務案例**：某銀行團隊在 WSL2 上安裝 Hermes Agent，使用 Anthropic Claude 作為主 Provider，Nous Portal 免費模型作為輔助，Docker 後端做終端隔離。安裝過程約 5 分鐘，設定精靈引導完成所有配置。
+> ⚠️ **實測發現**：`hermes config check` **不會**檢查未知鍵，它檢查的是設定版本（例如「Config version: 0 → 52」）與環境變數。要驗證設定鍵，請以 `hermes config set <key> <value>` 逐一寫入並觀察提示，或使用附錄 E 的 `check_doc.py`（它呼叫與 `config set` 相同的驗證函式）。
+
+> **實務案例**：某銀行團隊在 WSL2 上以 `install.sh --non-interactive` 安裝，再以版本控管的 `config.yaml`（上例）與 Bitwarden 秘密來源完成設定，主 Provider 為 Anthropic，Docker 終端後端搭配 `docker_network: none` 做隔離。
 
 ### 4.8 Managed Scope（組織層級設定釘選）
 
@@ -2354,6 +2680,22 @@ security:
 
 > ⚠️ **結論**：Managed Scope 應定位為「**組織預設值的散佈機制**」（讓新機器開箱即有正確基準設定），**而非資安控管邊界**。若合規要求真正的強制不可繞過，需搭配 OS 層級的 MDM／端點管控、以及 [9.8 節](#98-egress-憑證注入代理iron-proxy-沙箱零信任外連) 的 egress 代理等外部機制共同構成。
 
+### 4.9 本章審查與驗證清單
+
+審查 AI 產出的安裝手冊、映像定義或基準設定時，請逐項核對：
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 安裝管道受官方支援 | 對照 4.1.1 表 | 沒有 `pip install hermes-agent`、`brew install`、ghcr 映像等已停用或不存在的管道 |
+| 2 | 版本已釘選 | 檢查 Dockerfile／compose 的映像標籤、安裝腳本參數 | 正式環境使用 `X.Y.Z` 標籤或 digest，而不是 `main`；原始碼安裝的通道為 `stable` |
+| 3 | 安裝成功 | `hermes --version`、`hermes doctor` | 版本為 `v0.23.0`；doctor 沒有錯誤 |
+| 4 | Docker 掛載路徑正確 | `docker inspect hermes --format '{{json .Mounts}}'` | 資料掛載到 `/opt/data`（不是 `/root/.hermes`） |
+| 5 | `state.db` journal mode 合適 | `docker exec hermes python3 -c "import sqlite3;print(sqlite3.connect('/opt/data/state.db').execute('PRAGMA journal_mode').fetchone())"` | 具名 volume 或本機磁碟為 `wal`；跨 VM bind mount 或網路檔案系統為 `delete` |
+| 6 | API Server 沒有直接對外暴露 | `docker port hermes`、`ss -ltnp` | `8642`／`9119` 只綁定 `127.0.0.1`，或位於有認證的反向代理之後 |
+| 7 | 設定鍵全部有效 | 對 4.7.1 的每個鍵執行 `hermes config get <key>`；或執行附錄 E 的 `check_doc.py` | 沒有未知鍵提示 |
+| 8 | 憑證不在 `config.yaml` 中 | `grep -nE 'sk-|xox[bp]-|ghp_' ~/.hermes/config.yaml` | 沒有任何結果；`.env` 權限為 `0600` |
+| 9 | 環境變數名稱正確 | 對照官方 Environment Variables 參考（或附錄 C） | 例如使用 `GEMINI_API_KEY`／`GOOGLE_API_KEY`，而不是不存在的 `GOOGLE_AI_API_KEY` |
+
 ---
 
 ## 第五章：快速開始（Quick Start）
@@ -2370,7 +2712,8 @@ hermes
 # Agent 會回應其工具、記憶、技能能力
 # 使用 Ctrl+C 暫停當前操作
 # 使用 /new 開啟新對話
-# 使用 /exit 或 Ctrl+D 離開
+# 使用 /quit（別名 /exit）或 Ctrl+D 離開
+# v0.22.0：Ctrl+C 在輸入框有草稿時會先清除草稿，而不是中斷整個回合
 ```
 
 **常用 CLI 指令**：
@@ -2386,18 +2729,17 @@ hermes
 | `/personality [name]` | 設定人格 |
 | `/retry` | 重試上一輪 |
 | `/undo` | 撤銷上一輪 |
-| `/busy [steer\|queue\|interrupt]` | 設定忙碗模式（v0.12.0） |
+| `/busy [steer\|queue\|interrupt]` | 設定 Agent 忙碌時新訊息的處理方式（v0.12.0） |
 | `/btw` | 導引中插任務（v0.12.0） |
 | `/reload-skills` | 重新載入技能庫（v0.12.0） |
 | `/reload` | 熱重載 `.env` 設定（v0.12.0） |
 | `/reload-mcp` | 重建 MCP cached agents（v0.12.0） |
-| `/background` | 將任務移至背景執行（v0.12.0） |
-| `/mouse` | 互動式滑鼠操作（v0.12.0） |
+| `/bg <prompt>` | 在獨立的背景 Session 執行一個提示（v0.12.0） |
 | `/fast` | 切換 Fast Mode（Priority Processing） |
 | `/steer` | 中途導引 Agent 行為（v0.11.0） |
 | **`/goal`** | **設定跨回合持久目標（Ralph Loop）（v0.13.0）** |
 | **`/kanban`** | **管理 Multi-agent Kanban 看板（v0.13.0）** |
-| **`/queue`** | **ACP：對進行中的 Agent 排隊後續指令（v0.13.0）** |
+| **`/queue`**（別名 `/q`） | **排入下一回合的提示；v0.22.0 起可 `list`／`edit N`／`rm N`／`move A B`／`clear`** |
 | **`/learn <對象>`** | **將目錄／URL／剛示範的操作萃取為可重用 Skill（v0.18.0）** |
 | **`/journey`** | **檢視記憶與技能學習時間軸（v0.18.0）** |
 | **`/subscription` / `/topup`** | **查看 Nous Portal 訂閱方案、剩餘額度、升降級（v0.19.0）** |
@@ -2407,54 +2749,69 @@ hermes
 | **`/diff`** | **顯示 staged／all／session 變更（v0.20.0）** |
 | **`/context`** | **檢視目前上下文視窗的組成明細（v0.20.0）** |
 | **`/focus`** | **精簡輸出檢視，隱藏內容可復原（v0.20.0）** |
+| **`/rewind`** | **回溯到較早的提示後編輯重送，或按 `f` 分岔新 Session（v0.23.0；TUI 可在空白輸入框連按兩次 `Esc`）** |
+| **`/stop`** | **停止目前回合；v0.22.0 起也能停止背景子代理並取回部分成果** |
+| **`/autoprune [on\|off\|later]`** | **設定是否自動清理舊 Session（v0.23.0 預設關閉）** |
 
 > **中途導引（Mid-turn Redirect，v0.20.0）**：Agent 執行中若發現方向偏離，可直接在 TUI 中輸入修正內容，無需等待當前輪次結束——進行中的工作會被保留，原始提示不遺失，Agent 據此修正方向，是 v0.11.0 `/steer` 的自然延伸（差異在於 `/steer` 需明確指令觸發，Mid-turn Redirect 可直接以自然語言插話）。
 
 #### 5.1.1 Non-interactive 單次模式（v0.12.0+）
 
 ```bash
-# 使用 -z 旗標執行單次任務（不進入互動式 TUI）
+# 使用 -z（--oneshot）執行單次任務，不進入互動式介面
 hermes -z "列出當前目錄下所有 Python 檔案"
 
-# 指定模型與 Provider
-hermes -z --model anthropic:claude-sonnet-4-20250514 "審查 main.py 的安全性"
-hermes -z --provider openrouter "產生項目摘要"
+# 指定模型與 Provider：--model／--provider 必須放在 -z 之前（-z 會吃掉緊接的下一個參數當作提示）
+hermes --model anthropic/claude-sonnet-5.5 --provider openrouter -z "審查 main.py 的安全性"
 
-# 適合 CI/CD 或腳本自動化使用
+# 另一種寫法：chat 子指令搭配 -q
+hermes chat -q "產生項目摘要"
 ```
+
+> ⚠️ ❌ **實測更正（反例）**：`hermes -z --model X "提示"` 會以 exit 2 失敗（`argument -z/--oneshot: expected one argument`）；直接寫 `hermes "提示"` 也會失敗（`is not a hermes command`）。在無人值守的 `-z`／`chat -q` 情境中，危險指令依 `approvals.single_query_mode`（預設 `deny`）處理，**不會**停下來等待人工核准。
 
 #### 5.1.2 Background Sessions（v0.12.0+）
 
-```bash
-# 將當前任務移至背景運行
-/background
+```text
+# 把一個提示丟到獨立的背景 Session 執行，主對話可繼續
+/bg 掃描 src/ 的依賴漏洞並整理成報告
 
-# 允許平行執行多個任務，主線程可繼續對話
-# 背景任務完成後會自動通知
+# 背景任務完成後會自動通知；CLI 按 F6、TUI 按 Ctrl+T 可即時檢視子代理與背景工作
 ```
 
 #### 5.1.3 Quick Commands（v0.12.0+）
 
-```bash
-# 自訂快速指令（直接執行 Shell，不經過 LLM）
-# ~/.hermes/config.yaml
+```yaml
+# ~/.hermes/config.yaml — Quick Commands：不經 LLM、不耗 Token，直接在主機執行
 quick_commands:
-  test: "mvn test"
-  lint: "npm run lint"
-  deploy: "./scripts/deploy.sh"
-
-# 在 TUI 中使用
-/test    # 直接執行 mvn test
-/lint    # 直接執行 npm run lint
+  unittest:
+    type: exec
+    command: mvn -q test
+  lint:
+    type: exec
+    command: npm run lint
+  gwrestart:
+    type: alias          # alias 型：轉成另一個斜線指令
+    target: /restart
 ```
+
+```text
+# 在 CLI 或任何訊息平台輸入
+/unittest
+/lint
+```
+
+> 💡 **規則**：`type` 只能是 `exec` 或 `alias`；`exec` 指令有 **30 秒逾時**；Quick Commands 優先於同名技能；**純字串寫法（例如 `test: "mvn test"`）無效**，只會顯示錯誤。由於 `exec` 直接在主機上執行，請只放無破壞性的指令，並把 `config.yaml` 納入變更審查。
 
 #### 5.1.4 Opt-in 自動恢復上次對話（v0.12.0+）
 
-```yaml
-# config.yaml
-session:
-  auto_resume: true    # 啟動時自動復原上次對話記錄
+```bash
+hermes -c                    # 繼續「這個終端機」上一次的 Session（依 tty／tmux pane 等辨識）
+hermes --resume my-feature   # 繼續指定名稱的 Session
+hermes sessions list         # 列出可繼續的 Session
 ```
+
+> ⚠️ **更正**：v0.23.0 沒有 `session.auto_resume` 設定鍵。`session.terminal_continue`（預設 `true`）控制的是 `hermes -c` 是否以終端機為單位辨識要繼續的 Session。
 
 ### 5.2 建立 AI Coding Agent
 
@@ -2478,13 +2835,13 @@ hermes
 
 ```text
 Agent 會自動：
-1. [execute_command] 使用 Spring Initializr 建立專案骨架
+1. [terminal] 使用 Spring Initializr 建立專案骨架
 2. [write_file] 建立 Entity、Repository、Service、Controller
 3. [write_file] 建立 Security 配置（JWT Filter）
 4. [write_file] 建立 application.yml（DB 連線）
 5. [write_file] 建立 Swagger 配置
 6. [write_file] 建立 JUnit 測試
-7. [execute_command] 執行 mvn test 驗證
+7. [terminal] 執行 mvn test 驗證
 8. [自動學習] 封裝為 "spring-boot-rest-api" Skill
 ```
 
@@ -2495,8 +2852,9 @@ Agent 會自動：
 hermes setup  # 在 Memory 區段選擇 provider
 
 # 或直接編輯 config.yaml
+hermes plugins install supermemory      # v0.22.0 起外部記憶 Provider 需先安裝外掛
 hermes config set memory.provider supermemory
-hermes config set memory.auto_save true
+hermes config set memory.write_approval true
 ```
 
 **記憶持久化範例**：
@@ -2505,12 +2863,10 @@ hermes config set memory.auto_save true
 # 告訴 Agent 你的偏好
 > 我使用 Java 21，偏好 Clean Architecture，測試框架用 JUnit 5 + Mockito
 
-# Agent 會自動記錄到 MEMORY.md：
-# - User prefers Java 21
-# - Uses Clean Architecture
-# - Testing: JUnit 5 + Mockito
+# Agent 會以 memory 工具寫入 USER.md（target: user）：
+# - 使用 Java 21，偏好 Clean Architecture；測試用 JUnit 5 + Mockito
 
-# 下次對話時，Agent 會自動載入這些偏好
+# 注意：記憶是「凍結快照」，本次寫入的內容要到下一個 Session 才會載入
 ```
 
 ### 5.4 設定 Tools
@@ -2523,7 +2879,10 @@ hermes tools
 hermes tools enable browser
 
 # 設定 MCP 伺服器（擴展工具能力）
-hermes config set mcp.servers '[{"name":"github","command":"npx","args":["@modelcontextprotocol/server-github"]}]'
+hermes mcp catalog                       # 瀏覽 Nous 核准的 MCP 目錄
+hermes mcp install github                # 從目錄安裝
+hermes mcp list
+hermes mcp test github                   # 測試連線與列出工具
 ```
 
 ### 5.5 執行任務範例
@@ -2563,30 +2922,43 @@ hermes config set mcp.servers '[{"name":"github","command":"npx","args":["@model
 > 2. 執行 mvn test
 > 3. 將測試結果傳到 Telegram
 
-# Agent 會使用 cron_add 建立排程任務
-# 結果自動透過 Gateway 投遞到指定平台
+# Agent 會使用 cronjob_manage 工具建立排程任務
+# 結果自動透過 Gateway 投遞到指定平台；也可直接用 CLI 建立（見下方）
 ```
 
-#### Per-job `workdir` 與 `context_from` 鏈式排程（v0.12.0+）
+#### Per-job `workdir` 與跨執行連續性（v0.12.0／v0.21.0）
 
-```yaml
-# config.yaml — Cron 進階設定
-cron:
-  jobs:
-    daily-test:
-      schedule: "0 8 * * *"
-      task: "執行完整測試套件並產出報告"
-      workdir: "/home/dev/my-project"       # v0.12.0: 指定工作目錄
-      deliver_to: telegram
-    
-    weekly-report:
-      schedule: "0 9 * * 1"
-      task: "根據上次測試結果產出週報"
-      context_from: "daily-test"             # v0.12.0: 從前一任務繼承上下文
-      deliver_to: slack
+Cron 工作**不是**寫在 `config.yaml` 中，而是以 CLI（或 `cronjob_manage` 工具、Dashboard）建立，儲存在 `~/.hermes/cron/`：
+
+```bash
+# 每天 08:00 在指定目錄跑測試，結果送到 Telegram
+hermes cron create "0 8 * * *" "執行完整測試套件並產出報告" \
+  --name daily-test --workdir /home/dev/my-project --deliver telegram
+
+# 每週一 09:00 產出週報；--continuity 會把上一次執行的輸出帶入下一次
+hermes cron create "0 9 * * 1" "根據上週的測試結果產出週報" \
+  --name weekly-report --continuity --deliver slack --timezone Asia/Taipei
+
+hermes cron list
+hermes cron run daily-test        # 下一個排程週期額外觸發一次（不影響原排程）
+hermes cron cancel daily-test     # v0.23.0：停止目前這一次執行
 ```
 
-> **注意事項**：Quick Start 階段建議使用 `command_approval: smart`（預設），Agent 在執行危險指令前會要求確認。熟悉後可考慮調整為 `never`（自動批准所有安全指令）。
+> ⚠️ **更正**：舊版文件的 `cron.jobs.<name>.schedule/task/deliver_to/context_from` 都不是有效設定；`context_from` 不存在，跨執行延續請用 `--continuity`。
+
+> **注意事項**：Quick Start 階段請維持 `approvals.mode: smart`（預設）：由輔助 LLM 判斷風險，低風險指令自動核准，真正危險的指令自動拒絕，不確定時才詢問你。需要每次都人工確認時改為 `manual`。`off` 等同 `--yolo`，**只應在可拋棄的容器或 CI 中使用**。
+
+### 5.6 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 單次模式指令可執行 | `hermes --model <m> -z "hello"` | 正常回覆；`-z` 不在 `--model` 之前 |
+| 2 | 斜線指令存在 | 在 CLI 輸入 `/help` 或 `/commands` | 文件中提到的指令都在清單中（`/bg`、`/quit`、`/rewind` 等）；沒有 ❌ `/background`、`/mouse` 等不存在的指令 |
+| 3 | Quick Commands 格式正確 | 在 CLI 輸入 `/unittest` | 直接顯示指令輸出，不耗用 Token；純字串格式會顯示錯誤 |
+| 4 | 記憶已寫入 | `/new` 開新 Session 後詢問偏好；或檢查 `~/.hermes/memories/USER.md` | 偏好出現在新 Session 中 |
+| 5 | Cron 工作已建立 | `hermes cron list`、`hermes cron status` | 工作與排程正確；不在 `config.yaml` 的 `cron.jobs` 下 |
+| 6 | MCP 伺服器可用 | `hermes mcp test <name>` | 列出該伺服器的工具 |
+| 7 | 審批模式符合政策 | `hermes config get approvals.mode` | `smart` 或 `manual`；正式環境不是 `off` |
 
 ---
 
@@ -2596,87 +2968,84 @@ cron:
 
 #### 6.1.1 手動建立 Skill
 
-建立目錄結構：
+技能放在 `~/.hermes/skills/<分類>/<技能名稱>/SKILL.md`。檔名必須是大寫的 `SKILL.md`，開頭是 YAML frontmatter：
 
 ```bash
-mkdir -p ~/.hermes/skills/user/bank-api-security-check
+mkdir -p ~/.hermes/skills/security/bank-api-security-check/references
 ```
-
-建立 `skill.md`：
 
 ```markdown
-# bank-api-security-check
+---
+name: bank-api-security-check
+description: 依 OWASP API Top 10 與金融業規範檢查 Spring Boot REST API，產出分級報告
+version: 1.0.0
+metadata:
+  hermes:
+    tags: [security, owasp, banking]
+    category: security
+    requires_toolsets: [file, terminal]
+    config:
+      - key: bank_api_audit.severity_threshold
+        description: 報告的最低嚴重度
+        default: "medium"
+        prompt: "最低回報嚴重度（low/medium/high/critical）"
+---
 
-## Description
-銀行 API 安全性檢查技能。依據 OWASP Top 10 和金融法規要求，
-對 RESTful API 進行全面安全掃描。
+# Bank API Security Check
 
-## Triggers
-- 使用者提到「安全檢查」、「弱掃」、「安全掃描」
+## When to Use
+使用者提到「安全檢查」、「弱掃」、「API 安全審查」，或 PR 變更了 `@RestController`、`SecurityFilterChain`。
 
-## Steps
-1. **掃描 API Controller**
-   - 讀取所有 @RestController 類別
-   - 檢查是否有 @PreAuthorize 或 @Secured 註解
-   - 確認 CSRF 保護狀態
+## Procedure
+1. **掃描 API Controller**：以 `search_files` 找出所有 `@RestController`，確認每個端點都有 `@PreAuthorize` 或 `@Secured`。
+2. **檢查認證機制**：JWT 過期時間與簽發者驗證、OAuth2 Scope、CORS 是否允許 `*`。
+3. **掃描注入風險**：SQL 字串串接、未淨化的輸入、`Runtime.exec()`、未設白名單的外部 URL 呼叫（SSRF）。
+4. **檢查敏感資料**：密碼雜湊演算法（BCrypt／Argon2）、PII 遮蔽、日誌是否含個資。
+5. **產出報告**：依 `bank_api_audit.severity_threshold` 過濾，輸出 Markdown 表格（風險／嚴重度／檔案:行號／修復建議），依 Critical > High > Medium > Low 排序。
 
-2. **檢查認證機制**
-   - 確認 JWT 配置（Token 過期時間、簽發者驗證）
-   - 檢查 OAuth2 Scope 設定
-   - 確認 CORS 配置是否過於寬鬆
+## Pitfalls
+- 測試目錄（`src/test/`）中的假憑證不算洩漏。
+- 不要只看註解存在與否；`permitAll()` 設定也會讓註解失效，需一併檢查 `SecurityFilterChain`。
 
-3. **掃描注入風險**
-   - SQL Injection：搜尋字串拼接 SQL
-   - XSS：檢查輸入是否有 sanitize
-   - Command Injection：檢查 Runtime.exec() 使用
-   - SSRF：檢查外部 URL 呼叫是否有白名單
-
-4. **檢查敏感資料處理**
-   - 確認密碼使用 BCrypt/Argon2 加密
-   - 確認 PII 資料是否有遮蔽（Masking）
-   - 確認日誌中不包含敏感資訊
-
-5. **產出報告**
-   - 格式：Markdown 表格
-   - 欄位：風險項目 / 嚴重度 / 檔案位置 / 修復建議
-   - 依嚴重度排序（Critical > High > Medium > Low）
-
-## Config
-- severity_threshold: medium
-- include_owasp_references: true
-- output_format: markdown
+## Verification
+- 每項發現都附檔案路徑與行號，可人工開啟核對。
+- 報告中「Critical」項目的數量與 `references/checklist.md` 的檢查項一一對應。
 ```
+
+> ✅ **如何驗證**：
+>
+> 1. `hermes skills list | grep bank-api-security-check`：確認技能已被載入（frontmatter 錯誤時不會出現）。
+> 2. `hermes skills inspect bank-api-security-check`：檢視解析後的中繼資料與 config 宣告。
+> 3. `hermes config migrate`：會詢問尚未設定的 `bank_api_audit.severity_threshold`，值存於 `skills.config` 下。
+> 4. 對一個刻意放入 SQL 字串串接的測試專案執行 `/bank-api-security-check`，報告必須抓到該行。
 
 #### 6.1.2 Skill Config 介面（v0.8.0 新增）
 
-Skills 可以宣告必要的 config.yaml 設定，在安裝時會自動提示使用者：
+技能可以在 frontmatter 的 `metadata.hermes.config` 宣告**非機密**設定（路徑、偏好等）。值儲存在 `config.yaml` 的 `skills.config` 下，技能載入時會自動注入上下文；機密值請改用 `requires_env` 類的環境變數，不要放進技能 config。
 
-```markdown
-# skill.md 中加入 Config Block
+> ⚠️ **實測發現（v0.23.0）**：`hermes config set skills.config.bank_api_audit.severity_threshold high` 會成功寫入，但同時顯示「not a recognized config key … Hermes may not read it」的警告，這與官方文件「技能設定存放於 `skills.config`」的說明不一致。建議以 `hermes config migrate` 的互動提示寫入技能設定，並在導入時實際驗證技能是否讀到該值（見附錄 E.4）。
 
-## Config
-- api_scan_depth: 5
-  description: "API 掃描深度（目錄層級）"
-  required: true
-- custom_rules_path: null
-  description: "自訂規則檔案路徑"
-  required: false
+```yaml
+# ~/.hermes/config.yaml — 技能 config 的實際儲存位置
+skills:
+  config:
+    bank_api_audit:
+      severity_threshold: high
 ```
 
 #### 6.1.3 從 Skills Hub 安裝
 
 ```bash
-# 瀏覽社群技能
-/skills
-
-# 安裝特定技能
-/skills install popular-web-designs
-/skills install gitnexus-explorer
-/skills install research-paper-writing
-
-# 自動同步到所有 Profiles
-hermes update  # 會自動將 bundled skills 同步到所有 profile
+hermes skills browse                               # 瀏覽 Hub（官方優先）
+hermes skills search kubernetes                    # 搜尋所有來源
+hermes skills inspect openai/skills/k8s            # 安裝前預覽
+hermes skills install openai/skills/k8s            # 安裝（含安全掃描）
+hermes skills install official/security/1password  # 官方 optional 技能
+hermes skills check                                # 檢查已安裝 Hub 技能的上游更新
+hermes skills audit                                # 重新掃描所有 Hub 技能
 ```
+
+> ⚠️ **v0.22.0 變更**：`hermes sync`（Skill Sync）已移除。內建技能會在安裝與 `hermes update` 時播種到每個 Profile；若某個 Profile 不需要內建技能，請執行 `hermes skills opt-out`。
 
 ### 6.2 多 Agent 協作設計
 
@@ -2692,7 +3061,7 @@ graph TD
     
     SA1 --> |"web_search<br/>web_extract"| WEB[Web Tools]
     SA2 --> |"write_file<br/>execute_code"| CODE[Code Tools]
-    SA3 --> |"read_file<br/>execute_command"| TEST[Test Tools]
+    SA3 --> |"read_file<br/>terminal"| TEST[Test Tools]
     
     SA1 -.-> |摘要回傳| MAIN
     SA2 -.-> |程式碼回傳| MAIN
@@ -2732,6 +3101,7 @@ delegate_task(
 ```
 
 **適用場景**：
+
 - 耗時任務（大規模程式碼掃描、全倉庫搜尋）
 - 平行探索（同時研究多個技術方案）
 - Kanban Worker 角色（背景處理佇列任務）
@@ -2846,21 +3216,21 @@ graph TD
 #### 6.3.2 設定與使用
 
 ```yaml
-# config.yaml — Multi-agent Kanban 完整設定
+# ~/.hermes/config.yaml — Multi-agent Kanban 調度設定（鍵名以 v0.23.0 DEFAULT_CONFIG 為準）
 kanban:
-  enabled: true
-  multi_project: true         # 支援多專案看板
-  max_retries: 3              # 每任務最大重試次數
-  heartbeat_interval: 30      # Worker 心跳間隔（秒）
-  zombie_timeout: 300         # 殭屍 Worker 判定超時（秒）
-  hallucination_gate: true    # 啟用幻覺閘門
-  
-  # 跨 Profile 共享設定
-  sharing:
-    board: true               # 共享看板
-    workspaces: true           # 共享工作區
-    worker_logs: true          # 共享 Worker 日誌
+  dispatch_in_gateway: true          # 由 Gateway 內建調度器派工
+  dispatch_interval_seconds: 60      # 調度週期
+  failure_limit: 2                   # 連續失敗幾次後停止自動重派
+  max_in_progress: 6                 # 全看板同時進行中的上限
+  max_in_progress_per_profile: 2     # 每個 Profile（Worker 身分）的上限
+  dispatch_profiles: [team-backend, team-frontend, team-qa]   # 允許被派工的 Profile
+  orchestrator_profile: team-lead    # 負責拆解與協調的 Profile
+  auto_decompose: true
+  dispatch_stale_timeout_seconds: 14400   # 認領多久未更新視為逾時並回收
+  done_sub_retention_days: 30
 ```
+
+> ⚠️ **更正**：舊版範例的 `kanban.enabled`、`multi_project`、`max_retries`、`heartbeat_interval`、`zombie_timeout`、`hallucination_gate`、`sharing.*` 都不是有效設定鍵。重試次數是**任務層級**的屬性（`hermes kanban create --max-retries N`）；多看板是以 `hermes kanban boards create` 建立，不需要開關。
 
 ```bash
 # Kanban CLI 指令（每個看板為獨立 SQLite：~/.hermes/kanban/boards/<slug>/kanban.db）
@@ -2872,7 +3242,9 @@ hermes kanban assign task-1 backend   # 指派任務到 Profile
 hermes kanban show task-1             # 查看任務詳情
 hermes kanban link task-1 task-2      # 建立任務相依關係
 hermes kanban complete task-1         # 標記任務完成
+hermes kanban dispatch --dry-run      # 預覽派工結果
 hermes kanban dispatch                # 手動觸發一次派工迴圈
+hermes kanban diag --severity warning # 診斷卡住、逾時的任務
 
 # 對話中斜線指令（與 CLI 對應同一份資料）
 /kanban                        # 查看當前看板狀態
@@ -2887,7 +3259,7 @@ hermes kanban dispatch                # 手動觸發一次派工迴圈
 
 **工作區類型**（`workspace` 欄位）：`scratch`（暫存，預設，任務結束即清除）、`worktree`（獨立 Git worktree，保留）、`dir:<絕對路徑>`（共用目錄，保留）。
 
-**多租戶支援**：`hermes kanban dispatch --tenant business-a --workspace dir:~/tenants/business-a/`，Worker 取得 `$HERMES_TENANT` 環境變數，記憶寫入自動依租戶命名空間隔離。
+**多租戶支援**：租戶與工作區是**任務**的屬性，在建立任務時指定，例如 `hermes kanban create "月結報表" --tenant business-a --workspace dir:/srv/tenants/business-a`；之後以 `hermes kanban list --tenant business-a` 篩選。Worker 會取得 `$HERMES_TENANT` 環境變數，記憶寫入依租戶命名空間隔離。（舊版文件把 `--tenant`／`--workspace` 寫在 `kanban dispatch` 上，實測為 `unrecognized arguments`。）
 
 **與 `delegate_task` 的定位差異**：`delegate_task` 為阻塞式 RPC、匿名子代理、不可恢復、壓縮後稽核紀錄即遺失，僅支援階層式委派；Kanban 則是持久化佇列、具名且持久記憶的 Profile、可恢復（阻擋→解除阻擋、當機自動回收）、完整 SQLite 稽核軌跡，支援對等（Peer）協作而非僅階層委派。企業選型時應依「一次性平行子任務」選 `delegate_task`（見 6.2 節），「跨會話、需人工可視、需審計軌跡」的協作場景選 Kanban。
 
@@ -2923,40 +3295,40 @@ v0.21.0 針對長時間多 Agent 運行的實際故障模式，補上四項強�
 
 ### 6.4 長期記憶設計（Vector DB）
 
-#### 6.4.1 使用 Supermemory（推薦企業使用）
+#### 6.4.1 使用 Supermemory
 
-```yaml
-# ~/.hermes/config.yaml
-memory:
-  provider: supermemory
-  
-  supermemory:
-    # 多容器設計
-    containers:
-      - name: technical-knowledge
-        description: "技術知識庫（架構/設計模式/最佳實踐）"
-      - name: project-context
-        description: "專案上下文（需求/決策/變更記錄）"
-      - name: team-preferences
-        description: "團隊偏好（程式風格/工具設定/流程）"
-    
-    search_mode: hybrid     # keyword + semantic
-    identity_template: "enterprise-developer"
+v0.22.0 起，Supermemory 由其維護者透過 Plugin Catalog 發布。容器、搜尋模式等進階參數在外掛自己的設定中，**不是** `config.yaml` 的 `memory.supermemory.*`。
+
+```bash
+hermes plugins install supermemory     # 從 Catalog 安裝（同時安裝 SDK）
+hermes plugins enable supermemory
+hermes memory setup                    # 選擇 supermemory，依提示輸入 API Key 或自架位址
+hermes memory status                   # 確認啟用中的 Provider
 ```
 
-#### 6.4.2 使用 mem0
-
-```yaml
-# ~/.hermes/config.yaml
-memory:
-  provider: mem0
-  
-  mem0:
-    api_key: "${MEM0_API_KEY}"     # Cloud 版
-    # 或使用 mem0.json 進行本地配置
-    prefetch_context: true          # LLM 呼叫前預取
-    secret_redaction: true          # 自動遮蔽敏感資訊
+```bash
+# ~/.hermes/.env — 手動設定時
+SUPERMEMORY_API_KEY=sm_xxxxxxxxxxxx
 ```
+
+提供的工具：`supermemory_store`、`supermemory_search`、`supermemory_forget`、`supermemory_profile`。自架時可執行 `npx supermemory local`。
+
+#### 6.4.2 使用 Mem0
+
+```bash
+hermes plugins install mem0
+hermes memory setup            # 選擇 mem0 → Platform／Open Source（自架）／Self-hosted server
+```
+
+```bash
+# ~/.hermes/.env — Platform 模式
+MEM0_API_KEY=m0-xxxxxxxxxxxx
+MEM0_TELEMETRY=false           # mem0ai SDK 預設會送出匿名 PostHog 使用統計；企業環境建議關閉
+```
+
+提供的工具：`mem0_search`、`mem0_add`、`mem0_update`、`mem0_delete`。
+
+> 🔐 **資料治理**：Hermes 交給外部 Provider 的所有內容（對話輪次、含工具輸出的逐字稿、查詢、委派結果等）都會先經過與其他出站資料相同的秘密遮蔽。但遮蔽不等於去識別化：涉及個資時，請優先選擇可自架的 Provider，並把 Provider 列入資料流盤點。
 
 #### 6.4.3 記憶架構設計（企業級）
 
@@ -3019,30 +3391,22 @@ Hermes Agent 自動進行任務拆解，但你可以透過 Prompt 引導更精�
 
 #### 6.6.2 Automation Blueprints（v0.17.0+）
 
-v0.17.0 新增自然語言排程模板，取代傳統 cron 語法。Blueprints 可透過四種入口管理：
+v0.17.0 新增的 Automation Blueprints 是**參數化的現成自動化範本**：選一個範本、填幾個欄位，Hermes 就會建立一個 Cron 工作，不需要寫 cron 語法。每一個入口都會在建立前請你確認，不會靜默排程。
 
-| 入口 | 說明 |
+| 入口 | 操作方式 |
 | ------ | ------ |
-| Dashboard 表單 | 視覺化建立與管理 Blueprint |
-| CLI slash command | `/blueprint create "每天早上 9 點掃描漏洞"` |
-| Messenger 對話 | 直接在聊天中說「幫我每週一產生週報」 |
-| Docs 目錄 | `~/.hermes/blueprints/*.yaml` 檔案化管理 |
+| Dashboard／Desktop | Cron 頁面 → **Blueprints** 分頁 → 填表 → *Schedule it* |
+| CLI／TUI／訊息平台 | `/blueprint <名稱>`，Hermes 逐一詢問所需欄位；也可直接帶值：`/blueprint morning-brief time=08:00` |
+| Desktop 文件頁 | 點 **Send to App**，指令會預先填入輸入框 |
+| 外掛 | 外掛可以提供自己的 Blueprint，名稱為 `外掛名:範本名`（例如 `/blueprint teamtools:standup`），不會覆蓋內建範本 |
 
-```yaml
-# ~/.hermes/blueprints/weekly-report.yaml
-name: weekly-report
-schedule: "每週一早上 9 點"
-task: |
-  彙整本週的 Git commits、PR 合併數、Issue 解決數，
-  生成 Markdown 週報傳送到 Slack #engineering 頻道
-profile: devops
-channel: slack
-conditions:
-  - type: day_of_week
-    value: monday
+```text
+/blueprint morning-brief
+/blueprint morning-brief time=08:00
+/cron                     # 管理建立出來的工作
 ```
 
-> **與 Cron 的關係**：Automation Blueprints 底層仍使用 Cron 引擎，但提供自然語言介面。既有 `cron_add` 指令完全相容，Blueprints 為更高層的抽象。
+> **與 Cron 的關係**：Blueprint 只是「產生 Cron 工作的精靈」，建立後就是一般的 Cron 工作（`hermes cron list` 可見），停用提供它的外掛也不會刪除已建立的工作。⚠️ **更正**：舊版文件的 `~/.hermes/blueprints/*.yaml` 檔案格式與 `/blueprint create "…"` 語法都不存在。
 
 #### 6.6.3 使用 Context Files 定義工作流
 
@@ -3077,10 +3441,15 @@ Agent 在每次對話中都會載入此檔案，確保輸出符合專案規範�
 #### 6.6.4 Profile-based 多團隊工作流
 
 ```bash
-# 建立不同團隊的 Profile
-hermes --profile team-backend     # 後端團隊
-hermes --profile team-frontend    # 前端團隊
-hermes --profile team-devops      # DevOps 團隊
+# 建立不同團隊的 Profile（只需一次）
+hermes profile create team-backend
+hermes profile create team-frontend
+hermes profile create team-devops
+
+# 以指定 Profile 啟動（-p 等同 --profile）
+hermes -p team-backend
+hermes -p team-frontend
+hermes profile list
 
 # 每個 Profile 有獨立的：
 # - Skills（技能）
@@ -3106,21 +3475,30 @@ hermes --profile team-devops      # DevOps 團隊
 | **per-job 推理強度釘選** | 每個任務各自指定 reasoning effort | 簡單巡檢用低強度，複雜分析用高強度 |
 | **「Trigger now」立即執行** | 手動立刻觸發且不破壞排程狀態 | 便於測試與驗收 |
 
-```yaml
-# ~/.hermes/config.yaml — Cron 進階設定（v0.21.0）
-cron:
-  jobs:
-    - name: daily-security-scan
-      schedule: "0 9 * * *"
-      prompt: "掃描主分支的新增相依套件是否有已知 CVE，僅在有新發現時回報"
-      workdir: /srv/app
-      continuity: true          # 帶入上一次執行的輸出
-      monitor: true             # 無變化時跳過 LLM 呼叫
-      reasoning_effort: medium  # 此任務專用的推理強度
-      notify: slack:#sec-alerts
+```bash
+# Cron 工作以 CLI 建立（儲存於 ~/.hermes/cron/），不是寫在 config.yaml
+hermes cron create "0 9 * * *" "掃描主分支的新增相依套件是否有已知 CVE，僅在有新發現時回報" \
+  --name daily-security-scan \
+  --workdir /srv/app \
+  --continuity \
+  --monitor-script deps_snapshot.sh \
+  --reasoning-effort medium \
+  --deliver slack \
+  --failure-deliver telegram
+
+hermes cron list                          # 確認工作已建立與下次執行時間
+hermes cron status                        # 排程器整體狀態（不接受工作名稱參數）
+hermes cron notepad daily-security-scan   # 檢視此工作的持久筆記
+hermes cron runs daily-security-scan      # 執行紀錄
 ```
 
-> 💡 **成本實務**：`monitor: true` 是本次更新中對 TCO 影響最大的單一設定。一個每 15 分鐘執行、但九成時間「無事發生」的監控任務，開啟後可省下約九成的 LLM 呼叫費用。
+- `--continuity`：每次執行都會把**上一次的輸出**注入提示，讓 Agent 可以去重並接續。
+- `--monitor-script <~/.hermes/scripts/ 下的腳本>`（或 `--monitor-url <URL>`）：每次觸發先執行這個便宜的來源檢查；**輸出位元組雜湊不變就完全跳過 Agent 執行**，有變化才把差異注入提示。
+- `--deliver`：`origin`、`local`、平台名稱（送到該平台的 Home channel）、`platform:chat_id`，或 `bot-chat[:profile]`。
+
+> ⚠️ **更正**：舊版範例的 `cron.jobs: [...]`（含 `monitor: true`、`notify:`）不是有效設定。Monitor 模式需要提供 `--monitor-script` 或 `--monitor-url` 作為變化偵測來源。
+
+> 💡 **成本實務**：Monitor 模式（`--monitor-script`／`--monitor-url`）是對 TCO 影響最大的單一設定。一個每 15 分鐘執行、但九成時間「無事發生」的監控任務，開啟後可省下約九成的 LLM 呼叫費用。
 >
 > ⚠️ **v0.21.0 修正**：先前版本存在「Cron 任務誤繼承 Kanban Worker 派工者身分」的缺陷，同時使用 Cron 與 Kanban 的環境建議升級。
 
@@ -3274,84 +3652,67 @@ graph TB
     REGISTRY --> OBS
 ```
 
-#### 6.9.2 內建 Plugin 清單（v0.12.0 + v0.13.0）
+#### 6.9.2 內建 Plugin 與 Catalog 外掛（v0.23.0）
 
-| Plugin | 類型 | 說明 |
+v0.22.0 起，許多原本內建的整合改由各維護者透過 **Plugin Catalog** 發布（見 1.4.46）。下表依 v0.23.0 原始碼的 `plugins/` 目錄整理：
+
+| 類別 | 內建於 v0.23.0（`plugins/`） | 已移到 Catalog（需 `hermes plugins install`） |
 | -------- | ------ | ------ |
-| `plugins/platform-teams` | 平台 | Microsoft Teams 整合（第 19 平台） |
-| `plugins/platform-yuanbao` | 平台 | 騰訊元寶整合（第 18 平台） |
-| `plugins/model-lmstudio` | 模型 | LM Studio first-class Provider |
-| `plugins/model-azure-foundry` | 模型 | Azure AI Foundry Provider |
-| `plugins/model-tencent` | 模型 | Tencent Tokenhub Provider |
-| `plugins/tool-spotify` | 工具 | Spotify 原生整合（7 工具 + PKCE OAuth） |
-| `plugins/tool-google-meet` | 工具 | Google Meet 加入/轉錄/發言 |
-| `plugins/tool-comfyui` | 工具 | ComfyUI v5 圖像生成（預設內建） |
-| `plugins/tool-touchdesigner` | 工具 | TouchDesigner-MCP（預設內建） |
-| `plugins/observability-langfuse` | 可觀測性 | Langfuse tracing + metrics |
-| `plugins/hermes-achievements` | 擴展 | 成就系統 gamification |
-| **`plugins/platform-google-chat`** | **平台** | **Google Chat 整合（v0.13.0 第 20 平台）+ 通用 Platform-Plugin Hooks** |
-| **`plugins/model-providers/*`** | **模型** | **ProviderProfile ABC — Provider 可插拔化（v0.13.0）** |
+| 訊息平台 | `platforms/`：telegram、discord、slack、teams、google_chat、line、matrix、mattermost、signal、whatsapp、whatsapp_cloud、photon、a2a、ntfy、raft、buzz 等 | Home Assistant |
+| 模型 Provider | `model-providers/`：anthropic、openrouter、nous、bedrock、vertex、azure-foundry、lmstudio、ollama-cloud、xai 等 40+ | — |
+| 記憶 | `memory/`：byterover、retaindb | honcho、mem0、supermemory、hindsight、openviking、holographic |
+| 瀏覽器來源 | `browser/`：browserbase、browser_use、firecrawl | camofox |
+| 網路搜尋 | `web/`：brave_free、ddgs、exa、firecrawl、searxng、tavily、perplexity 等 | — |
+| 影像／影片生成 | `image_gen/`（fal、krea、openai、xai 等）、`video_gen/` | Meshy（3D）、ElevenLabs Music／SFX |
+| 其他 | `google_meet`、`teams_pipeline`、`kanban`、`delegation`、`security-guidance`、`disk-cleanup`、`hermes-achievements` | Spotify、Langfuse、`mcp-serve`、`agent-importers`、`advanced-delegation`、Singularity、bubblewrap 沙箱、REA、X Chat |
 
-#### 6.9.2.1 v0.13.0 Plugin 新功能
+> 💡 **自動遷移**：升級時，已設定某個整合的 Profile 會由 `hermes update`（或 Desktop 首次啟動）自動安裝對應的 Catalog 外掛；若 `security.allow_lazy_installs: false`、離線或被拒絕，警告訊息會附上確切的 `hermes plugins install <name>` 指令。
 
-| 功能 | 說明 |
-| ------ | ------ |
-| **`transform_llm_output` Hook** | 新生命週期掛鉤：在 LLM 輸出到達對話前進行 reshape / filter。適用於上下文窗口壓縮器和內容過濾器 |
-| **`env_enablement_fn` Hook** | 平台 Plugin 可定義環境變數啟用函式（IRC、Teams 已遷移） |
-| **`cron_deliver_env_var` Hook** | Cron 交付環境變數掛鉤 |
-| **ProviderProfile ABC** | `plugins/model-providers/` 目錄下的第三方 Provider 可插拔，無需修改核心程式碼 |
-| **Dashboard Plugins 頁面** | 圖形化管理 Plugin：啟用/停用、查看認證狀態 |
-| **SRI 完整性** | Dashboard Plugin 腳本採用 Subresource Integrity 驗證 |
+#### 6.9.2.1 Plugin Hooks（v0.23.0 共 46 種）
+
+`hermes_cli.plugins.VALID_HOOKS` 在 v0.23.0 共有 **46** 個事件，可分為：
+
+| 類型 | 代表事件 | 行為 |
+| ------ | ------ | ------ |
+| Observer（觀察） | `post_tool_call`、`post_llm_call`、`on_session_start`、`on_session_end`、`subagent_stop`、`on_kanban_task_updated` | 回傳值被忽略 |
+| Transform（轉換） | `transform_llm_output`、`transform_tool_result`、`transform_terminal_output`、`transform_api_error_classification` | 採用第一個有效的字串回傳值 |
+| Directive／Control（控制） | `pre_tool_call`、`pre_llm_call`、`pre_gateway_dispatch`、`pre_approval_request`、`pre_verify` | 可依文件定義的回傳格式改變流程（例如阻擋工具呼叫） |
 
 ```python
-# plugins/my-output-filter/__init__.py — 使用 transform_llm_output hook
-from hermes.plugins import PluginBase, hook
+# ~/.hermes/plugins/output-redactor/__init__.py — transform_llm_output 範例（官方 register(ctx) 介面）
+import re
 
-class OutputFilterPlugin(PluginBase):
-    name = "my-output-filter"
-    version = "1.0.0"
-    
-    @hook("transform_llm_output")
-    async def filter_output(self, output: str) -> str:
-        """在 LLM 輸出送入對話前進行過濾/變形"""
-        # 例如：移除敏感資訊、壓縮上下文
-        return output.replace("INTERNAL_SECRET", "[REDACTED]")
+_PATTERN = re.compile(r"INTERNAL-[A-Z0-9]{8}")
+
+
+def register(ctx):
+    def redact(text, **kwargs):
+        del kwargs
+        if not isinstance(text, str):
+            return None          # 不處理就回傳 None，交給下一個 transform
+        return _PATTERN.sub("[REDACTED]", text)
+
+    ctx.register_hook("transform_llm_output", redact)
 ```
 
-#### 6.9.3 Spotify 整合範例
+> ⚠️ **更正**：舊版範例使用的 `from hermes.plugins import PluginBase, hook` 與類別裝飾器寫法**不是** Hermes 的外掛 API；官方介面是模組層級的 `register(ctx)` 函式。
+
+#### 6.9.3 Spotify 整合（v0.22.0 起為 Catalog 外掛）
 
 ```bash
-# 安裝 Spotify Plugin（v0.12.0 預設已內建）
+hermes plugins install spotify
 hermes plugins enable spotify
-
-# 首次使用會啟動 PKCE OAuth 流程
-# 瀏覽器自動開啟 Spotify 授權頁面
-
-# 之後可直接對 Agent 下達音樂指令：
-> 播放一些適合寫程式的 Lo-fi 音樂
-> 暫停播放
-> 建立一個名為「Coding Vibes」的播放清單
+# 首次使用時會啟動 PKCE OAuth 流程，瀏覽器自動開啟 Spotify 授權頁面
 ```
 
-**提供的 7 個工具**：
-- `spotify_play` — 播放音樂/播放清單
-- `spotify_pause` — 暫停播放
-- `spotify_next` / `spotify_prev` — 上/下一首
-- `spotify_search` — 搜尋音樂
-- `spotify_create_playlist` — 建立播放清單
-- `spotify_current` — 查看當前播放
+#### 6.9.4 Google Meet 整合（內建外掛）
 
-#### 6.9.4 Google Meet 整合
+Google Meet 是 v0.23.0 仍內建的外掛（`plugins/google_meet`），會註冊 `hermes meet` CLI 子指令：加入會議、即時轉錄、語音發言、會後產出摘要與行動項目。啟用方式與一般外掛相同：
 
-```yaml
-# config.yaml
-plugins:
-  google_meet:
-    enabled: true
-    credentials: "${GOOGLE_MEET_CREDENTIALS}"  # OAuth 或 Service Account
+```bash
+hermes plugins enable google_meet
+hermes meet --help
 ```
-
-功能：加入會議、即時轉錄、語音發言、會後自動產出會議摘要與行動項目。
 
 #### 6.9.5 自訂 Plugin 開發（官方標準結構）
 
@@ -3359,7 +3720,7 @@ Plugin 目錄需包含清單檔 `plugin.yaml` 與進入點 `__init__.py`：
 
 ```text
 ~/.hermes/plugins/my-custom-tool/
-├── plugin.yaml       # 清單：name / version / description / capabilities / requires_env
+├── plugin.yaml       # 清單：name / version / description / provides_tools / provides_hooks / requires_env / capabilities
 ├── __init__.py        # register(ctx) 進入點
 ├── schemas.py          # 工具參數 Schema（選用）
 └── tools.py             # 工具實作（選用）
@@ -3370,37 +3731,82 @@ Plugin 目錄需包含清單檔 `plugin.yaml` 與進入點 `__init__.py`：
 name: my-custom-tool
 version: "1.0.0"
 description: "封裝內部 JIRA API 為 Agent 工具"
-capabilities: []          # 如需覆寫工具行為填 tools.override，需存取 LLM 填 llm.model_override
-requires_env: ["JIRA_API_TOKEN"]
+provides_tools:
+  - jira_create_ticket      # 必須與 register() 實際註冊的工具一致，否則 hermes plugins validate 失敗
+provides_hooks:
+  - post_tool_call
+requires_env:
+  - name: JIRA_API_TOKEN
+    description: "JIRA 個人存取權杖"
+    secret: true
+capabilities: []            # 需覆寫內建工具填 tools.override；需指定 ctx.llm 的模型填 llm.model_override
 ```
 
 ```python
 # __init__.py
+import json
+
+
+def create_ticket_handler(params, **kwargs):
+    del kwargs
+    # 實際呼叫 JIRA REST API（略）；回傳 JSON 字串
+    return json.dumps({"success": True, "key": "OPS-123", "title": params["title"]})
+
+
+def on_tool_result(tool_name, args, result, **kwargs):
+    del args, result, kwargs
+    print(f"[my-custom-tool] tool called: {tool_name}")
+
+
+def jira_status_handler(*args, **kwargs):
+    return "JIRA OK"
+
+
 def register(ctx):
     ctx.register_tool(
         name="jira_create_ticket",
         toolset="jira",
-        schema={"title": "string", "description": "string"},
+        schema={
+            "name": "jira_create_ticket",
+            "description": "在 JIRA 建立工單",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {"type": "string", "description": "工單標題"},
+                    "description": {"type": "string", "description": "工單內容"},
+                },
+                "required": ["title"],
+            },
+        },
         handler=create_ticket_handler,
     )
     ctx.register_hook("post_tool_call", on_tool_result)
     ctx.register_command("jira-status", jira_status_handler, description="查詢 JIRA 專案狀態")
 ```
 
-**`PluginContext`（`ctx`）核心 API**：`register_tool`（新增工具）、`register_hook`（掛接 26 種生命週期事件之一，如 `pre_tool_call`／`transform_llm_output`／`on_session_end`）、`register_command`（新增 `/name` 斜線指令）、`register_cli_command`（新增 `hermes <plugin> <subcommand>`）、`register_skill`（隨 Plugin 附帶 Skill）、`inject_message`（插入訊息至對話）、`call_mcp`（呼叫已設定的 MCP 伺服器）。
+**`PluginContext`（`ctx`）核心 API**：`register_tool`（新增工具；`schema` 為完整的 OpenAI function 格式，模型看到的描述放在 `schema["description"]`）、`register_hook`（掛接 46 種生命週期事件之一，如 `pre_tool_call`／`transform_llm_output`／`on_session_end`）、`register_command`（新增 `/name` 斜線指令）、`register_cli_command`（新增 `hermes <plugin> <subcommand>`）、`register_skill`（隨 Plugin 附帶 Skill）、`inject_message`（插入訊息至對話）、`call_mcp`（呼叫已設定的 MCP 伺服器）。
 
-**探索來源**：官方內建（`<repo>/plugins/`）、使用者（`~/.hermes/plugins/`）、專案層級（`.hermes/plugins/`，需 `HERMES_ENABLE_PROJECT_PLUGINS=true` 明確開啟）、pip entry points（`hermes_agent.plugins`）、Nix module。
+**探索來源**：官方內建（`<repo>/plugins/`）、使用者（`~/.hermes/plugins/` 或 `hermes plugins install`）、pip entry points（`hermes_agent.plugins`）、Nix module。⚠️ **v0.23.0 變更**：所有 Session 都在單一 Gateway 中執行，Gateway 只在啟動時探索一次外掛，**不會**從你啟動 Session 的資料夾載入專案層級外掛（`./.hermes/plugins/`），`HERMES_ENABLE_PROJECT_PLUGINS=true` 對 Session 已無作用。
 
 > ⚠️ **安全模型（官方原文）**：「Plugin 以 in-process Python 執行——capabilities 是同意層（consent layer），不是沙箱（sandbox）」。一般 Plugin **預設全部停用**，需在 `config.yaml` 的 `plugins.enabled` 明確列出才會載入；安裝與每次更新新增權限時皆會提示使用者同意。企業導入任何第三方 Plugin 前，應視同引入可完整存取 Agent Process 的程式碼進行審查，而非僅信任其描述文字。
 
 ```yaml
-# config.yaml — Plugin 啟用控制
+# ~/.hermes/config.yaml — Plugin 啟用控制與行程隔離
 plugins:
   enabled: [my-custom-tool, disk-cleanup]
   disabled: [noisy-plugin]
+  isolation: host            # 預設 in_process；host = 第三方外掛在每個 Profile 獨立的 Python 行程中執行
 ```
 
-**Plugin Packs**（`hermes plugins pack install ./hermes-pack.yaml`）：以 `hermes-pack.yaml` 將多個 Plugin 釘選至精確 commit SHA 一次性分享安裝，安裝時僅需確認一次所有權限；秘密憑證不會隨 Pack 一併打包。
+> 🔐 **`plugins.isolation: host`（企業建議開啟）**：第三方 Python 外掛不再匯入 Hermes 主行程，因此無法從記憶體讀取其他 Profile 的資料，也無法修補 Hermes 內部；`plugins.host.launcher` 可以再包一層沙箱啟動器。內建外掛仍在主行程中執行。
+
+```bash
+hermes plugins validate ./my-custom-tool    # 宣告的工具是否與註冊一致、安全掃描結果
+hermes plugins capabilities my-custom-tool  # 檢視外掛要求的特權
+hermes plugins doctor
+```
+
+**Plugin Packs**（`hermes plugins pack show ./hermes-pack.yaml` 先預覽，再 `hermes plugins pack install ./hermes-pack.yaml`；`hermes plugins pack export` 可匯出目前安裝狀態）：以 `hermes-pack.yaml` 將多個 Plugin 釘選至精確 commit SHA 一次性分享安裝，安裝時僅需確認一次所有權限；秘密憑證不會隨 Pack 一併打包。
 
 > **企業建議**：善用 Plugin 系統將內部系統（JIRA、Confluence、內部 API）封裝為 Plugin，讓 Agent 能直接操作企業工具鏈；跨團隊分享時優先使用 Plugin Pack 釘選版本，避免非預期的自動更新引入未經審查的行為變更。Desktop 端的對應能力另見 1.4.32 節「Desktop Plugin SDK」。
 
@@ -3424,6 +3830,20 @@ Hermes 原生支援**批次執行大量任務並記錄完整執行軌跡（traje
 >
 > 需要澄清的是：**自架的 Hermes 不會自動把軌跡上傳給 Nous Research**——軌跡預設存放於本機。真正需要控管的是三件事：(1) 是否使用了會保留資料的 Provider 資料層級（v0.21.0 已在各模型選擇器統一顯示 data-training-tier 警示）；(2) `hermes sessions export` 匯出時是否使用 `--redact`；(3) 團隊是否有人手動將軌跡分享至外部。企業應將軌跡納入既有的敏感資料分類與保存政策，而非視為單純的日誌。
 
+### 6.11 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 技能可被載入 | `hermes skills list`、`hermes skills inspect <name>` | 技能出現在清單；frontmatter 欄位正確解析 |
+| 2 | 技能行為符合預期 | 用含已知缺陷的測試專案執行 `/<skill>` | 報告抓到植入的缺陷，且附檔案:行號 |
+| 3 | Kanban 設定有效 | `hermes config get kanban.dispatch_interval_seconds`；`hermes kanban dispatch --dry-run` | 回傳設定值；dry-run 列出將被派工的任務 |
+| 4 | 多租戶隔離 | `hermes kanban list --tenant business-a` | 只列出該租戶的任務 |
+| 5 | 記憶 Provider 為已安裝的外掛 | `hermes plugins list`、`hermes memory status` | Provider 外掛為 enabled，status 顯示同一個 Provider |
+| 6 | Cron 工作設定正確 | `hermes cron status <job>`、`hermes cron doctor` | 有 `--continuity`／monitor 來源；沒有 `config.yaml` 的 `cron.jobs` |
+| 7 | 外掛宣告與實作一致 | `hermes plugins validate <path>` | declared tools 檢查通過；安全掃描沒有 `dangerous` |
+| 8 | 第三方外掛行程隔離 | `hermes config get plugins.isolation` | 企業環境為 `host` |
+| 9 | 外掛程式碼使用官方 API | 人工審查 `__init__.py` | 使用模組層級 `register(ctx)`，沒有 `PluginBase`／`@hook` 之類不存在的 API |
+
 ---
 
 ## 第七章：Voice Mode（語音模式）
@@ -3433,6 +3853,7 @@ Hermes 原生支援**批次執行大量任務並記錄完整執行軌跡（traje
 Hermes Agent v0.3.0+ 支援語音互動能力，v0.20.0「The Herald Release」起由「錄音→轉錄→回覆→播放」的輪替式互動，升級為**真正的即時對話式語音**，可在 CLI、Desktop、Telegram、Discord 及 WhatsApp／飛書／釘釘／LINE／QQ／Photon／微信等訊息平台進行語音互動。語音模式整合 STT（語音轉文字）和 TTS（文字轉語音）雙向轉換，適用於免手動操作場景。
 
 **v0.20.0 即時對話式語音三大能力**：
+
 - **逐句串流播放 + Barge-in 插話**：Hermes 隨回應串流逐句朗讀，使用者可隨時開口打斷正在播放的語音，Agent 會立即停止播放、轉為聆聽，並得知自己是被中途打斷（而非誤判為新的獨立提問）
 - **裝置端喚醒詞**：開放詞彙的自訂喚醒短語（如「Hey Hermes」），偵測完全在裝置端執行，語音資料不外流；多 Profile 可各自綁定不同喚醒詞，實現「一裝置多身分」語音路由
 - **語音全平台覆蓋**：前述訊息平台送出的語音訊息均可自動轉錄與回覆，並依平台特性自動選擇音訊編碼（如 Opus）與字幕呈現方式
@@ -3481,64 +3902,72 @@ graph LR
 | ElevenLabs | 高品質語音合成 | ~2s | 付費 | 語音克隆、高擬真度 |
 | OpenAI TTS | 官方雲端 TTS | ~1.5s | 付費 | 6 種語音 |
 | **NeuTTS** | 本地開源 TTS | 依硬體而定（CPU/GPU） | 免費 | 完全離線，需 `espeak-ng` |
+| KittenTTS | 本地輕量 TTS | 低 | 免費 | ⚠️ **v0.22.0 起在 Python 3.14 執行環境中無法使用** |
+| Piper | 本地 TTS | 低 | 免費 | `tts.piper.voice` 指定語音 |
+| Gemini／Mistral（Voxtral）／DeepInfra | 雲端 TTS | 中等 | 依方案 | `tts.provider` 可選 `gemini`、`mistral`、`deepinfra` |
 | MiniMax（Speech 2.8） | MiniMax TTS | 中等 | 依方案 | v0.8.0 新增 |
 | **xAI Custom Voices** | xAI 語音克隆 TTS | 中等 | 依方案 | 支援語音克隆（voice cloning），v0.13.0 新增，v0.15.0 起 `auto_speech_tags` 自然語調 |
 
-> 系統依賴：語音模式需要 PortAudio、ffmpeg；Discord 語音頻道另需 Opus codec；NeuTTS 需 `espeak-ng`。安裝擴充套件：`uv pip install -e ".[voice]"`（CLI 語音）、`".[messaging]"`（Discord/Telegram 語音）、`".[tts-premium]"`（付費 TTS）。
+> 系統依賴：語音模式需要 PortAudio；Discord 語音頻道另需 Opus codec；NeuTTS 需 `espeak-ng`。v0.22.0 起 FFmpeg 與本機 Faster-Whisper 由 PM 準備（支援的平台上不需要 STT API Key）。官方安裝腳本選用 `all` extra，一般不必再手動安裝語音擴充套件。v0.23.0 另新增官方外掛 **ElevenLabs Music／Sound Effects**（`hermes plugins install` 安裝）。
 
 ### 7.3 CLI 語音互動
 
+```text
+# 在 CLI／TUI 對話中切換（沒有 --voice 啟動旗標）
+/voice on       # 開啟語音模式
+/voice off      # 關閉
+/voice tts      # 切換語音輸出
+/voice status   # 目前狀態
+```
+
 ```bash
-# 啟用語音模式
-hermes --voice
-
-# 或在對話中切換
-/voice on     # 開啟語音
-/voice off    # 關閉語音
-
-# 設定 STT/TTS Provider
-hermes config set voice.stt_provider openai
-hermes config set voice.tts_provider elevenlabs
+# 以設定指令選擇 Provider
+hermes config set stt.provider local        # local（免費、離線）| groq | openai | mistral | xai | elevenlabs | deepinfra
+hermes config set tts.provider edge         # edge（免費）| elevenlabs | openai | neutts | minimax | mistral | gemini | xai | kittentts | piper
 ```
 
 ```yaml
-# ~/.hermes/config.yaml
-voice:
-  enabled: false                # 預設關閉
-  stt_provider: openai          # openai / voxtral / deepgram / local
-  tts_provider: openai          # openai / elevenlabs / minimax / piper / xai
-  
-  openai:
-    stt_model: whisper-1
-    tts_model: tts-1
-    tts_voice: alloy             # alloy / echo / fable / onyx / nova / shimmer
-  
-  elevenlabs:
-    api_key: "${ELEVENLABS_API_KEY}"
-    voice_id: "your-voice-id"
-  
-  # xAI Custom Voices（v0.13.0 新增）
-  xai:
-    api_key: "${XAI_API_KEY}"
-    voice_id: "your-cloned-voice-id"  # 語音克隆 ID
-  
-  voxtral:
-    api_key: "${MISTRAL_API_KEY}"   # Mistral AI API Key
-  
-  # v0.12.0: Piper 本地 TTS
-  piper:
-    model: "zh_CN-huayan-medium"  # 本地模型名稱
-    speaker_id: 0                 # 說話者 ID
-    # 模型存放於 ~/.hermes/tts/piper/models/
-    # 首次使用自動下載
+# ~/.hermes/config.yaml — 語音相關設定分成 stt／tts／voice／wake_word 四個區塊
+stt:
+  enabled: true
+  provider: local              # 本機 Faster-Whisper，免 API Key
+  language: "zh"               # 全域語言提示；"" = 自動偵測
+  local:
+    model: base                # tiny | base | small | medium | large-v3 | turbo
 
-  # v0.20.0: 裝置端喚醒詞與對話式語音行為
-  record_key: "ctrl+b"           # CLI 錄音快捷鍵
-  silence_threshold: 200          # 靜音判定音量閾值
-  silence_duration: 3.0           # 靜音多久後自動結束錄音（秒）
-  stop_phrases: ["stop", "停止"]  # 語音／文字說出即結束語音對話
-  wake_word: "hey hermes"         # 裝置端喚醒詞，偵測不外流
+tts:
+  provider: elevenlabs
+  elevenlabs:
+    voice_id: "pNInz6obpgDQGcFmaJgB"
+    model_id: "eleven_multilingual_v2"
+  openai:
+    model: "gpt-4o-mini-tts"
+    voice: "alloy"
+  xai:                         # xAI Custom Voices（v0.13.0）
+    voice_id: "eve"
+    auto_speech_tags: true     # v0.15.0：自然語調標記
+
+voice:                         # CLI 互動行為
+  record_key: "ctrl+b"
+  silence_threshold: 200
+  silence_duration: 3.0
+  stop_phrases: ["stop", "停止"]
+  barge_in: true
+  auto_tts: false
+
+wake_word:                     # v0.20.0：裝置端喚醒詞（偵測不外流）
+  enabled: true
+  phrase: "hey hermes"
+  sensitivity: 0.6
 ```
+
+```bash
+# ~/.hermes/.env — 語音 Provider 的金鑰一律放在 .env，不寫進 config.yaml
+ELEVENLABS_API_KEY=sk_xxxxxxxxxxxx
+GROQ_API_KEY=gsk_xxxxxxxxxxxx
+```
+
+> ⚠️ **更正**：舊版範例的 `hermes --voice`（實測為 `unrecognized arguments`）、`voice.enabled`、`voice.stt_provider`、`voice.tts_provider`、`voice.openai.*`、`voice.voxtral`、`voice.piper`、`voice.wake_word` 都不是有效設定。STT 設定在 `stt:`，TTS 設定在 `tts:`，喚醒詞在頂層 `wake_word:`，金鑰放在 `.env`。
 
 **CLI 語音互動實際操作方式**：`Ctrl+B` 按下開始錄音，停頓 3 秒自動結束（採兩階段偵測：0.3 秒確認開始說話 + 3.0 秒判定結束），兩聲提示音確認錄音起訖，之後持續循環直到再次按 `Ctrl+B` 或說出／輸入「stop」結束；回覆採**逐句串流播放**並支援 **Barge-in**（說話即可打斷正在播放的語音）。
 
@@ -3546,14 +3975,12 @@ voice:
 
 v0.12.0 將 TTS 架構重構為可插拔式註冊表，允許第三方 Plugin 新增 TTS 引擎：
 
-```yaml
-# 自訂 TTS Provider
-tts:
-  providers:
-    my_custom_tts:
-      plugin: "plugins/tts-my-engine"
-      endpoint: "http://localhost:5500/api/tts"
-      voice: "default"
+自訂 TTS 引擎以**外掛**的形式註冊（`ctx.register_tts_provider(...)`），而不是在 `config.yaml` 中宣告端點。安裝並啟用外掛後，即可把 `tts.provider` 設為該外掛註冊的名稱：
+
+```bash
+hermes plugins install <tts-plugin>
+hermes plugins enable <tts-plugin>
+hermes config set tts.provider <外掛註冊的名稱>
 ```
 
 ### 7.4 Telegram / Discord 語音互動
@@ -3568,35 +3995,36 @@ Agent：
   3. 以文字或語音回應（依設定）
 ```
 
-**Telegram 設定**：
+**Telegram／Discord 的語音回覆模式**以對話中的斜線指令切換，設定會在 Gateway 重啟後保留：
 
-```yaml
-# config.yaml
-gateway:
-  platforms:
-    telegram:
-      enabled: true
-      voice_transcription: true    # 自動轉錄語音備忘錄
-      voice_response: false        # 是否以語音回應
+```text
+/voice          # 切換開／關
+/voice on       # 只有使用者傳語音時才以語音回覆（voice_only）
+/voice tts      # 所有訊息都以語音回覆（all）
+/voice off      # 只回文字（預設）
+/voice status   # 顯示目前設定
 ```
+
+> 💡 語音備忘錄的自動轉錄由 `stt.enabled` 控制（預設 `true`）。設為 `false` 時 Gateway 仍會快取音檔，並把路徑交給 Agent，方便接自訂的處理流程（說話者分離、歸檔等）。
 
 ### 7.5 Discord Voice Channel 即時語音
 
 Hermes 支援加入 Discord Voice Channel 進行即時語音對話：
 
+```text
+# 在 Discord 文字頻道中輸入（你必須已經在某個語音頻道內）
+/voice join      # Bot 加入你目前所在的語音頻道（/voice channel 為別名）
+/voice leave     # Bot 離開語音頻道
+```
+
 ```bash
-# Discord Voice Channel 設定
-gateway:
-  platforms:
-    discord:
-      enabled: true
-      voice_channel:
-        enabled: true
-        auto_join: false          # 是否自動加入語音頻道
-        wake_word: "hermes"       # 喚醒詞
+# ~/.hermes/.env — 伺服器頻道預設需要 @mention；可針對特定頻道免 mention
+DISCORD_REQUIRE_MENTION=true
+DISCORD_FREE_RESPONSE_CHANNELS=123456789012345678
 ```
 
 **使用流程**：
+
 1. 在 Discord 邀請 Hermes Bot 加入語音頻道
 2. Bot 監聽語音並使用 STT 轉錄
 3. 偵測到喚醒詞或被 @mention 時開始處理
@@ -3609,9 +4037,20 @@ gateway:
 | 開發團隊 | CLI Voice + Whisper | 邊 coding 邊語音下指令 |
 | 客服系統 | Telegram Voice + ElevenLabs | 自然語音客服回應 |
 | 會議記錄 | Discord VC + Voxtral | 即時會議記錄與摘要 |
-| 離線環境 | Local Whisper + Local TTS | 無需網路的語音互動 |
+| 離線環境 | `stt.provider: local` + `tts.provider: neutts` 或 `piper` | 無需網路的語音互動（避免 KittenTTS：Python 3.14 不支援） |
 
 > **安全提醒**：語音資料可能包含敏感資訊。企業環境建議使用本地 Whisper 模型或確保語音資料傳輸加密（TLS）。不要在語音中傳輸密碼、API Key 等敏感資訊。
+
+### 7.7 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 語音設定鍵有效 | `hermes config get stt.provider`、`hermes config get tts.provider` | 回傳設定值；沒有 `voice.stt_provider` 之類的鍵 |
+| 2 | 金鑰不在 config.yaml | `grep -n 'api_key' ~/.hermes/config.yaml` | 語音 Provider 的金鑰都在 `.env` |
+| 3 | CLI 語音可用 | 在 CLI 執行 `/voice on`，按 `Ctrl+B` 說一句話 | 出現兩聲提示音，轉錄文字顯示在輸入框 |
+| 4 | 離線語音可用 | 斷網後以 `stt.provider: local` 錄音 | 仍能轉錄（首次需先下載模型） |
+| 5 | 訊息平台語音模式 | 在 Telegram 輸入 `/voice status` | 顯示 `off`／`voice_only`／`all` 之一 |
+| 6 | 不使用已失效的 Provider | 檢查 `tts.provider` | 在 Python 3.14 執行環境中不是 `kittentts` |
 
 ---
 
@@ -3627,12 +4066,12 @@ graph TB
     
     subgraph "Backend（後端層）"
         API[Spring Boot / FastAPI<br/>業務邏輯 API]
-        AGENT_SVC[Agent Service<br/>Hermes 封裝層]
+        AGENT_SVC[Agent Facade<br/>FastAPI / Spring Boot]
     end
     
     subgraph "Hermes Agent Layer"
-        HERMES[Hermes Agent<br/>CLI / API Mode]
-        GW[Hermes Gateway<br/>多平台消息]
+        GW[Hermes Gateway<br/>API Server :8642（OpenAI 相容）]
+        HERMES[Agent Loop<br/>由 Gateway 擁有 Session]
         MCP_SRV[MCP Server<br/>暴露業務工具]
     end
     
@@ -3647,8 +4086,8 @@ graph TB
     API --> BIZ_DB
     API --> CACHE
     
-    AGENT_SVC -->|HTTP API / CLI| HERMES
-    HERMES --> GW
+    AGENT_SVC -->|Bearer API_SERVER_KEY<br/>X-Hermes-Session-Key| GW
+    GW --> HERMES
     HERMES -->|MCP Protocol| MCP_SRV
     MCP_SRV --> BIZ_DB
     
@@ -3657,240 +4096,273 @@ graph TB
 
 ### 8.2 FastAPI 後端整合
 
-#### 8.2.1 Agent-as-a-Service API
+> ⚠️ **v0.23.0 整合原則**：**不要用子行程呼叫 `hermes` CLI 來包裝成服務**。舊版範例使用的 `hermes chat --message`、`--session`、`--stream`、`hermes skills --json` 等旗標都不存在；而且 v0.23.0 起所有 Session 都由 Gateway 擁有，正確做法是呼叫 Gateway 內建的 **OpenAI 相容 API Server**。
 
-```python
-# agent_service.py
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
-import subprocess
-import asyncio
-import json
-
-app = FastAPI(title="Hermes Agent Service", version="1.0.0")
-
-class AgentRequest(BaseModel):
-    """Agent 請求模型"""
-    message: str
-    session_id: str | None = None
-    profile: str = "default"
-    model: str | None = None
-
-class AgentResponse(BaseModel):
-    """Agent 回應模型"""
-    response: str
-    session_id: str
-    tokens_used: int
-    tools_called: list[str]
-
-@app.post("/api/agent/chat", response_model=AgentResponse)
-async def chat(request: AgentRequest):
-    """
-    與 Hermes Agent 進行對話
-    
-    - **message**: 使用者訊息
-    - **session_id**: 對話 Session ID（可選，用於延續對話）
-    - **profile**: Agent Profile（預設 default）
-    - **model**: 指定模型（可選）
-    """
-    cmd = ["hermes", "chat", "--message", request.message]
-    
-    if request.session_id:
-        cmd.extend(["--session", request.session_id])
-    if request.profile != "default":
-        cmd.extend(["--profile", request.profile])
-    if request.model:
-        cmd.extend(["--model", request.model])
-    
-    try:
-        result = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await result.communicate()
-        
-        if result.returncode != 0:
-            raise HTTPException(status_code=500, detail=stderr.decode())
-        
-        output = json.loads(stdout.decode())
-        return AgentResponse(
-            response=output["response"],
-            session_id=output["session_id"],
-            tokens_used=output.get("tokens_used", 0),
-            tools_called=output.get("tools_called", [])
-        )
-    except json.JSONDecodeError:
-        return AgentResponse(
-            response=stdout.decode(),
-            session_id=request.session_id or "new",
-            tokens_used=0,
-            tools_called=[]
-        )
-
-@app.post("/api/agent/stream")
-async def stream_chat(request: AgentRequest):
-    """SSE 串流模式 - 即時回傳 Agent 回應"""
-    async def generate():
-        cmd = ["hermes", "chat", "--message", request.message, "--stream"]
-        process = await asyncio.create_subprocess_exec(
-            *cmd,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        
-        async for line in process.stdout:
-            text = line.decode().strip()
-            if text:
-                yield f"data: {json.dumps({'content': text})}\n\n"
-        
-        yield f"data: {json.dumps({'done': True})}\n\n"
-    
-    return StreamingResponse(generate(), media_type="text/event-stream")
-
-@app.get("/api/agent/skills")
-async def list_skills():
-    """列出所有可用技能"""
-    result = subprocess.run(
-        ["hermes", "skills", "--json"],
-        capture_output=True, text=True
-    )
-    return json.loads(result.stdout)
-
-@app.post("/api/agent/skill/{skill_name}")
-async def execute_skill(skill_name: str, request: AgentRequest):
-    """執行指定技能"""
-    message = f"/{skill_name} {request.message}"
-    request.message = message
-    return await chat(request)
-```
-
-#### 8.2.2 啟動 Agent Service
+#### 8.2.1 啟用 Hermes API Server
 
 ```bash
-# 安裝依賴
-pip install fastapi uvicorn pydantic
-
-# 啟動服務
-uvicorn agent_service:app --host 0.0.0.0 --port 8000 --reload
-
-# API 文件：http://localhost:8000/docs
+# ~/.hermes/.env
+API_SERVER_ENABLED=true
+API_SERVER_KEY=change-me-to-a-long-random-string
 ```
+
+```bash
+hermes gateway restart
+curl -s http://127.0.0.1:8642/health
+curl -s http://127.0.0.1:8642/v1/chat/completions \
+  -H "Authorization: Bearer $API_SERVER_KEY" -H "Content-Type: application/json" \
+  -d '{"model": "hermes-agent", "messages": [{"role": "user", "content": "Hello"}]}'
+```
+
+| 重點 | 說明 |
+| --- | --- |
+| 端點 | `POST /v1/chat/completions`（無狀態，對話內容放在 `messages`）、`POST /v1/responses`、`POST /v1/runs`（可串流事件、可 stop／approval／clarify）、`GET /v1/models`、`GET /health` |
+| 認證 | `Authorization: Bearer <API_SERVER_KEY>` |
+| 延續對話 | 加上 `X-Hermes-Session-Key: <你的鍵>`（同一個鍵 = 同一段對話）；或以 `X-Hermes-Session-Id` 指定既有 Session |
+| 結束狀態 | `finish_reason` 為 `stop`（成功）、`length`（迭代預算用盡，但內容仍是可用的總結）、`cancelled`、`error` |
+| 無人值守審批 | API Server 屬於無人可回答的介面，危險指令依 `approvals.unattended_mode`（預設 `deny`）處理 |
+| 多 Profile | 單一 Gateway 服務多個 Profile 時，以 `/p/<profile>/` URL 前綴指定 Profile |
+
+#### 8.2.2 FastAPI Facade（已實測）
+
+以下 Facade 保留 `/api/agent/chat`、`/api/agent/stream` 兩個業務端點，後端轉送到 Hermes API Server，並以上游 API Gateway 注入的 `X-User-Id` 為每位使用者隔離 session key：
+
+```python
+# agent_service.py — 企業內部的 Agent Facade：把前端請求轉送到 Hermes Gateway 的 OpenAI 相容 API Server
+# 依賴：pip install fastapi uvicorn httpx pydantic
+import json
+import os
+from collections.abc import AsyncIterator
+
+import httpx
+from fastapi import FastAPI, Header, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel, Field
+
+HERMES_URL = os.environ.get("HERMES_API_URL", "http://127.0.0.1:8642")
+HERMES_KEY = os.environ["HERMES_API_KEY"]  # 與 Gateway 的 API_SERVER_KEY 相同；缺少時啟動即失敗
+TIMEOUT = httpx.Timeout(connect=5.0, read=600.0, write=30.0, pool=5.0)
+
+app = FastAPI(title="Hermes Agent Facade", version="2.0.0")
+
+
+class AgentRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=20_000)
+    session_key: str | None = Field(default=None, max_length=128)  # 同一個值 = 同一段對話
+    skill: str | None = Field(default=None, pattern=r"^[a-z0-9][a-z0-9-]{0,63}$")
+
+
+class AgentResponse(BaseModel):
+    response: str
+    finish_reason: str
+    total_tokens: int
+
+
+def _headers(session_key: str | None) -> dict[str, str]:
+    headers = {"Authorization": f"Bearer {HERMES_KEY}", "Content-Type": "application/json"}
+    if session_key:
+        headers["X-Hermes-Session-Key"] = session_key
+    return headers
+
+
+def _payload(req: AgentRequest, stream: bool) -> dict:
+    text = f"/{req.skill} {req.message}" if req.skill else req.message
+    return {"model": "hermes-agent", "messages": [{"role": "user", "content": text}], "stream": stream}
+
+
+@app.post("/api/agent/chat", response_model=AgentResponse)
+async def chat(req: AgentRequest, x_user_id: str = Header(...)) -> AgentResponse:
+    """同步對話。X-User-Id 由上游 API Gateway 注入，用來組出每位使用者自己的 session key。"""
+    session_key = f"{x_user_id}:{req.session_key}" if req.session_key else None
+    async with httpx.AsyncClient(base_url=HERMES_URL, timeout=TIMEOUT) as client:
+        r = await client.post("/v1/chat/completions", headers=_headers(session_key), json=_payload(req, False))
+    if r.status_code != 200:
+        raise HTTPException(status_code=502, detail=f"hermes returned {r.status_code}")
+    body = r.json()
+    choice = body["choices"][0]
+    if choice.get("finish_reason") in ("error", "cancelled"):
+        raise HTTPException(status_code=502, detail=f"agent run {choice['finish_reason']}")
+    return AgentResponse(
+        response=choice["message"]["content"],
+        finish_reason=choice["finish_reason"],  # "length" = 迭代預算用盡但仍有可用的總結
+        total_tokens=body.get("usage", {}).get("total_tokens", 0),
+    )
+
+
+@app.post("/api/agent/stream")
+async def stream_chat(req: AgentRequest, x_user_id: str = Header(...)) -> StreamingResponse:
+    """SSE 串流：逐段轉送 Hermes 的 chat.completion.chunk，前端收到 {"content": ...} 與 {"done": true}。"""
+    session_key = f"{x_user_id}:{req.session_key}" if req.session_key else None
+
+    async def generate() -> AsyncIterator[str]:
+        async with httpx.AsyncClient(base_url=HERMES_URL, timeout=TIMEOUT) as client:
+            async with client.stream(
+                "POST", "/v1/chat/completions", headers=_headers(session_key), json=_payload(req, True)
+            ) as r:
+                if r.status_code != 200:
+                    yield f"data: {json.dumps({'error': r.status_code})}\n\n"
+                    return
+                async for line in r.aiter_lines():
+                    if not line.startswith("data: "):
+                        continue
+                    data = line[len("data: "):]
+                    if data == "[DONE]":
+                        break
+                    delta = json.loads(data)["choices"][0].get("delta", {}).get("content")
+                    if delta:
+                        yield f"data: {json.dumps({'content': delta}, ensure_ascii=False)}\n\n"
+        yield f"data: {json.dumps({'done': True})}\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
+
+
+@app.get("/api/agent/health")
+async def health() -> dict:
+    async with httpx.AsyncClient(base_url=HERMES_URL, timeout=5.0) as client:
+        r = await client.get("/health")
+    return {"hermes": r.status_code == 200}
+```
+
+#### 8.2.3 啟動與驗證
+
+```bash
+pip install fastapi uvicorn httpx pydantic
+export HERMES_API_KEY="$API_SERVER_KEY"
+uvicorn agent_service:app --host 127.0.0.1 --port 8000
+
+curl -s -X POST http://127.0.0.1:8000/api/agent/chat \
+  -H "Content-Type: application/json" -H "X-User-Id: u001" \
+  -d '{"message": "列出 src/ 的 TODO", "session_key": "repo-a"}'
+```
+
+> ✅ **本手冊的實測方式**：以一個模擬 Hermes API Server（實作 `/v1/chat/completions` 一般與 SSE 兩種回應），對上述 Facade 執行 9 項端對端測試，全部通過：轉送成功、session key 依使用者隔離（`u7:s1`）、Bearer 轉送、技能前綴、非法技能名稱回 422、缺少 `X-User-Id` 回 422、SSE 內容組合正確、結束標記、上游 401 轉為 502。測試程式見附錄 E.3。
 
 ### 8.3 Spring Boot 後端整合
 
 #### 8.3.1 Agent Client 封裝
 
 ```java
+package com.example.assistant.hermes;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+
 /**
- * Hermes Agent 客戶端
- * 透過 HTTP 呼叫 Agent Service 或直接呼叫 CLI
+ * Hermes Gateway API Server 客戶端（Spring Boot 3.2+ / 4.x 的 RestClient）。
+ * 設定值以建構子注入，避免「@Value 欄位在建構子執行時尚未注入」的常見錯誤。
  */
 @Service
-@Slf4j
 public class HermesAgentClient {
 
-    private final WebClient webClient;
-    
-    @Value("${hermes.agent.url:http://localhost:8000}")
-    private String agentUrl;
+    private final RestClient restClient;
 
-    public HermesAgentClient(WebClient.Builder builder) {
-        this.webClient = builder.baseUrl(agentUrl).build();
+    public HermesAgentClient(RestClient.Builder builder,
+                             @Value("${hermes.api.url:http://127.0.0.1:8642}") String baseUrl,
+                             @Value("${hermes.api.key}") String apiKey) {
+        this.restClient = builder
+                .baseUrl(baseUrl)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
+                .build();
     }
 
-    /**
-     * 與 Agent 對話
-     * @param message 使用者訊息
-     * @param sessionId Session ID（可選）
-     * @return Agent 回應
-     */
-    public Mono<AgentResponse> chat(String message, String sessionId) {
-        AgentRequest request = new AgentRequest();
-        request.setMessage(message);
-        request.setSessionId(sessionId);
-        
-        return webClient.post()
-            .uri("/api/agent/chat")
-            .bodyValue(request)
-            .retrieve()
-            .bodyToMono(AgentResponse.class)
-            .doOnError(e -> log.error("Agent 呼叫失敗", e))
-            .onErrorResume(e -> Mono.just(
-                AgentResponse.error("Agent 暫時無法回應，請稍後再試")
-            ));
+    /** 與 Agent 對話；sessionKey 相同即延續同一段對話（null = 無狀態）。 */
+    public ChatResult chat(String message, String sessionKey) {
+        Map<String, Object> body = Map.of(
+                "model", "hermes-agent",
+                "messages", List.of(Map.of("role", "user", "content", message)),
+                "stream", false);
+
+        RestClient.RequestBodySpec spec = restClient.post()
+                .uri("/v1/chat/completions")
+                .contentType(MediaType.APPLICATION_JSON);
+        if (sessionKey != null && !sessionKey.isBlank()) {
+            spec = spec.header("X-Hermes-Session-Key", sessionKey);
+        }
+        ChatCompletion completion = spec.body(body).retrieve().body(ChatCompletion.class);
+        if (completion == null || completion.choices() == null || completion.choices().isEmpty()) {
+            throw new HermesException("empty response from Hermes");
+        }
+        Choice choice = completion.choices().get(0);
+        if ("error".equals(choice.finishReason()) || "cancelled".equals(choice.finishReason())) {
+            throw new HermesException("agent run " + choice.finishReason());
+        }
+        int tokens = completion.usage() == null ? 0 : completion.usage().totalTokens();
+        return new ChatResult(choice.message().content(), choice.finishReason(), tokens);
     }
 
-    /**
-     * SSE 串流對話
-     */
-    public Flux<String> streamChat(String message) {
-        AgentRequest request = new AgentRequest();
-        request.setMessage(message);
-        
-        return webClient.post()
-            .uri("/api/agent/stream")
-            .bodyValue(request)
-            .retrieve()
-            .bodyToFlux(String.class);
+    /** 以技能執行：在訊息前加上 /<skill-name>（例如內建的 requesting-code-review）。 */
+    public ChatResult runSkill(String skillName, String message, String sessionKey) {
+        if (!skillName.matches("[a-z0-9][a-z0-9-]{0,63}")) {
+            throw new IllegalArgumentException("invalid skill name");
+        }
+        return chat("/" + skillName + " " + message, sessionKey);
     }
 
-    /**
-     * 執行指定技能
-     */
-    public Mono<AgentResponse> executeSkill(String skillName, String message) {
-        AgentRequest request = new AgentRequest();
-        request.setMessage(message);
-        
-        return webClient.post()
-            .uri("/api/agent/skill/{skill}", skillName)
-            .bodyValue(request)
-            .retrieve()
-            .bodyToMono(AgentResponse.class);
+    public record ChatResult(String content, String finishReason, int totalTokens) { }
+
+    record ChatCompletion(List<Choice> choices, Usage usage) { }
+
+    record Choice(Message message,
+                  @com.fasterxml.jackson.annotation.JsonProperty("finish_reason") String finishReason) { }
+
+    record Message(String role, String content) { }
+
+    record Usage(@com.fasterxml.jackson.annotation.JsonProperty("total_tokens") int totalTokens) { }
+
+    public static class HermesException extends RuntimeException {
+        public HermesException(String msg) {
+            super(msg);
+        }
     }
 }
 ```
 
+```yaml
+# application.yml
+hermes:
+  api:
+    url: http://127.0.0.1:8642
+    key: ${HERMES_API_KEY}     # 由環境變數或秘密管理系統注入
+```
+
+> ⚠️ **更正**：舊版範例在建構子中使用 `@Value` 欄位（`builder.baseUrl(agentUrl)`），但欄位注入發生在建構子**之後**，因此 `agentUrl` 會是 `null`。上例改用建構子參數注入。另外內建技能中沒有 `code-review`，應使用 `requesting-code-review`。✅ 本段 Java 以 `JavacTask.parse()`（JDK 21）通過語法驗證。
+
 #### 8.3.2 REST Controller
 
 ```java
-/**
- * 智能助手 API Controller
- */
 @RestController
 @RequestMapping("/api/assistant")
-@RequiredArgsConstructor
 public class AssistantController {
 
     private final HermesAgentClient agentClient;
 
-    @PostMapping("/chat")
-    public Mono<ResponseEntity<AgentResponse>> chat(
-            @RequestBody @Valid ChatRequest request) {
-        return agentClient.chat(request.getMessage(), request.getSessionId())
-            .map(ResponseEntity::ok);
+    public AssistantController(HermesAgentClient agentClient) {
+        this.agentClient = agentClient;
     }
 
-    @PostMapping("/stream")
-    public Flux<ServerSentEvent<String>> streamChat(
-            @RequestBody @Valid ChatRequest request) {
-        return agentClient.streamChat(request.getMessage())
-            .map(content -> ServerSentEvent.<String>builder()
-                .data(content)
-                .build());
+    @PostMapping("/chat")
+    public HermesAgentClient.ChatResult chat(@RequestBody @Valid ChatRequest request,
+                                             @RequestHeader("X-User-Id") String userId) {
+        String sessionKey = request.sessionKey() == null ? null : userId + ":" + request.sessionKey();
+        return agentClient.chat(request.message(), sessionKey);
     }
 
     @PostMapping("/code-review")
-    public Mono<ResponseEntity<AgentResponse>> codeReview(
-            @RequestBody @Valid CodeReviewRequest request) {
-        String prompt = String.format(
-            "請審查以下程式碼的安全性和品質：\n```java\n%s\n```",
-            request.getCode()
-        );
-        return agentClient.executeSkill("code-review", prompt)
-            .map(ResponseEntity::ok);
+    public HermesAgentClient.ChatResult codeReview(@RequestBody @Valid CodeReviewRequest request,
+                                                   @RequestHeader("X-User-Id") String userId) {
+        String prompt = "請審查以下程式碼的安全性和品質：\n```java\n" + request.code() + "\n```";
+        return agentClient.runSkill("requesting-code-review", prompt, userId + ":review");
     }
+
+    public record ChatRequest(@NotBlank @Size(max = 20000) String message, String sessionKey) { }
+
+    public record CodeReviewRequest(@NotBlank @Size(max = 200000) String code) { }
 }
 ```
 
@@ -3964,7 +4436,7 @@ async function sendMessage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         message: userMsg,
-        session_id: sessionId.value
+        session_key: sessionId.value
       })
     })
     
@@ -4021,60 +4493,70 @@ function scrollToBottom() {
 
 ### 8.5 Agent-as-a-Service API 設計
 
-#### 8.5.1 API 規格
+#### 8.5.1 API 規格（Facade 端點 → Hermes API 對照）
 
-| Method | Endpoint | 說明 |
-| -------- | ---------- | ------ |
-| POST | `/api/agent/chat` | 對話（同步回應） |
-| POST | `/api/agent/stream` | 對話（SSE 串流） |
-| GET | `/api/agent/skills` | 列出技能 |
-| POST | `/api/agent/skill/{name}` | 執行技能 |
-| GET | `/api/agent/sessions` | 列出對話歷史 |
-| GET | `/api/agent/sessions/{id}` | 取得對話詳情 |
-| DELETE | `/api/agent/sessions/{id}` | 刪除對話 |
-| GET | `/api/agent/usage` | Token 使用統計 |
-| POST | `/api/agent/memory/search` | 搜尋記憶 |
+| Method | Facade 端點 | 轉送到 Hermes | 說明 |
+| -------- | ---------- | ------ | ------ |
+| POST | `/api/agent/chat` | `POST /v1/chat/completions` | 對話（同步回應） |
+| POST | `/api/agent/stream` | `POST /v1/chat/completions`（`stream: true`） | 對話（SSE 串流） |
+| POST | `/api/agent/runs` | `POST /v1/runs` | 長時間任務；回傳 `run_id` |
+| GET | `/api/agent/runs/{id}/events` | `GET /v1/runs/{run_id}/events` | 任務事件串流 |
+| POST | `/api/agent/runs/{id}/stop` | `POST /v1/runs/{run_id}/stop` | 停止任務 |
+| POST | `/api/agent/runs/{id}/approval` | `POST /v1/runs/{run_id}/approval` | 由人工回覆審批 |
+| GET／POST | `/api/agent/jobs` | `GET／POST /api/jobs` | 背景排程工作 |
+| GET | `/api/agent/models` | `GET /v1/models` | 可用模型 |
+| GET | `/api/agent/health` | `GET /health` | 健康檢查 |
+
+> 💡 技能清單、Session 管理與用量統計屬於管理功能，建議由 Dashboard（或 `hermes sessions`／`hermes insights` CLI）提供，**不要**對一般業務使用者開放。
 
 #### 8.5.2 整合架構圖
 
 ```mermaid
 graph LR
-    subgraph "Client Apps"
-        WEB_APP[Web Application<br/>Vue / React]
-        MOBILE[Mobile App<br/>React Native]
-        BOT[Chat Bot<br/>Telegram / Discord]
+    subgraph CA["Client Apps"]
+        WEB_APP["Web Application<br/>Vue / React"]
+        MOBILE["Mobile App"]
     end
-    
-    subgraph "API Gateway"
-        NGINX[Nginx / Kong<br/>Rate Limit + Auth]
+
+    subgraph APIGW["API Gateway"]
+        NGINX["Kong / Nginx<br/>SSO + Rate Limit + X-User-Id 注入"]
     end
-    
-    subgraph "Agent Service Cluster"
-        SVC1[Agent Service 1<br/>Profile: general]
-        SVC2[Agent Service 2<br/>Profile: code-review]
-        SVC3[Agent Service 3<br/>Profile: security]
+
+    subgraph FAC["Agent Facade"]
+        SVC["FastAPI / Spring Boot<br/>業務規則、輸入驗證、稽核日誌"]
     end
-    
-    subgraph "Hermes Instances"
-        H1[Hermes Agent<br/>General]
-        H2[Hermes Agent<br/>Code Expert]
-        H3[Hermes Agent<br/>Security Expert]
+
+    subgraph HOST["Hermes 主機（單一 Gateway）"]
+        GW["API Server :8642"]
+        P1["Profile: general"]
+        P2["Profile: code-review"]
+        P3["Profile: security"]
     end
-    
+
     WEB_APP --> NGINX
     MOBILE --> NGINX
-    BOT --> NGINX
-    
-    NGINX --> SVC1
-    NGINX --> SVC2
-    NGINX --> SVC3
-    
-    SVC1 --> H1
-    SVC2 --> H2
-    SVC3 --> H3
+    NGINX --> SVC
+    SVC -->|"/v1/..."| GW
+    SVC -->|"/p/code-review/v1/..."| GW
+    SVC -->|"/p/security/v1/..."| GW
+    GW --> P1
+    GW --> P2
+    GW --> P3
 ```
 
-> **最佳實踐**：企業 Web 整合建議使用 Agent Service 中間層（FastAPI/Spring Boot），而非直接暴露 Hermes CLI。這樣可以：（1）統一認證與授權（2）加入請求限流（3）整合業務邏輯（4）多實例負載平衡。
+> **最佳實踐**：企業 Web 整合請使用 Facade 中間層（FastAPI／Spring Boot），**不要**把 Hermes API Server 直接暴露給終端使用者，也不要以子行程呼叫 CLI。Facade 負責：（1）統一 SSO 與授權，並把使用者身分轉成 session key；（2）請求限流與輸入長度限制；（3）業務規則與稽核日誌；（4）只開放業務需要的端點。API Server 本身只綁定 `127.0.0.1` 或內部網段，並使用長且隨機的 `API_SERVER_KEY`。
+
+### 8.6 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 沒有以子行程包裝 CLI | 在程式碼中搜尋 `subprocess`、`ProcessBuilder` 與 `hermes chat` | 沒有結果；一律呼叫 API Server |
+| 2 | API Server 已啟用且有認證 | `curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8642/v1/models` 不帶 Token | 回傳 401 |
+| 3 | Session 依使用者隔離 | 以兩個不同的 `X-User-Id` 送出相同 `session_key` | 兩者的對話歷史互不可見 |
+| 4 | 結束狀態有處理 | 檢查程式碼對 `finish_reason` 的判斷 | `error`／`cancelled` 視為失敗；`length` 視為不完整但可用 |
+| 5 | 串流解析正確 | 執行附錄 E.3 的 `test_facade.py` | 9/9 PASS |
+| 6 | 金鑰不在程式碼中 | `grep -rn 'API_SERVER_KEY\|Bearer ' src/` | 只有從環境變數讀取 |
+| 7 | Java 設定注入正確 | 人工審查 | 以建構子參數注入 `@Value`，沒有在建構子中使用尚未注入的欄位 |
 
 ---
 
@@ -4094,46 +4576,55 @@ graph LR
 > **v0.15.0 推薦**：使用 Bitwarden Secrets Manager，一個 bootstrap token 取代所有散落的 API Key（詳見 1.4.17 節）。
 
 ```bash
-# 不要這樣做 ❌
+# ❌ 不要這樣做：金鑰寫在 shell 歷史、腳本或版控中
 export ANTHROPIC_API_KEY=sk-ant-real-key-here
 
-# 應該這樣做 ✅
-# .env 檔案（不入版控）
-ANTHROPIC_API_KEY=${vault:secret/hermes/anthropic-key}
+# ✅ 應該這樣做：由秘密來源在啟動時注入，.env 只保留 bootstrap token
+hermes secrets bitwarden setup --project-id 00000000-0000-0000-0000-000000000000
+hermes secrets bitwarden status
+chmod 600 ~/.hermes/.env
 ```
+
+> ⚠️ **更正**：Hermes 的 `.env` **不支援** `${vault:...}` 這類間接引用語法。要從 Vault 類系統取值，請使用官方的秘密來源（Bitwarden、1Password，或以外掛實作的 `SecretSource`），或由部署平台（K8s Secret、systemd `LoadCredential`）在啟動前注入環境變數。
 
 #### 9.1.2 指令審批（Command Approval）
 
 ```yaml
-# ~/.hermes/config.yaml
-security:
-  command_approval: smart      # 推薦企業使用
-
-  # 永久白名單（無需審批）
-  allowed_commands:
-    - "git status"
-    - "git diff"
-    - "git log"
-    - "mvn test"
-    - "mvn verify"
-    - "npm test"
-    - "python -m pytest"
-    - "ls"
-    - "cat"
-    - "grep"
-  
-  # 永久黑名單（永遠需要審批）
-  # rm -rf, git push --force, DROP TABLE 等自動觸發
+# ~/.hermes/config.yaml — 危險指令審批（v0.23.0 鍵名）
+approvals:
+  mode: smart                # smart（預設，推薦）／manual／off
+  cron_mode: deny            # 無人值守的 Cron：危險指令一律拒絕
+  single_query_mode: deny    # hermes -z／chat -q
+  unattended_mode: deny      # Webhook／API Server 等無人可回答的介面
+  deny:                      # 自訂拒絕規則：即使 YOLO 模式也會阻擋
+    - "git push --force*"
+    - "kubectl delete *"
+command_allowlist:           # 永久允許：精確文字、glob 或危險規則名稱
+  - "git status"
+  - "git diff *"
+  - "git log *"
+  - "mvn test"
+  - "mvn verify"
+  - "npm test"
+  - "python -m pytest *"
 ```
 
 **審批模式比較**：
 
 | 模式 | 說明 | 適用環境 |
 | ------ | ------ | ---------- |
-| `always` | 所有指令都需審批 | 高安全環境（銀行核心系統） |
-| `smart` | 智慧判斷，危險指令要求審批 | 一般企業（推薦） |
-| `never` | 不審批（白名單仍生效） | 信任環境 |
-| `yolo` | 完全不審批（`--yolo` flag） | 僅限開發測試 |
+| `manual` | 危險指令一律詢問使用者 | 高安全環境（銀行核心系統） |
+| `smart`（預設） | 由輔助 LLM 評估風險：低風險自動核准、真正危險的自動拒絕、不確定才詢問 | 一般企業（推薦） |
+| `off` | 關閉所有審批，等同 `--yolo` | **僅限可拋棄的容器或 CI** |
+
+```bash
+# 審批規則試算（不實際執行）
+hermes approvals test "rm -rf ./build"
+hermes approvals test "git push --force origin main" --json
+hermes approvals suggest --days 30        # 依歷史紀錄建議可加入允許清單的指令
+```
+
+> ⚠️ **更正**：舊版文件的 `security.command_approval`（`always`／`smart`／`never`／`yolo`）與 `security.allowed_commands` 都不是有效設定鍵；正確為 `approvals.mode`（`smart`／`manual`／`off`）與頂層 `command_allowlist`。
 
 #### 9.1.3 MCP 安全
 
@@ -4255,21 +4746,31 @@ graph TD
 #### 9.2.2 成本控制設定
 
 ```yaml
-# config.yaml
+# ~/.hermes/config.yaml — 成本控制
 model:
   provider: anthropic
-  model: claude-sonnet-4-20250514
+  default: claude-sonnet-5-5
 
-# 使用免費模型做輔助任務
-auxiliary:
-  provider: nous
-  model: mimo-v2-pro     # 免費！
+auxiliary:                    # 輔助任務改用低成本模型（各任務分開設定）
+  compression:
+    provider: nous
+    model: nvidia/nemotron-3-ultra:free
+  title_generation:
+    provider: nous
+    model: nvidia/nemotron-3-ultra:free
 
-# Context 壓縮策略
-context:
-  auto_compress: true
-  compress_threshold: 0.8  # 上下文使用 80% 時觸發壓縮
+compression:
+  enabled: true
+  threshold: 0.5              # 上下文使用 50% 時觸發壓縮（預設）
+  target_ratio: 0.2           # 壓縮後目標比例
+  protect_last_n: 20          # 保留最近 20 則訊息不壓縮
+
+delegation:
+  max_concurrent_children: 4  # 收斂並行子代理（預設 10）
+  max_iterations: 120         # 收斂子代理迭代上限（預設 250）
 ```
+
+> ⚠️ **更正**：舊版範例的 `context.auto_compress`／`context.compress_threshold` 不是有效設定；壓縮設定在頂層 `compression:`（`context:` 區塊用於選擇 context engine）。
 
 #### 9.2.3 成本監控
 
@@ -4286,21 +4787,22 @@ context:
 # - 估計成本：$2.35
 # - 對話數：45
 # - 技能使用：12 次
-# - 最常用工具：execute_command(38%), write_file(25%)
+# - 最常用工具：terminal(38%), write_file(25%)
 ```
 
 ### 9.3 效能優化
 
 #### 9.3.1 Context Compaction（上下文壓縮）
 
-```bash
-# 手動壓縮
-/compress
+```text
+/compress            # 手動壓縮目前上下文
+```
 
-# 自動壓縮（config.yaml）
-context:
-  auto_compress: true
-  compress_threshold: 0.8
+```yaml
+# ~/.hermes/config.yaml — 自動壓縮
+compression:
+  enabled: true
+  threshold: 0.5
 ```
 
 **Token 預算尾部保護**（v0.8.0 新增）：壓縮時優先保留最近的工具結果和使用者訊息。
@@ -4320,6 +4822,7 @@ hermes  # 幾乎即時啟動
 ```
 
 **v0.15.0 The Big Refactor 效能影響**：
+
 - `run_agent.py` 從 16,083 行重構為 3,821 行（-76%），拆分為 14 個 `agent/*` 模組
 - 每回合函數呼叫減少 47%
 - `session_search` 重建：無 LLM、免費、4,500 倍快速（~20ms vs ~90s）
@@ -4354,7 +4857,7 @@ Agent → execute_code("讀取所有 .java 並分析") → 結果
 # 背景任務 + 自動通知（v0.8.0 新增 notify_on_complete）
 > 在背景執行完整測試套件，完成後通知我
 
-# Agent 使用 execute_command 的 background + notify_on_complete
+# Agent 使用 terminal 工具的 background + notify_on_complete
 # 測試完成後自動通知到 CLI / Telegram / Discord
 ```
 
@@ -4381,9 +4884,12 @@ Agent → execute_code("讀取所有 .java 並分析") → 結果
 ~/.hermes/logs/errors.log   # WARNING+ 級別
 
 # 即時查看日誌
-hermes logs                  # tail -f agent.log
-hermes logs --errors         # 只看錯誤
-hermes logs --filter "tool"  # 過濾特定關鍵字
+hermes logs                         # 預設顯示 agent.log 最後幾行
+hermes logs -f                      # 持續追蹤（tail -f）
+hermes logs errors -n 200           # 檢視 errors.log 最後 200 行
+hermes logs gateway --since 1h      # Gateway 日誌，最近 1 小時
+hermes logs --level WARNING --session <session_id>
+hermes logs -f | grep tool_call     # 關鍵字過濾請搭配 grep（沒有 --filter 旗標）
 ```
 
 #### 9.4.2 與 ELK Stack 整合
@@ -4460,6 +4966,7 @@ plugins:
 ```
 
 **Langfuse 提供**：
+
 - **Trace 追蹤**：每次 Agent 對話的完整呼叫鏈（Prompt → Tools → Response）
 - **成本分析**：按模型、使用者、時間段的 Token 成本明細
 - **品質評估**：LLM 回應品質的自動與人工評分
@@ -4553,7 +5060,7 @@ providers:
 | Provider Failover | 至少配置 2 個 Provider |
 | `hermes doctor` | 升級後必執行，驗證環境完整性 |
 | 備份 `~/.hermes/` | 每日備份 Skills、Memories、Config |
-| Health Check | Docker / K8s 配置 `hermes doctor --quick` |
+| Health Check | Docker／K8s 探測 Gateway API Server 的 `GET /health`（例如 `curl -fsS http://127.0.0.1:8642/health`）；深入診斷用 `GET /health/detailed` 或 `hermes doctor`（沒有 `--quick` 旗標） |
 | Profile 隔離 | 不同團隊使用不同 Profile，避免互相干擾 |
 
 ### 9.7 風險評估與治理考量（企業導入前必讀）
@@ -4599,7 +5106,7 @@ providers:
 | 資料流向 | 獨立評測認為「軌跡資料回流用於官方模型訓練」的策略誘因值得留意；實務上自架版軌跡預設留在本機，需控管的是 Provider 資料層級與匯出行為（見 [6.10.2](#6102-trajectory-format軌跡格式)） | 依各家隱私條款而異 |
 | 發版節奏 | **極快**（約每 2–4 週一個 Minor，中間密集 patch），功能領先但版本追蹤成本高 | 相對穩定可預期 |
 
-> **企業建議**：Hermes Agent 的差異化優勢在於「多平台入口 + 持久記憶 + 自我學習」的**通用型助理與跨平台自動化場景**；若核心需求是**深度軟體工程／大型程式碼庫導覽**，建議將 Claude Code、Codex CLI 等納入並列評估，而非視為互斥的單選題——兩者也可透過 6.9 節 Plugin 系統或 `hermes import-agent`／`hermes claw migrate` 併存或漸進遷移。
+> **企業建議**：Hermes Agent 的差異化優勢在於「多平台入口 + 持久記憶 + 自我學習」的**通用型助理與跨平台自動化場景**；若核心需求是**深度軟體工程／大型程式碼庫導覽**，建議將 Claude Code、Codex CLI 等納入並列評估，而非視為互斥的單選題——兩者也可透過 6.9 節 Plugin 系統或 `hermes import-agent`／`hermes migrate openclaw` 併存或漸進遷移。
 
 #### 9.7.4 Nous Portal 訂閱定價與總持有成本（TCO）
 
@@ -4748,218 +5255,275 @@ hermes egress status
 
 > **企業建議**：iron-proxy 是目前 Hermes 生態中唯一能實質達成「憑證不落地於執行環境」的機制，對於執行不可信程式碼（如處理外部提交的 PR、分析未知倉庫）的場景**強烈建議啟用**，並維持 `enforce_on_docker: true` 的預設值。但**不應誇大其覆蓋範圍**——請先確認你的沙箱後端與 Provider 認證方式落在其保護範圍內，再將其納入合規論述。
 
+### 9.9 v0.22／v0.23 新增的安全與治理議題
+
+#### 9.9.1 已知公開弱點（GitHub Advisory Database）
+
+Nous Research **至今仍未在官方倉庫發布任何 Repository Security Advisory**（2026-11-08 以 `gh api repos/NousResearch/hermes-agent/security-advisories` 查證，結果為空）。但 GitHub Advisory Database 已收錄 10 筆 `hermes-agent`（pip 生態系）公告：
+
+| GHSA | CVE | 嚴重度 | 影響範圍 | 首個修補版本 | 摘要 |
+| --- | --- | --- | --- | --- | --- |
+| GHSA-4pqm-j46f-795x | CVE-2026-53869 | High | < 0.16.0 | 0.16.0 | WebSocket 端點 DNS rebinding，可繞過 Host／Origin 驗證 |
+| GHSA-99f9-j8r3-p853 | CVE-2026-53870 | Medium | < 0.16.0 | 0.16.0 | `response_store.db`、`webhook_subscriptions.json` 以 0644 建立（全員可讀） |
+| GHSA-pmqc-57g8-c22c | CVE-2026-10224 | Medium | <= 0.19.0 | **未列出** | 資源耗用失控 |
+| GHSA-xq8w-9jvx-gm3v | CVE-2026-10221 | Medium | <= 0.19.0 | **未列出** | Injection |
+| GHSA-mv8x-fg99-32mf | CVE-2026-10222 | Low | < 0.18.0 | 0.18.0 | Injection |
+| GHSA-33qv-c5qm-799v | CVE-2026-10223 | Low | < 0.15.0 | 0.15.0 | Injection |
+| GHSA-cv5c-mh6j-wvp9 | CVE-2026-9369 | Low | < 0.15.0 | 0.15.0 | Incorrect Comparison |
+| GHSA-pgp4-xr4j-h5cg | CVE-2026-9366 | Medium | < 0.15.0 | 0.15.0 | Injection |
+| GHSA-238w-f66p-w349 | CVE-2026-9353 | Medium | < 0.15.0 | 0.15.0 | Injection |
+| GHSA-wm96-9gfh-vvgq | CVE-2026-9368 | Medium | < 0.11.0 | 0.11.0 | Sandbox issue |
+
+> ⚠️ **判讀方式**：v0.23.0 不在上述任何一筆的宣告影響範圍內；但 CVE-2026-10224 與 CVE-2026-10221 沒有列出修補版本，**無法從公告本身確認修補狀態**（列入附錄 E.4）。另外，這些公告的 pip 版本號與 Hermes 的 Release 版本號是同一套 SemVer，但官方已停止發行 PyPI 套件，請以 Release tag 對照。企業應把以下查詢納入每月的弱點情資作業：
+>
+> ```bash
+> gh api "advisories?ecosystem=pip&affects=hermes-agent&per_page=50" \
+>   --jq '.[] | [.ghsa_id, .cve_id, .severity, .published_at[0:10]] | @tsv'
+> hermes security audit --json --fail-on high     # 依賴、MCP、外掛的供應鏈稽核
+> ```
+
+#### 9.9.2 tirith 移除後的掃描替代方案（v0.22.0）
+
+v0.22.0 移除了內建的 tirith 掃描器。下列機制仍在，應改為企業的標準檢查點：
+
+| 掃描對象 | 指令／機制 | 何時執行 |
+| --- | --- | --- |
+| 依賴、MCP、外掛供應鏈 | `hermes security audit --fail-on high` | CI 與每次升級後 |
+| Hub 技能 | 安裝時自動隔離掃描；`hermes skills audit` 重新掃描 | 每週 |
+| 外掛 | `hermes plugins validate <path>`（含 `security scan`）；Catalog 收錄時已掃描 | 導入新外掛前 |
+| 寫入保護 | `security.protected_instruction_files: true`（預設），`AGENTS.md`／技能／記憶寫入需審批 | 持續 |
+
+#### 9.9.3 外掛與 Catalog 的信任邊界
+
+- **Catalog 審核是單一時間點的人工審閱**，不是安全稽核；只代表「被釘選的那個 commit 有人看過」。
+- **Desktop 外掛無沙箱**：`desktop/plugin.js` 在 App 內與 App 本身同權限執行。
+- **Python 外掛預設在主行程執行**：企業應設定 `plugins.isolation: host`，讓第三方外掛在每個 Profile 獨立的行程中執行（見 6.9 節）。
+- **自動更新要審慎**：`hermes plugins auto-update` 會套用 Catalog 中經審核的新 pin，但等於把變更時程交給上游；受管環境建議關閉自動更新，改走內部變更流程。
+- **禁止執行期自動安裝**：`security.allow_lazy_installs: false` 可阻止 Hermes 在執行中自動安裝外掛或依賴（代價是升級時遷移出核心的 Provider 不會被自動補裝，需手動安裝）。
+
+#### 9.9.4 Webapp 與遠端存取
+
+- Webapp 預設關閉；開啟後，**登入者即等同主機上執行 Hermes 的 OS 使用者**，可執行任意指令。
+- 非 loopback 存取必須啟用 Dashboard 登入閘門；對外網路請使用 OAuth/OIDC 並強制 HTTPS（`webapp.public_url`）。
+- 優先使用 SSH tunnel、Tailscale 或企業 VPN；`hermes webapp --sign-out` 可一次登出所有瀏覽器。
+
+#### 9.9.5 Connectors、密碼管理器與付費工具
+
+| 功能 | 風險 | 建議控制 |
+| --- | --- | --- |
+| Connectors（v0.22.0） | Agent 以使用者身分讀寫 SaaS 資料，資料流經 Nous 託管基礎設施 | 依資料分級決定是否允許；不需要時以 `tools.connectors.enabled: false` 關閉 |
+| 瀏覽器憑證庫／密碼管理器（v0.22.0／v0.23.0） | 自動登入網站 | 只使用 Verified 的密碼管理器外掛；`hermes vault key migrate --to keychain` 把金鑰移到 OS keychain；卡片與地址填寫需使用者確認 |
+| 付費 MCP 工具（v0.23.0） | 意外高額花費 | 對每個付費伺服器宣告 `tool_costs` 與 `spend_limit`；Cron 與 `chat -q` 超限時會直接拒絕 |
+| Local Models（v0.22.0） | 模型檔來源與授權 | 機敏資料可改用本機推理，資料不出機器；模型下載來源需納入軟體資產管理 |
+
+#### 9.9.6 Session 保存與稽核
+
+v0.22.0 的 release notes 寫「`sessions.auto_prune` 預設開啟」，但 **v0.23.0 的原始碼與文件都是預設關閉**，改為在磁碟空間不足時詢問一次（`/autoprune on|off|later`）。有稽核保存義務的組織，應明確寫入設定，而不是依賴預設值：
+
+```yaml
+# ~/.hermes/config.yaml
+sessions:
+  auto_prune: false          # 由組織的保存政策決定；需清理時以 hermes sessions archive／export 先保存
+  retention_days: 365
+```
+
+```bash
+hermes sessions export --format md --redact --older-than 90d --dry-run   # 先預覽
+hermes sessions archive --older-than 180d --yes
+```
+
+### 9.10 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 審批設定有效 | `hermes config get approvals.mode`、`hermes approvals test "rm -rf /"` | 模式為 `smart` 或 `manual`；試算結果為拒絕或需審批 |
+| 2 | 無人值守介面不會自動放行 | `hermes config get approvals.cron_mode`、`unattended_mode` | 皆為 `deny` |
+| 3 | 秘密沒有落地 | `grep -rnE 'sk-|xox[bp]-|ghp_' ~/.hermes/*.yaml`；`ls -l ~/.hermes/.env` | 沒有結果；`.env` 為 `-rw-------` |
+| 4 | 供應鏈稽核通過 | `hermes security audit --fail-on high` | exit 0 |
+| 5 | 外掛隔離 | `hermes config get plugins.isolation` | `host` |
+| 6 | Webapp 未裸露 | `hermes webapp --status`；外部主機 `curl http://<host>:9120` | 未啟用，或需要登入；沒有明文 HTTP 對外 |
+| 7 | 弱點情資已更新 | 執行 9.9.1 的 `gh api` 查詢 | 沒有影響目前版本的新公告；若有，已建立處置工單 |
+| 8 | Session 保存符合政策 | `hermes config get sessions.auto_prune`、`retention_days` | 與組織保存政策一致，且明確寫在設定檔中 |
+| 9 | 成本上限已設定 | `hermes config get delegation.max_concurrent_children`；檢查付費 MCP 的 `spend_limit` | 有明確上限 |
+
 ---
 
 ## 第十章：部署與維運（DevOps）
 
+> **本章前提（v0.23.0）**：每台主機（或每個 Pod）只能有**一個** Gateway 擁有 `state.db`。官方映像是 Docker Hub 的 `nousresearch/hermes-agent`，資料掛載在 `/opt/data`，Gateway 以 `gateway run` 啟動，並在容器內由 s6-overlay 監督。下列範例都依此設計，並已通過 YAML 結構驗證（見 10.6 節與附錄 E.3）。
+
 ### 10.1 Docker 部署
 
-#### 10.1.1 生產級 Docker 配置
+#### 10.1.1 生產級衍生映像
+
+官方建議以官方映像為基底加裝工具，而不是從 `python:*-slim` 自行組裝。自行組裝必須重現 PM、釘選版 Node.js、s6-overlay 與權限模型，很容易與官方行為不一致。
 
 ```dockerfile
-# Dockerfile.production
-FROM python:3.11-slim AS builder
+# Dockerfile.production — 以官方映像為基底（版本請與 Release tag 一致）
+FROM nousresearch/hermes-agent:0.23.0
 
-WORKDIR /app
-
-# 安裝系統依賴
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git curl ca-certificates \
+USER root
+# 只加裝企業必要的工具；套件清單納入軟體資產管理
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates jq \
     && rm -rf /var/lib/apt/lists/*
 
-# 安裝 Node.js（v0.20.0 起 26 為硬性必要條件，低於此版本 hermes 將無法啟動）
-RUN curl -fsSL https://deb.nodesource.com/setup_26.x | bash - \
-    && apt-get install -y nodejs \
-    && rm -rf /var/lib/apt/lists/*
+# 企業內部 CA（若有 TLS 攔截的出口代理）
+COPY corp-root-ca.crt /usr/local/share/ca-certificates/corp-root-ca.crt
+RUN update-ca-certificates
 
-# 安裝 uv
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+# 健康檢查：Gateway 的 API Server 必須啟用（API_SERVER_ENABLED=true）
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python3 -c "import sys,urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8642/health', timeout=5).status == 200 else 1)"
 
-# 複製依賴檔案
-COPY pyproject.toml uv.lock ./
-
-# 安裝依賴
-RUN /root/.cargo/bin/uv pip install --system -e ".[all]"
-
-# --- Production Stage ---
-FROM python:3.11-slim
-
-WORKDIR /app
-
-# 複製已安裝的套件
-COPY --from=builder /usr/local/lib/python3.11 /usr/local/lib/python3.11
-COPY --from=builder /usr/local/bin /usr/local/bin
-COPY --from=builder /usr/bin/node /usr/bin/node
-
-# 複製應用程式
-COPY . .
-
-# 非 root 使用者
-RUN useradd -m hermes && \
-    mkdir -p /home/hermes/.hermes && \
-    chown -R hermes:hermes /home/hermes
-
-USER hermes
-
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-    CMD hermes doctor --quick || exit 1
-
-ENTRYPOINT ["hermes"]
+# 保留官方 root entrypoint；s6 會在執行期自動降權為 hermes 使用者
 ```
 
-> ⚠️ **v0.13.0 安全強制**：官方 Docker Image 現**拒絕以 root 身份運行 Gateway**。上述 `USER hermes` 為必要配置。Runtime `node_modules` 目錄會自動 chown 為 `hermes` 使用者。
->
-> 💡 **Docker Dashboard**（v0.13.0）：加入 `HERMES_DASHBOARD=1` 環境變數，Dashboard 會以 Side-process 啟動。加入 `-p 3000:3000` 暴露 Dashboard 連接埠。
+> ⚠️ **更正**：舊版範例的 `HEALTHCHECK CMD hermes doctor --quick` 中，`--quick` 旗標不存在；以 `python:3.11-slim` 自建並手動安裝 Node.js 26 的做法，也與 v0.22.0 起「Python 3.14 + PM 管理 Node.js」的官方執行環境不一致。
 
 #### 10.1.2 Docker Compose 生產部署
 
 ```yaml
 # docker-compose.production.yml
-version: '3.8'
-
 services:
-  hermes-agent:
-    build:
-      context: .
-      dockerfile: Dockerfile.production
-    container_name: hermes-agent
+  hermes:
+    image: corp/hermes:0.23.0-1          # 由 Dockerfile.production 建置的衍生映像
+    container_name: hermes
     restart: unless-stopped
-    volumes:
-      - hermes-data:/home/hermes/.hermes
-      - ./workspace:/workspace
-    env_file:
-      - .env.production
+    command: gateway run
     ports:
-      - "127.0.0.1:8080:8080"
-    networks:
-      - hermes-net
+      - "127.0.0.1:8642:8642"            # API Server：只綁 loopback，對外經反向代理
+    volumes:
+      - hermes-data:/opt/data            # 具名 volume（原生檔案系統，WAL 可正常運作）
+    env_file:
+      - ./secrets/hermes.env             # 權限 0600；僅含 bootstrap token 與 API_SERVER_KEY
+    environment:
+      - API_SERVER_ENABLED=true
     deploy:
       resources:
         limits:
           memory: 4G
-          cpus: '2.0'
-        reservations:
-          memory: 1G
-          cpus: '0.5'
+          cpus: "2.0"
     logging:
-      driver: "json-file"
+      driver: json-file
       options:
-        max-size: "50m"
-        max-file: "3"
-    healthcheck:
-      test: ["CMD", "hermes", "doctor", "--quick"]
-      interval: 60s
-      timeout: 10s
-      retries: 3
-
-  hermes-gateway:
-    build:
-      context: .
-      dockerfile: Dockerfile.production
-    container_name: hermes-gateway
-    restart: unless-stopped
-    command: ["gateway", "start"]
-    volumes:
-      - hermes-data:/home/hermes/.hermes
-    env_file:
-      - .env.production
-    networks:
-      - hermes-net
-    depends_on:
-      hermes-agent:
-        condition: service_healthy
+        max-size: "20m"
+        max-file: "5"
 
 volumes:
   hermes-data:
-    driver: local
-
-networks:
-  hermes-net:
-    driver: bridge
 ```
+
+```bash
+docker compose -f docker-compose.production.yml up -d
+docker compose -f docker-compose.production.yml ps          # STATUS 應顯示 (healthy)
+docker exec hermes hermes doctor
+docker exec hermes hermes profile create team-ops           # 新增 Profile：同一容器、同一 Gateway
+```
+
+> 💡 **一個容器、多個 Profile**：v0.22.0 起官方建議以單一容器服務多個 Profile（s6 會為每個 Profile 監督 Gateway 槽位），而不是每個 Profile 一個容器；這樣只有一份映像與快取、一個備份目錄。只有在需要 OS 層級隔離（不同 UNIX 使用者、不同資料分級）時才拆成多個容器，而且每個容器要使用**自己的** volume。
 
 ### 10.2 Kubernetes 部署
 
-#### 10.2.1 K8s Deployment
+#### 10.2.1 K8s Deployment（單一狀態擁有者）
 
 ```yaml
 # k8s/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hermes-agent
+  name: hermes
+  namespace: ai-agents
   labels:
-    app: hermes-agent
+    app: hermes
 spec:
-  replicas: 2
+  replicas: 1                     # Gateway 是 state.db 的唯一擁有者，不可多副本
+  strategy:
+    type: Recreate                # 先停舊 Pod 再起新 Pod，避免兩個 Pod 同時開啟同一個 state.db
   selector:
     matchLabels:
-      app: hermes-agent
+      app: hermes
   template:
     metadata:
       labels:
-        app: hermes-agent
+        app: hermes
     spec:
+      terminationGracePeriodSeconds: 120   # 讓 Gateway 有時間排空進行中的對話
+      securityContext:
+        fsGroup: 10000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
-        - name: hermes-agent
-          image: ghcr.io/your-org/hermes-agent:v0.11.0
-          resources:
-            requests:
-              memory: "1Gi"
-              cpu: "500m"
-            limits:
-              memory: "4Gi"
-              cpu: "2000m"
+        - name: hermes
+          image: registry.corp.example/hermes:0.23.0-1
+          imagePullPolicy: IfNotPresent
+          args: ["gateway", "run"]
+          ports:
+            - name: api
+              containerPort: 8642
+          env:
+            - name: API_SERVER_ENABLED
+              value: "true"
           envFrom:
             - secretRef:
-                name: hermes-secrets
-          volumeMounts:
-            - name: hermes-data
-              mountPath: /home/hermes/.hermes
-            - name: workspace
-              mountPath: /workspace
+                name: hermes-secrets        # API_SERVER_KEY、BWS_ACCESS_TOKEN 等
+          resources:
+            requests:
+              cpu: "500m"
+              memory: 2Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: api
+            periodSeconds: 10
+            failureThreshold: 30
           livenessProbe:
-            exec:
-              command: ["hermes", "doctor", "--quick"]
-            initialDelaySeconds: 30
-            periodSeconds: 60
-          readinessProbe:
-            exec:
-              command: ["hermes", "doctor", "--quick"]
-            initialDelaySeconds: 10
+            httpGet:
+              path: /health
+              port: api
             periodSeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: api
+            periodSeconds: 10
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
       volumes:
-        - name: hermes-data
+        - name: data
           persistentVolumeClaim:
-            claimName: hermes-data-pvc
-        - name: workspace
-          persistentVolumeClaim:
-            claimName: workspace-pvc
-
+            claimName: hermes-data
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: hermes-agent-svc
+  name: hermes
+  namespace: ai-agents
 spec:
-  selector:
-    app: hermes-agent
-  ports:
-    - port: 8080
-      targetPort: 8080
   type: ClusterIP
-
+  selector:
+    app: hermes
+  ports:
+    - name: api
+      port: 8642
+      targetPort: api
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   name: hermes-secrets
+  namespace: ai-agents
 type: Opaque
 stringData:
-  ANTHROPIC_API_KEY: "sk-ant-xxxxx"
-  OPENROUTER_API_KEY: "sk-or-xxxxx"
-  TELEGRAM_BOT_TOKEN: "12345:ABCdef"
+  API_SERVER_KEY: "replace-with-a-long-random-string"   # 正式環境請改用 External Secrets／Sealed Secrets
 ```
+
+> ⚠️ **更正**：舊版範例使用 `replicas: 2`、`RollingUpdate`（`maxSurge: 1`），並以 `ReadWriteMany` PVC 讓多個 Pod 共用資料。在 v0.23.0 中，這會讓兩個 Gateway 同時寫入同一個 `state.db`，造成鎖定錯誤甚至資料毀損；健康檢查用的 `hermes doctor --quick` 旗標也不存在。需要水平擴展時，請依團隊**分成多個 Deployment**，各自有自己的 PVC（見 2.5 節）。
 
 #### 10.2.2 PersistentVolumeClaim
 
@@ -4968,177 +5532,185 @@ stringData:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: hermes-data-pvc
+  name: hermes-data
+  namespace: ai-agents
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteOnce               # 單一節點讀寫；不要用 RWX 共享 state.db
+  storageClassName: standard-ssd  # 區塊儲存（非 NFS）
   resources:
     requests:
-      storage: 10Gi
-  storageClassName: standard
+      storage: 20Gi
 ```
+
+> ⚠️ 若叢集只能提供 NFS 類儲存，請在 `config.yaml` 設定 `database.journal_mode: delete`，並在建立 Pod **之前**就寫好（既有的 WAL 資料庫不會被線上降級，需停機後離線轉換）。
 
 ### 10.3 CI/CD 流程
 
 #### 10.3.1 GitHub Actions Pipeline
 
+企業的 Pipeline 不需要建置 Hermes 本身；它的工作是**跟隨官方 Release 重建衍生映像，並在部署前完成稽核**。
+
 ```yaml
-# .github/workflows/hermes-deploy.yml
-name: Hermes Agent Deploy
+# .github/workflows/hermes-image.yml
+name: Hermes image
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'hermes/**'
-      - 'Dockerfile*'
-      - 'docker-compose*.yml'
+  workflow_dispatch:
+    inputs:
+      hermes_version:
+        description: "官方 Release 版本（例如 0.23.0）"
+        required: true
+  pull_request:
+    paths: ["deploy/hermes/**"]
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/hermes-agent
+permissions:
+  contents: read
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
-        run: |
-          pip install -e ".[all,dev]"
-      
-      - name: Run tests
-        run: |
-          python -m pytest tests/ -q
-      
-      - name: Security scan
-        run: |
-          pip install safety
-          safety check
-
-  build-image:
-    needs: build-and-test
+  build-scan:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    env:
+      HERMES_VERSION: ${{ inputs.hermes_version || '0.23.0' }}
+      IMAGE: ghcr.io/${{ github.repository_owner }}/hermes
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: Dockerfile.production
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
-  deploy:
-    needs: build-image
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to Kubernetes
-        uses: azure/k8s-deploy@v4
-        with:
-          manifests: k8s/
-          images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+      - name: Build derived image
+        run: |
+          sed -i "s|^FROM nousresearch/hermes-agent:.*|FROM nousresearch/hermes-agent:${HERMES_VERSION}|" deploy/hermes/Dockerfile.production
+          docker build -f deploy/hermes/Dockerfile.production -t "$IMAGE:${HERMES_VERSION}-${GITHUB_RUN_NUMBER}" deploy/hermes
+
+      - name: Smoke test
+        run: |
+          docker run --rm "$IMAGE:${HERMES_VERSION}-${GITHUB_RUN_NUMBER}" --version | tee version.txt
+          grep -q "v${HERMES_VERSION}" version.txt
+
+      - name: Supply-chain audit (fails on high)
+        run: |
+          docker run --rm "$IMAGE:${HERMES_VERSION}-${GITHUB_RUN_NUMBER}" security audit --fail-on high
+
+      - name: Validate committed config keys
+        run: |
+          docker run --rm -v "$PWD/deploy/hermes/config:/opt/data" \
+            "$IMAGE:${HERMES_VERSION}-${GITHUB_RUN_NUMBER}" config check
+
+      - name: Push
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker push "$IMAGE:${HERMES_VERSION}-${GITHUB_RUN_NUMBER}"
 ```
 
-### 10.4 滾動升級
+> 💡 **審查重點**：舊版 Pipeline 在 CI 中執行 `pip install -e ".[all,dev]"` 與 `safety check`，把 Hermes 當成自家應用程式建置，這與官方「不支援建置 wheel／sdist」的立場不符，也不會產生可部署的官方執行環境。另外，`config check` 只檢查設定版本與環境變數，**不檢查未知鍵**；設定鍵的正確性請在 PR 階段以附錄 E 的 `check_doc.py` 或 `hermes config set` 驗證。
 
-#### 10.4.1 Kubernetes Rolling Update 策略
+### 10.4 升級與回退
+
+#### 10.4.1 Kubernetes 升級策略
 
 ```yaml
 # k8s/deployment.yaml 的 spec.strategy
 spec:
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 0      # 升級期間不停機
-      maxSurge: 1             # 最多多 1 個 Pod
+    type: Recreate     # 不可使用 RollingUpdate：新舊 Pod 不可同時開啟 state.db
 ```
 
-#### 10.4.2 Hermes 內建升級
+升級流程：
+
+1. 執行 `kubectl exec deploy/hermes -- hermes backup -o /opt/data/backups/pre-0.23.0.zip`，建立完整備份。
+2. 修改 Deployment 的映像標籤後 `kubectl apply`。Recreate 會先停止舊 Pod（`terminationGracePeriodSeconds` 讓 Gateway 排空對話），再啟動新 Pod。
+3. 容器啟動時會先執行非互動式的設定 schema 遷移，並在 `config.yaml`／`.env` 旁寫入帶時間戳的備份；需要先人工檢查時，可設定 `HERMES_SKIP_CONFIG_MIGRATION=1`。
+4. 驗證：`kubectl exec deploy/hermes -- hermes doctor`，並確認 `/health` 為 200。
+
+#### 10.4.2 非容器環境的內建升級
 
 ```bash
-# 使用內建升級指令
-hermes update
-
-# 注意事項（v0.8.0 修正）：
-# - 升級不會 kill 正在運行的 gateway service
-# - 升級後 bundled skills 會自動同步到所有 profiles
-# - 升級後建議執行 hermes doctor 驗證
+hermes update --check          # 只預覽
+hermes update --plan           # 檢視整個 Profile 群的升級計畫
+hermes update --backup         # 升級前先做完整備份（建議）
+hermes update                  # 依 stable 通道升到最新 Release
+hermes doctor                  # 升級後驗證
 ```
+
+> ⚠️ **回退限制（v0.23.0）**：新版 Gateway 一旦寫入 `state.db`，舊版本就**不能**再使用該資料庫。`hermes update` 會拒絕切回早於 Gateway 執行期的版本；正在執行的 Gateway 若被切回舊版，約 30 秒內會自行停止。要回退，必須先 `hermes gateway stop`，切回舊版後，再還原升級前的快照（`/snapshot restore <id>`）或完整備份（`hermes import <backup.zip>`）；升級後新增的對話不在還原範圍內。
 
 ### 10.5 災難復原（DR）
 
 #### 10.5.1 備份策略
 
-| 備份項目 | 路徑 | 頻率 | 方式 |
-| ---------- | ------ | ------ | ------ |
-| 設定檔 | `~/.hermes/config.yaml` | 每次修改 | Git 版控 |
-| Skills | `~/.hermes/skills/` | 每日 | rsync / S3 |
-| Memories | `~/.hermes/memories/` | 每日 | rsync / S3 |
-| Sessions DB | `~/.hermes/sessions.db` | 每日 | SQLite backup |
-| SOUL.md | `~/.hermes/SOUL.md` | 每次修改 | Git 版控 |
-| .env | `~/.hermes/.env` | 每次修改 | Vault |
+| 層級 | 方法 | 內容 | 頻率建議 |
+| --- | --- | --- | --- |
+| 完整備份 | `hermes backup` | 資料根目錄下的設定、**憑證（`.env`、`auth.json`）**、記憶、技能、Session、所有 Profile | 每日 + 每次升級前 |
+| 快速快照 | `hermes backup --quick --label <名稱>` | 關鍵狀態檔（config、`state.db`、`.env`、auth、cron） | 每小時或重大變更前 |
+| 單一 Profile | `hermes profile export <name>` | 單一 Profile 的 `SOUL.md`、記憶、Session、技能（**不含**憑證） | 移轉或分享時 |
+| 儲存層快照 | PVC VolumeSnapshot／磁碟快照 | 整個 `/opt/data` | 依儲存平台政策 |
+
+> 🔐 **完整備份含有憑證**，必須加密後才能離開主機，並限制存取權限。完整備份**不包含**：原始碼與依賴環境、下載的模型與執行期、建置快取、checkpoints、瀏覽器設定檔、SQLite 附屬檔與 PID 檔。備份完成時若有檔案複製失敗會列出清單，**請檢查清單後再刪除來源**。
 
 #### 10.5.2 備份腳本
 
 ```bash
-#!/bin/bash
-# backup-hermes.sh
+#!/usr/bin/env bash
+# backup-hermes.sh — 每日完整備份 + 加密 + 異地保存（以 cron 或 K8s CronJob 執行）
+set -euo pipefail
 
-BACKUP_DIR="/backup/hermes/$(date +%Y%m%d)"
-HERMES_HOME="$HOME/.hermes"
+BACKUP_DIR="/var/backups/hermes"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+OUT="$BACKUP_DIR/hermes-backup-$STAMP.zip"
+RECIPIENT="age1examplepublickeyreplacewithyourown0000000000000000000000"
 
 mkdir -p "$BACKUP_DIR"
+chmod 700 "$BACKUP_DIR"
 
-# 備份設定
-cp "$HERMES_HOME/config.yaml" "$BACKUP_DIR/"
-cp "$HERMES_HOME/SOUL.md" "$BACKUP_DIR/" 2>/dev/null
+# 1) 官方完整備份（--keep 只保留本機最新 N 份）
+hermes backup --output "$OUT" --keep 3
 
-# 備份 Skills
-tar czf "$BACKUP_DIR/skills.tar.gz" -C "$HERMES_HOME" skills/
+# 2) 加密（完整備份含 .env 與 auth.json）
+age --encrypt --recipient "$RECIPIENT" --output "$OUT.age" "$OUT"
+shred -u "$OUT"
 
-# 備份 Memories
-tar czf "$BACKUP_DIR/memories.tar.gz" -C "$HERMES_HOME" memories/ 2>/dev/null
+# 3) 異地保存（物件儲存應啟用版本控制與 Object Lock）
+aws s3 cp "$OUT.age" "s3://corp-hermes-backup/$(hostname)/" --only-show-errors
 
-# 備份 Session DB（SQLite）
-sqlite3 "$HERMES_HOME/sessions.db" ".backup '$BACKUP_DIR/sessions.db'"
-
-# 上傳到 S3（可選）
-# aws s3 sync "$BACKUP_DIR" "s3://your-bucket/hermes-backup/$(date +%Y%m%d)/"
-
-echo "Backup completed: $BACKUP_DIR"
+echo "backup ok: $OUT.age"
 ```
+
+```bash
+# 還原演練（在隔離主機上）
+age --decrypt --identity ~/.config/age/hermes.key --output restore.zip hermes-backup-20261108-020000.zip.age
+hermes import restore.zip
+hermes doctor
+hermes sessions list --limit 5
+```
+
+> ⚠️ **更正**：舊版腳本以 `sqlite3 "$HERMES_HOME/sessions.db" ".backup ..."` 備份 Session，但 v0.23.0 的資料庫是 `state.db`；而且逐檔複製會漏掉 `auth.json`、各 Profile 與 cron 狀態。請改用 `hermes backup`。
 
 #### 10.5.3 RTO / RPO 建議
 
-| 場景 | RPO 建議 | RTO 建議 | 策略 |
-| ------ | ---------- | ---------- | ------ |
-| 開發環境 | 24h | 1h | 每日備份 |
-| 測試環境 | 24h | 2h | 每日備份 |
-| 生產環境 | 1h | 30min | 多副本 + 即時備份 |
-| 金融環境 | 0（零丟失） | 15min | 主從 + 即時同步 |
+| 情境 | RPO | RTO | 作法 |
+| --- | --- | --- | --- |
+| 單一 Pod／容器故障 | 0（同一個 volume） | < 5 分鐘 | s6／K8s 自動重啟；Recreate 重新掛載同一個 PVC |
+| 節點或磁碟故障 | 最近一次快照或備份 | < 1 小時 | 從 VolumeSnapshot 或 `hermes import` 還原到新節點 |
+| 誤操作（刪除技能、錯誤升級） | 最近一次快速快照 | < 30 分鐘 | `/snapshot restore <id>`；技能可用 `hermes curator rollback` |
+| 機房級災難 | 24 小時（每日異地備份） | < 4 小時 | 異地主機解密 `hermes import`，重新綁定訊息平台 Token |
 
-> **實務案例**：某銀行團隊在 Kubernetes 上部署 Hermes Agent，使用 `ReadWriteMany` PVC 共享 Skills 和 Memories。每日凌晨透過 CronJob 備份到 S3，搭配 Rolling Update 策略實現零停機升級。RTO 目標 15 分鐘，RPO 目標 1 小時。
+> **實務案例**：某銀行團隊在 Kubernetes 上依「研發」「維運」分成兩個 Deployment，各自使用 RWO 的 SSD PVC；每日 02:00 由 CronJob 以 `kubectl exec` 執行 `hermes backup`，並以 age 加密後上傳到啟用 Object Lock 的 S3。每季在隔離環境做一次還原演練，量測實際 RTO。
+
+### 10.6 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 單一狀態擁有者 | `kubectl get deploy hermes -o jsonpath='{.spec.replicas} {.spec.strategy.type}'` | `1 Recreate` |
+| 2 | PVC 存取模式 | `kubectl get pvc hermes-data -o jsonpath='{.spec.accessModes}'` | `["ReadWriteOnce"]`，且非 NFS 儲存類別 |
+| 3 | 健康檢查正確 | `kubectl describe pod -l app=hermes` | Probe 為 `http-get :api/health`；沒有 `doctor --quick` |
+| 4 | API Server 未對外裸露 | `kubectl get svc hermes`；`docker port hermes` | Service 為 ClusterIP；Docker 只綁 `127.0.0.1` |
+| 5 | 映像版本已釘選 | 檢查 Deployment／compose 的 image | 使用 `X.Y.Z` 或 digest，與 Release tag 一致 |
+| 6 | 備份可還原 | 在隔離環境執行 10.5.2 的還原演練 | `hermes doctor` 通過，Session 數量與來源相符 |
+| 7 | 備份已加密 | 檢查備份儲存位置 | 只有 `.age`（或同等加密格式）檔案 |
+| 8 | YAML 結構有效 | 以 `kubectl apply --dry-run=server -f k8s/` 或附錄 E.3 的 `validate_k8s.py` | 沒有錯誤；斷言 `replicas == 1`、`strategy == Recreate`、`accessModes == [ReadWriteOnce]` 成立 |
 
 ---
 
@@ -5148,17 +5720,18 @@ echo "Backup completed: $BACKUP_DIR"
 
 #### 11.1.1 版本號規則
 
-Hermes Agent 使用語義化版本（附日期標籤）：
+Hermes Agent 的版本號與 Git tag 規則在 v0.21.6 改變過一次，查證或撰寫升級文件時要分清楚：
 
-```text
-v0.8.0 (v2026.4.8)
-│ │ │    │    │ │
-│ │ │    │    │ └── 日（Day）
-│ │ │    │    └──── 月（Month）
-│ │ │    └───────── 年（Year）
-│ │ └────────────── Patch（修復版本）
-│ └──────────────── Minor（功能版本）
-└────────────────── Major（大版本）
+| 期間 | 版本號 | Git tag 範例 | 說明 |
+| --- | --- | --- | --- |
+| v0.21.5（2026-09-24）以前 | 語義化版本 | `v2026.8.31`（日期式） | GitHub Release 名稱寫成「Hermes Agent v0.21.0 (v2026.8.31)」 |
+| v0.21.6（2026-10-08）起 | 語義化版本 | `v0.21.6`、`v0.22.0`、`v0.23.0` | 由新的穩定發行管線產出；原始碼安裝預設只在這些 tag 之間移動 |
+
+```bash
+# 查詢最新穩定版與本機版本
+gh api repos/NousResearch/hermes-agent/releases/latest --jq '.tag_name + "  " + .published_at'
+hermes --version
+hermes update --check
 ```
 
 #### 11.1.2 升級流程
@@ -5178,7 +5751,7 @@ graph TD
     J --> K{診斷通過?}
     K -->|是| L[完成升級]
     K -->|否| M[檢查錯誤日誌]
-    M --> N[hermes logs --errors]
+    M --> N[hermes logs errors]
     N --> O{可修復?}
     O -->|是| P[修復後重試]
     O -->|否| Q[回滾到前版]
@@ -5187,31 +5760,30 @@ graph TD
 #### 11.1.3 升級指令
 
 ```bash
-# 方式 1：使用內建升級指令（推薦）
-hermes update
+# 方式 1：原始碼安裝（install.sh／install.ps1）— 內建升級指令（推薦）
+hermes update --check          # 預覽，不做任何變更
+hermes update --backup         # 升級前先做完整備份
+hermes update                  # 依通道（預設 stable）升到最新 Release
+hermes update --yes            # 免確認（CI／自動化），等同 -y
 
-# 方式 1a：免確認升級（v0.13.0，適合 CI/CD）
-hermes update --yes     # 或 -y
+# 方式 2：Desktop 套件
+#   macOS：App 內 Update 控制（electron-updater）
+#   Windows：MSIX 由 App Installer 更新；Microsoft Store 版由 Store 更新
 
-# 方式 1b：升級前預檢（v0.12.0）
-hermes update --check   # 預覽可升級版本與破壞性變更
+# 方式 3：Docker（容器內不支援 hermes update）
+docker pull nousresearch/hermes-agent:0.23.0
+docker compose up -d           # 以新映像重建容器；資料 volume 保留
 
-# 方式 2：手動升級（pip）
-pip install --upgrade hermes-agent
-
-# 方式 3：從原始碼升級
-cd ~/hermes-agent
-git pull origin main
-uv pip install -e ".[all]"
-
-# 方式 4：Docker 映像升級
-docker pull ghcr.io/nousresearch/hermes-agent:latest
-docker-compose up -d --force-recreate
+# 方式 4：Nix
+nix profile upgrade --all      # 或更新 flake input 後重新建置
 
 # 升級後驗證
 hermes --version
+hermes config migrate
 hermes doctor
 ```
+
+> ⚠️ **已不適用的方式**：`pip install --upgrade hermes-agent`（PyPI 已於 v0.20.0 停止支援）、在原始碼目錄 `git pull origin main` 後 `uv pip install -e ".[all]"`（會繞過 PM 與穩定通道，且 v0.22.0 起 Python 版本由 PM 管理）、`ghcr.io/nousresearch/hermes-agent`（官方映像在 Docker Hub 的 `nousresearch/hermes-agent`）。
 
 #### 11.1.4 升級注意事項（v0.8.0 特告）
 
@@ -5220,7 +5792,7 @@ hermes doctor
 | Skills 同步 | 升級後 bundled skills 會自動同步到所有 Profiles |
 | Gateway 保護 | `hermes update` 不再 kill 正在運行的 gateway service |
 | Config 驗證 | 啟動時會自動驗證 config.yaml 結構 |
-| OpenClaw 移轉 | 如果從 OpenClaw 升級，使用 `hermes claw migrate` |
+| OpenClaw 移轉 | 當時使用 `hermes claw migrate`；v0.23.0 已改為 `hermes migrate openclaw`／`hermes import-agent openclaw`（見 11.3.1） |
 
 #### 11.1.5 v0.12.0 升級特別注意事項
 
@@ -5229,21 +5801,21 @@ hermes doctor
 | Node.js | 建議升級至 v22 LTS，影響 TUI 冷啟動效能 |
 | Secret Redaction | 預設已關閉，避免 patch 損壞，如需請手動啟用 |
 | Pluggable Providers | 所有 Provider 已移至 `plugins/model-*` 架構 |
-| Curator 預設啟用 | 自動技能維護預設開啟，可透過 `auxiliary.curator.enabled: false` 關閉 |
+| Curator 預設啟用 | 自動技能維護預設開啟（v0.23.0 的關閉方式為 `curator.enabled: false`；當時文件寫的 `auxiliary.curator.enabled` 不是有效鍵） |
 | Remote Model Catalog | OpenRouter / Nous Portal 模型目錄改為遠端拉取 |
 
 #### 11.1.6 v0.13.0 升級特別注意事項
 
 | 項目 | 說明 |
 | ------ | ------ |
-| Secret Redaction | **預設翻轉為開啟**，如遇 patch 損壞可透過 `security.redaction: false` 關閉 |
+| Secret Redaction | **預設翻轉為開啟**（v0.23.0 鍵名為 `security.redact_secrets`，預設 `true`） |
 | Checkpoints v2 | 新的 Checkpoint 格式，舊 Checkpoint 不會自動遷移，需要手動清除後重建 |
 | `hermes update --yes` | 升級指令新增 `-y / --yes` 旗標，跳過確認直接升級（適合 CI） |
 | ProviderProfile ABC | 自訂 Provider 需改寫為繼承 `ProviderProfile` ABC 介面 |
 | Docker Root 拒絕 | Gateway 現拒絕以 root 身份運行，必須使用非 root 使用者 |
 | Windows 正式支援 | 原生 Windows 支援已為 GA（v0.16.0+），可透過 Desktop App 或 CLI 安裝 |
 | `display.language` | 新增 i18n 設定項，支援 `zh`、`ja`、`de`、`es`、`fr`、`uk`、`tr` |
-| Kanban | 多 Agent Kanban 預設停用，需手動設定 `kanban.enabled: true` |
+| Kanban | 當時預設停用；v0.23.0 沒有 `kanban.enabled` 開關，以 `hermes kanban init` 初始化看板、以 `kanban.dispatch_in_gateway` 控制調度 |
 
 #### 11.1.7 v0.14.0 升級特別注意事項
 
@@ -5270,7 +5842,7 @@ hermes doctor
 | Kanban Swarm | 新增 `hermes kanban swarm` Swarm v1 拓撲 |
 | `session_search` 重建 | 不再使用 LLM，免費且快 4,500 倍 |
 | Promptware 防禦 | 預設啟用，可能影響含特殊格式的 Skill/Memory 檔案 |
-| Bitwarden Secrets | 新增 `secrets.backend: bitwarden` 設定選項 |
+| Bitwarden Secrets | 新增 Bitwarden 秘密來源（v0.23.0 設定為 `secrets.bitwarden.enabled: true`，或執行 `hermes secrets bitwarden setup`） |
 | ntfy | 新增第 23 平台 |
 | s6-overlay Docker | Docker 容器監督改用 s6-overlay |
 | `hermes audit` | 新增 OSV.dev 供應鏈審計指令（後續已更名為 `hermes security audit`） |
@@ -5354,7 +5926,7 @@ hermes doctor
 
 > **企業實務建議**：若組織政策為「只升 Minor、跳過 patch」，本次應直接由 v0.20.0／v0.20.1 升至 v0.21.0，並將上表 v0.20.3 的 MCP 2.x 遷移與 v0.20.5 的 Cron 行為改變**一併納入驗收測試範圍**——這兩項變更會隨 v0.21.0 一起生效，容易被誤認為 v0.21.0 的新問題。
 
-#### 11.1.15 v0.21.0 升級特別注意事項（**目前最新 Minor 版本**）
+#### 11.1.15 v0.21.0 升級特別注意事項
 
 | 項目 | 說明 |
 | ------ | ------ |
@@ -5371,6 +5943,50 @@ hermes doctor
 | **真實 OS CI 車道** | 官方 CI 新增 macOS／Windows 真實主機測試，這對「Windows 上的行為與 Linux 不一致」類問題是結構性改善，Windows 使用者建議升級 |
 
 > **Patch 版本（v0.18.1／v0.18.2／v0.19.1／v0.20.1–v0.20.6）升級提醒**：官方明確聲明部分 patch 版本**非精選版本**，Release Notes 不列逐項清單，僅作為「有一個可依附的穩定 tag」之用，完整內容會併入下一個 Minor 版本說明。企業如需掌握 patch 版本間的實際變更，建議直接比對 `git log <上一版>...<新版>` 或 GitHub Compare 頁面，而非僅信任 Release Notes 摘要。**v0.20.x 補丁串已證明 patch 中可能夾帶具破壞性的實質變更（MCP 2.x），此提醒的重要性高於一般專案。**
+
+#### 11.1.16 v0.21.0 → v0.23.0 升級特別注意事項（目前最新版本）
+
+從 v0.21.x 升到 v0.23.0 要跨越兩個 Minor 版本與十多個補丁，下表是**必須處理**的破壞性變更。建議依「檢查方式」欄位逐項確認，並把結果附在變更單中。
+
+| # | 版本 | 變更 | 影響 | 處理方式 | 檢查方式 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | v0.22.0 | 受管安裝的執行環境改為 **Python 3.14** | KittenTTS 無法使用；自建映像若沿用 3.11 會與官方不一致 | 交給 PM 管理；Docker 改用官方映像為基底 | `hermes doctor`、`hermes --version` |
+| 2 | v0.22.0 | **Windows Desktop 僅支援 MSIX**（Windows 11 22H2+），NSIS／MSI 停用；macOS App 僅 Apple Silicon | 舊安裝程式無法再更新 | 改以 `.appinstaller` 或 Microsoft Store 重新安裝 | 「設定 → 應用程式」中的套件類型 |
+| 3 | v0.22.0 | **每台機器單一 Gateway**；`hermes update` 會把 per-profile Gateway 合併 | 具名 Profile 不能再自行啟動 Gateway（exit 78）；以 HTTP 進來的平台改用 `/p/<profile>/` 前綴 | 執行 `hermes gateway migrate --multiplex`；更新 Webhook URL | `hermes gateway status`；以 `hermes -p <name> gateway start` 測試，應被拒絕 |
+| 4 | v0.22.0 | `session_reset` idle／daily 模式退役 | 對話不再定時重置；設定仍存在會記錄警告 | 移除 `session_reset` 設定，改由使用者 `/new`／`/reset` | `hermes logs --level WARNING` 不再出現相關警告 |
+| 5 | v0.22.0 → v0.23.0 | `sessions.auto_prune`：release notes 寫預設開啟，**v0.23.0 實際預設關閉**，磁碟不足時詢問一次 | 保存政策可能與預期不同 | 在 `config.yaml` 明確設定 `sessions.auto_prune` 與 `retention_days` | `hermes config get sessions.auto_prune` |
+| 6 | v0.22.0 | 記憶 Provider（Honcho、Supermemory、Hindsight、Mem0、OpenViking、Holographic）與 Home Assistant、Spotify、Langfuse **移到 Catalog 外掛** | 升級時自動安裝；`security.allow_lazy_installs: false` 或離線時不會自動安裝 | 預先 `hermes plugins install <name>` | `hermes plugins list`、`hermes memory status` |
+| 7 | v0.22.0 | 移除外掛相容匯入層、**移除 `hermes sync`**、**移除 tirith 掃描器** | 自製外掛若使用舊匯入路徑會載入失敗；依賴 tirith 的流程失效 | 外掛改用 `register(ctx)` 公開 API；改用 `hermes security audit`／`hermes skills audit`（見 9.9.2） | `hermes plugins doctor` |
+| 8 | v0.22.0 | 工具更名：`todo` → `todo_list`、`cronjob` → `cronjob_manage`、`process` → `process_manage` | 舊名仍可用，但新的技能與文件應改用新名 | 更新自訂技能與 toolset 清單 | 在技能目錄 `grep -rn '"todo"\|cronjob\b'` |
+| 9 | v0.23.0 | **舊的 10 個 `browser_*` 工具與 agent-browser 全數移除**，只剩 `browser_exec`；Camofox 改為外掛 | 提示、技能、`toolsets` 清單中的舊工具名稱失效 | 改寫為 `browser_exec`；有用 Camofox 的環境會自動安裝外掛 | `grep -rn 'browser_navigate\|browser_click' ~/.hermes/skills` 無結果 |
+| 10 | v0.23.0 | **`hermes mcp serve` 改為 `hermes mcp-serve`**（移到外掛） | 以 Hermes 作為 MCP Server 的用戶端設定**不會被自動改寫** | 更新 Claude Desktop／IDE 等 MCP 用戶端的啟動指令；`hermes plugins install mcp-serve` | 用戶端能列出 Hermes 的工具 |
+| 11 | v0.23.0 | Desktop 需 macOS 13+、64 位元 Windows（Electron 44） | 舊作業系統上的 Desktop 無法啟動 | 升級作業系統或改用 CLI／Webapp | — |
+| 12 | v0.23.0 | Word／PowerPoint／Excel 技能合併為 `microsoft-office` | 舊副本留在磁碟上，可能重複觸發 | 確認無自訂修改後刪除舊技能目錄 | `hermes skills list \| grep -i office` |
+| 13 | v0.23.0 | **Gateway 擁有所有 Session**；`cron.bot_chat_delivery_timeout_seconds` 退役（設定遷移 v51） | 升級切換瞬間進行中的輸入標記為 `unknown`，**不會重播** | 升級前排空工作；升級後以 `/discard <admission_id>` 或 `hermes sessions discard <session> --yes` 確認 | `hermes sessions list`；Webapp 中舊對話需 `hermes sessions adopt` |
+| 14 | v0.23.0 | **升級後不可回退**：新版 Gateway 寫過 `state.db` 後，舊版本無法使用 | 回退只能還原升級前備份 | 升級前一定執行 `hermes update --backup` 或 `hermes backup` | 備份檔存在且可在隔離環境 `hermes import` |
+| 15 | v0.23.0 | Webapp 預設關閉 | 無影響；開啟前需完成資安審查 | 見 9.9.4 | `hermes webapp --status` |
+
+**建議升級順序**：
+
+```bash
+# 0) 升級前
+hermes --version                         # 記錄目前版本
+hermes update --check                    # 確認目標版本
+hermes backup -o ~/pre-0.23.0.zip        # 完整備份（含憑證，請加密保存）
+hermes plugins list > ~/plugins-before.txt
+
+# 1) 升級
+hermes update --backup
+
+# 2) 升級後
+hermes config migrate
+hermes doctor
+hermes plugins list                      # 確認記憶 Provider 等外掛已自動安裝並啟用
+hermes gateway status                    # 只有一個 Gateway
+hermes sessions adopt --dry-run          # 檢視哪些舊對話需要被 Gateway 接管
+```
+
+> 💡 **一次跨多版的注意事項**：中間的 v0.21.6／v0.21.7 改變了更新通道（改追穩定 Release）。若你的安裝在 v0.21.7 以前一直追蹤 `main`，而本機 checkout 比最新 Release 還新，`hermes update` 會**停在原地**，等到有更新的 Release 才移動；這不是錯誤。
 
 ### 11.2 相容性管理
 
@@ -5430,24 +6046,17 @@ hermes doctor
 
 #### 11.3.1 從 OpenClaw 移轉
 
-如果你之前使用 OpenClaw（Hermes 的前身），可以自動移轉：
+如果你之前使用 OpenClaw（或舊名 Clawdbot／Moltbot，與 Hermes 是不同的專案），可以用官方 `agent-importers` 外掛匯入設定。全新安裝時 `hermes setup` 偵測到 `~/.openclaw` 會主動詢問；既有安裝可執行：
 
 ```bash
-# 互動式移轉（推薦）
-hermes claw migrate
-
-# 預覽移轉內容（不執行）
-hermes claw migrate --dry-run
-
-# 僅移轉使用者資料（不含 Secrets）
-hermes claw migrate --preset user-data
-
-# 覆寫已存在的衝突
-hermes claw migrate --overwrite
-
-# 移轉 workspace 指令
-hermes claw migrate --workspace-target
+hermes migrate openclaw --dry-run                 # 核心指令；缺少外掛時會自動安裝
+hermes plugins install agent-importers            # 或手動安裝外掛（每個 Profile 一次）
+hermes import-agent openclaw --dry-run            # 只預覽，不寫入
+hermes import-agent openclaw                      # 先顯示計畫，確認後才寫入
+hermes import-agent openclaw --preset full --migrate-secrets --yes   # 含 API Key 與 Bot Token（無人值守）
 ```
+
+> ⚠️ **更正**：舊版文件的 `hermes claw migrate` 指令在 v0.23.0 中不存在（實測為「is not a hermes command」）；`--workspace-target` 選項也不存在。另外 OpenClaw 不是「Hermes 的前身」，而是另一個 Agent 專案。
 
 **移轉內容清單**：
 
@@ -5464,7 +6073,7 @@ hermes claw migrate --workspace-target
 
 #### 11.3.2 從 Claude Code／Codex CLI 移轉（v0.20.0+）
 
-v0.20.0 新增 `hermes import-agent`，可將既有 Claude Code 或 OpenAI Codex CLI 設定一鍵匯入：
+v0.20.0 新增 `hermes import-agent`，可將既有 Claude Code 或 OpenAI Codex CLI 設定一鍵匯入。v0.23.0 起此指令由官方 `agent-importers` 外掛提供（另支援 Cursor、Grok Bot、OpenBot），核心的 `hermes migrate <agent>` 會在缺少外掛時自動安裝：
 
 ```bash
 # 預覽將匯入的內容（不執行）
@@ -5480,7 +6089,9 @@ hermes import-agent claude-code --overwrite
 #### 11.3.3 版本間 Migration
 
 ```bash
-# Config migration 由 hermes doctor 自動偵測
+# 設定遷移：升級後執行（Docker 映像會在啟動時自動執行非互動式遷移）
+hermes config check          # 顯示目前設定版本（例如 0 → 52）與缺少的環境變數
+hermes config migrate        # 執行遷移；會先在 config.yaml 旁寫入備份
 hermes doctor
 
 # 如果有 config 結構變更，會自動建議修改
@@ -5491,6 +6102,19 @@ hermes doctor
 ```
 
 > **注意事項**：大版本升級（如 v0.x → v1.x）前，務必先閱讀 Release Notes 的 Breaking Changes 區塊，並在測試環境驗證後再升級生產環境。
+
+### 11.4 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 升級計畫涵蓋所有破壞性變更 | 對照 11.1.16 的 15 項 | 每一項都有處理方式與驗證結果 |
+| 2 | 升級前有可還原的備份 | 在隔離環境 `hermes import <backup.zip>` | 成功還原；`hermes doctor` 通過 |
+| 3 | 升級指令為官方支援的方式 | 審查升級腳本 | 沒有 `pip install --upgrade hermes-agent`、`git pull origin main`、ghcr 映像 |
+| 4 | 升級後設定已遷移 | `hermes config check` | 設定版本為最新，沒有「update available」 |
+| 5 | 外掛化的整合已就位 | `hermes plugins list`、`hermes memory status` | 記憶 Provider、Camofox、mcp-serve 等外掛已安裝且啟用 |
+| 6 | 舊工具名稱已清除 | 在技能、提示、`toolsets` 中搜尋 `browser_navigate`、`hermes mcp serve`、`hermes sync` | 沒有結果 |
+| 7 | MCP 用戶端已更新 | 用戶端設定中的啟動指令 | 為 `hermes mcp-serve` |
+| 8 | 移轉指令正確 | 執行 `hermes migrate openclaw --dry-run` | 顯示預覽計畫；不是「is not a hermes command」 |
 
 ---
 
@@ -5543,27 +6167,33 @@ graph LR
 ```
 
 ```yaml
-# config.yaml
+# ~/.hermes/config.yaml — AI Coding Agent（v0.23.0 鍵名）
 model:
   provider: anthropic
-  model: claude-sonnet-4-20250514
+  default: claude-sonnet-5-5
 
-security:
-  command_approval: smart
-  allowed_commands:
-    - "mvn *"
-    - "git status"
-    - "git diff"
-    - "git log"
+approvals:
+  mode: smart
+command_allowlist:
+  - "mvn *"
+  - "git status"
+  - "git diff *"
+  - "git log *"
 
-toolsets:
-  enabled: [core, web, delegation, code]
+toolsets: [coding]               # 組合型 Toolset：file + terminal + web + skills + browser + todo + memory …
 
-mcp:
-  servers:
-    - name: github
-      command: npx
-      args: ["@modelcontextprotocol/server-github"]
+mcp_servers:
+  github:
+    command: "npx"
+    args: ["-y", "@modelcontextprotocol/server-github"]
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: "${GITHUB_TOKEN}"
+    trust: untrusted
+```
+
+```bash
+# 建議搭配的內建技能（v0.23.0 皆為內建，無需安裝）
+hermes skills list | grep -E 'github|test-driven-development|requesting-code-review|systematic-debugging'
 ```
 
 #### 12.1 使用範例
@@ -5775,7 +6405,7 @@ graph TB
 
 #### 12.4 場景描述
 
-結合 v0.12.0 新增的 ComfyUI v5、Spotify 整合和 TouchDesigner-MCP，建立多媒體內容創作 Agent。
+結合 ComfyUI（optional skill）、Spotify（v0.22.0 起為 Catalog 外掛）、TouchDesigner-MCP（第三方 MCP 伺服器）與 v0.23.0 新增的 Meshy 3D 外掛，建立多媒體內容創作 Agent。
 
 #### 12.4 架構設計
 
@@ -5796,24 +6426,34 @@ graph LR
 
 #### 12.4 設定檔
 
+```bash
+# v0.23.0 的安裝方式：ComfyUI 為 optional skill、Spotify 為 Catalog 外掛
+hermes skills install official/creative/comfyui
+hermes plugins install spotify && hermes plugins enable spotify
+hermes plugins install meshy                # v0.23.0 新增：文字／圖片轉 3D（付費工具，請設定花費上限）
+```
+
 ```yaml
-# config.yaml
+# ~/.hermes/config.yaml — 多媒體創作 Agent
 model:
   provider: anthropic
-  model: claude-sonnet-4-20250514
+  default: claude-sonnet-5-5
 
-plugins:
-  spotify:
-    enabled: true
-  comfyui:
-    enabled: true
-    endpoint: "http://localhost:8188"   # 本地 ComfyUI 伺服器
-  touchdesigner:
-    enabled: true
+toolsets: [hermes-cli]
 
-toolsets:
-  enabled: [core, web, code, browser]
+mcp_servers:
+  touchdesigner:                     # 第三方 TouchDesigner MCP 伺服器（自行審查來源）
+    url: "http://127.0.0.1:9981/mcp"
+    trust: untrusted
+  renders:                           # 任何付費生成類 MCP 都應宣告成本與上限
+    command: "render-mcp"
+    tool_costs:
+      create_image: 20
+    spend_limit: 200
+    cost_unit: credits
 ```
+
+> ⚠️ **更正**：舊版範例把 ComfyUI、Spotify、TouchDesigner 寫成 `plugins.<name>.enabled`，並使用 `toolsets.enabled` 與 `model.model`；這些都不是 v0.23.0 的有效寫法。外掛的啟用清單是 `plugins.enabled: [...]`（或 `hermes plugins enable`），不是每個外掛一個子區塊。
 
 #### 12.4 使用範例
 
@@ -5831,6 +6471,17 @@ toolsets:
 
 > **實務案例**：某行銷團隊使用 Hermes Creative Agent 將素材製作時間從 3 天縮短至 2 小時，搭配 ComfyUI 自動生成的圖像與 Spotify 配樂，單月產出效率提升 10 倍。
 
+### 12.5 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 案例設定可直接載入 | 將範例 `config.yaml` 放入測試 Profile 後執行 `hermes -p <test> doctor` | 沒有設定錯誤 |
+| 2 | 技能與外掛已安裝 | `hermes skills list`、`hermes plugins list` | 案例使用的技能（例如 `comfyui`）與外掛（例如 `spotify`）都在清單中 |
+| 3 | 排程任務以 CLI 建立 | `hermes cron list` | 案例中的每日／每小時工作都存在，且投遞目標正確 |
+| 4 | 客服案例有升級（escalation）機制 | 以超出 FAQ 範圍的問題測試 | Agent 依技能中的 Escalation Rules 轉人工，而不是自行編造答案 |
+| 5 | 付費工具有上限 | 檢查 `mcp_servers.*.spend_limit` | 所有生成類 MCP 都有 `tool_costs` 與 `spend_limit` |
+| 6 | 案例數據有出處 | 檢查「實務案例」中的效益數字 | 標明為示意或附上可查證來源 |
+
 ---
 
 ## 第十三章：常見問題（FAQ）
@@ -5838,6 +6489,7 @@ toolsets:
 ### Q1：Agent 無法學習 / 不建立 Skill？
 
 **可能原因**：
+
 1. 任務複雜度不夠高，Agent 判定不需要封裝
 2. Memory provider 未正確設定
 
@@ -5890,7 +6542,8 @@ sqlite3 ~/.hermes/sessions.db "VACUUM;"
 
 ```bash
 # 錯誤：Stale OAuth credentials
-hermes auth login nous   # 重新登入
+hermes auth refresh nous           # 重新整理 OAuth Token
+hermes auth add nous --type oauth  # 仍失敗時重新登入（等同 hermes portal）
 
 # 錯誤：Model not found
 /model                   # 查看可用模型清單
@@ -5900,7 +6553,7 @@ hermes auth login nous   # 重新登入
 # → 或充值 API 額度
 
 # 錯誤：Non-agentic model warning
-# → 切換到支援 tool-use 的模型（如 Claude Sonnet / GPT-4o）
+# → 切換到支援 tool-use 的模型（以 /model 選擇器中有工具標記的模型為準）
 
 # 診斷工具
 hermes doctor
@@ -5914,8 +6567,8 @@ hermes doctor
 # 1. 檢查 gateway 狀態
 hermes gateway status
 
-# 2. 查看日誌
-hermes logs --filter "gateway"
+# 2. 查看 Gateway 日誌（最近 1 小時）
+hermes logs gateway --since 1h
 
 # 3. 重啟 gateway
 hermes gateway restart
@@ -6004,11 +6657,12 @@ hermes doctor
 hermes logs
 
 # 只看錯誤
-hermes logs --errors
+hermes logs errors
 
-# 過濾特定關鍵字
-hermes logs --filter "tool_call"
-hermes logs --filter "memory"
+# 依等級或 Session 過濾；關鍵字請搭配 grep（沒有 --filter 旗標）
+hermes logs --level WARNING
+hermes logs --session <session_id>
+hermes logs -n 500 | grep tool_call
 
 # 日誌位置
 ~/.hermes/logs/agent.log     # INFO+ 級別
@@ -6018,9 +6672,9 @@ hermes logs --filter "memory"
 ### Q11：如何在多個專案間切換？
 
 ```bash
-# 方式 1：使用不同 Profile
-hermes --profile project-a
-hermes --profile project-b
+# 方式 1：使用不同 Profile（先 hermes profile create project-a）
+hermes -p project-a
+hermes -p project-b
 
 # 方式 2：在不同工作目錄啟動（會自動載入當前目錄的 AGENTS.md）
 cd /path/to/project-a && hermes
@@ -6033,20 +6687,24 @@ cd /path/to/project-b && hermes
 ### Q12：Autonomous Curator 會刪除重要技能嗎？（v0.12.0）
 
 **Curator 的安全邊界**：
-- Bundled Skills（內建技能）：**永遠不會**被修改或刪除
+
+- Bundled Skills（內建技能）：預設不會被修剪（除非設定 `curator.prune_builtins: true`）
 - Hub Skills（社群安裝的技能）：受保護，不會被修改
-- Pinned Skills：使用者手動標記的技能受保護
-- 使用者自建技能：低品質或長期未使用的「可能」被修剪
+- Pinned Skills：`hermes curator pin` 標記的技能受保護
+- **Locked Skills**（v0.23.0）：`hermes curator lock` 鎖定後，Agent 透過任何工具都不能改寫，即使在 YOLO 模式下
+- Agent 自建技能：長期未使用者會先**歸檔**（`archive_after_days`，預設 30 天），可用 `hermes curator restore` 還原；每次變更前都有備份（`hermes curator rollback`）
 
 ```bash
 # 保護重要技能
-hermes skills pin my-important-skill
+hermes curator pin my-important-skill
+hermes curator lock my-important-skill     # v0.23.0：連內容都不允許 Agent 改寫
 
 # 關閉 Curator
-hermes config set auxiliary.curator.enabled false
+hermes config set curator.enabled false
 
-# 檢查 Curator 最近的操作報告
-cat ~/.hermes/logs/curator/REPORT.md
+# 檢查 Curator 最近的操作報告（每次執行一個時間戳目錄）
+ls -t ~/.hermes/logs/curator/ | head -1
+hermes curator rollback --list
 ```
 
 ### Q13：`hermes -z` 和普通模式有何不同？（v0.12.0）
@@ -6068,9 +6726,8 @@ hermes
 ### Q14：如何使用 Background Sessions？（v0.12.0）
 
 ```bash
-# 在對話中，將耗時任務移至背景
-> 幫我對整個 src/ 目錄做安全掃描
-/background    # 將此任務移至背景
+# 在對話中，把耗時任務丟到獨立的背景 Session
+/bg 對整個 src/ 目錄做安全掃描並整理報告
 
 # 繼續在主對話中工作
 > 幫我修改 README.md
@@ -6093,11 +6750,16 @@ prompt_caching:
 ### Q16：Multi-agent Kanban 如何設定？（v0.13.0）
 
 ```yaml
-# config.yaml
+# ~/.hermes/config.yaml — v0.23.0 沒有 kanban.enabled 開關
 kanban:
-  enabled: true
-  max_concurrent: 4      # 同時運行的子代理數量
-  auto_spawn: true        # 自動依任務生成子代理
+  dispatch_in_gateway: true     # 由 Gateway 內建調度器派工
+  max_in_progress: 4            # 同時進行中的任務上限
+  auto_decompose: true          # 允許自動拆解大型任務
+```
+
+```bash
+hermes kanban init                       # 初始化預設看板
+hermes kanban create "API 重構" --assignee team-backend --max-retries 3
 ```
 
 ```bash
@@ -6210,6 +6872,54 @@ display:
 
 設定與完整取捨分析見 [3.5.4 節](#354-tool-search延遲式工具-schema-載入)。
 
+### Q29：升級到 v0.23.0 後，原本的瀏覽器自動化技能失效了？（v0.23.0）
+
+舊的 10 個 `browser_*` 工具（`browser_navigate`、`browser_click` 等）已全數移除，只剩 `browser_exec`：它以「執行預先匯入輔助函式的 Python」方式完成導航、點擊、輸入與截圖。請把技能、提示與 `toolsets` 清單中的舊工具名稱改掉；有使用 Camofox 的環境會自動安裝 `camofox` 外掛。
+
+```bash
+grep -rln 'browser_navigate\|browser_click\|browser_open' ~/.hermes/skills   # 找出需要改寫的技能
+```
+
+### Q30：Claude Desktop／IDE 把 Hermes 當成 MCP Server，升級後連不上？（v0.23.0）
+
+`hermes mcp serve` 已改為 `hermes mcp-serve`（移到外掛），而且**不會自動改寫**用戶端設定。請先 `hermes plugins install mcp-serve`，再把 MCP 用戶端設定中的啟動指令改成 `hermes mcp-serve`。
+
+### Q31：為什麼 `hermes -p coder gateway start` 被拒絕（exit 78）？（v0.22.0）
+
+v0.22.0 起每台機器只有一個 Gateway 服務所有 Profile。請從預設 Profile 啟動 Gateway（`hermes gateway start`），它會同時服務 `coder`；舊的 per-profile 部署可以用 `hermes gateway migrate --multiplex` 合併。真的需要獨立 Gateway（例如不同 UNIX 使用者）時才使用 `--force`，或暫時設定 `gateway.standalone: true`（官方標示為過渡用，日後會移除）。
+
+### Q32：升級後可以退回 v0.21.x 嗎？（v0.23.0）
+
+不能直接退回。新版 Gateway 寫入 `state.db` 後，舊版本無法使用該資料庫；`hermes update` 會拒絕切回舊版，強行切換時正在執行的 Gateway 也會在約 30 秒內停止。要回退只能還原升級前的備份（`hermes import <backup.zip>`）或快照（`/snapshot restore <id>`），升級後產生的新對話不會包含在內。**升級前務必 `hermes update --backup`**。
+
+### Q33：舊對話在 Webapp 中是唯讀的？（v0.23.0）
+
+在 Gateway 接管 Session 之前建立的對話，需要先被「接管（adopt）」才能從瀏覽器繼續：在主機上執行一次 `hermes sessions adopt`（其他 Profile 用 `hermes -p <profile> sessions adopt`），或在原生 Desktop／TUI／CLI 中開啟一次該對話。
+
+### Q34：舊 Session 會不會被自動刪除？（v0.22.0／v0.23.0）
+
+v0.22.0 的 release notes 寫「`sessions.auto_prune` 預設開啟」，但 v0.23.0 實際上**預設關閉**；只有在 `config.yaml` 沒有這個鍵、且 `state.db` 所在磁碟空間不足時，才會詢問一次。可用 `/autoprune on|off|later` 回答，或直接在設定中寫明 `sessions.auto_prune` 與 `retention_days`。刪除的歷史會釋放 `state.db` 內部空間，要把空間還給磁碟請執行 `hermes sessions optimize`。
+
+### Q35：外部記憶（Honcho／Mem0／Supermemory）升級後不見了？（v0.22.0）
+
+這些 Provider 已移到 Plugin Catalog。`hermes update` 通常會自動安裝；若設定了 `security.allow_lazy_installs: false`、處於離線環境或拒絕了安裝，警告訊息中會附上確切的指令，例如 `hermes plugins install honcho`。安裝後以 `hermes memory status` 確認。
+
+### Q36：Local Models 要怎麼在無 GPU 的伺服器上用？（v0.22.0）
+
+`hermes model` → **Local models** 會依硬體挑選可執行的模型；沒有 GPU 時使用 CPU 引擎（`local_runtime.backend: cpu`），請選擇小型量化模型並預期較慢的速度。也可以自行啟動 `llama-server`，再以 `local_runtime.detect_ports` 或 `providers.llamacpp.base_url` 指向它。
+
+### Q37：付費 MCP 工具在 Cron 中一直被拒絕？（v0.23.0）
+
+宣告了 `spend_limit` 的 MCP 伺服器，若某次呼叫會讓累計花費超過上限，一定要有人核准；Cron 與 `hermes chat -q` 等無人可回答的情境會**直接拒絕**。請調整該伺服器的 `spend_limit`（每次 Cron 執行各自計算總額），或把該工作改為互動式執行。
+
+### 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | FAQ 中的指令都能執行 | 以 `hermes <cmd> --help` 或附錄 E 的 `check_doc.py` 驗證 | 沒有 `auth login`、`logs --filter`、`skills pin`、`/background` 等不存在的用法 |
+| 2 | 版本標註正確 | 對照第一章版本時間線 | 每題標註的版本與 release notes 一致 |
+| 3 | 升級類問題與第十一章一致 | 對照 11.1.16 | 內容與處理方式一致 |
+
 ---
 
 ## 第十四章：Hermes Desktop App（v0.16.0+，v0.20.0 起成為完整平台）
@@ -6263,18 +6973,19 @@ graph TB
 
 | 平台 | 安裝方式 | 說明 |
 | ------ | ---------- | ------ |
-| macOS | 官網下載安裝程式或 `curl` 腳本 | **僅支援 Apple Silicon，macOS 12+**（Intel 不支援，見 4.1.1 節平台層級表） |
-| Linux | 官網下載安裝程式或 `curl` 腳本 | 支援 X11 / Wayland |
-| Windows | NSIS installer（官網下載） | Windows 10/11 64-bit |
+| macOS | 官網下載簽章 + 公證的 DMG（複製 `Hermes.app` 到「應用程式」） | **僅支援 Apple Silicon；v0.23.0 起需 macOS 13+**（Electron 44） |
+| Windows | 官網下載 `.appinstaller`（以 App Installer 安裝簽章 MSIX），或 Microsoft Store | Windows 11 22H2+、64 位元（x64／ARM64）；**NSIS／MSI 自 v0.22.0 起停用** |
+| Linux | 官方發行流程**未提供** Linux 桌面套件；以 `install.sh` 安裝 CLI 後執行 `hermes desktop` 自行建置 | 支援 X11／Wayland；Local Models 在 Linux Desktop 上預設開啟 |
 | 已安裝 CLI 者 | `hermes desktop` 或 `hermes gui` | 免另外下載，直接由既有 CLI 安裝喚出桌面應用 |
 
-> ⚠️ Homebrew 安裝（`brew install --cask hermes-desktop`）已隨 v0.20.0 一併停用，見 4.2.3 節。應用內具**自動更新**機制，無需手動重新下載安裝程式。
+> ⚠️ Homebrew 安裝（`brew install --cask hermes-desktop`）已隨 v0.20.0 一併停用，見 4.2.3 節。v0.22.0 起 Desktop 是**自帶 Python 與 Node.js 的封閉簽章套件**，首次啟動不需要建置任何東西，並會自行更新；`Hermes-Setup` 引導安裝程式則不同，它會下載原始碼並建置 Desktop。
 
 ### 14.3 核心功能
 
 #### 14.3.1 命令面板（Command Palette）
 
 `Cmd+K`（macOS）或 `Ctrl+K`（Windows/Linux）開啟：
+
 - 執行 Slash Commands（`/goal`、`/fast`、`/undo`、`/learn`、`/subscription` 等）
 - 切換模型（Fuzzy 搜尋，每小時自動刷新目錄）
 - 切換 Profile
@@ -6308,6 +7019,7 @@ remote_gateway:
 ```
 
 Desktop App 的「Connections」登錄可管理四種後端連線模式：
+
 - **本地執行環境**：Agent Process 直接在本機運行
 - **遠端 Gateway**：透過使用者名稱／密碼（信任網路、Tailscale 等場景）或 OAuth（公開網路、Nous Portal）連至團隊共享 Gateway，自動重連、Session 狀態本地與遠端同步
 - **Hermes Cloud**（**目前為 Preview 階段，無正式 SLA**）：Nous Portal 內的代管執行個體
@@ -6325,6 +7037,7 @@ Desktop App 的「Connections」登錄可管理四種後端連線模式：
 #### 14.3.6 Artifacts（v0.20.0）
 
 大型 HTML 全文件、SVG（≥2,000 字元）或程式碼區塊（≥48 行／3,000 字元）自動從對話串抽離為右側欄的**版本化卡片**：
+
 - 版本切換（`‹ v2 of 3 ›`）、原始碼／預覽切換、下載、瀏覽器開啟
 - HTML 於 `<iframe sandbox="allow-scripts">` 沙箱執行（不可同源存取、不可跳出導覽、不可彈窗），SVG 經 DOMPurify 淨化
 - 一般散文、終端機輸出、Markdown／Mermaid 區塊與小型程式碼片段**不會**觸發自動升級
@@ -6417,12 +7130,65 @@ Settings → About → Danger Zone 提供三種層級：僅移除 GUI、移除 G
 | 場景 | 建議配置 |
 | ------ | ---------- |
 | 開發團隊 | 本地安裝 + 連至共享 Gateway，善用 Projects 管理多程式碼庫 |
-| 非技術用戶（PM/QA） | 僅安裝 Desktop App，連至團隊 Gateway |
-| 遠端工作 | Desktop App + VPN／Tailscale 或 OAuth 認證 |
+| 非技術用戶（PM/QA） | 僅安裝 Desktop App，連至團隊 Gateway；可開啟 v0.22.0 的 **Simple** 模式，介面簡化為單純的聊天 |
+| 遠端工作 | Desktop App + VPN／Tailscale 或 OAuth 認證；無法安裝 App 的裝置可改用 Webapp（14.6） |
 | CI/CD 整合 | 伺服器端使用 CLI，開發者使用 Desktop App |
 | 需要遠端終端機存取但不信任裝置本機環境 | v0.20.0 SSH 遠端後端，Agent 實際執行於受控伺服器 |
 
 > **企業建議**：Desktop App 適合作為團隊的統一入口點，搭配集中式 Gateway 可確保所有對話紀錄、技能和記憶由組織統一管理，同時降低個人裝置的設定負擔。若考慮採用 Hermes Cloud 作為代管後端，須留意其目前仍為 **Preview 階段、無正式 SLA**（見 9.7.5 節），正式生產環境建議優先採用自架 Gateway。
+
+### 14.6 Webapp（v0.23.0）
+
+Webapp 是由 Gateway 直接提供給一般瀏覽器使用的 **Desktop 工作區**（Session、Profile、Capabilities、Messaging、Artifacts、排程、主機檔案樹、Git 檢視、預覽與終端機）。它**不是** Web Dashboard，而且**預設關閉**。
+
+```bash
+hermes config set webapp.enabled true
+hermes gateway restart
+hermes webapp                # 必要時建置前端、啟動 Gateway，並開啟一次性登入連結
+hermes -p work webapp        # 開啟指定 Profile
+hermes webapp --status       # 是否正在提供服務；不能提供時說明原因
+hermes webapp --sign-out     # 登出所有瀏覽器分頁
+```
+
+```yaml
+# ~/.hermes/config.yaml — 預設值
+webapp:
+  enabled: false
+  host: 127.0.0.1         # 改為 0.0.0.0 時，Gateway 會強制要求 Dashboard 登入閘門
+  port: 9120
+  public_url: ""          # 位於同機反向代理或 tunnel 之後時，填入對外的 HTTPS 位址
+```
+
+**登入機制**：`hermes webapp` 產生的連結只能使用一次，而且必須在 60 秒內開啟。登入狀態保存在該分頁中，重新整理頁面或 Gateway 重啟都不會登出；但新分頁或直接輸入網址會看到登入說明，需要重新執行 `hermes webapp` 取得連結。
+
+**限制與規格**：
+
+| 項目 | 規格 |
+| --- | --- |
+| 上傳檔案 | 每個檔案 16 MiB |
+| 終端機 | 中斷連線的 Shell 保留 15 分鐘；每台主機最多 16 個終端機；重連時回放最多 1 MiB 輸出 |
+| 非 HTTPS 的遠端位址 | 瀏覽器會停用 Bot Screen 檢視、麥克風（聽寫、即時語音、遠端喚醒詞）、剪貼簿讀取與系統通知 |
+| 僅限原生 App 的功能 | 全域快捷鍵、置頂浮動視窗、OS 視窗檢視、外部終端機、更新程式 |
+
+> ⚠️ **資安等級**：登入 Webapp 的使用者可以**用執行 Hermes 的 OS 帳號執行任意指令**、使用 Agent 工具、存取主機檔案與 Git，並取得該帳號的環境變數與憑證。**沒有登入提供者時不要對外開放**；優先使用 SSH tunnel、Tailscale 或企業 VPN；遠端存取必須使用 HTTPS（`webapp.public_url`）。
+
+> ✅ **如何驗證**：在另一台機器上以 `curl -s -o /dev/null -w '%{http_code}' http://<host>:9120/` 測試。`webapp.host` 為 `127.0.0.1` 時應無法連線；改為 `0.0.0.0` 後，未登入的請求只能看到登入頁，不能取得工作區資料。
+
+### 14.7 多 Gateway 連線與 Bot Screen（v0.22.0／v0.23.0）
+
+- **同時連線多台機器**（v0.23.0）：Desktop 會讓所有 Gateway（本機、SSH、遠端）保持連線，切換即時；終端機分頁在開啟它的主機上執行；Group Chat 可以混用不同機器上的 bot。遠端 Gateway 在 **Settings → Gateways** 中新增。
+- **Bot Screen**（v0.22.0）：在 Linux Gateway 上執行的 bot 可以擁有自己的桌面，由 Desktop 即時串流。遇到登入、2FA 或 CAPTCHA 時，使用者可以接手畫面、完成步驟後再交還控制權。使用 Docker、SSH 或 Singularity 後端時，bot 的畫面與 computer-use 都在該後端內執行。
+- **介面模式**（v0.22.0）：新增 **Simple** 模式，把 App 變成單純的聊天介面，適合非技術使用者。
+
+### 14.8 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | 安裝套件為官方簽章套件 | macOS：`codesign -dv /Applications/Hermes.app`；Windows：`Get-AppxPackage *Hermes*` | 簽章有效；Windows 為 MSIX 套件 |
+| 2 | 作業系統符合需求 | 檢查 OS 版本 | macOS 13+（Apple Silicon）、Windows 11 22H2+ 64 位元 |
+| 3 | Desktop 連到正確的 Gateway | Settings → Gateways | 只連到核准的 Gateway；遠端連線使用 OAuth 或密碼認證 |
+| 4 | Webapp 狀態符合政策 | `hermes webapp --status`；`hermes config get webapp.host` | 預設關閉；若開啟，`host` 為 loopback 或已有登入閘門與 HTTPS |
+| 5 | 移除時資料處理正確 | `hermes uninstall --dry-run` | 預覽清單符合預期（`--full` 才會刪除資料目錄） |
 
 ---
 
@@ -6480,6 +7246,32 @@ Bot Mode **不是一個平行的新概念**——它是把既有的 Profile 系�
 
 **不適用場景**：需要嚴格工作分派與進度追蹤的長期專案——那是 Kanban（[6.3 節](#63-multi-agent-kanban-實戰)）的領域。
 
+#### 15.3.1 v0.23.0：Group Chats 自主運作
+
+v0.23.0 讓 Gateway 擁有的群組房間可以在無人介入下運作，並補上防失控機制：
+
+| 能力 | 說明 | 企業意涵 |
+| --- | --- | --- |
+| **誰回答沒有點名的訊息** | Room settings 可選 **Everyone**（預設）、**Lead**（由指定的 lead bot 轉交）或 **Pick who answers automatically**（以一次不帶工具的模型呼叫，依房間目的、筆記與成員角色挑選） | 以 Lead 或自動路由減少「每個 bot 都回答」的 Token 浪費 |
+| **房間目的與共享筆記** | 房間可保存 purpose 與 notes，作為自動路由與成員回覆的依據 | 把房間的職責寫清楚，等於替群組寫 SOP |
+| **Cron 可以發文到房間** | 排程工作的結果可直接送進房間，由成員接手處理 | 例行巡檢 → 房間 → 對應 bot 處理 |
+| **防止無止境互相觸發** | bot 回覆「發訊息給它的 bot」時自動變成 notify-only；`gateway.bot_loop_guard.max_hops`（預設 4）限制每次交換的 bot 對 bot 訊息數 | 防止兩個 bot 互相觸發而燒掉預算 |
+| **硬上限與暫停** | 每次送出最多 10 則訊息、3 輪；達上限時房間顯示「Paused after N messages」，可按 **Continue**（同一討論最多 5 次） | 失控時自動暫停，而不是持續花費 |
+| **即時狀態** | 每個 bot 顯示目前正在做什麼（例如「scout · terminal · 7s」）；外掛可透過 `on_room_member_activity` hook 觀察 | 可接入監控與稽核 |
+| **跨機器房間** | 新建 Group Chat 時可選擇不同連線上的 bot；全部在同一連線上的房間由該 Gateway 擁有，關閉 Desktop 也會繼續運作 | 跨團隊協作不必集中到同一台主機 |
+
+```yaml
+# ~/.hermes/config.yaml — bot 對 bot 迴圈防護（預設值）
+gateway:
+  bot_loop_guard:
+    enabled: true
+    max_events: 20
+    window_seconds: 300
+    cooldown_seconds: 600
+    max_hops: 4                       # 每次交換最多幾則 bot 對 bot 訊息
+    bot_replies_expect_reply: false   # true = bot 回覆 bot 的訊息可以再被回覆（不建議）
+```
+
 ### 15.4 `hermes peer` — 跨 Gateway Agent 直訊
 
 當協作對象不在同一台機器上時，`hermes peer` 提供 **Hermes 對 Hermes 的第一方通道**，且**不需要 Desktop 介入**。
@@ -6493,9 +7285,10 @@ hermes peer add research-box \
 # 送出一則訊息（支援標準輸入）
 hermes peer dm research-box < findings.md
 
-# 交付長時間任務，之後輪詢狀態
-hermes peer run research-box
-hermes peer status
+# 交付長時間任務（回傳 run_id），之後以 run_id 輪詢狀態
+hermes peer run research-box "彙整本週 CVE 影響評估" --json
+hermes peer status research-box <run_id>
+hermes peer stop research-box <run_id>      # 必要時中止
 ```
 
 **設計重點**：對話**不是短暫的 RPC**，而是持久落在雙方各自的正規 Bot Chat 中——**可回溯、可稽核**，這是它與一般 API 呼叫最大的差異。
@@ -6576,6 +7369,17 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 | 查詢 peer 狀態 | `hermes peer status` |
 | 匯出／匯入 bot 設定 | `/export [profile]` ／ `/import <archive.tar.gz>` |
 
+### 15.8 本章審查與驗證清單
+
+| # | 檢查項目 | 驗證方式 | 預期結果 |
+| --- | --- | --- | --- |
+| 1 | Bot Mode 狀態符合治理決策 | Desktop：Capabilities → Plugins → Bots | 已依政策開啟或關閉 |
+| 2 | 迴圈防護未被關閉 | `hermes config get gateway.bot_loop_guard.enabled`、`max_hops` | `true`；`max_hops` 未調高 |
+| 3 | peer 只連到核准的 Gateway | `hermes peer list` | 只有核准的對端；URL 為 HTTPS 內部位址 |
+| 4 | peer 金鑰夠強且未外洩 | 檢查 `API_SERVER_KEY` 長度與存放位置 | 32 字元以上隨機字串；只存在 `.env`（`0600`）或秘密管理系統 |
+| 5 | 群組房間有明確目的 | 檢查 Room settings 的 purpose／notes | 每個房間都寫明職責與成員角色 |
+| 6 | peer 任務可追蹤 | `hermes peer status <target> <run_id> --json` | 可查到任務狀態；對話紀錄落在雙方的 Bot Chat 中 |
+
 ---
 
 ## 附錄 A：檢查清單（Checklist）
@@ -6583,8 +7387,8 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 ### A.1 安裝檢查清單
 
 - [ ] 確認作業系統落在 [Tier 1／Tier 2 支援層級](#411-平台支援層級platform-support-tiers)內（**macOS Intel 不支援**）
-- [ ] 確認 Python 3.11+ 已安裝
-- [ ] 確認 **Node.js 26+** 已安裝（**v0.20.0 起為硬性必要條件**，低於此版本無法啟動）
+- [ ] 確認執行環境為 **Python 3.14**（由 PM 提供；`hermes doctor` 會顯示），不要自行以 3.11–3.13 執行
+- [ ] 確認 Node.js、ripgrep、FFmpeg、Chromium 由 PM 安裝（v0.22.0 起不採用系統 Node.js；glibc Linux 需有 `libatomic1`）
 - [ ] 確認 Git 2.30+ 已安裝（安裝程式不會自動安裝）
 - [ ] 確認未使用已停用的安裝管道（Homebrew／PyPI／pip／AUR）
 - [ ] 執行 `curl -fsSL ... | bash` 安裝 Hermes
@@ -6603,7 +7407,7 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 
 ### A.3 安全檢查清單
 
-- [ ] `command_approval` 設定為 `smart` 或 `always`
+- [ ] `approvals.mode` 設定為 `smart` 或 `manual`（`off` 僅限可拋棄環境）；`approvals.cron_mode`／`unattended_mode` 為 `deny`
 - [ ] `allowed_commands` 白名單已配置
 - [ ] 生產環境未使用 `--yolo` flag
 - [ ] MCP 伺服器有 OAuth 認證
@@ -6644,23 +7448,39 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 
 - [ ] 閱讀 Release Notes（特別是 Breaking Changes）
 - [ ] 在測試環境驗證
-- [ ] 備份 `~/.hermes/` 目錄
+- [ ] 以 `hermes backup`（或 `hermes update --backup`）建立完整備份，並加密保存（備份含憑證）
 - [ ] 執行 `hermes update`
 - [ ] 執行 `hermes doctor` 驗證
 - [ ] 確認所有 Skills 正常載入
 - [ ] 確認 Gateway 連線正常
 - [ ] 確認 Memory Provider 正常
-- [ ] 更新 Docker 映像版本（如使用容器部署）
+- [ ] 更新 Docker 映像版本（`nousresearch/hermes-agent:X.Y.Z`）；容器內不執行 `hermes update`
+- [ ] 逐項完成 [11.1.16](#11116-v0210--v0230-升級特別注意事項目前最新版本) 的破壞性變更清單
+- [ ] 確認升級後**不可回退**的影響已被接受（新版 Gateway 寫入 `state.db` 後只能以備份還原）
+
+### A.7 v0.22／v0.23 新增檢查項目
+
+- [ ] 每台主機只有一個 Gateway；K8s 為 `replicas: 1` + `Recreate`，PVC 為 RWO（見 2.5、10.2 節）
+- [ ] `state.db` 位於本機檔案系統；位於 NFS／SMB 時 `database.journal_mode: delete`
+- [ ] 第三方外掛已設定 `plugins.isolation: host`；外掛自動更新符合變更管理政策
+- [ ] 記憶 Provider 等已外掛化的整合已安裝並啟用（`hermes plugins list`、`hermes memory status`）
+- [ ] 技能、提示與 toolset 清單中沒有 `browser_*` 舊工具與 `hermes mcp serve`、`hermes sync`
+- [ ] Webapp 預設關閉；若開啟，已啟用登入閘門與 HTTPS（見 14.6 節）
+- [ ] Connectors 的使用已依資料分級核准，不需要時已關閉
+- [ ] 付費 MCP 工具都有 `tool_costs` 與 `spend_limit`
+- [ ] `sessions.auto_prune`／`retention_days` 已依保存政策明確設定
+- [ ] 已執行 9.9.1 的弱點情資查詢與 `hermes security audit --fail-on high`
+- [ ] 手冊範例與內部設定已用附錄 E.3 的檢查工具驗證
 
 ---
 
 ## 附錄 B：指令速查表
 
-> 本附錄依官方 `/docs/reference/cli-commands` 全面重整，依功能分類；篇幅所限僅列最常用旗標，完整旗標請執行 `hermes <指令> --help`。
+> 本附錄依 v0.23.0 的**實際 argparse 指令樹**（共 507 條指令路徑，以 `hermes_cli.main._build_cli_parser()` 匯出）與官方 `/docs/reference/cli-commands` 重整，依功能分類。表中每個子指令與旗標都經過白名單比對；篇幅所限僅列最常用旗標，完整旗標請執行 `hermes <指令> --help`。標示「外掛」者需先安裝對應外掛。
 
 ### B.1 CLI 指令（依功能分類）
 
-**全域旗標**：`hermes [--profile/-p <name>] [--resume/-r <session>] [--continue/-c] [--worktree/-w] [--yolo] [--tui|--cli] [--safe-mode] <指令>`
+**全域旗標**：`hermes [-p/--profile <name>] [-m/--model <m>] [--provider <p>] [--reasoning <level>] [-r/--resume <session>] [-c/--continue] [-w/--worktree] [--yolo] [--tui|--cli|--native] [--safe-mode] <指令>`；單次模式為 `hermes [--model <m>] -z "<prompt>"`（`-z` 必須放在 `--model` 之後）
 
 | 分類 | 指令 | 說明 |
 | ------ | ------ | ------ |
@@ -6684,7 +7504,8 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 | 憑證 | `hermes secrets bitwarden setup\|status\|token\|sync\|disable` | Bitwarden Secrets Manager（v0.15.0） |
 | 憑證 | `hermes proxy start\|status\|providers` | `hermes proxy` 本地代理（v0.14.0） |
 | 開發整合 | `hermes acp` | Agent Client Protocol（VS Code／Zed／JetBrains） |
-| 開發整合 | `hermes mcp catalog\|install\|serve\|add\|remove\|list\|test` | MCP 伺服器管理 |
+| 開發整合 | `hermes mcp catalog\|install\|add\|remove\|list\|test\|login\|reauth` | MCP 伺服器管理 |
+| 開發整合 | `hermes mcp-serve`（外掛 `mcp-serve`） | 以 Hermes 作為 MCP Server（v0.23.0 由 `hermes mcp serve` 更名） |
 | 開發整合 | `hermes computer-use install\|status` | 桌面自動化後端安裝 |
 | 開發整合 | `hermes lsp status\|list\|install\|install-all\|restart` | LSP 語言伺服器管理 |
 | Session／專案 | `hermes sessions list\|browse\|export\|delete\|prune\|archive\|rename\|optimize` | Session 管理（`export` 支援 Markdown／Quarto／HTML／Hugging Face，v0.19.0） |
@@ -6701,15 +7522,25 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 | 資料 | `hermes backup [-o] [--quick] [--label]` | 備份 `~/.hermes/` |
 | 資料 | `hermes checkpoints status\|prune\|clear` | Checkpoint 管理 |
 | 資料 | `hermes import <zip>` | 匯入備份 |
-| 遷移 | `hermes claw migrate [--dry-run] [--preset full\|user-data]` | 從 OpenClaw 移轉（見 11.3.1 節） |
-| 遷移 | `hermes import-agent claude-code\|codex [--dry-run] [--overwrite]` | 從 Claude Code／Codex CLI 匯入（v0.20.0，見 11.3.2 節） |
+| 遷移 | `hermes migrate openclaw\|claude-code\|codex\|cursor\|grok-bot\|openbot [--dry-run] [--overwrite] [--yes]` | 從其他 Agent 匯入（缺 `agent-importers` 外掛時自動安裝；見 11.3 節） |
+| 遷移 | `hermes import-agent <agent> [--dry-run]`（外掛 `agent-importers`） | 同上，外掛提供的完整選項（例如 `--preset full --migrate-secrets`） |
 | 記憶 | `hermes memory setup\|status\|off` | 外部記憶 Provider 設定 |
 | 記憶 | `hermes journey` / `hermes learning` / `hermes memory-graph` | 學習時間軸／記憶圖檢視 |
 | 審批 | `hermes approvals` / `hermes approvals suggest` | 危險指令審批策略管理（`suggest` 為 v0.20.0 新增，依歷史提出白名單建議） |
 | 審批 | `hermes pairing list\|approve\|revoke\|clear-pending` | DM Pairing 配對管理 |
 | 系統 | `hermes egress install\|setup\|start\|stop\|status` | 出站憑證注入代理 iron-proxy（見 9.8 節）；`setup --rotate-tokens` 輪替代理權杖 |
-| **多 Agent** | **`hermes peer add\|dm\|run\|status`** | **跨 Gateway Agent 直訊（v0.21.0，見 15.4 節）** |
-| 審批 | `hermes approval-check` | 以 dry-run 測試審批規則的判決結果，不實際執行指令（v0.21.0） |
+| **多 Agent** | **`hermes peer add\|list\|dm\|run\|status\|stop\|remove`** | **跨 Gateway Agent 直訊（v0.21.0，見 15.4 節；`status`／`stop` 需帶 `<target> <run_id>`）** |
+| **v0.22／v0.23** | `hermes webapp [--status] [--sign-out] [--no-open]` | 在瀏覽器開啟 Desktop 工作區（v0.23.0，預設關閉，見 14.6 節） |
+| **v0.22／v0.23** | `hermes connectors list\|connect\|accounts\|rename\|disconnect` | 管理 Connectors 帳號（v0.22.0；`rename <app> <name> --to <新名稱>`） |
+| **v0.22／v0.23** | `hermes vault add\|list\|rm\|sources\|key` | 瀏覽器憑證庫；`hermes vault key migrate --to keychain` 把金鑰移到 OS keychain（v0.23.0） |
+| **v0.22／v0.23** | `hermes plugins update\|auto-update\|check-updates\|validate\|capabilities\|pack` | 外掛更新、自動更新（v0.23.0）、驗證與 Plugin Pack |
+| **v0.22／v0.23** | `hermes curator lock\|unlock\|rollback\|usage` | 鎖定技能（v0.23.0）、回復、使用統計 |
+| **v0.22／v0.23** | `hermes cron cancel\|runs\|notepad\|doctor\|incidents` | 停止執行中的工作（v0.23.0）與執行紀錄 |
+| **v0.22／v0.23** | `hermes sessions adopt\|discard\|pin\|unpin\|optimize-storage` | 讓 Gateway 接管舊對話、確認中斷的輸入（v0.23.0） |
+| **v0.22／v0.23** | `hermes gateway migrate [--multiplex]` | 把 per-profile Gateway 合併為單一 Gateway（v0.22.0） |
+| **v0.22／v0.23** | `hermes pm install chromium\|cua-driver` | PM 補裝受管工具（v0.22.0；`pm` 在 argparse 之前分派） |
+| **v0.22／v0.23** | `hermes pause [--reason <文字>]` / `hermes resume` | 全域緊急停止：暫停所有排程觸發 |
+| 審批 | `hermes approvals test "<指令>" [--json]` | 以 dry-run 測試審批規則的判決結果，不實際執行指令（v0.21.0 時名為 `approval-check`） |
 | 憑證 | `hermes secrets` | 外部秘密來源管理（Bitwarden／1Password `op://`／Command Helper，v0.19.0 起可插拔） |
 | 模型 | `hermes migrate <provider>` | 針對已退役模型自動改寫設定（如 `hermes migrate xai`） |
 | 設定 | `hermes portal` | Nous Portal OAuth 認證與 Tool Gateway 狀態（`hermes setup --portal` 為一鍵快速設定） |
@@ -6718,12 +7549,12 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 | 診斷 | `hermes debug` | 上傳已遮蔽的日誌與系統資訊並取得分享連結 |
 | 介面 | `hermes desktop --setup-tcc-identity` | macOS 專用：以穩定簽章身分固定 TCC 權限，使授權跨更新存續（v0.21.0） |
 | 介面 | `hermes pets` | 瀏覽與管理 Petdex 終端寵物（趣味功能） |
-| 訊息平台 | `hermes photon login` | Photon Spectrum iMessage 裝置碼認證（v0.17.0，免 Mac relay） |
+| 訊息平台 | `hermes photon setup\|status\|install-sidecar`（內建平台外掛） | Photon Spectrum iMessage 設定（v0.17.0，免 Mac relay） |
 | 介面 | `hermes dashboard [--port 9119] [--stop] [--status]` | Web Dashboard 管理 |
 | 介面 | `hermes gui` / `hermes desktop` | 啟動 Desktop App |
 | 介面 | `hermes serve [--host] [--port]` | 啟動供 Desktop／遠端連線的 Agent 伺服器 |
 | Profile | `hermes profile list\|use\|create\|delete\|show\|rename\|export\|import\|install\|update` | Profile 完整管理 |
-| 維護 | `hermes version` / `hermes update [--check] [--backup] [--gateway]` | 版本檢視與升級 |
+| 維護 | `hermes --version` / `hermes update [--check] [--plan] [--backup] [--set-channel stable\|main]` | 版本檢視與升級（v0.21.7 起預設只追穩定 Release） |
 | 維護 | `hermes completion bash\|zsh\|fish` | Shell 自動完成腳本 |
 | 維護 | `hermes uninstall [--full] [--gui] [--dry-run]` | 解除安裝（見 14.4 節） |
 
@@ -6744,21 +7575,18 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 | `/voice on/off` | 開關語音模式 |
 | `/approve` | 批准待審指令 |
 | `/deny [<原因>]` | 拒絕待審指令，v0.19.0 起可附理由讓 Agent 自我修正 |
-| `/stop` | 中斷當前操作 |
 | `/platforms` | 查看連線平台狀態 |
 | `/status` | 查看 Agent 狀態 |
-| `/busy [steer\|queue\|interrupt]` | 忙碗模式（v0.12.0） |
+| `/busy [steer\|queue\|interrupt\|status]` | Agent 忙碌時新訊息的處理方式（v0.12.0） |
 | `/btw` | 中插任務導引（v0.12.0） |
-| `/background` | 移至背景執行（v0.12.0） |
 | `/reload` | 熱重載 `.env`（v0.12.0） |
 | `/reload-skills` | 重新載入技能庫（v0.12.0） |
 | `/reload-mcp` | 重建 MCP cached agents（v0.12.0） |
-| `/mouse` | 互動式滑鼠操作（v0.12.0） |
 | `/fast` | 切換 Fast Mode |
 | `/steer` | 中途導引 Agent 行為（v0.11.0） |
 | `/goal` / `/goal draft\|show\|pause\|resume\|clear` / `/subgoal` | 持久化目標管理（Ralph Loop）（v0.13.0，v0.18.0 起支援完成契約） |
 | `/kanban` | 顯示 Multi-agent Kanban 看板（v0.13.0） |
-| `/queue` | 查看任務佇列（v0.13.0） |
+| `/queue`（`/q`） `[<prompt>\|list\|edit N <prompt>\|rm N\|move A B\|clear]` | 排入下一回合的提示；v0.22.0 起可編輯（v0.13.0） |
 | `/learn <對象>` | 萃取目錄／URL／操作為可重用 Skill（v0.18.0） |
 | `/journey` | 檢視學習時間軸（v0.18.0） |
 | `/subscription` / `/topup` | Nous Portal 訂閱管理（v0.19.0） |
@@ -6805,7 +7633,14 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 | `/platform <list\|pause\|resume> [name]` / `/sethome` / `/restart` | Gateway 平台操作（僅訊息平台） |
 | `/debug` | 上傳除錯報告並取得分享連結 |
 | `/update` | 升級 Hermes 至最新版本 |
-| `/help` / `/quit`（`/exit`） | 說明與離開 |
+| `/rewind` | 回溯到較早的提示：編輯重送，或按 `f` 分岔新 Session（v0.23.0；TUI 空白輸入框按兩次 `Esc`） |
+| `/autoprune [on\|off\|later]` | 自動清理舊 Session 的開關（v0.23.0 預設關閉） |
+| `/delegation [default\|model_map\|profile_routes]`（外掛 `advanced-delegation`） | 切換委派策略（v0.23.0） |
+| `/connectors`（TUI） | 管理 Connectors 帳號（v0.22.0） |
+| `/stop` | 停止目前回合；v0.22.0 起也會停止背景子代理並取回部分成果 |
+| `/help` / `/commands` / `/quit`（`/exit`） | 說明、列出所有指令與離開 |
+
+> ✅ **如何驗證本附錄**：`python -X utf8 check_synopsis.py <手冊.md> cli.json`（附錄 E.3）會把每個 `a\|b\|c` 多選展開，逐一比對 v0.23.0 的指令白名單；斜線指令則以 `COMMAND_REGISTRY`（105 個）加上內建／optional 技能名稱比對。
 
 ---
 
@@ -6815,13 +7650,13 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 
 | 環境變數 | 說明 | 必要性 |
 | ---------- | ------ | -------- |
-| `ANTHROPIC_API_KEY` | Anthropic API 金鑰（或改用 `hermes auth login anthropic` OAuth，Claude Max 訂閱可用） | 至少一個 Provider |
+| `ANTHROPIC_API_KEY` | Anthropic API 金鑰（或改用 `hermes auth add anthropic` 以 OAuth 登入，Claude Max 訂閱可用） | 至少一個 Provider |
 | `OPENAI_API_KEY` | OpenAI API 金鑰 | 至少一個 Provider |
 | `OPENROUTER_API_KEY` | OpenRouter API 金鑰 | 至少一個 Provider |
 | `GOOGLE_API_KEY` / `GEMINI_API_KEY` | Google AI Studio（Gemini）API 金鑰 | 選用 |
-| `XAI_API_KEY` | xAI (Grok) API 金鑰（或 `hermes auth login xai` OAuth，需 SuperGrok／X Premium+） | 選用 |
+| `XAI_API_KEY` | xAI (Grok) API 金鑰（或 `hermes auth add xai` 以 OAuth 登入，需 SuperGrok／X Premium+） | 選用 |
 | `NVIDIA_API_KEY` | NVIDIA NIM（build.nvidia.com）API 金鑰 | 選用 |
-| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | AWS Bedrock 認證（標準 boto3 憑證鏈） | 選用 |
+| `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | AWS Bedrock 認證（AWS SDK 標準變數，亦可用 IAM Role／`AWS_PROFILE`） | 選用 |
 | `HF_TOKEN` | Hugging Face Inference API Token | 選用 |
 | `GMI_API_KEY` | GMI Cloud API 金鑰 | 選用 |
 | `DEEPSEEK_API_KEY` | DeepSeek API 金鑰 | 選用 |
@@ -6835,9 +7670,9 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 | **`NOVITA_API_KEY`** | NovitaAI API 金鑰（v0.14.0） | 選用 |
 | **Vertex AI** | 無需靜態金鑰，改以 Service Account JSON 或 Application Default Credentials 自動換發（v0.18.0） | 選用 |
 | `AI_GATEWAY_API_KEY` | Vercel AI Gateway API 金鑰（v0.15.0 曾移除，**v0.20.0 現代化重新引入**） | 選用 |
-| `LM_STUDIO_URL` / `LM_API_KEY` | LM Studio 本地端點 | 選用 |
-| `AZURE_AI_FOUNDRY_KEY` / `AZURE_AI_FOUNDRY_ENDPOINT` | Azure AI Foundry（Microsoft Entra ID auth，v0.15.0） | 選用 |
-| `TENCENT_TOKENHUB_KEY` | 騰訊 Tokenhub API 金鑰 | 選用 |
+| `LM_BASE_URL` / `LM_API_KEY` | LM Studio 本地端點 | 選用 |
+| `AZURE_FOUNDRY_API_KEY` / `AZURE_FOUNDRY_BASE_URL` | Azure AI Foundry（亦支援 Microsoft Entra ID auth，v0.15.0） | 選用 |
+| `TOKENHUB_API_KEY` / `TOKENHUB_BASE_URL` | 騰訊 Tokenhub API 金鑰與端點 | 選用 |
 | `KILOCODE_API_KEY` | Kilocode API 金鑰 | 選用 |
 | `XIAOMI_API_KEY` | 小米 MiMo API 金鑰 | 選用 |
 | `STEPFUN_API_KEY` | StepFun API 金鑰 | 選用 |
@@ -6852,9 +7687,9 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 | `DISCORD_BOT_TOKEN` | Discord Bot Token | Gateway 需要 |
 | `DISCORD_ALLOWED_ROLES` | Discord Guild 角色白名單（v0.13.0 安全修正） | 選用 |
 | `SLACK_BOT_TOKEN` | Slack Bot Token | Gateway 需要 |
-| `GOOGLE_CHAT_WEBHOOK` | Google Chat Webhook URL | Gateway 需要 |
+| `GOOGLE_CHAT_PROJECT_ID` / `GOOGLE_CHAT_SUBSCRIPTION_NAME` / `GOOGLE_CHAT_SERVICE_ACCOUNT_JSON` | Google Chat（Pub/Sub 訂閱 + Service Account；另有 `GOOGLE_CHAT_ALLOWED_USERS`） | Gateway 需要 |
 | `LINE_CHANNEL_ACCESS_TOKEN` | LINE Messaging API Token | Gateway 需要 |
-| `SIMPLEX_CHAT_PORT` | SimpleX Chat 連接埠 | Gateway 需要 |
+| `SIMPLEX_WS_URL` / `SIMPLEX_ALLOWED_USERS` | SimpleX Chat CLI 的 WebSocket 位址與允許清單 | Gateway 需要 |
 | `NTFY_TOPIC` | ntfy 推播主題 URL | Gateway 需要 |
 | **`BUZZ_RELAY_URL`** | **Buzz（Nostr）中繼站設定（v0.20.0 新增，實際變數名稱以官方文件為準）** | Gateway 需要 |
 
@@ -6863,15 +7698,14 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 | 環境變數 | 說明 | 必要性 |
 | ---------- | ------ | -------- |
 | `GITHUB_TOKEN` | GitHub Token（MCP／各類 Git 整合用） | MCP 需要 |
-| `DATABASE_URL` | PostgreSQL 連線字串（MCP 用） | MCP 需要 |
+| （自訂名稱，例如 `DATABASE_URL`） | MCP 伺服器所需的憑證：名稱由你自己決定，再在 `mcp_servers.<name>.env` 中以 `${VAR}` 引用；不是 Hermes 本身讀取的變數 | 依 MCP 伺服器 |
 | `ELEVENLABS_API_KEY` | ElevenLabs TTS API 金鑰 | Voice 需要 |
 | `MEM0_API_KEY` | Mem0 Cloud API 金鑰 | Mem0 記憶需要 |
-| `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` | Spotify PKCE OAuth | Spotify 需要 |
-| `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` | Langfuse 可觀測性 | 選用 |
-| `GOOGLE_MEET_CREDENTIALS` | Google Meet 憑證 | Meet 需要 |
+| `SPOTIFY_CLIENT_ID` | Spotify PKCE OAuth（v0.22.0 起由 Catalog 外掛 `spotify` 讀取） | Spotify 需要 |
+| `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` | Langfuse 可觀測性（v0.22.0 起為 Catalog 外掛 `langfuse`） | 選用 |
 | **`BWS_ACCESS_TOKEN`** | **Bitwarden Secrets Manager Machine Account Token（v0.15.0，v0.19.0 起與 1Password 並列可插拔 `SecretSource`）** | 選用 |
 | **`OP_SERVICE_ACCOUNT_TOKEN`** | **1Password Service Account Token（`op://` 參照解析用，v0.19.0 新增）** | 選用 |
-| **`HERMES_WEBHOOK_SECRET`** | **Outbound Webhook HMAC 簽章密鑰（v0.20.0，見 1.4.31 節）** | Webhook 需要 |
+| **（自訂名稱，例如 `HERMES_OUTBOUND_WEBHOOK_SECRET`）** | **Outbound Webhook HMAC 簽章密鑰：變數名稱由 `hooks.outbound[].secret_env` 指定（v0.20.0，見 1.4.31 節）** | Webhook 需要 |
 
 ### C.4 系統與行為控制
 
@@ -6890,6 +7724,8 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 | **`API_SERVER_KEY`** | API Server 與 `hermes peer` 註冊的認證金鑰。**強度不足等同對外開放 Agent 執行權**（見 [15.4.1 節](#1541-安全前提)） | 使用 API Server／peer 時必要 |
 
 **Egress 憑證注入代理（iron-proxy）相關**：主要以 `config.yaml` 的 `proxy:` 區塊設定（見 [9.8.4 節](#984-完整設定鍵參考)）。沙箱側由 Hermes 自動注入代理位址、唯讀 CA 憑證掛載點與**代理權杖（非真實金鑰）**，一般情況下不需手動設定環境變數。
+
+> ✅ **如何驗證本附錄**：表中每個變數名稱都已比對 v0.23.0 官方 Environment Variables 參考（683 個）與原始碼中的 `HERMES_*` 常數（261 個）；不在兩者之中的只有 AWS SDK 標準變數與標示「自訂名稱」的範例。舊版本附錄中的 `GOOGLE_AI_API_KEY`、`LM_STUDIO_URL`、`AZURE_AI_FOUNDRY_KEY`、`TENCENT_TOKENHUB_KEY`、`GOOGLE_CHAT_WEBHOOK`、`SIMPLEX_CHAT_PORT`、`GOOGLE_MEET_CREDENTIALS` 都不存在，已更正或移除。
 
 ---
 
@@ -6955,19 +7791,36 @@ Bot Mode 的每一項操作在終端機都有對應指令，無 Desktop 環境�
 | Nemotron 3.5 Lightning | NVIDIA | — |
 | Meta Muse Spark 1.2 | Meta Model API | — |
 
-#### D.1.2 `model_overrides` — 免改版覆寫與可插拔 Provider（v0.21.0）
+#### D.1.2 v0.22.0／v0.23.0 新增模型
 
-上游調整了 context window 或定價、而 Hermes 目錄尚未跟上時，不必等待官方發版：
+| 模型 | 所屬 | 備註 |
+| ------ | ------ | ------ |
+| Claude Fable 5.1、Opus 5.5（`claude-opus-5-5`）、Sonnet 5.5、Haiku 5.5 | Anthropic | v0.22.0「Claude 5.5 模型波」；可經 Nous Portal、OpenRouter（如 `anthropic/claude-sonnet-5.5`）或原生 Provider 使用 |
+| GPT-6 Astra／Sol／Luna、GPT-6.1 Sol | OpenAI | v0.22.0；Codex 路徑另有 `gpt-6-astra-900k` 等變體 |
+| Gemini 4 Argon（`gemini-4-argon`） | Google | v0.22.0；可經 Vertex 或 OpenRouter |
+| Nemotron 3.5（Super 預設參數）、Nemotron 3 Ultra 免費層（`nvidia/nemotron-3-ultra:free`） | NVIDIA | v0.22.2；免費層經 Nous Portal |
+
+> 💡 v0.22.0 起，凡 Provider 能讀取的先前推理內容（reasoning）會在 resume、分支與壓縮後**預設重播**；模型選擇器可加星號、顯示訂閱剩餘額度與限流解除時間，並可在選模型時一併指定推理強度（`/model <id> --reasoning high`）。實際可用的模型 ID 以 `/model` 選擇器或 `hermes model` 的清單為準。
+
+#### D.1.3 `model_overrides` — 免改版覆寫與可插拔 Provider（v0.21.0）
+
+上游調整了 context window 或能力、而 Hermes 目錄尚未跟上時，不必等待官方發版（**只能覆寫能力宣告，不能覆寫價格**）：
 
 ```yaml
-# ~/.hermes/config.yaml
+# ~/.hermes/config.yaml — 結構為 model_overrides.<provider>.<model id>
 model_overrides:
-  "openrouter/some-vendor/new-model":
-    context_window: 400000
-    input_price_per_1m: 1.25
-    output_price_per_1m: 5.00
-    supports_vision: true
+  openrouter:
+    some-vendor/new-model:
+      context_window: 400000
+      supports_vision: true
+      supports_tools: true
+      supports_reasoning: true
+  bedrock:
+    _default:
+      context_window: 200000      # 此 Provider 下未列出模型的預設值
 ```
+
+> ⚠️ **更正與 checker 盲點**：舊版範例的扁平鍵 `"openrouter/some-vendor/new-model"` 與 `input_price_per_1m`／`output_price_per_1m` 都不在原始碼（`agent/models_dev.py`）讀取的欄位中。官方驗證器對 `model_overrides` 底下的鍵**不做深層檢查**，所以 `hermes config set` 不會警告，必須以本表的欄位人工審查。
 
 同時 v0.21.0 起，**以 pip 安裝的第三方模型 Provider 可透過 Python entry points 被自動探索**，無須修改 Hermes 本體。另有兩項與模型目錄相關的校正值得注意：Codex GPT 的 context 預設值已核實為 **272K**（並提供明確的 `-900k` 變體），以及**資料訓練層級（data-training-tier）警示已於所有模型選擇器介面統一顯示**——這對有資料落地要求的企業是實用的選型輔助。
 
@@ -6981,6 +7834,7 @@ model_overrides:
 | vLLM | `:8000/v1` | 高輸送量推論伺服器 |
 | SGLang | `:30000/v1` | RadixAttention KV-cache 重用 |
 | llama.cpp / llama-server | `:8080/v1` | 極輕量、CPU 可執行 |
+| **Hermes 受管 Local Models**（v0.22.0） | 自動（`model.provider: llamacpp`） | Hermes 自動安裝並維護 llama.cpp 引擎、依硬體挑選模型；`local_runtime.backend: auto\|cuda\|metal\|vulkan\|hip\|cpu`（見 1.4.44） |
 | LiteLLM Proxy | `:4000/v1` | 統一代理 100+ Provider |
 | **ClawRouter** | `:8402/v1` | 以 **USDC 加密貨幣**付費，依查詢複雜度自動選模型 |
 
@@ -6989,6 +7843,192 @@ model_overrides:
 Together AI、Groq、Cerebras、Mistral AI、LocalAI、Jan、Perplexity——均可透過 `custom` Provider ID 或各自專屬設定連接。
 
 > **架構說明**：v0.12.0 將所有 Provider 重構為 Pluggable 架構，v0.13.0 引入 `ProviderProfile` ABC 介面，v0.15.0 一度移除 Vercel AI Gateway 與 Vercel Sandbox（v0.20.0 現代化重新引入）。第三方可自行開發 Provider Plugin 並掛載至 Hermes，無需修改核心程式碼。
+
+---
+
+## 附錄 E：驗證紀錄（v9.0.0）
+
+本附錄記錄本版手冊**如何**被驗證：用了哪些權威來源、執行了哪些檢查、原稿發現了什麼、修正後的結果，以及還無法確認的事項。目的是讓審查者可以**重複執行同樣的檢查**，而不必相信本文的說法。
+
+### E.1 版本基準與權威來源
+
+| 項目 | 值 | 取得方式 |
+| --- | --- | --- |
+| 基準版本 | **v0.23.0 The Hearth**（2026-11-05） | `gh api repos/NousResearch/hermes-agent/releases/latest` |
+| 涵蓋範圍 | v0.21.1–v0.21.7、v0.22.0–v0.22.7、v0.23.0（共 18 份 release notes） | `gh api repos/NousResearch/hermes-agent/releases/tags/<tag>` |
+| 原始碼 | v0.23.0 tag 的 tarball（約 90 MB） | `gh api repos/NousResearch/hermes-agent/tarball/v0.23.0` |
+| 官方文件 | 同一 tag 的 `website/docs/`（435 頁） | 與原始碼同一版本，避免線上文件已更新到 `main` 的落差 |
+| 執行環境 | Python 3.14.10、uv 0.13.7、Windows 11 | `uv python install 3.14`（隔離的 venv，不影響使用者的 `~/.hermes`） |
+| 倉庫數據 | Stars 261,617、Forks 58,096、Releases 47 | `gh api repos/NousResearch/hermes-agent`（2026-11-08） |
+| 公開弱點 | 10 筆 GHSA（全域資料庫）；官方倉庫 0 筆 | `gh api "advisories?ecosystem=pip&affects=hermes-agent"` |
+| Plugin Catalog | 1,051 個 YAML（含 `removed.yaml`）；Community 1,018、Official 21、Verified 9 | 計數 `plugin-catalog/*.yaml` 的 `tier:` |
+| 內建／optional 技能 | 44／142 | 計數 `skills/**/SKILL.md`、`optional-skills/**/SKILL.md` |
+
+**白名單（由實際安裝的 v0.23.0 匯出）**：
+
+| 白名單 | 數量 | 來源 |
+| --- | --- | --- |
+| CLI 指令路徑（含每條路徑的旗標與帶值旗標） | 507 | `hermes_cli.main._build_cli_parser()` 遞迴走訪 argparse 樹 |
+| 斜線指令（含別名） | 105 | `hermes_cli.commands.COMMAND_REGISTRY`；另加 TUI 專用的 `/connectors`、`/switch` 與外掛提供的 `/delegation` |
+| 設定鍵 | 1,133 條路徑（102 個頂層鍵） | `hermes_cli.config_defaults.DEFAULT_CONFIG`；**實際判斷呼叫 `hermes_cli.config._validate_config_key`**（與 `hermes config set` 相同） |
+| 環境變數 | 683（官方參考）＋ 261（原始碼中的 `HERMES_*` 常數） | `reference/environment-variables.md` 表格 |
+| 外掛 CLI 指令 | `meet`、`photon`、`teams-pipeline`（內建外掛）、`pm`（argparse 之前分派）、`mcp-serve`、`import-agent`（Catalog） | `ctx.register_cli_command` 搜尋 |
+
+### E.2 原稿更正清單
+
+下表依類別列出代表性更正（完整逐行清單由 E.3 的工具重新產生）。「來源」欄的 [CLI] 表示真實 argparse 實測，[CFG] 表示官方設定鍵驗證器，[D] 表示 v0.23.0 tag 的官方文件，[S] 表示原始碼，[R] 表示 release notes。
+
+| # | 類別 | 原稿寫法 | v0.23.0 正確寫法 | 來源 | 章節 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | CLI | ❌ `hermes -z --model X "提示"` | `hermes --model X -z "提示"`（`-z` 會吃掉下一個參數） | [CLI] exit 2 | 5.1.1 |
+| 2 | CLI | ❌ `hermes "列出…"`（裸提示） | `hermes -z "…"` 或 `hermes chat -q "…"` | [CLI] exit 2 | 5.1.1 |
+| 3 | CLI | ❌ `hermes auth login nous` | `hermes auth add nous --type oauth`／`hermes portal`／`hermes auth refresh` | [CLI] | 4.6.3、13 |
+| 4 | CLI | ❌ `hermes claw migrate [--workspace-target]` | `hermes migrate openclaw`／`hermes import-agent openclaw` | [CLI][D] | 11.3.1 |
+| 5 | CLI | ❌ `hermes approval-check` | `hermes approvals test "<指令>"` | [CLI] | 1.4.40、B |
+| 6 | CLI | ❌ `hermes logs --errors`／`--filter` | `hermes logs errors`、`--level`、`--session`、`--since`；關鍵字用 `grep` | [CLI] | 9.4、13 |
+| 7 | CLI | ❌ `hermes doctor --quick`（健康檢查） | `GET /health`（API Server） | [CLI][D] | 9、10 |
+| 8 | CLI | ❌ `hermes skills pin` | `hermes curator pin`／`hermes curator lock` | [CLI] | 13 |
+| 9 | CLI | ❌ `hermes proxy --port 4141` | `hermes proxy start --port 4141` | [CLI] | 1.4.13 |
+| 10 | CLI | ❌ `hermes peer status` | `hermes peer status <target> <run_id>` | [CLI] | 1.4.35、15.4 |
+| 11 | CLI | ❌ `hermes --voice` | 對話中 `/voice on` | [CLI] | 7.3 |
+| 12 | CLI | ❌ `hermes kanban dispatch --tenant … --workspace …` | `hermes kanban create "…" --tenant … --workspace …` | [CLI] | 6.3.2 |
+| 13 | CLI | ❌ `hermes connectors rename gmail old work` | `hermes connectors rename gmail old --to work` | [CLI] | 1.4.43 |
+| 14 | CLI | ❌ `hermes photon login`、`hermes version` | `hermes photon setup`、`hermes --version` | [S][CLI] | B |
+| 15 | CLI | ❌ `hermes mcp serve` | `hermes mcp-serve`（外掛） | [R:v0.23.0] | 11.1.16、B |
+| 16 | 斜線 | ❌ `/background`、`/mouse`、`/fullstack`、`/devops`、`/security` | `/bg <prompt>`；`/mouse` 不存在；Bundle 須自行 `hermes bundles create` | [S] | 1.4.18、5、B |
+| 17 | 設定 | ❌ `mcp: servers: [- name: …]` | 頂層 `mcp_servers.<name>` | [CFG][D] | 3.5.2、4.7、12 |
+| 18 | 設定 | ❌ `security.command_approval`、`security.allowed_commands` | `approvals.mode`（smart／manual／off）、頂層 `command_allowlist` | [CFG][D] | 4.7、9.1.2、12 |
+| 19 | 設定 | ❌ `auxiliary.provider`／`auxiliary.model` | `auxiliary.<任務>.provider/model`（例如 `auxiliary.compression`） | [CFG] | 3.6.1、4.7、9.2 |
+| 20 | 設定 | ❌ `auxiliary.curator.enabled/interval_days/...` | 頂層 `curator.enabled/interval_hours/...` | [CFG] | 1.4.8、3.7.4 |
+| 21 | 設定 | ❌ `kanban.enabled/max_retries/heartbeat_interval/...` | `kanban.dispatch_in_gateway/dispatch_interval_seconds/failure_limit/...`；重試為任務屬性 | [CFG][CLI] | 1.4.9、6.3.2、13 |
+| 22 | 設定 | ❌ `memory.auto_save`、`memory.supermemory.*`、`memory.mem0.*` | `memory.write_approval` 等；Provider 設定由外掛管理 | [CFG][D] | 3.3.2、6.4 |
+| 23 | 設定 | ❌ `voice.stt_provider/tts_provider/openai/...` | `stt.*`、`tts.*`、`voice.*`、`wake_word.*` | [CFG][D] | 7.3 |
+| 24 | 設定 | ❌ `tool_search.*`（頂層） | `tools.tool_search.*` | [CFG] | 3.5.4 |
+| 25 | 設定 | ❌ `terminal.docker.image/volumes` | `terminal.docker_image`、`terminal.docker_volumes` | [CFG] | 3.5.3 |
+| 26 | 設定 | ❌ `context.auto_compress/compress_threshold` | `compression.enabled/threshold/target_ratio` | [CFG] | 9.2、9.3 |
+| 27 | 設定 | ❌ `cron.jobs.<name>.schedule/task/context_from` | 以 `hermes cron create … --continuity --monitor-script …` 建立 | [CFG][CLI] | 5.5、6.6.5 |
+| 28 | 設定 | ❌ `providers.primary/fallback` | `model.provider/default` + `fallback_providers: [{provider, model}]` | [CFG][D] | 3.6.1 |
+| 29 | 設定 | ❌ `model_overrides."openrouter/x"` + 價格欄位 | `model_overrides.<provider>.<model>`；只有 `supports_*`、`context_window`、`model_family` | [S:agent/models_dev.py] | 1.4.41、D.1.3 |
+| 30 | 設定 | ❌ `secrets.backend: bitwarden`、`secrets.sources: [{type, priority}]` | `secrets.bitwarden.enabled` 等；`secrets.sources: [名稱, …]` | [CFG][D] | 1.4.17、1.4.27 |
+| 31 | 設定 | ❌ `session.auto_resume` | `hermes -c`／`--resume`（無此鍵） | [CFG] | 5.1.4 |
+| 32 | 設定 | ❌ `quick_commands: {test: "mvn test"}` | `quick_commands.<name>: {type: exec, command: …}` | [D] | 5.1.3 |
+| 33 | 環境變數 | ❌ `GOOGLE_AI_API_KEY` | `GEMINI_API_KEY`／`GOOGLE_API_KEY` | [D] | 4.6.2 |
+| 34 | 環境變數 | ❌ `LM_STUDIO_URL`、`AZURE_AI_FOUNDRY_KEY`、`TENCENT_TOKENHUB_KEY`、`GOOGLE_CHAT_WEBHOOK`、`SIMPLEX_CHAT_PORT`、`GOOGLE_MEET_CREDENTIALS` | `LM_BASE_URL`、`AZURE_FOUNDRY_API_KEY`、`TOKENHUB_API_KEY`、`GOOGLE_CHAT_*`、`SIMPLEX_WS_URL`；最後一項移除 | [D][S] | C |
+| 35 | 工具名稱 | ❌ `execute_command`、`browser_navigate`、`cron_add`、`voice_synthesize`、`blueprint_create` | `terminal`、`browser_exec`、`cronjob_manage`、`text_to_speech`；Blueprint 為斜線指令 | [D:tools-reference] | 2.3.5、3.5.1 |
+| 36 | 工具格式 | ❌ `memory` 工具 `{"action","key","value"}` | `{"target", "operations":[{"action","content"/"old_text"}]}` | [D] | 1.4.23、3.3.3 |
+| 37 | 技能格式 | ❌ `skill.md` + `## Description` | `SKILL.md` + YAML frontmatter；`~/.hermes/skills/<分類>/<名稱>/` | [D] | 3.2、6.1 |
+| 38 | 外掛 API | ❌ `from hermes.plugins import PluginBase, hook` | 模組層級 `register(ctx)`；`plugin.yaml` 的 `provides_tools`／`provides_hooks` | [D] | 6.9 |
+| 39 | 外掛 | ❌ 「Hook 共 26 種」；專案層級外掛以 `HERMES_ENABLE_PROJECT_PLUGINS` 開啟 | 46 種；v0.23.0 Gateway 不再載入專案層級外掛 | [S][D] | 6.9 |
+| 40 | 安裝 | ❌ `ghcr.io/nousresearch/hermes-agent`、掛載 `/root/.hermes` | `nousresearch/hermes-agent`、掛載 `/opt/data`、`gateway run` | [D:docker] | 4.4、10.1 |
+| 41 | 安裝 | ❌ `python:3.11-slim` + 手動 Node.js 26 自建映像 | `FROM nousresearch/hermes-agent:X.Y.Z` 衍生映像 | [D] | 4.4.2、10.1.1 |
+| 42 | 安裝 | ❌ Windows NSIS installer、需系統管理員 | MSIX／Microsoft Store；`install.ps1` 不需要管理員 | [D] | 4.3、14.2 |
+| 43 | 安裝 | ❌ root 安裝使用 `/usr/local/lib/hermes-agent/` | root 執行不會改用 FHS 路徑，使用 root 家目錄 | [D] | 4.1.2 |
+| 44 | 部署 | ❌ K8s `replicas: 2` + RollingUpdate + RWX PVC | `replicas: 1` + `Recreate` + RWO；依團隊分片 | [D][R] | 2.5、10.2 |
+| 45 | 部署 | ❌ 備份 `sessions.db`（sqlite3 `.backup`） | `hermes backup`（`state.db`、含憑證，需加密） | [CLI][D] | 10.5 |
+| 46 | 架構 | ❌ 「LB → 多 Hermes → 共享 PostgreSQL／Redis／NFS」 | 無 PostgreSQL 後端；單一 Gateway 擁有 `state.db`（SQLite WAL） | [CFG][D] | 2.5 |
+| 47 | 整合 | ❌ FastAPI 以子行程呼叫 `hermes chat --message/--session/--stream`、`hermes skills --json` | 呼叫 Gateway API Server `/v1/chat/completions` + `X-Hermes-Session-Key` | [CLI][D] | 8.2 |
+| 48 | 整合 | ❌ Spring Boot 在建構子使用 `@Value` 欄位 | 建構子參數注入；技能名稱 `requesting-code-review` | 程式語意 | 8.3 |
+| 49 | 事實 | ❌ 「OpenClaw 是 Hermes 的前身」 | 兩者是不同專案 | [D] | 11.3.1 |
+| 50 | 事實 | ❌ `sessions.auto_prune` 預設開啟（依 v0.22.0 release notes） | v0.23.0 預設關閉，磁碟不足時詢問 | [S][D] | 9.9.6、11.1.16 |
+
+### E.3 實測方法與結果
+
+#### E.3.1 檢查工具
+
+| 工具 | 作用 | 負面測試（證明它真的會抓錯） |
+| --- | --- | --- |
+| `dump_help.py` | 走訪 v0.23.0 的 argparse 樹，輸出 `cli.json`（507 條路徑、旗標、帶值旗標） | — |
+| `dump_registry.py` | 匯出斜線指令登錄表與 `DEFAULT_CONFIG` 設定鍵 | — |
+| `check_doc.py` | 對手冊做 7 類檢查：CLI 白名單、**真實 argparse 解析**（PARSE）、斜線指令、設定鍵（呼叫官方驗證器）、`.env` 變數名稱、inline 指令、歷史敘述辨識（INFO） | 原稿：175 項發現 |
+| `check_synopsis.py` | 展開附錄 B 的 `a\|b\|c` 多選寫法，逐一比對白名單 | 原稿：17 項發現 |
+| `validate_k8s.py` | 解析部署 YAML，斷言 `replicas == 1`、`Recreate`、`/health` probe、`/opt/data`、RWO、loopback 埠號；`bash -n` 檢查腳本 | 內建反例：6 項違規；原稿第十章：9 項 |
+| `test_facade.py` | 以模擬 Hermes API Server 端對端測試第八章的 FastAPI Facade | 上游 401 → 502 等 9 項 |
+| `JavaParse.java` | 以 `JavacTask.parse()`（JDK 21）做 Java 語法檢查 | 含 `int x = ;` 的檔案回報 1 項錯誤、exit 1 |
+
+核心方法很簡單：**不要相信文件，直接把每一行指令交給真正的 parser**。以下是 `try_parse.py` 的完整內容，可以用來驗證任何一份文件中的 `hermes` 指令：
+
+```python
+"""Parse argv lists (one per line, shlex) with the real hermes parser; print OK/EXIT."""
+import shlex, sys, io, contextlib
+from hermes_cli.main import _build_cli_parser
+p = _build_cli_parser()[0]
+for line in open(sys.argv[1], encoding="utf-8"):
+    line = line.strip()
+    if not line or line.startswith("#"):
+        continue
+    argv = shlex.split(line)[1:]
+    err = io.StringIO()
+    try:
+        with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+            p.parse_args(argv)
+        print("OK  ", line)
+    except SystemExit as e:
+        print(f"EXIT{e.code}", line, "|", err.getvalue().strip().splitlines()[-1:] )
+```
+
+設定鍵則直接呼叫 `hermes config set` 使用的同一個函式：
+
+```python
+from hermes_cli.config import _validate_config_key
+print(_validate_config_key("kanban.enabled"))        # (False, None)  → 不是有效鍵
+print(_validate_config_key("approvals.mode"))        # (True, None)
+print(_validate_config_key("tool_search.enabled"))   # (False, 'x_search.enabled') → 實際應為 tools.tool_search.enabled
+```
+
+#### E.3.2 結果
+
+| 檢查 | 原稿（v8.0.0） | 本版（v9.0.0） |
+| --- | --- | --- |
+| `check_doc.py --inline`（20 個章節檔逐一執行） | 175 項發現（CFG 100、CLI 19、PARSE 20、ENV 2、SLASH 4、CLI-inline 12、PARSE-inline 10、SLASH-inline 8） | **0**（組裝後的完整文件；另有 INFO 36 項，皆為明確標示「舊名／已移除／改為」的歷史敘述） |
+| `check_synopsis.py`（附錄 B） | 17 | **0** |
+| `validate_k8s.py`（第十章） | 9 | **0**（yaml 5、Deployment 1、PVC 1、compose 1、bash 1） |
+| `test_facade.py`（第八章 FastAPI） | 原稿程式碼使用不存在的 CLI 旗標，無法運作 | **9/9 PASS** |
+| Java 語法（`HermesAgentClient.java`） | 有 `@Value` 建構子注入時序錯誤（語法正確但執行期為 `null`） | **0 diagnostics** |
+| Python 語法（`agent_service.py`） | — | `py_compile` 通過 |
+
+#### E.3.3 安裝過程中的實測發現
+
+| 發現 | 影響 | 處理 |
+| --- | --- | --- |
+| 本機 uv 0.8.17 讀不懂 v0.23.0 的 `uv.lock`（`invalid type: boolean false, expected a timestamp string`） | 舊版 uv 無法照官方 lock 安裝 | 改用 uv 0.13.7（官方安裝腳本本來就會下載校驗過的 uv pin） |
+| `uv pip install -r` 因 `pillow` 版本衝突失敗（`browser-harness` 要 12.3.0、主套件要 13.0.0） | 上游依賴 `uv.lock` 的 override 才能解析 | `uv export --frozen` 後以 `--no-deps` 安裝 |
+| `pip install .` 拋出 `RuntimeError: Building wheels or sdists for hermes-agent is not supported` | 官方刻意禁止 wheel／sdist | 改用 editable install（4.2.2） |
+| 從 tarball 安裝時 `hermes --version` 顯示 `vunknown (2026.9.24)` | 版本取自 git tag | 正式評估請用 git checkout 或官方安裝腳本 |
+| `hermes config check` 不會報告未知鍵 | 不能用它驗證設定檔內容 | 以 `hermes config set`（會提示 unknown key）或 `check_doc.py` 驗證 |
+| `hermes config set skills.config.<x>` 會成功寫入，但同時警告「not a recognized config key」 | 與官方文件「技能設定存於 `skills.config`」不一致 | 列入 E.4；checker 以 INFO 回報 |
+| `model_overrides` 底下的任意鍵都會通過驗證器 | 錯誤的欄位（例如價格）不會被提示 | 人工比對 `agent/models_dev.py` 讀取的欄位（D.1.3） |
+
+#### E.3.4 重新執行方式
+
+```bash
+# 1) 取得原始碼並建立隔離環境（不影響 ~/.hermes）
+gh api repos/NousResearch/hermes-agent/tarball/v0.23.0 > v0.23.0.tgz
+mkdir tree && tar -xzf v0.23.0.tgz -C tree --strip-components=1
+uv python install 3.14 && uv venv --python 3.14 .venv
+uv export --project tree --frozen --no-hashes --no-emit-project -o req.txt
+uv pip install --python .venv/bin/python --no-deps -r req.txt
+uv pip install --python .venv/bin/python --no-deps -e tree
+uv pip install --python .venv/bin/python pyyaml
+
+# 2) 匯出白名單後檢查文件（HERMES_HOME 指向暫存目錄）
+export HERMES_HOME="$PWD/home"
+.venv/bin/python -X utf8 dump_help.py cli.json
+.venv/bin/python -X utf8 dump_registry.py .
+.venv/bin/python -X utf8 check_doc.py "Hermes Agent生態系教學手冊.md" . --inline
+```
+
+### E.4 待確認事項
+
+| # | 事項 | 現況 | 建議 |
+| --- | --- | --- | --- |
+| 1 | CVE-2026-10224、CVE-2026-10221（影響 `<= 0.19.0`）沒有列出修補版本 | v0.23.0 不在宣告的影響範圍內，但無法從公告確認修補狀態 | 每月以 9.9.1 的查詢追蹤；必要時向上游詢問 |
+| 2 | 官方仍未在倉庫發布 Repository Security Advisory | `security-advisories` API 結果為空 | 弱點情資以 GitHub Advisory Database／NVD 為準 |
+| 3 | `skills.config.*` 被 `hermes config set` 判為未知鍵，與文件說明不一致 | 值仍會寫入；技能是否讀取未以實際對話驗證 | 導入時以實際技能驗證，或以 `hermes config migrate` 寫入 |
+| 4 | RetainDB／ByteRover：文件同時說「仍內建」與「2026-10-15 移出核心、上游無人維護」 | v0.23.0 原始碼中仍內建 | 選用時把「上游無人維護」列入風險 |
+| 5 | 開發者架構文件寫「Terminal 7 backends」，使用者設定文件寫「6 種」 | 本手冊採使用者設定文件與 `terminal.backend` 選項（6 種 + 外掛） | 以 `hermes config` 實際可用值為準 |
+| 6 | Nous Portal 定價與方案 | 未在本版重新查證 | 上線前至 portal.nousresearch.com/manage-subscription 覆核 |
+| 7 | Desktop、Webapp、Local Models、Connectors 的 GUI 行為 | 依官方文件與 release notes 撰寫，未在本機實際操作 | 導入評估時依各章清單實機驗證 |
+| 8 | 模型 ID（`claude-sonnet-5-5`、`gemini-4-argon` 等） | 已確認出現在 v0.23.0 原始碼，但可用性取決於 Provider 目錄 | 以 `/model` 選擇器列出的 ID 為準 |
 
 ---
 
@@ -7034,25 +8074,37 @@ Together AI、Groq、Cerebras、Mistral AI、LocalAI、Jan、Perplexity——均
 | 在工作機上安全運行 Hermes | [/docs/guides/secure-hermes-on-a-work-machine](https://hermes-agent.nousresearch.com/docs/guides/secure-hermes-on-a-work-machine) |
 | 疑難排解：「我的 Agent 變笨了」 | [/docs/guides/troubleshooting-agent-quality](https://hermes-agent.nousresearch.com/docs/guides/troubleshooting-agent-quality) |
 | 用戶故事與使用案例 | [/docs/user-stories](https://hermes-agent.nousresearch.com/docs/user-stories) |
+| **v0.23.0 Release Notes（The Hearth）** | [releases/tag/v0.23.0](https://github.com/NousResearch/hermes-agent/releases/tag/v0.23.0) |
+| **v0.22.0 Release Notes（The Threshold）** | [releases/tag/v0.22.0](https://github.com/NousResearch/hermes-agent/releases/tag/v0.22.0) |
+| **更新與通道（含回退限制）** | [/docs/getting-started/updating](https://hermes-agent.nousresearch.com/docs/getting-started/updating) |
+| **Webapp 與 Desktop（見 14.6 節）** | [/docs/user-guide/desktop](https://hermes-agent.nousresearch.com/docs/user-guide/desktop) |
+| **Local Models（見 1.4.44 節）** | [/docs/user-guide/local-models](https://hermes-agent.nousresearch.com/docs/user-guide/local-models) |
+| **Plugin Catalog 與信任模型（見 1.4.46、6.9 節）** | [/docs/user-guide/features/plugin-catalog](https://hermes-agent.nousresearch.com/docs/user-guide/features/plugin-catalog) |
+| **Nous Tool Gateway 與 Connectors（見 1.4.43 節）** | [/docs/user-guide/features/tool-gateway](https://hermes-agent.nousresearch.com/docs/user-guide/features/tool-gateway) |
+| **Multi-profile Gateways（見 2.3.2 節）** | [/docs/user-guide/multi-profile-gateways](https://hermes-agent.nousresearch.com/docs/user-guide/multi-profile-gateways) |
+| **Docker（見 4.4、10.1 節）** | [/docs/user-guide/docker](https://hermes-agent.nousresearch.com/docs/user-guide/docker) |
+| **API Server（見 8.2 節）** | [/docs/user-guide/features/api-server](https://hermes-agent.nousresearch.com/docs/user-guide/features/api-server) |
+| **委派策略（見 1.4.51 節）** | [/docs/user-guide/features/delegation](https://hermes-agent.nousresearch.com/docs/user-guide/features/delegation) |
+| **MCP 工具成本與花費上限（見 1.4.50 節）** | [/docs/user-guide/features/mcp](https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp) |
+| **從其他 Agent 匯入（見 11.3 節）** | [/docs/user-guide/import-from-other-agents](https://hermes-agent.nousresearch.com/docs/user-guide/import-from-other-agents) |
+| **GitHub Advisory Database：hermes-agent（見 9.9.1 節）** | [github.com/advisories?query=hermes-agent](https://github.com/advisories?query=hermes-agent) |
 | 社群生態系目錄（非官方，見 9.7.5 節使用提醒） | [github.com/0xNyk/awesome-hermes-agent](https://github.com/0xNyk/awesome-hermes-agent) |
 | 第三方企業威脅模型（**非官方觀點**，見 9.7.1 節） | [repello.ai/blog/hermes-agent-security](https://repello.ai/blog/hermes-agent-security) |
 
 ---
 
-> **文件版本**：v8.0.0  
-> **基於 Hermes Agent**：v0.21.0（Git tag `v2026.8.31`，The Pantheon Release；涵蓋 The Judgment／The Quicksilver／The Herald／The Pantheon 四大版本 + 中間全部穩定化補丁）  
-> **建立日期**：2026 年 4 月 9 日  
-> **最後更新**：2026 年 9 月 1 日  
-> **維護者**：技術架構團隊  
+> **文件版本**：v9.0.0
+> **基於 Hermes Agent**：v0.23.0（Git tag `v0.23.0`，The Hearth Release，2026-11-05；涵蓋 v0.21.1–v0.22.7 補丁與 v0.22.0 The Threshold）
+> **建立日期**：2026 年 4 月 9 日
+> **最後更新**：2026 年 11 月 8 日
+> **維護者**：技術架構團隊
 > **本次更新重點**：
 >
-> 1. **版本基準升至 v0.21.0**：補齊 v0.20.2 – v0.20.6 六個補丁版本與 v0.21.0「The Pantheon Release」的完整發展歷程，GitHub 統計數字依 REST API 一手覆核（Stars 239,282／Forks 48,843／Open Issues 38,350／Releases 31）
-> 2. **新增第十五章「Bot Mode 與多 Agent 群組協作」**：涵蓋 bot 即 profile 的定位、群組聊天機制、`hermes peer` 跨 Gateway 直訊，以及**五種多 Agent 機制的四維度選型對照表與決策樹**
-> 3. **新增 9.8 節「Egress 憑證注入代理（iron-proxy）」**：本次篇幅最大的新增，完整記錄架構、`proxy:` 設定鍵、雙層允許清單與 SSRF 防護、輪替流程，以及六項已知限制
-> 4. **新增 4.8 節「Managed Scope」**：組織層級設定釘選，並明確揭露其 v1 版本**不可作為權限控管邊界**
-> 5. **新增 3.5.4 Tool Search、3.11 Recurring Loops（含 `/loop` vs `/goal` vs Cron 對照）、6.2.1c Live Subagent Orchestration、6.3.4 Kanban Worker Lanes、6.6.5 Cron 記憶化、6.10 Batch Processing 與 Trajectory Format、9.1.5 受保護指令檔**
-> 6. **既有內容失準校正**：修正 9.7.3「缺乏原生 LSP／AST 整合」的過時判斷；`hermes audit` 更名為 `hermes security audit`；平台支援層級依官方 Tier 表補上安裝管道；定價章節補上 bonus credits 與 Tool Gateway 五項工具明細
-> 7. **企業風險章節強化**：9.7.1 新增 CVE-2026-7396 與第三方威脅模型的四大攻擊面對照；9.7.6 檢查清單新增 6 項 v0.21.0 相關項目
-> 8. **第十一章新增 11.1.14／11.1.15**：完整記錄 v0.20.x 補丁串（含 v0.20.3 的 MCP 2.x 破壞性遷移）與 v0.21.0 升級注意事項，含已回退功能清單
-> 9. **附錄全面重建**：附錄 B 依官方參考文件補齊 `hermes peer`／`egress`／`approval-check` 等 CLI 與 40+ 斜線指令；附錄 C 新增 `HERMES_MANAGED_DIR`／`API_SERVER_KEY`；附錄 D 新增 6 個 Provider、6 個模型與 `model_overrides` 機制
-> 10. **目錄與格式**：加入 `TOC-AUTO` 標記使目錄可機器驗證、統一目錄深度規則、修正 §4.6／§4.7 子節編號錯誤與尾隨空白等 Markdown 問題
+> 1. **版本基準升至 v0.23.0**：補齊 v0.21.1–v0.21.7、v0.22.0–v0.22.7 與 v0.23.0 的發展歷程；GitHub 統計依 REST API 覆核（Stars 261,617／Forks 58,096／Releases 47）
+> 2. **以實際安裝的 v0.23.0 驗證全文**：指令以真實 argparse 樹（507 條路徑）逐行解析、設定鍵以官方驗證器逐鍵檢查、環境變數以官方參考比對；原稿自動檢查共 **201 項發現**（`check_doc.py` 175、`check_synopsis.py` 17、`validate_k8s.py` 9），連同人工審查發現的問題已全部更正，修正後三項檢查皆為 0（詳見附錄 E.2、E.3）
+> 3. **架構重寫**：第二章依「單一 Gateway 擁有所有 Session」重繪架構與高可用設計；第十章 K8s 改為 `replicas: 1` + `Recreate` + RWO PVC，備份改用 `hermes backup` 並加密
+> 4. **新增內容**：1.4.42–1.4.52（穩定通道、Connectors、Local Models、Plugin Catalog、Webapp、`/rewind`、Group Chats、付費工具上限、可插拔委派、`curator lock`）、9.9（公開弱點、tirith 替代方案、外掛信任邊界、Webapp、Session 保存）、11.1.16（15 項破壞性變更對照）、14.6–14.7（Webapp、多 Gateway）、15.3.1（Group Chats 自主運作）、FAQ Q29–Q37、附錄 A.7
+> 5. **Web 整合重寫**：第八章改為呼叫 Gateway 的 OpenAI 相容 API Server；FastAPI Facade 以模擬伺服器實測 9/9 通過，Java 以 `JavacTask.parse()` 通過語法驗證
+> 6. **每章新增「本章審查與驗證清單」**：每一項都附可執行的驗證指令與預期結果
+> 7. **新增附錄 E「驗證紀錄」**：版本基準、更正清單、實測方法與結果、待確認事項，以及可重複執行的檢查工具
+> 8. **目錄與格式**：目錄依 Hugo 實際產生的錨點重建，並以 Hugo 輸出頁面逐一比對所有內部連結
