@@ -8,10 +8,10 @@ categories = ['教學']
 
 # Claude Code SSDLC（AI 軟體開發生命週期）教學手冊
 
-> **版本**：v4.0 ｜ **日期**：2026-10-10 ｜ **查證基準**：Claude Code v2.1.296（2026-10-09 官方 changelog）、本機實測 v2.1.294
+> **版本**：v5.0 ｜ **日期**：2026-11-16 ｜ **查證基準**：Claude Code v2.1.325（2026-11-13 官方 changelog）、本機實測 v2.1.325
 > **適用對象**：資深工程師／架構師／技術主管／DevOps／資安工程師／AI 導入負責人
 > **定位**：企業標準技術白皮書。以 SSDLC（Secure Software Development Life Cycle）各階段為主軸，說明如何把 Claude Code 落地到需求、設計、開發、審查、測試、CI/CD、部署與維運，並在每一個階段設下「安全閘門」與「人工審查點」。
-> **變更紀錄**：v2.0 — 全面更新至當時版本；v2.1 — 修正巢狀程式碼區塊與 frontmatter；v3.0 — 依官方文件校訂 Agentic Loop、Headless、Remote Control、排程、Output Styles、GitLab CI/CD；**v4.0 — 全面重寫**：重新規劃為 4 部 24 章＋附錄 A–F；依 v2.1.296 官方文件更正 32 項過時或錯誤內容（見[附錄 E](#附錄-ev40-修正紀錄)）；每章新增「本章審查與驗證清單」；所有可離線執行的設定檔、hook 腳本、CI workflow 均實際執行驗證（見[附錄 F](#附錄-f驗證紀錄與待驗證項目)）。
+> **變更紀錄**：v2.0 — 全面更新至當時版本；v2.1 — 修正巢狀程式碼區塊與 frontmatter；v3.0 — 依官方文件校訂 Agentic Loop、Headless、Remote Control、排程、Output Styles、GitLab CI/CD；**v4.0 — 全面重寫**：重新規劃為 4 部 24 章＋附錄 A–F；依 v2.1.296 官方文件更正 32 項過時或錯誤內容（見[附錄 E](#附錄-ev40-修正紀錄)）；每章新增「本章審查與驗證清單」；所有可離線執行的設定檔、hook 腳本、CI workflow 均實際執行驗證（見[附錄 F](#附錄-f驗證紀錄與待驗證項目)）；**v5.0 — 同步 v2.1.297～325**：`-p` 一律從 Manual 開始、沙箱不再預設自動核准、排程執行 skill 先詢問等「預設值反轉」，新增 `denyInsteadOfPrompting`、`blockWritesOutsideWorkingDirectories`、Fable 5.2、Code Mode、MCP tasks、`engines`、Code Review 審查等級；以真實 `claude -p` session 驗證 hook 與 `onFailure`，並修正 Windows 上 hook 輸出亂碼的問題；更正 10 項（見[附錄 G](#附錄-gv50-修正紀錄與驗證)）。
 
 ---
 
@@ -36,12 +36,14 @@ categories = ['教學']
     - [1.5 模型、Effort 與方案【官方】](#15-模型effort-與方案官方)
       - [1.5.1 模型別名](#151-模型別名)
       - [1.5.2 Effort（推理力度）](#152-effort推理力度)
+      - [1.5.3 v5.0 新增：Fable 5.2、Code Mode 與 Advisor 的 SSDLC 定位](#153-v50-新增fable-52code-mode-與-advisor-的-ssdlc-定位)
     - [1.6 Claude Code 在 SSDLC 的角色定位【建議】](#16-claude-code-在-ssdlc-的角色定位建議)
     - [1.7 本章審查與驗證清單](#17-本章審查與驗證清單)
   - [第 2 章：AI 時代的 SSDLC 框架](#第-2-章ai-時代的-ssdlc-框架)
     - [2.1 SSDLC 在 AI 時代多了什麼](#21-ssdlc-在-ai-時代多了什麼)
     - [2.2 對照框架一：NIST SSDF【建議】](#22-對照框架一nist-ssdf建議)
       - [範例：用 SSDF 任務編號當作 PR 的證據標籤](#範例用-ssdf-任務編號當作-pr-的證據標籤)
+      - [SSDF 1.2 的狀態（2026-11 查證）](#ssdf-12-的狀態2026-11-查證)
     - [2.3 對照框架二：OWASP LLM 與 Agentic Top 10【建議】](#23-對照框架二owasp-llm-與-agentic-top-10建議)
     - [2.4 對照框架三：供應鏈與 SLSA【建議】](#24-對照框架三供應鏈與-slsa建議)
     - [2.5 閘門模型：G1–G4 與 AI 證據【建議】](#25-閘門模型g1g4-與-ai-證據建議)
@@ -53,8 +55,10 @@ categories = ['教學']
     - [3.1 安裝方式比較【官方】](#31-安裝方式比較官方)
       - [3.1.1 安裝後驗證 🧪](#311-安裝後驗證-)
       - [3.1.2 版本控管【官方／建議】](#312-版本控管官方建議)
+      - [3.1.3 v5.0 新增：版本基準 2.1.325 與升級前檢核](#313-v50-新增版本基準-21325-與升級前檢核)
     - [3.2 認證方式【官方】](#32-認證方式官方)
     - [3.3 企業網路環境【官方】](#33-企業網路環境官方)
+      - [3.3.1 v5.0 新增：Proxy 與登入憑證的兩個新規則](#331-v50-新增proxy-與登入憑證的兩個新規則)
     - [3.4 資料流與保留：導入前必須回答的五個問題【官方／建議】](#34-資料流與保留導入前必須回答的五個問題官方建議)
     - [3.5 Workspace 初始化【官方／建議】](#35-workspace-初始化官方建議)
     - [3.6 疑難排解【官方】](#36-疑難排解官方)
@@ -76,16 +80,19 @@ categories = ['教學']
     - [5.1 縱深防禦模型【建議】](#51-縱深防禦模型建議)
     - [5.2 六種權限模式【官方】](#52-六種權限模式官方)
       - [5.2.1 起始模式：v2.1.283 起的重大改變【官方】](#521-起始模式v21283-起的重大改變官方)
+      - [5.2.2 v5.0 更正：`-p` 與 Agent SDK 一律從 Manual 開始](#522-v50-更正-p-與-agent-sdk-一律從-manual-開始)
     - [5.3 auto mode 的分類器【官方】](#53-auto-mode-的分類器官方)
     - [5.4 權限規則語法【官方】](#54-權限規則語法官方)
       - [5.4.1 Bash 規則的三個限制（必讀）【官方】](#541-bash-規則的三個限制必讀官方)
     - [5.5 任何模式都不會自動核准的動作【官方】](#55-任何模式都不會自動核准的動作官方)
     - [5.6 沙箱：把 Bash 關進作業系統層的籠子【官方】](#56-沙箱把-bash-關進作業系統層的籠子官方)
       - [5.6.1 範例：開發機沙箱設定（user 或 managed 層）🧪](#561-範例開發機沙箱設定user-或-managed-層)
+      - [5.6.2 v5.0 更正：開啟沙箱不再自動核准 Bash](#562-v50-更正開啟沙箱不再自動核准-bash)
     - [5.7 Checkpoint 與 `/rewind`：能復原什麼、不能復原什麼【官方】](#57-checkpoint-與-rewind能復原什麼不能復原什麼官方)
     - [5.8 Prompt Injection：把外部內容當成不可信輸入【建議】](#58-prompt-injection把外部內容當成不可信輸入建議)
       - [5.8.1 範例：在 CI 檢查隱藏 Unicode 🧪](#581-範例在-ci-檢查隱藏-unicode-)
     - [5.9 依環境的權限配置 SOP【建議】](#59-依環境的權限配置-sop建議)
+      - [5.9.1 v5.0 新增：無人值守環境的三道設定](#591-v50-新增無人值守環境的三道設定)
     - [5.10 本章審查與驗證清單](#510-本章審查與驗證清單)
 - [第二部：擴充機制（SSDLC 視角）](#第二部擴充機制ssdlc-視角)
   - [第 6 章：Skills 與 Slash Commands](#第-6-章skills-與-slash-commands)
@@ -95,6 +102,7 @@ categories = ['教學']
     - [6.4 範本二：安全審查 Skill（fork 到唯讀 subagent）🧪](#64-範本二安全審查-skillfork-到唯讀-subagent)
     - [6.5 範本三：有副作用的 Skill（發佈說明草稿）【建議】](#65-範本三有副作用的-skill發佈說明草稿建議)
     - [6.6 內建 Skills 與 SSDLC 用途【官方】](#66-內建-skills-與-ssdlc-用途官方)
+      - [6.6.1 v5.0 新增：讓 `verify` skill 在每次 commit 前執行（G3 證據）](#661-v50-新增讓-verify-skill-在每次-commit-前執行g3-證據)
     - [6.7 Skill 的測試與維護【建議】](#67-skill-的測試與維護建議)
     - [6.8 Output Styles：改變「怎麼回答」【官方】](#68-output-styles改變怎麼回答官方)
     - [6.9 本章審查與驗證清單](#69-本章審查與驗證清單)
@@ -104,6 +112,7 @@ categories = ['教學']
     - [7.3 SSDLC 角色庫範本【建議】](#73-ssdlc-角色庫範本建議)
       - [7.3.1 範本：code-reviewer 🧪](#731-範本code-reviewer-)
     - [7.4 委派方式與模型解析【官方】](#74-委派方式與模型解析官方)
+      - [7.4.1 v5.0 新增：fork 預設、effort 繼承與 subagent 輸出掃描](#741-v50-新增fork-預設effort-繼承與-subagent-輸出掃描)
     - [7.5 平行化的五種方式比較【官方】](#75-平行化的五種方式比較官方)
     - [7.6 Agent Teams【官方】](#76-agent-teams官方)
       - [7.6.1 範例：以 hook 強制「任務完成必須附測試證據」🧪](#761-範例以-hook-強制任務完成必須附測試證據)
@@ -114,12 +123,15 @@ categories = ['教學']
     - [8.2 事件總覽（SSDLC 常用）【官方】](#82-事件總覽ssdlc-常用官方)
     - [8.3 設定結構與退出碼語意【官方】](#83-設定結構與退出碼語意官方)
     - [8.4 Fail-closed 設計：安全 hook 壞掉時不能放行【官方／建議】](#84-fail-closed-設計安全-hook-壞掉時不能放行官方建議)
+      - [8.4.1 v5.0 實測：`onFailure: "block"` 在真實 session 中的行為](#841-v50-實測onfailure-block-在真實-session-中的行為)
     - [8.5 範本一：Bash 守門員 `guard_bash.py` 🧪](#85-範本一bash-守門員-guard_bashpy-)
     - [8.6 範本二：機密寫入守門員 `guard_secrets.py` 🧪](#86-範本二機密寫入守門員-guard_secretspy-)
     - [8.7 範本三：稽核紀錄 `audit_log.py` 與範本四：測試證據閘門 `require_test_evidence.py` 🧪](#87-範本三稽核紀錄-audit_logpy-與範本四測試證據閘門-require_test_evidencepy-)
     - [8.8 測試你的 hook：假 stdin 測試法 🧪](#88-測試你的-hook假-stdin-測試法-)
       - [8.8.1 在真實 session 中驗證](#881-在真實-session-中驗證)
+      - [8.8.2 v5.0 更正：Windows 上 hook 的輸出必須是 UTF-8](#882-v50-更正windows-上-hook-的輸出必須是-utf-8)
     - [8.9 Hook 治理【官方】](#89-hook-治理官方)
+      - [8.9.1 v5.0 新增：v2.1.299～325 的 hook 行為變更](#891-v50-新增v21299325-的-hook-行為變更)
     - [8.10 本章審查與驗證清單](#810-本章審查與驗證清單)
   - [第 9 章：MCP 與企業系統整合](#第-9-章mcp-與企業系統整合)
     - [9.1 MCP 在 SSDLC 的定位【官方】](#91-mcp-在-ssdlc-的定位官方)
@@ -127,8 +139,10 @@ categories = ['教學']
     - [9.3 新增與管理 MCP server 🧪【官方】](#93-新增與管理-mcp-server-官方)
     - [9.4 `.mcp.json`：團隊共用設定 🧪【官方】](#94-mcpjson團隊共用設定-官方)
     - [9.5 企業 MCP 治理【官方】](#95-企業-mcp-治理官方)
+      - [9.5.1 v5.0 新增：權限規則精確比對與 MCP 允許清單 hook](#951-v50-新增權限規則精確比對與-mcp-允許清單-hook)
     - [9.6 MCP 風險與對策【建議】](#96-mcp-風險與對策建議)
       - [9.6.1 範例：唯讀資料庫 MCP 的帳號設計 🧪](#961-範例唯讀資料庫-mcp-的帳號設計-)
+      - [9.6.2 v5.0 新增：MCP Tasks 與「可重送」標註的風險](#962-v50-新增mcp-tasks-與可重送標註的風險)
     - [9.7 本章審查與驗證清單](#97-本章審查與驗證清單)
   - [第 10 章：Plugins 與 Marketplace 治理](#第-10-章plugins-與-marketplace-治理)
     - [10.1 為什麼用 Plugin 散布 SSDLC 標準【官方／建議】](#101-為什麼用-plugin-散布-ssdlc-標準官方建議)
@@ -136,13 +150,16 @@ categories = ['教學']
     - [10.3 驗證與測試 🧪【官方】](#103-驗證與測試-官方)
     - [10.4 建立內部 Marketplace 🧪【官方】](#104-建立內部-marketplace-官方)
     - [10.5 Marketplace 治理【官方】](#105-marketplace-治理官方)
+      - [10.5.1 v5.0 新增：版本範圍、組織 mod 順序與 marketplace 接管](#1051-v50-新增版本範圍組織-mod-順序與-marketplace-接管)
     - [10.6 評估社群 Plugin：以 everything-claude-code 為例【建議】](#106-評估社群-plugin以-everything-claude-code-為例建議)
+      - [10.6.1 v5.0 新增：ECC 的版本現況與採用策略（2026-11 查證）](#1061-v50-新增ecc-的版本現況與採用策略2026-11-查證)
     - [10.7 本章審查與驗證清單](#107-本章審查與驗證清單)
   - [第 11 章：Memory 與 Context 工程](#第-11-章memory-與-context-工程)
     - [11.1 Context 是最稀缺的資源【官方】](#111-context-是最稀缺的資源官方)
     - [11.2 兩套記憶系統【官方】](#112-兩套記憶系統官方)
     - [11.3 記憶污染（ASI06）與治理【建議】](#113-記憶污染asi06與治理建議)
     - [11.4 Context 管理的七個實務【官方／建議】](#114-context-管理的七個實務官方建議)
+      - [11.4.1 v5.0 新增：Idle compaction 與未知模型的 context 假設](#1141-v50-新增idle-compaction-與未知模型的-context-假設)
     - [11.5 範例：長任務的外部化狀態檔【建議】](#115-範例長任務的外部化狀態檔建議)
     - [11.6 Prompt Cache 與成本的關係【官方】](#116-prompt-cache-與成本的關係官方)
     - [11.7 本章審查與驗證清單](#117-本章審查與驗證清單)
@@ -180,6 +197,7 @@ categories = ['教學']
     - [15.3 四層審查管線【建議】](#153-四層審查管線建議)
       - [15.3.1 L1：作者端指令【官方】](#1531-l1作者端指令官方)
     - [15.4 風險分級審查【建議】](#154-風險分級審查建議)
+      - [15.4.1 v5.0 新增：Code Review 審查等級與風險分級的對應](#1541-v50-新增code-review-審查等級與風險分級的對應)
     - [15.5 用 REVIEW.md 校準 AI 審查【官方】](#155-用-reviewmd-校準-ai-審查官方)
     - [15.6 人工審查 AI 產出的檢查清單【建議】](#156-人工審查-ai-產出的檢查清單建議)
     - [15.7 處理 AI 審查的誤報【建議】](#157-處理-ai-審查的誤報建議)
@@ -197,14 +215,17 @@ categories = ['教學']
     - [17.2 三種整合模式【官方】](#172-三種整合模式官方)
     - [17.3 Headless 模式的安全旗標組合 🧪【官方】](#173-headless-模式的安全旗標組合-官方)
       - [17.3.1 結構化輸出：讓 CI 能判讀 Claude 的結果 🧪](#1731-結構化輸出讓-ci-能判讀-claude-的結果-)
+      - [17.3.2 v5.0 新增：以 `permission_denials` 作為 CI 的結果閘門 🧪](#1732-v50-新增以-permission_denials-作為-ci-的結果閘門-)
     - [17.4 GitHub Actions：三個標準 workflow 🧪【官方】](#174-github-actions三個標準-workflow-官方)
       - [17.4.1 互動模式：回應 `@claude`](#1741-互動模式回應-claude)
       - [17.4.2 自動化模式：每個 PR 執行審查 skill](#1742-自動化模式每個-pr-執行審查-skill)
       - [17.4.3 排程模式：每週相依弱點分流](#1743-排程模式每週相依弱點分流)
       - [17.4.4 認證方式的選擇](#1744-認證方式的選擇)
+      - [17.4.5 v5.0 新增：觸發者檢查、`allowed_bots` 與排程的權限](#1745-v50-新增觸發者檢查allowed_bots-與排程的權限)
     - [17.5 GitLab CI/CD（Beta）🧪【官方】](#175-gitlab-cicdbeta官方)
     - [17.6 CI 中的 Claude：五條紅線【建議】](#176-ci-中的-claude五條紅線建議)
     - [17.7 排程與無人值守自動化的治理【官方／建議】](#177-排程與無人值守自動化的治理官方建議)
+      - [17.7.1 v5.0 新增：排程執行 skill 與 `/loop` 的變更](#1771-v50-新增排程執行-skill-與-loop-的變更)
     - [17.8 供應鏈：Claude 的變更與一般變更走同一條建置鏈【建議】](#178-供應鏈claude-的變更與一般變更走同一條建置鏈建議)
     - [17.9 本章審查與驗證清單](#179-本章審查與驗證清單)
   - [第 18 章：部署與發佈管理](#第-18-章部署與發佈管理)
@@ -228,7 +249,9 @@ categories = ['教學']
   - [第 20 章：企業治理、稽核與合規](#第-20-章企業治理稽核與合規)
     - [20.1 治理架構：政策從哪裡來【官方】](#201-治理架構政策從哪裡來官方)
     - [20.2 Managed settings 安全基線範本 🧪【建議】](#202-managed-settings-安全基線範本-建議)
+      - [20.2.1 v5.0 新增：基線增補與一項更正](#2021-v50-新增基線增補與一項更正)
     - [20.3 監控：OpenTelemetry【官方】](#203-監控opentelemetry官方)
+      - [20.3.1 v5.0 新增：OTel 新屬性與 `safety_event` 的停用](#2031-v50-新增otel-新屬性與-safety_event-的停用)
     - [20.4 稽核軌跡設計【建議】](#204-稽核軌跡設計建議)
     - [20.5 資料治理與 Surface 對照【官方／建議】](#205-資料治理與-surface-對照官方建議)
     - [20.6 Agent 設定本身是攻擊面【社群／建議】](#206-agent-設定本身是攻擊面社群建議)
@@ -239,6 +262,7 @@ categories = ['教學']
     - [21.2 十個降低成本且不犧牲品質的做法【官方／建議】](#212-十個降低成本且不犧牲品質的做法官方建議)
     - [21.3 組織層級的成本治理【官方／建議】](#213-組織層級的成本治理官方建議)
       - [21.3.1 成本儀表板的建議指標](#2131-成本儀表板的建議指標)
+      - [21.3.2 v5.0 新增：2026 年 11 月的成本變化](#2132-v50-新增2026-年-11-月的成本變化)
     - [21.4 效能：讓 Claude 更快完成工作【官方／建議】](#214-效能讓-claude-更快完成工作官方建議)
     - [21.5 本章審查與驗證清單](#215-本章審查與驗證清單)
   - [第 22 章：團隊導入路線圖、成熟度模型與 KPI](#第-22-章團隊導入路線圖成熟度模型與-kpi)
@@ -249,6 +273,7 @@ categories = ['教學']
     - [22.5 SSDLC × AI 成熟度模型【建議】](#225-ssdlc--ai-成熟度模型建議)
       - [22.5.1 成熟度自評（節錄）](#2251-成熟度自評節錄)
     - [22.6 版本更新的治理流程【建議】](#226-版本更新的治理流程建議)
+      - [22.6.1 v5.0 新增：「預設值反轉」檢核表](#2261-v50-新增預設值反轉檢核表)
     - [22.7 本章審查與驗證清單](#227-本章審查與驗證清單)
   - [第 23 章：實務案例](#第-23-章實務案例)
     - [23.1 案例一：Web 系統新功能（Spring Boot＋Vue）——訂單取消](#231-案例一web-系統新功能spring-bootvue訂單取消)
@@ -280,12 +305,16 @@ categories = ['教學']
   - [Q12：Claude Code 更新這麼頻繁，規範要怎麼跟上？](#q12claude-code-更新這麼頻繁規範要怎麼跟上)
   - [Q13：可以直接安裝 everything-claude-code 這類大型社群 plugin 嗎？](#q13可以直接安裝-everything-claude-code-這類大型社群-plugin-嗎)
   - [Q14：要選 `/loop`、Desktop 排程還是雲端 Routines？](#q14要選-loopdesktop-排程還是雲端-routines)
+  - [Q15：升級到 v2.1.325 後，為什麼沙箱裡每個指令都要我核准？](#q15升級到-v21325-後為什麼沙箱裡每個指令都要我核准)
+  - [Q16：CI 中的 Claude 顯示成功，但什麼都沒改？](#q16ci-中的-claude-顯示成功但什麼都沒改)
+  - [Q17：everything-claude-code 該裝 release 還是追 main？](#q17everything-claude-code-該裝-release-還是追-main)
+  - [Q18：Windows 上的 hook 拒絕訊息是亂碼怎麼辦？](#q18windows-上的-hook-拒絕訊息是亂碼怎麼辦)
 - [附錄 A：快速檢查清單](#附錄-a快速檢查清單)
   - [A.1 環境與政策](#a1-環境與政策)
   - [A.2 專案初始化](#a2-專案初始化)
   - [A.3 各閘門的 AI 證據](#a3-各閘門的-ai-證據)
   - [A.4 CI 中的 Claude](#a4-ci-中的-claude)
-- [附錄 B：指令與旗標速查（查證：v2.1.294 本機 `claude --help`、官方 CLI reference）](#附錄-b指令與旗標速查查證v21294-本機-claude---help官方-cli-reference)
+- [附錄 B：指令與旗標速查（查證：v2.1.325 本機 `claude --help`、官方 CLI reference）](#附錄-b指令與旗標速查查證v21325-本機-claude---help官方-cli-reference)
   - [B.1 互動模式常用指令](#b1-互動模式常用指令)
   - [B.2 快捷鍵](#b2-快捷鍵)
   - [B.3 CLI 旗標（SSDLC 常用）](#b3-cli-旗標ssdlc-常用)
@@ -304,6 +333,12 @@ categories = ['教學']
   - [F.1 已執行的驗證（2026-10-10，Windows 11）](#f1-已執行的驗證2026-10-10windows-11)
   - [F.2 待驗證項目（需帳號、雲端或特定平台）](#f2-待驗證項目需帳號雲端或特定平台)
   - [F.3 目錄與格式驗證](#f3-目錄與格式驗證)
+- [附錄 G：v5.0 修正紀錄與驗證](#附錄-gv50-修正紀錄與驗證)
+  - [G.1 v4.0 → v5.0 更正](#g1-v40--v50-更正)
+  - [G.2 v5.0 實測紀錄（2026-11-16，Windows 11、Claude Code v2.1.325）](#g2-v50-實測紀錄2026-11-16windows-11claude-code-v21325)
+  - [G.3 v4.0 附錄 F.2 的處理結果](#g3-v40-附錄-f2-的處理結果)
+  - [G.4 v5.0 新增的待驗證項目](#g4-v50-新增的待驗證項目)
+  - [G.5 格式與連結驗證](#g5-格式與連結驗證)
 
 <!-- TOC-AUTO-END -->
 
@@ -352,15 +387,16 @@ categories = ['教學']
 
 | 標示 | 意義 |
 | --- | --- |
-| 【官方】 | 內容來自 code.claude.com 官方文件或官方 changelog，查證日 2026-10-10 |
+| 【官方】 | 內容來自 code.claude.com 官方文件或官方 changelog，查證日 2026-10-10（v5.0 增補部分為 2026-11-16） |
 | 【建議】 | 本手冊依企業實務提出的作法，非官方規定 |
 | 【社群】 | 來自社群專案（如 everything-claude-code），採用前請自行評估 |
 | ✅／❌ | 正確／錯誤做法對照 |
 | 🚨 | 會造成安全事故或治理失效的重點 |
 | ⚠️ | 常見誤解、版本差異 |
-| 🧪 | 本手冊已實際執行驗證的範例（結果見附錄 F） |
+| 🧪 | 本手冊已實際執行驗證的範例（結果見附錄 F、附錄 G） |
+| 🆕 **v5.0 新增**／⚠️ **v5.0 更正** | v5.0（2026-11-16）新增或更正的內容 |
 
-> ⚠️ **版本提醒**：Claude Code 的原生安裝會在背景自動更新，2026 年 9–10 月平均每 1–2 天就有一個新版本。本手冊所有「預設值」「旗標」「事件」以 v2.1.296 為準，導入前請先執行 `claude --version` 與 `/status` 確認你環境中的實際行為，並對照官方 changelog：<https://code.claude.com/docs/en/changelog>。
+> ⚠️ **版本提醒**：Claude Code 的原生安裝會在背景自動更新，2026 年 9–10 月平均每 1–2 天就有一個新版本。本手冊所有「預設值」「旗標」「事件」以 v2.1.296 為準（v5.0 增補與更正處以 v2.1.325 為準），導入前請先執行 `claude --version` 與 `/status` 確認你環境中的實際行為，並對照官方 changelog：<https://code.claude.com/docs/en/changelog>。
 
 ### 0.5 本手冊的參考來源
 
@@ -498,12 +534,13 @@ Claude Code 的行動能力來自「工具（tools）」。了解工具類別，
 
 在 `--model`、`/model` 或 settings 的 `model` 中，建議使用**別名**而非完整模型 ID，讓團隊自動跟上最新版本；需要可重現性（CI、稽核）時再釘選完整 ID。
 
-| 別名 | 查證日對應模型（v2.1.296） | 適用 |
+| 別名 | 查證日對應模型（v5.0 更新為 v2.1.325） | 適用 |
 | --- | --- | --- |
 | `opus` | Claude Opus 5.5（`claude-opus-5-5`） | 架構設計、複雜除錯、安全審查 |
 | `sonnet` | Claude Sonnet 5.5（`claude-sonnet-5-5`） | 日常開發主力 |
 | `haiku` | Claude Haiku 5.5（`claude-haiku-5-5`） | 低成本 subagent、大量檔案的機械式工作 |
-| `fable` | Claude Fable 5.1（`claude-fable-5-1`） | 需 1M context 的長文件分析 |
+| `fable` | ⚠️ **v5.0 更正**：Claude Fable 5.2（`claude-fable-5-2`，v2.1.321 起；先前為 5.1） | 跨多個工作時段的大型任務、需 1M context 的長文件分析 |
+| `best` | 🆕 v2.1.321 起與 `opus` 相同（先前在 Fable 可用時等於 `fable`） | 不建議在腳本中使用 |
 
 > ⚠️ 別名對應的模型會隨版本改變，而方案（Pro／Max／Team／Enterprise）與 Provider（Anthropic API、Bedrock、Vertex、Foundry）可用的模型也不同。**以 `/model` 選單與 `/status` 為準**；企業可用 managed settings 的 `availableModels`、`deniedModels` 鎖定可用模型（見第 20 章）。
 
@@ -516,6 +553,20 @@ Claude Code 的行動能力來自「工具（tools）」。了解工具類別，
 | 格式修正、改名、依範本產生樣板 | `low`／`medium` |
 | 一般功能實作、測試撰寫 | `medium`／`high` |
 | 架構設計、威脅建模、安全審查、困難除錯 | `high`／`xhigh` |
+
+#### 1.5.3 v5.0 新增：Fable 5.2、Code Mode 與 Advisor 的 SSDLC 定位
+
+🆕 **v5.0 新增**（依官方 `model-config`、`code-mode`、`advisor` 頁與 changelog v2.1.297～325）
+
+| 項目 | 官方事實 | SSDLC 建議【建議】 |
+| --- | --- | --- |
+| `fable` 別名 | v2.1.321 起解析為 **Fable 5.2**（1M context，預設 effort `medium`）；Claude apps gateway 上仍為 Fable 5 | 用於跨多個工作時段的大型任務（例如 legacy 逆向工程，第 23.3 節）；**一律記錄於 PR 揭露範本**（第 2.7 節） |
+| `best` 別名 | v2.1.321 起與 `opus` 相同，不再解析為 Fable | 腳本不要依賴 `best` 取得特定模型；CI 釘選完整模型 ID |
+| 未知模型 ID | v2.1.323 起假設 1M context（原為 200K） | 走 LLM gateway 的自訂名稱若實際只有 200K，設 `CLAUDE_CODE_MAX_CONTEXT_TOKENS` |
+| **Code Mode**（實驗性） | Claude 以 JavaScript 一次完成多個工具呼叫；只支援終端機互動 session、訂閱或 Console 帳號；**不支援** gateway、Bedrock、Vertex、Foundry、HIPAA、ZDR；以 `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE=1` 個人開啟，managed `env` 設 `"0"` 封鎖 | 在 auto mode 下分類器審查的是**整段程式碼**而非每個工具呼叫，看不到執行期計算出的路徑；受管制專案在試點完成前建議**封鎖**（範例見第 20.2.1 節） |
+| **Advisor**（實驗性） | 主模型在關鍵時刻諮詢更強的模型（`/advisor opus`、`advisorModel`）；advisor 會收到**完整對話**；不支援 Bedrock、Agent Platform、Foundry | 資料分級為機密的專案要確認 advisor 模型也在核准清單（`availableModels`） |
+
+> 🔍 **人工審查要點**：AI 產出的「模型選擇說明」若寫「`best` 會自動挑最強的 Fable」或「Code Mode 可在 CI 使用」，即為過時或錯誤資訊。驗證方式：在 session 執行 `/model best` 後 `/status`；Code Mode 以 `claude -p` 啟動時不會出現 `Code Mode (experimental) is on` 字樣。
 
 ### 1.6 Claude Code 在 SSDLC 的角色定位【建議】
 
@@ -542,6 +593,8 @@ Claude Code 的行動能力來自「工具（tools）」。了解工具類別，
 | 給 Claude 的任務描述 | 沒有驗收條件，只說「實作 X」 | 附可執行的測試或預期輸出 | 檢查 prompt 是否包含「完成後執行 ___ 並貼出結果」 |
 | Surface 選型建議 | 未區分本機與雲端執行 | 依資料分級決定可用 surface | 對照 1.4 節表格；機密專案不得出現 Web／Routines |
 | 模型設定 | CI 中使用別名，導致結果不可重現 | 互動用別名，CI／稽核用完整 ID | 檢查 CI workflow 的 `--model` 參數 |
+| 模型別名說明（v5.0） | 「`best` 會選 Fable」「`fable` 是 5.1」 | v2.1.321 起 `fable` 為 Fable 5.2、`best` 等同 `opus` | `/model best` 後執行 `/status` |
+| Code Mode 用途說明（v5.0） | 「CI 可開 Code Mode 加速」 | 只支援終端機互動 session；`-p`、SDK、gateway、Bedrock 都不支援 | `claude -p` 啟動時不會出現 Code Mode 字樣 |
 
 ---
 
@@ -584,6 +637,10 @@ NIST SP 800-218《Secure Software Development Framework》是最常被引用的 
 ```
 
 > ✅ **人工審查要點**：證據欄的每一項都必須是**可點開的連結**（CI run、PR comment、報告檔案），不能只是文字聲明。
+
+#### SSDF 1.2 的狀態（2026-11 查證）
+
+🆕 **v5.0 新增**（解決 v4.0 附錄 F.2 #11）。NIST SP 800-218 Rev. 1（SSDF 1.2）初稿於 2025-12-17 發布、公開意見於 2026-01-30 截止；查證日 NIST CSRC 仍列 **SSDF 1.1 為最終版**、1.2 為初稿，2026-05 的 NIST 簡報亦仍稱其為草案。1.2 初稿新增 PO.6（持續改進）與 PW.10（穩健可靠的更新）並更新參考對照。**建議**：證據標籤沿用 1.1 任務編號，另預留 `PO.6`、`PW.10` 兩個標籤供定稿後啟用；每季檢查 CSRC 狀態。
 
 ### 2.3 對照框架二：OWASP LLM 與 Agentic Top 10【建議】
 
@@ -745,6 +802,28 @@ claude update              # 手動檢查並更新
 ```
 
 > 🎯 **為什麼建議 2.1.295 以上**【建議】：v2.1.269–2.1.295 之間修正了多項權限繞過（`tee` 寫入、symlink 寫入、`rm -rf "$(pwd)"`、專案設定放寬 managed 沙箱）並新增 hook 的 `onFailure: "block"`（第 8 章）。採用 HIPAA 配置或 `allowedProviders` 者，官方最低為 2.1.285。
+>
+> 🆕 **v5.0**：建議下限提高到 **2.1.325**，但先試點，見第 3.1.3 節。
+
+#### 3.1.3 v5.0 新增：版本基準 2.1.325 與升級前檢核
+
+🆕 **v5.0 新增**。v2.1.297～325 有三個**預設值反轉**，會直接影響既有自動化：
+
+| 版本 | 變更 | 未調整時的症狀 | 對應章節 |
+| --- | --- | --- | --- |
+| 2.1.302 | `claude -p` 與 Agent SDK **一律從 Manual 開始** | CI 顯示成功但什麼都沒改（呼叫被拒仍 exit 0） | 5.2.2、17.3.2 |
+| 2.1.325 | 開啟沙箱**不再自動核准** Bash | 升級後每個指令都跳出詢問 | 5.6.2 |
+| 2.1.325 | 排程與 `/loop` 執行宣告 `allowed-tools` 或 hooks 的 skill 前**先詢問** | 夜間排程卡在詢問 | 17.7.1 |
+
+建議把 managed 的版本下限提高到 2.1.325，但**先在試點群組跑一週**：
+
+```json
+{
+  "requiredMinimumVersion": "2.1.325"
+}
+```
+
+> 🎯 **為什麼是 2.1.325**【建議】：除上表外，2.1.299～325 還包含 MCP 權限規則改為精確比對 server 名稱（2.1.299）、hook 回傳的 `updatedInput` 會被驗證（2.1.300）、`blockWritesOutsideWorkingDirectories`（2.1.314）、`denyInsteadOfPrompting`（2.1.319）、內部 git／ripgrep 與沙箱輔助程式不再取得登入權杖（2.1.323、2.1.325）、`.claude` 寫入保護延伸到 `--add-dir` 目錄（2.1.325）。
 
 ### 3.2 認證方式【官方】
 
@@ -794,6 +873,26 @@ export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/corp-root-ca.pem
   }
 }
 ```
+
+#### 3.3.1 v5.0 新增：Proxy 與登入憑證的兩個新規則
+
+🆕 **v5.0 新增**
+
+1. **一律設定 `HTTPS_PROXY`，不要只設 `ALL_PROXY`**：v2.1.319 起，TLS 檢查 proxy 的自動憑證修復在只有 `ALL_PROXY` 時不執行；v2.1.323 起組織設定與政策請求不使用只由 `ALL_PROXY` 設定的 proxy；v2.1.325 起 plugin 下載在只有 `ALL_PROXY` 時改用 CONNECT tunnel。
+
+   ```json
+   {
+     "env": {
+       "HTTPS_PROXY": "http://proxy.corp.example:8080",
+       "NO_PROXY": "localhost,127.0.0.1,.corp.example",
+       "NODE_EXTRA_CA_CERTS": "/etc/pki/ca-trust/source/anchors/corp-root.pem"
+     }
+   }
+   ```
+
+2. **監控 claude.ai 登入的到期日**（v2.1.318）：`claude auth status` 會顯示 `loginExpiresAt`；`claude -p` 的 JSON 結果含 `credential_expires_at`；到期前 10 天起，text 輸出會在 stderr 加一行警告。排程與 CI 應把這個欄位寫入監控，避免「登入過期當晚所有排程失敗」。
+
+> 🔍 **如何驗證**：`claude -p "hi" --output-format json | jq -r .credential_expires_at`（🧪 本機 v2.1.325 實測有此欄位）；`/status` 應顯示組織 managed 設定已載入。
 
 ### 3.4 資料流與保留：導入前必須回答的五個問題【官方／建議】
 
@@ -846,6 +945,9 @@ printf '%s\n' '.claude/settings.local.json' 'CLAUDE.local.md' '.claude/worktrees
 | 認證設定 | 把 API key 寫進 `.claude/settings.json` 或 CLAUDE.md | 環境變數、`apiKeyHelper`、secret manager | `git grep -nE 'sk-ant-|ANTHROPIC_API_KEY *[:=]'` 應無結果 |
 | Proxy／CA 設定 | 只寫在個人 `.bashrc` | 放在 managed 或 user settings 的 `env` | 從 IDE 啟動 session，確認可連線 |
 | `/init` 產出的 CLAUDE.md | 直接 commit | 刪減後走 PR | 檢查 PR 是否有 Reviewer 核准 |
+| Proxy 設定（v5.0） | 只設 `ALL_PROXY` | 設 `HTTPS_PROXY`（v2.1.319／323／325 的行為變更） | `/status` 顯示組織設定已載入；plugin 安裝成功 |
+| 版本下限（v5.0） | 直接把 `requiredMinimumVersion` 提到最新 | 先在試點群組跑一週，確認第 3.1.3 節三個預設值反轉 | 試點期間 CI 失敗率與 `permission_denials` 統計 |
+| 憑證到期（v5.0） | 排程在登入過期當晚全部失敗才發現 | 監控 `credential_expires_at`／`loginExpiresAt` | `claude auth status` |
 
 ---
 
@@ -1205,7 +1307,7 @@ flowchart TB
 | 任一 settings 設 `permissions.disableAutoMode: "disable"` | `default` |
 | **終端機或 VS Code 互動 session** | **`auto`**（v2.1.283／2.1.284 起適用所有方案與 Provider） |
 | `claude -p`／Agent SDK，且會抓 feature flag | `default` |
-| `claude -p`／Agent SDK，不抓 feature flag（第三方 Provider、關閉遙測） | `auto`（v2.1.285 起） |
+| `claude -p`／Agent SDK，不抓 feature flag（第三方 Provider、關閉遙測） | ⚠️ **v5.0 更正**：`default`（v2.1.302 起；v2.1.285～301 為 `auto`），見第 5.2.2 節 |
 | 組織採 HIPAA 配置且 session 符合資格 | `default` |
 
 > 🚨 **企業意涵**：舊版教材常說「Enterprise 或 Bedrock 的開發者以 Manual 起始」——**這在 v2.1.283 後已不成立**。若貴司政策要求逐一確認，必須在 managed settings 明確設定；**CI 一律明確傳 `--permission-mode`**，不要依賴內建預設。
@@ -1221,6 +1323,19 @@ flowchart TB
 ```
 
 （上例為「高度管制產業」的 managed settings 片段：關閉 auto 與 bypass，回到逐一確認。）
+
+#### 5.2.2 v5.0 更正：`-p` 與 Agent SDK 一律從 Manual 開始
+
+⚠️ **v5.0 更正**：上表「不抓 feature flag 時 `-p` 為 `auto`（v2.1.285 起）」只適用 v2.1.285～301。**v2.1.302 起**，沒有指定權限模式的 `claude -p` 與 Agent SDK 一律從 Manual（`default`）開始，不論 Provider 與遙測設定。需要核准的呼叫會被**拒絕**，但整體執行仍以 **exit 0** 結束。
+
+🧪 **v5.0 實測**（本機 v2.1.325、Haiku 5.5）：
+
+| 測試 | 結果 |
+| --- | --- |
+| `claude -p "…" --output-format stream-json --verbose` 的 `system/init` | `"permissionMode": "default"` |
+| 未給 allow 規則、要求以 Write 建立檔案 | 檔案未建立；結果 `subtype: "success"`、`permission_denials` 含 `Write`；**exit code 0** |
+
+> 🚨 **企業意涵**：只看 exit code 的 CI 會把「什麼都沒做」誤判為成功。CI 必須明確傳 `--permission-mode` 與 `--allowedTools`，並檢查 `permission_denials`（腳本見第 17.3.2 節）。
 
 ### 5.3 auto mode 的分類器【官方】
 
@@ -1348,6 +1463,36 @@ claude auto-mode config                         # 套用你的設定後的有效
 >
 > ⚠️ 沙箱網路 proxy 預設**不檢查 TLS 內容**，只依 hostname 比對白名單；`strictAllowlist`、`allowManagedDomainsOnly` 只在 user／managed／`--settings` 層有效，寫在 repo 中無效。【官方】
 
+#### 5.6.2 v5.0 更正：開啟沙箱不再自動核准 Bash
+
+⚠️ **v5.0 更正**：v2.1.325 起，開啟沙箱時沙箱內的 Bash 指令**預設走一般權限流程**（regular permissions mode），不再自動核准。要維持「沙箱內免詢問」必須明確設定：
+
+```json
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  }
+}
+```
+
+| 情境 | 設定位置 |
+| --- | --- |
+| 個人開發機 | 使用者設定（`~/.claude/settings.json`） |
+| 由 managed 設定開啟沙箱的組織 | **最高優先的 managed 來源**；寫在較低層級無法覆蓋 managed 的沙箱設定 |
+| repo 的 `.claude/settings.json` | 可以設定，但 managed 可鎖定此值（repo 不能放寬組織政策） |
+
+其他沙箱相關變更：
+
+| 版本 | 變更 | SSDLC 影響 |
+| --- | --- | --- |
+| 2.1.305 | `sandbox.allowNestedUserNamespaces`（Linux）讓沙箱內程式建立 user namespace（Chromium、rootless podman） | 🔐 **會讓程式繞過沙箱的檔案保護**；只在專用容器開啟並記錄理由 |
+| 2.1.323 | 沙箱中的 `git worktree add`／`move`／`remove` 以唯讀失敗；`--settings` 檔若不是合法 JSON 且含 `sandbox` 鍵，啟動直接停止 | worktree 流程（第 14.5 節）要在沙箱外建立 worktree |
+| 2.1.325 | 沙箱拒絕寫入 `--add-dir` 目錄中的 `.claude` 設定、skills、agents、commands、hooks（與啟動目錄相同） | 防止 Claude 竄改其他 repo 的 agent 設定 |
+| 2.1.325 | 沙箱自身的輔助程式（如網路橋接）不再取得 Claude Code 的登入權杖與 API key | 降低憑證外洩面 |
+
+> 🔍 **如何驗證**：執行 `/sandbox`，**Mode** 分頁應標示目前生效的模式；在沙箱中請 Claude 執行 `ls`，觀察是否出現權限提示。
+
 ### 5.7 Checkpoint 與 `/rewind`：能復原什麼、不能復原什麼【官方】
 
 Claude Code 會在每次編輯前建立 checkpoint。按兩次 `Esc` 或執行 `/rewind` 可以回到先前的狀態（可選擇只還原程式碼、只還原對話，或兩者）。
@@ -1392,6 +1537,33 @@ git ls-files -z | xargs -0 grep -nP '[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2066}
 | CI（自動修復） | `acceptEdits` ＋ `--permission-prompts none` | 明確 `--allowedTools` 白名單 | 容器隔離、無對外網路或白名單 | 安全 hooks |
 | 隔離容器內無人值守 | `bypassPermissions` | — | 容器即邊界；非 root；無憑證 | 安全 hooks |
 
+#### 5.9.1 v5.0 新增：無人值守環境的三道設定
+
+🆕 **v5.0 新增**。排程、背景 session、共用 runner 這類「沒有人回答提示」的環境，過去只能在「卡在提示」與「bypass」之間二選一。v2.1.314～319 提供了第三條路：
+
+| 設定 | 版本 | 作用 | 範圍 |
+| --- | --- | --- | --- |
+| `permissions.denyInsteadOfPrompting` | 2.1.319 | 會等待權限提示的呼叫**直接拒絕**，該輪繼續；同時移除 `AskUserQuestion`、`EnterPlanMode`、`ExitPlanMode`，取消無 hook 回答的 MCP elicitation | 使用者或 managed（repo 不能替你設定） |
+| `--permission-prompts none` | 2.1.259 | 單次 `-p` 執行的同等效果，並告訴 Claude 不要重試 | 命令列 |
+| `permissions.blockWritesOutsideWorkingDirectories` | 2.1.314 | Write／Edit／NotebookEdit 在**所有模式（含 bypass）**拒絕工作目錄外的路徑；不限制 shell（shell 靠沙箱） | 任何設定檔設 `true` 即生效 |
+
+共用 runner 的 managed 片段：
+
+```json
+{
+  "permissions": {
+    "defaultMode": "dontAsk",
+    "denyInsteadOfPrompting": true,
+    "blockWritesOutsideWorkingDirectories": true,
+    "disableBypassPermissionsMode": "disable"
+  }
+}
+```
+
+🧪 **v5.0 實測**：以 `--permission-mode acceptEdits --settings block.json`（內容為 `{"permissions":{"blockWritesOutsideWorkingDirectories":true}}`）要求寫入工作目錄外的檔案，Write 被拒、檔案未建立；acceptEdits 原本會自動核准檔案編輯，證明此設定的優先順序高於權限模式。
+
+> ⚠️ `denyInsteadOfPrompting` **不會**跳過 workspace trust 對話框與專案 MCP server 核准；在 runner 映像建置時就要先完成這兩項，否則 session 仍會停住。
+
 ### 5.10 本章審查與驗證清單
 
 | AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 如何驗證 |
@@ -1401,6 +1573,10 @@ git ls-files -z | xargs -0 grep -nP '[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2066}
 | 沙箱設定 | 使用不存在的鍵（如 `allowDomains`、`allowWrite` 寫在 `network` 下） | 以官方鍵名 `network.allowedDomains`、`filesystem.denyRead` | JSON Schema 驗證；在沙箱中 `cat ~/.aws/credentials` 應失敗 |
 | 「出事可以 `/rewind`」 | 把 checkpoint 當成交易回滾 | 不可逆動作在事前擋下 | 對照 5.7 節表格 |
 | 外部內容處理 | 讓 CI 中的 Claude 讀 issue 後擁有寫入與網路權限 | 唯讀工具＋沙箱＋最小權限 token | 檢查 workflow 的 `--allowedTools` 與 `permissions:` 區塊 |
+| `-p` 起始模式（v5.0） | 「第三方 Provider 上 `-p` 從 auto 開始」 | v2.1.302 起一律 Manual，被拒仍 exit 0 | `system/init` 的 `permissionMode` |
+| 沙箱自動核准（v5.0） | 以為開沙箱就免詢問 | v2.1.325 起須設 `sandbox.autoAllowBashIfSandboxed: true` | `/sandbox` 的 Mode 分頁 |
+| 無人值守設定（v5.0） | 為了不卡住而用 bypass | `denyInsteadOfPrompting`＋`blockWritesOutsideWorkingDirectories` | 寫入 `~/block-test.txt` 應被拒；transcript 有拒絕紀錄 |
+| `allowNestedUserNamespaces`（v5.0） | 在一般開發機開啟以便跑 Chromium | 只在專用容器開啟並記錄理由 | 審查 settings diff |
 
 ---
 
@@ -1547,6 +1723,49 @@ allowed-tools: Bash(git log *) Bash(git tag *) Read
 
 可用 `disableBundledSkills: true` 全部關閉，或用 `skillOverrides` 對個別 skill 設 `"off"`、`"name-only"`、`"user-invocable-only"`。
 
+#### 6.6.1 v5.0 新增：讓 `verify` skill 在每次 commit 前執行（G3 證據）
+
+🆕 **v5.0 新增**（官方 `skills` 頁，v2.1.286+）。session 開始時若存在名為 `verify` 或 `simplify` 的**專案** skill，Claude Code 內建的 commit 指示會要求 Claude **在每次 commit 前執行它**（僅文件或測試的變更除外）。這讓「commit 前一定跑過驗證」從口頭規範變成預設行為，直接成為閘門 G3 的證據。
+
+`.claude/skills/verify/SKILL.md`：
+
+```markdown
+---
+name: verify
+description: 在 commit 前驗證變更：編譯、單元測試、架構規則與機密掃描，並輸出可貼到 PR 的證據摘要
+allowed-tools: Bash(./mvnw -q verify), Bash(gitleaks detect *), Read, Grep
+---
+
+# 執行步驟
+
+1. 執行 `./mvnw -q verify`（含 ArchUnit 架構測試，第 13.5 節）。
+2. 執行 `gitleaks detect --no-banner --redact --log-opts="HEAD~1..HEAD"`。
+3. 任一步驟失敗就停止，回報失敗的命令與輸出最後 30 行，**不要嘗試 commit**。
+4. 全部通過時，輸出以下格式的證據摘要：
+
+   - 驗證時間（UTC）
+   - 執行的命令與結果
+   - 測試數、失敗數（取自 target/surefire-reports）
+```
+
+| 條件 | 說明 |
+| --- | --- |
+| skill 位置 | 企業、個人、專案或 `--add-dir` 目錄的 skill，或 `.claude/commands/verify.md`；內建 `/verify`、plugin skill、claude.ai 同步的 skill **不算** |
+| 必須可被 Claude 叫用 | 設了 `disable-model-invocation: true` 就不會觸發 |
+| 不能關閉 git 指示 | `includeGitInstructions: false` 會一併移除此行為 |
+
+其他 Skills 變更（v2.1.299～325）：
+
+| 變更 | SSDLC 影響 |
+| --- | --- |
+| 排程與 `/loop` 執行宣告 `allowed-tools`／hooks 的 skill 前先詢問（2.1.325） | 無人值守要在 `permissions.allow` 加 `Skill(verify)` 這類規則 |
+| 名稱含隱藏、方向控制、類空白字元或 `<`、`>` 的 skill 不會被提供（2.1.299） | 防範同形字攻擊；審查 PR 時注意 `.claude/skills/` 的目錄名 |
+| `UserPromptSubmit` hook 在 skill 展開**前**執行（2.1.299） | 擋下提示的 hook 也會擋下 skill 內嵌的 shell 命令 |
+| 每個來源的 skill hooks 上限 1,024 個（2.1.304） | 大型 plugin 要控制 hook 數量 |
+| 開啟沙箱時，起始目錄以下的巢狀 skill 只有在該目錄啟動或 `/cd` 過去才載入（2.1.319） | monorepo 的子專案 skill 要在子專案啟動 |
+
+> 🔍 **如何驗證**：建立 `verify` skill 後，請 Claude 完成一個小修改並 commit；transcript（`Ctrl+O`）中應看到 commit 前先叫用 `/verify`。
+
 ### 6.7 Skill 的測試與維護【建議】
 
 Skill 是「會被 AI 執行的程式」，應該像程式一樣測試：
@@ -1587,6 +1806,9 @@ keep-coding-instructions: true
 | `allowed-tools` | 預先核准 `Bash` 或 `Edit` 全部 | 只核准唯讀或範圍明確的指令 | 逐條檢視；寫入類應走權限提示 |
 | `!` 動態注入 | 執行有副作用或耗時的指令 | 只用唯讀、快速的指令 | PR 審查時列出所有 `!` 指令 |
 | 審查類 skill 的輸出 | 「看起來很安全」之類無證據結論 | 每個發現附檔案:行號與理由 | 抽 3 個發現回到原始碼確認 |
+| commit 前驗證（v5.0） | 另寫 hook 攔 `git commit` 來跑測試 | 建立名為 `verify` 的專案 skill | transcript 中 commit 前先叫用 `/verify` |
+| 排程中的 skill（v5.0） | 夜間 `/loop` 卡在 skill 的詢問 | `permissions.allow` 加入 `Skill(name)` | 白天以 `/loop 1m` 試跑 |
+| skill 目錄名（v5.0） | 名稱含全形空白或零寬字元 | 只用 ASCII 小寫、數字與連字號 | `/skills` 清單是否列出 |
 
 ---
 
@@ -1696,6 +1918,22 @@ claude --agent code-reviewer          # 整個 session 以此 agent 執行
 
 v2.1.277 起，subagent 的回傳結果會以「subagent 輸出」標頭包裝並縮排，**避免 subagent 的結果偽裝成 session 指示**——這是對 prompt injection（ASI07）的內建防護。【官方】
 
+#### 7.4.1 v5.0 新增：fork 預設、effort 繼承與 subagent 輸出掃描
+
+🆕 **v5.0 新增**（官方 `sub-agents` 頁與 changelog）
+
+| 變更 | 版本 | 對 fresh-context 審查的影響 |
+| --- | --- | --- |
+| fork mode 在 `-p`、Agent SDK、Desktop、VS Code 也預設開啟 | 2.1.302 | fork 會繼承**完整對話**；第 7.7 節 Writer／Reviewer 模式要用**具名** subagent（非 fork）才是 fresh context。只想禁止 fork 時加 `"Agent(fork)"` deny 規則 |
+| 主對話的 subagent 在 Desktop、VS Code 一律背景執行 | 2.1.302 | 需要「等審查結果再繼續」時關閉 fork mode（`CLAUDE_CODE_FORK_SUBAGENT=0`） |
+| 不同模型的 subagent 使用該模型自己的 effort | 2.1.317 | `security-reviewer` 用 Opus、session 用 Sonnet 時，在定義檔寫 `effort: high` |
+| 安全防護攔下 subagent 後，Claude 會以較窄的提示重試或回報，不會自己接手 | 2.1.319 | 審查不會被主對話「代做」 |
+| agent `tools:` 的 MCP 寫法只取得指名 server 的工具 | 2.1.299 | 寫 `mcp__<完整名稱>__*` |
+
+**Subagent 輸出掃描（官方，prompt injection 的最後一道標記）**：主對話讀取 subagent 報告前，Claude Code 會在模仿系統輸出的文字（`<system-reminder>`、以 `Human:`／`Assistant:` 開頭的行）中插入反斜線；報告提到 `bypassPermissions` 或 `--dangerously-skip-permissions` 時，前面會加一行 `[harness: subagent output matched instruction-shaped pattern(s): …`。這個掃描**不判斷**內容是否惡意，也不改變權限檢查。
+
+> 🔍 **人工審查要點**：審查 AI 產出的報告時，看到 `[harness: …]` 標記行就要回頭檢查 subagent 讀過的外部來源（issue 內文、網頁、相依套件 README），這正是 OWASP ASI01（目標劫持）的典型路徑。
+
 ### 7.5 平行化的五種方式比較【官方】
 
 | 方式 | 隔離程度 | 協作方式 | 適合 |
@@ -1778,6 +2016,8 @@ claude --agent code-reviewer -p "審查 feature-order-cancel 分支相對 main �
 | 平行化方案 | 小任務也用 Agent Teams | 依 7.5 節選最小足夠的方式 | 比較 `/cost` 前後差異 |
 | Agent Teams 任務 | teammate 自行標記完成 | `TaskCompleted` hook 要求證據 | 故意讓測試失敗，確認任務無法完成 |
 | reviewer 的審查結果 | 直接當成核准依據 | 作為人審的輸入，人做最終判斷 | PR 中應同時有 AI 審查連結與人類 approve |
+| fresh-context 審查（v5.0） | 以為 fork 出來的 subagent 是 fresh context | fork 繼承完整對話；審查用具名 subagent，或以 `Agent(fork)` deny 規則禁止 fork | 檢查 transcript 中 Agent 呼叫的 `subagent_type` |
+| subagent 報告（v5.0） | 忽略 `[harness: …]` 標記行 | 視為可疑，追查 subagent 讀過的來源 | `Ctrl+O` 檢視 transcript |
 
 ---
 
@@ -1875,6 +2115,43 @@ CLAUDE.md、rules、skills 都是「Claude 會讀、會嘗試遵守」的**建�
 4. **以 exit 0＋JSON `deny` 表達「拒絕」，以 exit 2 表達「hook 自身錯誤」**；永不使用 exit 1。
 5. **每條規則都有「應阻擋」與「應放行」的測試案例**，在 CI 中以假 stdin 實跑（8.8 節）。
 
+#### 8.4.1 v5.0 實測：`onFailure: "block"` 在真實 session 中的行為
+
+🆕 **v5.0 實測**（解決 v4.0 附錄 F.2 #4）。本機 Claude Code v2.1.325，以 `claude -p --settings <檔案> --allowedTools Bash --permission-mode dontAsk` 掛上 PreToolUse hook，請 Claude 執行一個本來允許的 `echo`：
+
+| hook 狀況 | `onFailure` | 實際結果 |
+| --- | --- | --- |
+| hook 腳本以 **exit 1** 結束（模擬程式錯誤） | 未設定 | ⚠️ **指令照樣執行**（輸出 `hello-cont`）——fail-open |
+| hook 腳本以 exit 1 結束 | `"block"` | ✅ 指令被擋，Claude 收到 `PreToolUse:Bash hook error` |
+| hook 腳本**不存在**（`python missing.py`） | 未設定 | 被擋——因為 Python 找不到檔案時本身就以 **exit 2** 結束，屬巧合，不能依賴 |
+| `guard_bash.py` 判定 force push | `"block"` | ✅ 被擋，並計入結果的 `permission_denials` |
+
+測試用的 settings（`h-crash-block.json`）：
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/crash.py\"",
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+`crash.py` 只有兩行：`import sys` 與 `sys.exit(1)`。
+
+> 🎯 **結論**：安全 hook **一定要**設 `onFailure: "block"`；「腳本不存在時也會擋」是 Python 的副作用，換成 `bash` 或 `node` 就不成立。
+
 ### 8.5 範本一：Bash 守門員 `guard_bash.py` 🧪
 
 用途：擋下權限規則語法表達不了的危險指令，例如 `git -C repo push -f`、`curl … | bash`、讀取 `.env`、production 叢集變更。放在 `.claude/hooks/guard_bash.py`。
@@ -1890,6 +2167,11 @@ Exit 2                -> internal error; blocked (fail-closed).
 import json
 import re
 import sys
+
+# Windows 的 Python 預設以系統字碼頁（例如 cp950）輸出，Claude Code 則以 UTF-8 讀取
+# hook 的 stdout／stderr；不改的話，中文拒絕原因在 Windows 上會變成亂碼。
+for _stream in (sys.stdout, sys.stderr):
+    _stream.reconfigure(encoding="utf-8")
 
 PROTECTED_BRANCHES = r"(main|master|develop|release/\S+)"
 GIT = r"\bgit\b(?:\s+(?:-C\s+\S+|-c\s+\S+|--[\w-]+(?:=\S+)?))*\s+"
@@ -1983,6 +2265,11 @@ exit 2 -> internal error, blocked (fail-closed).
 import json
 import re
 import sys
+
+# Windows 的 Python 預設以系統字碼頁（例如 cp950）輸出，Claude Code 則以 UTF-8 讀取
+# hook 的 stdout／stderr；不改的話，中文拒絕原因在 Windows 上會變成亂碼。
+for _stream in (sys.stdout, sys.stderr):
+    _stream.reconfigure(encoding="utf-8")
 
 SECRET_FILES = re.compile(
     r"(^|[\\/])(\.env(\.(?!example$|sample$|template$)[\w.-]+)?|id_rsa|id_ed25519|"
@@ -2119,6 +2406,11 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 
+# Windows 的 Python 預設以系統字碼頁（例如 cp950）輸出，Claude Code 則以 UTF-8 讀取
+# hook 的 stdout／stderr；不改的話，中文拒絕原因在 Windows 上會變成亂碼。
+for _stream in (sys.stdout, sys.stderr):
+    _stream.reconfigure(encoding="utf-8")
+
 
 def block(message: str) -> None:
     print(f"[require_test_evidence] {message}", file=sys.stderr)
@@ -2226,6 +2518,32 @@ claude --debug --debug-file ./hook-debug.log
 
 在 session 中請 Claude 執行一個應被擋的指令（例如「用 git -C . push -f origin test 推送」），確認：(1) 畫面顯示 `[guard_bash]` 的拒絕原因；(2) `hook-debug.log` 中有該 hook 的指令、結果與耗時（v2.1.296 起 debug log 會記錄每個 command hook 的執行結果）。
 
+#### 8.8.2 v5.0 更正：Windows 上 hook 的輸出必須是 UTF-8
+
+⚠️ **v5.0 更正**（🧪 實測發現）。v4.0 的 `guard_bash.py`、`guard_secrets.py`、`require_test_evidence.py` 以 `ensure_ascii=False` 或 stderr 輸出中文。Windows 上的 Python 預設以系統字碼頁（繁體中文 Windows 為 cp950）寫出，Claude Code 則以 UTF-8 讀取 hook 輸出，結果：
+
+- 真實 session 中 Claude 收到的拒絕原因是亂碼：`PreToolUse:Bash hook error: [guard_bash] �T�� force push…`。
+- 指令仍被擋下（安全性不受影響），但 Claude 無法理解原因，常會換個寫法再試，增加被繞過的機會與審查負擔。
+
+本版已在三支腳本的 `import` 之後加入：
+
+```python
+# Windows 的 Python 預設以系統字碼頁（例如 cp950）輸出，Claude Code 則以 UTF-8 讀取
+# hook 的 stdout／stderr；不改的話，中文拒絕原因在 Windows 上會變成亂碼。
+for _stream in (sys.stdout, sys.stderr):
+    _stream.reconfigure(encoding="utf-8")
+```
+
+🧪 **v5.0 回歸測試**（不設定 `PYTHONIOENCODING`、`PYTHONUTF8`，模擬 Windows 預設環境）：
+
+| 版本 | 案例數 | 結果 |
+| --- | --- | --- |
+| v4.0 原腳本 | 29 | 18 通過、11 失敗——全部是「輸出不是合法 UTF-8」，阻擋判斷本身正確 |
+| v5.0 修正後 | 29 | **29 通過**（guard_bash 18、guard_secrets 5、require_test_evidence 4、其他 2） |
+| 真實 session（修正後） | 1 | Claude 收到 `[guard_bash] 禁止 force push（含 git -C／-c 變形）`，且計入 `permission_denials` |
+
+> 🔍 **把這個檢查放進 hook 的 CI**：在 Windows runner 上執行假 stdin 測試，並以 `python -c "import sys; sys.stdin.buffer.read().decode('utf-8')"` 驗證 hook 的 stdout 可用 UTF-8 解碼。
+
 ### 8.9 Hook 治理【官方】
 
 | 設定（managed） | 效果 |
@@ -2236,6 +2554,23 @@ claude --debug --debug-file ./hook-debug.log
 | `disableAllHooks` | 關閉所有 hooks（排查用） |
 
 > 🚨 **hook 是會被執行的程式碼。** 沒有 `allowManagedHooksOnly` 時，任何 repo 的 `.claude/settings.json` 都可以定義 hook；而 `claude -p` 模式**沒有 workspace trust 對話框**。在 CI 中處理不受信任的 repo（例如外部貢獻者的 fork）時，請用 `--bare`（不載入 repo 的 hooks）或 `--settings '{"disableAllHooks": true}'`。【官方】
+
+#### 8.9.1 v5.0 新增：v2.1.299～325 的 hook 行為變更
+
+🆕 **v5.0 新增**
+
+| 變更 | 版本 | hook 作者要注意的事 |
+| --- | --- | --- |
+| `updatedInput` 會被驗證 | 2.1.300 | PreToolUse／PermissionRequest 回傳的 `updatedInput` 中**未知鍵被丟棄**；工具拒絕的輸入會讓呼叫被拒 |
+| PreToolUse 回 allow 但後續權限檢查出錯 | 2.1.323 | 視同沒有 hook 回答，回到一般流程——hook 的 allow 不再能「穿透」錯誤 |
+| prompt／agent hook 並行上限 | 2.1.302、2.1.312 | 同一事件最多 12 個同時執行；每個 session 最多 24 個；`timeout` 小於 1 秒視為 1 秒 |
+| 被中斷的工具呼叫仍執行 PostToolUse | 2.1.319 | 稽核 hook（`audit_log.py`）也會記錄被新訊息中斷後才完成的呼叫，最多 10 秒 |
+| `-p` 與 SDK 中長時間 hook 的心跳 | 2.1.323 | 每 30 秒送一次，host 不會誤判為卡住 |
+| Agent SDK hook callback 的 `onFailure: "block"` | 2.1.317 | SDK 整合也能 fail-closed |
+| 未信任資料夾中 repo 設定不能停用你的 hooks | 2.1.323 | 惡意 repo 無法用 `disableAllHooks` 關掉組織或個人的安全 hook |
+| `Monitor(tail *)` 這類 `if` 條件比對 Monitor 的 shell 命令 | 2.1.314 | guard 類 hook 的 matcher 可涵蓋 Monitor 工具 |
+
+> 🔐 **Mods 與 hook 的關係（官方 hooks-guide）**：在**沒有** managed settings、沒有 `managed-mcp.json`、也沒有用 Team／Enterprise 的 `/login` 憑證登入的機器上，mod 可以核准一個被你的 PreToolUse hook 擋下的呼叫。企業開發機請一律佈署 managed settings 並設 `allowManagedModsOnly`（第 20.2 節），讓 hook 的阻擋不可被推翻。
 
 ### 8.10 本章審查與驗證清單
 
@@ -2248,6 +2583,9 @@ claude --debug --debug-file ./hook-debug.log
 | 失敗模式 | 未設 `onFailure`，腳本路徑錯誤時靜默放行 | `onFailure: "block"`＋版本下限 | 故意把腳本路徑改錯，確認動作被擋 |
 | 稽核 hook | 記錄完整檔案內容或 MCP 參數 | 只記中繼資料 | 檢查稽核檔中不含程式碼與參數 |
 | Stop hook | 未處理 `stop_hook_active`，造成無限迴圈 | 偵測到 `true` 時放行 | 測試案例 `stop_hook_active: true` → exit 0 |
+| Windows 上的 hook 輸出（v5.0） | `ensure_ascii=False` 或中文 stderr，未設定編碼 | `sys.stdout`／`sys.stderr` 以 `reconfigure(encoding="utf-8")` 設定 | 不設 `PYTHONIOENCODING` 執行假 stdin，輸出可用 UTF-8 解碼 |
+| `onFailure`（v5.0 實測） | 以為「腳本不存在也會擋」就不設 `onFailure` | 一律 `"onFailure": "block"`；exit 1 的失敗沒有它就放行 | 以 exit 1 的假 hook 在真實 session 測試 |
+| `updatedInput`（v5.0） | 在 `updatedInput` 加入自訂欄位傳資料 | v2.1.300 起未知鍵被丟棄；改用 `additionalContext` | 檢查工具實際收到的輸入 |
 
 ---
 
@@ -2380,6 +2718,88 @@ claude mcp reset-project-choices    # 重設 .mcp.json 的核准狀態
 }
 ```
 
+#### 9.5.1 v5.0 新增：權限規則精確比對與 MCP 允許清單 hook
+
+🆕 **v5.0 新增**
+
+| 變更 | 版本 | 治理影響 |
+| --- | --- | --- |
+| MCP allow 規則只比對**完整** server 名稱 | 2.1.299 | `mcp__a` 不再允許 `a__b`、`a_`；一律寫 `mcp__<完整名稱>__*` |
+| `.mcp.json` 專案 server 的核准比對精確名稱 | 2.1.323 | 拼法不同會重新詢問 |
+| 完成 MCP 登入的工具一律要求確認 | 2.1.323 | 即使在 bypass／auto；`dontAsk` 中改用 `/mcp` |
+| v1 MCP client 已移除 | 2.1.323 | `MCP_SDK_GENERATION=v1` 只是 v2 的相容模式，舊 server 要排程升級 |
+| `deniedMcpServers` 的 URL 項目也封鎖上游 URL 相符的 Anthropic 提供 server | 2.1.318 | 封鎖清單也涵蓋雲端 session 的 connector |
+| `allowedMcpServers` 不再過濾只在 `env` 使用 `${VAR}` 的 `managed-mcp.json` stdio server | 2.1.305 | 要擋請改用 `deniedMcpServers` |
+| 不再跟隨 Anthropic 託管 MCP 與 connector proxy 的 HTTP 重新導向 | 2.1.299 | 防止被導向到非預期端點 |
+
+managed 的 `allowedMcpServers` 決定 server **能否連線**；若某個專案還要求「只能使用其中幾個」，可以在專案加上下列 PreToolUse hook，作為縱深防禦的第二層。
+
+`.claude/settings.json`：
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/mcp-allowlist.sh",
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+`.claude/mcp-allowlist.txt`（一行一個完整 server 名稱）：
+
+```text
+# 本專案核准的 MCP server
+github
+sentry
+```
+
+`.claude/hooks/mcp-allowlist.sh`：
+
+```bash
+#!/usr/bin/env bash
+# .claude/hooks/mcp-allowlist.sh：PreToolUse hook，只放行允許清單內 MCP server 的工具
+# 允許清單：$CLAUDE_PROJECT_DIR/.claude/mcp-allowlist.txt，一行一個「完整」server 名稱
+set -u
+command -v jq >/dev/null 2>&1 || { echo "mcp-allowlist: 找不到 jq，阻擋本次呼叫" >&2; exit 2; }
+
+input=$(cat)
+tool=$(printf '%s' "$input" | jq -r '.tool_name // empty')
+case "$tool" in
+  mcp__*) ;;          # 只處理 MCP 工具
+  *) exit 0 ;;
+esac
+
+list="${CLAUDE_PROJECT_DIR:-.}/.claude/mcp-allowlist.txt"
+if [ -f "$list" ]; then
+  while IFS= read -r s || [ -n "$s" ]; do
+    s=${s%$'\r'}                       # 容忍 Windows 換行
+    [ -z "$s" ] && continue
+    case "$s" in \#*) continue ;; esac # 註解行
+    # 以「mcp__<完整名稱>__」前綴比對，避免 mcp__git 誤放行 mcp__github__*
+    case "$tool" in
+      "mcp__${s}__"*) exit 0 ;;
+    esac
+  done < "$list"
+fi
+
+jq -n --arg r "MCP 工具 $tool 不屬於允許清單中的 server（見 .claude/mcp-allowlist.txt）" \
+  '{hookSpecificOutput:{hookEventName:"PreToolUse",permissionDecision:"deny",permissionDecisionReason:$r}}'
+exit 0
+```
+
+🧪 **v5.0 實測**（Git Bash、jq 1.8.1，10 個案例）：`mcp__github__create_issue`、`mcp__sentry__get_issue` 放行；`mcp__git__commit`（前綴相近）、`mcp__githubx__a`、`mcp__evil__x`、與註解同名的 `mcp__comment__x` 拒絕；`Bash`、`Read` 不處理；CRLF 允許清單正確；刪除清單後全部拒絕；PATH 中沒有 jq 時 exit 2（fail-closed）。
+
 ### 9.6 MCP 風險與對策【建議】
 
 | 風險 | 說明 | 對策 |
@@ -2389,7 +2809,7 @@ claude mcp reset-project-choices    # 重設 .mcp.json 的核准狀態
 | 過度授權 | server 使用高權限帳號 | 專用服務帳號、唯讀資料庫帳號、最小 scope 的 OAuth |
 | stdio 供應鏈 | `npx -y` 抓到被入侵的新版本 | 釘選版本；使用內部 registry 鏡像 |
 | 憑證外洩 | token 寫在 `.mcp.json` | `${VAR}` 展開、`headersHelper`、OAuth |
-| context 膨脹 | 大量工具描述吃掉 context | 預設 tool search 延遲載入；工具描述上限預設 4,096 字元（v2.1.296） |
+| context 膨脹 | 大量工具描述吃掉 context | 預設 tool search 延遲載入；工具描述上限預設 4,096 字元（v2.1.296；v2.1.299 起 Anthropic 第一方 MCP server 的描述不再截斷；v2.1.304 起自訂 `ANTHROPIC_BASE_URL` 也預設開啟 tool search） |
 
 #### 9.6.1 範例：唯讀資料庫 MCP 的帳號設計 🧪
 
@@ -2411,6 +2831,19 @@ GRANT SELECT ON app.customer_masked TO mcp_readonly;
 
 > ✅ **人工審查要點**：(1) 帳號是否只能連測試庫？(2) `default_transaction_read_only` 與 `statement_timeout` 是否設定（防止長查詢拖垮資料庫）？(3) 含個資的表是否只透過遮罩 view 開放？(4) 連線字串是否從環境變數注入？
 
+#### 9.6.2 v5.0 新增：MCP Tasks 與「可重送」標註的風險
+
+🆕 **v5.0 新增**（官方 `mcp` 頁，v2.1.304+ 公開測試）
+
+| 新機制 | 說明 | 風險 | 對策 |
+| --- | --- | --- | --- |
+| **MCP tasks** | server 接受長時間工作後工具呼叫就返回，Claude 繼續做別的事；結束時結果交給 Claude | 遠端 server 的 task 在**離開 session 後仍持續執行**；`Esc` 不會停止背景 task | 部署、批次匯出類工具結束前在 `/tasks` 確認；需要同步等待時設 `CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND=1`；非互動 session 中 task 要求輸入會被取消 |
+| `idempotentHint: true` | 連線中斷時 Claude Code 可在新連線重送一次 | 標錯會造成**重複建立資源**（重複開單、重複扣款） | 只標「設定成某個狀態」類工具；建立／轉帳／寄信類絕不標 |
+| `readOnlyHint: true` | 不改變狀態，可與其他唯讀呼叫平行執行 | 標錯會讓寫入工具被當成唯讀平行執行 | 審查 server 原始碼時逐一核對 annotations |
+| WebSocket（`type: "ws"`） | 適合主動推送事件的 server；只能以 header 驗證 | 靜態 token 易被提交進 repo | 用 `headersHelper` 或 `${VAR}` |
+
+> 🔍 **人工審查要點**：審查內部 MCP server 的 PR 時，把 `tools/list` 中每個工具的 `annotations` 列成表，逐一問「同樣參數再呼叫一次，會不會多做一次？」答案是「會」就不能有 `idempotentHint`。
+
 ### 9.7 本章審查與驗證清單
 
 | AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 如何驗證 |
@@ -2420,6 +2853,9 @@ GRANT SELECT ON app.customer_masked TO mcp_readonly;
 | MCP 帳號 | 使用開發者個人高權限 token | 專用服務帳號、唯讀、最小 scope | 以該帳號嘗試寫入，應失敗 |
 | 治理設定 | 只用 `deniedMcpServers` 黑名單 | managed 允許清單＋`allowManagedMcpServersOnly` | 在樣本機加入未核准 server，`claude mcp list` 應不可用 |
 | 工具權限 | 寫入類 MCP 工具在 allow 清單 | 寫入類設 `ask`，刪除類 `deny` | `/permissions` 檢視 |
+| MCP 權限規則（v5.0） | `"allow": ["mcp__jira"]` | `"allow": ["mcp__jira__*"]` | `/permissions` 檢視；呼叫其他 server 應被詢問 |
+| MCP 工具 annotations（v5.0） | 建立資源類工具標 `idempotentHint` | 只標可安全重送者 | 中斷連線測試是否重複建立 |
+| 長時間 MCP 工具（v5.0） | 工具返回就以為工作完成 | 檢查是否為 MCP task，結束前看 `/tasks` | 頁尾 task 計數 |
 
 ---
 
@@ -2569,6 +3005,33 @@ claude plugin eval ./acme-ssdlc                       # 執行 evals/ 下的評�
 
 供應鏈相關的內建防護【官方 changelog】：npm 來源的 plugin 以 `npm pack --ignore-scripts` 取得（不執行 install script，v2.1.275）；拒絕模仿保留名稱的 marketplace（v2.1.280）；`claude plugin install --accept-command <sha256>` 核准「確切的指令」而非一律 `-y`（v2.1.271）。
 
+#### 10.5.1 v5.0 新增：版本範圍、組織 mod 順序與 marketplace 接管
+
+🆕 **v5.0 新增**（官方 `plugins/*` 子頁與 changelog；官方 plugin 文件已從單一頁拆成 overview、components、manifest-reference、loading、security、org 等子頁）
+
+| 變更 | 版本 | 治理用法 |
+| --- | --- | --- |
+| `plugin.json` 的 `engines["claude-code"]` | 2.1.323 | 不在範圍內的 Claude Code 不會安裝、更新或載入此 plugin；公司 plugin 宣告與 `requiredMinimumVersion` 一致的下限 |
+| plugin 根目錄 `settings.json` 的 `agent` deprecated、`subagentStatusLine` 移除 | 2.1.323 | 不要用 plugin 接管主 session 的 agent |
+| `claude plugin validate` 型別檢查 TypeScript hooks module；回報不安全的路徑與連結 | 2.1.323、2.1.325 | 內部 marketplace 的 CI 一律跑 `validate --strict` |
+| `prependPlugins`／`appendPlugins`；`pluginDigests` deprecated 且被忽略 | 2.1.325 | 組織 mod 排在使用者 mod 之前；舊的 digest 釘選要改寫 |
+| managed `extraKnownMarketplaces` 接管同名 marketplace | 2.1.321 | 使用者無法以同名 marketplace 偽裝公司來源 |
+| marketplace `ref` 可釘到任意 commit 的完整 ID | 2.1.325 | ⚠️ 舊版 client 無法 clone 這種釘選；先提高版本下限再改 |
+| git submodule 不在 repo 記錄的 commit 上時安裝失敗 | 2.1.323 | 防止 submodule 被替換 |
+
+```json
+{
+  "name": "acme-ssdlc",
+  "version": "5.0.0",
+  "description": "ACME SSDLC hooks, skills and reviewer agents",
+  "author": { "name": "ACME Platform Team" },
+  "license": "UNLICENSED",
+  "engines": { "claude-code": ">=2.1.325" }
+}
+```
+
+🧪 **v5.0 實測與注意**：`engines` 目前只出現在 changelog，`plugins/manifest-reference` 欄位表尚未收錄。宣告 `>=9.0.0`（目前版本不符）的 plugin，`claude plugin validate --strict` **仍然通過**——範圍在安裝、更新、載入時才檢查。上架前請用「最低支援版本」實際安裝一次。
+
 ### 10.6 評估社群 Plugin：以 everything-claude-code 為例【建議】
 
 社群 plugin 可以提供大量現成資產。以查證日 GitHub 星數超過 27 萬的 everything-claude-code（ECC，v2.2.3）為例，它提供數十個 agents、上百個 skills、多語言 rules 與 hooks，以及一個掃描 agent 設定檔的 AgentShield 工具。值得借鏡的觀念：
@@ -2592,6 +3055,18 @@ claude plugin eval ./acme-ssdlc                       # 執行 evals/ 下的評�
 | 衝突 | 與公司既有 rules、hooks 衝突 | 在測試 repo 安裝並跑 eval |
 | 工具需求 | 某些元件依賴額外 CLI 或 runtime | 記錄相依並納入開發機標準映像 |
 
+#### 10.6.1 v5.0 新增：ECC 的版本現況與採用策略（2026-11 查證）
+
+🆕 **v5.0 新增**。以 `gh api` 查證（2026-11-16）：ECC 最新的正式 **release 仍是 v2.2.3**（2026-10-01），但預設分支 `main` 已比 v2.2.3 **多出 1,285 個 commit**、尚未發版，其中包含多項 hook 的 shell 引號處理修正、相依套件安全更新與新的 skills。
+
+| 採用方式 | 好處 | 風險 | 建議 |
+| --- | --- | --- | --- |
+| 釘選 release tag（v2.2.3） | 版本固定、可重現 | 錯過 main 上的修正 | ✅ **預設採用**；內部 fork 後只挑需要的元件 |
+| 追 `main` | 拿到最新修正 | 每天變動、未經 release 測試；hook 行為可能改變 | ❌ 不要直接用於公司開發機 |
+| 挑選 main 上的特定修正 | 取得關鍵安全修正 | 需要自行審查與測試 | 由 appsec 審查 diff 後 cherry-pick 到內部 fork |
+
+> 🔍 **如何驗證**：`gh api repos/affaan-m/everything-claude-code/releases/latest --jq .tag_name` 取得最新 release；`gh api repos/affaan-m/everything-claude-code/compare/<內部釘選的 tag>...main --jq .ahead_by` 看落後多少。內部 fork 的每次同步都要重跑第 8.8 節的 hook 測試與 `claude plugin validate --strict`。
+
 ### 10.7 本章審查與驗證清單
 
 | AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 如何驗證 |
@@ -2601,6 +3076,9 @@ claude plugin eval ./acme-ssdlc                       # 執行 evals/ 下的評�
 | `enabledPlugins` | 寫成陣列 | 物件 `{"x@m": true}` | JSON Schema 驗證 |
 | 社群 plugin 導入 | 直接整包安裝到全公司 | 挑選、審查、內部 fork、釘版本 | 檢查 `strictKnownMarketplaces` 只含核准來源 |
 | plugin hooks | 用相對路徑或寫死絕對路徑 | `${CLAUDE_PLUGIN_ROOT}` | 在不同目錄安裝後實測 hook 觸發 |
+| plugin 版本範圍（v5.0） | 以為 `validate` 會擋錯誤的 `engines` | 以最低支援版本實際安裝驗證 | 舊版 client 安裝應被拒 |
+| plugin `settings.json`（v5.0） | 用 `agent` 接管主 session | `agent` 已 deprecated；不要放這個檔 | `validate --strict` 無 deprecated 警告 |
+| 社群 plugin 版本（v5.0） | 直接追 ECC `main` | 釘選 release tag，經審查才 cherry-pick | `gh api …/compare/<tag>...main` |
 
 ---
 
@@ -2672,6 +3150,17 @@ Auto Memory 會把「你在對話中說過的話」寫成本機明文檔案，CL
 
 > ⚠️ **session 中途編輯 CLAUDE.md 不會立即生效**：專案根與使用者層 CLAUDE.md 在 session 開始時讀取一次，修改後需 `/clear`、`/compact` 或重開 session。【官方】
 
+#### 11.4.1 v5.0 新增：Idle compaction 與未知模型的 context 假設
+
+🆕 **v5.0 新增**
+
+| 機制 | 版本 | 說明 | SSDLC 建議 |
+| --- | --- | --- | --- |
+| **Idle compaction** | 終端機 2.1.299；VS Code／Desktop 2.1.314 | 對話超過 200K tokens、閒置約一小時（prompt cache 到期前）時自動壓縮，下一則訊息只送摘要；終端機會出現 `Compacted while idle, before the prompt cache expired` | 一般開發保留（省成本）；需要保留完整逐字上下文的調查（例如事件分析，第 19 章）以 `"idleCompaction": false` 關閉，並把關鍵證據寫入外部狀態檔（第 11.5 節） |
+| 未知模型 ID 假設 1M context | 2.1.323 | gateway 的自訂名稱若實際只有 200K，滿了之後每一輪都會失敗 | 設 `CLAUDE_CODE_MAX_CONTEXT_TOKENS=200000` 或 `CLAUDE_CODE_DISABLE_1M_CONTEXT=1` |
+| `@` 檔案提及只給路徑 | 2.1.299 | `CLAUDE_CODE_DISABLE_FILE_MENTIONS=1` 時由 Claude 用檔案工具讀取，受權限規則管控 | 機密檔案較多的 repo 可開啟，讓 deny 規則一併生效 |
+| 壓縮後重送 skill 清單 | 2.1.304 | 壓縮不會讓 Claude「忘記」有哪些 skill | — |
+
 ### 11.5 範例：長任務的外部化狀態檔【建議】
 
 ```markdown
@@ -2709,6 +3198,8 @@ API 以請求開頭的精確比對做快取，前段任何改動都會讓之後�
 | 長任務 | 全靠單一 session 的對話記憶 | 外部化計畫與進度檔 | 開新 session，只靠檔案能否接續工作 |
 | 高敏感專案 | 未關閉 Auto Memory | `autoMemoryEnabled: false` | `/memory` 確認狀態 |
 | context 使用 | 一個 session 做完所有事 | 任務間 `/clear`；探索用 subagent | `/context` 觀察佔用 |
+| idle compaction（v5.0） | 事件調查進行到一半被自動壓縮，遺失早期證據 | 調查型 session 設 `"idleCompaction": false`，並外部化證據 | 終端機是否出現 `Compacted while idle` |
+| 自訂模型 context（v5.0） | gateway 模型實際 200K，卻被當成 1M | 設 `CLAUDE_CODE_MAX_CONTEXT_TOKENS` | `/context` 的總容量 |
 
 ---
 
@@ -3444,6 +3935,30 @@ gh api -X PUT repos/acme/order-service/branches/main/protection --input - <<'EOF
 EOF
 ```
 
+#### 15.4.1 v5.0 新增：Code Review 審查等級與風險分級的對應
+
+🆕 **v5.0 新增**（官方 `code-review` 頁與 changelog）。託管的 Code Review 服務（v2.1.304 起）提供 **Quick**、**Standard**（預設）、**Deep** 三個審查等級：Owner 設定組織預設，個別 repo 可另訂。建議與上表的風險分級對應：
+
+| 本手冊風險等級 | Code Review 等級 | 其他設定 |
+| --- | --- | --- |
+| 低（文件、設定、樣板） | Quick | — |
+| 中（一般功能） | Standard | `REVIEW.md` 校準（第 15.5 節） |
+| 高（認證、金流、個資、CI/CD、`.claude/`） | **Deep** | 仍須 2 人人工核准；AI 審查不取代人工 |
+
+| 變更 | 版本 | 用法 |
+| --- | --- | --- |
+| 可審查整個 GitHub 組織（含日後新增的 repo） | 2.1.304 | 解除連結組織會一併關閉，重新連結後要手動再開 |
+| `@claude review stop`（或 `off`、`pause`） | 2.1.307 | 結束 PR 上的 `@claude review always` 訂閱 |
+| 仍有阻擋性問題時，重新審查不會以 LGTM 開頭 | 2.1.305 | 避免作者誤以為已通過 |
+| 依嚴重度的發現統計、CSV 成本匯出 | 2.1.316、2.1.323 | 作為第 22.4 節 KPI 的資料來源 |
+| `claude ultrareview` 需要 workspace trust | 2.1.309 | 腳本加 `--trust-workspace`（不接受值，PR 編號放在前面） |
+
+```bash
+claude ultrareview 1234 --trust-workspace --json > ultrareview.json
+```
+
+⚠️ **v5.0 更正**：v4.0 第 21.1 節寫「Code Review 平均每次 US$15–25」。官方現行 `code-review-costs` 頁不再提供固定單價，成本隨**審查等級**與 PR 大小變動；請以 Admin settings 的 **Average cost** 欄（每個 repo 的平均成本）乘以每月 PR 數估算，「每次 push 都審查」的 repo 再乘以每個 PR 的平均 push 次數。
+
 ### 15.5 用 REVIEW.md 校準 AI 審查【官方】
 
 GitHub Code Review 服務會讀取 repo 根目錄的 `REVIEW.md`（只用於審查）與 `CLAUDE.md`（違反時標為 Nit）。範例：
@@ -3506,6 +4021,9 @@ Important 僅限：邏輯錯誤、未限定租戶或擁有者的資料查詢（I
 | 分支保護 | 允許 admin 繞過、允許 force push | `enforce_admins: true`、`allow_force_pushes: false` | `gh api repos/:owner/:repo/branches/main/protection` |
 | 高風險變更 | 與一般 PR 相同的審查力度 | 依 15.4 節分級、CODEOWNERS | 抽查近期修改 `.claude/` 或 workflow 的 PR 核准人 |
 | 誤報處理 | 直接 resolve 不說明 | 附理由或測試 | 檢查 resolved thread 是否有回覆 |
+| Code Review 等級（v5.0） | 所有 repo 都用 Deep 或都用 Quick | 依第 15.4.1 節對應風險分級 | Admin settings 中各 repo 的等級 |
+| Code Review 成本（v5.0） | 以固定每次 US$15–25 編預算 | 以各 repo 的 Average cost × PR 數估算 | 月底對帳 CSV 匯出 |
+| ultrareview 腳本（v5.0） | `--trust-workspace 1234` | `claude ultrareview 1234 --trust-workspace` | `claude ultrareview --help` |
 
 ---
 
@@ -3735,7 +4253,7 @@ claude --bare -p "審查 origin/main...HEAD 的變更，依嚴重度列出問題
 | 旗標 | 為什麼 |
 | --- | --- |
 | `--bare` | 不自動載入 repo 的 hooks、skills、plugins、MCP、CLAUDE.md、Auto Memory——**處理不受信任的 repo 時必須使用**；需要的設定以 `--settings`、`--mcp-config`、`--append-system-prompt-file`、`--plugin-dir` 明確傳入 |
-| `--permission-mode dontAsk` | 只有 allow 清單內的工具能執行，其餘直接拒絕。**不要依賴內建預設**：v2.1.285 起，第三方 Provider 或關閉遙測時 `-p` 預設為 auto |
+| `--permission-mode dontAsk` | 只有 allow 清單內的工具能執行，其餘直接拒絕。**不要依賴內建預設**：⚠️ **v5.0 更正**：v2.1.302 起 `-p` 一律從 Manual 開始，被拒的呼叫仍 exit 0（v2.1.285～301 在第三方 Provider 或關閉遙測時為 auto），結果要以第 17.3.2 節檢查 |
 | `--permission-prompts none` | 無人可回答時，任何會跳出詢問的動作一律拒絕（v2.1.259+） |
 | `--allowedTools` | 明確白名單；規則含空白時用逗號分隔 |
 | `--max-turns`、`--max-budget-usd` | 成本與失控上限（`--max-budget-usd` 為用戶端估算，需保留餘裕） |
@@ -3764,6 +4282,62 @@ PY
 ```
 
 > ⚠️ AI 的結構化結果適合「**標註**」到 PR 上給人看，不建議直接當成「擋合併」的唯一條件——誤報會讓團隊想關掉它，漏報會給人錯誤的安全感。閘門仍以 SAST／SCA 等確定性工具為主。
+
+#### 17.3.2 v5.0 新增：以 `permission_denials` 作為 CI 的結果閘門 🧪
+
+🆕 **v5.0 新增**。v2.1.302 起 `-p` 從 Manual 開始，被拒的呼叫不會讓 exit code 變成非 0（見第 5.2.2 節）。所有呼叫 `claude -p` 的 CI job 都要在 Claude 執行完後加一道結果檢查：
+
+```bash
+claude -p "依 CLAUDE.md 修正 lint 錯誤並執行測試" \
+  --bare --permission-mode dontAsk --permission-prompts none \
+  --allowedTools "Read" "Edit" "Bash(./mvnw -q verify)" \
+  --max-turns 20 --max-budget-usd 3 \
+  --output-format json > claude-result.json
+bash ci/check-claude-result.sh claude-result.json
+```
+
+`ci/check-claude-result.sh`：
+
+```bash
+#!/usr/bin/env bash
+# check-claude-result.sh：檢查 `claude -p --output-format json` 的結果檔
+# 用法：bash check-claude-result.sh result.json
+# 失敗條件：執行失敗、is_error 不是 false、或有任何工具呼叫被權限拒絕
+set -euo pipefail
+command -v jq >/dev/null 2>&1 || { echo "check-claude-result: 需要 jq" >&2; exit 2; }
+f="${1:?用法: check-claude-result.sh result.json}"
+
+subtype=$(jq -r '.subtype // "missing"' "$f")
+# 注意：不能寫成 `.is_error // true`，jq 的 // 會把 false 當成「沒有值」
+is_error=$(jq -r '.is_error | tostring' "$f")
+denials=$(jq -r '(.permission_denials // []) | length' "$f")
+
+if [ "$subtype" != "success" ] || [ "$is_error" != "false" ]; then
+  echo "❌ Claude 執行失敗：subtype=$subtype is_error=$is_error" >&2
+  exit 1
+fi
+if [ "$denials" -gt 0 ]; then
+  echo "❌ 有 $denials 個工具呼叫被權限拒絕（-p 預設 Manual 模式，exit code 仍是 0）：" >&2
+  jq -r '.permission_denials[] | "  - \(.tool_name)"' "$f" >&2
+  exit 1
+fi
+exp=$(jq -r '.credential_expires_at // empty' "$f")
+if [ -n "$exp" ]; then
+  echo "ℹ️ 儲存的 claude.ai 登入將於 $exp 到期"
+fi
+echo "✅ 執行成功，沒有權限拒絕"
+```
+
+🧪 **v5.0 實測**（以實際 `claude -p` 結果檔測試 4 個案例）：含 `Write` 拒絕 → exit 1；無拒絕的成功結果 → exit 0；`is_error: true`、`subtype: error_max_turns` → exit 1；缺少 `is_error` → exit 1。腳本特別避開一個常見錯誤：jq 的 `//` 會把 `false` 當成空值，寫成 `.is_error // true` 會讓所有成功執行都被判為失敗。
+
+其他 headless 行為（官方 `headless` 頁，2026-11 版）：
+
+| 行為 | CI 的處理方式 |
+| --- | --- |
+| SIGTERM 結束時 exit code 為 **143**，進行中的那一輪不記錄結果 | job 逾時要先送 SIGINT；或以 `--max-turns`、`--max-budget-usd` 讓 Claude 自行結束 |
+| 結束時會等待 Claude 啟動的背景工作，閒置 10 分鐘上限（`CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS`） | 在提示中禁止啟動常駐行程（dev server） |
+| 乾淨環境第一次執行會先取得帳號資料（2.1.325） | 第一次可能晚幾秒，逾時設定保留餘裕 |
+| JSON 輸出中的控制字元以 `\uXXXX` 跳脫（2.1.311） | 以 `jq` 解析即可，不要用 `grep` 比對原始字串 |
 
 ### 17.4 GitHub Actions：三個標準 workflow 🧪【官方】
 
@@ -3887,6 +4461,19 @@ jobs:
 
 > 🚨 **不要把 `github_token: ${{ secrets.GITHUB_TOKEN }}` 傳給 Action**：GitHub 不會在使用預設 `GITHUB_TOKEN` 建立的 commit 上觸發 workflow，Claude 推送的修補就不會跑 CI。讓 Action 以 Claude GitHub App 身分認證即可。【官方】
 
+#### 17.4.5 v5.0 新增：觸發者檢查、`allowed_bots` 與排程的權限
+
+🆕 **v5.0 新增**（官方 `github-actions` 頁 2026-11 版）。Claude Code GitHub Action 在 Claude 啟動前會檢查觸發者，任一項不通過即失敗：
+
+| 檢查 | 規則 | 常見失敗與處置 |
+| --- | --- | --- |
+| 寫入權限 | issue／PR 事件的觸發者須有 repo 寫入權限 | 要允許特定外部協作者：`allowed_non_write_users` 並傳入自己的 `github_token` |
+| 必須是人 | 所有事件都拒絕 bot，除非列在 `allowed_bots` | 排程歸屬於「最後修改 `cron` 的使用者」；若那是 Renovate／Dependabot，排程會開始失敗，需把該 bot 列入 |
+
+> 🔐 **安全意涵**：「必須是人」的檢查用來避免 bot 互相觸發形成迴圈，也避免外部 bot 以留言驅動 Claude。**不要**為了方便把 `allowed_bots` 設成 `*`。
+
+排程模式的權限：純文字 `prompt` **沒有** shell 或 GitHub API 權限，必須以 `claude_args` 的 `--allowedTools` 授權；叫用 skill 時則可使用該 skill 的 `allowed-tools`。GitHub 只從預設分支執行排程，公開 repo 60 天沒有活動會停用排程——第 17.4.3 節的每週弱點分流應同時設監控，確認排程確實執行。
+
 ### 17.5 GitLab CI/CD（Beta）🧪【官方】
 
 ```yaml
@@ -3959,6 +4546,29 @@ claude-review:
 
 **Remote Control**（從手機或其他瀏覽器操作本機 session：`claude remote-control`、`claude --remote-control`、session 內 `/remote-control`）：執行環境仍在本機，遠端只是控制介面。需以 claude.ai 帳號登入，不支援 API key 與第三方 Provider；Team／Enterprise 需由管理員在後台開啟。治理上應確認：遠端裝置受公司行動裝置管理、核准提示不會被「在手機上隨手按 Yes」——高風險動作維持在 ask 規則。
 
+#### 17.7.1 v5.0 新增：排程執行 skill 與 `/loop` 的變更
+
+🆕 **v5.0 新增**
+
+| 變更 | 版本 | 處置 |
+| --- | --- | --- |
+| 排程與 `/loop` 執行宣告 `allowed-tools`／hooks 的 skill 前**先詢問** | 2.1.325 | `permissions.allow` 加入 `Skill(<name>)` |
+| Desktop、IDE、SDK host 的「Always allow」只在存下規則後確實會再允許時才提供「僅規則」選項 | 2.1.325 | 依賴舊選項的排程任務要重新設定 allow 規則 |
+| 自訂節奏的 `/loop` 在某輪結束且未重新排程時直接結束 | 2.1.319 | 需要固定節奏用 `/loop 30m …` |
+| 雲端排程中，使用者設定的 `PostToolUse` hook 不能替換 `ExitPlanMode` 結果中的計畫 | 2.1.323 | 防止 hook 竄改已核准的計畫 |
+| `/schedule` 自動加入未要求的 connector 時會警告 | 2.1.317 | 建立後檢查 connector 清單 |
+
+```json
+{
+  "permissions": {
+    "allow": ["Skill(dependency-triage)", "Bash(osv-scanner *)"],
+    "denyInsteadOfPrompting": true
+  }
+}
+```
+
+> 🔍 **如何驗證**：白天先以 `/loop 1m /dependency-triage` 手動跑一輪，確認沒有出現詢問；隔天早上檢查 transcript 中是否有被拒絕的呼叫。
+
 ### 17.8 供應鏈：Claude 的變更與一般變更走同一條建置鏈【建議】
 
 - **CI 重新建置**：Claude 在本機或 CI 中產生的建置產物不得直接發佈。
@@ -3977,6 +4587,9 @@ claude-review:
 | 舊旗標 | `--max-tokens` | `--max-budget-usd`、`--max-turns` | `claude --help` |
 | 憑證 | 長期 API key 存在 repo secret 且多 repo 共用 | OIDC federation | 檢查 secrets 清單 |
 | 排程任務 | 機密專案使用雲端 Routines；排程任務可直接合併或部署 | 依資料分級選擇；排程只做分析與開 issue／PR | 每季檢視排程清單與負責人 |
+| CI 結果判斷（v5.0） | 只看 exit code | 檢查 `subtype`、`is_error`、`permission_denials`（第 17.3.2 節） | 移除 allow 規則，job 應失敗 |
+| 排程的觸發者（v5.0） | bot 修改 workflow 後排程開始失敗 | 將該 bot 列入 `allowed_bots`（不要用 `*`） | Actions 記錄中的拒絕原因 |
+| 排程中的 skill（v5.0） | 排程執行 skill 卡在詢問 | `Skill(name)` 加入 allow | 早上檢查 transcript |
 
 ---
 
@@ -4516,7 +5129,7 @@ promtool test rules order-alerts.test.yml    # 行為：給定的時間序列是
 
 | 設定 | 理由 |
 | --- | --- |
-| `requiredMinimumVersion` | 低於 2.1.295 拒絕啟動（含多項權限繞過修正與 `onFailure`） |
+| `requiredMinimumVersion` | 低於 2.1.295 拒絕啟動（含多項權限繞過修正與 `onFailure`）；🆕 v5.0 建議 2.1.325（第 20.2.1 節） |
 | `permissions.deny` | 只放「單一指令即可判定」的紅線。⚠️ 像 `Bash(curl * \| bash)` 這種含管線的規則**不可靠**：複合指令會被拆成多段逐一比對，管線型樣式請交給 `guard_bash.py` 這類 hook |
 | `autoUpdatesChannel: "stable"` | 約晚一週、跳過重大回歸版本 |
 | `forceLoginMethod` | 只允許公司的 claude.ai 帳號登入（也可搭配 `forceLoginOrgUUID`） |
@@ -4538,9 +5151,59 @@ promtool test rules order-alerts.test.yml    # 行為：給定的時間序列是
 | `allowManagedPermissionRulesOnly` | — | 只採用 managed 的 allow／ask／deny 規則 |
 | `deniedModels`、`availableModelsMatch` | 2.1.283+ | 新模型在評估前保持封鎖 |
 | `allowedProviders` | 2.1.285+ | 限制可用的 Provider |
-| `allowManagedModsOnly` | 2.1.287+ | 只允許組織核准的 Claude Mods |
+| ⚠️ `allowManagedModsOnly`（**v5.0 更正**：不是頂層鍵） | 2.1.287+ | 只允許組織核准的 Claude Mods；寫在 `pluginConfigs["cc-plugin-sec-default@builtin"].options`，見第 20.2.1 節 |
 
 > ⚠️ **基線不是越嚴越好**。每一條限制都會增加開發者的摩擦；摩擦過大時，開發者會改用不受管理的工具（shadow AI），風險反而更高。建議從「必要紅線」開始，依稽核資料逐步收緊。
+
+#### 20.2.1 v5.0 新增：基線增補與一項更正
+
+🆕 **v5.0 新增**。依 v2.1.297～325 的治理新增，在第 20.2 節的基線上補充：
+
+```json
+{
+  "requiredMinimumVersion": "2.1.325",
+  "permissions": {
+    "blockWritesOutsideWorkingDirectories": true
+  },
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": false,
+    "autoAllowBashIfSandboxed": true
+  },
+  "pluginConfigs": {
+    "cc-plugin-sec-default@builtin": {
+      "options": {
+        "allowManagedModsOnly": true
+      }
+    }
+  },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_CODE_MODE": "0",
+    "HTTPS_PROXY": "http://proxy.corp.acme.example:8080"
+  }
+}
+```
+
+| 設定 | 理由 |
+| --- | --- |
+| `requiredMinimumVersion: "2.1.325"` | 包含第 3.1.3 節列出的權限與沙箱強化；先試點再全面提高 |
+| `blockWritesOutsideWorkingDirectories` | 檔案工具在任何模式都不得寫出工作目錄 |
+| `sandbox.autoAllowBashIfSandboxed` | v2.1.325 起不再預設；不設會讓開發者每個指令都被詢問（摩擦過大 → shadow AI） |
+| `pluginConfigs…allowManagedModsOnly` | ⚠️ **v5.0 更正**：v4.0 下表把 `allowManagedModsOnly` 列為頂層設定鍵，實際上它是內建 guard（`cc-plugin-sec-default@builtin`）的選項，必須寫在 `pluginConfigs` 底下 |
+| `CLAUDE_CODE_EXPERIMENTAL_CODE_MODE: "0"` | Code Mode 試點完成前封鎖（managed 無法替使用者開啟） |
+| `HTTPS_PROXY` | 只設 `ALL_PROXY` 會讓組織設定請求不走 proxy（第 3.3.1 節） |
+
+其他 v5.0 可評估的治理鍵：
+
+| 設定 | 版本 | 用途 |
+| --- | --- | --- |
+| `permissions.denyInsteadOfPrompting` | 2.1.319 | **只放在 CI／共用 runner 的政策**；放在一般開發機會讓所有提示都直接拒絕 |
+| `prependPlugins`／`appendPlugins` | 2.1.325 | 組織 mod 的執行順序（取代 `pluginDigests`） |
+| `CLAUDE_CODE_AUTO_MODE_SERVER` | 2.1.319 | 關閉遙測或不抓 feature flag 時，auto mode 不再退回內建分類器；要沿用請設 `0` |
+| `CLAUDE_CODE_DISABLE_FEATURE_FLAGS` | 2.1.319 | 停止抓 feature flag 但保留遙測；Remote Control 等功能將不可用 |
+| `policyHelper` | 2.1.323 起不吃使用者 env | 需要的變數放在 managed `env` |
+
+> 📌 server-managed settings（從 Anthropic API 取得）自 v2.1.316 起在 Team／Enterprise 登入時**直接套用、不再顯示核准提示**；無法驗證的本機副本會被拒絕。佈署後以第 20.1 節三步驟驗證。
 
 ### 20.3 監控：OpenTelemetry【官方】
 
@@ -4561,6 +5224,20 @@ Claude Code 可匯出 metrics 與 events（logs）到任何 OTLP 相容的後端
 | `OTEL_LOG_RAW_API_BODIES` | 完整 API 請求與回應 |
 
 > 🚨 **兩個版本相關的治理重點**【官方 changelog】：(1) v2.1.282 起，**專案與 local 設定不能再開啟 OTel 匯出或改端點**——惡意 repo 無法再把提示外送到自己的 collector；遙測一律由使用者或 managed 設定。(2) v2.1.287 起 `user_prompt` 事件新增 `prompt_text`（`prompt` 的副本）——若你的管線會遮罩 `prompt`，**必須同時遮罩 `prompt_text`**。
+
+#### 20.3.1 v5.0 新增：OTel 新屬性與 `safety_event` 的停用
+
+🆕 **v5.0 新增**
+
+| 變更 | 版本 | 稽核用途 |
+| --- | --- | --- |
+| `tool_decision` 事件新增 `classifier_verdict`、`permission_mode`、`classifier_category`（後者需 `OTEL_LOG_TOOL_DETAILS=1`） | 2.1.301 | 區分「auto mode 分類器擋下」與「權限規則擋下」，計算第 22.4 節的拒絕率 |
+| metrics／events／spans 新增 `anthropic.plan`、`anthropic.seat_type`、`anthropic.provider`、`anthropic.custom_base_url` | 2.1.317 | 依方案與 Provider 分群；偵測未經核准的 `ANTHROPIC_BASE_URL` |
+| GenAI 語意慣例屬性（`gen_ai.provider.name`、`gen_ai.conversation.id`、`gen_ai.tool.name`、`error.type`） | 2.1.300 | 與其他 AI 應用的觀測資料統一欄位 |
+| `api_request` 拆分 `cache_creation_5m_tokens`、`cache_creation_1h_tokens` | 2.1.300 | 成本分析更精確（第 21 章） |
+| ⚠️ `claude_code.safety_event` | 2.1.307 新增、**2.1.312 停止送出** | 依此事件建立的告警會**靜默失效**，改用 `tool_decision` |
+
+> 🔍 **如何驗證**：在測試機觸發一次被 deny 規則擋下的呼叫與一次被分類器擋下的呼叫，確認 collector 收到兩筆 `tool_decision`，且 `classifier_verdict` 只出現在後者。
 
 ### 20.4 稽核軌跡設計【建議】
 
@@ -4614,6 +5291,9 @@ everything-claude-code 的安全指南提醒：**hooks 會執行 shell、MCP ser
 | 遮罩 | 只遮罩 `prompt` | 同時遮罩 `prompt_text` | 送一個測試提示，檢查後端 |
 | 稽核 | 依賴本機 transcript | 集中送出 OTel 與 hook 紀錄 | 抽查一次工具呼叫能否在 SIEM 查到 |
 | 資料分級 | 機密專案使用雲端 session | 依 20.5 節 surface 對照 | 檢查政策與實際使用紀錄 |
+| Mods 治理鍵（v5.0） | `"allowManagedModsOnly": true` 寫在頂層 | 寫在 `pluginConfigs["cc-plugin-sec-default@builtin"].options` | 以 `--plugin-dir` 載入測試 mod，其 hook 不應執行 |
+| OTel 告警（v5.0） | 仍以 `safety_event` 建立告警 | 改用 `tool_decision`（v2.1.312 起不再送出 `safety_event`） | 觸發一次拒絕，確認收到事件 |
+| Code Mode（v5.0） | 未評估就讓開發者自行開啟 | 試點前以 managed `env` 封鎖 | 開發機啟動時不出現 Code Mode 字樣 |
 
 ---
 
@@ -4621,12 +5301,13 @@ everything-claude-code 的安全指南提醒：**hooks 會執行 shell、MCP ser
 
 ### 21.1 成本從哪裡來【官方】
 
-Claude Code 的成本主要由 **token 用量 × 模型單價** 決定，另有託管服務（如 GitHub Code Review，平均每次審查 US$15–25，另以 usage credits 計費）。查證日官方公布的部分模型單價（每百萬 token，輸入／輸出）：
+Claude Code 的成本主要由 **token 用量 × 模型單價** 決定，另有託管服務（如 GitHub Code Review，以 usage credits 計費；⚠️ **v5.0 更正**：v4.0 寫的「平均每次 US$15–25」已不適用，成本隨 Quick／Standard／Deep 審查等級與 PR 大小變動，見第 15.4.1 節）。查證日官方公布的部分模型單價（每百萬 token，輸入／輸出）：
 
 | 模型 | 單價（輸入／輸出） | 備註 |
 | --- | --- | --- |
 | Sonnet 5.5 | US$2／US$10 | cache 讀取 US$0.10（v2.1.296 起） |
 | Haiku 5.5 | US$0.10／US$0.50 | 1M context |
+| Fable 5.2 | US$8／US$40 | 🆕 v5.0：1M context；cache 讀取 US$0.20（v2.1.321） |
 | Fable 5.1 | US$10／US$50 | 1M context；cache 讀取 US$0.25 |
 
 > ⚠️ 價格與方案內含用量會調整，**以官方 pricing 頁與帳單為準**。訂閱方案（Pro／Max／Team／Enterprise）有方案內用量，超出後可使用 usage credits；API 與第三方雲則依用量計費。
@@ -4675,6 +5356,19 @@ Claude Code 的成本主要由 **token 用量 × 模型單價** 決定，另有�
 
 > ⚠️ **不要用「用量」當 KPI**。鼓勵用量會造成浪費；應衡量「每單位成本帶來的交付成果」（第 22 章）。
 
+#### 21.3.2 v5.0 新增：2026 年 11 月的成本變化
+
+🆕 **v5.0 新增**
+
+| 變化 | 日期／版本 | 行動 |
+| --- | --- | --- |
+| Opus 4.8 的 fast mode **2026-11-30 移除**，之後請求直接失敗、不會退回一般模式 | 2.1.316 公告 | 仍釘選 Opus 4.8 並開 fast mode 的團隊，改用 Opus 5.5 或關閉 fast mode |
+| Fable 5.2 單價 US$8／US$40，cache 讀取 US$0.20 | 2.1.321 | 長任務改用 Fable 5.2 可能比 5.1 便宜，但仍須以 `/usage` 實測 |
+| Idle compaction | 2.1.299／2.1.314 | 避免閒置後重送 200K+ tokens |
+| mod 的 `$.model.complete`／`$.model.classify` 計入 `/cost` 與 `--max-budget-usd` | 2.1.325 | 成本報表會包含 mod 的模型呼叫 |
+| Code Review 依審查等級計費 | 2.1.304 | 低風險 repo 用 Quick（第 15.4.1 節） |
+| `/usage` 對 max effort、workflows、常駐 context、大型工具結果提出警告 | 2.1.299 | 納入月度成本檢討 |
+
 ### 21.4 效能：讓 Claude 更快完成工作【官方／建議】
 
 | 情境 | 做法 |
@@ -4693,6 +5387,7 @@ Claude Code 的成本主要由 **token 用量 × 模型單價** 決定，另有�
 | CI 成本控制 | 使用不存在的 `--max-tokens` | `--max-budget-usd`、`--max-turns` | `claude --help`；CI log |
 | 模型政策 | 全員預設 `opus` | 依任務選模型；subagent 用較低階模型 | OTel 模型組合報表 |
 | KPI | 以 token 用量或「AI 產生行數」當績效 | 每合併 PR 成本、交付與品質指標 | 檢視 KPI 定義 |
+| Opus 4.8 fast mode（v5.0） | 11/30 後仍使用 | 改用 Opus 5.5 或關閉 fast mode | `/fast` 對話框的模型名稱 |
 
 ---
 
@@ -4793,6 +5488,27 @@ Claude Code 更新頻繁（2026 年 9–10 月平均每 1–2 天一版）。建
 3. 涉及安全修正時，提高 managed 的 `requiredMinimumVersion`；涉及預設行為改變（例如 v2.1.283 的權限模式預設）時，評估是否需要調整政策並公告。
 4. 每季把重要變更回寫到本手冊或公司規範。
 
+#### 22.6.1 v5.0 新增：「預設值反轉」檢核表
+
+🆕 **v5.0 新增**。v2.1.297～325 的經驗顯示，最危險的不是新功能，而是**預設值改變**——設定檔一字未改，行為卻不同。每次讀 changelog 時，對下列關鍵字逐一標記：
+
+| 關鍵字（changelog 原文） | 代表的風險 | 本期實例 |
+| --- | --- | --- |
+| `now starts in`、`by default`、`default mode` | 權限模式改變 | 2.1.302：`-p` 一律 Manual |
+| `no longer`、`instead of` | 既有行為取消 | 2.1.325：沙箱不再自動核准 |
+| `ask before`、`asks first` | 無人值守流程會卡住 | 2.1.325：排程執行 skill 先詢問 |
+| `deprecated`、`removed`、`ignored` | 設定靜默失效 | 2.1.323：`subagentStatusLine` 移除；2.1.312：`safety_event` 停送 |
+| `refuse`、`fail` | 原本可用的流程失敗 | 2.1.323：沙箱中 `git worktree add` 唯讀失敗 |
+
+```bash
+# 以官方 changelog 粗篩「預設值反轉」候選條目（人工判讀仍是必要步驟）
+curl -sS https://code.claude.com/docs/en/changelog.md \
+  | grep -n -i -E 'by default|no longer|instead of|asks? (first|before)|deprecated|removed|now starts' \
+  | head -50
+```
+
+> 🔍 **如何驗證**：把篩出的條目逐一對照團隊的 managed settings、CI workflow 與排程清單，決定「調整政策」「公告」「無影響」三者之一，並記錄在版本升級紀錄中。
+
 ### 22.7 本章審查與驗證清單
 
 | AI 產出項目 | ❌ 常見錯誤 | ✅ 正確做法 | 如何驗證 |
@@ -4802,6 +5518,7 @@ Claude Code 更新頻繁（2026 年 9–10 月平均每 1–2 天一版）。建
 | 訓練 | 只教「怎麼用」 | 包含 M3 審查 AI 產出，且有實作驗收 | 預埋缺陷題庫的通過率 |
 | 成熟度自評 | 自我宣稱 | 每一項都附證據連結 | 抽查 3 項證據 |
 | 版本治理 | 任由自動更新 | 每週 changelog 檢視＋樣本機回歸 | 檢視回歸紀錄 |
+| 版本升級評估（v5.0） | 只看新功能 | 以第 22.6.1 節關鍵字篩出「預設值反轉」逐條判讀 | 升級紀錄中每條都有處置結論 |
 
 ---
 
@@ -5067,11 +5784,27 @@ Auto Memory 是**機器本地的明文檔案**（`~/.claude/projects/<project>/m
 
 ### Q13：可以直接安裝 everything-claude-code 這類大型社群 plugin 嗎？
 
-不建議整包安裝到全公司。挑選需要的 agents、skills、rules，經 appsec 審查後放進內部 plugin，釘選版本並定期評估上游更新（第 10.6 節）。
+不建議整包安裝到全公司。挑選需要的 agents、skills、rules，經 appsec 審查後放進內部 plugin，釘選版本並定期評估上游更新（第 10.6 節；v5.0 的版本現況見第 10.6.1 節）。
 
 ### Q14：要選 `/loop`、Desktop 排程還是雲端 Routines？
 
 需要本機檔案與工具 → `/loop`（session 內短期輪詢）或 Desktop 排程任務（本機長期）；不需要本機、要長期無人值守 → 雲端 Routines（`/schedule`，最小間隔 1 小時，repo 會在雲端執行，需符合資料分級）。
+
+### Q15：升級到 v2.1.325 後，為什麼沙箱裡每個指令都要我核准？
+
+v2.1.325 起開啟沙箱不再預設自動核准沙箱內的 Bash。要恢復，設定 `sandbox.autoAllowBashIfSandboxed: true`；由 managed 開啟沙箱的組織，要在最高優先的 managed 來源設定（第 5.6.2 節）。
+
+### Q16：CI 中的 Claude 顯示成功，但什麼都沒改？
+
+v2.1.302 起 `claude -p` 一律從 Manual 開始，需要核准的呼叫被拒絕但 exit code 仍是 0。明確傳 `--permission-mode` 與 `--allowedTools`，並用第 17.3.2 節的腳本檢查 `permission_denials`。
+
+### Q17：everything-claude-code 該裝 release 還是追 main？
+
+查證日最新 release 為 v2.2.3，`main` 已多出上千個未發版的 commit。企業應釘選 release tag、內部 fork 後只挑需要的元件；main 上的關鍵修正由 appsec 審查後 cherry-pick（第 10.6.1 節）。
+
+### Q18：Windows 上的 hook 拒絕訊息是亂碼怎麼辦？
+
+Windows 的 Python 預設以 cp950 等系統字碼頁輸出，Claude Code 以 UTF-8 讀取。在 hook 腳本 `import sys` 之後加上 `sys.stdout.reconfigure(encoding="utf-8")` 與 `sys.stderr.reconfigure(encoding="utf-8")`（第 8.8.2 節）。
 
 ---
 
@@ -5081,7 +5814,9 @@ Auto Memory 是**機器本地的明文檔案**（`~/.claude/projects/<project>/m
 
 - [ ] 採購商用方案；資料分級與 surface 對照已核准（第 20.5 節）
 - [ ] managed settings 佈署於正確路徑，樣本機 `/status` 顯示 Enterprise managed settings
-- [ ] `requiredMinimumVersion` ≥ 2.1.295；`autoUpdatesChannel` 已決定
+- [ ] `requiredMinimumVersion` ≥ 2.1.325（v5.0；試點後提高）；`autoUpdatesChannel` 已決定
+- [ ] 已評估 v2.1.302／325 的預設值反轉：CI 以 `permission_denials` 判斷結果、沙箱 `autoAllowBashIfSandboxed`、排程 skill 的 `Skill(name)` 規則
+- [ ] Proxy 使用 `HTTPS_PROXY`（不只 `ALL_PROXY`）
 - [ ] `allowManagedHooksOnly`、`disableSkillShellExecution`、MCP 允許清單、`strictKnownMarketplaces` 已設定
 - [ ] Proxy／CA／mTLS 放在 settings 的 `env`，背景 session 也能連線
 - [ ] OTel 端點由 managed 設定；`OTEL_LOG_USER_PROMPTS` 等隱私開關維持關閉
@@ -5111,7 +5846,7 @@ Auto Memory 是**機器本地的明文檔案**（`~/.claude/projects/<project>/m
 
 ---
 
-## 附錄 B：指令與旗標速查（查證：v2.1.294 本機 `claude --help`、官方 CLI reference）
+## 附錄 B：指令與旗標速查（查證：v2.1.325 本機 `claude --help`、官方 CLI reference）
 
 ### B.1 互動模式常用指令
 
@@ -5176,6 +5911,10 @@ Auto Memory 是**機器本地的明文檔案**（`~/.claude/projects/<project>/m
 | `--safe-mode` | 停用所有自訂項目排查問題（managed 政策仍生效） |
 | `--restricted` | 移除執行指令類工具、只載入 managed 與 `--settings`（評測環境用） |
 | `--debug [filter]`、`--debug-file` | 除錯紀錄（含 hooks 執行結果） |
+| `--permission-prompts host\|none` | 🆕 v5.0 補充：`host` 由 SDK host 或 `--permission-prompt-tool` 回答（預設）；`none` 一律拒絕 |
+| `--include-hook-events` | 🆕 在 `stream-json` 輸出中包含所有 hook 生命週期事件（稽核 hook 行為） |
+| `--no-session-persistence` | 🆕 `-p` 不把 session 存到磁碟（處理機密資料的 CI） |
+| `--system-prompt-snapshot on\|off` | 🆕 每段對話只記錄一次系統提示並原樣重用（可重現性） |
 
 ### B.4 子指令
 
@@ -5191,6 +5930,10 @@ Auto Memory 是**機器本地的明文檔案**（`~/.claude/projects/<project>/m
 | `claude install <version\|stable\|latest>`、`claude update` | 版本管理 |
 | `claude purge [path]` | 刪除專案的本機狀態（transcript、歷史） |
 | `claude setup-token` | 產生長效 OAuth token（綁定訂閱） |
+| `claude ultrareview [target] --trust-workspace` | 🆕 v2.1.309 起需要 workspace trust；腳本加此旗標（不接受值） |
+| `claude remote-control --settings <file>` | 🆕 v2.1.321：套用到每個遠端 session；`--sandbox` 已於 v2.1.300 移除 |
+| `claude import [codex\|gemini\|cursor] --dry-run` | 🆕 從其他 AI coding agent 匯入設定前先預覽 |
+| `claude auth status` | 🆕 v2.1.318 起顯示 `loginExpiresAt` |
 
 ---
 
@@ -5459,4 +6202,74 @@ effort: high
 
 ---
 
-> **文件維護說明**：本手冊依 Claude Code v2.1.296 查證。建議每季依第 22.6 節流程檢視官方 changelog，更新附錄 E 與 F，並遞增版本號。
+## 附錄 G：v5.0 修正紀錄與驗證
+
+### G.1 v4.0 → v5.0 更正
+
+| # | v4.0 記載 | v5.0 更正 | 依據 | 位置 |
+| --- | --- | --- | --- | --- |
+| 1 | `-p` 不抓 feature flag 時從 `auto` 開始 | v2.1.302 起 `-p` 與 SDK 一律從 Manual 開始；被拒仍 exit 0 | permission-modes；🧪 實測 | 5.2、5.2.2、17.3 |
+| 2 | 開啟沙箱即自動核准（隱含於 5.6 的表述） | v2.1.325 起須明確設 `sandbox.autoAllowBashIfSandboxed` | sandboxing；changelog 2.1.325 | 5.6.2 |
+| 3 | `allowManagedModsOnly` 為頂層設定鍵 | 是 `pluginConfigs["cc-plugin-sec-default@builtin"].options` 下的選項 | plugins/mods/admin | 20.2、20.2.1 |
+| 4 | `fable` → Fable 5.1 | Fable 5.2（v2.1.321）；`best` 改為等同 `opus` | model-config | 1.5.1、1.5.3 |
+| 5 | Fable 單價 US$10／US$50 | Fable 5.2 為 US$8／US$40，cache 讀取 US$0.20 | changelog 2.1.321 | 21.1 |
+| 6 | Code Review 平均每次 US$15–25 | 依審查等級與 PR 大小計費，以 Average cost 估算 | code-review-costs | 15.4.1、21.1 |
+| 7 | `requiredMinimumVersion` 建議 2.1.295 | 建議 2.1.325（先試點） | changelog 2.1.299～325 | 3.1.3、20.2.1 |
+| 8 | MCP 工具描述上限 4,096 字元 | 第一方 Anthropic MCP server 的描述不再截斷（2.1.299） | changelog | 9.6 |
+| 9 | Windows 上 hook 以 `ensure_ascii=False`／中文 stderr 輸出 | 必須把 stdout／stderr 設為 UTF-8，否則拒絕原因變亂碼 | 🧪 實測 | 8.5、8.6、8.7、8.8.2 |
+| 10 | 附錄 B 依 v2.1.294 `--help` | 依 v2.1.325 `--help` 與官方 CLI reference 重新比對 | 🧪 `claude --help` | 附錄 B |
+
+> 📌 **經查證維持原記載者**：所有 settings 範例的鍵名（以官方 settings-reference 比對，0 個未知鍵；`permissions.disableAutoMode` 官方亦接受）、`--max-turns`（`--help` 未列出，但官方 CLI reference 仍有效）、hook 事件與退出碼語意、OWASP Agentic Top 10（2025-12-09 發布）、數位時代〈`.claude` 資料夾設定指南〉的七個元件（文章 2026-04-14 發布後未更新）。
+
+### G.2 v5.0 實測紀錄（2026-11-16，Windows 11、Claude Code v2.1.325）
+
+| # | 測試 | 結果 |
+| --- | --- | --- |
+| 1 | `claude -p` 的 `system/init` | `permissionMode: "default"`；結果含 `credential_expires_at` |
+| 2 | `-p` 未授權要求 Write | 檔案未建立；`permission_denials` 含 `Write`；exit 0 |
+| 3 | `blockWritesOutsideWorkingDirectories` + `acceptEdits` | 工作目錄外的寫入被拒 |
+| 4 | PreToolUse hook exit 1，未設 `onFailure` | 指令照樣執行（fail-open） |
+| 5 | 同上，`onFailure: "block"` | 指令被擋 |
+| 6 | 原版 `guard_bash.py` 在真實 session | 被擋，但拒絕原因為亂碼 |
+| 7 | 修正版 `guard_bash.py` 在真實 session | 被擋，原因可讀，計入 `permission_denials` |
+| 8 | 4 支 Python hook 回歸測試（無 `PYTHONIOENCODING`） | 原版 18／29；修正版 **29／29** |
+| 9 | `mcp-allowlist.sh` | 10／10 |
+| 10 | `check-claude-result.sh` | 4／4 |
+| 11 | `claude plugin validate --strict`（`engines` 範圍不符、`agent` 設定） | 都通過；`agent` 出現 deprecated 警告 |
+| 12 | 全文 JSON／YAML 解析、`bash -n`、表格欄數、settings 鍵名 | 見 G.5 |
+
+### G.3 v4.0 附錄 F.2 的處理結果
+
+| F.2 # | 項目 | v5.0 結果 |
+| --- | --- | --- |
+| 4 | Hooks 在真實 session 的觸發與 `onFailure` | ✅ **已驗證**（G.2 #4～#7），並因此發現 Windows 編碼問題 |
+| 10 | schemastore 缺鍵 | ⏳ 仍落後：2026-11-16 下載的 schema 仍未收錄 `onFailure`、`deniedModels`、`allowedProviders`、`denyInsteadOfPrompting`、`blockWritesOutsideWorkingDirectories` 等；以官方 settings-reference 為準。另更正 `allowManagedModsOnly` 不是頂層鍵 |
+| 11 | SSDF 1.2 定稿 | ⏳ 仍為初稿（見第 2.2 節） |
+| 其餘 | GitHub／GitLab 實跑、Code Review、沙箱（非 Windows）、managed 佈署、OTel、plugin eval、安全工具實跑、Agent Teams／Routines | ⏳ 維持待驗證 |
+
+### G.4 v5.0 新增的待驗證項目
+
+| 項目 | 原因 | 建議 |
+| --- | --- | --- |
+| `engines["claude-code"]` 的範圍語法 | 只出現在 changelog | 官方文件更新後補充；以最低版本實際安裝驗證 |
+| Code Mode 在 SSDLC 流程中的實際效果 | 需訂閱帳號互動 session | 試點人員以第 1.5.3 節條件試用 |
+| MCP tasks 與 `idempotentHint` 重送 | 需支援 tasks extension 的 server | 以內部測試 server 驗證 |
+| 沙箱 `autoAllowBashIfSandboxed` 實際行為 | 原生 Windows 不支援沙箱 | 在 macOS 或 Linux／WSL2 驗證 |
+| 修正版 hook 在 macOS／Linux | 本次在 Windows 測試 | `reconfigure` 在 UTF-8 環境為 no-op，應無影響，仍建議於 CI 執行 |
+
+### G.5 格式與連結驗證
+
+| 檢查 | 方法 | 結果 |
+| --- | --- | --- |
+| 目錄錨點 | Hugo 建置後比對渲染頁所有 `href="#…"` 與標題 `id` | 322 個標題、647 個頁內連結；只有佈景主題的 `#top` 未解析（預期） |
+| 目錄一致性 | 由標題重建「部 → 章 → 節 → 小節」目錄，並與 v4.0 目錄比對 | 320 項；v4.0 的 285 項中 284 項逐字保留，1 項為附錄 B 標題的版本號更新；repo 的 `check-toc.ps1` 回報 [A] 找不到標題、[B] 未收錄、[C] 重複錨點皆為 0 |
+| 程式區塊 | JSON `json.loads`、YAML `yaml.safe_load`、bash `bash -n` | JSON 32、YAML 10、bash 30 個，0 錯誤 |
+| 表格欄數 | 每列儲存格數與表頭相同 | 194 個表格，0 錯誤 |
+| 內嵌 hook 與測試檔一致 | 從本文抽出 4 支 Python hook，與測試過的檔案逐位元組比對並重跑回歸測試 | 4 支完全相同；29／29 通過 |
+| settings 鍵名 | 23 個 settings 範例的頂層、`permissions`、`sandbox` 鍵對照官方 settings-reference | 0 個未知鍵 |
+| Markdown 格式 | `check-md.ps1`、`test-mermaid-syntax.ps1` | 0 個格式問題；Mermaid 未發現語法問題 |
+| 不可見字元與本機路徑 | 掃描 U+200B–200D、2060、FEFF、202A–202E、2066–2069 | 0 筆 |
+
+---
+
+> **文件維護說明**：本手冊 v4.0 依 Claude Code v2.1.296 查證，v5.0 增補依 v2.1.325 查證。建議每季依第 22.6 節流程（含 22.6.1 預設值反轉檢核）檢視官方 changelog，新增修正紀錄附錄，並遞增版本號。
