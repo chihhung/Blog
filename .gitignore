@@ -41,3 +41,5 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+# Claude Code 本機設定、worktree 與 session 資料
+/.claude/
