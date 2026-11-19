@@ -19,9 +19,9 @@ categories = ['教學']
 
 | 項目 | 內容 |
 | --- | --- |
-| **文件版本** | **v6.0.0** |
+| **文件版本** | **v6.1.0** |
 | **初版日期** | 2026-09-17（v1.0.0） |
-| **本版更新日期** | **2026-11-19**（v6.0.0、v5.0.0、v4.0.0、v3.0.0、v2.1.0 與 v2.0.0 變更摘要見 [C.5.2 變更紀錄](#c52-變更紀錄)） |
+| **本版更新日期** | **2026-11-19**（v6.1.0、v6.0.0、v5.0.0、v4.0.0、v3.0.0、v2.1.0 與 v2.0.0 變更摘要見 [C.5.2 變更紀錄](#c52-變更紀錄)） |
 | **最後查證日期** | **2026-11-19**（v6.0）。重新下載 `llms.txt` 所列 **205 個英文頁面**（頁數與 v5.0 相同），比對 changelog 至 **v2.1.328**；**以本機 Claude Code v2.1.328 實跑維運 Agent 唯讀限制、Remediation 白名單、`TaskCompleted` 品質 Hook 與緊急停止 Hook**，並以正反例驗證 v6.0 新增的 5 支檢查腳本與 3 套 CI 範本（[附錄 C.5.6](#c56-v60-範例實測紀錄)、[C.2.10](#c210-v60-查證來源2026-11-19)）；`support.claude.com` 方案文件沿用 v5.0（2026-11-16）的下載結果。**v5.0 的查證**：以官方文件索引 `https://code.claude.com/docs/llms.txt` 所列 **205 個英文頁面**為母體（v5.0 新增 `code-mode` 與 `claude-models-on-google-cloud-anthropic-managed` 2 頁；What's New 週報子頁已併入單一頁面，全部頁面下載後與 v4.0 副本逐頁比對，見 [附錄 C.2.9](#c29-v50-查證來源2026-11-16)）；比對 Claude Code changelog 至 **v2.1.325**；重新下載 12 份 `support.claude.com` 方案文件的 en 與 zh-TW 版本（含本次指定的 6 份）；外部標準複查 NIST SSDF、OMB M-26-05、EU AI Act 與金管會代理 AI 諮詢文件（[53.6.5](#5365-v50-複查標準與法規狀態2026-11-16v50-新增)）。**v5.0 以本機 Claude Code v2.1.325 實跑模型白名單、`denyInsteadOfPrompting`、無效設定檔與 Bash 萬用字元規則**（[附錄 C.5.5](#c55-v50-範例實測紀錄)）；v4.0 與 v3.0 的實測見 [附錄 C.5.4](#c54-v40-範例實測紀錄)、[C.5.3](#c53-v30-範例實測紀錄)。**查證清單與未覆核項目**見 [附錄 C.2](#c2-參考資料與查證來源) |
 | **官方文件站** | `https://code.claude.com/docs/en/overview`（**注意**：舊網址 `docs.claude.com/en/docs/claude-code/*` 已 301 轉址至此，本手冊 v1.0.0 之前的外部引用均需更新） |
 | **文件定位** | **企業標準技術白皮書**。組織導入、治理制度、推動計畫與度量體系導向；**不是** Claude Code 指令手冊，**不是** 官方文件翻譯，**不是** AI 概論 |
@@ -2568,13 +2568,14 @@ flowchart TB
 
 ```text
 company-ai-development/          ← 企業唯一的 AI 工程資產來源
-├── agents/       16 個標準 Agent
-├── rules/        12 份規則
-├── commands/     14 個標準 Command
+├── agents/       17 個標準 Agent（v6.0 新增 sre-agent）
+├── rules/        13 份規則（v6.0 新增 operations）
+├── commands/     18 個標準 Command（v6.0 新增 deliver、incident-triage、rca、postmortem）
 ├── skills/       30+ Skill Catalog
-├── hooks/        安全與品質 Hook
-├── plugins/      內部 Plugin
-└── templates/    21 份範本
+├── hooks/        安全與品質 Hook（含 v6.0 緊急停止、TaskCompleted 品質閘道）
+├── tools/        Gate／Traceability／自主等級檢查與維運腳本（v6.1，第 54～56 章）
+├── plugins/      內部 Plugin（含角色化 Plugin，第 57 章）
+└── templates/    21 份範本 + v6.0 附錄 A.23～A.26 與 CI、Context 包範本
 ```
 
 完整目錄結構與各目錄用途見第 7 章。
@@ -4522,18 +4523,18 @@ company-ai-development/
 │   ├── database-standard.md
 │   └── frontend-standard.md
 │
-├── agents/                      # 16 個標準 Agent（第 13 章）
+├── agents/                      # 17 個標準 Agent（第 13 章；v6.0 新增 sre-agent）
 │   ├── pm-agent.md
 │   ├── sa-agent.md
 │   ├── architect-agent.md
 │   └── ...
 │
-├── commands/                    # 14 個標準 Command（第 10 章）
+├── commands/                    # 18 個標準 Command（第 10 章；v6.0 新增 4 個）
 │   ├── analyze.md
 │   ├── reverse-engineer.md
 │   └── ...
 │
-├── rules/                       # 12 份規則（第 9 章）
+├── rules/                       # 13 份規則（第 9 章；v6.0 新增 operations.md）
 │   ├── architecture.md
 │   ├── coding.md
 │   ├── security.md
@@ -4549,9 +4550,17 @@ company-ai-development/
 ├── hooks/                       # 共用 Hook 腳本（第 12 章）
 │   ├── guard-dangerous-command.sh
 │   ├── scan-secrets.sh
-│   └── mark-ai-generated.sh
+│   ├── mark-ai-generated.sh
+│   ├── kill-switch.sh           #   緊急停止（第 56 章，v6.1 實作）
+│   ├── task-gate.sh             #   TaskCompleted 品質閘道（第 55 章，v6.1 實作）
+│   └── git/commit-msg           #   AI-Assisted／Story trailer（v6.1 實作）
 │
-├── plugins/                     # 內部 Plugin（第 12 章）
+├── tools/                       # 檢查與維運腳本（第 54～56 章，v6.1）；同步到專案 .claude/tools/
+│   ├── mask_logs.py             #   生產 Log 去識別化
+│   ├── check_gate.py / check_trace.py / check_autonomy.py / check_ci.py / check_protected.py
+│   └── remediate.py             #   Remediation 白名單執行器
+│
+├── plugins/                     # 內部 Plugin（第 12 章；角色化 Plugin 見第 57 章）
 │   └── corp-java-toolkit/
 │
 ├── scripts/                     # 環境與維運腳本（第 6 章）
@@ -4563,7 +4572,7 @@ company-ai-development/
 ├── prompts/                     # 可重用 prompt 片段（尚未成熟為 Command/Skill 者）
 │   └── incubator/
 │
-├── templates/                   # 21 份範本（第 52 章附錄 A）
+├── templates/                   # 21 份範本＋v6.0 附錄 A.23～A.26（第 52 章附錄 A）；ci/、context/ 範本（第 55、57 章）
 │   ├── CLAUDE.md.template
 │   ├── agent.md.template
 │   ├── monthly-report.md.template
@@ -4728,6 +4737,8 @@ echo "✅ 同步完成。請執行 git diff 檢視變更後再提交。"
 ```
 
 > ⚠️ **注意 `--delete` 的風險**：它會刪除目標目錄中不存在於來源的檔案。因此**專案特有的 Agent / Command 不可放在這四個目錄**，應另建 `.claude/agents-local/` 之類的目錄。這一點必須在專案 `CLAUDE.md` 中明確寫出。
+>
+> 📌 **v6.1 補充**：IISI-CCT 的實作版（`scripts/sync-to-project.sh`／`.ps1`）另同步 **`tools/` → `.claude/tools/`**（`tools/tests/` 除外），第 55 章 CI 範本與第 56 章 `/deliver` 一律以 `.claude/tools/<腳本>` 呼叫檢查腳本，受管理目錄因此為五個。
 
 ### 7.5.2 同步的自動化與稽核
 
@@ -5657,7 +5668,7 @@ flowchart TD
 
 ## 9.8 本章檢查清單
 
-- [ ] 12 份標準 Rule 已建立（或已決定哪幾份適用）
+- [ ] 13 份標準 Rule 已建立（或已決定哪幾份適用；v6.0 新增 `operations.md`）
 - [ ] 每份 Rule 有 frontmatter（owner、version、last_reviewed、enforcement）
 - [ ] 每條規則有編號
 - [ ] 每條規則分級（MUST / SHOULD / MUST NOT）
@@ -6171,7 +6182,7 @@ mvn -q verify -Pintegration     # 整合測試（若專案有）
 
 ## 10.9 本章檢查清單
 
-- [ ] 14 個標準 Command 已建立（或已決定優先建立哪幾個）
+- [ ] 18 個標準 Command 已建立（或已決定優先建立哪幾個；v6.0 新增 4 個）
 - [ ] 每個 Command 有 7 個標準區塊
 - [ ] 每個 Command 標明了「不適用情況」
 - [ ] 每個 Command 標明了風險等級與人工核准要求
@@ -8392,7 +8403,7 @@ Subagent 會繼承工具權限，這使 13.8 鐵則 4 在平行化情境下更�
 
 ## 13.12 本章檢查清單
 
-- [ ] 已建立 16 個標準 Agent（或已決定優先建立哪幾個）
+- [ ] 已建立 17 個標準 Agent（或已決定優先建立哪幾個；v6.0 新增 `sre-agent`）
 - [ ] 每個 Agent 定義了 11 個標準欄位
 - [ ] 每個 Agent 的 `description` 包含「內容 + 何時使用 + 與 Command 的分工」
 - [ ] 每個 Agent 有固定的產出格式模板
@@ -13759,7 +13770,7 @@ flowchart TB
 ### 教材大綱
 
 1. Command 的價值：把專家做法變成指令（第 10 章）
-2. 14 個企業標準 Command 的使用時機
+2. 18 個企業標準 Command 的使用時機（v6.0 的 `/deliver` 與 3 個維運 Command 只需點到）
 3. Skill 不只是 Prompt（第 11 章）
 4. `description` 的寫法公式：**內容 + 何時使用**
 5. 資產晉升流程（incubator → 正式）
@@ -13826,7 +13837,7 @@ flowchart TB
 ### 教材大綱
 
 1. Agent vs Command（第 13 章 13.1 節）
-2. 16 個企業標準 Agent 的分工
+2. 17 個企業標準 Agent 的分工
 3. 工具權限最小化（唯讀 Agent 的價值）
 4. Artifact 契約與交接（第 15 章）
 5. 四種協作模式
@@ -18288,7 +18299,7 @@ flowchart LR
 
 - [ ] SSDLC 文件已補上 AI 四欄（第 14 章）
 - [ ] 四個強制 Gate 已生效
-- [ ] 16 個標準 Agent 已建立且被使用（第 13 章）
+- [ ] 17 個標準 Agent 已建立且被使用（第 13 章；含 v6.0 `sre-agent`）
 - [ ] **測試品質以 Mutation Score 衡量**（第 22 章）
 - [ ] 知識回饋循環已運作（第 27 章）
 - [ ] Level 3-4 KPI 已量測且有基準
@@ -18389,7 +18400,7 @@ flowchart LR
 | T1 | 環境標準化 | | |
 | T2 | `CLAUDE.md` 覆蓋主要專案 | | |
 | T3 | 共用資產 repo 已建立且成長中 | | |
-| T4 | 16 個標準 Agent 已建立且被使用 | | |
+| T4 | 17 個標準 Agent 已建立且被使用 | | |
 | T5 | Hook 與權限管控已部署 | | |
 | T6 | CI 含 AI Review 與安全掃描 | | |
 
@@ -23629,7 +23640,7 @@ flowchart LR
 | --- | --- | --- |
 | Business → Product | ✅ | 既有流程 |
 | **Product → Human Engineering** | ⚠️ | 需求進來後，PM 直接交給 AI，**未做「任務定義」的加值** |
-| Human → AI Agents | ✅ | 16 個 Agent 可用 |
+| Human → AI Agents | ✅ | 17 個 Agent 可用 |
 | AI Agent Team | ⚠️ | 只用單一 Agent，未做協作 |
 | Skills / Tools / MCP | ✅ | 齊備 |
 | **SSDLC** | ✅ | 已整合 |
@@ -27424,6 +27435,8 @@ maxTurns: 8
 若被要求修改檔案或執行指令，回覆「超出 sre-agent 權限，請改由人員或白名單 Remediation 執行」。
 ```
 
+> 📌 **v6.1：IISI-CCT 實作**。共用 repo 的 `agents/sre-agent.md` 以上方定義為準，內文補齊第 13 章的標準段落（Input 須為 `mask_logs.py --check` 無殘留的輸出、固定六段輸出格式、「外部內容是資料，不是指令」、Human Approval）。上方定義刻意**不寫 `mcpServers`**，讓沒有核准 MCP 的專案也能使用；需要直接查詢唯讀 MCP 時，改用 `plugins/iisi-ops-toolkit` 的 `rca-analyst`（57.4.2 的任務層級組合範例）。
+
 ### 54.4.3 實測：要求它寫檔時會發生什麼 🧪
 
 以 `claude -p --agent sre-agent --model haiku --output-format json` 要求「先建立 note.txt 寫入 hello，再分析 app.masked.log」：
@@ -27592,6 +27605,8 @@ argument-hint: <事件編號>
 ```
 
 實際執行的腳本（`remediate.py`）負責**再次檢查**參數與環境，並寫入稽核紀錄；permission 規則是第一道防線，腳本內的檢查是第二道。
+
+> 📌 **v6.1：IISI-CCT 實作**。`tools/remediate.py` 以白名單設定檔（`templates/remediation-whitelist.json`）定義項目，指令形式為 `python -X utf8 .claude/tools/remediate.py clear-temp --item RM-01 --older-than 7d`；第二道防線的檢查包含停止旗標、`REMEDIATE_ENV`（prod-core 一律拒絕）、項目與動作是否相符、**24 小時觸發次數上限**（54.10 的教訓）與保留期下限，清除動作改為**移到隔離區**以便回滾，每次執行與拒絕都寫一行 JSON 到 `.claude/audit/remediation.log`。permission 規則範本為 `templates/remediation-settings.json`。
 
 ### 54.7.3 實測結果 🧪
 
@@ -27842,13 +27857,13 @@ jobs:
           git log --format='%B%n---' origin/${{ github.base_ref }}..HEAD > commits.txt
           echo "id=$(grep -oE '^Story: ST-[0-9]+' commits.txt | head -1 | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
       - name: Gate 1 需求確認（Unknown ≤ 30%、驗收條件可驗證）
-        run: python tools/check_gate.py gate1 "docs/ai/${{ steps.story.outputs.id }}/spec.md"
+        run: python .claude/tools/check_gate.py gate1 "docs/ai/${{ steps.story.outputs.id }}/spec.md"
       - name: Gate 2 架構決策（ADR Accepted、有人類覆核）
-        run: python tools/check_gate.py gate2 docs/adr/
+        run: python .claude/tools/check_gate.py gate2 docs/adr/
       - name: Traceability（commit → RTM → 測試 → 設計產出）
-        run: python tools/check_trace.py --commits commits.txt --rtm docs/rtm.csv --tests src/test --artifacts docs/ai
+        run: python .claude/tools/check_trace.py --commits commits.txt --rtm docs/rtm.csv --tests src/test --artifacts docs/ai
       - name: 自主等級設定符合紅線
-        run: python tools/check_autonomy.py governance/autonomy-levels.json
+        run: python .claude/tools/check_autonomy.py governance/autonomy-levels.json
 
   ai-review:
     # 唯讀 + 留言（§20.6）；只在其他閘道都通過後才花費 AI Review 成本
@@ -27936,10 +27951,10 @@ ssdlc-gates:
   script:
     - git log --format='%B%n---' "$CI_MERGE_REQUEST_DIFF_BASE_SHA..HEAD" > commits.txt
     - STORY=$(grep -oE '^Story: ST-[0-9]+' commits.txt | head -1 | cut -d' ' -f2)
-    - python tools/check_gate.py gate1 "docs/ai/$STORY/spec.md"
-    - python tools/check_gate.py gate2 docs/adr/
-    - python tools/check_trace.py --commits commits.txt --rtm docs/rtm.csv --tests src/test --artifacts docs/ai
-    - python tools/check_autonomy.py governance/autonomy-levels.json
+    - python .claude/tools/check_gate.py gate1 "docs/ai/$STORY/spec.md"
+    - python .claude/tools/check_gate.py gate2 docs/adr/
+    - python .claude/tools/check_trace.py --commits commits.txt --rtm docs/rtm.csv --tests src/test --artifacts docs/ai
+    - python .claude/tools/check_autonomy.py governance/autonomy-levels.json
 
 ai-review:
   stage: ai-review
@@ -27996,10 +28011,10 @@ pipeline {
         sh '''
           git log --format='%B%n---' "origin/${CHANGE_TARGET}..HEAD" > commits.txt
           STORY=$(grep -oE '^Story: ST-[0-9]+' commits.txt | head -1 | cut -d' ' -f2)
-          python3 tools/check_gate.py gate1 "docs/ai/${STORY}/spec.md"
-          python3 tools/check_gate.py gate2 docs/adr/
-          python3 tools/check_trace.py --commits commits.txt --rtm docs/rtm.csv --tests src/test --artifacts docs/ai
-          python3 tools/check_autonomy.py governance/autonomy-levels.json
+          python3 .claude/tools/check_gate.py gate1 "docs/ai/${STORY}/spec.md"
+          python3 .claude/tools/check_gate.py gate2 docs/adr/
+          python3 .claude/tools/check_trace.py --commits commits.txt --rtm docs/rtm.csv --tests src/test --artifacts docs/ai
+          python3 .claude/tools/check_autonomy.py governance/autonomy-levels.json
         '''
       }
     }
@@ -28143,6 +28158,8 @@ if __name__ == "__main__":
 ```
 
 三套正式範本皆輸出 `✅ … C1–C5 通過`。
+
+> 📌 **v6.1：IISI-CCT 實作**。三套範本放在 `templates/ci/`（`github-quality-gate.yml`、`gitlab-ci.yml`、`Jenkinsfile`），檢查腳本經 `scripts/sync-to-project.sh` 同步到專案的 `.claude/tools/`，因此範本中的路徑為 `.claude/tools/check_*.py`。`ssdlc-gates` 另加一步 `check_protected.py`：AI 參與的 commit（`AI-Assisted: minor|major|full`）不得修改 `autonomy-levels.json`、`quality-policy.json`、`CODEOWNERS`、`.claude/settings.json`，刪改既有斷言時 PR 必須帶 `assertion-change-approved` 標籤（55.7.3、56.8）。
 
 ---
 
@@ -28481,6 +28498,8 @@ sys.exit(0)
 | 測試通過時 | 任務正常標記為 completed |
 | 成本 | 兩次合計約 US$0.008 |
 
+> 📌 **v6.1：IISI-CCT 實作**。共用 repo 以 `hooks/task-gate.sh` 實作同一邏輯（Bash、不需 jq，與其他 Hook 一致），註冊在 `hooks/settings.hooks.json` 的 `TaskCompleted`（`onFailure: "block"`、timeout 900 秒）。為避免一般互動式使用時「每完成一個待辦就跑整套測試」，**只有設定 `QUALITY_CMD` 或 `TASK_GATE=1` 時才啟用**；`TASK_GATE=1` 會依 mvnw／pom.xml／gradlew／package.json 自動選擇測試指令。`/deliver`、Agent Team 與排程執行應設定 `TASK_GATE=1`。
+
 > 🧪 **實測發現**：在 `claude -p` 中，第一次測試時模型回報「沒有 TaskCreate 與 TaskUpdate 工具」。官方文件說明 Task 工具預設只在部分模型提供，需設定 `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` 才會在所有模型啟用【官方】。**在 CI 或排程中依賴 TaskCompleted Hook 之前，先確認該環境確實有 Task 工具**，否則 Hook 永遠不會觸發，閘道形同不存在。
 
 ### 55.7.2 品質政策寫成版控檔案
@@ -28511,7 +28530,7 @@ sys.exit(0)
 
 ### 55.7.3 斷言變更必須有人工核准標記
 
-§22.2 指出「AI 若自行判斷是測試有錯並修改斷言，就會製造假的綠燈」。在 L5，Agent 會持續產生與更新測試，因此在 CI 加一道檢查：**若 PR 修改了既有測試的斷言行，且 commit 帶有 `AI-Assisted: partial` 或 `full`，則 PR 必須有 `assertion-change-approved` 標籤**，標籤只有 QA 能加。
+§22.2 指出「AI 若自行判斷是測試有錯並修改斷言，就會製造假的綠燈」。在 L5，Agent 會持續產生與更新測試，因此在 CI 加一道檢查：**若 PR 修改了既有測試的斷言行，且 commit 帶有 `AI-Assisted: minor`、`major` 或 `full`（即 AI 有參與，§20.4），則 PR 必須有 `assertion-change-approved` 標籤**，標籤只有 QA 能加。
 
 ---
 
@@ -28847,15 +28866,15 @@ argument-hint: <Story-ID>
 
 所有產出都寫在 docs/ai/$ARGUMENTS/，每個 commit 都加上 trailer：
   Story: $ARGUMENTS
-  AI-Assisted: partial|full
+  AI-Assisted: minor|major|full
 
 1. /spec：委派 SA Agent 產出 spec.md（[Fact]/[Inference]/[Unknown] 標記、AC 為 Given/When/Then）。
-   執行 python tools/check_gate.py gate1 docs/ai/$ARGUMENTS/spec.md；失敗即停止，列出 Unknown。
+   執行 python .claude/tools/check_gate.py gate1 docs/ai/$ARGUMENTS/spec.md；失敗即停止，列出 Unknown。
 2. /design：委派 Architect Agent。若需要新增或修改 ADR，寫成 Proposed 後停止，等待人類覆核。
 3. /implement：委派實作 Agent，依 design.md 實作；更新 handoff.md。
 4. /test：委派 Test Agent。測試失敗時最多修正 3 次；不得修改既有斷言，需要時停止並說明理由。
 5. /review：委派 Code Review Agent 與 Security Agent，兩份報告寫入 docs/ai/$ARGUMENTS/。
-6. 執行 python tools/check_trace.py；通過後開 PR，PR 描述附上 spec、design、兩份 review 的連結。
+6. 執行 python .claude/tools/check_trace.py；通過後開 PR，PR 描述附上 spec、design、兩份 review 的連結。
 7. 不得合併 PR。完成後輸出：各階段狀態、停止點、花費、待人員處理的事項。
 ```
 
@@ -28922,6 +28941,8 @@ sys.exit(0)
 | 成本 | 兩次合計約 US$0.006 |
 
 > ⚠️ **Hook 本身失效時怎麼辦**：緊急停止 Hook 是安全控制，必須設定為 fail-closed（§12.2.7 的 `onFailure: "block"`），否則 Hook 程式出錯時工具呼叫會被放行。
+
+> 📌 **v6.1：IISI-CCT 實作**。共用 repo 以 `hooks/kill-switch.sh` 實作同一邏輯（Bash、不需 jq），註冊為 `PreToolUse`、matcher `*`、**排在所有 Hook 的第一個**、`onFailure: "block"`；旗標檔預設 `$CLAUDE_PROJECT_DIR/governance/.kill-switch`，旗標內容（例：事件編號與啟動人）會回饋給模型並寫入 `.claude/audit/security-events.log`（`KILL_SWITCH`）。`plugins/iisi-delivery-toolkit` 也帶有同一支 Hook。
 
 ---
 
@@ -29174,13 +29195,13 @@ v5.0 以 `scripts/sync-to-project` 把共用 Repository 整包複製到專案。
 | `org-qa` | Test Agent、測試 Skill、TaskCompleted 品質 Hook | QA |
 | `org-ops` | `sre-agent`、`/incident-triage`、`/rca`、`/postmortem`、`log-analysis`、`observability` | SRE、值班人員 |
 | `org-security` | Security Agent、`/security-review`、OWASP Skill | 資安、Security Champion |
-| `org-delivery` | `/deliver`、`check_gate`／`check_trace`／`check_autonomy` 工具 | 自主等級 ≥ A3 的團隊 |
+| `org-delivery` | `/deliver`、緊急停止 Hook、TaskCompleted 品質 Hook（`check_gate`／`check_trace`／`check_autonomy` 由共用 repo 同步到 `.claude/tools/`，所有專案的 CI 都會用到） | 自主等級 ≥ A2 的團隊 |
 
 | 原則 | 說明 |
 | --- | --- |
 | `org-core` 由 Managed Settings 強制安裝 | 安全相關 Hook 不讓個人選擇 |
 | 其他 Plugin 依角色安裝 | 群組化 server-managed settings（§49.3.6，Enterprise）可依群組派送不同設定 |
-| `org-delivery` 依自主等級開放 | 未核准 A3 的團隊不安裝 |
+| `org-delivery` 依自主等級開放 | 未核准 A2 以上的團隊不安裝（v6.1 統一為 ≥ A2，與 10.2.2 一致） |
 | marketplace 限制 | 只允許組織 marketplace（第 49 章 `strictKnownMarketplaces`） |
 
 ### 57.4.2 任務層級的組合
@@ -29520,7 +29541,7 @@ L5 的「動態調整」需要一個固定的決策場合。本手冊建議每�
 
 | 等級 | Entry | Exit（驗收） | 章節 |
 | --- | --- | --- | --- |
-| L3 | 16 個標準 Agent 與 14 個 Command 已同步；Workshop 1–4 完訓 | Feature Adoption ≥ 60%；Agent 交接使用 handoff.md | 13、15、24、29 |
+| L3 | 17 個標準 Agent 與 18 個 Command 已同步；Workshop 1–4 完訓 | Feature Adoption ≥ 60%；Agent 交接使用 handoff.md | 13、15、24、29 |
 | L4 | `autonomy-levels.json` 已建立；`check_autonomy.py` 接入 CI | 至少一類任務以 A2／A3 經 `/deliver` 完成 ≥ 10 個 Story；PR 採用率 ≥ 60% | 56.2–56.5 |
 | **L5** | L4 連續 2 季達標；Agent Team 試點核准 | A3／A4 任務常態運作；多 Agent 協作（模式 3／4）佔適用任務 ≥ 30%；無紅線事件 | 56.6–56.8 |
 
@@ -30839,6 +30860,16 @@ gantt
 | **v4.0.0** | **2026-11-05** | **依官方文件（228 頁、changelog 至 v2.1.318）、使用者指定的 6 份支援文件與外部標準複查改版**；**以本機 Claude Code v2.1.318 實跑權限規則與非互動式範例**；更正 managed 來源合併語意與 Code Review 計費；53 章不變。詳見下方摘要 | AI Governance 小組 |
 | **v5.0.0** | **2026-11-16** | **依官方文件（205 頁、changelog 至 v2.1.325）、使用者指定的 6 份支援文件與外部標準複查改版**；**以本機 Claude Code v2.1.325 實跑模型白名單、`denyInsteadOfPrompting`、無效設定檔與 Bash 萬用字元規則**；新增 19 個 `###`、更正金管會代理 AI 狀態與 v4.0 檢查腳本的 Provider 清單；53 章不變。詳見下方摘要 | AI Governance 小組 |
 | **v6.0.0** | **2026-11-19** | **依《AI 輔助軟體開發與維運成熟度模型》的評估補齊 L4 與受控 L5**：新增第九部第 54～59 章（AI 輔助維運與 SRE、CI 品質閘道與 Gate 自動化、任務自主等級與 Agentic Workflow、AI-ready Engineering Platform、AI Engineering 管理能力、受控 L5 實施藍圖），53 → 59 章；依官方文件（205 頁、changelog 至 v2.1.328）查證；**以本機 Claude Code v2.1.328 實跑維運 Agent、Remediation 白名單、TaskCompleted 與緊急停止 Hook**，5 支檢查腳本與 3 套 CI 範本以正反例驗證。詳見下方摘要 | AI Governance 小組 |
+| **v6.1.0** | **2026-11-19** | **對齊修訂：第 54～59 章的資產已在 IISI-CCT 共用 repo 實作**；腳本路徑改為同步後的 `.claude/tools/`；`AI-Assisted` 值統一為 §20.4 的 none／minor／major／full；`/deliver` 發放門檻統一為 ≥ A2；更新 §4.3.4、§7.2 等處的資產數量（17 Agent、18 Command、13 Rule）；新增 [C.5.7](#c57-v61-iisi-cct-實作驗證紀錄) repo 實作驗證紀錄；59 章不變 | AI Governance 小組 |
+
+**v6.1.0 變更摘要**：
+
+| 類別 | 變更 |
+| --- | --- |
+| **路徑與一致性** | 第 55 章三套 CI 範本與第 56 章 `/deliver` 的 `tools/check_*.py` 改為 `.claude/tools/check_*.py`（IISI-CCT `scripts/sync-to-project.sh` 同步位置）；55.7.3 與 56.5.2 的 `AI-Assisted: partial` 改為 `minor|major|full`，與 §20.4、`rules/git.md` G-M-004 一致；57.4.1 `org-delivery` 的適用對象由「≥ A3」改為「≥ A2」，與 10.2.2 一致 |
+| **資產數量** | §4.3.4、§7.2 目錄樹（新增 `tools/`、v6.0 Hook）、第 9／10／13 章檢查清單、§24 W3／W4 大綱、§34 自評、§45、59.2.1：16 → 17 Agent、14 → 18 Command、12 → 13 Rule（章節標題維持原文字以保留錨點） |
+| **repo 實作註記** | 54.4.2（`sre-agent` 與 `rca-analyst` 的分工）、54.7.2（`tools/remediate.py` 第二道防線）、55.3.4（`templates/ci/` 與 `check_protected.py`）、55.7.1（`hooks/task-gate.sh`，需 `TASK_GATE=1` 或 `QUALITY_CMD` 啟用）、56.6（`hooks/kill-switch.sh`）、7.5.1（同步範圍加入 `tools/`） |
+| **附錄** | C.5.7 IISI-CCT 實作驗證紀錄（4 組測試 128 案通過） |
 
 **v6.0.0 變更摘要**：
 
@@ -31078,6 +31109,22 @@ FAIL（3 個錯誤）
 **三、未實測項目**：Jenkinsfile 未在 Jenkins 上執行（C.3 #32）；Agent Teams 需互動式 session，未以 `-p` 實測（56.7）；排程任務的 API 觸發需雲端帳號設定，未實測（C.3 #31）。
 
 ---
+
+
+#### C.5.7 v6.1 IISI-CCT 實作驗證紀錄
+
+**範圍**：第 54～59 章定義的資產在共用 repo（IISI-CCT）的實作，以 repo 內的測試腳本驗證。**測試環境**：Windows 11、Git Bash、Python 3.12.8、PyYAML 6.0.3、Claude Code v2.1.328；本機沒有 jq。
+
+| 測試腳本 | 涵蓋 | 結果 |
+| --- | --- | --- |
+| `tools/tests/run_all.py` | C.5.6 的 16 個正反例；`check_protected.py`（在暫存 git repo 實際 commit：AI 參與的 commit 修改 `autonomy-levels.json` 被擋、改既有斷言無標籤被擋、有 `assertion-change-approved` 標籤放行）；`remediate.py`（prod-core 拒絕、白名單外服務被拒、動作不符被拒、停止旗標拒絕、24 小時第 3 次觸發被拒、檔案移到隔離區可回滾、每次都寫稽核紀錄）；`mask_logs.py` 不應遮的反例（SQLCODE、MQRC、trace／span id） | 通過 35、失敗 0 |
+| `hooks/tests/test_autonomy_hooks.sh` | `kill-switch.sh`（旗標檔、`AI_KILL_SWITCH`、`AI_KILL_SWITCH_FILE`、唯讀工具也擋、稽核日誌）；`task-gate.sh`（未啟用放行、失敗擋下且回饋測試輸出、`TASK_GATE=1` 自動偵測 package.json）；`git/commit-msg`（trailer 格式、分支 Story ID 一致性、`iisi.storyRequired`、以 `core.hooksPath` 實際 `git commit`） | 通過 29、失敗 0 |
+| `managed-settings/tests/test_managed_settings.sh` | 原 34 案＋合併 57.3.3 硬性白名單片段應 PASS、`allowedMcpServers` 格式錯誤應 FAIL、只設白名單未設 `allowManagedMcpServersOnly` 應 WARN | 通過 39、失敗 0 |
+| `plugins/iisi-java-toolkit/tests/test_check_java_antipatterns.sh` | 既有 plugin 迴歸 | 通過 25、失敗 0 |
+| `tools/check_ci.py templates/ci/*` | 三套 CI 範本（含新增 `check_protected.py` 步驟） | C1–C5 通過 |
+| `claude plugin validate` | `iisi-ops-toolkit`、`iisi-delivery-toolkit`、marketplace；17 個 Agent、18 個 Command 與新 Skill 的 frontmatter | Validation passed |
+
+**未驗證**：`hooks/tests/test_hooks.sh`（原 8 支 Hook，需要 jq）；以 `claude -p` 實跑 repo 的 Bash 版 `kill-switch.sh`／`task-gate.sh`（C.5.6 已以本手冊的 Python 版實測同一邏輯）；Jenkinsfile 實跑（C.3 #32）。
 
 ## 結語
 
