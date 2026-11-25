@@ -10,10 +10,10 @@ categories = ['教學']
 
 | 項目 | 內容 |
 | --- | --- |
-| **文件版本** | 3.0 |
-| **最後更新** | 2026 年 9 月 29 日 |
-| **查證基準** | docs.github.com（Get started 文件樹與各產品文件）、GitHub Changelog（2026 年 1–9 月）；Git 2.56.0／Git for Windows 2.56.0、GitHub CLI 2.101.0、Git LFS 3.8.0、GitHub Desktop 3.6.6、VS Code 1.139 |
-| **適用平台** | GitHub.com（Free／Pro／Team／Enterprise Cloud），GitHub Enterprise Cloud with data residency（GHE.com）；GitHub Enterprise Server 3.20–3.22 可參考但功能以各版本文件為準 |
+| **文件版本** | 3.1 |
+| **最後更新** | 2026 年 11 月 25 日 |
+| **查證基準** | docs.github.com（Get started 文件樹與各產品文件）、GitHub Changelog（2026 年 1–11 月，至 11-24）；Git 2.56.1／Git for Windows 2.56.1、GitHub CLI 2.105.0、Git LFS 3.8.1、Git Credential Manager 3.0.2、GitHub Desktop 3.6.11、VS Code 1.139 |
+| **適用平台** | GitHub.com（Free／Pro／Team／Enterprise Cloud），GitHub Enterprise Cloud with data residency（GHE.com）；GitHub Enterprise Server 3.21–3.23（3.23 為 2026-11-20 發布的 release candidate）可參考，但功能以各版本文件為準 |
 | **適用對象** | 新進開發同仁、團隊協作開發者、Tech Lead、DevOps／平台工程、資安與稽核人員 |
 | **文件定位** | 企業標準技術白皮書／內部 GitHub 標準教材 |
 | **姊妹文件** | [git使用教學](../git使用教學/)（Git 指令與內部原理深入說明） |
@@ -22,8 +22,9 @@ categories = ['教學']
 
 > ⚠️ **v3.0 重大改版說明**：本版以 2026-09-29 的 GitHub 官方文件與 Changelog 為基準逐章查證改寫。v2.1 內容中程式碼區塊註解被誤轉為標題（`###`）、指令內 URL 被加上角括號、已退場的 Projects (classic) 自動化、不存在的 `pull_request` 事件類型 `merged`、虛構的分支保護／環境 YAML、Dependabot 已移除的 `reviewers` 選項、全面過時的 Actions 版本（Node 20 已於 2026-09-23 停用）、以明文 `credential.helper store` 儲存權杖、已停止服務的學習資源等均已更正；並新增帳號與方案、存取權限、GitHub Advanced Security 產品線、官方入門路徑、Commit 簽署、Rulesets、Merge queue、Codespaces、Packages、Pages、Writing on GitHub、Actions 供應鏈安全與**企業治理與導入藍圖**等章節。完整更正清單請見[附錄 B：版本更新紀錄](#附錄-b版本更新紀錄)，查證來源請見[附錄 C：查證紀錄](#附錄-c查證紀錄)。
 
-<!-- TOC-AUTO-BEGIN -->
+> **v3.1 改版說明（2026-11-25）**：依 2026-10-01 至 2026-11-24 的 GitHub Changelog 與官方文件逐章複查。重點更新：公開儲存庫的 `pull_request_target` 預設封鎖日期**延後為 2026-12-02**；Stacked pull requests、Actions workflow lockfiles、GitHub Agentic Workflows、Copilot code review 核准（approvals）、Issues 的 **Moderate** 角色均已 GA；新增 issue statuses 與 repository boards（預覽）、`gh auth login --expiring` 到期自動更新權杖、一次匯入分支保護為 Rulesets、AI 偵測秘密的 Push protection、Actions 日誌秘密掃描、Dependabot 非活躍儲存庫暫停警示（2026-12-08 起）、package firewall（預覽）與「GitHub Enterprise 內含 Copilot」授權模式；工具基準升級為 Git 2.56.1、GitHub CLI 2.105.0、GitHub Desktop 3.6.11。逐項清單見 [B.2](#b2-v30--v31-更新表)，查證來源見[附錄 C](#附錄-c查證紀錄) 第 42 項起。
 
+<!-- TOC-AUTO-BEGIN -->
 ## 目錄
 
 - [執行摘要](#執行摘要)
@@ -35,6 +36,7 @@ categories = ['教學']
   - [1.5 團隊開發的挑戰](#15-團隊開發的挑戰)
   - [1.6 Git 的解決方案](#16-git-的解決方案)
   - [1.7 GitHub 的附加價值](#17-github-的附加價值)
+  - [📝 實務案例](#-實務案例)
   - [1.8 帳號類型與方案](#18-帳號類型與方案)
   - [1.9 存取權限模型](#19-存取權限模型)
   - [1.10 GitHub Advanced Security 產品線](#110-github-advanced-security-產品線)
@@ -45,6 +47,7 @@ categories = ['教學']
   - [2.2 設定個人資訊](#22-設定個人資訊)
   - [2.3 GitHub 帳號設定](#23-github-帳號設定)
   - [2.4 Personal Access Token 設定（替代方案）](#24-personal-access-token-設定替代方案)
+  - [📝 注意事項](#-注意事項)
   - [2.5 Git 效能優化設定](#25-git-效能優化設定)
   - [2.6 Commit 簽署設定](#26-commit-簽署設定)
   - [2.7 受限網路與連線疑難排解](#27-受限網路與連線疑難排解)
@@ -57,6 +60,7 @@ categories = ['教學']
   - [3.5 建立 Pull Request (PR)](#35-建立-pull-request-pr)
   - [3.6 Code Review 流程](#36-code-review-流程)
   - [3.7 Merge 規範](#37-merge-規範)
+  - [📝 完整開發流程範例](#-完整開發流程範例)
   - [3.8 GitHub flow 官方流程](#38-github-flow-官方流程)
   - [3.9 💡 本章實務建議](#39--本章實務建議)
 - [4. Git 進階操作](#4-git-進階操作)
@@ -82,6 +86,7 @@ categories = ['教學']
   - [6.4 Push 被拒絕](#64-push-被拒絕)
   - [6.5 忘記切換分支](#65-忘記切換分支)
   - [6.6 Git 狀態混亂](#66-git-狀態混亂)
+  - [📝 緊急求救指令](#-緊急求救指令)
   - [6.7 效能問題排除](#67-效能問題排除)
   - [6.8 網路連線問題](#68-網路連線問題)
   - [6.9 💡 本章實務建議](#69--本章實務建議)
@@ -102,6 +107,7 @@ categories = ['教學']
   - [8.6 Security 安全功能](#86-security-安全功能)
   - [8.7 GitHub CLI 進階應用](#87-github-cli-進階應用)
   - [8.8 GitHub Apps 與整合](#88-github-apps-與整合)
+  - [📝 GitHub 功能使用建議](#-github-功能使用建議)
   - [8.9 GitHub Copilot 整合](#89-github-copilot-整合)
   - [8.10 GitHub Codespaces 雲端開發環境](#810-github-codespaces-雲端開發環境)
   - [8.11 GitHub Packages 與 Container Registry](#811-github-packages-與-container-registry)
@@ -117,6 +123,7 @@ categories = ['教學']
   - [9.6 監控與通知](#96-監控與通知)
   - [9.7 Secrets 與環境變數管理](#97-secrets-與環境變數管理)
   - [9.8 最佳實務與注意事項](#98-最佳實務與注意事項)
+  - [📝 CI/CD 實施檢查清單](#-cicd-實施檢查清單)
   - [9.9 💡 本章實務建議](#99--本章實務建議)
 - [10. 安全最佳實務](#10-安全最佳實務)
   - [10.1 認證與授權](#101-認證與授權)
@@ -175,9 +182,10 @@ categories = ['教學']
 - [附錄 A：詞彙表](#附錄-a詞彙表)
 - [附錄 B：版本更新紀錄](#附錄-b版本更新紀錄)
   - [B.1 版本歷程](#b1-版本歷程)
-  - [B.2 v2.1 → v3.0 更正表](#b2-v21--v30-更正表)
-  - [B.3 v3.0 新增章節](#b3-v30-新增章節)
-  - [B.4 v2.x 更新內容回顧](#b4-v2x-更新內容回顧)
+  - [B.2 v3.0 → v3.1 更新表](#b2-v30--v31-更新表)
+  - [B.3 v2.1 → v3.0 更正表](#b3-v21--v30-更正表)
+  - [B.4 v3.0 新增章節](#b4-v30-新增章節)
+  - [B.5 v2.x 更新內容回顧](#b5-v2x-更新內容回顧)
 - [附錄 C：查證紀錄](#附錄-c查證紀錄)
   - [C.1 待確認事項](#c1-待確認事項)
 - [附錄 D：參考資料](#附錄-d參考資料)
@@ -200,9 +208,9 @@ GitHub 已從「Git 程式碼託管服務」演進為涵蓋**規劃、撰寫、�
 
 **本版六大重點建議：**
 
-1. **以 Rulesets 取代傳統分支保護**：Rulesets 可疊加、可先以「Evaluate」模式試行，且可由具讀取權限者檢視；GitHub 已提供一鍵「Convert to ruleset」（2026-08）。見 [10.5](#105-分支保護規則)。
+1. **以 Rulesets 取代傳統分支保護**：Rulesets 可疊加、可先以「Evaluate」模式試行，且可由具讀取權限者檢視；GitHub 已提供單條規則「Convert to ruleset」（2026-08）與整個儲存庫一次「Import branch protection rules」（2026-10）。見 [10.5](#105-分支保護規則)。
 2. **身分驗證全面升級**：GitHub.com 貢獻者已強制 2FA；建議以 TOTP 為主、passkey／安全金鑰為備援；HTTPS 使用 Git Credential Manager 或 `gh auth login`，權杖改用 fine-grained PAT 並設定期限。見 [2.3](#23-github-帳號設定)、[2.4](#24-personal-access-token-設定替代方案)。
-3. **Actions 供應鏈安全**：第三方 Action 一律以完整 commit SHA 釘選（2026-03 Trivy 事件中 76 個版本標籤遭改寫），`GITHUB_TOKEN` 權限最小化，雲端部署改用 OIDC；Node 20 已停用，請升級至支援 Node 24 的 Action 版本。見 [9.8](#98-最佳實務與注意事項)。
+3. **Actions 供應鏈安全**：第三方 Action 一律以完整 commit SHA 釘選（2026-03 Trivy 事件中 76 個版本標籤遭改寫），`GITHUB_TOKEN` 權限最小化，雲端部署改用 OIDC；Node 20 已停用，請升級至支援 Node 24 的 Action 版本；以 workflow lockfile（2026-10 GA）鎖定含遞移相依的 Action；公開儲存庫的 `pull_request_target` 自 **2026-12-02** 起預設封鎖。見 [9.8](#98-最佳實務與注意事項)。
 4. **秘密零落地**：啟用 Secret scanning 與 Push protection，並以 Ruleset「Require secret scanning alerts are resolved」阻擋含秘密的 PR 合併（2026-09）。見 [10.2](#102-機密資訊管理)。
 5. **以 Merge queue 與自動合併穩定主幹**：高流量倉庫以 merge queue 避免「各自綠燈、合併後紅燈」，CI 必須監聽 `merge_group` 事件。見 [3.7](#37-merge-規範)。
 6. **分階段企業導入**：依[第 15 章](#15-企業治理與導入藍圖)的路線圖，先完成身分（SSO／EMU）、組織結構與基準政策，再擴展 GHAS、Copilot 與稽核串流。
@@ -215,7 +223,7 @@ GitHub 已從「Git 程式碼託管服務」演進為涵蓋**規劃、撰寫、�
 
 ### 1.1 什麼是 Git？
 
-Git 是一個**分散式版本控制系統**（Distributed Version Control System, DVCS），由 Linus Torvalds 於 2005 年為 Linux 核心開發而建立，目前由開源社群維護（本版基準 Git 2.56.0，2026-09-28 發布）。Git 幫助開發團隊：
+Git 是一個**分散式版本控制系統**（Distributed Version Control System, DVCS），由 Linus Torvalds 於 2005 年為 Linux 核心開發而建立，目前由開源社群維護（本版基準 Git 2.56.1，2026-11-10 發布的安全性更新版）。Git 幫助開發團隊：
 
 - 追蹤程式碼的變更歷史（誰、何時、為何修改）
 - 支援多人同時開發並安全地合併彼此的變更
@@ -226,7 +234,7 @@ Git 是一個**分散式版本控制系統**（Distributed Version Control Syste
 
 ### 1.2 什麼是 GitHub？
 
-> ⚠️ **v3.0 更正**：v2.1 將 GitHub 定義為「雲端程式碼託管平台」。依官方 [What is GitHub?](https://docs.github.com/en/get-started/start-your-journey/about-github-and-git) 最新定義，GitHub 是**支援整個軟體開發流程（從規劃工作到部署與營運軟體）的平台**。
+> ⚠️ **v3.0 更正**：v2.1 將 GitHub 定義為「雲端程式碼託管平台」。依官方 [What is GitHub?](https://docs.github.com/en/get-started/start-your-journey/what-is-github) 最新定義，GitHub 是**支援整個軟體開發流程（從規劃工作到部署與營運軟體）的平台**。
 
 GitHub 以開源的 Git 為基礎，將 Git 專案（稱為 **repository／儲存庫**）託管於雲端，並加上規劃、協作、自動化、安全與 AI 輔助工具。官方以 SDLC 六個階段說明 GitHub 的能力：
 
@@ -240,6 +248,14 @@ GitHub 以開源的 Git 為基礎，將 Git 專案（稱為 **repository／儲�
 | **Operate（營運）** | 監控應用、管理相依套件、找出並修復安全問題 | Dependabot、Code scanning、Secret scanning、Security overview |
 
 官方也強調：**不需要一次使用所有階段**。多數團隊從一個儲存庫與幾個 Issue 開始，再隨專案成長逐步擴大使用範圍。
+
+官方「Is GitHub right for me?」列出的常見用途，除了版本控制、Code review、CI/CD 與專案管理，也包含發布套件、託管文件與網站、參與社群討論，以及**使用 AI 工具與 agent 協助撰寫、理解、審查與自動化程式開發**。企業評估導入範圍時，可把這份清單當成需求訪談的檢核表，逐項記錄三個答案：
+
+| 檢核問題 | 範例回答 | 判讀 |
+| --- | --- | --- |
+| 目前使用什麼工具？ | Issue 追蹤用 Jira、CI 用 Jenkins | 決定是「整合」還是「取代」 |
+| 是否要移到 GitHub？何時？ | CI 於 Phase 3 改用 Actions | 對應 [15.7](#157-分階段導入路線圖) 路線圖 |
+| 由誰負責、如何驗收？ | DevOps 團隊；以必要狀態檢查通過率驗收 | 每一項都要有負責人與可量測的驗收條件 |
 
 ### 1.3 為何要使用？
 
@@ -370,6 +386,8 @@ GitHub 方式：分支 → Pull Request → CI 自動測試 → 同事審查 →
 
 > 💡 **計費提醒（2026）**：GitHub-hosted runner 自 2026-01-01 起降價最高 39%；公開儲存庫使用標準 runner 與所有 self-hosted runner 目前**免費**（原訂 2026-03 對 self-hosted runner 收取平台費已延後）。Actions 詳細計費見 [9.8](#98-最佳實務與注意事項)。
 
+> **v3.1 更新**：2026-10-28 起，與 GitHub 或 Microsoft 業務團隊簽約的 GitHub Enterprise Cloud 客戶可採用「**GitHub Enterprise 內含 Copilot**」模式：每位 Enterprise 授權使用者都能使用 Copilot（功能與模型同 Copilot Enterprise），AI 用量自第一個請求起依企業預算計費，**不含每席位的月度 AI credits**；同一企業中沒有 Enterprise 授權的使用者可購買 Copilot Standalone（US$10／使用者／月）。預算用盡時，程式碼補全與 next edit suggestions 仍可使用；Copilot Chat、code review 與雲端 agent 需有可用預算。自助訂閱客戶將分階段開放，Copilot Business／Enterprise 仍可購買。詳見 [8.9](#89-github-copilot-整合)、[15.6](#156-成本管理)。
+
 ### 1.9 存取權限模型
 
 > 🆕 **v3.0 新增**
@@ -380,7 +398,7 @@ GitHub 以「**角色（role）= 一組權限（permission）**」控管存取�
 | --- | --- | --- |
 | **個人帳號的儲存庫** | Owner、Collaborator | 只有兩種層級，適合個人專案 |
 | **組織** | Owner、Member、Billing manager、Security manager 等 | Owner 擁有完整管理權；可建立自訂組織角色（custom organization roles） |
-| **組織儲存庫** | Read、Triage、Write、Maintain、Admin | 可透過 Team 批次授權，亦可建立自訂儲存庫角色（Enterprise Cloud） |
+| **組織儲存庫** | Read、Triage、Moderate、Write、Maintain、Admin | 可透過 Team 批次授權，亦可建立自訂儲存庫角色（Enterprise Cloud） |
 | **企業** | Enterprise owner、Billing manager 等 | 另可建立自訂企業角色（fine-grained permissions） |
 
 **儲存庫角色建議對應：**
@@ -389,11 +407,27 @@ GitHub 以「**角色（role）= 一組權限（permission）**」控管存取�
 | --- | --- | --- |
 | **Read** | 檢視、clone、開 Issue、留言 | 跨部門檢視者、稽核人員 |
 | **Triage** | 管理 Issue／PR 標籤、指派，不能推送 | PM、QA、社群維護者 |
+| **Moderate**（2026-10 GA） | 編輯他人的 Issue 標題／內容／留言、隱藏留言、鎖定對話、在儲存庫間轉移 Issue、建立與編輯標籤／里程碑／Discussion 分類；不授予程式碼存取 | 社群經理、客服窗口、文件維護者 |
 | **Write** | 推送分支、合併 PR（受規則限制） | 一般開發者 |
 | **Maintain** | 管理儲存庫設定（不含危險操作） | Tech Lead |
 | **Admin** | 完整權限含刪除、變更可見性、管理 Rulesets | 儲存庫負責人（人數應最小化） |
 
 > ⚠️ **最小權限原則**：以 Team 而非個人授權；Admin 角色應有明確名單並每季審查（見 [13.9](#139-企業導入檢查清單)）。
+
+**如何驗證權限設定**（Reviewer 可逐條執行並比對核准名單）：
+
+```bash
+# 列出儲存庫協作者與實際角色（含經由 Team 取得的權限）
+gh api repos/{owner}/{repo}/collaborators --paginate --jq '.[] | [.login, .role_name] | @tsv'
+
+# 查詢單一使用者在儲存庫的有效權限
+gh api repos/{owner}/{repo}/collaborators/USERNAME/permission --jq '{permission, role_name}'
+
+# 列出被授權到該儲存庫的 Team 與權限
+gh api repos/{owner}/{repo}/teams --jq '.[] | [.slug, .permission] | @tsv'
+```
+
+判讀方式：`role_name` 為 `admin` 的名單必須與核准的儲存庫負責人清單一致；一般開發者應為 `write`（或自訂角色）；跨部門檢視者與稽核人員應為 `read`；出現未經核准的個人直接授權時，改為透過 Team 授權。
 
 ### 1.10 GitHub Advanced Security 產品線
 
@@ -409,6 +443,18 @@ GitHub 以「**角色（role）= 一組權限（permission）**」控管存取�
 
 > 💡 自 2026-04 起，儲存庫／組織／企業的 **Security** 分頁已更名為 **Security & quality**，原「Vulnerability alerts」側欄改名為「Findings」；既有 URL 與 API 不變。
 
+**2026-10～11 新增的安全能力**（多為預覽，導入前請確認授權與計費）：
+
+| 能力 | 狀態 | 重點 | 詳見 |
+| --- | --- | --- | --- |
+| Push protection 封鎖 **AI 偵測秘密** | 公開預覽（2026-10-28） | 不再只依賴已知格式；需先啟用 AI-detected secrets 與 Push protection，會消耗 AI credits | [10.2](#102-機密資訊管理) |
+| Actions **工作流程日誌**秘密掃描 | 公開預覽（2026-11-09） | GHEC + Secret Protection，由企業政策啟用 | [10.2](#102-機密資訊管理) |
+| Dependabot 可達性分析（reachability） | 2026-10-28 發布 | 依弱點程式碼是否可被呼叫排定警示優先序 | [10.4](#104-依賴套件安全) |
+| **Package firewall** | 公開預覽（2026-10-20） | GHEC 專屬、目前僅支援 npm，在安裝時依政策阻擋套件 | [10.4](#104-依賴套件安全) |
+| 開源授權合規（license compliance） | GA（2026-10-16） | 依授權政策檢查相依套件 | [10.4](#104-依賴套件安全) |
+
+官方 Get started 也新增 [About GitHub Code Quality](https://docs.github.com/en/get-started/learning-about-github/about-github-code-quality)，用來判斷 Code Quality 是否符合團隊需求：Code Quality 處理可維護性與測試覆蓋率問題，Code Security 處理安全弱點，兩者互補而非取代。
+
 ### 1.11 官方入門學習路徑
 
 > 🆕 **v3.0 新增**
@@ -420,13 +466,14 @@ GitHub 以「**角色（role）= 一組權限（permission）**」控管存取�
 | **Start your journey** | What is GitHub、學習資源、建立儲存庫、規劃工作、連線到本機、撰寫與儲存程式碼、審查變更、自動部署網站 | 第 1、3、8 章 |
 | **Onboarding** | 個人帳號、GitHub Team、Enterprise Cloud（含試用）、Enterprise Server 入門 | 第 1.8、15 章 |
 | **Using GitHub** | Hello World、GitHub flow、連線工具、溝通方式、功能預覽、GitHub Mobile、受限網路、連線疑難 | 第 2.7、3 章 |
-| **Learning about GitHub** | 方案、語言支援、帳號類型、存取權限、GHAS、詞彙表 | 第 1.8–1.10 章、附錄 A |
+| **Learning about GitHub** | 方案、語言支援、帳號類型、存取權限、GHAS、Code Quality、詞彙表 | 第 1.8–1.10 章、附錄 A |
 | **Learning to code** | 以 Copilot 學寫程式、Git 入門、安全儲存秘密、修復第一個弱點 | 第 8.9、10 章 |
 | **Accessibility** | 主題設定、鍵盤快捷鍵、Command Palette | 第 14.1 章 |
 | **Writing on GitHub** | Markdown 語法、表格、摺疊區塊、程式碼區塊、圖表、數學式、自動連結、Saved replies、Gists | 第 8.13 章 |
 | **Exploring projects** | 探索專案、貢獻開源、Stars 與追蹤 | 第 14.4 章 |
-| **Git basics／Using Git** | 設定 Git、使用者名稱、憑證快取、行尾設定、忽略檔案、遠端、rebase、non-fast-forward 錯誤 | 第 2、4、6 章 |
+| **Git basics／Using Git** | 設定 Git、使用者名稱、憑證快取、Git workflows、行尾設定、忽略檔案、遠端、Git cheatsheet、rebase、non-fast-forward 錯誤、2 GiB 推送上限 | 第 2、4、6 章 |
 | **Archiving** | 帳號資料封存、GitHub Archive Program | 第 14.1 章 |
+| **Using GitHub Docs** | 文件版本切換、hover cards、GitHub Docs API（以程式列出、搜尋與取得文件內容） | 附錄 D |
 | **GitHub Certifications** | 認證介紹與報名 | 第 14.4 章 |
 
 ### 1.12 💡 本章實務建議
@@ -445,7 +492,7 @@ GitHub 以「**角色（role）= 一組權限（permission）**」控管存取�
 
 ### 2.1 安裝 Git
 
-> 本版基準：**Git 2.56.0**（2026-09-28）／**Git for Windows 2.56.0.windows.1**。企業端點與 CI Runner 建議維持在最新穩定版，並於 Git 安全性公告發布後 7–14 天內完成更新。
+> 本版基準：**Git 2.56.1**（2026-11-10 安全性更新，修補 6 個 CVE；2.50.x–2.55.x 亦有對應修補版）／**Git for Windows 2.56.1.windows.1**。企業端點與 CI Runner 建議維持在最新穩定版，並於 Git 安全性公告發布後 7–14 天內完成更新。
 
 #### Windows 系統
 
@@ -462,7 +509,7 @@ GitHub 以「**角色（role）= 一組權限（permission）**」控管存取�
 
 ```powershell
 git --version
-# git version 2.56.0.windows.1
+# git version 2.56.1.windows.1
 ```
 
 ##### 方式二：winget（適合 IT 大量部署）
@@ -504,8 +551,8 @@ sudo dnf install -y git
 
 | 工具 | 版本基準 | 用途 | 安裝 |
 | --- | --- | --- | --- |
-| **GitHub CLI（`gh`）** | 2.101.0 | 在終端機操作 PR、Issue、Actions、Releases、Rulesets；亦可作為 Git 的 HTTPS 憑證協助程式 | `winget install --id GitHub.cli`、`brew install gh`，Linux 見 [cli.github.com](https://cli.github.com/) |
-| **GitHub Desktop** | 3.6.6 | 圖形化介面完成 clone、commit、分支、PR；自 3.5.5 起支援 Git hooks | [github.com/apps/desktop](https://github.com/apps/desktop) |
+| **GitHub CLI（`gh`）** | 2.105.0 | 在終端機操作 PR、Issue、Actions、Releases、Rulesets；亦可作為 Git 的 HTTPS 憑證協助程式；2.103 起可選用到期自動更新權杖（`--expiring`） | `winget install --id GitHub.cli`、`brew install gh`，Linux 見 [cli.github.com](https://cli.github.com/) |
+| **GitHub Desktop** | 3.6.11 | 圖形化介面完成 clone、commit、分支、PR；自 3.5.5 起支援 Git hooks；3.6.10 起逐步提供短效自動更新權杖，2026-11 起同一主機可登入多個帳號 | [github.com/apps/desktop](https://github.com/apps/desktop) |
 
 > ⚠️ GitHub CLI 的 Linux 套件庫簽章金鑰已於 2026-09-05 輪替，若 `apt update` 出現簽章錯誤，請依 [cli.github.com](https://cli.github.com/) 重新匯入金鑰。
 
@@ -612,7 +659,17 @@ Host github.com
 ssh-add --apple-use-keychain ~/.ssh/id_ed25519
 ```
 
-> ⚠️ **2026 SSH 安全強化**：GitHub 已宣布移除 `ssh-rsa`（SHA-1 簽章）與 `diffie-hellman-group-exchange-sha256` 金鑰交換；**2026-10-14 之後上傳的 RSA 金鑰必須至少 3072 bits**，並新增後量子金鑰交換 `mlkem768x25519-sha256`。新金鑰一律使用 Ed25519；既有 RSA 2048 金鑰請盡早汰換。
+> ⚠️ **2026 SSH 安全強化**：GitHub 已宣布移除 `ssh-rsa`（SHA-1 簽章）與 `diffie-hellman-group-exchange-sha256` 金鑰交換；**自 2026-10-14 起新上傳的 RSA 金鑰必須至少 3072 bits（已生效）**，並新增後量子金鑰交換 `mlkem768x25519-sha256`。新金鑰一律使用 Ed25519；既有 RSA 2048 金鑰請盡早汰換。
+
+盤點既有金鑰（第一欄為位元數，最後一欄為類型；看到 `(RSA)` 且小於 3072 者應汰換）：
+
+```bash
+ssh-keygen -l -f ~/.ssh/id_ed25519.pub
+# 256 SHA256:xxxx your.email@company.com (ED25519)
+
+# 列出 GitHub 帳號上已註冊的 SSH 金鑰，找出不再使用或過舊的金鑰
+gh ssh-key list
+```
 
 #### 在 GitHub 新增 SSH 金鑰
 
@@ -655,6 +712,33 @@ git config --global credential.helper manager   # Windows 安裝程式已自動�
 ```
 
 GCM 會將憑證存放於作業系統的安全儲存區（Windows 認證管理員、macOS 鑰匙圈、Linux Secret Service），**不會以明文寫入磁碟**。
+
+#### 到期自動更新的 GitHub CLI 權杖（公開預覽）
+
+> **v3.1 新增**：GitHub CLI 2.103.0 起可選擇使用**會到期並自動更新**的 OAuth 權杖。存取權杖數小時內失效，`gh` 以輪替的 refresh token 在背景更新；即使存取權杖外洩，可被利用的時間也大幅縮短。
+
+```bash
+# 單次登入時選用
+gh auth login --expiring
+
+# 或設為預設，之後每次登入都使用到期權杖
+gh config set expiring_credentials enabled
+
+# 讓 gh 擔任 Git 的 HTTPS 憑證協助程式，Git 操作時才會取得更新後的權杖
+gh auth setup-git
+
+# 驗證：顯示目前權杖狀態與到期時間
+gh auth status
+```
+
+| 注意事項 | 說明 |
+| --- | --- |
+| Git 版本 | 建議 Git **2.46** 以上，`gh` 才能標記憑證到期時間，避免 Git 快取已過期的憑證 |
+| 腳本 | 不要把 `gh auth token` 的輸出存起來重複使用；每次需要時重新執行 `gh auth token` |
+| 長效需求 | 依賴長效權杖的自動化暫不啟用，改用 GitHub App 安裝權杖 |
+| 適用範圍 | github.com 與 GHE.com；GHES 自 3.23 起提供，舊版自動退回不到期權杖 |
+
+同樣的「短效權杖」方向也出現在 **GitHub Desktop 3.6.10+**（2026-11 起逐步推出，登入時自動取得）與 GHES 3.23 的 OAuth App 到期權杖（8 小時，公開預覽）。
 
 #### Fine-grained PAT vs Classic PAT
 
@@ -797,6 +881,8 @@ git config --global --unset http.proxy
 ```
 
 > ⚠️ GitHub 已於 **2026-09-15 停用 HTTPS 的 SHA-1** 憑證簽章支援。老舊作業系統、Java 或中介 Proxy（TLS 檢查設備）若仍依賴 SHA-1，會出現 TLS 交握失敗，請更新憑證鏈與客戶端。
+
+> **v3.1 新增**：2026-10-19 起，GitHub 在流量異常期間可能**暫時要求公開儲存庫的匿名 HTTPS clone／fetch 先驗證**，失敗訊息會提示需要驗證。已驗證的 HTTPS、SSH 與 push 不受影響。CI 若以匿名方式 clone 公開儲存庫：GitHub Actions 改用內建 `GITHUB_TOKEN`；其他 CI 改用 GitHub App 安裝權杖（或 PAT）；無法驗證的作業則稍後重試。
 
 ### 2.8 💡 本章實務建議
 
@@ -1071,7 +1157,7 @@ docs(api): 更新 API 使用說明
 2. **指派審查者**：
    - 至少 2 位審查者（受 Ruleset「Required approvals」強制）
    - 由 **CODEOWNERS** 自動指派該路徑的負責人
-   - 可選擇請 **Copilot code review** 先做一輪自動審查；其「approval assessment」預設**不計入**必要核准人數（2026-09 起管理員可於公開預覽中授權 Copilot 送出計入規則的核准，本專案**不啟用**，維持人工四眼原則）
+   - 可選擇請 **Copilot code review** 先做一輪自動審查（審查強度分 Lite／Balanced／Max；Max 為 2026-10 起的公開預覽，以多個模型交叉審查，耗用較多 AI credits）。**Copilot approvals 已於 2026-10-28 GA**：管理員在企業／組織／儲存庫層級開啟後（預設關閉），Copilot 的核准會**計入**必要核准數，可限定只允許核准特定檔案路徑，推送新 commit 後核准會被撤銷。本專案政策：**不開啟**，維持人工四眼原則；若特定低風險路徑（例如 `docs/**`）要開啟，須經架構與資安審核並記錄於 ADR
 
 #### 審查者責任
 
@@ -1152,9 +1238,39 @@ on:
 
 - **可用範圍**：組織擁有的公開儲存庫，或使用 **GitHub Enterprise Cloud** 的組織之私有儲存庫；GHES 則為組織擁有的儲存庫。
 
-#### Stacked pull requests（預覽）
+#### Stacked pull requests（2026-10 GA）
 
-2026-07 起公開預覽的 **Stacked PRs** 可將大型變更拆成一系列有順序的小 PR，逐層審查、最後一鍵合併整個堆疊；適合重構類大型變更，正式導入前建議先小範圍試用。
+**Stacked PRs** 將大型變更拆成一系列有順序、可各自審查的小 PR，最後整組合併。2026-07 公開預覽，**2026-10-06 GA**，適用所有 github.com 方案（GHES 將於後續版本提供）。
+
+**操作範例**（以付款功能拆成「資料模型 → API」兩層為例）：
+
+```bash
+# 第 1 層：以 main 為 base
+git switch -c feature/payment-1-model main
+git commit -am "feat(payment): 新增付款資料模型"
+git push -u origin feature/payment-1-model
+gh pr create --base main --title "feat(payment): 新增付款資料模型"
+
+# 第 2 層：以第 1 層分支為 base
+git switch -c feature/payment-2-api
+git commit -am "feat(payment): 新增付款 API"
+git push -u origin feature/payment-2-api
+gh pr create --base feature/payment-1-model --title "feat(payment): 新增付款 API"
+```
+
+接著依官方 [stacked pull requests 文件](https://gh.io/stacks)，在網頁或 `gh stack` 擴充將兩個 PR 組成同一個 stack。GA 版的重要行為：
+
+| 行為 | 說明 |
+| --- | --- |
+| Rebase stack | base（例如 `main`）前進後重新 rebase 整組；未變更的程式碼**保留既有核准**，並產生已簽署的替代 commit |
+| Merge queue | 整個 stack 以**單一 merge group** 進入佇列；使用 merge commit 方式時每個 PR 各產生一個 merge commit |
+| 自動合併 | stack 可設定 auto-merge，全部符合規則後一起合併（2026-10 起陸續推出） |
+| Base 分支刪除 | 自動 retarget，不會關閉最下層 PR |
+| 導覽 | PR 頁面頂端固定顯示 stack；`Shift`+`J`／`Shift`+`K` 在 stack 內切換；`pull_request` webhook 新增 `stacked` 動作 |
+
+**Reviewer 驗證重點**：每一層 PR 只包含該層的變更（Files changed 不應出現下層內容）、每一層都有通過的必要檢查、下層合併前不得核准依賴未定介面的上層。
+
+> 另外，2026-11-05 起新的 **pull request overview 頁面**為公開預覽，可在 PR 頁面右上角切換試用；團隊教材截圖請待 GA 後再更新。
 
 ### 📝 完整開發流程範例
 
@@ -1511,7 +1627,7 @@ chmod +x .githooks/*
 
 ### 4.7 大型檔案處理 (LFS)
 
-> 本版基準：**Git LFS 3.8.0**（2026-08-28）。GitHub 會阻擋超過 **100 MiB** 的一般 Git 檔案，超過 50 MiB 會警告；以網頁上傳的檔案上限為 25 MiB。
+> 本版基準：**Git LFS 3.8.1**。GitHub 會阻擋超過 **100 MiB** 的一般 Git 檔案，超過 50 MiB 會警告；以網頁上傳的檔案上限為 25 MiB。
 
 #### 安裝和設定 Git LFS
 
@@ -1622,6 +1738,9 @@ git push --force-with-lease
 | [github.com/pulls](https://github.com/pulls) | Pull requests 儀表板（2026-07 GA）：我建立的、待我審查的、被提及的 PR |
 | [github.com/issues](https://github.com/issues) | 跨儲存庫的 Issue 儀表板與 saved views |
 | GitHub Mobile | 行動裝置上審查 PR、回覆留言、核准部署與 2FA 登入 |
+| [github.com](https://github.com/) 儀表板 | 2026-10 起新版儀表板為預設，2026-11 起可釘選常用儲存庫 |
+
+> **v3.1 提醒**：儲存庫 push 事件的 Email 通知已於 2026-10-15 退場；需要推送通知時改用 webhook、GitHub app for Slack／Microsoft Teams 或 Actions 工作流程。
 
 ### 5.2 避免衝突的最佳實務
 
@@ -2542,6 +2661,22 @@ Issue 是 GitHub 的工作追蹤單位，用於：
 | **Issue fields**（2026-07 GA） | 組織層級的結構化欄位（優先度、工作量、日期、自訂值），可搜尋與報表 |
 | **Saved views** | 儲存庫 Issue 清單的個人／共享檢視 |
 | **進階搜尋** | 支援 `AND`／`OR` 與括號的搜尋語法 |
+| **個人帳號可用 Issue types／fields**（2026-11-11） | 個人帳號擁有的儲存庫也能使用 issue types 與 issue fields |
+
+#### Issue statuses 與 repository boards（2026-11 公開預覽）
+
+> **v3.1 新增**：「開啟／關閉」無法表達進度，2026-11-23 起 Issue 可設定狀態，並可在儲存庫內以看板呈現。
+
+| 項目 | 說明 |
+| --- | --- |
+| 可用狀態 | Backlog、Todo、In progress、In review、Done、Not planned、Duplicate |
+| 自動化 | 指派使用者 → Todo；指派 agent 或連結 draft PR → In progress；draft PR 標為 Ready for review 或連結開啟中的 PR → In review |
+| 與 Projects 同步 | 若 Project 的 Status 選項名稱與 issue status 相同，任一方變更都會同步另一方 |
+| Repository boards | 儲存庫 saved view 可切換為 board 版面，依 status 分組並拖曳更新 |
+| Issue fields | 不再必須綁定 issue type，可從 Issue 側欄齒輪選單加入任何欄位 |
+| API | GraphQL、REST 與 MCP server 皆可讀寫 status |
+
+**選用原則**：單一儲存庫的小團隊可直接用 issue status + repository board；跨儲存庫規劃、需要 Iteration、Roadmap 或自訂欄位時使用 GitHub Projects，並讓 Project 的 Status 選項名稱與 issue status 一致以啟用同步。預覽期間請先在試點儲存庫驗證自動化結果（例如建立 draft PR 後檢查 Issue 是否變為 In progress）。
 
 #### 建立 Issue：使用 Issue forms
 
@@ -3003,7 +3138,7 @@ updates:
 
 ### 8.7 GitHub CLI 進階應用
 
-> 本版基準：**GitHub CLI 2.101.0**（2026-09-15）。
+> 本版基準：**GitHub CLI 2.105.0**（2026-11-18）。
 
 #### 常用指令
 
@@ -3057,9 +3192,31 @@ gh issue list --state all --limit 1000 --json state | \
 gh api repos/{owner}/{repo}/rulesets --jq '.[] | {name, enforcement}'
 gh api graphql -f query='query { viewer { login } }'
 
-# 安裝擴充（例如 Stacked PRs 預覽的 CLI 擴充）
+# 安裝擴充（例如 Stacked PRs 的 gh stack、workflow lockfile 的 gh actions-lock）
 gh extension list
 gh extension install <owner>/<gh-extension-repo>
+```
+
+#### 2026-10～11 新增的 gh 功能
+
+| 功能 | 版本／狀態 | 用途 |
+| --- | --- | --- |
+| `gh auth login --expiring` | 2.103.0，公開預覽 | 到期自動更新的 OAuth 權杖（見 [2.4](#24-personal-access-token-設定替代方案)） |
+| `gh event listen`／`gh event subscription` | 2.105.0，預覽（需 Event Streams 資格） | 等待 PR 事件而不用迴圈輪詢，適合腳本與 agent |
+| `gh actions-lock`（擴充 `github/gh-actions-lock`） | GA | 產生 Actions workflow lockfile（見 [9.8](#98-最佳實務與注意事項)） |
+| `gh aw`（擴充 `github/gh-aw`） | GA | GitHub Agentic Workflows（見 [9.3](#93-進階-ci-配置)） |
+
+```bash
+# 等待 PR 收到審查（預設收到第一個事件即結束，--timeout 避免無限等待）
+gh event listen --resource https://github.com/OWNER/REPO/pull/123 \
+  --event com.github.pull_request.review.submitted.v1 --timeout 30m
+
+# 等待 check suite 完成，只取結論欄位
+gh event listen --resource https://github.com/OWNER/REPO/pull/123 \
+  --event com.github.pull_request.check_suite.status.changed.v1 --jq .data.conclusion
+
+# 管理事件訂閱
+gh event subscription list
 ```
 
 ### 8.8 GitHub Apps 與整合
@@ -3119,8 +3276,9 @@ gh extension install <owner>/<gh-extension-repo>
 | **Copilot Chat** | IDE、GitHub.com、GitHub Mobile 中的對話式協助（2026-09-28 起 github.com 上的 Chat 與 cloud agent 整合為統一體驗） |
 | **Agent mode** | 在 IDE 中自主規劃、修改多個檔案並執行指令 |
 | **Copilot cloud agent**（原 coding agent） | 將 Issue 指派給 Copilot，由其在 GitHub Actions 環境中開發並開 PR |
-| **Copilot code review** | 自動審查 PR，可設定為開 PR 時自動請求 |
+| **Copilot code review** | 自動審查 PR，可設定為開 PR 時自動請求；審查強度 Lite／Balanced／Max；2026-10-28 起核准（approvals）GA，預設關閉 |
 | **Copilot CLI** | 終端機中的 agent |
+| **GitHub Agentic Workflows**（2026-10-28 GA） | 以 Markdown 描述的 agent 工作流程，編譯為標準 Actions YAML（見 [9.3](#93-進階-ci-配置)） |
 
 #### 方案（2026-09）
 
@@ -3132,6 +3290,8 @@ gh extension install <owner>/<gh-extension-repo>
 | Copilot Max | US$100／月 | 個人；進階模型優先存取 |
 | **Copilot Business** | US$19／使用者／月 | 組織；集中政策管理、內容排除、稽核 |
 | **Copilot Enterprise** | US$39／使用者／月 | 企業；進階模型與企業功能 |
+| **GitHub Enterprise 內含 Copilot**（2026-10-28） | 隨 GitHub Enterprise 授權 | 經業務團隊簽約的 GHEC；功能同 Copilot Enterprise，不含每席位 AI credits，用量自第一個請求起依企業預算計費 |
+| Copilot Standalone | US$10／使用者／月 | 同一企業中未持有 Enterprise 授權的使用者 |
 
 > 💡 Copilot 以 **AI credits** 計量（用量型計費），超出授權池的用量以每 credit US$0.01 計費；程式碼補全與 next edit suggestions 不計入。Copilot code review 在私有儲存庫會另外消耗 Actions 分鐘數（2026-06-01 起）。
 
@@ -3185,7 +3345,8 @@ function calculateCircleArea(radius) {
 | 內容排除（Content exclusions） | 排除 `**/*.env`、`**/secrets/**`、金鑰與憑證檔（2026-09 起 Copilot app 與 CLI 也遵循） | 組織／儲存庫 → Copilot → Content exclusion |
 | 公開程式碼比對 | 封鎖與公開程式碼相符的建議 | 組織 → Copilot → Policies |
 | 模型政策 | 僅啟用經核准的模型 | 企業／組織 → Copilot → Models |
-| 新功能預設 | 2026-10-22 起新功能預設啟用，需事先檢視政策 | 企業 → Copilot → Policies |
+| 新功能預設（Global default） | 2026-10-22～26 已分批生效：未設定的 GA 功能依「Default policy for new features」（Enabled／Disabled／Let organizations decide）一次性套用；已明確設定者不變，預覽功能仍需自行 opt-in | AI Controls → Copilot → Default policy for new features |
+| Copilot code review 核准 | 預設關閉；開啟後 Copilot 核准計入必要核准數，可限定檔案路徑；本專案不開啟（見 [3.6](#36-code-review-流程)） | 企業／組織／儲存庫 → Copilot → Code review |
 | 稽核 | 以 Audit log 與 Copilot usage metrics API 追蹤使用 | 企業／組織 → Insights |
 
 > ⚠️ **v3.0 更正**：v2.1 以 YAML 表示的 `copilot_usage`／`file_restrictions` 並非任何 Copilot 設定格式，已改為實際可設定的政策對照表。
@@ -3558,6 +3719,8 @@ jobs:
         run: mvn -B verify -P integration-tests
 ```
 
+> **v3.1 提醒**：`macos-14`、`macos-14-large`、`macos-14-xlarge` runner 映像已於 2026-11-02 退場，請改用 `macos-latest`（macOS 26）或 `macos-15`；2026-11-19 起另提供 Red Hat Enterprise Linux runner 映像（GA）。驗證方式：`grep -rn "macos-14" .github/workflows/` 應無結果。
+
 #### 平行步驟（背景執行）
 
 > 🆕 **v3.0 新增**（2026-06 起）
@@ -3621,6 +3784,33 @@ jobs:
 
 > 💡 企業可將共用工作流程集中於一個 internal 儲存庫，並以 Ruleset「Require workflows to pass before merging」強制所有儲存庫執行。
 
+#### GitHub Agentic Workflows（2026-10 GA）
+
+> **v3.1 新增**：GitHub Next 的開源專案 **GitHub Agentic Workflows** 已於 2026-10-28 GA，適用 GitHub Free、Team、Enterprise。以 **Markdown** 用自然語言描述自動化（例如 Issue 分流、CI 失敗分析、文件更新、補測試），再編譯為標準 Actions YAML，因此沿用既有 runner group 與 Actions 政策。預設引擎為 GitHub Copilot CLI（需 Copilot 授權），也可改用其他 coding agent。
+
+```bash
+# 安裝 CLI 擴充
+gh extension install github/gh-aw
+
+# 以精靈加入官方工作流程範本
+gh aw add-wizard
+
+# 將 .md 工作流程編譯為 .lock.yml（Actions 實際執行的檔案）
+gh aw compile
+
+# 預估每月 AI credits 花費（含 threat detection）
+gh aw forecast
+```
+
+| 內建防護 | 說明 |
+| --- | --- |
+| 唯讀預設 | agent 預設只有唯讀權限，依 integrity filter 規則存取 GitHub 內容 |
+| 沙箱與防火牆 | 在沙箱容器中執行，網路經 Agent Workflow Firewall 管控；可選 micro-VM 隔離 |
+| Safe outputs | agent 想做的寫入（開 Issue、留言、開 PR）先經驗證，再由獨立步驟執行 |
+| Threat detection | 專用 job 掃描所有提議的變更後才套用 |
+
+**Reviewer 驗證清單**：Markdown 與編譯後的 `.lock.yml` 必須一起提交並一起審查；確認 `permissions` 未超出需求、safe outputs 只開放必要動作、觸發事件不含不受信任的 `pull_request_target`；上線前以 `gh aw forecast` 估算成本並設定預算警示。
+
 #### 安全檢查工作流程
 
 ```yaml
@@ -3649,7 +3839,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: 相依套件審查（阻擋引入高風險弱點的 PR）
-        uses: actions/dependency-review-action@v5.0.0
+        uses: actions/dependency-review-action@v5.0.1
         with:
           fail-on-severity: high
           comment-summary-in-pr: on-failure
@@ -4142,7 +4332,7 @@ steps:
 | 風險 | 建議控制措施 |
 | --- | --- |
 | Action 標籤被改寫 | 第三方 Action 以 SHA 釘選；組織政策「Require actions to be pinned to a full-length commit SHA」；只允許經核准的 Action |
-| `pull_request_target` 執行不受信任程式碼（pwn request） | 避免在 `pull_request_target` 中 checkout PR 的 head；2025-12 起該事件一律使用預設分支的工作流程；**2026-11-02 起公開儲存庫若無事件政策將預設停用 `pull_request_target`** |
+| `pull_request_target` 執行不受信任程式碼（pwn request） | 避免在 `pull_request_target` 中 checkout PR 的 head；2025-12 起該事件一律使用預設分支的工作流程；**2026-12-02 起公開儲存庫若無明確允許的 Actions 事件政策，`pull_request_target` 將預設封鎖**（原訂 2026-11-02 延後；2026-11-09、11-16 已進行 brownout；私有／internal 儲存庫與 GHES 不受影響） |
 | Script injection | 不在 `run:` 直接插入 `${{ github.event.pull_request.title }}` 等使用者可控字串，改用 `env:` |
 | 快取投毒 | 以 `cache-mode` 限制快取存取（2026-09 GA）：低信任事件預設 `read`，只有受信任的工作流程才 `write` |
 | 誰能觸發工作流程 | **Workflow execution protections**（2026-09 GA）以 actor／event 規則與工作流程檔案範圍限制觸發者 |
@@ -4165,6 +4355,37 @@ jobs:
           java-version: '21'
           cache: maven
 ```
+
+#### 因應 `pull_request_target` 預設封鎖（2026-12-02）
+
+封鎖規則透過 Workflow execution protections 實作，目前為 evaluate 模式（只警示）。準備步驟：
+
+1. 盤點使用該事件的工作流程：
+
+   ```bash
+   gh search code "pull_request_target" --owner my-org --json repository,path \
+     --jq '.[] | "\(.repository.nameWithOwner)\t\(.path)"'
+   ```
+
+2. 到組織或儲存庫的 Actions **Insights** 查看 evaluate 模式下「會被封鎖」的執行紀錄。
+3. 二選一：維持預設封鎖（建議，改用 `pull_request` + `workflow_run` 拆分不受信任與需權限的步驟）；或在適用的 **Actions event policy** 中明確允許 `pull_request_target`，並以**工作流程檔案範圍**只允許特定檔案。
+4. 驗證：2026-12-02 後在測試用 fork 發 PR，確認未允許的工作流程產生帶錯誤註記的失敗執行，已允許者正常執行。
+
+#### Workflow dependency lockfiles（2026-10 GA）
+
+> **v3.1 新增**：lockfile 讓工作流程保留易讀的標籤寫法（例如 `@v7`），實際執行時卻使用**鎖定的確切 commit**，即使標籤被移動也不受影響，且涵蓋 composite action 的**遞移相依**——這是單純 SHA 釘選做不到的。適用 GitHub Free、Team、Enterprise Cloud（含 GHE.com）。
+
+| 步驟 | 做法 | 驗證 |
+| --- | --- | --- |
+| 1. 安裝擴充 | `gh extension install github/gh-actions-lock` | `gh actions-lock --help` 可顯示說明 |
+| 2. 產生 lockfile | 依說明為要納管的工作流程產生 `.github/workflows/actions.lock` | PR 中可看到每個 Action（含遞移相依）對應的 commit |
+| 3. 審查後提交 | lockfile 與工作流程變更同一個 PR 審查 | Reviewer 逐一確認來源與 commit 為可信版本 |
+| 4. 逐步納管 | 可一次只納管部分工作流程；被納管的工作流程，其所有相依都必須在 lockfile 中 | 未列入 lockfile 的相依會讓執行失敗 |
+| 5. 自動更新 | Dependabot 更新 Action 版本時，會在同一個 PR 重新產生對應 lockfile 項目 | Dependabot PR 同時包含工作流程與 lockfile 差異 |
+| 6. 強制 | 企業／組織／儲存庫管理員啟用 **Require lockfile** 政策 | 未使用 lockfile 的工作流程無法執行 |
+| 7. CI 檢查 | 加入「lockfile 是否過期」檢查（不修改檔案） | 過期時 CI 失敗 |
+
+> lockfile 只保證「執行的是你鎖定的版本」，**不判斷該版本是否安全**；鎖定前仍需審查相依來源。第三方 Action 建議同時保留 SHA 釘選或由 lockfile 管理，二者擇一並寫入團隊規範。
 
 #### 成本控制
 
@@ -4236,7 +4457,8 @@ jobs:
 - **雲端部署全面改用 OIDC**，Secrets 中不再存放長期雲端金鑰。
 - **生產部署以 Environments 控制**：必要審查者、僅允許版本標籤、Prevent self-review。
 - **盤點仍使用 Node 20 的自有 JavaScript Action**，改為 `runs.using: node24` 並發布新版。
-- **2026-11-02 前檢查所有 `pull_request_target` 工作流程**，必要時建立明確的事件政策。
+- **2026-12-02 前盤點所有 `pull_request_target` 工作流程**，以 Insights 確認會被封鎖的執行，必要時在 Actions 事件政策中以工作流程檔案範圍明確允許。
+- **逐步導入 workflow lockfile**，穩定後在組織層級啟用「Require lockfile」政策。
 
 ---
 
@@ -4367,6 +4589,8 @@ build/
 | **Validity checks** | 檢查外洩的秘密是否仍有效，協助排定處理優先序 | Secret Protection |
 | **Delegated bypass** | 繞過 Push protection 需經指定審核者核准 | Secret Protection |
 | **Ruleset：Require secret scanning alerts are resolved**（2026-09） | PR 引入的秘密警示未解決前禁止合併 | Secret Protection |
+| **Push protection 封鎖 AI 偵測秘密**（2026-10-28 預覽） | 以情境分類模型阻擋沒有固定格式的秘密；需先啟用 AI-detected secrets 與 Push protection，路徑 Settings → Advanced Security → Secret Protection → AI-detected secrets → Block AI-detected secrets；會消耗 AI credits | Secret Protection（github.com） |
+| **Actions 工作流程日誌掃描**（2026-11-09 預覽） | 執行完成後掃描日誌中的供應商秘密，警示連回日誌；預覽期間不發通知、不回溯舊日誌，不偵測 generic／custom／AI 偵測與已遮罩的秘密 | GHEC + Secret Protection（企業政策 Policies → Advanced Security 啟用） |
 
 **秘密外洩處理 SOP：**
 
@@ -4374,6 +4598,12 @@ build/
 2. 檢查存取日誌，評估是否已被濫用。
 3. 在 Secret scanning 警示中記錄處理結果並關閉（Revoked／False positive／Used in tests）。
 4. 視需要以 `git filter-repo` 自歷史移除並協調所有人重新 clone（GitHub 上的 PR 參照與快取可能仍保留，必要時聯繫 GitHub Support）。
+
+**如何驗證 Push protection 已生效**（只在測試儲存庫執行）：
+
+1. 確認設定：`gh api repos/{owner}/{repo} --jq '.security_and_analysis'`，其中 `secret_scanning` 與 `secret_scanning_push_protection` 的 `status` 應為 `enabled`。
+2. 以**已撤銷的測試權杖**建立 commit 並推送，應收到 `GITHUB PUSH PROTECTION` 拒絕訊息與秘密所在檔案、行號。
+3. 以 `git reset --soft HEAD~1` 移除該 commit；到 Security & quality → Secret scanning 確認沒有新增繞過紀錄。
 
 #### Git-secrets 工具
 
@@ -4684,6 +4914,22 @@ updates:
 > - 2026-07 起 Dependabot version updates **預設有 3 天冷卻期（cooldown）**，新版本發布滿 3 天才開 PR，以降低供應鏈攻擊風險；security updates 不受影響。可用 `cooldown` 自訂或關閉。
 > - 以 `groups` 合併相關更新，可大幅減少 PR 數量。
 
+#### 非活躍儲存庫的 Dependabot alerts 暫停（2026-12-08 起）
+
+> **v3.1 新增**：2026-12-08 起，GitHub 會關閉**過去一年沒有活動**之儲存庫的 Dependabot alerts，既有警示會封存而非刪除。活動指推送任何分支或標籤、建立儲存庫、或開啟 Dependabot alerts；任何一次推送都會自動重新啟用並還原警示。以**強制套用（enforced）的 Security configuration** 啟用 alerts，或企業政策不允許儲存庫管理員開關 alerts 的儲存庫不受影響。適用 github.com 與 GHE.com，不含 GHES。
+
+仍在營運但很少改版的系統（例如舊版核心服務）應納入強制 Security configuration，避免警示被自動暫停。盤點方式：
+
+```bash
+# 列出一年以上沒有推送的儲存庫（請依執行日期調整比較日）
+gh repo list my-org --limit 1000 --json nameWithOwner,pushedAt,isArchived \
+  --jq '.[] | select(.pushedAt < "2025-12-08") | [.nameWithOwner, .pushedAt, .isArchived] | @tsv'
+```
+
+#### Package firewall（公開預覽）
+
+2026-10-20 起 GitHub Enterprise Cloud（含 GHE.com）可使用 **package firewall**：在 coding agent、CI runner 等端點與上游套件 registry 之間加入**安裝時期的政策閘門**，依 cooldown 期間、GitHub Advisory Database 的惡意套件或弱點公告、attestation 降級等條件阻擋下載，誤擋時可申請例外。預覽期間免費、**目前僅支援 npm**，GA 後依用量計費。建議先在無人值守的 CI 與 Copilot cloud agent 環境試行。
+
 #### 依賴套件審計
 
 ```bash
@@ -4750,6 +4996,22 @@ jobs:
 #### Rulesets vs 傳統分支保護
 
 > ⚠️ **v3.0 更正**：v2.1 以 `branch_protection:` YAML 表示設定，該格式並不存在。GitHub 目前以 **Rulesets** 作為儲存庫治理的主要框架（2026-08 起可在 Settings → Branches 將既有規則一鍵 **Convert to ruleset**）。
+
+#### 將既有分支保護一次轉為 Rulesets
+
+> **v3.1 新增**（2026-10-20）：除逐條轉換外，現在可一次匯入整個儲存庫的分支保護規則。
+
+1. 儲存庫 **Settings → Rulesets → Import branch protection rules**。
+2. 在 **Review import** 對話框預覽將建立的 Rulesets：哪些規則已被既有 Ruleset 涵蓋、哪些分支保護會拆成多個 Ruleset 以保留原行為。
+3. 選擇 Enforcement status（Active／Evaluate／Disabled，Evaluate 需 GitHub Enterprise）與要建立的 Ruleset，按 **Create rulesets**。
+4. 選擇保留或刪除原分支保護——**建議先保留**，比對一至兩週無差異後再刪除。
+
+```bash
+# 驗證：轉換後套用在 main 的規則，應涵蓋原分支保護的審查人數與必要檢查
+gh ruleset check main
+gh api repos/{owner}/{repo}/branches/main/protection \
+  --jq '{reviews: .required_pull_request_reviews.required_approving_review_count, checks: .required_status_checks.contexts}'
+```
 
 | 比較 | Rulesets（建議） | 傳統分支保護 |
 | --- | --- | --- |
@@ -5231,7 +5493,7 @@ echo "Pre-commit 檢查完成 ✅"
 
 ## 12. 常用指令清單
 
-> 📌 **本章摘要**：Git 與 GitHub CLI 的常用指令速查。Git 指令以 2.56 為基準，改用 `switch`／`restore` 新語法；GitHub CLI 以 2.101 為基準，涵蓋 PR、Issue、Actions、Release、Ruleset 與供應鏈驗證。
+> 📌 **本章摘要**：Git 與 GitHub CLI 的常用指令速查。Git 指令以 2.56 為基準，改用 `switch`／`restore` 新語法；GitHub CLI 以 2.105 為基準，涵蓋 PR、Issue、Actions、Release、Ruleset 與供應鏈驗證。
 
 ### 12.1 基本指令
 
@@ -5435,6 +5697,7 @@ git maintenance start         # 啟用背景維護
 # GitHub CLI (gh) — 帳號與儲存庫
 gh auth login                 # 登入 GitHub
 gh auth status                # 查看登入狀態與權杖範圍
+gh auth login --expiring      # 使用到期自動更新的權杖（2.103+，預覽）
 gh repo view --web            # 以瀏覽器開啟儲存庫
 
 # Pull Request
@@ -5442,6 +5705,7 @@ gh pr list                    # 列出 Pull Requests
 gh pr create --draft --fill   # 建立 Draft PR
 gh pr checks --watch          # 監看 PR 檢查
 gh pr merge --auto --squash   # 啟用自動合併
+gh event listen --resource <PR URL> --event com.github.pull_request.review.submitted.v1  # 等待審查事件（2.105+，預覽）
 
 # Actions
 gh workflow list              # 列出工作流程
@@ -5591,6 +5855,8 @@ docker exec -it <container> sh     # 進入容器
 - [ ] 設定基本 CI 工作流程（含 `merge_group`）
 - [ ] 每個工作流程宣告最小 `permissions`
 - [ ] 第三方 Action 以完整 SHA 釘選並由 Dependabot 更新
+- [ ] 評估以 workflow lockfile（`.github/workflows/actions.lock`）鎖定含遞移相依的 Action
+- [ ] 公開儲存庫已處理 `pull_request_target`（2026-12-02 起預設封鎖）
 - [ ] 配置必要的 Secrets、Variables 與 Environments
 - [ ] 設定 Ruleset 必要狀態檢查
 - [ ] 整合程式碼品質工具
@@ -5692,6 +5958,7 @@ docker exec -it <container> sh     # 進入容器
 - [ ] 機密檔案已加入 .gitignore
 - [ ] Secret scanning 與 Push protection 已啟用
 - [ ] 依賴套件安全掃描通過（Dependabot、Dependency review）
+- [ ] 需持續監控的低活動儲存庫，已以強制 Security configuration 啟用 Dependabot alerts（2026-12-08 起非活躍儲存庫會暫停）
 - [ ] 程式碼掃描無高風險漏洞
 
 #### 存取控制
@@ -5742,6 +6009,8 @@ docker exec -it <container> sh     # 進入容器
 
 - [ ] 預算、成本中心與用量警示（Actions、Packages、Codespaces、Copilot、GHAS）
 - [ ] Copilot 政策（內容排除、模型、新功能預設）
+- [ ] Copilot 授權模式已決策（Copilot Business／Enterprise 席位，或 GitHub Enterprise 內含 Copilot + 企業預算）
+- [ ] Copilot code review 核准（approvals）是否開啟、允許的檔案路徑已記錄於 ADR
 - [ ] 內部支援窗口、教育訓練與認證計畫
 
 ---
@@ -5967,7 +6236,7 @@ act -l                                 # 本地檢查工作流程結構
 #### 官方文件
 
 - [GitHub Docs：Get started](https://docs.github.com/en/get-started)
-- [What is GitHub?](https://docs.github.com/en/get-started/start-your-journey/about-github-and-git)
+- [What is GitHub?](https://docs.github.com/en/get-started/start-your-journey/what-is-github)
 - [GitHub flow](https://docs.github.com/en/get-started/using-github/github-flow)
 - [GitHub Actions 文件](https://docs.github.com/en/actions)
 - [GitHub glossary](https://docs.github.com/en/get-started/learning-about-github/github-glossary)
@@ -6051,6 +6320,7 @@ flowchart TB
 | **Team 反映權責** | Team 對應實際團隊，巢狀 Team 繼承父 Team 權限；以 IdP 群組同步 Team 成員 |
 | **Internal 儲存庫** | Enterprise 專屬可見性，企業內所有成員可讀，適合 InnerSource 共用元件 |
 | **Enterprise teams**（2026-06 GA） | 企業層級團隊，可跨組織指派角色與成本中心 |
+| **企業層級 GitHub App 安裝**（2026-10-23 GA） | GitHub App 可直接安裝於企業層級，集中管理跨組織的自動化與權限 |
 
 ### 15.2 身分管理：EMU 與 SAML SSO
 
@@ -6114,9 +6384,9 @@ Push ruleset「block-binaries」
 | 憑證盤點 | 企業 credential inventory 匯出（2026-09）、PAT 與 SSH 金鑰 API |
 | 供應鏈安全 | Artifact attestations（SLSA provenance）、Immutable releases、Dependabot、SBOM |
 | 資料落地 | **GitHub Enterprise Cloud with data residency（GHE.com）**：可選 **EU、Australia、US、Japan**，使用專屬子網域，一律採用 EMU；IP 範圍與 SSH 指紋與 GitHub.com 不同 |
-| 自建機房 | GitHub Enterprise Server（本版參考 3.22） |
+| 自建機房 | GitHub Enterprise Server（本版參考 3.22；3.23 RC 已於 2026-11-20 發布） |
 
-> ⚠️ GHE.com 部分功能的可用性與 GitHub.com 不同，導入前請核對官方「Feature overview for GitHub Enterprise Cloud with data residency」。2026-09 起支援從 GHES **即時遷移（live migrations）**到 GHE.com（GA）。
+> ⚠️ GHE.com 部分功能的可用性與 GitHub.com 不同，導入前請核對官方「Feature overview for GitHub Enterprise Cloud with data residency」。2026-09 起支援從 GHES **即時遷移（live migrations）**到 GHE.com（GA）；2026-11-19 起從 **Azure DevOps** 即時遷移到 GitHub Enterprise 亦已 GA。
 
 ### 15.6 成本管理
 
@@ -6124,7 +6394,7 @@ Push ruleset「block-binaries」
 | --- | --- | --- |
 | GitHub Enterprise 授權 | 每使用者（授權席位） | 以 SCIM 自動回收離職帳號席位 |
 | GitHub Secret Protection／Code Security | 依有提交的活躍提交者（active committers） | 以 Security configurations 選擇性啟用；2026-05 起支援硬性預算上限 |
-| Copilot | 每席位 + AI credits 用量 | 以 Team 指派授權；設定預算與用量警示 |
+| Copilot | 每席位 + AI credits 用量；或「GitHub Enterprise 內含 Copilot」模式（無每席位 credits，用量自第一個請求起依企業預算計費） | 以 Team 指派授權；設定預算與用量警示；2026-11 起每帳號最多可設 40,000 個預算，2026-12-01 起用量報表加入 user ID 欄位 |
 | Actions | 私有儲存庫 GitHub-hosted runner 分鐘數與儲存 | 超時設定、concurrency、快取；大型工作負載評估 larger runners 或 self-hosted |
 | Packages／LFS／Codespaces | 儲存與傳輸、運算時間 | 保留政策、Codespaces 閒置逾時與機型限制 |
 | 管理工具 | Budgets、Cost centers（每企業最多 1,000 個） | 依事業單位歸屬成本並定期檢視 |
@@ -6164,7 +6434,7 @@ flowchart LR
 - **以 Custom properties 驅動政策**：新儲存庫建立時即標記分類，自動套用對應 Rulesets 與安全設定。
 - **政策即程式碼**：以 REST API／Terraform 管理 Rulesets 與組織設定，變更經 PR 審查。
 - **先試點再推廣**：用試點團隊驗證範本與流程，再擴大；每階段設定明確完成標準。
-- **持續追蹤平台變化**：指定專人每月檢視 GitHub Changelog 的停用與強制變更（例如 2026-11-02 `pull_request_target` 預設政策、2026-11-13 同步 SBOM API 移除）。
+- **持續追蹤平台變化**：指定專人每月檢視 GitHub Changelog 的停用與強制變更（例如 2026-12-02 `pull_request_target` 預設封鎖、2026-12-08 Dependabot 非活躍儲存庫暫停警示）。
 
 ---
 
@@ -6232,6 +6502,10 @@ GitHub 的功能每週都在更新，但企業導入成功的關鍵始終不變�
 | **Security configuration** | 組織層級可批次套用的安全功能組合 |
 | **Stacked pull requests** | 有順序的一系列小 PR，可逐層審查、一次合併（預覽） |
 | **Sub-issue** | 父 Issue 之下的子工作項目 |
+| **GitHub Agentic Workflows** | 以 Markdown 描述、編譯為 Actions YAML 的 AI agent 工作流程 |
+| **Issue status** | Issue 的進度狀態（Backlog、Todo、In progress、In review、Done、Not planned、Duplicate；2026-11 預覽） |
+| **Moderate role** | 可編輯與管理 Issue，但不授予程式碼存取的儲存庫角色 |
+| **Workflow lockfile** | `.github/workflows/actions.lock`，記錄 Action 及其遞移相依的確切 commit |
 
 > 💡 完整官方詞彙請參考 [GitHub glossary](https://docs.github.com/en/get-started/learning-about-github/github-glossary)。
 
@@ -6244,9 +6518,38 @@ GitHub 的功能每週都在更新，但企業導入成功的關鍵始終不變�
 | 1.0 | 2025-06-01 | 專案開發團隊 | 初始版本發布 |
 | 2.0 | 2025-08-29 | 專案開發團隊 | 新增 Git 進階操作、擴充 CI/CD 與安全內容、VS Code 整合、Copilot 使用規範 |
 | 2.1 | 2025-10-17 | GitHub Copilot | 補充第 10 章安全最佳實務，修正目錄對應 |
-| **3.0** | **2026-09-29** | 專案開發團隊 | 以 2026-09-29 官方文件與 Changelog 逐章查證改寫；修正全文格式；新增帳號／方案／權限、GHAS、入門路徑、Commit 簽署、受限網路、GitHub flow、Codespaces、Packages、Pages、Writing on GitHub、Actions 供應鏈安全、企業治理與導入藍圖、附錄 A–D |
+| 3.0 | 2026-09-29 | 專案開發團隊 | 以 2026-09-29 官方文件與 Changelog 逐章查證改寫；修正全文格式；新增帳號／方案／權限、GHAS、入門路徑、Commit 簽署、受限網路、GitHub flow、Codespaces、Packages、Pages、Writing on GitHub、Actions 供應鏈安全、企業治理與導入藍圖、附錄 A–D |
+| **3.1** | **2026-11-25** | 專案開發團隊 | 依 2026-10–11 官方 Changelog 與文件複查：`pull_request_target` 封鎖日期、Stacked PRs／workflow lockfiles／Agentic Workflows／Copilot approvals／Moderate 角色 GA、issue statuses、到期權杖、Rulesets 一次匯入、新秘密防護、Dependabot 暫停、package firewall、Copilot 授權模式；工具版本更新；新增驗證指令與檢查項 |
 
-### B.2 v2.1 → v3.0 更正表
+### B.2 v3.0 → v3.1 更新表
+
+| # | 位置（v3.1） | v3.0 內容 | v3.1 更新 |
+| --- | --- | --- | --- |
+| 1 | 頁首 | Git 2.56.0、gh 2.101.0、LFS 3.8.0、Desktop 3.6.6；GHES 3.20–3.22 | Git 2.56.1、gh 2.105.0、LFS 3.8.1、GCM 3.0.2、Desktop 3.6.11；GHES 3.21–3.23（3.23 RC） |
+| 2 | 1.2、14.4、附錄 D | What is GitHub 連結為 `about-github-and-git` | 官方網址已改為 `what-is-github`；補充官方用途清單與導入檢核表 |
+| 3 | 1.8 | — | 新增「GitHub Enterprise 內含 Copilot」與 Copilot Standalone |
+| 4 | 1.9 | 儲存庫角色五種 | 新增 Moderate 角色；新增權限驗證指令 |
+| 5 | 1.10、1.11 | — | 新增 2026-10～11 安全能力表、About GitHub Code Quality、Using GitHub Docs 分類 |
+| 6 | 2.1 | 工具版本 | 更新；Desktop 短效權杖與同主機多帳號 |
+| 7 | 2.3 | 「2026-10-14 之後」RSA ≥ 3072 bits | 改為已生效；新增金鑰盤點指令 |
+| 8 | 2.4 | — | 新增 `gh auth login --expiring` 與注意事項 |
+| 9 | 2.7 | — | 公開儲存庫匿名 HTTPS 可能暫時要求驗證 |
+| 10 | 3.6 | Copilot 核准為公開預覽、不計入 | Approvals 已 GA（預設關閉、可計入、可限路徑）、Max 強度；明訂本專案政策 |
+| 11 | 3.7 | Stacked PRs 預覽，僅一段說明 | GA 行為表、操作範例與 Reviewer 驗證重點 |
+| 12 | 5.1 | — | 新版儀表板、push 事件 Email 通知退場 |
+| 13 | 8.1 | — | Issue statuses、repository boards、個人帳號 issue types／fields |
+| 14 | 8.7、12.8 | gh 2.101 | gh 2.105；`gh event`、`gh actions-lock`、`gh aw` |
+| 15 | 8.9 | 新功能預設「2026-10-22 起」 | Global default 已生效；新增內含 Copilot／Standalone 方案與 code review 核准政策 |
+| 16 | 9.3 | dependency-review-action v5.0.0 | v5.0.1；新增 Agentic Workflows；macOS 14 runner 退場提醒 |
+| 17 | 9.8、9.9 | `pull_request_target` 2026-11-02 | 延後為 2026-12-02 並提供準備步驟；新增 workflow lockfiles |
+| 18 | 10.2 | — | AI 偵測秘密 Push protection、Actions 日誌掃描、Push protection 驗證步驟 |
+| 19 | 10.4 | — | Dependabot 非活躍儲存庫暫停、package firewall |
+| 20 | 10.5 | 僅單條 Convert to ruleset | 新增一次匯入與驗證指令 |
+| 21 | 13.5、13.8、13.9 | — | 新增 lockfile、`pull_request_target`、Dependabot 暫停、Copilot 授權模式檢查項 |
+| 22 | 15.1、15.5、15.6、15.9 | — | 企業層級 GitHub App 安裝、Azure DevOps 即時遷移、Copilot 成本模式、追蹤日期更新 |
+| 23 | 附錄 A、C | — | 新增 4 個詞彙；查證第 42–63 項；待確認事項全面更新 |
+
+### B.3 v2.1 → v3.0 更正表
 
 | # | 位置（v3.0） | v2.1 內容 | 更正後 |
 | --- | --- | --- | --- |
@@ -6292,7 +6595,7 @@ GitHub 的功能每週都在更新，但企業導入成功的關鍵始終不變�
 | 40 | 14.4 | GitHub Learning Lab、Katacoda、guides.github.com | 已停止服務，改為 GitHub Skills、GitHub Learn、Microsoft Learn、Certifications |
 | 41 | 頁尾 | 兩段重複的版本頁尾（v2.0／v2.1）與維護記錄散落 | 合併為本附錄 |
 
-### B.3 v3.0 新增章節
+### B.4 v3.0 新增章節
 
 | 章節 | 內容 |
 | --- | --- |
@@ -6307,14 +6610,14 @@ GitHub 的功能每週都在更新，但企業導入成功的關鍵始終不變�
 | [第 15 章](#15-企業治理與導入藍圖) | 企業治理與導入藍圖 |
 | 附錄 A–D | 詞彙表、版本紀錄、查證紀錄、參考資料 |
 
-### B.4 v2.x 更新內容回顧
+### B.5 v2.x 更新內容回顧
 
 - v2.1（2025-10-17）：補充完整第 10 章安全最佳實務所有子章節（10.1–10.6），修正目錄與內容對應。
 - v2.0（2025-08-29）：新增 Git 進階操作章節（Interactive Rebase、Cherry-pick、Bisect 等）；擴充安全最佳實務和機密資訊管理；詳細的 VS Code Git 整合應用指南；加入 GitHub Copilot 使用規範；增強效能優化和疑難排解章節；更新團隊協作最佳實務。
 
 ## 附錄 C：查證紀錄
 
-以下事實於 **2026-09-29** 依官方來源查證：
+以下事實於 **2026-09-29**（第 1–41 項）與 **2026-11-25**（第 42–63 項）依官方來源查證：
 
 | # | 查證項目 | 結果 | 來源 |
 | --- | --- | --- | --- |
@@ -6336,7 +6639,7 @@ GitHub 的功能每週都在更新，但企業導入成功的關鍵始終不變�
 | 16 | 分支保護轉換 | Settings → Branches「Convert to ruleset」 | Changelog 2026-08-11 |
 | 17 | 秘密警示合併規則 | Ruleset 可阻擋含未解決秘密警示的 PR | Changelog 2026-09-09 |
 | 18 | Merge queue | 需 `merge_group` 事件；公開組織儲存庫或 GHEC 私有儲存庫 | docs：Managing a merge queue、gated-features |
-| 19 | Stacked PRs | 2026-07-30 公開預覽 | Changelog |
+| 19 | Stacked PRs | 2026-07-30 公開預覽；2026-10-06 GA（見第 43 項） | Changelog |
 | 20 | `pull_request` 活動類型 | 無 `merged`；預設 opened／synchronize／reopened | docs：Events that trigger workflows |
 | 21 | Dependabot 選項 | 無 `reviewers`；有 `groups`、`cooldown`；預設 3 天 cooldown | docs：Dependabot options reference；Changelog 2026-07-14 |
 | 22 | Projects 內建 Workflows | 預設啟用 closed／merged → Done；auto-add、auto-archive | docs：Using the built-in automations |
@@ -6349,30 +6652,54 @@ GitHub 的功能每週都在更新，但企業導入成功的關鍵始終不變�
 | 29 | 新工作流程語法 | `background`／`wait`／`wait-all`、`cache-mode`、schedule `timezone`、`$/` 自身儲存庫參照 | docs：Workflow syntax；Changelog 2026-06-25、07-30、09-10 |
 | 30 | Environments | 必要審查者最多 6 位；私有儲存庫保護規則需 Enterprise | docs：Deployments and environments |
 | 31 | Trivy 事件 | 2026-03-19，trivy-action 77 個標籤中 76 個遭改寫 | Aqua Security 公告、Microsoft Security Blog |
-| 32 | `pull_request_target` | 2025-12-08 起一律用預設分支；2026-11-02 公開儲存庫預設停用 | Changelog 2025-11-07、2026-06-18 |
+| 32 | `pull_request_target` | 2025-12-08 起一律用預設分支；公開儲存庫預設封鎖原訂 2026-11-02，已延後至 2026-12-02（見第 42 項） | Changelog 2025-11-07、2026-06-18 |
 | 33 | Security 分頁更名 | Security & quality（2026-04-02） | Changelog |
 | 34 | Copilot 方案 | Free、Pro $10、Pro+ $39、Max $100、Business $19、Enterprise $39；AI credits | docs：Plans for GitHub Copilot |
-| 35 | Copilot code review 核准 | 2026-09-01 公開預覽，預設關閉 | Changelog |
+| 35 | Copilot code review 核准 | 2026-09-01 公開預覽，預設關閉；2026-10-28 GA（見第 46 項） | Changelog |
 | 36 | EMU | 合作 IdP：Entra ID、Okta、PingFederate；Okta + Entra ID 混用不支援 | docs：About Enterprise Managed Users |
 | 37 | 資料落地地區 | EU、Australia、US、Japan | docs：About GHEC with data residency |
 | 38 | Audit log streaming 目的地 | S3、Azure Blob、Azure Event Hubs、Datadog、GCS、Microsoft Purview、Splunk | docs：Streaming the audit log |
 | 39 | 同步 SBOM API | 2026-11-13 移除，改用 generate-report | Changelog 2026-05-12 |
 | 40 | 學習資源 | GitHub Skills、GitHub Learn、Microsoft Learn、Learn Git Branching；5 種 Certifications | docs：Git and GitHub learning resources、About GitHub Certifications |
 | 41 | 工具版本 | Git 2.56.0、GitHub CLI 2.101.0、Git LFS 3.8.0、GCM 2.9.1、GitHub Desktop 3.6.6、TruffleHog 3.97.9、ggshield 1.55.0、GitLens 19.2.0 | GitHub Releases API |
+| 42 | `pull_request_target` 預設封鎖 | 2026-12-02 起公開儲存庫預設封鎖；2026-11-09、11-16 brownout；私有／internal 與 GHES 不受影響 | Changelog 2026-11-02 |
+| 43 | Stacked PRs GA | 所有 github.com 方案；Rebase stack 保留核准並簽署替代 commit；merge queue 單一 merge group | Changelog 2026-10-06 |
+| 44 | Workflow lockfiles GA | `gh actions-lock`、`.github/workflows/actions.lock`、Require lockfile 政策、Dependabot 同步更新 | Changelog 2026-10-28 |
+| 45 | GitHub Enterprise 內含 Copilot | 經業務團隊的 GHEC；無每席位 credits；Copilot Standalone US$10 | Changelog 2026-10-28 |
+| 46 | Copilot code review | Approvals GA、預設關閉、可限路徑、推送後撤銷；Max 公開預覽；Pro／Pro+／Max／Business／Enterprise | Changelog 2026-10-28 |
+| 47 | Moderate 角色 | GA，2026-11-12 起可用；編輯與轉移 Issue、鎖定對話、管理標籤／里程碑 | Changelog 2026-10-28 |
+| 48 | Issue statuses／repository boards | 公開預覽；7 種狀態與自動化；issue fields 不再綁定 types | Changelog 2026-11-23 |
+| 49 | 個人帳號 issue types／fields | 可用 | Changelog 2026-11-11 |
+| 50 | gh 到期權杖 | 2.103.0 `--expiring`、`expiring_credentials`；建議 Git 2.46+；GHES 3.23 起支援 | Changelog 2026-10-21 |
+| 51 | `gh event` | 2.105.0，需 Event Streams 預覽資格 | Changelog 2026-11-18、cli/cli v2.105.0 release notes |
+| 52 | 分支保護一次匯入 | Settings → Rulesets → Import branch protection rules | Changelog 2026-10-20 |
+| 53 | AI 偵測秘密 Push protection | 公開預覽；需 AI-detected secrets + Push protection；消耗 AI credits | Changelog 2026-10-28 |
+| 54 | Actions 日誌秘密掃描 | 公開預覽；GHEC + Secret Protection；企業政策啟用；不回溯 | Changelog 2026-11-09 |
+| 55 | Dependabot 非活躍儲存庫 | 2026-12-08 起暫停並封存警示；推送即恢復；強制 security configuration 例外 | Changelog 2026-11-10 |
+| 56 | Package firewall | GHEC（含 GHE.com）公開預覽；僅 npm；預覽免費 | Changelog 2026-10-20 |
+| 57 | Agentic Workflows GA | Free／Team／Enterprise；預設 Copilot CLI 引擎需 Copilot 授權；`gh aw forecast` | Changelog 2026-10-28 |
+| 58 | Copilot global default | 2026-10-22～26 分批生效；只套用未設定的 GA 功能 | Changelog 2026-10-22 |
+| 59 | 公開儲存庫匿名 HTTPS | 流量異常時可能暫時要求驗證；SSH、push、已驗證 HTTPS 不受影響 | Changelog 2026-10-19 |
+| 60 | macOS 14 runner | 2026-11-02 退場，改用 `macos-latest`（macOS 26）或 `macos-15` | Changelog 2026-10-01 |
+| 61 | GHES 3.23 RC | 2026-11-20；Dependabot 預設 3 天 cooldown、OAuth App 到期權杖（預覽） | Changelog 2026-11-20 |
+| 62 | Get started 文件樹 | 新增 About GitHub Code Quality、Using GitHub Docs（Docs API）；What is GitHub 網址為 `what-is-github` | docs.github.com/en/get-started |
+| 63 | 工具版本（v3.1） | Git 2.56.1、GitHub CLI 2.105.0（2026-11-18）、GitHub Desktop 3.6.11（2026-11-16）、Git LFS 3.8.1、GCM 3.0.2、dependency-review-action v5.0.1（2026-11-17）、checkout v7.0.1 | GitHub Releases API |
 
 ### C.1 待確認事項
 
 | # | 項目 | 說明 | 建議追蹤時間 |
 | --- | --- | --- | --- |
-| 1 | `pull_request_target` 預設停用 | 2026-11-02 生效後確認公開儲存庫的實際行為與事件政策設定方式 | 2026-11 |
-| 2 | 同步 SBOM API 移除 | 確認內部腳本已改用 `generate-report` | 2026-11-13 前 |
-| 3 | RSA SSH 金鑰 3072 bits 要求 | 2026-10-14 生效後確認既有 2048 bits 金鑰的處理方式 | 2026-10 |
-| 4 | Copilot 新功能預設啟用政策 | 2026-10-22 生效，確認企業政策設定 | 2026-10 |
-| 5 | Stacked PRs、Copilot 核准 PR | 目前為公開預覽，GA 後再評估是否納入標準流程 | 每季 |
-| 6 | `actions/dependency-review-action` | 目前僅有 `v5.0.0` 完整版本標籤，待主版本標籤 `v5` 發布後更新範例 | 2026-Q4 |
-| 7 | Git 3.0 與 SHA-256 | GitHub 平台對 SHA-256 儲存庫的支援時程 | 依官方公告 |
-| 8 | Self-hosted runner 平台費 | 延後後的新方案與生效日期 | 依官方公告 |
-| 9 | GHES 3.23 | Dependabot 預設 cooldown、Issue fields 等功能將隨 3.23 提供 | GHES 3.23 發布時 |
+| 1 | `pull_request_target` 預設封鎖 | 2026-12-02 生效後確認公開儲存庫工作流程與 Actions 事件政策的實際行為 | 2026-12 |
+| 2 | 同步 SBOM API | 已過預定移除日（2026-11-13），確認內部腳本均已改用 `generate-report` | 2026-12 |
+| 3 | RSA SSH 金鑰 3072 bits | 已生效；追蹤既有 2048 bits 金鑰的汰換進度 | 每季 |
+| 4 | Dependabot 非活躍儲存庫暫停 | 2026-12-08 生效後確認需監控的儲存庫未被暫停 | 2026-12 |
+| 5 | 預覽功能 | Issue statuses、AI 偵測秘密 Push protection、Actions 日誌掃描、package firewall、Copilot code review Max、`gh event`、`gh auth login --expiring`：GA 後再評估納入標準流程 | 每季 |
+| 6 | `actions/dependency-review-action` | 範例使用完整版本標籤 `v5.0.1`；確認主版本標籤 `v5` 發布後再改用 | 2026-Q4 |
+| 7 | GitHub Enterprise 內含 Copilot | 自助訂閱客戶的開放時程與既有 Copilot 席位轉換方式 | 依官方公告 |
+| 8 | Git 3.0 與 SHA-256 | GitHub 平台對 SHA-256 儲存庫的支援時程 | 依官方公告 |
+| 9 | Self-hosted runner 平台費 | 延後後的新方案與生效日期 | 依官方公告 |
+| 10 | GHES 3.23 GA | RC 已於 2026-11-20 發布，GA 後更新適用平台與功能對照 | GHES 3.23 GA 時 |
+| 11 | Stacked PRs 於 GHES | 官方表示將納入後續 GHES 版本 | GHES 新版發布時 |
 
 ## 附錄 D：參考資料
 
@@ -6381,7 +6708,7 @@ GitHub 的功能每週都在更新，但企業導入成功的關鍵始終不變�
 | 主題 | 連結 |
 | --- | --- |
 | Get started | <https://docs.github.com/en/get-started> |
-| What is GitHub? | <https://docs.github.com/en/get-started/start-your-journey/about-github-and-git> |
+| What is GitHub? | <https://docs.github.com/en/get-started/start-your-journey/what-is-github> |
 | GitHub flow | <https://docs.github.com/en/get-started/using-github/github-flow> |
 | GitHub's plans | <https://docs.github.com/en/get-started/learning-about-github/githubs-plans> |
 | Types of GitHub accounts | <https://docs.github.com/en/get-started/learning-about-github/types-of-github-accounts> |
@@ -6397,6 +6724,7 @@ GitHub 的功能每週都在更新，但企業導入成功的關鍵始終不變�
 | GitHub Copilot | <https://docs.github.com/en/copilot> |
 | Enterprise administration | <https://docs.github.com/en/enterprise-cloud@latest/admin> |
 | GitHub glossary | <https://docs.github.com/en/get-started/learning-about-github/github-glossary> |
+| About GitHub Code Quality | <https://docs.github.com/en/get-started/learning-about-github/about-github-code-quality> |
 
 ### D.2 平台動態與工具
 
@@ -6409,6 +6737,9 @@ GitHub 的功能每週都在更新，但企業導入成功的關鍵始終不變�
 | Git 官方網站 | <https://git-scm.com/> |
 | Git Credential Manager | <https://github.com/git-ecosystem/git-credential-manager> |
 | Git LFS | <https://git-lfs.com/> |
+| Stacked pull requests | <https://gh.io/stacks> |
+| gh-actions-lock（workflow lockfile） | <https://github.com/github/gh-actions-lock> |
+| GitHub Agentic Workflows | <https://github.github.com/gh-aw/> |
 
 ### D.3 規範與延伸閱讀
 

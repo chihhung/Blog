@@ -5,107 +5,156 @@ title = 'PowerShell使用教學'
 tags = ['教學', '程式語言']
 categories = ['教學']
 +++
+
 # PowerShell 使用教學手冊
 
+> 企業標準技術白皮書 v2.0｜適用 PowerShell 7.6 LTS、PowerShell 7.7 與 Windows PowerShell 5.1｜最後驗證日期：2026-11-25
+
+## 文件資訊
+
+| 項目 | 內容 |
+|------|------|
+| 文件版本 | v2.0（2026-11-25），前一版 v1.0（2025-10-31） |
+| 企業建議基準 | PowerShell 7.6.10 LTS（.NET 10，支援至 2028-11-14） |
+| 最新穩定版 | PowerShell 7.7.0（.NET 11，2026-11-10 發布） |
+| 已終止支援 | PowerShell 7.4 LTS 與 7.5（2026-11-10 終止） |
+| 舊版相容 | Windows PowerShell 5.1（隨 Windows 支援週期，只修安全性問題） |
+| 主要參考 | [PowerShell GitHub 儲存庫](https://github.com/PowerShell/PowerShell)、Microsoft Learn PowerShell 文件、PowerShell Gallery |
+| 適用對象 | 系統管理員、DevOps / SRE、應用程式開發人員、資安與稽核人員、AI 產出腳本的審查者 |
+| 修訂紀錄 | 見附錄 17.10；尚待確認事項見 17.11 |
+
+### 如何使用本手冊
+
+1. **初學者**：依第 1～6 章順序閱讀，每一段範例都在 `pwsh` 中實際執行一次，並對照註解的預期結果。
+2. **維運與開發人員**：直接查第 7～12 章，交付前以各章「檢查清單」自我檢核。
+3. **資安與稽核人員**：重點為第 13 章（執行原則、簽章、JEA、記錄稽核、秘密管理）與 16.4 節。
+4. **審查 AI 產出腳本的人**：先讀 16.4 節的審查流程與自動化檢查腳本，再搭配 17.8 節檢查清單。
+
+### 本手冊範例的執行慣例
+
+- 除非特別標示，範例以 **PowerShell 7.6 LTS** 為準；只能在 Windows PowerShell 5.1 執行的段落會明確標示。
+- 以 `C:\` 開頭的路徑只適用 Windows；跨平台腳本請改用 `Join-Path`、`$HOME` 與 `[System.IO.Path]::GetTempPath()`。
+- 會改變系統狀態（刪除、停止服務、修改註冊表、註冊端點）的範例，請先在測試環境以 `-WhatIf` 預演。
+- 版本號、支援日期等時效性資訊集中在附錄 17.9 與 17.10，改版時優先更新該處。
+
+<!-- TOC-AUTO-BEGIN -->
 ## 目錄
 
-### 第 1 部分：基礎入門
+- [文件資訊](#文件資訊)
+  - [如何使用本手冊](#如何使用本手冊)
+  - [本手冊範例的執行慣例](#本手冊範例的執行慣例)
+- [第 1 部分：基礎入門](#第-1-部分基礎入門)
+  - [1. 認識 PowerShell](#1-認識-powershell)
+    - [1.1 PowerShell 的歷史與用途](#11-powershell-的歷史與用途)
+    - [1.2 與 CMD、Bash 的差異](#12-與-cmdbash-的差異)
+    - [1.3 PowerShell Core vs Windows PowerShell](#13-powershell-core-vs-windows-powershell)
+    - [1.4 PowerShell 版本與支援週期（2026-11 現況）](#14-powershell-版本與支援週期2026-11-現況)
+    - [1.5 PowerShell 7.6 / 7.7 重要變更與升級影響](#15-powershell-76--77-重要變更與升級影響)
+  - [2. 安裝與環境設定](#2-安裝與環境設定)
+    - [2.1 在 Windows 安裝 PowerShell](#21-在-windows-安裝-powershell)
+    - [2.2 跨平台安裝](#22-跨平台安裝)
+    - [2.3 PowerShell ISE 與 VS Code 整合](#23-powershell-ise-與-vs-code-整合)
+    - [2.4 基本環境變數設定](#24-基本環境變數設定)
+    - [2.5 套件管理：PSResourceGet 與 PowerShell Gallery](#25-套件管理psresourceget-與-powershell-gallery)
+    - [2.6 安裝驗證與企業部署檢查](#26-安裝驗證與企業部署檢查)
+    - [實務案例與注意事項（第 2 章）](#實務案例與注意事項第-2-章)
+  - [3. 基本操作](#3-基本操作)
+    - [3.1 常用指令（Get-Help、Get-Command、Get-Member）](#31-常用指令get-helpget-commandget-member)
+    - [3.2 管道 (Pipeline) 與物件導向特性](#32-管道-pipeline-與物件導向特性)
+    - [3.3 輸出與重新導向](#33-輸出與重新導向)
+    - [3.4 PSReadLine 與互動式操作效率](#34-psreadline-與互動式操作效率)
+    - [實務案例與注意事項（第 3 章）](#實務案例與注意事項第-3-章)
+- [第 2 部分：核心語法](#第-2-部分核心語法)
+  - [4. 變數與資料型態](#4-變數與資料型態)
+    - [4.1 宣告與使用變數](#41-宣告與使用變數)
+    - [4.2 常見資料型別](#42-常見資料型別)
+    - [4.3 型態轉換與檢查](#43-型態轉換與檢查)
+    - [實務案例與注意事項（第 4 章）](#實務案例與注意事項第-4-章)
+  - [5. 運算子與流程控制](#5-運算子與流程控制)
+    - [5.1 比較運算子與邏輯運算子](#51-比較運算子與邏輯運算子)
+    - [5.2 條件判斷（if, switch）](#52-條件判斷if-switch)
+    - [5.3 迴圈語法（for, foreach, while, do-while）](#53-迴圈語法for-foreach-while-do-while)
+    - [5.4 PowerShell 7 新增運算子](#54-powershell-7-新增運算子)
+    - [實務案例與注意事項（第 5 章）](#實務案例與注意事項第-5-章)
+  - [6. 函數與模組](#6-函數與模組)
+    - [6.1 定義與呼叫函數](#61-定義與呼叫函數)
+    - [6.2 參數與回傳值](#62-參數與回傳值)
+    - [6.3 匯入與建立模組](#63-匯入與建立模組)
+    - [6.4 進階函式設計規範](#64-進階函式設計規範)
+    - [實務案例與注意事項（第 6 章）](#實務案例與注意事項第-6-章)
+- [第 3 部分：進階技巧](#第-3-部分進階技巧)
+  - [7. 物件與管道操作](#7-物件與管道操作)
+    - [7.1 Select-Object、Where-Object、Sort-Object](#71-select-objectwhere-objectsort-object)
+    - [7.2 Format-Table、Format-List](#72-format-tableformat-list)
+    - [7.3 對象操作與屬性方法存取](#73-對象操作與屬性方法存取)
+    - [7.4 平行處理：ForEach-Object -Parallel 與 ThreadJob](#74-平行處理foreach-object--parallel-與-threadjob)
+    - [7.5 結構化資料與 REST API](#75-結構化資料與-rest-api)
+    - [實務案例與注意事項（第 7 章）](#實務案例與注意事項第-7-章)
+  - [8. 錯誤處理與除錯](#8-錯誤處理與除錯)
+    - [8.1 Try/Catch/Finally](#81-trycatchfinally)
+    - [8.2 錯誤物件 $Error](#82-錯誤物件-error)
+    - [8.3 除錯工具與斷點](#83-除錯工具與斷點)
+    - [8.4 結構化日誌、Transcript 與結束碼](#84-結構化日誌transcript-與結束碼)
+    - [實務案例與注意事項（第 8 章）](#實務案例與注意事項第-8-章)
+  - [9. 檔案與系統管理](#9-檔案與系統管理)
+    - [9.1 檔案與目錄操作](#91-檔案與目錄操作)
+    - [9.2 註冊表操作](#92-註冊表操作)
+    - [9.3 系統服務與程序管理](#93-系統服務與程序管理)
+    - [9.4 從 WMI 遷移到 CIM](#94-從-wmi-遷移到-cim)
+    - [實務案例與注意事項（第 9 章）](#實務案例與注意事項第-9-章)
+- [第 4 部分：專案實務應用](#第-4-部分專案實務應用)
+  - [10. 自動化腳本撰寫](#10-自動化腳本撰寫)
+    - [10.1 常見自動化範例](#101-常見自動化範例)
+    - [10.2 批次檔轉換與日誌管理](#102-批次檔轉換與日誌管理)
+    - [10.3 系統排程整合](#103-系統排程整合)
+    - [實務案例與注意事項（第 10 章）](#實務案例與注意事項第-10-章)
+  - [11. 開發工具整合](#11-開發工具整合)
+    - [11.1 VS Code 整合](#111-vs-code-整合)
+    - [11.2 Git 版本控制整合](#112-git-版本控制整合)
+    - [11.3 CI/CD 整合](#113-cicd-整合)
+    - [11.4 Pester 6 測試實務](#114-pester-6-測試實務)
+    - [實務建議與最佳做法](#實務建議與最佳做法)
+  - [12. 網路和遠端管理](#12-網路和遠端管理)
+    - [12.1 網路操作基礎](#121-網路操作基礎)
+    - [12.2 PowerShell Remoting](#122-powershell-remoting)
+    - [12.3 SSH Remoting 與跨平台遠端管理](#123-ssh-remoting-與跨平台遠端管理)
+    - [實務案例和安全考量](#實務案例和安全考量)
+- [第 5 部分：安全性與認證準備](#第-5-部分安全性與認證準備)
+  - [13. PowerShell 安全性](#13-powershell-安全性)
+    - [13.1 執行原則與程式碼簽署](#131-執行原則與程式碼簽署)
+    - [13.2 認證和授權管理](#132-認證和授權管理)
+    - [13.3 Just Enough Administration (JEA)](#133-just-enough-administration-jea)
+    - [13.4 稽核記錄與執行期防護](#134-稽核記錄與執行期防護)
+    - [13.5 秘密管理：SecretManagement 與 SecretStore](#135-秘密管理secretmanagement-與-secretstore)
+  - [14. 認證考試準備](#14-認證考試準備)
+    - [14.1 Microsoft PowerShell 認證概覽](#141-microsoft-powershell-認證概覽)
+    - [14.2 核心技能評估和練習](#142-核心技能評估和練習)
+    - [14.3 考試策略和時間管理](#143-考試策略和時間管理)
+- [第 6 部分：維運、企業應用與附錄](#第-6-部分維運企業應用與附錄)
+  - [15. 故障排除和除錯技巧](#15-故障排除和除錯技巧)
+    - [15.1 常見問題診斷](#151-常見問題診斷)
+    - [15.2 效能調校和最佳化](#152-效能調校和最佳化)
+    - [15.3 從 Windows PowerShell 5.1 遷移到 PowerShell 7](#153-從-windows-powershell-51-遷移到-powershell-7)
+  - [16. 企業級 PowerShell 進階應用](#16-企業級-powershell-進階應用)
+    - [16.1 大規模基礎設施管理](#161-大規模基礎設施管理)
+    - [16.2 PowerShell DSC 進階應用](#162-powershell-dsc-進階應用)
+    - [16.3 DSC v3 與現代設定管理](#163-dsc-v3-與現代設定管理)
+    - [16.4 AI 協作產生 PowerShell 腳本的審查與驗證](#164-ai-協作產生-powershell-腳本的審查與驗證)
+  - [17. 附錄與參考資料](#17-附錄與參考資料)
+    - [17.1 PowerShell 命令速查表](#171-powershell-命令速查表)
+    - [17.2 常用運算子](#172-常用運算子)
+    - [17.3 環境變數參考](#173-環境變數參考)
+    - [17.4 錯誤處理參考](#174-錯誤處理參考)
+    - [17.5 正規表達式參考](#175-正規表達式參考)
+    - [17.6 實用工具函數庫](#176-實用工具函數庫)
+    - [17.7 學習資源推薦](#177-學習資源推薦)
+    - [17.8 疑難排解檢查清單](#178-疑難排解檢查清單)
+    - [17.9 版本資訊與相容性對照](#179-版本資訊與相容性對照)
+    - [17.10 修訂與驗證紀錄](#1710-修訂與驗證紀錄)
+    - [17.11 待確認事項](#1711-待確認事項)
+- [總結](#總結)
 
-1. [認識 PowerShell](#1-認識-powershell)
-   - 1.1 PowerShell 的歷史與用途
-   - 1.2 與 CMD、Bash 的差異
-   - 1.3 PowerShell Core vs Windows PowerShell
-
-2. [安裝與環境設定](#2-安裝與環境設定)
-   - 2.1 在 Windows 安裝 PowerShell
-   - 2.2 跨平台安裝
-   - 2.3 PowerShell ISE 與 VS Code 整合
-   - 2.4 基本環境變數設定
-
-3. [基本操作](#3-基本操作)
-   - 3.1 常用指令（Get-Help、Get-Command、Get-Member）
-   - 3.2 管道 (Pipeline) 與物件導向特性
-   - 3.3 輸出與重新導向
-
-### 第 2 部分：核心語法
-
-4. [變數與資料型態](#4-變數與資料型態)
-   - 4.1 宣告與使用變數
-   - 4.2 常見資料型別
-   - 4.3 型態轉換與檢查
-
-5. [運算子與流程控制](#5-運算子與流程控制)
-   - 5.1 比較運算子與邏輯運算子
-   - 5.2 條件判斷（if, switch）
-   - 5.3 迴圈語法（for, foreach, while, do-while）
-
-6. [函數與模組](#6-函數與模組)
-   - 6.1 定義與呼叫函數
-   - 6.2 參數與回傳值
-   - 6.3 匯入與建立模組
-
-### 第 3 部分：進階技巧
-
-7. [物件與管道操作](#7-物件與管道操作)
-   - 7.1 Select-Object、Where-Object、Sort-Object
-   - 7.2 Format-Table、Format-List
-   - 7.3 對象操作與屬性方法存取
-
-8. [錯誤處理與除錯](#8-錯誤處理與除錯)
-   - 8.1 Try/Catch/Finally
-   - 8.2 錯誤物件 $Error
-   - 8.3 除錯工具與斷點
-
-9. [檔案與系統管理](#9-檔案與系統管理)
-   - 9.1 檔案與目錄操作
-   - 9.2 註冊表操作
-   - 9.3 系統服務與程序管理
-
-### 第 4 部分：專案實務應用
-
-10. [自動化腳本撰寫](#10-自動化腳本撰寫)
-    - 10.1 常見自動化範例
-    - 10.2 批次檔轉換與日誌管理
-    - 10.3 系統排程整合
-
-11. [開發環境整合](#11-開發環境整合)
-    - 11.1 與 Git/GitHub/GitLab 的整合
-    - 11.2 與 CI/CD 的應用
-    - 11.3 VS Code 開發環境優化
-
-12. [系統與網路操作](#12-系統與網路操作)
-    - 12.1 WMI 與 CIM 指令
-    - 12.2 遠端管理 (PowerShell Remoting)
-    - 12.3 網路測試與自動化
-
-### 第 5 部分：認證考試重點
-
-13. [PowerShell 認證簡介](#13-powershell-認證簡介)
-    - 13.1 認證種類與考試結構
-    - 13.2 常見考試主題整理
-    - 13.3 學習路徑規劃
-
-14. [認證題型解析與模擬題](#14-認證題型解析與模擬題)
-    - 14.1 單選/多選題範例
-    - 14.2 情境題練習
-    - 14.3 解題技巧與常見陷阱
-
-### 第 6 部分：附錄
-
-15. [常用指令速查表](#15-常用指令速查表)
-    - 15.1 基本指令速查
-    - 15.2 管道操作速查
-    - 15.3 系統管理指令速查
-
-16. [實用範例腳本](#16-實用範例腳本)
-    - 16.1 系統監控腳本
-    - 16.2 檔案管理腳本
-    - 16.3 網路診斷腳本
-
-17. [章末練習題與參考答案](#17-章末練習題與參考答案)
-    - 17.1 基礎練習題
-    - 17.2 進階練習題
-    - 17.3 實務應用練習題
+<!-- TOC-AUTO-END -->
 
 ---
 
@@ -115,9 +164,23 @@ categories = ['教學']
 
 #### 1.1 PowerShell 的歷史與用途
 
-PowerShell 是由微軟開發的任務自動化和配置管理框架，最初於 2006 年發布。它結合了命令列 shell、腳本語言和 .NET Framework 的強大功能。
+PowerShell 是由微軟開發的任務自動化和組態管理框架，最初於 2006 年發布。它結合了命令列 shell、腳本語言與 .NET 執行環境；與傳統 shell 最大的差異是**管線傳遞的是 .NET 物件而不是純文字**，因此可以直接存取屬性與方法，不必用 `awk`/`findstr` 切字串。
+
+**發展里程碑：**
+
+| 年份 | 里程碑 | 對企業的意義 |
+|------|--------|--------------|
+| 2006 | Windows PowerShell 1.0（代號 Monad） | 以物件管線取代文字解析 |
+| 2009 | Windows PowerShell 2.0，加入 Remoting 與背景工作 | 開始以腳本大規模遠端管理 |
+| 2016 | Windows PowerShell 5.1 隨 Windows 10 / Server 2016 發布；同年 PowerShell 宣布開源並跨平台 | 5.1 是 Windows 內建的最後一個 Windows PowerShell 版本 |
+| 2020 | PowerShell 7.0 LTS（.NET Core 3.1） | 名稱去掉 Core，跨平台版成為主線 |
+| 2025 | Windows 11 24H2、Windows Server 2025 開始移除 Windows PowerShell 2.0 引擎 | 依賴 `powershell -Version 2` 的舊腳本必須改寫 |
+| 2026 | PowerShell 7.6 LTS（.NET 10，3 月）與 7.7（.NET 11，11 月） | 企業基準建議採 7.6 LTS |
+
+> 驗證方式：`$PSVersionTable` 可看到目前版本；Windows 上可用 `Get-WindowsOptionalFeature -Online -FeatureName MicrosoftWindowsPowerShellV2Root`（需系統管理員）確認 2.0 引擎是否仍存在。
 
 **主要用途：**
+
 - 系統管理與自動化
 - 配置管理
 - 軟體部署
@@ -152,11 +215,12 @@ graph TD
 
 | 特性 | PowerShell | CMD | Bash |
 |------|------------|-----|------|
-| 物件導向 | ✅ 完整支援 | ❌ 純文字 | ❌ 純文字 |
-| .NET 整合 | ✅ 原生支援 | ❌ 無 | ❌ 無 |
-| 跨平台 | ✅ Core 版本 | ❌ Windows 限定 | ✅ Unix/Linux/macOS |
-| 管道功能 | 🔥 物件管道 | 📝 文字管道 | 📝 文字管道 |
-| 腳本功能 | 🔥 強大 | 📝 基本 | 🔥 強大 |
+| 管線傳遞內容 | .NET 物件（保留型別與屬性） | 純文字 | 純文字（位元組串流） |
+| .NET 整合 | 原生支援，可直接呼叫 .NET API | 無 | 無 |
+| 跨平台 | PowerShell 7 支援 Windows / Linux / macOS | 僅 Windows | Linux / macOS / WSL |
+| 結構化資料 | 內建 JSON、CSV、XML 轉換 cmdlet | 無 | 需搭配 `jq` 等外部工具 |
+| 錯誤處理 | `try/catch/finally`、錯誤記錄物件 | `ERRORLEVEL` | 結束碼、`set -e` |
+| 遠端管理 | WinRM / SSH Remoting | 無 | SSH |
 
 **範例比較：**
 
@@ -176,37 +240,119 @@ systemctl list-units --type=service --state=running | grep .service
 ```mermaid
 graph LR
     A[PowerShell 版本] --> B[Windows PowerShell 5.1]
-    A --> C[PowerShell Core 6.x]
-    A --> D[PowerShell 7.x]
-    
-    B --> B1[Windows 限定]
-    B --> B2[.NET Framework]
-    B --> B3[ISE 支援]
-    
+    A --> C[PowerShell 7.6 LTS]
+    A --> D[PowerShell 7.7]
+
+    B --> B1[Windows 內建]
+    B --> B2[.NET Framework 4.x]
+    B --> B3[只修安全性問題]
+
     C --> C1[跨平台]
-    C --> C2[.NET Core]
-    C --> C3[性能提升]
-    
+    C --> C2[.NET 10]
+    C --> C3[支援至 2028-11-14]
+
     D --> D1[跨平台]
-    D --> D2[.NET 5+]
-    D --> D3[向後相容]
-    D --> D4[長期支援]
+    D --> D2[.NET 11]
+    D --> D3[最新功能 非 LTS]
 ```
 
-**版本特性對比：**
+**版本特性對比（2026-11 現況）：**
 
-| 功能 | Windows PowerShell 5.1 | PowerShell 7.x |
-|------|-------------------------|-----------------|
-| 平台支援 | Windows 限定 | Windows, Linux, macOS |
-| .NET 版本 | .NET Framework 4.x | .NET 5+ |
-| 性能 | 基準 | 顯著提升 |
-| 新功能 | 停止更新 | 持續更新 |
-| 企業支援 | 維護模式 | 長期支援 |
+| 項目 | Windows PowerShell 5.1 | PowerShell 7.6 LTS | PowerShell 7.7 |
+|------|------------------------|--------------------|----------------|
+| 執行檔 | `powershell.exe` | `pwsh` / `pwsh.exe` | `pwsh` / `pwsh.exe` |
+| `$PSVersionTable.PSEdition` | `Desktop` | `Core` | `Core` |
+| 平台 | 僅 Windows | Windows、Linux、macOS | Windows、Linux、macOS |
+| 執行階段 | .NET Framework 4.x | .NET 10 | .NET 11 |
+| 支援期限 | 隨 Windows 支援週期 | 2028-11-14 | 依 .NET 11 支援政策（見附錄 17.9） |
+| 新功能 | 不再新增 | 只收安全性與穩定性修正 | 持續新增 |
+| 適用情境 | 相依舊模組（如部分 `*-WmiObject` 腳本） | 企業生產環境基準 | 開發、測試與需要新功能的團隊 |
 
 **實務建議：**
-- 新專案建議使用 PowerShell 7.x
-- 既有 Windows 環境可維持 5.1，但建議規劃升級
-- 跨平台需求必須使用 PowerShell Core/7.x
+
+- 新專案以 PowerShell 7.6 LTS 為基準；需要 7.7 新功能時，請在腳本開頭以 `#Requires -Version 7.7` 宣告
+- 既有 Windows 環境可與 5.1 並存（兩者安裝在不同目錄，互不覆蓋），但應規劃移轉（見 15.3 節）
+- 跨平台需求必須使用 PowerShell 7
+- 7.4 與 7.5 已於 2026-11-10 終止支援，仍在使用者應立即升級
+
+#### 1.4 PowerShell 版本與支援週期（2026-11 現況）
+
+PowerShell 7 的支援週期跟隨其所使用的 .NET 版本：**LTS 版**建立在 .NET LTS 之上，只收安全性與穩定性修正；**Stable 版**（非 LTS）建立在 .NET STS 之上，會持續加入新功能。Microsoft 只支援每個版本線的**最新修補版**（例如 7.6 線只支援 7.6.10，不支援 7.6.3）。
+
+| 版本 | 類型 | 發布日 | 終止支援 | .NET | 企業建議 |
+|------|------|--------|----------|------|----------|
+| PowerShell 7.7 | Stable | 2026-11-10 | 依 .NET 11 支援政策（見 17.11） | .NET 11 | 開發、測試、需要新功能的團隊 |
+| PowerShell 7.6 | LTS | 2026-03-18 | 2028-11-14 | .NET 10 | **生產環境基準** |
+| PowerShell 7.5 | Stable | 2025-01-23 | 2026-11-10（已終止） | .NET 9 | 立即升級 |
+| PowerShell 7.4 | LTS | 2023-11-16 | 2026-11-10（已終止） | .NET 8 | 立即升級到 7.6 |
+| Windows PowerShell 5.1 | Windows 元件 | 2016-08 | 隨 Windows 支援週期 | .NET Framework 4.x | 僅供相依舊模組時使用 |
+
+**驗證目前環境是否符合基準：**
+
+```powershell
+# 1) 版本、版本別與 .NET 執行階段
+$PSVersionTable.PSVersion
+$PSVersionTable.PSEdition      # Core = PowerShell 7+；Desktop = Windows PowerShell 5.1
+[System.Runtime.InteropServices.RuntimeInformation]::FrameworkDescription
+
+# 2) 與企業基準比對
+$baseline = [version]'7.6.0'
+if ($PSVersionTable.PSVersion -lt $baseline) {
+    Write-Warning "目前版本 $($PSVersionTable.PSVersion) 低於企業基準 $baseline，請規劃升級"
+}
+
+# 3) 在腳本開頭宣告最低需求，版本不符時腳本根本不會執行
+#Requires -Version 7.6
+```
+
+**審查要點：**
+
+- 腳本若使用 7.x 專屬語法（三元運算子、`??`、`ForEach-Object -Parallel`），開頭必須有 `#Requires -Version 7.x`，否則在 5.1 上會出現難以理解的剖析錯誤。
+- 主機清冊中若仍有 7.4 / 7.5，應視同「未修補的軟體」處理。
+- 7.6.8 與 7.7 已移除啟動時的「有新版本」提示，不能再依賴使用者自行察覺更新。
+
+#### 1.5 PowerShell 7.6 / 7.7 重要變更與升級影響
+
+升級前先讀官方 What's New 與 CHANGELOG，特別是 **Breaking Changes**。下表整理對企業腳本影響最大的項目：
+
+| 版本 | 變更 | 對既有腳本的影響 | 處置方式 |
+|------|------|------------------|----------|
+| 7.6 | `ThreadJob` 模組改名為 `Microsoft.PowerShell.ThreadJob` | 以模組限定名稱呼叫 `ThreadJob\Start-ThreadJob` 會失敗 | 改為 `Microsoft.PowerShell.ThreadJob\Start-ThreadJob` 或直接呼叫 `Start-ThreadJob` |
+| 7.6 | `Join-Path -ChildPath` 改為 `string[]` | 可一次組合多段路徑 | 新腳本可簡化路徑組合 |
+| 7.6 | `PSRedirectToVariable`、`PSFeedbackProvider`、`PSNativeWindowsTildeExpansion` 轉為正式功能 | 可把輸出重新導向到變數；Windows 上原生命令的 `~` 會展開 | 檢查是否有腳本把 `~` 當成字面字元傳給原生程式 |
+| 7.6 | 內建 PSResourceGet 1.2、PSReadLine 2.4.5 | 套件管理建議改用 `*-PSResource` | 見 2.5 節 |
+| 7.6.8 / 7.7 | 移除更新通知功能 | 不會再提示有新版本 | 以 winget、Microsoft Update 或派送工具管理 |
+| 7.7 | `New-Guid` 預設產生 **UUID v7**（可依時間排序） | 依賴「完全隨機」GUID 的邏輯可能出錯 | 需要隨機 GUID 時改用 `[guid]::NewGuid()` |
+| 7.7 | 新增 `New-TemporaryDirectory`、`Join-Path -Extension`、`Format-* -ExcludeProperty` | 新功能 | 使用前加 `#Requires -Version 7.7` |
+| 7.7 | CSV cmdlet 的 `-NoTypeInformation` 成為無作用的過時參數；`Export-Csv -Append` 與 `-NoHeader` 互斥 | 舊參數仍可執行但會被標示過時；同時使用 `-Append -NoHeader` 會報錯 | 移除 `-NoTypeInformation`；檢查 `Export-Csv` 參數組合 |
+| 7.7 | `Test-Json` 解析外部 `$ref` 需加 `-FetchExternalReference` | 原本會自動下載外部 schema 的驗證可能失敗 | 明確加上參數，或把 schema 內嵌 |
+
+**動手驗證（在 7.7 執行）：**
+
+```powershell
+# New-Guid 的版本位數：GUID 字串第 15 個字元（索引 14）就是版本號
+(New-Guid).ToString()[14]          # 7.7 預期為 '7'
+[guid]::NewGuid().ToString()[14]   # 預期為 '4'（隨機 GUID）
+
+# 7.6：Join-Path 一次組多段
+Join-Path -Path $HOME -ChildPath 'repo', 'src', 'main.ps1'
+
+# 7.6：把錯誤串流重新導向到變數
+Get-Item -Path './not-exist' 2> variable:itemErrors
+$itemErrors.Count                   # 預期為 1
+
+# 7.7：建立並清除暫存目錄
+$tmp = New-TemporaryDirectory
+Test-Path $tmp.FullName             # True
+Remove-Item -LiteralPath $tmp.FullName -Recurse
+```
+
+**升級前檢查清單：**
+
+- [ ] 以 `Get-Module -ListAvailable` 盤點模組，確認相依模組支援新版本
+- [ ] 以 15.3 節的 AST 掃描找出已移除或過時的 cmdlet
+- [ ] 在新舊版本各執行一次 Pester 測試（11.4 節），比對結果
+- [ ] 搜尋 `New-Guid`、`ThreadJob\`、`-NoTypeInformation`、`Test-Json` 的使用點
 
 ---
 
@@ -221,17 +367,23 @@ graph LR
 
 **方法二：使用 Winget**
 ```powershell
-# 安裝最新版本
-winget install Microsoft.PowerShell
+# 安裝最新穩定版（7.7）；企業基準請以 --version 指定 LTS 版本
+winget install --id Microsoft.PowerShell --source winget --exact
 
-# 查看可用版本
-winget search Microsoft.PowerShell
+# 指定版本（以 winget show --id Microsoft.PowerShell --versions 確認可用版本）
+winget install --id Microsoft.PowerShell --version 7.6.10 --exact
+
+# 升級
+winget upgrade --id Microsoft.PowerShell --exact
 ```
 
 **方法三：手動下載安裝**
+
 1. 前往 [PowerShell GitHub Releases](https://github.com/PowerShell/PowerShell/releases)
-2. 下載適合的 `.msi` 檔案
-3. 執行安裝程式
+2. 下載適合的 `.msi` 檔案與同一版本的 `hashes.sha256`
+3. 先比對雜湊值（做法見本章「案例 1」），通過後再執行安裝程式
+
+> 注意：7.6.8 與 7.7 起已移除「啟動時提示有新版本」的更新通知功能，企業須自行以 winget、MSI（`USE_MU=1`）或軟體派送工具掌握更新。
 
 **方法四：使用 Chocolatey**
 ```powershell
@@ -248,21 +400,28 @@ choco install powershell-core
 
 **Linux (Ubuntu/Debian):**
 ```bash
-# 更新套件清單
+# 以 Ubuntu 為例，版本號由 /etc/os-release 自動帶入（例如 24.04）
 sudo apt-get update
-
-# 安裝必要套件
 sudo apt-get install -y wget apt-transport-https software-properties-common
-
-# 下載 Microsoft 簽名金鑰
-wget -q https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb
-
-# 註冊 Microsoft 套件庫
+source /etc/os-release
+wget -q "https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb"
 sudo dpkg -i packages-microsoft-prod.deb
+rm packages-microsoft-prod.deb
 
-# 安裝 PowerShell
+# 安裝 PowerShell；可用 apt-cache policy powershell 確認套件庫提供的版本
 sudo apt-get update
 sudo apt-get install -y powershell
+
+# 驗證
+pwsh -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+```
+
+**Linux (RHEL 8/9/10):**
+```bash
+source /etc/os-release
+sudo dnf install -y "https://packages.microsoft.com/config/rhel/${VERSION_ID%%.*}/packages-microsoft-prod.rpm"
+sudo dnf install -y powershell
+pwsh -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
 ```
 
 **macOS:**
@@ -270,15 +429,16 @@ sudo apt-get install -y powershell
 # 使用 Homebrew
 brew install --cask powershell
 
-# 或使用 pkg 安裝程式從官網下載
+# 或使用 pkg 安裝程式（7.6 起 pkg 已由 Microsoft 簽章並經 Apple 公證）
 ```
 
 #### 2.3 PowerShell ISE 與 VS Code 整合
 
 **PowerShell ISE（僅 Windows PowerShell 5.1）：**
+
 - 內建於 Windows
 - 圖形化界面
-- 適合學習和簡單腳本開發
+- 已不再新增功能，且**不支援 PowerShell 7**；新開發請改用 VS Code
 
 **VS Code 整合（推薦）：**
 
@@ -311,12 +471,17 @@ brew install --cask powershell
 3. **推薦的 VS Code 設定**
 ```json
 {
-    "powershell.integratedConsole.showOnStartup": false,
+    "powershell.codeFormatting.preset": "OTBS",
     "powershell.codeFormatting.useCorrectCasing": true,
     "powershell.scriptAnalysis.enable": true,
-    "powershell.developer.editorServicesLogLevel": "Warning"
+    "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1",
+    "[powershell]": {
+        "files.encoding": "utf8bom"
+    }
 }
 ```
+
+> 說明：含中文的 `.ps1` 若需要在 Windows PowerShell 5.1 執行，請存成 **UTF-8 with BOM**；5.1 會把無 BOM 的檔案當作系統預設字碼頁讀取，造成中文亂碼。只在 PowerShell 7 執行的腳本可用無 BOM 的 UTF-8。
 
 #### 2.4 基本環境變數設定
 
@@ -407,42 +572,159 @@ Write-Host "PowerShell 環境已載入完成！" -ForegroundColor Yellow
 Write-Host "輸入 'Get-Help about_' 查看說明文件" -ForegroundColor Green
 ```
 
-#### 實務案例與注意事項
+#### 2.5 套件管理：PSResourceGet 與 PowerShell Gallery
 
-**案例 1：企業環境部署**
+PowerShell 7.4 起內建 **Microsoft.PowerShell.PSResourceGet**（指令為 `*-PSResource`），用來取代舊的 PowerShellGet v2（`Install-Module` 系列）。兩者可並存，但新腳本與 CI 建議統一使用 PSResourceGet：速度較快、支援 NuGet 版本範圍，也能以需求檔一次安裝固定版本。
+
+| 工作 | PowerShellGet v2（舊） | PSResourceGet（建議） |
+|------|------------------------|-----------------------|
+| 搜尋 | `Find-Module` | `Find-PSResource` |
+| 安裝 | `Install-Module` | `Install-PSResource` |
+| 更新 | `Update-Module` | `Update-PSResource` |
+| 列出已安裝 | `Get-InstalledModule` | `Get-InstalledPSResource` |
+| 離線下載 | `Save-Module` | `Save-PSResource` |
+| 註冊套件庫 | `Register-PSRepository` | `Register-PSResourceRepository` |
+| 發行 | `Publish-Module` | `Publish-PSResource` |
+
+**基本操作：**
+
 ```powershell
-# 企業環境自動化安裝腳本
-param(
-    [string]$InstallPath = "C:\Program Files\PowerShell\7",
-    [switch]$CreateDesktopShortcut
-)
+# 確認 PSResourceGet 版本與已註冊的套件庫
+Get-Module Microsoft.PowerShell.PSResourceGet -ListAvailable | Select-Object Name, Version
+Get-PSResourceRepository
 
-# 檢查管理員權限
-if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
-    Write-Error "此腳本需要管理員權限執行"
-    exit 1
-}
+# 搜尋與安裝（NuGet 版本範圍：6.2.0 以上、7.0 以下）
+Find-PSResource -Name Pester -Repository PSGallery
+Install-PSResource -Name Pester -Version '[6.2.0,7.0)' -Scope CurrentUser -TrustRepository
 
-# 下載並安裝 PowerShell 7
-$downloadUrl = "https://github.com/PowerShell/PowerShell/releases/latest/download/PowerShell-7.x.x-win-x64.msi"
-$installerPath = "$env:TEMP\PowerShell-7-installer.msi"
+# 驗證安裝結果
+Get-InstalledPSResource -Name Pester | Select-Object Name, Version, Repository
 
-try {
-    Invoke-WebRequest -Uri $downloadUrl -OutFile $installerPath
-    Start-Process -FilePath "msiexec.exe" -ArgumentList "/i", $installerPath, "/quiet" -Wait
-    Write-Host "PowerShell 7 安裝完成" -ForegroundColor Green
-} catch {
-    Write-Error "安裝過程發生錯誤: $($_.Exception.Message)"
+# 下載到指定資料夾供離線或稽核使用（不安裝）；目的資料夾必須先存在
+New-Item -ItemType Directory -Path ./vendor -Force | Out-Null
+Save-PSResource -Name PSScriptAnalyzer -Version 1.25.0 -Path ./vendor -TrustRepository
+```
+
+**企業做法：以需求檔固定版本**
+
+```powershell
+# requirements.psd1：與程式碼一起放進版本控制
+@{
+    Pester           = @{ version = '[6.2.0,7.0)';  repository = 'PSGallery' }
+    PSScriptAnalyzer = @{ version = '[1.25.0,2.0)'; repository = 'PSGallery' }
 }
 ```
 
+```powershell
+Install-PSResource -RequiredResourceFile ./requirements.psd1 -Scope CurrentUser -TrustRepository
+Get-InstalledPSResource | Where-Object Name -in 'Pester', 'PSScriptAnalyzer' |
+    Select-Object Name, Version
+```
+
+**內部套件庫（避免直接依賴公開 Gallery）：**
+
+```powershell
+# 內部 NuGet v3 套件庫優先，公開 Gallery 降為不受信任且低優先權
+Register-PSResourceRepository -Name CorpFeed -Uri 'https://pkgs.contoso.local/nuget/powershell/v3/index.json' -Trusted -Priority 10
+Set-PSResourceRepository -Name PSGallery -Trusted:$false -Priority 50
+Get-PSResourceRepository | Sort-Object Priority | Select-Object Name, Uri, Trusted, Priority
+```
+
+**審查要點：**
+
+- CI 腳本中不可出現未指定版本的 `Install-Module X -Force`；應固定版本或使用需求檔。
+- 第三方模組進入正式環境前，應先 `Save-PSResource` 下載、掃描、審查程式碼後再放進內部套件庫。
+- `-TrustRepository` 只用在已審核的套件庫；不要把 PSGallery 永久設為 Trusted。
+
+#### 2.6 安裝驗證與企業部署檢查
+
+安裝完成不等於可交付。以下腳本可作為「安裝驗收」的標準步驟，輸出可直接附在變更單上。
+
+```powershell
+# 安裝驗收腳本（Windows 與 Linux 皆可執行）
+$report = [ordered]@{
+    ComputerName  = [System.Environment]::MachineName
+    PSVersion     = $PSVersionTable.PSVersion.ToString()
+    PSEdition     = $PSVersionTable.PSEdition
+    DotNet        = [System.Runtime.InteropServices.RuntimeInformation]::FrameworkDescription
+    OS            = [System.Runtime.InteropServices.RuntimeInformation]::OSDescription
+    PwshPath      = (Get-Process -Id $PID).Path
+    BundledModule = (Get-Module -ListAvailable Microsoft.PowerShell.PSResourceGet, PSReadLine, Microsoft.PowerShell.ThreadJob |
+                        ForEach-Object { "$($_.Name) $($_.Version)" }) -join '; '
+}
+
+if ($IsWindows) {
+    $sig = Get-AuthenticodeSignature -FilePath $report.PwshPath
+    $report.Signature       = $sig.Status
+    $report.Signer          = $sig.SignerCertificate.Subject
+    $report.ExecutionPolicy = (Get-ExecutionPolicy -List | ForEach-Object { "$($_.Scope)=$($_.ExecutionPolicy)" }) -join '; '
+}
+
+[pscustomobject]$report | Format-List
+```
+
+**驗收標準：**
+
+| 檢查項目 | 合格條件 |
+|----------|----------|
+| `PSVersion` | 等於變更單核准的版本（例如 7.6.10） |
+| `Signature`（Windows） | `Valid`，且 `Signer` 為 Microsoft Corporation |
+| `BundledModule` | 含 PSResourceGet、PSReadLine、Microsoft.PowerShell.ThreadJob |
+| `ExecutionPolicy`（Windows） | 符合組織政策（例如 `LocalMachine=RemoteSigned` 或由 GPO 設定） |
+| 安裝來源 | 已比對 `hashes.sha256`（本章案例 1） |
+
+#### 實務案例與注意事項（第 2 章）
+
+**案例 1：企業環境部署**
+```powershell
+# 企業環境自動化安裝腳本：下載指定版本 MSI → 比對官方雜湊 → 靜默安裝 → 驗證
+#Requires -RunAsAdministrator
+param(
+    [ValidatePattern('^\d+\.\d+\.\d+$')]
+    [string]$Version = '7.6.10',
+
+    [ValidateSet('x64', 'arm64')]
+    [string]$Architecture = 'x64'
+)
+
+$ErrorActionPreference = 'Stop'
+$msiName = "PowerShell-$Version-win-$Architecture.msi"
+$baseUrl = "https://github.com/PowerShell/PowerShell/releases/download/v$Version"
+$msiPath = Join-Path $env:TEMP $msiName
+$hashPath = Join-Path $env:TEMP "PowerShell-$Version-hashes.sha256"
+
+Invoke-WebRequest -Uri "$baseUrl/$msiName" -OutFile $msiPath
+Invoke-WebRequest -Uri "$baseUrl/hashes.sha256" -OutFile $hashPath
+
+# hashes.sha256 每行包含一個 64 位十六進位雜湊與檔名
+$line = Select-String -Path $hashPath -Pattern ([regex]::Escape($msiName)) | Select-Object -First 1
+if (-not $line) { throw "hashes.sha256 中找不到 $msiName" }
+$expected = [regex]::Match($line.Line, '[0-9A-Fa-f]{64}').Value
+$actual = (Get-FileHash -Path $msiPath -Algorithm SHA256).Hash
+if ($actual -ne $expected) { throw "雜湊不符：預期 $expected，實際 $actual" }
+
+$msiArgs = @(
+    '/i', "`"$msiPath`"", '/quiet', '/norestart',
+    'ADD_PATH=1', 'REGISTER_MANIFEST=1', 'ENABLE_PSREMOTING=0',
+    'USE_MU=1', 'ENABLE_MU=1'
+)
+$proc = Start-Process -FilePath 'msiexec.exe' -ArgumentList $msiArgs -Wait -PassThru
+if ($proc.ExitCode -notin 0, 3010) { throw "msiexec 結束碼 $($proc.ExitCode)" }
+
+# 驗證：以新安裝的 pwsh 回報版本
+$pwsh = Join-Path $env:ProgramFiles 'PowerShell\7\pwsh.exe'
+& $pwsh -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
+```
+
 **注意事項：**
-1. **執行原則安全性**：不建議設定為 `Unrestricted`，會有安全風險
+
+1. **執行原則安全性**：不建議設定為 `Unrestricted`；執行原則只是防止誤執行的安全帶，不是資安邊界（見 13.4 節）
 2. **版本相容性**：檢查既有腳本在新版本的相容性
 3. **模組路徑**：確保自訂模組路徑正確設定
 4. **企業防火牆**：可能需要設定代理伺服器或例外規則
 
 **檢查清單：**
+
 - [ ] 確認 PowerShell 版本已正確安裝
 - [ ] 設定適當的執行原則
 - [ ] 建立並設定個人設定檔
@@ -632,7 +914,7 @@ Get-Service |
     @{Name="Percentage"; Expression={[math]::Round(($_.Count / (Get-Service).Count) * 100, 2)}}
 
 # 找出佔用最多記憶體的服務
-Get-WmiObject Win32_Service | 
+Get-CimInstance Win32_Service | 
     Where-Object {$_.State -eq "Running"} |
     ForEach-Object {
         $service = $_
@@ -739,7 +1021,7 @@ $processString = Get-Process | Out-String
 # Out-GridView - 在圖形介面中顯示（僅 Windows）
 Get-Process | Out-GridView
 
-# Out-Printer - 列印輸出
+# Out-Printer - 列印輸出（僅 Windows）
 Get-Process | Out-Printer -Name "預設印表機"
 
 # Out-Null - 丟棄輸出
@@ -773,7 +1055,43 @@ Get-Process | Format-Table @{
 }
 ```
 
-#### 實務案例與注意事項
+#### 3.4 PSReadLine 與互動式操作效率
+
+PSReadLine 提供命令列編輯、歷史搜尋與預測建議（PowerShell 7.6 內建 2.4.5 版）。設定通常寫在 `$PROFILE`。
+
+```powershell
+# 確認版本與歷史檔位置
+Get-Module PSReadLine | Select-Object Name, Version
+(Get-PSReadLineOption).HistorySavePath
+
+# 預測建議：同時使用歷史與外掛來源，並以清單方式顯示
+Set-PSReadLineOption -PredictionSource HistoryAndPlugin -PredictionViewStyle ListView
+
+# Tab 改為選單式補全
+Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
+
+# 歷史紀錄排除含敏感字詞的命令（PSReadLine 預設已過濾部分字詞，這裡再加上組織自訂規則）
+Set-PSReadLineOption -AddToHistoryHandler {
+    param([string]$line)
+    return ($line -notmatch 'password|secret|token|apikey|AsPlainText')
+}
+```
+
+**常用快捷鍵：**
+
+| 按鍵 | 功能 |
+|------|------|
+| `Ctrl+R` / `Ctrl+S` | 向後 / 向前搜尋歷史 |
+| `F2` | 切換預測建議的內嵌與清單檢視 |
+| `Ctrl+Space` | 顯示所有補全候選 |
+| `Alt+.` | 帶入上一個命令的最後一個參數 |
+| `Ctrl+Shift+V` 或右鍵 | 貼上多行內容（不會逐行執行） |
+
+**驗證：** 開新的 `pwsh` 視窗，輸入 `Get-` 後應看到預測建議；執行一行含 `password` 的命令後，在歷史檔中應找不到該行。
+
+> 注意：歷史檔是純文字，位於使用者設定檔目錄。共用跳板機上應評估是否以 `-HistorySaveStyle SaveNothing` 停用歷史保存。
+
+#### 實務案例與注意事項（第 3 章）
 
 **案例 1：系統資訊收集腳本**
 ```powershell
@@ -826,7 +1144,7 @@ Write-Host "報告已生成：$OutputPath" -ForegroundColor Green
 **案例 2：日誌分析腳本**
 ```powershell
 # 分析 Windows 事件日誌
-function Analyze-EventLog {
+function Get-EventLogSummary {
     param(
         [string]$LogName = "System",
         [int]$Hours = 24,
@@ -868,7 +1186,7 @@ function Analyze-EventLog {
 }
 
 # 使用範例
-Analyze-EventLog -LogName "Application" -Hours 48 -EventLevel @("Error", "Critical")
+Get-EventLogSummary -LogName "Application" -Hours 48 -EventLevel @("Error", "Critical")
 ```
 
 **注意事項：**
@@ -879,6 +1197,7 @@ Analyze-EventLog -LogName "Application" -Hours 48 -EventLevel @("Error", "Critic
 4. **錯誤處理**：在管道中加入適當的錯誤處理機制
 
 **檢查清單：**
+
 - [ ] 了解 Get-Help、Get-Command、Get-Member 的基本用法
 - [ ] 能夠構建基本的管道操作
 - [ ] 理解物件導向的概念並能應用
@@ -952,7 +1271,7 @@ Get-Variable scriptVar -Scope Script
 
 # 自動變數範例
 Write-Host "目前位置: $PWD"
-Write-Host "PowerShell 版本: $PSVersionTable"
+Write-Host "PowerShell 版本: $($PSVersionTable.PSVersion)"
 Write-Host "最後一個指令的結果: $?"
 Write-Host "錯誤訊息: $Error"
 ```
@@ -974,7 +1293,7 @@ $multiLine = @"
 $integer = 42                    # [int]
 $long = 9876543210L             # [long]
 $decimal = 3.14159              # [double]
-$float = 3.14f                  # [float]
+$float = [float]3.14            # [float]（PowerShell 沒有 f 後綴）
 
 # 布林值
 $true_val = $true
@@ -1146,26 +1465,24 @@ $dateString = "2024-12-31"
 $date = [DateTime]$dateString
 $dateFromString = Get-Date $dateString
 
-# 布林轉換
-$boolFromString = [bool]"true"    # True
-$boolFromNumber = [bool]1         # True
-$boolFromZero = [bool]0           # False
+# 布林轉換（陷阱：任何非空字串轉成 [bool] 都是 True）
+$boolFromString = [bool]"true"           # True
+$boolFalseTrap  = [bool]"false"          # True！非空字串一律為 True
+$boolParsed     = [bool]::Parse("false") # False，字串轉布林請用 Parse
+$boolFromNumber = [bool]1                # True
+$boolFromZero = [bool]0                  # False
 
 # 陣列轉換
 $arrayFromString = "A,B,C" -split ","
 $stringFromArray = $arrayFromString -join ";"
 
-# 安全轉換（避免例外）
-function Safe-Convert {
-    param($Value, $Type)
-    try {
-        return $Value -as $Type
-    } catch {
-        return $null
-    }
+# 安全轉換：-as 失敗時回傳 $null，不會擲回例外
+function ConvertTo-SafeType {
+    param($Value, [type]$Type)
+    return $Value -as $Type
 }
 
-$result = Safe-Convert "abc" [int]  # 回傳 $null 而不是例外
+$result = ConvertTo-SafeType -Value "abc" -Type ([int])  # 回傳 $null 而不是例外
 ```
 
 **PowerShell 型態加速器：**
@@ -1193,7 +1510,7 @@ $result = Safe-Convert "abc" [int]  # 回傳 $null 而不是例外
 [PSObject].Assembly.GetType("System.Management.Automation.TypeAccelerators")::Get
 ```
 
-#### 實務案例與注意事項
+#### 實務案例與注意事項（第 4 章）
 
 **案例 1：員工資料管理系統**
 ```powershell
@@ -1266,7 +1583,7 @@ function Read-ConfigFile {
                 $config[$key] = switch -Regex ($value) {
                     '^\d+$' { [int]$value }                    # 整數
                     '^\d+\.\d+$' { [double]$value }           # 小數
-                    '^(true|false)$' { [bool]$value }         # 布林值
+                    '^(true|false)$' { [bool]::Parse($value) } # 布林值（不可用 [bool]"false"）
                     default { $value }                        # 字串
                 }
             }
@@ -1324,7 +1641,7 @@ foreach ($key in $loadedConfig.Keys) {
    - 避免使用 PowerShell 保留字
 
 2. **型態轉換安全性**：
-   - 使用 `-as` 運算子進行安全轉換
+   - 使用 `-as` 運算子進行安全轉換；字串轉布林用 `[bool]::Parse()`
    - 在轉換前先驗證資料
    - 處理轉換失敗的情況
 
@@ -1339,6 +1656,7 @@ foreach ($key in $loadedConfig.Keys) {
    - 避免頻繁的型態轉換
 
 **檢查清單：**
+
 - [ ] 理解 PowerShell 變數的宣告和命名規則
 - [ ] 掌握基本資料型別的使用方法
 - [ ] 能夠操作陣列和雜湊表
@@ -1366,7 +1684,7 @@ $subtraction = $a - $b     # 7  - 減法
 $multiplication = $a * $b  # 30 - 乘法
 $division = $a / $b        # 3.33... - 除法
 $modulus = $a % $b         # 1  - 餘數
-$power = $a -pow $b        # 1000 - 次方 (PowerShell 6+)
+$power = [math]::Pow($a, $b)  # 1000 - 次方（PowerShell 沒有 -pow 運算子）
 
 # 字串運算
 $str1 = "Hello"
@@ -1478,7 +1796,7 @@ if ($score -ge 90) {
 } elseif ($score -ge 80) {
     Write-Host "良好" -ForegroundColor Yellow
 } elseif ($score -ge 70) {
-    Write-Host "及格" -ForegroundColor Orange
+    Write-Host "及格" -ForegroundColor DarkYellow
 } else {
     Write-Host "不及格" -ForegroundColor Red
 }
@@ -1531,11 +1849,12 @@ switch ($dayOfWeek) {
 }
 
 # switch 與正規表達式
-$input = "PowerShell 7.3"
+# 注意：$input 是自動變數，不可拿來存自己的資料
+$versionText = "PowerShell 7.3"
 
-switch -Regex ($input) {
+switch -Regex ($versionText) {
     "PowerShell [5-6]" { 
-        Write-Host "Windows PowerShell" 
+        Write-Host "Windows PowerShell 5.x / PowerShell Core 6" 
     }
     "PowerShell [7-9]" { 
         Write-Host "PowerShell Core/7+" 
@@ -1761,11 +2080,53 @@ foreach ($number in $numbers) {
 }
 ```
 
-#### 實務案例與注意事項
+#### 5.4 PowerShell 7 新增運算子
+
+下列運算子只能在 PowerShell 7 使用；腳本開頭請加 `#Requires -Version 7.0`，避免在 5.1 出現剖析錯誤。
+
+```powershell
+#Requires -Version 7.0
+
+# 三元運算子：<條件> ? <為真時> : <為假時>
+$stage = 'prod'                       # 不要用 $env 當變數名稱，那是環境變數磁碟機
+$logLevel = ($stage -eq 'prod') ? 'Warning' : 'Debug'
+
+# 管線鏈運算子：&& 前一個命令成功才執行；|| 前一個命令失敗才執行
+git --version && Write-Host 'git 可用'
+Get-Item -Path './missing.txt' -ErrorAction SilentlyContinue || Write-Warning '找不到檔案'
+
+# Null 合併：左側為 $null 時才取右側
+$config = @{ Timeout = $null }
+$timeout = $config.Timeout ?? 30      # 30
+$cache = $null
+$cache ??= @{}                        # 只有在 $cache 為 $null 時才指派
+
+# Null 條件成員存取：變數名稱必須用大括號包住，因為 ? 是合法的變數名稱字元
+$user = $null
+${user}?.Name                          # $null，不會擲回錯誤
+$list = $null
+${list}?[0]                            # $null
+```
+
+| 運算子 | 5.1 的等價寫法 |
+|--------|----------------|
+| `$a ? $b : $c` | `if ($a) { $b } else { $c }` |
+| `cmd1 && cmd2` | `cmd1; if ($?) { cmd2 }` |
+| `$a ?? $b` | `if ($null -ne $a) { $a } else { $b }` |
+| `$a ??= $b` | `if ($null -eq $a) { $a = $b }` |
+| `${a}?.Prop` | `if ($null -ne $a) { $a.Prop }` |
+
+**審查要點：**
+
+- `&&` / `||` 判斷的是 `$?`（命令是否成功），不是輸出內容是否為真。
+- `??` 只把 `$null` 視為「沒有值」；空字串 `''`、`0`、`$false` 都會保留。
+- 比較 `$null` 時把 `$null` 放左邊（`$null -eq $x`），避免 `$x` 是陣列時變成篩選。
+
+#### 實務案例與注意事項（第 5 章）
 
 **案例 1：檔案批次處理系統**
 ```powershell
-function Process-Files {
+function Copy-FilesByExtension {
     param(
         [Parameter(Mandatory)]
         [string]$SourcePath,
@@ -1857,12 +2218,12 @@ function Process-Files {
 }
 
 # 使用範例
-Process-Files -SourcePath "C:\Logs" -DestinationPath "C:\Backup\Logs" -FileExtensions @("*.log", "*.txt") -WhatIf
+Copy-FilesByExtension -SourcePath "C:\Logs" -DestinationPath "C:\Backup\Logs" -FileExtensions @("*.log", "*.txt") -WhatIf
 ```
 
 **案例 2：系統監控腳本**
 ```powershell
-function Monitor-System {
+function Watch-SystemResource {
     param(
         [int]$IntervalSeconds = 30,
         [int]$MaxIterations = 0,  # 0 表示無限
@@ -1885,11 +2246,11 @@ function Monitor-System {
         
         try {
             # 取得 CPU 使用率
-            $cpuUsage = (Get-WmiObject -Class Win32_Processor | 
+            $cpuUsage = (Get-CimInstance -Class Win32_Processor | 
                         Measure-Object -Property LoadPercentage -Average).Average
             
             # 取得記憶體使用率
-            $memInfo = Get-WmiObject -Class Win32_OperatingSystem
+            $memInfo = Get-CimInstance -Class Win32_OperatingSystem
             $totalMem = $memInfo.TotalVisibleMemorySize
             $freeMem = $memInfo.FreePhysicalMemory
             $memoryUsage = [math]::Round((($totalMem - $freeMem) / $totalMem) * 100, 2)
@@ -1945,7 +2306,7 @@ function Monitor-System {
 }
 
 # 使用範例
-Monitor-System -IntervalSeconds 10 -MaxIterations 20 -CPUThreshold 70 -MemoryThreshold 75
+Watch-SystemResource -IntervalSeconds 10 -MaxIterations 20 -CPUThreshold 70 -MemoryThreshold 75
 ```
 
 **注意事項：**
@@ -1966,6 +2327,7 @@ Monitor-System -IntervalSeconds 10 -MaxIterations 20 -CPUThreshold 70 -MemoryThr
    - 記錄和報告處理過程中的錯誤
 
 **檢查清單：**
+
 - [ ] 掌握各種運算子的使用方法
 - [ ] 能夠撰寫複雜的條件判斷邏輯
 - [ ] 熟悉不同類型迴圈的適用場景
@@ -2176,7 +2538,7 @@ function Copy-FilesWithProgress {
     
     process {
         $getChildItemParams = @{
-            Path = $SourcePath
+            Path = (Join-Path $SourcePath '*')   # -Include 需搭配萬用字元路徑或 -Recurse 才會生效
             Include = $Include
             File = $true
         }
@@ -2261,17 +2623,17 @@ Write-Host "減法: $($results[1])"
 
 # 物件回傳
 function Get-SystemSummary {
-    $os = Get-WmiObject -Class Win32_OperatingSystem
-    $cpu = Get-WmiObject -Class Win32_Processor
-    $memory = Get-WmiObject -Class Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum
+    $os = Get-CimInstance -ClassName Win32_OperatingSystem
+    $cpu = Get-CimInstance -ClassName Win32_Processor
+    $memory = Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum
     
     return [PSCustomObject]@{
         ComputerName = $env:COMPUTERNAME
         OperatingSystem = $os.Caption
         Processor = $cpu.Name
         TotalMemoryGB = [math]::Round($memory.Sum / 1GB, 2)
-        LastBootTime = $os.ConvertToDateTime($os.LastBootUpTime)
-        Uptime = (Get-Date) - $os.ConvertToDateTime($os.LastBootUpTime)
+        LastBootTime = $os.LastBootUpTime
+        Uptime = (Get-Date) - $os.LastBootUpTime
     }
 }
 
@@ -2328,8 +2690,9 @@ function Test-NetworkConnection {
 
 # 測試多個主機
 $hosts = @("google.com", "microsoft.com", "nonexistent.example.com")
-$results = foreach ($host in $hosts) {
-    Test-NetworkConnection -ComputerName $host -Port 80
+# 注意：$host 是唯讀自動變數，迴圈變數不可命名為 $host
+$results = foreach ($target in $hosts) {
+    Test-NetworkConnection -ComputerName $target -Port 80
 }
 
 $results | Format-Table -AutoSize
@@ -2604,7 +2967,104 @@ Get-LogContent -Tail 10
 Get-LogContent -Level "Error"
 ```
 
-#### 實務案例與注意事項
+#### 6.4 進階函式設計規範
+
+企業腳本中的函式應具備「可預演、可測試、可說明」三個特性。以下範本示範一個會刪除檔案的函式應有的完整樣貌，可作為團隊程式碼審查的基準。
+
+```powershell
+function Remove-StaleLogFile {
+    <#
+    .SYNOPSIS
+        刪除超過保留天數的記錄檔。
+    .DESCRIPTION
+        只處理指定資料夾第一層、副檔名符合的檔案；支援 -WhatIf 與 -Confirm。
+    .PARAMETER Path
+        記錄檔資料夾，可由管線傳入 DirectoryInfo。
+    .PARAMETER RetentionDays
+        保留天數（1～3650）。
+    .PARAMETER Extension
+        要處理的副檔名。
+    .EXAMPLE
+        Remove-StaleLogFile -Path D:\Logs -RetentionDays 30 -WhatIf
+        預演刪除 30 天前的 .log 檔，不會真的刪除。
+    .OUTPUTS
+        System.IO.FileInfo：已刪除（或預演刪除）的檔案。
+    #>
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
+    [OutputType([System.IO.FileInfo])]
+    param(
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [Alias('FullName')]
+        [ValidateScript({ Test-Path -LiteralPath $_ -PathType Container })]
+        [string]$Path,
+
+        [ValidateRange(1, 3650)]
+        [int]$RetentionDays = 30,
+
+        [ValidateSet('.log', '.txt')]
+        [string[]]$Extension = @('.log')
+    )
+
+    begin {
+        $cutoff = (Get-Date).AddDays(-$RetentionDays)
+        Write-Verbose "刪除最後修改時間早於 $cutoff 的檔案"
+    }
+
+    process {
+        Get-ChildItem -LiteralPath $Path -File |
+            Where-Object { $_.Extension -in $Extension -and $_.LastWriteTime -lt $cutoff } |
+            ForEach-Object {
+                if ($PSCmdlet.ShouldProcess($_.FullName, '刪除記錄檔')) {
+                    Remove-Item -LiteralPath $_.FullName -ErrorAction Stop
+                }
+                $_
+            }
+    }
+}
+```
+
+**對應的 Pester 測試（驗證行為與 -WhatIf）：**
+
+```powershell
+# Remove-StaleLogFile.Tests.ps1
+BeforeAll { . $PSScriptRoot/Remove-StaleLogFile.ps1 }
+
+Describe 'Remove-StaleLogFile' {
+    BeforeEach {
+        $old = New-Item -Path "$TestDrive/old.log" -ItemType File -Force
+        $old.LastWriteTime = (Get-Date).AddDays(-40)
+        New-Item -Path "$TestDrive/new.log" -ItemType File -Force | Out-Null
+    }
+
+    It '只刪除超過保留天數的檔案' {
+        Remove-StaleLogFile -Path $TestDrive -RetentionDays 30 -Confirm:$false
+        "$TestDrive/old.log" | Should -Not -Exist
+        "$TestDrive/new.log" | Should -Exist
+    }
+
+    It '-WhatIf 不會刪除任何檔案' {
+        Remove-StaleLogFile -Path $TestDrive -RetentionDays 30 -WhatIf
+        "$TestDrive/old.log" | Should -Exist
+    }
+
+    It '保留天數超出範圍時拒絕執行' {
+        { Remove-StaleLogFile -Path $TestDrive -RetentionDays 0 } | Should -Throw
+    }
+}
+```
+
+**函式審查清單：**
+
+| 項目 | 標準 | 檢查方式 |
+|------|------|----------|
+| 命名 | 核准動詞 + 單數名詞 | `Get-Verb` 或 PSScriptAnalyzer `PSUseApprovedVerbs` |
+| 狀態變更 | 有 `SupportsShouldProcess` 並呼叫 `$PSCmdlet.ShouldProcess()` | 以 `-WhatIf` 執行應無任何副作用 |
+| 參數驗證 | 以 `Validate*` 屬性限制輸入，而非函式內 `if` | 傳入非法值應在繫結階段失敗 |
+| 說明 | 有 Comment-Based Help 與至少一個範例 | `Get-Help <函式> -Examples` |
+| 輸出 | 輸出物件而非格式化文字；宣告 `OutputType` | 管線接 `Get-Member` 檢查型別 |
+| 錯誤 | 需要中斷時用 `-ErrorAction Stop` 或 `throw` | Pester `Should -Throw` |
+
+#### 實務案例與注意事項（第 6 章）
 
 **案例 1：自動化部署模組**
 ```powershell
@@ -2768,6 +3228,7 @@ Invoke-Deployment -Config $deployConfig -WhatIf
    - 提供使用範例和說明文件
 
 **檢查清單：**
+
 - [ ] 能夠建立和使用基本函數
 - [ ] 理解參數驗證和處理機制
 - [ ] 掌握函數的管道支援
@@ -2824,7 +3285,7 @@ Get-ChildItem C:\Windows\System32 -File |
         }
     }},
     @{Name="LastModifiedDays"; Expression={
-        [math]::Round((Get-Date - $_.LastWriteTime).TotalDays, 1)
+        [math]::Round(((Get-Date) - $_.LastWriteTime).TotalDays, 1)
     }}
 ```
 
@@ -2851,19 +3312,17 @@ Get-Service | Where-Object {$_.Name -like "Win*"}
 1..100 | Where-Object {$_ % 2 -eq 0}  # 偶數
 
 # 複雜篩選範例
-Get-WmiObject Win32_LogicalDisk | 
+Get-CimInstance Win32_LogicalDisk | 
     Where-Object {$_.DriveType -eq 3 -and ($_.FreeSpace / $_.Size) -lt 0.1} |
     Select-Object DeviceID, 
         @{Name="TotalGB"; Expression={[math]::Round($_.Size / 1GB, 2)}},
         @{Name="FreeGB"; Expression={[math]::Round($_.FreeSpace / 1GB, 2)}},
         @{Name="UsedPercent"; Expression={[math]::Round((1 - $_.FreeSpace / $_.Size) * 100, 1)}}
 
-# 使用腳本區塊進行複雜邏輯
-Get-EventLog -LogName System -Newest 1000 |
+# 使用腳本區塊進行複雜邏輯（Get-EventLog 在 PowerShell 7 已移除，改用 Get-WinEvent）
+Get-WinEvent -FilterHashtable @{ LogName = 'System'; Level = 2; StartTime = (Get-Date).AddDays(-7) } -MaxEvents 1000 |
     Where-Object {
-        $_.EntryType -eq "Error" -and 
-        $_.TimeGenerated -gt (Get-Date).AddDays(-7) -and
-        $_.Source -notmatch "^(DCOM|Service Control Manager)$"
+        $_.ProviderName -notmatch "^(DCOM|Service Control Manager)$"
     }
 ```
 
@@ -2957,7 +3416,7 @@ Get-Process | Format-Table Name,
 Get-Process | Select-Object -First 5 | Format-Table -HideTableHeaders
 
 # 複雜的表格格式範例
-Get-WmiObject Win32_LogicalDisk |
+Get-CimInstance Win32_LogicalDisk |
     Format-Table @{
         Label="Drive"
         Expression="DeviceID"
@@ -3057,13 +3516,13 @@ $process.$propertyName
 
 # 使用點記號與括號記號
 $process.ProcessName                    # 點記號
-$process["ProcessName"]                 # 括號記號
-$process."Process Name with Spaces"    # 含空格的屬性名
+$process.PSObject.Properties["ProcessName"].Value   # 以字串名稱取得屬性
+$process."Process Name with Spaces"    # 屬性名含空格時要加引號（此處不存在，回傳 $null）
 
 # 屬性路徑展開
-Get-WmiObject Win32_Process | Select-Object Name, @{
+Get-CimInstance Win32_Process | Select-Object Name, @{
     Name="Owner"
-    Expression={$_.GetOwner().User}
+    Expression={ (Invoke-CimMethod -InputObject $_ -MethodName GetOwner).User }
 }
 ```
 
@@ -3086,10 +3545,10 @@ $array = @(1, 2, 3, 4, 5)
 $array.Contains(3)
 $array.IndexOf(4)
 
-# WMI 物件方法
-$process = Get-WmiObject Win32_Process -Filter "Name='notepad.exe'"
+# CIM 物件方法（CIM 物件沒有可直接呼叫的方法，需透過 Invoke-CimMethod）
+$process = Get-CimInstance Win32_Process -Filter "Name='notepad.exe'"
 if ($process) {
-    $process.Terminate()
+    Invoke-CimMethod -InputObject $process -MethodName Terminate -WhatIf
 }
 
 # 自訂物件方法
@@ -3108,18 +3567,15 @@ $customObject.DoubleValue()
 
 **物件的深層操作：**
 ```powershell
-# 物件克隆
-function Copy-Object {
-    param($InputObject)
-    
-    $memStream = New-Object System.IO.MemoryStream
-    $formatter = New-Object System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-    $formatter.Serialize($memStream, $InputObject)
-    $memStream.Position = 0
-    $clonedObject = $formatter.Deserialize($memStream)
-    $memStream.Close()
-    
-    return $clonedObject
+# 物件深層複製：BinaryFormatter 已在 .NET 9 起移除，改用 PowerShell 序列化器
+# 限制：非基本型別還原後會成為 Deserialized.* 屬性袋，失去原本的方法
+function Copy-ObjectDeep {
+    param(
+        [Parameter(Mandatory)]$InputObject,
+        [int]$Depth = 10
+    )
+    $xml = [System.Management.Automation.PSSerializer]::Serialize($InputObject, $Depth)
+    return [System.Management.Automation.PSSerializer]::Deserialize($xml)
 }
 
 # 物件比較
@@ -3136,16 +3592,16 @@ function Compare-Objects {
     }
 }
 
-# 物件序列化
-function ConvertTo-Xml {
+# 物件序列化（不要把自訂函數命名為 ConvertTo-Xml，會遮蔽同名內建 cmdlet）
+function ConvertTo-CliXmlString {
     param($InputObject)
-    
+
     return [System.Management.Automation.PSSerializer]::Serialize($InputObject)
 }
 
-function ConvertFrom-Xml {
+function ConvertFrom-CliXmlString {
     param($XmlString)
-    
+
     return [System.Management.Automation.PSSerializer]::Deserialize($XmlString)
 }
 
@@ -3159,11 +3615,160 @@ $originalObject = @{
     }
 }
 
-$xmlString = ConvertTo-Xml $originalObject
-$restoredObject = ConvertFrom-Xml $xmlString
+$xmlString = ConvertTo-CliXmlString $originalObject
+$restoredObject = ConvertFrom-CliXmlString $xmlString
 ```
 
-#### 實務案例與注意事項
+#### 7.4 平行處理：ForEach-Object -Parallel 與 ThreadJob
+
+| 方式 | 隔離程度 | 啟動成本 | 適合情境 |
+|------|----------|----------|----------|
+| `ForEach-Object -Parallel`（7.0+） | 同一程序、不同 runspace | 低 | 大量 I/O 等待的小工作（連線測試、API 呼叫） |
+| `Start-ThreadJob` | 同一程序、不同 runspace | 低 | 背景執行、需要稍後收集結果 |
+| `Start-Job` | 獨立子程序 | 高 | 需要完全隔離（例如會改變工作目錄或載入衝突模組） |
+| `Invoke-Command -AsJob` | 遠端電腦 | 視網路而定 | 多台伺服器同時執行 |
+
+```powershell
+#Requires -Version 7.0
+$servers = 'web01', 'web02', 'db01'
+$timeoutSeconds = 2
+
+# 外部變數必須用 $using: 傳入；每個 runspace 是獨立的，沒有呼叫端的函式與模組
+$results = $servers | ForEach-Object -Parallel {
+    [pscustomobject]@{
+        Server = $_
+        Online = Test-Connection -TargetName $_ -Count 1 -Quiet -TimeoutSeconds $using:timeoutSeconds
+    }
+} -ThrottleLimit 5
+
+$results | Sort-Object Server
+```
+
+**執行緒安全的結果收集：**
+
+```powershell
+# 錯誤示範：多個 runspace 同時對一般陣列/List 寫入，結果數量可能不正確
+# 正確做法：使用 System.Collections.Concurrent 命名空間的集合
+$bag = [System.Collections.Concurrent.ConcurrentBag[string]]::new()
+1..100 | ForEach-Object -Parallel {
+    ($using:bag).Add("item $_")
+} -ThrottleLimit 8
+$bag.Count          # 預期為 100
+```
+
+**ThreadJob：**
+
+```powershell
+$jobs = 1..3 | ForEach-Object {
+    Start-ThreadJob -ScriptBlock { param($n) Start-Sleep -Seconds 1; $n * 10 } -ArgumentList $_
+}
+$jobs | Wait-Job | Receive-Job     # 10、20、30（順序可能不同）
+$jobs | Remove-Job
+```
+
+**驗證平行化是否真的有效：**
+
+```powershell
+$items = 1..20
+(Measure-Command { $items | ForEach-Object { Start-Sleep -Milliseconds 200 } }).TotalSeconds              # 約 4 秒
+(Measure-Command { $items | ForEach-Object -Parallel { Start-Sleep -Milliseconds 200 } -ThrottleLimit 10 }).TotalSeconds   # 約 0.5～1 秒
+```
+
+**審查要點：**
+
+- 每次迭代工作量很小（純計算、毫秒級）時，平行化的 runspace 建立成本可能讓總時間變長，必須以 `Measure-Command` 實測。
+- `-ThrottleLimit` 要考慮對方系統的承受力（API 速率限制、資料庫連線數）。
+- runspace 內看不到呼叫端定義的函式；需要時以 `$using:` 傳入腳本區塊字串或在 runspace 內 `Import-Module`。
+- 以 `$using:` 傳入的參考型別（hashtable、List）是**共用同一個物件**，同時寫入會有競態條件。
+
+#### 7.5 結構化資料與 REST API
+
+PowerShell 最常被低估的能力是處理 JSON、CSV、XML 與 REST API：資料轉成物件後，就能用前面學到的管線操作。
+
+**JSON 讀寫與結構驗證：**
+
+```powershell
+# 讀取 JSON 設定檔為 hashtable（7.x 的 -AsHashtable 可保留鍵值大小寫並方便修改）
+$jsonPath = Join-Path ([System.IO.Path]::GetTempPath()) 'appsettings.json'
+'{ "Logging": { "Level": "Information" }, "Port": 8080 }' | Set-Content -Path $jsonPath -Encoding utf8
+$cfg = Get-Content -Path $jsonPath -Raw | ConvertFrom-Json -AsHashtable
+$cfg['Logging']['Level'] = 'Warning'
+
+# ConvertTo-Json 預設深度只有 2，巢狀資料會被截斷；一律明確指定 -Depth
+$cfg | ConvertTo-Json -Depth 10 | Set-Content -Path $jsonPath -Encoding utf8
+
+# 以 JSON Schema 驗證資料結構
+$schema = @'
+{
+  "type": "object",
+  "required": ["Port"],
+  "properties": { "Port": { "type": "integer", "minimum": 1, "maximum": 65535 } }
+}
+'@
+'{"Port": 8080}'  | Test-Json -Schema $schema                                 # True
+'{"Port": 70000}' | Test-Json -Schema $schema -ErrorAction SilentlyContinue   # False
+```
+
+**CSV：**
+
+```powershell
+$csvPath = Join-Path ([System.IO.Path]::GetTempPath()) 'users.csv'
+@(
+    [pscustomobject]@{ Name = '王小明'; Department = 'IT' }
+    [pscustomobject]@{ Name = '李小華'; Department = 'HR' }
+) | Export-Csv -Path $csvPath -Encoding utf8BOM     # Excel 需要 BOM 才能正確顯示中文
+
+Import-Csv -Path $csvPath -Encoding utf8 | Where-Object Department -eq 'IT'
+```
+
+**REST API（含重試、逾時與 Bearer Token）：**
+
+```powershell
+# Token 以 SecureString 傳入（來源見 13.5 節 Get-Secret），不要放在明文字串中
+$token = Get-Secret -Name ApiToken
+$params = @{
+    Uri                     = 'https://api.example.com/v1/items?page=1'
+    Method                  = 'Get'
+    Authentication          = 'Bearer'
+    Token                   = $token
+    MaximumRetryCount       = 3
+    RetryIntervalSec        = 2
+    TimeoutSec              = 30
+    StatusCodeVariable      = 'httpStatus'
+    ResponseHeadersVariable = 'httpHeaders'
+}
+$items = Invoke-RestMethod @params
+"HTTP $httpStatus，取得 $(@($items).Count) 筆"
+
+# 建立資料：ContentType 要註明 charset，避免中文亂碼
+$body = @{ name = '測試'; tags = @('a', 'b') } | ConvertTo-Json -Depth 5
+Invoke-RestMethod -Uri 'https://api.example.com/v1/items' -Method Post -Body $body `
+    -ContentType 'application/json; charset=utf-8' -Authentication Bearer -Token $token
+
+# 自行處理 HTTP 錯誤碼（不讓 4xx/5xx 直接擲回例外）
+$resp = Invoke-WebRequest -Uri 'https://api.example.com/v1/health' -SkipHttpErrorCheck
+if ($resp.StatusCode -ge 400) { Write-Warning "健康檢查失敗：$($resp.StatusCode)" }
+```
+
+**XML：**
+
+```powershell
+[xml]$xml = '<configuration><appSettings><add key="Env" value="prod"/></appSettings></configuration>'
+$xml.SelectNodes('//appSettings/add') | Select-Object key, value
+Select-Xml -Xml $xml -XPath "//add[@key='Env']" | ForEach-Object { $_.Node.value }   # prod
+```
+
+**審查要點：**
+
+| 常見錯誤 | 後果 | 正確做法 |
+|----------|------|----------|
+| `ConvertTo-Json` 未指定 `-Depth` | 巢狀物件變成型別名稱字串 | 一律加 `-Depth`，並留意 7.x 的截斷警告 |
+| Token 寫在腳本或 URL 中 | 外洩到版本控制與記錄 | `-Authentication Bearer -Token <SecureString>` |
+| 正式環境使用 `-SkipCertificateCheck` | 可被中間人攻擊 | 修正憑證鏈；只允許在隔離測試環境 |
+| 沒有逾時與重試 | 腳本無限期卡住或一次網路抖動就失敗 | `-TimeoutSec`、`-MaximumRetryCount` |
+| 匯出 CSV 未指定編碼 | Excel 中文亂碼 | `-Encoding utf8BOM` |
+
+#### 實務案例與注意事項（第 7 章）
 
 **案例 1：系統效能報告產生器**
 ```powershell
@@ -3179,11 +3784,11 @@ function New-PerformanceReport {
     Write-Host "收集系統資訊..." -ForegroundColor Green
     
     # CPU 資訊
-    $cpuInfo = Get-WmiObject Win32_Processor | 
+    $cpuInfo = Get-CimInstance Win32_Processor | 
         Select-Object Name, NumberOfCores, NumberOfLogicalProcessors, LoadPercentage
     
     # 記憶體資訊
-    $memInfo = Get-WmiObject Win32_OperatingSystem | 
+    $memInfo = Get-CimInstance Win32_OperatingSystem | 
         Select-Object @{
             Name="TotalMemoryGB"
             Expression={[math]::Round($_.TotalVisibleMemorySize / 1MB, 2)}
@@ -3199,7 +3804,7 @@ function New-PerformanceReport {
         }
     
     # 磁碟資訊
-    $diskInfo = Get-WmiObject Win32_LogicalDisk | 
+    $diskInfo = Get-CimInstance Win32_LogicalDisk | 
         Where-Object DriveType -eq 3 |
         Select-Object DeviceID,
             @{Name="TotalSizeGB"; Expression={[math]::Round($_.Size / 1GB, 2)}},
@@ -3307,6 +3912,7 @@ $report | Format-List
    - 使用 Select-Object 而非 Format-* 進行資料轉換
 
 **檢查清單：**
+
 - [ ] 熟練使用 Select-Object 進行資料選擇和轉換
 - [ ] 掌握 Where-Object 的各種篩選技巧
 - [ ] 能夠使用 Sort-Object 進行複雜排序
@@ -3326,18 +3932,19 @@ PowerShell 提供強大的錯誤處理機制，讓您能夠優雅地處理程式
 ```powershell
 # 基本錯誤處理
 try {
-    # 可能發生錯誤的程式碼
-    $result = 10 / 0
+    # 可能發生錯誤的程式碼（常數 10 / 0 會在剖析階段就報錯，try/catch 攔不到，所以用變數）
+    $divisor = 0
+    $result = 10 / $divisor
     Write-Host "結果: $result"
 } catch {
     # 錯誤處理
     Write-Host "發生錯誤: $($_.Exception.Message)" -ForegroundColor Red
 }
 
-# 指定錯誤類型
+# 指定錯誤類型：cmdlet 預設產生「非終止錯誤」，必須加 -ErrorAction Stop 才會進入 catch
 try {
-    $file = Get-Content "C:\NonExistentFile.txt"
-} catch [System.IO.FileNotFoundException] {
+    $file = Get-Content "C:\NonExistentFile.txt" -ErrorAction Stop
+} catch [System.Management.Automation.ItemNotFoundException] {
     Write-Host "檔案不存在" -ForegroundColor Yellow
 } catch [System.UnauthorizedAccessException] {
     Write-Host "沒有權限存取檔案" -ForegroundColor Red
@@ -3358,7 +3965,7 @@ function Test-FileOperation {
         Write-Host "開始檔案操作..." -ForegroundColor Green
         $fileStream = [System.IO.File]::OpenRead($FilePath)
         $content = New-Object byte[] $fileStream.Length
-        $fileStream.Read($content, 0, $content.Length)
+        [void]$fileStream.Read($content, 0, $content.Length)   # 不加 [void] 會把讀取位元組數混入回傳值
         Write-Host "檔案讀取完成" -ForegroundColor Green
         return $content
     } catch [System.IO.FileNotFoundException] {
@@ -3447,7 +4054,7 @@ $Error.Clear()
 # 製造一些錯誤
 Get-Process "NonExistentProcess" -ErrorAction SilentlyContinue
 Get-Content "NonExistentFile.txt" -ErrorAction SilentlyContinue
-1/0 -ErrorAction SilentlyContinue
+try { $zero = 0; 1 / $zero } catch { }   # 被 catch 攔下的例外仍會記錄到 $Error
 
 # 檢視錯誤
 Write-Host "錯誤總數: $($Error.Count)" -ForegroundColor Red
@@ -3556,7 +4163,7 @@ function Test-DebuggingFeatures {
     
     Write-Progress -Activity "處理中" -Completed
     Write-Verbose "處理完成"
-    Write-Debug "回傳結果: $InputValue.ToUpper()"
+    Write-Debug "回傳結果: $($InputValue.ToUpper())"
     
     return $InputValue.ToUpper()
 }
@@ -3733,7 +4340,72 @@ $testResult = Measure-ScriptPerformance -ShowMemoryUsage -Description "測試函
 Write-Host "最終結果: $testResult" -ForegroundColor Magenta
 ```
 
-#### 實務案例與注意事項
+#### 8.4 結構化日誌、Transcript 與結束碼
+
+自動化腳本的日誌要能被機器解析（送進 SIEM、ELK、Azure Monitor），也要能讓人追查單次執行。建議以 **JSON Lines**（每行一筆 JSON）記錄，並用 correlation ID 串起同一次執行的所有事件。
+
+```powershell
+function Write-StructuredLog {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$Message,
+        [ValidateSet('Debug', 'Information', 'Warning', 'Error')][string]$Level = 'Information',
+        [hashtable]$Data = @{},
+        [string]$Path = (Join-Path ([System.IO.Path]::GetTempPath()) 'automation-log.jsonl')
+    )
+    $entry = [ordered]@{
+        timestamp     = (Get-Date).ToUniversalTime().ToString('o')
+        level         = $Level
+        message       = $Message
+        machine       = [System.Environment]::MachineName
+        processId     = $PID
+        correlationId = $script:CorrelationId
+    }
+    foreach ($key in $Data.Keys) { $entry[$key] = $Data[$key] }
+    ($entry | ConvertTo-Json -Compress -Depth 5) | Add-Content -LiteralPath $Path -Encoding utf8
+}
+
+$script:CorrelationId = [guid]::NewGuid().ToString()
+Write-StructuredLog -Message '備份完成' -Data @{ files = 120; durationMs = 5320 }
+
+# 驗證：最後一行可被解析回物件
+Get-Content (Join-Path ([System.IO.Path]::GetTempPath()) 'automation-log.jsonl') -Tail 1 | ConvertFrom-Json
+```
+
+**Transcript（完整互動紀錄，適合人工稽核）：**
+
+```powershell
+$transcript = Join-Path ([System.IO.Path]::GetTempPath()) "run-$(Get-Date -Format yyyyMMdd-HHmmss).txt"
+Start-Transcript -Path $transcript -UseMinimalHeader
+try {
+    # ... 主要工作 ...
+} finally {
+    Stop-Transcript
+}
+```
+
+**結束碼與原生命令錯誤：**
+
+```powershell
+#Requires -Version 7.4
+$ErrorActionPreference = 'Stop'
+# 7.4 起正式提供：原生命令（git、robocopy 以外的一般工具）結束碼非 0 時視為錯誤
+$PSNativeCommandUseErrorActionPreference = $true
+
+try {
+    git fetch origin
+    exit 0
+} catch {
+    Write-StructuredLog -Level Error -Message $_.Exception.Message
+    exit 1      # 排程器與 CI 依結束碼判斷成敗
+}
+```
+
+> 注意：`robocopy` 以 0～7 表示成功、8 以上才是失敗，這類工具要關閉 `$PSNativeCommandUseErrorActionPreference` 並自行判斷 `$LASTEXITCODE`。
+
+**審查要點：** 日誌不得寫入密碼、Token、完整連線字串；Transcript 會記錄所有輸出，存放目錄必須限制讀取權限。
+
+#### 實務案例與注意事項（第 8 章）
 
 **案例 1：強化的檔案處理系統**
 
@@ -3801,7 +4473,7 @@ function Copy-FilesWithErrorHandling {
         
         # 取得檔案清單
         $getChildItemParams = @{
-            Path = $SourcePath
+            Path = (Join-Path $SourcePath '*')   # -Include 需搭配萬用字元路徑或 -Recurse 才會生效
             Include = $Include
             File = $true
         }
@@ -3926,6 +4598,7 @@ $result | Format-List
    - 使用條件檢查代替例外處理
 
 **檢查清單：**
+
 - [ ] 理解 Try/Catch/Finally 的使用時機
 - [ ] 能夠處理不同類型的例外
 - [ ] 熟悉 $Error 變數的操作方法
@@ -4146,7 +4819,8 @@ function Backup-RegistryKey {
         Write-Host "備份註冊表機碼: $KeyPath" -ForegroundColor Green
         
         # 使用 reg export 指令備份
-        $regPath = $KeyPath -replace "^HK(CU|LM|CR|U|CC):", "HK$1"
+        # 取代字串必須用單引號，否則 "$1" 會被當成 PowerShell 變數展開成空字串
+        $regPath = $KeyPath -replace '^HK(CU|LM|CR|U|CC):', 'HK$1'
         $exportResult = reg export $regPath $BackupPath /y
         
         if ($LASTEXITCODE -eq 0) {
@@ -4281,8 +4955,8 @@ Restart-Service "Spooler"
 # 設定服務啟動類型
 Set-Service "Spooler" -StartupType Manual
 
-# 取得服務詳細資訊 (使用 Get-WmiObject)
-Get-WmiObject Win32_Service | Where-Object Name -eq "Spooler" | 
+# 取得服務詳細資訊（使用 Get-CimInstance）
+Get-CimInstance Win32_Service | Where-Object Name -eq "Spooler" | 
     Select-Object Name, State, StartMode, ProcessId, PathName
 
 # 服務相依性
@@ -4320,7 +4994,7 @@ Write-Host "Notepad 已關閉"
 Get-Process "notepad" | Stop-Process -Force
 
 # 程序監控
-function Monitor-Process {
+function Watch-ProcessUsage {
     param(
         [string]$ProcessName,
         [int]$IntervalSeconds = 5,
@@ -4354,7 +5028,7 @@ function Monitor-Process {
 }
 
 # 使用範例（註解掉避免無限執行）
-# Monitor-Process -ProcessName "chrome" -IntervalSeconds 10 -MaxIterations 6
+# Watch-ProcessUsage -ProcessName "chrome" -IntervalSeconds 10 -MaxIterations 6
 ```
 
 **系統資訊收集：**
@@ -4367,9 +5041,9 @@ function Get-SystemInformation {
     
     # 基本系統資訊
     $computerInfo = Get-ComputerInfo
-    $osInfo = Get-WmiObject Win32_OperatingSystem
-    $cpuInfo = Get-WmiObject Win32_Processor
-    $memoryInfo = Get-WmiObject Win32_PhysicalMemory
+    $osInfo = Get-CimInstance Win32_OperatingSystem
+    $cpuInfo = Get-CimInstance Win32_Processor
+    $memoryInfo = Get-CimInstance Win32_PhysicalMemory
     
     $systemInfo = [PSCustomObject]@{
         ComputerName = $env:COMPUTERNAME
@@ -4380,8 +5054,8 @@ function Get-SystemInformation {
         ProcessorCores = $cpuInfo.NumberOfCores
         ProcessorLogicalCores = $cpuInfo.NumberOfLogicalProcessors
         TotalMemoryGB = [math]::Round(($memoryInfo | Measure-Object Capacity -Sum).Sum / 1GB, 2)
-        BootTime = $osInfo.ConvertToDateTime($osInfo.LastBootUpTime)
-        Uptime = (Get-Date) - $osInfo.ConvertToDateTime($osInfo.LastBootUpTime)
+        BootTime = $osInfo.LastBootUpTime
+        Uptime = (Get-Date) - $osInfo.LastBootUpTime
         SystemType = $computerInfo.CsSystemType
         Domain = $env:USERDOMAIN
         CurrentUser = $env:USERNAME
@@ -4389,17 +5063,22 @@ function Get-SystemInformation {
     
     if ($Detailed) {
         # 詳細資訊
-        $diskInfo = Get-WmiObject Win32_LogicalDisk | Where-Object DriveType -eq 3
-        $networkInfo = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object IPEnabled -eq $true
+        $diskInfo = Get-CimInstance Win32_LogicalDisk | Where-Object DriveType -eq 3
+        $networkInfo = Get-CimInstance Win32_NetworkAdapterConfiguration | Where-Object IPEnabled -eq $true
         $serviceInfo = Get-Service | Group-Object Status
         
         $systemInfo | Add-Member -NotePropertyName "DisksInfo" -NotePropertyValue $diskInfo
         $systemInfo | Add-Member -NotePropertyName "NetworkAdapters" -NotePropertyValue $networkInfo
         $systemInfo | Add-Member -NotePropertyName "ServicesStatus" -NotePropertyValue $serviceInfo
         
-        # 安裝的軟體 (需要較長時間)
+        # 安裝的軟體：不要查詢 Win32_Product（會觸發 MSI 一致性檢查甚至修復安裝），改讀解除安裝登錄機碼
         Write-Host "正在收集已安裝軟體清單..." -ForegroundColor Yellow
-        $installedSoftware = Get-WmiObject Win32_Product | Select-Object Name, Version, Vendor | Sort-Object Name
+        $uninstallKeys = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*',
+                         'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*'
+        $installedSoftware = Get-ItemProperty -Path $uninstallKeys -ErrorAction SilentlyContinue |
+            Where-Object DisplayName |
+            Select-Object @{n='Name';e={$_.DisplayName}}, @{n='Version';e={$_.DisplayVersion}}, @{n='Vendor';e={$_.Publisher}} |
+            Sort-Object Name
         $systemInfo | Add-Member -NotePropertyName "InstalledSoftware" -NotePropertyValue $installedSoftware
     }
     
@@ -4416,7 +5095,51 @@ $sysInfo | Format-List ComputerName, OperatingSystem, Processor, TotalMemoryGB, 
 # $detailedInfo.DisksInfo | Format-Table DeviceID, @{Name="SizeGB";Expression={[math]::Round($_.Size/1GB,2)}}, @{Name="FreeGB";Expression={[math]::Round($_.FreeSpace/1GB,2)}}
 ```
 
-#### 實務案例與注意事項
+#### 9.4 從 WMI 遷移到 CIM
+
+`Get-WmiObject` 等 WMI cmdlet 只存在於 Windows PowerShell 5.1，PowerShell 7 本身不提供。在 Windows 上，PowerShell 7 可能透過「Windows PowerShell 相容性層」自動在背景啟動 5.1 程序代理這些命令（首次呼叫需數十秒，回傳的是反序列化物件，`.Method()` 無法使用），因此**不能把「在我的電腦上可以跑」當成相容的證據**；Linux/macOS 上則直接失敗。若要讓 PowerShell 7 不自動使用相容性層，可在 `powershell.config.json` 設定 `"DisableImplicitWinCompat": true`。CIM cmdlet 使用 WS-Man（與 PowerShell Remoting 相同的通訊協定），可跨防火牆、可重複使用工作階段，回傳的日期也已是 `[datetime]`。
+
+| WMI（5.1） | CIM（5.1 / 7） | 差異說明 |
+|------------|----------------|----------|
+| `Get-WmiObject` | `Get-CimInstance` | 參數 `-Class` 改為 `-ClassName` |
+| `Invoke-WmiMethod`、`$obj.Method()` | `Invoke-CimMethod` | CIM 物件不能直接呼叫方法 |
+| `Set-WmiInstance` | `Set-CimInstance` | |
+| `Remove-WmiObject` | `Remove-CimInstance` | |
+| `Register-WmiEvent` | `Register-CimIndicationEvent` | |
+| `$os.ConvertToDateTime($os.LastBootUpTime)` | `$os.LastBootUpTime` | CIM 已轉成 `[datetime]` |
+| `Get-WmiObject Win32_Product` | 讀取 Uninstall 登錄機碼 | 查詢 `Win32_Product` 會觸發 MSI 一致性檢查 |
+
+```powershell
+# 本機查詢
+$os = Get-CimInstance -ClassName Win32_OperatingSystem
+$os.LastBootUpTime                     # 已是 [datetime]
+(Get-Date) - $os.LastBootUpTime        # 已開機多久
+
+# 呼叫方法（支援 -WhatIf）
+Get-CimInstance -ClassName Win32_Process -Filter "Name='notepad.exe'" |
+    Invoke-CimMethod -MethodName Terminate -WhatIf
+
+# 多台主機：建立一次 CimSession 重複使用
+$sessions = New-CimSession -ComputerName 'srv01', 'srv02'
+Get-CimInstance -CimSession $sessions -ClassName Win32_LogicalDisk -Filter 'DriveType=3' |
+    Select-Object PSComputerName, DeviceID, @{ n = 'FreeGB'; e = { [math]::Round($_.FreeSpace / 1GB, 1) } }
+Remove-CimSession -CimSession $sessions
+```
+
+**事件記錄：`Get-EventLog` → `Get-WinEvent`**
+
+```powershell
+# 過去 24 小時 System 記錄中的錯誤（Level 2）；FilterHashtable 在來源端篩選，比 Where-Object 快很多
+Get-WinEvent -FilterHashtable @{
+    LogName   = 'System'
+    Level     = 2
+    StartTime = (Get-Date).AddDays(-1)
+} -MaxEvents 50 | Select-Object TimeCreated, Id, ProviderName, Message
+```
+
+**驗證遷移結果：** 以 15.3 節的 AST 掃描腳本確認專案中已無 `Get-WmiObject`、`Get-EventLog`；再於 PowerShell 7 執行 Pester 測試。
+
+#### 實務案例與注意事項（第 9 章）
 
 **案例 1：自動化系統維護腳本**
 
@@ -4510,7 +5233,7 @@ function Invoke-SystemMaintenance {
         if ($DefragmentDisks) {
             Write-MaintenanceLog "檢查磁碟重組需求..." "Info"
             
-            $drives = Get-WmiObject Win32_LogicalDisk | Where-Object DriveType -eq 3
+            $drives = Get-CimInstance Win32_LogicalDisk | Where-Object DriveType -eq 3
             foreach ($drive in $drives) {
                 try {
                     $driveId = $drive.DeviceID
@@ -4563,6 +5286,7 @@ Invoke-SystemMaintenance -CleanTemp -OptimizeServices -LogPath "C:\Maintenance\m
    - 監控資源使用情況
 
 **檢查清單：**
+
 - [ ] 熟練進行檔案和目錄操作
 - [ ] 理解檔案權限和安全性設定
 - [ ] 能夠安全地操作註冊表
@@ -4629,11 +5353,11 @@ function Start-SystemHealthMonitor {
     function Send-AlertEmail {
         param($Subject, $Message, $To)
         try {
-            # 這裡需要設定 SMTP 伺服器資訊
-            $smtpServer = "smtp.company.com"
-            $from = "system-monitor@company.com"
-            
-            Send-MailMessage -SmtpServer $smtpServer -From $from -To $To -Subject $Subject -Body $Message
+            # Send-MailMessage 已標示為 Obsolete（無法保證安全連線），改用組織核准的通知管道，例如 Webhook
+            $webhookUrl = $env:ALERT_WEBHOOK_URL
+            if (-not $webhookUrl) { throw '未設定環境變數 ALERT_WEBHOOK_URL' }
+            $body = @{ title = $Subject; text = $Message; to = $To } | ConvertTo-Json
+            Invoke-RestMethod -Uri $webhookUrl -Method Post -Body $body -ContentType 'application/json; charset=utf-8'
             Write-HealthLog "警報郵件已發送至 $To" "Info"
         } catch {
             Write-HealthLog "發送警報郵件失敗: $($_.Exception.Message)" "Warning"
@@ -4649,7 +5373,7 @@ function Start-SystemHealthMonitor {
     while ($true) {
         try {
             # 檢查 CPU 使用率
-            $cpuUsage = (Get-WmiObject Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average
+            $cpuUsage = (Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average
             if ($cpuUsage -gt $CPUThreshold) {
                 Write-HealthLog "CPU 使用率過高: $cpuUsage%" "Critical" $true
             } else {
@@ -4657,7 +5381,7 @@ function Start-SystemHealthMonitor {
             }
             
             # 檢查記憶體使用率
-            $memory = Get-WmiObject Win32_OperatingSystem
+            $memory = Get-CimInstance Win32_OperatingSystem
             $memoryUsage = [math]::Round((($memory.TotalVisibleMemorySize - $memory.FreePhysicalMemory) / $memory.TotalVisibleMemorySize) * 100, 2)
             if ($memoryUsage -gt $MemoryThreshold) {
                 Write-HealthLog "記憶體使用率過高: $memoryUsage%" "Critical" $true
@@ -4666,7 +5390,7 @@ function Start-SystemHealthMonitor {
             }
             
             # 檢查磁碟空間
-            $disks = Get-WmiObject Win32_LogicalDisk | Where-Object DriveType -eq 3
+            $disks = Get-CimInstance Win32_LogicalDisk | Where-Object DriveType -eq 3
             foreach ($disk in $disks) {
                 $usedPercent = [math]::Round((($disk.Size - $disk.FreeSpace) / $disk.Size) * 100, 2)
                 if ($usedPercent -gt $DiskThreshold) {
@@ -4902,7 +5626,7 @@ function Write-Log {
         # 跳過空行和註解
         if ([string]::IsNullOrWhiteSpace($trimmedLine) -or $trimmedLine.StartsWith("::") -or $trimmedLine.StartsWith("REM")) {
             if ($trimmedLine.StartsWith("::") -or $trimmedLine.StartsWith("REM")) {
-                $powershellLines += "# $($trimmedLine.Substring(2).Trim())"
+                $powershellLines += "# $(($trimmedLine -replace '^(::|REM)\s*', '').Trim())"
             } else {
                 $powershellLines += $line
             }
@@ -5172,7 +5896,9 @@ function New-ScheduledPowerShellTask {
         }
         
         # 建立動作
-        $action = New-ScheduledTaskAction -Execute "PowerShell.exe" -Argument "-ExecutionPolicy Bypass -File `"$ScriptPath`""
+        # 建議使用 pwsh.exe，並以已簽章腳本配合 AllSigned/RemoteSigned，而非 -ExecutionPolicy Bypass
+        $pwshExe = Join-Path $env:ProgramFiles 'PowerShell\7\pwsh.exe'
+        $action = New-ScheduledTaskAction -Execute $pwshExe -Argument "-NoProfile -NonInteractive -File `"$ScriptPath`""
         
         # 建立主體 (執行身份)
         $principal = New-ScheduledTaskPrincipal -UserID $RunAsUser -LogonType ServiceAccount
@@ -5201,7 +5927,7 @@ function New-ScheduledPowerShellTask {
     }
 }
 
-function Manage-ScheduledTasks {
+function Invoke-ScheduledTaskAction {
     [CmdletBinding()]
     param(
         [string]$TaskName = "*",
@@ -5302,10 +6028,10 @@ $backupScript | Out-File -FilePath $backupScriptPath -Encoding UTF8
 # New-ScheduledPowerShellTask -TaskName "DailyBackup" -ScriptPath $backupScriptPath -TriggerType "Daily" -StartTime "02:00" -Description "每日自動備份重要資料"
 
 # 管理排程工作
-Manage-ScheduledTasks -Action "List"
+Invoke-ScheduledTaskAction -Action "List"
 ```
 
-#### 實務案例與注意事項
+#### 實務案例與注意事項（第 10 章）
 
 **案例 1：完整的部署自動化系統**
 
@@ -5538,9 +6264,10 @@ function Start-ApplicationDeployment {
         # 生成部署報告
         $reportPath = "C:\Reports\Deployment_$deploymentId.html"
         # 這裡可以生成 HTML 格式的部署報告
-        
-        return $deploymentResult
     }
+
+    # return 不可放在 finally 區塊內（控制流程不可離開 finally）
+    return $deploymentResult
 }
 
 # 使用範例
@@ -5588,8 +6315,6 @@ PowerShell 與 Visual Studio Code 的整合提供了優秀的開發體驗。
 ```json
 // settings.json
 {
-    "powershell.developer.editorServicesLogLevel": "Diagnostic",
-    "powershell.integratedConsole.showOnStartup": false,
     "powershell.debugging.createTemporaryIntegratedConsole": false,
     "powershell.codeFormatting.preset": "OTBS",
     "powershell.codeFormatting.openBraceOnSameLine": true,
@@ -5642,17 +6367,17 @@ PowerShell 與 Visual Studio Code 的整合提供了優秀的開發體驗。
         'PSUseConsistentWhitespace',
         'PSUseCorrectCasing',
         'PSUseDeclaredVarsMoreThanAssignments',
-        'PSUseIdenticalMandatoryParametersForDSC',
-        'PSUseIdenticalParametersForDSC',
+        'PSAvoidAssignmentToAutomaticVariable',
+        'PSAvoidOverwritingBuiltInCmdlets',
         'PSUseLiteralInitializerForHashtable',
         'PSUseOutputTypeCorrectly',
         'PSUseProcessBlockForPipelineCommand',
         'PSUsePSCredentialType',
         'PSUseShouldProcessForStateChangingFunctions',
         'PSUseSingularNouns',
-        'PSUseStrictMode',
+        'PSUseUsingScopeModifierInNewRunspaces',
         'PSUseUTF8EncodingForHelpFile',
-        'PSUseVerboseMessageInDSCResource'
+        'PSUseCompatibleSyntax'
     )
     
     # 規則設定
@@ -5695,6 +6420,11 @@ PowerShell 與 Visual Studio Code 的整合提供了優秀的開發體驗。
         
         PSUseCorrectCasing = @{
             Enable = $true
+        }
+
+        PSUseCompatibleSyntax = @{
+            Enable = $true
+            TargetVersions = @('6.0', '5.1')
         }
     }
 }
@@ -5806,7 +6536,7 @@ PowerShell 與 Visual Studio Code 的整合提供了優秀的開發體驗。
 
 **PowerShell 專案的 Git 工作流程：**
 
-```powershell
+````powershell
 # GitHelper.psm1 - Git 操作輔助模組
 function Initialize-PowerShellRepository {
     [CmdletBinding()]
@@ -6081,7 +6811,7 @@ function New-PowerShellCommit {
         $commitMessage = if ($Scope) {
             "$Type($Scope): $Message"
         } else {
-            "$Type: $Message"
+            "${Type}: $Message"   # 不可寫成 "$Type:"，冒號會被解析成變數範圍限定詞
         }
         
         # 添加檔案到暫存區
@@ -6163,7 +6893,7 @@ Export-ModuleMember -Function @(
     'New-PowerShellCommit', 
     'New-PowerShellRelease'
 )
-```
+````
 
 #### 11.3 CI/CD 整合
 
@@ -6171,6 +6901,7 @@ Export-ModuleMember -Function @(
 
 ```yaml
 # .github/workflows/powershell-ci.yml
+# 註：GitHub 託管 runner 已預裝 PowerShell 7；shell: powershell 代表 Windows PowerShell 5.1
 name: PowerShell CI/CD
 
 on:
@@ -6181,113 +6912,89 @@ on:
   release:
     types: [ published ]
 
+permissions:
+  contents: read
+
 jobs:
   test:
-    runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
-        powershell-version: ['5.1', '7.x']
-    
+        include:
+          - os: windows-latest
+            shell: powershell
+          - os: windows-latest
+            shell: pwsh
+          - os: ubuntu-latest
+            shell: pwsh
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup PowerShell ${{ matrix.powershell-version }}
-      if: matrix.powershell-version == '7.x'
-      uses: actions/setup-powershell@v1
-      with:
-        powershell-version: ${{ matrix.powershell-version }}
-    
-    - name: Install Pester
-      shell: pwsh
-      run: |
-        Install-Module -Name Pester -Force -SkipPublisherCheck -Scope CurrentUser
-        Install-Module -Name PSScriptAnalyzer -Force -SkipPublisherCheck -Scope CurrentUser
-    
-    - name: Run PSScriptAnalyzer
-      shell: pwsh
-      run: |
-        $results = Invoke-ScriptAnalyzer -Path . -Recurse -Settings PSScriptAnalyzerSettings.psd1
-        $results | ConvertTo-Json | Out-File -FilePath analysis-results.json
-        if ($results | Where-Object Severity -eq 'Error') {
-          Write-Error "PSScriptAnalyzer found errors"
-          exit 1
-        }
-    
-    - name: Run Pester Tests
-      shell: pwsh
-      run: |
-        $config = New-PesterConfiguration
-        $config.Run.Path = './Tests'
-        $config.TestResult.Enabled = $true
-        $config.TestResult.OutputFormat = 'JUnitXml'
-        $config.TestResult.OutputPath = './test-results.xml'
-        $config.CodeCoverage.Enabled = $true
-        $config.CodeCoverage.OutputFormat = 'JaCoCo'
-        $config.CodeCoverage.OutputPath = './coverage.xml'
-        
-        $result = Invoke-Pester -Configuration $config
-        
-        if ($result.FailedCount -gt 0) {
-          Write-Error "Pester tests failed"
-          exit 1
-        }
-    
-    - name: Upload Test Results
-      uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: test-results-${{ matrix.powershell-version }}
-        path: |
-          test-results.xml
-          coverage.xml
-          analysis-results.json
-    
-    - name: Publish Test Results
-      uses: dorny/test-reporter@v1
-      if: always()
-      with:
-        name: PowerShell Tests (${{ matrix.powershell-version }})
-        path: test-results.xml
-        reporter: java-junit
+      - uses: actions/checkout@v7
 
-  deploy:
+      - name: Show PowerShell version
+        run: $PSVersionTable | Format-Table -AutoSize
+
+      - name: Install test tools (pin versions)
+        run: |
+          Install-Module -Name Pester -RequiredVersion 6.2.0 -Force -SkipPublisherCheck -Scope CurrentUser
+          Install-Module -Name PSScriptAnalyzer -RequiredVersion 1.25.0 -Force -Scope CurrentUser
+
+      - name: Run PSScriptAnalyzer
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Settings ./PSScriptAnalyzerSettings.psd1
+          $results | Format-Table RuleName, Severity, ScriptName, Line -AutoSize
+          if ($results | Where-Object Severity -eq 'Error') { exit 1 }
+
+      - name: Run Pester tests
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = './Tests'
+          $config.Run.Exit = $true
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputFormat = 'JUnitXml'
+          $config.TestResult.OutputPath = './test-results.xml'
+          $config.CodeCoverage.Enabled = $true
+          $config.CodeCoverage.Path = './Modules'
+          $config.CodeCoverage.OutputFormat = 'Cobertura'
+          $config.CodeCoverage.OutputPath = './coverage.xml'
+          Invoke-Pester -Configuration $config
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results-${{ matrix.os }}-${{ matrix.shell }}
+          path: |
+            test-results.xml
+            coverage.xml
+
+  release:
     if: github.event_name == 'release'
     needs: test
-    runs-on: windows-latest
-    
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup PowerShell
-      uses: actions/setup-powershell@v1
-      with:
-        powershell-version: '7.x'
-    
-    - name: Build Module
-      shell: pwsh
-      run: |
-        # 建立發佈目錄
-        $publishDir = "./publish"
-        New-Item -ItemType Directory -Path $publishDir -Force
-        
-        # 複製模組檔案
-        Copy-Item -Path "./Modules/*" -Destination $publishDir -Recurse -Force
-        Copy-Item -Path "./Scripts" -Destination $publishDir -Recurse -Force
-        Copy-Item -Path "./README.md" -Destination $publishDir
-        Copy-Item -Path "./LICENSE" -Destination $publishDir -ErrorAction SilentlyContinue
-        
-        # 壓縮模組
-        Compress-Archive -Path "$publishDir/*" -DestinationPath "./module-package.zip"
-    
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./module-package.zip
-        asset_name: module-package.zip
-        asset_content_type: application/zip
+      - uses: actions/checkout@v7
+
+      - name: Build module package
+        shell: pwsh
+        run: |
+          $publishDir = './publish'
+          New-Item -ItemType Directory -Path $publishDir -Force | Out-Null
+          Copy-Item -Path './Modules/*' -Destination $publishDir -Recurse -Force
+          Copy-Item -Path './README.md' -Destination $publishDir
+          Compress-Archive -Path "$publishDir/*" -DestinationPath './module-package.zip' -Force
+          (Get-FileHash './module-package.zip' -Algorithm SHA256).Hash | Set-Content './module-package.zip.sha256'
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" module-package.zip module-package.zip.sha256 --clobber
 ```
 
 **Azure DevOps Pipeline：**
@@ -6296,18 +7003,12 @@ jobs:
 # azure-pipelines.yml
 trigger:
   branches:
-    include:
-    - main
-    - develop
+    include: [ main, develop ]
   tags:
-    include:
-    - v*
+    include: [ 'v*' ]
 
 pool:
   vmImage: 'windows-latest'
-
-variables:
-  buildConfiguration: 'Release'
 
 stages:
 - stage: Test
@@ -6317,78 +7018,64 @@ stages:
     displayName: 'PowerShell Test Job'
     strategy:
       matrix:
-        PowerShell_5_1:
-          powershellVersion: '5.1'
-        PowerShell_7_x:
-          powershellVersion: '7.x'
-    
+        WindowsPowerShell_5_1:
+          usePwsh: false
+        PowerShell_7:
+          usePwsh: true
     steps:
     - task: PowerShell@2
       displayName: 'Install Dependencies'
       inputs:
         targetType: 'inline'
+        pwsh: $(usePwsh)
         script: |
-          Install-Module -Name Pester -Force -SkipPublisherCheck -Scope CurrentUser
-          Install-Module -Name PSScriptAnalyzer -Force -SkipPublisherCheck -Scope CurrentUser
-        pwsh: true
-    
+          Install-Module -Name Pester -RequiredVersion 6.2.0 -Force -SkipPublisherCheck -Scope CurrentUser
+          Install-Module -Name PSScriptAnalyzer -RequiredVersion 1.25.0 -Force -Scope CurrentUser
+
     - task: PowerShell@2
       displayName: 'Run PSScriptAnalyzer'
       inputs:
         targetType: 'inline'
+        pwsh: $(usePwsh)
         script: |
           $results = Invoke-ScriptAnalyzer -Path . -Recurse -Settings PSScriptAnalyzerSettings.psd1
-          $results | Export-Clixml -Path "$(Agent.TempDirectory)/analysis-results.xml"
-          
           $errors = $results | Where-Object Severity -eq 'Error'
-          if ($errors) {
-            Write-Host "##vso[task.logissue type=error]PSScriptAnalyzer found $($errors.Count) error(s)"
-            $errors | ForEach-Object {
-              Write-Host "##vso[task.logissue type=error;sourcepath=$($_.ScriptName);linenumber=$($_.Line)]$($_.RuleName): $($_.Message)"
-            }
-            exit 1
+          foreach ($e in $errors) {
+            Write-Host "##vso[task.logissue type=error;sourcepath=$($e.ScriptName);linenumber=$($e.Line)]$($e.RuleName): $($e.Message)"
           }
-        pwsh: true
-    
+          if ($errors) { exit 1 }
+
     - task: PowerShell@2
       displayName: 'Run Pester Tests'
       inputs:
         targetType: 'inline'
+        pwsh: $(usePwsh)
         script: |
           $config = New-PesterConfiguration
           $config.Run.Path = './Tests'
+          $config.Run.Exit = $true
           $config.TestResult.Enabled = $true
           $config.TestResult.OutputFormat = 'NUnitXml'
           $config.TestResult.OutputPath = '$(Agent.TempDirectory)/test-results.xml'
           $config.CodeCoverage.Enabled = $true
-          $config.CodeCoverage.OutputFormat = 'JaCoCo'
+          $config.CodeCoverage.Path = './Modules'
+          $config.CodeCoverage.OutputFormat = 'Cobertura'
           $config.CodeCoverage.OutputPath = '$(Agent.TempDirectory)/coverage.xml'
-          
-          $result = Invoke-Pester -Configuration $config
-          
-          Write-Host "##vso[task.setvariable variable=TestsPassed]$($result.PassedCount)"
-          Write-Host "##vso[task.setvariable variable=TestsFailed]$($result.FailedCount)"
-          
-          if ($result.FailedCount -gt 0) {
-            Write-Host "##vso[task.logissue type=error]$($result.FailedCount) test(s) failed"
-            exit 1
-          }
-        pwsh: true
-    
+          Invoke-Pester -Configuration $config
+
     - task: PublishTestResults@2
       displayName: 'Publish Test Results'
+      condition: always()
       inputs:
         testResultsFormat: 'NUnit'
         testResultsFiles: '$(Agent.TempDirectory)/test-results.xml'
-        testRunTitle: 'PowerShell $(powershellVersion) Tests'
-      condition: always()
-    
-    - task: PublishCodeCoverageResults@1
+        testRunTitle: 'PowerShell Tests (pwsh=$(usePwsh))'
+
+    - task: PublishCodeCoverageResults@2
       displayName: 'Publish Code Coverage'
-      inputs:
-        codeCoverageTool: 'JaCoCo'
-        summaryFileLocation: '$(Agent.TempDirectory)/coverage.xml'
       condition: always()
+      inputs:
+        summaryFileLocation: '$(Agent.TempDirectory)/coverage.xml'
 
 - stage: Build
   displayName: 'Build Stage'
@@ -6402,37 +7089,106 @@ stages:
       displayName: 'Build Module Package'
       inputs:
         targetType: 'inline'
+        pwsh: true
         script: |
-          # 建立建置目錄
           $buildDir = "$(Build.ArtifactStagingDirectory)/module"
-          New-Item -ItemType Directory -Path $buildDir -Force
-          
-          # 複製模組檔案
+          New-Item -ItemType Directory -Path $buildDir -Force | Out-Null
           Copy-Item -Path "./Modules/*" -Destination $buildDir -Recurse -Force
-          Copy-Item -Path "./Scripts" -Destination $buildDir -Recurse -Force
           Copy-Item -Path "./README.md" -Destination $buildDir
-          Copy-Item -Path "./LICENSE" -Destination $buildDir -ErrorAction SilentlyContinue
-          
-          # 更新版本資訊
+
+          # 以 Git 標籤（v1.2.3）更新模組版本
           if ($env:BUILD_SOURCEBRANCHNAME -match '^v(\d+\.\d+\.\d+)$') {
-            $version = $matches[1]
-            Write-Host "Setting version to: $version"
-            
-            $manifestFile = Get-ChildItem "$buildDir/*.psd1" | Select-Object -First 1
-            if ($manifestFile) {
-              $content = Get-Content $manifestFile.FullName -Raw
-              $content = $content -replace "ModuleVersion\s*=\s*'[^']*'", "ModuleVersion = '$version'"
-              $content | Out-File -FilePath $manifestFile.FullName -Encoding UTF8
+            $version = $Matches[1]
+            $manifest = Get-ChildItem "$buildDir/*.psd1" | Select-Object -First 1
+            if ($manifest) {
+              Update-ModuleManifest -Path $manifest.FullName -ModuleVersion $version
+              Test-ModuleManifest -Path $manifest.FullName | Select-Object Name, Version
             }
           }
-        pwsh: true
-    
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Build Artifacts'
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Pipeline Artifact'
       inputs:
-        pathToPublish: '$(Build.ArtifactStagingDirectory)'
-        artifactName: 'PowerShellModule'
+        targetPath: '$(Build.ArtifactStagingDirectory)'
+        artifact: 'PowerShellModule'
 ```
+
+#### 11.4 Pester 6 測試實務
+
+Pester 是 PowerShell 的測試框架。截至 2026-11-25 最新版為 **6.2.0**（支援 Windows PowerShell 5.1 與 PowerShell 7.4+），5.x 仍有維護版（5.9.1）。Pester 6 新增型別明確的 `Should-*` 斷言（注意是連字號、沒有空格），舊的 `Should -Be` 語法仍可使用，可漸進遷移。
+
+> Windows PowerShell 5.1 內建的是 Pester 3.4，請另外安裝新版；以 `Install-Module` 安裝時需加 `-SkipPublisherCheck`。
+
+**被測函式：**
+
+```powershell
+# src/Get-DiskUsage.ps1
+function Get-DiskUsage {
+    param([Parameter(Mandatory)][string]$ComputerName)
+
+    Get-CimInstance -ClassName Win32_LogicalDisk -Filter 'DriveType=3' -ComputerName $ComputerName |
+        ForEach-Object {
+            [pscustomobject]@{
+                Drive       = $_.DeviceID
+                UsedPercent = [math]::Round((($_.Size - $_.FreeSpace) / $_.Size) * 100, 1)
+            }
+        }
+}
+```
+
+**測試（以 Mock 隔離外部相依，不需要真的有伺服器）：**
+
+```powershell
+# tests/Get-DiskUsage.Tests.ps1
+BeforeAll { . $PSScriptRoot/../src/Get-DiskUsage.ps1 }
+
+Describe 'Get-DiskUsage' {
+    BeforeAll {
+        Mock Get-CimInstance {
+            [pscustomobject]@{ DeviceID = 'C:'; Size = 100GB; FreeSpace = 25GB }
+        }
+    }
+
+    It '計算使用率為 75%' {
+        $r = Get-DiskUsage -ComputerName 'srv01'
+        $r.UsedPercent | Should-Be 75        # Pester 6 新語法
+        $r.Drive | Should -Be 'C:'           # Pester 5 語法在 6 仍可使用
+    }
+
+    It '只查詢固定磁碟' {
+        Get-DiskUsage -ComputerName 'srv01' | Out-Null
+        Should -Invoke Get-CimInstance -Times 1 -Exactly -ParameterFilter { $Filter -eq 'DriveType=3' }
+    }
+
+    It '拒絕空白的電腦名稱：<Case>' -ForEach @(
+        @{ Case = '空字串'; Value = '' }
+    ) {
+        { Get-DiskUsage -ComputerName $Value } | Should -Throw
+    }
+}
+```
+
+**執行設定（CI 與本機一致）：**
+
+```powershell
+$cfg = New-PesterConfiguration
+$cfg.Run.Path = './tests'
+$cfg.Run.Exit = $true                          # 有失敗時以非 0 結束碼離開，CI 才會判定失敗
+$cfg.Output.Verbosity = 'Detailed'
+$cfg.TestResult.Enabled = $true
+$cfg.TestResult.OutputFormat = 'JUnitXml'
+$cfg.CodeCoverage.Enabled = $true
+$cfg.CodeCoverage.Path = './src'
+$cfg.CodeCoverage.OutputFormat = 'Cobertura'
+$cfg.CodeCoverage.CoveragePercentTarget = 80
+Invoke-Pester -Configuration $cfg
+```
+
+**審查要點：**
+
+- 測試不可連線正式環境；外部呼叫（CIM、REST、檔案系統）一律 `Mock` 或使用 `$TestDrive`。
+- 每個會改變狀態的函式至少要有一個 `-WhatIf` 測試（見 6.4 節）。
+- 全面採用 Pester 6 語法後，可設定 `$cfg.Should.DisableV5 = $true` 防止新舊語法混用。
 
 #### 實務建議與最佳做法
 
@@ -6505,7 +7261,7 @@ function Test-NetworkConnectivity {
             # PING 測試
             try {
                 $pingResult = Test-Connection -ComputerName $computer -Count 1 -Quiet -ErrorAction Stop
-                $pingTime = (Test-Connection -ComputerName $computer -Count 1).ResponseTime
+                $pingTime = (Test-Connection -TargetName $computer -Count 1).Latency   # PowerShell 7 為 Latency，5.1 為 ResponseTime
             } catch {
                 $pingResult = $false
                 $pingTime = $null
@@ -6626,11 +7382,11 @@ function Get-NetworkConfiguration {
     try {
         # 網路介面卡資訊
         Write-Host "正在收集網路介面卡資訊..." -ForegroundColor Gray
-        $adapters = Get-WmiObject -Class Win32_NetworkAdapter -ComputerName $ComputerName | 
+        $adapters = Get-CimInstance -Class Win32_NetworkAdapter -ComputerName $ComputerName | 
                    Where-Object NetEnabled -eq $true
         
         foreach ($adapter in $adapters) {
-            $adapterConfig = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -ComputerName $ComputerName |
+            $adapterConfig = Get-CimInstance -Class Win32_NetworkAdapterConfiguration -ComputerName $ComputerName |
                            Where-Object Index -eq $adapter.Index
             
             $adapterInfo = [PSCustomObject]@{
@@ -6652,7 +7408,7 @@ function Get-NetworkConfiguration {
         
         # IP 設定
         Write-Host "正在收集 IP 設定..." -ForegroundColor Gray
-        $ipConfigs = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -ComputerName $ComputerName |
+        $ipConfigs = Get-CimInstance -Class Win32_NetworkAdapterConfiguration -ComputerName $ComputerName |
                     Where-Object IPEnabled -eq $true
         
         foreach ($config in $ipConfigs) {
@@ -6665,8 +7421,8 @@ function Get-NetworkConfiguration {
                 WINSPrimary = $config.WINSPrimaryServer
                 WINSSecondary = $config.WINSSecondaryServer
                 DHCPEnabled = $config.DHCPEnabled
-                DHCPLeaseObtained = if($config.DHCPLeaseObtained) { [DateTime]::ParseExact($config.DHCPLeaseObtained.Split('.')[0], 'yyyyMMddHHmmss', $null) } else { $null }
-                DHCPLeaseExpires = if($config.DHCPLeaseExpires) { [DateTime]::ParseExact($config.DHCPLeaseExpires.Split('.')[0], 'yyyyMMddHHmmss', $null) } else { $null }
+                DHCPLeaseObtained = $config.DHCPLeaseObtained   # CIM 已回傳 [datetime]，不必再解析 WMI 日期字串
+                DHCPLeaseExpires = $config.DHCPLeaseExpires
             }
             
             $networkInfo.IPConfiguration += $ipInfo
@@ -6675,7 +7431,7 @@ function Get-NetworkConfiguration {
         # 路由表
         if ($IncludeRouting) {
             Write-Host "正在收集路由表..." -ForegroundColor Gray
-            $routes = Get-WmiObject -Class Win32_IP4RouteTable -ComputerName $ComputerName
+            $routes = Get-CimInstance -Class Win32_IP4RouteTable -ComputerName $ComputerName
             
             foreach ($route in $routes) {
                 $routeInfo = [PSCustomObject]@{
@@ -6859,7 +7615,8 @@ PowerShell Remoting 是進行遠端管理的核心技術。
 function Enable-PowerShellRemoting {
     [CmdletBinding()]
     param(
-        [string[]]$TrustedHosts = @("*"),
+        [Parameter(Mandatory = $true)]
+        [string[]]$TrustedHosts,   # 明確列出主機或網域；禁止使用 "*"
         [switch]$EnableCredSSP,
         [switch]$ConfigureHTTPS,
         [string]$CertificateThumbprint = $null
@@ -6938,6 +7695,7 @@ function New-PSRemoteSession {
         [string]$Protocol = "HTTP",
         [int]$Port = 0,
         [switch]$UseCredSSP,
+        [switch]$SkipCertificateValidation,
         [int]$ThrottleLimit = 32
     )
     
@@ -6946,7 +7704,13 @@ function New-PSRemoteSession {
     }
     
     # 設定連線參數
-    $sessionOptions = New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
+    # 正式環境必須驗證憑證；只有測試環境的自簽憑證才可明確加上 -SkipCertificateValidation
+    $sessionOptions = if ($SkipCertificateValidation) {
+        Write-Warning '已略過 CA/CN/撤銷檢查，僅限測試環境使用'
+        New-PSSessionOption -SkipCACheck -SkipCNCheck -SkipRevocationCheck
+    } else {
+        New-PSSessionOption
+    }
     
     $connectionParams = @{
         ComputerName = $ComputerName
@@ -7348,6 +8112,54 @@ function Sync-DirectoryToRemote {
 # Sync-DirectoryToRemote -SourceDirectory "C:\WebApp" -DestinationDirectory "C:\inetpub\wwwroot" -Session $sessions -DeleteExtraFiles
 ```
 
+#### 12.3 SSH Remoting 與跨平台遠端管理
+
+PowerShell 7 可透過 SSH 建立 Remoting 工作階段，適合 Linux 主機、跨網域或不想開放 WinRM（5985/5986）的環境。
+
+| 項目 | WinRM Remoting | SSH Remoting |
+|------|----------------|--------------|
+| 平台 | 以 Windows 為主 | Windows、Linux、macOS |
+| 連接埠 | 5985（HTTP）/ 5986（HTTPS） | 22 |
+| 驗證 | Kerberos、NTLM、憑證 | SSH 金鑰、密碼 |
+| 參數 | `-ComputerName` | `-HostName`、`-UserName`、`-KeyFilePath` |
+| JEA | 支援 | 不支援 |
+
+**設定遠端主機（兩端都要安裝 PowerShell 7 與 OpenSSH）：**
+
+```powershell
+# Windows 遠端主機（系統管理員）
+Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+Set-Service -Name sshd -StartupType Automatic
+Start-Service -Name sshd
+
+# 在 C:\ProgramData\ssh\sshd_config 加入下列一行（路徑不可含空格，所以用 8.3 短檔名）：
+#   Subsystem powershell c:/progra~1/powershell/7/pwsh.exe -sshs -NoLogo
+# Linux 遠端主機則在 /etc/ssh/sshd_config 加入：
+#   Subsystem powershell /usr/bin/pwsh -sshs -NoLogo
+Restart-Service -Name sshd
+```
+
+**連線與執行：**
+
+```powershell
+$session = New-PSSession -HostName 'linux01.contoso.local' -UserName 'ops' -KeyFilePath "$HOME/.ssh/id_ed25519"
+Invoke-Command -Session $session -ScriptBlock {
+    [pscustomobject]@{
+        Host      = [System.Environment]::MachineName
+        OS        = $PSVersionTable.OS
+        PSVersion = $PSVersionTable.PSVersion.ToString()
+    }
+}
+Remove-PSSession -Session $session
+```
+
+**連線失敗時的排查順序：**
+
+1. `Test-NetConnection -ComputerName linux01 -Port 22`（Windows）或 `nc -zv linux01 22`：確認網路可達。
+2. `ssh -v ops@linux01`：確認 SSH 本身可登入、金鑰被接受。
+3. 確認 `sshd_config` 的 `Subsystem powershell` 路徑正確，修改後已重啟 `sshd`。
+4. 遠端執行 `pwsh -sshs -NoLogo` 是否能啟動（路徑錯誤時會立即失敗）。
+
 #### 實務案例和安全考量
 
 **案例：大規模伺服器管理**
@@ -7415,14 +8227,14 @@ function Get-ServerHealthStatus {
     
     $healthData = Invoke-Command -Session $Sessions -ScriptBlock {
         # CPU 使用率
-        $cpu = Get-WmiObject Win32_Processor | Measure-Object -Property LoadPercentage -Average
+        $cpu = Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average
         
         # 記憶體使用率
-        $memory = Get-WmiObject Win32_OperatingSystem
+        $memory = Get-CimInstance Win32_OperatingSystem
         $memoryUsage = [math]::Round((($memory.TotalVisibleMemorySize - $memory.FreePhysicalMemory) / $memory.TotalVisibleMemorySize) * 100, 2)
         
         # 磁碟空間
-        $disks = Get-WmiObject Win32_LogicalDisk | Where-Object DriveType -eq 3 | ForEach-Object {
+        $disks = Get-CimInstance Win32_LogicalDisk | Where-Object DriveType -eq 3 | ForEach-Object {
             [PSCustomObject]@{
                 Drive = $_.DeviceID
                 TotalGB = [math]::Round($_.Size / 1GB, 2)
@@ -7445,10 +8257,10 @@ function Get-ServerHealthStatus {
         }
         
         # 系統正常運行時間
-        $uptime = (Get-Date) - (Get-WmiObject Win32_OperatingSystem).ConvertToDateTime((Get-WmiObject Win32_OperatingSystem).LastBootUpTime)
+        $uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
         
         # 網路介面狀態
-        $networkAdapters = Get-WmiObject Win32_NetworkAdapter | Where-Object NetEnabled -eq $true | ForEach-Object {
+        $networkAdapters = Get-CimInstance Win32_NetworkAdapter | Where-Object NetEnabled -eq $true | ForEach-Object {
             [PSCustomObject]@{
                 Name = $_.Name
                 Status = $_.NetConnectionStatus
@@ -7567,7 +8379,7 @@ function Set-RemotingSecurityPolicy {
 
 ---
 
-## 第 5 部分：認證準備
+## 第 5 部分：安全性與認證準備
 
 ### 13. PowerShell 安全性
 
@@ -7872,6 +8684,8 @@ function Test-ScriptSignature {
 
 **安全認證處理：**
 
+> 重要：本節示範的「金鑰檔 + 加密認證檔」只能防止明文外洩，若金鑰檔與認證檔放在同一台機器、同一權限下，取得其中一個的人通常也能取得另一個。企業環境請優先使用 13.5 節的 SecretManagement（搭配 Azure Key Vault 等集中保管庫）。
+
 ```powershell
 # 認證管理模組
 function New-SecureCredential {
@@ -7894,28 +8708,13 @@ function New-SecureCredential {
     
     Write-Host "已建立認證物件: $fullUsername" -ForegroundColor Green
     
-    # 儲存到 Windows 認證管理員
+    # 儲存到 SecretManagement 保管庫（需先完成 13.5 節的 Register-SecretVault）
     if ($SaveToVault) {
-        try {
-            # 使用 Windows 認證管理員 API
-            $target = "$VaultName`:$fullUsername"
-            $plainPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password))
-            
-            # 這裡需要使用 Windows 認證管理員 API
-            # 或使用第三方模組如 CredentialManager
-            Write-Host "認證已儲存到認證保險庫" -ForegroundColor Yellow
-            
-        } catch {
-            Write-Warning "無法儲存到認證保險庫: $($_.Exception.Message)"
-        } finally {
-            # 清除記憶體中的明文密碼
-            if ($plainPassword) {
-                $plainPassword = $null
-                [System.GC]::Collect()
-            }
-        }
+        $secretName = "$VaultName-$($fullUsername -replace '[\\/:]', '_')"
+        Set-Secret -Name $secretName -Secret $credential -Vault $VaultName
+        Write-Host "認證已儲存到保管庫 $VaultName（名稱：$secretName）" -ForegroundColor Yellow
     }
-    
+
     return $credential
 }
 
@@ -7931,18 +8730,15 @@ function Get-SecureCredential {
     )
     
     if ($FromVault) {
-        try {
-            # 從認證保險庫取得
-            $target = "$VaultName`:$Username"
-            # 這裡需要實作從 Windows 認證管理員取得認證的邏輯
-            Write-Host "從認證保險庫載入認證: $Username" -ForegroundColor Green
-            
-        } catch {
-            Write-Warning "無法從認證保險庫取得認證: $($_.Exception.Message)"
-            Write-Host "將提示輸入認證..." -ForegroundColor Yellow
+        $secretName = "$VaultName-$($Username -replace '[\\/:]', '_')"
+        $stored = Get-Secret -Name $secretName -Vault $VaultName -ErrorAction SilentlyContinue
+        if ($stored -is [PSCredential]) {
+            Write-Host "從保管庫載入認證: $Username" -ForegroundColor Green
+            return $stored
         }
+        Write-Warning "保管庫中沒有 $secretName，改為提示輸入"
     }
-    
+
     # 提示使用者輸入認證
     $credential = Get-Credential -UserName $Username -Message $Message
     
@@ -7978,8 +8774,7 @@ function Protect-ScriptCredentials {
         }
         
         if (-not (Test-Path $KeyFilePath)) {
-            $key = New-Object Byte[] 32
-            [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($key)
+            $key = [System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32)   # .NET 6+；RNGCryptoServiceProvider 已過時
             $key | Out-File $KeyFilePath -Encoding ASCII
             Write-Host "加密金鑰已建立: $KeyFilePath" -ForegroundColor Yellow
         } else {
@@ -8008,7 +8803,7 @@ function Protect-ScriptCredentials {
         # 產生載入認證的範例程式碼
         $loaderCode = @"
 # 載入加密認證的範例程式碼
-function Load-EncryptedCredentials {
+function Import-EncryptedCredential {
     `$keyPath = "$KeyFilePath"
     `$credPath = "$credFilePath"
     
@@ -8030,7 +8825,7 @@ function Load-EncryptedCredentials {
 }
 
 # 使用方式
-# `$creds = Load-EncryptedCredentials
+# `$creds = Import-EncryptedCredential
 # `$myCredential = `$creds["CredentialName"]
 "@
         
@@ -8075,17 +8870,19 @@ function Test-CredentialSecurity {
     if ($ScanForPlaintext) {
         Write-Host "掃描明文認證..." -ForegroundColor Gray
         
+        # 單引號字串內的單引號要寫成兩個單引號（''），不能用 \' 跳脫
         $patterns = @(
-            'password\s*=\s*["\']([^"\']+)["\']',
-            'pwd\s*=\s*["\']([^"\']+)["\']',
-            'secret\s*=\s*["\']([^"\']+)["\']',
-            'apikey\s*=\s*["\']([^"\']+)["\']',
-            'token\s*=\s*["\']([^"\']+)["\']'
+            'password\s*=\s*["'']([^"'']+)["'']',
+            'pwd\s*=\s*["'']([^"'']+)["'']',
+            'secret\s*=\s*["'']([^"'']+)["'']',
+            'apikey\s*=\s*["'']([^"'']+)["'']',
+            'token\s*=\s*["'']([^"'']+)["'']'
         )
-        
+
         foreach ($pattern in $patterns) {
-            $matches = [regex]::Matches($scriptContent, $pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-            foreach ($match in $matches) {
+            # 不要命名為 $matches，那是 -match 使用的自動變數
+            $regexMatches = [regex]::Matches($scriptContent, $pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+            foreach ($match in $regexMatches) {
                 $securityIssues += [PSCustomObject]@{
                     Type = "PlaintextCredential"
                     Description = "發現可能的明文認證"
@@ -8195,261 +8992,168 @@ function Test-CredentialSecurity {
 
 **JEA 端點設定：**
 
+JEA 由兩個檔案組成：**角色能力檔（.psrc）** 定義「能做什麼」，必須放在某個模組資料夾的 `RoleCapabilities` 子目錄；**工作階段設定檔（.pssc）** 定義「誰可以用哪個角色、以什麼身分執行」。以下範例建立一個只能讀取 `C:\Logs` 記錄檔、只能重啟兩個指定服務的端點。
+
 ```powershell
-function New-JEASessionConfiguration {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$ConfigurationName,
-        
-        [Parameter(Mandatory=$true)]
-        [string]$RoleCapabilityPath,
-        
-        [string[]]$AllowedUsers = @(),
-        [string[]]$AllowedGroups = @(),
-        [string]$Description = "",
-        [string]$SessionType = "RestrictedRemoteServer"
+#Requires -RunAsAdministrator
+# 步驟 1：建立承載角色能力的模組（PowerShell 7 端點放在 PowerShell\Modules；5.1 端點放 WindowsPowerShell\Modules）
+$moduleName = 'ContosoJEA'
+$moduleRoot = Join-Path $env:ProgramFiles "PowerShell\Modules\$moduleName"
+New-Item -ItemType Directory -Path (Join-Path $moduleRoot 'RoleCapabilities') -Force | Out-Null
+New-ModuleManifest -Path (Join-Path $moduleRoot "$moduleName.psd1") -ModuleVersion '1.0.0'
+
+# 步驟 2：建立角色能力檔：只公開必要命令，並以 ValidateSet / 自訂函數限制參數
+$roleParams = @{
+    Path                = Join-Path $moduleRoot 'RoleCapabilities\LogOperator.psrc'
+    Description         = '只能讀取 C:\Logs 記錄檔，並重啟 Spooler 或 W32Time 服務'
+    VisibleCmdlets      = @(
+        'Get-Service',
+        @{ Name = 'Restart-Service'; Parameters = @{ Name = 'Name'; ValidateSet = 'Spooler', 'W32Time' } }
     )
-    
-    Write-Host "建立 JEA 工作階段設定..." -ForegroundColor Green
-    Write-Host "設定名稱: $ConfigurationName" -ForegroundColor Gray
-    
-    try {
-        # 建立工作階段設定檔案
-        $configPath = Join-Path $env:TEMP "$ConfigurationName.pssc"
-        
-        $configParams = @{
-            Path = $configPath
-            SessionType = $SessionType
-            RoleDefinitions = @{}
-        }
-        
-        if ($Description) {
-            $configParams.Description = $Description
-        }
-        
-        # 設定角色定義
-        if ($AllowedUsers.Count -gt 0) {
-            foreach ($user in $AllowedUsers) {
-                $configParams.RoleDefinitions[$user] = @{ RoleCapabilities = $RoleCapabilityPath }
+    VisibleFunctions    = 'Read-AllowedLog'
+    FunctionDefinitions = @(
+        @{
+            Name        = 'Read-AllowedLog'
+            ScriptBlock = {
+                param(
+                    [Parameter(Mandatory)][string]$Path,
+                    [ValidateRange(1, 5000)][int]$Tail = 200
+                )
+                # Resolve-Path 會先展開 ..\，避免路徑穿越
+                $full = (Resolve-Path -LiteralPath $Path -ErrorAction Stop).ProviderPath
+                if ($full -notlike 'C:\Logs\*') { throw "不允許存取路徑: $full" }
+                Get-Content -LiteralPath $full -Tail $Tail
             }
         }
-        
-        if ($AllowedGroups.Count -gt 0) {
-            foreach ($group in $AllowedGroups) {
-                $configParams.RoleDefinitions[$group] = @{ RoleCapabilities = $RoleCapabilityPath }
-            }
-        }
-        
-        # 建立設定檔案
-        New-PSSessionConfigurationFile @configParams
-        
-        # 註冊工作階段設定
-        Register-PSSessionConfiguration -Name $ConfigurationName -Path $configPath -Force
-        
-        Write-Host "JEA 工作階段設定已建立並註冊" -ForegroundColor Green
-        Write-Host "設定檔案: $configPath" -ForegroundColor Gray
-        
-        # 測試設定
-        Test-PSSessionConfigurationFile -Path $configPath
-        
-        return @{
-            ConfigurationName = $ConfigurationName
-            ConfigurationPath = $configPath
-            RoleCapabilityPath = $RoleCapabilityPath
-        }
-        
-    } catch {
-        Write-Error "建立 JEA 設定失敗: $($_.Exception.Message)"
-        throw
-    }
-}
-
-function New-JEARoleCapability {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true)]
-        [string]$RoleName,
-        
-        [string[]]$VisibleCmdlets = @(),
-        [string[]]$VisibleFunctions = @(),
-        [string[]]$VisibleAliases = @(),
-        [string[]]$VisibleProviders = @(),
-        [hashtable]$FunctionDefinitions = @{},
-        [string]$ModulesToImport = "",
-        [string]$Description = ""
     )
-    
-    Write-Host "建立 JEA 角色能力..." -ForegroundColor Green
-    Write-Host "角色名稱: $RoleName" -ForegroundColor Gray
-    
-    try {
-        # 建立角色能力目錄
-        $roleCapabilityDir = Join-Path $env:PROGRAMFILES "WindowsPowerShell\Modules\JEARoles\RoleCapabilities"
-        if (-not (Test-Path $roleCapabilityDir)) {
-            New-Item -ItemType Directory -Path $roleCapabilityDir -Force | Out-Null
-        }
-        
-        $roleCapabilityPath = Join-Path $roleCapabilityDir "$RoleName.psrc"
-        
-        $roleParams = @{
-            Path = $roleCapabilityPath
-        }
-        
-        if ($VisibleCmdlets.Count -gt 0) {
-            $roleParams.VisibleCmdlets = $VisibleCmdlets
-        }
-        
-        if ($VisibleFunctions.Count -gt 0) {
-            $roleParams.VisibleFunctions = $VisibleFunctions
-        }
-        
-        if ($VisibleAliases.Count -gt 0) {
-            $roleParams.VisibleAliases = $VisibleAliases
-        }
-        
-        if ($VisibleProviders.Count -gt 0) {
-            $roleParams.VisibleProviders = $VisibleProviders
-        }
-        
-        if ($FunctionDefinitions.Count -gt 0) {
-            $roleParams.FunctionDefinitions = $FunctionDefinitions
-        }
-        
-        if ($ModulesToImport) {
-            $roleParams.ModulesToImport = $ModulesToImport
-        }
-        
-        if ($Description) {
-            $roleParams.Description = $Description
-        }
-        
-        # 建立角色能力檔案
-        New-PSRoleCapabilityFile @roleParams
-        
-        Write-Host "角色能力檔案已建立: $roleCapabilityPath" -ForegroundColor Green
-        
-        # 驗證角色能力檔案
-        Test-PSSessionConfigurationFile -Path $roleCapabilityPath
-        
-        return $roleCapabilityPath
-        
-    } catch {
-        Write-Error "建立角色能力失敗: $($_.Exception.Message)"
-        throw
-    }
 }
+New-PSRoleCapabilityFile @roleParams
 
-# 範例：建立受限制的檔案管理角色
-function New-FileManagementJEARole {
-    [CmdletBinding()]
-    param(
-        [string]$RoleName = "FileManager",
-        [string[]]$AllowedPaths = @("C:\Temp", "C:\Logs")
-    )
-    
-    Write-Host "建立檔案管理 JEA 角色..." -ForegroundColor Green
-    
-    # 建立自訂函數來限制檔案操作
-    $functionDefinitions = @{
-        'Get-AllowedFileContent' = @{
-            ScriptBlock = {
-                param($Path)
-                
-                $allowedPaths = @($using:AllowedPaths)
-                $resolvedPath = Resolve-Path $Path -ErrorAction SilentlyContinue
-                
-                if (-not $resolvedPath) {
-                    throw "路徑不存在: $Path"
-                }
-                
-                $isAllowed = $false
-                foreach ($allowedPath in $allowedPaths) {
-                    if ($resolvedPath.Path.StartsWith($allowedPath, [StringComparison]::OrdinalIgnoreCase)) {
-                        $isAllowed = $true
-                        break
-                    }
-                }
-                
-                if (-not $isAllowed) {
-                    throw "不允許存取路徑: $Path"
-                }
-                
-                Get-Content $resolvedPath.Path
-            }
-        }
-        
-        'Set-AllowedFileContent' = @{
-            ScriptBlock = {
-                param($Path, $Content)
-                
-                $allowedPaths = @($using:AllowedPaths)
-                $directory = Split-Path $Path -Parent
-                
-                if (-not $directory) {
-                    $directory = $Path
-                }
-                
-                $isAllowed = $false
-                foreach ($allowedPath in $allowedPaths) {
-                    if ($directory.StartsWith($allowedPath, [StringComparison]::OrdinalIgnoreCase)) {
-                        $isAllowed = $true
-                        break
-                    }
-                }
-                
-                if (-not $isAllowed) {
-                    throw "不允許在此路徑建立檔案: $Path"
-                }
-                
-                Set-Content -Path $Path -Value $Content
-            }
-        }
-        
-        'Get-AllowedChildItem' = @{
-            ScriptBlock = {
-                param($Path = ".")
-                
-                $allowedPaths = @($using:AllowedPaths)
-                $resolvedPath = Resolve-Path $Path -ErrorAction SilentlyContinue
-                
-                if (-not $resolvedPath) {
-                    throw "路徑不存在: $Path"
-                }
-                
-                $isAllowed = $false
-                foreach ($allowedPath in $allowedPaths) {
-                    if ($resolvedPath.Path.StartsWith($allowedPath, [StringComparison]::OrdinalIgnoreCase)) {
-                        $isAllowed = $true
-                        break
-                    }
-                }
-                
-                if (-not $isAllowed) {
-                    throw "不允許存取路徑: $Path"
-                }
-                
-                Get-ChildItem $resolvedPath.Path
-            }
-        }
-    }
-    
-    # 建立角色能力
-    $roleCapabilityPath = New-JEARoleCapability -RoleName $RoleName -VisibleCmdlets @("Get-Help", "Get-Command", "Measure-Object", "Select-Object", "Where-Object") -VisibleFunctions @("Get-AllowedFileContent", "Set-AllowedFileContent", "Get-AllowedChildItem") -FunctionDefinitions $functionDefinitions -Description "受限制的檔案管理操作"
-    
-    Write-Host "檔案管理 JEA 角色已建立" -ForegroundColor Green
-    Write-Host "允許的路徑: $($AllowedPaths -join ', ')" -ForegroundColor Gray
-    
-    return $roleCapabilityPath
-}
+# 步驟 3：建立並驗證工作階段設定檔（RoleCapabilities 填「角色名稱」，不是檔案路徑）
+$psscPath = Join-Path $env:TEMP 'LogOperator.pssc'
+New-PSSessionConfigurationFile -Path $psscPath `
+    -SessionType RestrictedRemoteServer `
+    -RunAsVirtualAccount `
+    -TranscriptDirectory 'C:\ProgramData\JEA\Transcripts' `
+    -RoleDefinitions @{ 'CONTOSO\LogOperators' = @{ RoleCapabilities = 'LogOperator' } }
 
-# 使用範例
-# $roleCapability = New-FileManagementJEARole -AllowedPaths @("C:\Temp", "C:\Logs")
-# $jeaConfig = New-JEASessionConfiguration -ConfigurationName "FileManagement" -RoleCapabilityPath $roleCapability -AllowedGroups @("DOMAIN\FileManagers")
+if (-not (Test-PSSessionConfigurationFile -Path $psscPath)) { throw 'pssc 檔驗證失敗' }
 
-# 測試 JEA 端點
-# Enter-PSSession -ComputerName localhost -ConfigurationName FileManagement
+# 步驟 4：註冊端點（會重啟 WinRM，請在維護時段執行）
+Register-PSSessionConfiguration -Name 'LogOperator' -Path $psscPath -Force
+
+# 步驟 5：驗證——檢視指定使用者實際取得的命令清單，再以該身分連線測試
+Get-PSSessionCapability -ConfigurationName 'LogOperator' -Username 'CONTOSO\alice'
+# Enter-PSSession -ComputerName localhost -ConfigurationName LogOperator
+#   Read-AllowedLog -Path C:\Logs\app.log -Tail 20      # 應成功
+#   Read-AllowedLog -Path C:\Windows\win.ini            # 應被拒絕
+#   Restart-Service -Name WinRM                         # 應因 ValidateSet 失敗
 ```
+
+**JEA 審查要點：**
+
+| 檢查項目 | 不合格的徵兆 | 驗證方式 |
+|----------|--------------|----------|
+| 是否公開了可執行任意程式碼的命令 | `VisibleCmdlets` 含 `Invoke-Expression`、`Start-Process`、`New-Object`、`Add-Type`、`*` | 讀 .psrc；用 `Get-PSSessionCapability` 列出實際命令 |
+| 參數是否受限 | 只寫命令名稱，未限制 `Parameters` | 嘗試帶入範圍外的參數值，應被拒絕 |
+| 執行身分 | 使用固定的網域管理員帳號 | .pssc 應為 `RunAsVirtualAccount` 或 gMSA |
+| 稽核 | 未設定 `TranscriptDirectory` | 連線操作後確認逐字稿已產生 |
+
+#### 13.4 稽核記錄與執行期防護
+
+**觀念先釐清：** 執行原則（Execution Policy）只防止「不小心」執行腳本，使用者可用 `-ExecutionPolicy Bypass` 輕易略過，**不是資安邊界**。真正的防護來自下列機制的組合：
+
+| 機制 | 作用 | 設定方式 |
+|------|------|----------|
+| Script Block Logging | 記錄實際執行的程式碼（含解混淆後內容），事件 ID 4104 | GPO 或 `powershell.config.json` |
+| Module Logging | 記錄指定模組的管線執行細節，事件 ID 4103 | GPO 或 `powershell.config.json` |
+| Transcription | 把整個工作階段的輸入輸出寫成文字檔 | GPO 或 `powershell.config.json` |
+| AMSI | 讓防毒引擎在執行前掃描腳本內容 | Windows 內建，無需設定 |
+| App Control for Business（WDAC）/ AppLocker | 未核准的腳本自動進入 Constrained Language Mode | 由端點管理政策部署 |
+
+**PowerShell 7 以 `powershell.config.json` 設定（放在 `$PSHOME`，影響所有使用者）：**
+
+```json
+{
+  "PowerShellPolicies": {
+    "ScriptBlockLogging": {
+      "EnableScriptBlockLogging": true,
+      "EnableScriptBlockInvocationLogging": false
+    },
+    "Transcription": {
+      "EnableTranscripting": true,
+      "EnableInvocationHeader": true,
+      "OutputDirectory": "C:\\PSTranscripts"
+    }
+  }
+}
+```
+
+> Windows 上 PowerShell 7 與 5.1 的 GPO 路徑不同：7 為「系統管理範本 > PowerShell Core」（需匯入 `$PSHOME` 內的 ADMX），5.1 為「Windows 元件 > Windows PowerShell」。PowerShell 7 的事件提供者需在安裝時註冊（MSI 的 `REGISTER_MANIFEST=1`，或執行 `$PSHOME\RegisterManifest.ps1`）。
+
+**驗證記錄是否生效：**
+
+```powershell
+# 執行一段可辨識的程式碼
+Write-Output 'audit-test-20261125' | Out-Null
+
+# 查詢 PowerShell 7 的 Script Block Logging 事件（5.1 改查 Microsoft-Windows-PowerShell/Operational）
+Get-WinEvent -FilterHashtable @{ LogName = 'PowerShellCore/Operational'; Id = 4104 } -MaxEvents 50 |
+    Where-Object { $_.Properties[2].Value -like '*audit-test-20261125*' } |
+    Select-Object TimeCreated, @{ n = 'ScriptBlock'; e = { $_.Properties[2].Value } }
+
+# 確認目前的語言模式（受 App Control 管控的主機上，未核准腳本應為 ConstrainedLanguage）
+$ExecutionContext.SessionState.LanguageMode
+```
+
+**審查要點：**
+
+- 記錄與 Transcript 可能包含機密，存放位置要限制權限並集中轉送到 SIEM。
+- 不要用環境變數 `__PSLockdownPolicy` 當作正式的 Constrained Language Mode 機制，它只適合測試。
+- 偵測規則可針對 4104 事件中的 `Invoke-Expression`、`FromBase64String`、`DownloadString` 等關鍵字告警。
+
+#### 13.5 秘密管理：SecretManagement 與 SecretStore
+
+**Microsoft.PowerShell.SecretManagement**（1.1.2）提供統一的 `Get-Secret` / `Set-Secret` 介面，背後可以換成不同保管庫：本機的 **SecretStore**、Azure Key Vault（`Az.KeyVault`）或第三方擴充。腳本只寫秘密名稱，不必知道秘密存在哪裡。
+
+```powershell
+# 安裝與註冊本機保管庫
+Install-PSResource -Name Microsoft.PowerShell.SecretManagement, Microsoft.PowerShell.SecretStore -Scope CurrentUser -TrustRepository
+Register-SecretVault -Name LocalStore -ModuleName Microsoft.PowerShell.SecretStore -DefaultVault
+
+# 互動式使用者：以密碼保護保管庫，閒置 15 分鐘後需重新輸入
+Set-SecretStoreConfiguration -Scope CurrentUser -Authentication Password -PasswordTimeout 900 -Interaction Prompt
+
+# 寫入與讀取（Get-Secret 預設回傳 SecureString）
+Set-Secret -Name ApiToken -Secret (Read-Host -Prompt '輸入 API Token' -AsSecureString)
+$token = Get-Secret -Name ApiToken
+Invoke-RestMethod -Uri 'https://api.example.com/v1/me' -Authentication Bearer -Token $token
+
+# 只列出中繼資料，不會顯示秘密內容
+Get-SecretInfo | Select-Object Name, Type, VaultName
+```
+
+**改用 Azure Key Vault（腳本內容不變，只換保管庫）：**
+
+```powershell
+Install-PSResource -Name Az.KeyVault -Scope CurrentUser -TrustRepository
+Register-SecretVault -Name CorpKeyVault -ModuleName Az.KeyVault -VaultParameters @{
+    AZKVaultName   = 'kv-contoso-prod'
+    SubscriptionId = '00000000-0000-0000-0000-000000000000'
+}
+Get-Secret -Name ApiToken -Vault CorpKeyVault
+```
+
+**各情境的秘密來源建議：**
+
+| 情境 | 建議做法 | 避免 |
+|------|----------|------|
+| 互動式管理 | SecretStore（密碼保護） | 把密碼寫在 `$PROFILE` |
+| 伺服器排程工作 | 受控識別或 gMSA 搭配 Azure Key Vault | 把金鑰檔放在腳本旁邊 |
+| CI/CD | 平台的祕密變數或 OIDC 同盟身分 | 把 Token 寫進 YAML 或腳本 |
+| 單機、僅 Windows | `ConvertFrom-SecureString`（無 `-Key` 時使用 DPAPI，綁定使用者與電腦） | 以 `-AsPlainText` 產生 SecureString |
+
+**驗證：** 以 `Select-String -Path .\*.ps1 -Pattern 'AsPlainText|password\s*='` 掃描腳本，結果應為空；另以 13.2 節的 `Test-CredentialSecurity` 做更完整的檢查。
 
 **檢查清單：**
 
@@ -8468,7 +9172,15 @@ function New-FileManagementJEARole {
 
 #### 14.1 Microsoft PowerShell 認證概覽
 
-Microsoft 提供多種與 PowerShell 相關的認證考試，主要包括在 Azure、Windows Server 和 Microsoft 365 管理領域。
+Microsoft **沒有獨立的「PowerShell 認證」**；PowerShell 是多個角色型認證的必備技能，主要分布在 Azure、Windows Server、Microsoft 365 與資安領域。以下為 2026-11-25 依 Microsoft Learn 認證頁面整理的現況（考試會改版或退役，報名前請再確認官方頁面）。
+
+| 認證 | 考試 | PowerShell 相關技能 | 狀態（2026-11-25） |
+|------|------|---------------------|--------------------|
+| Azure Administrator Associate | AZ-104 | Az 模組、資源與身分治理、自動化 | 有效；每 12 個月線上免費續證 |
+| Windows Server Administrator Associate | AZ-802 | AD DS、混合管理、Azure Arc、Windows Admin Center | 有效；認證頁面目前列出的考試為 AZ-802 |
+| Microsoft 365 Administrator Expert | MS-102 | Microsoft Graph PowerShell、Exchange Online、Microsoft Entra | **將於 2026-11-30 退役**，之後無法取得或續證 |
+| DevOps Engineer Expert | AZ-400 | CI/CD 管線中的 PowerShell 任務、IaC | 請以官方頁面確認 |
+| Security Operations Analyst Associate | SC-200 | Microsoft Sentinel、Defender XDR 自動化 | 請以官方頁面確認 |
 
 **主要認證路徑：**
 
@@ -8490,8 +9202,8 @@ function Get-PowerShellCertificationInfo {
                 PowerShellTopics = @("Azure PowerShell", "Azure Cloud Shell", "ARM Templates", "自動化腳本")
                 DifficultyLevel = "Associate"
                 EstimatedStudyHours = 40
-                ExpirationYears = 2
-                URL = "https://docs.microsoft.com/certifications/azure-administrator/"
+                RenewalMonths = 12
+                URL = "https://learn.microsoft.com/credentials/certifications/azure-administrator/"
             },
             [PSCustomObject]@{
                 ExamCode = "AZ-400"
@@ -8500,34 +9212,34 @@ function Get-PowerShellCertificationInfo {
                 PowerShellTopics = @("CI/CD 管道", "基礎架構即程式碼", "自動化部署", "監控和日誌")
                 DifficultyLevel = "Expert"
                 EstimatedStudyHours = 60
-                ExpirationYears = 2
-                URL = "https://docs.microsoft.com/certifications/devops-engineer/"
+                RenewalMonths = 12
+                URL = "https://learn.microsoft.com/credentials/certifications/devops-engineer/"
             }
         )
         
         "WindowsServer" = @(
             [PSCustomObject]@{
-                ExamCode = "AZ-801"
-                Title = "Configuring Windows Server Hybrid Advanced Services"
-                Description = "Windows Server 進階服務設定"
-                PowerShellTopics = @("Windows Server 管理", "Hyper-V", "儲存管理", "網路設定")
+                ExamCode = "AZ-802"
+                Title = "Windows Server Administrator"
+                Description = "Windows Server 地端與混合環境管理"
+                PowerShellTopics = @("AD DS 管理", "Azure Arc", "儲存與檔案服務", "監控與疑難排解")
                 DifficultyLevel = "Associate"
                 EstimatedStudyHours = 45
-                ExpirationYears = 2
-                URL = "https://docs.microsoft.com/certifications/windows-server-hybrid-administrator/"
+                RenewalMonths = 12
+                URL = "https://learn.microsoft.com/credentials/certifications/windows-server-hybrid-administrator/"
             }
         )
         
         "Microsoft365" = @(
             [PSCustomObject]@{
-                ExamCode = "MS-100"
-                Title = "Microsoft 365 Identity and Services"
-                Description = "Microsoft 365 身分識別和服務管理"
-                PowerShellTopics = @("Exchange Online PowerShell", "Azure AD PowerShell", "Teams PowerShell", "SharePoint Online")
+                ExamCode = "MS-102"
+                Title = "Microsoft 365 Administrator（2026-11-30 退役）"
+                Description = "Microsoft 365 租用戶、身分與安全管理"
+                PowerShellTopics = @("Microsoft Graph PowerShell", "Exchange Online PowerShell", "Microsoft Teams PowerShell", "Microsoft Entra")
                 DifficultyLevel = "Expert"
                 EstimatedStudyHours = 50
-                ExpirationYears = 2
-                URL = "https://docs.microsoft.com/certifications/m365-enterprise-administrator/"
+                RenewalMonths = 12
+                URL = "https://learn.microsoft.com/credentials/certifications/m365-enterprise-administrator/"
             }
         )
         
@@ -8539,8 +9251,8 @@ function Get-PowerShellCertificationInfo {
                 PowerShellTopics = @("Microsoft Sentinel", "威脅獵捕", "安全性自動化", "事件回應")
                 DifficultyLevel = "Associate"
                 EstimatedStudyHours = 35
-                ExpirationYears = 2
-                URL = "https://docs.microsoft.com/certifications/security-operations-analyst/"
+                RenewalMonths = 12
+                URL = "https://learn.microsoft.com/credentials/certifications/security-operations-analyst/"
             }
         )
     }
@@ -8598,7 +9310,7 @@ function New-StudyPlan {
     Write-Host "可用學習時間: $totalHours 小時 ($WeeksToExam 週 × $HoursPerWeek 小時/週)" -ForegroundColor Gray
     Write-Host "建議學習時間: $recommendedHours 小時" -ForegroundColor Gray
     
-    if ($totalHours < $recommendedHours) {
+    if ($totalHours -lt $recommendedHours) {   # PowerShell 比較要用 -lt，< 是重新導向符號
         Write-Warning "可用時間可能不足，建議增加每週學習時間或延後考試日期"
     }
     
@@ -8997,7 +9709,7 @@ function Start-CertificationPracticeExam {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
-        [ValidateSet("AZ-104", "AZ-400", "MS-100", "SC-200")]
+        [ValidateSet("AZ-104", "AZ-400", "AZ-802", "SC-200")]
         [string]$ExamCode,
         
         [int]$QuestionCount = 50,
@@ -9040,21 +9752,21 @@ function Get-ExamStrategy {
     Write-Host "=" * 50 -ForegroundColor Green
     
     # 時間管理策略
-    Write-Host "`n⏰ 時間管理策略:" -ForegroundColor Yellow
+    Write-Host "`n時間管理策略:" -ForegroundColor Yellow
     Write-Host "• 平均每題分配時間：2-3 分鐘" -ForegroundColor Gray
     Write-Host "• 預留 15-20 分鐘檢查答案" -ForegroundColor Gray
     Write-Host "• 不要在困難題目上花費過多時間" -ForegroundColor Gray
     Write-Host "• 先完成簡單題目，建立信心" -ForegroundColor Gray
     
     # 答題技巧
-    Write-Host "`n📝 答題技巧:" -ForegroundColor Yellow
+    Write-Host "`n答題技巧:" -ForegroundColor Yellow
     Write-Host "• 仔細閱讀題目，注意關鍵字" -ForegroundColor Gray
     Write-Host "• 排除明顯錯誤的選項" -ForegroundColor Gray
     Write-Host "• 注意題目中的否定詞 (NOT, EXCEPT)" -ForegroundColor Gray
     Write-Host "• 選擇最佳答案，而非僅僅正確的答案" -ForegroundColor Gray
     
     # PowerShell 特定策略
-    Write-Host "`n💻 PowerShell 考試特定策略:" -ForegroundColor Yellow
+    Write-Host "`nPowerShell 考試特定策略:" -ForegroundColor Yellow
     Write-Host "• 熟悉常用 Cmdlet 的語法和參數" -ForegroundColor Gray
     Write-Host "• 理解管道的工作原理和最佳實務" -ForegroundColor Gray
     Write-Host "• 掌握錯誤處理和除錯技巧" -ForegroundColor Gray
@@ -9064,7 +9776,7 @@ function Get-ExamStrategy {
     # 複習計畫
     $phaseDays = [math]::Ceiling($DaysUntilExam / 3)
     
-    Write-Host "`n📚 $DaysUntilExam 天複習計畫:" -ForegroundColor Yellow
+    Write-Host "`n$DaysUntilExam 天複習計畫:" -ForegroundColor Yellow
     
     Write-Host "`n第一階段 (1-$phaseDays 天) - 基礎鞏固:" -ForegroundColor Cyan
     Write-Host "• 複習 PowerShell 核心概念" -ForegroundColor Gray
@@ -9082,7 +9794,7 @@ function Get-ExamStrategy {
     Write-Host "• 準備考試當天的策略" -ForegroundColor Gray
     
     # 考試當天建議
-    Write-Host "`n🎯 考試當天建議:" -ForegroundColor Yellow
+    Write-Host "`n考試當天建議:" -ForegroundColor Yellow
     Write-Host "• 確保充足的休息和健康的早餐" -ForegroundColor Gray
     Write-Host "• 提早到達考場，熟悉環境" -ForegroundColor Gray
     Write-Host "• 攜帶必要的身分證明文件" -ForegroundColor Gray
@@ -9090,7 +9802,7 @@ function Get-ExamStrategy {
     Write-Host "• 相信自己的準備和能力" -ForegroundColor Gray
     
     # 資源清單
-    Write-Host "`n📖 推薦學習資源:" -ForegroundColor Yellow
+    Write-Host "`n推薦學習資源:" -ForegroundColor Yellow
     Write-Host "• Microsoft Learn - 官方免費課程" -ForegroundColor Gray
     Write-Host "• Microsoft 文件中心" -ForegroundColor Gray
     Write-Host "• PowerShell.org - 社群資源" -ForegroundColor Gray
@@ -9234,7 +9946,7 @@ function Show-StudyProgress {
     Write-Host "總學習時數: $($tracker.TotalStudyHours) 小時" -ForegroundColor Gray
     Write-Host "最後更新: $($tracker.LastUpdated)" -ForegroundColor Gray
     
-    Write-Host "`n📊 主題進度:" -ForegroundColor Yellow
+    Write-Host "`n主題進度:" -ForegroundColor Yellow
     $tracker.Topics | ForEach-Object {
         $statusColor = switch ($_.Status) {
             "NotStarted" { "Red" }
@@ -9259,7 +9971,7 @@ function Show-StudyProgress {
         }
     }
     
-    Write-Host "`n📈 進度統計:" -ForegroundColor Yellow
+    Write-Host "`n進度統計:" -ForegroundColor Yellow
     $stats | Format-Table Status, Count, Percentage -AutoSize
     
     return $tracker
@@ -9285,7 +9997,7 @@ function Show-StudyProgress {
 
 ---
 
-## 第 6 部分：附錄與參考資料
+## 第 6 部分：維運、企業應用與附錄
 
 ### 15. 故障排除和除錯技巧
 
@@ -9357,9 +10069,9 @@ function Start-PowerShellDiagnostics {
         try {
             $diagnostics.SystemInfo = [PSCustomObject]@{
                 ComputerName = $env:COMPUTERNAME
-                OperatingSystem = (Get-WmiObject Win32_OperatingSystem).Caption
-                TotalMemoryGB = [math]::Round((Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 2)
-                ProcessorCount = (Get-WmiObject Win32_Processor).Count
+                OperatingSystem = (Get-CimInstance Win32_OperatingSystem).Caption
+                TotalMemoryGB = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 2)
+                ProcessorCount = (Get-CimInstance Win32_Processor).Count
                 DotNetVersions = Get-ChildItem "HKLM:SOFTWARE\Microsoft\NET Framework Setup\NDP" -Recurse | Get-ItemProperty -Name Version -ErrorAction SilentlyContinue | Select-Object Version
                 PowerShellHosts = Get-Process | Where-Object ProcessName -Match "powershell|pwsh" | Select-Object Id, ProcessName, StartTime, WorkingSet64
             }
@@ -9398,14 +10110,13 @@ function Start-PowerShellDiagnostics {
             }
         }
         
-        # 檢查損壞的模組
-        $allModules = Get-Module -ListAvailable
+        # 檢查模組資訊清單是否有效（只驗證 .psd1，不實際匯入所有模組，避免觸發大量初始化程式碼）
+        $allModules = Get-Module -ListAvailable | Where-Object { $_.Path -like '*.psd1' }
         foreach ($module in $allModules) {
             try {
-                Import-Module $module.Name -Force -ErrorAction Stop
-                Remove-Module $module.Name -Force -ErrorAction SilentlyContinue
+                $null = Test-ModuleManifest -Path $module.Path -ErrorAction Stop
             } catch {
-                $diagnostics.Issues += "模組 $($module.Name) 可能已損壞: $($_.Exception.Message)"
+                $diagnostics.Issues += "模組 $($module.Name) 資訊清單異常: $($_.Exception.Message)"
             }
         }
     }
@@ -9476,7 +10187,7 @@ function Start-PowerShellDiagnostics {
         
         # 檢查防毒軟體
         try {
-            $antivirus = Get-WmiObject -Namespace "root\SecurityCenter2" -Class "AntiVirusProduct" -ErrorAction SilentlyContinue
+            $antivirus = Get-CimInstance -Namespace "root\SecurityCenter2" -Class "AntiVirusProduct" -ErrorAction SilentlyContinue
             if ($antivirus) {
                 $securityStatus.AntivirusStatus = $antivirus | Select-Object displayName, productState
             }
@@ -9637,7 +10348,7 @@ $servers | ForEach-Object -Parallel {
             )
             CodeExample = @'
 # 記憶體管理最佳實務
-function Process-LargeDataSet {
+function Invoke-LargeDataSetProcessing {
     try {
         $largeData = Get-SomeLargeData
         # 處理資料...
@@ -9666,7 +10377,7 @@ Write-Host "Memory usage: $([math]::Round($process.WorkingSet64 / 1MB, 2)) MB"
     foreach ($solutionKey in $targetSolutions) {
         $solution = $solutions[$solutionKey]
         
-        Write-Host "`n🔧 $($solution.Problem)" -ForegroundColor Yellow
+        Write-Host "`n$($solution.Problem)" -ForegroundColor Yellow
         Write-Host "症狀:" -ForegroundColor Cyan
         $solution.Symptoms | ForEach-Object { Write-Host "  • $_" -ForegroundColor Gray }
         
@@ -9786,10 +10497,10 @@ function Measure-PowerShellPerformance {
             try {
                 $output = & $ScriptBlock
                 $success = $true
-                $error = $null
+                $errorMessage = $null
             } catch {
                 $success = $false
-                $error = $_.Exception.Message
+                $errorMessage = $_.Exception.Message
                 $output = $null
             }
         }
@@ -9809,7 +10520,7 @@ function Measure-PowerShellPerformance {
             CPUBefore = $beforeCPU
             CPUAfter = $afterCPU
             CPUDelta = $afterCPU - $beforeCPU
-            Error = $error
+            Error = $errorMessage   # $Error 是自動變數，不可覆寫
             Output = $output
             Timestamp = Get-Date
         }
@@ -9838,9 +10549,9 @@ function Measure-PowerShellPerformance {
         TotalRuns = $Iterations
         SuccessfulRuns = $successfulRuns.Count
         FailedRuns = $Iterations - $successfulRuns.Count
-        AverageTime = [TimeSpan]::FromTicks(($successfulRuns | Measure-Object -Property { $_.ExecutionTime.Ticks } -Average).Average)
-        MinTime = ($successfulRuns | Measure-Object -Property { $_.ExecutionTime.Ticks } -Minimum).Minimum
-        MaxTime = ($successfulRuns | Measure-Object -Property { $_.ExecutionTime.Ticks } -Maximum).Maximum
+        AverageTime = [TimeSpan]::FromTicks([long]($successfulRuns.ExecutionTime.Ticks | Measure-Object -Average).Average)
+        MinTime = [long]($successfulRuns.ExecutionTime.Ticks | Measure-Object -Minimum).Minimum
+        MaxTime = [long]($successfulRuns.ExecutionTime.Ticks | Measure-Object -Maximum).Maximum
         TotalMemoryDelta = ($successfulRuns | Measure-Object -Property MemoryDelta -Sum).Sum
         AverageMemoryDelta = ($successfulRuns | Measure-Object -Property MemoryDelta -Average).Average
     }
@@ -9949,17 +10660,17 @@ function Show-PerformanceOptimizationExamples {
     Write-Host "==========================" -ForegroundColor Green
     
     # 範例 1: 管道最佳化
-    Write-Host "`n📈 範例 1: 管道最佳化" -ForegroundColor Yellow
+    Write-Host "`n範例 1: 管道最佳化" -ForegroundColor Yellow
     
     $testData = 1..10000
     
     $scripts = @{
-        "低效的 Where-Object" = {
+        "管線 Where-Object" = {
             $testData | Where-Object { $_ % 2 -eq 0 }
         }
         
-        "高效的 Where-Object" = {
-            $testData | Where-Object { $_ % 2 -eq 0 }
+        "foreach 陳述式直接輸出" = {
+            foreach ($n in $testData) { if ($n % 2 -eq 0) { $n } }
         }
         
         "最佳化的篩選" = {
@@ -9990,7 +10701,7 @@ function Show-PerformanceOptimizationExamples {
     $comparison = Compare-ScriptPerformance -Scripts $scripts -Iterations 3
     
     # 範例 2: 字串操作最佳化
-    Write-Host "`n📈 範例 2: 字串操作最佳化" -ForegroundColor Yellow
+    Write-Host "`n範例 2: 字串操作最佳化" -ForegroundColor Yellow
     
     $stringScripts = @{
         "字串串接 (+=)" = {
@@ -10020,7 +10731,7 @@ function Show-PerformanceOptimizationExamples {
     Compare-ScriptPerformance -Scripts $stringScripts -Iterations 3 -ShowRecommendations
     
     # 效能提示
-    Write-Host "`n💡 效能最佳化提示:" -ForegroundColor Cyan
+    Write-Host "`n效能最佳化提示:" -ForegroundColor Cyan
     $tips = @(
         "使用 .Where() 和 .ForEach() 方法而非管道",
         "避免在迴圈中使用 += 串接字串",
@@ -10040,6 +10751,71 @@ function Show-PerformanceOptimizationExamples {
 # 使用範例
 # Show-PerformanceOptimizationExamples
 ```
+
+#### 15.3 從 Windows PowerShell 5.1 遷移到 PowerShell 7
+
+PowerShell 7 與 5.1 可在同一台 Windows 並存。遷移的重點不是「安裝新版」，而是**找出不相容的程式碼並以測試證明行為一致**。
+
+**步驟 1：以 AST 掃描找出已移除或過時的命令（比文字搜尋準確，不會誤判註解）**
+
+```powershell
+$legacy = @(
+    'Get-WmiObject', 'Invoke-WmiMethod', 'Set-WmiInstance', 'Remove-WmiObject', 'Register-WmiEvent',
+    'Get-EventLog', 'Write-EventLog', 'New-EventLog', 'Send-MailMessage', 'New-WebServiceProxy',
+    'Add-PSSnapin', 'Get-PSSnapin', 'ConvertFrom-String'
+)
+
+Get-ChildItem -Path ./Scripts -Recurse -Include *.ps1, *.psm1 | ForEach-Object {
+    $file = $_
+    $ast = [System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$null, [ref]$null)
+    $ast.FindAll({
+        param($node)
+        $node -is [System.Management.Automation.Language.CommandAst] -and $node.GetCommandName() -in $legacy
+    }, $true) | ForEach-Object {
+        [pscustomobject]@{
+            File    = $file.Name
+            Line    = $_.Extent.StartLineNumber
+            Command = $_.GetCommandName()
+        }
+    }
+}
+```
+
+**步驟 2：處理常見差異**
+
+| 差異 | 5.1 行為 | 7.x 行為 | 處置 |
+|------|----------|----------|------|
+| 預設檔案編碼 | `Out-File`/`>` 為 UTF-16LE；`Set-Content` 為系統字碼頁 | 一律 UTF-8 無 BOM | 寫檔一律指定 `-Encoding` |
+| WMI cmdlet | 可用 | 原生不提供（Windows 上可能經相容性層緩慢代理執行） | 改用 CIM（9.4 節） |
+| 工作流程（Workflow） | 可用 | 已移除 | 改用 `ForEach-Object -Parallel` 或 Runbook |
+| 僅支援 5.1 的模組 | 可用 | 可能無法載入 | `Import-Module <名稱> -UseWindowsPowerShell`（透過 5.1 子程序代理） |
+| `Test-Connection` 輸出屬性 | `ResponseTime` | `Latency` | 修改屬性名稱 |
+| 新運算子 | 不支援 | 支援 | 7 專屬語法加 `#Requires -Version 7.0` |
+
+```powershell
+# 編碼差異示範：同一行在兩個版本產生不同位元組
+'測試' | Out-File -FilePath ./a.txt
+[System.IO.File]::ReadAllBytes((Resolve-Path ./a.txt))[0..3]   # 5.1：255 254 ...（UTF-16LE BOM）；7：230 184 ...（UTF-8）
+
+# 明確指定才能讓兩邊一致（5.1 的 UTF8 含 BOM；7 用 utf8BOM 取得相同結果）
+'測試' | Out-File -FilePath ./a.txt -Encoding utf8BOM           # PowerShell 7
+```
+
+**步驟 3：雙版本測試**
+
+```powershell
+# 同一組 Pester 測試分別在兩個版本執行，比對結果
+powershell.exe -NoProfile -Command "Invoke-Pester -Path ./tests -Output Normal"
+pwsh -NoProfile -Command "Invoke-Pester -Path ./tests -Output Normal"
+```
+
+**遷移完成標準：**
+
+- [ ] AST 掃描結果為空，或每個例外都有記錄核准原因
+- [ ] PSScriptAnalyzer（含 `PSUseCompatibleSyntax`）無 Error
+- [ ] Pester 測試在 PowerShell 7.6 全數通過
+- [ ] 排程工作、服務帳號的執行檔已改為 `pwsh.exe`
+- [ ] 記錄與稽核設定（13.4 節）已套用到 PowerShell 7
 
 **檢查清單：**
 
@@ -10287,9 +11063,9 @@ class EnterpriseInfrastructureManager {
                         [PSCustomObject]@{
                             ComputerName = $env:COMPUTERNAME
                             Status = "Online"
-                            CPU = (Get-WmiObject Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average
-                            Memory = [math]::Round(((Get-WmiObject Win32_OperatingSystem).TotalVisibleMemorySize - (Get-WmiObject Win32_OperatingSystem).FreePhysicalMemory) / (Get-WmiObject Win32_OperatingSystem).TotalVisibleMemorySize * 100, 2)
-                            DiskSpace = Get-WmiObject Win32_LogicalDisk | Where-Object DriveType -eq 3 | ForEach-Object {
+                            CPU = (Get-CimInstance Win32_Processor | Measure-Object -Property LoadPercentage -Average).Average
+                            Memory = [math]::Round(((Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize - (Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory) / (Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize * 100, 2)
+                            DiskSpace = Get-CimInstance Win32_LogicalDisk | Where-Object DriveType -eq 3 | ForEach-Object {
                                 [PSCustomObject]@{
                                     Drive = $_.DeviceID
                                     UsedPercentage = [math]::Round((($_.Size - $_.FreeSpace) / $_.Size) * 100, 2)
@@ -10471,7 +11247,8 @@ class EnterpriseInfrastructureManager {
         # Start-Process $reportPath
     }
     
-    [void] StartContinuousMonitoring([int]$intervalMinutes = 15) {
+    # 類別方法不支援參數預設值，呼叫時必須傳入間隔分鐘數
+    [void] StartContinuousMonitoring([int]$intervalMinutes) {
         Write-Host "啟動持續監控（間隔：$intervalMinutes 分鐘）..." -ForegroundColor Green
         
         $this.MonitoringTasks["HealthCheck"] = Register-ScheduledJob -Name "InfrastructureHealthCheck" -ScriptBlock {
@@ -10539,187 +11316,132 @@ function New-EnterpriseInfrastructureDemo {
 }
 ```
 
+> **16.1 範例的適用範圍：** `Register-ScheduledJob` 屬於 PSScheduledJob 模組，只能在 Windows PowerShell 5.1 使用；在 PowerShell 7 請改用 `Register-ScheduledTask`（10.3 節）。此外，PowerShell 類別定義不會自動帶入背景工作的 runspace，若要在排程中使用 `EnterpriseInfrastructureManager`，需把類別放進模組並在排程腳本開頭 `using module`。`Get-ADComputer` 需要 RSAT 的 ActiveDirectory 模組。
+
 #### 16.2 PowerShell DSC 進階應用
 
 **Desired State Configuration 的企業級實作：**
 
 ```powershell
-# 企業級 DSC 設定管理
+# 企業級 DSC 設定管理（DSC v1/v2 Configuration：請在 Windows PowerShell 5.1 編譯與套用）
+# 資源模組：WebAdministrationDsc、NetworkingDsc（取代已封存的 xWebAdministration、xNetworking）
+#   Install-Module -Name WebAdministrationDsc, NetworkingDsc -Scope AllUsers
 Configuration EnterpriseWebServerConfiguration {
     param(
         [Parameter(Mandatory=$true)]
         [string[]]$ComputerName,
-        
-        [Parameter(Mandatory=$true)]
-        [PSCredential]$AdminCredential,
-        
-        [string]$WebSiteName = "Default Web Site",
-        [string]$WebSitePath = "C:\inetpub\wwwroot",
-        [string]$ApplicationPoolName = "DefaultAppPool",
+
+        [string]$WebSiteName = "CorporateSite",
+        [string]$WebSitePath = "C:\inetpub\corporate",
+        [string]$ApplicationPoolName = "CorporateAppPool",
         [hashtable]$SecuritySettings = @{}
     )
-    
+
     Import-DscResource -ModuleName PSDesiredStateConfiguration
-    Import-DscResource -ModuleName xWebAdministration
-    Import-DscResource -ModuleName xPSDesiredStateConfiguration
-    
+    Import-DscResource -ModuleName WebAdministrationDsc
+    Import-DscResource -ModuleName NetworkingDsc
+
     Node $ComputerName {
-        
-        # 確保 IIS 功能已安裝
+
+        # WindowsFeature 使用 Server 功能名稱（Get-WindowsFeature 可查），不是 DISM 的 IIS-* 名稱
         WindowsFeature IIS {
             Ensure = "Present"
-            Name = "IIS-WebServerRole"
+            Name   = "Web-Server"
         }
-        
+
         WindowsFeature IISManagement {
-            Ensure = "Present"
-            Name = "IIS-ManagementConsole"
+            Ensure    = "Present"
+            Name      = "Web-Mgmt-Console"
             DependsOn = "[WindowsFeature]IIS"
         }
-        
+
         WindowsFeature ASPNET45 {
-            Ensure = "Present"
-            Name = "IIS-ASPNET45"
+            Ensure    = "Present"
+            Name      = "Web-Asp-Net45"
             DependsOn = "[WindowsFeature]IIS"
         }
-        
-        # 設定應用程式集區
-        xWebAppPool $ApplicationPoolName {
-            Ensure = "Present"
-            Name = $ApplicationPoolName
-            State = "Started"
-            managedRuntimeVersion = "v4.0"
-            processModel = MSFT_xWebApplicationPoolProcessModel {
-                identityType = "ApplicationPoolIdentity"
-                idleTimeout = "00:30:00"
-                maxProcesses = 1
-            }
-            recycling = MSFT_xWebApplicationPoolRecycling {
-                logEventOnRecycle = "Time,Requests,Schedule,Memory,IsapiUnhealthy,OnDemand,ConfigChange,PrivateMemory"
-                restartMemoryLimit = 1048576
-                restartPrivateMemoryLimit = 1048576
-                restartRequestsLimit = 10000
-                restartTimeLimit = "1.00:00:00"
-            }
-            DependsOn = "[WindowsFeature]IIS"
-        }
-        
-        # 設定網站
-        xWebsite $WebSiteName {
-            Ensure = "Present"
-            Name = $WebSiteName
-            State = "Started"
-            PhysicalPath = $WebSitePath
-            ApplicationPool = $ApplicationPoolName
-            BindingInfo = MSFT_xWebBindingInformation {
-                Protocol = "HTTP"
-                Port = 80
-            }
-            DependsOn = "[xWebAppPool]$ApplicationPoolName"
-        }
-        
-        # 確保網站目錄存在
+
         File WebSiteDirectory {
-            Ensure = "Present"
-            Type = "Directory"
+            Ensure          = "Present"
+            Type            = "Directory"
             DestinationPath = $WebSitePath
-            DependsOn = "[WindowsFeature]IIS"
+            DependsOn       = "[WindowsFeature]IIS"
         }
-        
-        # 設定預設網頁
+
         File DefaultPage {
-            Ensure = "Present"
-            Type = "File"
+            Ensure          = "Present"
+            Type            = "File"
             DestinationPath = "$WebSitePath\index.html"
-            Contents = @"
-<!DOCTYPE html>
-<html>
-<head>
-    <title>企業 Web 伺服器</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
-        .content { padding: 20px; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>企業 Web 伺服器</h1>
-        <p>伺服器：$env:COMPUTERNAME</p>
-        <p>設定時間：$(Get-Date)</p>
-    </div>
-    <div class="content">
-        <h2>系統狀態</h2>
-        <p>此頁面由 PowerShell DSC 自動部署</p>
-        <p>應用程式集區：$ApplicationPoolName</p>
-    </div>
-</body>
-</html>
-"@
-            DependsOn = "[File]WebSiteDirectory"
+            Contents        = "<!DOCTYPE html><html><head><meta charset='utf-8'><title>Corporate</title></head><body><h1>Deployed by PowerShell DSC</h1></body></html>"
+            DependsOn       = "[File]WebSiteDirectory"
         }
-        
-        # 安全性設定
-        if ($SecuritySettings.ContainsKey("DisableServerHeader")) {
-            if ($SecuritySettings.DisableServerHeader) {
-                Registry DisableServerHeader {
-                    Ensure = "Present"
-                    Key = "HKLM:\SYSTEM\CurrentControlSet\Services\HTTP\Parameters"
-                    ValueName = "DisableServerHeader"
-                    ValueData = "1"
-                    ValueType = "Dword"
+
+        WebAppPool CorporateAppPool {
+            Name                  = $ApplicationPoolName
+            Ensure                = "Present"
+            State                 = "Started"
+            managedRuntimeVersion = "v4.0"
+            identityType          = "ApplicationPoolIdentity"
+            idleTimeout           = "00:30:00"
+            restartTimeLimit      = "1.00:00:00"
+            DependsOn             = "[WindowsFeature]IIS"
+        }
+
+        WebSite CorporateSite {
+            Name            = $WebSiteName
+            Ensure          = "Present"
+            State           = "Started"
+            PhysicalPath    = $WebSitePath
+            ApplicationPool = $ApplicationPoolName
+            BindingInfo     = @(
+                DSC_WebBindingInformation {
+                    Protocol = "HTTP"
+                    Port     = 80
                 }
+            )
+            DependsOn       = "[WebAppPool]CorporateAppPool", "[File]DefaultPage"
+        }
+
+        if ($SecuritySettings.DisableServerHeader) {
+            Registry DisableServerHeader {
+                Ensure    = "Present"
+                Key       = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\HTTP\Parameters"
+                ValueName = "DisableServerHeader"
+                ValueData = "1"
+                ValueType = "Dword"
             }
         }
-        
-        # 設定防火牆規則
-        if ($SecuritySettings.ContainsKey("AllowHTTP")) {
-            if ($SecuritySettings.AllowHTTP) {
-                xFirewall HTTPInbound {
-                    Name = "IIS-WebServerRole-HTTP-In"
-                    DisplayName = "World Wide Web Services (HTTP Traffic-In)"
-                    Ensure = "Present"
-                    Enabled = $true
-                    Direction = "Inbound"
-                    LocalPort = "80"
-                    Protocol = "TCP"
-                    Action = "Allow"
-                }
+
+        if ($SecuritySettings.AllowHTTP) {
+            Firewall HTTPInbound {
+                Name        = "Corp-Web-HTTP-In"
+                DisplayName = "Corporate Web (HTTP-In)"
+                Ensure      = "Present"
+                Enabled     = "True"
+                Direction   = "Inbound"
+                LocalPort   = "80"
+                Protocol    = "TCP"
+                Action      = "Allow"
             }
         }
-        
-        if ($SecuritySettings.ContainsKey("AllowHTTPS")) {
-            if ($SecuritySettings.AllowHTTPS) {
-                xFirewall HTTPSInbound {
-                    Name = "IIS-WebServerRole-HTTPS-In"
-                    DisplayName = "World Wide Web Services (HTTPS Traffic-In)"
-                    Ensure = "Present"
-                    Enabled = $true
-                    Direction = "Inbound"
-                    LocalPort = "443"
-                    Protocol = "TCP"
-                    Action = "Allow"
-                }
+
+        if ($SecuritySettings.AllowHTTPS) {
+            Firewall HTTPSInbound {
+                Name        = "Corp-Web-HTTPS-In"
+                DisplayName = "Corporate Web (HTTPS-In)"
+                Ensure      = "Present"
+                Enabled     = "True"
+                Direction   = "Inbound"
+                LocalPort   = "443"
+                Protocol    = "TCP"
+                Action      = "Allow"
             }
         }
-        
-        # 設定 Windows Update 服務
+
+        # Windows Update 服務為觸發啟動，不要強制設成 Running/Automatic
         Service WindowsUpdate {
-            Name = "wuauserv"
-            State = "Running"
-            StartupType = "Automatic"
-        }
-        
-        # 確保重要的安全更新已安裝
-        xHotfix SecurityUpdate {
-            Ensure = "Present"
-            Path = "https://download.microsoft.com/download/..."  # 實際的安全更新 URL
-            Id = "KB123456"  # 實際的 KB 編號
-        }
-        
-        # 設定日誌記錄
-        Log ConfigurationComplete {
-            Message = "企業 Web 伺服器設定已完成於 $(Get-Date)"
+            Name        = "wuauserv"
+            StartupType = "Manual"
         }
     }
 }
@@ -10730,7 +11452,16 @@ class DSCDeploymentManager {
     [hashtable]$Nodes
     [string]$OutputPath
     
-    DSCDeploymentManager([string]$configPath, [string]$outputPath = ".\DSCConfigurations") {
+    # 類別建構函式不支援參數預設值，改用多載
+    DSCDeploymentManager([string]$configPath) {
+        $this.Init($configPath, ".\DSCConfigurations")
+    }
+
+    DSCDeploymentManager([string]$configPath, [string]$outputPath) {
+        $this.Init($configPath, $outputPath)
+    }
+
+    hidden [void] Init([string]$configPath, [string]$outputPath) {
         $this.ConfigurationPath = $configPath
         $this.OutputPath = $outputPath
         $this.Nodes = @{}
@@ -10757,7 +11488,7 @@ class DSCDeploymentManager {
                     AllNodes = @(
                         @{
                             NodeName = $nodeName
-                            PSDscAllowPlainTextPassword = $true  # 在生產環境中應使用憑證
+                            PSDscAllowPlainTextPassword = $false  # 設定含認證時，改用 CertificateFile/Thumbprint 加密 MOF
                         }
                     )
                 }
@@ -10784,7 +11515,7 @@ class DSCDeploymentManager {
         }
     }
     
-    [void] DeployConfiguration([string]$nodeName, [switch]$Force) {
+    [void] DeployConfiguration([string]$nodeName, [bool]$Force) {
         $mofPath = Join-Path $this.OutputPath "$nodeName.mof"
         
         if (-not (Test-Path $mofPath)) {
@@ -10814,7 +11545,7 @@ class DSCDeploymentManager {
         }
     }
     
-    [void] DeployAllConfigurations([switch]$Force) {
+    [void] DeployAllConfigurations([bool]$Force) {
         foreach ($nodeName in $this.Nodes.Keys) {
             $this.DeployConfiguration($nodeName, $Force)
         }
@@ -10943,17 +11674,14 @@ function Start-DSCDeploymentDemo {
     }
     
     # 新增要管理的節點
-    $adminCred = Get-Credential -Message "請輸入管理員憑證"
     
     $dscManager.AddNode("WebServer01", @{
-        AdminCredential = $adminCred
         WebSiteName = "Corporate Website"
         ApplicationPoolName = "CorporateAppPool"
         SecuritySettings = $securitySettings
     })
     
     $dscManager.AddNode("WebServer02", @{
-        AdminCredential = $adminCred
         WebSiteName = "Corporate Website"
         ApplicationPoolName = "CorporateAppPool"
         SecuritySettings = $securitySettings
@@ -10964,7 +11692,7 @@ function Start-DSCDeploymentDemo {
     
     # 部署設定
     Write-Host "部署設定..." -ForegroundColor Cyan
-    $dscManager.DeployAllConfigurations()
+    $dscManager.DeployAllConfigurations($false)
     
     # 檢查合規性
     Write-Host "檢查合規性..." -ForegroundColor Cyan
@@ -10976,6 +11704,217 @@ function Start-DSCDeploymentDemo {
 
 # $dscDemo = Start-DSCDeploymentDemo
 ```
+
+> **16.2 範例的適用範圍：** `Configuration` 關鍵字、`Start-DscConfiguration` 與本機設定管理員（LCM）只存在於 Windows PowerShell 5.1。PowerShell 7 的 PSDesiredStateConfiguration 2.x 只提供 `Invoke-DscResource`，不含 LCM。新專案請評估 16.3 節的 DSC v3 或 Azure Machine Configuration。
+
+#### 16.3 DSC v3 與現代設定管理
+
+**DSC v3** 是重新設計的跨平台設定管理工具：獨立的 `dsc` 命令列程式（以 Rust 撰寫，不依賴 PowerShell 執行），設定文件使用 YAML 或 JSON，資源可以用任何語言撰寫，並透過轉接器（adapter）沿用既有的 PowerShell DSC 資源。截至 2026-11-25，最新穩定版為 **3.3.0**（2026-09-17），3.4 處於預覽階段。
+
+| 比較 | DSC v1/v2（16.2 節） | DSC v3 |
+|------|----------------------|--------|
+| 執行環境 | Windows PowerShell 5.1 + LCM | 獨立 `dsc` 執行檔，跨平台 |
+| 設定格式 | PowerShell `Configuration` 編譯成 MOF | YAML / JSON 設定文件 |
+| 定期修正 | LCM 自動檢查與修正 | 由呼叫端（排程、CI、Azure Machine Configuration）決定 |
+| 既有資源 | 原生支援 | 透過 PowerShell 轉接器沿用 |
+
+**設定文件範例（管理一個登錄值，可在一般使用者權限下練習）：**
+
+```yaml
+# app-baseline.dsc.yaml
+$schema: https://aka.ms/dsc/schemas/v3/bundled/config/document.json
+resources:
+  - name: Contoso app log level
+    type: Microsoft.Windows/Registry
+    properties:
+      keyPath: HKCU\Software\Contoso\App
+      valueName: LogLevel
+      valueData:
+        String: Warning
+```
+
+**操作流程（先檢查、再預演、最後套用）：**
+
+```powershell
+dsc --version
+dsc resource list                                   # 列出可用資源
+dsc config test --file ./app-baseline.dsc.yaml      # 只比對，不變更；輸出 inDesiredState
+dsc config set  --file ./app-baseline.dsc.yaml --what-if
+dsc config set  --file ./app-baseline.dsc.yaml
+dsc config test --file ./app-baseline.dsc.yaml      # 再次比對，預期 inDesiredState 為 true
+
+# 以 PowerShell 交叉驗證
+Get-ItemProperty -Path 'HKCU:\Software\Contoso\App' -Name LogLevel
+```
+
+**審查要點：**
+
+- 設定文件要放進版本控制，並在 CI 執行 `dsc config test` 作為合規檢查。
+- 套用前一定先跑 `--what-if`，把輸出附在變更單上。
+- `dsc` 的參數會隨版本演進，實際以 `dsc config set --help` 為準（見 17.11）。
+
+#### 16.4 AI 協作產生 PowerShell 腳本的審查與驗證
+
+AI 工具（GitHub Copilot、各類聊天助理）能快速產出 PowerShell 腳本，但常見錯誤恰好也是本手冊前面修正過的問題：過時的 cmdlet、杜撰的命令或參數、覆寫自動變數、沒有 `-WhatIf` 的破壞性操作、明文密碼。**AI 產出的腳本在執行前必須經過與人工撰寫相同、甚至更嚴格的審查。**
+
+**AI 產出腳本的常見問題：**
+
+| 類別 | 典型範例 | 為何危險 | 本手冊對應章節 |
+|------|----------|----------|----------------|
+| 版本錯置 | `Get-WmiObject`、`Get-EventLog` | PowerShell 7 原生不提供：Linux 上直接失敗，Windows 上可能經相容性層緩慢執行並回傳反序列化物件 | 9.4、15.3 |
+| 杜撰命令或參數 | 不存在的 `Get-ServerUptimeReport` | 執行期才發現，或被同名惡意模組利用 | 本節自動檢查 |
+| 覆寫自動變數 | `foreach ($host in ...)`、`$input = ...`、`$matches = ...` | 唯讀錯誤或靜默得到錯誤結果 | 5.2、6.2、13.2 |
+| 破壞性操作無預演 | `Remove-Item -Recurse -Force` 沒有 `ShouldProcess` | 一次誤刪無法復原 | 6.4 |
+| 動態執行 | `Invoke-Expression "..."` | 指令注入 | 13.4 |
+| 機密外洩 | `ConvertTo-SecureString 'P@ss' -AsPlainText` | 密碼進版本控制 | 13.5 |
+| 略過安全檢查 | `-SkipCertificateCheck`、`-ExecutionPolicy Bypass` | 中間人攻擊、繞過政策 | 7.5、13.1 |
+| 吞掉錯誤 | 到處 `-ErrorAction SilentlyContinue`、空的 `catch {}` | 失敗卻回報成功 | 8.1 |
+
+**要求 AI 產出腳本時的提示範本：**
+
+```text
+請撰寫 PowerShell 腳本，限制如下：
+1. 目標版本 PowerShell 7.6，檔案開頭加 #Requires -Version 7.6
+2. 只使用內建或我指定的模組（列出：...），不得自行假設模組存在
+3. 會改變系統狀態的函式必須 [CmdletBinding(SupportsShouldProcess)] 並支援 -WhatIf
+4. 不得使用 Invoke-Expression、-SkipCertificateCheck、-AsPlainText、別名與位置參數
+5. 秘密一律以 Get-Secret 取得
+6. 錯誤處理使用 -ErrorAction Stop 搭配 try/catch，不得留空 catch
+7. 同時提供 Pester 6 測試，外部相依以 Mock 隔離
+8. 說明每個 cmdlet 來自哪個模組與最低版本
+```
+
+**審查與驗證流程：**
+
+```mermaid
+graph TD
+    A[AI 產出腳本] --> B[語法剖析]
+    B --> C[命令存在性與風險樣式掃描]
+    C --> D[PSScriptAnalyzer]
+    D --> E[Pester 測試 搭配 Mock]
+    E --> F[隔離環境以 WhatIf 預演]
+    F --> G[人工逐行審查]
+    G --> H{全部通過}
+    H -->|是| I[程式碼簽章與合併]
+    H -->|否| J[退回修正並記錄問題]
+    J --> A
+```
+
+**自動化前置檢查腳本：** 以下函式把流程中 B～D 步驟自動化，輸出可直接附在 Pull Request 上。
+
+```powershell
+function Test-GeneratedScript {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateScript({ Test-Path -LiteralPath $_ -PathType Leaf })]
+        [string]$Path
+    )
+
+    $fullPath = (Resolve-Path -LiteralPath $Path).ProviderPath
+    $tokens = $null
+    $parseErrors = $null
+    $ast = [System.Management.Automation.Language.Parser]::ParseFile($fullPath, [ref]$tokens, [ref]$parseErrors)
+    $findings = [System.Collections.Generic.List[object]]::new()
+
+    # 1) 語法錯誤
+    foreach ($e in $parseErrors) {
+        $findings.Add([pscustomobject]@{ Check = 'Syntax'; Line = $e.Extent.StartLineNumber; Detail = $e.Message })
+    }
+
+    # 2) 命令是否存在（找出 AI 杜撰的 cmdlet）；腳本內自行定義的函式不算
+    $defined = @($ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $true).Name)
+    $commands = $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.CommandAst] }, $true)
+    foreach ($c in $commands) {
+        $name = $c.GetCommandName()
+        if ($name -and $name -notin $defined -and -not (Get-Command -Name $name -ErrorAction SilentlyContinue)) {
+            $findings.Add([pscustomobject]@{ Check = 'UnknownCommand'; Line = $c.Extent.StartLineNumber; Detail = $name })
+        }
+    }
+
+    # 3) 高風險命令與參數
+    $riskyCommands = @{
+        'Invoke-Expression' = '動態執行字串，可能遭注入'
+        'Get-WmiObject'     = 'PowerShell 7 原生不提供，改用 Get-CimInstance'
+        'Get-EventLog'      = 'PowerShell 7 原生不提供，改用 Get-WinEvent'
+        'Send-MailMessage'  = '已標示 Obsolete'
+    }
+    foreach ($c in $commands) {
+        $name = $c.GetCommandName()
+        if ($name -and $riskyCommands.ContainsKey($name)) {
+            $findings.Add([pscustomobject]@{ Check = 'RiskyCommand'; Line = $c.Extent.StartLineNumber; Detail = "$name：$($riskyCommands[$name])" })
+        }
+    }
+    $riskyParams = 'SkipCertificateCheck', 'AsPlainText', 'Force'
+    foreach ($p in $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.CommandParameterAst] }, $true)) {
+        if ($p.ParameterName -in $riskyParams) {
+            $findings.Add([pscustomobject]@{ Check = 'ReviewParameter'; Line = $p.Extent.StartLineNumber; Detail = "-$($p.ParameterName) 需人工確認必要性" })
+        }
+    }
+
+    # 4) 覆寫自動變數（指派與 foreach 迴圈變數）
+    $automatic = 'host', 'input', 'error', 'matches', 'args', 'this', 'PSItem', '_', 'PID', 'HOME', 'PSHOME'
+    $assigned = @()
+    foreach ($a in $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.AssignmentStatementAst] }, $true)) {
+        $v = $a.Left.Find({ param($n) $n -is [System.Management.Automation.Language.VariableExpressionAst] }, $true)
+        if ($v) { $assigned += $v }
+    }
+    foreach ($f in $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.ForEachStatementAst] }, $true)) {
+        $assigned += $f.Variable
+    }
+    foreach ($v in $assigned) {
+        if ($v.VariablePath.UserPath -in $automatic) {
+            $findings.Add([pscustomobject]@{ Check = 'AutomaticVariable'; Line = $v.Extent.StartLineNumber; Detail = "覆寫自動變數 `$$($v.VariablePath.UserPath)" })
+        }
+    }
+
+    # 5) PSScriptAnalyzer（若已安裝）
+    if (Get-Command -Name Invoke-ScriptAnalyzer -ErrorAction SilentlyContinue) {
+        Invoke-ScriptAnalyzer -Path $fullPath -Severity Error, Warning | ForEach-Object {
+            $findings.Add([pscustomobject]@{ Check = "PSSA:$($_.RuleName)"; Line = $_.Line; Detail = $_.Message })
+        }
+    }
+
+    $findings | Sort-Object Line
+}
+```
+
+**實際演練：** 把下列「AI 產出」的腳本存成 `ai-output.ps1`（**只做檢查，不要執行**），再執行 `Test-GeneratedScript -Path ./ai-output.ps1`。
+
+```powershell
+# ai-output.ps1（示範用，故意包含常見錯誤）
+$hosts = 'web01', 'web02'
+foreach ($host in $hosts) {
+    $os = Get-WmiObject Win32_OperatingSystem -ComputerName $host
+    Get-ServerUptimeReport -Name $host
+}
+Invoke-Expression "Restart-Service $serviceName"
+```
+
+以下為 2026-11-25 在 Windows、PowerShell 7.6.10 實際執行的結果（未安裝 PSScriptAnalyzer；安裝後會再多出 `PSSA:*` 警告）：
+
+| Line | Check | Detail |
+|------|-------|--------|
+| 3 | AutomaticVariable | 覆寫自動變數 `$host`（執行時會出現「無法覆寫唯讀變數」錯誤） |
+| 4 | RiskyCommand | `Get-WmiObject`：PowerShell 7 原生不提供，改用 `Get-CimInstance` |
+| 5 | UnknownCommand | `Get-ServerUptimeReport`（AI 杜撰的命令） |
+| 7 | RiskyCommand | `Invoke-Expression`：動態執行字串，可能遭注入 |
+
+> 觀察：在 Windows 上 `Get-WmiObject` 沒有被判定為 UnknownCommand，因為 `Get-Command` 觸發了 Windows PowerShell 相容性層（約花了 40 秒）並找到代理函式；在 Linux 上則會多一筆 UnknownCommand。這正是「不能只以自己的電腦能執行來判斷相容性」的例子，也是為何需要 RiskyCommand 清單。CI 中可設定 `DisableImplicitWinCompat`（9.4 節）讓結果一致。
+
+**人工審查清單（自動檢查無法取代的部分）：**
+
+| 問題 | 審查者要確認的事 | 如何驗證 |
+|------|------------------|----------|
+| 腳本真的做了需求要的事嗎？ | 對照需求逐項比對，而不是只看「能跑」 | 撰寫或檢視對應的 Pester 測試案例 |
+| 影響範圍是否受控？ | 篩選條件、路徑、目標主機是否會擴大到非預期對象 | 以 `-WhatIf` 在測試環境預演並檢視清單 |
+| 失敗時會怎樣？ | 中途失敗是否留下半完成狀態；是否有回復步驟 | 在測試中模擬例外（`Mock ... { throw }`） |
+| 權限是否最小？ | 是否真的需要系統管理員；能否改用 JEA | 以一般帳號執行並記錄失敗點 |
+| 參數與 API 是否真實存在？ | AI 可能捏造參數名稱 | `Get-Command <命令> -Syntax`、`Get-Help <命令> -Parameter <名稱>` |
+| 版本假設是否正確？ | 是否使用了目標環境沒有的 7.7 功能 | 在目標版本上執行測試；檢查 `#Requires` |
+| 是否有可疑的外部連線？ | 下載網址、上傳目的地是否核准 | 搜尋 `Invoke-WebRequest`、`Invoke-RestMethod`、`Net.WebClient` |
+
+> 原則：**審查者必須能用自己的話解釋每一行在做什麼。** 無法解釋的程式碼，就是不能合併的程式碼。
 
 **檢查清單：**
 
@@ -11029,8 +11968,8 @@ function Start-DSCDeploymentDemo {
 | `Get-Service` | 檢視服務 | `Get-Service` |
 | `Start-Service` | 啟動服務 | `Start-Service Spooler` |
 | `Stop-Service` | 停止服務 | `Stop-Service Spooler` |
-| `Get-EventLog` | 檢視事件日誌 | `Get-EventLog System -Newest 10` |
-| `Get-WmiObject` | WMI 查詢 | `Get-WmiObject Win32_ComputerSystem` |
+| `Get-WinEvent` | 檢視事件日誌 | `Get-WinEvent -LogName System -MaxEvents 10` |
+| `Get-CimInstance` | CIM/WMI 查詢 | `Get-CimInstance Win32_ComputerSystem` |
 | `Invoke-Command` | 遠端執行 | `Invoke-Command -ComputerName PC1 -ScriptBlock {...}` |
 
 **變數和物件：**
@@ -11168,7 +12107,8 @@ function Start-DSCDeploymentDemo {
 | `Stop` | 顯示錯誤並停止執行 |
 | `Inquire` | 詢問使用者如何處理 |
 | `Ignore` | 忽略錯誤（PowerShell 3.0+） |
-| `Suspend` | 暫停工作流程（僅限工作流程） |
+| `Break` | 發生錯誤時進入除錯器（PowerShell 7+） |
+| `Suspend` | 暫停工作流程（僅 Windows PowerShell 工作流程，PowerShell 7 不支援） |
 
 **錯誤記錄類型：**
 
@@ -11249,26 +12189,22 @@ function ConvertFrom-Base64 {
     return [System.Text.Encoding]::UTF8.GetString($bytes)
 }
 
-function Get-FileHash {
+# 內建 Get-FileHash 已支援 SHA256/SHA384/SHA512/SHA1/MD5，不要自行定義同名函數（會遮蔽內建 cmdlet）
+function Test-FileHash {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
         [string]$Path,
-        
-        [ValidateSet("MD5", "SHA1", "SHA256", "SHA512")]
+
+        [Parameter(Mandatory=$true)]
+        [string]$ExpectedHash,
+
+        [ValidateSet("SHA256", "SHA384", "SHA512")]
         [string]$Algorithm = "SHA256"
     )
-    
-    if (-not (Test-Path $Path)) {
-        throw "檔案不存在: $Path"
-    }
-    
-    $hasher = [System.Security.Cryptography.HashAlgorithm]::Create($Algorithm)
-    $fileStream = [System.IO.File]::OpenRead($Path)
-    $hashBytes = $hasher.ComputeHash($fileStream)
-    $fileStream.Close()
-    
-    return [System.BitConverter]::ToString($hashBytes) -replace '-'
+
+    $actual = (Get-FileHash -LiteralPath $Path -Algorithm $Algorithm).Hash
+    return $actual -eq $ExpectedHash
 }
 
 function Test-IsAdmin {
@@ -11280,15 +12216,15 @@ function Test-IsAdmin {
 function Get-SystemInfo {
     [PSCustomObject]@{
         ComputerName = $env:COMPUTERNAME
-        OperatingSystem = (Get-WmiObject Win32_OperatingSystem).Caption
-        Version = (Get-WmiObject Win32_OperatingSystem).Version
-        TotalMemoryGB = [math]::Round((Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 2)
-        Processor = (Get-WmiObject Win32_Processor).Name
+        OperatingSystem = (Get-CimInstance Win32_OperatingSystem).Caption
+        Version = (Get-CimInstance Win32_OperatingSystem).Version
+        TotalMemoryGB = [math]::Round((Get-CimInstance Win32_ComputerSystem).TotalPhysicalMemory / 1GB, 2)
+        Processor = (Get-CimInstance Win32_Processor).Name
         PowerShellVersion = $PSVersionTable.PSVersion
         IsAdmin = Test-IsAdmin
         CurrentUser = $env:USERNAME
-        LastBootTime = (Get-WmiObject Win32_OperatingSystem).LastBootUpTime
-        Uptime = (Get-Date) - (Get-WmiObject Win32_OperatingSystem).ConvertToDateTime((Get-WmiObject Win32_OperatingSystem).LastBootUpTime)
+        LastBootTime = (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
+        Uptime = (Get-Date) - (Get-CimInstance Win32_OperatingSystem).LastBootUpTime
     }
 }
 
@@ -11330,7 +12266,7 @@ function Get-RandomPassword {
     $lowercase = "abcdefghijklmnopqrstuvwxyz"
     $uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     $numbers = "0123456789"
-    $symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?"
+    $symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?'   # 單引號避免 $ 被當成變數
     $ambiguous = "0O1lI"
     
     $charSet = $lowercase + $uppercase + $numbers
@@ -11347,7 +12283,8 @@ function Get-RandomPassword {
     
     $password = ""
     for ($i = 0; $i -lt $Length; $i++) {
-        $password += $charSet[(Get-Random -Maximum $charSet.Length)]
+        # Get-SecureRandom（PowerShell 7.4+）使用密碼學安全亂數；Get-Random 不可用於密碼
+        $password += $charSet[(Get-SecureRandom -Maximum $charSet.Length)]
     }
     
     return $password
@@ -11365,11 +12302,11 @@ function Measure-ScriptExecution {
     try {
         $result = & $ScriptBlock
         $success = $true
-        $error = $null
+        $errorMessage = $null
     } catch {
         $result = $null
         $success = $false
-        $error = $_.Exception.Message
+        $errorMessage = $_.Exception.Message
     } finally {
         $stopwatch.Stop()
     }
@@ -11377,7 +12314,7 @@ function Measure-ScriptExecution {
     return [PSCustomObject]@{
         Success = $success
         Result = $result
-        Error = $error
+        Error = $errorMessage   # $Error 是自動變數，不可覆寫
         ExecutionTime = $stopwatch.Elapsed
         ExecutionTimeMs = $stopwatch.ElapsedMilliseconds
     }
@@ -11386,25 +12323,33 @@ function Measure-ScriptExecution {
 
 #### 17.7 學習資源推薦
 
-**官方文件：**
-- [Microsoft PowerShell Documentation](https://docs.microsoft.com/powershell/)
+**官方文件與原始碼：**
+
+- [PowerShell GitHub 儲存庫](https://github.com/PowerShell/PowerShell)（Release Notes、CHANGELOG、問題回報）
+- [PowerShell 文件（Microsoft Learn）](https://learn.microsoft.com/powershell/)
+- [PowerShell 支援週期](https://learn.microsoft.com/powershell/scripting/install/powershell-support-lifecycle)
+- [What's New in PowerShell 7.6](https://learn.microsoft.com/powershell/scripting/whats-new/what-s-new-in-powershell-76)
 - [PowerShell Gallery](https://www.powershellgallery.com/)
-- [PowerShell GitHub Repository](https://github.com/PowerShell/PowerShell)
+- [Pester](https://github.com/pester/Pester)、[PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer)、[DSC v3](https://github.com/PowerShell/DSC)
 
 **社群資源：**
+
 - [PowerShell.org](https://powershell.org/)
 - [Reddit r/PowerShell](https://www.reddit.com/r/PowerShell/)
 - [Stack Overflow PowerShell](https://stackoverflow.com/questions/tagged/powershell)
+- PowerShell 社群 Discord / Slack（連結見 GitHub 儲存庫 README）
 
 **書籍推薦：**
+
 - "PowerShell in Action" by Bruce Payette
 - "Windows PowerShell Cookbook" by Lee Holmes
 - "PowerShell Deep Dives" by PowerShell Community
 
-**認證考試：**
-- Microsoft Certified: Azure Administrator Associate
-- Microsoft Certified: Security, Compliance, and Identity Fundamentals
-- Microsoft 365 Certified: Modern Desktop Administrator Associate
+**相關認證（狀態見 14.1 節）：**
+
+- Microsoft Certified: Azure Administrator Associate（AZ-104）
+- Microsoft Certified: Windows Server Administrator Associate（AZ-802）
+- Microsoft Certified: DevOps Engineer Expert（AZ-400）
 
 #### 17.8 疑難排解檢查清單
 
@@ -11413,7 +12358,7 @@ function Measure-ScriptExecution {
 - [ ] 檢查 PowerShell 版本：`$PSVersionTable`
 - [ ] 確認執行原則：`Get-ExecutionPolicy`
 - [ ] 檢查模組路徑：`$env:PSModulePath`
-- [ ] 驗證語法：使用 PowerShell ISE 或 VS Code
+- [ ] 驗證語法：使用 VS Code PowerShell 擴充或 Parser API（見 16.4 節）
 - [ ] 檢查錯誤變數：`$Error[0]`
 - [ ] 確認權限：以管理員身分執行
 - [ ] 檢查網路連線：`Test-NetConnection`
@@ -11439,38 +12384,126 @@ function Measure-ScriptExecution {
 - [ ] 使用 PowerShell Constrained Language Mode
 - [ ] 實施 Just Enough Administration (JEA)
 
+#### 17.9 版本資訊與相容性對照
+
+**元件版本基準（2026-11-25 查核）：**
+
+| 元件 | 版本 | 發布日 | 查核來源 |
+|------|------|--------|----------|
+| PowerShell（最新穩定） | 7.7.0 | 2026-11-10 | GitHub Releases |
+| PowerShell（LTS） | 7.6.10 | 2026-11-10 | GitHub Releases |
+| PowerShell 7.5（已終止） | 7.5.13（最終修補） | 2026-10-25 | GitHub Releases |
+| PowerShell 7.4 LTS（已終止） | 7.4.22（最終修補） | 2026-10-25 | GitHub Releases |
+| Microsoft.PowerShell.PSResourceGet | 1.3.1 | 2026-11-10 | PowerShell Gallery |
+| PSReadLine（7.6 內建） | 2.4.5 | — | What's New in 7.6 |
+| Pester | 6.2.0（5.x 維護版 5.9.1） | 2026-09-10 | GitHub Releases / Gallery |
+| PSScriptAnalyzer | 1.25.0 | 2026-03-20 | PowerShell Gallery |
+| Microsoft.PowerShell.SecretManagement | 1.1.2 | 2022-01-27 | PowerShell Gallery |
+| DSC v3 | 3.3.0（3.4.0-preview.3） | 2026-09-17 | GitHub Releases |
+| actions/checkout | v7（7.0.1） | 2026-07 | GitHub Releases |
+| actions/upload-artifact | v7（7.0.2） | 2026-10-07 | GitHub Releases |
+
+**命令可用性對照：**
+
+| 命令 / 功能 | Windows PowerShell 5.1 | PowerShell 7.6 | PowerShell 7.7 |
+|-------------|------------------------|----------------|----------------|
+| `Get-WmiObject` 等 WMI cmdlet | 可用 | 原生不提供（註） | 原生不提供（註） |
+| `Get-EventLog` | 可用 | 原生不提供（註） | 原生不提供（註） |
+| `Get-CimInstance`、`Get-WinEvent` | 可用 | 可用 | 可用 |
+| `ForEach-Object -Parallel` | 不支援 | 可用 | 可用 |
+| 三元、`??`、`&&`/`||` 運算子 | 不支援 | 可用 | 可用 |
+| `Get-SecureRandom` | 不支援 | 可用（7.4+） | 可用 |
+| `*-PSResource`（PSResourceGet） | 需另外安裝 | 內建 | 內建 |
+| `New-TemporaryDirectory` | 不支援 | 不支援 | 可用 |
+| `New-Guid` 預設版本 | UUID v4 | UUID v4 | **UUID v7** |
+| `Start-DscConfiguration`（LCM） | 可用 | 不支援 | 不支援 |
+| `Register-ScheduledJob` | 可用 | 不支援 | 不支援 |
+
+> 註：PowerShell 7 本身不含這些命令；在 Windows 上可能經 Windows PowerShell 相容性層以代理函式執行（速度慢、回傳反序列化物件），Linux / macOS 上則無法使用。不應在新程式碼中依賴。
+
+#### 17.10 修訂與驗證紀錄
+
+**修訂紀錄：**
+
+| 版本 | 日期 | 主要變更 |
+|------|------|----------|
+| v1.0 | 2025-10-31 | 初版 |
+| v2.0 | 2026-11-25 | 依 PowerShell 7.6 LTS / 7.7 全面改版：新增 1.4、1.5、2.5、2.6、3.4、5.4、6.4、7.4、7.5、8.4、9.4、11.4、12.3、13.4、13.5、15.3、16.3、16.4 與附錄 17.9～17.11；目錄改為依 Hugo 實際錨點自動產生並與正文一致；修正下列程式碼錯誤 |
+
+**v2.0 修正的程式碼錯誤（審查時可作為「常見錯誤」教材）：**
+
+| 位置 | 原本問題 | 修正方式 |
+|------|----------|----------|
+| 全文 44 處 | 使用 PowerShell 7 已移除的 `Get-WmiObject` | 改為 `Get-CimInstance`，並移除 `ConvertToDateTime()` |
+| 4.2 | `3.14f` 不是合法的 PowerShell 數值常值 | `[float]3.14` |
+| 4.3 | `[bool]"false"` 會得到 True；設定檔解析因此出錯 | `[bool]::Parse()` |
+| 5.1 | 不存在的 `-pow` 運算子 | `[math]::Pow()` |
+| 5.2 | 以自動變數 `$input` 存資料；`Orange` 不是合法主控台色彩 | 改名 `$versionText`；改用 `DarkYellow` |
+| 6.2 | 迴圈變數命名為唯讀自動變數 `$host` | 改為 `$target` |
+| 7.1 | `(Get-Date - $_.LastWriteTime)` 剖析錯誤；`Get-EventLog` 已移除 | `((Get-Date) - ...)`；改用 `Get-WinEvent` |
+| 7.3 | `BinaryFormatter` 已自 .NET 9 移除；自訂 `ConvertTo-Xml` 遮蔽內建 cmdlet | 改用 `PSSerializer`；函式改名 |
+| 8.1 | 常數 `10 / 0` 在剖析階段失敗，`try/catch` 攔不到；`Get-Content` 未加 `-ErrorAction Stop` 不會進入 `catch` | 改用變數；加 `-ErrorAction Stop` 並捕捉 `ItemNotFoundException` |
+| 9.2 | 取代字串 `"HK$1"` 被當成變數展開 | 改用單引號 `'HK$1'` |
+| 9.3 | 查詢 `Win32_Product` 會觸發 MSI 一致性檢查 | 改讀 Uninstall 登錄機碼 |
+| 11.1 | PSScriptAnalyzer 規則名稱錯誤或不存在 | 改為正確規則並加入 `PSAvoidAssignmentToAutomaticVariable` 等 |
+| 11.2 | 程式碼區塊內嵌 ```` ``` ```` 造成 Markdown 區塊提前結束；`"$Type: ..."` 解析錯誤 | 外層改用 4 個反引號；改為 `"${Type}: ..."` |
+| 11.3 | 不存在的 `actions/setup-powershell`；已淘汰的 `upload-release-asset`；過時的 action 版本 | runner 內建 pwsh；`gh release upload`；checkout/upload-artifact 更新為 v7 |
+| 12.1 / 12.2 | PS7 的 `Test-Connection` 屬性為 `Latency`；`TrustedHosts` 預設 `*`；預設略過憑證檢查 | 修正屬性；改為必填清單；略過檢查需明確開關 |
+| 13.2 | 單引號字串內用 `\'` 跳脫造成語法錯誤；覆寫 `$matches`；`RNGCryptoServiceProvider` 過時 | 改用 `''`；改名；改用 `RandomNumberGenerator` |
+| 13.3 | JEA 角色能力以路徑而非名稱指定、`FunctionDefinitions` 格式錯誤、在 psrc 中使用 `$using:` | 依官方格式重寫並加入驗證步驟 |
+| 14.1 | 以 `<` 比較數值（實為重新導向）；MS-100 已退役 | 改用 `-lt`；更新認證清單 |
+| 15.2 / 17.6 | 指派給自動變數 `$Error`；`Measure-Object -Property {腳本區塊}` | 改名 `$errorMessage`；改用成員列舉 |
+| 16.1 / 16.2 | 類別方法與建構函式使用參數預設值；DSC 使用 DISM 功能名稱與已封存的 x 系列資源 | 改用多載；改用 `Web-Server` 與 WebAdministrationDsc / NetworkingDsc |
+| 17.6 | 自訂 `Get-FileHash` 遮蔽內建 cmdlet；以 `Get-Random` 產生密碼 | 改為 `Test-FileHash`；改用 `Get-SecureRandom` |
+
+**驗證紀錄（2026-11-25）：**
+
+| 驗證項目 | 方法 | 結果 |
+|----------|------|------|
+| 版本與支援日期 | 比對 PowerShell GitHub Releases 與 Microsoft Learn 支援週期頁 | 已更新至 7.7.0 / 7.6.10 |
+| 模組版本 | 查詢 PowerShell Gallery 與各專案 GitHub Releases | 見 17.9 |
+| 認證考試狀態 | 查詢 Microsoft Learn 認證頁面 | AZ-104、AZ-802 有效；MS-102 2026-11-30 退役 |
+| PowerShell 程式碼區塊 | 以 PowerShell 7.6.10 的 Parser API 剖析本文全部 150 個 `powershell` 區塊 | 無語法錯誤；僅 16.2 的 DSC 區塊因本機未安裝 WebAdministrationDsc / NetworkingDsc，`Import-DscResource` 無法解析（需在已安裝模組的 5.1 環境驗證） |
+| 新增章節範例 | 在 PowerShell 7.6.10 實際執行 1.5、5.4、7.4、7.5、8.4、13.2、16.4 的範例 | 結果與文中預期一致；16.4 的實測輸出已寫入文中 |
+| Pester 範例 | 以 Pester 6.2.0 執行 6.4 與 11.4 的測試 | 6 個測試全數通過 |
+| 目錄連結 | Hugo 建置後以 `generate_toc.py --verify-html` 比對實際 HTML 錨點 | 113 個目錄連結，0 個失效、0 個重複錨點 |
+| Markdown 格式 | `check-md.ps1`、`check-toc.ps1` | 僅剩 `## 目錄` 緊接 TOC 標記的 MD022（工具已知誤報） |
+
+#### 17.11 待確認事項
+
+下列項目在本次改版時無法從官方來源得到完整確認，下次改版請優先查核：
+
+| 項目 | 目前寫法 | 查核方式 |
+|------|----------|----------|
+| PowerShell 7.7 終止支援日期 | 「依 .NET 11 支援政策」 | Microsoft Learn「PowerShell Support Lifecycle」表格更新後補上確切日期 |
+| AZ-802 是否完全取代 AZ-800 / AZ-801 | 只寫「認證頁面目前列出 AZ-802」 | Microsoft Learn 認證與考試頁面、Credentials 公告 |
+| AZ-400、SC-200 考試狀態 | 「請以官方頁面確認」 | Microsoft Learn 認證頁面 |
+| DSC v3 CLI 參數（`--file`、`--what-if`） | 依 3.x 文件撰寫 | `dsc config set --help` |
+| JEA `FunctionDefinitions` 內可呼叫的命令範圍與語言模式 | 範例僅使用 `Resolve-Path`、`Get-Content` 與 `-notlike` | 在目標主機以 `Get-PSSessionCapability` 與實際連線測試 |
+| Azure DevOps `PowerShell@2` 的 `pwsh: $(usePwsh)` 寫法 | 以執行期變數切換 | 實際執行管線確認兩個矩陣項目使用的版本 |
+| PSScriptAnalyzer `PSUseCompatibleSyntax` 支援的 `TargetVersions` 值 | `'6.0','5.1'` | PSScriptAnalyzer 規則文件 |
+
 ---
 
 ## 總結
 
-恭喜您完成了這個全面的 PowerShell 學習之旅！這個教學手冊涵蓋了從基礎概念到企業級應用的各個層面。
+這份手冊從基礎語法一路涵蓋到企業級治理。讀完後，您應該能夠：
 
-**您已經學會了：**
-
-✅ PowerShell 的基礎語法和概念  
-✅ 物件導向的管道操作  
-✅ 進階的腳本和函數開發  
-✅ 錯誤處理和除錯技巧  
-✅ 模組開發和套件管理  
-✅ 系統管理和自動化  
-✅ 網路和遠端管理  
-✅ 安全性和權限管理  
-✅ Web 服務和 API 整合  
-✅ 資料庫操作和數據處理  
-✅ 企業級基礎設施管理  
-✅ 故障排除和效能最佳化
+- 說明 PowerShell 7.6 LTS、7.7 與 Windows PowerShell 5.1 的差異，並為組織選定基準版本
+- 以物件導向的管線處理檔案、程序、服務、事件記錄與 JSON / CSV / XML / REST API 資料
+- 撰寫具備參數驗證、`-WhatIf` 預演、說明文件與 Pester 測試的進階函式與模組
+- 以 PSResourceGet 管理相依套件，並在 CI/CD 中固定版本、執行靜態分析與測試
+- 以 WinRM 或 SSH 進行遠端管理，並用 JEA 落實最小權限
+- 設定 Script Block Logging、Transcription 與 SecretManagement，滿足稽核與機密保護要求
+- 將 5.1 腳本遷移到 PowerShell 7，並以 AST 掃描與雙版本測試證明相容性
+- 審查 AI 產出的 PowerShell 腳本：先以自動化檢查找出常見錯誤，再逐行理解與驗證
 
 **下一步建議：**
 
-1. **實際應用**：在日常工作中積極使用 PowerShell
-2. **社群參與**：加入 PowerShell 社群，分享經驗
-3. **持續學習**：關注新版本功能和最佳實務
-4. **認證考試**：考慮取得相關的 Microsoft 認證
-5. **開源貢獻**：參與 PowerShell 開源專案
-
-記住，PowerShell 是一個強大且持續發展的工具。透過不斷的實踐和學習，您將能夠充分發揮其潛力，提高工作效率，並成為一名優秀的系統管理員或 DevOps 專家。
-
-祝您在 PowerShell 的學習和應用路上一帆風順！🚀
+1. **建立團隊基準**：把 6.4 節的函式範本、11.1 節的 PSScriptAnalyzer 設定與 11.4 節的 Pester 設定放進範本儲存庫。
+2. **導入審查流程**：在 Pull Request 中執行 16.4 節的 `Test-GeneratedScript` 與 PSScriptAnalyzer。
+3. **定期更新**：每季檢查附錄 17.9 的版本基準與 17.11 的待確認事項。
+4. **持續學習**：追蹤 PowerShell GitHub 儲存庫的 Release Notes 與 Microsoft Learn 文件。
 
 ---
 

@@ -10,9 +10,9 @@ categories = ['教學']
 
 | 項目 | 內容 |
 | --- | --- |
-| **文件版本** | 3.0 |
-| **最後更新** | 2026 年 9 月 30 日 |
-| **適用版本** | GitLab 19.4（2026-09-17 發布，最新修補版 19.4.1）；GitLab Runner 19.4.1；glab 1.120.0；Git 2.56.0 |
+| **文件版本** | 3.1 |
+| **最後更新** | 2026 年 11 月 25 日 |
+| **適用版本** | GitLab 19.6（2026-11-19 發布，最新修補版 19.6.1 為 2026-11-20 的重大安全修補）；GitLab Runner 19.6.1；glab 1.132.0；Git 2.56.1 |
 | **向下相容** | 主要內容適用 GitLab 18.x 以上；各章以「🆕／⚠️」標示版本差異 |
 | **適用對象** | 新進與資深開發人員、Tech Lead、DevOps／平台工程、資安與稽核人員、GitLab 管理員 |
 | **文件定位** | 企業標準技術白皮書／內部 GitLab 標準教材 |
@@ -21,8 +21,9 @@ categories = ['教學']
 
 > ⚠️ **v3.0 重大改版說明**：本版以 GitLab 19.4 與 docs.gitlab.com 官方文件為基準，逐章查證並改寫。v2.0 中已被淘汰或有誤的內容都已更正，包括：Runner 以 `--registration-token` 註冊、`only:`／`except:` 語法、已移除的 `License-Scanning` 範本、`openjdk` 映像檔、錯誤的 `codequality`／`dependency_scanning` 報表格式、錯誤的 CI/CD 變數優先順序，以及虛構的 CI 報表類型與命令列工具。同時新增 CI/CD Components 與 Catalog、`id_tokens`（OIDC）、Merge Trains、CODEOWNERS 與核准規則、Secret Push Protection、安全政策、GitLab agent for Kubernetes、GitLab Duo 與 Duo Agent Platform、升級路徑與 19.0 重大變更等章節。完整更正清單見[附錄 D：版本更新紀錄](#附錄-d版本更新紀錄)，查證來源見[附錄 E：查證紀錄](#附錄-e查證紀錄)。
 
-<!-- TOC-AUTO-BEGIN -->
+> 🆕 **v3.1 改版說明（2026-11-25）**：以 GitLab 19.6 為新基準，逐章補上 19.5、19.6 兩個月版的變更，並在新增內容中附上「如何驗證」步驟，讓讀者能自行確認設定是否生效。重點包括：版本與方案的驗證方法（[1.3](#13-版本方案部署型態與發行節奏)）、glab 指令異動（[2.3](#23-gitlab-cliglab)）、限時自動合併與 Rapid Diffs（第 3、4 章）、`needs:pipeline:job` 選擇性相依與 `retry:when` 新失敗原因（[5.4](#54-rulesworkflowneeds-與-include)）、GitLab Secrets Manager GA 與 Pipeline 變數上限（[5.6](#56-變數與機密管理)）、Runner 19.5／19.6 設定異動（[7.4](#74-configtoml-進階配置)）、安全設定檔與惡意套件阻擋規則（第 8 章）、GitLab agent 預設改用 `grpcs://`（[9.3](#93-gitlab-agent-for-kubernetes)）、MCP server GA 與工具治理（[11.4](#114-gitlab-duo-與-duo-agent-platform)）、19.5／19.6 升級注意事項與 GitLab 20.0 已公告的移除項目（[12.5](#125-gitlab-190-重大變更摘要)）。完整清單見 [D.4](#d4-v30--v31-更新表)。
 
+<!-- TOC-AUTO-BEGIN -->
 ## 目錄
 
 - [執行摘要](#執行摘要)
@@ -169,6 +170,7 @@ categories = ['教學']
   - [D.1 版本歷程](#d1-版本歷程)
   - [D.2 v2.0 → v3.0 更正表](#d2-v20--v30-更正表)
   - [D.3 v3.0 新增內容一覽](#d3-v30-新增內容一覽)
+  - [D.4 v3.0 → v3.1 更新表](#d4-v30--v31-更新表)
 - [附錄 E：查證紀錄](#附錄-e查證紀錄)
   - [E.1 待確認事項](#e1-待確認事項)
 - [附錄 F：參考資料與聯絡窗口](#附錄-f參考資料與聯絡窗口)
@@ -195,13 +197,14 @@ GitLab 是涵蓋「規劃 → 程式碼 → 建置 → 測試 → 安全 → 發
 | 資安與稽核 | 第 4.2 節、第 8 章、第 12 章 | 受保護分支、掃描器、安全政策、合規框架、稽核事件 |
 | 管理階層 | 執行摘要、第 1.3 節、第 10.1 節、第 16 章 | 方案選型、DORA 指標、案例與趨勢 |
 
-**2026 年企業導入 GitLab 的五項關鍵決策**：
+**2026 年企業導入 GitLab 的六項關鍵決策**：
 
 1. **方案與部署型態**：GitLab.com（SaaS）、Self-Managed 或 Dedicated；Free／Premium／Ultimate 的功能落差直接影響治理能力（見 [1.3](#13-版本方案部署型態與發行節奏)）。
 2. **CI/CD 標準化**：以 CI/CD Components 與 Catalog 取代複製貼上的 YAML，由平台團隊集中維護（見 [5.5](#55-cicd-components-與-cicd-catalog)）。
 3. **機密零落地**：以 `id_tokens`（OIDC）向雲端或 Vault 換取短效憑證，不在 CI/CD 變數存放長效金鑰（見 [5.6](#56-變數與機密管理)）。
 4. **安全左移且可強制**：掃描器搭配 Secret Push Protection 與安全政策，讓「必跑的檢查」不再依賴各專案自律（見第 8 章）。
 5. **可升級性**：每月發行、每年 5 月的大版本會帶來 breaking changes；自建環境必須依照 required upgrade stops 規劃升級（見 [12.4](#124-升級規劃與-required-upgrade-stops)）。
+6. **AI 代理可治理**：GitLab MCP server 已於 19.5 GA，外部代理（Claude Code、Cursor、Codex 等）可以直接操作 GitLab；導入時必須同步設定工具治理（Always Deny／Ask／Allow）、MCP 稽核事件與最小權限的 OAuth 授權（見 [11.4](#114-gitlab-duo-與-duo-agent-platform)）。
 
 > 💡 **閱讀提示**：範例中的 `gitlab.company.com`、`company.com` 等網域與群組名稱皆為示意，請替換為貴公司實際環境。標示 **Premium**／**Ultimate** 的功能需要對應的訂閱方案。
 
@@ -268,10 +271,10 @@ GitLab 是涵蓋「規劃 → 程式碼 → 建置 → 測試 → 安全 → 發
 | 方案 | 定位 | 企業常用、需此方案的功能（節錄） |
 | --- | --- | --- |
 | **Free** | 個人與小型團隊 | 原始碼管理、MR、CI/CD、CI/CD Components、基本 SAST 與 Pipeline Secret Detection、Container Registry、Package Registry、GitLab agent for Kubernetes |
-| **Premium** | 團隊與企業標準 | CODEOWNERS、MR 核准規則、Push Rules、Merge Trains、受保護環境與部署核准、合規框架、Epics、Code Quality Pipeline 報告檢視、GitLab Duo Core、Duo Agent Platform |
+| **Premium** | 團隊與企業標準 | CODEOWNERS、MR 核准規則、Push Rules、Merge Trains、受保護環境與部署核准、合規框架、Epics、Code Quality Pipeline 報告檢視、GitLab Duo Core、Duo Agent Platform、GitLab Secrets Manager（附加方案，19.5 GA，依 GitLab Credits 計費） |
 | **Ultimate** | 受監理與大型企業 | Advanced SAST、SBOM 相依性掃描、DAST、Container Scanning 弱點管理、Secret Push Protection、安全政策、DORA 指標、SARIF 匯入、合規中心進階功能 |
 
-> ⚠️ 功能與方案的對應會隨版本調整（例如 GitLab MCP server 在 19.2 由 Premium 下放至 Free）。導入前請以官方文件各頁頂端的 **Tier** 標示為準。
+> ⚠️ 功能與方案的對應會隨版本調整（例如 GitLab MCP server 在 19.2 由 Premium 下放至 Free、19.5 GA）。導入前請以官方文件各頁頂端的 **Tier** 標示為準。
 
 #### 🏢 部署型態
 
@@ -283,10 +286,37 @@ GitLab 是涵蓋「規劃 → 程式碼 → 建置 → 測試 → 安全 → 發
 
 #### 🗓️ 發行節奏與支援政策
 
-- **每月發行**：每月第三個星期四發布一個 minor 版本（例如 19.4 於 2026-09-17 發布）。
+- **每月發行**：每月第三個星期四發布一個 minor 版本（例如 19.5 於 2026-10-15、19.6 於 2026-11-19 發布）。
 - **每年一個大版本**：每年 5 月發布 major 版本（17.0 → 2024-05、18.0 → 2025-05、19.0 → 2026-05-21）。大版本才會移除已棄用的功能，是 breaking changes 最集中的時間點。
 - **修補支援**：錯誤修正只回補到目前的穩定版；安全性修正回補到目前版本加上前兩個月版。換句話說，**落後超過三個月版就收不到安全修補**。
+- **重大安全修補（Critical patch）**：不定期發布，而且可能緊接在月版之後。例如 19.6.1 於 19.6 發布隔日（2026-11-20）就以 Critical 等級釋出，19.5 在一個月內累計修補到 19.5.8。自建環境應訂閱官方安全公告，並以「72 小時內套用 Critical 修補」作為內部目標。
 - **升級路徑**：自建環境跨版升級時，必須經過 required upgrade stops（`x.2`、`x.5`、`x.8`、`x.11`），詳見 [12.4](#124-升級規劃與-required-upgrade-stops)。
+
+#### ✅ 如何確認目前的版本與方案
+
+> 🆕 **v3.1 新增**：本手冊的許多建議都有版本前提。動手設定前，先用下列指令確認自己環境的實際版本，避免照著文件設定卻沒有效果。
+
+```bash
+# 1. GitLab 版本（任何已登入使用者的權杖皆可，read_api 範圍即可）
+curl --silent --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+  "https://gitlab.company.com/api/v4/version"
+# 回應中的 "version" 欄位就是版本，例如 "19.6.1-ee"（-ee 代表 Enterprise Edition）
+
+# 2. 伺服器端完整環境資訊（Self-Managed 管理員，在 GitLab 主機上執行）
+sudo gitlab-rake gitlab:env:info
+
+# 3. 開發者端工具版本
+gitlab-runner --version   # 在 Runner 主機上
+glab --version
+git --version
+```
+
+| 檢查項目 | 判讀標準 | 不符合時 |
+| --- | --- | --- |
+| GitLab 版本 | 為目前月版或前兩個月版的**最新修補版**（例如 19.6.1、19.5.8） | 依 [12.4](#124-升級規劃與-required-upgrade-stops) 規劃升級 |
+| 方案（Tier） | **Admin → Subscription**（Self-Managed）或群組 **Settings → Billing**（GitLab.com） | 標示 Premium／Ultimate 的功能無法使用 |
+| Runner 版本 | major.minor 與 GitLab 相同（19.6 ↔ 19.6.x） | 見 [7.1](#71-runner-架構與範圍) |
+| Git 版本 | ≥ 2.56.1（2026-11-10 安全修補版） | 依 [2.1](#21-安裝-git-與基本設定) 升級 |
 
 ### 1.4 專案架構概覽
 
@@ -640,7 +670,7 @@ winget install --id Git.Git -e
 # macOS
 brew install git
 
-# 驗證安裝（本手冊基準為 Git 2.56.0）
+# 驗證安裝（本手冊基準為 Git 2.56.1，為 2026-11-10 的安全修補版；低於此版本請先升級）
 git --version
 ```
 
@@ -741,7 +771,7 @@ git config --global credential.https://gitlab.company.com.provider gitlab
 
 ### 2.3 GitLab CLI（glab）
 
-> 🆕 **v3.0 新增**：`glab` 是 GitLab 官方命令列工具（本手冊基準 v1.120.0，2026-09-29 發布），可在終端機完成 MR、Pipeline、Issue 等操作。
+> 🆕 **v3.0 新增**：`glab` 是 GitLab 官方命令列工具（本手冊基準 v1.132.0，2026-11-24 發布），可在終端機完成 MR、Pipeline、Issue 等操作。glab 約每週發行一次，請定期更新。
 
 ```bash
 # 安裝
@@ -759,6 +789,19 @@ glab ci status                                           # 目前分支的 Pipel
 glab ci view                                             # 互動式檢視 Pipeline
 glab ci lint                                             # 驗證 .gitlab-ci.yml 語法
 glab issue create --title "登入頁 500 錯誤" --label bug
+```
+
+> ⚠️ **v3.1 指令異動**：
+>
+> - glab **1.131.0** 起移除實驗性的 `glab mcp` 指令。要讓 AI 工具連接 GitLab，請改用 GitLab 內建的 MCP server（`https://<GitLab 主機>/api/v4/mcp`，見 [11.4](#114-gitlab-duo-與-duo-agent-platform)）。
+> - glab **1.129.0** 將 `glab govern` 更名為 **`glab minder`**，用來把 Claude Code、Cursor、Codex 等外部代理的工作階段同步到 GitLab AI Governance。GitLab 19.5 發行公告中的 `glab govern setup` 應改用 `glab minder setup`。
+
+**驗證 glab 是否可用**：
+
+```bash
+glab --version          # 應 ≥ 1.132.0
+glab auth status        # 顯示已登入的主機、使用者與權杖來源
+glab api version        # 以目前的憑證呼叫 /api/v4/version，確認連線與權限都正常
 ```
 
 ### 2.4 IDE 與開發工具整合
@@ -984,6 +1027,17 @@ git log --oneline @{upstream}..HEAD
    - **合併選項**：勾選 *Delete source branch when merge request is accepted*；依團隊規範決定是否 *Squash commits*
 3. **尚未完成的工作**：標題加上 `Draft:` 前綴（或點選 *Mark as draft*），Draft MR 無法被合併，可提早取得回饋。
 4. **自動合併**：Pipeline 尚在執行時可點選 **Set to auto-merge**，所有檢查通過後 GitLab 會自動合併。
+5. **限定合併時段（19.6 新增）**：設定合併排程時選擇 **Between** 並指定起訖時間，MR 只會在該時段內自動合併（例如只允許平日 10:00–16:00 合併到 `main`，避開下班與凍結期）。19.6 以前只有 **After**（某時間點之後）。
+
+**以 API 取消自動合併**（19.5 起）：
+
+```bash
+# 取消 MR !123 的自動合併；若 MR 已在 merge train 上，會一併移出
+curl --request POST --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+  "https://gitlab.company.com/api/v4/projects/<專案 ID>/merge_requests/123/cancel_auto_merge"
+```
+
+> ⚠️ 舊端點 `cancel_merge_when_pipeline_succeeds` 已於 19.5 棄用，自動化腳本請改用 `cancel_auto_merge`。另外，19.5 起對沒有合併權限的目標分支執行 `git push -o merge_request.auto_merge` 會直接被拒絕，不再留下無法合併的自動合併設定。
 
 #### 🔀 合併方式（Merge method）
 
@@ -994,6 +1048,8 @@ git log --oneline @{upstream}..HEAD
 | Fast-forward merge | 完全線性，不產生合併提交 | Trunk-based、要求極簡歷史 |
 
 設定位置：**Settings → Merge requests → Merge method**。
+
+> 💡 合併提交與 Squash 提交的訊息範本（**Settings → Merge requests → Merge commit message template**）19.5 起支援 `%{commits_count}` 變數，例如 `%{title} (%{commits_count} commits)` 會產生 `Bugfix (3 commits)`，方便在歷史中看出合併了多少提交。
 
 ### 3.6 💡 本章實務建議
 
@@ -1350,6 +1406,7 @@ Fixes #123"
    - 仔細檢查程式碼變更
    - 提供建設性意見
    - 標示 `Request Changes` 或 `Approve`
+   - 19.4 起，不在 Reviewers 清單中的人只要送出審查（Comment、Approve 或 Request changes），就會自動被加入 Reviewers，審查紀錄與名單不會再不一致
 
 2. **回應 Review**
    - 及時回應審查意見
@@ -1367,6 +1424,26 @@ Fixes #123"
 
 - 在 MR 中把 **GitLab Duo** 加為 Reviewer，即可取得 AI 審查意見；群組可設定**自訂審查指示**（Custom review instructions，19.0 起支援群組層級），讓 AI 依公司規範審查。
 - AI 審查只能作為**第一道過濾**：它不能取代 CODEOWNERS 與人工核准，也不應被計入必要核准數。
+
+**19.5–19.6 的 AI 審查演進**（v3.1 新增）：
+
+| 版本 | 變更 | 對流程的影響 |
+| --- | --- | --- |
+| 19.5 | Code Review Flow 支援**追蹤審查**（follow-up review）：只看上次審查後新增的程式碼，不重複已提出或已被回覆說明的意見 | 推送修正後可以放心再請 Duo 審查一次 |
+| 19.5 | **Recommend Reviewers Flow** GA：依核准規則、工作量、時區與近期活動推薦最少所需的審查者 | 在頂層群組啟用後，MR 側欄會出現 **Recommended** 區塊 |
+| 19.6（Beta） | GitLab Duo 可以 **Approve** 或 **Request changes** | Duo 的 Approve **不計入**必要核准數；但若專案設定「Request changes 會阻擋合併」，Duo 的 Request changes 也會阻擋合併，直到 Duo 在追蹤審查中核准或有人略過 |
+
+**如何驗證**：
+
+1. 在測試專案建立 MR，指派 GitLab Duo 為 Reviewer，確認出現審查摘要與逐行意見。
+2. 推送一個修正提交後再請 Duo 審查，確認它不再重複已解決的意見，並在摘要中列出尚未處理的項目。
+3. 若啟用了 19.6 的核准功能，確認 MR 的 **Approvals** 區塊中，Duo 的核准沒有讓 `Approvals required` 的計數減少。
+
+#### ⚡ Rapid Diffs（19.6 GA）
+
+19.6 以 **Rapid Diffs** 全面取代舊的差異檢視：伺服器端先產生差異再串流到瀏覽器，第一個檔案的顯示時間由約 4.5 秒縮短到約 1.5 秒，大型 MR 也不會再讓頁面卡住，瀏覽器搜尋（Ctrl+F）可以立即使用。原有的逐檔模式、Mark as viewed、完整檔案檢視、逐提交瀏覽、快捷鍵與圖片留言都繼續支援。
+
+> 💡 Rapid Diffs 改善的是「看得到」的速度，不是審查品質。單一 MR 仍建議控制在 400 行以內。
 
 #### 💡 Review 最佳實務
 
@@ -1612,6 +1689,66 @@ package:
     - build-job
 ```
 
+#### 👨‍👧 `needs:pipeline:job` + `optional`：子 Pipeline 選擇性相依（19.5）
+
+> 🆕 **v3.1 新增**：大型 Pipeline 常拆成父子 Pipeline。過去子 Pipeline 的 Job 若依賴一個「有條件才執行」的父 Job，當父 Job 被 `rules` 略過時，子 Job 會直接失敗。19.5 起可以把這種相依標記為 `optional: true`。
+
+```yaml
+# 父 Pipeline（.gitlab-ci.yml）
+backend-test:
+  stage: test
+  image: maven:3.9-eclipse-temurin-21
+  script: mvn -B test
+  artifacts:
+    paths: [target/surefire-reports/]
+  rules:
+    - changes: [backend/**/*]          # 只有後端有變更才執行
+
+trigger-e2e:
+  stage: deploy
+  trigger:
+    include: ci/e2e.yml
+    strategy: mirror
+  variables:
+    PARENT_PIPELINE_ID: $CI_PIPELINE_ID
+```
+
+```yaml
+# 子 Pipeline（ci/e2e.yml）
+e2e-report:
+  image: alpine:3.22
+  script: ./scripts/collect-reports.sh
+  needs:
+    - pipeline: $PARENT_PIPELINE_ID
+      job: backend-test
+      optional: true                   # 父 Job 沒有執行時，子 Job 照常開始
+```
+
+**如何驗證**：
+
+1. 只修改文件（不碰 `backend/`）並推送：父 Pipeline 中不會出現 `backend-test`，但子 Pipeline 的 `e2e-report` 仍正常執行。
+2. 修改 `backend/` 並推送：`e2e-report` 會等待 `backend-test` 成功，並下載其 artifacts。
+3. 若 `backend-test` 有執行但失敗，`e2e-report` 不會執行；品質把關不會因為 `optional` 而變鬆。
+
+#### 🔁 `retry:when`：改用細分的失敗原因（19.1 起）
+
+19.0 起，GitLab 把籠統的 `stuck_or_timeout_failure`、`job_execution_timeout` 拆成更精確的失敗原因。舊值在 19.1 標示為棄用，目前會自動對應到新原因，並在 CI Lint 中顯示警告，**預計於 20.0 移除**。
+
+```yaml
+integration-test:
+  script: ./mvnw -B verify -Pintegration
+  retry:
+    max: 2
+    when:
+      - runner_system_failure               # Runner 系統錯誤
+      - runner_external_dependency_failure  # 無法連到映像檔登錄庫等外部相依（19.1 起）
+      - stuck_pending_no_matching_runners   # 取代 stuck_or_timeout_failure 的一部分
+      - no_updates_running                  # Job 執行中但長時間沒有回報
+      - server_timeout_running              # 取代 job_execution_timeout
+```
+
+> 💡 **如何驗證**：執行 `glab ci lint`（或在 Pipeline editor 按 **Validate**），如果設定中仍有 `stuck_or_timeout_failure` 或 `job_execution_timeout`，會出現非阻擋性的棄用警告。
+
 #### 📥 `include`、`extends` 與 `!reference`
 
 ```yaml
@@ -1817,6 +1954,80 @@ read-db-password:
 - **預設情況下，目標專案必須把來源專案或群組加入其 CI/CD job token allowlist**（**Settings → CI/CD → Job token permissions**），才能以 job token 存取。
 - 只在確實需要跨專案存取時才加入 allowlist，並定期檢視。
 
+#### 🗄️ GitLab Secrets Manager（19.5 GA）
+
+> 🆕 **v3.1 新增**（Premium／Ultimate 附加方案，依 GitLab Credits 計費；GitLab.com 與 Self-Managed）
+
+GitLab Secrets Manager 以 [OpenBao](https://openbao.org/) 為基礎，直接沿用 GitLab 的群組與專案權限。它和 CI/CD 變數最大的差別是：**變數預設會提供給所有 Job，機密則必須由 Job 明確宣告才拿得到**，而且每一次建立、讀取、更新、刪除都會產生稽核事件。
+
+| 方案 | 適合存放 | 優點 | 限制 |
+| --- | --- | --- | --- |
+| CI/CD 變數（Protected + Masked and hidden） | 非機密設定、過渡期的少量機密 | 免費、設定簡單 | 預設對所有 Job 可見；讀取沒有稽核紀錄 |
+| **GitLab Secrets Manager** | 部署憑證、資料庫密碼、私鑰 | 依環境與分支限縮、Job 必須明確請求、完整稽核 | 需 Premium／Ultimate 與 Credits；Self-Managed 需自建 OpenBao |
+| `id_tokens` + 雲端 IAM 或外部 Vault | 雲端存取權限 | 不存放長效金鑰 | 需要外部系統的信任設定 |
+
+**啟用前提**：
+
+- **GitLab.com**：頂層群組 Owner 在 **Secure → Secrets manager** 選擇 **Enable with GitLab Credits**（也可先申請 30 天試用）。
+- **Self-Managed**：管理員先安裝並設定 OpenBao，再到 **Admin → Settings → General → GitLab Secrets Manager** 啟用；設定作用於整個執行個體。
+- **Runner 19.0 以上**才能在 Job 中取得機密。
+
+**建立機密**：在專案或群組的 **Secure → Secrets manager → New secret** 填寫名稱（只能使用英數字與底線，建立後不可改名）、值（≤ 10 KB）、可用的環境（Environments），以及專案層級的分支或群組層級的「僅受保護分支」。可另外設定輪替提醒（最短 7 天）。
+
+```yaml
+deploy-production:
+  stage: deploy
+  environment: production            # 機密的 Environments 必須包含 production
+  secrets:
+    KUBE_CA_PEM:                     # 預設以「檔案」提供：變數值是暫存檔的路徑
+      gitlab_secrets_manager:
+        name: kube_cert              # 專案機密
+    DB_PASSWORD:
+      gitlab_secrets_manager:
+        name: prod_db_password
+        source: group/company/payments   # 群組機密：必須是本專案所屬群組或其上層群組
+      file: false                    # 直接以環境變數提供值
+  script:
+    - kubectl config set-cluster prod --server="$KUBE_SERVER" --certificate-authority="$KUBE_CA_PEM"
+    - ./scripts/migrate.sh           # 程式從 DB_PASSWORD 讀取密碼；日誌中出現時會被替換為 [MASKED]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+```
+
+**預設權限**（19.4 以後啟用的 Secrets Manager）：
+
+| 角色 | 預設權限 |
+| --- | --- |
+| Owner | 全部（可調整他人權限） |
+| Maintainer | 讀取中繼資料、建立、更新 |
+| Developer | 讀取中繼資料、建立（不能修改既有機密） |
+
+> ⚠️ 任何角色在 UI 中都**看不到機密的值**；能讀到值的只有符合環境與分支條件的 Job。因此「誰能在 `production` 環境執行 Job」等同「誰能取得正式環境機密」，必須搭配受保護分支與受保護環境（見 [9.1](#91-環境規劃與受保護環境)）。
+
+**如何驗證與排錯**：
+
+| 錯誤訊息 | 原因 | 處理方式 |
+| --- | --- | --- |
+| `reading from Vault: api error: status code 403` | 機密不存在；機密的 Environments 不包含此 Job 的環境（沒有 `environment` 的 Job 只能讀取設為「All」的機密）；分支不符合 | 檢查 Job 的 `environment` 與分支，以及機密的範圍設定 |
+| `inline auth JWT is required` | 此專案或群組的 Secrets Manager 尚未佈建 | 先在該專案或群組建立任一機密，再重跑 Pipeline |
+| `namespace does not have access to GitLab Secrets Manager` | 試用已到期、沒有可用的 Credits，或授權未包含此附加方案 | 由頂層群組 Owner 或管理員確認訂閱 |
+| `secret source group is not accessible from this project` | `source` 指向的群組不是本專案的上層群組（常見於 fork 的 MR Pipeline） | 修正 `source`，或以 `rules` 限制只在原專案執行 |
+
+> 💡 **Self-Managed 升級到 19.6 後**：19.6 提供限縮後的 `secrets_manager` OpenBao 政策，但升級**不會**自動更新既有 OpenBao 的政策，需手動執行 `sudo gitlab-rake gitlab:secrets_management:openbao:secrets_manager_policy:update`。
+>
+> 💡 **外洩權杖一鍵輪替**（19.6 Beta，GitLab.com Ultimate）：Secret Detection 發現外洩的個人存取權杖時，可在弱點詳細頁選 **AI actions → Fix with AI → Rotate and fix**，GitLab 會撤銷舊權杖、建立同名同範圍的新權杖並存入 Secrets Manager，再由 GitLab Duo 開 MR 把寫死的權杖改為機密引用。
+
+#### 📏 Pipeline 變數上限（19.6）
+
+| 限制 | GitLab.com | Self-Managed／Dedicated |
+| --- | --- | --- |
+| 每條 Pipeline 的 Pipeline 變數數量 | 1,200 | 預設關閉，管理員可在 CI/CD 限制中設定 |
+| 單一變數值大小 | 128 KiB（File 型別 1 MiB） | 同上 |
+| 建立 Pipeline 時傳入的變數總量（API、Trigger、手動執行） | 10 MiB | 10 MiB（無法關閉） |
+| Job 的變數展開後總量 | 10 MiB | 10 MiB（無法關閉） |
+
+超過時 Pipeline 會建立失敗，訊息例如 `Failed to build pipeline variables: total size exceeds the limit of 10 MiB`。大型設定檔或憑證請改用 File 型別變數、artifacts 或 Secrets Manager，不要塞進一般變數。
+
 ### 5.7 Pipeline 操作與監控
 
 #### 🔧 Pipeline 管理
@@ -1853,7 +2064,8 @@ Pipeline 執行時間與成功率 ：Analyze → CI/CD analytics
 - **全面改用 `rules`**：新設定禁止使用 `only`／`except`，既有設定可逐步改寫。
 - **先寫 `workflow:rules`**：統一決定 MR pipeline 與 branch pipeline 的建立條件，避免同一次推送產生兩條 Pipeline。
 - **以 Components 取代複製貼上**：共用邏輯集中在 Component 專案，以固定版本引用，發布到 CI/CD Catalog。
-- **機密零落地**：優先使用 `id_tokens`（OIDC）；必須存放在變數中的機密一律勾選 Protected + Masked and hidden，並設定環境範圍。
+- **機密零落地**：優先使用 `id_tokens`（OIDC）；必須存放在 GitLab 的機密優先放進 Secrets Manager（19.5 GA），仍留在變數中的一律勾選 Protected + Masked and hidden，並設定環境範圍。
+- **相依要誠實**：父子 Pipeline 間「有條件才存在」的 Job 以 `needs:pipeline:job` + `optional: true` 表達，不要再用重複 Job 或腳本繞過。
 - **快取不放建置產物**：快取只放相依套件，產物用 `artifacts` 傳遞並設定 `expire_in`。
 - **可中斷性**：非部署類 Job 設定 `interruptible: true`，搭配 `workflow:auto_cancel`，節省 Runner 資源。
 
@@ -2161,7 +2373,7 @@ Runner 以**輪詢（poll）**方式向 GitLab 取得 Job，因此只需要能�
 | Group runners | 群組及子群組共用 | 平衡成本與隔離 | 團隊或事業群專用 |
 | Project runners | 專案專用 | 隔離最佳，成本較高 | 正式環境部署、特殊硬體（GPU、macOS） |
 
-> 💡 **版本相容**：Runner 的 major.minor 版本應與 GitLab 保持一致（例如 GitLab 19.4 搭配 Runner 19.4.x），升級 GitLab 後應同步升級 Runner。
+> 💡 **版本相容**：Runner 的 major.minor 版本應與 GitLab 保持一致（例如 GitLab 19.6 搭配 Runner 19.6.x），升級 GitLab 後應同步升級 Runner。驗證方式：在 Runner 主機執行 `gitlab-runner --version`，或在 **Admin → CI/CD → Runners** 檢視各 runner manager 的版本欄位；Job 中也可以 `echo "$CI_RUNNER_VERSION"` 確認實際執行的版本。
 
 ### 7.2 建立與註冊 Runner
 
@@ -2269,6 +2481,38 @@ shutdown_timeout = 0
 ```
 
 > ⚠️ **v3.0 更正**：v2.0 範例同時設定 `privileged = true`、掛載 `/var/run/docker.sock` 並使用 `security_opt = ["seccomp:unconfined"]`。這樣任何 Job 都能取得**主機 root 權限**，並可存取同一主機上其他 Job 的容器。一般 Runner 應全部關閉；需要建置容器映像時，請改用專用且隔離的 dind Runner，或不需要特權的 Buildah、Jib（見 [6.5](#65-容器映像建置)）。
+
+#### 🆕 Runner 19.5／19.6 設定異動
+
+> 🆕 **v3.1 新增**：升級 Runner 前請比對下表，特別是會改變既有行為的項目。
+
+| 版本 | 異動 | 影響 | 建議做法 |
+| --- | --- | --- | --- |
+| 19.5 | `CI_JOB_TAGS`、`CI_RUNNER_TAGS` 改為逐一以 JSON 編碼每個標籤 | 自行解析這兩個變數的腳本可能出錯 | 在測試 Job 中 `echo "$CI_RUNNER_TAGS"` 確認格式後再調整腳本 |
+| 19.5 | Kubernetes executor 的 helper 容器被 OOM 終止時，錯誤訊息更明確；Job 開始時記錄 CPU 型號 | 排錯更容易 | 無需調整 |
+| 19.6 | `[runners.artifact]` 新增 `direct_download` 設定，取代 `FF_USE_DIRECT_DOWNLOAD` 功能旗標 | 舊旗標已棄用 | 已使用該旗標者改用新設定 |
+| 19.6 | 新增 `allow_http2`，讓 Runner 以 HTTP/2 呼叫 GitLab API（預設關閉） | 可減少連線數 | 先在測試 Runner 開啟並觀察，確認中間的代理支援 HTTP/2 |
+| 19.6 | `FF_CONCRETE` 的 Job 改用設定中的 shell | `shell = "sh"` 時，bash 專用語法（陣列、`[[ ]]`）會失敗 | 把 script 改為 POSIX 語法，或改用 bash |
+| 19.6 | 修正 Docker Autoscaler 在 19.3.1 會於 Job 執行中回收執行個體的問題 | 19.3.1 使用者會遇到 Job 中斷 | 使用 Docker Autoscaler 者升級到 19.6.x |
+| 19.6 | Kubernetes pause pod 支援標籤與註解，並與 Job pod 使用相同的節點親和性 | 排程更一致 | 依叢集政策補上標籤 |
+| 19.6 | 提供 Ubuntu 26.04 原生套件 | 新作業系統可用 | 新建 Runner 主機可直接採用 |
+
+**升級後的驗證**：
+
+```bash
+sudo gitlab-runner --version      # 確認已是 19.6.x
+sudo gitlab-runner verify         # 確認每個 runner manager 都能連到 GitLab
+sudo journalctl -u gitlab-runner --since "10 min ago" | grep -i -E "error|warn"
+```
+
+```yaml
+# 在測試專案執行一次，確認 Runner 版本與標籤格式
+runner-smoke-test:
+  tags: [docker, linux]
+  script:
+    - echo "Runner 版本：$CI_RUNNER_VERSION"
+    - echo "Runner 標籤：$CI_RUNNER_TAGS"
+```
 
 ### 7.5 Docker Executor 最佳化
 
@@ -2485,6 +2729,27 @@ dast:
 - **Secure → Security dashboard**：弱點趨勢（Ultimate）
 - **Secure → Dependency list**：由 SBOM 產生的相依套件清單（Ultimate）
 
+> ⚠️ **使用 MR Pipeline 的專案**：安全掃描範本預設在 branch pipeline 執行。若專案改用 MR pipeline（見 5.3 的 `workflow:rules`），必須設定 `AST_ENABLE_MR_PIPELINES: "true"`，掃描 Job 才會出現在 MR pipeline 中；否則 MR 安全小工具與核准政策都會因為缺少掃描結果而失準。
+
+#### 🧩 安全設定檔（Security configuration profiles，Ultimate）
+
+> 🆕 **v3.1 新增**：19.5 起可以在 UI 中為**整個群組**設定掃描器的選項，不必逐一修改每個專案的 `.gitlab-ci.yml`。
+
+| 版本 | 能力 |
+| --- | --- |
+| 19.5 | SAST 與 Secret Detection 設定檔可自訂排除路徑、自訂分析器映像、是否掃描完整 Git 歷史 |
+| 19.6 | Dependency Scanning 設定檔可在 UI 自訂（執行於 MR pipeline、預設分支 pipeline 或兩者，以及排除路徑等） |
+| 19.6 | **Quick setup** 套用設定檔時可選：All projects、Projects that don't scan yet（建議）、Replace existing |
+| 19.6 | **Automated triage and remediation** 設定檔：Conservative（手動、High 以上）、Standard（建議，自動、Medium 以上）、Proactive（自動、所有等級，會消耗較多 Credits） |
+
+> ⚠️ Quick setup 選 **All projects** 時，已經在 `.gitlab-ci.yml` 或政策中執行掃描的專案會**重複掃描**。一般情況請選 **Projects that don't scan yet**。
+
+**如何驗證**：到群組的 **Secure → Security inventory**，確認每個專案的掃描器覆蓋欄位都有值，19.6 起另有 **Capabilities** 欄位顯示哪些專案已啟用自動分流流程；篩選條件會保留在網址中，可以直接分享給負責的團隊。
+
+#### 🌿 非預設分支的弱點追蹤（19.5 GA，Ultimate）
+
+除了預設分支，還可以在 **Secure → Security configuration** 追蹤最多 **3 個**長期分支或 Tag（例如 `release/2026.11`、`project-prod`），弱點報告與專案安全儀表板都可以依追蹤的 ref 篩選。Self-Managed 需啟用進階弱點管理才有 ref 與分支篩選。適合同時維護多個發行版本、需要分別掌握各版本弱點的產品線。
+
 ### 8.3 Secret Push Protection
 
 > 🆕 **v3.0 新增**（Ultimate）
@@ -2566,7 +2831,41 @@ pipeline_execution_policy:
           ref: main
 ```
 
-> ⚠️ **Compliance pipelines 已棄用**：v2.0 時代常用的「合規 Pipeline」（compliance pipelines）已被官方棄用，應遷移到 Pipeline execution policy。兩者同時設定時，行為難以預測，可能產生重複 Job 或遺漏檢查。
+#### 🦠 阻擋惡意套件（malware rule，19.6）
+
+> 🆕 **v3.1 新增**（Ultimate；專案需使用以 SBOM 為基礎的 Dependency Scanning）
+
+一般的掃描規則會依嚴重度與狀態篩選，惡意套件可能因為「被標記為忽略」或「不在嚴重度範圍內」而被放行。19.6 起可在 MR 核准政策的掃描器上加入 `is_malicious: true`：只要相依套件出現在 GitLab 惡意套件公告（識別碼以 `GLAM-` 開頭）中，**不論嚴重度或狀態，一律需要核准**。公告涵蓋 npm、PyPI、Maven、Go、NuGet、Cargo、RubyGems。
+
+```yaml
+approval_policy:
+  - name: 阻擋惡意套件與 Critical 相依弱點
+    description: 偵測到惡意套件，或新增 Critical 相依弱點時，需資安核准
+    enabled: true
+    rules:
+      - type: scan_finding
+        branches: []
+        scanners:
+          - type: dependency_scanning
+            is_malicious: true          # 惡意套件：不受下方嚴重度與狀態篩選限制
+          - type: dependency_scanning   # 一般相依弱點：依下方條件判斷
+        vulnerabilities_allowed: 0
+        severity_levels:
+          - critical
+        vulnerability_states:
+          - new_needs_triage
+    actions:
+      - type: require_approval
+        approvals_required: 1
+        group_approvers:
+          - company/security-team
+```
+
+> 💡 **導入建議**：新政策可先加上 `enforcement_type: warn`（警告模式）試行兩週，只產生機器人留言與稽核事件、不阻擋合併，確認誤判率後再改回預設的 `enforce`。
+>
+> **如何驗證**：在測試專案的 MR 中加入一個已知的測試套件，確認 MR 出現政策機器人留言並列出 `GLAM-` 開頭的發現，且合併按鈕需要資安群組核准。
+
+> ⚠️ **Compliance pipelines 已棄用**：v2.0 時代常用的「合規 Pipeline」（compliance pipelines）已被官方棄用，**預計於 GitLab 20.0（2027-05）移除**，應遷移到 Pipeline execution policy。兩者同時設定時，行為難以預測，可能產生重複 Job 或遺漏檢查。
 
 ### 8.5 合規框架與稽核
 
@@ -2584,6 +2883,8 @@ pipeline_execution_policy:
 - **程式碼變更追蹤**：提交、分支、標籤操作
 - **系統管理記錄**：設定變更、使用者管理
 - **CI/CD 與安全**：受保護分支與環境設定、核准規則變更、略過 Secret Push Protection、部署核准
+- **AI 代理**（v3.1 新增）：GitLab MCP server 的每一次工具呼叫（19.6）、外部代理（ECA）的工作階段與工具呼叫（19.5 Beta），在頂層群組的 **AI → Governance → Audit events** 檢視
+- **機密管理**：Secrets Manager 中機密的建立、讀取、更新、刪除（19.5）
 
 | 功能 | 說明 | 方案 |
 | --- | --- | --- |
@@ -2592,6 +2893,16 @@ pipeline_execution_policy:
 | 稽核事件串流 | 即時串流到 SIEM（Splunk、Datadog、AWS S3、Google Cloud Logging 等） | Ultimate |
 
 > 💡 受監理產業應把稽核事件串流到企業 SIEM，並依法規要求保存（例如金融業常見的 5–7 年）。
+
+#### 📈 弱點管理的新能力（19.5–19.6，Ultimate）
+
+| 能力 | 版本 | 用途 |
+| --- | --- | --- |
+| MR 安全報告比較上限由每個嚴重度 25 筆提高到 1,000 筆 | 19.5 | 「新增／已修復」清單更準確，不再把未變動的發現誤判為新增 |
+| 安全儀表板的 **MTTR（平均修補時間）** 圖表 | 19.6 | 依週呈現最近 12 週的修補速度，可依嚴重度或掃描類型分組，直接對照弱點 SLA |
+| 在弱點詳細頁設定**到期日** | 19.6 | Needs triage／Confirmed 狀態的弱點會標示 overdue（逾期）或 due soon（7 天內到期） |
+| 群組弱點報告依**安全屬性**（應用程式、事業單位、團隊）篩選 | 19.6 | 跨多個專案檢視同一應用程式的所有弱點 |
+| **Business Logic Security Analyzer** | 19.5（GitLab.com）、19.6（Self-Managed／Dedicated） | 以 AI 找出樣式式掃描器常漏掉的 BOLA、缺少授權檢查、Mass assignment；每次掃描消耗 Credits |
 
 ### 8.6 軟體供應鏈安全
 
@@ -2643,7 +2954,8 @@ sign-image:
 - **掃描器以 `Jobs/` 範本或 Components 為準**：定期檢查官方棄用公告，避免使用已移除的範本（如 License-Scanning）。
 - **機密三道防線**：本機 hook → Secret Push Protection → Pipeline Secret Detection；外洩時先輪替再清理。
 - **強制靠政策、不靠自律**：Ultimate 用安全政策集中強制掃描與核准；Premium 至少用合規框架標記加上受保護分支。
-- **弱點要有 SLA**：例如 Critical 7 天、High 30 天修補，並以弱點報告追蹤。
+- **弱點要有 SLA**：例如 Critical 7 天、High 30 天修補，以弱點到期日標示，並用 19.6 的 MTTR 圖表檢視是否達標。
+- **惡意套件零容忍**：在核准政策中加入 `is_malicious: true`，惡意套件不受嚴重度與狀態篩選影響。
 - **稽核事件出平台**：串流到 SIEM 保存，符合法規保存年限。
 - **供應鏈可驗證**：產生 SBOM、SLSA Provenance，正式環境只部署已簽章的映像。
 
@@ -2782,7 +3094,9 @@ helm upgrade --install prod-agent gitlab/gitlab-agent \
   --namespace gitlab-agent-prod-agent \
   --create-namespace \
   --set config.token=<agent-token> \
-  --set config.kasAddress=wss://gitlab.company.com/-/kubernetes-agent/
+  --set config.kasAddress=grpcs://gitlab.company.com
+# 19.5 起新安裝預設使用原生 gRPC（grpcs://）。若叢集與 GitLab 之間的代理不支援端到端 HTTP/2，
+# 改回 WebSocket：--set config.kasAddress=wss://gitlab.company.com/-/kubernetes-agent/
 ```
 
 #### 授權 CI/CD 使用代理
@@ -2802,7 +3116,31 @@ ci_access:
 
 CI Job 中以 `kubectl config use-context <代理設定專案路徑>:<代理名稱>` 選擇叢集，無需在變數中存放 kubeconfig。
 
-> 💡 GitLab 19.5 起，代理預設改用原生 gRPC 連線取代 WebSocket；升級到 19.5 前請確認防火牆與反向代理支援 gRPC（HTTP/2）。
+> ⚠️ **v3.1 更新：19.5 起預設改用 `grpcs://`**
+>
+> - **新安裝**：Linux 套件（`external_url` 為 HTTPS、沒有相對路徑，且由內建 NGINX 以 HTTP/2 終結 TLS）與 Helm Chart（Gateway API 或 NGINX Ingress）會在安裝指令中提供 `grpcs://` 位址；GitLab.com 為 `grpcs://kas.gitlab.com`。
+> - **既有代理**：仍以 `wss://` 連線者可以繼續運作，因為 KAS 在同一個連接埠同時服務兩種協定；但官方建議在下次升級 `gitlab-agent` Helm Chart 時改為 `grpcs://`。
+> - **代理不支援 HTTP/2 時**：例如 WAF 或會解密 TLS 的代理以 HTTP/1.1 連到 GitLab，新代理會連線失敗，而且錯誤看起來像網路問題。此時請明確指定 WebSocket 位址：Linux 套件設定 `gitlab_rails['gitlab_kas_external_url']`，Helm Chart 設定 `global.appConfig.gitlab_kas.externalUrl`。
+> - **以 `kpt` 安裝的 `agentk` 已棄用**，預計於 20.0 移除，請改用 Helm、glab 或 Flux 安裝。
+
+**如何驗證代理連線**：
+
+1. **Operate → Kubernetes clusters**：代理狀態應為 **Connected**，並顯示最後連線時間與 `agentk` 版本。
+2. 在 CI Job 中測試：
+
+```yaml
+k8s-agent-smoke-test:
+  image: alpine/k8s:1.35.9
+  environment:
+    name: production
+  script:
+    - kubectl config get-contexts                       # 應列出 company/platform/k8s-agents:prod-agent
+    - kubectl config use-context company/platform/k8s-agents:prod-agent
+    - kubectl auth can-i list pods -n payments          # 依 RBAC 設定應回傳 yes 或 no
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: manual
+```
 
 ### 9.4 GitOps：Flux 與 Argo CD
 
@@ -3847,7 +4185,9 @@ Jira-GitLab 整合流程：
 | **GitLab Duo Pro／Enterprise** | 進階附加方案：Chat、Code Review、Root Cause Analysis 等（功能範圍依方案而異） | 附加訂閱 |
 | **GitLab Duo Agent Platform** | 代理式（agentic）AI：Agentic Chat、代理與 Flows，可自動化多步驟開發工作 | Premium／Ultimate；18.8 GA，依 **GitLab Credits** 計費 |
 | **GitLab Duo CLI（`duo`）** | 在終端機使用 Duo Agent Platform | 19.2 GA（Duo CLI 9.0.0） |
-| **GitLab MCP server** | 讓外部 AI 工具（支援 MCP 的 IDE 或代理）以 OAuth 存取 GitLab 資料 | Beta；19.2 起 Free 即可使用 |
+| **GitLab MCP server** | 讓外部 AI 工具（支援 MCP 的 IDE 或代理）以 OAuth 存取 GitLab 資料與 Duo 代理／Flows | **19.5 GA**；Free 起即可使用 |
+| **GitLab Orbit** | 把程式碼、MR、工作項目、Pipeline、弱點連成一張即時更新的情境圖，供 Duo 或外部代理查詢 | 19.5 GA（GitLab.com，Premium／Ultimate）；19.6 起可加入 MCP server 的 `orbit` 工具集 |
+| **GitLab Duo in Slack** | 在 Slack 頻道 `@GitLab` 建立 Issue、摘要討論、查詢 MR | 19.6 有限開放（GitLab.com，Premium／Ultimate） |
 | **GitLab Duo Self-Hosted** | 使用企業自選、自行部署的模型 | Self-Managed，適合離線或資料不得出境的環境 |
 
 #### 🗓️ 19.x 重點演進
@@ -3859,11 +4199,81 @@ Jira-GitLab 整合流程：
 | 19.2（2026-07） | GitLab Duo CLI GA；MCP server 下放至 Free |
 | 19.3（2026-08） | Flow Creator 基礎代理（foundational agent） |
 | 19.4（2026-09） | GitLab MCP server 工具的治理控管 |
+| 19.5（2026-10） | MCP server GA（工具集選擇、Duo 代理與 Flows 工具）；Orbit GA；Secrets Manager GA；Duo CLI `/goal` 與 auto mode；外部代理（ECA）接入 AI Governance（Beta） |
+| 19.6（2026-11） | MCP 工具呼叫稽核事件；MCP 工具治理（Always Deny／Ask／Allow，Beta）；Agentic Chat `/goal` 與網頁搜尋；工作區子代理 GA；排程自動化（Beta） |
+
+#### 🔌 連接 GitLab MCP server：範例與驗證
+
+> 🆕 **v3.1 新增**
+
+**前提**：GitLab.com 由頂層群組 Owner、Self-Managed 由管理員先**允許存取 MCP server**。
+
+**驗證方式**（MCP server 只接受下列兩種）：
+
+| 權杖 | 是否可用 |
+| --- | --- |
+| OAuth 存取權杖（`mcp` scope，由 MCP 用戶端透過 OAuth 流程自動取得） | ✅ 建議 |
+| 細粒度個人存取權杖（具 MCP tool 資源的 Execute 權限） | ✅ |
+| 傳統 PAT、Project／Group Access Token（即使有 `api` scope） | ❌ 回傳 `403 Forbidden`（`insufficient_scope`） |
+
+**以 Claude Code 為例**（只開放核心、MR 與 CI 工具集）：
+
+```bash
+claude mcp add -s user --transport http GitLab https://gitlab.company.com/api/v4/mcp \
+  --header "X-Gitlab-Enabled-Mcp-Server-Toolsets: core,merge_requests,ci"
+```
+
+**以 JSON 設定的用戶端**（Cursor、Kiro 等）：
+
+```json
+{
+  "mcpServers": {
+    "GitLab": {
+      "type": "http",
+      "url": "https://gitlab.company.com/api/v4/mcp",
+      "headers": {
+        "X-Gitlab-Enabled-Mcp-Server-Toolsets": "core,merge_requests,ci",
+        "X-Gitlab-Namespace-Id": "company/payments"
+      }
+    }
+  }
+}
+```
+
+| 工具集 | 預設 | 說明 |
+| --- | --- | --- |
+| `meta` | 永遠提供 | 伺服器資訊 |
+| `core`、`merge_requests`、`work_items`、`repository`、`ci` | 是 | 日常開發所需 |
+| `duo_agent_platform` | 有 Agent Platform 權限時 | 啟動與追蹤 Duo 代理、Flows |
+| `wikis`、`code_security`、`orbit` | 否（需明確加入） | `code_security` 需 Ultimate；`orbit` 需符合 Orbit 條件 |
+
+> 💡 只開放需要的工具集，可以減少 LLM 的上下文負擔，也降低誤用風險；不認得的工具集名稱會回傳 `400`。`X-Gitlab-Namespace-Id` 讓工具清單套用指定群組或專案的治理規則。
+
+**如何驗證**：
+
+1. 在 Claude Code 輸入 `/mcp`，選擇 GitLab 並完成瀏覽器的 OAuth 授權；再次輸入 `/mcp` 應顯示 **connected**。
+2. 請代理「列出我在 company/payments 下的群組」，確認回傳結果只包含你本身有權限的資料。
+3. 在頂層群組 **AI → Governance → Audit events** 確認剛才的工具呼叫已留下紀錄（19.6 起）。
+
+**GitLab.com 的請求上限**（以使用者計算，多個用戶端共用額度）：
+
+| 方案 | 每分鐘 | 每小時 |
+| --- | --- | --- |
+| Free | 60 | 3,600 |
+| Premium／Ultimate | 600 | 5,000 |
+
+超過時回傳 `429 Too Many Requests` 與 `Retry-After` 標頭；被拒絕的請求仍會計入每小時額度，代理遇到 `429` 時必須等待後再重試。Self-Managed 由管理員設定單一上限。
+
+#### 🛡️ MCP 工具治理與外部代理稽核（19.5–19.6）
+
+- **工具治理**（19.6 Beta，Premium／Ultimate）：頂層群組 Owner 可把每個 MCP 工具設為 **Always Deny**（封鎖且代理看不到）、**Always Ask**（每次執行前需使用者同意）或 **Always Allow**，規則對所有連線的用戶端一體適用。建議把會寫入或觸發 Pipeline 的工具（例如建立專案、執行手動 Job）設為 Always Ask。
+- **外部代理（ECA）接入 AI Governance**（19.5 Beta）：在開發者電腦執行一次 `glab minder setup`（舊名 `glab govern setup`），Claude Code、Cursor、Codex 的工作階段與工具呼叫就會出現在 AI Governance 儀表板與 AI 稽核事件中，並可經由稽核事件串流送到 SIEM。工具輸出內容不會上傳。
+- **Duo CLI auto mode**（19.5）：代理可不經逐步確認直接執行工具；預設關閉，管理員與群組 Owner 可鎖定為 **Always off**，Always Deny 的工具仍會被封鎖。只應在可信任的儲存庫與可捨棄的分支使用。
 
 #### 🧭 企業導入 AI 輔助開發的治理原則
 
 1. **資料治理**：確認模型供應商、資料保留政策與資料所在地；受監理環境評估 Duo Self-Hosted。
-2. **權限一致**：Duo 與 MCP server 只能存取使用者本身有權限的資料；MCP 的 OAuth 授權應納入權限覆核。
+2. **權限一致**：Duo 與 MCP server 只能存取使用者本身有權限的資料；MCP 的 OAuth 授權應納入權限覆核，並以工具治理封鎖不需要的寫入類工具。
 3. **人工負責**：AI 產生的程式碼與審查意見一律經過人工 Code Review，AI 不計入必要核准數。
 4. **成本可控**：Agent Platform 依 GitLab Credits 計費，應設定使用額度並定期檢視用量。
 5. **稽核可追**：把 AI 功能的啟用範圍（哪些群組、哪些功能）納入變更管理紀錄。
@@ -3873,7 +4283,8 @@ Jira-GitLab 整合流程：
 - **API 用專用權杖**：整合服務使用 Project／Group Access Token 或 OAuth Authorization Code 流程，不使用個人 PAT，也不再使用 ROPC。
 - **Webhook 必驗證**：使用 Signing token 驗證 HMAC 簽章、以 `webhook-id` 去除重複、非同步處理。
 - **通知走官方 App**：Slack 使用 GitLab for Slack app，Jira 使用 GitLab for Jira Cloud app。
-- **AI 先治理再推廣**：先在試點群組啟用 Duo，建立資料、權限、成本與審查規範後再全面推廣。
+- **AI 先治理再推廣**：先在試點群組啟用 Duo（19.5 起 Self-Managed 可只對指定子群組開放），建立資料、權限、成本與審查規範後再全面推廣。
+- **外部代理也要納管**：MCP 用戶端只開放必要工具集、寫入類工具設為 Always Ask，並以 `glab minder setup` 讓外部代理的活動進入稽核。
 
 ---
 
@@ -3948,7 +4359,7 @@ sudo gitlab-ctl stop sidekiq
 sudo gitlab-ctl status
 
 # 3. 還原備份（BACKUP 為備份檔名去除 _gitlab_backup.tar 的部分）
-sudo gitlab-backup restore BACKUP=1790000000_2026_09_30_19.4.1-ee
+sudo gitlab-backup restore BACKUP=1795564800_2026_11_25_19.6.1-ee
 
 # 4. 重新套用設定並重新啟動
 sudo gitlab-ctl reconfigure
@@ -4008,11 +4419,12 @@ dr:verify:
 
 GitLab 17.5 起，**required upgrade stops** 固定在每個大版本的 `x.2`、`x.5`、`x.8`、`x.11`。跨版本升級時，必須依序停在每一個必經版本（並使用該版本的最新修補版），等背景資料庫遷移（batched background migrations）完成後，才能繼續往下一站升級。
 
-| 起點 | 目標 19.4 的升級路徑（示意） |
+| 起點 | 目標 19.6 的升級路徑（示意） |
 | --- | --- |
-| 17.x（例如 17.3） | 17.3 → 17.5 → 17.8 → 17.11 → 18.2 → 18.5 → 18.8 → 18.11 → 19.2 → 19.4 |
-| 18.3 | 18.3 → 18.5 → 18.8 → 18.11 → 19.2 → 19.4 |
-| 18.11 | 18.11 → 19.2 → 19.4 |
+| 17.x（例如 17.3） | 17.3 → 17.5 → 17.8 → 17.11 → 18.2 → 18.5 → 18.8 → 18.11 → 19.2 → 19.5 → 19.6 |
+| 18.3 | 18.3 → 18.5 → 18.8 → 18.11 → 19.2 → 19.5 → 19.6 |
+| 18.11 | 18.11 → 19.2 → 19.5 → 19.6 |
+| 19.4 | 19.4 → 19.5 → 19.6（19.5 是 required stop，不能直接跳到 19.6） |
 
 > 💡 實際路徑請以官方 **Upgrade Path tool** 產生；各版本另有專屬的升級注意事項（`gitlab_19_changes`）。17.x 的升級站點另有特殊規則（例如 17.1、17.3 的條件式站點）。
 
@@ -4043,12 +4455,55 @@ GitLab 17.5 起，**required upgrade stops** 固定在每個大版本的 `x.2`�
 | 低 | 舊版 Slack slash commands 淘汰 | 改用 GitLab for Slack app |
 | 低 | Container Registry 的 S3、Azure 儲存驅動改為 v2 版本的別名 | 檢查 Registry 儲存設定 |
 
+#### 🔄 19.5／19.6 升級注意事項
+
+> 🆕 **v3.1 新增**：以下摘自官方 GitLab 19 升級注意事項，僅列出對一般企業影響較大的項目。
+
+| 版本 | 注意事項 | 適用 | 應對與驗證 |
+| --- | --- | --- | --- |
+| 19.5 | **Required upgrade stop** | 全部 | 必須先升到 19.5 的最新修補版，等背景遷移完成後再往上升 |
+| 19.5 | Duo Agent Platform 檢查點資料搬移（背景遷移 `BackfillDuoWorkflowsCheckpointHeadersAndBlobs`），執行期間 PostgreSQL 磁碟用量會增加 | 全部 | 升級前查詢舊表大小並預留同等空間；**升級到 19.5 之後的版本前，此遷移必須完成**（Admin → Monitoring → Background migrations） |
+| 19.5 | GitLab agent 預設改用 `grpcs://` | Linux 套件、Helm | 見 [9.3](#93-gitlab-agent-for-kubernetes)；代理不支援 HTTP/2 時明確指定 `wss://` |
+| 19.6 | 內建 NGINX 由 1.31.4 升到 1.31.7（修補 5 個 CVE），會拒絕大小為 0 的 buffer 設定，且以 IP 驗證憑證時只比對 IP SAN | Linux 套件、Docker（有自訂 NGINX 設定者） | 升級前執行下方檢查指令；升級後 `gitlab-ctl reconfigure` 並確認 `gitlab-ctl status nginx` |
+| 19.6 | 預設啟用多項新的速率與資源限制（例如 blame API、留言建立、Pipeline 規則評估逾時 900 秒） | 全部 | 自動化腳本需處理 `429` 與 `Retry-After`；必要時由管理員以 Settings API 調整 |
+| 19.6 | 多節點 Linux 套件安裝會在各節點各自產生 Service Ping 內部 API 機密 | 多節點 Linux 套件 | 升級前在每個 Puma／Sidekiq 節點設定相同的 `gitlab_rails['service_ping_secret']` |
+| 19.6 | Secrets Manager 的 OpenBao 政策不會自動更新 | 已啟用 Secrets Manager 的 Self-Managed | 執行 `gitlab-rake gitlab:secrets_management:openbao:secrets_manager_policy:update` |
+| 19.6.0–19.6.1 | `DropAiEventsCounts` 遷移可能失敗（`PG::DependentObjectsStillExist`） | 全部 | 官方已在 19.6.2 修正；若必須先升到 19.6.1，請依官方升級注意事項手動清除分離的分割表 |
+
+```bash
+# 19.6 升級前：檢查自訂 NGINX 設定是否受影響（Linux 套件）
+sudo grep -rnE '_buffer_size[[:space:]]+0[[:space:]]*;|proxy_ssl_verify[[:space:]]+on' /var/opt/gitlab/nginx/conf/
+
+# 19.5 升級前：估算 Duo 檢查點資料搬移需要的磁碟空間
+sudo gitlab-psql -c "SELECT pg_size_pretty(sum(pg_total_relation_size(relid))) FROM pg_partition_tree('p_duo_workflows_checkpoints') WHERE isleaf;"
+
+# 每一站升級後：確認背景遷移已全部完成，才能繼續下一站
+sudo gitlab-rake gitlab:background_migrations:status
+```
+
+#### 🔭 GitLab 20.0（2027-05）已公告的移除項目
+
+| 項目 | 現況 | 建議時程 |
+| --- | --- | --- |
+| Linux 套件不再支援 **Ubuntu 22.04**（19.11 為最後支援版本） | 19.6 公告 | 2027 Q1 前把 GitLab 主機升級到 Ubuntu 24.04 |
+| **Compliance pipelines** 移除 | 17.3 公告 | 遷移到 Pipeline execution policy（見 [8.4](#84-安全政策security-policies)） |
+| Helm Chart 移除內建的 NGINX Ingress、HAProxy、Traefik | 18.9 公告 | 改用 Envoy Gateway（Gateway API）或外部 Ingress 控制器 |
+| 以 `kpt` 安裝的 `agentk` | 17.9 公告 | 改用 Helm、glab 或 Flux 安裝 |
+| `retry:when` 的 `stuck_or_timeout_failure`、`job_execution_timeout` | 19.1 公告 | 改用細分的失敗原因（見 [5.4](#54-rulesworkflowneeds-與-include)） |
+| Dependency Proxy for packages | 19.1 公告 | 改用 Maven virtual registry |
+| Code intelligence（LSIF） | 19.7 公告 | 改用以 Orbit 為基礎的 code navigation（Premium／Ultimate） |
+| Design Management 停止上傳新設計（21.0 前唯讀） | 18.6 公告 | 匯出設計檔，改用設計團隊既有工具 |
+| `gitlab-ctl patroni failover／switchover --master` | 19.4 公告 | 腳本改用 `--leader` |
+| 稽核事件 API 強制使用 keyset 分頁 | 17.8 公告 | 檢查稽核資料匯出腳本 |
+| Docker Machine executor | 17.5 公告，移除時程重新評估中 | 改用 Docker Autoscaler（見 [7.7](#77-docker-autoscaler-與-fleeting)） |
+
 ### 12.6 💡 本章實務建議
 
 - **機密與備份分開保存**：`gitlab-secrets.json` 遺失等同資料無法完整還原；兩者分開加密、異地保存。
 - **備份要能還原**：每半年執行 DR 演練並記錄實測的 RPO／RTO，作為稽核證據。
 - **定期小步升級**：每月或每季升級，避免一次跨越多個 required stops；升級前務必在測試環境預演。
-- **追蹤棄用公告**：每年 5 月的大版本前，至少提前一季盤點 breaking changes（例如 20.0 預計移除 Docker Machine executor 與 Gemnasium 相依性掃描）。
+- **追蹤棄用公告**：每年 5 月的大版本前，至少提前一季盤點 breaking changes（20.0 的清單見上表，可訂閱 `https://docs.gitlab.com/releases/breaking-changes.xml` RSS 自動追蹤）。
+- **Critical 修補要快**：月版後幾天內常有 Critical 修補（例如 19.6.1），以 72 小時內套用為目標，並優先選擇已修正已知升級問題的修補版。
 - **重要性高則上 Geo**：RTO 要求在 1 小時以內時，評估 Geo 與參考架構。
 
 ---
@@ -4362,6 +4817,11 @@ git repack -ad
 | 快取總是 miss | 快取鍵每次都不同；不同 Runner 之間沒有共用快取 | 使用 `cache:key:files`；設定 S3 等分散式快取 |
 | Job 逾時 | 預設逾時 1 小時；測試卡住 | 調整專案或 Job 的 `timeout`；找出卡住的測試 |
 | Runner 無法註冊 | 仍使用已停用的 registration token | 改用 UI 建立並取得 `glrt-` 權杖（見 [7.2](#72-建立與註冊-runner)） |
+| 子 Pipeline 出現 `job needs ... but it was not added to the pipeline` | 父 Job 被 `rules` 略過，但子 Job 以 `needs:pipeline:job` 強制依賴 | 加上 `optional: true`（19.5 起，見 [5.4](#54-rulesworkflowneeds-與-include)） |
+| Job 讀取機密時出現 `status code 403` 或 `inline auth JWT is required` | Secrets Manager 機密的環境或分支範圍不符；專案尚未佈建 Secrets Manager | 見 [5.6](#56-變數與機密管理) 的排錯表 |
+| `Failed to build pipeline variables: total size exceeds the limit of 10 MiB` | 透過 API、Trigger 或手動執行傳入的變數過大（19.6 起） | 改用 File 型別變數、artifacts 或 Secrets Manager |
+| `Pipeline creation timed out while evaluating rules` | `rules` 評估超過 900 秒（19.6 新限制） | 簡化 `rules:changes`／`exists` 的樣式，或由管理員調整 `GITLAB_CI_PIPELINE_SEED_TIMEOUT_SECONDS` |
+| CI Lint 出現 `stuck_or_timeout_failure` 棄用警告 | `retry:when` 使用 19.1 棄用的失敗原因 | 改用細分的失敗原因 |
 
 ```bash
 # 在本機以 glab 快速排查
@@ -5184,6 +5644,11 @@ public class UserService {
 - [ ] **CI/CD 變數**
   - [ ] 正式環境機密為 Protected + Masked and hidden，並設定 Environment scope
   - [ ] 能用 OIDC（`id_tokens`）取代的長效金鑰已移除
+  - [ ] 正式環境憑證已評估遷移到 GitLab Secrets Manager，並限縮環境與分支範圍
+- [ ] **AI 代理**
+  - [ ] MCP server 的存取已在頂層群組或執行個體層級明確允許或關閉
+  - [ ] 寫入類 MCP 工具設為 Always Ask 或 Always Deny
+  - [ ] 外部代理已透過 `glab minder setup` 接入 AI Governance（如有使用）
 
 #### 🔍 每季覆核
 
@@ -5205,11 +5670,15 @@ public class UserService {
   - [ ] 在測試環境完成預演
   - [ ] 公告維護時段
 - [ ] **升級中**
-  - [ ] 依 required stops 逐站升級，每站確認背景遷移完成
+  - [ ] 依 required stops 逐站升級（19.x 為 19.2、19.5、19.8、19.11），每站確認背景遷移完成
+  - [ ] 19.5：Duo 檢查點資料搬移已完成，PostgreSQL 磁碟空間充足
+  - [ ] 19.6：自訂 NGINX 設定已通過檢查；多節點已設定相同的 `service_ping_secret`
 - [ ] **升級後**
   - [ ] `gitlab-rake gitlab:check SANITIZE=true`
   - [ ] 登入、Clone、Push、MR、Pipeline、Container Registry 抽測
-  - [ ] Runner 同步升級並確認連線
+  - [ ] Runner 同步升級並確認連線（`gitlab-runner verify`）
+  - [ ] GitLab agent for Kubernetes 狀態為 Connected
+  - [ ] `curl /api/v4/version` 回傳的版本與預期一致
   - [ ] 監控錯誤率與效能 24 小時
 
 ### 15.10 💡 本章實務建議
@@ -5426,7 +5895,7 @@ auto:grading:
 #### 🤖 AI 代理進入軟體開發生命週期
 
 - **從輔助到代理**：GitLab Duo Agent Platform 讓 AI 代理執行多步驟工作（修正 Pipeline、處理相依套件升級造成的中斷、產生測試），並透過 Flows 串接。
-- **開放生態**：GitLab MCP server 讓企業既有的 AI 工具能以 OAuth、依使用者權限存取 GitLab；19.4 起可治理可使用的 MCP 工具。
+- **開放生態**：GitLab MCP server 讓企業既有的 AI 工具能以 OAuth、依使用者權限存取 GitLab；19.5 起 GA，19.6 起頂層群組可用 Always Deny／Ask／Allow 治理每個工具，且每次工具呼叫都留下稽核事件。
 - **企業關注點**：資料治理、權限一致、成本（GitLab Credits）、稽核與人工把關（見 [11.4](#114-gitlab-duo-與-duo-agent-platform)）。
 
 ```text
@@ -5602,6 +6071,9 @@ GitLab 每月發行新版本，本手冊建議依下列節奏維護：
 | Pipeline 狀態 | `glab ci status`／`glab ci view` |
 | 驗證 CI 設定 | `glab ci lint` |
 | 呼叫 API（自動分頁） | `glab api projects/:id/issues --paginate` |
+| 確認登入狀態 | `glab auth status` |
+| 確認伺服器版本 | `glab api version` |
+| 外部代理接入 AI Governance | `glab minder setup` |
 
 ### A.2 GitLab Runner
 
@@ -5612,6 +6084,7 @@ GitLab 每月發行新版本，本手冊建議依下列節奏維護：
 | 狀態與日誌 | `gitlab-runner status`、`journalctl -u gitlab-runner -f` |
 | 安裝 fleeting 外掛 | `gitlab-runner fleeting install` |
 | 列出已註冊 Runner | `gitlab-runner list` |
+| 確認 Runner 版本 | `gitlab-runner --version` |
 
 ### A.3 GitLab 伺服器（Linux 套件）
 
@@ -5626,6 +6099,8 @@ GitLab 每月發行新版本，本手冊建議依下列節奏維護：
 | 檢查機密可解密 | `gitlab-rake gitlab:doctor:secrets` |
 | 背景遷移狀態 | `gitlab-rake gitlab:background_migrations:status` |
 | 即時日誌 | `gitlab-ctl tail` |
+| 環境與版本資訊 | `gitlab-rake gitlab:env:info` |
+| 更新 Secrets Manager 的 OpenBao 政策（19.6） | `gitlab-rake gitlab:secrets_management:openbao:secrets_manager_policy:update` |
 
 ## 附錄 B：設定範本索引
 
@@ -5643,6 +6118,10 @@ GitLab 每月發行新版本，本手冊建議依下列節奏維護：
 | Kubernetes agent 設定 | [9.3](#93-gitlab-agent-for-kubernetes) | `.gitlab/agents/<agent-name>/config.yaml` |
 | Kubernetes 部署資源 | [9.6](#96-kubernetes-部署配置) | `k8s/` |
 | 告警規則 | [10.2](#102-應用程式監控) | 監控設定儲存庫 |
+| Secrets Manager 機密引用 | [5.6](#56-變數與機密管理) | `.gitlab-ci.yml` 的 `secrets:` |
+| 子 Pipeline 選擇性相依 | [5.4](#54-rulesworkflowneeds-與-include) | 子 Pipeline 設定檔 |
+| 惡意套件核准政策 | [8.4](#84-安全政策security-policies) | 安全政策專案 `.gitlab/security-policies/policy.yml` |
+| MCP 用戶端設定 | [11.4](#114-gitlab-duo-與-duo-agent-platform) | 開發者電腦（例如 `mcp.json`） |
 
 ## 附錄 C：詞彙表
 
@@ -5674,6 +6153,14 @@ GitLab 每月發行新版本，本手冊建議依下列節奏維護：
 | Geo | GitLab 的異地副本與災難恢復機制 |
 | GitLab Duo／Duo Agent Platform | GitLab 的 AI 功能組合／代理式 AI 平台 |
 | MCP（Model Context Protocol） | 讓 AI 工具存取外部資料與工具的開放協定 |
+| MCP 工具集（toolset） | GitLab MCP server 的工具分組，以 `X-Gitlab-Enabled-Mcp-Server-Toolsets` 標頭選擇 |
+| ECA（Externally Connected Agent） | 在 GitLab 外部執行、但連接 GitLab 的 AI 代理（如 Claude Code、Cursor、Codex） |
+| GitLab Secrets Manager | 以 OpenBao 為基礎、沿用 GitLab 權限模型的內建機密管理服務 |
+| OpenBao | HashiCorp Vault 的開源分支，Secrets Manager 的儲存後端 |
+| GitLab Orbit | 串連程式碼、MR、工作項目、Pipeline 與弱點的軟體生命週期情境圖 |
+| GitLab Credits | Duo Agent Platform、Secrets Manager 等功能的用量計費單位 |
+| Rapid Diffs | 19.6 GA 的伺服器端串流差異檢視，取代舊的 MR 差異頁 |
+| KAS／GitLab Relay | GitLab 端接受 Kubernetes 代理連線的服務，19.5 起預設使用原生 gRPC |
 
 ## 附錄 D：版本更新紀錄
 
@@ -5685,6 +6172,7 @@ GitLab 每月發行新版本，本手冊建議依下列節奏維護：
 | v1.1 | 2025-08-28 | 新增核心功能詳解、進階功能與整合章節，完善目錄結構 |
 | v2.0 | 2025-08-29 | 新增 Runner 深度配置、多環境部署、容器化、效能監控、案例研究、性能基準、DR 演練、合規自動化、成本優化 |
 | **v3.0** | **2026-09-30** | 以 GitLab 19.4 為基準逐章查證改寫；重整為 16 章 + 附錄 A–F；新增方案與發行節奏、身分認證、glab、分支策略選型、受保護分支／Push Rules／CODEOWNERS、Merge Trains、Components 與 Catalog、變數優先順序與 OIDC、Executor 選型、Docker Autoscaler、Secret Push Protection、安全政策、供應鏈安全、GitLab agent、Gateway API、DORA、Webhook 簽章、GitLab Duo、升級路徑與 19.0 重大變更 |
+| **v3.1** | **2026-11-25** | 以 GitLab 19.6 為基準，補上 19.5／19.6 變更與各項「如何驗證」步驟：版本驗證、glab 指令異動、限時自動合併、Rapid Diffs、選擇性子 Pipeline 相依、`retry:when` 新原因、Secrets Manager、Pipeline 變數上限、Runner 設定異動、安全設定檔、惡意套件規則、弱點管理新能力、agent `grpcs://`、MCP server GA 與工具治理、19.5／19.6 升級注意事項、20.0 移除清單（詳見 D.4） |
 
 ### D.2 v2.0 → v3.0 更正表
 
@@ -5765,17 +6253,42 @@ GitLab 每月發行新版本，本手冊建議依下列節奏維護：
 | 15.8–15.9 | 安全與合規、升級檢查清單 |
 | 附錄 A–F | 指令速查、範本索引、詞彙表、版本紀錄、查證紀錄、參考資料 |
 
+### D.4 v3.0 → v3.1 更新表
+
+| # | 位置 | v3.0 內容 | v3.1 更新 |
+| --- | --- | --- | --- |
+| 1 | 文件資訊 | 基準 GitLab 19.4.1、Runner 19.4.1、glab 1.120.0、Git 2.56.0 | GitLab 19.6.1、Runner 19.6.1、glab 1.132.0、Git 2.56.1 |
+| 2 | 執行摘要 | 五項關鍵決策 | 新增第 6 項「AI 代理可治理」 |
+| 3 | 1.3 | 無版本驗證方法；未提及 Critical 修補節奏 | 新增「如何確認目前的版本與方案」與 Critical 修補說明 |
+| 4 | 2.3 | 未提及 glab 指令異動 | `glab mcp` 已移除、`glab govern` 更名為 `glab minder`；新增驗證指令 |
+| 5 | 3.5 | 自動合併只有 After | 新增 Between 時段、`cancel_auto_merge` API、`%{commits_count}` |
+| 6 | 4.5 | Duo Code Review 只有 19.0 資訊 | 新增追蹤審查、Recommend Reviewers、Duo Approve／Request changes（Beta）、Rapid Diffs、送出審查自動成為 Reviewer |
+| 7 | 5.4 | 無父子 Pipeline 選擇性相依；`retry:when` 未說明 | 新增 `needs:pipeline:job` + `optional`、細分的失敗原因與驗證步驟 |
+| 8 | 5.6 | 只有 CI/CD 變數、OIDC、外部 Vault | 新增 GitLab Secrets Manager（範例、權限、排錯）與 19.6 Pipeline 變數上限 |
+| 9 | 7.1、7.4 | 版本範例為 19.4 | 改為 19.6；新增 Runner 19.5／19.6 設定異動與升級後驗證 |
+| 10 | 8.2 | 未說明 MR pipeline 的掃描變數 | 新增 `AST_ENABLE_MR_PIPELINES`、安全設定檔、非預設分支弱點追蹤 |
+| 11 | 8.4 | 核准政策未涵蓋惡意套件；compliance pipelines 未標示移除版本 | 新增 `is_malicious` 規則與警告模式；標示 20.0 移除 |
+| 12 | 8.5 | 稽核事件未涵蓋 AI 代理 | 新增 MCP 工具呼叫、ECA、Secrets Manager 稽核；新增弱點管理新能力 |
+| 13 | 9.3 | `kasAddress=wss://...`；19.5 gRPC 以預告方式描述 | 改為 `grpcs://`，補上相容性、退回 WebSocket 的設定與驗證 Job |
+| 14 | 11.4 | MCP server 標示 Beta | 改為 19.5 GA；新增 Orbit、Duo in Slack、MCP 連線範例、驗證方式、工具集、速率限制、工具治理與 ECA |
+| 15 | 12.2 | 還原範例為 19.4.1 備份 | 改為 19.6.1 |
+| 16 | 12.4 | 升級路徑目標 19.4 | 目標 19.6，並標示 19.5 為 required stop |
+| 17 | 12.5 | 只有 19.0 重大變更 | 新增 19.5／19.6 升級注意事項、檢查指令與 20.0 移除清單 |
+| 18 | 13.6 | 無 19.5／19.6 相關錯誤 | 新增 5 種錯誤的原因與解法 |
+| 19 | 15.8、15.9 | 未涵蓋 Secrets Manager、AI 代理與 19.5／19.6 升級項目 | 補上對應檢查項目 |
+| 20 | 附錄 A–C、E | — | 補上指令、範本、詞彙；新增查證紀錄 #43–#64，更新待確認事項 |
+
 ## 附錄 E：查證紀錄
 
-以下事實均於 **2026-09-30** 依官方文件或官方發布資訊查證。
+#1–#42 於 **2026-09-30**（v3.0）查證；標示「v3.1 更新」的列與 #43 起的項目於 **2026-11-25**（v3.1）依官方文件或官方發布資訊重新查證。
 
 | # | 查證項目 | 結論 | 來源 |
 | --- | --- | --- | --- |
-| 1 | GitLab 最新版本 | 19.4（2026-09-17 發布），最新修補版 19.4.1 | GitLab 發行公告、gitlab-org/gitlab tags |
-| 2 | GitLab Runner 最新版本 | 19.4.1（2026-09-24） | gitlab-runner releases |
-| 3 | glab 最新版本 | 1.120.0（2026-09-29） | gitlab-org/cli releases |
-| 4 | Git 最新版本 | 2.56.0（2026-09-28） | kernel.org Git 發布目錄 |
-| 5 | 19.x 各版重點 | 19.0 群組層級 Duo 審查指示；19.1 Duo 判斷機密誤判；19.2 Duo CLI GA；19.3 Flow Creator；19.4 MCP 工具治理 | docs.gitlab.com/releases/19 |
+| 1 | GitLab 最新版本（v3.1 更新） | 19.6（2026-11-19 發布），最新修補版 19.6.1（2026-11-20，Critical）；19.5 最新修補版 19.5.8 | GitLab 19.5／19.6 發行公告 |
+| 2 | GitLab Runner 最新版本（v3.1 更新） | 19.6.1（2026-11-25）；同日另發布 19.5.4、19.4.5 | gitlab-runner releases |
+| 3 | glab 最新版本（v3.1 更新） | 1.132.0（2026-11-24） | gitlab-org/cli releases |
+| 4 | Git 最新版本（v3.1 更新） | 2.56.1（2026-11-10，安全修補） | kernel.org Git 發布目錄 |
+| 5 | 19.x 各版重點（v3.1 更新） | 19.0 群組層級 Duo 審查指示；19.1 Duo 判斷機密誤判；19.2 Duo CLI GA；19.3 Flow Creator；19.4 MCP 工具治理；19.5 MCP server GA；19.6 Duo in Slack（有限開放） | docs.gitlab.com/releases/19 |
 | 6 | Required upgrade stops | 17.5 起固定為 x.2／x.5／x.8／x.11；19.x 為 19.2、19.5、19.8、19.11 | Upgrade paths 文件 |
 | 7 | 19.0 breaking changes | PostgreSQL 17、Redis 7／Valkey、Envoy Gateway、移除 ROPC、移除憑證式 K8s 整合、Ubuntu 20.04 等 | GitLab 19.0 breaking changes 部落格、GitLab 19 upgrade notes |
 | 8 | 維護政策 | 錯誤修正僅回補目前穩定版；安全修正回補前兩個月版 | Maintenance policy 文件 |
@@ -5801,10 +6314,10 @@ GitLab 每月發行新版本，本手冊建議依下列節奏維護：
 | 28 | SARIF 報表 | `artifacts:reports:sarif`，Ultimate，18.11 引入 | Artifacts reports 文件 |
 | 29 | Compliance pipelines | 已棄用，改用 Pipeline execution policy | Pipeline execution policies 文件 |
 | 30 | 安全政策 YAML | `scan_execution_policy`、`approval_policy`、`pipeline_execution_policy`（`inject_policy`） | Security policies 文件 |
-| 31 | GitLab agent | 建議 Flux；19.5 起預設改用原生 gRPC | Agent for Kubernetes 文件、GitLab 19 upgrade notes |
+| 31 | GitLab agent（v3.1 更新） | 建議 Flux；19.5 起新安裝預設提供 `grpcs://` 位址，既有 `wss://` 仍可用 | GitLab 19.5 發行公告、GitLab 19 upgrade notes |
 | 32 | Webhook 簽章 | Signing token 19.0 推出、19.1 GA，HMAC-SHA256，遵循 Standard Webhooks | Webhooks 文件 |
 | 33 | Duo 產品 | Duo Core 18.0 起含於 Premium／Ultimate；Agent Platform 18.8 GA、依 GitLab Credits 計費；Duo CLI 19.2 GA | Subscription add-ons、Duo Agent Platform、Duo CLI 文件 |
-| 34 | MCP server | 18.3 實驗、18.6 Beta、19.2 起 Free | MCP server 文件 |
+| 34 | MCP server（v3.1 更新） | 18.3 實驗、18.6 Beta、19.2 起 Free、19.5 GA | MCP server 文件、GitLab 19.5 發行公告 |
 | 35 | 備份與還原 | 須相同版本；`gitlab-ctl backup-etc`；`gitlab:doctor:secrets` | Backup／Restore 文件、Linux package backups 文件 |
 | 36 | 容器映像 | `maven:3.9-eclipse-temurin-21／25`、`eclipse-temurin:21-jre`、`docker:29-dind`、`alpine/k8s:1.35.9` 標籤存在 | Docker Hub |
 | 37 | kaniko | Google 上游儲存庫已封存（最後推送 2025-06-03） | GitHub GoogleContainerTools/kaniko |
@@ -5813,17 +6326,42 @@ GitLab 每月發行新版本，本手冊建議依下列節奏維護：
 | 40 | Git Flow 作者附註 | 原文附有〈Note of reflection〉，建議持續交付的 Web 應用採用更簡單的流程 | nvie.com |
 | 41 | GitLab Handbook 網址 | `about.gitlab.com/handbook/` 已轉址至 `handbook.gitlab.com` | HTTP 301 轉址 |
 | 42 | Conventional Commits | 最新規格為 1.0.0 | conventionalcommits.org |
+| 43 | 19.5 Required stop 與注意事項 | 19.5 為 required stop；Duo 檢查點背景遷移需在升級到更高版本前完成；agent 預設 `grpcs://` | GitLab 19 upgrade notes |
+| 44 | 19.6 升級注意事項 | NGINX 1.31.7（5 個 CVE）、新速率與資源限制、Service Ping 機密、OpenBao 政策更新、`DropAiEventsCounts` 遷移於 19.6.0–19.6.1 可能失敗（19.6.2 修正） | GitLab 19 upgrade notes |
+| 45 | GitLab Secrets Manager | 19.5 GA；Premium／Ultimate 附加方案、依 Credits 計費；`secrets:gitlab_secrets_manager`（`name`、`source`）；Runner 19.0+；值 ≤ 10 KB；預設上限每專案 100、每群組 500 個 | Secrets Manager 文件、CI/CD YAML 參考 |
+| 46 | Secrets Manager 預設權限 | 19.4 以後啟用者：Maintainer 讀取中繼資料／建立／更新；Developer 讀取中繼資料／建立 | Secrets Manager 文件 |
+| 47 | `needs:pipeline:job` + `optional` | 19.5 起子 Pipeline 可選擇性依賴父 Job | GitLab 19.5 發行公告、CI/CD YAML 參考 |
+| 48 | `retry:when` 失敗原因 | `stuck_or_timeout_failure`、`job_execution_timeout` 19.1 棄用、預計 20.0 移除；新增 `stuck_pending_*`、`no_updates_*`、`server_timeout_*` 等 | CI/CD YAML 參考、Deprecations 文件 |
+| 49 | Pipeline 變數上限 | 19.6：GitLab.com 每條 1,200 個、單值 128 KiB（File 1 MiB）；建立與展開總量 10 MiB | GitLab 19.6 發行公告、GitLab 19 upgrade notes |
+| 50 | 自動合併 | 19.6 新增 Between 時段；19.5 新增 `cancel_auto_merge` API，舊端點棄用；`%{commits_count}` 範本變數 | GitLab 19.5／19.6 發行公告 |
+| 51 | Rapid Diffs | 19.6 GA，取代舊差異檢視；首個檔案約 1.5 秒 | GitLab 19.6 發行公告 |
+| 52 | Duo Code Review | 19.5 追蹤審查、Recommend Reviewers GA；19.6 Duo Approve／Request changes（Beta，Approve 不計入必要核准） | GitLab 19.5／19.6 發行公告 |
+| 53 | MCP server 驗證與工具集 | 僅接受 `mcp` scope OAuth 權杖或細粒度 PAT；工具集標頭 `X-Gitlab-Enabled-Mcp-Server-Toolsets`；`wikis`、`code_security`、`orbit` 需明確加入 | MCP server 文件 |
+| 54 | MCP server 速率限制（GitLab.com） | Free 每分鐘 60／每小時 3,600；Premium、Ultimate 每分鐘 600／每小時 5,000 | MCP server 文件 |
+| 55 | MCP 治理與稽核 | 19.6：工具呼叫稽核事件、工具治理（Always Deny／Ask／Allow，Beta） | GitLab 19.6 發行公告 |
+| 56 | glab 指令異動 | 1.129.0 `govern` 更名為 `minder`；1.131.0 移除實驗性 `glab mcp` | gitlab-org/cli releases |
+| 57 | 惡意套件規則 | 19.6：`scan_finding` 規則的掃描器物件加上 `is_malicious: true`；識別碼 `GLAM-` | Merge request approval policies 文件 |
+| 58 | 安全設定檔 | 19.5 SAST／Secret Detection 可自訂；19.6 Dependency Scanning UI、Quick setup 選項、自動分流設定檔 | GitLab 19.5／19.6 發行公告 |
+| 59 | 非預設分支弱點追蹤 | 19.5 GA，可額外追蹤 3 個分支或 Tag | GitLab 19.5 發行公告 |
+| 60 | 弱點管理新能力 | 19.5 MR 安全報告比較上限 1,000 筆；19.6 MTTR 圖表、弱點到期日、安全屬性篩選 | GitLab 19.5／19.6 發行公告 |
+| 61 | Runner 19.5／19.6 | `CI_JOB_TAGS`／`CI_RUNNER_TAGS` JSON 編碼；`direct_download` 取代 `FF_USE_DIRECT_DOWNLOAD`；`allow_http2`；Ubuntu 26.04 套件 | GitLab 19.5／19.6 發行公告（Runner 章節） |
+| 62 | GitLab 20.0 移除項目 | Ubuntu 22.04（19.11 最後支援）、compliance pipelines、kpt agentk、Helm 內建 NGINX Ingress／HAProxy／Traefik、Dependency Proxy for packages、LSIF 等 | Deprecations 文件 |
+| 63 | Code Quality（CodeClimate） | 已移出原定移除版本，列於「Pending changes」重新評估中 | Deprecations 文件 |
+| 64 | 掃描與 MR pipeline | 使用 MR pipeline 時須設定 `AST_ENABLE_MR_PIPELINES: "true"` | Merge request approval policies 文件 |
 
 ### E.1 待確認事項
 
 以下項目在查證當下資訊不完整，下次改版時應優先確認：
 
-1. **Code Quality（CodeClimate）範本的實際移除版本**：文件仍寫「計畫於 19.0 移除」，但 19.0 breaking changes 清單未列出，`Jobs/Code-Quality.gitlab-ci.yml` 目前仍存在。
-2. **GitLab 19.5 發行內容**（預計 2026-10-15）：MCP 工具集選擇（`mcp_toolsets`）、agent gRPC 預設值等。
+1. **Code Quality（CodeClimate）範本的實際移除版本**：v3.1 查證時已列入官方 Deprecations 文件的「Pending changes」（重新評估中），尚無確定的移除版本；`Jobs/Code-Quality.gitlab-ci.yml` 仍可使用，但新專案應直接匯入工具報告。
+2. **GitLab 19.7 發行內容**（預計 2026-12-17）：已公告移除靜態合規違規報告、棄用 Code intelligence（LSIF），發行後需確認對合規報表與程式碼導覽的影響。v3.0 列出的 19.5 待確認事項已於 v3.1 查證完成（見 #43、#53）。
 3. **Duo Pro／Enterprise 的功能邊界**：官方功能表持續調整，導入前請以當時的 Feature summary 為準。
 4. **Security Manager 角色**：18.11 為 Beta 且預設關閉，需確認 GA 時程。
 5. **GitLab 20.0（2027-05）預計移除項目**：Docker Machine executor、Gemnasium 相依性掃描等，建議 2027 年第一季起追蹤。
 6. **Self-Managed 的 Sigstore keyless 簽章**：需確認企業自建 Sigstore 或 KMS 金鑰方案的實作細節。
+7. **19.6.2 修補版**：官方升級注意事項指出 `DropAiEventsCounts` 遷移問題於 19.6.2 修正，但查證當下最新的已發布修補版為 19.6.1，需確認 19.6.2 的發布日期。
+8. **`cancel_auto_merge` 端點細節**：發行公告只提供端點名稱，本手冊範例依舊端點的路徑慣例撰寫，正式使用前請以 Merge requests API 文件確認 HTTP 方法與路徑。
+9. **Runner `allow_http2` 與 `CI_JOB_TAGS` 格式**：發行公告未列出 `allow_http2` 所屬的 `config.toml` 區段，以及 JSON 編碼後的實際格式；請以 Runner 進階設定文件與測試 Job 輸出確認。
 
 ## 附錄 F：參考資料與聯絡窗口
 

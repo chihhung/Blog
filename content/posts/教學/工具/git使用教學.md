@@ -10,9 +10,9 @@ categories = ['教學']
 
 | 項目 | 內容 |
 | --- | --- |
-| **文件版本** | 3.0 |
-| **最後更新** | 2026 年 9 月 29 日 |
-| **適用版本** | Git 2.56.x（2026-09-28 發布）；Git for Windows 2.56.0；向下相容 Git 2.40 以上 |
+| **文件版本** | 3.1 |
+| **最後更新** | 2026 年 11 月 25 日 |
+| **適用版本** | Git 2.56.1（安全修補版，2026-11-10 隨安全公告公開）；Git for Windows 2.56.1（2026-11-10）；向下相容 Git 2.40 以上（安全基線見 [12.5](#125-git-版本與漏洞管理)） |
 | **適用對象** | 新進與資深開發人員、Tech Lead、DevOps／平台工程、資安與稽核人員 |
 | **文件定位** | 企業標準技術白皮書／內部 Git 標準教材 |
 | **使用情境** | 大型企業、金融業（銀行、證券、保險）內部 Java 專案與多團隊協作 |
@@ -21,8 +21,9 @@ categories = ['教學']
 
 > ⚠️ **v3.0 重大改版說明**：本版以 Git 2.56（2026-09-28）與 git-scm.com 官方文件為基準逐章查證改寫。v2.0 內容中已淘汰的 Husky `husky install`／`husky add` 用法、`git filter-branch` 移除敏感資料、舊式 `core.sparseCheckout` 設定、過時的 Maven 外掛座標與版本、錯誤的 `gh api` 分支保護範例等均已更正；並新增 Git 物件模型、分支策略選型、Rulesets、SSH 簽署、秘密掃描、`git maintenance`／`scalar`、企業治理與 **Git 3.0 升級準備** 等章節。完整更正清單請見[附錄 D：版本更新紀錄](#附錄-d版本更新紀錄)，查證來源請見[附錄 E：查證紀錄](#附錄-e查證紀錄)。
 
-<!-- TOC-AUTO-BEGIN -->
+> **v3.1 修訂說明（2026-11-25）**：依 2026-11-10 公布的 Git 安全修補（2.56.1 以及 2.50.2–2.55.1 維護版，共 6 項 CVE）更新全文版本基線；補充 Git for Windows 2.56.0(2)–2.56.1 的元件更新與修補、Git LFS 3.8.1、Git Credential Manager 3.0 正式版的破壞性變更；新增 [1.7 修訂與範圍語法](#17-修訂與範圍語法gitrevisions)、2.6 憑證輔助程式選型、11.3 官方工具清單對照、12.5 的 2026-11 漏洞應變演練，以及[附錄 G：規範驗證對照表](#附錄-g規範驗證對照表)，讓每一條規範都有可執行的驗證方式。完整修訂內容見[附錄 D.2](#d2-v30--v31-修訂內容)。
 
+<!-- TOC-AUTO-BEGIN -->
 ## 目錄
 
 - [執行摘要](#執行摘要)
@@ -30,128 +31,320 @@ categories = ['教學']
   - [1.1 什麼是版本控制？](#11-什麼是版本控制)
   - [1.2 為什麼使用 Git？](#12-為什麼使用-git)
   - [1.3 Git 基本概念](#13-git-基本概念)
+    - [工作區域](#工作區域)
+    - [檔案的四種狀態](#檔案的四種狀態)
+    - [基本術語](#基本術語)
   - [1.4 Git 物件模型與內部原理](#14-git-物件模型與內部原理)
+    - [四種物件](#四種物件)
+    - [參考（refs）與 HEAD](#參考refs與-head)
+    - [動手觀察](#動手觀察)
+    - [雜湊演算法與儲存格式](#雜湊演算法與儲存格式)
   - [1.5 Git 版本演進與近期重點](#15-git-版本演進與近期重點)
   - [1.6 官方資源地圖](#16-官方資源地圖)
-  - [1.7 💡 本章實務建議](#17--本章實務建議)
-  - [1.8 第1章實作練習](#18-第1章實作練習)
+  - [1.7 修訂與範圍語法（gitrevisions）](#17-修訂與範圍語法gitrevisions)
+    - [指向單一 commit](#指向單一-commit)
+    - [指定一段範圍](#指定一段範圍)
+    - [動手驗證](#動手驗證)
+  - [1.8 💡 本章實務建議](#18--本章實務建議)
+  - [1.9 第1章實作練習](#19-第1章實作練習)
+    - [練習1：概念理解 📚](#練習1概念理解-)
+    - [練習2：實際操作 💻](#練習2實際操作-)
+    - [練習3：案例分析 🔍](#練習3案例分析-)
+    - [練習4：觀察物件模型 🔬](#練習4觀察物件模型-)
 - [2. 環境設定](#2-環境設定)
   - [2.1 Git 安裝](#21-git-安裝)
+    - [Windows 環境](#windows-環境)
+    - [macOS 與 Linux 環境](#macos-與-linux-環境)
+    - [驗證安裝](#驗證安裝)
   - [2.2 基本設定](#22-基本設定)
+    - [設定層級](#設定層級)
+    - [設定使用者資訊](#設定使用者資訊)
+    - [設定預設編輯器](#設定預設編輯器)
+    - [企業建議全域設定](#企業建議全域設定)
+    - [設定行尾字元處理](#設定行尾字元處理)
   - [2.3 行尾與檔案屬性（.gitattributes）](#23-行尾與檔案屬性gitattributes)
   - [2.4 個人與公司帳號區隔](#24-個人與公司帳號區隔)
+    - [全域設定 vs 專案設定](#全域設定-vs-專案設定)
+    - [以條件式引入自動切換身分](#以條件式引入自動切換身分)
   - [2.5 SSH 金鑰設定](#25-ssh-金鑰設定)
+    - [產生 SSH 金鑰](#產生-ssh-金鑰)
+    - [啟用 ssh-agent（Windows）](#啟用-ssh-agentwindows)
+    - [將公鑰新增到 GitHub/GitLab](#將公鑰新增到-githubgitlab)
+    - [多帳號與多主機設定](#多帳號與多主機設定)
+    - [測試 SSH 連線](#測試-ssh-連線)
   - [2.6 HTTPS、Git Credential Manager 與權杖管理](#26-httpsgit-credential-manager-與權杖管理)
+    - [HTTPS 與 SSH 比較](#https-與-ssh-比較)
+    - [Git Credential Manager（GCM）](#git-credential-managergcm)
+    - [憑證輔助程式選型](#憑證輔助程式選型)
+    - [權杖使用原則](#權杖使用原則)
   - [2.7 Java 開發環境整合配置](#27-java-開發環境整合配置)
+    - [🔧 IntelliJ IDEA 整合設定](#-intellij-idea-整合設定)
+    - [🛠️ VS Code Java 整合](#-vs-code-java-整合)
+    - [📋 Maven 專案 Git 初始化模板](#-maven-專案-git-初始化模板)
+    - [🚀 Java 專案 Git Workflow 自動化](#-java-專案-git-workflow-自動化)
   - [2.8 💡 本章實務建議](#28--本章實務建議)
   - [2.9 第2章實作練習](#29-第2章實作練習)
+    - [練習1：環境設定檢查 ✅](#練習1環境設定檢查-)
+    - [練習2：Java 專案初始化 🏗️](#練習2java-專案初始化-)
+    - [練習3：團隊環境模擬 👥](#練習3團隊環境模擬-)
 - [3. 專案流程](#3-專案流程)
   - [3.1 如何 Clone 專案](#31-如何-clone-專案)
+    - [基本 Clone 操作](#基本-clone-操作)
+    - [大型倉庫的 Clone 選擇](#大型倉庫的-clone-選擇)
+    - [Clone 後的初始化](#clone-後的初始化)
   - [3.2 日常指令：switch 與 restore](#32-日常指令switch-與-restore)
   - [3.3 分支策略選型](#33-分支策略選型)
   - [3.4 分支結構與命名規範](#34-分支結構與命名規範)
+    - [主要分支結構](#主要分支結構)
+    - [🔄 Git Flow 視覺化流程圖](#-git-flow-視覺化流程圖)
+    - [🌊 分支流程說明](#-分支流程說明)
+    - [分支命名規範](#分支命名規範)
+    - [建立和切換分支](#建立和切換分支)
   - [3.5 Commit Message 規範](#35-commit-message-規範)
+    - [標準格式](#標準格式)
+    - [Type 類型](#type-類型)
+    - [實際範例](#實際範例)
+    - [詳細 commit message 範例](#詳細-commit-message-範例)
   - [3.6 Fetch / Pull / Merge / Rebase 使用時機](#36-fetch--pull--merge--rebase-使用時機)
+    - [Fetch vs Pull](#fetch-vs-pull)
+    - [Merge vs Rebase 決策表](#merge-vs-rebase-決策表)
+    - [PR 合併方式比較](#pr-合併方式比較)
   - [3.7 Push 前檢查事項](#37-push-前檢查事項)
+    - [推送前清單](#推送前清單)
+    - [首次推送分支](#首次推送分支)
   - [3.8 衝突處理](#38-衝突處理)
+    - [合併衝突的識別](#合併衝突的識別)
+    - [衝突標記說明](#衝突標記說明)
+    - [解決衝突步驟](#解決衝突步驟)
+    - [整檔採用某一方版本](#整檔採用某一方版本)
+    - [使用工具解決衝突](#使用工具解決衝突)
+    - [以 rerere 重複利用衝突解法](#以-rerere-重複利用衝突解法)
   - [3.9 💡 本章實務建議](#39--本章實務建議)
 - [4. 團隊協作](#4-團隊協作)
   - [4.1 Pull Request (PR) / Merge Request (MR) 流程](#41-pull-request-pr--merge-request-mr-流程)
+    - [🔄 Pull Request 完整流程圖](#-pull-request-完整流程圖)
+    - [📋 PR 狀態追蹤表](#-pr-狀態追蹤表)
+    - [建立 Pull Request 前準備](#建立-pull-request-前準備)
+    - [PR 標題和描述範本](#pr-標題和描述範本)
+    - [PR 範本放置位置](#pr-範本放置位置)
+    - [以命令列建立 PR／MR](#以命令列建立-prmr)
   - [4.2 Code Review 規範](#42-code-review-規範)
+    - [Reviewer 責任](#reviewer-責任)
+    - [Review 評論範例](#review-評論範例)
+    - [Review 時效與規模](#review-時效與規模)
+    - [Review 狀態管理](#review-狀態管理)
   - [4.3 分支保護與 Rulesets](#43-分支保護與-rulesets)
+    - [建議的保護設定](#建議的保護設定)
+    - [GitHub：分支保護規則 vs Rulesets](#github分支保護規則-vs-rulesets)
+    - [設定範例（GitHub CLI）](#設定範例github-cli)
+    - [Merge Queue（合併佇列）](#merge-queue合併佇列)
+    - [GitLab 對應設定](#gitlab-對應設定)
   - [4.4 CODEOWNERS 程式碼擁有者](#44-codeowners-程式碼擁有者)
   - [4.5 工作流程最佳實務](#45-工作流程最佳實務)
+    - [日常工作流程](#日常工作流程)
+    - [團隊同步策略](#團隊同步策略)
   - [4.6 💡 本章實務建議](#46--本章實務建議)
 - [5. 常見錯誤排解](#5-常見錯誤排解)
   - [5.1 誤 Push 的處理](#51-誤-push-的處理)
+    - [撤銷最後一次 commit（未 push）](#撤銷最後一次-commit未-push)
+    - [撤銷已 push 的 commit](#撤銷已-push-的-commit)
   - [5.2 Commit 錯誤訊息修正](#52-commit-錯誤訊息修正)
+    - [修改最近的 commit message](#修改最近的-commit-message)
+    - [修改歷史 commit message](#修改歷史-commit-message)
+    - [使用 git history 改寫（Git 2.54+，實驗性）](#使用-git-history-改寫git-254實驗性)
   - [5.3 Reset、Revert 與 Restore 使用時機](#53-resetrevert-與-restore-使用時機)
+    - [三者比較](#三者比較)
+    - [Git Reset（修改歷史）](#git-reset修改歷史)
+    - [Git Revert（建立新 commit）](#git-revert建立新-commit)
   - [5.4 分支相關問題](#54-分支相關問題)
+    - [切換分支時有未提交變更](#切換分支時有未提交變更)
+    - [誤刪分支恢復](#誤刪分支恢復)
   - [5.5 合併問題解決](#55-合併問題解決)
+    - [取消正在進行的 merge](#取消正在進行的-merge)
+    - [解決複雜衝突](#解決複雜衝突)
   - [5.6 遠端倉庫問題](#56-遠端倉庫問題)
+    - [更新遠端分支資訊](#更新遠端分支資訊)
+    - [處理 "Your branch is ahead/behind" 訊息](#處理-your-branch-is-aheadbehind-訊息)
   - [5.7 以 reflog 救援遺失的工作](#57-以-reflog-救援遺失的工作)
   - [5.8 以 git bisect 找出問題 commit](#58-以-git-bisect-找出問題-commit)
   - [5.9 常見錯誤訊息對照表](#59-常見錯誤訊息對照表)
   - [5.10 💡 本章實務建議](#510--本章實務建議)
 - [6. 最佳實務](#6-最佳實務)
   - [6.1 保持 Commit 歷史乾淨](#61-保持-commit-歷史乾淨)
+    - [理想的 commit 歷史特徵](#理想的-commit-歷史特徵)
+    - [使用 Interactive Rebase 整理歷史](#使用-interactive-rebase-整理歷史)
+    - [範例：整理開發歷史](#範例整理開發歷史)
+    - [Fixup 工作流程（推薦）](#fixup-工作流程推薦)
+    - [堆疊分支（Stacked Branches）](#堆疊分支stacked-branches)
   - [6.2 同步 Main 分支策略](#62-同步-main-分支策略)
+    - [定期同步策略](#定期同步策略)
+    - [長期分支維護](#長期分支維護)
   - [6.3 Force Push 準則](#63-force-push-準則)
+    - [絕對不能 Force Push 的情況](#絕對不能-force-push-的情況)
+    - [安全的 Force Push 做法](#安全的-force-push-做法)
+    - [需要 Force Push 的合理情況](#需要-force-push-的合理情況)
+    - [從歷史中移除敏感資訊](#從歷史中移除敏感資訊)
   - [6.4 檔案和目錄管理](#64-檔案和目錄管理)
+    - [.gitignore 最佳實務](#gitignore-最佳實務)
+    - [.gitignore 管理技巧](#gitignore-管理技巧)
   - [6.5 大檔案管理：Git LFS](#65-大檔案管理git-lfs)
   - [6.6 效能入門](#66-效能入門)
+    - [加速 Git 操作](#加速-git-操作)
+    - [減少網路傳輸](#減少網路傳輸)
   - [6.7 💡 本章實務建議](#67--本章實務建議)
 - [7. 專案專屬規範](#7-專案專屬規範)
   - [7.1 Java 專案特殊要求](#71-java-專案特殊要求)
+    - [Maven 專案 Git 設定](#maven-專案-git-設定)
+    - [🚀 Java 專案實戰工作流程](#-java-專案實戰工作流程)
+    - [🔧 完整開發流程實例](#-完整開發流程實例)
+    - [📝 Java 專案 Pull Request 範本](#-java-專案-pull-request-範本)
+    - [Java 程式碼提交前檢查](#java-程式碼提交前檢查)
   - [7.2 分支命名公司規範](#72-分支命名公司規範)
+    - [專案特定前綴](#專案特定前綴)
+    - [以正規表示式強制檢查](#以正規表示式強制檢查)
   - [7.3 Code Review 檢查點](#73-code-review-檢查點)
+    - [Java 特定檢查項目](#java-特定檢查項目)
+    - [自動化檢查工具](#自動化檢查工具)
   - [7.4 版本與標籤規範](#74-版本與標籤規範)
+    - [語意化版本（SemVer 2.0.0）](#語意化版本semver-200)
+    - [標籤類型](#標籤類型)
+    - [標籤管理](#標籤管理)
   - [7.5 發布分支流程](#75-發布分支流程)
   - [7.6 💡 本章實務建議](#76--本章實務建議)
 - [8. 進階 Git 功能](#8-進階-git-功能)
   - [8.1 Git 別名 (Aliases)](#81-git-別名-aliases)
+    - [設定常用別名](#設定常用別名)
+    - [專案常用別名設定](#專案常用別名設定)
   - [8.2 Git 子模組 (Submodules) 與 Subtree](#82-git-子模組-submodules-與-subtree)
+    - [什麼時候使用子模組](#什麼時候使用子模組)
+    - [新增子模組](#新增子模組)
+    - [管理子模組](#管理子模組)
+    - [Clone 包含子模組的專案](#clone-包含子模組的專案)
+    - [Submodule vs Subtree 比較](#submodule-vs-subtree-比較)
   - [8.3 Git Worktree](#83-git-worktree)
+    - [什麼是 Worktree](#什麼是-worktree)
+    - [基本使用](#基本使用)
+    - [實際應用場景](#實際應用場景)
+    - [進階用法](#進階用法)
   - [8.4 Stash 進階](#84-stash-進階)
   - [8.5 Cherry-pick 進階](#85-cherry-pick-進階)
   - [8.6 Sparse-checkout 與 Partial Clone](#86-sparse-checkout-與-partial-clone)
   - [8.7 Git Bundle 與離線傳輸](#87-git-bundle-與離線傳輸)
   - [8.8 新一代歷史改寫工具：git replay 與 git history](#88-新一代歷史改寫工具git-replay-與-git-history)
   - [8.9 進階 Git 配置](#89-進階-git-配置)
+    - [改善 Git 效能的配置](#改善-git-效能的配置)
+    - [改善使用體驗的配置](#改善使用體驗的配置)
   - [8.10 💡 本章實務建議](#810--本章實務建議)
 - [9. Git Hooks 自動化](#9-git-hooks-自動化)
   - [9.1 什麼是 Git Hooks](#91-什麼是-git-hooks)
+    - [Hook 類型](#hook-類型)
   - [9.2 Hook 管理策略比較](#92-hook-管理策略比較)
   - [9.3 實用的 Pre-commit Hook](#93-實用的-pre-commit-hook)
+    - [程式碼品質檢查](#程式碼品質檢查)
+    - [防止敏感資訊提交](#防止敏感資訊提交)
   - [9.4 Commit Message Hook](#94-commit-message-hook)
+    - [檢查 Commit Message 格式](#檢查-commit-message-格式)
   - [9.5 Pre-push Hook](#95-pre-push-hook)
+    - [推送前的最終檢查](#推送前的最終檢查)
   - [9.6 使用 Husky v9 管理 Hooks（Node.js 專案）](#96-使用-husky-v9-管理-hooksnodejs-專案)
+    - [安裝和設定](#安裝和設定)
+    - [Package.json 配置](#packagejson-配置)
   - [9.7 使用 pre-commit 框架（多語言專案）](#97-使用-pre-commit-框架多語言專案)
   - [9.8 Git 2.54+ 設定檔式 Hooks](#98-git-254-設定檔式-hooks)
   - [9.9 Maven 專案 Git Hooks 實戰範例](#99-maven-專案-git-hooks-實戰範例)
+    - [🚀 完整的 Maven 專案 Hook 設定](#-完整的-maven-專案-hook-設定)
+    - [🔧 Hook 安裝腳本](#-hook-安裝腳本)
+    - [📋 Maven 專案 Hook 配置檢查清單](#-maven-專案-hook-配置檢查清單)
   - [9.10 Hooks 與 CI 的分工](#910-hooks-與-ci-的分工)
   - [9.11 💡 本章實務建議](#911--本章實務建議)
 - [10. 效能優化與故障排除](#10-效能優化與故障排除)
   - [10.1 倉庫健康度檢查](#101-倉庫健康度檢查)
   - [10.2 背景維護：git maintenance](#102-背景維護git-maintenance)
   - [10.3 大型倉庫加速](#103-大型倉庫加速)
+    - [本機設定](#本機設定)
+    - [Scalar：一鍵最佳化大型倉庫](#scalar一鍵最佳化大型倉庫)
   - [10.4 網路與傳輸優化](#104-網路與傳輸優化)
   - [10.5 倉庫瘦身與歷史清理](#105-倉庫瘦身與歷史清理)
   - [10.6 深度故障排除](#106-深度故障排除)
+    - [診斷 Git 問題](#診斷-git-問題)
+    - [回報問題](#回報問題)
   - [10.7 修復損壞的倉庫](#107-修復損壞的倉庫)
   - [10.8 大型專案最佳實務](#108-大型專案最佳實務)
+    - [使用 Partial Clone](#使用-partial-clone)
+    - [分割大型倉庫](#分割大型倉庫)
   - [10.9 💡 本章實務建議](#109--本章實務建議)
 - [11. IDE 整合與工具](#11-ide-整合與工具)
   - [11.1 VS Code Git 整合](#111-vs-code-git-整合)
+    - [內建功能](#內建功能)
+    - [建議擴充功能](#建議擴充功能)
+    - [VS Code Git 設定](#vs-code-git-設定)
+    - [自訂 Git 工作流程任務](#自訂-git-工作流程任務)
   - [11.2 JetBrains IntelliJ IDEA 整合](#112-jetbrains-intellij-idea-整合)
   - [11.3 命令列工具](#113-命令列工具)
+    - [安裝實用工具](#安裝實用工具)
+    - [設定 mergiraf 作為語法感知合併驅動（選用）](#設定-mergiraf-作為語法感知合併驅動選用)
+    - [設定 Delta 作為 diff 工具](#設定-delta-作為-diff-工具)
   - [11.4 Git GUI 工具選型](#114-git-gui-工具選型)
   - [11.5 外部 diff/merge 工具設定](#115-外部-diffmerge-工具設定)
   - [11.6 Git 託管平台概覽](#116-git-託管平台概覽)
   - [11.7 💡 本章實務建議](#117--本章實務建議)
 - [12. Git 安全性](#12-git-安全性)
   - [12.1 簽署 Commits 與 Tags](#121-簽署-commits-與-tags)
+    - [簽署方式比較](#簽署方式比較)
+    - [設定 SSH 簽署](#設定-ssh-簽署)
+    - [設定 GPG 簽署](#設定-gpg-簽署)
+    - [驗證簽署](#驗證簽署)
+    - [平台端強制](#平台端強制)
   - [12.2 秘密資訊防護](#122-秘密資訊防護)
+    - [多層防護架構](#多層防護架構)
+    - [使用 gitleaks](#使用-gitleaks)
+    - [使用 git-secrets（既有導入者）](#使用-git-secrets既有導入者)
+    - [機密外洩處置流程](#機密外洩處置流程)
   - [12.3 .gitignore 安全模式](#123-gitignore-安全模式)
   - [12.4 倉庫信任與 safe.directory](#124-倉庫信任與-safedirectory)
   - [12.5 Git 版本與漏洞管理](#125-git-版本與漏洞管理)
+    - [近期重大漏洞範例（2025-07-08 公告，修補版本 2.50.1）](#近期重大漏洞範例2025-07-08-公告修補版本-2501)
+    - [2026-11-10 公告：Git 2.56.1 等版本修補的 6 項漏洞](#2026-11-10-公告git-2561-等版本修補的-6-項漏洞)
+    - [版本合規檢查腳本](#版本合規檢查腳本)
+    - [企業漏洞管理流程](#企業漏洞管理流程)
   - [12.6 憑證與存取權杖管理](#126-憑證與存取權杖管理)
   - [12.7 存取控制](#127-存取控制)
+    - [權限分級建議](#權限分級建議)
+    - [分支保護策略](#分支保護策略)
   - [12.8 💡 本章實務建議](#128--本章實務建議)
 - [13. 企業治理與 Git 3.0 準備](#13-企業治理與-git-30-準備)
   - [13.1 Git 平台治理架構](#131-git-平台治理架構)
+    - [組織與倉庫結構建議](#組織與倉庫結構建議)
+    - [倉庫命名與基本檔案](#倉庫命名與基本檔案)
   - [13.2 倉庫生命週期管理](#132-倉庫生命週期管理)
   - [13.3 稽核與合規](#133-稽核與合規)
   - [13.4 備份、鏡像與災難復原](#134-備份鏡像與災難復原)
   - [13.5 Git 3.0 升級準備](#135-git-30-升級準備)
+    - [預定的預設值變更](#預定的預設值變更)
+    - [預定移除的功能](#預定移除的功能)
+    - [相容性檢查指令](#相容性檢查指令)
+    - [升級準備時程建議](#升級準備時程建議)
   - [13.6 預設分支更名（master → main）](#136-預設分支更名master--main)
   - [13.7 💡 本章實務建議](#137--本章實務建議)
 - [14. 檢查清單](#14-檢查清單)
   - [14.1 新進成員入職檢查清單](#141-新進成員入職檢查清單)
+    - [環境設定檢查](#環境設定檢查)
+    - [基本操作測試](#基本操作測試)
+    - [安全與規範設定](#安全與規範設定)
   - [14.2 每日工作檢查清單](#142-每日工作檢查清單)
+    - [開始工作前](#開始工作前)
+    - [提交程式碼前](#提交程式碼前)
+    - [推送程式碼前](#推送程式碼前)
   - [14.3 Pull Request 檢查清單](#143-pull-request-檢查清單)
+    - [建立 PR 前](#建立-pr-前)
+    - [Code Review 檢查](#code-review-檢查)
   - [14.4 發布前檢查清單](#144-發布前檢查清單)
+    - [版本準備](#版本準備)
+    - [發布執行](#發布執行)
   - [14.5 緊急情況檢查清單](#145-緊急情況檢查清單)
+    - [生產環境問題](#生產環境問題)
+    - [回滾計畫](#回滾計畫)
+    - [機密外洩](#機密外洩)
   - [14.6 平台治理季度檢查清單](#146-平台治理季度檢查清單)
 - [結語](#結語)
   - [學習成效評估](#學習成效評估)
@@ -165,15 +358,18 @@ categories = ['教學']
 - [附錄 C：詞彙表](#附錄-c詞彙表)
 - [附錄 D：版本更新紀錄](#附錄-d版本更新紀錄)
   - [D.1 版本歷程](#d1-版本歷程)
-  - [D.2 v2.0 → v3.0 更正表](#d2-v20--v30-更正表)
-  - [D.3 v3.0 新增章節](#d3-v30-新增章節)
-  - [D.4 v2.0 更新內容回顧（2025 年 8 月）](#d4-v20-更新內容回顧2025-年-8-月)
+  - [D.2 v3.0 → v3.1 修訂內容](#d2-v30--v31-修訂內容)
+  - [D.3 v2.0 → v3.0 更正表](#d3-v20--v30-更正表)
+  - [D.4 v3.0 新增章節](#d4-v30-新增章節)
+  - [D.5 v2.0 更新內容回顧（2025 年 8 月）](#d5-v20-更新內容回顧2025-年-8-月)
 - [附錄 E：查證紀錄](#附錄-e查證紀錄)
   - [E.1 待確認事項](#e1-待確認事項)
 - [附錄 F：參考資料](#附錄-f參考資料)
   - [F.1 Git 官方資源](#f1-git-官方資源)
   - [F.2 平台與工具文件](#f2-平台與工具文件)
   - [F.3 規範與延伸閱讀](#f3-規範與延伸閱讀)
+- [附錄 G：規範驗證對照表](#附錄-g規範驗證對照表)
+  - [G.1 個人環境自檢腳本](#g1-個人環境自檢腳本)
 
 <!-- TOC-AUTO-END -->
 
@@ -190,11 +386,13 @@ Git 是當今軟體產業的事實標準版本控制系統。對企業而言，G
 
 **本版五大重點建議：**
 
-1. **統一 Git 版本基線**：全公司端點與 CI Runner 應維持在最新穩定版（本版基準 2.56.x），並建立漏洞通報後 7–14 天內完成更新的流程（見 [12.5](#125-git-版本與漏洞管理)）。
+1. **統一 Git 版本基線**：全公司端點與 CI Runner 應維持在最新穩定版（本版基準 **2.56.1** 或各維護分支的對應修補版；2026-11-10 公布的漏洞中，CVE-2026-111760 可在 clone 惡意倉庫時執行任意程式碼），並建立漏洞通報後 7–14 天內完成更新的流程（見 [12.5](#125-git-版本與漏洞管理)）。
 2. **統一全域設定**：以附錄 B 的企業建議 `.gitconfig` 與 `.gitattributes` 作為新進人員標準配置，避免換行字元、預設分支、Pull 策略等差異造成的協作問題。
 3. **伺服器端強制、用戶端輔助**：分支保護／Rulesets、必要檢查、簽署驗證與秘密掃描應在平台端強制執行；本機 Hooks 僅作為提早回饋的輔助（見 [9.10](#910-hooks-與-ci-的分工)）。
 4. **以 SSH 簽署或 GPG 簽署建立可驗證的提交來源**，並於受保護分支要求已簽署提交（見 [12.1](#121-簽署-commits-與-tags)）。
 5. **提早準備 Git 3.0**：預設分支 `main`、SHA-256、reftable 與 `safe.bareRepository` 等預設值將改變，請依 [13.5](#135-git-30-升級準備) 盤點工具鏈相容性。
+
+**如何使用本手冊審查與驗證：** 每一條規範都對應至少一個可執行的檢查指令與預期結果，彙整於[附錄 G：規範驗證對照表](#附錄-g規範驗證對照表)。審查者（Tech Lead、稽核、資安）可直接以該表作為抽查清單，不需要依賴口頭確認。
 
 ---
 
@@ -345,9 +543,26 @@ Git 約每 8–12 週發布一個次版本。下表整理與企業日常使用�
 | 2.52 | 2025-11-17 | 新增 `git last-modified`、`git repo info`／`git repo structure`、`git refs list`／`exists`、`git sparse-checkout clean`；Rust 支援可選 |
 | 2.54 | 2026-04-20 | 實驗性 `git history`（`reword`、`split`）；**設定檔式 Hooks**（`hook.<name>.command`／`event`）與 `git hook list`；`git maintenance` 手動執行預設採 geometric 策略；HTTP 429 自動重試（`http.maxRetries` 等） |
 | 2.55 | 2026-06-29 | `git history fixup`；Hooks 可設定平行執行；`git push` 可推送到 remote group；Rust 預設啟用 |
-| **2.56** | **2026-09-28** | `git add --resolved`、`git branch --delete-merged`、`git history drop`、`git bisect --reset-when-found`、`fetch.followRemoteHEAD`、`includeIf "worktree:"`；`-h`／`--help` 結束碼改為 0 |
+| 2.56 | 2026-09-28 | `git add --resolved`、`git branch --delete-merged`、`git history drop`、`git bisect --reset-when-found`、`fetch.followRemoteHEAD`、`includeIf "worktree:"`；`-h`／`--help` 結束碼改為 0 |
+| **2.56.1** | **2026-11-10（公告日）** | 僅含安全修補：修正 6 項 CVE（clone 時遠端執行程式碼、伺服器公告的 HEAD 路徑穿越、合併與二進位 patch 的記憶體毀損、`fast-import` 檔案存取），並同步發布 2.50.2、2.51.3、2.52.1、2.53.1、2.54.1、2.55.1 維護版（見 [12.5](#125-git-版本與漏洞管理)） |
 
-> 💡 表中未列出的 2.51（2025-08-18）、2.53（2026-02-02）等版本亦有許多改進，完整內容請參閱 [Release Notes](https://gitlab.com/git-scm/git/-/tree/master/Documentation/RelNotes) 或 GitHub Blog 的「Highlights from Git 2.xx」系列文章。
+> 💡 表中未列出的 2.51（2025-08-18）、2.53（2026-02-02）等版本亦有許多改進，完整內容請參閱 [Release Notes](https://gitlab.com/git-scm/git/-/tree/master/Documentation/RelNotes) 或 GitHub Blog 的「Highlights from Git 2.xx」系列文章。截至 2026-11-25，下一個功能版 2.57 尚未進入 RC 階段。
+
+**如何判讀版本號與「維護版」：**
+
+| 版本號形式 | 意義 | 企業處理方式 |
+| --- | --- | --- |
+| `2.56.0` | 功能版（feature release），約每 8–12 週一版 | 於測試環境驗證 1–2 週後導入 |
+| `2.56.1` | 同一功能版的修補版，通常只含錯誤或安全修正 | 安全修補應優先導入，不需重新評估功能 |
+| `2.55.1`、`2.54.1`… | 舊功能版的**維護修補**（backport），讓暫時無法升級功能版的環境也能修補漏洞 | 若因相容性暫時鎖版，至少升到同系列最新修補版 |
+| `2.56.1.windows.1` | Git for Windows 以上游版本為基礎的第 1 次 Windows 建置 | 以 `.windows.N` 判斷是否已含 Windows 專屬修補 |
+| `2.56.0(4)`（安裝檔標示）／`2.56.0.windows.4` | 同一上游版本的第 4 次 Windows 建置，常用於更新 OpenSSL、cURL、Git LFS 等內附元件 | 視為獨立的安全更新來追蹤 |
+
+```bash
+# 驗證：判斷目前版本是否已含 2026-11 安全修補
+git --version
+# 合格範例：git version 2.56.1.windows.1、2.55.1、2.54.1、2.53.1、2.52.1、2.51.3、2.50.2 或更新
+```
 
 **Git 3.0 路線（尚無發布日期）**：預設分支改為 `main`、預設雜湊改為 SHA-256、預設參考格式改為 reftable、Rust 成為必要建置元件、`safe.bareRepository` 預設改為 `explicit`，並移除 `git whatchanged`、`git pack-redundant`、grafts 等舊功能。詳見 [13.5 Git 3.0 升級準備](#135-git-30-升級準備)。
 
@@ -362,14 +577,14 @@ Git 約每 8–12 週發布一個次版本。下表整理與企業日常使用�
 | About | <https://git-scm.com/about> | Git 的設計特色、商標政策 | 向非技術主管說明 Git 價值 |
 | Learn | <https://git-scm.com/learn> | Pro Git 電子書、入門影片、Cheat Sheet、外部資源連結 | 新人自學教材 |
 | Tools | <https://git-scm.com/tools> | 命令列工具、GUI 用戶端、託管服務清單 | 工具選型（見第 11 章） |
-| Reference | <https://git-scm.com/docs> | 每個指令與設定的權威參考文件 | 查指令選項與行為的第一手來源 |
+| Reference | <https://git-scm.com/docs> | 每個指令與設定的權威參考文件，另有 [Cheat Sheet](https://git-scm.com/cheat-sheet) 與[憑證輔助程式清單](https://git-scm.com/doc/credential-helpers) | 查指令選項與行為的第一手來源 |
 | Install | <https://git-scm.com/install> | 各平台安裝方式與最新版本 | 安裝與升級（見 2.1） |
 | Community | <https://git-scm.com/community> | 郵件論壇、IRC／Discord、錯誤回報、資安通報、貢獻方式 | 問題回報與追蹤 |
 
 **Learn 區塊的四類資源：**
 
 - **Pro Git（第 2 版）**：Scott Chacon 與 Ben Straub 著，可免費線上閱讀，涵蓋基礎到內部原理
-- **Videos**：「什麼是版本控制」「什麼是 Git」「Get Going with Git」「Quick Wins with Git」四支入門短片
+- **Videos**：「What is Version Control?」（約 6 分鐘）、「What is Git?」（約 8 分鐘）、「Get Going with Git」（約 4 分鐘）、「Quick Wins with Git」（約 5 分鐘）四支入門短片，合計約 24 分鐘，適合新人第一天觀看
 - **Cheat Sheet**：常用指令速查，並以圖解說明 merge 與 rebase 的差異
 - **External Links**：社群整理的教學、書籍與影片
 
@@ -379,10 +594,50 @@ Git 約每 8–12 週發布一個次版本。下表整理與企業日常使用�
 | --- | --- |
 | 一般問題討論 | 郵件論壇 `git@vger.kernel.org`（純文字郵件，不需訂閱）；封存於 <https://lore.kernel.org/git/> |
 | 即時討論 | Libera Chat IRC `#git`、`#git-devel`；Git Community Discord |
-| Windows 版問題 | Git for Windows GitHub Discussions |
-| 回報錯誤 | 使用 `git bugreport` 產生報告後寄至郵件論壇 |
+| Windows 版問題 | 提問：Git for Windows GitHub Discussions；錯誤：Git for Windows issue tracker |
+| 回報錯誤 | 先以最新版本（或 `next` 分支）重現，再以 `git bugreport`（Git 2.27+）產生報告後寄至郵件論壇 |
+| 網站或 Pro Git 內容錯誤 | 分別回報到 git-scm.com 網站與 progit2 的 GitHub issue tracker |
 | **資安漏洞通報** | `git-security@googlegroups.com`（私下揭露，勿公開張貼） |
+| 發行版打包者 | Git packagers 郵件論壇（低流量公告，適合負責內部 Git 套件的平台團隊訂閱） |
 | 開發動態 | 月刊 **Git Rev News** |
+| 貢獻程式碼 | 依序閱讀 MyFirstContribution、CodingGuidelines、SubmittingPatches；Outreachy 與 GSoC 亦有 Git 專案 |
+
+> 💡 郵件論壇只接受**純文字郵件**，首次寄信可能因灰名單延遲數小時；回覆時請使用「全部回覆」並保留 Cc 名單。企業內部若要向社群回報問題，應先移除內部主機名稱、帳號與程式碼片段。
+
+**Reference 區塊的指令分類（官方文件的組織方式）：**
+
+| 分類 | 代表指令 | 本手冊對應章節 |
+| --- | --- | --- |
+| Setup and Config | `git`、`config`、`help`、`bugreport`、Credential helpers | 2.2、2.6 |
+| Getting and Creating Projects | `init`、`clone` | 3.1 |
+| Basic Snapshotting | `add`、`status`、`diff`、`commit`、`notes`、`restore`、`reset`、`rm`、`mv` | 1.3、3.2、5.3 |
+| Branching and Merging | `branch`、`checkout`、`switch`、`merge`、`mergetool`、`log`、`stash`、`tag`、`worktree` | 3.4、3.6、8.3、8.4 |
+| Sharing and Updating Projects | `fetch`、`pull`、`push`、`remote`、`submodule` | 3.6、3.7、8.2 |
+| Inspection and Comparison | `show`、`log`、`diff`、`difftool`、`range-diff`、`shortlog`、`describe` | 1.7、附錄 A |
+| Patching | `apply`、`cherry-pick`、`rebase`、`revert` | 5.3、6.1、8.5 |
+| Debugging | `bisect`、`blame`、`grep` | 5.8 |
+| Guides | `gitattributes`、`gitcli`、`giteveryday`、`gitfaq`、`gitglossary`、`githooks`、`gitignore`、`gitrevisions`、`gitworkflows` | 1.7、2.3、6.4、第 9 章 |
+| Email | `am`、`format-patch`、`send-email`、`request-pull` | 以 email 交付 patch 的開源或隔離環境 |
+| External Systems | `svn`、`fast-import` | SVN 遷移（`fast-import` 處理不可信串流時見 12.5） |
+| Administration | `clean`、`gc`、`fsck`、`reflog`、`filter-branch`、`archive`、`bundle` | 5.7、8.7、10.5 |
+| Server Admin | `daemon`、`update-server-info` | 自建 Git 伺服器（一般企業改用託管平台） |
+| Plumbing Commands | `cat-file`、`for-each-ref`、`rev-parse`、`update-ref`、`ls-files` 等 | 1.4、13.5（撰寫腳本時應使用 plumbing 指令，輸出格式較穩定） |
+
+**讀懂官方文件的語法（SYNOPSIS）：**
+
+| 符號 | 意義 | 範例（`git help branch` 中的寫法） |
+| --- | --- | --- |
+| `[ ]` | 可省略的選項或參數 | `git branch [--list]` |
+| `< >` | 需替換成實際值的佔位符 | `<branchname>` |
+| `( \| )` 或 `\|` | 擇一 | `(-d \| -D)` |
+| `...` | 可重複多次 | `<pattern>...` |
+| `--` | 之後的參數一律視為路徑，而非選項或分支名稱 | `git restore -- main.c` |
+
+```bash
+# 驗證：確認自己讀到的說明與本機版本一致（官方網站可切換版本）
+git --version
+git help --config | grep -i '^hook\.'   # 列出本機版本支援的 hook.* 設定鍵
+```
 
 **離線查詢內建說明：**
 
@@ -394,15 +649,81 @@ git help -a               # 列出所有指令
 git help everyday         # 「每日 Git 必備的 20 個指令」
 ```
 
-### 1.7 💡 本章實務建議
+### 1.7 修訂與範圍語法（gitrevisions）
+
+> **v3.1 新增**
+
+`reset`、`rebase`、`log`、`diff`、`revert` 等指令的參數都是「修訂（revision）」或「範圍（range）」。看懂這套語法，才能在 Code Review 時判斷一行指令到底會影響哪些 commit。完整定義見官方 Guides 的 [gitrevisions](https://git-scm.com/docs/gitrevisions)。
+
+#### 指向單一 commit
+
+| 寫法 | 意義 | 範例 |
+| --- | --- | --- |
+| `HEAD` | 目前所在位置 | `git show HEAD` |
+| `<rev>~N` | 沿第一個父節點往回 N 代 | `HEAD~3`：三個 commit 之前 |
+| `<rev>^N` | 第 N 個父節點（只對 merge commit 有意義） | `HEAD^2`：被合併進來那條分支的最後一個 commit |
+| `<branch>@{upstream}`（簡寫 `@{u}`） | 該分支的上游 | `git log @{u}..HEAD`：尚未推送的 commit |
+| `@{-N}` | 第 N 次之前所在的分支 | `git switch @{-1}`，等同 `git switch -` |
+| `<ref>@{N}` | 該參考在 reflog 中第 N 次之前的位置 | `HEAD@{2}`（見 5.7） |
+| `<ref>@{<日期>}` | 該參考在某個時間點的位置（依本機 reflog） | `main@{yesterday}` |
+| `:/<文字>` | 訊息中含有該文字的最新 commit | `git show :/"fix(auth)"` |
+| `<rev>:<path>` | 某版本中的某個檔案 | `git show v1.2.0:pom.xml` |
+
+#### 指定一段範圍
+
+| 寫法 | 意義 | 常見用途 |
+| --- | --- | --- |
+| `A..B` | 可由 B 抵達、但不可由 A 抵達的 commit（B 有、A 沒有） | `git log origin/main..HEAD`：我的分支多了哪些 commit |
+| `A...B`（`log`） | 兩邊各自獨有的 commit（對稱差） | `git log --left-right main...feature` |
+| `A...B`（`diff`） | 從共同祖先到 B 的差異 | `git diff main...feature`：PR 實際引入的變更 |
+| `^A B` | 同 `A..B`，可組合多個排除條件 | `git log ^main ^develop feature` |
+| `<rev>^@`／`<rev>^!` | 該 commit 的所有父節點／只有這一個 commit | `git show HEAD^!` |
+
+```mermaid
+gitGraph
+    commit id: "A1"
+    commit id: "A2"
+    branch feature
+    checkout feature
+    commit id: "F1"
+    commit id: "F2"
+    checkout main
+    commit id: "M1"
+```
+
+上圖中，`main..feature` 只包含 `F1`、`F2`；`feature..main` 只包含 `M1`；`main...feature` 在 `git log` 中包含 `F1`、`F2`、`M1`，在 `git diff` 中則只比較 `A2` 與 `F2`。
+
+#### 動手驗證
+
+```bash
+git init rev-lab && cd rev-lab
+git commit --allow-empty -m "A1"
+git commit --allow-empty -m "A2"
+git switch -c feature
+git commit --allow-empty -m "F1"
+git commit --allow-empty -m "F2"
+git switch main
+git commit --allow-empty -m "M1"
+
+git log --oneline main..feature      # 預期：F2、F1
+git log --oneline feature..main      # 預期：M1
+git log --oneline --left-right main...feature   # 預期：> F2、> F1、< M1
+git rev-parse feature~1              # 預期：與 F1 的雜湊相同
+git merge-base main feature          # 預期：A2 的雜湊
+```
+
+> ⚠️ **Review 要點**：在 PR 或腳本中看到 `git reset --hard HEAD~N`、`git rebase -i HEAD~N` 時，先用 `git log --oneline HEAD~N..HEAD` 確認範圍內的 commit 正好是預期要處理的那幾個；N 寫錯是誤刪 commit 最常見的原因。
+
+### 1.8 💡 本章實務建議
 
 - Git 以快照（snapshot）而非差異（diff）儲存每個版本；commit 一旦建立即不可變，「修改歷史」實際上是建立新的 commit
 - 每個 commit 都有唯一雜湊值作為識別；分支與標籤只是指向 commit 的名稱
 - 刪除或修改已 push 的 commit 會影響他人，務必遵循第 5、6 章的準則
 - 遇到指令疑問，優先查閱 `git help <command>` 或 git-scm.com/docs，而非過時的部落格文章
 - 將 Git 版本納入端點管理，定期更新以取得安全修補
+- 會用 `A..B`、`A...B`、`@{u}` 描述範圍，Review 時才能精確判斷指令的影響
 
-### 1.8 第1章實作練習
+### 1.9 第1章實作練習
 
 #### 練習1：概念理解 📚
 
@@ -503,15 +824,52 @@ git hash-object a.txt                # 與上方 blob 雜湊相同
 
 #### Windows 環境
 
-截至 2026-09-29，Git for Windows 最新版為 **2.56.0**（2026-09-28 發布，內含 Git LFS 3.8.0）。自 2.56.0 起已**停止支援 Windows 8.1**，內部執行檔路徑由 `/mingw64/bin` 改為 `/ucrt64/bin`，但對外的 `C:\Program Files\Git\cmd\git.exe` 路徑維持不變。
+截至 2026-11-25，Git for Windows 最新版為 **2.56.1**（2026-11-10 發布，對應上游 Git 2.56.1 安全修補）。自 2.56.0 起已**停止支援 Windows 8.1**，內部執行檔路徑由 `/mingw64/bin` 改為 `/ucrt64/bin`；官方保證穩定的對外路徑是 `C:\Program Files\Git\cmd\git.exe`，任何腳本或 IDE 設定都應指向此路徑。
 
 | 安裝方式 | 適用情境 | 取得方式 |
 | --- | --- | --- |
-| 標準安裝檔（x64） | 一般開發機 | <https://git-scm.com/install/windows> 下載 `Git-2.56.0-64-bit.exe` |
-| 標準安裝檔（ARM64） | Windows on ARM 筆電 | 同上，`Git-2.56.0-arm64.exe` |
-| 可攜版（Portable） | 無管理員權限、隨身碟、跳板機 | `PortableGit-2.56.0-64-bit.7z.exe`（自解壓縮） |
+| 標準安裝檔（x64） | 一般開發機 | <https://git-scm.com/install/windows> 下載 `Git-2.56.1-64-bit.exe` |
+| 標準安裝檔（ARM64） | Windows on ARM 筆電 | 同上，`Git-2.56.1-arm64.exe` |
+| 可攜版（Portable） | 無管理員權限、隨身碟、跳板機 | `PortableGit-2.56.1-64-bit.7z.exe`（自解壓縮） |
+| MinGit | CI Runner、容器、第三方應用程式內嵌（無 Bash、無 GUI） | Git for Windows Releases 頁的 `MinGit-2.56.1-64-bit.zip`（另有 `busybox` 變體） |
 | winget | 開發者自行安裝、腳本化 | `winget install --id Git.Git -e --source winget` |
+| Chocolatey | 已導入 Chocolatey 的環境 | `choco install git` |
 | 企業大量部署 | Intune／SCCM／GPO 派送 | 標準安裝檔搭配靜默參數（見下方） |
+
+> ⚠️ git-scm.com 明確說明：winget 的 `Git.Git` 與 Chocolatey 的 `git` 套件**並非由 Git for Windows 專案維護**，版本可能落後。安全修補發布當天應以官方安裝檔為準，並以下方「驗證下載檔」的方式確認。
+
+##### Git for Windows 2.56 系列發布紀錄
+
+Git for Windows 除了跟隨上游版本，也會以 `.windows.N` 建置獨立更新內附元件。以下是 2.56 系列對企業有影響的變更：
+
+| 建置 | 發布日 | 重點 |
+| --- | --- | --- |
+| 2.56.0.windows.1 | 2026-09-29 | Git 2.56.0、Git LFS 3.8.0、cURL 8.22.0、OpenSSL 3.5.8；停止支援 Windows 8.1；安裝程式改為 64 位元，修正 2.55.0(5) 「Use external OpenSSH」選項失效的問題；可提交 4 GB 以上的物件 |
+| 2.56.0.windows.2 | 2026-10-06 | OpenSSL 3.5.9；為 UCRT64 遷移後殘留的 Git Credential Manager 路徑加入相容層；修正 `GIT_CONFIG_GLOBAL=NUL` 失效、x64 執行檔缺少 Authenticode 簽章、需要用戶端憑證時 push 失敗 |
+| 2.56.0(3) | 2026-10-23 | 因應 eMudhra 中繼 CA 遭入侵的安全更新；OpenSSH 10.6p1、cURL 8.23.0、**Git LFS 3.8.1**（修正 CVE-2026-105803 等） |
+| 2.56.0.windows.4 | 2026-10-26 | 緊急更新內附 brotli 至 1.2.1（CVE-2026-111497）；修正 32 位元 MinGit 簽章損毀 |
+| **2.56.1.windows.1** | **2026-11-10** | Git 2.56.1：修正 6 項 Git 核心 CVE（見 [12.5](#125-git-版本與漏洞管理)） |
+
+> 💡 先前的 Git for Windows 安全更新亦曾調整預設行為：例如為修正 CVE-2025-66413，內建 NTLM 驗證預設停用，只有明確設定 `http.allowNTLMAuth=true` 才會使用；bundle URI 受 `protocol.<name>.allow` 規則限制（CVE-2026-62960），預設不會存取 `file://` 與網路若磁碟。若內部 Git 伺服器仍依賴 NTLM，請規劃改用 Kerberos／OAuth，而不是全面開啟 NTLM。
+
+##### 驗證下載檔（可稽核）
+
+Git for Windows 每個 Release 都公布各檔案的 SHA-256 雜湊值，並自 2.56 系列起以 GitHub 「Immutable release」與 Release attestation 發布。派送前應比對雜湊值與數位簽章：
+
+```powershell
+# 1. 計算下載檔的 SHA-256，與 Release 頁面公布值比對
+$expected = 'c330c72e10b408cc39994bfefdb63542b0d93d21699325c3e0bd874af8a5a559'  # Git-2.56.1-64-bit.exe
+$actual   = (Get-FileHash .\Git-2.56.1-64-bit.exe -Algorithm SHA256).Hash.ToLower()
+if ($actual -eq $expected) { 'SHA-256 相符' } else { throw "SHA-256 不符：$actual" }
+
+# 2. 確認 Authenticode 簽章有效（Status 應為 Valid）
+Get-AuthenticodeSignature .\Git-2.56.1-64-bit.exe | Select-Object Status, SignerCertificate
+
+# 3.（選用）以 GitHub CLI 驗證 Release attestation
+gh release verify-asset v2.56.1.windows.1 .\Git-2.56.1-64-bit.exe --repo git-for-windows/git
+```
+
+> ⚠️ 上列雜湊值僅適用於 `Git-2.56.1-64-bit.exe`。每次更新都應從該版本的 Release 頁面重新取得，不可沿用舊值。`gh release verify-asset` 需要較新版的 GitHub CLI，若指令不存在，以步驟 1、2 為準。
 
 ##### 安裝精靈重要選項建議
 
@@ -535,10 +893,10 @@ Git for Windows 安裝檔基於 Inno Setup，可先在一台參考機器匯出�
 
 ```powershell
 # 1. 在參考機器以互動方式安裝，並將選擇存成設定檔
-.\Git-2.56.0-64-bit.exe /SAVEINF=git_options.ini
+.\Git-2.56.1-64-bit.exe /SAVEINF=git_options.ini
 
 # 2. 在目標機器以相同設定靜默安裝
-.\Git-2.56.0-64-bit.exe /VERYSILENT /NORESTART /NOCANCEL /SP- `
+.\Git-2.56.1-64-bit.exe /VERYSILENT /NORESTART /NOCANCEL /SP- `
   /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /LOADINF=git_options.ini
 ```
 
@@ -552,6 +910,13 @@ Git for Windows 安裝檔基於 Inno Setup，可先在一台參考機器匯出�
 | `/SAVEINF=`、`/LOADINF=` | 匯出／載入安裝選項設定檔 |
 | `/COMPONENTS=` | 指定安裝元件 |
 | `/o:<Key>=<Value>` | 個別覆寫選項，例如 `CRLFOption`、`SSHOption`、`UseCredentialManager` |
+
+```powershell
+# 驗證：靜默安裝後確認版本、安裝路徑與關鍵系統設定符合預期
+& 'C:\Program Files\Git\cmd\git.exe' --version          # 預期：git version 2.56.1.windows.1
+& 'C:\Program Files\Git\cmd\git.exe' config --system --list --show-origin |
+  Select-String 'credential.helper|http.sslbackend|core.autocrlf|init.defaultbranch'
+```
 
 ##### 升級方式
 
@@ -581,7 +946,7 @@ sudo dnf install git
 #### 驗證安裝
 
 ```bash
-git --version                  # 例：git version 2.56.0.windows.1
+git --version                  # 例：git version 2.56.1.windows.1
 git version --build-options    # 顯示編譯選項、SHA 實作、cURL／OpenSSL 版本
 where git                      # Windows：確認實際執行的是哪一個 git.exe
 ```
@@ -852,7 +1217,18 @@ ssh -vT git@github.com
 
 #### Git Credential Manager（GCM）
 
-GCM 是 Git for Windows 預設的憑證輔助程式，截至 2026-09-29 穩定版為 **2.9.1**；**3.0.0** 已以預覽版（pre-release）發布，改用 .NET 10 與原生 AOT 編譯，並預設使用作業系統驗證代理（broker）進行 Microsoft 帳號 SSO。
+GCM 是 Git for Windows 預設的憑證輔助程式。截至 2026-11-25，**3.0.2** 為最新正式版（Latest），**3.1.0** 為預覽版（pre-release，新增 Gitea 路徑前綴、GitHub Enterprise 資料駐留實例偵測等）；2.9.x 只對 Windows 7／8.x 提供最低限度的安全維護。
+
+**GCM 3.0 的破壞性變更（升級前必讀）：**
+
+| 變更 | 影響 | 回復舊行為的設定（僅在必要時使用） |
+| --- | --- | --- |
+| 改用 .NET 10 與原生 AOT 編譯，Windows 不再使用 .NET Framework | 需 Windows 10／Server 2016 以上、macOS 14 以上；3.0.1 起不再提供 Windows x86 二進位檔 | 無；舊系統只能停留在 2.9.x |
+| Azure Repos 預設回傳 Microsoft Entra **OAuth 權杖**，不再自動建立 PAT | 依賴「GCM 自動建立的 PAT」的流程會改變 | `git config --global credential.azreposCredentialType pat` |
+| Microsoft 驗證預設使用作業系統 **broker**（WAM 等） | 依組織原則可能要求裝置註冊；個人裝置登入時需留意 | `git config --global credential.msauthUseBroker false` |
+| Azure Repos 改用 GCM 專屬的 Entra 應用程式 | 若組織以條件式存取限制應用程式，需請 IT 核准新應用程式 | 暫時以 `git -c credential.azreposUseLegacyClientId=true fetch` 重試並回報 |
+| 移除內嵌網頁登入視窗（embedded web view） | `credential.msauthFlow=embedded` 失效 | 改為 `auto`、`system` 或 `devicecode` |
+| 終端機選單與 `diagnose` 輸出格式改變 | 解析 GCM 互動輸出的自動化腳本需調整 | 無 |
 
 ```bash
 # 確認使用中的憑證輔助程式與 GCM 版本
@@ -862,9 +1238,37 @@ git credential-manager --version
 # 手動指定使用 GCM（Git for Windows 安裝時已設定）
 git config --global credential.helper manager
 
+# 診斷憑證儲存、網路與驗證流程；--strict 讓警告也回傳非 0 結束碼，適合放進入職檢查腳本
+git credential-manager diagnose --strict
+
 # 清除某主機已儲存的憑證（例如密碼或權杖已更換）
 printf "protocol=https\nhost=github.com\n\n" | git credential reject
 ```
+
+#### 憑證輔助程式選型
+
+git-scm.com 的 [Credential helpers](https://git-scm.com/doc/credential-helpers) 頁面列出官方內建與社群常用的輔助程式。企業應統一選定一種，並以設定稽核（見[附錄 G](#附錄-g規範驗證對照表)）確認沒有人改用明文儲存：
+
+| 類別 | 輔助程式 | 儲存位置 | 企業建議 |
+| --- | --- | --- | --- |
+| Git 內建 | `store` | `~/.git-credentials` **明文** | **禁止** |
+| Git 內建 | `cache` | 記憶體，逾時後清除 | 僅適合 Linux 跳板機的短暫作業 |
+| 作業系統儲存 | `wincred`（Git for Windows 內附） | Windows 認證管理員 | 可用，但不支援 OAuth |
+| 作業系統儲存 | `osxkeychain`、`libsecret` | macOS 鑰匙圈、GNOME Keyring／KWallet | macOS／Linux 開發機可用 |
+| OAuth | **Git Credential Manager** | 依平台選擇安全儲存 | **Windows 標準（推薦）** |
+| OAuth | `git-credential-oauth` | 依搭配的儲存 helper | Linux 發行版常見的輕量選擇 |
+| 主機專用 | `gh auth setup-git` | GitHub CLI 的儲存 | 只使用 GitHub 且已導入 `gh` 的團隊 |
+| 密碼管理器 | gopass、1Password、KeePassXC 等 | 對應的密碼管理器 | 依公司密碼管理政策評估 |
+
+```bash
+# 審查：找出所有層級中使用明文 store 的設定（預期：無輸出）
+git config --show-origin --get-all credential.helper | grep -w store
+
+# 審查：確認家目錄沒有遺留的明文憑證檔（預期：檔案不存在）
+ls -l ~/.git-credentials 2>/dev/null || echo "OK：未發現 ~/.git-credentials"
+```
+
+> 💡 GitHub CLI 2.103 起提供預覽功能 `gh auth login --expiring`，改用會自動更新的短效 OAuth 權杖；官方建議搭配 Git 2.46 以上並以 `gh auth setup-git` 讓 `gh` 擔任 Git 的憑證輔助程式，避免過期權杖被其他 helper 快取。
 
 #### 權杖使用原則
 
@@ -2607,7 +3011,15 @@ git rm --cached path/to/file
 
 ### 6.5 大檔案管理：Git LFS
 
-Git 對大型二進位檔（設計稿、影音、模型檔）的處理效率差，且每個版本都會永久留在歷史中。Git LFS（Large File Storage）把實際內容存到 LFS 伺服器，倉庫中只保留指標檔。截至 2026-09-29，Git LFS 最新版為 **3.8.0**（Git for Windows 2.56.0 已內附）。
+Git 對大型二進位檔（設計稿、影音、模型檔）的處理效率差，且每個版本都會永久留在歷史中。Git LFS（Large File Storage）把實際內容存到 LFS 伺服器，倉庫中只保留指標檔。截至 2026-11-25，Git LFS 最新版為 **3.8.1**（2026-10-23，Git for Windows 2.56.0(3) 起內附）。
+
+> ⚠️ **3.8.1 為安全修補版，請勿停留在 3.8.0 以前**：修正 4 項影響所有平台的漏洞，包括透過惡意倉庫的子模組 URL（CVE-2026-105802）或 `.lfsconfig` 自訂傳輸介面（CVE-2026-105803）執行任意程式、SSH 遠端指令未正確引號化（CVE-2026-69260），以及 HTTP 轉址後將 Cookie 送往其他主機（CVE-2026-69261）。CI Runner 若另外安裝 Git LFS（未使用 Git for Windows 內附版本），需個別更新。
+
+```bash
+# 驗證：確認 Git LFS 版本（預期 3.8.1 或更新）
+git lfs version
+# 範例輸出：git-lfs/3.8.1 (GitHub; windows amd64; go 1.27.x)
+```
 
 ```bash
 # 首次使用：安裝 Git LFS 的全域 Hooks 與設定
@@ -3685,7 +4097,7 @@ fi
 echo "✅ Commit message 格式正確"
 ```
 
-> 💡 Node.js 專案可改用 commitlint（`@commitlint/cli` 與 `@commitlint/config-conventional`，截至 2026-09-29 最新為 21.2.3）。
+> 💡 Node.js 專案可改用 commitlint（`@commitlint/cli` 與 `@commitlint/config-conventional`，截至 2026-11-25 最新為 21.2.4，需 Node.js 22.12 以上）。
 
 ### 9.5 Pre-push Hook
 
@@ -3721,7 +4133,7 @@ echo "✅ 推送前檢查通過"
 
 ### 9.6 使用 Husky v9 管理 Hooks（Node.js 專案）
 
-> ⚠️ **v3.0 更正**：`husky install` 與 `husky add` 是 Husky v8 以前的用法，v9 起已移除。截至 2026-09-29，Husky 最新版為 **9.1.7**（需 Node.js 18+）；lint-staged 最新版為 **17.6.0**（需 Node.js 22.22.1+），且會自動將修正後的檔案加回暫存區，設定中**不需要**再寫 `git add`。
+> ⚠️ **v3.0 更正**：`husky install` 與 `husky add` 是 Husky v8 以前的用法，v9 起已移除。截至 2026-11-25，Husky 最新版為 **9.1.7**（需 Node.js 18+）；lint-staged 最新版為 **17.6.2**（需 Node.js 22.22.1+），且會自動將修正後的檔案加回暫存區，設定中**不需要**再寫 `git add`。
 
 #### 安裝和設定
 
@@ -3757,7 +4169,7 @@ echo 'npx --no -- commitlint --edit "$1"' > .husky/commit-msg
 
 > 🆕 **v3.0 新增**
 
-[pre-commit](https://pre-commit.com/)（截至 2026-09-29 最新 4.6.2）以 YAML 宣告 Hooks 並鎖定版本，適合 Java、Python、前端混合的 Monorepo。
+[pre-commit](https://pre-commit.com/)（截至 2026-11-25 最新 4.7.0，需 Python 3.11 以上）以 YAML 宣告 Hooks 並鎖定版本，適合 Java、Python、前端混合的 Monorepo。
 
 ```yaml
 # .pre-commit-config.yaml
@@ -4570,16 +4982,23 @@ git-scm.com 的 [Tools](https://git-scm.com/tools) 頁面將周邊工具分為**
 
 ### 11.3 命令列工具
 
-| 類別 | 工具 | 用途 |
-| --- | --- | --- |
-| 文字介面（TUI） | lazygit、tig、gitui | 在終端機中以選單操作 Git |
-| 歷史管理 | git-filter-repo、git-absorb | 改寫歷史；自動產生 fixup commit |
-| Diff 工具 | delta、difftastic | 語法高亮 diff；語法結構感知的 diff |
-| Hooks 管理 | pre-commit、lefthook | 見第 9 章 |
-| 大檔案 | git-lfs | 見 6.5 |
-| 殼層提示 | Starship、`git-prompt.sh` | 在提示字元顯示分支與狀態 |
-| 平台 CLI | `gh`（GitHub）、`glab`（GitLab） | 在終端機操作 PR／MR、Issue、CI |
-| 秘密防護 | gitleaks、git-secrets | 見 12.2 |
+下表依 git-scm.com [Command Line Tools](https://git-scm.com/tools/command-line) 頁面的分類整理，並標示企業導入建議：
+
+| 類別 | 工具 | 用途 | 企業建議 |
+| --- | --- | --- | --- |
+| 文字介面（TUI） | lazygit、tig、gitui、gitu、forgit | 在終端機中以選單操作 Git；forgit 以 fzf 互動挑選；gitu 介面類似 Emacs Magit | 個人工具，可自由選用 |
+| 歷史管理 | git-filter-repo、git-absorb、git-imerge、git-branchless | 改寫歷史（官方建議取代 filter-branch）；自動產生 fixup；遞增合併；不依賴分支的堆疊工作流 | filter-repo 納入標準工具箱；其餘視需要 |
+| 合併驅動 | mergiraf | 語法感知的三方合併，可自動解決部分「兩邊都改同一段」的假衝突 | 先在小範圍試行，結果仍須經 CI 與 Review |
+| Diff 工具 | delta、difftastic、diff-so-fancy | 語法高亮 diff；語法結構感知的 diff；人類可讀的 diff | 個人工具 |
+| Hooks 管理 | pre-commit、lefthook | 見第 9 章 | 團隊統一一種 |
+| 大檔案 | git-lfs、git-annex | 見 6.5；git-annex 適合科學資料、多儲存後端 | 企業以 git-lfs 為主 |
+| 殼層提示 | Starship、`git-prompt.sh` | 在提示字元顯示分支與狀態 | 個人工具 |
+| 工具合集 | git-extras、git-toolbelt | 倉庫摘要、CHANGELOG、作者統計等擴充指令 | 個人工具 |
+| 工作流程 | git-town、Commitizen、mob.sh | 自動化分支建立／同步／清理；互動式 Conventional Commits 與版號、CHANGELOG；遠端結對交接 | Commitizen 可搭配 3.5 的規範導入 |
+| 平台 CLI | `gh`（GitHub）、`glab`（GitLab） | 在終端機操作 PR／MR、Issue、CI | 納入標準工具箱 |
+| 秘密防護 | gitleaks、git-secrets | 見 12.2 | gitleaks 為標準 |
+
+> 💡 git-scm.com 的工具清單只是社群整理，**不代表官方背書或安全審查**。任何會讀取倉庫內容的工具導入前，都應確認授權、維護狀態與是否會對外傳送資料。
 
 #### 安裝實用工具
 
@@ -4593,7 +5012,27 @@ winget install --id dandavison.delta -e      # delta
 scoop install gh lazygit delta
 ```
 
-截至 2026-09-29 各工具最新版本：GitHub CLI 2.101.0、lazygit 0.65.1、delta 0.19.2。企業環境請透過內部軟體中心派送，並由資安單位審核。
+各工具版本：GitHub CLI 2.105.0（2026-11-25 查證）；lazygit 0.65.1、delta 0.19.2（2026-09-29 查證）。企業環境請透過內部軟體中心派送，並由資安單位審核。
+
+> ⚠️ GitHub CLI 2.102.0（2026-09-30）修正 4 項安全漏洞（包含 `gh release download`、`gh run download` 等指令在目的地含符號連結時可能寫入非預期檔案，以及 `gh attestation verify` 的比對缺陷），使用 `gh` 做簽章驗證的 CI 應至少升到此版。
+
+#### 設定 mergiraf 作為語法感知合併驅動（選用）
+
+```bash
+# 註冊合併驅動（參數依 mergiraf 官方文件，導入前以 mergiraf --help 確認）
+git config --global merge.mergiraf.name mergiraf
+git config --global merge.mergiraf.driver 'mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L'
+```
+
+```gitattributes
+# .gitattributes：只對已驗證的語言啟用
+*.java merge=mergiraf
+```
+
+```bash
+# 驗證：確認檔案實際套用的合併驅動（預期輸出 merge: mergiraf）
+git check-attr merge -- src/main/java/App.java
+```
 
 #### 設定 Delta 作為 diff 工具
 
@@ -4661,8 +5100,12 @@ git mergetool --tool-help
 | GitLab | SaaS、Self-Managed、Dedicated | 單一平台涵蓋 DevSecOps 全流程 | 自建維運成本、版本升級節奏 |
 | Azure Repos | SaaS（Azure DevOps Services）、Server | 與 Azure Boards／Pipelines、Entra ID 整合 | 微軟生態系企業 |
 | Bitbucket | Cloud、Data Center | 與 Jira、Confluence 整合 | Atlassian 生態系企業 |
-| Gitea／Forgejo | 自建 | 輕量、開源 | 功能較少、需自行強化安全 |
+| Gitea／Forgejo | 自建；Codeberg 為非營利的 Forgejo 託管服務 | 輕量、開源 | 功能較少、需自行強化安全 |
 | Gerrit | 自建 | 以單一 commit 為審查單位 | 大型開源與嵌入式專案常見 |
+| SourceHut | SaaS、自建 | 以 email patch 工作流為核心，介面極簡 | 適合偏好郵件審查的開源專案 |
+| Radicle、Tangled | 點對點／去中心化 | 不依賴單一伺服器的協作 | 尚不適合需集中稽核的企業環境 |
+
+> 💡 上表涵蓋 git-scm.com [Hosting](https://git-scm.com/tools/hosting) 頁面列出的全部平台（Azure Repos、Gerrit、GitHub、Forgejo、Tangled、SourceHut、Codeberg、Radicle、Gitea、GitLab），並補充企業常見的 Bitbucket。
 
 > 💡 金融業導入託管平台時，應評估：資料存放地點與跨境傳輸、與既有 AD／SSO 整合、稽核日誌保存年限、備份與災難復原能力、以及主管機關對雲端委外的要求（見第 13 章）。
 
@@ -4765,7 +5208,7 @@ git verify-commit HEAD
 
 #### 使用 gitleaks
 
-截至 2026-09-29，gitleaks 最新版為 **8.30.1**。自 8.19 起改用 `git`、`dir`、`stdin` 子指令，舊的 `detect`、`protect` 已淘汰（仍可隱藏使用）。
+截至 2026-11-25，gitleaks 最新版仍為 **8.30.1**（2026-03-21 發布）。自 8.19 起改用 `git`、`dir`、`stdin` 子指令，舊的 `detect`、`protect` 已淘汰（仍可隱藏使用）。
 
 ```bash
 # 掃描整個倉庫的 Git 歷史
@@ -4897,6 +5340,64 @@ Git 本身也會有安全漏洞，且常以「clone 惡意倉庫即觸發」的�
 | CVE-2025-48386 | Git for Windows（wincred） | wincred 憑證輔助程式緩衝區溢位 |
 | CVE-2025-27613、CVE-2025-27614 | gitk | 可截斷任意檔案、執行任意腳本 |
 | CVE-2025-46334、CVE-2025-46835 | git-gui | Windows 上可執行任意程式、建立或覆寫任意檔案 |
+
+#### 2026-11-10 公告：Git 2.56.1 等版本修補的 6 項漏洞
+
+> **v3.1 新增**
+
+本次修補同時發布 Git 2.56.1，以及 2.55.1、2.54.1、2.53.1、2.52.1、2.51.3、2.50.2 等維護版。**2.50 以前的系列沒有對應修補**，只能升級。
+
+| CVE | 類型 | 觸發條件 | 風險 |
+| --- | --- | --- | --- |
+| CVE-2026-111760 | 遠端程式碼執行 | clone 惡意倉庫：極長路徑在索引中被截斷，可覆寫 `.git` 或子模組的 gitfile，導向攻擊者控制的設定與 Hooks；遞迴 clone 時直接執行，非遞迴 clone 則在使用者依錯誤提示執行 `git status` 時觸發 | **最高** |
+| CVE-2026-113408 | 路徑穿越 | clone 空倉庫時，惡意伺服器以 protocol v2 公告含 `../` 的未誕生 HEAD；`files` 參考後端在後續更新分支時寫到參考目錄之外 | 高 |
+| CVE-2026-114467 | 堆疊記憶體毀損 | 合併含超過兩個簽章的標籤（`git merge <tag>`）；代為執行合併的託管平台也受影響 | 中（DoS） |
+| CVE-2026-114469 | 越界讀取 | 套用解壓後超過約 1 GiB 的二進位 patch | 中（DoS） |
+| CVE-2026-105437 | 堆積記憶體毀損 | 大量衝突搭配過大的 `conflict-marker-size` 屬性，合併結果大小計算溢位 | 中 |
+| CVE-2026-114466 | 檔案存取 | 不可信的 `git fast-import` 串流使用 `rewrite-submodules-from`／`-to`、`export-pack-edges`；修補後須明確加上 `--allow-unsafe-features` 才允許 | 中 |
+
+**相關元件同期修補：**
+
+| 元件 | 修補版本 | 說明 |
+| --- | --- | --- |
+| Git for Windows | 2.56.1.windows.1；另有 2.56.0(3)、2.56.0.windows.4 | 內附元件的獨立修補（見 [2.1](#21-git-安裝)） |
+| Git LFS | 3.8.1 | CVE-2026-69260／69261／105802／105803（見 [6.5](#65-大檔案管理git-lfs)） |
+| GitHub Enterprise Server | 3.19.16、3.20.12、3.21.10、3.22.5 | 內含 GitHub 自行回補的 Git，版本號與上游不同 |
+| GitHub Desktop、Codespaces、Actions Runner 映像 | 由 GitHub 同步更新 | 內嵌 Git 的應用程式需各自更新，不會隨系統 Git 一起修補 |
+
+**無法立即更新時的暫時緩解（不可取代修補）：**
+
+- 只從受信任的伺服器 clone，不 clone 來源不明的倉庫，更不要遞迴 clone 子模組
+- clone 失敗並提示執行 `git status` 時，先停止操作並回報資安單位
+- 不合併來源不明的標籤或內容，不處理不可信的二進位 patch 與 `fast-import` 串流
+
+#### 版本合規檢查腳本
+
+以下 PowerShell 腳本可由端點管理工具派送，回報該機器的 Git 是否已含 2026-11 修補；結束碼 0 代表合規、1 代表需更新，可直接作為合規檢查項目：
+
+```powershell
+# Test-GitPatchLevel.ps1：各維護系列的最低安全版本（2026-11-10 公告）
+$minPatch = @{ 50 = 2; 51 = 3; 52 = 1; 53 = 1; 54 = 1; 55 = 1; 56 = 1 }
+
+$raw = (& git --version) -replace '^git version ', ''          # 例：2.56.1.windows.1
+if ($raw -notmatch '^(\d+)\.(\d+)\.(\d+)') { Write-Output "UNKNOWN $raw"; exit 1 }
+$major = [int]$Matches[1]; $minor = [int]$Matches[2]; $patch = [int]$Matches[3]
+
+$compliant = ($major -gt 2) -or ($minor -gt 56) -or
+             ($minPatch.ContainsKey($minor) -and $patch -ge $minPatch[$minor])
+
+Write-Output ("{0} {1} {2}" -f $env:COMPUTERNAME, $raw, $(if ($compliant) { 'COMPLIANT' } else { 'UPDATE-REQUIRED' }))
+exit $(if ($compliant) { 0 } else { 1 })
+```
+
+| 測試輸入 | 預期結果 |
+| --- | --- |
+| `2.56.1.windows.1` | COMPLIANT |
+| `2.55.1` | COMPLIANT（維護版） |
+| `2.56.0.windows.4` | UPDATE-REQUIRED（Windows 建置更新不含 Git 核心修補） |
+| `2.49.0` | UPDATE-REQUIRED（無維護版，只能升級） |
+
+> ⚠️ 腳本只檢查 `PATH` 上第一個 `git`。IDE、GUI 工具、CI 映像檔若內嵌自己的 Git，需另外盤點（例如以 `where.exe git` 列出所有路徑）。
 
 #### 企業漏洞管理流程
 
@@ -5172,12 +5673,15 @@ git remote set-head origin --auto
 
 #### 安全與規範設定
 
-- [ ] Git 版本符合公司基線（`git --version` ≥ 2.56 或公司公告版本）
+- [ ] Git 版本符合公司基線（`git --version` ≥ 2.56.1 或同系列維護修補版，可用 12.5 的 `Test-GitPatchLevel.ps1` 驗證）
+- [ ] Git LFS ≥ 3.8.1（`git lfs version`）
+- [ ] 憑證輔助程式為 GCM，且未使用明文 `store`（`git config --get-all credential.helper`）
 - [ ] 已套用附錄 B 的企業建議 `.gitconfig`
 - [ ] 以 `includeIf` 設定公司身分，`git config user.email` 顯示公司 Email
 - [ ] 已設定 commit 簽署（SSH 或 GPG），並上傳簽署金鑰到平台
 - [ ] 已安裝 gitleaks，或專案的 pre-commit／Husky Hooks 已生效
 - [ ] 託管平台帳號已啟用雙因素驗證並完成 SSO 綁定
+- [ ] 已依[附錄 G](#附錄-g規範驗證對照表) 第 1–10 項自行檢查並截圖留存
 
 ### 14.2 每日工作檢查清單
 
@@ -5388,6 +5892,10 @@ git remote set-head origin --auto
 | 修補 | `git apply`、`git cherry-pick`、`git rebase`、`git revert` | 套用與改寫變更 |
 | 除錯 | `git bisect`、`git blame`、`git grep` | 定位問題 |
 | 管理 | `git clean`、`git gc`、`git fsck`、`git reflog`、`git maintenance`、`git archive`、`git bundle` | 倉庫維護 |
+| Email | `git format-patch`、`git am`、`git send-email`、`git request-pull` | 以 patch 檔或郵件交付變更（隔離網段可搭配 8.7 bundle） |
+| 外部系統 | `git svn`、`git fast-import` | SVN 遷移、大量匯入歷史 |
+| 伺服器管理 | `git daemon`、`git update-server-info` | 自建簡易 Git 服務 |
+| Plumbing | `git cat-file`、`git rev-parse`、`git for-each-ref`、`git update-ref`、`git ls-files`、`git merge-base` | 撰寫腳本時使用，輸出格式穩定 |
 | 新一代指令 | `git repo`、`git refs`、`git last-modified`、`git history`、`git replay`、`git backfill` | 見第 1.5、8.8、10.1 節 |
 
 ### A.1 情境速查
@@ -5406,6 +5914,10 @@ git remote set-head origin --auto
 | 安全地強制推送 | `git push --force-with-lease --force-if-includes` |
 | 刪除已合併的本地分支 | `git branch --merged main`（2.56+：`git branch --dry-run --delete-merged 'origin/*'`） |
 | 查看兩個分支的差異 | `git diff main...feature/x` |
+| 列出尚未推送的 commit | `git log --oneline @{u}..HEAD` |
+| 查看某版本的某個檔案 | `git show v1.2.0:pom.xml` |
+| 確認 Git 是否已含最新安全修補 | `git --version`（對照 [12.5](#125-git-版本與漏洞管理) 的最低版本） |
+| 確認某個設定從哪個檔案來 | `git config --show-origin --show-scope <key>` |
 
 ## 附錄 B：企業建議設定範本
 
@@ -5572,9 +6084,30 @@ Host gitlab.company.com
 | --- | --- | --- |
 | v1.0 | — | 初版：Git 基本觀念至檢查清單 |
 | v2.0 | 2025-08-31 | 新增 Git Flow／PR 流程圖、Java 實戰案例、Maven Hooks、各章實作練習 |
-| **v3.0** | **2026-09-29** | 以 Git 2.56 為基準逐章查證改寫；新增物件模型、分支策略選型、Rulesets、SSH 簽署、秘密掃描、`git maintenance`／Scalar、企業治理與 Git 3.0 準備、附錄 A–F |
+| v3.0 | 2026-09-29 | 以 Git 2.56 為基準逐章查證改寫；新增物件模型、分支策略選型、Rulesets、SSH 簽署、秘密掃描、`git maintenance`／Scalar、企業治理與 Git 3.0 準備、附錄 A–F |
+| **v3.1** | **2026-11-25** | 依 2026-11-10 Git 安全修補更新基線至 2.56.1；新增修訂語法、憑證輔助程式選型、工具清單對照、漏洞應變與版本合規腳本、附錄 G 規範驗證對照表 |
 
-### D.2 v2.0 → v3.0 更正表
+### D.2 v3.0 → v3.1 修訂內容
+
+| # | 位置（v3.1） | 類型 | 修訂內容 |
+| --- | --- | --- | --- |
+| 1 | 文件資訊、執行摘要 | 更新 | 適用版本改為 Git 2.56.1／Git for Windows 2.56.1；執行摘要加入「如何使用本手冊審查與驗證」 |
+| 2 | 1.5 | 更新 | 新增 2.56.1 列；新增「如何判讀版本號與維護版」表與驗證指令 |
+| 3 | 1.6 | 擴充 | 依 git-scm.com 補充 Videos 時長、Community 管道（packagers 論壇、GfW issue tracker、貢獻指引）、Reference 14 類指令對照表、SYNOPSIS 語法解讀 |
+| 4 | 1.7 | 新增 | 修訂與範圍語法（gitrevisions），含圖解、動手驗證與 Review 要點；原 1.7、1.8 順延為 1.8、1.9 |
+| 5 | 2.1 | 更新 | 安裝檔改為 2.56.1；新增 MinGit、Chocolatey；說明 winget／Chocolatey 套件非官方維護；新增 2.56 系列 Windows 建置紀錄、NTLM 與 bundle URI 預設限制、下載檔 SHA-256／Authenticode／attestation 驗證、靜默安裝後驗證 |
+| 6 | 2.6 | 更新 | GCM 改為 3.0.2 正式版／3.1.0 預覽版；新增 GCM 3.0 破壞性變更表、`diagnose --strict`、憑證輔助程式選型表與明文儲存稽核指令、`gh auth login --expiring` |
+| 7 | 6.5 | 更新 | Git LFS 改為 3.8.1 並說明 4 項 CVE |
+| 8 | 9.4、9.6、9.7 | 更新 | commitlint 21.2.4（Node 22.12+）、lint-staged 17.6.2、pre-commit 4.7.0（Python 3.11+） |
+| 9 | 11.3 | 擴充 | 依 git-scm.com Command Line Tools 補齊 forgit、gitu、git-imerge、git-branchless、mergiraf、diff-so-fancy、git-annex、git-extras、git-toolbelt、git-town、Commitizen、mob.sh；GitHub CLI 2.105.0 與 2.102.0 安全修補；新增 mergiraf 設定與驗證 |
+| 10 | 11.6 | 擴充 | 補齊 git-scm.com Hosting 列出的 Codeberg、SourceHut、Radicle、Tangled |
+| 11 | 12.5 | 新增 | 2026-11-10 公告的 6 項 CVE、同期元件修補（GfW、Git LFS、GHES）、暫時緩解、版本合規檢查腳本與測試表 |
+| 12 | 14.1 | 更新 | 版本基線改為 2.56.1；新增 Git LFS、憑證輔助程式與附錄 G 自檢項目 |
+| 13 | 附錄 A | 擴充 | 補齊 Email、外部系統、伺服器管理、Plumbing 分類與 4 個情境 |
+| 14 | 附錄 E、F | 更新 | 重新查證版本與來源；待確認事項 #3、#4 結案並新增 #9 |
+| 15 | 附錄 G | 新增 | 規範驗證對照表（25 項）與個人環境自檢腳本 |
+
+### D.3 v2.0 → v3.0 更正表
 
 | # | 位置（v3.0） | v2.0 內容 | 更正後 |
 | --- | --- | --- | --- |
@@ -5619,7 +6152,7 @@ Host gitlab.company.com
 | 39 | 全文 | 目錄未涵蓋未編號標題（實務提醒、實務建議、練習）；缺結語入口 | 所有章節標題編號化，目錄改為自動產生並涵蓋全部章節 |
 | 40 | 全文 | 程式碼區塊結尾多一行空白、標題前缺空行、行尾空白 | 統一修正 Markdown 格式 |
 
-### D.3 v3.0 新增章節
+### D.4 v3.0 新增章節
 
 | 章節 | 內容 |
 | --- | --- |
@@ -5640,7 +6173,7 @@ Host gitlab.company.com
 | 14.6 | 平台治理季度檢查清單 |
 | 附錄 A–F | 指令速查、設定範本、詞彙表、版本紀錄、查證紀錄、參考資料 |
 
-### D.4 v2.0 更新內容回顧（2025 年 8 月）
+### D.5 v2.0 更新內容回顧（2025 年 8 月）
 
 v2.0 的主要貢獻已保留並於 v3.0 更新：
 
@@ -5652,13 +6185,13 @@ v2.0 的主要貢獻已保留並於 v3.0 更新：
 
 ## 附錄 E：查證紀錄
 
-以下事實均於 **2026-09-29** 查證。
+第 1–35 項於 **2026-09-29** 查證（v3.0）；第 1、3、22–26、28 項及第 36–48 項於 **2026-11-25** 重新查證或新增（v3.1）。
 
 | # | 項目 | 查證結果 | 來源 |
 | --- | --- | --- | --- |
-| 1 | Git 最新版本 | 2.56.0，2026-09-28 發布 | git-scm.com 首頁、kernel.org 發布檔 |
+| 1 | Git 最新版本 | 2.56.1（安全修補版）；git-scm.com 首頁標示 Release Notes 日期 2026-10-26，安全公告於 2026-11-10 公開；2.57 尚無 RC | git-scm.com 首頁、RelNotes 2.56.1、kernel.org testing 目錄 |
 | 2 | 近期版本發布日 | 2.50.0 2025-06-16；2.50.1 2025-07-08；2.51.0 2025-08-18；2.52.0 2025-11-17；2.53.0 2026-02-02；2.54.0 2026-04-20；2.55.0 2026-06-29 | mirrors.edge.kernel.org/pub/software/scm/git |
-| 3 | Git for Windows 2.56.0 | x64／ARM64 安裝檔、PortableGit、winget `Git.Git`；內含 Git LFS 3.8.0；停止支援 Windows 8.1；路徑改為 `/ucrt64` | git-scm.com/install/windows、git-for-windows Releases |
+| 3 | Git for Windows | 最新 2.56.1（2026-11-10）；2.56.0 系列共 4 次建置；x64／ARM64 安裝檔、PortableGit、MinGit；winget／Chocolatey 套件非 GfW 專案維護；停止支援 Windows 8.1；路徑改為 `/ucrt64`，`/cmd/git.exe` 保證穩定 | git-scm.com/install/windows、git-for-windows Releases |
 | 4 | 靜默安裝參數 | `/VERYSILENT /NORESTART /NOCANCEL /SP- /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /LOADINF /SAVEINF /COMPONENTS /o:` | gitforwindows.org Silent-or-Unattended-Installation |
 | 5 | Git 2.56 新功能 | `add --resolved`、`branch --delete-merged`、`history drop`、`bisect --reset-when-found`、`fetch.followRemoteHEAD`、`includeIf worktree:`、`-h` 結束碼 0 | RelNotes 2.56.0、GitHub Blog Highlights from Git 2.56 |
 | 6 | Git 2.55 新功能 | `history fixup`、Hooks 平行執行、push remote group、Rust 預設啟用 | RelNotes 2.55.0、GitHub Blog |
@@ -5677,13 +6210,13 @@ v2.0 的主要貢獻已保留並於 v3.0 更新：
 | 19 | `includeIf` 條件 | gitdir、gitdir/i、onbranch、hasconfig:remote.*.url、worktree、worktree/i | git-scm.com/docs/git-config |
 | 20 | Community 管道 | 郵件論壇、lore 封存、Libera `#git`、Discord、`git bugreport`、git-security@googlegroups.com、Git Rev News | git-scm.com/community |
 | 21 | Tools 分類 | 命令列工具、GUI（40+ 款）、託管服務 | git-scm.com/tools |
-| 22 | GCM 版本 | 穩定版 2.9.1（2026-07-14）；3.0.0 預覽版（2026-09-24） | GitHub git-ecosystem/git-credential-manager Releases |
-| 23 | Git LFS | 3.8.0（2026-08-28） | GitHub git-lfs/git-lfs Releases |
-| 24 | gitleaks | 8.30.1；`detect`／`protect` 自 8.19 起淘汰 | GitHub gitleaks/gitleaks |
-| 25 | Husky／lint-staged／commitlint | Husky 9.1.7（Node 18+）；lint-staged 17.6.0（Node 22.22.1+）；commitlint 21.2.3 | npm registry |
-| 26 | pre-commit／pre-commit-hooks | 4.6.2／v6.0.0 | GitHub Releases |
+| 22 | GCM 版本 | 正式版 3.0.2（Latest）；3.1.0 預覽版（2026-11-23）；3.0.0 預覽版 2026-09-24、3.0.1 2026-10-06；2.9.x 僅對 Windows 7／8.x 提供安全維護 | GitHub git-ecosystem/git-credential-manager Releases |
+| 23 | Git LFS | 3.8.1（2026-10-23，修正 CVE-2026-69260／69261／105802／105803）；3.8.0 2026-08-28 | GitHub git-lfs/git-lfs Releases |
+| 24 | gitleaks | 8.30.1 仍為最新版；`detect`／`protect` 自 8.19 起淘汰 | GitHub gitleaks/gitleaks |
+| 25 | Husky／lint-staged／commitlint | Husky 9.1.7（Node 18+）；lint-staged 17.6.2（Node 22.22.1+）；commitlint 21.2.4（Node 22.12+） | npm registry |
+| 26 | pre-commit／pre-commit-hooks | 4.7.0（Python 3.11+）／v6.0.0 | PyPI、GitHub Releases |
 | 27 | Maven 外掛 | checkstyle-plugin 3.6.0、spotbugs-maven-plugin 4.10.4.1、jacoco 0.8.15、git-commit-id 10.0.1、dependency-check 13.0.0、spotless 3.10.3 | Maven Central maven-metadata.xml |
-| 28 | CLI 工具 | GitHub CLI 2.101.0、lazygit 0.65.1、delta 0.19.2 | GitHub Releases |
+| 28 | CLI 工具 | GitHub CLI 2.105.0（2026-11-25 查證；2.102.0 修正 4 項安全漏洞；2.103.0 新增 `gh auth login --expiring` 預覽）；lazygit 0.65.1、delta 0.19.2（2026-09-29 查證） | GitHub Releases |
 | 29 | 2025-07 Git 漏洞 | CVE-2025-48384／48385／48386、27613／27614、46334／46835，修補版 2.50.1 | GitHub Blog Git security vulnerabilities announced |
 | 30 | CVE-2026-3854 | GitHub git push 管線 RCE，2026-03-04 修補，影響 GitHub 平台而非 Git 本身 | GitHub Blog |
 | 31 | GitHub Rulesets | 可疊加、可停用、bypass 名單、push rulesets | docs.github.com About rulesets |
@@ -5691,6 +6224,19 @@ v2.0 的主要貢獻已保留並於 v3.0 更新：
 | 33 | 簽署方式 | SSH（Git 2.34+）、GPG、S/MIME（Git 2.19+）、Vigilant mode | docs.github.com About commit signature verification |
 | 34 | Conventional Commits | 1.0.0 為最新正式版 | conventionalcommits.org |
 | 35 | VS Code blame | `git.blame.editorDecoration.enabled`，1.96 起提供 | code.visualstudio.com 更新說明 |
+| 36 | 2026-11 Git 漏洞 | CVE-2026-111760、113408、114466、114467、114469、105437；修補版 2.56.1 與 2.55.1、2.54.1、2.53.1、2.52.1、2.51.3、2.50.2 | GitHub Blog 「Git security vulnerabilities announced」（2026-11-10，11-17 更新）、RelNotes 2.56.1 |
+| 37 | GHES 修補版 | 3.19.16、3.20.12、3.21.10、3.22.5 | 同上 |
+| 38 | GfW 2.56.0(2)–(4) | OpenSSL 3.5.9、GCM 相容層；OpenSSH 10.6p1、cURL 8.23.0、Git LFS 3.8.1、eMudhra CA；brotli 1.2.1（CVE-2026-111497） | git-for-windows Releases |
+| 39 | GfW 預設安全限制 | 內建 NTLM 預設停用（CVE-2025-66413，`http.allowNTLMAuth`）；bundle URI 受 `protocol.<name>.allow` 限制（CVE-2026-62960） | GCM 2.7.3 Release、MinGit 2.53.0(4) Release |
+| 40 | Git for Windows 2.56.1 x64 安裝檔 SHA-256 | `c330c72e10b408cc39994bfefdb63542b0d93d21699325c3e0bd874af8a5a559` | git-for-windows Releases |
+| 41 | Learn 區塊 | Pro Git、四支影片（5:59、8:15、4:26、5:06）、Cheat Sheet、External Links | git-scm.com/learn |
+| 42 | Community 區塊 | 郵件論壇僅純文字、greylisting；GfW Discussions 與 issue tracker；packagers 論壇；網站與 Pro Git issue tracker；MyFirstContribution、SubmittingPatches、CodingGuidelines | git-scm.com/community |
+| 43 | Reference 分類 | 14 類（含 Guides、Email、External Systems、Server Admin、Plumbing） | git-scm.com/docs |
+| 44 | Command Line Tools | TUI、Manage Git history、Shell prompt、Manage large files、Diff tools、Manage hooks、Collections、Other 共 8 類 | git-scm.com/tools/command-line |
+| 45 | Hosting | Azure Repos、Gerrit、GitHub、Forgejo、Tangled、SourceHut、Codeberg、Radicle、Gitea、GitLab | git-scm.com/tools/hosting |
+| 46 | Credential helpers | store（明文）、cache、osxkeychain、libsecret、wincred、GCM、git-credential-oauth、gopass、LastPass、1Password、KeePassXC、Netlify、Azure、`gh auth setup-git` | git-scm.com/doc/credential-helpers |
+| 47 | GCM 3.0 破壞性變更 | .NET 10、Win10+／macOS 14+、Azure Repos OAuth 預設、broker 預設、專屬 Entra 應用程式、移除 embedded web view、`diagnose --strict` | GCM 3.0.0–3.0.2 Release notes |
+| 48 | GitHub CLI 安全修補 | 2.102.0 修正 GHSA-39wj-f2f4-978v 等 4 項 | cli/cli Releases |
 
 ### E.1 待確認事項
 
@@ -5698,12 +6244,15 @@ v2.0 的主要貢獻已保留並於 v3.0 更新：
 | --- | --- | --- |
 | 1 | Git 3.0 發布時程 | BreakingChanges 文件未列日期，需持續追蹤 |
 | 2 | 託管平台 SHA-256 支援 | GitHub、GitLab、Azure Repos 對 SHA-256 倉庫的正式支援狀態需於導入前個別確認 |
-| 3 | GCM 3.0 正式版 | 目前為預覽版，正式發布後需評估 .NET 10 需求與 Azure Repos OAuth 預設值變更的影響 |
-| 4 | 2026 年 Git 核心漏洞 | 截至查證日未檢索到 2026 年 Git 核心的重大 CVE 公告，需持續追蹤 Git for Windows Security Advisories |
+| 3 | GCM 3.0 正式版 | **已結案（v3.1）**：3.0.1 起為正式版，破壞性變更已整理於 2.6 |
+| 4 | 2026 年 Git 核心漏洞 | **已結案（v3.1）**：2026-11-10 公告 6 項 CVE，已整理於 12.5；仍需持續追蹤後續公告 |
 | 5 | `git stash export/import` 引入版本 | 官方文件已列出，確切引入版本（推測為 2.51）待確認 |
 | 6 | `git backfill` 引入版本 | 推測為 2.49，2.54 起可指定範圍，待以 RelNotes 確認 |
 | 7 | gitleaks `git --pre-commit --staged` 旗標 | 依 8.19 後的遷移說明撰寫，建議以 `gitleaks git --help` 於實際環境確認 |
 | 8 | GitHub Rulesets 分支名稱限制 | 「Restrict branch names」等 metadata 規則的方案可用性需依公司訂閱方案確認 |
+| 9 | Git 2.56.1 發布日 | git-scm.com 標示 Release Notes 日期 2026-10-26，安全公告與 Git for Windows 2.56.1 則於 2026-11-10 公開；本手冊以公告日 2026-11-10 為修補時限起算點 |
+| 10 | mergiraf 合併驅動參數 | 11.3 的 driver 字串依官方文件撰寫，未於本次查證實機執行，導入前需以 `mergiraf --help` 確認 |
+| 11 | `gh release verify-asset` | 需較新版 GitHub CLI；對 Git for Windows Release 的驗證結果需於實際環境確認 |
 
 ## 附錄 F：參考資料
 
@@ -5711,19 +6260,26 @@ v2.0 的主要貢獻已保留並於 v3.0 更新：
 
 - [Git 官方網站](https://git-scm.com/)
 - [Git 參考文件](https://git-scm.com/docs)
+- [Git Cheat Sheet](https://git-scm.com/cheat-sheet)
+- [gitrevisions：修訂與範圍語法](https://git-scm.com/docs/gitrevisions)
+- [Git 憑證輔助程式清單](https://git-scm.com/doc/credential-helpers)
 - [Pro Git 電子書](https://git-scm.com/book)
 - [Git 學習資源](https://git-scm.com/learn)
 - [Git 工具清單](https://git-scm.com/tools)
+- [Git 命令列工具](https://git-scm.com/tools/command-line)
+- [Git 託管服務](https://git-scm.com/tools/hosting)
 - [Git 安裝（Windows）](https://git-scm.com/install/windows)
 - [Git 社群](https://git-scm.com/community)
 - [Git Release Notes](https://gitlab.com/git-scm/git/-/tree/master/Documentation/RelNotes)
 - [Git BreakingChanges（Git 3.0）](https://gitlab.com/git-scm/git/-/blob/master/Documentation/BreakingChanges.adoc)
 - [Git for Windows](https://gitforwindows.org/)
+- [Git for Windows Releases](https://github.com/git-for-windows/git/releases)
 - [Git Rev News](https://git.github.io/rev_news/)
 
 ### F.2 平台與工具文件
 
 - [GitHub Blog：Git 系列文章](https://github.blog/open-source/git/)
+- [GitHub Blog：Git security vulnerabilities announced（2026-11）](https://github.blog/open-source/git/git-security-vulnerabilities-announced-7/)
 - [GitHub Docs：Rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets)
 - [GitHub Docs：Merge queue](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue)
 - [GitHub Docs：Commit 簽章驗證](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
@@ -5744,3 +6300,71 @@ v2.0 的主要貢獻已保留並於 v3.0 更新：
 - [github/gitignore 範本](https://github.com/github/gitignore)
 - [Atlassian Git 教學](https://www.atlassian.com/git/tutorials)
 - [Trunk-Based Development](https://trunkbaseddevelopment.com/)
+
+## 附錄 G：規範驗證對照表
+
+> **v3.1 新增**
+
+本表把手冊中的規範轉成「可執行的檢查 + 預期結果」，供三種情境使用：
+
+- **新進人員自檢**：第 1–10 項（個人環境），可直接執行下方自檢腳本
+- **PR 審查**：第 11–18 項（倉庫與變更內容），建議同步寫成 CI 必要檢查
+- **發布與平台稽核**：第 19–25 項（標籤、保護規則、備份）
+
+| # | 規範 | 檢查指令 | 預期結果（合格） | 章節 |
+| --- | --- | --- | --- | --- |
+| 1 | Git 版本含最新安全修補 | `git --version`（或 `Test-GitPatchLevel.ps1`） | ≥ 2.56.1，或同系列維護版；腳本結束碼 0 | 12.5 |
+| 2 | Git LFS 已修補 | `git lfs version` | ≥ 3.8.1 | 6.5 |
+| 3 | 以公司身分提交 | `git config --show-origin user.email`（於公司倉庫內執行） | 公司網域 Email，來源為 `~/.gitconfig-work` | 2.4 |
+| 4 | 新倉庫預設分支為 main | `git config --global --get init.defaultBranch` | `main` | 2.2 |
+| 5 | pull 不產生多餘 merge commit | `git config --global --get pull.rebase` | `true`（或團隊約定的 `pull.ff=only`） | 2.2 |
+| 6 | 憑證不以明文儲存 | `git config --get-all credential.helper` | 含 `manager`；不含 `store` | 2.6 |
+| 7 | commit 與 tag 自動簽署 | `git config --get commit.gpgsign`、`git config --get tag.gpgsign` | 皆為 `true` | 12.1 |
+| 8 | 未停用倉庫信任保護 | `git config --global --get-all safe.directory` | 不出現 `*` | 12.4 |
+| 9 | 未關閉 TLS 驗證 | `git config --show-origin --get-all http.sslVerify` | 無輸出或為 `true` | 2.8、5.9 |
+| 10 | 自動清除已刪除的遠端分支 | `git config --global --get fetch.prune` | `true` | 2.2 |
+| 11 | 團隊 Hooks 已啟用 | `git config --get core.hooksPath` | `.githooks`（或專案採用的 Husky／pre-commit） | 9.9 |
+| 12 | 倉庫內行尾一致 | `git ls-files --eol \| grep 'i/crlf'` | 僅出現 `*.bat`、`*.cmd`、`*.ps1` | 2.3 |
+| 13 | commit 訊息符合 Conventional Commits | `git log --format=%s origin/main..HEAD \| grep -vE '^(feat\|fix\|docs\|style\|refactor\|perf\|test\|build\|ci\|chore\|revert)(\(.+\))?!?: '` | 無輸出 | 3.5 |
+| 14 | 分支命名符合規範 | `git branch --show-current \| grep -E '<7.2 的正規表示式>'` | 有輸出（即符合） | 7.2 |
+| 15 | 變更不含秘密 | `gitleaks git --log-opts="origin/main..HEAD" -v` | `no leaks found` | 12.2 |
+| 16 | 變更不含大型二進位檔 | `git rev-list --objects origin/main..HEAD \| git cat-file --batch-check='%(objecttype) %(objectsize) %(rest)' \| awk '$1=="blob" && $2>1048576'` | 無輸出（無超過 1 MB 的新 blob） | 6.5、10.1 |
+| 17 | 大檔由 LFS 管理 | `git check-attr filter -- design/banner.psd` | `filter: lfs` | 6.5 |
+| 18 | PR 內 commit 皆已簽署 | `git log --format='%h %G? %an' origin/main..HEAD` | 每行第二欄皆為 `G` | 12.1 |
+| 19 | 發布標籤為附註標籤 | `git cat-file -t v1.2.0` | `tag`（若為 `commit` 則是輕量標籤） | 7.4 |
+| 20 | 發布標籤簽章有效 | `git tag -v v1.2.0` | 顯示 Good signature，結束碼 0 | 7.4、12.1 |
+| 21 | 主幹分支受保護 | `gh ruleset check main` 或 `gh api repos/{owner}/{repo}/branches/main/protection --jq '.required_pull_request_reviews.required_approving_review_count'` | 列出預期規則；核准人數為 `2` | 4.3 |
+| 22 | CODEOWNERS 語法正確 | `gh api repos/{owner}/{repo}/codeowners/errors --jq '.errors \| length'` | `0` | 4.4 |
+| 23 | 已啟用背景維護 | `git config --global --get-all maintenance.repo` | 包含該倉庫路徑 | 10.2 |
+| 24 | 倉庫完整 | `git fsck --full` | 無 `error`；結束碼 0 | 10.7 |
+| 25 | 離線備份可還原 | `git bundle verify backup.bundle` | 最後一行為 `backup.bundle is okay` | 13.4 |
+
+### G.1 個人環境自檢腳本
+
+於 Git Bash 執行，逐項輸出 `PASS`／`FAIL`，對應上表第 2–10 項（第 1 項請用 12.5 的 PowerShell 腳本）：
+
+```bash
+#!/usr/bin/env bash
+# git-selfcheck.sh
+check() {  # $1=項目名稱  $2=實際值  $3=合格條件（grep -E 正規表示式）
+  if printf '%s\n' "$2" | grep -Eq "$3"; then echo "PASS  $1"; else echo "FAIL  $1 -> '$2'"; fi
+}
+
+check "Git LFS >= 3.8.1"        "$(git lfs version 2>/dev/null)"                     'git-lfs/(3\.(8\.[1-9]|9|[1-9][0-9])|[4-9]\.)'
+check "公司 Email"               "$(git config --global --get user.email)"            '@company\.com$'
+check "init.defaultBranch=main" "$(git config --global --get init.defaultBranch)"    '^main$'
+check "pull.rebase=true"        "$(git config --global --get pull.rebase)"           '^true$'
+check "使用 GCM"                "$(git config --get-all credential.helper | tr '\n' ' ')" 'manager'
+if git config --get-all credential.helper | grep -qw store; then
+  echo "FAIL  發現明文 credential.helper store"
+else
+  echo "PASS  未使用明文 store"
+fi
+check "commit.gpgsign=true"     "$(git config --global --get commit.gpgsign)"        '^true$'
+check "tag.gpgsign=true"        "$(git config --global --get tag.gpgsign)"           '^true$'
+check "safe.directory 無 *"     "$(git config --global --get-all safe.directory | tr '\n' ' ')" '^[^*]*$'
+check "http.sslVerify 未關閉"   "$(git config --get http.sslVerify)"                 '^(true)?$'
+check "fetch.prune=true"        "$(git config --global --get fetch.prune)"           '^true$'
+```
+
+> ⚠️ 第 3 項請將 `company\.com` 改為貴公司網域。腳本只讀取設定、不修改任何檔案；若出現 `FAIL`，請依「章節」欄回到對應小節修正後重新執行。
